@@ -1,0 +1,811 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		48AD192085F3316BCF660430 /* libPods-PerfTestRigAppTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 354A7C3E56FAF2DACFEA04DD /* libPods-PerfTestRigAppTests.a */; };
+		53D90347DFEA3707F987A5EA /* libPods-PerfTestRigApp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FB70C6B0B736E663A795A8A4 /* libPods-PerfTestRigApp.a */; };
+		F6EB95611ED78E4000178999 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F6EB951C1ED78E4000178999 /* GoogleService-Info.plist */; };
+		F6EB95621ED78E4000178999 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F6EB951F1ED78E4000178999 /* GoogleService-Info.plist */; };
+		F6EB95631ED78E4000178999 /* network_connections.plist in Resources */ = {isa = PBXBuildFile; fileRef = F6EB95221ED78E4000178999 /* network_connections.plist */; };
+		F6EB95651ED78E4000178999 /* sample_urls.txt in Resources */ = {isa = PBXBuildFile; fileRef = F6EB95251ED78E4000178999 /* sample_urls.txt */; };
+		F6EB95661ED78E4000178999 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = F6EB95281ED78E4000178999 /* AppDelegate.m */; };
+		F6EB95691ED78E4000178999 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F6EB952C1ED78E4000178999 /* Info.plist */; };
+		F6EB956A1ED78E4000178999 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = F6EB952D1ED78E4000178999 /* main.m */; };
+		F6EB956B1ED78E4000178999 /* AccessibilityItem.m in Sources */ = {isa = PBXBuildFile; fileRef = F6EB95301ED78E4000178999 /* AccessibilityItem.m */; };
+		F6EB956C1ED78E4000178999 /* PerfLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = F6EB95321ED78E4000178999 /* PerfLogger.m */; };
+		F6EB956D1ED78E4000178999 /* NetworkConnectionsFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = F6EB95361ED78E4000178999 /* NetworkConnectionsFactory.m */; };
+		F6EB956E1ED78E4000178999 /* PerfFuzzNSURLSession.m in Sources */ = {isa = PBXBuildFile; fileRef = F6EB95381ED78E4000178999 /* PerfFuzzNSURLSession.m */; };
+		F6EB956F1ED78E4000178999 /* PerfNetworkConnection+Protected.m in Sources */ = {isa = PBXBuildFile; fileRef = F6EB953A1ED78E4000178999 /* PerfNetworkConnection+Protected.m */; };
+		F6EB95701ED78E4000178999 /* PerfNetworkConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = F6EB953C1ED78E4000178999 /* PerfNetworkConnection.m */; };
+		F6EB95711ED78E4000178999 /* PerfRandomNetworkConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = F6EB953E1ED78E4000178999 /* PerfRandomNetworkConnection.m */; };
+		F6EB95721ED78E4000178999 /* PerfURLConnectionAsyncRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = F6EB95401ED78E4000178999 /* PerfURLConnectionAsyncRequest.m */; };
+		F6EB95731ED78E4000178999 /* PerfURLConnectionWithDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = F6EB95421ED78E4000178999 /* PerfURLConnectionWithDelegate.m */; };
+		F6EB95741ED78E4000178999 /* PerfURLConnectionWithDelegateClassInit.m in Sources */ = {isa = PBXBuildFile; fileRef = F6EB95441ED78E4000178999 /* PerfURLConnectionWithDelegateClassInit.m */; };
+		F6EB95751ED78E4000178999 /* PerfURLConnectionWithDelegateStartImmediately.m in Sources */ = {isa = PBXBuildFile; fileRef = F6EB95461ED78E4000178999 /* PerfURLConnectionWithDelegateStartImmediately.m */; };
+		F6EB95761ED78E4000178999 /* PerfURLSessionDataTask.m in Sources */ = {isa = PBXBuildFile; fileRef = F6EB95481ED78E4000178999 /* PerfURLSessionDataTask.m */; };
+		F6EB95771ED78E4000178999 /* PerfURLSessionDataTaskWithDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = F6EB954A1ED78E4000178999 /* PerfURLSessionDataTaskWithDelegate.m */; };
+		F6EB95781ED78E4000178999 /* PerfURLSessionDownloadTask.m in Sources */ = {isa = PBXBuildFile; fileRef = F6EB954C1ED78E4000178999 /* PerfURLSessionDownloadTask.m */; };
+		F6EB95791ED78E4000178999 /* PerfURLSessionDownloadTaskWithDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = F6EB954E1ED78E4000178999 /* PerfURLSessionDownloadTaskWithDelegate.m */; };
+		F6EB957A1ED78E4000178999 /* NetworkConnectionViewController+Accessibility.m in Sources */ = {isa = PBXBuildFile; fileRef = F6EB95511ED78E4000178999 /* NetworkConnectionViewController+Accessibility.m */; };
+		F6EB957B1ED78E4000178999 /* NetworkConnectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F6EB95531ED78E4000178999 /* NetworkConnectionViewController.m */; };
+		F6EB957C1ED78E4000178999 /* NetworkRequestsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F6EB95551ED78E4000178999 /* NetworkRequestsViewController.m */; };
+		F6EB957D1ED78E4000178999 /* TracesViewController+Accessibility.m in Sources */ = {isa = PBXBuildFile; fileRef = F6EB95571ED78E4000178999 /* TracesViewController+Accessibility.m */; };
+		F6EB957E1ED78E4000178999 /* TracesViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F6EB95591ED78E4000178999 /* TracesViewController.m */; };
+		F6EB957F1ED78E4000178999 /* NetworkConnectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = F6EB955C1ED78E4000178999 /* NetworkConnectionView.m */; };
+		F6EB95801ED78E4000178999 /* PerfTraceView+Accessibility.m in Sources */ = {isa = PBXBuildFile; fileRef = F6EB955E1ED78E4000178999 /* PerfTraceView+Accessibility.m */; };
+		F6EB95811ED78E4000178999 /* PerfTraceView.m in Sources */ = {isa = PBXBuildFile; fileRef = F6EB95601ED78E4000178999 /* PerfTraceView.m */; };
+		F6EB95861ED89C8800178999 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6EB95851ED89C8800178999 /* XCTest.framework */; };
+		F6EB95871ED89C9C00178999 /* PerfContollerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F6EB95831ED79F2600178999 /* PerfContollerTests.m */; };
+		F6EB95971ED89EC800178999 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F6EB95961ED89EC800178999 /* Info.plist */; };
+		F6EB95981ED89EDD00178999 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F6EB95961ED89EC800178999 /* Info.plist */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		F6EB94FD1ED78D8F00178999 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F6EB94DB1ED78D8F00178999 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F6EB94E21ED78D8F00178999;
+			remoteInfo = PerfTestRigApp;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		28FA43A220E26AA4C202FFEA /* Pods-PerfTestRigApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PerfTestRigApp.release.xcconfig"; path = "Pods/Target Support Files/Pods-PerfTestRigApp/Pods-PerfTestRigApp.release.xcconfig"; sourceTree = "<group>"; };
+		2BDA95197C4078DBA7DA3545 /* Pods-PerfTestRigAppTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PerfTestRigAppTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-PerfTestRigAppTests/Pods-PerfTestRigAppTests.release.xcconfig"; sourceTree = "<group>"; };
+		354A7C3E56FAF2DACFEA04DD /* libPods-PerfTestRigAppTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-PerfTestRigAppTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		3982610B3A73D1E9C80FA009 /* Pods-PerfTestRigApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PerfTestRigApp.debug.xcconfig"; path = "Pods/Target Support Files/Pods-PerfTestRigApp/Pods-PerfTestRigApp.debug.xcconfig"; sourceTree = "<group>"; };
+		A32E6956D7885989F8839B18 /* Pods-PerfTestRigAppTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PerfTestRigAppTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-PerfTestRigAppTests/Pods-PerfTestRigAppTests.debug.xcconfig"; sourceTree = "<group>"; };
+		F6EB94E31ED78D8F00178999 /* PerfTestRigApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PerfTestRigApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F6EB94E71ED78D8F00178999 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		F6EB94FC1ED78D8F00178999 /* PerfTestRigAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PerfTestRigAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F6EB951C1ED78E4000178999 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		F6EB951F1ED78E4000178999 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		F6EB95221ED78E4000178999 /* network_connections.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = network_connections.plist; sourceTree = "<group>"; };
+		F6EB95251ED78E4000178999 /* sample_urls.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sample_urls.txt; sourceTree = "<group>"; };
+		F6EB95271ED78E4000178999 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		F6EB95281ED78E4000178999 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		F6EB952C1ED78E4000178999 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		F6EB952D1ED78E4000178999 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		F6EB952F1ED78E4000178999 /* AccessibilityItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AccessibilityItem.h; sourceTree = "<group>"; };
+		F6EB95301ED78E4000178999 /* AccessibilityItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AccessibilityItem.m; sourceTree = "<group>"; };
+		F6EB95311ED78E4000178999 /* PerfLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PerfLogger.h; sourceTree = "<group>"; };
+		F6EB95321ED78E4000178999 /* PerfLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PerfLogger.m; sourceTree = "<group>"; };
+		F6EB95341ED78E4000178999 /* NetworkConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetworkConnection.h; sourceTree = "<group>"; };
+		F6EB95351ED78E4000178999 /* NetworkConnectionsFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetworkConnectionsFactory.h; sourceTree = "<group>"; };
+		F6EB95361ED78E4000178999 /* NetworkConnectionsFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NetworkConnectionsFactory.m; sourceTree = "<group>"; };
+		F6EB95371ED78E4000178999 /* PerfFuzzNSURLSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PerfFuzzNSURLSession.h; sourceTree = "<group>"; };
+		F6EB95381ED78E4000178999 /* PerfFuzzNSURLSession.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PerfFuzzNSURLSession.m; sourceTree = "<group>"; };
+		F6EB95391ED78E4000178999 /* PerfNetworkConnection+Protected.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PerfNetworkConnection+Protected.h"; sourceTree = "<group>"; };
+		F6EB953A1ED78E4000178999 /* PerfNetworkConnection+Protected.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "PerfNetworkConnection+Protected.m"; sourceTree = "<group>"; };
+		F6EB953B1ED78E4000178999 /* PerfNetworkConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PerfNetworkConnection.h; sourceTree = "<group>"; };
+		F6EB953C1ED78E4000178999 /* PerfNetworkConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PerfNetworkConnection.m; sourceTree = "<group>"; };
+		F6EB953D1ED78E4000178999 /* PerfRandomNetworkConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PerfRandomNetworkConnection.h; sourceTree = "<group>"; };
+		F6EB953E1ED78E4000178999 /* PerfRandomNetworkConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PerfRandomNetworkConnection.m; sourceTree = "<group>"; };
+		F6EB953F1ED78E4000178999 /* PerfURLConnectionAsyncRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PerfURLConnectionAsyncRequest.h; sourceTree = "<group>"; };
+		F6EB95401ED78E4000178999 /* PerfURLConnectionAsyncRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PerfURLConnectionAsyncRequest.m; sourceTree = "<group>"; };
+		F6EB95411ED78E4000178999 /* PerfURLConnectionWithDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PerfURLConnectionWithDelegate.h; sourceTree = "<group>"; };
+		F6EB95421ED78E4000178999 /* PerfURLConnectionWithDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PerfURLConnectionWithDelegate.m; sourceTree = "<group>"; };
+		F6EB95431ED78E4000178999 /* PerfURLConnectionWithDelegateClassInit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PerfURLConnectionWithDelegateClassInit.h; sourceTree = "<group>"; };
+		F6EB95441ED78E4000178999 /* PerfURLConnectionWithDelegateClassInit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PerfURLConnectionWithDelegateClassInit.m; sourceTree = "<group>"; };
+		F6EB95451ED78E4000178999 /* PerfURLConnectionWithDelegateStartImmediately.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PerfURLConnectionWithDelegateStartImmediately.h; sourceTree = "<group>"; };
+		F6EB95461ED78E4000178999 /* PerfURLConnectionWithDelegateStartImmediately.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PerfURLConnectionWithDelegateStartImmediately.m; sourceTree = "<group>"; };
+		F6EB95471ED78E4000178999 /* PerfURLSessionDataTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PerfURLSessionDataTask.h; sourceTree = "<group>"; };
+		F6EB95481ED78E4000178999 /* PerfURLSessionDataTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PerfURLSessionDataTask.m; sourceTree = "<group>"; };
+		F6EB95491ED78E4000178999 /* PerfURLSessionDataTaskWithDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PerfURLSessionDataTaskWithDelegate.h; sourceTree = "<group>"; };
+		F6EB954A1ED78E4000178999 /* PerfURLSessionDataTaskWithDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PerfURLSessionDataTaskWithDelegate.m; sourceTree = "<group>"; };
+		F6EB954B1ED78E4000178999 /* PerfURLSessionDownloadTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PerfURLSessionDownloadTask.h; sourceTree = "<group>"; };
+		F6EB954C1ED78E4000178999 /* PerfURLSessionDownloadTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PerfURLSessionDownloadTask.m; sourceTree = "<group>"; };
+		F6EB954D1ED78E4000178999 /* PerfURLSessionDownloadTaskWithDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PerfURLSessionDownloadTaskWithDelegate.h; sourceTree = "<group>"; };
+		F6EB954E1ED78E4000178999 /* PerfURLSessionDownloadTaskWithDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PerfURLSessionDownloadTaskWithDelegate.m; sourceTree = "<group>"; };
+		F6EB95501ED78E4000178999 /* NetworkConnectionViewController+Accessibility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NetworkConnectionViewController+Accessibility.h"; sourceTree = "<group>"; };
+		F6EB95511ED78E4000178999 /* NetworkConnectionViewController+Accessibility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NetworkConnectionViewController+Accessibility.m"; sourceTree = "<group>"; };
+		F6EB95521ED78E4000178999 /* NetworkConnectionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetworkConnectionViewController.h; sourceTree = "<group>"; };
+		F6EB95531ED78E4000178999 /* NetworkConnectionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NetworkConnectionViewController.m; sourceTree = "<group>"; };
+		F6EB95541ED78E4000178999 /* NetworkRequestsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetworkRequestsViewController.h; sourceTree = "<group>"; };
+		F6EB95551ED78E4000178999 /* NetworkRequestsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NetworkRequestsViewController.m; sourceTree = "<group>"; };
+		F6EB95561ED78E4000178999 /* TracesViewController+Accessibility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "TracesViewController+Accessibility.h"; sourceTree = "<group>"; };
+		F6EB95571ED78E4000178999 /* TracesViewController+Accessibility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "TracesViewController+Accessibility.m"; sourceTree = "<group>"; };
+		F6EB95581ED78E4000178999 /* TracesViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TracesViewController.h; sourceTree = "<group>"; };
+		F6EB95591ED78E4000178999 /* TracesViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TracesViewController.m; sourceTree = "<group>"; };
+		F6EB955B1ED78E4000178999 /* NetworkConnectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetworkConnectionView.h; sourceTree = "<group>"; };
+		F6EB955C1ED78E4000178999 /* NetworkConnectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NetworkConnectionView.m; sourceTree = "<group>"; };
+		F6EB955D1ED78E4000178999 /* PerfTraceView+Accessibility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PerfTraceView+Accessibility.h"; sourceTree = "<group>"; };
+		F6EB955E1ED78E4000178999 /* PerfTraceView+Accessibility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "PerfTraceView+Accessibility.m"; sourceTree = "<group>"; };
+		F6EB955F1ED78E4000178999 /* PerfTraceView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PerfTraceView.h; sourceTree = "<group>"; };
+		F6EB95601ED78E4000178999 /* PerfTraceView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PerfTraceView.m; sourceTree = "<group>"; };
+		F6EB95831ED79F2600178999 /* PerfContollerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PerfContollerTests.m; sourceTree = "<group>"; };
+		F6EB95851ED89C8800178999 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		F6EB95961ED89EC800178999 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		FB70C6B0B736E663A795A8A4 /* libPods-PerfTestRigApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-PerfTestRigApp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		F6EB94E01ED78D8F00178999 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				53D90347DFEA3707F987A5EA /* libPods-PerfTestRigApp.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F6EB94F91ED78D8F00178999 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F6EB95861ED89C8800178999 /* XCTest.framework in Frameworks */,
+				48AD192085F3316BCF660430 /* libPods-PerfTestRigAppTests.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		08A383AE26735C3E74BB1526 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				3982610B3A73D1E9C80FA009 /* Pods-PerfTestRigApp.debug.xcconfig */,
+				28FA43A220E26AA4C202FFEA /* Pods-PerfTestRigApp.release.xcconfig */,
+				A32E6956D7885989F8839B18 /* Pods-PerfTestRigAppTests.debug.xcconfig */,
+				2BDA95197C4078DBA7DA3545 /* Pods-PerfTestRigAppTests.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		7A1427913C8DB2D06584F02D /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				F6EB95851ED89C8800178999 /* XCTest.framework */,
+				FB70C6B0B736E663A795A8A4 /* libPods-PerfTestRigApp.a */,
+				354A7C3E56FAF2DACFEA04DD /* libPods-PerfTestRigAppTests.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		F6EB94DA1ED78D8F00178999 = {
+			isa = PBXGroup;
+			children = (
+				F6EB94E51ED78D8F00178999 /* PerfTestRigApp */,
+				F6EB94E41ED78D8F00178999 /* Products */,
+				08A383AE26735C3E74BB1526 /* Pods */,
+				7A1427913C8DB2D06584F02D /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		F6EB94E41ED78D8F00178999 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F6EB94E31ED78D8F00178999 /* PerfTestRigApp.app */,
+				F6EB94FC1ED78D8F00178999 /* PerfTestRigAppTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F6EB94E51ED78D8F00178999 /* PerfTestRigApp */ = {
+			isa = PBXGroup;
+			children = (
+				F6EB95821ED79F2600178999 /* Tests */,
+				F6EB95191ED78E4000178999 /* Plists */,
+				F6EB95201ED78E4000178999 /* Resources */,
+				F6EB95261ED78E4000178999 /* Source */,
+				F6EB94E61ED78D8F00178999 /* Supporting Files */,
+			);
+			path = PerfTestRigApp;
+			sourceTree = "<group>";
+		};
+		F6EB94E61ED78D8F00178999 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				F6EB94E71ED78D8F00178999 /* main.m */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		F6EB95191ED78E4000178999 /* Plists */ = {
+			isa = PBXGroup;
+			children = (
+				F6EB951A1ED78E4000178999 /* Autopush */,
+				F6EB951D1ED78E4000178999 /* Prod */,
+			);
+			path = Plists;
+			sourceTree = SOURCE_ROOT;
+		};
+		F6EB951A1ED78E4000178999 /* Autopush */ = {
+			isa = PBXGroup;
+			children = (
+				F6EB951B1ED78E4000178999 /* FIRPerfTestAppAutopush */,
+			);
+			path = Autopush;
+			sourceTree = "<group>";
+		};
+		F6EB951B1ED78E4000178999 /* FIRPerfTestAppAutopush */ = {
+			isa = PBXGroup;
+			children = (
+				F6EB951C1ED78E4000178999 /* GoogleService-Info.plist */,
+			);
+			path = FIRPerfTestAppAutopush;
+			sourceTree = "<group>";
+		};
+		F6EB951D1ED78E4000178999 /* Prod */ = {
+			isa = PBXGroup;
+			children = (
+				F6EB951E1ED78E4000178999 /* FIRPerfTestApp */,
+			);
+			path = Prod;
+			sourceTree = "<group>";
+		};
+		F6EB951E1ED78E4000178999 /* FIRPerfTestApp */ = {
+			isa = PBXGroup;
+			children = (
+				F6EB951F1ED78E4000178999 /* GoogleService-Info.plist */,
+			);
+			path = FIRPerfTestApp;
+			sourceTree = "<group>";
+		};
+		F6EB95201ED78E4000178999 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				F6EB95211ED78E4000178999 /* Functional */,
+				F6EB95251ED78E4000178999 /* sample_urls.txt */,
+			);
+			path = Resources;
+			sourceTree = SOURCE_ROOT;
+		};
+		F6EB95211ED78E4000178999 /* Functional */ = {
+			isa = PBXGroup;
+			children = (
+				F6EB95221ED78E4000178999 /* network_connections.plist */,
+			);
+			path = Functional;
+			sourceTree = "<group>";
+		};
+		F6EB95261ED78E4000178999 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				F6EB95271ED78E4000178999 /* AppDelegate.h */,
+				F6EB95281ED78E4000178999 /* AppDelegate.m */,
+				F6EB952C1ED78E4000178999 /* Info.plist */,
+				F6EB952D1ED78E4000178999 /* main.m */,
+				F6EB952E1ED78E4000178999 /* Models */,
+				F6EB95331ED78E4000178999 /* Networking */,
+				F6EB954F1ED78E4000178999 /* ViewControllers */,
+				F6EB955A1ED78E4000178999 /* Views */,
+			);
+			path = Source;
+			sourceTree = SOURCE_ROOT;
+		};
+		F6EB952E1ED78E4000178999 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				F6EB952F1ED78E4000178999 /* AccessibilityItem.h */,
+				F6EB95301ED78E4000178999 /* AccessibilityItem.m */,
+				F6EB95311ED78E4000178999 /* PerfLogger.h */,
+				F6EB95321ED78E4000178999 /* PerfLogger.m */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		F6EB95331ED78E4000178999 /* Networking */ = {
+			isa = PBXGroup;
+			children = (
+				F6EB95341ED78E4000178999 /* NetworkConnection.h */,
+				F6EB95351ED78E4000178999 /* NetworkConnectionsFactory.h */,
+				F6EB95361ED78E4000178999 /* NetworkConnectionsFactory.m */,
+				F6EB95371ED78E4000178999 /* PerfFuzzNSURLSession.h */,
+				F6EB95381ED78E4000178999 /* PerfFuzzNSURLSession.m */,
+				F6EB95391ED78E4000178999 /* PerfNetworkConnection+Protected.h */,
+				F6EB953A1ED78E4000178999 /* PerfNetworkConnection+Protected.m */,
+				F6EB953B1ED78E4000178999 /* PerfNetworkConnection.h */,
+				F6EB953C1ED78E4000178999 /* PerfNetworkConnection.m */,
+				F6EB953D1ED78E4000178999 /* PerfRandomNetworkConnection.h */,
+				F6EB953E1ED78E4000178999 /* PerfRandomNetworkConnection.m */,
+				F6EB953F1ED78E4000178999 /* PerfURLConnectionAsyncRequest.h */,
+				F6EB95401ED78E4000178999 /* PerfURLConnectionAsyncRequest.m */,
+				F6EB95411ED78E4000178999 /* PerfURLConnectionWithDelegate.h */,
+				F6EB95421ED78E4000178999 /* PerfURLConnectionWithDelegate.m */,
+				F6EB95431ED78E4000178999 /* PerfURLConnectionWithDelegateClassInit.h */,
+				F6EB95441ED78E4000178999 /* PerfURLConnectionWithDelegateClassInit.m */,
+				F6EB95451ED78E4000178999 /* PerfURLConnectionWithDelegateStartImmediately.h */,
+				F6EB95461ED78E4000178999 /* PerfURLConnectionWithDelegateStartImmediately.m */,
+				F6EB95471ED78E4000178999 /* PerfURLSessionDataTask.h */,
+				F6EB95481ED78E4000178999 /* PerfURLSessionDataTask.m */,
+				F6EB95491ED78E4000178999 /* PerfURLSessionDataTaskWithDelegate.h */,
+				F6EB954A1ED78E4000178999 /* PerfURLSessionDataTaskWithDelegate.m */,
+				F6EB954B1ED78E4000178999 /* PerfURLSessionDownloadTask.h */,
+				F6EB954C1ED78E4000178999 /* PerfURLSessionDownloadTask.m */,
+				F6EB954D1ED78E4000178999 /* PerfURLSessionDownloadTaskWithDelegate.h */,
+				F6EB954E1ED78E4000178999 /* PerfURLSessionDownloadTaskWithDelegate.m */,
+			);
+			path = Networking;
+			sourceTree = "<group>";
+		};
+		F6EB954F1ED78E4000178999 /* ViewControllers */ = {
+			isa = PBXGroup;
+			children = (
+				F6EB95501ED78E4000178999 /* NetworkConnectionViewController+Accessibility.h */,
+				F6EB95511ED78E4000178999 /* NetworkConnectionViewController+Accessibility.m */,
+				F6EB95521ED78E4000178999 /* NetworkConnectionViewController.h */,
+				F6EB95531ED78E4000178999 /* NetworkConnectionViewController.m */,
+				F6EB95541ED78E4000178999 /* NetworkRequestsViewController.h */,
+				F6EB95551ED78E4000178999 /* NetworkRequestsViewController.m */,
+				F6EB95561ED78E4000178999 /* TracesViewController+Accessibility.h */,
+				F6EB95571ED78E4000178999 /* TracesViewController+Accessibility.m */,
+				F6EB95581ED78E4000178999 /* TracesViewController.h */,
+				F6EB95591ED78E4000178999 /* TracesViewController.m */,
+			);
+			path = ViewControllers;
+			sourceTree = "<group>";
+		};
+		F6EB955A1ED78E4000178999 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				F6EB955B1ED78E4000178999 /* NetworkConnectionView.h */,
+				F6EB955C1ED78E4000178999 /* NetworkConnectionView.m */,
+				F6EB955D1ED78E4000178999 /* PerfTraceView+Accessibility.h */,
+				F6EB955E1ED78E4000178999 /* PerfTraceView+Accessibility.m */,
+				F6EB955F1ED78E4000178999 /* PerfTraceView.h */,
+				F6EB95601ED78E4000178999 /* PerfTraceView.m */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		F6EB95821ED79F2600178999 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				F6EB95961ED89EC800178999 /* Info.plist */,
+				F6EB95831ED79F2600178999 /* PerfContollerTests.m */,
+			);
+			path = Tests;
+			sourceTree = SOURCE_ROOT;
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		F6EB94E21ED78D8F00178999 /* PerfTestRigApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F6EB95101ED78D8F00178999 /* Build configuration list for PBXNativeTarget "PerfTestRigApp" */;
+			buildPhases = (
+				41FB4CC78DDF8A545FADB539 /* [CP] Check Pods Manifest.lock */,
+				F6EB94DF1ED78D8F00178999 /* Sources */,
+				F6EB94E01ED78D8F00178999 /* Frameworks */,
+				F6EB94E11ED78D8F00178999 /* Resources */,
+				592AAD7FC7183B8BA5995A23 /* [CP] Embed Pods Frameworks */,
+				21F903D84F94B7DA35920442 /* [CP] Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PerfTestRigApp;
+			productName = PerfTestRigApp;
+			productReference = F6EB94E31ED78D8F00178999 /* PerfTestRigApp.app */;
+			productType = "com.apple.product-type.application";
+		};
+		F6EB94FB1ED78D8F00178999 /* PerfTestRigAppTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F6EB95131ED78D8F00178999 /* Build configuration list for PBXNativeTarget "PerfTestRigAppTests" */;
+			buildPhases = (
+				F81B7F15C55AA5BDE475DB2F /* [CP] Check Pods Manifest.lock */,
+				F6EB94F81ED78D8F00178999 /* Sources */,
+				F6EB94F91ED78D8F00178999 /* Frameworks */,
+				F6EB94FA1ED78D8F00178999 /* Resources */,
+				1B71367D7568AFE8A3FE3534 /* [CP] Embed Pods Frameworks */,
+				0CFD60946AA7F34622940E7D /* [CP] Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F6EB94FE1ED78D8F00178999 /* PBXTargetDependency */,
+			);
+			name = PerfTestRigAppTests;
+			productName = PerfTestRigAppTests;
+			productReference = F6EB94FC1ED78D8F00178999 /* PerfTestRigAppTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		F6EB94DB1ED78D8F00178999 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0820;
+				ORGANIZATIONNAME = Google;
+				TargetAttributes = {
+					F6EB94E21ED78D8F00178999 = {
+						CreatedOnToolsVersion = 8.2.1;
+						ProvisioningStyle = Automatic;
+					};
+					F6EB94FB1ED78D8F00178999 = {
+						CreatedOnToolsVersion = 8.2.1;
+						ProvisioningStyle = Automatic;
+						TestTargetID = F6EB94E21ED78D8F00178999;
+					};
+				};
+			};
+			buildConfigurationList = F6EB94DE1ED78D8F00178999 /* Build configuration list for PBXProject "PerfTestRigApp" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = F6EB94DA1ED78D8F00178999;
+			productRefGroup = F6EB94E41ED78D8F00178999 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				F6EB94E21ED78D8F00178999 /* PerfTestRigApp */,
+				F6EB94FB1ED78D8F00178999 /* PerfTestRigAppTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		F6EB94E11ED78D8F00178999 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F6EB95691ED78E4000178999 /* Info.plist in Resources */,
+				F6EB95611ED78E4000178999 /* GoogleService-Info.plist in Resources */,
+				F6EB95971ED89EC800178999 /* Info.plist in Resources */,
+				F6EB95621ED78E4000178999 /* GoogleService-Info.plist in Resources */,
+				F6EB95631ED78E4000178999 /* network_connections.plist in Resources */,
+				F6EB95651ED78E4000178999 /* sample_urls.txt in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F6EB94FA1ED78D8F00178999 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F6EB95981ED89EDD00178999 /* Info.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		0CFD60946AA7F34622940E7D /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-PerfTestRigAppTests/Pods-PerfTestRigAppTests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		1B71367D7568AFE8A3FE3534 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-PerfTestRigAppTests/Pods-PerfTestRigAppTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		21F903D84F94B7DA35920442 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-PerfTestRigApp/Pods-PerfTestRigApp-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		41FB4CC78DDF8A545FADB539 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		592AAD7FC7183B8BA5995A23 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-PerfTestRigApp/Pods-PerfTestRigApp-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		F81B7F15C55AA5BDE475DB2F /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		F6EB94DF1ED78D8F00178999 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F6EB957A1ED78E4000178999 /* NetworkConnectionViewController+Accessibility.m in Sources */,
+				F6EB956F1ED78E4000178999 /* PerfNetworkConnection+Protected.m in Sources */,
+				F6EB95781ED78E4000178999 /* PerfURLSessionDownloadTask.m in Sources */,
+				F6EB95751ED78E4000178999 /* PerfURLConnectionWithDelegateStartImmediately.m in Sources */,
+				F6EB95731ED78E4000178999 /* PerfURLConnectionWithDelegate.m in Sources */,
+				F6EB95701ED78E4000178999 /* PerfNetworkConnection.m in Sources */,
+				F6EB95661ED78E4000178999 /* AppDelegate.m in Sources */,
+				F6EB957B1ED78E4000178999 /* NetworkConnectionViewController.m in Sources */,
+				F6EB956D1ED78E4000178999 /* NetworkConnectionsFactory.m in Sources */,
+				F6EB95791ED78E4000178999 /* PerfURLSessionDownloadTaskWithDelegate.m in Sources */,
+				F6EB95741ED78E4000178999 /* PerfURLConnectionWithDelegateClassInit.m in Sources */,
+				F6EB95771ED78E4000178999 /* PerfURLSessionDataTaskWithDelegate.m in Sources */,
+				F6EB95761ED78E4000178999 /* PerfURLSessionDataTask.m in Sources */,
+				F6EB957C1ED78E4000178999 /* NetworkRequestsViewController.m in Sources */,
+				F6EB957E1ED78E4000178999 /* TracesViewController.m in Sources */,
+				F6EB957F1ED78E4000178999 /* NetworkConnectionView.m in Sources */,
+				F6EB956B1ED78E4000178999 /* AccessibilityItem.m in Sources */,
+				F6EB95811ED78E4000178999 /* PerfTraceView.m in Sources */,
+				F6EB956A1ED78E4000178999 /* main.m in Sources */,
+				F6EB95801ED78E4000178999 /* PerfTraceView+Accessibility.m in Sources */,
+				F6EB956E1ED78E4000178999 /* PerfFuzzNSURLSession.m in Sources */,
+				F6EB956C1ED78E4000178999 /* PerfLogger.m in Sources */,
+				F6EB95711ED78E4000178999 /* PerfRandomNetworkConnection.m in Sources */,
+				F6EB957D1ED78E4000178999 /* TracesViewController+Accessibility.m in Sources */,
+				F6EB95721ED78E4000178999 /* PerfURLConnectionAsyncRequest.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F6EB94F81ED78D8F00178999 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F6EB95871ED89C9C00178999 /* PerfContollerTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		F6EB94FE1ED78D8F00178999 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F6EB94E21ED78D8F00178999 /* PerfTestRigApp */;
+			targetProxy = F6EB94FD1ED78D8F00178999 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		F6EB950E1ED78D8F00178999 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		F6EB950F1ED78D8F00178999 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		F6EB95111ED78D8F00178999 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 3982610B3A73D1E9C80FA009 /* Pods-PerfTestRigApp.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+					"XCODE=1",
+				);
+				INFOPLIST_FILE = Source/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = example.FIRPerfTestRigAppAutopush;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		F6EB95121ED78D8F00178999 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 28FA43A220E26AA4C202FFEA /* Pods-PerfTestRigApp.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				GCC_PREPROCESSOR_DEFINITIONS = "XCODE=1";
+				INFOPLIST_FILE = Source/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = example.FIRPerfTestRigAppAutopush;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		F6EB95141ED78D8F00178999 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = A32E6956D7885989F8839B18 /* Pods-PerfTestRigAppTests.debug.xcconfig */;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"COCOAPODS=1",
+					"XCODE=1",
+				);
+				INFOPLIST_FILE = Tests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.PerfTestRigAppTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PerfTestRigApp.app/PerfTestRigApp";
+			};
+			name = Debug;
+		};
+		F6EB95151ED78D8F00178999 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 2BDA95197C4078DBA7DA3545 /* Pods-PerfTestRigAppTests.release.xcconfig */;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"COCOAPODS=1",
+					"XCODE=1",
+				);
+				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = (
+					"$(inherited)",
+					"COCOAPODS=1",
+				);
+				INFOPLIST_FILE = Tests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.PerfTestRigAppTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PerfTestRigApp.app/PerfTestRigApp";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		F6EB94DE1ED78D8F00178999 /* Build configuration list for PBXProject "PerfTestRigApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F6EB950E1ED78D8F00178999 /* Debug */,
+				F6EB950F1ED78D8F00178999 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F6EB95101ED78D8F00178999 /* Build configuration list for PBXNativeTarget "PerfTestRigApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F6EB95111ED78D8F00178999 /* Debug */,
+				F6EB95121ED78D8F00178999 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F6EB95131ED78D8F00178999 /* Build configuration list for PBXNativeTarget "PerfTestRigAppTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F6EB95141ED78D8F00178999 /* Debug */,
+				F6EB95151ED78D8F00178999 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = F6EB94DB1ED78D8F00178999 /* Project object */;
+}

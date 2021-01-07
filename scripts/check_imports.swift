@@ -28,7 +28,8 @@ let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseStorage/Tests/Integration"
                        "FirebaseDynamicLinks/Tests/Integration",
                        "FirebaseInAppMessaging/Tests/Integration/",
                        "Example/InstanceID/App", "SymbolCollisionTest/", "/gen/",
-                       "CocoapodsIntegrationTest/"] +
+                       "CocoapodsIntegrationTest/", "FirebasePerformance/Tests/TestApp/",
+                       "FirebasePerformance/Tests/FIRPerfE2E/"] +
   [
     "CoreOnly/Sources", // Skip Firebase.h.
     "SwiftPMTests", // The SwiftPM imports test module imports.
@@ -44,6 +45,7 @@ let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseStorage/Tests/Integration"
     "FirebaseInstallations/Source/Tests/Unit/",
     "Firestore",
     "GoogleUtilitiesComponents",
+    "FirebasePerformance/ProtoSupport/",
   ]
 
 // Skip existence test for patterns that start with the following:

@@ -67,8 +67,7 @@
 }
 
 - (void)beginSettingsWithGoogleAppId:(NSString *)googleAppID
-                               token:(FIRCLSDataCollectionToken *)token
-                   waitForCompletion:(BOOL)waitForCompletion {
+                               token:(FIRCLSDataCollectionToken *)token {
   NSParameterAssert(googleAppID);
 
   self.googleAppID = googleAppID;
@@ -81,7 +80,7 @@
     FIRCLSApplicationGetSDKBundleID() : FIRCLSSDKVersion(),
   };
 
-  [self beginSettingsDownload:token waitForCompletion:waitForCompletion];
+  [self beginSettingsDownload:token];
 }
 
 #pragma mark Helper methods
@@ -90,10 +89,7 @@
  * Makes a settings download request. If the request fails, the error is handled silently (with a
  * log statement).
  */
-- (void)beginSettingsDownload:(FIRCLSDataCollectionToken *)token
-            waitForCompletion:(BOOL)waitForCompletion {
-  dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-
+- (void)beginSettingsDownload:(FIRCLSDataCollectionToken *)token {
   FIRCLSDownloadAndSaveSettingsOperation *operation = nil;
   operation = [[FIRCLSDownloadAndSaveSettingsOperation alloc]
         initWithGoogleAppID:self.googleAppID
@@ -105,17 +101,7 @@
               networkClient:self.networkClient
                       token:token];
 
-  if (waitForCompletion) {
-    operation.asyncCompletion = ^(NSError *error) {
-      dispatch_semaphore_signal(semaphore);
-    };
-  }
-
   [operation startWithToken:token];
-
-  if (waitForCompletion) {
-    dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
-  }
 }
 
 - (void)finishNetworkingSession {

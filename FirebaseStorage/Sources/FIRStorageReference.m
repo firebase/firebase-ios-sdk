@@ -415,6 +415,7 @@
       ^(FIRStorageListResult *listResult, NSError *error) {
         if (error) {
           completion(nil, error);
+          return;
         }
 
         FIRStorageReference *strongSelf = weakSelf;

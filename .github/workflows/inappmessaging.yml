@@ -66,13 +66,14 @@ jobs:
           '--use-static-frameworks',
           '--use-libraries'
         ]
+        platform: [ios, tvos]
     needs: pod_lib_lint
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: PodLibLint InAppMessaging Cron
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec --platforms=ios ${{ matrix.flags }}
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec --platforms=${{ matrix.platform }} ${{ matrix.flags }}
 
   quickstart:
     # Don't run on private repo unless it is a PR.

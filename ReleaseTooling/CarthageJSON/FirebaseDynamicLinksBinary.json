@@ -57,5 +57,6 @@
   "6.8.1": "https://dl.google.com/dl/firebase/ios/carthage/6.8.1/DynamicLinks-29e96fee6e77b949.zip",
   "6.9.0": "https://dl.google.com/dl/firebase/ios/carthage/6.9.0/DynamicLinks-51b09c1cd125406b.zip",
   "7.0.0": "https://dl.google.com/dl/firebase/ios/carthage/7.0.0/FirebaseDynamicLinks-e72f634ac5794cd4.zip",
-  "7.1.0": "https://dl.google.com/dl/firebase/ios/carthage/7.1.0/FirebaseDynamicLinks-46bdab6249863597.zip"
+  "7.1.0": "https://dl.google.com/dl/firebase/ios/carthage/7.1.0/FirebaseDynamicLinks-46bdab6249863597.zip",
+  "7.3.0": "https://dl.google.com/dl/firebase/ios/carthage/7.3.0/FirebaseDynamicLinks-de6b6d142a0b1542.zip"
 }

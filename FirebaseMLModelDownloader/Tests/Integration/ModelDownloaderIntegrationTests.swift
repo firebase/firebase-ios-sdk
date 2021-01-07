@@ -14,16 +14,24 @@
 
 import XCTest
 @testable import FirebaseCore
+@testable import FirebaseInstallations
 @testable import FirebaseMLModelDownloader
 
 extension UserDefaults {
-  /// For testing: returns a new cleared instance of user defaults.
-  static func getTestInstance() -> UserDefaults {
-    let suiteName = "com.google.firebase.ml.test"
+  /// Returns a new cleared instance of user defaults.
+  static func createTestInstance(testName: String) -> UserDefaults {
+    let suiteName = "com.google.firebase.ml.test.\(testName)"
     // TODO: reconsider force unwrapping
     let defaults = UserDefaults(suiteName: suiteName)!
     defaults.removePersistentDomain(forName: suiteName)
     return defaults
+  }
+
+  /// Returns the existing user defaults instance.
+  static func getTestInstance(testName: String) -> UserDefaults {
+    let suiteName = "com.google.firebase.ml.test.\(testName)"
+    // TODO: reconsider force unwrapping
+    return UserDefaults(suiteName: suiteName)!
   }
 }
 
@@ -39,31 +47,6 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     }
   }
 
-  /// Test to retrieve FIS token - makes an actual network call.
-  func testGetAuthToken() {
-    guard let testApp = FirebaseApp.app() else {
-      XCTFail("Default app was not configured.")
-      return
-    }
-    let testModelName = "image-classification"
-    let modelInfoRetriever = ModelInfoRetriever(
-      app: testApp,
-      modelName: testModelName
-    )
-    let expectation = self.expectation(description: "Wait for FIS auth token.")
-    modelInfoRetriever.getAuthToken(completion: { result in
-      switch result {
-      case let .success(token):
-        XCTAssertNotNil(token)
-      case let .failure(error):
-        XCTFail(error.localizedDescription)
-      }
-      expectation.fulfill()
-
-    })
-    waitForExpectations(timeout: 5, handler: nil)
-  }
-
   /// Test to download model info - makes an actual network call.
   func testDownloadModelInfo() {
     guard let testApp = FirebaseApp.app() else {
@@ -71,64 +54,107 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       return
     }
     let testModelName = "pose-detection"
+
     let modelInfoRetriever = ModelInfoRetriever(
-      app: testApp,
-      modelName: testModelName
+      modelName: testModelName,
+      options: testApp.options,
+      installations: Installations.installations(app: testApp),
+      appName: testApp.name
     )
+
     let downloadExpectation = expectation(description: "Wait for model info to download.")
-    modelInfoRetriever.downloadModelInfo(completion: { error in
-      XCTAssertNil(error)
-      guard let modelInfo = modelInfoRetriever.modelInfo else {
-        XCTFail("Empty model info.")
-        return
+    modelInfoRetriever.downloadModelInfo(completion: { result in
+      switch result {
+      case let .success(modelInfoResult):
+        switch modelInfoResult {
+        case let .modelInfo(modelInfo):
+          XCTAssertGreaterThan(modelInfo.downloadURL.absoluteString.count, 0)
+          XCTAssertGreaterThan(modelInfo.modelHash.count, 0)
+          XCTAssertGreaterThan(modelInfo.size, 0)
+          let localModelInfo = LocalModelInfo(from: modelInfo, path: "mock-valid-path")
+          localModelInfo.writeToDefaults(
+            .createTestInstance(testName: #function),
+            appName: testApp.name
+          )
+        case .notModified:
+          XCTFail("Failed to retrieve model info.")
+        }
+      case let .failure(error):
+        XCTAssertNotNil(error)
+        XCTFail("Failed to retrieve model info - \(error)")
       }
-      XCTAssertNotNil(modelInfo.modelHash)
-      XCTAssertGreaterThan(modelInfo.size, 0)
       downloadExpectation.fulfill()
     })
 
     waitForExpectations(timeout: 5, handler: nil)
 
+    if let localInfo = LocalModelInfo(
+      fromDefaults: .getTestInstance(testName: #function),
+      name: testModelName,
+      appName: testApp.name
+    ) {
+      XCTAssertNotNil(localInfo)
+      testRetrieveModelInfo(localInfo: localInfo)
+    } else {
+      XCTFail("Could not save model info locally.")
+    }
+  }
+
+  func testRetrieveModelInfo(localInfo: LocalModelInfo) {
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
+    let testModelName = "pose-detection"
+
+    let modelInfoRetriever = ModelInfoRetriever(
+      modelName: testModelName,
+      options: testApp.options,
+      installations: Installations.installations(app: testApp),
+      appName: testApp.name,
+      localModelInfo: localInfo
+    )
+    // TODO: This check seems to be flaky.
     let retrieveExpectation = expectation(description: "Wait for model info to be retrieved.")
-    modelInfoRetriever.downloadModelInfo(completion: { error in
-      XCTAssertNil(error)
-      guard let modelInfo = modelInfoRetriever.modelInfo else {
-        XCTFail("Empty model info.")
-        return
+    modelInfoRetriever.downloadModelInfo(completion: { result in
+      switch result {
+      case let .success(modelInfoResult):
+        switch modelInfoResult {
+        case .modelInfo:
+          XCTFail("Local model info is already the latest and should not be set again.")
+        case .notModified: break
+        }
+      case let .failure(error):
+        XCTAssertNotNil(error)
+        XCTFail("Failed to retrieve model info - \(error)")
       }
-      XCTAssertNotNil(modelInfo.downloadURL)
-      XCTAssertNotEqual(modelInfo.modelHash, "")
-      XCTAssertGreaterThan(modelInfo.size, 0)
       retrieveExpectation.fulfill()
     })
 
-    waitForExpectations(timeout: 500, handler: nil)
+    waitForExpectations(timeout: 5, handler: nil)
   }
 
   /// Test to download model file - makes an actual network call.
-  func testResumeModelDownload() {
+  func testResumeModelDownload() throws {
     let testApp = FirebaseApp.app()!
     let functionName = #function.dropLast(2)
     let testModelName = "\(functionName)-test-model"
-    let modelInfoRetriever = ModelInfoRetriever(
-      app: testApp,
-      modelName: testModelName
-    )
-
     let urlString =
       "https://tfhub.dev/tensorflow/lite-model/ssd_mobilenet_v1/1/metadata/1?lite-format=tflite"
     let url = URL(string: urlString)!
 
-    modelInfoRetriever.modelInfo = ModelInfo(
+    let remoteModelInfo = RemoteModelInfo(
       name: testModelName,
       downloadURL: url,
       modelHash: "mock-valid-hash",
       size: 10
     )
+
     let expectation = self.expectation(description: "Wait for model to download.")
     let modelDownloadManager = ModelDownloadTask(
-      app: testApp,
-      modelInfo: modelInfoRetriever.modelInfo!,
+      remoteModelInfo: remoteModelInfo,
+      appName: testApp.name,
+      defaults: .createTestInstance(testName: #function),
       progressHandler: { progress in
         XCTAssertNotNil(progress)
       }
@@ -141,7 +167,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
         }
         XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
       case let .failure(error):
-        XCTFail(error.localizedDescription)
+        XCTFail("Error: \(error)")
       }
       expectation.fulfill()
     }
