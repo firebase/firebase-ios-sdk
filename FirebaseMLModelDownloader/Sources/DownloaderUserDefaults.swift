@@ -14,9 +14,7 @@
 
 import Foundation
 
-/// Model download conditions.
-// TODO: Implement model download conditions.
-public struct ModelDownloadConditions {
-  // TODO: Intentionally left blank until implementation.
-  public init() {}
+/// Protocol to write info to user defaults.
+protocol DownloaderUserDefaultsWriteable {
+  func writeToDefaults(_ defaults: UserDefaults, appName: String)
 }

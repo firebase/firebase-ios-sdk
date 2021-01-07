@@ -1,4 +1,4 @@
-// Copyright 2020 Google LLC
+// Copyright 2021 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -84,15 +84,21 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
     return "fbml_model__\(appName)__\(remoteModelInfo.name)"
   }
 
+  func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+    // TODO: Handle model download url expiry and other download errors
+  }
+
   func urlSession(_ session: URLSession,
                   downloadTask: URLSessionDownloadTask,
                   didFinishDownloadingTo location: URL) {
     assert(downloadTask == self.downloadTask)
     downloadStatus = .completed
-    let savedURL = ModelFileManager.modelsDirectory
-      .appendingPathComponent(downloadedModelFileName)
+    let modelFileURL = ModelFileManager.getDownloadedModelFilePath(
+      appName: appName,
+      modelName: remoteModelInfo.name
+    )
     do {
-      try ModelFileManager.moveFile(at: location, to: savedURL)
+      try ModelFileManager.moveFile(at: location, to: modelFileURL)
     } catch let error as DownloadError {
       DispatchQueue.main.async {
         self.downloadHandlers
@@ -106,7 +112,7 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
     }
 
     /// Generate local model info.
-    let localModelInfo = LocalModelInfo(from: remoteModelInfo, path: savedURL.absoluteString)
+    let localModelInfo = LocalModelInfo(from: remoteModelInfo, path: modelFileURL.absoluteString)
     /// Write model to user defaults.
     localModelInfo.writeToDefaults(defaults, appName: appName)
     /// Build model from model info.
