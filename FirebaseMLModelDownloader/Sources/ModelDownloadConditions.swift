@@ -15,4 +15,8 @@
 import Foundation
 
 /// Model download conditions.
-public struct ModelDownloadConditions {}
+// TODO: Implement model download conditions.
+public struct ModelDownloadConditions {
+  // TODO: Intentionally left blank until implementation.
+  public init() {}
+}
