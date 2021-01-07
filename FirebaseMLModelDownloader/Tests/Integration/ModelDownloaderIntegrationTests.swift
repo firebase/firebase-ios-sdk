@@ -212,7 +212,8 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       downloadType: downloadType,
       conditions: conditions,
       progressHandler: { progress in
-        XCTAssertNotNil(progress)
+        XCTAssertLessThanOrEqual(progress, 1)
+        XCTAssertGreaterThanOrEqual(progress, 0)
       }
     ) { result in
       switch result {
@@ -310,6 +311,8 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       downloadType: downloadType,
       conditions: conditions,
       progressHandler: { progress in
+        XCTAssertLessThanOrEqual(progress, 1)
+        XCTAssertGreaterThanOrEqual(progress, 0)
       }
     ) { result in
       switch result {
