@@ -103,8 +103,13 @@ class Downloader: ObservableObject {
     modelDownloader.listDownloadedModels { result in
       switch result {
       case let .success(models):
-        for model in models {
-          self.modelNames.append(model.name)
+        if models.count == 0 {
+          self.isError = true
+          self.error = "No models found on device."
+        } else {
+          for model in models {
+            self.modelNames.append(model.name)
+          }
         }
       case let .failure(error):
         self.isError = true
