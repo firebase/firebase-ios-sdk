@@ -720,6 +720,34 @@
                ReferencedContainer = "container:">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "FirebaseAppCheck"
+               BuildableName = "FirebaseAppCheck"
+               BlueprintName = "FirebaseAppCheck"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "Firebase_AppCheckUnit"
+               BuildableName = "Firebase_AppCheckUnit"
+               BlueprintName = "Firebase_AppCheckUnit"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -905,6 +933,26 @@
                BlueprintIdentifier = "FirebaseMLModelDownloaderUnit"
                BuildableName = "FirebaseMLModelDownloaderUnit"
                BlueprintName = "FirebaseMLModelDownloaderUnit"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "AppCheckUnit"
+               BuildableName = "AppCheckUnit"
+               BlueprintName = "AppCheckUnit"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "AppCheckUnitSwift"
+               BuildableName = "AppCheckUnitSwift"
+               BlueprintName = "AppCheckUnitSwift"
                ReferencedContainer = "container:">
             </BuildableReference>
          </TestableReference>

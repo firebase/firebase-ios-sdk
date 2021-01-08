@@ -37,6 +37,10 @@ let package = Package(
       targets: ["FirebaseAuth"]
     ),
     .library(
+      name: "FirebaseAppCheck",
+      targets: ["FirebaseAppCheck"]
+    ),
+    .library(
       name: "FirebaseAppDistribution-Beta",
       targets: ["FirebaseAppDistributionTarget"]
     ),
@@ -929,6 +933,50 @@ let package = Package(
         .headerSearchPath("../../"),
       ]
     ),
+
+    // MARK: - Firebase App Check
+
+    .target(name: "FirebaseAppCheck",
+            dependencies: ["FirebaseCore",
+                           .product(name: "FBLPromises", package: "Promises"),
+                           "GoogleUtilities_Environment"],
+            path: "FirebaseAppCheck/Sources",
+            publicHeadersPath: "Public",
+            cSettings: [
+              .headerSearchPath("../.."),
+            ],
+            linkerSettings: [
+              .linkedFramework("DeviceCheck"),
+            ]),
+    .testTarget(
+      name: "AppCheckUnit",
+      dependencies: ["FirebaseAppCheck", "OCMock", "SharedTestUtilities"],
+      path: "FirebaseAppCheck/Tests",
+      exclude: [
+        // Disable Swift tests as mixed targets are not supported (Xcode 12.3).
+        "Unit/Swift",
+
+        // Disable Keychain dependent tests as they require a host application on iOS.
+        "Integration",
+        "Unit/Core/FIRAppCheckIntegrationTests.m",
+        "Unit/Core/FIRAppCheckStorageTests.m",
+      ],
+      resources: [
+        .process("Fixture"),
+      ],
+      cSettings: [
+        .headerSearchPath("../.."),
+      ]
+    ),
+    .testTarget(
+      name: "AppCheckUnitSwift",
+      dependencies: ["FirebaseAppCheck"],
+      path: "FirebaseAppCheck/Tests/Unit/Swift",
+      cSettings: [
+        .headerSearchPath("../.."),
+      ]
+    ),
+
     // TODO: - need to port Network/third_party/GTMHTTPServer.m to ARC.
     // .testTarget(
     //   name: "UtilitiesUnit",

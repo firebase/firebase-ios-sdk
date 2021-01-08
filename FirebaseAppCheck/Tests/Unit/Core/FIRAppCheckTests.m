@@ -18,7 +18,7 @@
 
 // TODO: Consider using manually implemented fakes instead of OCMock
 // (see also go/srl-dev/why-fakes#no-ocmock)
-#import <OCMock/OCMock.h>
+#import "OCMock.h"
 
 #import "FBLPromise+Testing.h"
 

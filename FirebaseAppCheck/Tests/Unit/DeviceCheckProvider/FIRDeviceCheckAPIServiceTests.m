@@ -16,8 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import <OCMock/OCMock.h>
 #import "FBLPromise+Testing.h"
+#import "OCMock.h"
 
 #import <FirebaseAppCheck/FirebaseAppCheck.h>
 #import <GoogleUtilities/GULURLSessionDataResponse.h>
@@ -26,6 +26,7 @@
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 #import "FirebaseAppCheck/Sources/DeviceCheckProvider/API/FIRDeviceCheckAPIService.h"
 
+#import "FirebaseAppCheck/Tests/Unit/Utils/FIRFixtureLoader.h"
 #import "SharedTestUtilities/URLSession/FIRURLSessionOCMockStub.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
@@ -83,7 +84,9 @@ typedef BOOL (^FIRRequestValidationBlock)(NSURLRequest *request);
 
   id HTTPBodyValidationArg = [self HTTPBodyValidationArgWithDeviceToken:deviceTokenData];
 
-  NSData *responseBody = [self loadFixtureNamed:@"DeviceCheckResponseSuccess.json"];
+  NSData *responseBody = [FIRFixtureLoader loadFixtureNamed:@"DeviceCheckResponseSuccess.json"];
+  XCTAssertNotNil(responseBody);
+
   NSHTTPURLResponse *HTTPResponse = [FIRURLSessionOCMockStub HTTPResponseWithCode:200];
   GULURLSessionDataResponse *APIResponse =
       [[GULURLSessionDataResponse alloc] initWithResponse:HTTPResponse HTTPBody:responseBody];
@@ -131,7 +134,9 @@ typedef BOOL (^FIRRequestValidationBlock)(NSURLRequest *request);
 
   id HTTPBodyValidationArg = [self HTTPBodyValidationArgWithDeviceToken:deviceTokenData];
 
-  NSData *responseBody = [self loadFixtureNamed:@"DeviceCheckResponseSuccess.json"];
+  NSData *responseBody = [FIRFixtureLoader loadFixtureNamed:@"DeviceCheckResponseSuccess.json"];
+  XCTAssertNotNil(responseBody);
+
   NSHTTPURLResponse *HTTPResponse = [FIRURLSessionOCMockStub HTTPResponseWithCode:200];
   GULURLSessionDataResponse *APIResponse =
       [[GULURLSessionDataResponse alloc] initWithResponse:HTTPResponse HTTPBody:responseBody];
@@ -221,18 +226,6 @@ typedef BOOL (^FIRRequestValidationBlock)(NSURLRequest *request);
 }
 
 #pragma mark - Helpers
-
-- (NSData *)loadFixtureNamed:(NSString *)fileName {
-  NSURL *fileURL = [[NSBundle bundleForClass:[self class]] URLForResource:fileName
-                                                            withExtension:nil];
-  XCTAssertNotNil(fileURL);
-
-  NSError *error;
-  NSData *data = [NSData dataWithContentsOfURL:fileURL options:0 error:&error];
-  XCTAssertNotNil(data, @"File name: %@ Error: %@", fileName, error);
-
-  return data;
-}
 
 - (id)HTTPBodyValidationArgWithDeviceToken:(NSData *)deviceToken {
   return [OCMArg checkWithBlock:^BOOL(NSData *body) {

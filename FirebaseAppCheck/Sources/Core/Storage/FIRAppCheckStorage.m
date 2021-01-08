@@ -16,7 +16,12 @@
 
 #import "FirebaseAppCheck/Sources/Core/Storage/FIRAppCheckStorage.h"
 
+#if __has_include(<FBLPromises/FBLPromises.h>)
 #import <FBLPromises/FBLPromises.h>
+#else
+#import "FBLPromises.h"
+#endif
+
 #import <GoogleUtilities/GULKeychainStorage.h>
 
 #import "FirebaseAppCheck/Sources/Core/Storage/FIRAppCheckStoredToken+FIRAppCheckToken.h"

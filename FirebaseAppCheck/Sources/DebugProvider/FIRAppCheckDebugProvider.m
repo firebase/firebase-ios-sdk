@@ -16,7 +16,11 @@
 
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckDebugProvider.h"
 
+#if __has_include(<FBLPromises/FBLPromises.h>)
 #import <FBLPromises/FBLPromises.h>
+#else
+#import "FBLPromises.h"
+#endif
 
 #import "FirebaseAppCheck/Sources/Core/APIService/FIRAppCheckAPIService.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckLogger.h"
