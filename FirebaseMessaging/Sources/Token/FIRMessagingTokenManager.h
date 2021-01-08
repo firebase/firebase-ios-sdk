@@ -167,12 +167,12 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
 - (NSString *)tokenAndRequestIfNotExist;
 
 /*
- * Saves the default token to cache. This is to set the cache if token is updated from iid.
+ * Saves the default token to the keychain.
  */
-- (void)saveDefaultTokenInfo:(NSString *)defaultFcmToken;
+- (void)saveDefaultTokenInfoInKeychain:(NSString *)defaultFcmToken;
 
 /*
- * Sets the default FCM token the first time from FIRMessaging.
+ * Sets the default FCM token in Messaging when getting a new token.
  *
  */
 - (void)setDefaultFCMToken:(NSString *)defaultFcmToken;

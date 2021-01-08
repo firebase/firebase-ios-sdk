@@ -26,7 +26,9 @@
 #import "FirebaseMessaging/Tests/UnitTests/XCTestCase+FIRMessagingRmqManagerTests.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
-NS_ASSUME_NONNULL_BEGIN static NSString *const kFIRMessagingDefaultsTestDomain =
+NS_ASSUME_NONNULL_BEGIN
+
+static NSString *const kFIRMessagingDefaultsTestDomain =
     @"com.messaging.tests";
 static NSString *const kFakeSenderID = @"123456789123";
 

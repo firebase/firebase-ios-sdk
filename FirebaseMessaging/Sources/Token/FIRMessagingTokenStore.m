@@ -131,7 +131,7 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
 - (void)saveTokenInfoInCache:(FIRMessagingTokenInfo *)tokenInfo {
   tokenInfo.cacheTime = [NSDate date];
   NSData *tokenInfoData;
-  // TODO(chliangGoogle: Use the new API and secureCoding protocol.
+  // TODO(chliangGoogle): Use the new API and secureCoding protocol.
   [NSKeyedArchiver setClassName:@"FIRInstanceIDTokenInfo" forClass:[FIRMessagingTokenInfo class]];
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"

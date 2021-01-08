@@ -544,7 +544,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 
 - (NSString *)FCMToken {
   // Gets the current default token, and requets a new one if it doesn't exist.
-  NSString *token = [[FIRMessaging messaging].tokenManager tokenAndRequestIfNotExist];
+  NSString *token = [self.tokenManager tokenAndRequestIfNotExist];
   return token;
 }
 
@@ -686,7 +686,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     return;
   }
   if ([self.delegate respondsToSelector:@selector(messaging:didReceiveRegistrationToken:)]) {
-    [self.delegate messaging:self didReceiveRegistrationToken:_tokenManager.defaultFCMToken];
+    [self.delegate messaging:self didReceiveRegistrationToken:self.tokenManager.defaultFCMToken];
   }
 
   // Should always trigger the token refresh notification when the delegate method is called
@@ -847,7 +847,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   if ((newToken.length && oldToken.length && ![newToken isEqualToString:oldToken]) ||
       newToken.length != oldToken.length) {
     // Make sure to set default token first before notifying others.
-    [self.tokenManager saveDefaultTokenInfo:newToken];
+    [self.tokenManager saveDefaultTokenInfoInKeychain:newToken];
     [self notifyDelegateOfFCMTokenAvailability];
     [self.pubsub scheduleSync:YES];
   }

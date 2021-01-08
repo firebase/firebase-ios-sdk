@@ -108,7 +108,7 @@ static NSString *const kCheckinFileName = @"g-checkin";
                         object:defaultFcmToken];
 }
 
-- (void)saveDefaultTokenInfo:(NSString *)defaultFcmToken {
+- (void)saveDefaultTokenInfoInKeychain:(NSString *)defaultFcmToken {
   if (_defaultFCMToken.length != defaultFcmToken.length ||
       (_defaultFCMToken.length && defaultFcmToken.length &&
        ![_defaultFCMToken isEqualToString:defaultFcmToken])) {
