@@ -141,7 +141,7 @@
   [self generateEventWithQoSTier:GDTCOREventQoSFast];
 
   // Validate that at least one event was uploaded.
-  [self waitForExpectations:@[ eventsUploaded ] timeout:60.0];
+  [self waitForExpectations:@[ eventsUploaded ] timeout:120.0];
 }
 
 - (void)testRunsWithoutCrashing {
