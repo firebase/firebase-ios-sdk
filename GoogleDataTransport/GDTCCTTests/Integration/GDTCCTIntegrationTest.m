@@ -62,9 +62,6 @@
 @implementation GDTCCTIntegrationTest
 
 - (void)setUp {
-
-  GDTCORConsoleLoggerLoggingLevel = GDTCORLoggingLevelDebug;
-
   // Don't recursively generate events by default.
   self.generateEvents = NO;
   self.totalEventsGenerated = 0;
