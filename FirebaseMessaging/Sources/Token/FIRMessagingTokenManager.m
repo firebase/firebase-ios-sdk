@@ -100,12 +100,12 @@ static NSString *const kCheckinFileName = @"g-checkin";
   return _defaultFCMToken;
 }
 
-- (void)setDefaultFCMToken:(NSString *)defaultFcmToken {
+- (void)postTokenRefreshNotificationWithDefaultFCMToken:(NSString *)defaultFCMToken {
   // Should always trigger the token refresh notification when the delegate method is called
   // No need to check if the token has changed, it's handled in the notification receiver.
   NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
   [center postNotificationName:kFIRMessagingRegistrationTokenRefreshNotification
-                        object:defaultFcmToken];
+                        object:defaultFCMToken];
 }
 
 - (void)saveDefaultTokenInfoInKeychain:(NSString *)defaultFcmToken {
@@ -284,7 +284,7 @@ static NSString *const kCheckinFileName = @"g-checkin";
           return;
         }
         if ([self isDefaultTokenWithAuthorizedEntity:authorizedEntity scope:scope]) {
-          [self setDefaultFCMToken:token];
+          [self postTokenRefreshNotificationWithDefaultFCMToken:token];
         }
         NSString *firebaseAppID = options[kFIRMessagingTokenOptionsFirebaseAppIDKey];
         FIRMessagingTokenInfo *tokenInfo =
@@ -369,7 +369,7 @@ static NSString *const kCheckinFileName = @"g-checkin";
     [operation addCompletionHandler:^(FIRMessagingTokenOperationResult result,
                                       NSString *_Nullable token, NSError *_Nullable error) {
       if ([self isDefaultTokenWithAuthorizedEntity:authorizedEntity scope:scope]) {
-        [self setDefaultFCMToken:nil];
+        [self postTokenRefreshNotificationWithDefaultFCMToken:nil];
       }
       dispatch_async(dispatch_get_main_queue(), ^{
         handler(error);
@@ -439,7 +439,7 @@ static NSString *const kCheckinFileName = @"g-checkin";
       return;
     }
     [self deleteAllTokensLocallyWithHandler:^(NSError *localError) {
-      [self setDefaultFCMToken:nil];
+      [self postTokenRefreshNotificationWithDefaultFCMToken:nil];
       if (localError) {
         handler(localError);
         return;

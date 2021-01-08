@@ -172,10 +172,10 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
 - (void)saveDefaultTokenInfoInKeychain:(NSString *)defaultFcmToken;
 
 /*
- * Sets the default FCM token in Messaging when getting a new token.
+ * Posts a token refresh notification when a default FCM token is generated.
  *
  */
-- (void)setDefaultFCMToken:(NSString *)defaultFcmToken;
+- (void)postTokenRefreshNotificationWithDefaultFCMToken:(NSString *)defaultFCMToken;
 
 /*
  * Checks if two tokens have changed.

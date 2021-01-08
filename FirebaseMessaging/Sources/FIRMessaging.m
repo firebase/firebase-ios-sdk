@@ -250,7 +250,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
       // happens before developers able to set the delegate
       // Hence first token set must be happen here after listener is set
       // TODO(chliangGoogle) Need to investigate better solution.
-      [self.tokenManager setDefaultFCMToken:self.FCMToken];
+      [self updateDefaultFCMToken:self.FCMToken];
     }];
   } else if (self.isAutoInitEnabled) {
     // When there is no cached token, must check auto init is enabled.
@@ -319,7 +319,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
   [center removeObserver:self];
   [center addObserver:self
-             selector:@selector(defaultInstanceIDTokenWasRefreshed:)
+             selector:@selector(defaultFCMTokenWasRefreshed:)
                  name:kFIRMessagingRegistrationTokenRefreshNotification
                object:nil];
 }
@@ -330,7 +330,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 }
 
 - (void)setupTopics {
-  self.pubsub = [[FIRMessagingPubSub alloc] initWithTokenManager:_tokenManager];
+  self.pubsub = [[FIRMessagingPubSub alloc] initWithTokenManager:self.tokenManager];
 }
 
 - (void)setupSyncMessageManager {
@@ -692,7 +692,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   // Should always trigger the token refresh notification when the delegate method is called
   NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
   [center postNotificationName:FIRMessagingRegistrationTokenRefreshedNotification
-                        object:_tokenManager.defaultFCMToken];
+                        object:self.tokenManager.defaultFCMToken];
 }
 
 #pragma mark - Topics
@@ -833,17 +833,20 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 
 #pragma mark - Notifications
 
-- (void)defaultInstanceIDTokenWasRefreshed:(NSNotification *)notification {
+- (void)defaultFCMTokenWasRefreshed:(NSNotification *)notification {
   if (notification.object && ![notification.object isKindOfClass:[NSString class]]) {
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeMessaging015,
                             @"Invalid default FCM token type %@",
                             NSStringFromClass([notification.object class]));
     return;
   }
-  // Retrieve the Instance ID default token, and should notify delegate and
-  // trigger notification as long as the token is different from previous state.
-  NSString *oldToken = self.tokenManager.defaultFCMToken;
   NSString *newToken = [(NSString *)notification.object copy];
+  [self updateDefaultFCMToken:newToken];
+}
+
+- (void)updateDefaultFCMToken:(NSString *)defaultFCMToken {
+  NSString *oldToken = self.tokenManager.defaultFCMToken;
+  NSString *newToken = defaultFCMToken;
   if ([self.tokenManager hasTokenChangedFromOldToken:oldToken toNewToken:newToken]) {
     // Make sure to set default token first before notifying others.
     [self.tokenManager saveDefaultTokenInfoInKeychain:newToken];
