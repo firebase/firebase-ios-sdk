@@ -504,7 +504,18 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
 - (void)main {
   [self startOperation];
 
+  GDTCORLogDebug(@"Upload operation started: %@", self);
   [self uploadTarget:self.target withConditions:self.conditions];
+}
+
+- (void)cancel {
+  GDTCORLogDebug(@"Upload operation cancelled: %@", self);
+  [super cancel];
+
+  // If the operation hasn't been started we can set `isFinished = YES` straight away.
+  if (!_executing) {
+    [self finishOperation];
+  }
 }
 
 @end

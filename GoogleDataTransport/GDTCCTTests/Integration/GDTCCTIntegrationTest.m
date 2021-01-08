@@ -84,7 +84,7 @@
 }
 
 - (void)tearDown {
-
+  XCTAssert([[GDTCCTUploader sharedInstance] waitForUploadFinishedWithTimeout:2]);
   [super tearDown];
 }
 
@@ -141,7 +141,7 @@
   [self generateEventWithQoSTier:GDTCOREventQoSFast];
 
   // Validate that at least one event was uploaded.
-  [self waitForExpectations:@[ eventsUploaded ] timeout:120.0];
+  [self waitForExpectations:@[ eventsUploaded ] timeout:60.0];
 }
 
 - (void)testRunsWithoutCrashing {
@@ -162,7 +162,12 @@
                    [self generateEventWithQoSTier:GDTCOREventQoSFast];
                    [self waitForExpectations:@[ eventsUploaded ] timeout:5];
                  });
-  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:secondsToRun + 5]];
+
+  
+  NSDate *waitUntilDate = [NSDate dateWithTimeIntervalSinceNow:secondsToRun + 5];
+  while ([waitUntilDate compare:[NSDate date]] == NSOrderedDescending) {
+    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+  }
 }
 
 - (XCTestExpectation *)expectationForEventsToUpload {

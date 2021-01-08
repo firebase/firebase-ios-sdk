@@ -191,6 +191,8 @@ static NSURL *_testServerURL = nil;
       [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
     }
   }
+
+  GDTCORLogDebug(@"Uploader wait for finish timeout exceeded. Operations still in queue: %@", self.uploadOperationQueue.operations);
   return NO;
 }
 
