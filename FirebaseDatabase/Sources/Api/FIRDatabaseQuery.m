@@ -265,6 +265,36 @@
                         priorityMethod:NO];
 }
 
+- (FIRDatabaseQuery *)queryEndingBeforeValue:(id)endValue {
+    return [self queryEndingAtInternal:endValue
+                              childKey:[FUtilities minName]
+                                  from:@"queryEndingAtValue:"
+                        priorityMethod:NO];
+}
+
+- (FIRDatabaseQuery *)queryEndingBeforeValue:(id)endValue
+                                    childKey:(NSString *)childKey {
+    if ([self.queryParams.index isEqual:[FKeyIndex keyIndex]]) {
+        @throw [[NSException alloc]
+            initWithName:INVALID_QUERY_PARAM_ERROR
+                  reason:@"You must use queryEndingAtValue: instead of "
+                         @"queryEndingAtValue:childKey: when using "
+                         @"queryOrderedByKey:"
+                userInfo:nil];
+    }
+
+    if (childKey == nil) {
+        childKey = [FUtilities minName];
+    } else {
+        childKey = [FNextPushId prevBefore:childKey];
+    }
+
+    return [self queryEndingAtInternal:endValue
+                              childKey:childKey
+                                  from:@"queryEndingAtValue:childKey:"
+                        priorityMethod:NO];
+}
+
 - (FIRDatabaseQuery *)queryEndingAtInternal:(id)endValue
                                    childKey:(NSString *)childKey
                                        from:(NSString *)methodName

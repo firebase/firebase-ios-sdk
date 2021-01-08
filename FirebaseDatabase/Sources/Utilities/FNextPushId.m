@@ -104,4 +104,40 @@ static NSInteger const MAX_KEY_LEN = 786;
     return [next substringWithRange:NSMakeRange(0, i + 1)];
 }
 
+// `key` is assumed to be non-empty.
++ (NSString *)prevBefore:(NSString *_Nonnull)key {
+    NSInteger keyAsInt;
+    if ([FUtilities tryParseStringToInt:key asInt:&keyAsInt]) {
+        return [FUtilities
+            ieee754StringForNumber:[NSNumber numberWithInteger:(keyAsInt - 1)]];
+    }
+
+    NSMutableString *next = [NSMutableString stringWithString:key];
+
+    if ([[next substringWithRange:NSMakeRange(next.length - 1, 1)]
+            isEqualToString:MIN_PUSH_CHAR]) {
+        if ([next length] == 1) {
+            return [FUtilities minName];
+        }
+        // If the last character is the smallest possible character, then the
+        // next smallest string is the prefix of `key` without it.
+        [next replaceCharactersInRange:NSMakeRange([next length] - 1, 1)
+                            withString:@""];
+        return next;
+    }
+    // Replace the last character with it's immedate predecessor, and fill the
+    // suffix of the key with MAX_PUSH_CHAR. This is the lexicographically
+    // largest possible key smaller than `key`.
+    NSString *curr =
+        [next substringWithRange:NSMakeRange([next length] - 1, 1)];
+    NSRange dstRange = NSMakeRange([next length] - 1, 1);
+    NSRange srcRange = [PUSH_CHARS rangeOfString:curr];
+    srcRange.location -= 1;
+    [next replaceCharactersInRange:dstRange
+                        withString:[PUSH_CHARS substringWithRange:srcRange]];
+    return [next stringByPaddingToLength:MAX_KEY_LEN
+                              withString:MAX_PUSH_CHAR
+                         startingAtIndex:[next length]];
+};
+
 @end
