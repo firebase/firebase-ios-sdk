@@ -19,6 +19,7 @@
 #import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREvent.h"
 #import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREventDataObject.h"
 #import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORTransport.h"
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORConsoleLogger.h"
 
 #import <SystemConfiguration/SCNetworkReachability.h>
 
@@ -61,6 +62,9 @@
 @implementation GDTCCTIntegrationTest
 
 - (void)setUp {
+
+  GDTCORConsoleLoggerLoggingLevel = GDTCORLoggingLevelDebug;
+
   // Don't recursively generate events by default.
   self.generateEvents = NO;
   self.totalEventsGenerated = 0;
