@@ -3079,15 +3079,19 @@
 
   __block BOOL done = NO;
 
-  [db goOffline];
+  @try {
+    [db goOffline];
 
-  [ref getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
-    XCTAssertNotNil(err);
-    XCTAssertEqualObjects([err localizedFailureReason], kPersistentConnectionOffline);
-    done = YES;
-  }];
+    [ref getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
+      XCTAssertNotNil(err);
+      XCTAssertEqualObjects([err localizedFailureReason], kPersistentConnectionOffline);
+      done = YES;
+    }];
 
-  WAIT_FOR(done);
+    WAIT_FOR(done);
+  } @finally {
+    [db goOnline];
+  }
 }
 
 - (void)testGetQueryBasic {
@@ -3130,16 +3134,19 @@
 
   WAIT_FOR(done);
   done = NO;
+  @try {
+    [db goOffline];
 
-  [db goOffline];
+    [ref getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
+      XCTAssertNil(err);
+      XCTAssertEqualObjects(snapshot.value, @42);
+      done = YES;
+    }];
 
-  [ref getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
-    XCTAssertNil(err);
-    XCTAssertEqualObjects(snapshot.value, @42);
-    done = YES;
-  }];
-
-  WAIT_FOR(done);
+    WAIT_FOR(done);
+  } @finally {
+    [db goOnline];
+  }
 }
 
 - (FIRDatabase*)databaseForURL:(NSString*)url name:(NSString*)name {
@@ -3231,15 +3238,19 @@
   WAIT_FOR(done);
   done = NO;
 
-  [db2 goOffline];
+  @try {
+    [db2 goOffline];
 
-  [readRef observeEventType:FIRDataEventTypeValue
-                  withBlock:^(FIRDataSnapshot* snapshot) {
-                    XCTAssertEqualObjects(snapshot.value, @42);
-                    done = YES;
-                  }];
+    [readRef observeEventType:FIRDataEventTypeValue
+                    withBlock:^(FIRDataSnapshot* snapshot) {
+                      XCTAssertEqualObjects(snapshot.value, @42);
+                      done = YES;
+                    }];
 
-  WAIT_FOR(done);
+    WAIT_FOR(done);
+  } @finally {
+    [db2 goOnline];
+  }
 }
 
 @end

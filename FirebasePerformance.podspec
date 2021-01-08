@@ -27,6 +27,7 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
     base_dir + 'Sources/**/*.[mh]',
     base_dir + 'ProtoSupport/**/*.[mh]',
     'FirebaseCore/Sources/Private/*.h',
+    'FirebaseInstallations/Source/Library/Private/*.h',
     'FirebaseRemoteConfig/Sources/Private/*.h',
     'GoogleDataTransport/GDTCORLibrary/Internal/*.h',
     'GoogleUtilities/ISASwizzler/Private/*.h',
