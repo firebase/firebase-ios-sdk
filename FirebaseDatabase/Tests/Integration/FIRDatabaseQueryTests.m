@@ -3089,7 +3089,6 @@
     }];
 
     WAIT_FOR(done);
-
   } @finally {
     [db goOnline];
   }
