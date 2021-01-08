@@ -65,9 +65,11 @@
 }
 
 - (void)tearDown {
+  [self.uploader waitForUploadFinishedWithTimeout:1];
   self.testServer.responseCompletedBlock = nil;
   [self.testServer stop];
   self.testStorage = nil;
+  self.uploader = nil;
   [super tearDown];
 }
 
