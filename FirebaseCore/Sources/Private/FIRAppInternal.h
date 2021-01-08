@@ -52,11 +52,6 @@ extern NSString *const kFIRGlobalAppDataCollectionEnabledDefaultsKeyFormat;
  */
 extern NSString *const kFIRGlobalAppDataCollectionEnabledPlistKey;
 
-/**
- * A notification fired containing diagnostic information when SDK errors occur.
- */
-extern NSString *const kFIRAppDiagnosticsNotification;
-
 /** @var FIRAuthStateDidChangeInternalNotification
  @brief The name of the @c NSNotificationCenter notification which is posted when the auth state
  changes (e.g. a new token has been produced, a user logs in or out). The object parameter of

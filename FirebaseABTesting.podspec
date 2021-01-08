@@ -43,6 +43,7 @@ Firebase Cloud Messaging and Firebase Remote Config in your app.
   s.dependency 'FirebaseCore', '~> 7.0'
 
   s.test_spec 'unit' do |unit_tests|
+    unit_tests.scheme = { :code_coverage => true }
     unit_tests.source_files = 'FirebaseABTesting/Tests/Unit/**/*.[mh]'
     unit_tests.resources = 'FirebaseABTesting/Tests/Unit/Resources/*.txt'
     unit_tests.requires_app_host = true

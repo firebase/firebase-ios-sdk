@@ -35,10 +35,6 @@ extern NSNotificationName const GDTCCTUploadCompleteNotification;
  */
 + (instancetype)sharedInstance;
 
-/** Returns the server URL for target.*/
-// TODO: create a separate public header (e.g. GDTCCTUploadURL.h) to make it a public API.
-+ (NSDictionary<NSNumber *, NSURL *> *)uploadURLs;
-
 #if !NDEBUG
 /** An upload URL used across all targets. For testing only. */
 @property(class, nullable, nonatomic) NSURL *testServerURL;

@@ -1,4 +1,4 @@
-// Copyright 2020 Google LLC
+// Copyright 2021 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 import Foundation
 import FirebaseCore
 
+/// Possible states of model downloading.
 enum DownloadStatus {
   case notStarted
   case inProgress
@@ -37,22 +38,29 @@ class DownloadHandlers {
 
 /// Manager to handle model downloading device and storing downloaded model info to persistent storage.
 class ModelDownloadTask: NSObject {
-  let app: FirebaseApp
-  private(set) var modelInfo: ModelInfo
+  /// Name of the app associated with this instance of ModelDownloadTask.
+  private let appName: String
+  /// Model info downloaded from server.
+  private(set) var remoteModelInfo: RemoteModelInfo
+  /// User defaults to which local model info should ultimately be written.
+  private let defaults: UserDefaults
+  /// Task to handle model file download.
   private var downloadTask: URLSessionDownloadTask?
+  /// Progress and completion handlers associated with this model download task.
   private let downloadHandlers: DownloadHandlers
-
+  /// Keeps track of download associated with this model download task.
   private(set) var downloadStatus: DownloadStatus = .notStarted
-
+  /// URLSession to handle model downloads.
   private lazy var downloadSession = URLSession(configuration: .ephemeral,
                                                 delegate: self,
                                                 delegateQueue: nil)
 
-  init(app: FirebaseApp, modelInfo: ModelInfo,
+  init(remoteModelInfo: RemoteModelInfo, appName: String, defaults: UserDefaults,
        progressHandler: DownloadHandlers.ProgressHandler? = nil,
        completion: @escaping DownloadHandlers.Completion) {
-    self.app = app
-    self.modelInfo = modelInfo
+    self.remoteModelInfo = remoteModelInfo
+    self.appName = appName
+    self.defaults = defaults
     downloadHandlers = DownloadHandlers(
       progressHandler: progressHandler,
       completion: completion
@@ -62,7 +70,7 @@ class ModelDownloadTask: NSObject {
   /// Asynchronously download model file to device.
   func resumeModelDownload() {
     guard downloadStatus == .notStarted else { return }
-    let downloadTask = downloadSession.downloadTask(with: modelInfo.downloadURL)
+    let downloadTask = downloadSession.downloadTask(with: remoteModelInfo.downloadURL)
     downloadTask.resume()
     downloadStatus = .inProgress
     self.downloadTask = downloadTask
@@ -71,41 +79,47 @@ class ModelDownloadTask: NSObject {
 
 /// Extension to handle delegate methods.
 extension ModelDownloadTask: URLSessionDownloadDelegate {
+  /// Name for model file stored on device.
+  var downloadedModelFileName: String {
+    return "fbml_model__\(appName)__\(remoteModelInfo.name)"
+  }
+
+  func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+    // TODO: Handle model download url expiry and other download errors
+  }
+
   func urlSession(_ session: URLSession,
                   downloadTask: URLSessionDownloadTask,
                   didFinishDownloadingTo location: URL) {
     assert(downloadTask == self.downloadTask)
     downloadStatus = .completed
-    let savedURL = ModelFileManager.modelsDirectory
-      .appendingPathComponent(downloadedModelFileName)
+    let modelFileURL = ModelFileManager.getDownloadedModelFilePath(
+      appName: appName,
+      modelName: remoteModelInfo.name
+    )
     do {
-      try ModelFileManager.moveFile(at: location, to: savedURL)
+      try ModelFileManager.moveFile(at: location, to: modelFileURL)
+    } catch let error as DownloadError {
+      DispatchQueue.main.async {
+        self.downloadHandlers
+          .completion(.failure(error))
+      }
     } catch {
-      downloadHandlers
-        .completion(.failure(.internalError(description: error.localizedDescription)))
-      return
+      DispatchQueue.main.async {
+        self.downloadHandlers
+          .completion(.failure(.internalError(description: error.localizedDescription)))
+      }
     }
 
-    /// Set path to local model.
-    modelInfo.path = savedURL.absoluteString
+    /// Generate local model info.
+    let localModelInfo = LocalModelInfo(from: remoteModelInfo, path: modelFileURL.absoluteString)
     /// Write model to user defaults.
-    do {
-      try modelInfo.writeToDefaults(app: app, defaults: .firebaseMLDefaults)
-    } catch {
-      downloadHandlers
-        .completion(.failure(.internalError(description: error.localizedDescription)))
-    }
+    localModelInfo.writeToDefaults(defaults, appName: appName)
     /// Build model from model info.
-    guard let model = buildModel() else {
-      downloadHandlers
-        .completion(
-          .failure(
-            .internalError(description: "Could not create model due to incomplete model info.")
-          )
-        )
-      return
+    let model = CustomModel(localModelInfo: localModelInfo)
+    DispatchQueue.main.async {
+      self.downloadHandlers.completion(.success(model))
     }
-    downloadHandlers.completion(.success(model))
   }
 
   func urlSession(_ session: URLSession,
@@ -114,50 +128,11 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
                   totalBytesWritten: Int64,
                   totalBytesExpectedToWrite: Int64) {
     assert(downloadTask == self.downloadTask)
+    /// Check if progress handler is unspecified.
     guard let progressHandler = downloadHandlers.progressHandler else { return }
     let calculatedProgress = Float(totalBytesWritten) / Float(totalBytesExpectedToWrite)
-    progressHandler(calculatedProgress)
-  }
-}
-
-/// Extension to handle post-download operations.
-extension ModelDownloadTask {
-  var downloadedModelFileName: String {
-    return "fbml_model__\(app.name)__\(modelInfo.name)"
-  }
-
-  /// Build custom model object from model info.
-  // TODO: Consider moving this to CustomModel as a convenience init
-  func buildModel() -> CustomModel? {
-    /// Build custom model only if the model file is already on device.
-    guard let path = modelInfo.path else { return nil }
-    let model = CustomModel(
-      name: modelInfo.name,
-      size: modelInfo.size,
-      path: path,
-      hash: modelInfo.modelHash
-    )
-    return model
-  }
-
-  /// Get the local path to model on device.
-  func getLocalModelPath(model: CustomModel) -> URL? {
-    let fileURL: URL = ModelFileManager.modelsDirectory
-      .appendingPathComponent(downloadedModelFileName)
-    if ModelFileManager.isFileReachable(at: fileURL) {
-      return fileURL
-    } else {
-      return nil
+    DispatchQueue.main.async {
+      progressHandler(calculatedProgress)
     }
-  }
-}
-
-/// Named user defaults for FirebaseML.
-extension UserDefaults {
-  static var firebaseMLDefaults: UserDefaults {
-    let suiteName = "com.google.firebase.ml"
-    // TODO: reconsider force unwrapping
-    let defaults = UserDefaults(suiteName: suiteName)!
-    return defaults
   }
 }

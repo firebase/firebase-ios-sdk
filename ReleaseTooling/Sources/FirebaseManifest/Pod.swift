@@ -23,6 +23,7 @@ public struct Pod {
   public let isBeta: Bool
   public let isFirebase: Bool
   public let allowWarnings: Bool // Allow validation warnings. Ideally these should all be false
+  public let platforms: Set<String> // Set of platforms to build this pod for
   public let podVersion: String? // Non-Firebase pods have their own version
   public let releasing: Bool // Non-Firebase pods may not release
   public let zip: Bool // Top level pod in Zip Distribution
@@ -32,6 +33,7 @@ public struct Pod {
        isBeta: Bool = false,
        isFirebase: Bool = true,
        allowWarnings: Bool = false,
+       platforms: Set<String> = ["ios", "macos", "tvos"],
        podVersion: String? = nil,
        releasing: Bool = true,
        zip: Bool = false) {
@@ -40,6 +42,7 @@ public struct Pod {
     self.isBeta = isBeta
     self.isFirebase = isFirebase
     self.allowWarnings = allowWarnings
+    self.platforms = platforms
     self.podVersion = podVersion
     self.releasing = releasing
     self.zip = zip

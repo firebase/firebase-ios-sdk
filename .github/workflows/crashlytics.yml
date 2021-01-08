@@ -71,7 +71,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Setup project and Build for Catalyst
-      run: scripts/test_catalyst.sh FirebaseCrashlytics build FirebaseCrashlytics-Unit-unit
+      run: scripts/test_catalyst.sh FirebaseCrashlytics test FirebaseCrashlytics-Unit-unit
 
   quickstart:
     # Don't run on private repo unless it is a PR.
@@ -108,7 +108,8 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        target: [ios, tvos, macos, watchos --skip-tests] # The macos and tvos tests can hang
+        # Disable macos because of #7154. watchos does not support XCTest.
+        target: [ios, tvos, macos --skip-tests, watchos --skip-tests]
         flags: [
           '--use-static-frameworks',
           '--use-libraries'

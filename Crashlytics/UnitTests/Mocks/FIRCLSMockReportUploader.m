@@ -27,15 +27,11 @@
 @implementation FIRCLSMockReportUploader
 
 - (instancetype)initWithQueue:(NSOperationQueue *)queue
-                     delegate:(id<FIRCLSReportUploaderDelegate>)delegate
                    dataSource:(id<FIRCLSReportUploaderDataSource>)dataSource
-                       client:(FIRCLSNetworkClient *)client
                   fileManager:(FIRCLSFileManager *)fileManager
                     analytics:(id<FIRAnalyticsInterop>)analytics {
   self = [super initWithQueue:queue
-                     delegate:delegate
                    dataSource:dataSource
-                       client:client
                   fileManager:fileManager
                     analytics:analytics];
   if (!self) {
@@ -48,7 +44,7 @@
   return self;
 }
 
-- (BOOL)prepareAndSubmitReport:(FIRCLSInternalReport *)report
+- (void)prepareAndSubmitReport:(FIRCLSInternalReport *)report
            dataCollectionToken:(FIRCLSDataCollectionToken *)dataCollectionToken
                       asUrgent:(BOOL)urgent
                 withProcessing:(BOOL)shouldProcess {
@@ -58,10 +54,10 @@
   // report should be from active/processing here. We just need to "move" it.
   [self.fileManager removeItemAtPath:report.path];
 
-  return YES;
+  return;
 }
 
-- (BOOL)uploadPackagedReportAtPath:(NSString *)path
+- (void)uploadPackagedReportAtPath:(NSString *)path
                dataCollectionToken:(FIRCLSDataCollectionToken *)dataCollectionToken
                           asUrgent:(BOOL)urgent {
   [_uploadReportArray addObject:@{@"path" : path, @"urgent" : @(urgent)}];
@@ -69,7 +65,7 @@
   // After upload, the file should be removed.
   [self.fileManager removeItemAtPath:path];
 
-  return YES;
+  return;
 }
 
 @end

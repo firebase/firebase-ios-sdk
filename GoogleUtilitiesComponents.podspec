@@ -31,6 +31,7 @@ Not intended for direct public usage.
   s.dependency 'GoogleUtilities/Logger'
 
   s.test_spec 'unit' do |unit_tests|
+    unit_tests.scheme = { :code_coverage => true }
     unit_tests.source_files = 'GoogleUtilitiesComponents/Tests/**/*.[mh]'
     unit_tests.requires_arc = 'GoogleUtilitiesComponents/Tests/*/*.[mh]'
     unit_tests.requires_app_host = true

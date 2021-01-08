@@ -9,6 +9,7 @@ on:
     - 'Interop/Auth/Public/*.h'
     - '.github/workflows/database.yml'
     - 'Gemfile'
+    - 'scripts/run_database_emulator.sh'
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
     - cron:  '0 7 * * *'
@@ -78,8 +79,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Setup project and Build for Catalyst
-      # Only build the unit tests on Catalyst. Test stopped working when GHA moved to Xcode 11.4.1.
-      run: scripts/test_catalyst.sh FirebaseDatabase build FirebaseDatabase-Unit-unit
+      run: scripts/test_catalyst.sh FirebaseDatabase test FirebaseDatabase-Unit-unit
 
 # Restore when FirebaseUI works with Firebase 7 (#6646)
   quickstart:
