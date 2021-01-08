@@ -832,21 +832,21 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
     self.outstandingGets[index] = get;
 
     if (![self connected]) {
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW,
-                                     kPersistentConnectionGetConnectTimeout),
-                       self.dispatchQueue, ^{
-                         FOutstandingGet *get = self.outstandingGets[index];
-                         if ([get sent]) {
-                             return;
-                         }
-                         FFLog(@"I-RDB034045",
-                               @"get %@ timed out waiting for a connection",
-                               index);
-                         get.sent = YES;
-                         [self.outstandingGets removeObjectForKey:index];
-                         get.onCompleteBlock(kFWPResponseForActionStatusFailed,
-                                             nil, kPersistentConnectionOffline);
-                       });
+        dispatch_after(
+            dispatch_time(DISPATCH_TIME_NOW,
+                          kPersistentConnectionGetConnectTimeout),
+            self.dispatchQueue, ^{
+              FOutstandingGet *currGet = self.outstandingGets[index];
+              if ([currGet sent] || currGet == nil) {
+                  return;
+              }
+              FFLog(@"I-RDB034045",
+                    @"get %@ timed out waiting for a connection", index);
+              currGet.sent = YES;
+              currGet.onCompleteBlock(kFWPResponseForActionStatusFailed, nil,
+                                      kPersistentConnectionOffline);
+              [self.outstandingGets removeObjectForKey:index];
+            });
         return;
     }
 
