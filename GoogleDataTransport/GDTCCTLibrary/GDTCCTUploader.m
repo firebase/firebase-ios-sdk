@@ -192,7 +192,8 @@ static NSURL *_testServerURL = nil;
     }
   }
 
-  GDTCORLogDebug(@"Uploader wait for finish timeout exceeded. Operations still in queue: %@", self.uploadOperationQueue.operations);
+  GDTCORLogDebug(@"Uploader wait for finish timeout exceeded. Operations still in queue: %@",
+                 self.uploadOperationQueue.operations);
   return NO;
 }
 

@@ -16,10 +16,10 @@
 
 #import <XCTest/XCTest.h>
 
+#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORConsoleLogger.h"
 #import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREvent.h"
 #import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREventDataObject.h"
 #import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORTransport.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORConsoleLogger.h"
 
 #import <SystemConfiguration/SCNetworkReachability.h>
 
@@ -160,7 +160,6 @@
                    [self waitForExpectations:@[ eventsUploaded ] timeout:5];
                  });
 
-  
   NSDate *waitUntilDate = [NSDate dateWithTimeIntervalSinceNow:secondsToRun + 5];
   while ([waitUntilDate compare:[NSDate date]] == NSOrderedDescending) {
     [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
