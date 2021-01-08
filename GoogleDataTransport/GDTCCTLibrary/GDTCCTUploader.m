@@ -184,11 +184,14 @@ static NSURL *_testServerURL = nil;
 
 - (BOOL)waitForUploadFinishedWithTimeout:(NSTimeInterval)timeout {
   NSDate *expirationDate = [NSDate dateWithTimeIntervalSinceNow:timeout];
-  while (self.uploadOperationQueue.operationCount > 0 &&
-         [expirationDate compare:[NSDate date]] == NSOrderedDescending) {
-    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+  while ([expirationDate compare:[NSDate date]] == NSOrderedDescending) {
+    if (self.uploadOperationQueue.operationCount == 0) {
+      return YES;
+    } else {
+      [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+    }
   }
-  return self.uploadOperationQueue.operationCount == 0;
+  return NO;
 }
 
 #endif  // !NDEBUG

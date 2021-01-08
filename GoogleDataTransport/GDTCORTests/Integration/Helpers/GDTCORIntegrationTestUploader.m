@@ -101,11 +101,15 @@
 
 - (BOOL)waitForUploadFinishedWithTimeout:(NSTimeInterval)timeout {
   NSDate *expirationDate = [NSDate dateWithTimeIntervalSinceNow:timeout];
-  while (_currentUploadTask != nil &&
-         [expirationDate compare:[NSDate date]] == NSOrderedDescending) {
-    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+  while ([expirationDate compare:[NSDate date]] == NSOrderedDescending) {
+    if (_currentUploadTask == nil) {
+      return YES;
+    } else {
+      [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+    }
   }
-  return _currentUploadTask == nil;
+  
+  return NO;
 }
 
 @end
