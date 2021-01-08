@@ -53,9 +53,6 @@
 /** The transporter used by the test. */
 @property(nonatomic) GDTCORTransport *transport;
 
-/** The local notification listener, to be removed after each test. */
-@property(nonatomic, strong) id<NSObject> uploadObserver;
-
 /** The local HTTP server to use for testing. */
 @property(nonatomic) GDTCCTTestServer *testServer;
 
@@ -83,10 +80,6 @@
 }
 
 - (void)tearDown {
-  if (self.uploadObserver) {
-    [[NSNotificationCenter defaultCenter] removeObserver:self.uploadObserver];
-    self.uploadObserver = nil;
-  }
 
   [super tearDown];
 }
