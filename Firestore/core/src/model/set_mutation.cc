@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/model/set_mutation.h"
 
+#include <Firestore/core/src/util/to_string.h>
 #include <cstdlib>
 #include <utility>
 
@@ -37,19 +38,33 @@ static_assert(
 
 SetMutation::SetMutation(DocumentKey key,
                          ObjectValue value,
-                         Precondition precondition)
-    : Mutation(std::make_shared<Rep>(
-          std::move(key), std::move(value), std::move(precondition))) {
+                         Precondition precondition,
+                         std::vector<FieldTransform> field_transforms)
+    : Mutation(std::make_shared<Rep>(std::move(key),
+                                     std::move(value),
+                                     std::move(precondition),
+                                     std::move(field_transforms))) {
 }
 
 SetMutation::SetMutation(const Mutation& mutation) : Mutation(mutation) {
   HARD_ASSERT(type() == Type::Set);
 }
 
+SetMutation::SetMutation(DocumentKey key,
+                         ObjectValue value,
+                         Precondition precondition)
+    : Mutation(std::make_shared<Rep>(std::move(key),
+                                     std::move(value),
+                                     std::move(precondition),
+                                     std::vector<FieldTransform>())) {
+}
+
 SetMutation::Rep::Rep(DocumentKey&& key,
                       ObjectValue&& value,
-                      Precondition&& precondition)
-    : Mutation::Rep(std::move(key), std::move(precondition)),
+                      Precondition&& precondition,
+                      std::vector<FieldTransform>&& field_transforms)
+    : Mutation::Rep(
+          std::move(key), std::move(precondition), std::move(field_transforms)),
       value_(std::move(value)) {
 }
 
@@ -58,28 +73,36 @@ MaybeDocument SetMutation::Rep::ApplyToRemoteDocument(
     const MutationResult& mutation_result) const {
   VerifyKeyMatches(maybe_doc);
 
-  HARD_ASSERT(mutation_result.transform_results() == absl::nullopt,
-              "Transform results received by SetMutation.");
-
   // Unlike ApplyToLocalView, if we're applying a mutation to a remote document
   // the server has accepted the mutation so the precondition must have held.
 
+  ObjectValue new_data = value_;
+  if (mutation_result.transform_results() != absl::nullopt) {
+    std::vector<FieldValue> transform_results =
+        ServerTransformResults(maybe_doc, *mutation_result.transform_results());
+    new_data = TransformObject(new_data, transform_results);
+  }
+
   const SnapshotVersion& version = mutation_result.version();
-  return Document(value_, key(), version, DocumentState::kCommittedMutations);
+  return Document(new_data, key(), version, DocumentState::kCommittedMutations);
 }
 
 absl::optional<MaybeDocument> SetMutation::Rep::ApplyToLocalView(
     const absl::optional<MaybeDocument>& maybe_doc,
-    const absl::optional<MaybeDocument>&,
-    const Timestamp&) const {
+    const absl::optional<MaybeDocument>& base_doc,
+    const Timestamp& local_write_time) const {
   VerifyKeyMatches(maybe_doc);
 
   if (!precondition().IsValidFor(maybe_doc)) {
     return maybe_doc;
   }
 
+  std::vector<FieldValue> transforms_results =
+      LocalTransformResults(maybe_doc, base_doc, local_write_time);
+  ObjectValue new_data = TransformObject(value_, transforms_results);
+
   SnapshotVersion version = GetPostMutationVersion(maybe_doc);
-  return Document(value_, key(), version, DocumentState::kLocalMutations);
+  return Document(new_data, key(), version, DocumentState::kLocalMutations);
 }
 
 bool SetMutation::Rep::Equals(const Mutation::Rep& other) const {
@@ -96,7 +119,8 @@ size_t SetMutation::Rep::Hash() const {
 std::string SetMutation::Rep::ToString() const {
   return absl::StrCat("SetMutation(key=", key().ToString(),
                       ", precondition=", precondition().ToString(),
-                      ", value=", value().ToString(), ")");
+                      ", value=", value().ToString(),
+                      ", transforms=", util::ToString(field_transforms()), ")");
 }
 
 }  // namespace model

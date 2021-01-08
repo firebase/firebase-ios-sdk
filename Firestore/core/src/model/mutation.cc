@@ -61,13 +61,47 @@ absl::optional<MaybeDocument> Mutation::ApplyToLocalView(
   return rep().ApplyToLocalView(maybe_doc, base_doc, local_write_time);
 }
 
+absl::optional<ObjectValue> Mutation::Rep::ExtractTransformBaseValue(
+    const absl::optional<MaybeDocument>& maybe_doc) const {
+  absl::optional<ObjectValue> base_object;
+
+  for (const FieldTransform& transform : field_transforms_) {
+    absl::optional<FieldValue> existing_value;
+    if (maybe_doc && maybe_doc->is_document()) {
+      existing_value = Document(*maybe_doc).field(transform.path());
+    }
+
+    absl::optional<FieldValue> coerced_value =
+        transform.transformation().ComputeBaseValue(existing_value);
+    if (coerced_value) {
+      if (!base_object) {
+        base_object = ObjectValue::Empty();
+      }
+      base_object = base_object->Set(transform.path(), *coerced_value);
+    }
+  }
+
+  return base_object;
+}
+
 Mutation::Rep::Rep(DocumentKey&& key, Precondition&& precondition)
-    : key_(std::move(key)), precondition_(std::move(precondition)) {
+    : key_(std::move(key)),
+      precondition_(std::move(precondition)),
+      field_transforms_(std::vector<FieldTransform>()) {
+}
+
+Mutation::Rep::Rep(DocumentKey&& key,
+                   Precondition&& precondition,
+                   std::vector<FieldTransform>&& field_transforms)
+    : key_(std::move(key)),
+      precondition_(std::move(precondition)),
+      field_transforms_(std::move(field_transforms)) {
 }
 
 bool Mutation::Rep::Equals(const Mutation::Rep& other) const {
   return type() == other.type() && key_ == other.key_ &&
-         precondition_ == other.precondition_;
+         precondition_ == other.precondition_ &&
+         field_transforms_ == other.field_transforms_;
 }
 
 void Mutation::Rep::VerifyKeyMatches(
@@ -87,6 +121,72 @@ SnapshotVersion Mutation::Rep::GetPostMutationVersion(
   }
 }
 
+std::vector<FieldValue> Mutation::Rep::ServerTransformResults(
+    const absl::optional<MaybeDocument>& base_doc,
+    const std::vector<FieldValue>& server_transform_results) const {
+  HARD_ASSERT(field_transforms_.size() == server_transform_results.size(),
+              "server transform result size (%s) should match field transforms "
+              "size (%s)",
+              server_transform_results.size(), field_transforms_.size());
+
+  std::vector<FieldValue> transform_results;
+  for (size_t i = 0; i < server_transform_results.size(); i++) {
+    const FieldTransform& field_transform = field_transforms_[i];
+    const TransformOperation& transform = field_transform.transformation();
+
+    absl::optional<model::FieldValue> previous_value;
+    if (base_doc && base_doc->is_document()) {
+      previous_value = Document(*base_doc).field(field_transform.path());
+    }
+
+    transform_results.push_back(transform.ApplyToRemoteDocument(
+        previous_value, server_transform_results[i]));
+  }
+  return transform_results;
+}
+
+std::vector<FieldValue> Mutation::Rep::LocalTransformResults(
+    const absl::optional<MaybeDocument>& maybe_doc,
+    const absl::optional<MaybeDocument>& base_doc,
+    const Timestamp& local_write_time) const {
+  std::vector<FieldValue> transform_results;
+  for (const FieldTransform& field_transform : field_transforms_) {
+    const TransformOperation& transform = field_transform.transformation();
+
+    absl::optional<FieldValue> previous_value;
+    if (maybe_doc && maybe_doc->is_document()) {
+      previous_value = Document(*maybe_doc).field(field_transform.path());
+    }
+
+    // TODO: remove this part
+    if (!previous_value && base_doc && base_doc->is_document()) {
+      // If the current document does not contain a value for the mutated field,
+      // use the value that existed before applying this mutation batch. This
+      // solves an edge case where a PatchMutation clears the values in a nested
+      // map before the TransformMutation is applied.
+      previous_value = Document(*base_doc).field(field_transform.path());
+    }
+
+    transform_results.push_back(
+        transform.ApplyToLocalView(previous_value, local_write_time));
+  }
+  return transform_results;
+}
+
+ObjectValue Mutation::Rep::TransformObject(
+    ObjectValue object_value,
+    const std::vector<FieldValue>& transform_results) const {
+  HARD_ASSERT(transform_results.size() == field_transforms_.size(),
+              "Transform results size mismatch.");
+
+  for (size_t i = 0; i < field_transforms_.size(); i++) {
+    const FieldTransform& field_transform = field_transforms_[i];
+    const FieldPath& field_path = field_transform.path();
+    object_value = object_value.Set(field_path, transform_results[i]);
+  }
+  return object_value;
+}
+
 bool operator==(const Mutation& lhs, const Mutation& rhs) {
   return lhs.rep_ == nullptr
              ? rhs.rep_ == nullptr
@@ -94,7 +194,7 @@ bool operator==(const Mutation& lhs, const Mutation& rhs) {
 }
 
 size_t Mutation::Rep::Hash() const {
-  return util::Hash(type(), key(), precondition());
+  return util::Hash(type(), key(), precondition(), field_transforms());
 }
 
 std::ostream& operator<<(std::ostream& os, const Mutation& mutation) {

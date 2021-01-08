@@ -1,3 +1,9 @@
+# Unreleased
+- [changed] A write to a document that contains FieldValue transforms is no
+  longer split up into two separate operations. This reduces the number of
+  writes the backend performs and allows each WriteBatch to hold 500 writes
+  regardless of how many FieldValue transformations are attached.
+
 # v7.3.0
 - [fixed] Fixed a crash that could happen when the SDK encountered invalid
   data during garbage collection (#6721).

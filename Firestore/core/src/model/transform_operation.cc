@@ -251,8 +251,12 @@ FieldValue ArrayTransform::Rep::Apply(
       }
     } else {
       HARD_ASSERT(type_ == Type::ArrayRemove);
-      if (pos != result.end()) {
-        result.erase(pos);
+      for (int i = 0; i < static_cast<int>(result.size());) {
+        if (type_ == Type::ArrayRemove && element == result.at(i)) {
+          result.erase(result.cbegin() + i);
+        } else {
+          ++i;
+        }
       }
     }
   }
