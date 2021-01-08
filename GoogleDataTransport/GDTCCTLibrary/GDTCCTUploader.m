@@ -137,6 +137,23 @@ static NSURL *_testServerURL = nil;
   return [GDTCOREndpoints uploadURLForTarget:target];
 }
 
+- (NSString *)FLLAndCSHAndINTAPIKey {
+  static NSString *defaultServerKey;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    // These strings should be interleaved to construct the real key.
+    const char *p1 = "AzSBG0honD6A-PxV5nBc";
+    const char *p2 = "Iay44Iwtu2vV0AOrz1C";
+    const char defaultKey[40] = {p1[0],  p2[0],  p1[1],  p2[1],  p1[2],  p2[2],  p1[3],  p2[3],
+                                 p1[4],  p2[4],  p1[5],  p2[5],  p1[6],  p2[6],  p1[7],  p2[7],
+                                 p1[8],  p2[8],  p1[9],  p2[9],  p1[10], p2[10], p1[11], p2[11],
+                                 p1[12], p2[12], p1[13], p2[13], p1[14], p2[14], p1[15], p2[15],
+                                 p1[16], p2[16], p1[17], p2[17], p1[18], p2[18], p1[19], '\0'};
+    defaultServerKey = [NSString stringWithUTF8String:defaultKey];
+  });
+  return defaultServerKey;
+}
+
 #pragma mark - GDTCCTUploadMetadataProvider
 
 - (nullable GDTCORClock *)nextUploadTimeForTarget:(GDTCORTarget)target {
