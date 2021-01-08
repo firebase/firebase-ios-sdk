@@ -73,17 +73,6 @@
 
 #pragma mark - Upload flow tests
 
-- (void)testUploadURLsAreCorrect {
-  GDTCCTUploader.testServerURL = nil;
-  NSDictionary<NSNumber *, NSURL *> *URLs = GDTCCTUploader.uploadURLs;
-  XCTAssertEqualObjects(URLs[@(kGDTCORTargetCCT)], [self serverURLForTarget:kGDTCORTargetCCT]);
-  XCTAssertEqualObjects(URLs[@(kGDTCORTargetFLL)], [self serverURLForTarget:kGDTCORTargetFLL]);
-  XCTAssertEqualObjects(URLs[@(kGDTCORTargetCSH)], [self serverURLForTarget:kGDTCORTargetCSH]);
-  XCTAssertEqualObjects(URLs[@(kGDTCORTargetINT)], [self serverURLForTarget:kGDTCORTargetINT]);
-  GDTCCTUploader.testServerURL =
-      [self.testServer.serverURL URLByAppendingPathComponent:@"logBatch"];
-}
-
 - (void)testUploadTargetWhenThereAreEventsToUpload {
   // 0. Generate test events.
   id<GDTCORStorageProtocol> storage = GDTCORStorageInstanceForTarget(kGDTCORTargetTest);

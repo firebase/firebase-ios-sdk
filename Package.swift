@@ -22,7 +22,7 @@
 
 import PackageDescription
 
-let firebaseVersion = "7.3.0"
+let firebaseVersion = "7.3.1"
 
 let package = Package(
   name: "Firebase",
@@ -106,7 +106,7 @@ let package = Package(
       name: "nanopb",
       url: "https://github.com/firebase/nanopb.git",
       // This revision adds SPM enablement to the 0.3.9.6 release tag.
-      "2.30906.0" ..< "2.30907.0"
+      "2.30907.0" ..< "2.30908.0"
     ),
     .package(name: "abseil",
              url: "https://github.com/firebase/abseil-cpp-SwiftPM.git",

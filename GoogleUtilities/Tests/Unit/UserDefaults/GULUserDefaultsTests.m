@@ -493,6 +493,9 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
   [self removePreferenceFileWithSuiteName:suiteName];
 }
 
+#if !TARGET_OS_MACCATALYST
+// Disable Catalyst flakes.
+
 #pragma mark - Thread-safety test
 
 - (void)testNewUserDefaultsThreadSafeAddingObjects {
@@ -708,6 +711,7 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
   }
   [self removePreferenceFileWithSuiteName:suiteName];
 }
+#endif  // TARGET_OS_MACCATALYST
 
 #pragma mark - Thread methods
 

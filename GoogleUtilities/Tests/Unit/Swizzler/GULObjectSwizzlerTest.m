@@ -354,6 +354,9 @@
   objc_disposeClassPair(generatedClass);
 }
 
+#if !TARGET_OS_MACCATALYST
+// Test fails on Catalyst due to an interaction with GULSceneDelegateSwizzlerTests.
+
 - (void)testSwizzlerDoesntDisposeGeneratedClassWhenObjectIsISASwizzledBySomeoneElse {
   Class generatedClass = nil;
   __weak GULObjectSwizzler *weakSwizzler;
@@ -403,6 +406,7 @@
   // Clean up.
   objc_disposeClassPair(generatedClass);
 }
+#endif
 
 // The test is disabled because in the case of success it should crash with SIGABRT, so it is not
 // suitable for CI.

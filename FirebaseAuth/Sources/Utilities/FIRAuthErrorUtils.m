@@ -166,8 +166,7 @@ static NSString *const kFIRAuthErrorMessageNetworkError =
  */
 static NSString *const kFIRAuthErrorMessageKeychainError =
     @"An error occurred when accessing the "
-     "keychain. The @c NSLocalizedFailureReasonErrorKey field in the @c NSError.userInfo "
-     "dictionary "
+     "keychain. The NSLocalizedFailureReasonErrorKey field in the NSError.userInfo dictionary "
      "will contain more information about the error encountered";
 
 /** @var kFIRAuthErrorMessageMissingClientIdentifier
