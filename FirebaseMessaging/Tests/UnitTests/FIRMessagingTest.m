@@ -15,24 +15,17 @@
  */
 
 #import <XCTest/XCTest.h>
-
 #import "OCMock.h"
 
 #import <GoogleUtilities/GULUserDefaults.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
-#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
-
-#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
-#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
-
 #import "FirebaseMessaging/Sources/FIRMessaging_Private.h"
+#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
 #import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
+#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
-
-/// The NSUserDefaults domain for testing.
-static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 
 @interface FIRMessaging ()
 

@@ -842,10 +842,9 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   }
   // Retrieve the Instance ID default token, and should notify delegate and
   // trigger notification as long as the token is different from previous state.
-  NSString *oldToken = _tokenManager.defaultFCMToken;
+  NSString *oldToken = self.tokenManager.defaultFCMToken;
   NSString *newToken = [(NSString *)notification.object copy];
-  if ((newToken.length && oldToken.length && ![newToken isEqualToString:oldToken]) ||
-      newToken.length != oldToken.length) {
+  if ([self.tokenManager hasTokenChangedFromOldToken:oldToken toNewToken:newToken]) {
     // Make sure to set default token first before notifying others.
     [self.tokenManager saveDefaultTokenInfoInKeychain:newToken];
     [self notifyDelegateOfFCMTokenAvailability];

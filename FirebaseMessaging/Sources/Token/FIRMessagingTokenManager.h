@@ -177,4 +177,9 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
  */
 - (void)setDefaultFCMToken:(NSString *)defaultFcmToken;
 
+/*
+ * Checks if two tokens have changed.
+ */
+- (BOOL)hasTokenChangedFromOldToken:(NSString *)oldToken toNewToken:(NSString *)newToken;
+
 @end

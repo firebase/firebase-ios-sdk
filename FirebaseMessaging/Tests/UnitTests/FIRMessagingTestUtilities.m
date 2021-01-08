@@ -28,8 +28,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-static NSString *const kFIRMessagingDefaultsTestDomain =
-    @"com.messaging.tests";
+NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 static NSString *const kFakeSenderID = @"123456789123";
 
 @interface FIRMessaging (ExposedForTest)

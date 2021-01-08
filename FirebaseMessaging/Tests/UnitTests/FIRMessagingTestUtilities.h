@@ -26,6 +26,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+extern NSString *const kFIRMessagingDefaultsTestDomain;
+
 typedef void (^MockDelegateSubscriptionHandler)(NSString *topic,
                                                 FIRMessagingTopicAction action,
                                                 FIRMessagingTopicOperationCompletion completion);

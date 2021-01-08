@@ -109,9 +109,7 @@ static NSString *const kCheckinFileName = @"g-checkin";
 }
 
 - (void)saveDefaultTokenInfoInKeychain:(NSString *)defaultFcmToken {
-  if (_defaultFCMToken.length != defaultFcmToken.length ||
-      (_defaultFCMToken.length && defaultFcmToken.length &&
-       ![_defaultFCMToken isEqualToString:defaultFcmToken])) {
+  if ([self hasTokenChangedFromOldToken:_defaultFCMToken toNewToken:defaultFcmToken]) {
     _defaultFCMToken = [defaultFcmToken copy];
     FIRMessagingTokenInfo *tokenInfo =
         [[FIRMessagingTokenInfo alloc] initWithAuthorizedEntity:_fcmSenderID
@@ -124,6 +122,11 @@ static NSString *const kCheckinFileName = @"g-checkin";
 
     [self->_tokenStore saveTokenInfoInCache:tokenInfo];
   }
+}
+
+- (BOOL)hasTokenChangedFromOldToken:(NSString *)oldToken toNewToken:(NSString *)newToken {
+  return oldToken.length != newToken.length ||
+         (oldToken.length && newToken.length && ![oldToken isEqualToString:newToken]);
 }
 
 - (NSDictionary *)tokenOptions {
