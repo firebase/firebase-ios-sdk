@@ -1,4 +1,4 @@
-// Copyright 2020 Google LLC
+// Copyright 2021 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,12 +33,6 @@ class LocalModelInfo {
   /// Local path of the model.
   let path: String
 
-  /// Get user defaults key prefix.
-  private static func getUserDefaultsKeyPrefix(appName: String, modelName: String) -> String {
-    let bundleID = Bundle.main.bundleIdentifier ?? ""
-    return "\(bundleID).\(appName).\(modelName)"
-  }
-
   init(name: String, downloadURL: URL, modelHash: String, size: Int, path: String) {
     self.name = name
     self.downloadURL = downloadURL
@@ -70,6 +64,15 @@ class LocalModelInfo {
       return nil
     }
     self.init(name: name, downloadURL: url, modelHash: modelHash, size: size, path: path)
+  }
+}
+
+/// Extension to write local model info to user defaults.
+extension LocalModelInfo: DownloaderUserDefaultsWriteable {
+  /// Get user defaults key prefix.
+  private static func getUserDefaultsKeyPrefix(appName: String, modelName: String) -> String {
+    let bundleID = Bundle.main.bundleIdentifier ?? ""
+    return "\(bundleID).\(appName).\(modelName)"
   }
 
   /// Write local model info to user defaults.
