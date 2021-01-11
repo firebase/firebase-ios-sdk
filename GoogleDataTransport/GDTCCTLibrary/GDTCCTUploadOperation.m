@@ -514,7 +514,8 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
 
   // If the operation hasn't been started we can set `isFinished = YES` straight away.
   if (!_executing) {
-    [self finishOperation];
+    _executing = NO;
+    _finished = YES;
   }
 }
 
