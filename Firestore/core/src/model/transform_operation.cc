@@ -251,8 +251,8 @@ FieldValue ArrayTransform::Rep::Apply(
       }
     } else {
       HARD_ASSERT(type_ == Type::ArrayRemove);
-      for (int i = 0; i < static_cast<int>(result.size());) {
-        if (type_ == Type::ArrayRemove && element == result.at(i)) {
+      for (size_t i = 0; i < result.size();) {
+        if (element == result.at(i)) {
           result.erase(result.cbegin() + i);
         } else {
           ++i;
