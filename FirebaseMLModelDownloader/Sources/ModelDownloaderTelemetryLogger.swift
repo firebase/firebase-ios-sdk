@@ -23,7 +23,7 @@ struct FBMLEvent: Codable {
   var errorCode: Int?
 }
 
-/// System info.
+/// App and Firebase options info.
 struct FBMLSystemInfo: Codable {
   var appID: String
   var appVersion: String
@@ -55,7 +55,7 @@ class FBMLDataObject: NSObject, GDTCOREventDataObject {
       return data
     } catch {
       DeviceLogger.logEvent(
-        level: .error,
+        level: .debug,
         category: .analytics,
         message: "Unable to encode Firelog event.",
         messageCode: .analyticsEventEncodeError
@@ -66,7 +66,7 @@ class FBMLDataObject: NSObject, GDTCOREventDataObject {
 }
 
 /// Firelog event transporter.
-class ModelDownloaderEventTransport {
+class FBMLEventTransport {
   private let logSDKName = "FIREBASE_ML_LOG_SDK"
   let fllTransport: GDTCORTransport
 
@@ -83,7 +83,7 @@ class ModelDownloaderEventTransport {
 }
 
 /// Firelog logger.
-class AnalyticsLogger {
+class TelemetryLogger {
   let isStatsEnabled: Bool
   let fllTransport: GDTCORTransport
 
