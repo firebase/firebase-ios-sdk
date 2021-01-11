@@ -184,9 +184,13 @@
                          @"queryOrderedByKey:"
                 userInfo:nil];
     }
+    NSString *methodName = @"queryStartingAtValue:childKey:";
+    if (childKey != nil) {
+        [FValidation validateFrom:methodName validKey:childKey];
+    }
     return [self queryStartingAtInternal:startValue
                                 childKey:childKey
-                                    from:@"queryStartingAtValue:childKey:"
+                                    from:methodName
                           priorityMethod:NO];
 }
 
@@ -199,19 +203,24 @@
     if ([self.queryParams.index isEqual:[FKeyIndex keyIndex]]) {
         @throw [[NSException alloc]
             initWithName:INVALID_QUERY_PARAM_ERROR
-                  reason:@"You must use queryStartingAtValue: instead of "
-                         @"queryStartingAtValue:childKey: when using "
+                  reason:@"You must use queryStartingAfterValue: instead of "
+                         @"queryStartingAfterValue:childKey: when using "
                          @"queryOrderedByKey:"
                 userInfo:nil];
     }
     if (childKey == nil) {
         childKey = [FUtilities maxName];
     } else {
-        childKey = [FNextPushId nextAfter:childKey];
+        childKey = [FNextPushId successor:childKey];
+        NSLog(@"successor of child key %@", childKey);
+    }
+    NSString *methodName = @"queryStartingAfterValue:childKey:";
+    if (childKey != nil && ![childKey isEqual:[FUtilities maxName]]) {
+        [FValidation validateFrom:methodName validKey:childKey];
     }
     return [self queryStartingAtInternal:startAfterValue
                                 childKey:childKey
-                                    from:@"queryStartingAfterValue:childKey:"
+                                    from:methodName
                           priorityMethod:NO];
 }
 
@@ -220,9 +229,6 @@
                                          from:(NSString *)methodName
                                priorityMethod:(BOOL)priorityMethod {
     [self validateIndexValueType:startValue fromMethod:methodName];
-    if (childKey != nil && ![childKey isEqual:[FUtilities maxName]]) {
-        [FValidation validateFrom:methodName validKey:childKey];
-    }
     if ([self.queryParams hasStart]) {
         [NSException raise:INVALID_QUERY_PARAM_ERROR
                     format:@"Can't call %@ after queryStartingAtValue or "

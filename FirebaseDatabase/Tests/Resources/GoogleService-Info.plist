@@ -2,27 +2,35 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>API_KEY</key>
-	<string>correct_api_key</string>
-	<key>TRACKING_ID</key>
-	<string>correct_tracking_id</string>
 	<key>CLIENT_ID</key>
-	<string>correct_client_id</string>
+	<string>773687697675-q9dgvvkm3jfu2qjn4fgcvfvhcd7p1m61.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>correct_reversed_client_id</string>
-	<key>GOOGLE_APP_ID</key>
-	<string>1:123:ios:123abc</string>
+	<string>com.googleusercontent.apps.773687697675-q9dgvvkm3jfu2qjn4fgcvfvhcd7p1m61</string>
+	<key>API_KEY</key>
+	<string>AIzaSyBcw9bHatsZa6tU-iHWDIFFZnS_E1k4i7A</string>
 	<key>GCM_SENDER_ID</key>
-	<string>correct_gcm_sender_id</string>
+	<string>773687697675</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.google.FirebaseSDKTests</string>
 	<key>PROJECT_ID</key>
-	<string>abc-xyz-123</string>
-	<key>DATABASE_URL</key>
-	<string>https://abc-xyz-123.firebaseio.com</string>
+	<string>fir-multi-shards</string>
 	<key>STORAGE_BUCKET</key>
-	<string>project-id-123.storage.firebase.com</string>
+	<string>fir-multi-shards.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:773687697675:ios:0eac57bfb76d5c082ac20e</string>
+	<key>DATABASE_URL</key>
+	<string>https://fir-multi-shards.firebaseio.com</string>
 </dict>
 </plist>
