@@ -1599,36 +1599,6 @@
   [expectations validate];
 }
 
-- (void)testStartAfterAndEndAtPriorityAndNameWork2 {
-  FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
-  FTestExpectations* expectations = [[FTestExpectations alloc] initFrom:self];
-
-  FIRDatabaseQuery* query = [[[ref queryOrderedByPriority] queryStartingAfterValue:@1 childKey:@"c"]
-      queryEndingAtValue:@2
-                childKey:@"b"];
-  [expectations addQuery:query withExpectation:@{@"a" : @1, @"b" : @2, @"d" : @4}];
-
-  query = [[[ref queryOrderedByPriority] queryStartingAfterValue:@1
-                                                        childKey:@"d"] queryEndingAtValue:@2
-                                                                                 childKey:@"a"];
-  [expectations addQuery:query withExpectation:@{@"a" : @1}];
-
-  query = [[[ref queryOrderedByPriority] queryStartingAfterValue:@1
-                                                        childKey:@"e"] queryEndingAtValue:@2];
-  [expectations addQuery:query withExpectation:@{@"a" : @1, @"b" : @2}];
-
-  [ref setValue:@{
-    @"c" : @{@".value" : @3, @".priority" : @1},
-    @"d" : @{@".value" : @4, @".priority" : @1},
-    @"a" : @{@".value" : @1, @".priority" : @2},
-    @"b" : @{@".value" : @2, @".priority" : @2}
-  }];
-
-  WAIT_FOR(expectations.isReady);
-
-  [expectations validate];
-}
-
 - (void)testStartAtAndEndAtPriorityAndNameWorkWithServerData2 {
   FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
   __block BOOL ready = NO;
@@ -1658,42 +1628,6 @@
 
   query = [[[ref queryOrderedByPriority] queryStartingAtValue:@1
                                                      childKey:@"e"] queryEndingAtValue:@2];
-  [expectations addQuery:query withExpectation:@{@"a" : @1, @"b" : @2}];
-
-  WAIT_FOR(expectations.isReady);
-
-  [expectations validate];
-}
-
-- (void)testStartAfterAndEndAtPriorityAndNameWorkWithServerData2 {
-  FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
-  __block BOOL ready = NO;
-  [ref setValue:@{
-    @"c" : @{@".value" : @3, @".priority" : @1},
-    @"d" : @{@".value" : @4, @".priority" : @1},
-    @"a" : @{@".value" : @1, @".priority" : @2},
-    @"b" : @{@".value" : @2, @".priority" : @2}
-  }
-      withCompletionBlock:^(NSError* err, FIRDatabaseReference* ref) {
-        ready = YES;
-      }];
-
-  WAIT_FOR(ready);
-
-  FTestExpectations* expectations = [[FTestExpectations alloc] initFrom:self];
-
-  FIRDatabaseQuery* query = [[[ref queryOrderedByPriority] queryStartingAfterValue:@1 childKey:@"c"]
-      queryEndingAtValue:@2
-                childKey:@"b"];
-  [expectations addQuery:query withExpectation:@{@"a" : @1, @"b" : @2, @"d" : @4}];
-
-  query = [[[ref queryOrderedByPriority] queryStartingAfterValue:@1
-                                                        childKey:@"d"] queryEndingAtValue:@2
-                                                                                 childKey:@"a"];
-  [expectations addQuery:query withExpectation:@{@"a" : @1}];
-
-  query = [[[ref queryOrderedByPriority] queryStartingAfterValue:@1
-                                                        childKey:@"e"] queryEndingAtValue:@2];
   [expectations addQuery:query withExpectation:@{@"a" : @1, @"b" : @2}];
 
   WAIT_FOR(expectations.isReady);
