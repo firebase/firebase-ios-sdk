@@ -25,7 +25,7 @@ jobs:
       run: ./scripts/setup_bundler.sh
     - name: PodLibLint DataTransport
       run: |
-        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=${{ matrix.target }} --verbose
+        scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=${{ matrix.target }} --verbose --fail-fast
 
   catalyst:
     # Don't run on private repo unless it is a PR.
