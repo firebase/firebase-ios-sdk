@@ -22,6 +22,6 @@
 
 + (NSString *)successor:(NSString *)key;
 
-+ (NSString *)prevBefore:(NSString *)key;
++ (NSString *)predecessor:(NSString *)key;
 
 @end

@@ -104,15 +104,15 @@ static NSInteger const MAX_KEY_LEN = 786;
 }
 
 // `key` is assumed to be non-empty.
-+ (NSString *)prevBefore:(NSString *_Nonnull)key {
++ (NSString *)predecessor:(NSString *_Nonnull)key {
     NSInteger keyAsInt;
     if ([FUtilities tryParseStringToInt:key asInt:&keyAsInt]) {
-        return [FUtilities
-            ieee754StringForNumber:[NSNumber numberWithInteger:(keyAsInt - 1)]];
+        if (keyAsInt == [FUtilities int32min]) {
+            return [FUtilities minName];
+        }
+        return [NSString stringWithFormat:@"%ld", (long)keyAsInt - 1];
     }
-
     NSMutableString *next = [NSMutableString stringWithString:key];
-
     if ([[next substringWithRange:NSMakeRange(next.length - 1, 1)]
             isEqualToString:MIN_PUSH_CHAR]) {
         if ([next length] == 1) {
@@ -136,7 +136,7 @@ static NSInteger const MAX_KEY_LEN = 786;
                         withString:[PUSH_CHARS substringWithRange:srcRange]];
     return [next stringByPaddingToLength:MAX_KEY_LEN
                               withString:MAX_PUSH_CHAR
-                         startingAtIndex:[next length]];
+                         startingAtIndex:0];
 };
 
 @end
