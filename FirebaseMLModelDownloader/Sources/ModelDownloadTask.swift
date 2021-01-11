@@ -93,6 +93,12 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
                   didFinishDownloadingTo location: URL) {
     assert(downloadTask == self.downloadTask)
     downloadStatus = .completed
+    ModelDownloaderDeviceLogger.logEvent(
+      level: .info,
+      category: .modelDownload,
+      message: "Remote model successfully downloaded.",
+      messageCode: .modelDownloaded
+    )
     let modelFileURL = ModelFileManager.getDownloadedModelFilePath(
       appName: appName,
       modelName: remoteModelInfo.name
