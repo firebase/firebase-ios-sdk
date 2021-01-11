@@ -102,7 +102,7 @@ message BundleMetadata {
   uint64 total_bytes = 5;
 }
 
-// A Firestore bundle is a length-prefixed stream of JSON representations of 
+// A Firestore bundle is a length-prefixed stream of JSON representations of
 // `BundleElement`.
 // Only one `BundleMetadata` is expected, and it should be the first element.
 // The named queries follow after `metadata`. If a document exists when the
