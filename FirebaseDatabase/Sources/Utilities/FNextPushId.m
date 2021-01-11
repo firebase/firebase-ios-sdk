@@ -65,22 +65,24 @@ static NSInteger const MAX_KEY_LEN = 786;
     return [NSString stringWithString:id];
 }
 
-+ (NSString *)nextAfter:(NSString *_Nonnull)key {
++ (NSString *)successor:(NSString *_Nonnull)key {
     NSInteger keyAsInt;
     if ([FUtilities tryParseStringToInt:key asInt:&keyAsInt]) {
-        return [FUtilities
-            ieee754StringForNumber:[NSNumber numberWithInteger:(keyAsInt + 1)]];
+        if (keyAsInt == NSIntegerMax) {
+            return MIN_PUSH_CHAR;
+        }
+        return [NSString stringWithFormat:@"%ld", (long)keyAsInt + 1];
     }
-    NSString *charFormat = @"%C";
     NSMutableString *next = [NSMutableString stringWithString:key];
     if ([next length] < MAX_KEY_LEN) {
         [next insertString:MIN_PUSH_CHAR atIndex:[key length]];
         return next;
     }
+
     unsigned long i = [next length] - 1;
 
-    while (i >= 0 && [[next substringWithRange:NSMakeRange(i, i + 1)]
-                         isEqualToString:MAX_PUSH_CHAR]) {
+    while (i >= 0 &&
+           [next characterAtIndex:i] == [MAX_PUSH_CHAR characterAtIndex:0]) {
         i--;
     }
 
@@ -91,13 +93,10 @@ static NSInteger const MAX_KEY_LEN = 786;
     }
 
     NSString *source =
-        [NSString stringWithFormat:charFormat, [next characterAtIndex:i]];
+        [NSString stringWithFormat:@"%C", [next characterAtIndex:i]];
+    NSInteger sourceIndex = [PUSH_CHARS rangeOfString:source].location;
     NSString *sourcePlusOne = [NSString
-        stringWithFormat:charFormat,
-                         [PUSH_CHARS
-                             characterAtIndex:[PUSH_CHARS rangeOfString:source]
-                                                  .location +
-                                              1]];
+        stringWithFormat:@"%C", [PUSH_CHARS characterAtIndex:sourceIndex + 1]];
 
     [next replaceCharactersInRange:NSMakeRange(i, i + 1)
                         withString:sourcePlusOne];

@@ -326,14 +326,12 @@ NS_SWIFT_NAME(DatabaseQuery)
  * queryStartingAfterValue: is used to generate a reference to a
  * limited view of the data at this location. The FIRDatabaseQuery instance
  * returned by queryStartingAfterValue: will respond to events at nodes
- * with a value greater than startAfterValue. This is most useful when
- * implementing pagination in a case where multiple nodes can match the
- * startAfterValue.
+ * with a value greater than startAfterValue.
  *
- * @param startAfterValue The lower bound, inclusive, for the value of data
+ * @param startAfterValue The lower bound, exclusive, for the value of data
  * visible to the returned FIRDatabaseQuery
- * @return A FIRDatabaseQuery instance, limited to data with value greater than
- * or equal to startAfterValue
+ * @return A FIRDatabaseQuery instance, limited to data with value greater
+ * startAfterValue
  */
 - (FIRDatabaseQuery *)queryStartingAfterValue:(nullable id)startAfterValue;
 
@@ -347,10 +345,10 @@ NS_SWIFT_NAME(DatabaseQuery)
  *
  * @param startAfterValue The lower bound, inclusive, for the value of data
  * visible to the returned FIRDatabaseQuery
- * @param childKey The lower bound, inclusive, for the key of nodes with value
+ * @param childKey The lower bound, exclusive, for the key of nodes with value
  * equal to startAfterValue
  * @return A FIRDatabaseQuery instance, limited to data with value greater than
- * or equal to startAfterValue
+ * startAfterValue, or equal to startAfterValue with a key greater than childKey
  */
 - (FIRDatabaseQuery *)queryStartingAfterValue:(nullable id)startAfterValue
                                      childKey:(nullable NSString *)childKey;
