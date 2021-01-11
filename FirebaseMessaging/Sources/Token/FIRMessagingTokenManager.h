@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <FirebaseMessaging/FIRMessaging.h>
+#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
 
 @class FIRMessagingAuthService;
 @class FIRMessagingCheckinPreferences;
@@ -125,8 +125,6 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
  */
 - (void)stopAllTokenOperations;
 
-#pragma mark - Invalidating Cached Tokens
-
 /**
  *  Invalidate any cached tokens, if the app version has changed since last launch or if the token
  *  is cached for more than 7 days.
@@ -169,8 +167,19 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
 - (NSString *)tokenAndRequestIfNotExist;
 
 /*
- * Saves the default token to cache. This is to set the cache if token is updated from iid.
+ * Saves the default token to the keychain.
  */
-- (void)saveDefaultTokenInfo:(NSString *)defaultFcmToken;
+- (void)saveDefaultTokenInfoInKeychain:(NSString *)defaultFcmToken;
+
+/*
+ * Posts a token refresh notification when a default FCM token is generated.
+ *
+ */
+- (void)postTokenRefreshNotificationWithDefaultFCMToken:(NSString *)defaultFCMToken;
+
+/*
+ * Checks if two tokens have changed.
+ */
+- (BOOL)hasTokenChangedFromOldToken:(NSString *)oldToken toNewToken:(NSString *)newToken;
 
 @end

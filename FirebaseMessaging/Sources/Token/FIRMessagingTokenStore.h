@@ -84,6 +84,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)removeAllTokensWithHandler:(nullable void (^)(NSError *))handler;
 
+/*
+ *  Only save to local cache but not keychain. This is used when old
+ *  InstanceID SDK updates the token in the keychain, Messaging
+ *  should update its cache without writing to keychain again.
+ *  @param tokenInfo   The token info need to be updated in the cache.
+ */
 - (void)saveTokenInfoInCache:(FIRMessagingTokenInfo *)tokenInfo;
 
 NS_ASSUME_NONNULL_END

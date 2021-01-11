@@ -14,23 +14,22 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingTokenManager.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
 
-#import <FirebaseInstallations/FIRInstallations.h>
-
-#import "FIRMessagingAuthKeyChain.h"
-#import "FIRMessagingAuthService.h"
-#import "FIRMessagingCheckinPreferences.h"
-#import "FIRMessagingConstants.h"
-#import "FIRMessagingDefines.h"
-#import "FIRMessagingLogger.h"
-#import "FIRMessagingTokenDeleteOperation.h"
-#import "FIRMessagingTokenFetchOperation.h"
-#import "FIRMessagingTokenInfo.h"
-#import "FIRMessagingTokenOperation.h"
+#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
+#import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
+#import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
+#import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
+#import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingAuthKeyChain.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingAuthService.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinPreferences.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinStore.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenDeleteOperation.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenFetchOperation.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenInfo.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenOperation.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenStore.h"
-#import "NSError+FIRMessaging.h"
 
 // NOTE: These values should be in sync with what InstanceID saves in as.
 static NSString *const kCheckinFileName = @"g-checkin";
@@ -74,6 +73,7 @@ static NSString *const kCheckinFileName = @"g-checkin";
   if (!self.fcmSenderID.length) {
     return nil;
   }
+
   if (_defaultFCMToken.length) {
     return _defaultFCMToken;
   }
@@ -100,25 +100,33 @@ static NSString *const kCheckinFileName = @"g-checkin";
   return _defaultFCMToken;
 }
 
-- (void)setDefaultFCMToken:(NSString *)defaultFcmToken {
+- (void)postTokenRefreshNotificationWithDefaultFCMToken:(NSString *)defaultFCMToken {
   // Should always trigger the token refresh notification when the delegate method is called
+  // No need to check if the token has changed, it's handled in the notification receiver.
   NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
   [center postNotificationName:kFIRMessagingRegistrationTokenRefreshNotification
-                        object:defaultFcmToken];
+                        object:defaultFCMToken];
 }
 
-- (void)saveDefaultTokenInfo:(NSString *)defaultFcmToken {
-  _defaultFCMToken = [defaultFcmToken copy];
-  FIRMessagingTokenInfo *tokenInfo =
-      [[FIRMessagingTokenInfo alloc] initWithAuthorizedEntity:_fcmSenderID
-                                                        scope:kFIRMessagingDefaultTokenScope
-                                                        token:defaultFcmToken
-                                                   appVersion:FIRMessagingCurrentAppVersion()
-                                                firebaseAppID:_firebaseAppID];
-  tokenInfo.APNSInfo =
-      [[FIRMessagingAPNSInfo alloc] initWithTokenOptionsDictionary:[self tokenOptions]];
+- (void)saveDefaultTokenInfoInKeychain:(NSString *)defaultFcmToken {
+  if ([self hasTokenChangedFromOldToken:_defaultFCMToken toNewToken:defaultFcmToken]) {
+    _defaultFCMToken = [defaultFcmToken copy];
+    FIRMessagingTokenInfo *tokenInfo =
+        [[FIRMessagingTokenInfo alloc] initWithAuthorizedEntity:_fcmSenderID
+                                                          scope:kFIRMessagingDefaultTokenScope
+                                                          token:defaultFcmToken
+                                                     appVersion:FIRMessagingCurrentAppVersion()
+                                                  firebaseAppID:_firebaseAppID];
+    tokenInfo.APNSInfo =
+        [[FIRMessagingAPNSInfo alloc] initWithTokenOptionsDictionary:[self tokenOptions]];
 
-  [self->_tokenStore saveTokenInfoInCache:tokenInfo];
+    [self->_tokenStore saveTokenInfoInCache:tokenInfo];
+  }
+}
+
+- (BOOL)hasTokenChangedFromOldToken:(NSString *)oldToken toNewToken:(NSString *)newToken {
+  return oldToken.length != newToken.length ||
+         (oldToken.length && newToken.length && ![oldToken isEqualToString:newToken]);
 }
 
 - (NSDictionary *)tokenOptions {
@@ -276,7 +284,7 @@ static NSString *const kCheckinFileName = @"g-checkin";
           return;
         }
         if ([self isDefaultTokenWithAuthorizedEntity:authorizedEntity scope:scope]) {
-          [self setDefaultFCMToken:token];
+          [self postTokenRefreshNotificationWithDefaultFCMToken:token];
         }
         NSString *firebaseAppID = options[kFIRMessagingTokenOptionsFirebaseAppIDKey];
         FIRMessagingTokenInfo *tokenInfo =
@@ -361,7 +369,7 @@ static NSString *const kCheckinFileName = @"g-checkin";
     [operation addCompletionHandler:^(FIRMessagingTokenOperationResult result,
                                       NSString *_Nullable token, NSError *_Nullable error) {
       if ([self isDefaultTokenWithAuthorizedEntity:authorizedEntity scope:scope]) {
-        [self setDefaultFCMToken:nil];
+        [self postTokenRefreshNotificationWithDefaultFCMToken:nil];
       }
       dispatch_async(dispatch_get_main_queue(), ^{
         handler(error);
@@ -404,7 +412,6 @@ static NSString *const kCheckinFileName = @"g-checkin";
         if (handler) {
           [operation addCompletionHandler:^(FIRMessagingTokenOperationResult result,
                                             NSString *_Nullable token, NSError *_Nullable error) {
-            [self setDefaultFCMToken:nil];
             dispatch_async(dispatch_get_main_queue(), ^{
               handler(error);
             });
@@ -432,7 +439,7 @@ static NSString *const kCheckinFileName = @"g-checkin";
       return;
     }
     [self deleteAllTokensLocallyWithHandler:^(NSError *localError) {
-      self->_defaultFCMToken = nil;
+      [self postTokenRefreshNotificationWithDefaultFCMToken:nil];
       if (localError) {
         handler(localError);
         return;

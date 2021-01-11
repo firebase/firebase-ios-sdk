@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingKeychain.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingKeychain.h"
 
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 

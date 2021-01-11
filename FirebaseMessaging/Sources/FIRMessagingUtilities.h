@@ -16,8 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-
-
 #pragma mark - URL Helpers
 
 FOUNDATION_EXPORT NSString *FIRMessagingTokenRegisterServer(void);

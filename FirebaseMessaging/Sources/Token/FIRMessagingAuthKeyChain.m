@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingAuthKeyChain.h"
-#import "FIRMessagingKeychain.h"
-#import "FIRMessagingLogger.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingAuthKeyChain.h"
+#import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingKeychain.h"
 
 /**
  *  The error type representing why we couldn't read data from the keychain.

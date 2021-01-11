@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import "FIRMessagingAuthService.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingAuthService.h"
 
-#import "FIRMessagingCheckinPreferences.h"
-#import "FIRMessagingCheckinStore.h"
-#import "FIRMessagingConstants.h"
-#import "FIRMessagingDefines.h"
-#import "FIRMessagingLogger.h"
-#import "NSError+FIRMessaging.h"
+#import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
+#import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
+#import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
+#import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinPreferences.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinStore.h"
 
 // Max time interval between checkin retry in seconds.
 static const int64_t kMaxCheckinRetryIntervalInSeconds = 1 << 5;

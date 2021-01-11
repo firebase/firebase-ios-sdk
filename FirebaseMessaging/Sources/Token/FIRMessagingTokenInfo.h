@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRMessagingAPNSInfo.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingAPNSInfo.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
