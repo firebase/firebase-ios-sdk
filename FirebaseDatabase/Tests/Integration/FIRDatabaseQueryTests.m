@@ -30,6 +30,7 @@
   [ref queryLimitedToLast:10];
 
   [[ref queryOrderedByKey] queryStartingAtValue:@"foo"];
+  [[ref queryOrderedByKey] queryStartingAfterValue:@"foo"];
   [[ref queryOrderedByKey] queryEndingAtValue:@"foo"];
   [[ref queryOrderedByKey] queryEqualToValue:@"foo"];
 
