@@ -32,6 +32,8 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'Core' do |ss|
     ss.ios.deployment_target = '9.0'
+    ss.osx.deployment_target = '10.12'
+    ss.tvos.deployment_target = '10.0'
     ss.ios.dependency 'FirebaseAnalytics', '7.3.0'
     ss.dependency 'Firebase/CoreOnly'
   end

@@ -190,12 +190,6 @@ jobs:
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec --use-libraries
         - travis_retry ./scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec --use-modular-headers
 
-    - stage: test
-      env:
-        - PROJECT=GoogleDataTransport METHOD=pod-lib-lint
-      script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleDataTransport.podspec --platforms=ios
-
     # Validate Cocoapods configurations
     # This may take long time, so we would like to run it only once all other tests pass
     - stage: test
