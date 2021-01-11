@@ -93,12 +93,6 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
                   didFinishDownloadingTo location: URL) {
     assert(downloadTask == self.downloadTask)
     downloadStatus = .completed
-    ModelDownloaderDeviceLogger.logEvent(
-      level: .info,
-      category: .modelDownload,
-      message: "Remote model successfully downloaded.",
-      messageCode: .modelDownloaded
-    )
     let modelFileURL = ModelFileManager.getDownloadedModelFilePath(
       appName: appName,
       modelName: remoteModelInfo.name
@@ -123,6 +117,17 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
     localModelInfo.writeToDefaults(defaults, appName: appName)
     /// Build model from model info.
     let model = CustomModel(localModelInfo: localModelInfo)
+    /// On-device logging.
+    DeviceLogger.logEvent(
+      level: .info,
+      category: .modelDownload,
+      message: "Remote model successfully downloaded.",
+      messageCode: .modelDownloaded
+    )
+    /// Firelog logging.
+    // TODO: Call analytics logger here
+    // AnalyticsLogger.logEvent(...)
+
     DispatchQueue.main.async {
       self.downloadHandlers.completion(.success(model))
     }

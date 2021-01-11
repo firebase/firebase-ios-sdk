@@ -54,7 +54,7 @@ class FBMLDataObject: NSObject, GDTCOREventDataObject {
       let data = try encoder.encode(event)
       return data
     } catch {
-      ModelDownloaderDeviceLogger.logEvent(
+      DeviceLogger.logEvent(
         level: .error,
         category: .analytics,
         message: "Unable to encode Firelog event.",
@@ -83,7 +83,7 @@ class ModelDownloaderEventTransport {
 }
 
 /// Firelog logger.
-class ModelDownloaderAnalyticsLogger {
+class AnalyticsLogger {
   let isStatsEnabled: Bool
   let fllTransport: GDTCORTransport
 

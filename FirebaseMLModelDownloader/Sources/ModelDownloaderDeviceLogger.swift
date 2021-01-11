@@ -16,7 +16,7 @@ import Foundation
 import os
 
 /// On-device logger.
-class ModelDownloaderDeviceLogger {
+class DeviceLogger {
   /// Log event on device.
   static func logEvent(level: OSLogType, category: OSLog, message: StaticString,
                        messageCode: LoggerMessageCode) {
