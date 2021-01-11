@@ -92,7 +92,8 @@
 - (void)validateQueryEndpointsForParams:(FQueryParams *)params {
     if ([params.index isEqual:[FKeyIndex keyIndex]]) {
         if ([params hasStart]) {
-            if (params.indexStartKey != [FUtilities minName]) {
+            if (params.indexStartKey != [FUtilities minName] &&
+                params.indexStartKey != [FUtilities maxName]) {
                 [NSException raise:INVALID_QUERY_PARAM_ERROR
                             format:@"Can't use queryStartingAtValue:childKey: "
                                    @"or queryEqualTo:andChildKey: in "
@@ -200,7 +201,8 @@
 
 - (FIRDatabaseQuery *)queryStartingAfterValue:(id)startAfterValue
                                      childKey:(NSString *)childKey {
-    if ([self.queryParams.index isEqual:[FKeyIndex keyIndex]]) {
+    if ([self.queryParams.index isEqual:[FKeyIndex keyIndex]] &&
+        childKey != nil) {
         @throw [[NSException alloc]
             initWithName:INVALID_QUERY_PARAM_ERROR
                   reason:@"You must use queryStartingAfterValue: instead of "
