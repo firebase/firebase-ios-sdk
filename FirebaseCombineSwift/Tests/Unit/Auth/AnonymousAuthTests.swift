@@ -18,26 +18,6 @@ import XCTest
 import FirebaseAuth
 
 class AnonymousAuthTests: XCTestCase {
-  override class func setUp() {
-    FirebaseApp.configureForTests()
-  }
-
-  override class func tearDown() {
-    FirebaseApp.app()?.delete { success in
-      if success {
-        print("Shut down app successfully.")
-      } else {
-        print("💥 There was a problem when shutting down the app..")
-      }
-    }
-  }
-
-  override func setUp() {
-    do {
-      try Auth.auth().signOut()
-    } catch {}
-  }
-
   static let apiKey = Credentials.apiKey
   static let accessTokenTimeToLive: TimeInterval = 60 * 60
   static let refreshToken = "REFRESH_TOKEN"
@@ -82,16 +62,28 @@ class AnonymousAuthTests: XCTestCase {
     }
   }
 
+  // MARK: - Test case setup
+  override class func setUp() {
+    FIRAuthBackend.setBackendImplementation(MockAuthBackend())
+  }
+  
+  // MARK: - Test method setup
+  var app: FirebaseApp?
+  var auth: Auth?
+  
+  override func setUp() {
+    self.app = FirebaseApp.appForAuthUnitTestsWithName(name: "app1")
+    guard let app = app else { fatalError() }
+    self.auth = Auth.auth(app: app)
+  }
+  
   func testSignInAnonymouslySuccessfully() {
     // given
-    FIRAuthBackend.setBackendImplementation(MockAuthBackend())
-
     var cancellables = Set<AnyCancellable>()
-
     let userSignedInExpectation = expectation(description: "Signed in anonymously")
 
     // when
-    Auth.auth().signInAnonymously()
+    auth?.signInAnonymously()
       .sink { completion in
         switch completion {
         case .finished:

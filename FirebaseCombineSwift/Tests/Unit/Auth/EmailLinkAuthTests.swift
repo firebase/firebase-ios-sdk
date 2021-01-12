@@ -18,25 +18,6 @@ import XCTest
 import FirebaseAuth
 
 class EmailLinkAuthTests: XCTestCase {
-  override class func setUp() {
-    FirebaseApp.configureForTests()
-  }
-
-  override class func tearDown() {
-    FirebaseApp.app()?.delete { success in
-      if success {
-        print("Shut down app successfully.")
-      } else {
-        print("💥 There was a problem when shutting down the app..")
-      }
-    }
-  }
-
-  override func setUp() {
-    do {
-      try Auth.auth().signOut()
-    } catch {}
-  }
 
   static let apiKey = Credentials.apiKey
   static let accessTokenTimeToLive: TimeInterval = 60 * 60
@@ -104,15 +85,21 @@ class EmailLinkAuthTests: XCTestCase {
       callback(MockGetOOBConfirmationCodeResponse(), nil)
     }
   }
+  
+  func app() -> FirebaseApp {
+    FirebaseApp.appForAuthUnitTestsWithName(name: "app1")
+  }
 
   func testSignInUserWithEmailAndLink() {
     // given
     FIRAuthBackend.setBackendImplementation(MockAuthBackend())
+    let auth = Auth.auth(app: app())
+    
     var cancellables = Set<AnyCancellable>()
     let userSignInExpectation = expectation(description: "User signed in")
 
     // when
-    Auth.auth()
+    auth
       .signIn(withEmail: EmailLinkAuthTests.email, link: EmailLinkAuthTests.fakeEmailSignInlink)
       .sink { completion in
         switch completion {
@@ -138,6 +125,8 @@ class EmailLinkAuthTests: XCTestCase {
   func testSendSignInLinkToEmail() {
     // given
     FIRAuthBackend.setBackendImplementation(MockAuthBackend())
+    let auth = Auth.auth(app: app())
+    
     var cancellables = Set<AnyCancellable>()
     let sendSignInLinkExpectation = expectation(description: "Sign in link sent")
     let actionSettings = ActionCodeSettings()
@@ -145,7 +134,7 @@ class EmailLinkAuthTests: XCTestCase {
     actionSettings.handleCodeInApp = true
 
     // when
-    Auth.auth()
+    auth
       .sendSignInLink(toEmail: EmailLinkAuthTests.email, actionCodeSettings: actionSettings)
       .sink { completion in
         switch completion {
