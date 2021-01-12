@@ -60,13 +60,13 @@ jobs:
 
     strategy:
       matrix:
-        target: [iOS, tvOS, macOS]
+        target: [iOS]
 
     steps:
     - uses: actions/checkout@v2
 
     - name: Setup build
-      run:  scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
+      run:  scripts/install_prereqs.sh CombineSwift ${{ matrix.target }} xcodebuild
 
     - name: Build and test
-      run:  scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ matrix.target }} xcodebuild
+      run:  scripts/third_party/travis/retry.sh scripts/build.sh CombineSwift ${{ matrix.target }} xcodebuild
