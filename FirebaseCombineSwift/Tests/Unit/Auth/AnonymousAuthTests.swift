@@ -106,11 +106,10 @@ class AnonymousAuthTests: XCTestCase {
         XCTAssertTrue(authDataResult.user.isAnonymous)
         XCTAssertEqual(authDataResult.user.providerData.count, 0)
 
-        guard let userInfo = authDataResult.additionalUserInfo else { return }
-        XCTAssertNotNil(userInfo)
-        XCTAssertTrue(userInfo.isNewUser)
-        XCTAssertNil(userInfo.username)
-        XCTAssertNil(userInfo.profile)
+        XCTAssertNotNil(authDataResult.additionalUserInfo)
+        XCTAssertTrue((authDataResult.additionalUserInfo?.isNewUser) != nil)
+        XCTAssertNil(authDataResult.additionalUserInfo?.username)
+        XCTAssertNil(authDataResult.additionalUserInfo?.profile)
 
         userSignedInExpectation.fulfill()
       }

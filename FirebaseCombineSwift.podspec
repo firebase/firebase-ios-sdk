@@ -27,6 +27,9 @@ Combine Publishers for Firebase.
   s.prefix_header_file = false
 
   source = 'FirebaseCombineSwift/Sources/'
+  s.exclude_files = [
+    source + 'Core/**/*.swift',
+  ]
   s.source_files = [
     source + '**/*.swift',
     source + '**/*.m',

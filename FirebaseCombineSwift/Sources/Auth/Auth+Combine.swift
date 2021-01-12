@@ -32,11 +32,11 @@
     ///
     /// The publisher will emit events on the **main** thread.
     ///
-    /// - Returns: A publisher emitting (`Auth`, `User`) tuples.
-    public func authStateDidChangePublisher() -> AnyPublisher<(Auth, User?), Never> {
-      let subject = PassthroughSubject<(Auth, User?), Never>()
+    /// - Returns: A publisher emitting a `User` instance (if the user has signed in) or `nil` (if the user has signed out)
+    public func authStateDidChangePublisher() -> AnyPublisher<User?, Never> {
+      let subject = PassthroughSubject<User?, Never>()
       let handle = addStateDidChangeListener { auth, user in
-        subject.send((auth, user))
+        subject.send(user)
       }
       return subject
         .handleEvents(receiveCancel: {
@@ -56,11 +56,11 @@
     ///
     /// The publisher will emit events on the **main** thread.
     ///
-    /// - Returns: A publisher emitting (`Auth`, User`) tuples.
-    public func idTokenDidChangePublisher() -> AnyPublisher<(Auth, User?), Never> {
-      let subject = PassthroughSubject<(Auth, User?), Never>()
+    /// - Returns: A publisher emitting a `User` instance (if a different user as signed in or the ID token of the current user has changed) or `nil` (if the user has signed out)
+    public func idTokenDidChangePublisher() -> AnyPublisher<User?, Never> {
+      let subject = PassthroughSubject<User?, Never>()
       let handle = addIDTokenDidChangeListener { auth, user in
-        subject.send((auth, user))
+        subject.send(user)
       }
       return subject
         .handleEvents(receiveCancel: {

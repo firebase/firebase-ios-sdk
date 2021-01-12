@@ -100,8 +100,7 @@ class IDTokenDidChangePublisherTests: XCTestCase {
     var expect = expectation(description: "Publisher emits value as soon as it is subscribed")
     var cancellable = Auth.auth()
       .idTokenDidChangePublisher()
-      .sink { auth, user in
-        XCTAssertEqual(auth, Auth.auth())
+      .sink { user in
         XCTAssertNil(user)
         expect.fulfill()
       }
@@ -113,9 +112,7 @@ class IDTokenDidChangePublisherTests: XCTestCase {
     expect = expectation(description: "Publisher emits value when user is signed in")
     cancellable = Auth.auth()
       .idTokenDidChangePublisher()
-      .sink { auth, user in
-        XCTAssertEqual(auth, Auth.auth())
-
+      .sink { user in
         if let user = user, user.isAnonymous {
           expect.fulfill()
         }
@@ -131,9 +128,7 @@ class IDTokenDidChangePublisherTests: XCTestCase {
 
     cancellable = Auth.auth()
       .idTokenDidChangePublisher()
-      .sink { auth, user in
-        XCTAssertEqual(auth, Auth.auth())
-
+      .sink { user in
         if let user = user, user.isAnonymous {
           print(#function)
           expect.fulfill()
@@ -160,9 +155,7 @@ class IDTokenDidChangePublisherTests: XCTestCase {
 
     cancellable = Auth.auth()
       .idTokenDidChangePublisher()
-      .sink { auth, user in
-        XCTAssertEqual(auth, Auth.auth())
-
+      .sink { user in
         if shouldUserBeNil {
           if user == nil {
             expect.fulfill()
@@ -196,9 +189,7 @@ class IDTokenDidChangePublisherTests: XCTestCase {
 
     cancellable = Auth.auth()
       .idTokenDidChangePublisher()
-      .sink { auth, user in
-        XCTAssertEqual(auth, Auth.auth())
-
+      .sink { user in
         if shouldUserBeNil {
           if user == nil {
             expect.fulfill()
