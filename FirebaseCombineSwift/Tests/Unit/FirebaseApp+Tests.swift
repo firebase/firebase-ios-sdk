@@ -31,9 +31,8 @@ extension FirebaseApp {
   static func configureForTests() {
     configure(options: appOptions())
   }
-  
-  static func appForAuthUnitTestsWithName(name: String) -> FirebaseApp {
-    return FirebaseApp.init(instanceWithName: name, options: appOptions())
-  }
 
+  static func appForAuthUnitTestsWithName(name: String) -> FirebaseApp {
+    return FirebaseApp(instanceWithName: name, options: appOptions())
+  }
 }

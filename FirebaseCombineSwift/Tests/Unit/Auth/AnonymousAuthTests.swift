@@ -63,20 +63,22 @@ class AnonymousAuthTests: XCTestCase {
   }
 
   // MARK: - Test case setup
+
   override class func setUp() {
     FIRAuthBackend.setBackendImplementation(MockAuthBackend())
   }
-  
+
   // MARK: - Test method setup
+
   var app: FirebaseApp?
   var auth: Auth?
-  
+
   override func setUp() {
     self.app = FirebaseApp.appForAuthUnitTestsWithName(name: "app1")
     guard let app = app else { fatalError() }
-    self.auth = Auth.auth(app: app)
+    auth = Auth.auth(app: app)
   }
-  
+
   func testSignInAnonymouslySuccessfully() {
     // given
     var cancellables = Set<AnyCancellable>()

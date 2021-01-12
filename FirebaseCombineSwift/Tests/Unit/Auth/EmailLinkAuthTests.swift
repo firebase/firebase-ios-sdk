@@ -18,7 +18,6 @@ import XCTest
 import FirebaseAuth
 
 class EmailLinkAuthTests: XCTestCase {
-
   static let apiKey = Credentials.apiKey
   static let accessTokenTimeToLive: TimeInterval = 60 * 60
   static let refreshToken = "REFRESH_TOKEN"
@@ -85,7 +84,7 @@ class EmailLinkAuthTests: XCTestCase {
       callback(MockGetOOBConfirmationCodeResponse(), nil)
     }
   }
-  
+
   func app() -> FirebaseApp {
     FirebaseApp.appForAuthUnitTestsWithName(name: "app1")
   }
@@ -94,7 +93,7 @@ class EmailLinkAuthTests: XCTestCase {
     // given
     FIRAuthBackend.setBackendImplementation(MockAuthBackend())
     let auth = Auth.auth(app: app())
-    
+
     var cancellables = Set<AnyCancellable>()
     let userSignInExpectation = expectation(description: "User signed in")
 
@@ -126,7 +125,7 @@ class EmailLinkAuthTests: XCTestCase {
     // given
     FIRAuthBackend.setBackendImplementation(MockAuthBackend())
     let auth = Auth.auth(app: app())
-    
+
     var cancellables = Set<AnyCancellable>()
     let sendSignInLinkExpectation = expectation(description: "Sign in link sent")
     let actionSettings = ActionCodeSettings()
