@@ -183,7 +183,7 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
 
 #pragma mark - Upload implementation details
 
-/** Sends URL request for to upload the provided batch and handles the response. */
+/** Sends URL request to upload the provided batch and handle the response. */
 - (FBLPromise<NSNull *> *)sendURLRequestWithBatch:(GDTCORUploadBatch *)batch
                                            target:(GDTCORTarget)target
                                           storage:(id<GDTCORStoragePromiseProtocol>)storage {
@@ -199,7 +199,9 @@ typedef void (^GDTCCTUploaderEventBatchBlock)(NSNumber *_Nullable batchID,
 
             // 3. Cleanup batch.
 
-            // Only retry if one of these codes is returned.
+            // Only retry if one of these codes is returned:
+            // 429 - Too many requests;
+            // 503 - Service unavailable.
             NSInteger statusCode = response.HTTPResponse.statusCode;
             if (statusCode == 429 || statusCode == 503) {
               // Move the events back to the main storage to be uploaded on the next attempt.
