@@ -20,7 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const kAnalyticsOriginPersonalization = @"fp";
 
-static NSString *const kAnalyticsPullEvent = @"personalization_choice";
+static NSString *const kAnalyticsPullEvent = @"personalization_assignment";
 static NSString *const kArmKey = @"arm_key";
 static NSString *const kArmValue = @"arm_value";
 static NSString *const kPersonalizationId = @"personalizationId";
