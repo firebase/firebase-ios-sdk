@@ -1,6 +1,6 @@
 # Unreleased
 - [fixed] Fixed an issue where using `FieldValue.delete()` would only delete the
-  first occurrence of the element in the document array in latency
+  first occurrence of an element in an array in a latency
   compensated snapshots.
 
 # v7.3.0
