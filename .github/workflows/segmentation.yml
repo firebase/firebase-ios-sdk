@@ -38,7 +38,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Setup project and Build for Catalyst
-      run: scripts/test_catalyst.sh FirebaseSegmentation build FirebaseSegmentation-Unit-unit
+      run: scripts/test_catalyst.sh FirebaseSegmentation test FirebaseSegmentation-Unit-unit
 
   segmentation-cron-only:
     # Don't run on private repo.

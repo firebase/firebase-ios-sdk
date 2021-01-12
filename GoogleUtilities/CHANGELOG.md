@@ -1,3 +1,6 @@
+# 7.4.0
+- `NSURLSession` promise extension public API. (#7097)
+
 # 7.1.1
 - Fix `unrecognized selector` for isiOSAppOnMac on early iOS 14 betas. (#6969)
 

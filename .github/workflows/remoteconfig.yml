@@ -96,8 +96,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Setup project and Build for Catalyst
-      # Only build the unit tests on Catalyst. Test stopped working when GHA moved to Xcode 11.4.1.
-      run: scripts/test_catalyst.sh FirebaseRemoteConfig build FirebaseRemoteConfig-Unit-unit
+      run: scripts/test_catalyst.sh FirebaseRemoteConfig test FirebaseRemoteConfig-Unit-unit
 
   quickstart:
     # Don't run on private repo unless it is a PR.

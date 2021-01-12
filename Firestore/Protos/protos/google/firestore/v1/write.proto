@@ -47,10 +47,7 @@ message Write {
     // This only requires read access to the document.
     string verify = 5;
 
-    // Applies a tranformation to a document.
-    // At most one `transform` per document is allowed in a given request.
-    // An `update` cannot follow a `transform` on the same document in a given
-    // request.
+    // Applies a transformation to a document.
     DocumentTransform transform = 6;
   }
 
@@ -65,6 +62,13 @@ message Write {
   // deleted from the document on the server.
   // The field paths in this mask must not contain a reserved field name.
   DocumentMask update_mask = 3;
+
+  // The transforms to perform after update.
+  //
+  // This field can be set only when the operation is `update`. If present, this
+  // write is equivalent to performing `update` and `transform` to the same
+  // document atomically and in order.
+  repeated DocumentTransform.FieldTransform update_transforms = 7;
 
   // An optional precondition on the document.
   //

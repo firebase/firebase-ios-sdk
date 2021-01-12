@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong, readonly, nullable) NSString *projectID;
 
 /** @property authorizedDomains
-    @brief A list of domains whitelisted for the current project.
+    @brief A list of domains allowlisted for the current project.
  */
 @property(nonatomic, strong, readonly, nullable) NSArray *authorizedDomains;
 
