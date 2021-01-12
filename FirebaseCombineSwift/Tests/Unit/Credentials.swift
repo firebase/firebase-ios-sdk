@@ -15,10 +15,10 @@
 import Foundation
 
 class Credentials {
-  static let googleAppID = ""
-  static let gcmSenderID = ""
-  static let apiKey = ""
-  static let clientID = ""
-  static let bundleID = ""
-  static let projectID = ""
+  static let googleAppID = "1:1085102361755:ios:f790a919483d5bdf"
+  static let gcmSenderID = "217397612173"
+  static let apiKey = "FAKE_API_KEY"
+  static let clientID = "123456.apps.googleusercontent.com"
+  static let bundleID = "org.cocoapods-generate.App-iOS"
+  static let projectID = "fir-combinesample"
 }
