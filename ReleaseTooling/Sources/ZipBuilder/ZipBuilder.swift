@@ -244,7 +244,12 @@ struct ZipBuilder {
           }
         }
         // Union all pods built across platforms.
-        podsBuilt[podName] = podInfo
+        // Be conservative and favor iOS if it exists - and workaround
+        // bug where Firebase.h doesn't get installed for tvOS and macOS.
+        // Fixed in #7284.
+        if podsBuilt[podName] == nil {
+          podsBuilt[podName] = podInfo
+        }
       }
     }
 
