@@ -64,6 +64,18 @@
 
 @end
 
+@interface FOutstandingGet : NSObject
+
+@property(nonatomic, strong) NSDictionary *request;
+@property(nonatomic, copy) fbt_void_nsstring_id_nsstring onCompleteBlock;
+@property(nonatomic) BOOL sent;
+
+@end
+
+@implementation FOutstandingGet
+
+@end
+
 typedef enum {
     ConnectionStateDisconnected,
     ConnectionStateGettingToken,
@@ -92,9 +104,11 @@ typedef enum {
 @property(nonatomic, strong) FConnection *realtime;
 @property(nonatomic, strong) NSMutableDictionary *listens;
 @property(nonatomic, strong) NSMutableDictionary *outstandingPuts;
+@property(nonatomic, strong) NSMutableDictionary *outstandingGets;
 @property(nonatomic, strong) NSMutableArray *onDisconnectQueue;
 @property(nonatomic, strong) FRepoInfo *repoInfo;
 @property(nonatomic, strong) FAtomicNumber *putCounter;
+@property(nonatomic, strong) FAtomicNumber *getCounter;
 @property(nonatomic, strong) FAtomicNumber *requestNumber;
 @property(nonatomic, strong) NSMutableDictionary *requestCBHash;
 @property(nonatomic, strong) FIRDatabaseConfig *config;
@@ -128,8 +142,10 @@ typedef enum {
 
         self.listens = [[NSMutableDictionary alloc] init];
         self.outstandingPuts = [[NSMutableDictionary alloc] init];
+        self.outstandingGets = [[NSMutableDictionary alloc] init];
         self.onDisconnectQueue = [[NSMutableArray alloc] init];
         self.putCounter = [[FAtomicNumber alloc] init];
+        self.getCounter = [[FAtomicNumber alloc] init];
         self.requestNumber = [[FAtomicNumber alloc] init];
         self.requestCBHash = [[NSMutableDictionary alloc] init];
         self.unackedListensCount = 0;
@@ -306,6 +322,10 @@ typedef enum {
 }
 
 - (BOOL)canSendWrites {
+    return self->connectionState == ConnectionStateConnected;
+}
+
+- (BOOL)canSendReads {
     return self->connectionState == ConnectionStateConnected;
 }
 
@@ -707,6 +727,43 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
             }];
 }
 
+- (void)sendGet:(NSNumber *)index {
+    NSAssert([self canSendReads],
+             @"sendGet called when not able to send reads");
+    FOutstandingGet *get = self.outstandingGets[index];
+    NSAssert(get != nil, @"sendGet found no outstanding get at index %@",
+             index);
+    if ([get sent]) {
+        return;
+    }
+    get.sent = YES;
+    [self sendAction:kFWPRequestActionGet
+                body:get.request
+           sensitive:NO
+            callback:^(NSDictionary *data) {
+              FOutstandingGet *currentGet = self.outstandingGets[index];
+              if (currentGet == get) {
+                  [self.outstandingGets removeObjectForKey:index];
+                  NSString *status =
+                      [data objectForKey:kFWPResponseForActionStatus];
+                  id resultData = [data objectForKey:kFWPResponseForActionData];
+                  if (resultData == (id)[NSNull null]) {
+                      resultData = nil;
+                  }
+                  if ([status isEqualToString:kFWPResponseForActionStatusOk]) {
+                      get.onCompleteBlock(status, resultData, nil);
+                      return;
+                  }
+                  get.onCompleteBlock(status, nil, resultData);
+              } else {
+                  FFLog(@"I-RDB034045",
+                        @"Ignoring on complete for get %@ because it was "
+                        @"already removed",
+                        index);
+              }
+            }];
+}
+
 - (void)sendUnlisten:(FPath *)path
          queryParams:(FQueryParams *)queryParams
                tagId:(NSNumber *)tagId {
@@ -756,6 +813,46 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
               @"Wasn't connected or writes paused, so added to outstanding "
               @"puts only. Path: %@",
               pathString);
+    }
+}
+
+- (void)getDataAtPath:(NSString *)pathString
+           withParams:(NSDictionary *)queryWireProtocolParams
+         withCallback:(fbt_void_nsstring_id_nsstring)onComplete {
+    NSMutableDictionary *request = [NSMutableDictionary
+        dictionaryWithObjectsAndKeys:pathString, kFWPRequestPath,
+                                     queryWireProtocolParams,
+                                     kFWPRequestQueries, nil];
+    FOutstandingGet *get = [[FOutstandingGet alloc] init];
+    get.request = request;
+    get.onCompleteBlock = onComplete;
+    get.sent = NO;
+
+    NSNumber *index = [self.getCounter getAndIncrement];
+    self.outstandingGets[index] = get;
+
+    if (![self connected]) {
+        dispatch_after(
+            dispatch_time(DISPATCH_TIME_NOW,
+                          kPersistentConnectionGetConnectTimeout),
+            self.dispatchQueue, ^{
+              FOutstandingGet *currGet = self.outstandingGets[index];
+              if ([currGet sent] || currGet == nil) {
+                  return;
+              }
+              FFLog(@"I-RDB034045",
+                    @"get %@ timed out waiting for a connection", index);
+              currGet.sent = YES;
+              currGet.onCompleteBlock(kFWPResponseForActionStatusFailed, nil,
+                                      kPersistentConnectionOffline);
+              [self.outstandingGets removeObjectForKey:index];
+            });
+        return;
+    }
+
+    if ([self canSendReads]) {
+        FFLog(@"I-RDB034024", @"Sending get: %@", index);
+        [self sendGet:index];
     }
 }
 
@@ -998,14 +1095,27 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
       [self sendListen:outstandingListen];
     }];
 
-    NSArray *keys = [[self.outstandingPuts allKeys]
+    NSArray *putKeys = [[self.outstandingPuts allKeys]
         sortedArrayUsingSelector:@selector(compare:)];
-    for (int i = 0; i < [keys count]; i++) {
-        if ([self.outstandingPuts objectForKey:[keys objectAtIndex:i]] != nil) {
+    for (int i = 0; i < [putKeys count]; i++) {
+        if ([self.outstandingPuts objectForKey:[putKeys objectAtIndex:i]] !=
+            nil) {
             FFLog(@"I-RDB034037", @"Restoring put: %d", i);
-            [self sendPut:[keys objectAtIndex:i]];
+            [self sendPut:[putKeys objectAtIndex:i]];
         } else {
             FFLog(@"I-RDB034038", @"Restoring put: skipped nil: %d", i);
+        }
+    }
+
+    NSArray *getKeys = [[self.outstandingGets allKeys]
+        sortedArrayUsingSelector:@selector(compare:)];
+    for (int i = 0; i < [getKeys count]; i++) {
+        if ([self.outstandingGets objectForKey:[getKeys objectAtIndex:i]] !=
+            nil) {
+            FFLog(@"I-RDB034037", @"Restoring get: %d", i);
+            [self sendGet:[getKeys objectAtIndex:i]];
+        } else {
+            FFLog(@"I-RDB034038", @"Restoring get: skipped nil: %d", i);
         }
     }
 
