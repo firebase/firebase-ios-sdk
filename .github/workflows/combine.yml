@@ -1,0 +1,72 @@
+# Copyright 2020 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: firestore
+
+on:
+  pull_request:
+    paths:
+    # Combine sources
+    - 'FirebaseCombineSwift/**'
+
+    # Podspec
+    - 'FirebaseCombineSwift.podspec'
+
+    # This workflow
+    - '.github/workflows/combine.yml'
+
+    # Rebuild on Ruby infrastructure changes.
+    - 'Gemfile'
+
+  schedule:
+    # Run every day at 11pm (PST) - cron uses UTC times
+    - cron:  '0 7 * * *'
+
+jobs:
+  check:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions/setup-python@v2
+      with:
+        python-version: 3.6
+
+    - name: Setup check
+      run:  scripts/setup_check.sh
+
+    - name: Run check
+      run:  scripts/check.sh --test-only
+
+
+  xcodebuild:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+    runs-on: macos-latest
+    needs: check
+
+    strategy:
+      matrix:
+        target: [iOS, tvOS, macOS]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup build
+      run:  scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
+
+    - name: Build and test
+      run:  scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ matrix.target }} xcodebuild
