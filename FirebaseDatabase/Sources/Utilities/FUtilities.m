@@ -319,7 +319,7 @@ void firebaseJobsTroll(void) {
     return str;
 }
 
-+ (BOOL)tryParseStringToInt:(NSString *)string asInt:(NSInteger *)integer {
++ (BOOL)tryParseString:(NSString *)string asInt:(NSInteger *)integer {
     return tryParseStringToInt(string, integer);
 }
 

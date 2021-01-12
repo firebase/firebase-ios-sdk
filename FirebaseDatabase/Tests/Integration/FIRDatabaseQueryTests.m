@@ -2923,7 +2923,7 @@
   }];
 
   NSArray* expected = @[ @"Michael" ];
-  XCTAssertTrue([children isEqualToArray:expected], @"Expected both children");
+  XCTAssertTrue([children isEqualToArray:expected], @"Expected single child");
 }
 
 - (void)testHandlesMultipleQueriesOnSameNode {
@@ -3556,6 +3556,7 @@
 
 - (void)testChildChangedCausesChildRemovedEventWithStartAfter {
   FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
+  [[ref child:@"l/a"] setValue:@"1" andPriority:@"a"];
   [[ref child:@"l/b"] setValue:@"2" andPriority:@"b"];
   FIRDatabaseQuery* query = [[[[ref child:@"l"] queryOrderedByPriority]
       queryStartingAfterValue:@"a"] queryEndingAtValue:@"d"];
