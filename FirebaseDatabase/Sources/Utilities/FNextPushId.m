@@ -125,7 +125,7 @@ static NSInteger const MAX_KEY_LEN = 786;
                             withString:@""];
         return next;
     }
-    // Replace the last character with it's immedate predecessor, and fill the
+    // Replace the last character with its immedate predecessor, and fill the
     // suffix of the key with MAX_PUSH_CHAR. This is the lexicographically
     // largest possible key smaller than `key`.
     unichar curr = [next characterAtIndex:next.length - 1];
