@@ -362,4 +362,78 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       }
     }
   }
+
+  func testLogTelemetryEvent() {
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
+
+    let testName = "model-downloader-test"
+    let testModelName = "pose-detection"
+
+    let conditions = ModelDownloadConditions()
+    let modelDownloader = ModelDownloader.modelDownloaderWithDefaults(
+      .getTestInstance(testName: testName),
+      app: testApp
+    )
+
+    let downloadType: ModelDownloadType = .latestModel
+    let latestModelExpectation = expectation(description: "Get latest model.")
+
+    modelDownloader.getModel(
+      name: testModelName,
+      downloadType: downloadType,
+      conditions: conditions,
+      progressHandler: { progress in
+        XCTAssertLessThanOrEqual(progress, 1)
+        XCTAssertGreaterThanOrEqual(progress, 0)
+      }
+    ) { result in
+      switch result {
+      case let .success(model):
+        XCTAssertNotNil(model.path)
+        guard let filePath = URL(string: model.path) else {
+          XCTFail("Invalid model path.")
+          return
+        }
+        XCTAssertTrue(ModelFileManager.isFileReachable(at: filePath))
+
+        var modelOptions = FirebaseMLModelDownloader.ModelOptions()
+        modelOptions.isModelUpdateEnabled = true
+        modelOptions.modelInfo.name = model.name
+        modelOptions.modelInfo.hash = model.hash
+        modelOptions.modelInfo.modelType = FirebaseMLModelDownloader.ModelInfo.ModelType.custom
+
+        var systemInfo = FirebaseMLModelDownloader.SystemInfo()
+        systemInfo.appID = Bundle.main.bundleIdentifier ?? "com.google.fakeBundleID"
+        systemInfo.appVersion = "1"
+        systemInfo.apiKey = testApp.options.apiKey ?? "fakeAPIKey"
+        systemInfo.firebaseProjectID = testApp.options.projectID ?? "fakeProjectID"
+
+        var downloadEvent = FirebaseMLModelDownloader.ModelDownloadLogEvent()
+        downloadEvent.downloadStatus = FirebaseMLModelDownloader.ModelDownloadLogEvent
+          .DownloadStatus.succeeded
+        downloadEvent.errorCode = FirebaseMLModelDownloader.ErrorCode.noError
+        downloadEvent.roughDownloadDurationMs = 0
+        downloadEvent.exactDownloadDurationMs = 105
+        downloadEvent.downloadFailureStatus = 0
+        downloadEvent.options = modelOptions
+
+        var fbmlEvent = FirebaseMLModelDownloader.FirebaseMlLogEvent()
+        fbmlEvent.eventName = FirebaseMLModelDownloader.EventName.modelDownload
+        fbmlEvent.systemInfo = systemInfo
+        fbmlEvent.modelDownloadLogEvent = downloadEvent
+
+        let telemetryLogger = TelemetryLogger(isStatsEnabled: true)
+        telemetryLogger.logModelDownloadEvent(event: fbmlEvent)
+
+      case let .failure(error):
+        XCTFail("Failed to download model - \(error)")
+      }
+      latestModelExpectation.fulfill()
+    }
+
+    waitForExpectations(timeout: 5, handler: nil)
+  }
 }

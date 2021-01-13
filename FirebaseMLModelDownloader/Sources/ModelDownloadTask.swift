@@ -16,7 +16,7 @@ import Foundation
 import FirebaseCore
 
 /// Possible states of model downloading.
-enum DownloadStatus {
+enum ModelDownloadStatus {
   case notStarted
   case inProgress
   case completed
@@ -49,7 +49,7 @@ class ModelDownloadTask: NSObject {
   /// Progress and completion handlers associated with this model download task.
   private let downloadHandlers: DownloadHandlers
   /// Keeps track of download associated with this model download task.
-  private(set) var downloadStatus: DownloadStatus = .notStarted
+  private(set) var downloadStatus: ModelDownloadStatus = .notStarted
   /// URLSession to handle model downloads.
   private lazy var downloadSession = URLSession(configuration: .ephemeral,
                                                 delegate: self,
