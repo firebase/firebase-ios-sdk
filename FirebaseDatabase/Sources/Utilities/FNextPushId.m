@@ -84,7 +84,7 @@ static NSInteger const MAX_KEY_LEN = 786;
         if ([next characterAtIndex:i] != [MAX_PUSH_CHAR characterAtIndex:0]) {
             break;
         }
-        i--;
+        --i;
     }
 
     // `nextAfter` was called on the largest possible key, so return the
