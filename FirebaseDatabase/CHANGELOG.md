@@ -1,6 +1,6 @@
 # v7.5.0
 - [added] Implmemented `queryStartingAfterValue` for FirebaseDatabase queries.
-- [added] Implemented `queryEndingBefore` for FirebaseDatabase queries.
+- [added] Implemented `queryEndingBeforeValue` for FirebaseDatabase queries.
 
 # v7.2.0
 - [added] Made emulator connection API consistent between Auth, Database, Firestore, and Functions (#5916).
