@@ -21,8 +21,6 @@
 #import "FirebaseDatabase/Sources/Utilities/FStringUtilities.h"
 
 #define ARC4RANDOM_MAX 0x100000000
-#define INTEGER_32_MIN (-2147483648)
-#define INTEGER_32_MAX 2147483647
 
 #pragma mark -
 #pragma mark C functions

@@ -77,6 +77,9 @@ FOUNDATION_EXPORT NSString *const kFPersistenceLogTag;
         }                                                                      \
     } while (0)
 
+#define INTEGER_32_MIN (-2147483648)
+#define INTEGER_32_MAX 2147483647
+
 extern FIRLoggerService kFIRLoggerDatabase;
 BOOL FFIsLoggingEnabled(FLogLevel logLevel);
 void firebaseUncaughtExceptionHandler(NSException *exception);
