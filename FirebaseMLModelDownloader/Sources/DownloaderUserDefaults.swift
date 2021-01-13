@@ -1,4 +1,4 @@
-// Copyright 2020 Google LLC
+// Copyright 2021 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,11 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <GoogleToolboxForMac/GTMLogger.h>
+import Foundation
 
-/**
- * A log level filter to control the console log messages generated from GTMLogger.
- */
-@interface FPRGTMLogLevelFilter : GTMLogLevelFilter
-
-@end
+/// Protocol to write info to user defaults.
+protocol DownloaderUserDefaultsWriteable {
+  func writeToDefaults(_ defaults: UserDefaults, appName: String)
+}

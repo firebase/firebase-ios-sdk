@@ -73,5 +73,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, MessagingDelegate {
 
   func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
     identity.token = fcmToken
+    print("=============================\n")
+    print("Did refresh token:\n", identity.token ?? "")
+    print("\n=============================\n")
   }
 }

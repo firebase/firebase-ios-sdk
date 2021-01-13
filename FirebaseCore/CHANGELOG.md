@@ -1,5 +1,8 @@
 # Firebase 7.4.0
 - [changed] Patch update to nanopb 0.3.9.7 that fixes a memory leak and other issues. (#7090)
+- [added] Zip distribution now includes community supported macOS and tvOS libraries. Product
+  support detailed
+  [here](https://github.com/firebase/firebase-ios-sdk#tvos-macos-watchos-and-catalyst).
 
 # Firebase 7.3.0
 - [added] Added FirebaseAppDistribution-Beta product to Swift Package Manager. (#7045)

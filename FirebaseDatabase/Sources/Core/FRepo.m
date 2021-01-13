@@ -513,6 +513,59 @@
     [self.connection purgeOutstandingWrites];
 }
 
+- (void)getData:(FIRDatabaseQuery *)query
+    withCompletionBlock:
+        (void (^_Nonnull)(NSError *__nullable error,
+                          FIRDataSnapshot *__nullable snapshot))block {
+    FQuerySpec *querySpec = [query querySpec];
+    [self.persistenceManager setQueryActive:querySpec];
+    [self.connection
+        getDataAtPath:[query.path toString]
+           withParams:querySpec.params.wireProtocolParams
+         withCallback:^(NSString *status, id data, NSString *errorReason) {
+           id<FNode> node;
+           if (![status isEqualToString:kFWPResponseForActionStatusOk]) {
+               FFLog(@"I-RDB038024",
+                     @"getValue for query %@ falling back to cache",
+                     [querySpec.path toString]);
+               node = [self.serverSyncTree
+                   calcCompleteEventCacheAtPath:querySpec.path
+                                excludeWriteIds:@[]];
+               if ([node isEmpty]) {
+                   FFWarn(@"I-RDB038025",
+                          @"getValue for query at %@ failed: %@",
+                          [querySpec.path toString], status);
+                   NSDictionary *errorDict = @{
+                       NSLocalizedFailureReasonErrorKey : errorReason,
+                       NSLocalizedDescriptionKey : [NSString
+                           stringWithFormat:
+                               @"Unable to get latest value for query %@, "
+                               @"client offline and cache is empty",
+                               querySpec]
+                   };
+                   block([NSError errorWithDomain:kFirebaseCoreErrorDomain
+                                             code:1
+                                         userInfo:errorDict],
+                         nil);
+                   return;
+               }
+           } else {
+               node = [FSnapshotUtilities nodeFrom:data];
+           }
+           [self.eventRaiser
+               raiseEvents:[self.serverSyncTree
+                               applyServerOverwriteAtPath:[query path]
+                                                  newData:node]];
+           block(nil,
+                 [[FIRDataSnapshot alloc]
+                     initWithRef:query.ref
+                     indexedNode:[FIndexedNode
+                                     indexedNodeWithNode:node
+                                                   index:querySpec.index]]);
+           [self.persistenceManager setQueryInactive:querySpec];
+         }];
+}
+
 - (void)addEventRegistration:(id<FEventRegistration>)eventRegistration
                     forQuery:(FQuerySpec *)query {
     NSArray *events = nil;

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseDatabase'
-  s.version          = '7.3.0'
+  s.version          = '7.4.0'
   s.summary          = 'Firebase Realtime Database'
 
   s.description      = <<-DESC
@@ -42,6 +42,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   }
 
   s.test_spec 'unit' do |unit_tests|
+    unit_tests.scheme = { :code_coverage => true }
     unit_tests.source_files = [
       'FirebaseDatabase/Tests/Unit/*.[mh]',
       'FirebaseDatabase/Tests/Helpers/*.[mh]',
@@ -56,6 +57,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   end
 
   s.test_spec 'integration' do |int_tests|
+    int_tests.scheme = { :code_coverage => true }
     int_tests.source_files = [
       'FirebaseDatabase/Tests/Integration/*.[mh]',
       'FirebaseDatabase/Tests/Helpers/*.[mh]',

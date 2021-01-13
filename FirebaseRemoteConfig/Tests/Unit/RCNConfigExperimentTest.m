@@ -109,6 +109,7 @@
                           _payloads[payloadIndex++][@"experimentId"]);
   }
 
+  XCTAssertEqualObjects(_payloadsData, _configExperiment.experimentPayloads);
   XCTAssertEqualObjects(_metadata, _configExperiment.experimentMetadata);
 }
 
