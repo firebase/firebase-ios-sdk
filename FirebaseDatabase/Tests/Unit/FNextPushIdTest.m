@@ -40,7 +40,8 @@ static NSInteger MAX_KEY_LEN = 786;
                                        withString:MAX_PUSH_CHAR
                                   startingAtIndex:0];
   NSString *maxKeySuccessor = [FNextPushId successor:maxKey];
-  XCTAssertEqualObjects(maxKeySuccessor, [FUtilities maxName], @"");
+  XCTAssertEqualObjects(maxKeySuccessor, [FUtilities maxName],
+                        @"successor(MAX_PUSH_CHAR repeated MAX_KEY_LEN times) == MAX_NAME");
 }
 
 - (void)testSuccessorBasic {
