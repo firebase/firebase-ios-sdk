@@ -27,6 +27,8 @@
 + (NSString *)getJavascriptType:(id)obj;
 + (NSError *)errorForStatus:(NSString *)status andReason:(NSString *)reason;
 + (NSNumber *)intForString:(NSString *)string;
++ (NSInteger)int32min;
++ (NSInteger)int32max;
 + (NSString *)ieee754StringForNumber:(NSNumber *)val;
 + (BOOL)tryParseString:(NSString *)string asInt:(NSInteger *)integer;
 + (void)setLoggingEnabled:(BOOL)enabled;

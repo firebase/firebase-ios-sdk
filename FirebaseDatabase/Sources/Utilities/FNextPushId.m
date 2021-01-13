@@ -68,7 +68,7 @@ static NSInteger const MAX_KEY_LEN = 786;
 + (NSString *)successor:(NSString *_Nonnull)key {
     NSInteger keyAsInt;
     if ([FUtilities tryParseString:key asInt:&keyAsInt]) {
-        if (keyAsInt == INTEGER_32_MAX) {
+        if (keyAsInt == [FUtilities int32max]) {
             return MIN_PUSH_CHAR;
         }
         return [NSString stringWithFormat:@"%ld", (long)keyAsInt + 1];
@@ -103,5 +103,41 @@ static NSInteger const MAX_KEY_LEN = 786;
                         withString:sourcePlusOne];
     return [next substringWithRange:NSMakeRange(0, i + 1)];
 }
+
+// `key` is assumed to be non-empty.
++ (NSString *)predecessor:(NSString *_Nonnull)key {
+    NSInteger keyAsInt;
+    if ([FUtilities tryParseString:key asInt:&keyAsInt]) {
+        if (keyAsInt == [FUtilities int32min]) {
+            return [FUtilities minName];
+        }
+        return [NSString stringWithFormat:@"%ld", (long)keyAsInt - 1];
+    }
+    NSMutableString *next = [NSMutableString stringWithString:key];
+    if ([next characterAtIndex:(next.length - 1)] ==
+        [MIN_PUSH_CHAR characterAtIndex:0]) {
+        if ([next length] == 1) {
+            return [NSString stringWithFormat:@"%ld", [FUtilities int32max]];
+        }
+        // If the last character is the smallest possible character, then the
+        // next smallest string is the prefix of `key` without it.
+        [next replaceCharactersInRange:NSMakeRange([next length] - 1, 1)
+                            withString:@""];
+        return next;
+    }
+    // Replace the last character with its immedate predecessor, and fill the
+    // suffix of the key with MAX_PUSH_CHAR. This is the lexicographically
+    // largest possible key smaller than `key`.
+    unichar curr = [next characterAtIndex:next.length - 1];
+    NSRange dstRange = NSMakeRange([next length] - 1, 1);
+    NSRange srcRange =
+        [PUSH_CHARS rangeOfString:[NSString stringWithFormat:@"%C", curr]];
+    srcRange.location -= 1;
+    [next replaceCharactersInRange:dstRange
+                        withString:[PUSH_CHARS substringWithRange:srcRange]];
+    return [next stringByPaddingToLength:MAX_KEY_LEN
+                              withString:MAX_PUSH_CHAR
+                         startingAtIndex:0];
+};
 
 @end

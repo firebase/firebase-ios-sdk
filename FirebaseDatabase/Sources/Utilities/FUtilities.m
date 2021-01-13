@@ -305,6 +305,14 @@ void firebaseJobsTroll(void) {
     return nil;
 }
 
++ (NSInteger)int32min {
+    return INTEGER_32_MIN;
+}
+
++ (NSInteger)int32max {
+    return INTEGER_32_MAX;
+}
+
 + (NSString *)ieee754StringForNumber:(NSNumber *)val {
     double d = [val doubleValue];
     NSData *data = [NSData dataWithBytes:&d length:sizeof(double)];

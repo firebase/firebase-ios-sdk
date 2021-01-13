@@ -1,5 +1,5 @@
 # v7.5.0
-- [added] Implmemented `queryStartingAfterValue` for FirebaseDatabase query pagination.
+- [added] Implmement `queryStartingAfterValue` and `queryEndingBeforeValue` for FirebaseDatabase query pagination.
 - [added] Added `DatabaseQuery#getData` which returns data from the server when cache is stale (#7110).
 
 # v7.2.0
