@@ -53,5 +53,7 @@
   "6.8.1": "https://dl.google.com/dl/firebase/ios/carthage/6.8.1/MLVision-da1555cbd8e67179.zip",
   "6.9.0": "https://dl.google.com/dl/firebase/ios/carthage/6.9.0/MLVision-6c096f05c921a75c.zip",
   "7.0.0": "https://dl.google.com/dl/firebase/ios/carthage/7.0.0/FirebaseMLVision-a59360c1b433db16.zip",
-  "7.1.0": "https://dl.google.com/dl/firebase/ios/carthage/7.1.0/FirebaseMLVision-f795f4b30c30f60b.zip"
+  "7.1.0": "https://dl.google.com/dl/firebase/ios/carthage/7.1.0/FirebaseMLVision-f795f4b30c30f60b.zip",
+  "7.3.0": "https://dl.google.com/dl/firebase/ios/carthage/7.3.0/FirebaseMLVision-5159850f4538a6bb.zip",
+  "7.4.0": "https://dl.google.com/dl/firebase/ios/carthage/7.4.0/FirebaseMLVision-96604b7c39870712.zip"
 }

@@ -42,6 +42,7 @@ product can be one of:
   StorageSwift
   SymbolCollision
   GoogleDataTransport
+  Performance
 
 platform can be one of:
   iOS (default)
@@ -556,6 +557,59 @@ case "$product-$platform-$method" in
       build
     ;;
 
+  Performance-*-xcodebuild)
+    # Run unit tests on prod environment with unswizzle capabilities.
+    export FPR_UNSWIZZLE_AVAILABLE="1"
+    export FPR_AUTOPUSH_ENV="0"
+    pod_gen FirebasePerformance.podspec --platforms=ios --clean
+    RunXcodebuild \
+      -workspace 'gen/FirebasePerformance/FirebasePerformance.xcworkspace' \
+      -scheme "FirebasePerformance-Unit-unit" \
+      "${ios_flags[@]}" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+
+    # Build the prod dev test app.
+    export FPR_UNSWIZZLE_AVAILABLE="0"
+    export FPR_AUTOPUSH_ENV="0"
+    pod_gen FirebasePerformance.podspec --platforms=ios --clean
+    RunXcodebuild \
+      -workspace 'gen/FirebasePerformance/FirebasePerformance.xcworkspace' \
+      -scheme "FirebasePerformance-TestApp" \
+      "${ios_flags[@]}" \
+      "${xcb_flags[@]}" \
+      build
+    ;;
+
+  Performance-*-integration)
+    # Generate the workspace for the SDK to generate Protobuf files.
+    export FPR_UNSWIZZLE_AVAILABLE="0"
+    pod_gen FirebasePerformance.podspec --platforms=ios --clean
+
+    # Perform "pod install" to install the relevant dependencies
+    cd FirebasePerformance/Tests/FIRPerfE2E; pod install; cd -
+
+    # Run E2E Integration Tests for Autopush.
+    RunXcodebuild \
+      -workspace 'FirebasePerformance/Tests/FIRPerfE2E/FIRPerfE2E.xcworkspace' \
+      -scheme "FIRPerfE2EAutopush" \
+      FPR_AUTOPUSH_ENV=1 \
+      "${ios_flags[@]}" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+
+    # Run E2E Integration Tests for Prod.
+    RunXcodebuild \
+      -workspace 'FirebasePerformance/Tests/FIRPerfE2E/FIRPerfE2E.xcworkspace' \
+      -scheme "FIRPerfE2EProd" \
+      "${ios_flags[@]}" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+    ;;
+
   *-*-spm)
     RunXcodebuild \
       -scheme $product \
@@ -571,10 +625,12 @@ case "$product-$platform-$method" in
     ;;
 
   *)
+
     echo "Don't know how to build this product-platform-method combination" 1>&2
     echo "  product=$product" 1>&2
     echo "  platform=$platform" 1>&2
     echo "  method=$method" 1>&2
     exit 1
     ;;
+
 esac

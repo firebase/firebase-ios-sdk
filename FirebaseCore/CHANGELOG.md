@@ -1,5 +1,17 @@
+# Firebase 7.4.0
+- [changed] Patch update to nanopb 0.3.9.7 that fixes a memory leak and other issues. (#7090)
+- [added] Zip distribution now includes community supported macOS and tvOS libraries. Product
+  support detailed
+  [here](https://github.com/firebase/firebase-ios-sdk#tvos-macos-watchos-and-catalyst).
+
+# Firebase 7.3.0
+- [added] Added FirebaseAppDistribution-Beta product to Swift Package Manager. (#7045)
+
 # Firebase 7.2.0
 - [fixed] Reduced `FirebaseApp.configure()` and `+[FIRApp registerInternalLibrary:withName:]` impact on app launch time. (#6902)
+- [added] Added arm64 simulator support to support new Apple silicon based Macs.
+- [changed] Due to the new arm64 simulator support, Xcode 12 is now required for any binary
+  products (Analytics, Performance, zip file distribution).
 
 # Firebase 7.0.0
 - [changed] Update minimum iOS version to iOS 10 except for Analytics which is now iOS 9. (#4847)

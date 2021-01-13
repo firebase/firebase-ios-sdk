@@ -57,5 +57,7 @@
   "6.8.1": "https://dl.google.com/dl/firebase/ios/carthage/6.8.1/Auth-7ef8889c95095243.zip",
   "6.9.0": "https://dl.google.com/dl/firebase/ios/carthage/6.9.0/Auth-af61df0a74e5c3bd.zip",
   "7.0.0": "https://dl.google.com/dl/firebase/ios/carthage/7.0.0/FirebaseAuth-5e3de37f95a24442.zip",
-  "7.1.0": "https://dl.google.com/dl/firebase/ios/carthage/7.1.0/FirebaseAuth-d36520d4c6c4b4f7.zip"
+  "7.1.0": "https://dl.google.com/dl/firebase/ios/carthage/7.1.0/FirebaseAuth-d36520d4c6c4b4f7.zip",
+  "7.3.0": "https://dl.google.com/dl/firebase/ios/carthage/7.3.0/FirebaseAuth-338fdd0ab2737c5a.zip",
+  "7.4.0": "https://dl.google.com/dl/firebase/ios/carthage/7.4.0/FirebaseAuth-6a2bf412add004e4.zip"
 }

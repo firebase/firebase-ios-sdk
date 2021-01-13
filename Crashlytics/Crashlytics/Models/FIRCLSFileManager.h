@@ -43,9 +43,7 @@
 @property(nonatomic, readonly) NSString *processingPath;
 @property(nonatomic, readonly) NSString *pendingPath;
 @property(nonatomic, readonly) NSString *preparedPath;
-@property(nonatomic, readonly) NSString *legacyPreparedPath;
 @property(nonatomic, readonly) NSArray *activePathContents;
-@property(nonatomic, readonly) NSArray *legacyPreparedPathContents;
 @property(nonatomic, readonly) NSArray *preparedPathContents;
 @property(nonatomic, readonly) NSArray *processingPathContents;
 

@@ -1,3 +1,9 @@
+# v7.3.1
+- [fixed] New callback added in 7.3.0 should be on the main thread. (#7159)
+
+# v7.3.0
+- [added] Manually created dynamic links should be subject to allowed/blocked check (#5853)
+
 # v4.3.1
 - [changed] Client id usage in api call and respective checks in the code.
 - [fixed] Fix attempts to connect to invalid ipv6 domain by updating ipv4 and ipv6 to use a single, valid endpoint (#5032)

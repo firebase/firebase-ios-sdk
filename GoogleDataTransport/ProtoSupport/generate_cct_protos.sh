@@ -23,7 +23,7 @@
 readonly DIR="$( git rev-parse --show-toplevel )"
 
 # Current release of nanopb being used  to build the CCT protos
-readonly NANOPB_VERSION="0.3.9.6"
+readonly NANOPB_VERSION="0.3.9.7"
 readonly NANOPB_TEMPDIR="${DIR}/GoogleDataTransport/nanopb_temp"
 
 readonly LIBRARY_DIR="${DIR}/GoogleDataTransport/GDTCCTLibrary/"

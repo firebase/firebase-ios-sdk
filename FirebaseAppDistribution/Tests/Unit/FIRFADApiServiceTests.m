@@ -13,8 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #import <Foundation/Foundation.h>
-#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
+#import "OCMock.h"
 
 #import "FirebaseAppDistribution/Sources/FIRFADApiService.h"
 #import "FirebaseAppDistribution/Sources/FIRFADLogger.h"
@@ -173,6 +173,11 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
                                                    error:nil];
   NSString *message = [FIRFADApiService tryParseGoogleAPIErrorFromResponse:data];
   XCTAssertTrue([message isEqualToString:_mockAPINotEnabledMessage]);
+}
+
+- (void)testTryParseGoogleAPIErrorFromNilResponse {
+  NSString *message = [FIRFADApiService tryParseGoogleAPIErrorFromResponse:nil];
+  XCTAssertTrue([message isEqualToString:@"No data in response."]);
 }
 
 - (void)testTryParseGoogleAPIErrorFromResponseParseFailure {

@@ -49,7 +49,9 @@
 }
 
 - (void)dealloc {
-  [_server stop];
+  if (_server.isRunning) {
+    [_server stop];
+  }
 }
 
 - (void)start {
