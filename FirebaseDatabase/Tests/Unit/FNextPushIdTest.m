@@ -25,7 +25,8 @@ static NSInteger MAX_KEY_LEN = 786;
 - (void)testSuccessorSpecialValues {
   NSString *maxIntegerKeySuccessor =
       [FNextPushId successor:[NSString stringWithFormat:@"%d", INTEGER_32_MAX]];
-  XCTAssertEqualObjects(maxIntegerKeySuccessor, MIN_PUSH_CHAR, @"successor(INTEGER_32_MAX) == MIN_PUSH_CHAR");
+  XCTAssertEqualObjects(maxIntegerKeySuccessor, MIN_PUSH_CHAR,
+                        @"successor(INTEGER_32_MAX) == MIN_PUSH_CHAR");
   NSString *maxKey = [@"" stringByPaddingToLength:MAX_KEY_LEN
                                        withString:MAX_PUSH_CHAR
                                   startingAtIndex:0];
@@ -42,11 +43,13 @@ static NSInteger MAX_KEY_LEN = 786;
                                                        withString:MAX_PUSH_CHAR
                                                   startingAtIndex:0]];
   expected = @"abd";
-  XCTAssertEqualObjects(expected, actual, @"successor(abc + MAX_PUSH_CHAR repeated MAX_KEY_LEN - 3 times) == abd");
+  XCTAssertEqualObjects(expected, actual,
+                        @"successor(abc + MAX_PUSH_CHAR repeated MAX_KEY_LEN - 3 times) == abd");
 
   actual = [FNextPushId successor:[NSString stringWithFormat:@"abc%@", MIN_PUSH_CHAR]];
   expected = [NSString stringWithFormat:@"abc%@%@", MIN_PUSH_CHAR, MIN_PUSH_CHAR];
-  XCTAssertEqualObjects(expected, actual, @"successor(abc + MIN_PUSH_CHAR) == abc + MIN_PUSH_CHAR + MIN_PUSH_CHAR");
+  XCTAssertEqualObjects(expected, actual,
+                        @"successor(abc + MIN_PUSH_CHAR) == abc + MIN_PUSH_CHAR + MIN_PUSH_CHAR");
 }
 
 - (void)testPredecessorSpecialValues {
