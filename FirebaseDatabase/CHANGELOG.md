@@ -1,4 +1,5 @@
 # v7.5.0
+- [added] Implmemented `queryStartingAfterValue` for FirebaseDatabase queries.
 - [added] Implemented `queryEndingBefore` for FirebaseDatabase queries.
 
 # v7.2.0
