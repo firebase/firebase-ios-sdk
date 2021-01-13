@@ -389,9 +389,9 @@ NS_SWIFT_NAME(DatabaseQuery)
                                 childKey:(nullable NSString *)childKey;
 
 /**
- * queryEndingAtValue: is used to generate a reference to a limited view of the
+ * queryEndingBeforeValue: is used to generate a reference to a limited view of the
  * data at this location. The FIRDatabaseQuery instance returned by
- * queryEndingAtValue: will respond to events at nodes with a value less than
+ * queryEndingBeforeValue: will respond to events at nodes with a value less than
  * endValue.
  *
  * @param endValue The upper bound, exclusive, for the value of data visible to
@@ -402,9 +402,9 @@ NS_SWIFT_NAME(DatabaseQuery)
 - (FIRDatabaseQuery *)queryEndingBeforeValue:(nullable id)endValue;
 
 /**
- * queryEndingAtValue:childKey: is used to generate a reference to a limited
+ * queryEndingBeforeValue:childKey: is used to generate a reference to a limited
  * view of the data at this location. The FIRDatabaseQuery instance returned by
- * queryEndingAtValue:childKey will respond to events at nodes with a value less
+ * queryEndingBeforeValue:childKey will respond to events at nodes with a value less
  * than endValue, or equal to endValue and with a key less than childKey.
  *
  * @param endValue The upper bound, inclusive, for the value of data visible to

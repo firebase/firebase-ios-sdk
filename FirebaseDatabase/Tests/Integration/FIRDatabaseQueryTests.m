@@ -1441,7 +1441,7 @@
          withExpectation:@{}];
 
   __block id nullSnap = @"dummy";
-  [[[[ref queryOrderedByPriority] queryStartingAtValue:@"a"] queryEndingAtValue:@"c"]
+  [[[[ref queryOrderedByPriority] queryStartingAtValue:@"a"] queryEndingBeforeValue:@"c"]
       observeEventType:FIRDataEventTypeValue
              withBlock:^(FIRDataSnapshot* snapshot) {
                nullSnap = [snapshot value];
@@ -1568,7 +1568,7 @@
          withExpectation:@{}];
 
   __block id nullSnap = @"dummy";
-  [[[[ref queryOrderedByPriority] queryStartingAtValue:@"a"] queryEndingAtValue:@"c"]
+  [[[[ref queryOrderedByPriority] queryStartingAtValue:@"a"] queryEndingBeforeValue:@"c"]
       observeEventType:FIRDataEventTypeValue
              withBlock:^(FIRDataSnapshot* snapshot) {
                nullSnap = [snapshot value];
@@ -3717,14 +3717,7 @@
 - (void)testIntegerKeysBehaveNumericallyWithEndBeforeWithUnderflow {
   FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
   NSDictionary* toSet = @{
-    @"1" : @YES,
-    @"50" : @YES,
-    @"550" : @YES,
-    @"6" : @YES,
-    @"600" : @YES,
-    @"70" : @YES,
-    @"8" : @YES,
-    @"80" : @YES
+    @"1" : @YES
   };
   __block BOOL done = NO;
   [ref setValue:toSet
