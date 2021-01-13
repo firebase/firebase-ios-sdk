@@ -647,6 +647,13 @@
     });
 }
 
+- (void)getDataWithCompletionBlock:(void (^)(NSError *__nullable error,
+                                             FIRDataSnapshot *snapshot))block {
+    dispatch_async([FIRDatabaseQuery sharedQueue], ^{
+      [self.repo getData:self withCompletionBlock:block];
+    });
+}
+
 - (void)observeSingleEventOfType:(FIRDataEventType)eventType
                        withBlock:(fbt_void_datasnapshot)block {
 

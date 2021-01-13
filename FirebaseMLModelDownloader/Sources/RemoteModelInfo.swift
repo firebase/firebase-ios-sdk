@@ -13,10 +13,26 @@
 // limitations under the License.
 
 import Foundation
+import FirebaseCore
 
-/// Model download conditions.
-// TODO: Implement model download conditions.
-public struct ModelDownloadConditions {
-  // TODO: Intentionally left blank until implementation.
-  public init() {}
+/// Model info object with details about not-yet downloaded model.
+struct RemoteModelInfo {
+  /// Model name.
+  let name: String
+
+  /// Download URL for the model file, as returned by server.
+  let downloadURL: URL
+
+  /// Hash of the model, as returned by server.
+  let modelHash: String
+
+  /// Size of the model, as returned by server.
+  let size: Int
+
+  init(name: String, downloadURL: URL, modelHash: String, size: Int) {
+    self.name = name
+    self.downloadURL = downloadURL
+    self.modelHash = modelHash
+    self.size = size
+  }
 }
