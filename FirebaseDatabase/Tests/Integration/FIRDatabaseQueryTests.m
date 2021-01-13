@@ -3716,9 +3716,7 @@
 
 - (void)testIntegerKeysBehaveNumericallyWithEndBeforeWithUnderflow {
   FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
-  NSDictionary* toSet = @{
-    @"1" : @YES
-  };
+  NSDictionary* toSet = @{@"1" : @YES};
   __block BOOL done = NO;
   [ref setValue:toSet
       withCompletionBlock:^(NSError* error, FIRDatabaseReference* ref) {
