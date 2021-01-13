@@ -501,7 +501,8 @@ priority is meant to be preserved, you should use setValue:andPriority: instead.
  * limited view of the data at this location. The FIRDatabaseQuery instance
  * returned by queryStartingAfterValue:childKey will respond to events at nodes
  * with a value greater than startAfterValue, or equal to startAfterValue and
- * with a key greater than or to childKey.
+ * with a key greater than childKey. This is most useful when implementing
+ * pagination in a case where multiple nodes can match the startAfterValue.
  *
  * @param startAfterValue The lower bound, inclusive, for the value of data
  * visible to the returned FIRDatabaseQuery

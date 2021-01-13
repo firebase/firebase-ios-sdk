@@ -67,8 +67,8 @@ static NSInteger const MAX_KEY_LEN = 786;
 
 + (NSString *)successor:(NSString *_Nonnull)key {
     NSInteger keyAsInt;
-    if ([FUtilities tryParseStringToInt:key asInt:&keyAsInt]) {
-        if (keyAsInt == NSIntegerMax) {
+    if ([FUtilities tryParseString:key asInt:&keyAsInt]) {
+        if (keyAsInt == INTEGER_32_MAX) {
             return MIN_PUSH_CHAR;
         }
         return [NSString stringWithFormat:@"%ld", (long)keyAsInt + 1];
@@ -79,10 +79,11 @@ static NSInteger const MAX_KEY_LEN = 786;
         return next;
     }
 
-    unsigned long i = [next length] - 1;
-
-    while (i >= 0 &&
-           [next characterAtIndex:i] == [MAX_PUSH_CHAR characterAtIndex:0]) {
+    long i = [next length] - 1;
+    while (i >= 0) {
+        if ([next characterAtIndex:i] != [MAX_PUSH_CHAR characterAtIndex:0]) {
+            break;
+        }
         i--;
     }
 
