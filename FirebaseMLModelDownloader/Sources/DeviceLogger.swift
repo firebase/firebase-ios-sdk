@@ -29,6 +29,7 @@ class DeviceLogger {
   /// Log event on device.
   static func logEvent(level: OSLogType, category: OSLog, message: StaticString,
                        messageCode: LoggerMessageCode) {
+    // TODO: Replace with GULLogBasic.
     os_log(message, log: category, type: level)
   }
 }
