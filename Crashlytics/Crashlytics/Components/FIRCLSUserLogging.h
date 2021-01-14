@@ -75,6 +75,7 @@ void FIRCLSUserLoggingInit(FIRCLSUserLoggingReadOnlyContext* roContext,
 
 #ifdef __OBJC__
 void FIRCLSUserLoggingRecordUserKeyValue(NSString* key, id value);
+void FIRCLSUserLoggingRecordUserKeysAndValues(NSDictionary* keysAndValues);
 void FIRCLSUserLoggingRecordInternalKeyValue(NSString* key, id value);
 void FIRCLSUserLoggingWriteInternalKeyValue(NSString* key, NSString* value);
 
@@ -88,6 +89,10 @@ void FIRCLSUserLoggingRecordKeyValue(NSString* key,
                                      id value,
                                      FIRCLSUserLoggingKVStorage* storage,
                                      uint32_t* counter);
+
+void FIRCLSUserLoggingRecordKeysAndValues(NSDictionary* keysAndValues,
+                                          FIRCLSUserLoggingKVStorage* storage,
+                                          uint32_t* counter);
 
 void FIRCLSUserLoggingWriteAndCheckABFiles(FIRCLSUserLoggingABStorage* storage,
                                            const char** activePath,
