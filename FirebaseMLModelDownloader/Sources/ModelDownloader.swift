@@ -75,11 +75,7 @@ public class ModelDownloader {
     options = app.options
     installations = Installations.installations(app: app)
     /// Respect Firebase-wide data collection setting.
-    telemetryLogger = TelemetryLogger(
-      isStatsEnabled: app.isDataCollectionDefaultEnabled,
-      apiKey: app.options.apiKey,
-      projectID: app.options.projectID
-    )
+    telemetryLogger = TelemetryLogger(app: app)
     userDefaults = defaults
 
     NotificationCenter.default.addObserver(

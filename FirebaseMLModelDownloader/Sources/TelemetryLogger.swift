@@ -101,18 +101,16 @@ class FBMLDataObject: NSObject, GDTCOREventDataObject {
 
 /// Firelog logger.
 class TelemetryLogger {
+  /// Mapping ID for the log source.
   private let mappingID = "1326"
-  let isStatsEnabled: Bool
-  let fllTransport: GDTCORTransport
-
-  private let apiKey: String?
-  private let projectID: String?
+  /// Current Firebase app.
+  private let app: FirebaseApp
+  /// Transport for Firelog events.
+  private let fllTransport: GDTCORTransport
 
   /// Init logger, could be nil if unable to get event transport.
-  init?(isStatsEnabled: Bool, apiKey: String?, projectID: String?) {
-    self.isStatsEnabled = isStatsEnabled
-    self.apiKey = apiKey
-    self.projectID = projectID
+  init?(app: FirebaseApp) {
+    self.app = app
     guard let fllTransport = GDTCORTransport(
       mappingID: mappingID,
       transformers: nil,
@@ -139,11 +137,14 @@ class TelemetryLogger {
   /// Log model download event to Firelog.
   func logModelDownloadEvent(eventName: EventName, status: ModelDownloadStatus,
                              model: CustomModel? = nil) {
+    guard app.isDataCollectionDefaultEnabled else { return }
     var modelOptions = ModelOptions()
     if let model = model {
       modelOptions.setModelOptions(model: model)
     }
     var systemInfo = SystemInfo()
+    let apiKey = app.options.apiKey
+    let projectID = app.options.projectID
     systemInfo.setAppInfo(apiKey: apiKey, projectID: projectID)
 
     var modelDownloadLogEvent = ModelDownloadLogEvent()

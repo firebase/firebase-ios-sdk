@@ -394,11 +394,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     ) { result in
       switch result {
       case let .success(model):
-        guard let telemetryLogger = TelemetryLogger(
-          isStatsEnabled: true,
-          apiKey: testApp.options.apiKey,
-          projectID: testApp.options.projectID
-        ) else {
+        guard let telemetryLogger = TelemetryLogger(app: testApp) else {
           XCTFail("Could not initialize logger.")
           return
         }
