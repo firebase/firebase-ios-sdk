@@ -117,7 +117,8 @@ static NSInteger const MAX_KEY_LEN = 786;
     if ([next characterAtIndex:(next.length - 1)] ==
         [MIN_PUSH_CHAR characterAtIndex:0]) {
         if ([next length] == 1) {
-            return [NSString stringWithFormat:@"%ld", [FUtilities int32max]];
+            return
+                [NSString stringWithFormat:@"%ld", (long)[FUtilities int32max]];
         }
         // If the last character is the smallest possible character, then the
         // next smallest string is the prefix of `key` without it.
