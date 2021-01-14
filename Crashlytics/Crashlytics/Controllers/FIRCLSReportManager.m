@@ -423,7 +423,7 @@ static void (^reportSentCallback)(void);
     }];
   }];
 
-    return promise;
+  return promise;
 }
 
 - (void)checkAndRotateInstallUUIDIfNeededWithReport:(FIRCLSInternalReport *)report {
