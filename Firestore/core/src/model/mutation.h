@@ -222,9 +222,6 @@ class Mutation {
    * @param maybe_doc The document to mutate. The input document can be
    *     `nullopt` if the client has no knowledge of the pre-mutation state of
    *     the document.
-   * @param base_doc The state of the document prior to this mutation batch. The
-   *     input document can be nullopt if the client has no knowledge of the
-   *     pre-mutation state of the document.
    * @param local_write_time A timestamp indicating the local write time of the
    *     batch this mutation is a part of.
    * @return The mutated document. The returned document may be nullopt, but
@@ -233,7 +230,6 @@ class Mutation {
    */
   absl::optional<MaybeDocument> ApplyToLocalView(
       const absl::optional<MaybeDocument>& maybe_doc,
-      const absl::optional<MaybeDocument>& base_doc,
       const Timestamp& local_write_time) const;
 
   /**
@@ -300,7 +296,6 @@ class Mutation {
 
     virtual absl::optional<MaybeDocument> ApplyToLocalView(
         const absl::optional<MaybeDocument>& maybe_doc,
-        const absl::optional<MaybeDocument>& base_doc,
         const Timestamp& local_write_time) const = 0;
 
     virtual absl::optional<ObjectValue> ExtractTransformBaseValue(
@@ -327,14 +322,12 @@ class Mutation {
      *
      * @param maybe_doc The current state of the document after applying all
      *     previous mutations.
-     * @param base_doc The document prior to applying this mutation batch.
      * @param local_write_time The local time of the transform (used to
      *     generate ServerTimestampValues).
      * @return The transform results array.
      */
     virtual std::vector<FieldValue> LocalTransformResults(
         const absl::optional<MaybeDocument>& maybe_doc,
-        const absl::optional<MaybeDocument>& base_doc,
         const Timestamp& local_write_time) const;
 
     virtual ObjectValue TransformObject(

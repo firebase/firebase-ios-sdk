@@ -16,16 +16,15 @@
 
 #include "Firestore/core/src/model/set_mutation.h"
 
-#include <Firestore/core/src/util/to_string.h>
 #include <cstdlib>
 #include <utility>
 
 #include "Firestore/core/src/model/document.h"
-#include "Firestore/core/src/model/field_path.h"
 #include "Firestore/core/src/model/field_value.h"
 #include "Firestore/core/src/model/no_document.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/hashing.h"
+#include "Firestore/core/src/util/to_string.h"
 #include "absl/strings/str_cat.h"
 
 namespace firebase {
@@ -89,7 +88,6 @@ MaybeDocument SetMutation::Rep::ApplyToRemoteDocument(
 
 absl::optional<MaybeDocument> SetMutation::Rep::ApplyToLocalView(
     const absl::optional<MaybeDocument>& maybe_doc,
-    const absl::optional<MaybeDocument>& base_doc,
     const Timestamp& local_write_time) const {
   VerifyKeyMatches(maybe_doc);
 
@@ -98,7 +96,7 @@ absl::optional<MaybeDocument> SetMutation::Rep::ApplyToLocalView(
   }
 
   std::vector<FieldValue> transforms_results =
-      LocalTransformResults(maybe_doc, base_doc, local_write_time);
+      LocalTransformResults(maybe_doc, local_write_time);
   ObjectValue new_data = TransformObject(value_, transforms_results);
 
   SnapshotVersion version = GetPostMutationVersion(maybe_doc);

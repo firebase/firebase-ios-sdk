@@ -16,7 +16,6 @@
 
 #include "Firestore/core/src/model/patch_mutation.h"
 
-#include <Firestore/core/src/util/to_string.h>
 #include <cstdlib>
 #include <utility>
 
@@ -26,6 +25,7 @@
 #include "Firestore/core/src/model/no_document.h"
 #include "Firestore/core/src/model/unknown_document.h"
 #include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/to_string.h"
 
 namespace firebase {
 namespace firestore {
@@ -100,7 +100,6 @@ MaybeDocument PatchMutation::Rep::ApplyToRemoteDocument(
 
 absl::optional<MaybeDocument> PatchMutation::Rep::ApplyToLocalView(
     const absl::optional<MaybeDocument>& maybe_doc,
-    const absl::optional<MaybeDocument>& base_doc,
     const Timestamp& local_write_time) const {
   VerifyKeyMatches(maybe_doc);
 
@@ -109,7 +108,7 @@ absl::optional<MaybeDocument> PatchMutation::Rep::ApplyToLocalView(
   }
 
   std::vector<FieldValue> transform_results =
-      LocalTransformResults(maybe_doc, base_doc, local_write_time);
+      LocalTransformResults(maybe_doc, local_write_time);
 
   ObjectValue new_data = PatchDocument(maybe_doc, transform_results);
   SnapshotVersion version = GetPostMutationVersion(maybe_doc);

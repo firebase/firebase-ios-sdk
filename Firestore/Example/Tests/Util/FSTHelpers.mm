@@ -20,6 +20,7 @@
 #import <FirebaseFirestore/FIRGeoPoint.h>
 
 #include <set>
+#include <utility>
 
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 
@@ -29,7 +30,7 @@
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/model/set_mutation.h"
 
-#import <Firestore/core/test/unit/testutil/testutil.h>
+#import "Firestore/core/test/unit/testutil/testutil.h"
 
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;

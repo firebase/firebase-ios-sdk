@@ -60,9 +60,7 @@ MaybeDocument DeleteMutation::Rep::ApplyToRemoteDocument(
 }
 
 absl::optional<MaybeDocument> DeleteMutation::Rep::ApplyToLocalView(
-    const absl::optional<MaybeDocument>& maybe_doc,
-    const absl::optional<MaybeDocument>&,
-    const Timestamp&) const {
+    const absl::optional<MaybeDocument>& maybe_doc, const Timestamp&) const {
   VerifyKeyMatches(maybe_doc);
 
   if (!precondition().IsValidFor(maybe_doc)) {

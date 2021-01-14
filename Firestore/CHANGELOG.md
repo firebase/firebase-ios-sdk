@@ -3,7 +3,7 @@
   longer split up into two separate operations. This reduces the number of
   writes the backend performs and allows each WriteBatch to hold 500 writes
   regardless of how many FieldValue transformations are attached.
-- [fixed] Fixed an issue where using `FieldValue.arrayRemove()` would only 
+- [fixed] Fixed an issue where using `FieldValue.arrayRemove()` would only
   delete the first occurrence of an element in an array in a latency
   compensated snapshots.
 

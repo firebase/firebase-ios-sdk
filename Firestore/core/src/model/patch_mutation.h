@@ -108,7 +108,6 @@ class PatchMutation : public Mutation {
 
     absl::optional<MaybeDocument> ApplyToLocalView(
         const absl::optional<MaybeDocument>& maybe_doc,
-        const absl::optional<MaybeDocument>& base_doc,
         const Timestamp& local_write_time) const override;
 
     bool Equals(const Mutation::Rep& other) const override;

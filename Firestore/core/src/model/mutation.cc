@@ -56,9 +56,8 @@ MaybeDocument Mutation::ApplyToRemoteDocument(
 
 absl::optional<MaybeDocument> Mutation::ApplyToLocalView(
     const absl::optional<MaybeDocument>& maybe_doc,
-    const absl::optional<MaybeDocument>& base_doc,
     const Timestamp& local_write_time) const {
-  return rep().ApplyToLocalView(maybe_doc, base_doc, local_write_time);
+  return rep().ApplyToLocalView(maybe_doc, local_write_time);
 }
 
 absl::optional<ObjectValue> Mutation::Rep::ExtractTransformBaseValue(
@@ -147,7 +146,6 @@ std::vector<FieldValue> Mutation::Rep::ServerTransformResults(
 
 std::vector<FieldValue> Mutation::Rep::LocalTransformResults(
     const absl::optional<MaybeDocument>& maybe_doc,
-    const absl::optional<MaybeDocument>& base_doc,
     const Timestamp& local_write_time) const {
   std::vector<FieldValue> transform_results;
   for (const FieldTransform& field_transform : field_transforms_) {
@@ -156,15 +154,6 @@ std::vector<FieldValue> Mutation::Rep::LocalTransformResults(
     absl::optional<FieldValue> previous_value;
     if (maybe_doc && maybe_doc->is_document()) {
       previous_value = Document(*maybe_doc).field(field_transform.path());
-    }
-
-    // TODO: remove this part
-    if (!previous_value && base_doc && base_doc->is_document()) {
-      // If the current document does not contain a value for the mutated field,
-      // use the value that existed before applying this mutation batch. This
-      // solves an edge case where a PatchMutation clears the values in a nested
-      // map before the TransformMutation is applied.
-      previous_value = Document(*base_doc).field(field_transform.path());
     }
 
     transform_results.push_back(

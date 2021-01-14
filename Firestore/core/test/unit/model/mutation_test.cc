@@ -55,7 +55,7 @@ TEST(MutationTest, AppliesSetsToDocuments) {
       Doc("collection/key", 0, Map("foo", "foo-value", "baz", "baz-value"));
 
   Mutation set = SetMutation("collection/key", Map("bar", "bar-value"));
-  auto result = set.ApplyToLocalView(base_doc, base_doc, now);
+  auto result = set.ApplyToLocalView(base_doc, now);
 
   EXPECT_EQ(result, Doc("collection/key", 0, Map("bar", "bar-value"),
                         DocumentState::kLocalMutations));
@@ -68,7 +68,7 @@ TEST(MutationTest, AppliesPatchToDocuments) {
 
   Mutation patch =
       PatchMutation("collection/key", Map("foo.bar", "new-bar-value"));
-  auto result = patch.ApplyToLocalView(base_doc, base_doc, now);
+  auto result = patch.ApplyToLocalView(base_doc, now);
 
   EXPECT_EQ(result,
             Doc("collection/key", 0,
@@ -81,7 +81,7 @@ TEST(MutationTest, AppliesPatchWithMergeToNoDocuments) {
 
   Mutation upsert = MergeMutation(
       "collection/key", Map("foo.bar", "new-bar-value"), {Field("foo.bar")});
-  auto result = upsert.ApplyToLocalView(base_doc, base_doc, now);
+  auto result = upsert.ApplyToLocalView(base_doc, now);
 
   EXPECT_EQ(result,
             Doc("collection/key", 0, Map("foo", Map("bar", "new-bar-value")),
@@ -93,7 +93,7 @@ TEST(MutationTest, AppliesPatchWithMergeToNullDocuments) {
 
   Mutation upsert = MergeMutation(
       "collection/key", Map("foo.bar", "new-bar-value"), {Field("foo.bar")});
-  auto result = upsert.ApplyToLocalView(base_doc, base_doc, now);
+  auto result = upsert.ApplyToLocalView(base_doc, now);
 
   EXPECT_EQ(result,
             Doc("collection/key", 0, Map("foo", Map("bar", "new-bar-value")),
@@ -106,7 +106,7 @@ TEST(MutationTest, DeletesValuesFromTheFieldMask) {
           Map("foo", Map("bar", "bar-value", "baz", "baz-value")));
 
   Mutation patch = MergeMutation("collection/key", Map(), {Field("foo.bar")});
-  auto result = patch.ApplyToLocalView(base_doc, base_doc, now);
+  auto result = patch.ApplyToLocalView(base_doc, now);
 
   EXPECT_EQ(result,
             Doc("collection/key", 0, Map("foo", Map("baz", "baz-value")),
@@ -119,7 +119,7 @@ TEST(MutationTest, PatchesPrimitiveValue) {
 
   Mutation patch =
       PatchMutation("collection/key", Map("foo.bar", "new-bar-value"));
-  auto result = patch.ApplyToLocalView(base_doc, base_doc, now);
+  auto result = patch.ApplyToLocalView(base_doc, now);
 
   EXPECT_EQ(result,
             Doc("collection/key", 0,
@@ -131,7 +131,7 @@ TEST(MutationTest, PatchingDeletedDocumentsDoesNothing) {
   NoDocument base_doc = testutil::DeletedDoc("collection/key", 0);
 
   Mutation patch = PatchMutation("collection/key", Map("foo", "bar"));
-  auto result = patch.ApplyToLocalView(base_doc, base_doc, now);
+  auto result = patch.ApplyToLocalView(base_doc, now);
 
   EXPECT_EQ(result, base_doc);
 }
@@ -143,7 +143,7 @@ TEST(MutationTest, AppliesLocalServerTimestampTransformToDocuments) {
 
   Mutation transform = PatchMutation("collection/key", Map(),
                                      {{"foo.bar", ServerTimestampTransform()}});
-  auto result = transform.ApplyToLocalView(base_doc, base_doc, now);
+  auto result = transform.ApplyToLocalView(base_doc, now);
 
   // Server timestamps aren't parsed, so we manually insert it.
   ObjectValue expected_data =
@@ -178,7 +178,7 @@ void TransformBaseDoc(const FieldValue::Map& base_data,
 
   for (const auto& transform : transforms) {
     Mutation mutation = PatchMutation("collection/key", Map(), {transform});
-    auto result = mutation.ApplyToLocalView(current_doc, current_doc, now);
+    auto result = mutation.ApplyToLocalView(current_doc, now);
     ASSERT_NE(result, absl::nullopt);
     ASSERT_EQ(result->type(), MaybeDocument::Type::Document);
     current_doc = Document(*result);
@@ -471,7 +471,7 @@ TEST(MutationTest, DeleteDeletes) {
   Document base_doc = Doc("collection/key", 0, Map("foo", "bar"));
 
   Mutation del = DeleteMutation("collection/key");
-  auto result = del.ApplyToLocalView(base_doc, base_doc, now);
+  auto result = del.ApplyToLocalView(base_doc, now);
 
   EXPECT_EQ(result, DeletedDoc("collection/key", 0));
 }
