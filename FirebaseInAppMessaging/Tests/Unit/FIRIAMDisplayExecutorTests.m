@@ -188,6 +188,9 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
                               imageData:(FIRInAppMessagingImageData *)imageData
                      landscapeImageData:(nullable FIRInAppMessagingImageData *)landscapeImageData
                             triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType;
+
+- (BOOL)shouldTrackConversionsOnImpressionForCurrentInAppMessage:
+    (FIRIAMMessageDefinition *)inAppMessage;
 @end
 
 @interface FIRIAMDisplayExecutorTests : XCTestCase
@@ -739,7 +742,7 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
   OCMVerifyAll((id)self.mockAnalyticsEventLogger);
 }
 
-- (void)testAnalyticsTrackingImpressionOnValidImpressionDetectedCase {
+- (void)testAnalyticsTrackingImpressionOnValidImpressionDetectedCaseWithActionURL {
   // This setup allows next message to be displayed from display interval perspective.
   OCMStub([self.mockTimeFetcher currentTimestampInSeconds])
       .andReturn(DISPLAY_MIN_INTERVALS * 60 + 100);
@@ -757,6 +760,39 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
   FIRIAMMessageDisplayForTesting *display = [[FIRIAMMessageDisplayForTesting alloc]
       initWithDelegateInteraction:FIRInAppMessagingDelegateInteractionImpressionDetected];
   self.displayExecutor.messageDisplayComponent = display;
+
+  // M2 has an action URL. Conversion shouldn't be tracked yet.
+  XCTAssertFalse(
+      [self.displayExecutor shouldTrackConversionsOnImpressionForCurrentInAppMessage:self.m2]);
+
+  [self.displayExecutor checkAndDisplayNextAppForegroundMessage];
+  OCMVerifyAll((id)self.mockAnalyticsEventLogger);
+}
+
+- (void)testAnalyticsTrackingImpressionOnValidImpressionDetectedCaseWithoutActionURL {
+  // This setup allows next message to be displayed from display interval perspective.
+  OCMStub([self.mockTimeFetcher currentTimestampInSeconds])
+      .andReturn(DISPLAY_MIN_INTERVALS * 60 + 100);
+
+  // not expecting triggering analytics recording
+  OCMExpect([self.mockAnalyticsEventLogger
+      logAnalyticsEventForType:FIRIAMAnalyticsEventMessageImpression
+                 forCampaignID:[OCMArg isEqual:self.m5.renderData.messageID]
+              withCampaignName:[OCMArg any]
+                 eventTimeInMs:[OCMArg any]
+                    completion:[OCMArg any]]);
+
+  [self.clientMessageCache setMessageData:@[ self.m5 ]];
+
+  FIRIAMMessageDisplayForTesting *display = [[FIRIAMMessageDisplayForTesting alloc]
+      initWithDelegateInteraction:FIRInAppMessagingDelegateInteractionImpressionDetected];
+  self.displayExecutor.messageDisplayComponent = display;
+
+  // M5 has no action URL. Conversion should be tracked after impression.
+  OCMExpect([self.mockAnalyticsEventLogger
+      logConversionTrackingEventForCampaignID:[OCMArg isEqual:self.m5.renderData.messageID]]);
+  XCTAssertTrue(
+      [self.displayExecutor shouldTrackConversionsOnImpressionForCurrentInAppMessage:self.m5]);
 
   [self.displayExecutor checkAndDisplayNextAppForegroundMessage];
   OCMVerifyAll((id)self.mockAnalyticsEventLogger);
