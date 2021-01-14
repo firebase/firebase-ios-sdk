@@ -51,6 +51,7 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
 
 @implementation GDTCORFlatFileStorage
 
+#if CLS_MEETS_MIN_REQ
 + (void)load {
 #if !NDEBUG
   [[GDTCORRegistrar sharedInstance] registerStorage:[self sharedInstance] target:kGDTCORTargetTest];
@@ -67,6 +68,7 @@ NSString *const kGDTCORBatchComponentsExpirationKey = @"GDTCORBatchComponentsExp
   [NSKeyedUnarchiver setClass:[GDTCOREvent class] forClassName:@"GDTCORStoredEvent"];
   [NSKeyedUnarchiver setClass:[GDTCORFlatFileStorage class] forClassName:@"GDTCORStorage"];
 }
+#endif
 
 + (instancetype)sharedInstance {
   static GDTCORFlatFileStorage *sharedStorage;

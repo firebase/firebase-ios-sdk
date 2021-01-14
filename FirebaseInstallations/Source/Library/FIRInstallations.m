@@ -50,11 +50,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Firebase component
 
+#if CLS_MEETS_MIN_REQ
 + (void)load {
   [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self
                          withName:@"fire-install"
                       withVersion:[NSString stringWithUTF8String:FIRInstallationsVersionStr]];
 }
+#endif
 
 + (nonnull NSArray<FIRComponent *> *)componentsToRegister {
   FIRComponentCreationBlock creationBlock =

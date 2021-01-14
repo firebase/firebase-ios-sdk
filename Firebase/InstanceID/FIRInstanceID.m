@@ -570,11 +570,13 @@ static FIRInstanceID *gInstanceID;
 
 #pragma mark - Config
 
+#if CLS_MEETS_MIN_REQ
 + (void)load {
   [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self
                          withName:@"fire-iid"
                       withVersion:FIRInstanceIDCurrentLibraryVersion()];
 }
+#endif
 
 + (nonnull NSArray<FIRComponent *> *)componentsToRegister {
   FIRComponentCreationBlock creationBlock =

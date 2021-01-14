@@ -205,11 +205,13 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 
 #pragma mark - Config
 
+#if CLS_MEETS_MIN_REQ
 + (void)load {
   [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self
                          withName:@"fire-fcm"
                       withVersion:FIRMessagingCurrentLibraryVersion()];
 }
+#endif
 
 + (nonnull NSArray<FIRComponent *> *)componentsToRegister {
   FIRDependency *analyticsDep = [FIRDependency dependencyWithProtocol:@protocol(FIRAnalyticsInterop)

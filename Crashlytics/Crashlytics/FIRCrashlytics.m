@@ -146,11 +146,13 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
   return self;
 }
 
+#if CLS_MEETS_MIN_REQ
 + (void)load {
   [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self
                          withName:@"firebase-crashlytics"
                       withVersion:@CLS_SDK_DISPLAY_VERSION];
 }
+#endif
 
 + (NSArray<FIRComponent *> *)componentsToRegister {
   FIRDependency *analyticsDep =
