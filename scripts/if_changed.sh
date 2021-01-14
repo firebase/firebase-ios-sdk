@@ -55,8 +55,9 @@ else
 'InAppMessaging|Firebase/InAppMessaging|'\
 'FirebaseInAppMessaging.podspec|'\
 'Firebase/InstanceID|FirebaseInstanceID.podspec|'\
-'FirebaseInstallations'\
-'FirebaseCrashlytics.podspec)'\
+'FirebaseInstallations|'\
+'FirebaseCrashlytics.podspec|'\
+'FirebaseSegmentation.podspec)'\
       ;;
 
     FirebasePod-*)
@@ -144,6 +145,10 @@ else
 
     Installations-*)
       check_changes '^(FirebaseCore|GoogleUtilities|FirebaseInstallations)'
+      ;;
+
+    Segmentation-*)
+      check_changes '^(Firebase/Core|FirebaseSegmentation|FirebaseSegmentation.podspec)'
       ;;
 
     *)

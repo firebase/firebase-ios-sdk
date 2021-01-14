@@ -15,12 +15,13 @@
 #import <TargetConditionals.h>
 
 #import "GoogleUtilities/AppDelegateSwizzler/Internal/GULAppDelegateSwizzler_Private.h"
-#import "GoogleUtilities/AppDelegateSwizzler/Private/GULAppDelegateSwizzler.h"
+#import "GoogleUtilities/AppDelegateSwizzler/Public/GoogleUtilities/GULAppDelegateSwizzler.h"
 #import "GoogleUtilities/Common/GULLoggerCodes.h"
-#import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
-#import "GoogleUtilities/Logger/Private/GULLogger.h"
-#import "GoogleUtilities/Network/Private/GULMutableDictionary.h"
+#import "GoogleUtilities/Environment/Public/GoogleUtilities/GULAppEnvironmentUtil.h"
+#import "GoogleUtilities/Logger/Public/GoogleUtilities/GULLogger.h"
+#import "GoogleUtilities/Network/Public/GoogleUtilities/GULMutableDictionary.h"
 
+#import <dispatch/group.h>
 #import <objc/runtime.h>
 
 // Implementations need to be typed before calling the implementation directly to cast the
@@ -882,24 +883,72 @@ static dispatch_once_t sProxyAppDelegateRemoteNotificationOnceToken;
       didReceiveRemoteNotificationWithCompletionIMP =
           [didReceiveRemoteNotificationWithCompletionIMPPointer pointerValue];
 
+  dispatch_group_t __block callbackGroup = dispatch_group_create();
+  NSMutableArray<NSNumber *> *__block fetchResults = [NSMutableArray array];
+
+  void (^localCompletionHandler)(UIBackgroundFetchResult) =
+      ^void(UIBackgroundFetchResult fetchResult) {
+        [fetchResults addObject:[NSNumber numberWithInt:(int)fetchResult]];
+        dispatch_group_leave(callbackGroup);
+      };
+
   // Notify interceptors.
   [GULAppDelegateSwizzler
       notifyInterceptorsWithMethodSelector:methodSelector
                                   callback:^(id<GULApplicationDelegate> interceptor) {
+                                    dispatch_group_enter(callbackGroup);
+
                                     NSInvocation *invocation = [GULAppDelegateSwizzler
                                         appDelegateInvocationForSelector:methodSelector];
                                     [invocation setTarget:interceptor];
                                     [invocation setSelector:methodSelector];
                                     [invocation setArgument:(void *)(&application) atIndex:2];
                                     [invocation setArgument:(void *)(&userInfo) atIndex:3];
-                                    [invocation setArgument:(void *)(&completionHandler) atIndex:4];
+                                    [invocation setArgument:(void *)(&localCompletionHandler)
+                                                    atIndex:4];
                                     [invocation invoke];
                                   }];
   // Call the real implementation if the real App Delegate has any.
   if (didReceiveRemoteNotificationWithCompletionIMP) {
+    dispatch_group_enter(callbackGroup);
+
     didReceiveRemoteNotificationWithCompletionIMP(self, methodSelector, application, userInfo,
-                                                  completionHandler);
+                                                  localCompletionHandler);
   }
+
+  dispatch_group_notify(callbackGroup, dispatch_get_main_queue(), ^() {
+    BOOL allFetchesFailed = YES;
+    BOOL anyFetchHasNewData = NO;
+
+    for (NSNumber *oneResult in fetchResults) {
+      UIBackgroundFetchResult result = oneResult.intValue;
+
+      switch (result) {
+        case UIBackgroundFetchResultNoData:
+          allFetchesFailed = NO;
+          break;
+        case UIBackgroundFetchResultNewData:
+          allFetchesFailed = NO;
+          anyFetchHasNewData = YES;
+          break;
+        case UIBackgroundFetchResultFailed:
+
+          break;
+      }
+    }
+
+    UIBackgroundFetchResult finalFetchResult = UIBackgroundFetchResultNoData;
+
+    if (allFetchesFailed) {
+      finalFetchResult = UIBackgroundFetchResultFailed;
+    } else if (anyFetchHasNewData) {
+      finalFetchResult = UIBackgroundFetchResultNewData;
+    } else {
+      finalFetchResult = UIBackgroundFetchResultNoData;
+    }
+
+    completionHandler(finalFetchResult);
+  });
 }
 #endif  // !TARGET_OS_WATCH && !TARGET_OS_OSX
 

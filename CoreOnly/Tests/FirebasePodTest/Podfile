@@ -1,5 +1,5 @@
 # Uncomment the next line to define a global platform for your project
-# platform :ios, '9.0'
+platform :ios, '10.0'
 
 source 'https://github.com/firebase/SpecsStaging.git'
 source 'https://cdn.cocoapods.org/'
@@ -23,6 +23,7 @@ target 'FirebasePodTest' do
   pod 'FirebaseInstallations', :path => '../../../'
   pod 'FirebaseInstanceID', :path => '../../../'
   pod 'FirebaseMessaging', :path => '../../../'
+  pod 'FirebasePerformance', :path => '../../../'
   pod 'FirebaseRemoteConfig', :path => '../../../'
   pod 'FirebaseStorage', :path => '../../../'
 
@@ -32,5 +33,4 @@ target 'FirebasePodTest' do
   pod 'GoogleUtilities', :path => '../../../'
 
   pod 'FirebaseAnalytics' # Analytics is not open source
-  pod 'FirebasePerformance' # Performance is not open source
 end

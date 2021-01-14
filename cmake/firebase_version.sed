@@ -20,16 +20,17 @@
 #
 # The line this looks for is this one:
 #
-#     'FIRCore_VERSION=' + s.version.to_s + ' Firebase_VERSION=6.5.0',
+#       s.version          = '7.0.0'
 
 # Find the line passing the Firebase_VERSION macro.
-/.*Firebase_VERSION=/ {
+/.* s.version.*=/ {
   # Re-use the pattern buffer to remove everything on the line up to and
   # including the =.
   s///
 
-  # Remove trailing quote and comma
-  s/',//
+  # Remove the surrounding quotes
+  s/'//
+  s/'//
 
   # Explicitly print
   p

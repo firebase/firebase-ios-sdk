@@ -18,8 +18,8 @@
 
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 
-#import <FirebaseInstanceID/FIRInstanceID_Private.h>
 #import <OCMock/OCMock.h>
+#import "Firebase/InstanceID/Private/FIRInstanceID_Private.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "Firebase/InstanceID/FIRInstanceIDAuthService.h"
@@ -51,6 +51,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 @property(nonatomic, readwrite, strong) FIRInstallations *installations;
 @property(nonatomic, readwrite, copy) NSString *fcmSenderID;
 @property(nonatomic, readwrite, copy) NSString *firebaseAppID;
+@property(nonatomic, readwrite, copy) NSString *defaultFCMToken;
 
 - (NSInteger)retryIntervalToFetchDefaultToken;
 - (BOOL)isFCMAutoInitEnabled;
@@ -75,7 +76,10 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 @interface FIRInstanceIDTest : XCTestCase
 
 @property(nonatomic, readwrite, assign) BOOL hasCheckinInfo;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 @property(nonatomic, readwrite, strong) FIRInstanceID *instanceID;
+#pragma clang diagnostic pop
 @property(nonatomic, readwrite, strong) id mockInstanceID;
 @property(nonatomic, readwrite, strong) id mockTokenManager;
 @property(nonatomic, readwrite, strong) id mockInstallations;
@@ -89,6 +93,8 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 
 @implementation FIRInstanceIDTest
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)setUp {
   [super setUp];
 
@@ -134,8 +140,11 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   _instanceID.fcmSenderID = kAuthorizedEntity;
   self.mockInstanceID = OCMPartialMock(_instanceID);
   [self.mockInstanceID setTokenManager:self.mockTokenManager];
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   id instanceIDClassMock = OCMClassMock([FIRInstanceID class]);
+#pragma clang diagnostic pop
+
   OCMStub(ClassMethod([instanceIDClassMock minIntervalForDefaultTokenRetry])).andReturn(2);
   OCMStub(ClassMethod([instanceIDClassMock maxRetryIntervalForDefaultTokenInSeconds]))
       .andReturn(10);
@@ -146,16 +155,15 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
  *  FIRInstanceID with an associated FIRInstanceIDTokenManager.
  */
 - (void)testSharedInstance {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   // The shared instance should be `nil` before the app is configured.
   XCTAssertNil([FIRInstanceID instanceID]);
-
-  // Expect FID to be requested at the start.
-  [self expectInstallationsInstallationIDWithFID:@"fid" error:nil];
 
   // The shared instance relies on the default app being configured. Configure it.
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
                                                     GCMSenderID:kGCMSenderID];
-  options.APIKey = @"api-key";
+  options.APIKey = @"AIzaSy-ApiKeyWithValidFormat_0123456789";
   options.projectID = @"project-id";
   [FIRApp configureWithName:kFIRDefaultAppName options:options];
   FIRInstanceID *instanceID = [FIRInstanceID instanceID];
@@ -166,84 +174,8 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   FIRInstanceID *secondInstanceID = [FIRInstanceID instanceID];
   XCTAssertEqualObjects(instanceID, secondInstanceID);
 
-  // Verify FirebaseInstallations requested for FID.
-  OCMVerifyAll(self.mockInstallations);
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  XCTAssertEqualObjects([instanceID appInstanceID:NULL], @"fid");
-#pragma clang diagnostic pop
-
   // Reset the default app for the next test.
   [FIRApp resetApps];
-}
-
-- (void)testSyncAppInstanceIDIsUpdatedOnFIDUpdateNotificationIfAppIDMatches {
-  NSString *firebaseAppID = @"firebaseAppID";
-  _instanceID.firebaseAppID = firebaseAppID;
-
-  [self expectInstallationsInstallationIDWithFID:@"fid-1" error:nil];
-  // Simulate FID update notification.
-  [[NSNotificationCenter defaultCenter]
-      postNotificationName:FIRInstallationIDDidChangeNotification
-                    object:nil
-                  userInfo:@{kFIRInstallationIDDidChangeNotificationAppNameKey : firebaseAppID}];
-
-  OCMVerifyAll(self.mockInstallations);
-  NSError *error = nil;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  XCTAssertEqualObjects([self.instanceID appInstanceID:&error], @"fid-1");
-#pragma clang diagnostic pop
-  XCTAssertNil(error);
-
-  [self expectInstallationsInstallationIDWithFID:@"fid-2" error:nil];
-  // Simulate FID update notification.
-  [[NSNotificationCenter defaultCenter]
-      postNotificationName:FIRInstallationIDDidChangeNotification
-                    object:nil
-                  userInfo:@{kFIRInstallationIDDidChangeNotificationAppNameKey : firebaseAppID}];
-
-  OCMVerifyAll(self.mockInstallations);
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  XCTAssertEqualObjects([self.instanceID appInstanceID:&error], @"fid-2");
-#pragma clang diagnostic pop
-  XCTAssertNil(error);
-}
-
-- (void)testSyncAppInstanceIDIsNotUpdatedOnFIDUpdateNotificationIfAppIDMismatches {
-  NSString *firebaseAppID = @"firebaseAppID";
-  _instanceID.firebaseAppID = firebaseAppID;
-
-  [self expectInstallationsInstallationIDWithFID:@"fid-1" error:nil];
-  // Simulate FID update notification.
-  [[NSNotificationCenter defaultCenter]
-      postNotificationName:FIRInstallationIDDidChangeNotification
-                    object:nil
-                  userInfo:@{kFIRInstallationIDDidChangeNotificationAppNameKey : firebaseAppID}];
-
-  OCMVerifyAll(self.mockInstallations);
-  NSError *error = nil;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  XCTAssertEqualObjects([self.instanceID appInstanceID:&error], @"fid-1");
-#pragma clang diagnostic pop
-  XCTAssertNil(error);
-
-  OCMReject([self.mockInstallations installationIDWithCompletion:[OCMArg any]]);
-  // Simulate FID update notification.
-  NSString *differentAppID = [firebaseAppID stringByAppendingString:@"different"];
-  [[NSNotificationCenter defaultCenter]
-      postNotificationName:FIRInstallationIDDidChangeNotification
-                    object:nil
-                  userInfo:@{kFIRInstallationIDDidChangeNotificationAppNameKey : differentAppID}];
-
-  OCMVerifyAll(self.mockInstallations);
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  XCTAssertEqualObjects([self.instanceID appInstanceID:&error], @"fid-1");
-#pragma clang diagnostic pop
-  XCTAssertNil(error);
 }
 
 - (void)testFCMAutoInitEnabled {
@@ -720,7 +652,6 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
                                  return obj != nil;
                                }]];
 
-  __block NSInteger notificationPostCount = 0;
   __block NSString *notificationToken = nil;
 
   // Fetch token once to store token state
@@ -732,8 +663,6 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
               usingBlock:^(NSNotification *_Nonnull note) {
                 // Should have saved token to cache
                 cachedTokenInfo = sTokenInfo;
-
-                notificationPostCount++;
                 notificationToken = [[self.instanceID token] copy];
                 [defaultTokenExpectation fulfill];
               }];
@@ -790,7 +719,6 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
                                  return obj != nil;
                                }]];
 
-  __block int notificationPostCount = 0;
   __block NSString *notificationToken = nil;
 
   NSString *notificationName = kFIRInstanceIDTokenRefreshNotification;
@@ -802,7 +730,6 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
                 // Should have saved token to cache
                 cachedTokenInfo = sTokenInfo;
 
-                notificationPostCount++;
                 notificationToken = [[self.instanceID token] copy];
                 [defaultTokenExpectation fulfill];
               }];
@@ -869,6 +796,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   __block NSString *notificationToken = nil;
 
   NSString *notificationName = kFIRInstanceIDTokenRefreshNotification;
+
   self.tokenRefreshNotificationObserver = [[NSNotificationCenter defaultCenter]
       addObserverForName:notificationName
                   object:nil
@@ -1397,6 +1325,109 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   OCMVerifyAll(self.mockTokenManager);
 }
 
+- (void)testRefreshDifferentTokenFromMessaging {
+  _instanceID.defaultFCMToken = kToken;
+  XCTAssertEqualObjects(_instanceID.defaultFCMToken, kToken);
+  NSString *newTokenFromMessaging = @"a_new_token_from_messaging";
+  FIRInstanceIDTokenInfo *cachedTokenInfo =
+      [[FIRInstanceIDTokenInfo alloc] initWithAuthorizedEntity:kAuthorizedEntity
+                                                         scope:kFIRInstanceIDDefaultTokenScope
+                                                         token:kToken
+                                                    appVersion:@""
+                                                 firebaseAppID:kGoogleAppID];
+  OCMStub([self.mockTokenManager
+              cachedTokenInfoWithAuthorizedEntity:kAuthorizedEntity
+                                            scope:kFIRInstanceIDDefaultTokenScope])
+      .andReturn(cachedTokenInfo);
+
+  OCMExpect([self.mockTokenManager saveDefaultToken:newTokenFromMessaging
+                                        withOptions:[OCMArg any]]);
+  [[NSNotificationCenter defaultCenter]
+      postNotificationName:kFIRInstanceIDMessagingUpdateTokenNotification
+                    object:newTokenFromMessaging];
+  OCMVerifyAll(self.mockTokenManager);
+  XCTAssertEqualObjects(_instanceID.defaultFCMToken, newTokenFromMessaging);
+}
+
+- (void)testRefreshTheSameTokenFromMessaging {
+  _instanceID.defaultFCMToken = kToken;
+  XCTAssertEqualObjects(_instanceID.defaultFCMToken, kToken);
+
+  NSString *newTokenFromMessaging = kToken;
+  FIRInstanceIDTokenInfo *cachedTokenInfo =
+      [[FIRInstanceIDTokenInfo alloc] initWithAuthorizedEntity:kAuthorizedEntity
+                                                         scope:kFIRInstanceIDDefaultTokenScope
+                                                         token:kToken
+                                                    appVersion:@""
+                                                 firebaseAppID:kGoogleAppID];
+  OCMStub([self.mockTokenManager
+              cachedTokenInfoWithAuthorizedEntity:kAuthorizedEntity
+                                            scope:kFIRInstanceIDDefaultTokenScope])
+      .andReturn(cachedTokenInfo);
+
+  OCMReject([self.mockTokenManager saveDefaultToken:newTokenFromMessaging
+                                        withOptions:[OCMArg any]]);
+  [[NSNotificationCenter defaultCenter]
+      postNotificationName:kFIRInstanceIDMessagingUpdateTokenNotification
+                    object:newTokenFromMessaging];
+  OCMVerifyAll(self.mockTokenManager);
+  XCTAssertEqualObjects(_instanceID.defaultFCMToken, newTokenFromMessaging);
+}
+
+- (void)testRefreshDifferentTokenInInstanceIDStorage {
+  _instanceID.defaultFCMToken = kToken;
+  XCTAssertEqualObjects(_instanceID.defaultFCMToken, kToken);
+  // New token from messaging is the same as local cache in InstanceID
+  // But the token in InstanceID storage is different
+  NSString *newTokenFromMessaging = kToken;
+
+  FIRInstanceIDTokenInfo *cachedTokenInfo =
+      [[FIRInstanceIDTokenInfo alloc] initWithAuthorizedEntity:kAuthorizedEntity
+                                                         scope:kFIRInstanceIDDefaultTokenScope
+                                                         token:@"a_outdated_token_in_storage"
+                                                    appVersion:@""
+                                                 firebaseAppID:kGoogleAppID];
+  OCMStub([self.mockTokenManager
+              cachedTokenInfoWithAuthorizedEntity:kAuthorizedEntity
+                                            scope:kFIRInstanceIDDefaultTokenScope])
+      .andReturn(cachedTokenInfo);
+
+  OCMExpect([self.mockTokenManager saveDefaultToken:newTokenFromMessaging
+                                        withOptions:[OCMArg any]]);
+  [[NSNotificationCenter defaultCenter]
+      postNotificationName:kFIRInstanceIDMessagingUpdateTokenNotification
+                    object:newTokenFromMessaging];
+  OCMVerifyAll(self.mockTokenManager);
+  XCTAssertEqualObjects(_instanceID.defaultFCMToken, newTokenFromMessaging);
+}
+
+- (void)testRefreshNullTokenFromMessaging {
+  _instanceID.defaultFCMToken = kToken;
+  XCTAssertEqualObjects(_instanceID.defaultFCMToken, kToken);
+  // New token from messaging is the same as local cache in InstanceID
+  // But the token in InstanceID storage is different
+  NSString *newTokenFromMessaging = nil;
+
+  FIRInstanceIDTokenInfo *cachedTokenInfo =
+      [[FIRInstanceIDTokenInfo alloc] initWithAuthorizedEntity:kAuthorizedEntity
+                                                         scope:kFIRInstanceIDDefaultTokenScope
+                                                         token:kToken
+                                                    appVersion:@""
+                                                 firebaseAppID:kGoogleAppID];
+  OCMStub([self.mockTokenManager
+              cachedTokenInfoWithAuthorizedEntity:kAuthorizedEntity
+                                            scope:kFIRInstanceIDDefaultTokenScope])
+      .andReturn(cachedTokenInfo);
+
+  OCMExpect([self.mockTokenManager saveDefaultToken:newTokenFromMessaging
+                                        withOptions:[OCMArg any]]);
+  [[NSNotificationCenter defaultCenter]
+      postNotificationName:kFIRInstanceIDMessagingUpdateTokenNotification
+                    object:newTokenFromMessaging];
+  OCMVerifyAll(self.mockTokenManager);
+  XCTAssertEqualObjects(_instanceID.defaultFCMToken, newTokenFromMessaging);
+}
+
 #pragma mark - Private Helpers
 
 - (void)stubInstallationsToReturnValidID {
@@ -1470,5 +1501,6 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
     return YES;
   }];
 }
+#pragma clang diagnostic pop
 
 @end

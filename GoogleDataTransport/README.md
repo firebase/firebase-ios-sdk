@@ -3,6 +3,29 @@
 This library is for internal Google use only. It allows the logging of data and
 telemetry from Google SDKs.
 
+## Set logging level
+
+### Swift
+
+- Import `GoogleDataTransport` module:
+    ```
+    import GoogleDataTransport
+    ```
+- Set logging level global variable to the desired value before calling `FirebaseApp.config()`:
+    ```
+    GDTCORConsoleLoggerLoggingLevel = GDTCORLoggingLevel.debug.rawValue
+    ```
+### Objective-C
+
+- Import `GoogleDataTransport`:
+    ```
+    #import <GoogleDataTransport/GoogleDataTransport.h>
+    ```
+- Set logging level global variable to the desired value before calling `-[FIRApp config]`:
+    ```
+    GDTCORConsoleLoggerLoggingLevel = GDTCORLoggingLevelDebug;
+    ```
+
 ## Prereqs
 
 - `gem install --user cocoapods cocoapods-generate`

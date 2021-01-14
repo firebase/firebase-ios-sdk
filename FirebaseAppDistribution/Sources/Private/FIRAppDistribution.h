@@ -13,10 +13,7 @@
 // limitations under the License.
 
 #import "FirebaseAppDistribution/Sources/FIRAppDistributionUIService.h"
-#import "FirebaseAppDistribution/Sources/Public/FIRAppDistribution.h"
-
-#define STR(x) STR_EXPAND(x)
-#define STR_EXPAND(x) #x
+#import "FirebaseAppDistribution/Sources/Public/FirebaseAppDistribution/FIRAppDistribution.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

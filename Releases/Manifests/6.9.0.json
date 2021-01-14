@@ -1,9 +1,0 @@
-{
-  "FirebaseCore":"6.3.0",
-  "FirebaseCoreDiagnostics":"1.1.0",
-  "FirebaseFirestore":"1.5.1",
-  "FirebaseMessaging":"4.1.5",
-  "FirebaseRemoteConfig":"4.4.1",
-  "GoogleDataTransport":"2.0.0",
-  "GoogleDataTransportCCTSupport":"1.1.0"
-}

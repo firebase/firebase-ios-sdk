@@ -17,6 +17,7 @@
 #include "Firestore/core/src/local/leveldb_target_cache.h"
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
+#include "Firestore/core/src/local/leveldb_key.h"
 #include "Firestore/core/src/local/leveldb_persistence.h"
 #include "Firestore/core/src/local/persistence.h"
 #include "Firestore/core/src/local/target_data.h"
@@ -57,6 +58,10 @@ class LevelDbTargetCacheTest : public TargetCacheTestBase {
 
   LevelDbTargetCache* leveldb_cache() {
     return static_cast<LevelDbTargetCache*>(persistence_->target_cache());
+  }
+
+  LevelDbPersistence* leveldb_persistence() {
+    return static_cast<LevelDbPersistence*>(persistence_.get());
   }
 };
 
@@ -118,15 +123,31 @@ TEST_F(LevelDbTargetCacheTest, RemoveMatchingKeysForTargetID) {
     ASSERT_TRUE(cache->Contains(key2));
     ASSERT_TRUE(cache->Contains(key3));
 
-    cache->RemoveAllKeysForTarget(1);
+    cache->RemoveAllDocumentKeysForTarget(1);
     ASSERT_FALSE(cache_->Contains(key1));
     ASSERT_FALSE(cache_->Contains(key2));
     ASSERT_TRUE(cache_->Contains(key3));
 
-    cache->RemoveAllKeysForTarget(2);
+    cache->RemoveAllDocumentKeysForTarget(2);
     ASSERT_FALSE(cache_->Contains(key1));
     ASSERT_FALSE(cache_->Contains(key2));
     ASSERT_FALSE(cache_->Contains(key3));
+  });
+}
+
+// We see user issues where target data is missing for some reason, and the root
+// cause is unknown. This test makes sure the SDK proceeds even when this
+// happens. See: https://github.com/firebase/firebase-ios-sdk/issues/6644
+TEST_F(LevelDbTargetCacheTest, SurvivesMissingTargetData) {
+  persistence_->Run("test_remove_matching_keys_for_target_id", [&]() {
+    TargetData target_data = MakeTargetData(query_rooms_);
+    cache_->AddTarget(target_data);
+    TargetId target_id = target_data.target_id();
+    std::string key = LevelDbTargetKey::Key(target_id);
+    leveldb_persistence()->current_transaction()->Delete(key);
+
+    auto result = cache_->GetTarget(query_rooms_.ToTarget());
+    ASSERT_EQ(result, absl::nullopt);
   });
 }
 

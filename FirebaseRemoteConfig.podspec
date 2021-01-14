@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseRemoteConfig'
-  s.version          = '4.9.0'
+  s.version          = '7.4.0'
   s.summary          = 'Firebase Remote Config'
 
   s.description      = <<-DESC
@@ -15,15 +15,14 @@ app update.
 
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
-    :tag => 'RemoteConfig-' + s.version.to_s
+    :tag => 'CocoaPods-' + s.version.to_s
   }
   s.social_media_url = 'https://twitter.com/Firebase'
-  s.ios.deployment_target = '8.0'
-  s.osx.deployment_target = '10.11'
+  s.ios.deployment_target = '10.0'
+  s.osx.deployment_target = '10.12'
   s.tvos.deployment_target = '10.0'
 
   s.cocoapods_version = '>= 1.4.0'
-  s.static_framework = true
   s.prefix_header_file = false
 
   base_dir = "FirebaseRemoteConfig/Sources/"
@@ -33,25 +32,20 @@ app update.
     'FirebaseABTesting/Sources/Private/*.h',
     'FirebaseCore/Sources/Private/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
-    'GoogleUtilities/Environment/Private/*.h',
-    'GoogleUtilities/NSData+zlib/Private/*.h',
   ]
   s.public_header_files = base_dir + 'Public/FirebaseRemoteConfig/*.h'
-  s.private_header_files = base_dir + 'Private/*.h'
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
-    'GCC_PREPROCESSOR_DEFINITIONS' =>
-      'GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1 ' +
-      'FIRRemoteConfig_VERSION=' + String(s.version),
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
-  s.dependency 'FirebaseABTesting', '~> 4.2'
-  s.dependency 'FirebaseCore', '~> 6.10'
-  s.dependency 'FirebaseInstallations', '~> 1.6'
-  s.dependency 'GoogleUtilities/Environment', '~> 6.7'
-  s.dependency 'GoogleUtilities/NSData+zlib', '~> 6.7'
+  s.dependency 'FirebaseABTesting', '~> 7.0'
+  s.dependency 'FirebaseCore', '~> 7.0'
+  s.dependency 'FirebaseInstallations', '~> 7.0'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.0'
+  s.dependency 'GoogleUtilities/NSData+zlib', '~> 7.0'
 
   s.test_spec 'unit' do |unit_tests|
+    unit_tests.scheme = { :code_coverage => true }
     # TODO(dmandar) - Update or delete the commented files.
     unit_tests.source_files =
         'FirebaseRemoteConfig/Tests/Unit/FIRRemoteConfigComponentTest.m',
@@ -61,6 +55,7 @@ app update.
 #        'FirebaseRemoteConfig/Tests/Unit/RCNConfigTest.m',
         'FirebaseRemoteConfig/Tests/Unit/RCNConfigExperimentTest.m',
         'FirebaseRemoteConfig/Tests/Unit/RCNConfigValueTest.m',
+        'FirebaseRemoteConfig/Tests/Unit/RCNPersonalizationTest.m',
 #        'FirebaseRemoteConfig/Tests/Unit/RCNRemoteConfig+FIRAppTest.m',
         'FirebaseRemoteConfig/Tests/Unit/RCNRemoteConfigTest.m',
 #        'FirebaseRemoteConfig/Tests/Unit/RCNThrottlingTests.m',
@@ -80,6 +75,7 @@ app update.
 
   # Run Swift API tests on a real backend.
   s.test_spec 'swift-api-tests' do |swift_api|
+    swift_api.scheme = { :code_coverage => true }
     swift_api.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
     swift_api.source_files = 'FirebaseRemoteConfig/Tests/SwiftAPI/*.swift',
                              'FirebaseRemoteConfig/Tests/FakeUtils/*.[hm]',
@@ -95,6 +91,7 @@ app update.
 
   # Run Swift API tests and tests requiring console changes on a Fake Console.
   s.test_spec 'fake-console-tests' do |fake_console|
+    fake_console.scheme = { :code_coverage => true }
     fake_console.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
     fake_console.source_files = 'FirebaseRemoteConfig/Tests/SwiftAPI/*.swift',
                                       'FirebaseRemoteConfig/Tests/FakeUtils/*.[hm]',

@@ -3,10 +3,10 @@ name: zip
 on:
   pull_request:
     paths:
-    - 'ZipBuilder/**'
+    - 'ReleaseTooling/**'
     - '.github/workflows/zip.yml'
     # Don't run based on any markdown only changes.
-    - '!ZipBuilder/*.md'
+    - '!ReleaseTooling/*.md'
   schedule:
     # Run every day at midnight(PST) - cron uses UTC times
     - cron:  '0 8 * * *'
@@ -14,18 +14,18 @@ on:
 jobs:
   build:
     # Don't run on private repo unless it is a PR.
-    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
     - name: Build
       run: |
-        cd ZipBuilder
+        cd ReleaseTooling
         swift build -v
 
   package:
     # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
     needs: build
     runs-on: macOS-latest
     steps:
@@ -45,7 +45,7 @@ jobs:
 
   quickstart_framework_abtesting:
     # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
     needs: package
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -90,7 +90,7 @@ jobs:
 
   quickstart_framework_auth:
     # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
     needs: package
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -134,7 +134,7 @@ jobs:
 
   quickstart_framework_config:
     # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
     needs: package
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -175,7 +175,7 @@ jobs:
 
   quickstart_framework_crashlytics:
     # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
     needs: package
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -225,7 +225,7 @@ jobs:
 
   quickstart_framework_database:
     # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
     needs: package
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -270,7 +270,7 @@ jobs:
 
   quickstart_framework_dynamiclinks:
     # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
     needs: package
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -320,7 +320,7 @@ jobs:
 
   quickstart_framework_firestore:
     # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
     needs: package
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -363,7 +363,7 @@ jobs:
 
   quickstart_framework_inappmessaging:
     # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
     needs: package
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -409,7 +409,7 @@ jobs:
 
   quickstart_framework_messaging:
     # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
     needs: package
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -454,7 +454,7 @@ jobs:
 
   quickstart_framework_storage:
     # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
     needs: package
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}

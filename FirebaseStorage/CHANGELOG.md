@@ -1,3 +1,25 @@
+# 7.4.0
+- [fixed] Prevent second `listAll` callback. (#7197)
+
+# 7.3.0
+- [fixed] Verify block is still alive before calling it in task callbacks. (#7051)
+
+# 7.1.0
+- [fixed] Remove explicit MobileCoreServices library linkage from podspec. (#6850)
+
+# 7.0.0
+- [changed] The global variable `FIRStorageVersionString` is deleted.
+  `FirebaseVersion()` or `FIRFirebaseVersion()` should be used instead.
+- [fixed] Fixed an issue with the List API that prevented listing of locations
+  that contain the "+" sign.
+- [changed] Renamed `list(withMaxResults:)` to `list(maxResults:)` in the Swift
+  API.
+- [fixed] Fixed an issue that caused longer than expected timeouts for users
+  that specified custom timeouts.
+
+# 3.8.1
+- [fixed] Fixed typo in doc comments (#6485).
+
 # 3.8.0
 - [changed] Add error for attempt to upload directory (#5750)
 - [changed] Functionally neutral source reorganization. (#5851)

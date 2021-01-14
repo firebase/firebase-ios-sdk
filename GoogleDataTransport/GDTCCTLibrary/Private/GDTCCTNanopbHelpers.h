@@ -16,8 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORReachability.h"
 #import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREvent.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORReachability.h"
 
 #import "GoogleDataTransport/GDTCCTLibrary/Protogen/nanopb/cct.nanopb.h"
 

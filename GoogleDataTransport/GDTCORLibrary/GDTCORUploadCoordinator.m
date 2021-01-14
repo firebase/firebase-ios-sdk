@@ -16,10 +16,10 @@
 
 #import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORUploadCoordinator.h"
 
-#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORAssert.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORAssert.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORReachability.h"
 #import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORClock.h"
 #import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORConsoleLogger.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORReachability.h"
 
 #import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
 
@@ -68,10 +68,12 @@
       return;
     }
 
+    // Delay the timer slightly so it doesn't run while +load calls are still running.
+    dispatch_time_t deadline = dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC / 2);
+
     self->_timer =
         dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, self->_coordinationQueue);
-    dispatch_source_set_timer(self->_timer, DISPATCH_TIME_NOW, self->_timerInterval,
-                              self->_timerLeeway);
+    dispatch_source_set_timer(self->_timer, deadline, self->_timerInterval, self->_timerLeeway);
 
     dispatch_source_set_event_handler(self->_timer, ^{
       if (![[GDTCORApplication sharedApplication] isRunningInBackground]) {
@@ -113,7 +115,11 @@
 }
 
 - (void)signalToStoragesToCheckExpirations {
-  for (id<GDTCORStorageProtocol> storage in [_registrar.targetToStorage allValues]) {
+  // The same storage may be associated with several targets. Make sure to check for expirations
+  // only once per storage.
+  NSSet<id<GDTCORStorageProtocol>> *storages =
+      [NSSet setWithArray:[_registrar.targetToStorage allValues]];
+  for (id<GDTCORStorageProtocol> storage in storages) {
     [storage checkForExpirations];
   }
 }

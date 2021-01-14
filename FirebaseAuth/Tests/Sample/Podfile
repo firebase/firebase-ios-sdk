@@ -8,7 +8,7 @@ source 'https://cdn.cocoapods.org/'
 use_frameworks!
 
 target 'AuthSample' do
-  platform :ios, '8.0'
+  platform :ios, '10.0'
   pod 'FirebaseCore', :path => '../../../'
   pod 'FirebaseCoreDiagnostics', :path => '../../../'
   pod 'GoogleDataTransport', :path => '../../../'

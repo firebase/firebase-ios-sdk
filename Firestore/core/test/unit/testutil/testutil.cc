@@ -43,6 +43,7 @@
 #include "Firestore/core/src/model/verify_mutation.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
 #include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/statusor.h"
 #include "absl/memory/memory.h"
 
 namespace firebase {
@@ -126,7 +127,8 @@ model::DocumentKey Key(absl::string_view path) {
 }
 
 model::FieldPath Field(absl::string_view field) {
-  return model::FieldPath::FromServerFormat(std::string(field));
+  auto path = model::FieldPath::FromServerFormat(std::string(field));
+  return path.ConsumeValueOrDie();
 }
 
 model::DatabaseId DbId(std::string project) {
@@ -219,6 +221,8 @@ core::Filter::Operator OperatorFromString(absl::string_view s) {
     return core::Filter::Operator::LessThanOrEqual;
   } else if (s == "==") {
     return core::Filter::Operator::Equal;
+  } else if (s == "!=") {
+    return core::Filter::Operator::NotEqual;
   } else if (s == ">") {
     return core::Filter::Operator::GreaterThan;
   } else if (s == ">=") {
@@ -231,6 +235,8 @@ core::Filter::Operator OperatorFromString(absl::string_view s) {
     return core::Filter::Operator::In;
   } else if (s == "array-contains-any") {
     return core::Filter::Operator::ArrayContainsAny;
+  } else if (s == "not-in") {
+    return core::Filter::Operator::NotIn;
   } else {
     HARD_FAIL("Unknown operator: %s", s);
   }

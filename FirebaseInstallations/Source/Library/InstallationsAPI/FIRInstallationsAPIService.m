@@ -16,8 +16,6 @@
 
 #import "FirebaseInstallations/Source/Library/InstallationsAPI/FIRInstallationsAPIService.h"
 
-#import "FirebaseInstallations/Source/Library/Public/FirebaseInstallations/FIRInstallationsVersion.h"
-
 #if __has_include(<FBLPromises/FBLPromises.h>)
 #import <FBLPromises/FBLPromises.h>
 #else
@@ -92,7 +90,10 @@ NS_ASSUME_NONNULL_END
 #pragma mark - Public
 
 - (FBLPromise<FIRInstallationsItem *> *)registerInstallation:(FIRInstallationsItem *)installation {
-  return [self registerRequestWithInstallation:installation]
+  return [self validateInstallation:installation]
+      .then(^id _Nullable(FIRInstallationsItem *_Nullable validInstallation) {
+        return [self registerRequestWithInstallation:validInstallation];
+      })
       .then(^id _Nullable(NSURLRequest *_Nullable request) {
         return [self sendURLRequest:request];
       })
@@ -138,7 +139,9 @@ NS_ASSUME_NONNULL_END
   NSURL *URL = [NSURL URLWithString:URLString];
 
   NSDictionary *bodyDict = @{
-    @"fid" : installation.firebaseInstallationID,
+    // `firebaseInstallationID` is validated before but let's make sure it is not `nil` one more
+    // time to prevent a crash.
+    @"fid" : installation.firebaseInstallationID ?: @"",
     @"authVersion" : @"FIS_v2",
     @"appId" : installation.appID,
     @"sdkVersion" : [self SDKVersion]
@@ -343,7 +346,21 @@ NS_ASSUME_NONNULL_END
 }
 
 - (NSString *)SDKVersion {
-  return [NSString stringWithFormat:@"i:%s", FIRInstallationsVersionStr];
+  return [NSString stringWithFormat:@"i:%@", FIRFirebaseVersion()];
+}
+
+#pragma mark - Validation
+
+- (FBLPromise<FIRInstallationsItem *> *)validateInstallation:(FIRInstallationsItem *)installation {
+  FBLPromise<FIRInstallationsItem *> *result = [FBLPromise pendingPromise];
+
+  NSError *validationError;
+  if ([installation isValid:&validationError]) {
+    [result fulfill:installation];
+  } else {
+    [result reject:validationError];
+  }
+  return result;
 }
 
 #pragma mark - JSON

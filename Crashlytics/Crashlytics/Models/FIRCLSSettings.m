@@ -251,30 +251,6 @@ NSString *const AppVersion = @"app_version";
   return 60 * 60;
 }
 
-#pragma mark - Identifiers
-
-- (nullable NSString *)orgID {
-  return self.fabricSettings[@"org_id"];
-}
-
-- (nullable NSString *)fetchedBundleID {
-  return self.fabricSettings[@"bundle_id"];
-}
-
-#pragma mark - Onboarding / Update
-
-- (NSString *)appStatus {
-  return self.appSettings[@"status"];
-}
-
-- (BOOL)appNeedsOnboarding {
-  return [self.appStatus isEqualToString:@"new"];
-}
-
-- (BOOL)appUpdateRequired {
-  return [[self.appSettings objectForKey:@"update_required"] boolValue];
-}
-
 #pragma mark - On / Off Switches
 
 - (BOOL)errorReportingEnabled {
@@ -301,21 +277,6 @@ NSString *const AppVersion = @"app_version";
   }
 
   return YES;
-}
-
-- (BOOL)shouldUseNewReportEndpoint {
-  NSNumber *value = [self appSettings][@"report_upload_variant"];
-
-  // Default to use the new endpoint when settings were not successfully fetched
-  // or there's an unexpected issue
-  if (value == nil) {
-    return YES;
-  }
-
-  // 0 - Unknown
-  // 1 - Legacy
-  // 2 - New
-  return value.intValue == 2;
 }
 
 #pragma mark - Optional Limit Overrides

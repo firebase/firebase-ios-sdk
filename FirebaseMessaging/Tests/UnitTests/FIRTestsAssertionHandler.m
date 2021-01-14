@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRTestsAssertionHandler.h"
+#import "FirebaseMessaging/Tests/UnitTests/FIRTestsAssertionHandler.h"
 
 @interface FIRTestsAssertionHandler ()
 

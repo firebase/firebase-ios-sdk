@@ -16,31 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-typedef NS_ENUM(int8_t, FIRMessagingProtoTag) {
-  kFIRMessagingProtoTagInvalid = -1,
-  kFIRMessagingProtoTagHeartbeatPing = 0,
-  kFIRMessagingProtoTagHeartbeatAck = 1,
-  kFIRMessagingProtoTagLoginRequest = 2,
-  kFIRMessagingProtoTagLoginResponse = 3,
-  kFIRMessagingProtoTagClose = 4,
-  kFIRMessagingProtoTagIqStanza = 7,
-  kFIRMessagingProtoTagDataMessageStanza = 8,
-};
-
-@class GPBMessage;
-
-#pragma mark - Protocol Buffers
-
-FOUNDATION_EXPORT FIRMessagingProtoTag FIRMessagingGetTagForProto(GPBMessage *protoClass);
-FOUNDATION_EXPORT Class FIRMessagingGetClassForTag(FIRMessagingProtoTag tag);
-
-#pragma mark - MCS
-
-FOUNDATION_EXPORT NSString *FIRMessagingGetRmq2Id(GPBMessage *proto);
-FOUNDATION_EXPORT void FIRMessagingSetRmq2Id(GPBMessage *proto, NSString *pID);
-FOUNDATION_EXPORT int FIRMessagingGetLastStreamId(GPBMessage *proto);
-FOUNDATION_EXPORT void FIRMessagingSetLastStreamId(GPBMessage *proto, int sid);
-
 #pragma mark - Time
 
 FOUNDATION_EXPORT int64_t FIRMessagingCurrentTimestampInSeconds(void);

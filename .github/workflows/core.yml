@@ -14,7 +14,7 @@ on:
 jobs:
   pod-lib-lint:
     # Don't run on private repo unless it is a PR.
-    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
 
     runs-on: macOS-latest
 
@@ -30,12 +30,12 @@ jobs:
 
   spm:
     # Don't run on private repo unless it is a PR.
-    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
     - name: Xcode 12
-      run: sudo xcode-select -s /Applications/Xcode_12_beta.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_12.app/Contents/Developer
     - name: Initialize xcodebuild
       run: xcodebuild -list
     - name: iOS Unit Tests
@@ -43,7 +43,7 @@ jobs:
 
   spm-cron:
     # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
     runs-on: macOS-latest
     strategy:
       matrix:
@@ -51,7 +51,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Xcode 12
-      run: sudo xcode-select -s /Applications/Xcode_12_beta.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_12.app/Contents/Developer
     - name: Initialize xcodebuild
       run: xcodebuild -list
     - name: Unit Tests
@@ -59,7 +59,7 @@ jobs:
 
   catalyst:
     # Don't run on private repo unless it is a PR.
-    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
 
     runs-on: macOS-latest
     steps:
@@ -67,33 +67,18 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Setup project and Build Catalyst
-      run: scripts/test_catalyst.sh FirebaseCore build
-
-  archive-cron:
-    # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
-
-    runs-on: macOS-latest
-    strategy:
-      matrix:
-        target: [ios, tvos, macos]
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Setup project and archive
-      run: scripts/test_archiving.sh FirebaseCore ${{ matrix.target }} ArchiveOutputs/${{ matrix.target }}.xcarchive
+      run: scripts/test_catalyst.sh FirebaseCore test FirebaseCore-Unit-unit
 
   core-cron-only:
     # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
 
     runs-on: macos-latest
     strategy:
       matrix:
         target: [ios, tvos, macos]
         flags: [
-          '--use-modular-headers',
+          '--use-static-frameworks',
           # Tests are skipped since the Swift tests need modules.
           '--skip-tests --use-libraries'
         ]

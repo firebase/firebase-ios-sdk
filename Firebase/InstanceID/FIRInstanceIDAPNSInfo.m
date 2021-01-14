@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FIRInstanceIDAPNSInfo.h"
+#import "Firebase/InstanceID/FIRInstanceIDAPNSInfo.h"
 
-#import "FIRInstanceIDConstants.h"
+#import "Firebase/InstanceID/FIRInstanceIDConstants.h"
 
 /// The key used to find the APNs device token in an archive.
 NSString *const kFIRInstanceIDAPNSInfoTokenKey = @"device_token";

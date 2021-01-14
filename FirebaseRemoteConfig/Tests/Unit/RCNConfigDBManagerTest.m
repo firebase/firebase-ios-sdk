@@ -114,7 +114,7 @@
 
 - (void)testWriteAndLoadMainTableResult {
   XCTestExpectation *loadConfigContentExpectation =
-      [self expectationWithDescription:@"Write and read metadata in database serailizedly"];
+      [self expectationWithDescription:@"Write and read metadata in database serializedly"];
   NSString *namespace_p = @"namespace_1";
   NSString *bundleIdentifier = [NSBundle mainBundle].bundleIdentifier;
   __block int count = 0;

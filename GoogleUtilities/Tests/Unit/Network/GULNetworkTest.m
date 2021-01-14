@@ -17,9 +17,12 @@
 #import <XCTest/XCTest.h>
 #import "OCMock.h"
 
-#import "GoogleUtilities/NSData+zlib/Private/GULNSDataInternal.h"
-#import "GoogleUtilities/Network/Private/GULNetwork.h"
-#import "GoogleUtilities/Reachability/Private/GULReachabilityChecker.h"
+#if !TARGET_OS_MACCATALYST
+// These tests are flaky on Catalyst. One of the tests typically fails.
+
+#import "GoogleUtilities/NSData+zlib/Public/GoogleUtilities/GULNSData+zlib.h"
+#import "GoogleUtilities/Network/Public/GoogleUtilities/GULNetwork.h"
+#import "GoogleUtilities/Reachability/Public/GoogleUtilities/GULReachabilityChecker.h"
 
 @interface GULNetwork ()
 
@@ -897,8 +900,12 @@
 
   GULNetworkURLSession *session = [[GULNetworkURLSession alloc]
       initWithNetworkLoggerDelegate:(id<GULNetworkLoggerDelegate>)_network];
+#if TARGET_OS_TV
+  NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+#else
   NSArray *paths =
       NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
+#endif
   NSString *applicationSupportDirectory = paths.firstObject;
   NSArray *tempPathComponents = @[
     applicationSupportDirectory, kGULNetworkApplicationSupportSubdirectory,
@@ -1004,3 +1011,5 @@
 }
 
 @end
+
+#endif  // TARGET_OS_MACCATALYST

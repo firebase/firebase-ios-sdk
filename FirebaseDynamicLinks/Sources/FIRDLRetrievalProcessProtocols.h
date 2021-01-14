@@ -31,7 +31,6 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol FIRDLRetrievalProcessProtocol <NSObject>
 
 @property(weak, nonatomic, readonly) id<FIRDLRetrievalProcessDelegate> delegate;
-@property(nonatomic, readonly, getter=isCompleted) BOOL completed;
 
 - (void)retrievePendingDynamicLink;
 

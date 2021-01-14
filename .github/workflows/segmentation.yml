@@ -1,0 +1,79 @@
+name: segmentation
+
+on:
+  pull_request:
+    paths:
+    - 'FirebasesSegmentation**'
+    - '.github/workflows/segmentation.yml'
+    - 'Gemfile'
+  schedule:
+    # Run every day at 11pm (PST) - cron uses UTC times
+    - cron:  '0 7 * * *'
+
+jobs:
+  pod-lib-lint:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+
+    runs-on: macOS-latest
+
+    strategy:
+      matrix:
+        target: [ios, tvos, macos]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Build and test
+      run: |
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseSegmentation.podspec --platforms=${{ matrix.target }}
+
+  catalyst:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Setup project and Build for Catalyst
+      run: scripts/test_catalyst.sh FirebaseSegmentation test FirebaseSegmentation-Unit-unit
+
+  segmentation-cron-only:
+    # Don't run on private repo.
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        target: [ios, tvos, macos]
+        flags: [
+          '--use-static-frameworks',
+          '--use-libraries'
+        ]
+    needs: pod-lib-lint
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: PodLibLint Auth Cron
+      run: |
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseSegmentation.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseSegmentation.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
+
+  segmentation-sample-build-test:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Install Secret GoogleService-Info.plist
+      # Just copy a dummy plist for a build-only test
+      run: cp FirebaseCore/Tests/Unit/Resources/GoogleService-Info.plist FirebaseSegmentation/Tests/Sample/
+    - name: Prereqs
+      run: scripts/install_prereqs.sh SegmentationSample iOS
+    - name: Build
+      run: scripts/build.sh SegmentationSample iOS

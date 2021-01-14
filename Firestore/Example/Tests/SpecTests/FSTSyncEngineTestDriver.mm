@@ -36,11 +36,13 @@
 #include "Firestore/core/src/core/listen_options.h"
 #include "Firestore/core/src/core/query_listener.h"
 #include "Firestore/core/src/core/sync_engine.h"
-#include "Firestore/core/src/local/index_free_query_engine.h"
 #include "Firestore/core/src/local/local_store.h"
 #include "Firestore/core/src/local/persistence.h"
+#include "Firestore/core/src/local/query_engine.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/model/document_key.h"
+#include "Firestore/core/src/remote/firebase_metadata_provider.h"
+#include "Firestore/core/src/remote/firebase_metadata_provider_noop.h"
 #include "Firestore/core/src/remote/remote_store.h"
 #include "Firestore/core/src/util/async_queue.h"
 #include "Firestore/core/src/util/delayed_constructor.h"
@@ -70,7 +72,7 @@ using firebase::firestore::core::Query;
 using firebase::firestore::core::QueryListener;
 using firebase::firestore::core::SyncEngine;
 using firebase::firestore::core::ViewSnapshot;
-using firebase::firestore::local::IndexFreeQueryEngine;
+using firebase::firestore::local::QueryEngine;
 using firebase::firestore::local::LocalStore;
 using firebase::firestore::local::Persistence;
 using firebase::firestore::local::TargetData;
@@ -82,8 +84,10 @@ using firebase::firestore::model::MutationResult;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::remote::CreateFirebaseMetadataProviderNoOp;
 using firebase::firestore::remote::CreateNoOpConnectivityMonitor;
 using firebase::firestore::remote::ConnectivityMonitor;
+using firebase::firestore::remote::FirebaseMetadataProvider;
 using firebase::firestore::remote::MockDatastore;
 using firebase::firestore::remote::RemoteStore;
 using firebase::firestore::remote::WatchChange;
@@ -172,6 +176,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   std::unique_ptr<ConnectivityMonitor> _connectivityMonitor;
 
+  std::unique_ptr<FirebaseMetadataProvider> _firebaseMetadataProvider;
+
   DelayedConstructor<EventManager> _eventManager;
 
   // Set of active targets, keyed by target Id, mapped to corresponding resume token,
@@ -192,9 +198,10 @@ NS_ASSUME_NONNULL_BEGIN
   std::vector<std::shared_ptr<EventListener<Empty>>> _snapshotsInSyncListeners;
   std::shared_ptr<MockDatastore> _datastore;
 
-  IndexFreeQueryEngine _queryEngine;
+  QueryEngine _queryEngine;
 
   int _snapshotsInSyncEvents;
+  int _waitForPendingWritesEvents;
 }
 
 - (instancetype)initWithPersistence:(std::unique_ptr<Persistence>)persistence
@@ -218,10 +225,11 @@ NS_ASSUME_NONNULL_BEGIN
     _persistence = std::move(persistence);
     _localStore = absl::make_unique<LocalStore>(_persistence.get(), &_queryEngine, initialUser);
     _connectivityMonitor = CreateNoOpConnectivityMonitor();
+    _firebaseMetadataProvider = CreateFirebaseMetadataProviderNoOp();
 
-    _datastore = std::make_shared<MockDatastore>(_databaseInfo, _workerQueue,
-                                                 std::make_shared<EmptyCredentialsProvider>(),
-                                                 _connectivityMonitor.get());
+    _datastore = std::make_shared<MockDatastore>(
+        _databaseInfo, _workerQueue, std::make_shared<EmptyCredentialsProvider>(),
+        _connectivityMonitor.get(), _firebaseMetadataProvider.get());
     _remoteStore = absl::make_unique<RemoteStore>(
         _localStore.get(), _datastore, _workerQueue, _connectivityMonitor.get(),
         [self](OnlineState onlineState) { _syncEngine->HandleOnlineStateChange(onlineState); });
@@ -284,6 +292,19 @@ NS_ASSUME_NONNULL_BEGIN
   _snapshotsInSyncEvents = 0;
 }
 
+- (void)incrementWaitForPendingWritesEvents {
+  _waitForPendingWritesEvents += 1;
+}
+
+- (void)resetWaitForPendingWritesEvents {
+  _waitForPendingWritesEvents = 0;
+}
+
+- (void)waitForPendingWrites {
+  _syncEngine->RegisterPendingWritesCallback(
+      [self](const Status &) { [self incrementWaitForPendingWritesEvents]; });
+}
+
 - (void)addSnapshotsInSyncListener {
   std::shared_ptr<EventListener<Empty>> eventListener = EventListener<Empty>::Create(
       [self](const StatusOr<Empty> &) { [self incrementSnapshotsInSyncEvents]; });
@@ -298,6 +319,10 @@ NS_ASSUME_NONNULL_BEGIN
     _eventManager->RemoveSnapshotsInSyncListener(_snapshotsInSyncListeners.back());
     _snapshotsInSyncListeners.pop_back();
   }
+}
+
+- (int)waitForPendingWritesEvents {
+  return _waitForPendingWritesEvents;
 }
 
 - (int)snapshotsInSyncEvents {

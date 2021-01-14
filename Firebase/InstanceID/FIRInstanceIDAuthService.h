@@ -15,7 +15,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "FIRInstanceIDCheckinService.h"
+#import "Firebase/InstanceID/FIRInstanceIDCheckinService.h"
 
 @class FIRInstanceIDCheckinPreferences;
 @class FIRInstanceIDStore;

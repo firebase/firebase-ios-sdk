@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if !TARGET_OS_MACCATALYST
+// Skip keychain tests on Catalyst.
+
 #import <XCTest/XCTest.h>
 
 #import "FBLPromise+Testing.h"
 #import "GoogleUtilities/Tests/Unit/Utils/GULTestKeychain.h"
 #import "OCMock.h"
 
-#import "GoogleUtilities/Environment/Private/GULKeychainStorage.h"
+#import "GoogleUtilities/Environment/Public/GoogleUtilities/GULKeychainStorage.h"
 
 @interface GULKeychainStorage (Tests)
 - (instancetype)initWithService:(NSString *)service cache:(NSCache *)cache;
@@ -199,3 +203,5 @@
 }
 
 @end
+
+#endif  // TARGET_OS_MACCATALYST

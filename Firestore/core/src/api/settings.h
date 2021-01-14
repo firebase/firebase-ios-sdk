@@ -1,6 +1,6 @@
 
 /*
- * Copyright 2019 Google
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,6 @@ class Settings {
   static constexpr int64_t DefaultCacheSizeBytes = 100 * 1024 * 1024;
   static constexpr int64_t MinimumCacheSizeBytes = 1 * 1024 * 1024;
   static constexpr int64_t CacheSizeUnlimited = -1;
-  static constexpr bool DefaultTimestampsInSnapshotsEnabled = true;
 
   Settings() = default;
 
@@ -65,13 +64,6 @@ class Settings {
     return persistence_enabled_;
   }
 
-  void set_timestamps_in_snapshots_enabled(bool value) {
-    timestamps_in_snapshots_enabled_ = value;
-  }
-  bool timestamps_in_snapshots_enabled() const {
-    return timestamps_in_snapshots_enabled_;
-  }
-
   void set_cache_size_bytes(int64_t value) {
     cache_size_bytes_ = value;
   }
@@ -90,7 +82,6 @@ class Settings {
   std::string host_ = DefaultHost;
   bool ssl_enabled_ = DefaultSslEnabled;
   bool persistence_enabled_ = DefaultPersistenceEnabled;
-  bool timestamps_in_snapshots_enabled_ = DefaultTimestampsInSnapshotsEnabled;
   int64_t cache_size_bytes_ = DefaultCacheSizeBytes;
 };
 

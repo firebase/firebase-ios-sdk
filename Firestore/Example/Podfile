@@ -88,7 +88,7 @@ end
 
 if is_platform(:ios)
   target 'Firestore_Example_iOS' do
-    platform :ios, '8.0'
+    platform :ios, '10.0'
 
     configure_local_pods()
 
@@ -121,7 +121,7 @@ if is_platform(:ios)
 
     target 'Firestore_FuzzTests_iOS' do
       inherit! :search_paths
-      platform :ios, '9.0'
+      platform :ios, '10.0'
 
       pod 'LibFuzzer', :podspec => 'LibFuzzer.podspec', :inhibit_warnings => true
     end
@@ -130,7 +130,7 @@ end
 
 if is_platform(:osx)
   target 'Firestore_Example_macOS' do
-    platform :osx, '10.11'
+    platform :osx, '10.12'
 
     configure_local_pods()
 

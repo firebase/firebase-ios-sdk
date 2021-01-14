@@ -11,7 +11,7 @@ In Swift Package Manager, it's a library target.
 ## Header File Types and Locations - For Header File Creators
 
 * *Public Headers* - Headers that define the library's API. They should be located in
-  `FirebaseFoo/Sources/FirebaseFoo/Public`. Any additions require a minor version update. Any
+  `FirebaseFoo/Sources/Public/FirebaseFoo`. Any additions require a minor version update. Any
   changes or deletions require a major version update.
 
 * *Public Umbrella Header* - A single header that includes the full library's public API located at
@@ -19,9 +19,9 @@ In Swift Package Manager, it's a library target.
 
 * *Private Headers* - Headers that are available to other libraries in the repo, but are not part
   of the public API. These should be located in `FirebaseFoo/Sources/Private`.
-  [Xcode](https://stackoverflow.com/a/8016333) and CocoaPods refer to these as "Private Headers".
-  Note that the usage CocoaPods `private_headers` is deprecated and should instead
-  the `source_files` attribute should be used for access them with a repo-relative import.
+  [Xcode](https://stackoverflow.com/a/8016333). They should be accessed with a repo-relative
+  import. For CocoaPods, do not use the `private_headers` attribute. Instead include them in both
+  the provider and client's `source_files` attribute.
 
 * *Interop Headers* - A special kind of private header that defines an interface to another library.
   Details in [Firebase Component System docs](Interop/FirebaseComponentSystem.md).

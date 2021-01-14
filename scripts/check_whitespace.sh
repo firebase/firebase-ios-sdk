@@ -25,7 +25,11 @@ options=(
   ' $'
 )
 
+# TODO(https://github.com/nanopb/nanopb/pull/622) remove Protogen exceptions
+# likely in a nanopb release after 0.3.9.7.
+
 git grep "${options[@]}" -- \
+    ':(exclude)Crashlytics/Protogen/nanopb' \
     ':(exclude)Crashlytics/ProtoSupport' \
     ':(exclude)Crashlytics/UnitTests/Data' \
     ':(exclude)Firebase/CoreDiagnostics/FIRCDLibrary/Protogen/nanopb' \
@@ -40,10 +44,9 @@ git grep "${options[@]}" -- \
     ':(exclude)Firestore/third_party/abseil-cpp' \
     ':(exclude)GoogleDataTransport/GDTCCTLibrary/Protogen/nanopb' \
     ':(exclude)GoogleDataTransport/ProtoSupport' \
-    ':(exclude)ZipBuilder/Template/NOTICES'
+    ':(exclude)ReleaseTooling/Template/NOTICES'
 
 if [[ $? == 0 ]]; then
   echo "ERROR: Trailing whitespace found in the files above. Please fix."
   exit 1
 fi
-

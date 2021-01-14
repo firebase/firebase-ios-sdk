@@ -1,5 +1,7 @@
 # Firebase Carthage
 
+# **WARNING: Carthage May Be Discontinued - See [Discussion](https://github.com/firebase/firebase-ios-sdk/discussions/7129)**
+
 ## Context
 
 This page introduces and provides instructions for an **experimental** Firebase

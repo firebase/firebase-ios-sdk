@@ -15,7 +15,7 @@ jobs:
 
   pod-lib-lint:
     # Don't run on private repo unless it is a PR.
-    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
 
     runs-on: macOS-latest
 
@@ -32,7 +32,7 @@ jobs:
 
   integration-tests:
     # Don't run on private repo unless it is a PR.
-    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
 
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -65,28 +65,13 @@ jobs:
 
   spm:
     # Don't run on private repo unless it is a PR.
-    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
-    runs-on: macOS-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: Xcode 12
-      run: sudo xcode-select -s /Applications/Xcode_12_beta.app/Contents/Developer
-    - name: Initialize xcodebuild
-      run: xcodebuild -list
-    - name: iOS Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh AuthUnit iOS spm
-
-  spm-cron:
-    # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     runs-on: macOS-latest
     strategy:
       matrix:
-        target: [tvOS, macOS, catalyst]
+        target: [iOS, tvOS, macOS, catalyst]
     steps:
     - uses: actions/checkout@v2
-    - name: Xcode 12
-      run: sudo xcode-select -s /Applications/Xcode_12_beta.app/Contents/Developer
     - name: Initialize xcodebuild
       run: xcodebuild -list
     - name: Unit Tests
@@ -94,7 +79,7 @@ jobs:
 
   catalyst:
     # Don't run on private repo unless it is a PR.
-    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
 
     runs-on: macOS-latest
     steps:
@@ -102,12 +87,12 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Setup project and Build for Catalyst
-      # Only build the unit tests on Catalyst
+      # Only build the unit tests on Catalyst. Their keychain reliance causes several failures.
       run: scripts/test_catalyst.sh FirebaseAuth build FirebaseAuth-Unit-unit
 
   quickstart:
     # Don't run on private repo unless it is a PR.
-    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
 
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -128,7 +113,7 @@ jobs:
 
   auth-cron-only:
     # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
 
     runs-on: macos-latest
     strategy:
@@ -136,7 +121,7 @@ jobs:
         # The macos and tvos tests can hang, and watchOS doesn't have tests.
         target: [ios, tvos --skip-tests, macos --skip-tests, watchos --skip-tests]
         flags: [
-          '--use-modular-headers',
+          '--use-static-frameworks',
           '--use-libraries'
         ]
     needs: pod-lib-lint
@@ -145,21 +130,4 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: PodLibLint Auth Cron
-      run: |
-        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
-        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
-
-  archive-cron:
-    # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
-
-    runs-on: macOS-latest
-    strategy:
-      matrix:
-        target: [ios, tvos, macos]
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Setup project and archive
-      run: scripts/test_archiving.sh FirebaseAuth ${{ matrix.target }} ArchiveOutputs/${{ matrix.target }}.xcarchive
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}

@@ -14,6 +14,9 @@
 
 #import "Firebase.h"
 #import "FirebaseABTesting/FirebaseABTesting.h"
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
+#import "FirebaseAppDistribution/FirebaseAppDistribution.h"
+#endif
 #import "FirebaseAuth/FirebaseAuth.h"
 #import "FirebaseCore/FirebaseCore.h"
 #import "FirebaseCrashlytics/FirebaseCrashlytics.h"
@@ -23,11 +26,16 @@
 #import "FirebaseFunctions/FirebaseFunctions.h"
 #import "FirebaseInAppMessaging/FirebaseInAppMessaging.h"
 #import "FirebaseInstallations/FirebaseInstallations.h"
+#import "FirebaseMessaging/FirebaseMessaging.h"
 #import "FirebaseRemoteConfig/FirebaseRemoteConfig.h"
 #import "FirebaseStorage/FirebaseStorage.h"
 
 #import <Firebase.h>
 #import <FirebaseABTesting/FirebaseABTesting.h>
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
+#import <FirebaseAppDistribution/FirebaseAppDistribution.h>
+#endif
 #import <FirebaseAuth/FirebaseAuth.h>
 #import <FirebaseCore/FirebaseCore.h>
 #import <FirebaseCrashlytics/FirebaseCrashlytics.h>
@@ -37,5 +45,6 @@
 #import <FirebaseFunctions/FirebaseFunctions.h>
 #import <FirebaseInAppMessaging/FirebaseInAppMessaging.h>
 #import <FirebaseInstallations/FirebaseInstallations.h>
+#import <FirebaseMessaging/FirebaseMessaging.h>
 #import <FirebaseRemoteConfig/FirebaseRemoteConfig.h>
 #import <FirebaseStorage/FirebaseStorage.h>

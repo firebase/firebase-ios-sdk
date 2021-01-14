@@ -1,6 +1,49 @@
+# Firebase 7.4.0
+- [changed] Patch update to nanopb 0.3.9.7 that fixes a memory leak and other issues. (#7090)
+- [added] Zip distribution now includes community supported macOS and tvOS libraries. Product
+  support detailed
+  [here](https://github.com/firebase/firebase-ios-sdk#tvos-macos-watchos-and-catalyst).
+
+# Firebase 7.3.0
+- [added] Added FirebaseAppDistribution-Beta product to Swift Package Manager. (#7045)
+
+# Firebase 7.2.0
+- [fixed] Reduced `FirebaseApp.configure()` and `+[FIRApp registerInternalLibrary:withName:]` impact on app launch time. (#6902)
+- [added] Added arm64 simulator support to support new Apple silicon based Macs.
+- [changed] Due to the new arm64 simulator support, Xcode 12 is now required for any binary
+  products (Analytics, Performance, zip file distribution).
+
+# Firebase 7.0.0
+- [changed] Update minimum iOS version to iOS 10 except for Analytics which is now iOS 9. (#4847)
+- [changed] Update minimum macOS version to 10.12.
+- [added] Swift Package Manager support for Firebase Messaging. (#5641)
+- [added] Swift Package Manager support for Auth, Crashlytics, Messaging, and Storage watchOS
+  targets. (#6584)
+- [changed] The pods developed in this repo are no longer hard coded to be built as static
+  frameworks. Instead, their linkage will be controlled by the Podfile. Use the Podfile
+  option `use_frameworks! :linkage => :static` to get the Firebase 6.x linkage behavior. (#2022)
+- [changed] Firebase no longer uses the CocoaPods `private_headers` feature to expose internal
+  APIs. (#6572)
+- [removed] Removed broken `FirebaseOptions()` initializer. Use `init(contentsOfFile:)` or
+  `init(googleAppID:gcmSenderID:)` instead. (#6633)
+- [changed] All Firebase pods now have the same version. (#6295)
+- [changed] In CocoaPods, Firebase betas are now indicated in the version tag. In SwiftPM, beta
+  is appended to the product name.
+- [changed] The version must now be specified for the two Swift-only Firebase CocoaPods in the
+  Podfile like `pod 'FirebaseFirestoreSwift', '~> 7.0-beta'`.
+- [added] `FirebaseVersion()` - Swift `FIRFirebaseVersion()` - ObjC API to access the Firebase
+  installation version.
+
+# Firebase 6.34.0
+- [fixed] Removed warning related to missing Analytics framework for non-iOS builds since the
+  framework isn't available on those platforms. (#6500)
+
 # Firebase 6.33.0
 - [fixed] Swift Package Manager - Define system framework and system library dependencies. This
   resolves undefined symbol issues for system dependencies. (#6408, #6413)
+- [fixed] Swift Package Manager - Fixed build warnings related to minimum iOS version. (#6449)
+- [fixed] Enable Firebase pod support for Auth and Crashlytics watchOS platform. (#4558)
+- [fixed] Carthage - Some frameworks were missing Info.plist files. (#5562)
 
 # Firebase 6.32.0
 - [changed] Swift Package Manager - It's no longer necessary to select the Firebase or

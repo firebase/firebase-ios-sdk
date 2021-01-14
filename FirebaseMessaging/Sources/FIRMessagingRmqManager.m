@@ -24,7 +24,6 @@
 #import "FirebaseMessaging/Sources/FIRMessagingPersistentSyncMessage.h"
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
 #import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
-#import "FirebaseMessaging/Sources/Protos/GtalkCore.pbobjc.h"
 
 #ifndef _FIRMessagingRmqLogAndExit
 #define _FIRMessagingRmqLogAndExit(stmt, return_value) \
@@ -184,34 +183,6 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
   self.rmqId = rmqId + 1;
 }
 
-#pragma mark - Save
-
-/**
- * Save a message to RMQ2. Will populate the rmq2 persistent ID.
- */
-- (void)saveRmqMessage:(GPBMessage *)message withCompletionHandler:(void (^)(BOOL success))handler {
-  // send using rmq2manager
-  // the wire format of rmq2 id is a string. However, we keep it as a long internally
-  // in the database. So only convert the id to string when preparing for sending over
-  // the wire.
-  NSString *rmq2Id = FIRMessagingGetRmq2Id(message);
-  if (![rmq2Id length]) {
-    int64_t rmqId = [self nextRmqId];
-    rmq2Id = [NSString stringWithFormat:@"%lld", rmqId];
-    FIRMessagingSetRmq2Id(message, rmq2Id);
-  }
-  FIRMessagingProtoTag tag = FIRMessagingGetTagForProto(message);
-  NSData *data = [message data];
-  dispatch_async(_databaseOperationQueue, ^{
-    BOOL success = [self saveMessageWithRmqId:[rmq2Id integerValue] tag:tag data:data];
-    if (handler) {
-      dispatch_async(dispatch_get_main_queue(), ^{
-        handler(success);
-      });
-    }
-  });
-}
-
 /**
  * This is called when we delete the largest outgoing message from queue.
  */
@@ -301,53 +272,6 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
   return lastRmqId;
 }
 
-- (NSArray *)unackedS2dRmqIds {
-  __block NSMutableArray *rmqIDArray = [NSMutableArray array];
-  dispatch_sync(_databaseOperationQueue, ^{
-    NSString *queryFormat = @"SELECT %@ FROM %@ ORDER BY %@ ASC";
-    NSString *query =
-        [NSString stringWithFormat:queryFormat, kRmqIdColumn, kTableS2DRmqIds, kRmqIdColumn];
-    sqlite3_stmt *statement;
-    if (sqlite3_prepare_v2(self->_database, [query UTF8String], -1, &statement, NULL) !=
-        SQLITE_OK) {
-      FIRMessagingLoggerDebug(kFIRMessagingMessageCodeRmq2PersistentStore005,
-                              @"Could not find s2d ids");
-      FIRMessagingRmqLogAndReturn(statement);
-    }
-    while (sqlite3_step(statement) == SQLITE_ROW) {
-      const char *rmqID = (char *)sqlite3_column_text(statement, 0);
-      [rmqIDArray addObject:[NSString stringWithUTF8String:rmqID]];
-    }
-    sqlite3_finalize(statement);
-  });
-  return rmqIDArray;
-}
-
-#pragma mark - FIRMessagingRMQScanner protocol
-
-#pragma mark - Remove
-- (void)removeRmqMessagesWithRmqIds:(NSArray *)rmqIds {
-  if (![rmqIds count]) {
-    return;
-  }
-  int64_t maxRmqId = -1;
-  for (NSString *rmqId in rmqIds) {
-    int64_t rmqIdValue = [rmqId longLongValue];
-    if (rmqIdValue > maxRmqId) {
-      maxRmqId = rmqIdValue;
-    }
-  }
-  maxRmqId++;
-  if (maxRmqId >= self.rmqId) {
-    [self saveLastOutgoingRmqId:maxRmqId];
-  }
-  [self deleteMessagesFromTable:kTableOutgoingRmqMessages withRmqIds:rmqIds];
-}
-
-- (void)removeS2dIds:(NSArray *)s2dIds {
-  [self deleteMessagesFromTable:kTableS2DRmqIds withRmqIds:s2dIds];
-}
-
 #pragma mark - Sync Messages
 
 - (FIRMessagingPersistentSyncMessage *)querySyncMessageWithRmqID:(NSString *)rmqID {
@@ -398,10 +322,6 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
   return persistentMessage;
 }
 
-- (void)deleteSyncMessageWithRmqID:(NSString *)rmqID {
-  [self deleteMessagesFromTable:kTableSyncMessages withRmqIds:@[ rmqID ]];
-}
-
 - (void)deleteExpiredOrFinishedSyncMessages {
   dispatch_async(_databaseOperationQueue, ^{
     int64_t now = FIRMessagingCurrentTimestampInSeconds();
@@ -429,10 +349,9 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
   });
 }
 
-- (void)saveSyncMessageWithRmqID:(NSString *)rmqID
-                  expirationTime:(int64_t)expirationTime
-                    apnsReceived:(BOOL)apnsReceived
-                     mcsReceived:(BOOL)mcsReceived {
+- (void)saveSyncMessageWithRmqID:(NSString *)rmqID expirationTime:(int64_t)expirationTime {
+  BOOL apnsReceived = YES;
+  BOOL mcsReceived = NO;
   dispatch_async(_databaseOperationQueue, ^{
     NSString *insertFormat = @"INSERT INTO %@ (%@, %@, %@, %@) VALUES (?, ?, ?, ?)";
     NSString *insertSQL =
@@ -479,15 +398,6 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
     if (![self updateSyncMessageWithRmqID:rmqID column:kSyncMessageAPNSReceivedColumn value:YES]) {
       FIRMessagingLoggerError(kFIRMessagingMessageCodeSyncMessageManager005,
                               @"Failed to update APNS state for sync message %@", rmqID);
-    }
-  });
-}
-
-- (void)updateSyncMessageViaMCSWithRmqID:(NSString *)rmqID {
-  dispatch_async(_databaseOperationQueue, ^{
-    if (![self updateSyncMessageWithRmqID:rmqID column:kSyncMessageMCSReceivedColumn value:YES]) {
-      FIRMessagingLoggerError(kFIRMessagingMessageCodeSyncMessageManager006,
-                              @"Failed to update MCS state for sync message %@", rmqID);
     }
   });
 }
@@ -619,63 +529,6 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
   dispatch_async(_databaseOperationQueue, ^{
     [self createTableWithName:kTableS2DRmqIds command:kCreateTableS2DRmqIds];
     [self dropTableWithName:kOldTableS2DRmqIds];
-  });
-}
-
-#pragma mark - Scan
-
-/**
- * We don't have a 'getMessages' method - it would require loading in memory
- * the entire content body of all messages.
- *
- * Instead we iterate and call 'resend' for each message.
- *
- * This is called:
- *  - on connect MCS, to resend any outstanding messages
- *  - init
- */
-- (void)scanWithRmqMessageHandler:(FIRMessagingRmqMessageHandler)rmqMessageHandler {
-  dispatch_async(_databaseOperationQueue, ^{
-    NSMutableDictionary *messages = [NSMutableDictionary dictionary];
-    static NSString *queryFormat = @"SELECT %@ FROM %@ WHERE %@ != 0 ORDER BY %@ ASC";
-    NSString *query =
-        [NSString stringWithFormat:queryFormat,
-                                   kOutgoingRmqMessagesColumns,  // select (rmq_id, type, data)
-                                   kTableOutgoingRmqMessages,    // from table
-                                   kRmqIdColumn,                 // where
-                                   kRmqIdColumn];                // order by
-    sqlite3_stmt *statement;
-    if (sqlite3_prepare_v2(self->_database, [query UTF8String], -1, &statement, NULL) !=
-        SQLITE_OK) {
-      [self logError];
-      sqlite3_finalize(statement);
-      if (rmqMessageHandler) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-          rmqMessageHandler(messages);
-        });
-      }
-    }
-    // can query sqlite3 for this but this is fine
-    const int rmqIdColumnNumber = 0;
-    const int typeColumnNumber = 1;
-    const int dataColumnNumber = 2;
-    while (sqlite3_step(statement) == SQLITE_ROW) {
-      int64_t rmqId = sqlite3_column_int64(statement, rmqIdColumnNumber);
-      int8_t type = sqlite3_column_int(statement, typeColumnNumber);
-      const void *bytes = sqlite3_column_blob(statement, dataColumnNumber);
-      int length = sqlite3_column_bytes(statement, dataColumnNumber);
-
-      NSData *data = [NSData dataWithBytes:bytes length:length];
-      GPBMessage *proto =
-          [FIRMessagingGetClassForTag((FIRMessagingProtoTag)type) parseFromData:data error:NULL];
-      [messages addEntriesFromDictionary:@{@(rmqId) : proto}];
-    }
-    sqlite3_finalize(statement);
-    if (rmqMessageHandler) {
-      dispatch_async(dispatch_get_main_queue(), ^{
-        rmqMessageHandler(messages);
-      });
-    }
   });
 }
 

@@ -1,3 +1,28 @@
+# v8.2.0
+- Expose upload URLs as a public API for Firebase Performance to use for denying instrumentation those URLs.
+
+# v8.1.0
+- Expose upload URLs which FirebasePerformance will depend upon.
+- Fix out-of-memory crash for a big amount of pending events. (#6995)
+
+# v8.0.1
+- Remove `GCC_TREAT_WARNINGS_AS_ERRORS` from the podspec.
+- Reduce pre-main startup time footprint. (#6855)
+
+# v8.0.0
+- Source restructuring to limit the public API surface.
+
+# v7.5.1
+- Fix deprecation warning for iOS 12.0 and higher projects. (#6682)
+
+# v7.5.0
+- Legacy pre Xcode 10 compatibility checks removed. (#6486)
+- `GDTCORDirectorySizeTracker` crash fixed. (#6540)
+
+# v7.4.0
+- Limit disk space consumed by GoogleDataTransport to store events. (#6365)
+- Fix `GDTTransformer` background task handling.  (#6258)
+
 # v7.1.1
 - Use `NSTimeZone` instead of `CFTimeZone` to get time zone offset respecting daylight. (#6246)
 

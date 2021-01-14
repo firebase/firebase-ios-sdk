@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,18 +27,15 @@ constexpr bool Settings::DefaultSslEnabled;
 constexpr bool Settings::DefaultPersistenceEnabled;
 constexpr int64_t Settings::DefaultCacheSizeBytes;
 constexpr int64_t Settings::MinimumCacheSizeBytes;
-constexpr bool Settings::DefaultTimestampsInSnapshotsEnabled;
 
 size_t Settings::Hash() const {
   return util::Hash(host_, ssl_enabled_, persistence_enabled_,
-                    timestamps_in_snapshots_enabled_, cache_size_bytes_);
+                    cache_size_bytes_);
 }
 
 bool operator==(const Settings& lhs, const Settings& rhs) {
   return lhs.host_ == rhs.host_ && lhs.ssl_enabled_ == rhs.ssl_enabled_ &&
          lhs.persistence_enabled_ == rhs.persistence_enabled_ &&
-         lhs.timestamps_in_snapshots_enabled_ ==
-             rhs.timestamps_in_snapshots_enabled_ &&
          lhs.cache_size_bytes_ == rhs.cache_size_bytes_;
 }
 

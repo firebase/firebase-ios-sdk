@@ -162,18 +162,18 @@ class LlrbNode : public SortedMapBase {
    * Returns a shared Empty node, to cut down on allocations in the base case.
    */
   static const std::shared_ptr<Rep>& EmptyRep() {
-    static const std::shared_ptr<Rep> empty_rep = [] {
-      auto empty = std::make_shared<Rep>(Rep{std::pair<K, V>{}, Color::Black,
-                                             /* size= */ 0u, LlrbNode{nullptr},
-                                             LlrbNode{nullptr}});
+    static const std::shared_ptr<Rep>* empty_rep = [] {
+      auto rep = new Rep{std::pair<K, V>{}, Color::Black,
+                         /* size= */ 0u, LlrbNode{nullptr}, LlrbNode{nullptr}};
+      auto empty = new std::shared_ptr<Rep>{rep};
 
       // Set up the empty Rep such that you can traverse infinitely down left
       // and right links.
-      empty->left_.rep_ = empty;
-      empty->right_.rep_ = empty;
+      (*empty)->left_.rep_ = *empty;
+      (*empty)->right_.rep_ = *empty;
       return empty;
     }();
-    return empty_rep;
+    return *empty_rep;
   }
 
   /**

@@ -6,6 +6,5 @@ Objective-C and Swift.
 Firebase Remote Config is a cloud service that lets you change the appearance
 and behavior of your app without requiring users to download an app update.
 
-Please visit [our developer site]
-(https://firebase.google.com/docs/remote-config/) for integration instructions,
-documentation, support information, and terms of service.
+Please visit [our developer site](https://firebase.google.com/docs/remote-config/)
+for integration instructions, documentation, support information, and terms of service.

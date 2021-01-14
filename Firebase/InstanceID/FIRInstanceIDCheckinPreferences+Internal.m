@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FIRInstanceIDCheckinPreferences+Internal.h"
+#import "Firebase/InstanceID/FIRInstanceIDCheckinPreferences+Internal.h"
 
-#import "FIRInstanceIDCheckinService.h"
-#import "FIRInstanceIDUtilities.h"
+#import "Firebase/InstanceID/FIRInstanceIDCheckinService.h"
+#import "Firebase/InstanceID/FIRInstanceIDUtilities.h"
 
 static NSString *const kCheckinKeychainContentSeparatorString = @"|";
 

@@ -39,17 +39,13 @@
 #  Figure out where we're being called from
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
-#  If the first argument is specified without a dash, treat it as the Fabric API
-#  Key and add it as an argument.
-if [ -z "$1" ] || [[ $1 == -* ]]; then
-  API_KEY_ARG=""
-else
-  API_KEY_ARG="-a $1"; shift
-fi
+#  Build up the arguments list, passing through any flags added, and quoting
+#  every argument in case there are spaces in any of the the paths.
+ARGUMENTS=''
+for i in "$@"; do
+  ARGUMENTS="$ARGUMENTS \"$i\""
+done
 
-#  Build up the arguments list, passing through any flags added after the
-#  API Key
-ARGUMENTS="$API_KEY_ARG $@"
 VALIDATE_ARGUMENTS="$ARGUMENTS --build-phase --validate"
 UPLOAD_ARGUMENTS="$ARGUMENTS --build-phase"
 
@@ -65,7 +61,7 @@ if [[ $return_code != 0 ]]; then
   exit $return_code
 fi
 
-#  Verification passed, convert and upload cSYMs in the background to prevent
+#  Verification passed, convert and upload dSYMs in the background to prevent
 #  build delays
 #
 #  Note: Validation is performed again at this step before upload

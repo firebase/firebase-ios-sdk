@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @class FIRComponentContainer;
 @class FIRFakeOptions;
 
@@ -27,3 +29,5 @@
 @property(nonatomic, copy, readonly) NSString *name;
 @property(nonatomic, readonly) FIRComponentContainer *container;
 @end
+
+NS_ASSUME_NONNULL_END

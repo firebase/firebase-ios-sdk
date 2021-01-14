@@ -1,3 +1,20 @@
+# 7.4.0
+- [fixed] Check if the reverse client ID is configured as a custom URL scheme before setting it as the callback scheme. (#7211)
+- [added] Add ability to sync auth state across devices. (#6924)
+- [fixed] Add multi-tenancy support for email link sign-in. (#7246)
+
+# 7.3.0
+- [fixed] Catalyst browser issue with `verifyPhoneNumber` API. (#7049)
+
+# 7.1.0
+- [fixed] Fixed completion handler issue in `application(_:didReceiveRemoteNotification:fetchCompletionHandler:)` method. (#6863)
+
+# 7.0.0
+- [removed] Remove deprecated APIs `dataForKey`,`fetchProvidersForEmail:completion`, `signInAndRetrieveDataWithCredential:completion`, `reauthenticateAndRetrieveDataWithCredential:completion`, `linkAndRetrieveDataWithCredential:completion`. (#6607)
+- [added] Add support for the auth emulator. (#6624)
+- [changed] The global variables `FirebaseAuthVersionNum` and `FirebaseAuthVersionStr` are deleted.
+  `FirebaseVersion()` or `FIRFirebaseVersion()` should be used instead.
+
 # v6.9.1
 - [fixed] Internal source documentation. (#6371)
 

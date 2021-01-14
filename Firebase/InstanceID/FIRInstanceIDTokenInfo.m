@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "FIRInstanceIDTokenInfo.h"
+#import "Firebase/InstanceID/FIRInstanceIDTokenInfo.h"
 
-#import "FIRInstanceIDConstants.h"
-#import "FIRInstanceIDLogger.h"
-#import "FIRInstanceIDUtilities.h"
+#import "Firebase/InstanceID/FIRInstanceIDConstants.h"
+#import "Firebase/InstanceID/FIRInstanceIDLogger.h"
+#import "Firebase/InstanceID/FIRInstanceIDUtilities.h"
 
 /**
  *  @enum Token Info Dictionary Key Constants
