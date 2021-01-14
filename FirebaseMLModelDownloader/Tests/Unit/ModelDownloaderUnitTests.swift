@@ -122,4 +122,29 @@ final class ModelDownloaderUnitTests: XCTestCase {
       }
     }
   }
+
+  /// Compare proto serialization methods.
+  func testTelemetryEncoding() {
+    let fakeModel = CustomModel(
+      name: "fakeModelName",
+      size: 10,
+      path: "fakeModelPath",
+      hash: "fakeModelHash"
+    )
+    var modelOptions = ModelOptions()
+    modelOptions.setModelOptions(model: fakeModel)
+
+    guard let binaryData = try? modelOptions.serializedData(),
+      let jsonData = try? modelOptions.jsonUTF8Data(),
+      let binaryEvent = try? ModelOptions(serializedData: binaryData),
+      let jsonEvent = try? ModelOptions(jsonUTF8Data: jsonData) else {
+      XCTFail("Encoding error.")
+      return
+    }
+
+    XCTAssertNotNil(binaryData)
+    XCTAssertNotNil(jsonData)
+    XCTAssertLessThan(binaryData.count, jsonData.count)
+    XCTAssertEqual(binaryEvent, jsonEvent)
+  }
 }
