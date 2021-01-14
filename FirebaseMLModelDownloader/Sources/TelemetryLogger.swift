@@ -20,8 +20,8 @@ import GoogleDataTransport
 extension SystemInfo {
   mutating func setAppInfo(apiKey: String?, projectID: String?) {
     appID = Bundle.main.bundleIdentifier ?? "unknownBundleID"
-    // appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknownAppVersion"
-    appVersion = "1"
+    appVersion = Bundle.main
+      .infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknownAppVersion"
     self.apiKey = apiKey ?? "unknownAPIKey"
     firebaseProjectID = projectID ?? "unknownProjectID"
   }
@@ -84,7 +84,6 @@ class FBMLDataObject: NSObject, GDTCOREventDataObject {
     do {
       // TODO: Should this be binary or json serialized?
       let data = try event.serializedData()
-      print(try event.jsonString())
       return data
     } catch {
       DeviceLogger.logEvent(
@@ -132,8 +131,7 @@ class TelemetryLogger {
   private func logModelEvent(event: FirebaseMlLogEvent) {
     let eventForTransport: GDTCOREvent = fllTransport.eventForTransport()
     eventForTransport.dataObject = FBMLDataObject(event: event)
-    eventForTransport.qosTier = .qoSFast
-    fllTransport.sendDataEvent(eventForTransport)
+    fllTransport.sendTelemetryEvent(eventForTransport)
   }
 
   /// Log model download event to Firelog.

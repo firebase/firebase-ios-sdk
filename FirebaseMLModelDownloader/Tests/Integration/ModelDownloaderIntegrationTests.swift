@@ -402,6 +402,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
           XCTFail("Could not initialize logger.")
           return
         }
+        // TODO: Remove this and stub out with mocks.
         telemetryLogger.logModelDownloadEvent(
           eventName: .modelDownload,
           status: .successful,
