@@ -704,7 +704,7 @@ class LevelDbNamedQueriesKey {
   ABSL_MUST_USE_RESULT
   bool Decode(absl::string_view key);
 
-  /** The bundle ID for this entry. */
+  /** The query name for this entry. */
   const std::string& name() const {
     return name_;
   }
