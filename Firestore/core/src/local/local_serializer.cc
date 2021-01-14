@@ -335,14 +335,18 @@ MutationBatch LocalSerializer::DecodeMutationBatch(
   // SDK means that old `transform` mutations stored in LevelDB need to be
   // updated to `update_transforms`.
   // TODO(b/174608374): Remove this code once we perform a schema migration.
-  for (size_t i = proto.writes_count - 1; i >= 0; --i) {
-    _google_firestore_v1_Write mutation = proto.writes[i];
+  for (size_t i = proto.writes_count; i > 0; --i) {
+    // Calculate appropriate index from `i`. We do this because decrementing
+    // `i` when i == 0 results in wraparound.
+    size_t index = i - 1;
+
+    _google_firestore_v1_Write mutation = proto.writes[index];
     if (mutation.which_operation == google_firestore_v1_Write_transform_tag) {
       HARD_ASSERT(
-          i >= 1 && proto.writes[i - 1].which_operation ==
-                        google_firestore_v1_Write_update_tag,
+          index >= 1 && proto.writes[index - 1].which_operation ==
+                            google_firestore_v1_Write_update_tag,
           "TransformMutation should be preceded by a patch or set mutation");
-      _google_firestore_v1_Write mutation_to_join = proto.writes[i - 1];
+      _google_firestore_v1_Write mutation_to_join = proto.writes[index - 1];
       _google_firestore_v1_Write new_mutation{mutation_to_join};
       new_mutation.update_transforms_count =
           mutation.transform.field_transforms_count;
@@ -358,10 +362,6 @@ MutationBatch LocalSerializer::DecodeMutationBatch(
     } else {
       mutations.push_back(rpc_serializer_.DecodeMutation(reader, mutation));
     }
-
-    // Break after we've gone through all the writes, since decrementing `i`
-    // when i == 0 results in wraparound.
-    if (i == 0) break;
   }
 
   // Reverse the mutations to preserve the original ordering since the above
