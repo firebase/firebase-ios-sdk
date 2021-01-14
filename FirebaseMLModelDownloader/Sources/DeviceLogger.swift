@@ -21,6 +21,7 @@ enum LoggerMessageCode {
   case modelDownloaded
   case downloadedModelMovedToURL
   case analyticsEventEncodeError
+  case telemetryInitError
 }
 
 /// On-device logger.

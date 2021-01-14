@@ -62,6 +62,8 @@ public class ModelDownloader {
   private let installations: Installations
   /// User defaults for model info.
   private let userDefaults: UserDefaults
+  /// Telemetry logger tied to this instance of model downloader.
+  let telemetryLogger: TelemetryLogger?
 
   /// Shared dictionary mapping app name to a specific instance of model downloader.
   // TODO: Switch to using Firebase components.
@@ -72,6 +74,12 @@ public class ModelDownloader {
     appName = app.name
     options = app.options
     installations = Installations.installations(app: app)
+    /// Respect Firebase-wide data collection setting.
+    telemetryLogger = TelemetryLogger(
+      isStatsEnabled: app.isDataCollectionDefaultEnabled,
+      apiKey: app.options.apiKey,
+      projectID: app.options.projectID
+    )
     userDefaults = defaults
 
     NotificationCenter.default.addObserver(
@@ -268,6 +276,7 @@ extension ModelDownloader {
             remoteModelInfo: remoteModelInfo,
             appName: self.appName,
             defaults: self.userDefaults,
+            telemetryLogger: self.telemetryLogger,
             progressHandler: progressHandler,
             completion: completion
           )

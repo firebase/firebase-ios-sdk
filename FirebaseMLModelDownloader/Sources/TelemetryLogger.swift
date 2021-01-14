@@ -15,29 +15,31 @@
 import Foundation
 import FirebaseCore
 import GoogleDataTransport
-import SwiftProtobuf
 
 /// Extension to set Firebase app info.
 extension SystemInfo {
-  mutating func setAppInfo(app: FirebaseApp) {
+  mutating func setAppInfo(apiKey: String?, projectID: String?) {
     appID = Bundle.main.bundleIdentifier ?? "unknownBundleID"
-    appVersion = Bundle.main
-      .infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknownAppVersion"
-    apiKey = app.options.apiKey ?? "unknownAPIKey"
-    firebaseProjectID = app.options.projectID ?? "unknownProjectID"
+    // appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknownAppVersion"
+    appVersion = "1"
+    self.apiKey = apiKey ?? "unknownAPIKey"
+    firebaseProjectID = projectID ?? "unknownProjectID"
   }
 }
 
 /// Extension to set model options.
 extension ModelOptions {
-  mutating func setModelOptions(model: CustomModel) {
-    isModelUpdateEnabled = true
+  mutating func setModelOptions(model: CustomModel, isModelUpdateEnabled: Bool? = nil) {
+    if let updateEnabled = isModelUpdateEnabled {
+      self.isModelUpdateEnabled = updateEnabled
+    }
     modelInfo.name = model.name
     modelInfo.hash = model.hash
     modelInfo.modelType = .custom
   }
 }
 
+/// Extension to build model download log event.
 extension ModelDownloadLogEvent {
   mutating func setEvent(status: DownloadStatus, errorCode: ErrorCode? = nil,
                          roughDownloadDuration: UInt64? = nil, exactDownloadDuration: UInt64? = nil,
@@ -59,6 +61,16 @@ extension ModelDownloadLogEvent {
   }
 }
 
+/// Extension to build Firebase ML log event.
+extension FirebaseMlLogEvent {
+  mutating func setEvent(eventName: EventName, systemInfo: SystemInfo,
+                         modelDownloadLogEvent: ModelDownloadLogEvent) {
+    self.eventName = eventName
+    self.systemInfo = systemInfo
+    self.modelDownloadLogEvent = modelDownloadLogEvent
+  }
+}
+
 /// Data object for Firelog event.
 class FBMLDataObject: NSObject, GDTCOREventDataObject {
   private let event: FirebaseMlLogEvent
@@ -70,15 +82,9 @@ class FBMLDataObject: NSObject, GDTCOREventDataObject {
   /// Encode Firelog event for transport.
   func transportBytes() -> Data {
     do {
-      // let data = try event.serializedData()
-
-      var options = JSONEncodingOptions()
-      options.alwaysPrintEnumsAsInts = false
-      options.preserveProtoFieldNames = true
-
-      let data = try event.jsonUTF8Data(options: options)
-      print(try event.jsonString(options: options))
-
+      // TODO: Should this be binary or json serialized?
+      let data = try event.serializedData()
+      print(try event.jsonString())
       return data
     } catch {
       DeviceLogger.logEvent(
@@ -98,23 +104,60 @@ class TelemetryLogger {
   let isStatsEnabled: Bool
   let fllTransport: GDTCORTransport
 
-  init(isStatsEnabled: Bool) {
+  private let apiKey: String?
+  private let projectID: String?
+
+  /// Init logger, could be nil if unable to get event transport.
+  init?(isStatsEnabled: Bool, apiKey: String?, projectID: String?) {
     self.isStatsEnabled = isStatsEnabled
+    self.apiKey = apiKey
+    self.projectID = projectID
     guard let fllTransport = GDTCORTransport(
       mappingID: mappingID,
       transformers: nil,
       target: GDTCORTarget.FLL
     ) else {
-      fatalError("Event transport initialization error")
+      DeviceLogger.logEvent(
+        level: .debug,
+        category: .analytics,
+        message: "Unable to create telemetry logger.",
+        messageCode: .telemetryInitError
+      )
+      return nil
     }
     self.fllTransport = fllTransport
   }
 
-  /// Log model download event to Firelog.
-  func logModelDownloadEvent(event: FirebaseMlLogEvent) {
+  /// Log events to Firelog.
+  private func logModelEvent(event: FirebaseMlLogEvent) {
     let eventForTransport: GDTCOREvent = fllTransport.eventForTransport()
     eventForTransport.dataObject = FBMLDataObject(event: event)
     eventForTransport.qosTier = .qoSFast
     fllTransport.sendDataEvent(eventForTransport)
+  }
+
+  /// Log model download event to Firelog.
+  func logModelDownloadEvent(eventName: EventName, status: ModelDownloadStatus,
+                             model: CustomModel? = nil) {
+    var modelOptions = ModelOptions()
+    if let model = model {
+      modelOptions.setModelOptions(model: model)
+    }
+    var systemInfo = SystemInfo()
+    systemInfo.setAppInfo(apiKey: apiKey, projectID: projectID)
+
+    var modelDownloadLogEvent = ModelDownloadLogEvent()
+    switch status {
+    case .successful: modelDownloadLogEvent.setEvent(status: .succeeded, modelOptions: modelOptions)
+    case .failed: modelDownloadLogEvent.setEvent(status: .failed, modelOptions: modelOptions)
+    case .notStarted, .inProgress: break
+    }
+    var fbmlEvent = FirebaseMlLogEvent()
+    fbmlEvent.setEvent(
+      eventName: eventName,
+      systemInfo: systemInfo,
+      modelDownloadLogEvent: modelDownloadLogEvent
+    )
+    logModelEvent(event: fbmlEvent)
   }
 }

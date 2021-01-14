@@ -19,7 +19,8 @@ import FirebaseCore
 enum ModelDownloadStatus {
   case notStarted
   case inProgress
-  case completed
+  case successful
+  case failed
 }
 
 /// Progress and completion handlers for a model download.
@@ -54,12 +55,16 @@ class ModelDownloadTask: NSObject {
   private lazy var downloadSession = URLSession(configuration: .ephemeral,
                                                 delegate: self,
                                                 delegateQueue: nil)
+  /// Telemetry logger.
+  private let telemetryLogger: TelemetryLogger?
 
   init(remoteModelInfo: RemoteModelInfo, appName: String, defaults: UserDefaults,
+       telemetryLogger: TelemetryLogger? = nil,
        progressHandler: DownloadHandlers.ProgressHandler? = nil,
        completion: @escaping DownloadHandlers.Completion) {
     self.remoteModelInfo = remoteModelInfo
     self.appName = appName
+    self.telemetryLogger = telemetryLogger
     self.defaults = defaults
     downloadHandlers = DownloadHandlers(
       progressHandler: progressHandler,
@@ -92,7 +97,6 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
                   downloadTask: URLSessionDownloadTask,
                   didFinishDownloadingTo location: URL) {
     assert(downloadTask == self.downloadTask)
-    downloadStatus = .completed
     let modelFileURL = ModelFileManager.getDownloadedModelFilePath(
       appName: appName,
       modelName: remoteModelInfo.name
@@ -100,11 +104,27 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
     do {
       try ModelFileManager.moveFile(at: location, to: modelFileURL)
     } catch let error as DownloadError {
+      downloadStatus = .failed
+      telemetryLogger?.logModelDownloadEvent(eventName: .modelDownload, status: downloadStatus)
+      DeviceLogger.logEvent(
+        level: .info,
+        category: .modelDownload,
+        message: "Unable to save downloaded remote model file.",
+        messageCode: .modelDownloaded
+      )
       DispatchQueue.main.async {
         self.downloadHandlers
           .completion(.failure(error))
       }
     } catch {
+      downloadStatus = .failed
+      telemetryLogger?.logModelDownloadEvent(eventName: .modelDownload, status: downloadStatus)
+      DeviceLogger.logEvent(
+        level: .info,
+        category: .modelDownload,
+        message: "Unable to save downloaded remote model file.",
+        messageCode: .modelDownloaded
+      )
       DispatchQueue.main.async {
         self.downloadHandlers
           .completion(.failure(.internalError(description: error.localizedDescription)))
@@ -117,16 +137,12 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
     localModelInfo.writeToDefaults(defaults, appName: appName)
     /// Build model from model info.
     let model = CustomModel(localModelInfo: localModelInfo)
-    /// On-device logging.
-    DeviceLogger.logEvent(
-      level: .info,
-      category: .modelDownload,
-      message: "Remote model successfully downloaded.",
-      messageCode: .modelDownloaded
+    downloadStatus = .successful
+    telemetryLogger?.logModelDownloadEvent(
+      eventName: .modelDownload,
+      status: downloadStatus,
+      model: model
     )
-    /// Firelog logging.
-    // TODO: Call analytics logger here
-    // AnalyticsLogger.logEvent(...)
 
     DispatchQueue.main.async {
       self.downloadHandlers.completion(.success(model))

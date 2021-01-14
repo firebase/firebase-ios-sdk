@@ -186,7 +186,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
 
     modelDownloadManager.resumeModelDownload()
     waitForExpectations(timeout: 5, handler: nil)
-    XCTAssertEqual(modelDownloadManager.downloadStatus, .completed)
+    XCTAssertEqual(modelDownloadManager.downloadStatus, .successful)
   }
 
   func testGetModel() {
@@ -363,21 +363,23 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     }
   }
 
+  /// Test logging telemetry event.
   func testLogTelemetryEvent() {
     guard let testApp = FirebaseApp.app() else {
       XCTFail("Default app was not configured.")
       return
     }
 
+    let testModelName = "image-classification"
     let testName = "model-downloader-test"
-    let testModelName = "pose-detection"
 
     let conditions = ModelDownloadConditions()
     let modelDownloader = ModelDownloader.modelDownloaderWithDefaults(
-      .getTestInstance(testName: testName),
+      .createTestInstance(testName: testName),
       app: testApp
     )
 
+    /// Test download type - latest model.
     let downloadType: ModelDownloadType = .latestModel
     let latestModelExpectation = expectation(description: "Get latest model.")
 
@@ -392,42 +394,19 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     ) { result in
       switch result {
       case let .success(model):
-        XCTAssertNotNil(model.path)
-        guard let filePath = URL(string: model.path) else {
-          XCTFail("Invalid model path.")
+        guard let telemetryLogger = TelemetryLogger(
+          isStatsEnabled: true,
+          apiKey: testApp.options.apiKey,
+          projectID: testApp.options.projectID
+        ) else {
+          XCTFail("Could not initialize logger.")
           return
         }
-        XCTAssertTrue(ModelFileManager.isFileReachable(at: filePath))
-
-        var modelOptions = FirebaseMLModelDownloader.ModelOptions()
-        modelOptions.isModelUpdateEnabled = true
-        modelOptions.modelInfo.name = model.name
-        modelOptions.modelInfo.hash = model.hash
-        modelOptions.modelInfo.modelType = FirebaseMLModelDownloader.ModelInfo.ModelType.custom
-
-        var systemInfo = FirebaseMLModelDownloader.SystemInfo()
-        systemInfo.appID = Bundle.main.bundleIdentifier ?? "com.google.fakeBundleID"
-        systemInfo.appVersion = "1"
-        systemInfo.apiKey = testApp.options.apiKey ?? "fakeAPIKey"
-        systemInfo.firebaseProjectID = testApp.options.projectID ?? "fakeProjectID"
-
-        var downloadEvent = FirebaseMLModelDownloader.ModelDownloadLogEvent()
-        downloadEvent.downloadStatus = FirebaseMLModelDownloader.ModelDownloadLogEvent
-          .DownloadStatus.succeeded
-        downloadEvent.errorCode = FirebaseMLModelDownloader.ErrorCode.noError
-        downloadEvent.roughDownloadDurationMs = 0
-        downloadEvent.exactDownloadDurationMs = 105
-        downloadEvent.downloadFailureStatus = 0
-        downloadEvent.options = modelOptions
-
-        var fbmlEvent = FirebaseMLModelDownloader.FirebaseMlLogEvent()
-        fbmlEvent.eventName = FirebaseMLModelDownloader.EventName.modelDownload
-        fbmlEvent.systemInfo = systemInfo
-        fbmlEvent.modelDownloadLogEvent = downloadEvent
-
-        let telemetryLogger = TelemetryLogger(isStatsEnabled: true)
-        telemetryLogger.logModelDownloadEvent(event: fbmlEvent)
-
+        telemetryLogger.logModelDownloadEvent(
+          eventName: .modelDownload,
+          status: .successful,
+          model: model
+        )
       case let .failure(error):
         XCTFail("Failed to download model - \(error)")
       }
