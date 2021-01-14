@@ -416,11 +416,12 @@ static void (^reportSentCallback)(void);
     }];
 
     return [allOpsFinished onQueue:dispatch_get_main_queue()
-                              then:^id _Nullable(id  _Nullable allOpsFinishedValue) {
-      // Signal that to callers of processReports that everything is finished.
-      [unsentReportsHandled fulfill:nil];
-      return value;
-    }];
+                              then:^id _Nullable(id _Nullable allOpsFinishedValue) {
+                                // Signal that to callers of processReports that everything is
+                                // finished.
+                                [unsentReportsHandled fulfill:nil];
+                                return value;
+                              }];
   }];
 
   return promise;
