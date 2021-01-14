@@ -48,6 +48,8 @@ const char* kDocumentTargetsTable = "document_target";
 const char* kRemoteDocumentsTable = "remote_document";
 const char* kCollectionParentsTable = "collection_parent";
 const char* kRemoteDocumentReadTimeTable = "remote_document_read_time";
+const char* kBundlesTable = "bundles";
+const char* kNamedQueriesTable = "named_queries";
 
 /**
  * Labels for the components of keys. These serve to make keys self-describing.
@@ -106,6 +108,12 @@ enum ComponentLabel {
 
   /** A component containing a snapshot version. */
   SnapshotVersion = 16,
+
+  /** A component containing a Firestore bundle id. */
+  BundleId = 17,
+
+  /** A component containing the name of a named query. */
+  QueryName = 18,
 
   /**
    * A path segment describes just a single segment in a resource path. Path
@@ -183,6 +191,14 @@ class Reader {
 
   std::string ReadDocumentId() {
     return ReadLabeledString(ComponentLabel::DocumentId);
+  }
+
+  std::string ReadBundleId() {
+    return ReadLabeledString(ComponentLabel::BundleId);
+  }
+
+  std::string ReadQueryName() {
+    return ReadLabeledString(ComponentLabel::QueryName);
   }
 
   /**
@@ -594,6 +610,14 @@ class Writer {
 
   void WriteDocumentId(absl::string_view document_id) {
     WriteLabeledString(ComponentLabel::DocumentId, document_id);
+  }
+
+  void WriteBundleId(absl::string_view bundle_id) {
+    WriteLabeledString(ComponentLabel::BundleId, bundle_id);
+  }
+
+  void WriteQueryName(absl::string_view query_name) {
+    WriteLabeledString(ComponentLabel::QueryName, query_name);
   }
 
   void WriteSnapshotVersion(model::SnapshotVersion snapshot_version) {
@@ -1012,6 +1036,50 @@ bool LevelDbRemoteDocumentReadTimeKey::Decode(absl::string_view key) {
   collection_path_ = reader.ReadResourcePath();
   read_time_ = reader.ReadSnapshotVersion();
   document_id_ = reader.ReadDocumentId();
+  reader.ReadTerminator();
+  return reader.ok();
+}
+
+std::string LevelDbBundlesKey::KeyPrefix() {
+  Writer writer;
+  writer.WriteTableName(kBundlesTable);
+  return writer.result();
+}
+
+std::string LevelDbBundlesKey::Key(absl::string_view bundle_id) {
+  Writer writer;
+  writer.WriteTableName(kBundlesTable);
+  writer.WriteBundleId(bundle_id);
+  writer.WriteTerminator();
+  return writer.result();
+}
+
+bool LevelDbBundlesKey::Decode(absl::string_view key) {
+  Reader reader{key};
+  reader.ReadTableNameMatching(kBundlesTable);
+  bundle_id_ = reader.ReadBundleId();
+  reader.ReadTerminator();
+  return reader.ok();
+}
+
+std::string LevelDbNamedQueriesKey::KeyPrefix() {
+  Writer writer;
+  writer.WriteTableName(kNamedQueriesTable);
+  return writer.result();
+}
+
+std::string LevelDbNamedQueriesKey::Key(absl::string_view query_name) {
+  Writer writer;
+  writer.WriteTableName(kNamedQueriesTable);
+  writer.WriteQueryName(query_name);
+  writer.WriteTerminator();
+  return writer.result();
+}
+
+bool LevelDbNamedQueriesKey::Decode(absl::string_view key) {
+  Reader reader{key};
+  reader.ReadTableNameMatching(kNamedQueriesTable);
+  name_ = reader.ReadQueryName();
   reader.ReadTerminator();
   return reader.ok();
 }
