@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -15,7 +15,6 @@
 		9505C33C2405B30F00534CF2 /* ExtensionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9505C33B2405B30F00534CF2 /* ExtensionDelegate.swift */; };
 		9505C33E2405B30F00534CF2 /* NotificationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9505C33D2405B30F00534CF2 /* NotificationController.swift */; };
 		9505C3402405B31000534CF2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9505C33F2405B31000534CF2 /* Assets.xcassets */; };
-		950E5E8A244FAEC100A4BF87 /* gdthelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950E5E89244FAEC100A4BF87 /* gdthelpers.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -73,7 +72,6 @@
 		9505C33F2405B31000534CF2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		9505C3412405B31000534CF2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9505C3422405B31000534CF2 /* PushNotificationPayload.apns */ = {isa = PBXFileReference; lastKnownFileType = text; path = PushNotificationPayload.apns; sourceTree = "<group>"; };
-		950E5E89244FAEC100A4BF87 /* gdthelpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = gdthelpers.swift; path = ../../GDTTestApp/gdthelpers.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -136,7 +134,6 @@
 			children = (
 				9505C3392405B30F00534CF2 /* InterfaceController.swift */,
 				9505C33B2405B30F00534CF2 /* ExtensionDelegate.swift */,
-				950E5E89244FAEC100A4BF87 /* gdthelpers.swift */,
 				9505C33D2405B30F00534CF2 /* NotificationController.swift */,
 				9505C33F2405B31000534CF2 /* Assets.xcassets */,
 				9505C3412405B31000534CF2 /* Info.plist */,
@@ -284,7 +281,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				9505C33E2405B30F00534CF2 /* NotificationController.swift in Sources */,
-				950E5E8A244FAEC100A4BF87 /* gdthelpers.swift in Sources */,
 				9505C33C2405B30F00534CF2 /* ExtensionDelegate.swift in Sources */,
 				9505C33A2405B30F00534CF2 /* InterfaceController.swift in Sources */,
 			);
@@ -447,6 +443,7 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
 				WATCHOS_DEPLOYMENT_TARGET = 6.1;
@@ -471,6 +468,7 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
 				WATCHOS_DEPLOYMENT_TARGET = 6.1;

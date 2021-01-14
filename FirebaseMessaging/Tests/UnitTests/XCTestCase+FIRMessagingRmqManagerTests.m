@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "XCTestCase+FIRMessagingRmqManagerTests.h"
+#import "FirebaseMessaging/Tests/UnitTests/XCTestCase+FIRMessagingRmqManagerTests.h"
 
 #import <Foundation/Foundation.h>
 

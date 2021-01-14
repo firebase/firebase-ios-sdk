@@ -30,6 +30,27 @@ NS_ASSUME_NONNULL_BEGIN
 @property(strong, nonatomic) NSString *storageBucket;
 
 /**
+ * Maximum time between retry attempts for uploads.
+ *
+ * This is used by GTMSessionFetcher and translated from the user provided `maxUploadRetryTime`.
+ */
+@property(assign, nonatomic) NSTimeInterval maxUploadRetryInterval;
+
+/**
+ * Maximum time between retry attempts for downloads.
+ *
+ * This is used by GTMSessionFetcher and translated from the user provided `maxDownloadRetryTime`.
+ */
+@property(assign, nonatomic) NSTimeInterval maxDownloadRetryInterval;
+
+/**
+ * Maximum time between retry attempts for any operation that is not an upload or download.
+ *
+ * This is used by GTMSessionFetcher and translated from the user provided `maxOperationRetryTime`.
+ */
+@property(assign, nonatomic) NSTimeInterval maxOperationRetryInterval;
+
+/**
  * Enables/disables GTMSessionFetcher HTTP logging
  * @param isLoggingEnabled Boolean passed through to enable/disable GTMSessionFetcher logging
  */

@@ -14,7 +14,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "GoogleUtilities/Network/Private/GULMutableDictionary.h"
+#import "GoogleUtilities/Network/Public/GoogleUtilities/GULMutableDictionary.h"
 
 const static NSString *const kKey = @"testKey1";
 const static NSString *const kValue = @"testValue1";

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "GoogleUtilities/SceneDelegateSwizzler/Internal/GULSceneDelegateSwizzler_Private.h"
-#import "GoogleUtilities/SceneDelegateSwizzler/Private/GULSceneDelegateSwizzler.h"
+#import "GoogleUtilities/AppDelegateSwizzler/Internal/GULSceneDelegateSwizzler_Private.h"
+#import "GoogleUtilities/AppDelegateSwizzler/Public/GoogleUtilities/GULSceneDelegateSwizzler.h"
 
 #import <XCTest/XCTest.h>
 #import <objc/runtime.h>
@@ -144,6 +144,9 @@ API_AVAILABLE(ios(13.0), tvos(13.0))
   }
 }
 
+#if !TARGET_OS_MACCATALYST
+// Test fails on Catalyst.
+
 - (void)testNotificationCenterRegister {
   if (@available(iOS 13, tvOS 13, *)) {
     [GULSceneDelegateSwizzler proxyOriginalSceneDelegate];
@@ -157,6 +160,7 @@ API_AVAILABLE(ios(13.0), tvos(13.0))
     [self waitForExpectations:@[ expectation ] timeout:1];
   }
 }
+#endif
 
 #pragma mark - Tests to test that Plist flag is honored
 

@@ -15,7 +15,7 @@
  */
 
 #import <TargetConditionals.h>
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_TV
 
 #import <UIKit/UIKit.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
@@ -55,6 +55,17 @@
   FIRIAMMessageDefinition *_currentMsgBeingDisplayed;
 }
 
++ (NSString *)logStringForNilMessageDisplayComponent {
+#if TARGET_OS_IOS
+  return @"Message display component is not present yet. No display should happen.";
+#else  // TARGET_OS_TV
+  return @"There is no default UI for tvOS. You must implement a messageDisplayComponent and set "
+         @"it on the InAppMessaging singleton. See "
+         @"https://firebase.google.com/docs/in-app-messaging/"
+         @"customize-messages#create_your_own_message_display_library.";
+#endif
+}
+
 #pragma mark - FIRInAppMessagingDisplayDelegate methods
 - (void)messageClicked:(FIRInAppMessagingDisplayMessage *)inAppMessage
             withAction:(FIRInAppMessagingAction *)action {
@@ -62,12 +73,6 @@
   __weak id<FIRInAppMessagingDisplayDelegate> appSideDelegate = self.inAppMessaging.delegate;
   if ([appSideDelegate respondsToSelector:@selector(messageClicked:withAction:)]) {
     [appSideDelegate messageClicked:inAppMessage withAction:action];
-  } else if ([appSideDelegate respondsToSelector:@selector(messageClicked:)]) {
-    // Deprecated method is called only as a fall-back.
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    [appSideDelegate messageClicked:inAppMessage];
-#pragma clang diagnostic pop
   }
 
   self.isMsgBeingDisplayed = NO;
@@ -333,7 +338,7 @@
 
   dispatch_async(dispatch_get_main_queue(), ^{
 #if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-    if (@available(iOS 13.0, *)) {
+    if (@available(iOS 13.0, tvOS 13.0, *)) {
       UIWindowScene *foregroundedScene = nil;
       for (UIWindowScene *connectedScene in [UIApplication sharedApplication].connectedScenes) {
         if (connectedScene.activationState == UISceneActivationStateForegroundActive) {
@@ -392,8 +397,8 @@
     }
 
     if (!self.messageDisplayComponent) {
-      FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400026",
-                  @"Message display component is not present yet. No display should happen.");
+      FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400026", @"%@",
+                  [[self class] logStringForNilMessageDisplayComponent]);
       return;
     }
 
@@ -661,8 +666,8 @@
   // threads.
   @synchronized(self) {
     if (!self.messageDisplayComponent) {
-      FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400028",
-                  @"Message display component is not present yet. No display should happen.");
+      FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400028", @"%@",
+                  [[self class] logStringForNilMessageDisplayComponent]);
       return;
     }
 
@@ -705,8 +710,8 @@
   // triggered message concurrently
   @synchronized(self) {
     if (!self.messageDisplayComponent) {
-      FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400027",
-                  @"Message display component is not present yet. No display should happen.");
+      FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400027", @"%@",
+                  [[self class] logStringForNilMessageDisplayComponent]);
       return;
     }
 
@@ -744,4 +749,4 @@
 }
 @end
 
-#endif  // TARGET_OS_IOS
+#endif  // TARGET_OS_IOS || TARGET_OS_TV

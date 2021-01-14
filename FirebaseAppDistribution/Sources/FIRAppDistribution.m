@@ -13,10 +13,10 @@
 // limitations under the License.
 #import <Foundation/Foundation.h>
 
+#import <GoogleUtilities/GULAppDelegateSwizzler.h>
+#import <GoogleUtilities/GULUserDefaults.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
-#import "GoogleUtilities/AppDelegateSwizzler/Private/GULAppDelegateSwizzler.h"
-#import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
 
 #import "FirebaseAppDistribution/Sources/FIRAppDistributionMachO.h"
 #import "FirebaseAppDistribution/Sources/FIRAppDistributionUIService.h"
@@ -81,11 +81,7 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
 }
 
 + (void)load {
-  NSString *version =
-      [NSString stringWithUTF8String:(const char *const)STR_EXPAND(FIRAppDistribution_VERSION)];
-  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self
-                         withName:kAppDistroLibraryName
-                      withVersion:version];
+  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self withName:kAppDistroLibraryName];
 }
 
 + (NSArray<FIRComponent *> *)componentsToRegister {
@@ -252,6 +248,12 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
   [FIRFADApiService
       fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
         if (error) {
+          if ([error code] == FIRFADApiErrorUnauthenticated) {
+            FIRFADErrorLog(@"Tester authentication failed when fetching releases. Tester will need "
+                           @"to sign in again.");
+            [self signOutTester];
+          }
+
           dispatch_async(dispatch_get_main_queue(), ^{
             completion(nil, [self mapFetchReleasesError:error]);
           });

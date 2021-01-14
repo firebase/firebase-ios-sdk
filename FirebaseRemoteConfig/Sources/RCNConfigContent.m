@@ -32,6 +32,11 @@
   NSMutableDictionary *_fetchedConfig;
   /// Default config provided by user.
   NSMutableDictionary *_defaultConfig;
+  /// Active Personalization metadata that is currently used.
+  NSDictionary *_activePersonalization;
+  /// Pending Personalization metadata that is latest data from server that might or might not be
+  /// applied.
+  NSDictionary *_fetchedPersonalization;
   /// DBManager
   RCNConfigDBManager *_DBManager;
   /// Current bundle identifier;
@@ -72,6 +77,8 @@ static const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
     _activeConfig = [[NSMutableDictionary alloc] init];
     _fetchedConfig = [[NSMutableDictionary alloc] init];
     _defaultConfig = [[NSMutableDictionary alloc] init];
+    _activePersonalization = [[NSDictionary alloc] init];
+    _fetchedPersonalization = [[NSDictionary alloc] init];
     _bundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
     if (!_bundleIdentifier) {
       FIRLogNotice(kFIRLoggerRemoteConfig, @"I-RCN000038",
@@ -79,7 +86,8 @@ static const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
       _bundleIdentifier = @"";
     }
     _DBManager = DBManager;
-    _configLoadFromDBSemaphore = dispatch_semaphore_create(0);
+    // Waits for both config and Personalization data to load.
+    _configLoadFromDBSemaphore = dispatch_semaphore_create(1);
     [self loadConfigFromMainTable];
   }
   return self;
@@ -91,6 +99,44 @@ static const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
   RCN_MUST_NOT_BE_MAIN_THREAD();
   BOOL isDatabaseLoadSuccessful = [self checkAndWaitForInitialDatabaseLoad];
   return isDatabaseLoadSuccessful;
+}
+
+#pragma mark - database
+
+/// This method is only meant to be called at init time. The underlying logic will need to be
+/// revaluated if the assumption changes at a later time.
+- (void)loadConfigFromMainTable {
+  if (!_DBManager) {
+    return;
+  }
+
+  NSAssert(!_isDatabaseLoadAlreadyInitiated, @"Database load has already been initiated");
+  _isDatabaseLoadAlreadyInitiated = true;
+
+  [_DBManager
+      loadMainWithBundleIdentifier:_bundleIdentifier
+                 completionHandler:^(BOOL success, NSDictionary *fetchedConfig,
+                                     NSDictionary *activeConfig, NSDictionary *defaultConfig) {
+                   self->_fetchedConfig = [fetchedConfig mutableCopy];
+                   self->_activeConfig = [activeConfig mutableCopy];
+                   self->_defaultConfig = [defaultConfig mutableCopy];
+                   dispatch_semaphore_signal(self->_configLoadFromDBSemaphore);
+                 }];
+
+  [_DBManager loadPersonalizationWithCompletionHandler:^(
+                  BOOL success, NSDictionary *fetchedPersonalization,
+                  NSDictionary *activePersonalization, NSDictionary *defaultConfig) {
+    self->_fetchedPersonalization = [fetchedPersonalization copy];
+    self->_activePersonalization = [activePersonalization copy];
+    dispatch_semaphore_signal(self->_configLoadFromDBSemaphore);
+  }];
+}
+
+/// Update the current config result to main table.
+/// @param values Values in a row to write to the table.
+/// @param source The source the config data is coming from. It determines which table to write to.
+- (void)updateMainTableWithValues:(NSArray *)values fromSource:(RCNDBSource)source {
+  [_DBManager insertMainTableWithValues:values fromSource:source completionHandler:nil];
 }
 
 #pragma mark - update
@@ -204,8 +250,15 @@ static const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
   if ([state isEqualToString:RCNFetchResponseKeyStateUpdate]) {
     [self handleUpdateStateForConfigNamespace:currentNamespace
                                   withEntries:response[RCNFetchResponseKeyEntries]];
+    [self handleUpdatePersonalization:response[RCNFetchResponseKeyPersonalizationMetadata]];
     return;
   }
+}
+
+- (void)activatePersonalization {
+  _activePersonalization = _fetchedPersonalization;
+  [_DBManager insertOrUpdatePersonalizationConfig:_activePersonalization
+                                       fromSource:RCNDBSourceActive];
 }
 
 #pragma mark State handling
@@ -263,35 +316,14 @@ static const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
   }
 }
 
-#pragma mark - database
-
-/// This method is only meant to be called at init time. The underlying logic will need to be
-/// revaluated if the assumption changes at a later time.
-- (void)loadConfigFromMainTable {
-  if (!_DBManager) {
+- (void)handleUpdatePersonalization:(NSDictionary *)metadata {
+  if (!metadata) {
     return;
   }
-
-  NSAssert(!_isDatabaseLoadAlreadyInitiated, @"Database load has already been initiated");
-  _isDatabaseLoadAlreadyInitiated = true;
-
-  [_DBManager
-      loadMainWithBundleIdentifier:_bundleIdentifier
-                 completionHandler:^(BOOL success, NSDictionary *fetchedConfig,
-                                     NSDictionary *activeConfig, NSDictionary *defaultConfig) {
-                   self->_fetchedConfig = [fetchedConfig mutableCopy];
-                   self->_activeConfig = [activeConfig mutableCopy];
-                   self->_defaultConfig = [defaultConfig mutableCopy];
-                   dispatch_semaphore_signal(self->_configLoadFromDBSemaphore);
-                 }];
+  _fetchedPersonalization = metadata;
+  [_DBManager insertOrUpdatePersonalizationConfig:metadata fromSource:RCNDBSourceFetched];
 }
 
-/// Update the current config result to main table.
-/// @param values Values in a row to write to the table.
-/// @param source The source the config data is coming from. It determines which table to write to.
-- (void)updateMainTableWithValues:(NSArray *)values fromSource:(RCNDBSource)source {
-  [_DBManager insertMainTableWithValues:values fromSource:source completionHandler:nil];
-}
 #pragma mark - getter/setter
 - (NSDictionary *)fetchedConfig {
   /// If this is the first time reading the fetchedConfig, we might still be reading it from the
@@ -312,6 +344,16 @@ static const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
   /// database.
   [self checkAndWaitForInitialDatabaseLoad];
   return _defaultConfig;
+}
+
+- (NSDictionary *)getConfigAndMetadataForNamespace:(NSString *)FIRNamespace {
+  /// If this is the first time reading the active metadata, we might still be reading it from the
+  /// database.
+  [self checkAndWaitForInitialDatabaseLoad];
+  return @{
+    RCNFetchResponseKeyEntries : _activeConfig[FIRNamespace],
+    RCNFetchResponseKeyPersonalizationMetadata : _activePersonalization
+  };
 }
 
 /// We load the database async at init time. Block all further calls to active/fetched/default

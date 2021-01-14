@@ -14,3 +14,4 @@
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseCore/Tests/SwiftUnit/SwiftTestingUtilities/ExceptionCatcher.h"
+#import "SharedTestUtilities/FIROptionsMock.h"

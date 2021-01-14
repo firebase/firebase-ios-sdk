@@ -15,8 +15,8 @@
 #import <XCTest/XCTest.h>
 #import "OCMock.h"
 
-#import "GoogleUtilities/Network/Private/GULMutableDictionary.h"
-#import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
+#import "GoogleUtilities/Network/Public/GoogleUtilities/GULMutableDictionary.h"
+#import "GoogleUtilities/UserDefaults/Public/GoogleUtilities/GULUserDefaults.h"
 
 static const double sEpsilon = 0.001;
 
@@ -493,6 +493,9 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
   [self removePreferenceFileWithSuiteName:suiteName];
 }
 
+#if !TARGET_OS_MACCATALYST
+// Disable Catalyst flakes.
+
 #pragma mark - Thread-safety test
 
 - (void)testNewUserDefaultsThreadSafeAddingObjects {
@@ -708,6 +711,7 @@ static const NSTimeInterval kGULTestCaseTimeoutInterval = 10;
   }
   [self removePreferenceFileWithSuiteName:suiteName];
 }
+#endif  // TARGET_OS_MACCATALYST
 
 #pragma mark - Thread methods
 

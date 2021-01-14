@@ -1,3 +1,9 @@
+# 2020-12 -- v7.3.0
+- [fixed] Fixed default display bug in apps that don't use `UISceneDelegate` (#6803).
+
+# 2020-10 -- v7.0.0
+- [removed] Removed deprecated elements of in-app messaging API.
+
 # 2020-08 -- v0.24.0
 - [changed] Functionally neutral import and header refactor to enable Swift Package
   Manager support.

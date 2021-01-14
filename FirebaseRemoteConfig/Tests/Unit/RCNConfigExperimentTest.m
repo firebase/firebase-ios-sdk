@@ -109,6 +109,7 @@
                           _payloads[payloadIndex++][@"experimentId"]);
   }
 
+  XCTAssertEqualObjects(_payloadsData, _configExperiment.experimentPayloads);
   XCTAssertEqualObjects(_metadata, _configExperiment.experimentMetadata);
 }
 
@@ -212,8 +213,6 @@
 
   NSTimeInterval lastStartTime =
       [experiment.experimentMetadata[@"last_experiment_start_time"] doubleValue];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   OCMStub(
       [mockExperimentController
           updateExperimentsWithServiceOrigin:[OCMArg any]
@@ -221,16 +220,19 @@
                                       policy:
                                           ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest  // NOLINT
                                lastStartTime:lastStartTime
-                                    payloads:[OCMArg any]])
+                                    payloads:[OCMArg any]
+                           completionHandler:[OCMArg any]])
       .andDo(nil);
-#pragma clang diagnostic pop
 
   NSData *payloadData = [[self class] payloadDataFromTestFile];
 
   experiment.experimentPayloads = [@[ payloadData ] mutableCopy];
 
-  [experiment updateExperiments];
-  XCTAssertEqualObjects(experiment.experimentMetadata[@"last_experiment_start_time"], @(12345678));
+  [experiment updateExperimentsWithHandler:^(NSError *_Nullable error) {
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(experiment.experimentMetadata[@"last_experiment_start_time"],
+                          @(12345678));
+  }];
 }
 
 #pragma mark Helpers.

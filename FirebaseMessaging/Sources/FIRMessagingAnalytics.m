@@ -16,8 +16,8 @@
 
 #import "FirebaseMessaging/Sources/FIRMessagingAnalytics.h"
 
-#import "GoogleUtilities/AppDelegateSwizzler/Private/GULAppDelegateSwizzler.h"
-#import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
+#import <GoogleUtilities/GULAppDelegateSwizzler.h>
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import "Interop/Analytics/Public/FIRInteropEventNames.h"
 #import "Interop/Analytics/Public/FIRInteropParameterNames.h"
 
@@ -188,7 +188,7 @@ static NSString *const kAnalyticsTrackConversions = @"google.c.a."
 
 + (void)logMessage:(NSDictionary *)notification
        toAnalytics:(id<FIRAnalyticsInterop> _Nullable)analytics {
-  // iOS onlly because Analytics doesn't support tvOS.
+  // iOS only because Analytics doesn't support other platforms.
 #if TARGET_OS_IOS
   if (![self canLogNotification:notification]) {
     return;

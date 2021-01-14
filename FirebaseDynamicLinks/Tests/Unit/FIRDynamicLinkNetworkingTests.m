@@ -18,9 +18,11 @@
 
 #import <OCMock/OCMock.h>
 
+// This needs to precede the GULSwizzler+Unswizzle.h import for the --use-libraries build.
+#import <GoogleUtilities/GULSwizzler.h>
+
+#import <GoogleUtilities/GULSwizzler+Unswizzle.h>
 #import "FirebaseDynamicLinks/Sources/FIRDynamicLinkNetworking+Private.h"
-#import "GoogleUtilities/MethodSwizzler/Private/GULSwizzler.h"
-#import "GoogleUtilities/SwizzlerTestHelpers/GULSwizzler+Unswizzle.h"
 
 static NSString *const kAPIKey = @"myfakeapikey";
 const NSInteger kJSONParsingErrorCode = 3840;
@@ -71,7 +73,7 @@ static const NSTimeInterval kAsyncTestTimout = 0.5;
   void (^executeRequestBlock)(id, NSDictionary *, NSString *, FIRNetworkRequestCompletionHandler) =
       ^(id p1, NSDictionary *requestBody, NSString *requestURLString,
         FIRNetworkRequestCompletionHandler handler) {
-        handler(nil, nil);
+        handler(nil, nil, nil);
       };
 
   SEL executeRequestSelector = @selector(executeOnePlatformRequest:forURL:completionHandler:);

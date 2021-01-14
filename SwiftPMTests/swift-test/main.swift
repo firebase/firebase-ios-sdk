@@ -17,6 +17,9 @@ import Firebase
 import FirebaseCore
 import FirebaseAuth
 import FirebaseABTesting
+#if os(iOS) && !targetEnvironment(macCatalyst)
+  import FirebaseAppDistribution
+#endif
 import FirebaseCrashlytics
 import FirebaseDynamicLinks
 import FirebaseFirestore
@@ -24,7 +27,7 @@ import FirebaseFirestoreSwift
 import FirebaseFunctions
 import FirebaseInAppMessaging
 import FirebaseInstallations
-// import FirebaseInstanceID
+import FirebaseMessaging
 import FirebaseRemoteConfig
 import FirebaseStorage
 import FirebaseStorageSwift
@@ -42,7 +45,7 @@ import nanopb
 import XCTest
 
 class importTest: XCTestCase {
-  func testImports() {
+  func testImports() throws {
     XCTAssertFalse(GULAppEnvironmentUtil.isAppStoreReceiptSandbox())
     XCTAssertFalse(GULAppEnvironmentUtil.isFromAppStore())
     #if targetEnvironment(simulator)
@@ -54,10 +57,12 @@ class importTest: XCTestCase {
     XCTAssertNil(FirebaseApp.app())
     XCTAssertEqual(GULAppEnvironmentUtil.deviceModel(), "x86_64")
 
-    print("System version? Answer: \(GULAppEnvironmentUtil.systemVersion() ?? "NONE")")
+    let versionParts = FirebaseVersion().split(separator: ".")
+    XCTAssert(versionParts.count == 3)
+    XCTAssertEqual(Int(versionParts[0]), 7)
+    XCTAssertNotNil(Int(versionParts[1]))
+    XCTAssertNotNil(Int(versionParts[2]))
 
-    print("Storage Version String? Answer: \(String(cString: StorageVersionString))")
-
-    // print("InstanceIDScopeFirebaseMessaging? Answer: \(InstanceIDScopeFirebaseMessaging)")
+    print("System version? Answer: \(GULAppEnvironmentUtil.systemVersion())")
   }
 }

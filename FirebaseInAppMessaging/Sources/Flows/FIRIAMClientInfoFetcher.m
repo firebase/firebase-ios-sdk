@@ -15,7 +15,7 @@
  */
 
 #import <TargetConditionals.h>
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_TV
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
@@ -127,14 +127,10 @@
   return [NSTimeZone localTimeZone].name;
 }
 
-// extract macro value into a C string
-#define STR_FROM_MACRO(x) #x
-#define STR(x) STR_FROM_MACRO(x)
-
 - (NSString *)getIAMSDKVersion {
   // FIRInAppMessaging_LIB_VERSION macro comes from pod definition
-  return [NSString stringWithUTF8String:STR(FIRInAppMessaging_LIB_VERSION)];
+  return FIRFirebaseVersion();
 }
 @end
 
-#endif  // TARGET_OS_IOS
+#endif  // TARGET_OS_IOS || TARGET_OS_TV

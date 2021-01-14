@@ -33,8 +33,8 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, MessagingDelegate {
   }
 
   // MessagingDelegate
-  func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String) {
-    print("token:\n" + fcmToken)
+  func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
+    print("token:\n" + (fcmToken ?? "Missing token"))
   }
 
   // WKExtensionDelegate

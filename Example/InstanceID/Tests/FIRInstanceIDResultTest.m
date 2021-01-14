@@ -16,8 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import <FirebaseInstanceID/FIRInstanceID.h>
 #import <OCMock/OCMock.h>
+#import "Firebase/InstanceID/Public/FIRInstanceID.h"
 
 #import "Firebase/InstanceID/NSError+FIRInstanceID.h"
 
@@ -35,7 +35,11 @@ static NSString *const kFakeToken =
 @end
 
 @interface FIRInstanceIDResultTest : XCTestCase {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   FIRInstanceID *_instanceID;
+#pragma clang diagnostic pop
+
   id _mockInstanceID;
 }
 
@@ -45,7 +49,10 @@ static NSString *const kFakeToken =
 
 - (void)setUp {
   [super setUp];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   _mockInstanceID = OCMClassMock([FIRInstanceID class]);
+#pragma clang diagnostic pop
 }
 
 - (void)tearDown {
@@ -54,6 +61,8 @@ static NSString *const kFakeToken =
   [super tearDown];
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)testResultWithFailedIID {
   // mocking getting iid failed with error.
   OCMStub([_mockInstanceID
@@ -130,5 +139,6 @@ static NSString *const kFakeToken =
         XCTAssertEqualObjects(resultCopy.token, kFakeToken);
       }];
 }
+#pragma clang diagnostic pop
 
 @end

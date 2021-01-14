@@ -62,6 +62,7 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberResponse.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #if TARGET_OS_IOS
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRPhoneAuthProvider.h"
@@ -295,7 +296,7 @@ static NSString *const kMissingAndroidPackageNameErrorMessage = @"MISSING_ANDROI
 
 /** @var kUnauthorizedDomainErrorMessage
     @brief This is the error message the server will respond with if the domain of the continue URL
-        specified is not whitelisted in the firebase console.
+        specified is not allowlisted in the Firebase console.
  */
 static NSString *const kUnauthorizedDomainErrorMessage = @"UNAUTHORIZED_DOMAIN";
 
@@ -595,7 +596,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 }
 
 + (NSString *)authUserAgent {
-  return [NSString stringWithFormat:@"FirebaseAuth.iOS/%s %@", FirebaseAuthVersionStr,
+  return [NSString stringWithFormat:@"FirebaseAuth.iOS/%@ %@", FIRFirebaseVersion(),
                                     GTMFetcherStandardUserAgentString(nil)];
 }
 
@@ -635,7 +636,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   NSString *additionalFrameworkMarker =
       requestConfiguration.additionalFrameworkMarker ?: kFirebaseAuthCoreFrameworkMarker;
   NSString *clientVersion = [NSString
-      stringWithFormat:@"iOS/FirebaseSDK/%s/%@", FirebaseAuthVersionStr, additionalFrameworkMarker];
+      stringWithFormat:@"iOS/FirebaseSDK/%@/%@", FIRFirebaseVersion(), additionalFrameworkMarker];
   [request setValue:clientVersion forHTTPHeaderField:kClientVersionHeader];
   NSString *bundleID = [[NSBundle mainBundle] bundleIdentifier];
   [request setValue:bundleID forHTTPHeaderField:kIosBundleIdentifierHeader];
@@ -650,6 +651,10 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
     [request setValue:languageCode forHTTPHeaderField:kFirebaseLocalHeader];
   }
   GTMSessionFetcher *fetcher = [_fetcherService fetcherWithRequest:request];
+  NSString *emulatorHostAndPort = requestConfiguration.emulatorHostAndPort;
+  if (emulatorHostAndPort) {
+    fetcher.allowLocalhostRequest = YES;
+  }
   fetcher.bodyData = body;
   [fetcher beginFetchWithCompletionHandler:handler];
 }

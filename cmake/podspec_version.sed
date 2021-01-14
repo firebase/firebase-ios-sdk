@@ -17,7 +17,7 @@
 
 # Finds the version of a podspec, looking for a line line this:
 #
-#     s.version          = '6.1.0'
+#     s.version          = '7.0.0'
 
 # Find the line assigning to s.version
 /.*s\.version *= */ {

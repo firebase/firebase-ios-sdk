@@ -20,6 +20,8 @@
 #import "FirebaseStorage/Sources/FIRStorageConstants_Private.h"
 #import "FirebaseStorage/Sources/FIRStorageErrors.h"
 
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+
 #import "Interop/Auth/Public/FIRAuthInterop.h"
 
 @implementation FIRStorageTokenAuthorizer {
@@ -51,7 +53,7 @@
                 delegate:(id)delegate
        didFinishSelector:(SEL)sel {
   // Set version header on each request
-  NSString *versionString = [NSString stringWithFormat:@"ios/%s", FIRStorageVersionString];
+  NSString *versionString = [NSString stringWithFormat:@"ios/%@", FIRFirebaseVersion()];
   [request setValue:versionString forHTTPHeaderField:@"x-firebase-storage-version"];
 
   // Set GMP ID on each request

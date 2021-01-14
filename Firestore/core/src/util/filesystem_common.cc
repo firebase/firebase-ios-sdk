@@ -27,8 +27,8 @@ namespace firestore {
 namespace util {
 
 Filesystem* Filesystem::Default() {
-  static Filesystem filesystem;
-  return &filesystem;
+  static auto* filesystem = new Filesystem();
+  return filesystem;
 }
 
 Status Filesystem::RecursivelyCreateDir(const Path& path) {

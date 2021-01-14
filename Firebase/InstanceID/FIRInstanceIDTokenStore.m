@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import "FIRInstanceIDTokenStore.h"
+#import "Firebase/InstanceID/FIRInstanceIDTokenStore.h"
 
-#import "FIRInstanceIDAuthKeyChain.h"
-#import "FIRInstanceIDConstants.h"
-#import "FIRInstanceIDLogger.h"
-#import "FIRInstanceIDTokenInfo.h"
-#import "FIRInstanceIDUtilities.h"
+#import "Firebase/InstanceID/FIRInstanceIDAuthKeyChain.h"
+#import "Firebase/InstanceID/FIRInstanceIDConstants.h"
+#import "Firebase/InstanceID/FIRInstanceIDLogger.h"
+#import "Firebase/InstanceID/FIRInstanceIDTokenInfo.h"
+#import "Firebase/InstanceID/FIRInstanceIDUtilities.h"
 
 static NSString *const kFIRInstanceIDTokenKeychainId = @"com.google.iid-tokens";
 

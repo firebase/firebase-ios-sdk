@@ -382,12 +382,79 @@
                         ]));
 }
 
+- (void)testQueriesCanUseNotEqualFilters {
+  // These documents are ordered by value in "zip" since notEquals filter is an inequality, which
+  // results in documents being sorted by value.
+  NSDictionary *testDocs = @{
+    @"a" : @{@"zip" : @(NAN)},
+    @"b" : @{@"zip" : @91102},
+    @"c" : @{@"zip" : @98101},
+    @"d" : @{@"zip" : @98103},
+    @"e" : @{@"zip" : @[ @98101 ]},
+    @"f" : @{@"zip" : @[ @98101, @98102 ]},
+    @"g" : @{@"zip" : @[ @"98101", @{@"zip" : @98101} ]},
+    @"h" : @{@"zip" : @{@"code" : @500}},
+    @"i" : @{@"zip" : [NSNull null]},
+    @"j" : @{@"code" : @500},
+  };
+  FIRCollectionReference *collection = [self collectionRefWithDocuments:testDocs];
+
+  // Search for zips not matching 98101.
+  FIRQuerySnapshot *snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"zip"
+                                                                          isNotEqualTo:@98101]];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[
+                          testDocs[@"a"], testDocs[@"b"], testDocs[@"d"], testDocs[@"e"],
+                          testDocs[@"f"], testDocs[@"g"], testDocs[@"h"]
+                        ]));
+
+  // With objects.
+  snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"zip"
+                                                        isNotEqualTo:@{@"code" : @500}]];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[
+                          testDocs[@"a"], testDocs[@"b"], testDocs[@"c"], testDocs[@"d"],
+                          testDocs[@"e"], testDocs[@"f"], testDocs[@"g"]
+                        ]));
+
+  // With null.
+  snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"zip"
+                                                        isNotEqualTo:@[ [NSNull null] ]]];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[
+                          testDocs[@"a"], testDocs[@"b"], testDocs[@"c"], testDocs[@"d"],
+                          testDocs[@"e"], testDocs[@"f"], testDocs[@"g"], testDocs[@"h"]
+                        ]));
+
+  // With NAN.
+  snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"zip" isNotEqualTo:@(NAN)]];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[
+                          testDocs[@"b"], testDocs[@"c"], testDocs[@"d"], testDocs[@"e"],
+                          testDocs[@"f"], testDocs[@"g"], testDocs[@"h"]
+                        ]));
+}
+
+- (void)testQueriesCanUseNotEqualFiltersWithDocIds {
+  NSDictionary *testDocs = @{
+    @"aa" : @{@"key" : @"aa"},
+    @"ab" : @{@"key" : @"ab"},
+    @"ba" : @{@"key" : @"ba"},
+    @"bb" : @{@"key" : @"bb"},
+  };
+  FIRCollectionReference *collection = [self collectionRefWithDocuments:testDocs];
+
+  FIRQuerySnapshot *snapshot =
+      [self readDocumentSetForRef:[collection queryWhereFieldPath:[FIRFieldPath documentID]
+                                                     isNotEqualTo:@"aa"]];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot),
+                        (@[ testDocs[@"ab"], testDocs[@"ba"], testDocs[@"bb"] ]));
+}
+
 - (void)testQueriesCanUseArrayContainsFilters {
   NSDictionary *testDocs = @{
     @"a" : @{@"array" : @[ @42 ]},
     @"b" : @{@"array" : @[ @"a", @42, @"c" ]},
     @"c" : @{@"array" : @[ @41.999, @"42", @{@"a" : @[ @42 ]} ]},
-    @"d" : @{@"array" : @[ @42 ], @"array2" : @[ @"bingo" ]}
+    @"d" : @{@"array" : @[ @42 ], @"array2" : @[ @"bingo" ]},
+    @"e" : @{@"array" : @[ [NSNull null] ]},
+    @"f" : @{@"array" : @[ @(NAN) ]},
   };
   FIRCollectionReference *collection = [self collectionRefWithDocuments:testDocs];
 
@@ -397,8 +464,15 @@
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot),
                         (@[ testDocs[@"a"], testDocs[@"b"], testDocs[@"d"] ]));
 
-  // NOTE: The backend doesn't currently support null, NaN, objects, or arrays, so there isn't much
-  // of anything else interesting to test.
+  // With null.
+  snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"array"
+                                                       arrayContains:[NSNull null]]];
+  XCTAssertTrue(snapshot.isEmpty);
+
+  // With NAN.
+  snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"array"
+                                                       arrayContains:@(NAN)]];
+  XCTAssertTrue(snapshot.isEmpty);
 }
 
 - (void)testQueriesCanUseInFilters {
@@ -409,7 +483,9 @@
     @"d" : @{@"zip" : @[ @98101 ]},
     @"e" : @{@"zip" : @[ @"98101", @{@"zip" : @98101} ]},
     @"f" : @{@"zip" : @{@"code" : @500}},
-    @"g" : @{@"zip" : @[ @98101, @98102 ]}
+    @"g" : @{@"zip" : @[ @98101, @98102 ]},
+    @"h" : @{@"zip" : [NSNull null]},
+    @"i" : @{@"zip" : @(NAN)}
   };
   FIRCollectionReference *collection = [self collectionRefWithDocuments:testDocs];
 
@@ -424,6 +500,24 @@
   snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"zip"
                                                                   in:@[ @{@"code" : @500} ]]];
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[ testDocs[@"f"] ]));
+
+  // With null.
+  snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"zip" in:@[ [NSNull null] ]]];
+  XCTAssertTrue(snapshot.isEmpty);
+
+  // With null and a value.
+  snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"zip"
+                                                                  in:@[ [NSNull null], @98101 ]]];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[ testDocs[@"a"] ]));
+
+  // With NAN.
+  snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"zip" in:@[ @(NAN) ]]];
+  XCTAssertTrue(snapshot.isEmpty);
+
+  // With NAN and a value.
+  snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"zip"
+                                                                  in:@[ @(NAN), @98101 ]]];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[ testDocs[@"a"] ]));
 }
 
 - (void)testQueriesCanUseInFiltersWithDocIds {
@@ -441,6 +535,75 @@
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[ testDocs[@"aa"], testDocs[@"ab"] ]));
 }
 
+- (void)testQueriesCanUseNotInFilters {
+  // These documents are ordered by value in "zip" since the NOT_IN filter is an inequality, which
+  // results in documents being sorted by value.
+  NSDictionary *testDocs = @{
+    @"a" : @{@"zip" : @(NAN)},
+    @"b" : @{@"zip" : @91102},
+    @"c" : @{@"zip" : @98101},
+    @"d" : @{@"zip" : @98103},
+    @"e" : @{@"zip" : @[ @98101 ]},
+    @"f" : @{@"zip" : @[ @98101, @98102 ]},
+    @"g" : @{@"zip" : @[ @"98101", @{@"zip" : @98101} ]},
+    @"h" : @{@"zip" : @{@"code" : @500}},
+    @"i" : @{@"zip" : [NSNull null]},
+    @"j" : @{@"code" : @500},
+  };
+  FIRCollectionReference *collection = [self collectionRefWithDocuments:testDocs];
+
+  // Search for zips not matching 98101, 98103, and [98101, 98102].
+  FIRQuerySnapshot *snapshot = [self
+      readDocumentSetForRef:[collection queryWhereField:@"zip"
+                                                  notIn:@[ @98101, @98103, @[ @98101, @98102 ] ]]];
+  XCTAssertEqualObjects(
+      FIRQuerySnapshotGetData(snapshot),
+      (@[ testDocs[@"a"], testDocs[@"b"], testDocs[@"e"], testDocs[@"g"], testDocs[@"h"] ]));
+
+  // With objects.
+  snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"zip"
+                                                               notIn:@[ @{@"code" : @500} ]]];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[
+                          testDocs[@"a"], testDocs[@"b"], testDocs[@"c"], testDocs[@"d"],
+                          testDocs[@"e"], testDocs[@"f"], testDocs[@"g"]
+                        ]));
+
+  // With null.
+  snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"zip"
+                                                               notIn:@[ [NSNull null] ]]];
+  XCTAssertTrue(snapshot.isEmpty);
+
+  // With NAN.
+  snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"zip" notIn:@[ @(NAN) ]]];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[
+                          testDocs[@"b"], testDocs[@"c"], testDocs[@"d"], testDocs[@"e"],
+                          testDocs[@"f"], testDocs[@"g"], testDocs[@"h"]
+                        ]));
+
+  // With NAN and a number.
+  snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"zip"
+                                                               notIn:@[ @(NAN), @98101 ]]];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[
+                          testDocs[@"b"], testDocs[@"d"], testDocs[@"e"], testDocs[@"f"],
+                          testDocs[@"g"], testDocs[@"h"]
+                        ]));
+}
+
+- (void)testQueriesCanUseNotInFiltersWithDocIds {
+  NSDictionary *testDocs = @{
+    @"aa" : @{@"key" : @"aa"},
+    @"ab" : @{@"key" : @"ab"},
+    @"ba" : @{@"key" : @"ba"},
+    @"bb" : @{@"key" : @"bb"},
+  };
+  FIRCollectionReference *collection = [self collectionRefWithDocuments:testDocs];
+
+  FIRQuerySnapshot *snapshot =
+      [self readDocumentSetForRef:[collection queryWhereFieldPath:[FIRFieldPath documentID]
+                                                            notIn:@[ @"aa", @"ab" ]]];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[ testDocs[@"ba"], testDocs[@"bb"] ]));
+}
+
 - (void)testQueriesCanUseArrayContainsAnyFilters {
   NSDictionary *testDocs = @{
     @"a" : @{@"array" : @[ @42 ]},
@@ -450,6 +613,9 @@
     @"e" : @{@"array" : @[ @43 ]},
     @"f" : @{@"array" : @[ @{@"a" : @42} ]},
     @"g" : @{@"array" : @42},
+    @"h" : @{@"array" : @[ [NSNull null] ]},
+    @"g" : @{@"array" : @[ @(NAN) ]},
+
   };
   FIRCollectionReference *collection = [self collectionRefWithDocuments:testDocs];
 
@@ -465,6 +631,26 @@
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[
                           testDocs[@"f"],
                         ]));
+
+  // With null.
+  snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"array"
+                                                    arrayContainsAny:@[ [NSNull null] ]]];
+  XCTAssertTrue(snapshot.isEmpty);
+
+  // With null and a value.
+  snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"array"
+                                                    arrayContainsAny:@[ [NSNull null], @43 ]]];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[ testDocs[@"e"] ]));
+
+  // With NAN.
+  snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"array"
+                                                    arrayContainsAny:@[ @(NAN) ]]];
+  XCTAssertTrue(snapshot.isEmpty);
+
+  // With NAN and a value.
+  snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"array"
+                                                    arrayContainsAny:@[ @(NAN), @43 ]]];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[ testDocs[@"e"] ]));
 }
 
 - (void)testCollectionGroupQueries {

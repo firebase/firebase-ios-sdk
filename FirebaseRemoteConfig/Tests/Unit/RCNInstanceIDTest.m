@@ -26,9 +26,9 @@
 
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
 
+#import <GoogleUtilities/GULNSData+zlib.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
-#import "GoogleUtilities/NSData+zlib/Private/GULNSDataInternal.h"
 
 @interface RCNConfigFetch (ForTest)
 - (instancetype)initWithContent:(RCNConfigContent *)content
@@ -434,7 +434,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   // TODO: Evaluate if we want to hardcode things here instead.
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:@"1:123:ios:123abc"
                                                     GCMSenderID:@"correct_gcm_sender_id"];
-  options.APIKey = @"correct_api_key";
+  options.APIKey = @"AIzaSy-ApiKeyWithValidFormat_0123456789";
   options.projectID = @"abc-xyz-123";
   return options;
 }

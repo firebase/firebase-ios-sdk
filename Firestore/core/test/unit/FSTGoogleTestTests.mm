@@ -82,10 +82,27 @@ NSSet<NSString*>* _Nullable LoadXCTestConfigurationTestsToRun() {
     return nil;
   }
 
-  id config = [NSKeyedUnarchiver unarchiveObjectWithFile:filePath];
+  id config;
+  NSError* error;
+  if (@available(macOS 10.13, iOS 11, tvOS 11, *)) {
+    NSData* data = [NSData dataWithContentsOfFile:filePath
+                                          options:kNilOptions
+                                            error:&error];
+    if (!data) {
+      NSLog(@"Failed to fill data with contents of file. %@", error);
+      return nil;
+    }
+
+    config = [NSKeyedUnarchiver unarchivedObjectOfClass:NSObject.class
+                                               fromData:data
+                                                  error:&error];
+  } else {
+    config = [NSKeyedUnarchiver unarchiveObjectWithFile:filePath];
+  }
+
   if (!config) {
-    NSLog(@"Failed to load any configuaration from %@=%@", configEnvVar,
-          filePath);
+    NSLog(@"Failed to load any configuaration from %@=%@. %@", configEnvVar,
+          filePath, error);
     return nil;
   }
 
@@ -214,6 +231,13 @@ void XCTestMethod(XCTestCase* self, SEL _cmd) {
     // Let XCode know that the test ran and succeeded.
     XCTAssertTrue(true);
     return;
+  } else if (result->Skipped()) {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130400 || \
+    __TV_OS_VERSION_MAX_ALLOWED >= 130400 ||     \
+    __MAC_OS_X_VERSION_MAX_ALLOWED >= 101504
+    // Let XCode know that the test was skipped.
+    XCTSkip();
+#endif
   }
 
   // Test failed :-(. Record the failure such that XCode will navigate directly
@@ -221,13 +245,31 @@ void XCTestMethod(XCTestCase* self, SEL _cmd) {
   int parts = result->total_part_count();
   for (int i = 0; i < parts; i++) {
     const testing::TestPartResult& part = result->GetTestPartResult(i);
-    [self
-        recordFailureWithDescription:@(part.message())
-                              inFile:@(part.file_name() ? part.file_name() : "")
-                              atLine:(part.line_number() > 0
-                                          ? part.line_number()
-                                          : 0)
-                            expected:true];
+    const char* path = part.file_name() ? part.file_name() : "";
+    int line = part.line_number() > 0 ? part.line_number() : 0;
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000 || \
+    __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
+    // Xcode 12
+    auto* location = [[XCTSourceCodeLocation alloc] initWithFilePath:@(path)
+                                                          lineNumber:line];
+    auto* context = [[XCTSourceCodeContext alloc] initWithLocation:location];
+    auto* issue = [[XCTIssue alloc] initWithType:XCTIssueTypeAssertionFailure
+                              compactDescription:@(part.summary())
+                             detailedDescription:@(part.message())
+                               sourceCodeContext:context
+                                 associatedError:nil
+                                     attachments:@[]];
+    [self recordIssue:issue];
+
+#else
+    // Xcode 11 and prior. recordFailureWithDescription:inFile:atLine:expected:
+    // is deprecated in Xcode 12.
+    [self recordFailureWithDescription:@(part.message())
+                                inFile:@(path)
+                                atLine:line
+                              expected:true];
+#endif
   }
 }
 

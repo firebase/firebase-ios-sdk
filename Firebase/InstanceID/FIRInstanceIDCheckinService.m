@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#import "FIRInstanceIDCheckinService.h"
+#import "Firebase/InstanceID/FIRInstanceIDCheckinService.h"
 
-#import "FIRInstanceIDCheckinPreferences+Internal.h"
-#import "FIRInstanceIDCheckinPreferences_Private.h"
-#import "FIRInstanceIDDefines.h"
-#import "FIRInstanceIDLogger.h"
-#import "FIRInstanceIDStore.h"
-#import "FIRInstanceIDUtilities.h"
-#import "NSError+FIRInstanceID.h"
+#import "Firebase/InstanceID/FIRInstanceIDCheckinPreferences+Internal.h"
+#import "Firebase/InstanceID/FIRInstanceIDCheckinPreferences_Private.h"
+#import "Firebase/InstanceID/FIRInstanceIDDefines.h"
+#import "Firebase/InstanceID/FIRInstanceIDLogger.h"
+#import "Firebase/InstanceID/FIRInstanceIDStore.h"
+#import "Firebase/InstanceID/FIRInstanceIDUtilities.h"
+#import "Firebase/InstanceID/NSError+FIRInstanceID.h"
 
 static NSString *const kDeviceCheckinURL = @"https://device-provisioning.googleapis.com/checkin";
 

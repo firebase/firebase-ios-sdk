@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'GoogleDataTransport'
-  s.version          = '7.3.0'
+  s.version          = '8.2.0'
   s.summary          = 'Google iOS SDK data transport.'
 
   s.description      = <<-DESC
@@ -15,15 +15,19 @@ Shared library for iOS SDK data transport needs.
     :tag => 'DataTransport-' + s.version.to_s
   }
 
-  s.ios.deployment_target = '8.0'
-  s.osx.deployment_target = '10.11'
-  s.tvos.deployment_target = '10.0'
-  s.watchos.deployment_target = '6.0'
+  ios_deployment_target = '9.0'
+  osx_deployment_target = '10.12'
+  tvos_deployment_target = '10.0'
+  watchos_deployment_target = '6.0'
+
+  s.ios.deployment_target = ios_deployment_target
+  s.osx.deployment_target = osx_deployment_target
+  s.tvos.deployment_target = tvos_deployment_target
+  s.watchos.deployment_target = watchos_deployment_target
 
   # To develop or run the tests, >= 1.8.0 must be installed.
   s.cocoapods_version = '>= 1.4.0'
 
-  s.static_framework = true
   s.prefix_header_file = false
 
   s.source_files = ['GoogleDataTransport/GDTCORLibrary/**/*',
@@ -35,7 +39,7 @@ Shared library for iOS SDK data transport needs.
 
   s.libraries = ['z']
 
-  s.dependency 'nanopb', '~> 1.30906.0'
+  s.dependency 'nanopb', '~> 2.30907.0'
 
   header_search_paths = {
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/"'
@@ -43,7 +47,6 @@ Shared library for iOS SDK data transport needs.
 
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
-    'GCC_TREAT_WARNINGS_AS_ERRORS' => 'YES',
     'CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY' => 'YES',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       # The nanopb pod sets these defs, so we must too. (We *do* require 16bit
@@ -57,8 +60,16 @@ Shared library for iOS SDK data transport needs.
   # Test app specs
   if ENV['GDT_DEV'] && ENV['GDT_DEV'] == '1' then
     s.app_spec 'TestApp' do |app_spec|
-      app_spec.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
-      app_spec.source_files = 'GoogleDataTransport/GDTTestApp/*.swift'
+      app_spec.platforms =  {:ios => ios_deployment_target, :osx => osx_deployment_target, :tvos => tvos_deployment_target}
+      app_spec.source_files = [
+        'GoogleDataTransport/GDTTestApp/*.swift',
+        'GoogleDataTransport/GDTCORLibrary/Internal/GDTCORRegistrar.h',
+        'GoogleDataTransport/GDTCORLibrary/Internal/GDTCORUploader.h',
+        'GoogleDataTransport/GDTCORTests/Common/Categories/GDTCORFlatFileStorage+Testing.h',
+        'GoogleDataTransport/GDTCORTests/Unit/Helpers/*.[hm]',
+        'GoogleDataTransport/GDTTestApp/Bridging-Header.h',
+      ]
+
       app_spec.ios.resources = ['GoogleDataTransport/GDTTestApp/ios/*.storyboard']
       app_spec.macos.resources = ['GoogleDataTransport/GDTTestApp/macos/*.storyboard']
       app_spec.tvos.resources = ['GoogleDataTransport/GDTTestApp/tvos/*.storyboard']
@@ -67,19 +78,25 @@ Shared library for iOS SDK data transport needs.
         'UIMainStoryboardFile' => 'Main',
         'NSMainStoryboardFile' => 'Main'
       }
+
+      app_spec.pod_target_xcconfig = {
+        'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/GoogleDataTransport/GDTTestApp/Bridging-Header.h'
+      }
     end
   end
 
   # Unit test specs
   s.test_spec 'Tests-Unit' do |test_spec|
-    test_spec.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
+    test_spec.scheme = { :code_coverage => true }
+    test_spec.platforms = {:ios => ios_deployment_target, :osx => osx_deployment_target, :tvos => tvos_deployment_target}
     test_spec.requires_app_host = false
     test_spec.source_files = ['GoogleDataTransport/GDTCORTests/Unit/**/*.{h,m}'] + common_test_sources
     test_spec.pod_target_xcconfig = header_search_paths
   end
 
   s.test_spec 'Tests-Lifecycle' do |test_spec|
-    test_spec.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
+    test_spec.scheme = { :code_coverage => true }
+    test_spec.platforms = {:ios => ios_deployment_target, :osx => osx_deployment_target, :tvos => tvos_deployment_target}
     test_spec.requires_app_host = false
     test_spec.source_files = ['GoogleDataTransport/GDTCORTests/Lifecycle/**/*.{h,m}'] + common_test_sources
     test_spec.pod_target_xcconfig = header_search_paths
@@ -87,7 +104,8 @@ Shared library for iOS SDK data transport needs.
 
   # Integration test specs
   s.test_spec 'Tests-Integration' do |test_spec|
-    test_spec.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
+    test_spec.scheme = { :code_coverage => true }
+    test_spec.platforms = {:ios => ios_deployment_target, :osx => osx_deployment_target, :tvos => tvos_deployment_target}
     test_spec.requires_app_host = false
     test_spec.source_files = ['GoogleDataTransport/GDTCORTests/Integration/**/*.{h,m}'] + common_test_sources
     test_spec.pod_target_xcconfig = header_search_paths
@@ -97,7 +115,8 @@ Shared library for iOS SDK data transport needs.
   # Monkey test specs TODO(mikehaney24): Uncomment when travis is running >= cocoapods-1.8.0
   if ENV['GDT_DEV'] && ENV['GDT_DEV'] == '1' then
     s.test_spec 'Tests-Monkey' do |test_spec|
-      test_spec.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
+      test_spec.scheme = { :code_coverage => true }
+      test_spec.platforms = {:ios => ios_deployment_target, :osx => osx_deployment_target, :tvos => tvos_deployment_target}
       test_spec.requires_app_host = true
       test_spec.app_host_name = 'GoogleDataTransport/TestApp'
       test_spec.dependency 'GoogleDataTransport/TestApp'
@@ -111,7 +130,7 @@ Shared library for iOS SDK data transport needs.
   # CCT Tests follow
   if ENV['GDT_DEV'] && ENV['GDT_DEV'] == '1' then
     s.app_spec 'CCTTestApp' do |app_spec|
-      app_spec.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
+      app_spec.platforms = {:ios => ios_deployment_target, :osx => osx_deployment_target, :tvos => tvos_deployment_target}
       app_spec.source_files = 'GoogleDataTransport/GDTCCTTestApp/**/*.swift'
       app_spec.ios.resources = ['GoogleDataTransport/GDTCCTTestApp/ios/*.storyboard']
       app_spec.macos.resources = ['GoogleDataTransport/GDTCCTTestApp/macos/*.storyboard']
@@ -129,7 +148,8 @@ Shared library for iOS SDK data transport needs.
 
   # Test specs
   s.test_spec 'CCT-Tests-Unit' do |test_spec|
-    test_spec.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
+    test_spec.scheme = { :code_coverage => true }
+    test_spec.platforms = {:ios => ios_deployment_target, :osx => osx_deployment_target, :tvos => tvos_deployment_target}
     test_spec.requires_app_host = false
     test_spec.source_files = ['GoogleDataTransport/GDTCCTTests/Unit/**/*.{h,m}'] + common_cct_test_sources + common_test_sources
     test_spec.resources = ['GoogleDataTransport/GDTCCTTests/Data/**/*']
@@ -138,7 +158,8 @@ Shared library for iOS SDK data transport needs.
   end
 
   s.test_spec 'CCT-Tests-Integration' do |test_spec|
-    test_spec.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
+    test_spec.scheme = { :code_coverage => true }
+    test_spec.platforms = {:ios => ios_deployment_target, :osx => osx_deployment_target, :tvos => tvos_deployment_target}
     test_spec.requires_app_host = false
     test_spec.source_files = ['GoogleDataTransport/GDTCCTTests/Integration/**/*.{h,m}'] + common_cct_test_sources
     test_spec.resources = ['GoogleDataTransport/GDTCCTTests/Data/**/*']
@@ -148,7 +169,8 @@ Shared library for iOS SDK data transport needs.
   # Monkey test specs, only enabled for development.
   if ENV['GDT_DEV'] && ENV['GDT_DEV'] == '1' then
     s.test_spec 'CCT-Tests-Monkey' do |test_spec|
-      test_spec.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
+      test_spec.scheme = { :code_coverage => true }
+      test_spec.platforms = {:ios => ios_deployment_target, :osx => osx_deployment_target, :tvos => tvos_deployment_target}
       test_spec.requires_app_host = true
       test_spec.app_host_name = 'GoogleDataTransport/CCTTestApp'
       test_spec.dependency 'GoogleDataTransport/CCTTestApp'

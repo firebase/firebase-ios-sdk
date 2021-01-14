@@ -1,9 +1,0 @@
-{
-  "Firebase":"6.11.0",
-  "FirebaseAuth":"6.3.1",
-  "FirebaseCore":"6.3.2",
-  "FirebaseFirestore":"1.6.1",
-  "FirebaseInstanceID":"4.2.6",
-  "FirebaseMessaging":"4.1.7",
-  "FirebaseRemoteConfig":"4.4.3"
-}

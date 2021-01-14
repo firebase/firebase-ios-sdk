@@ -541,7 +541,7 @@ class StorageIntegration: XCTestCase {
     let expectation = self.expectation(description: #function)
     let ref = storage.reference(withPath: "ios/public/list")
 
-    ref.list(withMaxResults: 2) { result in
+    ref.list(maxResults: 2) { result in
       switch result {
       case let .success(listResult):
         XCTAssertEqual(listResult.items, [ref.child("a"), ref.child("b")])
@@ -551,7 +551,7 @@ class StorageIntegration: XCTestCase {
           expectation.fulfill()
           return
         }
-        ref.list(withMaxResults: 2, pageToken: pageToken) { result in
+        ref.list(maxResults: 2, pageToken: pageToken) { result in
           switch result {
           case let .success(listResult):
             XCTAssertEqual(listResult.items, [])

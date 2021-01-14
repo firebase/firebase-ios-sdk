@@ -25,7 +25,7 @@
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
 
-#import "GoogleUtilities/AppDelegateSwizzler/Private/GULAppDelegateSwizzler.h"
+#import <GoogleUtilities/GULAppDelegateSwizzler.h>
 
 #define kFIRMessagingContextManagerPrefix @"gcm."
 #define kFIRMessagingContextManagerPrefixKey @"google.c.cm."

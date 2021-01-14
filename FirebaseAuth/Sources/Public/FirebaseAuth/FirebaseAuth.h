@@ -40,7 +40,6 @@
 #import "FIRUser.h"
 #import "FIRUserInfo.h"
 #import "FIRUserMetadata.h"
-#import "FirebaseAuthVersion.h"
 
 #if TARGET_OS_IOS
 #import "FIRAuthAPNSTokenType.h"

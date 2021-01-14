@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-#import "FIRInstanceIDTokenManager.h"
+#import "Firebase/InstanceID/FIRInstanceIDTokenManager.h"
 
-#import "FIRInstanceIDAuthKeyChain.h"
-#import "FIRInstanceIDAuthService.h"
-#import "FIRInstanceIDCheckinPreferences.h"
-#import "FIRInstanceIDConstants.h"
-#import "FIRInstanceIDDefines.h"
-#import "FIRInstanceIDLogger.h"
-#import "FIRInstanceIDStore.h"
-#import "FIRInstanceIDTokenDeleteOperation.h"
-#import "FIRInstanceIDTokenFetchOperation.h"
-#import "FIRInstanceIDTokenInfo.h"
-#import "FIRInstanceIDTokenOperation.h"
+#import "Firebase/InstanceID/FIRInstanceIDAuthKeyChain.h"
+#import "Firebase/InstanceID/FIRInstanceIDAuthService.h"
+#import "Firebase/InstanceID/FIRInstanceIDConstants.h"
+#import "Firebase/InstanceID/FIRInstanceIDDefines.h"
+#import "Firebase/InstanceID/FIRInstanceIDLogger.h"
+#import "Firebase/InstanceID/FIRInstanceIDStore.h"
+#import "Firebase/InstanceID/FIRInstanceIDTokenDeleteOperation.h"
+#import "Firebase/InstanceID/FIRInstanceIDTokenFetchOperation.h"
+#import "Firebase/InstanceID/FIRInstanceIDTokenInfo.h"
+#import "Firebase/InstanceID/FIRInstanceIDTokenOperation.h"
+#import "Firebase/InstanceID/NSError+FIRInstanceID.h"
+#import "Firebase/InstanceID/Private/FIRInstanceIDCheckinPreferences.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
-#import "NSError+FIRInstanceID.h"
 
 @interface FIRInstanceIDTokenManager () <FIRInstanceIDStoreDelegate>
 
@@ -89,7 +89,9 @@
         NSError *_Nullable error) {
         FIRInstanceID_STRONGIFY(self);
         if (error) {
-          handler(nil, error);
+          if (handler) {
+            handler(nil, error);
+          }
           return;
         }
         NSString *firebaseAppID = options[kFIRInstanceIDTokenOptionsFirebaseAppIDKey];

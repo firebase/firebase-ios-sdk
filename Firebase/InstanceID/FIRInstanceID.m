@@ -14,26 +14,25 @@
  * limitations under the License.
  */
 
-#import "FIRInstanceID.h"
+#import "Firebase/InstanceID/Public/FIRInstanceID.h"
 
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 
-#import "FIRInstanceID+Private.h"
-#import "FIRInstanceIDAuthService.h"
-#import "FIRInstanceIDCheckinPreferences.h"
-#import "FIRInstanceIDCombinedHandler.h"
-#import "FIRInstanceIDConstants.h"
-#import "FIRInstanceIDDefines.h"
-#import "FIRInstanceIDLogger.h"
-#import "FIRInstanceIDStore.h"
-#import "FIRInstanceIDTokenInfo.h"
-#import "FIRInstanceIDTokenManager.h"
-#import "FIRInstanceIDUtilities.h"
-#import "FIRInstanceIDVersionUtilities.h"
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#import <GoogleUtilities/GULUserDefaults.h>
+#import "Firebase/InstanceID/FIRInstanceIDAuthService.h"
+#import "Firebase/InstanceID/FIRInstanceIDCombinedHandler.h"
+#import "Firebase/InstanceID/FIRInstanceIDConstants.h"
+#import "Firebase/InstanceID/FIRInstanceIDDefines.h"
+#import "Firebase/InstanceID/FIRInstanceIDLogger.h"
+#import "Firebase/InstanceID/FIRInstanceIDStore.h"
+#import "Firebase/InstanceID/FIRInstanceIDTokenInfo.h"
+#import "Firebase/InstanceID/FIRInstanceIDTokenManager.h"
+#import "Firebase/InstanceID/FIRInstanceIDUtilities.h"
+#import "Firebase/InstanceID/NSError+FIRInstanceID.h"
+#import "Firebase/InstanceID/Private/FIRInstanceID+Private.h"
+#import "Firebase/InstanceID/Private/FIRInstanceIDCheckinPreferences.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
-#import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
-#import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
-#import "NSError+FIRInstanceID.h"
 
 // Public constants
 NSString *const kFIRInstanceIDScopeFirebaseMessaging = @"fcm";
@@ -118,9 +117,6 @@ typedef NS_ENUM(NSInteger, FIRInstanceIDAPNSTokenType) {
 @property(atomic, strong, nullable)
     FIRInstanceIDCombinedHandler<NSString *> *defaultTokenFetchHandler;
 
-/// A cached value of FID. Should be used only for `-[FIRInstanceID appInstanceID:]`.
-@property(atomic, copy, nullable) NSString *firebaseInstallationsID;
-
 @end
 
 // InstanceID doesn't provide any functionality to other components,
@@ -132,7 +128,10 @@ typedef NS_ENUM(NSInteger, FIRInstanceIDAPNSTokenType) {
 @interface FIRInstanceID () <FIRInstanceIDInstanceProvider, FIRLibrary>
 @end
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
 @implementation FIRInstanceIDResult
+#pragma clang diagnostic pop
 - (id)copyWithZone:(NSZone *)zone {
   FIRInstanceIDResult *result = [[[self class] allocWithZone:zone] init];
   result.instanceID = self.instanceID;
@@ -141,7 +140,10 @@ typedef NS_ENUM(NSInteger, FIRInstanceIDAPNSTokenType) {
 }
 @end
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
 @implementation FIRInstanceID
+#pragma clang diagnostic pop
 
 // File static to support InstanceID tests that call [FIRInstanceID instanceID] after
 // [FIRInstanceID instanceIDForTests].
@@ -385,8 +387,11 @@ static FIRInstanceID *gInstanceID;
 
   FIRInstanceIDDeleteTokenHandler newHandler = ^(NSError *error) {
     // If a default token is deleted successfully, reset the defaultFCMToken too.
-    if (!error && [self isDefaultTokenWithAuthorizedEntity:authorizedEntity scope:scope]) {
-      self.defaultFCMToken = nil;
+    if (!error) {
+      if ([self isDefaultTokenWithAuthorizedEntity:authorizedEntity scope:scope] ||
+          [authorizedEntity isEqualToString:@"*"]) {
+        self.defaultFCMToken = nil;
+      }
     }
     dispatch_async(dispatch_get_main_queue(), ^{
       handler(error);
@@ -523,7 +528,7 @@ static FIRInstanceID *gInstanceID;
         return;
       }
 
-      [self.tokenManager.authService resetCheckinWithHandler:^(NSError *error) {
+      [self deleteCheckinWithHandler:^(NSError *_Nullable error) {
         if (error) {
           if (handler) {
             handler(error);
@@ -550,6 +555,10 @@ static FIRInstanceID *gInstanceID;
 
 #pragma mark - Checkin
 
+- (void)deleteCheckinWithHandler:(void (^)(NSError *error))handler {
+  [self.tokenManager.authService resetCheckinWithHandler:handler];
+}
+
 - (BOOL)tryToLoadValidCheckinInfo {
   FIRInstanceIDCheckinPreferences *checkinPreferences =
       [self.tokenManager.authService checkinPreferences];
@@ -572,9 +581,7 @@ static FIRInstanceID *gInstanceID;
 
 #if CLS_MEETS_MIN_REQ
 + (void)load {
-  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self
-                         withName:@"fire-iid"
-                      withVersion:FIRInstanceIDCurrentLibraryVersion()];
+  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self withName:@"fire-iid"];
 }
 #endif
 
@@ -616,8 +623,6 @@ static FIRInstanceID *gInstanceID;
 
   self.fcmSenderID = GCMSenderID;
   self.firebaseAppID = options.googleAppID;
-
-  [self updateFirebaseInstallationID];
 
   // FCM generates a FCM token during app start for sending push notification to device.
   // This is not needed for app extension except for watch.
@@ -711,7 +716,6 @@ static FIRInstanceID *gInstanceID;
              selector:@selector(notifyAPNSTokenIsSet:)
                  name:kFIRInstanceIDAPNSTokenNotification
                object:nil];
-  [self observeFirebaseInstallationIDChanges];
   [self observeFirebaseMessagingTokenChanges];
 }
 
@@ -819,10 +823,13 @@ static FIRInstanceID *gInstanceID;
       if (!APNSRemainedSameDuringFetch && hasFirebaseMessaging) {
         // APNs value did change mid-fetch, so the token should be re-fetched with the current APNs
         // value.
-        [self retryGetDefaultTokenAfter:0];
+        [self fetchNewToken];
         FIRInstanceIDLoggerDebug(kFIRInstanceIDMessageCodeRefetchingTokenForAPNS,
                                  @"Received APNS token while fetching default token. "
-                                 @"Refetching default token.");
+                                 @"Refetching default token. "
+                                 @"Updated cached APNS token: %@\n "
+                                 @"Stale request APNS token: %@",
+                                 self.APNSTupleString, APNSTupleStringInRequest);
         // Do not notify and handle completion handler since this is a retry.
         // Simply return.
         return;
@@ -845,6 +852,23 @@ static FIRInstanceID *gInstanceID;
                             scope:kFIRInstanceIDDefaultTokenScope
                           options:instanceIDOptions
                           handler:newHandler];
+}
+
+- (void)fetchNewToken {
+  [self.installations
+      installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
+        if (error) {
+          FIRInstanceIDLoggerError(kFIRInstanceIDMessageCodeRefetchingTokenForAPNS,
+                                   kFIRInstanceIDInvalidNilHandlerError);
+        } else {
+          // The cached apns token has updated, recollect the default token options from cache.
+          [self.tokenManager fetchNewTokenWithAuthorizedEntity:self.fcmSenderID
+                                                         scope:kFIRInstanceIDDefaultTokenScope
+                                                    instanceID:identifier
+                                                       options:[self defaultTokenOptions]
+                                                       handler:nil];
+        }
+      }];
 }
 
 /**
@@ -1090,37 +1114,6 @@ static FIRInstanceID *gInstanceID;
   }
 }
 
-#pragma mark - Sync InstanceID
-
-- (void)updateFirebaseInstallationID {
-  FIRInstanceID_WEAKIFY(self);
-  [self.installations
-      installationIDWithCompletion:^(NSString *_Nullable installationID, NSError *_Nullable error) {
-        FIRInstanceID_STRONGIFY(self);
-        self.firebaseInstallationsID = installationID;
-      }];
-}
-
-- (void)installationIDDidChangeNotificationReceived:(NSNotification *)notification {
-  NSString *installationAppID =
-      notification.userInfo[kFIRInstallationIDDidChangeNotificationAppNameKey];
-  if ([installationAppID isKindOfClass:[NSString class]] &&
-      [installationAppID isEqual:self.firebaseAppID]) {
-    [self updateFirebaseInstallationID];
-  }
-}
-
-- (void)observeFirebaseInstallationIDChanges {
-  [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                  name:FIRInstallationIDDidChangeNotification
-                                                object:nil];
-  [[NSNotificationCenter defaultCenter]
-      addObserver:self
-         selector:@selector(installationIDDidChangeNotificationReceived:)
-             name:FIRInstallationIDDidChangeNotification
-           object:nil];
-}
-
 - (void)observeFirebaseMessagingTokenChanges {
   [[NSNotificationCenter defaultCenter]
       removeObserver:self
@@ -1136,9 +1129,22 @@ static FIRInstanceID *gInstanceID;
 - (void)messagingTokenDidChangeNotificationReceived:(NSNotification *)notification {
   NSString *tokenUpdatedFromMessaging = notification.object;
   if (!tokenUpdatedFromMessaging || [tokenUpdatedFromMessaging isKindOfClass:[NSString class]]) {
-    self.defaultFCMToken = tokenUpdatedFromMessaging;
-    [self.tokenManager saveDefaultToken:tokenUpdatedFromMessaging
-                            withOptions:[self defaultTokenOptions]];
+    // Check the token from storage along with local value.
+    FIRInstanceIDTokenInfo *cachedTokenInfo =
+        [self.tokenManager cachedTokenInfoWithAuthorizedEntity:self.fcmSenderID
+                                                         scope:kFIRInstanceIDDefaultTokenScope];
+    NSString *cachedToken = cachedTokenInfo.token;
+
+    if (self.defaultFCMToken.length != tokenUpdatedFromMessaging.length ||
+        cachedToken.length != tokenUpdatedFromMessaging.length ||
+        (self.defaultFCMToken.length && tokenUpdatedFromMessaging.length &&
+         ![self.defaultFCMToken isEqualToString:tokenUpdatedFromMessaging]) ||
+        (cachedToken.length && tokenUpdatedFromMessaging.length &&
+         ![cachedToken isEqualToString:tokenUpdatedFromMessaging])) {
+      self.defaultFCMToken = tokenUpdatedFromMessaging;
+      [self.tokenManager saveDefaultToken:tokenUpdatedFromMessaging
+                              withOptions:[self defaultTokenOptions]];
+    }
   }
 }
 

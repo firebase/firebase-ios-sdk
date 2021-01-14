@@ -50,7 +50,7 @@ typedef NS_ENUM(NSInteger, FIRIAMRenderingMode) {
 @property(nonatomic, copy) UIColor *btnBGColor;
 
 // duration of the banner view before triggering auto-dismiss
-@property(nonatomic) CGFloat autoDimissBannerAfterNSeconds;
+@property(nonatomic) CGFloat autoDismissBannerAfterNSeconds;
 
 // A flag to control rendering the message as a client-side testing message
 @property(nonatomic) BOOL isTestMessage;

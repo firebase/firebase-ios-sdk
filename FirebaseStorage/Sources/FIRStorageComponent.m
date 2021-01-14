@@ -49,9 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #if CLS_MEETS_MIN_REQ
 + (void)load {
-  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self
-                         withName:@"fire-str"
-                      withVersion:[NSString stringWithUTF8String:FIRStorageVersionString]];
+  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self withName:@"fire-str"];
 }
 #endif
 

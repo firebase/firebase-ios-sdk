@@ -56,7 +56,7 @@ FOUNDATION_EXPORT NSString *const kFIRFADApiErrorDomain;
 // Fetch releases from the AppDistribution Tester API
 + (void)fetchReleasesWithCompletion:(FIRFADFetchReleasesCompletion)completion;
 
-// Generate a Installation Auth Token and fetch the installation id
+// Generate an installation auth token and fetch the installation id
 + (void)generateAuthTokenWithCompletion:(FIRFADGenerateAuthTokenCompletion)completion;
 
 @end

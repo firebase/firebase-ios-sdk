@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORPlatform.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORPlatform.h"
 
 #import <sys/sysctl.h>
 
-#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORAssert.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORAssert.h"
+#import "GoogleDataTransport/GDTCORLibrary/Internal/GDTCORReachability.h"
 #import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORConsoleLogger.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORReachability.h"
 
 #import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORRegistrar_Private.h"
 
@@ -128,7 +128,6 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
     networkCurrentRadioAccessTechnology = networkCurrentRadioAccessTechnologyDict.allValues[0];
   }
 #else  // TARGET_OS_MACCATALYST
-#if defined(__IPHONE_12_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 120000
   if (@available(iOS 12.0, *)) {
     NSDictionary<NSString *, NSString *> *networkCurrentRadioAccessTechnologyDict =
         networkInfo.serviceCurrentRadioAccessTechnology;
@@ -138,9 +137,9 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
       networkCurrentRadioAccessTechnology = networkCurrentRadioAccessTechnologyDict.allValues[0];
     }
   } else {
-#else   // defined(__IPHONE_12_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 120000
-  networkCurrentRadioAccessTechnology = networkInfo.currentRadioAccessTechnology;
-#endif  // // defined(__IPHONE_12_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 120000
+#if TARGET_OS_IOS && __IPHONE_OS_VERSION_MIN_REQUIRED < 120000
+    networkCurrentRadioAccessTechnology = networkInfo.currentRadioAccessTechnology;
+#endif  // TARGET_OS_IOS && __IPHONE_OS_VERSION_MIN_REQUIRED < 120000
   }
 #endif  // TARGET_OS_MACCATALYST
   if (networkCurrentRadioAccessTechnology) {
@@ -150,9 +149,9 @@ GDTCORNetworkMobileSubtype GDTCORNetworkMobileSubTypeMessage() {
   } else {
     return GDTCORNetworkMobileSubtypeUNKNOWN;
   }
-#else
+#else  // TARGET_OS_IOS
   return GDTCORNetworkMobileSubtypeUNKNOWN;
-#endif
+#endif  // TARGET_OS_IOS
 }
 
 NSString *_Nonnull GDTCORDeviceModel() {
@@ -194,11 +193,6 @@ NSData *_Nullable GDTCOREncodeArchive(id<NSSecureCoding> obj,
     }
   }
   NSData *resultData;
-#if (defined(__IPHONE_11_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000) || \
-    (defined(__MAC_10_13) && MAC_OS_X_VERSION_MAX_ALLOWED >= 101300) ||      \
-    (defined(__TVOS_11_0) && __TV_OS_VERSION_MAX_ALLOWED >= 110000) ||       \
-    (defined(__WATCHOS_4_0) && __WATCH_OS_VERSION_MAX_ALLOWED >= 040000) ||  \
-    (defined(TARGET_OS_MACCATALYST) && TARGET_OS_MACCATALYST)
   if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, watchOS 4, *)) {
     resultData = [NSKeyedArchiver archivedDataWithRootObject:obj
                                        requiringSecureCoding:YES
@@ -216,7 +210,6 @@ NSData *_Nullable GDTCOREncodeArchive(id<NSSecureCoding> obj,
       }
     }
   } else {
-#endif
     @try {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -248,11 +241,6 @@ id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
                                                  NSData *_Nullable archiveData,
                                                  NSError *_Nullable *error) {
   id<NSSecureCoding> unarchivedObject = nil;
-#if (defined(__IPHONE_11_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000) || \
-    (defined(__MAC_10_13) && MAC_OS_X_VERSION_MAX_ALLOWED >= 101300) ||      \
-    (defined(__TVOS_11_0) && __TV_OS_VERSION_MAX_ALLOWED >= 110000) ||       \
-    (defined(__WATCHOS_4_0) && __WATCH_OS_VERSION_MAX_ALLOWED >= 040000) ||  \
-    (defined(TARGET_OS_MACCATALYST) && TARGET_OS_MACCATALYST)
   if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, watchOS 4, *)) {
     NSData *data = archiveData ? archiveData : [NSData dataWithContentsOfFile:archivePath];
     if (data) {
@@ -261,7 +249,6 @@ id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
                                                               error:error];
     }
   } else {
-#endif
     @try {
       NSData *archivedData =
           archiveData ? archiveData : [NSData dataWithContentsOfFile:archivePath];
@@ -278,6 +265,32 @@ id<NSSecureCoding> _Nullable GDTCORDecodeArchive(Class archiveClass,
     }
   }
   return unarchivedObject;
+}
+
+BOOL GDTCORWriteDataToFile(NSData *data, NSString *filePath, NSError *_Nullable *outError) {
+  BOOL result = NO;
+  if (filePath.length > 0) {
+    result = [[NSFileManager defaultManager]
+              createDirectoryAtPath:[filePath stringByDeletingLastPathComponent]
+        withIntermediateDirectories:YES
+                         attributes:nil
+                              error:outError];
+    if (result == NO || *outError) {
+      GDTCORLogDebug(@"Attempt to create directory failed: path:%@ error:%@", filePath, *outError);
+      return result;
+    }
+  }
+
+  if (filePath.length > 0) {
+    result = [data writeToFile:filePath options:NSDataWritingAtomic error:outError];
+    if (result == NO || *outError) {
+      GDTCORLogDebug(@"Attempt to write archive failed: path:%@ error:%@", filePath, *outError);
+    } else {
+      GDTCORLogDebug(@"Writing archive succeeded: %@", filePath);
+    }
+  }
+
+  return result;
 }
 
 @interface GDTCORApplication ()
