@@ -1,5 +1,5 @@
 # 2021-1 -- v7.5.0
-- [fixed] Fixed conversion tracking for in-app messages without an action URL (#7306).
+- [fixed] Fixed conversion tracking for in-app messages with a conversion event but not a button / action URL (#7306).
 
 # 2020-12 -- v7.3.0
 - [fixed] Fixed default display bug in apps that don't use `UISceneDelegate` (#6803).
