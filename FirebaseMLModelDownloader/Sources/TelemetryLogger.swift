@@ -20,8 +20,10 @@ import GoogleDataTransport
 extension SystemInfo {
   mutating func setAppInfo(apiKey: String?, projectID: String?) {
     appID = Bundle.main.bundleIdentifier ?? "unknownBundleID"
-    appVersion = Bundle.main
-      .infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknownAppVersion"
+    // TODO: Reconsider using app version.
+    let appVersionKey = "CFBundleShortVersionString"
+    appVersion = Bundle.main.infoDictionary?[appVersionKey] as? String ?? "unknownAppVersion"
+    // TODO: May also need to log SDK version.
     self.apiKey = apiKey ?? "unknownAPIKey"
     firebaseProjectID = projectID ?? "unknownProjectID"
   }
