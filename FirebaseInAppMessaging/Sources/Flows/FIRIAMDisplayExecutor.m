@@ -124,6 +124,10 @@
                                       @"Logging analytics event for url following %@",
                                       success ? @"succeeded" : @"failed");
                         }];
+
+      // Also start tracking conversions.
+      [self.analyticsEventLogger
+          logConversionTrackingEventForCampaignID:_currentMsgBeingDisplayed.renderData.messageID];
     }
   }
 
@@ -232,10 +236,39 @@
     // Displayed long enough to be a valid impression.
     [self recordValidImpression:_currentMsgBeingDisplayed.renderData.messageID
                 withMessageName:_currentMsgBeingDisplayed.renderData.name];
+
+    if ([self shouldTrackConversionsOnImpressionForInAppMessage:inAppMessage]) {
+      [self.analyticsEventLogger
+          logConversionTrackingEventForCampaignID:inAppMessage.campaignInfo.messageID];
+    }
   } else {
     FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400011",
                 @"A test message. Record the test message impression event.");
     return;
+  }
+}
+
+- (BOOL)shouldTrackConversionsOnImpressionForInAppMessage:
+    (FIRInAppMessagingDisplayMessage *)inAppMessage {
+  // If this campaign doesn't have an action URL, the impression itself is used for tracking
+  // conversions. Iterate through message types to check if this is the case.
+  if ([inAppMessage isKindOfClass:[FIRInAppMessagingCardDisplay class]]) {
+    FIRInAppMessagingCardDisplay *cardMessage = (FIRInAppMessagingCardDisplay *)inAppMessage;
+    return cardMessage.primaryActionURL == nil && cardMessage.secondaryActionURL == nil;
+  } else if ([inAppMessage isKindOfClass:[FIRInAppMessagingModalDisplay class]]) {
+    return ((FIRInAppMessagingModalDisplay *)inAppMessage).actionURL == nil;
+  } else if ([inAppMessage isKindOfClass:[FIRInAppMessagingImageOnlyDisplay class]]) {
+    return ((FIRInAppMessagingImageOnlyDisplay *)inAppMessage).actionURL == nil;
+  } else if ([inAppMessage isKindOfClass:[FIRInAppMessagingBannerDisplay class]]) {
+    return ((FIRInAppMessagingBannerDisplay *)inAppMessage).actionURL == nil;
+  } else {
+    NSString *unhandledMessageLog =
+        [NSString stringWithFormat:@"Message for campaign ID: %@ is of an unhandled in-app message "
+                                   @"type. Conversions may not be tracked appropriately.",
+                                   inAppMessage.campaignInfo.messageID];
+    FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM400042", @"%@", unhandledMessageLog);
+    NSAssert(NO, unhandledMessageLog);
+    return NO;
   }
 }
 
