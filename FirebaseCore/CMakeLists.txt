@@ -31,6 +31,9 @@ firebase_ios_add_framework(
 
 firebase_ios_framework_public_headers(FirebaseCore ${headers})
 
+# GoogleUtilities
+add_external_subdirectory(GoogleUtilities)
+
 target_compile_definitions(
   FirebaseCore PRIVATE
   Firebase_VERSION=${firebase_version}
@@ -40,7 +43,6 @@ target_link_libraries(
   FirebaseCore PRIVATE
   "-framework Foundation"
   FirebaseCoreDiagnosticsInterop
-  GoogleUtilities
 )
 
 if(IOS)
