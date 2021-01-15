@@ -646,7 +646,7 @@ class LevelDbRemoteDocumentReadTimeKey {
 /**
  * A key in the bundles table, storing the bundle Id for each entry.
  */
-class LevelDbBundlesKey {
+class LevelDbBundleKey {
  public:
   /**
    * Creates a key prefix that points just before the first key of the table.
@@ -681,7 +681,7 @@ class LevelDbBundlesKey {
 /**
  * A key in the named_queries table, storing the query name for each entry.
  */
-class LevelDbNamedQueriesKey {
+class LevelDbNamedQueryKey {
  public:
   /**
    * Creates a key prefix that points just before the first key of the table.
@@ -691,7 +691,7 @@ class LevelDbNamedQueriesKey {
   /**
    * Creates a key that points to the key for the given query name.
    */
-  static std::string Key(absl::string_view bundle_id);
+  static std::string Key(absl::string_view query_name);
 
   /**
    * Decodes the given complete key, storing the decoded values in this

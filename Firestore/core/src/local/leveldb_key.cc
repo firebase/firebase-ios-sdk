@@ -557,6 +557,16 @@ std::string Reader::Describe() {
         absl::StrAppend(&description,
                         " snapshot_version=", snapshot_version.ToString());
       }
+    } else if (label == ComponentLabel::BundleId) {
+      std::string bundle_id = ReadBundleId();
+      if (ok_) {
+        absl::StrAppend(&description, " bundle_id=", bundle_id);
+      }
+    } else if (label == ComponentLabel::QueryName) {
+      std::string query_name = ReadQueryName();
+      if (ok_) {
+        absl::StrAppend(&description, " query_name=", query_name);
+      }
     } else {
       absl::StrAppend(&description, " unknown label=", static_cast<int>(label));
       Fail();
@@ -612,20 +622,20 @@ class Writer {
     WriteLabeledString(ComponentLabel::DocumentId, document_id);
   }
 
-  void WriteBundleId(absl::string_view bundle_id) {
-    WriteLabeledString(ComponentLabel::BundleId, bundle_id);
-  }
-
-  void WriteQueryName(absl::string_view query_name) {
-    WriteLabeledString(ComponentLabel::QueryName, query_name);
-  }
-
   void WriteSnapshotVersion(model::SnapshotVersion snapshot_version) {
     WriteComponentLabel(ComponentLabel::SnapshotVersion);
     OrderedCode::WriteSignedNumIncreasing(
         &dest_, snapshot_version.timestamp().seconds());
     OrderedCode::WriteSignedNumIncreasing(
         &dest_, snapshot_version.timestamp().nanoseconds());
+  }
+
+  void WriteBundleId(absl::string_view bundle_id) {
+    WriteLabeledString(ComponentLabel::BundleId, bundle_id);
+  }
+
+  void WriteQueryName(absl::string_view query_name) {
+    WriteLabeledString(ComponentLabel::QueryName, query_name);
   }
 
   /**
@@ -1040,13 +1050,13 @@ bool LevelDbRemoteDocumentReadTimeKey::Decode(absl::string_view key) {
   return reader.ok();
 }
 
-std::string LevelDbBundlesKey::KeyPrefix() {
+std::string LevelDbBundleKey::KeyPrefix() {
   Writer writer;
   writer.WriteTableName(kBundlesTable);
   return writer.result();
 }
 
-std::string LevelDbBundlesKey::Key(absl::string_view bundle_id) {
+std::string LevelDbBundleKey::Key(absl::string_view bundle_id) {
   Writer writer;
   writer.WriteTableName(kBundlesTable);
   writer.WriteBundleId(bundle_id);
@@ -1054,7 +1064,7 @@ std::string LevelDbBundlesKey::Key(absl::string_view bundle_id) {
   return writer.result();
 }
 
-bool LevelDbBundlesKey::Decode(absl::string_view key) {
+bool LevelDbBundleKey::Decode(absl::string_view key) {
   Reader reader{key};
   reader.ReadTableNameMatching(kBundlesTable);
   bundle_id_ = reader.ReadBundleId();
@@ -1062,13 +1072,13 @@ bool LevelDbBundlesKey::Decode(absl::string_view key) {
   return reader.ok();
 }
 
-std::string LevelDbNamedQueriesKey::KeyPrefix() {
+std::string LevelDbNamedQueryKey::KeyPrefix() {
   Writer writer;
   writer.WriteTableName(kNamedQueriesTable);
   return writer.result();
 }
 
-std::string LevelDbNamedQueriesKey::Key(absl::string_view query_name) {
+std::string LevelDbNamedQueryKey::Key(absl::string_view query_name) {
   Writer writer;
   writer.WriteTableName(kNamedQueriesTable);
   writer.WriteQueryName(query_name);
@@ -1076,7 +1086,7 @@ std::string LevelDbNamedQueriesKey::Key(absl::string_view query_name) {
   return writer.result();
 }
 
-bool LevelDbNamedQueriesKey::Decode(absl::string_view key) {
+bool LevelDbNamedQueryKey::Decode(absl::string_view key) {
   Reader reader{key};
   reader.ReadTableNameMatching(kNamedQueriesTable);
   name_ = reader.ReadQueryName();
