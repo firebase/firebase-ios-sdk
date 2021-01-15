@@ -15,8 +15,9 @@
 import Foundation
 
 /// Model download conditions.
-// TODO: Implement model download conditions.
 public struct ModelDownloadConditions {
-  // TODO: Intentionally left blank until implementation.
-  public init() {}
+  /// Allow model downloading to occur when app is in background. Default is `NO`.
+  public var allowsBackgroundDownloading = false
+  /// Allow model downloading on a cellular connection. Default is `YES`.
+  public var allowsCellularAccess = true
 }

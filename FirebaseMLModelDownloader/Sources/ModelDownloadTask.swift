@@ -43,6 +43,8 @@ class ModelDownloadTask: NSObject {
   private let appName: String
   /// Model info downloaded from server.
   private(set) var remoteModelInfo: RemoteModelInfo
+  /// Model conditions for download.
+  private let conditions: ModelDownloadConditions
   /// User defaults to which local model info should ultimately be written.
   private let defaults: UserDefaults
   /// Task to handle model file download.
@@ -50,19 +52,37 @@ class ModelDownloadTask: NSObject {
   /// Progress and completion handlers associated with this model download task.
   private let downloadHandlers: DownloadHandlers
   /// Keeps track of download associated with this model download task.
-  private(set) var downloadStatus: ModelDownloadStatus = .notStarted
+  private(set) var downloadStatus: ModelDownloadStatus
+  /// Background session identifier.
+  private let backgroundSessionIdentifier = "ModelDownloadBackgroundSession"
+  /// Optional background completion handler.
+  private var backgroundCompletion: (() -> Void)?
   /// URLSession to handle model downloads.
-  private lazy var downloadSession = URLSession(configuration: .ephemeral,
-                                                delegate: self,
-                                                delegateQueue: nil)
+  private lazy var downloadSession: URLSession = {
+    var configuration = URLSessionConfiguration.ephemeral
+    if conditions.allowsBackgroundDownloading {
+      configuration = URLSessionConfiguration
+        .background(withIdentifier: backgroundSessionIdentifier)
+      configuration.sessionSendsLaunchEvents = true
+    }
+    if #available(iOS 11.0, *) {
+      configuration.waitsForConnectivity = true
+      configuration.timeoutIntervalForResource = 60
+    }
+    configuration.allowsCellularAccess = conditions.allowsCellularAccess
+    return URLSession(configuration: configuration, delegate: self, delegateQueue: nil)
+  }()
+
   /// Telemetry logger.
   private let telemetryLogger: TelemetryLogger?
 
-  init(remoteModelInfo: RemoteModelInfo, appName: String, defaults: UserDefaults,
+  init(remoteModelInfo: RemoteModelInfo, conditions: ModelDownloadConditions, appName: String,
+       defaults: UserDefaults,
        telemetryLogger: TelemetryLogger? = nil,
        progressHandler: DownloadHandlers.ProgressHandler? = nil,
        completion: @escaping DownloadHandlers.Completion) {
     self.remoteModelInfo = remoteModelInfo
+    self.conditions = conditions
     self.appName = appName
     self.telemetryLogger = telemetryLogger
     self.defaults = defaults
@@ -70,6 +90,7 @@ class ModelDownloadTask: NSObject {
       progressHandler: progressHandler,
       completion: completion
     )
+    downloadStatus = .notStarted
   }
 
   /// Asynchronously download model file to device.
@@ -89,14 +110,31 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
     return "fbml_model__\(appName)__\(remoteModelInfo.name)"
   }
 
+  func urlSession(_ session: URLSession, taskIsWaitingForConnectivity task: URLSessionTask) {
+    // TODO: Handle waiting for connectivity, if needed.
+  }
+
   func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
-    // TODO: Handle model download url expiry and other download errors
+    // TODO: Handle client errors.
+  }
+
+  func urlSession(_ session: URLSession, didBecomeInvalidWithError error: Error?) {
+    // TODO: Handle configuration errors.
   }
 
   func urlSession(_ session: URLSession,
                   downloadTask: URLSessionDownloadTask,
                   didFinishDownloadingTo location: URL) {
     assert(downloadTask == self.downloadTask)
+    guard let response = downloadTask.response as? HTTPURLResponse else {
+      // TODO: Handle error.
+      return
+    }
+    if response.statusCode == 404 {
+      // TODO: Check if model download url expired; if yes then retry.
+      return
+    }
+
     let modelFileURL = ModelFileManager.getDownloadedModelFilePath(
       appName: appName,
       modelName: remoteModelInfo.name
@@ -160,6 +198,25 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
     let calculatedProgress = Float(totalBytesWritten) / Float(totalBytesExpectedToWrite)
     DispatchQueue.main.async {
       progressHandler(calculatedProgress)
+    }
+  }
+}
+
+/// Extension to handle background downloading.
+extension ModelDownloadTask: UIApplicationDelegate {
+  /// Save completion handler for background download.
+  func application(_ application: UIApplication,
+                   handleEventsForBackgroundURLSession identifier: String,
+                   completionHandler: @escaping () -> Void) {
+    assert(identifier == backgroundSessionIdentifier)
+    backgroundCompletion = completionHandler
+  }
+
+  /// Call background completion handler when resumed from background.
+  func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
+    DispatchQueue.main.async {
+      guard let backgroundCompletionHandler = self.backgroundCompletion else { return }
+      backgroundCompletionHandler()
     }
   }
 }
