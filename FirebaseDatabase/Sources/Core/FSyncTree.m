@@ -724,6 +724,15 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
     }
 }
 
+- (FIndexedNode *)persistenceServerCache:(FQuerySpec *)querySpec {
+    FCacheNode *cacheNode =
+        [self.persistenceManager serverCacheForQuery:querySpec];
+    if (cacheNode == nil) {
+        return nil;
+    }
+    return cacheNode.indexedNode;
+}
+
 /**
  * Returns a complete cache, if we have one, of the data at a particular path.
  * The location must have a listener above it, but as this is only used by
