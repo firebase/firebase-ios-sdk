@@ -186,7 +186,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
 
     modelDownloadManager.resumeModelDownload()
     waitForExpectations(timeout: 5, handler: nil)
-    XCTAssertEqual(modelDownloadManager.downloadStatus, .completed)
+    XCTAssertEqual(modelDownloadManager.downloadStatus, .successful)
   }
 
   func testGetModel() {
@@ -361,5 +361,55 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
         XCTFail("Failed to list models - \(error)")
       }
     }
+  }
+
+  /// Test logging telemetry event.
+  func testLogTelemetryEvent() {
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
+
+    let testModelName = "image-classification"
+    let testName = "model-downloader-test"
+
+    let conditions = ModelDownloadConditions()
+    let modelDownloader = ModelDownloader.modelDownloaderWithDefaults(
+      .createTestInstance(testName: testName),
+      app: testApp
+    )
+
+    /// Test download type - latest model.
+    let downloadType: ModelDownloadType = .latestModel
+    let latestModelExpectation = expectation(description: "Get latest model.")
+
+    modelDownloader.getModel(
+      name: testModelName,
+      downloadType: downloadType,
+      conditions: conditions,
+      progressHandler: { progress in
+        XCTAssertLessThanOrEqual(progress, 1)
+        XCTAssertGreaterThanOrEqual(progress, 0)
+      }
+    ) { result in
+      switch result {
+      case let .success(model):
+        guard let telemetryLogger = TelemetryLogger(app: testApp) else {
+          XCTFail("Could not initialize logger.")
+          return
+        }
+        // TODO: Remove this and stub out with mocks.
+        telemetryLogger.logModelDownloadEvent(
+          eventName: .modelDownload,
+          status: .successful,
+          model: model
+        )
+      case let .failure(error):
+        XCTFail("Failed to download model - \(error)")
+      }
+      latestModelExpectation.fulfill()
+    }
+
+    waitForExpectations(timeout: 5, handler: nil)
   }
 }

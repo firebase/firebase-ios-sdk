@@ -102,6 +102,11 @@ let package = Package(
   dependencies: [
     .package(name: "Promises", url: "https://github.com/google/promises.git", "1.2.8" ..< "1.3.0"),
     .package(
+      name: "SwiftProtobuf",
+      url: "https://github.com/apple/swift-protobuf.git",
+      from: "1.14.0"
+    ),
+    .package(
       name: "GTMSessionFetcher",
       url: "https://github.com/google/gtm-session-fetcher.git",
       "1.4.0" ..< "2.0.0"
@@ -596,6 +601,7 @@ let package = Package(
       dependencies: [
         "FirebaseCore",
         "FirebaseInstallations",
+        "SwiftProtobuf",
       ],
       path: "FirebaseMLModelDownloader/Sources",
       cSettings: [
