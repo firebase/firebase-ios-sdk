@@ -24,14 +24,14 @@ static NSString *const kAnalyticsPullEvent = @"personalization_assignment";
 static NSString *const kArmKey = @"arm_key";
 static NSString *const kArmValue = @"arm_value";
 static NSString *const kPersonalizationId = @"personalizationId";
-static NSString *const kPersonalizationIdKey = @"personalization_id";
+static NSString *const kPersonalizationIdLogKey = @"personalization_id";
 static NSString *const kArmIndex = @"armIndex";
-static NSString *const kArmIndexKey = @"arm_index";
+static NSString *const kArmIndexLogKey = @"arm_index";
 static NSString *const kGroup = @"group";
 
 static NSString *const kAnalyticsPullEventInternal = @"_fpc";
 static NSString *const kChoiceId = @"choiceId";
-static NSString *const kChoiceIdKey = @"_fpid";
+static NSString *const kChoiceIdLogKey = @"_fpid";
 
 @interface RCNPersonalization : NSObject
 

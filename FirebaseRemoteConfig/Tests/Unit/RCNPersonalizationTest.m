@@ -132,8 +132,17 @@
                                     parameters:[OCMArg isKindOfClass:[NSDictionary class]]]);
   XCTAssertEqual([_fakeLogs count], 2);
 
-  NSDictionary *params = @{kChoiceIdKey : @"id1"};
-  XCTAssertEqualObjects(_fakeLogs[1], params);
+  NSDictionary *logParams = @{
+    kArmKey : @"key1",
+    kArmValue : @"value1",
+    kPersonalizationIdLogKey : @"p13n1",
+    kArmIndexLogKey : @0,
+    kGroup : @"BASELINE"
+  };
+  XCTAssertEqualObjects(_fakeLogs[0], logParams);
+
+  NSDictionary *internalLogParams = @{kChoiceIdLogKey : @"id1"};
+  XCTAssertEqualObjects(_fakeLogs[1], internalLogParams);
 }
 
 - (void)testMultiplePersonalizationKeys {
@@ -141,6 +150,7 @@
 
   [_personalization logArmActive:@"key1" config:_configContainer];
   [_personalization logArmActive:@"key2" config:_configContainer];
+  [_personalization logArmActive:@"key1" config:_configContainer];
 
   OCMVerify(times(4),
             [_analyticsMock logEventWithOrigin:kAnalyticsOriginPersonalization
@@ -148,11 +158,29 @@
                                     parameters:[OCMArg isKindOfClass:[NSDictionary class]]]);
   XCTAssertEqual([_fakeLogs count], 4);
 
-  NSDictionary *params1 = @{kChoiceIdKey : @"id1"};
-  XCTAssertEqualObjects(_fakeLogs[1], params1);
+  NSDictionary *logParams1 = @{
+    kArmKey : @"key1",
+    kArmValue : @"value1",
+    kPersonalizationIdLogKey : @"p13n1",
+    kArmIndexLogKey : @0,
+    kGroup : @"BASELINE"
+  };
+  XCTAssertEqualObjects(_fakeLogs[0], logParams1);
 
-  NSDictionary *params2 = @{kChoiceIdKey : @"id2"};
-  XCTAssertEqualObjects(_fakeLogs[3], params2);
+  NSDictionary *internalLogParams1 = @{kChoiceIdLogKey : @"id1"};
+  XCTAssertEqualObjects(_fakeLogs[1], internalLogParams1);
+
+  NSDictionary *logParams2 = @{
+    kArmKey : @"key2",
+    kArmValue : @"value2",
+    kPersonalizationIdLogKey : @"p13n2",
+    kArmIndexLogKey : @1,
+    kGroup : @"P13N"
+  };
+  XCTAssertEqualObjects(_fakeLogs[2], logParams2);
+
+  NSDictionary *internalLogParams2 = @{kChoiceIdLogKey : @"id2"};
+  XCTAssertEqualObjects(_fakeLogs[3], internalLogParams2);
 }
 
 - (void)testRemoteConfigIntegration {
@@ -166,11 +194,29 @@
                                         parameters:[OCMArg isKindOfClass:[NSDictionary class]]]);
         XCTAssertEqual([self->_fakeLogs count], 4);
 
-        NSDictionary *params1 = @{kChoiceIdKey : @"id1"};
-        XCTAssertEqualObjects(self->_fakeLogs[1], params1);
+        NSDictionary *logParams1 = @{
+          kArmKey : @"key1",
+          kArmValue : @"value1",
+          kPersonalizationIdLogKey : @"p13n1",
+          kArmIndexLogKey : @0,
+          kGroup : @"BASELINE"
+        };
+        XCTAssertEqualObjects(self->_fakeLogs[0], logParams1);
 
-        NSDictionary *params2 = @{kChoiceIdKey : @"id2"};
-        XCTAssertEqualObjects(self->_fakeLogs[3], params2);
+        NSDictionary *internalLogParams1 = @{kChoiceIdLogKey : @"id1"};
+        XCTAssertEqualObjects(self->_fakeLogs[1], internalLogParams1);
+
+        NSDictionary *logParams2 = @{
+          kArmKey : @"key1",
+          kArmValue : @"value1",
+          kPersonalizationIdLogKey : @"p13n1",
+          kArmIndexLogKey : @0,
+          kGroup : @"BASELINE"
+        };
+        XCTAssertEqualObjects(self->_fakeLogs[2], logParams2);
+
+        NSDictionary *internalLogParams2 = @{kChoiceIdLogKey : @"id2"};
+        XCTAssertEqualObjects(self->_fakeLogs[3], internalLogParams2);
       };
 
   [_configInstance fetchAndActivateWithCompletionHandler:fetchAndActivateCompletion];

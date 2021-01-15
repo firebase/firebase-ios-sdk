@@ -42,31 +42,31 @@
     return;
   }
 
-  NSString *personalizationId = metadata[kPersonalizationId];
-  if (personalizationId == nil) {
+  NSString *choiceId = metadata[kChoiceId];
+  if (choiceId == nil) {
     return;
   }
 
   // This gets dispatched to a serial queue, so this is OK. But even if not, it'll just possibly
   // log more.
-  if (self->_armsCache[key] == personalizationId) {
+  if (self->_armsCache[key] == choiceId) {
     return;
   }
-  self->_armsCache[key] = personalizationId;
+  self->_armsCache[key] = choiceId;
 
   [self->_analytics logEventWithOrigin:kAnalyticsOriginPersonalization
                                   name:kAnalyticsPullEvent
                             parameters:@{
                               kArmKey : key,
                               kArmValue : values[key].stringValue,
-                              kPersonalizationIdKey : personalizationId,
-                              kArmIndexKey : metadata[kArmIndex],
+                              kPersonalizationIdLogKey : metadata[kPersonalizationId],
+                              kArmIndexLogKey : metadata[kArmIndex],
                               kGroup : metadata[kGroup]
                             }];
 
   [self->_analytics logEventWithOrigin:kAnalyticsOriginPersonalization
                                   name:kAnalyticsPullEventInternal
-                            parameters:@{kChoiceIdKey : metadata[kChoiceId]}];
+                            parameters:@{kChoiceIdLogKey : choiceId}];
 }
 
 @end
