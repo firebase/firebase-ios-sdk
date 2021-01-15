@@ -724,13 +724,14 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
     }
 }
 
+/** Returns a non-empty cache node if one exists. Otherwise returns null. */
 - (FIndexedNode *)persistenceServerCache:(FQuerySpec *)querySpec {
     FCacheNode *cacheNode =
         [self.persistenceManager serverCacheForQuery:querySpec];
-    if (cacheNode == nil) {
+    if (cacheNode == nil || cacheNode.node.isEmpty) {
         return nil;
     }
-    return cacheNode.indexedNode;
+    return cacheNode.node;
 }
 
 /**

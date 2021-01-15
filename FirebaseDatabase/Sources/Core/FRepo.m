@@ -518,7 +518,6 @@
         (void (^_Nonnull)(NSError *__nullable error,
                           FIRDataSnapshot *__nullable snapshot))block {
     FQuerySpec *querySpec = [query querySpec];
-    [self.persistenceManager setQueryActive:querySpec];
     id<FNode> node =
         [self.serverSyncTree calcCompleteEventCacheAtPath:querySpec.path
                                           excludeWriteIds:@[]];
@@ -530,6 +529,7 @@
                                                      index:querySpec.index]]);
         return;
     }
+    [self.persistenceManager setQueryActive:querySpec];
     [self.connection
         getDataAtPath:[query.path toString]
            withParams:querySpec.params.wireProtocolParams
