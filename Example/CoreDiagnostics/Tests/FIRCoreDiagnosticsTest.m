@@ -197,7 +197,7 @@ extern void FIRPopulateProtoWithInfoPlistValues(
   config->has_app_count = 1;
   config->use_default_app = 1;
   config->has_use_default_app = 1;
-  config->has_dynamic_framework_count = 0; // Removed from payload.
+  config->has_dynamic_framework_count = 0;  // Removed from payload.
   config->apple_framework_version = FIREncodeString(combinedVersions);
   NSString *minVersion = [[NSBundle mainBundle] infoDictionary][@"MinimumOSVersion"];
   if (minVersion) {
