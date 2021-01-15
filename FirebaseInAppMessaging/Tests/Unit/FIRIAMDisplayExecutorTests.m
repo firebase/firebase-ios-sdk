@@ -82,33 +82,35 @@
                                          NSError *_Nullable error))block {
   if (self.errorEncountered) {
     NSError *error = [NSError errorWithDomain:@"image error" code:0 userInfo:nil];
-    
+
     if (_loadImagesAsynchronously) {
-      [self performOnMainQueueAfterDelay:0.01 block:^{
-        block(nil, nil, error);
-      }];
+      [self performOnMainQueueAfterDelay:0.01
+                                   block:^{
+                                     block(nil, nil, error);
+                                   }];
     } else {
       block(nil, nil, error);
     }
   } else {
     NSData *imageData = [@"image data" dataUsingEncoding:NSUTF8StringEncoding];
     NSData *landscapeImageData = [@"landscape image data" dataUsingEncoding:NSUTF8StringEncoding];
-    
+
     if (_loadImagesAsynchronously) {
-      [self performOnMainQueueAfterDelay:0.01 block:^{
-        block(imageData, landscapeImageData, nil);
-      }];
+      [self performOnMainQueueAfterDelay:0.01
+                                   block:^{
+                                     block(imageData, landscapeImageData, nil);
+                                   }];
     } else {
       block(imageData, landscapeImageData, nil);
     }
   }
 }
 
-- (void)performOnMainQueueAfterDelay:(NSTimeInterval)delay
-                               block:(void (^)(void))block {
-  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, delay * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-    block();
-  });
+- (void)performOnMainQueueAfterDelay:(NSTimeInterval)delay block:(void (^)(void))block {
+  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, delay * NSEC_PER_SEC), dispatch_get_main_queue(),
+                 ^{
+                   block();
+                 });
 }
 
 @end
@@ -403,7 +405,7 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
                                                         appData:nil
                                               experimentPayload:nil
                                                   isTestMessage:NO];
-  
+
   FIRIAMMessageContentDataForTesting *m6ContentData = [[FIRIAMMessageContentDataForTesting alloc]
            initWithMessageTitle:@"m6 title"
                     messageBody:@"message body"
@@ -947,32 +949,33 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
 }
 
 - (void)testNoRenderingIfMessageDisplayIsSuppressedDuringImageLoading {
-    // This setup allows next message to be displayed from display interval perspective.
-    OCMStub([self.mockTimeFetcher currentTimestampInSeconds])
-        .andReturn(DISPLAY_MIN_INTERVALS * 60 + 100);
+  // This setup allows next message to be displayed from display interval perspective.
+  OCMStub([self.mockTimeFetcher currentTimestampInSeconds])
+      .andReturn(DISPLAY_MIN_INTERVALS * 60 + 100);
 
-    [self.clientMessageCache setMessageData:@[ self.m6 ]];
+  [self.clientMessageCache setMessageData:@[ self.m6 ]];
 
-    FIRIAMMessageDisplayForTesting *display = [[FIRIAMMessageDisplayForTesting alloc]
-        initWithDelegateInteraction:FIRInAppMessagingDelegateInteractionClick];
-    self.displayExecutor.messageDisplayComponent = display;
-    [self.displayExecutor checkAndDisplayNextAppForegroundMessage];
-    self.displayExecutor.suppressMessageDisplay = YES;
-    
-    XCTestExpectation *expectation = [[XCTestExpectation alloc] init];
-    
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.05 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-        // no message display has happened
-        XCTAssertNil(display.message);
-        
-        NSInteger remainingMsgCount = [self.clientMessageCache allRegularMessages].count;
-        // no message is removed from the cache
-        XCTAssertEqual(1, remainingMsgCount);
-        
-        [expectation fulfill];
-    });
-    
-    [self waitForExpectations:@[expectation] timeout:0.1];
+  FIRIAMMessageDisplayForTesting *display = [[FIRIAMMessageDisplayForTesting alloc]
+      initWithDelegateInteraction:FIRInAppMessagingDelegateInteractionClick];
+  self.displayExecutor.messageDisplayComponent = display;
+  [self.displayExecutor checkAndDisplayNextAppForegroundMessage];
+  self.displayExecutor.suppressMessageDisplay = YES;
+
+  XCTestExpectation *expectation = [[XCTestExpectation alloc] init];
+
+  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.05 * NSEC_PER_SEC), dispatch_get_main_queue(),
+                 ^{
+                   // no message display has happened
+                   XCTAssertNil(display.message);
+
+                   NSInteger remainingMsgCount = [self.clientMessageCache allRegularMessages].count;
+                   // no message is removed from the cache
+                   XCTAssertEqual(1, remainingMsgCount);
+
+                   [expectation fulfill];
+                 });
+
+  [self waitForExpectations:@[ expectation ] timeout:0.1];
 }
 
 // No contextual message rendering if suppress message display flag is turned on

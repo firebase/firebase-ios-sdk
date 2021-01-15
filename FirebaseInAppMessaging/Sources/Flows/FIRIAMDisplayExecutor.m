@@ -638,7 +638,7 @@
 #pragma clang diagnostic pop
           }
         }
-      
+
         // On slow networks, image loading may take significant time,
         // in which the value of `suppressMessageDisplay` could change.
         if (self.suppressMessageDisplay) {
