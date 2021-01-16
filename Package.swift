@@ -280,7 +280,7 @@ let package = Package(
         "FirebaseCore",
         .product(name: "AppDelegateSwizzler", package: "GoogleUtilities"),
         .product(name: "Environment", package: "GoogleUtilities"),
-        .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher")
+        .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),
       ],
       path: "FirebaseAuth/Sources",
       publicHeadersPath: "Public",
