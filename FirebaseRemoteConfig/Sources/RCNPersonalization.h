@@ -20,25 +20,26 @@ NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const kAnalyticsOriginPersonalization = @"fp";
 
-static NSString *const kAnalyticsPullEvent = @"personalization_assignment";
-static NSString *const kArmKey = @"arm_key";
-static NSString *const kArmValue = @"arm_value";
+static NSString *const kExternalEvent = @"personalization_assignment";
+static NSString *const kExternalRcParameterParam = @"arm_key";
+static NSString *const kExternalArmValueParam = @"arm_value";
 static NSString *const kPersonalizationId = @"personalizationId";
-static NSString *const kPersonalizationIdLogKey = @"personalization_id";
+static NSString *const kExternalPersonalizationIdParam = @"personalization_id";
 static NSString *const kArmIndex = @"armIndex";
-static NSString *const kArmIndexLogKey = @"arm_index";
+static NSString *const kExternalArmIndexParam = @"arm_index";
 static NSString *const kGroup = @"group";
+static NSString *const kExternalGroupParam = @"group";
 
-static NSString *const kAnalyticsPullEventInternal = @"_fpc";
+static NSString *const kInternalEvent = @"_fpc";
 static NSString *const kChoiceId = @"choiceId";
-static NSString *const kChoiceIdLogKey = @"_fpid";
+static NSString *const kInternalChoiceIdParam = @"_fpid";
 
 @interface RCNPersonalization : NSObject
 
 /// Analytics connector
 @property(nonatomic, strong) id<FIRAnalyticsInterop> _Nullable analytics;
 
-@property(atomic, strong) NSMutableDictionary *armsCache;
+@property(atomic, strong) NSMutableDictionary *loggedChoiceIds;
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -48,7 +49,7 @@ static NSString *const kChoiceIdLogKey = @"_fpid";
 
 /// Called when an arm is pulled from Remote Config. If the arm is personalized, log information to
 /// Google in another thread.
-- (void)logArmActive:(NSString *)key config:(NSDictionary *)config;
+- (void)logArmActive:(NSString *)rcParameter config:(NSDictionary *)config;
 
 @end
 

@@ -76,7 +76,10 @@
   _fakeLogs = [[NSMutableArray alloc] init];
   _analyticsMock = OCMProtocolMock(@protocol(FIRAnalyticsInterop));
   OCMStub([_analyticsMock logEventWithOrigin:kAnalyticsOriginPersonalization
-                                        name:[OCMArg isKindOfClass:[NSString class]]
+                                        name:[OCMArg checkWithBlock:^BOOL(NSString *value) {
+                                          return [value isEqualToString:kExternalEvent] ||
+                                                 [value isEqualToString:kInternalEvent];
+                                        }]
                                   parameters:[OCMArg isKindOfClass:[NSDictionary class]]])
       .andDo(^(NSInvocation *invocation) {
         __unsafe_unretained NSDictionary *bundle;
@@ -116,7 +119,10 @@
 
   OCMVerify(never(),
             [_analyticsMock logEventWithOrigin:kAnalyticsOriginPersonalization
-                                          name:[OCMArg isKindOfClass:[NSString class]]
+                                          name:[OCMArg checkWithBlock:^BOOL(NSString *value) {
+                                            return [value isEqualToString:kExternalEvent] ||
+                                                   [value isEqualToString:kInternalEvent];
+                                          }]
                                     parameters:[OCMArg isKindOfClass:[NSDictionary class]]]);
   XCTAssertEqual([_fakeLogs count], 0);
 }
@@ -128,20 +134,23 @@
 
   OCMVerify(times(2),
             [_analyticsMock logEventWithOrigin:kAnalyticsOriginPersonalization
-                                          name:[OCMArg isKindOfClass:[NSString class]]
+                                          name:[OCMArg checkWithBlock:^BOOL(NSString *value) {
+                                            return [value isEqualToString:kExternalEvent] ||
+                                                   [value isEqualToString:kInternalEvent];
+                                          }]
                                     parameters:[OCMArg isKindOfClass:[NSDictionary class]]]);
   XCTAssertEqual([_fakeLogs count], 2);
 
   NSDictionary *logParams = @{
-    kArmKey : @"key1",
-    kArmValue : @"value1",
-    kPersonalizationIdLogKey : @"p13n1",
-    kArmIndexLogKey : @0,
-    kGroup : @"BASELINE"
+    kExternalRcParameterParam : @"key1",
+    kExternalArmValueParam : @"value1",
+    kExternalPersonalizationIdParam : @"p13n1",
+    kExternalArmIndexParam : @0,
+    kExternalGroupParam : @"BASELINE"
   };
   XCTAssertEqualObjects(_fakeLogs[0], logParams);
 
-  NSDictionary *internalLogParams = @{kChoiceIdLogKey : @"id1"};
+  NSDictionary *internalLogParams = @{kInternalChoiceIdParam : @"id1"};
   XCTAssertEqualObjects(_fakeLogs[1], internalLogParams);
 }
 
@@ -154,32 +163,35 @@
 
   OCMVerify(times(4),
             [_analyticsMock logEventWithOrigin:kAnalyticsOriginPersonalization
-                                          name:[OCMArg isKindOfClass:[NSString class]]
+                                          name:[OCMArg checkWithBlock:^BOOL(NSString *value) {
+                                            return [value isEqualToString:kExternalEvent] ||
+                                                   [value isEqualToString:kInternalEvent];
+                                          }]
                                     parameters:[OCMArg isKindOfClass:[NSDictionary class]]]);
   XCTAssertEqual([_fakeLogs count], 4);
 
   NSDictionary *logParams1 = @{
-    kArmKey : @"key1",
-    kArmValue : @"value1",
-    kPersonalizationIdLogKey : @"p13n1",
-    kArmIndexLogKey : @0,
-    kGroup : @"BASELINE"
+    kExternalRcParameterParam : @"key1",
+    kExternalArmValueParam : @"value1",
+    kExternalPersonalizationIdParam : @"p13n1",
+    kExternalArmIndexParam : @0,
+    kExternalGroupParam : @"BASELINE"
   };
   XCTAssertEqualObjects(_fakeLogs[0], logParams1);
 
-  NSDictionary *internalLogParams1 = @{kChoiceIdLogKey : @"id1"};
+  NSDictionary *internalLogParams1 = @{kInternalChoiceIdParam : @"id1"};
   XCTAssertEqualObjects(_fakeLogs[1], internalLogParams1);
 
   NSDictionary *logParams2 = @{
-    kArmKey : @"key2",
-    kArmValue : @"value2",
-    kPersonalizationIdLogKey : @"p13n2",
-    kArmIndexLogKey : @1,
-    kGroup : @"P13N"
+    kExternalRcParameterParam : @"key2",
+    kExternalArmValueParam : @"value2",
+    kExternalPersonalizationIdParam : @"p13n2",
+    kExternalArmIndexParam : @1,
+    kExternalGroupParam : @"P13N"
   };
   XCTAssertEqualObjects(_fakeLogs[2], logParams2);
 
-  NSDictionary *internalLogParams2 = @{kChoiceIdLogKey : @"id2"};
+  NSDictionary *internalLogParams2 = @{kInternalChoiceIdParam : @"id2"};
   XCTAssertEqualObjects(_fakeLogs[3], internalLogParams2);
 }
 
@@ -190,32 +202,35 @@
       ^void(FIRRemoteConfigFetchAndActivateStatus status, NSError *error) {
         OCMVerify(times(4), [self->_analyticsMock
                                 logEventWithOrigin:kAnalyticsOriginPersonalization
-                                              name:[OCMArg isKindOfClass:[NSString class]]
+                                              name:[OCMArg checkWithBlock:^BOOL(NSString *value) {
+                                                return [value isEqualToString:kExternalEvent] ||
+                                                       [value isEqualToString:kInternalEvent];
+                                              }]
                                         parameters:[OCMArg isKindOfClass:[NSDictionary class]]]);
         XCTAssertEqual([self->_fakeLogs count], 4);
 
         NSDictionary *logParams1 = @{
-          kArmKey : @"key1",
-          kArmValue : @"value1",
-          kPersonalizationIdLogKey : @"p13n1",
-          kArmIndexLogKey : @0,
-          kGroup : @"BASELINE"
+          kExternalRcParameterParam : @"key1",
+          kExternalArmValueParam : @"value1",
+          kExternalPersonalizationIdParam : @"p13n1",
+          kExternalArmIndexParam : @0,
+          kExternalGroupParam : @"BASELINE"
         };
         XCTAssertEqualObjects(self->_fakeLogs[0], logParams1);
 
-        NSDictionary *internalLogParams1 = @{kChoiceIdLogKey : @"id1"};
+        NSDictionary *internalLogParams1 = @{kInternalChoiceIdParam : @"id1"};
         XCTAssertEqualObjects(self->_fakeLogs[1], internalLogParams1);
 
         NSDictionary *logParams2 = @{
-          kArmKey : @"key1",
-          kArmValue : @"value1",
-          kPersonalizationIdLogKey : @"p13n1",
-          kArmIndexLogKey : @0,
-          kGroup : @"BASELINE"
+          kExternalRcParameterParam : @"key1",
+          kExternalArmValueParam : @"value1",
+          kExternalPersonalizationIdParam : @"p13n1",
+          kExternalArmIndexParam : @0,
+          kExternalGroupParam : @"BASELINE"
         };
         XCTAssertEqualObjects(self->_fakeLogs[2], logParams2);
 
-        NSDictionary *internalLogParams2 = @{kChoiceIdLogKey : @"id2"};
+        NSDictionary *internalLogParams2 = @{kInternalChoiceIdParam : @"id2"};
         XCTAssertEqualObjects(self->_fakeLogs[3], internalLogParams2);
       };
 

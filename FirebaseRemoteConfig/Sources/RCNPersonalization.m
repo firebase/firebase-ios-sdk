@@ -25,19 +25,19 @@
   self = [super init];
   if (self) {
     self->_analytics = analytics;
-    self->_armsCache = [[NSMutableDictionary alloc] init];
+    self->_loggedChoiceIds = [[NSMutableDictionary alloc] init];
   }
   return self;
 }
 
-- (void)logArmActive:(NSString *)key config:(NSDictionary *)config {
+- (void)logArmActive:(NSString *)rcParameter config:(NSDictionary *)config {
   NSDictionary *ids = config[RCNFetchResponseKeyPersonalizationMetadata];
   NSDictionary<NSString *, FIRRemoteConfigValue *> *values = config[RCNFetchResponseKeyEntries];
-  if (ids.count < 1 || values.count < 1 || !values[key]) {
+  if (ids.count < 1 || values.count < 1 || !values[rcParameter]) {
     return;
   }
 
-  NSDictionary *metadata = ids[key];
+  NSDictionary *metadata = ids[rcParameter];
   if (!metadata) {
     return;
   }
@@ -49,24 +49,24 @@
 
   // This gets dispatched to a serial queue, so this is OK. But even if not, it'll just possibly
   // log more.
-  if (self->_armsCache[key] == choiceId) {
+  if (self->_loggedChoiceIds[rcParameter] == choiceId) {
     return;
   }
-  self->_armsCache[key] = choiceId;
+  self->_loggedChoiceIds[rcParameter] = choiceId;
 
   [self->_analytics logEventWithOrigin:kAnalyticsOriginPersonalization
-                                  name:kAnalyticsPullEvent
+                                  name:kExternalEvent
                             parameters:@{
-                              kArmKey : key,
-                              kArmValue : values[key].stringValue,
-                              kPersonalizationIdLogKey : metadata[kPersonalizationId],
-                              kArmIndexLogKey : metadata[kArmIndex],
-                              kGroup : metadata[kGroup]
+                              kExternalRcParameterParam : rcParameter,
+                              kExternalArmValueParam : values[rcParameter].stringValue,
+                              kExternalPersonalizationIdParam : metadata[kPersonalizationId],
+                              kExternalArmIndexParam : metadata[kArmIndex],
+                              kExternalGroupParam : metadata[kGroup]
                             }];
 
   [self->_analytics logEventWithOrigin:kAnalyticsOriginPersonalization
-                                  name:kAnalyticsPullEventInternal
-                            parameters:@{kChoiceIdLogKey : choiceId}];
+                                  name:kInternalEvent
+                            parameters:@{kInternalChoiceIdParam : choiceId}];
 }
 
 @end
