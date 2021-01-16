@@ -21,11 +21,10 @@
   @available(swift 5.0)
   @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
   extension PhoneAuthProvider {
-    
     /// Verify ownership of the second factor phone number by the current user.
     ///
     /// The publisher will emit events on the **main** thread.
-    /// 
+    ///
     /// - Parameters:
     ///   - phoneNumber: The phone number to be verified.
     ///   - UIDelegate: An object used to present the SFSafariViewController. The object is retained
@@ -35,19 +34,19 @@
     /// - Returns: A publisher that emits an `CerificationID` when the sign-in flow completed
     ///   successfully, or an error otherwise. The publisher will emit on the *main* thread.
     @discardableResult
-    func verifyPhoneNumber(withMultiFactorInfo phoneMultiFactorInfo: PhoneMultiFactorInfo,
+    public func verifyPhoneNumber(withMultiFactorInfo phoneMultiFactorInfo: PhoneMultiFactorInfo,
                            uiDelegate: AuthUIDelegate? = nil,
                            multiFactorSession: MultiFactorSession?) -> Future<String, Error> {
-        Future<String, Error> { promise in
-            self.verifyPhoneNumber(with: phoneMultiFactorInfo, uiDelegate: uiDelegate,
-                                   multiFactorSession: multiFactorSession) { verificationID, error in
-                if let error = error {
-                  promise(.failure(error))
-                } else if let verificationID = verificationID {
-                  promise(.success(verificationID))
-                }
-            }
+      Future<String, Error> { promise in
+        self.verifyPhoneNumber(with: phoneMultiFactorInfo, uiDelegate: uiDelegate,
+                               multiFactorSession: multiFactorSession) { verificationID, error in
+          if let error = error {
+            promise(.failure(error))
+          } else if let verificationID = verificationID {
+            promise(.success(verificationID))
+          }
         }
+      }
     }
-}
+  }
 #endif

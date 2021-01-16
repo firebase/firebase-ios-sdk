@@ -490,7 +490,7 @@
         }
       }
     }
-    
+
     /// Asynchronously signs in to Firebase with the given 3rd-party credentials (e.g. a Facebook
     /// login Access Token, a Google ID Token/Access Token pair, etc.) and returns additional
     /// identity provider data.
@@ -531,11 +531,11 @@
     public func signIn(withCredential credential: AuthCredential) -> Future<AuthDataResult, Error> {
       Future<AuthDataResult, Error> { promise in
         self.signIn(with: credential) { authDataResult, error in
-            if let error = error {
-              promise(.failure(error))
-            } else if let authDataResult = authDataResult {
-              promise(.success(authDataResult))
-            }
+          if let error = error {
+            promise(.failure(error))
+          } else if let authDataResult = authDataResult {
+            promise(.success(authDataResult))
+          }
         }
       }
     }

@@ -21,23 +21,23 @@
   @available(swift 5.0)
   @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
   extension MultiFactorResolver {
-    
     /// A helper function to help users complete sign in with a second factor using an
     /// `MultiFactorAssertion` confirming the user successfully completed the second factor
     ///
     /// - Parameter assertion: The base class for asserting ownership of a second factor.
     /// - Returns: A publisher that emits an `AuthDataResult` when the sign-in flow completed
     ///   successfully, or an error otherwise.
-    func resolveSignIn(withAssertion assertion: MultiFactorAssertion) -> Future<AuthDataResult, Error> {
-        Future<AuthDataResult, Error> { promise in
-            self.resolveSignIn(with: assertion) { authDataResult, error in
-                if let error = error {
-                  promise(.failure(error))
-                } else if let authDataResult = authDataResult {
-                  promise(.success(authDataResult))
-                }
-            }
+    public func resolveSignIn(withAssertion assertion: MultiFactorAssertion)
+      -> Future<AuthDataResult, Error> {
+      Future<AuthDataResult, Error> { promise in
+        self.resolveSignIn(with: assertion) { authDataResult, error in
+          if let error = error {
+            promise(.failure(error))
+          } else if let authDataResult = authDataResult {
+            promise(.success(authDataResult))
+          }
         }
+      }
     }
   }
 #endif
