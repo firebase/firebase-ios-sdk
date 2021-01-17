@@ -35,8 +35,9 @@
     ///   successfully, or an error otherwise. The publisher will emit on the *main* thread.
     @discardableResult
     public func verifyPhoneNumber(withMultiFactorInfo phoneMultiFactorInfo: PhoneMultiFactorInfo,
-                           uiDelegate: AuthUIDelegate? = nil,
-                           multiFactorSession: MultiFactorSession?) -> Future<String, Error> {
+                                  uiDelegate: AuthUIDelegate? = nil,
+                                  multiFactorSession: MultiFactorSession?)
+      -> Future<String, Error> {
       Future<String, Error> { promise in
         self.verifyPhoneNumber(with: phoneMultiFactorInfo, uiDelegate: uiDelegate,
                                multiFactorSession: multiFactorSession) { verificationID, error in

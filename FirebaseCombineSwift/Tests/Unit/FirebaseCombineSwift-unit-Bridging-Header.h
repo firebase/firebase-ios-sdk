@@ -15,7 +15,6 @@
 #import "SharedTestUtilities/FIROptionsMock.h"
 
 #import <FirebaseAuth/FIREmailAuthProvider.h>
-#import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/AuthProvider/OAuth/FIROAuthCredential_Internal.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
