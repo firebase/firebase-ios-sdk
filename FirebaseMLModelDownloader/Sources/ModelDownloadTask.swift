@@ -89,14 +89,34 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
     return "fbml_model__\(appName)__\(remoteModelInfo.name)"
   }
 
+  /// Handle client-side errors.
   func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
-    // TODO: Handle model download url expiry and other download errors
+    assert(task == downloadTask)
+    guard let error = error else { return }
+    /// Unable to resolve hostname or connect to host.
+    DispatchQueue.main.async {
+      self.downloadHandlers
+        .completion(.failure(.internalError(description: error.localizedDescription)))
+    }
   }
 
   func urlSession(_ session: URLSession,
                   downloadTask: URLSessionDownloadTask,
                   didFinishDownloadingTo location: URL) {
     assert(downloadTask == self.downloadTask)
+    guard let response = downloadTask.response as? HTTPURLResponse else {
+      DispatchQueue.main.async {
+        self.downloadHandlers
+          .completion(.failure(.internalError(description: ModelDownloadTask
+              .invalidServerResponseErrorDescription)))
+      }
+      return
+    }
+
+    guard (200 ..< 299).contains(response.statusCode) else {
+      return
+    }
+
     let modelFileURL = ModelFileManager.getDownloadedModelFilePath(
       appName: appName,
       modelName: remoteModelInfo.name
@@ -109,7 +129,7 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
       DeviceLogger.logEvent(
         level: .info,
         category: .modelDownload,
-        message: "Unable to save downloaded remote model file.",
+        message: ModelDownloadTask.saveModelErrorDescription,
         messageCode: .modelDownloaded
       )
       DispatchQueue.main.async {
@@ -122,7 +142,7 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
       DeviceLogger.logEvent(
         level: .info,
         category: .modelDownload,
-        message: "Unable to save downloaded remote model file.",
+        message: ModelDownloadTask.saveModelErrorDescription,
         messageCode: .modelDownloaded
       )
       DispatchQueue.main.async {
@@ -162,4 +182,12 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
       progressHandler(calculatedProgress)
     }
   }
+}
+
+/// Possible error messages for model downloading.
+extension ModelDownloadTask {
+  private static let invalidServerResponseErrorDescription =
+    "Could not get server response for model downloading."
+  private static let saveModelErrorDescription: StaticString =
+    "Unable to save downloaded remote model file."
 }
