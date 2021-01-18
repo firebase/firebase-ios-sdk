@@ -528,7 +528,7 @@
     ///
     ///   See `AuthErrors` for a list of error codes that are common to all API methods
     @discardableResult
-    public func signIn(withCredential credential: AuthCredential) -> Future<AuthDataResult, Error> {
+    public func signIn(with credential: AuthCredential) -> Future<AuthDataResult, Error> {
       Future<AuthDataResult, Error> { promise in
         self.signIn(with: credential) { authDataResult, error in
           if let error = error {

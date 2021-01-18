@@ -207,7 +207,7 @@ class SignInWithCredentialTests: XCTestCase {
 
     // when
     Auth.auth()
-      .signIn(withCredential: emailCredential)
+      .signIn(with: emailCredential)
       .sink { completion in
         switch completion {
         case .finished:
@@ -249,7 +249,7 @@ class SignInWithCredentialTests: XCTestCase {
 
     // when
     Auth.auth()
-      .signIn(withCredential: emailCredential)
+      .signIn(with: emailCredential)
       .sink { completion in
         if case let .failure(error as NSError) = completion {
           XCTAssertEqual(error.code, AuthErrorCode.userDisabled.rawValue)
@@ -276,7 +276,7 @@ class SignInWithCredentialTests: XCTestCase {
 
     // when
     Auth.auth()
-      .signIn(withCredential: emailCredential)
+      .signIn(with: emailCredential)
       .sink { completion in
         if case let .failure(error as NSError) = completion {
           XCTAssertEqual(error.code, AuthErrorCode.wrongPassword.rawValue)
@@ -310,7 +310,7 @@ class SignInWithCredentialTests: XCTestCase {
 
     // when
     Auth.auth()
-      .signIn(withCredential: googleCredential)
+      .signIn(with: googleCredential)
       .sink { completion in
         if case let .failure(error as NSError) = completion {
           XCTAssertEqual(
@@ -343,7 +343,7 @@ class SignInWithCredentialTests: XCTestCase {
 
     // when
     Auth.auth()
-      .signIn(withCredential: googleCredential)
+      .signIn(with: googleCredential)
       .sink { completion in
         switch completion {
         case .finished:
@@ -386,7 +386,7 @@ class SignInWithCredentialTests: XCTestCase {
 
     // when
     Auth.auth()
-      .signIn(withCredential: googleCredential)
+      .signIn(with: googleCredential)
       .sink { completion in
         if case let .failure(error as NSError) = completion {
           XCTAssertEqual(error.code, AuthErrorCode.emailAlreadyInUse.rawValue)
@@ -416,7 +416,7 @@ class SignInWithCredentialTests: XCTestCase {
 
     // when
     Auth.auth()
-      .signIn(withCredential: googleCredential)
+      .signIn(with: googleCredential)
       .sink { completion in
         switch completion {
         case .finished:
@@ -459,7 +459,7 @@ class SignInWithCredentialTests: XCTestCase {
 
     // when
     Auth.auth()
-      .signIn(withCredential: credential)
+      .signIn(with: credential)
       .sink { completion in
         switch completion {
         case .finished:
@@ -496,7 +496,7 @@ class SignInWithCredentialTests: XCTestCase {
 
     // when
     Auth.auth()
-      .signIn(withCredential: credential)
+      .signIn(with: credential)
       .sink { completion in
         if case let .failure(error as NSError) = completion {
           XCTAssertEqual(error.code, AuthErrorCode.missingVerificationCode.rawValue)
@@ -524,7 +524,7 @@ class SignInWithCredentialTests: XCTestCase {
 
     // when
     Auth.auth()
-      .signIn(withCredential: credential)
+      .signIn(with: credential)
       .sink { completion in
         if case let .failure(error as NSError) = completion {
           XCTAssertEqual(error.code, AuthErrorCode.missingVerificationID.rawValue)
@@ -554,7 +554,7 @@ class SignInWithCredentialTests: XCTestCase {
 
     // when
     Auth.auth()
-      .signIn(withCredential: emailCrendential)
+      .signIn(with: emailCrendential)
       .sink { completion in
         switch completion {
         case .finished:
@@ -595,9 +595,10 @@ class SignInWithCredentialTests: XCTestCase {
 
     // when
     Auth.auth()
-      .signIn(withCredential: emailCrendential)
+      .signIn(with: emailCrendential)
       .sink { completion in
         if case let .failure(error as NSError) = completion {
+          XCTAssertNotNil(error.userInfo[NSLocalizedDescriptionKey])
           XCTAssertEqual(error.code, AuthErrorCode.userDisabled.rawValue)
 
           userSignInExpectation.fulfill()

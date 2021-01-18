@@ -27,7 +27,7 @@
     /// - Parameter assertion: The base class for asserting ownership of a second factor.
     /// - Returns: A publisher that emits an `AuthDataResult` when the sign-in flow completed
     ///   successfully, or an error otherwise.
-    public func resolveSignIn(withAssertion assertion: MultiFactorAssertion)
+    public func resolveSignIn(with assertion: MultiFactorAssertion)
       -> Future<AuthDataResult, Error> {
       Future<AuthDataResult, Error> { promise in
         self.resolveSignIn(with: assertion) { authDataResult, error in
