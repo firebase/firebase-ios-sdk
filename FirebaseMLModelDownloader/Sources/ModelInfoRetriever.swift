@@ -125,7 +125,6 @@ extension ModelInfoRetriever {
       case let .success(authToken):
         /// Get model info fetch URL with appropriate HTTP headers.
         let request = self.getModelInfoFetchURLRequest(token: authToken)
-        // TODO: revisit using ephemeral session with Etag
         let session = URLSession(configuration: .ephemeral)
         /// Download model info.
         let dataTask = session.dataTask(with: request) {

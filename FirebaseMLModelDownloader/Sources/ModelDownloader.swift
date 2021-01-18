@@ -146,9 +146,14 @@ public class ModelDownloader {
             progressHandler: nil,
             completion: { result in
               switch result {
-              // TODO: Log outcome of background download
               case .success: break
-              case .failure: break
+              case .failure:
+                DeviceLogger.logEvent(
+                  level: .info,
+                  category: .modelDownload,
+                  message: ModelDownloader.backgroundModelDownloadErrorDescription,
+                  messageCode: .backgroundDownloadError
+                )
               }
             }
           )
@@ -210,7 +215,6 @@ public class ModelDownloader {
   public func deleteDownloadedModel(name modelName: String,
                                     completion: @escaping (Result<Void, DownloadedModelError>)
                                       -> Void) {
-    // TODO: Delete previously downloaded model
     guard let localModelInfo = getLocalModelInfo(modelName: modelName),
       let localPath = URL(string: localModelInfo.path)
     else {
@@ -287,7 +291,7 @@ extension ModelDownloader {
           guard let localModel = self.getLocalModel(modelName: modelName) else {
             DispatchQueue.main.async {
               /// This can only happen if either local model info or the model file was suddenly wiped out in the middle of model info request and server response
-              // TODO: Consider handling: if model file is deleted after local model info is retrieved but before model info network call
+              // TODO: Consider handling: If model file is deleted after local model info is retrieved but before model info network call.
               completion(
                 .failure(
                   .internalError(description: ModelDownloader.deletedLocalModelInfoErrorDescription)
@@ -339,4 +343,6 @@ extension ModelDownloader {
   private static let outdatedModelPathErrorDescription = "Outdated model paths in local storage."
   private static let deletedLocalModelInfoErrorDescription =
     "Model unavailable due to deleted local model info."
+  private static let backgroundModelDownloadErrorDescription: StaticString =
+    "Failed to update model in background."
 }

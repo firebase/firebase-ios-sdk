@@ -117,7 +117,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       appName: testApp.name,
       localModelInfo: localInfo
     )
-    // TODO: This check seems to be flaky.
+
     let retrieveExpectation = expectation(description: "Wait for model info to be retrieved.")
     modelInfoRetriever.downloadModelInfo(completion: { result in
       switch result {
