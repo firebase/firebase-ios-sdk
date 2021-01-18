@@ -40,6 +40,7 @@ class MemoryBundleCache : public BundleCache {
 
  private:
   std::unordered_map<std::string, bundle::BundleMetadata> bundles_;
+
   std::unordered_map<std::string, bundle::NamedQuery> named_queries_;
 };
 
