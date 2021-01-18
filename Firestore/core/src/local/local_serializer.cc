@@ -64,6 +64,7 @@ using model::SnapshotVersion;
 using model::UnknownDocument;
 using nanopb::ByteString;
 using nanopb::CheckedSize;
+using nanopb::CopyBytesArray;
 using nanopb::MakeArray;
 using nanopb::Message;
 using nanopb::Reader;
@@ -391,7 +392,7 @@ firestore_BundledQuery LocalSerializer::EncodeBundledQuery(
                                 firestore_BundledQuery_LimitType_LAST;
 
   auto query_target = rpc_serializer_.EncodeQueryTarget(query.target());
-  result.parent = query_target.parent;
+  result.parent = CopyBytesArray(query_target.parent);
   result.structured_query = query_target.structured_query;
 
   return result;
