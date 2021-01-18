@@ -982,22 +982,14 @@ google_firestore_v1_Target_QueryTarget Serializer::EncodeQueryTarget(
   return result;
 }
 
-Target Serializer::DecodeQueryTarget(
+Target Serializer::DecodeStructuredQuery(
     nanopb::Reader* reader,
-    const google_firestore_v1_Target_QueryTarget& proto) const {
-  // The QueryTarget oneof only has a single valid value.
-  if (proto.which_query_type !=
-      google_firestore_v1_Target_QueryTarget_structured_query_tag) {
-    reader->Fail(
-        StringFormat("Unknown query_type: %s", proto.which_query_type));
-    return {};
-  }
-
-  ResourcePath path = DecodeQueryPath(reader, DecodeString(proto.parent));
-  const google_firestore_v1_StructuredQuery& query = proto.structured_query;
+    pb_bytes_array_t* parent,
+    const google_firestore_v1_StructuredQuery& structured_query) const {
+  ResourcePath path = DecodeQueryPath(reader, DecodeString(parent));
 
   CollectionGroupId collection_group;
-  size_t from_count = query.from_count;
+  size_t from_count = structured_query.from_count;
   if (from_count > 0) {
     if (from_count != 1) {
       reader->Fail(
@@ -1007,7 +999,7 @@ Target Serializer::DecodeQueryTarget(
     }
 
     google_firestore_v1_StructuredQuery_CollectionSelector& from =
-        query.from[0];
+        structured_query.from[0];
     auto collection_id = DecodeString(from.collection_id);
     if (from.all_descendants) {
       collection_group = std::make_shared<const std::string>(collection_id);
@@ -1017,34 +1009,48 @@ Target Serializer::DecodeQueryTarget(
   }
 
   FilterList filter_by;
-  if (query.where.which_filter_type != 0) {
-    filter_by = DecodeFilters(reader, query.where);
+  if (structured_query.where.which_filter_type != 0) {
+    filter_by = DecodeFilters(reader, structured_query.where);
   }
 
   OrderByList order_by;
-  if (query.order_by_count > 0) {
-    order_by = DecodeOrderBys(reader, query.order_by, query.order_by_count);
+  if (structured_query.order_by_count > 0) {
+    order_by = DecodeOrderBys(reader, structured_query.order_by,
+                              structured_query.order_by_count);
   }
 
   int32_t limit = Target::kNoLimit;
-  if (query.has_limit) {
-    limit = query.limit.value;
+  if (structured_query.has_limit) {
+    limit = structured_query.limit.value;
   }
 
   std::shared_ptr<Bound> start_at;
-  if (query.start_at.values_count > 0) {
-    start_at = DecodeBound(reader, query.start_at);
+  if (structured_query.start_at.values_count > 0) {
+    start_at = DecodeBound(reader, structured_query.start_at);
   }
 
   std::shared_ptr<Bound> end_at;
-  if (query.end_at.values_count > 0) {
-    end_at = DecodeBound(reader, query.end_at);
+  if (structured_query.end_at.values_count > 0) {
+    end_at = DecodeBound(reader, structured_query.end_at);
   }
 
-  return Query(std::move(path), std::move(collection_group),
-               std::move(filter_by), std::move(order_by), limit,
-               LimitType::First, std::move(start_at), std::move(end_at))
-      .ToTarget();
+  return Target(std::move(path), std::move(collection_group),
+                std::move(filter_by), std::move(order_by), limit,
+                std::move(start_at), std::move(end_at));
+}
+
+Target Serializer::DecodeQueryTarget(
+    nanopb::Reader* reader,
+    const google_firestore_v1_Target_QueryTarget& query) const {
+  // The QueryTarget oneof only has a single valid value.
+  if (query.which_query_type !=
+      google_firestore_v1_Target_QueryTarget_structured_query_tag) {
+    reader->Fail(
+        StringFormat("Unknown query_type: %s", query.which_query_type));
+    return {};
+  }
+
+  return DecodeStructuredQuery(reader, query.parent, query.structured_query);
 }
 
 google_firestore_v1_StructuredQuery_Filter Serializer::EncodeFilters(

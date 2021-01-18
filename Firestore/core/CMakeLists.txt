@@ -189,6 +189,8 @@ firebase_ios_glob(
   src/api/*.h
   src/auth/*.cc
   src/auth/*.h
+  src/bundle/*.cc
+  src/bundle/*.h
   src/core/*.cc
   src/core/*.h
   src/immutable/*.cc
