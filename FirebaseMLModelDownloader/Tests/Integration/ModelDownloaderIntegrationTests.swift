@@ -70,6 +70,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       case let .success(modelInfoResult):
         switch modelInfoResult {
         case let .modelInfo(modelInfo):
+          XCTAssertNotNil(modelInfo.urlExpiryTime)
           XCTAssertGreaterThan(modelInfo.downloadURL.absoluteString.count, 0)
           XCTAssertGreaterThan(modelInfo.modelHash.count, 0)
           XCTAssertGreaterThan(modelInfo.size, 0)
@@ -116,7 +117,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       appName: testApp.name,
       localModelInfo: localInfo
     )
-    // TODO: This check seems to be flaky.
+
     let retrieveExpectation = expectation(description: "Wait for model info to be retrieved.")
     modelInfoRetriever.downloadModelInfo(completion: { result in
       switch result {
@@ -152,7 +153,8 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       name: testModelName,
       downloadURL: url,
       modelHash: "mock-valid-hash",
-      size: 10
+      size: 10,
+      urlExpiryTime: Date()
     )
 
     let expectation = self.expectation(description: "Wait for model to download.")
@@ -409,7 +411,6 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       }
       latestModelExpectation.fulfill()
     }
-
     waitForExpectations(timeout: 5, handler: nil)
   }
 }
