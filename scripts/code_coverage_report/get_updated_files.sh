@@ -29,7 +29,7 @@ echo "The common commit is ${common_commit}."
 echo "=============== list changed files ==============="
 cat < <(git diff --name-only $common_commit remotes/origin/${pr_branch})
 echo "========== check paths of changed files =========="
-git diff --name-only $common_commit HEAD > files.txt
+git diff --name-only $common_commit remotes/origin/${pr_branch} > files.txt
 
 touch run_sdk_jobs.txt
 while IFS= read -r file
