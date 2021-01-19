@@ -83,6 +83,7 @@ include(external_rules)
 include(podspec_rules)
 include(cc_rules)
 
+
 set(FIREBASE_SOURCE_DIR ${PROJECT_SOURCE_DIR})
 set(FIREBASE_BINARY_DIR ${PROJECT_BINARY_DIR})
 set(FIREBASE_INSTALL_DIR ${PROJECT_BINARY_DIR}/opt)

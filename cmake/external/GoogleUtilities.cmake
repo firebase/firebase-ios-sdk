@@ -22,7 +22,7 @@ ExternalProject_Add(
   DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
   DOWNLOAD_NAME GoogleUtilities-${version}.tar.gz
   URL https://github.com/google/GoogleUtilities/archive/${version}.tar.gz
-  URL_HASH SHA256=d9e4479d9d8cdd54cc239afc3481d68524bc7919ca095924748bc0787035e7c7
+  URL_HASH SHA256=93c92b28c49b8f7e8cccc2cefe6411fad6e68cbf9638422d3e7ca537cca881a8
 
   PREFIX ${PROJECT_BINARY_DIR}
 
