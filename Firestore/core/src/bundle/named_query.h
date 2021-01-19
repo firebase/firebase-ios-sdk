@@ -68,6 +68,16 @@ class NamedQuery {
   model::SnapshotVersion read_time_;
 };
 
+inline bool operator==(const NamedQuery& lhs, const NamedQuery& rhs) {
+  return lhs.query_name() == rhs.query_name() &&
+         lhs.read_time() == rhs.read_time() &&
+         lhs.bundled_query() == rhs.bundled_query();
+}
+
+inline bool operator!=(const NamedQuery& lhs, const NamedQuery& rhs) {
+  return !(lhs == rhs);
+}
+
 }  // namespace bundle
 }  // namespace firestore
 }  // namespace firebase

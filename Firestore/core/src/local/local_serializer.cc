@@ -393,6 +393,7 @@ firestore_BundledQuery LocalSerializer::EncodeBundledQuery(
 
   auto query_target = rpc_serializer_.EncodeQueryTarget(query.target());
   result.parent = CopyBytesArray(query_target.parent);
+  result.which_query_type = firestore_BundledQuery_structured_query_tag;
   result.structured_query = query_target.structured_query;
 
   return result;

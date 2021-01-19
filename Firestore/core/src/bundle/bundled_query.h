@@ -39,9 +39,9 @@ class BundledQuery {
   }
 
   /**
-   * @return The target that represents the user-issued query when build bundles.
-   * Client side transformations are not performed for client-specific features:
-   * order by constraints are not inverted for limit to last queries,
+   * @return The target that represents the user-issued query when build
+   * bundles. Client side transformations are not performed for client-specific
+   * features: order by constraints are not inverted for limit to last queries,
    * for example.
    */
   const core::Target& target() const {
@@ -59,6 +59,14 @@ class BundledQuery {
   core::Target target_;
   core::LimitType limit_type_;
 };
+
+inline bool operator==(const BundledQuery& lhs, const BundledQuery& rhs) {
+  return lhs.target() == rhs.target() && lhs.limit_type() == rhs.limit_type();
+}
+
+inline bool operator!=(const BundledQuery& lhs, const BundledQuery& rhs) {
+  return !(lhs == rhs);
+}
 
 }  // namespace bundle
 }  // namespace firestore

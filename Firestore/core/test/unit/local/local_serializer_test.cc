@@ -16,11 +16,16 @@
 
 #include "Firestore/core/src/local/local_serializer.h"
 
+#include "Firestore/Protos/cpp/firestore/bundle.pb.h"
 #include "Firestore/Protos/cpp/firestore/local/maybe_document.pb.h"
 #include "Firestore/Protos/cpp/firestore/local/mutation.pb.h"
 #include "Firestore/Protos/cpp/firestore/local/target.pb.h"
 #include "Firestore/Protos/cpp/google/firestore/v1/firestore.pb.h"
+#include "Firestore/core/src/bundle/bundled_query.h"
+#include "Firestore/core/src/bundle/named_query.h"
+#include "Firestore/core/src/core/field_filter.h"
 #include "Firestore/core/src/core/query.h"
+#include "Firestore/core/src/core/target.h"
 #include "Firestore/core/src/local/target_data.h"
 #include "Firestore/core/src/model/delete_mutation.h"
 #include "Firestore/core/src/model/document.h"
@@ -52,7 +57,10 @@ namespace firestore {
 namespace local {
 
 namespace v1 = google::firestore::v1;
+using bundle::BundledQuery;
+using bundle::NamedQuery;
 using core::Query;
+using core::Target;
 using ::google::protobuf::util::MessageDifferencer;
 using model::DatabaseId;
 using model::Document;
@@ -84,8 +92,10 @@ using nanopb::Writer;
 using testutil::DeletedDoc;
 using testutil::Doc;
 using testutil::Field;
+using testutil::Filter;
 using testutil::Key;
 using testutil::Map;
+using testutil::OrderBy;
 using testutil::Query;
 using testutil::UnknownDoc;
 using testutil::WrapObject;
@@ -194,6 +204,31 @@ class LocalSerializerTest : public ::testing::Test {
   ByteString EncodeMutationBatch(local::LocalSerializer* serializer,
                                  const MutationBatch& mutation_batch) {
     return MakeByteString(serializer->EncodeMutationBatch(mutation_batch));
+  }
+
+  void ExpectSerializationRoundTrip(const NamedQuery& named_query,
+                                    const ::firestore::NamedQuery& proto) {
+    ByteString bytes = EncodeNamedQuery(&serializer, named_query);
+    auto actual = ProtobufParse<::firestore::NamedQuery>(bytes);
+    EXPECT_TRUE(msg_diff.Compare(proto, actual)) << message_differences;
+  }
+
+  ByteString EncodeNamedQuery(local::LocalSerializer* serializer,
+                              const NamedQuery& named_query) {
+    return MakeByteString(serializer->EncodeNamedQuery(named_query));
+  }
+
+  void ExpectDeserializationRoundTrip(const NamedQuery& named_query,
+                                      const ::firestore::NamedQuery& proto) {
+    ByteString bytes = ProtobufSerialize(proto);
+    StringReader reader(bytes);
+
+    auto message = Message<firestore_NamedQuery>::TryParse(&reader);
+    NamedQuery actual_named_query =
+        serializer.DecodeNamedQuery(&reader, *message);
+
+    EXPECT_OK(reader.status());
+    EXPECT_EQ(named_query, actual_named_query);
   }
 
   std::string message_differences;
@@ -403,6 +438,90 @@ TEST_F(LocalSerializerTest, EncodesTargetDataWithDocumentQuery) {
   documents_proto->add_documents("projects/p/databases/d/documents/room/1");
 
   ExpectRoundTrip(target_data, expected);
+}
+
+TEST_F(LocalSerializerTest, EncodesNamedQuery) {
+  auto now = Timestamp::Now();
+  Target t =
+      testutil::Query("a").AddingFilter(Filter("foo", "==", 1)).ToTarget();
+  BundledQuery bundle_query(t, core::LimitType::First);
+  NamedQuery named_query("query-1", bundle_query, SnapshotVersion(now));
+
+  // Constructing expected proto lite class.
+  ::firestore::BundledQuery expected_bundled_query;
+  expected_bundled_query.set_parent("projects/p/databases/d/documents");
+  expected_bundled_query.set_limit_type(
+      ::firestore::BundledQuery_LimitType_FIRST);
+
+  v1::StructuredQuery::CollectionSelector from;
+  from.set_collection_id("a");
+  *expected_bundled_query.mutable_structured_query()->add_from() =
+      std::move(from);
+
+  v1::StructuredQuery::FieldFilter field_filter;
+  field_filter.mutable_field()->set_field_path("foo");
+  field_filter.mutable_value()->set_integer_value(1);
+  field_filter.set_op(
+      google::firestore::v1::StructuredQuery_FieldFilter_Operator_EQUAL);
+  *expected_bundled_query.mutable_structured_query()
+       ->mutable_where()
+       ->mutable_field_filter() = std::move(field_filter);
+
+  v1::StructuredQuery::Order order;
+  order.mutable_field()->set_field_path(FieldPath::kDocumentKeyPath);
+  order.set_direction(v1::StructuredQuery::ASCENDING);
+  *expected_bundled_query.mutable_structured_query()->add_order_by() =
+      std::move(order);
+
+  ::firestore::NamedQuery expected_named_query;
+  expected_named_query.set_name("query-1");
+  expected_named_query.mutable_read_time()->set_seconds(now.seconds());
+  expected_named_query.mutable_read_time()->set_nanos(now.nanoseconds());
+  *expected_named_query.mutable_bundled_query() =
+      std::move(expected_bundled_query);
+
+  ExpectRoundTrip(named_query, expected_named_query);
+}
+
+TEST_F(LocalSerializerTest, EncodesNamedLimitToLastQuery) {
+  auto now = Timestamp::Now();
+  Target t = testutil::Query("a")
+                 // Note we use a limit to first query here because `Target`
+                 // cannot be stored with limit type information. It is stored
+                 // in `BundledQuery` instead.
+                 .WithLimitToFirst(3)
+                 .ToTarget();
+  BundledQuery bundle_query(t, core::LimitType::Last);
+  NamedQuery named_query("query-1", bundle_query, SnapshotVersion(now));
+
+  // Constructing expected proto lite class.
+  ::firestore::BundledQuery expected_bundled_query;
+  expected_bundled_query.set_parent("projects/p/databases/d/documents");
+  expected_bundled_query.set_limit_type(
+      ::firestore::BundledQuery_LimitType_LAST);
+
+  expected_bundled_query.mutable_structured_query()->mutable_limit()->set_value(
+      3);
+
+  v1::StructuredQuery::CollectionSelector from;
+  from.set_collection_id("a");
+  *expected_bundled_query.mutable_structured_query()->add_from() =
+      std::move(from);
+
+  v1::StructuredQuery::Order order;
+  order.mutable_field()->set_field_path(FieldPath::kDocumentKeyPath);
+  order.set_direction(v1::StructuredQuery::ASCENDING);
+  *expected_bundled_query.mutable_structured_query()->add_order_by() =
+      std::move(order);
+
+  ::firestore::NamedQuery expected_named_query;
+  expected_named_query.set_name("query-1");
+  expected_named_query.mutable_read_time()->set_seconds(now.seconds());
+  expected_named_query.mutable_read_time()->set_nanos(now.nanoseconds());
+  *expected_named_query.mutable_bundled_query() =
+      std::move(expected_bundled_query);
+
+  ExpectRoundTrip(named_query, expected_named_query);
 }
 
 }  // namespace local

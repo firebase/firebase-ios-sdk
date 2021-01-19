@@ -69,6 +69,15 @@ class BundleMetadata {
   model::SnapshotVersion create_time_;
 };
 
+inline bool operator==(const BundleMetadata& lhs, const BundleMetadata& rhs) {
+  return lhs.bundle_id() == rhs.bundle_id() && lhs.version() == rhs.version() &&
+         lhs.create_time() == rhs.create_time();
+}
+
+inline bool operator!=(const BundleMetadata& lhs, const BundleMetadata& rhs) {
+  return !(lhs == rhs);
+}
+
 }  // namespace bundle
 }  // namespace firestore
 }  // namespace firebase
