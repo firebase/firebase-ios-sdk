@@ -53,21 +53,14 @@ class ModelDownloadTask: NSObject {
   private let downloadHandlers: DownloadHandlers
   /// Keeps track of download associated with this model download task.
   private(set) var downloadStatus: ModelDownloadStatus
-  /// Background session identifier.
-  private let backgroundSessionIdentifier = "ModelDownloadBackgroundSession"
-  /// Optional background completion handler.
-  private var backgroundCompletion: (() -> Void)?
   /// URLSession to handle model downloads.
   private lazy var downloadSession: URLSession = {
     var configuration = URLSessionConfiguration.ephemeral
-    if conditions.allowsBackgroundDownloading {
-      configuration = URLSessionConfiguration
-        .background(withIdentifier: backgroundSessionIdentifier)
-      configuration.sessionSendsLaunchEvents = true
-    }
-    if #available(iOS 11.0, *) {
+    /// Wait for network connectivity, if unavailable.
+    if #available(iOS 11.0, macOS 10.13, macCatalyst 13.0, tvOS 11.0, watchOS 4.0, *) {
       configuration.waitsForConnectivity = true
-      configuration.timeoutIntervalForResource = 60
+      /// Wait for 10 minutes.
+      configuration.timeoutIntervalForResource = 600
     }
     configuration.allowsCellularAccess = conditions.allowsCellularAccess
     return URLSession(configuration: configuration, delegate: self, delegateQueue: nil)
@@ -198,25 +191,6 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
     let calculatedProgress = Float(totalBytesWritten) / Float(totalBytesExpectedToWrite)
     DispatchQueue.main.async {
       progressHandler(calculatedProgress)
-    }
-  }
-}
-
-/// Extension to handle background downloading.
-extension ModelDownloadTask: UIApplicationDelegate {
-  /// Save completion handler for background download.
-  func application(_ application: UIApplication,
-                   handleEventsForBackgroundURLSession identifier: String,
-                   completionHandler: @escaping () -> Void) {
-    assert(identifier == backgroundSessionIdentifier)
-    backgroundCompletion = completionHandler
-  }
-
-  /// Call background completion handler when resumed from background.
-  func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
-    DispatchQueue.main.async {
-      guard let backgroundCompletionHandler = self.backgroundCompletion else { return }
-      backgroundCompletionHandler()
     }
   }
 }

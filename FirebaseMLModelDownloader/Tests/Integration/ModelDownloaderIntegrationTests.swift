@@ -420,7 +420,6 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
 
     // TODO: Figure out a better way to test this.
     var conditions = ModelDownloadConditions()
-    conditions.allowsBackgroundDownloading = true
     conditions.allowsCellularAccess = false
 
     let modelDownloader = ModelDownloader.modelDownloaderWithDefaults(
