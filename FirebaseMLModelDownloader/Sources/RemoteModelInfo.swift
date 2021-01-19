@@ -1,4 +1,4 @@
-// Copyright 2020 Google LLC
+// Copyright 2021 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,10 +29,14 @@ struct RemoteModelInfo {
   /// Size of the model, as returned by server.
   let size: Int
 
-  init(name: String, downloadURL: URL, modelHash: String, size: Int) {
+  /// Model download URL expiry time, as returned by server.
+  let urlExpiryTime: Date
+
+  init(name: String, downloadURL: URL, modelHash: String, size: Int, urlExpiryTime: Date) {
     self.name = name
     self.downloadURL = downloadURL
     self.modelHash = modelHash
     self.size = size
+    self.urlExpiryTime = urlExpiryTime
   }
 }

@@ -64,6 +64,9 @@
     FIRDataSnapshot* snap = exp.snap;
     NSDictionary* result = snap.value;
     NSDictionary* expected = exp.expectation;
+    if ([result isEqual:[NSNull null]] && [expected count] == 0) {
+      continue;
+    }
     if ([result isEqual:[NSNull null]] || ![result isEqualToDictionary:expected]) {
       return NO;
     }
@@ -76,6 +79,11 @@
     FIRDataSnapshot* snap = exp.snap;
     NSDictionary* result = [snap value];
     NSDictionary* expected = exp.expectation;
+    if ([expected count] == 0) {
+      XCTAssertTrue([result isEqual:[NSNull null]], @"Expectation mismatch: %@ should be %@",
+                    result, expected);
+      continue;
+    }
     XCTAssertTrue([result isEqualToDictionary:expected], @"Expectation mismatch: %@ should be %@",
                   result, expected);
   }

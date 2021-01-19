@@ -1,4 +1,4 @@
-// Copyright 2020 Google LLC
+// Copyright 2021 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,10 +16,11 @@ import Foundation
 import FirebaseCore
 
 /// Possible states of model downloading.
-enum DownloadStatus {
+enum ModelDownloadStatus {
   case notStarted
   case inProgress
-  case completed
+  case successful
+  case failed
 }
 
 /// Progress and completion handlers for a model download.
@@ -49,17 +50,21 @@ class ModelDownloadTask: NSObject {
   /// Progress and completion handlers associated with this model download task.
   private let downloadHandlers: DownloadHandlers
   /// Keeps track of download associated with this model download task.
-  private(set) var downloadStatus: DownloadStatus = .notStarted
+  private(set) var downloadStatus: ModelDownloadStatus = .notStarted
   /// URLSession to handle model downloads.
   private lazy var downloadSession = URLSession(configuration: .ephemeral,
                                                 delegate: self,
                                                 delegateQueue: nil)
+  /// Telemetry logger.
+  private let telemetryLogger: TelemetryLogger?
 
   init(remoteModelInfo: RemoteModelInfo, appName: String, defaults: UserDefaults,
+       telemetryLogger: TelemetryLogger? = nil,
        progressHandler: DownloadHandlers.ProgressHandler? = nil,
        completion: @escaping DownloadHandlers.Completion) {
     self.remoteModelInfo = remoteModelInfo
     self.appName = appName
+    self.telemetryLogger = telemetryLogger
     self.defaults = defaults
     downloadHandlers = DownloadHandlers(
       progressHandler: progressHandler,
@@ -84,21 +89,65 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
     return "fbml_model__\(appName)__\(remoteModelInfo.name)"
   }
 
+  /// Handle client-side errors.
+  func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+    // TODO: Log this.
+    guard task == downloadTask else { return }
+    guard let error = error else { return }
+    /// Unable to resolve hostname or connect to host.
+    DispatchQueue.main.async {
+      self.downloadHandlers
+        .completion(.failure(.internalError(description: error.localizedDescription)))
+    }
+  }
+
   func urlSession(_ session: URLSession,
                   downloadTask: URLSessionDownloadTask,
                   didFinishDownloadingTo location: URL) {
-    assert(downloadTask == self.downloadTask)
-    downloadStatus = .completed
-    let savedURL = ModelFileManager.modelsDirectory
-      .appendingPathComponent(downloadedModelFileName)
+    // TODO: Log this.
+    guard downloadTask == self.downloadTask else { return }
+    guard let response = downloadTask.response as? HTTPURLResponse else {
+      DispatchQueue.main.async {
+        self.downloadHandlers
+          .completion(.failure(.internalError(description: ModelDownloadTask
+              .ErrorDescription.invalidServerResponse)))
+      }
+      return
+    }
+
+    guard (200 ..< 299).contains(response.statusCode) else {
+      // TODO: Handle download url expiry + retries.
+      return
+    }
+
+    let modelFileURL = ModelFileManager.getDownloadedModelFilePath(
+      appName: appName,
+      modelName: remoteModelInfo.name
+    )
     do {
-      try ModelFileManager.moveFile(at: location, to: savedURL)
+      try ModelFileManager.moveFile(at: location, to: modelFileURL)
     } catch let error as DownloadError {
+      downloadStatus = .failed
+      telemetryLogger?.logModelDownloadEvent(eventName: .modelDownload, status: downloadStatus)
+      DeviceLogger.logEvent(
+        level: .info,
+        category: .modelDownload,
+        message: ModelDownloadTask.ErrorDescription.saveModel,
+        messageCode: .modelDownloaded
+      )
       DispatchQueue.main.async {
         self.downloadHandlers
           .completion(.failure(error))
       }
     } catch {
+      downloadStatus = .failed
+      telemetryLogger?.logModelDownloadEvent(eventName: .modelDownload, status: downloadStatus)
+      DeviceLogger.logEvent(
+        level: .info,
+        category: .modelDownload,
+        message: ModelDownloadTask.ErrorDescription.saveModel,
+        messageCode: .modelDownloaded
+      )
       DispatchQueue.main.async {
         self.downloadHandlers
           .completion(.failure(.internalError(description: error.localizedDescription)))
@@ -106,11 +155,18 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
     }
 
     /// Generate local model info.
-    let localModelInfo = LocalModelInfo(from: remoteModelInfo, path: savedURL.absoluteString)
+    let localModelInfo = LocalModelInfo(from: remoteModelInfo, path: modelFileURL.absoluteString)
     /// Write model to user defaults.
     localModelInfo.writeToDefaults(defaults, appName: appName)
     /// Build model from model info.
     let model = CustomModel(localModelInfo: localModelInfo)
+    downloadStatus = .successful
+    telemetryLogger?.logModelDownloadEvent(
+      eventName: .modelDownload,
+      status: downloadStatus,
+      model: model
+    )
+
     DispatchQueue.main.async {
       self.downloadHandlers.completion(.success(model))
     }
@@ -121,12 +177,24 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
                   didWriteData bytesWritten: Int64,
                   totalBytesWritten: Int64,
                   totalBytesExpectedToWrite: Int64) {
-    assert(downloadTask == self.downloadTask)
+    // TODO: Log this.
+    guard downloadTask == self.downloadTask else { return }
     /// Check if progress handler is unspecified.
     guard let progressHandler = downloadHandlers.progressHandler else { return }
     let calculatedProgress = Float(totalBytesWritten) / Float(totalBytesExpectedToWrite)
     DispatchQueue.main.async {
       progressHandler(calculatedProgress)
     }
+  }
+}
+
+/// Possible error messages for model downloading.
+extension ModelDownloadTask {
+  /// Error descriptions.
+  private enum ErrorDescription {
+    static let invalidServerResponse =
+      "Could not get server response for model downloading."
+    static let saveModel: StaticString =
+      "Unable to save downloaded remote model file."
   }
 }

@@ -1,4 +1,4 @@
-// Copyright 2020 Google LLC
+// Copyright 2021 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import FirebaseInstallations
 /// Model info response object.
 private struct ModelInfoResponse: Codable {
   var downloadURL: String
-  var expireTime: String
+  var urlExpiryTime: String
   var size: String
 }
 
@@ -27,7 +27,7 @@ private struct ModelInfoResponse: Codable {
 private extension ModelInfoResponse {
   enum CodingKeys: String, CodingKey {
     case downloadURL = "downloadUri"
-    case expireTime
+    case urlExpiryTime = "expireTime"
     case size = "sizeBytes"
   }
 }
@@ -72,13 +72,6 @@ extension ModelInfoRetriever {
   /// HTTP response headers.
   private static let etagHTTPHeader = "Etag"
 
-  /// Error descriptions.
-  private static let tokenErrorDescription = "Error retrieving FIS token."
-  private static let selfDeallocatedErrorDescription = "Self deallocated."
-  private static let missingModelHashErrorDescription = "Model hash missing in server response."
-  private static let invalidHTTPResponseErrorDescription =
-    "Could not get a valid HTTP response from server."
-
   /// Construct model fetch base URL.
   var modelInfoFetchURL: URL {
     let projectID = options.projectID ?? ""
@@ -116,7 +109,8 @@ extension ModelInfoRetriever {
     installations.authToken { tokenResult, error in
       guard let result = tokenResult
       else {
-        completion(.failure(.internalError(description: ModelInfoRetriever.tokenErrorDescription)))
+        completion(.failure(.internalError(description: ModelInfoRetriever.ErrorDescription
+            .fisToken)))
         return
       }
       completion(.success(result.authToken))
@@ -132,22 +126,16 @@ extension ModelInfoRetriever {
       case let .success(authToken):
         /// Get model info fetch URL with appropriate HTTP headers.
         let request = self.getModelInfoFetchURLRequest(token: authToken)
-        // TODO: revisit using ephemeral session with Etag
         let session = URLSession(configuration: .ephemeral)
         /// Download model info.
-        let dataTask = session.dataTask(with: request) { [weak self]
+        let dataTask = session.dataTask(with: request) {
           data, response, error in
-          guard let self = self else {
-            completion(.failure(.internalError(description: ModelInfoRetriever
-                .selfDeallocatedErrorDescription)))
-            return
-          }
           if let downloadError = error {
             completion(.failure(.internalError(description: downloadError.localizedDescription)))
           } else {
             guard let httpResponse = response as? HTTPURLResponse else {
-              completion(.failure(.internalError(description: ModelInfoRetriever
-                  .invalidHTTPResponseErrorDescription)))
+              completion(.failure(.internalError(description: ModelInfoRetriever.ErrorDescription
+                  .invalidHTTPResponse)))
               return
             }
 
@@ -155,14 +143,14 @@ extension ModelInfoRetriever {
             case 200:
               guard let modelHash = httpResponse
                 .allHeaderFields[ModelInfoRetriever.etagHTTPHeader] as? String else {
-                completion(.failure(.internalError(description: ModelInfoRetriever
-                    .missingModelHashErrorDescription)))
+                completion(.failure(.internalError(description: ModelInfoRetriever.ErrorDescription
+                    .missingModelHash)))
                 return
               }
 
               guard let data = data else {
-                completion(.failure(.internalError(description: ModelInfoRetriever
-                    .invalidHTTPResponseErrorDescription)))
+                completion(.failure(.internalError(description: ModelInfoRetriever.ErrorDescription
+                    .invalidHTTPResponse)))
                 return
               }
               do {
@@ -170,7 +158,8 @@ extension ModelInfoRetriever {
                 completion(.success(.modelInfo(modelInfo)))
               } catch {
                 completion(
-                  .failure(.internalError(description: "Failed to retrieve model info: \(error)"))
+                  .failure(.internalError(description: ModelInfoRetriever.ErrorDescription
+                      .modelInfoRetrieval(error.localizedDescription)))
                 )
               }
             case 304:
@@ -178,7 +167,8 @@ extension ModelInfoRetriever {
               // TODO: Is this needed? Currently handles the case if model info disappears between request and response
               guard self.localModelInfo != nil else {
                 completion(
-                  .failure(.internalError(description: "Model info was deleted unexpectedly."))
+                  .failure(.internalError(description: ModelInfoRetriever.ErrorDescription
+                      .unexpectedModelInfoDeletion))
                 )
                 return
               }
@@ -189,7 +179,8 @@ extension ModelInfoRetriever {
             default:
               completion(.failure(
                 .internalError(
-                  description: "Server returned with error - \(httpResponse.statusCode)."
+                  description: ModelInfoRetriever
+                    .ErrorDescription.serverResponse(httpResponse.statusCode)
                 )
               ))
             }
@@ -198,9 +189,26 @@ extension ModelInfoRetriever {
         dataTask.resume()
       /// FIS token error.
       case .failure:
-        completion(.failure(.internalError(description: ModelInfoRetriever.tokenErrorDescription)))
+        completion(.failure(.internalError(description: ModelInfoRetriever.ErrorDescription
+            .fisToken)))
         return
       }
+    }
+  }
+
+  /// Parse date from string - used to get download URL expiry time.
+  private static func getDateFromString(_ strDate: String) -> Date? {
+    if #available(iOS 11, macOS 10.13, macCatalyst 13.0, tvOS 11.0, watchOS 4.0, *) {
+      let dateFormatter = ISO8601DateFormatter()
+      dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+      dateFormatter.formatOptions = [.withFractionalSeconds]
+      return dateFormatter.date(from: strDate)
+    } else {
+      let dateFormatter = DateFormatter()
+      dateFormatter.locale = Locale(identifier: "en-US_POSIX")
+      dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+      dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+      return dateFormatter.date(from: strDate)
     }
   }
 
@@ -214,15 +222,51 @@ extension ModelInfoRetriever {
     }
     // TODO: Possibly improve handling invalid server responses.
     guard let downloadURL = URL(string: modelInfoJSON.downloadURL) else {
-      throw DownloadError.internalError(description: "Invalid model download URL from server.")
+      throw DownloadError
+        .internalError(description: ModelInfoRetriever.ErrorDescription
+          .invalidModelDownloadURL)
     }
     let modelHash = modelHash
     let size = Int(modelInfoJSON.size) ?? 0
+    guard let expiryTime = ModelInfoRetriever.getDateFromString(modelInfoJSON.urlExpiryTime) else {
+      throw DownloadError
+        .internalError(description: ModelInfoRetriever.ErrorDescription
+          .invalidModelDownloadURLExpiryTime)
+    }
     return RemoteModelInfo(
       name: modelName,
       downloadURL: downloadURL,
       modelHash: modelHash,
-      size: size
+      size: size,
+      urlExpiryTime: expiryTime
     )
+  }
+}
+
+/// Possible error messages for model info retrieval.
+extension ModelInfoRetriever {
+  /// Error descriptions.
+  private enum ErrorDescription {
+    static let fisToken = "Error retrieving FIS token."
+    static let selfDeallocated = "Self deallocated."
+    static let missingModelHash = "Model hash missing in server response."
+    static let invalidHTTPResponse =
+      "Could not get a valid HTTP response from server."
+    static let modelInfoRetrieval = { (error: String) in
+      "Failed to parse model info: \(error)"
+    }
+
+    static let unexpectedModelInfoDeletion =
+      "Model info was deleted unexpectedly."
+    static let serverResponse = { (errorCode: Int) in
+      "Server returned with HTTP error code: \(errorCode)."
+    }
+
+    static let modelInfoResponseDecode =
+      "Unable to decode model info response from server."
+    static let invalidModelDownloadURL =
+      "Invalid model download URL from server."
+    static let invalidModelDownloadURLExpiryTime =
+      "Invalid download URL expiry time from server."
   }
 }

@@ -1,4 +1,4 @@
-// Copyright 2020 Google LLC
+// Copyright 2021 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -44,7 +44,24 @@ final class ModelDownloaderUnitTests: XCTestCase {
   // TODO: Add unit test with mocks.
   func testStartModelDownload() {}
 
-  func testExample() {
+  /// Test model file deletion.
+  // TODO: Add unit test.
+  func testDeleteModel() {}
+
+  /// Test listing models in model directory.
+  // TODO: Add unit test.
+  func testListModels() {
+    let modelDownloader = ModelDownloader.modelDownloader()
+
+    modelDownloader.listDownloadedModels { result in
+      switch result {
+      case .success: break
+      case .failure: break
+      }
+    }
+  }
+
+  func testGetModel() {
     // This is an example of a functional test case.
     // Use XCTAssert and related functions to verify your tests produce the correct
     // results.
@@ -54,7 +71,6 @@ final class ModelDownloaderUnitTests: XCTestCase {
     }
 
     let modelDownloader = ModelDownloader.modelDownloader()
-
     let modelDownloaderWithApp = ModelDownloader.modelDownloader(app: testApp)
 
     /// These should point to the same instance.
@@ -105,5 +121,30 @@ final class ModelDownloaderUnitTests: XCTestCase {
         break
       }
     }
+  }
+
+  /// Compare proto serialization methods.
+  func testTelemetryEncoding() {
+    let fakeModel = CustomModel(
+      name: "fakeModelName",
+      size: 10,
+      path: "fakeModelPath",
+      hash: "fakeModelHash"
+    )
+    var modelOptions = ModelOptions()
+    modelOptions.setModelOptions(model: fakeModel)
+
+    guard let binaryData = try? modelOptions.serializedData(),
+      let jsonData = try? modelOptions.jsonUTF8Data(),
+      let binaryEvent = try? ModelOptions(serializedData: binaryData),
+      let jsonEvent = try? ModelOptions(jsonUTF8Data: jsonData) else {
+      XCTFail("Encoding error.")
+      return
+    }
+
+    XCTAssertNotNil(binaryData)
+    XCTAssertNotNil(jsonData)
+    XCTAssertLessThan(binaryData.count, jsonData.count)
+    XCTAssertEqual(binaryEvent, jsonEvent)
   }
 }

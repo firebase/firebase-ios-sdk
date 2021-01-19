@@ -22,7 +22,7 @@
 
 import PackageDescription
 
-let firebaseVersion = "7.3.1"
+let firebaseVersion = "7.4.0"
 
 let package = Package(
   name: "Firebase",
@@ -97,6 +97,11 @@ let package = Package(
   ],
   dependencies: [
     .package(name: "Promises", url: "https://github.com/google/promises.git", "1.2.8" ..< "1.3.0"),
+    .package(
+      name: "SwiftProtobuf",
+      url: "https://github.com/apple/swift-protobuf.git",
+      from: "1.14.0"
+    ),
     .package(
       name: "GTMSessionFetcher",
       url: "https://github.com/google/gtm-session-fetcher.git",
@@ -230,13 +235,13 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/7.3.0/FirebaseAnalytics.zip",
-      checksum: "c1d7a3750c451eb35bb1b43973607ac228d46192d1a7129c6accafa79419e8dd"
+      url: "https://dl.google.com/firebase/ios/swiftpm/7.4.0/FirebaseAnalytics.zip",
+      checksum: "560bf11462c9e064c0d55e10aef761af420f4f531415e896cac18edc88e9666f"
     ),
     .binaryTarget(
       name: "GoogleAppMeasurement",
-      url: "https://dl.google.com/firebase/ios/swiftpm/7.3.0/GoogleAppMeasurement.zip",
-      checksum: "d1543ebb82ffbefd978737a8ec6c970730b0bd03b541f009c6fb2e6794d94d41"
+      url: "https://dl.google.com/firebase/ios/swiftpm/7.4.0/GoogleAppMeasurement.zip",
+      checksum: "5c4e13589e8b5c357309dd8e5f57d81ab3e3ee5a731b034c4703e700d60d667a"
     ),
 
     .target(
@@ -592,6 +597,7 @@ let package = Package(
       dependencies: [
         "FirebaseCore",
         "FirebaseInstallations",
+        "SwiftProtobuf",
       ],
       path: "FirebaseMLModelDownloader/Sources",
       cSettings: [

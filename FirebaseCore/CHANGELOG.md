@@ -1,3 +1,5 @@
+# Unreleased
+- [fixed] Fixed potential deadlock with objc_copyImageNames call. (#7310)
 # Firebase 7.4.0
 - [changed] Patch update to nanopb 0.3.9.7 that fixes a memory leak and other issues. (#7090)
 - [added] Zip distribution now includes community supported macOS and tvOS libraries. Product

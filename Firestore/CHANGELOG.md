@@ -1,3 +1,8 @@
+# Unreleased
+- [fixed] Fixed an issue where using `FieldValue.arrayRemove()` would only delete the
+  first occurrence of an element in an array in a latency
+  compensated snapshots.
+
 # v7.3.0
 - [fixed] Fixed a crash that could happen when the SDK encountered invalid
   data during garbage collection (#6721).
