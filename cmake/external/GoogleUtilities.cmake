@@ -1,4 +1,4 @@
-# Copyright 2018 Google LLC
+# Copyright 2021 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,26 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required(VERSION 3.5.1)
-project(Firebase-download C CXX)
+include(ExternalProject)
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
+set(version 7.2.0)
 
-set(
-  FIREBASE_DOWNLOAD_DIR
-  ${PROJECT_BINARY_DIR}/downloads
-  CACHE PATH "Where to store downloaded files"
+ExternalProject_Add(
+  GoogleUtilities
+
+  DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
+  DOWNLOAD_NAME GoogleUtilities-${version}.tar.gz
+  URL https://github.com/google/GoogleUtilities/archive/${version}.tar.gz
+  URL_HASH SHA256=d9e4479d9d8cdd54cc239afc3481d68524bc7919ca095924748bc0787035e7c7
+
+  PREFIX ${PROJECT_BINARY_DIR}
+
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND ""
+  INSTALL_COMMAND ""
+  TEST_COMMAND ""
 )
-
-include(abseil-cpp)
-include(benchmark)
-include(boringssl)
-include(c-ares)
-include(googletest)
-include(GoogleUtilities)
-include(grpc)
-include(leveldb)
-include(libfuzzer)
-include(nanopb)
-include(protobuf)
-include(zlib)

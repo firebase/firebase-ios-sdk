@@ -83,6 +83,8 @@ include(external_rules)
 include(podspec_rules)
 include(cc_rules)
 
+# GoogleUtilities is an external dependency without its own cmake configuration.
+include(GoogleUtilities)
 
 set(FIREBASE_SOURCE_DIR ${PROJECT_SOURCE_DIR})
 set(FIREBASE_BINARY_DIR ${PROJECT_BINARY_DIR})
@@ -264,6 +266,5 @@ endif()
 
 add_subdirectory(FirebaseCore)
 add_subdirectory(Firestore)
-add_subdirectory(GoogleUtilities)
 add_subdirectory(Interop/Auth)
 add_subdirectory(Interop/CoreDiagnostics)
