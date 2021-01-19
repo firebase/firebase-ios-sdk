@@ -101,7 +101,7 @@ public class ModelDownloader {
   /// Model downloader with default app.
   public static func modelDownloader() -> ModelDownloader {
     guard let defaultApp = FirebaseApp.app() else {
-      fatalError(ModelDownloader.defaultAppNotConfiguredErrorDescription)
+      fatalError(ModelDownloader.ErrorDescription.defaultAppNotConfigured)
     }
     return modelDownloader(app: defaultApp)
   }
@@ -151,7 +151,7 @@ public class ModelDownloader {
                 DeviceLogger.logEvent(
                   level: .info,
                   category: .modelDownload,
-                  message: ModelDownloader.backgroundModelDownloadErrorDescription,
+                  message: ModelDownloader.ErrorDescription.backgroundModelDownload,
                   messageCode: .backgroundDownloadError
                 )
               }
@@ -184,19 +184,21 @@ public class ModelDownloader {
       for path in modelPaths {
         guard let modelName = ModelFileManager.getModelNameFromFilePath(path) else {
           completion(.failure(.internalError(description: ModelDownloader
-              .parseModelNameErrorDescription(path.absoluteString))))
+              .ErrorDescription
+              .parseModelName(path.absoluteString))))
           return
         }
         guard let modelInfo = getLocalModelInfo(modelName: modelName) else {
           completion(
-            .failure(.internalError(description: ModelDownloader
-                .retrieveLocalModelInfoErrorDescription))
+            .failure(.internalError(description: ModelDownloader.ErrorDescription
+                .retrieveLocalModelInfo))
           )
           return
         }
         guard modelInfo.path == path.absoluteString else {
           completion(
-            .failure(.internalError(description: ModelDownloader.outdatedModelPathErrorDescription))
+            .failure(.internalError(description: ModelDownloader.ErrorDescription
+                .outdatedModelPath))
           )
           return
         }
@@ -294,7 +296,8 @@ extension ModelDownloader {
               // TODO: Consider handling: If model file is deleted after local model info is retrieved but before model info network call.
               completion(
                 .failure(
-                  .internalError(description: ModelDownloader.deletedLocalModelInfoErrorDescription)
+                  .internalError(description: ModelDownloader.ErrorDescription
+                    .deletedLocalModelInfo)
                 )
               )
             }
@@ -332,17 +335,20 @@ extension ModelDownloader {
 
 /// Possible error messages while using model downloader.
 extension ModelDownloader {
-  private static let defaultAppNotConfiguredErrorDescription =
-    "Default Firebase app not configured."
-  private static let parseModelNameErrorDescription = { (path: String) in
-    "Unable to parse model file name at \(path)."
-  }
+  /// Error descriptions.
+  private enum ErrorDescription {
+    static let defaultAppNotConfigured =
+      "Default Firebase app not configured."
+    static let parseModelName = { (path: String) in
+      "Unable to parse model file name at \(path)."
+    }
 
-  private static let retrieveLocalModelInfoErrorDescription =
-    "Failed to get stored model info for model file."
-  private static let outdatedModelPathErrorDescription = "Outdated model paths in local storage."
-  private static let deletedLocalModelInfoErrorDescription =
-    "Model unavailable due to deleted local model info."
-  private static let backgroundModelDownloadErrorDescription: StaticString =
-    "Failed to update model in background."
+    static let retrieveLocalModelInfo =
+      "Failed to get stored model info for model file."
+    static let outdatedModelPath = "Outdated model paths in local storage."
+    static let deletedLocalModelInfo =
+      "Model unavailable due to deleted local model info."
+    static let backgroundModelDownload: StaticString =
+      "Failed to update model in background."
+  }
 }

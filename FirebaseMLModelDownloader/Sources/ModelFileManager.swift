@@ -68,7 +68,8 @@ enum ModelFileManager {
       } catch {
         throw DownloadError
           .internalError(
-            description: ModelFileManager.replaceFileErrorDescription(error.localizedDescription)
+            description: ModelFileManager.ErrorDescription
+              .replaceFile(error.localizedDescription)
           )
       }
     }
@@ -77,7 +78,7 @@ enum ModelFileManager {
     } catch {
       throw DownloadError
         .internalError(description: ModelFileManager
-          .saveFileErrorDescription(error.localizedDescription))
+          .ErrorDescription.saveFile(error.localizedDescription))
     }
   }
 
@@ -88,7 +89,7 @@ enum ModelFileManager {
     } catch {
       throw DownloadedModelError
         .internalError(
-          description: ModelFileManager.deleteFileErrorDescription(error.localizedDescription)
+          description: ModelFileManager.ErrorDescription.deleteFile(error.localizedDescription)
         )
     }
   }
@@ -106,7 +107,8 @@ enum ModelFileManager {
     } catch {
       throw DownloadedModelError
         .internalError(
-          description: ModelFileManager.retrieveFileErrorDescription(error.localizedDescription)
+          description: ModelFileManager.ErrorDescription
+            .retrieveFile(error.localizedDescription)
         )
     }
   }
@@ -114,19 +116,22 @@ enum ModelFileManager {
 
 /// Possible error messages during file management.
 extension ModelFileManager {
-  private static let retrieveFileErrorDescription = { (error: String) in
-    "Could not retrieve model files in directory: \(error)"
-  }
+  /// Error descriptions.
+  private enum ErrorDescription {
+    static let retrieveFile = { (error: String) in
+      "Could not retrieve model files in directory: \(error)"
+    }
 
-  private static let deleteFileErrorDescription = { (error: String) in
-    "Could not delete old model file: \(error)"
-  }
+    static let deleteFile = { (error: String) in
+      "Could not delete old model file: \(error)"
+    }
 
-  private static let saveFileErrorDescription = { (error: String) in
-    "Unable to save model file: \(error)"
-  }
+    static let saveFile = { (error: String) in
+      "Unable to save model file: \(error)"
+    }
 
-  private static let replaceFileErrorDescription = { (error: String) in
-    "Could not replace existing model file: \(error)"
+    static let replaceFile = { (error: String) in
+      "Could not replace existing model file: \(error)"
+    }
   }
 }

@@ -1,3 +1,6 @@
+# Unreleased
+- [changed] Updated upload-symbols to a version that is notarized to avoid macOS security alerts (#7323).
+
 # v7.4.0
 - [changed] Removed obsolete crash reporting mechanism from the SDK (#7076).
 

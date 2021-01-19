@@ -109,7 +109,8 @@ extension ModelInfoRetriever {
     installations.authToken { tokenResult, error in
       guard let result = tokenResult
       else {
-        completion(.failure(.internalError(description: ModelInfoRetriever.tokenErrorDescription)))
+        completion(.failure(.internalError(description: ModelInfoRetriever.ErrorDescription
+            .fisToken)))
         return
       }
       completion(.success(result.authToken))
@@ -133,8 +134,8 @@ extension ModelInfoRetriever {
             completion(.failure(.internalError(description: downloadError.localizedDescription)))
           } else {
             guard let httpResponse = response as? HTTPURLResponse else {
-              completion(.failure(.internalError(description: ModelInfoRetriever
-                  .invalidHTTPResponseErrorDescription)))
+              completion(.failure(.internalError(description: ModelInfoRetriever.ErrorDescription
+                  .invalidHTTPResponse)))
               return
             }
 
@@ -142,14 +143,14 @@ extension ModelInfoRetriever {
             case 200:
               guard let modelHash = httpResponse
                 .allHeaderFields[ModelInfoRetriever.etagHTTPHeader] as? String else {
-                completion(.failure(.internalError(description: ModelInfoRetriever
-                    .missingModelHashErrorDescription)))
+                completion(.failure(.internalError(description: ModelInfoRetriever.ErrorDescription
+                    .missingModelHash)))
                 return
               }
 
               guard let data = data else {
-                completion(.failure(.internalError(description: ModelInfoRetriever
-                    .invalidHTTPResponseErrorDescription)))
+                completion(.failure(.internalError(description: ModelInfoRetriever.ErrorDescription
+                    .invalidHTTPResponse)))
                 return
               }
               do {
@@ -157,8 +158,8 @@ extension ModelInfoRetriever {
                 completion(.success(.modelInfo(modelInfo)))
               } catch {
                 completion(
-                  .failure(.internalError(description: ModelInfoRetriever
-                      .modelInfoRetrievalErrorDescription(error.localizedDescription)))
+                  .failure(.internalError(description: ModelInfoRetriever.ErrorDescription
+                      .modelInfoRetrieval(error.localizedDescription)))
                 )
               }
             case 304:
@@ -166,8 +167,8 @@ extension ModelInfoRetriever {
               // TODO: Is this needed? Currently handles the case if model info disappears between request and response
               guard self.localModelInfo != nil else {
                 completion(
-                  .failure(.internalError(description: ModelInfoRetriever
-                      .unexpectedModelInfoDeletionErrorDescription))
+                  .failure(.internalError(description: ModelInfoRetriever.ErrorDescription
+                      .unexpectedModelInfoDeletion))
                 )
                 return
               }
@@ -179,7 +180,7 @@ extension ModelInfoRetriever {
               completion(.failure(
                 .internalError(
                   description: ModelInfoRetriever
-                    .serverResponseErrorDescription(httpResponse.statusCode)
+                    .ErrorDescription.serverResponse(httpResponse.statusCode)
                 )
               ))
             }
@@ -188,19 +189,27 @@ extension ModelInfoRetriever {
         dataTask.resume()
       /// FIS token error.
       case .failure:
-        completion(.failure(.internalError(description: ModelInfoRetriever.tokenErrorDescription)))
+        completion(.failure(.internalError(description: ModelInfoRetriever.ErrorDescription
+            .fisToken)))
         return
       }
     }
   }
 
-  /// Date formatter to parse download URL expiry time.
-  private static func getDateFormatter() -> DateFormatter {
-    let dateFormatter = DateFormatter()
-    dateFormatter.locale = Locale(identifier: "en-US_POSIX")
-    dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
-    dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
-    return dateFormatter
+  /// Parse date from string - used to get download URL expiry time.
+  private static func getDateFromString(_ strDate: String) -> Date? {
+    if #available(iOS 11, macOS 10.13, macCatalyst 13.0, tvOS 11.0, watchOS 4.0, *) {
+      let dateFormatter = ISO8601DateFormatter()
+      dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+      dateFormatter.formatOptions = [.withFractionalSeconds]
+      return dateFormatter.date(from: strDate)
+    } else {
+      let dateFormatter = DateFormatter()
+      dateFormatter.locale = Locale(identifier: "en-US_POSIX")
+      dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+      dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+      return dateFormatter.date(from: strDate)
+    }
   }
 
   /// Return model info created from server response.
@@ -214,15 +223,15 @@ extension ModelInfoRetriever {
     // TODO: Possibly improve handling invalid server responses.
     guard let downloadURL = URL(string: modelInfoJSON.downloadURL) else {
       throw DownloadError
-        .internalError(description: ModelInfoRetriever.invalidModelDownloadURLErrorDescription)
+        .internalError(description: ModelInfoRetriever.ErrorDescription
+          .invalidModelDownloadURL)
     }
     let modelHash = modelHash
     let size = Int(modelInfoJSON.size) ?? 0
-    let dateFormatter = ModelInfoRetriever.getDateFormatter()
-    guard let expiryTime = dateFormatter.date(from: modelInfoJSON.urlExpiryTime) else {
+    guard let expiryTime = ModelInfoRetriever.getDateFromString(modelInfoJSON.urlExpiryTime) else {
       throw DownloadError
-        .internalError(description: ModelInfoRetriever
-          .invalidModelDownloadURLExpiryTimeErrorDescription)
+        .internalError(description: ModelInfoRetriever.ErrorDescription
+          .invalidModelDownloadURLExpiryTime)
     }
     return RemoteModelInfo(
       name: modelName,
@@ -237,25 +246,27 @@ extension ModelInfoRetriever {
 /// Possible error messages for model info retrieval.
 extension ModelInfoRetriever {
   /// Error descriptions.
-  private static let tokenErrorDescription = "Error retrieving FIS token."
-  private static let selfDeallocatedErrorDescription = "Self deallocated."
-  private static let missingModelHashErrorDescription = "Model hash missing in server response."
-  private static let invalidHTTPResponseErrorDescription =
-    "Could not get a valid HTTP response from server."
-  private static let modelInfoRetrievalErrorDescription = { (error: String) in
-    "Failed to parse model info: \(error)"
-  }
+  private enum ErrorDescription {
+    static let fisToken = "Error retrieving FIS token."
+    static let selfDeallocated = "Self deallocated."
+    static let missingModelHash = "Model hash missing in server response."
+    static let invalidHTTPResponse =
+      "Could not get a valid HTTP response from server."
+    static let modelInfoRetrieval = { (error: String) in
+      "Failed to parse model info: \(error)"
+    }
 
-  private static let unexpectedModelInfoDeletionErrorDescription =
-    "Model info was deleted unexpectedly."
-  private static let serverResponseErrorDescription = { (errorCode: Int) in
-    "Server returned with HTTP error code: \(errorCode)."
-  }
+    static let unexpectedModelInfoDeletion =
+      "Model info was deleted unexpectedly."
+    static let serverResponse = { (errorCode: Int) in
+      "Server returned with HTTP error code: \(errorCode)."
+    }
 
-  private static let modelInfoResponseDecodeErrorDescription =
-    "Unable to decode model info response from server."
-  private static let invalidModelDownloadURLErrorDescription =
-    "Invalid model download URL from server."
-  private static let invalidModelDownloadURLExpiryTimeErrorDescription =
-    "Invalid download URL expiry time from server."
+    static let modelInfoResponseDecode =
+      "Unable to decode model info response from server."
+    static let invalidModelDownloadURL =
+      "Invalid model download URL from server."
+    static let invalidModelDownloadURLExpiryTime =
+      "Invalid download URL expiry time from server."
+  }
 }
