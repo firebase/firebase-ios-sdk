@@ -110,7 +110,7 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
       DispatchQueue.main.async {
         self.downloadHandlers
           .completion(.failure(.internalError(description: ModelDownloadTask
-              .ErrorDescription.invalidServerResponseError)))
+              .ErrorDescription.invalidServerResponse)))
       }
       return
     }
@@ -132,7 +132,7 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
       DeviceLogger.logEvent(
         level: .info,
         category: .modelDownload,
-        message: ModelDownloadTask.ErrorDescription.saveModelError,
+        message: ModelDownloadTask.ErrorDescription.saveModel,
         messageCode: .modelDownloaded
       )
       DispatchQueue.main.async {
@@ -145,7 +145,7 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
       DeviceLogger.logEvent(
         level: .info,
         category: .modelDownload,
-        message: ModelDownloadTask.ErrorDescription.saveModelError,
+        message: ModelDownloadTask.ErrorDescription.saveModel,
         messageCode: .modelDownloaded
       )
       DispatchQueue.main.async {
@@ -192,9 +192,9 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
 extension ModelDownloadTask {
   /// Error descriptions.
   private enum ErrorDescription {
-    static let invalidServerResponseError =
+    static let invalidServerResponse =
       "Could not get server response for model downloading."
-    static let saveModelError: StaticString =
+    static let saveModel: StaticString =
       "Unable to save downloaded remote model file."
   }
 }

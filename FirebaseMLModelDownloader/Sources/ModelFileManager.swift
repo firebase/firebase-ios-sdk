@@ -69,7 +69,7 @@ enum ModelFileManager {
         throw DownloadError
           .internalError(
             description: ModelFileManager.ErrorDescription
-              .replaceFileError(error.localizedDescription)
+              .replaceFile(error.localizedDescription)
           )
       }
     }
@@ -78,7 +78,7 @@ enum ModelFileManager {
     } catch {
       throw DownloadError
         .internalError(description: ModelFileManager
-          .ErrorDescription.saveFileError(error.localizedDescription))
+          .ErrorDescription.saveFile(error.localizedDescription))
     }
   }
 
@@ -89,7 +89,7 @@ enum ModelFileManager {
     } catch {
       throw DownloadedModelError
         .internalError(
-          description: ModelFileManager.ErrorDescription.deleteFileError(error.localizedDescription)
+          description: ModelFileManager.ErrorDescription.deleteFile(error.localizedDescription)
         )
     }
   }
@@ -108,7 +108,7 @@ enum ModelFileManager {
       throw DownloadedModelError
         .internalError(
           description: ModelFileManager.ErrorDescription
-            .retrieveFileError(error.localizedDescription)
+            .retrieveFile(error.localizedDescription)
         )
     }
   }
@@ -118,19 +118,19 @@ enum ModelFileManager {
 extension ModelFileManager {
   /// Error descriptions.
   private enum ErrorDescription {
-    static let retrieveFileError = { (error: String) in
+    static let retrieveFile = { (error: String) in
       "Could not retrieve model files in directory: \(error)"
     }
 
-    static let deleteFileError = { (error: String) in
+    static let deleteFile = { (error: String) in
       "Could not delete old model file: \(error)"
     }
 
-    static let saveFileError = { (error: String) in
+    static let saveFile = { (error: String) in
       "Unable to save model file: \(error)"
     }
 
-    static let replaceFileError = { (error: String) in
+    static let replaceFile = { (error: String) in
       "Could not replace existing model file: \(error)"
     }
   }
