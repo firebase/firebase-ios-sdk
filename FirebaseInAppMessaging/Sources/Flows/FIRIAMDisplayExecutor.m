@@ -573,11 +573,6 @@
                             triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
   switch (definition.renderData.renderingEffectSettings.viewMode) {
     case FIRIAMRenderAsCardView:
-      // Image data should never nil for a valid card message.
-      if (imageData == nil) {
-        NSAssert(NO, @"Image data should never nil for a valid card message.");
-        return nil;
-      }
       return [self cardDisplayMessageWithMessageDefinition:definition
                                          portraitImageData:imageData
                                         landscapeImageData:landscapeImageData
