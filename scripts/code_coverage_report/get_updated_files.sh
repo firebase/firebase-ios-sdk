@@ -31,7 +31,6 @@ cat < <(git diff --name-only $common_commit remotes/origin/${pr_branch})
 echo "========== check paths of changed files =========="
 git diff --name-only $common_commit remotes/origin/${pr_branch} > files.txt
 
-touch run_sdk_jobs.txt
 while IFS= read -r file
 do
   echo $file
@@ -39,9 +38,7 @@ do
   do
     if [[ "${file}" =~ $path ]]; then
       echo "This file is updated under the path, ${path}"
-      #echo "::set-output name=database_run_job::true" >> run_sdk_jobs.txt
-      echo "database" >> run_sdk_jobs.txt
-      cat run_sdk_jobs.txt
+      echo "::set-output name=database_run_job::true"
       break
     fi
   done
@@ -49,17 +46,8 @@ do
   do
     if [[ "${file}" =~ $path ]]; then
       echo "This file is updated under the path, ${path}"
-      #echo "::set-output name=functions_run_job::true" >> run_sdk_jobs.txt
+      echo "::set-output name=functions_run_job::true"
       break
     fi
   done
 done < files.txt
-
-echo "=============== Updated jobs to be triggered ================="
-cat ./run_sdk_jobs.txt
-echo "=============== Update variables ================="
-while IFS= read -r run_sdk
-do
-  echo "${run_sdk}"
-  echo "::set-output name=${run_sdk}_run_job::true"
-done < ./run_sdk_jobs.txt
