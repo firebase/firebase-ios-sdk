@@ -91,7 +91,8 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
 
   /// Handle client-side errors.
   func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
-    assert(task == downloadTask)
+    // TODO: Log this.
+    guard task == downloadTask else { return }
     guard let error = error else { return }
     /// Unable to resolve hostname or connect to host.
     DispatchQueue.main.async {
@@ -103,17 +104,19 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
   func urlSession(_ session: URLSession,
                   downloadTask: URLSessionDownloadTask,
                   didFinishDownloadingTo location: URL) {
-    assert(downloadTask == self.downloadTask)
+    // TODO: Log this.
+    guard downloadTask == self.downloadTask else { return }
     guard let response = downloadTask.response as? HTTPURLResponse else {
       DispatchQueue.main.async {
         self.downloadHandlers
           .completion(.failure(.internalError(description: ModelDownloadTask
-              .invalidServerResponseErrorDescription)))
+              .ErrorDescription.invalidServerResponseError)))
       }
       return
     }
 
     guard (200 ..< 299).contains(response.statusCode) else {
+      // TODO: Handle download url expiry + retries.
       return
     }
 
@@ -129,7 +132,7 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
       DeviceLogger.logEvent(
         level: .info,
         category: .modelDownload,
-        message: ModelDownloadTask.saveModelErrorDescription,
+        message: ModelDownloadTask.ErrorDescription.saveModelError,
         messageCode: .modelDownloaded
       )
       DispatchQueue.main.async {
@@ -142,7 +145,7 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
       DeviceLogger.logEvent(
         level: .info,
         category: .modelDownload,
-        message: ModelDownloadTask.saveModelErrorDescription,
+        message: ModelDownloadTask.ErrorDescription.saveModelError,
         messageCode: .modelDownloaded
       )
       DispatchQueue.main.async {
@@ -174,7 +177,8 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
                   didWriteData bytesWritten: Int64,
                   totalBytesWritten: Int64,
                   totalBytesExpectedToWrite: Int64) {
-    assert(downloadTask == self.downloadTask)
+    // TODO: Log this.
+    guard downloadTask == self.downloadTask else { return }
     /// Check if progress handler is unspecified.
     guard let progressHandler = downloadHandlers.progressHandler else { return }
     let calculatedProgress = Float(totalBytesWritten) / Float(totalBytesExpectedToWrite)
@@ -186,8 +190,11 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
 
 /// Possible error messages for model downloading.
 extension ModelDownloadTask {
-  private static let invalidServerResponseErrorDescription =
-    "Could not get server response for model downloading."
-  private static let saveModelErrorDescription: StaticString =
-    "Unable to save downloaded remote model file."
+  /// Error descriptions.
+  private enum ErrorDescription {
+    static let invalidServerResponseError =
+      "Could not get server response for model downloading."
+    static let saveModelError: StaticString =
+      "Unable to save downloaded remote model file."
+  }
 }
