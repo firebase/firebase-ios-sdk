@@ -23,10 +23,6 @@ FUNCTIONS_PATHS=("Functions.*" \
 echo "::set-output name=database_run_job::false"
 echo "::set-output name=functions_run_job::false"
 # Get most rescent ancestor commit.
-echo "The current branch is ${pr_branch}."
-echo "pwd: $(pwd)"
-echo "ls: $(ls)"
-echo "git branch -a: $(git branch -a)"
 common_commit=$(git merge-base remotes/origin/${pr_branch} remotes/origin/master)
 echo "The common commit is ${common_commit}."
 
