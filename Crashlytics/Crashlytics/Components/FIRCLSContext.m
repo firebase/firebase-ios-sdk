@@ -182,13 +182,17 @@ bool FIRCLSContextInitialize(FIRCLSInternalReport* report,
     FIRCLSUserLoggingInit(&_firclsContext.readonly->logging, &_firclsContext.writable->logging);
   });
 
-  dispatch_group_async(group, queue, ^{
-    _firclsContext.readonly->binaryimage.path =
-        FIRCLSContextAppendToRoot(rootPath, FIRCLSReportBinaryImageFile);
+  // Only write out binary images if the current ones have expired or this is the first run of the
+  // app.
+  if ([settings doesNeedNewBinaryImages]) {
+    dispatch_group_async(group, queue, ^{
+      _firclsContext.readonly->binaryimage.path =
+        [fileManager.binaryImageFilePath cStringUsingEncoding:NSASCIIStringEncoding];
 
-    FIRCLSBinaryImageInit(&_firclsContext.readonly->binaryimage,
-                          &_firclsContext.writable->binaryImage);
-  });
+      FIRCLSBinaryImageInit(&_firclsContext.readonly->binaryimage,
+                            &_firclsContext.writable->binaryImage);
+    });
+  }
 
   dispatch_group_async(group, queue, ^{
     NSString* rootPath = [NSString stringWithUTF8String:initData->previouslyCrashedFileRootPath];

@@ -39,6 +39,7 @@ NSString *const AppVersion = @"app_version";
 @property(nonatomic, strong) NSDictionary<NSString *, id> *settingsDictionary;
 
 @property(nonatomic) BOOL isCacheKeyExpired;
+@property(nonatomic) BOOL needsNewBinaryImages;
 
 @end
 
@@ -56,6 +57,7 @@ NSString *const AppVersion = @"app_version";
 
   _settingsDictionary = nil;
   _isCacheKeyExpired = NO;
+  _needsNewBinaryImages = NO;
 
   return self;
 }
@@ -99,8 +101,11 @@ NSString *const AppVersion = @"app_version";
   if (![cachedGoogleAppID isEqualToString:googleAppID]) {
     FIRCLSDebugLog(
         @"[Crashlytics:Settings] Invalidating settings cache because Google App ID changed");
+    FIRCLSDebugLog(
+        @"[Crashlytics:BinaryImages] Invalidating binary images because Google App ID changed");
 
     [self deleteCachedSettings];
+    self.needsNewBinaryImages = YES;
     return;
   }
 
@@ -117,18 +122,22 @@ NSString *const AppVersion = @"app_version";
   NSString *cacheBuildInstanceID = cacheKey[BuildInstanceID];
   if (![cacheBuildInstanceID isEqualToString:self.appIDModel.buildInstanceID]) {
     FIRCLSDebugLog(@"[Crashlytics:Settings] Settings expired because build instance changed");
+    FIRCLSDebugLog(@"[Crashlytics:BinaryImages] Binary images expired because build instance changed");
 
     @synchronized(self) {
       self.isCacheKeyExpired = YES;
+      self.needsNewBinaryImages = YES;
     }
   }
 
   NSString *cacheAppVersion = cacheKey[AppVersion];
   if (![cacheAppVersion isEqualToString:self.appIDModel.synthesizedVersion]) {
     FIRCLSDebugLog(@"[Crashlytics:Settings] Settings expired because app version changed");
+    FIRCLSDebugLog(@"[Crashlytics:BinaryImages] Binary images expired because build instance changed");
 
     @synchronized(self) {
       self.isCacheKeyExpired = YES;
+      self.needsNewBinaryImages = YES;
     }
   }
 }
@@ -249,6 +258,19 @@ NSString *const AppVersion = @"app_version";
   }
 
   return 60 * 60;
+}
+
+- (BOOL)doesNeedNewBinaryImages {
+  // If no binary image file exists, this might be the first run of the app so try to create
+  // a directory.
+  if(![self.fileManager.underlyingFileManager fileExistsAtPath:self.fileManager.binaryImageFilePath]) {
+    [self.fileManager createDirectoryAtPath:self.fileManager.binaryImageDirectoryPath];
+    return YES;
+  }
+  
+  @synchronized (self) {
+    return self.needsNewBinaryImages;
+  }
 }
 
 #pragma mark - On / Off Switches

@@ -33,6 +33,16 @@
 @property(nonatomic, readonly) NSString *settingsFilePath;
 
 /**
+ * Returns the folder containing the binary image file
+ */
+@property(nonatomic, readonly) NSString *binaryImageDirectoryPath;
+
+/**
+ * Returns the path to the binary image file
+ */
+@property(nonatomic, readonly) NSString *binaryImageFilePath;
+
+/**
  * Path to the file that holds the ttl and keys that invalidate settings
  */
 @property(nonatomic, readonly) NSString *settingsCacheKeyPath;

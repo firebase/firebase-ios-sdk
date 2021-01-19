@@ -182,7 +182,7 @@ NSString *const FIRCLSCacheVersion = @"v5";
 
 // This path should be different than the structurePath because the
 // settings download operations will delete the settings directory,
-// which would delete crash reports if these were the same
+// which would delete crash reports and binary images if these were the same
 - (NSString *)settingsDirectoryPath {
   return [[self versionedPath] stringByAppendingPathComponent:@"settings"];
 }
@@ -193,6 +193,15 @@ NSString *const FIRCLSCacheVersion = @"v5";
 
 - (NSString *)settingsCacheKeyPath {
   return [[self settingsDirectoryPath] stringByAppendingPathComponent:@"cache-key.json"];
+}
+
+#pragma - Binary Image Paths
+- (NSString *)binaryImageDirectoryPath {
+  return [[self versionedPath] stringByAppendingPathComponent:@"binary_images"];
+}
+
+- (NSString *)binaryImageFilePath {
+  return [[self binaryImageDirectoryPath] stringByAppendingPathComponent:@"binary_images.clsrecord"];
 }
 
 #pragma - Report Paths

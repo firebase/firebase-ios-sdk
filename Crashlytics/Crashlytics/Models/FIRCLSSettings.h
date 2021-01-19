@@ -64,6 +64,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly) uint32_t cacheDurationSeconds;
 
 /**
+ * Returns true when Binary Images should be written out again
+ */
+@property(nonatomic, readonly) BOOL doesNeedNewBinaryImages;
+
+/**
  * When this is false, Crashlytics will not start up
  */
 @property(nonatomic, readonly) BOOL collectReportsEnabled;
