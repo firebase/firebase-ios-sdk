@@ -17,7 +17,7 @@ import FirebaseCore
 import FirebaseInstallations
 
 /// Possible errors with model downloading.
-public enum DownloadError: Error, Equatable {
+public enum DownloadError: Error {
   /// No model with this name found on server.
   case notFound
   /// Caller does not have necessary permissions for this operation.
@@ -33,7 +33,7 @@ public enum DownloadError: Error, Equatable {
 }
 
 /// Possible errors with locating model on device.
-public enum DownloadedModelError: Error, Equatable {
+public enum DownloadedModelError: Error {
   /// File system error.
   case fileIOError(description: String)
   /// Model not found on device.
@@ -282,6 +282,7 @@ extension ModelDownloader {
             remoteModelInfo: remoteModelInfo,
             appName: self.appName,
             defaults: self.userDefaults,
+            modelInfoRetriever: modelInfoRetriever,
             telemetryLogger: self.telemetryLogger,
             progressHandler: progressHandler,
             completion: completion
