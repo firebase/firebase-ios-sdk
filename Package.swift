@@ -221,8 +221,8 @@ let package = Package(
       dependencies: [
         .target(name: "FirebaseAnalytics", condition: .when(platforms: [.iOS])),
         .product(name: "GoogleAppMeasurement",
-                package: "GoogleAppMeasurement",
-                condition: .when(platforms: [.iOS])),
+                 package: "GoogleAppMeasurement",
+                 condition: .when(platforms: [.iOS])),
         "FirebaseCore",
         "FirebaseInstallations",
         .product(name: "AppDelegateSwizzler", package: "GoogleUtilities"),
