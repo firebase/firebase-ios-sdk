@@ -15,6 +15,20 @@
 import Foundation
 import FirebaseCore
 
+/// URL Session to use while retrieving model file.
+protocol ModelDownloadSession {
+  func getModel(with url: URL) -> URLSessionDownloadTask
+}
+
+/// Extension to customize data task requests.
+extension URLSession: ModelDownloadSession {
+  func getModel(with url: URL) -> URLSessionDownloadTask {
+    let task = downloadTask(with: url)
+    task.resume()
+    return task
+  }
+}
+
 /// Possible states of model downloading.
 enum ModelDownloadStatus {
   case notStarted
@@ -52,9 +66,9 @@ class ModelDownloadTask: NSObject {
   /// Keeps track of download associated with this model download task.
   private(set) var downloadStatus: ModelDownloadStatus = .notStarted
   /// URLSession to handle model downloads.
-  private lazy var downloadSession = URLSession(configuration: .ephemeral,
-                                                delegate: self,
-                                                delegateQueue: nil)
+  private lazy var downloadSession: ModelDownloadSession = URLSession(configuration: .ephemeral,
+                                                                      delegate: self,
+                                                                      delegateQueue: nil)
   /// Model info retriever in case of retries.
   private let modelInfoRetriever: ModelInfoRetriever
   /// Number of retries in case of model download URL expiry.
@@ -62,8 +76,11 @@ class ModelDownloadTask: NSObject {
   /// Telemetry logger.
   private let telemetryLogger: TelemetryLogger?
 
-  init(remoteModelInfo: RemoteModelInfo, appName: String, defaults: UserDefaults,
+  init(remoteModelInfo: RemoteModelInfo,
+       appName: String,
+       defaults: UserDefaults,
        modelInfoRetriever: ModelInfoRetriever,
+       session: ModelDownloadSession? = nil,
        telemetryLogger: TelemetryLogger? = nil,
        progressHandler: DownloadHandlers.ProgressHandler? = nil,
        completion: @escaping DownloadHandlers.Completion) {
@@ -76,15 +93,20 @@ class ModelDownloadTask: NSObject {
       progressHandler: progressHandler,
       completion: completion
     )
+    // TODO: What is this for?
+    super.init()
+    if let urlSession = session {
+      downloadSession = urlSession
+    }
   }
 }
 
+/// Protocol implementation.
 extension ModelDownloadTask {
   /// Asynchronously download model file to device.
   func resumeModelDownload() {
     guard downloadStatus == .notStarted else { return }
-    let downloadTask = downloadSession.downloadTask(with: remoteModelInfo.downloadURL)
-    downloadTask.resume()
+    let downloadTask = downloadSession.getModel(with: remoteModelInfo.downloadURL)
     downloadStatus = .inProgress
     self.downloadTask = downloadTask
   }

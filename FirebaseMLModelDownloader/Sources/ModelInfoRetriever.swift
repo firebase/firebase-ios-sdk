@@ -16,6 +16,23 @@ import Foundation
 import FirebaseCore
 import FirebaseInstallations
 
+/// URL Session to use while retrieving model info.
+protocol ModelInfoRetrieverSession {
+  func getModelInfo(with request: URLRequest,
+                    completion: @escaping (Data?, URLResponse?, Error?) -> Void)
+}
+
+/// Extension to customize data task requests.
+extension URLSession: ModelInfoRetrieverSession {
+  func getModelInfo(with request: URLRequest,
+                    completion: @escaping (Data?, URLResponse?, Error?) -> Void) {
+    let task = dataTask(with: request) { data, response, error in
+      completion(data, response, error)
+    }
+    task.resume()
+  }
+}
+
 /// Model info response object.
 private struct ModelInfoResponse: Codable {
   var downloadURL: String
@@ -39,74 +56,47 @@ enum DownloadModelInfoResult {
 }
 
 /// Model info retriever for a model from local user defaults or server.
-class ModelInfoRetriever: NSObject {
-  /// Current Firebase app options.
-  private var options: FirebaseOptions
+class ModelInfoRetriever {
   /// Model name.
-  private var modelName: String
+  private let modelName: String
+  /// URL session for model info request.
+  private let session: ModelInfoRetrieverSession
   /// Firebase installations.
-  private var installations: Installations
+  private let installations: Installations
+  /// Current Firebase app project ID.
+  private let projectID: String
+  /// Current Firebase app API key.
+  private let apiKey: String
   /// Current Firebase app name.
   private let appName: String
   /// Local model info to validate model freshness.
-  private var localModelInfo: LocalModelInfo?
+  private let localModelInfo: LocalModelInfo?
 
   /// Associate model info retriever with current Firebase app, and model name.
-  init(modelName: String, options: FirebaseOptions, installations: Installations, appName: String,
-       localModelInfo: LocalModelInfo? = nil) {
+  init(modelName: String,
+       projectID: String,
+       apiKey: String,
+       installations: Installations,
+       appName: String,
+       localModelInfo: LocalModelInfo? = nil,
+       session: ModelInfoRetrieverSession? = nil) {
     self.modelName = modelName
-    self.options = options
+    self.projectID = projectID
+    self.apiKey = apiKey
     self.installations = installations
     self.appName = appName
     self.localModelInfo = localModelInfo
-  }
-}
-
-/// Extension to handle fetching model info from server.
-extension ModelInfoRetriever {
-  /// HTTP request headers.
-  private static let fisTokenHTTPHeader = "x-goog-firebase-installations-auth"
-  private static let hashMatchHTTPHeader = "if-none-match"
-  private static let bundleIDHTTPHeader = "x-ios-bundle-identifier"
-
-  /// HTTP response headers.
-  private static let etagHTTPHeader = "Etag"
-
-  /// Construct model fetch base URL.
-  var modelInfoFetchURL: URL {
-    let projectID = options.projectID ?? ""
-    let apiKey = options.apiKey
-    var components = URLComponents()
-    components.scheme = "https"
-    components.host = "firebaseml.googleapis.com"
-    components.path = "/v1beta2/projects/\(projectID)/models/\(modelName):download"
-    components.queryItems = [URLQueryItem(name: "key", value: apiKey)]
-    // TODO: handle nil
-    return components.url!
-  }
-
-  /// Construct model fetch URL request.
-  private func getModelInfoFetchURLRequest(token: String) -> URLRequest {
-    var request = URLRequest(url: modelInfoFetchURL)
-    request.httpMethod = "GET"
-    // TODO: Check if bundle ID needs to be part of the request header.
-    let bundleID = Bundle.main.bundleIdentifier ?? ""
-    request.setValue(bundleID, forHTTPHeaderField: ModelInfoRetriever.bundleIDHTTPHeader)
-    request.setValue(token, forHTTPHeaderField: ModelInfoRetriever.fisTokenHTTPHeader)
-    /// Get model hash if local model info is available on device.
-    if let modelInfo = localModelInfo {
-      request.setValue(
-        modelInfo.modelHash,
-        forHTTPHeaderField: ModelInfoRetriever.hashMatchHTTPHeader
-      )
+    if let urlSession = session {
+      self.session = urlSession
+    } else {
+      self.session = URLSession(configuration: .ephemeral)
     }
-    return request
   }
 
   /// Get installations auth token.
-  private func getAuthToken(completion: @escaping (Result<String, DownloadError>) -> Void) {
+  lazy var authToken = { (completion: @escaping (Result<String, DownloadError>) -> Void) in
     /// Get FIS token.
-    installations.authToken { tokenResult, error in
+    self.installations.authToken { tokenResult, error in
       guard let result = tokenResult
       else {
         completion(.failure(.internalError(description: ModelInfoRetriever.ErrorDescription
@@ -120,15 +110,18 @@ extension ModelInfoRetriever {
   /// Get model info from server.
   func downloadModelInfo(completion: @escaping (Result<DownloadModelInfoResult, DownloadError>)
     -> Void) {
-    getAuthToken { result in
+    authToken { result in
       switch result {
       /// Successfully received FIS token.
       case let .success(authToken):
         /// Get model info fetch URL with appropriate HTTP headers.
-        let request = self.getModelInfoFetchURLRequest(token: authToken)
-        let session = URLSession(configuration: .ephemeral)
+        guard let request = self.getModelInfoFetchURLRequest(token: authToken) else {
+          completion(.failure(.internalError(description: ModelInfoRetriever.ErrorDescription
+              .invalidModelInfoFetchURL)))
+          return
+        }
         /// Download model info.
-        let dataTask = session.dataTask(with: request) {
+        self.session.getModelInfo(with: request) {
           data, response, error in
           if let downloadError = error {
             completion(.failure(.internalError(description: downloadError.localizedDescription)))
@@ -186,7 +179,6 @@ extension ModelInfoRetriever {
             }
           }
         }
-        dataTask.resume()
       /// FIS token error.
       case .failure:
         completion(.failure(.internalError(description: ModelInfoRetriever.ErrorDescription
@@ -194,6 +186,46 @@ extension ModelInfoRetriever {
         return
       }
     }
+  }
+}
+
+/// Extension with helper methods to handle fetching model info from server.
+extension ModelInfoRetriever {
+  /// HTTP request headers.
+  private static let fisTokenHTTPHeader = "x-goog-firebase-installations-auth"
+  private static let hashMatchHTTPHeader = "if-none-match"
+  private static let bundleIDHTTPHeader = "x-ios-bundle-identifier"
+
+  /// HTTP response headers.
+  private static let etagHTTPHeader = "Etag"
+
+  /// Construct model fetch base URL.
+  var modelInfoFetchURL: URL? {
+    var components = URLComponents()
+    components.scheme = "https"
+    components.host = "firebaseml.googleapis.com"
+    components.path = "/v1beta2/projects/\(projectID)/models/\(modelName):download"
+    components.queryItems = [URLQueryItem(name: "key", value: apiKey)]
+    return components.url
+  }
+
+  /// Construct model fetch URL request.
+  func getModelInfoFetchURLRequest(token: String) -> URLRequest? {
+    guard let fetchURL = modelInfoFetchURL else { return nil }
+    var request = URLRequest(url: fetchURL)
+    request.httpMethod = "GET"
+    // TODO: Check if bundle ID needs to be part of the request header.
+    let bundleID = Bundle.main.bundleIdentifier ?? ""
+    request.setValue(bundleID, forHTTPHeaderField: ModelInfoRetriever.bundleIDHTTPHeader)
+    request.setValue(token, forHTTPHeaderField: ModelInfoRetriever.fisTokenHTTPHeader)
+    /// Get model hash if local model info is available on device.
+    if let modelInfo = localModelInfo {
+      request.setValue(
+        modelInfo.modelHash,
+        forHTTPHeaderField: ModelInfoRetriever.hashMatchHTTPHeader
+      )
+    }
+    return request
   }
 
   /// Parse date from string - used to get download URL expiry time.
@@ -215,10 +247,11 @@ extension ModelInfoRetriever {
   /// Return model info created from server response.
   private func getRemoteModelInfoFromResponse(_ data: Data,
                                               modelHash: String) throws -> RemoteModelInfo {
+    // print(String(decoding: data, as: UTF8.self))
     let decoder = JSONDecoder()
     guard let modelInfoJSON = try? decoder.decode(ModelInfoResponse.self, from: data) else {
       throw DownloadError
-        .internalError(description: "Unable to decode model info response from server.")
+        .internalError(description: ModelInfoRetriever.ErrorDescription.decodeModelInfoResponse)
     }
     // TODO: Possibly improve handling invalid server responses.
     guard let downloadURL = URL(string: modelInfoJSON.downloadURL) else {
@@ -250,6 +283,7 @@ extension ModelInfoRetriever {
     static let fisToken = "Error retrieving FIS token."
     static let selfDeallocated = "Self deallocated."
     static let missingModelHash = "Model hash missing in server response."
+    static let invalidModelInfoFetchURL = "Unable to create URL to fetch model info."
     static let invalidHTTPResponse =
       "Could not get a valid HTTP response from server."
     static let modelInfoRetrieval = { (error: String) in
@@ -262,7 +296,7 @@ extension ModelInfoRetriever {
       "Server returned with HTTP error code: \(errorCode)."
     }
 
-    static let modelInfoResponseDecode =
+    static let decodeModelInfoResponse =
       "Unable to decode model info response from server."
     static let invalidModelDownloadURL =
       "Invalid model download URL from server."

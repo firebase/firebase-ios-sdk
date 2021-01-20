@@ -148,3 +148,168 @@ final class ModelDownloaderUnitTests: XCTestCase {
     XCTAssertEqual(binaryEvent, jsonEvent)
   }
 }
+
+/// Unit tests for network calls.
+class NetworkingUnitTests: XCTestCase {
+  var fakeSession = MockModelInfoRetrieverSession()
+  let fakeModelName = "fakeModelName"
+  let fakeModelHash = "fakeModelHash"
+  let fakeDownloadURL = "www.fake-download-url.com"
+  let fakeExpiryTime = "2021-01-20T04:20:10.220Z"
+  let fakeModelSize = 20
+  let fakeProjectID = "fakeProjectID"
+  let fakeAPIKey = "fakeAPIKey"
+  var fakeRemoteModelInfo: String {
+    "{\"downloadUri\":\"\(fakeDownloadURL)\",\"expireTime\":\"\(fakeExpiryTime)\",\"sizeBytes\":\"\(fakeModelSize)\"}"
+  }
+
+  override class func setUp() {
+    let options = FirebaseOptions(
+      googleAppID: MockOptions.appID,
+      gcmSenderID: MockOptions.gcmSenderID
+    )
+    options.apiKey = MockOptions.apiKey
+    options.projectID = MockOptions.projectID
+    FirebaseApp.configure(options: options)
+  }
+
+  /// Get model info if server returns a new model info.
+  func testGetModelInfoWith200() {
+    fakeSession.data = fakeRemoteModelInfo.data(using: .utf8)
+    fakeSession.response = HTTPURLResponse(
+      url: URL(string: "www.fake-download-url.com")!,
+      statusCode: 200,
+      httpVersion: nil,
+      headerFields: ["Etag": "fakeModelHash"]
+    )
+    fakeSession.error = nil
+
+    let modelInfoRetriever = ModelInfoRetriever(
+      modelName: "fakeModelName",
+      projectID: "fakeProjectID",
+      apiKey: "fakeAPIKey",
+      installations: Installations.installations(),
+      appName: "fakeAppName",
+      session: fakeSession
+    )
+
+    modelInfoRetriever
+      .authToken = { (completion: @escaping (Result<String, DownloadError>) -> Void) in
+        completion(.success("fakeFISToken"))
+      }
+
+    modelInfoRetriever.downloadModelInfo { result in
+      switch result {
+      case let .success(fakemodelInfoResult):
+        switch fakemodelInfoResult {
+        case let .modelInfo(remoteModelInfo):
+          XCTAssertEqual(remoteModelInfo.name, self.fakeModelName)
+          XCTAssertEqual(remoteModelInfo.downloadURL.absoluteString, self.fakeDownloadURL)
+          XCTAssertEqual(remoteModelInfo.size, self.fakeModelSize)
+          XCTAssertEqual(remoteModelInfo.modelHash, self.fakeModelHash)
+        case .notModified: XCTFail("Expected new model info from server.")
+        }
+      case let .failure(error): XCTFail("Failed with error - \(error)")
+      }
+    }
+  }
+
+  /// Get model info if model info is not modified.
+  func testGetModelInfoWith304() {
+    fakeSession.data = fakeRemoteModelInfo.data(using: .utf8)
+    fakeSession.response = HTTPURLResponse(
+      url: URL(string: "www.fake-download-url.com")!,
+      statusCode: 304,
+      httpVersion: nil,
+      headerFields: ["Etag": "fakeModelHash"]
+    )
+    fakeSession.error = nil
+
+    let fakeLocalModelInfo = LocalModelInfo(
+      name: "fakeModelName",
+      modelHash: "fakeModelHash",
+      size: 20,
+      path: "fakeModelPath"
+    )
+
+    let modelInfoRetriever = ModelInfoRetriever(
+      modelName: "fakeModelName",
+      projectID: "fakeProjectID",
+      apiKey: "fakeAPIKey",
+      installations: Installations.installations(),
+      appName: "fakeAppName",
+      localModelInfo: fakeLocalModelInfo,
+      session: fakeSession
+    )
+
+    modelInfoRetriever
+      .authToken = { (completion: @escaping (Result<String, DownloadError>) -> Void) in
+        completion(.success("fakeFISToken"))
+      }
+
+    modelInfoRetriever.downloadModelInfo { result in
+      switch result {
+      case let .success(fakemodelInfoResult):
+        switch fakemodelInfoResult {
+        case .modelInfo: XCTFail("Unexpected new model info from server.")
+        case .notModified: break
+        }
+      case let .failure(error): XCTFail("Failed with error - \(error)")
+      }
+    }
+  }
+
+  /// Get model info if model info is not modified but local model info is not set.
+  func testGetModelInfoWith304Invalid() {
+    fakeSession.data = fakeRemoteModelInfo.data(using: .utf8)
+    fakeSession.response = HTTPURLResponse(
+      url: URL(string: "www.fake-download-url.com")!,
+      statusCode: 304,
+      httpVersion: nil,
+      headerFields: ["Etag": "fakeModelHash"]
+    )
+    fakeSession.error = nil
+
+    let modelInfoRetriever = ModelInfoRetriever(
+      modelName: "fakeModelName",
+      projectID: "fakeProjectID",
+      apiKey: "fakeAPIKey",
+      installations: Installations.installations(),
+      appName: "fakeAppName",
+      session: fakeSession
+    )
+
+    modelInfoRetriever
+      .authToken = { (completion: @escaping (Result<String, DownloadError>) -> Void) in
+        completion(.success("fakeFISToken"))
+      }
+
+    modelInfoRetriever.downloadModelInfo { result in
+      switch result {
+      case let .success(fakemodelInfoResult):
+        switch fakemodelInfoResult {
+        case .modelInfo: XCTFail("Unexpected new model info from server.")
+        case .notModified: XCTFail("Expected failure since local model info was not set.")
+        }
+      case let .failure(error):
+        switch error {
+        case let .internalError(description: errorMessage): XCTAssertEqual(errorMessage,
+                                                                           "Model info was deleted unexpectedly.")
+        default: XCTFail("Expected failure since local model info was not set.")
+        }
+      }
+    }
+  }
+}
+
+/// Mock URL session for testing.
+class MockModelInfoRetrieverSession: ModelInfoRetrieverSession {
+  var data: Data?
+  var response: URLResponse?
+  var error: Error?
+
+  func getModelInfo(with request: URLRequest,
+                    completion: @escaping (Data?, URLResponse?, Error?) -> Void) {
+    completion(data, response, error)
+  }
+}
