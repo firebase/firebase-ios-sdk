@@ -47,8 +47,8 @@
     return;
   }
 
-  // This gets dispatched to a serial queue, so this is OK. But even if not, it'll just possibly
-  // log more.
+  // Listeners like logArmActive() are dispatched to a serial queue, so loggedChoiceIds should
+  // contain any previously logged RC parameter / choice ID pairs.
   if (self->_loggedChoiceIds[rcParameter] == choiceId) {
     return;
   }

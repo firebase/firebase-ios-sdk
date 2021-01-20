@@ -76,10 +76,7 @@
   _fakeLogs = [[NSMutableArray alloc] init];
   _analyticsMock = OCMProtocolMock(@protocol(FIRAnalyticsInterop));
   OCMStub([_analyticsMock logEventWithOrigin:kAnalyticsOriginPersonalization
-                                        name:[OCMArg checkWithBlock:^BOOL(NSString *value) {
-                                          return [value isEqualToString:kExternalEvent] ||
-                                                 [value isEqualToString:kInternalEvent];
-                                        }]
+                                        name:[OCMArg isKindOfClass:[NSString class]]
                                   parameters:[OCMArg isKindOfClass:[NSDictionary class]]])
       .andDo(^(NSInvocation *invocation) {
         __unsafe_unretained NSDictionary *bundle;
