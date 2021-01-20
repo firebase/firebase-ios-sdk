@@ -70,7 +70,7 @@ class PasswordResetTests: XCTestCase {
     let confirmPasswordResetExpectation = expectation(description: "Password reset confirmed")
 
     // when
-    Auth.auth()
+    Auth.authPublisher()
       .confirmPasswordReset(
         withCode: PasswordResetTests.fakeCode,
         newPassword: PasswordResetTests.fakeNewPassword
@@ -116,7 +116,7 @@ class PasswordResetTests: XCTestCase {
       expectation(description: "Password reset code verified")
 
     // when
-    Auth.auth()
+    Auth.authPublisher()
       .verifyPasswordResetCode(PasswordResetTests.fakeCode)
       .sink { completion in
         switch completion {
@@ -159,7 +159,7 @@ class PasswordResetTests: XCTestCase {
     let checkActionCodeExpectation = expectation(description: "Action code checked")
 
     // when
-    Auth.auth()
+    Auth.authPublisher()
       .checkActionCode(code: PasswordResetTests.fakeCode)
       .sink { completion in
         switch completion {
@@ -197,7 +197,7 @@ class PasswordResetTests: XCTestCase {
     let applyActionCodeExpectation = expectation(description: "Action code applied")
 
     // when
-    Auth.auth()
+    Auth.authPublisher()
       .applyActionCode(code: PasswordResetTests.fakeCode)
       .sink { completion in
         switch completion {
@@ -234,7 +234,7 @@ class PasswordResetTests: XCTestCase {
     let sendPasswordResetExpectation = expectation(description: "Password reset sent")
 
     // when
-    Auth.auth()
+    Auth.authPublisher()
       .sendPasswordReset(withEmail: PasswordResetTests.fakeEmail)
       .sink { completion in
         switch completion {

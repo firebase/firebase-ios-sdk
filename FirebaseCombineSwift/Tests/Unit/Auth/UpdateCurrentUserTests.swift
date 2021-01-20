@@ -95,7 +95,7 @@ class UpdateCurrentUserTests: XCTestCase {
 
   func waitForSignIn(with accessToken: String, apiKey: String) {
     let userSignedInExpectation = expectation(description: "User signed in")
-    let cancellable = Auth.auth()
+    let cancellable = Auth.authPublisher()
       .signIn(withEmail: UpdateCurrentUserTests.email, password: UpdateCurrentUserTests.password)
       .sink { completion in
         switch completion {
@@ -136,7 +136,7 @@ class UpdateCurrentUserTests: XCTestCase {
 
     XCTAssertEqual(Auth.auth().currentUser, user2)
 
-    Auth.auth()
+    Auth.authPublisher()
       .updateCurrentUser(user1)
       .sink { completion in
         switch completion {

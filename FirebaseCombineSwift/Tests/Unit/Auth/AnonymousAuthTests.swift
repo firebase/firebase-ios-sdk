@@ -71,12 +71,12 @@ class AnonymousAuthTests: XCTestCase {
   // MARK: - Test method setup
 
   var app: FirebaseApp?
-  var auth: Auth?
+  var auth: AnyPublisher<Auth, Never>?
 
   override func setUp() {
     self.app = FirebaseApp.appForAuthUnitTestsWithName(name: "app1")
     guard let app = app else { fatalError() }
-    auth = Auth.auth(app: app)
+    auth = Auth.authPublisher(app: app)
   }
 
   func testSignInAnonymouslySuccessfully() {

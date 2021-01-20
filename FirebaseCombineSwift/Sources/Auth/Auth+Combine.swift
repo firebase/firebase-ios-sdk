@@ -14,14 +14,38 @@
 
 #if canImport(Combine) && swift(>=5.0) && canImport(FirebaseAuth)
 
-  import Combine
-  import FirebaseAuth
+import Combine
+import FirebaseAuth
+import FirebaseCore
 
-  @available(swift 5.0)
-  @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
-  extension Auth {
+@available(swift 5.0)
+@available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
+extension Auth {
+    
+    /// Returns a publisher that wraps the auth object for the default Firebase app.
+    ///
+    /// The publisher will emit events on the **main** thread.
+    ///
+    /// - Returns: A publisher that wraps the auth object for the default Firebase app.
+    public class func authPublisher() -> AnyPublisher<Auth, Never> {
+        Just(auth()).eraseToAnyPublisher()
+    }
+    
+    /// Returns a publisher that wraps the auth object for the given Firebase app.
+    ///
+    /// The publisher will emit events on the **main** thread.
+    ///
+    /// - Returns: A publisher that wraps the auth object for the given Firebase app.
+    public class func authPublisher(app: FirebaseApp) -> AnyPublisher<Auth, Never> {
+        Just(auth(app: app)).eraseToAnyPublisher()
+    }
+}
+
+@available(swift 5.0)
+@available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
+extension Publisher where Output == Auth, Failure == Never {
     // MARK: - Authentication State Management
-
+    
     /// Registers a publisher that publishes authentication state changes.
     ///
     /// The publisher emits values when:
@@ -34,17 +58,20 @@
     ///
     /// - Returns: A publisher emitting a `User` instance (if the user has signed in) or `nil` (if the user has signed out)
     public func authStateDidChangePublisher() -> AnyPublisher<User?, Never> {
-      let subject = PassthroughSubject<User?, Never>()
-      let handle = addStateDidChangeListener { auth, user in
-        subject.send(user)
-      }
-      return subject
-        .handleEvents(receiveCancel: {
-          self.removeStateDidChangeListener(handle)
-        })
-        .eraseToAnyPublisher()
+        flatMap { auth -> AnyPublisher<User?, Never> in
+            let subject = PassthroughSubject<User?, Never>()
+            let handle = auth.addStateDidChangeListener { _, user in
+                subject.send(user)
+            }
+            
+            return subject
+                .handleEvents(receiveCancel: {
+                    auth.removeStateDidChangeListener(handle)
+                }).eraseToAnyPublisher()
+            
+        }.eraseToAnyPublisher()
     }
-
+    
     /// Registers a publisher that publishes ID token state changes.
     ///
     /// The publisher emits values when:
@@ -58,17 +85,20 @@
     ///
     /// - Returns: A publisher emitting a `User` instance (if a different user as signed in or the ID token of the current user has changed) or `nil` (if the user has signed out)
     public func idTokenDidChangePublisher() -> AnyPublisher<User?, Never> {
-      let subject = PassthroughSubject<User?, Never>()
-      let handle = addIDTokenDidChangeListener { auth, user in
-        subject.send(user)
-      }
-      return subject
-        .handleEvents(receiveCancel: {
-          self.removeIDTokenDidChangeListener(handle)
-        })
+        flatMap { auth -> AnyPublisher<User?, Never> in
+            let subject = PassthroughSubject<User?, Never>()
+            let handle = auth.addIDTokenDidChangeListener { _, user in
+                subject.send(user)
+            }
+            
+            return subject
+                .handleEvents(receiveCancel: {
+                    auth.removeIDTokenDidChangeListener(handle)
+                }).eraseToAnyPublisher()
+        }
         .eraseToAnyPublisher()
     }
-
+    
     /// Sets the currentUser on the calling Auth instance to the provided user object.
     ///
     /// The publisher will emit events on the **main** thread.
@@ -77,20 +107,24 @@
     /// - Returns: A publisher that emits as soon as the user of the calling Auth instance has been
     ///   updated or an error was encountered. The publisher will emit on the *main* thread.
     @discardableResult
-    public func updateCurrentUser(_ user: User) -> Future<Void, Error> {
-      Future<Void, Error> { promise in
-        self.updateCurrentUser(user) { error in
-          if let error = error {
-            promise(.failure(error))
-          } else {
-            promise(.success(()))
-          }
-        }
-      }
+    public func updateCurrentUser(_ user: User) -> AnyPublisher<Void, Error> {
+        setFailureType(to: Error.self)
+            .flatMap { auth in
+                Future<Void, Error> { promise in
+                    auth.updateCurrentUser(user) { error in
+                        if let error = error {
+                            promise(.failure(error))
+                        } else {
+                            promise(.success(()))
+                        }
+                    }
+                }
+            }.eraseToAnyPublisher()
     }
-
+    
+    
     // MARK: - Anonymous Authentication
-
+    
     /// Asynchronously creates and becomes an anonymous user.
     ///
     /// If there is already an anonymous user signed in, that user will be returned instead.
@@ -106,20 +140,23 @@
     ///
     ///   See `AuthErrors` for a list of error codes that are common to all API methods
     @discardableResult
-    public func signInAnonymously() -> Future<AuthDataResult, Error> {
-      Future<AuthDataResult, Error> { promise in
-        self.signInAnonymously { authDataResult, error in
-          if let error = error {
-            promise(.failure(error))
-          } else if let authDataResult = authDataResult {
-            promise(.success(authDataResult))
-          }
-        }
-      }
+    public func signInAnonymously() -> AnyPublisher<AuthDataResult, Error> {
+        setFailureType(to: Error.self)
+            .flatMap { auth in
+                Future<AuthDataResult, Error> { promise in
+                    auth.signInAnonymously { authDataResult, error in
+                        if let error = error {
+                            promise(.failure(error))
+                        } else if let authDataResult = authDataResult {
+                            promise(.success(authDataResult))
+                        }
+                    }
+                }
+            }.eraseToAnyPublisher()
     }
-
+    
     // MARK: - Email/Password Authentication
-
+    
     /// Creates and, on success, signs in a user with the given email address and password.
     ///
     /// The publisher will emit events on the **main** thread.
@@ -143,18 +180,21 @@
     ///   See `AuthErrors` for a list of error codes that are common to all API methods
     @discardableResult
     public func createUser(withEmail email: String,
-                           password: String) -> Future<AuthDataResult, Error> {
-      Future<AuthDataResult, Error> { promise in
-        self.createUser(withEmail: email, password: password) { authDataResult, error in
-          if let error = error {
-            promise(.failure(error))
-          } else if let authDataResult = authDataResult {
-            promise(.success(authDataResult))
-          }
-        }
-      }
+                           password: String) -> AnyPublisher<AuthDataResult, Error> {
+        setFailureType(to: Error.self)
+            .flatMap { auth in
+                Future<AuthDataResult, Error> { promise in
+                    auth.createUser(withEmail: email, password: password) { authDataResult, error in
+                        if let error = error {
+                            promise(.failure(error))
+                        } else if let authDataResult = authDataResult {
+                            promise(.success(authDataResult))
+                        }
+                    }
+                }
+            }.eraseToAnyPublisher()
     }
-
+    
     /// Signs in using an email address and password.
     ///
     /// The publisher will emit events on the **main** thread.
@@ -176,20 +216,23 @@
     ///   See `AuthErrors` for a list of error codes that are common to all API methods
     @discardableResult
     public func signIn(withEmail email: String,
-                       password: String) -> Future<AuthDataResult, Error> {
-      Future<AuthDataResult, Error> { promise in
-        self.signIn(withEmail: email, password: password) { authDataResult, error in
-          if let error = error {
-            promise(.failure(error))
-          } else if let authDataResult = authDataResult {
-            promise(.success(authDataResult))
-          }
-        }
-      }
+                       password: String) -> AnyPublisher<AuthDataResult, Error> {
+        setFailureType(to: Error.self)
+            .flatMap { auth in
+                Future<AuthDataResult, Error> { promise in
+                    auth.signIn(withEmail: email, password: password) { authDataResult, error in
+                        if let error = error {
+                            promise(.failure(error))
+                        } else if let authDataResult = authDataResult {
+                            promise(.success(authDataResult))
+                        }
+                    }
+                }
+            }.eraseToAnyPublisher()
     }
-
+    
     // MARK: - Email/Link Authentication
-
+    
     /// Signs in using an email address and email sign-in link.
     ///
     /// The publisher will emit events on the **main** thread.
@@ -209,18 +252,21 @@
     ///   See `AuthErrors` for a list of error codes that are common to all API methods
     @discardableResult
     public func signIn(withEmail email: String,
-                       link: String) -> Future<AuthDataResult, Error> {
-      Future<AuthDataResult, Error> { promise in
-        self.signIn(withEmail: email, link: link) { authDataResult, error in
-          if let error = error {
-            promise(.failure(error))
-          } else if let authDataResult = authDataResult {
-            promise(.success(authDataResult))
-          }
-        }
-      }
+                       link: String) -> AnyPublisher<AuthDataResult, Error> {
+        setFailureType(to: Error.self)
+            .flatMap { auth in
+                Future<AuthDataResult, Error> { promise in
+                    auth.signIn(withEmail: email, link: link) { authDataResult, error in
+                        if let error = error {
+                            promise(.failure(error))
+                        } else if let authDataResult = authDataResult {
+                            promise(.success(authDataResult))
+                        }
+                    }
+                }
+            }.eraseToAnyPublisher()
     }
-
+    
     /// Sends a sign in with email link to provided email address.
     ///
     /// The publisher will emit events on the **main** thread.
@@ -232,20 +278,23 @@
     /// - Returns: A publisher that emits whether the call was successful or not.
     @discardableResult
     public func sendSignInLink(toEmail email: String,
-                               actionCodeSettings: ActionCodeSettings) -> Future<Void, Error> {
-      Future<Void, Error> { promise in
-        self.sendSignInLink(toEmail: email, actionCodeSettings: actionCodeSettings) { error in
-          if let error = error {
-            promise(.failure(error))
-          } else {
-            promise(.success(()))
-          }
-        }
-      }
+                               actionCodeSettings: ActionCodeSettings) -> AnyPublisher<Void, Error> {
+        setFailureType(to: Error.self)
+            .flatMap { auth in
+                Future<Void, Error> { promise in
+                    auth.sendSignInLink(toEmail: email, actionCodeSettings: actionCodeSettings) { error in
+                        if let error = error {
+                            promise(.failure(error))
+                        } else {
+                            promise(.success(()))
+                        }
+                    }
+                }
+            }.eraseToAnyPublisher()
     }
-
+    
     //  MARK: - Email-based Authentication Helpers
-
+    
     /// Fetches the list of all sign-in methods previously used for the provided email address.
     ///
     /// The publisher will emit events on the **main** thread.
@@ -257,20 +306,23 @@
     ///   - `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
     ///
     ///   See `AuthErrors` for a list of error codes that are common to all API methods
-    public func fetchSignInMethods(forEmail email: String) -> Future<[String], Error> {
-      Future<[String], Error> { promise in
-        self.fetchSignInMethods(forEmail: email) { signInMethods, error in
-          if let error = error {
-            promise(.failure(error))
-          } else if let signInMethods = signInMethods {
-            promise(.success(signInMethods))
-          }
-        }
-      }
+    public func fetchSignInMethods(forEmail email: String) -> AnyPublisher<[String], Error> {
+        setFailureType(to: Error.self)
+            .flatMap { auth in
+                Future<[String], Error> { promise in
+                    auth.fetchSignInMethods(forEmail: email) { signInMethods, error in
+                        if let error = error {
+                            promise(.failure(error))
+                        } else if let signInMethods = signInMethods {
+                            promise(.success(signInMethods))
+                        }
+                    }
+                }
+            }.eraseToAnyPublisher()
     }
-
+    
     // MARK: - Password Reset
-
+    
     /// Resets the password given a code sent to the user outside of the app and a new password for the user.
     ///
     /// The publisher will emit events on the **main** thread.
@@ -288,18 +340,21 @@
     ///   See `AuthErrors` for a list of error codes that are common to all API methods
     @discardableResult
     public func confirmPasswordReset(withCode code: String,
-                                     newPassword: String) -> Future<Void, Error> {
-      Future<Void, Error> { promise in
-        self.confirmPasswordReset(withCode: code, newPassword: newPassword) { error in
-          if let error = error {
-            promise(.failure(error))
-          } else {
-            promise(.success(()))
-          }
-        }
-      }
+                                     newPassword: String) -> AnyPublisher<Void, Error> {
+        setFailureType(to: Error.self)
+            .flatMap { auth in
+                Future<Void, Error> { promise in
+                    auth.confirmPasswordReset(withCode: code, newPassword: newPassword) { error in
+                        if let error = error {
+                            promise(.failure(error))
+                        } else {
+                            promise(.success(()))
+                        }
+                    }
+                }
+            }.eraseToAnyPublisher()
     }
-
+    
     /// Checks the validity of a verify password reset code.
     ///
     /// The publisher will emit events on the **main** thread.
@@ -308,18 +363,21 @@
     /// - Returns: A publisher that emits an error if the code could not be verified. If the code could be
     ///   verified, the publisher will emit the email address of the account the code was issued for.
     @discardableResult
-    public func verifyPasswordResetCode(_ code: String) -> Future<String, Error> {
-      Future<String, Error> { promise in
-        self.verifyPasswordResetCode(code) { email, error in
-          if let error = error {
-            promise(.failure(error))
-          } else if let email = email {
-            promise(.success(email))
-          }
-        }
-      }
+    public func verifyPasswordResetCode(_ code: String) -> AnyPublisher<String, Error> {
+        setFailureType(to: Error.self)
+            .flatMap { auth in
+                Future<String, Error> { promise in
+                    auth.verifyPasswordResetCode(code) { email, error in
+                        if let error = error {
+                            promise(.failure(error))
+                        } else if let email = email {
+                            promise(.success(email))
+                        }
+                    }
+                }
+            }.eraseToAnyPublisher()
     }
-
+    
     /// Checks the validity of an out of band code.
     ///
     /// The publisher will emit events on the **main** thread.
@@ -328,18 +386,21 @@
     /// - Returns: A publisher that emits an error if the code could not be verified. If the code could be
     ///   verified, the publisher will emit the email address of the account the code was issued for.
     @discardableResult
-    public func checkActionCode(code: String) -> Future<ActionCodeInfo, Error> {
-      Future<ActionCodeInfo, Error> { promise in
-        self.checkActionCode(code) { actionCodeInfo, error in
-          if let error = error {
-            promise(.failure(error))
-          } else if let actionCodeInfo = actionCodeInfo {
-            promise(.success(actionCodeInfo))
-          }
-        }
-      }
+    public func checkActionCode(code: String) -> AnyPublisher<ActionCodeInfo, Error> {
+        setFailureType(to: Error.self)
+            .flatMap { auth in
+                Future<ActionCodeInfo, Error> { promise in
+                    auth.checkActionCode(code) { actionCodeInfo, error in
+                        if let error = error {
+                            promise(.failure(error))
+                        } else if let actionCodeInfo = actionCodeInfo {
+                            promise(.success(actionCodeInfo))
+                        }
+                    }
+                }
+            }.eraseToAnyPublisher()
     }
-
+    
     /// Applies out of band code.
     ///
     /// The publisher will emit events on the **main** thread.
@@ -349,18 +410,21 @@
     /// - Remark: This method will not work for out of band codes which require an additional parameter,
     ///   such as password reset code.
     @discardableResult
-    public func applyActionCode(code: String) -> Future<Void, Error> {
-      Future<Void, Error> { promise in
-        self.applyActionCode(code) { error in
-          if let error = error {
-            promise(.failure(error))
-          } else {
-            promise(.success(()))
-          }
-        }
-      }
+    public func applyActionCode(code: String) -> AnyPublisher<Void, Error> {
+        setFailureType(to: Error.self)
+            .flatMap { auth in
+                Future<Void, Error> { promise in
+                    auth.applyActionCode(code) { error in
+                        if let error = error {
+                            promise(.failure(error))
+                        } else {
+                            promise(.success(()))
+                        }
+                    }
+                }
+            }.eraseToAnyPublisher()
     }
-
+    
     /// Initiates a password reset for the given email address.
     ///
     /// The publisher will emit events on the **main** thread.
@@ -374,18 +438,21 @@
     ///
     ///   See `AuthErrors` for a list of error codes that are common to all API methods
     @discardableResult
-    public func sendPasswordReset(withEmail email: String) -> Future<Void, Error> {
-      Future<Void, Error> { promise in
-        self.sendPasswordReset(withEmail: email) { error in
-          if let error = error {
-            promise(.failure(error))
-          } else {
-            promise(.success(()))
-          }
-        }
-      }
+    public func sendPasswordReset(withEmail email: String) -> AnyPublisher<Void, Error> {
+        setFailureType(to: Error.self)
+            .flatMap { auth in
+                Future<Void, Error> { promise in
+                    auth.sendPasswordReset(withEmail: email) { error in
+                        if let error = error {
+                            promise(.failure(error))
+                        } else {
+                            promise(.success(()))
+                        }
+                    }
+                }
+            }.eraseToAnyPublisher()
     }
-
+    
     /// Initiates a password reset for the given email address and `ActionCodeSettings`.
     ///
     /// The publisher will emit events on the **main** thread.
@@ -405,20 +472,23 @@
     ///   See `AuthErrors` for a list of error codes that are common to all API methods
     @discardableResult
     public func sendPasswordReset(withEmail email: String,
-                                  actionCodeSettings: ActionCodeSettings) -> Future<Void, Error> {
-      Future<Void, Error> { promise in
-        self.sendPasswordReset(withEmail: email, actionCodeSettings: actionCodeSettings) { error in
-          if let error = error {
-            promise(.failure(error))
-          } else {
-            promise(.success(()))
-          }
-        }
-      }
+                                  actionCodeSettings: ActionCodeSettings) -> AnyPublisher<Void, Error> {
+        setFailureType(to: Error.self)
+            .flatMap { auth in
+                Future<Void, Error> { promise in
+                    auth.sendPasswordReset(withEmail: email, actionCodeSettings: actionCodeSettings) { error in
+                        if let error = error {
+                            promise(.failure(error))
+                        } else {
+                            promise(.success(()))
+                        }
+                    }
+                }
+            }.eraseToAnyPublisher()
     }
-
+    
     // MARK: - Other Authentication providers
-
+    
     /// Signs in using the provided auth provider instance.
     ///
     /// The publisher will emit events on the **main** thread.
@@ -452,18 +522,21 @@
     ///   See `AuthErrors` for a list of error codes that are common to all API methods
     @discardableResult
     public func signIn(with provider: FederatedAuthProvider,
-                       uiDelegate: AuthUIDelegate?) -> Future<AuthDataResult, Error> {
-      Future<AuthDataResult, Error> { promise in
-        self.signIn(with: provider, uiDelegate: uiDelegate) { authDataResult, error in
-          if let error = error {
-            promise(.failure(error))
-          } else if let authDataResult = authDataResult {
-            promise(.success(authDataResult))
-          }
-        }
-      }
+                       uiDelegate: AuthUIDelegate?) -> AnyPublisher<AuthDataResult, Error> {
+        setFailureType(to: Error.self)
+            .flatMap { auth in
+                Future<AuthDataResult, Error> { promise in
+                    auth.signIn(with: provider, uiDelegate: uiDelegate) { authDataResult, error in
+                        if let error = error {
+                            promise(.failure(error))
+                        } else if let authDataResult = authDataResult {
+                            promise(.success(authDataResult))
+                        }
+                    }
+                }
+            }.eraseToAnyPublisher()
     }
-
+    
     /// Asynchronously signs in to Firebase with the given Auth token.
     ///
     /// The publisher will emit events on the **main** thread.
@@ -479,16 +552,19 @@
     ///
     ///   See `AuthErrors` for a list of error codes that are common to all API methods
     @discardableResult
-    public func signIn(withCustomToken token: String) -> Future<AuthDataResult, Error> {
-      Future<AuthDataResult, Error> { promise in
-        self.signIn(withCustomToken: token) { authDataResult, error in
-          if let error = error {
-            promise(.failure(error))
-          } else if let authDataResult = authDataResult {
-            promise(.success(authDataResult))
-          }
-        }
-      }
+    public func signIn(withCustomToken token: String) -> AnyPublisher<AuthDataResult, Error> {
+        setFailureType(to: Error.self)
+            .flatMap { auth in
+                Future<AuthDataResult, Error> { promise in
+                    auth.signIn(withCustomToken: token) { authDataResult, error in
+                        if let error = error {
+                            promise(.failure(error))
+                        } else if let authDataResult = authDataResult {
+                            promise(.success(authDataResult))
+                        }
+                    }
+                }
+            }.eraseToAnyPublisher()
     }
-  }
+}
 #endif

@@ -135,7 +135,7 @@ class SignInWithProviderTests: XCTestCase {
     let userSignInExpectation = expectation(description: "User signed in")
 
     // when
-    Auth.auth()
+    Auth.authPublisher()
       .signIn(with: authProvider, uiDelegate: nil)
       .sink { completion in
         switch completion {

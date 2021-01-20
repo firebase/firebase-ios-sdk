@@ -116,7 +116,7 @@ class EmailPasswordAuthTests: XCTestCase {
     let userCreatedExpectation = expectation(description: "User created")
 
     // when
-    Auth.auth()
+    Auth.authPublisher()
       .createUser(
         withEmail: EmailPasswordAuthTests.email,
         password: EmailPasswordAuthTests.password
@@ -152,7 +152,7 @@ class EmailPasswordAuthTests: XCTestCase {
     let userSignInExpectation = expectation(description: "User signed in")
 
     // when
-    Auth.auth()
+    Auth.authPublisher()
       .signIn(withEmail: EmailPasswordAuthTests.email, password: EmailPasswordAuthTests.password)
       .sink { completion in
         switch completion {

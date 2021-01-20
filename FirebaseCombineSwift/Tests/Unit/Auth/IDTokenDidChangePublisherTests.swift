@@ -98,7 +98,7 @@ class IDTokenDidChangePublisherTests: XCTestCase {
     //
     // 1) Publisher should emit as soon as it is registered
     var expect = expectation(description: "Publisher emits value as soon as it is subscribed")
-    var cancellable = Auth.auth()
+    var cancellable = Auth.authPublisher()
       .idTokenDidChangePublisher()
       .sink { user in
         XCTAssertNil(user)
@@ -110,7 +110,7 @@ class IDTokenDidChangePublisherTests: XCTestCase {
     //
     // 2) Publisher should emit when user is signed in
     expect = expectation(description: "Publisher emits value when user is signed in")
-    cancellable = Auth.auth()
+    cancellable = Auth.authPublisher()
       .idTokenDidChangePublisher()
       .sink { user in
         if let user = user, user.isAnonymous {
@@ -126,7 +126,7 @@ class IDTokenDidChangePublisherTests: XCTestCase {
     // 3) Publisher should not fire for signing in again
     expect = expectation(description: "Publisher emits value when user is signed in")
 
-    cancellable = Auth.auth()
+    cancellable = Auth.authPublisher()
       .idTokenDidChangePublisher()
       .sink { user in
         if let user = user, user.isAnonymous {
@@ -153,7 +153,7 @@ class IDTokenDidChangePublisherTests: XCTestCase {
     expect = expectation(description: "Publisher emits value when user is signed in")
     var shouldUserBeNil = false
 
-    cancellable = Auth.auth()
+    cancellable = Auth.authPublisher()
       .idTokenDidChangePublisher()
       .sink { user in
         if shouldUserBeNil {
@@ -187,7 +187,7 @@ class IDTokenDidChangePublisherTests: XCTestCase {
     expect = expectation(description: "Publisher emits value when user is signed in")
     shouldUserBeNil = false
 
-    cancellable = Auth.auth()
+    cancellable = Auth.authPublisher()
       .idTokenDidChangePublisher()
       .sink { user in
         if shouldUserBeNil {

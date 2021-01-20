@@ -92,7 +92,7 @@ class EmailLinkAuthTests: XCTestCase {
   func testSignInUserWithEmailAndLink() {
     // given
     FIRAuthBackend.setBackendImplementation(MockAuthBackend())
-    let auth = Auth.auth(app: app())
+    let auth = Auth.authPublisher(app: app())
 
     var cancellables = Set<AnyCancellable>()
     let userSignInExpectation = expectation(description: "User signed in")
@@ -124,7 +124,7 @@ class EmailLinkAuthTests: XCTestCase {
   func testSendSignInLinkToEmail() {
     // given
     FIRAuthBackend.setBackendImplementation(MockAuthBackend())
-    let auth = Auth.auth(app: app())
+    let auth = Auth.authPublisher(app: app())
 
     var cancellables = Set<AnyCancellable>()
     let sendSignInLinkExpectation = expectation(description: "Sign in link sent")

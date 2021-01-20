@@ -71,7 +71,7 @@ class FetchSignInMethodsTests: XCTestCase {
     let fetchSignInMethodsExpectation = expectation(description: "Fetched Sign-in methods")
 
     // when
-    Auth.auth()
+    Auth.authPublisher()
       .fetchSignInMethods(forEmail: FetchSignInMethodsTests.email)
       .sink { completion in
         switch completion {

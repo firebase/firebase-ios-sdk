@@ -105,7 +105,7 @@ class SignInWithCustomTokenTests: XCTestCase {
     let userSignInExpectation = expectation(description: "User signed in")
 
     // when
-    Auth.auth()
+    Auth.authPublisher()
       .signIn(withCustomToken: SignInWithCustomTokenTests.customToken)
       .sink { completion in
         switch completion {
