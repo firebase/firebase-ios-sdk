@@ -1,5 +1,5 @@
 # Unreleased
-- [changed] Moved some binary image work to be done asynchronously to improve start-up performance (#7332).
+- [changed] Improve start-up performance by moving some initialization work to a background thread (#7332).
 - [changed] Updated upload-symbols to a version that is notarized to avoid macOS security alerts (#7323).
 
 # v7.4.0
