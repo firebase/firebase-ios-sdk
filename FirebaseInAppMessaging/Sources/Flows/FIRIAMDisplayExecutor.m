@@ -568,7 +568,7 @@
 
 - (FIRInAppMessagingDisplayMessage *)
     displayMessageWithMessageDefinition:(FIRIAMMessageDefinition *)definition
-                              imageData:(FIRInAppMessagingImageData *)imageData
+                              imageData:(nullable FIRInAppMessagingImageData *)imageData
                      landscapeImageData:(nullable FIRInAppMessagingImageData *)landscapeImageData
                             triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
   switch (definition.renderData.renderingEffectSettings.viewMode) {
