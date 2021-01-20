@@ -127,38 +127,36 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
       /// Possible failure due to download URL expiry.
       if response.statusCode == 400 {
         let currentDateTime = Date()
-        if currentDateTime > remoteModelInfo.urlExpiryTime {
-          /// Check if ok to retry download.
-          if numberOfRetries > 0 {
-            numberOfRetries -= 1
-            modelInfoRetriever.downloadModelInfo { result in
-              switch result {
-              case let .success(downloadModelInfoResult):
-                switch downloadModelInfoResult {
-                /// New model info was downloaded from server.
-                case let .modelInfo(remoteModelInfo):
-                  self.remoteModelInfo = remoteModelInfo
-                  self.resumeModelDownload()
-                /// This should not ever be the case - model info cannot be unmodified within ModelDownloadTask.
-                case .notModified:
-                  DispatchQueue.main.async {
-                    self.downloadHandlers
-                      .completion(.failure(.internalError(description: ModelDownloadTask
-                          .ErrorDescription.expiredModelInfo)))
-                  }
-                }
-              case let .failure(downloadError):
-                self.downloadStatus = .failed
-                DispatchQueue.main.async {
-                  self.downloadHandlers.completion(.failure(downloadError))
-                }
+        /// Retry download if allowed.
+        guard currentDateTime > remoteModelInfo.urlExpiryTime, numberOfRetries > 0 else {
+          downloadStatus = .failed
+          downloadHandlers
+            .completion(.failure(.internalError(description: ModelDownloadTask.ErrorDescription
+                .expiredModelInfo)))
+          return
+        }
+        numberOfRetries -= 1
+        modelInfoRetriever.downloadModelInfo { result in
+          switch result {
+          case let .success(downloadModelInfoResult):
+            switch downloadModelInfoResult {
+            /// New model info was downloaded from server.
+            case let .modelInfo(remoteModelInfo):
+              self.remoteModelInfo = remoteModelInfo
+              self.resumeModelDownload()
+            /// This should not ever be the case - model info cannot be unmodified within ModelDownloadTask.
+            case .notModified:
+              DispatchQueue.main.async {
+                self.downloadHandlers
+                  .completion(.failure(.internalError(description: ModelDownloadTask
+                      .ErrorDescription.expiredModelInfo)))
               }
             }
-          } else {
-            downloadStatus = .failed
-            downloadHandlers
-              .completion(.failure(.internalError(description: ModelDownloadTask.ErrorDescription
-                  .expiredModelInfo)))
+          case let .failure(downloadError):
+            self.downloadStatus = .failed
+            DispatchQueue.main.async {
+              self.downloadHandlers.completion(.failure(downloadError))
+            }
           }
         }
       }
