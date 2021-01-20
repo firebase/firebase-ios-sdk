@@ -63,11 +63,15 @@ absl::optional<MaybeDocument> Mutation::ApplyToLocalView(
 absl::optional<ObjectValue> Mutation::Rep::ExtractTransformBaseValue(
     const absl::optional<MaybeDocument>& maybe_doc) const {
   absl::optional<ObjectValue> base_object;
+  absl::optional<Document> document;
+  if (maybe_doc && maybe_doc->is_document()) {
+    document = Document(*maybe_doc);
+  }
 
   for (const FieldTransform& transform : field_transforms_) {
     absl::optional<FieldValue> existing_value;
-    if (maybe_doc && maybe_doc->is_document()) {
-      existing_value = Document(*maybe_doc).field(transform.path());
+    if (document) {
+      existing_value = document->field(transform.path());
     }
 
     absl::optional<FieldValue> coerced_value =
@@ -121,7 +125,7 @@ SnapshotVersion Mutation::Rep::GetPostMutationVersion(
 }
 
 std::vector<FieldValue> Mutation::Rep::ServerTransformResults(
-    const absl::optional<MaybeDocument>& base_doc,
+    const absl::optional<MaybeDocument>& maybe_doc,
     const std::vector<FieldValue>& server_transform_results) const {
   HARD_ASSERT(field_transforms_.size() == server_transform_results.size(),
               "server transform result size (%s) should match field transforms "
@@ -134,8 +138,8 @@ std::vector<FieldValue> Mutation::Rep::ServerTransformResults(
     const TransformOperation& transform = field_transform.transformation();
 
     absl::optional<model::FieldValue> previous_value;
-    if (base_doc && base_doc->is_document()) {
-      previous_value = Document(*base_doc).field(field_transform.path());
+    if (maybe_doc && maybe_doc->is_document()) {
+      previous_value = Document(*maybe_doc).field(field_transform.path());
     }
 
     transform_results.push_back(transform.ApplyToRemoteDocument(

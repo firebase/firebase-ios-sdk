@@ -305,7 +305,7 @@ core::Query CollectionGroupQuery(absl::string_view collection_id) {
                      std::make_shared<const std::string>(collection_id));
 }
 
-// TODO(chenbrian): Rewrite SetMutation  to allow parsing of field
+// TODO(chenbrian): Rewrite SetMutation to allow parsing of field
 // transforms directly in the `values` parameter once the UserDataReader/
 // UserDataWriter changes are ported from Web and Android.
 model::SetMutation SetMutation(

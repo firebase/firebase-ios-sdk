@@ -379,19 +379,6 @@ TEST_F(LocalSerializerTest, TransformAndTransformThrowError) {
 }
 
 // TODO(b/174608374): Remove these tests once we perform a schema migration.
-TEST_F(LocalSerializerTest, OnlyTransformThrowsError) {
-  ::firestore::client::WriteBatch batch_proto{};
-  batch_proto.set_batch_id(42);
-  *batch_proto.add_writes() = LegacyTransformProto();
-  *batch_proto.mutable_local_write_time() = WriteTimeProto();
-
-  ByteString bytes = ProtobufSerialize(batch_proto);
-  StringReader reader(bytes);
-  auto message = Message<firestore_client_WriteBatch>::TryParse(&reader);
-  EXPECT_ANY_THROW(serializer.DecodeMutationBatch(&reader, *message));
-}
-
-// TODO(b/174608374): Remove these tests once we perform a schema migration.
 TEST_F(LocalSerializerTest, DeleteAndTransformThrowError) {
   ::firestore::client::WriteBatch batch_proto{};
   batch_proto.set_batch_id(42);

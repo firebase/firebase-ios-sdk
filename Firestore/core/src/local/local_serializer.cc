@@ -335,39 +335,33 @@ MutationBatch LocalSerializer::DecodeMutationBatch(
   // SDK means that old `transform` mutations stored in LevelDB need to be
   // updated to `update_transforms`.
   // TODO(b/174608374): Remove this code once we perform a schema migration.
-  for (size_t i = proto.writes_count; i > 0; --i) {
-    // Calculate appropriate index from `i`. We do this because decrementing
-    // `i` when i == 0 results in wraparound.
-    size_t index = i - 1;
-
-    _google_firestore_v1_Write mutation = proto.writes[index];
-    if (mutation.which_operation == google_firestore_v1_Write_transform_tag) {
+  for (size_t i = 0; i < proto.writes_count; ++i) {
+    _google_firestore_v1_Write current_mutation = proto.writes[i];
+    bool has_transform = i + 1 < proto.writes_count &&
+                         proto.writes[i + 1].which_operation ==
+                             google_firestore_v1_Write_transform_tag;
+    if (has_transform) {
+      _google_firestore_v1_Write transform_mutation = proto.writes[i + 1];
       HARD_ASSERT(
-          index >= 1 && proto.writes[index - 1].which_operation ==
-                            google_firestore_v1_Write_update_tag,
+          proto.writes[i].which_operation ==
+              google_firestore_v1_Write_update_tag,
           "TransformMutation should be preceded by a patch or set mutation");
-      _google_firestore_v1_Write mutation_to_join = proto.writes[index - 1];
-      _google_firestore_v1_Write new_mutation{mutation_to_join};
+      _google_firestore_v1_Write new_mutation{current_mutation};
       new_mutation.update_transforms_count =
-          mutation.transform.field_transforms_count;
+          transform_mutation.transform.field_transforms_count;
       new_mutation.update_transforms =
           MakeArray<_google_firestore_v1_DocumentTransform_FieldTransform>(
-              mutation.transform.field_transforms_count);
-      for (size_t j = 0; j < mutation.transform.field_transforms_count; ++j) {
-        new_mutation.update_transforms[j] =
-            mutation.transform.field_transforms[j];
-      }
+              transform_mutation.transform.field_transforms_count);
+      new_mutation.update_transforms =
+          transform_mutation.transform.field_transforms;
+
       mutations.push_back(rpc_serializer_.DecodeMutation(reader, new_mutation));
-      --i;
+      ++i;
     } else {
-      mutations.push_back(rpc_serializer_.DecodeMutation(reader, mutation));
+      mutations.push_back(
+          rpc_serializer_.DecodeMutation(reader, current_mutation));
     }
   }
-
-  // Reverse the mutations to preserve the original ordering since the above
-  // for-loop iterates in reverse order. We use reverse() instead of prepending
-  // the elements into the mutations array since prepending to a List is O(n).
-  std::reverse(mutations.begin(), mutations.end());
 
   return MutationBatch(batch_id, local_write_time, std::move(base_mutations),
                        std::move(mutations));

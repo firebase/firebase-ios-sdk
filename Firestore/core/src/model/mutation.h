@@ -306,13 +306,14 @@ class Mutation {
      * value representing the result of applying a transform) for use after a
      * mutation containing transforms has been acknowledged by the server.
      *
-     * @param base_doc The document prior to applying this mutation batch.
+     * @param maybeDoc The current state of the document after applying all
+     *     previous mutations.
      * @param server_transform_results The transform results received by the
      *     server.
      * @return The transform results array.
      */
     virtual std::vector<FieldValue> ServerTransformResults(
-        const absl::optional<MaybeDocument>& base_doc,
+        const absl::optional<MaybeDocument>& maybe_doc,
         const std::vector<FieldValue>& server_transform_results) const;
 
     /**

@@ -1438,12 +1438,6 @@ TEST_P(LocalStoreTest, HandlesPatchMutationWithTransformThenRemoteEvent) {
   AllocateQuery(query);
   FSTAssertTargetID(2);
 
-  //  WriteMutations({
-  //      testutil::PatchMutation("foo/bar", Map(), {}),
-  //      testutil::PatchMutation("foo/bar", Map(),
-  //                              {testutil::Increment("sum", Value(1))}),
-  //  });
-
   WriteMutation(testutil::PatchMutation(
       "foo/bar", Map(), {testutil::Increment("sum", Value(1))}));
 
