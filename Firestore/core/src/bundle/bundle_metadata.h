@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_LOCAL_BUNDLE_H_
-#define FIRESTORE_CORE_SRC_LOCAL_BUNDLE_H_
+#ifndef FIRESTORE_CORE_SRC_BUNDLE_BUNDLE_METADATA_H_
+#define FIRESTORE_CORE_SRC_BUNDLE_BUNDLE_METADATA_H_
 
 #include <memory>
+#include <string>
+#include <utility>
 
 #include "Firestore/core/src/model/snapshot_version.h"
 #include "absl/types/optional.h"
@@ -82,4 +84,4 @@ inline bool operator!=(const BundleMetadata& lhs, const BundleMetadata& rhs) {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_LOCAL_BUNDLE_H_
+#endif  // FIRESTORE_CORE_SRC_BUNDLE_BUNDLE_METADATA_H_

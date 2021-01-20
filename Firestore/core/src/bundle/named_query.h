@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_LOCAL_NAMED_QUERY_H_
-#define FIRESTORE_CORE_SRC_LOCAL_NAMED_QUERY_H_
+#ifndef FIRESTORE_CORE_SRC_BUNDLE_NAMED_QUERY_H_
+#define FIRESTORE_CORE_SRC_BUNDLE_NAMED_QUERY_H_
 
 #include <memory>
+#include <string>
+#include <utility>
 
+#include "Firestore/core/src/bundle/bundled_query.h"
 #include "Firestore/core/src/model/snapshot_version.h"
-#include "bundled_query.h"
 
 namespace firebase {
 namespace firestore {
@@ -82,4 +84,4 @@ inline bool operator!=(const NamedQuery& lhs, const NamedQuery& rhs) {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_LOCAL_NAMED_QUERY_H_
+#endif  // FIRESTORE_CORE_SRC_BUNDLE_NAMED_QUERY_H_

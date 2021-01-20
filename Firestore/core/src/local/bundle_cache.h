@@ -17,6 +17,8 @@
 #ifndef FIRESTORE_CORE_SRC_LOCAL_BUNDLE_CACHE_H_
 #define FIRESTORE_CORE_SRC_LOCAL_BUNDLE_CACHE_H_
 
+#include <string>
+
 #include "absl/types/optional.h"
 
 namespace firebase {

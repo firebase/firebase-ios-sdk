@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/local/memory_bundle_cache.h"
 
+#include <string>
+
 namespace firebase {
 namespace firestore {
 namespace local {

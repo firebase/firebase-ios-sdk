@@ -17,6 +17,9 @@
 #ifndef FIRESTORE_CORE_SRC_LOCAL_MEMORY_BUNDLE_CACHE_H_
 #define FIRESTORE_CORE_SRC_LOCAL_MEMORY_BUNDLE_CACHE_H_
 
+#include <string>
+#include <unordered_map>
+
 #include "Firestore/core/src/bundle/bundle_metadata.h"
 #include "Firestore/core/src/bundle/named_query.h"
 #include "Firestore/core/src/local/bundle_cache.h"

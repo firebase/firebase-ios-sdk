@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_LOCAL_BUNDLED_QUERY_H_
-#define FIRESTORE_CORE_SRC_LOCAL_BUNDLED_QUERY_H_
+#ifndef FIRESTORE_CORE_SRC_BUNDLE_BUNDLED_QUERY_H_
+#define FIRESTORE_CORE_SRC_BUNDLE_BUNDLED_QUERY_H_
 
 #include <memory>
+#include <utility>
 
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/core/target.h"
@@ -72,4 +73,4 @@ inline bool operator!=(const BundledQuery& lhs, const BundledQuery& rhs) {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_LOCAL_BUNDLED_QUERY_H_
+#endif  // FIRESTORE_CORE_SRC_BUNDLE_BUNDLED_QUERY_H_

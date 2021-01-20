@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/local/leveldb_bundle_cache.h"
 
+#include <string>
+
 #include "Firestore/Protos/nanopb/firestore/bundle.nanopb.h"
 #include "Firestore/core/src/bundle/bundle_metadata.h"
 #include "Firestore/core/src/bundle/named_query.h"
