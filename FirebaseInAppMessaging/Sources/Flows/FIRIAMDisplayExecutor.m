@@ -423,7 +423,7 @@
 
 - (FIRInAppMessagingCardDisplay *)
     cardDisplayMessageWithMessageDefinition:(FIRIAMMessageDefinition *)definition
-                          portraitImageData:(nonnull FIRInAppMessagingImageData *)portraitImageData
+                          portraitImageData:(FIRInAppMessagingImageData *)portraitImageData
                          landscapeImageData:
                              (nullable FIRInAppMessagingImageData *)landscapeImageData
                                 triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
@@ -568,11 +568,15 @@
 
 - (FIRInAppMessagingDisplayMessage *)
     displayMessageWithMessageDefinition:(FIRIAMMessageDefinition *)definition
-                              imageData:(nullable FIRInAppMessagingImageData *)imageData
+                              imageData:(FIRInAppMessagingImageData *)imageData
                      landscapeImageData:(nullable FIRInAppMessagingImageData *)landscapeImageData
                             triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
   switch (definition.renderData.renderingEffectSettings.viewMode) {
     case FIRIAMRenderAsCardView:
+      if (imageData == nil) {
+        // Image data should never nil for a valid card message.
+        return nil;
+      }
       return [self cardDisplayMessageWithMessageDefinition:definition
                                          portraitImageData:imageData
                                         landscapeImageData:landscapeImageData
