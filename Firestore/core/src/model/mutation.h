@@ -306,7 +306,7 @@ class Mutation {
      * value representing the result of applying a transform) for use after a
      * mutation containing transforms has been acknowledged by the server.
      *
-     * @param maybeDoc The current state of the document after applying all
+     * @param maybe_doc The current state of the document after applying all
      *     previous mutations.
      * @param server_transform_results The transform results received by the
      *     server.
