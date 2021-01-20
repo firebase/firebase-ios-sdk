@@ -34,14 +34,13 @@ jobs:
     - uses: actions/checkout@v2
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
-
     - name: Build and test
       env:
         SDK: database
-      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh FirebaseDatabase "${{ matrix.target }}"
+      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh FirebaseDatabase "${{ matrix.target }}" /Users/runner/"${SDK}"-"${platform}".xcresult
     - uses: actions/upload-artifact@v2
       with:
-        name: my-artifact
+        name: database-codecoverage
         path: /Users/runner/*.xcresult
 
   pod-lib-lint-functions:
@@ -58,7 +57,12 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh FirebaseFunctions "${{ matrix.target }}"
+      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh FirebaseFunctions "${{ matrix.target }}" /Users/runner/"${SDK}"-"${platform}".xcresult
+    - uses: actions/upload-artifact@v2
+      with:
+        name: functions-codecoverage
+        path: /Users/runner/*.xcresult
+
   create_report:
     needs: [pod-lib-lint-functions, pod-lib-lint-database]
     if: always()
