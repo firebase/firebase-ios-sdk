@@ -31,7 +31,6 @@
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSProfiling.h"
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSReport_Private.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
 #import "Crashlytics/Crashlytics/Settings/Models/FIRCLSApplicationIdentifierModel.h"
 
@@ -271,10 +270,20 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 #pragma mark - API: Accessors
 
 - (void)checkForUnsentReportsWithCompletion:(void (^)(BOOL))completion {
-  [[self.reportManager checkForUnsentReports] then:^id _Nullable(NSNumber *_Nullable value) {
-    completion([value boolValue]);
-    return nil;
-  }];
+  [[self.reportManager checkForUnsentReports]
+      then:^id _Nullable(FIRCrashlyticsReport *_Nullable value) {
+        completion(value ? true : false);
+        return nil;
+      }];
+}
+
+- (void)checkAndUpdateUnsentReportsWithCompletion:
+    (void (^)(FIRCrashlyticsReport *_Nonnull))completion {
+  [[self.reportManager checkForUnsentReports]
+      then:^id _Nullable(FIRCrashlyticsReport *_Nullable value) {
+        completion(value);
+        return nil;
+      }];
 }
 
 - (void)sendUnsentReports {
