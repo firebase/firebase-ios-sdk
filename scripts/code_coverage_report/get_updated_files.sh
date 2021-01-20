@@ -42,8 +42,8 @@ git diff --name-only $common_commit remotes/origin/${pr_branch} > updated_files.
 while IFS= read -r file
 do
   for path in "${DATABASE_PATHS[@]}"
-    echo ${{ steps.check_files.outputs.database_run_job }}
   do
+    echo ${{ steps.check_files.outputs.database_run_job }}
     if [[ "${file}" =~ $path ]]; then
       echo "This file is updated under the path, ${path}"
       echo "::set-output name=database_run_job::true"
