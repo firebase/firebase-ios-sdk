@@ -55,15 +55,21 @@ class ModelDownloadTask: NSObject {
   private lazy var downloadSession = URLSession(configuration: .ephemeral,
                                                 delegate: self,
                                                 delegateQueue: nil)
+  /// Model info retriever in case of retries.
+  private let modelInfoRetriever: ModelInfoRetriever
+  /// Number of retries in case of model download URL expiry.
+  private var numberOfRetries: Int = 1
   /// Telemetry logger.
   private let telemetryLogger: TelemetryLogger?
 
   init(remoteModelInfo: RemoteModelInfo, appName: String, defaults: UserDefaults,
+       modelInfoRetriever: ModelInfoRetriever,
        telemetryLogger: TelemetryLogger? = nil,
        progressHandler: DownloadHandlers.ProgressHandler? = nil,
        completion: @escaping DownloadHandlers.Completion) {
     self.remoteModelInfo = remoteModelInfo
     self.appName = appName
+    self.modelInfoRetriever = modelInfoRetriever
     self.telemetryLogger = telemetryLogger
     self.defaults = defaults
     downloadHandlers = DownloadHandlers(
@@ -71,7 +77,9 @@ class ModelDownloadTask: NSObject {
       completion: completion
     )
   }
+}
 
+extension ModelDownloadTask {
   /// Asynchronously download model file to device.
   func resumeModelDownload() {
     guard downloadStatus == .notStarted else { return }
@@ -116,7 +124,44 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
     }
 
     guard (200 ..< 299).contains(response.statusCode) else {
-      // TODO: Handle download url expiry + retries.
+      /// Possible failure due to download URL expiry.
+      if response.statusCode == 400 {
+        let currentDateTime = Date()
+        if currentDateTime > remoteModelInfo.urlExpiryTime {
+          /// Check if ok to retry download.
+          if numberOfRetries > 0 {
+            numberOfRetries -= 1
+            modelInfoRetriever.downloadModelInfo { result in
+              switch result {
+              case let .success(downloadModelInfoResult):
+                switch downloadModelInfoResult {
+                /// New model info was downloaded from server.
+                case let .modelInfo(remoteModelInfo):
+                  self.remoteModelInfo = remoteModelInfo
+                  self.resumeModelDownload()
+                /// This should not ever be the case - model info cannot be unmodified within ModelDownloadTask.
+                case .notModified:
+                  DispatchQueue.main.async {
+                    self.downloadHandlers
+                      .completion(.failure(.internalError(description: ModelDownloadTask
+                          .ErrorDescription.expiredModelInfo)))
+                  }
+                }
+              case let .failure(downloadError):
+                self.downloadStatus = .failed
+                DispatchQueue.main.async {
+                  self.downloadHandlers.completion(.failure(downloadError))
+                }
+              }
+            }
+          } else {
+            downloadStatus = .failed
+            downloadHandlers
+              .completion(.failure(.internalError(description: ModelDownloadTask.ErrorDescription
+                  .expiredModelInfo)))
+          }
+        }
+      }
       return
     }
 
@@ -196,5 +241,6 @@ extension ModelDownloadTask {
       "Could not get server response for model downloading."
     static let saveModel: StaticString =
       "Unable to save downloaded remote model file."
+    static let expiredModelInfo = "Unable to update expired model info."
   }
 }
