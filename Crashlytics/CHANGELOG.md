@@ -1,6 +1,8 @@
+# Unreleased
+- [changed] Moved some binary image work to be done asynchronously to improve start-up performance (#7332).
+
 # v7.4.0
 - [changed] Removed obsolete crash reporting mechanism from the SDK (#7076).
-- [changed] Moved some binary image work to be done asynchronously to improve start-up performance (#7332).
 
 # v7.3.0
 - [added] Added Crashlytics support for x86 apps running on Apple Silicon via Rosetta 2
