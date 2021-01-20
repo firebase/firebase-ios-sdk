@@ -66,7 +66,6 @@ class BundleCache {
 
   /**
    * Saves a `NamedQuery` from a bundle, using its name as the persistent key.
-   * @param query
    */
   virtual void SaveNamedQuery(const bundle::NamedQuery& query) = 0;
 };
