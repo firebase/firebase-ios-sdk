@@ -37,7 +37,7 @@ jobs:
     - name: Build and test
       env:
         SDK: database
-      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh FirebaseDatabase "${{ matrix.target }}" /Users/runner/"${SDK}"-"${platform}".xcresult
+      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh FirebaseDatabase "${{ matrix.target }}"
     - uses: actions/upload-artifact@v2
       with:
         name: database-codecoverage
@@ -57,7 +57,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh FirebaseFunctions "${{ matrix.target }}" /Users/runner/"${SDK}"-"${platform}".xcresult
+      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh FirebaseFunctions "${{ matrix.target }}"
     - uses: actions/upload-artifact@v2
       with:
         name: functions-codecoverage
