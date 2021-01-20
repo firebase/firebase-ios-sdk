@@ -614,7 +614,7 @@
     @"f" : @{@"array" : @[ @{@"a" : @42} ]},
     @"g" : @{@"array" : @42},
     @"h" : @{@"array" : @[ [NSNull null] ]},
-    @"g" : @{@"array" : @[ @(NAN) ]},
+    @"i" : @{@"array" : @[ @(NAN) ]},
 
   };
   FIRCollectionReference *collection = [self collectionRefWithDocuments:testDocs];

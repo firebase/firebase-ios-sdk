@@ -19,14 +19,14 @@ endif()
 # Environment and Logger subspecs
 file(
   GLOB sources
-  Environment/*.m
-  Environment/third_party/*.m
-  Logger/*.m
+  ${FIREBASE_EXTERNAL_SOURCE_DIR}/GoogleUtilities/GoogleUtilities/Environment/*.m
+  ${FIREBASE_EXTERNAL_SOURCE_DIR}/GoogleUtilities/GoogleUtilities/Environment/third_party/*.m
+  ${FIREBASE_EXTERNAL_SOURCE_DIR}/GoogleUtilities/GoogleUtilities/Logger/*.m
 )
 file(
   GLOB headers
-  Environment/Public/GoogleUtilities/*.h
-  Logger/Public/GoogleUtilities/*.h
+  ${FIREBASE_EXTERNAL_SOURCE_DIR}/GoogleUtilities/GoogleUtilities/Environment/Public/GoogleUtilities/*.h
+  ${FIREBASE_EXTERNAL_SOURCE_DIR}/GoogleUtilities/GoogleUtilities/Logger/Public/GoogleUtilities/*.h
 )
 
 firebase_ios_add_framework(

@@ -91,7 +91,7 @@ class FBMLDataObject: NSObject, GDTCOREventDataObject {
       DeviceLogger.logEvent(
         level: .debug,
         category: .analytics,
-        message: "Unable to encode Firelog event.",
+        message: TelemetryLogger.ErrorDescription.encodeEvent,
         messageCode: .analyticsEventEncodeError
       )
       return Data()
@@ -119,7 +119,7 @@ class TelemetryLogger {
       DeviceLogger.logEvent(
         level: .debug,
         category: .analytics,
-        message: "Unable to create telemetry logger.",
+        message: TelemetryLogger.ErrorDescription.initTelemetryLogger,
         messageCode: .telemetryInitError
       )
       return nil
@@ -160,5 +160,16 @@ class TelemetryLogger {
       modelDownloadLogEvent: modelDownloadLogEvent
     )
     logModelEvent(event: fbmlEvent)
+  }
+}
+
+/// Possible error messages while logging telemetry.
+extension TelemetryLogger {
+  /// Error descriptions.
+  fileprivate enum ErrorDescription {
+    static let encodeEvent: StaticString =
+      "Unable to encode event for Firelog."
+    static let initTelemetryLogger: StaticString =
+      "Unable to create telemetry logger."
   }
 }

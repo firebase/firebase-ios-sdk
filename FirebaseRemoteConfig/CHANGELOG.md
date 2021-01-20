@@ -1,5 +1,6 @@
 # v7.5.0
 - [fixed] Fixed bug that was incorrectly flagging ABT experiment payloads as invalid. (#7184)
+- [changed] Standardize support for Firebase products that integrate with Remote Config. (#7094)
 
 # v7.1.0
 - [changed] Add support for other Firebase products to integrate with Remote Config. (#6692)
