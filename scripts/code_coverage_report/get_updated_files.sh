@@ -24,6 +24,7 @@ FUNCTIONS_PATHS=("Functions.*" \
 # Set default flag variables which will determine if an sdk workflow will be triggererd.
 echo "::set-output name=database_run_job::false"
 echo "::set-output name=functions_run_job::false"
+echo ${{ github.event.pull_request.head.ref }}
 
 # Get most rescent ancestor commit.
 common_commit=$(git merge-base remotes/origin/${pr_branch} remotes/origin/master)
@@ -43,12 +44,12 @@ while IFS= read -r file
 do
   for path in "${DATABASE_PATHS[@]}"
   do
-    echo ${{ steps.check_files.outputs.database_run_job }}
+    echo "${{ steps.check_files.outputs.database_run_job }}"
     if [[ "${file}" =~ $path ]]; then
       echo "This file is updated under the path, ${path}"
       echo "::set-output name=database_run_job::true"
       echo "---------------"
-      echo ${{ steps.check_files.outputs.database_run_job }}
+      echo "${{ steps.check_files.outputs.database_run_job }}"
       echo "---------------"
 
       break
