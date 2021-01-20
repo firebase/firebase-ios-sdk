@@ -1,1 +1,0 @@
-This is to test code coverage workflow. Will be removed when merge.
