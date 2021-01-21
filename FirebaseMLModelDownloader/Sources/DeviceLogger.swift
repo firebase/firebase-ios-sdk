@@ -24,6 +24,7 @@ enum LoggerMessageCode: Int {
   case analyticsEventEncodeError
   case telemetryInitError
   case backgroundDownloadError
+  case testError
 }
 
 /// On-device logger.
