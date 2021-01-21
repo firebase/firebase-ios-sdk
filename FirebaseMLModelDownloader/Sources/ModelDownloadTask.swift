@@ -66,17 +66,22 @@ class ModelDownloadTask: NSObject {
     return URLSession(configuration: configuration, delegate: self, delegateQueue: nil)
   }()
 
+  private let modelInfoRetriever: ModelInfoRetriever
+  /// Number of retries in case of model download URL expiry.
+  private var numberOfRetries: Int = 1
   /// Telemetry logger.
   private let telemetryLogger: TelemetryLogger?
 
   init(remoteModelInfo: RemoteModelInfo, conditions: ModelDownloadConditions, appName: String,
        defaults: UserDefaults,
+       modelInfoRetriever: ModelInfoRetriever,
        telemetryLogger: TelemetryLogger? = nil,
        progressHandler: DownloadHandlers.ProgressHandler? = nil,
        completion: @escaping DownloadHandlers.Completion) {
     self.remoteModelInfo = remoteModelInfo
     self.conditions = conditions
     self.appName = appName
+    self.modelInfoRetriever = modelInfoRetriever
     self.telemetryLogger = telemetryLogger
     self.defaults = defaults
     downloadHandlers = DownloadHandlers(
@@ -85,7 +90,9 @@ class ModelDownloadTask: NSObject {
     )
     downloadStatus = .notStarted
   }
+}
 
+extension ModelDownloadTask {
   /// Asynchronously download model file to device.
   func resumeModelDownload() {
     guard downloadStatus == .notStarted else { return }
@@ -107,24 +114,73 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
     // TODO: Handle waiting for connectivity, if needed.
   }
 
-  func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
-    // TODO: Handle client errors.
-  }
-
   func urlSession(_ session: URLSession, didBecomeInvalidWithError error: Error?) {
     // TODO: Handle configuration errors.
+  }
+
+  /// Handle client-side errors.
+  func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+    // TODO: Log this.
+    guard task == downloadTask else { return }
+    guard let error = error else { return }
+    /// Unable to resolve hostname or connect to host.
+    DispatchQueue.main.async {
+      self.downloadHandlers
+        .completion(.failure(.internalError(description: error.localizedDescription)))
+    }
   }
 
   func urlSession(_ session: URLSession,
                   downloadTask: URLSessionDownloadTask,
                   didFinishDownloadingTo location: URL) {
-    assert(downloadTask == self.downloadTask)
+    // TODO: Log this.
+    guard downloadTask == self.downloadTask else { return }
     guard let response = downloadTask.response as? HTTPURLResponse else {
-      // TODO: Handle error.
+      DispatchQueue.main.async {
+        self.downloadHandlers
+          .completion(.failure(.internalError(description: ModelDownloadTask
+              .ErrorDescription.invalidServerResponse)))
+      }
       return
     }
-    if response.statusCode == 404 {
-      // TODO: Check if model download url expired; if yes then retry.
+
+    guard (200 ..< 299).contains(response.statusCode) else {
+      /// Possible failure due to download URL expiry.
+      if response.statusCode == 400 {
+        let currentDateTime = Date()
+        /// Retry download if allowed.
+        guard currentDateTime > remoteModelInfo.urlExpiryTime, numberOfRetries > 0 else {
+          downloadStatus = .failed
+          downloadHandlers
+            .completion(.failure(.internalError(description: ModelDownloadTask.ErrorDescription
+                .expiredModelInfo)))
+          return
+        }
+        numberOfRetries -= 1
+        modelInfoRetriever.downloadModelInfo { result in
+          switch result {
+          case let .success(downloadModelInfoResult):
+            switch downloadModelInfoResult {
+            /// New model info was downloaded from server.
+            case let .modelInfo(remoteModelInfo):
+              self.remoteModelInfo = remoteModelInfo
+              self.resumeModelDownload()
+            /// This should not ever be the case - model info cannot be unmodified within ModelDownloadTask.
+            case .notModified:
+              DispatchQueue.main.async {
+                self.downloadHandlers
+                  .completion(.failure(.internalError(description: ModelDownloadTask
+                      .ErrorDescription.expiredModelInfo)))
+              }
+            }
+          case let .failure(downloadError):
+            self.downloadStatus = .failed
+            DispatchQueue.main.async {
+              self.downloadHandlers.completion(.failure(downloadError))
+            }
+          }
+        }
+      }
       return
     }
 
@@ -140,7 +196,7 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
       DeviceLogger.logEvent(
         level: .info,
         category: .modelDownload,
-        message: "Unable to save downloaded remote model file.",
+        message: ModelDownloadTask.ErrorDescription.saveModel,
         messageCode: .modelDownloaded
       )
       DispatchQueue.main.async {
@@ -153,7 +209,7 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
       DeviceLogger.logEvent(
         level: .info,
         category: .modelDownload,
-        message: "Unable to save downloaded remote model file.",
+        message: ModelDownloadTask.ErrorDescription.saveModel,
         messageCode: .modelDownloaded
       )
       DispatchQueue.main.async {
@@ -185,12 +241,25 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
                   didWriteData bytesWritten: Int64,
                   totalBytesWritten: Int64,
                   totalBytesExpectedToWrite: Int64) {
-    assert(downloadTask == self.downloadTask)
+    // TODO: Log this.
+    guard downloadTask == self.downloadTask else { return }
     /// Check if progress handler is unspecified.
     guard let progressHandler = downloadHandlers.progressHandler else { return }
     let calculatedProgress = Float(totalBytesWritten) / Float(totalBytesExpectedToWrite)
     DispatchQueue.main.async {
       progressHandler(calculatedProgress)
     }
+  }
+}
+
+/// Possible error messages for model downloading.
+extension ModelDownloadTask {
+  /// Error descriptions.
+  private enum ErrorDescription {
+    static let invalidServerResponse =
+      "Could not get server response for model downloading."
+    static let saveModel: StaticString =
+      "Unable to save downloaded remote model file."
+    static let expiredModelInfo = "Unable to update expired model info."
   }
 }
