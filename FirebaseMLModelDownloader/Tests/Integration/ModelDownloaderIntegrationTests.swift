@@ -59,7 +59,8 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
 
     let modelInfoRetriever = ModelInfoRetriever(
       modelName: testModelName,
-      options: testApp.options,
+      projectID: testApp.options.projectID!,
+      apiKey: testApp.options.apiKey!,
       installations: Installations.installations(app: testApp),
       appName: testApp.name
     )
@@ -112,7 +113,8 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
 
     let modelInfoRetriever = ModelInfoRetriever(
       modelName: testModelName,
-      options: testApp.options,
+      projectID: testApp.options.projectID!,
+      apiKey: testApp.options.apiKey!,
       installations: Installations.installations(app: testApp),
       appName: testApp.name,
       localModelInfo: localInfo
@@ -143,8 +145,8 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       XCTFail("Default app was not configured.")
       return
     }
-    let functionName = #function.dropLast(2)
-    let testModelName = "\(functionName)-test-model"
+    let testName = #function.dropLast(2)
+    let testModelName = "\(testName)-test-model"
     let urlString =
       "https://tfhub.dev/tensorflow/lite-model/ssd_mobilenet_v1/1/metadata/1?lite-format=tflite"
     let url = URL(string: urlString)!
@@ -159,7 +161,8 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
 
     let modelInfoRetriever = ModelInfoRetriever(
       modelName: testModelName,
-      options: testApp.options,
+      projectID: testApp.options.projectID!,
+      apiKey: testApp.options.apiKey!,
       installations: Installations.installations(app: testApp),
       appName: testApp.name
     )
@@ -204,7 +207,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       XCTFail("Default app was not configured.")
       return
     }
-    let testName = "model-downloader-test"
+    let testName = String(#function.dropLast(2))
     let testModelName = "image-classification"
 
     let conditions = ModelDownloadConditions()
@@ -304,12 +307,12 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       XCTFail("Default app was not configured.")
       return
     }
-    let testName = "model-downloader-test"
+    let testName = String(#function.dropLast(2))
     let testModelName = "pose-detection"
 
     let conditions = ModelDownloadConditions()
     let modelDownloader = ModelDownloader.modelDownloaderWithDefaults(
-      .getTestInstance(testName: testName),
+      .createTestInstance(testName: testName),
       app: testApp
     )
 
@@ -356,12 +359,42 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       XCTFail("Default app was not configured.")
       return
     }
-    let testName = "model-downloader-test"
+    let testName = String(#function.dropLast(2))
+    let testModelName = "pose-detection"
 
+    let conditions = ModelDownloadConditions()
     let modelDownloader = ModelDownloader.modelDownloaderWithDefaults(
-      .getTestInstance(testName: testName),
+      .createTestInstance(testName: testName),
       app: testApp
     )
+
+    let downloadType: ModelDownloadType = .latestModel
+    let latestModelExpectation = expectation(description: "Get latest model.")
+
+    modelDownloader.getModel(
+      name: testModelName,
+      downloadType: downloadType,
+      conditions: conditions,
+      progressHandler: { progress in
+        XCTAssertLessThanOrEqual(progress, 1)
+        XCTAssertGreaterThanOrEqual(progress, 0)
+      }
+    ) { result in
+      switch result {
+      case let .success(model):
+        XCTAssertNotNil(model.path)
+        guard let filePath = URL(string: model.path) else {
+          XCTFail("Invalid model path.")
+          return
+        }
+        XCTAssertTrue(ModelFileManager.isFileReachable(at: filePath))
+      case let .failure(error):
+        XCTFail("Failed to download model - \(error)")
+      }
+      latestModelExpectation.fulfill()
+    }
+
+    waitForExpectations(timeout: 5, handler: nil)
 
     modelDownloader.listDownloadedModels { result in
       switch result {

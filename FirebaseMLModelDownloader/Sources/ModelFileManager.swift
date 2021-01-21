@@ -66,6 +66,7 @@ enum ModelFileManager {
       do {
         try fileManager.removeItem(at: destinationURL)
       } catch {
+        // TODO: Handle this - new model file downloaded but not saved due to FileManager error.
         throw DownloadError
           .internalError(
             description: ModelFileManager.ErrorDescription

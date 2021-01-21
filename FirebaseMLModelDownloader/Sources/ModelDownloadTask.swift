@@ -50,7 +50,7 @@ class ModelDownloadTask: NSObject {
   /// Progress and completion handlers associated with this model download task.
   private let downloadHandlers: DownloadHandlers
   /// Keeps track of download associated with this model download task.
-  private(set) var downloadStatus: ModelDownloadStatus = .notStarted
+  private(set) var downloadStatus: ModelDownloadStatus
   /// URLSession to handle model downloads.
   private lazy var downloadSession = URLSession(configuration: .ephemeral,
                                                 delegate: self,
@@ -76,6 +76,7 @@ class ModelDownloadTask: NSObject {
       progressHandler: progressHandler,
       completion: completion
     )
+    downloadStatus = .notStarted
   }
 }
 
@@ -88,41 +89,40 @@ extension ModelDownloadTask {
     downloadStatus = .inProgress
     self.downloadTask = downloadTask
   }
-}
 
-/// Extension to handle delegate methods.
-extension ModelDownloadTask: URLSessionDownloadDelegate {
-  /// Name for model file stored on device.
-  var downloadedModelFileName: String {
-    return "fbml_model__\(appName)__\(remoteModelInfo.name)"
-  }
-
-  /// Handle client-side errors.
-  func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
-    // TODO: Log this.
-    guard task == downloadTask else { return }
-    guard let error = error else { return }
-    /// Unable to resolve hostname or connect to host.
-    DispatchQueue.main.async {
-      self.downloadHandlers
-        .completion(.failure(.internalError(description: error.localizedDescription)))
-    }
-  }
-
-  func urlSession(_ session: URLSession,
-                  downloadTask: URLSessionDownloadTask,
-                  didFinishDownloadingTo location: URL) {
-    // TODO: Log this.
-    guard downloadTask == self.downloadTask else { return }
-    guard let response = downloadTask.response as? HTTPURLResponse else {
-      DispatchQueue.main.async {
-        self.downloadHandlers
-          .completion(.failure(.internalError(description: ModelDownloadTask
-              .ErrorDescription.invalidServerResponse)))
+  /// Fetch model info again and retry download.
+  func retryDownload() {
+    modelInfoRetriever.downloadModelInfo { result in
+      switch result {
+      case let .success(downloadModelInfoResult):
+        switch downloadModelInfoResult {
+        /// New model info was downloaded from server.
+        case let .modelInfo(remoteModelInfo):
+          self.remoteModelInfo = remoteModelInfo
+          self.downloadStatus = .notStarted
+          self.resumeModelDownload()
+        /// This should not ever be the case - model info cannot be unmodified within ModelDownloadTask.
+        case .notModified:
+          DispatchQueue.main.async {
+            self.downloadHandlers
+              .completion(.failure(.internalError(description: ModelDownloadTask
+                  .ErrorDescription.expiredModelInfo)))
+          }
+        }
+      case .failure:
+        self.downloadStatus = .failed
+        DispatchQueue.main.async {
+          self.downloadHandlers
+            .completion(.failure(.internalError(description: ModelDownloadTask
+                .ErrorDescription.expiredModelInfo)))
+        }
       }
-      return
     }
+  }
 
+  /// Handle model download response.
+  func handleResponse(response: HTTPURLResponse, tempURL: URL) {
+    /// Retry model download if url expired.
     guard (200 ..< 299).contains(response.statusCode) else {
       /// Possible failure due to download URL expiry.
       if response.statusCode == 400 {
@@ -135,30 +135,8 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
                 .expiredModelInfo)))
           return
         }
+        retryDownload()
         numberOfRetries -= 1
-        modelInfoRetriever.downloadModelInfo { result in
-          switch result {
-          case let .success(downloadModelInfoResult):
-            switch downloadModelInfoResult {
-            /// New model info was downloaded from server.
-            case let .modelInfo(remoteModelInfo):
-              self.remoteModelInfo = remoteModelInfo
-              self.resumeModelDownload()
-            /// This should not ever be the case - model info cannot be unmodified within ModelDownloadTask.
-            case .notModified:
-              DispatchQueue.main.async {
-                self.downloadHandlers
-                  .completion(.failure(.internalError(description: ModelDownloadTask
-                      .ErrorDescription.expiredModelInfo)))
-              }
-            }
-          case let .failure(downloadError):
-            self.downloadStatus = .failed
-            DispatchQueue.main.async {
-              self.downloadHandlers.completion(.failure(downloadError))
-            }
-          }
-        }
       }
       return
     }
@@ -168,7 +146,7 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
       modelName: remoteModelInfo.name
     )
     do {
-      try ModelFileManager.moveFile(at: location, to: modelFileURL)
+      try ModelFileManager.moveFile(at: tempURL, to: modelFileURL)
     } catch let error as DownloadError {
       downloadStatus = .failed
       telemetryLogger?.logModelDownloadEvent(eventName: .modelDownload, status: downloadStatus)
@@ -182,6 +160,7 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
         self.downloadHandlers
           .completion(.failure(error))
       }
+      return
     } catch {
       downloadStatus = .failed
       telemetryLogger?.logModelDownloadEvent(eventName: .modelDownload, status: downloadStatus)
@@ -195,6 +174,7 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
         self.downloadHandlers
           .completion(.failure(.internalError(description: error.localizedDescription)))
       }
+      return
     }
 
     /// Generate local model info.
@@ -213,6 +193,44 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
     DispatchQueue.main.async {
       self.downloadHandlers.completion(.success(model))
     }
+  }
+}
+
+/// Extension to handle delegate methods.
+extension ModelDownloadTask: URLSessionDownloadDelegate {
+  /// Name for model file stored on device.
+  var downloadedModelFileName: String {
+    return "fbml_model__\(appName)__\(remoteModelInfo.name)"
+  }
+
+  /// Handle client-side errors.
+  func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+    // TODO: Log this.
+    guard task == downloadTask else { return }
+    guard let error = error else { return }
+    /// Unable to resolve hostname or connect to host.
+    DispatchQueue.main.async {
+      self.downloadHandlers
+        .completion(.failure(.internalError(description: ModelDownloadTask.ErrorDescription
+            .invalidHostName(error.localizedDescription))))
+    }
+  }
+
+  func urlSession(_ session: URLSession,
+                  downloadTask: URLSessionDownloadTask,
+                  didFinishDownloadingTo location: URL) {
+    // TODO: Log this.
+    guard downloadTask == self.downloadTask else { return }
+    guard let response = downloadTask.response as? HTTPURLResponse else {
+      DispatchQueue.main.async {
+        self.downloadHandlers
+          .completion(.failure(.internalError(description: ModelDownloadTask
+              .ErrorDescription.invalidServerResponse)))
+      }
+      return
+    }
+
+    handleResponse(response: response, tempURL: location)
   }
 
   func urlSession(_ session: URLSession,
@@ -235,6 +253,10 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
 extension ModelDownloadTask {
   /// Error descriptions.
   private enum ErrorDescription {
+    static let invalidHostName = { (error: String) in
+      "Unable to resolve hostname or connect to host: \(error)"
+    }
+
     static let invalidServerResponse =
       "Could not get server response for model downloading."
     static let saveModel: StaticString =
