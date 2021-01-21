@@ -5,6 +5,7 @@ on:
     paths:
     - 'ReleaseTooling/**'
     - '.github/workflows/zip.yml'
+    - 'Gemfile'
     # Don't run based on any markdown only changes.
     - '!ReleaseTooling/*.md'
   schedule:
