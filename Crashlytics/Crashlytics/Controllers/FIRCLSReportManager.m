@@ -410,10 +410,18 @@ static void (^reportSentCallback)(void);
   NSOperationQueue *__weak queue = _operationQueue;
   FBLPromise *__weak unsentReportsHandled = _unsentReportsHandled;
   promise = [promise then:^id _Nullable(NSNumber *_Nullable value) {
-    [queue waitUntilAllOperationsAreFinished];
-    // Signal that to callers of processReports that everything is finished.
-    [unsentReportsHandled fulfill:nil];
-    return value;
+    FBLPromise *allOpsFinished = [FBLPromise pendingPromise];
+    [queue addOperationWithBlock:^{
+      [allOpsFinished fulfill:nil];
+    }];
+
+    return [allOpsFinished onQueue:dispatch_get_main_queue()
+                              then:^id _Nullable(id _Nullable allOpsFinishedValue) {
+                                // Signal that to callers of processReports that everything is
+                                // finished.
+                                [unsentReportsHandled fulfill:nil];
+                                return value;
+                              }];
   }];
 
   return promise;
