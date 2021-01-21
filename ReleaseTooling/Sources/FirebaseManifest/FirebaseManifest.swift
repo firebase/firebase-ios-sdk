@@ -21,10 +21,9 @@ import Foundation
 /// The version and releasing fields of the non-Firebase pods should be reviewed every release.
 /// The array should be ordered so that any pod's dependencies precede it in the list.
 public let shared = Manifest(
-  version: "7.4.0",
+  version: "7.5.0",
   pods: [
-    Pod("GoogleUtilities", isFirebase: false, podVersion: "7.2.0", releasing: true),
-    Pod("GoogleDataTransport", isFirebase: false, podVersion: "8.2.0", releasing: true),
+    Pod("GoogleDataTransport", isFirebase: false, podVersion: "8.2.0", releasing: false),
 
     Pod("FirebaseCoreDiagnostics"),
     Pod("FirebaseCore"),

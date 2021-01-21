@@ -515,7 +515,6 @@ enum CocoaPodUtils {
           podspec == "FirebaseCore.podspec" ||
           podspec == "FirebaseRemoteConfig.podspec" ||
           podspec == "FirebaseABTesting.podspec" ||
-          podspec == "GoogleUtilities.podspec" ||
           podspec == "GoogleDataTransport.podspec" {
           let podName = podspec.replacingOccurrences(of: ".podspec", with: "")
           podfile += "  pod '\(podName)', :path => '\(localURL.path)/\(podspec)'\n"
