@@ -1,4 +1,4 @@
-# Unreleased
+# v7.5.0
 - [changed] Improve start-up performance by moving some initialization work to a background thread (#7332).
 - [changed] Updated upload-symbols to a version that is notarized to avoid macOS security alerts (#7323).
 
