@@ -350,9 +350,6 @@ MutationBatch LocalSerializer::DecodeMutationBatch(
       new_mutation.update_transforms_count =
           transform_mutation.transform.field_transforms_count;
       new_mutation.update_transforms =
-          MakeArray<_google_firestore_v1_DocumentTransform_FieldTransform>(
-              transform_mutation.transform.field_transforms_count);
-      new_mutation.update_transforms =
           transform_mutation.transform.field_transforms;
 
       mutations.push_back(rpc_serializer_.DecodeMutation(reader, new_mutation));
