@@ -187,8 +187,8 @@ DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionQuery(
       absl::optional<MaybeDocument> base_doc =
           results.underlying_map().get(key);
 
-      absl::optional<MaybeDocument> mutated_doc = mutation.ApplyToLocalView(
-          base_doc, base_doc, batch.local_write_time());
+      absl::optional<MaybeDocument> mutated_doc =
+          mutation.ApplyToLocalView(base_doc, batch.local_write_time());
 
       if (mutated_doc && mutated_doc->is_document()) {
         results = results.insert(key, Document(*mutated_doc));

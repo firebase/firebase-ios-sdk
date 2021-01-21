@@ -25,9 +25,7 @@
 #include "Firestore/core/src/model/no_document.h"
 #include "Firestore/core/src/model/patch_mutation.h"
 #include "Firestore/core/src/model/set_mutation.h"
-#include "Firestore/core/src/model/transform_mutation.h"
 #include "Firestore/core/src/model/transform_operation.h"
-#include "Firestore/core/src/model/unknown_document.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 #include "gtest/gtest.h"
 
@@ -42,10 +40,10 @@ using testutil::DeleteMutation;
 using testutil::Doc;
 using testutil::Field;
 using testutil::Map;
+using testutil::MergeMutation;
 using testutil::MutationResult;
 using testutil::PatchMutation;
 using testutil::SetMutation;
-using testutil::TransformMutation;
 using testutil::Value;
 using testutil::Version;
 using testutil::WrapObject;
@@ -57,7 +55,7 @@ TEST(MutationTest, AppliesSetsToDocuments) {
       Doc("collection/key", 0, Map("foo", "foo-value", "baz", "baz-value"));
 
   Mutation set = SetMutation("collection/key", Map("bar", "bar-value"));
-  auto result = set.ApplyToLocalView(base_doc, base_doc, now);
+  auto result = set.ApplyToLocalView(base_doc, now);
 
   EXPECT_EQ(result, Doc("collection/key", 0, Map("bar", "bar-value"),
                         DocumentState::kLocalMutations));
@@ -70,7 +68,7 @@ TEST(MutationTest, AppliesPatchToDocuments) {
 
   Mutation patch =
       PatchMutation("collection/key", Map("foo.bar", "new-bar-value"));
-  auto result = patch.ApplyToLocalView(base_doc, base_doc, now);
+  auto result = patch.ApplyToLocalView(base_doc, now);
 
   EXPECT_EQ(result,
             Doc("collection/key", 0,
@@ -81,9 +79,9 @@ TEST(MutationTest, AppliesPatchToDocuments) {
 TEST(MutationTest, AppliesPatchWithMergeToNoDocuments) {
   NoDocument base_doc = DeletedDoc("collection/key", 0);
 
-  Mutation upsert = PatchMutation(
+  Mutation upsert = MergeMutation(
       "collection/key", Map("foo.bar", "new-bar-value"), {Field("foo.bar")});
-  auto result = upsert.ApplyToLocalView(base_doc, base_doc, now);
+  auto result = upsert.ApplyToLocalView(base_doc, now);
 
   EXPECT_EQ(result,
             Doc("collection/key", 0, Map("foo", Map("bar", "new-bar-value")),
@@ -93,9 +91,9 @@ TEST(MutationTest, AppliesPatchWithMergeToNoDocuments) {
 TEST(MutationTest, AppliesPatchWithMergeToNullDocuments) {
   absl::optional<MaybeDocument> base_doc;
 
-  Mutation upsert = PatchMutation(
+  Mutation upsert = MergeMutation(
       "collection/key", Map("foo.bar", "new-bar-value"), {Field("foo.bar")});
-  auto result = upsert.ApplyToLocalView(base_doc, base_doc, now);
+  auto result = upsert.ApplyToLocalView(base_doc, now);
 
   EXPECT_EQ(result,
             Doc("collection/key", 0, Map("foo", Map("bar", "new-bar-value")),
@@ -107,8 +105,8 @@ TEST(MutationTest, DeletesValuesFromTheFieldMask) {
       Doc("collection/key", 0,
           Map("foo", Map("bar", "bar-value", "baz", "baz-value")));
 
-  Mutation patch = PatchMutation("collection/key", Map(), {Field("foo.bar")});
-  auto result = patch.ApplyToLocalView(base_doc, base_doc, now);
+  Mutation patch = MergeMutation("collection/key", Map(), {Field("foo.bar")});
+  auto result = patch.ApplyToLocalView(base_doc, now);
 
   EXPECT_EQ(result,
             Doc("collection/key", 0, Map("foo", Map("baz", "baz-value")),
@@ -121,7 +119,7 @@ TEST(MutationTest, PatchesPrimitiveValue) {
 
   Mutation patch =
       PatchMutation("collection/key", Map("foo.bar", "new-bar-value"));
-  auto result = patch.ApplyToLocalView(base_doc, base_doc, now);
+  auto result = patch.ApplyToLocalView(base_doc, now);
 
   EXPECT_EQ(result,
             Doc("collection/key", 0,
@@ -133,7 +131,7 @@ TEST(MutationTest, PatchingDeletedDocumentsDoesNothing) {
   NoDocument base_doc = testutil::DeletedDoc("collection/key", 0);
 
   Mutation patch = PatchMutation("collection/key", Map("foo", "bar"));
-  auto result = patch.ApplyToLocalView(base_doc, base_doc, now);
+  auto result = patch.ApplyToLocalView(base_doc, now);
 
   EXPECT_EQ(result, base_doc);
 }
@@ -143,9 +141,9 @@ TEST(MutationTest, AppliesLocalServerTimestampTransformToDocuments) {
       Doc("collection/key", 0,
           Map("foo", Map("bar", "bar-value"), "baz", "baz-value"));
 
-  Mutation transform = TransformMutation(
-      "collection/key", {{"foo.bar", ServerTimestampTransform()}});
-  auto result = transform.ApplyToLocalView(base_doc, base_doc, now);
+  Mutation transform = PatchMutation("collection/key", Map(),
+                                     {{"foo.bar", ServerTimestampTransform()}});
+  auto result = transform.ApplyToLocalView(base_doc, now);
 
   // Server timestamps aren't parsed, so we manually insert it.
   ObjectValue expected_data =
@@ -169,7 +167,7 @@ using TransformPairs = std::vector<std::pair<std::string, TransformOperation>>;
 
 /**
  * Builds a document around the given `base_data`, then applies each transform
- * pair to the document as a separate `TransformMutation`. The result of each
+ * pair to the document as a separate `PatchMutation`. The result of each
  * transformation is used as the input to the next. The result of applying all
  * transformations is then compared to the given `expected_data`.
  */
@@ -179,8 +177,8 @@ void TransformBaseDoc(const FieldValue::Map& base_data,
   Document current_doc = Doc("collection/key", 0, base_data);
 
   for (const auto& transform : transforms) {
-    Mutation mutation = TransformMutation("collection/key", {transform});
-    auto result = mutation.ApplyToLocalView(current_doc, current_doc, now);
+    Mutation mutation = PatchMutation("collection/key", Map(), {transform});
+    auto result = mutation.ApplyToLocalView(current_doc, now);
     ASSERT_NE(result, absl::nullopt);
     ASSERT_EQ(result->type(), MaybeDocument::Type::Document);
     current_doc = Document(*result);
@@ -415,7 +413,7 @@ TEST(MutationTest, AppliesServerAckedIncrementTransformToDocuments) {
   Document base_doc = Doc("collection/key", 0, Map("sum", 1));
 
   Mutation transform =
-      TransformMutation("collection/key", {{"sum", Increment(2)}});
+      SetMutation("collection/key", Map(), {{"sum", Increment(2)}});
 
   model::MutationResult mutation_result(Version(1), FieldValueVector(3));
 
@@ -431,8 +429,8 @@ TEST(MutationTest, AppliesServerAckedServerTimestampTransformToDocuments) {
       Doc("collection/key", 0,
           Map("foo", Map("bar", "bar-value"), "baz", "baz-value"));
 
-  Mutation transform = TransformMutation(
-      "collection/key", {{"foo.bar", ServerTimestampTransform()}});
+  Mutation transform = PatchMutation("collection/key", Map(),
+                                     {{"foo.bar", ServerTimestampTransform()}});
 
   model::MutationResult mutation_result(Version(1), FieldValueVector(now));
 
@@ -451,11 +449,11 @@ TEST(MutationTest, AppliesServerAckedArrayTransformsToDocuments) {
       Doc("collection/key", 0,
           Map("array_1", Array(1, 2), "array_2", Array("a", "b")));
 
-  Mutation transform = TransformMutation("collection/key",
-                                         {
-                                             {"array_1", ArrayUnion(2, 3)},
-                                             {"array_2", ArrayRemove("a", "c")},
-                                         });
+  Mutation transform = PatchMutation("collection/key", Map(),
+                                     {
+                                         {"array_1", ArrayUnion(2, 3)},
+                                         {"array_2", ArrayRemove("a", "c")},
+                                     });
 
   // Server just sends null transform results for array operations.
   model::MutationResult mutation_result(Version(1),
@@ -473,7 +471,7 @@ TEST(MutationTest, DeleteDeletes) {
   Document base_doc = Doc("collection/key", 0, Map("foo", "bar"));
 
   Mutation del = DeleteMutation("collection/key");
-  auto result = del.ApplyToLocalView(base_doc, base_doc, now);
+  auto result = del.ApplyToLocalView(base_doc, now);
 
   EXPECT_EQ(result, DeletedDoc("collection/key", 0));
 }
