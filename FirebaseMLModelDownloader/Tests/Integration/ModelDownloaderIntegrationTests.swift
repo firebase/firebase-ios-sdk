@@ -198,64 +198,8 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     }
 
     modelDownloadManager.resumeModelDownload()
-    waitForExpectations(timeout: 50, handler: nil)
+    waitForExpectations(timeout: 5, handler: nil)
     XCTAssertEqual(modelDownloadManager.downloadStatus, .successful)
-  }
-
-  /// Test to download model file with expired URL - makes an actual network call.
-  // TODO: Remove this test!!!
-  func testResumeModelDownloadWithExpiry() throws {
-    guard let testApp = FirebaseApp.app() else {
-      XCTFail("Default app was not configured.")
-      return
-    }
-    let functionName = #function.dropLast(2)
-    let testModelName = "\(functionName)-test-model"
-    let urlString =
-      "https://storage.googleapis.com/mlkit_models_111262-6443786097246294052/models/14825166/versions/22316208/model.tflite?GoogleAccessId=mlkit-model-url-fetcher@ml-kit.iam.gserviceaccount.com&Expires=1611007541&Signature=JIJt5nEjY9fcP6CeFzCYxFANU5ic3z5%2BmQYKaK9glajjMPL/ViWxDWi8DNkdxhIj8MpytLkbXpTCHIWsl/SPOyWLTFYELztM4YWQuHVJS3unw3ri1nW1NjEH2sUo08ZQeNfjeYwUbIe1i5P9hFx6n4TygKYRF5/cmM2Ihb3c6Zc41%2BuGalEeW7PgA69a%2BfzUNnl1OcCMRZlk1z3tCa27oDJ6iKB5kAZueL%2BBxaLwLMsQXC/JZwXA8blWUt3agqUy7XJ6sOtRqwZjGL7X98s7WdwOocQAcyCEMZwyA11ec/oSuebEGe2YA2GaS2a6u49rKvhDC4rq%2BCw0MKdZbXqgAQ%3D%3D"
-    let url = URL(string: urlString)!
-
-    let remoteModelInfo = RemoteModelInfo(
-      name: testModelName,
-      downloadURL: url,
-      modelHash: "mock-valid-hash",
-      size: 10,
-      urlExpiryTime: Date()
-    )
-
-    let modelInfoRetriever = ModelInfoRetriever(
-      modelName: testModelName,
-      projectID: testApp.options.projectID!,
-      apiKey: testApp.options.apiKey!,
-      installations: Installations.installations(app: testApp),
-      appName: testApp.name
-    )
-
-    let expectation = self.expectation(description: "Wait for model to download.")
-    let modelDownloadManager = ModelDownloadTask(
-      remoteModelInfo: remoteModelInfo,
-      appName: testApp.name,
-      defaults: .createTestInstance(testName: #function),
-      modelInfoRetriever: modelInfoRetriever,
-      progressHandler: { progress in
-        XCTAssertLessThanOrEqual(progress, 1)
-        XCTAssertGreaterThanOrEqual(progress, 0)
-      }
-    ) { result in
-      switch result {
-      case .success: break
-      case let .failure(error):
-        switch error {
-        case let .internalError(description): XCTAssertTrue(description.contains("400"))
-        default: break
-        }
-      }
-      expectation.fulfill()
-    }
-
-    modelDownloadManager.resumeModelDownload()
-    waitForExpectations(timeout: 50, handler: nil)
-    XCTAssertEqual(modelDownloadManager.downloadStatus, .failed)
   }
 
   func testGetModel() {

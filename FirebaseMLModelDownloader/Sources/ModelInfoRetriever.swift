@@ -124,7 +124,8 @@ class ModelInfoRetriever {
         self.session.getModelInfo(with: request) {
           data, response, error in
           if let downloadError = error {
-            completion(.failure(.internalError(description: downloadError.localizedDescription)))
+            completion(.failure(.internalError(description: ModelInfoRetriever.ErrorDescription
+                .failedModelInfoRetrieval(downloadError.localizedDescription))))
           } else {
             guard let httpResponse = response as? HTTPURLResponse else {
               completion(.failure(.internalError(description: ModelInfoRetriever.ErrorDescription
@@ -152,7 +153,7 @@ class ModelInfoRetriever {
               } catch {
                 completion(
                   .failure(.internalError(description: ModelInfoRetriever.ErrorDescription
-                      .modelInfoRetrieval(error.localizedDescription)))
+                      .invalidmodelInfoJSON(error.localizedDescription)))
                 )
               }
             case 304:
@@ -247,7 +248,6 @@ extension ModelInfoRetriever {
   /// Return model info created from server response.
   private func getRemoteModelInfoFromResponse(_ data: Data,
                                               modelHash: String) throws -> RemoteModelInfo {
-    // print(String(decoding: data, as: UTF8.self))
     let decoder = JSONDecoder()
     guard let modelInfoJSON = try? decoder.decode(ModelInfoResponse.self, from: data) else {
       throw DownloadError
@@ -286,8 +286,12 @@ extension ModelInfoRetriever {
     static let invalidModelInfoFetchURL = "Unable to create URL to fetch model info."
     static let invalidHTTPResponse =
       "Could not get a valid HTTP response from server."
-    static let modelInfoRetrieval = { (error: String) in
+    static let invalidmodelInfoJSON = { (error: String) in
       "Failed to parse model info: \(error)"
+    }
+
+    static let failedModelInfoRetrieval = { (error: String) in
+      "Failed to retrieve model info: \(error)"
     }
 
     static let unexpectedModelInfoDeletion =
