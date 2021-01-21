@@ -654,7 +654,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   NSString *emulatorHostAndPort = requestConfiguration.emulatorHostAndPort;
   if (emulatorHostAndPort) {
     fetcher.allowLocalhostRequest = YES;
-    fetcher.allowedInsecureSchemes = @[@"http"];
+    fetcher.allowedInsecureSchemes = @[ @"http" ];
   }
   fetcher.bodyData = body;
   [fetcher beginFetchWithCompletionHandler:handler];
