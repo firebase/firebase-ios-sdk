@@ -36,7 +36,7 @@ typedef void (^FIRAppCheckTokenRefreshBlock)(FIRAppCheckTokenRefreshCompletion c
 
 /// The block to be called when refresh is needed. The client is responsible for actual token
 /// refresh in the block.
-@property(atomic, copy) FIRAppCheckTokenRefreshBlock tokenRefreshHandler;
+@property(nonatomic, copy) FIRAppCheckTokenRefreshBlock tokenRefreshHandler;
 
 @end
 
@@ -46,7 +46,7 @@ typedef void (^FIRAppCheckTokenRefreshBlock)(FIRAppCheckTokenRefreshCompletion c
 
 /// The block to be called when refresh is needed. The client is responsible for actual token
 /// refresh in the block.
-@property(atomic, copy) FIRAppCheckTokenRefreshBlock tokenRefreshHandler;
+@property(nonatomic, copy) FIRAppCheckTokenRefreshBlock tokenRefreshHandler;
 
 - (instancetype)init NS_UNAVAILABLE;
 

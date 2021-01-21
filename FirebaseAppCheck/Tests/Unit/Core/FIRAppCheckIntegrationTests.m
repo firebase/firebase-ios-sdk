@@ -16,10 +16,9 @@
 
 #import <XCTest/XCTest.h>
 
-// TODO: Consider using manually implemented fakes instead of OCMock
-// (see also go/srl-dev/why-fakes#no-ocmock)
 #import "OCMock.h"
 
+#import "FirebaseAppCheck/Sources/Core/TokenRefresh/FIRAppCheckTokenRefresher.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheck.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckProviderFactory.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"
@@ -60,6 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, nullable) id mockProviderFactory;
 @property(nonatomic, nullable) id mockAppCheckProvider;
+@property(nonatomic, nullable) id mockTokenRefresher;
 
 @end
 
@@ -67,6 +67,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)setUp {
   [super setUp];
+
+  // Disable token refresher to avoid any unexpected async tasks being scheduled.
+  [self disableTokenRefresher];
 
   self.mockAppCheckProvider = OCMProtocolMock(@protocol(FIRAppCheckProvider));
   self.mockProviderFactory = OCMProtocolMock(@protocol(FIRAppCheckProviderFactory));
@@ -76,6 +79,8 @@ NS_ASSUME_NONNULL_BEGIN
   [FIRApp resetApps];
   [FIRAppCheck setAppCheckProviderFactory:nil];
 
+  [self.mockTokenRefresher stopMocking];
+  self.mockTokenRefresher = nil;
   [self.mockProviderFactory stopMocking];
   self.mockProviderFactory = nil;
   [self.mockAppCheckProvider stopMocking];
@@ -185,6 +190,14 @@ NS_ASSUME_NONNULL_BEGIN
                                    NSLog(@"Error: %@", tokenResult.error);
                                  }
                                }];
+}
+
+- (void)disableTokenRefresher {
+  self.mockTokenRefresher = OCMClassMock([FIRAppCheckTokenRefresher class]);
+  OCMStub([self.mockTokenRefresher alloc]).andReturn(self.mockTokenRefresher);
+  OCMStub([self.mockTokenRefresher initWithTokenExpirationDate:[OCMArg any]
+                                      tokenExpirationThreshold:5 * 60])
+      .andReturn(self.mockTokenRefresher);
 }
 
 @end

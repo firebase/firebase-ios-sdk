@@ -21,7 +21,6 @@
 
 @interface FIRAppCheckTokenRefresherTests : XCTestCase
 
-@property(nonatomic) FIRAppCheckTokenRefresher *refresher;
 @property(nonatomic) FIRFakeTimer *fakeTimer;
 
 @property(nonatomic) NSDate *initialTokenExpirationDate;
@@ -35,34 +34,26 @@
   self.fakeTimer = [[FIRFakeTimer alloc] init];
   self.initialTokenExpirationDate = [NSDate dateWithTimeIntervalSinceNow:1000];
   self.tokenExpirationThreshold = 1 * 60;
-  self.refresher = [[FIRAppCheckTokenRefresher alloc]
-      initWithTokenExpirationDate:self.initialTokenExpirationDate
-         tokenExpirationThreshold:self.tokenExpirationThreshold
-                    timerProvider:[self.fakeTimer fakeTimerProvider]];
 }
 
 - (void)tearDown {
-  self.refresher = nil;
   self.fakeTimer = nil;
 }
 
 - (void)testInitialRefresh {
+  FIRAppCheckTokenRefresher *refresher = [self createRefresher];
+
   // 1. Expect timer to be scheduled.
   NSDate *expectedTimerFireDate =
       [self.initialTokenExpirationDate dateByAddingTimeInterval:-self.tokenExpirationThreshold];
   XCTestExpectation *timerCreateExpectation = [self expectationWithDescription:@"create timer"];
+
+  __auto_type weakSelf = self;
   self.fakeTimer.createHandler = ^(NSDate *_Nonnull fireDate) {
+    weakSelf.fakeTimer.createHandler = nil;
     XCTAssertEqualObjects(fireDate, expectedTimerFireDate);
     [timerCreateExpectation fulfill];
   };
-
-  FIRAppCheckTokenRefresher *refresher = [[FIRAppCheckTokenRefresher alloc]
-      initWithTokenExpirationDate:self.initialTokenExpirationDate
-         tokenExpirationThreshold:self.tokenExpirationThreshold
-                    timerProvider:[self.fakeTimer fakeTimerProvider]];
-
-  [self waitForExpectations:@[ timerCreateExpectation ] timeout:0.5];
-  self.fakeTimer.createHandler = nil;
 
   // 2. Expect refresh handler to be called.
   NSDate *refreshedTokenExpirationDate = [expectedTimerFireDate dateByAddingTimeInterval:60 * 60];
@@ -80,7 +71,7 @@
   };
 
   // 3. Check if the handler is not fired before the timer.
-  [self waitForExpectations:@[ noEarlyRefreshExpectation ] timeout:1];
+  [self waitForExpectations:@[ timerCreateExpectation, noEarlyRefreshExpectation ] timeout:1];
 
   // 4. Fire the timer and wait for completion.
   [self fireTimer];
@@ -88,14 +79,44 @@
   [self waitForExpectations:@[ initialRefreshExpectation ] timeout:0.5];
 }
 
+- (void)testNoTimeScheduledUntilHandlerSet {
+  // 1. Don't expect timer to be scheduled.
+  XCTestExpectation *timerCreateExpectation1 = [self expectationWithDescription:@"create timer 1"];
+  timerCreateExpectation1.inverted = YES;
+  self.fakeTimer.createHandler = ^(NSDate *_Nonnull fireDate) {
+    [timerCreateExpectation1 fulfill];
+  };
+
+  // 2. Create a publisher.
+  FIRAppCheckTokenRefresher *refresher = [self createRefresher];
+
+  XCTAssertNotNil(refresher);
+
+  [self waitForExpectations:@[ timerCreateExpectation1 ] timeout:0.5];
+
+  // 2. Expect timer to be created after the handler has been set.
+  XCTestExpectation *timerCreateExpectation2 = [self expectationWithDescription:@"create timer 2"];
+  self.fakeTimer.createHandler = ^(NSDate *_Nonnull fireDate) {
+    [timerCreateExpectation2 fulfill];
+  };
+
+  // 2.1. Set handler.
+  refresher.tokenRefreshHandler = ^(FIRAppCheckTokenRefreshCompletion _Nonnull completion) {
+  };
+
+  [self waitForExpectations:@[ timerCreateExpectation2 ] timeout:0.5];
+}
+
 - (void)testNextRefreshOnRefreshSuccess {
+  FIRAppCheckTokenRefresher *refresher = [self createRefresher];
+
   NSDate *refreshedTokenExpirationDate =
       [self.initialTokenExpirationDate dateByAddingTimeInterval:60 * 60];
 
   // 1. Expect refresh handler.
   XCTestExpectation *initialRefreshExpectation =
       [self expectationWithDescription:@"initial refresh"];
-  self.refresher.tokenRefreshHandler = ^(FIRAppCheckTokenRefreshCompletion _Nonnull completion) {
+  refresher.tokenRefreshHandler = ^(FIRAppCheckTokenRefreshCompletion _Nonnull completion) {
     [initialRefreshExpectation fulfill];
 
     // Call completion in a while.
@@ -123,15 +144,17 @@
 }
 
 - (void)testBackoff {
+  FIRAppCheckTokenRefresher *refresher = [self createRefresher];
+
   // Initial backoff interval.
-  NSTimeInterval expectedBackoffTime = 30;
+  NSTimeInterval expectedBackoffTime = 0;
   NSTimeInterval maximumBackoffTime = 16 * 60;  // 16 min.
 
   for (NSInteger i = 0; i < 10; i++) {
     // 1. Expect refresh handler.
     XCTestExpectation *initialRefreshExpectation =
         [self expectationWithDescription:@"initial refresh"];
-    self.refresher.tokenRefreshHandler = ^(FIRAppCheckTokenRefreshCompletion _Nonnull completion) {
+    refresher.tokenRefreshHandler = ^(FIRAppCheckTokenRefreshCompletion _Nonnull completion) {
       [initialRefreshExpectation fulfill];
 
       // Call completion in a while.
@@ -142,7 +165,8 @@
     };
 
     // 2. Expect for new timer to be created.
-    expectedBackoffTime = expectedBackoffTime * 2;
+    // No backoff initially, 1st backoff 30sec, double backoff on each next attempt until 16min.
+    expectedBackoffTime = expectedBackoffTime == 0 ? 30 : expectedBackoffTime * 2;
     expectedBackoffTime = MIN(expectedBackoffTime, maximumBackoffTime);
     NSDate *expectedFireDate = [[NSDate date] dateByAddingTimeInterval:expectedBackoffTime];
 
@@ -172,6 +196,13 @@
   } else {
     XCTFail(@"handler must not be nil!");
   }
+}
+
+- (FIRAppCheckTokenRefresher *)createRefresher {
+  return [[FIRAppCheckTokenRefresher alloc]
+      initWithTokenExpirationDate:self.initialTokenExpirationDate
+         tokenExpirationThreshold:self.tokenExpirationThreshold
+                    timerProvider:[self.fakeTimer fakeTimerProvider]];
 }
 
 @end

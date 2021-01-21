@@ -72,10 +72,13 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
     return [[FIRAppCheck alloc] initWithApp:container.app];
   };
 
-  FIRComponent *appCheckProvider = [FIRComponent componentWithProtocol:@protocol(FIRAppCheckInterop)
-                                                   instantiationTiming:FIRInstantiationTimingLazy
-                                                          dependencies:@[]
-                                                         creationBlock:creationBlock];
+  // Use eager instantiation timing to give a chance for FAC token to be requested before it is
+  // actually needed to avoid extra delaying dependent requests.
+  FIRComponent *appCheckProvider =
+      [FIRComponent componentWithProtocol:@protocol(FIRAppCheckInterop)
+                      instantiationTiming:FIRInstantiationTimingAlwaysEager
+                             dependencies:@[]
+                            creationBlock:creationBlock];
   return @[ appCheckProvider ];
 }
 

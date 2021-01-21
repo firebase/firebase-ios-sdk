@@ -31,11 +31,14 @@ static const NSTimeInterval kMaximumBackoffTimeInterval = 16 * 60;
 @property(atomic, nullable) id<FIRAppCheckTimerProtocol> timer;
 @property(atomic) NSUInteger retryCount;
 
+@property(nonatomic, nullable) NSDate *initialTokenExpirationDate;
 @property(nonatomic, readonly) NSTimeInterval tokenExpirationThreshold;
 
 @end
 
 @implementation FIRAppCheckTokenRefresher
+
+@synthesize tokenRefreshHandler = _tokenRefreshHandler;
 
 - (instancetype)initWithTokenExpirationDate:(NSDate *)tokenExpirationDate
                    tokenExpirationThreshold:(NSTimeInterval)tokenExpirationThreshold
@@ -45,9 +48,8 @@ static const NSTimeInterval kMaximumBackoffTimeInterval = 16 * 60;
     _refreshQueue =
         dispatch_queue_create("com.firebase.FIRAppCheckTokenRefresher", DISPATCH_QUEUE_SERIAL);
     _tokenExpirationThreshold = tokenExpirationThreshold;
+    _initialTokenExpirationDate = tokenExpirationDate;
     _timerProvider = timerProvider;
-
-    [self scheduleWithTokenExpirationDate:tokenExpirationDate];
   }
   return self;
 }
@@ -61,6 +63,25 @@ static const NSTimeInterval kMaximumBackoffTimeInterval = 16 * 60;
 
 - (void)dealloc {
   [self cancelTimer];
+}
+
+- (void)setTokenRefreshHandler:(FIRAppCheckTokenRefreshBlock)tokenRefreshHandler {
+  @synchronized(self) {
+    _tokenRefreshHandler = tokenRefreshHandler;
+
+    // Check if handler is being set for the first time and if yes then schedule first refresh.
+    if (tokenRefreshHandler && self.initialTokenExpirationDate) {
+      NSDate *initialTokenExpirationDate = self.initialTokenExpirationDate;
+      self.initialTokenExpirationDate = nil;
+      [self scheduleWithTokenExpirationDate:initialTokenExpirationDate];
+    }
+  }
+}
+
+- (FIRAppCheckTokenRefreshBlock)tokenRefreshHandler {
+  @synchronized(self) {
+    return _tokenRefreshHandler;
+  }
 }
 
 - (void)refresh {
@@ -121,7 +142,7 @@ static const NSTimeInterval kMaximumBackoffTimeInterval = 16 * 60;
       [tokenExpirationDate dateByAddingTimeInterval:-self.tokenExpirationThreshold];
   NSTimeInterval scheduleIn = [targetRefreshDate timeIntervalSinceNow];
 
-  NSTimeInterval backoffTime = [[self class] backoffTimeForAttemptNumber:self.retryCount];
+  NSTimeInterval backoffTime = [[self class] backoffTimeForRetryCount:self.retryCount];
   if (scheduleIn >= backoffTime) {
     return targetRefreshDate;
   } else {
@@ -129,9 +150,14 @@ static const NSTimeInterval kMaximumBackoffTimeInterval = 16 * 60;
   }
 }
 
-+ (NSTimeInterval)backoffTimeForAttemptNumber:(NSInteger)attemptNumber {
++ (NSTimeInterval)backoffTimeForRetryCount:(NSInteger)retryCount {
+  if (retryCount == 0) {
+    // No backoff for the first attempt.
+    return 0;
+  }
+
   NSTimeInterval exponentialInterval =
-      kInitialBackoffTimeInterval * pow(2, attemptNumber) + [self randomMilliseconds];
+      kInitialBackoffTimeInterval * pow(2, retryCount - 1) + [self randomMilliseconds];
   return MIN(exponentialInterval, kMaximumBackoffTimeInterval);
 }
 
