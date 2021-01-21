@@ -4048,7 +4048,7 @@
 
     [ref getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
       XCTAssertNotNil(err);
-      //      XCTAssertEqualObjects([err localizedFailureReason], kPersistentConnectionOffline);
+      XCTAssertEqualObjects([err localizedFailureReason], kPersistentConnectionOffline);
       done = YES;
     }];
 
@@ -4103,7 +4103,7 @@
   }
 }
 
-- (void)testGetSendsServerProbesPersistenceCacheWhenOfflineWithNoListener {
+- (void)testGetReturnsPersistesnceCachedValueWhenOffline {
   FIRDatabase* db = [self databaseForURL:self.databaseURL name:[[NSUUID UUID] UUIDString]];
   FIRDatabase* db2 = [self databaseForURL:self.databaseURL name:[[NSUUID UUID] UUIDString]];
 
@@ -4212,6 +4212,52 @@
   } @finally {
     [db2 goOnline];
   }
+}
+
+- (void)testGetSkipsPersistenceCacheWhenOnline {
+  FIRDatabase* db = [self databaseForURL:self.databaseURL name:[[NSUUID UUID] UUIDString]];
+  FIRDatabase* db2 = [self databaseForURL:self.databaseURL name:[[NSUUID UUID] UUIDString]];
+
+  [db2 setPersistenceEnabled:true];
+
+  NSString* uuidPath = [[NSUUID UUID] UUIDString];
+
+  FIRDatabaseReference* writeRef = [db referenceWithPath:uuidPath];
+  FIRDatabaseReference* readRef = [db2 referenceWithPath:uuidPath];
+
+  __block BOOL done = NO;
+
+  [writeRef setValue:@42
+      withCompletionBlock:^(NSError* error, FIRDatabaseReference* ref) {
+        XCTAssertNil(error);
+      }];
+
+  [readRef observeEventType:FIRDataEventTypeValue
+                  withBlock:^(FIRDataSnapshot* snapshot) {
+                    XCTAssertEqualObjects(snapshot.value, @42);
+                    done = YES;
+                  }];
+
+  WAIT_FOR(done);
+  done = NO;
+
+  [readRef removeAllObservers];
+
+  [writeRef setValue:@43
+      withCompletionBlock:^(NSError* error, FIRDatabaseReference* ref) {
+        XCTAssertNil(error);
+        done = YES;
+      }];
+
+  WAIT_FOR(done);
+
+  [readRef getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
+    XCTAssertNil(err);
+    XCTAssertEqualObjects(snapshot.value, @43);
+    done = YES;
+  }];
+
+  WAIT_FOR(done);
 }
 
 @end
