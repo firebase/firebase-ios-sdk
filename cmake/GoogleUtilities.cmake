@@ -34,6 +34,12 @@ firebase_ios_add_framework(
   ${headers} ${sources}
 )
 
+# GoogleUtilities
+target_include_directories(
+  GoogleUtilities PRIVATE
+  ${FIREBASE_EXTERNAL_SOURCE_DIR}/GoogleUtilities
+)
+
 firebase_ios_framework_public_headers(GoogleUtilities ${headers})
 
 target_link_libraries(

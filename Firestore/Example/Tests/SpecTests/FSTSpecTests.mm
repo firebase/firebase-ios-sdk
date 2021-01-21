@@ -345,8 +345,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
 }
 
 - (void)doPatch:(NSArray *)patchSpec {
-  [self.driver
-      writeUserMutation:FSTTestPatchMutation(util::MakeString(patchSpec[0]), patchSpec[1], {})];
+  [self.driver writeUserMutation:FSTTestPatchMutation(patchSpec[0], patchSpec[1], {})];
 }
 
 - (void)doDelete:(NSString *)key {

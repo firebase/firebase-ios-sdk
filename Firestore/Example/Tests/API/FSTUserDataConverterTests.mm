@@ -26,7 +26,8 @@
 
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/model/field_value.h"
-#include "Firestore/core/src/model/transform_mutation.h"
+#include "Firestore/core/src/model/patch_mutation.h"
+#include "Firestore/core/src/model/set_mutation.h"
 #include "Firestore/core/src/model/transform_operation.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
@@ -40,8 +41,9 @@ using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::FieldTransform;
 using firebase::firestore::model::ObjectValue;
-using firebase::firestore::model::TransformMutation;
+using firebase::firestore::model::PatchMutation;
 using firebase::firestore::model::TransformOperation;
+using firebase::firestore::model::SetMutation;
 using firebase::firestore::nanopb::MakeNSData;
 using firebase::firestore::testutil::Field;
 
@@ -218,44 +220,66 @@ union DoubleBits {
 }
 
 - (void)testCreatesArrayUnionTransforms {
-  TransformMutation transform = FSTTestTransformMutation(@"collection/key", @{
+  PatchMutation patchMutation = FSTTestPatchMutation(@"collection/key", @{
     @"foo" : [FIRFieldValue fieldValueForArrayUnion:@[ @"tag" ]],
     @"bar.baz" :
         [FIRFieldValue fieldValueForArrayUnion:@[ @YES, @{@"nested" : @{@"a" : @[ @1, @2 ]}} ]]
-  });
-  XCTAssertEqual(transform.field_transforms().size(), 2u);
+  },
+                                                     {});
+  XCTAssertEqual(patchMutation.field_transforms().size(), 2u);
 
-  const FieldTransform &first = transform.field_transforms()[0];
-  XCTAssertEqual(first.path(), FieldPath({"foo"}));
+  SetMutation setMutation = FSTTestSetMutation(@"collection/key", @{
+    @"foo" : [FIRFieldValue fieldValueForArrayUnion:@[ @"tag" ]],
+    @"bar" : [FIRFieldValue fieldValueForArrayUnion:@[ @YES, @{@"nested" : @{@"a" : @[ @1, @2 ]}} ]]
+  });
+  XCTAssertEqual(setMutation.field_transforms().size(), 2u);
+
+  const FieldTransform &patchFirst = patchMutation.field_transforms()[0];
+  XCTAssertEqual(patchFirst.path(), FieldPath({"foo"}));
+  const FieldTransform &setFirst = setMutation.field_transforms()[0];
+  XCTAssertEqual(setFirst.path(), FieldPath({"foo"}));
   {
     std::vector<FieldValue> expectedElements{FSTTestFieldValue(@"tag")};
     ArrayTransform expected(TransformOperation::Type::ArrayUnion, expectedElements);
-    XCTAssertEqual(static_cast<const ArrayTransform &>(first.transformation()), expected);
+    XCTAssertEqual(static_cast<const ArrayTransform &>(patchFirst.transformation()), expected);
+    XCTAssertEqual(static_cast<const ArrayTransform &>(setFirst.transformation()), expected);
   }
 
-  const FieldTransform &second = transform.field_transforms()[1];
-  XCTAssertEqual(second.path(), FieldPath({"bar", "baz"}));
+  const FieldTransform &patchSecond = patchMutation.field_transforms()[1];
+  XCTAssertEqual(patchSecond.path(), FieldPath({"bar", "baz"}));
+  const FieldTransform &setSecond = setMutation.field_transforms()[1];
+  XCTAssertEqual(setSecond.path(), FieldPath({"bar"}));
   {
     std::vector<FieldValue> expectedElements {
       FSTTestFieldValue(@YES), FSTTestFieldValue(@{@"nested" : @{@"a" : @[ @1, @2 ]}})
     };
     ArrayTransform expected(TransformOperation::Type::ArrayUnion, expectedElements);
-    XCTAssertEqual(static_cast<const ArrayTransform &>(second.transformation()), expected);
+    XCTAssertEqual(static_cast<const ArrayTransform &>(patchSecond.transformation()), expected);
+    XCTAssertEqual(static_cast<const ArrayTransform &>(setSecond.transformation()), expected);
   }
 }
 
 - (void)testCreatesArrayRemoveTransforms {
-  TransformMutation transform = FSTTestTransformMutation(@"collection/key", @{
+  PatchMutation patchMutation = FSTTestPatchMutation(@"collection/key", @{
+    @"foo" : [FIRFieldValue fieldValueForArrayRemove:@[ @"tag" ]],
+  },
+                                                     {});
+  XCTAssertEqual(patchMutation.field_transforms().size(), 1u);
+
+  SetMutation setMutation = FSTTestSetMutation(@"collection/key", @{
     @"foo" : [FIRFieldValue fieldValueForArrayRemove:@[ @"tag" ]],
   });
-  XCTAssertEqual(transform.field_transforms().size(), 1u);
+  XCTAssertEqual(patchMutation.field_transforms().size(), 1u);
 
-  const FieldTransform &first = transform.field_transforms()[0];
-  XCTAssertEqual(first.path(), FieldPath({"foo"}));
+  const FieldTransform &patchFirst = patchMutation.field_transforms()[0];
+  XCTAssertEqual(patchFirst.path(), FieldPath({"foo"}));
+  const FieldTransform &setFirst = setMutation.field_transforms()[0];
+  XCTAssertEqual(setFirst.path(), FieldPath({"foo"}));
   {
     std::vector<FieldValue> expectedElements{FSTTestFieldValue(@"tag")};
     const ArrayTransform expected(TransformOperation::Type::ArrayRemove, expectedElements);
-    XCTAssertEqual(static_cast<const ArrayTransform &>(first.transformation()), expected);
+    XCTAssertEqual(static_cast<const ArrayTransform &>(patchFirst.transformation()), expected);
+    XCTAssertEqual(static_cast<const ArrayTransform &>(setFirst.transformation()), expected);
   }
 }
 

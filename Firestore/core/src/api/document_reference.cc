@@ -51,6 +51,7 @@ using core::ViewSnapshot;
 using model::DeleteMutation;
 using model::Document;
 using model::DocumentKey;
+using model::Mutation;
 using model::Precondition;
 using model::ResourcePath;
 using util::Status;
@@ -95,14 +96,14 @@ CollectionReference DocumentReference::GetCollectionReference(
 void DocumentReference::SetData(core::ParsedSetData&& set_data,
                                 util::StatusCallback callback) {
   firestore_->client()->WriteMutations(
-      std::move(set_data).ToMutations(key(), Precondition::None()),
+      {std::move(set_data).ToMutation(key(), Precondition::None())},
       std::move(callback));
 }
 
 void DocumentReference::UpdateData(core::ParsedUpdateData&& update_data,
                                    util::StatusCallback callback) {
   firestore_->client()->WriteMutations(
-      std::move(update_data).ToMutations(key(), Precondition::Exists(true)),
+      {std::move(update_data).ToMutation(key(), Precondition::Exists(true))},
       std::move(callback));
 }
 

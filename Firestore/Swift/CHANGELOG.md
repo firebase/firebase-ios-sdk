@@ -1,4 +1,4 @@
-# Unreleased
+# v0.4
 - [feature] Added conditional conformance to the `Hashable` protocol for the
   `@DocumentID`, `@ExplicitNull`, and `@ServerTimestamp` property wrappers.
 

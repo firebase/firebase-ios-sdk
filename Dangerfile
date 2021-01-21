@@ -53,7 +53,6 @@ def labelsForModifiedFiles()
   labels.push("api: segmentation") if @has_segmentation_changes
   labels.push("api: storage") if @has_storage_changes
   labels.push("GoogleDataTransport") if @has_gdt_changes
-  labels.push("GoogleUtilities") if @has_googleutilities_changes
   labels.push("release-tooling") if @has_releasetooling_changes
   labels.push("public-api-change") if @has_api_changes
   return labels
@@ -113,7 +112,6 @@ has_license_changes = didModify(["LICENSE"])
 
 @has_gdt_changes = hasChangesIn(["GoogleDataTransport/"])
 @has_gdt_api_changes = hasChangesIn("GoogleDataTransport/GDTCORLibrary/Public")
-@has_googleutilities_changes = hasChangesIn("GoogleUtilities/")
 @has_releasetooling_changes = hasChangesIn("ReleaseTooling/")
 
 # Convenient flag for all API changes.

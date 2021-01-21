@@ -124,17 +124,9 @@ model::SetMutation FSTTestSetMutation(NSString *path, NSDictionary<NSString *, i
 
 /** Creates a patch mutation for the document key at the given path. */
 model::PatchMutation FSTTestPatchMutation(
-    absl::string_view path,
+    NSString *path,
     NSDictionary<NSString *, id> *values,
     const std::vector<firebase::firestore::model::FieldPath> &updateMask);
-
-/**
- * Creates a TransformMutation by parsing any FIRFieldValue sentinels in the provided data. The
- * data is expected to use dotted-notation for nested fields (i.e.
- * @{ @"foo.bar": [FIRFieldValue ...] } and must not contain any non-sentinel data.
- */
-model::TransformMutation FSTTestTransformMutation(NSString *path,
-                                                  NSDictionary<NSString *, id> *data);
 
 /** Creates a delete mutation for the document key at the given path. */
 model::DeleteMutation FSTTestDeleteMutation(NSString *path);

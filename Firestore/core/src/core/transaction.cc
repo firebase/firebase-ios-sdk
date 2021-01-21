@@ -159,7 +159,7 @@ StatusOr<Precondition> Transaction::CreateUpdatePrecondition(
 }
 
 void Transaction::Set(const DocumentKey& key, ParsedSetData&& data) {
-  WriteMutations(std::move(data).ToMutations(key, CreatePrecondition(key)));
+  WriteMutations({std::move(data).ToMutation(key, CreatePrecondition(key))});
   written_docs_.insert(key);
 }
 
@@ -169,7 +169,7 @@ void Transaction::Update(const DocumentKey& key, ParsedUpdateData&& data) {
     last_write_error_ = maybe_precondition.status();
   } else {
     WriteMutations(
-        std::move(data).ToMutations(key, maybe_precondition.ValueOrDie()));
+        {std::move(data).ToMutation(key, maybe_precondition.ValueOrDie())});
   }
   written_docs_.insert(key);
 }
