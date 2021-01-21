@@ -97,6 +97,11 @@ let package = Package(
       from: "1.14.0"
     ),
     .package(
+      name: "GoogleAppMeasurement",
+      url: "https://github.com/google/GoogleAppMeasurement.git",
+      .exact("7.4.0")
+    ),
+    .package(
       name: "GoogleUtilities",
       url: "https://github.com/google/GoogleUtilities.git",
       "7.2.0" ..< "8.0.0"
@@ -215,7 +220,9 @@ let package = Package(
       name: "FirebaseAnalyticsWrapper",
       dependencies: [
         .target(name: "FirebaseAnalytics", condition: .when(platforms: [.iOS])),
-        .target(name: "GoogleAppMeasurement", condition: .when(platforms: [.iOS])),
+        .product(name: "GoogleAppMeasurement",
+                 package: "GoogleAppMeasurement",
+                 condition: .when(platforms: [.iOS])),
         "FirebaseCore",
         "FirebaseInstallations",
         .product(name: "AppDelegateSwizzler", package: "GoogleUtilities"),
@@ -236,11 +243,6 @@ let package = Package(
       name: "FirebaseAnalytics",
       url: "https://dl.google.com/firebase/ios/swiftpm/7.4.0/FirebaseAnalytics.zip",
       checksum: "560bf11462c9e064c0d55e10aef761af420f4f531415e896cac18edc88e9666f"
-    ),
-    .binaryTarget(
-      name: "GoogleAppMeasurement",
-      url: "https://dl.google.com/firebase/ios/swiftpm/7.4.0/GoogleAppMeasurement.zip",
-      checksum: "5c4e13589e8b5c357309dd8e5f57d81ab3e3ee5a731b034c4703e700d60d667a"
     ),
 
     .target(
