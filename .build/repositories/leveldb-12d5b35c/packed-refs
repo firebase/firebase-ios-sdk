@@ -1,0 +1,27 @@
+# pack-refs with: peeled fully-peeled sorted 
+adf4a95904d875a6d371cd62f55c9627785ce186 refs/heads/android
+20280f0cc6fd5d945accdc952d02008ac389bf00 refs/heads/master
+7a00961fe18b853d7a2db176b1473a3b19c9b6b9 refs/heads/pb-add-podspec
+40c17c0b84ac0b791fb434096fd5c05f3819ad55 refs/heads/reuse-manifest
+fa1f25f296a766e5a789c4dacd4798dea798b2c2 refs/heads/spm
+e028bdfa81378c30f682baa022a27b688903e62d refs/heads/windows
+7a00961fe18b853d7a2db176b1473a3b19c9b6b9 refs/pull/1/head
+4d34c3847f6f87601d4c872faafb87afdaa2aa44 refs/pull/1/merge
+7a00961fe18b853d7a2db176b1473a3b19c9b6b9 refs/tags/1.18.3
+fa1f25f296a766e5a789c4dacd4798dea798b2c2 refs/tags/1.22.1
+28dad918f2ffb80fd70110ed5cd47744339649f2 refs/tags/v1.10
+7b094f12e46a45b911f20f7bd2ca96f83e272d91 refs/tags/v1.11
+5bd76dc10d840df23255ba0e635083a2a94e0461 refs/tags/v1.12
+748539c183453bdeaff1eb0da8ccf5adacb796e7 refs/tags/v1.13
+0b9a89f40efdd143fa1426e7d5cd997f67ba6361 refs/tags/v1.14
+0cfb990d58ffba9b56df6e9829ddb9d220824066 refs/tags/v1.15
+269fc6ca9416129248db5ca57050cd5d39d177c8 refs/tags/v1.16
+e353fbc7ea81f12a5694991b708f8f45343594b1 refs/tags/v1.17
+803d69203a62faf50f1b77897310a3a1fcae712b refs/tags/v1.18
+bc1ee4d25e09b04e074db330a41f54ef4af0e31b refs/tags/v1.3
+85584d497e7b354853b72f450683d59fcf6b9c5c refs/tags/v1.4
+dd0d562b4d4fbd07db6a44f9e221f8d368fee8e4 refs/tags/v1.5
+946e5b5a4ce7980917b22a408f090a4e86c3fa44 refs/tags/v1.6
+40768657bc8ec3ded60712eeeab7c25b1b07deca refs/tags/v1.7
+ea2e9195fc241c8fe9f329679d7a424345c68c7b refs/tags/v1.8
+d84c825a70a843bb107de8b732cb79e584cefd17 refs/tags/v1.9
