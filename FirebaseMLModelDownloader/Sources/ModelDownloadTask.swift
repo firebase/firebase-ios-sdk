@@ -66,6 +66,7 @@ class ModelDownloadTask: NSObject {
     return URLSession(configuration: configuration, delegate: self, delegateQueue: nil)
   }()
 
+  /// Model info retriever in case of retries.
   private let modelInfoRetriever: ModelInfoRetriever
   /// Number of retries in case of model download URL expiry.
   private var numberOfRetries: Int = 1
