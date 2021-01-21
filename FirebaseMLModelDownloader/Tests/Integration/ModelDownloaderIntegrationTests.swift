@@ -157,11 +157,19 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       urlExpiryTime: Date()
     )
 
+    let modelInfoRetriever = ModelInfoRetriever(
+      modelName: testModelName,
+      options: testApp.options,
+      installations: Installations.installations(app: testApp),
+      appName: testApp.name
+    )
+
     let expectation = self.expectation(description: "Wait for model to download.")
     let modelDownloadManager = ModelDownloadTask(
       remoteModelInfo: remoteModelInfo,
       appName: testApp.name,
       defaults: .createTestInstance(testName: #function),
+      modelInfoRetriever: modelInfoRetriever,
       progressHandler: { progress in
         XCTAssertLessThanOrEqual(progress, 1)
         XCTAssertGreaterThanOrEqual(progress, 0)
