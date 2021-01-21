@@ -55,6 +55,7 @@
 namespace firebase {
 namespace firestore {
 namespace local {
+namespace {
 
 namespace v1 = google::firestore::v1;
 using bundle::BundledQuery;
@@ -524,6 +525,7 @@ TEST_F(LocalSerializerTest, EncodesNamedLimitToLastQuery) {
   ExpectRoundTrip(named_query, expected_named_query);
 }
 
+}  // namespace
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase

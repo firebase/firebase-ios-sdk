@@ -38,11 +38,11 @@ using nanopb::StringReader;
 
 LevelDbBundleCache::LevelDbBundleCache(LevelDbPersistence* db,
                                        LocalSerializer* serializer)
-    : db_(db), serializer_(serializer) {
+    : db_(NOT_NULL(db)), serializer_(NOT_NULL(serializer)) {
 }
 
 absl::optional<BundleMetadata> LevelDbBundleCache::GetBundleMetadata(
-    const std::string& bundle_id) {
+    const std::string& bundle_id) const {
   auto key = LevelDbBundleKey::Key(bundle_id);
   std::string encoded;
   auto done = db_->current_transaction()->Get(key, &encoded);
@@ -63,7 +63,7 @@ absl::optional<BundleMetadata> LevelDbBundleCache::GetBundleMetadata(
     HARD_FAIL("BundleMetadata proto failed to decode: %s",
               reader.status().ToString());
   }
-  return absl::make_optional(bundle);
+  return absl::make_optional(std::move(bundle));
 }
 
 void LevelDbBundleCache::SaveBundleMetadata(const BundleMetadata& metadata) {
@@ -72,7 +72,7 @@ void LevelDbBundleCache::SaveBundleMetadata(const BundleMetadata& metadata) {
 }
 
 absl::optional<NamedQuery> LevelDbBundleCache::GetNamedQuery(
-    const std::string& query_name) {
+    const std::string& query_name) const {
   auto key = LevelDbNamedQueryKey::Key(query_name);
   std::string encoded;
   auto done = db_->current_transaction()->Get(key, &encoded);
@@ -93,7 +93,7 @@ absl::optional<NamedQuery> LevelDbBundleCache::GetNamedQuery(
     HARD_FAIL("NamedQuery proto failed to decode: %s",
               reader.status().ToString());
   }
-  return absl::make_optional(named_query);
+  return absl::make_optional(std::move(named_query));
 }
 
 void LevelDbBundleCache::SaveNamedQuery(const NamedQuery& query) {

@@ -32,12 +32,12 @@ namespace local {
 class MemoryBundleCache : public BundleCache {
  public:
   absl::optional<bundle::BundleMetadata> GetBundleMetadata(
-      const std::string& bundle_id) override;
+      const std::string& bundle_id) const override;
 
   void SaveBundleMetadata(const bundle::BundleMetadata& metadata) override;
 
   absl::optional<bundle::NamedQuery> GetNamedQuery(
-      const std::string& query_name) override;
+      const std::string& query_name) const override;
 
   void SaveNamedQuery(const bundle::NamedQuery& query) override;
 

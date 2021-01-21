@@ -43,18 +43,18 @@ using model::SnapshotVersion;
 using testutil::Filter;
 
 BundleCacheTest::BundleCacheTest(std::unique_ptr<Persistence> persistence)
-    : persistence_(std::move(persistence)),
+    : persistence_(std::move(NOT_NULL(persistence))),
       cache_(persistence_->bundle_cache()) {
 }
 
 BundleCacheTest::BundleCacheTest() : BundleCacheTest(GetParam()()) {
 }
 
-BundleCacheTest::~BundleCacheTest() = default;
+namespace {
 
 TEST_P(BundleCacheTest, ReturnsNullOptWhenBundleIdNotFound) {
   persistence_->Run("test_returns_nullopt_when_bundle_id_not_found", [&] {
-    ASSERT_EQ(absl::nullopt, cache_->GetBundleMetadata("bundle-1"));
+    EXPECT_EQ(cache_->GetBundleMetadata("bundle-1"), absl::nullopt);
   });
 }
 
@@ -65,20 +65,20 @@ TEST_P(BundleCacheTest, ReturnsSavedBundle) {
     cache_->SaveBundleMetadata(expected);
 
     auto actual = cache_->GetBundleMetadata("bundle-1");
-    ASSERT_EQ(expected, actual.value());
+    EXPECT_EQ(actual.value(), expected);
 
     // Overwrite
     expected = BundleMetadata("bundle-1", 2, SnapshotVersion(Timestamp::Now()));
     cache_->SaveBundleMetadata(expected);
 
     actual = cache_->GetBundleMetadata("bundle-1");
-    ASSERT_EQ(expected, actual.value());
+    EXPECT_EQ(actual.value(), expected);
   });
 }
 
 TEST_P(BundleCacheTest, ReturnsNullOptWhenNamedQueryNotFound) {
   persistence_->Run("test_returns_nullopt_when_named_query_not_found", [&] {
-    ASSERT_EQ(absl::nullopt, cache_->GetNamedQuery("query-1"));
+    EXPECT_EQ(cache_->GetNamedQuery("query-1"), absl::nullopt);
   });
 }
 
@@ -93,7 +93,7 @@ TEST_P(BundleCacheTest, ReturnsSavedCollectionQueries) {
     cache_->SaveNamedQuery(expected);
 
     auto actual = cache_->GetNamedQuery("query-1");
-    ASSERT_EQ(expected, actual);
+    EXPECT_EQ(actual, expected);
   });
 }
 
@@ -110,7 +110,7 @@ TEST_P(BundleCacheTest, ReturnsSavedLimitToFirstQueries) {
     cache_->SaveNamedQuery(expected);
 
     auto actual = cache_->GetNamedQuery("query-1");
-    ASSERT_EQ(expected, actual);
+    EXPECT_EQ(actual, expected);
   });
 }
 
@@ -129,7 +129,7 @@ TEST_P(BundleCacheTest, ReturnsSavedLimitToLastQueries) {
     cache_->SaveNamedQuery(expected);
 
     auto actual = cache_->GetNamedQuery("query-1");
-    ASSERT_EQ(expected, actual);
+    EXPECT_EQ(actual, expected);
     // TODO(wuandy): Add assertion to check the read named query translate to
     // actual limit-to-last core queries, once we have the translation
     // implemented.
@@ -148,10 +148,11 @@ TEST_P(BundleCacheTest, ReturnsSavedCollectionGroupQueries) {
     cache_->SaveNamedQuery(expected);
 
     auto actual = cache_->GetNamedQuery("query-1");
-    ASSERT_EQ(expected, actual);
+    EXPECT_EQ(actual, expected);
   });
 }
 
+}  // namespace
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase

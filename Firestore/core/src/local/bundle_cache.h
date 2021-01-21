@@ -47,7 +47,7 @@ class BundleCache {
    * no bundles are found for the given id.
    */
   virtual absl::optional<bundle::BundleMetadata> GetBundleMetadata(
-      const std::string& bundle_id) = 0;
+      const std::string& bundle_id) const = 0;
 
   /**
    * Saves the metadata for a bundle into local storage, using its id as the
@@ -56,13 +56,13 @@ class BundleCache {
   virtual void SaveBundleMetadata(const bundle::BundleMetadata& metadata) = 0;
 
   /**
-   * Gets a saved NamedQuery for the given query name.
+   * Gets a saved `NamedQuery` for the given query name.
    *
    * @return The `NamedQuery` corresponding to the given query name, or nullopt
    * if no queries are found for the given name.
    */
   virtual absl::optional<bundle::NamedQuery> GetNamedQuery(
-      const std::string& query_name) = 0;
+      const std::string& query_name) const = 0;
 
   /**
    * Saves a `NamedQuery` from a bundle, using its name as the persistent key.

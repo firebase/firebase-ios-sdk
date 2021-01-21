@@ -17,7 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_BUNDLE_NAMED_QUERY_H_
 #define FIRESTORE_CORE_SRC_BUNDLE_NAMED_QUERY_H_
 
-#include <memory>
 #include <string>
 #include <utility>
 
@@ -33,6 +32,8 @@ namespace bundle {
  */
 class NamedQuery {
  public:
+  NamedQuery() = default;
+
   NamedQuery(std::string query_name,
              BundledQuery bundled_query,
              model::SnapshotVersion read_time)
@@ -40,8 +41,6 @@ class NamedQuery {
         bundled_query_(std::move(bundled_query)),
         read_time_(read_time) {
   }
-
-  NamedQuery() = default;
 
   /**
    * @return The name of the query.

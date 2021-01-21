@@ -17,22 +17,22 @@
 #ifndef FIRESTORE_CORE_SRC_BUNDLE_BUNDLE_METADATA_H_
 #define FIRESTORE_CORE_SRC_BUNDLE_BUNDLE_METADATA_H_
 
-#include <memory>
 #include <string>
 #include <utility>
 
 #include "Firestore/core/src/model/snapshot_version.h"
-#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
 namespace bundle {
 
 /**
- * Represents a Firestore bundle metadata saved by the SDK in its local storage.
+ * Represents Firestore bundle metadata saved by the SDK in its local storage.
  */
 class BundleMetadata {
  public:
+  BundleMetadata() = default;
+
   BundleMetadata(std::string bundle_id,
                  int version,
                  model::SnapshotVersion create_time)
@@ -40,8 +40,6 @@ class BundleMetadata {
         version_(version),
         create_time_(create_time) {
   }
-
-  BundleMetadata() = default;
 
   /**
    * @return The ID of the bundle. It is used together with `create_time()` to
@@ -67,7 +65,7 @@ class BundleMetadata {
 
  private:
   std::string bundle_id_;
-  int version_;
+  int version_ = 0;
   model::SnapshotVersion create_time_;
 };
 

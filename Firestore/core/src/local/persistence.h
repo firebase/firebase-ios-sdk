@@ -98,7 +98,8 @@ class Persistence {
   /** Returns a TargetCache representing the persisted cache of queries. */
   virtual TargetCache* target_cache() = 0;
 
-  /** Returns a BundleCache representing the persisted cache of loaded bundles.
+  /**
+   * Returns a BundleCache representing the persisted cache of loaded bundles.
    */
   virtual BundleCache* bundle_cache() = 0;
 

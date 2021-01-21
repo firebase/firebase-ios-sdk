@@ -36,7 +36,6 @@ namespace firestore {
 namespace local {
 
 struct LruParams;
-class MemoryBundleCache;
 class MemoryIndexManager;
 class MemoryMutationQueue;
 class MemoryRemoteDocumentCache;

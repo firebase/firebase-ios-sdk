@@ -17,12 +17,10 @@
 #ifndef FIRESTORE_CORE_SRC_BUNDLE_BUNDLED_QUERY_H_
 #define FIRESTORE_CORE_SRC_BUNDLE_BUNDLED_QUERY_H_
 
-#include <memory>
 #include <utility>
 
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/core/target.h"
-#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
@@ -40,7 +38,7 @@ class BundledQuery {
   }
 
   /**
-   * @return The target that represents the user-issued query when build
+   * @return The target that represents the user-issued query when building
    * bundles. Client side transformations are not performed for client-specific
    * features: order by constraints are not inverted for limit to last queries,
    * for example.
@@ -49,9 +47,7 @@ class BundledQuery {
     return target_;
   }
 
-  /**
-   * @return The user provided limit type.
-   */
+  /** @return The user provided limit type. */
   core::LimitType limit_type() const {
     return limit_type_;
   }

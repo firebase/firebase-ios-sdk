@@ -358,6 +358,9 @@ Message<firestore_BundleMetadata> LocalSerializer::EncodeBundle(
     const BundleMetadata& metadata) const {
   Message<firestore_BundleMetadata> result;
 
+  // Note: only fields intended to be stored get encoded here, `total_documents`
+  // and `total_bytes` are skipped for example, they are not useful once the
+  // bundle has been parsed and loaded.
   result->id = rpc_serializer_.EncodeString(metadata.bundle_id());
   result->version = metadata.version();
   result->create_time = EncodeVersion(metadata.create_time());
@@ -381,9 +384,16 @@ Message<firestore_NamedQuery> LocalSerializer::EncodeNamedQuery(
   return result;
 }
 
+NamedQuery LocalSerializer::DecodeNamedQuery(
+    nanopb::Reader* reader, const firestore_NamedQuery& proto) const {
+  return NamedQuery(rpc_serializer_.DecodeString(proto.name),
+                    DecodeBundledQuery(reader, proto.bundled_query),
+                    DecodeVersion(reader, proto.read_time));
+}
+
 firestore_BundledQuery LocalSerializer::EncodeBundledQuery(
     const BundledQuery& query) const {
-  firestore_BundledQuery result;
+  firestore_BundledQuery result{};
 
   result.limit_type = query.limit_type() == core::LimitType::First
                           ? _firestore_BundledQuery_LimitType::
@@ -397,13 +407,6 @@ firestore_BundledQuery LocalSerializer::EncodeBundledQuery(
   result.structured_query = query_target.structured_query;
 
   return result;
-}
-
-NamedQuery LocalSerializer::DecodeNamedQuery(
-    nanopb::Reader* reader, const firestore_NamedQuery& proto) const {
-  return NamedQuery(rpc_serializer_.DecodeString(proto.name),
-                    DecodeBundledQuery(reader, proto.bundled_query),
-                    DecodeVersion(reader, proto.read_time));
 }
 
 BundledQuery LocalSerializer::DecodeBundledQuery(

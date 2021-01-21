@@ -231,7 +231,7 @@ class Serializer {
   core::Target DecodeStructuredQuery(
       nanopb::Reader* reader,
       pb_bytes_array_t* parent,
-      const google_firestore_v1_StructuredQuery& structured_query) const;
+      const google_firestore_v1_StructuredQuery& query) const;
 
   std::unique_ptr<remote::WatchChange> DecodeWatchChange(
       nanopb::Reader* reader,

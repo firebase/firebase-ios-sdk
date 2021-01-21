@@ -985,11 +985,11 @@ google_firestore_v1_Target_QueryTarget Serializer::EncodeQueryTarget(
 Target Serializer::DecodeStructuredQuery(
     nanopb::Reader* reader,
     pb_bytes_array_t* parent,
-    const google_firestore_v1_StructuredQuery& structured_query) const {
+    const google_firestore_v1_StructuredQuery& query) const {
   ResourcePath path = DecodeQueryPath(reader, DecodeString(parent));
 
   CollectionGroupId collection_group;
-  size_t from_count = structured_query.from_count;
+  size_t from_count = query.from_count;
   if (from_count > 0) {
     if (from_count != 1) {
       reader->Fail(
@@ -999,7 +999,7 @@ Target Serializer::DecodeStructuredQuery(
     }
 
     google_firestore_v1_StructuredQuery_CollectionSelector& from =
-        structured_query.from[0];
+        query.from[0];
     auto collection_id = DecodeString(from.collection_id);
     if (from.all_descendants) {
       collection_group = std::make_shared<const std::string>(collection_id);
@@ -1009,29 +1009,28 @@ Target Serializer::DecodeStructuredQuery(
   }
 
   FilterList filter_by;
-  if (structured_query.where.which_filter_type != 0) {
-    filter_by = DecodeFilters(reader, structured_query.where);
+  if (query.where.which_filter_type != 0) {
+    filter_by = DecodeFilters(reader, query.where);
   }
 
   OrderByList order_by;
-  if (structured_query.order_by_count > 0) {
-    order_by = DecodeOrderBys(reader, structured_query.order_by,
-                              structured_query.order_by_count);
+  if (query.order_by_count > 0) {
+    order_by = DecodeOrderBys(reader, query.order_by, query.order_by_count);
   }
 
   int32_t limit = Target::kNoLimit;
-  if (structured_query.has_limit) {
-    limit = structured_query.limit.value;
+  if (query.has_limit) {
+    limit = query.limit.value;
   }
 
   std::shared_ptr<Bound> start_at;
-  if (structured_query.start_at.values_count > 0) {
-    start_at = DecodeBound(reader, structured_query.start_at);
+  if (query.start_at.values_count > 0) {
+    start_at = DecodeBound(reader, query.start_at);
   }
 
   std::shared_ptr<Bound> end_at;
-  if (structured_query.end_at.values_count > 0) {
-    end_at = DecodeBound(reader, structured_query.end_at);
+  if (query.end_at.values_count > 0) {
+    end_at = DecodeBound(reader, query.end_at);
   }
 
   return Target(std::move(path), std::move(collection_group),
