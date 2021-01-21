@@ -172,12 +172,9 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
     } catch let error as DownloadError {
       downloadStatus = .failed
       telemetryLogger?.logModelDownloadEvent(eventName: .modelDownload, status: downloadStatus)
-      DeviceLogger.logEvent(
-        level: .info,
-        category: .modelDownload,
-        message: ModelDownloadTask.ErrorDescription.saveModel,
-        messageCode: .modelDownloaded
-      )
+      DeviceLogger.logEvent(level: .debug,
+                            message: ModelDownloadTask.ErrorDescription.saveModel,
+                            messageCode: .downloadedModelSaveError)
       DispatchQueue.main.async {
         self.downloadHandlers
           .completion(.failure(error))
@@ -185,12 +182,9 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
     } catch {
       downloadStatus = .failed
       telemetryLogger?.logModelDownloadEvent(eventName: .modelDownload, status: downloadStatus)
-      DeviceLogger.logEvent(
-        level: .info,
-        category: .modelDownload,
-        message: ModelDownloadTask.ErrorDescription.saveModel,
-        messageCode: .modelDownloaded
-      )
+      DeviceLogger.logEvent(level: .debug,
+                            message: ModelDownloadTask.ErrorDescription.saveModel,
+                            messageCode: .downloadedModelSaveError)
       DispatchQueue.main.async {
         self.downloadHandlers
           .completion(.failure(.internalError(description: error.localizedDescription)))
@@ -209,6 +203,9 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
       status: downloadStatus,
       model: model
     )
+    DeviceLogger.logEvent(level: .debug,
+                          message: ModelDownloadTask.DebugDescription.modelSaved,
+                          messageCode: .modelDownloaded)
 
     DispatchQueue.main.async {
       self.downloadHandlers.completion(.success(model))
@@ -233,11 +230,16 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
 
 /// Possible error messages for model downloading.
 extension ModelDownloadTask {
+  /// Debug descriptions.
+  private enum DebugDescription {
+    static let modelSaved = "Model saved successfully to device."
+  }
+
   /// Error descriptions.
   private enum ErrorDescription {
     static let invalidServerResponse =
       "Could not get server response for model downloading."
-    static let saveModel: StaticString =
+    static let saveModel =
       "Unable to save downloaded remote model file."
     static let expiredModelInfo = "Unable to update expired model info."
   }

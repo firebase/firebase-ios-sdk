@@ -13,13 +13,14 @@
 // limitations under the License.
 
 import Foundation
-import os
+import GoogleUtilities
 
 /// Enum of debug messages.
 // TODO: Create list of all possible messages with code - according to format.
-enum LoggerMessageCode {
-  case modelDownloaded
+enum LoggerMessageCode: Int {
+  case modelDownloaded = 1
   case downloadedModelMovedToURL
+  case downloadedModelSaveError
   case analyticsEventEncodeError
   case telemetryInitError
   case backgroundDownloadError
@@ -27,22 +28,16 @@ enum LoggerMessageCode {
 
 /// On-device logger.
 class DeviceLogger {
-  /// Log event on device.
-  static func logEvent(level: OSLogType, category: OSLog, message: StaticString,
-                       messageCode: LoggerMessageCode) {
-    // TODO: Replace with GULLogBasic.
-    os_log(message, log: category, type: level)
+  static let service = "[Firebase/MLModelDownloader]"
+  static func logEvent(level: GoogleLoggerLevel, message: String, messageCode: LoggerMessageCode) {
+    let code = String(format: "I-MLM%06d", messageCode.rawValue)
+    let args: [CVarArg] = []
+    GULLoggerWrapper.log(
+      with: level,
+      withService: DeviceLogger.service,
+      withCode: code,
+      withMessage: message,
+      withArgs: getVaList(args)
+    )
   }
-}
-
-/// Extension to categorize on-device logging.
-extension OSLog {
-  private static let subsystem: String = {
-    let bundleID = Bundle.main.bundleIdentifier ?? ""
-    return "com.google.firebaseml.\(bundleID)"
-  }()
-
-  /// List of logging categories.
-  static let modelDownload = OSLog(subsystem: subsystem, category: "model-download")
-  static let analytics = OSLog(subsystem: subsystem, category: "analytics")
 }
