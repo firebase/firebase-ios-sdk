@@ -71,7 +71,6 @@ class PatchMutation;
 class Precondition;
 class SetMutation;
 class SnapshotVersion;
-class TransformMutation;
 class TransformOperation;
 class UnknownDocument;
 class VerifyMutation;

@@ -48,6 +48,7 @@ namespace {
 using core::Target;
 using model::Document;
 using model::DocumentState;
+using model::FieldTransform;
 using model::FieldValue;
 using model::MaybeDocument;
 using model::Mutation;
@@ -328,9 +329,35 @@ MutationBatch LocalSerializer::DecodeMutationBatch(
   }
 
   std::vector<Mutation> mutations;
-  for (size_t i = 0; i < proto.writes_count; i++) {
-    mutations.push_back(
-        rpc_serializer_.DecodeMutation(reader, proto.writes[i]));
+
+  // Squash old transform mutations into existing patch of set mutations. The
+  // replacement of representing `transforms` with `update_transforms` on the
+  // SDK means that old `transform` mutations stored in LevelDB need to be
+  // updated to `update_transforms`.
+  // TODO(b/174608374): Remove this code once we perform a schema migration.
+  for (size_t i = 0; i < proto.writes_count; ++i) {
+    _google_firestore_v1_Write current_mutation = proto.writes[i];
+    bool has_transform = i + 1 < proto.writes_count &&
+                         proto.writes[i + 1].which_operation ==
+                             google_firestore_v1_Write_transform_tag;
+    if (has_transform) {
+      _google_firestore_v1_Write transform_mutation = proto.writes[i + 1];
+      HARD_ASSERT(
+          proto.writes[i].which_operation ==
+              google_firestore_v1_Write_update_tag,
+          "TransformMutation should be preceded by a patch or set mutation");
+      _google_firestore_v1_Write new_mutation{current_mutation};
+      new_mutation.update_transforms_count =
+          transform_mutation.transform.field_transforms_count;
+      new_mutation.update_transforms =
+          transform_mutation.transform.field_transforms;
+
+      mutations.push_back(rpc_serializer_.DecodeMutation(reader, new_mutation));
+      ++i;
+    } else {
+      mutations.push_back(
+          rpc_serializer_.DecodeMutation(reader, current_mutation));
+    }
   }
 
   return MutationBatch(batch_id, local_write_time, std::move(base_mutations),

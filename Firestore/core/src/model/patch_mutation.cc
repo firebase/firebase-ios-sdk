@@ -25,6 +25,7 @@
 #include "Firestore/core/src/model/no_document.h"
 #include "Firestore/core/src/model/unknown_document.h"
 #include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/to_string.h"
 
 namespace firebase {
 namespace firestore {
@@ -37,22 +38,37 @@ static_assert(
 PatchMutation::PatchMutation(DocumentKey key,
                              ObjectValue value,
                              FieldMask mask,
-                             Precondition precondition)
+                             Precondition precondition,
+                             std::vector<FieldTransform> field_transforms)
     : Mutation(std::make_shared<Rep>(std::move(key),
                                      std::move(value),
                                      std::move(mask),
-                                     std::move(precondition))) {
+                                     std::move(precondition),
+                                     std::move(field_transforms))) {
 }
 
 PatchMutation::PatchMutation(const Mutation& mutation) : Mutation(mutation) {
   HARD_ASSERT(type() == Type::Patch);
 }
 
+PatchMutation::PatchMutation(DocumentKey key,
+                             ObjectValue value,
+                             FieldMask mask,
+                             Precondition precondition)
+    : Mutation(std::make_shared<Rep>(std::move(key),
+                                     std::move(value),
+                                     std::move(mask),
+                                     std::move(precondition),
+                                     std::vector<FieldTransform>())) {
+}
+
 PatchMutation::Rep::Rep(DocumentKey&& key,
                         ObjectValue&& value,
                         FieldMask&& mask,
-                        Precondition&& precondition)
-    : Mutation::Rep(std::move(key), std::move(precondition)),
+                        Precondition&& precondition,
+                        std::vector<FieldTransform>&& field_transforms)
+    : Mutation::Rep(
+          std::move(key), std::move(precondition), std::move(field_transforms)),
       value_(std::move(value)),
       mask_(std::move(mask)) {
 }
@@ -61,8 +77,6 @@ MaybeDocument PatchMutation::Rep::ApplyToRemoteDocument(
     const absl::optional<MaybeDocument>& maybe_doc,
     const MutationResult& mutation_result) const {
   VerifyKeyMatches(maybe_doc);
-  HARD_ASSERT(mutation_result.transform_results() == absl::nullopt,
-              "Transform results received by PatchMutation.");
 
   if (!precondition().IsValidFor(maybe_doc)) {
     // Since the mutation was not rejected, we know that the precondition
@@ -72,7 +86,13 @@ MaybeDocument PatchMutation::Rep::ApplyToRemoteDocument(
     return UnknownDocument(key(), mutation_result.version());
   }
 
-  ObjectValue new_data = PatchDocument(maybe_doc);
+  std::vector<FieldValue> transform_results =
+      mutation_result.transform_results() != absl::nullopt
+          ? ServerTransformResults(maybe_doc,
+                                   *mutation_result.transform_results())
+          : std::vector<FieldValue>();
+
+  ObjectValue new_data = PatchDocument(maybe_doc, transform_results);
   const SnapshotVersion& version = mutation_result.version();
   return Document(std::move(new_data), key(), version,
                   DocumentState::kCommittedMutations);
@@ -80,27 +100,34 @@ MaybeDocument PatchMutation::Rep::ApplyToRemoteDocument(
 
 absl::optional<MaybeDocument> PatchMutation::Rep::ApplyToLocalView(
     const absl::optional<MaybeDocument>& maybe_doc,
-    const absl::optional<MaybeDocument>&,
-    const Timestamp&) const {
+    const Timestamp& local_write_time) const {
   VerifyKeyMatches(maybe_doc);
 
   if (!precondition().IsValidFor(maybe_doc)) {
     return maybe_doc;
   }
 
-  ObjectValue new_data = PatchDocument(maybe_doc);
+  std::vector<FieldValue> transform_results =
+      LocalTransformResults(maybe_doc, local_write_time);
+
+  ObjectValue new_data = PatchDocument(maybe_doc, transform_results);
   SnapshotVersion version = GetPostMutationVersion(maybe_doc);
   return Document(std::move(new_data), key(), version,
                   DocumentState::kLocalMutations);
 }
 
 ObjectValue PatchMutation::Rep::PatchDocument(
-    const absl::optional<MaybeDocument>& maybe_doc) const {
+    const absl::optional<MaybeDocument>& maybe_doc,
+    const std::vector<FieldValue>& transform_results) const {
+  ObjectValue data;
   if (maybe_doc && maybe_doc->type() == MaybeDocument::Type::Document) {
-    return PatchObject(Document(*maybe_doc).data());
+    data = Document(*maybe_doc).data();
   } else {
-    return PatchObject(ObjectValue::Empty());
+    data = ObjectValue::Empty();
   }
+  data = PatchObject(data);
+  data = TransformObject(data, transform_results);
+  return data;
 }
 
 ObjectValue PatchMutation::Rep::PatchObject(ObjectValue obj) const {
@@ -132,7 +159,8 @@ std::string PatchMutation::Rep::ToString() const {
   return absl::StrCat("PatchMutation(key=", key().ToString(),
                       ", precondition=", precondition().ToString(),
                       ", value=", value().ToString(),
-                      ", mask=", mask().ToString(), ")");
+                      ", mask=", mask().ToString(),
+                      ", transforms=", util::ToString(field_transforms()), ")");
 }
 
 }  // namespace model

@@ -51,6 +51,12 @@ class PatchMutation : public Mutation {
                 FieldMask mask,
                 Precondition precondition);
 
+  PatchMutation(DocumentKey key,
+                ObjectValue value,
+                FieldMask mask,
+                Precondition precondition,
+                std::vector<FieldTransform> field_transforms);
+
   /**
    * Casts a Mutation to a PatchMutation. This is a checked operation that will
    * assert if the type of the Mutation isn't actually Type::Patch.
@@ -81,7 +87,8 @@ class PatchMutation : public Mutation {
     Rep(DocumentKey&& key,
         ObjectValue&& value,
         FieldMask&& mask,
-        Precondition&& precondition);
+        Precondition&& precondition,
+        std::vector<FieldTransform>&& field_transforms);
 
     Type type() const override {
       return Type::Patch;
@@ -101,8 +108,7 @@ class PatchMutation : public Mutation {
 
     absl::optional<MaybeDocument> ApplyToLocalView(
         const absl::optional<MaybeDocument>& maybe_doc,
-        const absl::optional<MaybeDocument>&,
-        const Timestamp&) const override;
+        const Timestamp& local_write_time) const override;
 
     bool Equals(const Mutation::Rep& other) const override;
 
@@ -112,7 +118,8 @@ class PatchMutation : public Mutation {
 
    private:
     ObjectValue PatchDocument(
-        const absl::optional<MaybeDocument>& maybe_doc) const;
+        const absl::optional<MaybeDocument>& maybe_doc,
+        const std::vector<FieldValue>& transform_results) const;
 
     ObjectValue PatchObject(ObjectValue obj) const;
 
