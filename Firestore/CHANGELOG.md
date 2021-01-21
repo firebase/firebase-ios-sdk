@@ -1,4 +1,4 @@
-# Unreleased
+# v7.5.0
 - [fixed] Fixed an issue where using `FieldValue.arrayRemove()` would only delete the
   first occurrence of an element in an array in a latency
   compensated snapshots.
