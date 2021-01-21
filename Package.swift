@@ -15,11 +15,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// This Package.swift is a Work in Progress. We intend to keep it functional
-// on the master branch, but it is rapidly evolving and may have occasional
-// breakages. Please report any issues at
-// https://github.com/firebase/firebase-ios-sdk/issues/new/choose.
-
 import PackageDescription
 
 let firebaseVersion = "7.4.0"
