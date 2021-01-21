@@ -99,7 +99,7 @@ let package = Package(
     .package(
       name: "GoogleAppMeasurement",
       url: "https://github.com/google/GoogleAppMeasurement.git",
-      from: "7.4.0"
+      .exact("7.4.0")
     ),
     .package(
       name: "GoogleUtilities",
