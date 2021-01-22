@@ -165,6 +165,11 @@ class NetworkingUnitTests: XCTestCase {
     """
   }
 
+  let successAuthTokenProvider =
+    { (completion: @escaping (Result<String, DownloadError>) -> Void) in
+      completion(.success("fakeFISToken"))
+    }
+
   override class func setUp() {
     let options = FirebaseOptions(
       googleAppID: MockOptions.appID,
@@ -190,15 +195,10 @@ class NetworkingUnitTests: XCTestCase {
       modelName: "fakeModelName",
       projectID: "fakeProjectID",
       apiKey: "fakeAPIKey",
-      installations: Installations.installations(),
+      authTokenProvider: successAuthTokenProvider,
       appName: "fakeAppName",
       session: fakeSession
     )
-
-    modelInfoRetriever
-      .authToken = { (completion: @escaping (Result<String, DownloadError>) -> Void) in
-        completion(.success("fakeFISToken"))
-      }
 
     modelInfoRetriever.downloadModelInfo { result in
       switch result {
@@ -238,16 +238,11 @@ class NetworkingUnitTests: XCTestCase {
       modelName: "fakeModelName",
       projectID: "fakeProjectID",
       apiKey: "fakeAPIKey",
-      installations: Installations.installations(),
+      authTokenProvider: successAuthTokenProvider,
       appName: "fakeAppName",
       localModelInfo: fakeLocalModelInfo,
       session: fakeSession
     )
-
-    modelInfoRetriever
-      .authToken = { (completion: @escaping (Result<String, DownloadError>) -> Void) in
-        completion(.success("fakeFISToken"))
-      }
 
     modelInfoRetriever.downloadModelInfo { result in
       switch result {
@@ -276,15 +271,10 @@ class NetworkingUnitTests: XCTestCase {
       modelName: "fakeModelName",
       projectID: "fakeProjectID",
       apiKey: "fakeAPIKey",
-      installations: Installations.installations(),
+      authTokenProvider: successAuthTokenProvider,
       appName: "fakeAppName",
       session: fakeSession
     )
-
-    modelInfoRetriever
-      .authToken = { (completion: @escaping (Result<String, DownloadError>) -> Void) in
-        completion(.success("fakeFISToken"))
-      }
 
     modelInfoRetriever.downloadModelInfo { result in
       switch result {
@@ -521,15 +511,10 @@ extension NetworkingUnitTests {
       modelName: "fakeModelName",
       projectID: "fakeProjectID",
       apiKey: "fakeAPIKey",
-      installations: Installations.installations(),
+      authTokenProvider: successAuthTokenProvider,
       appName: "fakeAppName",
       session: fakeSession
     )
-
-    modelInfoRetriever
-      .authToken = { (completion: @escaping (Result<String, DownloadError>) -> Void) in
-        completion(.success("fakeFISToken"))
-      }
 
     return modelInfoRetriever
   }
