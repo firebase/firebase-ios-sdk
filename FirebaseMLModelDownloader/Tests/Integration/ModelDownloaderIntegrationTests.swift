@@ -140,7 +140,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
   }
 
   /// Test to download model file - makes an actual network call.
-  func testResumeModelDownload() throws {
+  func testModelDownload() throws {
     guard let testApp = FirebaseApp.app() else {
       XCTFail("Default app was not configured.")
       return
@@ -169,11 +169,12 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
 
     let conditions = ModelDownloadConditions()
     let expectation = self.expectation(description: "Wait for model to download.")
+    let downloader = ModelFileDownloader(conditions: conditions)
     let modelDownloadManager = ModelDownloadTask(
       remoteModelInfo: remoteModelInfo,
-      conditions: conditions,
       appName: testApp.name,
       defaults: .createTestInstance(testName: #function),
+      downloader: downloader,
       modelInfoRetriever: modelInfoRetriever,
       progressHandler: { progress in
         XCTAssertLessThanOrEqual(progress, 1)
@@ -199,7 +200,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       expectation.fulfill()
     }
 
-    modelDownloadManager.resumeModelDownload()
+    modelDownloadManager.download()
     waitForExpectations(timeout: 5, handler: nil)
     XCTAssertEqual(modelDownloadManager.downloadStatus, .successful)
   }
