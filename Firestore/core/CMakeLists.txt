@@ -243,6 +243,7 @@ target_link_libraries(
   firestore_protos_nanopb
   firestore_util
   grpc++
+  nlohmann_json
   protobuf-nanopb-static
 )
 

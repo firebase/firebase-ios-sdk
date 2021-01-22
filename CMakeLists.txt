@@ -251,12 +251,6 @@ target_include_directories(
   $<BUILD_INTERFACE:${FIREBASE_EXTERNAL_SOURCE_DIR}/nanopb>
 )
 
-add_external_subdirectory(nlohmann_json)
-target_include_directories(
-  protobuf-nanopb-static INTERFACE
-  $<BUILD_INTERFACE:${FIREBASE_EXTERNAL_SOURCE_DIR}/nlohmann_json/single_include>
-)
-
 # XCTest
 if(APPLE)
   find_package(XCTest)
