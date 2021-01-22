@@ -196,7 +196,7 @@ class NetworkingUnitTests: XCTestCase {
     )
 
     modelInfoRetriever
-      .authToken = { (completion: @escaping (Result<String, DownloadError>) -> Void) in
+      .authTokenProvider = { (completion: @escaping (Result<String, DownloadError>) -> Void) in
         completion(.success("fakeFISToken"))
       }
 
@@ -245,7 +245,7 @@ class NetworkingUnitTests: XCTestCase {
     )
 
     modelInfoRetriever
-      .authToken = { (completion: @escaping (Result<String, DownloadError>) -> Void) in
+      .authTokenProvider = { (completion: @escaping (Result<String, DownloadError>) -> Void) in
         completion(.success("fakeFISToken"))
       }
 
@@ -282,7 +282,7 @@ class NetworkingUnitTests: XCTestCase {
     )
 
     modelInfoRetriever
-      .authToken = { (completion: @escaping (Result<String, DownloadError>) -> Void) in
+      .authTokenProvider = { (completion: @escaping (Result<String, DownloadError>) -> Void) in
         completion(.success("fakeFISToken"))
       }
 
@@ -329,7 +329,7 @@ class NetworkingUnitTests: XCTestCase {
                                               urlExpiryTime: Date())
 
     modelInfoRetriever
-      .authToken = { (completion: @escaping (Result<String, DownloadError>) -> Void) in
+      .authTokenProvider = { (completion: @escaping (Result<String, DownloadError>) -> Void) in
         completion(.success("fakeFISToken"))
       }
 
@@ -400,7 +400,7 @@ class NetworkingUnitTests: XCTestCase {
                                               urlExpiryTime: Date())
 
     modelInfoRetriever
-      .authToken = { (completion: @escaping (Result<String, DownloadError>) -> Void) in
+      .authTokenProvider = { (completion: @escaping (Result<String, DownloadError>) -> Void) in
         completion(.success("fakeFISToken"))
       }
 
