@@ -43,6 +43,8 @@ class ModelDownloadTask: NSObject {
   private let appName: String
   /// Model info downloaded from server.
   private(set) var remoteModelInfo: RemoteModelInfo
+  /// Model conditions for download.
+  private let conditions: ModelDownloadConditions
   /// User defaults to which local model info should ultimately be written.
   private let defaults: UserDefaults
   /// Task to handle model file download.
@@ -50,11 +52,20 @@ class ModelDownloadTask: NSObject {
   /// Progress and completion handlers associated with this model download task.
   private let downloadHandlers: DownloadHandlers
   /// Keeps track of download associated with this model download task.
-  private(set) var downloadStatus: ModelDownloadStatus = .notStarted
+  private(set) var downloadStatus: ModelDownloadStatus
   /// URLSession to handle model downloads.
-  private lazy var downloadSession = URLSession(configuration: .ephemeral,
-                                                delegate: self,
-                                                delegateQueue: nil)
+  private lazy var downloadSession: URLSession = {
+    var configuration = URLSessionConfiguration.ephemeral
+    /// Wait for network connectivity, if unavailable.
+    if #available(iOS 11.0, macOS 10.13, macCatalyst 13.0, tvOS 11.0, watchOS 4.0, *) {
+      configuration.waitsForConnectivity = true
+      /// Wait for 10 minutes.
+      configuration.timeoutIntervalForResource = 600
+    }
+    configuration.allowsCellularAccess = conditions.allowsCellularAccess
+    return URLSession(configuration: configuration, delegate: self, delegateQueue: nil)
+  }()
+
   /// Model info retriever in case of retries.
   private let modelInfoRetriever: ModelInfoRetriever
   /// Number of retries in case of model download URL expiry.
@@ -62,12 +73,14 @@ class ModelDownloadTask: NSObject {
   /// Telemetry logger.
   private let telemetryLogger: TelemetryLogger?
 
-  init(remoteModelInfo: RemoteModelInfo, appName: String, defaults: UserDefaults,
+  init(remoteModelInfo: RemoteModelInfo, conditions: ModelDownloadConditions, appName: String,
+       defaults: UserDefaults,
        modelInfoRetriever: ModelInfoRetriever,
        telemetryLogger: TelemetryLogger? = nil,
        progressHandler: DownloadHandlers.ProgressHandler? = nil,
        completion: @escaping DownloadHandlers.Completion) {
     self.remoteModelInfo = remoteModelInfo
+    self.conditions = conditions
     self.appName = appName
     self.modelInfoRetriever = modelInfoRetriever
     self.telemetryLogger = telemetryLogger
@@ -76,6 +89,7 @@ class ModelDownloadTask: NSObject {
       progressHandler: progressHandler,
       completion: completion
     )
+    downloadStatus = .notStarted
   }
 }
 
@@ -95,6 +109,14 @@ extension ModelDownloadTask: URLSessionDownloadDelegate {
   /// Name for model file stored on device.
   var downloadedModelFileName: String {
     return "fbml_model__\(appName)__\(remoteModelInfo.name)"
+  }
+
+  func urlSession(_ session: URLSession, taskIsWaitingForConnectivity task: URLSessionTask) {
+    // TODO: Handle waiting for connectivity, if needed.
+  }
+
+  func urlSession(_ session: URLSession, didBecomeInvalidWithError error: Error?) {
+    // TODO: Handle configuration errors.
   }
 
   /// Handle client-side errors.
