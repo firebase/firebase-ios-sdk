@@ -94,7 +94,7 @@ class ModelInfoRetriever {
   }
 
   /// Get installations auth token.
-  lazy var authToken = { (completion: @escaping (Result<String, DownloadError>) -> Void) in
+  lazy var authTokenProvider = { (completion: @escaping (Result<String, DownloadError>) -> Void) in
     /// Get FIS token.
     self.installations.authToken { tokenResult, error in
       guard let result = tokenResult
@@ -110,7 +110,7 @@ class ModelInfoRetriever {
   /// Get model info from server.
   func downloadModelInfo(completion: @escaping (Result<DownloadModelInfoResult, DownloadError>)
     -> Void) {
-    authToken { result in
+    authTokenProvider { result in
       switch result {
       /// Successfully received FIS token.
       case let .success(authToken):
