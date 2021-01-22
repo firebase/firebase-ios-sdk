@@ -77,6 +77,7 @@ jobs:
           # Install gcloud sdk
           curl https://sdk.cloud.google.com > install.sh
           bash install.sh --disable-prompts
+          echo "${HOME}/google-cloud-sdk/bin/" >> $GITHUB_PATH
           export PATH="${HOME}/google-cloud-sdk/bin/:${PATH}"
 
           scripts/decrypt_gha_secret.sh scripts/gha-encrypted/metrics_service_access.json.gpg \
