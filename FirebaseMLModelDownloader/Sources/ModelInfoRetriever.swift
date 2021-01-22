@@ -61,8 +61,6 @@ class ModelInfoRetriever {
   private let modelName: String
   /// URL session for model info request.
   private let session: ModelInfoRetrieverSession
-  /// Firebase installations.
-  private let installations: Installations
   /// Current Firebase app project ID.
   private let projectID: String
   /// Current Firebase app API key.
@@ -72,20 +70,25 @@ class ModelInfoRetriever {
   /// Local model info to validate model freshness.
   private let localModelInfo: LocalModelInfo?
 
+  typealias AuthTokenProvider = (_ completion: @escaping (Result<String, DownloadError>) -> Void)
+    -> Void
+  private let authTokenProvider: AuthTokenProvider
+
   /// Associate model info retriever with current Firebase app, and model name.
   init(modelName: String,
        projectID: String,
        apiKey: String,
-       installations: Installations,
+       authTokenProvider: @escaping AuthTokenProvider,
        appName: String,
        localModelInfo: LocalModelInfo? = nil,
        session: ModelInfoRetrieverSession? = nil) {
     self.modelName = modelName
     self.projectID = projectID
     self.apiKey = apiKey
-    self.installations = installations
     self.appName = appName
     self.localModelInfo = localModelInfo
+    self.authTokenProvider = authTokenProvider
+
     if let urlSession = session {
       self.session = urlSession
     } else {
@@ -93,17 +96,33 @@ class ModelInfoRetriever {
     }
   }
 
-  /// Get installations auth token.
-  lazy var authTokenProvider = { (completion: @escaping (Result<String, DownloadError>) -> Void) in
-    /// Get FIS token.
-    self.installations.authToken { tokenResult, error in
-      guard let result = tokenResult
-      else {
-        completion(.failure(.internalError(description: ModelInfoRetriever.ErrorDescription
-            .fisToken)))
-        return
+  convenience init(modelName: String,
+                   projectID: String,
+                   apiKey: String,
+                   installations: Installations,
+                   appName: String,
+                   localModelInfo: LocalModelInfo? = nil,
+                   session: ModelInfoRetrieverSession? = nil) {
+    self.init(modelName: modelName,
+              projectID: projectID,
+              apiKey: apiKey,
+              authTokenProvider: ModelInfoRetriever.authTokenProvider(installation: installations),
+              appName: appName,
+              localModelInfo: localModelInfo,
+              session: session)
+  }
+
+  private static func authTokenProvider(installation: Installations) -> AuthTokenProvider {
+    return { completion in
+      installation.authToken { tokenResult, error in
+        guard let result = tokenResult
+        else {
+          completion(.failure(.internalError(description: ModelInfoRetriever.ErrorDescription
+              .fisToken)))
+          return
+        }
+        completion(.success(result.authToken))
       }
-      completion(.success(result.authToken))
     }
   }
 
