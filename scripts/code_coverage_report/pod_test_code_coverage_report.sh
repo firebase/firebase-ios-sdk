@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+set -ex
+
 SDK="$1"
 platform="$2"
 default_output_path="/Users/runner/${SDK}-${platform}.xcresult"
@@ -20,5 +22,6 @@ if [ -d "/Users/runner/Library/Developer/Xcode/DerivedData" ]; then
 rm -r /Users/runner/Library/Developer/Xcode/DerivedData/*
 fi
 scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb "${SDK}".podspec --platforms="${platform}" --test-specs=unit
+ls /Users/runner/Library/Developer/Xcode/DerivedData
 find /Users/runner/Library/Developer/Xcode/DerivedData -type d -regex ".*/.*\.xcresult" -execdir cp -R '{}' "${output_path}" \;
 
