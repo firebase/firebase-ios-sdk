@@ -27,20 +27,13 @@
 #include "Firestore/core/src/core/target.h"
 #include "Firestore/core/src/local/bundle_cache.h"
 #include "Firestore/core/src/local/persistence.h"
+#include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
 namespace firestore {
 namespace local {
-
-using bundle::BundledQuery;
-using bundle::BundleMetadata;
-using bundle::NamedQuery;
-using core::Query;
-using core::Target;
-using model::SnapshotVersion;
-using testutil::Filter;
 
 BundleCacheTest::BundleCacheTest(std::unique_ptr<Persistence> persistence)
     : persistence_(std::move(NOT_NULL(persistence))),
@@ -51,6 +44,14 @@ BundleCacheTest::BundleCacheTest() : BundleCacheTest(GetParam()()) {
 }
 
 namespace {
+
+using bundle::BundledQuery;
+using bundle::BundleMetadata;
+using bundle::NamedQuery;
+using core::Query;
+using core::Target;
+using model::SnapshotVersion;
+using testutil::Filter;
 
 TEST_P(BundleCacheTest, ReturnsNullOptWhenBundleIdNotFound) {
   persistence_->Run("test_returns_nullopt_when_bundle_id_not_found", [&] {
