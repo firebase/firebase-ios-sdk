@@ -40,7 +40,7 @@ extension CoverageReportRequestData{
   init() {
     self.metric = "Coverage"
     self.results = []
-    self.log = "https://android-ci.firebaseopensource.com/view/gcs/android-ci/logs/postsubmit-check-coverage/1333416237601918980"
+    self.log = ""
   }
 
   mutating func addCoverageData(from source: CoverageReportSource, resultBundle: String){
@@ -49,6 +49,10 @@ extension CoverageReportRequestData{
         self.results.append(FileCoverage(sdk:resultBundle + "-" + target.name, type: file.name, value: file.lineCoverage))
       }
     }
+  }
+
+  mutating func addLogLink(_ logLink: String){
+    self.log = logLink
   }
 
   func toData() -> Data{

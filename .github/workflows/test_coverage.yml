@@ -94,4 +94,5 @@ jobs:
           find "/Users/runner/test" -print -regex ".*/.*\.xcresult" -exec xcrun xccov view --report {} \;
           fi
           cd scripts/code_coverage_report/generate_code_coverage_report
-          swift run CoverageReportGenerator --presubmit "granluo/issue_generations" --commit "testprcommit1" --token $(gcloud auth print-identity-token) --xcresult-dir "/Users/granluo/Downloads/my-artifact" --pull-request-num 79 --pull-request-note "123" --base-commit "test1commit" --branch "create_issues"
+          swift run CoverageReportGenerator --presubmit "granluo/issue_generations" --commit "testprcommit1" --token $(gcloud auth print-identity-token) --xcresult-dir "/Users/runner/test" --pull-request-num 79 --pull-request-note "123" --base-commit "test1commit" --branch "create_issues"
+          exit $?
