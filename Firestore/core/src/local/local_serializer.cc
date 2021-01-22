@@ -22,10 +22,13 @@
 #include <string>
 #include <utility>
 
+#include "Firestore/Protos/nanopb/firestore/bundle.nanopb.h"
 #include "Firestore/Protos/nanopb/firestore/local/maybe_document.nanopb.h"
 #include "Firestore/Protos/nanopb/firestore/local/mutation.nanopb.h"
 #include "Firestore/Protos/nanopb/firestore/local/target.nanopb.h"
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
+#include "Firestore/core/src/bundle/bundle_metadata.h"
+#include "Firestore/core/src/bundle/named_query.h"
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/local/target_data.h"
 #include "Firestore/core/src/model/document.h"
@@ -45,6 +48,9 @@ namespace firestore {
 namespace local {
 namespace {
 
+using bundle::BundledQuery;
+using bundle::BundleMetadata;
+using bundle::NamedQuery;
 using core::Target;
 using model::Document;
 using model::DocumentState;
@@ -58,6 +64,7 @@ using model::SnapshotVersion;
 using model::UnknownDocument;
 using nanopb::ByteString;
 using nanopb::CheckedSize;
+using nanopb::CopyBytesArray;
 using nanopb::MakeArray;
 using nanopb::Message;
 using nanopb::Reader;
@@ -345,6 +352,80 @@ google_protobuf_Timestamp LocalSerializer::EncodeVersion(
 model::SnapshotVersion LocalSerializer::DecodeVersion(
     nanopb::Reader* reader, const google_protobuf_Timestamp& proto) const {
   return rpc_serializer_.DecodeVersion(reader, proto);
+}
+
+Message<firestore_BundleMetadata> LocalSerializer::EncodeBundle(
+    const BundleMetadata& metadata) const {
+  Message<firestore_BundleMetadata> result;
+
+  // Note: only fields intended to be stored get encoded here, `total_documents`
+  // and `total_bytes` are skipped for example, they are not useful once the
+  // bundle has been parsed and loaded.
+  result->id = rpc_serializer_.EncodeString(metadata.bundle_id());
+  result->version = metadata.version();
+  result->create_time = EncodeVersion(metadata.create_time());
+  return result;
+}
+
+BundleMetadata LocalSerializer::DecodeBundle(
+    Reader* reader, const firestore_BundleMetadata& proto) const {
+  return BundleMetadata(rpc_serializer_.DecodeString(proto.id), proto.version,
+                        DecodeVersion(reader, proto.create_time));
+}
+
+Message<firestore_NamedQuery> LocalSerializer::EncodeNamedQuery(
+    const NamedQuery& query) const {
+  Message<firestore_NamedQuery> result;
+
+  result->name = rpc_serializer_.EncodeString(query.query_name());
+  result->read_time = EncodeVersion(query.read_time());
+  result->bundled_query = EncodeBundledQuery(query.bundled_query());
+
+  return result;
+}
+
+NamedQuery LocalSerializer::DecodeNamedQuery(
+    nanopb::Reader* reader, const firestore_NamedQuery& proto) const {
+  return NamedQuery(rpc_serializer_.DecodeString(proto.name),
+                    DecodeBundledQuery(reader, proto.bundled_query),
+                    DecodeVersion(reader, proto.read_time));
+}
+
+firestore_BundledQuery LocalSerializer::EncodeBundledQuery(
+    const BundledQuery& query) const {
+  firestore_BundledQuery result{};
+
+  result.limit_type = query.limit_type() == core::LimitType::First
+                          ? _firestore_BundledQuery_LimitType::
+                                firestore_BundledQuery_LimitType_FIRST
+                          : _firestore_BundledQuery_LimitType::
+                                firestore_BundledQuery_LimitType_LAST;
+
+  auto query_target = rpc_serializer_.EncodeQueryTarget(query.target());
+  result.parent = CopyBytesArray(query_target.parent);
+  result.which_query_type = firestore_BundledQuery_structured_query_tag;
+  result.structured_query = query_target.structured_query;
+
+  return result;
+}
+
+BundledQuery LocalSerializer::DecodeBundledQuery(
+    nanopb::Reader* reader, const firestore_BundledQuery& query) const {
+  // The QueryTarget oneof only has a single valid value.
+  if (query.which_query_type != firestore_BundledQuery_structured_query_tag) {
+    reader->Fail(
+        StringFormat("Unknown bundled query_type: %s", query.which_query_type));
+    return BundledQuery();
+  }
+
+  auto limit_type = query.limit_type ==
+                            _firestore_BundledQuery_LimitType::
+                                firestore_BundledQuery_LimitType_FIRST
+                        ? core::LimitType::First
+                        : core::LimitType::Last;
+  return BundledQuery(rpc_serializer_.DecodeStructuredQuery(
+                          reader, query.parent, query.structured_query),
+                      limit_type);
 }
 
 }  // namespace local

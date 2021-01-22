@@ -982,19 +982,11 @@ google_firestore_v1_Target_QueryTarget Serializer::EncodeQueryTarget(
   return result;
 }
 
-Target Serializer::DecodeQueryTarget(
+Target Serializer::DecodeStructuredQuery(
     nanopb::Reader* reader,
-    const google_firestore_v1_Target_QueryTarget& proto) const {
-  // The QueryTarget oneof only has a single valid value.
-  if (proto.which_query_type !=
-      google_firestore_v1_Target_QueryTarget_structured_query_tag) {
-    reader->Fail(
-        StringFormat("Unknown query_type: %s", proto.which_query_type));
-    return {};
-  }
-
-  ResourcePath path = DecodeQueryPath(reader, DecodeString(proto.parent));
-  const google_firestore_v1_StructuredQuery& query = proto.structured_query;
+    pb_bytes_array_t* parent,
+    const google_firestore_v1_StructuredQuery& query) const {
+  ResourcePath path = DecodeQueryPath(reader, DecodeString(parent));
 
   CollectionGroupId collection_group;
   size_t from_count = query.from_count;
@@ -1041,10 +1033,23 @@ Target Serializer::DecodeQueryTarget(
     end_at = DecodeBound(reader, query.end_at);
   }
 
-  return Query(std::move(path), std::move(collection_group),
-               std::move(filter_by), std::move(order_by), limit,
-               LimitType::First, std::move(start_at), std::move(end_at))
-      .ToTarget();
+  return Target(std::move(path), std::move(collection_group),
+                std::move(filter_by), std::move(order_by), limit,
+                std::move(start_at), std::move(end_at));
+}
+
+Target Serializer::DecodeQueryTarget(
+    nanopb::Reader* reader,
+    const google_firestore_v1_Target_QueryTarget& query) const {
+  // The QueryTarget oneof only has a single valid value.
+  if (query.which_query_type !=
+      google_firestore_v1_Target_QueryTarget_structured_query_tag) {
+    reader->Fail(
+        StringFormat("Unknown query_type: %s", query.which_query_type));
+    return {};
+  }
+
+  return DecodeStructuredQuery(reader, query.parent, query.structured_query);
 }
 
 google_firestore_v1_StructuredQuery_Filter Serializer::EncodeFilters(
