@@ -24,6 +24,9 @@ struct CoverageReportGenerator: ParsableCommand {
   var xcresultDir: String
 
   @Option()
+  var logLink: String
+
+  @Option()
   var pullRequestNum: Int?
 
   @Option()
@@ -36,7 +39,7 @@ struct CoverageReportGenerator: ParsableCommand {
   var branch: String?
 
   func run() throws {
-    if let coverageRequest = combineCodeCoverageResultBundles(from: URL(fileURLWithPath: xcresultDir)){
+    if let coverageRequest = try combineCodeCoverageResultBundles(from: URL(fileURLWithPath: xcresultDir), log: logLink){
       sendMetricsServiceRequest(
         repo: repo,
         commits: commit,

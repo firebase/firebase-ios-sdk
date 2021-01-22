@@ -103,10 +103,11 @@ func readLocalFile(forName name: String) -> CoverageReportSource? {
 // Get in the dir, xcresultDirPathURL, which contains all xcresult bundles, and
 // create CoverageReportRequestData which will have all coverage data for in
 // the dir.
-func combineCodeCoverageResultBundles(from xcresultDirPathURL: URL) -> CoverageReportRequestData?{
+func combineCodeCoverageResultBundles(from xcresultDirPathURL: URL, log: String) throws -> CoverageReportRequestData?{
   let fileManager = FileManager.default
   do {
     var coverageReportRequestData = CoverageReportRequestData()
+    coverageReportRequestData.addLogLink(log)
     let fileURLs = try fileManager.contentsOfDirectory( at: xcresultDirPathURL, includingPropertiesForKeys: nil)
     let xcresultURLs = fileURLs.filter { $0.pathExtension == "xcresult" }
     for xcresultURL in xcresultURLs {
