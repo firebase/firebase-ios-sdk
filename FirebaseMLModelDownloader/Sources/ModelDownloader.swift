@@ -131,6 +131,7 @@ public class ModelDownloader {
       } else {
         getRemoteModel(
           modelName: modelName,
+          conditions: conditions,
           progressHandler: progressHandler,
           completion: completion
         )
@@ -143,6 +144,7 @@ public class ModelDownloader {
         DispatchQueue.global(qos: .utility).async { [weak self] in
           self?.getRemoteModel(
             modelName: modelName,
+            conditions: conditions,
             progressHandler: nil,
             completion: { result in
               switch result {
@@ -159,6 +161,7 @@ public class ModelDownloader {
       } else {
         getRemoteModel(
           modelName: modelName,
+          conditions: conditions,
           progressHandler: progressHandler,
           completion: completion
         )
@@ -167,6 +170,7 @@ public class ModelDownloader {
     case .latestModel:
       getRemoteModel(
         modelName: modelName,
+        conditions: conditions,
         progressHandler: progressHandler,
         completion: completion
       )
@@ -260,6 +264,7 @@ extension ModelDownloader {
 
   /// Download and get model from server, unless the latest model is already available on device.
   private func getRemoteModel(modelName: String,
+                              conditions: ModelDownloadConditions,
                               progressHandler: ((Float) -> Void)? = nil,
                               completion: @escaping (Result<CustomModel, DownloadError>) -> Void) {
     let localModelInfo = getLocalModelInfo(modelName: modelName)
@@ -278,6 +283,7 @@ extension ModelDownloader {
         case let .modelInfo(remoteModelInfo):
           let downloadTask = ModelDownloadTask(
             remoteModelInfo: remoteModelInfo,
+            conditions: conditions,
             appName: self.appName,
             defaults: self.userDefaults,
             modelInfoRetriever: modelInfoRetriever,

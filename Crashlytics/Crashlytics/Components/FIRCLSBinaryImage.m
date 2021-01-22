@@ -364,7 +364,7 @@ static void FIRCLSBinaryImageChanged(bool added,
                                      intptr_t vmaddr_slide) {
   //    FIRCLSSDKLog("Binary image %s %p\n", added ? "loaded" : "unloaded", mh);
 
-  // this isn't, so do it on a serial queue
+  // Do these time-consuming operations on a background queue
   dispatch_async(FIRCLSGetBinaryImageQueue(), ^{
     FIRCLSBinaryImageDetails imageDetails;
 
@@ -374,7 +374,6 @@ static void FIRCLSBinaryImageChanged(bool added,
     imageDetails.vmaddr_slide = vmaddr_slide;
     FIRCLSBinaryImageFillInImageDetails(&imageDetails);
 
-    // this is an atomic operation
     FIRCLSBinaryImageStoreNode(added, imageDetails);
     FIRCLSBinaryImageRecordSlice(added, imageDetails);
   });

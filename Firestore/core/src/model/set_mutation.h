@@ -38,6 +38,11 @@ class SetMutation : public Mutation {
  public:
   SetMutation(DocumentKey key, ObjectValue value, Precondition precondition);
 
+  SetMutation(DocumentKey key,
+              ObjectValue value,
+              Precondition precondition,
+              std::vector<FieldTransform> field_transforms);
+
   /**
    * Casts a Mutation to a SetMutation. This is a checked operation that will
    * assert if the type of the Mutation isn't actually Type::Set.
@@ -55,7 +60,10 @@ class SetMutation : public Mutation {
  private:
   class Rep : public Mutation::Rep {
    public:
-    Rep(DocumentKey&& key, ObjectValue&& value, Precondition&& precondition);
+    Rep(DocumentKey&& key,
+        ObjectValue&& value,
+        Precondition&& precondition,
+        std::vector<FieldTransform>&& field_transforms);
 
     Type type() const override {
       return Type::Set;
@@ -71,8 +79,7 @@ class SetMutation : public Mutation {
 
     absl::optional<MaybeDocument> ApplyToLocalView(
         const absl::optional<MaybeDocument>& maybe_doc,
-        const absl::optional<MaybeDocument>&,
-        const Timestamp&) const override;
+        const Timestamp& local_write_time) const override;
 
     bool Equals(const Mutation::Rep& other) const override;
 
