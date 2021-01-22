@@ -94,33 +94,33 @@ extension ModelDownloadTask {
                               DispatchQueue.main.async {
                                 self.downloadHandlers.progressHandler?(calculatedProgress)
                               }
-                            },
-                            configurationErrorHandler: { error in
-                              /// Unable to configure download session.
-                              DispatchQueue.main.async {
-                                self.downloadHandlers.completion(.failure(.failedPrecondition))
-                              }
-                            },
-                            downloadErrorHandler: { error in
-                              /// Unable to resolve hostname or connect to host.
-                              DispatchQueue.main.async {
-                                self.downloadHandlers
-                                  .completion(.failure(.internalError(description: ModelDownloadTask
-                                      .ErrorDescription
-                                      .invalidHostName(error
-                                        .localizedDescription))))
-                              }
-                            }) { response, location in
-      /// Model download completed.
-      guard let response = response as? HTTPURLResponse else {
+                            }) { result in
+      switch result {
+      case let .success(response):
+        self.handleResponse(response: response.urlResponse, tempURL: response.fileURL)
+      case let .failure(error):
+        var downloadError: DownloadError
+        switch error {
+        case let FileDownloaderError.networkError(error):
+          downloadError = .internalError(description: ModelDownloadTask
+            .ErrorDescription
+            .invalidHostName(error
+              .localizedDescription))
+        case let FileDownloaderError.sessionInvalidated(error):
+          downloadError = .failedPrecondition
+        case FileDownloaderError.unexpectedResponseType:
+          downloadError = .internalError(description: ModelDownloadTask
+            .ErrorDescription.invalidServerResponse)
+
+        default:
+          downloadError = .internalError(description: ModelDownloadTask.ErrorDescription
+            .unknownDownloadError)
+        }
         DispatchQueue.main.async {
           self.downloadHandlers
-            .completion(.failure(.internalError(description: ModelDownloadTask
-                .ErrorDescription.invalidServerResponse)))
+            .completion(.failure(downloadError))
         }
-        return
       }
-      self.handleResponse(response: response, tempURL: location)
     }
   }
 
@@ -240,6 +240,7 @@ extension ModelDownloadTask {
 
     static let invalidServerResponse =
       "Could not get server response for model downloading."
+    static let unknownDownloadError = "Unable to download model due to unknown error."
     static let saveModel: StaticString =
       "Unable to save downloaded remote model file."
     static let expiredModelInfo = "Unable to update expired model info."

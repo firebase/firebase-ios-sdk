@@ -482,17 +482,10 @@ class MockModelFileDownloader: FileDownloader {
   }
 
   func downloadFile(with url: URL, progressHandler: @escaping ProgressHandler,
-                    configurationErrorHandler: @escaping ConfigurationErrorHandler,
-                    downloadErrorHandler: @escaping DownloadErrorHandler,
                     completion: @escaping CompletionHandler) {
     progressHandler(bytesDownloaded, totalBytes)
-    if let error = configurationError {
-      configurationErrorHandler(error)
-    }
-    if let error = downloadError {
-      downloadErrorHandler(error)
-    }
-    completion(response, location)
+    let downloaderResponse = FileDownloaderResponse(urlResponse: response, fileURL: location)
+    completion(.success(downloaderResponse))
   }
 }
 

@@ -14,17 +14,24 @@
 
 import Foundation
 
+enum FileDownloaderError: Error {
+  case sessionInvalidated(Error)
+  case unexpectedResponseType
+  case networkError(Error)
+}
+
+struct FileDownloaderResponse {
+  var urlResponse: HTTPURLResponse
+  var fileURL: URL
+}
+
 /// URL Session to use while retrieving model info.
 protocol FileDownloader {
   typealias ProgressHandler = (Int64, Int64) -> Void
-  typealias ConfigurationErrorHandler = (Error) -> Void
-  typealias DownloadErrorHandler = (Error) -> Void
-  typealias CompletionHandler = (URLResponse, URL) -> Void
+  typealias CompletionHandler = (Result<FileDownloaderResponse, Error>) -> Void
 
   func downloadFile(with url: URL,
                     progressHandler: @escaping ProgressHandler,
-                    configurationErrorHandler: @escaping ConfigurationErrorHandler,
-                    downloadErrorHandler: @escaping DownloadErrorHandler,
                     completion: @escaping CompletionHandler)
 }
 
@@ -46,10 +53,6 @@ class ModelFileDownloader: NSObject, FileDownloader {
   private var completion: FileDownloader.CompletionHandler?
   /// Download progress handler.
   private var progressHandler: FileDownloader.ProgressHandler?
-  /// Failed download completion handler.
-  private var downloadErrorHandler: FileDownloader.DownloadErrorHandler?
-  /// Configuration error handler.
-  private var configurationErrorHandler: FileDownloader.ConfigurationErrorHandler?
 
   init(conditions: ModelDownloadConditions) {
     self.conditions = conditions
@@ -65,13 +68,9 @@ class ModelFileDownloader: NSObject, FileDownloader {
 
   func downloadFile(with url: URL,
                     progressHandler: @escaping (Int64, Int64) -> Void,
-                    configurationErrorHandler: @escaping (Error) -> Void,
-                    downloadErrorHandler: @escaping (Error) -> Void,
-                    completion: @escaping (URLResponse, URL) -> Void) {
+                    completion: @escaping (Result<FileDownloaderResponse, Error>) -> Void) {
     self.completion = completion
     self.progressHandler = progressHandler
-    self.configurationErrorHandler = configurationErrorHandler
-    self.downloadErrorHandler = downloadErrorHandler
     let downloadTask = downloadSession.downloadTask(with: url)
     downloadTask.resume()
     self.downloadTask = downloadTask
@@ -84,14 +83,19 @@ extension ModelFileDownloader: URLSessionDownloadDelegate {
   func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
     guard let error = error else { return }
     /// Unable to resolve hostname or connect to host.
-    downloadErrorHandler?(error)
+    completion?(.failure(FileDownloaderError.networkError(error)))
   }
 
   func urlSession(_ session: URLSession,
                   downloadTask: URLSessionDownloadTask,
                   didFinishDownloadingTo location: URL) {
-    guard let response = downloadTask.response else { return }
-    completion?(response, location)
+    guard let response = downloadTask.response,
+      let urlResponse = response as? HTTPURLResponse else {
+      completion?(.failure(FileDownloaderError.unexpectedResponseType))
+      return
+    }
+    let downloaderResponse = FileDownloaderResponse(urlResponse: urlResponse, fileURL: location)
+    completion?(.success(downloaderResponse))
   }
 
   func urlSession(_ session: URLSession,
@@ -109,6 +113,6 @@ extension ModelFileDownloader: URLSessionDownloadDelegate {
   func urlSession(_ session: URLSession, didBecomeInvalidWithError error: Error?) {
     guard let error = error else { return }
     /// Unable to resolve hostname or connect to host.
-    configurationErrorHandler?(error)
+    completion?(.failure(FileDownloaderError.sessionInvalidated(error)))
   }
 }
