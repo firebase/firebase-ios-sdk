@@ -80,7 +80,7 @@ jobs:
           # Install gcloud sdk
           curl https://sdk.cloud.google.com > install.sh
           bash install.sh --disable-prompts
-          echo "::add-path::${HOME}/google-cloud-sdk/bin/"
+          echo "${HOME}/google-cloud-sdk/bin/" >> $GITHUB_PATH
           gcloud auth activate-service-account --key-file metrics-access.json
       - uses: actions/download-artifact@v2
         id: download
