@@ -1,4 +1,4 @@
-# Copyright 2018 Google LLC
+# Copyright 2021 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,26 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required(VERSION 3.5.1)
-project(Firebase-download C CXX)
+include(ExternalProject)
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
+if(TARGET nlohmann_json)
+return()
+endif()
 
-set(
-  FIREBASE_DOWNLOAD_DIR
-  ${PROJECT_BINARY_DIR}/downloads
-  CACHE PATH "Where to store downloaded files"
+set(version v3.9.1)
+
+ExternalProject_Add(
+  nlohmann_json
+
+  DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
+  DOWNLOAD_NAME nlohmann_json-${version}.tar.gz
+  URL https://github.com/nlohmann/json/archive/${version}.tar.gz
+
+  PREFIX ${PROJECT_BINARY_DIR}
+  SOURCE_DIR ${PROJECT_BINARY_DIR}/src/nlohmann_json
+
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND ""
+  INSTALL_COMMAND ""
+  TEST_COMMAND ""
 )
-
-include(abseil-cpp)
-include(benchmark)
-include(boringssl)
-include(c-ares)
-include(googletest)
-include(grpc)
-include(leveldb)
-include(libfuzzer)
-include(nanopb)
-include(nlohmann_json)
-include(protobuf)
-include(zlib)
