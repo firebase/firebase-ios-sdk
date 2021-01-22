@@ -65,6 +65,8 @@ jobs:
 
   create_report:
     needs: [pod-lib-lint-functions, pod-lib-lint-database]
+    env:
+      metrics_service_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     if: always()
     runs-on: macOS-latest
     steps:
@@ -72,8 +74,14 @@ jobs:
         id: download
         with:
           path: /Users/runner/test
+      - name: Get token
+        run: scripts/decrypt_gha_secret.sh scripts/metrics_service_access.json.gpg \
+          metrics-access.json "$bot_token_secret"
+          gcloud auth activate-service-account --key-file metrics-access.json
       - name: display results
         run: |
           if [ -d "${{steps.download.outputs.download-path}}" ]; then
           find "/Users/runner/test" -print -regex ".*/.*\.xcresult" -exec xcrun xccov view --report {} \;
           fi
+          cd scripts/code_coverage_report/generate_code_coverage_report
+          swift run CoverageReportGenerator --presubmit "granluo/issue_generations" --commit "testprcommit1" --token $(gcloud auth print-identity-token) --xcresult-dir "/Users/granluo/Downloads/my-artifact" --pull-request-num 79 --pull-request-note "123" --base-commit "test1commit" --branch "create_issues"
