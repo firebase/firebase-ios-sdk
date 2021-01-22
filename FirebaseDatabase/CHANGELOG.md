@@ -1,5 +1,5 @@
 # v7.5.1
-- [added] Optimize `FIRDatabaseQuery#getDataWithCompletionBlock` when in-memory active listener cache exists (#7312).
+- [changed] Optimize `FIRDatabaseQuery#getDataWithCompletionBlock` when in-memory active listener cache exists (#7312).
 
 # v7.5.0
 - [added] Implmement `queryStartingAfterValue` and `queryEndingBeforeValue` for FirebaseDatabase query pagination.

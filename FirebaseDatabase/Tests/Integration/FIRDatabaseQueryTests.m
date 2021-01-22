@@ -4103,7 +4103,7 @@
   }
 }
 
-- (void)testGetReturnsPersistesnceCachedValueWhenOffline {
+- (void)testGetReturnsPersistenceCachedValueWhenOffline {
   FIRDatabase* db = [self databaseForURL:self.databaseURL name:[[NSUUID UUID] UUIDString]];
   FIRDatabase* db2 = [self databaseForURL:self.databaseURL name:[[NSUUID UUID] UUIDString]];
 
@@ -4250,6 +4250,7 @@
       }];
 
   WAIT_FOR(done);
+  done = NO;
 
   [readRef getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
     XCTAssertNil(err);
