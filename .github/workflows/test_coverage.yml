@@ -29,7 +29,8 @@ jobs:
 
     strategy:
       matrix:
-        target: [ios, tvos, macos]
+        target: [macos]
+        #target: [ios, tvos, macos]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -70,13 +71,15 @@ jobs:
     if: always()
     runs-on: macOS-latest
     steps:
+      - uses: actions/checkout@v2
       - uses: actions/download-artifact@v2
         id: download
         with:
           path: /Users/runner/test
       - name: Get token
-        run: scripts/decrypt_gha_secret.sh scripts/metrics_service_access.json.gpg \
-          metrics-access.json "$bot_token_secret"
+        run: |
+          scripts/decrypt_gha_secret.sh scripts/metrics_service_access.json.gpg \
+          metrics-access.json "$metrics_service_secret"
           gcloud auth activate-service-account --key-file metrics-access.json
       - name: display results
         run: |
