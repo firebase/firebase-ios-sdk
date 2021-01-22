@@ -16,10 +16,10 @@ import Foundation
 
 /// URL Session to use while retrieving model info.
 protocol FileDownloader {
-  typealias ProgressHandler = (Int64, Int64) -> Void
+  typealias ProgressHandler = (_ bytesWritten: Int64, _ bytesExpectedToWrite: Int64) -> Void
   typealias ConfigurationErrorHandler = (Error) -> Void
   typealias DownloadErrorHandler = (Error) -> Void
-  typealias CompletionHandler = (URLResponse, URL) -> Void
+  typealias CompletionHandler = (_ urlResponse: URLResponse, _ fileURL: URL) -> Void
 
   func downloadFile(with url: URL,
                     progressHandler: @escaping ProgressHandler,
