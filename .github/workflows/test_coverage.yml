@@ -74,14 +74,13 @@ jobs:
       - uses: actions/checkout@v2
       - name: Access to Metrics Service
         run: |
-          scripts/decrypt_gha_secret.sh scripts/gha-encrypted/metrics_service_access.json.gpg \
-          metrics-access.json "$metrics_service_secret"
-
           # Install gcloud sdk
           curl https://sdk.cloud.google.com > install.sh
           bash install.sh --disable-prompts
-          echo "${HOME}/google-cloud-sdk/bin/" >> $GITHUB_PATH
           export PATH="${HOME}/google-cloud-sdk/bin/:${PATH}"
+
+          scripts/decrypt_gha_secret.sh scripts/gha-encrypted/metrics_service_access.json.gpg \
+          metrics-access.json "$metrics_service_secret"
           gcloud auth activate-service-account --key-file metrics-access.json
       - uses: actions/download-artifact@v2
         id: download
