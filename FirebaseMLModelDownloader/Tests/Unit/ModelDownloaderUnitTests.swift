@@ -40,10 +40,6 @@ final class ModelDownloaderUnitTests: XCTestCase {
   // TODO: Add unit test with mocks.
   func testDownloadModelInfo() {}
 
-  /// Test to download model file.
-  // TODO: Add unit test with mocks.
-  func testStartModelDownload() {}
-
   /// Test model file deletion.
   // TODO: Add unit test.
   func testDeleteModel() {}
