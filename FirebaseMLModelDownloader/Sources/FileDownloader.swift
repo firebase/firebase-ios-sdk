@@ -27,8 +27,8 @@ struct FileDownloaderResponse {
 
 /// URL Session to use while retrieving model info.
 protocol FileDownloader {
-  typealias ProgressHandler = (Int64, Int64) -> Void
   typealias CompletionHandler = (Result<FileDownloaderResponse, Error>) -> Void
+  typealias ProgressHandler = (_ bytesWritten: Int64, _ bytesExpectedToWrite: Int64) -> Void
 
   func downloadFile(with url: URL,
                     progressHandler: @escaping ProgressHandler,
