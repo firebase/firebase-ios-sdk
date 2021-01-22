@@ -68,7 +68,8 @@ enum ModelFileManager {
       } catch {
         throw DownloadError
           .internalError(
-            description: "Could not replace existing model file - \(error.localizedDescription)"
+            description: ModelFileManager.ErrorDescription
+              .replaceFile(error.localizedDescription)
           )
       }
     }
@@ -76,7 +77,8 @@ enum ModelFileManager {
       try FileManager.default.moveItem(at: sourceURL, to: destinationURL)
     } catch {
       throw DownloadError
-        .internalError(description: "Unable to save model file - \(error.localizedDescription)")
+        .internalError(description: ModelFileManager
+          .ErrorDescription.saveFile(error.localizedDescription))
     }
   }
 
@@ -87,7 +89,7 @@ enum ModelFileManager {
     } catch {
       throw DownloadedModelError
         .internalError(
-          description: "Could not delete old model file - \(error.localizedDescription)"
+          description: ModelFileManager.ErrorDescription.deleteFile(error.localizedDescription)
         )
     }
   }
@@ -105,8 +107,31 @@ enum ModelFileManager {
     } catch {
       throw DownloadedModelError
         .internalError(
-          description: "Could not retrieve model files in directory - \(error.localizedDescription)"
+          description: ModelFileManager.ErrorDescription
+            .retrieveFile(error.localizedDescription)
         )
+    }
+  }
+}
+
+/// Possible error messages during file management.
+extension ModelFileManager {
+  /// Error descriptions.
+  private enum ErrorDescription {
+    static let retrieveFile = { (error: String) in
+      "Could not retrieve model files in directory: \(error)"
+    }
+
+    static let deleteFile = { (error: String) in
+      "Could not delete old model file: \(error)"
+    }
+
+    static let saveFile = { (error: String) in
+      "Unable to save model file: \(error)"
+    }
+
+    static let replaceFile = { (error: String) in
+      "Could not replace existing model file: \(error)"
     }
   }
 }

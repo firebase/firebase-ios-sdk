@@ -1,28 +1,27 @@
-name: symbolcollision
-
-# Tests the Pods listed in SymbolCollisionTest/Podfile for symbol collisions.
+name: analytics
 
 on:
   pull_request:
     paths:
-    - '.github/workflows/symbolcollision.yml'
-    - 'SymbolCollisionTest/**'
+    - 'FirebaseAnalytics.podspec.json'
+    - 'GoogleAppMeasurement.podspec.json'
     - 'Gemfile'
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
     - cron:  '0 7 * * *'
 
 jobs:
-  installation-test:
+  pod-lib-lint:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macOS-latest
 
+    runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
-    - name: Prereqs
-      run: scripts/install_prereqs.sh SymbolCollision iOS
-    - name: Build
-      run: scripts/build.sh SymbolCollision iOS
+    - name: GoogleAppMeasurement
+      run: scripts/third_party/travis/retry.sh pod spec lint GoogleAppMeasurement.podspec.json
+
+# TODO: Consider pushing GoogleAppMeasurement.podspec.json to SpecsStaging to enable similar test
+# for FirebaseAnalytics.podspec.json

@@ -10,7 +10,6 @@ target 'GDTCCTWatchOSIndependentTestAppWatchKitExtension' do
   pod 'SwiftProtobuf', '~> 1.0'
   pod 'GoogleDataTransport', :path => '../../'
   pod 'FirebaseCore', :path => '../../'
-  pod 'GoogleUtilities', :path => '../../'
   pod 'FirebaseMessaging', :path => '../../'
   pod 'FirebaseInstanceID', :path => '../../'
   pod 'FirebaseCoreDiagnostics', :path => '../../'
