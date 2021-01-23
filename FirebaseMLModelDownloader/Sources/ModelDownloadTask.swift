@@ -106,7 +106,8 @@ extension ModelDownloadTask {
             .ErrorDescription
             .invalidHostName(error
               .localizedDescription))
-        case let FileDownloaderError.sessionInvalidated(error):
+        // TODO: Handle this case better.
+        case FileDownloaderError.sessionInvalidated:
           downloadError = .failedPrecondition
         case FileDownloaderError.unexpectedResponseType:
           downloadError = .internalError(description: ModelDownloadTask
