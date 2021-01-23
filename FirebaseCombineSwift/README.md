@@ -62,7 +62,7 @@ end
 #### Sign in with a given 3rd-party credentials 
 
 
-In the `sign(_:didSignInFor:withError:) method, get a Google ID token and Google access token from the GIDAuthentication object and asynchronously exchange them for a Firebase credential:
+In the `sign(_:didSignInFor:withError:)` method, get a Google ID token and Google access token from the GIDAuthentication object and asynchronously exchange them for a Firebase credential:
 
 ```swift 
   func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!, withError error: Error?) {
