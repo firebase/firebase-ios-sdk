@@ -125,6 +125,7 @@ extension ModelDownloadTask {
   }
 
   /// Fetch model info again and retry download if allowed.
+  // TODO: Move this to model downloader.
   func maybeRetryDownload() {
     let currentDateTime = Date()
     guard currentDateTime > remoteModelInfo.urlExpiryTime, numberOfRetries > 0 else {

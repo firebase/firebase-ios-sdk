@@ -69,6 +69,7 @@ class ModelFileDownloader: NSObject, FileDownloader {
   func downloadFile(with url: URL,
                     progressHandler: @escaping (Int64, Int64) -> Void,
                     completion: @escaping (Result<FileDownloaderResponse, Error>) -> Void) {
+    // TODO: Fail if download already in progress
     self.completion = completion
     self.progressHandler = progressHandler
     let downloadTask = downloadSession.downloadTask(with: url)

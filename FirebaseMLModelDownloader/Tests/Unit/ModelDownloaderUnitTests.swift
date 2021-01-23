@@ -367,7 +367,7 @@ class NetworkingUnitTests: XCTestCase {
     modelDownloadTask.download()
 
     // Wait for downloader to be called.
-    wait(for: [fileDownloaderExpectation], timeout: 1)
+    wait(for: [fileDownloaderExpectation], timeout: 0.1)
 
     // Call download completion and wait for task completion.
     downloader
@@ -379,6 +379,9 @@ class NetworkingUnitTests: XCTestCase {
     // Cleanup temp file.
     try? ModelFileManager.removeFile(at: tempFileURL)
   }
+
+  // TODO: Add this test after refactoring maybeRetryDownload().
+  func testModelDownloadWithFailedRetry() {}
 }
 
 /// Mock URL session for testing.
