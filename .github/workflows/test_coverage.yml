@@ -29,8 +29,7 @@ jobs:
 
     strategy:
       matrix:
-        target: [macos]
-        #target: [ios, tvos, macos]
+        target: [ios, tvos, macos]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
