@@ -12,7 +12,6 @@ target 'AuthSample' do
   pod 'FirebaseCore', :path => '../../../'
   pod 'FirebaseCoreDiagnostics', :path => '../../../'
   pod 'GoogleDataTransport', :path => '../../../'
-  pod 'GoogleUtilities', :path => '../../../'
   pod 'FirebaseAuth', :path => '../../../', :testspecs => ['unit']
   pod 'FirebaseInstallations', :path => '../../..'
   pod 'FirebaseInstanceID', :path => '../../..'

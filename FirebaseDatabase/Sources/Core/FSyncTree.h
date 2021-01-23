@@ -16,6 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
+@class FIndexedNode;
 @class FListenProvider;
 @protocol FNode;
 @class FPath;
@@ -76,6 +77,7 @@
 - (void)keepQuery:(FQuerySpec *)query synced:(BOOL)keepSynced;
 - (NSArray *)removeAllWrites;
 
+- (FIndexedNode *)persistenceServerCache:(FQuerySpec *)querySpec;
 - (id<FNode>)calcCompleteEventCacheAtPath:(FPath *)path
                           excludeWriteIds:(NSArray *)writeIdsToExclude;
 

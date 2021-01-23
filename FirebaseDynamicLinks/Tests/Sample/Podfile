@@ -1,3 +1,6 @@
+source 'https://github.com/firebase/SpecsStaging.git'
+source 'https://cdn.cocoapods.org/'
+
 target 'FDLBuilderTestAppObjC' do
   platform :ios, '10.0'
   use_frameworks!
@@ -5,6 +8,5 @@ target 'FDLBuilderTestAppObjC' do
   pod 'FirebaseCore', :path => '../../../'
   pod 'FirebaseCoreDiagnostics', :path => '../../../'
   pod 'GoogleDataTransport', :path => '../../../'
-  pod 'GoogleUtilities', :path => '../../../'
   pod 'FirebaseDynamicLinks', :path => '../../../'
 end

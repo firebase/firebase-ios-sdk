@@ -7,7 +7,6 @@ pod 'FirebaseCore', :path => '../../../..'
 pod 'FirebaseInstallations', :path => '../../../..'
 pod 'FirebaseCoreDiagnostics', :path => '../../../..'
 pod 'GoogleDataTransport', :path => '../../../..'
-pod 'GoogleUtilities', :path => '../../../..'
 pod 'FirebaseABTesting', :path => '../../../..'
 
 target 'FiamDisplaySwiftExample' do

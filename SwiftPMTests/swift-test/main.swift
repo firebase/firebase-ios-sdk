@@ -35,7 +35,6 @@ import GoogleDataTransport
 import GoogleUtilities_AppDelegateSwizzler
 import GoogleUtilities_Environment
 import GoogleUtilities_Logger
-import GoogleUtilities_MethodSwizzler
 import GoogleUtilities_Network
 import GoogleUtilities_NSData
 import GoogleUtilities_Reachability

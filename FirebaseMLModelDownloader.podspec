@@ -33,6 +33,8 @@ Pod::Spec.new do |s|
   s.framework = 'Foundation'
   s.dependency 'FirebaseCore', '~> 7.0'
   s.dependency 'FirebaseInstallations', '~> 7.0'
+  # TODO: Revisit this dependency
+  s.dependency 'SwiftProtobuf', '~> 1.0'
 
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',

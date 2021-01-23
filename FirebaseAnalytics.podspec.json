@@ -1,0 +1,40 @@
+{
+    "authors": "Google, Inc.",
+    "cocoapods_version": ">= 1.10.0",
+    "dependencies": {
+        "FirebaseCore": "~> 7.0",
+        "FirebaseInstallations": "~> 7.0",
+        "GoogleAppMeasurement": "7.5.0",
+        "GoogleUtilities/AppDelegateSwizzler": "~> 7.0",
+        "GoogleUtilities/MethodSwizzler": "~> 7.0",
+        "GoogleUtilities/NSData+zlib": "~> 7.0",
+        "GoogleUtilities/Network": "~> 7.0",
+        "nanopb": "~> 2.30907.0"
+    },
+    "description": "Firebase Analytics is a free, out-of-the-box analytics solution that inspires actionable insights based on app usage and user engagement.",
+    "frameworks": [
+        "StoreKit"
+    ],
+    "homepage": "https://firebase.google.com/features/analytics/",
+    "libraries": [
+        "c++",
+        "sqlite3",
+        "z"
+    ],
+    "license": {
+        "text": "Copyright 2021 Google",
+        "type": "Copyright"
+    },
+    "name": "FirebaseAnalytics",
+    "platforms": {
+        "ios": "9.0"
+    },
+    "source": {
+        "http": "https://dl.google.com/firebase/ios/analytics/ae591f55ade6f782/FirebaseAnalytics-7.5.0.tar.gz"
+    },
+    "summary": "Firebase Analytics for iOS",
+    "vendored_frameworks": [
+        "Frameworks/FirebaseAnalytics.xcframework"
+    ],
+    "version": "7.5.0"
+}

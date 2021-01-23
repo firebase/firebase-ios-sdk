@@ -472,6 +472,15 @@
     return [super queryStartingAtValue:startValue childKey:childKey];
 }
 
+- (FIRDatabaseQuery *)queryStartingAfterValue:(id)startAfterValue {
+    return [super queryStartingAfterValue:startAfterValue];
+}
+
+- (FIRDatabaseQuery *)queryStartingAfterValue:(id)startAfterValue
+                                     childKey:(NSString *)childKey {
+    return [super queryStartingAfterValue:startAfterValue childKey:childKey];
+}
+
 - (FIRDatabaseQuery *)queryEndingAtValue:(id)endValue {
     return [super queryEndingAtValue:endValue];
 }
