@@ -59,3 +59,55 @@ end
     .assign(to: \.uid, on: self)
     .store(in: &cancellables)
 ```
+#### Sign in with a given 3rd-party credentials 
+
+
+In the `sign(_:didSignInFor:withError:)` method, get a Google ID token and Google access token from the GIDAuthentication object and asynchronously exchange them for a Firebase credential:
+
+```swift 
+  func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!, withError error: Error?) {
+    // ...
+    if let error = error {
+      // ...
+      return
+    }
+
+    guard let authentication = user.authentication else { return }
+    let credential = GoogleAuthProvider.credential(withIDToken: authentication.idToken,
+                                                   accessToken: authentication.accessToken)
+    Auth.auth()
+      .signIn(withCredential: credential)
+      .mapError { $0 as NSError }
+      .tryCatch(handleError)
+      .sink { /* ... */ } receiveValue: {  /* ... */  }
+      .store(in: &subscriptions)
+  } 
+    
+  private func handleError(_ error: NSError) throws -> AnyPublisher<AuthDataResult, Error> {
+    guard isMFAEnabled && error.code == AuthErrorCode.secondFactorRequired.rawValue
+    else { throw error }
+        
+    // The user is a multi-factor user. Second factor challenge is required.
+    let resolver = error.userInfo[AuthErrorUserInfoMultiFactorResolverKey] as! MultiFactorResolver
+    let displayNameString = resolver.hints.compactMap(\.displayName).joined(separator: " ")
+        
+    return showTextInputPrompt(withMessage: "Select factor to sign in\n\(displayNameString)")
+      .compactMap { displayName in
+        resolver.hints.first(where: { displayName == $0.displayName }) as? PhoneMultiFactorInfo
+      }
+      .flatMap { [unowned self] factorInfo in
+        PhoneAuthProvider.provider()
+          .verifyPhoneNumber(withMultiFactorInfo: factorInfo, multiFactorSession: resolver.session)
+          .zip(self.showTextInputPrompt(withMessage: "Verification code for \(factorInfo.displayName ?? "")"))
+          .map { (verificationID, verificationCode) in
+            let credential = PhoneAuthProvider.provider().credential(withVerificationID: verificationID, 
+                                                                     verificationCode: verificationCode)
+            return PhoneMultiFactorGenerator.assertion(with: credential)
+          }
+      }
+      .flatMap { assertion in
+        resolver.resolveSignIn(withAssertion: assertion)
+      } 
+      .eraseToAnyPublisher()
+  }
+```
