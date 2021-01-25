@@ -242,8 +242,7 @@ extension ModelDownloadTask {
     static let invalidServerResponse =
       "Could not get server response for model downloading."
     static let unknownDownloadError = "Unable to download model due to unknown error."
-    static let saveModel =
-      "Unable to save downloaded remote model file."
+    static let saveModel = "Unable to save downloaded remote model file."
     static let expiredModelInfo = "Unable to update expired model info."
   }
 }
