@@ -142,7 +142,8 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
 
 #pragma mark - load from DB
 - (NSDictionary *)loadConfigFromMetadataTable {
-  NSDictionary *metadata = [[_DBManager loadMetadataWithBundleIdentifier:_bundleIdentifier] copy];
+  NSDictionary *metadata = [[_DBManager loadMetadataWithBundleIdentifier:_bundleIdentifier
+                                                            andNamespace:_FIRNamespace] copy];
   if (metadata) {
     // TODO: Remove (all metadata in general) once ready to
     // migrate to user defaults completely.
@@ -379,6 +380,7 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
   if (_lastFetchError != lastFetchError) {
     _lastFetchError = lastFetchError;
     [_DBManager updateMetadataWithOption:RCNUpdateOptionFetchStatus
+                               namespace:_FIRNamespace
                                   values:@[ @(_lastFetchStatus), @(_lastFetchError) ]
                        completionHandler:nil];
   }
@@ -428,6 +430,7 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
 - (void)setLastApplyTimeInterval:(NSTimeInterval)lastApplyTimestamp {
   _lastApplyTimeInterval = lastApplyTimestamp;
   [_DBManager updateMetadataWithOption:RCNUpdateOptionApplyTime
+                             namespace:_FIRNamespace
                                 values:@[ @(lastApplyTimestamp) ]
                      completionHandler:nil];
 }
@@ -435,6 +438,7 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
 - (void)setLastSetDefaultsTimeInterval:(NSTimeInterval)lastSetDefaultsTimestamp {
   _lastSetDefaultsTimeInterval = lastSetDefaultsTimestamp;
   [_DBManager updateMetadataWithOption:RCNUpdateOptionDefaultTime
+                             namespace:_FIRNamespace
                                 values:@[ @(lastSetDefaultsTimestamp) ]
                      completionHandler:nil];
 }

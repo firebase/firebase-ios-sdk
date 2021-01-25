@@ -26,6 +26,7 @@ typedef NS_ENUM(NSInteger, RCNUpdateOption) {
 
 /// Column names in metadata table
 static NSString *const RCNKeyBundleIdentifier = @"bundle_identifier";
+static NSString *const RCNKeyNamespace = @"namespace";
 static NSString *const RCNKeyFetchTime = @"fetch_time";
 static NSString *const RCNKeyDigestPerNamespace = @"digest_per_ns";
 static NSString *const RCNKeyDeviceContext = @"device_context";
@@ -65,7 +66,8 @@ typedef void (^RCNDBLoadCompletion)(BOOL success,
                    completionHandler:(RCNDBLoadCompletion)handler;
 /// Load config settings from metadata table to cached memory during app start. Config settings
 /// include success/failure fetch times, device contenxt, app context, etc.
-- (NSDictionary *)loadMetadataWithBundleIdentifier:(NSString *)bundleIdentifier;
+- (NSDictionary *)loadMetadataWithBundleIdentifier:(NSString *)bundleIdentifier
+                                      andNamespace:(NSString *)namespace;
 /// Load internal metadata from internal metadata table, such as customized HTTP connection/read
 /// timeout, throttling time interval and number limit of throttling, etc.
 /// This call needs to be blocking to ensure throttling works during apps starts.
@@ -101,6 +103,7 @@ typedef void (^RCNDBLoadCompletion)(BOOL success,
                    completionHandler:(RCNDBCompletion)handler;
 
 - (void)updateMetadataWithOption:(RCNUpdateOption)option
+                       namespace:(NSString *)namespace
                           values:(NSArray *)values
                completionHandler:(RCNDBCompletion)handler;
 

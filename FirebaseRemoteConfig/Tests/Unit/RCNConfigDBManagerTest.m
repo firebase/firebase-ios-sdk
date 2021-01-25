@@ -191,6 +191,7 @@
   XCTestExpectation *writeAndLoadMetadataExpectation =
       [self expectationWithDescription:@"Write and load metadata in database successfully"];
   NSString *bundleIdentifier = [NSBundle mainBundle].bundleIdentifier;
+  NSString *namespace = @"test_namespace";
   NSTimeInterval lastFetchTimestamp = [NSDate date].timeIntervalSince1970;
 
   NSDictionary *deviceContext =
@@ -220,6 +221,7 @@
                                                                     error:&error];
   NSDictionary *columnNameToValue = @{
     RCNKeyBundleIdentifier : bundleIdentifier,
+    RCNKeyNamespace : namespace,
     RCNKeyFetchTime : @(lastFetchTimestamp),
     RCNKeyDigestPerNamespace : serializedDigestPerNamespace,
     RCNKeyDeviceContext : serializedDeviceContext,
@@ -233,7 +235,8 @@
   };
 
   RCNDBCompletion completion = ^(BOOL success, NSDictionary *result1) {
-    NSDictionary *result = [self->_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier];
+    NSDictionary *result = [self->_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier
+                                                                 andNamespace:namespace];
     XCTAssertNotNil(result);
     XCTAssertEqualObjects(result[RCNKeyBundleIdentifier], bundleIdentifier);
     XCTAssertEqual([result[RCNKeyFetchTime] doubleValue], lastFetchTimestamp);
@@ -453,10 +456,12 @@
   XCTestExpectation *updateAndLoadMetadataExpectation = [self
       expectationWithDescription:@"Update and load last fetch status in database successfully."];
   NSString *bundleIdentifier = [NSBundle mainBundle].bundleIdentifier;
+  NSString *namespace = @"test_namespace";
 
   // Metadata row must exist before update
   RCNDBCompletion createMetadataCompletion = ^(BOOL success, NSDictionary *createResult) {
-    NSDictionary *result = [self->_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier];
+    NSDictionary *result = [self->_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier
+                                                                 andNamespace:namespace];
     XCTAssertTrue(success);
     XCTAssertNotNil(result);
     XCTAssertEqual([result[RCNKeyLastFetchStatus] intValue],
@@ -464,7 +469,8 @@
     XCTAssertEqual([result[RCNKeyLastFetchError] intValue], (int)FIRRemoteConfigErrorUnknown);
 
     RCNDBCompletion updateMetadataCompletion = ^(BOOL success, NSDictionary *updateResult) {
-      NSDictionary *result = [self->_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier];
+      NSDictionary *result = [self->_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier
+                                                                   andNamespace:namespace];
 
       XCTAssertTrue(success);
       XCTAssertNotNil(result);
@@ -476,6 +482,7 @@
     // Update with throttle status.
     [self->_DBManager
         updateMetadataWithOption:RCNUpdateOptionFetchStatus
+                       namespace:namespace
                           values:@[
                             @(FIRRemoteConfigFetchStatusThrottled), @(FIRRemoteConfigErrorThrottled)
                           ]
@@ -493,17 +500,20 @@
   XCTestExpectation *updateAndLoadMetadataExpectation =
       [self expectationWithDescription:@"Update and load apply time in database successfully."];
   NSString *bundleIdentifier = [NSBundle mainBundle].bundleIdentifier;
+  NSString *namespace = @"test_namespace";
   NSTimeInterval lastApplyTimestamp = [NSDate date].timeIntervalSince1970;
 
   // Metadata row must exist before update
   RCNDBCompletion createMetadataCompletion = ^(BOOL success, NSDictionary *createResult) {
     XCTAssertTrue(success);
     // Read newly created metadata.
-    NSDictionary *result = [self->_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier];
+    NSDictionary *result = [self->_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier
+                                                                 andNamespace:namespace];
     XCTAssertNotNil(result);
     XCTAssertEqual([result[RCNKeyLastApplyTime] doubleValue], (double)100);
     RCNDBCompletion updateMetadataCompletion = ^(BOOL success, NSDictionary *updateResult) {
-      NSDictionary *result = [self->_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier];
+      NSDictionary *result = [self->_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier
+                                                                   andNamespace:namespace];
 
       XCTAssertTrue(success);
       XCTAssertNotNil(result);
@@ -512,6 +522,7 @@
     };
     // Update apply config timestamp.
     [self->_DBManager updateMetadataWithOption:RCNUpdateOptionApplyTime
+                                     namespace:namespace
                                         values:@[ @(lastApplyTimestamp) ]
                              completionHandler:updateMetadataCompletion];
   };
@@ -525,16 +536,19 @@
   XCTestExpectation *updateAndLoadMetadataExpectation = [self
       expectationWithDescription:@"Update and load set defaults time in database successfully."];
   NSString *bundleIdentifier = [NSBundle mainBundle].bundleIdentifier;
+  NSString *namespace = @"test_namespace";
   NSTimeInterval lastSetDefaultsTimestamp = [NSDate date].timeIntervalSince1970;
 
   // Metadata row must exist before update
   RCNDBCompletion createMetadataCompletion = ^(BOOL success, NSDictionary *createResult) {
-    NSDictionary *result = [self->_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier];
+    NSDictionary *result = [self->_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier
+                                                                 andNamespace:namespace];
     XCTAssertTrue(success);
     XCTAssertNotNil(result);
     XCTAssertEqual([result[RCNKeyLastSetDefaultsTime] doubleValue], (double)200);
     RCNDBCompletion updateMetadataCompletion = ^(BOOL success, NSDictionary *updateResult) {
-      NSDictionary *result = [self->_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier];
+      NSDictionary *result = [self->_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier
+                                                                   andNamespace:namespace];
 
       XCTAssertTrue(success);
       XCTAssertNotNil(result);
@@ -543,6 +557,7 @@
     };
     // Update setting default config timestamp.
     [self->_DBManager updateMetadataWithOption:RCNUpdateOptionDefaultTime
+                                     namespace:namespace
                                         values:@[ @(lastSetDefaultsTimestamp) ]
                              completionHandler:updateMetadataCompletion];
   };
@@ -554,6 +569,7 @@
 
 - (NSDictionary *)createSampleMetadata {
   NSString *bundleIdentifier = [NSBundle mainBundle].bundleIdentifier;
+  NSString *namespace = @"test_namespace";
 
   NSDictionary *deviceContext = @{};
   NSDictionary *syncedDBCustomVariables = @{};
@@ -579,6 +595,7 @@
                                                                     error:&error];
   return @{
     RCNKeyBundleIdentifier : bundleIdentifier,
+    RCNKeyNamespace : namespace,
     RCNKeyFetchTime : @(0),
     RCNKeyDigestPerNamespace : serializedDigestPerNamespace,
     RCNKeyDeviceContext : serializedDeviceContext,
