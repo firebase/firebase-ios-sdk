@@ -132,9 +132,9 @@ NS_SWIFT_NAME(DatabaseQuery)
                           (nullable void (^)(NSError *error))cancelBlock;
 
 /**
- * getDataWithCompletionBlock: is used to get  the most up-to-date value for
+ * getDataWithCompletionBlock: is used to get the most up-to-date value for
  * this query. This method updates the cache and raises events if successful. If
- * not connected,  falls back to a locally-cached value.
+ * not connected, falls back to a locally-cached value.
  *
  * @param block The block that should be called with the most up-to-date value
  * of this query, or an error if no such value could be retrieved.
