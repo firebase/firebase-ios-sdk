@@ -13,7 +13,11 @@
 // limitations under the License.
 
 import Foundation
-import GoogleUtilities
+#if SWIFT_PACKAGE
+  import GoogleUtilities_Logger
+#else
+  import GoogleUtilities
+#endif
 
 /// Enum of debug messages.
 // TODO: Create list of all possible messages with code - according to format.
