@@ -268,9 +268,15 @@ extension ModelDownloader {
                               progressHandler: ((Float) -> Void)? = nil,
                               completion: @escaping (Result<CustomModel, DownloadError>) -> Void) {
     let localModelInfo = getLocalModelInfo(modelName: modelName)
+    guard let projectID = options.projectID, let apiKey = options.apiKey else {
+      completion(.failure(.internalError(description: ModelDownloader.ErrorDescription
+          .invalidOptions)))
+      return
+    }
     let modelInfoRetriever = ModelInfoRetriever(
       modelName: modelName,
-      options: options,
+      projectID: projectID,
+      apiKey: apiKey,
       installations: installations,
       appName: appName,
       localModelInfo: localModelInfo
@@ -281,18 +287,19 @@ extension ModelDownloader {
         switch downloadModelInfoResult {
         /// New model info was downloaded from server.
         case let .modelInfo(remoteModelInfo):
+          let downloader = ModelFileDownloader(conditions: conditions)
           let downloadTask = ModelDownloadTask(
             remoteModelInfo: remoteModelInfo,
-            conditions: conditions,
             appName: self.appName,
             defaults: self.userDefaults,
+            downloader: downloader,
             modelInfoRetriever: modelInfoRetriever,
             telemetryLogger: self.telemetryLogger,
             progressHandler: progressHandler,
             completion: completion
           )
           // TODO: Is it possible for download URL to expire here?
-          downloadTask.resumeModelDownload()
+          downloadTask.download()
         /// Local model info is the latest model info.
         case .notModified:
           guard let localModel = self.getLocalModel(modelName: modelName) else {
@@ -348,6 +355,7 @@ extension ModelDownloader {
       "Unable to parse model file name at \(path)."
     }
 
+    static let invalidOptions = "Unable to retrieve project ID and/or API key for Firebase app."
     static let retrieveLocalModelInfo =
       "Failed to get stored model info for model file."
     static let outdatedModelPath = "Outdated model paths in local storage."
