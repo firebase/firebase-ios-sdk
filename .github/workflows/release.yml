@@ -474,7 +474,7 @@ jobs:
   performance_quickstart:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-    needs: buildup_SpecsReleasing_repo
+    needs: buildup_SpecsTesting_repo
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
