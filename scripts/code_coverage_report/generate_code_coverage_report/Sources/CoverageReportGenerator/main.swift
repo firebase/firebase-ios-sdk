@@ -1,13 +1,12 @@
 import ArgumentParser
 import Foundation
 
-enum RequestType: EnumerableFlag{
+enum RequestType: EnumerableFlag {
   case presubmit
   case merge
 }
 
 struct CoverageReportGenerator: ParsableCommand {
-
   @Flag()
   var requestType: RequestType
 
@@ -39,7 +38,10 @@ struct CoverageReportGenerator: ParsableCommand {
   var branch: String?
 
   func run() throws {
-    if let coverageRequest = try combineCodeCoverageResultBundles(from: URL(fileURLWithPath: xcresultDir), log: logLink){
+    if let coverageRequest = try combineCodeCoverageResultBundles(
+      from: URL(fileURLWithPath: xcresultDir),
+      log: logLink
+    ) {
       sendMetricsServiceRequest(
         repo: repo,
         commits: commit,
@@ -49,7 +51,8 @@ struct CoverageReportGenerator: ParsableCommand {
         branch: branch,
         pullRequest: pullRequestNum,
         pullRequestNote: pullRequestNote,
-        baseCommit: baseCommit)
+        baseCommit: baseCommit
+      )
     } else {
       print("coverageRequest is nil.")
     }

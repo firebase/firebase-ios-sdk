@@ -17,9 +17,10 @@ set -ex
 SDK="$1"
 platform="$2"
 default_output_path="/Users/runner/${SDK}-${platform}.xcresult"
-output_path="${3:-default_output_path}"
+output_path="${3:-${default_output_path}}"
+echo "${output_path}"
 if [ -d "/Users/runner/Library/Developer/Xcode/DerivedData" ]; then
 rm -r /Users/runner/Library/Developer/Xcode/DerivedData/*
 fi
 scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb "${SDK}".podspec --platforms="${platform}" --test-specs=unit
-find /Users/runner/Library/Developer/Xcode/DerivedData -type d -regex ".*/.*\.xcresult" -execdir cp -R '{}' "/Users/runner/ "${SDK}"-"${platform}".xcresult" \;
+find /Users/runner/Library/Developer/Xcode/DerivedData -type d -regex ".*/.*\.xcresult" -execdir cp -R '{}' "${output_path}" \;
