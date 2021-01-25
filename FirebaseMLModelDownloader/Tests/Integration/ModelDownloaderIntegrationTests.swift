@@ -159,14 +159,6 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       urlExpiryTime: Date()
     )
 
-    let modelInfoRetriever = ModelInfoRetriever(
-      modelName: testModelName,
-      projectID: testApp.options.projectID!,
-      apiKey: testApp.options.apiKey!,
-      installations: Installations.installations(app: testApp),
-      appName: testApp.name
-    )
-
     let conditions = ModelDownloadConditions()
     let expectation = self.expectation(description: "Wait for model to download.")
     let downloader = ModelFileDownloader(conditions: conditions)
@@ -233,11 +225,11 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       switch result {
       case let .success(model):
         XCTAssertNotNil(model.path)
-        guard let filePath = URL(string: model.path) else {
+        guard let modelPath = URL(string: model.path) else {
           XCTFail("Invalid model path.")
           return
         }
-        XCTAssertTrue(ModelFileManager.isFileReachable(at: filePath))
+        XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
       case let .failure(error):
         XCTFail("Failed to download model - \(error)")
       }
@@ -261,11 +253,11 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       switch result {
       case let .success(model):
         XCTAssertNotNil(model.path)
-        guard let filePath = URL(string: model.path) else {
+        guard let modelPath = URL(string: model.path) else {
           XCTFail("Invalid model path.")
           return
         }
-        XCTAssertTrue(ModelFileManager.isFileReachable(at: filePath))
+        XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
       case let .failure(error):
         XCTFail("Failed to download model - \(error)")
       }
@@ -289,11 +281,17 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       switch result {
       case let .success(model):
         XCTAssertNotNil(model.path)
-        guard let filePath = URL(string: model.path) else {
+        guard let modelPath = URL(string: model.path) else {
           XCTFail("Invalid model path.")
           return
         }
-        XCTAssertTrue(ModelFileManager.isFileReachable(at: filePath))
+        XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
+        /// Remove downloaded model file.
+        do {
+          try ModelFileManager.removeFile(at: modelPath)
+        } catch {
+          XCTFail("Model removal failed - \(error)")
+        }
       case let .failure(error):
         XCTFail("Failed to download model - \(error)")
       }
