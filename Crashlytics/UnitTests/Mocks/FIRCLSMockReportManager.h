@@ -38,8 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
                         dataArbiter:(FIRCLSDataCollectionArbiter *)dataArbiter NS_UNAVAILABLE;
 
 @property(nonatomic, copy) NSString *bundleIdentifier;
-
-@property(nonatomic, readonly) FIRCLSMockReportUploader *uploader;
+@property(nonatomic, strong) FIRCLSMockReportUploader *mockReportUploader;
 
 @end
 

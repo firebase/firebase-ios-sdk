@@ -161,11 +161,11 @@
 
 #pragma mark - Property Helpers
 - (NSArray *)prepareAndSubmitReportArray {
-  return self.reportManager.uploader.prepareAndSubmitReportArray;
+  return self.reportManager.mockReportUploader.prepareAndSubmitReportArray;
 }
 
 - (NSArray *)uploadReportArray {
-  return self.reportManager.uploader.uploadReportArray;
+  return self.reportManager.mockReportUploader.uploadReportArray;
 }
 
 - (NSString *)installID {
@@ -405,7 +405,7 @@
   XCTAssertEqual([[self contentsOfActivePath] count], 1);
 
   // Put the launch marker in place
-  [self.reportManager createLaunchFailureMarker];
+  [self.reportManager.launchMarker createLaunchFailureMarker];
 
   // should call back to the delegate on start
   [self startReportManager];
@@ -428,7 +428,7 @@
   XCTAssertEqual([[self contentsOfActivePath] count], 1);
 
   // Put the launch marker in place
-  [self.reportManager createLaunchFailureMarker];
+  [self.reportManager.launchMarker createLaunchFailureMarker];
 
   // Should wait for processReports: to be called.
   [self startReportManagerWithDataCollectionEnabled:NO];
