@@ -93,15 +93,14 @@ jobs:
           base_commit: ${{ needs.check.outputs.base_commit }}
         run: |
           if [ -d "${{steps.download.outputs.download-path}}" ]; then
-          find "/Users/runner/test" -print -regex ".*/.*\.xcresult" -exec xcrun xccov view --report {} \;
           cd scripts/code_coverage_report/generate_code_coverage_report
-          swift run CoverageReportGenerator --presubmit "granluo/issue_generations" --commit "testprcommit1" --token $(gcloud auth print-identity-token) --xcresult-dir "/Users/runner/test/" --log-link "https://github.com/firebase/firebase-ios-sdk/actions?query=workflow%3Atest_coverage" --pull-request-num 79 --pull-request-note "123" --base-commit "$base_commit" --branch "create_issues"
+          swift run CoverageReportGenerator --presubmit "granluo/issue_generations" --commit "testprcommit1" --token $(gcloud auth print-identity-token) --xcresult-dir "/Users/runner/test/codecoverage" --log-link "https://github.com/firebase/firebase-ios-sdk/actions?query=workflow%3Atest_coverage" --pull-request-num 79 --pull-request-note "123" --base-commit "test1commit" --branch "create_issues"
+          # swift run CoverageReportGenerator --presubmit "granluo/issue_generations" --commit "testprcommit1" --token $(gcloud auth print-identity-token) --xcresult-dir "/Users/runner/test/" --log-link "https://github.com/firebase/firebase-ios-sdk/actions?query=workflow%3Atest_coverage" --pull-request-num 79 --pull-request-note "123" --base-commit "$base_commit" --branch "create_issues"
           fi
       - name: Update New Coverage Data
         if: github.event_name == 'push'
         run: |
           if [ -d "${{steps.download.outputs.download-path}}" ]; then
-          find "/Users/runner/test" -print -regex ".*/.*\.xcresult" -exec xcrun xccov view --report {} \;
           cd scripts/code_coverage_report/generate_code_coverage_report
           swift run CoverageReportGenerator --merge "granluo/issue_generations" --commit "testprcommit1" --token $(gcloud auth print-identity-token) --xcresult-dir "/Users/runner/test/" --log-link "https://github.com/firebase/firebase-ios-sdk/actions?query=workflow%3Atest_coverage" --pull-request-num 79 --pull-request-note "123" --base-commit "test1commit" --branch "create_issues"
           fi
