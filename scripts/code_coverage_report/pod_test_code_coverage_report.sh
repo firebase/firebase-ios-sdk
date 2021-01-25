@@ -22,5 +22,4 @@ if [ -d "/Users/runner/Library/Developer/Xcode/DerivedData" ]; then
 rm -r /Users/runner/Library/Developer/Xcode/DerivedData/*
 fi
 scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb "${SDK}".podspec --platforms="${platform}" --test-specs=unit
-find /Users/runner/Library/Developer/Xcode/DerivedData -type d -regex ".*/.*\.xcresult" -execdir cp -R '{}' "${output_path}" \;
-
+find /Users/runner/Library/Developer/Xcode/DerivedData -type d -regex ".*/.*\.xcresult" -execdir cp -R '{}' "/Users/runner/ "${SDK}"-"${platform}".xcresult" \;

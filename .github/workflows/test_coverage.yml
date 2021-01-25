@@ -21,12 +21,12 @@ jobs:
         env:
           pr_branch: ${{ github.event.pull_request.head.ref }}
         run: ./scripts/code_coverage_report/get_updated_files.sh
+
   pod-lib-lint-database:
     # Don't run on private repo unless it is a PR.
     needs: check
     if: github.repository == 'Firebase/firebase-ios-sdk' && needs.check.outputs.database_run_job == 'true'
     runs-on: macOS-latest
-
     strategy:
       matrix:
         target: [ios, tvos, macos]
@@ -40,7 +40,7 @@ jobs:
       run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh FirebaseDatabase "${{ matrix.target }}"
     - uses: actions/upload-artifact@v2
       with:
-        name: database-codecoverage
+        name: codecoverage
         path: /Users/runner/*.xcresult
 
   pod-lib-lint-functions:
@@ -60,7 +60,7 @@ jobs:
       run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh FirebaseFunctions "${{ matrix.target }}"
     - uses: actions/upload-artifact@v2
       with:
-        name: functions-codecoverage
+        name: codecoverage
         path: /Users/runner/*.xcresult
 
   create_report:
