@@ -38,8 +38,6 @@ class ModelDownloadTask: NSObject {
   private(set) var downloadStatus: ModelDownloadStatus
   /// Downloader instance.
   private let downloader: FileDownloader
-  /// Number of retries in case of model download URL expiry.
-  private var numberOfRetries: Int = 1
   /// Telemetry logger.
   private let telemetryLogger: TelemetryLogger?
 

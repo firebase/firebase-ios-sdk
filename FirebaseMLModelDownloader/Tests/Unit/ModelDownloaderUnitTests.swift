@@ -373,21 +373,19 @@ class NetworkingUnitTests: XCTestCase {
     let downloader = MockModelFileDownloader()
     let tempFileURL = tempFile()
 
-    var fakeResponse = HTTPURLResponse(url: fakeFileURL,
+    let fakeResponse = HTTPURLResponse(url: fakeFileURL,
                                        statusCode: 400,
                                        httpVersion: nil,
                                        headerFields: nil)!
 
     let fileDownloaderExpectation = expectation(description: "file downloader")
+    fileDownloaderExpectation.expectedFulfillmentCount = 2
     let completionExpectation = expectation(description: "completion handler")
 
     downloader.downloadFileHandler = { url in
+      print("HERE")
       fileDownloaderExpectation.fulfill()
       XCTAssertEqual(url, self.fakeDownloadURL)
-      fakeResponse = HTTPURLResponse(url: self.fakeFileURL,
-                                     statusCode: 200,
-                                     httpVersion: nil,
-                                     headerFields: nil)!
     }
 
     modelDownloader.downloadInfoAndModel(modelName: fakeModelName,
@@ -402,7 +400,7 @@ class NetworkingUnitTests: XCTestCase {
     }
 
     // Wait for downloader to be called.
-    wait(for: [fileDownloaderExpectation], timeout: 0.1)
+    wait(for: [fileDownloaderExpectation], timeout: 0.5)
 
     // Call download completion and wait for task completion.
     downloader
