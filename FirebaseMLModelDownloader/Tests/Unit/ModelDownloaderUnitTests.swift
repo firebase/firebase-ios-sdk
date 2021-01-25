@@ -254,8 +254,6 @@ class NetworkingUnitTests: XCTestCase {
   }
 
   func testModelDownloadWith200() {
-    let session = fakeModelInfoSessionWithURL(fakeDownloadURL, statusCode: 200)
-    let modelInfoRetriever = fakeModelRetriever(fakeSession: session)
     let tempFileURL = tempFile()
     let remoteModelInfo = fakeModelInfo()
 
@@ -280,13 +278,13 @@ class NetworkingUnitTests: XCTestCase {
     let modelDownloadTask = ModelDownloadTask(remoteModelInfo: remoteModelInfo,
                                               appName: "fakeAppName",
                                               defaults: .createTestInstance(testName: #function),
-                                              downloader: downloader,
-                                              modelInfoRetriever: modelInfoRetriever,
-                                              progressHandler: {
-                                                progress in
-                                                progressExpectation.fulfill()
-                                                XCTAssertEqual(progress, 0.4)
-                                              }) { result in
+                                              downloader: downloader)
+
+    modelDownloadTask.download(progressHandler: {
+      progress in
+      progressExpectation.fulfill()
+      XCTAssertEqual(progress, 0.4)
+    }) { result in
       completionExpectation.fulfill()
       switch result {
       case let .success(model):
@@ -298,8 +296,6 @@ class NetworkingUnitTests: XCTestCase {
         XCTFail("Error - \(error)")
       }
     }
-
-    modelDownloadTask.download()
 
     // Wait for downloader to be called.
     wait(for: [fileDownloaderExpectation], timeout: 0.1)
@@ -321,13 +317,11 @@ class NetworkingUnitTests: XCTestCase {
     try? ModelFileManager.removeFile(at: tempFileURL)
   }
 
-  func testModelDownloadWithSuccessfulRetry() {
-    let session = fakeModelInfoSessionWithURL(fakeDownloadURL, statusCode: 200)
-    let modelInfoRetriever = fakeModelRetriever(fakeSession: session)
+  func testModelDownloadWith400() {
     let tempFileURL = tempFile()
     let remoteModelInfo = fakeModelInfo()
 
-    var fakeResponse = HTTPURLResponse(url: fakeFileURL,
+    let fakeResponse = HTTPURLResponse(url: fakeFileURL,
                                        statusCode: 400,
                                        httpVersion: nil,
                                        headerFields: nil)!
@@ -339,11 +333,6 @@ class NetworkingUnitTests: XCTestCase {
     downloader.downloadFileHandler = { url in
       fileDownloaderExpectation.fulfill()
       XCTAssertEqual(url, self.fakeDownloadURL)
-      /// Update model info response to be successful this time.
-      fakeResponse = HTTPURLResponse(url: self.fakeFileURL,
-                                     statusCode: 200,
-                                     httpVersion: nil,
-                                     headerFields: nil)!
     }
 
     let completionExpectation = expectation(description: "completion handler")
@@ -351,20 +340,15 @@ class NetworkingUnitTests: XCTestCase {
     let modelDownloadTask = ModelDownloadTask(remoteModelInfo: remoteModelInfo,
                                               appName: "fakeAppName",
                                               defaults: .createTestInstance(testName: #function),
-                                              downloader: downloader,
-                                              modelInfoRetriever: modelInfoRetriever) { result in
+                                              downloader: downloader)
+    modelDownloadTask.download(progressHandler: nil) { result in
       completionExpectation.fulfill()
       switch result {
-      case let .success(model):
-        XCTAssertEqual(model.name, self.fakeModelName)
-        XCTAssertEqual(model.size, self.fakeModelSize)
-        XCTAssertEqual(model.hash, self.fakeModelHash)
-        XCTAssertTrue(ModelFileManager.isFileReachable(at: URL(string: model.path)!))
+      case .success: XCTFail("Unexpected successful model download.")
       case let .failure(error):
-        XCTFail("Error - \(error)")
+        XCTAssertEqual(error, DownloadError.failedPrecondition)
       }
     }
-    modelDownloadTask.download()
 
     // Wait for downloader to be called.
     wait(for: [fileDownloaderExpectation], timeout: 0.1)
@@ -380,8 +364,107 @@ class NetworkingUnitTests: XCTestCase {
     try? ModelFileManager.removeFile(at: tempFileURL)
   }
 
-  // TODO: Add this test after refactoring maybeRetryDownload().
-  func testModelDownloadWithFailedRetry() {}
+  // TODO: Fix retry test.
+  func testGetModelSuccessfulRetry() {
+    let modelDownloader = ModelDownloader.modelDownloader()
+    let conditions = ModelDownloadConditions()
+    let session = fakeModelInfoSessionWithURL(fakeDownloadURL, statusCode: 200)
+    let modelInfoRetriever = fakeModelRetriever(fakeSession: session)
+    let downloader = MockModelFileDownloader()
+    let tempFileURL = tempFile()
+
+    var fakeResponse = HTTPURLResponse(url: fakeFileURL,
+                                       statusCode: 400,
+                                       httpVersion: nil,
+                                       headerFields: nil)!
+
+    let fileDownloaderExpectation = expectation(description: "file downloader")
+    let completionExpectation = expectation(description: "completion handler")
+
+    downloader.downloadFileHandler = { url in
+      fileDownloaderExpectation.fulfill()
+      XCTAssertEqual(url, self.fakeDownloadURL)
+      fakeResponse = HTTPURLResponse(url: self.fakeFileURL,
+                                     statusCode: 200,
+                                     httpVersion: nil,
+                                     headerFields: nil)!
+    }
+
+    modelDownloader.downloadInfoAndModel(modelName: fakeModelName,
+                                         modelInfoRetriever: modelInfoRetriever,
+                                         downloader: downloader,
+                                         conditions: conditions) { result in
+      completionExpectation.fulfill()
+      switch result {
+      case let .success(model): print(model)
+      case let .failure(error): print(error)
+      }
+    }
+
+    // Wait for downloader to be called.
+    wait(for: [fileDownloaderExpectation], timeout: 0.1)
+
+    // Call download completion and wait for task completion.
+    downloader
+      .completion?(.success(FileDownloaderResponse(urlResponse: fakeResponse,
+                                                   fileURL: tempFileURL)))
+
+    wait(for: [completionExpectation], timeout: 0.5)
+
+    // Cleanup temp file.
+    try? ModelFileManager.removeFile(at: tempFileURL)
+  }
+
+  func testGetModelFailedRetry() {
+    let modelDownloader = ModelDownloader.modelDownloader()
+    let conditions = ModelDownloadConditions()
+    let session = fakeModelInfoSessionWithURL(fakeDownloadURL, statusCode: 200)
+    let modelInfoRetriever = fakeModelRetriever(fakeSession: session)
+    let downloader = MockModelFileDownloader()
+    let tempFileURL = tempFile()
+
+    var fakeResponse = HTTPURLResponse(url: fakeFileURL,
+                                       statusCode: 400,
+                                       httpVersion: nil,
+                                       headerFields: nil)!
+
+    let fileDownloaderExpectation = expectation(description: "file downloader")
+    fileDownloaderExpectation.expectedFulfillmentCount = 2
+    let completionExpectation = expectation(description: "completion handler")
+
+    downloader.downloadFileHandler = { url in
+      fileDownloaderExpectation.fulfill()
+      XCTAssertEqual(url, self.fakeDownloadURL)
+      fakeResponse = HTTPURLResponse(url: self.fakeFileURL,
+                                     statusCode: 400,
+                                     httpVersion: nil,
+                                     headerFields: nil)!
+    }
+
+    modelDownloader.downloadInfoAndModel(modelName: fakeModelName,
+                                         modelInfoRetriever: modelInfoRetriever,
+                                         downloader: downloader,
+                                         conditions: conditions) { result in
+      completionExpectation.fulfill()
+      switch result {
+      case let .success(model): print(model)
+      case let .failure(error): print(error)
+      }
+    }
+
+    // Wait for downloader to be called.
+    wait(for: [fileDownloaderExpectation], timeout: 0.1)
+
+    // Call download completion and wait for task completion.
+    downloader
+      .completion?(.success(FileDownloaderResponse(urlResponse: fakeResponse,
+                                                   fileURL: tempFileURL)))
+
+    wait(for: [completionExpectation], timeout: 0.5)
+
+    // Cleanup temp file.
+    try? ModelFileManager.removeFile(at: tempFileURL)
+  }
 }
 
 /// Mock URL session for testing.

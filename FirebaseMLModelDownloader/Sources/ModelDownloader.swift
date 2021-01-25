@@ -17,7 +17,7 @@ import FirebaseCore
 import FirebaseInstallations
 
 /// Possible errors with model downloading.
-public enum DownloadError: Error {
+public enum DownloadError: Error, Equatable {
   /// No model with this name found on server.
   case notFound
   /// Caller does not have necessary permissions for this operation.
@@ -64,6 +64,8 @@ public class ModelDownloader {
   private let userDefaults: UserDefaults
   /// Telemetry logger tied to this instance of model downloader.
   let telemetryLogger: TelemetryLogger?
+  /// Number of retries in case of model download URL expiry.
+  private var numberOfRetries: Int = 1
 
   /// Shared dictionary mapping app name to a specific instance of model downloader.
   // TODO: Switch to using Firebase components.
@@ -118,7 +120,8 @@ public class ModelDownloader {
   }
 
   /// Downloads a custom model to device or gets a custom model already on device, w/ optional handler for progress.
-  public func getModel(name modelName: String, downloadType: ModelDownloadType,
+  public func getModel(name modelName: String,
+                       downloadType: ModelDownloadType,
                        conditions: ModelDownloadConditions,
                        progressHandler: ((Float) -> Void)? = nil,
                        completion: @escaping (Result<CustomModel, DownloadError>) -> Void) {
@@ -283,25 +286,79 @@ extension ModelDownloader {
       appName: appName,
       localModelInfo: localModelInfo
     )
+    let downloader = ModelFileDownloader(conditions: conditions)
+    downloadInfoAndModel(
+      modelName: modelName,
+      modelInfoRetriever: modelInfoRetriever,
+      downloader: downloader,
+      conditions: conditions,
+      progressHandler: progressHandler,
+      completion: completion
+    )
+  }
+
+  func downloadInfoAndModel(modelName: String,
+                            modelInfoRetriever: ModelInfoRetriever,
+                            downloader: FileDownloader,
+                            conditions: ModelDownloadConditions,
+                            progressHandler: ((Float) -> Void)? = nil,
+                            completion: @escaping (Result<CustomModel, DownloadError>)
+                              -> Void) {
     modelInfoRetriever.downloadModelInfo { result in
       switch result {
       case let .success(downloadModelInfoResult):
         switch downloadModelInfoResult {
         /// New model info was downloaded from server.
         case let .modelInfo(remoteModelInfo):
-          let downloader = ModelFileDownloader(conditions: conditions)
           let downloadTask = ModelDownloadTask(
             remoteModelInfo: remoteModelInfo,
             appName: self.appName,
             defaults: self.userDefaults,
             downloader: downloader,
-            modelInfoRetriever: modelInfoRetriever,
-            telemetryLogger: self.telemetryLogger,
-            progressHandler: progressHandler,
-            completion: completion
+            telemetryLogger: self.telemetryLogger
           )
           // TODO: Is it possible for download URL to expire here?
-          downloadTask.download()
+          downloadTask.download(progressHandler: { progress in
+            DispatchQueue.main.async {
+              progressHandler?(progress)
+            }
+          }) { result in
+            switch result {
+            case let .success(model):
+              DispatchQueue.main.async {
+                completion(.success(model))
+              }
+            case let .failure(error):
+              switch error {
+              case .failedPrecondition:
+                let currentDateTime = Date()
+                guard currentDateTime > remoteModelInfo.urlExpiryTime else {
+                  DispatchQueue.main.async {
+                    completion(.failure(error))
+                  }
+                  return
+                }
+                guard self.numberOfRetries > 0 else {
+                  DispatchQueue.main.async {
+                    completion(.failure(.internalError(description: ModelDownloader.ErrorDescription
+                        .expiredModelInfo)))
+                  }
+                  return
+                }
+                self.numberOfRetries -= 1
+                self.retryDownload(
+                  modelInfoRetriever: modelInfoRetriever,
+                  downloader: downloader,
+                  progressHandler: progressHandler,
+                  completion: completion
+                )
+              default:
+                DispatchQueue.main.async {
+                  completion(.failure(error))
+                }
+              }
+            }
+          }
         /// Local model info is the latest model info.
         case .notModified:
           guard let localModel = self.getLocalModel(modelName: modelName) else {
@@ -326,6 +383,58 @@ extension ModelDownloader {
         DispatchQueue.main.async {
           completion(.failure(downloadError))
         }
+      }
+    }
+  }
+
+  /// Fetch model info again and retry download if allowed.
+  private func retryDownload(modelInfoRetriever: ModelInfoRetriever,
+                             downloader: FileDownloader,
+                             progressHandler: ((Float) -> Void)? = nil,
+                             completion: @escaping (Result<CustomModel, DownloadError>)
+                               -> Void) {
+    modelInfoRetriever.downloadModelInfo { result in
+      switch result {
+      case let .success(downloadModelInfoResult):
+        switch downloadModelInfoResult {
+        /// New model info was downloaded from server.
+        case let .modelInfo(remoteModelInfo):
+          let downloadTask = ModelDownloadTask(
+            remoteModelInfo: remoteModelInfo,
+            appName: self.appName,
+            defaults: self.userDefaults,
+            downloader: downloader,
+            telemetryLogger: self.telemetryLogger
+          )
+
+          downloadTask.download(progressHandler: { progress in
+            DispatchQueue.main.async {
+              progressHandler?(progress)
+            }
+          }) { result in
+            switch result {
+            case let .success(model):
+              DispatchQueue.main.async {
+                completion(.success(model))
+              }
+            case let .failure(error):
+              DispatchQueue.main.async {
+                completion(.failure(error))
+              }
+            }
+          }
+
+        /// This should not ever be the case - model info cannot be unmodified within ModelDownloadTask.
+        case .notModified:
+          DispatchQueue.main.async {
+            completion(.failure(.internalError(description: ModelDownloader
+                .ErrorDescription.expiredModelInfo)))
+          }
+        }
+
+      case .failure:
+        completion(.failure(.internalError(description: ModelDownloader
+            .ErrorDescription.expiredModelInfo)))
       }
     }
   }
@@ -365,5 +474,6 @@ extension ModelDownloader {
       "Model unavailable due to deleted local model info."
     static let backgroundModelDownload: StaticString =
       "Failed to update model in background."
+    static let expiredModelInfo = "Unable to update expired model info."
   }
 }

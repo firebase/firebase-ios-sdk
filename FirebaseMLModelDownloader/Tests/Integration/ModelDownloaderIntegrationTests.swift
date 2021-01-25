@@ -174,13 +174,13 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       remoteModelInfo: remoteModelInfo,
       appName: testApp.name,
       defaults: .createTestInstance(testName: #function),
-      downloader: downloader,
-      modelInfoRetriever: modelInfoRetriever,
-      progressHandler: { progress in
-        XCTAssertLessThanOrEqual(progress, 1)
-        XCTAssertGreaterThanOrEqual(progress, 0)
-      }
-    ) { result in
+      downloader: downloader
+    )
+
+    modelDownloadManager.download(progressHandler: { progress in
+      XCTAssertLessThanOrEqual(progress, 1)
+      XCTAssertGreaterThanOrEqual(progress, 0)
+    }) { result in
       switch result {
       case let .success(model):
         guard let modelPath = URL(string: model.path) else {
@@ -199,8 +199,6 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       }
       expectation.fulfill()
     }
-
-    modelDownloadManager.download()
     waitForExpectations(timeout: 5, handler: nil)
     XCTAssertEqual(modelDownloadManager.downloadStatus, .successful)
   }
