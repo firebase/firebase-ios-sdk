@@ -17,9 +17,6 @@ target 'FIRPerfE2EAutopush' do
   pod 'FirebaseInstallations', :path => '../../../'
   pod 'FirebaseCoreDiagnostics', :path => '../../../'
 
-  # Data transport dependencies
-  pod 'GoogleDataTransport', :path => '../../../'
-
   # Other dependencies
   pod 'Protobuf'
   pod 'GoogleToolboxForMac/Logger'
@@ -40,9 +37,6 @@ target 'FIRPerfE2EProd' do
   pod 'FirebaseABTesting', :path => '../../../'
   pod 'FirebaseInstallations', :path => '../../../'
   pod 'FirebaseCoreDiagnostics', :path => '../../../'
-
-  # Data transport dependencies
-  pod 'GoogleDataTransport', :path => '../../../'
 
   # Other dependencies
   pod 'Protobuf'

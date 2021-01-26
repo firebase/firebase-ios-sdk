@@ -55,13 +55,10 @@ def configure_local_pods()
   # scripts/install_prereqs.sh for more details.
   pod 'FirebaseCore', :path => '../..'
   pod 'FirebaseCoreDiagnostics', :path => '../..'
-  pod 'GoogleDataTransport', :path => '../..'
 
   # Pull in local sources conditionally.
   maybe_local_pod 'FirebaseAuth'
-
   maybe_local_pod 'FirebaseCoreDiagnostics'
-  maybe_local_pod 'GoogleDataTransport'
 end
 
 # Reads the value of the PLATFORM environment variable, converts it to the

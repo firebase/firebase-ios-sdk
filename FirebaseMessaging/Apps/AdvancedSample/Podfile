@@ -8,7 +8,6 @@ def shared_pods
   pod 'FirebaseMessaging', :path => '../../../'
   pod 'FirebaseInstanceID', :path => '../../../'
   pod 'FirebaseCoreDiagnostics', :path => '../../../'
-  pod 'GoogleDataTransport', :path => '../../../'
   pod 'FirebaseInstallations', :path => '../../../'
 end
 

@@ -25,7 +25,7 @@
 #import <OCMock/OCMock.h>
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
-#import "GoogleDataTransport/GDTCORLibrary/Internal/GoogleDataTransportInternal.h"
+#import <GoogleDataTransport/GoogleDataTransport.h>
 #import "Interop/CoreDiagnostics/Public/FIRCoreDiagnosticsData.h"
 #import "Interop/CoreDiagnostics/Public/FIRCoreDiagnosticsInterop.h"
 
