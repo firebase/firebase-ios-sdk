@@ -30,7 +30,7 @@ jobs:
     runs-on: macOS-latest
     strategy:
       matrix:
-        target: [ios, tvos, macos]
+        target: [ios]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -52,7 +52,7 @@ jobs:
 
     strategy:
       matrix:
-        target: [ios, tvos, macos]
+        target: [ios]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -94,12 +94,12 @@ jobs:
         run: |
           if [ -d "${{steps.download.outputs.download-path}}" ]; then
           cd scripts/code_coverage_report/generate_code_coverage_report
-          swift run CoverageReportGenerator --presubmit "granluo/issue_generations" --commit "${GITHUB_SHA}" --token $(gcloud auth print-identity-token) --xcresult-dir "/Users/runner/test/" --log-link "https://github.com/firebase/firebase-ios-sdk/actions/runs/${GITHUB_RUN_ID}" --pull-request-num ${{github.event.pull_request.number}} --pull-request-note "This is to test the code coverage workflow." --base-commit "$base_commit"
+          swift run CoverageReportGenerator --presubmit "firebase/firebase-ios-sdk" --commit "${GITHUB_SHA}" --token $(gcloud auth print-identity-token) --xcresult-dir "/Users/runner/test/" --log-link "https://github.com/firebase/firebase-ios-sdk/actions/runs/${GITHUB_RUN_ID}" --pull-request-num ${{github.event.pull_request.number}} --pull-request-note "This is to test the code coverage workflow." --base-commit "$base_commit"
           fi
       - name: Update New Coverage Data
         if: github.event_name == 'push'
         run: |
           if [ -d "${{steps.download.outputs.download-path}}" ]; then
           cd scripts/code_coverage_report/generate_code_coverage_report
-          swift run CoverageReportGenerator --merge "granluo/issue_generations" --commit "testprcommit1" --token $(gcloud auth print-identity-token) --xcresult-dir "/Users/runner/test/" --log-link "https://github.com/firebase/firebase-ios-sdk/actions?query=workflow%3Atest_coverage" --pull-request-num 79 --pull-request-note "123" --base-commit "test1commit" --branch "create_issues"
+          swift run CoverageReportGenerator --merge "firebase/firebase-ios-sdk" --commit "${GITHUB_SHA}" --token $(gcloud auth print-identity-token) --xcresult-dir "/Users/runner/test/" --log-link "https://github.com/firebase/firebase-ios-sdk/actions/runs/${GITHUB_RUN_ID}" --branch "master"
           fi
