@@ -23,38 +23,21 @@ enum ModelDownloadStatus {
   case failed
 }
 
-/// Progress and completion handlers for a model download.
-class DownloadHandlers {
+/// Manager to handle model downloading device and storing downloaded model info to persistent storage.
+class ModelDownloadTask: NSObject {
   typealias ProgressHandler = (Float) -> Void
   typealias Completion = (Result<CustomModel, DownloadError>) -> Void
 
-  var progressHandler: ProgressHandler?
-  var completion: Completion
-
-  init(progressHandler: ProgressHandler?, completion: @escaping Completion) {
-    self.progressHandler = progressHandler
-    self.completion = completion
-  }
-}
-
-/// Manager to handle model downloading device and storing downloaded model info to persistent storage.
-class ModelDownloadTask: NSObject {
   /// Name of the app associated with this instance of ModelDownloadTask.
   private let appName: String
   /// Model info downloaded from server.
   private(set) var remoteModelInfo: RemoteModelInfo
   /// User defaults to which local model info should ultimately be written.
   private let defaults: UserDefaults
-  /// Progress and completion handlers associated with this model download task.
-  private let downloadHandlers: DownloadHandlers
   /// Keeps track of download associated with this model download task.
   private(set) var downloadStatus: ModelDownloadStatus
   /// Downloader instance.
   private let downloader: FileDownloader
-  /// Model info retriever in case of retries.
-  private let modelInfoRetriever: ModelInfoRetriever
-  /// Number of retries in case of model download URL expiry.
-  private var numberOfRetries: Int = 1
   /// Telemetry logger.
   private let telemetryLogger: TelemetryLogger?
 
@@ -62,20 +45,12 @@ class ModelDownloadTask: NSObject {
        appName: String,
        defaults: UserDefaults,
        downloader: FileDownloader,
-       modelInfoRetriever: ModelInfoRetriever,
-       telemetryLogger: TelemetryLogger? = nil,
-       progressHandler: DownloadHandlers.ProgressHandler? = nil,
-       completion: @escaping DownloadHandlers.Completion) {
+       telemetryLogger: TelemetryLogger? = nil) {
     self.remoteModelInfo = remoteModelInfo
     self.appName = appName
     self.downloader = downloader
-    self.modelInfoRetriever = modelInfoRetriever
     self.telemetryLogger = telemetryLogger
     self.defaults = defaults
-    downloadHandlers = DownloadHandlers(
-      progressHandler: progressHandler,
-      completion: completion
-    )
     downloadStatus = .notStarted
   }
 }
@@ -86,18 +61,20 @@ extension ModelDownloadTask {
     return "fbml_model__\(appName)__\(remoteModelInfo.name)"
   }
 
-  func download() {
+  func download(progressHandler: ProgressHandler?, completion: @escaping Completion) {
     downloader.downloadFile(with: remoteModelInfo.downloadURL,
                             progressHandler: { downloadedBytes, totalBytes in
                               /// Fraction of model file downloaded.
                               let calculatedProgress = Float(downloadedBytes) / Float(totalBytes)
-                              DispatchQueue.main.async {
-                                self.downloadHandlers.progressHandler?(calculatedProgress)
-                              }
+                              progressHandler?(calculatedProgress)
                             }) { result in
       switch result {
       case let .success(response):
-        self.handleResponse(response: response.urlResponse, tempURL: response.fileURL)
+        self.handleResponse(
+          response: response.urlResponse,
+          tempURL: response.fileURL,
+          completion: completion
+        )
       case let .failure(error):
         var downloadError: DownloadError
         switch error {
@@ -117,61 +94,17 @@ extension ModelDownloadTask {
           downloadError = .internalError(description: ModelDownloadTask.ErrorDescription
             .unknownDownloadError)
         }
-        DispatchQueue.main.async {
-          self.downloadHandlers
-            .completion(.failure(downloadError))
-        }
-      }
-    }
-  }
-
-  /// Fetch model info again and retry download if allowed.
-  // TODO: Move this to model downloader.
-  func maybeRetryDownload() {
-    let currentDateTime = Date()
-    guard currentDateTime > remoteModelInfo.urlExpiryTime, numberOfRetries > 0 else {
-      downloadStatus = .failed
-      downloadHandlers
-        .completion(.failure(.internalError(description: ModelDownloadTask.ErrorDescription
-            .expiredModelInfo)))
-      return
-    }
-    numberOfRetries -= 1
-    modelInfoRetriever.downloadModelInfo { result in
-      switch result {
-      case let .success(downloadModelInfoResult):
-        switch downloadModelInfoResult {
-        /// New model info was downloaded from server.
-        case let .modelInfo(remoteModelInfo):
-          self.remoteModelInfo = remoteModelInfo
-          self.downloadStatus = .notStarted
-          self.download()
-        /// This should not ever be the case - model info cannot be unmodified within ModelDownloadTask.
-        case .notModified:
-          DispatchQueue.main.async {
-            self.downloadHandlers
-              .completion(.failure(.internalError(description: ModelDownloadTask
-                  .ErrorDescription.expiredModelInfo)))
-          }
-        }
-      case .failure:
-        self.downloadStatus = .failed
-        DispatchQueue.main.async {
-          self.downloadHandlers
-            .completion(.failure(.internalError(description: ModelDownloadTask
-                .ErrorDescription.expiredModelInfo)))
-        }
+        completion(.failure(downloadError))
       }
     }
   }
 
   /// Handle model download response.
-  func handleResponse(response: HTTPURLResponse, tempURL: URL) {
-    /// Retry model download if url expired.
+  func handleResponse(response: HTTPURLResponse, tempURL: URL, completion: @escaping Completion) {
     guard (200 ..< 299).contains(response.statusCode) else {
       /// Possible failure due to download URL expiry.
       if response.statusCode == 400 {
-        maybeRetryDownload()
+        completion(.failure(.failedPrecondition))
         return
       }
       return
@@ -196,20 +129,14 @@ extension ModelDownloadTask {
         status: downloadStatus,
         model: model
       )
-
-      DispatchQueue.main.async {
-        self.downloadHandlers.completion(.success(model))
-      }
+      completion(.success(model))
     } catch let error as DownloadError {
       downloadStatus = .failed
       telemetryLogger?.logModelDownloadEvent(eventName: .modelDownload, status: downloadStatus)
       DeviceLogger.logEvent(level: .debug,
                             message: ModelDownloadTask.ErrorDescription.saveModel,
                             messageCode: .downloadedModelSaveError)
-      DispatchQueue.main.async {
-        self.downloadHandlers
-          .completion(.failure(error))
-      }
+      completion(.failure(error))
       return
     } catch {
       downloadStatus = .failed
@@ -217,10 +144,7 @@ extension ModelDownloadTask {
       DeviceLogger.logEvent(level: .debug,
                             message: ModelDownloadTask.ErrorDescription.saveModel,
                             messageCode: .downloadedModelSaveError)
-      DispatchQueue.main.async {
-        self.downloadHandlers
-          .completion(.failure(.internalError(description: error.localizedDescription)))
-      }
+      completion(.failure(.internalError(description: error.localizedDescription)))
       return
     }
   }
