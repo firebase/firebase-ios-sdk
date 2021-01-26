@@ -120,6 +120,13 @@ final class ModelDownloaderUnitTests: XCTestCase {
     }
   }
 
+  /// Test on-device logging.
+  func testDeviceLogging() {
+    DeviceLogger.logEvent(level: .error,
+                          message: "This is a test error logged to device.",
+                          messageCode: .testError)
+  }
+
   /// Compare proto serialization methods.
   func testTelemetryEncoding() {
     let fakeModel = CustomModel(
