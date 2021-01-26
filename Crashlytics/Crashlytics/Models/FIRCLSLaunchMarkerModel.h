@@ -14,13 +14,26 @@
 
 #import <Foundation/Foundation.h>
 
+#import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRCLSNotificationManager : NSObject
+/*
+ * Writes a file during startup, and deletes it at the end. Existence
+ * of this file on the next run means there was a crash at launch,
+ * because the file wasn't deleted. This is used to make Crashlytics
+ * block startup on uploading the crash.
+ */
+@interface FIRCLSLaunchMarkerModel : NSObject
 
+- (instancetype)initWithFileManager:(FIRCLSFileManager *)fileManager;
+
+- (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
 
-- (void)registerNotificationListener;
+- (BOOL)checkForAndCreateLaunchMarker;
+- (BOOL)createLaunchFailureMarker;
+- (BOOL)removeLaunchFailureMarker;
 
 @end
 

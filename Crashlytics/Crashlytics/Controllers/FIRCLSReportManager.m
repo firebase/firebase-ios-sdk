@@ -42,8 +42,8 @@
 #import "Crashlytics/Crashlytics/Components/FIRCLSUserLogging.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSAnalyticsManager.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSExistingReportManager.h"
+#import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSNotificationManager.h"
-#import "Crashlytics/Crashlytics/Controllers/FIRCLSReportUploader.h"
 #import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionArbiter.h"
 #import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
@@ -51,10 +51,11 @@
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSLaunchMarker.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSLaunchMarkerModel.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSSymbolResolver.h"
 #import "Crashlytics/Crashlytics/Operations/Reports/FIRCLSProcessReportOperation.h"
+#import "Crashlytics/Crashlytics/Settings/Models/FIRCLSApplicationIdentifierModel.h"
 
 #include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
@@ -97,9 +98,8 @@ typedef NSNumber FIRCLSWrappedReportAction;
  */
 typedef NSNumber FIRCLSWrappedBool;
 
-@interface FIRCLSReportManager () <FIRCLSReportUploaderDataSource> {
+@interface FIRCLSReportManager () {
   FIRCLSFileManager *_fileManager;
-  FIRCLSReportUploader *_reportUploader;
   dispatch_queue_t _dispatchQueue;
   NSOperationQueue *_operationQueue;
   id<FIRAnalyticsInterop> _analytics;
@@ -126,72 +126,49 @@ typedef NSNumber FIRCLSWrappedBool;
 }
 
 @property(nonatomic, readonly) NSString *googleAppID;
-
-@property(nonatomic, strong) FIRCLSDataCollectionArbiter *dataArbiter;
-
-// Uniquely identifies a build / binary of the app
-@property(nonatomic, strong) FIRCLSApplicationIdentifierModel *appIDModel;
-
-// Uniquely identifies an install of the app
-@property(nonatomic, strong) FIRCLSInstallIdentifierModel *installIDModel;
-
-// Uniquely identifies a run of the app
-@property(nonatomic, strong) FIRCLSExecutionIdentifierModel *executionIDModel;
-
-// Settings fetched from the server
-@property(nonatomic, strong) FIRCLSSettings *settings;
-
-// Runs the operations that fetch settings
-@property(nonatomic, strong) FIRCLSSettingsManager *settingsManager;
-
 @property(nonatomic, strong) GDTCORTransport *googleTransport;
 
-// Registers a listener for breadcrumbs
+@property(nonatomic, strong) FIRCLSDataCollectionArbiter *dataArbiter;
+@property(nonatomic, strong) FIRCLSSettings *settings;
+@property(nonatomic, strong) FIRCLSLaunchMarkerModel *launchMarker;
+
+@property(nonatomic, strong) FIRCLSApplicationIdentifierModel *appIDModel;
+@property(nonatomic, strong) FIRCLSInstallIdentifierModel *installIDModel;
+@property(nonatomic, strong) FIRCLSExecutionIdentifierModel *executionIDModel;
+
 @property(nonatomic, strong) FIRCLSAnalyticsManager *analyticsManager;
-
-// Registers notification observers for orientation and background status
-@property(nonatomic, strong) FIRCLSNotificationManager *notificationManager;
-
-// Handles the processing and uploading of reports from previous runs of the app
 @property(nonatomic, strong) FIRCLSExistingReportManager *existingReportManager;
 
-@property(nonatomic, strong) FIRCLSLaunchMarker *launchMarker;
+// Internal Managers
+@property(nonatomic, strong) FIRCLSSettingsManager *settingsManager;
+@property(nonatomic, strong) FIRCLSNotificationManager *notificationManager;
 
 @end
 
 @implementation FIRCLSReportManager
 
-// Used only for internal data collection E2E testing
-static void (^reportSentCallback)(void);
-
-- (instancetype)initWithFileManager:(FIRCLSFileManager *)fileManager
-                      installations:(FIRInstallations *)installations
-                          analytics:(id<FIRAnalyticsInterop>)analytics
-                        googleAppID:(NSString *)googleAppID
-                        dataArbiter:(FIRCLSDataCollectionArbiter *)dataArbiter
-                    googleTransport:(GDTCORTransport *)googleTransport
-                         appIDModel:(FIRCLSApplicationIdentifierModel *)appIDModel
-                           settings:(FIRCLSSettings *)settings {
+- (instancetype)initWithManagerData:(FIRCLSManagerData *)managerData
+              existingReportManager:(FIRCLSExistingReportManager *)existingReportManager
+                   analyticsManager:(FIRCLSAnalyticsManager *)analyticsManager {
   self = [super init];
   if (!self) {
     return nil;
   }
 
-  _fileManager = fileManager;
-  _analytics = analytics;
-  _googleAppID = [googleAppID copy];
-  _dataArbiter = dataArbiter;
+  _fileManager = managerData.fileManager;
+  _analytics = managerData.analytics;
+  _googleAppID = [managerData.googleAppID copy];
+  _dataArbiter = managerData.dataArbiter;
+  _googleTransport = managerData.googleTransport;
+  _operationQueue = managerData.operationQueue;
+  _dispatchQueue = managerData.dispatchQueue;
+  _appIDModel = managerData.appIDModel;
+  _installIDModel = managerData.installIDModel;
+  _settings = managerData.settings;
+  _executionIDModel = managerData.executionIDModel;
 
-  _googleTransport = googleTransport;
-
-  NSString *sdkBundleID = FIRCLSApplicationGetSDKBundleID();
-
-  _operationQueue = [NSOperationQueue new];
-  [_operationQueue setMaxConcurrentOperationCount:1];
-  [_operationQueue setName:[sdkBundleID stringByAppendingString:@".work-queue"]];
-
-  _dispatchQueue = dispatch_queue_create("com.google.firebase.crashlytics.startup", 0);
-  _operationQueue.underlyingQueue = _dispatchQueue;
+  _existingReportManager = existingReportManager;
+  _analyticsManager = analyticsManager;
 
   _unsentReportsAvailable = [FBLPromise pendingPromise];
   _reportActionProvided = [FBLPromise pendingPromise];
@@ -199,31 +176,15 @@ static void (^reportSentCallback)(void);
 
   _checkForUnsentReportsCalled = NO;
 
-  _installIDModel = [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:installations];
-  _executionIDModel = [[FIRCLSExecutionIdentifierModel alloc] init];
-
-  _settings = settings;
-  _appIDModel = appIDModel;
-
-  _settingsManager = [[FIRCLSSettingsManager alloc] initWithAppIDModel:appIDModel
+  _settingsManager = [[FIRCLSSettingsManager alloc] initWithAppIDModel:self.appIDModel
                                                         installIDModel:self.installIDModel
                                                               settings:self.settings
                                                            fileManager:self.fileManager
                                                            googleAppID:self.googleAppID];
 
-  _reportUploader = [[FIRCLSReportUploader alloc] initWithQueue:self.operationQueue
-                                                     dataSource:self
-                                                    fileManager:_fileManager
-                                                      analytics:_analytics];
-
-  _analyticsManager = [[FIRCLSAnalyticsManager alloc] initWithAnalytics:_analytics];
   _notificationManager = [[FIRCLSNotificationManager alloc] init];
-  _existingReportManager =
-      [[FIRCLSExistingReportManager alloc] initWithFileManager:_fileManager
-                                                operationQueue:_operationQueue
-                                                reportUploader:_reportUploader];
 
-  _launchMarker = [[FIRCLSLaunchMarker alloc] initWithFileManager:_fileManager];
+  _launchMarker = [[FIRCLSLaunchMarkerModel alloc] initWithFileManager:_fileManager];
 
   return self;
 }

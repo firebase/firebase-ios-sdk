@@ -1,21 +1,28 @@
+// Copyright 2021 Google
 //
-//  FIRCLSLaunchMarker.m
-//  Pods
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-//  Created by Sam Edson on 1/25/21.
+//      http://www.apache.org/licenses/LICENSE-2.0
 //
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#import "FIRCLSLaunchMarker.h"
+#import "FIRCLSLaunchMarkerModel.h"
 
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSInternalLogging.h"
 
-@interface FIRCLSLaunchMarker ()
+@interface FIRCLSLaunchMarkerModel ()
 
 @property(nonatomic, strong) FIRCLSFileManager *fileManager;
 
 @end
 
-@implementation FIRCLSLaunchMarker
+@implementation FIRCLSLaunchMarkerModel
 
 - (instancetype)initWithFileManager:(FIRCLSFileManager *)fileManager {
   self = [super init];

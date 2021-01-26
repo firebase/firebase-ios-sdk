@@ -1,13 +1,24 @@
+// Copyright 2021 Google
 //
-//  FIRCLSExistingReportManager.m
-//  Pods
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-//  Created by Sam Edson on 1/25/21.
+//      http://www.apache.org/licenses/LICENSE-2.0
 //
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #import "FIRCLSExistingReportManager.h"
 
+#import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
+#import "Crashlytics/Crashlytics/Controllers/FIRCLSReportUploader.h"
+#import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
 
 @interface FIRCLSExistingReportManager ()
@@ -20,16 +31,15 @@
 
 @implementation FIRCLSExistingReportManager
 
-- (instancetype)initWithFileManager:(FIRCLSFileManager *)fileManager
-                     operationQueue:(NSOperationQueue *)operationQueue
+- (instancetype)initWithManagerData:(FIRCLSManagerData *)managerData
                      reportUploader:(FIRCLSReportUploader *)reportUploader {
   self = [super init];
   if (!self) {
     return nil;
   }
 
-  _fileManager = fileManager;
-  _operationQueue = operationQueue;
+  _fileManager = managerData.fileManager;
+  _operationQueue = managerData.operationQueue;
   _reportUploader = reportUploader;
 
   return self;

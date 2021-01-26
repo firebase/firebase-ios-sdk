@@ -14,27 +14,29 @@
 
 #import <XCTest/XCTest.h>
 
+#import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSReportUploader_Private.h"
 
 #import "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
-#include "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
-#include "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
-#include "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
-#include "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
-#include "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
-#include "Crashlytics/Shared/FIRCLSConstants.h"
+#import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
+#import "Crashlytics/Shared/FIRCLSConstants.h"
 #import "Crashlytics/UnitTests/Mocks/FABMockApplicationIdentifierModel.h"
-#include "Crashlytics/UnitTests/Mocks/FIRCLSMockSettings.h"
-#include "Crashlytics/UnitTests/Mocks/FIRCLSTempMockFileManager.h"
-#include "Crashlytics/UnitTests/Mocks/FIRMockGDTCoreTransport.h"
+#import "Crashlytics/UnitTests/Mocks/FIRCLSMockSettings.h"
+#import "Crashlytics/UnitTests/Mocks/FIRCLSTempMockFileManager.h"
+#import "Crashlytics/UnitTests/Mocks/FIRMockGDTCoreTransport.h"
 
 NSString *const TestEndpoint = @"https://reports.crashlytics.com";
 
-@interface FIRCLSReportUploaderTests : XCTestCase <FIRCLSReportUploaderDataSource>
+@interface FIRCLSReportUploaderTests : XCTestCase
 
 @property(nonatomic, strong) FIRCLSReportUploader *uploader;
 @property(nonatomic, strong) FIRCLSTempMockFileManager *fileManager;
 @property(nonatomic, strong) NSOperationQueue *queue;
+@property(nonatomic, strong) FIRCLSManagerData *managerData;
 
 // Add mock prefix to names as there are naming conflicts with FIRCLSReportUploaderDelegate
 @property(nonatomic, strong) FIRMockGDTCORTransport *mockDataTransport;
@@ -51,15 +53,20 @@ NSString *const TestEndpoint = @"https://reports.crashlytics.com";
   self.queue = [NSOperationQueue new];
   self.mockSettings = [[FIRCLSMockSettings alloc] initWithFileManager:self.fileManager
                                                            appIDModel:appIDModel];
-
-  self.fileManager = [[FIRCLSTempMockFileManager alloc] init];
-  self.uploader = [[FIRCLSReportUploader alloc] initWithQueue:self.queue
-                                                   dataSource:self
-                                                  fileManager:self.fileManager
-                                                    analytics:nil];
   self.mockDataTransport = [[FIRMockGDTCORTransport alloc] initWithMappingID:@"1206"
                                                                 transformers:nil
                                                                       target:kGDTCORTargetCSH];
+  self.fileManager = [[FIRCLSTempMockFileManager alloc] init];
+
+  self.managerData = [[FIRCLSManagerData alloc] initWithGoogleAppID:@"someGoogleAppId"
+                                                    googleTransport:self.mockDataTransport
+                                                      installations:nil
+                                                          analytics:nil
+                                                        fileManager:self.fileManager
+                                                        dataArbiter:nil
+                                                           settings:self.mockSettings];
+
+  self.uploader = [[FIRCLSReportUploader alloc] initWithManagerData:_managerData];
 }
 
 - (void)tearDown {
@@ -143,27 +150,6 @@ NSString *const TestEndpoint = @"https://reports.crashlytics.com";
 
 - (void)setUpForUpload {
   self.mockDataTransport.sendDataEvent_wasWritten = YES;
-}
-
-#pragma mark - FIRCLSReportUploaderDataSource
-
-- (NSString *)bundleIdentifier {
-  return @"com.test.TestApp";
-}
-
-- (NSString *)googleAppID {
-  return @"someGoogleAppId";
-}
-
-- (GDTCORTransport *)googleTransport {
-  return self.mockDataTransport;
-}
-
-- (FIRCLSSettings *)settings {
-  return self.mockSettings;
-}
-
-- (void)didCompleteAllSubmissions {
 }
 
 @end
