@@ -23,6 +23,7 @@ func sendMetricsServiceRequest(repo: String, commits: String, jsonContent: Data,
                                is_presubmit: Bool, branch: String?, pullRequest: Int?,
                                pullRequestNote: String?, baseCommit: String?) {
   var request: URLRequest
+  var semaphore = DispatchSemaphore(value: 0)
   let endpoint =
     "https://sdk-metrics-service-tv5rmd4a6q-uc.a.run.app/repos/\(repo)/commits/\(commits)/reports?"
   var pathPara: [String] = []
@@ -69,7 +70,9 @@ func sendMetricsServiceRequest(repo: String, commits: String, jsonContent: Data,
       return
     }
     print(String(data: data, encoding: .utf8)!)
+    semaphore.signal()
   }
 
   task.resume()
+  semaphore.wait()
 }
