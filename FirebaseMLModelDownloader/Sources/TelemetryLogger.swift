@@ -88,12 +88,9 @@ class FBMLDataObject: NSObject, GDTCOREventDataObject {
       let data = try event.serializedData()
       return data
     } catch {
-      DeviceLogger.logEvent(
-        level: .debug,
-        category: .analytics,
-        message: TelemetryLogger.ErrorDescription.encodeEvent,
-        messageCode: .analyticsEventEncodeError
-      )
+      DeviceLogger.logEvent(level: .debug,
+                            message: TelemetryLogger.ErrorDescription.encodeEvent,
+                            messageCode: .analyticsEventEncodeError)
       return Data()
     }
   }
@@ -116,12 +113,9 @@ class TelemetryLogger {
       transformers: nil,
       target: GDTCORTarget.FLL
     ) else {
-      DeviceLogger.logEvent(
-        level: .debug,
-        category: .analytics,
-        message: TelemetryLogger.ErrorDescription.initTelemetryLogger,
-        messageCode: .telemetryInitError
-      )
+      DeviceLogger.logEvent(level: .debug,
+                            message: TelemetryLogger.ErrorDescription.initTelemetryLogger,
+                            messageCode: .telemetryInitError)
       return nil
     }
     self.fllTransport = fllTransport
@@ -167,9 +161,7 @@ class TelemetryLogger {
 extension TelemetryLogger {
   /// Error descriptions.
   fileprivate enum ErrorDescription {
-    static let encodeEvent: StaticString =
-      "Unable to encode event for Firelog."
-    static let initTelemetryLogger: StaticString =
-      "Unable to create telemetry logger."
+    static let encodeEvent = "Unable to encode event for Firelog."
+    static let initTelemetryLogger = "Unable to create telemetry logger."
   }
 }
