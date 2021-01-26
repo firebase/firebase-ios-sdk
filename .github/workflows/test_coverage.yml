@@ -65,7 +65,7 @@ jobs:
         path: /Users/runner/*.xcresult
 
   create_report:
-    needs: [pod-lib-lint-functions, pod-lib-lint-database]
+    needs: [check, pod-lib-lint-functions, pod-lib-lint-database]
     env:
       metrics_service_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     if: always()
