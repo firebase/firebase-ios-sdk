@@ -66,7 +66,6 @@ extension ModelDownloadTask {
                             progressHandler: { downloadedBytes, totalBytes in
                               /// Fraction of model file downloaded.
                               let calculatedProgress = Float(downloadedBytes) / Float(totalBytes)
-                              // TODO: Does this need to be on the main thread?
                               progressHandler?(calculatedProgress)
                             }) { result in
       switch result {

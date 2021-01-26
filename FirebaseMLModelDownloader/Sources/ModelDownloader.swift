@@ -66,6 +66,12 @@ public class ModelDownloader {
   let telemetryLogger: TelemetryLogger?
   /// Number of retries in case of model download URL expiry.
   var numberOfRetries: Int = 1
+  /// Handler that always runs on the main thread
+  let mainQueueHandler = { handler in
+    DispatchQueue.main.async {
+      handler
+    }
+  }
 
   /// Shared dictionary mapping app name to a specific instance of model downloader.
   // TODO: Switch to using Firebase components.
@@ -128,9 +134,7 @@ public class ModelDownloader {
     switch downloadType {
     case .localModel:
       if let localModel = getLocalModel(modelName: modelName) {
-        DispatchQueue.main.async {
-          completion(.success(localModel))
-        }
+        mainQueueHandler(completion(.success(localModel)))
       } else {
         getRemoteModel(
           modelName: modelName,
@@ -141,9 +145,7 @@ public class ModelDownloader {
       }
     case .localModelUpdateInBackground:
       if let localModel = getLocalModel(modelName: modelName) {
-        DispatchQueue.main.async {
-          completion(.success(localModel))
-        }
+        mainQueueHandler(completion(.success(localModel)))
         DispatchQueue.global(qos: .utility).async { [weak self] in
           self?.getRemoteModel(
             modelName: modelName,
@@ -317,32 +319,33 @@ extension ModelDownloader {
             downloader: downloader,
             telemetryLogger: self.telemetryLogger
           )
-          // TODO: Is it possible for download URL to expire here?
           downloadTask.download(progressHandler: { progress in
-            DispatchQueue.main.async {
-              progressHandler?(progress)
+            if let progressHandler = progressHandler {
+              self.mainQueueHandler(progressHandler(progress))
             }
           }) { result in
             switch result {
             case let .success(model):
-              DispatchQueue.main.async {
-                completion(.success(model))
-              }
+              self.mainQueueHandler(completion(.success(model)))
             case let .failure(error):
               switch error {
+              /// This is the error returned when URL expired.
+              // TODO: Should we use a different error here?
               case .failedPrecondition:
                 let currentDateTime = Date()
+                /// Check if download url has expired.
                 guard currentDateTime > remoteModelInfo.urlExpiryTime else {
-                  DispatchQueue.main.async {
-                    completion(.failure(error))
-                  }
+                  self.mainQueueHandler(completion(.failure(error)))
                   return
                 }
+                /// Check if retries are allowed.
                 guard self.numberOfRetries > 0 else {
-                  DispatchQueue.main.async {
-                    completion(.failure(.internalError(description: ModelDownloader.ErrorDescription
-                        .expiredModelInfo)))
-                  }
+                  self
+                    .mainQueueHandler(
+                      completion(.failure(.internalError(description: ModelDownloader
+                          .ErrorDescription
+                          .expiredModelInfo)))
+                    )
                   return
                 }
                 self.numberOfRetries -= 1
@@ -355,36 +358,25 @@ extension ModelDownloader {
                   completion: completion
                 )
               default:
-                DispatchQueue.main.async {
-                  completion(.failure(error))
-                }
+                self.mainQueueHandler(completion(.failure(error)))
               }
             }
           }
         /// Local model info is the latest model info.
         case .notModified:
           guard let localModel = self.getLocalModel(modelName: modelName) else {
-            DispatchQueue.main.async {
-              /// This can only happen if either local model info or the model file was suddenly wiped out in the middle of model info request and server response
-              // TODO: Consider handling: If model file is deleted after local model info is retrieved but before model info network call.
-              completion(
-                .failure(
-                  .internalError(description: ModelDownloader.ErrorDescription
-                    .deletedLocalModelInfo)
-                )
-              )
-            }
+            /// This can only happen if either local model info or the model file was suddenly wiped out in the middle of model info request and server response
+            // TODO: Consider handling: If model file is deleted after local model info is retrieved but before model info network call.
+            self
+              .mainQueueHandler(completion(.failure(.internalError(description: ModelDownloader
+                  .ErrorDescription.deletedLocalModelInfo))))
             return
           }
 
-          DispatchQueue.main.async {
-            completion(.success(localModel))
-          }
+          self.mainQueueHandler(completion(.success(localModel)))
         }
       case let .failure(downloadError):
-        DispatchQueue.main.async {
-          completion(.failure(downloadError))
-        }
+        self.mainQueueHandler(completion(.failure(downloadError)))
       }
     }
   }
