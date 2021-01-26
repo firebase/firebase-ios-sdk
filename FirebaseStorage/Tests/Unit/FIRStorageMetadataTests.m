@@ -23,6 +23,8 @@
 #import "FirebaseStorage/Sources/FIRStorageMetadata_Private.h"
 #import "FirebaseStorage/Sources/FIRStorageUtils.h"
 
+#import "FirebaseStorage/Tests/Unit/FIRStorageTestHelpers.h"
+
 @interface FIRStorageMetadataTests : XCTestCase
 
 @end
@@ -131,7 +133,13 @@
     kFIRStorageMetadataBucket : @"bucket",
     kFIRStorageMetadataName : @"path/to/object",
   };
-  NSURL *actualURL = [FIRStorageGetDownloadURLTask downloadURLFromMetadataDictionary:metaDict];
+
+  FIRStorageGetDownloadURLTask *task =
+      [[FIRStorageGetDownloadURLTask alloc] initWithReference:[FIRStorageTestHelpers rootReference]
+                                               fetcherService:nil
+                                                dispatchQueue:nil
+                                                   completion:nil];
+  NSURL *actualURL = [task downloadURLFromMetadataDictionary:metaDict];
   XCTAssertNil(actualURL);
 }
 
@@ -141,12 +149,19 @@
     kFIRStorageMetadataDownloadTokens : @"12345,ignored",
     kFIRStorageMetadataName : @"path/to/object",
   };
-  NSString *URLformat = @"https://firebasestorage.googleapis.com/v0/b/%@/o/%@?alt=media&token=%@";
+  NSString *URLformat =
+      @"https://firebasestorage.googleapis.com:443/v0/b/%@/o/%@?alt=media&token=%@";
   NSString *expectedURL = [NSString
       stringWithFormat:URLformat, metaDict[kFIRStorageMetadataBucket],
                        [FIRStorageUtils GCSEscapedString:metaDict[kFIRStorageMetadataName]],
                        @"12345"];
-  NSURL *actualURL = [FIRStorageGetDownloadURLTask downloadURLFromMetadataDictionary:metaDict];
+
+  FIRStorageGetDownloadURLTask *task = [[FIRStorageGetDownloadURLTask alloc]
+      initWithReference:[[FIRStorageTestHelpers rootReference] child:@"path/to/object"]
+         fetcherService:nil
+          dispatchQueue:nil
+             completion:nil];
+  NSURL *actualURL = [task downloadURLFromMetadataDictionary:metaDict];
   XCTAssertEqualObjects([actualURL absoluteString], expectedURL);
 }
 
