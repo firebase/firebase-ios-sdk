@@ -203,12 +203,9 @@ extension ModelDownloadTask {
     } catch let error as DownloadError {
       downloadStatus = .failed
       telemetryLogger?.logModelDownloadEvent(eventName: .modelDownload, status: downloadStatus)
-      DeviceLogger.logEvent(
-        level: .info,
-        category: .modelDownload,
-        message: ModelDownloadTask.ErrorDescription.saveModel,
-        messageCode: .modelDownloaded
-      )
+      DeviceLogger.logEvent(level: .debug,
+                            message: ModelDownloadTask.ErrorDescription.saveModel,
+                            messageCode: .downloadedModelSaveError)
       DispatchQueue.main.async {
         self.downloadHandlers
           .completion(.failure(error))
@@ -217,12 +214,9 @@ extension ModelDownloadTask {
     } catch {
       downloadStatus = .failed
       telemetryLogger?.logModelDownloadEvent(eventName: .modelDownload, status: downloadStatus)
-      DeviceLogger.logEvent(
-        level: .info,
-        category: .modelDownload,
-        message: ModelDownloadTask.ErrorDescription.saveModel,
-        messageCode: .modelDownloaded
-      )
+      DeviceLogger.logEvent(level: .debug,
+                            message: ModelDownloadTask.ErrorDescription.saveModel,
+                            messageCode: .downloadedModelSaveError)
       DispatchQueue.main.async {
         self.downloadHandlers
           .completion(.failure(.internalError(description: error.localizedDescription)))
@@ -234,6 +228,11 @@ extension ModelDownloadTask {
 
 /// Possible error messages for model downloading.
 extension ModelDownloadTask {
+  /// Debug descriptions.
+  private enum DebugDescription {
+    static let modelSaved = "Model saved successfully to device."
+  }
+
   /// Error descriptions.
   private enum ErrorDescription {
     static let invalidHostName = { (error: String) in
@@ -243,8 +242,7 @@ extension ModelDownloadTask {
     static let invalidServerResponse =
       "Could not get server response for model downloading."
     static let unknownDownloadError = "Unable to download model due to unknown error."
-    static let saveModel: StaticString =
-      "Unable to save downloaded remote model file."
+    static let saveModel = "Unable to save downloaded remote model file."
     static let expiredModelInfo = "Unable to update expired model info."
   }
 }

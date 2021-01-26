@@ -150,12 +150,10 @@ public class ModelDownloader {
               switch result {
               case .success: break
               case .failure:
-                DeviceLogger.logEvent(
-                  level: .info,
-                  category: .modelDownload,
-                  message: ModelDownloader.ErrorDescription.backgroundModelDownload,
-                  messageCode: .backgroundDownloadError
-                )
+                DeviceLogger.logEvent(level: .debug,
+                                      message: ModelDownloader.ErrorDescription
+                                        .backgroundModelDownload,
+                                      messageCode: .backgroundDownloadError)
               }
             }
           )
@@ -363,7 +361,7 @@ extension ModelDownloader {
     static let outdatedModelPath = "Outdated model paths in local storage."
     static let deletedLocalModelInfo =
       "Model unavailable due to deleted local model info."
-    static let backgroundModelDownload: StaticString =
+    static let backgroundModelDownload =
       "Failed to update model in background."
   }
 }
