@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
     - '.github/workflows/prerelease.yml'
+    - 'Gemfile'
   workflow_dispatch:
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
