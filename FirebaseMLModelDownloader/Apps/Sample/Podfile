@@ -1,7 +1,7 @@
 platform :ios, '10.0'
 use_frameworks!
 
-pod 'FirebaseMLModelDownloader', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :branch => 'master'
+pod 'FirebaseMLModelDownloader', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :branch => 'sample-app'
 
 target 'MLDownloaderTestApp' do
     target 'MLDownloaderTestAppTests' do
