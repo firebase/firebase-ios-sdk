@@ -59,8 +59,8 @@ use modern Swift and support multiple Apple platforms.
 ## Other
 
 Check out the [issue list](https://github.com/firebase/firebase-ios-sdk/issues).
-Indicate your interest for a bug fix or feature request with a thumbs-up or a
-comment indicating your interest in making a contribution.
+Indicate your interest in contributing to a bug fix or feature request with a
+comment. If you would like someone else to solve it, add a thumbs-up.
 
 If you don't see the feature you're looking for, please add a
 [Feature Request](https://github.com/firebase/firebase-ios-sdk/issues/new/choose).
