@@ -17,6 +17,7 @@
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSReportUploader_Private.h"
 
+#import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionArbiter.h"
 #import "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
 #import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
@@ -28,6 +29,8 @@
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockSettings.h"
 #import "Crashlytics/UnitTests/Mocks/FIRCLSTempMockFileManager.h"
 #import "Crashlytics/UnitTests/Mocks/FIRMockGDTCoreTransport.h"
+#import "Crashlytics/UnitTests/Mocks/FIRMockInstallations.h"
+#import "Crashlytics/UnitTests/Mocks/FIRAppFake.h"
 
 NSString *const TestEndpoint = @"https://reports.crashlytics.com";
 
@@ -58,12 +61,16 @@ NSString *const TestEndpoint = @"https://reports.crashlytics.com";
                                                                       target:kGDTCORTargetCSH];
   self.fileManager = [[FIRCLSTempMockFileManager alloc] init];
 
+  id fakeApp = [[FIRAppFake alloc] init];
+  FIRCLSDataCollectionArbiter *dataArbiter = [[FIRCLSDataCollectionArbiter alloc] initWithApp:fakeApp withAppInfo:@{}];
+  FIRMockInstallations *mockInstallations = [[FIRMockInstallations alloc] initWithFID:@"test_token"];
+
   self.managerData = [[FIRCLSManagerData alloc] initWithGoogleAppID:@"someGoogleAppId"
                                                     googleTransport:self.mockDataTransport
-                                                      installations:nil
+                                                      installations:mockInstallations
                                                           analytics:nil
                                                         fileManager:self.fileManager
-                                                        dataArbiter:nil
+                                                        dataArbiter:dataArbiter
                                                            settings:self.mockSettings];
 
   self.uploader = [[FIRCLSReportUploader alloc] initWithManagerData:_managerData];
