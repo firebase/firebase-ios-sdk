@@ -11,6 +11,7 @@ jobs:
     outputs:
       database_run_job: ${{ steps.check_files.outputs.database_run_job }}
       functions_run_job: ${{ steps.check_files.outputs.functions_run_job }}
+      base_commit: ${{ steps.check_files.outputs.base_commit }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
