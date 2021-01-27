@@ -23,7 +23,28 @@ import Foundation
 // TODO: Create list of all possible messages with code - according to format.
 enum LoggerMessageCode: Int {
   case modelDownloaded = 1
-  case downloadedModelMovedToURL
+  case downloadedModelFileSaved
+  case downloadedModelInfoSaved
+  case downloaderInstanceCreated
+  case downloaderInstanceRetrieved
+  case downloaderInstanceDeleted
+  case localModelFound
+  case backgroundModelDownloaded
+  case modelNameParseError
+  case localModelInfoRetrievalError
+  case outdatedModelPathError
+  case allLocalModelsFound
+  case listModelsError
+  case modelNotFound
+  case modelDeleted
+  case invalidOptions
+  case retryDownload
+  case anotherDownloadInProgressError
+  case validModelDownloadResponse
+  case hostnameError
+  case invalidDownloadSessionError
+  case invalidResponseError
+  case modelDownloadError
   case downloadedModelSaveError
   case analyticsEventEncodeError
   case telemetryInitError

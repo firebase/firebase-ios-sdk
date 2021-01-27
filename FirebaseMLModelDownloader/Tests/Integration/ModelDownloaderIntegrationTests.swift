@@ -46,6 +46,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     } else {
       XCTFail("Could not locate GoogleService-Info.plist.")
     }
+    FirebaseConfiguration.shared.setLoggerLevel(.debug)
   }
 
   /// Test to download model info - makes an actual network call.
@@ -441,6 +442,8 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
           status: .successful,
           model: model
         )
+        let modelPath = URL(string: model.path)!
+        try? ModelFileManager.removeFile(at: modelPath)
       case let .failure(error):
         XCTFail("Failed to download model - \(error)")
       }

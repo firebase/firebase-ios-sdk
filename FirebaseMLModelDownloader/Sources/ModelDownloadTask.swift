@@ -62,6 +62,15 @@ extension ModelDownloadTask {
   }
 
   func download(progressHandler: ProgressHandler?, completion: @escaping Completion) {
+    /// Prevent multiple concurrent downloads.
+    guard downloadStatus == .notStarted else {
+      completion(.failure(.internalError(description: ModelDownloadTask.ErrorDescription
+          .anotherDownloadInProgress)))
+      DeviceLogger.logEvent(level: .debug,
+                            message: ModelDownloadTask.ErrorDescription.anotherDownloadInProgress,
+                            messageCode: .anotherDownloadInProgressError)
+      return
+    }
     downloader.downloadFile(with: remoteModelInfo.downloadURL,
                             progressHandler: { downloadedBytes, totalBytes in
                               /// Fraction of model file downloaded.
@@ -70,6 +79,10 @@ extension ModelDownloadTask {
                             }) { result in
       switch result {
       case let .success(response):
+        DeviceLogger.logEvent(level: .debug,
+                              message: ModelDownloadTask.DebugDescription
+                                .receivedServerResponse,
+                              messageCode: .validModelDownloadResponse)
         self.handleResponse(
           response: response.urlResponse,
           tempURL: response.fileURL,
@@ -79,20 +92,31 @@ extension ModelDownloadTask {
         var downloadError: DownloadError
         switch error {
         case let FileDownloaderError.networkError(error):
-          downloadError = .internalError(description: ModelDownloadTask
-            .ErrorDescription
-            .invalidHostName(error
-              .localizedDescription))
+          let description = ModelDownloadTask.ErrorDescription
+            .invalidHostName(error.localizedDescription)
+          downloadError = .internalError(description: description)
+          DeviceLogger.logEvent(level: .debug,
+                                message: description,
+                                messageCode: .hostnameError)
         // TODO: Handle this case better.
         case FileDownloaderError.sessionInvalidated:
           downloadError = .failedPrecondition
+          DeviceLogger.logEvent(level: .debug,
+                                message: ModelDownloadTask.ErrorDescription.sessionInvalidated,
+                                messageCode: .invalidDownloadSessionError)
         case FileDownloaderError.unexpectedResponseType:
-          downloadError = .internalError(description: ModelDownloadTask
-            .ErrorDescription.invalidServerResponse)
+          let description = ModelDownloadTask.ErrorDescription.invalidServerResponse
+          downloadError = .internalError(description: description)
+          DeviceLogger.logEvent(level: .debug,
+                                message: description,
+                                messageCode: .invalidResponseError)
 
         default:
-          downloadError = .internalError(description: ModelDownloadTask.ErrorDescription
-            .unknownDownloadError)
+          let description = ModelDownloadTask.ErrorDescription.unknownDownloadError
+          downloadError = .internalError(description: description)
+          DeviceLogger.logEvent(level: .debug,
+                                message: description,
+                                messageCode: .modelDownloadError)
         }
         completion(.failure(downloadError))
       }
@@ -104,9 +128,14 @@ extension ModelDownloadTask {
     guard (200 ..< 299).contains(response.statusCode) else {
       /// Possible failure due to download URL expiry.
       if response.statusCode == 400 {
-        completion(.failure(.failedPrecondition))
+        completion(.failure(.expiredDownloadURL))
         return
       }
+      let description = ModelDownloadTask.ErrorDescription.modelDownloadFailed(response.statusCode)
+      DeviceLogger.logEvent(level: .debug,
+                            message: description,
+                            messageCode: .modelDownloadError)
+      completion(.failure(.internalError(description: description)))
       return
     }
 
@@ -117,10 +146,16 @@ extension ModelDownloadTask {
 
     do {
       try ModelFileManager.moveFile(at: tempURL, to: modelFileURL)
+      DeviceLogger.logEvent(level: .debug,
+                            message: ModelDownloadTask.DebugDescription.savedModelFile,
+                            messageCode: .downloadedModelFileSaved)
       /// Generate local model info.
       let localModelInfo = LocalModelInfo(from: remoteModelInfo, path: modelFileURL.absoluteString)
       /// Write model to user defaults.
       localModelInfo.writeToDefaults(defaults, appName: appName)
+      DeviceLogger.logEvent(level: .debug,
+                            message: ModelDownloadTask.DebugDescription.savedLocalModelInfo,
+                            messageCode: .downloadedModelInfoSaved)
       /// Build model from model info.
       let model = CustomModel(localModelInfo: localModelInfo)
       downloadStatus = .successful
@@ -154,7 +189,9 @@ extension ModelDownloadTask {
 extension ModelDownloadTask {
   /// Debug descriptions.
   private enum DebugDescription {
-    static let modelSaved = "Model saved successfully to device."
+    static let savedModelFile = "Model file saved successfully to device."
+    static let savedLocalModelInfo = "Downloaded model info saved successfully to user defaults."
+    static let receivedServerResponse = "Received a valid response from server."
   }
 
   /// Error descriptions.
@@ -163,10 +200,16 @@ extension ModelDownloadTask {
       "Unable to resolve hostname or connect to host: \(error)"
     }
 
+    static let modelDownloadFailed = { (code: Int) in
+      "Model download failed with HTTP error code: \(code)"
+    }
+
+    static let sessionInvalidated = "Session invalidated due to failed pre-conditions."
     static let invalidServerResponse =
-      "Could not get server response for model downloading."
+      "Could not get valid server response for model downloading."
     static let unknownDownloadError = "Unable to download model due to unknown error."
     static let saveModel = "Unable to save downloaded remote model file."
     static let expiredModelInfo = "Unable to update expired model info."
+    static let anotherDownloadInProgress = "Download already in progress."
   }
 }
