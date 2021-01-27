@@ -28,6 +28,8 @@ public enum DownloadError: Error, Equatable {
   case notEnoughSpace
   /// Malformed model name.
   case invalidArgument
+  /// Expired download URL.
+  case expiredDownloadURL
   /// Other errors with description.
   case internalError(description: String)
 }
@@ -329,7 +331,7 @@ extension ModelDownloader {
               switch error {
               /// This is the error returned when URL expired.
               // TODO: Should we use a different error here?
-              case .failedPrecondition:
+              case .expiredDownloadURL:
                 let currentDateTime = Date()
                 /// Check if download url has expired.
                 guard currentDateTime > remoteModelInfo.urlExpiryTime else {

@@ -104,7 +104,7 @@ extension ModelDownloadTask {
     guard (200 ..< 299).contains(response.statusCode) else {
       /// Possible failure due to download URL expiry.
       if response.statusCode == 400 {
-        completion(.failure(.failedPrecondition))
+        completion(.failure(.expiredDownloadURL))
         return
       }
       return
