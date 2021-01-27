@@ -35,6 +35,7 @@ product can be one of:
   InAppMessaging
   Messaging
   MessagingSample
+  MLModelDownloaderSample
   RemoteConfig
   RemoteConfigSample
   Storage
@@ -394,6 +395,16 @@ case "$product-$platform-$method" in
         build
     fi
     ;;
+
+  MLModelDownloaderSample-*-*)
+  if check_secrets; then
+    RunXcodebuild \
+      -workspace 'FirebaseMLModelDownloader/Apps/Sample/MLDownloaderTestApp.xcworkspace' \
+      -scheme "MLDownloaderTestApp" \
+      "${xcb_flags[@]}" \
+      build
+  fi
+  ;;
 
   SegmentationSample-*-*)
     RunXcodebuild \
