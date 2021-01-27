@@ -7,7 +7,6 @@ pod 'FirebaseAnalytics'
 pod 'FirebaseCore', :path => '../../../..'
 pod 'FirebaseInstallations', :path => '../../../..'
 pod 'FirebaseCoreDiagnostics', :path => '../../../..'
-pod 'GoogleDataTransport', :path => '../../../..'
 pod 'FirebaseABTesting', :path => '../../../..'
 
 target 'InAppMessaging_Example_iOS' do

@@ -21,7 +21,7 @@
 #import "FirebasePerformance/Sources/Loggers/FPRGDTLogSampler.h"
 #import "FirebasePerformance/Sources/Loggers/FPRGDTRateLimiter.h"
 
-#import "GoogleDataTransport/GDTCORLibrary/Internal/GoogleDataTransportInternal.h"
+#import <GoogleDataTransport/GoogleDataTransport.h>
 
 #import "FirebasePerformance/ProtoSupport/PerfMetric.pbobjc.h"
 

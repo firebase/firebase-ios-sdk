@@ -7,6 +7,5 @@ target 'FDLBuilderTestAppObjC' do
 
   pod 'FirebaseCore', :path => '../../../'
   pod 'FirebaseCoreDiagnostics', :path => '../../../'
-  pod 'GoogleDataTransport', :path => '../../../'
   pod 'FirebaseDynamicLinks', :path => '../../../'
 end
