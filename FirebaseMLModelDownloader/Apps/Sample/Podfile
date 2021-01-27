@@ -1,7 +1,7 @@
 platform :ios, '10.0'
 use_frameworks!
 
-pod 'FirebaseMLModelDownloader', :path => '../../'
+pod 'FirebaseMLModelDownloader', :path => '../../../'
 
 target 'MLDownloaderTestApp' do
     target 'MLDownloaderTestAppTests' do
