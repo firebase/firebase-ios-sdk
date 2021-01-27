@@ -248,6 +248,29 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
       let decoded = try readDocument(forRef: docToWrite).data(as: Model.self)
       XCTAssertEqual(decoded!, Model(name: "name", docId: docToWrite))
     }
+  
+    func testSelfDocumentIDOfString() throws {
+      struct Model: Codable, Equatable {
+        var name: String
+        @DocumentID var docId: String?
+      }
+
+      let docToWrite = documentRef()
+      let model = Model(
+        name: "name",
+        docId: nil
+      )
+
+      try setData(from: model, forDocument: docToWrite, withFlavor: .docRef)
+      let data = readDocument(forRef: docToWrite).data()
+
+      // "docId" is ignored during encoding
+      XCTAssertEqual(data! as! [String: String], ["name": "name"])
+
+      // Decoded result has "docId" auto-populated.
+      let decoded = try readDocument(forRef: docToWrite).data(as: Model.self)
+      XCTAssertEqual(decoded!, Model(name: "name", docId: docToWrite.documentID))
+    }
 
     func testSelfDocumentIDWithCustomCodable() throws {
       struct Model: Codable, Equatable {
@@ -295,6 +318,53 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
       let decoded = try readDocument(forRef: docToWrite).data(as: Model.self)
       XCTAssertEqual(decoded!, Model(name: "name", docId: docToWrite))
     }
+  
+    func testSelfDocumentIDOfStringWithCustomCodable() throws {
+      struct Model: Codable, Equatable {
+        var name: String
+        @DocumentID var docId: String?
+
+        enum CodingKeys: String, CodingKey {
+          case name
+          case docId
+        }
+
+        public init(name: String, docId: String?) {
+          self.name = name
+          self.docId = docId
+        }
+
+        public init(from decoder: Decoder) throws {
+          let container = try decoder.container(keyedBy: CodingKeys.self)
+          name = try container.decode(String.self, forKey: .name)
+          docId = try container.decode(DocumentID<String>.self, forKey: .docId).wrappedValue
+        }
+
+        public func encode(to encoder: Encoder) throws {
+          var container = encoder.container(keyedBy: CodingKeys.self)
+          try container.encode(name, forKey: .name)
+          // DocumentId should not be encoded when writing to Firestore; it's auto-populated when
+          // reading.
+        }
+      }
+
+      let docToWrite = documentRef()
+      let model = Model(
+        name: "name",
+        docId: nil
+      )
+
+      try setData(from: model, forDocument: docToWrite, withFlavor: .docRef)
+      let data = readDocument(forRef: docToWrite).data()
+
+      // "docId" is ignored during encoding
+      XCTAssertEqual(data! as! [String: String], ["name": "name"])
+
+      // Decoded result has "docId" auto-populated.
+      let decoded = try readDocument(forRef: docToWrite).data(as: Model.self)
+      XCTAssertEqual(decoded!, Model(name: "name", docId: docToWrite.documentID))
+    }
+
   #endif // swift(>=5.1)
 
   func testSetThenMerge() throws {
