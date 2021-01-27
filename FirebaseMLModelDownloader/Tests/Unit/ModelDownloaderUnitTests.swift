@@ -295,7 +295,9 @@ class NetworkingUnitTests: XCTestCase {
         XCTAssertEqual(model.name, self.fakeModelName)
         XCTAssertEqual(model.size, self.fakeModelSize)
         XCTAssertEqual(model.hash, self.fakeModelHash)
-        XCTAssertTrue(ModelFileManager.isFileReachable(at: URL(string: model.path)!))
+        let modelPath = URL(string: model.path)!
+        XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
+        try? self.deleteFile(at: modelPath)
       case let .failure(error):
         XCTFail("Error - \(error)")
       }
@@ -339,7 +341,7 @@ class NetworkingUnitTests: XCTestCase {
       switch result {
       case .success: XCTFail("Unexpected successful model download.")
       case let .failure(error):
-        XCTAssertEqual(error, DownloadError.failedPrecondition)
+        XCTAssertEqual(error, DownloadError.expiredDownloadURL)
       }
     }
     wait(for: [fileDownloaderExpectation], timeout: 0.1)
@@ -391,7 +393,9 @@ class NetworkingUnitTests: XCTestCase {
         XCTAssertEqual(model.name, self.fakeModelName)
         XCTAssertEqual(model.size, self.fakeModelSize)
         XCTAssertEqual(model.hash, self.fakeModelHash)
-        XCTAssertTrue(ModelFileManager.isFileReachable(at: URL(string: model.path)!))
+        let modelPath = URL(string: model.path)!
+        XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
+        try? self.deleteFile(at: modelPath)
       case let .failure(error):
         XCTFail("Error - \(error)")
       }
@@ -589,7 +593,9 @@ class NetworkingUnitTests: XCTestCase {
         XCTAssertEqual(model.name, self.fakeModelName)
         XCTAssertEqual(model.size, self.fakeModelSize)
         XCTAssertEqual(model.hash, self.fakeModelHash)
-        XCTAssertTrue(ModelFileManager.isFileReachable(at: URL(string: model.path)!))
+        let modelPath = URL(string: model.path)!
+        XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
+        try? self.deleteFile(at: modelPath)
       case let .failure(error):
         XCTFail("Error - \(error)")
       }
@@ -701,6 +707,10 @@ extension NetworkingUnitTests {
     let tempData: Data = "fakeModelData".data(using: .utf8)!
     try? tempData.write(to: tempFileURL)
     return tempFileURL
+  }
+
+  func deleteFile(at url: URL) throws {
+    try ModelFileManager.removeFile(at: url)
   }
 
   func fakeLocalModelInfo() -> LocalModelInfo {
