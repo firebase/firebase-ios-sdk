@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRCLSNotificationManager.h"
+#import "Crashlytics/Crashlytics/Controllers/FIRCLSNotificationManager.h"
 
 #import "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
 #import "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
