@@ -17,7 +17,7 @@
 
 import PackageDescription
 
-let firebaseVersion = "7.4.0"
+let firebaseVersion = "7.5.0"
 
 let package = Package(
   name: "Firebase",
@@ -94,7 +94,7 @@ let package = Package(
     .package(
       name: "GoogleAppMeasurement",
       url: "https://github.com/google/GoogleAppMeasurement.git",
-      .exact("7.4.0")
+      .exact("7.5.0")
     ),
     .package(
       name: "GoogleDataTransport",
@@ -241,8 +241,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/7.4.0/FirebaseAnalytics.zip",
-      checksum: "560bf11462c9e064c0d55e10aef761af420f4f531415e896cac18edc88e9666f"
+      url: "https://dl.google.com/firebase/ios/swiftpm/7.5.0/FirebaseAnalytics.zip",
+      checksum: "2a622329e1f233d9bd38333c62c900854cb2eb9c63a00b65df14dadf4ef7988e"
     ),
 
     .target(
