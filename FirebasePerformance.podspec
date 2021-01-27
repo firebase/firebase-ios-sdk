@@ -29,10 +29,6 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
     'FirebaseCore/Sources/Private/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
     'FirebaseRemoteConfig/Sources/Private/*.h',
-    'GoogleDataTransport/GDTCORLibrary/Internal/*.h',
-    'GoogleUtilities/ISASwizzler/Private/*.h',
-    'GoogleUtilities/MethodSwizzler/Private/*.h',
-    'GoogleUtilities/Environment/Private/*.h',
   ]
 
   s.requires_arc = [

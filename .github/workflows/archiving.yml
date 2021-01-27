@@ -38,7 +38,7 @@ jobs:
       matrix:
         target: [ios, tvos, macos]
         # These need to be on a single line or else the formatting won't validate.
-        pod: ["FirebaseABTesting", "FirebaseAuth", "FirebaseCore", "FirebaseCrashlytics", "FirebaseDatabase", "FirebaseFirestore", "FirebaseFunctions", "FirebaseMessaging", "FirebaseRemoteConfig", "FirebaseStorage", "GoogleDataTransport"]
+        pod: ["FirebaseABTesting", "FirebaseAuth", "FirebaseCore", "FirebaseCrashlytics", "FirebaseDatabase", "FirebaseFirestore", "FirebaseFunctions", "FirebaseMessaging", "FirebaseRemoteConfig", "FirebaseStorage"]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler

@@ -13,7 +13,6 @@ target 'RemoteConfigSampleApp' do
   pod 'FirebaseInstallations', :path => '../../../'
   pod 'FirebaseRemoteConfig', :path => '../../../'
   pod 'FirebaseABTesting', :path => '../../..'
-  pod 'GoogleDataTransport', :path => '../../..'
 
   # Pods for RemoteConfigSampleApp
 

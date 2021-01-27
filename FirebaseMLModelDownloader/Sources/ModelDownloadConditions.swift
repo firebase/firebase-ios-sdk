@@ -18,4 +18,6 @@ import Foundation
 public struct ModelDownloadConditions {
   /// Allow model downloading on a cellular connection. Default is `YES`.
   public var allowsCellularAccess = true
+  /// Public init
+  public init() {}
 }
