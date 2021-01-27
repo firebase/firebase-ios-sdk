@@ -20,27 +20,28 @@
 #include <string>
 #include <utility>
 
+#include "Firestore/core/src/bundle/bundle_metadata.h"
 #include "Firestore/core/src/bundle/named_query.h"
+#include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/remote/serializer.h"
+#include "Firestore/core/src/util/reader_context.h"
 #include "nlohmann/json.hpp"
 
 namespace firebase {
 namespace firestore {
 namespace bundle {
 
-/**
- * TODO
- */
+/** A JSON serializer to deserialize Firestore Bundles. */
 class BundleSerializer {
  public:
-  explicit BundleSerializer(remote::Serializer rpc_serializer)
-  : rpc_serializer_(std::move(rpc_serializer)) {
-  }
+  BundleSerializer() = default;
 
-  NamedQuery DecodeNamedQuery(nlohmann::json query);
+  BundleMetadata DecodeBundleMetadata(util::ReadContext* context,
+                                      const std::string& metadata) const;
 
  private:
-  remote::Serializer rpc_serializer_;
+  model::SnapshotVersion DecodeSnapshotVersion(
+      util::ReadContext* context, const nlohmann::json& version) const;
 };
 
 }  // namespace bundle
