@@ -15,7 +15,7 @@
 import Foundation
 
 /// Manager for common file operations.
-class ModelFileManager: FileManager {
+enum ModelFileManager {
   private static let nameSeparator = "__"
   private static let modelNamePrefix = "fbml_model"
   private static let fileManager = FileManager.default
