@@ -248,7 +248,7 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
       let decoded = try readDocument(forRef: docToWrite).data(as: Model.self)
       XCTAssertEqual(decoded!, Model(name: "name", docId: docToWrite))
     }
-  
+
     func testSelfDocumentIDOfString() throws {
       struct Model: Codable, Equatable {
         var name: String
@@ -318,7 +318,7 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
       let decoded = try readDocument(forRef: docToWrite).data(as: Model.self)
       XCTAssertEqual(decoded!, Model(name: "name", docId: docToWrite))
     }
-  
+
     func testSelfDocumentIDOfStringWithCustomCodable() throws {
       struct Model: Codable, Equatable {
         var name: String
