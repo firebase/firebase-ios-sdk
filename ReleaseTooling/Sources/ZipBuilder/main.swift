@@ -187,7 +187,7 @@ struct ZipBuilderTool: ParsableCommand {
     }
 
     // Validate that Firebase builds are including dependencies.
-    if !buildDependencies, zipPods == nil && pods.count == 0 {
+    if !buildDependencies, zipPods == nil, pods.count == 0 {
       throw ValidationError("""
       The `enable-build-dependencies` option cannot be false unless a list of pods is \
       specified with the `zip-pods` or the `pods` option.
