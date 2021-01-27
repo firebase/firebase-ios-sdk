@@ -23,9 +23,6 @@ import Foundation
 public let shared = Manifest(
   version: "7.4.0",
   pods: [
-    Pod("GoogleUtilities", isFirebase: false, podVersion: "7.2.0", releasing: true),
-    Pod("GoogleDataTransport", isFirebase: false, podVersion: "8.2.0", releasing: true),
-
     Pod("FirebaseCoreDiagnostics"),
     Pod("FirebaseCore"),
     Pod("FirebaseInstallations"),
@@ -61,6 +58,6 @@ public struct Manifest {
   public let pods: [Pod]
 
   public func versionString(_ pod: Pod) -> String {
-    return pod.podVersion ?? (pod.isBeta ? version + "-beta" : version)
+    return pod.isBeta ? version + "-beta" : version
   }
 }
