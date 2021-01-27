@@ -41,7 +41,7 @@ func sendMetricsServiceRequest(repo: String, commits: String, jsonContent: Data,
       return
     }
     pathPara.append("pull_request=\(String(pr))")
-    if let note = pullRequestNote { pathPara.append("note=\(note)") }
+    if let note = pullRequestNote { pathPara.append("note=\"\(note)\"") }
     pathPara.append("base_commit=\(bc)")
   } else {
     guard let branch = branch else {
