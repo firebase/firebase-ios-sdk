@@ -17,8 +17,8 @@
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSReportUploader_Private.h"
 
-#import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionArbiter.h"
 #import "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
+#import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionArbiter.h"
 #import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
@@ -26,11 +26,11 @@
 #import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
 #import "Crashlytics/Shared/FIRCLSConstants.h"
 #import "Crashlytics/UnitTests/Mocks/FABMockApplicationIdentifierModel.h"
+#import "Crashlytics/UnitTests/Mocks/FIRAppFake.h"
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockSettings.h"
 #import "Crashlytics/UnitTests/Mocks/FIRCLSTempMockFileManager.h"
 #import "Crashlytics/UnitTests/Mocks/FIRMockGDTCoreTransport.h"
 #import "Crashlytics/UnitTests/Mocks/FIRMockInstallations.h"
-#import "Crashlytics/UnitTests/Mocks/FIRAppFake.h"
 
 NSString *const TestEndpoint = @"https://reports.crashlytics.com";
 
@@ -62,8 +62,10 @@ NSString *const TestEndpoint = @"https://reports.crashlytics.com";
   self.fileManager = [[FIRCLSTempMockFileManager alloc] init];
 
   id fakeApp = [[FIRAppFake alloc] init];
-  FIRCLSDataCollectionArbiter *dataArbiter = [[FIRCLSDataCollectionArbiter alloc] initWithApp:fakeApp withAppInfo:@{}];
-  FIRMockInstallations *mockInstallations = [[FIRMockInstallations alloc] initWithFID:@"test_token"];
+  FIRCLSDataCollectionArbiter *dataArbiter =
+      [[FIRCLSDataCollectionArbiter alloc] initWithApp:fakeApp withAppInfo:@{}];
+  FIRMockInstallations *mockInstallations =
+      [[FIRMockInstallations alloc] initWithFID:@"test_token"];
 
   self.managerData = [[FIRCLSManagerData alloc] initWithGoogleAppID:@"someGoogleAppId"
                                                     googleTransport:self.mockDataTransport
