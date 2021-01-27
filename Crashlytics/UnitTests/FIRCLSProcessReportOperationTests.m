@@ -45,15 +45,17 @@
   return [[NSBundle bundleForClass:[self class]] resourcePath];
 }
 
+- (NSString *)reportPath {
+  return [NSTemporaryDirectory() stringByAppendingPathComponent:@"execution_identifier"];
+}
+
 - (NSString *)pathForResource:(NSString *)name {
   return [[self resourcePath] stringByAppendingPathComponent:name];
 }
 
 - (FIRCLSInternalReport *)createReportAndPath {
-  NSString *reportPath =
-      [NSTemporaryDirectory() stringByAppendingPathComponent:@"execution_identifier"];
   FIRCLSInternalReport *report =
-      [[FIRCLSInternalReport alloc] initWithPath:reportPath
+      [[FIRCLSInternalReport alloc] initWithPath:self.reportPath
                              executionIdentifier:@"execution_identifier"];
 
   // create the directory path
