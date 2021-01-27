@@ -35,15 +35,52 @@ final class ModelDownloaderUnitTests: XCTestCase {
     options.apiKey = MockOptions.apiKey
     options.projectID = MockOptions.projectID
     FirebaseApp.configure(options: options)
+    FirebaseConfiguration.shared.setLoggerLevel(.debug)
+  }
+
+  /// Test if the same downloader instance is returned for an app.
+  func testModelDownloaderInit() {
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
+    let modelDownloader1 = ModelDownloader.modelDownloader(app: testApp)
+    let modelDownloader2 = ModelDownloader.modelDownloader()
+    XCTAssert(modelDownloader1 === modelDownloader2)
+  }
+
+  /// Test if app deletion removes associated downloader instance.
+  func testAppDeletion() {
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
+    let modelDownloader1 = ModelDownloader.modelDownloader()
+    testApp.delete { success in
+      XCTAssertTrue(success)
+    }
+    ModelDownloaderUnitTests.setUp()
+    let modelDownloader2 = ModelDownloader.modelDownloader()
+    XCTAssert(modelDownloader1 !== modelDownloader2)
   }
 
   /// Test to download model info.
   // TODO: Add unit test with mocks.
   func testDownloadModelInfo() {}
 
-  /// Test model file deletion.
   // TODO: Add unit test.
   func testDeleteModel() {}
+  /// Test invalid model file deletion.
+  func testDeleteInvalidModel() {
+    let modelDownloader = ModelDownloader.modelDownloader()
+    modelDownloader.deleteDownloadedModel(name: "fake-model-name") { result in
+      switch result {
+      case .success: XCTFail("Unexpected successful model deletion.")
+      case let .failure(error):
+        XCTAssertNotNil(error)
+      }
+    }
+  }
 
   /// Test listing models in model directory.
   // TODO: Add unit test.
@@ -186,6 +223,7 @@ class NetworkingUnitTests: XCTestCase {
     options.apiKey = MockOptions.apiKey
     options.projectID = MockOptions.projectID
     FirebaseApp.configure(options: options)
+    FirebaseConfiguration.shared.setLoggerLevel(.debug)
   }
 
   /// Get model info if server returns a new model info.
