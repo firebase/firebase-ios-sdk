@@ -244,7 +244,7 @@ struct SpecRepoBuilder: ParsableCommand {
         )
     shell.run("pod repo update")
 
-    print ("Outcome is \(outcome)")
+    print("Outcome is \(outcome)")
 
     return outcome
   }
