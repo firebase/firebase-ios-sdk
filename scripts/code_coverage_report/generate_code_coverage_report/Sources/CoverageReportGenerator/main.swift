@@ -58,6 +58,7 @@ struct CoverageReportGenerator: ParsableCommand {
       from: URL(fileURLWithPath: xcresultDir),
       log: logLink
     ) {
+      print(coverageRequest)
       sendMetricsServiceRequest(
         repo: repo,
         commits: commit,
