@@ -15,14 +15,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// This Package.swift is a Work in Progress. We intend to keep it functional
-// on the master branch, but it is rapidly evolving and may have occasional
-// breakages. Please report any issues at
-// https://github.com/firebase/firebase-ios-sdk/issues/new/choose.
-
 import PackageDescription
 
-let firebaseVersion = "7.4.0"
+let firebaseVersion = "7.5.0"
 
 let package = Package(
   name: "Firebase",
@@ -103,7 +98,12 @@ let package = Package(
     .package(
       name: "GoogleAppMeasurement",
       url: "https://github.com/google/GoogleAppMeasurement.git",
-      .exact("7.4.0")
+      .exact("7.5.0")
+    ),
+    .package(
+      name: "GoogleDataTransport",
+      url: "https://github.com/google/GoogleDataTransport.git",
+      "8.2.0" ..< "9.0.0"
     ),
     .package(
       name: "GoogleUtilities",
@@ -180,7 +180,7 @@ let package = Package(
     .target(
       name: "FirebaseCoreDiagnostics",
       dependencies: [
-        "GoogleDataTransport",
+        .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
         .product(name: "Environment", package: "GoogleUtilities"),
         .product(name: "Logger", package: "GoogleUtilities"),
         .product(name: "nanopb", package: "nanopb"),
@@ -245,8 +245,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/7.4.0/FirebaseAnalytics.zip",
-      checksum: "560bf11462c9e064c0d55e10aef761af420f4f531415e896cac18edc88e9666f"
+      url: "https://dl.google.com/firebase/ios/swiftpm/7.5.0/FirebaseAnalytics.zip",
+      checksum: "2a622329e1f233d9bd38333c62c900854cb2eb9c63a00b65df14dadf4ef7988e"
     ),
 
     .target(
@@ -260,7 +260,7 @@ let package = Package(
       dependencies: [
         "FirebaseCore",
         "FirebaseInstallations",
-        "GoogleDataTransport",
+        .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
         .product(name: "AppDelegateSwizzler", package: "GoogleUtilities"),
         .product(name: "UserDefaults", package: "GoogleUtilities"),
       ],
@@ -313,7 +313,8 @@ let package = Package(
     ),
     .target(
       name: "FirebaseCrashlytics",
-      dependencies: ["FirebaseCore", "FirebaseInstallations", "GoogleDataTransport",
+      dependencies: ["FirebaseCore", "FirebaseInstallations",
+                     .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
                      .product(name: "FBLPromises", package: "Promises"),
                      .product(name: "nanopb", package: "nanopb")],
       path: "Crashlytics",
@@ -614,6 +615,7 @@ let package = Package(
       dependencies: [
         "FirebaseCore",
         "FirebaseInstallations",
+        .product(name: "Logger", package: "GoogleUtilities"),
         "SwiftProtobuf",
       ],
       path: "FirebaseMLModelDownloader/Sources",
@@ -742,41 +744,6 @@ let package = Package(
       dependencies: ["FirebaseStorage"],
       path: "FirebaseStorageSwift/Sources"
     ),
-    .target(
-      name: "GoogleDataTransport",
-      dependencies: [
-        .product(name: "nanopb", package: "nanopb"),
-      ],
-      path: "GoogleDataTransport",
-      exclude: [
-        "CHANGELOG.md",
-        "README.md",
-        "generate_project.sh",
-        "GDTCCTWatchOSTestApp/",
-        "GDTWatchOSTestApp/",
-        "GDTCCTTestApp/",
-        "GDTTestApp/",
-        "GDTCCTTests/",
-        "GDTCORTests/",
-        "ProtoSupport/",
-      ],
-      sources: [
-        "GDTCORLibrary",
-        "GDTCCTLibrary",
-      ],
-      publicHeadersPath: "GDTCORLibrary/Public",
-      cSettings: [
-        .headerSearchPath("../"),
-        .define("GDTCOR_VERSION", to: "0.0.1"),
-        .define("PB_FIELD_32BIT", to: "1"),
-        .define("PB_NO_PACKED_STRUCTS", to: "1"),
-        .define("PB_ENABLE_MALLOC", to: "1"),
-      ],
-      linkerSettings: [
-        .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
-        .linkedFramework("CoreTelephony", .when(platforms: [.macOS, .iOS])),
-      ]
-    ),
     .testTarget(
       name: "swift-test",
       dependencies: [
@@ -798,7 +765,6 @@ let package = Package(
         "FirebaseRemoteConfig",
         "FirebaseStorage",
         "FirebaseStorageSwift",
-        "GoogleDataTransport",
         .product(name: "nanopb", package: "nanopb"),
       ],
       path: "SwiftPMTests/swift-test"

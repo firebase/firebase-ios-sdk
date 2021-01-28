@@ -40,5 +40,5 @@
   "vendored_frameworks": [
     "Frameworks/FirebaseMLVision.framework"
   ],
-  "version": "7.4.0-beta"
+  "version": "7.5.0-beta"
 }

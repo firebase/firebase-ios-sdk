@@ -15,7 +15,7 @@
 import Foundation
 
 /// Manager for common file operations.
-enum ModelFileManager {
+class ModelFileManager: FileManager {
   private static let nameSeparator = "__"
   private static let modelNamePrefix = "fbml_model"
   private static let fileManager = FileManager.default
@@ -66,6 +66,7 @@ enum ModelFileManager {
       do {
         try fileManager.removeItem(at: destinationURL)
       } catch {
+        // TODO: Handle this - new model file downloaded but not saved due to FileManager error.
         throw DownloadError
           .internalError(
             description: ModelFileManager.ErrorDescription

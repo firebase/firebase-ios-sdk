@@ -745,6 +745,9 @@
                BlueprintIdentifier = "Firebase_AppCheckUnit"
                BuildableName = "Firebase_AppCheckUnit"
                BlueprintName = "Firebase_AppCheckUnit"
+               BlueprintIdentifier = "Firebase_RemoteConfigUnit"
+               BuildableName = "Firebase_RemoteConfigUnit"
+               BlueprintName = "Firebase_RemoteConfigUnit"
                ReferencedContainer = "container:">
             </BuildableReference>
          </BuildActionEntry>

@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Auth emulator now works across the local network. (#7350)
+
 # 7.4.0
 - [fixed] Check if the reverse client ID is configured as a custom URL scheme before setting it as the callback scheme. (#7211)
 - [added] Add ability to sync auth state across devices. (#6924)
