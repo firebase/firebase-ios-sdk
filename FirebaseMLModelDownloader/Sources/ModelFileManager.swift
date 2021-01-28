@@ -15,7 +15,8 @@
 import Foundation
 
 /// Manager for common file operations.
-class ModelFileManager: FileManager {
+// TODO: Consider mocking this for tests?
+enum ModelFileManager {
   private static let nameSeparator = "__"
   private static let modelNamePrefix = "fbml_model"
   private static let fileManager = FileManager.default
@@ -60,8 +61,35 @@ class ModelFileManager: FileManager {
     }
   }
 
+  static func hasSufficientSpace(size: Int64) throws -> Bool {
+    do {
+      let bufferSize = size * 2
+      if #available(iOS 11.0, *) {
+        guard let spaceAvailable = try modelsDirectory
+          .resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey])
+          .volumeAvailableCapacityForImportantUsage else {
+          throw DownloadError
+            .internalError(description: ModelFileManager.ErrorDescription.availableStorage(nil))
+        }
+        return bufferSize < spaceAvailable
+      } else {
+        let systemAttributes = try fileManager
+          .attributesOfFileSystem(forPath: modelsDirectory.absoluteString)
+        guard let spaceAvailable = systemAttributes[.systemFreeSize] as? NSNumber else {
+          throw DownloadError
+            .internalError(description: ModelFileManager.ErrorDescription.availableStorage(nil))
+        }
+        return bufferSize < spaceAvailable.int64Value
+      }
+    } catch {
+      throw DownloadError
+        .internalError(description: ModelFileManager.ErrorDescription
+          .availableStorage(error.localizedDescription))
+    }
+  }
+
   /// Move file at a location to another location.
-  static func moveFile(at sourceURL: URL, to destinationURL: URL) throws {
+  static func moveFile(at sourceURL: URL, to destinationURL: URL, size: Int64) throws {
     if isFileReachable(at: destinationURL) {
       do {
         try fileManager.removeItem(at: destinationURL)
@@ -75,7 +103,12 @@ class ModelFileManager: FileManager {
       }
     }
     do {
-      try FileManager.default.moveItem(at: sourceURL, to: destinationURL)
+      guard let result = try? hasSufficientSpace(size: size), result == true else {
+        throw DownloadError.notEnoughSpace
+      }
+      try fileManager.moveItem(at: sourceURL, to: destinationURL)
+    } catch DownloadError.notEnoughSpace {
+      throw DownloadError.notEnoughSpace
     } catch {
       throw DownloadError
         .internalError(description: ModelFileManager
@@ -133,6 +166,14 @@ extension ModelFileManager {
 
     static let replaceFile = { (error: String) in
       "Could not replace existing model file: \(error)"
+    }
+
+    static let availableStorage = { (error: String?) -> String in
+      if let error = error {
+        return "Failed to check storage capacity on device: \(error)"
+      } else {
+        return "Failed to check storage capacity on device."
+      }
     }
   }
 }

@@ -28,8 +28,6 @@ public enum DownloadError: Error, Equatable {
   case notEnoughSpace
   /// Malformed model name.
   case invalidArgument
-  /// Expired download URL.
-  case expiredDownloadURL
   /// Other errors with description.
   case internalError(description: String)
 }
@@ -42,6 +40,13 @@ public enum DownloadedModelError: Error {
   case notFound
   /// Other errors with description.
   case internalError(description: String)
+}
+
+/// Extension to handle internally meaningful errors.
+extension DownloadError {
+  static let expiredDownloadURL: DownloadError = {
+    DownloadError.internalError(description: "Expired model download URL.")
+  }()
 }
 
 /// Possible ways to get a custom model.
@@ -380,15 +385,25 @@ extension ModelDownloader {
                                       .modelDownloadFailed(error),
                                     messageCode: .modelDownloadError)
               switch error {
+              case .notFound:
+                DeviceLogger.logEvent(level: .debug,
+                                      message: ModelDownloader.ErrorDescription
+                                        .modelNotFound(modelName),
+                                      messageCode: .modelNotFound)
+                self.mainQueueHandler(completion(.failure(.notFound)))
+              case .invalidArgument:
+                DeviceLogger.logEvent(level: .debug,
+                                      message: ModelDownloader.ErrorDescription
+                                        .invalidModelName(modelName),
+                                      messageCode: .invalidModelName)
+                self.mainQueueHandler(completion(.failure(.invalidArgument)))
+              case .permissionDenied:
+                DeviceLogger.logEvent(level: .debug,
+                                      message: ModelDownloader.ErrorDescription.permissionDenied,
+                                      messageCode: .permissionDenied)
+                self.mainQueueHandler(completion(.failure(.permissionDenied)))
               /// This is the error returned when URL expired.
-              // TODO: Should we use a different error here?
               case .expiredDownloadURL:
-                let currentDateTime = Date()
-                /// Check if download url has expired.
-                guard currentDateTime > remoteModelInfo.urlExpiryTime else {
-                  self.mainQueueHandler(completion(.failure(error)))
-                  return
-                }
                 /// Check if retries are allowed.
                 guard self.numberOfRetries > 0 else {
                   self
@@ -429,8 +444,8 @@ extension ModelDownloader {
 
           self.mainQueueHandler(completion(.success(localModel)))
         }
-      case let .failure(downloadError):
-        self.mainQueueHandler(completion(.failure(downloadError)))
+      case let .failure(error):
+        self.mainQueueHandler(completion(.failure(error)))
       }
     }
   }
@@ -490,10 +505,15 @@ extension ModelDownloader {
       "No model found with name: \(name)"
     }
 
+    static let invalidModelName = { (name: String) in
+      "Invalid model name: \(name)"
+    }
+
     static let modelDownloadFailed = { (error: Error) in
       "Model download failed with error: \(error)"
     }
 
+    static let permissionDenied = "Invalid or missing permissions to download model."
     static let outdatedModelPath = "Outdated model paths in local storage."
     static let deletedLocalModelInfo =
       "Model unavailable due to deleted local model info."

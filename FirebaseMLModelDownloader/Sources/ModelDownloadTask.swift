@@ -126,16 +126,23 @@ extension ModelDownloadTask {
   /// Handle model download response.
   func handleResponse(response: HTTPURLResponse, tempURL: URL, completion: @escaping Completion) {
     guard (200 ..< 299).contains(response.statusCode) else {
+      switch response.statusCode {
       /// Possible failure due to download URL expiry.
-      if response.statusCode == 400 {
+      case 400:
+        let currentDateTime = Date()
+        /// Check if download url has expired.
+        guard currentDateTime > remoteModelInfo.urlExpiryTime else {
+          completion(.failure(.invalidArgument))
+          return
+        }
         completion(.failure(.expiredDownloadURL))
-        return
+      case 401, 403: completion(.failure(.permissionDenied))
+      case 404: completion(.failure(.notFound))
+      default:
+        let description = ModelDownloadTask.ErrorDescription
+          .modelDownloadFailed(response.statusCode)
+        completion(.failure(.internalError(description: description)))
       }
-      let description = ModelDownloadTask.ErrorDescription.modelDownloadFailed(response.statusCode)
-      DeviceLogger.logEvent(level: .debug,
-                            message: description,
-                            messageCode: .modelDownloadError)
-      completion(.failure(.internalError(description: description)))
       return
     }
 
@@ -145,7 +152,11 @@ extension ModelDownloadTask {
     )
 
     do {
-      try ModelFileManager.moveFile(at: tempURL, to: modelFileURL)
+      try ModelFileManager.moveFile(
+        at: tempURL,
+        to: modelFileURL,
+        size: Int64(remoteModelInfo.size)
+      )
       DeviceLogger.logEvent(level: .debug,
                             message: ModelDownloadTask.DebugDescription.savedModelFile,
                             messageCode: .downloadedModelFileSaved)
@@ -168,9 +179,15 @@ extension ModelDownloadTask {
     } catch let error as DownloadError {
       downloadStatus = .failed
       telemetryLogger?.logModelDownloadEvent(eventName: .modelDownload, status: downloadStatus)
-      DeviceLogger.logEvent(level: .debug,
-                            message: ModelDownloadTask.ErrorDescription.saveModel,
-                            messageCode: .downloadedModelSaveError)
+      if error == .notEnoughSpace {
+        DeviceLogger.logEvent(level: .debug,
+                              message: ModelDownloadTask.ErrorDescription.notEnoughSpace,
+                              messageCode: .notEnoughSpace)
+      } else {
+        DeviceLogger.logEvent(level: .debug,
+                              message: ModelDownloadTask.ErrorDescription.saveModel,
+                              messageCode: .downloadedModelSaveError)
+      }
       completion(.failure(error))
       return
     } catch {
@@ -209,6 +226,7 @@ extension ModelDownloadTask {
       "Could not get valid server response for model downloading."
     static let unknownDownloadError = "Unable to download model due to unknown error."
     static let saveModel = "Unable to save downloaded remote model file."
+    static let notEnoughSpace = "Not enough space on device."
     static let expiredModelInfo = "Unable to update expired model info."
     static let anotherDownloadInProgress = "Download already in progress."
   }

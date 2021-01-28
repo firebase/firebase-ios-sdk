@@ -186,6 +186,10 @@ class ModelInfoRetriever {
                 return
               }
               completion(.success(.notModified))
+            case 400:
+              completion(.failure(.invalidArgument))
+            case 401, 403:
+              completion(.failure(.permissionDenied))
             case 404:
               completion(.failure(.notFound))
             // TODO: Handle more http status codes
