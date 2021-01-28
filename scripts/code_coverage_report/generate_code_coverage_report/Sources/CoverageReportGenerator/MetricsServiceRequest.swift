@@ -67,7 +67,7 @@ func sendMetricsServiceRequest(repo: String, commits: String, jsonContent: Data,
 
   request.httpMethod = "POST"
   request.httpBody = jsonContent
-  print (jsonContent)
+  print(jsonContent)
 
   let task = URLSession.shared.dataTask(with: request) { data, response, error in
     guard let data = data else {
