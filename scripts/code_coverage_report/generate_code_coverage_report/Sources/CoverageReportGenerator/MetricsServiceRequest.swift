@@ -42,7 +42,8 @@ func sendMetricsServiceRequest(repo: String, commits: String, jsonContent: Data,
     }
     pathPara.append("pull_request=\(String(pr))")
     if let note = pullRequestNote {
-      let compatible_url_format_note = note.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
+      let compatible_url_format_note = note
+        .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
       pathPara.append("note=\(compatible_url_format_note))")
     }
     pathPara.append("base_commit=\(bc)")
