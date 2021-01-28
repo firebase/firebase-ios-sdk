@@ -5,7 +5,6 @@ on:
     paths:
     - '.github/workflows/release.yml'
     - 'scripts/create_spec_repo/**'
-    - 'scripts/build_non_firebase_sdks.sh'
     - 'Gemfile'
   workflow_dispatch:
   schedule:
