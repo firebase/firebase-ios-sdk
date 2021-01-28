@@ -93,9 +93,11 @@ jobs:
         env:
           base_commit: ${{ needs.check.outputs.base_commit }}
         run: |
+          # Get Head commit of the branch, instead of a merge commit created by github actions.
+          GITHUB_SHA=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.head.sha)
           if [ -d "${{steps.download.outputs.download-path}}" ]; then
           cd scripts/code_coverage_report/generate_code_coverage_report
-          swift run CoverageReportGenerator --presubmit "firebase/firebase-ios-sdk" --commit "${GITHUB_SHA}" --token $(gcloud auth print-identity-token) --xcresult-dir "/Users/runner/test/" --log-link "https://github.com/firebase/firebase-ios-sdk/actions/runs/${GITHUB_RUN_ID}" --pull-request-num ${{github.event.pull_request.number}} --pull-request-note "This is to test the code coverage workflow." --base-commit "$base_commit"
+          swift run CoverageReportGenerator --presubmit "firebase/firebase-ios-sdk" --commit "${GITHUB_SHA}" --token $(gcloud auth print-identity-token) --xcresult-dir "/Users/runner/test/" --log-link "https://github.com/firebase/firebase-ios-sdk/actions/runs/${GITHUB_RUN_ID}" --pull-request-num ${{github.event.pull_request.number}} --base-commit "$base_commit"
           fi
       - name: Update New Coverage Data
         if: github.event_name == 'push'
