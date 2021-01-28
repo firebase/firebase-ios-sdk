@@ -64,6 +64,7 @@ namespace core {
 using api::DocumentReference;
 using api::DocumentSnapshot;
 using api::DocumentSnapshotListener;
+using api::Firestore;
 using api::ListenerRegistration;
 using api::QuerySnapshot;
 using api::QuerySnapshotListener;
@@ -112,11 +113,12 @@ std::shared_ptr<FirestoreClient> FirestoreClient::Create(
     std::shared_ptr<CredentialsProvider> credentials_provider,
     std::shared_ptr<Executor> user_executor,
     std::shared_ptr<AsyncQueue> worker_queue,
-    std::unique_ptr<FirebaseMetadataProvider> firebase_metadata_provider) {
+    std::unique_ptr<FirebaseMetadataProvider> firebase_metadata_provider,
+    std::shared_ptr<Firestore> firestore) {
   // Have to use `new` because `make_shared` cannot access private constructor.
   std::shared_ptr<FirestoreClient> shared_client(new FirestoreClient(
       database_info, std::move(credentials_provider), std::move(user_executor),
-      std::move(worker_queue), std::move(firebase_metadata_provider)));
+      std::move(worker_queue), std::move(firebase_metadata_provider), std::move(firestore)));
 
   std::weak_ptr<FirestoreClient> weak_client(shared_client);
   auto credential_change_listener = [weak_client, settings](User user) mutable {
@@ -158,12 +160,14 @@ FirestoreClient::FirestoreClient(
     std::shared_ptr<CredentialsProvider> credentials_provider,
     std::shared_ptr<Executor> user_executor,
     std::shared_ptr<AsyncQueue> worker_queue,
-    std::unique_ptr<FirebaseMetadataProvider> firebase_metadata_provider)
+    std::unique_ptr<FirebaseMetadataProvider> firebase_metadata_provider,
+    std::shared_ptr<Firestore> firestore)
     : database_info_(database_info),
       credentials_provider_(std::move(credentials_provider)),
       worker_queue_(std::move(worker_queue)),
       user_executor_(std::move(user_executor)),
-      firebase_metadata_provider_(std::move(firebase_metadata_provider)) {
+      firebase_metadata_provider_(std::move(firebase_metadata_provider)),
+      maybe_firestore_(std::move(firestore)) {
 }
 
 void FirestoreClient::Initialize(const User& user, const Settings& settings) {
@@ -231,21 +235,30 @@ FirestoreClient::~FirestoreClient() {
 }
 
 void FirestoreClient::Dispose() {
-  // Prevent new API invocations from enqueueing further work.
-  worker_queue_->EnterRestrictedMode();
 
+  // auto firestore = maybe_firestore_.lock(); // OBC
   // Clean up internal resources. It's possible that this can race with a call
   // to `Firestore::ClearPersistence` or `Firestore::Terminate`, but that's OK
   // because that operation does not rely on any state in this FirestoreClient.
   std::promise<void> signal_disposing;
-  bool enqueued = worker_queue_->EnqueueEvenWhileRestricted([&, this] {
-    // Once this task has started running, AsyncQueue::Dispose will block on its
-    // completion. Signal as early as possible to lock out even restricted tasks
-    // as early as possible.
-    signal_disposing.set_value();
 
-    TerminateInternal();
-  });
+  bool enqueued = false;
+  std::lock_guard<std::mutex> lock(mutex_);
+  if (!terminated_) {
+    terminated_ = true;
+
+    // Prevent new API invocations from enqueueing further work.
+    worker_queue_->EnterRestrictedMode();
+
+    enqueued = worker_queue_->EnqueueEvenWhileRestricted([&, this] {
+      // Once this task has started running, AsyncQueue::Dispose will block on its
+      // completion. Signal as early as possible to lock out even restricted tasks
+      // as early as possible.
+      signal_disposing.set_value();
+
+      TerminateInternal();
+    });
+  }
 
   // If we successfully enqueued the TerminateInternal task then wait for it to
   // start.
@@ -259,21 +272,38 @@ void FirestoreClient::Dispose() {
 
   worker_queue_->Dispose();
   user_executor_->Dispose();
+
+  // firestore = nullptr; // OBC
 }
 
 void FirestoreClient::TerminateAsync(StatusCallback callback) {
-  worker_queue_->EnterRestrictedMode();
-  worker_queue_->EnqueueEvenWhileRestricted([this, callback] {
-    TerminateInternal();
+  // std::promise<void> signal; // OBC
+  // auto firestore = maybe_firestore_.lock(); // OBC
 
-    if (callback) {
-      user_executor_->Execute([=] { callback(Status::OK()); });
-    }
-  });
+  std::lock_guard<std::mutex> lock(mutex_);
+
+  if (!terminated_) {
+    terminated_ = true;
+
+    worker_queue_->EnterRestrictedMode();
+    worker_queue_->EnqueueEvenWhileRestricted([&, this, callback] {
+      auto ptr = shared_from_this();
+      TerminateInternal();
+
+      if (callback) {
+        user_executor_->Execute([=] { callback(Status::OK()); });
+      }
+          // signal.set_value(); // OBC
+    });
+  }
+    // signal.get_future().wait(); // OBC
+    // firestore = nullptr; // OBC
 }
 
 void FirestoreClient::TerminateInternal() {
   if (!remote_store_) return;
+
+  //auto firestore = maybe_firestore_.lock();
 
   credentials_provider_->SetCredentialChangeListener(nullptr);
   credentials_provider_.reset();

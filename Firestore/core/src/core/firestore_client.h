@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_SRC_CORE_FIRESTORE_CLIENT_H_
 
 #include <memory>
+#include <mutex>  // NOLINT(build/c++11)
 #include <vector>
 
 #include "Firestore/core/src/api/api_fwd.h"
@@ -80,7 +81,8 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
       std::shared_ptr<util::Executor> user_executor,
       std::shared_ptr<util::AsyncQueue> worker_queue,
       std::unique_ptr<remote::FirebaseMetadataProvider>
-          firebase_metadata_provider);
+          firebase_metadata_provider,
+      std::shared_ptr<api::Firestore> firestore);
 
   ~FirestoreClient();
 
@@ -185,7 +187,8 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
       std::shared_ptr<util::Executor> user_executor,
       std::shared_ptr<util::AsyncQueue> worker_queue,
       std::unique_ptr<remote::FirebaseMetadataProvider>
-          firebase_metadata_provider);
+          firebase_metadata_provider,
+      std::shared_ptr<api::Firestore> firestore);
 
   void Initialize(const auth::User& user, const api::Settings& settings);
 
@@ -223,6 +226,11 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
   bool credentials_initialized_ = false;
   local::LruDelegate* _Nullable lru_delegate_;
   util::DelayedOperation lru_callback_;
+
+  std::weak_ptr<api::Firestore> maybe_firestore_;
+
+  std::mutex mutex_;
+  bool terminated_ = false;
 };
 
 }  // namespace core

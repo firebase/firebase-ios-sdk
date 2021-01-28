@@ -22,9 +22,11 @@
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#include "Firestore/core/src/util/string_apple.h"
 #include "Firestore/core/test/unit/testutil/app_testing.h"
 
 namespace testutil = firebase::firestore::testutil;
+namespace util = firebase::firestore::util;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -262,7 +264,7 @@ NSDictionary<NSString *, id> *testDataWithTimestamps(FIRTimestamp *timestamp) {
 }
 
 - (void)testDeleteAppOBC {
-  FIRApp *app = testutil::AppForUnitTesting();
+  FIRApp *app = testutil::AppForUnitTesting(util::MakeString([FSTIntegrationTestCase projectID]));
 
   FIRFirestore *firestore = [FIRFirestore firestoreForApp:app];
   FIRDocumentReference *doc = [firestore documentWithPath:@"foo/bar"];
