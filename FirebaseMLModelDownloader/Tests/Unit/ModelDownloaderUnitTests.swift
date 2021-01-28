@@ -192,23 +192,6 @@ final class ModelDownloaderUnitTests: XCTestCase {
     XCTAssertLessThan(binaryData.count, jsonData.count)
     XCTAssertEqual(binaryEvent, jsonEvent)
   }
-
-  /// Test if model directory has sufficient space.
-  func testHasSufficientSpace() {
-    var fakeSize = Int64(1000)
-    guard let resultTrue = try? ModelFileManager.hasSufficientSpace(size: fakeSize) else {
-      XCTFail("Expected there to be sufficient space.")
-      return
-    }
-    XCTAssertTrue(resultTrue)
-
-    fakeSize = Int64.max / 2
-    guard let resultFalse = try? ModelFileManager.hasSufficientSpace(size: fakeSize) else {
-      XCTFail("Expected there to be sufficient space.")
-      return
-    }
-    XCTAssertFalse(resultFalse)
-  }
 }
 
 /// Unit tests for network calls.
@@ -505,58 +488,6 @@ class NetworkingUnitTests: XCTestCase {
       }
     }
     wait(for: [fileDownloaderExpectation], timeout: 0.1)
-
-    downloader
-      .completion?(.success(FileDownloaderResponse(urlResponse: fakeResponse,
-                                                   fileURL: tempFileURL)))
-    wait(for: [completionExpectation], timeout: 0.5)
-
-    try? ModelFileManager.removeFile(at: tempFileURL)
-  }
-
-  /// Get model if server returns an oversized model file.
-  func testModelDownloadWith200ButOversized() {
-    let tempFileURL = tempFile()
-    let remoteModelInfo = fakeModelInfo(expired: false, oversized: true)
-    let fakeResponse = HTTPURLResponse(url: fakeFileURL,
-                                       statusCode: 200,
-                                       httpVersion: nil,
-                                       headerFields: nil)!
-    let downloader = MockModelFileDownloader()
-    let fileDownloaderExpectation = expectation(description: "File downloader")
-    downloader.downloadFileHandler = { url in
-      fileDownloaderExpectation.fulfill()
-      XCTAssertEqual(url, self.fakeDownloadURL)
-    }
-    let progressExpectation = expectation(description: "Progress handler")
-    progressExpectation.expectedFulfillmentCount = 2
-
-    let completionExpectation = expectation(description: "Completion handler")
-    let modelDownloadTask = ModelDownloadTask(remoteModelInfo: remoteModelInfo,
-                                              appName: "fakeAppName",
-                                              defaults: .createTestInstance(testName: #function),
-                                              downloader: downloader)
-
-    modelDownloadTask.download(progressHandler: {
-      progress in
-      progressExpectation.fulfill()
-      XCTAssertEqual(progress, 0.4)
-    }) { result in
-      completionExpectation.fulfill()
-      switch result {
-      case .success: XCTFail("Unexpected successful model download.")
-      case let .failure(error):
-        switch error {
-        case .notEnoughSpace: break
-        default: XCTFail("Expected failure due to oversized model.")
-        }
-      }
-    }
-    wait(for: [fileDownloaderExpectation], timeout: 0.1)
-
-    downloader.progressHandler?(100, 250)
-    downloader.progressHandler?(100, 250)
-    wait(for: [progressExpectation], timeout: 0.5)
 
     downloader
       .completion?(.success(FileDownloaderResponse(urlResponse: fakeResponse,

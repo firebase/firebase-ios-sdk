@@ -61,33 +61,6 @@ enum ModelFileManager {
     }
   }
 
-  static func hasSufficientSpace(size: Int64) throws -> Bool {
-    do {
-      let bufferSize = size * 2
-      if #available(iOS 11.0, macOS 10.13, macCatalyst 13.0, *) {
-        guard let spaceAvailable = try modelsDirectory
-          .resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey])
-          .volumeAvailableCapacityForImportantUsage else {
-          throw DownloadError
-            .internalError(description: ModelFileManager.ErrorDescription.availableStorage(nil))
-        }
-        return bufferSize < spaceAvailable
-      } else {
-        let systemAttributes = try fileManager
-          .attributesOfFileSystem(forPath: modelsDirectory.absoluteString)
-        guard let spaceAvailable = systemAttributes[.systemFreeSize] as? NSNumber else {
-          throw DownloadError
-            .internalError(description: ModelFileManager.ErrorDescription.availableStorage(nil))
-        }
-        return bufferSize < spaceAvailable.int64Value
-      }
-    } catch {
-      throw DownloadError
-        .internalError(description: ModelFileManager.ErrorDescription
-          .availableStorage(error.localizedDescription))
-    }
-  }
-
   /// Move file at a location to another location.
   static func moveFile(at sourceURL: URL, to destinationURL: URL, size: Int64) throws {
     if isFileReachable(at: destinationURL) {
@@ -103,11 +76,8 @@ enum ModelFileManager {
       }
     }
     do {
-      guard let result = try? hasSufficientSpace(size: size), result == true else {
-        throw DownloadError.notEnoughSpace
-      }
       try fileManager.moveItem(at: sourceURL, to: destinationURL)
-    } catch DownloadError.notEnoughSpace {
+    } catch CocoaError.fileWriteOutOfSpace {
       throw DownloadError.notEnoughSpace
     } catch {
       throw DownloadError
