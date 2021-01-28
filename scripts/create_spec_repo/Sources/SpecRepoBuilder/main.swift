@@ -244,6 +244,8 @@ struct SpecRepoBuilder: ParsableCommand {
         )
     shell.run("pod repo update")
 
+    print ("Outcome is \(outcome)")
+
     return outcome
   }
 
@@ -344,6 +346,7 @@ struct SpecRepoBuilder: ParsableCommand {
       if podExitCode != 0 {
         exitCode = 1
         failedPods.append(pod)
+        print("Failed pod - \(pod)")
       }
     }
     if exitCode != 0 {
