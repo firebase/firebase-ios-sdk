@@ -18,7 +18,6 @@ SDK="$1"
 platform="$2"
 default_output_path="/Users/runner/${SDK}-${platform}.xcresult"
 output_path="${3:-${default_output_path}}"
-echo "${output_path}"
 if [ -d "/Users/runner/Library/Developer/Xcode/DerivedData" ]; then
 rm -r /Users/runner/Library/Developer/Xcode/DerivedData/*
 fi
