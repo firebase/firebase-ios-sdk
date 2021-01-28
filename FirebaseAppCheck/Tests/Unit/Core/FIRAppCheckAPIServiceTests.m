@@ -88,9 +88,14 @@
   // 1. Stub URL session.
   FIRRequestValidationBlock requestValidation = ^BOOL(NSURLRequest *request) {
     XCTAssertEqualObjects(request.URL, URL);
-    XCTAssertEqualObjects(request.allHTTPHeaderFields[@"x-firebase-client"],
-                          [FIRApp firebaseUserAgent]);
-    XCTAssertEqualObjects(request.allHTTPHeaderFields[@"X-firebase-client-log-type"], @"3");
+
+    // TODO: Replace the assertions by the commented below once platform logging approved.
+    XCTAssertNil(request.allHTTPHeaderFields[@"x-firebase-client"]);
+    XCTAssertNil(request.allHTTPHeaderFields[@"X-firebase-client-log-type"]);
+    //    XCTAssertEqualObjects(request.allHTTPHeaderFields[@"x-firebase-client"],
+    //                          [FIRApp firebaseUserAgent]);
+    //    XCTAssertEqualObjects(request.allHTTPHeaderFields[@"X-firebase-client-log-type"], @"3");
+
     XCTAssertEqualObjects(request.allHTTPHeaderFields[@"X-Goog-Api-Key"], self.APIKey);
 
     XCTAssertEqualObjects(request.allHTTPHeaderFields[@"header1"], @"value1");
