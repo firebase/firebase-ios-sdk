@@ -21,6 +21,11 @@
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#include "Firestore/core/test/unit/testutil/app_testing.h"
+
+namespace testutil = firebase::firestore::testutil;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRFieldsTests : FSTIntegrationTestCase
@@ -254,6 +259,29 @@ NSDictionary<NSString *, id> *testDataWithTimestamps(FIRTimestamp *timestamp) {
   timestampFromData = data[@"nested"][@"timestamp2"];
   XCTAssertEqualObjects(truncatedTimestamp, timestampFromData);
   XCTAssertEqualObjects(timestampFromSnapshot, timestampFromData);
+}
+
+- (void)testDeleteAppOBC {
+  FIRApp *app = testutil::AppForUnitTesting();
+
+  FIRFirestore *firestore = [FIRFirestore firestoreForApp:app];
+  FIRDocumentReference *doc = [firestore documentWithPath:@"foo/bar"];
+  [doc addSnapshotListener:^(FIRDocumentSnapshot *snapshot, NSError *) {
+  }];
+  [self writeDocumentRef:doc data:@{@"foo": @"bar"}];
+
+  XCTestExpectation *defaultAppDeletedExpectation =
+      [self expectationWithDescription:@"Deleting the default app should invalidate the default "
+                                       @"Firestore instance."];
+  [app deleteApp:^(BOOL success) {
+    [defaultAppDeletedExpectation fulfill];
+  }];
+  app = nil;
+
+  [self waitForExpectationsWithTimeout:2
+                               handler:^(NSError *_Nullable error) {
+                                 XCTAssertNil(error);
+                               }];
 }
 
 @end
