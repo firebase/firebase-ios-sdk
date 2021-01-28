@@ -40,6 +40,9 @@ enum LoggerMessageCode: Int {
   case invalidOptions
   case retryDownload
   case anotherDownloadInProgressError
+  case invalidModelName
+  case permissionDenied
+  case notEnoughSpace
   case validModelDownloadResponse
   case hostnameError
   case invalidDownloadSessionError
