@@ -64,7 +64,7 @@ enum ModelFileManager {
   static func hasSufficientSpace(size: Int64) throws -> Bool {
     do {
       let bufferSize = size * 2
-      if #available(iOS 11.0, *) {
+      if #available(iOS 11.0, macOS 10.13, macCatalyst 13.0, *) {
         guard let spaceAvailable = try modelsDirectory
           .resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey])
           .volumeAvailableCapacityForImportantUsage else {
