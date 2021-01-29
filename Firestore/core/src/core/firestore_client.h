@@ -227,10 +227,8 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
   local::LruDelegate* _Nullable lru_delegate_;
   util::DelayedOperation lru_callback_;
 
+  // Used during shutdown to guarantee lifetimes.
   std::weak_ptr<api::Firestore> maybe_firestore_;
-
-  std::mutex mutex_;
-  bool terminated_ = false;
 };
 
 }  // namespace core

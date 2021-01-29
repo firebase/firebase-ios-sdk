@@ -235,26 +235,23 @@ FirestoreClient::~FirestoreClient() {
 }
 
 void FirestoreClient::Dispose() {
-
-  // auto firestore = maybe_firestore_.lock(); // OBC
-  // Clean up internal resources. It's possible that this can race with a call
-  // to `Firestore::ClearPersistence` or `Firestore::Terminate`, but that's OK
-  // because that operation does not rely on any state in this FirestoreClient.
   std::promise<void> signal_disposing;
 
   bool enqueued = false;
-  // std::lock_guard<std::mutex> lock(mutex_);
-  // if (!terminated_) {
-  //   terminated_ = true;
+  // If `remote_store_` is null, it means termination has finished already. In
+  // that case, enqueing termination is not only unnecessary, but also
+  // dangerous in the case when `Dispose` is invoked immediately after the
+  // termination, still on the worker queue -- it would break the sequential
+  // order invariant of the queue, and even if it didn't, waiting for
+  // `signal_disposing` would never finish.
   if (remote_store_) {
-
     // Prevent new API invocations from enqueueing further work.
     worker_queue_->EnterRestrictedMode();
 
     enqueued = worker_queue_->EnqueueEvenWhileRestricted([&, this] {
-      // Once this task has started running, AsyncQueue::Dispose will block on its
-      // completion. Signal as early as possible to lock out even restricted tasks
-      // as early as possible.
+      // Once this task has started running, AsyncQueue::Dispose will block on
+      // its completion. Signal as early as possible to lock out even restricted
+      // tasks as early as possible.
       signal_disposing.set_value();
 
       TerminateInternal();
@@ -276,28 +273,24 @@ void FirestoreClient::Dispose() {
 }
 
 void FirestoreClient::TerminateAsync(StatusCallback callback) {
-  // std::lock_guard<std::mutex> lock(mutex_);
+  worker_queue_->EnterRestrictedMode();
+  worker_queue_->EnqueueEvenWhileRestricted([&, this, callback] {
+    // Make sure this `FirestoreClient` is not destroyed during
+    // `TerminateInternal`, so that `user_executor_` stays valid.
+    auto self = shared_from_this();
+    // Make sure that `api::Firestore` is not destroyed during the call to
+    // `TerminateInternal`.
+    auto firestore = maybe_firestore_.lock();
+    TerminateInternal();
 
-  // if (!terminated_) {
-    // terminated_ = true;
-
-    worker_queue_->EnterRestrictedMode();
-    worker_queue_->EnqueueEvenWhileRestricted([&, this, callback] {
-      auto self = shared_from_this();
-      auto firestore = maybe_firestore_.lock();
-      TerminateInternal();
-
-      if (callback) {
-        user_executor_->Execute([=] { callback(Status::OK()); });
-      }
-    });
-  // }
+    if (callback) {
+      user_executor_->Execute([=] { callback(Status::OK()); });
+    }
+  });
 }
 
 void FirestoreClient::TerminateInternal() {
   if (!remote_store_) return;
-
-  //auto firestore = maybe_firestore_.lock();
 
   credentials_provider_->SetCredentialChangeListener(nullptr);
   credentials_provider_.reset();
