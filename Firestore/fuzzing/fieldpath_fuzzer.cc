@@ -19,15 +19,17 @@
 #include <string>
 
 #include "Firestore/core/src/model/field_path.h"
+#include "Firestore/core/src/util/statusor.h"
 
 using firebase::firestore::model::FieldPath;
+using firebase::firestore::util::StatusOr;
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
   const char* str_ptr = reinterpret_cast<const char*>(data);
   std::string str{str_ptr, size};
 
   try {
-    FieldPath fp = FieldPath::FromServerFormat(str);
+    StatusOr<FieldPath> fp = FieldPath::FromServerFormat(str);
   } catch (...) {
     // Ignore caught exceptions.
   }
