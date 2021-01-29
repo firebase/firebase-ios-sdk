@@ -22,8 +22,7 @@ extension SystemInfo {
     appID = Bundle.main.bundleIdentifier ?? "unknownBundleID"
     let appVersionKey = "CFBundleShortVersionString"
     appVersion = Bundle.main.infoDictionary?[appVersionKey] as? String ?? "unknownAppVersion"
-    // TODO: What should this be?
-    mlSdkVersion = "0.1.0"
+    mlSdkVersion = FirebaseVersion()
     self.apiKey = apiKey ?? "unknownAPIKey"
     firebaseProjectID = projectID ?? "unknownProjectID"
   }
@@ -127,7 +126,8 @@ class TelemetryLogger {
   }
 
   /// Log model info retrieval event to Firelog.
-  func logModelInfoRetrievalEvent(eventName: EventName, status: ModelDownloadStatus,
+  func logModelInfoRetrievalEvent(eventName: EventName,
+                                  status: ModelDownloadLogEvent.DownloadStatus,
                                   model: CustomModel? = nil, errorCode: ModelInfoErrorCode) {
     guard app.isDataCollectionDefaultEnabled else { return }
     var systemInfo = SystemInfo()
@@ -145,7 +145,7 @@ class TelemetryLogger {
   }
 
   /// Log model download event to Firelog.
-  func logModelDownloadEvent(eventName: EventName, status: ModelDownloadStatus,
+  func logModelDownloadEvent(eventName: EventName, status: ModelDownloadLogEvent.DownloadStatus,
                              model: CustomModel? = nil, downloadErrorCode: ModelDownloadErrorCode) {
     guard app.isDataCollectionDefaultEnabled else { return }
     var modelOptions = ModelOptions()
@@ -171,19 +171,9 @@ class TelemetryLogger {
       errorCode = ErrorCode(rawValue: code) ?? .unknownError
     }
 
-    var downloadStatus = ModelDownloadLogEvent.DownloadStatus()
-
-    switch status {
-    case .successful:
-      downloadStatus = .succeeded
-    case .failed:
-      downloadStatus = .failed
-    case .notStarted, .inProgress: break
-    }
-
     var modelDownloadLogEvent = ModelDownloadLogEvent()
     modelDownloadLogEvent.setEvent(
-      status: downloadStatus,
+      status: status,
       errorCode: errorCode,
       modelOptions: modelOptions
     )

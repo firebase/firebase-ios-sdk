@@ -58,7 +58,6 @@ enum DownloadModelInfoResult {
 /// Model info retrieval error codes.
 enum ModelInfoErrorCode {
   case noError
-  case noConnection
   case noHash
   case httpError(code: Int)
   case connectionFailed
@@ -185,6 +184,9 @@ class ModelInfoRetriever {
                                     message: ModelInfoRetriever.ErrorDescription
                                       .invalidHTTPResponse,
                                     messageCode: .invalidHTTPResponse)
+              self.telemetryLogger?.logModelInfoRetrievalEvent(eventName: .modelDownload,
+                                                               status: .failed,
+                                                               errorCode: .connectionFailed)
               completion(.failure(.internalError(description: ModelInfoRetriever.ErrorDescription
                   .invalidHTTPResponse)))
               return
@@ -200,6 +202,9 @@ class ModelInfoRetriever {
                 DeviceLogger.logEvent(level: .debug,
                                       message: ModelInfoRetriever.ErrorDescription.missingModelHash,
                                       messageCode: .missingModelHash)
+                self.telemetryLogger?.logModelInfoRetrievalEvent(eventName: .modelDownload,
+                                                                 status: .failed,
+                                                                 errorCode: .noHash)
                 completion(.failure(.internalError(description: ModelInfoRetriever.ErrorDescription
                     .missingModelHash)))
                 return
@@ -219,6 +224,9 @@ class ModelInfoRetriever {
                                       message: ModelInfoRetriever.DebugDescription
                                         .modelInfoDownloaded,
                                       messageCode: .modelInfoDownloaded)
+                self.telemetryLogger?.logModelInfoRetrievalEvent(eventName: .modelDownload,
+                                                                 status: .updateAvailable,
+                                                                 errorCode: .noError)
                 completion(.success(.modelInfo(modelInfo)))
               } catch {
                 let description = ModelInfoRetriever.ErrorDescription
@@ -248,13 +256,13 @@ class ModelInfoRetriever {
                 .allHeaderFields[ModelInfoRetriever.etagHTTPHeader] as? String else {
                 DeviceLogger.logEvent(level: .debug,
                                       message: ModelInfoRetriever.ErrorDescription
-                                        .noHash,
+                                        .missingModelHash,
                                       messageCode: .noModelHash)
                 self.telemetryLogger?.logModelInfoRetrievalEvent(eventName: .modelDownload,
                                                                  status: .failed,
                                                                  errorCode: .noHash)
                 completion(.failure(.internalError(description: ModelInfoRetriever.ErrorDescription
-                    .noHash)))
+                    .missingModelHash)))
                 return
               }
               guard modelHash == localInfo.modelHash else {
@@ -432,7 +440,7 @@ extension ModelInfoRetriever {
   private enum ErrorDescription {
     static let authToken = "Error retrieving auth token."
     static let selfDeallocated = "Self deallocated."
-    static let missingModelHash = "Model hash missing in server response."
+    static let missingModelHash = "Model hash missing in model info server response."
     static let invalidModelInfoFetchURL = "Unable to create URL to fetch model info."
     static let invalidHTTPResponse =
       "Could not get a valid HTTP response for model info retrieval."
@@ -469,7 +477,6 @@ extension ModelInfoRetriever {
     static let invalidModelDownloadURLExpiryTime =
       "Invalid download URL expiry time from server."
     static let modelHashMismatch = "Unexpected model hash value."
-    static let noHash = "No hash in model info server response."
     static let permissionDenied = "Invalid or missing permissions to retrieve model info."
   }
 }

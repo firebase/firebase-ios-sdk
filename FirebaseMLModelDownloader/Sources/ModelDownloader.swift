@@ -169,6 +169,11 @@ public class ModelDownloader {
                               message: ModelDownloader.DebugDescription.localModelFound,
                               messageCode: .localModelFound)
         mainQueueHandler(completion(.success(localModel)))
+        telemetryLogger?.logModelDownloadEvent(
+          eventName: .modelDownload,
+          status: .scheduled,
+          downloadErrorCode: .noError
+        )
         DispatchQueue.global(qos: .utility).async { [weak self] in
           self?.getRemoteModel(
             modelName: modelName,
@@ -176,16 +181,27 @@ public class ModelDownloader {
             progressHandler: nil,
             completion: { result in
               switch result {
-              case .success:
+              case let .success(model):
                 DeviceLogger.logEvent(level: .debug,
                                       message: ModelDownloader.DebugDescription
                                         .backgroundModelDownloaded,
                                       messageCode: .backgroundModelDownloaded)
+                self?.telemetryLogger?.logModelDownloadEvent(
+                  eventName: .modelDownload,
+                  status: .succeeded,
+                  model: model,
+                  downloadErrorCode: .noError
+                )
               case .failure:
                 DeviceLogger.logEvent(level: .debug,
                                       message: ModelDownloader.ErrorDescription
                                         .backgroundModelDownload,
                                       messageCode: .backgroundDownloadError)
+                self?.telemetryLogger?.logModelDownloadEvent(
+                  eventName: .modelDownload,
+                  status: .failed,
+                  downloadErrorCode: .downloadFailed
+                )
               }
             }
           )

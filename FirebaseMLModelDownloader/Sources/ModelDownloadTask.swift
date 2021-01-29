@@ -19,8 +19,7 @@ import FirebaseCore
 enum ModelDownloadStatus {
   case notStarted
   case inProgress
-  case successful
-  case failed
+  case complete
 }
 
 /// Download error codes.
@@ -77,12 +76,15 @@ extension ModelDownloadTask {
                             message: ModelDownloadTask.ErrorDescription.anotherDownloadInProgress,
                             messageCode: .anotherDownloadInProgressError)
       telemetryLogger?.logModelDownloadEvent(eventName: .modelDownload,
-                                             status: downloadStatus,
+                                             status: .failed,
                                              downloadErrorCode: .downloadFailed)
       completion(.failure(.internalError(description: ModelDownloadTask.ErrorDescription
           .anotherDownloadInProgress)))
       return
     }
+    telemetryLogger?.logModelDownloadEvent(eventName: .modelDownload,
+                                           status: .downloading,
+                                           downloadErrorCode: .noError)
     downloader.downloadFile(with: remoteModelInfo.downloadURL,
                             progressHandler: { downloadedBytes, totalBytes in
                               /// Fraction of model file downloaded.
@@ -145,6 +147,7 @@ extension ModelDownloadTask {
 
   /// Handle model download response.
   func handleResponse(response: HTTPURLResponse, tempURL: URL, completion: @escaping Completion) {
+    downloadStatus = .complete
     guard (200 ..< 299).contains(response.statusCode) else {
       switch response.statusCode {
       /// Possible failure due to download URL expiry.
@@ -214,7 +217,7 @@ extension ModelDownloadTask {
       appName: appName,
       modelName: remoteModelInfo.name
     )
-    downloadStatus = .successful
+
     do {
       try ModelFileManager.moveFile(
         at: tempURL,
@@ -238,7 +241,7 @@ extension ModelDownloadTask {
                             messageCode: .modelDownloaded)
       telemetryLogger?.logModelDownloadEvent(
         eventName: .modelDownload,
-        status: downloadStatus,
+        status: .succeeded,
         model: model,
         downloadErrorCode: .noError
       )
@@ -254,7 +257,7 @@ extension ModelDownloadTask {
                               messageCode: .downloadedModelSaveError)
       }
       telemetryLogger?.logModelDownloadEvent(eventName: .modelDownload,
-                                             status: downloadStatus,
+                                             status: .succeeded,
                                              downloadErrorCode: .downloadFailed)
       completion(.failure(error))
       return
@@ -263,7 +266,7 @@ extension ModelDownloadTask {
                             message: ModelDownloadTask.ErrorDescription.saveModel,
                             messageCode: .downloadedModelSaveError)
       telemetryLogger?.logModelDownloadEvent(eventName: .modelDownload,
-                                             status: downloadStatus,
+                                             status: .succeeded,
                                              downloadErrorCode: .downloadFailed)
       completion(.failure(.internalError(description: error.localizedDescription)))
       return

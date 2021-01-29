@@ -193,7 +193,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       expectation.fulfill()
     }
     waitForExpectations(timeout: 5, handler: nil)
-    XCTAssertEqual(modelDownloadManager.downloadStatus, .successful)
+    XCTAssertEqual(modelDownloadManager.downloadStatus, .complete)
   }
 
   func testGetModel() {
@@ -439,7 +439,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
         // TODO: Remove actual logging and stub out with mocks.
         telemetryLogger.logModelDownloadEvent(
           eventName: .modelDownload,
-          status: .successful,
+          status: .succeeded,
           model: model,
           downloadErrorCode: .noError
         )
