@@ -243,9 +243,10 @@ void FirestoreClient::Dispose() {
   std::promise<void> signal_disposing;
 
   bool enqueued = false;
-  std::lock_guard<std::mutex> lock(mutex_);
-  if (!terminated_) {
-    terminated_ = true;
+  // std::lock_guard<std::mutex> lock(mutex_);
+  // if (!terminated_) {
+  //   terminated_ = true;
+  if (remote_store_) {
 
     // Prevent new API invocations from enqueueing further work.
     worker_queue_->EnterRestrictedMode();
@@ -272,14 +273,9 @@ void FirestoreClient::Dispose() {
 
   worker_queue_->Dispose();
   user_executor_->Dispose();
-
-  // firestore = nullptr; // OBC
 }
 
 void FirestoreClient::TerminateAsync(StatusCallback callback) {
-  // std::promise<void> signal; // OBC
-  // auto firestore = maybe_firestore_.lock(); // OBC
-
   std::lock_guard<std::mutex> lock(mutex_);
 
   if (!terminated_) {
@@ -287,17 +283,15 @@ void FirestoreClient::TerminateAsync(StatusCallback callback) {
 
     worker_queue_->EnterRestrictedMode();
     worker_queue_->EnqueueEvenWhileRestricted([&, this, callback] {
-      auto ptr = shared_from_this();
+      auto self = shared_from_this();
+      auto firestore = maybe_firestore_.lock();
       TerminateInternal();
 
       if (callback) {
         user_executor_->Execute([=] { callback(Status::OK()); });
       }
-          // signal.set_value(); // OBC
     });
   }
-    // signal.get_future().wait(); // OBC
-    // firestore = nullptr; // OBC
 }
 
 void FirestoreClient::TerminateInternal() {
