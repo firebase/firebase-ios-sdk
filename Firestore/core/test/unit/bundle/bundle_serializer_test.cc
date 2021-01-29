@@ -31,7 +31,7 @@ using nlohmann::json;
 using ProtoBundleMetadata = ::firestore::BundleMetadata;
 using util::ReadContext;
 
-ProtoBundleMetadata bundle_metadata() {
+ProtoBundleMetadata TestBundleMetadata() {
   ProtoBundleMetadata proto_metadata{};
   *proto_metadata.mutable_id() = "bundle-1";
   proto_metadata.mutable_create_time()->set_seconds(2);
@@ -42,9 +42,9 @@ ProtoBundleMetadata bundle_metadata() {
   return proto_metadata;
 }
 
-std::string replaced_copy(const std::string& source,
-                          const std::string& pattern,
-                          const std::string& value) {
+std::string ReplacedCopy(const std::string& source,
+                         const std::string& pattern,
+                         const std::string& value) {
   std::string result{source};
   auto start = result.find(pattern);
   result.replace(start, pattern.size(), value);
@@ -52,7 +52,7 @@ std::string replaced_copy(const std::string& source,
 }
 
 TEST(BundleSerializerTest, DecodesBundleMetadata) {
-  auto proto_metadata = bundle_metadata();
+  auto proto_metadata = TestBundleMetadata();
 
   std::string json_string;
   MessageToJsonString(proto_metadata, &json_string);
@@ -73,7 +73,7 @@ TEST(BundleSerializerTest, DecodesBundleMetadata) {
 }
 
 TEST(BundleSerializerTest, DecodesInvalidBundleMetadataReportsError) {
-  auto proto_metadata = bundle_metadata();
+  auto proto_metadata = TestBundleMetadata();
 
   std::string json_string;
   MessageToJsonString(proto_metadata, &json_string);
@@ -87,22 +87,33 @@ TEST(BundleSerializerTest, DecodesInvalidBundleMetadataReportsError) {
 
   // Replace total_bytes to a string unparseable to integer.
   std::string json_copy =
-      replaced_copy(json_string, "123456789987654321", "xxxyyyzzz");
+      ReplacedCopy(json_string, "123456789987654321", "xxxyyyzzz");
   context = ReadContext{};
+  EXPECT_TRUE(context.ok());
+  serializer.DecodeBundleMetadata(context, json_copy);
+
+  EXPECT_FALSE(context.ok());
+
+  // Replace total_documents to an integer that is too large.
+  json_copy = ReplacedCopy(json_string, "9999", "\"123456789987654321\"");
+  context = ReadContext{};
+  EXPECT_TRUE(context.ok());
   serializer.DecodeBundleMetadata(context, json_copy);
 
   EXPECT_FALSE(context.ok());
 
   // Replace total_documents to a string unparseable to integer.
-  json_copy = replaced_copy(json_string, "9999", "\"xxxyyyzzz\"");
+  json_copy = ReplacedCopy(json_string, "9999", "\"xxxyyyzzz\"");
   context = ReadContext{};
+  EXPECT_TRUE(context.ok());
   serializer.DecodeBundleMetadata(context, json_copy);
 
   EXPECT_FALSE(context.ok());
 
   // Replace bundle_id to a integer.
-  json_copy = replaced_copy(json_string, "\"bundle-1\"", "666");
+  json_copy = ReplacedCopy(json_string, "\"bundle-1\"", "1");
   context = ReadContext{};
+  EXPECT_TRUE(context.ok());
   serializer.DecodeBundleMetadata(context, json_copy);
 
   EXPECT_FALSE(context.ok());

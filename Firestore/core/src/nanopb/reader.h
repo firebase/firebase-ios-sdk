@@ -26,7 +26,7 @@
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
-#include "Firestore/core/src/util/reader_context.h"
+#include "Firestore/core/src/util/read_context.h"
 #include "Firestore/core/src/util/status.h"
 #include "absl/strings/string_view.h"
 

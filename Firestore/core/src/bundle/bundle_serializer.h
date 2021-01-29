@@ -22,7 +22,7 @@
 
 #include "Firestore/core/src/bundle/bundle_metadata.h"
 #include "Firestore/core/src/model/snapshot_version.h"
-#include "Firestore/core/src/util/reader_context.h"
+#include "Firestore/core/src/util/read_context.h"
 #include "nlohmann/json.hpp"
 
 namespace firebase {
