@@ -31,7 +31,7 @@ enum LoggerMessageCode: Int {
   case localModelFound
   case backgroundModelDownloaded
   case modelNameParseError
-  case localModelInfoRetrievalError
+  case noLocalModelInfo
   case outdatedModelPathError
   case allLocalModelsFound
   case listModelsError
@@ -43,12 +43,24 @@ enum LoggerMessageCode: Int {
   case invalidModelName
   case permissionDenied
   case notEnoughSpace
-  case validModelDownloadResponse
+  case validHTTPResponse
+  case invalidModelInfoFetchURL
+  case modelInfoRetrievalError
+  case validAuthToken
   case hostnameError
   case invalidDownloadSessionError
-  case invalidResponseError
+  case invalidHTTPResponse
+  case missingModelHash
+  case invalidModelInfoJSON
+  case modelInfoDeleted
+  case modelInfoDownloaded
+  case modelInfoUnmodified
+  case authTokenError
+  case expiredModelInfo
   case modelDownloadError
   case downloadedModelSaveError
+  case modelHashMismatchError
+  case noModelHash
   case analyticsEventEncodeError
   case telemetryInitError
   case backgroundDownloadError
