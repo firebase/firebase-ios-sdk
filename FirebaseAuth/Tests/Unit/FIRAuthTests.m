@@ -18,14 +18,15 @@
 #import <XCTest/XCTest.h>
 #import "OCMock.h"
 
+#import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRActionCodeSettings.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAdditionalUserInfo.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthSettings.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIREmailAuthProvider.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRFacebookAuthProvider.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRGoogleAuthProvider.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIROAuthProvider.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
-#import "GoogleUtilities/AppDelegateSwizzler/Private/GULAppDelegateSwizzler.h"
 #import "Interop/Auth/Public/FIRAuthInterop.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthDispatcher.h"
@@ -258,13 +259,6 @@ static const NSTimeInterval kWaitInterval = .5;
   return NO;
 }
 
-- (BOOL)application:(UIApplication *)application
-              openURL:(NSURL *)url
-    sourceApplication:(nullable NSString *)sourceApplication
-           annotation:(id)annotation {
-  return NO;
-}
-
 @end
 
 #endif  // TARGET_OS_IOS
@@ -377,39 +371,6 @@ static const NSTimeInterval kWaitInterval = .5;
 
 #pragma mark - Server API Tests
 
-/** @fn testFetchProvidersForEmailSuccess
-    @brief Tests the flow of a successful @c fetchProvidersForEmail:completion: call.
- */
-- (void)testFetchProvidersForEmailSuccess {
-  NSArray<NSString *> *allProviders = @[ FIRGoogleAuthProviderID, FIREmailAuthProviderID ];
-  OCMExpect([_mockBackend createAuthURI:[OCMArg any] callback:[OCMArg any]])
-      .andCallBlock2(
-          ^(FIRCreateAuthURIRequest *_Nullable request, FIRCreateAuthURIResponseCallback callback) {
-            XCTAssertEqualObjects(request.identifier, kEmail);
-            XCTAssertNotNil(request.endpoint);
-            XCTAssertEqualObjects(request.APIKey, kAPIKey);
-            dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
-              id mockCreateAuthURIResponse = OCMClassMock([FIRCreateAuthURIResponse class]);
-              OCMStub([mockCreateAuthURIResponse allProviders]).andReturn(allProviders);
-              callback(mockCreateAuthURIResponse, nil);
-            });
-          });
-  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  [[FIRAuth auth]
-      fetchProvidersForEmail:kEmail
-                  completion:^(NSArray<NSString *> *_Nullable providers, NSError *_Nullable error) {
-#pragma clang diagnostic pop
-                    XCTAssertTrue([NSThread isMainThread]);
-                    XCTAssertEqualObjects(providers, allProviders);
-                    XCTAssertNil(error);
-                    [expectation fulfill];
-                  }];
-  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
-  OCMVerifyAll(_mockBackend);
-}
-
 /** @fn testFetchSignInMethodsForEmailSuccess
     @brief Tests the flow of a successful @c fetchSignInMethodsForEmail:completion: call.
  */
@@ -438,30 +399,6 @@ static const NSTimeInterval kWaitInterval = .5;
                                     XCTAssertNil(error);
                                     [expectation fulfill];
                                   }];
-  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
-  OCMVerifyAll(_mockBackend);
-}
-
-/** @fn testFetchProvidersForEmailFailure
-    @brief Tests the flow of a failed @c fetchProvidersForEmail:completion: call.
- */
-- (void)testFetchProvidersForEmailFailure {
-  OCMExpect([_mockBackend createAuthURI:[OCMArg any] callback:[OCMArg any]])
-      .andDispatchError2([FIRAuthErrorUtils tooManyRequestsErrorWithMessage:nil]);
-  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  [[FIRAuth auth]
-      fetchProvidersForEmail:kEmail
-                  completion:^(NSArray<NSString *> *_Nullable providers, NSError *_Nullable error) {
-
-#pragma clang pop
-                    XCTAssertTrue([NSThread isMainThread]);
-                    XCTAssertNil(providers);
-                    XCTAssertEqual(error.code, FIRAuthErrorCodeTooManyRequests);
-                    XCTAssertNotNil(error.userInfo[NSLocalizedDescriptionKey]);
-                    [expectation fulfill];
-                  }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(_mockBackend);
 }
@@ -1362,11 +1299,11 @@ static const NSTimeInterval kWaitInterval = .5;
 }
 #endif  // TARGET_OS_IOS
 
-/** @fn testSignInAndRetrieveDataWithCredentialSuccess
-    @brief Tests the flow of a successful @c signInAndRetrieveDataWithCredential:completion: call
+/** @fn testSignInWithCredentialSuccess
+    @brief Tests the flow of a successful @c signInWithCredential:completion: call
         with an Google Sign-In credential.
  */
-- (void)testSignInAndRetrieveDataWithCredentialSuccess {
+- (void)testSignInWithCredentialSuccess {
   OCMExpect([_mockBackend verifyAssertion:[OCMArg any] callback:[OCMArg any]])
       .andCallBlock2(^(FIRVerifyAssertionRequest *_Nullable request,
                        FIRVerifyAssertionResponseCallback callback) {
@@ -2189,6 +2126,41 @@ static const NSTimeInterval kWaitInterval = .5;
   [[FIRAuth auth] removeIDTokenDidChangeListener:handle];
   [self waitForSignIn];
   [self waitForTimeIntervel:kWaitInterval];  // make sure listener is no longer called
+}
+
+/** @fn testUseEmulator
+    @brief Tests the @c useEmulatorWithHost:port: method.
+ */
+- (void)testUseEmulator {
+  [[FIRAuth auth] useEmulatorWithHost:@"host" port:12345];
+
+  XCTAssertEqualObjects(@"host:12345", [FIRAuth auth].requestConfiguration.emulatorHostAndPort);
+#if TARGET_OS_IOS
+  XCTAssertTrue([FIRAuth auth].settings.isAppVerificationDisabledForTesting);
+#endif
+}
+
+/** @fn testUseEmulatorNeverCalled
+    @brief Tests that the emulatorHostAndPort stored in @c FIRAuthRequestConfiguration is nil if the
+   @c useEmulatorWithHost:port: is not called.
+ */
+- (void)testUseEmulatorNeverCalled {
+  XCTAssertEqualObjects(nil, [FIRAuth auth].requestConfiguration.emulatorHostAndPort);
+#if TARGET_OS_IOS
+  XCTAssertFalse([FIRAuth auth].settings.isAppVerificationDisabledForTesting);
+#endif
+}
+
+/** @fn testUseEmulatorIPv6Address
+    @brief Tests the @c useEmulatorWithHost:port: method with an IPv6 host address.
+ */
+- (void)testUseEmulatorIPv6Address {
+  [[FIRAuth auth] useEmulatorWithHost:@"::1" port:12345];
+
+  XCTAssertEqualObjects(@"[::1]:12345", [FIRAuth auth].requestConfiguration.emulatorHostAndPort);
+#if TARGET_OS_IOS
+  XCTAssertTrue([FIRAuth auth].settings.isAppVerificationDisabledForTesting);
+#endif
 }
 
 #pragma mark - Automatic Token Refresh Tests.

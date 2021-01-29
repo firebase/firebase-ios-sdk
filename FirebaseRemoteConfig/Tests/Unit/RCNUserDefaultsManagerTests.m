@@ -20,6 +20,10 @@
 
 static NSTimeInterval RCNUserDefaultsSampleTimeStamp = 0;
 
+static NSString* const AppName = @"testApp";
+static NSString* const FQNamespace1 = @"testNamespace1:testApp";
+static NSString* const FQNamespace2 = @"testNamespace2:testApp";
+
 @interface RCNUserDefaultsManagerTests : XCTestCase
 
 @end
@@ -36,9 +40,9 @@ static NSTimeInterval RCNUserDefaultsSampleTimeStamp = 0;
 
 - (void)testUserDefaultsEtagWriteAndRead {
   RCNUserDefaultsManager* manager =
-      [[RCNUserDefaultsManager alloc] initWithAppName:@"TESTING"
+      [[RCNUserDefaultsManager alloc] initWithAppName:AppName
                                              bundleID:[NSBundle mainBundle].bundleIdentifier
-                                            namespace:@"testNamespace1"];
+                                            namespace:FQNamespace1];
   [manager setLastETag:@"eTag1"];
   XCTAssertEqualObjects([manager lastETag], @"eTag1");
 
@@ -48,9 +52,9 @@ static NSTimeInterval RCNUserDefaultsSampleTimeStamp = 0;
 
 - (void)testUserDefaultsLastFetchTimeWriteAndRead {
   RCNUserDefaultsManager* manager =
-      [[RCNUserDefaultsManager alloc] initWithAppName:@"TESTING"
+      [[RCNUserDefaultsManager alloc] initWithAppName:AppName
                                              bundleID:[NSBundle mainBundle].bundleIdentifier
-                                            namespace:@"testNamespace1"];
+                                            namespace:FQNamespace1];
   [manager setLastFetchTime:RCNUserDefaultsSampleTimeStamp];
   XCTAssertEqual([manager lastFetchTime], RCNUserDefaultsSampleTimeStamp);
 
@@ -60,9 +64,9 @@ static NSTimeInterval RCNUserDefaultsSampleTimeStamp = 0;
 
 - (void)testUserDefaultsLastETagUpdateTimeWriteAndRead {
   RCNUserDefaultsManager* manager =
-      [[RCNUserDefaultsManager alloc] initWithAppName:@"TESTING"
+      [[RCNUserDefaultsManager alloc] initWithAppName:AppName
                                              bundleID:[NSBundle mainBundle].bundleIdentifier
-                                            namespace:@"testNamespace1"];
+                                            namespace:FQNamespace1];
   [manager setLastETagUpdateTime:RCNUserDefaultsSampleTimeStamp];
   XCTAssertEqual([manager lastETagUpdateTime], RCNUserDefaultsSampleTimeStamp);
 
@@ -72,9 +76,9 @@ static NSTimeInterval RCNUserDefaultsSampleTimeStamp = 0;
 
 - (void)testUserDefaultsLastFetchStatusWriteAndRead {
   RCNUserDefaultsManager* manager =
-      [[RCNUserDefaultsManager alloc] initWithAppName:@"TESTING"
+      [[RCNUserDefaultsManager alloc] initWithAppName:AppName
                                              bundleID:[NSBundle mainBundle].bundleIdentifier
-                                            namespace:@"testNamespace1"];
+                                            namespace:FQNamespace1];
   [manager setLastFetchStatus:@"Success"];
   XCTAssertEqualObjects([manager lastFetchStatus], @"Success");
 
@@ -84,9 +88,9 @@ static NSTimeInterval RCNUserDefaultsSampleTimeStamp = 0;
 
 - (void)testUserDefaultsisClientThrottledWriteAndRead {
   RCNUserDefaultsManager* manager =
-      [[RCNUserDefaultsManager alloc] initWithAppName:@"TESTING"
+      [[RCNUserDefaultsManager alloc] initWithAppName:AppName
                                              bundleID:[NSBundle mainBundle].bundleIdentifier
-                                            namespace:@"testNamespace1"];
+                                            namespace:FQNamespace1];
   [manager setIsClientThrottledWithExponentialBackoff:YES];
   XCTAssertEqual([manager isClientThrottledWithExponentialBackoff], YES);
 
@@ -96,9 +100,9 @@ static NSTimeInterval RCNUserDefaultsSampleTimeStamp = 0;
 
 - (void)testUserDefaultsThrottleEndTimeWriteAndRead {
   RCNUserDefaultsManager* manager =
-      [[RCNUserDefaultsManager alloc] initWithAppName:@"TESTING"
+      [[RCNUserDefaultsManager alloc] initWithAppName:AppName
                                              bundleID:[NSBundle mainBundle].bundleIdentifier
-                                            namespace:@"testNamespace1"];
+                                            namespace:FQNamespace1];
   [manager setThrottleEndTime:RCNUserDefaultsSampleTimeStamp - 7.0];
   XCTAssertEqual([manager throttleEndTime], RCNUserDefaultsSampleTimeStamp - 7.0);
 
@@ -108,9 +112,9 @@ static NSTimeInterval RCNUserDefaultsSampleTimeStamp = 0;
 
 - (void)testUserDefaultsCurrentThrottlingRetryIntervalWriteAndRead {
   RCNUserDefaultsManager* manager =
-      [[RCNUserDefaultsManager alloc] initWithAppName:@"TESTING"
+      [[RCNUserDefaultsManager alloc] initWithAppName:AppName
                                              bundleID:[NSBundle mainBundle].bundleIdentifier
-                                            namespace:@"testNamespace1"];
+                                            namespace:FQNamespace1];
   [manager setCurrentThrottlingRetryIntervalSeconds:RCNUserDefaultsSampleTimeStamp - 1.0];
   XCTAssertEqual([manager currentThrottlingRetryIntervalSeconds],
                  RCNUserDefaultsSampleTimeStamp - 1.0);
@@ -122,14 +126,14 @@ static NSTimeInterval RCNUserDefaultsSampleTimeStamp = 0;
 
 - (void)testUserDefaultsForMultipleNamespaces {
   RCNUserDefaultsManager* manager1 =
-      [[RCNUserDefaultsManager alloc] initWithAppName:@"TESTING"
+      [[RCNUserDefaultsManager alloc] initWithAppName:AppName
                                              bundleID:[NSBundle mainBundle].bundleIdentifier
-                                            namespace:@"testNamespace1"];
+                                            namespace:FQNamespace1];
 
   RCNUserDefaultsManager* manager2 =
-      [[RCNUserDefaultsManager alloc] initWithAppName:@"TESTING"
+      [[RCNUserDefaultsManager alloc] initWithAppName:AppName
                                              bundleID:[NSBundle mainBundle].bundleIdentifier
-                                            namespace:@"testNamespace2"];
+                                            namespace:FQNamespace2];
 
   /// Last ETag.
   [manager1 setLastETag:@"eTag1ForNamespace1"];
@@ -172,9 +176,9 @@ static NSTimeInterval RCNUserDefaultsSampleTimeStamp = 0;
 
 - (void)testUserDefaultsReset {
   RCNUserDefaultsManager* manager =
-      [[RCNUserDefaultsManager alloc] initWithAppName:@"TESTING"
+      [[RCNUserDefaultsManager alloc] initWithAppName:AppName
                                              bundleID:[NSBundle mainBundle].bundleIdentifier
-                                            namespace:@"testNamespace1"];
+                                            namespace:FQNamespace1];
   [manager setLastETag:@"testETag"];
   [manager resetUserDefaults];
   XCTAssertNil([manager lastETag]);

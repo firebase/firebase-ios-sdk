@@ -164,6 +164,13 @@ NS_SWIFT_NAME(Firestore)
 #pragma mark - Network
 
 /**
+ * Configures Firestore to connect to an emulated host instead of the default remote backend. After
+ * Firestore has been used (i.e. a document reference has been instantiated), this value cannot be
+ * changed.
+ */
+- (void)useEmulatorWithHost:(NSString *)host port:(NSInteger)port;
+
+/**
  * Re-enables usage of the network by this Firestore instance after a prior call to
  * `disableNetworkWithCompletion`. Completion block, if provided, will be called once network uasge
  * has been enabled.

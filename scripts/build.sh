@@ -35,24 +35,28 @@ product can be one of:
   InAppMessaging
   Messaging
   MessagingSample
+  MLModelDownloaderSample
   RemoteConfig
   RemoteConfigSample
   Storage
   StorageSwift
   SymbolCollision
   GoogleDataTransport
+  Performance
 
 platform can be one of:
   iOS (default)
   macOS
   tvOS
   watchOS
+  catalyst
 
 method can be one of:
   xcodebuild (default)
   cmake
   unit
   integration
+  spm
 
 Optionally, reads the environment variable SANITIZERS. If set, it is expected to
 be a string containing a space-separated list with some of the following
@@ -166,6 +170,11 @@ tvos_flags=(
 watchos_flags=(
   -destination 'platform=iOS Simulator,name=iPhone 11 Pro'
 )
+catalyst_flags=(
+  ARCHS=x86_64 VALID_ARCHS=x86_64 SUPPORTS_MACCATALYST=YES -sdk macosx
+  -destination platform="macOS,variant=Mac Catalyst" TARGETED_DEVICE_FAMILY=2
+  CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+)
 
 # Compute standard flags for all platforms
 case "$platform" in
@@ -190,6 +199,10 @@ case "$platform" in
 
   watchOS)
     xcb_flags=("${watchos_flags[@]}")
+    ;;
+
+  catalyst)
+    xcb_flags=("${catalyst_flags[@]}")
     ;;
 
   all)
@@ -383,6 +396,24 @@ case "$product-$platform-$method" in
     fi
     ;;
 
+  MLModelDownloaderSample-*-*)
+  if check_secrets; then
+    RunXcodebuild \
+      -workspace 'FirebaseMLModelDownloader/Apps/Sample/MLDownloaderTestApp.xcworkspace' \
+      -scheme "MLDownloaderTestApp" \
+      "${xcb_flags[@]}" \
+      build
+  fi
+  ;;
+
+  SegmentationSample-*-*)
+    RunXcodebuild \
+      -workspace 'FirebaseSegmentation/Tests/Sample/SegmentationSampleApp.xcworkspace' \
+      -scheme "SegmentationSampleApp" \
+      "${xcb_flags[@]}" \
+      build
+    ;;
+
   Database-*-unit)
     pod_gen FirebaseDatabase.podspec --platforms="${gen_platform}"
     RunXcodebuild \
@@ -525,11 +556,81 @@ case "$product-$platform-$method" in
       "${xcb_flags[@]}" \
       build
     ;;
+
+  Performance-*-xcodebuild)
+    # Run unit tests on prod environment with unswizzle capabilities.
+    export FPR_UNSWIZZLE_AVAILABLE="1"
+    export FPR_AUTOPUSH_ENV="0"
+    pod_gen FirebasePerformance.podspec --platforms=ios --clean
+    RunXcodebuild \
+      -workspace 'gen/FirebasePerformance/FirebasePerformance.xcworkspace' \
+      -scheme "FirebasePerformance-Unit-unit" \
+      "${ios_flags[@]}" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+
+    # Build the prod dev test app.
+    export FPR_UNSWIZZLE_AVAILABLE="0"
+    export FPR_AUTOPUSH_ENV="0"
+    pod_gen FirebasePerformance.podspec --platforms=ios --clean
+    RunXcodebuild \
+      -workspace 'gen/FirebasePerformance/FirebasePerformance.xcworkspace' \
+      -scheme "FirebasePerformance-TestApp" \
+      "${ios_flags[@]}" \
+      "${xcb_flags[@]}" \
+      build
+    ;;
+
+  Performance-*-integration)
+    # Generate the workspace for the SDK to generate Protobuf files.
+    export FPR_UNSWIZZLE_AVAILABLE="0"
+    pod_gen FirebasePerformance.podspec --platforms=ios --clean
+
+    # Perform "pod install" to install the relevant dependencies
+    cd FirebasePerformance/Tests/FIRPerfE2E; pod install; cd -
+
+    # Run E2E Integration Tests for Autopush.
+    RunXcodebuild \
+      -workspace 'FirebasePerformance/Tests/FIRPerfE2E/FIRPerfE2E.xcworkspace' \
+      -scheme "FIRPerfE2EAutopush" \
+      FPR_AUTOPUSH_ENV=1 \
+      "${ios_flags[@]}" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+
+    # Run E2E Integration Tests for Prod.
+    RunXcodebuild \
+      -workspace 'FirebasePerformance/Tests/FIRPerfE2E/FIRPerfE2E.xcworkspace' \
+      -scheme "FIRPerfE2EProd" \
+      "${ios_flags[@]}" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+    ;;
+
+  *-*-spm)
+    RunXcodebuild \
+      -scheme $product \
+      "${xcb_flags[@]}" \
+      test
+    ;;
+
+  *-*-spmbuildonly)
+    RunXcodebuild \
+      -scheme $product \
+      "${xcb_flags[@]}" \
+      build
+    ;;
+
   *)
+
     echo "Don't know how to build this product-platform-method combination" 1>&2
     echo "  product=$product" 1>&2
     echo "  platform=$platform" 1>&2
     echo "  method=$method" 1>&2
     exit 1
     ;;
+
 esac

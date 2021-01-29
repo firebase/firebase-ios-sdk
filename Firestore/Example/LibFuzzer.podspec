@@ -1,4 +1,4 @@
-# Copyright 2018 Google
+# Copyright 2018 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,20 +28,20 @@ Pod::Spec.new do |s|
   s.license             = { :type => 'BSD-Like' }
   s.authors             = 'LLVM Team'
 
-  # LibFuzzer uses thread_local which does not appear to be supported before
-  # iOS 9.
-  s.ios.deployment_target = '9.0'
-  s.osx.deployment_target = '10.11'
+  s.ios.deployment_target = '10.0'
+  s.osx.deployment_target = '10.12'
   s.tvos.deployment_target = '10.0'
 
-  # Check out only libFuzzer folder.
   s.source              = {
-    :svn => 'https://llvm.org/svn/llvm-project/compiler-rt/trunk/lib/fuzzer'
+    :git => 'https://github.com/llvm/llvm-project.git'
   }
 
-  # Add all source files, except for the FuzzerMain.cpp.
-  s.source_files        = '*.{h,cpp,def}'
-  s.exclude_files       = 'FuzzerMain.cpp'
+  # The fuzzer is self-contained so only add its source files.
+  s.source_files        = 'compiler-rt/lib/fuzzer/*.{h,cpp,def}'
+
+  # We run fuzz tests via FSTFuzzTestsPrincipal, so avoid linking a `main`
+  # function.
+  s.exclude_files       = 'compiler-rt/lib/fuzzer/FuzzerMain.cpp'
 
   s.library             = 'c++'
 

@@ -49,8 +49,6 @@
   [super tearDown];
 }
 
-// If you do nothing, it should be YES. We should not be turning Fabric
-// customers off by default
 - (void)testNothingSet {
   self.fakeApp.isDefaultCollectionEnabled = YES;
   FIRCLSDataCollectionArbiter *arbiter = [self arbiterWithDictionary:@{}];

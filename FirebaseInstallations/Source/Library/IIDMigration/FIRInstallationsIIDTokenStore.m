@@ -22,7 +22,7 @@
 #import "FBLPromises.h"
 #endif
 
-#import "GoogleUtilities/Environment/Private/GULKeychainUtils.h"
+#import <GoogleUtilities/GULKeychainUtils.h>
 
 #import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsErrorUtil.h"
 

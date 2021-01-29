@@ -1637,11 +1637,11 @@ static const NSTimeInterval kExpectationTimeout = 2;
   OCMVerifyAll(_mockBackend);
 }
 
-/** @fn testReauthenticateAndRetrieveDataSuccess
-    @brief Tests the flow of a successful @c reauthenticateAndRetrieveDataWithCredential:completion:
+/** @fn testReauthenticateWithCredentialSuccess
+    @brief Tests the flow of a successful @c reauthenticateWithCredential:completion:
         call.
  */
-- (void)testReauthenticateAndRetrieveDataSuccess {
+- (void)testReauthenticateWithCredentialSuccess {
   [self expectVerifyAssertionRequest:FIRGoogleAuthProviderID
                          federatedID:kGoogleID
                          displayName:kGoogleDisplayName
@@ -1864,7 +1864,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
 }
 
 /** @fn testlinkAndRetrieveDataSuccess
-    @brief Tests the flow of a successful @c linkAndRetrieveDataWithCredential:completion:
+    @brief Tests the flow of a successful @c linkWithCredential:completion:
         call.
  */
 - (void)testlinkAndRetrieveDataSuccess {
@@ -1932,7 +1932,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
 }
 
 /** @fn testlinkAndRetrieveDataError
-    @brief Tests the flow of an unsuccessful @c linkAndRetrieveDataWithCredential:completion:
+    @brief Tests the flow of an unsuccessful @c linkWithCredential:completion:
         call with an error from the backend.
  */
 - (void)testlinkAndRetrieveDataError {
@@ -1992,7 +1992,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
 }
 
 /** @fn testlinkAndRetrieveDataProviderAlreadyLinked
-    @brief Tests the flow of an unsuccessful @c linkAndRetrieveDataWithCredential:completion:
+    @brief Tests the flow of an unsuccessful @c linkWithCredential:completion:
         call with FIRAuthErrorCodeProviderAlreadyLinked, which is a client side error.
  */
 - (void)testlinkAndRetrieveDataProviderAlreadyLinked {
@@ -2036,7 +2036,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
 }
 
 /** @fn testlinkAndRetrieveDataErrorAutoSignOut
-    @brief Tests the flow of an unsuccessful @c linkAndRetrieveDataWithCredential:completion:
+    @brief Tests the flow of an unsuccessful @c linkWithCredential:completion:
         call that automatically signs out.
  */
 - (void)testlinkAndRetrieveDataErrorAutoSignOut {
@@ -2089,7 +2089,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
 }
 
 /** @fn testlinkEmailAndRetrieveDataSuccess
-    @brief Tests the flow of a successful @c linkAndRetrieveDataWithCredential:completion:
+    @brief Tests the flow of a successful @c linkWithCredential:completion:
         invocation for email credential.
  */
 - (void)testlinkEmailAndRetrieveDataSuccess {
@@ -2163,7 +2163,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
 }
 
 /** @fn testlinkEmailProviderAlreadyLinkedError
-    @brief Tests the flow of an unsuccessful @c linkAndRetrieveDataWithCredential:completion:
+    @brief Tests the flow of an unsuccessful @c linkWithCredential:completion:
         invocation for email credential and FIRAuthErrorCodeProviderAlreadyLinked which is a client
         side error.
  */
@@ -2250,7 +2250,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
 }
 
 /** @fn testlinkEmailAndRetrieveDataError
-    @brief Tests the flow of an unsuccessful @c linkAndRetrieveDataWithCredential:completion:
+    @brief Tests the flow of an unsuccessful @c linkWithCredential:completion:
         invocation for email credential and an error from the backend.
  */
 - (void)testlinkEmailAndRetrieveDataError {
@@ -2305,7 +2305,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
 }
 
 /** @fn testlinkEmailAndRetrieveDataError
-    @brief Tests the flow of an unsuccessful @c linkAndRetrieveDataWithCredential:completion:
+    @brief Tests the flow of an unsuccessful @c linkWithCredential:completion:
         invocation that automatically signs out.
  */
 - (void)testlinkEmailAndRetrieveDataErrorAutoSignOut {
@@ -2510,7 +2510,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
 
 #if TARGET_OS_IOS
 /** @fn testlinkPhoneAuthCredentialSuccess
-    @brief Tests the flow of a successful @c linkAndRetrieveDataWithCredential:completion:
+    @brief Tests the flow of a successful @c linkWithCredential:completion:
         call using a phoneAuthCredential.
  */
 - (void)testlinkPhoneAuthCredentialSuccess {
@@ -2668,7 +2668,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
 }
 
 /** @fn testlinkPhoneAuthCredentialFailure
-    @brief Tests the flow of a failed call to @c linkAndRetrieveDataWithCredential:completion: due
+    @brief Tests the flow of a failed call to @c linkWithCredential:completion: due
         to a phone provider already being linked.
  */
 - (void)testlinkPhoneAuthCredentialFailure {
@@ -2716,7 +2716,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
 }
 
 /** @fn testlinkPhoneCredentialAlreadyExistsError
-    @brief Tests the flow of @c linkAndRetrieveDataWithCredential:completion:
+    @brief Tests the flow of @c linkWithCredential:completion:
         call using a phoneAuthCredential and a credential already exisits error. In this case we
         should get a FIRAuthCredential in the error object.
  */

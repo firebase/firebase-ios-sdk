@@ -275,18 +275,6 @@ NS_SWIFT_NAME(User)
                           completion:(nullable void (^)(FIRAuthDataResult *_Nullable authResult,
                                                         NSError *_Nullable error))completion;
 
-/** @fn reauthenticateAndRetrieveDataWithCredential:completion:
-    @brief Please use linkWithCredential:completion: for Objective-C
-        or link(withCredential:completion:) for Swift instead.
- */
-- (void)reauthenticateAndRetrieveDataWithCredential:(FIRAuthCredential *)credential
-                                         completion:(nullable void (^)(
-                                                        FIRAuthDataResult *_Nullable authResult,
-                                                        NSError *_Nullable error))completion
-    DEPRECATED_MSG_ATTRIBUTE("Please use reauthenticateWithCredential:completion: for"
-                             " Objective-C or reauthenticate(withCredential:completion:)"
-                             " for Swift instead.");
-
 /** @fn reauthenticateWithProvider:UIDelegate:completion:
     @brief Renews the user's authentication using the provided auth provider instance.
 
@@ -361,17 +349,6 @@ NS_SWIFT_NAME(User)
 - (void)getIDTokenForcingRefresh:(BOOL)forceRefresh
                       completion:(nullable void (^)(NSString *_Nullable token,
                                                     NSError *_Nullable error))completion;
-
-/** @fn linkAndRetrieveDataWithCredential:completion:
-    @brief Please use linkWithCredential:completion: for Objective-C
-        or link(withCredential:completion:) for Swift instead.
- */
-- (void)linkAndRetrieveDataWithCredential:(FIRAuthCredential *)credential
-                               completion:
-                                   (nullable void (^)(FIRAuthDataResult *_Nullable authResult,
-                                                      NSError *_Nullable error))completion
-    DEPRECATED_MSG_ATTRIBUTE("Please use linkWithCredential:completion: for Objective-C "
-                             "or link(withCredential:completion:) for Swift instead.");
 
 /** @fn linkWithCredential:completion:
     @brief Associates a user account from a third-party identity provider with this user and
@@ -478,7 +455,7 @@ NS_SWIFT_NAME(User)
         + `FIRAuthErrorCodeMissingAndroidPackageName` - Indicates that the android package name
             is missing when the `androidInstallApp` flag is set to true.
         + `FIRAuthErrorCodeUnauthorizedDomain` - Indicates that the domain specified in the
-            continue URL is not whitelisted in the Firebase console.
+            continue URL is not allowlisted in the Firebase console.
         + `FIRAuthErrorCodeInvalidContinueURI` - Indicates that the domain specified in the
             continue URI is not valid.
  */

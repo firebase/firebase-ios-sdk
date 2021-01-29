@@ -1,0 +1,44 @@
+{
+  "authors": "Google, Inc.",
+  "dependencies": {
+    "FirebaseCore": "~> 7.0",
+    "FirebaseMLCommon": "~> 7.0-beta",
+    "GTMSessionFetcher/Core": "~> 1.1",
+    "GoogleAPIClientForREST/Core": "~> 1.3",
+    "GoogleAPIClientForREST/Vision": "~> 1.3",
+    "GoogleToolboxForMac/Logger": "~> 2.1",
+    "GoogleToolboxForMac/NSData+zlib": "~> 2.1",
+    "Protobuf": "~> 3.12"
+  },
+  "description": "This is the top level pod for ML Kit for vision based features on iOS. ML Kit is a mobile SDK that brings Google's machine learning expertise to mobile devices in a powerful yet easy-to-use package.",
+  "frameworks": [
+    "Accelerate",
+    "AVFoundation",
+    "CoreGraphics",
+    "CoreMedia",
+    "CoreVideo",
+    "Foundation",
+    "UIKit"
+  ],
+  "homepage": "https://firebase.google.com/docs/ml-kit/",
+  "license": {
+    "text": "Copyright 2020 Google",
+    "type": "Copyright"
+  },
+  "name": "FirebaseMLVision",
+  "platforms": {
+    "ios": "10.0"
+  },
+  "preserve_paths": [
+    "CHANGELOG.md",
+    "README.md"
+  ],
+  "source": {
+    "http": "https://dl.google.com/dl/cpdc/58517163ccbb14d8/FirebaseMLVision-0.21.0.tar.gz"
+  },
+  "summary": "Firebase ML Kit Vision SDK for iOS",
+  "vendored_frameworks": [
+    "Frameworks/FirebaseMLVision.framework"
+  ],
+  "version": "7.5.0-beta"
+}

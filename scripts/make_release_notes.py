@@ -43,8 +43,7 @@ PRODUCTS = {
     'Firestore/CHANGELOG.md': '{{firestore}}',
     'Functions/CHANGELOG.md': '{{cloud_functions}}',
     'FirebaseRemoteConfig/CHANGELOG.md': '{{remote_config}}',
-
-    # 'GoogleDataTransport/CHANGELOG.md': '?',
+    'FirebasePerformance/CHANGELOG.md': '{{perfmon}}',
 }
 
 

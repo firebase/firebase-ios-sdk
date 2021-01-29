@@ -15,7 +15,7 @@
  */
 
 #import <TargetConditionals.h>
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_TV
 
 #import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMRenderingEffectSetting.h"
 
@@ -28,10 +28,10 @@
   setting.displayBGColor = [UIColor whiteColor];
   setting.textColor = [UIColor blackColor];
   setting.btnTextColor = [UIColor whiteColor];
-  setting.autoDimissBannerAfterNSeconds = 12;
+  setting.autoDismissBannerAfterNSeconds = 12;
   setting.isTestMessage = NO;
   return setting;
 }
 @end
 
-#endif  // TARGET_OS_IOS
+#endif  // TARGET_OS_IOS || TARGET_OS_TV

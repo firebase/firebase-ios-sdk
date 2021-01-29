@@ -20,8 +20,6 @@
 #include <signal.h>
 #include <stdbool.h>
 
-#define FIRCLSSignalCount (7)
-
 // per man sigaltstack, MINSIGSTKSZ is the minimum *overhead* needed to support
 // a signal stack.  The actual stack size must be larger.  Let's pick the recommended
 // size.
@@ -30,6 +28,9 @@
 #else
 #define CLS_SIGNAL_HANDLER_STACK_SIZE 0
 #endif
+
+#if CLS_SIGNAL_SUPPORTED
+#define FIRCLSSignalCount (7)
 
 typedef struct {
   const char* path;
@@ -49,3 +50,4 @@ bool FIRCLSSignalSafeInstallPreexistingHandlers(FIRCLSSignalReadContext* roConte
 void FIRCLSSignalNameLookup(int number, int code, const char** name, const char** codeName);
 
 void FIRCLSSignalEnumerateHandledSignals(void (^block)(int idx, int signal));
+#endif

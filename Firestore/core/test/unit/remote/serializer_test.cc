@@ -51,7 +51,6 @@
 #include "Firestore/core/src/model/patch_mutation.h"
 #include "Firestore/core/src/model/set_mutation.h"
 #include "Firestore/core/src/model/snapshot_version.h"
-#include "Firestore/core/src/model/transform_mutation.h"
 #include "Firestore/core/src/model/unknown_document.h"
 #include "Firestore/core/src/model/verify_mutation.h"
 #include "Firestore/core/src/nanopb/message.h"
@@ -59,7 +58,6 @@
 #include "Firestore/core/src/nanopb/writer.h"
 #include "Firestore/core/src/timestamp_internal.h"
 #include "Firestore/core/src/util/status.h"
-#include "Firestore/core/src/util/statusor.h"
 #include "Firestore/core/test/unit/nanopb/nanopb_testing.h"
 #include "Firestore/core/test/unit/testutil/status_testing.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
@@ -98,7 +96,6 @@ using model::Precondition;
 using model::ServerTimestampTransform;
 using model::SetMutation;
 using model::SnapshotVersion;
-using model::TransformMutation;
 using model::TransformOperation;
 using model::VerifyMutation;
 using nanopb::ByteString;
@@ -369,9 +366,10 @@ class SerializerTest : public ::testing::Test {
     create_time_proto->set_nanos(4321);
   }
 
-  void ExpectUnaryOperator(const FieldValue& value,
+  void ExpectUnaryOperator(std::string op_str,
+                           const FieldValue& value,
                            v1::StructuredQuery::UnaryFilter::Operator op) {
-    core::Query q = Query("docs").AddingFilter(Filter("prop", "==", value));
+    core::Query q = Query("docs").AddingFilter(Filter("prop", op_str, value));
     TargetData model = CreateTargetData(std::move(q));
 
     v1::Target proto;
@@ -383,6 +381,15 @@ class SerializerTest : public ::testing::Test {
     *proto.mutable_query()->mutable_structured_query()->add_from() =
         std::move(from);
 
+    // Add extra ORDER_BY field for '!=' since it is an inequality.
+    if (op_str == "!=") {
+      v1::StructuredQuery::Order order1;
+      order1.mutable_field()->set_field_path("prop");
+      order1.set_direction(v1::StructuredQuery::ASCENDING);
+      *proto.mutable_query()->mutable_structured_query()->add_order_by() =
+          std::move(order1);
+    }
+
     v1::StructuredQuery::Order order;
     order.mutable_field()->set_field_path(FieldPath::kDocumentKeyPath);
     order.set_direction(v1::StructuredQuery::ASCENDING);
@@ -393,6 +400,7 @@ class SerializerTest : public ::testing::Test {
                                                     ->mutable_structured_query()
                                                     ->mutable_where()
                                                     ->mutable_unary_filter();
+
     filter.mutable_field()->set_field_path("prop");
     filter.set_op(op);
 
@@ -1335,14 +1343,26 @@ TEST_F(SerializerTest, EncodesMultipleFiltersOnDeeperCollections) {
 
 TEST_F(SerializerTest, EncodesNullFilter) {
   SCOPED_TRACE("EncodesNullFilter");
-  ExpectUnaryOperator(Value(nullptr),
+  ExpectUnaryOperator("==", Value(nullptr),
                       v1::StructuredQuery_UnaryFilter_Operator_IS_NULL);
 }
 
 TEST_F(SerializerTest, EncodesNanFilter) {
   SCOPED_TRACE("EncodesNanFilter");
-  ExpectUnaryOperator(Value(NAN),
+  ExpectUnaryOperator("==", Value(NAN),
                       v1::StructuredQuery_UnaryFilter_Operator_IS_NAN);
+}
+
+TEST_F(SerializerTest, EncodesNotNullFilter) {
+  SCOPED_TRACE("EncodesNotNullFilter");
+  ExpectUnaryOperator("!=", Value(nullptr),
+                      v1::StructuredQuery_UnaryFilter_Operator_IS_NOT_NULL);
+}
+
+TEST_F(SerializerTest, EncodesNotNanFilter) {
+  SCOPED_TRACE("EncodesNotNanFilter");
+  ExpectUnaryOperator("!=", Value(NAN),
+                      v1::StructuredQuery_UnaryFilter_Operator_IS_NOT_NAN);
 }
 
 TEST_F(SerializerTest, EncodesSortOrders) {
@@ -1776,61 +1796,110 @@ TEST_F(SerializerTest, EncodesVerifyMutation) {
   ExpectRoundTrip(model, proto);
 }
 
-TEST_F(SerializerTest, EncodesServerTimestampTransformMutation) {
-  TransformMutation model = testutil::TransformMutation(
-      "docs/1", {{"a", ServerTimestampTransform()},
-                 {"bar.baz", ServerTimestampTransform()}});
+TEST_F(SerializerTest, EncodesServerTimestampTransform) {
+  std::vector<std::pair<std::string, TransformOperation>> transforms = {
+      {"a", ServerTimestampTransform()}, {"bar", ServerTimestampTransform()}};
 
-  v1::Write proto;
+  SetMutation set_model = testutil::SetMutation("docs/1", Map(), transforms);
 
-  v1::DocumentTransform& transform = *proto.mutable_transform();
-  transform.set_document(ResourceName("docs/1"));
+  v1::Write set_proto;
+  v1::Document& doc = *set_proto.mutable_update();
+  doc.set_name(ResourceName("docs/1"));
 
-  v1::DocumentTransform::FieldTransform field_transform1;
-  field_transform1.set_field_path("a");
-  field_transform1.set_set_to_server_value(
+  v1::DocumentTransform::FieldTransform server_proto1;
+  server_proto1.set_field_path("a");
+  server_proto1.set_set_to_server_value(
       v1::DocumentTransform::FieldTransform::REQUEST_TIME);
-  *transform.add_field_transforms() = std::move(field_transform1);
+  *set_proto.add_update_transforms() = std::move(server_proto1);
 
-  v1::DocumentTransform::FieldTransform field_transform2;
-  field_transform2.set_field_path("bar.baz");
-  field_transform2.set_set_to_server_value(
+  v1::DocumentTransform::FieldTransform set_transform2;
+  set_transform2.set_field_path("bar");
+  set_transform2.set_set_to_server_value(
       v1::DocumentTransform::FieldTransform::REQUEST_TIME);
-  *transform.add_field_transforms() = std::move(field_transform2);
+  *set_proto.add_update_transforms() = std::move(set_transform2);
 
-  proto.mutable_current_document()->set_exists(true);
+  ExpectRoundTrip(set_model, set_proto);
 
-  ExpectRoundTrip(model, proto);
+  PatchMutation patch_model =
+      testutil::PatchMutation("docs/1", Map(), transforms);
+
+  v1::Write patch_proto;
+  v1::Document& doc2 = *patch_proto.mutable_update();
+  doc2 = *patch_proto.mutable_update();
+  doc2.set_name(ResourceName("docs/1"));
+
+  v1::DocumentTransform::FieldTransform update_transform1;
+  update_transform1.set_field_path("a");
+  update_transform1.set_set_to_server_value(
+      v1::DocumentTransform::FieldTransform::REQUEST_TIME);
+  *patch_proto.add_update_transforms() = std::move(update_transform1);
+
+  v1::DocumentTransform::FieldTransform update_transform2;
+  update_transform2.set_field_path("bar");
+  update_transform2.set_set_to_server_value(
+      v1::DocumentTransform::FieldTransform::REQUEST_TIME);
+  *patch_proto.add_update_transforms() = std::move(update_transform2);
+
+  v1::DocumentMask mask;
+  patch_proto.set_allocated_update_mask(mask.New());
+  patch_proto.mutable_current_document()->set_exists(true);
+
+  ExpectRoundTrip(patch_model, patch_proto);
 }
 
-TEST_F(SerializerTest, EncodesArrayTransformMutations) {
+TEST_F(SerializerTest, EncodesArrayTransform) {
   ArrayTransform array_union{TransformOperation::Type::ArrayUnion,
                              {Value("a"), Value(2)}};
   ArrayTransform array_remove{TransformOperation::Type::ArrayRemove,
                               {Value(Map("x", 1))}};
-  TransformMutation model = testutil::TransformMutation(
-      "docs/1", {{"a", array_union}, {"bar.baz", array_remove}});
+  SetMutation set_model = testutil::SetMutation(
+      "docs/1", Map(), {{"a", array_union}, {"bar", array_remove}});
 
-  v1::Write proto;
-  v1::DocumentTransform& transform = *proto.mutable_transform();
-  transform.set_document(ResourceName("docs/1"));
+  v1::Write set_proto;
+  v1::Document& doc = *set_proto.mutable_update();
+  doc.set_name(ResourceName("docs/1"));
 
   v1::DocumentTransform::FieldTransform union_proto;
   union_proto.set_field_path("a");
   v1::ArrayValue& append = *union_proto.mutable_append_missing_elements();
   *append.add_values() = ValueProto("a");
   *append.add_values() = ValueProto(2);
-  *transform.add_field_transforms() = std::move(union_proto);
+  *set_proto.add_update_transforms() = std::move(union_proto);
 
   v1::DocumentTransform::FieldTransform remove_proto;
-  remove_proto.set_field_path("bar.baz");
+  remove_proto.set_field_path("bar");
   v1::ArrayValue& remove = *remove_proto.mutable_remove_all_from_array();
   *remove.add_values() = ValueProto(Map("x", 1));
-  *transform.add_field_transforms() = std::move(remove_proto);
+  *set_proto.add_update_transforms() = std::move(remove_proto);
 
-  proto.mutable_current_document()->set_exists(true);
+  ExpectRoundTrip(set_model, set_proto);
 
-  ExpectRoundTrip(model, proto);
+  PatchMutation patch_model = testutil::PatchMutation(
+      "docs/1", Map(), {{"a", array_union}, {"bar", array_remove}});
+
+  v1::Write patch_proto;
+  v1::Document& doc2 = *patch_proto.mutable_update();
+  doc2 = *patch_proto.mutable_update();
+  doc2.set_name(ResourceName("docs/1"));
+
+  v1::DocumentTransform::FieldTransform union_proto2;
+  union_proto2.set_field_path("a");
+  v1::ArrayValue& append2 = *union_proto2.mutable_append_missing_elements();
+  *append2.add_values() = ValueProto("a");
+  *append2.add_values() = ValueProto(2);
+  *patch_proto.add_update_transforms() = std::move(union_proto2);
+
+  v1::DocumentTransform::FieldTransform remove_proto2;
+  remove_proto2.set_field_path("bar");
+  v1::ArrayValue& remove2 = *remove_proto2.mutable_remove_all_from_array();
+  *remove2.add_values() = ValueProto(Map("x", 1));
+  *patch_proto.add_update_transforms() = std::move(remove_proto2);
+
+  v1::DocumentMask mask;
+  patch_proto.set_allocated_update_mask(mask.New());
+  patch_proto.mutable_current_document()->set_exists(true);
+
+  ExpectRoundTrip(patch_model, patch_proto);
 }
 
 TEST_F(SerializerTest, EncodesSetMutationWithPrecondition) {
@@ -1890,6 +1959,18 @@ TEST_F(SerializerTest, EncodesFieldFilter) {
   ExpectRoundTrip(model, proto);
 }
 
+TEST_F(SerializerTest, EncodesNotEqualFilter) {
+  auto model = testutil::Filter("item.tags", "!=", "food");
+
+  v1::StructuredQuery::Filter proto;
+  v1::StructuredQuery::FieldFilter& field = *proto.mutable_field_filter();
+  field.mutable_field()->set_field_path("item.tags");
+  field.set_op(v1::StructuredQuery::FieldFilter::NOT_EQUAL);
+  *field.mutable_value() = ValueProto("food");
+
+  ExpectRoundTrip(model, proto);
+}
+
 TEST_F(SerializerTest, EncodesArrayContainsFilter) {
   auto model = testutil::Filter("item.tags", "array_contains", "food");
 
@@ -1923,6 +2004,32 @@ TEST_F(SerializerTest, EncodesInFilter) {
   field.mutable_field()->set_field_path("item.tags");
   field.set_op(v1::StructuredQuery::FieldFilter::IN_);
   *field.mutable_value() = ValueProto(std::vector<FieldValue>{Value("food")});
+
+  ExpectRoundTrip(model, proto);
+}
+
+TEST_F(SerializerTest, EncodesNotInFilter) {
+  auto model = testutil::Filter("item.tags", "not-in", Array("food"));
+
+  v1::StructuredQuery::Filter proto;
+  v1::StructuredQuery::FieldFilter& field = *proto.mutable_field_filter();
+  field.mutable_field()->set_field_path("item.tags");
+  field.set_op(v1::StructuredQuery::FieldFilter::NOT_IN);
+  *field.mutable_value() = ValueProto(std::vector<FieldValue>{Value("food")});
+
+  ExpectRoundTrip(model, proto);
+}
+
+TEST_F(SerializerTest, EncodesNotInFilterWithNull) {
+  auto model =
+      testutil::Filter("item.tags", "not-in", Array(FieldValue::Null()));
+
+  v1::StructuredQuery::Filter proto;
+  v1::StructuredQuery::FieldFilter& field = *proto.mutable_field_filter();
+  field.mutable_field()->set_field_path("item.tags");
+  field.set_op(v1::StructuredQuery::FieldFilter::NOT_IN);
+  *field.mutable_value() =
+      ValueProto(std::vector<FieldValue>{FieldValue::Null()});
 
   ExpectRoundTrip(model, proto);
 }

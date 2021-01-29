@@ -31,7 +31,7 @@ typedef NS_ENUM(NSInteger, FDLLogLevel) {
  */
 typedef NS_ENUM(NSInteger, FDLLogIdentifier) {
   FDLLogIdentifierSetupNilAPIKey = 0,
-  FDLLogIdentifierSetupNilClientID = 1,
+  FDLLogIdentifierSetupNilClientID = 1,  // Not used anymore
   FDLLogIdentifierSetupNonDefaultApp = 2,
   FDLLogIdentifierSetupInvalidDomainURIPrefixScheme = 3,
   FDLLogIdentifierSetupInvalidDomainURIPrefix = 4,

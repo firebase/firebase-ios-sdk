@@ -16,7 +16,7 @@
 
 set -ex
 
-cd "${REPO}"/ZipBuilder
+cd "${REPO}"/ReleaseTooling
 
 # This file will have non Firebase SDKs that will be built by ZipBuilder.
 ZIP_POD_JSON="non_firebase_sdk.json"
@@ -27,7 +27,13 @@ num_sdk="${#NON_FIREBASE_SDKS[@]}"
 echo "[" >> "${ZIP_POD_JSON}"
 for sdk in "${NON_FIREBASE_SDKS[@]}"
 do
-  echo "{\"name\":\"${sdk}\"}" >>  "${ZIP_POD_JSON}"
+  if [ ${sdk} == "FirebaseFirestoreSwift" ]; then
+    echo "{\"name\":\"FirebaseFirestoreSwift\", \"version\" : \"~> 7.5-beta\"}" >>  "${ZIP_POD_JSON}"
+  elif [ ${sdk} == "FirebaseStorageSwift" ]; then
+    echo "{\"name\":\"FirebaseStorageSwift\", \"version\" : \"~> 7.5-beta\"}" >>  "${ZIP_POD_JSON}"
+  else
+    echo "{\"name\":\"${sdk}\"}" >>  "${ZIP_POD_JSON}"
+  fi
   if [ "$num_sdk" -ne 1 ]; then
     echo ",">>  "${ZIP_POD_JSON}"
   fi
@@ -35,11 +41,10 @@ do
 done
 echo "]" >>  "${ZIP_POD_JSON}"
 mkdir -p "${REPO}"/sdk_zip
-swift run ReleasePackager -keepBuildArtifacts true -updatePodRepo true -templateDir "${REPO}"/ZipBuilder/Template -zipPods "${ZIP_POD_JSON}" -outputDir "${REPO}"/sdk_zip -buildDependencies false
+swift run zip-builder --keep-build-artifacts --update-pod-repo --platforms ios \
+    --zip-pods "${ZIP_POD_JSON}" --output-dir "${REPO}"/sdk_zip --disable-build-dependencies
 
 unzip -o "${REPO}"/sdk_zip/Frameworks.zip -d "${HOME}"/ios_frameworks/Firebase/
 
 # Move Frameworks to Firebase dir, so be align with Firebase SDKs.
-mv -n "${HOME}"/ios_frameworks/Firebase/staging "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/
-
-
+mv -n "${HOME}"/ios_frameworks/Firebase/Binaries "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/

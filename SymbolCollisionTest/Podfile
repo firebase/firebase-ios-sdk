@@ -24,18 +24,12 @@ target 'SymbolCollisionTest' do
     pod 'FirebaseInstanceID', :path => '../'
     pod 'FirebaseInstallations', :path => '../'
     pod 'FirebaseMessaging', :path => '../'
-    pod 'FirebaseMLCommon'
-    pod 'FirebaseMLModelInterpreter'
-    pod 'FirebaseMLVision'
-    pod 'FirebaseMLVisionBarcodeModel'
-    pod 'FirebaseMLVisionFaceModel'
-    pod 'FirebaseMLVisionLabelModel'
-    pod 'FirebaseMLVisionTextModel'
-    pod 'FirebasePerformance'
+    pod 'Firebase/MLCommon', :path => '../'
+    pod 'Firebase/MLModelInterpreter', :path => '../'
+    pod 'Firebase/MLVision', :path => '../'
+    pod 'FirebasePerformance', :path => '../'
     pod 'FirebaseRemoteConfig', :path => '../'
     pod 'FirebaseStorage', :path => '../'
-    pod 'GoogleDataTransport', :path => '../'
-    pod 'GoogleUtilities', :path => '../'
     pod 'GoogleUtilitiesComponents', :path => '../'
 
 #    pod 'FirebaseUI'. - requires use_frameworks!
@@ -54,9 +48,11 @@ target 'SymbolCollisionTest' do
     pod 'GoogleAppUtilities'
     pod 'GoogleAuthUtilities'
     pod 'GoogleConversionTracking'
+    pod 'GoogleDataTransport'
     pod 'GoogleIDFASupport'
     pod 'GoogleInterchangeUtilities'
     pod 'GoogleMaps'
+
     pod 'GoogleMLKit'
 #    pod 'GoogleMobileVision' # After Firebase 6.8.0, conflicts with FirebaseML
     pod 'GoogleNetworkingUtilities'
@@ -68,6 +64,7 @@ target 'SymbolCollisionTest' do
     pod 'GoogleSymbolUtilities'
     pod 'GoogleTagManager'
     pod 'GoogleToolboxForMac'
+    pod 'GoogleUtilities'
     pod 'GTMAppAuth'
 #    pod 'GTMHTTPFetcher' - conflicts with GTMSessionFetcher
     pod 'GTMSessionFetcher'

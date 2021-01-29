@@ -15,7 +15,7 @@
  */
 
 #import <TargetConditionals.h>
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_TV
 
 #import <UIKit/UIKit.h>
 
@@ -64,10 +64,6 @@ NS_SWIFT_NAME(InAppMessagingActionButton)
 /// Unavailable.
 - (instancetype)init NS_UNAVAILABLE;
 
-/// Deprecated, this class shouldn't be directly instantiated.
-- (instancetype)initWithButtonText:(NSString *)btnText
-                   buttonTextColor:(UIColor *)textColor
-                   backgroundColor:(UIColor *)bkgColor __deprecated;
 @end
 
 /** Contain display data for an image for a fiam message.
@@ -88,8 +84,6 @@ NS_SWIFT_NAME(InAppMessagingImageData)
 /// Unavailable.
 - (instancetype)init NS_UNAVAILABLE;
 
-/// Deprecated, this class shouldn't be directly instantiated.
-- (instancetype)initWithImageURL:(NSString *)imageURL imageData:(NSData *)imageData __deprecated;
 @end
 
 /** Defines the metadata for the campaign to which a FIAM message belongs.
@@ -114,11 +108,6 @@ NS_SWIFT_NAME(InAppMessagingCampaignInfo)
 
 /// Unavailable.
 - (instancetype)init NS_UNAVAILABLE;
-
-/// Deprecated, this class shouldn't be directly instantiated.
-- (instancetype)initWithMessageID:(NSString *)messageID
-                     campaignName:(NSString *)campaignName
-              renderAsTestMessage:(BOOL)renderAsTestMessage __deprecated;
 
 @end
 
@@ -174,13 +163,6 @@ NS_SWIFT_NAME(InAppMessagingDisplayMessage)
 
 /// Unavailable.
 - (instancetype)init NS_UNAVAILABLE;
-
-/// Deprecated, this class shouldn't be directly instantiated.
-- (instancetype)initWithMessageID:(NSString *)messageID
-                     campaignName:(NSString *)campaignName
-              renderAsTestMessage:(BOOL)renderAsTestMessage
-                      messageType:(FIRInAppMessagingDisplayMessageType)messageType
-                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType __deprecated;
 
 @end
 
@@ -275,28 +257,16 @@ NS_SWIFT_NAME(InAppMessagingModalDisplay)
 /**
  * Gets the background color for a modal fiam message.
  */
-@property(nonatomic, copy, nonnull) UIColor *displayBackgroundColor;
+@property(nonatomic, copy, nonnull, readonly) UIColor *displayBackgroundColor;
 
 /**
  * Gets the color for text in modal fiam message. It would apply to both title and body text.
  */
-@property(nonatomic, copy, nonnull) UIColor *textColor;
+@property(nonatomic, copy, nonnull, readonly) UIColor *textColor;
 
 /// Unavailable.
 - (instancetype)init NS_UNAVAILABLE;
 
-/// Deprecated, this class shouldn't be directly instantiated.
-- (instancetype)initWithMessageID:(NSString *)messageID
-                     campaignName:(NSString *)campaignName
-              renderAsTestMessage:(BOOL)renderAsTestMessage
-                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
-                        titleText:(NSString *)title
-                         bodyText:(NSString *)bodyText
-                        textColor:(UIColor *)textColor
-                  backgroundColor:(UIColor *)backgroundColor
-                        imageData:(nullable FIRInAppMessagingImageData *)imageData
-                     actionButton:(nullable FIRInAppMessagingActionButton *)actionButton
-                        actionURL:(nullable NSURL *)actionURL __deprecated;
 @end
 
 /** Class for defining a banner message for display.
@@ -327,7 +297,7 @@ NS_SWIFT_NAME(InAppMessagingBannerDisplay)
 /**
  * Gets the color for text in banner fiam message. It would apply to both title and body text.
  */
-@property(nonatomic, copy, nonnull) UIColor *textColor;
+@property(nonatomic, copy, nonnull, readonly) UIColor *textColor;
 
 /**
  * Gets the action URL for a banner fiam message.
@@ -337,17 +307,6 @@ NS_SWIFT_NAME(InAppMessagingBannerDisplay)
 /// Unavailable.
 - (instancetype)init NS_UNAVAILABLE;
 
-/// Deprecated, this class shouldn't be directly instantiated.
-- (instancetype)initWithMessageID:(NSString *)messageID
-                     campaignName:(NSString *)campaignName
-              renderAsTestMessage:(BOOL)renderAsTestMessage
-                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
-                        titleText:(NSString *)title
-                         bodyText:(NSString *)bodyText
-                        textColor:(UIColor *)textColor
-                  backgroundColor:(UIColor *)backgroundColor
-                        imageData:(nullable FIRInAppMessagingImageData *)imageData
-                        actionURL:(nullable NSURL *)actionURL __deprecated;
 @end
 
 /** Class for defining a image-only message for display.
@@ -367,14 +326,6 @@ NS_SWIFT_NAME(InAppMessagingImageOnlyDisplay)
 
 /// Unavailable.
 - (instancetype)init NS_UNAVAILABLE;
-
-/// Deprecated, this class shouldn't be directly instantiated.
-- (instancetype)initWithMessageID:(NSString *)messageID
-                     campaignName:(NSString *)campaignName
-              renderAsTestMessage:(BOOL)renderAsTestMessage
-                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
-                        imageData:(nullable FIRInAppMessagingImageData *)imageData
-                        actionURL:(nullable NSURL *)actionURL __deprecated;
 
 @end
 
@@ -414,12 +365,6 @@ NS_SWIFT_NAME(InAppMessagingDisplayDelegate)
  */
 - (void)messageDismissed:(FIRInAppMessagingDisplayMessage *)inAppMessage
              dismissType:(FIRInAppMessagingDismissType)dismissType;
-
-/**
- * Called when the message's action button is followed by the user.
- * @param inAppMessage the message that was clicked.
- */
-- (void)messageClicked:(FIRInAppMessagingDisplayMessage *)inAppMessage __deprecated;
 
 /**
  * Called when the message's action button is followed by the user.
@@ -480,4 +425,4 @@ NS_SWIFT_NAME(InAppMessagingDisplay)
 @end
 NS_ASSUME_NONNULL_END
 
-#endif  // TARGET_OS_IOS
+#endif  // TARGET_OS_IOS || TARGET_OS_TV

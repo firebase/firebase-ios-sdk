@@ -84,6 +84,16 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (NSError *)storageErrorWithDescription:(NSString *)description code:(NSInteger)code;
 
+/**
+ * Performs a crude translation of the user provided timeouts to the retry intervals that
+ * GTMSessionFetcher accepts. GTMSessionFetcher times out operations if the time between individual
+ * retry attempts exceed a certain threshold, while our API contract looks at the total observed
+ * time of the operation (i.e. the sum of all retries).
+ * @param retryTime A timeout that caps the sum of all retry attempts
+ * @return A timeout that caps the timeout of the last retry attempt
+ */
++ (NSTimeInterval)computeRetryIntervalFromRetryTime:(NSTimeInterval)retryTime;
+
 @end
 
 @interface NSDictionary (FIRStorageNSDictionaryJSONHelpers)

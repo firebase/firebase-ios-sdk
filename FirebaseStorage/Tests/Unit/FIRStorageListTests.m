@@ -79,6 +79,29 @@
   [FIRStorageTestHelpers waitForExpectation:self];
 }
 
+- (void)testListAllCallbackOnlyCalledOnce {
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"testListAllCallbackOnlyCalledOnce"];
+  expectation.expectedFulfillmentCount = 1;
+
+  FIRStoragePath *path = [FIRStorageTestHelpers objectPath];
+  FIRStorageReference *ref = [[FIRStorageReference alloc] initWithStorage:self.storage path:path];
+
+  FIRStorageVoidListError errorBlock = ^(FIRStorageListResult *result, NSError *error) {
+    XCTAssertNil(result);
+    XCTAssertNotNil(error);
+
+    XCTAssertEqualObjects(error.domain, @"FIRStorageErrorDomain");
+    XCTAssertEqual(error.code, FIRStorageErrorCodeUnknown);
+
+    [expectation fulfill];
+  };
+
+  [ref listAllWithCompletion:errorBlock];
+
+  [FIRStorageTestHelpers waitForExpectation:self];
+}
+
 - (void)testDefaultList {
   XCTestExpectation *expectation = [self expectationWithDescription:@"testDefaultList"];
   NSURL *expectedURL = [NSURL
@@ -152,6 +175,42 @@
   [FIRStorageTestHelpers waitForExpectation:self];
 }
 
+- (void)testPercentEncodesPlusToken {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"testPercentEncodesPlusToken"];
+  NSURL *expectedURL = [NSURL URLWithString:@"https://firebasestorage.googleapis.com/v0/b/bucket/"
+                                            @"o?prefix=%2Bfoo/&delimiter=/"];
+
+  self.fetcherService.testBlock =
+      ^(GTMSessionFetcher *fetcher, GTMSessionFetcherTestResponse response) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-retain-cycles"
+        XCTAssertEqualObjects(fetcher.request.URL, expectedURL);  // Implicitly retains self
+        XCTAssertEqualObjects(fetcher.request.HTTPMethod, @"GET");
+#pragma clang diagnostic pop
+        NSHTTPURLResponse *httpResponse = [[NSHTTPURLResponse alloc] initWithURL:fetcher.request.URL
+                                                                      statusCode:200
+                                                                     HTTPVersion:kHTTPVersion
+                                                                    headerFields:nil];
+        response(httpResponse, nil, nil);
+      };
+
+  FIRStoragePath *path =
+      [FIRStoragePath pathFromString:@"https://firebasestorage.googleapis.com/v0/b/bucket/0/+foo"];
+  FIRStorageReference *ref = [[FIRStorageReference alloc] initWithStorage:self.storage path:path];
+  FIRStorageListTask *task = [[FIRStorageListTask alloc]
+      initWithReference:ref
+         fetcherService:self.fetcherService
+          dispatchQueue:self.dispatchQueue
+               pageSize:nil
+      previousPageToken:nil
+             completion:^(FIRStorageListResult *result, NSError *error) {
+               [expectation fulfill];
+             }];
+  [task enqueue];
+
+  [FIRStorageTestHelpers waitForExpectation:self];
+}
+
 - (void)testListWithResponse {
   XCTestExpectation *expectation = [self expectationWithDescription:@"testListWithErrorResponse"];
 
@@ -215,7 +274,7 @@
 - (void)testListWithErrorResponse {
   XCTestExpectation *expectation = [self expectationWithDescription:@"testListWithErrorResponse"];
 
-  NSError *error = [NSError errorWithDomain:@"com.google.firebase.storage" code:-1 userInfo:nil];
+  NSError *error = [NSError errorWithDomain:@"com.google.firebase.storage" code:404 userInfo:nil];
 
   self.fetcherService.testBlock =
       ^(GTMSessionFetcher *fetcher, GTMSessionFetcherTestResponse response) {
@@ -240,6 +299,7 @@
                XCTAssertNil(result);
 
                XCTAssertEqualObjects(error.domain, @"FIRStorageErrorDomain");
+               XCTAssertEqual(error.code, FIRStorageErrorCodeObjectNotFound);
 
                [expectation fulfill];
              }];

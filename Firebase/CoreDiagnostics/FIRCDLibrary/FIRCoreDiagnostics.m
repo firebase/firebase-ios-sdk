@@ -17,11 +17,11 @@
 #import <objc/runtime.h>
 #include <sys/utsname.h>
 
-#import "GoogleDataTransport/GDTCORLibrary/Internal/GoogleDataTransportInternal.h"
+#import <GoogleDataTransport/GoogleDataTransport.h>
 
-#import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
-#import "GoogleUtilities/Environment/Private/GULHeartbeatDateStorage.h"
-#import "GoogleUtilities/Logger/Private/GULLogger.h"
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#import <GoogleUtilities/GULHeartbeatDateStorage.h>
+#import <GoogleUtilities/GULLogger.h>
 
 #import "Interop/CoreDiagnostics/Public/FIRCoreDiagnosticsData.h"
 #import "Interop/CoreDiagnostics/Public/FIRCoreDiagnosticsInterop.h"
@@ -192,24 +192,6 @@ NS_ASSUME_NONNULL_END
   return self;
 }
 
-#pragma mark - Metadata helpers
-
-/** Returns the model of iOS device. Sample platform strings are @"iPhone7,1" for iPhone 6 Plus,
- * @"iPhone7,2" for iPhone 6, etc. Refer to the Hardware strings at
- * https://en.wikipedia.org/wiki/List_of_iOS_devices
- *
- * @return The device model as an NSString.
- */
-+ (NSString *)deviceModel {
-  static NSString *deviceModel = nil;
-  if (deviceModel == nil) {
-    struct utsname systemInfo;
-    uname(&systemInfo);
-    deviceModel = [NSString stringWithCString:systemInfo.machine encoding:NSUTF8StringEncoding];
-  }
-  return deviceModel;
-}
-
 #pragma mark - nanopb helper functions
 
 /** Callocs a pb_bytes_array and copies the given NSString's bytes into the bytes array.
@@ -359,7 +341,7 @@ void FIRPopulateProtoWithCommonInfoFromApp(logs_proto_mobilesdk_ios_ICoreConfigu
     config->icore_version = FIREncodeString(libraryVersionID);
   }
 
-  NSString *deviceModel = [FIRCoreDiagnostics deviceModel];
+  NSString *deviceModel = [GULAppEnvironmentUtil deviceModel];
   if (deviceModel.length) {
     config->device_model = FIREncodeString(deviceModel);
   }
@@ -472,29 +454,6 @@ void FIRPopulateProtoWithInstalledServices(logs_proto_mobilesdk_ios_ICoreConfigu
   config->sdk_service_installed_count = (int32_t)sdkServiceInstalledArray.count;
 }
 
-/** Populates the proto with the number of linked frameworks.
- *
- * @param config The proto to populate.
- */
-void FIRPopulateProtoWithNumberOfLinkedFrameworks(
-    logs_proto_mobilesdk_ios_ICoreConfiguration *config) {
-  int numFrameworks = -1;  // Subtract the app binary itself.
-  unsigned int numImages;
-  const char **imageNames = objc_copyImageNames(&numImages);
-  for (unsigned int i = 0; i < numImages; i++) {
-    NSString *imageName = [NSString stringWithUTF8String:imageNames[i]];
-    if ([imageName rangeOfString:@"System/Library"].length != 0        // Apple .frameworks
-        || [imageName rangeOfString:@"Developer/Library"].length != 0  // Xcode debug .frameworks
-        || [imageName rangeOfString:@"usr/lib"].length != 0) {         // Public .dylibs
-      continue;
-    }
-    numFrameworks++;
-  }
-  free(imageNames);
-  config->dynamic_framework_count = numFrameworks;
-  config->has_dynamic_framework_count = 1;
-}
-
 /** Populates the proto with Info.plist values.
  *
  * @param config The proto to populate.
@@ -550,7 +509,6 @@ void FIRPopulateProtoWithInfoPlistValues(logs_proto_mobilesdk_ios_ICoreConfigura
     FIRPopulateProtoWithInfoFromUserInfoParams(&icore_config, diagnosticObjects);
     FIRPopulateProtoWithCommonInfoFromApp(&icore_config, diagnosticObjects);
     FIRPopulateProtoWithInstalledServices(&icore_config);
-    FIRPopulateProtoWithNumberOfLinkedFrameworks(&icore_config);
     FIRPopulateProtoWithInfoPlistValues(&icore_config);
     [self setHeartbeatFlagIfNeededToConfig:&icore_config];
 

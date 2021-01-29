@@ -25,9 +25,8 @@ template_path=.github/ISSUE_TEMPLATE/bug_report.md
 
   * Xcode version: _____
   * Firebase SDK version: _____
-  * Firebase Component: _____ (Auth, Core, Database, Firestore, Messaging, Storage, etc)
-  * Component version: _____
   * Installation method: `CocoaPods | Carthage | Zip file | Swift Package Manager` (select one)
+  * Firebase Component: _____ (Auth, Core, Database, Firestore, Messaging, Storage, etc)
 
 ### [REQUIRED] Step 2: Describe the problem
 

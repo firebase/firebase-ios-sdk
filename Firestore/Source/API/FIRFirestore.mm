@@ -41,6 +41,7 @@
 #include "Firestore/core/src/core/event_listener.h"
 #include "Firestore/core/src/core/transaction.h"
 #include "Firestore/core/src/model/database_id.h"
+#include "Firestore/core/src/remote/firebase_metadata_provider.h"
 #include "Firestore/core/src/util/async_queue.h"
 #include "Firestore/core/src/util/config.h"
 #include "Firestore/core/src/util/empty.h"
@@ -61,6 +62,7 @@ using firebase::firestore::api::ListenerRegistration;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::core::EventListener;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::remote::FirebaseMetadataProvider;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::Empty;
 using firebase::firestore::util::MakeCallback;
@@ -134,12 +136,14 @@ NS_ASSUME_NONNULL_BEGIN
                     persistenceKey:(std::string)persistenceKey
                credentialsProvider:(std::shared_ptr<CredentialsProvider>)credentialsProvider
                        workerQueue:(std::shared_ptr<AsyncQueue>)workerQueue
+          firebaseMetadataProvider:
+              (std::unique_ptr<FirebaseMetadataProvider>)firebaseMetadataProvider
                        firebaseApp:(FIRApp *)app
                   instanceRegistry:(nullable id<FSTFirestoreInstanceRegistry>)registry {
   if (self = [super init]) {
-    _firestore = std::make_shared<Firestore>(std::move(databaseID), std::move(persistenceKey),
-                                             std::move(credentialsProvider), std::move(workerQueue),
-                                             (__bridge void *)self);
+    _firestore = std::make_shared<Firestore>(
+        std::move(databaseID), std::move(persistenceKey), std::move(credentialsProvider),
+        std::move(workerQueue), std::move(firebaseMetadataProvider), (__bridge void *)self);
 
     _app = app;
     _registry = registry;
@@ -328,6 +332,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)enableLogging:(BOOL)logging {
   util::LogSetLevel(logging ? util::kLogLevelDebug : util::kLogLevelNotice);
+}
+
+- (void)useEmulatorWithHost:(NSString *)host port:(NSInteger)port {
+  if (!host.length) {
+    ThrowInvalidArgument("Host cannot be nil or empty.");
+  }
+  if (!_settings.isUsingDefaultHost) {
+    LOG_WARN("Overriding previously-set host value: %@", _settings.host);
+  }
+  // Use a new settings so the new settings are automatically plumbed
+  // to the underlying Firestore objects.
+  NSString *settingsHost = [NSString stringWithFormat:@"%@:%li", host, (long)port];
+  FIRFirestoreSettings *newSettings = [_settings copy];
+  newSettings.host = settingsHost;
+  self.settings = newSettings;
 }
 
 - (void)enableNetworkWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {

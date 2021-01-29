@@ -29,12 +29,13 @@
 #define RCNTableNameMetadata "fetch_metadata"
 #define RCNTableNameInternalMetadata "internal_metadata"
 #define RCNTableNameExperiment "experiment"
+#define RCNTableNamePersonalization "personalization"
 
 static BOOL gIsNewDatabase;
 /// SQLite file name in versions 0, 1 and 2.
 static NSString *const RCNDatabaseName = @"RemoteConfig.sqlite3";
-/// The application support sub-directory that the Remote Config database resides in.
-static NSString *const RCNRemoteConfigApplicationSupportSubDirectory = @"Google/RemoteConfig";
+/// The storage sub-directory that the Remote Config database resides in.
+static NSString *const RCNRemoteConfigStorageSubDirectory = @"Google/RemoteConfig";
 
 /// Remote Config database path for deprecated V0 version.
 static NSString *RemoteConfigPathForOldDatabaseV0() {
@@ -46,11 +47,14 @@ static NSString *RemoteConfigPathForOldDatabaseV0() {
 
 /// Remote Config database path for current database.
 static NSString *RemoteConfigPathForDatabase(void) {
+#if TARGET_OS_TV
+  NSArray *dirPaths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+#else
   NSArray *dirPaths =
       NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
-  NSString *appSupportPath = dirPaths.firstObject;
-  NSArray *components =
-      @[ appSupportPath, RCNRemoteConfigApplicationSupportSubDirectory, RCNDatabaseName ];
+#endif
+  NSString *storageDirPath = dirPaths.firstObject;
+  NSArray *components = @[ storageDirPath, RCNRemoteConfigStorageSubDirectory, RCNDatabaseName ];
   return [NSString pathWithComponents:components];
 }
 
@@ -274,11 +278,15 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
 
   static const char *createTableExperiment = "create TABLE IF NOT EXISTS " RCNTableNameExperiment
                                              " (_id INTEGER PRIMARY KEY, key TEXT, value BLOB)";
+  static const char *createTablePersonalization =
+      "create TABLE IF NOT EXISTS " RCNTableNamePersonalization
+      " (_id INTEGER PRIMARY KEY, key INTEGER, value BLOB)";
 
   return [self executeQuery:createTableMain] && [self executeQuery:createTableMainActive] &&
          [self executeQuery:createTableMainDefault] && [self executeQuery:createTableMetadata] &&
          [self executeQuery:createTableInternalMetadata] &&
-         [self executeQuery:createTableExperiment];
+         [self executeQuery:createTableExperiment] &&
+         [self executeQuery:createTablePersonalization];
 }
 
 - (void)removeDatabaseOnDatabaseQueueAtPath:(NSString *)path {
@@ -565,6 +573,48 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
   return YES;
 }
 
+- (BOOL)insertOrUpdatePersonalizationConfig:(NSDictionary *)dataValue
+                                 fromSource:(RCNDBSource)source {
+  RCN_MUST_NOT_BE_MAIN_THREAD();
+
+  NSError *error;
+  NSData *JSONPayload = [NSJSONSerialization dataWithJSONObject:dataValue
+                                                        options:NSJSONWritingPrettyPrinted
+                                                          error:&error];
+
+  if (!JSONPayload || error) {
+    FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000075",
+                @"Invalid Personalization payload to be serialized.");
+  }
+
+  const char *SQL = "INSERT OR REPLACE INTO " RCNTableNamePersonalization
+                    " (_id, key, value) values ((SELECT _id from " RCNTableNamePersonalization
+                    " WHERE key = ?), ?, ?)";
+
+  sqlite3_stmt *statement = [self prepareSQL:SQL];
+  if (!statement) {
+    return NO;
+  }
+
+  if (sqlite3_bind_int(statement, 1, (int)source) != SQLITE_OK) {
+    return [self logErrorWithSQL:SQL finalizeStatement:statement returnValue:NO];
+  }
+
+  if (sqlite3_bind_int(statement, 2, (int)source) != SQLITE_OK) {
+    return [self logErrorWithSQL:SQL finalizeStatement:statement returnValue:NO];
+  }
+  if (sqlite3_bind_blob(statement, 3, JSONPayload.bytes, (int)JSONPayload.length, NULL) !=
+      SQLITE_OK) {
+    return [self logErrorWithSQL:SQL finalizeStatement:statement returnValue:NO];
+  }
+
+  if (sqlite3_step(statement) != SQLITE_DONE) {
+    return [self logErrorWithSQL:SQL finalizeStatement:statement returnValue:NO];
+  }
+  sqlite3_finalize(statement);
+  return YES;
+}
+
 #pragma mark - update
 
 - (void)updateMetadataWithOption:(RCNUpdateOption)option
@@ -796,6 +846,79 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
 
   sqlite3_finalize(statement);
   return results;
+}
+
+- (void)loadPersonalizationWithCompletionHandler:(RCNDBLoadCompletion)handler {
+  __weak RCNConfigDBManager *weakSelf = self;
+  dispatch_async(_databaseOperationQueue, ^{
+    RCNConfigDBManager *strongSelf = weakSelf;
+    if (!strongSelf) {
+      return;
+    }
+
+    NSDictionary *activePersonalization;
+    NSData *personalizationResult = [strongSelf loadPersonalizationTableFromKey:RCNDBSourceActive];
+    // There should be only one entry for Personalization metadata.
+    if (personalizationResult) {
+      NSError *error;
+      activePersonalization = [NSJSONSerialization JSONObjectWithData:personalizationResult
+                                                              options:0
+                                                                error:&error];
+    }
+    if (!activePersonalization) {
+      activePersonalization = [[NSMutableDictionary alloc] init];
+    }
+
+    NSDictionary *fetchedPersonalization;
+    personalizationResult = [strongSelf loadPersonalizationTableFromKey:RCNDBSourceFetched];
+    // There should be only one entry for Personalization metadata.
+    if (personalizationResult) {
+      NSError *error;
+      fetchedPersonalization = [NSJSONSerialization JSONObjectWithData:personalizationResult
+                                                               options:0
+                                                                 error:&error];
+    }
+    if (!fetchedPersonalization) {
+      fetchedPersonalization = [[NSMutableDictionary alloc] init];
+    }
+
+    if (handler) {
+      dispatch_async(dispatch_get_main_queue(), ^{
+        handler(YES, fetchedPersonalization, activePersonalization, nil);
+      });
+    }
+  });
+}
+
+- (NSData *)loadPersonalizationTableFromKey:(int)key {
+  RCN_MUST_NOT_BE_MAIN_THREAD();
+
+  NSMutableArray *results = [[NSMutableArray alloc] init];
+  const char *SQL = "SELECT value FROM " RCNTableNamePersonalization " WHERE key = ?";
+  sqlite3_stmt *statement = [self prepareSQL:SQL];
+  if (!statement) {
+    return nil;
+  }
+
+  if (sqlite3_bind_int(statement, 1, key) != SQLITE_OK) {
+    [self logErrorWithSQL:SQL finalizeStatement:statement returnValue:NO];
+    return nil;
+  }
+  NSData *personalizationData;
+  while (sqlite3_step(statement) == SQLITE_ROW) {
+    personalizationData = [NSData dataWithBytes:(char *)sqlite3_column_blob(statement, 0)
+                                         length:sqlite3_column_bytes(statement, 0)];
+    if (personalizationData) {
+      [results addObject:personalizationData];
+    }
+  }
+
+  sqlite3_finalize(statement);
+  // There should be only one entry in this table.
+  if (results.count != 1) {
+    return nil;
+  }
+  return results[0];
 }
 
 - (NSDictionary *)loadInternalMetadataTable {

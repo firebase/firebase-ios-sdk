@@ -49,20 +49,16 @@ end
 def configure_local_pods()
   # Firestore is always local; that's what's under development here.
   pod 'FirebaseFirestore', :path => '../..'
-  pod 'GoogleUtilities', :path => '../..'
 
   # FirebaseCore must always be a local pod so that CI builds that make changes
   # to its podspec can still function. See Firestore-*-xcodebuild in
   # scripts/install_prereqs.sh for more details.
   pod 'FirebaseCore', :path => '../..'
   pod 'FirebaseCoreDiagnostics', :path => '../..'
-  pod 'GoogleDataTransport', :path => '../..'
 
   # Pull in local sources conditionally.
   maybe_local_pod 'FirebaseAuth'
-
   maybe_local_pod 'FirebaseCoreDiagnostics'
-  maybe_local_pod 'GoogleDataTransport'
 end
 
 # Reads the value of the PLATFORM environment variable, converts it to the
@@ -88,7 +84,7 @@ end
 
 if is_platform(:ios)
   target 'Firestore_Example_iOS' do
-    platform :ios, '8.0'
+    platform :ios, '10.0'
 
     configure_local_pods()
 
@@ -121,7 +117,7 @@ if is_platform(:ios)
 
     target 'Firestore_FuzzTests_iOS' do
       inherit! :search_paths
-      platform :ios, '9.0'
+      platform :ios, '10.0'
 
       pod 'LibFuzzer', :podspec => 'LibFuzzer.podspec', :inhibit_warnings => true
     end
@@ -130,7 +126,7 @@ end
 
 if is_platform(:osx)
   target 'Firestore_Example_macOS' do
-    platform :osx, '10.11'
+    platform :osx, '10.12'
 
     configure_local_pods()
 

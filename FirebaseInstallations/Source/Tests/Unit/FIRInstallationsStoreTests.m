@@ -18,8 +18,8 @@
 
 #import <OCMock/OCMock.h>
 
-#import "GoogleUtilities/Environment/Private/GULKeychainStorage.h"
-#import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
+#import <GoogleUtilities/GULKeychainStorage.h>
+#import <GoogleUtilities/GULUserDefaults.h>
 
 #import "FBLPromise+Testing.h"
 #import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsErrorUtil.h"

@@ -25,6 +25,8 @@
 #include "Firestore/core/src/model/mutation.h"
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
+#include "Firestore/core/src/remote/firebase_metadata_provider.h"
+#include "Firestore/core/src/remote/firebase_metadata_provider_noop.h"
 #include "Firestore/core/src/remote/grpc_nanopb.h"
 #include "Firestore/core/src/remote/serializer.h"
 #include "Firestore/core/src/util/async_queue.h"
@@ -104,9 +106,11 @@ std::shared_ptr<FakeDatastore> CreateDatastore(
     const DatabaseInfo& database_info,
     const std::shared_ptr<AsyncQueue>& worker_queue,
     std::shared_ptr<CredentialsProvider> credentials,
-    ConnectivityMonitor* connectivity_monitor) {
+    ConnectivityMonitor* connectivity_monitor,
+    FirebaseMetadataProvider* firebase_metadata_provider) {
   return std::make_shared<FakeDatastore>(database_info, worker_queue,
-                                         credentials, connectivity_monitor);
+                                         credentials, connectivity_monitor,
+                                         firebase_metadata_provider);
 }
 
 }  // namespace
@@ -117,10 +121,12 @@ class DatastoreTest : public testing::Test {
       : database_info{DatabaseId{"p", "d"}, "", "localhost", false},
         worker_queue{testutil::AsyncQueueForTesting()},
         connectivity_monitor{CreateNoOpConnectivityMonitor()},
+        firebase_metadata_provider{CreateFirebaseMetadataProviderNoOp()},
         datastore{CreateDatastore(database_info,
                                   worker_queue,
                                   credentials,
-                                  connectivity_monitor.get())},
+                                  connectivity_monitor.get(),
+                                  firebase_metadata_provider.get())},
         fake_grpc_queue{datastore->queue()} {
     // Deliberately don't `Start` the `Datastore` to prevent normal gRPC
     // completion queue polling; the test is using `FakeGrpcQueue`.
@@ -160,6 +166,7 @@ class DatastoreTest : public testing::Test {
 
   std::shared_ptr<AsyncQueue> worker_queue;
   std::unique_ptr<ConnectivityMonitor> connectivity_monitor;
+  std::unique_ptr<FirebaseMetadataProvider> firebase_metadata_provider;
   std::shared_ptr<FakeDatastore> datastore;
 
   FakeGrpcQueue fake_grpc_queue;
@@ -169,17 +176,17 @@ TEST_F(DatastoreTest, CanShutdownWithNoOperations) {
   Shutdown();
 }
 
-TEST_F(DatastoreTest, WhitelistedHeaders) {
+TEST_F(DatastoreTest, AllowlistedHeaders) {
   GrpcStream::Metadata headers = {
       {"date", "date value"},
       {"x-google-backends", "backend value"},
-      {"x-google-foo", "should not be in result"},  // Not whitelisted
+      {"x-google-foo", "should not be in result"},  // Not allowlisted
       {"x-google-gfe-request-trace", "request trace"},
       {"x-google-netmon-label", "netmon label"},
       {"x-google-service", "service 1"},
       {"x-google-service", "service 2"},  // Duplicate names are allowed
   };
-  std::string result = Datastore::GetWhitelistedHeadersAsString(headers);
+  std::string result = Datastore::GetAllowlistedHeadersAsString(headers);
   EXPECT_EQ(result,
             "date: date value\n"
             "x-google-backends: backend value\n"

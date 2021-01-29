@@ -185,7 +185,7 @@ class InAppMessaging_Example_iOS_SwiftUITests: XCTestCase {
     }
   }
 
-  func testBannerViewAutoDimiss() {
+  func testBannerViewAutoDismiss() {
     let app = XCUIApplication()
     app.tabBars.buttons["Banner Messages"].tap()
 

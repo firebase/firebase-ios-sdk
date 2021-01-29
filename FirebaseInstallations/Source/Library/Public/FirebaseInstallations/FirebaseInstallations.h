@@ -17,4 +17,3 @@
 #import "FIRInstallations.h"
 #import "FIRInstallationsAuthTokenResult.h"
 #import "FIRInstallationsErrors.h"
-#import "FIRInstallationsVersion.h"

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,6 @@
 namespace firebase {
 namespace firestore {
 namespace local {
-
 namespace {
 
 using auth::User;
@@ -165,7 +164,7 @@ LocalWriteResult LocalStore::WriteLocally(std::vector<Mutation>&& mutations) {
           existing_documents.get(mutation.key());
 
       absl::optional<ObjectValue> base_value =
-          mutation.ExtractBaseValue(base_document);
+          mutation.ExtractTransformBaseValue(base_document);
       if (base_value) {
         // NOTE: The base state should only be applied if there's some existing
         // document to override, so use a Precondition of exists=true

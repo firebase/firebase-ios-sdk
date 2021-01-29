@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "FIRInstanceIDCheckinPreferences.h"
+#import "Firebase/InstanceID/Private/FIRInstanceIDCheckinPreferences.h"
 
-#import "FIRInstanceIDCheckinService.h"
-#import "FIRInstanceIDUtilities.h"
-#import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
+#import <GoogleUtilities/GULUserDefaults.h>
+#import "Firebase/InstanceID/FIRInstanceIDCheckinService.h"
+#import "Firebase/InstanceID/FIRInstanceIDUtilities.h"
 
 const NSTimeInterval kFIRInstanceIDDefaultCheckinInterval = 7 * 24 * 60 * 60;  // 7 days.
 

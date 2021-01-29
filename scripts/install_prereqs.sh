@@ -139,9 +139,19 @@ case "$project-$platform-$method" in
     bundle exec pod install --project-directory=FirebaseMessaging/Apps/Sample --repo-update
     ;;
 
+  MLModelDownloaderSample-*)
+    install_xcpretty
+    bundle exec pod install --project-directory=FirebaseMLModelDownloader/Apps/Sample --repo-update
+    ;;
+
   RemoteConfigSample-*)
     install_xcpretty
     bundle exec pod install --project-directory=FirebaseRemoteConfig/Tests/Sample --repo-update
+    ;;
+
+  SegmentationSample-*)
+    install_xcpretty
+    bundle exec pod install --project-directory=FirebaseSegmentation/Tests/Sample --repo-update
     ;;
 
   GoogleDataTransport-watchOS-xcodebuild)

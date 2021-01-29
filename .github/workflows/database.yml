@@ -9,6 +9,7 @@ on:
     - 'Interop/Auth/Public/*.h'
     - '.github/workflows/database.yml'
     - 'Gemfile'
+    - 'scripts/run_database_emulator.sh'
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
     - cron:  '0 7 * * *'
@@ -16,7 +17,7 @@ on:
 jobs:
   unit:
     # Don't run on private repo unless it is a PR.
-    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     runs-on: macos-latest
     strategy:
       matrix:
@@ -30,7 +31,7 @@ jobs:
 
   integration:
     # Don't run on private repo unless it is a PR.
-    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
@@ -42,50 +43,48 @@ jobs:
 
   spm:
     # Don't run on private repo unless it is a PR.
-    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
     - name: Xcode 12
-      run: sudo xcode-select -s /Applications/Xcode_12_beta.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_12.app/Contents/Developer
     - name: Initialize xcodebuild
       run: xcodebuild -list
     - name: iOS Unit Tests
-      run: scripts/third_party/travis/retry.sh xcodebuild -scheme DatabaseUnit test -sdk
-           iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 11' | xcpretty
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh DatabaseUnit iOS spm
 
   spm-cron:
     # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
-
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
     runs-on: macOS-latest
+    strategy:
+      matrix:
+        target: [tvOS, macOS, catalyst]
     steps:
     - uses: actions/checkout@v2
     - name: Xcode 12
-      run: sudo xcode-select -s /Applications/Xcode_12_beta.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_12.app/Contents/Developer
     - name: Initialize xcodebuild
       run: xcodebuild -list
-    - name: macOS Unit Tests
-      run:  scripts/third_party/travis/retry.sh xcodebuild -scheme DatabaseUnit test | xcpretty
-    - name: tvOS Unit Tests
-      run: scripts/third_party/travis/retry.sh xcodebuild -scheme DatabaseUnit test -sdk
-           appletvsimulator -destination 'platform=tvOS Simulator,name=Apple TV' | xcpretty
+    - name: Unit Tests
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh DatabaseUnit ${{ matrix.target }} spm
 
   catalyst:
     # Don't run on private repo unless it is a PR.
-    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Setup project and Build for Catalyst
-      # Only build the unit tests on Catalyst. Test stopped working when GHA moved to Xcode 11.4.1.
-      run: scripts/test_catalyst.sh FirebaseDatabase build FirebaseDatabase-Unit-unit
+      run: scripts/test_catalyst.sh FirebaseDatabase test FirebaseDatabase-Unit-unit
 
+# Restore when FirebaseUI works with Firebase 7 (#6646)
   quickstart:
     # Don't run on private repo unless it is a PR.
-    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -107,7 +106,7 @@ jobs:
 
   pod-lib-lint:
     # Don't run on private repo unless it is a PR.
-    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     runs-on: macOS-latest
 
     strategy:
@@ -122,13 +121,13 @@ jobs:
 
   database-cron-only:
     # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
     runs-on: macos-latest
     strategy:
       matrix:
         target: [ios, tvos, macos]
         flags: [
-          '--skip-tests --use-modular-headers',
+          '--skip-tests --use-static-frameworks',
           '--skip-tests --use-libraries'
         ]
     needs: pod-lib-lint
@@ -138,18 +137,3 @@ jobs:
       run: scripts/setup_bundler.sh
     - name: PodLibLint database Cron
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseDatabase.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
-
-  archive-cron:
-    # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
-
-    runs-on: macOS-latest
-    strategy:
-      matrix:
-        target: [ios, tvos, macos]
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Setup project and archive
-      run: scripts/test_archiving.sh FirebaseDatabase ${{ matrix.target }} ArchiveOutputs/${{ matrix.target }}.xcarchive

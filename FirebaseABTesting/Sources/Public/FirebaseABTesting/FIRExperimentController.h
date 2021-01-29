@@ -57,26 +57,6 @@ NS_SWIFT_NAME(ExperimentController)
                          completionHandler:
                              (nullable void (^)(NSError *_Nullable error))completionHandler;
 
-/// Updates the list of experiments. Experiments already
-/// existing in payloads are not affected, whose state and payload is preserved. This method
-/// compares whether the experiments have changed or not by their variant ID. This runs in a
-/// background queue..
-/// @param origin         The originating service affected by the experiment.
-/// @param events         A list of event names to be used for logging experiment lifecycle events,
-///                       if they are not defined in the payload.
-/// @param policy         The policy to handle new experiments when slots are full.
-/// @param lastStartTime  The last known experiment start timestamp for this affected service.
-///                       (Timestamps are specified by the number of seconds from 00:00:00 UTC on 1
-///                       January 1970.).
-/// @param payloads       List of experiment metadata.
-- (void)updateExperimentsWithServiceOrigin:(NSString *)origin
-                                    events:(FIRLifecycleEvents *)events
-                                    policy:(ABTExperimentPayloadExperimentOverflowPolicy)policy
-                             lastStartTime:(NSTimeInterval)lastStartTime
-                                  payloads:(NSArray<NSData *> *)payloads
-    DEPRECATED_MSG_ATTRIBUTE("Please use updateExperimentsWithServiceOrigin:events:policy:"
-                             "lastStartTime:payloads:completionHandler: instead.");
-
 /// Returns the latest experiment start timestamp given a current latest timestamp and a list of
 /// experiment payloads. Timestamps are specified by the number of seconds from 00:00:00 UTC on 1
 /// January 1970.

@@ -21,8 +21,8 @@ NSString *const RCNTestsFIRNamespace = @"firebase";
 NSString *const RCNTestsDefaultFIRAppName = @"__FIRAPP_DEFAULT";
 NSString *const RCNTestsSecondFIRAppName = @"secondFIRApp";
 
-/// The application support sub-directory that the Remote Config database resides in.
-static NSString *const RCNRemoteConfigApplicationSupportSubDirectory = @"Google/RemoteConfig";
+/// The storage sub-directory that the Remote Config database resides in.
+static NSString *const RCNRemoteConfigStorageSubDirectory = @"Google/RemoteConfig";
 
 @implementation RCNTestUtilities
 
@@ -39,11 +39,15 @@ static NSString *const RCNRemoteConfigApplicationSupportSubDirectory = @"Google/
 
 /// Remote Config database path for test version
 + (NSString *)remoteConfigPathForTestDatabase {
-  NSArray<NSString *> *dirPaths =
+#if TARGET_OS_TV
+  NSArray *dirPaths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+#else
+  NSArray *dirPaths =
       NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
-  NSString *appSupportPath = dirPaths.firstObject;
+#endif
+  NSString *storageDirPath = dirPaths.firstObject;
   NSArray<NSString *> *components = @[
-    appSupportPath, RCNRemoteConfigApplicationSupportSubDirectory,
+    storageDirPath, RCNRemoteConfigStorageSubDirectory,
     [NSString stringWithFormat:@"test-%f.sqlite3", [[NSDate date] timeIntervalSince1970] * 1000]
   ];
   NSString *dbPath = [NSString pathWithComponents:components];

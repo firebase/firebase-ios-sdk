@@ -40,7 +40,6 @@
 
 #import "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
 #import "Crashlytics/Crashlytics/Components/FIRCLSUserLogging.h"
-#import "Crashlytics/Crashlytics/Controllers/FIRCLSNetworkClient.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSReportUploader.h"
 #import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionArbiter.h"
 #import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
@@ -51,7 +50,6 @@
 #import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSSymbolResolver.h"
-#import "Crashlytics/Crashlytics/Operations/Reports/FIRCLSPackageReportOperation.h"
 #import "Crashlytics/Crashlytics/Operations/Reports/FIRCLSProcessReportOperation.h"
 
 #include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
@@ -59,7 +57,7 @@
 
 #import "Crashlytics/Crashlytics/Models/FIRCLSExecutionIdentifierModel.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSInstallIdentifierModel.h"
-#import "Crashlytics/Crashlytics/Settings/FIRCLSSettingsOnboardingManager.h"
+#import "Crashlytics/Crashlytics/Settings/FIRCLSSettingsManager.h"
 #import "Crashlytics/Shared/FIRCLSConstants.h"
 
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSReportManager_Private.h"
@@ -75,8 +73,6 @@
 #else
 #import <AppKit/AppKit.h>
 #endif
-
-static NSTimeInterval const CLSReportRetryInterval = 10 * 60;
 
 static NSString *FIRCLSFirebaseAnalyticsEventLogFormat = @"$A$:%@";
 
@@ -124,11 +120,8 @@ typedef NSNumber FIRCLSWrappedReportAction;
  */
 typedef NSNumber FIRCLSWrappedBool;
 
-@interface FIRCLSReportManager () <FIRCLSNetworkClientDelegate,
-                                   FIRCLSReportUploaderDelegate,
-                                   FIRCLSReportUploaderDataSource> {
+@interface FIRCLSReportManager () <FIRCLSReportUploaderDataSource> {
   FIRCLSFileManager *_fileManager;
-  FIRCLSNetworkClient *_networkClient;
   FIRCLSReportUploader *_uploader;
   dispatch_queue_t _dispatchQueue;
   NSOperationQueue *_operationQueue;
@@ -171,8 +164,8 @@ typedef NSNumber FIRCLSWrappedBool;
 // Settings fetched from the server
 @property(nonatomic, strong) FIRCLSSettings *settings;
 
-// Runs the operations that fetch settings and call onboarding endpoints
-@property(nonatomic, strong) FIRCLSSettingsOnboardingManager *settingsAndOnboardingManager;
+// Runs the operations that fetch settings
+@property(nonatomic, strong) FIRCLSSettingsManager *settingsManager;
 
 @property(nonatomic, strong) GDTCORTransport *googleTransport;
 
@@ -212,8 +205,6 @@ static void (^reportSentCallback)(void);
   _dispatchQueue = dispatch_queue_create("com.google.firebase.crashlytics.startup", 0);
   _operationQueue.underlyingQueue = _dispatchQueue;
 
-  _networkClient = [self clientWithOperationQueue:_operationQueue];
-
   _unsentReportsAvailable = [FBLPromise pendingPromise];
   _reportActionProvided = [FBLPromise pendingPromise];
   _unsentReportsHandled = [FBLPromise pendingPromise];
@@ -226,18 +217,13 @@ static void (^reportSentCallback)(void);
   _settings = settings;
   _appIDModel = appIDModel;
 
-  _settingsAndOnboardingManager =
-      [[FIRCLSSettingsOnboardingManager alloc] initWithAppIDModel:appIDModel
-                                                   installIDModel:self.installIDModel
-                                                         settings:self.settings
-                                                      fileManager:self.fileManager
-                                                      googleAppID:self.googleAppID];
+  _settingsManager = [[FIRCLSSettingsManager alloc] initWithAppIDModel:appIDModel
+                                                        installIDModel:self.installIDModel
+                                                              settings:self.settings
+                                                           fileManager:self.fileManager
+                                                           googleAppID:self.googleAppID];
 
   return self;
-}
-
-- (FIRCLSNetworkClient *)clientWithOperationQueue:(NSOperationQueue *)queue {
-  return [[FIRCLSNetworkClient alloc] initWithQueue:queue fileManager:_fileManager delegate:self];
 }
 
 /**
@@ -247,12 +233,7 @@ static void (^reportSentCallback)(void);
   int count = [self countSubmittableAndDeleteUnsubmittableReportPaths:paths];
 
   count += _fileManager.processingPathContents.count;
-
-  if (self.settings.shouldUseNewReportEndpoint) {
-    count += _fileManager.preparedPathContents.count;
-  } else {
-    count += _fileManager.legacyPreparedPathContents.count;
-  }
+  count += _fileManager.preparedPathContents.count;
   return count;
 }
 
@@ -360,7 +341,7 @@ static void (^reportSentCallback)(void);
     FIRCLSDebugLog(@"Unsent reports will be uploaded at startup");
     FIRCLSDataCollectionToken *dataCollectionToken = [FIRCLSDataCollectionToken validToken];
 
-    [self beginSettingsAndOnboardingWithToken:dataCollectionToken waitForSettingsRequest:NO];
+    [self beginSettingsWithToken:dataCollectionToken];
 
     [self beginReportUploadsWithToken:dataCollectionToken
                preexistingReportPaths:preexistingReportPaths
@@ -393,13 +374,7 @@ static void (^reportSentCallback)(void);
                  FIRCLSDataCollectionToken *dataCollectionToken =
                      [FIRCLSDataCollectionToken validToken];
 
-                 // For the new report endpoint, the orgID is not needed.
-                 // For the legacy report endpoint, wait on settings if orgID is not available.
-                 BOOL waitForSetting =
-                     !self.settings.shouldUseNewReportEndpoint && !self.settings.orgID;
-
-                 [self beginSettingsAndOnboardingWithToken:dataCollectionToken
-                                    waitForSettingsRequest:waitForSetting];
+                 [self beginSettingsWithToken:dataCollectionToken];
 
                  [self beginReportUploadsWithToken:dataCollectionToken
                             preexistingReportPaths:preexistingReportPaths
@@ -435,10 +410,18 @@ static void (^reportSentCallback)(void);
   NSOperationQueue *__weak queue = _operationQueue;
   FBLPromise *__weak unsentReportsHandled = _unsentReportsHandled;
   promise = [promise then:^id _Nullable(NSNumber *_Nullable value) {
-    [queue waitUntilAllOperationsAreFinished];
-    // Signal that to callers of processReports that everything is finished.
-    [unsentReportsHandled fulfill:nil];
-    return value;
+    FBLPromise *allOpsFinished = [FBLPromise pendingPromise];
+    [queue addOperationWithBlock:^{
+      [allOpsFinished fulfill:nil];
+    }];
+
+    return [allOpsFinished onQueue:dispatch_get_main_queue()
+                              then:^id _Nullable(id _Nullable allOpsFinishedValue) {
+                                // Signal that to callers of processReports that everything is
+                                // finished.
+                                [unsentReportsHandled fulfill:nil];
+                                return value;
+                              }];
   }];
 
   return promise;
@@ -454,16 +437,13 @@ static void (^reportSentCallback)(void);
   }];
 }
 
-- (void)beginSettingsAndOnboardingWithToken:(FIRCLSDataCollectionToken *)token
-                     waitForSettingsRequest:(BOOL)waitForSettings {
+- (void)beginSettingsWithToken:(FIRCLSDataCollectionToken *)token {
   if (self.settings.isCacheExpired) {
     // This method can be called more than once if the user calls
     // SendUnsentReports again, so don't repeat the settings fetch
     static dispatch_once_t settingsFetchOnceToken;
     dispatch_once(&settingsFetchOnceToken, ^{
-      [self.settingsAndOnboardingManager beginSettingsAndOnboardingWithGoogleAppId:self.googleAppID
-                                                                             token:token
-                                                                 waitForCompletion:waitForSettings];
+      [self.settingsManager beginSettingsWithGoogleAppId:self.googleAppID token:token];
     });
   }
 }
@@ -507,7 +487,9 @@ static void (^reportSentCallback)(void);
   // check our handlers
   FIRCLSDispatchAfter(2.0, dispatch_get_main_queue(), ^{
     FIRCLSExceptionCheckHandlers((__bridge void *)(self));
+#if CLS_SIGNAL_SUPPORTED
     FIRCLSSignalCheckHandlers();
+#endif
 #if CLS_MACH_EXCEPTION_SUPPORTED
     FIRCLSMachExceptionCheckHandlers();
 #endif
@@ -548,9 +530,7 @@ static void (^reportSentCallback)(void);
 - (FIRCLSReportUploader *)uploader {
   if (!_uploader) {
     _uploader = [[FIRCLSReportUploader alloc] initWithQueue:self.operationQueue
-                                                   delegate:self
                                                  dataSource:self
-                                                     client:self.networkClient
                                                 fileManager:_fileManager
                                                   analytics:_analytics];
   }
@@ -636,13 +616,8 @@ static void (^reportSentCallback)(void);
 // being false
 - (void)deleteUnsentReportsWithPreexisting:(NSArray *)preexistingReportPaths {
   [self removeExistingReportPaths:preexistingReportPaths];
-
   [self removeExistingReportPaths:self.fileManager.processingPathContents];
-  if (self.settings.shouldUseNewReportEndpoint) {
-    [self removeExistingReportPaths:self.fileManager.preparedPathContents];
-  } else {
-    [self removeExistingReportPaths:self.fileManager.legacyPreparedPathContents];
-  }
+  [self removeExistingReportPaths:self.fileManager.preparedPathContents];
 }
 
 - (void)removeExistingReportPaths:(NSArray *)reportPaths {
@@ -674,16 +649,9 @@ static void (^reportSentCallback)(void);
 }
 
 - (void)handleExistingFilesInPreparedWithToken:(FIRCLSDataCollectionToken *)token {
-  NSArray *preparedPaths = self.settings.shouldUseNewReportEndpoint
-                               ? _fileManager.preparedPathContents
-                               : _fileManager.legacyPreparedPathContents;
-
-  // Give our network client a chance to reconnect here, if needed. This attempts to avoid
-  // trying to re-submit a prepared file that is already in flight.
-  [self.networkClient attemptToReconnectBackgroundSessionWithCompletionBlock:^{
-    [self.operationQueue addOperationWithBlock:^{
-      [self uploadPreexistingFiles:preparedPaths withToken:token];
-    }];
+  NSArray *preparedPaths = self.fileManager.preparedPathContents;
+  [self.operationQueue addOperationWithBlock:^{
+    [self uploadPreexistingFiles:preparedPaths withToken:token];
   }];
 }
 
@@ -699,14 +667,6 @@ static void (^reportSentCallback)(void);
 
     [[self uploader] uploadPackagedReportAtPath:path dataCollectionToken:token asUrgent:NO];
   }
-}
-
-- (void)retryUploadForReportAtPath:(NSString *)path
-               dataCollectionToken:(FIRCLSDataCollectionToken *)token {
-  FIRCLSAddOperationAfter(CLSReportRetryInterval, self.operationQueue, ^{
-    FIRCLSDeveloperLog("Crashlytics:Crash", @"re-attempting report submission");
-    [[self uploader] uploadPackagedReportAtPath:path dataCollectionToken:token asUrgent:NO];
-  });
 }
 
 #pragma mark - Launch Failure Detection
@@ -848,48 +808,6 @@ static void (^reportSentCallback)(void);
   FIRCLSUserLoggingRecordInternalKeyValue(FIRCLSUIOrientationKey, @(statusBarOrientation));
 }
 #endif
-
-#pragma mark - FIRCLSNetworkClientDelegate
-- (BOOL)networkClientCanUseBackgroundSessions:(FIRCLSNetworkClient *)client {
-  return !FIRCLSApplicationIsExtension();
-}
-
-- (void)networkClient:(FIRCLSNetworkClient *)client
-    didFinishUploadWithPath:(NSString *)path
-                      error:(NSError *)error {
-  // Route this through to the reports uploader.
-  // Since this callback happens after an upload finished, then we can assume that the original data
-  // collection was authorized. This isn't ideal, but it's better than trying to plumb the data
-  // collection token through all the system networking callbacks.
-  FIRCLSDataCollectionToken *token = [FIRCLSDataCollectionToken validToken];
-  [[self uploader] reportUploadAtPath:path dataCollectionToken:token completedWithError:error];
-}
-
-#pragma mark - FIRCLSReportUploaderDelegate
-
-- (void)didCompletePackageSubmission:(NSString *)path
-                 dataCollectionToken:(FIRCLSDataCollectionToken *)token
-                               error:(NSError *)error {
-  if (!error) {
-    FIRCLSDeveloperLog("Crashlytics:Crash", @"report submission successful");
-    return;
-  }
-
-  FIRCLSDeveloperLog("Crashlytics:Crash", @"report submission failed with error %@", error);
-  FIRCLSSDKLog("Error: failed to submit report '%s'\n", error.description.UTF8String);
-
-  [self retryUploadForReportAtPath:path dataCollectionToken:token];
-}
-
-- (void)didCompleteAllSubmissions {
-  [self.operationQueue addOperationWithBlock:^{
-    // Dealloc the reports uploader. If we need it again (if we re-enqueued submissions from
-    // didCompletePackageSubmission:, we can just create it again
-    self->_uploader = nil;
-
-    FIRCLSDeveloperLog("Crashlytics:Crash", @"report submission complete");
-  }];
-}
 
 #pragma mark - UITest Helpers
 

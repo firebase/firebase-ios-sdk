@@ -28,16 +28,8 @@ NS_ASSUME_NONNULL_BEGIN
 NSString *const kApiaryRestBaseUrl = @"https://appinvite-pa.googleapis.com/v1";
 static NSString *const kiOSReopenRestBaseUrl = @"https://firebasedynamiclinks.googleapis.com/v1";
 
-// IPv4 and IPv6 Endpoints.
-static NSString *const kApiaryRestBaseUrlIPV4 = @"https://appinvite-ipv4-pa.googleapis.com/v1";
-static NSString *const kApiaryRestBaseUrlIPV6 = @"https://appinvite-ipv6-pa.googleapis.com/v1";
-
-// IPv4 and IPv6 Endpoints for default retrieval process V2. (Endpoint version is V1)
-static NSString *const kIosPostInstallAttributionRestBaseUrlIPV4 =
-    @"https://firebasedynamiclinks-ipv4.googleapis.com/v1";
-static NSString *const kIosPostInstallAttributionRestBaseUrlIPV6 =
-    @"https://firebasedynamiclinks-ipv6.googleapis.com/v1";
-static NSString *const kIosPostInstallAttributionRestBaseUrlUniqueMatch =
+// Endpoint for default retrieval process V2. (Endpoint version is V1)
+static NSString *const kIosPostInstallAttributionRestBaseUrl =
     @"https://firebasedynamiclinks.googleapis.com/v1";
 
 static NSString *const kReasonString = @"reason";
@@ -49,6 +41,7 @@ static NSString *const kFDLAnalyticsDataSourceKey = @"utmSource";
 static NSString *const kFDLAnalyticsDataMediumKey = @"utmMedium";
 static NSString *const kFDLAnalyticsDataCampaignKey = @"utmCampaign";
 static NSString *const kHeaderIosBundleIdentifier = @"X-Ios-Bundle-Identifier";
+static NSString *const kGenericErrorDomain = @"com.firebase.dynamicLinks";
 
 typedef NSDictionary *_Nullable (^FIRDLNetworkingParserBlock)(
     NSString *requestURLString,
@@ -75,7 +68,7 @@ void FIRMakeHTTPRequest(NSURLRequest *request, FIRNetworkRequestCompletionHandle
       [session dataTaskWithRequest:request
                  completionHandler:^(NSData *_Nullable data, NSURLResponse *_Nullable response,
                                      NSError *_Nullable error) {
-                   completion(data, error);
+                   completion(data, response, error);
                  }];
   [dataTask resume];
 }
@@ -86,22 +79,52 @@ NSData *_Nullable FIRDataWithDictionary(NSDictionary *dictionary, NSError **_Nul
 
 @implementation FIRDynamicLinkNetworking {
   NSString *_APIKey;
-  NSString *_clientID;
   NSString *_URLScheme;
 }
 
-- (instancetype)initWithAPIKey:(NSString *)APIKey
-                      clientID:(NSString *)clientID
-                     URLScheme:(NSString *)URLScheme {
+- (instancetype)initWithAPIKey:(NSString *)APIKey URLScheme:(NSString *)URLScheme {
   NSParameterAssert(APIKey);
-  NSParameterAssert(clientID);
   NSParameterAssert(URLScheme);
   if (self = [super init]) {
     _APIKey = [APIKey copy];
-    _clientID = [clientID copy];
     _URLScheme = [URLScheme copy];
   }
   return self;
+}
+
++ (nullable NSError *)extractErrorForShortLink:(NSURL *)url
+                                          data:(NSData *)data
+                                      response:(NSURLResponse *)response
+                                         error:(nullable NSError *)error {
+  if (error) {
+    return error;
+  }
+
+  NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+  NSError *customError = nil;
+
+  if (![response isKindOfClass:[NSHTTPURLResponse class]]) {
+    customError =
+        [NSError errorWithDomain:kGenericErrorDomain
+                            code:0
+                        userInfo:@{@"message" : @"Response should be of type NSHTTPURLResponse."}];
+  } else if ((statusCode < 200 || statusCode >= 300) && data) {
+    NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+    if ([result isKindOfClass:[NSDictionary class]] && [result objectForKey:@"error"]) {
+      id err = [result objectForKey:@"error"];
+      customError = [NSError errorWithDomain:kGenericErrorDomain code:statusCode userInfo:err];
+    } else {
+      customError = [NSError
+          errorWithDomain:kGenericErrorDomain
+                     code:0
+                 userInfo:@{
+                   @"message" :
+                       [NSString stringWithFormat:@"Failed to resolve link: %@", url.absoluteString]
+                 }];
+    }
+  }
+
+  return customError;
 }
 
 #pragma mark - Public interface
@@ -121,34 +144,39 @@ NSData *_Nullable FIRDataWithDictionary(NSDictionary *dictionary, NSError **_Nul
     @"sdk_version" : FDLSDKVersion
   };
 
-  FIRNetworkRequestCompletionHandler resolveLinkCallback = ^(NSData *data, NSError *error) {
-    NSURL *resolvedURL;
+  FIRNetworkRequestCompletionHandler resolveLinkCallback =
+      ^(NSData *data, NSURLResponse *response, NSError *error) {
+        NSURL *resolvedURL = nil;
+        NSError *extractedError = [FIRDynamicLinkNetworking extractErrorForShortLink:url
+                                                                                data:data
+                                                                            response:response
+                                                                               error:error];
 
-    if (!error && data) {
-      NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-      if ([result isKindOfClass:[NSDictionary class]]) {
-        id invitationIDObject = [result objectForKey:@"invitationId"];
+        if (!extractedError && data) {
+          NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+          if ([result isKindOfClass:[NSDictionary class]]) {
+            id invitationIDObject = [result objectForKey:@"invitationId"];
 
-        NSString *invitationIDString;
-        if ([invitationIDObject isKindOfClass:[NSDictionary class]]) {
-          NSDictionary *invitationIDDictionary = invitationIDObject;
-          invitationIDString = invitationIDDictionary[@"id"];
-        } else if ([invitationIDObject isKindOfClass:[NSString class]]) {
-          invitationIDString = invitationIDObject;
+            NSString *invitationIDString;
+            if ([invitationIDObject isKindOfClass:[NSDictionary class]]) {
+              NSDictionary *invitationIDDictionary = invitationIDObject;
+              invitationIDString = invitationIDDictionary[@"id"];
+            } else if ([invitationIDObject isKindOfClass:[NSString class]]) {
+              invitationIDString = invitationIDObject;
+            }
+
+            NSString *deepLinkString = result[kFDLResolvedLinkDeepLinkURLKey];
+            NSString *minAppVersion = result[kFDLResolvedLinkMinAppVersionKey];
+            NSString *utmSource = result[kFDLAnalyticsDataSourceKey];
+            NSString *utmMedium = result[kFDLAnalyticsDataMediumKey];
+            NSString *utmCampaign = result[kFDLAnalyticsDataCampaignKey];
+            resolvedURL = FIRDLDeepLinkURLWithInviteID(invitationIDString, deepLinkString,
+                                                       utmSource, utmMedium, utmCampaign, NO, nil,
+                                                       minAppVersion, self->_URLScheme, nil);
+          }
         }
-
-        NSString *deepLinkString = result[kFDLResolvedLinkDeepLinkURLKey];
-        NSString *minAppVersion = result[kFDLResolvedLinkMinAppVersionKey];
-        NSString *utmSource = result[kFDLAnalyticsDataSourceKey];
-        NSString *utmMedium = result[kFDLAnalyticsDataMediumKey];
-        NSString *utmCampaign = result[kFDLAnalyticsDataCampaignKey];
-        resolvedURL = FIRDLDeepLinkURLWithInviteID(invitationIDString, deepLinkString, utmSource,
-                                                   utmMedium, utmCampaign, NO, nil, minAppVersion,
-                                                   self->_URLScheme, nil);
-      }
-    }
-    handler(resolvedURL, error);
-  };
+        handler(resolvedURL, extractedError);
+      };
 
   NSString *requestURLString =
       [NSString stringWithFormat:@"%@/reopenAttribution%@", kiOSReopenRestBaseUrl,
@@ -235,19 +263,11 @@ NSData *_Nullable FIRDataWithDictionary(NSDictionary *dictionary, NSError **_Nul
     return [dynamicLinkParameters copy];
   };
 
-  // If uniqueMatch link available send to the unique match endpoint,
-  // else send requests to both IPv4 and IPv6 endpoints.
-  NSArray *baseURLs =
-      uniqueMatchLinkToCheck ? @[ kIosPostInstallAttributionRestBaseUrlUniqueMatch ] : @[
-        kIosPostInstallAttributionRestBaseUrlIPV4, kIosPostInstallAttributionRestBaseUrlIPV6
-      ];
-  for (NSString *baseURL in baseURLs) {
-    [self sendRequestWithBaseURLString:baseURL
-                           requestBody:requestBody
-                          endpointPath:@"installAttribution"
-                           parserBlock:responseParserBlock
-                            completion:handler];
-  }
+  [self sendRequestWithBaseURLString:kIosPostInstallAttributionRestBaseUrl
+                         requestBody:requestBody
+                        endpointPath:@"installAttribution"
+                         parserBlock:responseParserBlock
+                          completion:handler];
 }
 
 - (void)convertInvitation:(NSString *)invitationID
@@ -260,17 +280,17 @@ NSData *_Nullable FIRDataWithDictionary(NSDictionary *dictionary, NSError **_Nul
     @"invitationId" : @{@"id" : invitationID},
     @"containerClientId" : @{
       @"type" : @"IOS",
-      @"id" : _clientID,
     }
   };
 
-  FIRNetworkRequestCompletionHandler convertInvitationCallback = ^(NSData *data, NSError *error) {
-    if (handler) {
-      dispatch_async(dispatch_get_main_queue(), ^{
-        handler(error);
-      });
-    }
-  };
+  FIRNetworkRequestCompletionHandler convertInvitationCallback =
+      ^(NSData *data, NSURLResponse *response, NSError *error) {
+        if (handler) {
+          dispatch_async(dispatch_get_main_queue(), ^{
+            handler(error);
+          });
+        }
+      };
 
   NSString *requestURL = [NSString stringWithFormat:@"%@/convertInvitation%@", kApiaryRestBaseUrl,
                                                     FIRDynamicLinkAPIKeyParameter(_APIKey)];
@@ -291,54 +311,24 @@ NSData *_Nullable FIRDataWithDictionary(NSDictionary *dictionary, NSError **_Nul
   NSString *requestURLString = [NSString
       stringWithFormat:@"%@/%@%@", baseURL, endpointPath, FIRDynamicLinkAPIKeyParameter(_APIKey)];
 
-  FIRNetworkRequestCompletionHandler completeInvitationByDeviceCallback = ^(NSData *data,
-                                                                            NSError *error) {
-    if (error || !data) {
-      dispatch_async(dispatch_get_main_queue(), ^{
-        handler(nil, nil, error);
-      });
-      return;
-    }
-    NSString *matchMessage = nil;
-    NSError *parsingError = nil;
-    NSDictionary *parsedDynamicLinkParameters =
-        parserBlock(requestURLString, data, &matchMessage, &parsingError);
-
-    // If request was made with pasteboard contents, verify if we got a unique match. If we got
-    // a "none" match, we were unable to get a unique match or deduce using fingerprinting.
-    // In this case, resend requests to IPV4 and IPV6 endpoints for fingerprinting. b/79704203
-    if (requestBody[@"uniqueMatchLinkToCheck"] && parsedDynamicLinkParameters &&
-        (!parsedDynamicLinkParameters[kFIRDLParameterMatchType] ||
-         [parsedDynamicLinkParameters[kFIRDLParameterMatchType] isEqualToString:@"none"])) {
-      NSMutableDictionary *requestBodyMutable = [requestBody mutableCopy];
-      [requestBodyMutable removeObjectForKey:@"uniqueMatchLinkToCheck"];
-      NSMutableArray *baseURLs =
-          [@[ kIosPostInstallAttributionRestBaseUrlIPV4, kIosPostInstallAttributionRestBaseUrlIPV6 ]
-              mutableCopy];
-      if (parsedDynamicLinkParameters[kFIRDLParameterRequestIPVersion]) {
-        if ([parsedDynamicLinkParameters[kFIRDLParameterRequestIPVersion]
-                isEqualToString:@"IP_V4"]) {
-          [baseURLs removeObject:kIosPostInstallAttributionRestBaseUrlIPV4];
-        } else if ([parsedDynamicLinkParameters[kFIRDLParameterRequestIPVersion]
-                       isEqualToString:@"IP_V6"]) {
-          [baseURLs removeObject:kIosPostInstallAttributionRestBaseUrlIPV6];
+  FIRNetworkRequestCompletionHandler completeInvitationByDeviceCallback =
+      ^(NSData *data, NSURLResponse *response, NSError *error) {
+        if (error || !data) {
+          dispatch_async(dispatch_get_main_queue(), ^{
+            handler(nil, nil, error);
+          });
+          return;
         }
-      }
 
-      for (NSString *baseURL in baseURLs) {
-        [self sendRequestWithBaseURLString:baseURL
-                               requestBody:requestBodyMutable
-                              endpointPath:@"installAttribution"
-                               parserBlock:parserBlock
-                                completion:handler];
-      }
-    }
-    // We want to return out the result of the unique match check irrespective of success/failure as
-    // it is the first fingerprinting request as well.
-    dispatch_async(dispatch_get_main_queue(), ^{
-      handler(parsedDynamicLinkParameters, matchMessage, parsingError);
-    });
-  };
+        NSString *matchMessage = nil;
+        NSError *parsingError = nil;
+        NSDictionary *parsedDynamicLinkParameters =
+            parserBlock(requestURLString, data, &matchMessage, &parsingError);
+
+        dispatch_async(dispatch_get_main_queue(), ^{
+          handler(parsedDynamicLinkParameters, matchMessage, parsingError);
+        });
+      };
 
   [self executeOnePlatformRequest:requestBody
                            forURL:requestURLString

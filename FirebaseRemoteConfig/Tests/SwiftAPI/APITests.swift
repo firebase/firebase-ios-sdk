@@ -95,42 +95,6 @@ class APITests: APITestBase {
     waitForExpectations()
   }
 
-  // Test old API.
-  // Contrast with testChangedActivateWillNotError in FakeConsole.swift.
-  func testUnchangedActivateWillError() {
-    let expectation = self.expectation(description: #function)
-    config.fetch { status, error in
-      if let error = error {
-        XCTFail("Fetch Error \(error)")
-      }
-      XCTAssertEqual(status, RemoteConfigFetchStatus.success)
-      self.config.activate { error in
-        if let error = error {
-          print("Activate Error \(error)")
-        }
-        XCTAssertEqual(self.config[Constants.key1].stringValue, Constants.value1)
-        expectation.fulfill()
-      }
-    }
-    waitForExpectations()
-    let expectation2 = self.expectation(description: #function + "2")
-    config.fetch { status, error in
-      if let error = error {
-        XCTFail("Fetch Error \(error)")
-      }
-      XCTAssertEqual(status, RemoteConfigFetchStatus.success)
-      self.config.activate { error in
-        XCTAssertNotNil(error)
-        if let error = error {
-          XCTAssertEqual((error as NSError).code, RemoteConfigError.internalError.rawValue)
-        }
-        XCTAssertEqual(self.config[Constants.key1].stringValue, Constants.value1)
-        expectation2.fulfill()
-      }
-    }
-    waitForExpectations()
-  }
-
   // Test New API.
   // Contrast with testChangedActivateWillNotFlag in FakeConsole.swift.
   func testUnchangedActivateWillFlag() {

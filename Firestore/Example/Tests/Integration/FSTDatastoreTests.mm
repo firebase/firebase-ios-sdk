@@ -32,7 +32,7 @@
 #include "Firestore/core/src/local/local_documents_view.h"
 #include "Firestore/core/src/local/local_store.h"
 #include "Firestore/core/src/local/memory_persistence.h"
-#include "Firestore/core/src/local/simple_query_engine.h"
+#include "Firestore/core/src/local/query_engine.h"
 #include "Firestore/core/src/local/target_data.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/model/document_key.h"
@@ -41,6 +41,8 @@
 #include "Firestore/core/src/model/set_mutation.h"
 #include "Firestore/core/src/remote/connectivity_monitor.h"
 #include "Firestore/core/src/remote/datastore.h"
+#include "Firestore/core/src/remote/firebase_metadata_provider.h"
+#include "Firestore/core/src/remote/firebase_metadata_provider_noop.h"
 #include "Firestore/core/src/remote/remote_event.h"
 #include "Firestore/core/src/remote/remote_store.h"
 #include "Firestore/core/src/util/async_queue.h"
@@ -62,7 +64,7 @@ using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::local::LocalStore;
 using firebase::firestore::local::MemoryPersistence;
 using firebase::firestore::local::Persistence;
-using firebase::firestore::local::SimpleQueryEngine;
+using firebase::firestore::local::QueryEngine;
 using firebase::firestore::local::TargetData;
 using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DatabaseId;
@@ -75,8 +77,10 @@ using firebase::firestore::model::Precondition;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::remote::ConnectivityMonitor;
+using firebase::firestore::remote::CreateFirebaseMetadataProviderNoOp;
 using firebase::firestore::remote::CreateNoOpConnectivityMonitor;
 using firebase::firestore::remote::Datastore;
+using firebase::firestore::remote::FirebaseMetadataProvider;
 using firebase::firestore::remote::GrpcConnection;
 using firebase::firestore::remote::RemoteEvent;
 using firebase::firestore::remote::RemoteStore;
@@ -222,9 +226,10 @@ class RemoteStoreEventCapture : public RemoteStoreCallback {
   std::unique_ptr<Persistence> _persistence;
 
   DatabaseInfo _databaseInfo;
-  SimpleQueryEngine _queryEngine;
+  QueryEngine _queryEngine;
 
   std::unique_ptr<ConnectivityMonitor> _connectivityMonitor;
+  std::unique_ptr<FirebaseMetadataProvider> _firebaseMetadataProvider;
   std::shared_ptr<Datastore> _datastore;
   std::unique_ptr<RemoteStore> _remoteStore;
 }
@@ -245,9 +250,10 @@ class RemoteStoreEventCapture : public RemoteStoreCallback {
 
   _testWorkerQueue = testutil::AsyncQueueForTesting();
   _connectivityMonitor = CreateNoOpConnectivityMonitor();
-  _datastore = std::make_shared<Datastore>(_databaseInfo, _testWorkerQueue,
-                                           std::make_shared<EmptyCredentialsProvider>(),
-                                           _connectivityMonitor.get());
+  _firebaseMetadataProvider = CreateFirebaseMetadataProviderNoOp();
+  _datastore = std::make_shared<Datastore>(
+      _databaseInfo, _testWorkerQueue, std::make_shared<EmptyCredentialsProvider>(),
+      _connectivityMonitor.get(), _firebaseMetadataProvider.get());
 
   _persistence = MemoryPersistence::WithEagerGarbageCollector();
   _localStore =
@@ -274,6 +280,7 @@ class RemoteStoreEventCapture : public RemoteStoreCallback {
   XCTestExpectation *expectation = [self expectationWithDescription:@"commitWithCompletion"];
 
   _datastore->CommitMutations({}, [self, expectation](const Status &status) {
+    (void)self;  // Avoid unused lambda capture error in Xcode 12.
     XCTAssertTrue(status.ok(), @"Failed to commit");
     [expectation fulfill];
   });

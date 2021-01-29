@@ -136,8 +136,9 @@ class FirebaseOptionsTests: XCTestCase {
     XCTAssertEqual(defaultOptions1.hash, defaultOptions2.hash)
     XCTAssertTrue(defaultOptions1.isEqual(defaultOptions2))
 
-    let emptyOptions = FirebaseOptions()
-    XCTAssertFalse(emptyOptions.isEqual(defaultOptions1))
+    let plainOptions = FirebaseOptions(googleAppID: Constants.Options.googleAppID,
+                                       gcmSenderID: Constants.Options.gcmSenderID)
+    XCTAssertFalse(plainOptions.isEqual(defaultOptions1))
   }
 
   // MARK: - Helpers

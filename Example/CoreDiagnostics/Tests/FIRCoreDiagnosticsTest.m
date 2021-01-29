@@ -19,19 +19,18 @@
 #import <UIKit/UIKit.h>
 #endif  // TARGET_OS_IOS || TARGET_OS_TV
 
+#import <GoogleDataTransport/GoogleDataTransport.h>
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#import <GoogleUtilities/GULHeartbeatDateStorage.h>
+#import <GoogleUtilities/GULUserDefaults.h>
 #import <OCMock/OCMock.h>
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
-#import "GoogleDataTransport/GDTCORLibrary/Internal/GoogleDataTransportInternal.h"
-#import "GoogleUtilities/Environment/Private/GULAppEnvironmentUtil.h"
-#import "GoogleUtilities/Environment/Private/GULHeartbeatDateStorage.h"
-#import "GoogleUtilities/UserDefaults/Private/GULUserDefaults.h"
 #import "Interop/CoreDiagnostics/Public/FIRCoreDiagnosticsData.h"
 #import "Interop/CoreDiagnostics/Public/FIRCoreDiagnosticsInterop.h"
 
 #import "Firebase/CoreDiagnostics/FIRCDLibrary/Protogen/nanopb/firebasecore.nanopb.h"
 
-extern NSString *const kFIRAppDiagnosticsNotification;
 extern NSString *const kFIRLastCheckinDateKey;
 
 static NSString *const kGoogleAppID = @"1:123:ios:123abc";
@@ -161,7 +160,6 @@ extern void FIRPopulateProtoWithInfoPlistValues(
   });
   icoreConfiguration.using_gdt = 1;
   icoreConfiguration.has_using_gdt = 1;
-  FIRPopulateProtoWithNumberOfLinkedFrameworks(&icoreConfiguration);
   FIRPopulateProtoWithInfoPlistValues(&icoreConfiguration);
   icoreConfiguration.configuration_type =
       logs_proto_mobilesdk_ios_ICoreConfiguration_ConfigurationType_CORE;
@@ -193,28 +191,13 @@ extern void FIRPopulateProtoWithInfoPlistValues(
   config->has_pod_name = 1;
   config->app_id = FIREncodeString(kGoogleAppID);
   config->bundle_id = FIREncodeString(kBundleID);
-  config->device_model = FIREncodeString([FIRCoreDiagnostics deviceModel]);
+  config->device_model = FIREncodeString([GULAppEnvironmentUtil deviceModel]);
   config->os_version = FIREncodeString([GULAppEnvironmentUtil systemVersion]);
   config->app_count = 1;
   config->has_app_count = 1;
   config->use_default_app = 1;
   config->has_use_default_app = 1;
-
-  int numFrameworks = -1;  // Subtract the app binary itself.
-  unsigned int numImages;
-  const char **imageNames = objc_copyImageNames(&numImages);
-  for (unsigned int i = 0; i < numImages; i++) {
-    NSString *imageName = [NSString stringWithUTF8String:imageNames[i]];
-    if ([imageName rangeOfString:@"System/Library"].length != 0        // Apple .frameworks
-        || [imageName rangeOfString:@"Developer/Library"].length != 0  // Xcode debug .frameworks
-        || [imageName rangeOfString:@"usr/lib"].length != 0) {         // Public .dylibs
-      continue;
-    }
-    numFrameworks++;
-  }
-  free(imageNames);
-  config->dynamic_framework_count = numFrameworks;
-  config->has_dynamic_framework_count = 1;
+  config->has_dynamic_framework_count = 0;  // Removed from payload.
   config->apple_framework_version = FIREncodeString(combinedVersions);
   NSString *minVersion = [[NSBundle mainBundle] infoDictionary][@"MinimumOSVersion"];
   if (minVersion) {

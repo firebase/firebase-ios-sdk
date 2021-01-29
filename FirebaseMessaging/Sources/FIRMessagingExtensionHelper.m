@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-#import <FirebaseMessaging/FIRMessagingExtensionHelper.h>
+#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessagingExtensionHelper.h"
 
 #import "FirebaseMessaging/Sources/FIRMMessageCode.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 
 static NSString *const kPayloadOptionsName = @"fcm_options";
 static NSString *const kPayloadOptionsImageURLName = @"image";
+static NSString *const kNoExtension = @"";
+static NSString *const kImagePathPrefix = @"image/";
 
 @interface FIRMessagingExtensionHelper ()
 @property(nonatomic, strong) void (^contentHandler)(UNNotificationContent *contentToDeliver);
@@ -62,6 +64,18 @@ static NSString *const kPayloadOptionsImageURLName = @"image";
 }
 
 #if TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_WATCH
+- (NSString *)fileExtensionForResponse:(NSURLResponse *)response {
+  NSString *suggestedPathExtension = [response.suggestedFilename pathExtension];
+  if (suggestedPathExtension.length > 0) {
+    return [NSString stringWithFormat:@".%@", suggestedPathExtension];
+  }
+  if ([response.MIMEType containsString:kImagePathPrefix]) {
+    return [response.MIMEType stringByReplacingOccurrencesOfString:kImagePathPrefix
+                                                        withString:@"."];
+  }
+  return kNoExtension;
+}
+
 - (void)loadAttachmentForURL:(NSURL *)attachmentURL
            completionHandler:(void (^)(UNNotificationAttachment *))completionHandler {
   __block UNNotificationAttachment *attachment = nil;
@@ -80,8 +94,7 @@ static NSString *const kPayloadOptionsImageURLName = @"image";
           }
 
           NSFileManager *fileManager = [NSFileManager defaultManager];
-          NSString *fileExtension =
-              [NSString stringWithFormat:@".%@", [response.suggestedFilename pathExtension]];
+          NSString *fileExtension = [self fileExtensionForResponse:response];
           NSURL *localURL = [NSURL
               fileURLWithPath:[temporaryFileLocation.path stringByAppendingString:fileExtension]];
           [fileManager moveItemAtURL:temporaryFileLocation toURL:localURL error:&error];
