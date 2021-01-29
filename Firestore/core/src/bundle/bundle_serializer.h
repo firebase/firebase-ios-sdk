@@ -21,9 +21,7 @@
 #include <utility>
 
 #include "Firestore/core/src/bundle/bundle_metadata.h"
-#include "Firestore/core/src/bundle/named_query.h"
-#include "Firestore/core/src/model/document.h"
-#include "Firestore/core/src/remote/serializer.h"
+#include "Firestore/core/src/model/snapshot_version.h"
 #include "Firestore/core/src/util/reader_context.h"
 #include "nlohmann/json.hpp"
 
@@ -34,14 +32,12 @@ namespace bundle {
 /** A JSON serializer to deserialize Firestore Bundles. */
 class BundleSerializer {
  public:
-  BundleSerializer() = default;
-
-  BundleMetadata DecodeBundleMetadata(util::ReadContext* context,
+  BundleMetadata DecodeBundleMetadata(util::ReadContext& context,
                                       const std::string& metadata) const;
 
  private:
   model::SnapshotVersion DecodeSnapshotVersion(
-      util::ReadContext* context, const nlohmann::json& version) const;
+      util::ReadContext& context, const nlohmann::json& version) const;
 };
 
 }  // namespace bundle

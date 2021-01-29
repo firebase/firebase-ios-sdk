@@ -31,21 +31,35 @@ using nlohmann::json;
 using ProtoBundleMetadata = ::firestore::BundleMetadata;
 using util::ReadContext;
 
-TEST(BundleSerializerTest, DecodesBundleMetadata) {
-  auto proto_metadata = ProtoBundleMetadata{};
+ProtoBundleMetadata bundle_metadata() {
+  ProtoBundleMetadata proto_metadata{};
   *proto_metadata.mutable_id() = "bundle-1";
   proto_metadata.mutable_create_time()->set_seconds(2);
   proto_metadata.mutable_create_time()->set_nanos(3);
   proto_metadata.set_version(1);
   proto_metadata.set_total_bytes(123456789987654321L);
-  proto_metadata.set_total_documents(5);
+  proto_metadata.set_total_documents(9999);
+  return proto_metadata;
+}
+
+std::string replaced_copy(const std::string& source,
+                          const std::string& pattern,
+                          const std::string& value) {
+  std::string result{source};
+  auto start = result.find(pattern);
+  result.replace(start, pattern.size(), value);
+  return result;
+}
+
+TEST(BundleSerializerTest, DecodesBundleMetadata) {
+  auto proto_metadata = bundle_metadata();
+
   std::string json_string;
   MessageToJsonString(proto_metadata, &json_string);
 
   BundleSerializer serializer;
   ReadContext context;
-  BundleMetadata actual =
-      serializer.DecodeBundleMetadata(&context, json_string);
+  BundleMetadata actual = serializer.DecodeBundleMetadata(context, json_string);
 
   EXPECT_TRUE(context.ok());
   EXPECT_EQ(proto_metadata.id(), actual.bundle_id());
@@ -59,31 +73,39 @@ TEST(BundleSerializerTest, DecodesBundleMetadata) {
 }
 
 TEST(BundleSerializerTest, DecodesInvalidBundleMetadataReportsError) {
-  auto proto_metadata = ProtoBundleMetadata{};
-  *proto_metadata.mutable_id() = "bundle-1";
-  proto_metadata.mutable_create_time()->set_seconds(2);
-  proto_metadata.mutable_create_time()->set_nanos(3);
-  proto_metadata.set_version(1);
-  proto_metadata.set_total_bytes(123456789987654321L);
-  proto_metadata.set_total_documents(5);
+  auto proto_metadata = bundle_metadata();
+
   std::string json_string;
   MessageToJsonString(proto_metadata, &json_string);
   auto invalid = "123" + json_string;
 
   BundleSerializer serializer;
   ReadContext context;
-  serializer.DecodeBundleMetadata(&context, invalid);
+  serializer.DecodeBundleMetadata(context, invalid);
 
   EXPECT_FALSE(context.ok());
 
-  std::string to_replace("123456789987654321");
-  auto start = json_string.find(to_replace);
-  json_string.replace(start, to_replace.size(), "xxxyyyzzz");
+  // Replace total_bytes to a string unparseable to integer.
+  std::string json_copy =
+      replaced_copy(json_string, "123456789987654321", "xxxyyyzzz");
+  context = ReadContext{};
+  serializer.DecodeBundleMetadata(context, json_copy);
 
-  ReadContext new_context;
-  serializer.DecodeBundleMetadata(&new_context, json_string);
+  EXPECT_FALSE(context.ok());
 
-  EXPECT_FALSE(new_context.ok());
+  // Replace total_documents to a string unparseable to integer.
+  json_copy = replaced_copy(json_string, "9999", "\"xxxyyyzzz\"");
+  context = ReadContext{};
+  serializer.DecodeBundleMetadata(context, json_copy);
+
+  EXPECT_FALSE(context.ok());
+
+  // Replace bundle_id to a integer.
+  json_copy = replaced_copy(json_string, "\"bundle-1\"", "666");
+  context = ReadContext{};
+  serializer.DecodeBundleMetadata(context, json_copy);
+
+  EXPECT_FALSE(context.ok());
 }
 
 }  //  namespace

@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_BUNDLE_BUNDLE_METADATA_H_
 #define FIRESTORE_CORE_SRC_BUNDLE_BUNDLE_METADATA_H_
 
+#include <stdint.h>
 #include <string>
 #include <utility>
 

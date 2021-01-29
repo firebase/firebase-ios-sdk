@@ -22,6 +22,7 @@
 namespace firebase {
 namespace firestore {
 namespace bundle {
+namespace {
 
 using absl::FromUnixSeconds;
 using absl::Nanoseconds;
@@ -35,50 +36,70 @@ using nlohmann::json;
 using util::ReadContext;
 
 template <typename int_type>
-int_type ToInt(ReadContext* context, const json& value) {
+int_type ToInt(ReadContext& context, const json& value) {
+  if (value.is_number_integer()) {
+    return value.get<int_type>();
+  }
+
+  int_type result = 0;
   if (value.is_string()) {
     const auto& s = value.get_ref<const std::string&>();
-    int_type result;
     auto ok = SimpleAtoi<int_type>(s, &result);
     if (!ok) {
-      context->Fail("Failed to parse into integer: " + s);
+      context.Fail("Failed to parse into integer: " + s);
     }
 
     return result;
   }
-  return value.get<int_type>();
+
+  context.Fail(
+      "Trying to parse a json value that is neither a string nor an integer "
+      "number into an integer");
+  return result;
 }
 
-json Parse(const std::string s) {
-  return json::parse(s, /* callback */ nullptr, /* allow_exception */ false);
+std::string ToString(ReadContext& context, const json& value) {
+  if (value.is_string()) {
+    return value.get<std::string>();
+  }
+
+  context.Fail(
+      "Trying to parse a json value that is not a string into a string");
+  return std::string();
 }
+
+json Parse(const std::string& s) {
+  return json::parse(s, /*callback=*/nullptr, /*allow_exception=*/false);
+}
+
+}  // namespace
 
 BundleMetadata BundleSerializer::DecodeBundleMetadata(
-    ReadContext* context, const std::string& metadata_string) const {
+    ReadContext& context, const std::string& metadata_string) const {
   const json& metadata = Parse(metadata_string);
 
   if (metadata.is_discarded()) {
-    context->Fail("Failed to parse string into json: " + metadata_string);
+    context.Fail("Failed to parse string into json: " + metadata_string);
     return BundleMetadata();
   }
   if (!metadata.contains("id") || !metadata.contains("version") ||
       !metadata.contains("createTime") ||
       !metadata.contains("totalDocuments") ||
       !metadata.contains("totalBytes")) {
-    context->Fail("One of the field in BundleMetadata cannot be found.");
+    context.Fail("One of the field in BundleMetadata cannot be found.");
     return BundleMetadata();
   }
 
   return BundleMetadata(
-      metadata.at("id").get<std::string>(),
-      metadata.at("version").get<uint32_t>(),
+      ToString(context, metadata.at("id")),
+      ToInt<uint32_t>(context, metadata.at("version")),
       DecodeSnapshotVersion(context, metadata.at("createTime")),
-      metadata.at("totalDocuments").get<uint32_t>(),
+      ToInt<uint32_t>(context, metadata.at("totalDocuments")),
       ToInt<uint64_t>(context, metadata.at("totalBytes")));
 }
 
 SnapshotVersion BundleSerializer::DecodeSnapshotVersion(
-    ReadContext* context, const json& version) const {
+    ReadContext& context, const json& version) const {
   if (version.is_string()) {
     Time time;
     std::string err;
@@ -89,19 +110,19 @@ SnapshotVersion BundleSerializer::DecodeSnapshotVersion(
       auto nanos = (time - FromUnixSeconds(seconds)) / Nanoseconds(1);
       return SnapshotVersion(Timestamp(seconds, nanos));
     } else {
-      context->Fail("Parsing time stamp failed with error: " + err);
+      context.Fail("Parsing timestamp failed with error: " + err);
       return SnapshotVersion::None();
     }
   }
 
   if (!version.contains("seconds") || !version.contains("nanos")) {
-    context->Fail("Missing seconds or nanos in snapshot version.");
+    context.Fail("Missing seconds or nanos in snapshot version.");
     return SnapshotVersion::None();
   }
 
-  auto seconds = ToInt<int64_t>(context, version.at("seconds"));
   return SnapshotVersion(
-      Timestamp(seconds, version.at("nanos").get<int32_t>()));
+      Timestamp(ToInt<int64_t>(context, version.at("seconds")),
+                ToInt<int32_t>(context, version.at("nanos"))));
 }
 
 }  // namespace bundle
