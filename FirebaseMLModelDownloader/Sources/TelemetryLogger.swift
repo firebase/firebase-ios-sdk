@@ -20,10 +20,10 @@ import GoogleDataTransport
 extension SystemInfo {
   mutating func setAppInfo(apiKey: String?, projectID: String?) {
     appID = Bundle.main.bundleIdentifier ?? "unknownBundleID"
-    // TODO: Reconsider using app version.
     let appVersionKey = "CFBundleShortVersionString"
     appVersion = Bundle.main.infoDictionary?[appVersionKey] as? String ?? "unknownAppVersion"
-    // TODO: Need to log SDK version.
+    // TODO: What should this be?
+    mlSdkVersion = "0.1.0"
     self.apiKey = apiKey ?? "unknownAPIKey"
     firebaseProjectID = projectID ?? "unknownProjectID"
   }
@@ -43,13 +43,11 @@ extension ModelOptions {
 
 /// Extension to build model download log event.
 extension ModelDownloadLogEvent {
-  mutating func setEvent(status: DownloadStatus, errorCode: ErrorCode? = nil,
+  mutating func setEvent(status: DownloadStatus, errorCode: ErrorCode,
                          roughDownloadDuration: UInt64? = nil, exactDownloadDuration: UInt64? = nil,
                          downloadFailureStatus: Int64? = nil, modelOptions: ModelOptions) {
     downloadStatus = status
-    if let code = errorCode {
-      self.errorCode = code
-    }
+    self.errorCode = errorCode
     if let roughDuration = roughDownloadDuration {
       roughDownloadDurationMs = roughDuration
     }
@@ -128,9 +126,27 @@ class TelemetryLogger {
     fllTransport.sendTelemetryEvent(eventForTransport)
   }
 
+  /// Log model info retrieval event to Firelog.
+  func logModelInfoRetrievalEvent(eventName: EventName, status: ModelDownloadStatus,
+                                  model: CustomModel? = nil, errorCode: ModelInfoErrorCode) {
+    guard app.isDataCollectionDefaultEnabled else { return }
+    var systemInfo = SystemInfo()
+    let apiKey = app.options.apiKey
+    let projectID = app.options.projectID
+    systemInfo.setAppInfo(apiKey: apiKey, projectID: projectID)
+    let modelDownloadLogEvent = ModelDownloadLogEvent()
+    var fbmlEvent = FirebaseMlLogEvent()
+    fbmlEvent.setEvent(
+      eventName: eventName,
+      systemInfo: systemInfo,
+      modelDownloadLogEvent: modelDownloadLogEvent
+    )
+    logModelEvent(event: fbmlEvent)
+  }
+
   /// Log model download event to Firelog.
   func logModelDownloadEvent(eventName: EventName, status: ModelDownloadStatus,
-                             model: CustomModel? = nil) {
+                             model: CustomModel? = nil, downloadErrorCode: ModelDownloadErrorCode) {
     guard app.isDataCollectionDefaultEnabled else { return }
     var modelOptions = ModelOptions()
     if let model = model {
@@ -141,12 +157,37 @@ class TelemetryLogger {
     let projectID = app.options.projectID
     systemInfo.setAppInfo(apiKey: apiKey, projectID: projectID)
 
-    var modelDownloadLogEvent = ModelDownloadLogEvent()
+    var errorCode = ErrorCode()
+    switch downloadErrorCode {
+    case .noError:
+      errorCode = .noError
+    case .urlExpired:
+      errorCode = .uriExpired
+    case .noConnection:
+      errorCode = .noNetworkConnection
+    case .downloadFailed:
+      errorCode = .downloadFailed
+    case let .httpError(code):
+      errorCode = ErrorCode(rawValue: code) ?? .unknownError
+    }
+
+    var downloadStatus = ModelDownloadLogEvent.DownloadStatus()
+
     switch status {
-    case .successful: modelDownloadLogEvent.setEvent(status: .succeeded, modelOptions: modelOptions)
-    case .failed: modelDownloadLogEvent.setEvent(status: .failed, modelOptions: modelOptions)
+    case .successful:
+      downloadStatus = .succeeded
+    case .failed:
+      downloadStatus = .failed
     case .notStarted, .inProgress: break
     }
+
+    var modelDownloadLogEvent = ModelDownloadLogEvent()
+    modelDownloadLogEvent.setEvent(
+      status: downloadStatus,
+      errorCode: errorCode,
+      modelOptions: modelOptions
+    )
+
     var fbmlEvent = FirebaseMlLogEvent()
     fbmlEvent.setEvent(
       eventName: eventName,

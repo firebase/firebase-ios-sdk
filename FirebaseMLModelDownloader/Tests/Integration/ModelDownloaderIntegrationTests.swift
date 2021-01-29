@@ -440,7 +440,8 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
         telemetryLogger.logModelDownloadEvent(
           eventName: .modelDownload,
           status: .successful,
-          model: model
+          model: model,
+          downloadErrorCode: .noError
         )
         let modelPath = URL(string: model.path)!
         try? ModelFileManager.removeFile(at: modelPath)
