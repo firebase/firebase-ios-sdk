@@ -1398,7 +1398,7 @@
   [childOne setValue:@1];
   [childTwo setValue:@2];
 
-  __block bool done = NO;
+  __block BOOL done = NO;
 
   [[[ref queryOrderedByKey] queryStartingAfterValue:[childOne key]]
       getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
@@ -1420,7 +1420,7 @@
   [childOne setValue:@1];
   [childTwo setValue:@2];
 
-  __block bool done = NO;
+  __block BOOL done = NO;
 
   [[[ref queryOrderedByKey] queryEndingBeforeValue:[childTwo key]]
       getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
