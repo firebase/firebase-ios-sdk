@@ -1441,6 +1441,30 @@ using firebase::firestore::util::TimerId;
   XCTAssertTrue(firestore.wrapped->client()->is_terminated());
 }
 
+// The test ensures b/172958106 doesn't regress.
+- (void)testDeleteAppWorksWhenLastReferenceToFirestoreIsInListener {
+  FIRApp *app = testutil::AppForUnitTesting(util::MakeString([FSTIntegrationTestCase projectID]));
+  FIRFirestore *firestore = [FIRFirestore firestoreForApp:app];
+
+  FIRDocumentReference *doc = [firestore documentWithPath:@"abc/123"];
+  // Make sure there is a listener.
+  [doc addSnapshotListener:^(FIRDocumentSnapshot *snapshot, NSError *) {
+  }];
+  NSDictionary<NSString *, id> *data =
+      @{@"owner" : @{@"name" : @"Jonny", @"email" : @"abc@xyz.com"}};
+  // Make sure the client is initialized.
+  [self writeDocumentRef:doc data:data];
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"App is deleted"];
+  [app deleteApp:^(BOOL success) {
+    [expectation fulfill];
+  }];
+  // Let go of the last app reference.
+  app = nil;
+
+  [self awaitExpectations];
+}
+
 - (void)testTerminateCanBeCalledMultipleTimes {
   FIRApp *app = testutil::AppForUnitTesting(util::MakeString([FSTIntegrationTestCase projectID]));
   FIRFirestore *firestore = [FIRFirestore firestoreForApp:app];

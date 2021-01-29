@@ -263,29 +263,6 @@ NSDictionary<NSString *, id> *testDataWithTimestamps(FIRTimestamp *timestamp) {
   XCTAssertEqualObjects(timestampFromSnapshot, timestampFromData);
 }
 
-- (void)testDeleteAppOBC {
-  FIRApp *app = testutil::AppForUnitTesting(util::MakeString([FSTIntegrationTestCase projectID]));
-
-  FIRFirestore *firestore = [FIRFirestore firestoreForApp:app];
-  FIRDocumentReference *doc = [firestore documentWithPath:@"foo/bar"];
-  [doc addSnapshotListener:^(FIRDocumentSnapshot *snapshot, NSError *) {
-  }];
-  [self writeDocumentRef:doc data:@{@"foo": @"bar"}];
-
-  XCTestExpectation *defaultAppDeletedExpectation =
-      [self expectationWithDescription:@"Deleting the default app should invalidate the default "
-                                       @"Firestore instance."];
-  [app deleteApp:^(BOOL success) {
-    [defaultAppDeletedExpectation fulfill];
-  }];
-  app = nil;
-
-  [self waitForExpectationsWithTimeout:2
-                               handler:^(NSError *_Nullable error) {
-                                 XCTAssertNil(error);
-                               }];
-}
-
 @end
 
 NS_ASSUME_NONNULL_END
