@@ -1448,7 +1448,7 @@ using firebase::firestore::util::TimerId;
 
   FIRDocumentReference *doc = [firestore documentWithPath:@"abc/123"];
   // Make sure there is a listener.
-  [doc addSnapshotListener:^(FIRDocumentSnapshot *snapshot, NSError *) {
+  [doc addSnapshotListener:^(FIRDocumentSnapshot *snapshot, NSError *){
   }];
   NSDictionary<NSString *, id> *data =
       @{@"owner" : @{@"name" : @"Jonny", @"email" : @"abc@xyz.com"}};

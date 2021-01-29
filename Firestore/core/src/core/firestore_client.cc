@@ -118,7 +118,8 @@ std::shared_ptr<FirestoreClient> FirestoreClient::Create(
   // Have to use `new` because `make_shared` cannot access private constructor.
   std::shared_ptr<FirestoreClient> shared_client(new FirestoreClient(
       database_info, std::move(credentials_provider), std::move(user_executor),
-      std::move(worker_queue), std::move(firebase_metadata_provider), std::move(firestore)));
+      std::move(worker_queue), std::move(firebase_metadata_provider),
+      std::move(firestore)));
 
   std::weak_ptr<FirestoreClient> weak_client(shared_client);
   auto credential_change_listener = [weak_client, settings](User user) mutable {
