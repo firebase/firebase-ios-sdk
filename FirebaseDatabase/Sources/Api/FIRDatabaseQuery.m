@@ -202,20 +202,26 @@
 
 - (FIRDatabaseQuery *)queryStartingAfterValue:(id)startAfterValue
                                      childKey:(NSString *)childKey {
-    if ([self.queryParams.index isEqual:[FKeyIndex keyIndex]] &&
-        childKey != nil) {
-        @throw [[NSException alloc]
-            initWithName:INVALID_QUERY_PARAM_ERROR
-                  reason:@"You must use queryStartingAfterValue: instead of "
-                         @"queryStartingAfterValue:childKey: when using "
-                         @"queryOrderedByKey:"
-                userInfo:nil];
-    }
-    if (childKey == nil) {
-        childKey = [FUtilities maxName];
+    if ([self.queryParams.index isEqual:[FKeyIndex keyIndex]]) {
+        if (childKey != nil) {
+            @throw [[NSException alloc]
+                initWithName:INVALID_QUERY_PARAM_ERROR
+                      reason:
+                          @"You must use queryStartingAfterValue: instead of "
+                          @"queryStartingAfterValue:childKey: when using "
+                          @"queryOrderedByKey:"
+                    userInfo:nil];
+        }
+        if ([startAfterValue isKindOfClass:[NSString class]]) {
+            startAfterValue = [FNextPushId successor:startAfterValue];
+        }
     } else {
-        childKey = [FNextPushId successor:childKey];
-        NSLog(@"successor of child key %@", childKey);
+        if (childKey == nil) {
+            childKey = [FUtilities maxName];
+        } else {
+            childKey = [FNextPushId successor:childKey];
+            NSLog(@"successor of child key %@", childKey);
+        }
     }
     NSString *methodName = @"queryStartingAfterValue:childKey:";
     if (childKey != nil && ![childKey isEqual:[FUtilities maxName]]) {
@@ -283,20 +289,24 @@
 
 - (FIRDatabaseQuery *)queryEndingBeforeValue:(id)endValue
                                     childKey:(NSString *)childKey {
-    if ([self.queryParams.index isEqual:[FKeyIndex keyIndex]] &&
-        childKey != nil) {
-        @throw [[NSException alloc]
-            initWithName:INVALID_QUERY_PARAM_ERROR
-                  reason:@"You must use queryEndingBeforeValue: instead of "
-                         @"queryEndingBeforeValue:childKey: when using "
-                         @"queryOrderedByKey:"
-                userInfo:nil];
-    }
-
-    if (childKey == nil) {
-        childKey = [FUtilities minName];
+    if ([self.queryParams.index isEqual:[FKeyIndex keyIndex]]) {
+        if (childKey != nil) {
+            @throw [[NSException alloc]
+                initWithName:INVALID_QUERY_PARAM_ERROR
+                      reason:@"You must use queryEndingBeforeValue: instead of "
+                             @"queryEndingBeforeValue:childKey: when using "
+                             @"queryOrderedByKey:"
+                    userInfo:nil];
+        }
+        if ([endValue isKindOfClass:[NSString class]]) {
+            endValue = [FNextPushId predecessor:endValue];
+        }
     } else {
-        childKey = [FNextPushId predecessor:childKey];
+        if (childKey == nil) {
+            childKey = [FUtilities minName];
+        } else {
+            childKey = [FNextPushId predecessor:childKey];
+        }
     }
     NSString *methodName = @"queryEndingBeforeValue:childKey:";
     if (childKey != nil && ![childKey isEqual:[FUtilities minName]]) {

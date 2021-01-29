@@ -1390,6 +1390,50 @@
   [expectations validate];
 }
 
+- (void)testStartAfterWithOrderByKey {
+  FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
+  FIRDatabaseReference* childOne = [ref childByAutoId];
+  FIRDatabaseReference* childTwo = [ref childByAutoId];
+
+  [childOne setValue:@1];
+  [childTwo setValue:@2];
+
+  __block bool done = NO;
+
+  [[[ref queryOrderedByKey] queryStartingAfterValue:[childOne key]]
+      getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
+        XCTAssert([[snapshot value] isKindOfClass:[NSDictionary class]]);
+        NSDictionary* data = (NSDictionary*)[snapshot value];
+        XCTAssertEqualObjects([data allKeys], @[ [childTwo key] ]);
+        XCTAssertEqualObjects([data allValues], @[ @2 ]);
+        done = YES;
+      }];
+
+  WAIT_FOR(done);
+}
+
+- (void)testEndBeforeWithOrderByKey {
+  FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
+  FIRDatabaseReference* childOne = [ref childByAutoId];
+  FIRDatabaseReference* childTwo = [ref childByAutoId];
+
+  [childOne setValue:@1];
+  [childTwo setValue:@2];
+
+  __block bool done = NO;
+
+  [[[ref queryOrderedByKey] queryEndingBeforeValue:[childTwo key]]
+      getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
+        XCTAssert([[snapshot value] isKindOfClass:[NSDictionary class]]);
+        NSDictionary* data = (NSDictionary*)[snapshot value];
+        XCTAssertEqualObjects([data allKeys], @[ [childOne key] ]);
+        XCTAssertEqualObjects([data allValues], @[ @1 ]);
+        done = YES;
+      }];
+
+  WAIT_FOR(done);
+}
+
 - (void)testStartAfterPriorityAndEndAtPriorityWork {
   FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
   FTestExpectations* expectations = [[FTestExpectations alloc] initFrom:self];
