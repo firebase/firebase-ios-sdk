@@ -18,7 +18,6 @@
 #define FIRESTORE_CORE_SRC_CORE_FIRESTORE_CLIENT_H_
 
 #include <memory>
-#include <mutex>  // NOLINT(build/c++11)
 #include <vector>
 
 #include "Firestore/core/src/api/api_fwd.h"
@@ -228,7 +227,7 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
   util::DelayedOperation lru_callback_;
 
   // Used during shutdown to guarantee lifetimes.
-  std::weak_ptr<api::Firestore> maybe_firestore_;
+  std::weak_ptr<api::Firestore> weak_firestore_;
 };
 
 }  // namespace core

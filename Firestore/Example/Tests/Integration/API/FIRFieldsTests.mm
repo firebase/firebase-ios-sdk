@@ -21,13 +21,6 @@
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
-#include "Firestore/core/src/util/string_apple.h"
-#include "Firestore/core/test/unit/testutil/app_testing.h"
-
-namespace testutil = firebase::firestore::testutil;
-namespace util = firebase::firestore::util;
-
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRFieldsTests : FSTIntegrationTestCase

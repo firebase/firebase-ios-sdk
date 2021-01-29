@@ -1441,7 +1441,7 @@ using firebase::firestore::util::TimerId;
   XCTAssertTrue(firestore.wrapped->client()->is_terminated());
 }
 
-// The test ensures b/172958106 doesn't regress.
+// Ensures b/172958106 doesn't regress.
 - (void)testDeleteAppWorksWhenLastReferenceToFirestoreIsInListener {
   FIRApp *app = testutil::AppForUnitTesting(util::MakeString([FSTIntegrationTestCase projectID]));
   FIRFirestore *firestore = [FIRFirestore firestoreForApp:app];

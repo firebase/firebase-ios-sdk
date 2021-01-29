@@ -167,7 +167,7 @@ FirestoreClient::FirestoreClient(
       worker_queue_(std::move(worker_queue)),
       user_executor_(std::move(user_executor)),
       firebase_metadata_provider_(std::move(firebase_metadata_provider)),
-      maybe_firestore_(std::move(firestore)) {
+      weak_firestore_(std::move(firestore)) {
 }
 
 void FirestoreClient::Initialize(const User& user, const Settings& settings) {
@@ -280,7 +280,7 @@ void FirestoreClient::TerminateAsync(StatusCallback callback) {
     auto self = shared_from_this();
     // Make sure that `api::Firestore` is not destroyed during the call to
     // `TerminateInternal`.
-    auto firestore = maybe_firestore_.lock();
+    auto firestore = weak_firestore_.lock();
     TerminateInternal();
 
     if (callback) {
