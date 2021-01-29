@@ -5,7 +5,7 @@ using Xcode 12.0 or above. See the instructions below for CocoaPods and Carthage
 
 ## CocoaPods
 
-All source-based Firebase CocoaPods work as expected. Binary pods require CocoaPopds version 1.10.0
+All source-based Firebase CocoaPods work as expected. Binary pods require CocoaPods version 1.10.0
 and are listed below with the current status.
 
 ### Analytics + GoogleAppMeasurement
