@@ -27,6 +27,29 @@ private enum MockOptions {
 
 // TODO: Create separate files for each class tested.
 final class ModelDownloaderUnitTests: XCTestCase {
+  let fakeModelName = "fakeModelName"
+  let fakeModelHash = "fakeModelHash"
+  let fakeDownloadURL = URL(string: "www.fake-download-url.com")!
+  let fakeFileURL = URL(string: "www.fake-model-file.com")!
+  let fakeExpiryTime = "2021-01-20T04:20:10.220Z"
+  let fakeModelSize = 20
+  let fakeProjectID = "fakeProjectID"
+  let fakeAPIKey = "fakeAPIKey"
+  var fakeModelJSON: String {
+    """
+    {
+      "downloadUri":"\(fakeDownloadURL)",
+      "expireTime":"\(fakeExpiryTime)",
+      "sizeBytes":"\(fakeModelSize)"
+    }
+    """
+  }
+
+  let successAuthTokenProvider =
+    { (completion: @escaping (Result<String, DownloadError>) -> Void) in
+      completion(.success("fakeFISToken"))
+    }
+
   override class func setUp() {
     let options = FirebaseOptions(
       googleAppID: MockOptions.appID,
@@ -68,12 +91,6 @@ final class ModelDownloaderUnitTests: XCTestCase {
     XCTAssert(modelDownloader1 !== modelDownloader2)
   }
 
-  /// Test to download model info.
-  // TODO: Add unit test with mocks.
-  func testDownloadModelInfo() {}
-
-  // TODO: Add unit test.
-  func testDeleteModel() {}
   /// Test invalid model file deletion.
   func testDeleteInvalidModel() {
     let modelDownloader = ModelDownloader.modelDownloader()
@@ -192,43 +209,6 @@ final class ModelDownloaderUnitTests: XCTestCase {
     XCTAssertLessThan(binaryData.count, jsonData.count)
     XCTAssertEqual(binaryEvent, jsonEvent)
   }
-}
-
-/// Unit tests for network calls.
-class NetworkingUnitTests: XCTestCase {
-  let fakeModelName = "fakeModelName"
-  let fakeModelHash = "fakeModelHash"
-  let fakeDownloadURL = URL(string: "www.fake-download-url.com")!
-  let fakeFileURL = URL(string: "www.fake-model-file.com")!
-  let fakeExpiryTime = "2021-01-20T04:20:10.220Z"
-  let fakeModelSize = 20
-  let fakeProjectID = "fakeProjectID"
-  let fakeAPIKey = "fakeAPIKey"
-  var fakeModelJSON: String {
-    """
-    {
-      "downloadUri":"\(fakeDownloadURL)",
-      "expireTime":"\(fakeExpiryTime)",
-      "sizeBytes":"\(fakeModelSize)"
-    }
-    """
-  }
-
-  let successAuthTokenProvider =
-    { (completion: @escaping (Result<String, DownloadError>) -> Void) in
-      completion(.success("fakeFISToken"))
-    }
-
-  override class func setUp() {
-    let options = FirebaseOptions(
-      googleAppID: MockOptions.appID,
-      gcmSenderID: MockOptions.gcmSenderID
-    )
-    options.apiKey = MockOptions.apiKey
-    options.projectID = MockOptions.projectID
-    FirebaseApp.configure(options: options)
-    FirebaseConfiguration.shared.setLoggerLevel(.debug)
-  }
 
   /// Get model info if server returns a new model info.
   func testGetModelInfoWith200() {
@@ -257,7 +237,7 @@ class NetworkingUnitTests: XCTestCase {
   /// Get model info if model info is not modified.
   func testGetModelInfoWith304() {
     let session = fakeModelInfoSessionWithURL(fakeDownloadURL, statusCode: 304)
-    let localModelInfo = fakeLocalModelInfo()
+    let localModelInfo = fakeLocalModelInfo(mismatch: false)
     let modelInfoRetriever = fakeModelRetriever(
       fakeSession: session,
       fakeLocalModelInfo: localModelInfo
@@ -279,7 +259,7 @@ class NetworkingUnitTests: XCTestCase {
   }
 
   /// Get model info if model info is not modified but local model info is not set.
-  func testGetModelInfoWith304Invalid() {
+  func testGetModelInfoWith304MissingLocalInfo() {
     let session = fakeModelInfoSessionWithURL(fakeDownloadURL, statusCode: 304)
     let modelInfoRetriever = fakeModelRetriever(fakeSession: session)
     let completionExpectation = expectation(description: "Completion handler")
@@ -303,10 +283,39 @@ class NetworkingUnitTests: XCTestCase {
     wait(for: [completionExpectation], timeout: 0.5)
   }
 
+  /// Get model info if model info is not modified but local model info is not set.
+  func testGetModelInfoWith304HashMismatch() {
+    let session = fakeModelInfoSessionWithURL(fakeDownloadURL, statusCode: 304)
+    let localModelInfo = fakeLocalModelInfo(mismatch: true)
+    let modelInfoRetriever = fakeModelRetriever(
+      fakeSession: session,
+      fakeLocalModelInfo: localModelInfo
+    )
+    let completionExpectation = expectation(description: "Completion handler")
+
+    modelInfoRetriever.downloadModelInfo { result in
+      completionExpectation.fulfill()
+      switch result {
+      case let .success(fakemodelInfoResult):
+        switch fakemodelInfoResult {
+        case .modelInfo: XCTFail("Unexpected new model info from server.")
+        case .notModified: XCTFail("Expected failure since model hash does not match.")
+        }
+      case let .failure(error):
+        switch error {
+        case let .internalError(description: errorMessage): XCTAssertEqual(errorMessage,
+                                                                           "Unexpected model hash value.")
+        default: XCTFail("Expected failure since local model info was not set.")
+        }
+      }
+    }
+    wait(for: [completionExpectation], timeout: 0.5)
+  }
+
   /// Get model info if model name is invalid.
   func testGetModelInfoWith400() {
     let session = fakeModelInfoSessionWithURL(fakeDownloadURL, statusCode: 400)
-    let localModelInfo = fakeLocalModelInfo()
+    let localModelInfo = fakeLocalModelInfo(mismatch: false)
     let modelInfoRetriever = fakeModelRetriever(
       fakeSession: session,
       fakeLocalModelInfo: localModelInfo
@@ -910,7 +919,7 @@ extension UserDefaults {
 
 // MARK: - Helpers
 
-extension NetworkingUnitTests {
+extension ModelDownloaderUnitTests {
   func fakeModelInfoSessionWithURL(_ url: URL, statusCode: Int) -> MockModelInfoRetrieverSession {
     let fakeSession = MockModelInfoRetrieverSession()
     fakeSession.data = fakeModelJSON.data(using: .utf8)
@@ -952,10 +961,14 @@ extension NetworkingUnitTests {
     try ModelFileManager.removeFile(at: url)
   }
 
-  func fakeLocalModelInfo() -> LocalModelInfo {
+  func fakeLocalModelInfo(mismatch: Bool) -> LocalModelInfo {
+    var hash = "fakeModelHash"
+    if mismatch {
+      hash = "wrongModelHash"
+    }
     return LocalModelInfo(
       name: "fakeModelName",
-      modelHash: "fakeModelHash",
+      modelHash: hash,
       size: 20,
       path: "fakeModelPath"
     )
