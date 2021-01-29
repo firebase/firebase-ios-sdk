@@ -1,12 +1,10 @@
 name: test_coverage
 
-on: [pull_request]
-#run specific jobs when specific files are updated.
-#https://github.community/t/how-to-execute-jobs-if-folder-updated-recursive/117344/5
+on: [push, pull_request]
 
 jobs:
   check:
-    if: github.repository == 'Firebase/firebase-ios-sdk' || github.event_name == 'pull_request'
+    if: github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'pull_request'
     name: Check changed files
     outputs:
       database_run_job: ${{ steps.check_files.outputs.database_run_job }}
@@ -26,7 +24,7 @@ jobs:
 
   pod-lib-lint-database:
     # Don't run on private repo unless it is a PR.
-    if: github.repository == 'Firebase/firebase-ios-sdk' && needs.check.outputs.database_run_job == 'true' || github.event_name == 'push'
+    if: github.repository == 'Firebase/firebase-ios-sdk' && (needs.check.outputs.database_run_job == 'true' || github.event_name == 'push')
     needs: check
     runs-on: macOS-latest
     strategy:
@@ -37,8 +35,6 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      env:
-        SDK: database
       run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh FirebaseDatabase "${{ matrix.target }}"
     - uses: actions/upload-artifact@v2
       with:
@@ -47,10 +43,9 @@ jobs:
 
   pod-lib-lint-functions:
     # Don't run on private repo unless it is a PR.
-    if: github.repository == 'Firebase/firebase-ios-sdk' && needs.check.outputs.functions_run_job == 'true' || github.event_name == 'push'
+    if: github.repository == 'Firebase/firebase-ios-sdk' && (needs.check.outputs.functions_run_job == 'true' || github.event_name == 'push')
     needs: check
     runs-on: macOS-latest
-
     strategy:
       matrix:
         target: [ios]
@@ -104,5 +99,5 @@ jobs:
         run: |
           if [ -d "${{steps.download.outputs.download-path}}" ]; then
           cd scripts/code_coverage_report/generate_code_coverage_report
-          swift run CoverageReportGenerator --merge "firebase/firebase-ios-sdk" --commit "${GITHUB_SHA}" --token $(gcloud auth print-identity-token) --xcresult-dir "/Users/runner/test/" --log-link "https://github.com/firebase/firebase-ios-sdk/actions/runs/${GITHUB_RUN_ID}" --branch "master"
+          swift run CoverageReportGenerator --merge "firebase/firebase-ios-sdk" --commit "${GITHUB_SHA}" --token $(gcloud auth print-identity-token) --xcresult-dir "/Users/runner/test/codecoverage" --log-link "https://github.com/firebase/firebase-ios-sdk/actions/runs/${GITHUB_RUN_ID}" --branch "${GITHUB_REF##*/}"
           fi
