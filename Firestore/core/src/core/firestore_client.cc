@@ -276,10 +276,10 @@ void FirestoreClient::Dispose() {
 }
 
 void FirestoreClient::TerminateAsync(StatusCallback callback) {
-  std::lock_guard<std::mutex> lock(mutex_);
+  // std::lock_guard<std::mutex> lock(mutex_);
 
-  if (!terminated_) {
-    terminated_ = true;
+  // if (!terminated_) {
+    // terminated_ = true;
 
     worker_queue_->EnterRestrictedMode();
     worker_queue_->EnqueueEvenWhileRestricted([&, this, callback] {
@@ -291,7 +291,7 @@ void FirestoreClient::TerminateAsync(StatusCallback callback) {
         user_executor_->Execute([=] { callback(Status::OK()); });
       }
     });
-  }
+  // }
 }
 
 void FirestoreClient::TerminateInternal() {
