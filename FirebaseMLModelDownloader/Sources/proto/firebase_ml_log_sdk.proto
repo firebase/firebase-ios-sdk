@@ -131,7 +131,7 @@ message ModelDownloadLogEvent {
   // and implicit triggering.
   enum DownloadStatus {
     UNKNOWN_STATUS = 0;
-    
+
     // The download is requested by the developer, i.e. ensureModelDownloaded()
     // is called.
     EXPLICITLY_REQUESTED = 1;
