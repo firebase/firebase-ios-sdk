@@ -16,7 +16,6 @@ import Foundation
 import FirebaseCore
 
 /// Model info object with details about downloaded and locally available model.
-// TODO: Can this be backed by user defaults property wrappers?
 class LocalModelInfo {
   /// Model name.
   let name: String

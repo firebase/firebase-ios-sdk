@@ -506,6 +506,61 @@ final class ModelDownloaderUnitTests: XCTestCase {
     try? ModelFileManager.removeFile(at: tempFileURL)
   }
 
+  /// Get model if multiple download requests are made.
+  func testModelDownloadConcurrent() {
+    let tempFileURL = tempFile()
+    let remoteModelInfo = fakeModelInfo(expired: false, oversized: false)
+    let fakeResponse = HTTPURLResponse(url: fakeFileURL,
+                                       statusCode: 200,
+                                       httpVersion: nil,
+                                       headerFields: nil)!
+    let downloader = MockModelFileDownloader()
+    let fileDownloaderExpectation = expectation(description: "File downloader")
+    downloader.downloadFileHandler = { url in
+      fileDownloaderExpectation.fulfill()
+      XCTAssertEqual(url, self.fakeDownloadURL)
+    }
+
+    let completionExpectation = expectation(description: "Completion handler")
+    let modelDownloadTask = ModelDownloadTask(remoteModelInfo: remoteModelInfo,
+                                              appName: "fakeAppName",
+                                              defaults: .createTestInstance(testName: #function),
+                                              downloader: downloader)
+    modelDownloadTask.download(progressHandler: nil) { result in
+      completionExpectation.fulfill()
+      switch result {
+      case let .success(model):
+        modelDownloadTask.download(progressHandler: nil) { result in
+          switch result {
+          case .success: XCTFail("Model download should not succeed when another is in progress.")
+          case let .failure(error):
+            switch error {
+            case let .internalError(description: description):
+              XCTAssertTrue(description.contains("Download already in progress."))
+            default: XCTFail("Expected failure due to concurrent downloads.")
+            }
+          }
+        }
+        XCTAssertEqual(model.name, self.fakeModelName)
+        XCTAssertEqual(model.size, self.fakeModelSize)
+        XCTAssertEqual(model.hash, self.fakeModelHash)
+        let modelPath = URL(string: model.path)!
+        XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
+        try? self.deleteFile(at: modelPath)
+      case let .failure(error):
+        XCTFail("Error - \(error)")
+      }
+    }
+    wait(for: [fileDownloaderExpectation], timeout: 0.1)
+
+    downloader
+      .completion?(.success(FileDownloaderResponse(urlResponse: fakeResponse,
+                                                   fileURL: tempFileURL)))
+    wait(for: [completionExpectation], timeout: 0.5)
+
+    try? ModelFileManager.removeFile(at: tempFileURL)
+  }
+
   /// Get model if download url expired but retry was successful.
   func testGetModelSuccessfulRetry() {
     let modelDownloader = ModelDownloader.modelDownloader()

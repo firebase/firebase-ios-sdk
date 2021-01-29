@@ -17,6 +17,7 @@ import Foundation
 enum FileDownloaderError: Error {
   case unexpectedResponseType
   case networkError(Error)
+  case anotherDownloadInProgress
 }
 
 struct FileDownloaderResponse {
@@ -62,16 +63,20 @@ class ModelFileDownloader: NSObject, FileDownloader {
       /// Wait for 10 minutes.
       self.configuration.timeoutIntervalForResource = 600
     }
+    /// Prevent multiple download calls to the same host.
+    configuration.httpMaximumConnectionsPerHost = 1
     configuration.allowsCellularAccess = conditions.allowsCellularAccess
   }
 
   func downloadFile(with url: URL,
                     progressHandler: @escaping (Int64, Int64) -> Void,
                     completion: @escaping (Result<FileDownloaderResponse, Error>) -> Void) {
-    // TODO: Fail if download already in progress
     self.completion = completion
     self.progressHandler = progressHandler
     let downloadTask = downloadSession.downloadTask(with: url)
+    if downloadTask.state == .running {
+      completion(.failure(FileDownloaderError.anotherDownloadInProgress))
+    }
     downloadTask.resume()
     self.downloadTask = downloadTask
   }

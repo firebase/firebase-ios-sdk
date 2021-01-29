@@ -20,7 +20,6 @@ import Foundation
 #endif
 
 /// Enum of debug messages.
-// TODO: Create list of all possible messages with code - according to format.
 enum LoggerMessageCode: Int {
   case modelDownloaded = 1
   case downloadedModelFileSaved

@@ -311,7 +311,6 @@ class ModelInfoRetriever {
                                                                errorCode: .httpError(code: httpResponse
                                                                  .statusCode))
               completion(.failure(.notFound))
-            // TODO: Handle more http status codes
             default:
               let description = ModelInfoRetriever.ErrorDescription
                 .modelInfoRetrievalFailed(httpResponse.statusCode)
@@ -365,7 +364,6 @@ extension ModelInfoRetriever {
     guard let fetchURL = modelInfoFetchURL else { return nil }
     var request = URLRequest(url: fetchURL)
     request.httpMethod = "GET"
-    // TODO: Check if bundle ID needs to be part of the request header.
     let bundleID = Bundle.main.bundleIdentifier ?? ""
     request.setValue(bundleID, forHTTPHeaderField: ModelInfoRetriever.bundleIDHTTPHeader)
     request.setValue(token, forHTTPHeaderField: ModelInfoRetriever.fisTokenHTTPHeader)

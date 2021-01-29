@@ -105,6 +105,15 @@ extension ModelDownloadTask {
       case let .failure(error):
         var downloadError: DownloadError
         switch error {
+        case FileDownloaderError.anotherDownloadInProgress:
+          let description = ModelDownloadTask.ErrorDescription.anotherDownloadInProgress
+          downloadError = .internalError(description: description)
+          DeviceLogger.logEvent(level: .debug,
+                                message: description,
+                                messageCode: .anotherDownloadInProgressError)
+          self.telemetryLogger?.logModelDownloadEvent(eventName: .modelDownload,
+                                                      status: .failed,
+                                                      downloadErrorCode: .downloadFailed)
         case let FileDownloaderError.networkError(error):
           let description = ModelDownloadTask.ErrorDescription
             .invalidHostName(error.localizedDescription)

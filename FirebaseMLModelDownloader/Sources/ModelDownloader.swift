@@ -108,7 +108,6 @@ public class ModelDownloader {
     if let userInfo = notification.userInfo,
       let appName = userInfo[userInfoKey] as? String {
       ModelDownloader.modelDownloaderDictionary.removeValue(forKey: appName)
-      // TODO: Do we need to force deinit downloader instance?
       // TODO: Clean up user defaults
       // TODO: Clean up local instances of app
       DeviceLogger.logEvent(level: .debug,
@@ -458,7 +457,6 @@ extension ModelDownloader {
 /// Model downloader extension for testing.
 extension ModelDownloader {
   /// Model downloader instance for testing.
-  // TODO: Consider using protocols
   static func modelDownloaderWithDefaults(_ defaults: UserDefaults,
                                           app: FirebaseApp) -> ModelDownloader {
     if let downloader = modelDownloaderDictionary[app.name] {
