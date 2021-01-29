@@ -611,7 +611,7 @@ let package = Package(
       dependencies: [
         "FirebaseCore",
         "FirebaseInstallations",
-        .product(name: "Logger", package: "GoogleUtilities"),
+        .product(name: "GULLogger", package: "GoogleUtilities"),
         "SwiftProtobuf",
       ],
       path: "FirebaseMLModelDownloader/Sources",
