@@ -4,13 +4,13 @@ This is a tool to read test coverages of xcresult bundle and generate a json rep
 
 ## Usage
 
-This is tool will be used for both pull_request and push. Common flags are shown below.
+This is tool will be used for both pull_request and merge. Common flags are shown below.
 
 ```
 swift run CoverageReportGenerator --presubmit "${REPO}" --commit "${GITHUB_SHA}" --token "${TOKEN}" --xcresult-dir "${XCRESULT_DIR}" --log-link "${}" --pull-request-num "${PULL_REQUEST_NUM}" --base-commit "${BASE_COMMIT}" --branch "${BRANCH}"
 ```
-Common parameters for both pull_request and push:
-- `presubmit/merge`: A required flag to know if the request is for pull requests or push.
+Common parameters for both pull_request and merge:
+- `presubmit/merge`: A required flag to know if the request is for pull requests or merge.
 - `REPO`: A required argument for a repo where coverage data belong.
 - `commit`: The current commit sha.
 - `token`: A token to access a service account of Metrics Service
@@ -33,11 +33,11 @@ swift run CoverageReportGenerator --presubmit "firebase/firebase-ios-sdk" --comm
 
 ### Add new coverage data to the storage of Metrics Service
 
-In a workflow, this will run in push events or postsubmit tests. After each merge, all pod tests will run to add a new commit and its corresponding coverage data.
+In a workflow, this will run in merge events or postsubmit tests. After each merge, all pod tests will run to add a new commit and its corresponding coverage data.
 ```
 swift run CoverageReportGenerator --merge "firebase/firebase-ios-sdk" --commit "${GITHUB_SHA}" --token $(gcloud auth print-identity-token) --xcresult-dir "/Users/runner/test/codecoverage" --log-link "https://github.com/firebase/firebase-ios-sdk/actions/runs/${GITHUB_RUN_ID}" --branch "${GITHUB_REF##*/}"
 ```
-- `branch`: this is for push and the new commit with coverage data will be linked with the branch in the database of Metrcis Service.
+- `branch`: this is for merge and the new commit with coverage data will be linked with the branch in the database of Metrcis Service.
 
 ### Details
 

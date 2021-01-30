@@ -23,7 +23,7 @@ enum RequestType: EnumerableFlag {
 }
 
 struct CoverageReportGenerator: ParsableCommand {
-  @Flag(help: "Determine if the request to Metrics Service is for pull_requests or push.")
+  @Flag(help: "Determine if the request to Metrics Service is for pull_requests or merge.")
   var requestType: RequestType
 
   @Argument(help: "A repo coverage data will be related to.")
