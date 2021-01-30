@@ -108,8 +108,8 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        # Disable macos because of #7154. watchos does not support XCTest.
-        target: [ios, tvos, macos --skip-tests, watchos --skip-tests]
+        # Disable watchos because it does not support XCTest.
+        target: [ios, tvos, macos, watchos --skip-tests]
         flags: [
           '--use-static-frameworks',
           '--use-libraries'

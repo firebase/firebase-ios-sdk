@@ -37,7 +37,6 @@
 #include "Firestore/core/src/model/patch_mutation.h"
 #include "Firestore/core/src/model/precondition.h"
 #include "Firestore/core/src/model/set_mutation.h"
-#include "Firestore/core/src/model/transform_mutation.h"
 #include "Firestore/core/src/model/transform_operation.h"
 #include "Firestore/core/src/model/unknown_document.h"
 #include "Firestore/core/src/model/verify_mutation.h"
@@ -306,19 +305,66 @@ core::Query CollectionGroupQuery(absl::string_view collection_id) {
                      std::make_shared<const std::string>(collection_id));
 }
 
-model::SetMutation SetMutation(absl::string_view path,
-                               const model::FieldValue::Map& values) {
+// TODO(chenbrian): Rewrite SetMutation to allow parsing of field
+// transforms directly in the `values` parameter once the UserDataReader/
+// UserDataWriter changes are ported from Web and Android.
+model::SetMutation SetMutation(
+    absl::string_view path,
+    const model::FieldValue::Map& values,
+    std::vector<std::pair<std::string, TransformOperation>> transforms) {
+  std::vector<FieldTransform> field_transforms;
+  for (auto&& pair : transforms) {
+    auto field_path = Field(std::move(pair.first));
+    TransformOperation&& op_ptr = std::move(pair.second);
+    FieldTransform transform(std::move(field_path), std::move(op_ptr));
+    field_transforms.push_back(std::move(transform));
+  }
+
   return model::SetMutation(Key(path), model::ObjectValue::FromMap(values),
-                            model::Precondition::None());
+                            model::Precondition::None(),
+                            std::move(field_transforms));
 }
 
+// TODO(chenbrian): Rewrite PatchMutation to allow parsing of field
+// transforms directly in the `values` parameter once the UserDataReader/
+// UserDataWriter changes are ported from Web and Android.
 model::PatchMutation PatchMutation(
     absl::string_view path,
-    FieldValue::Map values,
+    const FieldValue::Map& values,
     // TODO(rsgowman): Investigate changing update_mask to a set.
-    std::vector<model::FieldPath> update_mask) {
+    std::vector<std::pair<std::string, TransformOperation>> transforms) {
+  return PatchMutationHelper(path, values, transforms,
+                             Precondition::Exists(true), absl::nullopt);
+}
+
+// TODO(chenbrian): Rewrite MergeMutation to allow parsing of field
+// transforms directly in the `values` parameter once the UserDataReader/
+// UserDataWriter changes are ported from Web and Android.
+model::PatchMutation MergeMutation(
+    absl::string_view path,
+    const FieldValue::Map& values,
+    const std::vector<model::FieldPath>& update_mask,
+    std::vector<std::pair<std::string, TransformOperation>> transforms) {
+  return PatchMutationHelper(path, values, transforms, Precondition::None(),
+                             update_mask);
+}
+
+model::PatchMutation PatchMutationHelper(
+    absl::string_view path,
+    const FieldValue::Map& values,
+    std::vector<std::pair<std::string, TransformOperation>> transforms,
+    Precondition precondition,
+    const absl::optional<std::vector<model::FieldPath>>& update_mask) {
   ObjectValue object_value = ObjectValue::Empty();
   std::set<FieldPath> field_mask_paths;
+
+  std::vector<FieldTransform> field_transforms;
+  for (auto&& pair : transforms) {
+    auto field_path = Field(std::move(pair.first));
+    TransformOperation&& op_ptr = std::move(pair.second);
+    FieldTransform transform(std::move(field_path), std::move(op_ptr));
+    field_transforms.push_back(std::move(transform));
+  }
 
   for (const auto& kv : values) {
     FieldPath field_path = Field(kv.first);
@@ -327,34 +373,20 @@ model::PatchMutation PatchMutation(
     const FieldValue& value = kv.second;
     if (!value.is_string() || value.string_value() != kDeleteSentinel) {
       object_value = object_value.Set(field_path, value);
+    } else if (value.string_value() == kDeleteSentinel) {
+      object_value =
+          object_value.Set(field_path, object_value.Delete(field_path));
     }
   }
 
-  bool merge = !update_mask.empty();
-
-  Precondition precondition =
-      merge ? Precondition::None() : Precondition::Exists(true);
   FieldMask mask(
-      merge ? std::set<FieldPath>(update_mask.begin(), update_mask.end())
-            : field_mask_paths);
+      update_mask.has_value()
+          ? std::set<FieldPath>(update_mask->begin(), update_mask->end())
+          : field_mask_paths);
 
   return model::PatchMutation(Key(path), std::move(object_value),
-                              std::move(mask), precondition);
-}
-
-model::TransformMutation TransformMutation(
-    absl::string_view key,
-    std::vector<std::pair<std::string, TransformOperation>> transforms) {
-  std::vector<FieldTransform> field_transforms;
-
-  for (auto&& pair : transforms) {
-    auto path = Field(std::move(pair.first));
-    TransformOperation&& op_ptr = std::move(pair.second);
-    FieldTransform transform(std::move(path), std::move(op_ptr));
-    field_transforms.push_back(std::move(transform));
-  }
-
-  return model::TransformMutation(Key(key), std::move(field_transforms));
+                              std::move(mask), precondition,
+                              std::move(field_transforms));
 }
 
 std::pair<std::string, TransformOperation> Increment(std::string field,

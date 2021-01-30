@@ -18,7 +18,7 @@
 
 #include "Crashlytics/Protogen/nanopb/crashlytics.nanopb.h"
 
-#import "GoogleDataTransport/GDTCORLibrary/Internal/GoogleDataTransportInternal.h"
+#import <GoogleDataTransport/GoogleDataTransport.h>
 
 /// This class is responsible for reading the persisted crash reports from disk and converting them
 /// the information into the nanopb model to be used with GoogleDataTransport

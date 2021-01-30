@@ -58,5 +58,7 @@
   "6.9.0": "https://dl.google.com/dl/firebase/ios/carthage/6.9.0/Messaging-68d837c85cebbf4c.zip",
   "7.0.0": "https://dl.google.com/dl/firebase/ios/carthage/7.0.0/FirebaseMessaging-0a5587ab2ae8f70a.zip",
   "7.1.0": "https://dl.google.com/dl/firebase/ios/carthage/7.1.0/FirebaseMessaging-43020e6aade447cb.zip",
-  "7.3.0": "https://dl.google.com/dl/firebase/ios/carthage/7.3.0/FirebaseMessaging-ffb903d83d0e2047.zip"
+  "7.3.0": "https://dl.google.com/dl/firebase/ios/carthage/7.3.0/FirebaseMessaging-ffb903d83d0e2047.zip",
+  "7.4.0": "https://dl.google.com/dl/firebase/ios/carthage/7.4.0/FirebaseMessaging-c1adaeb3e71924bb.zip",
+  "7.5.0": "https://dl.google.com/dl/firebase/ios/carthage/7.5.0/FirebaseMessaging-2c95f76f4fcd0d82.zip"
 }

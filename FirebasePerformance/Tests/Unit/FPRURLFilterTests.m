@@ -19,7 +19,7 @@
 
 #import "FirebasePerformance/Tests/Unit/Fakes/NSBundleFake.h"
 
-#import "GoogleDataTransport/GDTCORLibrary/Internal/GoogleDataTransportInternal.h"
+#import <GoogleDataTransport/GoogleDataTransport.h>
 
 @interface FPRURLFilterTest : XCTestCase
 

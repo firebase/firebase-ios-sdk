@@ -22,7 +22,7 @@
 #import "FirebasePerformance/Sources/Common/FPRPerfDate.h"
 #import "FirebasePerformance/Sources/Loggers/FPRGDTEvent.h"
 
-#import "GoogleDataTransport/GDTCORLibrary/Internal/GoogleDataTransportInternal.h"
+#import <GoogleDataTransport/GoogleDataTransport.h>
 
 #import "FirebasePerformance/ProtoSupport/PerfMetric.pbobjc.h"
 

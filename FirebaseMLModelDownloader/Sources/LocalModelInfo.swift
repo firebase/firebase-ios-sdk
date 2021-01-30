@@ -21,9 +21,6 @@ class LocalModelInfo {
   /// Model name.
   let name: String
 
-  /// Download URL for the model file, as returned by server.
-  let downloadURL: URL
-
   /// Hash of the model, as returned by server.
   let modelHash: String
 
@@ -33,9 +30,8 @@ class LocalModelInfo {
   /// Local path of the model.
   let path: String
 
-  init(name: String, downloadURL: URL, modelHash: String, size: Int, path: String) {
+  init(name: String, modelHash: String, size: Int, path: String) {
     self.name = name
-    self.downloadURL = downloadURL
     self.modelHash = modelHash
     self.size = size
     self.path = path
@@ -45,7 +41,6 @@ class LocalModelInfo {
   convenience init(from remoteModelInfo: RemoteModelInfo, path: String) {
     self.init(
       name: remoteModelInfo.name,
-      downloadURL: remoteModelInfo.downloadURL,
       modelHash: remoteModelInfo.modelHash,
       size: remoteModelInfo.size,
       path: path
@@ -55,15 +50,12 @@ class LocalModelInfo {
   /// Convenience init to create local model info from stored info in user defaults.
   convenience init?(fromDefaults defaults: UserDefaults, name: String, appName: String) {
     let defaultsPrefix = LocalModelInfo.getUserDefaultsKeyPrefix(appName: appName, modelName: name)
-    guard let downloadURL = defaults
-      .value(forKey: "\(defaultsPrefix).model-download-url") as? String,
-      let url = URL(string: downloadURL),
-      let modelHash = defaults.value(forKey: "\(defaultsPrefix).model-hash") as? String,
+    guard let modelHash = defaults.value(forKey: "\(defaultsPrefix).model-hash") as? String,
       let size = defaults.value(forKey: "\(defaultsPrefix).model-size") as? Int,
       let path = defaults.value(forKey: "\(defaultsPrefix).model-path") as? String else {
       return nil
     }
-    self.init(name: name, downloadURL: url, modelHash: modelHash, size: size, path: path)
+    self.init(name: name, modelHash: modelHash, size: size, path: path)
   }
 }
 
@@ -78,7 +70,6 @@ extension LocalModelInfo: DownloaderUserDefaultsWriteable {
   /// Write local model info to user defaults.
   func writeToDefaults(_ defaults: UserDefaults, appName: String) {
     let defaultsPrefix = LocalModelInfo.getUserDefaultsKeyPrefix(appName: appName, modelName: name)
-    defaults.setValue(downloadURL.absoluteString, forKey: "\(defaultsPrefix).model-download-url")
     defaults.setValue(modelHash, forKey: "\(defaultsPrefix).model-hash")
     defaults.setValue(size, forKey: "\(defaultsPrefix).model-size")
     defaults.setValue(path, forKey: "\(defaultsPrefix).model-path")

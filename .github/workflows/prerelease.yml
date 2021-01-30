@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
     - '.github/workflows/prerelease.yml'
+    - 'Gemfile'
   workflow_dispatch:
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
@@ -466,4 +467,43 @@ jobs:
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_storage
+        path: quickstart-ios/
+
+  performance_quickstart:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    needs: buildup_SpecsReleasing_repo
+    env:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      testing_repo_dir: "/tmp/test/"
+      testing_repo: "firebase-ios-sdk"
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Get token
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+          bot-access.txt "$bot_token_secret"
+    - name: Setup testing repo and quickstart
+      run: |
+          botaccess=`cat bot-access.txt`
+          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh Performance prerelease_testing
+    - name: Install Secret GoogleService-Info.plist
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-performance.plist.gpg \
+          quickstart-ios/performance/GoogleService-Info.plist "$plist_secret"
+    - name: Install Secret FIREGSignInInfo.h
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
+          quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
+    - name: Test objc quickstart
+      run: |
+        ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Performance)
+    - name: Test swift quickstart
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Performance swift)
+    - name: Remove data before upload
+      run: scripts/remove_data.sh performance release_testing
+    - uses: actions/upload-artifact@v2
+      if: ${{ failure() }}
+      with:
+        name: quickstart_artifacts_performance
         path: quickstart-ios/

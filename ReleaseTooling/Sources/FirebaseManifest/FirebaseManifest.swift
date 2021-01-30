@@ -21,11 +21,8 @@ import Foundation
 /// The version and releasing fields of the non-Firebase pods should be reviewed every release.
 /// The array should be ordered so that any pod's dependencies precede it in the list.
 public let shared = Manifest(
-  version: "7.3.0",
+  version: "7.5.0",
   pods: [
-    Pod("GoogleUtilities", isFirebase: false, podVersion: "7.1.1", releasing: false),
-    Pod("GoogleDataTransport", isFirebase: false, podVersion: "8.1.0", releasing: true),
-
     Pod("FirebaseCoreDiagnostics"),
     Pod("FirebaseCore"),
     Pod("FirebaseInstallations"),
@@ -42,7 +39,7 @@ public let shared = Manifest(
     Pod("FirebaseFirestore", allowWarnings: true, zip: true),
     Pod("FirebaseFirestoreSwift", isBeta: true),
     Pod("FirebaseFunctions", zip: true),
-    Pod("FirebaseInAppMessaging", isBeta: true, platforms: ["ios", "tvos"], zip: true),
+    Pod("FirebaseInAppMessaging", isBeta: true, platforms: ["ios"], zip: true),
     Pod("FirebaseMessaging", zip: true),
     Pod("FirebasePerformance", platforms: ["ios"], zip: true),
     Pod("FirebaseStorage", zip: true),
@@ -61,6 +58,6 @@ public struct Manifest {
   public let pods: [Pod]
 
   public func versionString(_ pod: Pod) -> String {
-    return pod.podVersion ?? (pod.isBeta ? version + "-beta" : version)
+    return pod.isBeta ? version + "-beta" : version
   }
 }
