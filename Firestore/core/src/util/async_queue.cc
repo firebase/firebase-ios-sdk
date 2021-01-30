@@ -86,6 +86,7 @@ void AsyncQueue::ExecuteBlocking(const Operation& operation) {
               "ExecuteBlocking may not be called "
               "before the previous operation finishes executing");
 
+  auto self = shared_from_this();
   is_operation_in_progress_ = true;
   operation();
   is_operation_in_progress_ = false;

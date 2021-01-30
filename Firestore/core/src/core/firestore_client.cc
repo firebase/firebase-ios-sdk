@@ -112,11 +112,13 @@ std::shared_ptr<FirestoreClient> FirestoreClient::Create(
     std::shared_ptr<CredentialsProvider> credentials_provider,
     std::shared_ptr<Executor> user_executor,
     std::shared_ptr<AsyncQueue> worker_queue,
-    std::unique_ptr<FirebaseMetadataProvider> firebase_metadata_provider) {
+    std::unique_ptr<FirebaseMetadataProvider> firebase_metadata_provider,
+    std::shared_ptr<Firestore> firestore) {
   // Have to use `new` because `make_shared` cannot access private constructor.
   std::shared_ptr<FirestoreClient> shared_client(new FirestoreClient(
       database_info, std::move(credentials_provider), std::move(user_executor),
-      std::move(worker_queue), std::move(firebase_metadata_provider)));
+      std::move(worker_queue), std::move(firebase_metadata_provider),
+      std::move(firestore)));
 
   std::weak_ptr<FirestoreClient> weak_client(shared_client);
   auto credential_change_listener = [weak_client, settings](User user) mutable {
@@ -158,12 +160,14 @@ FirestoreClient::FirestoreClient(
     std::shared_ptr<CredentialsProvider> credentials_provider,
     std::shared_ptr<Executor> user_executor,
     std::shared_ptr<AsyncQueue> worker_queue,
-    std::unique_ptr<FirebaseMetadataProvider> firebase_metadata_provider)
+    std::unique_ptr<FirebaseMetadataProvider> firebase_metadata_provider,
+    std::shared_ptr<Firestore> firestore)
     : database_info_(database_info),
       credentials_provider_(std::move(credentials_provider)),
       worker_queue_(std::move(worker_queue)),
       user_executor_(std::move(user_executor)),
-      firebase_metadata_provider_(std::move(firebase_metadata_provider)) {
+      firebase_metadata_provider_(std::move(firebase_metadata_provider)),
+      weak_firestore_(std::move(firestore)) {
 }
 
 void FirestoreClient::Initialize(const User& user, const Settings& settings) {
@@ -234,11 +238,12 @@ void FirestoreClient::Dispose() {
   std::promise<void> signal_disposing;
 
   bool enqueued = false;
-  // If termination has finished already, enqueing termination again is not only
-  // unnecessary, but also dangerous in the case when `Dispose` is invoked
-  // from `TerminateInternal`, still on the worker queue -- it would break the
-  // sequential order invariant of the queue.
-  if (!is_terminated()) {
+  // If `remote_store_` is null, it means termination has finished already. In
+  // that case, enqueing termination is not only unnecessary, but also
+  // dangerous in the case when `Dispose` is invoked immediately after the
+  // termination, still on the worker queue -- it would break the sequential
+  // order invariant of the queue.
+  if (is_terminated()) {
     // Prevent new API invocations from enqueueing further work.
     worker_queue_->EnterRestrictedMode();
 
@@ -272,6 +277,9 @@ void FirestoreClient::TerminateAsync(StatusCallback callback) {
     // Make sure this `FirestoreClient` is not destroyed during
     // `TerminateInternal`, so that `user_executor_` stays valid.
     auto self = shared_from_this();
+    // Make sure that `api::Firestore` is not destroyed during the call to
+    // `TerminateInternal`.
+    auto firestore = weak_firestore_.lock();
     TerminateInternal();
 
     if (callback) {

@@ -219,7 +219,8 @@ void Firestore::EnsureClientConfigured() {
     HARD_ASSERT(worker_queue_, "Expected non-null worker queue");
     client_ = FirestoreClient::Create(
         MakeDatabaseInfo(), settings_, std::move(credentials_provider_),
-        user_executor_, worker_queue_, std::move(firebase_metadata_provider_));
+        user_executor_, worker_queue_, std::move(firebase_metadata_provider_),
+        shared_from_this());
   }
 }
 
