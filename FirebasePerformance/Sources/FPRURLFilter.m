@@ -17,7 +17,7 @@
 
 #import "FirebasePerformance/Sources/FPRConsoleLogger.h"
 
-#import "GoogleDataTransport/GDTCORLibrary/Internal/GoogleDataTransportInternal.h"
+#import <GoogleDataTransport/GoogleDataTransport.h>
 
 /** The expected key of the domain allowlist array. */
 static NSString *const kFPRAllowlistDomainsKey = @"FPRWhitelistedDomains";

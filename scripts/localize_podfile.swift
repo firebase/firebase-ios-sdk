@@ -34,7 +34,6 @@ if arg_cnts > 2 {
 // versions when they're dependencies of other requested local pods.
 let implicitPods = [
   "FirebaseCore", "FirebaseInstanceID", "FirebaseInstallations", "Firebase",
-  "GoogleDataTransport", "GoogleUtilities",
   "FirebaseAuth", "FirebaseABTesting",
   "FirebaseCoreDiagnostics", "FirebaseRemoteConfig",
 ]

@@ -143,8 +143,7 @@ private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL)
         }
       } else if importFile.first == "<", !isPrivate, !isTestFile {
         // Verify that double quotes are always used for intra-module imports.
-        if importFileRaw.starts(with: "Firebase") ||
-          importFileRaw.starts(with: "GoogleDataTransport") {
+        if importFileRaw.starts(with: "Firebase") {
           logger
             .importLog("Imports internal to the repo should use double quotes not \"<\"", file,
                        lineNum)

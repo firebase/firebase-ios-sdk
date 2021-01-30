@@ -22,7 +22,7 @@ set(OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 # On Windows, this *could* work, but it's not worth the time to figure out why
 # because the generated sources are already checked in.
 set(FIREBASE_IOS_PROTOC_GENERATE_SOURCES ON)
-if(WIN32 OR IOS OR ANDROID)
+if(WIN32 OR IOS OR ANDROID OR CMAKE_CROSSCOMPILING)
   set(FIREBASE_IOS_PROTOC_GENERATE_SOURCES OFF)
 endif()
 

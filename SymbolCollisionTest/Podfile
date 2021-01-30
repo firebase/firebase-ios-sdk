@@ -30,8 +30,6 @@ target 'SymbolCollisionTest' do
     pod 'FirebasePerformance', :path => '../'
     pod 'FirebaseRemoteConfig', :path => '../'
     pod 'FirebaseStorage', :path => '../'
-    pod 'GoogleDataTransport', :path => '../'
-    pod 'GoogleUtilities', :path => '../'
     pod 'GoogleUtilitiesComponents', :path => '../'
 
 #    pod 'FirebaseUI'. - requires use_frameworks!
@@ -50,6 +48,7 @@ target 'SymbolCollisionTest' do
     pod 'GoogleAppUtilities'
     pod 'GoogleAuthUtilities'
     pod 'GoogleConversionTracking'
+    pod 'GoogleDataTransport'
     pod 'GoogleIDFASupport'
     pod 'GoogleInterchangeUtilities'
     pod 'GoogleMaps'
@@ -65,6 +64,7 @@ target 'SymbolCollisionTest' do
     pod 'GoogleSymbolUtilities'
     pod 'GoogleTagManager'
     pod 'GoogleToolboxForMac'
+    pod 'GoogleUtilities'
     pod 'GTMAppAuth'
 #    pod 'GTMHTTPFetcher' - conflicts with GTMSessionFetcher
     pod 'GTMSessionFetcher'

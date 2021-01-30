@@ -31,13 +31,13 @@
 
 - (void)setUp {
   [super setUp];
-  // Put setup code here. This method is called before the invocation of each test method in the
-  // class.
+
+  [[NSFileManager defaultManager] removeItemAtPath:self.reportPath error:nil];
 }
 
 - (void)tearDown {
-  // Put teardown code here. This method is called after the invocation of each test method in the
-  // class.
+  [[NSFileManager defaultManager] removeItemAtPath:self.reportPath error:nil];
+
   [super tearDown];
 }
 
@@ -45,15 +45,17 @@
   return [[NSBundle bundleForClass:[self class]] resourcePath];
 }
 
+- (NSString *)reportPath {
+  return [NSTemporaryDirectory() stringByAppendingPathComponent:@"execution_identifier"];
+}
+
 - (NSString *)pathForResource:(NSString *)name {
   return [[self resourcePath] stringByAppendingPathComponent:name];
 }
 
 - (FIRCLSInternalReport *)createReportAndPath {
-  NSString *reportPath =
-      [NSTemporaryDirectory() stringByAppendingPathComponent:@"execution_identifier"];
   FIRCLSInternalReport *report =
-      [[FIRCLSInternalReport alloc] initWithPath:reportPath
+      [[FIRCLSInternalReport alloc] initWithPath:self.reportPath
                              executionIdentifier:@"execution_identifier"];
 
   // create the directory path
