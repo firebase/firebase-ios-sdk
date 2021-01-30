@@ -1,6 +1,6 @@
 name: test_coverage
 
-on: 
+on:
   pull_request:
     types: [synchronize, closed]
 
