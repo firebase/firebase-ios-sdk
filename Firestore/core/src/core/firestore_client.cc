@@ -236,8 +236,8 @@ void FirestoreClient::Dispose() {
   bool enqueued = false;
   // If termination has finished already, enqueing termination again is not only
   // unnecessary, but also dangerous in the case when `Dispose` is invoked
-  // immediately after the termination, still on the worker queue -- it would
-  // break the sequential order invariant of the queue.
+  // from `TerminateInternal`, still on the worker queue -- it would break the
+  // sequential order invariant of the queue.
   if (!is_terminated()) {
     // Prevent new API invocations from enqueueing further work.
     worker_queue_->EnterRestrictedMode();
