@@ -1448,7 +1448,7 @@ using firebase::firestore::util::TimerId;
 
   FIRDocumentReference *doc = [firestore documentWithPath:@"abc/123"];
   // Make sure there is a listener.
-  [doc addSnapshotListener:^(FIRDocumentSnapshot *snapshot, NSError *){
+  [doc addSnapshotListener:^(FIRDocumentSnapshot *, NSError *){
   }];
   NSDictionary<NSString *, id> *data =
       @{@"owner" : @{@"name" : @"Jonny", @"email" : @"abc@xyz.com"}};
@@ -1456,7 +1456,7 @@ using firebase::firestore::util::TimerId;
   [self writeDocumentRef:doc data:data];
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"App is deleted"];
-  [app deleteApp:^(BOOL success) {
+  [app deleteApp:^(BOOL) {
     [expectation fulfill];
   }];
   // Let go of the last app reference.
