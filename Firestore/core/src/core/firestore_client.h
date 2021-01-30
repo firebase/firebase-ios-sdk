@@ -80,8 +80,7 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
       std::shared_ptr<util::Executor> user_executor,
       std::shared_ptr<util::AsyncQueue> worker_queue,
       std::unique_ptr<remote::FirebaseMetadataProvider>
-          firebase_metadata_provider,
-      std::shared_ptr<api::Firestore> firestore);
+          firebase_metadata_provider);
 
   ~FirestoreClient();
 
@@ -186,8 +185,7 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
       std::shared_ptr<util::Executor> user_executor,
       std::shared_ptr<util::AsyncQueue> worker_queue,
       std::unique_ptr<remote::FirebaseMetadataProvider>
-          firebase_metadata_provider,
-      std::shared_ptr<api::Firestore> firestore);
+          firebase_metadata_provider);
 
   void Initialize(const auth::User& user, const api::Settings& settings);
 
@@ -226,8 +224,7 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
   local::LruDelegate* _Nullable lru_delegate_;
   util::DelayedOperation lru_callback_;
 
-  // Used during shutdown to guarantee lifetimes.
-  std::weak_ptr<api::Firestore> weak_firestore_;
+  bool terminated_ = false;
 };
 
 }  // namespace core
