@@ -29,28 +29,38 @@ struct CoverageReportGenerator: ParsableCommand {
   @Argument(help: "A repo coverage data will be related to.")
   var repo: String
 
-  @Option(help: "presubmit: compare the diff to the base_commit; merge: store coverage data linking to this commit.")
+  @Option(
+    help: "presubmit: compare the diff to the base_commit; merge: store coverage data linking to this commit."
+  )
   var commit: String
 
   @Option(help: "Token to access an account of the Metrics Service")
   var token: String
 
-  @Option(help: "The directory of all xcresult bundles with code coverage data. ONLY files/dirs under this directory will be searched.")
+  @Option(
+    help: "The directory of all xcresult bundles with code coverage data. ONLY files/dirs under this directory will be searched."
+  )
   var xcresultDir: String
 
   @Option(help: "Link to the log, leave \"\" if none.")
   var logLink: String
 
-  @Option(help: "This is for presubmit request. Number of a pull request that a coverage report will be posted on.")
+  @Option(
+    help: "This is for presubmit request. Number of a pull request that a coverage report will be posted on."
+  )
   var pullRequestNum: Int?
 
   @Option(help: "This is for presubmit request. Additional note for the report.")
   var pullRequestNote: String?
 
-  @Option(help: "This is for presubmit request. Coverage of commit will be compared to the coverage of this base_commit.")
+  @Option(
+    help: "This is for presubmit request. Coverage of commit will be compared to the coverage of this base_commit."
+  )
   var baseCommit: String?
 
-  @Option(help: "This is for merge request. Branch here will be linked to the coverage data, with the merged commit, in the database. ")
+  @Option(
+    help: "This is for merge request. Branch here will be linked to the coverage data, with the merged commit, in the database. "
+  )
   var branch: String?
 
   func run() throws {
