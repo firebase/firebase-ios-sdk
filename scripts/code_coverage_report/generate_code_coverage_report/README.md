@@ -12,7 +12,7 @@ swift run CoverageReportGenerator --presubmit "${REPO}" --commit "${GITHUB_SHA}"
 Common parameters for both pull_request and push:
 - `presubmit/merge`: A required flag to know if the request is for pull requests or push.
 - `REPO`: A required argument for a repo where coverage data belong.
-- `commit`: The current commit sha. 
+- `commit`: The current commit sha.
 - `token`: A token to access a service account of Metrics Service
 - `xcresult-dir`: A directory containing all xcresult bundles.
 
