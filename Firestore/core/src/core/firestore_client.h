@@ -223,8 +223,6 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
   bool credentials_initialized_ = false;
   local::LruDelegate* _Nullable lru_delegate_;
   util::DelayedOperation lru_callback_;
-
-  bool terminated_ = false;
 };
 
 }  // namespace core
