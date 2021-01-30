@@ -244,7 +244,7 @@ void FirestoreClient::Dispose() {
   // dangerous in the case when `Dispose` is invoked immediately after the
   // termination, still on the worker queue -- it would break the sequential
   // order invariant of the queue.
-  if (is_terminated()) {
+  if (!is_terminated()) {
     // Prevent new API invocations from enqueueing further work.
     worker_queue_->EnterRestrictedMode();
 
