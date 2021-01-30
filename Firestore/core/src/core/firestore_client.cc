@@ -64,7 +64,6 @@ namespace core {
 using api::DocumentReference;
 using api::DocumentSnapshot;
 using api::DocumentSnapshotListener;
-using api::Firestore;
 using api::ListenerRegistration;
 using api::QuerySnapshot;
 using api::QuerySnapshotListener;
