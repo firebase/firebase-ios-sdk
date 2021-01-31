@@ -32,6 +32,7 @@
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/model/field_value.h"
 #include "Firestore/core/src/model/model_fwd.h"
+#include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
 #include "Firestore/core/src/nanopb/reader.h"
 #include "Firestore/core/src/nanopb/writer.h"
@@ -252,6 +253,8 @@ class Serializer {
   core::FilterList DecodeFilters(
       nanopb::Reader* reader,
       const google_firestore_v1_StructuredQuery_Filter& proto) const;
+
+  bool IsLocalResourceName(const model::ResourcePath& path) const;
 
  private:
   google_firestore_v1_Value EncodeNull() const;

@@ -17,6 +17,8 @@
 #include "Firestore/core/src/bundle/bundle_serializer.h"
 
 #include "Firestore/Protos/cpp/firestore/bundle.pb.h"
+#include "Firestore/core/src/model/database_id.h"
+#include "Firestore/core/src/remote/serializer.h"
 #include "google/protobuf/util/json_util.h"
 #include "gtest/gtest.h"
 
@@ -29,6 +31,8 @@ using google::protobuf::Message;
 using google::protobuf::util::MessageToJsonString;
 using nlohmann::json;
 using ProtoBundleMetadata = ::firestore::BundleMetadata;
+using model::DatabaseId;
+using remote::Serializer;
 using util::ReadContext;
 
 ProtoBundleMetadata TestBundleMetadata() {
@@ -51,13 +55,18 @@ std::string ReplacedCopy(const std::string& source,
   return result;
 }
 
+Serializer GetRemoteSerializer(const std::string& project_id = "p",
+                               const std::string& database_id = "d") {
+  return Serializer(DatabaseId(project_id, database_id));
+}
+
 TEST(BundleSerializerTest, DecodesBundleMetadata) {
   auto proto_metadata = TestBundleMetadata();
 
   std::string json_string;
   MessageToJsonString(proto_metadata, &json_string);
 
-  BundleSerializer serializer;
+  BundleSerializer serializer(GetRemoteSerializer());
   ReadContext context;
   BundleMetadata actual = serializer.DecodeBundleMetadata(context, json_string);
 
@@ -79,7 +88,7 @@ TEST(BundleSerializerTest, DecodesInvalidBundleMetadataReportsError) {
   MessageToJsonString(proto_metadata, &json_string);
   auto invalid = "123" + json_string;
 
-  BundleSerializer serializer;
+  BundleSerializer serializer(GetRemoteSerializer());
   ReadContext context;
   serializer.DecodeBundleMetadata(context, invalid);
 

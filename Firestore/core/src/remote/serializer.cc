@@ -1716,6 +1716,11 @@ std::unique_ptr<WatchChange> Serializer::DecodeExistenceFilterWatchChange(
                                                        filter.target_id);
 }
 
+bool Serializer::IsLocalResourceName(const ResourcePath& path) const {
+  return IsValidResourceName(path) && path[1] == database_id_.project_id() &&
+         path[3] == database_id_.database_id();
+}
+
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase

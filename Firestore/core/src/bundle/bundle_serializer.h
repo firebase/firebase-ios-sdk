@@ -21,7 +21,11 @@
 #include <utility>
 
 #include "Firestore/core/src/bundle/bundle_metadata.h"
+#include "Firestore/core/src/bundle/named_query.h"
+#include "Firestore/core/src/core/core_fwd.h"
+#include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/model/snapshot_version.h"
+#include "Firestore/core/src/remote/serializer.h"
 #include "Firestore/core/src/util/read_context.h"
 #include "nlohmann/json.hpp"
 
@@ -32,12 +36,33 @@ namespace bundle {
 /** A JSON serializer to deserialize Firestore Bundles. */
 class BundleSerializer {
  public:
+  explicit BundleSerializer(remote::Serializer serializer)
+      : rpc_serializer_(std::move(serializer)) {
+  }
   BundleMetadata DecodeBundleMetadata(util::ReadContext& context,
                                       const std::string& metadata) const;
 
+  NamedQuery DecodeNamedQuery(util::ReadContext& context,
+                              const std::string& named_query) const;
+
  private:
-  model::SnapshotVersion DecodeSnapshotVersion(
-      util::ReadContext& context, const nlohmann::json& version) const;
+  BundledQuery DecodeBundledQuery(util::ReadContext& context,
+                                  const nlohmann::json& query) const;
+  core::FilterList DecodeWhere(util::ReadContext& context, const nlohmann::json& query) const;
+  void DecodeFieldFilter(util::ReadContext& context,
+                                           core::FilterList& result,
+                                           const nlohmann::json& filter) const;
+  void DecodeCompositeFilter(util::ReadContext& context,
+                                               core::FilterList& result,
+                                               const nlohmann::json& filter) const;
+  model::FieldValue DecodeValue(util::ReadContext& context, const nlohmann::json& value) const;
+  core::Bound DecodeBound(util::ReadContext& context,
+                                      const nlohmann::json& query,
+                                      const std::string& bound_name) const;
+  model::ResourcePath DecodeName(util::ReadContext& context,
+                                 const nlohmann::json& name) const;
+
+  remote::Serializer rpc_serializer_;
 };
 
 }  // namespace bundle
