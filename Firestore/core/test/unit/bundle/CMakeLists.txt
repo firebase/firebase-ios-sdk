@@ -1,5 +1,5 @@
-# Copyright 2018 Google LLC
-#
+# Copyright 2021 Google LLC
+
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -12,27 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required(VERSION 3.5.1)
-project(Firebase-download C CXX)
+if(NOT FIREBASE_IOS_BUILD_TESTS)
+    return()
+endif()
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
+file(GLOB sources *.cc)
+firebase_ios_add_test(firestore_bundle_test ${sources})
 
-set(
-  FIREBASE_DOWNLOAD_DIR
-  ${PROJECT_BINARY_DIR}/downloads
-  CACHE PATH "Where to store downloaded files"
+target_link_libraries(
+        firestore_bundle_test PRIVATE
+        GMock::GMock
+        firestore_core
+        firestore_protos_protobuf
+        firestore_testutil
 )
-
-include(abseil-cpp)
-include(benchmark)
-include(boringssl)
-include(c-ares)
-include(googletest)
-include(GoogleUtilities)
-include(grpc)
-include(leveldb)
-include(libfuzzer)
-include(nanopb)
-include(nlohmann_json)
-include(protobuf)
-include(zlib)
