@@ -28,6 +28,7 @@
 #include "Firestore/core/src/model/field_value.h"
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
+#include "Firestore/core/src/nanopb/reader.h"
 #include "Firestore/core/src/util/statusor.h"
 #include "absl/strings/escaping.h"
 #include "absl/strings/numbers.h"
@@ -61,9 +62,23 @@ using model::FieldPath;
 using model::FieldValue;
 using model::ResourcePath;
 using model::SnapshotVersion;
+using nanopb::ByteString;
+using nanopb::Reader;
 using nlohmann::json;
 using util::ReadContext;
 using util::StatusOr;
+
+// Helper class to meet remote serializer's interface.
+class ContextReader : public Reader {
+ public:
+  using Reader::Reader;
+
+  void Read(const pb_field_t fields[], void* dest_struct) override {
+    (void)fields;
+    (void)dest_struct;
+    UNREACHABLE();
+  }
+};
 
 template <typename int_type>
 int_type ToInt(ReadContext& context, const json& value) {
@@ -347,6 +362,41 @@ LimitType DecodeLimitType(ReadContext& context, const json& query) {
   }
 }
 
+FieldValue DecodeGeoPointValue(ReadContext& context, const json& geo_json) {
+  double latitude = 0;
+  if (geo_json.contains("latitude")) {
+    if (!geo_json.at("latitude").is_number()) {
+      context.Fail("Geo Point's 'latitude' is not encoded as a number");
+      return FieldValue();
+    }
+    latitude = geo_json.at("latitude").get<double>();
+  }
+
+  double longitude = 0;
+  if (geo_json.contains("longitude")) {
+    if (!geo_json.at("longitude").is_number()) {
+      context.Fail("Geo Point's 'longitude' is not encoded as a number");
+      return FieldValue();
+    }
+    latitude = geo_json.at("longitude").get<double>();
+  }
+  return FieldValue::FromGeoPoint(GeoPoint(latitude, longitude));
+}
+
+FieldValue DecodeBytesValue(ReadContext& context, const json& bytes_json) {
+  auto val = ToString(context, bytes_json);
+  if (!context.ok()) {
+    return FieldValue();
+  }
+
+  std::string decoded;
+  if (!Base64Unescape(val, &decoded)) {
+    context.Fail("Failed to decode bytesValue string into binary form");
+    return FieldValue();
+  }
+  return FieldValue::FromBlob(ByteString((decoded)));
+}
+
 }  // namespace
 
 BundleMetadata BundleSerializer::DecodeBundleMetadata(
@@ -467,7 +517,8 @@ ResourcePath BundleSerializer::DecodeName(ReadContext& context,
   return path.PopFirst(5);
 }
 
-FilterList BundleSerializer::DecodeWhere(ReadContext& context, const json& query) const{
+FilterList BundleSerializer::DecodeWhere(ReadContext& context,
+                                         const json& query) const {
   if (!query.contains("where")) {
     return FilterList();
   }
@@ -490,8 +541,8 @@ FilterList BundleSerializer::DecodeWhere(ReadContext& context, const json& query
 }
 
 void BundleSerializer::DecodeFieldFilter(ReadContext& context,
-                       FilterList& result,
-                       const json& filter) const {
+                                         FilterList& result,
+                                         const json& filter) const {
   if (!filter.contains("field") || !filter.contains("op") ||
       !filter.contains("value")) {
     context.Fail(
@@ -519,8 +570,8 @@ void BundleSerializer::DecodeFieldFilter(ReadContext& context,
 }
 
 void BundleSerializer::DecodeCompositeFilter(ReadContext& context,
-                           FilterList& result,
-                           const json& filter) const{
+                                             FilterList& result,
+                                             const json& filter) const {
   if (!filter.contains("op") || !filter.at("op").is_string()) {
     context.Fail(
         "The composite filter does not have an 'op' or 'op' is not a string");
@@ -549,8 +600,8 @@ void BundleSerializer::DecodeCompositeFilter(ReadContext& context,
 }
 
 Bound BundleSerializer::DecodeBound(ReadContext& context,
-                  const json& query,
-                  const std::string& bound_name) const{
+                                    const json& query,
+                                    const std::string& bound_name) const {
   Bound default_bound = Bound({}, false);
   if (!query.contains(bound_name)) {
     return default_bound;
@@ -580,7 +631,7 @@ Bound BundleSerializer::DecodeBound(ReadContext& context,
       return default_bound;
     }
     for (const auto& value :
-        bound_json.at("values").get_ref<const std::vector<json>&>()) {
+         bound_json.at("values").get_ref<const std::vector<json>&>()) {
       positions.push_back(DecodeValue(context, value));
       if (!context.ok()) {
         return default_bound;
@@ -591,7 +642,8 @@ Bound BundleSerializer::DecodeBound(ReadContext& context,
   return Bound(std::move(positions), before);
 }
 
-FieldValue BundleSerializer::DecodeValue(ReadContext& context, const json& value) const {
+FieldValue BundleSerializer::DecodeValue(ReadContext& context,
+                                         const json& value) const {
   if (!value.is_object()) {
     context.Fail("'value' is not encoded as JSON object");
     return FieldValue();
@@ -632,75 +684,77 @@ FieldValue BundleSerializer::DecodeValue(ReadContext& context, const json& value
     }
     return FieldValue::FromString(std::move(val));
   } else if (value.contains("bytesValue")) {
-    auto val = ToString(context, value.at("bytesValue"));
-    if (!context.ok()) {
-      return FieldValue();
-    }
-
-    std::string decoded;
-    if (!Base64Unescape(val, &decoded)) {
-      context.Fail("Failed to decode bytesValue string into binary form");
-      return FieldValue();
-    }
-    return FieldValue::FromBlob(ByteString((decoded)));
+    return DecodeBytesValue(context, value.at("bytesValue"));
   } else if (value.contains("referenceValue")) {
-    auto ref_string = ToString(context, value.at("stringValue"));
-    if (!context.ok()) {
-      return FieldValue();
-    }
-
-    // return FieldValue::FromReference(std::move(database_id), std::move(key));
-    return FieldValue();
+    return DecodeReferenceValue(context, value.at("referenceValue"));
   } else if (value.contains("geoPointValue")) {
-    const json& geo_json = value.at("geoPointValue");
-    double latitude = 0;
-    if (geo_json.contains("latitude") && geo_json.at("latitude").is_number()) {
-      latitude = geo_json.at("latitude").get<double>();
-    }
-    double longitude = 0;
-    if (geo_json.contains("longitude") &&
-        geo_json.at("longitude").is_number()) {
-      latitude = geo_json.at("longitude").get<double>();
-    }
-    return FieldValue::FromGeoPoint(GeoPoint(latitude, longitude));
+    return DecodeGeoPointValue(context, value.at("geoPointValue"));
   } else if (value.contains("arrayValue")) {
-    const json& array_value = value.at("arrayValue");
-    if (!array_value.is_array()) {
-      context.Fail("arrayValue is not a valid array");
-      return FieldValue();
-    }
-
-    const auto& values = array_value.get_ref<const std::vector<json>&>();
-    std::vector<FieldValue> field_values(values.size());
-    for (const json& json_value : values) {
-      field_values.push_back(DecodeValue(context, json_value));
-      if (!context.ok()) {
-        return FieldValue();
-      }
-    }
-
-    return FieldValue::FromArray(std::move(field_values));
+    return DecodeArrayValue(context, value.at("arrayValue"));
   } else if (value.contains("mapValue")) {
-    const json& map_value = value.at("mapValue");
-    if (!map_value.is_object()) {
-      context.Fail("mapValue is not a valid map");
-      return FieldValue();
-    }
-
-    immutable::SortedMap<std::string, FieldValue> field_values;
-    for (auto it = map_value.begin(); it != map_value.end(); it++) {
-      field_values =
-          field_values.insert(it.key(), DecodeValue(context, it.value()));
-      if (!context.ok()) {
-        return FieldValue();
-      }
-    }
-
-    return FieldValue::FromMap(std::move(field_values));
+    return DecodeMapValue(context, value.at("mapValue"));
   } else {
     context.Fail("Failed to decode value, no type is recognized");
     return FieldValue();
   }
+}
+
+FieldValue BundleSerializer::DecodeMapValue(ReadContext& context,
+                                            const json& map_json) const {
+  if (!map_json.is_object()) {
+    context.Fail("mapValue is not a valid map");
+    return FieldValue();
+  }
+
+  immutable::SortedMap<std::string, FieldValue> field_values;
+  for (auto it = map_json.begin(); it != map_json.end(); it++) {
+    field_values =
+        field_values.insert(it.key(), DecodeValue(context, it.value()));
+    if (!context.ok()) {
+      return FieldValue();
+    }
+  }
+
+  return FieldValue::FromMap(std::move(field_values));
+}
+FieldValue BundleSerializer::DecodeArrayValue(ReadContext& context,
+                                              const json& array_json) const {
+  if (!array_json.is_array()) {
+    context.Fail("arrayValue is not a valid array");
+    return FieldValue();
+  }
+
+  const auto& values = array_json.get_ref<const std::__1::vector<json>&>();
+  std::vector<FieldValue> field_values(values.size());
+  for (const json& json_value : values) {
+    field_values.push_back(DecodeValue(context, json_value));
+    if (!context.ok()) {
+      return FieldValue();
+    }
+  }
+
+  return FieldValue::FromArray(std::move(field_values));
+}
+FieldValue BundleSerializer::DecodeReferenceValue(ReadContext& context,
+                                                  const json& ref_json) const {
+  auto ref_string = ToString(context, ref_json);
+  if (!context.ok()) {
+    return FieldValue();
+  }
+
+  // Calling into remote serializer with a separate context, to meet it's
+  // interface.
+  ReadContext separate_context;
+  ContextReader context_reader(separate_context);
+  auto result = rpc_serializer_.DecodeReference(&context_reader, ref_string);
+
+  // Copy status to our own context.
+  if (!context_reader.ok()) {
+    context.set_status(context_reader.status());
+    return FieldValue();
+  }
+
+  return result;
 }
 
 }  // namespace bundle

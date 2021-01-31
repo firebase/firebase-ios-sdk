@@ -256,6 +256,9 @@ class Serializer {
 
   bool IsLocalResourceName(const model::ResourcePath& path) const;
 
+  model::FieldValue DecodeReference(nanopb::Reader* reader,
+                                    absl::string_view reference_value) const;
+
  private:
   google_firestore_v1_Value EncodeNull() const;
   google_firestore_v1_Value EncodeBoolean(bool value) const;

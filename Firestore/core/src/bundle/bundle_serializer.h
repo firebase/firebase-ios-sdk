@@ -48,21 +48,29 @@ class BundleSerializer {
  private:
   BundledQuery DecodeBundledQuery(util::ReadContext& context,
                                   const nlohmann::json& query) const;
-  core::FilterList DecodeWhere(util::ReadContext& context, const nlohmann::json& query) const;
+  core::FilterList DecodeWhere(util::ReadContext& context,
+                               const nlohmann::json& query) const;
   void DecodeFieldFilter(util::ReadContext& context,
-                                           core::FilterList& result,
-                                           const nlohmann::json& filter) const;
+                         core::FilterList& result,
+                         const nlohmann::json& filter) const;
   void DecodeCompositeFilter(util::ReadContext& context,
-                                               core::FilterList& result,
-                                               const nlohmann::json& filter) const;
-  model::FieldValue DecodeValue(util::ReadContext& context, const nlohmann::json& value) const;
+                             core::FilterList& result,
+                             const nlohmann::json& filter) const;
+  model::FieldValue DecodeValue(util::ReadContext& context,
+                                const nlohmann::json& value) const;
   core::Bound DecodeBound(util::ReadContext& context,
-                                      const nlohmann::json& query,
-                                      const std::string& bound_name) const;
+                          const nlohmann::json& query,
+                          const std::string& bound_name) const;
   model::ResourcePath DecodeName(util::ReadContext& context,
                                  const nlohmann::json& name) const;
 
   remote::Serializer rpc_serializer_;
+  model::FieldValue DecodeReferenceValue(util::ReadContext& context,
+                                         const nlohmann::json& value) const;
+  model::FieldValue DecodeArrayValue(util::ReadContext& context,
+                                     const nlohmann::json& array_json) const;
+  model::FieldValue DecodeMapValue(util::ReadContext& context,
+                                   const nlohmann::json& map_json) const;
 };
 
 }  // namespace bundle

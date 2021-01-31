@@ -45,6 +45,9 @@ namespace nanopb {
  */
 class Reader {
  public:
+  Reader() = default;
+  Reader(util::ReadContext context) : context_(std::move(context)) {
+  }
   virtual ~Reader() = default;
 
   /**

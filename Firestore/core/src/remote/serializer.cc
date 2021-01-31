@@ -1438,8 +1438,12 @@ Timestamp Serializer::DecodeTimestamp(
 
 FieldValue Serializer::DecodeReference(
     Reader* reader, const pb_bytes_array_t* resource_name_raw) const {
-  ResourcePath resource_name =
-      DecodeResourceName(reader, MakeStringView(resource_name_raw));
+  return DecodeReference(reader, MakeStringView(resource_name_raw));
+}
+
+FieldValue Serializer::DecodeReference(
+    Reader* reader, absl::string_view reference_value) const {
+  ResourcePath resource_name = DecodeResourceName(reader, reference_value);
   ValidateDocumentKeyPath(reader, resource_name);
   DatabaseId database_id = DecodeDatabaseId(reader, resource_name);
   DocumentKey key = DecodeKey(reader, resource_name);
