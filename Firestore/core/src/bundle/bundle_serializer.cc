@@ -61,7 +61,6 @@ using model::FieldPath;
 using model::FieldValue;
 using model::ResourcePath;
 using model::SnapshotVersion;
-using nanopb::ByteString;
 using nlohmann::json;
 using util::ReadContext;
 using util::StatusOr;

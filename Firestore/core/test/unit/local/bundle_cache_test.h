@@ -17,6 +17,8 @@
 #ifndef FIRESTORE_CORE_TEST_UNIT_LOCAL_BUNDLE_CACHE_TEST_H_
 #define FIRESTORE_CORE_TEST_UNIT_LOCAL_BUNDLE_CACHE_TEST_H_
 
+#include <memory>
+
 #include "gtest/gtest.h"
 
 namespace firebase {

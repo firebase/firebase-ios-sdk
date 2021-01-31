@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef FIRESTORE_CORE_SRC_UTIL_READER_CONTEXT_H_
-#define FIRESTORE_CORE_SRC_UTIL_READER_CONTEXT_H_
+#ifndef FIRESTORE_CORE_SRC_UTIL_READ_CONTEXT_H_
+#define FIRESTORE_CORE_SRC_UTIL_READ_CONTEXT_H_
+
+#include <string>
+#include <utility>
 
 #include "Firestore/core/src/util/status.h"
 
@@ -62,4 +65,4 @@ class ReadContext {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_UTIL_READER_CONTEXT_H_
+#endif  // FIRESTORE_CORE_SRC_UTIL_READ_CONTEXT_H_
