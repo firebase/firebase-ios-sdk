@@ -69,6 +69,7 @@ extension ModelDownloadTask {
 
   func download(progressHandler: ProgressHandler?, completion: @escaping Completion) {
     /// Prevent multiple concurrent downloads.
+    // TODO: Merge if there are multiple same requests.
     guard downloadStatus == .complete else {
       DeviceLogger.logEvent(level: .debug,
                             message: ModelDownloadTask.ErrorDescription.anotherDownloadInProgress,
