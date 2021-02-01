@@ -24,6 +24,7 @@
 #import "FirebaseAppCheck/Sources/Core/APIService/FIRAppCheckToken+APIResponse.h"
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckLogger.h"
+#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckVersion.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
@@ -111,6 +112,9 @@ static NSString *const kDefaultBaseURL = @"https://firebaseappcheck.googleapis.c
 
              [request setValue:self.APIKey forHTTPHeaderField:kAPIKeyHeaderKey];
 
+             NSString *versionHeader =
+                 [NSString stringWithFormat:@"fire-app-check/%s", FIRAppCheckVersionStr];
+             [request setValue:versionHeader forHTTPHeaderField:kUserAgentKey];
              // TODO: Uncomment to re-enable platform logging once approved.
              // User agent header.
              //             [request setValue:[FIRApp firebaseUserAgent]
