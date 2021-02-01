@@ -443,6 +443,12 @@
 // These methods suppress warnings from having method definitions in
 // FIRDatabaseReference.h for docs generation.
 
+- (void)getDataWithCompletionBlock:
+    (void (^_Nonnull)(NSError *__nullable error,
+                      FIRDataSnapshot *snapshot))block {
+    [super getDataWithCompletionBlock:block];
+}
+
 - (FIRDatabaseQuery *)queryLimitedToFirst:(NSUInteger)limit {
     return [super queryLimitedToFirst:limit];
 }

@@ -1,5 +1,6 @@
 # v7.5.1
 - [fixed] Fixed an issue with startAfter/endBefore when used in orderByKey queries (#7403).
+- [changed] Optimize `FIRDatabaseQuery#getDataWithCompletionBlock` when in-memory active listener cache exists (#7312).
 
 # v7.5.0
 - [added] Implmement `queryStartingAfterValue` and `queryEndingBeforeValue` for FirebaseDatabase query pagination.

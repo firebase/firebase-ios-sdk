@@ -132,36 +132,6 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=GoogleUtilities METHOD=pod-lib-lint
-      script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleUtilities.podspec
-
-    - stage: test
-      env:
-        - PROJECT=GoogleUtilities METHOD=pod-lib-lint
-      script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --platforms=ios
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --platforms=tvos
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --platforms=macos
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-static-frameworks --platforms=ios
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-static-frameworks  --platforms=tvos
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-static-frameworks  --platforms=macos
-
-    - stage: test
-      if: type = cron
-      env:
-        - PROJECT=GoogleUtilitiesCron METHOD=pod-lib-lint
-      script:
-
-        - travis_retry ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-libraries --platforms=ios --skip-tests
-        - travis_retry ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-libraries --platforms=tvos --skip-tests
-        - travis_retry ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-libraries --platforms=macos --skip-tests
-        - travis_retry ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-modular-headers --platforms=ios
-        - travis_retry ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-modular-headers --platforms=tvos
-        - travis_retry ./scripts/pod_lib_lint.rb GoogleUtilities.podspec --use-modular-headers --platforms=macos
-
-    - stage: test
-      env:
         - PROJECT=GoogleUtilitiesComponents METHOD=pod-lib-lint
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleUtilitiesComponents.podspec

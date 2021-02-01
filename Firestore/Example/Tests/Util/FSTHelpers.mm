@@ -16,6 +16,7 @@
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#import <FirebaseFirestore/FIRFieldValue.h>
 #import <FirebaseFirestore/FIRGeoPoint.h>
 
 #include <set>
@@ -24,23 +25,17 @@
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 
 #include "Firestore/core/src/core/user_data.h"
-#include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/model/delete_mutation.h"
-#include "Firestore/core/src/model/document_key.h"
-#include "Firestore/core/src/model/field_mask.h"
-#include "Firestore/core/src/model/field_path.h"
-#include "Firestore/core/src/model/field_value.h"
 #include "Firestore/core/src/model/patch_mutation.h"
-#include "Firestore/core/src/model/precondition.h"
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/model/set_mutation.h"
-#include "Firestore/core/src/model/transform_mutation.h"
-#include "Firestore/core/src/util/string_apple.h"
-#include "Firestore/core/test/unit/testutil/testutil.h"
+
+#import "Firestore/core/test/unit/testutil/testutil.h"
 
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
 
+using firebase::firestore::core::ParsedSetData;
 using firebase::firestore::core::ParsedUpdateData;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DeleteMutation;
@@ -52,7 +47,6 @@ using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::PatchMutation;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::SetMutation;
-using firebase::firestore::model::TransformMutation;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -132,39 +126,33 @@ FSTDocumentKeyReference *FSTTestRef(std::string projectID, std::string database,
 }
 
 SetMutation FSTTestSetMutation(NSString *path, NSDictionary<NSString *, id> *values) {
-  return SetMutation(FSTTestDocKey(path), FSTTestObjectValue(values), Precondition::None());
+  FSTUserDataConverter *converter = FSTTestUserDataConverter();
+  ParsedSetData result = [converter parsedSetData:values];
+  return SetMutation(FSTTestDocKey(path), result.data(), Precondition::None(),
+                     result.field_transforms());
 }
 
-PatchMutation FSTTestPatchMutation(const absl::string_view path,
+PatchMutation FSTTestPatchMutation(NSString *path,
                                    NSDictionary<NSString *, id> *values,
                                    const std::vector<FieldPath> &updateMask) {
-  BOOL merge = !updateMask.empty();
-
-  __block ObjectValue objectValue = ObjectValue::Empty();
-  __block std::set<FieldPath> fieldMaskPaths;
-  [values enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *) {
-    const FieldPath path = testutil::Field(util::MakeString(key));
-    fieldMaskPaths.insert(path);
-    if (![value isEqual:kDeleteSentinel]) {
-      FieldValue parsedValue = FSTTestFieldValue(value);
-      objectValue = objectValue.Set(path, std::move(parsedValue));
+  // Replace '<DELETE>' sentinel from JSON.
+  NSMutableDictionary *mutableValues = [values mutableCopy];
+  [mutableValues enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *) {
+    if ([value isEqual:kDeleteSentinel]) {
+      const FieldPath fieldPath = testutil::Field(util::MakeString(key));
+      mutableValues[key] = [FIRFieldValue fieldValueForDelete];
     }
   }];
 
-  DocumentKey key = testutil::Key(path);
-  Precondition precondition = merge ? Precondition::None() : Precondition::Exists(true);
-  FieldMask mask(merge ? std::set<FieldPath>(updateMask.begin(), updateMask.end())
-                       : fieldMaskPaths);
-  return PatchMutation(key, objectValue, mask, precondition);
-}
-
-TransformMutation FSTTestTransformMutation(NSString *path, NSDictionary<NSString *, id> *data) {
-  DocumentKey key{testutil::Resource(util::MakeString(path))};
   FSTUserDataConverter *converter = FSTTestUserDataConverter();
-  ParsedUpdateData result = [converter parsedUpdateData:data];
-  HARD_ASSERT(result.data().size() == 0,
-              "FSTTestTransformMutation() only expects transforms; no other data");
-  return TransformMutation(key, result.field_transforms());
+  ParsedUpdateData parsed = [converter parsedUpdateData:mutableValues];
+
+  DocumentKey key = FSTTestDocKey(path);
+
+  BOOL merge = !updateMask.empty();
+  Precondition precondition = merge ? Precondition::None() : Precondition::Exists(true);
+  return PatchMutation(key, parsed.data(), parsed.fieldMask(), precondition,
+                       parsed.field_transforms());
 }
 
 DeleteMutation FSTTestDeleteMutation(NSString *path) {

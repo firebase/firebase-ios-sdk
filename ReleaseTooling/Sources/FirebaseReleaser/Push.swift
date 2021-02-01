@@ -33,7 +33,10 @@ enum Push {
   }
 
   private static func push(to destination: Destination, gitRoot: URL) {
-    let cpdcLocation = findCpdc(gitRoot: gitRoot)
+    let cpdcRepo = "sso://cpdc-internal/firebase"
+    let cpdcLocation = findPrivateCocoaPodsRepo(repo: cpdcRepo, gitRoot: gitRoot)
+    let stagingRepo = "git@github.com:firebase/SpecsStaging"
+    let stagingLocation = findPrivateCocoaPodsRepo(repo: stagingRepo, gitRoot: gitRoot)
     let manifest = FirebaseManifest.shared
 
     for pod in manifest.pods.filter({ $0.releasing }) {
@@ -42,9 +45,18 @@ enum Push {
       let command: String = {
         switch destination {
         case .cpdc:
-          return "pod repo push --skip-tests --use-json \(warningsOK) \(cpdcLocation) " +
+          var pushCommands = ""
+          if pod.isClosedSource {
+            // Push closed source pods to SpecsStaging to keep CI working.
+            pushCommands =
+              "pod repo push --skip-tests --use-json \(warningsOK) \(stagingLocation) " +
+              pod.skipImportValidation() + " \(pod.podspecName()) " +
+              "--sources=\(stagingRepo).git,https://cdn.cocoapods.org; "
+          }
+          pushCommands += "pod repo push --skip-tests --use-json \(warningsOK) \(cpdcLocation) " +
             pod.skipImportValidation() + " \(pod.podspecName()) " +
-            "--sources=sso://cpdc-internal/firebase.git,https://cdn.cocoapods.org"
+            "--sources=\(cpdcRepo).git,https://cdn.cocoapods.org"
+          return pushCommands
 
         case .trunk:
           return "pod trunk push --skip-tests --synchronous \(warningsOK) " +
@@ -56,13 +68,13 @@ enum Push {
     }
   }
 
-  private static func findCpdc(gitRoot: URL) -> String {
-    let command = "pod repo list | grep -B2 sso://cpdc-internal/firebase | head -1"
+  private static func findPrivateCocoaPodsRepo(repo: String, gitRoot: URL) -> String {
+    let command = "pod repo list | grep -B2 \(repo) | head -1"
     let result = Shell.executeCommandFromScript(command, workingDir: gitRoot)
     switch result {
     case let .error(code, output):
       fatalError("""
-      `pod --version` failed with exit code \(code)
+      `pod --version` failed for \(repo) with exit code \(code)
       Output from `pod repo list`:
       \(output)
       """)

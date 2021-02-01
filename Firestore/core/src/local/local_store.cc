@@ -164,7 +164,7 @@ LocalWriteResult LocalStore::WriteLocally(std::vector<Mutation>&& mutations) {
           existing_documents.get(mutation.key());
 
       absl::optional<ObjectValue> base_value =
-          mutation.ExtractBaseValue(base_document);
+          mutation.ExtractTransformBaseValue(base_document);
       if (base_value) {
         // NOTE: The base state should only be applied if there's some existing
         // document to override, so use a Precondition of exists=true
