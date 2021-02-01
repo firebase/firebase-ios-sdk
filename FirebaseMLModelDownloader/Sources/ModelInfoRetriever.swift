@@ -16,6 +16,13 @@ import Foundation
 import FirebaseCore
 import FirebaseInstallations
 
+/// Possible states of model downloading.
+enum ModelInfoDownloadStatus {
+  case notStarted
+  case inProgress
+  case complete
+}
+
 /// URL Session to use while retrieving model info.
 protocol ModelInfoRetrieverSession {
   func getModelInfo(with request: URLRequest,
@@ -76,6 +83,8 @@ class ModelInfoRetriever {
   private let apiKey: String
   /// Current Firebase app name.
   private let appName: String
+  /// Keeps track of download associated with this model download task.
+  private(set) var downloadStatus: ModelInfoDownloadStatus = .notStarted
   /// Local model info to validate model freshness.
   private let localModelInfo: LocalModelInfo?
   /// Telemetry logger.
@@ -144,6 +153,18 @@ class ModelInfoRetriever {
   /// Get model info from server.
   func downloadModelInfo(completion: @escaping (Result<DownloadModelInfoResult, DownloadError>)
     -> Void) {
+    /// Prevent multiple concurrent downloads.
+    guard downloadStatus != .inProgress else {
+      DeviceLogger.logEvent(level: .debug,
+                            message: ModelInfoRetriever.ErrorDescription.anotherDownloadInProgress,
+                            messageCode: .anotherDownloadInProgressError)
+      telemetryLogger?.logModelDownloadEvent(eventName: .modelDownload,
+                                             status: .failed,
+                                             downloadErrorCode: .downloadFailed)
+      completion(.failure(.internalError(description: ModelInfoRetriever.ErrorDescription
+          .anotherDownloadInProgress)))
+      return
+    }
     authTokenProvider { result in
       switch result {
       /// Successfully received FIS token.
@@ -165,9 +186,11 @@ class ModelInfoRetriever {
               .invalidModelInfoFetchURL)))
           return
         }
+        self.downloadStatus = .inProgress
         /// Download model info.
         self.session.getModelInfo(with: request) {
           data, response, error in
+          self.downloadStatus = .complete
           if let downloadError = error {
             let description = ModelInfoRetriever.ErrorDescription
               .failedModelInfoRetrieval(downloadError.localizedDescription)
@@ -478,5 +501,6 @@ extension ModelInfoRetriever {
       "Invalid download URL expiry time from server."
     static let modelHashMismatch = "Unexpected model hash value."
     static let permissionDenied = "Invalid or missing permissions to retrieve model info."
+    static let anotherDownloadInProgress = "Model info download already in progress."
   }
 }
