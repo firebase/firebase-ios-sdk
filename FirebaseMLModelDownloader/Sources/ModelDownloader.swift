@@ -248,7 +248,8 @@ public class ModelDownloader {
           mainQueueHandler(completion(.failure(.internalError(description: description))))
           return
         }
-        guard modelInfo.path == path.absoluteString else {
+        guard let pathURL = URL(string: modelInfo.path)?.standardizedFileURL,
+          pathURL == path.standardizedFileURL else {
           DeviceLogger.logEvent(level: .debug,
                                 message: ModelDownloader.ErrorDescription.outdatedModelPath,
                                 messageCode: .outdatedModelPathError)

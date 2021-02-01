@@ -17,7 +17,6 @@ import FirebaseCore
 
 /// Possible states of model downloading.
 enum ModelDownloadStatus {
-  case notStarted
   case inProgress
   case complete
 }
@@ -43,7 +42,7 @@ class ModelDownloadTask: NSObject {
   /// User defaults to which local model info should ultimately be written.
   private let defaults: UserDefaults
   /// Keeps track of download associated with this model download task.
-  private(set) var downloadStatus: ModelDownloadStatus
+  private(set) static var downloadStatus: ModelDownloadStatus = .complete
   /// Downloader instance.
   private let downloader: FileDownloader
   /// Telemetry logger.
@@ -59,19 +58,18 @@ class ModelDownloadTask: NSObject {
     self.downloader = downloader
     self.telemetryLogger = telemetryLogger
     self.defaults = defaults
-    downloadStatus = .notStarted
   }
 }
 
 extension ModelDownloadTask {
   /// Name for model file stored on device.
   var downloadedModelFileName: String {
-    return "fbml_model__\(appName)__\(remoteModelInfo.name)"
+    return "fbml_model__\(appName)__\(remoteModelInfo.name).tflite"
   }
 
   func download(progressHandler: ProgressHandler?, completion: @escaping Completion) {
     /// Prevent multiple concurrent downloads.
-    guard downloadStatus == .notStarted else {
+    guard ModelDownloadTask.downloadStatus == .complete else {
       DeviceLogger.logEvent(level: .debug,
                             message: ModelDownloadTask.ErrorDescription.anotherDownloadInProgress,
                             messageCode: .anotherDownloadInProgressError)
@@ -85,12 +83,14 @@ extension ModelDownloadTask {
     telemetryLogger?.logModelDownloadEvent(eventName: .modelDownload,
                                            status: .downloading,
                                            downloadErrorCode: .noError)
+    ModelDownloadTask.downloadStatus = .inProgress
     downloader.downloadFile(with: remoteModelInfo.downloadURL,
                             progressHandler: { downloadedBytes, totalBytes in
                               /// Fraction of model file downloaded.
                               let calculatedProgress = Float(downloadedBytes) / Float(totalBytes)
                               progressHandler?(calculatedProgress)
                             }) { result in
+      ModelDownloadTask.downloadStatus = .complete
       switch result {
       case let .success(response):
         DeviceLogger.logEvent(level: .debug,
@@ -147,7 +147,6 @@ extension ModelDownloadTask {
 
   /// Handle model download response.
   func handleResponse(response: HTTPURLResponse, tempURL: URL, completion: @escaping Completion) {
-    downloadStatus = .complete
     guard (200 ..< 299).contains(response.statusCode) else {
       switch response.statusCode {
       /// Possible failure due to download URL expiry.
