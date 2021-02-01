@@ -83,7 +83,7 @@ class ModelInfoRetriever {
   /// Current Firebase app name.
   private let appName: String
   /// Keeps track of download associated with this model download task.
-  private(set) static var downloadStatus: ModelInfoDownloadStatus = .complete
+  private(set) var downloadStatus: ModelInfoDownloadStatus = .complete
   /// Local model info to validate model freshness.
   private let localModelInfo: LocalModelInfo?
   /// Telemetry logger.
@@ -153,7 +153,7 @@ class ModelInfoRetriever {
   func downloadModelInfo(completion: @escaping (Result<DownloadModelInfoResult, DownloadError>)
     -> Void) {
     /// Prevent multiple concurrent downloads.
-    guard ModelInfoRetriever.downloadStatus == .complete else {
+    guard downloadStatus == .complete else {
       DeviceLogger.logEvent(level: .debug,
                             message: ModelInfoRetriever.ErrorDescription.anotherDownloadInProgress,
                             messageCode: .anotherDownloadInProgressError)
@@ -185,11 +185,11 @@ class ModelInfoRetriever {
               .invalidModelInfoFetchURL)))
           return
         }
-        ModelInfoRetriever.downloadStatus = .inProgress
+        self.downloadStatus = .inProgress
         /// Download model info.
         self.session.getModelInfo(with: request) {
           data, response, error in
-          ModelInfoRetriever.downloadStatus = .complete
+          self.downloadStatus = .complete
           if let downloadError = error {
             let description = ModelInfoRetriever.ErrorDescription
               .failedModelInfoRetrieval(downloadError.localizedDescription)

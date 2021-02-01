@@ -42,7 +42,7 @@ class ModelDownloadTask: NSObject {
   /// User defaults to which local model info should ultimately be written.
   private let defaults: UserDefaults
   /// Keeps track of download associated with this model download task.
-  private(set) static var downloadStatus: ModelDownloadStatus = .complete
+  private(set) var downloadStatus: ModelDownloadStatus = .complete
   /// Downloader instance.
   private let downloader: FileDownloader
   /// Telemetry logger.
@@ -69,7 +69,7 @@ extension ModelDownloadTask {
 
   func download(progressHandler: ProgressHandler?, completion: @escaping Completion) {
     /// Prevent multiple concurrent downloads.
-    guard ModelDownloadTask.downloadStatus == .complete else {
+    guard downloadStatus == .complete else {
       DeviceLogger.logEvent(level: .debug,
                             message: ModelDownloadTask.ErrorDescription.anotherDownloadInProgress,
                             messageCode: .anotherDownloadInProgressError)
@@ -83,14 +83,14 @@ extension ModelDownloadTask {
     telemetryLogger?.logModelDownloadEvent(eventName: .modelDownload,
                                            status: .downloading,
                                            downloadErrorCode: .noError)
-    ModelDownloadTask.downloadStatus = .inProgress
+    downloadStatus = .inProgress
     downloader.downloadFile(with: remoteModelInfo.downloadURL,
                             progressHandler: { downloadedBytes, totalBytes in
                               /// Fraction of model file downloaded.
                               let calculatedProgress = Float(downloadedBytes) / Float(totalBytes)
                               progressHandler?(calculatedProgress)
                             }) { result in
-      ModelDownloadTask.downloadStatus = .complete
+      self.downloadStatus = .complete
       switch result {
       case let .success(response):
         DeviceLogger.logEvent(level: .debug,

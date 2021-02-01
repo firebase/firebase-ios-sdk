@@ -193,7 +193,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       expectation.fulfill()
     }
     waitForExpectations(timeout: 5, handler: nil)
-    XCTAssertEqual(ModelDownloadTask.downloadStatus, .complete)
+    XCTAssertEqual(modelDownloadManager.downloadStatus, .complete)
   }
 
   func testGetModel() {
