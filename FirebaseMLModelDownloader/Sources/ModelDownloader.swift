@@ -378,6 +378,7 @@ extension ModelDownloader {
                             progressHandler: ((Float) -> Void)? = nil,
                             completion: @escaping (Result<CustomModel, DownloadError>)
                               -> Void) {
+    // TODO: Merge if there are multiple same requests.
     modelInfoRetriever.downloadModelInfo { result in
       switch result {
       case let .success(downloadModelInfoResult):

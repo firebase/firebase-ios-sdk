@@ -17,6 +17,7 @@ import FirebaseCore
 
 /// Possible states of model downloading.
 enum ModelDownloadStatus {
+  case notStarted
   case inProgress
   case complete
 }
@@ -42,7 +43,7 @@ class ModelDownloadTask: NSObject {
   /// User defaults to which local model info should ultimately be written.
   private let defaults: UserDefaults
   /// Keeps track of download associated with this model download task.
-  private(set) var downloadStatus: ModelDownloadStatus = .complete
+  private(set) var downloadStatus: ModelDownloadStatus = .notStarted
   /// Downloader instance.
   private let downloader: FileDownloader
   /// Telemetry logger.
@@ -69,8 +70,7 @@ extension ModelDownloadTask {
 
   func download(progressHandler: ProgressHandler?, completion: @escaping Completion) {
     /// Prevent multiple concurrent downloads.
-    // TODO: Merge if there are multiple same requests.
-    guard downloadStatus == .complete else {
+    guard downloadStatus != .inProgress else {
       DeviceLogger.logEvent(level: .debug,
                             message: ModelDownloadTask.ErrorDescription.anotherDownloadInProgress,
                             messageCode: .anotherDownloadInProgressError)

@@ -18,6 +18,7 @@ import FirebaseInstallations
 
 /// Possible states of model downloading.
 enum ModelInfoDownloadStatus {
+  case notStarted
   case inProgress
   case complete
 }
@@ -83,7 +84,7 @@ class ModelInfoRetriever {
   /// Current Firebase app name.
   private let appName: String
   /// Keeps track of download associated with this model download task.
-  private(set) var downloadStatus: ModelInfoDownloadStatus = .complete
+  private(set) var downloadStatus: ModelInfoDownloadStatus = .notStarted
   /// Local model info to validate model freshness.
   private let localModelInfo: LocalModelInfo?
   /// Telemetry logger.
@@ -153,7 +154,7 @@ class ModelInfoRetriever {
   func downloadModelInfo(completion: @escaping (Result<DownloadModelInfoResult, DownloadError>)
     -> Void) {
     /// Prevent multiple concurrent downloads.
-    guard downloadStatus == .complete else {
+    guard downloadStatus != .inProgress else {
       DeviceLogger.logEvent(level: .debug,
                             message: ModelInfoRetriever.ErrorDescription.anotherDownloadInProgress,
                             messageCode: .anotherDownloadInProgressError)
