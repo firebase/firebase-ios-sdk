@@ -3,7 +3,7 @@ name: test_coverage
 on:
   pull_request:
     # synchronize will be triggered when a pull request has new commits.
-    # closed will be triggered when a pull request is closed. 
+    # closed will be triggered when a pull request is closed.
     types: [synchronize, closed]
 
 jobs:
