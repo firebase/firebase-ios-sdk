@@ -28,8 +28,6 @@ public enum DownloadError: Error, Equatable {
   case notEnoughSpace
   /// Malformed model name.
   case invalidArgument
-  /// Expired download URL.
-  case expiredDownloadURL
   /// Other errors with description.
   case internalError(description: String)
 }
@@ -42,6 +40,13 @@ public enum DownloadedModelError: Error {
   case notFound
   /// Other errors with description.
   case internalError(description: String)
+}
+
+/// Extension to handle internally meaningful errors.
+extension DownloadError {
+  static let expiredDownloadURL: DownloadError = {
+    DownloadError.internalError(description: "Expired model download URL.")
+  }()
 }
 
 /// Possible ways to get a custom model.
@@ -164,6 +169,11 @@ public class ModelDownloader {
                               message: ModelDownloader.DebugDescription.localModelFound,
                               messageCode: .localModelFound)
         mainQueueHandler(completion(.success(localModel)))
+        telemetryLogger?.logModelDownloadEvent(
+          eventName: .modelDownload,
+          status: .scheduled,
+          downloadErrorCode: .noError
+        )
         DispatchQueue.global(qos: .utility).async { [weak self] in
           self?.getRemoteModel(
             modelName: modelName,
@@ -171,16 +181,27 @@ public class ModelDownloader {
             progressHandler: nil,
             completion: { result in
               switch result {
-              case .success:
+              case let .success(model):
                 DeviceLogger.logEvent(level: .debug,
                                       message: ModelDownloader.DebugDescription
                                         .backgroundModelDownloaded,
                                       messageCode: .backgroundModelDownloaded)
+                self?.telemetryLogger?.logModelDownloadEvent(
+                  eventName: .modelDownload,
+                  status: .succeeded,
+                  model: model,
+                  downloadErrorCode: .noError
+                )
               case .failure:
                 DeviceLogger.logEvent(level: .debug,
                                       message: ModelDownloader.ErrorDescription
                                         .backgroundModelDownload,
                                       messageCode: .backgroundDownloadError)
+                self?.telemetryLogger?.logModelDownloadEvent(
+                  eventName: .modelDownload,
+                  status: .failed,
+                  downloadErrorCode: .downloadFailed
+                )
               }
             }
           )
@@ -220,10 +241,10 @@ public class ModelDownloader {
           return
         }
         guard let modelInfo = getLocalModelInfo(modelName: modelName) else {
-          let description = ModelDownloader.ErrorDescription.retrieveLocalModelInfo(modelName)
+          let description = ModelDownloader.ErrorDescription.noLocalModelInfo(modelName)
           DeviceLogger.logEvent(level: .debug,
                                 message: description,
-                                messageCode: .localModelInfoRetrievalError)
+                                messageCode: .noLocalModelInfo)
           mainQueueHandler(completion(.failure(.internalError(description: description))))
           return
         }
@@ -244,12 +265,12 @@ public class ModelDownloader {
       completion(.success(customModels))
     } catch let error as DownloadedModelError {
       DeviceLogger.logEvent(level: .debug,
-                            message: ModelDownloader.ErrorDescription.listModels(error),
+                            message: ModelDownloader.ErrorDescription.listModelsFailed(error),
                             messageCode: .listModelsError)
       mainQueueHandler(completion(.failure(error)))
     } catch {
       DeviceLogger.logEvent(level: .debug,
-                            message: ModelDownloader.ErrorDescription.listModels(error),
+                            message: ModelDownloader.ErrorDescription.listModelsFailed(error),
                             messageCode: .listModelsError)
       mainQueueHandler(completion(.failure(.internalError(description: error
           .localizedDescription))))
@@ -292,6 +313,10 @@ extension ModelDownloader {
       name: modelName,
       appName: appName
     ) else {
+      let description = ModelDownloader.DebugDescription.noLocalModelInfo(modelName)
+      DeviceLogger.logEvent(level: .debug,
+                            message: description,
+                            messageCode: .noLocalModelInfo)
       return nil
     }
     /// There is local model info on device, but no model file at the expected path.
@@ -330,8 +355,10 @@ extension ModelDownloader {
       apiKey: apiKey,
       installations: installations,
       appName: appName,
-      localModelInfo: localModelInfo
+      localModelInfo: localModelInfo,
+      telemetryLogger: telemetryLogger
     )
+
     let downloader = ModelFileDownloader(conditions: conditions)
     downloadInfoAndModel(
       modelName: modelName,
@@ -370,25 +397,17 @@ extension ModelDownloader {
           }) { result in
             switch result {
             case let .success(model):
-              DeviceLogger.logEvent(level: .debug,
-                                    message: ModelDownloader.DebugDescription.modelDownloaded,
-                                    messageCode: .modelDownloaded)
               self.mainQueueHandler(completion(.success(model)))
             case let .failure(error):
-              DeviceLogger.logEvent(level: .debug,
-                                    message: ModelDownloader.ErrorDescription
-                                      .modelDownloadFailed(error),
-                                    messageCode: .modelDownloadError)
               switch error {
+              case .notFound:
+                self.mainQueueHandler(completion(.failure(.notFound)))
+              case .invalidArgument:
+                self.mainQueueHandler(completion(.failure(.invalidArgument)))
+              case .permissionDenied:
+                self.mainQueueHandler(completion(.failure(.permissionDenied)))
               /// This is the error returned when URL expired.
-              // TODO: Should we use a different error here?
               case .expiredDownloadURL:
-                let currentDateTime = Date()
-                /// Check if download url has expired.
-                guard currentDateTime > remoteModelInfo.urlExpiryTime else {
-                  self.mainQueueHandler(completion(.failure(error)))
-                  return
-                }
                 /// Check if retries are allowed.
                 guard self.numberOfRetries > 0 else {
                   self
@@ -429,8 +448,8 @@ extension ModelDownloader {
 
           self.mainQueueHandler(completion(.success(localModel)))
         }
-      case let .failure(downloadError):
-        self.mainQueueHandler(completion(.failure(downloadError)))
+      case let .failure(error):
+        self.mainQueueHandler(completion(.failure(error)))
       }
     }
   }
@@ -465,8 +484,10 @@ extension ModelDownloader {
     static let backgroundModelDownloaded = "Downloaded latest model in the background."
     static let allLocalModelsFound = "Found and listed all local models."
     static let modelDeleted = "Model deleted successfully."
-    static let modelDownloaded = "Model download completed successfully."
     static let retryDownload = "Retrying download."
+    static let noLocalModelInfo = { (name: String) in
+      "No local model info for model file named: \(name)."
+    }
   }
 
   /// Error descriptions.
@@ -474,27 +495,33 @@ extension ModelDownloader {
     static let defaultAppNotConfigured =
       "Default Firebase app not configured."
     static let parseModelName = { (path: String) in
-      "Unable to parse model file name at \(path)."
+      "List models failed due to unexpected model file name at \(path)."
     }
 
     static let invalidOptions = "Unable to retrieve project ID and/or API key for Firebase app."
-    static let retrieveLocalModelInfo = { (name: String) in
-      "Failed to get stored model info for model file named: \(name)."
-    }
 
-    static let listModels = { (error: Error) in
+    static let listModelsFailed = { (error: Error) in
       "Unable to list models, failed with error: \(error)"
     }
 
     static let modelNotFound = { (name: String) in
-      "No model found with name: \(name)"
+      "Model deletion failed due to no model found with name: \(name)"
+    }
+
+    static let noLocalModelInfo = { (name: String) in
+      "List models failed due to no local model info for model file named: \(name)."
     }
 
     static let modelDownloadFailed = { (error: Error) in
       "Model download failed with error: \(error)"
     }
 
-    static let outdatedModelPath = "Outdated model paths in local storage."
+    static let modelInfoRetrievalFailed = { (error: Error) in
+      "Model info retrieval failed with error: \(error)"
+    }
+
+    static let outdatedModelPath =
+      "List models failed due to outdated model paths in local storage."
     static let deletedLocalModelInfo =
       "Model unavailable due to deleted local model info."
     static let backgroundModelDownload =

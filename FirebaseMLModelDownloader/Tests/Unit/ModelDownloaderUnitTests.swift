@@ -27,6 +27,29 @@ private enum MockOptions {
 
 // TODO: Create separate files for each class tested.
 final class ModelDownloaderUnitTests: XCTestCase {
+  let fakeModelName = "fakeModelName"
+  let fakeModelHash = "fakeModelHash"
+  let fakeDownloadURL = URL(string: "www.fake-download-url.com")!
+  let fakeFileURL = URL(string: "www.fake-model-file.com")!
+  let fakeExpiryTime = "2021-01-20T04:20:10.220Z"
+  let fakeModelSize = 20
+  let fakeProjectID = "fakeProjectID"
+  let fakeAPIKey = "fakeAPIKey"
+  var fakeModelJSON: String {
+    """
+    {
+      "downloadUri":"\(fakeDownloadURL)",
+      "expireTime":"\(fakeExpiryTime)",
+      "sizeBytes":"\(fakeModelSize)"
+    }
+    """
+  }
+
+  let successAuthTokenProvider =
+    { (completion: @escaping (Result<String, DownloadError>) -> Void) in
+      completion(.success("fakeFISToken"))
+    }
+
   override class func setUp() {
     let options = FirebaseOptions(
       googleAppID: MockOptions.appID,
@@ -36,6 +59,10 @@ final class ModelDownloaderUnitTests: XCTestCase {
     options.projectID = MockOptions.projectID
     FirebaseApp.configure(options: options)
     FirebaseConfiguration.shared.setLoggerLevel(.debug)
+  }
+
+  override class func tearDown() {
+    FirebaseApp.app()?.delete { _ in }
   }
 
   /// Test if the same downloader instance is returned for an app.
@@ -64,12 +91,6 @@ final class ModelDownloaderUnitTests: XCTestCase {
     XCTAssert(modelDownloader1 !== modelDownloader2)
   }
 
-  /// Test to download model info.
-  // TODO: Add unit test with mocks.
-  func testDownloadModelInfo() {}
-
-  // TODO: Add unit test.
-  func testDeleteModel() {}
   /// Test invalid model file deletion.
   func testDeleteInvalidModel() {
     let modelDownloader = ModelDownloader.modelDownloader()
@@ -188,43 +209,6 @@ final class ModelDownloaderUnitTests: XCTestCase {
     XCTAssertLessThan(binaryData.count, jsonData.count)
     XCTAssertEqual(binaryEvent, jsonEvent)
   }
-}
-
-/// Unit tests for network calls.
-class NetworkingUnitTests: XCTestCase {
-  let fakeModelName = "fakeModelName"
-  let fakeModelHash = "fakeModelHash"
-  let fakeDownloadURL = URL(string: "www.fake-download-url.com")!
-  let fakeFileURL = URL(string: "www.fake-model-file.com")!
-  let fakeExpiryTime = "2021-01-20T04:20:10.220Z"
-  let fakeModelSize = 20
-  let fakeProjectID = "fakeProjectID"
-  let fakeAPIKey = "fakeAPIKey"
-  var fakeModelJSON: String {
-    """
-    {
-      "downloadUri":"\(fakeDownloadURL)",
-      "expireTime":"\(fakeExpiryTime)",
-      "sizeBytes":"\(fakeModelSize)"
-    }
-    """
-  }
-
-  let successAuthTokenProvider =
-    { (completion: @escaping (Result<String, DownloadError>) -> Void) in
-      completion(.success("fakeFISToken"))
-    }
-
-  override class func setUp() {
-    let options = FirebaseOptions(
-      googleAppID: MockOptions.appID,
-      gcmSenderID: MockOptions.gcmSenderID
-    )
-    options.apiKey = MockOptions.apiKey
-    options.projectID = MockOptions.projectID
-    FirebaseApp.configure(options: options)
-    FirebaseConfiguration.shared.setLoggerLevel(.debug)
-  }
 
   /// Get model info if server returns a new model info.
   func testGetModelInfoWith200() {
@@ -253,7 +237,7 @@ class NetworkingUnitTests: XCTestCase {
   /// Get model info if model info is not modified.
   func testGetModelInfoWith304() {
     let session = fakeModelInfoSessionWithURL(fakeDownloadURL, statusCode: 304)
-    let localModelInfo = fakeLocalModelInfo()
+    let localModelInfo = fakeLocalModelInfo(mismatch: false)
     let modelInfoRetriever = fakeModelRetriever(
       fakeSession: session,
       fakeLocalModelInfo: localModelInfo
@@ -275,7 +259,7 @@ class NetworkingUnitTests: XCTestCase {
   }
 
   /// Get model info if model info is not modified but local model info is not set.
-  func testGetModelInfoWith304Invalid() {
+  func testGetModelInfoWith304MissingLocalInfo() {
     let session = fakeModelInfoSessionWithURL(fakeDownloadURL, statusCode: 304)
     let modelInfoRetriever = fakeModelRetriever(fakeSession: session)
     let completionExpectation = expectation(description: "Completion handler")
@@ -299,10 +283,64 @@ class NetworkingUnitTests: XCTestCase {
     wait(for: [completionExpectation], timeout: 0.5)
   }
 
+  /// Get model info if model info is not modified but local model info is not set.
+  func testGetModelInfoWith304HashMismatch() {
+    let session = fakeModelInfoSessionWithURL(fakeDownloadURL, statusCode: 304)
+    let localModelInfo = fakeLocalModelInfo(mismatch: true)
+    let modelInfoRetriever = fakeModelRetriever(
+      fakeSession: session,
+      fakeLocalModelInfo: localModelInfo
+    )
+    let completionExpectation = expectation(description: "Completion handler")
+
+    modelInfoRetriever.downloadModelInfo { result in
+      completionExpectation.fulfill()
+      switch result {
+      case let .success(fakemodelInfoResult):
+        switch fakemodelInfoResult {
+        case .modelInfo: XCTFail("Unexpected new model info from server.")
+        case .notModified: XCTFail("Expected failure since model hash does not match.")
+        }
+      case let .failure(error):
+        switch error {
+        case let .internalError(description: errorMessage): XCTAssertEqual(errorMessage,
+                                                                           "Unexpected model hash value.")
+        default: XCTFail("Expected failure since local model info was not set.")
+        }
+      }
+    }
+    wait(for: [completionExpectation], timeout: 0.5)
+  }
+
+  /// Get model info if model name is invalid.
+  func testGetModelInfoWith400() {
+    let session = fakeModelInfoSessionWithURL(fakeDownloadURL, statusCode: 400)
+    let localModelInfo = fakeLocalModelInfo(mismatch: false)
+    let modelInfoRetriever = fakeModelRetriever(
+      fakeSession: session,
+      fakeLocalModelInfo: localModelInfo
+    )
+    let completionExpectation = expectation(description: "Completion handler")
+
+    modelInfoRetriever.downloadModelInfo { result in
+      completionExpectation.fulfill()
+      switch result {
+      case let .success(fakemodelInfoResult):
+        switch fakemodelInfoResult {
+        case .modelInfo: XCTFail("Unexpected new model info from server.")
+        case .notModified: XCTFail("Expected failure since model name is invalid.")
+        }
+      case let .failure(error):
+        XCTAssertEqual(error, .invalidArgument)
+      }
+    }
+    wait(for: [completionExpectation], timeout: 0.5)
+  }
+
   /// Get model if server returns a model file.
   func testModelDownloadWith200() {
     let tempFileURL = tempFile()
-    let remoteModelInfo = fakeModelInfo()
+    let remoteModelInfo = fakeModelInfo(expired: false, oversized: false)
     let fakeResponse = HTTPURLResponse(url: fakeFileURL,
                                        statusCode: 200,
                                        httpVersion: nil,
@@ -355,9 +393,9 @@ class NetworkingUnitTests: XCTestCase {
   }
 
   /// Get model if server returns an error due to expired url.
-  func testModelDownloadWith400() {
+  func testModelDownloadWith400Expired() {
     let tempFileURL = tempFile()
-    let remoteModelInfo = fakeModelInfo()
+    let remoteModelInfo = fakeModelInfo(expired: true, oversized: false)
     let fakeResponse = HTTPURLResponse(url: fakeFileURL,
                                        statusCode: 400,
                                        httpVersion: nil,
@@ -379,7 +417,83 @@ class NetworkingUnitTests: XCTestCase {
       switch result {
       case .success: XCTFail("Unexpected successful model download.")
       case let .failure(error):
-        XCTAssertEqual(error, DownloadError.expiredDownloadURL)
+        XCTAssertEqual(error, .expiredDownloadURL)
+      }
+    }
+    wait(for: [fileDownloaderExpectation], timeout: 0.1)
+
+    downloader
+      .completion?(.success(FileDownloaderResponse(urlResponse: fakeResponse,
+                                                   fileURL: tempFileURL)))
+    wait(for: [completionExpectation], timeout: 0.5)
+
+    try? ModelFileManager.removeFile(at: tempFileURL)
+  }
+
+  /// Get model if server returns an error due to invalid model name.
+  func testModelDownloadWith400Invalid() {
+    let tempFileURL = tempFile()
+    let remoteModelInfo = fakeModelInfo(expired: false, oversized: false)
+    let fakeResponse = HTTPURLResponse(url: fakeFileURL,
+                                       statusCode: 400,
+                                       httpVersion: nil,
+                                       headerFields: nil)!
+    let downloader = MockModelFileDownloader()
+    let fileDownloaderExpectation = expectation(description: "File downloader")
+    downloader.downloadFileHandler = { url in
+      fileDownloaderExpectation.fulfill()
+      XCTAssertEqual(url, self.fakeDownloadURL)
+    }
+
+    let completionExpectation = expectation(description: "Completion handler")
+    let modelDownloadTask = ModelDownloadTask(remoteModelInfo: remoteModelInfo,
+                                              appName: "fakeAppName",
+                                              defaults: .createTestInstance(testName: #function),
+                                              downloader: downloader)
+    modelDownloadTask.download(progressHandler: nil) { result in
+      completionExpectation.fulfill()
+      switch result {
+      case .success: XCTFail("Unexpected successful model download.")
+      case let .failure(error):
+        XCTAssertEqual(error, .invalidArgument)
+      }
+    }
+    wait(for: [fileDownloaderExpectation], timeout: 0.1)
+
+    downloader
+      .completion?(.success(FileDownloaderResponse(urlResponse: fakeResponse,
+                                                   fileURL: tempFileURL)))
+    wait(for: [completionExpectation], timeout: 0.5)
+
+    try? ModelFileManager.removeFile(at: tempFileURL)
+  }
+
+  /// Get model if server returns an error due to model not found.
+  func testModelDownloadWith404() {
+    let tempFileURL = tempFile()
+    let remoteModelInfo = fakeModelInfo(expired: false, oversized: false)
+    let fakeResponse = HTTPURLResponse(url: fakeFileURL,
+                                       statusCode: 404,
+                                       httpVersion: nil,
+                                       headerFields: nil)!
+    let downloader = MockModelFileDownloader()
+    let fileDownloaderExpectation = expectation(description: "File downloader")
+    downloader.downloadFileHandler = { url in
+      fileDownloaderExpectation.fulfill()
+      XCTAssertEqual(url, self.fakeDownloadURL)
+    }
+
+    let completionExpectation = expectation(description: "Completion handler")
+    let modelDownloadTask = ModelDownloadTask(remoteModelInfo: remoteModelInfo,
+                                              appName: "fakeAppName",
+                                              defaults: .createTestInstance(testName: #function),
+                                              downloader: downloader)
+    modelDownloadTask.download(progressHandler: nil) { result in
+      completionExpectation.fulfill()
+      switch result {
+      case .success: XCTFail("Unexpected successful model download.")
+      case let .failure(error):
+        XCTAssertEqual(error, .notFound)
       }
     }
     wait(for: [fileDownloaderExpectation], timeout: 0.1)
@@ -453,6 +567,102 @@ class NetworkingUnitTests: XCTestCase {
 
     downloader
       .completion?(.success(FileDownloaderResponse(urlResponse: fakeResponseSucceeded,
+                                                   fileURL: tempFileURL)))
+    wait(for: [completionExpectation], timeout: 0.5)
+
+    try? ModelFileManager.removeFile(at: tempFileURL)
+  }
+
+  /// Get model if model doesn't exist.
+  func testGetModelNotFound() {
+    let modelDownloader = ModelDownloader.modelDownloader()
+    let conditions = ModelDownloadConditions()
+    let session = fakeModelInfoSessionWithURL(fakeDownloadURL, statusCode: 200)
+    let modelInfoRetriever = fakeModelRetriever(fakeSession: session)
+    let downloader = MockModelFileDownloader()
+    let tempFileURL = tempFile()
+
+    let fakeResponseNotFound = HTTPURLResponse(url: fakeFileURL,
+                                               statusCode: 404,
+                                               httpVersion: nil,
+                                               headerFields: nil)!
+
+    let fileDownloaderExpectation = expectation(description: "File downloader before retry")
+    let completionExpectation = expectation(description: "Completion handler")
+
+    // Handles initial response.
+    downloader.downloadFileHandler = { url in
+      fileDownloaderExpectation.fulfill()
+      XCTAssertEqual(url, self.fakeDownloadURL)
+    }
+
+    modelDownloader.downloadInfoAndModel(modelName: fakeModelName,
+                                         modelInfoRetriever: modelInfoRetriever,
+                                         downloader: downloader,
+                                         conditions: conditions) { result in
+      completionExpectation.fulfill()
+      switch result {
+      // Retry failed due to another expired url - error returned.
+      case .success: XCTFail("Unexpected successful model download.")
+      case let .failure(error):
+        switch error {
+        case .notFound: break
+        default: XCTFail("Expected failure due to model not found.")
+        }
+      }
+    }
+    wait(for: [fileDownloaderExpectation], timeout: 0.5)
+
+    downloader
+      .completion?(.success(FileDownloaderResponse(urlResponse: fakeResponseNotFound,
+                                                   fileURL: tempFileURL)))
+    wait(for: [completionExpectation], timeout: 0.5)
+
+    try? ModelFileManager.removeFile(at: tempFileURL)
+  }
+
+  /// Get model if invalid or insufficient permissions.
+  func testGetModelUnauthorized() {
+    let modelDownloader = ModelDownloader.modelDownloader()
+    let conditions = ModelDownloadConditions()
+    let session = fakeModelInfoSessionWithURL(fakeDownloadURL, statusCode: 200)
+    let modelInfoRetriever = fakeModelRetriever(fakeSession: session)
+    let downloader = MockModelFileDownloader()
+    let tempFileURL = tempFile()
+
+    let fakeResponseNotFound = HTTPURLResponse(url: fakeFileURL,
+                                               statusCode: 403,
+                                               httpVersion: nil,
+                                               headerFields: nil)!
+
+    let fileDownloaderExpectation = expectation(description: "File downloader before retry")
+    let completionExpectation = expectation(description: "Completion handler")
+
+    // Handles initial response.
+    downloader.downloadFileHandler = { url in
+      fileDownloaderExpectation.fulfill()
+      XCTAssertEqual(url, self.fakeDownloadURL)
+    }
+
+    modelDownloader.downloadInfoAndModel(modelName: fakeModelName,
+                                         modelInfoRetriever: modelInfoRetriever,
+                                         downloader: downloader,
+                                         conditions: conditions) { result in
+      completionExpectation.fulfill()
+      switch result {
+      // Retry failed due to another expired url - error returned.
+      case .success: XCTFail("Unexpected successful model download.")
+      case let .failure(error):
+        switch error {
+        case .permissionDenied: break
+        default: XCTFail("Expected failure due to bad permissions.")
+        }
+      }
+    }
+    wait(for: [fileDownloaderExpectation], timeout: 0.5)
+
+    downloader
+      .completion?(.success(FileDownloaderResponse(urlResponse: fakeResponseNotFound,
                                                    fileURL: tempFileURL)))
     wait(for: [completionExpectation], timeout: 0.5)
 
@@ -709,7 +919,7 @@ extension UserDefaults {
 
 // MARK: - Helpers
 
-extension NetworkingUnitTests {
+extension ModelDownloaderUnitTests {
   func fakeModelInfoSessionWithURL(_ url: URL, statusCode: Int) -> MockModelInfoRetrieverSession {
     let fakeSession = MockModelInfoRetrieverSession()
     fakeSession.data = fakeModelJSON.data(using: .utf8)
@@ -751,20 +961,32 @@ extension NetworkingUnitTests {
     try ModelFileManager.removeFile(at: url)
   }
 
-  func fakeLocalModelInfo() -> LocalModelInfo {
+  func fakeLocalModelInfo(mismatch: Bool) -> LocalModelInfo {
+    var hash = "fakeModelHash"
+    if mismatch {
+      hash = "wrongModelHash"
+    }
     return LocalModelInfo(
       name: "fakeModelName",
-      modelHash: "fakeModelHash",
+      modelHash: hash,
       size: 20,
       path: "fakeModelPath"
     )
   }
 
-  func fakeModelInfo() -> RemoteModelInfo {
+  func fakeModelInfo(expired: Bool, oversized: Bool) -> RemoteModelInfo {
+    var expiryTime = Date()
+    var size = fakeModelSize
+    if !expired {
+      expiryTime = expiryTime.addingTimeInterval(1000)
+    }
+    if oversized {
+      size = Int(Int64.max) / 4
+    }
     return RemoteModelInfo(name: fakeModelName,
                            downloadURL: fakeDownloadURL,
                            modelHash: fakeModelHash,
-                           size: fakeModelSize,
-                           urlExpiryTime: Date())
+                           size: size,
+                           urlExpiryTime: expiryTime)
   }
 }

@@ -193,7 +193,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       expectation.fulfill()
     }
     waitForExpectations(timeout: 5, handler: nil)
-    XCTAssertEqual(modelDownloadManager.downloadStatus, .successful)
+    XCTAssertEqual(modelDownloadManager.downloadStatus, .complete)
   }
 
   func testGetModel() {
@@ -439,8 +439,9 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
         // TODO: Remove actual logging and stub out with mocks.
         telemetryLogger.logModelDownloadEvent(
           eventName: .modelDownload,
-          status: .successful,
-          model: model
+          status: .succeeded,
+          model: model,
+          downloadErrorCode: .noError
         )
         let modelPath = URL(string: model.path)!
         try? ModelFileManager.removeFile(at: modelPath)
