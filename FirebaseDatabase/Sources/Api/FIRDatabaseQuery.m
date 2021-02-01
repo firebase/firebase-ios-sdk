@@ -101,12 +101,11 @@
                                    @"combination with queryOrderedByKey"];
             }
             if (![params.indexStartValue.val isKindOfClass:[NSString class]]) {
-                [NSException
-                     raise:INVALID_QUERY_PARAM_ERROR
-                    format:@"Can't use queryStartingAtValue: or "
-                           @"queryStartingAfterValue: "
-                           @"with other types than string in combination with "
-                           @"queryOrderedByKey"];
+                [NSException raise:INVALID_QUERY_PARAM_ERROR
+                            format:@"Can't use queryStartingAtValue: or "
+                                   @"queryStartingAfterValue: "
+                                   @"with non-string types when used with "
+                                   @"queryOrderedByKey"];
             }
         }
         if ([params hasEnd]) {

@@ -1,3 +1,6 @@
+# v7.5.1
+- [fixed] Fixed an issue with startAfter/endBefore when used in orderByKey queries (#7403).
+
 # v7.5.0
 - [added] Implmement `queryStartingAfterValue` and `queryEndingBeforeValue` for FirebaseDatabase query pagination.
 - [added] Added `DatabaseQuery#getData` which returns data from the server when cache is stale (#7110).
