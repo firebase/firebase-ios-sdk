@@ -13,36 +13,72 @@
 // limitations under the License.
 
 import Foundation
-import os
+#if SWIFT_PACKAGE
+  import GoogleUtilities_Logger
+#else
+  import GoogleUtilities
+#endif
 
 /// Enum of debug messages.
 // TODO: Create list of all possible messages with code - according to format.
-enum LoggerMessageCode {
-  case modelDownloaded
-  case downloadedModelMovedToURL
+enum LoggerMessageCode: Int {
+  case modelDownloaded = 1
+  case downloadedModelFileSaved
+  case downloadedModelInfoSaved
+  case downloaderInstanceCreated
+  case downloaderInstanceRetrieved
+  case downloaderInstanceDeleted
+  case localModelFound
+  case backgroundModelDownloaded
+  case modelNameParseError
+  case noLocalModelInfo
+  case outdatedModelPathError
+  case allLocalModelsFound
+  case listModelsError
+  case modelNotFound
+  case modelDeleted
+  case invalidOptions
+  case retryDownload
+  case anotherDownloadInProgressError
+  case invalidModelName
+  case permissionDenied
+  case notEnoughSpace
+  case validHTTPResponse
+  case invalidModelInfoFetchURL
+  case modelInfoRetrievalError
+  case validAuthToken
+  case hostnameError
+  case invalidDownloadSessionError
+  case invalidHTTPResponse
+  case missingModelHash
+  case invalidModelInfoJSON
+  case modelInfoDeleted
+  case modelInfoDownloaded
+  case modelInfoUnmodified
+  case authTokenError
+  case expiredModelInfo
+  case modelDownloadError
+  case downloadedModelSaveError
+  case modelHashMismatchError
+  case noModelHash
   case analyticsEventEncodeError
   case telemetryInitError
   case backgroundDownloadError
+  case testError
 }
 
 /// On-device logger.
 class DeviceLogger {
-  /// Log event on device.
-  static func logEvent(level: OSLogType, category: OSLog, message: StaticString,
-                       messageCode: LoggerMessageCode) {
-    // TODO: Replace with GULLogBasic.
-    os_log(message, log: category, type: level)
+  static let service = "[Firebase/MLModelDownloader]"
+  static func logEvent(level: GoogleLoggerLevel, message: String, messageCode: LoggerMessageCode) {
+    let code = String(format: "I-MLM%06d", messageCode.rawValue)
+    let args: [CVarArg] = []
+    GULLoggerWrapper.log(
+      with: level,
+      withService: DeviceLogger.service,
+      withCode: code,
+      withMessage: message,
+      withArgs: getVaList(args)
+    )
   }
-}
-
-/// Extension to categorize on-device logging.
-extension OSLog {
-  private static let subsystem: String = {
-    let bundleID = Bundle.main.bundleIdentifier ?? ""
-    return "com.google.firebaseml.\(bundleID)"
-  }()
-
-  /// List of logging categories.
-  static let modelDownload = OSLog(subsystem: subsystem, category: "model-download")
-  static let analytics = OSLog(subsystem: subsystem, category: "analytics")
 }

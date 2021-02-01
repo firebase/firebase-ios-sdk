@@ -15,6 +15,7 @@
 import Foundation
 
 /// Manager for common file operations.
+// TODO: Consider mocking this for tests?
 enum ModelFileManager {
   private static let nameSeparator = "__"
   private static let modelNamePrefix = "fbml_model"
@@ -61,11 +62,12 @@ enum ModelFileManager {
   }
 
   /// Move file at a location to another location.
-  static func moveFile(at sourceURL: URL, to destinationURL: URL) throws {
+  static func moveFile(at sourceURL: URL, to destinationURL: URL, size: Int64) throws {
     if isFileReachable(at: destinationURL) {
       do {
         try fileManager.removeItem(at: destinationURL)
       } catch {
+        // TODO: Handle this - new model file downloaded but not saved due to FileManager error.
         throw DownloadError
           .internalError(
             description: ModelFileManager.ErrorDescription
@@ -74,7 +76,9 @@ enum ModelFileManager {
       }
     }
     do {
-      try FileManager.default.moveItem(at: sourceURL, to: destinationURL)
+      try fileManager.moveItem(at: sourceURL, to: destinationURL)
+    } catch CocoaError.fileWriteOutOfSpace {
+      throw DownloadError.notEnoughSpace
     } catch {
       throw DownloadError
         .internalError(description: ModelFileManager
@@ -132,6 +136,14 @@ extension ModelFileManager {
 
     static let replaceFile = { (error: String) in
       "Could not replace existing model file: \(error)"
+    }
+
+    static let availableStorage = { (error: String?) -> String in
+      if let error = error {
+        return "Failed to check storage capacity on device: \(error)"
+      } else {
+        return "Failed to check storage capacity on device."
+      }
     }
   }
 }

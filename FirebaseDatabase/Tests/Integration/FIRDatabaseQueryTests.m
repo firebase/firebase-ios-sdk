@@ -4002,7 +4002,7 @@
   WAIT_FOR(done);
 }
 
-- (void)testEmptyQueryGet {
+- (void)testGetReturnsNullForEmptyNodeWhenOnline {
   FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
 
   __block BOOL done = NO;
@@ -4015,7 +4015,29 @@
   WAIT_FOR(done);
 }
 
-- (void)testOfflineQueryGet {
+- (void)testGetReturnsTheLatestValueWhenOnlineWithNoListener {
+  FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
+
+  __block BOOL done = NO;
+
+  [ref setValue:@42
+      withCompletionBlock:^(NSError* error, FIRDatabaseReference* ref) {
+        XCTAssertNil(error);
+        done = YES;
+      }];
+
+  WAIT_FOR(done);
+
+  [ref getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
+    XCTAssertNil(err);
+    XCTAssertEqualObjects([snapshot value], @42);
+    done = YES;
+  }];
+
+  WAIT_FOR(done);
+}
+
+- (void)testGetReturnsErrorForUnknownNodeWhenOffline {
   FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
   FIRDatabase* db = [ref database];
 
@@ -4036,29 +4058,7 @@
   }
 }
 
-- (void)testGetQueryBasic {
-  FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
-
-  __block BOOL done = NO;
-
-  [ref setValue:@42
-      withCompletionBlock:^(NSError* error, FIRDatabaseReference* ref) {
-        XCTAssertNil(error);
-        done = YES;
-      }];
-
-  WAIT_FOR(done);
-
-  [ref getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
-    XCTAssertNil(err);
-    XCTAssertEqualObjects(snapshot.value, @42);
-    done = YES;
-  }];
-
-  WAIT_FOR(done);
-}
-
-- (void)testQueryGetCached {
+- (void)testGetProbesInMemoryCacheForActiveListenerWhenOffline {
   FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
   FIRDatabase* db = [ref database];
 
@@ -4103,35 +4103,20 @@
   }
 }
 
-- (void)testGetRetrievesLatestValueEvenIfCached {
+- (void)testGetReturnsPersistenceCachedValueWhenOffline {
   FIRDatabase* db = [self databaseForURL:self.databaseURL name:[[NSUUID UUID] UUIDString]];
   FIRDatabase* db2 = [self databaseForURL:self.databaseURL name:[[NSUUID UUID] UUIDString]];
 
-  XCTAssertNotEqual(db, db2);
+  [db2 setPersistenceEnabled:true];
 
   NSString* uuidPath = [[NSUUID UUID] UUIDString];
 
-  FIRDatabaseReference* readRef = [db referenceWithPath:uuidPath];
-  FIRDatabaseReference* writeRef = [db2 referenceWithPath:uuidPath];
-
-  XCTAssertNotEqual(readRef, writeRef);
+  FIRDatabaseReference* writeRef = [db referenceWithPath:uuidPath];
+  FIRDatabaseReference* readRef = [db2 referenceWithPath:uuidPath];
 
   __block BOOL done = NO;
 
-  [self waitForCompletionOf:writeRef setValue:@42];
-
-  [readRef observeEventType:FIRDataEventTypeValue
-                  withBlock:^(FIRDataSnapshot* snapshot) {
-                    NSNumber* value = [snapshot value];
-                    if (value != nil && [value isEqualToNumber:@42]) {
-                      done = YES;
-                    }
-                  }];
-
-  WAIT_FOR(done);
-  done = NO;
-
-  [writeRef setValue:@43
+  [writeRef setValue:@42
       withCompletionBlock:^(NSError* error, FIRDatabaseReference* ref) {
         XCTAssertNil(error);
         done = YES;
@@ -4140,13 +4125,47 @@
   WAIT_FOR(done);
   done = NO;
 
-  [readRef getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
-    XCTAssertNil(err);
-    XCTAssertEqualObjects(snapshot.value, @43);
-    done = YES;
-  }];
+  [readRef observeEventType:FIRDataEventTypeValue
+                  withBlock:^(FIRDataSnapshot* snapshot) {
+                    XCTAssertEqualObjects(snapshot.value, @42);
+                    done = YES;
+                  }];
 
   WAIT_FOR(done);
+
+  [readRef removeAllObservers];
+
+  @try {
+    [db2 goOffline];
+    [readRef getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
+      XCTAssertNil(err);
+      XCTAssertEqualObjects(snapshot.value, @42);
+      done = YES;
+    }];
+  } @finally {
+    [db2 goOnline];
+  }
+}
+
+- (void)testGetThrowsExceptionNewNodeWhenOfflineWithPersistenceEnabled {
+  FIRDatabase* db = [self databaseForURL:self.databaseURL name:[[NSUUID UUID] UUIDString]];
+  [db setPersistenceEnabled:true];
+
+  NSString* uuidPath = [[NSUUID UUID] UUIDString];
+  FIRDatabaseReference* readRef = [db referenceWithPath:uuidPath];
+
+  [db goOffline];
+  @try {
+    __block BOOL done = NO;
+    [readRef getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
+      XCTAssertNotNil(err);
+      XCTAssertEqualObjects([err localizedFailureReason], kPersistentConnectionOffline);
+      done = YES;
+    }];
+    WAIT_FOR(done);
+  } @finally {
+    [db goOnline];
+  }
 }
 
 - (void)testGetUpdatesPersistenceCacheWhenEnabled {
@@ -4193,6 +4212,53 @@
   } @finally {
     [db2 goOnline];
   }
+}
+
+- (void)testGetSkipsPersistenceCacheWhenOnline {
+  FIRDatabase* db = [self databaseForURL:self.databaseURL name:[[NSUUID UUID] UUIDString]];
+  FIRDatabase* db2 = [self databaseForURL:self.databaseURL name:[[NSUUID UUID] UUIDString]];
+
+  [db2 setPersistenceEnabled:true];
+
+  NSString* uuidPath = [[NSUUID UUID] UUIDString];
+
+  FIRDatabaseReference* writeRef = [db referenceWithPath:uuidPath];
+  FIRDatabaseReference* readRef = [db2 referenceWithPath:uuidPath];
+
+  __block BOOL done = NO;
+
+  [writeRef setValue:@42
+      withCompletionBlock:^(NSError* error, FIRDatabaseReference* ref) {
+        XCTAssertNil(error);
+      }];
+
+  [readRef observeEventType:FIRDataEventTypeValue
+                  withBlock:^(FIRDataSnapshot* snapshot) {
+                    XCTAssertEqualObjects(snapshot.value, @42);
+                    done = YES;
+                  }];
+
+  WAIT_FOR(done);
+  done = NO;
+
+  [readRef removeAllObservers];
+
+  [writeRef setValue:@43
+      withCompletionBlock:^(NSError* error, FIRDatabaseReference* ref) {
+        XCTAssertNil(error);
+        done = YES;
+      }];
+
+  WAIT_FOR(done);
+  done = NO;
+
+  [readRef getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
+    XCTAssertNil(err);
+    XCTAssertEqualObjects(snapshot.value, @43);
+    done = YES;
+  }];
+
+  WAIT_FOR(done);
 }
 
 @end
