@@ -2,6 +2,8 @@ name: test_coverage
 
 on:
   pull_request:
+    # synchronize will be triggered when a pull request has new commits.
+    # closed will be triggered when a pull request is closed. 
     types: [synchronize, closed]
 
 jobs:
@@ -91,7 +93,7 @@ jobs:
         env:
           base_commit: ${{ needs.check.outputs.base_commit }}
         run: |
-          # Get Head commit of the branch, instead of a merge commit created by github actions.
+          # Get Head commit of the branch, instead of a merge commit created by actions/checkout.
           GITHUB_SHA=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.head.sha)
           if [ -d "${{steps.download.outputs.download-path}}" ]; then
           cd scripts/code_coverage_report/generate_code_coverage_report
