@@ -241,6 +241,11 @@ extension ResourcesManager {
         continue
       }
 
+      if fullPath.lastPathComponent.hasSuffix("bundle") {
+        // It's already a bundle, so no need to create one.
+        continue
+      }
+
       // It's a folder. Generate the name and location based on the folder name.
       let name = fullPath.lastPathComponent + ".bundle"
       let location = dir.appendingPathComponent(name)
