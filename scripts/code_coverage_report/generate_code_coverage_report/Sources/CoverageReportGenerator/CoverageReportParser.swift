@@ -66,7 +66,7 @@ extension CoverageReportRequestData {
       // FirebaseDatabase-ios-FirebaseCore.framework, a regex pattern will be
       // used to exclude results that are not related in terms of the target names.
       let sdk_name = resultBundle.components(separatedBy: "-")[0]
-      let range = NSRange(location: 0, length: sdk_name.utf16.count)
+      let range = NSRange(location: 0, length: target.name.utf16.count)
       let sdk_related_coverage_file_pattern = try! NSRegularExpression(
         pattern: ".*\(sdk_name).*",
         options: NSRegularExpression.Options(rawValue: 0)
@@ -78,8 +78,6 @@ extension CoverageReportRequestData {
                                value: target.lineCoverage))
         for file in target.files {
           results
-            // .append(FileCoverage(sdk: resultBundle + "-" + target.name + "(Coverage:\(String(format:"%.2f%%",  target.lineCoverage*100)))", type: file.name,
-            //                    value: file.lineCoverage))
             .append(FileCoverage(sdk: resultBundle + "-" + target.name, type: file.name,
                                  value: file.lineCoverage))
           results
