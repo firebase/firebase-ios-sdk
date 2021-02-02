@@ -64,11 +64,12 @@ DerivedData
 *.ipa
 
 # Swift Package Manager
-.build
+*/.build
 ReleaseTooling/Packages
 ReleaseTooling/*.xcodeproj
 ReleaseTooling/Package.resolved
 scripts/code_coverage_report/generate_code_coverage_report/Package.resolved
+scripts/code_coverage_report/generate_code_coverage_report/.build
 
 # Mint package manager
 Mint
