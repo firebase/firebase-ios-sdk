@@ -434,8 +434,6 @@ extension ModelDownloader {
             /// Stop keeping track of current download task.
             self.currentDownloadTask.removeValue(forKey: modelName)
           }
-
-          print(modelName)
           /// Merge duplicate requests if there is already a download in progress for the same model.
           if let downloadTask = self.currentDownloadTask[modelName],
             downloadTask.canMergeRequests() {
