@@ -39,7 +39,7 @@ typedef NS_ENUM(NSInteger, FPRURLAllowlistStatus) {
  *
  *  @return the set of denied URL strings.
  */
-NSSet<NSString *> *GetSystemDenyListURLStrings() {
+NSSet<NSString *> *GetSystemDenyListURLStrings(void) {
   // The denylist of URLs for uploading events to avoid cyclic generation of those network events.
   static NSSet *denylist = nil;
   static dispatch_once_t onceToken;
