@@ -24,6 +24,7 @@
 #include <vector>
 
 #include "Firestore/core/src/model/document_key.h"
+#include "Firestore/core/src/model/field_transform.h"
 #include "Firestore/core/src/model/field_value.h"
 #include "Firestore/core/src/model/precondition.h"
 #include "Firestore/core/src/model/snapshot_version.h"
@@ -97,7 +98,7 @@ class MutationResult {
  *
  * In addition to the value of the document mutations also operate on the
  * version. For local mutations (mutations that haven't been committed yet), we
- * preserve the existing version for Set, Patch, and Transform mutations. For
+ * preserve the existing version for Set and Patch mutations. For
  * local deletes, we reset the version to 0.
  *
  * Here's the expected transition table.
@@ -109,28 +110,22 @@ class MutationResult {
  * PatchMutation      Document(v3)    Document(v3)
  * PatchMutation      NoDocument(v3)  NoDocument(v3)
  * PatchMutation      null            null
- * TransformMutation  Document(v3)    Document(v3)
- * TransformMutation  NoDocument(v3)  NoDocument(v3)
- * TransformMutation  null            null
  * DeleteMutation     Document(v3)    NoDocument(v0)
  * DeleteMutation     NoDocument(v3)  NoDocument(v0)
  * DeleteMutation     null            NoDocument(v0)
  *
  * For acknowledged mutations, we use the update_time of the WriteResponse as
- * the resulting version for Set, Patch, and Transform mutations. As deletes
- * have no explicit update time, we use the commit_time of the WriteResponse
- * for acknowledged deletes.
+ * the resulting version for Set and Patch mutations. As deletes have no
+ * explicit update time, we use the commit_time of the WriteResponse for
+ * acknowledged deletes.
  *
  * If a mutation is acknowledged by the backend but fails the precondition
  * check locally, we return an `UnknownDocument` and rely on Watch to send us
  * the updated version.
  *
- * Note that TransformMutations don't create Documents (in the case of being
- * applied to a NoDocument), even though they would on the backend. This is
- * because the client always combines the TransformMutation with a SetMutation
- * or PatchMutation and we only want to apply the transform if the prior
- * mutation resulted in a Document (always true for a SetMutation, but not
- * necessarily for an PatchMutation).
+ * Field transforms are used only with Patch and Set Mutations. We use the
+ * `updateTransforms` field to store transforms, rather than the `transforms`
+ * message.
  *
  * Note: Mutation and its subclasses are specially designed to avoid slicing.
  * You can assign a subclass of Mutation to an instance of Mutation and the
@@ -150,7 +145,7 @@ class Mutation {
   /**
    * Represents the mutation type. This is used in place of dynamic_cast.
    */
-  enum class Type { Set, Patch, Transform, Delete, Verify };
+  enum class Type { Set, Patch, Delete, Verify };
 
   /** Creates an invalid mutation. */
   Mutation() = default;
@@ -173,6 +168,10 @@ class Mutation {
   }
   const Precondition& precondition() const {
     return rep().precondition();
+  }
+
+  const std::vector<FieldTransform>& field_transforms() const {
+    return rep().field_transforms();
   }
 
   /**
@@ -223,9 +222,6 @@ class Mutation {
    * @param maybe_doc The document to mutate. The input document can be
    *     `nullopt` if the client has no knowledge of the pre-mutation state of
    *     the document.
-   * @param base_doc The state of the document prior to this mutation batch. The
-   *     input document can be nullopt if the client has no knowledge of the
-   *     pre-mutation state of the document.
    * @param local_write_time A timestamp indicating the local write time of the
    *     batch this mutation is a part of.
    * @return The mutated document. The returned document may be nullopt, but
@@ -234,7 +230,6 @@ class Mutation {
    */
   absl::optional<MaybeDocument> ApplyToLocalView(
       const absl::optional<MaybeDocument>& maybe_doc,
-      const absl::optional<MaybeDocument>& base_doc,
       const Timestamp& local_write_time) const;
 
   /**
@@ -253,9 +248,9 @@ class Mutation {
    * @return a base value to store along with the mutation, or empty for
    *     idempotent mutations.
    */
-  absl::optional<ObjectValue> ExtractBaseValue(
+  absl::optional<ObjectValue> ExtractTransformBaseValue(
       const absl::optional<MaybeDocument>& maybe_doc) const {
-    return rep_->ExtractBaseValue(maybe_doc);
+    return rep_->ExtractTransformBaseValue(maybe_doc);
   }
 
   friend bool operator==(const Mutation& lhs, const Mutation& rhs);
@@ -275,6 +270,10 @@ class Mutation {
    public:
     Rep(DocumentKey&& key, Precondition&& precondition);
 
+    Rep(DocumentKey&& key,
+        Precondition&& precondition,
+        std::vector<FieldTransform>&& field_transforms);
+
     virtual ~Rep() = default;
 
     virtual Type type() const = 0;
@@ -287,19 +286,54 @@ class Mutation {
       return precondition_;
     }
 
+    const std::vector<FieldTransform>& field_transforms() const {
+      return field_transforms_;
+    }
+
     virtual MaybeDocument ApplyToRemoteDocument(
         const absl::optional<MaybeDocument>& maybe_doc,
         const MutationResult& mutation_result) const = 0;
 
     virtual absl::optional<MaybeDocument> ApplyToLocalView(
         const absl::optional<MaybeDocument>& maybe_doc,
-        const absl::optional<MaybeDocument>& base_doc,
         const Timestamp& local_write_time) const = 0;
 
-    virtual absl::optional<ObjectValue> ExtractBaseValue(
-        const absl::optional<MaybeDocument>&) const {
-      return absl::nullopt;
-    }
+    virtual absl::optional<ObjectValue> ExtractTransformBaseValue(
+        const absl::optional<MaybeDocument>&) const;
+
+    /**
+     * Creates an array of "transform results" (a transform result is a field
+     * value representing the result of applying a transform) for use after a
+     * mutation containing transforms has been acknowledged by the server.
+     *
+     * @param maybe_doc The current state of the document after applying all
+     *     previous mutations.
+     * @param server_transform_results The transform results received by the
+     *     server.
+     * @return The transform results array.
+     */
+    virtual std::vector<FieldValue> ServerTransformResults(
+        const absl::optional<MaybeDocument>& maybe_doc,
+        const std::vector<FieldValue>& server_transform_results) const;
+
+    /**
+     * Creates an array of "transform results" (a transform result is a field
+     * value representing the result of applying a transform) for use when
+     * applying a transform locally.
+     *
+     * @param maybe_doc The current state of the document after applying all
+     *     previous mutations.
+     * @param local_write_time The local time of the transform (used to
+     *     generate ServerTimestampValues).
+     * @return The transform results array.
+     */
+    virtual std::vector<FieldValue> LocalTransformResults(
+        const absl::optional<MaybeDocument>& maybe_doc,
+        const Timestamp& local_write_time) const;
+
+    virtual ObjectValue TransformObject(
+        ObjectValue object_value,
+        const std::vector<FieldValue>& transform_results) const;
 
     virtual bool Equals(const Rep& other) const;
 
@@ -316,6 +350,7 @@ class Mutation {
    private:
     DocumentKey key_;
     Precondition precondition_;
+    std::vector<FieldTransform> field_transforms_;
   };
 
   explicit Mutation(std::shared_ptr<Rep>&& rep) : rep_(std::move(rep)) {

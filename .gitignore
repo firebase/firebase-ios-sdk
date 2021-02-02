@@ -22,7 +22,9 @@ Example/InstanceID/Resources/GoogleService-Info.plist
 # FirebaseMessaging integration tests GoogleService-Info.plist
 FirebaseMessaging/Tests/IntegrationTests/Resources/GoogleService-Info.plist
 # FirebaseMessaging test app GoogleService-Info.plist
-FirebaseMessaging/Apps/Sample/Sample/GoogleService-Info.plist
+FirebaseMessaging/Apps/Shared/GoogleService-Info.plist
+FirebaseMessaging/Apps/AdvancedSample/SampleWatchWatchKitExtension/GoogleService-Info.plist
+FirebaseMessaging/Apps/AdvancedSample/AppClips/GoogleService-Info.plist
 
 # Credentials for Firebase Storage Integration Tests
 FirebaseStorage/Tests/Integration/Credentials.h
@@ -34,6 +36,10 @@ FirebaseSegmentation/Tests/Sample/GoogleService-Info.plist
 
 # FirebaseMLModelDownloader integration tests GoogleService-Info.plist
 FirebaseMLModelDownloader/Tests/Integration/Resources/GoogleService-Info.plist
+FirebaseMLModelDownloader/Apps/Sample/Resources/GoogleService-Info.plist
+
+# FirebasePerformance dev test App and integration tests GoogleService-Info.plist
+FirebasePerformance/**/GoogleService-Info.plist
 
 Secrets.tar
 
@@ -63,6 +69,8 @@ DerivedData
 ReleaseTooling/Packages
 ReleaseTooling/*.xcodeproj
 ReleaseTooling/Package.resolved
+scripts/code_coverage_report/generate_code_coverage_report/Package.resolved
+scripts/code_coverage_report/generate_code_coverage_report/.build
 
 # Mint package manager
 Mint

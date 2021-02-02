@@ -13,7 +13,5 @@ target 'SegmentationSampleApp' do
   pod 'FirebaseCoreDiagnostics', :path => '../../../'
   pod 'FirebaseInstallations', :path => '../../../'
   pod 'FirebaseSegmentation', :path => '../../../'
-  pod 'GoogleDataTransport', :path => '../../../'
-  pod 'GoogleUtilities', :path => '../../../'
 
 end

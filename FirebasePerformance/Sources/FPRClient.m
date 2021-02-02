@@ -20,7 +20,6 @@
 #import "FirebasePerformance/Sources/AppActivity/FPRSessionManager+Private.h"
 #import "FirebasePerformance/Sources/AppActivity/FPRTraceBackgroundActivityTracker.h"
 #import "FirebasePerformance/Sources/Common/FPRConstants.h"
-#import "FirebasePerformance/Sources/Common/FPRGTMLogLevelFilter.h"
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
 #import "FirebasePerformance/Sources/Configurations/FPRRemoteConfigFlags.h"
 #import "FirebasePerformance/Sources/FPRConsoleLogger.h"
@@ -31,8 +30,6 @@
 #import "FirebasePerformance/Sources/Timer/FIRTrace+Private.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
-
-#import <GoogleToolboxForMac/GTMLogger.h>
 
 #import "FirebasePerformance/ProtoSupport/PerfMetric.pbobjc.h"
 
@@ -110,7 +107,6 @@
     _eventsQueue = dispatch_queue_create("com.google.perf.FPREventsQueue", DISPATCH_QUEUE_SERIAL);
     _eventsQueueGroup = dispatch_group_create();
     _configuration = [FPRConfigurations sharedInstance];
-    [[GTMLogger sharedLogger] setFilter:[[FPRGTMLogLevelFilter alloc] init]];
   }
   return self;
 }

@@ -16,8 +16,8 @@
 
 #import "FirebasePerformance/Sources/Loggers/FPRGDTCCLogger.h"
 
+#import <GoogleDataTransport/GoogleDataTransport.h>
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
-#import "GoogleDataTransport/GDTCORLibrary/Internal/GoogleDataTransportInternal.h"
 
 /** FPRGDTCCLogger private definition used for unit testing. */
 @interface FPRGDTCCLogger ()

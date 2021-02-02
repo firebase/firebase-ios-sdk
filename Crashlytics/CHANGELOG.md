@@ -1,5 +1,10 @@
-# Unreleased
-- [changed] Removed obsolete crash reporting mechanism from the SDK
+# v7.5.0
+- [changed] Improve start-up performance by moving some initialization work to a background thread (#7332).
+- [changed] Updated upload-symbols to a version that is notarized to avoid macOS security alerts (#7323).
+- [changed] Deleting unsent reports with deleteUnsentReports no longer happens on the main thread (#7298).
+
+# v7.4.0
+- [changed] Removed obsolete crash reporting mechanism from the SDK (#7076).
 
 # v7.3.0
 - [added] Added Crashlytics support for x86 apps running on Apple Silicon via Rosetta 2

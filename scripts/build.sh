@@ -35,6 +35,7 @@ product can be one of:
   InAppMessaging
   Messaging
   MessagingSample
+  MLModelDownloaderSample
   RemoteConfig
   RemoteConfigSample
   Storage
@@ -395,6 +396,16 @@ case "$product-$platform-$method" in
     fi
     ;;
 
+  MLModelDownloaderSample-*-*)
+  if check_secrets; then
+    RunXcodebuild \
+      -workspace 'FirebaseMLModelDownloader/Apps/Sample/MLDownloaderTestApp.xcworkspace' \
+      -scheme "MLDownloaderTestApp" \
+      "${xcb_flags[@]}" \
+      build
+  fi
+  ;;
+
   SegmentationSample-*-*)
     RunXcodebuild \
       -workspace 'FirebaseSegmentation/Tests/Sample/SegmentationSampleApp.xcworkspace' \
@@ -597,16 +608,6 @@ case "$product-$platform-$method" in
       "${xcb_flags[@]}" \
       build \
       test
-    ;;
-
-  Performance-*-release)
-    # Generate the workspace for the SDK to generate Protobuf files.
-    export FPR_UNSWIZZLE_AVAILABLE="0"
-    pod_gen FirebasePerformance.podspec --platforms=ios --clean
-
-    version=$(sed -n 's/"version":[ ]* "\(.*\)".*$/\1/p' FirebasePerformance.podspec.json);
-    cd FirebasePerformance/Distribute
-    sh build_zip.sh --version $version
     ;;
 
   *-*-spm)

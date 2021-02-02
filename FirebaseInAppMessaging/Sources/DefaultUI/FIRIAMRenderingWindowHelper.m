@@ -28,7 +28,7 @@
 
   dispatch_once(&onceToken, ^{
 #if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-    if (@available(iOS 13.0, *)) {
+    if (@available(iOS 13.0, tvOS 13.0, *)) {
       UIWindowForModal = [[self class] iOS13PlusWindow];
     } else {
 #endif  // defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
@@ -47,7 +47,7 @@
 
   dispatch_once(&onceToken, ^{
 #if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-    if (@available(iOS 13.0, *)) {
+    if (@available(iOS 13.0, tvOS 13.0, *)) {
       UIWindowForBanner = [[self class] iOS13PlusBannerWindow];
     } else {
 #endif  // defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
@@ -68,7 +68,7 @@
 
   dispatch_once(&onceToken, ^{
 #if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-    if (@available(iOS 13.0, *)) {
+    if (@available(iOS 13.0, tvOS 13.0, *)) {
       UIWindowForImageOnly = [[self class] iOS13PlusWindow];
     } else {
 #endif  // defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000

@@ -443,6 +443,12 @@
 // These methods suppress warnings from having method definitions in
 // FIRDatabaseReference.h for docs generation.
 
+- (void)getDataWithCompletionBlock:
+    (void (^_Nonnull)(NSError *__nullable error,
+                      FIRDataSnapshot *snapshot))block {
+    [super getDataWithCompletionBlock:block];
+}
+
 - (FIRDatabaseQuery *)queryLimitedToFirst:(NSUInteger)limit {
     return [super queryLimitedToFirst:limit];
 }
@@ -470,6 +476,15 @@
 - (FIRDatabaseQuery *)queryStartingAtValue:(id)startValue
                                   childKey:(NSString *)childKey {
     return [super queryStartingAtValue:startValue childKey:childKey];
+}
+
+- (FIRDatabaseQuery *)queryStartingAfterValue:(id)startAfterValue {
+    return [super queryStartingAfterValue:startAfterValue];
+}
+
+- (FIRDatabaseQuery *)queryStartingAfterValue:(id)startAfterValue
+                                     childKey:(NSString *)childKey {
+    return [super queryStartingAfterValue:startAfterValue childKey:childKey];
 }
 
 - (FIRDatabaseQuery *)queryEndingAtValue:(id)endValue {
