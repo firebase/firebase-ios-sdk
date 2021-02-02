@@ -642,6 +642,8 @@
         // On slow networks, image loading may take significant time,
         // in which the value of `suppressMessageDisplay` could change.
         if (self.suppressMessageDisplay) {
+          FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400042",
+                      @"Message display suppressed by developer at message display time.");
           return;
         }
 
