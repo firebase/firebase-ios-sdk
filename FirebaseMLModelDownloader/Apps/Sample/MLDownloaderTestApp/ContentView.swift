@@ -91,14 +91,11 @@ struct ContentView: View {
       Text("Download Model")
         .font(.title)
 
-      Picker(selection: $downloader.selectedModel, label: Text("Pick a model to download")) {
-        Text("Pose Detection").tag("pose-detection")
-          .foregroundColor(.init(red: 162 / 255, green: 82 / 255, blue: 45 / 255, opacity: 0.8))
-        Text("Image Classification").tag("image-classification")
-          .foregroundColor(.init(red: 162 / 255, green: 82 / 255, blue: 45 / 255, opacity: 0.8))
-      }
-      .frame(width: 200, height: 100)
-      .clipped()
+      TextField("Enter model name", text: $downloader.modelName)
+        .frame(width: 200, height: 100)
+        .clipped()
+        .autocapitalization(.none)
+        .textFieldStyle(RoundedBorderTextFieldStyle())
 
       buttons
 
