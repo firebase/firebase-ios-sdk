@@ -1,6 +1,6 @@
 # Unreleased
 - [fixed] Auth emulator now works across the local network. (#7350)
-- [fixed] Fixed incorrect import for watchOS (#7423, #7425)
+- [fixed] Fixed incorrect import for watchOS (#7425)
 
 # 7.4.0
 - [fixed] Check if the reverse client ID is configured as a custom URL scheme before setting it as the callback scheme. (#7211)
