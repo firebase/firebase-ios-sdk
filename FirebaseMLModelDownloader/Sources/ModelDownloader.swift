@@ -82,6 +82,8 @@ public class ModelDownloader {
 
   /// Download task associated with the model currently being downloaded.
   private var currentDownloadTask: [String: ModelDownloadTask] = [:]
+  /// DispatchQueue to manage download task dictionary.
+  let taskSerialQueue = DispatchQueue(label: "downloadtask.serial.queue")
 
   /// Shared dictionary mapping app name to a specific instance of model downloader.
   // TODO: Switch to using Firebase components.
@@ -434,30 +436,34 @@ extension ModelDownloader {
             /// Stop keeping track of current download task.
             self.currentDownloadTask.removeValue(forKey: modelName)
           }
-          /// Merge duplicate requests if there is already a download in progress for the same model.
-          if let downloadTask = self.currentDownloadTask[modelName],
-            downloadTask.canMergeRequests() {
-            downloadTask.merge(
-              newProgressHandler: taskProgressHandler,
-              newCompletion: taskCompletion
-            )
-            DeviceLogger.logEvent(level: .debug,
-                                  message: ModelDownloader.DebugDescription.mergingRequests,
-                                  messageCode: .mergeRequests)
-            downloadTask.resume()
-          } else {
-            let downloadTask = ModelDownloadTask(
-              remoteModelInfo: remoteModelInfo,
-              appName: self.appName,
-              defaults: self.userDefaults,
-              downloader: downloader,
-              progressHandler: taskProgressHandler,
-              completion: taskCompletion,
-              telemetryLogger: self.telemetryLogger
-            )
-            /// Keep track of current download task to allow for merging duplicate requests.
-            self.currentDownloadTask[modelName] = downloadTask
-            downloadTask.resume()
+
+          self.taskSerialQueue.async {
+            /// Merge duplicate requests if there is already a download in progress for the same model.
+            if let downloadTask = self.currentDownloadTask[modelName],
+              downloadTask.canMergeRequests() {
+              downloadTask.merge(
+                newProgressHandler: taskProgressHandler,
+                newCompletion: taskCompletion
+              )
+              DeviceLogger.logEvent(level: .debug,
+                                    message: ModelDownloader.DebugDescription.mergingRequests,
+                                    messageCode: .mergeRequests)
+              downloadTask.resume()
+            } else {
+              let downloadTask = ModelDownloadTask(
+                remoteModelInfo: remoteModelInfo,
+                appName: self.appName,
+                defaults: self.userDefaults,
+                downloader: downloader,
+                progressHandler: taskProgressHandler,
+                completion: taskCompletion,
+                telemetryLogger: self.telemetryLogger
+              )
+
+              /// Keep track of current download task to allow for merging duplicate requests.
+              self.currentDownloadTask[modelName] = downloadTask
+              downloadTask.resume()
+            }
           }
         /// Local model info is the latest model info.
         case .notModified:

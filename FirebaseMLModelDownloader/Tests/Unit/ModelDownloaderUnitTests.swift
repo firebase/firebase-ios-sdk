@@ -477,6 +477,50 @@ final class ModelDownloaderUnitTests: XCTestCase {
   }
 
   /// Get model if server returns an error due to model not found.
+  func testModelDownloadWithMergeRequests() {
+    let tempFileURL = tempFile()
+    let remoteModelInfo = fakeModelInfo(expired: false, oversized: false)
+    let fakeResponse = HTTPURLResponse(url: fakeFileURL,
+                                       statusCode: 200,
+                                       httpVersion: nil,
+                                       headerFields: nil)!
+    let downloader = MockModelFileDownloader()
+    let fileDownloaderExpectation = expectation(description: "File downloader")
+    fileDownloaderExpectation.expectedFulfillmentCount = 5
+    downloader.downloadFileHandler = { url in
+      fileDownloaderExpectation.fulfill()
+      XCTAssertEqual(url, self.fakeDownloadURL)
+    }
+
+    let completionExpectation = expectation(description: "Completion handler")
+    completionExpectation.expectedFulfillmentCount = 5
+    let taskCompletion: ModelDownloadTask.Completion = { result in
+      completionExpectation.fulfill()
+      switch result {
+      case let .success(model): print(model)
+      case let .failure(error): print(error)
+      }
+    }
+    let modelDownloadTask = ModelDownloadTask(remoteModelInfo: remoteModelInfo,
+                                              appName: "fakeAppName",
+                                              defaults: .createTestInstance(testName: #function),
+                                              downloader: downloader,
+                                              completion: taskCompletion)
+
+    for _ in 0 ..< 5 {
+      modelDownloadTask.resume()
+
+      downloader
+        .completion?(.success(FileDownloaderResponse(urlResponse: fakeResponse,
+                                                     fileURL: tempFileURL)))
+    }
+    wait(for: [fileDownloaderExpectation], timeout: 0.1)
+    wait(for: [completionExpectation], timeout: 0.5)
+
+    try? ModelFileManager.removeFile(at: tempFileURL)
+  }
+
+  /// Get model if server returns an error due to model not found.
   func testModelDownloadWith404() {
     let tempFileURL = tempFile()
     let remoteModelInfo = fakeModelInfo(expired: false, oversized: false)
@@ -958,10 +1002,10 @@ extension ModelDownloaderUnitTests {
     return modelInfoRetriever
   }
 
-  func tempFile() -> URL {
+  func tempFile(name: String = "fake-model-file.tmp") -> URL {
     let tempDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory(),
                                isDirectory: true)
-    let tempFileURL = tempDirectoryURL.appendingPathComponent("fake-model-file.tmp")
+    let tempFileURL = tempDirectoryURL.appendingPathComponent(name)
     let tempData: Data = "fakeModelData".data(using: .utf8)!
     try? tempData.write(to: tempFileURL)
     return tempFileURL
