@@ -17,16 +17,18 @@
 #import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinStore.h"
 
 #import "FirebaseMessaging/Sources/FIRMessagingCode.h"
+#import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
 #import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingAuthKeyChain.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingAuthKeychain.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingBackupExcludedPlist.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinPreferences.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinService.h"
 
+// NOTE: These values should be in sync with what InstanceID saves in as.
+static NSString *const kCheckinFileName = @"g-checkin";
 static NSString *const kFIRMessagingCheckinKeychainGeneric = @"com.google.iid";
-
 NSString *const kFIRMessagingCheckinKeychainService = @"com.google.iid.checkin";
 
 @interface FIRMessagingCheckinStore ()
@@ -42,23 +44,14 @@ NSString *const kFIRMessagingCheckinKeychainService = @"com.google.iid.checkin";
 
 @implementation FIRMessagingCheckinStore
 
-- (instancetype)initWithCheckinPlistFileName:(NSString *)checkinFilename
-                            subDirectoryName:(NSString *)subDirectoryName {
-  FIRMessagingBackupExcludedPlist *plist =
-      [[FIRMessagingBackupExcludedPlist alloc] initWithFileName:checkinFilename
-                                                   subDirectory:subDirectoryName];
-
-  FIRMessagingAuthKeychain *keychain =
-      [[FIRMessagingAuthKeychain alloc] initWithIdentifier:kFIRMessagingCheckinKeychainGeneric];
-  return [self initWithCheckinPlist:plist keychain:keychain];
-}
-
-- (instancetype)initWithCheckinPlist:(FIRMessagingBackupExcludedPlist *)plist
-                            keychain:(FIRMessagingAuthKeychain *)keychain {
+- (instancetype)init {
   self = [super init];
   if (self) {
-    _plist = plist;
-    _keychain = keychain;
+    _plist =
+      [[FIRMessagingBackupExcludedPlist alloc] initWithFileName:kCheckinFileName
+                                                   subDirectory:kFIRMessagingInstanceIDSubDirectoryName];
+    _keychain =
+      [[FIRMessagingAuthKeychain alloc] initWithIdentifier:kFIRMessagingCheckinKeychainGeneric];
   }
   return self;
 }
