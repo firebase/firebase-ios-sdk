@@ -44,7 +44,8 @@ class Downloader: ObservableObject {
 
   func downloadModel(downloadType: ModelDownloadType) {
     let modelDownloader = ModelDownloader.modelDownloader()
-    let conditions = ModelDownloadConditions()
+    var conditions = ModelDownloadConditions()
+    conditions.allowsCellularAccess = false
 
     let modelName = selectedModel
     modelDownloader.getModel(

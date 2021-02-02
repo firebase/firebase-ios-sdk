@@ -17,8 +17,8 @@ import FirebaseCore
 
 /// Possible states of model downloading.
 enum ModelDownloadStatus {
-  case notStarted
-  case inProgress
+  case ready
+  case downloading
   case complete
 }
 
@@ -43,20 +43,28 @@ class ModelDownloadTask: NSObject {
   /// User defaults to which local model info should ultimately be written.
   private let defaults: UserDefaults
   /// Keeps track of download associated with this model download task.
-  private(set) var downloadStatus: ModelDownloadStatus = .notStarted
+  private(set) var downloadStatus: ModelDownloadStatus = .ready
   /// Downloader instance.
   private let downloader: FileDownloader
   /// Telemetry logger.
   private let telemetryLogger: TelemetryLogger?
+  /// Progress handler.
+  private var progressHandler: ProgressHandler?
+  /// Completion.
+  private var completion: Completion
 
   init(remoteModelInfo: RemoteModelInfo,
        appName: String,
        defaults: UserDefaults,
        downloader: FileDownloader,
+       progressHandler: ProgressHandler? = nil,
+       completion: @escaping Completion,
        telemetryLogger: TelemetryLogger? = nil) {
     self.remoteModelInfo = remoteModelInfo
     self.appName = appName
     self.downloader = downloader
+    self.progressHandler = progressHandler
+    self.completion = completion
     self.telemetryLogger = telemetryLogger
     self.defaults = defaults
   }
@@ -68,28 +76,45 @@ extension ModelDownloadTask {
     return "fbml_model__\(appName)__\(remoteModelInfo.name).tflite"
   }
 
-  func download(progressHandler: ProgressHandler?, completion: @escaping Completion) {
+  /// Check if downloading is not complete for merging requests.
+  func canMergeRequests() -> Bool {
+    return downloadStatus != .complete
+  }
+
+  /// Merge duplicate requests.
+  func merge(newProgressHandler: ProgressHandler? = nil, newCompletion: @escaping Completion) {
+    let originalProgressHandler = progressHandler
+    progressHandler = { progress in
+      originalProgressHandler?(progress)
+      newProgressHandler?(progress)
+    }
+    let originalCompletion = completion
+    completion = { result in
+      originalCompletion(result)
+      newCompletion(result)
+    }
+  }
+
+  func resume() {
     /// Prevent multiple concurrent downloads.
-    guard downloadStatus != .inProgress else {
+    guard downloadStatus != .downloading else {
       DeviceLogger.logEvent(level: .debug,
                             message: ModelDownloadTask.ErrorDescription.anotherDownloadInProgress,
                             messageCode: .anotherDownloadInProgressError)
       telemetryLogger?.logModelDownloadEvent(eventName: .modelDownload,
                                              status: .failed,
                                              downloadErrorCode: .downloadFailed)
-      completion(.failure(.internalError(description: ModelDownloadTask.ErrorDescription
-          .anotherDownloadInProgress)))
       return
     }
     telemetryLogger?.logModelDownloadEvent(eventName: .modelDownload,
                                            status: .downloading,
                                            downloadErrorCode: .noError)
-    downloadStatus = .inProgress
+    downloadStatus = .downloading
     downloader.downloadFile(with: remoteModelInfo.downloadURL,
                             progressHandler: { downloadedBytes, totalBytes in
                               /// Fraction of model file downloaded.
                               let calculatedProgress = Float(downloadedBytes) / Float(totalBytes)
-                              progressHandler?(calculatedProgress)
+                              self.progressHandler?(calculatedProgress)
                             }) { result in
       self.downloadStatus = .complete
       switch result {
@@ -101,7 +126,7 @@ extension ModelDownloadTask {
         self.handleResponse(
           response: response.urlResponse,
           tempURL: response.fileURL,
-          completion: completion
+          completion: self.completion
         )
       case let .failure(error):
         var downloadError: DownloadError
@@ -141,7 +166,7 @@ extension ModelDownloadTask {
             downloadErrorCode: .downloadFailed
           )
         }
-        completion(.failure(downloadError))
+        self.completion(.failure(downloadError))
       }
     }
   }

@@ -55,6 +55,7 @@ enum LoggerMessageCode: Int {
   case modelInfoDeleted
   case modelInfoDownloaded
   case modelInfoUnmodified
+  case mergeRequests
   case authTokenError
   case expiredModelInfo
   case modelDownloadError

@@ -355,16 +355,12 @@ final class ModelDownloaderUnitTests: XCTestCase {
     progressExpectation.expectedFulfillmentCount = 2
 
     let completionExpectation = expectation(description: "Completion handler")
-    let modelDownloadTask = ModelDownloadTask(remoteModelInfo: remoteModelInfo,
-                                              appName: "fakeAppName",
-                                              defaults: .createTestInstance(testName: #function),
-                                              downloader: downloader)
-
-    modelDownloadTask.download(progressHandler: {
+    let taskProgressHandler: ModelDownloadTask.ProgressHandler = {
       progress in
       progressExpectation.fulfill()
       XCTAssertEqual(progress, 0.4)
-    }) { result in
+    }
+    let taskCompletion: ModelDownloadTask.Completion = { result in
       completionExpectation.fulfill()
       switch result {
       case let .success(model):
@@ -378,6 +374,14 @@ final class ModelDownloaderUnitTests: XCTestCase {
         XCTFail("Error - \(error)")
       }
     }
+    let modelDownloadTask = ModelDownloadTask(remoteModelInfo: remoteModelInfo,
+                                              appName: "fakeAppName",
+                                              defaults: .createTestInstance(testName: #function),
+                                              downloader: downloader,
+                                              progressHandler: taskProgressHandler,
+                                              completion: taskCompletion)
+
+    modelDownloadTask.resume()
     wait(for: [fileDownloaderExpectation], timeout: 0.1)
 
     downloader.progressHandler?(100, 250)
@@ -408,11 +412,7 @@ final class ModelDownloaderUnitTests: XCTestCase {
     }
 
     let completionExpectation = expectation(description: "Completion handler")
-    let modelDownloadTask = ModelDownloadTask(remoteModelInfo: remoteModelInfo,
-                                              appName: "fakeAppName",
-                                              defaults: .createTestInstance(testName: #function),
-                                              downloader: downloader)
-    modelDownloadTask.download(progressHandler: nil) { result in
+    let taskCompletion: ModelDownloadTask.Completion = { result in
       completionExpectation.fulfill()
       switch result {
       case .success: XCTFail("Unexpected successful model download.")
@@ -420,6 +420,12 @@ final class ModelDownloaderUnitTests: XCTestCase {
         XCTAssertEqual(error, .expiredDownloadURL)
       }
     }
+    let modelDownloadTask = ModelDownloadTask(remoteModelInfo: remoteModelInfo,
+                                              appName: "fakeAppName",
+                                              defaults: .createTestInstance(testName: #function),
+                                              downloader: downloader,
+                                              completion: taskCompletion)
+    modelDownloadTask.resume()
     wait(for: [fileDownloaderExpectation], timeout: 0.1)
 
     downloader
@@ -446,11 +452,7 @@ final class ModelDownloaderUnitTests: XCTestCase {
     }
 
     let completionExpectation = expectation(description: "Completion handler")
-    let modelDownloadTask = ModelDownloadTask(remoteModelInfo: remoteModelInfo,
-                                              appName: "fakeAppName",
-                                              defaults: .createTestInstance(testName: #function),
-                                              downloader: downloader)
-    modelDownloadTask.download(progressHandler: nil) { result in
+    let taskCompletion: ModelDownloadTask.Completion = { result in
       completionExpectation.fulfill()
       switch result {
       case .success: XCTFail("Unexpected successful model download.")
@@ -458,6 +460,12 @@ final class ModelDownloaderUnitTests: XCTestCase {
         XCTAssertEqual(error, .invalidArgument)
       }
     }
+    let modelDownloadTask = ModelDownloadTask(remoteModelInfo: remoteModelInfo,
+                                              appName: "fakeAppName",
+                                              defaults: .createTestInstance(testName: #function),
+                                              downloader: downloader,
+                                              completion: taskCompletion)
+    modelDownloadTask.resume()
     wait(for: [fileDownloaderExpectation], timeout: 0.1)
 
     downloader
@@ -484,11 +492,7 @@ final class ModelDownloaderUnitTests: XCTestCase {
     }
 
     let completionExpectation = expectation(description: "Completion handler")
-    let modelDownloadTask = ModelDownloadTask(remoteModelInfo: remoteModelInfo,
-                                              appName: "fakeAppName",
-                                              defaults: .createTestInstance(testName: #function),
-                                              downloader: downloader)
-    modelDownloadTask.download(progressHandler: nil) { result in
+    let taskCompletion: ModelDownloadTask.Completion = { result in
       completionExpectation.fulfill()
       switch result {
       case .success: XCTFail("Unexpected successful model download.")
@@ -496,6 +500,12 @@ final class ModelDownloaderUnitTests: XCTestCase {
         XCTAssertEqual(error, .notFound)
       }
     }
+    let modelDownloadTask = ModelDownloadTask(remoteModelInfo: remoteModelInfo,
+                                              appName: "fakeAppName",
+                                              defaults: .createTestInstance(testName: #function),
+                                              downloader: downloader,
+                                              completion: taskCompletion)
+    modelDownloadTask.resume()
     wait(for: [fileDownloaderExpectation], timeout: 0.1)
 
     downloader

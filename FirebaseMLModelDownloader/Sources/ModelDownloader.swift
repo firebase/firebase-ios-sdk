@@ -80,6 +80,9 @@ public class ModelDownloader {
     }
   }
 
+  /// Download task associated with the model currently being downloaded.
+  private var currentDownloadTask: [String: ModelDownloadTask] = [:]
+
   /// Shared dictionary mapping app name to a specific instance of model downloader.
   // TODO: Switch to using Firebase components.
   private static var modelDownloaderDictionary: [String: ModelDownloader] = [:]
@@ -359,7 +362,6 @@ extension ModelDownloader {
       localModelInfo: localModelInfo,
       telemetryLogger: telemetryLogger
     )
-
     let downloader = ModelFileDownloader(conditions: conditions)
     downloadInfoAndModel(
       modelName: modelName,
@@ -378,25 +380,18 @@ extension ModelDownloader {
                             progressHandler: ((Float) -> Void)? = nil,
                             completion: @escaping (Result<CustomModel, DownloadError>)
                               -> Void) {
-    // TODO: Merge if there are multiple same requests.
     modelInfoRetriever.downloadModelInfo { result in
       switch result {
       case let .success(downloadModelInfoResult):
         switch downloadModelInfoResult {
         /// New model info was downloaded from server.
         case let .modelInfo(remoteModelInfo):
-          let downloadTask = ModelDownloadTask(
-            remoteModelInfo: remoteModelInfo,
-            appName: self.appName,
-            defaults: self.userDefaults,
-            downloader: downloader,
-            telemetryLogger: self.telemetryLogger
-          )
-          downloadTask.download(progressHandler: { progress in
+          let taskProgressHandler: ModelDownloadTask.ProgressHandler = { progress in
             if let progressHandler = progressHandler {
               self.mainQueueHandler(progressHandler(progress))
             }
-          }) { result in
+          }
+          let taskCompletion: ModelDownloadTask.Completion = { result in
             switch result {
             case let .success(model):
               self.mainQueueHandler(completion(.success(model)))
@@ -436,6 +431,35 @@ extension ModelDownloader {
                 self.mainQueueHandler(completion(.failure(error)))
               }
             }
+            /// Stop keeping track of current download task.
+            self.currentDownloadTask.removeValue(forKey: modelName)
+          }
+
+          print(modelName)
+          /// Merge duplicate requests if there is already a download in progress for the same model.
+          if let downloadTask = self.currentDownloadTask[modelName],
+            downloadTask.canMergeRequests() {
+            downloadTask.merge(
+              newProgressHandler: taskProgressHandler,
+              newCompletion: taskCompletion
+            )
+            DeviceLogger.logEvent(level: .debug,
+                                  message: ModelDownloader.DebugDescription.mergingRequests,
+                                  messageCode: .mergeRequests)
+            downloadTask.resume()
+          } else {
+            let downloadTask = ModelDownloadTask(
+              remoteModelInfo: remoteModelInfo,
+              appName: self.appName,
+              defaults: self.userDefaults,
+              downloader: downloader,
+              progressHandler: taskProgressHandler,
+              completion: taskCompletion,
+              telemetryLogger: self.telemetryLogger
+            )
+            /// Keep track of current download task to allow for merging duplicate requests.
+            self.currentDownloadTask[modelName] = downloadTask
+            downloadTask.resume()
           }
         /// Local model info is the latest model info.
         case .notModified:
@@ -490,6 +514,8 @@ extension ModelDownloader {
     static let noLocalModelInfo = { (name: String) in
       "No local model info for model file named: \(name)."
     }
+
+    static let mergingRequests = "Merging duplicate download requests."
   }
 
   /// Error descriptions.
