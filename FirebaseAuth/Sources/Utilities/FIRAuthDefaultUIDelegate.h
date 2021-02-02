@@ -15,7 +15,7 @@
  */
 
 #import <TargetConditionals.h>
-#if !TARGET_OS_OSX && !TARGET_OS_WATCHOS
+#if !TARGET_OS_OSX && !TARGET_OS_WATCH
 
 #import <Foundation/Foundation.h>
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthUIDelegate.h"
