@@ -1450,10 +1450,6 @@ using firebase::firestore::util::TimerId;
   // Make sure there is a listener.
   [doc addSnapshotListener:^(FIRDocumentSnapshot *, NSError *){
   }];
-  NSDictionary<NSString *, id> *data =
-      @{@"owner" : @{@"name" : @"Jonny", @"email" : @"abc@xyz.com"}};
-  // Make sure the client is initialized.
-  [self writeDocumentRef:doc data:data];
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"App is deleted"];
   [app deleteApp:^(BOOL) {
