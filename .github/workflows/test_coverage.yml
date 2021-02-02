@@ -1,15 +1,19 @@
 name: test_coverage
 
-on: [pull_request]
-#run specific jobs when specific files are updated.
-#https://github.community/t/how-to-execute-jobs-if-folder-updated-recursive/117344/5
+on:
+  pull_request:
+    # synchronize will be triggered when a pull request has new commits.
+    # closed will be triggered when a pull request is closed.
+    types: [synchronize, closed]
 
 jobs:
   check:
+    if: github.repository == 'Firebase/firebase-ios-sdk' && github.event.action == 'synchronize'
     name: Check changed files
     outputs:
       database_run_job: ${{ steps.check_files.outputs.database_run_job }}
       functions_run_job: ${{ steps.check_files.outputs.functions_run_job }}
+      base_commit: ${{ steps.check_files.outputs.base_commit }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -21,37 +25,34 @@ jobs:
         env:
           pr_branch: ${{ github.event.pull_request.head.ref }}
         run: ./scripts/code_coverage_report/get_updated_files.sh
+
   pod-lib-lint-database:
     # Don't run on private repo unless it is a PR.
+    if: github.repository == 'Firebase/firebase-ios-sdk' && (needs.check.outputs.database_run_job == 'true' || github.event.pull_request.merged == true)
     needs: check
-    if: github.repository == 'Firebase/firebase-ios-sdk' && needs.check.outputs.database_run_job == 'true'
     runs-on: macOS-latest
-
     strategy:
       matrix:
-        target: [ios, tvos, macos]
+        target: [ios]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      env:
-        SDK: database
       run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh FirebaseDatabase "${{ matrix.target }}"
     - uses: actions/upload-artifact@v2
       with:
-        name: database-codecoverage
+        name: codecoverage
         path: /Users/runner/*.xcresult
 
   pod-lib-lint-functions:
     # Don't run on private repo unless it is a PR.
+    if: github.repository == 'Firebase/firebase-ios-sdk' && (needs.check.outputs.functions_run_job == 'true' || github.event.pull_request.merged == true)
     needs: check
-    if: github.repository == 'Firebase/firebase-ios-sdk' && needs.check.outputs.functions_run_job == 'true'
     runs-on: macOS-latest
-
     strategy:
       matrix:
-        target: [ios, tvos, macos]
+        target: [ios]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -60,20 +61,48 @@ jobs:
       run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh FirebaseFunctions "${{ matrix.target }}"
     - uses: actions/upload-artifact@v2
       with:
-        name: functions-codecoverage
+        name: codecoverage
         path: /Users/runner/*.xcresult
 
   create_report:
-    needs: [pod-lib-lint-functions, pod-lib-lint-database]
+    needs: [check, pod-lib-lint-functions, pod-lib-lint-database]
+    env:
+      metrics_service_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     if: always()
     runs-on: macOS-latest
     steps:
+      - uses: actions/checkout@v2
+      - name: Access to Metrics Service
+        run: |
+          # Install gcloud sdk
+          curl https://sdk.cloud.google.com > install.sh
+          bash install.sh --disable-prompts
+          echo "${HOME}/google-cloud-sdk/bin/" >> $GITHUB_PATH
+          export PATH="${HOME}/google-cloud-sdk/bin/:${PATH}"
+
+          # Activate the service account for Metrics Service.
+          scripts/decrypt_gha_secret.sh scripts/gha-encrypted/metrics_service_access.json.gpg \
+          metrics-access.json "$metrics_service_secret"
+          gcloud auth activate-service-account --key-file metrics-access.json
       - uses: actions/download-artifact@v2
         id: download
         with:
           path: /Users/runner/test
-      - name: display results
+      - name: Compare Diff and Post a Report
+        if: github.event_name == 'pull_request'
+        env:
+          base_commit: ${{ needs.check.outputs.base_commit }}
+        run: |
+          # Get Head commit of the branch, instead of a merge commit created by actions/checkout.
+          GITHUB_SHA=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.head.sha)
+          if [ -d "${{steps.download.outputs.download-path}}" ]; then
+          cd scripts/code_coverage_report/generate_code_coverage_report
+          swift run CoverageReportGenerator --presubmit "firebase/firebase-ios-sdk" --commit "${GITHUB_SHA}" --token $(gcloud auth print-identity-token) --xcresult-dir "/Users/runner/test/codecoverage" --log-link "https://github.com/firebase/firebase-ios-sdk/actions/runs/${GITHUB_RUN_ID}" --pull-request-num ${{github.event.pull_request.number}} --base-commit "$base_commit"
+          fi
+      - name: Update New Coverage Data
+        if: github.event.pull_request.merged == true
         run: |
           if [ -d "${{steps.download.outputs.download-path}}" ]; then
-          find "/Users/runner/test" -print -regex ".*/.*\.xcresult" -exec xcrun xccov view --report {} \;
+          cd scripts/code_coverage_report/generate_code_coverage_report
+          swift run CoverageReportGenerator --merge "firebase/firebase-ios-sdk" --commit "${GITHUB_SHA}" --token $(gcloud auth print-identity-token) --xcresult-dir "/Users/runner/test/codecoverage" --log-link "https://github.com/firebase/firebase-ios-sdk/actions/runs/${GITHUB_RUN_ID}" --branch "${GITHUB_REF##*/}"
           fi
