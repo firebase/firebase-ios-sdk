@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/core/sync_engine.h"
 
+#include <algorithm>
+
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/core/sync_engine_callback.h"
 #include "Firestore/core/src/core/transaction.h"
@@ -528,8 +530,7 @@ void SyncEngine::UpdateTrackedLimboDocuments(
 
 void SyncEngine::TrackLimboChange(const LimboDocumentChange& limbo_change) {
   const DocumentKey& key = limbo_change.key();
-  if (active_limbo_targets_by_key_.find(key) ==
-      active_limbo_targets_by_key_.end()) {
+  if (active_limbo_targets_by_key_.find(key) == active_limbo_targets_by_key_.end() && std::find(enqueued_limbo_resolutions_.begin(), enqueued_limbo_resolutions_.end(), key) == enqueued_limbo_resolutions_.end()) {
     LOG_DEBUG("New document in limbo: %s", key.ToString());
     enqueued_limbo_resolutions_.push_back(key);
     PumpEnqueuedLimboResolutions();
@@ -553,6 +554,11 @@ void SyncEngine::PumpEnqueuedLimboResolutions() {
 }
 
 void SyncEngine::RemoveLimboTarget(const DocumentKey& key) {
+  auto enqueued_it = std::find(enqueued_limbo_resolutions_.begin(), enqueued_limbo_resolutions_.end(), key);
+  if (enqueued_it != enqueued_limbo_resolutions_.end()) {
+    enqueued_limbo_resolutions_.erase(enqueued_it);
+  }
+
   auto it = active_limbo_targets_by_key_.find(key);
   if (it == active_limbo_targets_by_key_.end()) {
     // This target already got removed, because the query failed.
