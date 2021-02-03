@@ -117,7 +117,6 @@ final class ModelDownloaderUnitTests: XCTestCase {
   }
 
   /// Test listing models.
-  // TODO: This test fails when run together with other tests, possibly due to FileManager race condition?
   func testListModels() {
     guard let testApp = FirebaseApp.app() else {
       XCTFail("Default app was not configured.")
