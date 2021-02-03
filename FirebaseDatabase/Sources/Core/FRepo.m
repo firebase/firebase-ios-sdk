@@ -519,7 +519,7 @@
                           FIRDataSnapshot *__nullable snapshot))block {
     FQuerySpec *querySpec = [query querySpec];
     id<FNode> node = [self.serverSyncTree getServerValue:[query querySpec]];
-    if (node != nil) {
+    if (node != nil && ![node isEmpty]) {
         block(nil, [[FIRDataSnapshot alloc]
                        initWithRef:query.ref
                        indexedNode:[FIndexedNode
