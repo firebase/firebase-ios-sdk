@@ -119,8 +119,10 @@
     // Create the Logger for the Perf SDK events to be sent to Google Data Transport.
     self.gdtLogger = [[FPRGDTCCLogger alloc] initWithLogSource:logSource];
 
+#if __has_include("CoreTelephony/CTTelephonyNetworkInfo.h")
     // Create telephony network information object ahead of time to avoid runtime delays.
     FPRNetworkInfo();
+#endif
 
     // Update the configuration flags.
     [self.configuration update];
