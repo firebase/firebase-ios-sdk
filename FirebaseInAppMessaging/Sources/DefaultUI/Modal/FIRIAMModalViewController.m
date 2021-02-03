@@ -130,6 +130,8 @@ static CGFloat LandScapePaddingBetweenImageAndTextColumn = 24;
     [self.imageView
         setImage:[UIImage imageWithData:self.modalDisplayMessage.imageData.imageRawData]];
     self.imageView.contentMode = UIViewContentModeScaleAspectFit;
+  } else {
+    self.imageView.isAccessibilityElement = NO;
   }
 
   self.messageCardView.backgroundColor = self.modalDisplayMessage.displayBackgroundColor;
@@ -166,7 +168,7 @@ static CGFloat LandScapePaddingBetweenImageAndTextColumn = 24;
 
   // Close button should be announced last for better VoiceOver experience.
   self.view.accessibilityElements =
-      @[ self.titleLabel, self.imageView, self.bodyTextView, self.closeButton ];
+      @[ self.titleLabel, self.imageView, self.bodyTextView, self.actionButton, self.closeButton ];
 }
 
 // for text display UIview, which could be a UILabel or UITextView, decide the fit height under a
