@@ -41,6 +41,7 @@
 
 - (id<FNode>)eventCache;
 - (id<FNode>)serverCache;
+- (id<FNode>)completeEventCache;
 - (id<FNode>)completeServerCacheFor:(FPath *)path;
 - (BOOL)isEmpty;
 

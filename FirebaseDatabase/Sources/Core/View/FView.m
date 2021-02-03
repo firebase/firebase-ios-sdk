@@ -130,6 +130,10 @@
     return self.viewCache.cachedEventSnap.node;
 }
 
+- (id<FNode>)completeEventCache {
+    return self.viewCache.completeEventSnap;
+}
+
 - (id<FNode>)completeServerCacheFor:(FPath *)path {
     id<FNode> cache = self.viewCache.completeServerSnap;
     if (cache) {
