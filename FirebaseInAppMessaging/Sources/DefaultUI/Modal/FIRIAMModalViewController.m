@@ -168,8 +168,10 @@ static CGFloat LandScapePaddingBetweenImageAndTextColumn = 24;
   self.fixedMessageCardHeightConstraint.active = NO;
 
   // Close button should be announced last for better VoiceOver experience.
-  self.view.accessibilityElements =
-      @[ self.titleLabel, self.imageView, self.bodyTextView, self.actionButton, self.closeButton ];
+  self.view.accessibilityElements = @[
+    self.titleLabel, self.imageView, self.bodyTextView, self.actionButton, self.closeButton,
+    self.messageCardView
+  ];
 }
 
 // for text display UIview, which could be a UILabel or UITextView, decide the fit height under a
