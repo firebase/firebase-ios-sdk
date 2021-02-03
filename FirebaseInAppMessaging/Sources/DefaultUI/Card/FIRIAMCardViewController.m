@@ -111,6 +111,8 @@
   self.bodyTextView.text = self.cardDisplayMessage.body;
   self.bodyTextView.textColor = self.cardDisplayMessage.textColor;
 
+  self.imageView.accessibilityLabel = self.inAppMessage.campaignInfo.campaignName;
+
   [self.primaryActionButton setTitle:self.cardDisplayMessage.primaryActionButton.buttonText
                             forState:UIControlStateNormal];
   [self.primaryActionButton

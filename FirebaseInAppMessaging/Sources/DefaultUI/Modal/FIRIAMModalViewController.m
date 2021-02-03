@@ -130,6 +130,7 @@ static CGFloat LandScapePaddingBetweenImageAndTextColumn = 24;
     [self.imageView
         setImage:[UIImage imageWithData:self.modalDisplayMessage.imageData.imageRawData]];
     self.imageView.contentMode = UIViewContentModeScaleAspectFit;
+    self.imageView.accessibilityLabel = self.inAppMessage.campaignInfo.campaignName;
   } else {
     self.imageView.isAccessibilityElement = NO;
   }

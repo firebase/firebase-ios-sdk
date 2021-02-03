@@ -97,6 +97,9 @@
     self.imageOriginalSize = image.size;
     [self.imageView setImage:image];
     self.imageView.contentMode = UIViewContentModeScaleAspectFit;
+    self.imageView.accessibilityLabel = self.inAppMessage.campaignInfo.campaignName;
+  } else {
+    self.imageView.isAccessibilityElement = NO;
   }
 
   [self setupRecognizers];
