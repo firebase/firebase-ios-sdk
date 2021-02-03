@@ -433,11 +433,14 @@ extension ModelDownloader {
                 self.mainQueueHandler(completion(.failure(error)))
               }
             }
-            /// Stop keeping track of current download task.
-            self.currentDownloadTask.removeValue(forKey: modelName)
+
+            self.taskSerialQueue.async {
+              /// Stop keeping track of current download task.
+              self.currentDownloadTask.removeValue(forKey: modelName)
+            }
           }
 
-          self.taskSerialQueue.async {
+          self.taskSerialQueue.sync {
             /// Merge duplicate requests if there is already a download in progress for the same model.
             if let downloadTask = self.currentDownloadTask[modelName],
               downloadTask.canMergeRequests() {
@@ -448,7 +451,9 @@ extension ModelDownloader {
               DeviceLogger.logEvent(level: .debug,
                                     message: ModelDownloader.DebugDescription.mergingRequests,
                                     messageCode: .mergeRequests)
-              downloadTask.resume()
+              if downloadTask.canResume() {
+                downloadTask.resume()
+              }
             } else {
               let downloadTask = ModelDownloadTask(
                 remoteModelInfo: remoteModelInfo,
@@ -459,7 +464,6 @@ extension ModelDownloader {
                 completion: taskCompletion,
                 telemetryLogger: self.telemetryLogger
               )
-
               /// Keep track of current download task to allow for merging duplicate requests.
               self.currentDownloadTask[modelName] = downloadTask
               downloadTask.resume()

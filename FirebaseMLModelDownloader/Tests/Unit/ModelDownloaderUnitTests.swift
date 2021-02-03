@@ -58,10 +58,11 @@ final class ModelDownloaderUnitTests: XCTestCase {
     options.apiKey = MockOptions.apiKey
     options.projectID = MockOptions.projectID
     FirebaseApp.configure(options: options)
-    FirebaseConfiguration.shared.setLoggerLevel(.debug)
+    // FirebaseConfiguration.shared.setLoggerLevel(.debug)
   }
 
   override class func tearDown() {
+    try? FileManager.default.removeItem(atPath: NSTemporaryDirectory())
     FirebaseApp.app()?.delete { _ in }
   }
 
@@ -479,6 +480,7 @@ final class ModelDownloaderUnitTests: XCTestCase {
   /// Get model if server returns an error due to model not found.
   func testModelDownloadWithMergeRequests() {
     let tempFileURL = tempFile()
+    let numberOfRequests = 5
     let remoteModelInfo = fakeModelInfo(expired: false, oversized: false)
     let fakeResponse = HTTPURLResponse(url: fakeFileURL,
                                        statusCode: 200,
@@ -486,36 +488,116 @@ final class ModelDownloaderUnitTests: XCTestCase {
                                        headerFields: nil)!
     let downloader = MockModelFileDownloader()
     let fileDownloaderExpectation = expectation(description: "File downloader")
-    fileDownloaderExpectation.expectedFulfillmentCount = 5
+
     downloader.downloadFileHandler = { url in
       fileDownloaderExpectation.fulfill()
       XCTAssertEqual(url, self.fakeDownloadURL)
     }
 
     let completionExpectation = expectation(description: "Completion handler")
-    completionExpectation.expectedFulfillmentCount = 5
+    completionExpectation.expectedFulfillmentCount = numberOfRequests + 1
+
     let taskCompletion: ModelDownloadTask.Completion = { result in
       completionExpectation.fulfill()
       switch result {
-      case let .success(model): print(model)
-      case let .failure(error): print(error)
+      case let .success(model):
+        XCTAssertEqual(model.name, self.fakeModelName)
+        XCTAssertEqual(model.size, self.fakeModelSize)
+        XCTAssertEqual(model.hash, self.fakeModelHash)
+        let modelPath = URL(string: model.path)!
+        XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
+      case let .failure(error):
+        XCTFail("Error - \(error)")
       }
     }
+
     let modelDownloadTask = ModelDownloadTask(remoteModelInfo: remoteModelInfo,
                                               appName: "fakeAppName",
                                               defaults: .createTestInstance(testName: #function),
                                               downloader: downloader,
                                               completion: taskCompletion)
 
-    for _ in 0 ..< 5 {
+    for i in 1 ... numberOfRequests {
+      let newTaskCompletion: ModelDownloadTask.Completion = { result in
+        completionExpectation.fulfill()
+        switch result {
+        case let .success(model):
+          XCTAssertEqual(model.name, self.fakeModelName)
+          XCTAssertEqual(model.size, self.fakeModelSize)
+          XCTAssertEqual(model.hash, self.fakeModelHash)
+          let modelPath = URL(string: model.path)!
+          XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
+          if i == numberOfRequests {
+            try? self.deleteFile(at: modelPath)
+          }
+        case let .failure(error):
+          XCTFail("Error - \(error)")
+        }
+      }
       modelDownloadTask.resume()
-
-      downloader
-        .completion?(.success(FileDownloaderResponse(urlResponse: fakeResponse,
-                                                     fileURL: tempFileURL)))
+      modelDownloadTask.merge(newCompletion: newTaskCompletion)
     }
-    wait(for: [fileDownloaderExpectation], timeout: 0.1)
-    wait(for: [completionExpectation], timeout: 0.5)
+
+    downloader
+      .completion?(.success(FileDownloaderResponse(urlResponse: fakeResponse,
+                                                   fileURL: tempFileURL)))
+    wait(for: [fileDownloaderExpectation], timeout: 1)
+    wait(for: [completionExpectation], timeout: 2)
+
+    try? ModelFileManager.removeFile(at: tempFileURL)
+  }
+
+  /// Get model if server returns an error due to model not found.
+  func testGetModelWithMergeRequests() {
+    let modelDownloader = ModelDownloader.modelDownloader()
+    let conditions = ModelDownloadConditions()
+    let session = fakeModelInfoSessionWithURL(fakeDownloadURL, statusCode: 200)
+    let modelInfoRetriever = fakeModelRetriever(fakeSession: session)
+    let tempFileURL = tempFile()
+    let numberOfRequests = 6
+    let fakeResponse = HTTPURLResponse(url: fakeFileURL,
+                                       statusCode: 200,
+                                       httpVersion: nil,
+                                       headerFields: nil)!
+    let downloader = MockModelFileDownloader()
+    let fileDownloaderExpectation = expectation(description: "File downloader")
+
+    downloader.downloadFileHandler = { url in
+      fileDownloaderExpectation.fulfill()
+      XCTAssertEqual(url, self.fakeDownloadURL)
+    }
+
+    let completionExpectation = expectation(description: "Completion handler")
+    completionExpectation.expectedFulfillmentCount = numberOfRequests
+
+    for i in 1 ... numberOfRequests {
+      modelDownloader.downloadInfoAndModel(modelName: "fakeModelName",
+                                           modelInfoRetriever: modelInfoRetriever,
+                                           downloader: downloader,
+                                           conditions: conditions) { result in
+        completionExpectation.fulfill()
+        switch result {
+        case let .success(model):
+          XCTAssertEqual(model.name, self.fakeModelName)
+          XCTAssertEqual(model.size, self.fakeModelSize)
+          XCTAssertEqual(model.hash, self.fakeModelHash)
+          let modelPath = URL(string: model.path)!
+          XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
+          if i == numberOfRequests {
+            try? self.deleteFile(at: modelPath)
+          }
+        case let .failure(error):
+          XCTFail("Error - \(error)")
+        }
+      }
+    }
+    wait(for: [fileDownloaderExpectation], timeout: 0.5)
+
+    downloader
+      .completion?(.success(FileDownloaderResponse(urlResponse: fakeResponse,
+                                                   fileURL: tempFileURL)))
+
+    wait(for: [completionExpectation], timeout: 1)
 
     try? ModelFileManager.removeFile(at: tempFileURL)
   }

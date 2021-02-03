@@ -81,7 +81,12 @@ extension ModelDownloadTask {
     return downloadStatus != .complete
   }
 
-  /// Merge duplicate requests.
+  /// Check if download task can be resumed.
+  func canResume() -> Bool {
+    return downloadStatus == .ready
+  }
+
+  /// Merge duplicate requests. This method is not thread-safe.
   func merge(newProgressHandler: ProgressHandler? = nil, newCompletion: @escaping Completion) {
     let originalProgressHandler = progressHandler
     progressHandler = { progress in
@@ -106,10 +111,10 @@ extension ModelDownloadTask {
                                              downloadErrorCode: .downloadFailed)
       return
     }
+    downloadStatus = .downloading
     telemetryLogger?.logModelDownloadEvent(eventName: .modelDownload,
                                            status: .downloading,
                                            downloadErrorCode: .noError)
-    downloadStatus = .downloading
     downloader.downloadFile(with: remoteModelInfo.downloadURL,
                             progressHandler: { downloadedBytes, totalBytes in
                               /// Fraction of model file downloaded.
