@@ -530,13 +530,9 @@ void SyncEngine::UpdateTrackedLimboDocuments(
 
 void SyncEngine::TrackLimboChange(const LimboDocumentChange& limbo_change) {
   const DocumentKey& key = limbo_change.key();
-  if (active_limbo_targets_by_key_.find(key) ==
-          active_limbo_targets_by_key_.end() &&
-      std::find(enqueued_limbo_resolutions_.begin(),
-                enqueued_limbo_resolutions_.end(),
-                key) == enqueued_limbo_resolutions_.end()) {
+  if (active_limbo_targets_by_key_.find(key) == active_limbo_targets_by_key_.end() && !enqueued_limbo_resolutions_.contains(key)) {
     LOG_DEBUG("New document in limbo: %s", key.ToString());
-    enqueued_limbo_resolutions_.push_back(key);
+    enqueued_limbo_resolutions_.push(key);
     PumpEnqueuedLimboResolutions();
   }
 }
@@ -545,8 +541,7 @@ void SyncEngine::PumpEnqueuedLimboResolutions() {
   while (!enqueued_limbo_resolutions_.empty() &&
          active_limbo_targets_by_key_.size() <
              max_concurrent_limbo_resolutions_) {
-    DocumentKey key = enqueued_limbo_resolutions_.front();
-    enqueued_limbo_resolutions_.pop_front();
+    const DocumentKey& key = enqueued_limbo_resolutions_.pop();
     TargetId limbo_target_id = target_id_generator_.NextId();
     active_limbo_resolutions_by_target_.emplace(limbo_target_id,
                                                 LimboResolution{key});
@@ -558,12 +553,7 @@ void SyncEngine::PumpEnqueuedLimboResolutions() {
 }
 
 void SyncEngine::RemoveLimboTarget(const DocumentKey& key) {
-  auto enqueued_it = std::find(enqueued_limbo_resolutions_.begin(),
-                               enqueued_limbo_resolutions_.end(), key);
-  if (enqueued_it != enqueued_limbo_resolutions_.end()) {
-    enqueued_limbo_resolutions_.erase(enqueued_it);
-  }
-
+  enqueued_limbo_resolutions_.remove(key);
   auto it = active_limbo_targets_by_key_.find(key);
   if (it == active_limbo_targets_by_key_.end()) {
     // This target already got removed, because the query failed.
@@ -575,6 +565,51 @@ void SyncEngine::RemoveLimboTarget(const DocumentKey& key) {
   active_limbo_targets_by_key_.erase(key);
   active_limbo_resolutions_by_target_.erase(limbo_target_id);
   PumpEnqueuedLimboResolutions();
+}
+
+void SyncEngine::LimboResolutionQueue::push(const model::DocumentKey& key) {
+  HARD_ASSERT(queue_entries_by_key_.find(key) == queue_entries_by_key_.end(), "%s is already enqueued for limbo resolution", key.ToString());
+  queue_.emplace_back(key);
+  queue_entries_by_key_.emplace(key, &queue_.back());
+}
+
+model::DocumentKey SyncEngine::LimboResolutionQueue::pop() {
+  HARD_ASSERT(queue_.size() > 0, "queue is empty");
+  model::DocumentKey popped_key = queue_.front().key();
+  queue_.pop_front();
+  queue_entries_by_key_.erase(popped_key);
+  PruneLeadingCancelledQueueEntries();
+  return popped_key;
+}
+
+void SyncEngine::LimboResolutionQueue::remove(const model::DocumentKey& key) {
+  auto it = queue_entries_by_key_.find(key);
+  if (it != queue_entries_by_key_.end()) {
+    it->second->cancel();
+    queue_entries_by_key_.erase(it);
+    PruneLeadingCancelledQueueEntries();
+  }
+}
+
+void SyncEngine::LimboResolutionQueue::PruneLeadingCancelledQueueEntries() {
+  while (!queue_.empty() && queue_.front().cancelled()) {
+    queue_entries_by_key_.erase(queue_.front().key());
+    queue_.pop_front();
+  }
+}
+
+bool SyncEngine::LimboResolutionQueue::contains(const model::DocumentKey& key) const {
+  return queue_entries_by_key_.find(key) != queue_entries_by_key_.end();
+}
+
+std::vector<model::DocumentKey> SyncEngine::LimboResolutionQueue::keys() const {
+  std::vector<model::DocumentKey> keys;
+  for (const QueueEntry& entry : queue_) {
+    if (!entry.cancelled()) {
+      keys.push_back(entry.key());
+    }
+  }
+  return keys;
 }
 
 }  // namespace core

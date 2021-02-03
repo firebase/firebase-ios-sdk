@@ -155,9 +155,8 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
   }
 
   // For tests only
-  std::deque<model::DocumentKey> GetEnqueuedLimboDocumentResolutions() const {
-    // Return defensive copy
-    return enqueued_limbo_resolutions_;
+  std::vector<model::DocumentKey> GetEnqueuedLimboDocumentResolutions() const {
+    return enqueued_limbo_resolutions_.keys();
   }
 
  private:
@@ -218,6 +217,37 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
      * the target is CURRENT.
      */
     bool document_received = false;
+  };
+
+  class LimboResolutionQueue {
+   public:
+    LimboResolutionQueue() = default;
+    LimboResolutionQueue(const LimboResolutionQueue&) = delete;
+
+    void push(const model::DocumentKey& key);
+    model::DocumentKey pop();
+    void remove(const model::DocumentKey& key);
+
+    bool empty() const { return queue_.empty(); }
+    bool contains(const model::DocumentKey& key) const;
+    std::vector<model::DocumentKey> keys() const;
+
+   private:
+    class QueueEntry {
+     public:
+      QueueEntry(const model::DocumentKey& key) : key_(key) {}
+      const model::DocumentKey& key() const { return key_; }
+      bool cancelled() const { return cancelled_; }
+      void cancel() { cancelled_ = true; }
+     private:
+      model::DocumentKey key_;
+      bool cancelled_ = false;
+    };
+
+    void PruneLeadingCancelledQueueEntries();
+
+    std::deque<QueueEntry> queue_;
+    std::unordered_map<model::DocumentKey, QueueEntry*, model::DocumentKeyHash> queue_entries_by_key_;
   };
 
   void AssertCallbackExists(absl::string_view source);
@@ -301,7 +331,7 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
    * The keys of documents that are in limbo for which we haven't yet started a
    * limbo resolution query.
    */
-  std::deque<model::DocumentKey> enqueued_limbo_resolutions_;
+  LimboResolutionQueue enqueued_limbo_resolutions_;
 
   /**
    * Keeps track of the target ID for each document that is in limbo with an
