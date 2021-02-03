@@ -1,3 +1,6 @@
+# 2021-2 -- v.7.7.0
+- [fixed] Fixed accessibility experience for in-app messages (#7445).
+
 # 2021-1 -- v7.5.0
 - [fixed] Fixed failed assertion causing app to crash during test on device flow (#7299).
 
