@@ -17,7 +17,7 @@ import FirebaseMLModelDownloader
 
 class Downloader: ObservableObject {
   @Published var downloadProgress: Float = 0.0
-  @Published var selectedModel = "pose-detection"
+  @Published var modelName = ""
   @Published var filePath = ""
   @Published var error = ""
   @Published var isDownloaded = false
@@ -44,10 +44,7 @@ class Downloader: ObservableObject {
 
   func downloadModel(downloadType: ModelDownloadType) {
     let modelDownloader = ModelDownloader.modelDownloader()
-    var conditions = ModelDownloadConditions()
-    conditions.allowsCellularAccess = false
-
-    let modelName = selectedModel
+    let conditions = ModelDownloadConditions()
     modelDownloader.getModel(
       name: modelName,
       downloadType: downloadType,
@@ -77,7 +74,6 @@ class Downloader: ObservableObject {
 
   func deleteModel() {
     let modelDownloader = ModelDownloader.modelDownloader()
-    let modelName = selectedModel
     modelDownloader.deleteDownloadedModel(name: modelName) { result in
       switch result {
       case .success:
