@@ -1,6 +1,9 @@
 # Unreleased
 * Add community supported tvOS.
 
+# Version 7.6.0
+- [fixed] Fixed build warnings introduced with Xcode 12.5. (#7435)
+
 # Version 7.4.0
 * Make FirebasePerformance open source.
 * Remove GoogleToolboxForMac and GTMSessionFetcher dependencies.
