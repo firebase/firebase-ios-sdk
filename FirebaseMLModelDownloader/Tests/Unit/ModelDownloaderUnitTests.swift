@@ -58,7 +58,7 @@ final class ModelDownloaderUnitTests: XCTestCase {
     options.apiKey = MockOptions.apiKey
     options.projectID = MockOptions.projectID
     FirebaseApp.configure(options: options)
-    // FirebaseConfiguration.shared.setLoggerLevel(.debug)
+    FirebaseConfiguration.shared.setLoggerLevel(.debug)
   }
 
   override class func tearDown() {
