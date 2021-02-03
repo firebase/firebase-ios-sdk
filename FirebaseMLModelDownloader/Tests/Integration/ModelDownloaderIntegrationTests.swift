@@ -49,6 +49,14 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     FirebaseConfiguration.shared.setLoggerLevel(.debug)
   }
 
+  override func setUp() {
+    do {
+      try ModelFileManager.emptyModelsDirectory()
+    } catch {
+      XCTFail("Could not empty models directory.")
+    }
+  }
+
   /// Test to download model info - makes an actual network call.
   func testDownloadModelInfo() {
     guard let testApp = FirebaseApp.app() else {
