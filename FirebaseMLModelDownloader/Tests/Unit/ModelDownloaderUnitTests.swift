@@ -477,7 +477,7 @@ final class ModelDownloaderUnitTests: XCTestCase {
     try? ModelFileManager.removeFile(at: tempFileURL)
   }
 
-  /// Get model if server returns an error due to model not found.
+  /// Get model if multiple duplicate requests are made.
   func testModelDownloadWithMergeRequests() {
     let tempFileURL = tempFile()
     let numberOfRequests = 5
@@ -547,7 +547,7 @@ final class ModelDownloaderUnitTests: XCTestCase {
     try? ModelFileManager.removeFile(at: tempFileURL)
   }
 
-  /// Get model if server returns an error due to model not found.
+  /// Get model if multiple duplicate requests are made (test at the API surface).
   func testGetModelWithMergeRequests() {
     let modelDownloader = ModelDownloader.modelDownloader()
     let conditions = ModelDownloadConditions()
