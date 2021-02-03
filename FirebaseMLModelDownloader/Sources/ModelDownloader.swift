@@ -289,7 +289,7 @@ public class ModelDownloader {
       appName: appName,
       modelName: modelName
     )
-    guard let _ = getLocalModelInfo(modelName: modelName),
+    guard let localModelInfo = getLocalModelInfo(modelName: modelName),
       ModelFileManager.isFileReachable(at: localPath)
     else {
       DeviceLogger.logEvent(level: .debug,
@@ -300,6 +300,8 @@ public class ModelDownloader {
     }
     do {
       try ModelFileManager.removeFile(at: localPath)
+      /// Clear out corresponding local model info.
+      localModelInfo.removeFromDefaults(userDefaults, appName: appName)
       DeviceLogger.logEvent(level: .debug,
                             message: ModelDownloader.DebugDescription.modelDeleted,
                             messageCode: .modelDeleted)
@@ -325,6 +327,14 @@ extension ModelDownloader {
       DeviceLogger.logEvent(level: .debug,
                             message: description,
                             messageCode: .noLocalModelInfo)
+      return nil
+    }
+    let modelPath = ModelFileManager.getDownloadedModelFilePath(
+      appName: appName,
+      modelName: modelName
+    )
+    /// Ensure that the model file actually exists.
+    guard ModelFileManager.isFileReachable(at: modelPath) else {
       return nil
     }
     return localModelInfo

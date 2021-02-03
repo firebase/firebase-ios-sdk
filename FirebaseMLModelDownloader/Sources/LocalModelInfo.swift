@@ -67,6 +67,12 @@ extension LocalModelInfo: DownloaderUserDefaultsWriteable {
     defaults.setValue(modelHash, forKey: "\(defaultsPrefix).model-hash")
     defaults.setValue(size, forKey: "\(defaultsPrefix).model-size")
   }
+
+  func removeFromDefaults(_ defaults: UserDefaults, appName: String) {
+    let defaultsPrefix = LocalModelInfo.getUserDefaultsKeyPrefix(appName: appName, modelName: name)
+    defaults.removeObject(forKey: "\(defaultsPrefix).model-hash")
+    defaults.removeObject(forKey: "\(defaultsPrefix).model-size")
+  }
 }
 
 /// Named user defaults for FirebaseML.
