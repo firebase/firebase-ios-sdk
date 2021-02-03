@@ -148,6 +148,13 @@
   [self.textAreaScrollView setContentOffset:CGPointZero];
 }
 
+- (void)viewDidAppear:(BOOL)animated {
+  [super viewDidAppear:animated];
+
+  // Announce via VoiceOver that the card message has appeared. Highlight the title label.
+  UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, self.titleLabel);
+}
+
 @end
 
 #endif  // TARGET_OS_IOS

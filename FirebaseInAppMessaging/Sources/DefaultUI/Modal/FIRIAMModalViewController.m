@@ -456,6 +456,13 @@ struct TitleBodyButtonHeightInfo {
   }
 }
 
+- (void)viewDidAppear:(BOOL)animated {
+  [super viewDidAppear:animated];
+
+  // Announce via VoiceOver that the modal message has appeared. Highlight the title label.
+  UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, self.titleLabel);
+}
+
 - (void)flashCloseButton:(UIButton *)closeButton {
   closeButton.alpha = 1.0f;
   [UIView animateWithDuration:2.0

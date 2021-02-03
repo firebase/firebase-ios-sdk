@@ -286,6 +286,9 @@ static const CGFloat kSwipeUpThreshold = -10.0f;
                      self.view.center = normalCenterPoint;
                    }
                    completion:nil];
+
+  // Announce via VoiceOver that the banner has appeared. Highlight the title label.
+  UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, self.titleLabel);
 }
 
 - (void)setupAutoDismissTimer {

@@ -176,6 +176,13 @@
   }
 }
 
+- (void)viewDidAppear:(BOOL)animated {
+  [super viewDidAppear:animated];
+
+  // Announce via VoiceOver that the image-only message has appeared. Highlight the image.
+  UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, self.imageView);
+}
+
 - (void)flashCloseButton:(UIButton *)closeButton {
   closeButton.alpha = 1.0f;
   [UIView animateWithDuration:2.0
