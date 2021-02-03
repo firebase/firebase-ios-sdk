@@ -64,11 +64,7 @@ final class ModelDownloaderUnitTests: XCTestCase {
   }
 
   override func setUp() {
-    do {
-      try ModelFileManager.emptyModelsDirectory()
-    } catch {
-      XCTFail("Could not empty models directory.")
-    }
+    try? ModelFileManager.emptyModelsDirectory()
   }
 
   override class func tearDown() {
