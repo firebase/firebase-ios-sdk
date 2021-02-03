@@ -140,7 +140,7 @@ NSString *kListPath = @"object";
 
   [self.storage useEmulatorWithHost:@"localhost" port:8080];
   self.fetcherService.testBlock = [FIRStorageTestHelpers
-      successBlockWithURL:@"https://localhost:8080/v0/b/bucket/o?prefix=object/&delimiter=/"];
+      successBlockWithURL:@"http://localhost:8080/v0/b/bucket/o?prefix=object/&delimiter=/"];
 
   FIRStorageReference *ref = [self.storage referenceWithPath:kListPath];
   FIRStorageListTask *task = [[FIRStorageListTask alloc]
