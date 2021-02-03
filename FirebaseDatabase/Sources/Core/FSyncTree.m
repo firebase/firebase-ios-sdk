@@ -779,7 +779,7 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
                 getView:query
             writesCache:[_pendingWriteTree childWritesForPath:[query path]]
             serverCache:serverCache];
-        return [view completeServerCacheFor:[query path]];
+        return [view serverCache];
     }
     return nil;
 }

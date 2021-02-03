@@ -1395,8 +1395,8 @@
   FIRDatabaseReference* childOne = [ref childByAutoId];
   FIRDatabaseReference* childTwo = [ref childByAutoId];
 
-  [childOne setValue:@1];
-  [childTwo setValue:@2];
+  [self waitForCompletionOf:childOne setValue:@1];
+  [self waitForCompletionOf:childTwo setValue:@2];
 
   __block BOOL done = NO;
 
@@ -1417,8 +1417,8 @@
   FIRDatabaseReference* childOne = [ref childByAutoId];
   FIRDatabaseReference* childTwo = [ref childByAutoId];
 
-  [childOne setValue:@1];
-  [childTwo setValue:@2];
+  [self waitForCompletionOf:childOne setValue:@1];
+  [self waitForCompletionOf:childTwo setValue:@2];
 
   __block BOOL done = NO;
 
@@ -1439,8 +1439,8 @@
   FIRDatabaseReference* childOne = [ref childByAutoId];
   FIRDatabaseReference* childTwo = [ref childByAutoId];
 
-  [childOne setValue:@1];
-  [childTwo setValue:@2];
+  [self waitForCompletionOf:childOne setValue:@1];
+  [self waitForCompletionOf:childTwo setValue:@2];
 
   __block BOOL done = NO;
 
@@ -1469,8 +1469,8 @@
   FIRDatabaseReference* childOne = [ref childByAutoId];
   FIRDatabaseReference* childTwo = [ref childByAutoId];
 
-  [childOne setValue:@1];
-  [childTwo setValue:@2];
+  [self waitForCompletionOf:childOne setValue:@1];
+  [self waitForCompletionOf:childTwo setValue:@2];
 
   __block BOOL done = NO;
 
