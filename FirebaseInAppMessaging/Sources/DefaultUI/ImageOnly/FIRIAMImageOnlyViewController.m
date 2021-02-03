@@ -89,6 +89,9 @@
   [super viewDidLoad];
   [self.view setBackgroundColor:[UIColor.grayColor colorWithAlphaComponent:0.5]];
 
+  // Close button should be announced last for better VoiceOver experience.
+  self.view.accessibilityElements = @[ self.imageView, self.closeButton ];
+
   if (self.imageOnlyMessage.imageData) {
     UIImage *image = [UIImage imageWithData:self.imageOnlyMessage.imageData.imageRawData];
     self.imageOriginalSize = image.size;
