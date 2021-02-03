@@ -41,7 +41,7 @@ public let shared = Manifest(
     Pod("FirebaseFunctions", zip: true),
     Pod("FirebaseInAppMessaging", isBeta: true, platforms: ["ios"], zip: true),
     Pod("FirebaseMessaging", zip: true),
-    Pod("FirebasePerformance", platforms: ["ios"], zip: true),
+    Pod("FirebasePerformance", platforms: ["ios", "tvos"], zip: true),
     Pod("FirebaseStorage", zip: true),
     Pod("FirebaseStorageSwift", isBeta: true),
     Pod("FirebaseMLCommon", isClosedSource: true, isBeta: true, platforms: ["ios"]),
