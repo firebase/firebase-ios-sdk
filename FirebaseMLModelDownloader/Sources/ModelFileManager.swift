@@ -32,7 +32,7 @@ enum ModelFileManager {
   }
 
   /// Name for model file stored on device.
-  private static func getDownloadedModelFileName(appName: String, modelName: String) -> String {
+  static func getDownloadedModelFileName(appName: String, modelName: String) -> String {
     return [modelNamePrefix, appName, modelName].joined(separator: nameSeparator)
   }
 

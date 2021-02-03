@@ -233,7 +233,7 @@ public class ModelDownloader {
       var customModels = Set<CustomModel>()
       for path in modelPaths {
         guard let modelName = ModelFileManager.getModelNameFromFilePath(path) else {
-          let description = ModelDownloader.ErrorDescription.parseModelName(path.path)
+          let description = ModelDownloader.ErrorDescription.parseModelName(path.absoluteString)
           DeviceLogger.logEvent(level: .debug,
                                 message: description,
                                 messageCode: .modelNameParseError)
@@ -248,8 +248,11 @@ public class ModelDownloader {
           mainQueueHandler(completion(.failure(.internalError(description: description))))
           return
         }
-        guard let pathURL = URL(string: modelInfo.path)?.standardizedFileURL,
-          pathURL == path.standardizedFileURL else {
+        let modelPath = ModelFileManager.getDownloadedModelFilePath(
+          appName: appName,
+          modelName: modelName
+        )
+        guard ModelFileManager.isFileReachable(at: modelPath) else {
           DeviceLogger.logEvent(level: .debug,
                                 message: ModelDownloader.ErrorDescription.outdatedModelPath,
                                 messageCode: .outdatedModelPathError)
@@ -257,7 +260,7 @@ public class ModelDownloader {
               .ErrorDescription.outdatedModelPath))))
           return
         }
-        let model = CustomModel(localModelInfo: modelInfo)
+        let model = CustomModel(localModelInfo: modelInfo, path: modelPath.absoluteString)
         customModels.insert(model)
       }
       DeviceLogger.logEvent(level: .debug,
@@ -282,8 +285,12 @@ public class ModelDownloader {
   public func deleteDownloadedModel(name modelName: String,
                                     completion: @escaping (Result<Void, DownloadedModelError>)
                                       -> Void) {
-    guard let localModelInfo = getLocalModelInfo(modelName: modelName),
-      let localPath = URL(string: localModelInfo.path)
+    let localPath = ModelFileManager.getDownloadedModelFilePath(
+      appName: appName,
+      modelName: modelName
+    )
+    guard let _ = getLocalModelInfo(modelName: modelName),
+      ModelFileManager.isFileReachable(at: localPath)
     else {
       DeviceLogger.logEvent(level: .debug,
                             message: ModelDownloader.ErrorDescription.modelNotFound(modelName),
@@ -320,19 +327,18 @@ extension ModelDownloader {
                             messageCode: .noLocalModelInfo)
       return nil
     }
-    /// There is local model info on device, but no model file at the expected path.
-    guard let localPath = URL(string: localModelInfo.path),
-      ModelFileManager.isFileReachable(at: localPath) else {
-      // TODO: Consider deleting local model info in user defaults.
-      return nil
-    }
     return localModelInfo
   }
 
   /// Get model saved on device if available.
   private func getLocalModel(modelName: String) -> CustomModel? {
     guard let localModelInfo = getLocalModelInfo(modelName: modelName) else { return nil }
-    let model = CustomModel(localModelInfo: localModelInfo)
+    let modelPath = ModelFileManager.getDownloadedModelFilePath(
+      appName: appName,
+      modelName: modelName
+    )
+    guard ModelFileManager.isFileReachable(at: modelPath) else { return nil }
+    let model = CustomModel(localModelInfo: localModelInfo, path: modelPath.absoluteString)
     return model
   }
 
@@ -463,13 +469,8 @@ extension ModelDownloader {
   // TODO: Consider using protocols
   static func modelDownloaderWithDefaults(_ defaults: UserDefaults,
                                           app: FirebaseApp) -> ModelDownloader {
-    if let downloader = modelDownloaderDictionary[app.name] {
-      return downloader
-    } else {
-      let downloader = ModelDownloader(app: app, defaults: defaults)
-      modelDownloaderDictionary[app.name] = downloader
-      return downloader
-    }
+    let downloader = ModelDownloader(app: app, defaults: defaults)
+    return downloader
   }
 }
 

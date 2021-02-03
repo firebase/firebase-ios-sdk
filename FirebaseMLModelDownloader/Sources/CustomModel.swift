@@ -33,11 +33,11 @@ public struct CustomModel: Hashable {
   }
 
   /// Convenience init to create model from local model info.
-  init(localModelInfo: LocalModelInfo) {
+  init(localModelInfo: LocalModelInfo, path: String) {
     self.init(
       name: localModelInfo.name,
       size: localModelInfo.size,
-      path: localModelInfo.path,
+      path: path,
       hash: localModelInfo.modelHash
     )
   }

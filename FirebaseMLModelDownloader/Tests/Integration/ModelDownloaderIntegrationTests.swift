@@ -80,7 +80,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
           XCTAssertGreaterThan(modelInfo.downloadURL.absoluteString.count, 0)
           XCTAssertGreaterThan(modelInfo.modelHash.count, 0)
           XCTAssertGreaterThan(modelInfo.size, 0)
-          let localModelInfo = LocalModelInfo(from: modelInfo, path: "mock-valid-path")
+          let localModelInfo = LocalModelInfo(from: modelInfo)
           localModelInfo.writeToDefaults(
             .createTestInstance(testName: #function),
             appName: testApp.name
@@ -419,7 +419,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     }
 
     let testModelName = "image-classification"
-    let testName = #function
+    let testName = String(#function.dropLast(2))
 
     let conditions = ModelDownloadConditions()
     let modelDownloader = ModelDownloader.modelDownloaderWithDefaults(
@@ -464,7 +464,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     }
 
     let testModelName = "pose-detection"
-    let testName = #function
+    let testName = String(#function.dropLast(2))
 
     // TODO: Figure out a better way to test this.
     var conditions = ModelDownloadConditions()

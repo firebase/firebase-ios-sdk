@@ -127,8 +127,8 @@ final class ModelDownloaderUnitTests: XCTestCase {
     let tempModelFileURL = tempModelFile()
     let completionExpectation = expectation(description: "Completion handler")
 
-    let localModelInfo = fakeLocalModelInfo(path: tempModelFileURL.absoluteString)
-    localModelInfo.writeToDefaults(.getTestInstance(testName: #function), appName: testApp.name)
+    let localModelInfo = fakeLocalModelInfo()
+    localModelInfo.writeToDefaults(.createTestInstance(testName: #function), appName: testApp.name)
 
     let modelDownloader = ModelDownloader.modelDownloaderWithDefaults(
       .getTestInstance(testName: #function),
@@ -174,8 +174,16 @@ final class ModelDownloaderUnitTests: XCTestCase {
 
   /// Test listing models without local info in user defaults.
   func testListModelsNoLocalInfo() {
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
+
     let tempModelFileURL = tempModelFile()
-    let modelDownloader = ModelDownloader.modelDownloader()
+    let modelDownloader = ModelDownloader.modelDownloaderWithDefaults(
+      .createTestInstance(testName: #function),
+      app: testApp
+    )
 
     let completionExpectation = expectation(description: "Completion handler")
 
@@ -195,6 +203,30 @@ final class ModelDownloaderUnitTests: XCTestCase {
     }
     wait(for: [completionExpectation], timeout: 0.5)
     try? ModelFileManager.removeFile(at: tempModelFileURL)
+  }
+
+  /// Test how URL conversion behaves if there are spaces in the path.
+  func testURLConversion() {
+    /// Spaces in the string will not convert to URL.
+    if URL(string: "fakeDir1/fake Dir2/fakeFile") != nil {
+      XCTFail("Expected this conversion to not work.")
+    }
+
+    /// Percent encoding only converts to URL from absoluteString, not path.
+    let fakeURLWithSpace = URL(string: "fakeDir1/fake%20Dir2/fakeFile")!
+    if let fakeURLWithSpaceString = URL(string: fakeURLWithSpace.absoluteString) {
+      XCTAssertEqual(fakeURLWithSpace, fakeURLWithSpaceString)
+    } else {
+      XCTFail()
+    }
+    if URL(string: fakeURLWithSpace.path) != nil {
+      XCTFail("Expected this conversion to not work.")
+    }
+
+    /// Strings without spaces should work fine either way.
+    let fakeURLWithoutSpace = URL(string: "fakeDir1/fakeDir2/fakeFile")!
+    XCTAssertEqual(fakeURLWithoutSpace, URL(string: fakeURLWithoutSpace.absoluteString)!)
+    XCTAssertEqual(fakeURLWithoutSpace, URL(string: fakeURLWithoutSpace.path)!)
   }
 
   func testGetModel() {
@@ -1047,7 +1079,8 @@ extension ModelDownloaderUnitTests {
 
   func tempModelFile(invalid: Bool = false) -> URL {
     let modelDirectoryURL = ModelFileManager.modelsDirectory
-    let modelFileName = invalid ? "fake-model-file.tmp" : "prefix@@app@@\(fakeModelName)"
+    let modelFileName = invalid ? "fake-model-file.tmp" :
+      "fbml_model@@__FIRAPP_DEFAULT@@\(fakeModelName)"
     let tempFileURL = modelDirectoryURL.appendingPathComponent(modelFileName)
     let tempData: Data = "fakeModelData".data(using: .utf8)!
     try? tempData.write(to: tempFileURL)
@@ -1058,13 +1091,12 @@ extension ModelDownloaderUnitTests {
     try ModelFileManager.removeFile(at: url)
   }
 
-  func fakeLocalModelInfo(mismatch: Bool = false, path: String? = nil) -> LocalModelInfo {
+  func fakeLocalModelInfo(mismatch: Bool = false) -> LocalModelInfo {
     let hash = mismatch ? "wrongModelHash" : fakeModelHash
     return LocalModelInfo(
       name: fakeModelName,
       modelHash: hash,
-      size: 20,
-      path: path ?? fakeModelPath
+      size: 20
     )
   }
 
