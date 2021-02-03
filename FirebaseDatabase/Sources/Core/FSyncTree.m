@@ -734,6 +734,56 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
     return cacheNode.node;
 }
 
+- (id<FNode>)getServerValue:(FQuerySpec *)query {
+    FPath *path = [query path];
+    __block id<FNode> serverCacheNode = nil;
+    __block BOOL foundAncestorDefaultView = NO;
+    [self.syncPointTree
+        forEachOnPath:query.path
+           whileBlock:^BOOL(FPath *pathToSyncPoint, FSyncPoint *syncPoint) {
+             serverCacheNode =
+                 serverCacheNode != nil
+                     ? serverCacheNode
+                     : [syncPoint completeServerCacheAtPath:pathToSyncPoint];
+             foundAncestorDefaultView =
+                 foundAncestorDefaultView || [syncPoint hasCompleteView];
+             return !foundAncestorDefaultView;
+           }];
+
+    [self.persistenceManager setQueryActive:query];
+
+    FSyncPoint *syncPoint = [self.syncPointTree valueAtPath:path];
+    if (syncPoint == nil) {
+        syncPoint = [[FSyncPoint alloc]
+            initWithPersistenceManager:self.persistenceManager];
+        self.syncPointTree = [self.syncPointTree setValue:syncPoint
+                                                   atPath:path];
+    } else {
+        foundAncestorDefaultView =
+            foundAncestorDefaultView || [syncPoint hasCompleteView];
+        serverCacheNode =
+            serverCacheNode != nil
+                ? serverCacheNode
+                : [syncPoint completeServerCacheAtPath:[FPath empty]];
+    }
+
+    FCacheNode *serverCache;
+    if (serverCacheNode != nil) {
+        serverCache = [[FCacheNode alloc]
+            initWithIndexedNode:[FIndexedNode
+                                    indexedNodeWithNode:serverCacheNode
+                                                  index:[query index]]
+             isFullyInitialized:YES
+                     isFiltered:NO];
+        FView *view = [syncPoint
+                getView:query
+            writesCache:[_pendingWriteTree childWritesForPath:[query path]]
+            serverCache:serverCache];
+        return [view completeServerCacheFor:[query path]];
+    }
+    return nil;
+}
+
 /**
  * Returns a complete cache, if we have one, of the data at a particular path.
  * The location must have a listener above it, but as this is only used by

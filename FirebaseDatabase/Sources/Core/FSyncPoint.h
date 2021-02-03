@@ -41,6 +41,10 @@
                 writesCache:(FWriteTreeRef *)writesCache
                 serverCache:(id<FNode>)optCompleteServerCache;
 
+- (FView *)getView:(FQuerySpec *)query
+       writesCache:(FWriteTreeRef *)writesCache
+       serverCache:(FCacheNode *)serverCache;
+
 /**
  * Returns array of FEvent
  */
