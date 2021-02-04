@@ -66,6 +66,7 @@ enum LoggerMessageCode: Int {
   case telemetryInitError
   case backgroundDownloadError
   case testError
+  case apiNotEnabledError
 }
 
 /// On-device logger.

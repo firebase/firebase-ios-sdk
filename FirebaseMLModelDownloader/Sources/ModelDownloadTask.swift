@@ -139,7 +139,7 @@ extension ModelDownloadTask {
         case let FileDownloaderError.networkError(error):
           let description = ModelDownloadTask.ErrorDescription
             .invalidHostName(error.localizedDescription)
-          downloadError = .internalError(description: description)
+          downloadError = .failedPrecondition
           DeviceLogger.logEvent(level: .debug,
                                 message: description,
                                 messageCode: .hostnameError)

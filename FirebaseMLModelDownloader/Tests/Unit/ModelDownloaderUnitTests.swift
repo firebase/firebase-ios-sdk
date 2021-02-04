@@ -519,6 +519,41 @@ final class ModelDownloaderUnitTests: XCTestCase {
     try? ModelFileManager.removeFile(at: tempFileURL)
   }
 
+  /// Get model info if Firebase ML API is not enabled or permission denied.
+  func testGetModelInfoWith403() {
+    let errorMessage =
+      """
+      {
+        "error":
+          {
+            "message":"API Disabled."
+          }
+      }
+      """
+    let session = fakeModelInfoSessionWithURL(
+      fakeDownloadURL,
+      statusCode: 403,
+      customJSON: errorMessage
+    )
+    let localModelInfo = fakeLocalModelInfo(mismatch: false)
+    let modelInfoRetriever = fakeModelRetriever(
+      fakeSession: session,
+      fakeLocalModelInfo: localModelInfo
+    )
+    let completionExpectation = expectation(description: "Completion handler")
+
+    modelInfoRetriever.downloadModelInfo { result in
+      completionExpectation.fulfill()
+      switch result {
+      case .success:
+        XCTFail("Unexpected new model info from server.")
+      case let .failure(error):
+        XCTAssertEqual(error, .permissionDenied)
+      }
+    }
+    wait(for: [completionExpectation], timeout: 0.5)
+  }
+
   /// Get model if multiple duplicate requests are made.
   func testModelDownloadWithMergeRequests() {
     let tempFileURL = tempFile()
@@ -679,6 +714,42 @@ final class ModelDownloaderUnitTests: XCTestCase {
     downloader
       .completion?(.success(FileDownloaderResponse(urlResponse: fakeResponse,
                                                    fileURL: tempFileURL)))
+    wait(for: [completionExpectation], timeout: 0.5)
+
+    try? ModelFileManager.removeFile(at: tempFileURL)
+  }
+
+  /// Get model if server returns an error due to model not found.
+  func testModelDownloadNetworkError() {
+    let tempFileURL = tempFile()
+    let remoteModelInfo = fakeModelInfo(expired: false, oversized: false)
+    let downloader = MockModelFileDownloader()
+    let fileDownloaderExpectation = expectation(description: "File downloader")
+    downloader.downloadFileHandler = { url in
+      fileDownloaderExpectation.fulfill()
+      XCTAssertEqual(url, self.fakeDownloadURL)
+    }
+
+    let completionExpectation = expectation(description: "Completion handler")
+    let taskCompletion: ModelDownloadTask.Completion = { result in
+      completionExpectation.fulfill()
+      switch result {
+      case .success: XCTFail("Unexpected successful model download.")
+      case let .failure(error):
+        XCTAssertEqual(error, .failedPrecondition)
+      }
+    }
+    let modelDownloadTask = ModelDownloadTask(remoteModelInfo: remoteModelInfo,
+                                              appName: "fakeAppName",
+                                              defaults: .createTestInstance(testName: #function),
+                                              downloader: downloader,
+                                              completion: taskCompletion)
+    modelDownloadTask.resume()
+    wait(for: [fileDownloaderExpectation], timeout: 0.1)
+
+    let offlineError = DownloadError.internalError(description: "Network appears to be offline.")
+    downloader
+      .completion?(.failure(FileDownloaderError.networkError(offlineError)))
     wait(for: [completionExpectation], timeout: 0.5)
 
     try? ModelFileManager.removeFile(at: tempFileURL)
@@ -1154,9 +1225,11 @@ extension UserDefaults {
 // MARK: - Helpers
 
 extension ModelDownloaderUnitTests {
-  func fakeModelInfoSessionWithURL(_ url: URL, statusCode: Int) -> MockModelInfoRetrieverSession {
+  func fakeModelInfoSessionWithURL(_ url: URL, statusCode: Int,
+                                   customJSON: String? = nil) -> MockModelInfoRetrieverSession {
     let fakeSession = MockModelInfoRetrieverSession()
-    fakeSession.data = fakeModelJSON.data(using: .utf8)
+    let fakeJSON = customJSON ?? fakeModelJSON
+    fakeSession.data = fakeJSON.data(using: .utf8)
     fakeSession.response = HTTPURLResponse(
       url: url,
       statusCode: statusCode,

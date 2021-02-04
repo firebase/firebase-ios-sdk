@@ -35,9 +35,9 @@ extension URLSession: ModelInfoRetrieverSession {
 
 /// Model info response object.
 private struct ModelInfoResponse: Codable {
-  var downloadURL: String
-  var urlExpiryTime: String
-  var size: String
+  let downloadURL: String
+  let urlExpiryTime: String
+  let size: String
 }
 
 /// Properties for server response keys.
@@ -293,9 +293,19 @@ class ModelInfoRetriever {
                                                                  .statusCode))
               completion(.failure(.invalidArgument))
             case 401, 403:
-              DeviceLogger.logEvent(level: .debug,
-                                    message: ModelInfoRetriever.ErrorDescription.permissionDenied,
-                                    messageCode: .permissionDenied)
+              if let data = data,
+                let responseJSON = try? JSONSerialization
+                .jsonObject(with: data, options: []) as? [String: Any],
+                let error = responseJSON["error"] as? [String: Any],
+                let errorMessage = error["message"] as? String {
+                DeviceLogger.logEvent(level: .debug,
+                                      message: errorMessage,
+                                      messageCode: .apiNotEnabledError)
+              } else {
+                DeviceLogger.logEvent(level: .debug,
+                                      message: ModelInfoRetriever.ErrorDescription.permissionDenied,
+                                      messageCode: .permissionDenied)
+              }
               self.telemetryLogger?.logModelInfoRetrievalEvent(eventName: .modelDownload,
                                                                status: .failed,
                                                                errorCode: .httpError(code: httpResponse
@@ -398,8 +408,7 @@ extension ModelInfoRetriever {
   /// Return model info created from server response.
   private func getRemoteModelInfoFromResponse(_ data: Data,
                                               modelHash: String) throws -> RemoteModelInfo {
-    let decoder = JSONDecoder()
-    guard let modelInfoJSON = try? decoder.decode(ModelInfoResponse.self, from: data) else {
+    guard let modelInfoJSON = try? JSONDecoder().decode(ModelInfoResponse.self, from: data) else {
       throw DownloadError
         .internalError(description: ModelInfoRetriever.ErrorDescription.decodeModelInfoResponse)
     }
