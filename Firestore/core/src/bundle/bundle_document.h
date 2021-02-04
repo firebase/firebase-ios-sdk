@@ -16,6 +16,8 @@
 #ifndef FIRESTORE_CORE_SRC_BUNDLE_BUNDLE_DOCUMENT_H_
 #define FIRESTORE_CORE_SRC_BUNDLE_BUNDLE_DOCUMENT_H_
 
+#include <utility>
+
 #include "Firestore/core/src/model/document.h"
 
 namespace firebase {

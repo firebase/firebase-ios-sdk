@@ -62,8 +62,6 @@ using testutil::OrderBy;
 using testutil::Value;
 using util::ReadContext;
 
-std::string TEST_PROJECT{"projects/p/databases/default/documents/"};
-
 class BundleSerializerTest : public ::testing::Test {
  public:
   BundleSerializerTest()
@@ -78,7 +76,7 @@ class BundleSerializerTest : public ::testing::Test {
   bundle::BundleSerializer bundle_serializer;
 
   static std::string GetDocumentFullPath(const std::string& path) {
-    return TEST_PROJECT + path;
+    return "projects/p/databases/default/documents/" + path;
   }
 
   static ProtoDocument TestDocument(ProtoValue value) {

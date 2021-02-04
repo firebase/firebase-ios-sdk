@@ -16,6 +16,9 @@
 
 #include "Firestore/core/src/bundle/bundle_serializer.h"
 
+#include <memory>
+#include <vector>
+
 #include "Firestore/core/src/core/bound.h"
 #include "Firestore/core/src/core/direction.h"
 #include "Firestore/core/src/core/field_filter.h"
@@ -23,7 +26,6 @@
 #include "Firestore/core/src/core/order_by.h"
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/core/target.h"
-#include "Firestore/core/src/immutable/append_only_list.h"
 #include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/field_path.h"
 #include "Firestore/core/src/model/field_value.h"

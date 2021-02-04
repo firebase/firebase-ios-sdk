@@ -18,6 +18,7 @@
 
 #include <string>
 #include <utility>
+#include <vector>
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/snapshot_version.h"
 
