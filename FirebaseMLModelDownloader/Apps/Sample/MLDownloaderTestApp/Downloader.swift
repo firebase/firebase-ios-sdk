@@ -58,16 +58,16 @@ class Downloader: ObservableObject {
       case let .success(model):
         self.isDownloaded = true
         self.filePath = model.path
-        let fileURL = URL(string: self.filePath)!
+        let fileURL = URL(fileURLWithPath: self.filePath)
         do {
           _ = try fileURL.checkResourceIsReachable()
-          let attr = try FileManager.default.attributesOfItem(atPath: fileURL.path)
+          let attr = try FileManager.default.attributesOfItem(atPath: self.filePath)
           print("Size: \(attr[FileAttributeKey.size] as! UInt64)")
         } catch {
           print("File access error - \(error)")
         }
         do {
-          _ = try Interpreter(modelPath: fileURL.path)
+          _ = try Interpreter(modelPath: self.filePath)
         } catch {
           print("Tensorflow error - \(error)")
         }

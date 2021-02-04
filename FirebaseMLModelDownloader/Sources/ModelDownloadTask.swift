@@ -236,7 +236,7 @@ extension ModelDownloadTask {
                             message: ModelDownloadTask.DebugDescription.savedLocalModelInfo,
                             messageCode: .downloadedModelInfoSaved)
       /// Build model from model info.
-      let model = CustomModel(localModelInfo: localModelInfo, path: modelFileURL.absoluteString)
+      let model = CustomModel(localModelInfo: localModelInfo, path: modelFileURL.path)
       DeviceLogger.logEvent(level: .debug,
                             message: ModelDownloadTask.DebugDescription.modelDownloaded,
                             messageCode: .modelDownloaded)

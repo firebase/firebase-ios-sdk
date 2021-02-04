@@ -233,7 +233,7 @@ public class ModelDownloader {
       var customModels = Set<CustomModel>()
       for path in modelPaths {
         guard let modelName = ModelFileManager.getModelNameFromFilePath(path) else {
-          let description = ModelDownloader.ErrorDescription.parseModelName(path.absoluteString)
+          let description = ModelDownloader.ErrorDescription.parseModelName(path.path)
           DeviceLogger.logEvent(level: .debug,
                                 message: description,
                                 messageCode: .modelNameParseError)
@@ -260,7 +260,7 @@ public class ModelDownloader {
               .ErrorDescription.outdatedModelPath))))
           return
         }
-        let model = CustomModel(localModelInfo: modelInfo, path: modelPath.absoluteString)
+        let model = CustomModel(localModelInfo: modelInfo, path: modelPath.path)
         customModels.insert(model)
       }
       DeviceLogger.logEvent(level: .debug,
@@ -348,7 +348,7 @@ extension ModelDownloader {
       modelName: modelName
     )
     guard ModelFileManager.isFileReachable(at: modelPath) else { return nil }
-    let model = CustomModel(localModelInfo: localModelInfo, path: modelPath.absoluteString)
+    let model = CustomModel(localModelInfo: localModelInfo, path: modelPath.path)
     return model
   }
 

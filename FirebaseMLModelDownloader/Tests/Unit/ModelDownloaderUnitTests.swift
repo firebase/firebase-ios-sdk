@@ -207,21 +207,12 @@ final class ModelDownloaderUnitTests: XCTestCase {
 
   /// Test how URL conversion behaves if there are spaces in the path.
   func testURLConversion() {
-    /// Spaces in the string will not convert to URL.
-    if URL(string: "fakeDir1/fake Dir2/fakeFile") != nil {
-      XCTFail("Expected this conversion to not work.")
-    }
+    /// Spaces in the string only convert to URL when using URL(fileURLWithPath: ).
+    let fakeURLWithSpace = URL(string: "file:///fakeDir1/fake%20Dir2/fakeFile")!
 
-    /// Percent encoding only converts to URL from absoluteString, not path.
-    let fakeURLWithSpace = URL(string: "fakeDir1/fake%20Dir2/fakeFile")!
-    if let fakeURLWithSpaceString = URL(string: fakeURLWithSpace.absoluteString) {
-      XCTAssertEqual(fakeURLWithSpace, fakeURLWithSpaceString)
-    } else {
-      XCTFail()
-    }
-    if URL(string: fakeURLWithSpace.path) != nil {
-      XCTFail("Expected this conversion to not work.")
-    }
+    XCTAssertEqual(fakeURLWithSpace, URL(string: fakeURLWithSpace.absoluteString))
+    XCTAssertEqual(fakeURLWithSpace, URL(fileURLWithPath: fakeURLWithSpace.path))
+    XCTAssertNil(URL(string: fakeURLWithSpace.path))
 
     /// Strings without spaces should work fine either way.
     let fakeURLWithoutSpace = URL(string: "fakeDir1/fakeDir2/fakeFile")!
