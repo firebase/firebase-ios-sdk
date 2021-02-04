@@ -1,6 +1,4 @@
 # Unreleased
-- [fixed] Fixed a crash that would happen when the app is being deleted and
-  immediately disposed of and there's an active listener (#6909).
 - [fixed] Fixed a crash that could happen when the App is being deleted and
   there's an active listener (#6909).
 - [fixed] Fixed a bug where local cache inconsistencies were unnecessarily
