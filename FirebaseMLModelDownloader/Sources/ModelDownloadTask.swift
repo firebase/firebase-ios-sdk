@@ -187,8 +187,8 @@ extension ModelDownloadTask {
         guard currentDateTime > remoteModelInfo.urlExpiryTime else {
           DeviceLogger.logEvent(level: .debug,
                                 message: ModelDownloadTask.ErrorDescription
-                                  .invalidModelName(remoteModelInfo.name),
-                                messageCode: .invalidModelName)
+                                  .invalidArgument(remoteModelInfo.name),
+                                messageCode: .invalidArgument)
           telemetryLogger?.logModelDownloadEvent(
             eventName: .modelDownload,
             status: .failed,
@@ -329,8 +329,8 @@ extension ModelDownloadTask {
       "No model found with name: \(name)"
     }
 
-    static let invalidModelName = { (name: String) in
-      "Invalid model name: \(name)"
+    static let invalidArgument = { (name: String) in
+      "Invalid argument for model name: \(name)"
     }
 
     static let sessionInvalidated = "Session invalidated due to failed pre-conditions."
