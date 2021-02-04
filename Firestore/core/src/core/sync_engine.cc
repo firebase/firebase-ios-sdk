@@ -530,7 +530,9 @@ void SyncEngine::UpdateTrackedLimboDocuments(
 
 void SyncEngine::TrackLimboChange(const LimboDocumentChange& limbo_change) {
   const DocumentKey& key = limbo_change.key();
-  if (active_limbo_targets_by_key_.find(key) == active_limbo_targets_by_key_.end() && !enqueued_limbo_resolutions_.contains(key)) {
+  if (active_limbo_targets_by_key_.find(key) ==
+          active_limbo_targets_by_key_.end() &&
+      !enqueued_limbo_resolutions_.contains(key)) {
     LOG_DEBUG("New document in limbo: %s", key.ToString());
     enqueued_limbo_resolutions_.push(key);
     PumpEnqueuedLimboResolutions();
@@ -568,7 +570,8 @@ void SyncEngine::RemoveLimboTarget(const DocumentKey& key) {
 }
 
 void SyncEngine::LimboResolutionQueue::push(const model::DocumentKey& key) {
-  HARD_ASSERT(queue_entries_by_key_.find(key) == queue_entries_by_key_.end(), "%s is already enqueued for limbo resolution", key.ToString());
+  HARD_ASSERT(queue_entries_by_key_.find(key) == queue_entries_by_key_.end(),
+              "%s is already enqueued for limbo resolution", key.ToString());
   queue_.emplace_back(key);
   queue_entries_by_key_.emplace(key, &queue_.back());
 }
@@ -598,7 +601,8 @@ void SyncEngine::LimboResolutionQueue::PruneLeadingCancelledQueueEntries() {
   }
 }
 
-bool SyncEngine::LimboResolutionQueue::contains(const model::DocumentKey& key) const {
+bool SyncEngine::LimboResolutionQueue::contains(
+    const model::DocumentKey& key) const {
   return queue_entries_by_key_.find(key) != queue_entries_by_key_.end();
 }
 

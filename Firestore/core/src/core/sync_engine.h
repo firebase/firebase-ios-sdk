@@ -228,17 +228,31 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
     model::DocumentKey pop();
     void remove(const model::DocumentKey& key);
 
-    bool empty() const { return queue_.empty(); }
+    bool empty() const {
+      return queue_.empty();
+    }
+
     bool contains(const model::DocumentKey& key) const;
     std::vector<model::DocumentKey> keys() const;
 
    private:
     class QueueEntry {
      public:
-      QueueEntry(const model::DocumentKey& key) : key_(key) {}
-      const model::DocumentKey& key() const { return key_; }
-      bool cancelled() const { return cancelled_; }
-      void cancel() { cancelled_ = true; }
+      QueueEntry(const model::DocumentKey& key) : key_(key) {
+      }
+
+      const model::DocumentKey& key() const {
+        return key_;
+      }
+
+      bool cancelled() const {
+        return cancelled_;
+      }
+
+      void cancel() {
+        cancelled_ = true;
+      }
+
      private:
       model::DocumentKey key_;
       bool cancelled_ = false;
@@ -247,7 +261,8 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
     void PruneLeadingCancelledQueueEntries();
 
     std::deque<QueueEntry> queue_;
-    std::unordered_map<model::DocumentKey, QueueEntry*, model::DocumentKeyHash> queue_entries_by_key_;
+    std::unordered_map<model::DocumentKey, QueueEntry*, model::DocumentKeyHash>
+        queue_entries_by_key_;
   };
 
   void AssertCallbackExists(absl::string_view source);
