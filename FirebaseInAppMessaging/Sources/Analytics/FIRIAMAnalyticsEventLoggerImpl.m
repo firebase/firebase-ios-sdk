@@ -121,9 +121,11 @@ static NSString *const kFIAMUserDefaualtsKeyForRemoveUserPropertyTimeInSeconds =
                               name:kFAEventNameForAction
                         parameters:params];
   }
+}
 
-  // set a special user property so that conversion events can be queried based on that
-  // for reporting purpose
+- (void)logConversionTrackingEventForCampaignID:(NSString *)campaignID {
+  // Set a special user property so that conversion events can be queried based on that
+  // for reporting purposes.
   NSString *conversionTrackingUserPropertyValue =
       [NSString stringWithFormat:@"%@%@", kFAUserPropertyPrefixForFIAM, campaignID];
 

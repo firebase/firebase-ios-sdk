@@ -124,6 +124,10 @@
                                       @"Logging analytics event for url following %@",
                                       success ? @"succeeded" : @"failed");
                         }];
+
+      // Also start tracking conversions.
+      [self.analyticsEventLogger
+          logConversionTrackingEventForCampaignID:_currentMsgBeingDisplayed.renderData.messageID];
     }
   }
 
@@ -232,11 +236,23 @@
     // Displayed long enough to be a valid impression.
     [self recordValidImpression:_currentMsgBeingDisplayed.renderData.messageID
                 withMessageName:_currentMsgBeingDisplayed.renderData.name];
+
+    if ([self shouldTrackConversionsOnImpressionForCurrentInAppMessage:_currentMsgBeingDisplayed]) {
+      [self.analyticsEventLogger
+          logConversionTrackingEventForCampaignID:_currentMsgBeingDisplayed.renderData.messageID];
+    }
   } else {
     FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400011",
                 @"A test message. Record the test message impression event.");
     return;
   }
+}
+
+- (BOOL)shouldTrackConversionsOnImpressionForCurrentInAppMessage:
+    (FIRIAMMessageDefinition *)inAppMessage {
+  // If the message has no action URL, an impression is enough to start tracking conversions.
+  id<FIRIAMMessageContentData> contentData = inAppMessage.renderData.contentData;
+  return contentData.actionURL == nil && contentData.secondaryActionURL == nil;
 }
 
 - (void)displayErrorForMessage:(FIRInAppMessagingDisplayMessage *)inAppMessage
