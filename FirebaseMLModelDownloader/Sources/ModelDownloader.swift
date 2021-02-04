@@ -26,6 +26,8 @@ public enum DownloadError: Error, Equatable {
   case failedPrecondition
   /// Not enough space for model on device.
   case notEnoughSpace
+  /// Requests quota exhausted.
+  case resourceExhausted
   /// Malformed model name.
   case invalidArgument
   /// Other errors with description.

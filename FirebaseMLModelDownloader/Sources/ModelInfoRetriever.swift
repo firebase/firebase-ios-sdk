@@ -321,7 +321,15 @@ class ModelInfoRetriever {
                                                                errorCode: .httpError(code: httpResponse
                                                                  .statusCode))
               completion(.failure(.notFound))
-            // TODO: Handle more http status codes
+            case 429:
+              DeviceLogger.logEvent(level: .debug,
+                                    message: ModelInfoRetriever.ErrorDescription.resourceExhausted,
+                                    messageCode: .resourceExhausted)
+              self.telemetryLogger?.logModelInfoRetrievalEvent(eventName: .modelDownload,
+                                                               status: .failed,
+                                                               errorCode: .httpError(code: httpResponse
+                                                                 .statusCode))
+              completion(.failure(.resourceExhausted))
             default:
               let description = ModelInfoRetriever.ErrorDescription
                 .modelInfoRetrievalFailed(httpResponse.statusCode)
@@ -488,5 +496,6 @@ extension ModelInfoRetriever {
     static let modelHashMismatch = "Unexpected model hash value."
     static let permissionDenied = "Invalid or missing permissions to retrieve model info."
     static let anotherDownloadInProgress = "Model info download already in progress."
+    static let resourceExhausted = "Resource exhausted due to too many requests."
   }
 }

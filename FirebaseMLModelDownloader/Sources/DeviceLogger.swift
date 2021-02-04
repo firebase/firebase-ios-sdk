@@ -67,6 +67,7 @@ enum LoggerMessageCode: Int {
   case backgroundDownloadError
   case testError
   case apiNotEnabledError
+  case resourceExhausted
 }
 
 /// On-device logger.

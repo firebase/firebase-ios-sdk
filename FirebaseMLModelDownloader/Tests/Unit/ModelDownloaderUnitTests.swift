@@ -380,6 +380,56 @@ final class ModelDownloaderUnitTests: XCTestCase {
     wait(for: [completionExpectation], timeout: 0.5)
   }
 
+  /// Get model info if model name does not exist.
+  func testGetModelInfoWith404() {
+    let session = fakeModelInfoSessionWithURL(fakeDownloadURL, statusCode: 404)
+    let localModelInfo = fakeLocalModelInfo(mismatch: false)
+    let modelInfoRetriever = fakeModelRetriever(
+      fakeSession: session,
+      fakeLocalModelInfo: localModelInfo
+    )
+    let completionExpectation = expectation(description: "Completion handler")
+
+    modelInfoRetriever.downloadModelInfo { result in
+      completionExpectation.fulfill()
+      switch result {
+      case let .success(fakemodelInfoResult):
+        switch fakemodelInfoResult {
+        case .modelInfo: XCTFail("Unexpected new model info from server.")
+        case .notModified: XCTFail("Expected failure since model name is not availabl.")
+        }
+      case let .failure(error):
+        XCTAssertEqual(error, .notFound)
+      }
+    }
+    wait(for: [completionExpectation], timeout: 0.5)
+  }
+
+  /// Get model info if resource exhausted due to too many requests.
+  func testGetModelInfoWith429() {
+    let session = fakeModelInfoSessionWithURL(fakeDownloadURL, statusCode: 429)
+    let localModelInfo = fakeLocalModelInfo(mismatch: false)
+    let modelInfoRetriever = fakeModelRetriever(
+      fakeSession: session,
+      fakeLocalModelInfo: localModelInfo
+    )
+    let completionExpectation = expectation(description: "Completion handler")
+
+    modelInfoRetriever.downloadModelInfo { result in
+      completionExpectation.fulfill()
+      switch result {
+      case let .success(fakemodelInfoResult):
+        switch fakemodelInfoResult {
+        case .modelInfo: XCTFail("Unexpected new model info from server.")
+        case .notModified: XCTFail("Expected failure since resource exhausted.")
+        }
+      case let .failure(error):
+        XCTAssertEqual(error, .resourceExhausted)
+      }
+    }
+    wait(for: [completionExpectation], timeout: 0.5)
+  }
+
   /// Get model if server returns a model file.
   func testModelDownloadWith200() {
     let tempFileURL = tempFile()
