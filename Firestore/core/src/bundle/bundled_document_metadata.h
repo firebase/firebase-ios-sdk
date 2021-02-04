@@ -25,9 +25,7 @@ namespace firebase {
 namespace firestore {
 namespace bundle {
 
-/**
- * Represents a named query saved by the SDK in its local storage.
- */
+/** Metadata describing a Firestore document saved in the bundle. */
 class BundledDocumentMetadata {
  public:
   BundledDocumentMetadata() = default;
@@ -42,18 +40,22 @@ class BundledDocumentMetadata {
         queries_(std::move(queries)) {
   }
 
+  /** Returns the document key of a bundled document. */
   const model::DocumentKey& key() const {
     return key_;
   }
 
+  /** Returns the snapshot version of the document data bundled. */
   const model::SnapshotVersion& read_time() const {
     return read_time_;
   }
 
+  /** Returns whether the document exists. */
   bool exists() const {
     return exists_;
   }
 
+  /** Returns the names of the queries in this bundle that this document matches to. */
   const std::vector<std::string>& queries() const {
     return queries_;
   }

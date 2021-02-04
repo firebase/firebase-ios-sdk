@@ -22,9 +22,7 @@ namespace firebase {
 namespace firestore {
 namespace bundle {
 
-/**
- * Represents a named query saved by the SDK in its local storage.
- */
+/** Represents a document that was saved to a bundle. */
 class BundleDocument {
  public:
   BundleDocument() = default;
@@ -33,10 +31,12 @@ class BundleDocument {
       : document_(std::move(document)) {
   }
 
+/** Returns the key for this document. */
   const model::DocumentKey& key() const {
     return document_.key();
   }
 
+  /** Returns the document. */
   const model::Document& document() const {
     return document_;
   }
