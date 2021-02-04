@@ -167,17 +167,11 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     let conditions = ModelDownloadConditions()
     let expectation = self.expectation(description: "Wait for model to download.")
     let downloader = ModelFileDownloader(conditions: conditions)
-    let modelDownloadManager = ModelDownloadTask(
-      remoteModelInfo: remoteModelInfo,
-      appName: testApp.name,
-      defaults: .createTestInstance(testName: #function),
-      downloader: downloader
-    )
-
-    modelDownloadManager.download(progressHandler: { progress in
+    let taskProgressHandler: ModelDownloadTask.ProgressHandler = { progress in
       XCTAssertLessThanOrEqual(progress, 1)
       XCTAssertGreaterThanOrEqual(progress, 0)
-    }) { result in
+    }
+    let taskCompletion: ModelDownloadTask.Completion = { result in
       switch result {
       case let .success(model):
         let modelPath = URL(fileURLWithPath: model.path)
@@ -193,6 +187,16 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       }
       expectation.fulfill()
     }
+    let modelDownloadManager = ModelDownloadTask(
+      remoteModelInfo: remoteModelInfo,
+      appName: testApp.name,
+      defaults: .createTestInstance(testName: #function),
+      downloader: downloader,
+      progressHandler: taskProgressHandler,
+      completion: taskCompletion
+    )
+
+    modelDownloadManager.resume()
     waitForExpectations(timeout: 5, handler: nil)
     XCTAssertEqual(modelDownloadManager.downloadStatus, .complete)
   }
