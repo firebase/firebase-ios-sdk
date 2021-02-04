@@ -24,6 +24,7 @@
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/core/target.h"
 #include "Firestore/core/src/immutable/append_only_list.h"
+#include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/field_path.h"
 #include "Firestore/core/src/model/field_value.h"
 #include "Firestore/core/src/model/resource_path.h"
@@ -44,6 +45,7 @@ using absl::FromUnixSeconds;
 using absl::Nanoseconds;
 using absl::ParseTime;
 using absl::RFC3339_full;
+using absl::SimpleAtod;
 using absl::SimpleAtoi;
 using absl::Time;
 using absl::ToUnixSeconds;
@@ -58,8 +60,11 @@ using core::OrderByList;
 using core::Query;
 using core::Target;
 using immutable::AppendOnlyList;
+using model::Document;
+using model::DocumentKey;
 using model::FieldPath;
 using model::FieldValue;
+using model::ObjectValue;
 using model::ResourcePath;
 using model::SnapshotVersion;
 using nanopb::ByteString;
@@ -100,6 +105,28 @@ int_type ToInt(ReadContext& context, const json& value) {
   context.Fail(
       "Trying to parse a json value that is neither a string nor an integer "
       "number into an integer");
+  return result;
+}
+
+double ToDouble(ReadContext& context, const json& value) {
+  if (value.is_number()) {
+    return value.get<double>();
+  }
+
+  double result = 0;
+  if (value.is_string()) {
+    const auto& s = value.get_ref<const std::string&>();
+    auto ok = SimpleAtod(s, &result);
+    if (!ok) {
+      context.Fail("Failed to parse into double: " + s);
+    }
+
+    return result;
+  }
+
+  context.Fail(
+      "Trying to parse a json value that is neither a string nor an double "
+      "number into an double result");
   return result;
 }
 
@@ -196,7 +223,7 @@ void DecodeCollectionSource(ReadContext& context,
   if (all_descendants) {
     group = collection_selector.at("collectionId").get<std::string>();
   } else {
-    parent.Append(
+    parent = parent.Append(
         collection_selector.at("collectionId").get_ref<const std::string&>());
   }
 }
@@ -225,25 +252,25 @@ Filter::Operator DecodeFieldFilterOperator(ReadContext& context,
     return Filter::Operator::Equal;
   }
   const auto& s = op.get_ref<const std::string&>();
-  if (s == "<") {
+  if (s == "LESS_THAN") {
     return Filter::Operator::LessThan;
-  } else if (s == "<=") {
+  } else if (s == "LESS_THAN_OR_EQUAL") {
     return Filter::Operator::LessThanOrEqual;
-  } else if (s == "==") {
+  } else if (s == "EQUAL") {
     return Filter::Operator::Equal;
-  } else if (s == "!=") {
+  } else if (s == "NOT_EQUAL") {
     return Filter::Operator::NotEqual;
-  } else if (s == ">") {
+  } else if (s == "GREATER_THAN") {
     return Filter::Operator::GreaterThan;
-  } else if (s == ">=") {
+  } else if (s == "GREATER_THAN_OR_EQUAL") {
     return Filter::Operator::GreaterThanOrEqual;
-  } else if (s == "array_contains") {
+  } else if (s == "ARRAY_CONTAINS") {
     return Filter::Operator::ArrayContains;
-  } else if (s == "in") {
+  } else if (s == "IN") {
     return Filter::Operator::In;
-  } else if (s == "array_contains_any") {
+  } else if (s == "ARRAY_CONTAINS_ANY") {
     return Filter::Operator::ArrayContainsAny;
-  } else if (s == "not_in") {
+  } else if (s == "NOT_IN") {
     return Filter::Operator::NotIn;
   } else {
     context.Fail("Operator in filter is not valid: " + s);
@@ -312,12 +339,18 @@ OrderByList DecodeOrderBy(ReadContext& context, const json& query) {
     }
 
     std::string direction_string = "ASCENDING";
-    if (order_by.contains("direction") && order_by.is_string()) {
+    if (order_by.contains("direction") &&
+        order_by.at("direction").is_string()) {
       direction_string = ToString(context, order_by.at("direction"));
       if (!context.ok()) {
         return OrderByList();
       }
     }
+    if (direction_string != "DESCENDING" && direction_string != "ASCENDING") {
+      context.Fail("'direction' value is invalid: " + direction_string);
+      return OrderByList();
+    }
+
     Direction direction = direction_string == "ASCENDING"
                               ? Direction::Ascending
                               : Direction::Descending;
@@ -378,7 +411,7 @@ FieldValue DecodeGeoPointValue(ReadContext& context, const json& geo_json) {
       context.Fail("Geo Point's 'longitude' is not encoded as a number");
       return FieldValue();
     }
-    latitude = geo_json.at("longitude").get<double>();
+    longitude = geo_json.at("longitude").get<double>();
   }
   return FieldValue::FromGeoPoint(GeoPoint(latitude, longitude));
 }
@@ -457,11 +490,15 @@ BundledQuery BundleSerializer::DecodeBundledQuery(
   }
 
   ResourcePath parent = DecodeName(context, query.at("parent"));
-  std::string collection_group;
-  DecodeCollectionSource(context, parent, collection_group,
+  std::string collection_group_string;
+  DecodeCollectionSource(context, parent, collection_group_string,
                          structured_query.at("from"));
   if (!context.ok()) {
     return BundledQuery();
+  }
+  std::shared_ptr<std::string> collection_group;
+  if (!collection_group_string.empty()) {
+    collection_group = std::make_shared<std::string>(collection_group_string);
   }
 
   auto filters = DecodeWhere(context, structured_query);
@@ -474,14 +511,22 @@ BundledQuery BundleSerializer::DecodeBundledQuery(
     return BundledQuery();
   }
 
-  auto start_at = DecodeBound(context, structured_query, "startAt");
+  auto start_at_bound = DecodeBound(context, structured_query, "startAt");
   if (!context.ok()) {
     return BundledQuery();
   }
+  std::shared_ptr<Bound> start_at;
+  if (!start_at_bound.position().empty()) {
+    start_at = std::make_shared<Bound>(std::move(start_at_bound));
+  }
 
-  auto end_at = DecodeBound(context, structured_query, "endAt");
+  auto end_at_bound = DecodeBound(context, structured_query, "endAt");
   if (!context.ok()) {
     return BundledQuery();
+  }
+  std::shared_ptr<Bound> end_at;
+  if (!end_at_bound.position().empty()) {
+    end_at = std::make_shared<Bound>(std::move(end_at_bound));
   }
 
   int32_t limit = DecodeLimit(context, structured_query);
@@ -489,26 +534,25 @@ BundledQuery BundleSerializer::DecodeBundledQuery(
     return BundledQuery();
   }
 
-  LimitType limit_type = DecodeLimitType(context, structured_query);
+  LimitType limit_type = DecodeLimitType(context, query);
   if (!context.ok()) {
     return BundledQuery();
   }
 
-  return BundledQuery(
-      Target(std::move(parent), std::make_shared<std::string>(collection_group),
-             std::move(filters), std::move(order_bys), limit,
-             std::make_shared<Bound>(start_at),
-             std::make_shared<Bound>(end_at)),
-      limit_type);
+  return BundledQuery(Target(std::move(parent), std::move(collection_group),
+                             std::move(filters), std::move(order_bys), limit,
+                             std::move(start_at), std::move(end_at)),
+                      limit_type);
 }
 
 ResourcePath BundleSerializer::DecodeName(ReadContext& context,
-                                          const json& parent) const {
-  if (!parent.is_string()) {
-    context.Fail("Parent of query is not a string.");
+                                          const json& document_name) const {
+  if (!document_name.is_string()) {
+    context.Fail("Document name is not a string.");
     return ResourcePath();
   }
-  auto path = ResourcePath::FromString(parent.get_ref<const std::string&>());
+  auto path =
+      ResourcePath::FromString(document_name.get_ref<const std::string&>());
   if (!rpc_serializer_.IsLocalResourceName(path)) {
     context.Fail("Resource name is not valid for current instance: " +
                  path.CanonicalString());
@@ -532,9 +576,9 @@ FilterList BundleSerializer::DecodeWhere(ReadContext& context,
   if (where.contains("compositeFilter")) {
     DecodeCompositeFilter(context, result, where.at("compositeFilter"));
   } else if (where.contains("fieldFilter")) {
-    DecodeFieldFilter(context, result, where.at("compositeFilter"));
+    DecodeFieldFilter(context, result, where.at("fieldFilter"));
   } else if (where.contains("unaryFilter")) {
-    DecodeUnaryFilter(context, result, where.at("compositeFilter"));
+    DecodeUnaryFilter(context, result, where.at("unaryFilter"));
   }
 
   return result;
@@ -592,7 +636,12 @@ void BundleSerializer::DecodeCompositeFilter(ReadContext& context,
 
   auto filters = filter.at("filters").get_ref<const std::vector<json>&>();
   for (const auto& f : filters) {
-    DecodeFieldFilter(context, result, f);
+    if (!f.is_object() || !f.contains("fieldFilter")) {
+      context.Fail("Missing 'fieldFilter' field.");
+      return;
+    }
+
+    DecodeFieldFilter(context, result, f.at("fieldFilter"));
     if (!context.ok()) {
       return;
     }
@@ -659,18 +708,10 @@ FieldValue BundleSerializer::DecodeValue(ReadContext& context,
     }
     return FieldValue::FromBoolean(val.get<bool>());
   } else if (value.contains("integerValue")) {
-    auto val = ToInt<int64_t>(context, value.at("integerValue"));
-    if (!context.ok()) {
-      return FieldValue();
-    }
-    return FieldValue::FromInteger(val);
+    return FieldValue::FromInteger(
+        ToInt<int64_t>(context, value.at("integerValue")));
   } else if (value.contains("doubleValue")) {
-    auto val = value.at("doubleValue");
-    if (!val.is_number()) {
-      context.Fail("'doubleValue' is not encoded as a valid number");
-      return FieldValue();
-    }
-    return FieldValue::FromDouble(val.get<double>());
+    return FieldValue::FromDouble(ToDouble(context, value.at("doubleValue")));
   } else if (value.contains("timestampValue")) {
     auto val = DecodeTimestamp(context, value.at("timestampValue"));
     if (!context.ok()) {
@@ -701,13 +742,18 @@ FieldValue BundleSerializer::DecodeValue(ReadContext& context,
 
 FieldValue BundleSerializer::DecodeMapValue(ReadContext& context,
                                             const json& map_json) const {
-  if (!map_json.is_object()) {
+  if (!map_json.is_object() || !map_json.contains("fields")) {
     context.Fail("mapValue is not a valid map");
+    return FieldValue();
+  }
+  const auto& fields = map_json.at("fields");
+  if (!fields.is_object()) {
+    context.Fail("mapValue's 'field' is not a valid map");
     return FieldValue();
   }
 
   immutable::SortedMap<std::string, FieldValue> field_values;
-  for (auto it = map_json.begin(); it != map_json.end(); it++) {
+  for (auto it = fields.begin(); it != fields.end(); it++) {
     field_values =
         field_values.insert(it.key(), DecodeValue(context, it.value()));
     if (!context.ok()) {
@@ -717,15 +763,21 @@ FieldValue BundleSerializer::DecodeMapValue(ReadContext& context,
 
   return FieldValue::FromMap(std::move(field_values));
 }
+
 FieldValue BundleSerializer::DecodeArrayValue(ReadContext& context,
                                               const json& array_json) const {
-  if (!array_json.is_array()) {
+  if (!array_json.is_object() || !array_json.contains("values")) {
+    context.Fail("arrayValue is not a valid array object");
+    return FieldValue();
+  }
+  if (!array_json.at("values").is_array()) {
     context.Fail("arrayValue is not a valid array");
     return FieldValue();
   }
 
-  const auto& values = array_json.get_ref<const std::__1::vector<json>&>();
-  std::vector<FieldValue> field_values(values.size());
+  const auto& values =
+      array_json.at("values").get_ref<const std::vector<json>&>();
+  std::vector<FieldValue> field_values;
   for (const json& json_value : values) {
     field_values.push_back(DecodeValue(context, json_value));
     if (!context.ok()) {
@@ -735,6 +787,7 @@ FieldValue BundleSerializer::DecodeArrayValue(ReadContext& context,
 
   return FieldValue::FromArray(std::move(field_values));
 }
+
 FieldValue BundleSerializer::DecodeReferenceValue(ReadContext& context,
                                                   const json& ref_json) const {
   auto ref_string = ToString(context, ref_json);
@@ -755,6 +808,109 @@ FieldValue BundleSerializer::DecodeReferenceValue(ReadContext& context,
   }
 
   return result;
+}
+
+BundledDocumentMetadata BundleSerializer::DecodeDocumentMetadata(
+    util::ReadContext& context,
+    const std::string& document_metadata_string) const {
+  const json& document_metadata = Parse(document_metadata_string);
+
+  if (document_metadata.is_discarded()) {
+    context.Fail("Failed to parse string into json: " +
+                 document_metadata_string);
+    return BundledDocumentMetadata{};
+  }
+
+  if (!document_metadata.contains("name") ||
+      !document_metadata.contains("readTime")) {
+    context.Fail(
+        "One of bundledDocumentMetadata's 'name' or 'readTime' is missing");
+    return BundledDocumentMetadata{};
+  }
+
+  ResourcePath path = DecodeName(context, document_metadata.at("name"));
+  if (!context.ok()) {
+    return BundledDocumentMetadata{};
+  }
+  DocumentKey key = DocumentKey(path);
+
+  SnapshotVersion read_time =
+      DecodeSnapshotVersion(context, document_metadata.at("readTime"));
+  if (!context.ok()) {
+    return BundledDocumentMetadata{};
+  }
+
+  bool exists = false;
+  if (document_metadata.contains("exists")) {
+    if (!document_metadata.at("exists").is_boolean()) {
+      context.Fail(
+          "bundledDocumentMetadata's 'exists' is not encoded as a valid "
+          "boolean");
+      return BundledDocumentMetadata{};
+    }
+    exists = document_metadata.at("exists").get<bool>();
+  }
+
+  std::vector<std::string> queries;
+  if (document_metadata.contains("queries")) {
+    if (!document_metadata.at("queries").is_array()) {
+      context.Fail(
+          "bundledDocumentMetadata's 'queries' is not encoded as a valid "
+          "array");
+      return BundledDocumentMetadata{};
+    }
+    for (const json& query :
+         document_metadata.at("queries").get_ref<const std::vector<json>&>()) {
+      if (!query.is_string()) {
+        context.Fail("Query name should be encoded as string");
+        return BundledDocumentMetadata{};
+      }
+
+      queries.push_back(query.get<std::string>());
+    }
+  }
+
+  return BundledDocumentMetadata(std::move(key), read_time, exists,
+                                 std::move(queries));
+}
+
+BundleDocument BundleSerializer::DecodeDocument(
+    util::ReadContext& context, const std::string& document_string) const {
+  const json& document = Parse(document_string);
+
+  if (document.is_discarded()) {
+    context.Fail("Failed to parse document string into json: " +
+                 document_string);
+    return BundleDocument{};
+  }
+
+  if (!document.contains("name") || !document.contains("updateTime") ||
+      !document.contains("fields")) {
+    context.Fail(
+        "One of bundleDocument's 'name', 'updateTime' or 'fields' is missing");
+    return BundleDocument{};
+  }
+
+  ResourcePath path = DecodeName(context, document.at("name"));
+  if (!context.ok()) {
+    return BundleDocument{};
+  }
+  DocumentKey key = DocumentKey(path);
+
+  SnapshotVersion update_time =
+      DecodeSnapshotVersion(context, document.at("updateTime"));
+  if (!context.ok()) {
+    return BundleDocument{};
+  }
+
+  auto map_value = DecodeMapValue(context, document);
+  if (!context.ok()) {
+    return BundleDocument{};
+  }
+
+  return BundleDocument(Document(ObjectValue::FromMap(map_value.object_value()),
+                                 std::move(key), update_time,
+                                 model::DocumentState::kSynced));
 }
 
 }  // namespace bundle

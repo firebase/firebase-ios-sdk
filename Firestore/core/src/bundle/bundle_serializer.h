@@ -20,7 +20,9 @@
 #include <string>
 #include <utility>
 
+#include "Firestore/core/src/bundle/bundle_document.h"
 #include "Firestore/core/src/bundle/bundle_metadata.h"
+#include "Firestore/core/src/bundle/bundled_document_metadata.h"
 #include "Firestore/core/src/bundle/named_query.h"
 #include "Firestore/core/src/core/core_fwd.h"
 #include "Firestore/core/src/model/resource_path.h"
@@ -44,6 +46,12 @@ class BundleSerializer {
 
   NamedQuery DecodeNamedQuery(util::ReadContext& context,
                               const std::string& named_query) const;
+
+  BundledDocumentMetadata DecodeDocumentMetadata(
+      util::ReadContext& context, const std::string& document_metadata) const;
+
+  BundleDocument DecodeDocument(util::ReadContext& context,
+                                const std::string& document) const;
 
  private:
   BundledQuery DecodeBundledQuery(util::ReadContext& context,

@@ -22,7 +22,6 @@
 
 #include "Firestore/core/src/bundle/bundled_query.h"
 #include "Firestore/core/src/model/snapshot_version.h"
-
 namespace firebase {
 namespace firestore {
 namespace bundle {
