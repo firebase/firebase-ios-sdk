@@ -162,7 +162,7 @@
 
 /**
  * Add an event callback for the specified query
- * Returns Array of FEvent events to raise.
+ * Returns an array of events to raise.
  */
 - (NSArray *)addEventRegistration:(id<FEventRegistration>)eventRegistration
        forNonExistingViewForQuery:(FQuerySpec *)query

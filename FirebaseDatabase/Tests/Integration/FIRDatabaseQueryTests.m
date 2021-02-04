@@ -1462,6 +1462,7 @@
       }];
 
   WAIT_FOR(done);
+  [ref removeAllObservers];
 }
 
 - (void)testEndBeforeWithOrderByKeyOverlappingListener {
@@ -1492,6 +1493,7 @@
       }];
 
   WAIT_FOR(done);
+  [ref removeAllObservers];
 }
 
 - (void)testStartAfterPriorityAndEndAtPriorityWork {
@@ -4176,18 +4178,11 @@
                 }
               }];
 
-  __block BOOL writeDone = NO;
-
-  [ref setValue:@42
-      withCompletionBlock:^(NSError* _Nullable error, FIRDatabaseReference* _Nonnull ref) {
-        writeDone = YES;
-      }];
-
-  WAIT_FOR(writeDone);
-  writeDone = NO;
+  [ref setValue:@42];
 
   WAIT_FOR(done);
   done = NO;
+
   @try {
     [db goOffline];
 

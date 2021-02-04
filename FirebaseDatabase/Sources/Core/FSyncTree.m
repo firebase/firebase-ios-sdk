@@ -750,8 +750,6 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
              return !foundAncestorDefaultView;
            }];
 
-    [self.persistenceManager setQueryActive:query];
-
     FSyncPoint *syncPoint = [self.syncPointTree valueAtPath:path];
     if (syncPoint == nil) {
         syncPoint = [[FSyncPoint alloc]
@@ -759,17 +757,14 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
         self.syncPointTree = [self.syncPointTree setValue:syncPoint
                                                    atPath:path];
     } else {
-        foundAncestorDefaultView =
-            foundAncestorDefaultView || [syncPoint hasCompleteView];
         serverCacheNode =
             serverCacheNode != nil
                 ? serverCacheNode
                 : [syncPoint completeServerCacheAtPath:[FPath empty]];
     }
 
-    FCacheNode *serverCache;
     if (serverCacheNode != nil) {
-        serverCache = [[FCacheNode alloc]
+        FCacheNode *serverCache = [[FCacheNode alloc]
             initWithIndexedNode:[FIndexedNode
                                     indexedNodeWithNode:serverCacheNode
                                                   index:[query index]]
