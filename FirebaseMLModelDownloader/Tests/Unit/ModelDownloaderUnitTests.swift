@@ -110,9 +110,9 @@ final class ModelDownloaderUnitTests: XCTestCase {
   }
 
   func testGetModelNameFromFilePath() {
-    var fakeURL = URL(string: "modelDirectory/@@appName@@\(fakeModelName)")!
+    var fakeURL = URL(fileURLWithPath: "modelDirectory/@@appName@@\(fakeModelName)")
     XCTAssertEqual(ModelFileManager.getModelNameFromFilePath(fakeURL), fakeModelName)
-    fakeURL = URL(string: "modelDirectory/--appName--\(fakeModelName)")!
+    fakeURL = URL(fileURLWithPath: "modelDirectory/--appName--\(fakeModelName)")
     XCTAssertNil(ModelFileManager.getModelNameFromFilePath(fakeURL))
   }
 
@@ -139,7 +139,7 @@ final class ModelDownloaderUnitTests: XCTestCase {
       switch result {
       case let .success(models):
         /// Expected success since model info was written to user defaults.
-        XCTAssertEqual(models.first?.path, tempModelFileURL.absoluteString)
+        XCTAssertEqual(models.first?.path, tempModelFileURL.path)
       case let .failure(error):
         XCTFail("Error - \(error)")
       }
@@ -475,7 +475,7 @@ final class ModelDownloaderUnitTests: XCTestCase {
         XCTAssertEqual(model.name, self.fakeModelName)
         XCTAssertEqual(model.size, self.fakeModelSize)
         XCTAssertEqual(model.hash, self.fakeModelHash)
-        let modelPath = URL(string: model.path)!
+        let modelPath = URL(fileURLWithPath: model.path)
         XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
         try? self.deleteFile(at: modelPath)
       case let .failure(error):
@@ -649,7 +649,7 @@ final class ModelDownloaderUnitTests: XCTestCase {
         XCTAssertEqual(model.name, self.fakeModelName)
         XCTAssertEqual(model.size, self.fakeModelSize)
         XCTAssertEqual(model.hash, self.fakeModelHash)
-        let modelPath = URL(string: model.path)!
+        let modelPath = URL(fileURLWithPath: model.path)
         XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
         try? self.deleteFile(at: modelPath)
       case let .failure(error):
@@ -945,7 +945,7 @@ final class ModelDownloaderUnitTests: XCTestCase {
         XCTAssertEqual(model.name, self.fakeModelName)
         XCTAssertEqual(model.size, self.fakeModelSize)
         XCTAssertEqual(model.hash, self.fakeModelHash)
-        let modelPath = URL(string: model.path)!
+        let modelPath = URL(fileURLWithPath: model.path)
         XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
         try? self.deleteFile(at: modelPath)
       case let .failure(error):
