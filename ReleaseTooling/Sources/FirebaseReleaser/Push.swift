@@ -34,9 +34,17 @@ enum Push {
 
   private static func push(to destination: Destination, gitRoot: URL) {
     let cpdcRepo = "sso://cpdc-internal/firebase"
-    let cpdcLocation = findPrivateCocoaPodsRepo(repo: cpdcRepo, gitRoot: gitRoot)
+    let cpdcLocation = findOrRegisterPrivateCocoaPodsRepo(
+      repo: cpdcRepo,
+      gitRoot: gitRoot,
+      defaultRepoName: "cpdc-internal-firebase"
+    )
     let stagingRepo = "git@github.com:firebase/SpecsStaging"
-    let stagingLocation = findPrivateCocoaPodsRepo(repo: stagingRepo, gitRoot: gitRoot)
+    let stagingLocation = findOrRegisterPrivateCocoaPodsRepo(
+      repo: stagingRepo,
+      gitRoot: gitRoot,
+      defaultRepoName: "spec-staging"
+    )
     let manifest = FirebaseManifest.shared
 
     for pod in manifest.pods.filter({ $0.releasing }) {
@@ -51,7 +59,7 @@ enum Push {
             pushCommands =
               "pod repo push --skip-tests --use-json \(warningsOK) \(stagingLocation) " +
               pod.skipImportValidation() + " \(pod.podspecName()) " +
-              "--sources=\(stagingRepo).git,https://cdn.cocoapods.org; "
+              "--sources=\(stagingRepo).git,https://cdn.cocoapods.org && "
           }
           pushCommands += "pod repo push --skip-tests --use-json \(warningsOK) \(cpdcLocation) " +
             pod.skipImportValidation() + " \(pod.podspecName()) " +
@@ -68,7 +76,7 @@ enum Push {
     }
   }
 
-  private static func findPrivateCocoaPodsRepo(repo: String, gitRoot: URL) -> String {
+  private static func findPrivateCocoaPodsRepo(repo: String, gitRoot: URL) -> String? {
     let command = "pod repo list | grep -B2 \(repo) | head -1"
     let result = Shell.executeCommandFromScript(command, workingDir: gitRoot)
     switch result {
@@ -80,7 +88,29 @@ enum Push {
       """)
     case let .success(output):
       print(output)
-      return output.trimmingCharacters(in: .whitespacesAndNewlines)
+      let repoName = output.trimmingCharacters(in: .whitespacesAndNewlines)
+      return repoName.isEmpty ? nil : repoName
+    }
+  }
+
+  /// @param defaultRepoName The repo name to register if not exists
+  private static func findOrRegisterPrivateCocoaPodsRepo(repo: String, gitRoot: URL,
+                                                         defaultRepoName: String) -> String {
+    if let repoName = findPrivateCocoaPodsRepo(repo: repo, gitRoot: gitRoot) {
+      return repoName
+    }
+
+    let command = "pod repo add \(defaultRepoName) \(repo)"
+    let result = Shell.executeCommandFromScript(command, workingDir: gitRoot)
+    switch result {
+    case let .error(code, output):
+      fatalError("""
+      `pod --version` failed for \(repo) with exit code \(code)
+      Output from `pod repo list`:
+      \(output)
+      """)
+    case .success:
+      return defaultRepoName
     }
   }
 }

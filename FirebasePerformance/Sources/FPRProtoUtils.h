@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if __has_include("CoreTelephony/CTTelephonyNetworkInfo.h")
 #import <CoreTelephony/CTTelephonyNetworkInfo.h>
+#endif
 
 #import "FirebasePerformance/Sources/AppActivity/FPRTraceBackgroundActivityTracker.h"
 #import "FirebasePerformance/Sources/Instrumentation/FPRNetworkTrace.h"
@@ -53,7 +55,9 @@ extern FPRMSGGaugeMetric* _Nullable FPRGetGaugeMetric(NSArray* _Nonnull gaugeDat
  */
 extern FPRMSGApplicationProcessState FPRApplicationProcessState(FPRTraceState state);
 
+#if __has_include("CoreTelephony/CTTelephonyNetworkInfo.h")
 /** Obtain a CTTelephonyNetworkInfo object to determine device network attributes.
  *  @return CTTelephonyNetworkInfo object.
  */
 extern CTTelephonyNetworkInfo* _Nullable FPRNetworkInfo(void);
+#endif

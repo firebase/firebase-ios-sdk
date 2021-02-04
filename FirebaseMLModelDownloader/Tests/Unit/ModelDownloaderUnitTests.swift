@@ -62,6 +62,7 @@ final class ModelDownloaderUnitTests: XCTestCase {
   }
 
   override class func tearDown() {
+    try? FileManager.default.removeItem(atPath: NSTemporaryDirectory())
     FirebaseApp.app()?.delete { _ in }
   }
 
@@ -355,16 +356,12 @@ final class ModelDownloaderUnitTests: XCTestCase {
     progressExpectation.expectedFulfillmentCount = 2
 
     let completionExpectation = expectation(description: "Completion handler")
-    let modelDownloadTask = ModelDownloadTask(remoteModelInfo: remoteModelInfo,
-                                              appName: "fakeAppName",
-                                              defaults: .createTestInstance(testName: #function),
-                                              downloader: downloader)
-
-    modelDownloadTask.download(progressHandler: {
+    let taskProgressHandler: ModelDownloadTask.ProgressHandler = {
       progress in
       progressExpectation.fulfill()
       XCTAssertEqual(progress, 0.4)
-    }) { result in
+    }
+    let taskCompletion: ModelDownloadTask.Completion = { result in
       completionExpectation.fulfill()
       switch result {
       case let .success(model):
@@ -378,6 +375,14 @@ final class ModelDownloaderUnitTests: XCTestCase {
         XCTFail("Error - \(error)")
       }
     }
+    let modelDownloadTask = ModelDownloadTask(remoteModelInfo: remoteModelInfo,
+                                              appName: "fakeAppName",
+                                              defaults: .createTestInstance(testName: #function),
+                                              downloader: downloader,
+                                              progressHandler: taskProgressHandler,
+                                              completion: taskCompletion)
+
+    modelDownloadTask.resume()
     wait(for: [fileDownloaderExpectation], timeout: 0.1)
 
     downloader.progressHandler?(100, 250)
@@ -408,11 +413,7 @@ final class ModelDownloaderUnitTests: XCTestCase {
     }
 
     let completionExpectation = expectation(description: "Completion handler")
-    let modelDownloadTask = ModelDownloadTask(remoteModelInfo: remoteModelInfo,
-                                              appName: "fakeAppName",
-                                              defaults: .createTestInstance(testName: #function),
-                                              downloader: downloader)
-    modelDownloadTask.download(progressHandler: nil) { result in
+    let taskCompletion: ModelDownloadTask.Completion = { result in
       completionExpectation.fulfill()
       switch result {
       case .success: XCTFail("Unexpected successful model download.")
@@ -420,6 +421,12 @@ final class ModelDownloaderUnitTests: XCTestCase {
         XCTAssertEqual(error, .expiredDownloadURL)
       }
     }
+    let modelDownloadTask = ModelDownloadTask(remoteModelInfo: remoteModelInfo,
+                                              appName: "fakeAppName",
+                                              defaults: .createTestInstance(testName: #function),
+                                              downloader: downloader,
+                                              completion: taskCompletion)
+    modelDownloadTask.resume()
     wait(for: [fileDownloaderExpectation], timeout: 0.1)
 
     downloader
@@ -446,11 +453,7 @@ final class ModelDownloaderUnitTests: XCTestCase {
     }
 
     let completionExpectation = expectation(description: "Completion handler")
-    let modelDownloadTask = ModelDownloadTask(remoteModelInfo: remoteModelInfo,
-                                              appName: "fakeAppName",
-                                              defaults: .createTestInstance(testName: #function),
-                                              downloader: downloader)
-    modelDownloadTask.download(progressHandler: nil) { result in
+    let taskCompletion: ModelDownloadTask.Completion = { result in
       completionExpectation.fulfill()
       switch result {
       case .success: XCTFail("Unexpected successful model download.")
@@ -458,12 +461,143 @@ final class ModelDownloaderUnitTests: XCTestCase {
         XCTAssertEqual(error, .invalidArgument)
       }
     }
+    let modelDownloadTask = ModelDownloadTask(remoteModelInfo: remoteModelInfo,
+                                              appName: "fakeAppName",
+                                              defaults: .createTestInstance(testName: #function),
+                                              downloader: downloader,
+                                              completion: taskCompletion)
+    modelDownloadTask.resume()
     wait(for: [fileDownloaderExpectation], timeout: 0.1)
 
     downloader
       .completion?(.success(FileDownloaderResponse(urlResponse: fakeResponse,
                                                    fileURL: tempFileURL)))
     wait(for: [completionExpectation], timeout: 0.5)
+
+    try? ModelFileManager.removeFile(at: tempFileURL)
+  }
+
+  /// Get model if multiple duplicate requests are made.
+  func testModelDownloadWithMergeRequests() {
+    let tempFileURL = tempFile()
+    let numberOfRequests = 5
+    let remoteModelInfo = fakeModelInfo(expired: false, oversized: false)
+    let fakeResponse = HTTPURLResponse(url: fakeFileURL,
+                                       statusCode: 200,
+                                       httpVersion: nil,
+                                       headerFields: nil)!
+    let downloader = MockModelFileDownloader()
+    let fileDownloaderExpectation = expectation(description: "File downloader")
+
+    downloader.downloadFileHandler = { url in
+      fileDownloaderExpectation.fulfill()
+      XCTAssertEqual(url, self.fakeDownloadURL)
+    }
+
+    let completionExpectation = expectation(description: "Completion handler")
+    completionExpectation.expectedFulfillmentCount = numberOfRequests + 1
+
+    let taskCompletion: ModelDownloadTask.Completion = { result in
+      completionExpectation.fulfill()
+      switch result {
+      case let .success(model):
+        XCTAssertEqual(model.name, self.fakeModelName)
+        XCTAssertEqual(model.size, self.fakeModelSize)
+        XCTAssertEqual(model.hash, self.fakeModelHash)
+        let modelPath = URL(string: model.path)!
+        XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
+      case let .failure(error):
+        XCTFail("Error - \(error)")
+      }
+    }
+
+    let modelDownloadTask = ModelDownloadTask(remoteModelInfo: remoteModelInfo,
+                                              appName: "fakeAppName",
+                                              defaults: .createTestInstance(testName: #function),
+                                              downloader: downloader,
+                                              completion: taskCompletion)
+
+    for i in 1 ... numberOfRequests {
+      let newTaskCompletion: ModelDownloadTask.Completion = { result in
+        completionExpectation.fulfill()
+        switch result {
+        case let .success(model):
+          XCTAssertEqual(model.name, self.fakeModelName)
+          XCTAssertEqual(model.size, self.fakeModelSize)
+          XCTAssertEqual(model.hash, self.fakeModelHash)
+          let modelPath = URL(string: model.path)!
+          XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
+          if i == numberOfRequests {
+            try? self.deleteFile(at: modelPath)
+          }
+        case let .failure(error):
+          XCTFail("Error - \(error)")
+        }
+      }
+      modelDownloadTask.resume()
+      modelDownloadTask.merge(newCompletion: newTaskCompletion)
+    }
+
+    downloader
+      .completion?(.success(FileDownloaderResponse(urlResponse: fakeResponse,
+                                                   fileURL: tempFileURL)))
+    wait(for: [fileDownloaderExpectation], timeout: 1)
+    wait(for: [completionExpectation], timeout: 2)
+
+    try? ModelFileManager.removeFile(at: tempFileURL)
+  }
+
+  /// Get model if multiple duplicate requests are made (test at the API surface).
+  func testGetModelWithMergeRequests() {
+    let modelDownloader = ModelDownloader.modelDownloader()
+    let conditions = ModelDownloadConditions()
+    let session = fakeModelInfoSessionWithURL(fakeDownloadURL, statusCode: 200)
+    let modelInfoRetriever = fakeModelRetriever(fakeSession: session)
+    let tempFileURL = tempFile()
+    let numberOfRequests = 6
+    let fakeResponse = HTTPURLResponse(url: fakeFileURL,
+                                       statusCode: 200,
+                                       httpVersion: nil,
+                                       headerFields: nil)!
+    let downloader = MockModelFileDownloader()
+    let fileDownloaderExpectation = expectation(description: "File downloader")
+
+    downloader.downloadFileHandler = { url in
+      fileDownloaderExpectation.fulfill()
+      XCTAssertEqual(url, self.fakeDownloadURL)
+    }
+
+    let completionExpectation = expectation(description: "Completion handler")
+    completionExpectation.expectedFulfillmentCount = numberOfRequests
+
+    for i in 1 ... numberOfRequests {
+      modelDownloader.downloadInfoAndModel(modelName: "fakeModelName",
+                                           modelInfoRetriever: modelInfoRetriever,
+                                           downloader: downloader,
+                                           conditions: conditions) { result in
+        completionExpectation.fulfill()
+        switch result {
+        case let .success(model):
+          XCTAssertEqual(model.name, self.fakeModelName)
+          XCTAssertEqual(model.size, self.fakeModelSize)
+          XCTAssertEqual(model.hash, self.fakeModelHash)
+          let modelPath = URL(string: model.path)!
+          XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
+          if i == numberOfRequests {
+            try? self.deleteFile(at: modelPath)
+          }
+        case let .failure(error):
+          XCTFail("Error - \(error)")
+        }
+      }
+    }
+    wait(for: [fileDownloaderExpectation], timeout: 0.5)
+
+    downloader
+      .completion?(.success(FileDownloaderResponse(urlResponse: fakeResponse,
+                                                   fileURL: tempFileURL)))
+
+    wait(for: [completionExpectation], timeout: 1)
 
     try? ModelFileManager.removeFile(at: tempFileURL)
   }
@@ -484,11 +618,7 @@ final class ModelDownloaderUnitTests: XCTestCase {
     }
 
     let completionExpectation = expectation(description: "Completion handler")
-    let modelDownloadTask = ModelDownloadTask(remoteModelInfo: remoteModelInfo,
-                                              appName: "fakeAppName",
-                                              defaults: .createTestInstance(testName: #function),
-                                              downloader: downloader)
-    modelDownloadTask.download(progressHandler: nil) { result in
+    let taskCompletion: ModelDownloadTask.Completion = { result in
       completionExpectation.fulfill()
       switch result {
       case .success: XCTFail("Unexpected successful model download.")
@@ -496,6 +626,12 @@ final class ModelDownloaderUnitTests: XCTestCase {
         XCTAssertEqual(error, .notFound)
       }
     }
+    let modelDownloadTask = ModelDownloadTask(remoteModelInfo: remoteModelInfo,
+                                              appName: "fakeAppName",
+                                              defaults: .createTestInstance(testName: #function),
+                                              downloader: downloader,
+                                              completion: taskCompletion)
+    modelDownloadTask.resume()
     wait(for: [fileDownloaderExpectation], timeout: 0.1)
 
     downloader
@@ -948,10 +1084,10 @@ extension ModelDownloaderUnitTests {
     return modelInfoRetriever
   }
 
-  func tempFile() -> URL {
+  func tempFile(name: String = "fake-model-file.tmp") -> URL {
     let tempDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory(),
                                isDirectory: true)
-    let tempFileURL = tempDirectoryURL.appendingPathComponent("fake-model-file.tmp")
+    let tempFileURL = tempDirectoryURL.appendingPathComponent(name)
     let tempData: Data = "fakeModelData".data(using: .utf8)!
     try? tempData.write(to: tempFileURL)
     return tempFileURL
