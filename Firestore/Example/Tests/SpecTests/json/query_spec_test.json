@@ -10,16 +10,16 @@
     },
     "steps": [
       {
-        "userListen": [
-          2,
-          {
+        "userListen": {
+          "query": {
             "filters": [
             ],
             "orderBys": [
             ],
             "path": "cg/1"
-          }
-        ],
+          },
+          "targetId": 2
+        },
         "expectedState": {
           "activeTargets": {
             "2": {
@@ -105,16 +105,16 @@
         ]
       },
       {
-        "userListen": [
-          4,
-          {
+        "userListen": {
+          "query": {
             "filters": [
             ],
             "orderBys": [
             ],
             "path": "cg/2"
-          }
-        ],
+          },
+          "targetId": 4
+        },
         "expectedState": {
           "activeTargets": {
             "2": {
@@ -212,16 +212,16 @@
         ]
       },
       {
-        "userListen": [
-          6,
-          {
+        "userListen": {
+          "query": {
             "filters": [
             ],
             "orderBys": [
             ],
             "path": "not-cg/nope/cg/3"
-          }
-        ],
+          },
+          "targetId": 6
+        },
         "expectedState": {
           "activeTargets": {
             "2": {
@@ -331,16 +331,16 @@
         ]
       },
       {
-        "userListen": [
-          8,
-          {
+        "userListen": {
+          "query": {
             "filters": [
             ],
             "orderBys": [
             ],
             "path": "not-cg/nope"
-          }
-        ],
+          },
+          "targetId": 8
+        },
         "expectedState": {
           "activeTargets": {
             "2": {
@@ -462,16 +462,16 @@
         ]
       },
       {
-        "userListen": [
-          10,
-          {
+        "userListen": {
+          "query": {
             "filters": [
             ],
             "orderBys": [
             ],
             "path": "cg/1/not-cg/nope"
-          }
-        ],
+          },
+          "targetId": 10
+        },
         "expectedState": {
           "activeTargets": {
             "10": {
@@ -605,17 +605,17 @@
         ]
       },
       {
-        "userListen": [
-          12,
-          {
+        "userListen": {
+          "query": {
             "collectionGroup": "cg",
             "filters": [
             ],
             "orderBys": [
             ],
             "path": ""
-          }
-        ],
+          },
+          "targetId": 12
+        },
         "expectedSnapshotEvents": [
           {
             "added": [
@@ -745,9 +745,8 @@
         }
       },
       {
-        "userListen": [
-          14,
-          {
+        "userListen": {
+          "query": {
             "collectionGroup": "cg",
             "filters": [
               [
@@ -759,8 +758,9 @@
             "orderBys": [
             ],
             "path": ""
-          }
-        ],
+          },
+          "targetId": 14
+        },
         "expectedSnapshotEvents": [
           {
             "added": [
@@ -914,16 +914,16 @@
     },
     "steps": [
       {
-        "userListen": [
-          2,
-          {
+        "userListen": {
+          "query": {
             "filters": [
             ],
             "orderBys": [
             ],
             "path": "cg/1"
-          }
-        ],
+          },
+          "targetId": 2
+        },
         "expectedState": {
           "activeTargets": {
             "2": {
@@ -1009,16 +1009,16 @@
         ]
       },
       {
-        "userListen": [
-          4,
-          {
+        "userListen": {
+          "query": {
             "filters": [
             ],
             "orderBys": [
             ],
             "path": "not-cg/nope"
-          }
-        ],
+          },
+          "targetId": 4
+        },
         "expectedState": {
           "activeTargets": {
             "2": {
@@ -1140,17 +1140,17 @@
         ]
       },
       {
-        "userListen": [
-          6,
-          {
+        "userListen": {
+          "query": {
             "collectionGroup": "cg",
             "filters": [
             ],
             "orderBys": [
             ],
             "path": ""
-          }
-        ],
+          },
+          "targetId": 6
+        },
         "expectedSnapshotEvents": [
           {
             "added": [
@@ -1244,9 +1244,8 @@
         }
       },
       {
-        "userListen": [
-          8,
-          {
+        "userListen": {
+          "query": {
             "collectionGroup": "cg",
             "filters": [
               [
@@ -1258,8 +1257,9 @@
             "orderBys": [
             ],
             "path": ""
-          }
-        ],
+          },
+          "targetId": 8
+        },
         "expectedSnapshotEvents": [
           {
             "added": [
@@ -1377,16 +1377,16 @@
     },
     "steps": [
       {
-        "userListen": [
-          2,
-          {
+        "userListen": {
+          "query": {
             "filters": [
             ],
             "orderBys": [
             ],
             "path": "collection"
-          }
-        ],
+          },
+          "targetId": 2
+        },
         "expectedState": {
           "activeTargets": {
             "2": {
@@ -1507,9 +1507,8 @@
         ]
       },
       {
-        "userListen": [
-          4,
-          {
+        "userListen": {
+          "query": {
             "filters": [
               [
                 "match",
@@ -1520,8 +1519,9 @@
             "orderBys": [
             ],
             "path": "collection"
-          }
-        ],
+          },
+          "targetId": 4
+        },
         "expectedSnapshotEvents": [
           {
             "added": [
