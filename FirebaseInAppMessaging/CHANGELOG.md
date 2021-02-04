@@ -1,3 +1,6 @@
+# 2021-2 -- v7.7.0
+- [fixed] Fixed conversion tracking for in-app messages with a conversion event but not a button / action URL (#7306).
+
 # 2021-1 -- v7.5.0
 - [fixed] Fixed failed assertion causing app to crash during test on device flow (#7299).
 
