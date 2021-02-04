@@ -380,12 +380,12 @@ static void FIRCLSBinaryImageChanged(bool added,
       FIRCLSBinaryImageRecordSlice(added, imageDetails);
     });
   } else {
-      FIRCLSBinaryImageDetails imageDetails;
-      memset(&imageDetails, 0, sizeof(FIRCLSBinaryImageDetails));
+    FIRCLSBinaryImageDetails imageDetails;
+    memset(&imageDetails, 0, sizeof(FIRCLSBinaryImageDetails));
 
-      imageDetails.slice = FIRCLSMachOSliceWithHeader((void*)mh);
-      imageDetails.vmaddr_slide = vmaddr_slide;
-      FIRCLSBinaryImageFillInImageDetails(&imageDetails);
+    imageDetails.slice = FIRCLSMachOSliceWithHeader((void*)mh);
+    imageDetails.vmaddr_slide = vmaddr_slide;
+    FIRCLSBinaryImageFillInImageDetails(&imageDetails);
 
     // this is an atomic operation
     FIRCLSBinaryImageStoreNode(added, imageDetails);
