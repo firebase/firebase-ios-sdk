@@ -16,8 +16,6 @@
 
 #include "Firestore/core/src/core/sync_engine.h"
 
-#include <algorithm>
-
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/core/sync_engine_callback.h"
 #include "Firestore/core/src/core/transaction.h"
@@ -534,7 +532,7 @@ void SyncEngine::TrackLimboChange(const LimboDocumentChange& limbo_change) {
           active_limbo_targets_by_key_.end() &&
       !enqueued_limbo_resolutions_.contains(key)) {
     LOG_DEBUG("New document in limbo: %s", key.ToString());
-    enqueued_limbo_resolutions_.push(key);
+    enqueued_limbo_resolutions_.push_back(key);
     PumpEnqueuedLimboResolutions();
   }
 }
@@ -543,7 +541,8 @@ void SyncEngine::PumpEnqueuedLimboResolutions() {
   while (!enqueued_limbo_resolutions_.empty() &&
          active_limbo_targets_by_key_.size() <
              max_concurrent_limbo_resolutions_) {
-    const DocumentKey& key = enqueued_limbo_resolutions_.pop();
+    DocumentKey key = enqueued_limbo_resolutions_.front();
+    enqueued_limbo_resolutions_.pop_front();
     TargetId limbo_target_id = target_id_generator_.NextId();
     active_limbo_resolutions_by_target_.emplace(limbo_target_id,
                                                 LimboResolution{key});
@@ -569,20 +568,25 @@ void SyncEngine::RemoveLimboTarget(const DocumentKey& key) {
   PumpEnqueuedLimboResolutions();
 }
 
-void SyncEngine::LimboResolutionQueue::push(const model::DocumentKey& key) {
+void SyncEngine::LimboResolutionQueue::push_back(
+    const model::DocumentKey& key) {
   HARD_ASSERT(queue_entries_by_key_.find(key) == queue_entries_by_key_.end(),
               "%s is already enqueued for limbo resolution", key.ToString());
   queue_.emplace_back(key);
   queue_entries_by_key_.emplace(key, &queue_.back());
 }
 
-model::DocumentKey SyncEngine::LimboResolutionQueue::pop() {
+model::DocumentKey SyncEngine::LimboResolutionQueue::front() const {
+  HARD_ASSERT(queue_.size() > 0, "queue is empty");
+  return queue_.front().key();
+}
+
+void SyncEngine::LimboResolutionQueue::pop_front() {
   HARD_ASSERT(queue_.size() > 0, "queue is empty");
   model::DocumentKey popped_key = queue_.front().key();
   queue_.pop_front();
   queue_entries_by_key_.erase(popped_key);
   PruneLeadingCancelledQueueEntries();
-  return popped_key;
 }
 
 void SyncEngine::LimboResolutionQueue::remove(const model::DocumentKey& key) {

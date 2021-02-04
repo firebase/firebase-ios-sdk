@@ -224,8 +224,9 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
     LimboResolutionQueue() = default;
     LimboResolutionQueue(const LimboResolutionQueue&) = delete;
 
-    void push(const model::DocumentKey& key);
-    model::DocumentKey pop();
+    void push_back(const model::DocumentKey& key);
+    model::DocumentKey front() const;
+    void pop_front();
     void remove(const model::DocumentKey& key);
 
     bool empty() const {
