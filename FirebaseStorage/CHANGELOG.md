@@ -1,5 +1,5 @@
 # Unreleased
-- [added] Added `FirebaseDatabase.useEmulator()`, which allows the Storage SDK to
+- [added] Added `FirebaseStorage.useEmulator()`, which allows the Storage SDK to
   connect to the Cloud Storage for Firebase emulator.
 
 # 7.4.0
