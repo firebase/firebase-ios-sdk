@@ -5,11 +5,11 @@ on:
     # open will be triggered when a pull request is created.
     # synchronize will be triggered when a pull request has new commits.
     # closed will be triggered when a pull request is closed.
-    types: [open, synchronize, closed]
+    types: [opened, synchronize, closed]
 
 jobs:
   check:
-    if: github.repository == 'Firebase/firebase-ios-sdk' && github.event.action != 'closed'
+    if: github.repository == 'Firebase/firebase-ios-sdk' && (github.event.action == 'opened' || github.event.action == 'synchronize')
     name: Check changed files
     outputs:
       database_run_job: ${{ steps.check_files.outputs.database_run_job }}
