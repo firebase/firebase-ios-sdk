@@ -239,7 +239,7 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
    private:
     class QueueEntry {
      public:
-      QueueEntry(const model::DocumentKey& key) : key_(key) {
+      explicit QueueEntry(const model::DocumentKey& key) : key_(key) {
       }
 
       const model::DocumentKey& key() const {
