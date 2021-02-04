@@ -124,7 +124,7 @@
   [FIRStorageTestHelpers waitForExpectation:self];
 }
 
-- (void)testUnsuccessfulDeleteUnauthenticated {
+- (void)testUnsuccessfulFetchUnauthenticated {
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"testUnsuccessfulFetchUnauthenticated"];
 

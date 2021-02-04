@@ -313,7 +313,8 @@ static GTMSessionFetcherRetryBlock _retryWhenOffline;
   }
 
   if (port < 0) {
-    [NSException raise:NSInvalidArgumentException format:@"Port must be greater than zero."];
+    [NSException raise:NSInvalidArgumentException
+                format:@"Port must be greater than or equal to zero."];
   }
 
   if (_fetcherServiceForApp != nil) {
