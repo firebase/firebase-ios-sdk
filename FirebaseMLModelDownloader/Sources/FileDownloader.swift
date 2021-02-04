@@ -15,7 +15,6 @@
 import Foundation
 
 enum FileDownloaderError: Error {
-  case sessionInvalidated(Error)
   case unexpectedResponseType
   case networkError(Error)
 }
@@ -83,6 +82,7 @@ extension ModelFileDownloader: URLSessionDownloadDelegate {
   /// Handle client-side errors.
   func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
     guard let error = error else { return }
+    session.finishTasksAndInvalidate()
     /// Unable to resolve hostname or connect to host.
     completion?(.failure(FileDownloaderError.networkError(error)))
   }
@@ -96,6 +96,7 @@ extension ModelFileDownloader: URLSessionDownloadDelegate {
       return
     }
     let downloaderResponse = FileDownloaderResponse(urlResponse: urlResponse, fileURL: location)
+    session.finishTasksAndInvalidate()
     completion?(.success(downloaderResponse))
   }
 
@@ -105,15 +106,5 @@ extension ModelFileDownloader: URLSessionDownloadDelegate {
                   totalBytesWritten: Int64,
                   totalBytesExpectedToWrite: Int64) {
     progressHandler?(totalBytesWritten, totalBytesExpectedToWrite)
-  }
-
-  func urlSession(_ session: URLSession, taskIsWaitingForConnectivity task: URLSessionTask) {
-    // TODO: Handle waiting for connectivity, if needed.
-  }
-
-  func urlSession(_ session: URLSession, didBecomeInvalidWithError error: Error?) {
-    guard let error = error else { return }
-    /// Unable to resolve hostname or connect to host.
-    completion?(.failure(FileDownloaderError.sessionInvalidated(error)))
   }
 }

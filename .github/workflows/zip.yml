@@ -5,6 +5,7 @@ on:
     paths:
     - 'ReleaseTooling/**'
     - '.github/workflows/zip.yml'
+    - 'scripts/build_non_firebase_sdks.sh'
     - 'Gemfile'
     # Don't run based on any markdown only changes.
     - '!ReleaseTooling/*.md'

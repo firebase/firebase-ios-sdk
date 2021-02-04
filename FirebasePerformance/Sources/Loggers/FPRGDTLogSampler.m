@@ -14,7 +14,7 @@
 
 #import "FirebasePerformance/Sources/Loggers/FPRGDTLogSampler.h"
 
-#import "GoogleDataTransport/GDTCORLibrary/Internal/GoogleDataTransportInternal.h"
+#import <GoogleDataTransport/GoogleDataTransport.h>
 
 #import "FirebasePerformance/Sources/AppActivity/FPRSessionManager.h"
 #import "FirebasePerformance/Sources/Common/FPRDiagnostics.h"

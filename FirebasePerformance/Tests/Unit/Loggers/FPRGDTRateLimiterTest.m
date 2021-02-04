@@ -28,7 +28,7 @@
 #import "FirebasePerformance/Tests/Unit/FPRTestCase.h"
 #import "FirebasePerformance/Tests/Unit/FPRTestUtils.h"
 
-#import "GoogleDataTransport/GDTCORLibrary/Internal/GoogleDataTransportInternal.h"
+#import <GoogleDataTransport/GoogleDataTransport.h>
 
 #import "FirebasePerformance/ProtoSupport/PerfMetric.pbobjc.h"
 

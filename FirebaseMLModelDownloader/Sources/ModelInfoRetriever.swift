@@ -16,6 +16,13 @@ import Foundation
 import FirebaseCore
 import FirebaseInstallations
 
+/// Possible states of model downloading.
+enum ModelInfoDownloadStatus {
+  case notStarted
+  case inProgress
+  case complete
+}
+
 /// URL Session to use while retrieving model info.
 protocol ModelInfoRetrieverSession {
   func getModelInfo(with request: URLRequest,
@@ -55,6 +62,15 @@ enum DownloadModelInfoResult {
   case modelInfo(RemoteModelInfo)
 }
 
+/// Model info retrieval error codes.
+enum ModelInfoErrorCode {
+  case noError
+  case noHash
+  case httpError(code: Int)
+  case connectionFailed
+  case hashMismatch
+}
+
 /// Model info retriever for a model from local user defaults or server.
 class ModelInfoRetriever {
   /// Model name.
@@ -67,8 +83,12 @@ class ModelInfoRetriever {
   private let apiKey: String
   /// Current Firebase app name.
   private let appName: String
+  /// Keeps track of download associated with this model download task.
+  private(set) var downloadStatus: ModelInfoDownloadStatus = .notStarted
   /// Local model info to validate model freshness.
   private let localModelInfo: LocalModelInfo?
+  /// Telemetry logger.
+  private let telemetryLogger: TelemetryLogger?
 
   typealias AuthTokenProvider = (_ completion: @escaping (Result<String, DownloadError>) -> Void)
     -> Void
@@ -81,13 +101,15 @@ class ModelInfoRetriever {
        authTokenProvider: @escaping AuthTokenProvider,
        appName: String,
        localModelInfo: LocalModelInfo? = nil,
-       session: ModelInfoRetrieverSession? = nil) {
+       session: ModelInfoRetrieverSession? = nil,
+       telemetryLogger: TelemetryLogger? = nil) {
     self.modelName = modelName
     self.projectID = projectID
     self.apiKey = apiKey
     self.appName = appName
     self.localModelInfo = localModelInfo
     self.authTokenProvider = authTokenProvider
+    self.telemetryLogger = telemetryLogger
 
     if let urlSession = session {
       self.session = urlSession
@@ -102,14 +124,16 @@ class ModelInfoRetriever {
                    installations: Installations,
                    appName: String,
                    localModelInfo: LocalModelInfo? = nil,
-                   session: ModelInfoRetrieverSession? = nil) {
+                   session: ModelInfoRetrieverSession? = nil,
+                   telemetryLogger: TelemetryLogger? = nil) {
     self.init(modelName: modelName,
               projectID: projectID,
               apiKey: apiKey,
               authTokenProvider: ModelInfoRetriever.authTokenProvider(installation: installations),
               appName: appName,
               localModelInfo: localModelInfo,
-              session: session)
+              session: session,
+              telemetryLogger: telemetryLogger)
   }
 
   private static func authTokenProvider(installation: Installations) -> AuthTokenProvider {
@@ -118,7 +142,7 @@ class ModelInfoRetriever {
         guard let result = tokenResult
         else {
           completion(.failure(.internalError(description: ModelInfoRetriever.ErrorDescription
-              .fisToken)))
+              .authToken)))
           return
         }
         completion(.success(result.authToken))
@@ -129,80 +153,210 @@ class ModelInfoRetriever {
   /// Get model info from server.
   func downloadModelInfo(completion: @escaping (Result<DownloadModelInfoResult, DownloadError>)
     -> Void) {
+    /// Prevent multiple concurrent downloads.
+    guard downloadStatus != .inProgress else {
+      DeviceLogger.logEvent(level: .debug,
+                            message: ModelInfoRetriever.ErrorDescription.anotherDownloadInProgress,
+                            messageCode: .anotherDownloadInProgressError)
+      telemetryLogger?.logModelDownloadEvent(eventName: .modelDownload,
+                                             status: .failed,
+                                             downloadErrorCode: .downloadFailed)
+      completion(.failure(.internalError(description: ModelInfoRetriever.ErrorDescription
+          .anotherDownloadInProgress)))
+      return
+    }
     authTokenProvider { result in
       switch result {
       /// Successfully received FIS token.
       case let .success(authToken):
+        DeviceLogger.logEvent(level: .debug,
+                              message: ModelInfoRetriever.DebugDescription
+                                .receivedAuthToken,
+                              messageCode: .validAuthToken)
         /// Get model info fetch URL with appropriate HTTP headers.
         guard let request = self.getModelInfoFetchURLRequest(token: authToken) else {
+          DeviceLogger.logEvent(level: .debug,
+                                message: ModelInfoRetriever.ErrorDescription
+                                  .invalidModelInfoFetchURL,
+                                messageCode: .invalidModelInfoFetchURL)
+          self.telemetryLogger?.logModelInfoRetrievalEvent(eventName: .modelDownload,
+                                                           status: .failed,
+                                                           errorCode: .connectionFailed)
           completion(.failure(.internalError(description: ModelInfoRetriever.ErrorDescription
               .invalidModelInfoFetchURL)))
           return
         }
+        self.downloadStatus = .inProgress
         /// Download model info.
         self.session.getModelInfo(with: request) {
           data, response, error in
+          self.downloadStatus = .complete
           if let downloadError = error {
-            completion(.failure(.internalError(description: ModelInfoRetriever.ErrorDescription
-                .failedModelInfoRetrieval(downloadError.localizedDescription))))
+            let description = ModelInfoRetriever.ErrorDescription
+              .failedModelInfoRetrieval(downloadError.localizedDescription)
+            DeviceLogger.logEvent(level: .debug,
+                                  message: description,
+                                  messageCode: .modelInfoRetrievalError)
+            self.telemetryLogger?.logModelInfoRetrievalEvent(eventName: .modelDownload,
+                                                             status: .failed,
+                                                             errorCode: .connectionFailed)
+            completion(.failure(.internalError(description: description)))
           } else {
             guard let httpResponse = response as? HTTPURLResponse else {
+              DeviceLogger.logEvent(level: .debug,
+                                    message: ModelInfoRetriever.ErrorDescription
+                                      .invalidHTTPResponse,
+                                    messageCode: .invalidHTTPResponse)
+              self.telemetryLogger?.logModelInfoRetrievalEvent(eventName: .modelDownload,
+                                                               status: .failed,
+                                                               errorCode: .connectionFailed)
               completion(.failure(.internalError(description: ModelInfoRetriever.ErrorDescription
                   .invalidHTTPResponse)))
               return
             }
-
+            DeviceLogger.logEvent(level: .debug,
+                                  message: ModelInfoRetriever.DebugDescription
+                                    .receivedServerResponse,
+                                  messageCode: .validHTTPResponse)
             switch httpResponse.statusCode {
             case 200:
               guard let modelHash = httpResponse
                 .allHeaderFields[ModelInfoRetriever.etagHTTPHeader] as? String else {
+                DeviceLogger.logEvent(level: .debug,
+                                      message: ModelInfoRetriever.ErrorDescription.missingModelHash,
+                                      messageCode: .missingModelHash)
+                self.telemetryLogger?.logModelInfoRetrievalEvent(eventName: .modelDownload,
+                                                                 status: .failed,
+                                                                 errorCode: .noHash)
                 completion(.failure(.internalError(description: ModelInfoRetriever.ErrorDescription
                     .missingModelHash)))
                 return
               }
-
               guard let data = data else {
+                DeviceLogger.logEvent(level: .debug,
+                                      message: ModelInfoRetriever.ErrorDescription
+                                        .invalidHTTPResponse,
+                                      messageCode: .invalidHTTPResponse)
                 completion(.failure(.internalError(description: ModelInfoRetriever.ErrorDescription
                     .invalidHTTPResponse)))
                 return
               }
               do {
                 let modelInfo = try self.getRemoteModelInfoFromResponse(data, modelHash: modelHash)
+                DeviceLogger.logEvent(level: .debug,
+                                      message: ModelInfoRetriever.DebugDescription
+                                        .modelInfoDownloaded,
+                                      messageCode: .modelInfoDownloaded)
+                self.telemetryLogger?.logModelInfoRetrievalEvent(eventName: .modelDownload,
+                                                                 status: .updateAvailable,
+                                                                 errorCode: .noError)
                 completion(.success(.modelInfo(modelInfo)))
               } catch {
+                let description = ModelInfoRetriever.ErrorDescription
+                  .invalidmodelInfoJSON(error.localizedDescription)
+                DeviceLogger.logEvent(level: .debug,
+                                      message: description,
+                                      messageCode: .invalidModelInfoJSON)
                 completion(
-                  .failure(.internalError(description: ModelInfoRetriever.ErrorDescription
-                      .invalidmodelInfoJSON(error.localizedDescription)))
+                  .failure(.internalError(description: description))
                 )
               }
             case 304:
               /// For this case to occur, local model info has to already be available on device.
               // TODO: Is this needed? Currently handles the case if model info disappears between request and response
-              guard self.localModelInfo != nil else {
+              guard let localInfo = self.localModelInfo else {
+                DeviceLogger.logEvent(level: .debug,
+                                      message: ModelInfoRetriever.ErrorDescription
+                                        .unexpectedModelInfoDeletion,
+                                      messageCode: .modelInfoDeleted)
                 completion(
                   .failure(.internalError(description: ModelInfoRetriever.ErrorDescription
                       .unexpectedModelInfoDeletion))
                 )
                 return
               }
+              guard let modelHash = httpResponse
+                .allHeaderFields[ModelInfoRetriever.etagHTTPHeader] as? String else {
+                DeviceLogger.logEvent(level: .debug,
+                                      message: ModelInfoRetriever.ErrorDescription
+                                        .missingModelHash,
+                                      messageCode: .noModelHash)
+                self.telemetryLogger?.logModelInfoRetrievalEvent(eventName: .modelDownload,
+                                                                 status: .failed,
+                                                                 errorCode: .noHash)
+                completion(.failure(.internalError(description: ModelInfoRetriever.ErrorDescription
+                    .missingModelHash)))
+                return
+              }
+              guard modelHash == localInfo.modelHash else {
+                DeviceLogger.logEvent(level: .debug,
+                                      message: ModelInfoRetriever.ErrorDescription
+                                        .modelHashMismatch,
+                                      messageCode: .modelHashMismatchError)
+                self.telemetryLogger?.logModelInfoRetrievalEvent(eventName: .modelDownload,
+                                                                 status: .failed,
+                                                                 errorCode: .hashMismatch)
+                completion(.failure(.internalError(description: ModelInfoRetriever.ErrorDescription
+                    .modelHashMismatch)))
+                return
+              }
+              DeviceLogger.logEvent(level: .debug,
+                                    message: ModelInfoRetriever.DebugDescription
+                                      .modelInfoUnmodified,
+                                    messageCode: .modelInfoUnmodified)
               completion(.success(.notModified))
+            case 400:
+              let description = ModelInfoRetriever.ErrorDescription.invalidModelName(self.modelName)
+              DeviceLogger.logEvent(level: .debug,
+                                    message: description,
+                                    messageCode: .invalidModelName)
+              self.telemetryLogger?.logModelInfoRetrievalEvent(eventName: .modelDownload,
+                                                               status: .failed,
+                                                               errorCode: .httpError(code: httpResponse
+                                                                 .statusCode))
+              completion(.failure(.invalidArgument))
+            case 401, 403:
+              DeviceLogger.logEvent(level: .debug,
+                                    message: ModelInfoRetriever.ErrorDescription.permissionDenied,
+                                    messageCode: .permissionDenied)
+              self.telemetryLogger?.logModelInfoRetrievalEvent(eventName: .modelDownload,
+                                                               status: .failed,
+                                                               errorCode: .httpError(code: httpResponse
+                                                                 .statusCode))
+              completion(.failure(.permissionDenied))
             case 404:
+              let description = ModelInfoRetriever.ErrorDescription.modelNotFound(self.modelName)
+              DeviceLogger.logEvent(level: .debug,
+                                    message: description,
+                                    messageCode: .modelNotFound)
+              self.telemetryLogger?.logModelInfoRetrievalEvent(eventName: .modelDownload,
+                                                               status: .failed,
+                                                               errorCode: .httpError(code: httpResponse
+                                                                 .statusCode))
               completion(.failure(.notFound))
             // TODO: Handle more http status codes
             default:
-              completion(.failure(
-                .internalError(
-                  description: ModelInfoRetriever
-                    .ErrorDescription.serverResponse(httpResponse.statusCode)
-                )
-              ))
+              let description = ModelInfoRetriever.ErrorDescription
+                .modelInfoRetrievalFailed(httpResponse.statusCode)
+              DeviceLogger.logEvent(level: .debug,
+                                    message: description,
+                                    messageCode: .modelInfoRetrievalError)
+              self.telemetryLogger?.logModelInfoRetrievalEvent(eventName: .modelDownload,
+                                                               status: .failed,
+                                                               errorCode: .httpError(code: httpResponse
+                                                                 .statusCode))
+              completion(.failure(.internalError(description: description)))
             }
           }
         }
       /// FIS token error.
       case .failure:
+        DeviceLogger.logEvent(level: .debug,
+                              message: ModelInfoRetriever.ErrorDescription
+                                .authToken,
+                              messageCode: .authTokenError)
         completion(.failure(.internalError(description: ModelInfoRetriever.ErrorDescription
-            .fisToken)))
+            .authToken)))
         return
       }
     }
@@ -297,14 +451,22 @@ extension ModelInfoRetriever {
 
 /// Possible error messages for model info retrieval.
 extension ModelInfoRetriever {
+  /// Debug descriptions.
+  private enum DebugDescription {
+    static let receivedServerResponse = "Received a valid response from model info server."
+    static let receivedAuthToken = "Generated valid auth token."
+    static let modelInfoDownloaded = "Successfully downloaded model info."
+    static let modelInfoUnmodified = "Local model info matches the latest on server."
+  }
+
   /// Error descriptions.
   private enum ErrorDescription {
-    static let fisToken = "Error retrieving FIS token."
+    static let authToken = "Error retrieving auth token."
     static let selfDeallocated = "Self deallocated."
-    static let missingModelHash = "Model hash missing in server response."
+    static let missingModelHash = "Model hash missing in model info server response."
     static let invalidModelInfoFetchURL = "Unable to create URL to fetch model info."
     static let invalidHTTPResponse =
-      "Could not get a valid HTTP response from server."
+      "Could not get a valid HTTP response for model info retrieval."
     static let invalidmodelInfoJSON = { (error: String) in
       "Failed to parse model info: \(error)"
     }
@@ -319,11 +481,26 @@ extension ModelInfoRetriever {
       "Server returned with HTTP error code: \(errorCode)."
     }
 
+    static let invalidModelName = { (name: String) in
+      "Invalid model name: \(name)"
+    }
+
+    static let modelNotFound = { (name: String) in
+      "No model found with name: \(name)"
+    }
+
+    static let modelInfoRetrievalFailed = { (code: Int) in
+      "Model info retrieval failed with HTTP error code: \(code)"
+    }
+
     static let decodeModelInfoResponse =
       "Unable to decode model info response from server."
     static let invalidModelDownloadURL =
       "Invalid model download URL from server."
     static let invalidModelDownloadURLExpiryTime =
       "Invalid download URL expiry time from server."
+    static let modelHashMismatch = "Unexpected model hash value."
+    static let permissionDenied = "Invalid or missing permissions to retrieve model info."
+    static let anotherDownloadInProgress = "Model info download already in progress."
   }
 }

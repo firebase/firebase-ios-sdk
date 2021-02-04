@@ -71,9 +71,6 @@ struct InitializeRelease {
     }
     let firebaseVersion = manifest.version
     for firebasePod in manifest.pods {
-      if !firebasePod.isFirebase {
-        continue
-      }
       let pod = firebasePod.name
       let version = firebasePod.isBeta ? firebaseVersion + "-beta" : firebaseVersion
       if pod == "Firebase" {

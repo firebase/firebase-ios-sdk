@@ -1,3 +1,6 @@
+# 2021-02 -- v7.6.0
+- [fixed] Fixed build warnings introduced with Xcode 12.5. (#7433)
+
 # 2020-11 -- v7.1.0
 - [fixed] Fixed completion handler issue in `application(_:didReceiveRemoteNotification:fetchCompletionHandler:)` method. (#6863)
 
