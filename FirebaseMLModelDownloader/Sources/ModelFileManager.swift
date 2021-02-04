@@ -123,7 +123,7 @@ enum ModelFileManager {
   }
 }
 
-/// Used for testing.
+/// NOTE: Use for testing only.
 extension ModelFileManager {
   static func emptyModelsDirectory() throws {
     do {
