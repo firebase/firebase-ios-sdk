@@ -174,11 +174,11 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     let taskCompletion: ModelDownloadTask.Completion = { result in
       switch result {
       case let .success(model):
-        let modelPath = URL(fileURLWithPath: model.path)
-        XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
+        let modelURL = URL(fileURLWithPath: model.path)
+        XCTAssertTrue(ModelFileManager.isFileReachable(at: modelURL))
         /// Remove downloaded model file.
         do {
-          try ModelFileManager.removeFile(at: modelPath)
+          try ModelFileManager.removeFile(at: modelURL)
         } catch {
           XCTFail("Model removal failed - \(error)")
         }
@@ -231,8 +231,8 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       switch result {
       case let .success(model):
         XCTAssertNotNil(model.path)
-        let modelPath = URL(fileURLWithPath: model.path)
-        XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
+        let modelURL = URL(fileURLWithPath: model.path)
+        XCTAssertTrue(ModelFileManager.isFileReachable(at: modelURL))
       case let .failure(error):
         XCTFail("Failed to download model - \(error)")
       }
@@ -256,8 +256,8 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       switch result {
       case let .success(model):
         XCTAssertNotNil(model.path)
-        let modelPath = URL(fileURLWithPath: model.path)
-        XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
+        let modelURL = URL(fileURLWithPath: model.path)
+        XCTAssertTrue(ModelFileManager.isFileReachable(at: modelURL))
       case let .failure(error):
         XCTFail("Failed to download model - \(error)")
       }
@@ -281,11 +281,11 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       switch result {
       case let .success(model):
         XCTAssertNotNil(model.path)
-        let modelPath = URL(fileURLWithPath: model.path)
-        XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
+        let modelURL = URL(fileURLWithPath: model.path)
+        XCTAssertTrue(ModelFileManager.isFileReachable(at: modelURL))
         /// Remove downloaded model file.
         do {
-          try ModelFileManager.removeFile(at: modelPath)
+          try ModelFileManager.removeFile(at: modelURL)
         } catch {
           XCTFail("Model removal failed - \(error)")
         }
@@ -433,8 +433,8 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
           model: model,
           downloadErrorCode: .noError
         )
-        let modelPath = URL(fileURLWithPath: model.path)
-        try? ModelFileManager.removeFile(at: modelPath)
+        let modelURL = URL(fileURLWithPath: model.path)
+        try? ModelFileManager.removeFile(at: modelURL)
       case let .failure(error):
         XCTFail("Failed to download model - \(error)")
       }

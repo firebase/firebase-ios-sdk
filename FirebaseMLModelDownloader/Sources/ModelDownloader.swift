@@ -234,11 +234,11 @@ public class ModelDownloader {
   public func listDownloadedModels(completion: @escaping (Result<Set<CustomModel>,
     DownloadedModelError>) -> Void) {
     do {
-      let modelPaths = try ModelFileManager.contentsOfModelsDirectory()
+      let modelURLs = try ModelFileManager.contentsOfModelsDirectory()
       var customModels = Set<CustomModel>()
-      for path in modelPaths {
-        guard let modelName = ModelFileManager.getModelNameFromFilePath(path) else {
-          let description = ModelDownloader.ErrorDescription.parseModelName(path.path)
+      for url in modelURLs {
+        guard let modelName = ModelFileManager.getModelNameFromFilePath(url) else {
+          let description = ModelDownloader.ErrorDescription.parseModelName(url.path)
           DeviceLogger.logEvent(level: .debug,
                                 message: description,
                                 messageCode: .modelNameParseError)
@@ -253,11 +253,11 @@ public class ModelDownloader {
           mainQueueHandler(completion(.failure(.internalError(description: description))))
           return
         }
-        let modelPath = ModelFileManager.getDownloadedModelFilePath(
+        let modelURL = ModelFileManager.getDownloadedModelFileURL(
           appName: appName,
           modelName: modelName
         )
-        guard ModelFileManager.isFileReachable(at: modelPath) else {
+        guard ModelFileManager.isFileReachable(at: modelURL) else {
           DeviceLogger.logEvent(level: .debug,
                                 message: ModelDownloader.ErrorDescription.outdatedModelPath,
                                 messageCode: .outdatedModelPathError)
@@ -265,7 +265,7 @@ public class ModelDownloader {
               .ErrorDescription.outdatedModelPath))))
           return
         }
-        let model = CustomModel(localModelInfo: modelInfo, path: modelPath.path)
+        let model = CustomModel(localModelInfo: modelInfo, path: modelURL.path)
         customModels.insert(model)
       }
       DeviceLogger.logEvent(level: .debug,
@@ -290,7 +290,7 @@ public class ModelDownloader {
   public func deleteDownloadedModel(name modelName: String,
                                     completion: @escaping (Result<Void, DownloadedModelError>)
                                       -> Void) {
-    let localPath = ModelFileManager.getDownloadedModelFilePath(
+    let localPath = ModelFileManager.getDownloadedModelFileURL(
       appName: appName,
       modelName: modelName
     )
@@ -334,12 +334,12 @@ extension ModelDownloader {
                             messageCode: .noLocalModelInfo)
       return nil
     }
-    let modelPath = ModelFileManager.getDownloadedModelFilePath(
+    let modelURL = ModelFileManager.getDownloadedModelFileURL(
       appName: appName,
       modelName: modelName
     )
     /// Ensure that the model file actually exists.
-    guard ModelFileManager.isFileReachable(at: modelPath) else {
+    guard ModelFileManager.isFileReachable(at: modelURL) else {
       return nil
     }
     return localModelInfo
@@ -348,12 +348,12 @@ extension ModelDownloader {
   /// Get model saved on device if available.
   private func getLocalModel(modelName: String) -> CustomModel? {
     guard let localModelInfo = getLocalModelInfo(modelName: modelName) else { return nil }
-    let modelPath = ModelFileManager.getDownloadedModelFilePath(
+    let modelURL = ModelFileManager.getDownloadedModelFileURL(
       appName: appName,
       modelName: modelName
     )
-    guard ModelFileManager.isFileReachable(at: modelPath) else { return nil }
-    let model = CustomModel(localModelInfo: localModelInfo, path: modelPath.path)
+    guard ModelFileManager.isFileReachable(at: modelURL) else { return nil }
+    let model = CustomModel(localModelInfo: localModelInfo, path: modelURL.path)
     return model
   }
 

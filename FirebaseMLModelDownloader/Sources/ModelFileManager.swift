@@ -47,7 +47,7 @@ enum ModelFileManager {
   }
 
   /// Full path of model file stored on device.
-  static func getDownloadedModelFilePath(appName: String, modelName: String) -> URL {
+  static func getDownloadedModelFileURL(appName: String, modelName: String) -> URL {
     let modelFileName = ModelFileManager.getDownloadedModelFileName(
       appName: appName,
       modelName: modelName

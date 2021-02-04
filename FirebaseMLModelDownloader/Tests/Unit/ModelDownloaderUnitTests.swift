@@ -28,7 +28,7 @@ private enum MockOptions {
 // TODO: Create separate files for each class tested.
 final class ModelDownloaderUnitTests: XCTestCase {
   let fakeModelName = "fakeModelName"
-  let fakeModelPath = "fakeModelPath"
+  let fakemodelPath = "fakemodelPath"
   let fakeModelHash = "fakeModelHash"
   let fakeDownloadURL = URL(string: "www.fake-download-url.com")!
   let fakeFileURL = URL(string: "www.fake-model-file.com")!
@@ -233,7 +233,7 @@ final class ModelDownloaderUnitTests: XCTestCase {
     let fakeModel = CustomModel(
       name: fakeModelName,
       size: 10,
-      path: fakeModelPath,
+      path: fakemodelPath,
       hash: fakeModelHash
     )
     var modelOptions = ModelOptions()
@@ -410,9 +410,9 @@ final class ModelDownloaderUnitTests: XCTestCase {
         XCTAssertEqual(model.name, self.fakeModelName)
         XCTAssertEqual(model.size, self.fakeModelSize)
         XCTAssertEqual(model.hash, self.fakeModelHash)
-        let modelPath = URL(fileURLWithPath: model.path)
-        XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
-        try? self.deleteFile(at: modelPath)
+        let modelURL = URL(fileURLWithPath: model.path)
+        XCTAssertTrue(ModelFileManager.isFileReachable(at: modelURL))
+        try? self.deleteFile(at: modelURL)
       case let .failure(error):
         XCTFail("Error - \(error)")
       }
@@ -546,8 +546,8 @@ final class ModelDownloaderUnitTests: XCTestCase {
         XCTAssertEqual(model.name, self.fakeModelName)
         XCTAssertEqual(model.size, self.fakeModelSize)
         XCTAssertEqual(model.hash, self.fakeModelHash)
-        let modelPath = URL(fileURLWithPath: model.path)
-        XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
+        let modelURL = URL(fileURLWithPath: model.path)
+        XCTAssertTrue(ModelFileManager.isFileReachable(at: modelURL))
       case let .failure(error):
         XCTFail("Error - \(error)")
       }
@@ -567,10 +567,10 @@ final class ModelDownloaderUnitTests: XCTestCase {
           XCTAssertEqual(model.name, self.fakeModelName)
           XCTAssertEqual(model.size, self.fakeModelSize)
           XCTAssertEqual(model.hash, self.fakeModelHash)
-          let modelPath = URL(fileURLWithPath: model.path)
-          XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
+          let modelURL = URL(fileURLWithPath: model.path)
+          XCTAssertTrue(ModelFileManager.isFileReachable(at: modelURL))
           if i == numberOfRequests {
-            try? self.deleteFile(at: modelPath)
+            try? self.deleteFile(at: modelURL)
           }
         case let .failure(error):
           XCTFail("Error - \(error)")
@@ -623,10 +623,10 @@ final class ModelDownloaderUnitTests: XCTestCase {
           XCTAssertEqual(model.name, self.fakeModelName)
           XCTAssertEqual(model.size, self.fakeModelSize)
           XCTAssertEqual(model.hash, self.fakeModelHash)
-          let modelPath = URL(fileURLWithPath: model.path)
-          XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
+          let modelURL = URL(fileURLWithPath: model.path)
+          XCTAssertTrue(ModelFileManager.isFileReachable(at: modelURL))
           if i == numberOfRequests {
-            try? self.deleteFile(at: modelPath)
+            try? self.deleteFile(at: modelURL)
           }
         case let .failure(error):
           XCTFail("Error - \(error)")
@@ -717,9 +717,9 @@ final class ModelDownloaderUnitTests: XCTestCase {
         XCTAssertEqual(model.name, self.fakeModelName)
         XCTAssertEqual(model.size, self.fakeModelSize)
         XCTAssertEqual(model.hash, self.fakeModelHash)
-        let modelPath = URL(fileURLWithPath: model.path)
-        XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
-        try? self.deleteFile(at: modelPath)
+        let modelURL = URL(fileURLWithPath: model.path)
+        XCTAssertTrue(ModelFileManager.isFileReachable(at: modelURL))
+        try? self.deleteFile(at: modelURL)
       case let .failure(error):
         XCTFail("Error - \(error)")
       }
@@ -773,9 +773,9 @@ final class ModelDownloaderUnitTests: XCTestCase {
         XCTAssertEqual(model.name, self.fakeModelName)
         XCTAssertEqual(model.size, self.fakeModelSize)
         XCTAssertEqual(model.hash, self.fakeModelHash)
-        let modelPath = URL(fileURLWithPath: model.path)
-        XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
-        try? self.deleteFile(at: modelPath)
+        let modelURL = URL(fileURLWithPath: model.path)
+        XCTAssertTrue(ModelFileManager.isFileReachable(at: modelURL))
+        try? self.deleteFile(at: modelURL)
       case let .failure(error):
         XCTFail("Error - \(error)")
       }
@@ -1068,9 +1068,9 @@ final class ModelDownloaderUnitTests: XCTestCase {
         XCTAssertEqual(model.name, self.fakeModelName)
         XCTAssertEqual(model.size, self.fakeModelSize)
         XCTAssertEqual(model.hash, self.fakeModelHash)
-        let modelPath = URL(fileURLWithPath: model.path)
-        XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
-        try? self.deleteFile(at: modelPath)
+        let modelURL = URL(fileURLWithPath: model.path)
+        XCTAssertTrue(ModelFileManager.isFileReachable(at: modelURL))
+        try? self.deleteFile(at: modelURL)
       case let .failure(error):
         XCTFail("Error - \(error)")
       }
