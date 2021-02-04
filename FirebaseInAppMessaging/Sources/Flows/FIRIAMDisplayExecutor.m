@@ -439,7 +439,7 @@
 
 - (FIRInAppMessagingCardDisplay *)
     cardDisplayMessageWithMessageDefinition:(FIRIAMMessageDefinition *)definition
-                          portraitImageData:(nonnull FIRInAppMessagingImageData *)portraitImageData
+                          portraitImageData:(FIRInAppMessagingImageData *)portraitImageData
                          landscapeImageData:
                              (nullable FIRInAppMessagingImageData *)landscapeImageData
                                 triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
@@ -589,9 +589,8 @@
                             triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
   switch (definition.renderData.renderingEffectSettings.viewMode) {
     case FIRIAMRenderAsCardView:
-      // Image data should never nil for a valid card message.
       if (imageData == nil) {
-        NSAssert(NO, @"Image data should never nil for a valid card message.");
+        // Image data should never nil for a valid card message.
         return nil;
       }
       return [self cardDisplayMessageWithMessageDefinition:definition
@@ -653,6 +652,14 @@
                        imageData:landscapeImageRawData];
 #pragma clang diagnostic pop
           }
+        }
+
+        // On slow networks, image loading may take significant time,
+        // in which the value of `suppressMessageDisplay` could change.
+        if (self.suppressMessageDisplay) {
+          FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400042",
+                      @"Message display suppressed by developer at message display time.");
+          return;
         }
 
         self.impressionRecorded = NO;

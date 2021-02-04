@@ -61,14 +61,22 @@
           initWithData:[@"value3" dataUsingEncoding:NSUTF8StringEncoding]
                 source:FIRRemoteConfigSourceRemote]
     },
-    RCNFetchResponseKeyPersonalizationMetadata :
-        @{@"key1" : @{kPersonalizationId : @"id1"}, @"key2" : @{kPersonalizationId : @"id2"}}
+    RCNFetchResponseKeyPersonalizationMetadata : @{
+      @"key1" : @{
+        kPersonalizationId : @"p13n1",
+        kArmIndex : @0,
+        kChoiceId : @"id1",
+        kGroup : @"BASELINE"
+      },
+      @"key2" :
+          @{kPersonalizationId : @"p13n2", kArmIndex : @1, kChoiceId : @"id2", kGroup : @"P13N"}
+    }
   };
 
   _fakeLogs = [[NSMutableArray alloc] init];
   _analyticsMock = OCMProtocolMock(@protocol(FIRAnalyticsInterop));
   OCMStub([_analyticsMock logEventWithOrigin:kAnalyticsOriginPersonalization
-                                        name:kAnalyticsPullEvent
+                                        name:[OCMArg isKindOfClass:[NSString class]]
                                   parameters:[OCMArg isKindOfClass:[NSDictionary class]]])
       .andDo(^(NSInvocation *invocation) {
         __unsafe_unretained NSDictionary *bundle;
@@ -108,7 +116,10 @@
 
   OCMVerify(never(),
             [_analyticsMock logEventWithOrigin:kAnalyticsOriginPersonalization
-                                          name:kAnalyticsPullEvent
+                                          name:[OCMArg checkWithBlock:^BOOL(NSString *value) {
+                                            return [value isEqualToString:kExternalEvent] ||
+                                                   [value isEqualToString:kInternalEvent];
+                                          }]
                                     parameters:[OCMArg isKindOfClass:[NSDictionary class]]]);
   XCTAssertEqual([_fakeLogs count], 0);
 }
@@ -118,14 +129,26 @@
 
   [_personalization logArmActive:@"key1" config:_configContainer];
 
-  OCMVerify(times(1),
+  OCMVerify(times(2),
             [_analyticsMock logEventWithOrigin:kAnalyticsOriginPersonalization
-                                          name:kAnalyticsPullEvent
+                                          name:[OCMArg checkWithBlock:^BOOL(NSString *value) {
+                                            return [value isEqualToString:kExternalEvent] ||
+                                                   [value isEqualToString:kInternalEvent];
+                                          }]
                                     parameters:[OCMArg isKindOfClass:[NSDictionary class]]]);
-  XCTAssertEqual([_fakeLogs count], 1);
+  XCTAssertEqual([_fakeLogs count], 2);
 
-  NSDictionary *params = @{kArmKey : @"id1", kArmValue : @"value1"};
-  XCTAssertEqualObjects(_fakeLogs[0], params);
+  NSDictionary *logParams = @{
+    kExternalRcParameterParam : @"key1",
+    kExternalArmValueParam : @"value1",
+    kExternalPersonalizationIdParam : @"p13n1",
+    kExternalArmIndexParam : @0,
+    kExternalGroupParam : @"BASELINE"
+  };
+  XCTAssertEqualObjects(_fakeLogs[0], logParams);
+
+  NSDictionary *internalLogParams = @{kInternalChoiceIdParam : @"id1"};
+  XCTAssertEqualObjects(_fakeLogs[1], internalLogParams);
 }
 
 - (void)testMultiplePersonalizationKeys {
@@ -133,18 +156,40 @@
 
   [_personalization logArmActive:@"key1" config:_configContainer];
   [_personalization logArmActive:@"key2" config:_configContainer];
+  [_personalization logArmActive:@"key1" config:_configContainer];
 
-  OCMVerify(times(2),
+  OCMVerify(times(4),
             [_analyticsMock logEventWithOrigin:kAnalyticsOriginPersonalization
-                                          name:kAnalyticsPullEvent
+                                          name:[OCMArg checkWithBlock:^BOOL(NSString *value) {
+                                            return [value isEqualToString:kExternalEvent] ||
+                                                   [value isEqualToString:kInternalEvent];
+                                          }]
                                     parameters:[OCMArg isKindOfClass:[NSDictionary class]]]);
-  XCTAssertEqual([_fakeLogs count], 2);
+  XCTAssertEqual([_fakeLogs count], 4);
 
-  NSDictionary *params1 = @{kArmKey : @"id1", kArmValue : @"value1"};
-  XCTAssertEqualObjects(_fakeLogs[0], params1);
+  NSDictionary *logParams1 = @{
+    kExternalRcParameterParam : @"key1",
+    kExternalArmValueParam : @"value1",
+    kExternalPersonalizationIdParam : @"p13n1",
+    kExternalArmIndexParam : @0,
+    kExternalGroupParam : @"BASELINE"
+  };
+  XCTAssertEqualObjects(_fakeLogs[0], logParams1);
 
-  NSDictionary *params2 = @{kArmKey : @"id2", kArmValue : @"value2"};
-  XCTAssertEqualObjects(_fakeLogs[1], params2);
+  NSDictionary *internalLogParams1 = @{kInternalChoiceIdParam : @"id1"};
+  XCTAssertEqualObjects(_fakeLogs[1], internalLogParams1);
+
+  NSDictionary *logParams2 = @{
+    kExternalRcParameterParam : @"key2",
+    kExternalArmValueParam : @"value2",
+    kExternalPersonalizationIdParam : @"p13n2",
+    kExternalArmIndexParam : @1,
+    kExternalGroupParam : @"P13N"
+  };
+  XCTAssertEqualObjects(_fakeLogs[2], logParams2);
+
+  NSDictionary *internalLogParams2 = @{kInternalChoiceIdParam : @"id2"};
+  XCTAssertEqualObjects(_fakeLogs[3], internalLogParams2);
 }
 
 - (void)testRemoteConfigIntegration {
@@ -152,17 +197,38 @@
 
   FIRRemoteConfigFetchAndActivateCompletion fetchAndActivateCompletion =
       ^void(FIRRemoteConfigFetchAndActivateStatus status, NSError *error) {
-        OCMVerify(times(2), [self->_analyticsMock
+        OCMVerify(times(4), [self->_analyticsMock
                                 logEventWithOrigin:kAnalyticsOriginPersonalization
-                                              name:kAnalyticsPullEvent
+                                              name:[OCMArg checkWithBlock:^BOOL(NSString *value) {
+                                                return [value isEqualToString:kExternalEvent] ||
+                                                       [value isEqualToString:kInternalEvent];
+                                              }]
                                         parameters:[OCMArg isKindOfClass:[NSDictionary class]]]);
-        XCTAssertEqual([self->_fakeLogs count], 2);
+        XCTAssertEqual([self->_fakeLogs count], 4);
 
-        NSDictionary *params1 = @{kArmKey : @"id1", kArmValue : @"value1"};
-        XCTAssertEqualObjects(self->_fakeLogs[0], params1);
+        NSDictionary *logParams1 = @{
+          kExternalRcParameterParam : @"key1",
+          kExternalArmValueParam : @"value1",
+          kExternalPersonalizationIdParam : @"p13n1",
+          kExternalArmIndexParam : @0,
+          kExternalGroupParam : @"BASELINE"
+        };
+        XCTAssertEqualObjects(self->_fakeLogs[0], logParams1);
 
-        NSDictionary *params2 = @{kArmKey : @"id2", kArmValue : @"value2"};
-        XCTAssertEqualObjects(self->_fakeLogs[1], params2);
+        NSDictionary *internalLogParams1 = @{kInternalChoiceIdParam : @"id1"};
+        XCTAssertEqualObjects(self->_fakeLogs[1], internalLogParams1);
+
+        NSDictionary *logParams2 = @{
+          kExternalRcParameterParam : @"key1",
+          kExternalArmValueParam : @"value1",
+          kExternalPersonalizationIdParam : @"p13n1",
+          kExternalArmIndexParam : @0,
+          kExternalGroupParam : @"BASELINE"
+        };
+        XCTAssertEqualObjects(self->_fakeLogs[2], logParams2);
+
+        NSDictionary *internalLogParams2 = @{kInternalChoiceIdParam : @"id2"};
+        XCTAssertEqualObjects(self->_fakeLogs[3], internalLogParams2);
       };
 
   [_configInstance fetchAndActivateWithCompletionHandler:fetchAndActivateCompletion];
@@ -190,8 +256,17 @@
   NSDictionary *response = @{
     RCNFetchResponseKeyState : RCNFetchResponseKeyStateUpdate,
     RCNFetchResponseKeyEntries : @{@"key1" : @"value1", @"key2" : @"value2", @"key3" : @"value3"},
-    RCNFetchResponseKeyPersonalizationMetadata :
-        @{@"key1" : @{kPersonalizationId : @"id1"}, @"key2" : @{kPersonalizationId : @"id2"}}
+    RCNFetchResponseKeyPersonalizationMetadata : @{
+      @"key1" : @{
+        kPersonalizationId : @"p13n1",
+        kArmIndex : @0,
+        kChoiceId : @"id1",
+        kGroup : @"BASELINE"
+      },
+      @"key2" :
+          @{kPersonalizationId : @"p13n2", kArmIndex : @1, kChoiceId : @"id2", kGroup : @"P13N"}
+    }
+
   };
   return [OCMArg invokeBlockWithArgs:[NSJSONSerialization dataWithJSONObject:response
                                                                      options:0

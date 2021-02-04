@@ -46,6 +46,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     } else {
       XCTFail("Could not locate GoogleService-Info.plist.")
     }
+    FirebaseConfiguration.shared.setLoggerLevel(.debug)
   }
 
   /// Test to download model info - makes an actual network call.
@@ -59,7 +60,8 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
 
     let modelInfoRetriever = ModelInfoRetriever(
       modelName: testModelName,
-      options: testApp.options,
+      projectID: testApp.options.projectID!,
+      apiKey: testApp.options.apiKey!,
       installations: Installations.installations(app: testApp),
       appName: testApp.name
     )
@@ -70,6 +72,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       case let .success(modelInfoResult):
         switch modelInfoResult {
         case let .modelInfo(modelInfo):
+          XCTAssertNotNil(modelInfo.urlExpiryTime)
           XCTAssertGreaterThan(modelInfo.downloadURL.absoluteString.count, 0)
           XCTAssertGreaterThan(modelInfo.modelHash.count, 0)
           XCTAssertGreaterThan(modelInfo.size, 0)
@@ -111,12 +114,13 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
 
     let modelInfoRetriever = ModelInfoRetriever(
       modelName: testModelName,
-      options: testApp.options,
+      projectID: testApp.options.projectID!,
+      apiKey: testApp.options.apiKey!,
       installations: Installations.installations(app: testApp),
       appName: testApp.name,
       localModelInfo: localInfo
     )
-    // TODO: This check seems to be flaky.
+
     let retrieveExpectation = expectation(description: "Wait for model info to be retrieved.")
     modelInfoRetriever.downloadModelInfo(completion: { result in
       switch result {
@@ -137,13 +141,13 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
   }
 
   /// Test to download model file - makes an actual network call.
-  func testResumeModelDownload() throws {
+  func testModelDownload() throws {
     guard let testApp = FirebaseApp.app() else {
       XCTFail("Default app was not configured.")
       return
     }
-    let functionName = #function.dropLast(2)
-    let testModelName = "\(functionName)-test-model"
+    let testName = #function.dropLast(2)
+    let testModelName = "\(testName)-test-model"
     let urlString =
       "https://tfhub.dev/tensorflow/lite-model/ssd_mobilenet_v1/1/metadata/1?lite-format=tflite"
     let url = URL(string: urlString)!
@@ -152,19 +156,18 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       name: testModelName,
       downloadURL: url,
       modelHash: "mock-valid-hash",
-      size: 10
+      size: 10,
+      urlExpiryTime: Date()
     )
 
+    let conditions = ModelDownloadConditions()
     let expectation = self.expectation(description: "Wait for model to download.")
-    let modelDownloadManager = ModelDownloadTask(
-      remoteModelInfo: remoteModelInfo,
-      appName: testApp.name,
-      defaults: .createTestInstance(testName: #function),
-      progressHandler: { progress in
-        XCTAssertLessThanOrEqual(progress, 1)
-        XCTAssertGreaterThanOrEqual(progress, 0)
-      }
-    ) { result in
+    let downloader = ModelFileDownloader(conditions: conditions)
+    let taskProgressHandler: ModelDownloadTask.ProgressHandler = { progress in
+      XCTAssertLessThanOrEqual(progress, 1)
+      XCTAssertGreaterThanOrEqual(progress, 0)
+    }
+    let taskCompletion: ModelDownloadTask.Completion = { result in
       switch result {
       case let .success(model):
         guard let modelPath = URL(string: model.path) else {
@@ -183,10 +186,18 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       }
       expectation.fulfill()
     }
+    let modelDownloadManager = ModelDownloadTask(
+      remoteModelInfo: remoteModelInfo,
+      appName: testApp.name,
+      defaults: .createTestInstance(testName: #function),
+      downloader: downloader,
+      progressHandler: taskProgressHandler,
+      completion: taskCompletion
+    )
 
-    modelDownloadManager.resumeModelDownload()
+    modelDownloadManager.resume()
     waitForExpectations(timeout: 5, handler: nil)
-    XCTAssertEqual(modelDownloadManager.downloadStatus, .completed)
+    XCTAssertEqual(modelDownloadManager.downloadStatus, .complete)
   }
 
   func testGetModel() {
@@ -194,7 +205,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       XCTFail("Default app was not configured.")
       return
     }
-    let testName = "model-downloader-test"
+    let testName = String(#function.dropLast(2))
     let testModelName = "image-classification"
 
     let conditions = ModelDownloadConditions()
@@ -219,11 +230,11 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       switch result {
       case let .success(model):
         XCTAssertNotNil(model.path)
-        guard let filePath = URL(string: model.path) else {
+        guard let modelPath = URL(string: model.path) else {
           XCTFail("Invalid model path.")
           return
         }
-        XCTAssertTrue(ModelFileManager.isFileReachable(at: filePath))
+        XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
       case let .failure(error):
         XCTFail("Failed to download model - \(error)")
       }
@@ -247,11 +258,11 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       switch result {
       case let .success(model):
         XCTAssertNotNil(model.path)
-        guard let filePath = URL(string: model.path) else {
+        guard let modelPath = URL(string: model.path) else {
           XCTFail("Invalid model path.")
           return
         }
-        XCTAssertTrue(ModelFileManager.isFileReachable(at: filePath))
+        XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
       case let .failure(error):
         XCTFail("Failed to download model - \(error)")
       }
@@ -275,11 +286,17 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       switch result {
       case let .success(model):
         XCTAssertNotNil(model.path)
-        guard let filePath = URL(string: model.path) else {
+        guard let modelPath = URL(string: model.path) else {
           XCTFail("Invalid model path.")
           return
         }
-        XCTAssertTrue(ModelFileManager.isFileReachable(at: filePath))
+        XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
+        /// Remove downloaded model file.
+        do {
+          try ModelFileManager.removeFile(at: modelPath)
+        } catch {
+          XCTFail("Model removal failed - \(error)")
+        }
       case let .failure(error):
         XCTFail("Failed to download model - \(error)")
       }
@@ -294,17 +311,18 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       XCTFail("Default app was not configured.")
       return
     }
-    let testName = "model-downloader-test"
+
+    let testName = String(#function.dropLast(2))
     let testModelName = "pose-detection"
 
     let conditions = ModelDownloadConditions()
     let modelDownloader = ModelDownloader.modelDownloaderWithDefaults(
-      .getTestInstance(testName: testName),
+      .createTestInstance(testName: testName),
       app: testApp
     )
 
     let downloadType: ModelDownloadType = .latestModel
-    let latestModelExpectation = expectation(description: "Get latest model.")
+    let latestModelExpectation = expectation(description: "Get latest model for deletion.")
 
     modelDownloader.getModel(
       name: testModelName,
@@ -346,12 +364,42 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       XCTFail("Default app was not configured.")
       return
     }
-    let testName = "model-downloader-test"
+    let testName = String(#function.dropLast(2))
+    let testModelName = "pose-detection"
 
+    let conditions = ModelDownloadConditions()
     let modelDownloader = ModelDownloader.modelDownloaderWithDefaults(
-      .getTestInstance(testName: testName),
+      .createTestInstance(testName: testName),
       app: testApp
     )
+
+    let downloadType: ModelDownloadType = .latestModel
+    let latestModelExpectation = expectation(description: "Get latest model.")
+
+    modelDownloader.getModel(
+      name: testModelName,
+      downloadType: downloadType,
+      conditions: conditions,
+      progressHandler: { progress in
+        XCTAssertLessThanOrEqual(progress, 1)
+        XCTAssertGreaterThanOrEqual(progress, 0)
+      }
+    ) { result in
+      switch result {
+      case let .success(model):
+        XCTAssertNotNil(model.path)
+        guard let filePath = URL(string: model.path) else {
+          XCTFail("Invalid model path.")
+          return
+        }
+        XCTAssertTrue(ModelFileManager.isFileReachable(at: filePath))
+      case let .failure(error):
+        XCTFail("Failed to download model - \(error)")
+      }
+      latestModelExpectation.fulfill()
+    }
+
+    waitForExpectations(timeout: 5, handler: nil)
 
     modelDownloader.listDownloadedModels { result in
       switch result {
@@ -361,5 +409,96 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
         XCTFail("Failed to list models - \(error)")
       }
     }
+  }
+
+  /// Test logging telemetry event.
+  func testLogTelemetryEvent() {
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
+
+    let testModelName = "image-classification"
+    let testName = #function
+
+    let conditions = ModelDownloadConditions()
+    let modelDownloader = ModelDownloader.modelDownloaderWithDefaults(
+      .createTestInstance(testName: testName),
+      app: testApp
+    )
+
+    let latestModelExpectation = expectation(description: "Test telemetry.")
+
+    modelDownloader.getModel(
+      name: testModelName,
+      downloadType: .latestModel,
+      conditions: conditions
+    ) { result in
+      switch result {
+      case let .success(model):
+        guard let telemetryLogger = TelemetryLogger(app: testApp) else {
+          XCTFail("Could not initialize logger.")
+          return
+        }
+        // TODO: Remove actual logging and stub out with mocks.
+        telemetryLogger.logModelDownloadEvent(
+          eventName: .modelDownload,
+          status: .succeeded,
+          model: model,
+          downloadErrorCode: .noError
+        )
+        let modelPath = URL(string: model.path)!
+        try? ModelFileManager.removeFile(at: modelPath)
+      case let .failure(error):
+        XCTFail("Failed to download model - \(error)")
+      }
+      latestModelExpectation.fulfill()
+    }
+    waitForExpectations(timeout: 5, handler: nil)
+  }
+
+  func testGetModelWithConditions() {
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
+
+    let testModelName = "pose-detection"
+    let testName = #function
+
+    // TODO: Figure out a better way to test this.
+    var conditions = ModelDownloadConditions()
+    conditions.allowsCellularAccess = false
+
+    let modelDownloader = ModelDownloader.modelDownloaderWithDefaults(
+      .createTestInstance(testName: testName),
+      app: testApp
+    )
+
+    let latestModelExpectation = expectation(description: "Get latest model with conditions.")
+
+    modelDownloader.getModel(
+      name: testModelName,
+      downloadType: .latestModel,
+      conditions: conditions,
+      progressHandler: { progress in
+        XCTAssertLessThanOrEqual(progress, 1)
+        XCTAssertGreaterThanOrEqual(progress, 0)
+      }
+    ) { result in
+      switch result {
+      case let .success(model):
+        XCTAssertNotNil(model.path)
+        guard let filePath = URL(string: model.path) else {
+          XCTFail("Invalid model path.")
+          return
+        }
+        XCTAssertTrue(ModelFileManager.isFileReachable(at: filePath))
+      case let .failure(error):
+        XCTFail("Failed to download model - \(error)")
+      }
+      latestModelExpectation.fulfill()
+    }
+    waitForExpectations(timeout: 5, handler: nil)
   }
 }

@@ -187,10 +187,10 @@ struct ZipBuilderTool: ParsableCommand {
     }
 
     // Validate that Firebase builds are including dependencies.
-    if !buildDependencies, zipPods == nil {
+    if !buildDependencies, zipPods == nil, pods.count == 0 {
       throw ValidationError("""
       The `enable-build-dependencies` option cannot be false unless a list of pods is \
-      specified with the `zip-pods` option.
+      specified with the `zip-pods` or the `pods` option.
       """)
     }
   }
@@ -202,7 +202,7 @@ struct ZipBuilderTool: ParsableCommand {
     let buildStart = Date()
     var cocoaPodsUpdateMessage: String = ""
 
-    // Do a `pod update`` if requested.
+    // Do a `pod update` if requested.
     if updatePodRepo {
       CocoaPodUtils.updateRepos()
       cocoaPodsUpdateMessage =

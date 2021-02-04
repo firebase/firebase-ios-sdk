@@ -33,13 +33,20 @@ public enum DownloadError: Error, Equatable {
 }
 
 /// Possible errors with locating model on device.
-public enum DownloadedModelError: Error, Equatable {
+public enum DownloadedModelError: Error {
   /// File system error.
   case fileIOError(description: String)
   /// Model not found on device.
   case notFound
   /// Other errors with description.
   case internalError(description: String)
+}
+
+/// Extension to handle internally meaningful errors.
+extension DownloadError {
+  static let expiredDownloadURL: DownloadError = {
+    DownloadError.internalError(description: "Expired model download URL.")
+  }()
 }
 
 /// Possible ways to get a custom model.
@@ -62,6 +69,21 @@ public class ModelDownloader {
   private let installations: Installations
   /// User defaults for model info.
   private let userDefaults: UserDefaults
+  /// Telemetry logger tied to this instance of model downloader.
+  let telemetryLogger: TelemetryLogger?
+  /// Number of retries in case of model download URL expiry.
+  var numberOfRetries: Int = 1
+  /// Handler that always runs on the main thread
+  let mainQueueHandler = { handler in
+    DispatchQueue.main.async {
+      handler
+    }
+  }
+
+  /// Download task associated with the model currently being downloaded.
+  private var currentDownloadTask: [String: ModelDownloadTask] = [:]
+  /// DispatchQueue to manage download task dictionary.
+  let taskSerialQueue = DispatchQueue(label: "downloadtask.serial.queue")
 
   /// Shared dictionary mapping app name to a specific instance of model downloader.
   // TODO: Switch to using Firebase components.
@@ -72,30 +94,38 @@ public class ModelDownloader {
     appName = app.name
     options = app.options
     installations = Installations.installations(app: app)
+    /// Respect Firebase-wide data collection setting.
+    telemetryLogger = TelemetryLogger(app: app)
     userDefaults = defaults
 
+    let notificationName = "FIRAppDeleteNotification"
     NotificationCenter.default.addObserver(
       self,
       selector: #selector(deleteModelDownloader),
-      name: Notification.Name("FIRAppDeleteNotification"),
+      name: Notification.Name(notificationName),
       object: nil
     )
   }
 
   /// Handles app deletion notification.
   @objc private func deleteModelDownloader(notification: Notification) {
+    let userInfoKey = "FIRAppNameKey"
     if let userInfo = notification.userInfo,
-      let appName = userInfo["FIRAppNameKey"] as? String {
+      let appName = userInfo[userInfoKey] as? String {
       ModelDownloader.modelDownloaderDictionary.removeValue(forKey: appName)
+      // TODO: Do we need to force deinit downloader instance?
       // TODO: Clean up user defaults
       // TODO: Clean up local instances of app
+      DeviceLogger.logEvent(level: .debug,
+                            message: ModelDownloader.DebugDescription.deleteModelDownloader,
+                            messageCode: .downloaderInstanceDeleted)
     }
   }
 
   /// Model downloader with default app.
   public static func modelDownloader() -> ModelDownloader {
     guard let defaultApp = FirebaseApp.app() else {
-      fatalError("Default Firebase app not configured.")
+      fatalError(ModelDownloader.ErrorDescription.defaultAppNotConfigured)
     }
     return modelDownloader(app: defaultApp)
   }
@@ -103,46 +133,80 @@ public class ModelDownloader {
   /// Model Downloader with custom app.
   public static func modelDownloader(app: FirebaseApp) -> ModelDownloader {
     if let downloader = modelDownloaderDictionary[app.name] {
+      DeviceLogger.logEvent(level: .debug,
+                            message: ModelDownloader.DebugDescription.retrieveModelDownloader,
+                            messageCode: .downloaderInstanceRetrieved)
       return downloader
     } else {
       let downloader = ModelDownloader(app: app)
       modelDownloaderDictionary[app.name] = downloader
+      DeviceLogger.logEvent(level: .debug,
+                            message: ModelDownloader.DebugDescription.createModelDownloader,
+                            messageCode: .downloaderInstanceCreated)
       return downloader
     }
   }
 
   /// Downloads a custom model to device or gets a custom model already on device, w/ optional handler for progress.
-  public func getModel(name modelName: String, downloadType: ModelDownloadType,
+  public func getModel(name modelName: String,
+                       downloadType: ModelDownloadType,
                        conditions: ModelDownloadConditions,
                        progressHandler: ((Float) -> Void)? = nil,
                        completion: @escaping (Result<CustomModel, DownloadError>) -> Void) {
     switch downloadType {
     case .localModel:
       if let localModel = getLocalModel(modelName: modelName) {
-        DispatchQueue.main.async {
-          completion(.success(localModel))
-        }
+        DeviceLogger.logEvent(level: .debug,
+                              message: ModelDownloader.DebugDescription.localModelFound,
+                              messageCode: .localModelFound)
+        mainQueueHandler(completion(.success(localModel)))
       } else {
         getRemoteModel(
           modelName: modelName,
+          conditions: conditions,
           progressHandler: progressHandler,
           completion: completion
         )
       }
     case .localModelUpdateInBackground:
       if let localModel = getLocalModel(modelName: modelName) {
-        DispatchQueue.main.async {
-          completion(.success(localModel))
-        }
+        DeviceLogger.logEvent(level: .debug,
+                              message: ModelDownloader.DebugDescription.localModelFound,
+                              messageCode: .localModelFound)
+        mainQueueHandler(completion(.success(localModel)))
+        telemetryLogger?.logModelDownloadEvent(
+          eventName: .modelDownload,
+          status: .scheduled,
+          downloadErrorCode: .noError
+        )
         DispatchQueue.global(qos: .utility).async { [weak self] in
           self?.getRemoteModel(
             modelName: modelName,
+            conditions: conditions,
             progressHandler: nil,
             completion: { result in
               switch result {
-              // TODO: Log outcome of background download
-              case .success: break
-              case .failure: break
+              case let .success(model):
+                DeviceLogger.logEvent(level: .debug,
+                                      message: ModelDownloader.DebugDescription
+                                        .backgroundModelDownloaded,
+                                      messageCode: .backgroundModelDownloaded)
+                self?.telemetryLogger?.logModelDownloadEvent(
+                  eventName: .modelDownload,
+                  status: .succeeded,
+                  model: model,
+                  downloadErrorCode: .noError
+                )
+              case .failure:
+                DeviceLogger.logEvent(level: .debug,
+                                      message: ModelDownloader.ErrorDescription
+                                        .backgroundModelDownload,
+                                      messageCode: .backgroundDownloadError)
+                self?.telemetryLogger?.logModelDownloadEvent(
+                  eventName: .modelDownload,
+                  status: .failed,
+                  downloadErrorCode: .downloadFailed
+                )
               }
             }
           )
@@ -150,6 +214,7 @@ public class ModelDownloader {
       } else {
         getRemoteModel(
           modelName: modelName,
+          conditions: conditions,
           progressHandler: progressHandler,
           completion: completion
         )
@@ -158,6 +223,7 @@ public class ModelDownloader {
     case .latestModel:
       getRemoteModel(
         modelName: modelName,
+        conditions: conditions,
         progressHandler: progressHandler,
         completion: completion
       )
@@ -172,29 +238,48 @@ public class ModelDownloader {
       var customModels = Set<CustomModel>()
       for path in modelPaths {
         guard let modelName = ModelFileManager.getModelNameFromFilePath(path) else {
-          completion(.failure(.internalError(description: "Invalid model file name.")))
+          let description = ModelDownloader.ErrorDescription.parseModelName(path.absoluteString)
+          DeviceLogger.logEvent(level: .debug,
+                                message: description,
+                                messageCode: .modelNameParseError)
+          mainQueueHandler(completion(.failure(.internalError(description: description))))
           return
         }
         guard let modelInfo = getLocalModelInfo(modelName: modelName) else {
-          completion(
-            .failure(.internalError(description: "Failed to get model info for model file."))
-          )
+          let description = ModelDownloader.ErrorDescription.noLocalModelInfo(modelName)
+          DeviceLogger.logEvent(level: .debug,
+                                message: description,
+                                messageCode: .noLocalModelInfo)
+          mainQueueHandler(completion(.failure(.internalError(description: description))))
           return
         }
-        guard modelInfo.path == path.absoluteString else {
-          completion(
-            .failure(.internalError(description: "Outdated model paths in local storage."))
-          )
+        guard let pathURL = URL(string: modelInfo.path)?.standardizedFileURL,
+          pathURL == path.standardizedFileURL else {
+          DeviceLogger.logEvent(level: .debug,
+                                message: ModelDownloader.ErrorDescription.outdatedModelPath,
+                                messageCode: .outdatedModelPathError)
+          mainQueueHandler(completion(.failure(.internalError(description: ModelDownloader
+              .ErrorDescription.outdatedModelPath))))
           return
         }
         let model = CustomModel(localModelInfo: modelInfo)
         customModels.insert(model)
       }
+      DeviceLogger.logEvent(level: .debug,
+                            message: ModelDownloader.DebugDescription.allLocalModelsFound,
+                            messageCode: .allLocalModelsFound)
       completion(.success(customModels))
     } catch let error as DownloadedModelError {
-      completion(.failure(error))
+      DeviceLogger.logEvent(level: .debug,
+                            message: ModelDownloader.ErrorDescription.listModelsFailed(error),
+                            messageCode: .listModelsError)
+      mainQueueHandler(completion(.failure(error)))
     } catch {
-      completion(.failure(.internalError(description: error.localizedDescription)))
+      DeviceLogger.logEvent(level: .debug,
+                            message: ModelDownloader.ErrorDescription.listModelsFailed(error),
+                            messageCode: .listModelsError)
+      mainQueueHandler(completion(.failure(.internalError(description: error
+          .localizedDescription))))
     }
   }
 
@@ -202,20 +287,26 @@ public class ModelDownloader {
   public func deleteDownloadedModel(name modelName: String,
                                     completion: @escaping (Result<Void, DownloadedModelError>)
                                       -> Void) {
-    // TODO: Delete previously downloaded model
     guard let localModelInfo = getLocalModelInfo(modelName: modelName),
       let localPath = URL(string: localModelInfo.path)
     else {
-      completion(.failure(.notFound))
+      DeviceLogger.logEvent(level: .debug,
+                            message: ModelDownloader.ErrorDescription.modelNotFound(modelName),
+                            messageCode: .modelNotFound)
+      mainQueueHandler(completion(.failure(.notFound)))
       return
     }
     do {
       try ModelFileManager.removeFile(at: localPath)
-      completion(.success(()))
+      DeviceLogger.logEvent(level: .debug,
+                            message: ModelDownloader.DebugDescription.modelDeleted,
+                            messageCode: .modelDeleted)
+      mainQueueHandler(completion(.success(())))
     } catch let error as DownloadedModelError {
-      completion(.failure(error))
+      mainQueueHandler(completion(.failure(error)))
     } catch {
-      completion(.failure(.internalError(description: error.localizedDescription)))
+      mainQueueHandler(completion(.failure(.internalError(description: error
+          .localizedDescription))))
     }
   }
 }
@@ -228,6 +319,10 @@ extension ModelDownloader {
       name: modelName,
       appName: appName
     ) else {
+      let description = ModelDownloader.DebugDescription.noLocalModelInfo(modelName)
+      DeviceLogger.logEvent(level: .debug,
+                            message: description,
+                            messageCode: .noLocalModelInfo)
       return nil
     }
     /// There is local model info on device, but no model file at the expected path.
@@ -248,53 +343,147 @@ extension ModelDownloader {
 
   /// Download and get model from server, unless the latest model is already available on device.
   private func getRemoteModel(modelName: String,
+                              conditions: ModelDownloadConditions,
                               progressHandler: ((Float) -> Void)? = nil,
                               completion: @escaping (Result<CustomModel, DownloadError>) -> Void) {
     let localModelInfo = getLocalModelInfo(modelName: modelName)
+    guard let projectID = options.projectID, let apiKey = options.apiKey else {
+      DeviceLogger.logEvent(level: .debug,
+                            message: ModelDownloader.ErrorDescription.invalidOptions,
+                            messageCode: .invalidOptions)
+      completion(.failure(.internalError(description: ModelDownloader.ErrorDescription
+          .invalidOptions)))
+      return
+    }
     let modelInfoRetriever = ModelInfoRetriever(
       modelName: modelName,
-      options: options,
+      projectID: projectID,
+      apiKey: apiKey,
       installations: installations,
       appName: appName,
-      localModelInfo: localModelInfo
+      localModelInfo: localModelInfo,
+      telemetryLogger: telemetryLogger
     )
+    let downloader = ModelFileDownloader(conditions: conditions)
+    downloadInfoAndModel(
+      modelName: modelName,
+      modelInfoRetriever: modelInfoRetriever,
+      downloader: downloader,
+      conditions: conditions,
+      progressHandler: progressHandler,
+      completion: completion
+    )
+  }
+
+  func downloadInfoAndModel(modelName: String,
+                            modelInfoRetriever: ModelInfoRetriever,
+                            downloader: FileDownloader,
+                            conditions: ModelDownloadConditions,
+                            progressHandler: ((Float) -> Void)? = nil,
+                            completion: @escaping (Result<CustomModel, DownloadError>)
+                              -> Void) {
     modelInfoRetriever.downloadModelInfo { result in
       switch result {
       case let .success(downloadModelInfoResult):
         switch downloadModelInfoResult {
         /// New model info was downloaded from server.
         case let .modelInfo(remoteModelInfo):
-          let downloadTask = ModelDownloadTask(
-            remoteModelInfo: remoteModelInfo,
-            appName: self.appName,
-            defaults: self.userDefaults,
-            progressHandler: progressHandler,
-            completion: completion
-          )
-          downloadTask.resumeModelDownload()
+          let taskProgressHandler: ModelDownloadTask.ProgressHandler = { progress in
+            if let progressHandler = progressHandler {
+              self.mainQueueHandler(progressHandler(progress))
+            }
+          }
+          let taskCompletion: ModelDownloadTask.Completion = { result in
+            switch result {
+            case let .success(model):
+              self.mainQueueHandler(completion(.success(model)))
+            case let .failure(error):
+              switch error {
+              case .notFound:
+                self.mainQueueHandler(completion(.failure(.notFound)))
+              case .invalidArgument:
+                self.mainQueueHandler(completion(.failure(.invalidArgument)))
+              case .permissionDenied:
+                self.mainQueueHandler(completion(.failure(.permissionDenied)))
+              /// This is the error returned when URL expired.
+              case .expiredDownloadURL:
+                /// Check if retries are allowed.
+                guard self.numberOfRetries > 0 else {
+                  self
+                    .mainQueueHandler(
+                      completion(.failure(.internalError(description: ModelDownloader
+                          .ErrorDescription
+                          .expiredModelInfo)))
+                    )
+                  return
+                }
+                self.numberOfRetries -= 1
+                DeviceLogger.logEvent(level: .debug,
+                                      message: ModelDownloader.DebugDescription.retryDownload,
+                                      messageCode: .retryDownload)
+                self.downloadInfoAndModel(
+                  modelName: modelName,
+                  modelInfoRetriever: modelInfoRetriever,
+                  downloader: downloader,
+                  conditions: conditions,
+                  progressHandler: progressHandler,
+                  completion: completion
+                )
+              default:
+                self.mainQueueHandler(completion(.failure(error)))
+              }
+            }
+
+            self.taskSerialQueue.async {
+              /// Stop keeping track of current download task.
+              self.currentDownloadTask.removeValue(forKey: modelName)
+            }
+          }
+
+          self.taskSerialQueue.sync {
+            /// Merge duplicate requests if there is already a download in progress for the same model.
+            if let downloadTask = self.currentDownloadTask[modelName],
+              downloadTask.canMergeRequests() {
+              downloadTask.merge(
+                newProgressHandler: taskProgressHandler,
+                newCompletion: taskCompletion
+              )
+              DeviceLogger.logEvent(level: .debug,
+                                    message: ModelDownloader.DebugDescription.mergingRequests,
+                                    messageCode: .mergeRequests)
+              if downloadTask.canResume() {
+                downloadTask.resume()
+              }
+            } else {
+              let downloadTask = ModelDownloadTask(
+                remoteModelInfo: remoteModelInfo,
+                appName: self.appName,
+                defaults: self.userDefaults,
+                downloader: downloader,
+                progressHandler: taskProgressHandler,
+                completion: taskCompletion,
+                telemetryLogger: self.telemetryLogger
+              )
+              /// Keep track of current download task to allow for merging duplicate requests.
+              self.currentDownloadTask[modelName] = downloadTask
+              downloadTask.resume()
+            }
+          }
         /// Local model info is the latest model info.
         case .notModified:
           guard let localModel = self.getLocalModel(modelName: modelName) else {
-            DispatchQueue.main.async {
-              /// This can only happen if either local model info or the model file was suddenly wiped out in the middle of model info request and server response
-              // TODO: Consider handling: if model file is deleted after local model info is retrieved but before model info network call
-              completion(
-                .failure(
-                  .internalError(description: "Model unavailable due to deleted local model info.")
-                )
-              )
-            }
+            /// This can only happen if either local model info or the model file was suddenly wiped out in the middle of model info request and server response
+            // TODO: Consider handling: If model file is deleted after local model info is retrieved but before model info network call.
+            self
+              .mainQueueHandler(completion(.failure(.internalError(description: ModelDownloader
+                  .ErrorDescription.deletedLocalModelInfo))))
             return
           }
 
-          DispatchQueue.main.async {
-            completion(.success(localModel))
-          }
+          self.mainQueueHandler(completion(.success(localModel)))
         }
-      case let .failure(downloadError):
-        DispatchQueue.main.async {
-          completion(.failure(downloadError))
-        }
+      case let .failure(error):
+        self.mainQueueHandler(completion(.failure(error)))
       }
     }
   }
@@ -313,5 +502,66 @@ extension ModelDownloader {
       modelDownloaderDictionary[app.name] = downloader
       return downloader
     }
+  }
+}
+
+/// Possible error messages while using model downloader.
+extension ModelDownloader {
+  /// Debug descriptions.
+  private enum DebugDescription {
+    static let deleteModelDownloader = "Model downloader instance deleted due to app deletion."
+    static let retrieveModelDownloader =
+      "Initialized with existing downloader instance associated with this app."
+    static let createModelDownloader =
+      "Initialized with new downloader instance associated with this app."
+    static let localModelFound = "Found local model on device."
+    static let backgroundModelDownloaded = "Downloaded latest model in the background."
+    static let allLocalModelsFound = "Found and listed all local models."
+    static let modelDeleted = "Model deleted successfully."
+    static let retryDownload = "Retrying download."
+    static let noLocalModelInfo = { (name: String) in
+      "No local model info for model file named: \(name)."
+    }
+
+    static let mergingRequests = "Merging duplicate download requests."
+  }
+
+  /// Error descriptions.
+  private enum ErrorDescription {
+    static let defaultAppNotConfigured =
+      "Default Firebase app not configured."
+    static let parseModelName = { (path: String) in
+      "List models failed due to unexpected model file name at \(path)."
+    }
+
+    static let invalidOptions = "Unable to retrieve project ID and/or API key for Firebase app."
+
+    static let listModelsFailed = { (error: Error) in
+      "Unable to list models, failed with error: \(error)"
+    }
+
+    static let modelNotFound = { (name: String) in
+      "Model deletion failed due to no model found with name: \(name)"
+    }
+
+    static let noLocalModelInfo = { (name: String) in
+      "List models failed due to no local model info for model file named: \(name)."
+    }
+
+    static let modelDownloadFailed = { (error: Error) in
+      "Model download failed with error: \(error)"
+    }
+
+    static let modelInfoRetrievalFailed = { (error: Error) in
+      "Model info retrieval failed with error: \(error)"
+    }
+
+    static let outdatedModelPath =
+      "List models failed due to outdated model paths in local storage."
+    static let deletedLocalModelInfo =
+      "Model unavailable due to deleted local model info."
+    static let backgroundModelDownload =
+      "Failed to update model in background."
+    static let expiredModelInfo = "Unable to update expired model info."
   }
 }
