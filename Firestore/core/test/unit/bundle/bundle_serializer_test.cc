@@ -103,7 +103,6 @@ class BundleSerializerTest : public ::testing::Test {
 
     std::string json_string;
     MessageToJsonString(document, &json_string);
-    std::cout << json_string << "\n";
 
     auto actual = VerifyJsonStringDecodes(json_string);
 
@@ -165,13 +164,11 @@ class BundleSerializerTest : public ::testing::Test {
 
     std::string json_string;
     MessageToJsonString(proto_named_query, &json_string);
-    std::cout << json_string << "\n";
 
     ReadContext context;
     NamedQuery actual =
         bundle_serializer.DecodeNamedQuery(context, json_string);
     EXPECT_TRUE(context.ok());
-    std::cout << context.status().ToString() << "\n";
 
     EXPECT_EQ(actual.bundled_query().limit_type(),
               named_query.bundled_query().limit_type());
@@ -440,7 +437,6 @@ TEST_F(BundleSerializerTest, DecodesNanDoubleValues) {
 
   std::string json_string;
   MessageToJsonString(document, &json_string);
-  std::cout << json_string << "\n";
 
   ReadContext context;
   BundleDocument actual =
@@ -505,7 +501,6 @@ TEST_F(BundleSerializerTest, DecodesTimestampsEncodedAsObjects) {
         "{ \"seconds\": \"" + std::to_string(test_pair.first.seconds()) +
         "\", \"nanos\": " + std::to_string(test_pair.first.nanos()) + "}";
     auto json_copy = ReplacedCopy(json_string, test_pair.second, replacement);
-    std::cout << json_copy << "\n";
 
     ReadContext context;
     BundleDocument actual =
@@ -574,7 +569,6 @@ TEST_F(BundleSerializerTest, DecodesInvalidBlobValuesFails) {
 
   std::string json_string;
   MessageToJsonString(document, &json_string);
-  std::cout << json_string;
 
   auto json_copy = ReplacedCopy(json_string, "AAECAw==", "\\o//");
   VerifyJsonStringDecodeFails(json_copy);
@@ -816,7 +810,6 @@ TEST_F(BundleSerializerTest, DecodeInvalidFieldFilterOperatorFails) {
   std::string json_string =
       NamedQueryJsonString(testutil::Query("colls").AddingFilter(
           Filter("f1", "not-in", Array(1, "2", 3.0))));
-  std::cout << json_string << "\n";
 
   auto json_copy = ReplacedCopy(json_string, "NOT_IN", "NO_IN");
 
@@ -855,7 +848,6 @@ TEST_F(BundleSerializerTest, DecodeInvalidCompositeFilterOperatorFails) {
           .AddingFilter(Filter("f1", "not-in", Array(1, "2", 3.0)))
           .AddingFilter(Filter("f1", "!=", false))
           .AddingFilter(Filter("f1", "<=", 1000.0)));
-  std::cout << json_string << "\n";
 
   auto json_copy = ReplacedCopy(json_string, "\"AND\"", "\"OR\"");
 
@@ -927,7 +919,6 @@ TEST_F(BundleSerializerTest, DecodeInvalidLimitQueriesFails) {
       NamedQueryJsonString(testutil::Query("colls")
                                .AddingOrderBy(OrderBy("f1", "asc"))
                                .WithLimitToLast(4));
-  std::cout << json_string << "\n";
 
   auto json_copy = ReplacedCopy(json_string, "\"limit\":4", "\"limit\":true");
   auto context = ReadContext();
@@ -1033,7 +1024,6 @@ TEST_F(BundleSerializerTest, DecodesBundledDocumentMetadata) {
       bundle_serializer.DecodeDocumentMetadata(context, json_string);
 
   EXPECT_TRUE(context.ok());
-  std::cout << context.status().ToString() << "\n";
   EXPECT_EQ(metadata.exists(), actual.exists());
   EXPECT_EQ(metadata.read_time().seconds(),
             actual.read_time().timestamp().seconds());
@@ -1041,7 +1031,8 @@ TEST_F(BundleSerializerTest, DecodesBundledDocumentMetadata) {
             actual.read_time().timestamp().nanoseconds());
 
   EXPECT_EQ(metadata.name(), GetDocumentFullPath(actual.key().ToString()));
-  std::vector<std::string> original_queries(metadata.queries().begin(), metadata.queries().end());
+  std::vector<std::string> original_queries(metadata.queries().begin(),
+                                            metadata.queries().end());
   EXPECT_EQ(original_queries, actual.queries());
 }
 
@@ -1057,21 +1048,18 @@ TEST_F(BundleSerializerTest, DecodeInvalidBundledDocumentMetadataFails) {
   std::string json_string;
   MessageToJsonString(metadata, &json_string);
 
-  auto json_copy = ReplacedCopy(
-      json_string, "true", "invalid");
+  auto json_copy = ReplacedCopy(json_string, "true", "invalid");
 
   ReadContext context;
   bundle_serializer.DecodeDocumentMetadata(context, json_copy);
   EXPECT_FALSE(context.ok());
 
-  json_copy = ReplacedCopy(
-      json_string, R"(["q1"])", R"("q1")");
+  json_copy = ReplacedCopy(json_string, R"(["q1"])", R"("q1")");
   context = ReadContext();
   bundle_serializer.DecodeDocumentMetadata(context, json_copy);
   EXPECT_FALSE(context.ok());
 
-  json_copy = ReplacedCopy(
-      json_string, R"("readTime")", R"("WriteTime")");
+  json_copy = ReplacedCopy(json_string, R"("readTime")", R"("WriteTime")");
   context = ReadContext();
   bundle_serializer.DecodeDocumentMetadata(context, json_copy);
   EXPECT_FALSE(context.ok());

@@ -31,7 +31,7 @@ class BundleDocument {
       : document_(std::move(document)) {
   }
 
-/** Returns the key for this document. */
+  /** Returns the key for this document. */
   const model::DocumentKey& key() const {
     return document_.key();
   }
