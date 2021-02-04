@@ -1559,8 +1559,12 @@ static const size_t SRFrameHeaderOverhead = 32;
 
         case NSStreamEventHasBytesAvailable: {
             SRFastLog(@"NSStreamEventHasBytesAvailable %@", aStream);
+
+            #pragma clang diagnostic push
+            #pragma clang diagnostic ignored "-Wvla"
             const NSUInteger bufferSize = 2048;
             uint8_t buffer[bufferSize];
+            #pragma clang diagnostic pop
 
             while (_inputStream.hasBytesAvailable) {
                 NSInteger bytes_read = [_inputStream read:buffer maxLength:bufferSize];
