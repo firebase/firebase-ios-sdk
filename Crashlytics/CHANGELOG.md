@@ -1,3 +1,6 @@
+# Unreleased
+- [changed] Updated the performance improvements in 7.5.0 to avoid a possible race condition (#7459).
+
 # v7.5.0
 - [changed] Improve start-up performance by moving some initialization work to a background thread (#7332).
 - [changed] Updated upload-symbols to a version that is notarized to avoid macOS security alerts (#7323).
