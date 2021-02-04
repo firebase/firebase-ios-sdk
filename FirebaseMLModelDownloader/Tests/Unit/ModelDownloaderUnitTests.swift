@@ -220,68 +220,6 @@ final class ModelDownloaderUnitTests: XCTestCase {
     XCTAssertEqual(fakeURLWithoutSpace, URL(string: fakeURLWithoutSpace.path)!)
   }
 
-  func testGetModel() {
-    // This is an example of a functional test case.
-    // Use XCTAssert and related functions to verify your tests produce the correct
-    // results.
-    guard let testApp = FirebaseApp.app() else {
-      XCTFail("Default app was not configured.")
-      return
-    }
-
-    let modelDownloader = ModelDownloader.modelDownloader()
-    let modelDownloaderWithApp = ModelDownloader.modelDownloader(app: testApp)
-
-    /// These should point to the same instance.
-    XCTAssert(modelDownloader === modelDownloaderWithApp)
-
-    let conditions = ModelDownloadConditions()
-
-    // Download model w/ progress handler
-    modelDownloader.getModel(
-      name: "your_model_name",
-      downloadType: .latestModel,
-      conditions: conditions,
-      progressHandler: { progress in
-        // Handle progress
-      }
-    ) { result in
-      switch result {
-      case .success:
-        // Use model with your inference API
-        // let interpreter = Interpreter(modelPath: customModel.modelPath)
-        break
-      case .failure:
-        // Handle download error
-        break
-      }
-    }
-
-    // Access array of downloaded models
-    modelDownloaderWithApp.listDownloadedModels { result in
-      switch result {
-      case .success:
-        // Pick model(s) for further use
-        break
-      case .failure:
-        // Handle failure
-        break
-      }
-    }
-
-    // Delete downloaded model
-    modelDownloader.deleteDownloadedModel(name: "your_model_name") { result in
-      switch result {
-      case .success():
-        // Apply any other clean up
-        break
-      case .failure:
-        // Handle failure
-        break
-      }
-    }
-  }
-
   /// Test on-device logging.
   func testDeviceLogging() {
     DeviceLogger.logEvent(level: .error,
@@ -610,6 +548,56 @@ final class ModelDownloaderUnitTests: XCTestCase {
     try? ModelFileManager.removeFile(at: tempFileURL)
   }
 
+  /// Get model with a valid server response.
+  func testGetModelSuccessful() {
+    let modelDownloader = ModelDownloader.modelDownloader()
+    let conditions = ModelDownloadConditions()
+    let session = fakeModelInfoSessionWithURL(fakeDownloadURL, statusCode: 200)
+    let modelInfoRetriever = fakeModelRetriever(fakeSession: session)
+    let downloader = MockModelFileDownloader()
+    let tempFileURL = tempFile()
+
+    let fakeResponseNotFound = HTTPURLResponse(url: fakeFileURL,
+                                               statusCode: 200,
+                                               httpVersion: nil,
+                                               headerFields: nil)!
+
+    let fileDownloaderExpectation = expectation(description: "File downloader")
+    let completionExpectation = expectation(description: "Completion handler")
+
+    // Handles initial response.
+    downloader.downloadFileHandler = { url in
+      fileDownloaderExpectation.fulfill()
+      XCTAssertEqual(url, self.fakeDownloadURL)
+    }
+
+    modelDownloader.downloadInfoAndModel(modelName: fakeModelName,
+                                         modelInfoRetriever: modelInfoRetriever,
+                                         downloader: downloader,
+                                         conditions: conditions) { result in
+      completionExpectation.fulfill()
+      switch result {
+      case let .success(model):
+        XCTAssertEqual(model.name, self.fakeModelName)
+        XCTAssertEqual(model.size, self.fakeModelSize)
+        XCTAssertEqual(model.hash, self.fakeModelHash)
+        let modelPath = URL(fileURLWithPath: model.path)
+        XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
+        try? self.deleteFile(at: modelPath)
+      case let .failure(error):
+        XCTFail("Error - \(error)")
+      }
+    }
+    wait(for: [fileDownloaderExpectation], timeout: 0.5)
+
+    downloader
+      .completion?(.success(FileDownloaderResponse(urlResponse: fakeResponseNotFound,
+                                                   fileURL: tempFileURL)))
+    wait(for: [completionExpectation], timeout: 0.5)
+
+    try? ModelFileManager.removeFile(at: tempFileURL)
+  }
+
   /// Get model if download url expired but retry was successful.
   func testGetModelSuccessfulRetry() {
     let modelDownloader = ModelDownloader.modelDownloader()
@@ -739,7 +727,7 @@ final class ModelDownloaderUnitTests: XCTestCase {
                                                httpVersion: nil,
                                                headerFields: nil)!
 
-    let fileDownloaderExpectation = expectation(description: "File downloader before retry")
+    let fileDownloaderExpectation = expectation(description: "File downloader")
     let completionExpectation = expectation(description: "Completion handler")
 
     // Handles initial response.
@@ -754,7 +742,6 @@ final class ModelDownloaderUnitTests: XCTestCase {
                                          conditions: conditions) { result in
       completionExpectation.fulfill()
       switch result {
-      // Retry failed due to another expired url - error returned.
       case .success: XCTFail("Unexpected successful model download.")
       case let .failure(error):
         switch error {
