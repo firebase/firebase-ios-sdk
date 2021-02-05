@@ -531,7 +531,7 @@ public enum DownloadedModelError: Error {
 /// Extension to handle internally meaningful errors.
 extension DownloadError {
   /// Model download URL expired before model download.
-  /// Model info retrieval and download is retried `numberOfRetries` times before failing.
+  // Model info retrieval and download is retried `numberOfRetries` times before failing.
   static let expiredDownloadURL: DownloadError = {
     DownloadError.internalError(description: "Expired model download URL.")
   }()
