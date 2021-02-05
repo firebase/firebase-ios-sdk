@@ -21,7 +21,6 @@ extension UserDefaults {
   /// Returns a new cleared instance of user defaults.
   static func createTestInstance(testName: String) -> UserDefaults {
     let suiteName = "com.google.firebase.ml.test.\(testName)"
-    // TODO: reconsider force unwrapping
     let defaults = UserDefaults(suiteName: suiteName)!
     defaults.removePersistentDomain(forName: suiteName)
     return defaults
@@ -30,15 +29,14 @@ extension UserDefaults {
   /// Returns the existing user defaults instance.
   static func getTestInstance(testName: String) -> UserDefaults {
     let suiteName = "com.google.firebase.ml.test.\(testName)"
-    // TODO: reconsider force unwrapping
     return UserDefaults(suiteName: suiteName)!
   }
 }
 
-// TODO: Use FirebaseApp internal init for testApp
 final class ModelDownloaderIntegrationTests: XCTestCase {
   override class func setUp() {
     super.setUp()
+    // TODO: Use FirebaseApp internal for test app.
     let bundle = Bundle(for: self)
     if let plistPath = bundle.path(forResource: "GoogleService-Info", ofType: "plist"),
       let options = FirebaseOptions(contentsOfFile: plistPath) {
@@ -66,8 +64,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       modelName: testModelName,
       projectID: testApp.options.projectID!,
       apiKey: testApp.options.apiKey!,
-      installations: Installations.installations(app: testApp),
-      appName: testApp.name
+      appName: testApp.name, installations: Installations.installations(app: testApp)
     )
 
     let downloadExpectation = expectation(description: "Wait for model info to download.")
@@ -120,8 +117,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       modelName: testModelName,
       projectID: testApp.options.projectID!,
       apiKey: testApp.options.apiKey!,
-      installations: Installations.installations(app: testApp),
-      appName: testApp.name,
+      appName: testApp.name, installations: Installations.installations(app: testApp),
       localModelInfo: localInfo
     )
 
@@ -453,8 +449,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     let testName = String(#function.dropLast(2))
 
     // TODO: Figure out a better way to test this.
-    var conditions = ModelDownloadConditions()
-    conditions.allowsCellularAccess = false
+    let conditions = ModelDownloadConditions(allowsCellularAccess: false)
 
     let modelDownloader = ModelDownloader.modelDownloaderWithDefaults(
       .createTestInstance(testName: testName),

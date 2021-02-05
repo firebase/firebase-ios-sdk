@@ -15,10 +15,12 @@
 import Foundation
 
 /// Manager for common file operations.
-// TODO: Consider mocking this for tests?
 enum ModelFileManager {
+  /// Separator in model file name components.
   private static let nameSeparator = "@@"
+
   private static let modelNamePrefix = "fbml_model"
+
   private static let fileManager = FileManager.default
 
   /// Root directory of model file storage on device.
@@ -39,7 +41,7 @@ enum ModelFileManager {
   /// Model name from file path.
   static func getModelNameFromFilePath(_ path: URL) -> String? {
     let components = path.lastPathComponent.components(separatedBy: nameSeparator)
-    /// The file path should have prefix, app name, and model name.
+    // The file path should have prefix, app name, and model name.
     if components.count == 3 {
       return components.last
     }
@@ -61,7 +63,7 @@ enum ModelFileManager {
     do {
       return try fileURL.checkResourceIsReachable()
     } catch {
-      /// File unreachable.
+      // File unreachable.
       return false
     }
   }
@@ -103,6 +105,7 @@ enum ModelFileManager {
     }
   }
 
+  /// Get all model files in models directory.
   static func contentsOfModelsDirectory() throws -> [URL] {
     do {
       let directoryContents = try ModelFileManager.fileManager.contentsOfDirectory(

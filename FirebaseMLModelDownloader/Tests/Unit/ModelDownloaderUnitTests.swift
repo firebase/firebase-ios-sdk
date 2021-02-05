@@ -118,7 +118,6 @@ final class ModelDownloaderUnitTests: XCTestCase {
   }
 
   /// Test listing models.
-  // TODO: This test fails when run together with other tests, possibly due to FileManager race condition?
   func testListModels() {
     guard let testApp = FirebaseApp.app() else {
       XCTFail("Default app was not configured.")
@@ -1258,7 +1257,6 @@ extension UserDefaults {
   /// Returns a new cleared instance of user defaults.
   static func createTestInstance(testName: String) -> UserDefaults {
     let suiteName = "com.google.firebase.ml.test.\(testName)"
-    // TODO: reconsider force unwrapping
     let defaults = UserDefaults(suiteName: suiteName)!
     defaults.removePersistentDomain(forName: suiteName)
     return defaults
@@ -1267,7 +1265,6 @@ extension UserDefaults {
   /// Returns the existing user defaults instance.
   static func getTestInstance(testName: String) -> UserDefaults {
     let suiteName = "com.google.firebase.ml.test.\(testName)"
-    // TODO: reconsider force unwrapping
     return UserDefaults(suiteName: suiteName)!
   }
 }
@@ -1292,15 +1289,13 @@ extension ModelDownloaderUnitTests {
 
   func fakeModelRetriever(fakeSession: MockModelInfoRetrieverSession,
                           fakeLocalModelInfo: LocalModelInfo? = nil) -> ModelInfoRetriever {
-    // TODO: Replace with a fake one so we can check that is was used correctly by the download task.
+    // TODO: Replace with fake to check if it was used correctly by the download task.
     let modelInfoRetriever = ModelInfoRetriever(
       modelName: fakeModelName,
       projectID: fakeProjectID,
       apiKey: fakeAPIKey,
-      authTokenProvider: successAuthTokenProvider,
-      appName: fakeAppName,
-      localModelInfo: fakeLocalModelInfo,
-      session: fakeSession
+      appName: fakeAppName, authTokenProvider: successAuthTokenProvider,
+      session: fakeSession, localModelInfo: fakeLocalModelInfo
     )
     return modelInfoRetriever
   }

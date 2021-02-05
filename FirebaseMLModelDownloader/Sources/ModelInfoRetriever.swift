@@ -33,15 +33,19 @@ extension URLSession: ModelInfoRetrieverSession {
   }
 }
 
-/// Model info response object.
+/// Model info result type.
+/// Downloading model info will return new model info only if it different from local model info.
+enum DownloadModelInfoResult {
+  case modelInfo(RemoteModelInfo)
+  case notModified
+}
+
+/// Model info response.
 private struct ModelInfoResponse: Codable {
   let downloadURL: String
   let urlExpiryTime: String
   let size: String
-}
-
-/// Properties for server response keys.
-private extension ModelInfoResponse {
+  /// Properties for server response keys.
   enum CodingKeys: String, CodingKey {
     case downloadURL = "downloadUri"
     case urlExpiryTime = "expireTime"
@@ -49,91 +53,80 @@ private extension ModelInfoResponse {
   }
 }
 
-/// Downloading model info will return new model info only if it different from local model info.
-enum DownloadModelInfoResult {
-  case notModified
-  case modelInfo(RemoteModelInfo)
-}
-
-/// Model info retrieval error codes.
-enum ModelInfoErrorCode {
-  case noError
-  case noHash
-  case httpError(code: Int)
-  case connectionFailed
-  case hashMismatch
-}
-
-/// Model info retriever for a model from local user defaults or server.
+/// Fetch model info for a model from server.
 class ModelInfoRetriever {
   /// Model name.
   private let modelName: String
-  /// URL session for model info request.
-  private let session: ModelInfoRetrieverSession
+
   /// Current Firebase app project ID.
   private let projectID: String
+
   /// Current Firebase app API key.
   private let apiKey: String
+
   /// Current Firebase app name.
   private let appName: String
-  /// Local model info to validate model freshness.
-  private let localModelInfo: LocalModelInfo?
-  /// Telemetry logger.
-  private let telemetryLogger: TelemetryLogger?
+
   /// Auth token provider.
   typealias AuthTokenProvider = (_ completion: @escaping (Result<String, DownloadError>) -> Void)
     -> Void
   private let authTokenProvider: AuthTokenProvider
 
+  /// URL session for model info request.
+  private let session: ModelInfoRetrieverSession
+
+  /// Local model info to validate model freshness.
+  private let localModelInfo: LocalModelInfo?
+
+  /// Telemetry logger.
+  private let telemetryLogger: TelemetryLogger?
+
   /// Associate model info retriever with current Firebase app, and model name.
   init(modelName: String,
        projectID: String,
        apiKey: String,
-       authTokenProvider: @escaping AuthTokenProvider,
        appName: String,
-       localModelInfo: LocalModelInfo? = nil,
+       authTokenProvider: @escaping AuthTokenProvider,
        session: ModelInfoRetrieverSession? = nil,
+       localModelInfo: LocalModelInfo? = nil,
        telemetryLogger: TelemetryLogger? = nil) {
     self.modelName = modelName
     self.projectID = projectID
     self.apiKey = apiKey
     self.appName = appName
-    self.localModelInfo = localModelInfo
     self.authTokenProvider = authTokenProvider
+    self.session = session ?? URLSession(configuration: .ephemeral)
+    self.localModelInfo = localModelInfo
     self.telemetryLogger = telemetryLogger
-
-    if let urlSession = session {
-      self.session = urlSession
-    } else {
-      self.session = URLSession(configuration: .ephemeral)
-    }
   }
 
+  /// Convenience init to use FirebaseInstallations as auth token provider.
   convenience init(modelName: String,
                    projectID: String,
                    apiKey: String,
-                   installations: Installations,
                    appName: String,
-                   localModelInfo: LocalModelInfo? = nil,
+                   installations: Installations,
                    session: ModelInfoRetrieverSession? = nil,
+                   localModelInfo: LocalModelInfo? = nil,
                    telemetryLogger: TelemetryLogger? = nil) {
     self.init(modelName: modelName,
               projectID: projectID,
               apiKey: apiKey,
-              authTokenProvider: ModelInfoRetriever.authTokenProvider(installation: installations),
               appName: appName,
-              localModelInfo: localModelInfo,
+              authTokenProvider: ModelInfoRetriever.authTokenProvider(installation: installations),
               session: session,
+              localModelInfo: localModelInfo,
               telemetryLogger: telemetryLogger)
   }
 
+  /// Auth token provider to validate credentials.
   private static func authTokenProvider(installation: Installations) -> AuthTokenProvider {
     return { completion in
       installation.authToken { tokenResult, error in
         guard let result = tokenResult
         else {
           completion(.failure(.internalError(description: ModelInfoRetriever.ErrorDescription
-              .authToken)))
+              .authTokenError)))
           return
         }
         completion(.success(result.authToken))
@@ -146,13 +139,13 @@ class ModelInfoRetriever {
     -> Void) {
     authTokenProvider { result in
       switch result {
-      /// Successfully received FIS token.
+      // Successfully received FIS token.
       case let .success(authToken):
         DeviceLogger.logEvent(level: .debug,
                               message: ModelInfoRetriever.DebugDescription
                                 .receivedAuthToken,
                               messageCode: .validAuthToken)
-        /// Get model info fetch URL with appropriate HTTP headers.
+        // Get model info fetch URL with appropriate HTTP headers.
         guard let request = self.getModelInfoFetchURLRequest(token: authToken) else {
           DeviceLogger.logEvent(level: .debug,
                                 message: ModelInfoRetriever.ErrorDescription
@@ -165,7 +158,7 @@ class ModelInfoRetriever {
               .invalidModelInfoFetchURL)))
           return
         }
-        /// Download model info.
+        // Download model info.
         self.session.getModelInfo(with: request) {
           data, response, error in
           if let downloadError = error {
@@ -219,6 +212,7 @@ class ModelInfoRetriever {
                 return
               }
               do {
+                // Parse model info from HTTP response.
                 let modelInfo = try self.getRemoteModelInfoFromResponse(data, modelHash: modelHash)
                 DeviceLogger.logEvent(level: .debug,
                                       message: ModelInfoRetriever.DebugDescription
@@ -239,8 +233,7 @@ class ModelInfoRetriever {
                 )
               }
             case 304:
-              /// For this case to occur, local model info has to already be available on device.
-              // TODO: Is this needed? Currently handles the case if model info disappears between request and response
+              // For this case to occur, local model info has to already be available on device.
               guard let localInfo = self.localModelInfo else {
                 DeviceLogger.logEvent(level: .debug,
                                       message: ModelInfoRetriever.ErrorDescription
@@ -265,6 +258,7 @@ class ModelInfoRetriever {
                     .missingModelHash)))
                 return
               }
+              // Ensure that there is local model info on device with matching hash.
               guard modelHash == localInfo.modelHash else {
                 DeviceLogger.logEvent(level: .debug,
                                       message: ModelInfoRetriever.ErrorDescription
@@ -307,6 +301,7 @@ class ModelInfoRetriever {
                                                                  .statusCode))
               completion(.failure(.invalidArgument))
             case 401, 403:
+              // Error could be due to FirebaseML API not enabled for project, or invalid permissions.
               if let data = data,
                 let responseJSON = try? JSONSerialization
                 .jsonObject(with: data, options: []) as? [String: Any],
@@ -388,14 +383,14 @@ class ModelInfoRetriever {
             }
           }
         }
-      /// FIS token error.
+      // Error retrieving auth token.
       case .failure:
         DeviceLogger.logEvent(level: .debug,
                               message: ModelInfoRetriever.ErrorDescription
-                                .authToken,
+                                .authTokenError,
                               messageCode: .authTokenError)
         completion(.failure(.internalError(description: ModelInfoRetriever.ErrorDescription
-            .authToken)))
+            .authTokenError)))
         return
       }
     }
@@ -406,7 +401,9 @@ class ModelInfoRetriever {
 extension ModelInfoRetriever {
   /// HTTP request headers.
   private static let fisTokenHTTPHeader = "x-goog-firebase-installations-auth"
+
   private static let hashMatchHTTPHeader = "if-none-match"
+
   private static let bundleIDHTTPHeader = "x-ios-bundle-identifier"
 
   /// HTTP response headers.
@@ -427,11 +424,10 @@ extension ModelInfoRetriever {
     guard let fetchURL = modelInfoFetchURL else { return nil }
     var request = URLRequest(url: fetchURL)
     request.httpMethod = "GET"
-    // TODO: Check if bundle ID needs to be part of the request header.
     let bundleID = Bundle.main.bundleIdentifier ?? ""
     request.setValue(bundleID, forHTTPHeaderField: ModelInfoRetriever.bundleIDHTTPHeader)
     request.setValue(token, forHTTPHeaderField: ModelInfoRetriever.fisTokenHTTPHeader)
-    /// Get model hash if local model info is available on device.
+    // Get model hash if local model info is available on device.
     if let modelInfo = localModelInfo {
       request.setValue(
         modelInfo.modelHash,
@@ -464,14 +460,16 @@ extension ModelInfoRetriever {
       throw DownloadError
         .internalError(description: ModelInfoRetriever.ErrorDescription.decodeModelInfoResponse)
     }
-    // TODO: Possibly improve handling invalid server responses.
     guard let downloadURL = URL(string: modelInfoJSON.downloadURL) else {
       throw DownloadError
         .internalError(description: ModelInfoRetriever.ErrorDescription
           .invalidModelDownloadURL)
     }
-    let modelHash = modelHash
-    let size = Int(modelInfoJSON.size) ?? 0
+    guard let size = Int(modelInfoJSON.size) else {
+      throw DownloadError
+        .internalError(description: ModelInfoRetriever.ErrorDescription
+          .invalidModelSize)
+    }
     guard let expiryTime = ModelInfoRetriever.getDateFromString(modelInfoJSON.urlExpiryTime) else {
       throw DownloadError
         .internalError(description: ModelInfoRetriever.ErrorDescription
@@ -487,46 +485,48 @@ extension ModelInfoRetriever {
   }
 }
 
+/// Model info retrieval error codes.
+enum ModelInfoErrorCode {
+  case noError
+  case noHash
+  case httpError(code: Int)
+  case connectionFailed
+  case hashMismatch
+}
+
 /// Possible error messages for model info retrieval.
 extension ModelInfoRetriever {
   /// Debug descriptions.
   private enum DebugDescription {
-    static let receivedServerResponse = "Received a valid response from model info server."
     static let receivedAuthToken = "Generated valid auth token."
+    static let receivedServerResponse = "Received a valid response from model info server."
     static let modelInfoDownloaded = "Successfully downloaded model info."
     static let modelInfoUnmodified = "Local model info matches the latest on server."
   }
 
   /// Error descriptions.
   private enum ErrorDescription {
-    static let authToken = "Error retrieving auth token."
-    static let selfDeallocated = "Self deallocated."
-    static let missingModelHash = "Model hash missing in model info server response."
+    static let authTokenError = "Error retrieving auth token."
     static let invalidModelInfoFetchURL = "Unable to create URL to fetch model info."
     static let invalidHTTPResponse =
       "Could not get a valid HTTP response for model info retrieval."
-    static let invalidModelInfoJSON = { (error: String) in
-      "Failed to parse model info: \(error)"
-    }
-
-    static let failedModelInfoRetrieval = { (error: String) in
-      "Failed to retrieve model info: \(error)"
-    }
-
-    static let unexpectedModelInfoDeletion =
-      "Model info was deleted unexpectedly."
-    static let serverResponse = { (errorCode: Int) in
+    static let serverResponseError = { (errorCode: Int) in
       "Server returned with HTTP error code: \(errorCode)."
+    }
+
+    static let missingModelHash = "Model hash missing in model info server response."
+    static let modelHashMismatch = "Unexpected model hash value."
+    static let unexpectedModelInfoDeletion = "Model info was deleted unexpectedly."
+    static let modelNotFound = { (name: String) in
+      "No model found with name: \(name)"
     }
 
     static let invalidArgument = { (name: String) in
       "Invalid argument for model name: \(name)"
     }
 
-    static let modelNotFound = { (name: String) in
-      "No model found with name: \(name)"
-    }
-
+    static let permissionDenied = "Invalid or missing permissions to retrieve model info."
+    static let resourceExhausted = "Resource exhausted due to too many requests."
     static let modelInfoRetrievalFailed = { (code: Int) in
       "Model info retrieval failed with HTTP error code: \(code)"
     }
@@ -535,11 +535,15 @@ extension ModelInfoRetriever {
       "Unable to decode model info response from server."
     static let invalidModelDownloadURL =
       "Invalid model download URL from server."
+    static let invalidModelSize = "Invalid model size from server."
     static let invalidModelDownloadURLExpiryTime =
       "Invalid download URL expiry time from server."
-    static let modelHashMismatch = "Unexpected model hash value."
-    static let permissionDenied = "Invalid or missing permissions to retrieve model info."
-    static let anotherDownloadInProgress = "Model info download already in progress."
-    static let resourceExhausted = "Resource exhausted due to too many requests."
+    static let invalidModelInfoJSON = { (error: String) in
+      "Failed to parse model info: \(error)"
+    }
+
+    static let failedModelInfoRetrieval = { (error: String) in
+      "Failed to retrieve model info: \(error)"
+    }
   }
 }
