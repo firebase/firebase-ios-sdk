@@ -15,7 +15,6 @@
 import Foundation
 
 /// Manager for common file operations.
-// TODO: Consider mocking this for tests?
 enum ModelFileManager {
   private static let nameSeparator = "@@"
   private static let modelNamePrefix = "fbml_model"
@@ -103,6 +102,7 @@ enum ModelFileManager {
     }
   }
 
+  /// Get all model files in models directory.
   static func contentsOfModelsDirectory() throws -> [URL] {
     do {
       let directoryContents = try ModelFileManager.fileManager.contentsOfDirectory(
