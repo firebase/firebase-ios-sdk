@@ -13,17 +13,13 @@
 // limitations under the License.
 
 import Foundation
-import FirebaseCore
 
 /// Model info object with details about downloaded and locally available model.
-// TODO: Can this be backed by user defaults property wrappers?
 class LocalModelInfo {
   /// Model name.
   let name: String
-
   /// Hash of the model, as returned by server.
   let modelHash: String
-
   /// Size of the model, as returned by server.
   let size: Int
 
@@ -33,7 +29,7 @@ class LocalModelInfo {
     self.size = size
   }
 
-  /// Convenience init to create local model info from remotely downloaded model info and a local model path.
+  /// Convenience init to create local model info from remotely downloaded model info.
   convenience init(from remoteModelInfo: RemoteModelInfo) {
     self.init(
       name: remoteModelInfo.name,
@@ -79,8 +75,9 @@ extension LocalModelInfo: DownloaderUserDefaultsWriteable {
 extension UserDefaults {
   static var firebaseMLDefaults: UserDefaults {
     let suiteName = "com.google.firebase.ml"
-    // TODO: reconsider force unwrapping
-    let defaults = UserDefaults(suiteName: suiteName)!
+    guard let defaults = UserDefaults(suiteName: suiteName) else {
+      return UserDefaults.standard
+    }
     return defaults
   }
 }
