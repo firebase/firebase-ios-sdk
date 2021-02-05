@@ -193,6 +193,9 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
              self->_accessToken = [newAccessToken copy];
              self->_accessTokenExpirationDate = response.approximateExpirationDate;
              tokenUpdated = YES;
+             FIRLogDebug(kFIRLoggerAuth, @"I-AUT000017",
+                         @"Updated access token. Estimated expiration date: %@, current date: %@",
+                         self->_accessTokenExpirationDate, [NSDate date]);
            }
            NSString *newRefreshToken = response.refreshToken;
            if (newRefreshToken.length && ![newRefreshToken isEqualToString:self->_refreshToken]) {
