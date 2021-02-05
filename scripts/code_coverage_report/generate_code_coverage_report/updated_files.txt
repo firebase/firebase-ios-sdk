@@ -1,6 +1,0 @@
-asdf
-qwer
-zxcv
-asdf
-zxcv
-.github/workflows/database.yml
