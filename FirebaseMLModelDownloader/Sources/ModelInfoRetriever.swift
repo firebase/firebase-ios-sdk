@@ -226,6 +226,18 @@ class ModelInfoRetriever {
                 )
               }
             case 304:
+              /// For this case to occur, local model info has to already be available on device.
+              guard let localInfo = self.localModelInfo else {
+                DeviceLogger.logEvent(level: .debug,
+                                      message: ModelInfoRetriever.ErrorDescription
+                                        .unexpectedModelInfoDeletion,
+                                      messageCode: .modelInfoDeleted)
+                completion(
+                  .failure(.internalError(description: ModelInfoRetriever.ErrorDescription
+                      .unexpectedModelInfoDeletion))
+                )
+                return
+              }
               guard let modelHash = httpResponse
                 .allHeaderFields[ModelInfoRetriever.etagHTTPHeader] as? String else {
                 DeviceLogger.logEvent(level: .debug,
@@ -240,7 +252,7 @@ class ModelInfoRetriever {
                 return
               }
               /// Ensure that there is local model info on device with matching hash.
-              guard let localInfo = self.localModelInfo, modelHash == localInfo.modelHash else {
+              guard modelHash == localInfo.modelHash else {
                 DeviceLogger.logEvent(level: .debug,
                                       message: ModelInfoRetriever.ErrorDescription
                                         .modelHashMismatch,
@@ -494,6 +506,7 @@ extension ModelInfoRetriever {
 
     static let missingModelHash = "Model hash missing in model info server response."
     static let modelHashMismatch = "Unexpected model hash value."
+    static let unexpectedModelInfoDeletion = "Model info was deleted unexpectedly."
     static let modelNotFound = { (name: String) in
       "No model found with name: \(name)"
     }

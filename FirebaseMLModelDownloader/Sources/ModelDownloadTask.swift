@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import Foundation
-import FirebaseCore
 
 /// Task to download model file to device.
 class ModelDownloadTask {

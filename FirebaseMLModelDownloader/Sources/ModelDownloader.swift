@@ -78,8 +78,8 @@ public class ModelDownloader {
     if let userInfo = notification.userInfo,
       let appName = userInfo[userInfoKey] as? String {
       ModelDownloader.modelDownloaderDictionary.removeValue(forKey: appName)
-      // TODO: Clean up user defaults
-      // TODO: Clean up local instances of app
+      // TODO: Clean up user defaults.
+      // TODO: Clean up local instances of app.
       DeviceLogger.logEvent(level: .debug,
                             message: ModelDownloader.DebugDescription.deleteModelDownloader,
                             messageCode: .downloaderInstanceDeleted)
@@ -360,8 +360,7 @@ extension ModelDownloader {
       modelName: modelName,
       projectID: projectID,
       apiKey: apiKey,
-      installations: installations,
-      appName: appName,
+      appName: appName, installations: installations,
       localModelInfo: localModelInfo,
       telemetryLogger: telemetryLogger
     )
@@ -456,6 +455,7 @@ extension ModelDownloader {
               if downloadTask.canResume() {
                 downloadTask.resume()
               }
+              // TODO: Handle else.
             } else {
               /// Create download task for model file download.
               let downloadTask = ModelDownloadTask(
