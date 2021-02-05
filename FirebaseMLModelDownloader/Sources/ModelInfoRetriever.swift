@@ -280,21 +280,12 @@ class ModelInfoRetriever {
                                                                errorCode: .noError)
               completion(.success(.notModified))
             case 400:
-              if let data = data,
-                let responseJSON = try? JSONSerialization
-                .jsonObject(with: data, options: []) as? [String: Any],
-                let error = responseJSON["error"] as? [String: Any],
-                let errorMessage = error["message"] as? String {
-                DeviceLogger.logEvent(level: .debug,
-                                      message: errorMessage,
-                                      messageCode: .invalidArgument)
-              } else {
-                let description = ModelInfoRetriever.ErrorDescription
-                  .invalidArgument(self.modelName)
-                DeviceLogger.logEvent(level: .debug,
-                                      message: description,
-                                      messageCode: .invalidArgument)
-              }
+              let errorMessage = self.getErrorFromResponse(data)
+              let description = errorMessage ?? ModelInfoRetriever.ErrorDescription
+                .invalidArgument(self.modelName)
+              DeviceLogger.logEvent(level: .debug,
+                                    message: description,
+                                    messageCode: .invalidArgument)
               self.telemetryLogger?.logModelInfoRetrievalEvent(eventName: .modelDownload,
                                                                status: .modelInfoRetrievalFailed,
                                                                errorCode: .httpError(code: httpResponse
@@ -302,76 +293,44 @@ class ModelInfoRetriever {
               completion(.failure(.invalidArgument))
             case 401, 403:
               // Error could be due to FirebaseML API not enabled for project, or invalid permissions.
-              if let data = data,
-                let responseJSON = try? JSONSerialization
-                .jsonObject(with: data, options: []) as? [String: Any],
-                let error = responseJSON["error"] as? [String: Any],
-                let errorMessage = error["message"] as? String {
-                DeviceLogger.logEvent(level: .debug,
-                                      message: errorMessage,
-                                      messageCode: .permissionDenied)
-              } else {
-                DeviceLogger.logEvent(level: .debug,
-                                      message: ModelInfoRetriever.ErrorDescription.permissionDenied,
-                                      messageCode: .permissionDenied)
-              }
+              let errorMessage = self.getErrorFromResponse(data)
+              let description = errorMessage ?? ModelInfoRetriever.ErrorDescription.permissionDenied
+              DeviceLogger.logEvent(level: .debug,
+                                    message: description,
+                                    messageCode: .permissionDenied)
               self.telemetryLogger?.logModelInfoRetrievalEvent(eventName: .modelDownload,
                                                                status: .modelInfoRetrievalFailed,
                                                                errorCode: .httpError(code: httpResponse
                                                                  .statusCode))
               completion(.failure(.permissionDenied))
             case 404:
-              if let data = data,
-                let responseJSON = try? JSONSerialization
-                .jsonObject(with: data, options: []) as? [String: Any],
-                let error = responseJSON["error"] as? [String: Any],
-                let errorMessage = error["message"] as? String {
-                DeviceLogger.logEvent(level: .debug,
-                                      message: errorMessage,
-                                      messageCode: .modelNotFound)
-              } else {
-                let description = ModelInfoRetriever.ErrorDescription.modelNotFound(self.modelName)
-                DeviceLogger.logEvent(level: .debug,
-                                      message: description,
-                                      messageCode: .modelNotFound)
-              }
+              let errorMessage = self.getErrorFromResponse(data)
+              let description = errorMessage ?? ModelInfoRetriever.ErrorDescription
+                .modelNotFound(self.modelName)
+              DeviceLogger.logEvent(level: .debug,
+                                    message: description,
+                                    messageCode: .modelNotFound)
               self.telemetryLogger?.logModelInfoRetrievalEvent(eventName: .modelDownload,
                                                                status: .modelInfoRetrievalFailed,
                                                                errorCode: .httpError(code: httpResponse
                                                                  .statusCode))
               completion(.failure(.notFound))
             case 429:
-              if let data = data,
-                let responseJSON = try? JSONSerialization
-                .jsonObject(with: data, options: []) as? [String: Any],
-                let error = responseJSON["error"] as? [String: Any],
-                let errorMessage = error["message"] as? String {
-                DeviceLogger.logEvent(level: .debug,
-                                      message: errorMessage,
-                                      messageCode: .resourceExhausted)
-              } else {
-                DeviceLogger.logEvent(level: .debug,
-                                      message: ModelInfoRetriever.ErrorDescription
-                                        .resourceExhausted,
-                                      messageCode: .resourceExhausted)
-              }
+              let errorMessage = self.getErrorFromResponse(data)
+              let description = errorMessage ?? ModelInfoRetriever.ErrorDescription
+                .resourceExhausted
+              DeviceLogger.logEvent(level: .debug,
+                                    message: description,
+                                    messageCode: .resourceExhausted)
               self.telemetryLogger?.logModelInfoRetrievalEvent(eventName: .modelDownload,
                                                                status: .modelInfoRetrievalFailed,
                                                                errorCode: .httpError(code: httpResponse
                                                                  .statusCode))
               completion(.failure(.resourceExhausted))
             default:
-              var description: String
-              if let data = data,
-                let responseJSON = try? JSONSerialization
-                .jsonObject(with: data, options: []) as? [String: Any],
-                let error = responseJSON["error"] as? [String: Any],
-                let errorMessage = error["message"] as? String {
-                description = errorMessage
-              } else {
-                description = ModelInfoRetriever.ErrorDescription
-                  .modelInfoRetrievalFailed(httpResponse.statusCode)
-              }
+              let errorMessage = self.getErrorFromResponse(data)
+              let description = errorMessage ?? ModelInfoRetriever.ErrorDescription
+                .modelInfoRetrievalFailed(httpResponse.statusCode)
               DeviceLogger.logEvent(level: .debug,
                                     message: description,
                                     messageCode: .modelInfoRetrievalError)
@@ -435,6 +394,18 @@ extension ModelInfoRetriever {
       )
     }
     return request
+  }
+
+  /// Parse error message from server response.
+  private func getErrorFromResponse(_ data: Data?) -> String? {
+    if let data = data,
+      let responseJSON = try? JSONSerialization
+      .jsonObject(with: data, options: []) as? [String: Any],
+      let error = responseJSON["error"] as? [String: Any],
+      let errorMessage = error["message"] as? String {
+      return errorMessage
+    }
+    return nil
   }
 
   /// Parse date from string - used to get download URL expiry time.
