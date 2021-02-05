@@ -71,7 +71,7 @@ enum LoggerMessageCode: Int {
 
 /// On-device logger.
 class DeviceLogger {
-  /// Log identifier.
+  // Log identifier.
   static let service = "[Firebase/MLModelDownloader]"
   static func logEvent(level: GoogleLoggerLevel, message: String, messageCode: LoggerMessageCode) {
     let code = String(format: "I-MLM%06d", messageCode.rawValue)

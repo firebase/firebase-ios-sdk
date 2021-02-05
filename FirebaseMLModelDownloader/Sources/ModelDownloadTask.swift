@@ -84,7 +84,7 @@ extension ModelDownloadTask {
 
   /// Download model file.
   func resume() {
-    /// Prevent multiple concurrent downloads.
+    // Prevent multiple concurrent downloads.
     guard downloadStatus != .downloading else {
       DeviceLogger.logEvent(level: .debug,
                             message: ModelDownloadTask.ErrorDescription.anotherDownloadInProgress,
@@ -164,7 +164,7 @@ extension ModelDownloadTask {
     guard (200 ..< 299).contains(response.statusCode) else {
       switch response.statusCode {
       case 400:
-        /// Possible failure due to download URL expiry. Check if download URL has expired.
+        // Possible failure due to download URL expiry. Check if download URL has expired.
         guard remoteModelInfo.urlExpiryTime < Date() else {
           DeviceLogger.logEvent(level: .debug,
                                 message: ModelDownloadTask.ErrorDescription
@@ -231,7 +231,7 @@ extension ModelDownloadTask {
     )
 
     do {
-      /// Save model file to device.
+      // Save model file to device.
       try ModelFileManager.moveFile(
         at: tempURL,
         to: modelFileURL,
@@ -241,9 +241,9 @@ extension ModelDownloadTask {
                             message: ModelDownloadTask.DebugDescription.savedModelFile,
                             messageCode: .downloadedModelFileSaved)
 
-      /// Generate local model info.
+      // Generate local model info.
       let localModelInfo = LocalModelInfo(from: remoteModelInfo)
-      /// Write model info to user defaults.
+      // Write model info to user defaults.
       localModelInfo.writeToDefaults(defaults, appName: appName)
       DeviceLogger.logEvent(level: .debug,
                             message: ModelDownloadTask.DebugDescription.savedLocalModelInfo,

@@ -60,9 +60,9 @@ public class ModelDownloader {
     options = app.options
     installations = Installations.installations(app: app)
     userDefaults = defaults
-    /// Respect Firebase-wide data collection setting.
+    // Respect Firebase-wide data collection setting.
     telemetryLogger = TelemetryLogger(app: app)
-    /// Notification of app deletion.
+    // Notification of app deletion.
     let notificationName = "FIRAppDeleteNotification"
     NotificationCenter.default.addObserver(
       self,
@@ -150,7 +150,7 @@ public class ModelDownloader {
           status: .scheduled,
           downloadErrorCode: .noError
         )
-        /// Update local model in the background.
+        // Update local model in the background.
         DispatchQueue.global(qos: .utility).async { [weak self] in
           self?.getRemoteModel(
             modelName: modelName,
@@ -209,7 +209,7 @@ public class ModelDownloader {
     do {
       let modelURLs = try ModelFileManager.contentsOfModelsDirectory()
       var customModels = Set<CustomModel>()
-      /// Retrieve model name from url.
+      // Retrieve model name from URL.
       for url in modelURLs {
         guard let modelName = ModelFileManager.getModelNameFromFilePath(url) else {
           let description = ModelDownloader.ErrorDescription.parseModelName(url.path)
@@ -219,7 +219,7 @@ public class ModelDownloader {
           mainQueueHandler(completion(.failure(.internalError(description: description))))
           return
         }
-        /// Check if model information corresponding to model is stored in UserDefaults.
+        // Check if model information corresponding to model is stored in UserDefaults.
         guard let modelInfo = getLocalModelInfo(modelName: modelName) else {
           let description = ModelDownloader.ErrorDescription.noLocalModelInfo(modelName)
           DeviceLogger.logEvent(level: .debug,
@@ -232,7 +232,7 @@ public class ModelDownloader {
           appName: appName,
           modelName: modelName
         )
-        /// Ensure that local model path is as expected, and reachable.
+        // Ensure that local model path is as expected, and reachable.
         guard url == modelURL, ModelFileManager.isFileReachable(at: modelURL) else {
           DeviceLogger.logEvent(level: .debug,
                                 message: ModelDownloader.ErrorDescription.outdatedModelPath,
@@ -242,7 +242,7 @@ public class ModelDownloader {
           return
         }
         let model = CustomModel(localModelInfo: modelInfo, path: modelURL.path)
-        /// Add model to result set.
+        // Add model to result set.
         customModels.insert(model)
       }
       DeviceLogger.logEvent(level: .debug,
@@ -274,7 +274,7 @@ public class ModelDownloader {
       appName: appName,
       modelName: modelName
     )
-    /// Ensure that there is a matching model file on device, with corresponding model information in UserDefaults.
+    // Ensure that there is a matching model file on device, with corresponding model information in UserDefaults.
     guard let localModelInfo = getLocalModelInfo(modelName: modelName),
       ModelFileManager.isFileReachable(at: modelURL)
     else {
@@ -285,9 +285,9 @@ public class ModelDownloader {
       return
     }
     do {
-      /// Remove model file from device.
+      // Remove model file from device.
       try ModelFileManager.removeFile(at: modelURL)
-      /// Clear out corresponding local model info.
+      // Clear out corresponding local model info.
       localModelInfo.removeFromDefaults(userDefaults, appName: appName)
       DeviceLogger.logEvent(level: .debug,
                             message: ModelDownloader.DebugDescription.modelDeleted,
@@ -387,15 +387,15 @@ extension ModelDownloader {
       switch result {
       case let .success(downloadModelInfoResult):
         switch downloadModelInfoResult {
-        /// New model info was downloaded from server.
+        // New model info was downloaded from server.
         case let .modelInfo(remoteModelInfo):
-          /// Progress handler for model file download.
+          // Progress handler for model file download.
           let taskProgressHandler: ModelDownloadTask.ProgressHandler = { progress in
             if let progressHandler = progressHandler {
               self.mainQueueHandler(progressHandler(progress))
             }
           }
-          /// Completion handler for model file download.
+          // Completion handler for model file download.
           let taskCompletion: ModelDownloadTask.Completion = { result in
             switch result {
             case let .success(model):
@@ -408,9 +408,9 @@ extension ModelDownloader {
                 self.mainQueueHandler(completion(.failure(.invalidArgument)))
               case .permissionDenied:
                 self.mainQueueHandler(completion(.failure(.permissionDenied)))
-              /// This is the error returned when model download URL has expired.
+              // This is the error returned when model download URL has expired.
               case .expiredDownloadURL:
-                /// Retry model info and model file download, if allowed.
+                // Retry model info and model file download, if allowed.
                 guard self.numberOfRetries > 0 else {
                   self
                     .mainQueueHandler(
@@ -437,12 +437,12 @@ extension ModelDownloader {
               }
             }
             self.taskSerialQueue.async {
-              /// Stop keeping track of current download task.
+              // Stop keeping track of current download task.
               self.currentDownloadTask.removeValue(forKey: modelName)
             }
           }
           self.taskSerialQueue.sync {
-            /// Merge duplicate requests if there is already a download in progress for the same model.
+            // Merge duplicate requests if there is already a download in progress for the same model.
             if let downloadTask = self.currentDownloadTask[modelName],
               downloadTask.canMergeRequests() {
               downloadTask.merge(
@@ -457,7 +457,7 @@ extension ModelDownloader {
               }
               // TODO: Handle else.
             } else {
-              /// Create download task for model file download.
+              // Create download task for model file download.
               let downloadTask = ModelDownloadTask(
                 remoteModelInfo: remoteModelInfo,
                 appName: self.appName,
@@ -467,7 +467,7 @@ extension ModelDownloader {
                 completion: taskCompletion,
                 telemetryLogger: self.telemetryLogger
               )
-              /// Keep track of current download task to allow for merging duplicate requests.
+              // Keep track of current download task to allow for merging duplicate requests.
               self.currentDownloadTask[modelName] = downloadTask
               downloadTask.resume()
             }
@@ -475,7 +475,7 @@ extension ModelDownloader {
         /// Local model info is the latest model info.
         case .notModified:
           guard let localModel = self.getLocalModel(modelName: modelName) else {
-            /// This can only happen if either local model info or the model file was wiped out after model info request but before server response.
+            // This can only happen if either local model info or the model file was wiped out after model info request but before server response.
             self
               .mainQueueHandler(completion(.failure(.internalError(description: ModelDownloader
                   .ErrorDescription.deletedLocalModelInfoOrFile))))
@@ -483,7 +483,7 @@ extension ModelDownloader {
           }
           self.mainQueueHandler(completion(.success(localModel)))
         }
-      /// Error retrieving model info.
+      // Error retrieving model info.
       case let .failure(error):
         self.mainQueueHandler(completion(.failure(error)))
       }
@@ -521,7 +521,8 @@ public enum DownloadedModelError: Error {
 
 /// Extension to handle internally meaningful errors.
 extension DownloadError {
-  /// Model download URL expired before model download, raised internally. Model info retrieval and download is retried `numberOfRetries` times before failing externally.
+  /// Model download URL expired before model download.
+  /// Model info retrieval and download is retried `numberOfRetries` times before failing.
   static let expiredDownloadURL: DownloadError = {
     DownloadError.internalError(description: "Expired model download URL.")
   }()

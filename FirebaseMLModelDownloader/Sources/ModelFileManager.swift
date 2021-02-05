@@ -38,7 +38,7 @@ enum ModelFileManager {
   /// Model name from file path.
   static func getModelNameFromFilePath(_ path: URL) -> String? {
     let components = path.lastPathComponent.components(separatedBy: nameSeparator)
-    /// The file path should have prefix, app name, and model name.
+    // The file path should have prefix, app name, and model name.
     if components.count == 3 {
       return components.last
     }
@@ -60,7 +60,7 @@ enum ModelFileManager {
     do {
       return try fileURL.checkResourceIsReachable()
     } catch {
-      /// File unreachable.
+      // File unreachable.
       return false
     }
   }

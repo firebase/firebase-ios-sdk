@@ -51,7 +51,7 @@ class LocalModelInfo {
 
 /// Extension to write local model info to user defaults.
 extension LocalModelInfo: DownloaderUserDefaultsWriteable {
-  /// Get user defaults key prefix.
+  // Get user defaults key prefix.
   private static func getUserDefaultsKeyPrefix(appName: String, modelName: String) -> String {
     let bundleID = Bundle.main.bundleIdentifier ?? ""
     return "\(bundleID).\(appName).\(modelName)"

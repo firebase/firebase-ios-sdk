@@ -132,13 +132,13 @@ class ModelInfoRetriever {
     -> Void) {
     authTokenProvider { result in
       switch result {
-      /// Successfully received FIS token.
+      // Successfully received FIS token.
       case let .success(authToken):
         DeviceLogger.logEvent(level: .debug,
                               message: ModelInfoRetriever.DebugDescription
                                 .receivedAuthToken,
                               messageCode: .validAuthToken)
-        /// Get model info fetch URL with appropriate HTTP headers.
+        // Get model info fetch URL with appropriate HTTP headers.
         guard let request = self.getModelInfoFetchURLRequest(token: authToken) else {
           DeviceLogger.logEvent(level: .debug,
                                 message: ModelInfoRetriever.ErrorDescription
@@ -151,7 +151,7 @@ class ModelInfoRetriever {
               .invalidModelInfoFetchURL)))
           return
         }
-        /// Download model info.
+        // Download model info.
         self.session.getModelInfo(with: request) {
           data, response, error in
           if let downloadError = error {
@@ -205,7 +205,7 @@ class ModelInfoRetriever {
                 return
               }
               do {
-                /// Parse model info from HTTP response.
+                // Parse model info from HTTP response.
                 let modelInfo = try self.getRemoteModelInfoFromResponse(data, modelHash: modelHash)
                 DeviceLogger.logEvent(level: .debug,
                                       message: ModelInfoRetriever.DebugDescription
@@ -226,7 +226,7 @@ class ModelInfoRetriever {
                 )
               }
             case 304:
-              /// For this case to occur, local model info has to already be available on device.
+              // For this case to occur, local model info has to already be available on device.
               guard let localInfo = self.localModelInfo else {
                 DeviceLogger.logEvent(level: .debug,
                                       message: ModelInfoRetriever.ErrorDescription
@@ -251,7 +251,7 @@ class ModelInfoRetriever {
                     .missingModelHash)))
                 return
               }
-              /// Ensure that there is local model info on device with matching hash.
+              // Ensure that there is local model info on device with matching hash.
               guard modelHash == localInfo.modelHash else {
                 DeviceLogger.logEvent(level: .debug,
                                       message: ModelInfoRetriever.ErrorDescription
@@ -294,7 +294,7 @@ class ModelInfoRetriever {
                                                                  .statusCode))
               completion(.failure(.invalidArgument))
             case 401, 403:
-              /// Error could be due to FirebaseML API not enabled for project, or invalid permissions.
+              // Error could be due to FirebaseML API not enabled for project, or invalid permissions.
               if let data = data,
                 let responseJSON = try? JSONSerialization
                 .jsonObject(with: data, options: []) as? [String: Any],
@@ -376,7 +376,7 @@ class ModelInfoRetriever {
             }
           }
         }
-      /// Error retrieving auth token.
+      // Error retrieving auth token.
       case .failure:
         DeviceLogger.logEvent(level: .debug,
                               message: ModelInfoRetriever.ErrorDescription
@@ -417,7 +417,7 @@ extension ModelInfoRetriever {
     let bundleID = Bundle.main.bundleIdentifier ?? ""
     request.setValue(bundleID, forHTTPHeaderField: ModelInfoRetriever.bundleIDHTTPHeader)
     request.setValue(token, forHTTPHeaderField: ModelInfoRetriever.fisTokenHTTPHeader)
-    /// Get model hash if local model info is available on device.
+    // Get model hash if local model info is available on device.
     if let modelInfo = localModelInfo {
       request.setValue(
         modelInfo.modelHash,

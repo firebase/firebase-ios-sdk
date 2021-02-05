@@ -74,7 +74,7 @@ class ModelFileDownloader: NSObject, FileDownloader {
     self.completion = completion
     self.progressHandler = progressHandler
     let downloadTask = downloadSession.downloadTask(with: url)
-    /// Begin or resume model download.
+    // Begin or resume model download.
     downloadTask.resume()
     self.downloadTask = downloadTask
   }
@@ -82,11 +82,11 @@ class ModelFileDownloader: NSObject, FileDownloader {
 
 /// Extension to handle delegate methods.
 extension ModelFileDownloader: URLSessionDownloadDelegate {
-  /// Handle client-side errors.
+  // Handle client-side errors.
   func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
     guard let error = error else { return }
     session.finishTasksAndInvalidate()
-    /// Unable to resolve hostname or connect to host.
+    // Unable to resolve hostname or connect to host.
     completion?(.failure(FileDownloaderError.networkError(error)))
   }
 
