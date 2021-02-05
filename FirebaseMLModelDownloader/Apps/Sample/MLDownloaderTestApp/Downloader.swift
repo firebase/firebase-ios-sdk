@@ -62,7 +62,11 @@ class Downloader: ObservableObject {
         do {
           _ = try fileURL.checkResourceIsReachable()
           let attr = try FileManager.default.attributesOfItem(atPath: self.filePath)
-          print("Size: \(attr[FileAttributeKey.size] as! UInt64)")
+          if let size = attr[FileAttributeKey.size] {
+            print("File size: \(size)")
+          } else {
+            print("Error - could not get file size.")
+          }
         } catch {
           print("File access error - \(error)")
         }

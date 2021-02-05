@@ -243,7 +243,7 @@ extension ModelDownloadTask {
       return
     }
 
-    let modelFileURL = ModelFileManager.getDownloadedModelFilePath(
+    let modelFileURL = ModelFileManager.getDownloadedModelFileURL(
       appName: appName,
       modelName: remoteModelInfo.name
     )
