@@ -159,7 +159,7 @@ class ModelInfoRetriever {
                                   .invalidModelInfoFetchURL,
                                 messageCode: .invalidModelInfoFetchURL)
           self.telemetryLogger?.logModelInfoRetrievalEvent(eventName: .modelDownload,
-                                                           status: .failed,
+                                                           status: .modelInfoRetrievalFailed,
                                                            errorCode: .connectionFailed)
           completion(.failure(.internalError(description: ModelInfoRetriever.ErrorDescription
               .invalidModelInfoFetchURL)))
@@ -175,7 +175,7 @@ class ModelInfoRetriever {
                                   message: description,
                                   messageCode: .modelInfoRetrievalError)
             self.telemetryLogger?.logModelInfoRetrievalEvent(eventName: .modelDownload,
-                                                             status: .failed,
+                                                             status: .modelInfoRetrievalFailed,
                                                              errorCode: .connectionFailed)
             completion(.failure(.internalError(description: description)))
           } else {
@@ -185,7 +185,7 @@ class ModelInfoRetriever {
                                       .invalidHTTPResponse,
                                     messageCode: .invalidHTTPResponse)
               self.telemetryLogger?.logModelInfoRetrievalEvent(eventName: .modelDownload,
-                                                               status: .failed,
+                                                               status: .modelInfoRetrievalFailed,
                                                                errorCode: .connectionFailed)
               completion(.failure(.internalError(description: ModelInfoRetriever.ErrorDescription
                   .invalidHTTPResponse)))
@@ -203,7 +203,7 @@ class ModelInfoRetriever {
                                       message: ModelInfoRetriever.ErrorDescription.missingModelHash,
                                       messageCode: .missingModelHash)
                 self.telemetryLogger?.logModelInfoRetrievalEvent(eventName: .modelDownload,
-                                                                 status: .failed,
+                                                                 status: .modelInfoRetrievalFailed,
                                                                  errorCode: .noHash)
                 completion(.failure(.internalError(description: ModelInfoRetriever.ErrorDescription
                     .missingModelHash)))
@@ -225,12 +225,12 @@ class ModelInfoRetriever {
                                         .modelInfoDownloaded,
                                       messageCode: .modelInfoDownloaded)
                 self.telemetryLogger?.logModelInfoRetrievalEvent(eventName: .modelDownload,
-                                                                 status: .updateAvailable,
+                                                                 status: .modelInfoRetrievalSucceeded,
                                                                  errorCode: .noError)
                 completion(.success(.modelInfo(modelInfo)))
               } catch {
                 let description = ModelInfoRetriever.ErrorDescription
-                  .invalidmodelInfoJSON(error.localizedDescription)
+                  .invalidModelInfoJSON(error.localizedDescription)
                 DeviceLogger.logEvent(level: .debug,
                                       message: description,
                                       messageCode: .invalidModelInfoJSON)
@@ -259,7 +259,7 @@ class ModelInfoRetriever {
                                         .missingModelHash,
                                       messageCode: .noModelHash)
                 self.telemetryLogger?.logModelInfoRetrievalEvent(eventName: .modelDownload,
-                                                                 status: .failed,
+                                                                 status: .modelInfoRetrievalFailed,
                                                                  errorCode: .noHash)
                 completion(.failure(.internalError(description: ModelInfoRetriever.ErrorDescription
                     .missingModelHash)))
@@ -271,7 +271,7 @@ class ModelInfoRetriever {
                                         .modelHashMismatch,
                                       messageCode: .modelHashMismatchError)
                 self.telemetryLogger?.logModelInfoRetrievalEvent(eventName: .modelDownload,
-                                                                 status: .failed,
+                                                                 status: .modelInfoRetrievalFailed,
                                                                  errorCode: .hashMismatch)
                 completion(.failure(.internalError(description: ModelInfoRetriever.ErrorDescription
                     .modelHashMismatch)))
@@ -281,6 +281,9 @@ class ModelInfoRetriever {
                                     message: ModelInfoRetriever.DebugDescription
                                       .modelInfoUnmodified,
                                     messageCode: .modelInfoUnmodified)
+              self.telemetryLogger?.logModelInfoRetrievalEvent(eventName: .modelDownload,
+                                                               status: .modelInfoRetrievalSucceeded,
+                                                               errorCode: .noError)
               completion(.success(.notModified))
             case 400:
               if let data = data,
@@ -299,7 +302,7 @@ class ModelInfoRetriever {
                                       messageCode: .invalidArgument)
               }
               self.telemetryLogger?.logModelInfoRetrievalEvent(eventName: .modelDownload,
-                                                               status: .failed,
+                                                               status: .modelInfoRetrievalFailed,
                                                                errorCode: .httpError(code: httpResponse
                                                                  .statusCode))
               completion(.failure(.invalidArgument))
@@ -318,7 +321,7 @@ class ModelInfoRetriever {
                                       messageCode: .permissionDenied)
               }
               self.telemetryLogger?.logModelInfoRetrievalEvent(eventName: .modelDownload,
-                                                               status: .failed,
+                                                               status: .modelInfoRetrievalFailed,
                                                                errorCode: .httpError(code: httpResponse
                                                                  .statusCode))
               completion(.failure(.permissionDenied))
@@ -338,7 +341,7 @@ class ModelInfoRetriever {
                                       messageCode: .modelNotFound)
               }
               self.telemetryLogger?.logModelInfoRetrievalEvent(eventName: .modelDownload,
-                                                               status: .failed,
+                                                               status: .modelInfoRetrievalFailed,
                                                                errorCode: .httpError(code: httpResponse
                                                                  .statusCode))
               completion(.failure(.notFound))
@@ -358,7 +361,7 @@ class ModelInfoRetriever {
                                       messageCode: .resourceExhausted)
               }
               self.telemetryLogger?.logModelInfoRetrievalEvent(eventName: .modelDownload,
-                                                               status: .failed,
+                                                               status: .modelInfoRetrievalFailed,
                                                                errorCode: .httpError(code: httpResponse
                                                                  .statusCode))
               completion(.failure(.resourceExhausted))
@@ -378,7 +381,7 @@ class ModelInfoRetriever {
                                     message: description,
                                     messageCode: .modelInfoRetrievalError)
               self.telemetryLogger?.logModelInfoRetrievalEvent(eventName: .modelDownload,
-                                                               status: .failed,
+                                                               status: .modelInfoRetrievalFailed,
                                                                errorCode: .httpError(code: httpResponse
                                                                  .statusCode))
               completion(.failure(.internalError(description: description)))
@@ -502,7 +505,7 @@ extension ModelInfoRetriever {
     static let invalidModelInfoFetchURL = "Unable to create URL to fetch model info."
     static let invalidHTTPResponse =
       "Could not get a valid HTTP response for model info retrieval."
-    static let invalidmodelInfoJSON = { (error: String) in
+    static let invalidModelInfoJSON = { (error: String) in
       "Failed to parse model info: \(error)"
     }
 
