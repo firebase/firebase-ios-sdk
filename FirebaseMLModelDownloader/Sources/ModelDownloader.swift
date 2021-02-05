@@ -301,10 +301,28 @@ public class ModelDownloader {
       DeviceLogger.logEvent(level: .debug,
                             message: ModelDownloader.DebugDescription.modelDeleted,
                             messageCode: .modelDeleted)
+      telemetryLogger?.logModelDeletedEvent(
+        eventName: .remoteModelDeleteOnDevice,
+        isSuccessful: true
+      )
       mainQueueHandler(completion(.success(())))
     } catch let error as DownloadedModelError {
+      DeviceLogger.logEvent(level: .debug,
+                            message: ModelDownloader.ErrorDescription.modelDeletionFailed(error),
+                            messageCode: .modelDeletionFailed)
+      telemetryLogger?.logModelDeletedEvent(
+        eventName: .remoteModelDeleteOnDevice,
+        isSuccessful: false
+      )
       mainQueueHandler(completion(.failure(error)))
     } catch {
+      DeviceLogger.logEvent(level: .debug,
+                            message: ModelDownloader.ErrorDescription.modelDeletionFailed(error),
+                            messageCode: .modelDeletionFailed)
+      telemetryLogger?.logModelDeletedEvent(
+        eventName: .remoteModelDeleteOnDevice,
+        isSuccessful: false
+      )
       mainQueueHandler(completion(.failure(.internalError(description: error
           .localizedDescription))))
     }
@@ -596,6 +614,9 @@ extension ModelDownloader {
       "Model unavailable due to deleted local model info or model file."
     static let outdatedModelPath =
       "List models failed due to outdated model paths in local storage."
+    static let modelDeletionFailed = { (error: Error) in
+      "Model deletion failed with error: \(error)"
+    }
   }
 }
 
