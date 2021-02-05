@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_SRC_LOCAL_LOCAL_STORE_H_
 
 #include <memory>
+#include <string>
 #include <unordered_map>
 #include <vector>
 

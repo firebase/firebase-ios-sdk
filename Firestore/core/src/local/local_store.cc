@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/local/local_store.h"
 
+#include <string>
 #include <utility>
 
 #include "Firestore/core/src/local/bundle_cache.h"
