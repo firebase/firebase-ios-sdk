@@ -1,0 +1,1846 @@
+{
+  "Bundles query can be loaded and resumed from different tabs": {
+    "describeName": "Bundles:",
+    "itName": "Bundles query can be loaded and resumed from different tabs",
+    "tags": [
+      "multi-client",
+      "no-ios"
+    ],
+    "config": {
+      "numClients": 2,
+      "useGarbageCollection": false
+    },
+    "steps": [
+      {
+        "clientIndex": 0,
+        "drainQueue": true
+      },
+      {
+        "clientIndex": 0,
+        "loadBundle": "127{\"metadata\":{\"id\":\"test-bundle\",\"createTime\":\"1970-01-01T00:00:00.000500000Z\",\"version\":1,\"totalDocuments\":1,\"totalBytes\":675}}293{\"namedQuery\":{\"name\":\"bundled-query\",\"readTime\":\"1970-01-01T00:00:00.000400000Z\",\"bundledQuery\":{\"parent\":\"projects/test-project/databases/(default)/documents\",\"structuredQuery\":{\"from\":[{\"collectionId\":\"collection\"}],\"orderBy\":[{\"field\":{\"fieldPath\":\"__name__\"},\"direction\":\"ASCENDING\"}]}}}}154{\"documentMetadata\":{\"name\":\"projects/test-project/databases/(default)/documents/collection/a\",\"readTime\":\"1970-01-01T00:00:00.000500000Z\",\"exists\":true}}219{\"document\":{\"name\":\"projects/test-project/databases/(default)/documents/collection/a\",\"createTime\":\"1970-01-01T00:00:00.000250000Z\",\"updateTime\":\"1970-01-01T00:00:00.000500000Z\",\"fields\":{\"value\":{\"stringValue\":\"b\"}}}}"
+      },
+      {
+        "clientIndex": 1,
+        "drainQueue": true
+      },
+      {
+        "clientIndex": 1,
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 4
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "value": "b"
+                },
+                "version": 500
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+            "4": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "readTime": 400,
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "clientIndex": 1,
+        "loadBundle": "127{\"metadata\":{\"id\":\"test-bundle\",\"createTime\":\"1970-01-01T00:00:00.000600000Z\",\"version\":1,\"totalDocuments\":1,\"totalBytes\":772}}390{\"namedQuery\":{\"name\":\"bundled-query\",\"readTime\":\"1970-01-01T00:00:00.000560000Z\",\"bundledQuery\":{\"parent\":\"projects/test-project/databases/(default)/documents\",\"structuredQuery\":{\"from\":[{\"collectionId\":\"collection\"}],\"where\":{\"fieldFilter\":{\"field\":{\"fieldPath\":\"value\"},\"op\":\"EQUAL\",\"value\":{\"stringValue\":\"c\"}}},\"orderBy\":[{\"field\":{\"fieldPath\":\"__name__\"},\"direction\":\"ASCENDING\"}]}}}}154{\"documentMetadata\":{\"name\":\"projects/test-project/databases/(default)/documents/collection/a\",\"readTime\":\"1970-01-01T00:00:00.000600000Z\",\"exists\":true}}219{\"document\":{\"name\":\"projects/test-project/databases/(default)/documents/collection/a\",\"createTime\":\"1970-01-01T00:00:00.000250000Z\",\"updateTime\":\"1970-01-01T00:00:00.000550000Z\",\"fields\":{\"value\":{\"stringValue\":\"c\"}}}}",
+        "expectedSnapshotEvents": [
+          {
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "modified": [
+              {
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "value": "c"
+                },
+                "version": 550
+              }
+            ],
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "clientIndex": 0,
+        "drainQueue": true,
+        "expectedState": {
+          "activeTargets": {
+            "4": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "readTime": 400,
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "clientIndex": 0,
+        "userListen": {
+          "query": {
+            "filters": [
+              [
+                "value",
+                "==",
+                "c"
+              ]
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 6
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "value": "c"
+                },
+                "version": 550
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+                [
+                  "value",
+                  "==",
+                  "c"
+                ]
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+            "4": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "readTime": 400,
+              "resumeToken": ""
+            },
+            "6": {
+              "queries": [
+                {
+                  "filters": [
+                    [
+                      "value",
+                      "==",
+                      "c"
+                    ]
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "readTime": 560,
+              "resumeToken": ""
+            }
+          }
+        }
+      }
+    ]
+  },
+  "Bundles query can be resumed from same query.": {
+    "describeName": "Bundles:",
+    "itName": "Bundles query can be resumed from same query.",
+    "tags": [
+      "no-ios"
+    ],
+    "config": {
+      "numClients": 1,
+      "useGarbageCollection": true
+    },
+    "steps": [
+      {
+        "loadBundle": "127{\"metadata\":{\"id\":\"test-bundle\",\"createTime\":\"1970-01-01T00:00:00.000500000Z\",\"version\":1,\"totalDocuments\":1,\"totalBytes\":675}}293{\"namedQuery\":{\"name\":\"bundled-query\",\"readTime\":\"1970-01-01T00:00:00.000400000Z\",\"bundledQuery\":{\"parent\":\"projects/test-project/databases/(default)/documents\",\"structuredQuery\":{\"from\":[{\"collectionId\":\"collection\"}],\"orderBy\":[{\"field\":{\"fieldPath\":\"__name__\"},\"direction\":\"ASCENDING\"}]}}}}154{\"documentMetadata\":{\"name\":\"projects/test-project/databases/(default)/documents/collection/a\",\"readTime\":\"1970-01-01T00:00:00.000500000Z\",\"exists\":true}}219{\"document\":{\"name\":\"projects/test-project/databases/(default)/documents/collection/a\",\"createTime\":\"1970-01-01T00:00:00.000250000Z\",\"updateTime\":\"1970-01-01T00:00:00.000500000Z\",\"fields\":{\"value\":{\"stringValue\":\"b\"}}}}"
+      },
+      {
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 4
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "value": "b"
+                },
+                "version": 500
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+            "4": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "readTime": 400,
+              "resumeToken": ""
+            }
+          }
+        }
+      }
+    ]
+  },
+  "Load and observe from same secondary client": {
+    "describeName": "Bundles:",
+    "itName": "Load and observe from same secondary client",
+    "tags": [
+      "multi-client",
+      "no-ios"
+    ],
+    "config": {
+      "numClients": 2,
+      "useGarbageCollection": false
+    },
+    "steps": [
+      {
+        "clientIndex": 0,
+        "drainQueue": true
+      },
+      {
+        "clientIndex": 0,
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "clientIndex": 0,
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "clientIndex": 0,
+        "watchEntity": {
+          "docs": [
+            {
+              "key": "collection/a",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "value": "a"
+              },
+              "version": 250
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "clientIndex": 0,
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-250"
+        ]
+      },
+      {
+        "clientIndex": 0,
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 250
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "value": "a"
+                },
+                "version": 250
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "clientIndex": 1,
+        "drainQueue": true
+      },
+      {
+        "clientIndex": 1,
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "value": "a"
+                },
+                "version": 250
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "clientIndex": 1,
+        "loadBundle": "127{\"metadata\":{\"id\":\"test-bundle\",\"createTime\":\"1970-01-01T00:00:00.000500000Z\",\"version\":1,\"totalDocuments\":1,\"totalBytes\":379}}154{\"documentMetadata\":{\"name\":\"projects/test-project/databases/(default)/documents/collection/a\",\"readTime\":\"1970-01-01T00:00:00.000500000Z\",\"exists\":true}}219{\"document\":{\"name\":\"projects/test-project/databases/(default)/documents/collection/a\",\"createTime\":\"1970-01-01T00:00:00.000250000Z\",\"updateTime\":\"1970-01-01T00:00:00.000500000Z\",\"fields\":{\"value\":{\"stringValue\":\"b\"}}}}",
+        "expectedSnapshotEvents": [
+          {
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "modified": [
+              {
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "value": "b"
+                },
+                "version": 500
+              }
+            ],
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "Load from primary client and observe from secondary": {
+    "describeName": "Bundles:",
+    "itName": "Load from primary client and observe from secondary",
+    "tags": [
+      "multi-client",
+      "no-ios"
+    ],
+    "config": {
+      "numClients": 2,
+      "useGarbageCollection": false
+    },
+    "steps": [
+      {
+        "clientIndex": 0,
+        "drainQueue": true
+      },
+      {
+        "clientIndex": 0,
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "clientIndex": 0,
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "clientIndex": 0,
+        "watchEntity": {
+          "docs": [
+            {
+              "key": "collection/a",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "value": "a"
+              },
+              "version": 250
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "clientIndex": 0,
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-250"
+        ]
+      },
+      {
+        "clientIndex": 0,
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 250
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "value": "a"
+                },
+                "version": 250
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "clientIndex": 1,
+        "drainQueue": true
+      },
+      {
+        "clientIndex": 1,
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "value": "a"
+                },
+                "version": 250
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "clientIndex": 0,
+        "drainQueue": true
+      },
+      {
+        "clientIndex": 0,
+        "loadBundle": "127{\"metadata\":{\"id\":\"test-bundle\",\"createTime\":\"1970-01-01T00:00:00.000500000Z\",\"version\":1,\"totalDocuments\":1,\"totalBytes\":379}}154{\"documentMetadata\":{\"name\":\"projects/test-project/databases/(default)/documents/collection/a\",\"readTime\":\"1970-01-01T00:00:00.000500000Z\",\"exists\":true}}219{\"document\":{\"name\":\"projects/test-project/databases/(default)/documents/collection/a\",\"createTime\":\"1970-01-01T00:00:00.000250000Z\",\"updateTime\":\"1970-01-01T00:00:00.000500000Z\",\"fields\":{\"value\":{\"stringValue\":\"b\"}}}}",
+        "expectedSnapshotEvents": [
+          {
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "modified": [
+              {
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "value": "b"
+                },
+                "version": 500
+              }
+            ],
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "clientIndex": 1,
+        "drainQueue": true,
+        "expectedSnapshotEvents": [
+          {
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "modified": [
+              {
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "value": "b"
+                },
+                "version": 500
+              }
+            ],
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "Load from secondary clients and observe from primary": {
+    "describeName": "Bundles:",
+    "itName": "Load from secondary clients and observe from primary",
+    "tags": [
+      "multi-client",
+      "no-ios"
+    ],
+    "config": {
+      "numClients": 2,
+      "useGarbageCollection": false
+    },
+    "steps": [
+      {
+        "clientIndex": 0,
+        "drainQueue": true
+      },
+      {
+        "clientIndex": 0,
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "clientIndex": 0,
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "clientIndex": 0,
+        "watchEntity": {
+          "docs": [
+            {
+              "key": "collection/a",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "value": "a"
+              },
+              "version": 250
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "clientIndex": 0,
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-250"
+        ]
+      },
+      {
+        "clientIndex": 0,
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 250
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "value": "a"
+                },
+                "version": 250
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "clientIndex": 1,
+        "drainQueue": true
+      },
+      {
+        "clientIndex": 1,
+        "loadBundle": "127{\"metadata\":{\"id\":\"test-bundle\",\"createTime\":\"1970-01-01T00:00:00.000500000Z\",\"version\":1,\"totalDocuments\":1,\"totalBytes\":379}}154{\"documentMetadata\":{\"name\":\"projects/test-project/databases/(default)/documents/collection/a\",\"readTime\":\"1970-01-01T00:00:00.000500000Z\",\"exists\":true}}219{\"document\":{\"name\":\"projects/test-project/databases/(default)/documents/collection/a\",\"createTime\":\"1970-01-01T00:00:00.000250000Z\",\"updateTime\":\"1970-01-01T00:00:00.000500000Z\",\"fields\":{\"value\":{\"stringValue\":\"b\"}}}}"
+      },
+      {
+        "clientIndex": 0,
+        "drainQueue": true,
+        "expectedSnapshotEvents": [
+          {
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "modified": [
+              {
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "value": "b"
+                },
+                "version": 500
+              }
+            ],
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "Newer deleted docs from bundles should delete cached docs": {
+    "describeName": "Bundles:",
+    "itName": "Newer deleted docs from bundles should delete cached docs",
+    "tags": [
+      "no-ios"
+    ],
+    "config": {
+      "numClients": 1,
+      "useGarbageCollection": true
+    },
+    "steps": [
+      {
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            {
+              "key": "collection/a",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "value": "a"
+              },
+              "version": 1000
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 1000
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "value": "a"
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "loadBundle": "127{\"metadata\":{\"id\":\"test-bundle\",\"createTime\":\"1970-01-01T00:00:00.003000000Z\",\"version\":1,\"totalDocuments\":1,\"totalBytes\":158}}155{\"documentMetadata\":{\"name\":\"projects/test-project/databases/(default)/documents/collection/a\",\"readTime\":\"1970-01-01T00:00:00.003000000Z\",\"exists\":false}}",
+        "expectedSnapshotEvents": [
+          {
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            },
+            "removed": [
+              {
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "value": "a"
+                },
+                "version": 1000
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "Newer docs from bundles might lead to limbo doc": {
+    "describeName": "Bundles:",
+    "itName": "Newer docs from bundles might lead to limbo doc",
+    "tags": [
+      "no-ios"
+    ],
+    "config": {
+      "numClients": 1,
+      "useGarbageCollection": false
+    },
+    "steps": [
+      {
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-250"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 250
+        },
+        "expectedSnapshotEvents": [
+          {
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "loadBundle": "127{\"metadata\":{\"id\":\"test-bundle\",\"createTime\":\"1970-01-01T00:00:00.000500000Z\",\"version\":1,\"totalDocuments\":1,\"totalBytes\":379}}154{\"documentMetadata\":{\"name\":\"projects/test-project/databases/(default)/documents/collection/a\",\"readTime\":\"1970-01-01T00:00:00.000500000Z\",\"exists\":true}}219{\"document\":{\"name\":\"projects/test-project/databases/(default)/documents/collection/a\",\"createTime\":\"1970-01-01T00:00:00.000250000Z\",\"updateTime\":\"1970-01-01T00:00:00.000500000Z\",\"fields\":{\"value\":{\"stringValue\":\"b\"}}}}",
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "value": "b"
+                },
+                "version": 500
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeLimboDocs": [
+            "collection/a"
+          ],
+          "activeTargets": {
+            "1": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection/a"
+                }
+              ],
+              "resumeToken": ""
+            },
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          1
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+          ],
+          "targets": [
+            1
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            1
+          ],
+          "resume-token-1002"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 1002
+        },
+        "expectedSnapshotEvents": [
+          {
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            },
+            "removed": [
+              {
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "value": "b"
+                },
+                "version": 500
+              }
+            ]
+          }
+        ],
+        "expectedState": {
+          "activeLimboDocs": [
+          ],
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      }
+    ]
+  },
+  "Newer docs from bundles should keep not raise snapshot if there are unacknowledged writes": {
+    "describeName": "Bundles:",
+    "itName": "Newer docs from bundles should keep not raise snapshot if there are unacknowledged writes",
+    "tags": [
+      "no-ios"
+    ],
+    "config": {
+      "numClients": 1,
+      "useGarbageCollection": false
+    },
+    "steps": [
+      {
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            {
+              "key": "collection/a",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "value": "a"
+              },
+              "version": 250
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-250"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 250
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "value": "a"
+                },
+                "version": 250
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "userPatch": [
+          "collection/a",
+          {
+            "value": "patched"
+          }
+        ],
+        "expectedSnapshotEvents": [
+          {
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": true,
+            "modified": [
+              {
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": true
+                },
+                "value": {
+                  "value": "patched"
+                },
+                "version": 250
+              }
+            ],
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "loadBundle": "127{\"metadata\":{\"id\":\"test-bundle\",\"createTime\":\"1970-01-01T00:00:00.001001000Z\",\"version\":1,\"totalDocuments\":1,\"totalBytes\":388}}154{\"documentMetadata\":{\"name\":\"projects/test-project/databases/(default)/documents/collection/a\",\"readTime\":\"1970-01-01T00:00:00.001001000Z\",\"exists\":true}}228{\"document\":{\"name\":\"projects/test-project/databases/(default)/documents/collection/a\",\"createTime\":\"1970-01-01T00:00:00.000250000Z\",\"updateTime\":\"1970-01-01T00:00:00.001001000Z\",\"fields\":{\"value\":{\"stringValue\":\"fromBundle\"}}}}"
+      }
+    ]
+  },
+  "Newer docs from bundles should overwrite cache": {
+    "describeName": "Bundles:",
+    "itName": "Newer docs from bundles should overwrite cache",
+    "tags": [
+      "no-ios"
+    ],
+    "config": {
+      "numClients": 1,
+      "useGarbageCollection": true
+    },
+    "steps": [
+      {
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            {
+              "key": "collection/a",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "value": "a"
+              },
+              "version": 1000
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 1000
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "value": "a"
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "loadBundle": "127{\"metadata\":{\"id\":\"test-bundle\",\"createTime\":\"1970-01-01T00:00:00.003000000Z\",\"version\":1,\"totalDocuments\":1,\"totalBytes\":379}}154{\"documentMetadata\":{\"name\":\"projects/test-project/databases/(default)/documents/collection/a\",\"readTime\":\"1970-01-01T00:00:00.003000000Z\",\"exists\":true}}219{\"document\":{\"name\":\"projects/test-project/databases/(default)/documents/collection/a\",\"createTime\":\"1970-01-01T00:00:00.001999000Z\",\"updateTime\":\"1970-01-01T00:00:00.002999000Z\",\"fields\":{\"value\":{\"stringValue\":\"b\"}}}}",
+        "expectedSnapshotEvents": [
+          {
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "modified": [
+              {
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "value": "b"
+                },
+                "version": 2999
+              }
+            ],
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "Newer docs from bundles should raise snapshot only when Watch catches up with acknowledged writes": {
+    "describeName": "Bundles:",
+    "itName": "Newer docs from bundles should raise snapshot only when Watch catches up with acknowledged writes",
+    "tags": [
+      "no-ios"
+    ],
+    "config": {
+      "numClients": 1,
+      "useGarbageCollection": false
+    },
+    "steps": [
+      {
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            {
+              "key": "collection/a",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "value": "a"
+              },
+              "version": 250
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-250"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 250
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "value": "a"
+                },
+                "version": 250
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "userPatch": [
+          "collection/a",
+          {
+            "value": "patched"
+          }
+        ],
+        "expectedSnapshotEvents": [
+          {
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": true,
+            "modified": [
+              {
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": true
+                },
+                "value": {
+                  "value": "patched"
+                },
+                "version": 250
+              }
+            ],
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "writeAck": {
+          "version": 1000
+        },
+        "expectedState": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/a"
+            ],
+            "rejectedDocs": [
+            ]
+          }
+        }
+      },
+      {
+        "loadBundle": "127{\"metadata\":{\"id\":\"test-bundle\",\"createTime\":\"1970-01-01T00:00:00.000500000Z\",\"version\":1,\"totalDocuments\":1,\"totalBytes\":379}}154{\"documentMetadata\":{\"name\":\"projects/test-project/databases/(default)/documents/collection/a\",\"readTime\":\"1970-01-01T00:00:00.000500000Z\",\"exists\":true}}219{\"document\":{\"name\":\"projects/test-project/databases/(default)/documents/collection/a\",\"createTime\":\"1970-01-01T00:00:00.000250000Z\",\"updateTime\":\"1970-01-01T00:00:00.000500000Z\",\"fields\":{\"value\":{\"stringValue\":\"b\"}}}}"
+      },
+      {
+        "loadBundle": "127{\"metadata\":{\"id\":\"test-bundle\",\"createTime\":\"1970-01-01T00:00:00.001001000Z\",\"version\":1,\"totalDocuments\":1,\"totalBytes\":388}}154{\"documentMetadata\":{\"name\":\"projects/test-project/databases/(default)/documents/collection/a\",\"readTime\":\"1970-01-01T00:00:00.001001000Z\",\"exists\":true}}228{\"document\":{\"name\":\"projects/test-project/databases/(default)/documents/collection/a\",\"createTime\":\"1970-01-01T00:00:00.000250000Z\",\"updateTime\":\"1970-01-01T00:00:00.001001000Z\",\"fields\":{\"value\":{\"stringValue\":\"fromBundle\"}}}}",
+        "expectedSnapshotEvents": [
+          {
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "modified": [
+              {
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "value": "fromBundle"
+                },
+                "version": 1001
+              }
+            ],
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "Older deleted docs from bundles should do nothing": {
+    "describeName": "Bundles:",
+    "itName": "Older deleted docs from bundles should do nothing",
+    "tags": [
+      "no-ios"
+    ],
+    "config": {
+      "numClients": 1,
+      "useGarbageCollection": true
+    },
+    "steps": [
+      {
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            {
+              "key": "collection/a",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "value": "a"
+              },
+              "version": 1000
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 1000
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "value": "a"
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "loadBundle": "127{\"metadata\":{\"id\":\"test-bundle\",\"createTime\":\"1970-01-01T00:00:00.000999000Z\",\"version\":1,\"totalDocuments\":1,\"totalBytes\":158}}155{\"documentMetadata\":{\"name\":\"projects/test-project/databases/(default)/documents/collection/a\",\"readTime\":\"1970-01-01T00:00:00.000999000Z\",\"exists\":false}}"
+      }
+    ]
+  }
+}
