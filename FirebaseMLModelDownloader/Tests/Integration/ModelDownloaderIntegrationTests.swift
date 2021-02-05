@@ -37,25 +37,47 @@ extension UserDefaults {
 
 // TODO: Use FirebaseApp internal init for testApp
 final class ModelDownloaderIntegrationTests: XCTestCase {
-  override class func setUp() {
+
+  /// The generated test app name for this XCTest.
+  private var testAppName: String {
+    // Use XCTest's name and filter out the unnecessary values.
+    let filteredName = self.name.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+    guard let name = filteredName.split(separator: " ").last else {
+      XCTFail("Unable to create Firebase app name from XCTest name: \(self.name)")
+      fatalError()
+    }
+
+    return String(name)
+  }
+
+  override func setUp() {
     super.setUp()
-    let bundle = Bundle(for: self)
+
+    let bundle = Bundle(for: type(of: self))
     if let plistPath = bundle.path(forResource: "GoogleService-Info", ofType: "plist"),
       let options = FirebaseOptions(contentsOfFile: plistPath) {
-      FirebaseApp.configure(options: options)
+      FirebaseApp.configure(name: testAppName, options: options)
+      print("Configuring FirebaseApp with name: \(testAppName)")
     } else {
       XCTFail("Could not locate GoogleService-Info.plist.")
     }
     FirebaseConfiguration.shared.setLoggerLevel(.debug)
+
+    try? ModelFileManager.emptyModelsDirectory()
   }
 
-  override func setUp() {
-    try? ModelFileManager.emptyModelsDirectory()
+  override func tearDown() {
+    let expectation = XCTestExpectation(description: "FirebaseApp should be deleted.")
+    FirebaseApp.app(name: testAppName)?.delete({ _ in
+      expectation.fulfill()
+    })
+
+    wait(for: [expectation], timeout: 2)
   }
 
   /// Test to download model info - makes an actual network call.
   func testDownloadModelInfo() {
-    guard let testApp = FirebaseApp.app() else {
+    guard let testApp = FirebaseApp.app(name: testAppName) else {
       XCTFail("Default app was not configured.")
       return
     }
@@ -110,7 +132,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
   }
 
   func testRetrieveModelInfo(localInfo: LocalModelInfo) {
-    guard let testApp = FirebaseApp.app() else {
+    guard let testApp = FirebaseApp.app(name: testAppName) else {
       XCTFail("Default app was not configured.")
       return
     }
@@ -146,7 +168,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
 
   /// Test to download model file - makes an actual network call.
   func testModelDownload() throws {
-    guard let testApp = FirebaseApp.app() else {
+    guard let testApp = FirebaseApp.app(name: testAppName) else {
       XCTFail("Default app was not configured.")
       return
     }
@@ -201,7 +223,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
   }
 
   func testGetModel() {
-    guard let testApp = FirebaseApp.app() else {
+    guard let testApp = FirebaseApp.app(name: testAppName) else {
       XCTFail("Default app was not configured.")
       return
     }
@@ -307,7 +329,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
 
   /// Delete previously downloaded model.
   func testDeleteModel() {
-    guard let testApp = FirebaseApp.app() else {
+    guard let testApp = FirebaseApp.app(name: testAppName) else {
       XCTFail("Default app was not configured.")
       return
     }
@@ -360,7 +382,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
 
   /// Test listing models in model directory.
   func testListModels() {
-    guard let testApp = FirebaseApp.app() else {
+    guard let testApp = FirebaseApp.app(name: testAppName) else {
       XCTFail("Default app was not configured.")
       return
     }
@@ -413,7 +435,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
 
   /// Test logging telemetry event.
   func testLogTelemetryEvent() {
-    guard let testApp = FirebaseApp.app() else {
+    guard let testApp = FirebaseApp.app(name: testAppName) else {
       XCTFail("Default app was not configured.")
       return
     }
@@ -458,7 +480,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
   }
 
   func testGetModelWithConditions() {
-    guard let testApp = FirebaseApp.app() else {
+    guard let testApp = FirebaseApp.app(name: testAppName) else {
       XCTFail("Default app was not configured.")
       return
     }
