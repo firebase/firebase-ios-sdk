@@ -18,8 +18,10 @@ import Foundation
 class LocalModelInfo {
   /// Model name.
   let name: String
+
   /// Hash of the model, as returned by server.
   let modelHash: String
+
   /// Size of the model, as returned by server.
   let size: Int
 

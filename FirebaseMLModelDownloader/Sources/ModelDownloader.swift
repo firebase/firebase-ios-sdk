@@ -30,23 +30,32 @@ public enum ModelDownloadType {
 public class ModelDownloader {
   /// Name of the app associated with this instance of ModelDownloader.
   private let appName: String
+
   /// Current Firebase app options.
   private let options: FirebaseOptions
+
   /// Installations instance for current Firebase app.
   private let installations: Installations
+
   /// User defaults for model info.
   private let userDefaults: UserDefaults
+
   /// Telemetry logger tied to this instance of model downloader.
   let telemetryLogger: TelemetryLogger?
+
   /// Number of retries in case of model download URL expiry.
   var numberOfRetries: Int = 1
+
   /// Shared dictionary mapping app name to a specific instance of model downloader.
   // TODO: Switch to using Firebase components.
   private static var modelDownloaderDictionary: [String: ModelDownloader] = [:]
+
   /// Download task associated with the model currently being downloaded.
   private var currentDownloadTask: [String: ModelDownloadTask] = [:]
+
   /// DispatchQueue to manage download task dictionary.
   let taskSerialQueue = DispatchQueue(label: "downloadtask.serial.queue")
+
   /// Handler that always runs on the main thread
   let mainQueueHandler = { handler in
     DispatchQueue.main.async {

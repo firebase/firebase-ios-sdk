@@ -18,19 +18,26 @@ import Foundation
 class ModelDownloadTask {
   /// Name of the app associated with this instance of ModelDownloadTask.
   private let appName: String
+
   /// Model info downloaded from server.
   private(set) var remoteModelInfo: RemoteModelInfo
+
   /// User defaults to which local model info should ultimately be written.
   private let defaults: UserDefaults
+
   /// Keeps track of download associated with this model download task.
   private(set) var downloadStatus: ModelDownloadStatus = .ready
+
   /// Downloader instance.
   private let downloader: FileDownloader
+
   /// Telemetry logger.
   private let telemetryLogger: TelemetryLogger?
+
   /// Download progress handler.
   typealias ProgressHandler = (Float) -> Void
   private var progressHandler: ProgressHandler?
+
   /// Download completion handler.
   typealias Completion = (Result<CustomModel, DownloadError>) -> Void
   private var completion: Completion

@@ -18,12 +18,16 @@ import Foundation
 struct RemoteModelInfo {
   /// Model name.
   let name: String
+
   /// Download URL for the model file, as returned by server.
   let downloadURL: URL
+
   /// Hash of the model, as returned by server.
   let modelHash: String
+
   /// Size of the model, as returned by server.
   let size: Int
+
   /// Model download URL expiry time, as returned by server.
   let urlExpiryTime: Date
 

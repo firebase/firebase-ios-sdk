@@ -40,10 +40,13 @@ protocol FileDownloader {
 class ModelFileDownloader: NSObject, FileDownloader {
   /// Model conditions for download.
   private let conditions: ModelDownloadConditions
+
   /// URL session configuration.
   private let configuration: URLSessionConfiguration
+
   /// Task to handle model file download.
   private var downloadTask: URLSessionDownloadTask?
+
   /// URLSession to handle model downloads.
   private lazy var downloadSession: URLSession = URLSession(
     configuration: configuration,
@@ -52,6 +55,7 @@ class ModelFileDownloader: NSObject, FileDownloader {
   )
   /// Successful download completion handler.
   private var completion: FileDownloader.CompletionHandler?
+
   /// Download progress handler.
   private var progressHandler: FileDownloader.ProgressHandler?
 

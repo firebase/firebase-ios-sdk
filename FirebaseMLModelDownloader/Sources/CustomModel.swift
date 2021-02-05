@@ -18,10 +18,13 @@ import Foundation
 public struct CustomModel: Hashable {
   /// Name of the model.
   public let name: String
+
   /// Size of the custom model, provided by the server.
   public let size: Int
+
   /// Path where the model is stored on device.
   public let path: String
+
   /// Hash for the model, used for model verification.
   public let hash: String
 

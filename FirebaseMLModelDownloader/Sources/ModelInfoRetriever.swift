@@ -57,20 +57,27 @@ private struct ModelInfoResponse: Codable {
 class ModelInfoRetriever {
   /// Model name.
   private let modelName: String
+
   /// Current Firebase app project ID.
   private let projectID: String
+
   /// Current Firebase app API key.
   private let apiKey: String
+
   /// Current Firebase app name.
   private let appName: String
+
   /// Auth token provider.
   typealias AuthTokenProvider = (_ completion: @escaping (Result<String, DownloadError>) -> Void)
     -> Void
   private let authTokenProvider: AuthTokenProvider
+
   /// URL session for model info request.
   private let session: ModelInfoRetrieverSession
+
   /// Local model info to validate model freshness.
   private let localModelInfo: LocalModelInfo?
+
   /// Telemetry logger.
   private let telemetryLogger: TelemetryLogger?
 
@@ -394,8 +401,11 @@ class ModelInfoRetriever {
 extension ModelInfoRetriever {
   /// HTTP request headers.
   private static let fisTokenHTTPHeader = "x-goog-firebase-installations-auth"
+
   private static let hashMatchHTTPHeader = "if-none-match"
+
   private static let bundleIDHTTPHeader = "x-ios-bundle-identifier"
+
   /// HTTP response headers.
   private static let etagHTTPHeader = "Etag"
 

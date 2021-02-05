@@ -96,8 +96,10 @@ class FBMLDataObject: NSObject, GDTCOREventDataObject {
 class TelemetryLogger {
   /// Mapping ID for the log source.
   private let mappingID = "1326"
+
   /// Current Firebase app.
   private let app: FirebaseApp
+
   /// Transport for Firelog events.
   private let fllTransport: GDTCORTransport
 
