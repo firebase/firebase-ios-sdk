@@ -423,7 +423,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       app: testApp
     )
 
-    let latestModelExpectation = expectation(description: "Test telemetry.")
+    let latestModelExpectation = expectation(description: "Test get model telemetry.")
 
     modelDownloader.getModel(
       name: testModelName,
@@ -443,19 +443,31 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
           model: model,
           downloadErrorCode: .noError
         )
-        let modelURL = URL(fileURLWithPath: model.path)
-        // Remove downloaded model file.
-        do {
-          try ModelFileManager.removeFile(at: modelURL)
-        } catch {
-          XCTFail("Model removal failed - \(error)")
-        }
       case let .failure(error):
         XCTFail("Failed to download model - \(error)")
       }
       latestModelExpectation.fulfill()
     }
     wait(for: [latestModelExpectation], timeout: 5)
+
+    let deleteModelExpectation = expectation(description: "Test delete model telemetry.")
+    modelDownloader.deleteDownloadedModel(name: testModelName) { result in
+      deleteModelExpectation.fulfill()
+      switch result {
+      case .success(()):
+        guard let telemetryLogger = TelemetryLogger(app: testApp) else {
+          XCTFail("Could not initialize logger.")
+          return
+        }
+        // TODO: Remove actual logging and stub out with mocks.
+        telemetryLogger.logModelDeletedEvent(eventName: .remoteModelDeleteOnDevice,
+                                             isSuccessful: true)
+      case let .failure(error):
+        XCTFail("Failed to delete model - \(error)")
+      }
+    }
+
+    wait(for: [deleteModelExpectation], timeout: 5)
   }
 
   func testGetModelWithConditions() {
