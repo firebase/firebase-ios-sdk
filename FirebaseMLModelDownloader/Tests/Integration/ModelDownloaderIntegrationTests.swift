@@ -449,8 +449,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     let testName = String(#function.dropLast(2))
 
     // TODO: Figure out a better way to test this.
-    var conditions = ModelDownloadConditions()
-    conditions.allowsCellularAccess = false
+    let conditions = ModelDownloadConditions(allowsCellularAccess: false)
 
     let modelDownloader = ModelDownloader.modelDownloaderWithDefaults(
       .createTestInstance(testName: testName),
