@@ -65,6 +65,7 @@
  */
 - (NSArray *)queryViews;
 - (id<FNode>)completeServerCacheAtPath:(FPath *)path;
+- (id<FNode>)completeEventCacheAtPath:(FPath *)path;
 - (FView *)viewForQuery:(FQuerySpec *)query;
 - (BOOL)viewExistsForQuery:(FQuerySpec *)query;
 - (BOOL)hasCompleteView;

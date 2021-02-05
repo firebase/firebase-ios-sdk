@@ -149,6 +149,21 @@
     return nil;
 }
 
+- (id<FNode>)completeEventCacheFor:(FPath *)path {
+    id<FNode> cache = self.viewCache.completeEventSnap;
+    if (cache) {
+        // If this isn't a "loadsAllData" view, then cache isn't actually a
+        // complete cache and we need to see if it contains the child we're
+        // interested in.
+        if ([self.query loadsAllData] ||
+            (!path.isEmpty &&
+             ![cache getImmediateChild:path.getFront].isEmpty)) {
+            return [cache getChild:path];
+        }
+    }
+    return nil;
+}
+
 - (BOOL)isEmpty {
     return self.eventRegistrations.count == 0;
 }

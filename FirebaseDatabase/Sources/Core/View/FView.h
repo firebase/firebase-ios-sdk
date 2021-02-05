@@ -43,6 +43,7 @@
 - (id<FNode>)serverCache;
 - (id<FNode>)completeEventCache;
 - (id<FNode>)completeServerCacheFor:(FPath *)path;
+- (id<FNode>)completeEventCacheFor:(FPath *)path;
 - (BOOL)isEmpty;
 
 - (void)addEventRegistration:(id<FEventRegistration>)eventRegistration;

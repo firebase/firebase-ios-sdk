@@ -285,6 +285,16 @@
     return serverCache;
 }
 
+- (id<FNode>)completeEventCacheAtPath:(FPath *)path {
+    __block id<FNode> eventCache = nil;
+    [self.views enumerateKeysAndObjectsUsingBlock:^(FQueryParams *key,
+                                                    FView *view, BOOL *stop) {
+      eventCache = [view completeEventCacheFor:path];
+      *stop = (eventCache != nil);
+    }];
+    return eventCache;
+}
+
 - (FView *)viewForQuery:(FQuerySpec *)query {
     return [self.views objectForKey:query.params];
 }
