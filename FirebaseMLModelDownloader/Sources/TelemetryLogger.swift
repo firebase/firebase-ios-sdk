@@ -60,7 +60,7 @@ extension ModelDownloadLogEvent {
   }
 }
 
-/// Extension to build Firebase ML log event.
+/// Extension to build log event.
 extension FirebaseMlLogEvent {
   mutating func setEvent(eventName: EventName, systemInfo: SystemInfo,
                          modelDownloadLogEvent: ModelDownloadLogEvent) {
@@ -81,7 +81,6 @@ class FBMLDataObject: NSObject, GDTCOREventDataObject {
   /// Encode Firelog event for transport.
   func transportBytes() -> Data {
     do {
-      // TODO: Should this be binary or json serialized?
       let data = try event.serializedData()
       return data
     } catch {
