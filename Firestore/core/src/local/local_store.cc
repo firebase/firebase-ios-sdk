@@ -312,8 +312,7 @@ model::MaybeDocumentMap LocalStore::ApplyRemoteEvent(
     }
 
     OptionalMaybeDocumentMap changed_docs = PopulateDocumentChanges(
-        remote_event.document_updates(),
-        DocumentVersionMap(),
+        remote_event.document_updates(), DocumentVersionMap(),
         remote_event.snapshot_version());
 
     // HACK: The only reason we allow omitting snapshot version is so we can
@@ -526,33 +525,32 @@ MaybeDocumentMap LocalStore::ApplyBundledDocuments(
   // Allocates a target to hold all document keys from the bundle, such that
   // they will not get garbage collected right away.
   TargetData umbrella_target = AllocateTarget(NewUmbrellaTarget(bundle_id));
-  return persistence_->Run(
-      "Apply bundle documents",[&] {
-        DocumentKeySet keys;
-        DocumentUpdateMap document_updates;
-        DocumentVersionMap versions;
+  return persistence_->Run("Apply bundle documents", [&] {
+    DocumentKeySet keys;
+    DocumentUpdateMap document_updates;
+    DocumentVersionMap versions;
 
-        for(const auto& kv: bundled_documents) {
-          const DocumentKey& key = kv.first;
-          const auto& doc= kv.second;
-          if(doc.type() == MaybeDocument::Type::Document) {
-            keys = keys.insert(key);
-          }
-          document_updates.emplace(key, doc);
-          versions.emplace(key, doc.version());
-        }
-
-        target_cache_->RemoveMatchingKeysForTarget(umbrella_target.target_id());
-        target_cache_->AddMatchingKeys(keys, umbrella_target.target_id());
-
-        auto changed_docs = PopulateDocumentChanges(document_updates, versions, SnapshotVersion::None());
-        return local_documents_->GetLocalViewOfDocuments(changed_docs);
+    for (const auto& kv : bundled_documents) {
+      const DocumentKey& key = kv.first;
+      const auto& doc = kv.second;
+      if (doc.type() == MaybeDocument::Type::Document) {
+        keys = keys.insert(key);
       }
-      );
+      document_updates.emplace(key, doc);
+      versions.emplace(key, doc.version());
+    }
+
+    target_cache_->RemoveMatchingKeysForTarget(umbrella_target.target_id());
+    target_cache_->AddMatchingKeys(keys, umbrella_target.target_id());
+
+    auto changed_docs = PopulateDocumentChanges(document_updates, versions,
+                                                SnapshotVersion::None());
+    return local_documents_->GetLocalViewOfDocuments(changed_docs);
+  });
 }
 
 void LocalStore::SaveNamedQuery(const bundle::NamedQuery& query,
-                                model::DocumentKeySet keys) {
+                                const model::DocumentKeySet& keys) {
   // Allocate a target for the named query such that it can be resumed from
   // associated read time if users use it to listen. NOTE: this also means if no
   // corresponding target exists, the new target will remain active and will not
@@ -615,8 +613,9 @@ OptionalMaybeDocumentMap LocalStore::PopulateDocumentChanges(
       existing_doc = *found_existing;
     }
     auto search_version = document_versions.find(key);
-    const SnapshotVersion& read_time = search_version != document_versions.end() ?
-                                               search_version->second:global_version;
+    const SnapshotVersion& read_time = search_version != document_versions.end()
+                                           ? search_version->second
+                                           : global_version;
 
     // Note: The order of the steps below is important, since we want to
     // ensure that rejected limbo resolutions (which fabricate NoDocuments

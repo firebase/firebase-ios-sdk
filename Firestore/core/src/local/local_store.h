@@ -258,12 +258,11 @@ class LocalStore {
    * queue.
    */
   model::MaybeDocumentMap ApplyBundledDocuments(
-      const model::MaybeDocumentMap& documents,
-      const std::string& bundle_id);
+      const model::MaybeDocumentMap& documents, const std::string& bundle_id);
 
   /** Saves the given `NamedQuery` to local persistence. */
   void SaveNamedQuery(const bundle::NamedQuery& query,
-                      model::DocumentKeySet keys);
+                      const model::DocumentKeySet& keys);
 
   /**
    * Returns the NameQuery associated with queryName or `nullopt` if not found.
@@ -306,17 +305,18 @@ class LocalStore {
   static core::Target NewUmbrellaTarget(const std::string& bundle_id);
 
   /**
-   * Populates the remote document cache with documents from backend or a bundle. Returns the
-   * document changes resulting from applying those documents.
+   * Populates the remote document cache with documents from backend or a
+   * bundle. Returns the document changes resulting from applying those
+   * documents.
    *
-   * Note: this function will use `document_versions` if it is defined. When it is not defined, it
-   * resorts to `global_version`.
+   * Note: this function will use `document_versions` if it is defined. When it
+   * is not defined, it resorts to `global_version`.
    *
    * @param documents Documents to be applied.
-   * @param document_versions A DocumentKey-to-SnapshotVersion map if documents have their own read
-   *     time, otherwise `nullopt`.
-   * @param global_version A SnapshotVersion representing the read time if all documents have the
-   *     same read time.
+   * @param document_versions A DocumentKey-to-SnapshotVersion map if documents
+   * have their own read time, otherwise `nullopt`.
+   * @param global_version A SnapshotVersion representing the read time if all
+   * documents have the same read time.
    */
   model::OptionalMaybeDocumentMap PopulateDocumentChanges(
       const model::DocumentUpdateMap& documents,
