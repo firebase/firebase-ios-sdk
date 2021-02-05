@@ -75,18 +75,6 @@ using nlohmann::json;
 using util::ReadContext;
 using util::StatusOr;
 
-// Helper class to meet remote serializer's interface.
-class ContextReader : public Reader {
- public:
-  using Reader::Reader;
-
-  void Read(const pb_field_t fields[], void* dest_struct) override {
-    (void)fields;
-    (void)dest_struct;
-    UNREACHABLE();
-  }
-};
-
 template <typename int_type>
 int_type ToInt(ReadContext& context, const json& value) {
   if (value.is_number_integer()) {
@@ -797,19 +785,7 @@ FieldValue BundleSerializer::DecodeReferenceValue(ReadContext& context,
     return FieldValue();
   }
 
-  // Calling into remote serializer with a separate context, to meet it's
-  // interface.
-  ReadContext separate_context;
-  ContextReader context_reader(separate_context);
-  auto result = rpc_serializer_.DecodeReference(&context_reader, ref_string);
-
-  // Copy status to our own context.
-  if (!context_reader.ok()) {
-    context.set_status(context_reader.status());
-    return FieldValue();
-  }
-
-  return result;
+  return rpc_serializer_.DecodeReference(&context, ref_string);
 }
 
 BundledDocumentMetadata BundleSerializer::DecodeDocumentMetadata(
