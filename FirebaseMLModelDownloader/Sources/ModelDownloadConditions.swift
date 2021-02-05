@@ -14,11 +14,12 @@
 
 import Foundation
 
-/// Conditions that need to be met to start a model file download.
+/// Model download conditions.
 public struct ModelDownloadConditions {
-  /// Allow model downloading on a cellular connection. Default is `true`.
   let allowsCellularAccess: Bool
 
+  /// Conditions that need to be met to start a model file download.
+  /// - Parameter allowsCellularAccess: Allow model downloading on a cellular connection. Default is `true`.
   public init(allowsCellularAccess: Bool = true) {
     self.allowsCellularAccess = allowsCellularAccess
   }

@@ -16,7 +16,7 @@ import Foundation
 
 /// Manager for common file operations.
 enum ModelFileManager {
-  // Separator in model file name components.
+  /// Separator in model file name components.
   private static let nameSeparator = "@@"
 
   private static let modelNamePrefix = "fbml_model"
