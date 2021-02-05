@@ -27,23 +27,18 @@ class LocalModelInfo {
   /// Size of the model, as returned by server.
   let size: Int
 
-  /// Local path of the model.
-  let path: String
-
-  init(name: String, modelHash: String, size: Int, path: String) {
+  init(name: String, modelHash: String, size: Int) {
     self.name = name
     self.modelHash = modelHash
     self.size = size
-    self.path = path
   }
 
   /// Convenience init to create local model info from remotely downloaded model info and a local model path.
-  convenience init(from remoteModelInfo: RemoteModelInfo, path: String) {
+  convenience init(from remoteModelInfo: RemoteModelInfo) {
     self.init(
       name: remoteModelInfo.name,
       modelHash: remoteModelInfo.modelHash,
-      size: remoteModelInfo.size,
-      path: path
+      size: remoteModelInfo.size
     )
   }
 
@@ -51,11 +46,10 @@ class LocalModelInfo {
   convenience init?(fromDefaults defaults: UserDefaults, name: String, appName: String) {
     let defaultsPrefix = LocalModelInfo.getUserDefaultsKeyPrefix(appName: appName, modelName: name)
     guard let modelHash = defaults.value(forKey: "\(defaultsPrefix).model-hash") as? String,
-      let size = defaults.value(forKey: "\(defaultsPrefix).model-size") as? Int,
-      let path = defaults.value(forKey: "\(defaultsPrefix).model-path") as? String else {
+      let size = defaults.value(forKey: "\(defaultsPrefix).model-size") as? Int else {
       return nil
     }
-    self.init(name: name, modelHash: modelHash, size: size, path: path)
+    self.init(name: name, modelHash: modelHash, size: size)
   }
 }
 
@@ -72,7 +66,12 @@ extension LocalModelInfo: DownloaderUserDefaultsWriteable {
     let defaultsPrefix = LocalModelInfo.getUserDefaultsKeyPrefix(appName: appName, modelName: name)
     defaults.setValue(modelHash, forKey: "\(defaultsPrefix).model-hash")
     defaults.setValue(size, forKey: "\(defaultsPrefix).model-size")
-    defaults.setValue(path, forKey: "\(defaultsPrefix).model-path")
+  }
+
+  func removeFromDefaults(_ defaults: UserDefaults, appName: String) {
+    let defaultsPrefix = LocalModelInfo.getUserDefaultsKeyPrefix(appName: appName, modelName: name)
+    defaults.removeObject(forKey: "\(defaultsPrefix).model-hash")
+    defaults.removeObject(forKey: "\(defaultsPrefix).model-size")
   }
 }
 

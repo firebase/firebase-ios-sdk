@@ -139,7 +139,7 @@ extension ModelDownloadTask {
         case let FileDownloaderError.networkError(error):
           let description = ModelDownloadTask.ErrorDescription
             .invalidHostName(error.localizedDescription)
-          downloadError = .internalError(description: description)
+          downloadError = .failedPrecondition
           DeviceLogger.logEvent(level: .debug,
                                 message: description,
                                 messageCode: .hostnameError)
@@ -187,8 +187,8 @@ extension ModelDownloadTask {
         guard currentDateTime > remoteModelInfo.urlExpiryTime else {
           DeviceLogger.logEvent(level: .debug,
                                 message: ModelDownloadTask.ErrorDescription
-                                  .invalidModelName(remoteModelInfo.name),
-                                messageCode: .invalidModelName)
+                                  .invalidArgument(remoteModelInfo.name),
+                                messageCode: .invalidArgument)
           telemetryLogger?.logModelDownloadEvent(
             eventName: .modelDownload,
             status: .failed,
@@ -257,15 +257,16 @@ extension ModelDownloadTask {
       DeviceLogger.logEvent(level: .debug,
                             message: ModelDownloadTask.DebugDescription.savedModelFile,
                             messageCode: .downloadedModelFileSaved)
+
       /// Generate local model info.
-      let localModelInfo = LocalModelInfo(from: remoteModelInfo, path: modelFileURL.absoluteString)
+      let localModelInfo = LocalModelInfo(from: remoteModelInfo)
       /// Write model to user defaults.
       localModelInfo.writeToDefaults(defaults, appName: appName)
       DeviceLogger.logEvent(level: .debug,
                             message: ModelDownloadTask.DebugDescription.savedLocalModelInfo,
                             messageCode: .downloadedModelInfoSaved)
       /// Build model from model info.
-      let model = CustomModel(localModelInfo: localModelInfo)
+      let model = CustomModel(localModelInfo: localModelInfo, path: modelFileURL.path)
       DeviceLogger.logEvent(level: .debug,
                             message: ModelDownloadTask.DebugDescription.modelDownloaded,
                             messageCode: .modelDownloaded)
@@ -328,8 +329,8 @@ extension ModelDownloadTask {
       "No model found with name: \(name)"
     }
 
-    static let invalidModelName = { (name: String) in
-      "Invalid model name: \(name)"
+    static let invalidArgument = { (name: String) in
+      "Invalid argument for model name: \(name)"
     }
 
     static let sessionInvalidated = "Session invalidated due to failed pre-conditions."

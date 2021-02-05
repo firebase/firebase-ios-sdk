@@ -17,7 +17,7 @@ import Foundation
 /// Manager for common file operations.
 // TODO: Consider mocking this for tests?
 enum ModelFileManager {
-  private static let nameSeparator = "__"
+  private static let nameSeparator = "@@"
   private static let modelNamePrefix = "fbml_model"
   private static let fileManager = FileManager.default
 
@@ -32,13 +32,18 @@ enum ModelFileManager {
   }
 
   /// Name for model file stored on device.
-  private static func getDownloadedModelFileName(appName: String, modelName: String) -> String {
+  static func getDownloadedModelFileName(appName: String, modelName: String) -> String {
     return [modelNamePrefix, appName, modelName].joined(separator: nameSeparator)
   }
 
   /// Model name from file path.
   static func getModelNameFromFilePath(_ path: URL) -> String? {
-    return path.lastPathComponent.components(separatedBy: nameSeparator).last
+    let components = path.lastPathComponent.components(separatedBy: nameSeparator)
+    /// The file path should have prefix, app name, and model name.
+    if components.count == 3 {
+      return components.last
+    }
+    return nil
   }
 
   /// Full path of model file stored on device.
@@ -118,6 +123,28 @@ enum ModelFileManager {
   }
 }
 
+/// NOTE: Use for testing only.
+extension ModelFileManager {
+  static func emptyModelsDirectory() throws {
+    do {
+      let directoryContents = try ModelFileManager.fileManager.contentsOfDirectory(
+        at: modelsDirectory,
+        includingPropertiesForKeys: nil,
+        options: .skipsHiddenFiles
+      )
+      for path in directoryContents {
+        try ModelFileManager.removeFile(at: path)
+      }
+    } catch {
+      throw DownloadedModelError
+        .internalError(
+          description: ModelFileManager.ErrorDescription
+            .emptyDirectory(error.localizedDescription)
+        )
+    }
+  }
+}
+
 /// Possible error messages during file management.
 extension ModelFileManager {
   /// Error descriptions.
@@ -144,6 +171,10 @@ extension ModelFileManager {
       } else {
         return "Failed to check storage capacity on device."
       }
+    }
+
+    static let emptyDirectory = { (error: String) in
+      "Could not empty models directory: \(error)"
     }
   }
 }

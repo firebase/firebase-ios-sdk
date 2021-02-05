@@ -2,6 +2,7 @@ platform :ios, '10.0'
 use_frameworks!
 
 pod 'FirebaseMLModelDownloader', :path => '../../../'
+pod 'TensorFlowLiteSwift'
 
 target 'MLDownloaderTestApp' do
     target 'MLDownloaderTestAppTests' do

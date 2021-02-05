@@ -40,7 +40,7 @@ enum LoggerMessageCode: Int {
   case invalidOptions
   case retryDownload
   case anotherDownloadInProgressError
-  case invalidModelName
+  case invalidArgument
   case permissionDenied
   case notEnoughSpace
   case validHTTPResponse
@@ -66,6 +66,7 @@ enum LoggerMessageCode: Int {
   case telemetryInitError
   case backgroundDownloadError
   case testError
+  case resourceExhausted
 }
 
 /// On-device logger.

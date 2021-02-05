@@ -26,6 +26,8 @@ public enum DownloadError: Error, Equatable {
   case failedPrecondition
   /// Not enough space for model on device.
   case notEnoughSpace
+  /// Requests quota exhausted.
+  case resourceExhausted
   /// Malformed model name.
   case invalidArgument
   /// Other errors with description.
@@ -238,7 +240,7 @@ public class ModelDownloader {
       var customModels = Set<CustomModel>()
       for path in modelPaths {
         guard let modelName = ModelFileManager.getModelNameFromFilePath(path) else {
-          let description = ModelDownloader.ErrorDescription.parseModelName(path.absoluteString)
+          let description = ModelDownloader.ErrorDescription.parseModelName(path.path)
           DeviceLogger.logEvent(level: .debug,
                                 message: description,
                                 messageCode: .modelNameParseError)
@@ -253,8 +255,11 @@ public class ModelDownloader {
           mainQueueHandler(completion(.failure(.internalError(description: description))))
           return
         }
-        guard let pathURL = URL(string: modelInfo.path)?.standardizedFileURL,
-          pathURL == path.standardizedFileURL else {
+        let modelPath = ModelFileManager.getDownloadedModelFilePath(
+          appName: appName,
+          modelName: modelName
+        )
+        guard ModelFileManager.isFileReachable(at: modelPath) else {
           DeviceLogger.logEvent(level: .debug,
                                 message: ModelDownloader.ErrorDescription.outdatedModelPath,
                                 messageCode: .outdatedModelPathError)
@@ -262,7 +267,7 @@ public class ModelDownloader {
               .ErrorDescription.outdatedModelPath))))
           return
         }
-        let model = CustomModel(localModelInfo: modelInfo)
+        let model = CustomModel(localModelInfo: modelInfo, path: modelPath.path)
         customModels.insert(model)
       }
       DeviceLogger.logEvent(level: .debug,
@@ -287,8 +292,12 @@ public class ModelDownloader {
   public func deleteDownloadedModel(name modelName: String,
                                     completion: @escaping (Result<Void, DownloadedModelError>)
                                       -> Void) {
+    let localPath = ModelFileManager.getDownloadedModelFilePath(
+      appName: appName,
+      modelName: modelName
+    )
     guard let localModelInfo = getLocalModelInfo(modelName: modelName),
-      let localPath = URL(string: localModelInfo.path)
+      ModelFileManager.isFileReachable(at: localPath)
     else {
       DeviceLogger.logEvent(level: .debug,
                             message: ModelDownloader.ErrorDescription.modelNotFound(modelName),
@@ -298,6 +307,8 @@ public class ModelDownloader {
     }
     do {
       try ModelFileManager.removeFile(at: localPath)
+      /// Clear out corresponding local model info.
+      localModelInfo.removeFromDefaults(userDefaults, appName: appName)
       DeviceLogger.logEvent(level: .debug,
                             message: ModelDownloader.DebugDescription.modelDeleted,
                             messageCode: .modelDeleted)
@@ -325,10 +336,12 @@ extension ModelDownloader {
                             messageCode: .noLocalModelInfo)
       return nil
     }
-    /// There is local model info on device, but no model file at the expected path.
-    guard let localPath = URL(string: localModelInfo.path),
-      ModelFileManager.isFileReachable(at: localPath) else {
-      // TODO: Consider deleting local model info in user defaults.
+    let modelPath = ModelFileManager.getDownloadedModelFilePath(
+      appName: appName,
+      modelName: modelName
+    )
+    /// Ensure that the model file actually exists.
+    guard ModelFileManager.isFileReachable(at: modelPath) else {
       return nil
     }
     return localModelInfo
@@ -337,7 +350,12 @@ extension ModelDownloader {
   /// Get model saved on device if available.
   private func getLocalModel(modelName: String) -> CustomModel? {
     guard let localModelInfo = getLocalModelInfo(modelName: modelName) else { return nil }
-    let model = CustomModel(localModelInfo: localModelInfo)
+    let modelPath = ModelFileManager.getDownloadedModelFilePath(
+      appName: appName,
+      modelName: modelName
+    )
+    guard ModelFileManager.isFileReachable(at: modelPath) else { return nil }
+    let model = CustomModel(localModelInfo: localModelInfo, path: modelPath.path)
     return model
   }
 
@@ -495,13 +513,8 @@ extension ModelDownloader {
   // TODO: Consider using protocols
   static func modelDownloaderWithDefaults(_ defaults: UserDefaults,
                                           app: FirebaseApp) -> ModelDownloader {
-    if let downloader = modelDownloaderDictionary[app.name] {
-      return downloader
-    } else {
-      let downloader = ModelDownloader(app: app, defaults: defaults)
-      modelDownloaderDictionary[app.name] = downloader
-      return downloader
-    }
+    let downloader = ModelDownloader(app: app, defaults: defaults)
+    return downloader
   }
 }
 

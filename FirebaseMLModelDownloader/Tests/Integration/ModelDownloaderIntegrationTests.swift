@@ -49,6 +49,10 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     FirebaseConfiguration.shared.setLoggerLevel(.debug)
   }
 
+  override func setUp() {
+    try? ModelFileManager.emptyModelsDirectory()
+  }
+
   /// Test to download model info - makes an actual network call.
   func testDownloadModelInfo() {
     guard let testApp = FirebaseApp.app() else {
@@ -76,7 +80,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
           XCTAssertGreaterThan(modelInfo.downloadURL.absoluteString.count, 0)
           XCTAssertGreaterThan(modelInfo.modelHash.count, 0)
           XCTAssertGreaterThan(modelInfo.size, 0)
-          let localModelInfo = LocalModelInfo(from: modelInfo, path: "mock-valid-path")
+          let localModelInfo = LocalModelInfo(from: modelInfo)
           localModelInfo.writeToDefaults(
             .createTestInstance(testName: #function),
             appName: testApp.name
@@ -170,10 +174,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     let taskCompletion: ModelDownloadTask.Completion = { result in
       switch result {
       case let .success(model):
-        guard let modelPath = URL(string: model.path) else {
-          XCTFail("Invalid or empty model path.")
-          return
-        }
+        let modelPath = URL(fileURLWithPath: model.path)
         XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
         /// Remove downloaded model file.
         do {
@@ -230,10 +231,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       switch result {
       case let .success(model):
         XCTAssertNotNil(model.path)
-        guard let modelPath = URL(string: model.path) else {
-          XCTFail("Invalid model path.")
-          return
-        }
+        let modelPath = URL(fileURLWithPath: model.path)
         XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
       case let .failure(error):
         XCTFail("Failed to download model - \(error)")
@@ -258,10 +256,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       switch result {
       case let .success(model):
         XCTAssertNotNil(model.path)
-        guard let modelPath = URL(string: model.path) else {
-          XCTFail("Invalid model path.")
-          return
-        }
+        let modelPath = URL(fileURLWithPath: model.path)
         XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
       case let .failure(error):
         XCTFail("Failed to download model - \(error)")
@@ -286,10 +281,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       switch result {
       case let .success(model):
         XCTAssertNotNil(model.path)
-        guard let modelPath = URL(string: model.path) else {
-          XCTFail("Invalid model path.")
-          return
-        }
+        let modelPath = URL(fileURLWithPath: model.path)
         XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
         /// Remove downloaded model file.
         do {
@@ -336,10 +328,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       switch result {
       case let .success(model):
         XCTAssertNotNil(model.path)
-        guard let filePath = URL(string: model.path) else {
-          XCTFail("Invalid model path.")
-          return
-        }
+        let filePath = URL(fileURLWithPath: model.path)
         XCTAssertTrue(ModelFileManager.isFileReachable(at: filePath))
       case let .failure(error):
         XCTFail("Failed to download model - \(error)")
@@ -388,10 +377,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       switch result {
       case let .success(model):
         XCTAssertNotNil(model.path)
-        guard let filePath = URL(string: model.path) else {
-          XCTFail("Invalid model path.")
-          return
-        }
+        let filePath = URL(fileURLWithPath: model.path)
         XCTAssertTrue(ModelFileManager.isFileReachable(at: filePath))
       case let .failure(error):
         XCTFail("Failed to download model - \(error)")
@@ -419,7 +405,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     }
 
     let testModelName = "image-classification"
-    let testName = #function
+    let testName = String(#function.dropLast(2))
 
     let conditions = ModelDownloadConditions()
     let modelDownloader = ModelDownloader.modelDownloaderWithDefaults(
@@ -447,7 +433,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
           model: model,
           downloadErrorCode: .noError
         )
-        let modelPath = URL(string: model.path)!
+        let modelPath = URL(fileURLWithPath: model.path)
         try? ModelFileManager.removeFile(at: modelPath)
       case let .failure(error):
         XCTFail("Failed to download model - \(error)")
@@ -464,7 +450,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     }
 
     let testModelName = "pose-detection"
-    let testName = #function
+    let testName = String(#function.dropLast(2))
 
     // TODO: Figure out a better way to test this.
     var conditions = ModelDownloadConditions()
@@ -489,10 +475,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       switch result {
       case let .success(model):
         XCTAssertNotNil(model.path)
-        guard let filePath = URL(string: model.path) else {
-          XCTFail("Invalid model path.")
-          return
-        }
+        let filePath = URL(fileURLWithPath: model.path)
         XCTAssertTrue(ModelFileManager.isFileReachable(at: filePath))
       case let .failure(error):
         XCTFail("Failed to download model - \(error)")
