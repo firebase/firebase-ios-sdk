@@ -1,4 +1,5 @@
 [
+  "__comment__": "Updated files under the following paths will trigger code coverage workflows. Updates in a pull request will generate a code coverage report in a pr.",
   {
     "sdk": "database",
     "filePatterns": [
