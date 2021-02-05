@@ -45,10 +45,10 @@ class LocalModelInfo {
   /// Convenience init to create local model info from stored info in user defaults.
   convenience init?(fromDefaults defaults: UserDefaults, name: String, appName: String) {
     let defaultsPrefix = LocalModelInfo.getUserDefaultsKeyPrefix(appName: appName, modelName: name)
-    guard let modelHash = defaults.value(forKey: "\(defaultsPrefix).model-hash") as? String,
-      let size = defaults.value(forKey: "\(defaultsPrefix).model-size") as? Int else {
+    guard let modelHash = defaults.string(forKey: "\(defaultsPrefix).model-hash") else {
       return nil
     }
+    let size = defaults.integer(forKey: "\(defaultsPrefix).model-size")
     self.init(name: name, modelHash: modelHash, size: size)
   }
 }
