@@ -16,48 +16,13 @@ import Foundation
 import FirebaseCore
 import FirebaseInstallations
 
-/// Possible errors with model downloading.
-public enum DownloadError: Error, Equatable {
-  /// No model with this name found on server.
-  case notFound
-  /// Caller does not have necessary permissions for this operation.
-  case permissionDenied
-  /// Conditions not met to perform download.
-  case failedPrecondition
-  /// Not enough space for model on device.
-  case notEnoughSpace
-  /// Requests quota exhausted.
-  case resourceExhausted
-  /// Malformed model name.
-  case invalidArgument
-  /// Other errors with description.
-  case internalError(description: String)
-}
-
-/// Possible errors with locating model on device.
-public enum DownloadedModelError: Error {
-  /// File system error.
-  case fileIOError(description: String)
-  /// Model not found on device.
-  case notFound
-  /// Other errors with description.
-  case internalError(description: String)
-}
-
-/// Extension to handle internally meaningful errors.
-extension DownloadError {
-  static let expiredDownloadURL: DownloadError = {
-    DownloadError.internalError(description: "Expired model download URL.")
-  }()
-}
-
 /// Possible ways to get a custom model.
 public enum ModelDownloadType {
-  /// Get local model stored on device.
+  /// Get local model stored on device if available. If no local model on device, this is the same as `latestModel`.
   case localModel
-  /// Get local model on device and update to latest model from server in the background.
+  /// Get local model on device if available and update to latest model from server in the background. If no local model on device, this is the same as `latestModel`.
   case localModelUpdateInBackground
-  /// Get latest model from server.
+  /// Get latest model from server. Does not make a network call for model file download if local model matches the latest version on server.
   case latestModel
 }
 
@@ -75,6 +40,13 @@ public class ModelDownloader {
   let telemetryLogger: TelemetryLogger?
   /// Number of retries in case of model download URL expiry.
   var numberOfRetries: Int = 1
+  /// Shared dictionary mapping app name to a specific instance of model downloader.
+  // TODO: Switch to using Firebase components.
+  private static var modelDownloaderDictionary: [String: ModelDownloader] = [:]
+  /// Download task associated with the model currently being downloaded.
+  private var currentDownloadTask: [String: ModelDownloadTask] = [:]
+  /// DispatchQueue to manage download task dictionary.
+  let taskSerialQueue = DispatchQueue(label: "downloadtask.serial.queue")
   /// Handler that always runs on the main thread
   let mainQueueHandler = { handler in
     DispatchQueue.main.async {
@@ -82,24 +54,15 @@ public class ModelDownloader {
     }
   }
 
-  /// Download task associated with the model currently being downloaded.
-  private var currentDownloadTask: [String: ModelDownloadTask] = [:]
-  /// DispatchQueue to manage download task dictionary.
-  let taskSerialQueue = DispatchQueue(label: "downloadtask.serial.queue")
-
-  /// Shared dictionary mapping app name to a specific instance of model downloader.
-  // TODO: Switch to using Firebase components.
-  private static var modelDownloaderDictionary: [String: ModelDownloader] = [:]
-
-  /// Private init for downloader.
+  /// Private init for model downloader.
   private init(app: FirebaseApp, defaults: UserDefaults = .firebaseMLDefaults) {
     appName = app.name
     options = app.options
     installations = Installations.installations(app: app)
+    userDefaults = defaults
     /// Respect Firebase-wide data collection setting.
     telemetryLogger = TelemetryLogger(app: app)
-    userDefaults = defaults
-
+    /// Notification of app deletion.
     let notificationName = "FIRAppDeleteNotification"
     NotificationCenter.default.addObserver(
       self,
@@ -115,7 +78,6 @@ public class ModelDownloader {
     if let userInfo = notification.userInfo,
       let appName = userInfo[userInfoKey] as? String {
       ModelDownloader.modelDownloaderDictionary.removeValue(forKey: appName)
-      // TODO: Do we need to force deinit downloader instance?
       // TODO: Clean up user defaults
       // TODO: Clean up local instances of app
       DeviceLogger.logEvent(level: .debug,
@@ -149,7 +111,13 @@ public class ModelDownloader {
     }
   }
 
-  /// Downloads a custom model to device or gets a custom model already on device, w/ optional handler for progress.
+  /// Downloads a custom model to device or gets a custom model already on device, with an optional handler for progress.
+  /// - Parameters:
+  ///   - modelName: The name of the model, matching Firebase console.
+  ///   - downloadType: ModelDownloadType used to get the model.
+  ///   - conditions: Conditions needed to perform a model download.
+  ///   - progressHandler: Optional. Returns a float in [0.0, 1.0] that can be used to monitor model download progress.
+  ///   - completion: Returns either a `CustomModel` on success, or a `DownloadError` on failure, at the end of a model download.
   public func getModel(name modelName: String,
                        downloadType: ModelDownloadType,
                        conditions: ModelDownloadConditions,
@@ -170,6 +138,7 @@ public class ModelDownloader {
           completion: completion
         )
       }
+
     case .localModelUpdateInBackground:
       if let localModel = getLocalModel(modelName: modelName) {
         DeviceLogger.logEvent(level: .debug,
@@ -181,6 +150,7 @@ public class ModelDownloader {
           status: .scheduled,
           downloadErrorCode: .noError
         )
+        /// Update local model in the background.
         DispatchQueue.global(qos: .utility).async { [weak self] in
           self?.getRemoteModel(
             modelName: modelName,
@@ -232,12 +202,14 @@ public class ModelDownloader {
     }
   }
 
-  /// Gets all downloaded models.
+  /// Gets the set of all downloaded models saved on device.
+  /// - Parameter completion: Returns either a set of `CustomModel` models on success, or a `DownloadedModelError` on failure.
   public func listDownloadedModels(completion: @escaping (Result<Set<CustomModel>,
     DownloadedModelError>) -> Void) {
     do {
       let modelURLs = try ModelFileManager.contentsOfModelsDirectory()
       var customModels = Set<CustomModel>()
+      /// Retrieve model name from url.
       for url in modelURLs {
         guard let modelName = ModelFileManager.getModelNameFromFilePath(url) else {
           let description = ModelDownloader.ErrorDescription.parseModelName(url.path)
@@ -247,6 +219,7 @@ public class ModelDownloader {
           mainQueueHandler(completion(.failure(.internalError(description: description))))
           return
         }
+        /// Check if model information corresponding to model is stored in UserDefaults.
         guard let modelInfo = getLocalModelInfo(modelName: modelName) else {
           let description = ModelDownloader.ErrorDescription.noLocalModelInfo(modelName)
           DeviceLogger.logEvent(level: .debug,
@@ -259,7 +232,8 @@ public class ModelDownloader {
           appName: appName,
           modelName: modelName
         )
-        guard ModelFileManager.isFileReachable(at: modelURL) else {
+        /// Ensure that local model path is as expected, and reachable.
+        guard url == modelURL, ModelFileManager.isFileReachable(at: modelURL) else {
           DeviceLogger.logEvent(level: .debug,
                                 message: ModelDownloader.ErrorDescription.outdatedModelPath,
                                 messageCode: .outdatedModelPathError)
@@ -268,6 +242,7 @@ public class ModelDownloader {
           return
         }
         let model = CustomModel(localModelInfo: modelInfo, path: modelURL.path)
+        /// Add model to result set.
         customModels.insert(model)
       }
       DeviceLogger.logEvent(level: .debug,
@@ -288,16 +263,20 @@ public class ModelDownloader {
     }
   }
 
-  /// Deletes a custom model from device.
+  /// Deletes a custom model file from device as well as corresponding model information saved in UserDefaults.
+  /// - Parameters:
+  ///   - modelName: The name of the model, matching Firebase console and already downloaded to device.
+  ///   - completion: Returns a `DownloadedModelError` on failure.
   public func deleteDownloadedModel(name modelName: String,
                                     completion: @escaping (Result<Void, DownloadedModelError>)
                                       -> Void) {
-    let localPath = ModelFileManager.getDownloadedModelFileURL(
+    let modelURL = ModelFileManager.getDownloadedModelFileURL(
       appName: appName,
       modelName: modelName
     )
+    /// Ensure that there is a matching model file on device, with corresponding model information in UserDefaults.
     guard let localModelInfo = getLocalModelInfo(modelName: modelName),
-      ModelFileManager.isFileReachable(at: localPath)
+      ModelFileManager.isFileReachable(at: modelURL)
     else {
       DeviceLogger.logEvent(level: .debug,
                             message: ModelDownloader.ErrorDescription.modelNotFound(modelName),
@@ -306,7 +285,8 @@ public class ModelDownloader {
       return
     }
     do {
-      try ModelFileManager.removeFile(at: localPath)
+      /// Remove model file from device.
+      try ModelFileManager.removeFile(at: modelURL)
       /// Clear out corresponding local model info.
       localModelInfo.removeFromDefaults(userDefaults, appName: appName)
       DeviceLogger.logEvent(level: .debug,
@@ -323,7 +303,7 @@ public class ModelDownloader {
 }
 
 extension ModelDownloader {
-  /// Return local model info only if the model info is available and the corresponding model file is already on device.
+  /// Get model information for model saved on device, if available.
   private func getLocalModelInfo(modelName: String) -> LocalModelInfo? {
     guard let localModelInfo = LocalModelInfo(
       fromDefaults: userDefaults,
@@ -336,25 +316,28 @@ extension ModelDownloader {
                             messageCode: .noLocalModelInfo)
       return nil
     }
+    /// Local model info is only considered valid if there is a corresponding model file on device.
     let modelURL = ModelFileManager.getDownloadedModelFileURL(
       appName: appName,
       modelName: modelName
     )
-    /// Ensure that the model file actually exists.
     guard ModelFileManager.isFileReachable(at: modelURL) else {
+      let description = ModelDownloader.DebugDescription.noLocalModelFile(modelName)
+      DeviceLogger.logEvent(level: .debug,
+                            message: description,
+                            messageCode: .noLocalModelFile)
       return nil
     }
     return localModelInfo
   }
 
-  /// Get model saved on device if available.
+  /// Get model saved on device, if available.
   private func getLocalModel(modelName: String) -> CustomModel? {
     guard let localModelInfo = getLocalModelInfo(modelName: modelName) else { return nil }
     let modelURL = ModelFileManager.getDownloadedModelFileURL(
       appName: appName,
       modelName: modelName
     )
-    guard ModelFileManager.isFileReachable(at: modelURL) else { return nil }
     let model = CustomModel(localModelInfo: localModelInfo, path: modelURL.path)
     return model
   }
@@ -393,6 +376,7 @@ extension ModelDownloader {
     )
   }
 
+  /// Get model info and model file from server.
   func downloadInfoAndModel(modelName: String,
                             modelInfoRetriever: ModelInfoRetriever,
                             downloader: FileDownloader,
@@ -406,11 +390,13 @@ extension ModelDownloader {
         switch downloadModelInfoResult {
         /// New model info was downloaded from server.
         case let .modelInfo(remoteModelInfo):
+          /// Progress handler for model file download.
           let taskProgressHandler: ModelDownloadTask.ProgressHandler = { progress in
             if let progressHandler = progressHandler {
               self.mainQueueHandler(progressHandler(progress))
             }
           }
+          /// Completion handler for model file download.
           let taskCompletion: ModelDownloadTask.Completion = { result in
             switch result {
             case let .success(model):
@@ -423,9 +409,9 @@ extension ModelDownloader {
                 self.mainQueueHandler(completion(.failure(.invalidArgument)))
               case .permissionDenied:
                 self.mainQueueHandler(completion(.failure(.permissionDenied)))
-              /// This is the error returned when URL expired.
+              /// This is the error returned when model download URL has expired.
               case .expiredDownloadURL:
-                /// Check if retries are allowed.
+                /// Retry model info and model file download, if allowed.
                 guard self.numberOfRetries > 0 else {
                   self
                     .mainQueueHandler(
@@ -451,13 +437,11 @@ extension ModelDownloader {
                 self.mainQueueHandler(completion(.failure(error)))
               }
             }
-
             self.taskSerialQueue.async {
               /// Stop keeping track of current download task.
               self.currentDownloadTask.removeValue(forKey: modelName)
             }
           }
-
           self.taskSerialQueue.sync {
             /// Merge duplicate requests if there is already a download in progress for the same model.
             if let downloadTask = self.currentDownloadTask[modelName],
@@ -473,6 +457,7 @@ extension ModelDownloader {
                 downloadTask.resume()
               }
             } else {
+              /// Create download task for model file download.
               let downloadTask = ModelDownloadTask(
                 remoteModelInfo: remoteModelInfo,
                 appName: self.appName,
@@ -490,16 +475,15 @@ extension ModelDownloader {
         /// Local model info is the latest model info.
         case .notModified:
           guard let localModel = self.getLocalModel(modelName: modelName) else {
-            /// This can only happen if either local model info or the model file was suddenly wiped out in the middle of model info request and server response
-            // TODO: Consider handling: If model file is deleted after local model info is retrieved but before model info network call.
+            /// This can only happen if either local model info or the model file was wiped out after model info request but before server response.
             self
               .mainQueueHandler(completion(.failure(.internalError(description: ModelDownloader
-                  .ErrorDescription.deletedLocalModelInfo))))
+                  .ErrorDescription.deletedLocalModelInfoOrFile))))
             return
           }
-
           self.mainQueueHandler(completion(.success(localModel)))
         }
+      /// Error retrieving model info.
       case let .failure(error):
         self.mainQueueHandler(completion(.failure(error)))
       }
@@ -507,74 +491,115 @@ extension ModelDownloader {
   }
 }
 
-/// Model downloader extension for testing.
-extension ModelDownloader {
-  /// Model downloader instance for testing.
-  // TODO: Consider using protocols
-  static func modelDownloaderWithDefaults(_ defaults: UserDefaults,
-                                          app: FirebaseApp) -> ModelDownloader {
-    let downloader = ModelDownloader(app: app, defaults: defaults)
-    return downloader
-  }
+/// Possible errors with model downloading.
+public enum DownloadError: Error, Equatable {
+  /// No model with this name exists on server.
+  case notFound
+  /// Invalid, incomplete, or missing permissions for model download.
+  case permissionDenied
+  /// Conditions not met to perform download.
+  case failedPrecondition
+  /// Requests quota exhausted.
+  case resourceExhausted
+  /// Not enough space for model on device.
+  case notEnoughSpace
+  /// Malformed model name or Firebase app options.
+  case invalidArgument
+  /// Other errors with description.
+  case internalError(description: String)
 }
 
-/// Possible error messages while using model downloader.
+/// Possible errors with locating a model file on device.
+public enum DownloadedModelError: Error {
+  /// No model with this name exists on device.
+  case notFound
+  /// File system error.
+  case fileIOError(description: String)
+  /// Other errors with description.
+  case internalError(description: String)
+}
+
+/// Extension to handle internally meaningful errors.
+extension DownloadError {
+  /// Model download URL expired before model download, raised internally. Model info retrieval and download is retried `numberOfRetries` times before failing externally.
+  static let expiredDownloadURL: DownloadError = {
+    DownloadError.internalError(description: "Expired model download URL.")
+  }()
+}
+
+/// Possible debug and error messages while using model downloader.
 extension ModelDownloader {
   /// Debug descriptions.
   private enum DebugDescription {
-    static let deleteModelDownloader = "Model downloader instance deleted due to app deletion."
-    static let retrieveModelDownloader =
-      "Initialized with existing downloader instance associated with this app."
     static let createModelDownloader =
       "Initialized with new downloader instance associated with this app."
+    static let retrieveModelDownloader =
+      "Initialized with existing downloader instance associated with this app."
+    static let deleteModelDownloader = "Model downloader instance deleted due to app deletion."
     static let localModelFound = "Found local model on device."
-    static let backgroundModelDownloaded = "Downloaded latest model in the background."
     static let allLocalModelsFound = "Found and listed all local models."
-    static let modelDeleted = "Model deleted successfully."
-    static let retryDownload = "Retrying download."
     static let noLocalModelInfo = { (name: String) in
-      "No local model info for model file named: \(name)."
+      "No local model info for model named: \(name)."
     }
 
+    static let noLocalModelFile = { (name: String) in
+      "No local model file for model named: \(name)."
+    }
+
+    static let backgroundModelDownloaded = "Downloaded latest model in the background."
+    static let modelDeleted = "Model deleted successfully."
     static let mergingRequests = "Merging duplicate download requests."
+    static let retryDownload = "Retrying download."
   }
 
   /// Error descriptions.
   private enum ErrorDescription {
-    static let defaultAppNotConfigured =
-      "Default Firebase app not configured."
-    static let parseModelName = { (path: String) in
-      "List models failed due to unexpected model file name at \(path)."
-    }
-
+    static let defaultAppNotConfigured = "Default Firebase app not configured."
     static let invalidOptions = "Unable to retrieve project ID and/or API key for Firebase app."
-
-    static let listModelsFailed = { (error: Error) in
-      "Unable to list models, failed with error: \(error)"
+    static let modelDownloadFailed = { (error: Error) in
+      "Model download failed with error: \(error)"
     }
 
     static let modelNotFound = { (name: String) in
       "Model deletion failed due to no model found with name: \(name)"
     }
 
-    static let noLocalModelInfo = { (name: String) in
-      "List models failed due to no local model info for model file named: \(name)."
-    }
-
-    static let modelDownloadFailed = { (error: Error) in
-      "Model download failed with error: \(error)"
-    }
-
     static let modelInfoRetrievalFailed = { (error: Error) in
       "Model info retrieval failed with error: \(error)"
     }
 
+    static let backgroundModelDownload = "Failed to update model in background."
+    static let expiredModelInfo = "Unable to update expired model info."
+    static let listModelsFailed = { (error: Error) in
+      "Unable to list models, failed with error: \(error)"
+    }
+
+    static let parseModelName = { (path: String) in
+      "List models failed due to unexpected model file name at \(path)."
+    }
+
+    static let noLocalModelInfo = { (name: String) in
+      "List models failed due to no local model info for model file named: \(name)."
+    }
+
+    static let deletedLocalModelInfoOrFile =
+      "Model unavailable due to deleted local model info or model file."
     static let outdatedModelPath =
       "List models failed due to outdated model paths in local storage."
-    static let deletedLocalModelInfo =
-      "Model unavailable due to deleted local model info."
-    static let backgroundModelDownload =
-      "Failed to update model in background."
-    static let expiredModelInfo = "Unable to update expired model info."
+  }
+}
+
+/// Model downloader extension for testing.
+extension ModelDownloader {
+  /// Model downloader instance for testing.
+  static func modelDownloaderWithDefaults(_ defaults: UserDefaults,
+                                          app: FirebaseApp) -> ModelDownloader {
+    if let downloader = modelDownloaderDictionary[app.name] {
+      return downloader
+    } else {
+      let downloader = ModelDownloader(app: app, defaults: defaults)
+      modelDownloaderDictionary[app.name] = downloader
+      return downloader
+    }
   }
 }
