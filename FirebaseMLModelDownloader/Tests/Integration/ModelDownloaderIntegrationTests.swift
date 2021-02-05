@@ -37,7 +37,6 @@ extension UserDefaults {
 
 // TODO: Use FirebaseApp internal init for testApp
 final class ModelDownloaderIntegrationTests: XCTestCase {
-
   /// The generated test app name for this XCTest.
   private var testAppName: String {
     // Use XCTest's name and filter out the unnecessary values.
@@ -68,9 +67,9 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
 
   override func tearDown() {
     let expectation = XCTestExpectation(description: "FirebaseApp should be deleted.")
-    FirebaseApp.app(name: testAppName)?.delete({ _ in
+    FirebaseApp.app(name: testAppName)?.delete { _ in
       expectation.fulfill()
-    })
+    }
 
     wait(for: [expectation], timeout: 2)
   }
