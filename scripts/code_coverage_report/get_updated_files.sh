@@ -13,6 +13,8 @@
 # limitations under the License.
 
 set -ex
+# Updated files in paths in code_coverage_file_list.json will trigger code coverage workflows.
+# Updates in a pull request will generate a code coverage report in a PR.
 
 # Get most rescent ancestor commit.
 common_commit=$(git merge-base remotes/origin/${pr_branch} remotes/origin/master)
