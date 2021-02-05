@@ -1,0 +1,20 @@
+[
+  {
+    "sdk": "database",
+    "filePatterns": [
+      "FirebaseDatabase.*",
+      "\\.github/workflows/database\\.yml",
+      "Example/Database/",
+      "Interop/Auth/Public/.*\\.h"
+    ]
+  },
+  {
+    "sdk": "functions",
+    "filePatterns": [
+      "Functions.*",
+      "\\.github/workflows/functions\\.yml",
+      "Interop/Auth/Public/.*\\.h",
+      "FirebaseMessaging/Sources/Interop/.*\\.h"
+    ]
+  }
+]
