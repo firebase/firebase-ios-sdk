@@ -889,6 +889,8 @@ static void callInMainThreadWithAuthDataResultAndError(
                                   }
                                   if (completion) {
                                     dispatch_async(dispatch_get_main_queue(), ^{
+                                      NSLog(@"Actual token expiration date: %@, current date: %@",
+                                            tokenResult.expirationDate, [NSDate date]);
                                       completion(tokenResult, error);
                                     });
                                   }

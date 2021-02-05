@@ -111,6 +111,7 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
       complete();
       callback(self->_accessToken, nil, NO);
     } else {
+      NSLog(@"Fetching new token from backend.");
       [self requestAccessToken:^(NSString *_Nullable token, NSError *_Nullable error,
                                  BOOL tokenUpdated) {
         complete();
@@ -200,7 +201,16 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
 }
 
 - (BOOL)hasValidAccessToken {
-  return _accessToken && [_accessTokenExpirationDate timeIntervalSinceNow] > kFiveMinutes;
+  BOOL hasValidAccessToken =
+      _accessToken && [_accessTokenExpirationDate timeIntervalSinceNow] > kFiveMinutes;
+  if (hasValidAccessToken) {
+    NSLog(@"Has valid access token. Estimated expiration date: %@, current date: %@",
+          _accessTokenExpirationDate, [NSDate date]);
+  } else {
+    NSLog(@"Does not have valid access token. Estimated expiration date: %@, current date: %@",
+          _accessTokenExpirationDate, [NSDate date]);
+  }
+  return hasValidAccessToken;
 }
 
 @end
