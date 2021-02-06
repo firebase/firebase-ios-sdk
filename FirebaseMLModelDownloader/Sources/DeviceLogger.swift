@@ -29,6 +29,7 @@ enum LoggerMessageCode: Int {
   case retryDownload
   case backgroundModelDownloaded
   case backgroundDownloadError
+  case disableBackupError
   case downloadedModelFileSaved
   case downloadedModelSaveError
   case anotherDownloadInProgressError

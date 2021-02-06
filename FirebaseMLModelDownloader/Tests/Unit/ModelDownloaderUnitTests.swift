@@ -153,7 +153,7 @@ final class ModelDownloaderUnitTests: XCTestCase {
     try? ModelFileManager.removeFile(at: tempModelFileURL)
   }
 
-  /// Test invalid path in model directory
+  /// Test invalid path in model directory.
   func testListModelsInvalidPath() {
     let modelDownloader = ModelDownloader.modelDownloader()
     let invalidTempModelFileURL = tempModelFile(invalid: true)
@@ -162,7 +162,8 @@ final class ModelDownloaderUnitTests: XCTestCase {
     modelDownloader.listDownloadedModels { result in
       completionExpectation.fulfill()
       switch result {
-      case .success:
+      case let .success(models):
+        print(models)
         XCTFail("Unexpected success of list models.")
       case let .failure(error):
         switch error {
@@ -1314,8 +1315,8 @@ extension ModelDownloaderUnitTests {
   }
 
   func tempModelFile(invalid: Bool = false) -> URL {
-    let modelDirectoryURL = ModelFileManager.modelsDirectory
-    let modelFileName = invalid ? "fake-model-file.tmp" :
+    let modelDirectoryURL = ModelFileManager.modelsDirectory!
+    let modelFileName = invalid ? "fbml_model_fake-model-file.tmp" :
       "fbml_model@@__FIRAPP_DEFAULT@@\(fakeModelName)"
     let tempFileURL = modelDirectoryURL.appendingPathComponent(modelFileName)
     let tempData: Data = "fakeModelData".data(using: .utf8)!

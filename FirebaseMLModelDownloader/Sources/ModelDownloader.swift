@@ -237,12 +237,12 @@ public class ModelDownloader {
           mainQueueHandler(completion(.failure(.internalError(description: description))))
           return
         }
-        let modelURL = ModelFileManager.getDownloadedModelFileURL(
+        // Ensure that local model path is as expected, and reachable.
+        guard let modelURL = ModelFileManager.getDownloadedModelFileURL(
           appName: appName,
           modelName: modelName
-        )
-        // Ensure that local model path is as expected, and reachable.
-        guard url == modelURL, ModelFileManager.isFileReachable(at: modelURL) else {
+        ),
+          url == modelURL, ModelFileManager.isFileReachable(at: modelURL) else {
           DeviceLogger.logEvent(level: .debug,
                                 message: ModelDownloader.ErrorDescription.outdatedModelPath,
                                 messageCode: .outdatedModelPathError)
@@ -279,12 +279,12 @@ public class ModelDownloader {
   public func deleteDownloadedModel(name modelName: String,
                                     completion: @escaping (Result<Void, DownloadedModelError>)
                                       -> Void) {
-    let modelURL = ModelFileManager.getDownloadedModelFileURL(
+    // Ensure that there is a matching model file on device, with corresponding model information in UserDefaults.
+    guard let modelURL = ModelFileManager.getDownloadedModelFileURL(
       appName: appName,
       modelName: modelName
-    )
-    // Ensure that there is a matching model file on device, with corresponding model information in UserDefaults.
-    guard let localModelInfo = getLocalModelInfo(modelName: modelName),
+    ),
+      let localModelInfo = getLocalModelInfo(modelName: modelName),
       ModelFileManager.isFileReachable(at: modelURL)
     else {
       DeviceLogger.logEvent(level: .debug,
@@ -344,11 +344,10 @@ extension ModelDownloader {
       return nil
     }
     /// Local model info is only considered valid if there is a corresponding model file on device.
-    let modelURL = ModelFileManager.getDownloadedModelFileURL(
+    guard let modelURL = ModelFileManager.getDownloadedModelFileURL(
       appName: appName,
       modelName: modelName
-    )
-    guard ModelFileManager.isFileReachable(at: modelURL) else {
+    ), ModelFileManager.isFileReachable(at: modelURL) else {
       let description = ModelDownloader.DebugDescription.noLocalModelFile(modelName)
       DeviceLogger.logEvent(level: .debug,
                             message: description,
@@ -360,11 +359,10 @@ extension ModelDownloader {
 
   /// Get model saved on device, if available.
   private func getLocalModel(modelName: String) -> CustomModel? {
-    guard let localModelInfo = getLocalModelInfo(modelName: modelName) else { return nil }
-    let modelURL = ModelFileManager.getDownloadedModelFileURL(
+    guard let modelURL = ModelFileManager.getDownloadedModelFileURL(
       appName: appName,
       modelName: modelName
-    )
+    ), let localModelInfo = getLocalModelInfo(modelName: modelName) else { return nil }
     let model = CustomModel(localModelInfo: localModelInfo, path: modelURL.path)
     return model
   }
