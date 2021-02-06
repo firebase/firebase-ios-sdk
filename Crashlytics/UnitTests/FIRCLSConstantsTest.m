@@ -33,11 +33,7 @@
 }
 
 - (void)testSdkVersion {
-#ifdef CRASHLYTICS_1P
-  NSString *expectedSdkVersion = [FIRFirebaseVersion() stringByAppendingString:@"_1P"];
-#else
   NSString *expectedSdkVersion = FIRFirebaseVersion();
-#endif
   XCTAssertEqualObjects(expectedSdkVersion, FIRCLSSDKVersion());
 }
 

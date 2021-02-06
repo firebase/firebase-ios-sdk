@@ -25,28 +25,48 @@
   self = [super init];
   if (self) {
     self->_analytics = analytics;
+    self->_loggedChoiceIds = [[NSMutableDictionary alloc] init];
   }
   return self;
 }
 
-- (void)logArmActive:(NSString *)key config:(NSDictionary *)config {
+- (void)logArmActive:(NSString *)rcParameter config:(NSDictionary *)config {
   NSDictionary *ids = config[RCNFetchResponseKeyPersonalizationMetadata];
   NSDictionary<NSString *, FIRRemoteConfigValue *> *values = config[RCNFetchResponseKeyEntries];
-  if (ids.count < 1 || values.count < 1 || !values[key]) {
+  if (ids.count < 1 || values.count < 1 || !values[rcParameter]) {
     return;
   }
 
-  NSDictionary *metadata = ids[key];
-  if (!metadata || metadata[kPersonalizationId] == nil) {
+  NSDictionary *metadata = ids[rcParameter];
+  if (!metadata) {
     return;
   }
+
+  NSString *choiceId = metadata[kChoiceId];
+  if (choiceId == nil) {
+    return;
+  }
+
+  // Listeners like logArmActive() are dispatched to a serial queue, so loggedChoiceIds should
+  // contain any previously logged RC parameter / choice ID pairs.
+  if (self->_loggedChoiceIds[rcParameter] == choiceId) {
+    return;
+  }
+  self->_loggedChoiceIds[rcParameter] = choiceId;
 
   [self->_analytics logEventWithOrigin:kAnalyticsOriginPersonalization
-                                  name:kAnalyticsPullEvent
+                                  name:kExternalEvent
                             parameters:@{
-                              kArmKey : metadata[kPersonalizationId],
-                              kArmValue : values[key].stringValue
+                              kExternalRcParameterParam : rcParameter,
+                              kExternalArmValueParam : values[rcParameter].stringValue,
+                              kExternalPersonalizationIdParam : metadata[kPersonalizationId],
+                              kExternalArmIndexParam : metadata[kArmIndex],
+                              kExternalGroupParam : metadata[kGroup]
                             }];
+
+  [self->_analytics logEventWithOrigin:kAnalyticsOriginPersonalization
+                                  name:kInternalEvent
+                            parameters:@{kInternalChoiceIdParam : choiceId}];
 }
 
 @end

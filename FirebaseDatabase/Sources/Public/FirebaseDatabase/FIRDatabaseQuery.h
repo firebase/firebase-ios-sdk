@@ -132,6 +132,19 @@ NS_SWIFT_NAME(DatabaseQuery)
                           (nullable void (^)(NSError *error))cancelBlock;
 
 /**
+ * getDataWithCompletionBlock: is used to get the most up-to-date value for
+ * this query. This method updates the cache and raises events if successful. If
+ * not connected, falls back to a locally-cached value.
+ *
+ * @param block The block that should be called with the most up-to-date value
+ * of this query, or an error if no such value could be retrieved.
+ */
+- (void)getDataWithCompletionBlock:
+    (void (^_Nonnull)(NSError *__nullable error,
+                      FIRDataSnapshot *snapshot))block
+    NS_SWIFT_NAME(getData(completion:));
+
+/**
  * This is equivalent to observeEventType:withBlock:, except the block is
  * immediately canceled after the initial data is returned.
  *
@@ -323,6 +336,36 @@ NS_SWIFT_NAME(DatabaseQuery)
                                   childKey:(nullable NSString *)childKey;
 
 /**
+ * queryStartingAfterValue: is used to generate a reference to a
+ * limited view of the data at this location. The FIRDatabaseQuery instance
+ * returned by queryStartingAfterValue: will respond to events at nodes
+ * with a value greater than startAfterValue.
+ *
+ * @param startAfterValue The lower bound, exclusive, for the value of data
+ * visible to the returned FIRDatabaseQuery
+ * @return A FIRDatabaseQuery instance, limited to data with value greater
+ * startAfterValue
+ */
+- (FIRDatabaseQuery *)queryStartingAfterValue:(nullable id)startAfterValue;
+
+/**
+ * queryStartingAfterValue:childKey: is used to generate a reference to a
+ * limited view of the data at this location. The FIRDatabaseQuery instance
+ * returned by queryStartingAfterValue:childKey will respond to events at nodes
+ * with a value greater than startAfterValue, or equal to startAfterValue and
+ * with a key greater than childKey. This is most useful when implementing
+ * pagination in a case where multiple nodes can match the startAfterValue.
+ *
+ * @param startAfterValue The lower bound, inclusive, for the value of data
+ * visible to the returned FIRDatabaseQuery
+ * @param childKey The lower bound, exclusive, for the key of nodes with value
+ * equal to startAfterValue
+ * @return A FIRDatabaseQuery instance, limited to data with value greater than
+ * startAfterValue, or equal to startAfterValue with a key greater than childKey
+ */
+- (FIRDatabaseQuery *)queryStartingAfterValue:(nullable id)startAfterValue
+                                     childKey:(nullable NSString *)childKey;
+/**
  * queryEndingAtValue: is used to generate a reference to a limited view of the
  * data at this location. The FIRDatabaseQuery instance returned by
  * queryEndingAtValue: will respond to events at nodes with a value less than or
@@ -352,6 +395,35 @@ NS_SWIFT_NAME(DatabaseQuery)
  */
 - (FIRDatabaseQuery *)queryEndingAtValue:(nullable id)endValue
                                 childKey:(nullable NSString *)childKey;
+
+/**
+ * queryEndingBeforeValue: is used to generate a reference to a limited view of
+ * the data at this location. The FIRDatabaseQuery instance returned by
+ * queryEndingBeforeValue: will respond to events at nodes with a value less
+ * than endValue.
+ *
+ * @param endValue The upper bound, exclusive, for the value of data visible to
+ * the returned FIRDatabaseQuery
+ * @return A FIRDatabaseQuery instance, limited to data with value less than
+ * endValue
+ */
+- (FIRDatabaseQuery *)queryEndingBeforeValue:(nullable id)endValue;
+
+/**
+ * queryEndingBeforeValue:childKey: is used to generate a reference to a limited
+ * view of the data at this location. The FIRDatabaseQuery instance returned by
+ * queryEndingBeforeValue:childKey will respond to events at nodes with a value
+ * less than endValue, or equal to endValue and with a key less than childKey.
+ *
+ * @param endValue The upper bound, inclusive, for the value of data visible to
+ * the returned FIRDatabaseQuery
+ * @param childKey The upper bound, exclusive, for the key of nodes with value
+ * equal to endValue
+ * @return A FIRDatabaseQuery instance, limited to data with value less than or
+ * equal to endValue
+ */
+- (FIRDatabaseQuery *)queryEndingBeforeValue:(nullable id)endValue
+                                    childKey:(nullable NSString *)childKey;
 
 /**
  * queryEqualToValue: is used to generate a reference to a limited view of the

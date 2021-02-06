@@ -1,3 +1,13 @@
+# Unreleased
+* Add community supported tvOS.
+
+# Version 7.6.0
+- [fixed] Fixed build warnings introduced with Xcode 12.5. (#7435)
+
+# Version 7.4.0
+* Make FirebasePerformance open source.
+* Remove GoogleToolboxForMac and GTMSessionFetcher dependencies.
+
 # Version 7.3.0
 * Add blocklist for GoogleDataTransport upload URLs.
 * Update the event transport mechanism to open sourced GoogleDataTransport.

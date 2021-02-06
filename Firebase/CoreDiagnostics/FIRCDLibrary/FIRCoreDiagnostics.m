@@ -17,7 +17,7 @@
 #import <objc/runtime.h>
 #include <sys/utsname.h>
 
-#import "GoogleDataTransport/GDTCORLibrary/Internal/GoogleDataTransportInternal.h"
+#import <GoogleDataTransport/GoogleDataTransport.h>
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULHeartbeatDateStorage.h>
@@ -37,7 +37,7 @@ static GULLoggerService kFIRCoreDiagnostics = @"[FirebaseCoreDiagnostics/FIRCore
 
 #ifdef FIREBASE_BUILD_ZIP_FILE
 static BOOL kUsingZipFile = YES;
-#else  // FIREBASE_BUILD_ZIP_FILE
+#else   // FIREBASE_BUILD_ZIP_FILE
 static BOOL kUsingZipFile = NO;
 #endif  // FIREBASE_BUILD_ZIP_FILE
 
@@ -454,29 +454,6 @@ void FIRPopulateProtoWithInstalledServices(logs_proto_mobilesdk_ios_ICoreConfigu
   config->sdk_service_installed_count = (int32_t)sdkServiceInstalledArray.count;
 }
 
-/** Populates the proto with the number of linked frameworks.
- *
- * @param config The proto to populate.
- */
-void FIRPopulateProtoWithNumberOfLinkedFrameworks(
-    logs_proto_mobilesdk_ios_ICoreConfiguration *config) {
-  int numFrameworks = -1;  // Subtract the app binary itself.
-  unsigned int numImages;
-  const char **imageNames = objc_copyImageNames(&numImages);
-  for (unsigned int i = 0; i < numImages; i++) {
-    NSString *imageName = [NSString stringWithUTF8String:imageNames[i]];
-    if ([imageName rangeOfString:@"System/Library"].length != 0        // Apple .frameworks
-        || [imageName rangeOfString:@"Developer/Library"].length != 0  // Xcode debug .frameworks
-        || [imageName rangeOfString:@"usr/lib"].length != 0) {         // Public .dylibs
-      continue;
-    }
-    numFrameworks++;
-  }
-  free(imageNames);
-  config->dynamic_framework_count = numFrameworks;
-  config->has_dynamic_framework_count = 1;
-}
-
 /** Populates the proto with Info.plist values.
  *
  * @param config The proto to populate.
@@ -532,7 +509,6 @@ void FIRPopulateProtoWithInfoPlistValues(logs_proto_mobilesdk_ios_ICoreConfigura
     FIRPopulateProtoWithInfoFromUserInfoParams(&icore_config, diagnosticObjects);
     FIRPopulateProtoWithCommonInfoFromApp(&icore_config, diagnosticObjects);
     FIRPopulateProtoWithInstalledServices(&icore_config);
-    FIRPopulateProtoWithNumberOfLinkedFrameworks(&icore_config);
     FIRPopulateProtoWithInfoPlistValues(&icore_config);
     [self setHeartbeatFlagIfNeededToConfig:&icore_config];
 
