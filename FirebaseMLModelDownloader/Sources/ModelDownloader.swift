@@ -604,12 +604,7 @@ extension ModelDownloader {
   /// Model downloader instance for testing.
   static func modelDownloaderWithDefaults(_ defaults: UserDefaults,
                                           app: FirebaseApp) -> ModelDownloader {
-    if let downloader = modelDownloaderDictionary[app.name] {
-      return downloader
-    } else {
-      let downloader = ModelDownloader(app: app, defaults: defaults)
-      modelDownloaderDictionary[app.name] = downloader
-      return downloader
-    }
+    let downloader = ModelDownloader(app: app, defaults: defaults)
+    return downloader
   }
 }

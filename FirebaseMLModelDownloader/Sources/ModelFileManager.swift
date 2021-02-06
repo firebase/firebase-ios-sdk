@@ -135,7 +135,10 @@ extension ModelFileManager {
         includingPropertiesForKeys: nil,
         options: .skipsHiddenFiles
       )
-      for path in directoryContents {
+      let modelFiles = directoryContents.filter { directoryItem in
+        directoryItem.path.contains(ModelFileManager.modelNamePrefix)
+      }
+      for path in modelFiles {
         try ModelFileManager.removeFile(at: path)
       }
     } catch {
