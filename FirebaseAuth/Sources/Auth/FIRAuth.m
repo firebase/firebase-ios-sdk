@@ -2205,6 +2205,12 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     return NO;
   }
 
+  if (_userAccessGroup == nil && accessGroup != nil) {
+    NSString *userKey = [NSString stringWithFormat:kUserKey, _firebaseAppName];
+    [_keychainServices removeDataForKey:userKey error:outError];
+  }
+  _userAccessGroup = accessGroup;
+
   FIRUser *user = [self getStoredUserForAccessGroup:accessGroup error:outError];
   if (!user && outError && *outError) {
     return NO;
@@ -2214,11 +2220,6 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     return NO;
   }
 
-  if (_userAccessGroup == nil && accessGroup != nil) {
-    NSString *userKey = [NSString stringWithFormat:kUserKey, _firebaseAppName];
-    [_keychainServices removeDataForKey:userKey error:outError];
-  }
-  _userAccessGroup = accessGroup;
   self->_lastNotifiedUserToken = user.rawAccessToken;
 
   return YES;
