@@ -57,6 +57,11 @@ class ReadContext {
     status_.Update(util::Status(Error::kErrorDataLoss, std::move(description)));
   }
 
+  template <typename... FA>
+  void Fail(const char* format, const FA&... args) {
+    Fail(StringFormat(format, args...));
+  }
+
  private:
   util::Status status_ = util::Status::OK();
 };

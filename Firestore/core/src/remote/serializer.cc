@@ -1422,23 +1422,14 @@ SnapshotVersion Serializer::DecodeVersion(
 
 Timestamp Serializer::DecodeTimestamp(
     ReadContext* context, const google_protobuf_Timestamp& timestamp_proto) {
-  // The Timestamp ctor will assert if we provide values outside the valid
-  // range. However, since we're decoding, a single corrupt byte could cause
-  // this to occur, so we'll verify the ranges before passing them in since we'd
-  // rather not abort in these situations.
-  if (timestamp_proto.seconds < TimestampInternal::Min().seconds()) {
-    context->Fail(
-        "Invalid message: timestamp beyond the earliest supported date");
-  } else if (TimestampInternal::Max().seconds() < timestamp_proto.seconds) {
-    context->Fail(
-        "Invalid message: timestamp beyond the latest supported date");
-  } else if (timestamp_proto.nanos < 0 || timestamp_proto.nanos > 999999999) {
-    context->Fail(
-        "Invalid message: timestamp nanos must be between 0 and 999999999");
-  }
+  auto decoded = TimestampInternal::FromUntrustedSecondsAndNanos(
+      timestamp_proto.seconds, timestamp_proto.nanos);
 
-  if (!context->status().ok()) return Timestamp();
-  return Timestamp{timestamp_proto.seconds, timestamp_proto.nanos};
+  if (!decoded.ok()) {
+    context->set_status(decoded.status());
+    return {};
+  }
+  return decoded.ConsumeValueOrDie();
 }
 
 FieldValue Serializer::DecodeReference(

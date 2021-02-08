@@ -35,49 +35,63 @@ namespace firebase {
 namespace firestore {
 namespace bundle {
 
+class JsonReader : public util::ReadContext {
+ public:
+  const std::string& RequireString(const char* name,
+                                   const nlohmann::json& json_object);
+  const std::vector<nlohmann::json>& RequireArray(
+      const char* name, const nlohmann::json& json_object);
+  const nlohmann::json& Require(const char* child_name,
+                                const nlohmann::json& json_object);
+
+  double RequireDouble(const char* name, const nlohmann::json& value);
+  template <typename int_type>
+  int_type RequireInt(const char* name, const nlohmann::json& value);
+
+  static bool OptionalBool(const char* name, const nlohmann::json& json_object);
+};
+
 /** A JSON serializer to deserialize Firestore Bundles. */
 class BundleSerializer {
  public:
   explicit BundleSerializer(remote::Serializer serializer)
       : rpc_serializer_(std::move(serializer)) {
   }
-  BundleMetadata DecodeBundleMetadata(util::ReadContext& context,
+  BundleMetadata DecodeBundleMetadata(JsonReader& context,
                                       const std::string& metadata) const;
 
-  NamedQuery DecodeNamedQuery(util::ReadContext& context,
+  NamedQuery DecodeNamedQuery(JsonReader& context,
                               const std::string& named_query) const;
 
   BundledDocumentMetadata DecodeDocumentMetadata(
-      util::ReadContext& context, const std::string& document_metadata) const;
+      JsonReader& context, const std::string& document_metadata) const;
 
-  BundleDocument DecodeDocument(util::ReadContext& context,
+  BundleDocument DecodeDocument(JsonReader& context,
                                 const std::string& document) const;
 
  private:
-  BundledQuery DecodeBundledQuery(util::ReadContext& context,
+  BundledQuery DecodeBundledQuery(JsonReader& context,
                                   const nlohmann::json& query) const;
-  core::FilterList DecodeWhere(util::ReadContext& context,
+  core::FilterList DecodeWhere(JsonReader& context,
                                const nlohmann::json& query) const;
-  void DecodeFieldFilter(util::ReadContext& context,
-                         core::FilterList& result,
-                         const nlohmann::json& filter) const;
-  void DecodeCompositeFilter(util::ReadContext& context,
-                             core::FilterList& result,
-                             const nlohmann::json& filter) const;
-  model::FieldValue DecodeValue(util::ReadContext& context,
+  core::Filter DecodeFieldFilter(JsonReader& context,
+                                 const nlohmann::json& filter) const;
+  core::FilterList DecodeCompositeFilter(JsonReader& context,
+                                         const nlohmann::json& filter) const;
+  model::FieldValue DecodeValue(JsonReader& context,
                                 const nlohmann::json& value) const;
-  core::Bound DecodeBound(util::ReadContext& context,
+  core::Bound DecodeBound(JsonReader& context,
                           const nlohmann::json& query,
-                          const std::string& bound_name) const;
-  model::ResourcePath DecodeName(util::ReadContext& context,
+                          const char* bound_name) const;
+  model::ResourcePath DecodeName(JsonReader& context,
                                  const nlohmann::json& name) const;
 
   remote::Serializer rpc_serializer_;
-  model::FieldValue DecodeReferenceValue(util::ReadContext& context,
-                                         const nlohmann::json& value) const;
-  model::FieldValue DecodeArrayValue(util::ReadContext& context,
+  model::FieldValue DecodeReferenceValue(JsonReader& context,
+                                         const std::string& value) const;
+  model::FieldValue DecodeArrayValue(JsonReader& context,
                                      const nlohmann::json& array_json) const;
-  model::FieldValue DecodeMapValue(util::ReadContext& context,
+  model::FieldValue DecodeMapValue(JsonReader& context,
                                    const nlohmann::json& map_json) const;
 };
 
