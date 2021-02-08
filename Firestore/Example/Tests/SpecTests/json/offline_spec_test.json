@@ -10,16 +10,16 @@
     },
     "steps": [
       {
-        "userListen": [
-          2,
-          {
+        "userListen": {
+          "query": {
             "filters": [
             ],
             "orderBys": [
             ],
             "path": "collection"
-          }
-        ],
+          },
+          "targetId": 2
+        },
         "expectedState": {
           "activeTargets": {
             "2": {
@@ -119,16 +119,16 @@
         "changeUser": "user1"
       },
       {
-        "userListen": [
-          2,
-          {
+        "userListen": {
+          "query": {
             "filters": [
             ],
             "orderBys": [
             ],
             "path": "collection"
-          }
-        ],
+          },
+          "targetId": 2
+        },
         "expectedSnapshotEvents": [
           {
             "errorCode": 0,
@@ -173,16 +173,16 @@
     },
     "steps": [
       {
-        "userListen": [
-          2,
-          {
+        "userListen": {
+          "query": {
             "filters": [
             ],
             "orderBys": [
             ],
             "path": "collection"
-          }
-        ],
+          },
+          "targetId": 2
+        },
         "expectedState": {
           "activeTargets": {
             "2": {
@@ -254,16 +254,16 @@
     },
     "steps": [
       {
-        "userListen": [
-          2,
-          {
+        "userListen": {
+          "query": {
             "filters": [
             ],
             "orderBys": [
             ],
             "path": "collection"
-          }
-        ],
+          },
+          "targetId": 2
+        },
         "expectedState": {
           "activeTargets": {
             "2": {
@@ -299,16 +299,16 @@
         ]
       },
       {
-        "userListen": [
-          4,
-          {
+        "userListen": {
+          "query": {
             "filters": [
             ],
             "orderBys": [
             ],
             "path": "collection2"
-          }
-        ],
+          },
+          "targetId": 4
+        },
         "expectedSnapshotEvents": [
           {
             "errorCode": 0,
@@ -365,16 +365,16 @@
     },
     "steps": [
       {
-        "userListen": [
-          2,
-          {
+        "userListen": {
+          "query": {
             "filters": [
             ],
             "orderBys": [
             ],
             "path": "collection"
-          }
-        ],
+          },
+          "targetId": 2
+        },
         "expectedState": {
           "activeTargets": {
             "2": {
@@ -416,16 +416,16 @@
         ]
       },
       {
-        "userListen": [
-          4,
-          {
+        "userListen": {
+          "query": {
             "filters": [
             ],
             "orderBys": [
             ],
             "path": "collection2"
-          }
-        ],
+          },
+          "targetId": 4
+        },
         "expectedSnapshotEvents": [
           {
             "errorCode": 0,
@@ -482,16 +482,16 @@
     },
     "steps": [
       {
-        "userListen": [
-          2,
-          {
+        "userListen": {
+          "query": {
             "filters": [
             ],
             "orderBys": [
             ],
             "path": "collection"
-          }
-        ],
+          },
+          "targetId": 2
+        },
         "expectedState": {
           "activeTargets": {
             "2": {
@@ -681,16 +681,16 @@
         }
       },
       {
-        "userListen": [
-          2,
-          {
+        "userListen": {
+          "query": {
             "filters": [
             ],
             "orderBys": [
             ],
             "path": "collection"
-          }
-        ],
+          },
+          "targetId": 2
+        },
         "expectedSnapshotEvents": [
           {
             "errorCode": 0,
@@ -739,16 +739,16 @@
         }
       },
       {
-        "userListen": [
-          4,
-          {
+        "userListen": {
+          "query": {
             "filters": [
             ],
             "orderBys": [
             ],
             "path": "collection"
-          }
-        ],
+          },
+          "targetId": 4
+        },
         "expectedSnapshotEvents": [
           {
             "errorCode": 0,
@@ -809,16 +809,16 @@
     },
     "steps": [
       {
-        "userListen": [
-          2,
-          {
+        "userListen": {
+          "query": {
             "filters": [
             ],
             "orderBys": [
             ],
             "path": "collection"
-          }
-        ],
+          },
+          "targetId": 2
+        },
         "expectedState": {
           "activeTargets": {
             "2": {
@@ -1007,16 +1007,16 @@
     },
     "steps": [
       {
-        "userListen": [
-          2,
-          {
+        "userListen": {
+          "query": {
             "filters": [
             ],
             "orderBys": [
             ],
             "path": "collection"
-          }
-        ],
+          },
+          "targetId": 2
+        },
         "expectedState": {
           "activeTargets": {
             "2": {
@@ -1330,16 +1330,16 @@
     },
     "steps": [
       {
-        "userListen": [
-          2,
-          {
+        "userListen": {
+          "query": {
             "filters": [
             ],
             "orderBys": [
             ],
             "path": "collection"
-          }
-        ],
+          },
+          "targetId": 2
+        },
         "expectedState": {
           "activeTargets": {
             "2": {
@@ -1406,16 +1406,16 @@
         }
       },
       {
-        "userListen": [
-          4,
-          {
+        "userListen": {
+          "query": {
             "filters": [
             ],
             "orderBys": [
             ],
             "path": "collection"
-          }
-        ],
+          },
+          "targetId": 4
+        },
         "expectedState": {
           "activeTargets": {
             "4": {

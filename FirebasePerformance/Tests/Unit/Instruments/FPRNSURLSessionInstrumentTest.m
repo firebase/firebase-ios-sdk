@@ -117,10 +117,8 @@
 - (void)testInit {
   FPRNSURLSessionInstrument *instrument = [[FPRNSURLSessionInstrument alloc] init];
   [instrument registerInstrumentors];
-  __unused __weak id weakSelf;
   self.testServer.responseCompletedBlock =
       ^(GCDWebServerRequest *_Nonnull request, GCDWebServerResponse *_Nonnull response) {
-        id self = weakSelf;
         XCTAssert(instrument);
         XCTAssert(instrument.delegateInstrument);
       };
