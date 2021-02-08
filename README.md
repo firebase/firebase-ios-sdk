@@ -261,7 +261,7 @@ pod 'Firebase/Firestore'     # No watchOS support yet
 pod 'Firebase/Functions'     # No watchOS support yet
 pod 'Firebase/Messaging'
 pod 'Firebase/Performance'   # No macOS, tvOS, watchOS, and Catalyst support yet
-pod 'Firebase/RemoteConfig'  # No watchOS support yet
+pod 'Firebase/RemoteConfig'
 pod 'Firebase/Storage'
 ```
 
