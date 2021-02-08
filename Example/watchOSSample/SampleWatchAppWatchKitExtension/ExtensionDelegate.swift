@@ -16,6 +16,7 @@ import WatchKit
 
 import FirebaseCore
 import FirebaseMessaging
+import FirebaseRemoteConfig
 
 /// Entry point of the watch app.
 class ExtensionDelegate: NSObject, WKExtensionDelegate, MessagingDelegate {
@@ -29,11 +30,15 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, MessagingDelegate {
       }
     }
     Messaging.messaging().delegate = self
+    let remoteConfig = RemoteConfig.remoteConfig()
+    remoteConfig.fetchAndActivate { status, error in
+        print("value:\n" + remoteConfig["test"].stringValue!)
+    }
   }
 
   /// MessagingDelegate
-  func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String) {
-    print("token:\n" + fcmToken)
+    func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
+        print("token:\n" + fcmToken!)
     Messaging.messaging().subscribe(toTopic: "watch") { error in
       if error != nil {
         print("error:" + error.debugDescription)
