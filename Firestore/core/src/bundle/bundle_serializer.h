@@ -19,6 +19,7 @@
 
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "Firestore/core/src/bundle/bundle_document.h"
 #include "Firestore/core/src/bundle/bundle_metadata.h"
