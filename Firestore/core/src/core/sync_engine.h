@@ -32,6 +32,7 @@
 #include "Firestore/core/src/local/reference_set.h"
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/remote/remote_store.h"
+#include "Firestore/core/src/util/random_access_queue.h"
 #include "Firestore/core/src/util/status.h"
 #include "absl/strings/string_view.h"
 
@@ -219,53 +220,6 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
     bool document_received = false;
   };
 
-  class LimboResolutionQueue {
-   public:
-    LimboResolutionQueue() = default;
-    LimboResolutionQueue(const LimboResolutionQueue&) = delete;
-
-    void push_back(const model::DocumentKey& key);
-    model::DocumentKey front() const;
-    void pop_front();
-    void remove(const model::DocumentKey& key);
-
-    bool empty() const {
-      return queue_.empty();
-    }
-
-    bool contains(const model::DocumentKey& key) const;
-    std::vector<model::DocumentKey> keys() const;
-
-   private:
-    class QueueEntry {
-     public:
-      explicit QueueEntry(const model::DocumentKey& key) : key_(key) {
-      }
-
-      const model::DocumentKey& key() const {
-        return key_;
-      }
-
-      bool cancelled() const {
-        return cancelled_;
-      }
-
-      void cancel() {
-        cancelled_ = true;
-      }
-
-     private:
-      model::DocumentKey key_;
-      bool cancelled_ = false;
-    };
-
-    void PruneLeadingCancelledQueueEntries();
-
-    std::deque<QueueEntry> queue_;
-    std::unordered_map<model::DocumentKey, QueueEntry*, model::DocumentKeyHash>
-        queue_entries_by_key_;
-  };
-
   void AssertCallbackExists(absl::string_view source);
 
   ViewSnapshot InitializeViewAndComputeSnapshot(const Query& query,
@@ -347,7 +301,7 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
    * The keys of documents that are in limbo for which we haven't yet started a
    * limbo resolution query.
    */
-  LimboResolutionQueue enqueued_limbo_resolutions_;
+  util::RandomAccessQueue<model::DocumentKey, model::DocumentKeyHash> enqueued_limbo_resolutions_;
 
   /**
    * Keeps track of the target ID for each document that is in limbo with an

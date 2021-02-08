@@ -568,58 +568,6 @@ void SyncEngine::RemoveLimboTarget(const DocumentKey& key) {
   PumpEnqueuedLimboResolutions();
 }
 
-void SyncEngine::LimboResolutionQueue::push_back(
-    const model::DocumentKey& key) {
-  HARD_ASSERT(queue_entries_by_key_.find(key) == queue_entries_by_key_.end(),
-              "%s is already enqueued for limbo resolution", key.ToString());
-  queue_.emplace_back(key);
-  queue_entries_by_key_.emplace(key, &queue_.back());
-}
-
-model::DocumentKey SyncEngine::LimboResolutionQueue::front() const {
-  HARD_ASSERT(queue_.size() > 0, "queue is empty");
-  return queue_.front().key();
-}
-
-void SyncEngine::LimboResolutionQueue::pop_front() {
-  HARD_ASSERT(queue_.size() > 0, "queue is empty");
-  model::DocumentKey popped_key = queue_.front().key();
-  queue_.pop_front();
-  queue_entries_by_key_.erase(popped_key);
-  PruneLeadingCancelledQueueEntries();
-}
-
-void SyncEngine::LimboResolutionQueue::remove(const model::DocumentKey& key) {
-  auto it = queue_entries_by_key_.find(key);
-  if (it != queue_entries_by_key_.end()) {
-    it->second->cancel();
-    queue_entries_by_key_.erase(it);
-    PruneLeadingCancelledQueueEntries();
-  }
-}
-
-void SyncEngine::LimboResolutionQueue::PruneLeadingCancelledQueueEntries() {
-  while (!queue_.empty() && queue_.front().cancelled()) {
-    queue_entries_by_key_.erase(queue_.front().key());
-    queue_.pop_front();
-  }
-}
-
-bool SyncEngine::LimboResolutionQueue::contains(
-    const model::DocumentKey& key) const {
-  return queue_entries_by_key_.find(key) != queue_entries_by_key_.end();
-}
-
-std::vector<model::DocumentKey> SyncEngine::LimboResolutionQueue::keys() const {
-  std::vector<model::DocumentKey> keys;
-  for (const QueueEntry& entry : queue_) {
-    if (!entry.cancelled()) {
-      keys.push_back(entry.key());
-    }
-  }
-  return keys;
-}
-
 }  // namespace core
 }  // namespace firestore
 }  // namespace firebase
