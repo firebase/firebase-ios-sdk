@@ -68,23 +68,21 @@ extension CoverageReportRequestData {
       // used to exclude results that are not related in terms of the target names.
       let sdk_name = resultBundle.components(separatedBy: "-")[0]
       let range = NSRange(location: 0, length: target.name.utf16.count)
+      let target_pattern = ".*\(sdk_name).*framework"
       let sdk_related_coverage_file_pattern = try! NSRegularExpression(
-        pattern: ".*\(sdk_name).*framework",
+        pattern: target_pattern,
         options: NSRegularExpression.Options(rawValue: 0)
       )
-      print(".-----------")
-      print(target.name)
+      print("Target: \(target.name) is detected.")
 
       if sdk_related_coverage_file_pattern.firstMatch(in: target.name, range: range) != nil {
-        print("---")
-        print(target.name)
+        print(
+          "Target, \(target.name), fit the pattern, \(target_pattern), and will be involved in the report."
+        )
         results
           .append(FileCoverage(sdk: resultBundle + "-" + target.name, type: "",
                                value: target.lineCoverage))
         for file in target.files {
-          results
-            .append(FileCoverage(sdk: resultBundle + "-" + target.name, type: file.name,
-                                 value: file.lineCoverage))
           results
             .append(FileCoverage(sdk: resultBundle + "-" + target.name, type: file.name,
                                  value: file.lineCoverage))
