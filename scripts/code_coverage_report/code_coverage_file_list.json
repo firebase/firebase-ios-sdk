@@ -124,7 +124,6 @@
       "FirebaseStorage.*",
       "Interop/Auth/Public/[^/]+\\.h",
       "\\.github/workflows/storage\\.yml",
-      "scripts/.*",
       "Gemfile"
     ]
   }
