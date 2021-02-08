@@ -57,9 +57,15 @@ device, and it is completely free.
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }
-    unit_tests.platforms = {:ios => '10.0', :osx => '10.12', :tvos => '10.0', :watchos => '6.0'}
-    unit_tests.source_files = 'FirebaseMessaging/Tests/UnitTests*/*.{m,h,swift}'
-    unit_tests.requires_app_host = true
+    unit_tests.platforms = {:ios => '10.0', :osx => '10.12', :tvos => '10.0', :watchos => '7.4'}
+    unit_tests.ios.source_files = 'FirebaseMessaging/Tests/UnitTests*/*.{m,h,swift}'
+    unit_tests.osx.source_files = 'FirebaseMessaging/Tests/UnitTests*/*.{m,h,swift}'
+    unit_tests.tvos.source_files = 'FirebaseMessaging/Tests/UnitTests*/*.{m,h,swift}'
+    unit_tests.watchos.source_files = 'FirebaseMessaging/Tests/UnitTests*/*.{m,h,swift}'
+    unit_tests.ios.requires_app_host = true
+    unit_tests.osx.requires_app_host = true
+    unit_tests.tvos.requires_app_host = true
+    unit_tests.watchos.requires_app_host = true
     unit_tests.pod_target_xcconfig = {
      'CLANG_ENABLE_OBJC_WEAK' => 'YES'
     }
@@ -68,9 +74,10 @@ device, and it is completely free.
 
   s.test_spec 'integration' do |int_tests|
     int_tests.scheme = { :code_coverage => true }
-    int_tests.platforms = {:ios => '10.0', :osx => '10.12', :tvos => '10.0', :watchos => '6.0'}
+    int_tests.platforms = {:ios => '10.0', :osx => '10.12', :tvos => '10.0', :watchos => '7.4'}
     int_tests.source_files = 'FirebaseMessaging/Tests/IntegrationTests/*.swift'
     int_tests.requires_app_host = true
     int_tests.resources = 'FirebaseMessaging/Tests/IntegrationTests/Resources/GoogleService-Info.plist'
   end
+
 end
