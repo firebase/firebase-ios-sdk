@@ -72,8 +72,12 @@ extension CoverageReportRequestData {
         pattern: ".*\(sdk_name).*framework",
         options: NSRegularExpression.Options(rawValue: 0)
       )
+      print(".-----------")
+      print(target.name)
 
       if sdk_related_coverage_file_pattern.firstMatch(in: target.name, range: range) != nil {
+        print("---")
+        print(target.name)
         results
           .append(FileCoverage(sdk: resultBundle + "-" + target.name, type: "",
                                value: target.lineCoverage))
