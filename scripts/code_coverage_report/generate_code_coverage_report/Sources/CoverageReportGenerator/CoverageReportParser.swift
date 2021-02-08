@@ -63,12 +63,13 @@ extension CoverageReportRequestData {
       // Get sdk name. resultBundle is like ${SDK}-${platform}. E.g. FirebaseDatabase-ios.
       // To display only sdk related tests and exclude non related testing, e.g.
       // FirebaseDatabase-ios-GoogleDataTransport.framework,
+      // FirebaseDatabase-ios-FirebaseCore-Unit-unit.xctest,
       // FirebaseDatabase-ios-FirebaseCore.framework, a regex pattern will be
       // used to exclude results that are not related in terms of the target names.
       let sdk_name = resultBundle.components(separatedBy: "-")[0]
       let range = NSRange(location: 0, length: target.name.utf16.count)
       let sdk_related_coverage_file_pattern = try! NSRegularExpression(
-        pattern: ".*\(sdk_name).*",
+        pattern: ".*\(sdk_name).*framework",
         options: NSRegularExpression.Options(rawValue: 0)
       )
 
