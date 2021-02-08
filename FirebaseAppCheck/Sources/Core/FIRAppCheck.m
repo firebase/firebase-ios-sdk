@@ -109,6 +109,7 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
                                             tokenExpirationThreshold:kTokenExpirationThreshold];
 
   FIRAppCheckStorage *storage = [[FIRAppCheckStorage alloc] initWithAppName:app.name
+                                                                      appID:app.options.googleAppID
                                                                 accessGroup:app.options.appGroupID];
 
   return [self initWithAppName:app.name

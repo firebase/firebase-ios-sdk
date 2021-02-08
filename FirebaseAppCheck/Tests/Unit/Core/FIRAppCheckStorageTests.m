@@ -34,7 +34,10 @@
   [super setUp];
 
   self.appName = @"FIRAppCheckStorageTestsApp";
-  self.storage = [[FIRAppCheckStorage alloc] initWithAppName:self.appName accessGroup:nil];
+  self.storage =
+      [[FIRAppCheckStorage alloc] initWithAppName:self.appName
+                                            appID:@"1:100000000000:ios:aaaaaaaaaaaaaaaaaaaaaaaa"
+                                      accessGroup:nil];
 }
 
 - (void)tearDown {
@@ -65,6 +68,27 @@
   XCTAssertNil(setPromise.error);
 
   __auto_type getPromise = [self.storage getToken];
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+  XCTAssertNil(getPromise.value);
+  XCTAssertNil(getPromise.error);
+}
+
+- (void)testSetTokenPerApp {
+  // 1. Set token with a storage.
+  FIRAppCheckToken *tokenToStore = [[FIRAppCheckToken alloc] initWithToken:@"token"
+                                                            expirationDate:[NSDate distantPast]];
+
+  FBLPromise *setPromise = [self.storage setToken:tokenToStore];
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+  XCTAssertEqualObjects(setPromise.value, tokenToStore);
+  XCTAssertNil(setPromise.error);
+
+  // 2. Try to read the token with another storage.
+  FIRAppCheckStorage *storage2 =
+      [[FIRAppCheckStorage alloc] initWithAppName:self.appName
+                                            appID:@"1:200000000000:ios:aaaaaaaaaaaaaaaaaaaaaaaa"
+                                      accessGroup:nil];
+  __auto_type getPromise = [storage2 getToken];
   XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
   XCTAssertNil(getPromise.value);
   XCTAssertNil(getPromise.error);

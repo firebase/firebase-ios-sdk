@@ -34,11 +34,15 @@
 #import "FirebaseAppCheck/Sources/Core/Storage/FIRAppCheckStorage.h"
 #import "FirebaseAppCheck/Sources/Core/TokenRefresh/FIRAppCheckTokenRefresher.h"
 
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+
 @interface FIRAppCheck (Tests) <FIRAppCheckInterop>
 - (instancetype)initWithAppName:(NSString *)appName
                appCheckProvider:(id<FIRAppCheckProvider>)appCheckProvider
                         storage:(id<FIRAppCheckStorageProtocol>)storage
                  tokenRefresher:(id<FIRAppCheckTokenRefresherProtocol>)tokenRefresher;
+
+- (nullable instancetype)initWithApp:(FIRApp *)app;
 @end
 
 @interface FIRAppCheckTests : XCTestCase
@@ -77,8 +81,73 @@
   self.mockAppCheckProvider = nil;
   [self.mockStorage stopMocking];
   self.mockStorage = nil;
+  [self.mockTokenRefresher stopMocking];
+  self.mockTokenRefresher = nil;
 
   [super tearDown];
+}
+
+- (void)testInitWithApp {
+  NSString *googleAppID = @"testInitWithApp_googleAppID";
+  NSString *appName = @"testInitWithApp_appName";
+  NSString *appGroupID = @"testInitWithApp_appGroupID";
+
+  // 1. Stub FIRApp and validate usage.
+  id mockApp = OCMStrictClassMock([FIRApp class]);
+  id mockAppOptions = OCMStrictClassMock([FIROptions class]);
+  OCMStub([mockApp name]).andReturn(appName);
+  OCMStub([(FIRApp *)mockApp options]).andReturn(mockAppOptions);
+  OCMExpect([mockAppOptions googleAppID]).andReturn(googleAppID);
+  OCMExpect([mockAppOptions appGroupID]).andReturn(appGroupID);
+
+  // 2. Stub FIRAppCheckTokenRefresher and validate usage.
+  id mockTokenRefresher = OCMClassMock([FIRAppCheckTokenRefresher class]);
+  OCMExpect([mockTokenRefresher alloc]).andReturn(mockTokenRefresher);
+  id refresherDateValidator = [OCMArg checkWithBlock:^BOOL(NSDate *tokenExpirationDate) {
+    NSTimeInterval accuracy = 1;
+    XCTAssertLessThanOrEqual(ABS([tokenExpirationDate timeIntervalSinceNow]), accuracy);
+    return YES;
+  }];
+  OCMExpect([mockTokenRefresher initWithTokenExpirationDate:refresherDateValidator
+                                   tokenExpirationThreshold:5 * 60])
+      .andReturn(mockTokenRefresher);
+  OCMExpect([mockTokenRefresher setTokenRefreshHandler:[OCMArg any]]);
+
+  // 3. Stub FIRAppCheckStorage and validate usage.
+  id mockStorage = OCMClassMock([FIRAppCheckStorage class]);
+  OCMExpect([mockStorage alloc]).andReturn(mockStorage);
+  OCMExpect([mockStorage initWithAppName:appName appID:googleAppID accessGroup:appGroupID])
+      .andReturn(mockStorage);
+
+  // 4. Stub attestation provider.
+  OCMockObject<FIRAppCheckProviderFactory> *mockProviderFactory =
+      OCMProtocolMock(@protocol(FIRAppCheckProviderFactory));
+  OCMockObject<FIRAppCheckProvider> *mockProvider = OCMProtocolMock(@protocol(FIRAppCheckProvider));
+  OCMExpect([mockProviderFactory createProviderWithApp:mockApp]).andReturn(mockProvider);
+
+  [FIRAppCheck setAppCheckProviderFactory:mockProviderFactory];
+
+  // 5. Call init.
+  FIRAppCheck *appCheck = [[FIRAppCheck alloc] initWithApp:mockApp];
+  XCTAssert([appCheck isKindOfClass:[FIRAppCheck class]]);
+
+  // 6. Verify mocks.
+  OCMVerifyAll(mockApp);
+  OCMVerifyAll(mockAppOptions);
+  OCMVerifyAll(mockTokenRefresher);
+  OCMVerifyAll(mockStorage);
+  OCMVerifyAll(mockProviderFactory);
+  OCMVerifyAll(mockProvider);
+
+  // 7. Stop mocking real class mocks.
+  [mockApp stopMocking];
+  mockApp = nil;
+  [mockAppOptions stopMocking];
+  mockAppOptions = nil;
+  [mockTokenRefresher stopMocking];
+  mockTokenRefresher = nil;
+  [mockStorage stopMocking];
+  mockStorage = nil;
 }
 
 - (void)testGetToken_WhenNoCache_Success {

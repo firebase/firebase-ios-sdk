@@ -33,6 +33,7 @@ static NSString *const kKeychainService = @"com.firebase.app_check.token_storage
 @interface FIRAppCheckStorage ()
 
 @property(nonatomic, readonly) NSString *appName;
+@property(nonatomic, readonly) NSString *appID;
 @property(nonatomic, readonly) GULKeychainStorage *keychainStorage;
 @property(nonatomic, readonly, nullable) NSString *accessGroup;
 
@@ -41,21 +42,28 @@ static NSString *const kKeychainService = @"com.firebase.app_check.token_storage
 @implementation FIRAppCheckStorage
 
 - (instancetype)initWithAppName:(NSString *)appName
+                          appID:(NSString *)appID
                 keychainStorage:(GULKeychainStorage *)keychainStorage
                     accessGroup:(nullable NSString *)accessGroup {
   self = [super init];
   if (self) {
     _appName = [appName copy];
+    _appID = [appID copy];
     _keychainStorage = keychainStorage;
     _accessGroup = [accessGroup copy];
   }
   return self;
 }
 
-- (instancetype)initWithAppName:(NSString *)appName accessGroup:(nullable NSString *)accessGroup {
+- (instancetype)initWithAppName:(NSString *)appName
+                          appID:(NSString *)appID
+                    accessGroup:(nullable NSString *)accessGroup {
   GULKeychainStorage *keychainStorage =
       [[GULKeychainStorage alloc] initWithService:kKeychainService];
-  return [self initWithAppName:appName keychainStorage:keychainStorage accessGroup:accessGroup];
+  return [self initWithAppName:appName
+                         appID:appID
+               keychainStorage:keychainStorage
+                   accessGroup:accessGroup];
 }
 
 - (FBLPromise<FIRAppCheckToken *> *)getToken {
@@ -91,11 +99,11 @@ static NSString *const kKeychainService = @"com.firebase.app_check.token_storage
 }
 
 - (NSString *)tokenKey {
-  return [[self class] tokenKeyForAppName:self.appName];
+  return [[self class] tokenKeyForAppName:self.appName appID:self.appID];
 }
 
-+ (NSString *)tokenKeyForAppName:(NSString *)appName {
-  return [NSString stringWithFormat:@"app_check_token.%@", appName];
++ (NSString *)tokenKeyForAppName:(NSString *)appName appID:(NSString *)appID {
+  return [NSString stringWithFormat:@"app_check_token.%@.%@", appName, appID];
 }
 
 @end
