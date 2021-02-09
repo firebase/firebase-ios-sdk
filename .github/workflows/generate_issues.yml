@@ -16,4 +16,4 @@ jobs:
       with:
         access-token: '${{ secrets.GITHUB_TOKEN }}'
         # This is to exclude workflows that will be searched in the nightly report.
-        exclude-workflow-files: 'performance-integration-tests.ymls'
+        exclude-workflow-files: 'performance-integration-tests.yml'
