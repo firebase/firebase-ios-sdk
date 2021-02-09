@@ -60,11 +60,6 @@ class ModelDownloadTask {
 }
 
 extension ModelDownloadTask {
-  /// Name for model file stored on device.
-  var downloadedModelFileName: String {
-    return "fbml_model__\(appName)__\(remoteModelInfo.name).tflite"
-  }
-
   /// Check if requests can be merged.
   func canMergeRequests() -> Bool {
     return downloadStatus != .complete
@@ -256,7 +251,7 @@ extension ModelDownloadTask {
       do {
         try modelFileURL.setResourceValues(resourceValue)
       } catch {
-        DeviceLogger.logEvent(level: .error,
+        DeviceLogger.logEvent(level: .debug,
                               message: ModelDownloadTask.ErrorDescription.disableBackupError,
                               messageCode: .disableBackupError)
       }

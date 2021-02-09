@@ -452,7 +452,6 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
 
     let deleteModelExpectation = expectation(description: "Test delete model telemetry.")
     modelDownloader.deleteDownloadedModel(name: testModelName) { result in
-      deleteModelExpectation.fulfill()
       switch result {
       case .success(()):
         guard let telemetryLogger = TelemetryLogger(app: testApp) else {
@@ -465,6 +464,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       case let .failure(error):
         XCTFail("Failed to delete model - \(error)")
       }
+      deleteModelExpectation.fulfill()
     }
 
     wait(for: [deleteModelExpectation], timeout: 5)
