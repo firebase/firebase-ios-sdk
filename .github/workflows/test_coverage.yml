@@ -70,7 +70,7 @@ jobs:
     needs: [check, pod-lib-lint-functions, pod-lib-lint-database]
     env:
       metrics_service_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    if: always() && env.metrics_service_secret
+    if: always() && jobs.create_report.env.metrics_service_secret
     runs-on: macOS-latest
     steps:
       - uses: actions/checkout@v2
