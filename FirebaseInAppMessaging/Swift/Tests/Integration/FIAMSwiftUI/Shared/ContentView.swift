@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import FirebaseInAppMessaging
 
 struct ContentView: View {
   @State var analyticsEvent = ""
@@ -22,7 +23,7 @@ struct ContentView: View {
         .padding()
       TextField("Enter an analytics event to trigger",
                 text: $analyticsEvent) { _ in
-        // InAppMessaging.inAppMessaging().triggerEvent(analyticsEvent)
+        InAppMessaging.inAppMessaging().triggerEvent(analyticsEvent)
       } onCommit: {}
         .multilineTextAlignment(.center)
         .padding()
