@@ -89,11 +89,17 @@
   [super viewDidLoad];
   [self.view setBackgroundColor:[UIColor.grayColor colorWithAlphaComponent:0.5]];
 
+  // Close button should be announced last for better VoiceOver experience.
+  self.view.accessibilityElements = @[ self.imageView, self.closeButton ];
+
   if (self.imageOnlyMessage.imageData) {
     UIImage *image = [UIImage imageWithData:self.imageOnlyMessage.imageData.imageRawData];
     self.imageOriginalSize = image.size;
     [self.imageView setImage:image];
     self.imageView.contentMode = UIViewContentModeScaleAspectFit;
+    self.imageView.accessibilityLabel = self.inAppMessage.campaignInfo.campaignName;
+  } else {
+    self.imageView.isAccessibilityElement = NO;
   }
 
   [self setupRecognizers];
@@ -174,6 +180,13 @@
                 @"Flashing the close button since this is a test message.");
     [self flashCloseButton:self.closeButton];
   }
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+  [super viewDidAppear:animated];
+
+  // Announce via VoiceOver that the image-only message has appeared. Highlight the image.
+  UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, self.imageView);
 }
 
 - (void)flashCloseButton:(UIButton *)closeButton {

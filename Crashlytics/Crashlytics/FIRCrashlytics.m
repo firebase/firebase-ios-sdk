@@ -270,6 +270,10 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
   FIRCLSUserLoggingRecordUserKeyValue(key, value);
 }
 
+- (void)setCustomKeysAndValues:(NSDictionary *)keysAndValues {
+  FIRCLSUserLoggingRecordUserKeysAndValues(keysAndValues);
+}
+
 #pragma mark - API: Development Platform
 // These two methods are depercated by our own API, so
 // its ok to implement them

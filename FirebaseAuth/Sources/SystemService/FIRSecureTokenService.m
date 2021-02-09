@@ -19,10 +19,13 @@
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuth.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthSerialTaskQueue.h"
+#import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthRequestConfiguration.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSecureTokenRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSecureTokenResponse.h"
+
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -111,6 +114,7 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
       complete();
       callback(self->_accessToken, nil, NO);
     } else {
+      FIRLogDebug(kFIRLoggerAuth, @"I-AUT000017", @"Fetching new token from backend.");
       [self requestAccessToken:^(NSString *_Nullable token, NSError *_Nullable error,
                                  BOOL tokenUpdated) {
         complete();
@@ -189,6 +193,9 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
              self->_accessToken = [newAccessToken copy];
              self->_accessTokenExpirationDate = response.approximateExpirationDate;
              tokenUpdated = YES;
+             FIRLogDebug(kFIRLoggerAuth, @"I-AUT000017",
+                         @"Updated access token. Estimated expiration date: %@, current date: %@",
+                         self->_accessTokenExpirationDate, [NSDate date]);
            }
            NSString *newRefreshToken = response.refreshToken;
            if (newRefreshToken.length && ![newRefreshToken isEqualToString:self->_refreshToken]) {
@@ -200,7 +207,19 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
 }
 
 - (BOOL)hasValidAccessToken {
-  return _accessToken && [_accessTokenExpirationDate timeIntervalSinceNow] > kFiveMinutes;
+  BOOL hasValidAccessToken =
+      _accessToken && [_accessTokenExpirationDate timeIntervalSinceNow] > kFiveMinutes;
+  if (hasValidAccessToken) {
+    FIRLogDebug(kFIRLoggerAuth, @"I-AUT000017",
+                @"Has valid access token. Estimated expiration date: %@, current date: %@",
+                _accessTokenExpirationDate, [NSDate date]);
+  } else {
+    FIRLogDebug(
+        kFIRLoggerAuth, @"I-AUT000017",
+        @"Does not have valid access token. Estimated expiration date: %@, current date: %@",
+        _accessTokenExpirationDate, [NSDate date]);
+  }
+  return hasValidAccessToken;
 }
 
 @end

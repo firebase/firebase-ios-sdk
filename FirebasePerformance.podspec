@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebasePerformance'
-  s.version          = '7.5.0'
+  s.version          = '7.6.0'
   s.summary          = 'Firebase Performance'
 
   s.description      = <<-DESC
@@ -16,7 +16,12 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
     :tag => 'CocoaPods-' + s.version.to_s
   }
   s.social_media_url = 'https://twitter.com/Firebase'
-  s.ios.deployment_target = '10.0'
+
+  ios_deployment_target = '10.0'
+  tvos_deployment_target = '10.0'
+
+  s.ios.deployment_target = ios_deployment_target
+  s.tvos.deployment_target = tvos_deployment_target
 
   s.cocoapods_version = '>= 1.4.0'
   s.static_framework = true
@@ -63,8 +68,8 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
   s.dependency 'Protobuf', '~> 3.12'
 
   s.test_spec 'unit' do |unit_tests|
+    unit_tests.platforms = {:ios => ios_deployment_target, :tvos => tvos_deployment_target}
     unit_tests.scheme = { :code_coverage => true }
-    unit_tests.platforms = {:ios => '10.0'}
     unit_tests.source_files = [
       'FirebasePerformance/Tests/Unit/**/*.{m,h,plist}',
       'GoogleDataTransport/GDTCORTests/Common/**/*.[hm]',
@@ -90,7 +95,7 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
   end
 
   s.app_spec 'TestApp' do |app_spec|
-    app_spec.platforms = {:ios => '10.0'}
+    app_spec.platforms = {:ios => ios_deployment_target, :tvos => tvos_deployment_target}
     app_spec.source_files = ['FirebasePerformance/Tests/TestApp/Source/**/*.{m,h}']
     ios_resources = ['FirebasePerformance/Tests/TestApp/Resources/*.*']
     if ENV['FPR_AUTOPUSH_ENV'] && ENV['FPR_AUTOPUSH_ENV'] == '1' then
