@@ -182,7 +182,7 @@
 }
 
 #pragma mark - Method Swizzling Tests
-#if !TARGET_OS_WATCH // TODO(chliangGoogle) Figure out why WKExtension is not recognized here.
+#if !TARGET_OS_WATCH  // TODO(chliangGoogle) Figure out why WKExtension is not recognized here.
 - (void)testSwizzlingNonAppDelegate {
   RandomObject *invalidAppDelegate = [[RandomObject alloc] init];
   [[GULAppDelegateSwizzler sharedApplication]
