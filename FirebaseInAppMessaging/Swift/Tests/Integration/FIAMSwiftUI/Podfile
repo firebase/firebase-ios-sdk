@@ -1,0 +1,20 @@
+source 'https://github.com/firebase/SpecsStaging.git'
+source 'https://cdn.cocoapods.org/'
+
+use_frameworks!
+
+pod 'FirebaseCore', :path => '../../../..'
+pod 'FirebaseInstallations', :path => '../../../..'
+pod 'FirebaseCoreDiagnostics', :path => '../../../..'
+pod 'FirebaseABTesting', :path => '../../../..'
+pod 'FirebaseInAppMessaging', :path => '../../../..'
+
+target 'FIAMSwiftUI (iOS)' do
+  platform :ios, '14.0'
+  pod 'FirebaseInAppMessagingSwift', :path => '../../../..'
+end
+
+target 'FIAMSwiftUI (macOS)' do
+  platform :macos, '10.15'
+  pod 'FirebaseInAppMessagingSwift', :path => '../../../..'
+end
