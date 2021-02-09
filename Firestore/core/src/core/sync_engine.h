@@ -301,7 +301,8 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
    * The keys of documents that are in limbo for which we haven't yet started a
    * limbo resolution query.
    */
-  util::RandomAccessQueue<model::DocumentKey, model::DocumentKeyHash> enqueued_limbo_resolutions_;
+  util::RandomAccessQueue<model::DocumentKey, model::DocumentKeyHash>
+      enqueued_limbo_resolutions_;
 
   /**
    * Keeps track of the target ID for each document that is in limbo with an

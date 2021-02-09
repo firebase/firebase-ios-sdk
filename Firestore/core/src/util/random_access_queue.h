@@ -18,8 +18,8 @@
 #define FIRESTORE_CORE_SRC_UTIL_RANDOM_ACCESS_QUEUE_H_
 
 #include <deque>
-#include <unordered_map>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace firebase {
@@ -49,6 +49,22 @@ namespace util {
 template <typename T, typename... UnorderedMapArgs>
 class RandomAccessQueue {
  public:
+  RandomAccessQueue() = default;
+
+  RandomAccessQueue(const RandomAccessQueue& other) {
+    PushBackAll(other);
+  }
+
+  RandomAccessQueue(RandomAccessQueue&& other) = default;
+
+  RandomAccessQueue& operator=(const RandomAccessQueue& other) {
+    queue_.clear();
+    queue_entries_by_element_.clear();
+    PushBackAll(other);
+    return *this;
+  }
+
+  RandomAccessQueue& operator=(RandomAccessQueue&& other) = default;
 
   /**
    * Adds an element to the back of this queue, if it is not already present.
@@ -61,10 +77,11 @@ class RandomAccessQueue {
    * This method has average constant-time complexity.
    */
   bool push_back(const T& element) {
-    // Put the key into the map if it is not already present. The `nullptr` will
-    // be replaced by a pointer to the object added to the queue when it is
+    // Put the elements into the map if it is not already present. The `nullptr`
+    // will be replaced by a pointer to the object added to the queue when it is
     // added below.
-    auto map_emplace_result = queue_entries_by_key_.emplace(element, nullptr);
+    auto map_emplace_result =
+        queue_entries_by_element_.emplace(element, nullptr);
 
     // Return `false` and do nothing if the given element was already present.
     if (!map_emplace_result.second) {
@@ -100,7 +117,7 @@ class RandomAccessQueue {
    */
   void pop_front() {
     const T& front_element = queue_.front().element();
-    queue_entries_by_key_.erase(front_element);
+    queue_entries_by_element_.erase(front_element);
     queue_.pop_front();
     PruneLeadingQueueEntries();
   }
@@ -116,12 +133,12 @@ class RandomAccessQueue {
    * the worst case, which occurs when popping the last element.
    */
   bool remove(const T& element) {
-    auto it = queue_entries_by_key_.find(element);
-    if (it == queue_entries_by_key_.end()) {
+    auto it = queue_entries_by_element_.find(element);
+    if (it == queue_entries_by_element_.end()) {
       return false;
     }
     it->second->set_removed();
-    queue_entries_by_key_.erase(it);
+    queue_entries_by_element_.erase(it);
     PruneLeadingQueueEntries();
     return true;
   }
@@ -141,7 +158,8 @@ class RandomAccessQueue {
    * This method has average constant-time complexity.
    */
   bool contains(const T& element) const {
-    return queue_entries_by_key_.find(element) != queue_entries_by_key_.end();
+    return queue_entries_by_element_.find(element) !=
+           queue_entries_by_element_.end();
   }
 
   /**
@@ -163,10 +181,18 @@ class RandomAccessQueue {
  private:
   class QueueEntry {
    public:
-    explicit QueueEntry(const T& element) : element_(element) {}
-    const T& element() const { return element_; }
-    bool removed() const { return removed_; }
-    void set_removed() { removed_ = true; }
+    explicit QueueEntry(const T& element) : element_(element) {
+    }
+    const T& element() const {
+      return element_;
+    }
+    bool removed() const {
+      return removed_;
+    }
+    void set_removed() {
+      removed_ = true;
+    }
+
    private:
     T element_;
     bool removed_ = false;
@@ -180,8 +206,17 @@ class RandomAccessQueue {
    */
   void PruneLeadingQueueEntries() {
     while (!queue_.empty() && queue_.front().removed()) {
-      queue_entries_by_key_.erase(queue_.front().element());
+      queue_entries_by_element_.erase(queue_.front().element());
       queue_.pop_front();
+    }
+  }
+
+  void PushBackAll(const RandomAccessQueue& other) {
+    for (const QueueEntry& entry : other.queue_) {
+      if (!entry.removed()) {
+        queue_.emplace_back(entry.element());
+        queue_entries_by_element_.emplace(entry.element(), &queue_.back());
+      }
     }
   }
 
@@ -207,7 +242,8 @@ class RandomAccessQueue {
    * map are pointers directly into `queue_`; therefore, care must be taken to
    * not use the values after they have been removed from `queue_`.
    */
-  std::unordered_map<T, QueueEntry*, UnorderedMapArgs...> queue_entries_by_key_;
+  std::unordered_map<T, QueueEntry*, UnorderedMapArgs...>
+      queue_entries_by_element_;
 };
 
 }  // namespace util
@@ -215,4 +251,3 @@ class RandomAccessQueue {
 }  // namespace firebase
 
 #endif  // FIRESTORE_CORE_SRC_UTIL_RANDOM_ACCESS_QUEUE_H_
-

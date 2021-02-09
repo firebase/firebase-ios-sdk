@@ -16,115 +16,630 @@
 
 #include "Firestore/core/src/util/random_access_queue.h"
 
+#include <iostream>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
 namespace firestore {
 namespace util {
 
-TEST(RandomAccessQueueTest, PushBackBasicFunctionality) {
-  RandomAccessQueue<int> queue;
+namespace {
 
-  EXPECT_TRUE(queue.push_back(10));
-  EXPECT_EQ(queue.front(), 10);
-
-  EXPECT_TRUE(queue.push_back(20));
-  EXPECT_EQ(queue.front(), 10);
-
-  EXPECT_FALSE(queue.push_back(10));
-  EXPECT_FALSE(queue.push_back(20));
-  EXPECT_EQ(queue.front(), 10);
-
-  queue.pop_front();
-  EXPECT_TRUE(queue.push_back(10));
-  EXPECT_EQ(queue.front(), 20);
-
-  queue.pop_front();
-  EXPECT_EQ(queue.front(), 10);
+std::string ToDebugString(const std::vector<int>& elements) {
+  std::string result;
+  result += "[";
+  bool is_first_element = true;
+  for (int element : elements) {
+    if (is_first_element) {
+      is_first_element = false;
+    } else {
+      result += ", ";
+    }
+    result += std::to_string(element);
+  }
+  result += "]";
+  return result;
 }
 
-TEST(RandomAccessQueueTest, PushBackOfRemovedElementInTheMiddle) {
+std::string ToDebugString(const RandomAccessQueue<int>& queue) {
+  return ToDebugString(queue.elements());
+}
+
+}  // namespace
+
+void PrintTo(const RandomAccessQueue<int>& queue, std::ostream* out) {
+  *out << ToDebugString(queue);
+}
+
+MATCHER_P(QueueElementsEqual,
+          expected_elements,
+          std::string("contains elements: ") +
+              ToDebugString(expected_elements)) {
+  return expected_elements == arg.elements();
+}
+
+TEST(RandomAccessQueueTest, CopyConstructor) {
+  RandomAccessQueue<int> queue1;
+  queue1.push_back(1);
+  queue1.push_back(2);
+  queue1.push_back(3);
+  queue1.remove(2);
+  RandomAccessQueue<int> queue2(queue1);
+  EXPECT_THAT(queue1, QueueElementsEqual(std::vector<int>({1, 3})));
+  EXPECT_THAT(queue2, QueueElementsEqual(std::vector<int>({1, 3})));
+  queue1.remove(1);
+  queue2.remove(3);
+  EXPECT_THAT(queue1, QueueElementsEqual(std::vector<int>({3})));
+  EXPECT_THAT(queue2, QueueElementsEqual(std::vector<int>({1})));
+  EXPECT_TRUE(queue1.contains(3));
+  EXPECT_FALSE(queue1.contains(1));
+  EXPECT_TRUE(queue2.contains(1));
+  EXPECT_FALSE(queue2.contains(3));
+}
+
+TEST(RandomAccessQueueTest, CopyOperator) {
+  RandomAccessQueue<int> queue1;
+  queue1.push_back(1);
+  queue1.push_back(2);
+  queue1.push_back(3);
+  queue1.remove(2);
+  RandomAccessQueue<int> queue2(queue1);
+  queue2.push_back(10);
+  queue2.push_back(11);
+  queue2.push_back(12);
+  queue2.remove(11);
+  RandomAccessQueue<int>& copy_result = (queue2 = queue1);
+  EXPECT_EQ(&copy_result, &queue2);
+  EXPECT_THAT(queue1, QueueElementsEqual(std::vector<int>({1, 3})));
+  EXPECT_THAT(queue2, QueueElementsEqual(std::vector<int>({1, 3})));
+  queue1.remove(1);
+  queue2.remove(3);
+  EXPECT_THAT(queue1, QueueElementsEqual(std::vector<int>({3})));
+  EXPECT_THAT(queue2, QueueElementsEqual(std::vector<int>({1})));
+  EXPECT_TRUE(queue1.contains(3));
+  EXPECT_FALSE(queue1.contains(1));
+  EXPECT_TRUE(queue2.contains(1));
+  EXPECT_FALSE(queue2.contains(3));
+}
+
+TEST(RandomAccessQueueTest, MoveConstructor) {
+  RandomAccessQueue<int> queue1;
+  queue1.push_back(1);
+  queue1.push_back(2);
+  queue1.push_back(3);
+  queue1.remove(2);
+  RandomAccessQueue<int> queue2(std::move(queue1));
+  EXPECT_THAT(queue2, QueueElementsEqual(std::vector<int>({1, 3})));
+  queue2.remove(3);
+  EXPECT_THAT(queue2, QueueElementsEqual(std::vector<int>({1})));
+  EXPECT_TRUE(queue2.contains(1));
+  EXPECT_FALSE(queue2.contains(3));
+}
+
+TEST(RandomAccessQueueTest, MoveOperator) {
+  RandomAccessQueue<int> queue1;
+  queue1.push_back(1);
+  queue1.push_back(2);
+  queue1.push_back(3);
+  queue1.remove(2);
+  RandomAccessQueue<int> queue2(queue1);
+  queue2.push_back(10);
+  queue2.push_back(11);
+  queue2.push_back(12);
+  queue2.remove(11);
+  RandomAccessQueue<int>& move_result = (queue2 = std::move(queue1));
+  EXPECT_EQ(&move_result, &queue2);
+  EXPECT_THAT(queue2, QueueElementsEqual(std::vector<int>({1, 3})));
+  queue2.remove(3);
+  EXPECT_THAT(queue2, QueueElementsEqual(std::vector<int>({1})));
+  EXPECT_TRUE(queue2.contains(1));
+  EXPECT_FALSE(queue2.contains(3));
+}
+
+TEST(RandomAccessQueueTest, ElementsShouldReturnEmptyIfQueueIsEmpty) {
   RandomAccessQueue<int> queue;
+  std::vector<int> elements = queue.elements();
+  EXPECT_EQ(elements, std::vector<int>());
+}
 
-  EXPECT_TRUE(queue.push_back(10));
-  EXPECT_TRUE(queue.push_back(20));
-  EXPECT_TRUE(queue.push_back(30));
+TEST(RandomAccessQueueTest, ElementsShouldReturnThePushedElementsInOrder) {
+  RandomAccessQueue<int> queue;
+  queue.push_back(1);
+  queue.push_back(2);
+  queue.push_back(3);
+  queue.push_back(4);
+  queue.push_back(5);
+  std::vector<int> elements = queue.elements();
+  EXPECT_EQ(elements, std::vector<int>({1, 2, 3, 4, 5}));
+}
 
-  EXPECT_TRUE(queue.remove(20));
-  EXPECT_TRUE(queue.push_back(20));
-  EXPECT_EQ(queue.front(), 10);
-  queue.pop_front();
-  EXPECT_EQ(queue.front(), 30);
-  queue.pop_front();
-  EXPECT_EQ(queue.front(), 20);
-  queue.pop_front();
+TEST(RandomAccessQueueTest,
+     ElementsShouldReturnRePushedElementsInTheirOriginalPosition) {
+  RandomAccessQueue<int> queue;
+  queue.push_back(1);
+  queue.push_back(2);
+  queue.push_back(3);
+  queue.push_back(4);
+  queue.push_back(5);
+  queue.push_back(3);
+  queue.push_back(1);
+  std::vector<int> elements = queue.elements();
+  EXPECT_EQ(elements, std::vector<int>({1, 2, 3, 4, 5}));
+}
+
+TEST(RandomAccessQueueTest,
+     ElementsShouldExcludeRemovedElementsInTheReturnedList) {
+  RandomAccessQueue<int> queue;
+  queue.push_back(1);
+  queue.push_back(2);
+  queue.push_back(3);
+  queue.push_back(4);
+  queue.push_back(5);
+  queue.remove(2);
+  queue.remove(4);
+  std::vector<int> elements = queue.elements();
+  EXPECT_EQ(elements, std::vector<int>({1, 3, 5}));
+}
+
+TEST(RandomAccessQueueTest,
+     ElementsShouldIncludeRemovedThenPushedElementsInTheReturnedList) {
+  RandomAccessQueue<int> queue;
+  queue.push_back(1);
+  queue.push_back(2);
+  queue.push_back(3);
+  queue.push_back(4);
+  queue.push_back(5);
+  queue.remove(2);
+  queue.remove(4);
+  queue.push_back(2);
+  queue.push_back(4);
+  std::vector<int> elements = queue.elements();
+  EXPECT_EQ(elements, std::vector<int>({1, 3, 5, 2, 4}));
+}
+
+TEST(RandomAccessQueueTest, EmptyShouldReturnTrueOnANewlyCreatedQueue) {
+  RandomAccessQueue<int> queue;
   EXPECT_TRUE(queue.empty());
 }
 
-TEST(RandomAccessQueueTest, PushBackOfRemovedElementInFront) {
+TEST(RandomAccessQueueTest, EmptyShouldReturnFalseAfterTheFirstElementIsAdded) {
   RandomAccessQueue<int> queue;
+  queue.push_back(1);
+  EXPECT_FALSE(queue.empty());
+}
 
-  EXPECT_TRUE(queue.push_back(10));
-  EXPECT_TRUE(queue.push_back(20));
-  EXPECT_TRUE(queue.push_back(30));
-
-  EXPECT_TRUE(queue.remove(10));
-  EXPECT_TRUE(queue.push_back(10));
-  EXPECT_EQ(queue.front(), 20);
-  queue.pop_front();
-  EXPECT_EQ(queue.front(), 30);
-  queue.pop_front();
-  EXPECT_EQ(queue.front(), 10);
-  queue.pop_front();
+TEST(RandomAccessQueueTest, EmptyShouldReturnTrueAfterTheOnlyElementIsRemoved) {
+  RandomAccessQueue<int> queue;
+  queue.push_back(1);
+  queue.remove(1);
   EXPECT_TRUE(queue.empty());
 }
 
-TEST(RandomAccessQueueTest, PushBackOfRemovedElementInBack) {
+TEST(RandomAccessQueueTest, EmptyShouldReturnTrueAfterAllElementsAreRemoved) {
   RandomAccessQueue<int> queue;
-
-  EXPECT_TRUE(queue.push_back(10));
-  EXPECT_TRUE(queue.push_back(20));
-  EXPECT_TRUE(queue.push_back(30));
-
-  EXPECT_TRUE(queue.remove(30));
-  EXPECT_TRUE(queue.push_back(30));
-  EXPECT_EQ(queue.front(), 10);
-  queue.pop_front();
-  EXPECT_EQ(queue.front(), 20);
-  queue.pop_front();
-  EXPECT_EQ(queue.front(), 30);
-  queue.pop_front();
+  queue.push_back(1);
+  queue.push_back(2);
+  queue.push_back(3);
+  EXPECT_FALSE(queue.empty());
+  queue.remove(1);
+  EXPECT_FALSE(queue.empty());
+  queue.remove(3);
+  EXPECT_FALSE(queue.empty());
+  queue.remove(2);
   EXPECT_TRUE(queue.empty());
 }
 
-TEST(RandomAccessQueueTest, FrontReturnsLeastRecentlyPushedElement) {
+TEST(RandomAccessQueueTest, EmptyShouldReturnFalseAfterAnElementIsReAdded) {
+  RandomAccessQueue<int> queue;
+  queue.push_back(1);
+  queue.push_back(2);
+  queue.remove(2);
+  queue.remove(1);
+  EXPECT_TRUE(queue.empty());
+  queue.push_back(1);
+  EXPECT_FALSE(queue.empty());
 }
 
-TEST(RandomAccessQueueTest, PopFrontRemovesLeastRecentlyPushedElement) {
+TEST(RandomAccessQueueTest, ContainsShouldReturnTrueOnANewlyCreatedQueue) {
+  RandomAccessQueue<int> queue;
+  EXPECT_FALSE(queue.contains(0));
+  EXPECT_FALSE(queue.contains(1));
 }
 
-TEST(RandomAccessQueueTest, PopFrontRemovesInterspersedRemovedElements) {
+TEST(RandomAccessQueueTest,
+     ContainsShouldReturnCorrectValueWhenQueueContainsOneElement) {
+  RandomAccessQueue<int> queue;
+  queue.push_back(1);
+  EXPECT_TRUE(queue.contains(1));
+  EXPECT_FALSE(queue.contains(2));
 }
 
-TEST(RandomAccessQueueTest, RemoveOfNonPresentElementDoesNothing) {
+TEST(RandomAccessQueueTest, ContainsShouldReturnFalseForRemovedElements) {
+  RandomAccessQueue<int> queue;
+  queue.push_back(1);
+  queue.push_back(2);
+  queue.push_back(3);
+  EXPECT_TRUE(queue.contains(1));
+  EXPECT_TRUE(queue.contains(2));
+  EXPECT_TRUE(queue.contains(3));
+  queue.remove(1);
+  EXPECT_FALSE(queue.contains(1));
+  EXPECT_TRUE(queue.contains(2));
+  EXPECT_TRUE(queue.contains(3));
+  queue.remove(3);
+  EXPECT_FALSE(queue.contains(1));
+  EXPECT_TRUE(queue.contains(2));
+  EXPECT_FALSE(queue.contains(3));
+  queue.remove(2);
+  EXPECT_FALSE(queue.contains(1));
+  EXPECT_FALSE(queue.contains(2));
+  EXPECT_FALSE(queue.contains(3));
 }
 
-TEST(RandomAccessQueueTest, RemoveOfPresentElementRemovesIt) {
+TEST(RandomAccessQueueTest, ContainsShouldReturnTrueForReAddedElements) {
+  RandomAccessQueue<int> queue;
+  queue.push_back(1);
+  queue.push_back(2);
+  queue.remove(2);
+  EXPECT_FALSE(queue.contains(2));
+  queue.push_back(2);
+  EXPECT_TRUE(queue.contains(2));
+  queue.remove(2);
+  EXPECT_FALSE(queue.contains(2));
+  queue.push_back(2);
+  EXPECT_TRUE(queue.contains(2));
 }
 
-TEST(RandomAccessQueueTest, RemoveOfLastElementRemovesIt) {
+TEST(RandomAccessQueueTest, RemoveReturnsFalseOnNewlyCreatedQueue) {
+  RandomAccessQueue<int> queue;
+  EXPECT_FALSE(queue.remove(0));
+  EXPECT_FALSE(queue.remove(1));
 }
 
-TEST(RandomAccessQueueTest, EmptyReturnsTrueIfAndOnlyIfEmpty) {
+TEST(RandomAccessQueueTest, RemoveReturnsTrueForOnlyElement) {
+  RandomAccessQueue<int> queue;
+  queue.push_back(1);
+  EXPECT_TRUE(queue.remove(1));
 }
 
-TEST(RandomAccessQueueTest, ContainsReturnsTrueIfAndOnlyIfElementIsPresent) {
+TEST(RandomAccessQueueTest, RemoveReturnsTrueForAllElements) {
+  RandomAccessQueue<int> queue;
+  queue.push_back(1);
+  queue.push_back(2);
+  queue.push_back(3);
+  queue.push_back(4);
+  queue.push_back(5);
+  EXPECT_TRUE(queue.remove(1));
+  EXPECT_TRUE(queue.remove(5));
+  EXPECT_TRUE(queue.remove(3));
+  EXPECT_TRUE(queue.remove(4));
+  EXPECT_TRUE(queue.remove(2));
 }
 
-TEST(RandomAccessQueueTest, KeysReturnsTheListOfKeysInInsertionOrder) {
+TEST(RandomAccessQueueTest, RemoveReturnsTrueForReAddedElements) {
+  RandomAccessQueue<int> queue;
+  queue.push_back(1);
+  queue.push_back(2);
+  queue.push_back(3);
+  queue.push_back(4);
+  queue.push_back(5);
+  EXPECT_TRUE(queue.remove(1));
+  EXPECT_TRUE(queue.remove(3));
+  EXPECT_TRUE(queue.remove(5));
+  queue.push_back(1);
+  queue.push_back(5);
+  EXPECT_TRUE(queue.remove(1));
+  EXPECT_FALSE(queue.remove(3));
+  EXPECT_TRUE(queue.remove(5));
 }
 
-TEST(RandomAccessQueueTest, KeysSkipsRemovedElements) {
+TEST(RandomAccessQueueTest, RemoveHasNoEffectOnNewlyCreatedQueue) {
+  RandomAccessQueue<int> queue;
+  queue.remove(0);
+  queue.remove(1);
+  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>()));
+}
+
+TEST(RandomAccessQueueTest, RemoveRemovesTheOnlyElement) {
+  RandomAccessQueue<int> queue;
+  queue.push_back(1);
+  queue.remove(1);
+  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>()));
+}
+
+TEST(RandomAccessQueueTest, RemoveRemovesAllElements) {
+  RandomAccessQueue<int> queue;
+  queue.push_back(1);
+  queue.push_back(2);
+  queue.push_back(3);
+  queue.push_back(4);
+  queue.push_back(5);
+  queue.remove(1);
+  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({2, 3, 4, 5})));
+  queue.remove(5);
+  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({2, 3, 4})));
+  queue.remove(3);
+  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({2, 4})));
+  queue.remove(4);
+  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({2})));
+  queue.remove(2);
+  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>()));
+}
+
+TEST(RandomAccessQueueTest, RemoveRemovesReAddedElements) {
+  RandomAccessQueue<int> queue;
+  queue.push_back(1);
+  queue.push_back(2);
+  queue.push_back(3);
+  queue.push_back(4);
+  queue.push_back(5);
+  queue.remove(1);
+  queue.remove(3);
+  queue.remove(5);
+  queue.push_back(1);
+  queue.push_back(5);
+  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({2, 4, 1, 5})));
+  queue.remove(1);
+  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({2, 4, 5})));
+  queue.remove(3);
+  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({2, 4, 5})));
+  queue.remove(5);
+  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({2, 4})));
+}
+
+TEST(RandomAccessQueueTest, PopFrontRemovesTheOnlyElement) {
+  RandomAccessQueue<int> queue;
+  queue.push_back(1);
+  queue.pop_front();
+  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>()));
+}
+
+TEST(RandomAccessQueueTest, PopFrontRemovesTheAddedElementsInOrder) {
+  RandomAccessQueue<int> queue;
+  queue.push_back(1);
+  queue.push_back(2);
+  queue.push_back(3);
+  queue.push_back(4);
+  queue.push_back(5);
+  queue.pop_front();
+  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({2, 3, 4, 5})));
+  queue.pop_front();
+  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({3, 4, 5})));
+  queue.pop_front();
+  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({4, 5})));
+  queue.pop_front();
+  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({5})));
+  queue.pop_front();
+  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>()));
+}
+
+TEST(RandomAccessQueueTest, PopFrontExcludesRemovedElements) {
+  RandomAccessQueue<int> queue;
+  queue.push_back(1);
+  queue.push_back(2);
+  queue.push_back(3);
+  queue.push_back(4);
+  queue.push_back(5);
+  queue.remove(2);
+  queue.remove(4);
+  queue.pop_front();
+  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({3, 5})));
+  queue.pop_front();
+  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({5})));
+  queue.pop_front();
+  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>()));
+}
+
+TEST(RandomAccessQueueTest, PopFrontIncludesReAddedElements) {
+  RandomAccessQueue<int> queue;
+  queue.push_back(1);
+  queue.push_back(2);
+  queue.push_back(3);
+  queue.push_back(4);
+  queue.push_back(5);
+  queue.remove(2);
+  queue.remove(4);
+  queue.push_back(2);
+  queue.push_back(4);
+  queue.pop_front();
+  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({3, 5, 2, 4})));
+  queue.pop_front();
+  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({5, 2, 4})));
+  queue.pop_front();
+  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({2, 4})));
+  queue.pop_front();
+  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({4})));
+  queue.pop_front();
+  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>()));
+}
+
+TEST(RandomAccessQueueTest, FrontReturnsTheOnlyElement) {
+  RandomAccessQueue<int> queue;
+  queue.push_back(1);
+  EXPECT_EQ(queue.front(), 1);
+}
+
+TEST(RandomAccessQueueTest, FrontReturnsTheNewFrontAfterPopFront) {
+  RandomAccessQueue<int> queue;
+  queue.push_back(1);
+  queue.push_back(2);
+  queue.push_back(3);
+  queue.push_back(4);
+  queue.push_back(5);
+  EXPECT_EQ(queue.front(), 1);
+  queue.pop_front();
+  EXPECT_EQ(queue.front(), 2);
+  queue.pop_front();
+  EXPECT_EQ(queue.front(), 3);
+  queue.pop_front();
+  EXPECT_EQ(queue.front(), 4);
+  queue.pop_front();
+  EXPECT_EQ(queue.front(), 5);
+}
+
+TEST(RandomAccessQueueTest, FrontSkipsRemovedElements) {
+  RandomAccessQueue<int> queue;
+  queue.push_back(1);
+  queue.push_back(2);
+  queue.push_back(3);
+  queue.push_back(4);
+  queue.push_back(5);
+  queue.remove(1);
+  queue.remove(3);
+  queue.remove(5);
+  EXPECT_EQ(queue.front(), 2);
+  queue.pop_front();
+  EXPECT_EQ(queue.front(), 4);
+}
+
+TEST(RandomAccessQueueTest, FrontIncludesReAddedElements) {
+  RandomAccessQueue<int> queue;
+  queue.push_back(1);
+  queue.push_back(2);
+  queue.push_back(3);
+  queue.push_back(4);
+  queue.push_back(5);
+  queue.remove(1);
+  queue.remove(3);
+  queue.remove(5);
+  queue.push_back(1);
+  queue.push_back(3);
+  queue.push_back(5);
+  EXPECT_EQ(queue.front(), 2);
+  queue.pop_front();
+  EXPECT_EQ(queue.front(), 4);
+  queue.pop_front();
+  EXPECT_EQ(queue.front(), 1);
+  queue.pop_front();
+  EXPECT_EQ(queue.front(), 3);
+  queue.pop_front();
+  EXPECT_EQ(queue.front(), 5);
+}
+
+TEST(RandomAccessQueueTest,
+     FrontRespectsOriginalPositionOfMultiplyAddedElements) {
+  RandomAccessQueue<int> queue;
+  queue.push_back(1);
+  queue.push_back(2);
+  queue.push_back(3);
+  queue.push_back(4);
+  queue.push_back(5);
+  queue.push_back(1);
+  queue.push_back(3);
+  queue.push_back(5);
+  EXPECT_EQ(queue.front(), 1);
+  queue.pop_front();
+  EXPECT_EQ(queue.front(), 2);
+  queue.pop_front();
+  EXPECT_EQ(queue.front(), 3);
+  queue.pop_front();
+  EXPECT_EQ(queue.front(), 4);
+  queue.pop_front();
+  EXPECT_EQ(queue.front(), 5);
+}
+
+TEST(RandomAccessQueueTest, PushBackReturnsTrueForEachNewElement) {
+  RandomAccessQueue<int> queue;
+  EXPECT_TRUE(queue.push_back(0));
+  EXPECT_TRUE(queue.push_back(1));
+  EXPECT_TRUE(queue.push_back(2));
+}
+
+TEST(RandomAccessQueueTest, PushBackReturnsFalseForExistingElements) {
+  RandomAccessQueue<int> queue;
+  queue.push_back(0);
+  queue.push_back(1);
+  queue.push_back(2);
+  EXPECT_FALSE(queue.push_back(0));
+  EXPECT_FALSE(queue.push_back(1));
+  EXPECT_FALSE(queue.push_back(2));
+}
+
+TEST(RandomAccessQueueTest, PushBackReturnsTrueForRemovedElements) {
+  RandomAccessQueue<int> queue;
+  queue.push_back(0);
+  queue.push_back(1);
+  queue.push_back(2);
+  queue.remove(0);
+  queue.remove(2);
+  EXPECT_TRUE(queue.push_back(0));
+  EXPECT_FALSE(queue.push_back(1));
+  EXPECT_TRUE(queue.push_back(2));
+}
+
+TEST(RandomAccessQueueTest, PushBackReturnsFalseForReAddedElements) {
+  RandomAccessQueue<int> queue;
+  queue.push_back(0);
+  queue.push_back(1);
+  queue.push_back(2);
+  queue.remove(0);
+  queue.remove(2);
+  queue.push_back(0);
+  queue.push_back(2);
+  EXPECT_FALSE(queue.push_back(0));
+  EXPECT_FALSE(queue.push_back(1));
+  EXPECT_FALSE(queue.push_back(2));
+}
+
+TEST(RandomAccessQueueTest, PushBackAddsEachNewElement) {
+  RandomAccessQueue<int> queue;
+  queue.push_back(0);
+  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({0})));
+  queue.push_back(1);
+  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({0, 1})));
+  queue.push_back(2);
+  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({0, 1, 2})));
+}
+
+TEST(RandomAccessQueueTest, PushBackDoesNotChangeQueueIfElementExists) {
+  RandomAccessQueue<int> queue;
+  queue.push_back(0);
+  queue.push_back(1);
+  queue.push_back(2);
+  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({0, 1, 2})));
+  queue.push_back(0);
+  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({0, 1, 2})));
+  queue.push_back(1);
+  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({0, 1, 2})));
+  queue.push_back(2);
+  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({0, 1, 2})));
+}
+
+TEST(RandomAccessQueueTest, PushBackCorrectlyAddsRemovedElementsToTheBack) {
+  RandomAccessQueue<int> queue;
+  queue.push_back(0);
+  queue.push_back(1);
+  queue.push_back(2);
+  queue.remove(0);
+  queue.remove(2);
+  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({1})));
+  queue.push_back(0);
+  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({1, 0})));
+  queue.push_back(2);
+  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({1, 0, 2})));
+}
+
+TEST(RandomAccessQueueTest, PushBackDoesNotChangeQueueForReAddedElements) {
+  RandomAccessQueue<int> queue;
+  queue.push_back(0);
+  queue.push_back(1);
+  queue.push_back(2);
+  queue.remove(0);
+  queue.remove(2);
+  queue.push_back(0);
+  queue.push_back(2);
+  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({1, 0, 2})));
+  EXPECT_FALSE(queue.push_back(0));
+  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({1, 0, 2})));
+  EXPECT_FALSE(queue.push_back(1));
+  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({1, 0, 2})));
+  EXPECT_FALSE(queue.push_back(2));
+  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({1, 0, 2})));
 }
 
 }  //  namespace util
