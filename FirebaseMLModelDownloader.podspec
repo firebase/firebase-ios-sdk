@@ -26,7 +26,7 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = ios_deployment_target
   s.osx.deployment_target = osx_deployment_target
   s.tvos.deployment_target = tvos_deployment_target
-  s.watchos.deployment_target = watchos_deployment_target  
+  s.watchos.deployment_target = watchos_deployment_target
 
   s.cocoapods_version = '>= 1.4.0'
   s.static_framework = true
