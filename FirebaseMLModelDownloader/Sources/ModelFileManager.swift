@@ -21,6 +21,8 @@ enum ModelFileManager {
 
   private static let modelNamePrefix = "fbml_model"
 
+  private static let fileExtension = "tflite"
+
   private static let fileManager = FileManager.default
 
   /// Root directory of model file storage on device.
@@ -39,8 +41,9 @@ enum ModelFileManager {
 
   /// Model name from file path.
   static func getModelNameFromFilePath(_ path: URL) -> String? {
-    let components = path.lastPathComponent.components(separatedBy: nameSeparator)
-    // The file path should have prefix, app name, and model name.
+    let components = path.deletingPathExtension().lastPathComponent
+      .components(separatedBy: nameSeparator)
+    // The file name should have prefix, app name, and model name.
     if components.count == 3 {
       return components.last
     }
@@ -54,7 +57,7 @@ enum ModelFileManager {
       modelName: modelName
     )
     guard let modelsDir = ModelFileManager.modelsDirectory else { return nil }
-    return modelsDir.appendingPathComponent(modelFileName)
+    return modelsDir.appendingPathComponent(modelFileName).appendingPathExtension(fileExtension)
   }
 
   /// Check if file is available at URL.
