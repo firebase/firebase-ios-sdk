@@ -530,9 +530,8 @@ void SyncEngine::TrackLimboChange(const LimboDocumentChange& limbo_change) {
   const DocumentKey& key = limbo_change.key();
   if (active_limbo_targets_by_key_.find(key) ==
           active_limbo_targets_by_key_.end() &&
-      !enqueued_limbo_resolutions_.contains(key)) {
+      enqueued_limbo_resolutions_.push_back(key)) {
     LOG_DEBUG("New document in limbo: %s", key.ToString());
-    enqueued_limbo_resolutions_.push_back(key);
     PumpEnqueuedLimboResolutions();
   }
 }

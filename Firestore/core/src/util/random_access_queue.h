@@ -42,9 +42,9 @@ namespace util {
  * constant time and remove queue elements in amortized constant time.
  *
  * The template argument `T` is the type of the elements to store in the queue.
- * The remainin variadic template arguments are passed as the template arguments
- * to `unordered_map`, allowing custom hashing and comparison functions to be
- * specified.
+ * The remaining variadic template arguments are passed as the template
+ * arguments to `unordered_map`, allowing custom hashing and comparison
+ * functions to be specified.
  */
 template <typename T, typename... UnorderedMapArgs>
 class RandomAccessQueue {
@@ -77,7 +77,7 @@ class RandomAccessQueue {
    * This method has average constant-time complexity.
    */
   bool push_back(const T& element) {
-    // Put the elements into the map if it is not already present. The `nullptr`
+    // Put the element into the map if it is not already present. The `nullptr`
     // will be replaced by a pointer to the object added to the queue when it is
     // added below.
     auto map_emplace_result =
@@ -113,7 +113,7 @@ class RandomAccessQueue {
    * The behavior of this method is undefined if the queue is empty.
    *
    * This method has average constant-time complexity; however, it is O(n) in
-   * the worst case, which occurs when popping the last element.
+   * the worst case, where `n` is the number of previously-removed elements.
    */
   void pop_front() {
     const T& front_element = queue_.front().element();
@@ -130,7 +130,8 @@ class RandomAccessQueue {
    * changes were made to this object.
    *
    * This method has average constant-time complexity; however, it is O(n) in
-   * the worst case, which occurs when popping the last element.
+   * the worst case, where the front element is removed and `n` is the number of
+   * previously-removed elements.
    */
   bool remove(const T& element) {
     auto it = queue_entries_by_element_.find(element);
@@ -211,6 +212,11 @@ class RandomAccessQueue {
     }
   }
 
+  /**
+   * Effectively calls `push_back()` on this object for each element in the
+   * given queue (but more efficiently than *actually* calling push_back() for
+   * each element).
+   */
   void PushBackAll(const RandomAccessQueue& other) {
     for (const QueueEntry& entry : other.queue_) {
       if (!entry.removed()) {
@@ -223,20 +229,26 @@ class RandomAccessQueue {
   /**
    * The queued elements.
    *
-   * When an element is "removed" from the queue, then instead of actually
-   * removing it, which is an O(n) operation, the "removed" flag of the
-   * corresponding queue entry is set to `true`; then, when that entry
-   * eventually makes its way to the front of the queue, it will be discarded
-   * and ignored.
+   * When an element is "removed" from a `RandomAccessQueue`, instead of
+   * actually removing it from this `deque`, which is an O(n) operation, the
+   * "removed" flag of the corresponding queue entry is set to `true`; when that
+   * entry eventually makes its way to the front of the queue, it will be
+   * discarded and ignored.
    *
-   * The front entry of the queue *must* always be one whose `removed` flag is
-   * `false`. This allows the `front()` method to be implemented as a mere
+   * The front entry of this `deque` *must* always be one whose `removed` flag
+   * is `false`. This allows the `front()` method to be implemented as a mere
    * pass-through to the `front()` method of this object.
    */
   std::deque<QueueEntry> queue_;
 
   /**
-   * Maps the non-removed elements to their queue entry in `queue_`.
+   * Maps the elements to their queue entry in `queue_`.
+   *
+   * When an element is "removed" from a `RandomAccessQueue`, its entry in the
+   * queue is looked up in this `unordered_map` and its `set_removed()` method
+   * is called; then, the entry is removed from the `unordered_map`. This allows
+   * presence in this `RandomAccessQueue` to be implemented by testing for
+   * presence in this `unordered_map`.
    *
    * Note: Since `std::deque` preserves pointer stability, the values in this
    * map are pointers directly into `queue_`; therefore, care must be taken to
