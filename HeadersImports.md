@@ -36,7 +36,9 @@ In Swift Package Manager, it's a library target.
 
 * *Library C++ Internal Headers* - In CocoaPods, C++ internal headers should not be included
   in the `source_files` attribute. Instead, they should be defined with the `preserve_paths`
-  attribute to avoid namespace collisions in the generated Xcode workspace.
+  attribute to avoid filename collisions in the generated Xcode workspace. C++ does not assume
+  a global header map, so if filenames are qualified at all, it's generally by directory, not a
+  filename prefix like in Objective-C.
 
 ## Imports - For Header File Consumers
 
