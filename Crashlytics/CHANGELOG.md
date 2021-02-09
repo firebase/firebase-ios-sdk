@@ -1,5 +1,5 @@
-# Unreleased
-- [changed] Updated the performance improvements in 7.5.0 to avoid a possible race condition (#7459).
+# v7.6.0
+- [fixed] Fixed an issue where some developers experienced a race condition involving binary image operations (#7459).
 
 # v7.5.0
 - [changed] Improve start-up performance by moving some initialization work to a background thread (#7332).
