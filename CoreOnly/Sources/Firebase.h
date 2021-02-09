@@ -85,18 +85,6 @@ FirebaseAnalytics dependency to your project to ensure Messaging works as intend
     #endif
   #endif
 
-  #if __has_include(<FirebaseMLCommon/FirebaseMLCommon.h>)
-    #import <FirebaseMLCommon/FirebaseMLCommon.h>
-  #endif
-
-  #if __has_include(<FirebaseMLModelInterpreter/FirebaseMLModelInterpreter.h>)
-    #import <FirebaseMLModelInterpreter/FirebaseMLModelInterpreter.h>
-  #endif
-
-  #if __has_include(<FirebaseMLVision/FirebaseMLVision.h>)
-    #import <FirebaseMLVision/FirebaseMLVision.h>
-  #endif
-
   #if __has_include(<FirebasePerformance/FirebasePerformance.h>)
     #import <FirebasePerformance/FirebasePerformance.h>
     #if TARGET_OS_IOS && !__has_include(<FirebaseAnalytics/FirebaseAnalytics.h>)

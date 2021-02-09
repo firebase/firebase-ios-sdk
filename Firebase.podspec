@@ -138,6 +138,11 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.watchos.deployment_target = '6.0'
   end
 
+  s.subspec 'MLModelDownloader' do |ss|
+    ss.dependency 'Firebase/CoreOnly'
+    ss.ios.dependency 'FirebaseMLModelDownloader', '~> 7.5.0-beta'
+  end
+
   s.subspec 'Performance' do |ss|
     ss.dependency 'Firebase/CoreOnly'
     ss.ios.dependency 'FirebasePerformance', '~> 7.6.0'
@@ -156,21 +161,6 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.osx.deployment_target = '10.12'
     ss.tvos.deployment_target = '10.0'
     ss.watchos.deployment_target = '6.0'
-  end
-
-  s.subspec 'MLCommon' do |ss|
-    ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLCommon', '~> 7.6.0-beta'
-  end
-
-  s.subspec 'MLModelInterpreter' do |ss|
-    ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLModelInterpreter', '~> 7.6.0-beta'
-  end
-
-  s.subspec 'MLVision' do |ss|
-    ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLVision', '~> 7.6.0-beta'
   end
 
 end
