@@ -1,3 +1,6 @@
+# unreleased
+- [fixed] Fixed an issue that when checking storage size before writing to the disk, the client was checking the document folder that is no longer used. (#7480)
+
 # 2020-11 -- v7.1.0
 - [fixed] Fixed completion handler issue in `application(_:didReceiveRemoteNotification:fetchCompletionHandler:)` method. (#6863)
 

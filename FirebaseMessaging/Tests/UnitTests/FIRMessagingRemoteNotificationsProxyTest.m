@@ -182,7 +182,7 @@
 }
 
 #pragma mark - Method Swizzling Tests
-
+#if !TARGET_OS_WATCH // TODO(chliangGoogle) Figure out why WKExtension is not recognized here.
 - (void)testSwizzlingNonAppDelegate {
   RandomObject *invalidAppDelegate = [[RandomObject alloc] init];
   [[GULAppDelegateSwizzler sharedApplication]
@@ -194,6 +194,7 @@
   [invalidAppDelegate application:[GULAppDelegateSwizzler sharedApplication]
       didReceiveRemoteNotification:@{}];
 }
+#endif
 
 #if !SWIFT_PACKAGE
 // The next 3 tests depend on a sharedApplication which is not available in the Swift PM test env.
