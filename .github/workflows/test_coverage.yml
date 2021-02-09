@@ -136,7 +136,8 @@ jobs:
   pod-lib-lint-firestore:
     needs: check
     # Don't run on private repo unless it is a PR.
-    if: always() && github.repository == 'Firebase/firebase-ios-sdk' && (needs.check.outputs.firestore_run_job == 'true'|| github.event.pull_request.merged)
+    # Disable Firestore for now since Firestore currently does not have unit tests in podspecs.
+    if: always() && github.repository == 'Firebase/firebase-ios-sdk' && (needs.check.outputs.firestore_run_job == 'true'|| github.event.pull_request.merged) && false
     runs-on: macOS-latest
     strategy:
       matrix:
