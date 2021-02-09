@@ -145,19 +145,19 @@ class RandomAccessQueue {
   }
 
   /**
-   * Returns the keys in the queue.
+   * Returns the elements in the queue.
    *
-   * The order of the keys in the returned `vector` is the insertion order of
-   * those keys in this queue.
+   * The order of the elements in the returned `vector` is the insertion order
+   * of those elements in this queue.
    */
-  std::vector<T> keys() const {
-    std::vector<T> keys;
+  std::vector<T> elements() const {
+    std::vector<T> elements;
     for (const QueueEntry& entry : queue_) {
       if (!entry.removed()) {
-        keys.push_back(entry.element());
+        elements.push_back(entry.element());
       }
     }
-    return keys;
+    return elements;
   }
 
  private:

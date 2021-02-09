@@ -157,7 +157,7 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
 
   // For tests only
   std::vector<model::DocumentKey> GetEnqueuedLimboDocumentResolutions() const {
-    return enqueued_limbo_resolutions_.keys();
+    return enqueued_limbo_resolutions_.elements();
   }
 
  private:
