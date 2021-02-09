@@ -35,7 +35,7 @@ jobs:
 
   mlmodeldownloader-cron-only:
     # Don't run on private repo.
-#    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
+    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
 
     runs-on: macos-latest
     env:
