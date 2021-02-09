@@ -1,4 +1,4 @@
-// Copyright 2019 Google
+// Copyright 2021 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,27 +14,30 @@
 
 #import <Foundation/Foundation.h>
 
-@class FIRCLSDataCollectionToken;
-@class FIRCLSInternalReport;
-@class FIRCLSManagerData;
-@class FIRCLSFileManager;
+NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRCLSReportUploader : NSObject
+@class FIRCLSManagerData;
+@class FIRCLSReportUploader;
+@class FIRCLSDataCollectionToken;
+
+@interface FIRCLSExistingReportManager : NSObject
+
+- (instancetype)initWithManagerData:(FIRCLSManagerData *)managerData
+                     reportUploader:(FIRCLSReportUploader *)reportUploader;
 
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
-- (instancetype)initWithManagerData:(FIRCLSManagerData *)managerData NS_DESIGNATED_INITIALIZER;
 
-@property(nonatomic, readonly) NSOperationQueue *operationQueue;
-@property(nonatomic, readonly) FIRCLSFileManager *fileManager;
+- (int)unsentReportsCountWithPreexisting:(NSArray<NSString *> *)paths;
 
-- (void)prepareAndSubmitReport:(FIRCLSInternalReport *)report
-           dataCollectionToken:(FIRCLSDataCollectionToken *)dataCollectionToken
-                      asUrgent:(BOOL)urgent
-                withProcessing:(BOOL)shouldProcess;
+- (void)deleteUnsentReportsWithPreexisting:(NSArray *)preexistingReportPaths;
 
-- (void)uploadPackagedReportAtPath:(NSString *)path
+- (void)processExistingReportPaths:(NSArray *)reportPaths
                dataCollectionToken:(FIRCLSDataCollectionToken *)dataCollectionToken
                           asUrgent:(BOOL)urgent;
 
+- (void)handleContentsInOtherReportingDirectoriesWithToken:(FIRCLSDataCollectionToken *)token;
+
 @end
+
+NS_ASSUME_NONNULL_END
