@@ -20,6 +20,7 @@
 #include <utility>
 
 #include "Firestore/core/src/util/status.h"
+#include "Firestore/core/src/util/string_format.h"
 
 namespace firebase {
 namespace firestore {

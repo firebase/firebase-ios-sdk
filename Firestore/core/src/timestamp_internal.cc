@@ -29,8 +29,9 @@ util::StatusOr<Timestamp> TimestampInternal::FromUntrustedTime(
   // Note `ToUnixSeconds` rounds towards negative infinity, this makes the
   // `nanos` calculated below always non-negative, meeting protobuf's
   // requirement.
-  auto seconds = absl::ToUnixSeconds(time);
-  auto nanos = (time - absl::FromUnixSeconds(seconds)) / absl::Nanoseconds(1);
+  int64_t seconds = absl::ToUnixSeconds(time);
+  int32_t nanos =
+      (time - absl::FromUnixSeconds(seconds)) / absl::Nanoseconds(1);
   return FromUntrustedSecondsAndNanos(seconds, nanos);
 }
 
@@ -40,17 +41,17 @@ util::StatusOr<Timestamp> TimestampInternal::FromUntrustedSecondsAndNanos(
   // range. However, since we're decoding, a single corrupt byte could cause
   // this to occur, so we'll verify the ranges before passing them in since we'd
   // rather not abort in these situations.
-  if (seconds < TimestampInternal::Min().seconds()) {
+  if (seconds < Min().seconds()) {
     return util::Status(
-        firestore::Error::kErrorDataLoss,
+        firestore::Error::kErrorInvalidArgument,
         "Invalid message: timestamp beyond the earliest supported date");
-  } else if (TimestampInternal::Max().seconds() < seconds) {
+  } else if (Max().seconds() < seconds) {
     return util::Status(
-        firestore::Error::kErrorDataLoss,
+        firestore::Error::kErrorInvalidArgument,
         "Invalid message: timestamp beyond the latest supported date");
   } else if (nanos < 0 || nanos > 999999999) {
     return util::Status(
-        firestore::Error::kErrorDataLoss,
+        firestore::Error::kErrorInvalidArgument,
         "Invalid message: timestamp nanos must be between 0 and 999999999");
   }
 

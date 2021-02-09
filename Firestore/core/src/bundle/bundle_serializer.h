@@ -36,20 +36,46 @@ namespace firebase {
 namespace firestore {
 namespace bundle {
 
+/**
+ * Provides the ability to report failure cases by inheriting `ReadContext`, and
+ * checks and reads json object into specified types.
+ *
+ * `Require*` methods check the existence of the given name and compatibility of
+ * its value (can it be read into the given type?). They fail the reader if any
+ * of the checks fail, otherwise return the read value.
+ *
+ * `Optional*` methods check the existence of the given name, and return a
+ * specified default value if the name does not exist. They then check
+ * compatibility of its value, fail the reader if that check fails, or return
+ * the read value if it succeeds.
+ */
 class JsonReader : public util::ReadContext {
  public:
   const std::string& RequireString(const char* name,
                                    const nlohmann::json& json_object);
+  const std::string& OptionalString(const char* name,
+                                    const nlohmann::json& json_object,
+                                    const std::string& default_value);
+
   const std::vector<nlohmann::json>& RequireArray(
       const char* name, const nlohmann::json& json_object);
-  const nlohmann::json& Require(const char* child_name,
-                                const nlohmann::json& json_object);
+  const nlohmann::json& RequireObject(const char* child_name,
+                                      const nlohmann::json& json_object);
 
   double RequireDouble(const char* name, const nlohmann::json& value);
+  double OptionalDouble(const char* name,
+                        const nlohmann::json& value,
+                        double default_value = 0);
+
   template <typename int_type>
   int_type RequireInt(const char* name, const nlohmann::json& value);
 
-  static bool OptionalBool(const char* name, const nlohmann::json& json_object);
+  static bool OptionalBool(const char* name,
+                           const nlohmann::json& json_object,
+                           bool default_value = false);
+
+ private:
+  double DecodeDouble(const nlohmann::json& value);
 };
 
 /** A JSON serializer to deserialize Firestore Bundles. */

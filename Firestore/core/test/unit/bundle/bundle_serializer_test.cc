@@ -27,6 +27,7 @@
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/remote/serializer.h"
 #include "Firestore/core/test/unit/nanopb/nanopb_testing.h"
+#include "Firestore/core/test/unit/testutil/status_testing.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 #include "google/protobuf/util/json_util.h"
 #include "google/protobuf/util/message_differencer.h"
@@ -74,13 +75,13 @@ class BundleSerializerTest : public ::testing::Test {
   local::LocalSerializer local_serializer;
   bundle::BundleSerializer bundle_serializer;
 
-  static std::string GetDocumentFullPath(const std::string& path) {
+  static std::string FullPath(const std::string& path) {
     return "projects/p/databases/default/documents/" + path;
   }
 
   static ProtoDocument TestDocument(ProtoValue value) {
     ProtoDocument document;
-    document.set_name(GetDocumentFullPath("bundle/test_doc"));
+    document.set_name(FullPath("bundle/test_doc"));
     auto now = Timestamp::Now();
     document.mutable_update_time()->set_nanos(now.nanoseconds());
     document.mutable_update_time()->set_seconds(now.seconds());
@@ -130,7 +131,7 @@ class BundleSerializerTest : public ::testing::Test {
     JsonReader reader;
     BundleDocument actual =
         bundle_serializer.DecodeDocument(reader, json_string);
-    EXPECT_TRUE(reader.ok());
+    EXPECT_OK(reader.status());
     return actual;
   }
 
@@ -138,7 +139,7 @@ class BundleSerializerTest : public ::testing::Test {
     JsonReader reader;
     BundleDocument actual =
         bundle_serializer.DecodeDocument(reader, json_string);
-    EXPECT_FALSE(reader.ok());
+    EXPECT_NOT_OK(reader.status());
   }
 
   // 1. Take a `Query` object, put it in a `NamedQuery` and encode it to byte
@@ -153,8 +154,7 @@ class BundleSerializerTest : public ::testing::Test {
                           ? core::LimitType::Last
                           : core::LimitType::First;
     BundledQuery bundled_query(original.ToTarget(), limit_type);
-    NamedQuery named_query("query-1", bundled_query,
-                           model::SnapshotVersion(Timestamp::Now()));
+    NamedQuery named_query("query-1", bundled_query, testutil::Version(1000));
     ByteString bytes =
         nanopb::MakeByteString(local_serializer.EncodeNamedQuery(named_query));
     ProtoNamedQuery proto_named_query = ProtobufParse<ProtoNamedQuery>(bytes);
@@ -164,7 +164,7 @@ class BundleSerializerTest : public ::testing::Test {
 
     JsonReader reader;
     NamedQuery actual = bundle_serializer.DecodeNamedQuery(reader, json_string);
-    EXPECT_TRUE(reader.ok());
+    EXPECT_OK(reader.status());
 
     EXPECT_EQ(actual.bundled_query().limit_type(),
               named_query.bundled_query().limit_type());
@@ -234,7 +234,7 @@ TEST_F(BundleSerializerTest, DecodesBundleMetadata) {
   BundleMetadata actual =
       bundle_serializer.DecodeBundleMetadata(reader, json_string);
 
-  EXPECT_TRUE(reader.ok());
+  EXPECT_OK(reader.status());
   EXPECT_EQ(proto_metadata.id(), actual.bundle_id());
   EXPECT_EQ(proto_metadata.create_time().seconds(),
             actual.create_time().timestamp().seconds());
@@ -250,45 +250,52 @@ TEST_F(BundleSerializerTest, DecodesInvalidBundleMetadataReportsError) {
 
   std::string json_string;
   MessageToJsonString(proto_metadata, &json_string);
-  auto invalid = "123" + json_string;
 
-  JsonReader reader;
-  bundle_serializer.DecodeBundleMetadata(reader, invalid);
+  {
+    auto invalid = "123" + json_string;
+    JsonReader reader;
+    bundle_serializer.DecodeBundleMetadata(reader, invalid);
 
-  EXPECT_FALSE(reader.ok());
+    EXPECT_NOT_OK(reader.status());
+  }
 
   // Replace total_bytes to a string unparseable to integer.
-  std::string json_copy =
-      ReplacedCopy(json_string, "123456789987654321", "xxxyyyzzz");
-  reader = JsonReader{};
-  EXPECT_TRUE(reader.ok());
-  bundle_serializer.DecodeBundleMetadata(reader, json_copy);
+  {
+    std::string json_copy =
+        ReplacedCopy(json_string, "123456789987654321", "xxxyyyzzz");
+    JsonReader reader;
+    bundle_serializer.DecodeBundleMetadata(reader, json_copy);
 
-  EXPECT_FALSE(reader.ok());
+    EXPECT_NOT_OK(reader.status());
+  }
 
   // Replace total_documents to an integer that is too large.
-  json_copy = ReplacedCopy(json_string, "9999", "\"123456789987654321\"");
-  reader = JsonReader{};
-  EXPECT_TRUE(reader.ok());
-  bundle_serializer.DecodeBundleMetadata(reader, json_copy);
+  {
+    auto json_copy =
+        ReplacedCopy(json_string, "9999", "\"123456789987654321\"");
+    JsonReader reader;
+    bundle_serializer.DecodeBundleMetadata(reader, json_copy);
 
-  EXPECT_FALSE(reader.ok());
+    EXPECT_NOT_OK(reader.status());
+  }
 
   // Replace total_documents to a string unparseable to integer.
-  json_copy = ReplacedCopy(json_string, "9999", "\"xxxyyyzzz\"");
-  reader = JsonReader{};
-  EXPECT_TRUE(reader.ok());
-  bundle_serializer.DecodeBundleMetadata(reader, json_copy);
+  {
+    auto json_copy = ReplacedCopy(json_string, "9999", "\"xxxyyyzzz\"");
+    JsonReader reader;
+    bundle_serializer.DecodeBundleMetadata(reader, json_copy);
 
-  EXPECT_FALSE(reader.ok());
+    EXPECT_NOT_OK(reader.status());
+  }
 
   // Replace bundle_id to a integer.
-  json_copy = ReplacedCopy(json_string, "\"bundle-1\"", "1");
-  reader = JsonReader{};
-  EXPECT_TRUE(reader.ok());
-  bundle_serializer.DecodeBundleMetadata(reader, json_copy);
+  {
+    auto json_copy = ReplacedCopy(json_string, "\"bundle-1\"", "1");
+    JsonReader reader;
+    bundle_serializer.DecodeBundleMetadata(reader, json_copy);
 
-  EXPECT_FALSE(reader.ok());
+    EXPECT_NOT_OK(reader.status());
+  }
 }
 
 // MARK: Tests for Value/Document decoding
@@ -373,7 +380,7 @@ TEST_F(BundleSerializerTest, DecodesIntegerValues) {
 
   JsonReader reader;
   BundleDocument actual = bundle_serializer.DecodeDocument(reader, json_copy);
-  EXPECT_TRUE(reader.ok());
+  EXPECT_OK(reader.status());
 
   VerifyDecodedDocumentEncodesToOriginal(actual.document(), document);
 }
@@ -436,7 +443,7 @@ TEST_F(BundleSerializerTest, DecodesNanDoubleValues) {
 
   JsonReader reader;
   BundleDocument actual = bundle_serializer.DecodeDocument(reader, json_string);
-  EXPECT_TRUE(reader.ok());
+  EXPECT_OK(reader.status());
   auto actual_value = actual.document().data().Get(
       model::FieldPath::FromDotSeparatedString("foo"));
   EXPECT_TRUE(actual_value->is_nan());
@@ -506,7 +513,7 @@ TEST_F(BundleSerializerTest, DecodesTimestampsEncodedAsObjects) {
 
     JsonReader reader;
     BundleDocument actual = bundle_serializer.DecodeDocument(reader, json_copy);
-    EXPECT_TRUE(reader.ok());
+    EXPECT_OK(reader.status());
 
     VerifyDecodedDocumentEncodesToOriginal(actual.document(), document);
   }
@@ -577,7 +584,7 @@ TEST_F(BundleSerializerTest, DecodesInvalidBlobValuesFails) {
 
 TEST_F(BundleSerializerTest, DecodesReferenceValues) {
   ProtoValue value;
-  value.set_reference_value(GetDocumentFullPath("bundle/test_doc"));
+  value.set_reference_value(FullPath("bundle/test_doc"));
   VerifyFieldValueRoundtrip(value);
 }
 
@@ -681,16 +688,19 @@ TEST_F(BundleSerializerTest, DecodesCollectionQuery) {
 
 TEST_F(BundleSerializerTest, DecodeQueriesFromOtherProjectsFails) {
   std::string json_string = NamedQueryJsonString(testutil::Query("colls"));
-  auto json_copy = ReplacedCopy(json_string, "/p/", "/p_diff/");
+  {
+    auto json_copy = ReplacedCopy(json_string, "/p/", "/p_diff/");
+    JsonReader reader;
+    bundle_serializer.DecodeNamedQuery(reader, json_copy);
+    EXPECT_NOT_OK(reader.status());
+  }
 
-  JsonReader reader;
-  bundle_serializer.DecodeNamedQuery(reader, json_copy);
-  EXPECT_FALSE(reader.ok());
-
-  json_copy = ReplacedCopy(json_string, "/default/", "/default_diff/");
-  JsonReader new_reader;
-  bundle_serializer.DecodeNamedQuery(new_reader, json_copy);
-  EXPECT_FALSE(reader.ok());
+  {
+    auto json_copy = ReplacedCopy(json_string, "/default/", "/default_diff/");
+    JsonReader reader;
+    bundle_serializer.DecodeNamedQuery(reader, json_copy);
+    EXPECT_NOT_OK(reader.status());
+  }
 }
 
 TEST_F(BundleSerializerTest, DecodesCollectionGroupQuery) {
@@ -725,26 +735,34 @@ TEST_F(BundleSerializerTest, DecodesNotNanFilter) {
 TEST_F(BundleSerializerTest, DecodeInvalidUnaryOperatorFails) {
   std::string json_string = NamedQueryJsonString(
       testutil::Query("colls").AddingFilter(Filter("f1", "==", nullptr)));
-  auto json_copy = ReplacedCopy(json_string, "IS_NULL", "Is_Null");
+  {
+    auto json_copy = ReplacedCopy(json_string, "IS_NULL", "Is_Null");
+    JsonReader reader;
+    bundle_serializer.DecodeNamedQuery(reader, json_copy);
+    EXPECT_NOT_OK(reader.status());
+  }
 
-  JsonReader reader;
-  bundle_serializer.DecodeNamedQuery(reader, json_copy);
-  EXPECT_FALSE(reader.ok());
+  {
+    auto json_copy =
+        ReplacedCopy(json_string, "\"unaryFilter\"", "\"fieldFilter\"");
+    JsonReader reader;
+    bundle_serializer.DecodeNamedQuery(reader, json_copy);
+    EXPECT_NOT_OK(reader.status());
+  }
 
-  json_copy = ReplacedCopy(json_string, "\"unaryFilter\"", "\"fieldFilter\"");
-  reader = JsonReader();
-  bundle_serializer.DecodeNamedQuery(reader, json_copy);
-  EXPECT_FALSE(reader.ok());
+  {
+    auto json_copy = ReplacedCopy(json_string, "\"op\"", "\"Op\"");
+    JsonReader reader;
+    bundle_serializer.DecodeNamedQuery(reader, json_copy);
+    EXPECT_NOT_OK(reader.status());
+  }
 
-  json_copy = ReplacedCopy(json_string, "\"op\"", "\"Op\"");
-  reader = JsonReader();
-  bundle_serializer.DecodeNamedQuery(reader, json_copy);
-  EXPECT_FALSE(reader.ok());
-
-  json_copy = ReplacedCopy(json_string, "\"fieldPath\"", "\"\"");
-  reader = JsonReader();
-  bundle_serializer.DecodeNamedQuery(reader, json_copy);
-  EXPECT_FALSE(reader.ok());
+  {
+    auto json_copy = ReplacedCopy(json_string, "\"fieldPath\"", "\"\"");
+    JsonReader reader;
+    bundle_serializer.DecodeNamedQuery(reader, json_copy);
+    EXPECT_NOT_OK(reader.status());
+  }
 }
 
 TEST_F(BundleSerializerTest, DecodesLessThanFilter) {
@@ -812,26 +830,34 @@ TEST_F(BundleSerializerTest, DecodeInvalidFieldFilterOperatorFails) {
       NamedQueryJsonString(testutil::Query("colls").AddingFilter(
           Filter("f1", "not-in", Array(1, "2", 3.0))));
 
-  auto json_copy = ReplacedCopy(json_string, "NOT_IN", "NO_IN");
+  {
+    auto json_copy = ReplacedCopy(json_string, "NOT_IN", "NO_IN");
+    JsonReader reader;
+    bundle_serializer.DecodeNamedQuery(reader, json_copy);
+    EXPECT_NOT_OK(reader.status());
+  }
 
-  JsonReader reader;
-  bundle_serializer.DecodeNamedQuery(reader, json_copy);
-  EXPECT_FALSE(reader.ok());
+  {
+    auto json_copy =
+        ReplacedCopy(json_string, "\"stringValue\"", "\"arrayValue\"");
+    JsonReader reader;
+    bundle_serializer.DecodeNamedQuery(reader, json_copy);
+    EXPECT_NOT_OK(reader.status());
+  }
 
-  json_copy = ReplacedCopy(json_string, "\"stringValue\"", "\"arrayValue\"");
-  reader = JsonReader();
-  bundle_serializer.DecodeNamedQuery(reader, json_copy);
-  EXPECT_FALSE(reader.ok());
+  {
+    auto json_copy = ReplacedCopy(json_string, "\"op\"", "\"Op\"");
+    JsonReader reader;
+    bundle_serializer.DecodeNamedQuery(reader, json_copy);
+    EXPECT_NOT_OK(reader.status());
+  }
 
-  json_copy = ReplacedCopy(json_string, "\"op\"", "\"Op\"");
-  reader = JsonReader();
-  bundle_serializer.DecodeNamedQuery(reader, json_copy);
-  EXPECT_FALSE(reader.ok());
-
-  json_copy = ReplacedCopy(json_string, "\"fieldPath\"", "\"\"");
-  reader = JsonReader();
-  bundle_serializer.DecodeNamedQuery(reader, json_copy);
-  EXPECT_FALSE(reader.ok());
+  {
+    auto json_copy = ReplacedCopy(json_string, "\"fieldPath\"", "\"\"");
+    JsonReader reader;
+    bundle_serializer.DecodeNamedQuery(reader, json_copy);
+    EXPECT_NOT_OK(reader.status());
+  }
 }
 
 TEST_F(BundleSerializerTest, DecodesCompositeFilter) {
@@ -850,28 +876,35 @@ TEST_F(BundleSerializerTest, DecodeInvalidCompositeFilterOperatorFails) {
           .AddingFilter(Filter("f1", "!=", false))
           .AddingFilter(Filter("f1", "<=", 1000.0)));
 
-  auto json_copy = ReplacedCopy(json_string, "\"AND\"", "\"OR\"");
+  {
+    auto json_copy = ReplacedCopy(json_string, "\"AND\"", "\"OR\"");
+    JsonReader reader;
+    bundle_serializer.DecodeNamedQuery(reader, json_copy);
+    EXPECT_NOT_OK(reader.status());
+  }
 
-  JsonReader reader;
-  bundle_serializer.DecodeNamedQuery(reader, json_copy);
-  EXPECT_FALSE(reader.ok());
+  {
+    auto json_copy =
+        ReplacedCopy(json_string, "\"compositeFilter\"", "\"unaryFilter\"");
+    JsonReader reader;
+    bundle_serializer.DecodeNamedQuery(reader, json_copy);
+    EXPECT_NOT_OK(reader.status());
+  }
 
-  json_copy =
-      ReplacedCopy(json_string, "\"compositeFilter\"", "\"unaryFilter\"");
-  reader = JsonReader();
-  bundle_serializer.DecodeNamedQuery(reader, json_copy);
-  EXPECT_FALSE(reader.ok());
+  {
+    auto json_copy =
+        ReplacedCopy(json_string, "\"LESS_THAN_OR_EQUAL\"", "\"garbage\"");
+    JsonReader reader;
+    bundle_serializer.DecodeNamedQuery(reader, json_copy);
+    EXPECT_NOT_OK(reader.status());
+  }
 
-  json_copy =
-      ReplacedCopy(json_string, "\"LESS_THAN_OR_EQUAL\"", "\"garbage\"");
-  reader = JsonReader();
-  bundle_serializer.DecodeNamedQuery(reader, json_copy);
-  EXPECT_FALSE(reader.ok());
-
-  json_copy = ReplacedCopy(json_string, "\"fieldPath\"", "\"whoops\"");
-  reader = JsonReader();
-  bundle_serializer.DecodeNamedQuery(reader, json_copy);
-  EXPECT_FALSE(reader.ok());
+  {
+    auto json_copy = ReplacedCopy(json_string, "\"fieldPath\"", "\"whoops\"");
+    JsonReader reader;
+    bundle_serializer.DecodeNamedQuery(reader, json_copy);
+    EXPECT_NOT_OK(reader.status());
+  }
 }
 
 TEST_F(BundleSerializerTest, DecodesOrderBys) {
@@ -890,15 +923,19 @@ TEST_F(BundleSerializerTest, DecodeInvalidOrderBysFails) {
                                .AddingOrderBy(OrderBy("f2", "asc"))
                                .AddingOrderBy(OrderBy("f3", "desc")));
 
-  auto json_copy = ReplacedCopy(json_string, "\"ASCENDING\"", "\"Asc\"");
-  auto reader = JsonReader();
-  bundle_serializer.DecodeNamedQuery(reader, json_copy);
-  EXPECT_FALSE(reader.ok());
+  {
+    auto json_copy = ReplacedCopy(json_string, "\"ASCENDING\"", "\"Asc\"");
+    JsonReader reader;
+    bundle_serializer.DecodeNamedQuery(reader, json_copy);
+    EXPECT_NOT_OK(reader.status());
+  }
 
-  json_copy = ReplacedCopy(json_string, "\"fieldPath\"", "\"whoops\"");
-  reader = JsonReader();
-  bundle_serializer.DecodeNamedQuery(reader, json_copy);
-  EXPECT_FALSE(reader.ok());
+  {
+    auto json_copy = ReplacedCopy(json_string, "\"fieldPath\"", "\"whoops\"");
+    JsonReader reader;
+    bundle_serializer.DecodeNamedQuery(reader, json_copy);
+    EXPECT_NOT_OK(reader.status());
+  }
 }
 
 TEST_F(BundleSerializerTest, DecodesLimitQueries) {
@@ -921,15 +958,19 @@ TEST_F(BundleSerializerTest, DecodeInvalidLimitQueriesFails) {
                                .AddingOrderBy(OrderBy("f1", "asc"))
                                .WithLimitToLast(4));
 
-  auto json_copy = ReplacedCopy(json_string, "\"limit\":4", "\"limit\":true");
-  auto reader = JsonReader();
-  bundle_serializer.DecodeNamedQuery(reader, json_copy);
-  EXPECT_FALSE(reader.ok());
+  {
+    auto json_copy = ReplacedCopy(json_string, "\"limit\":4", "\"limit\":true");
+    JsonReader reader;
+    bundle_serializer.DecodeNamedQuery(reader, json_copy);
+    EXPECT_NOT_OK(reader.status());
+  }
 
-  json_copy = ReplacedCopy(json_string, "\"LAST\"", "\"LLL\"");
-  reader = JsonReader();
-  bundle_serializer.DecodeNamedQuery(reader, json_copy);
-  EXPECT_FALSE(reader.ok());
+  {
+    auto json_copy = ReplacedCopy(json_string, "\"LAST\"", "\"LLL\"");
+    JsonReader reader;
+    bundle_serializer.DecodeNamedQuery(reader, json_copy);
+    EXPECT_NOT_OK(reader.status());
+  }
 }
 
 TEST_F(BundleSerializerTest, DecodesStartAtCursor) {
@@ -959,7 +1000,7 @@ TEST_F(BundleSerializerTest, DecodeInvalidCursorQueriesFails) {
   auto json_copy = ReplacedCopy(json_string, "\"1000\"", "[]");
   auto reader = JsonReader();
   bundle_serializer.DecodeNamedQuery(reader, json_copy);
-  EXPECT_FALSE(reader.ok());
+  EXPECT_NOT_OK(reader.status());
 }
 
 TEST_F(BundleSerializerTest, DecodeOffsetFails) {
@@ -970,7 +1011,7 @@ TEST_F(BundleSerializerTest, DecodeOffsetFails) {
 
   JsonReader reader;
   NamedQuery actual = bundle_serializer.DecodeNamedQuery(reader, json_copy);
-  EXPECT_FALSE(reader.ok());
+  EXPECT_NOT_OK(reader.status());
 }
 
 TEST_F(BundleSerializerTest, DecodeSelectFails) {
@@ -981,7 +1022,7 @@ TEST_F(BundleSerializerTest, DecodeSelectFails) {
 
   JsonReader reader;
   NamedQuery actual = bundle_serializer.DecodeNamedQuery(reader, json_copy);
-  EXPECT_FALSE(reader.ok());
+  EXPECT_NOT_OK(reader.status());
 }
 
 TEST_F(BundleSerializerTest, DecodeEmptyFromFails) {
@@ -991,7 +1032,7 @@ TEST_F(BundleSerializerTest, DecodeEmptyFromFails) {
 
   JsonReader reader;
   NamedQuery actual = bundle_serializer.DecodeNamedQuery(reader, json_copy);
-  EXPECT_FALSE(reader.ok());
+  EXPECT_NOT_OK(reader.status());
 }
 
 TEST_F(BundleSerializerTest, DecodeMultipleFromFails) {
@@ -1002,14 +1043,14 @@ TEST_F(BundleSerializerTest, DecodeMultipleFromFails) {
 
   JsonReader reader;
   NamedQuery actual = bundle_serializer.DecodeNamedQuery(reader, json_copy);
-  EXPECT_FALSE(reader.ok());
+  EXPECT_NOT_OK(reader.status());
 }
 
 // MARK: Tests for BundledDocumentMetadata decoding
 
 TEST_F(BundleSerializerTest, DecodesBundledDocumentMetadata) {
   ProtoBundledDocumentMetadata metadata;
-  metadata.set_name(GetDocumentFullPath("bundle/doc-1"));
+  metadata.set_name(FullPath("bundle/doc-1"));
   metadata.set_exists(true);
   google::protobuf::Timestamp t1;
   t1.set_seconds(0);
@@ -1024,14 +1065,14 @@ TEST_F(BundleSerializerTest, DecodesBundledDocumentMetadata) {
   bundle::BundledDocumentMetadata actual =
       bundle_serializer.DecodeDocumentMetadata(reader, json_string);
 
-  EXPECT_TRUE(reader.ok());
+  EXPECT_OK(reader.status());
   EXPECT_EQ(metadata.exists(), actual.exists());
   EXPECT_EQ(metadata.read_time().seconds(),
             actual.read_time().timestamp().seconds());
   EXPECT_EQ(metadata.read_time().nanos(),
             actual.read_time().timestamp().nanoseconds());
 
-  EXPECT_EQ(metadata.name(), GetDocumentFullPath(actual.key().ToString()));
+  EXPECT_EQ(metadata.name(), FullPath(actual.key().ToString()));
   std::vector<std::string> original_queries(metadata.queries().begin(),
                                             metadata.queries().end());
   EXPECT_EQ(original_queries, actual.queries());
@@ -1039,7 +1080,7 @@ TEST_F(BundleSerializerTest, DecodesBundledDocumentMetadata) {
 
 TEST_F(BundleSerializerTest, DecodeInvalidBundledDocumentMetadataFails) {
   ProtoBundledDocumentMetadata metadata;
-  metadata.set_name(GetDocumentFullPath("bundle/doc-1"));
+  metadata.set_name(FullPath("bundle/doc-1"));
   metadata.set_exists(true);
   google::protobuf::Timestamp t1;
   t1.set_seconds(0);
@@ -1049,21 +1090,27 @@ TEST_F(BundleSerializerTest, DecodeInvalidBundledDocumentMetadataFails) {
   std::string json_string;
   MessageToJsonString(metadata, &json_string);
 
-  auto json_copy = ReplacedCopy(json_string, "true", "invalid");
+  {
+    auto json_copy = ReplacedCopy(json_string, "true", "invalid");
+    JsonReader reader;
+    bundle_serializer.DecodeDocumentMetadata(reader, json_copy);
+    EXPECT_NOT_OK(reader.status());
+  }
 
-  JsonReader reader;
-  bundle_serializer.DecodeDocumentMetadata(reader, json_copy);
-  EXPECT_FALSE(reader.ok());
+  {
+    auto json_copy = ReplacedCopy(json_string, R"(["q1"])", R"("q1")");
+    JsonReader reader;
+    bundle_serializer.DecodeDocumentMetadata(reader, json_copy);
+    EXPECT_NOT_OK(reader.status());
+  }
 
-  json_copy = ReplacedCopy(json_string, R"(["q1"])", R"("q1")");
-  reader = JsonReader();
-  bundle_serializer.DecodeDocumentMetadata(reader, json_copy);
-  EXPECT_FALSE(reader.ok());
-
-  json_copy = ReplacedCopy(json_string, R"("readTime")", R"("WriteTime")");
-  reader = JsonReader();
-  bundle_serializer.DecodeDocumentMetadata(reader, json_copy);
-  EXPECT_FALSE(reader.ok());
+  {
+    auto json_copy =
+        ReplacedCopy(json_string, R"("readTime")", R"("WriteTime")");
+    JsonReader reader;
+    bundle_serializer.DecodeDocumentMetadata(reader, json_copy);
+    EXPECT_NOT_OK(reader.status());
+  }
 }
 
 }  //  namespace

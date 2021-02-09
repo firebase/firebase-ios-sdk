@@ -1426,7 +1426,9 @@ Timestamp Serializer::DecodeTimestamp(
       timestamp_proto.seconds, timestamp_proto.nanos);
 
   if (!decoded.ok()) {
-    context->set_status(decoded.status());
+    context->Fail(
+        "Failed to decode into valid protobuf Timestamp with error '%s'",
+        decoded.status().error_message());
     return {};
   }
   return decoded.ConsumeValueOrDie();

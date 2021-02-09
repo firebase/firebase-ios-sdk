@@ -126,6 +126,7 @@ class Serializer {
   /**
    * @brief Converts from nanopb proto to the model FieldValue format.
    */
+  // TODO(wuandy): all `context` here should be mutable reference instead.
   model::FieldValue DecodeFieldValue(
       util::ReadContext* context, const google_firestore_v1_Value& proto) const;
 
