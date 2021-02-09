@@ -13,10 +13,10 @@ struct CustomInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModifier
   }
 
   func body(content: Content) -> some View {
-    let inAppMessage = delegateBridge.inAppMessage
+    let inAppMessageData = delegateBridge.inAppMessageData
     return content
-      .overlay(inAppMessage == nil ? AnyView(EmptyView()) :
-        AnyView(closure(inAppMessage!.0, inAppMessage!.1)))
+      .overlay(inAppMessageData == nil ? AnyView(EmptyView()) :
+        AnyView(closure(inAppMessageData!.0, inAppMessageData!.1)))
   }
 }
 
