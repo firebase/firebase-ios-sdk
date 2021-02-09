@@ -140,7 +140,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'MLModelDownloader' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseMLModelDownloader', '~> 7.5.0-beta'
+    ss.ios.dependency 'FirebaseMLModelDownloader', '~> 7.6.0-beta'
   end
 
   s.subspec 'Performance' do |ss|
