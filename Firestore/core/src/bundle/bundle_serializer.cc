@@ -43,14 +43,7 @@ namespace firestore {
 namespace bundle {
 namespace {
 
-using absl::Base64Unescape;
-using absl::FromUnixSeconds;
-using absl::Nanoseconds;
-using absl::ParseTime;
-using absl::SimpleAtod;
-using absl::SimpleAtoi;
 using absl::Time;
-using absl::ToUnixSeconds;
 using core::Bound;
 using core::Direction;
 using core::FieldFilter;
@@ -90,8 +83,8 @@ Timestamp DecodeTimestamp(JsonReader& reader, const json& version) {
   if (version.is_string()) {
     Time time;
     std::string err;
-    bool ok = ParseTime(absl::RFC3339_full,
-                        version.get_ref<const std::string&>(), &time, &err);
+    bool ok = absl::ParseTime(
+        absl::RFC3339_full, version.get_ref<const std::string&>(), &time, &err);
     if (ok) {
       decoded = TimestampInternal::FromUntrustedTime(time);
     } else {
@@ -307,7 +300,7 @@ FieldValue DecodeGeoPointValue(JsonReader& reader, const json& geo_json) {
 FieldValue DecodeBytesValue(JsonReader& reader,
                             const std::string& bytes_string) {
   std::string decoded;
-  if (!Base64Unescape(bytes_string, &decoded)) {
+  if (!absl::Base64Unescape(bytes_string, &decoded)) {
     reader.Fail("Failed to decode bytesValue string into binary form");
     return {};
   }
@@ -408,7 +401,7 @@ double JsonReader::DecodeDouble(const nlohmann::json& value) {
   double result = 0;
   if (value.is_string()) {
     const auto& s = value.get_ref<const std::string&>();
-    auto ok = SimpleAtod(s, &result);
+    auto ok = absl::SimpleAtod(s, &result);
     if (!ok) {
       Fail("Failed to parse into double: " + s);
     }
@@ -427,7 +420,7 @@ int_type JsonReader::RequireInt(const char* name, const json& json_object) {
     int_type result = 0;
     if (value.is_string()) {
       const auto& s = value.get_ref<const std::string&>();
-      auto ok = SimpleAtoi<int_type>(s, &result);
+      auto ok = absl::SimpleAtoi<int_type>(s, &result);
       if (!ok) {
         Fail("Failed to parse into integer: " + s);
       }

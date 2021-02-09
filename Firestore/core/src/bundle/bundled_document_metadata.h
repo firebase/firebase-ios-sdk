@@ -59,7 +59,7 @@ class BundledDocumentMetadata {
   /**
    * Returns the names of the queries in this bundle that this document matches
    * to.
-   * */
+   */
   const std::vector<std::string>& queries() const {
     return queries_;
   }
