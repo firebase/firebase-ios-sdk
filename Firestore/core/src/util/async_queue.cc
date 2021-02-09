@@ -45,7 +45,6 @@ AsyncQueue::~AsyncQueue() {
 
 void AsyncQueue::EnterRestrictedMode() {
   std::lock_guard<std::mutex> lock(mutex_);
-  VerifySequentialOrder();
   if (mode_ == Mode::kDisposed) return;
 
   mode_ = Mode::kRestricted;
@@ -97,9 +96,7 @@ bool AsyncQueue::Enqueue(const Operation& operation) {
 }
 
 bool AsyncQueue::EnqueueEvenWhileRestricted(const Operation& operation) {
-  // Still guarding the lock to ensure sequential scheduling.
   std::lock_guard<std::mutex> lock(mutex_);
-  VerifySequentialOrder();
   if (mode_ == Mode::kDisposed) return false;
 
   executor_->Execute(Wrap(operation));

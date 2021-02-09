@@ -22,14 +22,14 @@
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="rA8-LH-EYm">
                                 <rect key="frame" x="44" y="59" width="294" height="222"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <accessibility key="accessibilityConfiguration" identifier="image-view-in-image-only-view">
+                                <accessibility key="accessibilityConfiguration" identifier="image-view-in-image-only-view" label="In-app message image">
                                     <bool key="isElement" value="YES"/>
                                 </accessibility>
                             </imageView>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vYW-0X-e5S">
                                 <rect key="frame" x="313" y="42" width="40" height="40"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <accessibility key="accessibilityConfiguration" identifier="close-button"/>
+                                <accessibility key="accessibilityConfiguration" identifier="close-button" label="Close button"/>
                                 <state key="normal" backgroundImage="close-with-transparency.png"/>
                                 <connections>
                                     <action selector="closeButtonClicked:" destination="lGH-bl-7Xw" eventType="touchUpInside" id="lpP-J3-1Jc"/>
@@ -62,7 +62,7 @@
                         <subviews>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="VfB-vw-7up">
                                 <rect key="frame" x="5" y="47" width="60" height="60"/>
-                                <accessibility key="accessibilityConfiguration" identifier="banner-image-view">
+                                <accessibility key="accessibilityConfiguration" identifier="banner-image-view" label="In-app message image">
                                     <bool key="isElement" value="YES"/>
                                 </accessibility>
                                 <constraints>
@@ -144,7 +144,7 @@
                                     </label>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="700" translatesAutoresizingMaskIntoConstraints="NO" id="c7x-Lf-M58">
                                         <rect key="frame" x="24" y="82.000000000000043" width="306" height="230.66666666666663"/>
-                                        <accessibility key="accessibilityConfiguration" identifier="modal-image-view">
+                                        <accessibility key="accessibilityConfiguration" identifier="modal-image-view" label="In-app message image">
                                             <bool key="isElement" value="YES"/>
                                         </accessibility>
                                         <constraints>
@@ -305,7 +305,7 @@
                             </view>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="akA-AE-VPc">
                                 <rect key="frame" x="364" y="167.66666666666666" width="40" height="40"/>
-                                <accessibility key="accessibilityConfiguration" identifier="close-button"/>
+                                <accessibility key="accessibilityConfiguration" identifier="close-button" label="Close button"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="40" identifier="Close button width = 40" id="Dwi-In-x47"/>
                                     <constraint firstAttribute="height" constant="40" identifier="Close button height = 40" id="tIe-pH-jRO"/>
@@ -392,7 +392,7 @@
                                 <subviews>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="gB0-8W-G9z">
                                         <rect key="frame" x="0.0" y="0.0" width="240" height="160"/>
-                                        <accessibility key="accessibilityConfiguration" identifier="card-image-view">
+                                        <accessibility key="accessibilityConfiguration" identifier="card-image-view" label="In-app message image">
                                             <bool key="isElement" value="YES"/>
                                         </accessibility>
                                         <constraints>

@@ -1,3 +1,6 @@
+# FirebaseCore 7.6.0
+- [fixed] Fixed build warnings introduced with Xcode 12.5. (#7431)
+
 # Firebase 7.5.0
 - [fixed] Fixed potential deadlock with objc_copyImageNames call. (#7310)
 
