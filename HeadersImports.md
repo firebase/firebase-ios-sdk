@@ -34,6 +34,10 @@ In Swift Package Manager, it's a library target.
   should be located among the source files. [Xcode](https://stackoverflow.com/a/8016333) refers to
   these as "Project Headers".
 
+* *Library C++ Internal Headers* - In CocoaPods, C++ internal headers should not be included
+  in the `source_files` attribute. Instead, they should be defined with the `preserve_paths`
+  attribute to avoid namespace collisions in the generated Xcode workspace.
+
 ## Imports - For Header File Consumers
 
 * *Headers within the Library* - Use a repo-relative path for all of the header types above.
@@ -42,9 +46,12 @@ In Swift Package Manager, it's a library target.
 
 * *Private Headers from other Libraries* - Import a private umbrella header like
   `FirebaseCore/Sources/Private/FirebaseCoreInternal.h`. For CocoaPods, these files should be
-  added to the podspec in the `preserved_path` attribute like:
+  added to the podspec in the `source_files` attribute like:
 ```
-  s.preserve_paths = 'Interop/Auth/Public/*.h', 'FirebaseCore/Sources/Private/*.h'
+  s.source_files = [ 'FirebaseFoo/Sources/**/*.[mh]'
+                     'Interop/Auth/Public/*.h',
+                     'FirebaseCore/Sources/Private/*.h',
+                   ]
 ```
 
 * *Headers from an external dependency* - Do a module import for Swift Package Manager and an
