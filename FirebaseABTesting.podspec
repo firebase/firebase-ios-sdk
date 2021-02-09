@@ -45,6 +45,7 @@ Firebase Cloud Messaging and Firebase Remote Config in your app.
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }
+    unit_tests.platforms = {:ios => '10.0', :osx => '10.12', :tvos => '10.0'}
     unit_tests.source_files = 'FirebaseABTesting/Tests/Unit/**/*.[mh]'
     unit_tests.resources = 'FirebaseABTesting/Tests/Unit/Resources/*.txt'
     unit_tests.requires_app_host = true
