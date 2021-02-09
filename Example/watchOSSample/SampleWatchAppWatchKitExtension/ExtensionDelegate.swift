@@ -32,19 +32,23 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, MessagingDelegate {
     Messaging.messaging().delegate = self
     let remoteConfig = RemoteConfig.remoteConfig()
     remoteConfig.fetchAndActivate { status, error in
-        print("value:\n" + remoteConfig["test"].stringValue!)
+      guard error == nil else {
+        print("error:" + error.debugDescription)
+        return
+      }
+      print("value:\n" + remoteConfig["test"].stringValue!)
     }
   }
 
   /// MessagingDelegate
-    func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-        print("token:\n" + fcmToken!)
+  func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
+    print("token:\n" + fcmToken!)
     Messaging.messaging().subscribe(toTopic: "watch") { error in
-      if error != nil {
+      guard error == nil else {
         print("error:" + error.debugDescription)
-      } else {
-        print("Successfully subscribed to topic")
+        return
       }
+      print("Successfully subscribed to topic")
     }
   }
 
