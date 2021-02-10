@@ -36,7 +36,8 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, MessagingDelegate {
         print("error:" + error.debugDescription)
         return
       }
-      print("value:\n" + remoteConfig["test"].stringValue!)
+      let configValue :String = remoteConfig["test"].stringValue ?? "You have not set up a 'test' key in Remote Config console."
+      print("value:\n" + configValue)
     }
   }
 
