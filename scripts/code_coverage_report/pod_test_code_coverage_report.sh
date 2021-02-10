@@ -23,7 +23,7 @@ rm -r /Users/runner/Library/Developer/Xcode/DerivedData/*
 fi
 
 # Setup for pod unit tests
-if [ $platform == "FirebasePerformance" ]; then
+if [ $SDK == "FirebasePerformance" ]; then
   export FPR_UNSWIZZLE_AVAILABLE="1"
 fi
 
