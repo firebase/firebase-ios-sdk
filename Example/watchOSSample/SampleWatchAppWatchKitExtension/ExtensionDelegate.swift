@@ -20,43 +20,43 @@ import FirebaseRemoteConfig
 
 /// Entry point of the watch app.
 class ExtensionDelegate: NSObject, WKExtensionDelegate, MessagingDelegate {
-  /// Initialize Firebase service here.
-  func applicationDidFinishLaunching() {
-    FirebaseApp.configure()
-    let center = UNUserNotificationCenter.current()
-    center.requestAuthorization(options: [.alert, .sound]) { granted, error in
-      if granted {
-        WKExtension.shared().registerForRemoteNotifications()
-      }
+    /// Initialize Firebase service here.
+    func applicationDidFinishLaunching() {
+        FirebaseApp.configure()
+        let center = UNUserNotificationCenter.current()
+        center.requestAuthorization(options: [.alert, .sound]) { granted, _ in
+            if granted {
+                WKExtension.shared().registerForRemoteNotifications()
+            }
+        }
+        Messaging.messaging().delegate = self
+        let remoteConfig = RemoteConfig.remoteConfig()
+        remoteConfig.fetchAndActivate { _, error in
+            guard error == nil else {
+                print("error:" + error.debugDescription)
+                return
+            }
+            let configValue: String = remoteConfig["test"].stringValue ?? "You have not set up a 'test' key in Remote Config console."
+            print("value:\n" + configValue)
+        }
     }
-    Messaging.messaging().delegate = self
-    let remoteConfig = RemoteConfig.remoteConfig()
-    remoteConfig.fetchAndActivate { status, error in
-      guard error == nil else {
-        print("error:" + error.debugDescription)
-        return
-      }
-      let configValue :String = remoteConfig["test"].stringValue ?? "You have not set up a 'test' key in Remote Config console."
-      print("value:\n" + configValue)
-    }
-  }
 
-  /// MessagingDelegate
-  func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-    print("token:\n" + fcmToken!)
-    Messaging.messaging().subscribe(toTopic: "watch") { error in
-      guard error == nil else {
-        print("error:" + error.debugDescription)
-        return
-      }
-      print("Successfully subscribed to topic")
+    /// MessagingDelegate
+    func messaging(_: Messaging, didReceiveRegistrationToken fcmToken: String?) {
+        print("token:\n" + fcmToken!)
+        Messaging.messaging().subscribe(toTopic: "watch") { error in
+            guard error == nil else {
+                print("error:" + error.debugDescription)
+                return
+            }
+            print("Successfully subscribed to topic")
+        }
     }
-  }
 
-  /// WKExtensionDelegate
-  func didRegisterForRemoteNotifications(withDeviceToken deviceToken: Data) {
-    /// Swizzling should be disabled in Messaging for watchOS, set APNS token manually.
-    print("Set APNS Token\n")
-    Messaging.messaging().apnsToken = deviceToken
-  }
+    /// WKExtensionDelegate
+    func didRegisterForRemoteNotifications(withDeviceToken deviceToken: Data) {
+        /// Swizzling should be disabled in Messaging for watchOS, set APNS token manually.
+        print("Set APNS Token\n")
+        Messaging.messaging().apnsToken = deviceToken
+    }
 }
