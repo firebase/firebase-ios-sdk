@@ -1,6 +1,5 @@
 name: dynamiclinks
 
-
 on:
   pull_request:
     paths:
