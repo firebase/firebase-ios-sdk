@@ -143,8 +143,9 @@
         eventCacheComplete = YES;
     } else {
         eventCache = [writesCache
-            calculateCompleteEventChildrenWithCompleteServerChildren:serverCache
-                                                                         .node];
+            calculateCompleteEventChildrenWithCompleteServerChildren:
+                serverCache.node != nil ? serverCache.node
+                                        : [FEmptyNode emptyNode]];
         eventCacheComplete = NO;
     }
 

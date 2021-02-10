@@ -748,21 +748,31 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
              return serverCacheNode == nil;
            }];
 
-    if (serverCacheNode != nil) {
-        FIndexedNode *indexed =
-            [FIndexedNode indexedNodeWithNode:serverCacheNode
-                                        index:query.index];
-        FCacheNode *serverCache =
-            [[FCacheNode alloc] initWithIndexedNode:indexed
-                                 isFullyInitialized:YES
-                                         isFiltered:NO];
-        FView *view = [targetSyncPoint
-                getView:query
-            writesCache:[_pendingWriteTree childWritesForPath:[query path]]
-            serverCache:serverCache];
-        return [view completeEventCache];
+    if (targetSyncPoint == nil) {
+        targetSyncPoint = [[FSyncPoint alloc]
+            initWithPersistenceManager:self.persistenceManager];
+        self.syncPointTree = [self.syncPointTree setValue:targetSyncPoint
+                                                   atPath:[query path]];
+    } else {
+        serverCacheNode =
+            serverCacheNode != nil
+                ? serverCacheNode
+                : [targetSyncPoint completeServerCacheAtPath:[FPath empty]];
     }
-    return nil;
+
+    FIndexedNode *indexed = [FIndexedNode
+        indexedNodeWithNode:serverCacheNode != nil ? serverCacheNode
+                                                   : [FEmptyNode emptyNode]
+                      index:query.index];
+    FCacheNode *serverCache =
+        [[FCacheNode alloc] initWithIndexedNode:indexed
+                             isFullyInitialized:serverCacheNode != nil
+                                     isFiltered:NO];
+    FView *view = [targetSyncPoint
+            getView:query
+        writesCache:[_pendingWriteTree childWritesForPath:[query path]]
+        serverCache:serverCache];
+    return [view completeEventCache];
 }
 
 /**

@@ -4108,7 +4108,7 @@
   WAIT_FOR(done);
 }
 
-- (void)testGetReturnsNullForEmptyNodeWhenOnline {
+- (void)testGetForEmptyNodeReturnsNull {
   FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
 
   __block BOOL done = NO;
@@ -4121,12 +4121,35 @@
   WAIT_FOR(done);
 }
 
-- (void)testGetReturnsTheLatestValueWhenOnlineWithNoListener {
+- (void)testGetForNodeReturnsCorrectValue {
   FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
 
   __block BOOL done = NO;
 
-  [ref setValue:@42
+  [ref setValue:@1
+      withCompletionBlock:^(NSError* error, FIRDatabaseReference* ref) {
+        XCTAssertNil(error);
+        done = YES;
+      }];
+
+  WAIT_FOR(done);
+  done = NO;
+
+  [ref getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
+    XCTAssertNil(err);
+    XCTAssertEqualObjects([snapshot value], @1);
+    done = YES;
+  }];
+
+  WAIT_FOR(done);
+}
+
+- (void)testGetForChildReturnsCorrectValue {
+  FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
+
+  __block BOOL done = NO;
+
+  [ref setValue:@{@"a" : @1, @"b" : @2}
       withCompletionBlock:^(NSError* error, FIRDatabaseReference* ref) {
         XCTAssertNil(error);
         done = YES;
@@ -4134,13 +4157,77 @@
 
   WAIT_FOR(done);
 
-  [ref getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
+  [[ref child:@"a"] getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
     XCTAssertNil(err);
-    XCTAssertEqualObjects([snapshot value], @42);
+    XCTAssertEqualObjects([snapshot value], @1);
     done = YES;
   }];
+}
+
+- (void)testGetForParentReturnsCorrectValue {
+  FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
+
+  __block BOOL done = NO;
+
+  [[ref child:@"a"] setValue:@1
+         withCompletionBlock:^(NSError* error, FIRDatabaseReference* ref) {
+           XCTAssertNil(error);
+           done = YES;
+         }];
 
   WAIT_FOR(done);
+
+  [ref getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
+    XCTAssertNil(err);
+    XCTAssertEqualObjects(
+        [snapshot value],
+        @{@"a" : @1});
+    done = YES;
+  }];
+}
+
+- (void)testGetForNodeWithPendingWritesReturnsCorrectValue {
+  FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
+  FIRDatabase* db = [ref database];
+
+  __block BOOL done = NO;
+
+  @try {
+    [db goOffline];
+    [ref setValue:@42];
+
+    [ref getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
+      XCTAssertNil(err);
+      XCTAssertEqualObjects(snapshot.value, @42);
+      done = YES;
+    }];
+
+    WAIT_FOR(done);
+  } @finally {
+    [db goOnline];
+  }
+}
+
+- (void)testGetForChildOfPendingWritesReturnsCorrectValue {
+  FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
+  FIRDatabase* db = [ref database];
+
+  __block BOOL done = NO;
+
+  @try {
+    [db goOffline];
+    [ref setValue:@{@"foo" : @"bar"}];
+
+    [[ref child:@"foo"] getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
+      XCTAssertNil(err);
+      XCTAssertEqualObjects(snapshot.value, @"bar");
+      done = YES;
+    }];
+
+    WAIT_FOR(done);
+  } @finally {
+    [db goOnline];
+  }
 }
 
 - (void)testGetReturnsErrorForUnknownNodeWhenOffline {
