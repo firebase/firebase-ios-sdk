@@ -348,7 +348,7 @@ Adding dependencies is easy once components are registered with Core. Let's take
 Functions above and add a dependency to `FIRAuthInterop` defined above.
 
 **Important**: You will also need to add `FirebaseAuthInterop` headers to your
-               product's podspec `preserved_paths` attribute for CocoaPods and something
+               product's podspec `source_files` attribute for CocoaPods and something
                comparable for any other package manager supported. Note, for Swift Package Manager,
                nothing special is needed as long as all the pods and headers are in the same repo.
 

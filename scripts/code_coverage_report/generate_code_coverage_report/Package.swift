@@ -19,12 +19,16 @@
 import PackageDescription
 
 let package = Package(
-  name: "CoverageReportGenerator",
+  name: "CodeCoverage",
   products: [
     // Products define the executables and libraries a package produces, and make them visible to other packages.
     .executable(
       name: "CoverageReportGenerator",
       targets: ["CoverageReportGenerator"]
+    ),
+    .executable(
+      name: "UpdatedFilesCollector",
+      targets: ["UpdatedFilesCollector"]
     ),
   ],
   dependencies: [
@@ -37,6 +41,12 @@ let package = Package(
     // Targets can depend on other targets in this package, and on products in packages this package depends on.
     .target(
       name: "CoverageReportGenerator",
+      dependencies: [
+        .product(name: "ArgumentParser", package: "swift-argument-parser"),
+      ]
+    ),
+    .target(
+      name: "UpdatedFilesCollector",
       dependencies: [
         .product(name: "ArgumentParser", package: "swift-argument-parser"),
       ]
