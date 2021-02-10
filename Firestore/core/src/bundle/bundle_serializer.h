@@ -85,16 +85,16 @@ class BundleSerializer {
       : rpc_serializer_(std::move(serializer)) {
   }
   BundleMetadata DecodeBundleMetadata(JsonReader& context,
-                                      const std::string& metadata) const;
+                                      const nlohmann::json& metadata) const;
 
   NamedQuery DecodeNamedQuery(JsonReader& context,
-                              const std::string& named_query) const;
+                              const nlohmann::json& named_query) const;
 
   BundledDocumentMetadata DecodeDocumentMetadata(
-      JsonReader& context, const std::string& document_metadata) const;
+      JsonReader& context, const nlohmann::json& document_metadata) const;
 
   BundleDocument DecodeDocument(JsonReader& context,
-                                const std::string& document) const;
+                                const nlohmann::json& document) const;
 
  private:
   BundledQuery DecodeBundledQuery(JsonReader& context,

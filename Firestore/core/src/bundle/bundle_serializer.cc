@@ -74,9 +74,6 @@ const std::vector<T>& EmptyVector() {
   return *empty;
 }
 
-json Parse(const std::string& s) {
-  return json::parse(s, /*callback=*/nullptr, /*allow_exception=*/false);
-}
 
 Timestamp DecodeTimestamp(JsonReader& reader, const json& version) {
   StatusOr<Timestamp> decoded;
@@ -436,14 +433,7 @@ int_type JsonReader::RequireInt(const char* name, const json& json_object) {
 // Mark: BundleSerializer
 
 BundleMetadata BundleSerializer::DecodeBundleMetadata(
-    JsonReader& reader, const std::string& metadata_string) const {
-  const json& metadata = Parse(metadata_string);
-
-  if (metadata.is_discarded()) {
-    reader.Fail("Failed to parse string into json: " + metadata_string);
-    return {};
-  }
-
+    JsonReader& reader, const json& metadata) const {
   return BundleMetadata(
       reader.RequireString("id", metadata),
       reader.RequireInt<uint32_t>("version", metadata),
@@ -454,14 +444,7 @@ BundleMetadata BundleSerializer::DecodeBundleMetadata(
 }
 
 NamedQuery BundleSerializer::DecodeNamedQuery(
-    JsonReader& reader, const std::string& named_query_string) const {
-  const json& named_query = Parse(named_query_string);
-
-  if (named_query.is_discarded()) {
-    reader.Fail("Failed to parse string into json: " + named_query_string);
-    return {};
-  }
-
+    JsonReader& reader, const json& named_query) const {
   return NamedQuery(
       reader.RequireString("name", named_query),
       DecodeBundledQuery(reader,
@@ -703,15 +686,7 @@ FieldValue BundleSerializer::DecodeReferenceValue(
 }
 
 BundledDocumentMetadata BundleSerializer::DecodeDocumentMetadata(
-    JsonReader& reader, const std::string& document_metadata_string) const {
-  const json& document_metadata = Parse(document_metadata_string);
-
-  if (document_metadata.is_discarded()) {
-    reader.Fail("Failed to parse string into json: " +
-                document_metadata_string);
-    return {};
-  }
-
+    JsonReader& reader, const json& document_metadata) const {
   ResourcePath path =
       DecodeName(reader, reader.RequireObject("name", document_metadata));
   // Return early if !ok(), `DocumentKey` aborts with invalid inputs.
@@ -740,15 +715,7 @@ BundledDocumentMetadata BundleSerializer::DecodeDocumentMetadata(
 }
 
 BundleDocument BundleSerializer::DecodeDocument(
-    JsonReader& reader, const std::string& document_string) const {
-  const json& document = Parse(document_string);
-
-  if (document.is_discarded()) {
-    reader.Fail("Failed to parse document string into json: " +
-                document_string);
-    return {};
-  }
-
+    JsonReader& reader, const json& document) const {
   ResourcePath path =
       DecodeName(reader, reader.RequireObject("name", document));
   // Return early if !ok(), `DocumentKey` aborts with invalid inputs.

@@ -62,6 +62,10 @@ using testutil::Map;
 using testutil::OrderBy;
 using testutil::Value;
 
+json Parse(const std::string& s) {
+  return json::parse(s, /*callback=*/nullptr, /*allow_exception=*/false);
+}
+
 class BundleSerializerTest : public ::testing::Test {
  public:
   BundleSerializerTest()
@@ -129,8 +133,9 @@ class BundleSerializerTest : public ::testing::Test {
 
   BundleDocument VerifyJsonStringDecodes(std::string json_string) {
     JsonReader reader;
+    auto json = Parse(json_string);
     BundleDocument actual =
-        bundle_serializer.DecodeDocument(reader, json_string);
+        bundle_serializer.DecodeDocument(reader, json);
     EXPECT_OK(reader.status());
     return actual;
   }
@@ -229,10 +234,11 @@ TEST_F(BundleSerializerTest, DecodesBundleMetadata) {
 
   std::string json_string;
   MessageToJsonString(proto_metadata, &json_string);
+  const auto json = Parse(json_string);
 
   JsonReader reader;
   BundleMetadata actual =
-      bundle_serializer.DecodeBundleMetadata(reader, json_string);
+      bundle_serializer.DecodeBundleMetadata(reader, json);
 
   EXPECT_OK(reader.status());
   EXPECT_EQ(proto_metadata.id(), actual.bundle_id());
@@ -251,20 +257,13 @@ TEST_F(BundleSerializerTest, DecodesInvalidBundleMetadataReportsError) {
   std::string json_string;
   MessageToJsonString(proto_metadata, &json_string);
 
-  {
-    auto invalid = "123" + json_string;
-    JsonReader reader;
-    bundle_serializer.DecodeBundleMetadata(reader, invalid);
-
-    EXPECT_NOT_OK(reader.status());
-  }
-
   // Replace total_bytes to a string unparseable to integer.
   {
     std::string json_copy =
         ReplacedCopy(json_string, "123456789987654321", "xxxyyyzzz");
+    const auto json = Parse(json_copy);
     JsonReader reader;
-    bundle_serializer.DecodeBundleMetadata(reader, json_copy);
+    bundle_serializer.DecodeBundleMetadata(reader, json);
 
     EXPECT_NOT_OK(reader.status());
   }
@@ -273,8 +272,9 @@ TEST_F(BundleSerializerTest, DecodesInvalidBundleMetadataReportsError) {
   {
     auto json_copy =
         ReplacedCopy(json_string, "9999", "\"123456789987654321\"");
+    const auto json = Parse(json_copy);
     JsonReader reader;
-    bundle_serializer.DecodeBundleMetadata(reader, json_copy);
+    bundle_serializer.DecodeBundleMetadata(reader, json);
 
     EXPECT_NOT_OK(reader.status());
   }
@@ -282,8 +282,9 @@ TEST_F(BundleSerializerTest, DecodesInvalidBundleMetadataReportsError) {
   // Replace total_documents to a string unparseable to integer.
   {
     auto json_copy = ReplacedCopy(json_string, "9999", "\"xxxyyyzzz\"");
+    const auto json = Parse(json_copy);
     JsonReader reader;
-    bundle_serializer.DecodeBundleMetadata(reader, json_copy);
+    bundle_serializer.DecodeBundleMetadata(reader, json);
 
     EXPECT_NOT_OK(reader.status());
   }
@@ -291,8 +292,9 @@ TEST_F(BundleSerializerTest, DecodesInvalidBundleMetadataReportsError) {
   // Replace bundle_id to a integer.
   {
     auto json_copy = ReplacedCopy(json_string, "\"bundle-1\"", "1");
+    const auto json = Parse(json_copy);
     JsonReader reader;
-    bundle_serializer.DecodeBundleMetadata(reader, json_copy);
+    bundle_serializer.DecodeBundleMetadata(reader, json);
 
     EXPECT_NOT_OK(reader.status());
   }

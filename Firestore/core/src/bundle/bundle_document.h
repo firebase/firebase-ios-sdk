@@ -18,6 +18,7 @@
 
 #include <utility>
 
+#include "Firestore/core/src/bundle/bundle_element.h"
 #include "Firestore/core/src/model/document.h"
 
 namespace firebase {
@@ -25,12 +26,16 @@ namespace firestore {
 namespace bundle {
 
 /** Represents a document that was saved to a bundle. */
-class BundleDocument {
+class BundleDocument: public BundleElement {
  public:
   BundleDocument() = default;
 
   explicit BundleDocument(model::Document document)
       : document_(std::move(document)) {
+  }
+
+  BundleElementType ElementType() const override {
+    return BundleElementType::Document;
   }
 
   /** Returns the key for this document. */

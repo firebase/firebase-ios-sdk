@@ -19,6 +19,8 @@
 #include <string>
 #include <utility>
 #include <vector>
+
+#include "Firestore/core/src/bundle/bundle_element.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/snapshot_version.h"
 
@@ -27,7 +29,7 @@ namespace firestore {
 namespace bundle {
 
 /** Metadata describing a Firestore document saved in the bundle. */
-class BundledDocumentMetadata {
+class BundledDocumentMetadata: public BundleElement {
  public:
   BundledDocumentMetadata() = default;
 
@@ -39,6 +41,10 @@ class BundledDocumentMetadata {
         read_time_(read_time),
         exists_(exists),
         queries_(std::move(queries)) {
+  }
+
+  BundleElementType ElementType() const override {
+    return BundleElementType::DocumentMetadata;
   }
 
   /** Returns the document key of a bundled document. */

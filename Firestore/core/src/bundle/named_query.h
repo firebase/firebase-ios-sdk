@@ -20,6 +20,7 @@
 #include <string>
 #include <utility>
 
+#include "Firestore/core/src/bundle/bundle_element.h"
 #include "Firestore/core/src/bundle/bundled_query.h"
 #include "Firestore/core/src/model/snapshot_version.h"
 
@@ -30,7 +31,7 @@ namespace bundle {
 /**
  * Represents a named query saved by the SDK in its local storage.
  */
-class NamedQuery {
+class NamedQuery: public BundleElement {
  public:
   NamedQuery() = default;
 
@@ -40,6 +41,10 @@ class NamedQuery {
       : query_name_(std::move(query_name)),
         bundled_query_(std::move(bundled_query)),
         read_time_(read_time) {
+  }
+
+  BundleElementType ElementType() const override {
+    return BundleElementType::NamedQuery;
   }
 
   /**
