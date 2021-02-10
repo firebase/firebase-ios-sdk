@@ -21,6 +21,12 @@ output_path="${3:-${default_output_path}}"
 if [ -d "/Users/runner/Library/Developer/Xcode/DerivedData" ]; then
 rm -r /Users/runner/Library/Developer/Xcode/DerivedData/*
 fi
+
+# Setup for pod unit tests
+if [ $platform == "FirebasePerformance" ]; then
+  export FPR_UNSWIZZLE_AVAILABLE="1"
+fi
+
 # Run unit tests of pods and put xcresult bundles into output_path, which
 # should be a targeted dir of actions/upload-artifact in workflows.
 # In code coverage workflow, files under output_path will be uploaded to
