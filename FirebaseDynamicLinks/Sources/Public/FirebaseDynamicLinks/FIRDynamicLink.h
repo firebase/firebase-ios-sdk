@@ -68,8 +68,8 @@ NS_SWIFT_NAME(DynamicLink)
 @property(nonatomic, assign, readonly) FIRDLMatchType matchType;
 
 /**
- * @property matchType
- * @abstract The match type of the received Dynamic Link.
+ * @property utmParametersDictionary
+ * @abstract UTM parameters associated with a firebase dynamic link.
  */
 @property(nonatomic, copy, readonly) NSDictionary<NSString *, id> *utmParametersDictionary;
 
