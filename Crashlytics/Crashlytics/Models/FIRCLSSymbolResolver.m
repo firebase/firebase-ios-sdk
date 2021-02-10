@@ -18,8 +18,8 @@
 
 #include "Crashlytics/Crashlytics/Components/FIRCLSBinaryImage.h"
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
-#import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSInternalLogging.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
 #import "Crashlytics/Crashlytics/Private/FIRStackFrame_Private.h"
 
 @interface FIRCLSSymbolResolver () {
