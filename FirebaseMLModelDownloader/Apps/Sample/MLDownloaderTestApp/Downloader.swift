@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Foundation
+import TensorFlowLite
 import FirebaseMLModelDownloader
 
 class Downloader: ObservableObject {
@@ -57,6 +58,23 @@ class Downloader: ObservableObject {
       case let .success(model):
         self.isDownloaded = true
         self.filePath = model.path
+        let fileURL = URL(fileURLWithPath: self.filePath)
+        do {
+          _ = try fileURL.checkResourceIsReachable()
+          let attr = try FileManager.default.attributesOfItem(atPath: self.filePath)
+          if let size = attr[FileAttributeKey.size] {
+            print("File size: \(size)")
+          } else {
+            print("Error - could not get file size.")
+          }
+        } catch {
+          print("File access error - \(error)")
+        }
+        do {
+          _ = try Interpreter(modelPath: self.filePath)
+        } catch {
+          print("Tensorflow error - \(error)")
+        }
       case let .failure(error):
         self.isDownloaded = false
         self.isError = true
