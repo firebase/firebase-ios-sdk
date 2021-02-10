@@ -68,6 +68,12 @@ NS_SWIFT_NAME(DynamicLink)
 @property(nonatomic, assign, readonly) FIRDLMatchType matchType;
 
 /**
+ * @property matchType
+ * @abstract The match type of the received Dynamic Link.
+ */
+@property(nonatomic, copy, readonly) NSDictionary<NSString *, id> *utmParametersDictionary;
+
+/**
  * @property minimumAppVersion
  * @abstract The minimum iOS application version that supports the Dynamic Link. This is retrieved
  *     from the imv= parameter of the Dynamic Link URL. Note: This is not the minimum iOS system

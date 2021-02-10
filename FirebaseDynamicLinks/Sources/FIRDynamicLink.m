@@ -23,6 +23,8 @@
 
 @implementation FIRDynamicLink
 
+NSString *const UTM_PARAM_PREFIX = @"utm_";
+
 - (NSString *)description {
   return [NSString stringWithFormat:@"<%@: %p, url [%@], match type: %@, minimumAppVersion: %@, "
                                      "match message: %@>",
@@ -36,7 +38,7 @@
 
   if (self = [super init]) {
     _parametersDictionary = [parameters copy];
-
+    _utmParametersDictionary = [[self class] extractUtmParams:parameters];
     NSString *urlString = parameters[kFIRDLParameterDeepLinkIdentifier];
     _url = [NSURL URLWithString:urlString];
     _inviteId = parameters[kFIRDLParameterInviteId];
@@ -132,6 +134,20 @@
     };
   });
   return [matchMap[string] integerValue] ?: FIRDLMatchTypeNone;
+}
+
++ (NSDictionary<NSString *, id> *)extractUtmParams:(NSDictionary<NSString *, id> *)parameters {
+  NSMutableDictionary<NSString *, id> *utmParamsDictionary = [[NSMutableDictionary alloc] init];
+
+  if (parameters) {
+    for (id key in parameters) {
+      if ([key hasPrefix:UTM_PARAM_PREFIX]) {
+        [utmParamsDictionary setObject:[parameters valueForKey:key] forKey:key];
+      }
+    }
+  }
+
+  return utmParamsDictionary;
 }
 
 @end
