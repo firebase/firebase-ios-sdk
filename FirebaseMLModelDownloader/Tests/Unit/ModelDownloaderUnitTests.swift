@@ -115,9 +115,9 @@ final class ModelDownloaderUnitTests: XCTestCase {
   }
 
   func testGetModelNameFromFilePath() {
-    var fakeURL = URL(fileURLWithPath: "modelDirectory/@@appName@@\(fakeModelName)")
+    var fakeURL = URL(fileURLWithPath: "modelDirectory/@@appName@@\(fakeModelName).tflite")
     XCTAssertEqual(ModelFileManager.getModelNameFromFilePath(fakeURL), fakeModelName)
-    fakeURL = URL(fileURLWithPath: "modelDirectory/--appName--\(fakeModelName)")
+    fakeURL = URL(fileURLWithPath: "modelDirectory/--appName--\(fakeModelName).tflite")
     XCTAssertNil(ModelFileManager.getModelNameFromFilePath(fakeURL))
   }
 
@@ -153,7 +153,7 @@ final class ModelDownloaderUnitTests: XCTestCase {
     try? ModelFileManager.removeFile(at: tempModelFileURL)
   }
 
-  /// Test invalid path in model directory
+  /// Test invalid path in model directory.
   func testListModelsInvalidPath() {
     let modelDownloader = ModelDownloader.modelDownloader()
     let invalidTempModelFileURL = tempModelFile(invalid: true)
@@ -1314,10 +1314,11 @@ extension ModelDownloaderUnitTests {
   }
 
   func tempModelFile(invalid: Bool = false) -> URL {
-    let modelDirectoryURL = ModelFileManager.modelsDirectory
-    let modelFileName = invalid ? "fake-model-file.tmp" :
+    let modelDirectoryURL = ModelFileManager.modelsDirectory!
+    let modelFileName = invalid ? "fbml_model_fake-model-file.tmp" :
       "fbml_model@@__FIRAPP_DEFAULT@@\(fakeModelName)"
     let tempFileURL = modelDirectoryURL.appendingPathComponent(modelFileName)
+      .appendingPathExtension("tflite")
     let tempData: Data = "fakeModelData".data(using: .utf8)!
     try? tempData.write(to: tempFileURL)
     return tempFileURL

@@ -60,11 +60,6 @@ class ModelDownloadTask {
 }
 
 extension ModelDownloadTask {
-  /// Name for model file stored on device.
-  var downloadedModelFileName: String {
-    return "fbml_model__\(appName)__\(remoteModelInfo.name).tflite"
-  }
-
   /// Check if requests can be merged.
   func canMergeRequests() -> Bool {
     return downloadStatus != .complete
@@ -232,12 +227,34 @@ extension ModelDownloadTask {
     }
 
     /// Construct local model file URL.
-    let modelFileURL = ModelFileManager.getDownloadedModelFileURL(
+    guard var modelFileURL = ModelFileManager.getDownloadedModelFileURL(
       appName: appName,
       modelName: remoteModelInfo.name
-    )
+    ) else {
+      // Could not create Application Support directory to store model files.
+      let description = ModelDownloadTask.ErrorDescription.noModelsDirectory
+      DeviceLogger.logEvent(level: .debug,
+                            message: description,
+                            messageCode: .downloadedModelSaveError)
+      // Downloading the file succeeding but saving failed.
+      telemetryLogger?.logModelDownloadEvent(eventName: .modelDownload,
+                                             status: .succeeded,
+                                             downloadErrorCode: .downloadFailed)
+      completion(.failure(.internalError(description: description)))
+      return
+    }
 
     do {
+      // Try disabling iCloud backup for model files, because UserDefaults is not backed up.
+      var resourceValue = URLResourceValues()
+      resourceValue.isExcludedFromBackup = true
+      do {
+        try modelFileURL.setResourceValues(resourceValue)
+      } catch {
+        DeviceLogger.logEvent(level: .debug,
+                              message: ModelDownloadTask.ErrorDescription.disableBackupError,
+                              messageCode: .disableBackupError)
+      }
       // Save model file to device.
       try ModelFileManager.moveFile(
         at: tempURL,
@@ -247,7 +264,6 @@ extension ModelDownloadTask {
       DeviceLogger.logEvent(level: .debug,
                             message: ModelDownloadTask.DebugDescription.savedModelFile,
                             messageCode: .downloadedModelFileSaved)
-
       // Generate local model info.
       let localModelInfo = LocalModelInfo(from: remoteModelInfo)
       // Write model info to user defaults.
@@ -255,7 +271,7 @@ extension ModelDownloadTask {
       DeviceLogger.logEvent(level: .debug,
                             message: ModelDownloadTask.DebugDescription.savedLocalModelInfo,
                             messageCode: .downloadedModelInfoSaved)
-      /// Build model from model info and local path.
+      // Build model from model info and local path.
       let model = CustomModel(localModelInfo: localModelInfo, path: modelFileURL.path)
       DeviceLogger.logEvent(level: .debug,
                             message: ModelDownloadTask.DebugDescription.modelDownloaded,
@@ -277,6 +293,7 @@ extension ModelDownloadTask {
                               message: ModelDownloadTask.ErrorDescription.modelSaveError,
                               messageCode: .downloadedModelSaveError)
       }
+      // Downloading the file succeeding but saving failed.
       telemetryLogger?.logModelDownloadEvent(eventName: .modelDownload,
                                              status: .succeeded,
                                              downloadErrorCode: .downloadFailed)
@@ -286,6 +303,7 @@ extension ModelDownloadTask {
       DeviceLogger.logEvent(level: .debug,
                             message: ModelDownloadTask.ErrorDescription.modelSaveError,
                             messageCode: .downloadedModelSaveError)
+      // Downloading the file succeeding but saving failed.
       telemetryLogger?.logModelDownloadEvent(eventName: .modelDownload,
                                              status: .succeeded,
                                              downloadErrorCode: .downloadFailed)
@@ -341,6 +359,8 @@ extension ModelDownloadTask {
     static let expiredModelInfo = "Unable to update expired model info."
     static let permissionDenied = "Invalid or missing permissions to download model."
     static let notEnoughSpace = "Not enough space on device."
+    static let disableBackupError = "Unable to disable model file backup."
+    static let noModelsDirectory = "Could not create directory for model storage."
     static let modelSaveError = "Unable to save downloaded remote model file."
     static let unknownDownloadError = "Unable to download model due to unknown error."
     static let modelDownloadFailed = { (code: Int) in

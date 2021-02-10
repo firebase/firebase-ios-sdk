@@ -39,6 +39,7 @@ enum EventName: SwiftProtobuf.Enum {
   case unknownEvent // = 0
   case modelDownload // = 100
   case modelUpdate // = 101
+  case remoteModelDeleteOnDevice // = 252
   case UNRECOGNIZED(Int)
 
   init() {
@@ -50,6 +51,7 @@ enum EventName: SwiftProtobuf.Enum {
     case 0: self = .unknownEvent
     case 100: self = .modelDownload
     case 101: self = .modelUpdate
+    case 252: self = .remoteModelDeleteOnDevice
     default: self = .UNRECOGNIZED(rawValue)
     }
   }
@@ -59,6 +61,7 @@ enum EventName: SwiftProtobuf.Enum {
     case .unknownEvent: return 0
     case .modelDownload: return 100
     case .modelUpdate: return 101
+    case .remoteModelDeleteOnDevice: return 252
     case .UNRECOGNIZED(let i): return i
     }
   }
@@ -73,6 +76,7 @@ extension EventName: CaseIterable {
     .unknownEvent,
     .modelDownload,
     .modelUpdate,
+    .remoteModelDeleteOnDevice,
   ]
 }
 
@@ -445,6 +449,23 @@ extension ModelDownloadLogEvent.DownloadStatus: CaseIterable {
 
 #endif  // swift(>=4.2)
 
+/// Information about deleting a downloaded model on device.
+struct DeleteModelLogEvent {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  /// The type of the downloaded model requested to be deleted.
+  var modelType: ModelInfo.ModelType = .typeUnknown
+
+  /// Whether the downloaded model is deleted successfully.
+  var isSuccessful: Bool = false
+
+  var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  init() {}
+}
+
 /// Main log event for FirebaseMl, that contains individual API events, like model
 /// download.
 /// NEXT ID: 44.
@@ -455,34 +476,45 @@ struct FirebaseMlLogEvent {
 
   /// Information about various parts of the system: app, Firebase, SDK.
   var systemInfo: SystemInfo {
-    get {return _systemInfo ?? SystemInfo()}
-    set {_systemInfo = newValue}
+    get {return _storage._systemInfo ?? SystemInfo()}
+    set {_uniqueStorage()._systemInfo = newValue}
   }
   /// Returns true if `systemInfo` has been explicitly set.
-  var hasSystemInfo: Bool {return self._systemInfo != nil}
+  var hasSystemInfo: Bool {return _storage._systemInfo != nil}
   /// Clears the value of `systemInfo`. Subsequent reads from it will return its default value.
-  mutating func clearSystemInfo() {self._systemInfo = nil}
+  mutating func clearSystemInfo() {_uniqueStorage()._systemInfo = nil}
 
   /// The event name.
-  var eventName: EventName = .unknownEvent
+  var eventName: EventName {
+    get {return _storage._eventName}
+    set {_uniqueStorage()._eventName = newValue}
+  }
 
-  /// Model downloading logs.
-  /// ==========================
+  /// Information about model download.
   var modelDownloadLogEvent: ModelDownloadLogEvent {
-    get {return _modelDownloadLogEvent ?? ModelDownloadLogEvent()}
-    set {_modelDownloadLogEvent = newValue}
+    get {return _storage._modelDownloadLogEvent ?? ModelDownloadLogEvent()}
+    set {_uniqueStorage()._modelDownloadLogEvent = newValue}
   }
   /// Returns true if `modelDownloadLogEvent` has been explicitly set.
-  var hasModelDownloadLogEvent: Bool {return self._modelDownloadLogEvent != nil}
+  var hasModelDownloadLogEvent: Bool {return _storage._modelDownloadLogEvent != nil}
   /// Clears the value of `modelDownloadLogEvent`. Subsequent reads from it will return its default value.
-  mutating func clearModelDownloadLogEvent() {self._modelDownloadLogEvent = nil}
+  mutating func clearModelDownloadLogEvent() {_uniqueStorage()._modelDownloadLogEvent = nil}
+
+  /// Information about deleting a downloaded model.
+  var deleteModelLogEvent: DeleteModelLogEvent {
+    get {return _storage._deleteModelLogEvent ?? DeleteModelLogEvent()}
+    set {_uniqueStorage()._deleteModelLogEvent = newValue}
+  }
+  /// Returns true if `deleteModelLogEvent` has been explicitly set.
+  var hasDeleteModelLogEvent: Bool {return _storage._deleteModelLogEvent != nil}
+  /// Clears the value of `deleteModelLogEvent`. Subsequent reads from it will return its default value.
+  mutating func clearDeleteModelLogEvent() {_uniqueStorage()._deleteModelLogEvent = nil}
 
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
   init() {}
 
-  fileprivate var _systemInfo: SystemInfo? = nil
-  fileprivate var _modelDownloadLogEvent: ModelDownloadLogEvent? = nil
+  fileprivate var _storage = _StorageClass.defaultInstance
 }
 
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
@@ -492,6 +524,7 @@ extension EventName: SwiftProtobuf._ProtoNameProviding {
     0: .same(proto: "UNKNOWN_EVENT"),
     100: .same(proto: "MODEL_DOWNLOAD"),
     101: .same(proto: "MODEL_UPDATE"),
+    252: .same(proto: "REMOTE_MODEL_DELETE_ON_DEVICE"),
   ]
 }
 
@@ -737,12 +770,11 @@ extension ModelDownloadLogEvent.DownloadStatus: SwiftProtobuf._ProtoNameProvidin
   ]
 }
 
-extension FirebaseMlLogEvent: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = "FirebaseMlLogEvent"
+extension DeleteModelLogEvent: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = "DeleteModelLogEvent"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    1: .standard(proto: "system_info"),
-    2: .standard(proto: "event_name"),
-    3: .standard(proto: "model_download_log_event"),
+    1: .standard(proto: "model_type"),
+    2: .standard(proto: "is_successful"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -751,31 +783,114 @@ extension FirebaseMlLogEvent: SwiftProtobuf.Message, SwiftProtobuf._MessageImple
       // allocates stack space for every case branch when no optimizations are
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
-      case 1: try { try decoder.decodeSingularMessageField(value: &self._systemInfo) }()
-      case 2: try { try decoder.decodeSingularEnumField(value: &self.eventName) }()
-      case 3: try { try decoder.decodeSingularMessageField(value: &self._modelDownloadLogEvent) }()
+      case 1: try { try decoder.decodeSingularEnumField(value: &self.modelType) }()
+      case 2: try { try decoder.decodeSingularBoolField(value: &self.isSuccessful) }()
       default: break
       }
     }
   }
 
   func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    if let v = self._systemInfo {
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 1)
+    if self.modelType != .typeUnknown {
+      try visitor.visitSingularEnumField(value: self.modelType, fieldNumber: 1)
     }
-    if self.eventName != .unknownEvent {
-      try visitor.visitSingularEnumField(value: self.eventName, fieldNumber: 2)
+    if self.isSuccessful != false {
+      try visitor.visitSingularBoolField(value: self.isSuccessful, fieldNumber: 2)
     }
-    if let v = self._modelDownloadLogEvent {
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 3)
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: DeleteModelLogEvent, rhs: DeleteModelLogEvent) -> Bool {
+    if lhs.modelType != rhs.modelType {return false}
+    if lhs.isSuccessful != rhs.isSuccessful {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension FirebaseMlLogEvent: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = "FirebaseMlLogEvent"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .standard(proto: "system_info"),
+    2: .standard(proto: "event_name"),
+    3: .standard(proto: "model_download_log_event"),
+    40: .standard(proto: "delete_model_log_event"),
+  ]
+
+  fileprivate class _StorageClass {
+    var _systemInfo: SystemInfo? = nil
+    var _eventName: EventName = .unknownEvent
+    var _modelDownloadLogEvent: ModelDownloadLogEvent? = nil
+    var _deleteModelLogEvent: DeleteModelLogEvent? = nil
+
+    static let defaultInstance = _StorageClass()
+
+    private init() {}
+
+    init(copying source: _StorageClass) {
+      _systemInfo = source._systemInfo
+      _eventName = source._eventName
+      _modelDownloadLogEvent = source._modelDownloadLogEvent
+      _deleteModelLogEvent = source._deleteModelLogEvent
+    }
+  }
+
+  fileprivate mutating func _uniqueStorage() -> _StorageClass {
+    if !isKnownUniquelyReferenced(&_storage) {
+      _storage = _StorageClass(copying: _storage)
+    }
+    return _storage
+  }
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    _ = _uniqueStorage()
+    try withExtendedLifetime(_storage) { (_storage: _StorageClass) in
+      while let fieldNumber = try decoder.nextFieldNumber() {
+        // The use of inline closures is to circumvent an issue where the compiler
+        // allocates stack space for every case branch when no optimizations are
+        // enabled. https://github.com/apple/swift-protobuf/issues/1034
+        switch fieldNumber {
+        case 1: try { try decoder.decodeSingularMessageField(value: &_storage._systemInfo) }()
+        case 2: try { try decoder.decodeSingularEnumField(value: &_storage._eventName) }()
+        case 3: try { try decoder.decodeSingularMessageField(value: &_storage._modelDownloadLogEvent) }()
+        case 40: try { try decoder.decodeSingularMessageField(value: &_storage._deleteModelLogEvent) }()
+        default: break
+        }
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    try withExtendedLifetime(_storage) { (_storage: _StorageClass) in
+      if let v = _storage._systemInfo {
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 1)
+      }
+      if _storage._eventName != .unknownEvent {
+        try visitor.visitSingularEnumField(value: _storage._eventName, fieldNumber: 2)
+      }
+      if let v = _storage._modelDownloadLogEvent {
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 3)
+      }
+      if let v = _storage._deleteModelLogEvent {
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 40)
+      }
     }
     try unknownFields.traverse(visitor: &visitor)
   }
 
   static func ==(lhs: FirebaseMlLogEvent, rhs: FirebaseMlLogEvent) -> Bool {
-    if lhs._systemInfo != rhs._systemInfo {return false}
-    if lhs.eventName != rhs.eventName {return false}
-    if lhs._modelDownloadLogEvent != rhs._modelDownloadLogEvent {return false}
+    if lhs._storage !== rhs._storage {
+      let storagesAreEqual: Bool = withExtendedLifetime((lhs._storage, rhs._storage)) { (_args: (_StorageClass, _StorageClass)) in
+        let _storage = _args.0
+        let rhs_storage = _args.1
+        if _storage._systemInfo != rhs_storage._systemInfo {return false}
+        if _storage._eventName != rhs_storage._eventName {return false}
+        if _storage._modelDownloadLogEvent != rhs_storage._modelDownloadLogEvent {return false}
+        if _storage._deleteModelLogEvent != rhs_storage._deleteModelLogEvent {return false}
+        return true
+      }
+      if !storagesAreEqual {return false}
+    }
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }

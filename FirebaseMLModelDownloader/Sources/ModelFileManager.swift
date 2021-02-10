@@ -21,15 +21,16 @@ enum ModelFileManager {
 
   private static let modelNamePrefix = "fbml_model"
 
+  private static let fileExtension = "tflite"
+
   private static let fileManager = FileManager.default
 
   /// Root directory of model file storage on device.
-  static var modelsDirectory: URL {
-    // TODO: Reconsider force unwrapping.
+  static var modelsDirectory: URL? {
     #if os(tvOS)
-      return fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first!
+      return fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first
     #else
-      return fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+      return fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first ?? nil
     #endif
   }
 
@@ -40,8 +41,9 @@ enum ModelFileManager {
 
   /// Model name from file path.
   static func getModelNameFromFilePath(_ path: URL) -> String? {
-    let components = path.lastPathComponent.components(separatedBy: nameSeparator)
-    // The file path should have prefix, app name, and model name.
+    let components = path.deletingPathExtension().lastPathComponent
+      .components(separatedBy: nameSeparator)
+    // The file name should have prefix, app name, and model name.
     if components.count == 3 {
       return components.last
     }
@@ -49,13 +51,13 @@ enum ModelFileManager {
   }
 
   /// Full path of model file stored on device.
-  static func getDownloadedModelFileURL(appName: String, modelName: String) -> URL {
+  static func getDownloadedModelFileURL(appName: String, modelName: String) -> URL? {
     let modelFileName = ModelFileManager.getDownloadedModelFileName(
       appName: appName,
       modelName: modelName
     )
-    return ModelFileManager.modelsDirectory
-      .appendingPathComponent(modelFileName)
+    guard let modelsDir = ModelFileManager.modelsDirectory else { return nil }
+    return modelsDir.appendingPathComponent(modelFileName).appendingPathExtension(fileExtension)
   }
 
   /// Check if file is available at URL.
@@ -107,14 +109,21 @@ enum ModelFileManager {
 
   /// Get all model files in models directory.
   static func contentsOfModelsDirectory() throws -> [URL] {
+    guard let modelsDir = modelsDirectory else {
+      throw DownloadedModelError
+        .internalError(
+          description: ModelFileManager.ErrorDescription.noApplicationSupportDirectory
+        )
+    }
     do {
       let directoryContents = try ModelFileManager.fileManager.contentsOfDirectory(
-        at: modelsDirectory,
+        at: modelsDir,
         includingPropertiesForKeys: nil,
         options: .skipsHiddenFiles
       )
       return directoryContents.filter { directoryItem in
-        !directoryItem.hasDirectoryPath
+        directoryItem.path.contains(ModelFileManager.modelNamePrefix) && !directoryItem
+          .hasDirectoryPath
       }
     } catch {
       throw DownloadedModelError
@@ -130,15 +139,8 @@ enum ModelFileManager {
 extension ModelFileManager {
   static func emptyModelsDirectory() throws {
     do {
-      let directoryContents = try ModelFileManager.fileManager.contentsOfDirectory(
-        at: modelsDirectory,
-        includingPropertiesForKeys: nil,
-        options: .skipsHiddenFiles
-      )
-      let modelFiles = directoryContents.filter { directoryItem in
-        directoryItem.path.contains(ModelFileManager.modelNamePrefix)
-      }
-      for path in modelFiles {
+      let directoryContents = try ModelFileManager.contentsOfModelsDirectory()
+      for path in directoryContents {
         try ModelFileManager.removeFile(at: path)
       }
     } catch {
@@ -178,6 +180,9 @@ extension ModelFileManager {
         return "Failed to check storage capacity on device."
       }
     }
+
+    static let noApplicationSupportDirectory =
+      "Could not locate Application Support directory for model storage."
 
     static let emptyDirectory = { (error: String) in
       "Could not empty models directory: \(error)"

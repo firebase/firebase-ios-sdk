@@ -40,6 +40,14 @@ extension ModelOptions {
   }
 }
 
+/// Extension to build model delete log event.
+extension DeleteModelLogEvent {
+  mutating func setEvent(modelType: ModelInfo.ModelType = .custom, isSuccessful: Bool) {
+    self.modelType = modelType
+    self.isSuccessful = isSuccessful
+  }
+}
+
 /// Extension to build model download log event.
 extension ModelDownloadLogEvent {
   mutating func setEvent(status: DownloadStatus, errorCode: ErrorCode,
@@ -67,6 +75,13 @@ extension FirebaseMlLogEvent {
     self.eventName = eventName
     self.systemInfo = systemInfo
     self.modelDownloadLogEvent = modelDownloadLogEvent
+  }
+
+  mutating func setEvent(eventName: EventName, systemInfo: SystemInfo,
+                         deleteModelLogEvent: DeleteModelLogEvent) {
+    self.eventName = eventName
+    self.systemInfo = systemInfo
+    self.deleteModelLogEvent = deleteModelLogEvent
   }
 }
 
@@ -126,16 +141,53 @@ class TelemetryLogger {
     fllTransport.sendTelemetryEvent(eventForTransport)
   }
 
-  /// Log model info retrieval event to Firelog.
-  func logModelInfoRetrievalEvent(eventName: EventName,
-                                  status: ModelDownloadLogEvent.DownloadStatus,
-                                  model: CustomModel? = nil, errorCode: ModelInfoErrorCode) {
+  /// Log model deleted event to Firelog.
+  func logModelDeletedEvent(eventName: EventName, isSuccessful: Bool) {
     guard app.isDataCollectionDefaultEnabled else { return }
     var systemInfo = SystemInfo()
     let apiKey = app.options.apiKey
     let projectID = app.options.projectID
     systemInfo.setAppInfo(apiKey: apiKey, projectID: projectID)
-    let modelDownloadLogEvent = ModelDownloadLogEvent()
+    var deleteModelLogEvent = DeleteModelLogEvent()
+    deleteModelLogEvent.setEvent(isSuccessful: isSuccessful)
+    var fbmlEvent = FirebaseMlLogEvent()
+    fbmlEvent.setEvent(
+      eventName: eventName,
+      systemInfo: systemInfo,
+      deleteModelLogEvent: deleteModelLogEvent
+    )
+    logModelEvent(event: fbmlEvent)
+  }
+
+  /// Log model info retrieval event to Firelog.
+  func logModelInfoRetrievalEvent(eventName: EventName,
+                                  status: ModelDownloadLogEvent.DownloadStatus,
+                                  modelInfoErrorCode: ModelInfoErrorCode) {
+    guard app.isDataCollectionDefaultEnabled else { return }
+    var systemInfo = SystemInfo()
+    let apiKey = app.options.apiKey
+    let projectID = app.options.projectID
+    systemInfo.setAppInfo(apiKey: apiKey, projectID: projectID)
+    var errorCode = ErrorCode()
+    switch modelInfoErrorCode {
+    case .noError:
+      errorCode = .noError
+    case .noHash:
+      errorCode = .modelInfoDownloadNoHash
+    case .connectionFailed:
+      errorCode = .modelInfoDownloadConnectionFailed
+    case .hashMismatch:
+      errorCode = .modelHashMismatch
+    case let .httpError(code):
+      errorCode = ErrorCode(rawValue: code) ?? .modelInfoDownloadUnsuccessfulHTTPStatus
+    }
+    let modelOptions = ModelOptions()
+    var modelDownloadLogEvent = ModelDownloadLogEvent()
+    modelDownloadLogEvent.setEvent(
+      status: status,
+      errorCode: errorCode,
+      modelOptions: modelOptions
+    )
     var fbmlEvent = FirebaseMlLogEvent()
     fbmlEvent.setEvent(
       eventName: eventName,
