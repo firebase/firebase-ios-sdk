@@ -24,12 +24,14 @@ fi
 
 # Setup for pod unit tests
 if [ $SDK == "FirebasePerformance" ]; then
-  export FPR_UNSWIZZLE_AVAILABLE="1"
+  scripts/setup_bundler.sh
+  scripts/third_party/travis/retry.sh scripts/build.sh Performance iOS unit
+else
+  # Run unit tests of pods and put xcresult bundles into output_path, which
+  # should be a targeted dir of actions/upload-artifact in workflows.
+  # In code coverage workflow, files under output_path will be uploaded to
+  # Github Actions.
+  scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb "${SDK}".podspec --platforms="${platform}" --test-specs=unit
 fi
 
-# Run unit tests of pods and put xcresult bundles into output_path, which
-# should be a targeted dir of actions/upload-artifact in workflows.
-# In code coverage workflow, files under output_path will be uploaded to
-# Github Actions.
-scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb "${SDK}".podspec --platforms="${platform}" --test-specs=unit
 find /Users/runner/Library/Developer/Xcode/DerivedData -type d -regex ".*/.*\.xcresult" -execdir cp -R '{}' "${output_path}" \;
