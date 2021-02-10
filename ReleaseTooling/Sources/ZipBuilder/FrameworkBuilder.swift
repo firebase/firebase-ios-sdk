@@ -758,6 +758,11 @@ struct FrameworkBuilder {
     if packageModuleMaps(inFrameworks: slicedFrameworks.map { $0.value },
                          moduleMapContents: moduleMapContents,
                          destination: frameworkDir) {
+      do {
+        try fileManager.removeItem(at: frameworkDir)
+      } catch {
+        fatalError("Could not remove \(frameworkDir) \(error)")
+      }
       return nil
     }
 
