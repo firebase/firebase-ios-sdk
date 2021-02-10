@@ -128,17 +128,13 @@
     }
 }
 
-/**
- * Add an event callback for the specified query
- * Returns Array of FEvent events to raise.
- */
-- (NSArray *)addEventRegistration:(id<FEventRegistration>)eventRegistration
-       forNonExistingViewForQuery:(FQuerySpec *)query
-                      writesCache:(FWriteTreeRef *)writesCache
-                      serverCache:(FCacheNode *)serverCache {
-    NSAssert(self.views[query.params] == nil, @"Found view for query: %@",
-             query.params);
-    // TODO: make writesCache take flag for complete server node
+- (FView *)getView:(FQuerySpec *)query
+       writesCache:(FWriteTreeRef *)writesCache
+       serverCache:(FCacheNode *)serverCache {
+    FView *view = self.views[query.params];
+    if (view != nil) {
+        return view;
+    }
     id<FNode> eventCache = [writesCache
         calculateCompleteEventCacheWithCompleteServerCache:
             serverCache.isFullyInitialized ? serverCache.node : nil];
@@ -147,8 +143,9 @@
         eventCacheComplete = YES;
     } else {
         eventCache = [writesCache
-            calculateCompleteEventChildrenWithCompleteServerChildren:serverCache
-                                                                         .node];
+            calculateCompleteEventChildrenWithCompleteServerChildren:
+                serverCache.node != nil ? serverCache.node
+                                        : [FEmptyNode emptyNode]];
         eventCacheComplete = NO;
     }
 
@@ -161,8 +158,24 @@
     FViewCache *viewCache =
         [[FViewCache alloc] initWithEventCache:eventCacheNode
                                    serverCache:serverCache];
-    FView *view = [[FView alloc] initWithQuery:query
-                              initialViewCache:viewCache];
+    return [[FView alloc] initWithQuery:query initialViewCache:viewCache];
+}
+
+/**
+ * Add an event callback for the specified query
+ * Returns an array of events to raise.
+ */
+- (NSArray *)addEventRegistration:(id<FEventRegistration>)eventRegistration
+       forNonExistingViewForQuery:(FQuerySpec *)query
+                      writesCache:(FWriteTreeRef *)writesCache
+                      serverCache:(FCacheNode *)serverCache {
+    NSAssert(self.views[query.params] == nil, @"Found view for query: %@",
+             query.params);
+    // TODO: make writesCache take flag for complete server node
+    FView *view = [self getView:query
+                    writesCache:writesCache
+                    serverCache:serverCache];
+
     // If this is a non-default query we need to tell persistence our current
     // view of the data
     if (!query.loadsAllData) {
@@ -271,6 +284,16 @@
       *stop = (serverCache != nil);
     }];
     return serverCache;
+}
+
+- (id<FNode>)completeEventCacheAtPath:(FPath *)path {
+    __block id<FNode> eventCache = nil;
+    [self.views enumerateKeysAndObjectsUsingBlock:^(FQueryParams *key,
+                                                    FView *view, BOOL *stop) {
+      eventCache = [view completeEventCacheFor:path];
+      *stop = (eventCache != nil);
+    }];
+    return eventCache;
 }
 
 - (FView *)viewForQuery:(FQuerySpec *)query {

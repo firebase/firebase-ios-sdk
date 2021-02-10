@@ -26,14 +26,8 @@
 
 @implementation FIRCLSMockReportUploader
 
-- (instancetype)initWithQueue:(NSOperationQueue *)queue
-                   dataSource:(id<FIRCLSReportUploaderDataSource>)dataSource
-                  fileManager:(FIRCLSFileManager *)fileManager
-                    analytics:(id<FIRAnalyticsInterop>)analytics {
-  self = [super initWithQueue:queue
-                   dataSource:dataSource
-                  fileManager:fileManager
-                    analytics:analytics];
+- (instancetype)initWithManagerData:(FIRCLSManagerData *)managerData {
+  self = [super initWithManagerData:managerData];
   if (!self) {
     return nil;
   }

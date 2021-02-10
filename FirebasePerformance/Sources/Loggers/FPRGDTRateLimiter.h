@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "GoogleDataTransport/GDTCORLibrary/Internal/GoogleDataTransportInternal.h"
+#import <GoogleDataTransport/GoogleDataTransport.h>
 
 /**
  * FPRGDTRateLimiter class helps in limiting the number of events that are sent

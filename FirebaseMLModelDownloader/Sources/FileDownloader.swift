@@ -14,18 +14,19 @@
 
 import Foundation
 
-enum FileDownloaderError: Error {
-  case sessionInvalidated(Error)
-  case unexpectedResponseType
-  case networkError(Error)
-}
-
+/// File downloader response.
 struct FileDownloaderResponse {
   var urlResponse: HTTPURLResponse
   var fileURL: URL
 }
 
-/// URL Session to use while retrieving model info.
+/// Possible file downloader errors.
+enum FileDownloaderError: Error {
+  case unexpectedResponseType
+  case networkError(Error)
+}
+
+/// Protocol to download a file from server.
 protocol FileDownloader {
   typealias CompletionHandler = (Result<FileDownloaderResponse, Error>) -> Void
   typealias ProgressHandler = (_ bytesWritten: Int64, _ bytesExpectedToWrite: Int64) -> Void
@@ -39,10 +40,13 @@ protocol FileDownloader {
 class ModelFileDownloader: NSObject, FileDownloader {
   /// Model conditions for download.
   private let conditions: ModelDownloadConditions
+
   /// URL session configuration.
   private let configuration: URLSessionConfiguration
+
   /// Task to handle model file download.
   private var downloadTask: URLSessionDownloadTask?
+
   /// URLSession to handle model downloads.
   private lazy var downloadSession: URLSession = URLSession(
     configuration: configuration,
@@ -51,13 +55,14 @@ class ModelFileDownloader: NSObject, FileDownloader {
   )
   /// Successful download completion handler.
   private var completion: FileDownloader.CompletionHandler?
+
   /// Download progress handler.
   private var progressHandler: FileDownloader.ProgressHandler?
 
   init(conditions: ModelDownloadConditions) {
     self.conditions = conditions
     configuration = URLSessionConfiguration.ephemeral
-    /// Wait for network connectivity, if unavailable.
+    /// Wait for network connectivity.
     if #available(iOS 11.0, macOS 10.13, macCatalyst 13.0, tvOS 11.0, watchOS 4.0, *) {
       self.configuration.waitsForConnectivity = true
       /// Wait for 10 minutes.
@@ -69,10 +74,11 @@ class ModelFileDownloader: NSObject, FileDownloader {
   func downloadFile(with url: URL,
                     progressHandler: @escaping (Int64, Int64) -> Void,
                     completion: @escaping (Result<FileDownloaderResponse, Error>) -> Void) {
-    // TODO: Fail if download already in progress
+    // TODO: Fail if download already in progress.
     self.completion = completion
     self.progressHandler = progressHandler
     let downloadTask = downloadSession.downloadTask(with: url)
+    // Begin or resume model download.
     downloadTask.resume()
     self.downloadTask = downloadTask
   }
@@ -80,13 +86,15 @@ class ModelFileDownloader: NSObject, FileDownloader {
 
 /// Extension to handle delegate methods.
 extension ModelFileDownloader: URLSessionDownloadDelegate {
-  /// Handle client-side errors.
+  // Handle client-side errors.
   func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
     guard let error = error else { return }
-    /// Unable to resolve hostname or connect to host.
+    session.finishTasksAndInvalidate()
+    // Unable to resolve hostname or connect to host.
     completion?(.failure(FileDownloaderError.networkError(error)))
   }
 
+  /// Download completion.
   func urlSession(_ session: URLSession,
                   downloadTask: URLSessionDownloadTask,
                   didFinishDownloadingTo location: URL) {
@@ -96,24 +104,16 @@ extension ModelFileDownloader: URLSessionDownloadDelegate {
       return
     }
     let downloaderResponse = FileDownloaderResponse(urlResponse: urlResponse, fileURL: location)
+    session.finishTasksAndInvalidate()
     completion?(.success(downloaderResponse))
   }
 
+  /// Download progress.
   func urlSession(_ session: URLSession,
                   downloadTask: URLSessionDownloadTask,
                   didWriteData bytesWritten: Int64,
                   totalBytesWritten: Int64,
                   totalBytesExpectedToWrite: Int64) {
     progressHandler?(totalBytesWritten, totalBytesExpectedToWrite)
-  }
-
-  func urlSession(_ session: URLSession, taskIsWaitingForConnectivity task: URLSessionTask) {
-    // TODO: Handle waiting for connectivity, if needed.
-  }
-
-  func urlSession(_ session: URLSession, didBecomeInvalidWithError error: Error?) {
-    guard let error = error else { return }
-    /// Unable to resolve hostname or connect to host.
-    completion?(.failure(FileDownloaderError.sessionInvalidated(error)))
   }
 }

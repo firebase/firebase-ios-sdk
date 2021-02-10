@@ -84,6 +84,15 @@ NS_SWIFT_NAME(Crashlytics)
 - (void)setCustomValue:(id)value forKey:(NSString *)key;
 
 /**
+ * Sets custom keys and values to be associated with subsequent fatal and non-fatal reports.
+ * The objects in the dictionary are converted to strings. This is
+ * typically done by calling "-[NSObject description]".
+ *
+ * @param keysAndValues The values to be associated with the corresponding keys
+ */
+- (void)setCustomKeysAndValues:(NSDictionary *)keysAndValues;
+
+/**
  * Records a user ID (identifier) that's associated with subsequent fatal and non-fatal reports.
  *
  * If you want to associate a crash with a specific user, we recommend specifying an arbitrary
