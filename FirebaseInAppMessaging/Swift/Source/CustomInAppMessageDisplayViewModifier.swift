@@ -3,20 +3,64 @@ import SwiftUI
 
 // Handle delegate for FIAM actions.
 struct CustomInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModifier {
-  var closure: (InAppMessagingDisplayMessage, InAppMessagingDisplayDelegate) -> DisplayMessage
+  // Closures for different message sub-types.
+  var imageOnlyClosure: ((InAppMessagingImageOnlyDisplay, InAppMessagingDisplayDelegate)
+    -> DisplayMessage)?
+  var bannerClosure: ((InAppMessagingBannerDisplay, InAppMessagingDisplayDelegate)
+    -> DisplayMessage)?
+  var modalClosure: ((InAppMessagingModalDisplay, InAppMessagingDisplayDelegate) -> DisplayMessage)?
+  var cardClosure: ((InAppMessagingCardDisplay, InAppMessagingDisplayDelegate) -> DisplayMessage)?
 
   @ObservedObject var delegateBridge: DelegateBridge = DelegateBridge()
 
-  init(closure: @escaping (InAppMessagingDisplayMessage, InAppMessagingDisplayDelegate)
-    -> DisplayMessage) {
-    self.closure = closure
+  init(imageOnlyClosure: ((InAppMessagingImageOnlyDisplay, InAppMessagingDisplayDelegate)
+         -> DisplayMessage)? = nil,
+  bannerClosure: ((InAppMessagingBannerDisplay, InAppMessagingDisplayDelegate)
+    -> DisplayMessage)? = nil,
+  modalClosure: ((InAppMessagingModalDisplay,
+                  InAppMessagingDisplayDelegate)
+      -> DisplayMessage)? =
+    nil,
+  cardClosure: ((InAppMessagingCardDisplay,
+                 InAppMessagingDisplayDelegate)
+      -> DisplayMessage)? =
+    nil) {
+    self.imageOnlyClosure = imageOnlyClosure
+    self.bannerClosure = bannerClosure
+    self.modalClosure = modalClosure
+    self.cardClosure = cardClosure
   }
 
   func body(content: Content) -> some View {
-    let inAppMessageData = delegateBridge.inAppMessageData
-    return content
-      .overlay(inAppMessageData == nil ? AnyView(EmptyView()) :
-        AnyView(closure(inAppMessageData!.0, inAppMessageData!.1)))
+    return content.overlay(overlayView())
+  }
+
+  func overlayView() -> some View {
+    if let imageOnlyMessage = delegateBridge.inAppMessageData?.0 as? InAppMessagingImageOnlyDisplay,
+      let delegate = delegateBridge.inAppMessageData?.1,
+      let closure = imageOnlyClosure {
+      return AnyView(closure(imageOnlyMessage, delegate))
+    }
+
+    if let bannerMessage = delegateBridge.inAppMessageData?.0 as? InAppMessagingBannerDisplay,
+      let delegate = delegateBridge.inAppMessageData?.1,
+      let closure = bannerClosure {
+      return AnyView(closure(bannerMessage, delegate))
+    }
+
+    if let modalMessage = delegateBridge.inAppMessageData?.0 as? InAppMessagingModalDisplay,
+      let delegate = delegateBridge.inAppMessageData?.1,
+      let closure = modalClosure {
+      return AnyView(closure(modalMessage, delegate))
+    }
+
+    if let cardMessage = delegateBridge.inAppMessageData?.0 as? InAppMessagingCardDisplay,
+      let delegate = delegateBridge.inAppMessageData?.1,
+      let closure = cardClosure {
+      return AnyView(closure(cardMessage, delegate))
+    }
+
+    return AnyView(EmptyView())
   }
 }
 
@@ -53,11 +97,38 @@ class DelegateBridge: NSObject, InAppMessagingDisplay, InAppMessagingDisplayDele
   }
 }
 
-// View modifier that takes a closure for handling in-app message display.
 public extension View {
-  func onDisplayInAppMessage<T: View>(closure: @escaping (InAppMessagingDisplayMessage,
-                                                          InAppMessagingDisplayDelegate) -> T)
+  func imageOnlyInAppMessage<Content: View>(closure: @escaping (InAppMessagingImageOnlyDisplay,
+                                                                InAppMessagingDisplayDelegate)
+      -> Content)
     -> some View {
-    modifier(CustomInAppMessageDisplayViewModifier(closure: closure))
+    modifier(CustomInAppMessageDisplayViewModifier(imageOnlyClosure: closure))
+  }
+}
+
+public extension View {
+  func bannerInAppMessage<Content: View>(closure: @escaping (InAppMessagingBannerDisplay,
+                                                             InAppMessagingDisplayDelegate)
+      -> Content)
+    -> some View {
+    modifier(CustomInAppMessageDisplayViewModifier(bannerClosure: closure))
+  }
+}
+
+public extension View {
+  func modalInAppMessage<Content: View>(closure: @escaping (InAppMessagingModalDisplay,
+                                                            InAppMessagingDisplayDelegate)
+      -> Content)
+    -> some View {
+    modifier(CustomInAppMessageDisplayViewModifier(modalClosure: closure))
+  }
+}
+
+public extension View {
+  func cardInAppMessage<Content: View>(closure: @escaping (InAppMessagingCardDisplay,
+                                                           InAppMessagingDisplayDelegate)
+      -> Content)
+    -> some View {
+    modifier(CustomInAppMessageDisplayViewModifier(cardClosure: closure))
   }
 }
