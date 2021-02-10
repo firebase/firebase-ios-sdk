@@ -1,3 +1,5 @@
+# v7.7.0
+- [fixed] Fix variable length array diagnostics warning (#7460).
 # v7.5.1
 - [changed] Optimize `FIRDatabaseQuery#getDataWithCompletionBlock` when in-memory active listener cache exists (#7312).
 
