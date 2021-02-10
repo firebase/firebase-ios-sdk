@@ -25,7 +25,7 @@ fi
 # Setup for pod unit tests
 if [ $SDK == "FirebasePerformance" ]; then
   export FPR_UNSWIZZLE_AVAILABLE="1"
-  export FPR_AUTOPUSH_ENV="0"
+  xcrun simctl spawn booted log config --mode "level:off"  --subsystem com.apple.CoreTelephony
 fi
 
 # Run unit tests of pods and put xcresult bundles into output_path, which
