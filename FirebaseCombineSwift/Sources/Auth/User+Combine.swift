@@ -19,8 +19,7 @@
 
   @available(swift 5.0)
   @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
-extension User {
-    
+  extension User {
     /// Associates a user account from a third-party identity provider with this user and
     /// returns additional identity provider data.
     ///
@@ -39,15 +38,15 @@ extension User {
     ///
     ///   See `FIRAuthErrors` for a list of error codes that are common to all FIRUser methods.
     public func link(with credential: AuthCredential) -> Future<AuthDataResult, Error> {
-        Future<AuthDataResult, Error> { promise in
-            self.link(with: credential) { authDataResult, error in
-                if let error = error {
-                    promise(.failure(error))
-                } else if let authDataResult = authDataResult {
-                    promise(.success(authDataResult))
-                }
-            }
+      Future<AuthDataResult, Error> { promise in
+        self.link(with: credential) { authDataResult, error in
+          if let error = error {
+            promise(.failure(error))
+          } else if let authDataResult = authDataResult {
+            promise(.success(authDataResult))
+          }
         }
+      }
     }
-}
+  }
 #endif
