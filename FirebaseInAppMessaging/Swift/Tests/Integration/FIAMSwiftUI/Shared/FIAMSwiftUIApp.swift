@@ -6,10 +6,16 @@
 //
 
 import SwiftUI
+
+import FirebaseCore
 import FirebaseInAppMessagingSwift
 
 @main
 struct FIAMSwiftUIApp: App {
+  init() {
+    FirebaseApp.configure()
+  }
+
   var body: some Scene {
     WindowGroup {
       ContentView().modalInAppMessage { modalMessage, delegate in
