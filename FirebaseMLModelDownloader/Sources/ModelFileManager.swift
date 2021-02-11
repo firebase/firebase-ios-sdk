@@ -27,11 +27,29 @@ enum ModelFileManager {
 
   /// Root directory of model file storage on device.
   static var modelsDirectory: URL? {
-    #if os(tvOS)
+    let rootDirOptional: URL? = {
+      #if os(tvOS)
       return fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first
     #else
       return fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first ?? nil
     #endif
+    }()
+
+    guard let rootDirURL = rootDirOptional else {
+      return nil
+    }
+
+    let modelDirURL = rootDirURL.appendingPathComponent("com.firebase.FirebaseMLModelDownloader", isDirectory: true)
+
+    do {
+      if !fileManager.fileExists(atPath: modelDirURL.absoluteString) {
+        try fileManager.createDirectory(at: modelDirURL, withIntermediateDirectories: true)
+      }
+    } catch {
+      return nil
+    }
+
+    return modelDirURL
   }
 
   /// Name for model file stored on device.
