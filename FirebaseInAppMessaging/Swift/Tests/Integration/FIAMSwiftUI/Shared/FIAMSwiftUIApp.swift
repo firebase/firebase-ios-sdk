@@ -8,6 +8,7 @@
 import SwiftUI
 
 import FirebaseCore
+import FirebaseInAppMessaging
 import FirebaseInAppMessagingSwift
 
 @main
@@ -28,6 +29,8 @@ struct FIAMSwiftUIApp: App {
           if let bodyText = modalMessage.bodyText {
             Text(bodyText).padding(4)
           }
+          actionButton(modalMessage: modalMessage, delegate: delegate).padding(4)
+          dismissButton(modalMessage: modalMessage, delegate: delegate).padding(4)
         }
         .background(Color.white)
         .border(Color.black)
@@ -39,14 +42,37 @@ struct FIAMSwiftUIApp: App {
     }
   }
 
-  func optionalButton(buttonInfo: (String, () -> Void)?) -> AnyView {
-    if let buttonInfo = buttonInfo {
-      return AnyView(Button(action: {
-        buttonInfo.1()
+  @ViewBuilder
+  func actionButton(modalMessage: InAppMessagingModalDisplay,
+                    delegate: InAppMessagingDisplayDelegate) -> some View {
+    if let button = modalMessage.actionButton {
+      Button(action: {
+        if let actionURL = modalMessage.actionURL {
+          let action = InAppMessagingAction(actionText: button.buttonText,
+                                            actionURL: actionURL)
+          delegate.messageClicked?(modalMessage, with: action)
+        } else {
+          delegate.messageDismissed?(modalMessage, dismissType: .typeUserTapClose)
+        }
       }) {
-        Text(buttonInfo.0)
-      })
+        Text(button.buttonText)
+      }
     }
-    return AnyView(EmptyView())
+    EmptyView()
+  }
+
+  // Need a dismiss button for the case where there's an action button with an action URL. Otherwise
+  // user would be forced into a clickthrough.
+  @ViewBuilder
+  func dismissButton(modalMessage: InAppMessagingModalDisplay,
+                     delegate: InAppMessagingDisplayDelegate) -> some View {
+    if let _ = modalMessage.actionButton, modalMessage.actionURL != nil {
+      Button(action: {
+        delegate.messageDismissed?(modalMessage, dismissType: .typeUserTapClose)
+      }) {
+        Text("Dismiss")
+      }
+    }
+    EmptyView()
   }
 }
