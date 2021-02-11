@@ -134,6 +134,7 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
   dispatch_async(_lockQueue, ^{
     RCNConfigFetch *strongSelf = weakSelf;
     if (strongSelf == nil) {
+      FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000076", @"RCNConfigFetch is already deallocated");
       return;
     }
 
@@ -224,6 +225,7 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
       FIRInstallationsAuthTokenResult *tokenResult, NSError *error) {
     RCNConfigFetch *strongSelf = weakSelf;
     if (strongSelf == nil) {
+      FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000076", @"RCNConfigFetch is already deallocated");
       return;
     }
 
@@ -248,6 +250,8 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
                                                   NSError *_Nullable error) {
       RCNConfigFetch *strongSelf = weakSelf;
       if (strongSelf == nil) {
+        FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000076",
+                    @"RCNConfigFetch is already deallocated");
         return;
       }
 
@@ -255,6 +259,8 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
       dispatch_async(strongSelf->_lockQueue, ^{
         RCNConfigFetch *strongSelfQueue = weakSelf;
         if (strongSelfQueue == nil) {
+          FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000076",
+                      @"RCNConfigFetch is already deallocated");
           return;
         }
 
@@ -353,6 +359,7 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
 
     RCNConfigFetch *fetcherCompletionSelf = weakSelf;
     if (fetcherCompletionSelf == nil) {
+      FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000076", @"RCNConfigFetch is already deallocated");
       return;
     }
 
@@ -362,6 +369,8 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
     dispatch_async(fetcherCompletionSelf->_lockQueue, ^{
       RCNConfigFetch *strongSelf = weakSelf;
       if (strongSelf == nil) {
+        FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000076",
+                    @"RCNConfigFetch is already deallocated");
         return;
       }
 
