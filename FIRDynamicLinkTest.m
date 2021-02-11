@@ -50,7 +50,7 @@ NSDictionary<NSString *, NSString *> *utmParameters = nil;
 - (void)testDynamicLinkParameters_InitWithParameters {
   FIRDynamicLink *dynamicLink = [[FIRDynamicLink alloc] initWithParametersDictionary:fdlParameters];
   XCTAssertEqual([fdlParameters count], [[dynamicLink parametersDictionary] count]);
-  for (id key in fdlParameters) {
+  for (NSString *key in fdlParameters) {
     NSString *expectedValue = [fdlParameters valueForKey:key];
     NSString *derivedValue = [[dynamicLink parametersDictionary] valueForKey:key];
     XCTAssertNotNil(derivedValue, @"Cannot be null!");
@@ -61,7 +61,7 @@ NSDictionary<NSString *, NSString *> *utmParameters = nil;
 - (void)testDynamicLinkUtmParameters_InitWithParameters {
   FIRDynamicLink *dynamicLink = [[FIRDynamicLink alloc] initWithParametersDictionary:fdlParameters];
   XCTAssertEqual([[dynamicLink utmParametersDictionary] count], [utmParameters count]);
-  for (id key in utmParameters) {
+  for (NSString *key in utmParameters) {
     NSString *expectedValue = [utmParameters valueForKey:key];
     NSString *derivedValue = [[dynamicLink utmParametersDictionary] valueForKey:key];
     XCTAssertNotNil(derivedValue, @"Cannot be null!");

@@ -23,7 +23,7 @@
 
 @implementation FIRDynamicLink
 
-NSString *const UTM_PARAM_PREFIX = @"utm_";
+NSString *const FDLUTMParamPrefix = @"utm_";
 
 - (NSString *)description {
   return [NSString stringWithFormat:@"<%@: %p, url [%@], match type: %@, minimumAppVersion: %@, "
@@ -38,7 +38,7 @@ NSString *const UTM_PARAM_PREFIX = @"utm_";
 
   if (self = [super init]) {
     _parametersDictionary = [parameters copy];
-    _utmParametersDictionary = [[self class] extractUtmParams:parameters];
+    _utmParametersDictionary = [[self class] extractUTMParams:parameters];
     NSString *urlString = parameters[kFIRDLParameterDeepLinkIdentifier];
     _url = [NSURL URLWithString:urlString];
     _inviteId = parameters[kFIRDLParameterInviteId];
@@ -136,18 +136,16 @@ NSString *const UTM_PARAM_PREFIX = @"utm_";
   return [matchMap[string] integerValue] ?: FIRDLMatchTypeNone;
 }
 
-+ (NSDictionary<NSString *, id> *)extractUtmParams:(NSDictionary<NSString *, id> *)parameters {
++ (NSDictionary<NSString *, id> *)extractUTMParams:(NSDictionary<NSString *, id> *)parameters {
   NSMutableDictionary<NSString *, id> *utmParamsDictionary = [[NSMutableDictionary alloc] init];
 
-  if (parameters) {
-    for (id key in parameters) {
-      if ([key hasPrefix:UTM_PARAM_PREFIX]) {
-        [utmParamsDictionary setObject:[parameters valueForKey:key] forKey:key];
-      }
+  for (NSString *key in parameters) {
+    if ([key hasPrefix:FDLUTMParamPrefix]) {
+      [utmParamsDictionary setObject:[parameters valueForKey:key] forKey:key];
     }
   }
 
-  return utmParamsDictionary;
+  return [[NSDictionary alloc] initWithDictionary:utmParamsDictionary];
 }
 
 @end

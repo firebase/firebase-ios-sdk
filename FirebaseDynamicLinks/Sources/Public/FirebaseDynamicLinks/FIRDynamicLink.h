@@ -69,7 +69,7 @@ NS_SWIFT_NAME(DynamicLink)
 
 /**
  * @property utmParametersDictionary
- * @abstract UTM parameters associated with a firebase dynamic link.
+ * @abstract UTM parameters associated with a Firebase Dynamic Link.
  */
 @property(nonatomic, copy, readonly) NSDictionary<NSString *, id> *utmParametersDictionary;
 
