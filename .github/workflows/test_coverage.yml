@@ -45,7 +45,7 @@ jobs:
     runs-on: macOS-latest
     strategy:
       matrix:
-        target: [ios]
+        target: [iOS]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -64,7 +64,7 @@ jobs:
     runs-on: macOS-latest
     strategy:
       matrix:
-        target: [ios]
+        target: [iOS]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -83,7 +83,7 @@ jobs:
     runs-on: macOS-latest
     strategy:
       matrix:
-        target: [ios]
+        target: [iOS]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -102,7 +102,7 @@ jobs:
     runs-on: macOS-latest
     strategy:
       matrix:
-        target: [ios]
+        target: [iOS]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -121,7 +121,7 @@ jobs:
     runs-on: macOS-latest
     strategy:
       matrix:
-        target: [ios]
+        target: [iOS]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -140,7 +140,7 @@ jobs:
     runs-on: macOS-latest
     strategy:
       matrix:
-        target: [ios]
+        target: [iOS]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -159,7 +159,7 @@ jobs:
     runs-on: macOS-latest
     strategy:
       matrix:
-        target: [ios]
+        target: [iOS]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -178,7 +178,7 @@ jobs:
     runs-on: macOS-latest
     strategy:
       matrix:
-        target: [ios]
+        target: [iOS]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -197,7 +197,7 @@ jobs:
     runs-on: macOS-latest
     strategy:
       matrix:
-        target: [ios]
+        target: [iOS]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -216,7 +216,7 @@ jobs:
     runs-on: macOS-latest
     strategy:
       matrix:
-        target: [ios]
+        target: [iOS]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -235,7 +235,7 @@ jobs:
     runs-on: macOS-latest
     strategy:
       matrix:
-        target: [ios]
+        target: [iOS]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -254,7 +254,7 @@ jobs:
     runs-on: macOS-latest
     strategy:
       matrix:
-        target: [ios]
+        target: [iOS]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
