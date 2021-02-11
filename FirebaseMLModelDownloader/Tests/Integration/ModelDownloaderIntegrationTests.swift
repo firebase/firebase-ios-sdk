@@ -303,6 +303,48 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     wait(for: [localModelExpectation], timeout: 5)
   }
 
+  func testGetModelWhenNameIsEmpty() {
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
+    let testName = String(#function.dropLast(2))
+    let emptyModelName = ""
+
+    let conditions = ModelDownloadConditions()
+    let modelDownloader = ModelDownloader.modelDownloaderWithDefaults(
+      .createTestInstance(testName: testName),
+      app: testApp
+    )
+
+    let completionExpectation = expectation(description: "getModel")
+    let progressExpectation = expectation(description: "progressHandler")
+    progressExpectation.isInverted = true
+
+    modelDownloader.getModel(
+      name: emptyModelName,
+      downloadType: .latestModel,
+      conditions: conditions,
+      progressHandler: { progress in
+        progressExpectation.fulfill()
+      }
+    ) { result in
+      XCTAssertTrue(Thread.isMainThread, "Completion must be called on the main thread.")
+
+      switch result {
+      case .failure(.emptyModelName):
+        // The expected error.
+        break
+
+      default:
+        XCTFail("Unexpected result: \(result)")
+      }
+      completionExpectation.fulfill()
+    }
+
+    wait(for: [completionExpectation, progressExpectation], timeout: 5)
+  }
+
   /// Delete previously downloaded model.
   func testDeleteModel() {
     guard let testApp = FirebaseApp.app() else {

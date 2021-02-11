@@ -132,6 +132,11 @@ public class ModelDownloader {
                        conditions: ModelDownloadConditions,
                        progressHandler: ((Float) -> Void)? = nil,
                        completion: @escaping (Result<CustomModel, DownloadError>) -> Void) {
+    guard !modelName.isEmpty else {
+      asyncOnMainQueue(completion(.failure(.emptyModelName)))
+      return
+    }
+
     switch downloadType {
     case .localModel:
       if let localModel = getLocalModel(modelName: modelName) {
@@ -530,6 +535,8 @@ public enum DownloadError: Error, Equatable {
   case notEnoughSpace
   /// Malformed model name or Firebase app options.
   case invalidArgument
+  /// Model name is empty.
+  case emptyModelName
   /// Other errors with description.
   case internalError(description: String)
 }
