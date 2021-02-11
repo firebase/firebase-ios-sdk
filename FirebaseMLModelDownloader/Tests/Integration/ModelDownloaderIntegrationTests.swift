@@ -226,10 +226,14 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       downloadType: downloadType,
       conditions: conditions,
       progressHandler: { progress in
+        XCTAssertTrue(Thread.isMainThread, "Completion must be called on the main thread.")
+
         XCTAssertLessThanOrEqual(progress, 1)
         XCTAssertGreaterThanOrEqual(progress, 0)
       }
     ) { result in
+      XCTAssertTrue(Thread.isMainThread, "Completion must be called on the main thread.")
+      
       switch result {
       case let .success(model):
         XCTAssertNotNil(model.path)
@@ -323,10 +327,13 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       downloadType: downloadType,
       conditions: conditions,
       progressHandler: { progress in
+        XCTAssertTrue(Thread.isMainThread, "Completion must be called on the main thread.")
         XCTAssertLessThanOrEqual(progress, 1)
         XCTAssertGreaterThanOrEqual(progress, 0)
       }
     ) { result in
+      XCTAssertTrue(Thread.isMainThread, "Completion must be called on the main thread.")
+
       switch result {
       case let .success(model):
         XCTAssertNotNil(model.path)
@@ -343,6 +350,8 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     let deleteExpectation = expectation(description: "Wait for model deletion.")
     modelDownloader.deleteDownloadedModel(name: testModelName) { result in
       deleteExpectation.fulfill()
+      XCTAssertTrue(Thread.isMainThread, "Completion must be called on the main thread.")
+
       switch result {
       case .success: break
       case let .failure(error):
