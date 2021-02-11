@@ -25,7 +25,7 @@ fi
 # Setup for pod unit tests
 if [ $SDK == "FirebasePerformance" ]; then
   scripts/setup_bundler.sh
-  scripts/third_party/travis/retry.sh scripts/build.sh Performance iOS unit
+  scripts/third_party/travis/retry.sh scripts/build.sh Performance "${platform}" unit
 else
   # Run unit tests of pods and put xcresult bundles into output_path, which
   # should be a targeted dir of actions/upload-artifact in workflows.
