@@ -370,6 +370,7 @@ struct FrameworkBuilder {
       if framework.hasPrefix("Firebase") || framework == "GoogleDataTransport",
         framework != "FirebaseCoreDiagnostics",
         framework != "FirebaseUI",
+        framework != "FirebaseMLModelDownloader",
         !framework.hasSuffix("Swift") {
         // Delete CocoaPods generated umbrella and use pre-generated one.
         do {
@@ -456,9 +457,12 @@ struct FrameworkBuilder {
 
   /// Parses CocoaPods config files or uses the passed in `moduleMapContents` to write the
   /// appropriate `moduleMap` to the `destination`.
+  /// Returns true to fail if building for Carthage and there are Swift modules.
+  @discardableResult
   private func packageModuleMaps(inFrameworks frameworks: [URL],
                                  moduleMapContents: String,
-                                 destination: URL) {
+                                 destination: URL,
+                                 buildingCarthage: Bool = false) -> Bool {
     // CocoaPods does not put dependent frameworks and libraries into the module maps it generates.
     // Instead it use build options to specify them. For the zip build, we need the module maps to
     // include the dependent frameworks and libraries. Therefore we reconstruct them by parsing
@@ -469,28 +473,34 @@ struct FrameworkBuilder {
     // This is sufficient for the testing done so far, but more testing is required to determine
     // if dependent libraries and frameworks also may need to be added to the Swift module maps in
     // some cases.
-    let builtSwiftModules = makeSwiftModuleMap(thinFrameworks: frameworks, destination: destination)
-    if !builtSwiftModules {
-      // Copy the module map to the destination.
-      let moduleDir = destination.appendingPathComponent("Modules")
-      do {
-        try FileManager.default.createDirectory(at: moduleDir, withIntermediateDirectories: true)
-      } catch {
-        let frameworkName: String = frameworks.first?.lastPathComponent ?? "<UNKNOWN"
-        fatalError("Could not create Modules directory for framework: \(frameworkName). \(error)")
-      }
-      let modulemap = moduleDir.appendingPathComponent("module.modulemap")
-      do {
-        try moduleMapContents.write(to: modulemap, atomically: true, encoding: .utf8)
-      } catch {
-        let frameworkName: String = frameworks.first?.lastPathComponent ?? "<UNKNOWN"
-        fatalError("Could not write modulemap to disk for \(frameworkName): \(error)")
-      }
+    if makeSwiftModuleMap(thinFrameworks: frameworks,
+                          destination: destination,
+                          buildingCarthage: true) {
+      return buildingCarthage
     }
+    // Copy the module map to the destination.
+    let moduleDir = destination.appendingPathComponent("Modules")
+    do {
+      try FileManager.default.createDirectory(at: moduleDir, withIntermediateDirectories: true)
+    } catch {
+      let frameworkName: String = frameworks.first?.lastPathComponent ?? "<UNKNOWN"
+      fatalError("Could not create Modules directory for framework: \(frameworkName). \(error)")
+    }
+    let modulemap = moduleDir.appendingPathComponent("module.modulemap")
+    do {
+      try moduleMapContents.write(to: modulemap, atomically: true, encoding: .utf8)
+    } catch {
+      let frameworkName: String = frameworks.first?.lastPathComponent ?? "<UNKNOWN"
+      fatalError("Could not write modulemap to disk for \(frameworkName): \(error)")
+    }
+    return false
   }
 
   /// URLs pointing to the frameworks containing architecture specific code.
-  private func makeSwiftModuleMap(thinFrameworks: [URL], destination: URL) -> Bool {
+  /// Returns true if there are Swift modules.
+  private func makeSwiftModuleMap(thinFrameworks: [URL],
+                                  destination: URL,
+                                  buildingCarthage: Bool = false) -> Bool {
     let fileManager = FileManager.default
 
     for thinFramework in thinFrameworks {
@@ -503,6 +513,8 @@ struct FrameworkBuilder {
         let swiftModules = files.filter { $0.hasSuffix(".swiftmodule") }
         if swiftModules.isEmpty {
           return false
+        } else if buildingCarthage {
+          return true
         }
         guard let first = swiftModules.first,
           let swiftModule = URL(string: first) else {
@@ -694,7 +706,7 @@ struct FrameworkBuilder {
                                         fromFolder: URL,
                                         slicedFrameworks: [TargetPlatform: URL],
                                         resourceContents: URL,
-                                        moduleMapContents: String) -> URL {
+                                        moduleMapContents: String) -> URL? {
     let fileManager = FileManager.default
 
     // Create a `.framework` for each of the thinArchives using the `fromFolder` as the base.
@@ -714,9 +726,17 @@ struct FrameworkBuilder {
       slicedBinariesForCarthage(fromFrameworks: slicedFrameworks,
                                 workingDir: platformFrameworksDir)
 
+    // Copy the framework in the appropriate directory structure.
+    let frameworkDir = platformFrameworksDir.appendingPathComponent(fromFolder.lastPathComponent)
+    do {
+      try fileManager.copyItem(at: fromFolder, to: frameworkDir)
+    } catch {
+      fatalError("Could not create .framework needed to build \(framework) for Carthage: \(error)")
+    }
+
     // Build the fat archive using the `lipo` command to make one fat binary that Carthage can use
     // in the framework. We need the full archive path.
-    let fatArchive = platformFrameworksDir.appendingPathComponent(framework)
+    let fatArchive = frameworkDir.appendingPathComponent(framework)
     let result = FrameworkBuilder.syncExec(
       command: "/usr/bin/lipo",
       args: ["-create", "-output", fatArchive.path] + thinSlices.map { $0.value.path }
@@ -731,20 +751,20 @@ struct FrameworkBuilder {
       print("lipo command for \(framework) succeeded.")
     }
 
-    // Copy the framework and the fat binary artifact into the appropriate directory structure.
-    let frameworkDir = platformFrameworksDir.appendingPathComponent(fromFolder.lastPathComponent)
-    let archiveDestination = frameworkDir.appendingPathComponent(framework)
-    do {
-      try fileManager.copyItem(at: fromFolder, to: frameworkDir)
-      try fileManager.copyItem(at: fatArchive, to: archiveDestination)
-    } catch {
-      fatalError("Could not create .framework needed to build \(framework) for Carthage: \(error)")
+    // Package the modulemaps. The build architecture does not support constructing Swift module
+    // maps for the Carthage distribution, so skip this pod if there is any Swift.
+    let foundSwift = packageModuleMaps(inFrameworks: slicedFrameworks.map { $0.value },
+                                       moduleMapContents: moduleMapContents,
+                                       destination: frameworkDir,
+                                       buildingCarthage: true)
+    if foundSwift {
+      do {
+        try fileManager.removeItem(at: frameworkDir)
+      } catch {
+        fatalError("Could not remove \(frameworkDir) \(error)")
+      }
+      return nil
     }
-
-    // Package the modulemaps. Special consideration is needed for Swift modules.
-    packageModuleMaps(inFrameworks: slicedFrameworks.map { $0.value },
-                      moduleMapContents: moduleMapContents,
-                      destination: frameworkDir)
 
     // Carthage Resources are packaged in the framework.
     // Copy them instead of moving them, since they'll still need to be copied into the xcframework.
@@ -757,17 +777,6 @@ struct FrameworkBuilder {
       fatalError("Could not move bundles into Resources directory while building \(framework): " +
         "\(error)")
     }
-
-    // Clean up the fat archive we built.
-    do {
-      try fileManager.removeItem(at: fatArchive)
-    } catch {
-      print("""
-      Tried to remove fat binary for \(framework) at \(fatArchive.path) but couldn't. This is \
-      not a failure, but you may want to remove the file afterwards to save disk space.
-      """)
-    }
-
     return frameworkDir
   }
 
