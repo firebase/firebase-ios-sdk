@@ -494,10 +494,13 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       downloadType: .latestModel,
       conditions: conditions,
       progressHandler: { progress in
+        XCTAssertTrue(Thread.isMainThread, "Completion must be called on the main thread.")
         XCTAssertLessThanOrEqual(progress, 1)
         XCTAssertGreaterThanOrEqual(progress, 0)
       }
     ) { result in
+      XCTAssertTrue(Thread.isMainThread, "Completion must be called on the main thread.")
+
       switch result {
       case let .success(model):
         XCTAssertNotNil(model.path)
