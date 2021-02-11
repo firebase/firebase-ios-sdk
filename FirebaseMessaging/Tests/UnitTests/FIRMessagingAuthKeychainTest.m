@@ -54,11 +54,11 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
 
 @end
 
-@interface FIRMessagingAuthKeyChainTest : XCTestCase
+@interface FIRMessagingAuthKeychainTest : XCTestCase
 
 @end
 
-@implementation FIRMessagingAuthKeyChainTest
+@implementation FIRMessagingAuthKeychainTest
 
 - (void)setUp {
   [super setUp];
