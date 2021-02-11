@@ -106,7 +106,9 @@ class RandomAccessQueue {
    */
   const T& front() const {
     const QueueEntry& entry = queue_.front();
-    HARD_ASSERT(!entry.removed(), "The front element in the queue should not be marked as \"removed\"");
+    HARD_ASSERT(
+        !entry.removed(),
+        "The front element in the queue should not be marked as \"removed\"");
     return entry.element();
   }
 
