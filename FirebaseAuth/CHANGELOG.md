@@ -1,4 +1,4 @@
-# Unreleased
+# 7.6.0
 - [fixed] Auth emulator now works across the local network. (#7350)
 - [fixed] Fixed incorrect import for watchOS (#7425)
 
