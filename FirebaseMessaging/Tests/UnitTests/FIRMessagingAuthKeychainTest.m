@@ -162,7 +162,7 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
            NSString *service2 = @"com.google.iid.checkin";
            FIRMessagingCheckinPreferences *preferences =
                [[FIRMessagingCheckinPreferences alloc] initWithDeviceID:kAuthID
-                                                             secretToken:kSecret];
+                                                            secretToken:kSecret];
            NSString *checkinKeychainContent = [preferences checkinKeychainContent];
            NSData *checkinData = [checkinKeychainContent dataUsingEncoding:NSUTF8StringEncoding];
 
@@ -402,10 +402,10 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
                                     token:(NSString *)token {
   FIRMessagingTokenInfo *tokenInfo =
       [[FIRMessagingTokenInfo alloc] initWithAuthorizedEntity:authorizedEntity
-                                                         scope:scope
-                                                         token:token
-                                                    appVersion:@"1.0"
-                                                 firebaseAppID:kFirebaseAppID];
+                                                        scope:scope
+                                                        token:token
+                                                   appVersion:@"1.0"
+                                                firebaseAppID:kFirebaseAppID];
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
   return [NSKeyedArchiver archivedDataWithRootObject:tokenInfo];

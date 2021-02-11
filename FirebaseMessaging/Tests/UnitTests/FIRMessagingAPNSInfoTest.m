@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-
 #import <XCTest/XCTest.h>
 
-#import "FirebaseMessaging/Sources/Token/FIRMessagingAPNSInfo.h"
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
-
+#import "FirebaseMessaging/Sources/Token/FIRMessagingAPNSInfo.h"
 
 @interface FIRMessagingAPNSInfoTest : XCTestCase
 

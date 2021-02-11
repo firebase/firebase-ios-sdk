@@ -31,8 +31,6 @@
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenOperation.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenStore.h"
 
-
-
 @interface FIRMessagingTokenManager () {
   FIRMessagingTokenStore *_tokenStore;
   FIRMessagingCheckinStore *_checkinStore;
