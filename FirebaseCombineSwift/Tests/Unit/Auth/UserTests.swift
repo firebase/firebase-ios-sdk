@@ -220,6 +220,7 @@ class UserTests: XCTestCase {
         }
       } receiveValue: { linkAuthResult in
         let user = linkAuthResult.user
+        // Verify that the current user and reauthenticated user are same pointers.
         XCTAssertEqual(Auth.auth().currentUser, user)
         XCTAssertEqual(linkAuthResult.additionalUserInfo?.profile,
                        UserTests.googleProfile as [String: NSString])
@@ -236,7 +237,7 @@ class UserTests: XCTestCase {
     wait(for: [userSignInExpectation], timeout: expectationTimeout)
   }
 
-  func testlinkAndRetrieveDataError() {
+  func testLinkAndRetrieveDataError() {
     let facebookCredentials = ProviderCredentials(
       providerID: FacebookAuthProviderID,
       federatedID: "FACEBOOK_ID",
@@ -310,7 +311,7 @@ class UserTests: XCTestCase {
     wait(for: [userSignInExpectation], timeout: expectationTimeout)
   }
 
-  func testlinkAndRetrieveDataProviderAlreadyLinked() {
+  func testLinkAndRetrieveDataProviderAlreadyLinked() {
     let facebookCredentials = ProviderCredentials(
       providerID: FacebookAuthProviderID,
       federatedID: "FACEBOOK_ID",
@@ -370,7 +371,7 @@ class UserTests: XCTestCase {
     wait(for: [userSignInExpectation], timeout: expectationTimeout)
   }
 
-  func testlinkAndRetrieveDataErrorAutoSignOut() {
+  func testLinkAndRetrieveDataErrorAutoSignOut() {
     let facebookCredentials = ProviderCredentials(
       providerID: FacebookAuthProviderID,
       federatedID: "FACEBOOK_ID",
