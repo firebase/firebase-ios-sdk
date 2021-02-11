@@ -22,34 +22,64 @@ jobs:
 
   # Build and run the unit tests for Firebase performance SDK.
   performance:
-    # Firebase Performance lives in private repository only currently.
-    # Remove the check after Firebase Performance is open sourced.
-    if: github.repository == 'FirebasePrivate/firebase-ios-sdk'
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     runs-on: macos-latest
+    strategy:
+      matrix:
+        target: [iOS, tvOS]
+        test: [unit, proddev]
     steps:
     - uses: actions/checkout@v2
-      with:
-        ref: perf
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
-      run: scripts/third_party/travis/retry.sh scripts/build.sh Performance all xcodebuild
+      run: scripts/third_party/travis/retry.sh scripts/build.sh Performance ${{ matrix.target }} ${{ matrix.test }}
 
   # Podspec lint check for Firebase Performance
   pod-lib-lint:
-    # Firebase Performance lives in private repository only currently.
-    # Remove the check after Firebase Performance is open sourced.
-    if: github.repository == 'FirebasePrivate/firebase-ios-sdk'
-    runs-on: macOS-latest
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
 
+    runs-on: macOS-latest
     strategy:
       matrix:
-        target: [ios]
+        target: [ios, tvos]
     steps:
     - uses: actions/checkout@v2
-      with:
-        ref: perf
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebasePerformance.podspec --skip-tests --platforms=${{ matrix.target }}
+
+  quickstart:
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+
+    env:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup quickstart
+      run: scripts/setup_quickstart.sh performance
+    - name: Install Secret GoogleService-Info.plist
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-performance.plist.gpg \
+          quickstart-ios/performance/GoogleService-Info.plist "$plist_secret"
+    - name: Install Secret FIREGSignInInfo.h
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
+          quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
+    - name: Test swift quickstart
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Performance)
+    - name: Test objc quickstart
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Performance)
+
+  catalyst:
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Setup project and Build Catalyst
+      run: scripts/test_catalyst.sh FirebasePerformance build

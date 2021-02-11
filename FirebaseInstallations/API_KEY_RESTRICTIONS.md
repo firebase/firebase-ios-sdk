@@ -18,7 +18,7 @@ As a result, API restrictions you may have applied to API keys used by your Fire
 
 ## What do I need to do?
 
-Before upgrading your application(s) to the latest SDK version, please **make sure that the API key(s) used in your application(s) are whitelisted for the Firebase Installations API:**
+Before upgrading your application(s) to the latest SDK version, please **make sure that the API key(s) used in your application(s) are added to the allowlist for the Firebase Installations API:**
 
 - **Open** the [Google Cloud Platform Console](https://console.cloud.google.com/apis/credentials?folder).
 - **Choose** the project you use for your application(s).

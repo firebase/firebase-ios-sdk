@@ -89,7 +89,9 @@
         NSError *_Nullable error) {
         FIRInstanceID_STRONGIFY(self);
         if (error) {
-          handler(nil, error);
+          if (handler) {
+            handler(nil, error);
+          }
           return;
         }
         NSString *firebaseAppID = options[kFIRInstanceIDTokenOptionsFirebaseAppIDKey];

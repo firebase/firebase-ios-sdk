@@ -79,6 +79,29 @@
   [FIRStorageTestHelpers waitForExpectation:self];
 }
 
+- (void)testListAllCallbackOnlyCalledOnce {
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"testListAllCallbackOnlyCalledOnce"];
+  expectation.expectedFulfillmentCount = 1;
+
+  FIRStoragePath *path = [FIRStorageTestHelpers objectPath];
+  FIRStorageReference *ref = [[FIRStorageReference alloc] initWithStorage:self.storage path:path];
+
+  FIRStorageVoidListError errorBlock = ^(FIRStorageListResult *result, NSError *error) {
+    XCTAssertNil(result);
+    XCTAssertNotNil(error);
+
+    XCTAssertEqualObjects(error.domain, @"FIRStorageErrorDomain");
+    XCTAssertEqual(error.code, FIRStorageErrorCodeUnknown);
+
+    [expectation fulfill];
+  };
+
+  [ref listAllWithCompletion:errorBlock];
+
+  [FIRStorageTestHelpers waitForExpectation:self];
+}
+
 - (void)testDefaultList {
   XCTestExpectation *expectation = [self expectationWithDescription:@"testDefaultList"];
   NSURL *expectedURL = [NSURL
@@ -251,7 +274,7 @@
 - (void)testListWithErrorResponse {
   XCTestExpectation *expectation = [self expectationWithDescription:@"testListWithErrorResponse"];
 
-  NSError *error = [NSError errorWithDomain:@"com.google.firebase.storage" code:-1 userInfo:nil];
+  NSError *error = [NSError errorWithDomain:@"com.google.firebase.storage" code:404 userInfo:nil];
 
   self.fetcherService.testBlock =
       ^(GTMSessionFetcher *fetcher, GTMSessionFetcherTestResponse response) {
@@ -276,6 +299,7 @@
                XCTAssertNil(result);
 
                XCTAssertEqualObjects(error.domain, @"FIRStorageErrorDomain");
+               XCTAssertEqual(error.code, FIRStorageErrorCodeObjectNotFound);
 
                [expectation fulfill];
              }];

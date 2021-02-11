@@ -45,22 +45,13 @@ class WrappedRemoteDocumentCache;
  */
 class CountingQueryEngine : public QueryEngine {
  public:
-  explicit CountingQueryEngine(QueryEngine* query_engine);
+  CountingQueryEngine();
 
   ~CountingQueryEngine();
 
   void ResetCounts();
 
   void SetLocalDocumentsView(LocalDocumentsView* local_document) override;
-
-  model::DocumentMap GetDocumentsMatchingQuery(
-      const core::Query& query,
-      const model::SnapshotVersion& last_limbo_free_snapshot_version,
-      const model::DocumentKeySet& remote_keys) override;
-
-  Type type() const override {
-    return query_engine_->type();
-  }
 
   /**
    * Returns the number of documents returned by the RemoteDocumentCache's
@@ -100,8 +91,6 @@ class CountingQueryEngine : public QueryEngine {
  private:
   friend class WrappedMutationQueue;
   friend class WrappedRemoteDocumentCache;
-
-  QueryEngine* query_engine_ = nullptr;
 
   std::unique_ptr<LocalDocumentsView> local_documents_;
   std::unique_ptr<WrappedMutationQueue> mutation_queue_;

@@ -27,8 +27,6 @@ IGNORE = frozenset([
     'Firestore/Protos/cpp',
     'Firestore/Protos/objc',
     'Firestore/third_party/abseil-cpp',
-    'GoogleDataTransport/GDTCCTLibrary/Protogen/nanopb',
-    'GoogleDataTransport/ProtoSupport',
 ])
 
 FIRESTORE_CORE = ['Firestore/core']

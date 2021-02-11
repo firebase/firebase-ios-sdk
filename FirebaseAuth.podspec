@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAuth'
-  s.version          = '7.0.0'
+  s.version          = '7.6.0'
   s.summary          = 'Apple platform client for Firebase Authentication'
 
   s.description      = <<-DESC
@@ -49,8 +49,9 @@ supports email and password accounts, as well as several 3rd party authenticatio
   s.dependency 'GTMSessionFetcher/Core', '~> 1.4'
 
   s.test_spec 'unit' do |unit_tests|
+    unit_tests.scheme = { :code_coverage => true }
     # Unit tests can't run on watchOS.
-    unit_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
+    unit_tests.platforms = {:ios => '10.0', :osx => '10.12', :tvos => '10.0'}
     unit_tests.source_files = 'FirebaseAuth/Tests/Unit/*.[mh]'
     unit_tests.osx.exclude_files = [
       'FirebaseAuth/Tests/Unit/FIRAuthAPNSTokenManagerTests.m',

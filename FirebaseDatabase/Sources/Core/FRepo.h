@@ -17,6 +17,7 @@
 #import "FirebaseDatabase/Sources/Core/FPersistentConnection.h"
 #import "FirebaseDatabase/Sources/Core/FRepoInfo.h"
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDataEventType.h"
+#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseQuery.h"
 #import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleUserCallback.h"
 #import <Foundation/Foundation.h>
 
@@ -31,63 +32,71 @@
 
 @interface FRepo : NSObject <FPersistentConnectionDelegate>
 
-@property(nonatomic, strong) FIRDatabaseConfig *config;
+@property(nonatomic, strong) FIRDatabaseConfig *_Nullable config;
 
-- (id)initWithRepoInfo:(FRepoInfo *)info
-                config:(FIRDatabaseConfig *)config
-              database:(FIRDatabase *)database;
+- (id _Nonnull)initWithRepoInfo:(FRepoInfo *_Nullable)info
+                         config:(FIRDatabaseConfig *_Nullable)config
+                       database:(FIRDatabase *_Nullable)database;
 
-- (void)set:(FPath *)path
-        withNode:(id)node
-    withCallback:(fbt_void_nserror_ref)onComplete;
-- (void)update:(FPath *)path
-       withNodes:(FCompoundWrite *)compoundWrite
-    withCallback:(fbt_void_nserror_ref)callback;
+- (void)set:(FPath *_Nullable)path
+        withNode:(id _Nullable)node
+    withCallback:(fbt_void_nserror_ref _Nullable)onComplete;
+- (void)update:(FPath *_Nullable)path
+       withNodes:(FCompoundWrite *_Nullable)compoundWrite
+    withCallback:(fbt_void_nserror_ref _Nullable)callback;
 - (void)purgeOutstandingWrites;
 
-- (void)addEventRegistration:(id<FEventRegistration>)eventRegistration
-                    forQuery:(FQuerySpec *)query;
-- (void)removeEventRegistration:(id<FEventRegistration>)eventRegistration
-                       forQuery:(FQuerySpec *)query;
-- (void)keepQuery:(FQuerySpec *)query synced:(BOOL)synced;
+- (void)getData:(FIRDatabaseQuery *_Nullable)query
+    withCompletionBlock:
+        (void (^_Nonnull)(NSError *_Nullable error,
+                          FIRDataSnapshot *_Nullable snapshot))block;
 
-- (NSString *)name;
+- (void)addEventRegistration:(id<FEventRegistration> _Nullable)eventRegistration
+                    forQuery:(FQuerySpec *_Nullable)query;
+- (void)removeEventRegistration:
+            (id<FEventRegistration> _Nullable)eventRegistration
+                       forQuery:(FQuerySpec *_Nullable)query;
+- (void)keepQuery:(FQuerySpec *_Nullable)query synced:(BOOL)synced;
+
+- (NSString *_Nullable)name;
 - (NSTimeInterval)serverTime;
 
-- (void)onDataUpdate:(FPersistentConnection *)fpconnection
-             forPath:(NSString *)pathString
-             message:(id)message
+- (void)onDataUpdate:(FPersistentConnection *_Nullable)fpconnection
+             forPath:(NSString *_Nullable)pathString
+             message:(id _Nullable)message
              isMerge:(BOOL)isMerge
-               tagId:(NSNumber *)tagId;
-- (void)onConnect:(FPersistentConnection *)fpconnection;
-- (void)onDisconnect:(FPersistentConnection *)fpconnection;
+               tagId:(NSNumber *_Nullable)tagId;
+- (void)onConnect:(FPersistentConnection *_Nullable)fpconnection;
+- (void)onDisconnect:(FPersistentConnection *_Nullable)fpconnection;
 
 // Disconnect methods
-- (void)onDisconnectCancel:(FPath *)path
-              withCallback:(fbt_void_nserror_ref)callback;
-- (void)onDisconnectSet:(FPath *)path
-               withNode:(id<FNode>)node
-           withCallback:(fbt_void_nserror_ref)callback;
-- (void)onDisconnectUpdate:(FPath *)path
-                 withNodes:(FCompoundWrite *)compoundWrite
-              withCallback:(fbt_void_nserror_ref)callback;
+- (void)onDisconnectCancel:(FPath *_Nullable)path
+              withCallback:(fbt_void_nserror_ref _Nullable)callback;
+- (void)onDisconnectSet:(FPath *_Nullable)path
+               withNode:(id<FNode> _Nullable)node
+           withCallback:(fbt_void_nserror_ref _Nullable)callback;
+- (void)onDisconnectUpdate:(FPath *_Nullable)path
+                 withNodes:(FCompoundWrite *_Nullable)compoundWrite
+              withCallback:(fbt_void_nserror_ref _Nullable)callback;
 
 // Connection Management.
 - (void)interrupt;
 - (void)resume;
 
 // Transactions
-- (void)startTransactionOnPath:(FPath *)path
-                        update:(fbt_transactionresult_mutabledata)update
-                    onComplete:(fbt_void_nserror_bool_datasnapshot)onComplete
+- (void)startTransactionOnPath:(FPath *_Nullable)path
+                        update:
+                            (fbt_transactionresult_mutabledata _Nullable)update
+                    onComplete:
+                        (fbt_void_nserror_bool_datasnapshot _Nullable)onComplete
                withLocalEvents:(BOOL)applyLocally;
 
 // Testing methods
-- (NSDictionary *)dumpListens;
+- (NSDictionary *_Nullable)dumpListens;
 - (void)dispose;
 - (void)setHijackHash:(BOOL)hijack;
 
-@property(nonatomic, strong, readonly) FAuthenticationManager *auth;
-@property(nonatomic, strong, readonly) FIRDatabase *database;
+@property(nonatomic, strong, readonly) FAuthenticationManager *_Nullable auth;
+@property(nonatomic, strong, readonly) FIRDatabase *_Nullable database;
 
 @end

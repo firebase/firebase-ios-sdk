@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFunctions'
-  s.version          = '7.0.0'
+  s.version          = '7.6.0'
   s.summary          = 'Cloud Functions for Firebase'
 
   s.description      = <<-DESC
@@ -39,6 +39,7 @@ Cloud Functions for Firebase.
   }
 
   s.test_spec 'unit' do |unit_tests|
+    unit_tests.scheme = { :code_coverage => true }
     unit_tests.source_files = [
       'Functions/Example/Test*/*.[mh]',
       'SharedTestUtilities/FIRAuthInteropFake*',
@@ -47,6 +48,7 @@ Cloud Functions for Firebase.
   end
 
   s.test_spec 'integration' do |int_tests|
+    int_tests.scheme = { :code_coverage => true }
     int_tests.source_files = 'Functions/Example/IntegrationTests/*.[mh]',
                              'Functions/Example/TestUtils/*.[mh]',
                              'SharedTestUtilities/FIRAuthInteropFake*',

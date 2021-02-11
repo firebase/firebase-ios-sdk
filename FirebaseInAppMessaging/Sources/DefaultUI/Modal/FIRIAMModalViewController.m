@@ -130,6 +130,9 @@ static CGFloat LandScapePaddingBetweenImageAndTextColumn = 24;
     [self.imageView
         setImage:[UIImage imageWithData:self.modalDisplayMessage.imageData.imageRawData]];
     self.imageView.contentMode = UIViewContentModeScaleAspectFit;
+    self.imageView.accessibilityLabel = self.inAppMessage.campaignInfo.campaignName;
+  } else {
+    self.imageView.isAccessibilityElement = NO;
   }
 
   self.messageCardView.backgroundColor = self.modalDisplayMessage.displayBackgroundColor;
@@ -163,6 +166,12 @@ static CGFloat LandScapePaddingBetweenImageAndTextColumn = 24;
   [self.view addConstraint:self.imageActualHeightConstraint];
   self.imageActualHeightConstraint.active = YES;
   self.fixedMessageCardHeightConstraint.active = NO;
+
+  // Close button should be announced last for better VoiceOver experience.
+  self.view.accessibilityElements = @[
+    self.titleLabel, self.imageView, self.bodyTextView, self.actionButton, self.closeButton,
+    self.messageCardView
+  ];
 }
 
 // for text display UIview, which could be a UILabel or UITextView, decide the fit height under a
@@ -454,6 +463,13 @@ struct TitleBodyButtonHeightInfo {
                 @"Flushing the close button since this is a test message.");
     [self flashCloseButton:self.closeButton];
   }
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+  [super viewDidAppear:animated];
+
+  // Announce via VoiceOver that the modal message has appeared. Highlight the title label.
+  UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, self.titleLabel);
 }
 
 - (void)flashCloseButton:(UIButton *)closeButton {

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseStorage'
-  s.version          = '7.0.0'
+  s.version          = '7.6.0'
   s.summary          = 'Firebase Storage'
 
   s.description      = <<-DESC
@@ -31,7 +31,6 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
   ]
   s.public_header_files = 'FirebaseStorage/Sources/Public/FirebaseStorage/*.h'
 
-  s.ios.framework = 'MobileCoreServices'
   s.osx.framework = 'CoreServices'
 
   s.dependency 'FirebaseCore', '~> 7.0'
@@ -42,6 +41,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
   }
 
   s.test_spec 'unit' do |unit_tests|
+    unit_tests.scheme = { :code_coverage => true }
     unit_tests.platforms = {:ios => '10.0', :osx => '10.12', :tvos => '10.0'}
     unit_tests.source_files = 'FirebaseStorage/Tests/Unit/*.[mh]',
                               'SharedTestUtilities/FIRComponentTestUtilities.*',
@@ -50,6 +50,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
   end
 
   s.test_spec 'integration' do |int_tests|
+    int_tests.scheme = { :code_coverage => true }
     int_tests.platforms = {:ios => '10.0', :osx => '10.12', :tvos => '10.0'}
     int_tests.source_files = 'FirebaseStorage/Tests/Integration/*.[mh]'
     int_tests.requires_app_host = true

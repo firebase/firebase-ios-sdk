@@ -1,3 +1,0 @@
-Each file in this directory corresponds with a Firebase release. The file
-includes a list of the podspecs and versions from this repo that updated in the
-Firebase release version indicated by the filename.

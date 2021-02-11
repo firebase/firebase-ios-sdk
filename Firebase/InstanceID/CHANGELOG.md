@@ -1,5 +1,9 @@
-# Unreleased -- 7.0.0
+# 2021-01 -- 7.4.0
+- [changed] Added a check on whether the default token has been changed by Messaging before writing to the InstanceID keychain storage. (#7223)
+
+# 2020-10 -- 7.0.0
 - [changed] Deprecated private `-[FIRInstanceID appInstanceID:]` method was removed. (#4486)
+- [fixed] Fixed an issue that APNS token is not sent in token request when there's a delay of getting the APNS token from Apple. (#6553)
 
 # 2020-09 -- 4.7.0
 - [deprecated] Deprecated InstanceID. For app instance identity handling, use FirebaseInstallations. For FCM registration token handling, use FirebaseMessaging. (#6585)

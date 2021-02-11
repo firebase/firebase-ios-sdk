@@ -23,14 +23,12 @@ target 'FirebasePodTest' do
   pod 'FirebaseInstallations', :path => '../../../'
   pod 'FirebaseInstanceID', :path => '../../../'
   pod 'FirebaseMessaging', :path => '../../../'
+  pod 'FirebasePerformance', :path => '../../../'
   pod 'FirebaseRemoteConfig', :path => '../../../'
   pod 'FirebaseStorage', :path => '../../../'
 
   # Get dependent pods from the repo also
   pod 'FirebaseCoreDiagnostics', :path => '../../../'
-  pod 'GoogleDataTransport', :path => '../../../'
-  pod 'GoogleUtilities', :path => '../../../'
 
   pod 'FirebaseAnalytics' # Analytics is not open source
-  pod 'FirebasePerformance' # Performance is not open source
 end

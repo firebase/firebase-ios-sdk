@@ -28,7 +28,8 @@ let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseStorage/Tests/Integration"
                        "FirebaseDynamicLinks/Tests/Integration",
                        "FirebaseInAppMessaging/Tests/Integration/",
                        "Example/InstanceID/App", "SymbolCollisionTest/", "/gen/",
-                       "CocoapodsIntegrationTest/"] +
+                       "CocoapodsIntegrationTest/", "FirebasePerformance/Tests/TestApp/",
+                       "FirebasePerformance/Tests/FIRPerfE2E/"] +
   [
     "CoreOnly/Sources", // Skip Firebase.h.
     "SwiftPMTests", // The SwiftPM imports test module imports.
@@ -44,6 +45,7 @@ let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseStorage/Tests/Integration"
     "FirebaseInstallations/Source/Tests/Unit/",
     "Firestore",
     "GoogleUtilitiesComponents",
+    "FirebasePerformance/ProtoSupport/",
   ]
 
 // Skip existence test for patterns that start with the following:
@@ -81,6 +83,10 @@ private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL)
     // Delete when FirebaseInstallations fixes directory structure.
     file.range(of: "Source/Library/Private/FirebaseInstallationsInternal.h") != nil ||
     file.range(of: "GDTCORLibrary/Internal/GoogleDataTransportInternal.h") != nil
+
+  // Treat all files with names finishing on "Test" or "Tests" as files with tests.
+  let isTestFile = file.contains("Test.m") || file.contains("Tests.m") ||
+    file.contains("Test.swift") || file.contains("Tests.swift")
   var inSwiftPackage = false
   var inSwiftPackageElse = false
   let lines = fileContents.components(separatedBy: .newlines)
@@ -135,10 +141,9 @@ private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL)
             logger.importLog("Import \(importFileRaw) does not exist.", file, lineNum)
           }
         }
-      } else if importFile.first == "<", !isPrivate {
+      } else if importFile.first == "<", !isPrivate, !isTestFile {
         // Verify that double quotes are always used for intra-module imports.
-        if importFileRaw.starts(with: "Firebase") ||
-          importFileRaw.starts(with: "GoogleDataTransport") {
+        if importFileRaw.starts(with: "Firebase") {
           logger
             .importLog("Imports internal to the repo should use double quotes not \"<\"", file,
                        lineNum)

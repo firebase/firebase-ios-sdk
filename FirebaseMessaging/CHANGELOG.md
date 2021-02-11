@@ -1,11 +1,16 @@
 # unreleased
 - [added] Added new API `FIRMessagingExtensionHelper exportDeliveryMetricsToBigQuery` that allows developers to enable notification delivery metrics to BigQuery. (#6181)
 
-# unreleased -- v.7.0.0
+# 2021-02 -- v7.6.0
+- [fixed] Fixed build warnings introduced with Xcode 12.5. (#7433)
+
+# 2020-11 -- v7.1.0
+- [fixed] Fixed completion handler issue in `application(_:didReceiveRemoteNotification:fetchCompletionHandler:)` method. (#6863)
+
+# 2020-10 -- v7.0.0
 - [changed] Remove the deprecated FCM direct channel API and Upstream send API. (#6430)
 - [changed] The `messaging:didReceiveRegistrationToken:` should be able to return a null token. Update the API parameter fcmToken to be nullable. (#5339)
 - [fixed] Fixed an issue that downloading an image failed when there's no extension in the file name but MIME type is set. (#6590)
-- [fixed] Fixed an issue that APNS token is not sent in token request when there's a delay of getting the APNS token from Apple. (#6553)
 
 # 2020-09 -- v.4.7.1
 - [added] InstanceID is deprecated, add macro to suppress deprecation warning. (#6585)

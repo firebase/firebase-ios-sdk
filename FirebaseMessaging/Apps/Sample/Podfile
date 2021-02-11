@@ -7,11 +7,9 @@ target 'Sample' do
   platform :ios, '13.0'
 
   pod 'FirebaseCore', :path => '../../../'
-  pod 'GoogleUtilities', :path => '../../../'
   pod 'FirebaseMessaging', :path => '../../../'
   pod 'FirebaseInstanceID', :path => '../../../'
   pod 'FirebaseCoreDiagnostics', :path => '../../../'
-  pod 'GoogleDataTransport', :path => '../../../'
   pod 'FirebaseInstallations', :path => '../../../'
 
 end

@@ -1,14 +1,11 @@
-# Uncomment the next line to define a global platform for your project
-# platform :ios, '9.0'
+source 'https://github.com/firebase/SpecsStaging.git'
+source 'https://cdn.cocoapods.org/'
 
 target 'FDLBuilderTestAppObjC' do
-  # Comment the next line if you don't want to use dynamic frameworks
+  platform :ios, '10.0'
   use_frameworks!
-  pod 'FirebaseAnalytics'
-  pod 'FirebaseCore', :path => '../../../'
-  pod 'FirebaseInstallations', :path => '../../../'
-  pod 'FirebaseInstanceID', :path => '../../../'
-  pod 'FirebaseDynamicLinks', :path => '../../../'
-  pod 'GoogleUtilities', :path => '../../../'
 
+  pod 'FirebaseCore', :path => '../../../'
+  pod 'FirebaseCoreDiagnostics', :path => '../../../'
+  pod 'FirebaseDynamicLinks', :path => '../../../'
 end

@@ -1,0 +1,14 @@
+platform :ios, '10.0'
+
+#uncomment when need to run pod install locally
+#source 'sso://cpdc-internal/firebase'
+#source 'sso://cpdc-eap/spec'
+#source 'https://github.com/CocoaPods/Specs.git'
+
+target 'PerfTestRigApp' do
+  pod 'FirebasePerformance'
+  target 'PerfTestRigAppTests' do
+    inherit! :search_paths
+    pod 'EarlGrey'
+  end
+end

@@ -1,3 +1,9 @@
+# v7.2.0
+- [added] Made emulator connection API consistent between Auth, Database, Firestore, and Functions (#5916).
+
+# v7.1.0
+- [added] Added a constructor to set a custom domain. (#6787)
+
 # v2.9.0
 - [changed] Weak dependency on Instance ID replaced by Firebase Messaging. (#6395)
 

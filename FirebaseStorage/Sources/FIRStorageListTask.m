@@ -93,8 +93,6 @@
     strongSelf->_fetcher = fetcher;
     fetcher.comment = @"ListTask";
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-retain-cycles"
     strongSelf->_fetcherCompletion = ^(NSData *data, NSError *error) {
       FIRStorageListResult *listResult;
       if (error) {
@@ -116,10 +114,12 @@
       // Remove retain cycle set up by `strongSelf->_fetcherCompletion`
       self->_fetcherCompletion = nil;
     };
-#pragma clang diagnostic pop
 
     [fetcher beginFetchWithCompletionHandler:^(NSData *data, NSError *error) {
-      weakSelf.fetcherCompletion(data, error);
+      FIRStorageListTask *strongSelf = weakSelf;
+      if (strongSelf.fetcherCompletion) {
+        strongSelf.fetcherCompletion(data, error);
+      }
     }];
   }];
 }

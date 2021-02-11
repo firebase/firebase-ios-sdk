@@ -24,8 +24,10 @@
 #endif
 
 #include "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
+#import "Crashlytics/Crashlytics/Controllers/FIRCLSAnalyticsManager.h"
+#import "Crashlytics/Crashlytics/Controllers/FIRCLSExistingReportManager.h"
+#import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
 #import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionArbiter.h"
-#include "Crashlytics/Crashlytics/Helpers/FIRAEvent+Internal.h"
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
@@ -50,11 +52,13 @@
 
 @interface FIRCLSReportManagerTests : XCTestCase
 
-@property(nonatomic, strong) FIRCLSTempMockFileManager *fileManager;
 @property(nonatomic, strong) FIRCLSMockReportManager *reportManager;
+@property(nonatomic, strong) FIRCLSMockSettings *mockSettings;
+@property(nonatomic, strong) FIRCLSMockReportUploader *mockReportUploader;
+@property(nonatomic, strong) FIRCLSTempMockFileManager *fileManager;
+
 @property(nonatomic, strong) FIRCLSDataCollectionArbiter *dataArbiter;
 @property(nonatomic, strong) FIRCLSApplicationIdentifierModel *appIDModel;
-@property(nonatomic, strong) FIRCLSMockSettings *settings;
 
 @end
 
@@ -77,22 +81,31 @@
 
   FIRMockInstallations *iid = [[FIRMockInstallations alloc] initWithFID:@"test_token"];
 
-  FIRMockGDTCORTransport *transport = [[FIRMockGDTCORTransport alloc] initWithMappingID:@"id"
-                                                                           transformers:nil
-                                                                                 target:0];
+  FIRMockGDTCORTransport *mockGoogleTransport =
+      [[FIRMockGDTCORTransport alloc] initWithMappingID:@"id" transformers:nil target:0];
   self.appIDModel = [[FIRCLSApplicationIdentifierModel alloc] init];
-  self.settings = [[FIRCLSMockSettings alloc] initWithFileManager:self.fileManager
-                                                       appIDModel:self.appIDModel];
+  self.mockSettings = [[FIRCLSMockSettings alloc] initWithFileManager:self.fileManager
+                                                           appIDModel:self.appIDModel];
 
-  self.reportManager = [[FIRCLSMockReportManager alloc] initWithFileManager:self.fileManager
-                                                              installations:iid
-                                                                  analytics:nil
-                                                                googleAppID:TEST_GOOGLE_APP_ID
-                                                                dataArbiter:self.dataArbiter
-                                                            googleTransport:transport
-                                                                 appIDModel:self.appIDModel
-                                                                   settings:self.settings];
-  self.reportManager.bundleIdentifier = TEST_BUNDLE_ID;
+  FIRCLSManagerData *managerData =
+      [[FIRCLSManagerData alloc] initWithGoogleAppID:TEST_GOOGLE_APP_ID
+                                     googleTransport:mockGoogleTransport
+                                       installations:iid
+                                           analytics:nil
+                                         fileManager:self.fileManager
+                                         dataArbiter:self.dataArbiter
+                                            settings:self.mockSettings];
+
+  self.mockReportUploader = [[FIRCLSMockReportUploader alloc] initWithManagerData:managerData];
+
+  FIRCLSExistingReportManager *existingReportManager =
+      [[FIRCLSExistingReportManager alloc] initWithManagerData:managerData
+                                                reportUploader:self.mockReportUploader];
+  FIRCLSAnalyticsManager *analyticsManager = [[FIRCLSAnalyticsManager alloc] initWithAnalytics:nil];
+
+  self.reportManager = [[FIRCLSMockReportManager alloc] initWithManagerData:managerData
+                                                      existingReportManager:existingReportManager
+                                                           analyticsManager:analyticsManager];
 }
 
 - (void)tearDown {
@@ -118,9 +131,8 @@
 }
 
 - (NSArray *)contentsOfPreparedPath {
-  return
-      [[NSFileManager defaultManager] contentsOfDirectoryAtPath:self.fileManager.legacyPreparedPath
-                                                          error:nil];
+  return [[NSFileManager defaultManager] contentsOfDirectoryAtPath:self.fileManager.preparedPath
+                                                             error:nil];
 }
 
 - (NSArray *)contentsOfProcessingPath {
@@ -162,23 +174,11 @@
 
 #pragma mark - Property Helpers
 - (NSArray *)prepareAndSubmitReportArray {
-  return self.reportManager.uploader.prepareAndSubmitReportArray;
+  return self.mockReportUploader.prepareAndSubmitReportArray;
 }
 
 - (NSArray *)uploadReportArray {
-  return self.reportManager.uploader.uploadReportArray;
-}
-
-- (NSString *)installID {
-  return TEST_INSTALL_ID;
-}
-
-- (nonnull NSString *)bundleIdentifier {
-  return TEST_BUNDLE_ID;
-}
-
-- (nonnull NSString *)googleAppID {
-  return TEST_GOOGLE_APP_ID;
+  return self.mockReportUploader.uploadReportArray;
 }
 
 #pragma mark - File/Directory Handling
@@ -406,7 +406,7 @@
   XCTAssertEqual([[self contentsOfActivePath] count], 1);
 
   // Put the launch marker in place
-  [self.reportManager createLaunchFailureMarker];
+  [self.reportManager.launchMarker createLaunchFailureMarker];
 
   // should call back to the delegate on start
   [self startReportManager];
@@ -429,7 +429,7 @@
   XCTAssertEqual([[self contentsOfActivePath] count], 1);
 
   // Put the launch marker in place
-  [self.reportManager createLaunchFailureMarker];
+  [self.reportManager.launchMarker createLaunchFailureMarker];
 
   // Should wait for processReports: to be called.
   [self startReportManagerWithDataCollectionEnabled:NO];
@@ -491,8 +491,8 @@
 
 - (void)testFilesLeftInPrepared {
   // Drop a phony multipart-mime file in here, with non-zero contents.
-  XCTAssert([_fileManager createDirectoryAtPath:_fileManager.legacyPreparedPath]);
-  NSString *path = [_fileManager.legacyPreparedPath stringByAppendingPathComponent:@"phony-report"];
+  XCTAssert([_fileManager createDirectoryAtPath:_fileManager.preparedPath]);
+  NSString *path = [_fileManager.preparedPath stringByAppendingPathComponent:@"phony-report"];
   path = [path stringByAppendingPathExtension:@".multipart-mime"];
 
   XCTAssertTrue([[_fileManager underlyingFileManager]
@@ -512,8 +512,8 @@
 
 - (void)testFilesLeftInPreparedWithDataCollectionDisabled {
   // drop a phony multipart-mime file in here, with non-zero contents
-  XCTAssert([_fileManager createDirectoryAtPath:_fileManager.legacyPreparedPath]);
-  NSString *path = [_fileManager.legacyPreparedPath stringByAppendingPathComponent:@"phony-report"];
+  XCTAssert([_fileManager createDirectoryAtPath:_fileManager.preparedPath]);
+  NSString *path = [_fileManager.preparedPath stringByAppendingPathComponent:@"phony-report"];
   path = [path stringByAppendingPathExtension:@".multipart-mime"];
 
   XCTAssertTrue([[_fileManager underlyingFileManager]
@@ -540,8 +540,8 @@
 
 - (void)testSuccessfulSubmission {
   // drop a phony multipart-mime file in here, with non-zero contents
-  XCTAssert([_fileManager createDirectoryAtPath:_fileManager.legacyPreparedPath]);
-  NSString *path = [_fileManager.legacyPreparedPath stringByAppendingPathComponent:@"phony-report"];
+  XCTAssert([_fileManager createDirectoryAtPath:_fileManager.preparedPath]);
+  NSString *path = [_fileManager.preparedPath stringByAppendingPathComponent:@"phony-report"];
   path = [path stringByAppendingPathExtension:@".multipart-mime"];
 
   XCTAssertTrue([[_fileManager underlyingFileManager]
@@ -558,18 +558,10 @@
   XCTAssertEqual([self.uploadReportArray count], 1);
   XCTAssertEqualObjects(self.uploadReportArray[0][@"path"], path);
 
-  // fake out the delegate callbacks
-  [self.reportManager.operationQueue addOperationWithBlock:^{
-    [self.reportManager didCompletePackageSubmission:path dataCollectionToken:nil error:nil];
-  }];
-
-  [self.reportManager.operationQueue addOperationWithBlock:^{
-    [self.reportManager didCompleteAllSubmissions];
-  }];
-
   [self.reportManager.operationQueue waitUntilAllOperationsAreFinished];
 
   // not 100% sure what to verify here
+  // lol
 }
 
 - (void)testLogInvalidJSONAnalyticsEvents {

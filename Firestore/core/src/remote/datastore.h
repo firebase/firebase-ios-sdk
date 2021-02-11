@@ -123,7 +123,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
    */
   static bool IsPermanentWriteError(const util::Status& status);
 
-  static std::string GetWhitelistedHeadersAsString(
+  static std::string GetAllowlistedHeadersAsString(
       const GrpcCall::Metadata& headers);
 
   Datastore(const Datastore& other) = delete;
@@ -169,7 +169,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
 
   void RemoveGrpcCall(GrpcCall* to_remove);
 
-  static GrpcCall::Metadata ExtractWhitelistedHeaders(
+  static GrpcCall::Metadata ExtractAllowlistedHeaders(
       const GrpcCall::Metadata& headers);
 
   // In case Auth tries to invoke a callback after `Datastore` has been shut

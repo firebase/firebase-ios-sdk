@@ -33,7 +33,7 @@ inline NoDocument MakeNoDocument(absl::string_view path,
                     /*has_committed_mutations=*/false);
 }
 
-}  // anonymous namespace
+}  // namespace
 
 TEST(NoDocument, Getter) {
   const NoDocument& doc = MakeNoDocument("i/am/a/path", Timestamp(123, 456));

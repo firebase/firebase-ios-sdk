@@ -513,6 +513,67 @@
     [self.connection purgeOutstandingWrites];
 }
 
+- (void)getData:(FIRDatabaseQuery *)query
+    withCompletionBlock:
+        (void (^_Nonnull)(NSError *__nullable error,
+                          FIRDataSnapshot *__nullable snapshot))block {
+    FQuerySpec *querySpec = [query querySpec];
+    id<FNode> node = [self.serverSyncTree getServerValue:[query querySpec]];
+    if (node != nil) {
+        block(nil, [[FIRDataSnapshot alloc]
+                       initWithRef:query.ref
+                       indexedNode:[FIndexedNode
+                                       indexedNodeWithNode:node
+                                                     index:querySpec.index]]);
+        return;
+    }
+    [self.persistenceManager setQueryActive:querySpec];
+    [self.connection
+        getDataAtPath:[query.path toString]
+           withParams:querySpec.params.wireProtocolParams
+         withCallback:^(NSString *status, id data, NSString *errorReason) {
+           id<FNode> node;
+           if (![status isEqualToString:kFWPResponseForActionStatusOk]) {
+               FFLog(@"I-RDB038024",
+                     @"getValue for query %@ falling back to disk cache",
+                     [querySpec.path toString]);
+               FIndexedNode *node =
+                   [self.serverSyncTree persistenceServerCache:querySpec];
+               if (node == nil) {
+                   NSDictionary *errorDict = @{
+                       NSLocalizedFailureReasonErrorKey : errorReason,
+                       NSLocalizedDescriptionKey : [NSString
+                           stringWithFormat:
+                               @"Unable to get latest value for query %@, "
+                               @"client offline with no active listeners "
+                               @"and no matching disk cache entries",
+                               querySpec]
+                   };
+                   block([NSError errorWithDomain:kFirebaseCoreErrorDomain
+                                             code:1
+                                         userInfo:errorDict],
+                         nil);
+                   return;
+               }
+               block(nil, [[FIRDataSnapshot alloc] initWithRef:query.ref
+                                                   indexedNode:node]);
+           } else {
+               node = [FSnapshotUtilities nodeFrom:data];
+               [self.eventRaiser
+                   raiseEvents:[self.serverSyncTree
+                                   applyServerOverwriteAtPath:[query path]
+                                                      newData:node]];
+               block(nil,
+                     [[FIRDataSnapshot alloc]
+                         initWithRef:query.ref
+                         indexedNode:[FIndexedNode
+                                         indexedNodeWithNode:node
+                                                       index:querySpec.index]]);
+           }
+           [self.persistenceManager setQueryInactive:querySpec];
+         }];
+}
+
 - (void)addEventRegistration:(id<FEventRegistration>)eventRegistration
                     forQuery:(FQuerySpec *)query {
     NSArray *events = nil;

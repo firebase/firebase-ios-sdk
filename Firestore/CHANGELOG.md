@@ -1,10 +1,41 @@
 # Unreleased
+- [fixed] Fixed a crash that could happen when the App is being deleted and
+  there's an active listener (#6909).
+
+# v7.5.0
+- [changed] A write to a document that contains FieldValue transforms is no
+  longer split up into two separate operations. This reduces the number of
+  writes the backend performs and allows each WriteBatch to hold 500 writes
+  regardless of how many FieldValue transformations are attached.
+- [fixed] Fixed an issue where using `FieldValue.arrayRemove()` would only
+  delete the first occurrence of an element in an array in a latency
+  compensated snapshots.
+
+# v7.3.0
+- [fixed] Fixed a crash that could happen when the SDK encountered invalid
+  data during garbage collection (#6721).
+
+# v7.2.0
+- [added] Made emulator connection API consistent between Auth, Database,
+  Firestore, and Functions (#5916).
+
+# v7.1.0
+- [changed] Added the original query data to error messages for Queries that
+  cannot be deserizialized.
+- [fixed] Remove explicit MobileCoreServices library linkage from podspec
+  (#6850).
+- [fixed] Removed excess validation of null and NaN values in query filters.
+  This more closely aligns the SDK with the Firestore backend, which has always
+  accepted null and NaN for all operators, even though this isn't necessarily
+  useful.
 
 # v7.0.0
 - [changed] **Breaking change:** Removed the `areTimestampsInSnapshotsEnabled`
   setting. Timestamp fields that read from a `FIRDocumentSnapshot` now always
   return `FIRTimestamp` objects. Use `FIRTimestamp.dateValue` to convert to
   `NSDate` if required.
+- [fixed] Fixed a memory leak introduced in 1.18.0 that may manifest when
+  serializing queries containing equality or non-equality comparisons.
 
 # v1.19.0
 - [changed] Internal improvements for future C++ and Unity support. Includes a

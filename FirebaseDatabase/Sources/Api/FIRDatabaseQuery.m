@@ -28,6 +28,7 @@
 #import "FirebaseDatabase/Sources/FValueIndex.h"
 #import "FirebaseDatabase/Sources/Snapshot/FLeafNode.h"
 #import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
+#import "FirebaseDatabase/Sources/Utilities/FNextPushId.h"
 #import "FirebaseDatabase/Sources/Utilities/FValidation.h"
 
 @implementation FIRDatabaseQuery
@@ -91,33 +92,38 @@
 - (void)validateQueryEndpointsForParams:(FQueryParams *)params {
     if ([params.index isEqual:[FKeyIndex keyIndex]]) {
         if ([params hasStart]) {
-            if (params.indexStartKey != [FUtilities minName]) {
+            if (params.indexStartKey != [FUtilities minName] &&
+                params.indexStartKey != [FUtilities maxName]) {
                 [NSException raise:INVALID_QUERY_PARAM_ERROR
-                            format:@"Can't use queryStartingAtValue:childKey: "
+                            format:@"Can't use queryStartingAtValue:childKey:, "
+                                   @"queryStartingAfterValue:childKey:, "
                                    @"or queryEqualTo:andChildKey: in "
                                    @"combination with queryOrderedByKey"];
             }
             if (![params.indexStartValue.val isKindOfClass:[NSString class]]) {
-                [NSException
-                     raise:INVALID_QUERY_PARAM_ERROR
-                    format:
-                        @"Can't use queryStartingAtValue: with other types "
-                        @"than string in combination with queryOrderedByKey"];
+                [NSException raise:INVALID_QUERY_PARAM_ERROR
+                            format:@"Can't use queryStartingAtValue: or "
+                                   @"queryStartingAfterValue: "
+                                   @"with non-string types when used with "
+                                   @"queryOrderedByKey"];
             }
         }
         if ([params hasEnd]) {
-            if (params.indexEndKey != [FUtilities maxName]) {
+            if (params.indexEndKey != [FUtilities maxName] &&
+                params.indexEndKey != [FUtilities minName]) {
                 [NSException raise:INVALID_QUERY_PARAM_ERROR
                             format:@"Can't use queryEndingAtValue:childKey: or "
+                                   @"queryEndingBeforeValue:childKey: "
                                    @"queryEqualToValue:childKey: in "
                                    @"combination with queryOrderedByKey"];
             }
             if (![params.indexEndValue.val isKindOfClass:[NSString class]]) {
                 [NSException
                      raise:INVALID_QUERY_PARAM_ERROR
-                    format:
-                        @"Can't use queryEndingAtValue: with other types than "
-                        @"string in combination with queryOrderedByKey"];
+                    format:@"Can't use queryEndingAtValue: or "
+                           @"queryEndingBeforeValue: "
+                           @"with other types than string in combination with "
+                           @"queryOrderedByKey"];
             }
         }
     } else if ([params.index isEqual:[FPriorityIndex priorityIndex]]) {
@@ -128,7 +134,8 @@
             [NSException
                  raise:INVALID_QUERY_PARAM_ERROR
                 format:@"When using queryOrderedByPriority, values provided to "
-                       @"queryStartingAtValue:, queryEndingAtValue:, or "
+                       @"queryStartingAtValue:, queryStartingAfterValue:, "
+                       @"queryEndingAtValue:, queryEndingBeforeValue:, or "
                        @"queryEqualToValue: must be valid priorities."];
         }
     }
@@ -139,13 +146,14 @@
         [NSException
              raise:INVALID_QUERY_PARAM_ERROR
             format:
-                @"Cannot combine queryEqualToValue: and queryStartingAtValue:"];
+                @"Cannot combine queryEqualToValue: and queryStartingAtValue: "
+                @"or queryStartingAfterValue:"];
     }
     if ([self.queryParams hasEnd]) {
         [NSException
              raise:INVALID_QUERY_PARAM_ERROR
-            format:
-                @"Cannot combine queryEqualToValue: and queryEndingAtValue:"];
+            format:@"Cannot combine queryEqualToValue: and queryEndingAtValue: "
+                   @"or queryEndingBeforeValue:"];
     }
 }
 
@@ -183,9 +191,49 @@
                          @"queryOrderedByKey:"
                 userInfo:nil];
     }
+    NSString *methodName = @"queryStartingAtValue:childKey:";
+    if (childKey != nil) {
+        [FValidation validateFrom:methodName validKey:childKey];
+    }
     return [self queryStartingAtInternal:startValue
                                 childKey:childKey
-                                    from:@"queryStartingAtValue:childKey:"
+                                    from:methodName
+                          priorityMethod:NO];
+}
+
+- (FIRDatabaseQuery *)queryStartingAfterValue:(id)startAfterValue {
+    return [self queryStartingAfterValue:startAfterValue childKey:nil];
+}
+
+- (FIRDatabaseQuery *)queryStartingAfterValue:(id)startAfterValue
+                                     childKey:(NSString *)childKey {
+    if ([self.queryParams.index isEqual:[FKeyIndex keyIndex]]) {
+        if (childKey != nil) {
+            @throw [[NSException alloc]
+                initWithName:INVALID_QUERY_PARAM_ERROR
+                      reason:
+                          @"You must use queryStartingAfterValue: instead of "
+                          @"queryStartingAfterValue:childKey: when using "
+                          @"queryOrderedByKey:"
+                    userInfo:nil];
+        }
+        if ([startAfterValue isKindOfClass:[NSString class]]) {
+            startAfterValue = [FNextPushId successor:startAfterValue];
+        }
+    } else {
+        if (childKey == nil) {
+            childKey = [FUtilities maxName];
+        } else {
+            childKey = [FNextPushId successor:childKey];
+        }
+    }
+    NSString *methodName = @"queryStartingAfterValue:childKey:";
+    if (childKey != nil && ![childKey isEqual:[FUtilities maxName]]) {
+        [FValidation validateFrom:methodName validKey:childKey];
+    }
+    return [self queryStartingAtInternal:startAfterValue
+                                childKey:childKey
+                                    from:methodName
                           priorityMethod:NO];
 }
 
@@ -194,12 +242,10 @@
                                          from:(NSString *)methodName
                                priorityMethod:(BOOL)priorityMethod {
     [self validateIndexValueType:startValue fromMethod:methodName];
-    if (childKey != nil) {
-        [FValidation validateFrom:methodName validKey:childKey];
-    }
     if ([self.queryParams hasStart]) {
         [NSException raise:INVALID_QUERY_PARAM_ERROR
-                    format:@"Can't call %@ after queryStartingAtValue or "
+                    format:@"Can't call %@ after queryStartingAtValue, "
+                           @"queryStartingAfterValue, or "
                            @"queryEqualToValue was previously called",
                            methodName];
     }
@@ -232,10 +278,48 @@
                          @"queryOrderedByKey:"
                 userInfo:nil];
     }
-
+    NSString *methodName = @"queryEndingAtValue:childKey:";
+    if (childKey != nil) {
+        [FValidation validateFrom:methodName validKey:childKey];
+    }
     return [self queryEndingAtInternal:endValue
                               childKey:childKey
-                                  from:@"queryEndingAtValue:childKey:"
+                                  from:methodName
+                        priorityMethod:NO];
+}
+
+- (FIRDatabaseQuery *)queryEndingBeforeValue:(id)endValue {
+    return [self queryEndingBeforeValue:endValue childKey:nil];
+}
+
+- (FIRDatabaseQuery *)queryEndingBeforeValue:(id)endValue
+                                    childKey:(NSString *)childKey {
+    if ([self.queryParams.index isEqual:[FKeyIndex keyIndex]]) {
+        if (childKey != nil) {
+            @throw [[NSException alloc]
+                initWithName:INVALID_QUERY_PARAM_ERROR
+                      reason:@"You must use queryEndingBeforeValue: instead of "
+                             @"queryEndingBeforeValue:childKey: when using "
+                             @"queryOrderedByKey:"
+                    userInfo:nil];
+        }
+        if ([endValue isKindOfClass:[NSString class]]) {
+            endValue = [FNextPushId predecessor:endValue];
+        }
+    } else {
+        if (childKey == nil) {
+            childKey = [FUtilities minName];
+        } else {
+            childKey = [FNextPushId predecessor:childKey];
+        }
+    }
+    NSString *methodName = @"queryEndingBeforeValue:childKey:";
+    if (childKey != nil && ![childKey isEqual:[FUtilities minName]]) {
+        [FValidation validateFrom:methodName validKey:childKey];
+    }
+    return [self queryEndingAtInternal:endValue
+                              childKey:childKey
+                                  from:methodName
                         priorityMethod:NO];
 }
 
@@ -244,9 +328,6 @@
                                        from:(NSString *)methodName
                              priorityMethod:(BOOL)priorityMethod {
     [self validateIndexValueType:endValue fromMethod:methodName];
-    if (childKey != nil) {
-        [FValidation validateFrom:methodName validKey:childKey];
-    }
     if ([self.queryParams hasEnd]) {
         [NSException raise:INVALID_QUERY_PARAM_ERROR
                     format:@"Can't call %@ after queryEndingAtValue or "
@@ -295,12 +376,12 @@
         [FValidation validateFrom:methodName validKey:childKey];
     }
     if ([self.queryParams hasEnd] || [self.queryParams hasStart]) {
-        [NSException
-             raise:INVALID_QUERY_PARAM_ERROR
-            format:
-                @"Can't call %@ after queryStartingAtValue, queryEndingAtValue "
-                @"or queryEqualToValue was previously called",
-                methodName];
+        [NSException raise:INVALID_QUERY_PARAM_ERROR
+                    format:@"Can't call %@ after queryStartingAtValue, "
+                           @"queryStartingAfterValue, queryEndingAtValue, "
+                           @"queryEndingBeforeValue or queryEqualToValue "
+                           @"was previously called",
+                           methodName];
     }
     id<FNode> node = [FSnapshotUtilities nodeFrom:value];
     FQueryParams *params = [[self.queryParams startAt:node
@@ -578,6 +659,13 @@
     }
     dispatch_async([FIRDatabaseQuery sharedQueue], ^{
       [self.repo keepQuery:self.querySpec synced:keepSynced];
+    });
+}
+
+- (void)getDataWithCompletionBlock:(void (^)(NSError *__nullable error,
+                                             FIRDataSnapshot *snapshot))block {
+    dispatch_async([FIRDatabaseQuery sharedQueue], ^{
+      [self.repo getData:self withCompletionBlock:block];
     });
 }
 

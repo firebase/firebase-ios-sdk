@@ -33,7 +33,14 @@ test_version=$(git tag -l --sort=-version:refname CocoaPods-*[0-9] | head -n 1 |
 release_branch=$(git branch -r -l "origin/release-${test_version}")
 if [ -z $release_branch ];then
   echo "release-${test_version} branch does not exist in the sdk repo."
-  exit 1
+  # Get substring before the last ".", e.g. "release-7.0.0" -> "release-7.0"
+  test_version=${test_version%.*}
+  echo "search for release-${test_version} branch."
+  release_branch=$(git branch -r -l "origin/release-${test_version}")
+  if [ -z $release_branch ];then
+    echo "release-${test_version} branch does not exist in the sdk repo."
+    exit 1
+  fi
 fi
 
 # Get release branch, release-X.Y.Z.
@@ -62,12 +69,4 @@ if [ -n "$tag_version" ]; then
   # Update source and tag, e.g.  ":tag => 'CocoaPods-' + s.version.to_s" to
   # ":tag => test"
   sed  -i "" "s/\s*:tag.*/:tag => '${tag_version}'/" *.podspec
-fi
-
-if [ -n "$sdk_version_config" ]; then
-  cd "${GITHUB_WORKSPACE}/ZipBuilder"
-  swift build
-  # Update Pod versions.
-  ./.build/debug/firebase-pod-updater --git-root "${local_sdk_repo_dir}" --releasing-pods "${sdk_version_config}"
-  echo "sdk versions are updated based on ${sdk_version_config}."
 fi

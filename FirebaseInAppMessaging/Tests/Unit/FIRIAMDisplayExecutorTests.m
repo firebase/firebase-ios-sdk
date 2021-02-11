@@ -37,6 +37,7 @@
 @property(nonatomic, nullable) NSURL *imageURL;
 @property(nonatomic, nullable) NSURL *landscapeImageURL;
 @property BOOL errorEncountered;
+@property BOOL loadImagesAsynchronously;
 
 - (instancetype)initWithMessageTitle:(NSString *)title
                          messageBody:(NSString *)body
@@ -46,7 +47,8 @@
                   secondaryActionURL:(nullable NSURL *)secondaryActionURL
                             imageURL:(nullable NSURL *)imageURL
                    landscapeImageURL:(nullable NSURL *)landscapeImageURL
-                       hasImageError:(BOOL)hasImageError;
+                       hasImageError:(BOOL)hasImageError
+            loadImagesAsynchronously:(BOOL)loadImagesAsynchronously;
 @end
 
 @implementation FIRIAMMessageContentDataForTesting
@@ -58,7 +60,8 @@
                   secondaryActionURL:(nullable NSURL *)secondaryActionURL
                             imageURL:(nullable NSURL *)imageURL
                    landscapeImageURL:(nullable NSURL *)landscapeImageURL
-                       hasImageError:(BOOL)hasImageError {
+                       hasImageError:(BOOL)hasImageError
+            loadImagesAsynchronously:(BOOL)loadImagesAsynchronously {
   if (self = [super init]) {
     _titleText = title;
     _bodyText = body;
@@ -69,6 +72,7 @@
     _actionURL = actionURL;
     _secondaryActionURL = secondaryActionURL;
     _errorEncountered = hasImageError;
+    _loadImagesAsynchronously = loadImagesAsynchronously;
   }
   return self;
 }
@@ -77,14 +81,38 @@
                                          NSData *_Nullable landscapeImageData,
                                          NSError *_Nullable error))block {
   if (self.errorEncountered) {
-    block(nil, nil, [NSError errorWithDomain:@"image error" code:0 userInfo:nil]);
+    NSError *error = [NSError errorWithDomain:@"image error" code:0 userInfo:nil];
+
+    if (_loadImagesAsynchronously) {
+      [self performOnMainQueueAfterDelay:0.01
+                                   block:^{
+                                     block(nil, nil, error);
+                                   }];
+    } else {
+      block(nil, nil, error);
+    }
   } else {
     NSData *imageData = [@"image data" dataUsingEncoding:NSUTF8StringEncoding];
     NSData *landscapeImageData = [@"landscape image data" dataUsingEncoding:NSUTF8StringEncoding];
 
-    block(imageData, landscapeImageData, nil);
+    if (_loadImagesAsynchronously) {
+      [self performOnMainQueueAfterDelay:0.01
+                                   block:^{
+                                     block(imageData, landscapeImageData, nil);
+                                   }];
+    } else {
+      block(imageData, landscapeImageData, nil);
+    }
   }
 }
+
+- (void)performOnMainQueueAfterDelay:(NSTimeInterval)delay block:(void (^)(void))block {
+  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, delay * NSEC_PER_SEC), dispatch_get_main_queue(),
+                 ^{
+                   block();
+                 });
+}
+
 @end
 
 // Defines how the message display component triggers the delegate in unit testing.
@@ -188,6 +216,9 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
                               imageData:(FIRInAppMessagingImageData *)imageData
                      landscapeImageData:(nullable FIRInAppMessagingImageData *)landscapeImageData
                             triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType;
+
+- (BOOL)shouldTrackConversionsOnImpressionForCurrentInAppMessage:
+    (FIRIAMMessageDefinition *)inAppMessage;
 @end
 
 @interface FIRIAMDisplayExecutorTests : XCTestCase
@@ -207,8 +238,8 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
 
 @property id<FIRInAppMessagingDisplay> mockMessageDisplayComponent;
 
-// four pre-defined messages
-@property FIRIAMMessageDefinition *m1, *m2, *m3, *m4, *m5;
+// Pre-defined messages
+@property FIRIAMMessageDefinition *m1, *m2, *m3, *m4, *m5, *m6;
 @end
 
 @implementation FIRIAMDisplayExecutorTests
@@ -222,7 +253,7 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
   FIRIAMDisplayTriggerDefinition *contextualTriggerDefinition =
       [[FIRIAMDisplayTriggerDefinition alloc] initWithFirebaseAnalyticEvent:@"test_event"];
 
-  // m2, m4, and m5 will be of app open trigger
+  // m2, m4, m5, and m6 will be of app open trigger
   FIRIAMDisplayTriggerDefinition *appOpentriggerDefinition =
       [[FIRIAMDisplayTriggerDefinition alloc] initForAppForegroundTrigger];
 
@@ -235,7 +266,8 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
              secondaryActionURL:nil
                        imageURL:[NSURL URLWithString:@"https://google.com/image"]
               landscapeImageURL:nil
-                  hasImageError:NO];
+                  hasImageError:NO
+       loadImagesAsynchronously:NO];
 
   FIRIAMRenderingEffectSetting *renderSetting1 =
       [FIRIAMRenderingEffectSetting getDefaultRenderingEffectSetting];
@@ -261,7 +293,8 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
              secondaryActionURL:nil
                        imageURL:[NSURL URLWithString:@"https://unsplash.it/300/400"]
               landscapeImageURL:nil
-                  hasImageError:NO];
+                  hasImageError:NO
+       loadImagesAsynchronously:NO];
 
   FIRIAMRenderingEffectSetting *renderSetting2 =
       [FIRIAMRenderingEffectSetting getDefaultRenderingEffectSetting];
@@ -287,7 +320,8 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
              secondaryActionURL:nil
                        imageURL:[NSURL URLWithString:@"https://google.com/image"]
               landscapeImageURL:nil
-                  hasImageError:NO];
+                  hasImageError:NO
+       loadImagesAsynchronously:NO];
 
   FIRIAMRenderingEffectSetting *renderSetting3 =
       [FIRIAMRenderingEffectSetting getDefaultRenderingEffectSetting];
@@ -313,7 +347,8 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
              secondaryActionURL:nil
                        imageURL:[NSURL URLWithString:@"https://google.com/image"]
               landscapeImageURL:nil
-                  hasImageError:NO];
+                  hasImageError:NO
+       loadImagesAsynchronously:NO];
 
   FIRIAMRenderingEffectSetting *renderSetting4 =
       [FIRIAMRenderingEffectSetting getDefaultRenderingEffectSetting];
@@ -353,7 +388,8 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
              secondaryActionURL:nil
                        imageURL:[NSURL URLWithString:@"https://google.com/image"]
               landscapeImageURL:nil
-                  hasImageError:NO];
+                  hasImageError:NO
+       loadImagesAsynchronously:NO];
 
   FIRIAMRenderingEffectSetting *renderSetting5 =
       [FIRIAMRenderingEffectSetting getDefaultRenderingEffectSetting];
@@ -372,6 +408,33 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
                                                         appData:nil
                                               experimentPayload:nil
                                                   isTestMessage:NO];
+
+  FIRIAMMessageContentDataForTesting *m6ContentData = [[FIRIAMMessageContentDataForTesting alloc]
+           initWithMessageTitle:@"m6 title"
+                    messageBody:@"message body"
+               actionButtonText:nil
+      secondaryActionButtonText:nil
+                      actionURL:[NSURL URLWithString:@"http://google.com"]
+             secondaryActionURL:nil
+                       imageURL:[NSURL URLWithString:@"https://google.com/image"]
+              landscapeImageURL:nil
+                  hasImageError:NO
+       loadImagesAsynchronously:YES];
+
+  FIRIAMRenderingEffectSetting *renderSetting6 =
+      [FIRIAMRenderingEffectSetting getDefaultRenderingEffectSetting];
+  renderSetting6.viewMode = FIRIAMRenderAsBannerView;
+
+  FIRIAMMessageRenderData *renderData6 =
+      [[FIRIAMMessageRenderData alloc] initWithMessageID:@"m6"
+                                             messageName:@"name"
+                                             contentData:m6ContentData
+                                         renderingEffect:renderSetting6];
+
+  self.m6 = [[FIRIAMMessageDefinition alloc] initWithRenderData:renderData6
+                                                      startTime:activeStartTime
+                                                        endTime:activeEndTime
+                                              triggerDefinition:@[ appOpentriggerDefinition ]];
 }
 
 NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
@@ -739,7 +802,7 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
   OCMVerifyAll((id)self.mockAnalyticsEventLogger);
 }
 
-- (void)testAnalyticsTrackingImpressionOnValidImpressionDetectedCase {
+- (void)testAnalyticsTrackingImpressionOnValidImpressionDetectedCaseWithActionURL {
   // This setup allows next message to be displayed from display interval perspective.
   OCMStub([self.mockTimeFetcher currentTimestampInSeconds])
       .andReturn(DISPLAY_MIN_INTERVALS * 60 + 100);
@@ -757,6 +820,39 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
   FIRIAMMessageDisplayForTesting *display = [[FIRIAMMessageDisplayForTesting alloc]
       initWithDelegateInteraction:FIRInAppMessagingDelegateInteractionImpressionDetected];
   self.displayExecutor.messageDisplayComponent = display;
+
+  // M2 has an action URL. Conversion shouldn't be tracked yet.
+  XCTAssertFalse(
+      [self.displayExecutor shouldTrackConversionsOnImpressionForCurrentInAppMessage:self.m2]);
+
+  [self.displayExecutor checkAndDisplayNextAppForegroundMessage];
+  OCMVerifyAll((id)self.mockAnalyticsEventLogger);
+}
+
+- (void)testAnalyticsTrackingImpressionOnValidImpressionDetectedCaseWithoutActionURL {
+  // This setup allows next message to be displayed from display interval perspective.
+  OCMStub([self.mockTimeFetcher currentTimestampInSeconds])
+      .andReturn(DISPLAY_MIN_INTERVALS * 60 + 100);
+
+  // not expecting triggering analytics recording
+  OCMExpect([self.mockAnalyticsEventLogger
+      logAnalyticsEventForType:FIRIAMAnalyticsEventMessageImpression
+                 forCampaignID:[OCMArg isEqual:self.m5.renderData.messageID]
+              withCampaignName:[OCMArg any]
+                 eventTimeInMs:[OCMArg any]
+                    completion:[OCMArg any]]);
+
+  [self.clientMessageCache setMessageData:@[ self.m5 ]];
+
+  FIRIAMMessageDisplayForTesting *display = [[FIRIAMMessageDisplayForTesting alloc]
+      initWithDelegateInteraction:FIRInAppMessagingDelegateInteractionImpressionDetected];
+  self.displayExecutor.messageDisplayComponent = display;
+
+  // M5 has no action URL. Conversion should be tracked after impression.
+  OCMExpect([self.mockAnalyticsEventLogger
+      logConversionTrackingEventForCampaignID:[OCMArg isEqual:self.m5.renderData.messageID]]);
+  XCTAssertTrue(
+      [self.displayExecutor shouldTrackConversionsOnImpressionForCurrentInAppMessage:self.m5]);
 
   [self.displayExecutor checkAndDisplayNextAppForegroundMessage];
   OCMVerifyAll((id)self.mockAnalyticsEventLogger);
@@ -886,6 +982,36 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
   NSInteger remainingMsgCount2 = [self.clientMessageCache allRegularMessages].count;
   // one message was rendered and removed from the cache
   XCTAssertEqual(1, remainingMsgCount2);
+}
+
+- (void)testNoRenderingIfMessageDisplayIsSuppressedDuringImageLoading {
+  // This setup allows next message to be displayed from display interval perspective.
+  OCMStub([self.mockTimeFetcher currentTimestampInSeconds])
+      .andReturn(DISPLAY_MIN_INTERVALS * 60 + 100);
+
+  [self.clientMessageCache setMessageData:@[ self.m6 ]];
+
+  FIRIAMMessageDisplayForTesting *display = [[FIRIAMMessageDisplayForTesting alloc]
+      initWithDelegateInteraction:FIRInAppMessagingDelegateInteractionClick];
+  self.displayExecutor.messageDisplayComponent = display;
+  [self.displayExecutor checkAndDisplayNextAppForegroundMessage];
+  self.displayExecutor.suppressMessageDisplay = YES;
+
+  XCTestExpectation *expectation = [[XCTestExpectation alloc] init];
+
+  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.05 * NSEC_PER_SEC), dispatch_get_main_queue(),
+                 ^{
+                   // no message display has happened
+                   XCTAssertNil(display.message);
+
+                   NSInteger remainingMsgCount = [self.clientMessageCache allRegularMessages].count;
+                   // no message is removed from the cache
+                   XCTAssertEqual(1, remainingMsgCount);
+
+                   [expectation fulfill];
+                 });
+
+  [self waitForExpectations:@[ expectation ] timeout:0.1];
 }
 
 // No contextual message rendering if suppress message display flag is turned on

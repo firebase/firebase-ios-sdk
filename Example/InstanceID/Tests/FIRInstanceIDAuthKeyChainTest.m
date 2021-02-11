@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if !TARGET_OS_MACCATALYST
+// Skip keychain tests on Catalyst.
+
 #import <XCTest/XCTest.h>
 
 #import <OCMock/OCMock.h>
@@ -408,3 +412,5 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
 #pragma clang diagnostic pop
 }
 @end
+
+#endif  // TARGET_OS_MACCATALYST

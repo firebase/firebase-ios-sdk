@@ -134,6 +134,23 @@ NSString *const kGCSObjectAllowedCharacterSet =
                          userInfo:@{NSLocalizedDescriptionKey : description}];
 }
 
++ (NSTimeInterval)computeRetryIntervalFromRetryTime:(NSTimeInterval)retryTime {
+  // GTMSessionFetcher's retry starts at 1 second and then doubles every time. We use this
+  // information to compute a best-effort estimate of what to translate the user provided retry
+  // time into.
+
+  // Note that this is the same as 2 << (log2(retryTime) - 1), but deemed more readable.
+  NSTimeInterval lastInterval = 1.0;
+  NSTimeInterval sumOfAllIntervals = 1.0;
+
+  while (sumOfAllIntervals < retryTime) {
+    lastInterval *= 2;
+    sumOfAllIntervals += lastInterval;
+  }
+
+  return lastInterval;
+}
+
 @end
 
 @implementation NSDictionary (FIRStorageNSDictionaryJSONHelpers)

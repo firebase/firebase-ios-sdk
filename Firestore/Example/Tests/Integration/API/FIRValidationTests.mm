@@ -415,20 +415,6 @@ namespace testutil = firebase::firestore::testutil;
                   @"Invalid Query. Query limit (-1) is invalid. Limit must be positive.");
 }
 
-- (void)testNonEqualityQueriesOnNullOrNaNFail {
-  NSString *expected = @"Invalid Query. Null supports only 'equalTo' and 'notEqualTo' comparisons.";
-  FSTAssertThrows([[self collectionRef] queryWhereField:@"a" isGreaterThan:nil], expected);
-  FSTAssertThrows([[self collectionRef] queryWhereField:@"a" isGreaterThan:[NSNull null]],
-                  expected);
-  FSTAssertThrows([[self collectionRef] queryWhereField:@"a" arrayContains:nil], expected);
-  FSTAssertThrows([[self collectionRef] queryWhereField:@"a" arrayContains:[NSNull null]],
-                  expected);
-
-  expected = @"Invalid Query. NaN supports only 'equalTo' and 'notEqualTo' comparisons.";
-  FSTAssertThrows([[self collectionRef] queryWhereField:@"a" isGreaterThan:@(NAN)], expected);
-  FSTAssertThrows([[self collectionRef] queryWhereField:@"a" arrayContains:@(NAN)], expected);
-}
-
 - (void)testQueryCannotBeCreatedFromDocumentsMissingSortValues {
   FIRCollectionReference *testCollection =
       [self collectionRefWithDocuments:@{@"f" : @{@"v" : @"f", @"nosort" : @1.0}}];
@@ -787,20 +773,6 @@ namespace testutil = firebase::firestore::testutil;
   FSTAssertThrows(
       [coll queryWhereField:@"foo" notIn:values],
       @"Invalid Query. 'notIn' filters support a maximum of 10 elements in the value array.");
-
-  NSArray *withNullValues = @[ @1, [NSNull null] ];
-  FSTAssertThrows([coll queryWhereField:@"foo" in:withNullValues],
-                  @"Invalid Query. 'in' filters cannot contain 'null' in the value array.");
-  FSTAssertThrows(
-      [coll queryWhereField:@"foo" arrayContainsAny:withNullValues],
-      @"Invalid Query. 'arrayContainsAny' filters cannot contain 'null' in the value array.");
-
-  NSArray *withNaNValues = @[ @2, @(NAN) ];
-  FSTAssertThrows([coll queryWhereField:@"foo" in:withNaNValues],
-                  @"Invalid Query. 'in' filters cannot contain 'NaN' in the value array.");
-  FSTAssertThrows(
-      [coll queryWhereField:@"foo" arrayContainsAny:withNaNValues],
-      @"Invalid Query. 'arrayContainsAny' filters cannot contain 'NaN' in the value array.");
 }
 
 #pragma mark - GeoPoint Validation

@@ -176,17 +176,17 @@ TEST_F(DatastoreTest, CanShutdownWithNoOperations) {
   Shutdown();
 }
 
-TEST_F(DatastoreTest, WhitelistedHeaders) {
+TEST_F(DatastoreTest, AllowlistedHeaders) {
   GrpcStream::Metadata headers = {
       {"date", "date value"},
       {"x-google-backends", "backend value"},
-      {"x-google-foo", "should not be in result"},  // Not whitelisted
+      {"x-google-foo", "should not be in result"},  // Not allowlisted
       {"x-google-gfe-request-trace", "request trace"},
       {"x-google-netmon-label", "netmon label"},
       {"x-google-service", "service 1"},
       {"x-google-service", "service 2"},  // Duplicate names are allowed
   };
-  std::string result = Datastore::GetWhitelistedHeadersAsString(headers);
+  std::string result = Datastore::GetAllowlistedHeadersAsString(headers);
   EXPECT_EQ(result,
             "date: date value\n"
             "x-google-backends: backend value\n"
