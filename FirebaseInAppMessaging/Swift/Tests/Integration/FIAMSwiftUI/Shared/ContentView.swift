@@ -23,9 +23,9 @@ struct ContentView: View {
         .padding()
       TextField("Enter an analytics event to trigger",
                 text: $analyticsEvent) { _ in
-        InAppMessaging.inAppMessaging().triggerEvent(analyticsEvent)
-      } onCommit: {}
+      } onCommit: { InAppMessaging.inAppMessaging().triggerEvent(analyticsEvent) }
         .multilineTextAlignment(.center)
+        .autocapitalization(.none)
         .padding()
     }
   }

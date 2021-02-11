@@ -11,12 +11,13 @@ struct ImageOnlyInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModif
     return content.overlay(overlayView())
   }
 
+  @ViewBuilder
   func overlayView() -> some View {
     if let imageOnlyMessage = delegateBridge.inAppMessageData?.0 as? InAppMessagingImageOnlyDisplay,
       let delegate = delegateBridge.inAppMessageData?.1 {
-      return AnyView(closure(imageOnlyMessage, delegate))
+      closure(imageOnlyMessage, delegate)
     }
-    return AnyView(EmptyView())
+    EmptyView()
   }
 }
 
@@ -39,12 +40,13 @@ struct BannerInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModifier
     return content.overlay(overlayView())
   }
 
+  @ViewBuilder
   func overlayView() -> some View {
     if let bannerMessage = delegateBridge.inAppMessageData?.0 as? InAppMessagingBannerDisplay,
       let delegate = delegateBridge.inAppMessageData?.1 {
-      return AnyView(closure(bannerMessage, delegate))
+      closure(bannerMessage, delegate)
     }
-    return AnyView(EmptyView())
+    EmptyView()
   }
 }
 
@@ -67,12 +69,13 @@ struct ModalInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModifier 
     return content.overlay(overlayView())
   }
 
+  @ViewBuilder
   func overlayView() -> some View {
     if let modalMessage = delegateBridge.inAppMessageData?.0 as? InAppMessagingModalDisplay,
       let delegate = delegateBridge.inAppMessageData?.1 {
-      return AnyView(closure(modalMessage, delegate))
+      closure(modalMessage, delegate)
     }
-    return AnyView(EmptyView())
+    EmptyView()
   }
 }
 
@@ -95,12 +98,13 @@ struct CardInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModifier {
     return content.overlay(overlayView())
   }
 
+  @ViewBuilder
   func overlayView() -> some View {
     if let cardMessage = delegateBridge.inAppMessageData?.0 as? InAppMessagingCardDisplay,
       let delegate = delegateBridge.inAppMessageData?.1 {
-      return AnyView(closure(cardMessage, delegate))
+      closure(cardMessage, delegate)
     }
-    return AnyView(EmptyView())
+    EmptyView()
   }
 }
 
