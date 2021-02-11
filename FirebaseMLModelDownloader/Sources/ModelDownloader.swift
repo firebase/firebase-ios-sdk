@@ -242,7 +242,7 @@ public class ModelDownloader {
           appName: appName,
           modelName: modelName
         ),
-          url == modelURL, ModelFileManager.isFileReachable(at: modelURL) else {
+          ModelFileManager.isFileReachable(at: modelURL) else {
           DeviceLogger.logEvent(level: .debug,
                                 message: ModelDownloader.ErrorDescription.outdatedModelPath,
                                 messageCode: .outdatedModelPathError)
