@@ -57,7 +57,7 @@ public class ModelDownloader {
   let taskSerialQueue = DispatchQueue(label: "downloadtask.serial.queue")
 
   /// Re-dispatch a function on the main queue.
-  func asyncOnMainQueue(_ work: @autoclosure @escaping () -> Void ) {
+  func asyncOnMainQueue(_ work: @autoclosure @escaping () -> Void) {
     DispatchQueue.main.async {
       work()
     }

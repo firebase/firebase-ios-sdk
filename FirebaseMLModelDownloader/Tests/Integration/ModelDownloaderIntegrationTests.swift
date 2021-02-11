@@ -233,7 +233,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       }
     ) { result in
       XCTAssertTrue(Thread.isMainThread, "Completion must be called on the main thread.")
-      
+
       switch result {
       case let .success(model):
         XCTAssertNotNil(model.path)
