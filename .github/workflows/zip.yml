@@ -34,8 +34,7 @@ jobs:
 
   package:
     # Don't run on private repo.
-    #Restore cron before merge !!!!!!!! TODOs
-#    if: (github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk') || github.event_name == 'workflow_dispatch'
+    if: (github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk') || github.event_name == 'workflow_dispatch'
     needs: build
     runs-on: macOS-latest
     steps:
