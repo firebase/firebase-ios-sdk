@@ -1,5 +1,5 @@
 # FirebaseCore 7.7.0
-- [changed] Removed the deprecated FirebaseMLModelInterpreter and FirebaseMLVision.
+- [changed] Deprecated FirebaseMLModelInterpreter and FirebaseMLVision.
 - [added] Introduced FirebaseMLModelDownloader.
 
 # FirebaseCore 7.6.0
