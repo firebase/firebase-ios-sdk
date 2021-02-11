@@ -22,8 +22,6 @@ if [ -d "/Users/runner/Library/Developer/Xcode/DerivedData" ]; then
 rm -r /Users/runner/Library/Developer/Xcode/DerivedData/*
 fi
 
-echo "- -----------"
-sh --version
 # Setup for pod unit tests
 if [ $SDK == "FirebasePerformance" ]; then
   scripts/setup_bundler.sh
