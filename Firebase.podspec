@@ -163,4 +163,21 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.watchos.deployment_target = '6.0'
   end
 
+  # The deprecated ML subspecs should be deleted in Firebase 8.0.0.
+
+  s.subspec 'MLCommon' do |ss|
+    ss.dependency 'Firebase/CoreOnly'
+    ss.ios.dependency 'FirebaseMLCommon', '~> 7.6.0-beta'
+  end
+
+  s.subspec 'MLModelInterpreter' do |ss|
+    ss.dependency 'Firebase/CoreOnly'
+    ss.ios.dependency 'FirebaseMLModelInterpreter', '~> 7.6.0-beta'
+  end
+
+  s.subspec 'MLVision' do |ss|
+    ss.dependency 'Firebase/CoreOnly'
+    ss.ios.dependency 'FirebaseMLVision', '~> 7.6.0-beta'
+  end
+
 end
