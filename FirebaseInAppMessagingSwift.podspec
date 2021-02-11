@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                    = 'FirebaseInAppMessagingSwift'
-  s.version                 = '0.1.0'
+  s.version                 = '7.7.0-beta'
   s.summary                 = 'Swift Extensions for in-app messaging'
 
   s.description      = <<-DESC
@@ -14,7 +14,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
 
   s.source                  = {
     :git => 'https://github.com/Firebase/firebase-ios-sdk.git',
-    :tag => 'FirebaseInAppMessagingSwift-' + s.version.to_s
+    :tag => 'CocoaPods-' + s.version.to_s
   }
 
   s.swift_version           = '5.3'
@@ -31,4 +31,3 @@ See more product details at https://firebase.google.com/products/in-app-messagin
 
   s.dependency 'FirebaseInAppMessaging'
 end
-
