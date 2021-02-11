@@ -32,33 +32,33 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, MessagingDelegate {
     Messaging.messaging().delegate = self
     let remoteConfig = RemoteConfig.remoteConfig()
     remoteConfig.fetchAndActivate { _, error in
-    guard error == nil else {
-      print("error:" + error.debugDescription)
-      return
-    }
-    let defaultOutput = "You have not set up a 'test' key in Remote Config console."
-    let configValue: String =
-      remoteConfig["test"].stringValue ?? defaultOutput
+      guard error == nil else {
+        print("error:" + error.debugDescription)
+        return
+      }
+      let defaultOutput = "You have not set up a 'test' key in Remote Config console."
+      let configValue: String =
+        remoteConfig["test"].stringValue ?? defaultOutput
       print("value:\n" + configValue)
-  }
-}
-
-/// MessagingDelegate
-func messaging(_: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-  print("token:\n" + fcmToken!)
-  Messaging.messaging().subscribe(toTopic: "watch") { error in
-    guard error == nil else {
-     print("error:" + error.debugDescription)
-	return
     }
-    print("Successfully subscribed to topic")
   }
-}
 
-/// WKExtensionDelegate
-func didRegisterForRemoteNotifications(withDeviceToken deviceToken: Data) {
-/// Swizzling should be disabled in Messaging for watchOS, set APNS token manually.
-  print("Set APNS Token\n")
-  Messaging.messaging().apnsToken = deviceToken
+  /// MessagingDelegate
+  func messaging(_: Messaging, didReceiveRegistrationToken fcmToken: String?) {
+    print("token:\n" + fcmToken!)
+    Messaging.messaging().subscribe(toTopic: "watch") { error in
+      guard error == nil else {
+        print("error:" + error.debugDescription)
+        return
+      }
+      print("Successfully subscribed to topic")
+    }
+  }
+
+  /// WKExtensionDelegate
+  func didRegisterForRemoteNotifications(withDeviceToken deviceToken: Data) {
+    /// Swizzling should be disabled in Messaging for watchOS, set APNS token manually.
+    print("Set APNS Token\n")
+    Messaging.messaging().apnsToken = deviceToken
   }
 }
