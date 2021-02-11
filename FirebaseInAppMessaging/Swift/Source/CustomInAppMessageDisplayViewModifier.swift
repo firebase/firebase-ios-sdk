@@ -1,35 +1,11 @@
 import FirebaseInAppMessaging
 import SwiftUI
 
-// Handle delegate for FIAM actions.
-struct CustomInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModifier {
-  // Closures for different message sub-types.
-  var imageOnlyClosure: ((InAppMessagingImageOnlyDisplay, InAppMessagingDisplayDelegate)
-    -> DisplayMessage)?
-  var bannerClosure: ((InAppMessagingBannerDisplay, InAppMessagingDisplayDelegate)
-    -> DisplayMessage)?
-  var modalClosure: ((InAppMessagingModalDisplay, InAppMessagingDisplayDelegate) -> DisplayMessage)?
-  var cardClosure: ((InAppMessagingCardDisplay, InAppMessagingDisplayDelegate) -> DisplayMessage)?
+// MARK: Image-only messages.
 
+struct ImageOnlyInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModifier {
+  var closure: (InAppMessagingImageOnlyDisplay, InAppMessagingDisplayDelegate) -> DisplayMessage
   @ObservedObject var delegateBridge: DelegateBridge = DelegateBridge()
-
-  init(imageOnlyClosure: ((InAppMessagingImageOnlyDisplay, InAppMessagingDisplayDelegate)
-         -> DisplayMessage)? = nil,
-  bannerClosure: ((InAppMessagingBannerDisplay, InAppMessagingDisplayDelegate)
-    -> DisplayMessage)? = nil,
-  modalClosure: ((InAppMessagingModalDisplay,
-                  InAppMessagingDisplayDelegate)
-      -> DisplayMessage)? =
-    nil,
-  cardClosure: ((InAppMessagingCardDisplay,
-                 InAppMessagingDisplayDelegate)
-      -> DisplayMessage)? =
-    nil) {
-    self.imageOnlyClosure = imageOnlyClosure
-    self.bannerClosure = bannerClosure
-    self.modalClosure = modalClosure
-    self.cardClosure = cardClosure
-  }
 
   func body(content: Content) -> some View {
     return content.overlay(overlayView())
@@ -37,32 +13,107 @@ struct CustomInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModifier
 
   func overlayView() -> some View {
     if let imageOnlyMessage = delegateBridge.inAppMessageData?.0 as? InAppMessagingImageOnlyDisplay,
-      let delegate = delegateBridge.inAppMessageData?.1,
-      let closure = imageOnlyClosure {
+      let delegate = delegateBridge.inAppMessageData?.1 {
       return AnyView(closure(imageOnlyMessage, delegate))
     }
-
-    if let bannerMessage = delegateBridge.inAppMessageData?.0 as? InAppMessagingBannerDisplay,
-      let delegate = delegateBridge.inAppMessageData?.1,
-      let closure = bannerClosure {
-      return AnyView(closure(bannerMessage, delegate))
-    }
-
-    if let modalMessage = delegateBridge.inAppMessageData?.0 as? InAppMessagingModalDisplay,
-      let delegate = delegateBridge.inAppMessageData?.1,
-      let closure = modalClosure {
-      return AnyView(closure(modalMessage, delegate))
-    }
-
-    if let cardMessage = delegateBridge.inAppMessageData?.0 as? InAppMessagingCardDisplay,
-      let delegate = delegateBridge.inAppMessageData?.1,
-      let closure = cardClosure {
-      return AnyView(closure(cardMessage, delegate))
-    }
-
     return AnyView(EmptyView())
   }
 }
+
+public extension View {
+  func imageOnlyInAppMessage<Content: View>(closure: @escaping (InAppMessagingImageOnlyDisplay,
+                                                                InAppMessagingDisplayDelegate)
+      -> Content)
+    -> some View {
+    modifier(ImageOnlyInAppMessageDisplayViewModifier(closure: closure))
+  }
+}
+
+// MARK: Banner messages.
+
+struct BannerInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModifier {
+  var closure: (InAppMessagingBannerDisplay, InAppMessagingDisplayDelegate) -> DisplayMessage
+  @ObservedObject var delegateBridge: DelegateBridge = DelegateBridge()
+
+  func body(content: Content) -> some View {
+    return content.overlay(overlayView())
+  }
+
+  func overlayView() -> some View {
+    if let bannerMessage = delegateBridge.inAppMessageData?.0 as? InAppMessagingBannerDisplay,
+      let delegate = delegateBridge.inAppMessageData?.1 {
+      return AnyView(closure(bannerMessage, delegate))
+    }
+    return AnyView(EmptyView())
+  }
+}
+
+public extension View {
+  func bannerInAppMessage<Content: View>(closure: @escaping (InAppMessagingBannerDisplay,
+                                                             InAppMessagingDisplayDelegate)
+      -> Content)
+    -> some View {
+    modifier(BannerInAppMessageDisplayViewModifier(closure: closure))
+  }
+}
+
+// MARK: Modal messages.
+
+struct ModalInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModifier {
+  var closure: (InAppMessagingModalDisplay, InAppMessagingDisplayDelegate) -> DisplayMessage
+  @ObservedObject var delegateBridge: DelegateBridge = DelegateBridge()
+
+  func body(content: Content) -> some View {
+    return content.overlay(overlayView())
+  }
+
+  func overlayView() -> some View {
+    if let modalMessage = delegateBridge.inAppMessageData?.0 as? InAppMessagingModalDisplay,
+      let delegate = delegateBridge.inAppMessageData?.1 {
+      return AnyView(closure(modalMessage, delegate))
+    }
+    return AnyView(EmptyView())
+  }
+}
+
+public extension View {
+  func modalInAppMessage<Content: View>(closure: @escaping (InAppMessagingModalDisplay,
+                                                            InAppMessagingDisplayDelegate)
+      -> Content)
+    -> some View {
+    modifier(ModalInAppMessageDisplayViewModifier(closure: closure))
+  }
+}
+
+// MARK: Card messages.
+
+struct CardInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModifier {
+  var closure: (InAppMessagingCardDisplay, InAppMessagingDisplayDelegate) -> DisplayMessage
+  @ObservedObject var delegateBridge: DelegateBridge = DelegateBridge()
+
+  func body(content: Content) -> some View {
+    return content.overlay(overlayView())
+  }
+
+  func overlayView() -> some View {
+    if let cardMessage = delegateBridge.inAppMessageData?.0 as? InAppMessagingCardDisplay,
+      let delegate = delegateBridge.inAppMessageData?.1 {
+      return AnyView(closure(cardMessage, delegate))
+    }
+    return AnyView(EmptyView())
+  }
+}
+
+public extension View {
+  func cardInAppMessage<Content: View>(closure: @escaping (InAppMessagingCardDisplay,
+                                                           InAppMessagingDisplayDelegate)
+      -> Content)
+    -> some View {
+    modifier(CardInAppMessageDisplayViewModifier(closure: closure))
+  }
+}
+
+// MARK: Bridge to Firebase In-App Messaging SDK.
 
 class DelegateBridge: NSObject, InAppMessagingDisplay, InAppMessagingDisplayDelegate,
   ObservableObject {
@@ -94,41 +145,5 @@ class DelegateBridge: NSObject, InAppMessagingDisplay, InAppMessagingDisplayDele
     DispatchQueue.main.async {
       self.inAppMessageData = nil
     }
-  }
-}
-
-public extension View {
-  func imageOnlyInAppMessage<Content: View>(closure: @escaping (InAppMessagingImageOnlyDisplay,
-                                                                InAppMessagingDisplayDelegate)
-      -> Content)
-    -> some View {
-    modifier(CustomInAppMessageDisplayViewModifier(imageOnlyClosure: closure))
-  }
-}
-
-public extension View {
-  func bannerInAppMessage<Content: View>(closure: @escaping (InAppMessagingBannerDisplay,
-                                                             InAppMessagingDisplayDelegate)
-      -> Content)
-    -> some View {
-    modifier(CustomInAppMessageDisplayViewModifier(bannerClosure: closure))
-  }
-}
-
-public extension View {
-  func modalInAppMessage<Content: View>(closure: @escaping (InAppMessagingModalDisplay,
-                                                            InAppMessagingDisplayDelegate)
-      -> Content)
-    -> some View {
-    modifier(CustomInAppMessageDisplayViewModifier(modalClosure: closure))
-  }
-}
-
-public extension View {
-  func cardInAppMessage<Content: View>(closure: @escaping (InAppMessagingCardDisplay,
-                                                           InAppMessagingDisplayDelegate)
-      -> Content)
-    -> some View {
-    modifier(CustomInAppMessageDisplayViewModifier(cardClosure: closure))
   }
 }
