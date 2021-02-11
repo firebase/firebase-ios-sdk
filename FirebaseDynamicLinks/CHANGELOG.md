@@ -1,3 +1,6 @@
+# v7.6.1
+- [added] Adding "utmParametersDictionary" api to FIRDynamicLink. (#7505)
+
 # v7.6.0
 - [fixed] Fixed build warnings introduced with Xcode 12.5. (#7434)
 
