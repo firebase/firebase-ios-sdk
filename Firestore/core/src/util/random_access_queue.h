@@ -18,9 +18,10 @@
 #define FIRESTORE_CORE_SRC_UTIL_RANDOM_ACCESS_QUEUE_H_
 
 #include <deque>
-#include <string>
 #include <unordered_map>
 #include <vector>
+
+#include "Firestore/core/src/util/hard_assert.h"
 
 namespace firebase {
 namespace firestore {
@@ -104,7 +105,9 @@ class RandomAccessQueue {
    * This method has constant-time complexity.
    */
   const T& front() const {
-    return queue_.front().element();
+    const QueueEntry& entry = queue_.front();
+    HARD_ASSERT(!entry.removed(), "The front element in the queue should not be marked as \"removed\"");
+    return entry.element();
   }
 
   /**

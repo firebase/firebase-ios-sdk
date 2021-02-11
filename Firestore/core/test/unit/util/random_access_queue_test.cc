@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
 
 #include "Firestore/core/src/util/random_access_queue.h"
 
-#include <iostream>
-#include <string>
 #include <utility>
 #include <vector>
 
@@ -28,40 +26,7 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-namespace {
-
-std::string ToDebugString(const std::vector<int>& elements) {
-  std::string result;
-  result += "[";
-  bool is_first_element = true;
-  for (int element : elements) {
-    if (is_first_element) {
-      is_first_element = false;
-    } else {
-      result += ", ";
-    }
-    result += std::to_string(element);
-  }
-  result += "]";
-  return result;
-}
-
-std::string ToDebugString(const RandomAccessQueue<int>& queue) {
-  return ToDebugString(queue.elements());
-}
-
-}  // namespace
-
-void PrintTo(const RandomAccessQueue<int>& queue, std::ostream* out) {
-  *out << ToDebugString(queue);
-}
-
-MATCHER_P(QueueElementsEqual,
-          expected_elements,
-          std::string("contains elements: ") +
-              ToDebugString(expected_elements)) {
-  return expected_elements == arg.elements();
-}
+using testing::ElementsAre;
 
 TEST(RandomAccessQueueTest, CopyConstructor) {
   RandomAccessQueue<int> queue1;
@@ -70,12 +35,12 @@ TEST(RandomAccessQueueTest, CopyConstructor) {
   queue1.push_back(3);
   queue1.remove(2);
   RandomAccessQueue<int> queue2(queue1);
-  EXPECT_THAT(queue1, QueueElementsEqual(std::vector<int>({1, 3})));
-  EXPECT_THAT(queue2, QueueElementsEqual(std::vector<int>({1, 3})));
+  EXPECT_THAT(queue1.elements(), ElementsAre(1, 3));
+  EXPECT_THAT(queue2.elements(), ElementsAre(1, 3));
   queue1.remove(1);
   queue2.remove(3);
-  EXPECT_THAT(queue1, QueueElementsEqual(std::vector<int>({3})));
-  EXPECT_THAT(queue2, QueueElementsEqual(std::vector<int>({1})));
+  EXPECT_THAT(queue1.elements(), ElementsAre(3));
+  EXPECT_THAT(queue2.elements(), ElementsAre(1));
   EXPECT_TRUE(queue1.contains(3));
   EXPECT_FALSE(queue1.contains(1));
   EXPECT_TRUE(queue2.contains(1));
@@ -95,12 +60,12 @@ TEST(RandomAccessQueueTest, CopyOperator) {
   queue2.remove(11);
   RandomAccessQueue<int>& copy_result = (queue2 = queue1);
   EXPECT_EQ(&copy_result, &queue2);
-  EXPECT_THAT(queue1, QueueElementsEqual(std::vector<int>({1, 3})));
-  EXPECT_THAT(queue2, QueueElementsEqual(std::vector<int>({1, 3})));
+  EXPECT_THAT(queue1.elements(), ElementsAre(1, 3));
+  EXPECT_THAT(queue2.elements(), ElementsAre(1, 3));
   queue1.remove(1);
   queue2.remove(3);
-  EXPECT_THAT(queue1, QueueElementsEqual(std::vector<int>({3})));
-  EXPECT_THAT(queue2, QueueElementsEqual(std::vector<int>({1})));
+  EXPECT_THAT(queue1.elements(), ElementsAre(3));
+  EXPECT_THAT(queue2.elements(), ElementsAre(1));
   EXPECT_TRUE(queue1.contains(3));
   EXPECT_FALSE(queue1.contains(1));
   EXPECT_TRUE(queue2.contains(1));
@@ -114,9 +79,9 @@ TEST(RandomAccessQueueTest, MoveConstructor) {
   queue1.push_back(3);
   queue1.remove(2);
   RandomAccessQueue<int> queue2(std::move(queue1));
-  EXPECT_THAT(queue2, QueueElementsEqual(std::vector<int>({1, 3})));
+  EXPECT_THAT(queue2.elements(), ElementsAre(1, 3));
   queue2.remove(3);
-  EXPECT_THAT(queue2, QueueElementsEqual(std::vector<int>({1})));
+  EXPECT_THAT(queue2.elements(), ElementsAre(1));
   EXPECT_TRUE(queue2.contains(1));
   EXPECT_FALSE(queue2.contains(3));
 }
@@ -134,9 +99,9 @@ TEST(RandomAccessQueueTest, MoveOperator) {
   queue2.remove(11);
   RandomAccessQueue<int>& move_result = (queue2 = std::move(queue1));
   EXPECT_EQ(&move_result, &queue2);
-  EXPECT_THAT(queue2, QueueElementsEqual(std::vector<int>({1, 3})));
+  EXPECT_THAT(queue2.elements(), ElementsAre(1, 3));
   queue2.remove(3);
-  EXPECT_THAT(queue2, QueueElementsEqual(std::vector<int>({1})));
+  EXPECT_THAT(queue2.elements(), ElementsAre(1));
   EXPECT_TRUE(queue2.contains(1));
   EXPECT_FALSE(queue2.contains(3));
 }
@@ -245,7 +210,7 @@ TEST(RandomAccessQueueTest, EmptyShouldReturnFalseAfterAnElementIsReAdded) {
   EXPECT_FALSE(queue.empty());
 }
 
-TEST(RandomAccessQueueTest, ContainsShouldReturnTrueOnANewlyCreatedQueue) {
+TEST(RandomAccessQueueTest, ContainsShouldReturnFalseOnANewlyCreatedQueue) {
   RandomAccessQueue<int> queue;
   EXPECT_FALSE(queue.contains(0));
   EXPECT_FALSE(queue.contains(1));
@@ -342,14 +307,14 @@ TEST(RandomAccessQueueTest, RemoveHasNoEffectOnNewlyCreatedQueue) {
   RandomAccessQueue<int> queue;
   queue.remove(0);
   queue.remove(1);
-  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>()));
+  EXPECT_THAT(queue.elements(), ElementsAre());
 }
 
 TEST(RandomAccessQueueTest, RemoveRemovesTheOnlyElement) {
   RandomAccessQueue<int> queue;
   queue.push_back(1);
   queue.remove(1);
-  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>()));
+  EXPECT_THAT(queue.elements(), ElementsAre());
 }
 
 TEST(RandomAccessQueueTest, RemoveRemovesAllElements) {
@@ -360,15 +325,15 @@ TEST(RandomAccessQueueTest, RemoveRemovesAllElements) {
   queue.push_back(4);
   queue.push_back(5);
   queue.remove(1);
-  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({2, 3, 4, 5})));
+  EXPECT_THAT(queue.elements(), ElementsAre(2, 3, 4, 5));
   queue.remove(5);
-  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({2, 3, 4})));
+  EXPECT_THAT(queue.elements(), ElementsAre(2, 3, 4));
   queue.remove(3);
-  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({2, 4})));
+  EXPECT_THAT(queue.elements(), ElementsAre(2, 4));
   queue.remove(4);
-  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({2})));
+  EXPECT_THAT(queue.elements(), ElementsAre(2));
   queue.remove(2);
-  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>()));
+  EXPECT_THAT(queue.elements(), ElementsAre());
 }
 
 TEST(RandomAccessQueueTest, RemoveRemovesReAddedElements) {
@@ -383,20 +348,20 @@ TEST(RandomAccessQueueTest, RemoveRemovesReAddedElements) {
   queue.remove(5);
   queue.push_back(1);
   queue.push_back(5);
-  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({2, 4, 1, 5})));
+  EXPECT_THAT(queue.elements(), ElementsAre(2, 4, 1, 5));
   queue.remove(1);
-  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({2, 4, 5})));
+  EXPECT_THAT(queue.elements(), ElementsAre(2, 4, 5));
   queue.remove(3);
-  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({2, 4, 5})));
+  EXPECT_THAT(queue.elements(), ElementsAre(2, 4, 5));
   queue.remove(5);
-  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({2, 4})));
+  EXPECT_THAT(queue.elements(), ElementsAre(2, 4));
 }
 
 TEST(RandomAccessQueueTest, PopFrontRemovesTheOnlyElement) {
   RandomAccessQueue<int> queue;
   queue.push_back(1);
   queue.pop_front();
-  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>()));
+  EXPECT_THAT(queue.elements(), ElementsAre());
 }
 
 TEST(RandomAccessQueueTest, PopFrontRemovesTheAddedElementsInOrder) {
@@ -407,15 +372,15 @@ TEST(RandomAccessQueueTest, PopFrontRemovesTheAddedElementsInOrder) {
   queue.push_back(4);
   queue.push_back(5);
   queue.pop_front();
-  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({2, 3, 4, 5})));
+  EXPECT_THAT(queue.elements(), ElementsAre(2, 3, 4, 5));
   queue.pop_front();
-  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({3, 4, 5})));
+  EXPECT_THAT(queue.elements(), ElementsAre(3, 4, 5));
   queue.pop_front();
-  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({4, 5})));
+  EXPECT_THAT(queue.elements(), ElementsAre(4, 5));
   queue.pop_front();
-  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({5})));
+  EXPECT_THAT(queue.elements(), ElementsAre(5));
   queue.pop_front();
-  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>()));
+  EXPECT_THAT(queue.elements(), ElementsAre());
 }
 
 TEST(RandomAccessQueueTest, PopFrontExcludesRemovedElements) {
@@ -428,11 +393,11 @@ TEST(RandomAccessQueueTest, PopFrontExcludesRemovedElements) {
   queue.remove(2);
   queue.remove(4);
   queue.pop_front();
-  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({3, 5})));
+  EXPECT_THAT(queue.elements(), ElementsAre(3, 5));
   queue.pop_front();
-  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({5})));
+  EXPECT_THAT(queue.elements(), ElementsAre(5));
   queue.pop_front();
-  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>()));
+  EXPECT_THAT(queue.elements(), ElementsAre());
 }
 
 TEST(RandomAccessQueueTest, PopFrontIncludesReAddedElements) {
@@ -447,15 +412,15 @@ TEST(RandomAccessQueueTest, PopFrontIncludesReAddedElements) {
   queue.push_back(2);
   queue.push_back(4);
   queue.pop_front();
-  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({3, 5, 2, 4})));
+  EXPECT_THAT(queue.elements(), ElementsAre(3, 5, 2, 4));
   queue.pop_front();
-  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({5, 2, 4})));
+  EXPECT_THAT(queue.elements(), ElementsAre(5, 2, 4));
   queue.pop_front();
-  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({2, 4})));
+  EXPECT_THAT(queue.elements(), ElementsAre(2, 4));
   queue.pop_front();
-  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({4})));
+  EXPECT_THAT(queue.elements(), ElementsAre(4));
   queue.pop_front();
-  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>()));
+  EXPECT_THAT(queue.elements(), ElementsAre());
 }
 
 TEST(RandomAccessQueueTest, FrontReturnsTheOnlyElement) {
@@ -589,11 +554,11 @@ TEST(RandomAccessQueueTest, PushBackReturnsFalseForReAddedElements) {
 TEST(RandomAccessQueueTest, PushBackAddsEachNewElement) {
   RandomAccessQueue<int> queue;
   queue.push_back(0);
-  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({0})));
+  EXPECT_THAT(queue.elements(), ElementsAre(0));
   queue.push_back(1);
-  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({0, 1})));
+  EXPECT_THAT(queue.elements(), ElementsAre(0, 1));
   queue.push_back(2);
-  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({0, 1, 2})));
+  EXPECT_THAT(queue.elements(), ElementsAre(0, 1, 2));
 }
 
 TEST(RandomAccessQueueTest, PushBackDoesNotChangeQueueIfElementExists) {
@@ -601,13 +566,13 @@ TEST(RandomAccessQueueTest, PushBackDoesNotChangeQueueIfElementExists) {
   queue.push_back(0);
   queue.push_back(1);
   queue.push_back(2);
-  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({0, 1, 2})));
+  EXPECT_THAT(queue.elements(), ElementsAre(0, 1, 2));
   queue.push_back(0);
-  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({0, 1, 2})));
+  EXPECT_THAT(queue.elements(), ElementsAre(0, 1, 2));
   queue.push_back(1);
-  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({0, 1, 2})));
+  EXPECT_THAT(queue.elements(), ElementsAre(0, 1, 2));
   queue.push_back(2);
-  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({0, 1, 2})));
+  EXPECT_THAT(queue.elements(), ElementsAre(0, 1, 2));
 }
 
 TEST(RandomAccessQueueTest, PushBackCorrectlyAddsRemovedElementsToTheBack) {
@@ -617,11 +582,11 @@ TEST(RandomAccessQueueTest, PushBackCorrectlyAddsRemovedElementsToTheBack) {
   queue.push_back(2);
   queue.remove(0);
   queue.remove(2);
-  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({1})));
+  EXPECT_THAT(queue.elements(), ElementsAre(1));
   queue.push_back(0);
-  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({1, 0})));
+  EXPECT_THAT(queue.elements(), ElementsAre(1, 0));
   queue.push_back(2);
-  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({1, 0, 2})));
+  EXPECT_THAT(queue.elements(), ElementsAre(1, 0, 2));
 }
 
 TEST(RandomAccessQueueTest, PushBackDoesNotChangeQueueForReAddedElements) {
@@ -633,13 +598,13 @@ TEST(RandomAccessQueueTest, PushBackDoesNotChangeQueueForReAddedElements) {
   queue.remove(2);
   queue.push_back(0);
   queue.push_back(2);
-  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({1, 0, 2})));
+  EXPECT_THAT(queue.elements(), ElementsAre(1, 0, 2));
   EXPECT_FALSE(queue.push_back(0));
-  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({1, 0, 2})));
+  EXPECT_THAT(queue.elements(), ElementsAre(1, 0, 2));
   EXPECT_FALSE(queue.push_back(1));
-  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({1, 0, 2})));
+  EXPECT_THAT(queue.elements(), ElementsAre(1, 0, 2));
   EXPECT_FALSE(queue.push_back(2));
-  EXPECT_THAT(queue, QueueElementsEqual(std::vector<int>({1, 0, 2})));
+  EXPECT_THAT(queue.elements(), ElementsAre(1, 0, 2));
 }
 
 }  //  namespace util
