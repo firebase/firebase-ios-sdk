@@ -726,9 +726,17 @@ struct FrameworkBuilder {
       slicedBinariesForCarthage(fromFrameworks: slicedFrameworks,
                                 workingDir: platformFrameworksDir)
 
+    // Copy the framework in the appropriate directory structure.
+    let frameworkDir = platformFrameworksDir.appendingPathComponent(fromFolder.lastPathComponent)
+    do {
+      try fileManager.copyItem(at: fromFolder, to: frameworkDir)
+    } catch {
+      fatalError("Could not create .framework needed to build \(framework) for Carthage: \(error)")
+    }
+
     // Build the fat archive using the `lipo` command to make one fat binary that Carthage can use
     // in the framework. We need the full archive path.
-    let fatArchive = platformFrameworksDir.appendingPathComponent(framework)
+    let fatArchive = frameworkDir.appendingPathComponent(framework)
     let result = FrameworkBuilder.syncExec(
       command: "/usr/bin/lipo",
       args: ["-create", "-output", fatArchive.path] + thinSlices.map { $0.value.path }
@@ -743,21 +751,13 @@ struct FrameworkBuilder {
       print("lipo command for \(framework) succeeded.")
     }
 
-    // Copy the framework and the fat binary artifact into the appropriate directory structure.
-    let frameworkDir = platformFrameworksDir.appendingPathComponent(fromFolder.lastPathComponent)
-    let archiveDestination = frameworkDir.appendingPathComponent(framework)
-    do {
-      try fileManager.copyItem(at: fromFolder, to: frameworkDir)
-      try fileManager.copyItem(at: fatArchive, to: archiveDestination)
-    } catch {
-      fatalError("Could not create .framework needed to build \(framework) for Carthage: \(error)")
-    }
-
     // Package the modulemaps. The build architecture does not support constructing Swift module
     // maps for the Carthage distribution, so skip this pod if there is any Swift.
-    if packageModuleMaps(inFrameworks: slicedFrameworks.map { $0.value },
-                         moduleMapContents: moduleMapContents,
-                         destination: frameworkDir) {
+    let foundSwift = packageModuleMaps(inFrameworks: slicedFrameworks.map { $0.value },
+                                       moduleMapContents: moduleMapContents,
+                                       destination: frameworkDir,
+                                       buildingCarthage: true)
+    if foundSwift {
       do {
         try fileManager.removeItem(at: frameworkDir)
       } catch {
@@ -777,17 +777,6 @@ struct FrameworkBuilder {
       fatalError("Could not move bundles into Resources directory while building \(framework): " +
         "\(error)")
     }
-
-    // Clean up the fat archive we built.
-    do {
-      try fileManager.removeItem(at: fatArchive)
-    } catch {
-      print("""
-      Tried to remove fat binary for \(framework) at \(fatArchive.path) but couldn't. This is \
-      not a failure, but you may want to remove the file afterwards to save disk space.
-      """)
-    }
-
     return frameworkDir
   }
 
