@@ -26,6 +26,11 @@ fi
 if [ $SDK == "FirebasePerformance" ]; then
   scripts/setup_bundler.sh
   scripts/third_party/travis/retry.sh scripts/build.sh Performance ${platform} unit
+else if [ $SDK == "FirebaseFirestore" ]; then
+  scripts/setup_bundler.sh
+  scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseFirestore.podspec \
+    --platforms=ios \
+    --allow-warnings
 else
   # Run unit tests of pods and put xcresult bundles into output_path, which
   # should be a targeted dir of actions/upload-artifact in workflows.
