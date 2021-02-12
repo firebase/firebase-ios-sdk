@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import Foundation
-import FirebaseCore
 
 /// Model info object with details about not-yet downloaded model.
 struct RemoteModelInfo {

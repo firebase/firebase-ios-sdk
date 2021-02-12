@@ -40,7 +40,12 @@
 #import "Crashlytics/Shared/FIRCLSConstants.h"
 #import "Crashlytics/Shared/FIRCLSFABHost.h"
 
+#import "Crashlytics/Crashlytics/Controllers/FIRCLSAnalyticsManager.h"
+#import "Crashlytics/Crashlytics/Controllers/FIRCLSExistingReportManager.h"
+#import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
+#import "Crashlytics/Crashlytics/Controllers/FIRCLSNotificationManager.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSReportManager.h"
+#import "Crashlytics/Crashlytics/Controllers/FIRCLSReportUploader.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
@@ -71,8 +76,17 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 @property(nonatomic, copy) NSString *googleAppID;
 @property(nonatomic) FIRCLSDataCollectionArbiter *dataArbiter;
 @property(nonatomic) FIRCLSFileManager *fileManager;
+
 @property(nonatomic) FIRCLSReportManager *reportManager;
-@property(nonatomic) GDTCORTransport *googleTransport;
+
+@property(nonatomic) FIRCLSReportUploader *reportUploader;
+
+@property(nonatomic, strong) FIRCLSExistingReportManager *existingReportManager;
+
+@property(nonatomic, strong) FIRCLSAnalyticsManager *analyticsManager;
+
+// Dependencies common to each of the Controllers
+@property(nonatomic, strong) FIRCLSManagerData *managerData;
 
 @end
 
@@ -100,9 +114,10 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
     FIRCLSDeveloperLog("Crashlytics", @"Running on %@, %@ (%@)", FIRCLSHostModelInfo(),
                        FIRCLSHostOSDisplayVersion(), FIRCLSHostOSBuildVersion());
 
-    _googleTransport = [[GDTCORTransport alloc] initWithMappingID:FIRCLSGoogleTransportMappingID
-                                                     transformers:nil
-                                                           target:kGDTCORTargetCSH];
+    GDTCORTransport *googleTransport =
+        [[GDTCORTransport alloc] initWithMappingID:FIRCLSGoogleTransportMappingID
+                                      transformers:nil
+                                            target:kGDTCORTargetCSH];
 
     _fileManager = [[FIRCLSFileManager alloc] init];
     _googleAppID = app.options.googleAppID;
@@ -112,14 +127,25 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
     FIRCLSSettings *settings = [[FIRCLSSettings alloc] initWithFileManager:_fileManager
                                                                 appIDModel:appModel];
 
-    _reportManager = [[FIRCLSReportManager alloc] initWithFileManager:_fileManager
-                                                        installations:installations
-                                                            analytics:analytics
-                                                          googleAppID:_googleAppID
-                                                          dataArbiter:_dataArbiter
-                                                      googleTransport:_googleTransport
-                                                           appIDModel:appModel
-                                                             settings:settings];
+    _managerData = [[FIRCLSManagerData alloc] initWithGoogleAppID:_googleAppID
+                                                  googleTransport:googleTransport
+                                                    installations:installations
+                                                        analytics:analytics
+                                                      fileManager:_fileManager
+                                                      dataArbiter:_dataArbiter
+                                                         settings:settings];
+
+    _reportUploader = [[FIRCLSReportUploader alloc] initWithManagerData:_managerData];
+
+    _existingReportManager =
+        [[FIRCLSExistingReportManager alloc] initWithManagerData:_managerData
+                                                  reportUploader:_reportUploader];
+
+    _analyticsManager = [[FIRCLSAnalyticsManager alloc] initWithAnalytics:analytics];
+
+    _reportManager = [[FIRCLSReportManager alloc] initWithManagerData:_managerData
+                                                existingReportManager:_existingReportManager
+                                                     analyticsManager:_analyticsManager];
 
     // Process did crash during previous execution
     NSString *crashedMarkerFileName = [NSString stringWithUTF8String:FIRCLSCrashedMarkerFileName];
@@ -268,6 +294,10 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 
 - (void)setCustomValue:(id)value forKey:(NSString *)key {
   FIRCLSUserLoggingRecordUserKeyValue(key, value);
+}
+
+- (void)setCustomKeysAndValues:(NSDictionary *)keysAndValues {
+  FIRCLSUserLoggingRecordUserKeysAndValues(keysAndValues);
 }
 
 #pragma mark - API: Development Platform

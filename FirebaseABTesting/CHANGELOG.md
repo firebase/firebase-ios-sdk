@@ -1,3 +1,6 @@
+# unreleased
+- [added] Added community support for watchOS. (#7481)
+
 # v7.0.0
 - [removed] Removed `FIRExperimentController.updateExperiments(serviceOrigin:events:policy:lastStartTime:payloads:)`, which was deprecated. (#6543)
 

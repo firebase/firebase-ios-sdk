@@ -13,44 +13,33 @@
 // limitations under the License.
 
 import Foundation
-import FirebaseCore
 
-/// Possible states of model downloading.
-enum ModelDownloadStatus {
-  case ready
-  case downloading
-  case complete
-}
-
-/// Download error codes.
-enum ModelDownloadErrorCode {
-  case noError
-  case urlExpired
-  case noConnection
-  case downloadFailed
-  case httpError(code: Int)
-}
-
-/// Manager to handle model downloading device and storing downloaded model info to persistent storage.
-class ModelDownloadTask: NSObject {
-  typealias ProgressHandler = (Float) -> Void
-  typealias Completion = (Result<CustomModel, DownloadError>) -> Void
-
+/// Task to download model file to device.
+class ModelDownloadTask {
   /// Name of the app associated with this instance of ModelDownloadTask.
   private let appName: String
+
   /// Model info downloaded from server.
   private(set) var remoteModelInfo: RemoteModelInfo
+
   /// User defaults to which local model info should ultimately be written.
   private let defaults: UserDefaults
+
   /// Keeps track of download associated with this model download task.
   private(set) var downloadStatus: ModelDownloadStatus = .ready
+
   /// Downloader instance.
   private let downloader: FileDownloader
+
   /// Telemetry logger.
   private let telemetryLogger: TelemetryLogger?
-  /// Progress handler.
+
+  /// Download progress handler.
+  typealias ProgressHandler = (Float) -> Void
   private var progressHandler: ProgressHandler?
-  /// Completion.
+
+  /// Download completion handler.
+  typealias Completion = (Result<CustomModel, DownloadError>) -> Void
   private var completion: Completion
 
   init(remoteModelInfo: RemoteModelInfo,
@@ -62,28 +51,18 @@ class ModelDownloadTask: NSObject {
        telemetryLogger: TelemetryLogger? = nil) {
     self.remoteModelInfo = remoteModelInfo
     self.appName = appName
+    self.defaults = defaults
     self.downloader = downloader
     self.progressHandler = progressHandler
     self.completion = completion
     self.telemetryLogger = telemetryLogger
-    self.defaults = defaults
   }
 }
 
 extension ModelDownloadTask {
-  /// Name for model file stored on device.
-  var downloadedModelFileName: String {
-    return "fbml_model__\(appName)__\(remoteModelInfo.name).tflite"
-  }
-
-  /// Check if downloading is not complete for merging requests.
+  /// Check if requests can be merged.
   func canMergeRequests() -> Bool {
     return downloadStatus != .complete
-  }
-
-  /// Check if download task can be resumed.
-  func canResume() -> Bool {
-    return downloadStatus == .ready
   }
 
   /// Merge duplicate requests. This method is not thread-safe.
@@ -100,8 +79,14 @@ extension ModelDownloadTask {
     }
   }
 
+  /// Check if download task can be resumed.
+  func canResume() -> Bool {
+    return downloadStatus == .ready
+  }
+
+  /// Download model file.
   func resume() {
-    /// Prevent multiple concurrent downloads.
+    // Prevent multiple concurrent downloads.
     guard downloadStatus != .downloading else {
       DeviceLogger.logEvent(level: .debug,
                             message: ModelDownloadTask.ErrorDescription.anotherDownloadInProgress,
@@ -139,7 +124,7 @@ extension ModelDownloadTask {
         case let FileDownloaderError.networkError(error):
           let description = ModelDownloadTask.ErrorDescription
             .invalidHostName(error.localizedDescription)
-          downloadError = .internalError(description: description)
+          downloadError = .failedPrecondition
           DeviceLogger.logEvent(level: .debug,
                                 message: description,
                                 messageCode: .hostnameError)
@@ -180,15 +165,13 @@ extension ModelDownloadTask {
   func handleResponse(response: HTTPURLResponse, tempURL: URL, completion: @escaping Completion) {
     guard (200 ..< 299).contains(response.statusCode) else {
       switch response.statusCode {
-      /// Possible failure due to download URL expiry.
       case 400:
-        let currentDateTime = Date()
-        /// Check if download url has expired.
-        guard currentDateTime > remoteModelInfo.urlExpiryTime else {
+        // Possible failure due to download URL expiry. Check if download URL has expired.
+        guard remoteModelInfo.urlExpiryTime < Date() else {
           DeviceLogger.logEvent(level: .debug,
                                 message: ModelDownloadTask.ErrorDescription
-                                  .invalidModelName(remoteModelInfo.name),
-                                messageCode: .invalidModelName)
+                                  .invalidArgument(remoteModelInfo.name),
+                                messageCode: .invalidArgument)
           telemetryLogger?.logModelDownloadEvent(
             eventName: .modelDownload,
             status: .failed,
@@ -243,12 +226,36 @@ extension ModelDownloadTask {
       return
     }
 
-    let modelFileURL = ModelFileManager.getDownloadedModelFilePath(
+    /// Construct local model file URL.
+    guard var modelFileURL = ModelFileManager.getDownloadedModelFileURL(
       appName: appName,
       modelName: remoteModelInfo.name
-    )
+    ) else {
+      // Could not create Application Support directory to store model files.
+      let description = ModelDownloadTask.ErrorDescription.noModelsDirectory
+      DeviceLogger.logEvent(level: .debug,
+                            message: description,
+                            messageCode: .downloadedModelSaveError)
+      // Downloading the file succeeding but saving failed.
+      telemetryLogger?.logModelDownloadEvent(eventName: .modelDownload,
+                                             status: .succeeded,
+                                             downloadErrorCode: .downloadFailed)
+      completion(.failure(.internalError(description: description)))
+      return
+    }
 
     do {
+      // Try disabling iCloud backup for model files, because UserDefaults is not backed up.
+      var resourceValue = URLResourceValues()
+      resourceValue.isExcludedFromBackup = true
+      do {
+        try modelFileURL.setResourceValues(resourceValue)
+      } catch {
+        DeviceLogger.logEvent(level: .debug,
+                              message: ModelDownloadTask.ErrorDescription.disableBackupError,
+                              messageCode: .disableBackupError)
+      }
+      // Save model file to device.
       try ModelFileManager.moveFile(
         at: tempURL,
         to: modelFileURL,
@@ -257,15 +264,15 @@ extension ModelDownloadTask {
       DeviceLogger.logEvent(level: .debug,
                             message: ModelDownloadTask.DebugDescription.savedModelFile,
                             messageCode: .downloadedModelFileSaved)
-      /// Generate local model info.
-      let localModelInfo = LocalModelInfo(from: remoteModelInfo, path: modelFileURL.absoluteString)
-      /// Write model to user defaults.
+      // Generate local model info.
+      let localModelInfo = LocalModelInfo(from: remoteModelInfo)
+      // Write model info to user defaults.
       localModelInfo.writeToDefaults(defaults, appName: appName)
       DeviceLogger.logEvent(level: .debug,
                             message: ModelDownloadTask.DebugDescription.savedLocalModelInfo,
                             messageCode: .downloadedModelInfoSaved)
-      /// Build model from model info.
-      let model = CustomModel(localModelInfo: localModelInfo)
+      // Build model from model info and local path.
+      let model = CustomModel(localModelInfo: localModelInfo, path: modelFileURL.path)
       DeviceLogger.logEvent(level: .debug,
                             message: ModelDownloadTask.DebugDescription.modelDownloaded,
                             messageCode: .modelDownloaded)
@@ -283,9 +290,10 @@ extension ModelDownloadTask {
                               messageCode: .notEnoughSpace)
       } else {
         DeviceLogger.logEvent(level: .debug,
-                              message: ModelDownloadTask.ErrorDescription.saveModel,
+                              message: ModelDownloadTask.ErrorDescription.modelSaveError,
                               messageCode: .downloadedModelSaveError)
       }
+      // Downloading the file succeeding but saving failed.
       telemetryLogger?.logModelDownloadEvent(eventName: .modelDownload,
                                              status: .succeeded,
                                              downloadErrorCode: .downloadFailed)
@@ -293,8 +301,9 @@ extension ModelDownloadTask {
       return
     } catch {
       DeviceLogger.logEvent(level: .debug,
-                            message: ModelDownloadTask.ErrorDescription.saveModel,
+                            message: ModelDownloadTask.ErrorDescription.modelSaveError,
                             messageCode: .downloadedModelSaveError)
+      // Downloading the file succeeding but saving failed.
       telemetryLogger?.logModelDownloadEvent(eventName: .modelDownload,
                                              status: .succeeded,
                                              downloadErrorCode: .downloadFailed)
@@ -304,13 +313,29 @@ extension ModelDownloadTask {
   }
 }
 
-/// Possible error messages for model downloading.
+/// Possible states of model downloading.
+enum ModelDownloadStatus {
+  case ready
+  case downloading
+  case complete
+}
+
+/// Download error codes.
+enum ModelDownloadErrorCode {
+  case noError
+  case urlExpired
+  case noConnection
+  case downloadFailed
+  case httpError(code: Int)
+}
+
+/// Possible debug and error messages for model downloading.
 extension ModelDownloadTask {
   /// Debug descriptions.
   private enum DebugDescription {
+    static let receivedServerResponse = "Received a valid response from download server."
     static let savedModelFile = "Model file saved successfully to device."
     static let savedLocalModelInfo = "Downloaded model info saved successfully to user defaults."
-    static let receivedServerResponse = "Received a valid response from download server."
     static let modelDownloaded = "Model download completed successfully."
   }
 
@@ -320,26 +345,26 @@ extension ModelDownloadTask {
       "Unable to resolve hostname or connect to host: \(error)"
     }
 
-    static let modelDownloadFailed = { (code: Int) in
-      "Model download failed with HTTP error code: \(code)"
-    }
-
+    static let sessionInvalidated = "Session invalidated due to failed pre-conditions."
+    static let invalidHTTPResponse = "Could not get valid HTTP response for model downloading."
+    static let anotherDownloadInProgress = "Download already in progress."
     static let modelNotFound = { (name: String) in
       "No model found with name: \(name)"
     }
 
-    static let invalidModelName = { (name: String) in
-      "Invalid model name: \(name)"
+    static let invalidArgument = { (name: String) in
+      "Invalid argument for model name: \(name)"
     }
 
-    static let sessionInvalidated = "Session invalidated due to failed pre-conditions."
-    static let invalidHTTPResponse =
-      "Could not get valid HTTP response for model downloading."
-    static let unknownDownloadError = "Unable to download model due to unknown error."
-    static let saveModel = "Unable to save downloaded remote model file."
-    static let notEnoughSpace = "Not enough space on device."
     static let expiredModelInfo = "Unable to update expired model info."
-    static let anotherDownloadInProgress = "Download already in progress."
     static let permissionDenied = "Invalid or missing permissions to download model."
+    static let notEnoughSpace = "Not enough space on device."
+    static let disableBackupError = "Unable to disable model file backup."
+    static let noModelsDirectory = "Could not create directory for model storage."
+    static let modelSaveError = "Unable to save downloaded remote model file."
+    static let unknownDownloadError = "Unable to download model due to unknown error."
+    static let modelDownloadFailed = { (code: Int) in
+      "Model download failed with HTTP error code: \(code)"
+    }
   }
 }

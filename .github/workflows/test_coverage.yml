@@ -45,7 +45,7 @@ jobs:
     runs-on: macOS-latest
     strategy:
       matrix:
-        target: [ios]
+        target: [iOS]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -64,7 +64,7 @@ jobs:
     runs-on: macOS-latest
     strategy:
       matrix:
-        target: [ios]
+        target: [iOS]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -83,7 +83,7 @@ jobs:
     runs-on: macOS-latest
     strategy:
       matrix:
-        target: [ios]
+        target: [iOS]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -102,7 +102,7 @@ jobs:
     runs-on: macOS-latest
     strategy:
       matrix:
-        target: [ios]
+        target: [iOS]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -121,7 +121,7 @@ jobs:
     runs-on: macOS-latest
     strategy:
       matrix:
-        target: [ios]
+        target: [iOS]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -136,11 +136,12 @@ jobs:
   pod-lib-lint-firestore:
     needs: check
     # Don't run on private repo unless it is a PR.
-    if: always() && github.repository == 'Firebase/firebase-ios-sdk' && (needs.check.outputs.firestore_run_job == 'true'|| github.event.pull_request.merged)
+    # Disable Firestore for now since Firestore currently does not have unit tests in podspecs.
+    if: always() && github.repository == 'Firebase/firebase-ios-sdk' && (needs.check.outputs.firestore_run_job == 'true'|| github.event.pull_request.merged) && false
     runs-on: macOS-latest
     strategy:
       matrix:
-        target: [ios]
+        target: [iOS]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -159,7 +160,7 @@ jobs:
     runs-on: macOS-latest
     strategy:
       matrix:
-        target: [ios]
+        target: [iOS]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -178,7 +179,7 @@ jobs:
     runs-on: macOS-latest
     strategy:
       matrix:
-        target: [ios]
+        target: [iOS]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -197,7 +198,7 @@ jobs:
     runs-on: macOS-latest
     strategy:
       matrix:
-        target: [ios]
+        target: [iOS]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -216,7 +217,7 @@ jobs:
     runs-on: macOS-latest
     strategy:
       matrix:
-        target: [ios]
+        target: [iOS]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -235,7 +236,7 @@ jobs:
     runs-on: macOS-latest
     strategy:
       matrix:
-        target: [ios]
+        target: [iOS]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -254,7 +255,7 @@ jobs:
     runs-on: macOS-latest
     strategy:
       matrix:
-        target: [ios]
+        target: [iOS]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -275,6 +276,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Access to Metrics Service
+        if:  env.metrics_service_secret
         run: |
           # Install gcloud sdk
           curl https://sdk.cloud.google.com > install.sh
@@ -291,7 +293,7 @@ jobs:
         with:
           path: /Users/runner/test
       - name: Compare Diff and Post a Report
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && env.metrics_service_secret
         env:
           base_commit: ${{ needs.check.outputs.base_commit }}
         run: |
@@ -302,7 +304,7 @@ jobs:
           swift run CoverageReportGenerator --presubmit "firebase/firebase-ios-sdk" --commit "${GITHUB_SHA}" --token $(gcloud auth print-identity-token) --xcresult-dir "/Users/runner/test/codecoverage" --log-link "https://github.com/firebase/firebase-ios-sdk/actions/runs/${GITHUB_RUN_ID}" --pull-request-num ${{github.event.pull_request.number}} --base-commit "$base_commit"
           fi
       - name: Update New Coverage Data
-        if: github.event.pull_request.merged == true
+        if: github.event.pull_request.merged == true && env.metrics_service_secret
         run: |
           if [ -d "${{steps.download.outputs.download-path}}" ]; then
           cd scripts/code_coverage_report/generate_code_coverage_report

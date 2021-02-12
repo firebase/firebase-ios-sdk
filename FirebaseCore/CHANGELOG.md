@@ -1,3 +1,8 @@
+# FirebaseCore 7.7.0
+- [changed] Deprecated FirebaseMLModelInterpreter and FirebaseMLVision.
+- [added] Introduced FirebaseMLModelDownloader.
+- [fixed] Fixed missing doc comment in `FirebaseVersion()` (#7506).
+
 # FirebaseCore 7.6.0
 - [fixed] Fixed build warnings introduced with Xcode 12.5. (#7431)
 
