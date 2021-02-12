@@ -92,7 +92,6 @@ extension CarthageUtils {
                                               artifacts: ZipBuilder.ReleaseArtifacts,
                                               outputDir: URL,
                                               versionCheckEnabled: Bool) {
-    factorProtobuf(inPackagedDir: packagedDir)
     let directories: [String]
     do {
       directories = try FileManager.default.contentsOfDirectory(atPath: packagedDir.path)
@@ -209,44 +208,6 @@ extension CarthageUtils {
         print("Successfully written Carthage JSON manifest for \(product).")
       } catch {
         fatalError("Could not write new Carthage JSON manifest to disk for \(product). \(error)")
-      }
-    }
-  }
-
-  /// Factor Protobuf into a separate Carthage distribution to avoid Carthage install issues
-  /// trying to install the same framework from multiple bundles(#5276).
-  ///
-  /// - Parameters:
-  ///   - packagedDir: The packaged directory assembled for Carthage and Zip distribution.
-
-  private static func factorProtobuf(inPackagedDir packagedDir: URL) {
-    let directories: [String]
-    let protobufDir = packagedDir.appendingPathComponent("FirebaseProtobuf")
-    do {
-      directories = try FileManager.default.contentsOfDirectory(atPath: packagedDir.path)
-    } catch {
-      fatalError("Could not get contents of Firebase directory to package Carthage build. \(error)")
-    }
-    let fileManager = FileManager.default
-    var didMove = false
-    // Loop through each directory to see if it includes Protobuf.framework.
-    for package in directories {
-      let fullPath = packagedDir.appendingPathComponent(package)
-        .appendingPathComponent("Protobuf.framework")
-      if fileManager.fileExists(atPath: fullPath.path) {
-        if didMove == false {
-          didMove = true
-          do {
-            try fileManager.createDirectory(at: protobufDir, withIntermediateDirectories: true)
-            try fileManager
-              .moveItem(at: fullPath, to: protobufDir.appendingPathComponent("Protobuf.framework"))
-          } catch {
-            fatalError("Failed to create Carthage protobuf directory at \(protobufDir) \(error)")
-          }
-
-        } else {
-          fileManager.removeIfExists(at: fullPath)
-        }
       }
     }
   }

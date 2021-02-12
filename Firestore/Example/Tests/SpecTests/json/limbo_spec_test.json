@@ -1,4 +1,2235 @@
 {
+  "A limbo resolution for a document should be removed from the queue when the last query listen stops": {
+    "describeName": "Limbo Documents:",
+    "itName": "A limbo resolution for a document should be removed from the queue when the last query listen stops",
+    "tags": [
+    ],
+    "config": {
+      "maxConcurrentLimboResolutions": 1,
+      "numClients": 1,
+      "useGarbageCollection": false
+    },
+    "steps": [
+      {
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection1"
+          },
+          "targetId": 2
+        },
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection1"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            {
+              "key": "collection1/doc",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "key": 1
+              },
+              "version": 1000
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 1000
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "key": "collection1/doc",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": 1
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection1"
+            }
+          }
+        ]
+      },
+      {
+        "userUnlisten": [
+          2,
+          {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection1"
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "userListen": {
+          "query": {
+            "filters": [
+              [
+                "key",
+                "==",
+                1
+              ]
+            ],
+            "orderBys": [
+            ],
+            "path": "collection1"
+          },
+          "targetId": 4
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "key": "collection1/doc",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": 1
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+                [
+                  "key",
+                  "==",
+                  1
+                ]
+              ],
+              "orderBys": [
+              ],
+              "path": "collection1"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+            "4": {
+              "queries": [
+                {
+                  "filters": [
+                    [
+                      "key",
+                      "==",
+                      1
+                    ]
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection1"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          4
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+          ],
+          "targets": [
+            4
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            4
+          ],
+          "resume-token-1001"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 1001
+        },
+        "expectedState": {
+          "activeLimboDocs": [
+            "collection1/doc"
+          ],
+          "activeTargets": {
+            "1": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection1/doc"
+                }
+              ],
+              "resumeToken": ""
+            },
+            "4": {
+              "queries": [
+                {
+                  "filters": [
+                    [
+                      "key",
+                      "==",
+                      1
+                    ]
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection1"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection2"
+          },
+          "targetId": 6
+        },
+        "expectedState": {
+          "activeTargets": {
+            "1": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection1/doc"
+                }
+              ],
+              "resumeToken": ""
+            },
+            "4": {
+              "queries": [
+                {
+                  "filters": [
+                    [
+                      "key",
+                      "==",
+                      1
+                    ]
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection1"
+                }
+              ],
+              "resumeToken": ""
+            },
+            "6": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection2"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          6
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            {
+              "key": "collection2/doc",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "key": 2
+              },
+              "version": 1000
+            }
+          ],
+          "targets": [
+            6
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            6
+          ],
+          "resume-token-1002"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 1002
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "key": "collection2/doc",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": 2
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection2"
+            }
+          }
+        ]
+      },
+      {
+        "userUnlisten": [
+          6,
+          {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection2"
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+            "1": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection1/doc"
+                }
+              ],
+              "resumeToken": ""
+            },
+            "4": {
+              "queries": [
+                {
+                  "filters": [
+                    [
+                      "key",
+                      "==",
+                      1
+                    ]
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection1"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "userListen": {
+          "query": {
+            "filters": [
+              [
+                "key",
+                "==",
+                2
+              ]
+            ],
+            "orderBys": [
+            ],
+            "path": "collection2"
+          },
+          "targetId": 8
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "key": "collection2/doc",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": 2
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+                [
+                  "key",
+                  "==",
+                  2
+                ]
+              ],
+              "orderBys": [
+              ],
+              "path": "collection2"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+            "1": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection1/doc"
+                }
+              ],
+              "resumeToken": ""
+            },
+            "4": {
+              "queries": [
+                {
+                  "filters": [
+                    [
+                      "key",
+                      "==",
+                      1
+                    ]
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection1"
+                }
+              ],
+              "resumeToken": ""
+            },
+            "8": {
+              "queries": [
+                {
+                  "filters": [
+                    [
+                      "key",
+                      "==",
+                      2
+                    ]
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection2"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          8
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+          ],
+          "targets": [
+            8
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            8
+          ],
+          "resume-token-1003"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 1003
+        },
+        "expectedState": {
+          "activeLimboDocs": [
+            "collection1/doc"
+          ],
+          "activeTargets": {
+            "1": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection1/doc"
+                }
+              ],
+              "resumeToken": ""
+            },
+            "4": {
+              "queries": [
+                {
+                  "filters": [
+                    [
+                      "key",
+                      "==",
+                      1
+                    ]
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection1"
+                }
+              ],
+              "resumeToken": ""
+            },
+            "8": {
+              "queries": [
+                {
+                  "filters": [
+                    [
+                      "key",
+                      "==",
+                      2
+                    ]
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection2"
+                }
+              ],
+              "resumeToken": ""
+            }
+          },
+          "enqueuedLimboDocs": [
+            "collection2/doc"
+          ]
+        }
+      },
+      {
+        "userListen": {
+          "query": {
+            "filters": [
+              [
+                "key",
+                ">=",
+                2
+              ]
+            ],
+            "orderBys": [
+            ],
+            "path": "collection2"
+          },
+          "targetId": 10
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "key": "collection2/doc",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": 2
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+                [
+                  "key",
+                  ">=",
+                  2
+                ]
+              ],
+              "orderBys": [
+              ],
+              "path": "collection2"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+            "1": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection1/doc"
+                }
+              ],
+              "resumeToken": ""
+            },
+            "10": {
+              "queries": [
+                {
+                  "filters": [
+                    [
+                      "key",
+                      ">=",
+                      2
+                    ]
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection2"
+                }
+              ],
+              "resumeToken": ""
+            },
+            "4": {
+              "queries": [
+                {
+                  "filters": [
+                    [
+                      "key",
+                      "==",
+                      1
+                    ]
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection1"
+                }
+              ],
+              "resumeToken": ""
+            },
+            "8": {
+              "queries": [
+                {
+                  "filters": [
+                    [
+                      "key",
+                      "==",
+                      2
+                    ]
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection2"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          10
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+          ],
+          "targets": [
+            10
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            10
+          ],
+          "resume-token-1004"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 1004
+        },
+        "expectedState": {
+          "activeLimboDocs": [
+            "collection1/doc"
+          ],
+          "activeTargets": {
+            "1": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection1/doc"
+                }
+              ],
+              "resumeToken": ""
+            },
+            "10": {
+              "queries": [
+                {
+                  "filters": [
+                    [
+                      "key",
+                      ">=",
+                      2
+                    ]
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection2"
+                }
+              ],
+              "resumeToken": ""
+            },
+            "4": {
+              "queries": [
+                {
+                  "filters": [
+                    [
+                      "key",
+                      "==",
+                      1
+                    ]
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection1"
+                }
+              ],
+              "resumeToken": ""
+            },
+            "8": {
+              "queries": [
+                {
+                  "filters": [
+                    [
+                      "key",
+                      "==",
+                      2
+                    ]
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection2"
+                }
+              ],
+              "resumeToken": ""
+            }
+          },
+          "enqueuedLimboDocs": [
+            "collection2/doc"
+          ]
+        }
+      },
+      {
+        "userUnlisten": [
+          10,
+          {
+            "filters": [
+              [
+                "key",
+                ">=",
+                2
+              ]
+            ],
+            "orderBys": [
+            ],
+            "path": "collection2"
+          }
+        ],
+        "expectedState": {
+          "activeLimboDocs": [
+            "collection1/doc"
+          ],
+          "activeTargets": {
+            "1": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection1/doc"
+                }
+              ],
+              "resumeToken": ""
+            },
+            "4": {
+              "queries": [
+                {
+                  "filters": [
+                    [
+                      "key",
+                      "==",
+                      1
+                    ]
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection1"
+                }
+              ],
+              "resumeToken": ""
+            },
+            "8": {
+              "queries": [
+                {
+                  "filters": [
+                    [
+                      "key",
+                      "==",
+                      2
+                    ]
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection2"
+                }
+              ],
+              "resumeToken": ""
+            }
+          },
+          "enqueuedLimboDocs": [
+            "collection2/doc"
+          ]
+        }
+      },
+      {
+        "userUnlisten": [
+          8,
+          {
+            "filters": [
+              [
+                "key",
+                "==",
+                2
+              ]
+            ],
+            "orderBys": [
+            ],
+            "path": "collection2"
+          }
+        ],
+        "expectedState": {
+          "activeLimboDocs": [
+            "collection1/doc"
+          ],
+          "activeTargets": {
+            "1": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection1/doc"
+                }
+              ],
+              "resumeToken": ""
+            },
+            "4": {
+              "queries": [
+                {
+                  "filters": [
+                    [
+                      "key",
+                      "==",
+                      1
+                    ]
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection1"
+                }
+              ],
+              "resumeToken": ""
+            }
+          },
+          "enqueuedLimboDocs": [
+          ]
+        }
+      }
+    ]
+  },
+  "A limbo resolution for a document should not be enqueued if one is already enqueued": {
+    "describeName": "Limbo Documents:",
+    "itName": "A limbo resolution for a document should not be enqueued if one is already enqueued",
+    "tags": [
+    ],
+    "config": {
+      "maxConcurrentLimboResolutions": 1,
+      "numClients": 1,
+      "useGarbageCollection": false
+    },
+    "steps": [
+      {
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection1"
+          },
+          "targetId": 2
+        },
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection1"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            {
+              "key": "collection1/doc1",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "key": 1
+              },
+              "version": 1000
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 1000
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "key": "collection1/doc1",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": 1
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection1"
+            }
+          }
+        ]
+      },
+      {
+        "userUnlisten": [
+          2,
+          {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection1"
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "userListen": {
+          "query": {
+            "filters": [
+              [
+                "key",
+                "==",
+                1
+              ]
+            ],
+            "orderBys": [
+            ],
+            "path": "collection1"
+          },
+          "targetId": 4
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "key": "collection1/doc1",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": 1
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+                [
+                  "key",
+                  "==",
+                  1
+                ]
+              ],
+              "orderBys": [
+              ],
+              "path": "collection1"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+            "4": {
+              "queries": [
+                {
+                  "filters": [
+                    [
+                      "key",
+                      "==",
+                      1
+                    ]
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection1"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          4
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+          ],
+          "targets": [
+            4
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            4
+          ],
+          "resume-token-1001"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 1001
+        },
+        "expectedState": {
+          "activeLimboDocs": [
+            "collection1/doc1"
+          ],
+          "activeTargets": {
+            "1": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection1/doc1"
+                }
+              ],
+              "resumeToken": ""
+            },
+            "4": {
+              "queries": [
+                {
+                  "filters": [
+                    [
+                      "key",
+                      "==",
+                      1
+                    ]
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection1"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection2"
+          },
+          "targetId": 6
+        },
+        "expectedState": {
+          "activeTargets": {
+            "1": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection1/doc1"
+                }
+              ],
+              "resumeToken": ""
+            },
+            "4": {
+              "queries": [
+                {
+                  "filters": [
+                    [
+                      "key",
+                      "==",
+                      1
+                    ]
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection1"
+                }
+              ],
+              "resumeToken": ""
+            },
+            "6": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection2"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          6
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            {
+              "key": "collection2/doc2",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "key": 2
+              },
+              "version": 1000
+            }
+          ],
+          "targets": [
+            6
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            6
+          ],
+          "resume-token-1002"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 1002
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "key": "collection2/doc2",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": 2
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection2"
+            }
+          }
+        ]
+      },
+      {
+        "userUnlisten": [
+          6,
+          {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection2"
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+            "1": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection1/doc1"
+                }
+              ],
+              "resumeToken": ""
+            },
+            "4": {
+              "queries": [
+                {
+                  "filters": [
+                    [
+                      "key",
+                      "==",
+                      1
+                    ]
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection1"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "userListen": {
+          "query": {
+            "filters": [
+              [
+                "key",
+                "==",
+                2
+              ]
+            ],
+            "orderBys": [
+            ],
+            "path": "collection2"
+          },
+          "targetId": 8
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "key": "collection2/doc2",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": 2
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+                [
+                  "key",
+                  "==",
+                  2
+                ]
+              ],
+              "orderBys": [
+              ],
+              "path": "collection2"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+            "1": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection1/doc1"
+                }
+              ],
+              "resumeToken": ""
+            },
+            "4": {
+              "queries": [
+                {
+                  "filters": [
+                    [
+                      "key",
+                      "==",
+                      1
+                    ]
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection1"
+                }
+              ],
+              "resumeToken": ""
+            },
+            "8": {
+              "queries": [
+                {
+                  "filters": [
+                    [
+                      "key",
+                      "==",
+                      2
+                    ]
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection2"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          8
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+          ],
+          "targets": [
+            8
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            8
+          ],
+          "resume-token-1003"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 1003
+        },
+        "expectedState": {
+          "activeLimboDocs": [
+            "collection1/doc1"
+          ],
+          "activeTargets": {
+            "1": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection1/doc1"
+                }
+              ],
+              "resumeToken": ""
+            },
+            "4": {
+              "queries": [
+                {
+                  "filters": [
+                    [
+                      "key",
+                      "==",
+                      1
+                    ]
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection1"
+                }
+              ],
+              "resumeToken": ""
+            },
+            "8": {
+              "queries": [
+                {
+                  "filters": [
+                    [
+                      "key",
+                      "==",
+                      2
+                    ]
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection2"
+                }
+              ],
+              "resumeToken": ""
+            }
+          },
+          "enqueuedLimboDocs": [
+            "collection2/doc2"
+          ]
+        }
+      },
+      {
+        "userListen": {
+          "query": {
+            "filters": [
+              [
+                "key",
+                ">=",
+                2
+              ]
+            ],
+            "orderBys": [
+            ],
+            "path": "collection2"
+          },
+          "targetId": 10
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "key": "collection2/doc2",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": 2
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+                [
+                  "key",
+                  ">=",
+                  2
+                ]
+              ],
+              "orderBys": [
+              ],
+              "path": "collection2"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+            "1": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection1/doc1"
+                }
+              ],
+              "resumeToken": ""
+            },
+            "10": {
+              "queries": [
+                {
+                  "filters": [
+                    [
+                      "key",
+                      ">=",
+                      2
+                    ]
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection2"
+                }
+              ],
+              "resumeToken": ""
+            },
+            "4": {
+              "queries": [
+                {
+                  "filters": [
+                    [
+                      "key",
+                      "==",
+                      1
+                    ]
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection1"
+                }
+              ],
+              "resumeToken": ""
+            },
+            "8": {
+              "queries": [
+                {
+                  "filters": [
+                    [
+                      "key",
+                      "==",
+                      2
+                    ]
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection2"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          10
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+          ],
+          "targets": [
+            10
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            10
+          ],
+          "resume-token-1004"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 1004
+        },
+        "expectedState": {
+          "activeLimboDocs": [
+            "collection1/doc1"
+          ],
+          "activeTargets": {
+            "1": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection1/doc1"
+                }
+              ],
+              "resumeToken": ""
+            },
+            "10": {
+              "queries": [
+                {
+                  "filters": [
+                    [
+                      "key",
+                      ">=",
+                      2
+                    ]
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection2"
+                }
+              ],
+              "resumeToken": ""
+            },
+            "4": {
+              "queries": [
+                {
+                  "filters": [
+                    [
+                      "key",
+                      "==",
+                      1
+                    ]
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection1"
+                }
+              ],
+              "resumeToken": ""
+            },
+            "8": {
+              "queries": [
+                {
+                  "filters": [
+                    [
+                      "key",
+                      "==",
+                      2
+                    ]
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection2"
+                }
+              ],
+              "resumeToken": ""
+            }
+          },
+          "enqueuedLimboDocs": [
+            "collection2/doc2"
+          ]
+        }
+      }
+    ]
+  },
+  "A limbo resolution for a document should not be started if one is already active": {
+    "describeName": "Limbo Documents:",
+    "itName": "A limbo resolution for a document should not be started if one is already active",
+    "tags": [
+    ],
+    "config": {
+      "numClients": 1,
+      "useGarbageCollection": false
+    },
+    "steps": [
+      {
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            {
+              "key": "collection/doc",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "key": 1
+              },
+              "version": 1000
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 1000
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "key": "collection/doc",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": 1
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "userUnlisten": [
+          2,
+          {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "userListen": {
+          "query": {
+            "filters": [
+              [
+                "key",
+                "==",
+                1
+              ]
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 4
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "key": "collection/doc",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": 1
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+                [
+                  "key",
+                  "==",
+                  1
+                ]
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+            "4": {
+              "queries": [
+                {
+                  "filters": [
+                    [
+                      "key",
+                      "==",
+                      1
+                    ]
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          4
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+          ],
+          "targets": [
+            4
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            4
+          ],
+          "resume-token-1001"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 1001
+        },
+        "expectedState": {
+          "activeLimboDocs": [
+            "collection/doc"
+          ],
+          "activeTargets": {
+            "1": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection/doc"
+                }
+              ],
+              "resumeToken": ""
+            },
+            "4": {
+              "queries": [
+                {
+                  "filters": [
+                    [
+                      "key",
+                      "==",
+                      1
+                    ]
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          },
+          "enqueuedLimboDocs": [
+          ]
+        }
+      },
+      {
+        "userListen": {
+          "query": {
+            "filters": [
+              [
+                "key",
+                ">=",
+                1
+              ]
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 6
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "key": "collection/doc",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": 1
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+                [
+                  "key",
+                  ">=",
+                  1
+                ]
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+            "1": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection/doc"
+                }
+              ],
+              "resumeToken": ""
+            },
+            "4": {
+              "queries": [
+                {
+                  "filters": [
+                    [
+                      "key",
+                      "==",
+                      1
+                    ]
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            },
+            "6": {
+              "queries": [
+                {
+                  "filters": [
+                    [
+                      "key",
+                      ">=",
+                      1
+                    ]
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          6
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+          ],
+          "targets": [
+            6
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            6
+          ],
+          "resume-token-1002"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 1002
+        },
+        "expectedState": {
+          "activeLimboDocs": [
+            "collection/doc"
+          ],
+          "activeTargets": {
+            "1": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection/doc"
+                }
+              ],
+              "resumeToken": ""
+            },
+            "4": {
+              "queries": [
+                {
+                  "filters": [
+                    [
+                      "key",
+                      "==",
+                      1
+                    ]
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            },
+            "6": {
+              "queries": [
+                {
+                  "filters": [
+                    [
+                      "key",
+                      ">=",
+                      1
+                    ]
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          },
+          "enqueuedLimboDocs": [
+          ]
+        }
+      }
+    ]
+  },
   "Document remove message will cause docs to go in limbo": {
     "describeName": "Limbo Documents:",
     "itName": "Document remove message will cause docs to go in limbo",

@@ -518,7 +518,7 @@ NS_ASSUME_NONNULL_BEGIN
   return _syncEngine->GetActiveLimboDocumentResolutions();
 }
 
-- (std::deque<DocumentKey>)enqueuedLimboDocumentResolutions {
+- (std::vector<DocumentKey>)enqueuedLimboDocumentResolutions {
   return _syncEngine->GetEnqueuedLimboDocumentResolutions();
 }
 
