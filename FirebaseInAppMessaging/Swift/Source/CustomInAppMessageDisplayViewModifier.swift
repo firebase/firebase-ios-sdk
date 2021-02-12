@@ -16,6 +16,7 @@ struct ImageOnlyInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModif
     if let imageOnlyMessage = delegateBridge.inAppMessageData?.0 as? InAppMessagingImageOnlyDisplay,
       let delegate = delegateBridge.inAppMessageData?.1 {
       closure(imageOnlyMessage, delegate)
+        .onAppear { delegate.impressionDetected?(for: imageOnlyMessage) }
     }
     EmptyView()
   }
@@ -44,7 +45,7 @@ struct BannerInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModifier
   func overlayView() -> some View {
     if let bannerMessage = delegateBridge.inAppMessageData?.0 as? InAppMessagingBannerDisplay,
       let delegate = delegateBridge.inAppMessageData?.1 {
-      closure(bannerMessage, delegate)
+      closure(bannerMessage, delegate).onAppear { delegate.impressionDetected?(for: bannerMessage) }
     }
     EmptyView()
   }
@@ -73,7 +74,7 @@ struct ModalInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModifier 
   func overlayView() -> some View {
     if let modalMessage = delegateBridge.inAppMessageData?.0 as? InAppMessagingModalDisplay,
       let delegate = delegateBridge.inAppMessageData?.1 {
-      closure(modalMessage, delegate)
+      closure(modalMessage, delegate).onAppear { delegate.impressionDetected?(for: modalMessage) }
     }
     EmptyView()
   }
@@ -102,7 +103,7 @@ struct CardInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModifier {
   func overlayView() -> some View {
     if let cardMessage = delegateBridge.inAppMessageData?.0 as? InAppMessagingCardDisplay,
       let delegate = delegateBridge.inAppMessageData?.1 {
-      closure(cardMessage, delegate)
+      closure(cardMessage, delegate).onAppear { delegate.impressionDetected?(for: cardMessage) }
     }
     EmptyView()
   }
