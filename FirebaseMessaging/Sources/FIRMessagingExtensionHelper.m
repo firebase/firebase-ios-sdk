@@ -20,11 +20,15 @@
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 #import "FirebaseMessaging/Sources/Protogen/nanopb/me.nanopb.h"
-#import "GoogleDataTransport/GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREvent.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORTargets.h"
-#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORTransport.h"
-#import "GoogleUtilities/Environment/Public/GoogleUtilities/GULAppEnvironmentUtil.h"
+#import <GoogleDataTransport/GoogleDataTransport.h>
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
+
+
+//#import "GoogleDataTransport/GDTCCTLibrary/Private/GDTCORTransport_Private.h"
+//#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREvent.h"
+//#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORTargets.h"
+//#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORTransport.h"
+//#import "GoogleUtilities/Environment/Public/GoogleUtilities/GULAppEnvironmentUtil.h"
 
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>
@@ -34,6 +38,34 @@ static NSString *const kPayloadOptionsName = @"fcm_options";
 static NSString *const kPayloadOptionsImageURLName = @"image";
 static NSString *const kNoExtension = @"";
 static NSString *const kImagePathPrefix = @"image/";
+
+#pragma mark - nanopb helper functions
+
+/** Callocs a pb_bytes_array and copies the given NSData bytes into the bytes array.
+ *
+ * @note Memory needs to be free manually, through pb_free or pb_release.
+ * @param data The data to copy into the new bytes array.
+ */
+pb_bytes_array_t *FIRMessagingEncodeData(NSData *data) {
+  pb_bytes_array_t *pbBytesArray = calloc(1, PB_BYTES_ARRAY_T_ALLOCSIZE(data.length));
+  if (pbBytesArray != NULL) {
+    [data getBytes:pbBytesArray->bytes length:data.length];
+    pbBytesArray->size = (pb_size_t)data.length;
+  }
+  return pbBytesArray;
+}
+/** Callocs a pb_bytes_array and copies the given NSString's bytes into the bytes array.
+ *
+ * @note Memory needs to be free manually, through pb_free or pb_release.
+ * @param string The string to encode as pb_bytes.
+ */
+pb_bytes_array_t *FIRMessagingEncodeString(NSString *string) {
+  NSData *stringBytes = [string dataUsingEncoding:NSUTF8StringEncoding];
+  return FIRMessagingEncodeData(stringBytes);
+}
+
+
+
 
 @interface FIRMessagingMetricsLog : NSObject <GDTCOREventDataObject>
 
@@ -190,8 +222,8 @@ static NSString *const kImagePathPrefix = @"image/";
 
   fm_MessagingClientEvent foo = fm_MessagingClientEvent_init_default;
   foo.project_number = (int64_t)[info[kFIRMessagingSenderID] longLongValue];
-  foo.message_id = GDTCCTEncodeString(info[kFIRMessagingMessageIDKey]);
-  foo.instance_id = GDTCCTEncodeString(info[kFIRMessagingFID]);
+  foo.message_id = FIRMessagingEncodeString(info[kFIRMessagingMessageIDKey]);
+  foo.instance_id = FIRMessagingEncodeString(info[kFIRMessagingFID]);
 
   if ([info[@"aps"][kFIRMessagingMessageAPNSContentAvailableKey] intValue] == 1 &&
       ![GULAppEnvironmentUtil isAppExtension]) {
@@ -204,14 +236,14 @@ static NSString *const kImagePathPrefix = @"image/";
   NSString *bundleID = [NSBundle mainBundle].bundleIdentifier;
   if ([GULAppEnvironmentUtil isAppExtension]) {
     foo.package_name =
-        GDTCCTEncodeString([[self class] bundleIdentifierByRemovingLastPartFrom:bundleID]);
+      FIRMessagingEncodeString([[self class] bundleIdentifierByRemovingLastPartFrom:bundleID]);
   } else {
-    foo.package_name = GDTCCTEncodeString(bundleID);
+    foo.package_name = FIRMessagingEncodeString(bundleID);
   }
   foo.event = fm_MessagingClientEvent_Event_MESSAGE_DELIVERED;
-  foo.analytics_label = GDTCCTEncodeString(info[kFIRMessagingAnalyticsMessageLabel]);
+  foo.analytics_label = FIRMessagingEncodeString(info[kFIRMessagingAnalyticsMessageLabel]);
   foo.campaign_id = (int64_t)[info[kFIRMessagingAnalyticsComposerIdentifier] longLongValue];
-  foo.composer_label = GDTCCTEncodeString(info[kFIRMessagingAnalyticsComposerLabel]);
+  foo.composer_label = FIRMessagingEncodeString(info[kFIRMessagingAnalyticsComposerLabel]);
 
   eventExtension.messaging_client_event = &foo;
   FIRMessagingMetricsLog *log =

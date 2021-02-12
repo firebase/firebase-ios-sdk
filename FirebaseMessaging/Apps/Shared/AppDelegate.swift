@@ -60,8 +60,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                    didReceiveRemoteNotification userInfo: [AnyHashable: Any],
                    fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult)
                      -> Void) {
-    // Log delivery signal for data/hidden/background messages
     print("Hidden message arrived:\n" + userInfo.debugDescription)
+    // Log delivery signal for data/hidden/background messages
     Messaging.serviceExtension().exportDeliveryMetricsToBigQuery(withMessageInfo: userInfo)
     completionHandler(.newData)
   }
