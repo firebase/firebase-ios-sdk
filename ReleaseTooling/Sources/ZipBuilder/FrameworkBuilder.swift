@@ -475,7 +475,7 @@ struct FrameworkBuilder {
     // some cases.
     if makeSwiftModuleMap(thinFrameworks: frameworks,
                           destination: destination,
-                          buildingCarthage: true) {
+                          buildingCarthage: buildingCarthage) {
       return buildingCarthage
     }
     // Copy the module map to the destination.
