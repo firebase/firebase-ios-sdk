@@ -61,6 +61,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       XCTFail("Default app was not configured.")
       return
     }
+    testApp.isDataCollectionDefaultEnabled = false
 
     let testName = String(#function.dropLast(2))
     let testModelName = "pose-detection"
@@ -152,6 +153,8 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       XCTFail("Default app was not configured.")
       return
     }
+    testApp.isDataCollectionDefaultEnabled = false
+
     let testName = String(#function.dropLast(2))
     let testModelName = "\(testName)-test-model"
     let urlString =
@@ -208,6 +211,8 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       XCTFail("Default app was not configured.")
       return
     }
+    testApp.isDataCollectionDefaultEnabled = false
+
     let testName = String(#function.dropLast(2))
     let testModelName = "image-classification"
 
@@ -308,6 +313,8 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       XCTFail("Default app was not configured.")
       return
     }
+    testApp.isDataCollectionDefaultEnabled = false
+
     let testName = String(#function.dropLast(2))
     let emptyModelName = ""
 
@@ -351,6 +358,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       XCTFail("Default app was not configured.")
       return
     }
+    testApp.isDataCollectionDefaultEnabled = false
 
     let testName = String(#function.dropLast(2))
     let testModelName = "pose-detection"
@@ -410,6 +418,8 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       XCTFail("Default app was not configured.")
       return
     }
+    testApp.isDataCollectionDefaultEnabled = false
+
     let testName = String(#function.dropLast(2))
     let testModelName = "pose-detection"
 
@@ -464,8 +474,10 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       XCTFail("Default app was not configured.")
       return
     }
+    // TODO: Flip this to `false` to avoid logging in tests.
+    testApp.isDataCollectionDefaultEnabled = true
 
-    let testModelName = "image-classification"
+    let testModelName = "digit-classification"
     let testName = String(#function.dropLast(2))
 
     let conditions = ModelDownloadConditions()
@@ -482,18 +494,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       conditions: conditions
     ) { result in
       switch result {
-      case let .success(model):
-        guard let telemetryLogger = TelemetryLogger(app: testApp) else {
-          XCTFail("Could not initialize logger.")
-          return
-        }
-        // TODO: Remove actual logging and stub out with mocks.
-        telemetryLogger.logModelDownloadEvent(
-          eventName: .modelDownload,
-          status: .succeeded,
-          model: model,
-          downloadErrorCode: .noError
-        )
+      case .success: break
       case let .failure(error):
         XCTFail("Failed to download model - \(error)")
       }
@@ -504,14 +505,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     let deleteModelExpectation = expectation(description: "Test delete model telemetry.")
     modelDownloader.deleteDownloadedModel(name: testModelName) { result in
       switch result {
-      case .success(()):
-        guard let telemetryLogger = TelemetryLogger(app: testApp) else {
-          XCTFail("Could not initialize logger.")
-          return
-        }
-        // TODO: Remove actual logging and stub out with mocks.
-        telemetryLogger.logModelDeletedEvent(eventName: .remoteModelDeleteOnDevice,
-                                             isSuccessful: true)
+      case .success(()): break
       case let .failure(error):
         XCTFail("Failed to delete model - \(error)")
       }
@@ -519,6 +513,24 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     }
 
     wait(for: [deleteModelExpectation], timeout: 5)
+
+    let notFoundModelName = "fakeModelName"
+    let notFoundModelExpectation =
+      expectation(description: "Test get model telemetry with unknown model.")
+
+    modelDownloader.getModel(
+      name: notFoundModelName,
+      downloadType: .latestModel,
+      conditions: conditions
+    ) { result in
+      switch result {
+      case .success: XCTFail("Unexpected model success.")
+      case let .failure(error):
+        XCTAssertEqual(error, .notFound)
+      }
+      notFoundModelExpectation.fulfill()
+    }
+    wait(for: [notFoundModelExpectation], timeout: 5)
   }
 
   func testGetModelWithConditions() {
@@ -526,11 +538,11 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       XCTFail("Default app was not configured.")
       return
     }
+    testApp.isDataCollectionDefaultEnabled = false
 
     let testModelName = "pose-detection"
     let testName = String(#function.dropLast(2))
 
-    // TODO: Figure out a better way to test this.
     let conditions = ModelDownloadConditions(allowsCellularAccess: false)
 
     let modelDownloader = ModelDownloader.modelDownloaderWithDefaults(

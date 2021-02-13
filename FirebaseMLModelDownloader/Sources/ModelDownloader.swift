@@ -162,6 +162,7 @@ public class ModelDownloader {
         telemetryLogger?.logModelDownloadEvent(
           eventName: .modelDownload,
           status: .scheduled,
+          model: CustomModel(name: modelName, size: 0, path: "", hash: ""),
           downloadErrorCode: .noError
         )
         // Update local model in the background.
@@ -191,6 +192,7 @@ public class ModelDownloader {
                 self?.telemetryLogger?.logModelDownloadEvent(
                   eventName: .modelDownload,
                   status: .failed,
+                  model: CustomModel(name: modelName, size: 0, path: "", hash: ""),
                   downloadErrorCode: .downloadFailed
                 )
               }

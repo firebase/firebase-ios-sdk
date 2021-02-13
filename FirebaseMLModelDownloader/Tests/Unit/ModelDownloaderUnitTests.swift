@@ -82,6 +82,8 @@ final class ModelDownloaderUnitTests: XCTestCase {
       XCTFail("Default app was not configured.")
       return
     }
+    testApp.isDataCollectionDefaultEnabled = false
+
     let modelDownloader1 = ModelDownloader.modelDownloader(app: testApp)
     let modelDownloader2 = ModelDownloader.modelDownloader()
     XCTAssert(modelDownloader1 === modelDownloader2)
@@ -93,6 +95,8 @@ final class ModelDownloaderUnitTests: XCTestCase {
       XCTFail("Default app was not configured.")
       return
     }
+    testApp.isDataCollectionDefaultEnabled = false
+
     let modelDownloader1 = ModelDownloader.modelDownloader()
     testApp.delete { success in
       XCTAssertTrue(success)
@@ -104,6 +108,12 @@ final class ModelDownloaderUnitTests: XCTestCase {
 
   /// Test invalid model file deletion.
   func testDeleteInvalidModel() {
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
+    testApp.isDataCollectionDefaultEnabled = false
+
     let modelDownloader = ModelDownloader.modelDownloader()
     modelDownloader.deleteDownloadedModel(name: fakeModelName) { result in
       switch result {
@@ -127,6 +137,8 @@ final class ModelDownloaderUnitTests: XCTestCase {
       XCTFail("Default app was not configured.")
       return
     }
+    testApp.isDataCollectionDefaultEnabled = false
+
     let testName = String(#function.dropLast(2))
     let modelDownloader = ModelDownloader.modelDownloaderWithDefaults(
       .createUnitTestInstance(testName: testName),
@@ -155,6 +167,12 @@ final class ModelDownloaderUnitTests: XCTestCase {
 
   /// Test invalid path in model directory.
   func testListModelsInvalidPath() {
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
+    testApp.isDataCollectionDefaultEnabled = false
+
     let modelDownloader = ModelDownloader.modelDownloader()
     let invalidTempModelFileURL = tempModelFile(invalid: true)
     let completionExpectation = expectation(description: "Completion handler")
@@ -183,6 +201,7 @@ final class ModelDownloaderUnitTests: XCTestCase {
       XCTFail("Default app was not configured.")
       return
     }
+    testApp.isDataCollectionDefaultEnabled = false
 
     let testName = String(#function.dropLast(2))
     let tempModelFileURL = tempModelFile()
@@ -242,7 +261,7 @@ final class ModelDownloaderUnitTests: XCTestCase {
       hash: fakeModelHash
     )
     var modelOptions = ModelOptions()
-    modelOptions.setModelOptions(model: fakeModel)
+    modelOptions.setModelOptions(modelName: fakeModel.name, modelHash: fakeModel.hash)
 
     guard let binaryData = try? modelOptions.serializedData(),
       let jsonData = try? modelOptions.jsonUTF8Data(),
@@ -814,6 +833,12 @@ final class ModelDownloaderUnitTests: XCTestCase {
 
   /// Get model with a valid server response.
   func testGetModelSuccessful() {
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
+    testApp.isDataCollectionDefaultEnabled = false
+
     let modelDownloader = ModelDownloader.modelDownloader()
     let conditions = ModelDownloadConditions()
     let session = fakeModelInfoSessionWithURL(fakeDownloadURL, statusCode: 200)
@@ -860,6 +885,12 @@ final class ModelDownloaderUnitTests: XCTestCase {
 
   /// Get model if download url expired but retry was successful.
   func testGetModelSuccessfulRetry() {
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
+    testApp.isDataCollectionDefaultEnabled = false
+
     let modelDownloader = ModelDownloader.modelDownloader()
     let conditions = ModelDownloadConditions()
     let session = fakeModelInfoSessionWithURL(fakeDownloadURL, statusCode: 200)
@@ -923,6 +954,12 @@ final class ModelDownloaderUnitTests: XCTestCase {
 
   /// Get model if model doesn't exist.
   func testGetModelNotFound() {
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
+    testApp.isDataCollectionDefaultEnabled = false
+
     let modelDownloader = ModelDownloader.modelDownloader()
     let conditions = ModelDownloadConditions()
     let session = fakeModelInfoSessionWithURL(fakeDownloadURL, statusCode: 200)
@@ -971,6 +1008,12 @@ final class ModelDownloaderUnitTests: XCTestCase {
 
   /// Get model if invalid or insufficient permissions.
   func testGetModelUnauthorized() {
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
+    testApp.isDataCollectionDefaultEnabled = false
+
     let modelDownloader = ModelDownloader.modelDownloader()
     let conditions = ModelDownloadConditions()
     let session = fakeModelInfoSessionWithURL(fakeDownloadURL, statusCode: 200)
@@ -1018,6 +1061,12 @@ final class ModelDownloaderUnitTests: XCTestCase {
 
   /// Get model if download url expired and retry url also expired.
   func testGetModelFailedRetry() {
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
+    testApp.isDataCollectionDefaultEnabled = false
+
     let modelDownloader = ModelDownloader.modelDownloader()
     let conditions = ModelDownloadConditions()
     let session = fakeModelInfoSessionWithURL(fakeDownloadURL, statusCode: 200)
@@ -1078,6 +1127,12 @@ final class ModelDownloaderUnitTests: XCTestCase {
 
   /// Get model if multiple retries all returned expired urls.
   func testGetModelMultipleFailedRetries() {
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
+    testApp.isDataCollectionDefaultEnabled = false
+
     let modelDownloader = ModelDownloader.modelDownloader()
     modelDownloader.numberOfRetries = 2
     let conditions = ModelDownloadConditions()
@@ -1150,6 +1205,12 @@ final class ModelDownloaderUnitTests: XCTestCase {
 
   /// Get model if a retry finally returns an unexpired download url.
   func testGetModelMultipleRetriesWithSuccess() {
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
+    testApp.isDataCollectionDefaultEnabled = false
+
     let modelDownloader = ModelDownloader.modelDownloader()
     modelDownloader.numberOfRetries = 4
     let conditions = ModelDownloadConditions()
