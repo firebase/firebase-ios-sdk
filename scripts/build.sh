@@ -316,6 +316,7 @@ case "$product-$platform-$method" in
     RunXcodebuild \
         -workspace 'Firestore/Example/Firestore.xcworkspace' \
         -scheme "Firestore_IntegrationTests_$platform" \
+        -enableCodeCoverage YES \
         "${xcb_flags[@]}" \
         build \
         test
