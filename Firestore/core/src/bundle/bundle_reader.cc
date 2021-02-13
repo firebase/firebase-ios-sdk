@@ -36,6 +36,29 @@ BundleReader::BundleReader(BundleSerializer serializer, std::unique_ptr<std::ist
       input_(std::move(input)){
 }
 
+BundleMetadata BundleReader::GetBundleMetadata() {
+  if(metadata_loaded_) {
+    return metadata_;
+  }
+
+  std::unique_ptr<BundleElement> element = ReadNextElement();
+  if(element->ElementType() != BundleElementType::Metadata) {
+    json_reader_.Fail("");
+    return {};
+  }
+
+  metadata_loaded_ = true;
+  metadata_ = dynamic_cast<BundleMetadata&>(*element);
+  return metadata_;
+}
+
+std::unique_ptr<BundleElement> BundleReader::GetNextElement() {
+  // Makes sure metadata is read before proceeding. The metadata element is the first element
+  // in the bundle stream.
+  GetBundleMetadata();
+  return ReadNextElement();
+}
+
 std::unique_ptr<BundleElement> BundleReader::ReadNextElement() {
   auto length_prefix_size = ReadLengthPrefixSize();
   if(!length_prefix_size.has_value()) {
@@ -106,6 +129,7 @@ absl::string_view BundleReader::ReadJsonString(size_t length) {
 }
 
 std::unique_ptr<BundleElement> BundleReader::DecodeBundleElement(absl::string_view json) {
+  std::cout << "decoding: " << json << "\n";
   auto json_object = Parse(json);
   if (json_object.is_discarded()) {
     json_reader_.Fail("Failed to parse string into json: ");
@@ -114,16 +138,16 @@ std::unique_ptr<BundleElement> BundleReader::DecodeBundleElement(absl::string_vi
 
   if(json_object.contains("metadata")) {
     return absl::make_unique<BundleMetadata>(
-            serializer_.DecodeBundleMetadata(json_reader_, json_object));
+            serializer_.DecodeBundleMetadata(json_reader_, json_object.at("metadata")));
   } else if (json_object.contains("namedQuery")) {
-    return absl::make_unique<NamedQuery>(
-        serializer_.DecodeNamedQuery(json_reader_, json_object));
+    auto q = serializer_.DecodeNamedQuery(json_reader_, json_object.at("namedQuery"));
+    return absl::make_unique<NamedQuery>(std::move(q));
   } else if (json_object.contains("documentMetadata")) {
     return absl::make_unique<BundledDocumentMetadata>(
-        serializer_.DecodeDocumentMetadata(json_reader_, json_object));
+        serializer_.DecodeDocumentMetadata(json_reader_, json_object.at("documentMetadata")));
   } else if (json_object.contains("document")) {
     return absl::make_unique<BundleDocument>(
-        serializer_.DecodeDocument(json_reader_, json_object));
+        serializer_.DecodeDocument(json_reader_, json_object.at("document")));
   } else {
     json_reader_.Fail("Fail");
     return nullptr;
@@ -131,9 +155,16 @@ std::unique_ptr<BundleElement> BundleReader::DecodeBundleElement(absl::string_vi
 }
 
 bool BundleReader::PullMoreData() {
-  char data[10240];
-  input_->readsome(data, 10240);
-  // TODO: check error
+  if(input_->eof() || !input_->good()) {
+    return false;
+  }
+  char data[1024];
+  auto read = input_->readsome(data, 1024);
+  (void) read;
+  if(!input_->good() || read == 0) {
+    return false;
+  }
+
   buffer_.append(data);
   return true;
 }

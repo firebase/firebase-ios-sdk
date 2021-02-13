@@ -37,13 +37,13 @@ class BundleReader {
   BundleReader(BundleSerializer serializer, std::unique_ptr<std::istream> input);
 
   /** Returns the metadata element from the bundle. */
-  const BundleMetadata& GetBundleMetadata();
+  BundleMetadata GetBundleMetadata();
 
   /**
    * Returns the next element from the bundle. Metadata elements can be accessed
    * by `GetBundleMetadata`, they are not returned from this method.
    */
-  absl::optional<BundleElement> GetNextElement();
+  std::unique_ptr<BundleElement> GetNextElement();
 
   int64_t BytesRead() const {
     return bytes_read_;
@@ -71,6 +71,7 @@ class BundleReader {
   JsonReader json_reader_;
   std::unique_ptr<std::istream> input_;
   BundleMetadata metadata_;
+  bool metadata_loaded_;
   int64_t bytes_read_ = 0;
   std::string buffer_;
 };
