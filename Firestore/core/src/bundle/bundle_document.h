@@ -26,7 +26,7 @@ namespace firestore {
 namespace bundle {
 
 /** Represents a document that was saved to a bundle. */
-class BundleDocument: public BundleElement {
+class BundleDocument : public BundleElement {
  public:
   BundleDocument() = default;
 

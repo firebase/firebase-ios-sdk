@@ -74,7 +74,6 @@ const std::vector<T>& EmptyVector() {
   return *empty;
 }
 
-
 Timestamp DecodeTimestamp(JsonReader& reader, const json& version) {
   StatusOr<Timestamp> decoded;
   if (version.is_string()) {
@@ -348,6 +347,23 @@ const std::vector<json>& JsonReader::RequireArray(const char* name,
   return EmptyVector<json>();
 }
 
+const std::vector<json>& JsonReader::OptionalArray(
+    const char* name,
+    const json& json_object,
+    const std::vector<json>& default_value) {
+  if (json_object.contains(name)) {
+    const json& child = json_object.at(name);
+    if (child.is_array()) {
+      return child.get_ref<const std::vector<json>&>();
+    } else {
+      Fail("'%s' is not an array", name);
+      return EmptyVector<json>();
+    }
+  }
+
+  return default_value;
+}
+
 bool JsonReader::OptionalBool(const char* name,
                               const json& json_object,
                               bool default_value) {
@@ -407,27 +423,48 @@ double JsonReader::DecodeDouble(const nlohmann::json& value) {
 }
 
 template <typename int_type>
+int_type ParseInt(const json& value, JsonReader* reader) {
+  if (value.is_number_integer()) {
+    return value.get<int_type>();
+  }
+
+  int_type result = 0;
+  if (value.is_string()) {
+    const auto& s = value.get_ref<const std::string&>();
+    auto ok = absl::SimpleAtoi<int_type>(s, &result);
+    if (!ok) {
+      reader->Fail("Failed to parse into integer: " + s);
+      return 0;
+    }
+
+    return result;
+  }
+
+  reader->Fail("Only integer and string can be parsed into int type");
+  return 0;
+}
+
+template <typename int_type>
 int_type JsonReader::RequireInt(const char* name, const json& json_object) {
   if (json_object.contains(name)) {
     const json& value = json_object.at(name);
-    if (value.is_number_integer()) {
-      return value.get<int_type>();
-    }
-
-    int_type result = 0;
-    if (value.is_string()) {
-      const auto& s = value.get_ref<const std::string&>();
-      auto ok = absl::SimpleAtoi<int_type>(s, &result);
-      if (!ok) {
-        Fail("Failed to parse into integer: " + s);
-      }
-
-      return result;
-    }
+    return ParseInt<int_type>(value, this);
   }
 
   Fail("'%s' is missing or is not a double", name);
   return 0;
+}
+
+template <typename int_type>
+int_type JsonReader::OptionalInt(const char* name,
+                                 const json& json_object,
+                                 int_type default_value) {
+  if (json_object.contains(name)) {
+    const json& value = json_object.at(name);
+    return ParseInt<int_type>(value, this);
+  } else {
+    return default_value;
+  }
 }
 
 // Mark: BundleSerializer
@@ -439,12 +476,12 @@ BundleMetadata BundleSerializer::DecodeBundleMetadata(
       reader.RequireInt<uint32_t>("version", metadata),
       DecodeSnapshotVersion(reader,
                             reader.RequireObject("createTime", metadata)),
-      reader.RequireInt<uint32_t>("totalDocuments", metadata),
-      reader.RequireInt<uint64_t>("totalBytes", metadata));
+      reader.OptionalInt<uint32_t>("totalDocuments", metadata, 0),
+      reader.OptionalInt<uint64_t>("totalBytes", metadata, 0));
 }
 
-NamedQuery BundleSerializer::DecodeNamedQuery(
-    JsonReader& reader, const json& named_query) const {
+NamedQuery BundleSerializer::DecodeNamedQuery(JsonReader& reader,
+                                              const json& named_query) const {
   return NamedQuery(
       reader.RequireString("name", named_query),
       DecodeBundledQuery(reader,
@@ -701,7 +738,8 @@ BundledDocumentMetadata BundleSerializer::DecodeDocumentMetadata(
   bool exists = reader.OptionalBool("exists", document_metadata);
 
   std::vector<std::string> queries;
-  for (const json& query : reader.RequireArray("queries", document_metadata)) {
+  for (const json& query :
+       reader.OptionalArray("queries", document_metadata, {})) {
     if (!query.is_string()) {
       reader.Fail("Query name should be encoded as string");
       return {};
@@ -714,8 +752,8 @@ BundledDocumentMetadata BundleSerializer::DecodeDocumentMetadata(
                                  std::move(queries));
 }
 
-BundleDocument BundleSerializer::DecodeDocument(
-    JsonReader& reader, const json& document) const {
+BundleDocument BundleSerializer::DecodeDocument(JsonReader& reader,
+                                                const json& document) const {
   ResourcePath path =
       DecodeName(reader, reader.RequireObject("name", document));
   // Return early if !ok(), `DocumentKey` aborts with invalid inputs.

@@ -59,6 +59,10 @@ class JsonReader : public util::ReadContext {
 
   const std::vector<nlohmann::json>& RequireArray(
       const char* name, const nlohmann::json& json_object);
+  const std::vector<nlohmann::json>& OptionalArray(
+      const char* name,
+      const nlohmann::json& json_object,
+      const std::vector<nlohmann::json>& default_value);
   const nlohmann::json& RequireObject(const char* child_name,
                                       const nlohmann::json& json_object);
 
@@ -69,6 +73,11 @@ class JsonReader : public util::ReadContext {
 
   template <typename int_type>
   int_type RequireInt(const char* name, const nlohmann::json& value);
+
+  template <typename int_type>
+  int_type OptionalInt(const char* name,
+                       const nlohmann::json& value,
+                       int_type default_value);
 
   static bool OptionalBool(const char* name,
                            const nlohmann::json& json_object,

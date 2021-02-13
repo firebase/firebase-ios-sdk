@@ -21,7 +21,10 @@ namespace firestore {
 namespace bundle {
 
 enum class BundleElementType {
-  Metadata, NamedQuery, DocumentMetadata, Document
+  Metadata,
+  NamedQuery,
+  DocumentMetadata,
+  Document
 };
 
 /**

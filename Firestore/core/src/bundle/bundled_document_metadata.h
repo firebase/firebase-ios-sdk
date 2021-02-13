@@ -29,7 +29,7 @@ namespace firestore {
 namespace bundle {
 
 /** Metadata describing a Firestore document saved in the bundle. */
-class BundledDocumentMetadata: public BundleElement {
+class BundledDocumentMetadata : public BundleElement {
  public:
   BundledDocumentMetadata() = default;
 

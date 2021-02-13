@@ -167,7 +167,8 @@ class BundleSerializerTest : public ::testing::Test {
     MessageToJsonString(proto_named_query, &json_string);
 
     JsonReader reader;
-    NamedQuery actual = bundle_serializer.DecodeNamedQuery(reader, Parse(json_string));
+    NamedQuery actual =
+        bundle_serializer.DecodeNamedQuery(reader, Parse(json_string));
     EXPECT_OK(reader.status());
 
     EXPECT_EQ(actual.bundled_query().limit_type(),
@@ -375,7 +376,8 @@ TEST_F(BundleSerializerTest, DecodesIntegerValues) {
   auto json_copy = ReplacedCopy(json_string, "\"999888\"", "999888");
 
   JsonReader reader;
-  BundleDocument actual = bundle_serializer.DecodeDocument(reader, Parse(json_copy));
+  BundleDocument actual =
+      bundle_serializer.DecodeDocument(reader, Parse(json_copy));
   EXPECT_OK(reader.status());
 
   VerifyDecodedDocumentEncodesToOriginal(actual.document(), document);
@@ -438,7 +440,8 @@ TEST_F(BundleSerializerTest, DecodesNanDoubleValues) {
   MessageToJsonString(document, &json_string);
 
   JsonReader reader;
-  BundleDocument actual = bundle_serializer.DecodeDocument(reader, Parse(json_string));
+  BundleDocument actual =
+      bundle_serializer.DecodeDocument(reader, Parse(json_string));
   EXPECT_OK(reader.status());
   auto actual_value = actual.document().data().Get(
       model::FieldPath::FromDotSeparatedString("foo"));
@@ -508,7 +511,8 @@ TEST_F(BundleSerializerTest, DecodesTimestampsEncodedAsObjects) {
     auto json_copy = ReplacedCopy(json_string, test_pair.second, replacement);
 
     JsonReader reader;
-    BundleDocument actual = bundle_serializer.DecodeDocument(reader, Parse(json_copy));
+    BundleDocument actual =
+        bundle_serializer.DecodeDocument(reader, Parse(json_copy));
     EXPECT_OK(reader.status());
 
     VerifyDecodedDocumentEncodesToOriginal(actual.document(), document);
@@ -1017,7 +1021,8 @@ TEST_F(BundleSerializerTest, DecodeSelectFails) {
                    R"("from":[{"collectionId":"colls"}],"select":[])");
 
   JsonReader reader;
-  NamedQuery actual = bundle_serializer.DecodeNamedQuery(reader, Parse(json_copy));
+  NamedQuery actual =
+      bundle_serializer.DecodeNamedQuery(reader, Parse(json_copy));
   EXPECT_NOT_OK(reader.status());
 }
 
@@ -1027,7 +1032,8 @@ TEST_F(BundleSerializerTest, DecodeEmptyFromFails) {
       json_string, R"("from":[{"collectionId":"colls"}])", R"("from":[])");
 
   JsonReader reader;
-  NamedQuery actual = bundle_serializer.DecodeNamedQuery(reader, Parse(json_copy));
+  NamedQuery actual =
+      bundle_serializer.DecodeNamedQuery(reader, Parse(json_copy));
   EXPECT_NOT_OK(reader.status());
 }
 
@@ -1038,7 +1044,8 @@ TEST_F(BundleSerializerTest, DecodeMultipleFromFails) {
       R"("from":[{"collectionId":"colls"},{"collectionId":"colls_new"}])");
 
   JsonReader reader;
-  NamedQuery actual = bundle_serializer.DecodeNamedQuery(reader, Parse(json_copy));
+  NamedQuery actual =
+      bundle_serializer.DecodeNamedQuery(reader, Parse(json_copy));
   EXPECT_NOT_OK(reader.status());
 }
 

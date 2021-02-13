@@ -34,7 +34,8 @@ namespace bundle {
  */
 class BundleReader {
  public:
-  BundleReader(BundleSerializer serializer, std::unique_ptr<std::istream> input);
+  BundleReader(BundleSerializer serializer,
+               std::unique_ptr<std::istream> input);
 
   /** Returns the metadata element from the bundle. */
   BundleMetadata GetBundleMetadata();
@@ -45,6 +46,17 @@ class BundleReader {
    */
   std::unique_ptr<BundleElement> GetNextElement();
 
+  /** Whether this instance is in good state. */
+  util::Status ReaderStatus() const {
+    return reader_status_;
+  }
+
+  /** Reports failure from reading. */
+  void Fail(std::string msg) {
+    reader_status_.Update(util::Status(Error::kErrorDataLoss, std::move(msg)));
+  }
+
+  /** How many bytes have we read from the bundle. */
   int64_t BytesRead() const {
     return bytes_read_;
   }
@@ -62,18 +74,41 @@ class BundleReader {
    */
   std::unique_ptr<BundleElement> ReadNextElement();
 
-  absl::optional<size_t> ReadLengthPrefixSize();
-  absl::string_view ReadJsonString(size_t length);
-  bool PullMoreData();
-  std::unique_ptr<BundleElement> DecodeBundleElement(absl::string_view json);
+  /**
+   * Reads the length prefix string from bundle stream. Returns `nullopt` when
+   * at the end of stream.
+   */
+  absl::optional<std::string> ReadLengthPrefix();
+
+  /**
+   * Reads `length` number of chars from stream into internal `buffer_`.
+   */
+  void ReadJsonToBuffer(size_t length);
+  bool PullMoreData(uint32_t required_size);
+
+  /**
+   * Decodes internal `buffer_` into a `BundleElement`, returned as a unique_ptr
+   * pointing to the element.
+   *
+   * Returns nullptr if fails.
+   */
+  std::unique_ptr<BundleElement> DecodeBundleElementFromBuffer();
 
   BundleSerializer serializer_;
   JsonReader json_reader_;
+
+  // Input stream holding bundle data.
   std::unique_ptr<std::istream> input_;
+
+  // Cached bundle metadata.
   BundleMetadata metadata_;
-  bool metadata_loaded_;
-  int64_t bytes_read_ = 0;
+  bool metadata_loaded_ = false;
+
+  // Internal buffer, cleared everytime a complete element is parsed from this.
   std::string buffer_;
+
+  util::Status reader_status_;
+  int64_t bytes_read_ = 0;
 };
 
 }  // namespace bundle

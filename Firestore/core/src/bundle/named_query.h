@@ -31,7 +31,7 @@ namespace bundle {
 /**
  * Represents a named query saved by the SDK in its local storage.
  */
-class NamedQuery: public BundleElement {
+class NamedQuery : public BundleElement {
  public:
   NamedQuery() = default;
 

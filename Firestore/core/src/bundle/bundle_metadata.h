@@ -31,7 +31,7 @@ namespace bundle {
 /**
  * Represents Firestore bundle metadata saved by the SDK in its local storage.
  */
-class BundleMetadata: public BundleElement {
+class BundleMetadata : public BundleElement {
  public:
   BundleMetadata() = default;
 

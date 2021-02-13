@@ -15,10 +15,13 @@
  */
 
 #include "Firestore/core/src/bundle/bundle_reader.h"
+
+#include <algorithm>
+
 #include "absl/strings/numbers.h"
 
 namespace firebase {
-namespace firestore{
+namespace firestore {
 namespace bundle {
 
 using nlohmann::json;
@@ -26,24 +29,25 @@ using nlohmann::json;
 namespace {
 
 json Parse(absl::string_view s) {
-  return json::parse(s.begin(), s.end(), /*callback=*/nullptr, /*allow_exception=*/false);
+  return json::parse(s.begin(), s.end(), /*callback=*/nullptr,
+                     /*allow_exception=*/false);
 }
 
-} // namespace
+}  // namespace
 
-BundleReader::BundleReader(BundleSerializer serializer, std::unique_ptr<std::istream> input):
-      serializer_(std::move(serializer)),
-      input_(std::move(input)){
+BundleReader::BundleReader(BundleSerializer serializer,
+                           std::unique_ptr<std::istream> input)
+    : serializer_(std::move(serializer)), input_(std::move(input)) {
 }
 
 BundleMetadata BundleReader::GetBundleMetadata() {
-  if(metadata_loaded_) {
+  if (metadata_loaded_) {
     return metadata_;
   }
 
   std::unique_ptr<BundleElement> element = ReadNextElement();
-  if(element->ElementType() != BundleElementType::Metadata) {
-    json_reader_.Fail("");
+  if (!element || element->ElementType() != BundleElementType::Metadata) {
+    Fail("Failed to get bundle metadata");
     return {};
   }
 
@@ -53,122 +57,124 @@ BundleMetadata BundleReader::GetBundleMetadata() {
 }
 
 std::unique_ptr<BundleElement> BundleReader::GetNextElement() {
-  // Makes sure metadata is read before proceeding. The metadata element is the first element
-  // in the bundle stream.
+  // Makes sure metadata is read before proceeding. The metadata element is the
+  // first element in the bundle stream.
   GetBundleMetadata();
   return ReadNextElement();
 }
 
 std::unique_ptr<BundleElement> BundleReader::ReadNextElement() {
-  auto length_prefix_size = ReadLengthPrefixSize();
-  if(!length_prefix_size.has_value()) {
+  auto length_prefix = ReadLengthPrefix();
+  if (!length_prefix.has_value()) {
     return nullptr;
   }
 
-  absl::string_view length_prefix(buffer_.data(), length_prefix_size.value());
   size_t prefix_value;
-  auto ok = absl::SimpleAtoi<size_t>(length_prefix, &prefix_value);
-  if(!ok) {
-    // TODO
-    json_reader_.Fail("Fail");
+  auto ok = absl::SimpleAtoi<size_t>(length_prefix.value(), &prefix_value);
+  if (!ok) {
+    Fail("prefix string is not a valid number");
     return nullptr;
   }
 
-  buffer_.erase(0, length_prefix_size.value());
-  absl::string_view json = ReadJsonString(prefix_value);
+  buffer_.clear();
+  ReadJsonToBuffer(prefix_value);
 
-  bytes_read_ += length_prefix_size.value() + json.size();
-  auto result = DecodeBundleElement(json);
-  buffer_.erase(0, json.size());
+  // metadata's size does not count in `bytes_read_`.
+  if (metadata_loaded_) {
+    bytes_read_ += length_prefix.value().size() + buffer_.size();
+  }
+  auto result = DecodeBundleElementFromBuffer();
+  reader_status_.Update(json_reader_.status());
 
   return result;
 }
 
-absl::optional<size_t> BundleReader::ReadLengthPrefixSize() {
-  size_t next_open_bracket_pos;
+absl::optional<std::string> BundleReader::ReadLengthPrefix() {
+  std::string result;
+  while (!(input_->fail())) {
+    // Fill `length_chars` until a `{` is found. 10 should be more than enough
+    // to represent a length. Also appending `\0` is taken cared of by `get`.
+    char length_chars[10];
+    input_->get(length_chars, 10, '{');
 
-  // Pull in more data to internal buffer until we can find a '{', breaks
-  // when either '{' is found or no more data can be pulled.
-  while ((next_open_bracket_pos = buffer_.find_first_of('{')) == std::string::npos) {
-    if (!PullMoreData()) {
+    // We broke out because underlying stream is closed, and there happens to be
+    // no more data to process.
+    if (input_->gcount() == 0 && input_->eof()) {
+      return absl::nullopt;
+    }
+
+    result.append(length_chars);
+
+    // We need a way to determine if `get` returned because a `{` is hit, or
+    // because we filled `length_chars`.
+    if (input_->gcount() < 9) {
       break;
     }
   }
 
-  // We broke out because underlying stream is closed, and there happens to be no
-  // more data to process.
-  if(buffer_.empty()) {
+  if (input_->fail()) {
+    Fail("Reached the end of bundle when a length string is expected.");
     return absl::nullopt;
   }
 
-  // We broke out of the loop because underlying stream is closed, but still cannot find an
-  // open bracket.
-  if(next_open_bracket_pos == std::string::npos) {
-    // TODO
-    json_reader_.Fail("Reached the end of bundle when a length string is expected.");
-    return absl::nullopt;
-  }
-
-  return absl::make_optional(next_open_bracket_pos);
+  return absl::make_optional(std::move(result));
 }
 
-absl::string_view BundleReader::ReadJsonString(size_t length) {
+void BundleReader::ReadJsonToBuffer(size_t length) {
   while (buffer_.size() < length) {
-    if(PullMoreData()) {
+    if (!PullMoreData(length - buffer_.size())) {
       break;
     }
   }
 
-  if(buffer_.size() < length) {
-    // TODO
-    json_reader_.Fail("");
-    return {};
-  }
-
-  return {buffer_.data(), length};
-}
-
-std::unique_ptr<BundleElement> BundleReader::DecodeBundleElement(absl::string_view json) {
-  std::cout << "decoding: " << json << "\n";
-  auto json_object = Parse(json);
-  if (json_object.is_discarded()) {
-    json_reader_.Fail("Failed to parse string into json: ");
-    return nullptr;
-  }
-
-  if(json_object.contains("metadata")) {
-    return absl::make_unique<BundleMetadata>(
-            serializer_.DecodeBundleMetadata(json_reader_, json_object.at("metadata")));
-  } else if (json_object.contains("namedQuery")) {
-    auto q = serializer_.DecodeNamedQuery(json_reader_, json_object.at("namedQuery"));
-    return absl::make_unique<NamedQuery>(std::move(q));
-  } else if (json_object.contains("documentMetadata")) {
-    return absl::make_unique<BundledDocumentMetadata>(
-        serializer_.DecodeDocumentMetadata(json_reader_, json_object.at("documentMetadata")));
-  } else if (json_object.contains("document")) {
-    return absl::make_unique<BundleDocument>(
-        serializer_.DecodeDocument(json_reader_, json_object.at("document")));
-  } else {
-    json_reader_.Fail("Fail");
-    return nullptr;
+  if (buffer_.size() < length) {
+    Fail("Available input string is smaller than what length prefix indicates");
   }
 }
 
-bool BundleReader::PullMoreData() {
-  if(input_->eof() || !input_->good()) {
-    return false;
-  }
-  char data[1024];
-  auto read = input_->readsome(data, 1024);
-  (void) read;
-  if(!input_->good() || read == 0) {
+bool BundleReader::PullMoreData(uint32_t required_size) {
+  if (input_->fail() || input_->eof()) {
     return false;
   }
 
+  // Read at most 1024 bytes every time, to avoid allocating a huge buffer when
+  // corruption leads to large `required_size`.
+  auto size = std::min(1024u, required_size);
+  char data[size + 1];
+  input_->read(data, size);
+  // `read` does not do this for us, unlike `get`.
+  data[input_->gcount()] = '\0';
   buffer_.append(data);
   return true;
 }
 
-} // namespace bundle
-} // namespace firestore
-} // namespace firebase
+std::unique_ptr<BundleElement> BundleReader::DecodeBundleElementFromBuffer() {
+  auto json_object = Parse(buffer_);
+  if (json_object.is_discarded()) {
+    Fail("Failed to parse string into json: ");
+    return nullptr;
+  }
+
+  if (json_object.contains("metadata")) {
+    return absl::make_unique<BundleMetadata>(serializer_.DecodeBundleMetadata(
+        json_reader_, json_object.at("metadata")));
+  } else if (json_object.contains("namedQuery")) {
+    auto q = serializer_.DecodeNamedQuery(json_reader_,
+                                          json_object.at("namedQuery"));
+    return absl::make_unique<NamedQuery>(std::move(q));
+  } else if (json_object.contains("documentMetadata")) {
+    return absl::make_unique<BundledDocumentMetadata>(
+        serializer_.DecodeDocumentMetadata(json_reader_,
+                                           json_object.at("documentMetadata")));
+  } else if (json_object.contains("document")) {
+    return absl::make_unique<BundleDocument>(
+        serializer_.DecodeDocument(json_reader_, json_object.at("document")));
+  } else {
+    Fail("Unrecognized BundleElement");
+    return nullptr;
+  }
+}
+
+}  // namespace bundle
+}  // namespace firestore
+}  // namespace firebase
