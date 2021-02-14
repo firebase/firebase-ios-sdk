@@ -71,6 +71,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   s.dependency 'gRPC-C++', '~> 1.28.0'
   s.dependency 'leveldb-library', '~> 1.22'
   s.dependency 'nanopb', '~> 2.30907.0'
+  s.dependency 'nlohmann_json', '~> 3.7.3'
 
   s.ios.frameworks = 'SystemConfiguration', 'UIKit'
   s.osx.frameworks = 'SystemConfiguration'
@@ -90,6 +91,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
       '"${PODS_TARGET_SRCROOT}" ' +
       '"${PODS_TARGET_SRCROOT}/Firestore/Source/Public/FirebaseFirestore" ' +
       '"${PODS_ROOT}/nanopb" ' +
+      '"${PODS_ROOT}/nlohmann_json/single_include" ' +
       '"${PODS_TARGET_SRCROOT}/Firestore/Protos/nanopb"'
   }
 

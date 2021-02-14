@@ -122,6 +122,7 @@ def sync_firestore(test_only)
       '"${PODS_ROOT}/GoogleTest/googlemock/include"',
       '"${PODS_ROOT}/GoogleTest/googletest/include"',
       '"${PODS_ROOT}/leveldb-library/include"',
+      '"${PODS_ROOT}/nlohmann_json/single_include"',
     ],
 
     'SYSTEM_HEADER_SEARCH_PATHS' => [
