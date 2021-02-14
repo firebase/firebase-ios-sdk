@@ -24,7 +24,6 @@
 #include "Firestore/core/src/bundle/bundle_metadata.h"
 #include "Firestore/core/src/bundle/named_query.h"
 #include "Firestore/core/src/core/field_filter.h"
-#include "Firestore/core/src/local/local_store.h"
 #include "Firestore/core/src/local/local_view_changes.h"
 #include "Firestore/core/src/local/local_write_result.h"
 #include "Firestore/core/src/local/persistence.h"
@@ -32,7 +31,6 @@
 #include "Firestore/core/src/local/target_data.h"
 #include "Firestore/core/src/model/delete_mutation.h"
 #include "Firestore/core/src/model/document_map.h"
-#include "Firestore/core/src/model/document_set.h"
 #include "Firestore/core/src/model/mutation_batch_result.h"
 #include "Firestore/core/src/model/no_document.h"
 #include "Firestore/core/src/model/patch_mutation.h"
@@ -41,7 +39,6 @@
 #include "Firestore/core/src/model/unknown_document.h"
 #include "Firestore/core/src/remote/remote_event.h"
 #include "Firestore/core/src/remote/watch_change.h"
-#include "Firestore/core/src/util/status.h"
 #include "Firestore/core/test/unit/remote/fake_target_metadata_provider.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 #include "absl/memory/memory.h"
@@ -92,7 +89,7 @@ using testutil::UnknownDoc;
 using testutil::Value;
 using testutil::Vector;
 
-std::vector<MaybeDocument> DocMapToArray(const MaybeDocumentMap& docs) {
+std::vector<MaybeDocument> DocMapToVector(const MaybeDocumentMap& docs) {
   std::vector<MaybeDocument> result;
   for (const auto& kv : docs) {
     result.push_back(kv.second);
@@ -100,14 +97,15 @@ std::vector<MaybeDocument> DocMapToArray(const MaybeDocumentMap& docs) {
   return result;
 }
 
-std::vector<Document> DocMapToArray(const DocumentMap& docs) {
+std::vector<Document> DocMapToVector(const DocumentMap& docs) {
   std::vector<Document> result;
   for (const auto& kv : docs.underlying_map()) {
     result.push_back(Document(kv.second));
   }
   return result;
 }
-MaybeDocumentMap DocArrayToMap(const std::vector<MaybeDocument>& docs) {
+
+MaybeDocumentMap DocVectorToMap(const std::vector<MaybeDocument>& docs) {
   MaybeDocumentMap result;
   for (const auto& d : docs) {
     result = result.insert(d.key(), d);
@@ -298,7 +296,7 @@ QueryResult LocalStoreTest::ExecuteQuery(const core::Query& query) {
 void LocalStoreTest::ApplyBundledDocuments(
     const std::vector<MaybeDocument>& documents) {
   last_changes_ =
-      local_store_.ApplyBundledDocuments(DocArrayToMap(documents), "");
+      local_store_.ApplyBundledDocuments(DocVectorToMap(documents), "");
 }
 
 void LocalStoreTest::ResetPersistenceStats() {
@@ -312,13 +310,13 @@ void LocalStoreTest::ResetPersistenceStats() {
   } while (0)
 
 /** Asserts that a the last_changes contain the docs in the given array. */
-#define FSTAssertChanged(...)                              \
-  do {                                                     \
-    std::vector<MaybeDocument> expected = {__VA_ARGS__};   \
-    ASSERT_EQ(last_changes_.size(), expected.size());      \
-    auto last_changes_list = DocMapToArray(last_changes_); \
-    ASSERT_EQ(last_changes_list, expected);                \
-    last_changes_ = MaybeDocumentMap{};                    \
+#define FSTAssertChanged(...)                               \
+  do {                                                      \
+    std::vector<MaybeDocument> expected = {__VA_ARGS__};    \
+    ASSERT_EQ(last_changes_.size(), expected.size());       \
+    auto last_changes_list = DocMapToVector(last_changes_); \
+    ASSERT_EQ(last_changes_list, expected);                 \
+    last_changes_ = MaybeDocumentMap{};                     \
   } while (0)
 
 /**
@@ -994,7 +992,7 @@ TEST_P(LocalStoreTest, CanExecuteDocumentQueries) {
        testutil::SetMutation("foo/bar/Foo/Bar", Map("Foo", "Bar"))});
   core::Query query = Query("foo/bar");
   QueryResult query_result = ExecuteQuery(query);
-  ASSERT_EQ(DocMapToArray(query_result.documents()),
+  ASSERT_EQ(DocMapToVector(query_result.documents()),
             Vector(Doc("foo/bar", 0, Map("foo", "bar"),
                        DocumentState::kLocalMutations)));
 }
@@ -1008,7 +1006,7 @@ TEST_P(LocalStoreTest, CanExecuteCollectionQueries) {
        testutil::SetMutation("fooo/blah", Map("fooo", "blah"))});
   core::Query query = Query("foo");
   QueryResult query_result = ExecuteQuery(query);
-  ASSERT_EQ(DocMapToArray(query_result.documents()),
+  ASSERT_EQ(DocMapToVector(query_result.documents()),
             Vector(Doc("foo/bar", 0, Map("foo", "bar"),
                        DocumentState::kLocalMutations),
                    Doc("foo/baz", 0, Map("foo", "baz"),
@@ -1029,7 +1027,7 @@ TEST_P(LocalStoreTest, CanExecuteMixedCollectionQueries) {
 
   QueryResult query_result = ExecuteQuery(query);
   ASSERT_EQ(
-      DocMapToArray(query_result.documents()),
+      DocMapToVector(query_result.documents()),
       Vector(
           Doc("foo/bar", 20, Map("a", "b")), Doc("foo/baz", 10, Map("a", "b")),
           Doc("foo/bonk", 0, Map("a", "b"), DocumentState::kLocalMutations)));
@@ -1623,29 +1621,29 @@ TEST_P(LocalStoreTest,
   FSTAssertContains(Doc("foo1/bar", 1, Map("sum", 1337)));
   FSTAssertContains(Doc("foo2/bar", 1, Map("sum", 42)));
 
-  core::Target target_1 = Query("foo1").ToTarget();
+  core::Target target1 = Query("foo1").ToTarget();
 
-  NamedQuery named_query_1(
+  NamedQuery named_query1(
       "query-1",
-      bundle::BundledQuery(std::move(target_1), core::LimitType::First),
+      bundle::BundledQuery(std::move(target1), core::LimitType::First),
       SnapshotVersion(Timestamp::Now()));
-  DocumentKeySet mapped_keys_1({Key("foo1/bar")});
-  local_store_.SaveNamedQuery(named_query_1, mapped_keys_1);
+  DocumentKeySet mapped_keys1({Key("foo1/bar")});
+  local_store_.SaveNamedQuery(named_query1, mapped_keys1);
 
-  EXPECT_EQ(local_store_.GetNamedQuery("query-1"), named_query_1);
-  FSTAssertQueryDocumentMapping(4, mapped_keys_1);
+  EXPECT_EQ(local_store_.GetNamedQuery("query-1"), named_query1);
+  FSTAssertQueryDocumentMapping(4, mapped_keys1);
 
-  core::Target target_2 = Query("foo2").ToTarget();
+  core::Target target2 = Query("foo2").ToTarget();
 
-  NamedQuery named_query_2(
+  NamedQuery named_query2(
       "query-2",
-      bundle::BundledQuery(std::move(target_2), core::LimitType::First),
+      bundle::BundledQuery(std::move(target2), core::LimitType::First),
       SnapshotVersion(Timestamp::Now()));
-  DocumentKeySet mapped_keys_2({Key("foo2/bar")});
-  local_store_.SaveNamedQuery(named_query_2, mapped_keys_2);
+  DocumentKeySet mapped_keys2({Key("foo2/bar")});
+  local_store_.SaveNamedQuery(named_query2, mapped_keys2);
 
-  EXPECT_EQ(local_store_.GetNamedQuery("query-2"), named_query_2);
-  FSTAssertQueryDocumentMapping(6, mapped_keys_2);
+  EXPECT_EQ(local_store_.GetNamedQuery("query-2"), named_query2);
+  FSTAssertQueryDocumentMapping(6, mapped_keys2);
 }
 
 TEST_P(LocalStoreTest, HandlesSavingAndLoadingLimitToLastQueries) {
@@ -1653,9 +1651,8 @@ TEST_P(LocalStoreTest, HandlesSavingAndLoadingLimitToLastQueries) {
       Query("foo")
           .AddingOrderBy(testutil::OrderBy(testutil::Field("length"),
                                            core::Direction::Descending))
-          // Use LimitToFirst here so `ToTarget()` does
-          // not flip the order, simulating how
-          // LimitToLast queries are stored in bundles.
+          // Use LimitToFirst here so `ToTarget()` does not flip the order,
+          // simulating how LimitToLast queries are stored in bundles.
           .WithLimitToFirst(5)
           .ToTarget();
 

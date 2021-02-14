@@ -61,6 +61,7 @@ using model::ObjectValue;
 using model::OptionalMaybeDocumentMap;
 using model::PatchMutation;
 using model::Precondition;
+using model::ResourcePath;
 using model::SnapshotVersion;
 using model::TargetId;
 using nanopb::ByteString;
@@ -312,7 +313,7 @@ model::MaybeDocumentMap LocalStore::ApplyRemoteEvent(
       }
     }
 
-    OptionalMaybeDocumentMap changed_docs = PopulateDocumentChanges(
+    auto changed_docs = PopulateDocumentChanges(
         remote_event.document_updates(), DocumentVersionMap(),
         remote_event.snapshot_version());
 
@@ -555,13 +556,13 @@ void LocalStore::SaveNamedQuery(const bundle::NamedQuery& query,
   // Allocate a target for the named query such that it can be resumed from
   // associated read time if users use it to listen. NOTE: this also means if no
   // corresponding target exists, the new target will remain active and will not
-  // get collected, unless users happen to unlisten the query somehow.
+  // get collected, unless users happen to unlisten the query.
   TargetData existing = AllocateTarget(query.bundled_query().target());
   int target_id = existing.target_id();
 
   return persistence_->Run("Save named query", [&] {
     // Only update the matching documents if it is newer than what the SDK
-    // already has
+    // already has.
     if (query.read_time() > existing.snapshot_version()) {
       // Update existing target data because the query from the bundle is newer.
       TargetData new_target_data =
@@ -586,7 +587,7 @@ absl::optional<bundle::NamedQuery> LocalStore::GetNamedQuery(
 Target LocalStore::NewUmbrellaTarget(const std::string& bundle_id) {
   // It is OK that the path used for the query is not valid, because this will
   // not be read and queried.
-  return Query(model::ResourcePath::FromString("__bundle__/docs/" + bundle_id))
+  return Query(ResourcePath::FromString("__bundle__/docs/" + bundle_id))
       .ToTarget();
 }
 

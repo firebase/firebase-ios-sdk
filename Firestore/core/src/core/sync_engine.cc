@@ -54,6 +54,7 @@ using model::BatchId;
 using model::DocumentKey;
 using model::DocumentKeySet;
 using model::DocumentMap;
+using model::DocumentUpdateMap;
 using model::kBatchIdUnknown;
 using model::ListenSequenceNumber;
 using model::MaybeDocumentMap;
@@ -327,7 +328,7 @@ void SyncEngine::HandleRejectedListen(TargetId target_id, Status error) {
     DocumentKeySet limbo_documents{limbo_key};
     RemoteEvent::TargetChangeMap target_changes;
     RemoteEvent::TargetSet target_mismatches;
-    model::DocumentUpdateMap document_updates{{limbo_key, doc}};
+    DocumentUpdateMap document_updates{{limbo_key, doc}};
 
     RemoteEvent event{SnapshotVersion::None(), std::move(target_changes),
                       std::move(target_mismatches), std::move(document_updates),

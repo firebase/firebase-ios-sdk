@@ -243,8 +243,8 @@ class LocalStore {
   LruResults CollectGarbage(LruGarbageCollector* garbage_collector);
 
   /**
-   * Returns a boolean indicating if the given bundle has already been loaded
-   * and its create time is newer or equal to the currently loading bundle.
+   * Returns whether the given bundle has already been loaded and its create
+   * time is newer or equal to the currently loading bundle.
    */
   bool HasNewerBundle(const bundle::BundleMetadata& metadata);
 
@@ -255,7 +255,7 @@ class LocalStore {
    * Applies the documents from a bundle to the "ground-state" (remote)
    * documents.
    *
-   * LocalDocuments are re-calculated if there are remaining mutations in the
+   * Local documents are re-calculated if there are remaining mutations in the
    * queue.
    */
   model::MaybeDocumentMap ApplyBundledDocuments(
@@ -266,9 +266,10 @@ class LocalStore {
                       const model::DocumentKeySet& keys);
 
   /**
-   * Returns the NameQuery associated with queryName or `nullopt` if not found.
+   * Returns the NameQuery associated with query_name or `nullopt` if not found.
    */
-  absl::optional<bundle::NamedQuery> GetNamedQuery(const std::string& query);
+  absl::optional<bundle::NamedQuery> GetNamedQuery(
+      const std::string& query_name);
 
  private:
   friend class LocalStoreTest;  // for `GetTargetData()`
@@ -315,7 +316,7 @@ class LocalStore {
    *
    * @param documents Documents to be applied.
    * @param document_versions A DocumentKey-to-SnapshotVersion map if documents
-   * have their own read time, otherwise `nullopt`.
+   * have their own read time.
    * @param global_version A SnapshotVersion representing the read time if all
    * documents have the same read time.
    */
