@@ -14,7 +14,7 @@
 
 import Foundation
 
-class Credentials {
+enum Credentials {
   static let googleAppID = "1:1085102361755:ios:f790a919483d5bdf"
   static let gcmSenderID = "217397612173"
   static let apiKey = "FAKE_API_KEY"
