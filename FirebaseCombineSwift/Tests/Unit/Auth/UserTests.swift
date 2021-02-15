@@ -42,17 +42,19 @@ class UserTests: XCTestCase {
     var providerID: String
     var federatedID: String
     var displayName: String
-    var providerIDToken: String?
-    var providerAccessToken: String
+    var idToken: String?
+    var accessToken: String
     var email: String
+    var localID: String
   }
 
-  fileprivate static let passwordHash = "UkVEQUNURUQ="
   fileprivate static let accessTokenTimeToLive: TimeInterval = 60 * 60
   fileprivate static let refreshToken = "REFRESH_TOKEN"
   fileprivate static let accessToken = "ACCESS_TOKEN"
+  fileprivate static let newAccessToken = "NewAccessToken"
   fileprivate static let email = "user@company.com"
   fileprivate static let password = "!@#$%^"
+  fileprivate static let passwordHash = "UkVEQUNURUQ="
   fileprivate static let userName = "User Doe"
   fileprivate static let localID = "localId"
   fileprivate static let googleEmail = "user@gmail.com"
@@ -78,7 +80,7 @@ class UserTests: XCTestCase {
   class MockGetAccountInfoResponseUser: FIRGetAccountInfoResponseUser {
     fileprivate var providerCredentials: ProviderCredentials!
 
-    override var localID: String { UserTests.localID }
+    override var localID: String { providerCredentials.localID }
     override var email: String { providerCredentials.email }
     override var displayName: String { providerCredentials.displayName }
     override var passwordHash: String? { UserTests.passwordHash }
@@ -92,13 +94,13 @@ class UserTests: XCTestCase {
   class MockVerifyAssertionResponse: FIRVerifyAssertionResponse {
     fileprivate var providerCredentials: ProviderCredentials!
 
-    override var localID: String? { UserTests.localID }
+    override var localID: String? { providerCredentials.localID }
     override var federatedID: String? { providerCredentials.federatedID }
     override var providerID: String? { providerCredentials.providerID }
     override var displayName: String? { providerCredentials.displayName }
     override var profile: [String: NSObject]? { googleProfile as [String: NSString] }
     override var username: String? { userName }
-    override var idToken: String? { accessToken }
+    override var idToken: String? { providerCredentials.accessToken }
     override var refreshToken: String? { UserTests.refreshToken }
     override var approximateExpirationDate: Date? {
       Date(timeIntervalSinceNow: accessTokenTimeToLive)
@@ -106,9 +108,11 @@ class UserTests: XCTestCase {
   }
 
   class MockVerifyPasswordResponse: FIRVerifyPasswordResponse {
+    fileprivate var providerCredentials: ProviderCredentials!
+    
     override var refreshToken: String { UserTests.refreshToken }
-    override var email: String { UserTests.email }
-    override var idToken: String { UserTests.accessToken }
+    override var email: String { providerCredentials.email }
+    override var idToken: String { providerCredentials.accessToken }
     override var approximateExpirationDate: Date {
       Date(timeIntervalSinceNow: UserTests.accessTokenTimeToLive)
     }
@@ -132,8 +136,8 @@ class UserTests: XCTestCase {
                                   callback: @escaping FIRVerifyAssertionResponseCallback) {
       XCTAssertEqual(request.apiKey, Credentials.apiKey)
       XCTAssertEqual(request.providerID, providerCredentials.providerID)
-      XCTAssertEqual(request.providerIDToken, providerCredentials.providerIDToken)
-      XCTAssertEqual(request.providerAccessToken, providerCredentials.providerAccessToken)
+      XCTAssertEqual(request.providerIDToken, providerCredentials.idToken)
+      XCTAssertEqual(request.providerAccessToken, providerCredentials.accessToken)
       XCTAssertTrue(request.returnSecureToken)
 
       switch verifyAssertionCallback {
@@ -148,13 +152,14 @@ class UserTests: XCTestCase {
     override func verifyPassword(_ request: FIRVerifyPasswordRequest,
                                  callback: @escaping FIRVerifyPasswordResponseCallback) {
       let response = MockVerifyPasswordResponse()
+        response.providerCredentials = providerCredentials
       callback(response, nil)
     }
 
     override func getAccountInfo(_ request: FIRGetAccountInfoRequest,
                                  callback: @escaping FIRGetAccountInfoResponseCallback) {
       XCTAssertEqual(request.apiKey, Credentials.apiKey)
-      XCTAssertEqual(request.accessToken, accessToken)
+      XCTAssertEqual(request.accessToken, providerCredentials.accessToken)
 
       let response = MockGetAccountInfoResponse()
       response.providerCredentials = providerCredentials
@@ -167,9 +172,10 @@ class UserTests: XCTestCase {
       providerID: FacebookAuthProviderID,
       federatedID: "FACEBOOK_ID",
       displayName: "Facebook Doe",
-      providerIDToken: nil,
-      providerAccessToken: "FACEBOOK_ACCESS_TOKEN",
-      email: UserTests.email
+      idToken: nil,
+      accessToken: "FACEBOOK_ACCESS_TOKEN",
+      email: UserTests.email,
+        localID: UserTests.localID
     )
 
     let authBackend = MockAuthBackend()
@@ -180,7 +186,7 @@ class UserTests: XCTestCase {
     let userSignInExpectation = expectation(description: "User associated from a third-party")
 
     let facebookCredential = FacebookAuthProvider
-      .credential(withAccessToken: facebookCredentials.providerAccessToken)
+      .credential(withAccessToken: facebookCredentials.accessToken)
 
     // when
     Auth.auth()
@@ -197,16 +203,17 @@ class UserTests: XCTestCase {
           providerID: GoogleAuthProviderID,
           federatedID: "GOOGLE_ID",
           displayName: "Google Doe",
-          providerIDToken: "GOOGLE_ID_TOKEN",
-          providerAccessToken: "GOOGLE_ACCESS_TOKEN",
-          email: UserTests.googleEmail
+          idToken: "GOOGLE_ID_TOKEN",
+          accessToken: "GOOGLE_ACCESS_TOKEN",
+          email: UserTests.googleEmail,
+          localID: UserTests.localID
         )
 
         authBackend?.providerCredentials = googleCredentials
 
         let linkGoogleCredential = GoogleAuthProvider.credential(
-          withIDToken: googleCredentials.providerIDToken!,
-          accessToken: googleCredentials.providerAccessToken
+          withIDToken: googleCredentials.idToken!,
+          accessToken: googleCredentials.accessToken
         )
         return authResult.user
           .link(with: linkGoogleCredential)
@@ -242,9 +249,10 @@ class UserTests: XCTestCase {
       providerID: FacebookAuthProviderID,
       federatedID: "FACEBOOK_ID",
       displayName: "Facebook Doe",
-      providerIDToken: nil,
-      providerAccessToken: "FACEBOOK_ACCESS_TOKEN",
-      email: UserTests.email
+      idToken: nil,
+      accessToken: "FACEBOOK_ACCESS_TOKEN",
+      email: UserTests.email,
+      localID: UserTests.localID
     )
 
     let authBackend = MockAuthBackend()
@@ -255,7 +263,7 @@ class UserTests: XCTestCase {
     let userSignInExpectation = expectation(description: "User associated from a third-party")
 
     let facebookCredential = FacebookAuthProvider
-      .credential(withAccessToken: facebookCredentials.providerAccessToken)
+      .credential(withAccessToken: facebookCredentials.accessToken)
 
     // when
     Auth.auth()
@@ -273,9 +281,10 @@ class UserTests: XCTestCase {
           providerID: GoogleAuthProviderID,
           federatedID: "GOOGLE_ID",
           displayName: "Google Doe",
-          providerIDToken: "GOOGLE_ID_TOKEN",
-          providerAccessToken: "GOOGLE_ACCESS_TOKEN",
-          email: UserTests.googleEmail
+          idToken: "GOOGLE_ID_TOKEN",
+          accessToken: "GOOGLE_ACCESS_TOKEN",
+          email: UserTests.googleEmail,
+          localID: UserTests.localID
         )
 
         authBackend?.providerCredentials = googleCredentials
@@ -287,8 +296,8 @@ class UserTests: XCTestCase {
             ))
 
         let linkGoogleCredential = GoogleAuthProvider.credential(
-          withIDToken: googleCredentials.providerIDToken!,
-          accessToken: googleCredentials.providerAccessToken
+          withIDToken: googleCredentials.idToken!,
+          accessToken: googleCredentials.accessToken
         )
         return authResult.user
           .link(with: linkGoogleCredential)
@@ -316,9 +325,10 @@ class UserTests: XCTestCase {
       providerID: FacebookAuthProviderID,
       federatedID: "FACEBOOK_ID",
       displayName: "Facebook Doe",
-      providerIDToken: nil,
-      providerAccessToken: "FACEBOOK_ACCESS_TOKEN",
-      email: UserTests.email
+      idToken: nil,
+      accessToken: "FACEBOOK_ACCESS_TOKEN",
+      email: UserTests.email,
+      localID: UserTests.localID
     )
 
     let authBackend = MockAuthBackend()
@@ -329,7 +339,7 @@ class UserTests: XCTestCase {
     let userSignInExpectation = expectation(description: "User associated from a third-party")
 
     let facebookCredential = FacebookAuthProvider
-      .credential(withAccessToken: facebookCredentials.providerAccessToken)
+      .credential(withAccessToken: facebookCredentials.accessToken)
 
     // when
     Auth.auth()
@@ -352,7 +362,7 @@ class UserTests: XCTestCase {
             ))
 
         let linkFacebookCredential = FacebookAuthProvider
-          .credential(withAccessToken: facebookCredentials.providerAccessToken)
+          .credential(withAccessToken: facebookCredentials.accessToken)
         return authResult.user
           .link(with: linkFacebookCredential)
       }
@@ -376,9 +386,10 @@ class UserTests: XCTestCase {
       providerID: FacebookAuthProviderID,
       federatedID: "FACEBOOK_ID",
       displayName: "Facebook Doe",
-      providerIDToken: nil,
-      providerAccessToken: "FACEBOOK_ACCESS_TOKEN",
-      email: UserTests.email
+      idToken: nil,
+      accessToken: "FACEBOOK_ACCESS_TOKEN",
+      email: UserTests.email,
+        localID: UserTests.localID
     )
 
     let authBackend = MockAuthBackend()
@@ -389,7 +400,7 @@ class UserTests: XCTestCase {
     let userSignInExpectation = expectation(description: "User associated from a third-party")
 
     let facebookCredential = FacebookAuthProvider
-      .credential(withAccessToken: facebookCredentials.providerAccessToken)
+      .credential(withAccessToken: facebookCredentials.accessToken)
 
     // when
     Auth.auth()
@@ -407,9 +418,10 @@ class UserTests: XCTestCase {
           providerID: GoogleAuthProviderID,
           federatedID: "GOOGLE_ID",
           displayName: "Google Doe",
-          providerIDToken: "GOOGLE_ID_TOKEN",
-          providerAccessToken: "GOOGLE_ACCESS_TOKEN",
-          email: UserTests.googleEmail
+          idToken: "GOOGLE_ID_TOKEN",
+          accessToken: "GOOGLE_ACCESS_TOKEN",
+          email: UserTests.googleEmail,
+          localID: UserTests.localID
         )
 
         authBackend?.providerCredentials = googleCredentials
@@ -418,8 +430,8 @@ class UserTests: XCTestCase {
             .userDisabledError(withMessage: nil))
 
         let linkGoogleCredential = GoogleAuthProvider.credential(
-          withIDToken: googleCredentials.providerIDToken!,
-          accessToken: googleCredentials.providerAccessToken
+          withIDToken: googleCredentials.idToken!,
+          accessToken: googleCredentials.accessToken
         )
         return authResult.user
           .link(with: linkGoogleCredential)
@@ -438,4 +450,222 @@ class UserTests: XCTestCase {
     // then
     wait(for: [userSignInExpectation], timeout: expectationTimeout)
   }
+    
+    func testReauthenticateSuccess() {
+        let emailCredentials = ProviderCredentials(
+          providerID: EmailAuthProviderID,
+          federatedID: "EMAIL_ID",
+          displayName: "Google Doe",
+          idToken: nil,
+          accessToken: UserTests.accessToken,
+          email: UserTests.email,
+            localID: UserTests.localID
+        )
+        
+        let authBackend = MockAuthBackend()
+        authBackend.providerCredentials = emailCredentials
+        FIRAuthBackend.setBackendImplementation(authBackend)
+
+        var cancellables = Set<AnyCancellable>()
+        let userReauthenticateExpectation = expectation(description: "User reauthenticated")
+        
+        Auth.auth()
+            .signIn(withEmail: UserTests.email, password: UserTests.password)
+            .flatMap { authResult -> Future<AuthDataResult, Error> in
+
+                let credential = EmailAuthProvider.credential(
+                    withEmail: UserTests.email,
+                    password: UserTests.password
+                )
+
+                authBackend.providerCredentials.accessToken = UserTests.newAccessToken
+                return authResult.user
+                    .reauthenticate(with: credential)
+
+            }
+            .sink { completion in
+                switch completion {
+                case .finished:
+                  print("Finished")
+                case let .failure(error):
+                  XCTFail("💥 Something went wrong: \(error)")
+                }
+            } receiveValue: { authResult in
+                let user = authResult.user
+                XCTAssertEqual(user.displayName, emailCredentials.displayName)
+                XCTAssertEqual(user.email, emailCredentials.email)
+                
+                userReauthenticateExpectation.fulfill()
+            }
+            .store(in: &cancellables)
+        
+        // then
+        wait(for: [userReauthenticateExpectation], timeout: expectationTimeout)
+    }
+    
+    func testReauthenticateWithCredentialSuccess() {
+        let googleCredentials = ProviderCredentials(
+          providerID: GoogleAuthProviderID,
+          federatedID: "GOOGLE_ID",
+          displayName: "Google Doe",
+          idToken: "GOOGLE_ID_TOKEN",
+          accessToken: "GOOGLE_ACCESS_TOKEN",
+          email: UserTests.googleEmail,
+          localID: UserTests.localID
+        )
+
+        let authBackend = MockAuthBackend()
+        authBackend.providerCredentials = googleCredentials
+        FIRAuthBackend.setBackendImplementation(authBackend)
+
+        var cancellables = Set<AnyCancellable>()
+        let userReauthenticateExpectation = expectation(description: "User reauthenticated")
+
+        let googleCredential = GoogleAuthProvider.credential(withIDToken: googleCredentials.idToken!, accessToken: googleCredentials.accessToken)
+
+        // when
+        Auth.auth()
+          .signIn(with: googleCredential)
+          .flatMap { authResult -> Future<AuthDataResult, Error> in
+            XCTAssertEqual(authResult.additionalUserInfo?.profile,
+                           UserTests.googleProfile as [String: NSString])
+            XCTAssertEqual(authResult.additionalUserInfo?.username,
+                           UserTests.userName)
+            XCTAssertEqual(authResult.additionalUserInfo?.providerID,
+                           GoogleAuthProviderID)
+            
+            return authResult.user
+                .reauthenticate(with: googleCredential)
+          }
+          .sink { completion in
+            switch completion {
+            case .finished:
+              print("Finished")
+            case let .failure(error):
+              XCTFail("💥 Something went wrong: \(error)")
+            }
+          } receiveValue: { authResult in
+            XCTAssertEqual(authResult.additionalUserInfo?.profile,
+                           UserTests.googleProfile as [String: NSString])
+            XCTAssertEqual(authResult.additionalUserInfo?.username,
+                           UserTests.userName)
+            XCTAssertEqual(authResult.additionalUserInfo?.providerID,
+                           GoogleAuthProviderID)
+
+            userReauthenticateExpectation.fulfill()
+          }
+          .store(in: &cancellables)
+
+        // then
+        wait(for: [userReauthenticateExpectation], timeout: expectationTimeout)
+    }
+    
+    func testReauthenticateFailure() {
+        let emailCredentials = ProviderCredentials(
+          providerID: EmailAuthProviderID,
+          federatedID: "EMAIL_ID",
+          displayName: "Google Doe",
+          idToken: nil,
+          accessToken: UserTests.accessToken,
+          email: UserTests.email,
+          localID: UserTests.localID
+        )
+        
+        let authBackend = MockAuthBackend()
+        authBackend.providerCredentials = emailCredentials
+        FIRAuthBackend.setBackendImplementation(authBackend)
+
+        var cancellables = Set<AnyCancellable>()
+        let userReauthenticateExpectation = expectation(description: "User reauthenticated")
+        
+        Auth.auth()
+            .signIn(withEmail: UserTests.email, password: UserTests.password)
+            .flatMap { authResult -> Future<AuthDataResult, Error> in
+
+                authBackend.providerCredentials.displayName = "New User Doe"
+                authBackend.providerCredentials.email = "newEmail"
+                authBackend.providerCredentials.localID = "ANOTHER_LOCAL_ID"
+                authBackend.providerCredentials.accessToken = "NewAccessToken"
+                
+                let credential = EmailAuthProvider.credential(
+                    withEmail: UserTests.email,
+                    password: UserTests.password
+                )
+
+                return authResult.user
+                    .reauthenticate(with: credential)
+
+            }
+            .sink { completion in
+              if case let .failure(error as NSError) = completion {
+                // Verify user mismatch error.
+                XCTAssertEqual(error.code, AuthErrorCode.userMismatch.rawValue)
+
+                userReauthenticateExpectation.fulfill()
+              }
+            } receiveValue: { linkAuthResult in
+              XCTFail("💥 result unexpected")
+            }
+            .store(in: &cancellables)
+        
+        // then
+        wait(for: [userReauthenticateExpectation], timeout: expectationTimeout)
+    }
+    
+    func testReauthenticateUserMismatchFailure() {
+        let emailCredentials = ProviderCredentials(
+          providerID: EmailAuthProviderID,
+          federatedID: "EMAIL_ID",
+          displayName: "Google Doe",
+          idToken: nil,
+          accessToken: UserTests.accessToken,
+          email: UserTests.email,
+          localID: UserTests.localID
+        )
+        
+        let authBackend = MockAuthBackend()
+        authBackend.providerCredentials = emailCredentials
+        FIRAuthBackend.setBackendImplementation(authBackend)
+
+        var cancellables = Set<AnyCancellable>()
+        let userReauthenticateExpectation = expectation(description: "User reauthenticated")
+        
+        Auth.auth()
+            .signIn(withEmail: UserTests.email, password: UserTests.password)
+            .flatMap { authResult -> Future<AuthDataResult, Error> in
+
+                let googleCredentials = ProviderCredentials(
+                  providerID: GoogleAuthProviderID,
+                  federatedID: "GOOGLE_ID",
+                  displayName: "Google Doe",
+                  idToken: "GOOGLE_ID_TOKEN",
+                  accessToken: "GOOGLE_ACCESS_TOKEN",
+                  email: UserTests.googleEmail,
+                  localID: UserTests.localID
+                )
+                
+                authBackend.providerCredentials = googleCredentials
+                authBackend
+                    .verifyAssertionCallback = .failure(FIRAuthErrorUtils.userNotFoundError(withMessage: nil))
+                
+                let googleCredential = GoogleAuthProvider.credential(withIDToken: "GOOGLE_ID_TOKEN", accessToken: "GOOGLE_ACCESS_TOKEN")
+                return authResult.user
+                    .reauthenticate(with: googleCredential)
+
+            }
+            .sink { completion in
+              if case let .failure(error as NSError) = completion {
+                // Verify user mismatch error.
+                XCTAssertEqual(error.code, AuthErrorCode.userMismatch.rawValue)
+
+                userReauthenticateExpectation.fulfill()
+              }
+            } receiveValue: { linkAuthResult in
+              XCTFail("💥 result unexpected")
+            }
+            .store(in: &cancellables)
+        
+        // then
+        wait(for: [userReauthenticateExpectation], timeout: expectationTimeout)
+    }
 }
