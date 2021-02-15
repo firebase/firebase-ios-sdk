@@ -48,7 +48,7 @@
         }
       }
     }
-    
+
     /// Renews the user's authentication tokens by validating a fresh set of credentials supplied
     /// by the user  and returns additional identity provider data.
     ///
@@ -84,15 +84,15 @@
     ///
     ///   See `FIRAuthErrors` for a list of error codes that are common to all FIRUser methods.
     public func reauthenticate(with credential: AuthCredential) -> Future<AuthDataResult, Error> {
-        Future<AuthDataResult, Error> { promise in
-            self.reauthenticate(with: credential) { authDataResult, error in
-                if let error = error {
-                    promise(.failure(error))
-                } else if let authDataResult = authDataResult {
-                    promise(.success(authDataResult))
-                }
-            }
+      Future<AuthDataResult, Error> { promise in
+        self.reauthenticate(with: credential) { authDataResult, error in
+          if let error = error {
+            promise(.failure(error))
+          } else if let authDataResult = authDataResult {
+            promise(.success(authDataResult))
+          }
         }
+      }
     }
   }
 #endif
