@@ -48,5 +48,51 @@
         }
       }
     }
+    
+    /// Renews the user's authentication tokens by validating a fresh set of credentials supplied
+    /// by the user  and returns additional identity provider data.
+    ///
+    /// The publisher will emit events on the **main** thread.
+    ///
+    /// - Parameter credential: A user-supplied credential, which will be validated by the server. This can be
+    ///   a successful third-party identity provider sign-in, or an email address and password.
+    /// - Returns: A publisher that emits an `AuthDataResult` when the reauthentication flow completed
+    ///   successfully, or an error otherwise. The publisher will emit on the *main* thread.
+    /// - Remark: If the user associated with the supplied credential is different from the current user, or if the validation
+    ///   of the supplied credentials fails; an error is returned and the current user remains signed in.
+    ///
+    ///   Possible error codes:
+    ///
+    ///   - `FIRAuthErrorCodeInvalidCredential` - Indicates the supplied credential is invalid.
+    ///     This could happen if it has expired or it is malformed.
+    ///   - `FIRAuthErrorCodeOperationNotAllowed` - Indicates that accounts with the
+    ///     identity provider represented by the credential are not enabled. Enable them in the
+    ///     Auth section of the Firebase console.
+    ///   - `FIRAuthErrorCodeEmailAlreadyInUse` -  Indicates the email asserted by the credential
+    ///     (e.g. the email in a Facebook access token) is already in use by an existing account,
+    ///     that cannot be authenticated with this method. Call fetchProvidersForEmail for
+    ///     this user’s email and then prompt them to sign in with any of the sign-in providers
+    ///     returned. This error will only be thrown if the "One account per email address"
+    ///     setting is enabled in the Firebase console, under Auth settings. Please note that the
+    ///     error code raised in this specific situation may not be the same on Web and Android.
+    ///   - `FIRAuthErrorCodeUserDisabled` - Indicates the user's account is disabled.
+    ///   - `FIRAuthErrorCodeWrongPassword` - Indicates the user attempted reauthentication with
+    ///     an incorrect password, if credential is of the type EmailPasswordAuthCredential.
+    ///   - `FIRAuthErrorCodeUserMismatch` -  Indicates that an attempt was made to
+    ///     reauthenticate with a user which is not the current user.
+    ///   - `FIRAuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
+    ///
+    ///   See `FIRAuthErrors` for a list of error codes that are common to all FIRUser methods.
+    public func reauthenticate(with credential: AuthCredential) -> Future<AuthDataResult, Error> {
+        Future<AuthDataResult, Error> { promise in
+            self.reauthenticate(with: credential) { authDataResult, error in
+                if let error = error {
+                    promise(.failure(error))
+                } else if let authDataResult = authDataResult {
+                    promise(.success(authDataResult))
+                }
+            }
+        }
+    }
   }
 #endif
