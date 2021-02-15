@@ -1,0 +1,804 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 51;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		07BB5A04CA1312F86A973058 /* Pods_MLDownloaderTestApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DBA0C7A8283CC88DBA487171 /* Pods_MLDownloaderTestApp.framework */; };
+		6915E92311191C32B3B80134 /* Pods_MLDownloaderTestApp_MLDownloaderTestAppTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BF958C46F61DC40BD1D25898 /* Pods_MLDownloaderTestApp_MLDownloaderTestAppTests.framework */; };
+		A61B7A3825C0E69800D643C5 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A61B7A3725C0E69800D643C5 /* GoogleService-Info.plist */; };
+		A6338C3E25893DFB001A6401 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6338C3D25893DFB001A6401 /* AppDelegate.swift */; };
+		A6338C4225893DFB001A6401 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6338C4125893DFB001A6401 /* ContentView.swift */; };
+		A6338C4425893DFE001A6401 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A6338C4325893DFE001A6401 /* Assets.xcassets */; };
+		A6338C4725893DFE001A6401 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A6338C4625893DFE001A6401 /* Preview Assets.xcassets */; };
+		A6338C5525893DFE001A6401 /* MLDownloaderTestAppTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6338C5425893DFE001A6401 /* MLDownloaderTestAppTests.swift */; };
+		A6338C6025893DFE001A6401 /* MLDownloaderTestAppUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6338C5F25893DFE001A6401 /* MLDownloaderTestAppUITests.swift */; };
+		A67690C9259E94AE000AA74D /* Downloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = A67690C8259E94AD000AA74D /* Downloader.swift */; };
+		A67690CA259E94AE000AA74D /* Downloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = A67690C8259E94AD000AA74D /* Downloader.swift */; };
+		A67690CB259E94AE000AA74D /* Downloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = A67690C8259E94AD000AA74D /* Downloader.swift */; };
+		A6769158259EB2DC000AA74D /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6769157259EB2DC000AA74D /* SceneDelegate.swift */; };
+		A676916C259EB420000AA74D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A676916A259EB420000AA74D /* LaunchScreen.storyboard */; };
+		C6508420214F3CF5AA953487 /* Pods_MLDownloaderTestApp_MLDownloaderTestAppUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 28C835CA2BBE48AABE55BC71 /* Pods_MLDownloaderTestApp_MLDownloaderTestAppUITests.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A6338C5125893DFE001A6401 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A6338C3225893DFB001A6401 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A6338C3925893DFB001A6401;
+			remoteInfo = MLDownloaderTestApp;
+		};
+		A6338C5C25893DFE001A6401 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A6338C3225893DFB001A6401 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A6338C3925893DFB001A6401;
+			remoteInfo = MLDownloaderTestApp;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		A6CFE30F258AAC2E003ABA7F /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		28B90F3CBFDC23142FA82356 /* Pods-MLDownloaderTestApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MLDownloaderTestApp.debug.xcconfig"; path = "Target Support Files/Pods-MLDownloaderTestApp/Pods-MLDownloaderTestApp.debug.xcconfig"; sourceTree = "<group>"; };
+		28C835CA2BBE48AABE55BC71 /* Pods_MLDownloaderTestApp_MLDownloaderTestAppUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MLDownloaderTestApp_MLDownloaderTestAppUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		8AD845EE89ABB7AB1CA74744 /* Pods-MLDownloaderTestApp-MLDownloaderTestAppUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MLDownloaderTestApp-MLDownloaderTestAppUITests.debug.xcconfig"; path = "Target Support Files/Pods-MLDownloaderTestApp-MLDownloaderTestAppUITests/Pods-MLDownloaderTestApp-MLDownloaderTestAppUITests.debug.xcconfig"; sourceTree = "<group>"; };
+		A61B7A3725C0E69800D643C5 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; name = "GoogleService-Info.plist"; path = "Resources/GoogleService-Info.plist"; sourceTree = SOURCE_ROOT; };
+		A6338C3A25893DFB001A6401 /* MLDownloaderTestApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MLDownloaderTestApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A6338C3D25893DFB001A6401 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		A6338C4125893DFB001A6401 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		A6338C4325893DFE001A6401 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A6338C4625893DFE001A6401 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		A6338C4B25893DFE001A6401 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A6338C5025893DFE001A6401 /* MLDownloaderTestAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MLDownloaderTestAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A6338C5425893DFE001A6401 /* MLDownloaderTestAppTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MLDownloaderTestAppTests.swift; sourceTree = "<group>"; };
+		A6338C5625893DFE001A6401 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A6338C5B25893DFE001A6401 /* MLDownloaderTestAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MLDownloaderTestAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A6338C5F25893DFE001A6401 /* MLDownloaderTestAppUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MLDownloaderTestAppUITests.swift; sourceTree = "<group>"; };
+		A6338C6125893DFE001A6401 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A67690C8259E94AD000AA74D /* Downloader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Downloader.swift; sourceTree = "<group>"; };
+		A6769157259EB2DC000AA74D /* SceneDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		A676916B259EB420000AA74D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		A78C0FF286D9919CEF734166 /* Pods-MLDownloaderTestApp-MLDownloaderTestAppTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MLDownloaderTestApp-MLDownloaderTestAppTests.release.xcconfig"; path = "Target Support Files/Pods-MLDownloaderTestApp-MLDownloaderTestAppTests/Pods-MLDownloaderTestApp-MLDownloaderTestAppTests.release.xcconfig"; sourceTree = "<group>"; };
+		B39EA79D99402F5322014B52 /* Pods-MLDownloaderTestApp-MLDownloaderWatchTestApp Extension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MLDownloaderTestApp-MLDownloaderWatchTestApp Extension.release.xcconfig"; path = "Target Support Files/Pods-MLDownloaderTestApp-MLDownloaderWatchTestApp Extension/Pods-MLDownloaderTestApp-MLDownloaderWatchTestApp Extension.release.xcconfig"; sourceTree = "<group>"; };
+		BF958C46F61DC40BD1D25898 /* Pods_MLDownloaderTestApp_MLDownloaderTestAppTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MLDownloaderTestApp_MLDownloaderTestAppTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D8D4472243EB359D834597B3 /* Pods-MLDownloaderTestApp-MLDownloaderTestAppTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MLDownloaderTestApp-MLDownloaderTestAppTests.debug.xcconfig"; path = "Target Support Files/Pods-MLDownloaderTestApp-MLDownloaderTestAppTests/Pods-MLDownloaderTestApp-MLDownloaderTestAppTests.debug.xcconfig"; sourceTree = "<group>"; };
+		DBA0C7A8283CC88DBA487171 /* Pods_MLDownloaderTestApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MLDownloaderTestApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		E030EB120D34BE1BF596CC34 /* Pods-MLDownloaderTestApp-MLDownloaderTestAppUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MLDownloaderTestApp-MLDownloaderTestAppUITests.release.xcconfig"; path = "Target Support Files/Pods-MLDownloaderTestApp-MLDownloaderTestAppUITests/Pods-MLDownloaderTestApp-MLDownloaderTestAppUITests.release.xcconfig"; sourceTree = "<group>"; };
+		F4FD55F74773D1C86D69D673 /* Pods-MLDownloaderTestApp-MLDownloaderWatchTestApp Extension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MLDownloaderTestApp-MLDownloaderWatchTestApp Extension.debug.xcconfig"; path = "Target Support Files/Pods-MLDownloaderTestApp-MLDownloaderWatchTestApp Extension/Pods-MLDownloaderTestApp-MLDownloaderWatchTestApp Extension.debug.xcconfig"; sourceTree = "<group>"; };
+		F85918555030DEB31ECD5E7D /* Pods-MLDownloaderTestApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MLDownloaderTestApp.release.xcconfig"; path = "Target Support Files/Pods-MLDownloaderTestApp/Pods-MLDownloaderTestApp.release.xcconfig"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A6338C3725893DFB001A6401 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				07BB5A04CA1312F86A973058 /* Pods_MLDownloaderTestApp.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A6338C4D25893DFE001A6401 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6915E92311191C32B3B80134 /* Pods_MLDownloaderTestApp_MLDownloaderTestAppTests.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A6338C5825893DFE001A6401 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C6508420214F3CF5AA953487 /* Pods_MLDownloaderTestApp_MLDownloaderTestAppUITests.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		50E87A89C7DBAC6DC280F7BB /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				28B90F3CBFDC23142FA82356 /* Pods-MLDownloaderTestApp.debug.xcconfig */,
+				F85918555030DEB31ECD5E7D /* Pods-MLDownloaderTestApp.release.xcconfig */,
+				D8D4472243EB359D834597B3 /* Pods-MLDownloaderTestApp-MLDownloaderTestAppTests.debug.xcconfig */,
+				A78C0FF286D9919CEF734166 /* Pods-MLDownloaderTestApp-MLDownloaderTestAppTests.release.xcconfig */,
+				8AD845EE89ABB7AB1CA74744 /* Pods-MLDownloaderTestApp-MLDownloaderTestAppUITests.debug.xcconfig */,
+				E030EB120D34BE1BF596CC34 /* Pods-MLDownloaderTestApp-MLDownloaderTestAppUITests.release.xcconfig */,
+				F4FD55F74773D1C86D69D673 /* Pods-MLDownloaderTestApp-MLDownloaderWatchTestApp Extension.debug.xcconfig */,
+				B39EA79D99402F5322014B52 /* Pods-MLDownloaderTestApp-MLDownloaderWatchTestApp Extension.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		A6338C3125893DFB001A6401 = {
+			isa = PBXGroup;
+			children = (
+				A6338C3C25893DFB001A6401 /* MLDownloaderTestApp */,
+				A6338C5325893DFE001A6401 /* MLDownloaderTestAppTests */,
+				A6338C5E25893DFE001A6401 /* MLDownloaderTestAppUITests */,
+				A6338C3B25893DFB001A6401 /* Products */,
+				50E87A89C7DBAC6DC280F7BB /* Pods */,
+				BDAA1A20A1068C1D9F3FFE4A /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		A6338C3B25893DFB001A6401 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A6338C3A25893DFB001A6401 /* MLDownloaderTestApp.app */,
+				A6338C5025893DFE001A6401 /* MLDownloaderTestAppTests.xctest */,
+				A6338C5B25893DFE001A6401 /* MLDownloaderTestAppUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A6338C3C25893DFB001A6401 /* MLDownloaderTestApp */ = {
+			isa = PBXGroup;
+			children = (
+				A61B7A3725C0E69800D643C5 /* GoogleService-Info.plist */,
+				A676916A259EB420000AA74D /* LaunchScreen.storyboard */,
+				A6769157259EB2DC000AA74D /* SceneDelegate.swift */,
+				A6338C3D25893DFB001A6401 /* AppDelegate.swift */,
+				A6338C4125893DFB001A6401 /* ContentView.swift */,
+				A67690C8259E94AD000AA74D /* Downloader.swift */,
+				A6338C4325893DFE001A6401 /* Assets.xcassets */,
+				A6338C4B25893DFE001A6401 /* Info.plist */,
+				A6338C4525893DFE001A6401 /* Preview Content */,
+			);
+			path = MLDownloaderTestApp;
+			sourceTree = "<group>";
+		};
+		A6338C4525893DFE001A6401 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				A6338C4625893DFE001A6401 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		A6338C5325893DFE001A6401 /* MLDownloaderTestAppTests */ = {
+			isa = PBXGroup;
+			children = (
+				A6338C5425893DFE001A6401 /* MLDownloaderTestAppTests.swift */,
+				A6338C5625893DFE001A6401 /* Info.plist */,
+			);
+			path = MLDownloaderTestAppTests;
+			sourceTree = "<group>";
+		};
+		A6338C5E25893DFE001A6401 /* MLDownloaderTestAppUITests */ = {
+			isa = PBXGroup;
+			children = (
+				A6338C5F25893DFE001A6401 /* MLDownloaderTestAppUITests.swift */,
+				A6338C6125893DFE001A6401 /* Info.plist */,
+			);
+			path = MLDownloaderTestAppUITests;
+			sourceTree = "<group>";
+		};
+		BDAA1A20A1068C1D9F3FFE4A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				DBA0C7A8283CC88DBA487171 /* Pods_MLDownloaderTestApp.framework */,
+				BF958C46F61DC40BD1D25898 /* Pods_MLDownloaderTestApp_MLDownloaderTestAppTests.framework */,
+				28C835CA2BBE48AABE55BC71 /* Pods_MLDownloaderTestApp_MLDownloaderTestAppUITests.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A6338C3925893DFB001A6401 /* MLDownloaderTestApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A6338C6425893DFE001A6401 /* Build configuration list for PBXNativeTarget "MLDownloaderTestApp" */;
+			buildPhases = (
+				169C74864E072B2767C5FC4C /* [CP] Check Pods Manifest.lock */,
+				A6338C3625893DFB001A6401 /* Sources */,
+				A6338C3725893DFB001A6401 /* Frameworks */,
+				A6338C3825893DFB001A6401 /* Resources */,
+				51CE470B55BA59D1B9D44221 /* [CP] Embed Pods Frameworks */,
+				A6CFE30F258AAC2E003ABA7F /* Embed Watch Content */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MLDownloaderTestApp;
+			productName = MLDownloaderTestApp;
+			productReference = A6338C3A25893DFB001A6401 /* MLDownloaderTestApp.app */;
+			productType = "com.apple.product-type.application";
+		};
+		A6338C4F25893DFE001A6401 /* MLDownloaderTestAppTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A6338C6725893DFE001A6401 /* Build configuration list for PBXNativeTarget "MLDownloaderTestAppTests" */;
+			buildPhases = (
+				54E6E344826DB0449BD00A94 /* [CP] Check Pods Manifest.lock */,
+				A6338C4C25893DFE001A6401 /* Sources */,
+				A6338C4D25893DFE001A6401 /* Frameworks */,
+				A6338C4E25893DFE001A6401 /* Resources */,
+				92F84D16168AFB93DA5765E3 /* [CP] Embed Pods Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A6338C5225893DFE001A6401 /* PBXTargetDependency */,
+			);
+			name = MLDownloaderTestAppTests;
+			productName = MLDownloaderTestAppTests;
+			productReference = A6338C5025893DFE001A6401 /* MLDownloaderTestAppTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		A6338C5A25893DFE001A6401 /* MLDownloaderTestAppUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A6338C6A25893DFE001A6401 /* Build configuration list for PBXNativeTarget "MLDownloaderTestAppUITests" */;
+			buildPhases = (
+				B78384A960BE5236EA10CFF3 /* [CP] Check Pods Manifest.lock */,
+				A6338C5725893DFE001A6401 /* Sources */,
+				A6338C5825893DFE001A6401 /* Frameworks */,
+				A6338C5925893DFE001A6401 /* Resources */,
+				B6A2977D799A8B97E09000C4 /* [CP] Embed Pods Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A6338C5D25893DFE001A6401 /* PBXTargetDependency */,
+			);
+			name = MLDownloaderTestAppUITests;
+			productName = MLDownloaderTestAppUITests;
+			productReference = A6338C5B25893DFE001A6401 /* MLDownloaderTestAppUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A6338C3225893DFB001A6401 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1200;
+				LastUpgradeCheck = 1200;
+				TargetAttributes = {
+					A6338C3925893DFB001A6401 = {
+						CreatedOnToolsVersion = 12.0;
+					};
+					A6338C4F25893DFE001A6401 = {
+						CreatedOnToolsVersion = 12.0;
+						TestTargetID = A6338C3925893DFB001A6401;
+					};
+					A6338C5A25893DFE001A6401 = {
+						CreatedOnToolsVersion = 12.0;
+						TestTargetID = A6338C3925893DFB001A6401;
+					};
+				};
+			};
+			buildConfigurationList = A6338C3525893DFB001A6401 /* Build configuration list for PBXProject "MLDownloaderTestApp" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A6338C3125893DFB001A6401;
+			productRefGroup = A6338C3B25893DFB001A6401 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A6338C3925893DFB001A6401 /* MLDownloaderTestApp */,
+				A6338C4F25893DFE001A6401 /* MLDownloaderTestAppTests */,
+				A6338C5A25893DFE001A6401 /* MLDownloaderTestAppUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A6338C3825893DFB001A6401 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A6338C4725893DFE001A6401 /* Preview Assets.xcassets in Resources */,
+				A61B7A3825C0E69800D643C5 /* GoogleService-Info.plist in Resources */,
+				A676916C259EB420000AA74D /* LaunchScreen.storyboard in Resources */,
+				A6338C4425893DFE001A6401 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A6338C4E25893DFE001A6401 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A6338C5925893DFE001A6401 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		169C74864E072B2767C5FC4C /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-MLDownloaderTestApp-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		51CE470B55BA59D1B9D44221 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MLDownloaderTestApp/Pods-MLDownloaderTestApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MLDownloaderTestApp/Pods-MLDownloaderTestApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MLDownloaderTestApp/Pods-MLDownloaderTestApp-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		54E6E344826DB0449BD00A94 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-MLDownloaderTestApp-MLDownloaderTestAppTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		92F84D16168AFB93DA5765E3 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MLDownloaderTestApp-MLDownloaderTestAppTests/Pods-MLDownloaderTestApp-MLDownloaderTestAppTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MLDownloaderTestApp-MLDownloaderTestAppTests/Pods-MLDownloaderTestApp-MLDownloaderTestAppTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MLDownloaderTestApp-MLDownloaderTestAppTests/Pods-MLDownloaderTestApp-MLDownloaderTestAppTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		B6A2977D799A8B97E09000C4 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MLDownloaderTestApp-MLDownloaderTestAppUITests/Pods-MLDownloaderTestApp-MLDownloaderTestAppUITests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MLDownloaderTestApp-MLDownloaderTestAppUITests/Pods-MLDownloaderTestApp-MLDownloaderTestAppUITests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MLDownloaderTestApp-MLDownloaderTestAppUITests/Pods-MLDownloaderTestApp-MLDownloaderTestAppUITests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		B78384A960BE5236EA10CFF3 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-MLDownloaderTestApp-MLDownloaderTestAppUITests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A6338C3625893DFB001A6401 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A6338C3E25893DFB001A6401 /* AppDelegate.swift in Sources */,
+				A67690C9259E94AE000AA74D /* Downloader.swift in Sources */,
+				A6338C4225893DFB001A6401 /* ContentView.swift in Sources */,
+				A6769158259EB2DC000AA74D /* SceneDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A6338C4C25893DFE001A6401 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A6338C5525893DFE001A6401 /* MLDownloaderTestAppTests.swift in Sources */,
+				A67690CA259E94AE000AA74D /* Downloader.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A6338C5725893DFE001A6401 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A6338C6025893DFE001A6401 /* MLDownloaderTestAppUITests.swift in Sources */,
+				A67690CB259E94AE000AA74D /* Downloader.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A6338C5225893DFE001A6401 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A6338C3925893DFB001A6401 /* MLDownloaderTestApp */;
+			targetProxy = A6338C5125893DFE001A6401 /* PBXContainerItemProxy */;
+		};
+		A6338C5D25893DFE001A6401 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A6338C3925893DFB001A6401 /* MLDownloaderTestApp */;
+			targetProxy = A6338C5C25893DFE001A6401 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		A676916A259EB420000AA74D /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				A676916B259EB420000AA74D /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		A6338C6225893DFE001A6401 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		A6338C6325893DFE001A6401 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		A6338C6525893DFE001A6401 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 28B90F3CBFDC23142FA82356 /* Pods-MLDownloaderTestApp.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_ASSET_PATHS = "\"MLDownloaderTestApp/Preview Content\"";
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = MLDownloaderTestApp/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.MLDownloaderTestApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "Google Development";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A6338C6625893DFE001A6401 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = F85918555030DEB31ECD5E7D /* Pods-MLDownloaderTestApp.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_ASSET_PATHS = "\"MLDownloaderTestApp/Preview Content\"";
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = MLDownloaderTestApp/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.MLDownloaderTestApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "Google Development";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		A6338C6825893DFE001A6401 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D8D4472243EB359D834597B3 /* Pods-MLDownloaderTestApp-MLDownloaderTestAppTests.debug.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = MLDownloaderTestAppTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.MLDownloaderTestAppTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MLDownloaderTestApp.app/MLDownloaderTestApp";
+			};
+			name = Debug;
+		};
+		A6338C6925893DFE001A6401 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = A78C0FF286D9919CEF734166 /* Pods-MLDownloaderTestApp-MLDownloaderTestAppTests.release.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = MLDownloaderTestAppTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.MLDownloaderTestAppTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MLDownloaderTestApp.app/MLDownloaderTestApp";
+			};
+			name = Release;
+		};
+		A6338C6B25893DFE001A6401 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8AD845EE89ABB7AB1CA74744 /* Pods-MLDownloaderTestApp-MLDownloaderTestAppUITests.debug.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = MLDownloaderTestAppUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.MLDownloaderTestAppUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = MLDownloaderTestApp;
+			};
+			name = Debug;
+		};
+		A6338C6C25893DFE001A6401 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E030EB120D34BE1BF596CC34 /* Pods-MLDownloaderTestApp-MLDownloaderTestAppUITests.release.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = MLDownloaderTestAppUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.MLDownloaderTestAppUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = MLDownloaderTestApp;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A6338C3525893DFB001A6401 /* Build configuration list for PBXProject "MLDownloaderTestApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A6338C6225893DFE001A6401 /* Debug */,
+				A6338C6325893DFE001A6401 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A6338C6425893DFE001A6401 /* Build configuration list for PBXNativeTarget "MLDownloaderTestApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A6338C6525893DFE001A6401 /* Debug */,
+				A6338C6625893DFE001A6401 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A6338C6725893DFE001A6401 /* Build configuration list for PBXNativeTarget "MLDownloaderTestAppTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A6338C6825893DFE001A6401 /* Debug */,
+				A6338C6925893DFE001A6401 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A6338C6A25893DFE001A6401 /* Build configuration list for PBXNativeTarget "MLDownloaderTestAppUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A6338C6B25893DFE001A6401 /* Debug */,
+				A6338C6C25893DFE001A6401 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A6338C3225893DFB001A6401 /* Project object */;
+}

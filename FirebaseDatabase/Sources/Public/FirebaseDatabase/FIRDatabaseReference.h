@@ -367,6 +367,19 @@ priority is meant to be preserved, you should use setValue:andPriority: instead.
                    withCancelBlock:
                        (nullable void (^)(NSError *error))cancelBlock;
 
+/**
+ * getDataWithCompletionBlock: is used to get the most up-to-date value for
+ * this query. This method updates the cache and raises events if successful. If
+ * not connected, falls back to a locally-cached value.
+ *
+ * @param block The block that should be called with the most up-to-date value
+ * of this query, or an error if no such value could be retrieved.
+ */
+- (void)getDataWithCompletionBlock:
+    (void (^_Nonnull)(NSError *__nullable error,
+                      FIRDataSnapshot *snapshot))block
+    NS_SWIFT_NAME(getData(completion:));
+
 #pragma mark - Detaching observers
 
 /**

@@ -60,7 +60,11 @@ static const CGFloat kEdgeInsetsRight = 20.0f;
 
 - (UIProgressView *)progressView {
   if (!_progressView) {
+#if TARGET_OS_TV
+    _progressView = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleDefault];
+#else
     _progressView = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleBar];
+#endif
     _progressView.translatesAutoresizingMaskIntoConstraints = NO;
     _progressView.trackTintColor = [UIColor lightGrayColor];
     _progressView.progressTintColor = [UIColor blueColor];

@@ -23,7 +23,7 @@
 
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
 
-#import "GoogleDataTransport/GDTCORLibrary/Internal/GoogleDataTransportInternal.h"
+#import <GoogleDataTransport/GoogleDataTransport.h>
 
 @interface FIRCLSReportAdapterTests : XCTestCase
 

@@ -22,17 +22,18 @@
 helpFunction()
 {
   echo ""
-  echo "Usage: $0 -e (prod/autopush*)"
+  echo "Usage: $0 -e (prod/autopush*) -p (platform)"
   echo -e "\tEvent upload environment - prod (or) autopush. Default: autopush"
   echo -c "\tRecreate the Xcode project from scratch. Default: Reuse same XCode project"
   exit 1 # Exit script after printing help
 }
 
-while getopts "e:c" opt
+while getopts "e:p:c" opt
 do
   case "$opt" in
     e ) env="$OPTARG" ;;
     c ) clean="clean" ;;
+    p ) platform="$OPTARG" ;;
     ? ) helpFunction ;; # Print helpFunction in case parameter is non-existent
   esac
 done
@@ -40,6 +41,11 @@ done
 if [ -z "$env" ] || [ "prod" != "$env" ]
 then
   env="autopush"
+fi
+
+if [ -z "$platform" ]
+then
+  platform="ios"
 fi
 
 readonly DIR="$(git rev-parse --show-toplevel)"
@@ -59,10 +65,10 @@ fi
 echo "\nGenerating Fireperf Xcode project for $env environment..."
 if [ -z "$clean" ]
 then
-  pod gen "$DIR/FirebasePerformance.podspec" --local-sources="$DIR/" --auto-open --gen-directory="$DIR/gen" --platforms=ios
+  pod gen "$DIR/FirebasePerformance.podspec" --local-sources="$DIR/" --auto-open --gen-directory="$DIR/gen" --platforms="$platform"
 else
   echo "\nCreating a fresh Fireperf XCode project."
   rm -f "$DIR/FirebasePerformance/ProtoSupport/*.[hm]"
   protoc --proto_path="$DIR/FirebasePerformance/ProtoSupport/" --objc_out="$DIR/FirebasePerformance/ProtoSupport/" "$DIR/FirebasePerformance/ProtoSupport/perf_metric.proto"
-  pod gen "$DIR/FirebasePerformance.podspec" --local-sources="$DIR/" --auto-open --gen-directory="$DIR/gen" --platforms=ios --clean
+  pod gen "$DIR/FirebasePerformance.podspec" --local-sources="$DIR/" --auto-open --gen-directory="$DIR/gen" --platforms="$platform" --clean
 fi

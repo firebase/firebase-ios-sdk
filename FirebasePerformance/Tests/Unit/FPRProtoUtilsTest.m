@@ -256,10 +256,12 @@
                  FPRApplicationProcessState(100));
 }
 
+#if __has_include("CoreTelephony/CTTelephonyNetworkInfo.h")
 /** Validates if network object creation works. */
 - (void)testNetworkInfoObjectCreation {
   XCTAssertNotNil(FPRNetworkInfo());
 }
+#endif
 
 /** Validates if network events are dropped when there is not valid response code. */
 - (void)testDroppingNetworkEventsWithInvalidStatusCode {

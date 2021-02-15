@@ -10,9 +10,11 @@ target 'SampleWatchAppWatchKitExtension' do
   pod 'FirebaseMessaging', :path => '../../'
   pod 'FirebaseInstanceID', :path => '../../'
   pod 'FirebaseCoreDiagnostics', :path => '../../'
-  pod 'GoogleDataTransport', :path => '../../'
   pod 'FirebaseInstallations', :path => '../../'
   pod 'FirebaseStorage', :path => '../../'
+  pod 'FirebaseRemoteConfig', :path => '../../'
+  pod 'FirebaseABTesting', :path => '../../'
+
 
 end
 

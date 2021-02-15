@@ -16,38 +16,69 @@ import Foundation
 
 /// Manager for common file operations.
 enum ModelFileManager {
-  private static let nameSeparator = "__"
+  /// Separator in model file name components.
+  private static let nameSeparator = "@@"
+
   private static let modelNamePrefix = "fbml_model"
+
+  private static let fileExtension = "tflite"
+
   private static let fileManager = FileManager.default
 
   /// Root directory of model file storage on device.
-  static var modelsDirectory: URL {
-    // TODO: Reconsider force unwrapping.
-    #if os(tvOS)
-      return fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first!
-    #else
-      return fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-    #endif
+  static var modelsDirectory: URL? {
+    let rootDirOptional: URL? = {
+      #if os(tvOS)
+        return fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first
+      #else
+        return fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first ?? nil
+      #endif
+    }()
+
+    guard let rootDirURL = rootDirOptional else {
+      return nil
+    }
+
+    let modelDirURL = rootDirURL.appendingPathComponent(
+      "com.firebase.FirebaseMLModelDownloader",
+      isDirectory: true
+    )
+
+    do {
+      if !fileManager.fileExists(atPath: modelDirURL.absoluteString) {
+        try fileManager.createDirectory(at: modelDirURL, withIntermediateDirectories: true)
+      }
+    } catch {
+      return nil
+    }
+
+    return modelDirURL
   }
 
   /// Name for model file stored on device.
-  private static func getDownloadedModelFileName(appName: String, modelName: String) -> String {
+  static func getDownloadedModelFileName(appName: String, modelName: String) -> String {
     return [modelNamePrefix, appName, modelName].joined(separator: nameSeparator)
   }
 
   /// Model name from file path.
   static func getModelNameFromFilePath(_ path: URL) -> String? {
-    return path.lastPathComponent.components(separatedBy: nameSeparator).last
+    let components = path.deletingPathExtension().lastPathComponent
+      .components(separatedBy: nameSeparator)
+    // The file name should have prefix, app name, and model name.
+    if components.count == 3 {
+      return components.last
+    }
+    return nil
   }
 
   /// Full path of model file stored on device.
-  static func getDownloadedModelFilePath(appName: String, modelName: String) -> URL {
+  static func getDownloadedModelFileURL(appName: String, modelName: String) -> URL? {
     let modelFileName = ModelFileManager.getDownloadedModelFileName(
       appName: appName,
       modelName: modelName
     )
-    return ModelFileManager.modelsDirectory
-      .appendingPathComponent(modelFileName)
+    guard let modelsDir = ModelFileManager.modelsDirectory else { return nil }
+    return modelsDir.appendingPathComponent(modelFileName).appendingPathExtension(fileExtension)
   }
 
   /// Check if file is available at URL.
@@ -55,13 +86,13 @@ enum ModelFileManager {
     do {
       return try fileURL.checkResourceIsReachable()
     } catch {
-      /// File unreachable.
+      // File unreachable.
       return false
     }
   }
 
   /// Move file at a location to another location.
-  static func moveFile(at sourceURL: URL, to destinationURL: URL) throws {
+  static func moveFile(at sourceURL: URL, to destinationURL: URL, size: Int64) throws {
     if isFileReachable(at: destinationURL) {
       do {
         try fileManager.removeItem(at: destinationURL)
@@ -75,7 +106,9 @@ enum ModelFileManager {
       }
     }
     do {
-      try FileManager.default.moveItem(at: sourceURL, to: destinationURL)
+      try fileManager.moveItem(at: sourceURL, to: destinationURL)
+    } catch CocoaError.fileWriteOutOfSpace {
+      throw DownloadError.notEnoughSpace
     } catch {
       throw DownloadError
         .internalError(description: ModelFileManager
@@ -95,21 +128,47 @@ enum ModelFileManager {
     }
   }
 
+  /// Get all model files in models directory.
   static func contentsOfModelsDirectory() throws -> [URL] {
+    guard let modelsDir = modelsDirectory else {
+      throw DownloadedModelError
+        .internalError(
+          description: ModelFileManager.ErrorDescription.noApplicationSupportDirectory
+        )
+    }
     do {
       let directoryContents = try ModelFileManager.fileManager.contentsOfDirectory(
-        at: modelsDirectory,
+        at: modelsDir,
         includingPropertiesForKeys: nil,
         options: .skipsHiddenFiles
       )
       return directoryContents.filter { directoryItem in
-        !directoryItem.hasDirectoryPath
+        directoryItem.path.contains(ModelFileManager.modelNamePrefix) && !directoryItem
+          .hasDirectoryPath
       }
     } catch {
       throw DownloadedModelError
         .internalError(
           description: ModelFileManager.ErrorDescription
             .retrieveFile(error.localizedDescription)
+        )
+    }
+  }
+}
+
+/// NOTE: Use for testing only.
+extension ModelFileManager {
+  static func emptyModelsDirectory() throws {
+    do {
+      let directoryContents = try ModelFileManager.contentsOfModelsDirectory()
+      for path in directoryContents {
+        try ModelFileManager.removeFile(at: path)
+      }
+    } catch {
+      throw DownloadedModelError
+        .internalError(
+          description: ModelFileManager.ErrorDescription
+            .emptyDirectory(error.localizedDescription)
         )
     }
   }
@@ -133,6 +192,21 @@ extension ModelFileManager {
 
     static let replaceFile = { (error: String) in
       "Could not replace existing model file: \(error)"
+    }
+
+    static let availableStorage = { (error: String?) -> String in
+      if let error = error {
+        return "Failed to check storage capacity on device: \(error)"
+      } else {
+        return "Failed to check storage capacity on device."
+      }
+    }
+
+    static let noApplicationSupportDirectory =
+      "Could not locate Application Support directory for model storage."
+
+    static let emptyDirectory = { (error: String) in
+      "Could not empty models directory: \(error)"
     }
   }
 }

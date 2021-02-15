@@ -29,7 +29,6 @@ target 'FirebasePodTest' do
 
   # Get dependent pods from the repo also
   pod 'FirebaseCoreDiagnostics', :path => '../../../'
-  pod 'GoogleDataTransport', :path => '../../../'
 
   pod 'FirebaseAnalytics' # Analytics is not open source
 end

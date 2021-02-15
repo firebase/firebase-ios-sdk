@@ -17,7 +17,7 @@
 #import <objc/runtime.h>
 #include <sys/utsname.h>
 
-#import "GoogleDataTransport/GDTCORLibrary/Internal/GoogleDataTransportInternal.h"
+#import <GoogleDataTransport/GoogleDataTransport.h>
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULHeartbeatDateStorage.h>

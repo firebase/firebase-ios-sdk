@@ -17,7 +17,7 @@
 
 import PackageDescription
 
-let firebaseVersion = "7.4.0"
+let firebaseVersion = "7.5.0"
 
 let package = Package(
   name: "Firebase",
@@ -80,6 +80,10 @@ let package = Package(
       targets: ["FirebaseMessaging"]
     ),
     .library(
+      name: "FirebaseMLModelDownloader",
+      targets: ["FirebaseMLModelDownloader"]
+    ),
+    .library(
       name: "FirebaseRemoteConfig",
       targets: ["FirebaseRemoteConfigTarget"]
     ),
@@ -102,12 +106,17 @@ let package = Package(
     .package(
       name: "GoogleAppMeasurement",
       url: "https://github.com/google/GoogleAppMeasurement.git",
-      .exact("7.4.0")
+      .exact("7.5.1")
+    ),
+    .package(
+      name: "GoogleDataTransport",
+      url: "https://github.com/google/GoogleDataTransport.git",
+      "8.2.0" ..< "9.0.0"
     ),
     .package(
       name: "GoogleUtilities",
       url: "https://github.com/google/GoogleUtilities.git",
-      "7.2.0" ..< "8.0.0"
+      "7.2.1" ..< "8.0.0"
     ),
     .package(
       name: "GTMSessionFetcher",
@@ -152,8 +161,8 @@ let package = Package(
       dependencies: [
         "Firebase",
         "FirebaseCoreDiagnostics",
-        .product(name: "Environment", package: "GoogleUtilities"),
-        .product(name: "Logger", package: "GoogleUtilities"),
+        .product(name: "GULEnvironment", package: "GoogleUtilities"),
+        .product(name: "GULLogger", package: "GoogleUtilities"),
       ],
       path: "FirebaseCore/Sources",
       publicHeadersPath: "Public",
@@ -179,9 +188,9 @@ let package = Package(
     .target(
       name: "FirebaseCoreDiagnostics",
       dependencies: [
-        "GoogleDataTransport",
-        .product(name: "Environment", package: "GoogleUtilities"),
-        .product(name: "Logger", package: "GoogleUtilities"),
+        .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
+        .product(name: "GULEnvironment", package: "GoogleUtilities"),
+        .product(name: "GULLogger", package: "GoogleUtilities"),
         .product(name: "nanopb", package: "nanopb"),
       ],
       path: "Firebase/CoreDiagnostics/FIRCDLibrary",
@@ -228,10 +237,10 @@ let package = Package(
                  condition: .when(platforms: [.iOS])),
         "FirebaseCore",
         "FirebaseInstallations",
-        .product(name: "AppDelegateSwizzler", package: "GoogleUtilities"),
-        .product(name: "MethodSwizzler", package: "GoogleUtilities"),
-        .product(name: "NSData", package: "GoogleUtilities"),
-        .product(name: "Network", package: "GoogleUtilities"),
+        .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
+        .product(name: "GULMethodSwizzler", package: "GoogleUtilities"),
+        .product(name: "GULNSData", package: "GoogleUtilities"),
+        .product(name: "GULNetwork", package: "GoogleUtilities"),
         .product(name: "nanopb", package: "nanopb"),
       ],
       path: "FirebaseAnalyticsWrapper",
@@ -244,8 +253,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/7.4.0/FirebaseAnalytics.zip",
-      checksum: "560bf11462c9e064c0d55e10aef761af420f4f531415e896cac18edc88e9666f"
+      url: "https://dl.google.com/firebase/ios/swiftpm/7.5.0/FirebaseAnalytics.zip",
+      checksum: "2a622329e1f233d9bd38333c62c900854cb2eb9c63a00b65df14dadf4ef7988e"
     ),
 
     .target(
@@ -259,9 +268,9 @@ let package = Package(
       dependencies: [
         "FirebaseCore",
         "FirebaseInstallations",
-        "GoogleDataTransport",
-        .product(name: "AppDelegateSwizzler", package: "GoogleUtilities"),
-        .product(name: "UserDefaults", package: "GoogleUtilities"),
+        .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
+        .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
+        .product(name: "GULUserDefaults", package: "GoogleUtilities"),
       ],
       path: "FirebaseAppDistribution/Sources",
       publicHeadersPath: "Public",
@@ -283,8 +292,8 @@ let package = Package(
       name: "FirebaseAuth",
       dependencies: [
         "FirebaseCore",
-        .product(name: "AppDelegateSwizzler", package: "GoogleUtilities"),
-        .product(name: "Environment", package: "GoogleUtilities"),
+        .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
+        .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),
       ],
       path: "FirebaseAuth/Sources",
@@ -322,7 +331,8 @@ let package = Package(
     ),
     .target(
       name: "FirebaseCrashlytics",
-      dependencies: ["FirebaseCore", "FirebaseInstallations", "GoogleDataTransport",
+      dependencies: ["FirebaseCore", "FirebaseInstallations",
+                     .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
                      .product(name: "FBLPromises", package: "Promises"),
                      .product(name: "nanopb", package: "nanopb")],
       path: "Crashlytics",
@@ -564,7 +574,7 @@ let package = Package(
         "FirebaseCore",
         "FirebaseInstallations",
         "FirebaseABTesting",
-        .product(name: "Environment", package: "GoogleUtilities"),
+        .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "nanopb", package: "nanopb"),
       ],
       path: "FirebaseInAppMessaging/Sources",
@@ -587,8 +597,8 @@ let package = Package(
       dependencies: [
         "FirebaseCore",
         "FirebaseInstallations",
-        .product(name: "Environment", package: "GoogleUtilities"),
-        .product(name: "UserDefaults", package: "GoogleUtilities"),
+        .product(name: "GULEnvironment", package: "GoogleUtilities"),
+        .product(name: "GULUserDefaults", package: "GoogleUtilities"),
       ],
       path: "Firebase/InstanceID",
       exclude: [
@@ -605,8 +615,8 @@ let package = Package(
       dependencies: [
         "FirebaseCore",
         .product(name: "FBLPromises", package: "Promises"),
-        .product(name: "Environment", package: "GoogleUtilities"),
-        .product(name: "UserDefaults", package: "GoogleUtilities"),
+        .product(name: "GULEnvironment", package: "GoogleUtilities"),
+        .product(name: "GULUserDefaults", package: "GoogleUtilities"),
       ],
       path: "FirebaseInstallations/Source/Library",
       publicHeadersPath: "Public",
@@ -623,6 +633,7 @@ let package = Package(
       dependencies: [
         "FirebaseCore",
         "FirebaseInstallations",
+        .product(name: "GULLogger", package: "GoogleUtilities"),
         "SwiftProtobuf",
       ],
       path: "FirebaseMLModelDownloader/Sources",
@@ -644,10 +655,10 @@ let package = Package(
       dependencies: [
         "FirebaseCore",
         "FirebaseInstanceID",
-        .product(name: "AppDelegateSwizzler", package: "GoogleUtilities"),
-        .product(name: "Environment", package: "GoogleUtilities"),
-        .product(name: "Reachability", package: "GoogleUtilities"),
-        .product(name: "UserDefaults", package: "GoogleUtilities"),
+        .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
+        .product(name: "GULEnvironment", package: "GoogleUtilities"),
+        .product(name: "GULReachability", package: "GoogleUtilities"),
+        .product(name: "GULUserDefaults", package: "GoogleUtilities"),
       ],
       path: "FirebaseMessaging/Sources",
       publicHeadersPath: "Public",
@@ -693,7 +704,7 @@ let package = Package(
         "FirebaseCore",
         "FirebaseABTesting",
         "FirebaseInstallations",
-        .product(name: "NSData", package: "GoogleUtilities"),
+        .product(name: "GULNSData", package: "GoogleUtilities"),
       ],
       path: "FirebaseRemoteConfig/Sources",
       publicHeadersPath: "Public",
@@ -751,41 +762,6 @@ let package = Package(
       dependencies: ["FirebaseStorage"],
       path: "FirebaseStorageSwift/Sources"
     ),
-    .target(
-      name: "GoogleDataTransport",
-      dependencies: [
-        .product(name: "nanopb", package: "nanopb"),
-      ],
-      path: "GoogleDataTransport",
-      exclude: [
-        "CHANGELOG.md",
-        "README.md",
-        "generate_project.sh",
-        "GDTCCTWatchOSTestApp/",
-        "GDTWatchOSTestApp/",
-        "GDTCCTTestApp/",
-        "GDTTestApp/",
-        "GDTCCTTests/",
-        "GDTCORTests/",
-        "ProtoSupport/",
-      ],
-      sources: [
-        "GDTCORLibrary",
-        "GDTCCTLibrary",
-      ],
-      publicHeadersPath: "GDTCORLibrary/Public",
-      cSettings: [
-        .headerSearchPath("../"),
-        .define("GDTCOR_VERSION", to: "0.0.1"),
-        .define("PB_FIELD_32BIT", to: "1"),
-        .define("PB_NO_PACKED_STRUCTS", to: "1"),
-        .define("PB_ENABLE_MALLOC", to: "1"),
-      ],
-      linkerSettings: [
-        .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
-        .linkedFramework("CoreTelephony", .when(platforms: [.macOS, .iOS])),
-      ]
-    ),
     .testTarget(
       name: "swift-test",
       dependencies: [
@@ -808,7 +784,6 @@ let package = Package(
         "FirebaseRemoteConfig",
         "FirebaseStorage",
         "FirebaseStorageSwift",
-        "GoogleDataTransport",
         .product(name: "nanopb", package: "nanopb"),
       ],
       path: "SwiftPMTests/swift-test"
