@@ -604,7 +604,7 @@ class UserTests: XCTestCase {
 
           userReauthenticateExpectation.fulfill()
         }
-      } receiveValue: { linkAuthResult in
+      } receiveValue: { authResult in
         XCTFail("💥 result unexpected")
       }
       .store(in: &cancellables)
@@ -664,7 +664,7 @@ class UserTests: XCTestCase {
 
           userReauthenticateExpectation.fulfill()
         }
-      } receiveValue: { linkAuthResult in
+      } receiveValue: { authResult in
         XCTFail("💥 result unexpected")
       }
       .store(in: &cancellables)
