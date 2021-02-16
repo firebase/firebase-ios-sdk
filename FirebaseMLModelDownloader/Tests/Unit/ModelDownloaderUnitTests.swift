@@ -700,6 +700,12 @@ final class ModelDownloaderUnitTests: XCTestCase {
 
   /// Get model if multiple duplicate requests are made (test at the API surface).
   func testGetModelWithMergeRequests() {
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
+    testApp.isDataCollectionDefaultEnabled = false
+
     let modelDownloader = ModelDownloader.modelDownloader()
     let conditions = ModelDownloadConditions()
     let session = fakeModelInfoSessionWithURL(fakeDownloadURL, statusCode: 200)
