@@ -28,7 +28,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
   s.source_files = [
     'FirebaseInAppMessaging/Swift/Source/**/*.swift',
   ]
-  
+
   s.test_spec 'unit' do |unit_tests|
       unit_tests.scheme = { :code_coverage => true }
       unit_tests.source_files = 'FirebaseInAppMessaging/Swift/Tests/Unit/*.swift'
