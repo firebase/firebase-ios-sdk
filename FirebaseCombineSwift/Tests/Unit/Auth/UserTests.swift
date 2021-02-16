@@ -452,6 +452,7 @@ class UserTests: XCTestCase {
   }
 
   func testReauthenticateSuccess() {
+    // given
     let emailCredentials = ProviderCredentials(
       providerID: EmailAuthProviderID,
       federatedID: "EMAIL_ID",
@@ -469,6 +470,7 @@ class UserTests: XCTestCase {
     var cancellables = Set<AnyCancellable>()
     let userReauthenticateExpectation = expectation(description: "User reauthenticated")
 
+    // when
     Auth.auth()
       .signIn(withEmail: UserTests.email, password: UserTests.password)
       .flatMap { authResult -> Future<AuthDataResult, Error> in
@@ -503,6 +505,7 @@ class UserTests: XCTestCase {
   }
 
   func testReauthenticateWithCredentialSuccess() {
+    // given
     let googleCredentials = ProviderCredentials(
       providerID: GoogleAuthProviderID,
       federatedID: "GOOGLE_ID",
@@ -563,6 +566,7 @@ class UserTests: XCTestCase {
   }
 
   func testReauthenticateFailure() {
+    // given
     let emailCredentials = ProviderCredentials(
       providerID: EmailAuthProviderID,
       federatedID: "EMAIL_ID",
@@ -580,6 +584,7 @@ class UserTests: XCTestCase {
     var cancellables = Set<AnyCancellable>()
     let userReauthenticateExpectation = expectation(description: "User reauthenticated")
 
+    // when
     Auth.auth()
       .signIn(withEmail: UserTests.email, password: UserTests.password)
       .flatMap { authResult -> Future<AuthDataResult, Error> in
@@ -614,6 +619,7 @@ class UserTests: XCTestCase {
   }
 
   func testReauthenticateUserMismatchFailure() {
+    // given
     let emailCredentials = ProviderCredentials(
       providerID: EmailAuthProviderID,
       federatedID: "EMAIL_ID",
@@ -631,6 +637,7 @@ class UserTests: XCTestCase {
     var cancellables = Set<AnyCancellable>()
     let userReauthenticateExpectation = expectation(description: "User reauthenticated")
 
+    // when
     Auth.auth()
       .signIn(withEmail: UserTests.email, password: UserTests.password)
       .flatMap { authResult -> Future<AuthDataResult, Error> in
