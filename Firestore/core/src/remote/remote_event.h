@@ -242,14 +242,11 @@ class RemoteEvent {
  public:
   using TargetChangeMap = std::unordered_map<model::TargetId, TargetChange>;
   using TargetSet = std::unordered_set<model::TargetId>;
-  using DocumentUpdateMap = std::unordered_map<model::DocumentKey,
-                                               model::MaybeDocument,
-                                               model::DocumentKeyHash>;
 
   RemoteEvent(model::SnapshotVersion snapshot_version,
               TargetChangeMap target_changes,
               TargetSet target_mismatches,
-              DocumentUpdateMap document_updates,
+              model::DocumentUpdateMap document_updates,
               model::DocumentKeySet limbo_document_changes)
       : snapshot_version_{snapshot_version},
         target_changes_{std::move(target_changes)},
@@ -280,7 +277,7 @@ class RemoteEvent {
    * A set of which documents have changed or been deleted, along with the doc's
    * new values (if not deleted).
    */
-  const DocumentUpdateMap& document_updates() const {
+  const model::DocumentUpdateMap& document_updates() const {
     return document_updates_;
   }
 
@@ -295,7 +292,7 @@ class RemoteEvent {
   model::SnapshotVersion snapshot_version_;
   TargetChangeMap target_changes_;
   TargetSet target_mismatches_;
-  DocumentUpdateMap document_updates_;
+  model::DocumentUpdateMap document_updates_;
   model::DocumentKeySet limbo_document_changes_;
 };
 
@@ -415,7 +412,7 @@ class WatchChangeAggregator {
   std::unordered_map<model::TargetId, TargetState> target_states_;
 
   /** Keeps track of the documents to update since the last raised snapshot. */
-  RemoteEvent::DocumentUpdateMap pending_document_updates_;
+  model::DocumentUpdateMap pending_document_updates_;
 
   /** A mapping of document keys to their set of target IDs. */
   std::unordered_map<model::DocumentKey,
