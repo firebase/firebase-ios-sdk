@@ -8,11 +8,11 @@ on:
     types: [opened, synchronize, closed]
 
 env:
-  metrics_service_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+  METRICS_SERVICE_SECRET: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
 jobs:
   check:
-    if: github.repository == 'Firebase/firebase-ios-sdk' && (github.event.action == 'opened' || github.event.action == 'synchronize') && ${{ env.metrics_service_secret }}
+    if: github.repository == 'Firebase/firebase-ios-sdk' && (github.event.action == 'opened' || github.event.action == 'synchronize') && ${{ env.METRICS_SERVICE_SECRET }}
     name: Check changed files
     outputs:
       abtesting_run_job: ${{ steps.check_files.outputs.abtesting_run_job }}
@@ -277,7 +277,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Access to Metrics Service
-        if:  ${{ env.metrics_service_secret }}
+        if:  ${{ env.METRICS_SERVICE_SECRET }}
         run: |
           # Install gcloud sdk
           curl https://sdk.cloud.google.com > install.sh
@@ -287,14 +287,14 @@ jobs:
 
           # Activate the service account for Metrics Service.
           scripts/decrypt_gha_secret.sh scripts/gha-encrypted/metrics_service_access.json.gpg \
-          metrics-access.json "${{ env.metrics_service_secret }}"
+          metrics-access.json "${{ env.METRICS_SERVICE_SECRET }}"
           gcloud auth activate-service-account --key-file metrics-access.json
       - uses: actions/download-artifact@v2
         id: download
         with:
           path: /Users/runner/test
       - name: Compare Diff and Post a Report
-        if: github.event_name == 'pull_request' && ${{ env.metrics_service_secret }}
+        if: github.event_name == 'pull_request' && ${{ env.METRICS_SERVICE_SECRET }}
         env:
           base_commit: ${{ needs.check.outputs.base_commit }}
         run: |
@@ -305,7 +305,7 @@ jobs:
           swift run CoverageReportGenerator --presubmit "firebase/firebase-ios-sdk" --commit "${GITHUB_SHA}" --token $(gcloud auth print-identity-token) --xcresult-dir "/Users/runner/test/codecoverage" --log-link "https://github.com/firebase/firebase-ios-sdk/actions/runs/${GITHUB_RUN_ID}" --pull-request-num ${{github.event.pull_request.number}} --base-commit "$base_commit"
           fi
       - name: Update New Coverage Data
-        if: github.event.pull_request.merged == true && ${{ env.metrics_service_secret }}
+        if: github.event.pull_request.merged == true && ${{ env.METRICS_SERVICE_SECRET }}
         run: |
           if [ -d "${{steps.download.outputs.download-path}}" ]; then
           cd scripts/code_coverage_report/generate_code_coverage_report
