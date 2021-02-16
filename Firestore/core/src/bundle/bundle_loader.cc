@@ -44,10 +44,10 @@ StatusOr<absl::optional<LoadBundleTaskProgress>> BundleLoader::AddElement(
   auto before_count = documents_.size();
 
   if (element.ElementType() == BundleElementType::NamedQuery) {
-    queries_.push_back(dynamic_cast<const NamedQuery&>(element));
+    queries_.push_back(static_cast<const NamedQuery&>(element));
   } else if (element.ElementType() == BundleElementType::DocumentMetadata) {
     const auto& document_metadata =
-        dynamic_cast<const BundledDocumentMetadata&>(element);
+        static_cast<const BundledDocumentMetadata&>(element);
     current_document_ = document_metadata.key();
     documents_metadata_.insert({document_metadata.key(), document_metadata});
 
@@ -59,7 +59,7 @@ StatusOr<absl::optional<LoadBundleTaskProgress>> BundleLoader::AddElement(
       current_document_ = absl::nullopt;
     }
   } else if (element.ElementType() == BundleElementType::Document) {
-    const auto& document = dynamic_cast<const BundleDocument&>(element);
+    const auto& document = static_cast<const BundleDocument&>(element);
     if (!current_document_.has_value() ||
         document.key() != current_document_.value()) {
       return {util::Status::FromErrno(
