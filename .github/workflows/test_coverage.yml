@@ -7,9 +7,12 @@ on:
     # closed will be triggered when a pull request is closed.
     types: [opened, synchronize, closed]
 
+env:
+  metrics_service_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+
 jobs:
   check:
-    if: github.repository == 'Firebase/firebase-ios-sdk' && (github.event.action == 'opened' || github.event.action == 'synchronize')
+    if: github.repository == 'Firebase/firebase-ios-sdk' && (github.event.action == 'opened' || github.event.action == 'synchronize') && env.metrics_service_secret
     name: Check changed files
     outputs:
       abtesting_run_job: ${{ steps.check_files.outputs.abtesting_run_job }}
@@ -269,8 +272,6 @@ jobs:
 
   create_report:
     needs: [check, pod-lib-lint-abtesting, pod-lib-lint-auth, pod-lib-lint-database, pod-lib-lint-dynamiclinks, pod-lib-lint-firestore, pod-lib-lint-functions, pod-lib-lint-inappmessaging, pod-lib-lint-instanceid, pod-lib-lint-messaging, pod-lib-lint-performance, pod-lib-lint-remoteconfig, pod-lib-lint-storage]
-    env:
-      metrics_service_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     if: always()
     runs-on: macOS-latest
     steps:
