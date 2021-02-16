@@ -52,7 +52,7 @@ BundleMetadata BundleReader::GetBundleMetadata() {
   }
 
   metadata_loaded_ = true;
-  metadata_ = dynamic_cast<BundleMetadata&>(*element);
+  metadata_ = static_cast<BundleMetadata&>(*element);
   return metadata_;
 }
 
