@@ -12,7 +12,9 @@ env:
 
 jobs:
   check:
-    if: github.repository == 'Firebase/firebase-ios-sdk' && (github.event.action == 'opened' || github.event.action == 'synchronize') && secrets.GHASecretsGPGPassphrase1
+    env:
+      METRICS_SERVICE_SECRET: ${{ secrets.GHASecretsGPGPassphrase1 }}
+    if: github.repository == 'Firebase/firebase-ios-sdk' && (github.event.action == 'opened' || github.event.action == 'synchronize') && ${{ env.METRICS_SERVICE_SECRET }}
     name: Check changed files
     outputs:
       abtesting_run_job: ${{ steps.check_files.outputs.abtesting_run_job }}
