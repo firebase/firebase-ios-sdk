@@ -22,6 +22,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "Firestore/core/src/bundle/bundle_callback.h"
 #include "Firestore/core/src/bundle/bundle_metadata.h"
 #include "Firestore/core/src/bundle/named_query.h"
 #include "Firestore/core/src/core/target_id_generator.h"
@@ -102,7 +103,7 @@ struct LruResults;
  * cache of the documents, to provide the initial set of results before any
  * remote changes have been received.
  */
-class LocalStore {
+class LocalStore : public bundle::BundleCallback {
  public:
   LocalStore(Persistence* persistence,
              QueryEngine* query_engine,
@@ -249,7 +250,7 @@ class LocalStore {
   bool HasNewerBundle(const bundle::BundleMetadata& metadata);
 
   /** Saves the given `BundleMetadata` to local persistence. */
-  void SaveBundle(const bundle::BundleMetadata& metadata);
+  void SaveBundle(const bundle::BundleMetadata& metadata) override;
 
   /**
    * Applies the documents from a bundle to the "ground-state" (remote)
@@ -259,11 +260,12 @@ class LocalStore {
    * queue.
    */
   model::MaybeDocumentMap ApplyBundledDocuments(
-      const model::MaybeDocumentMap& documents, const std::string& bundle_id);
+      const model::MaybeDocumentMap& documents,
+      const std::string& bundle_id) override;
 
   /** Saves the given `NamedQuery` to local persistence. */
   void SaveNamedQuery(const bundle::NamedQuery& query,
-                      const model::DocumentKeySet& keys);
+                      const model::DocumentKeySet& keys) override;
 
   /**
    * Returns the NameQuery associated with query_name or `nullopt` if not found.

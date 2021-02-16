@@ -16,9 +16,13 @@
 #ifndef FIRESTORE_CORE_SRC_BUNDLE_BUNDLE_LOADER_H_
 #define FIRESTORE_CORE_SRC_BUNDLE_BUNDLE_LOADER_H_
 
+#include <utility>
+
 #include "Firestore/core/src/api/bundle_types.h"
 #include "Firestore/core/src/bundle/bundle_callback.h"
 #include "Firestore/core/src/bundle/bundle_element.h"
+#include "Firestore/core/src/bundle/bundled_document_metadata.h"
+#include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/document_map.h"
 #include "Firestore/core/src/util/statusor.h"
 
@@ -26,25 +30,45 @@ namespace firebase {
 namespace firestore {
 namespace bundle {
 
+using AddElementResult = util::StatusOr<absl::optional<LoadBundleTaskProgress>>;
+
 class BundleLoader {
  public:
+  BundleLoader(BundleCallback* callback, BundleMetadata metadata)
+      : callback_(callback), metadata_(std::move(metadata)) {
+  }
+
   /**
    * Adds an element from the bundle to the loader.
    *
    * @return a new progress if adding the element leads to a new progress,
-   * otherwise returns `nullopt`.
+   * otherwise returns `nullopt`. If an error occurred, returns a not `ok()`
+   * status.
    */
-  util::StatusOr<LoadBundleTaskProgress> AddElement(BundleElement element,
-                                                    uint64_t byte_size);
+  AddElementResult AddElement(const BundleElement& element, uint64_t byte_size);
 
   /**
    * Applies the loaded documents and queries to local store. Returns the
-   * document view changes.
+   * document view changes. If an error occurred, returns a not `ok()` status.
    */
-  model::MaybeDocumentMap ApplyChanges();
+  util::StatusOr<model::MaybeDocumentMap> ApplyChanges();
 
  private:
-  BundleCallback callback_;
+  std::unordered_map<std::string, model::DocumentKeySet>
+  GetQueryDocumentMapping();
+
+  BundleCallback* callback_ = nullptr;
+  BundleMetadata metadata_;
+  std::vector<NamedQuery> queries_;
+  std::unordered_map<model::DocumentKey,
+                     BundledDocumentMetadata,
+                     model::DocumentKeyHash>
+      documents_metadata_;
+
+  model::MaybeDocumentMap documents_;
+  uint64_t bytes_loaded_ = 0;
+
+  absl::optional<model::DocumentKey> current_document_;
 };
 
 }  // namespace bundle

@@ -24,22 +24,29 @@ namespace firebase {
 namespace firestore {
 namespace bundle {
 
-/** Interface implemented by components that can apply changes from a bundle to local storage. */
+/** Interface implemented by components that can apply changes from a bundle to
+ * local storage. */
 class BundleCallback {
  public:
+  virtual ~BundleCallback() = default;
+
   /**
-  * Applies the documents from a bundle to the "ground-state" (remote) documents.
-  *
-  * Local documents are re-calculated if there are remaining mutations in the queue.
-  */
+   * Applies the documents from a bundle to the "ground-state" (remote)
+   * documents.
+   *
+   * Local documents are re-calculated if there are remaining mutations in the
+   * queue.
+   */
   virtual model::MaybeDocumentMap ApplyBundledDocuments(
-      model::MaybeDocumentMap documents, const std::string& bundle_id) = 0;
+      const model::MaybeDocumentMap& documents,
+      const std::string& bundle_id) = 0;
 
   /** Saves the given NamedQuery to local persistence. */
-  virtual void SaveNamedQuery(const NamedQuery& query, model::DocumentKeySet keys) = 0;
+  virtual void SaveNamedQuery(const NamedQuery& query,
+                              const model::DocumentKeySet& keys) = 0;
 
   /** Saves the given BundleMetadata to local persistence. */
-  virtual void SaveBundle(const BundleMetadata& query) = 0;
+  virtual void SaveBundle(const BundleMetadata& metadata) = 0;
 };
 
 }  // namespace bundle
