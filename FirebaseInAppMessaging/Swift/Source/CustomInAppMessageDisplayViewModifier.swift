@@ -38,6 +38,7 @@ struct ImageOnlyInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModif
 }
 
 public extension View {
+  /// Overrides the default display of an image only in-app message as defined on the Firebase console.
   func imageOnlyInAppMessage<Content: View>(closure: @escaping (InAppMessagingImageOnlyDisplay,
                                                                 InAppMessagingDisplayDelegate)
       -> Content)
@@ -68,6 +69,7 @@ struct BannerInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModifier
 }
 
 public extension View {
+  /// Overrides the default display of a banner in-app message as defined on the Firebase console.
   func bannerInAppMessage<Content: View>(closure: @escaping (InAppMessagingBannerDisplay,
                                                              InAppMessagingDisplayDelegate)
       -> Content)
@@ -98,6 +100,7 @@ struct ModalInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModifier 
 }
 
 public extension View {
+  /// Overrides the default display of a modal in-app message as defined on the Firebase console.
   func modalInAppMessage<Content: View>(closure: @escaping (InAppMessagingModalDisplay,
                                                             InAppMessagingDisplayDelegate)
       -> Content)
@@ -128,6 +131,7 @@ struct CardInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModifier {
 }
 
 public extension View {
+  /// Overrides the default display of a card in-app message as defined on the Firebase console.
   func cardInAppMessage<Content: View>(closure: @escaping (InAppMessagingCardDisplay,
                                                            InAppMessagingDisplayDelegate)
       -> Content)
