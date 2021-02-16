@@ -474,8 +474,8 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       XCTFail("Default app was not configured.")
       return
     }
-    // TODO: Flip this to `false` to avoid logging in tests.
-    testApp.isDataCollectionDefaultEnabled = true
+    // Flip this to `true` to test logging.
+    testApp.isDataCollectionDefaultEnabled = false
 
     let testModelName = "digit-classification"
     let testName = String(#function.dropLast(2))
