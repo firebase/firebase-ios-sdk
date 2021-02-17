@@ -518,6 +518,15 @@
         (void (^_Nonnull)(NSError *__nullable error,
                           FIRDataSnapshot *__nullable snapshot))block {
     FQuerySpec *querySpec = [query querySpec];
+    id<FNode> node = [self.serverSyncTree getServerValue:[query querySpec]];
+    if (node != nil) {
+        block(nil, [[FIRDataSnapshot alloc]
+                       initWithRef:query.ref
+                       indexedNode:[FIndexedNode
+                                       indexedNodeWithNode:node
+                                                     index:querySpec.index]]);
+        return;
+    }
     [self.persistenceManager setQueryActive:querySpec];
     [self.connection
         getDataAtPath:[query.path toString]
@@ -526,21 +535,18 @@
            id<FNode> node;
            if (![status isEqualToString:kFWPResponseForActionStatusOk]) {
                FFLog(@"I-RDB038024",
-                     @"getValue for query %@ falling back to cache",
+                     @"getValue for query %@ falling back to disk cache",
                      [querySpec.path toString]);
-               node = [self.serverSyncTree
-                   calcCompleteEventCacheAtPath:querySpec.path
-                                excludeWriteIds:@[]];
-               if ([node isEmpty]) {
-                   FFWarn(@"I-RDB038025",
-                          @"getValue for query at %@ failed: %@",
-                          [querySpec.path toString], status);
+               FIndexedNode *node =
+                   [self.serverSyncTree persistenceServerCache:querySpec];
+               if (node == nil) {
                    NSDictionary *errorDict = @{
                        NSLocalizedFailureReasonErrorKey : errorReason,
                        NSLocalizedDescriptionKey : [NSString
                            stringWithFormat:
                                @"Unable to get latest value for query %@, "
-                               @"client offline and cache is empty",
+                               @"client offline with no active listeners "
+                               @"and no matching disk cache entries",
                                querySpec]
                    };
                    block([NSError errorWithDomain:kFirebaseCoreErrorDomain
@@ -549,19 +555,21 @@
                          nil);
                    return;
                }
+               block(nil, [[FIRDataSnapshot alloc] initWithRef:query.ref
+                                                   indexedNode:node]);
            } else {
                node = [FSnapshotUtilities nodeFrom:data];
+               [self.eventRaiser
+                   raiseEvents:[self.serverSyncTree
+                                   applyServerOverwriteAtPath:[query path]
+                                                      newData:node]];
+               block(nil,
+                     [[FIRDataSnapshot alloc]
+                         initWithRef:query.ref
+                         indexedNode:[FIndexedNode
+                                         indexedNodeWithNode:node
+                                                       index:querySpec.index]]);
            }
-           [self.eventRaiser
-               raiseEvents:[self.serverSyncTree
-                               applyServerOverwriteAtPath:[query path]
-                                                  newData:node]];
-           block(nil,
-                 [[FIRDataSnapshot alloc]
-                     initWithRef:query.ref
-                     indexedNode:[FIndexedNode
-                                     indexedNodeWithNode:node
-                                                   index:querySpec.index]]);
            [self.persistenceManager setQueryInactive:querySpec];
          }];
 }

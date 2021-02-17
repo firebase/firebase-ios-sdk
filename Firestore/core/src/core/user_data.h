@@ -272,9 +272,20 @@ class ParsedSetData {
    *
    * This method consumes the values stored in the ParsedSetData
    */
-  std::vector<model::Mutation> ToMutations(
-      const model::DocumentKey& key,
-      const model::Precondition& precondition) &&;
+  model::Mutation ToMutation(const model::DocumentKey& key,
+                             const model::Precondition& precondition) &&;
+
+  const model::ObjectValue& data() const {
+    return data_;
+  }
+
+  const model::FieldMask& fieldMask() const {
+    return field_mask_;
+  }
+
+  const std::vector<model::FieldTransform>& field_transforms() const {
+    return field_transforms_;
+  }
 
  private:
   model::ObjectValue data_;
@@ -294,6 +305,10 @@ class ParsedUpdateData {
     return data_;
   }
 
+  const model::FieldMask& fieldMask() const {
+    return field_mask_;
+  }
+
   const std::vector<model::FieldTransform>& field_transforms() const {
     return field_transforms_;
   }
@@ -305,12 +320,12 @@ class ParsedUpdateData {
    *
    * This method consumes the values stored in the ParsedUpdateData
    */
-  std::vector<model::Mutation> ToMutations(
-      const model::DocumentKey& key,
-      const model::Precondition& precondition) &&;
+  model::Mutation ToMutation(const model::DocumentKey& key,
+                             const model::Precondition& precondition) &&;
 
  private:
   model::ObjectValue data_;
+  // The field mask does not include document transforms.
   model::FieldMask field_mask_;
   std::vector<model::FieldTransform> field_transforms_;
 };

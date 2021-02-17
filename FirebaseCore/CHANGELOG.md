@@ -1,3 +1,14 @@
+# FirebaseCore 7.7.0
+- [changed] Deprecated FirebaseMLModelInterpreter and FirebaseMLVision.
+- [added] Introduced FirebaseMLModelDownloader.
+- [fixed] Fixed missing doc comment in `FirebaseVersion()` (#7506).
+
+# FirebaseCore 7.6.0
+- [fixed] Fixed build warnings introduced with Xcode 12.5. (#7431)
+
+# Firebase 7.5.0
+- [fixed] Fixed potential deadlock with objc_copyImageNames call. (#7310)
+
 # Firebase 7.4.0
 - [changed] Patch update to nanopb 0.3.9.7 that fixes a memory leak and other issues. (#7090)
 - [added] Zip distribution now includes community supported macOS and tvOS libraries. Product

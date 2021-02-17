@@ -287,7 +287,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   self.installations = [FIRInstallations installations];
   [self setupTopics];
 
-#if !TARGET_OS_WATCH
   // Print the library version for logging.
   NSString *currentLibraryVersion = FIRFirebaseVersion();
   FIRMessagingLoggerInfo(kFIRMessagingMessageCodeMessagingPrintLibraryVersion,
@@ -301,8 +300,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   // setup FIRMessaging objects
   [self setupRmqManager];
   [self setupSyncMessageManager];
-
-#endif
 }
 
 - (void)setupFileManagerSubDirectory {

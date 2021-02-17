@@ -18,6 +18,7 @@
 
 #include "Crashlytics/Crashlytics/Components/FIRCLSBinaryImage.h"
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSInternalLogging.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
 #import "Crashlytics/Crashlytics/Private/FIRStackFrame_Private.h"
 
@@ -129,7 +130,7 @@
 
   if (![self fillInImageDetails:&imageDetails forUUID:[binaryImage objectForKey:@"uuid"]]) {
 #if DEBUG
-    FIRCLSDebugLog(@"Image not found");
+    FIRCLSSDKLog("Image not found\n");
 #endif
     return NO;
   }
@@ -141,7 +142,7 @@
 
   if (dladdr((void*)addr, &dlInfo) == 0) {
 #if DEBUG
-    FIRCLSDebugLog(@"Could not look up address");
+    FIRCLSSDKLog("Could not look up address\n");
 #endif
     return NO;
   }
@@ -150,7 +151,7 @@
     addr -= 2;
     if (dladdr((void*)addr, &dlInfo) == 0) {
 #if DEBUG
-      FIRCLSDebugLog(@"Could not look up address");
+      FIRCLSSDKLog("Could not look up address after move\n");
 #endif
       return NO;
     }

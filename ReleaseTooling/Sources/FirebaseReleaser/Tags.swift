@@ -29,17 +29,6 @@ enum Tags {
               deleteExistingTags: deleteExistingTags)
     createTag(gitRoot: gitRoot, tag: "CocoaPods-\(manifest.version)-beta",
               deleteExistingTags: deleteExistingTags)
-
-    for pod in manifest.pods.filter({ !$0.isFirebase && $0.releasing }) {
-      if !pod.name.starts(with: "Google") {
-        fatalError("Unrecognized Other Pod: \(pod.name). Only Google prefix is recognized")
-      }
-      guard let version = pod.podVersion else {
-        fatalError("Non-Firebase pod \(pod.name) is missing a version")
-      }
-      let tag = pod.name.replacingOccurrences(of: "Google", with: "") + "-" + version
-      createTag(gitRoot: gitRoot, tag: tag, deleteExistingTags: deleteExistingTags)
-    }
   }
 
   static func updateTags(gitRoot: URL) {

@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import Foundation
-import FirebaseCore
 
 /// Model info object with details about not-yet downloaded model.
 struct RemoteModelInfo {
@@ -29,10 +28,14 @@ struct RemoteModelInfo {
   /// Size of the model, as returned by server.
   let size: Int
 
-  init(name: String, downloadURL: URL, modelHash: String, size: Int) {
+  /// Model download URL expiry time, as returned by server.
+  let urlExpiryTime: Date
+
+  init(name: String, downloadURL: URL, modelHash: String, size: Int, urlExpiryTime: Date) {
     self.name = name
     self.downloadURL = downloadURL
     self.modelHash = modelHash
     self.size = size
+    self.urlExpiryTime = urlExpiryTime
   }
 }

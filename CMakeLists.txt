@@ -264,6 +264,5 @@ endif()
 
 add_subdirectory(FirebaseCore)
 add_subdirectory(Firestore)
-add_subdirectory(GoogleUtilities)
 add_subdirectory(Interop/Auth)
 add_subdirectory(Interop/CoreDiagnostics)

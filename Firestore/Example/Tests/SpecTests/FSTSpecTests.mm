@@ -327,11 +327,11 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
 
 #pragma mark - Methods for doing the steps of the spec test.
 
-- (void)doListen:(NSArray *)listenSpec {
-  Query query = [self parseQuery:listenSpec[1]];
+- (void)doListen:(NSDictionary *)listenSpec {
+  Query query = [self parseQuery:listenSpec[@"query"]];
   TargetId actualID = [self.driver addUserListenerWithQuery:std::move(query)];
 
-  TargetId expectedID = [listenSpec[0] intValue];
+  TargetId expectedID = [listenSpec[@"targetId"] intValue];
   XCTAssertEqual(actualID, expectedID, @"targetID assigned to listen");
 }
 
@@ -345,8 +345,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
 }
 
 - (void)doPatch:(NSArray *)patchSpec {
-  [self.driver
-      writeUserMutation:FSTTestPatchMutation(util::MakeString(patchSpec[0]), patchSpec[1], {})];
+  [self.driver writeUserMutation:FSTTestPatchMutation(patchSpec[0], patchSpec[1], {})];
 }
 
 - (void)doDelete:(NSString *)key {

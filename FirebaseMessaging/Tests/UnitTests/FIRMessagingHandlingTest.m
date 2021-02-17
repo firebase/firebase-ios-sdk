@@ -162,10 +162,8 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
   OCMReject([_testUtil.mockMessaging handleIncomingLinkIfNeededFromMessage:notificationPayload]);
   OCMReject([_mockMessagingAnalytics logMessage:notificationPayload toAnalytics:[OCMArg any]]);
 
-#if !(SWIFT_PACKAGE && TARGET_OS_TV)  // Not enough space.
   XCTAssertEqualObjects(@(FIRMessagingMessageStatusNew),
                         @([_testUtil.messaging appDidReceiveMessage:notificationPayload].status));
-#endif
   OCMVerifyAll(_testUtil.mockMessaging);
 }
 

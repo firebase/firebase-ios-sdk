@@ -12,9 +12,7 @@ on:
 
 jobs:
   pod-lib-lint:
-    # Don't run on private repo unless it is a PR.
-    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
-
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     runs-on: macOS-latest
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -31,11 +29,31 @@ jobs:
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/MLModelDownloader/GoogleService-Info.plist.gpg \
           FirebaseMLModelDownloader/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
     - name: Build and test
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseMLModelDownloader.podspec --platforms=${{ matrix.target }}
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseMLModelDownloader.podspec --platforms=${{ matrix.target }})
+
+  mlmodeldownloader-cron-only:
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+    runs-on: macos-latest
+    env:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+    strategy:
+      matrix:
+        target: [ios, tvos, macos]
+    needs: pod-lib-lint
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Install GoogleService-Info.plist
+      run: |
+        mkdir FirebaseMLModelDownloader/Tests/Integration/Resources
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/MLModelDownloader/GoogleService-Info.plist.gpg \
+          FirebaseMLModelDownloader/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
+    - name: PodLibLint MLModelDownloader Cron
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseMLModelDownloader.podspec --platforms=${{ matrix.target }} --use-static-frameworks
 
   spm:
-    # Don't run on private repo unless it is a PR.
-    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
@@ -48,7 +66,7 @@ jobs:
 
   spm-cron:
     # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
     runs-on: macOS-latest
     strategy:
       matrix:
@@ -63,8 +81,7 @@ jobs:
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseMLModelDownloaderUnit ${{ matrix.target }} spm
 
   catalyst:
-    # Don't run on private repo unless it is a PR.
-    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
@@ -73,18 +90,22 @@ jobs:
     - name: Setup project and Build Catalyst
       run: scripts/test_catalyst.sh FirebaseMLModelDownloader test FirebaseMLModelDownloader-Unit-unit
 
-  mlmodeldownloader-cron-only:
-    # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
-
+  mlmodeldownloader-sample-build-test:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository == 'Firebase/firebase-ios-sdk' && (github.event_name == 'schedule' || github.event_name == 'pull_request')
+    env:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: macos-latest
-    strategy:
-      matrix:
-        target: [ios, tvos, macos]
-    needs: pod-lib-lint
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
-    - name: PodLibLint MLModelDownloader Cron
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseMLModelDownloader.podspec --platforms=${{ matrix.target }} --use-modular-headers
+    - name: Install GoogleService-Info.plist
+      run: |
+        mkdir FirebaseMLModelDownloader/Apps/Sample/Resources
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/MLModelDownloader/GoogleService-Info.plist.gpg \
+          FirebaseMLModelDownloader/Apps/Sample/Resources/GoogleService-Info.plist "$plist_secret"
+    - name: Prereqs
+      run: scripts/install_prereqs.sh MLModelDownloaderSample iOS
+    - name: Build
+      run: ([ -z $plist_secret ] || scripts/build.sh MLModelDownloaderSample iOS)
