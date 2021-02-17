@@ -20,8 +20,7 @@
   @available(swift 5.0)
   @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
 
-extension GameCenterAuthProvider {
-    
+  extension GameCenterAuthProvider {
     /// Creates a `AuthCredential` for a Game Center sign in.
     ///
     /// The publisher will emit events on the **main** thread.
@@ -30,7 +29,7 @@ extension GameCenterAuthProvider {
     ///   successfully, or an error otherwise. The publisher will emit on the *main* thread.
     public class func getCredentialWith() -> Future<AuthCredential, Error> {
       Future<AuthCredential, Error> { promise in
-        self.getCredential() { authCredential, error in
+        self.getCredential { authCredential, error in
           if let error = error {
             promise(.failure(error))
           } else if let authCredential = authCredential {
@@ -39,6 +38,6 @@ extension GameCenterAuthProvider {
         }
       }
     }
-}
+  }
 
 #endif
