@@ -1,7 +1,9 @@
 # FirebaseCore 7.7.0
 - [changed] Deprecated FirebaseMLModelInterpreter and FirebaseMLVision.
 - [added] Introduced FirebaseMLModelDownloader.
-- [fixed] Fixed missing doc comment in `FirebaseVersion()` (#7506).
+- [fixed] Fixed missing doc comment in `FirebaseVersion()`. (#7506)
+- [changed] Minimum required Xcode version for Zip and Carthage distributions changed to 12.2 (was 12.0).
+- [added] The zip distribution now includes Catalyst simulator slices. (#7007)
 
 # FirebaseCore 7.6.0
 - [fixed] Fixed build warnings introduced with Xcode 12.5. (#7431)
