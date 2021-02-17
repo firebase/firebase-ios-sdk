@@ -149,7 +149,7 @@ NSString *const kFUNDefaultRegion = @"us-central1";
 }
 
 - (void)useLocalhost {
-  [self useEmulatorWithHost:@"http://localhost" port:5005];
+  [self useEmulatorWithHost:@"localhost" port:5005];
 }
 
 - (void)useEmulatorWithHost:(NSString *)host port:(NSInteger)port {
