@@ -57,3 +57,9 @@
 #import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthWebUtils.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+
+#import "Functions/FirebaseFunctions/FIRFunctions+Internal.h"
+
+// uncommenting the following lin eresults in the compiler no longer being able to find the methods on the HTTPSCallable extension
+//#import "Functions/FirebaseFunctions/FIRHTTPSCallable+Internal.h"
+
