@@ -19,8 +19,8 @@
 // Skip keychain tests on Catalyst.
 
 #import <XCTest/XCTest.h>
+#import "OCMock.h"
 
-#import <OCMock/OCMock.h>
 #import "FirebaseMessaging/Sources/Token/FIRMessagingAuthKeychain.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinPreferences.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenInfo.h"
