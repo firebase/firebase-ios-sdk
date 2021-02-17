@@ -19,7 +19,7 @@
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingAuthKeyChain.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingAuthKeychain.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenInfo.h"
 
 static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";

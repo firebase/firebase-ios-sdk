@@ -29,32 +29,6 @@ extern NSString *const kFIRMessagingCheckinKeychainService;
 @interface FIRMessagingCheckinStore : NSObject
 
 /**
- *  Designated Initializer. Initialize a checkin store with the given backup excluded
- *  plist filename.
- *
- *  @param checkinFilename                The backup excluded plist filename to persist checkin
- *                                        preferences.
- *
- *  @param subDirectoryName               Sub-directory in standard directory where we write
- *                                        InstanceID plist.
- *
- *  @return Store to persist checkin preferences.
- */
-- (instancetype)initWithCheckinPlistFileName:(NSString *)checkinFilename
-                            subDirectoryName:(NSString *)subDirectoryName;
-
-/**
- *  Initialize a checkin store with the given backup excluded  plist and keychain.
- *
- *  @param plist        The backup excluded plist to persist checkin preferences.
- *  @param keychain     The keychain used to persist checkin auth preferences.
- *
- *  @return Store to persist checkin preferences.
- */
-- (instancetype)initWithCheckinPlist:(FIRMessagingBackupExcludedPlist *)plist
-                            keychain:(FIRMessagingAuthKeychain *)keychain;
-
-/**
  *  Checks whether the backup excluded checkin preferences are present on the disk or not.
  *
  *  @return YES if the backup excluded checkin plist exists on the disks else NO.

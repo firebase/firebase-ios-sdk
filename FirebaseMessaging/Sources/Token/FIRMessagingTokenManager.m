@@ -21,7 +21,7 @@
 #import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 #import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
-#import "FirebaseMessaging/Sources/Token/FIRMessagingAuthKeyChain.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingAuthKeychain.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingAuthService.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinPreferences.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinStore.h"
@@ -30,9 +30,6 @@
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenInfo.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenOperation.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenStore.h"
-
-// NOTE: These values should be in sync with what InstanceID saves in as.
-static NSString *const kCheckinFileName = @"g-checkin";
 
 @interface FIRMessagingTokenManager () {
   FIRMessagingTokenStore *_tokenStore;
@@ -54,9 +51,7 @@ static NSString *const kCheckinFileName = @"g-checkin";
   self = [super init];
   if (self) {
     _tokenStore = [[FIRMessagingTokenStore alloc] init];
-    _checkinStore = [[FIRMessagingCheckinStore alloc]
-        initWithCheckinPlistFileName:kCheckinFileName
-                    subDirectoryName:kFIRMessagingInstanceIDSubDirectoryName];
+    _checkinStore = [[FIRMessagingCheckinStore alloc] init];
     _authService = [[FIRMessagingAuthService alloc] initWithCheckinStore:_checkinStore];
     [self resetCredentialsIfNeeded];
     [self configureTokenOperations];
