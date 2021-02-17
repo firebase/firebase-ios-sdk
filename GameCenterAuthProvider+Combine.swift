@@ -27,7 +27,7 @@
     ///
     /// - Returns: A publisher that emits an `AuthCredential` when the credential is obtained
     ///   successfully, or an error otherwise. The publisher will emit on the *main* thread.
-    public class func getCredentialWith() -> Future<AuthCredential, Error> {
+    public class func getCredential() -> Future<AuthCredential, Error> {
       Future<AuthCredential, Error> { promise in
         self.getCredential { authCredential, error in
           if let error = error {
