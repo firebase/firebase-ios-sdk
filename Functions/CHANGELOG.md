@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Fixed missing "http://" prefix when using Functions with the emulator. (#7537, #7538)
+
 # v7.2.0
 - [added] Made emulator connection API consistent between Auth, Database, Firestore, and Functions (#5916).
 
