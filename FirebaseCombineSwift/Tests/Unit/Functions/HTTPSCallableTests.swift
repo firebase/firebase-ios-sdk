@@ -23,13 +23,26 @@ class MockFunctions: Functions {
                              timeout: TimeInterval,
                              completion: @escaping (HTTPSCallableResult?, Error?) -> Void) {
     
-    let result: HTTPSCallableResult? = nil
+    let result = MockCallableResult(mockData: "mockResult")
     
     // uncomment the following line to send the correct test result
 //    let result = HTTPSCallableResult(data: "mockResult")
     completion(result, nil)
   }
 }
+
+class MockCallableResult: HTTPSCallableResult {
+  init(mockData: Any) {
+    self.mockData = mockData
+  }
+  
+  var mockData: Any?
+  
+  override var data: Any {
+    return mockData ?? []
+  }
+}
+
 
 class HTTPSCallableTests: XCTestCase {
   
