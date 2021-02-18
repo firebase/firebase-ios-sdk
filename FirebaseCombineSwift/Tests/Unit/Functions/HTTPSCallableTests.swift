@@ -16,51 +16,75 @@ import Foundation
 import Combine
 import XCTest
 import FirebaseFunctions
+import FirebaseCombineSwift
 
-class MockFunctions: Functions {
-  override func callFunction(_ name: String,
-                             with data: Any?,
-                             timeout: TimeInterval,
-                             completion: @escaping (HTTPSCallableResult?, Error?) -> Void) {
-    
-    let result: HTTPSCallableResult? = nil
-    
-    // uncomment the following line to send the correct test result
-//    let result = HTTPSCallableResult(data: "mockResult")
-    completion(result, nil)
+class MockFunctions: HTTPSCallableCombineExtension {
+  var callWithDataHandler: ((_ data: Any?, _ completion: (HTTPSCallableResult?, Error?) -> Void)
+    -> Void)?
+  func call(_ data: Any?, completion: @escaping (HTTPSCallableResult?, Error?) -> Void) {
+    callWithDataHandler?(data, completion)
+  }
+
+  var callHandler: ((_ completion: @escaping (HTTPSCallableResult?, Error?) -> Void) -> Void)?
+  func call(completion: @escaping (HTTPSCallableResult?, Error?) -> Void) {
+    callHandler?(completion)
+  }
+}
+
+class MockCallableResult: HTTPSCallableResult {
+  init(mockData: Any) {
+    self.mockData = mockData
+  }
+
+  var mockData: Any?
+
+  override var data: Any {
+    return mockData ?? []
   }
 }
 
 class HTTPSCallableTests: XCTestCase {
-  
   func testCallWithoutParameters() {
     // given
     var cancellables = Set<AnyCancellable>()
     let funcationWasCalledExpectation = expectation(description: "Function was called")
+    let valueReceivedExpectation = expectation(description: "Value received")
+    let finishExpectation = expectation(description: "Finished")
 
-    let dummy = MockFunctions.functions().httpsCallable("dummy")
-    dummy.foo()
-    dummy.call()
+    let expectedResult = MockCallableResult(mockData: "mockResult")
+
+    let callable = MockFunctions()
+    callable.callHandler = { completion in
+      funcationWasCalledExpectation.fulfill()
+      completion(expectedResult, nil)
+    }
+
+    callable.call()
       .sink { completion in
         switch completion {
         case .finished:
+          finishExpectation.fulfill()
           print("Finished")
         case let .failure(error):
           XCTFail("💥 Something went wrong: \(error)")
         }
       } receiveValue: { authDataResult in
+        valueReceivedExpectation.fulfill()
+
         guard let result = authDataResult.data as? String else {
           XCTFail("Expected String data")
           return
         }
-        
+
         XCTAssertEqual(result, "mockResult")
-        funcationWasCalledExpectation.fulfill()
       }
       .store(in: &cancellables)
-    
+
     // then
-    wait(for: [funcationWasCalledExpectation], timeout: expectationTimeout)
+    wait(
+      for: [funcationWasCalledExpectation, valueReceivedExpectation, finishExpectation],
+      timeout: expectationTimeout,
+      enforceOrder: true
+    )
   }
-  
 }
