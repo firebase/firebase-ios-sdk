@@ -27,6 +27,8 @@ jobs:
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
+    - name: Xcode 12.2
+      run: sudo xcode-select -s /Applications/Xcode_12.2.app/Contents/Developer
     - name: Build
       run: |
         cd ReleaseTooling
@@ -34,11 +36,13 @@ jobs:
 
   package:
     # Don't run on private repo.
-    if: (github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk') || github.event_name == 'workflow_dispatch'
+#    if: (github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk') || github.event_name == 'workflow_dispatch'
     needs: build
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
+    - name: Xcode 12.2
+      run: sudo xcode-select -s /Applications/Xcode_12.2.app/Contents/Developer
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: ZipBuildingTest
@@ -54,7 +58,7 @@ jobs:
 
   quickstart_framework_abtesting:
     # Don't run on private repo.
-    if: (github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk') || github.event_name == 'workflow_dispatch'
+#    if: (github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk') || github.event_name == 'workflow_dispatch'
     needs: package
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -99,7 +103,7 @@ jobs:
 
   quickstart_framework_auth:
     # Don't run on private repo.
-    if: (github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk') || github.event_name == 'workflow_dispatch'
+#    if: (github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk') || github.event_name == 'workflow_dispatch'
     needs: package
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -143,7 +147,7 @@ jobs:
 
   quickstart_framework_config:
     # Don't run on private repo.
-    if: (github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk') || github.event_name == 'workflow_dispatch'
+#    if: (github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk') || github.event_name == 'workflow_dispatch'
     needs: package
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -184,7 +188,7 @@ jobs:
 
   quickstart_framework_crashlytics:
     # Don't run on private repo.
-    if: (github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk') || github.event_name == 'workflow_dispatch'
+#    if: (github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk') || github.event_name == 'workflow_dispatch'
     needs: package
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -234,7 +238,7 @@ jobs:
 
   quickstart_framework_database:
     # Don't run on private repo.
-    if: (github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk') || github.event_name == 'workflow_dispatch'
+#    if: (github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk') || github.event_name == 'workflow_dispatch'
     needs: package
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -279,7 +283,7 @@ jobs:
 
   quickstart_framework_dynamiclinks:
     # Don't run on private repo.
-    if: (github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk') || github.event_name == 'workflow_dispatch'
+#    if: (github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk') || github.event_name == 'workflow_dispatch'
     needs: package
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -329,7 +333,7 @@ jobs:
 
   quickstart_framework_firestore:
     # Don't run on private repo.
-    if: (github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk') || github.event_name == 'workflow_dispatch'
+#    if: (github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk') || github.event_name == 'workflow_dispatch'
     needs: package
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -372,7 +376,7 @@ jobs:
 
   quickstart_framework_inappmessaging:
     # Don't run on private repo.
-    if: (github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk') || github.event_name == 'workflow_dispatch'
+#    if: (github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk') || github.event_name == 'workflow_dispatch'
     needs: package
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -418,7 +422,7 @@ jobs:
 
   quickstart_framework_messaging:
     # Don't run on private repo.
-    if: (github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk') || github.event_name == 'workflow_dispatch'
+#    if: (github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk') || github.event_name == 'workflow_dispatch'
     needs: package
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -463,7 +467,7 @@ jobs:
 
   quickstart_framework_storage:
     # Don't run on private repo.
-    if: (github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk') || github.event_name == 'workflow_dispatch'
+#    if: (github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk') || github.event_name == 'workflow_dispatch'
     needs: package
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
