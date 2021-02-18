@@ -529,9 +529,9 @@ void SyncEngine::UpdateTrackedLimboDocuments(
 void SyncEngine::TrackLimboChange(const LimboDocumentChange& limbo_change) {
   const DocumentKey& key = limbo_change.key();
   if (active_limbo_targets_by_key_.find(key) ==
-      active_limbo_targets_by_key_.end()) {
+          active_limbo_targets_by_key_.end() &&
+      enqueued_limbo_resolutions_.push_back(key)) {
     LOG_DEBUG("New document in limbo: %s", key.ToString());
-    enqueued_limbo_resolutions_.push_back(key);
     PumpEnqueuedLimboResolutions();
   }
 }
@@ -553,6 +553,7 @@ void SyncEngine::PumpEnqueuedLimboResolutions() {
 }
 
 void SyncEngine::RemoveLimboTarget(const DocumentKey& key) {
+  enqueued_limbo_resolutions_.remove(key);
   auto it = active_limbo_targets_by_key_.find(key);
   if (it == active_limbo_targets_by_key_.end()) {
     // This target already got removed, because the query failed.

@@ -406,6 +406,10 @@ struct ZipBuilder {
     }.sorted { $0.key < $1.key }
     for pod in remainingPods {
       do {
+        if frameworksToAssemble[pod.key] == nil {
+          // Continue if the pod wasn't built - like Swift frameworks for Carthage.
+          continue
+        }
         let (productDir, podFrameworks) =
           try installAndCopyFrameworks(forPod: pod.key,
                                        withInstalledPods: installedPods,

@@ -1,4 +1,4 @@
-// Copyright 2019 Google
+// Copyright 2021 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,19 +14,14 @@
 
 #import <Foundation/Foundation.h>
 
-@class FIRCLSSettings;
-@protocol FIRAnalyticsInterop;
-@protocol FIRAnalyticsInteropListener;
+NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRCLSFCRAnalytics : NSObject
+@interface FIRCLSNotificationManager : NSObject
 
-/** Logs a Crashlytics crash session in Firebase Analytics.
- *  @param crashTimeStamp The time stamp of the crash to be logged.
- */
-+ (void)logCrashWithTimeStamp:(NSTimeInterval)crashTimeStamp
-                  toAnalytics:(id<FIRAnalyticsInterop>)analytics;
++ (instancetype)new NS_UNAVAILABLE;
 
-+ (void)registerEventListener:(id<FIRAnalyticsInteropListener>)eventListener
-                  toAnalytics:(id<FIRAnalyticsInterop>)analytics;
+- (void)registerNotificationListener;
 
 @end
+
+NS_ASSUME_NONNULL_END
