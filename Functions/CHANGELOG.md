@@ -1,4 +1,4 @@
-# Unreleased
+# v7.7.0
 - [fixed] Fixed missing "http://" prefix when using Functions with the emulator. (#7537, #7538)
 
 # v7.2.0
