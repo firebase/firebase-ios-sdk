@@ -7,7 +7,7 @@
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
+ * Unless Requiredd by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
@@ -40,9 +40,9 @@ namespace bundle {
  * Provides the ability to report failure cases by inheriting `ReadContext`, and
  * checks and reads json object into specified types.
  *
- * `Require*` methods check the existence of the given name and compatibility of
- * its value (can it be read into the given type?). They fail the reader if any
- * of the checks fail, otherwise return the read value.
+ * `Required*` methods check the existence of the given name and compatibility
+ * of its value (can it be read into the given type?). They fail the reader if
+ * any of the checks fail, otherwise return the read value.
  *
  * `Optional*` methods check the existence of the given name, and return a
  * specified default value if the name does not exist. They then check
@@ -51,28 +51,28 @@ namespace bundle {
  */
 class JsonReader : public util::ReadContext {
  public:
-  const std::string& RequireString(const char* name,
-                                   const nlohmann::json& json_object);
+  const std::string& RequiredString(const char* name,
+                                    const nlohmann::json& json_object);
   const std::string& OptionalString(const char* name,
                                     const nlohmann::json& json_object,
                                     const std::string& default_value);
 
-  const std::vector<nlohmann::json>& RequireArray(
+  const std::vector<nlohmann::json>& RequiredArray(
       const char* name, const nlohmann::json& json_object);
   const std::vector<nlohmann::json>& OptionalArray(
       const char* name,
       const nlohmann::json& json_object,
       const std::vector<nlohmann::json>& default_value);
-  const nlohmann::json& RequireObject(const char* child_name,
-                                      const nlohmann::json& json_object);
+  const nlohmann::json& RequiredObject(const char* child_name,
+                                       const nlohmann::json& json_object);
 
-  double RequireDouble(const char* name, const nlohmann::json& value);
+  double RequiredDouble(const char* name, const nlohmann::json& value);
   double OptionalDouble(const char* name,
                         const nlohmann::json& value,
                         double default_value = 0);
 
   template <typename int_type>
-  int_type RequireInt(const char* name, const nlohmann::json& value);
+  int_type RequiredInt(const char* name, const nlohmann::json& value);
 
   template <typename int_type>
   int_type OptionalInt(const char* name,

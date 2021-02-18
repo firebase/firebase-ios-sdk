@@ -256,6 +256,14 @@ TEST_F(BundleSerializerTest, DecodesInvalidBundleMetadataReportsError) {
   std::string json_string;
   MessageToJsonString(proto_metadata, &json_string);
 
+  {
+    auto invalid = "123" + json_string;
+    JsonReader reader;
+    bundle_serializer.DecodeBundleMetadata(reader, invalid);
+
+    EXPECT_NOT_OK(reader.status());
+  }
+
   // Replace total_bytes to a string unparseable to integer.
   {
     std::string json_copy =

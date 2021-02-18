@@ -16,6 +16,12 @@
 
 #include "Firestore/core/src/bundle/bundle_reader.h"
 
+#include <memory>
+#include <sstream>
+#include <string>
+#include <utility>
+#include <vector>
+
 #include "Firestore/Protos/cpp/firestore/bundle.pb.h"
 #include "Firestore/Protos/cpp/firestore/local/maybe_document.pb.h"
 #include "Firestore/Protos/cpp/google/firestore/v1/document.pb.h"
@@ -126,7 +132,7 @@ class BundleReaderTest : public ::testing::Test {
     BundledQuery bundled_query(original.ToTarget(), core::LimitType::First);
     NamedQuery named_query("limitQuery", bundled_query,
                            testutil::Version(1000));
-    nanopb::ByteString bytes =
+    auto bytes =
         nanopb::MakeByteString(local_serializer.EncodeNamedQuery(named_query));
     return nanopb::ProtobufParse<ProtoNamedQuery>(bytes);
   }
@@ -140,7 +146,7 @@ class BundleReaderTest : public ::testing::Test {
     BundledQuery bundled_query(original.ToTarget(), core::LimitType::Last);
     NamedQuery named_query("limitToLastQuery", bundled_query,
                            testutil::Version(1111));
-    nanopb::ByteString bytes =
+    auto bytes =
         nanopb::MakeByteString(local_serializer.EncodeNamedQuery(named_query));
     return nanopb::ProtobufParse<ProtoNamedQuery>(bytes);
   }
@@ -245,7 +251,7 @@ class BundleReaderTest : public ::testing::Test {
 
     // The bundle metadata is not considered part of the bytes read. Instead, it
     // encodes the expected size of all elements.
-    EXPECT_EQ(reader.BytesRead(), 0);
+    EXPECT_EQ(reader.bytes_read(), 0);
 
     std::unique_ptr<BundleElement> next_element = reader.GetNextElement();
     while (next_element) {
@@ -254,16 +260,16 @@ class BundleReaderTest : public ::testing::Test {
       next_element = reader.GetNextElement();
     }
 
-    EXPECT_EQ(reader.BytesRead(), actual_metadata.total_bytes());
+    EXPECT_EQ(reader.bytes_read(), actual_metadata.total_bytes());
 
     return result;
   }
 
   void VerifyNamedQueryEncodesToOriginal(const NamedQuery& actual_read,
                                          const ProtoNamedQuery& original) {
-    EXPECT_EQ(actual_read.ElementType(), BundleElementType::NamedQuery);
+    EXPECT_EQ(actual_read.element_type(), BundleElement::Type::NamedQuery);
     auto actual_proto = local_serializer.EncodeNamedQuery(actual_read);
-    nanopb::ByteString bytes = nanopb::MakeByteString(actual_proto);
+    auto bytes = nanopb::MakeByteString(actual_proto);
     EXPECT_TRUE(
         msg_diff_.Compare(ProtobufParse<ProtoNamedQuery>(bytes), original))
         << message_differences;
@@ -272,10 +278,10 @@ class BundleReaderTest : public ::testing::Test {
 
   void VerifyDocumentEncodesToOriginal(const BundleDocument& actual_read,
                                        const ProtoDocument& original) {
-    EXPECT_EQ(actual_read.ElementType(), BundleElementType::Document);
+    EXPECT_EQ(actual_read.element_type(), BundleElement::Type::Document);
     auto actual_proto =
         local_serializer.EncodeMaybeDocument(actual_read.document());
-    nanopb::ByteString bytes = nanopb::MakeByteString(actual_proto);
+    auto bytes = nanopb::MakeByteString(actual_proto);
     ProtoMaybeDocument maybe_document;
     *maybe_document.mutable_document() = original;
     EXPECT_TRUE(msg_diff_.Compare(ProtobufParse<ProtoMaybeDocument>(bytes),
@@ -287,7 +293,8 @@ class BundleReaderTest : public ::testing::Test {
   static void VerifyDocumentMetadataEquals(
       const BundledDocumentMetadata& actual_read,
       const ProtoBundledDocumentMetadata& original) {
-    EXPECT_EQ(actual_read.ElementType(), BundleElementType::DocumentMetadata);
+    EXPECT_EQ(actual_read.element_type(),
+              BundleElement::Type::DocumentMetadata);
     EXPECT_EQ(FullPath(actual_read.key().ToString()), original.name());
     EXPECT_EQ(actual_read.read_time(),
               model::SnapshotVersion(Timestamp(original.read_time().seconds(),
@@ -325,15 +332,27 @@ TEST_F(BundleReaderTest, ReadsQueryAndDocument) {
       VerifyFullBundleParsed(reader, "bundle-1", testutil::Version(6000004000));
 
   EXPECT_EQ(elements.size(), 4);
-  VerifyNamedQueryEncodesToOriginal(
-      *reinterpret_cast<NamedQuery*>(elements[0].get()), LimitQuery());
-  VerifyNamedQueryEncodesToOriginal(
-      *reinterpret_cast<NamedQuery*>(elements[1].get()), LimitToLastQuery());
-  VerifyDocumentMetadataEquals(
-      *reinterpret_cast<BundledDocumentMetadata*>(elements[2].get()),
-      DocumentMetadata1());
-  VerifyDocumentEncodesToOriginal(
-      *reinterpret_cast<BundleDocument*>(elements[3].get()), Document1());
+  {
+    SCOPED_TRACE("LimitQuery");
+    VerifyNamedQueryEncodesToOriginal(
+        *static_cast<NamedQuery*>(elements[0].get()), LimitQuery());
+  }
+  {
+    SCOPED_TRACE("LimitToLastQuery");
+    VerifyNamedQueryEncodesToOriginal(
+        *static_cast<NamedQuery*>(elements[1].get()), LimitToLastQuery());
+  }
+  {
+    SCOPED_TRACE("DocumentMetadata");
+    VerifyDocumentMetadataEquals(
+        *static_cast<BundledDocumentMetadata*>(elements[2].get()),
+        DocumentMetadata1());
+  }
+  {
+    SCOPED_TRACE("Document");
+    VerifyDocumentEncodesToOriginal(
+        *static_cast<BundleDocument*>(elements[3].get()), Document1());
+  }
 }
 
 TEST_F(BundleReaderTest, ReadsQueryAndDocumentWithUnexpectedOrder) {
@@ -352,18 +371,33 @@ TEST_F(BundleReaderTest, ReadsQueryAndDocumentWithUnexpectedOrder) {
       VerifyFullBundleParsed(reader, "bundle-1", testutil::Version(6000004000));
 
   EXPECT_EQ(elements.size(), 5);
-  VerifyDocumentMetadataEquals(
-      *reinterpret_cast<BundledDocumentMetadata*>(elements[0].get()),
-      DocumentMetadata1());
-  VerifyDocumentEncodesToOriginal(
-      *reinterpret_cast<BundleDocument*>(elements[1].get()), Document1());
-  VerifyNamedQueryEncodesToOriginal(
-      *reinterpret_cast<NamedQuery*>(elements[2].get()), LimitQuery());
-  VerifyDocumentMetadataEquals(
-      *reinterpret_cast<BundledDocumentMetadata*>(elements[3].get()),
-      DocumentMetadata2());
-  VerifyDocumentEncodesToOriginal(
-      *reinterpret_cast<BundleDocument*>(elements[4].get()), Document2());
+  {
+    SCOPED_TRACE("DocumentMetadata1");
+    VerifyDocumentMetadataEquals(
+        *static_cast<BundledDocumentMetadata*>(elements[0].get()),
+        DocumentMetadata1());
+  }
+  {
+    SCOPED_TRACE("Document1");
+    VerifyDocumentEncodesToOriginal(
+        *static_cast<BundleDocument*>(elements[1].get()), Document1());
+  }
+  {
+    SCOPED_TRACE("LimitQuery");
+    VerifyNamedQueryEncodesToOriginal(
+        *static_cast<NamedQuery*>(elements[2].get()), LimitQuery());
+  }
+  {
+    SCOPED_TRACE("DocumentMetadata2");
+    VerifyDocumentMetadataEquals(
+        *static_cast<BundledDocumentMetadata*>(elements[3].get()),
+        DocumentMetadata2());
+  }
+  {
+    SCOPED_TRACE("Document2");
+    VerifyDocumentEncodesToOriginal(
+        *static_cast<BundleDocument*>(elements[4].get()), Document2());
+  }
 }
 
 TEST_F(BundleReaderTest, ReadsWithoutNamedQuery) {
@@ -379,11 +413,17 @@ TEST_F(BundleReaderTest, ReadsWithoutNamedQuery) {
       VerifyFullBundleParsed(reader, "bundle-1", testutil::Version(6000004000));
 
   EXPECT_EQ(elements.size(), 2);
-  VerifyDocumentMetadataEquals(
-      *reinterpret_cast<BundledDocumentMetadata*>(elements[0].get()),
-      DocumentMetadata1());
-  VerifyDocumentEncodesToOriginal(
-      *reinterpret_cast<BundleDocument*>(elements[1].get()), Document1());
+  {
+    SCOPED_TRACE("DocumentMetadata1");
+    VerifyDocumentMetadataEquals(
+        *static_cast<BundledDocumentMetadata*>(elements[0].get()),
+        DocumentMetadata1());
+  }
+  {
+    SCOPED_TRACE("Document1");
+    VerifyDocumentEncodesToOriginal(
+        *static_cast<BundleDocument*>(elements[1].get()), Document1());
+  }
 }
 
 TEST_F(BundleReaderTest, ReadsWithDeletedDocument) {
@@ -400,14 +440,23 @@ TEST_F(BundleReaderTest, ReadsWithDeletedDocument) {
       VerifyFullBundleParsed(reader, "bundle-1", testutil::Version(6000004000));
 
   EXPECT_EQ(elements.size(), 3);
-  VerifyDocumentMetadataEquals(
-      *reinterpret_cast<BundledDocumentMetadata*>(elements[0].get()),
-      DeletedDocumentMetadata());
-  VerifyDocumentMetadataEquals(
-      *reinterpret_cast<BundledDocumentMetadata*>(elements[1].get()),
-      DocumentMetadata2());
-  VerifyDocumentEncodesToOriginal(
-      *reinterpret_cast<BundleDocument*>(elements[2].get()), Document2());
+  {
+    SCOPED_TRACE("DeletedDocumentMetadata");
+    VerifyDocumentMetadataEquals(
+        *static_cast<BundledDocumentMetadata*>(elements[0].get()),
+        DeletedDocumentMetadata());
+  }
+  {
+    SCOPED_TRACE("DocumentMetadata2");
+    VerifyDocumentMetadataEquals(
+        *static_cast<BundledDocumentMetadata*>(elements[1].get()),
+        DocumentMetadata2());
+  }
+  {
+    SCOPED_TRACE("Document2");
+    VerifyDocumentEncodesToOriginal(
+        *static_cast<BundleDocument*>(elements[2].get()), Document2());
+  }
 }
 
 TEST_F(BundleReaderTest, ReadsWithoutDocumentOrQuery) {
@@ -428,24 +477,29 @@ TEST_F(BundleReaderTest, ReadsLargeDocument) {
 
   const auto& bundle =
       BuildBundle("bundle-1", testutil::Version(6000004000), 0);
-  std::cout << bundle << "\n";
   BundleReader reader(bundle_serializer,
                       absl::make_unique<std::istringstream>(bundle));
 
   std::vector<std::unique_ptr<BundleElement>> elements =
       VerifyFullBundleParsed(reader, "bundle-1", testutil::Version(6000004000));
 
-  VerifyDocumentMetadataEquals(
-      *reinterpret_cast<BundledDocumentMetadata*>(elements[0].get()),
-      DocumentMetadata2());
-  VerifyDocumentEncodesToOriginal(
-      *reinterpret_cast<BundleDocument*>(elements[1].get()), LargeDocument2());
+  {
+    SCOPED_TRACE("DocumentMetadata2");
+    VerifyDocumentMetadataEquals(
+        *static_cast<BundledDocumentMetadata*>(elements[0].get()),
+        DocumentMetadata2());
+  }
+  {
+    SCOPED_TRACE("LargeDocument2");
+    VerifyDocumentEncodesToOriginal(
+        *static_cast<BundleDocument*>(elements[1].get()), LargeDocument2());
+  }
 }
 
 TEST_F(BundleReaderTest, FailsWithBadLengthPrefix) {
   const auto& bundle =
       BuildBundle("bundle-1", testutil::Version(6000004000), 0);
-  for (int l = 1; l < 4; l++) {
+  for (int l = 1; l < 4; ++l) {
     auto bad_prefix = bundle.substr(l);
     BundleReader reader(bundle_serializer,
                         absl::make_unique<std::istringstream>(bad_prefix));
@@ -477,11 +531,8 @@ TEST_F(BundleReaderTest, FailsWhenNoEnoughtDataCanBeRead) {
   BundleReader reader(bundle_serializer,
                       absl::make_unique<std::istringstream>("1" + bundle));
 
-  // Metadata can still be read because it is complete.
-  EXPECT_EQ(reader.GetBundleMetadata(),
-            BundleMetadata("bundle-1", 1, testutil::Version(6000004000), 0, 0));
+  EXPECT_EQ(reader.GetBundleMetadata(), BundleMetadata());
   EXPECT_EQ(reader.GetNextElement(), nullptr);
-
   EXPECT_NOT_OK(reader.ReaderStatus());
 }
 

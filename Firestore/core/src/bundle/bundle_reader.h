@@ -16,11 +16,15 @@
 #ifndef FIRESTORE_CORE_SRC_BUNDLE_BUNDLE_READER_H_
 #define FIRESTORE_CORE_SRC_BUNDLE_BUNDLE_READER_H_
 
+#include <cstdint>
 #include <istream>
 #include <memory>
+#include <string>
+#include <utility>
 
 #include "Firestore/core/src/bundle/bundle_metadata.h"
 #include "Firestore/core/src/bundle/bundle_serializer.h"
+#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
@@ -37,33 +41,42 @@ class BundleReader {
   BundleReader(BundleSerializer serializer,
                std::unique_ptr<std::istream> input);
 
-  /** Returns the metadata element from the bundle. */
+  /**
+   * Returns the metadata element from the bundle.
+   *
+   * Caches the result when first called, and returns the cached result in the
+   * following calls.
+   */
   BundleMetadata GetBundleMetadata();
 
   /**
    * Returns the next element from the bundle. Metadata elements can be accessed
    * by `GetBundleMetadata`, they are not returned from this method.
+   *
+   * When there is no more element to return, a `nullptr` is returned. Check
+   * `ReaderStatus()` to see if it is due to the completion of bundle (status
+   * will be `ok()`), or an error.
    */
   std::unique_ptr<BundleElement> GetNextElement();
 
-  /** Whether this instance is in good state. */
+  /** Returns whether this instance is in good state. */
   util::Status ReaderStatus() const {
     return reader_status_;
   }
 
-  /** Reports failure from reading. */
+  /** Sets this instance to a failed state. */
   void Fail(std::string msg) {
     reader_status_.Update(util::Status(Error::kErrorDataLoss, std::move(msg)));
   }
 
   /** How many bytes have we read from the bundle. */
-  int64_t BytesRead() const {
+  int64_t bytes_read() const {
     return bytes_read_;
   }
 
  private:
   /**
-   * Reads from the head of internal buffer, Pulls more data from underlying
+   * Reads from the head of internal buffer, pulls more data from underlying
    * stream until a complete element is found (including the prefixed length and
    * the JSON string).
    *
@@ -84,13 +97,20 @@ class BundleReader {
    * Reads `length` number of chars from stream into internal `buffer_`.
    */
   void ReadJsonToBuffer(size_t length);
+
+  /**
+   * Pulls `required_size` amount of bytes from `input_` into `buffer_`.
+   *
+   * Returns true if all bytes are pulled successfully, returns false if not all
+   * bytes can be pulled.
+   */
   bool PullMoreData(uint32_t required_size);
 
   /**
    * Decodes internal `buffer_` into a `BundleElement`, returned as a unique_ptr
-   * pointing to the element.
+   * pointing to the element. Returns nullptr if fails.
    *
-   * Returns nullptr if fails.
+   * Note this method will leave `buffer_` unchanged.
    */
   std::unique_ptr<BundleElement> DecodeBundleElementFromBuffer();
 
@@ -104,7 +124,7 @@ class BundleReader {
   BundleMetadata metadata_;
   bool metadata_loaded_ = false;
 
-  // Internal buffer, cleared everytime a complete element is parsed from this.
+  // Internal buffer, cleared every time a complete element is parsed from this.
   std::string buffer_;
 
   util::Status reader_status_;

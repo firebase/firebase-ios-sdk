@@ -18,7 +18,9 @@
 
 #include <algorithm>
 
+#include "absl/memory/memory.h"
 #include "absl/strings/numbers.h"
+#include "absl/strings/string_view.h"
 
 namespace firebase {
 namespace firestore {
@@ -46,12 +48,12 @@ BundleMetadata BundleReader::GetBundleMetadata() {
   }
 
   std::unique_ptr<BundleElement> element = ReadNextElement();
-  if (!element || element->ElementType() != BundleElementType::Metadata) {
+  metadata_loaded_ = true;
+  if (!element || element->element_type() != BundleElement::Type::Metadata) {
     Fail("Failed to get bundle metadata");
     return {};
   }
 
-  metadata_loaded_ = true;
   metadata_ = static_cast<BundleMetadata&>(*element);
   return metadata_;
 }
@@ -69,15 +71,18 @@ std::unique_ptr<BundleElement> BundleReader::ReadNextElement() {
     return nullptr;
   }
 
-  size_t prefix_value;
+  size_t prefix_value = 0;
   auto ok = absl::SimpleAtoi<size_t>(length_prefix.value(), &prefix_value);
   if (!ok) {
-    Fail("prefix string is not a valid number");
+    Fail("Prefix string is not a valid number");
     return nullptr;
   }
 
   buffer_.clear();
   ReadJsonToBuffer(prefix_value);
+  if (!reader_status_.ok()) {
+    return nullptr;
+  }
 
   // metadata's size does not count in `bytes_read_`.
   if (metadata_loaded_) {
@@ -91,7 +96,7 @@ std::unique_ptr<BundleElement> BundleReader::ReadNextElement() {
 
 absl::optional<std::string> BundleReader::ReadLengthPrefix() {
   std::string result;
-  while (!(input_->fail())) {
+  while (!input_->fail()) {
     // Fill `length_chars` until a `{` is found. 10 should be more than enough
     // to represent a length. Also appending `\0` is taken cared of by `get`.
     char length_chars[10];
@@ -140,7 +145,7 @@ bool BundleReader::PullMoreData(uint32_t required_size) {
   // Read at most 1024 bytes every time, to avoid allocating a huge buffer when
   // corruption leads to large `required_size`.
   auto size = std::min(1024u, required_size);
-  char data[size + 1];
+  char data[1024 + 1];
   input_->read(data, size);
   // `read` does not do this for us, unlike `get`.
   data[input_->gcount()] = '\0';
@@ -151,7 +156,7 @@ bool BundleReader::PullMoreData(uint32_t required_size) {
 std::unique_ptr<BundleElement> BundleReader::DecodeBundleElementFromBuffer() {
   auto json_object = Parse(buffer_);
   if (json_object.is_discarded()) {
-    Fail("Failed to parse string into json: ");
+    Fail("Failed to parse string into json");
     return nullptr;
   }
 

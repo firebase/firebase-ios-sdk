@@ -43,8 +43,8 @@ class BundledDocumentMetadata : public BundleElement {
         queries_(std::move(queries)) {
   }
 
-  BundleElementType ElementType() const override {
-    return BundleElementType::DocumentMetadata;
+  Type element_type() const override {
+    return Type::DocumentMetadata;
   }
 
   /** Returns the document key of a bundled document. */
