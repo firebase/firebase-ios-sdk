@@ -21,7 +21,7 @@
 
 #import "FirebasePerformance/Tests/Unit/FPRTestUtils.h"
 
-#import "GoogleDataTransport/GDTCORLibrary/Internal/GoogleDataTransportInternal.h"
+#import <GoogleDataTransport/GoogleDataTransport.h>
 #import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORTransport_Private.h"
 #import "GoogleDataTransport/GDTCORTests/Common/Fakes/GDTCORTransportFake.h"
 

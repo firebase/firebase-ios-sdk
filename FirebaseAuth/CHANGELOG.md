@@ -1,3 +1,12 @@
+# 7.6.0
+- [fixed] Auth emulator now works across the local network. (#7350)
+- [fixed] Fixed incorrect import for watchOS (#7425)
+
+# 7.4.0
+- [fixed] Check if the reverse client ID is configured as a custom URL scheme before setting it as the callback scheme. (#7211)
+- [added] Add ability to sync auth state across devices. (#6924)
+- [fixed] Add multi-tenancy support for email link sign-in. (#7246)
+
 # 7.3.0
 - [fixed] Catalyst browser issue with `verifyPhoneNumber` API. (#7049)
 

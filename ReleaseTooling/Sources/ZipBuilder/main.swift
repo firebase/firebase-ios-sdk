@@ -25,16 +25,15 @@ extension URL: ExpressibleByArgument {
 }
 
 // Enables parsing of platforms as a command line argument.
-extension TargetPlatform: ExpressibleByArgument {
+extension Platform: ExpressibleByArgument {
   public init?(argument: String) {
     // Look for a match in SDK name.
-    for platform in TargetPlatform.allCases {
-      if argument == platform.sdkName {
+    for platform in Platform.allCases {
+      if argument == platform.name {
         self = platform
         return
       }
     }
-
     return nil
   }
 }
@@ -80,6 +79,12 @@ struct ZipBuilderTool: ParsableCommand {
         help: ArgumentHelp("A flag to indicate keeping (not deleting) the build artifacts."))
   var keepBuildArtifacts: Bool
 
+  /// Flag to skip building the Catalyst slices.
+  @Flag(default: true,
+        inversion: .prefixedNo,
+        help: ArgumentHelp("A flag to indicate skip building the Catalyst slice."))
+  var includeCatalyst: Bool
+
   /// Flag to run `pod repo update` and `pod cache clean --all`.
   @Flag(default: true,
         inversion: .prefixedNo,
@@ -93,7 +98,7 @@ struct ZipBuilderTool: ParsableCommand {
   /// Custom CocoaPods spec repos to be used.
   @Option(parsing: .upToNextOption,
           help: ArgumentHelp("""
-          A list of custom CocoaPod Spec repos.  If not provided, the tool will only use the \
+          A list of private CocoaPod Spec repos. If not provided, the tool will only use the \
           CocoaPods master repo.
           """))
   var customSpecRepos: [URL]
@@ -101,19 +106,30 @@ struct ZipBuilderTool: ParsableCommand {
   // MARK: - Platform Arguments
 
   /// The minimum iOS Version to build for.
-  @Option(default: "10.0",
-          help: ArgumentHelp("The minimum supported iOS version. The default is 10.0."))
+  @Option(default: "10.0", help: ArgumentHelp("The minimum supported iOS version."))
   var minimumIOSVersion: String
 
-  /// The list of architectures to build for.
+  /// The minimum macOS Version to build for.
+  @Option(default: "10.12", help: ArgumentHelp("The minimum supported macOS version."))
+  var minimumMacOSVersion: String
+
+  /// The minimum tvOS Version to build for.
+  @Option(default: "10.0", help: ArgumentHelp("The minimum supported tvOS version."))
+  var minimumTVOSVersion: String
+
+  /// The list of platforms to build for.
   @Option(parsing: .upToNextOption,
           help: ArgumentHelp("""
           The list of platforms to build for. The default list is \
-          \(TargetPlatform.allCases.map { $0.sdkName }).
+          \(Platform.allCases.map { $0.name }).
           """))
-  var platforms: [TargetPlatform]
+  var platforms: [Platform]
 
-  // MARK: - Zip Pods
+  // MARK: - Specify Pods
+
+  @Option(parsing: .upToNextOption,
+          help: ArgumentHelp("List of pods to build."))
+  var pods: [String]
 
   @Option(help: ArgumentHelp("""
   The path to a JSON file of the pods (with optional version) to package into a zip.
@@ -127,13 +143,6 @@ struct ZipBuilderTool: ParsableCommand {
   var zipPods: [CocoaPodUtils.VersionedPod]?
 
   // MARK: - Filesystem Paths
-
-  /// The path to the root of the firebase-ios-sdk repo.
-  @Option(help: ArgumentHelp("""
-  The path to the repo from which the Firebase distribution is being built.
-  """),
-  transform: URL.init(fileURLWithPath:))
-  var repoDir: URL
 
   /// Path to override podspec search with local podspec.
   @Option(help: ArgumentHelp("Path to override podspec search with local podspec."),
@@ -160,17 +169,6 @@ struct ZipBuilderTool: ParsableCommand {
   // MARK: - Validation
 
   mutating func validate() throws {
-    // Validate the repoDir exists, as well as the templateDir.
-    guard FileManager.default.directoryExists(at: repoDir) else {
-      throw ValidationError("Included a repo-dir that doesn't exist.")
-    }
-
-    // Validate the templateDir exists.
-    let templateDir = ZipBuilder.FilesystemPaths.templateDir(fromRepoDir: repoDir)
-    guard FileManager.default.directoryExists(at: templateDir) else {
-      throw ValidationError("Missing template inside of the repo. \(templateDir) does not exist.")
-    }
-
     // Validate the output directory if provided.
     if let outputDir = outputDir, !FileManager.default.directoryExists(at: outputDir) {
       throw ValidationError("`output-dir` passed in does not exist. Value: \(outputDir)")
@@ -189,10 +187,10 @@ struct ZipBuilderTool: ParsableCommand {
     }
 
     // Validate that Firebase builds are including dependencies.
-    if !buildDependencies, zipPods == nil {
+    if !buildDependencies, zipPods == nil, pods.count == 0 {
       throw ValidationError("""
       The `enable-build-dependencies` option cannot be false unless a list of pods is \
-      specified with the `zip-pods` option.
+      specified with the `zip-pods` or the `pods` option.
       """)
     }
   }
@@ -204,7 +202,7 @@ struct ZipBuilderTool: ParsableCommand {
     let buildStart = Date()
     var cocoaPodsUpdateMessage: String = ""
 
-    // Do a `pod update`` if requested.
+    // Do a `pod update` if requested.
     if updatePodRepo {
       CocoaPodUtils.updateRepos()
       cocoaPodsUpdateMessage =
@@ -216,6 +214,32 @@ struct ZipBuilderTool: ParsableCommand {
       FileManager.registerBuildRoot(buildRoot: buildRoot.standardizedFileURL)
     }
 
+    // Get the repoDir by deleting four path components from this file to the repo root.
+    let repoDir = URL(fileURLWithPath: #file)
+      .deletingLastPathComponent().deletingLastPathComponent()
+      .deletingLastPathComponent().deletingLastPathComponent()
+
+    // Validate the repoDir exists, as well as the templateDir.
+    guard FileManager.default.directoryExists(at: repoDir) else {
+      fatalError("Failed to find the repo root at \(repoDir).")
+    }
+
+    // Validate the templateDir exists.
+    let templateDir = ZipBuilder.FilesystemPaths.templateDir(fromRepoDir: repoDir)
+    guard FileManager.default.directoryExists(at: templateDir) else {
+      fatalError("Missing template inside of the repo. \(templateDir) does not exist.")
+    }
+
+    // Set the platform minimum versions.
+    PlatformMinimum.initialize(ios: minimumIOSVersion,
+                               macos: minimumMacOSVersion,
+                               tvos: minimumTVOSVersion)
+
+    // Update iOS target platforms if `--include-catalyst` was specified.
+    if !includeCatalyst {
+      SkipCatalyst.set()
+    }
+
     let paths = ZipBuilder.FilesystemPaths(repoDir: repoDir,
                                            buildRoot: buildRoot,
                                            outputDir: outputDir,
@@ -225,19 +249,11 @@ struct ZipBuilderTool: ParsableCommand {
 
     // Populate the platforms list if it's empty. This isn't a great spot, but the argument parser
     // can't specify a default for arrays.
-    let platformsToBuild = !platforms.isEmpty ? platforms : TargetPlatform.allCases
+    let platformsToBuild = !platforms.isEmpty ? platforms : Platform.allCases
     let builder = ZipBuilder(paths: paths,
                              platforms: platformsToBuild,
                              dynamicFrameworks: dynamic,
                              customSpecRepos: customSpecRepos)
-    let projectDir = FileManager.default.temporaryDirectory(withName: "project")
-
-    // If it exists, remove it before we re-create it. This is simpler than removing all objects.
-    if FileManager.default.directoryExists(at: projectDir) {
-      try FileManager.default.removeItem(at: projectDir)
-    }
-
-    CocoaPodUtils.podInstallPrepare(inProjectDir: projectDir, paths: paths)
 
     if let outputDir = outputDir {
       do {
@@ -247,12 +263,19 @@ struct ZipBuilderTool: ParsableCommand {
       }
     }
 
-    if let zipPods = zipPods {
-      let (installedPods, frameworks, _) = builder.buildAndAssembleZip(podsToInstall: zipPods,
-                                                                       inProjectDir: projectDir,
-                                                                       minimumIOSVersion: minimumIOSVersion,
-                                                                       includeDependencies: buildDependencies)
-      let staging = FileManager.default.temporaryDirectory(withName: "staging")
+    var podsToBuild = zipPods
+    if pods.count > 0 {
+      guard podsToBuild == nil else {
+        fatalError("Only one of `--zipPods` or `--pods` can be specified.")
+      }
+      podsToBuild = pods.map { CocoaPodUtils.VersionedPod(name: $0, version: nil) }
+    }
+
+    if let podsToBuild = podsToBuild {
+      let (installedPods, frameworks, _) =
+        builder.buildAndAssembleZip(podsToInstall: podsToBuild,
+                                    includeDependencies: buildDependencies)
+      let staging = FileManager.default.temporaryDirectory(withName: "Binaries")
       try builder.copyFrameworks(fromPods: Array(installedPods.keys), toDirectory: staging,
                                  frameworkLocations: frameworks)
       let zipped = Zip.zipContents(ofDir: staging, name: "Frameworks.zip")
@@ -284,13 +307,13 @@ struct ZipBuilderTool: ParsableCommand {
                                                isVersionCheckEnabled: carthageVersionCheck)
       }
 
-      FirebaseBuilder(zipBuilder: builder).build(in: projectDir,
-                                                 minimumIOSVersion: minimumIOSVersion,
+      FirebaseBuilder(zipBuilder: builder).build(templateDir: paths.templateDir,
                                                  carthageBuildOptions: carthageOptions)
     }
 
     if !keepBuildArtifacts {
-      FileManager.default.removeIfExists(at: projectDir.deletingLastPathComponent())
+      let tempDir = FileManager.default.temporaryDirectory(withName: "placeholder")
+      FileManager.default.removeIfExists(at: tempDir.deletingLastPathComponent())
     }
 
     // Get the time since the start of the build to get the full time.

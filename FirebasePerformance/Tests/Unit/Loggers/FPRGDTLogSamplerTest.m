@@ -29,7 +29,7 @@
 #import "FirebasePerformance/Tests/Unit/FPRTestUtils.h"
 #import "FirebasePerformance/Tests/Unit/Fakes/FPRFakeConfigurations.h"
 
-#import "GoogleDataTransport/GDTCORLibrary/Internal/GoogleDataTransportInternal.h"
+#import <GoogleDataTransport/GoogleDataTransport.h>
 
 #import <OCMock/OCMock.h>
 

@@ -1,0 +1,218 @@
+// Copyright 2021 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+// This is a slimmed down version of our internal logging proto used only for
+// testing, to valid that the incoming json will convert as expected!
+// All numbers and naming should be kept consistent with the internal proto.
+
+// Information about various parts of the system: app, Firebase, SDK.
+message SystemInfo {
+  // The application's unique id. On iOS, this is the bundle ID.
+  string app_id = 1 ;
+
+  // Application version string. On iOS, this is "version_number" + "#" + "build_number".
+  string app_version = 2;
+
+  // Uniquely identifiable id associated with the Firebase project. Might be an
+  // empty string if the developer does not pass a correct FirebaseOptions with
+  // a valid Firebase Project ID.
+  string firebase_project_id = 3;
+
+  // Firebase ML SDK version.
+  string ml_sdk_version = 4;
+
+  // The API key of the firebase project.
+  string api_key = 7 ;
+
+}
+
+// Information about models.
+message ModelInfo {
+
+  // The name of the model defined by the model creator. This string should be
+  // meaningful to the creator and describes what the model does. For example,
+  // the name can be "mobile vision face recognition" or "speech to text".
+  string name = 1 ;
+
+  // The version of the model defined by the model creator.
+  string version = 2 ;
+
+  // The expected checksum (SHA256) of the model file. Only hash of models
+  // downloaded from cloud is logged.
+  string hash = 5;
+
+  // The model type is currently envisioned to be used mainly for model
+  // download/update.
+  enum ModelType {
+    TYPE_UNKNOWN = 0;
+    CUSTOM = 1;
+  }
+  ModelType model_type = 6;
+}
+
+enum EventName {
+  UNKNOWN_EVENT = 0;
+  MODEL_DOWNLOAD = 100;
+  MODEL_UPDATE = 101;
+  REMOTE_MODEL_DELETE_ON_DEVICE = 252;
+}
+
+// A list of error codes for various components of the system. For model downloading, the
+// range of error codes is 100 to 199.
+enum ErrorCode {
+  // No error at all.
+  NO_ERROR = 0;
+
+  // The temporary URI to download the model has expired.
+  URI_EXPIRED = 101;
+
+  // There is no network connection when trying to download the model file or
+  // the model info.
+  NO_NETWORK_CONNECTION = 102;
+
+  // The download started on a valid condition but didn't finish successfully.
+  DOWNLOAD_FAILED = 104;
+
+  // We received an unsuccessful http status code when trying to download the
+  // model info. An unsuccessful http status code is a code that's neither 200
+  // nor 304. See go/firebase-ml-model-hosting-design for a list of possible
+  // status codes while downloading the model info.
+  MODEL_INFO_DOWNLOAD_UNSUCCESSFUL_HTTP_STATUS = 105;
+
+  // Didn't receive a model hash while trying to download the model info.
+  MODEL_INFO_DOWNLOAD_NO_HASH = 106;
+
+  // Failed to connect to the Firebase Console while trying to download the
+  // model info.
+  MODEL_INFO_DOWNLOAD_CONNECTION_FAILED = 107;
+
+  // Model hash mismatches the expected value.
+  MODEL_HASH_MISMATCH = 116;
+
+  // An unknown error has occurred. This is for conditions that should never
+  // happen. But we log them anyways.  If there is a surge in UNKNOWN error
+  // codes, we need to check our code.
+  UNKNOWN_ERROR = 9999;
+}
+
+// Detailed information about a model.
+// The message used to be named "CustomModelOptions".
+message ModelOptions {
+  // Inherent properties about the model: name, version, URI, source.
+  ModelInfo model_info = 1;
+
+  // True if models can be updated.
+  bool is_model_update_enabled = 4;
+}
+
+// Information about model downloading. A single model download request may
+// result in multiple log entries. "download_status" in the log entry indicates
+// during which stage it is logged.
+// This message used to be named "CustomModelDownloadLogEvent".
+message ModelDownloadLogEvent {
+  // The download status. The model download is made up of two major stages: the
+  // retrieval of the model info in Firebase backend, and then the download of
+  // the model file in GCS. Whether or not the download is requested implicitly
+  // or explicitly does not affect the later stages of the download. As a
+  // result, later stages (i.e. enum tag 3+) do not distinguish between explicit
+  // and implicit triggering.
+  enum DownloadStatus {
+    UNKNOWN_STATUS = 0;
+
+    // The download is requested by the developer, i.e. ensureModelDownloaded()
+    // is called.
+    EXPLICITLY_REQUESTED = 1;
+
+    // The download is requested by the SDK implicitly.
+    IMPLICITLY_REQUESTED = 2;
+
+    // The retrieval of the model info succeeded.
+    MODEL_INFO_RETRIEVAL_SUCCEEDED = 3;
+
+    // The retrieval of the model info failed. See error_code field for details.
+    MODEL_INFO_RETRIEVAL_FAILED = 4;
+
+    // A new download with the OS downloader has been scheduled.
+    SCHEDULED = 5;
+
+    // There is an existing downloading session. No new download is scheduled.
+    DOWNLOADING = 6;
+
+    // The download of the model file succeeded.
+    SUCCEEDED = 7;
+
+    // The download of the model file failed.
+    FAILED = 8;
+
+    // Update is enabled and available while the existing model is downloaded or
+    // live.
+    UPDATE_AVAILABLE = 10;
+  }
+
+  // Model information and options for downloading.
+  ModelOptions options = 1;
+
+  // The rough duration of the download. This is not marked as
+  // ST_SENSITIVE_TIMESTAMP because it is a duration instead of a timestamp.
+  // We delegate the download to OS downloader. We may not be notified
+  // when the download completes, such as when the app is killed.
+  uint64 rough_download_duration_ms = 2;
+
+  // The error code for model download.
+  ErrorCode error_code = 3;
+
+  // The exact duration of the download. This is not marked as
+  // ST_SENSITIVE_TIMESTAMP because it is a duration instead of a timestamp.
+  // We know the exact duration when the download is completed while the app is
+  // still alive and receives the completed notification from OS downloader.
+  uint64 exact_download_duration_ms = 4;
+
+  // The download status.
+  DownloadStatus download_status = 5;
+
+  // If this field is logged for DownloadStatus.MODEL_INFO_RETRIEVAL_FAILED, it
+  // is the http status code from the firebase console. See
+  // go/firebase-ml-model-hosting-design. Same on both Android and iOS.
+  // If this field is logged for DownloadStatus.FAILED, it is the http status
+  // code on iOS, and the DownloadManager's "COLUMN_REASON" value on Android. On
+  // iOS, the status code can be a negative integer.
+  int64 download_failure_status = 6;
+}
+
+// Information about deleting a downloaded model on device.
+message DeleteModelLogEvent {
+  // The type of the downloaded model requested to be deleted.
+  ModelInfo.ModelType model_type = 1;
+  // Whether the downloaded model is deleted successfully.
+  bool is_successful = 2;
+}
+
+// Main log event for FirebaseMl, that contains individual API events, like model
+// download.
+// NEXT ID: 44.
+message FirebaseMlLogEvent {
+  // Information about various parts of the system: app, Firebase, SDK.
+  SystemInfo system_info = 1;
+
+  // The event name.
+  EventName event_name = 2;
+
+  // Information about model download.
+  ModelDownloadLogEvent model_download_log_event = 3;
+
+  // Information about deleting a downloaded model.
+  DeleteModelLogEvent delete_model_log_event = 40;
+}

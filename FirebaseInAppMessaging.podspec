@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseInAppMessaging'
-  s.version          = '7.3.0-beta'
+  s.version          = '7.6.0-beta'
   s.summary          = 'Firebase In-App Messaging for iOS'
 
   s.description      = <<-DESC
@@ -18,7 +18,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
   }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '10.0'
-  s.tvos.deployment_target = '13.0'
+  s.tvos.deployment_target = '10.0'
 
   s.cocoapods_version = '>= 1.4.0'
   s.prefix_header_file = false
@@ -89,6 +89,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
   s.dependency 'nanopb', '~> 2.30907.0'
 
   s.test_spec 'unit' do |unit_tests|
+      unit_tests.scheme = { :code_coverage => true }
       unit_tests.source_files = 'FirebaseInAppMessaging/Tests/Unit/*.[mh]'
       unit_tests.resources = 'FirebaseInAppMessaging/Tests/Unit/*.txt'
       unit_tests.requires_app_host = true

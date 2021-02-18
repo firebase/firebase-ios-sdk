@@ -20,8 +20,6 @@ target 'CocoapodsIntegrationTest' do
   pod 'FirebaseMessaging', :path => '../'
   pod 'FirebasePerformance', :path => '../'
   pod 'FirebaseStorage', :path => '../'
-  pod 'GoogleDataTransport', :path => '../'
-  pod 'GoogleUtilities', :path => '../'
 end
 
 # Using the new speed-enhancing features available with CocoaPods 1.7+

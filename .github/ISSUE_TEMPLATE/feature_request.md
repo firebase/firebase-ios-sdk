@@ -9,6 +9,13 @@ template_path=.github/ISSUE_TEMPLATE/feature_request.md
 -->
 ### [READ] Guidelines
 
+For large or ambiguous requests, such as significant breaking changes or use
+cases that could be addressed by multiple different features, consider instead
+starting a
+[Pitch](https://github.com/firebase/firebase-ios-sdk/discussions/categories/pitches)
+discussion for ideas that you'd like to discuss with the Firebase community to
+flush out.
+
 When filing a feature request please make sure the issue title starts with "FR:".
 
 A good feature request ideally

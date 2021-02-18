@@ -35,6 +35,7 @@ product can be one of:
   InAppMessaging
   Messaging
   MessagingSample
+  MLModelDownloaderSample
   RemoteConfig
   RemoteConfigSample
   Storage
@@ -315,6 +316,7 @@ case "$product-$platform-$method" in
     RunXcodebuild \
         -workspace 'Firestore/Example/Firestore.xcworkspace' \
         -scheme "Firestore_IntegrationTests_$platform" \
+        -enableCodeCoverage YES \
         "${xcb_flags[@]}" \
         build \
         test
@@ -394,6 +396,16 @@ case "$product-$platform-$method" in
         build
     fi
     ;;
+
+  MLModelDownloaderSample-*-*)
+  if check_secrets; then
+    RunXcodebuild \
+      -workspace 'FirebaseMLModelDownloader/Apps/Sample/MLDownloaderTestApp.xcworkspace' \
+      -scheme "MLDownloaderTestApp" \
+      "${xcb_flags[@]}" \
+      build
+  fi
+  ;;
 
   SegmentationSample-*-*)
     RunXcodebuild \
@@ -546,27 +558,27 @@ case "$product-$platform-$method" in
       build
     ;;
 
-  Performance-*-xcodebuild)
+  Performance-*-unit)
     # Run unit tests on prod environment with unswizzle capabilities.
     export FPR_UNSWIZZLE_AVAILABLE="1"
     export FPR_AUTOPUSH_ENV="0"
-    pod_gen FirebasePerformance.podspec --platforms=ios --clean
+    pod_gen FirebasePerformance.podspec --platforms="${gen_platform}"
     RunXcodebuild \
       -workspace 'gen/FirebasePerformance/FirebasePerformance.xcworkspace' \
       -scheme "FirebasePerformance-Unit-unit" \
-      "${ios_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
       test
+    ;;
 
+  Performance-*-proddev)
     # Build the prod dev test app.
     export FPR_UNSWIZZLE_AVAILABLE="0"
     export FPR_AUTOPUSH_ENV="0"
-    pod_gen FirebasePerformance.podspec --platforms=ios --clean
+    pod_gen FirebasePerformance.podspec --platforms="${gen_platform}"
     RunXcodebuild \
       -workspace 'gen/FirebasePerformance/FirebasePerformance.xcworkspace' \
       -scheme "FirebasePerformance-TestApp" \
-      "${ios_flags[@]}" \
       "${xcb_flags[@]}" \
       build
     ;;

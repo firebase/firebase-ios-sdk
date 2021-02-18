@@ -1,4 +1,4 @@
-// Copyright 2020 Google LLC
+// Copyright 2021 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,10 +18,30 @@ import Foundation
 public struct CustomModel: Hashable {
   /// Name of the model.
   public let name: String
+
   /// Size of the custom model, provided by the server.
   public let size: Int
+
   /// Path where the model is stored on device.
   public let path: String
+
   /// Hash for the model, used for model verification.
   public let hash: String
+
+  init(name: String, size: Int, path: String, hash: String) {
+    self.name = name
+    self.size = size
+    self.path = path
+    self.hash = hash
+  }
+
+  /// Convenience init to create model from local model info.
+  init(localModelInfo: LocalModelInfo, path: String) {
+    self.init(
+      name: localModelInfo.name,
+      size: localModelInfo.size,
+      path: path,
+      hash: localModelInfo.modelHash
+    )
+  }
 }

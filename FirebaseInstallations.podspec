@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseInstallations'
-  s.version          = '7.3.0'
+  s.version          = '7.6.0'
   s.summary          = 'Firebase Installations'
 
   s.description      = <<-DESC
@@ -51,6 +51,7 @@ Pod::Spec.new do |s|
   }
 
   s.test_spec 'unit' do |unit_tests|
+    unit_tests.scheme = { :code_coverage => true }
     unit_tests.platforms = {:ios => '9.0', :osx => '10.12', :tvos => '10.0'}
     unit_tests.source_files = base_dir + 'Tests/Unit/*.[mh]',
                               base_dir + 'Tests/Utils/*.[mh]'
@@ -65,6 +66,7 @@ Pod::Spec.new do |s|
  end
 
   s.test_spec 'integration' do |int_tests|
+    int_tests.scheme = { :code_coverage => true }
     int_tests.platforms = {:ios => '9.0', :osx => '10.12', :tvos => '10.0'}
     int_tests.source_files = base_dir + 'Tests/Integration/**/*.[mh]'
     int_tests.resources = base_dir + 'Tests/Resources/**/*'

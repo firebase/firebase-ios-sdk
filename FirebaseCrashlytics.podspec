@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCrashlytics'
-  s.version          = '7.3.0'
+  s.version          = '7.6.0'
   s.summary          = 'Best and lightest-weight crash reporting for mobile, desktop and tvOS.'
   s.description      = 'Firebase Crashlytics helps you track, prioritize, and fix stability issues that erode app quality.'
   s.homepage         = 'https://firebase.google.com/'
@@ -26,7 +26,6 @@ Pod::Spec.new do |s|
     'Crashlytics/third_party/**/*.{c,h,m,mm}',
     'FirebaseCore/Sources/Private/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
-    'GoogleDataTransport/GDTCORLibrary/Internal/*.h',
     'Interop/Analytics/Public/*.h',
   ]
 
@@ -97,6 +96,7 @@ Pod::Spec.new do |s|
   }
 
   s.test_spec 'unit' do |unit_tests|
+    unit_tests.scheme = { :code_coverage => true }
     # Unit tests can't run on watchOS.
     unit_tests.platforms = {:ios => '10.0', :osx => '10.12', :tvos => '10.0'}
     unit_tests.source_files = 'Crashlytics/UnitTests/*.[mh]',

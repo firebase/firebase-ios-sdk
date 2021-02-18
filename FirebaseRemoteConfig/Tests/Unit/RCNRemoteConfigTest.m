@@ -94,7 +94,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   NSMutableArray<NSDictionary<NSString *, id> *> *_response;
   NSMutableArray<NSData *> *_responseData;
   NSMutableArray<NSURLResponse *> *_URLResponse;
-  NSMutableArray<RCNConfigFetch *> *_configFetch;
+  NSMutableArray<id> *_configFetch;
   RCNConfigDBManager *_DBManager;
   NSUserDefaults *_userDefaults;
   NSString *_userDefaultsSuiteName;
@@ -102,6 +102,9 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   id _DBManagerMock;
   id _experimentMock;
   id _userDefaultsMock;
+  NSString *_fullyQualifiedNamespace;
+  RCNConfigSettings *_settings;
+  dispatch_queue_t _queue;
 }
 @end
 
@@ -169,7 +172,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
         currentNamespace = RCNTestsFIRNamespace;
         break;
     }
-    NSString *fullyQualifiedNamespace =
+    _fullyQualifiedNamespace =
         [NSString stringWithFormat:@"%@:%@", currentNamespace, currentAppName];
     FIRRemoteConfig *config =
         OCMPartialMock([[FIRRemoteConfig alloc] initWithAppName:currentAppName
@@ -179,22 +182,23 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                                   configContent:configContent
                                                       analytics:nil]);
     _configInstances[i] = config;
-    RCNConfigSettings *settings =
-        [[RCNConfigSettings alloc] initWithDatabaseManager:_DBManager
-                                                 namespace:fullyQualifiedNamespace
-                                           firebaseAppName:currentAppName
-                                               googleAppID:currentOptions.googleAppID];
-    dispatch_queue_t queue = dispatch_queue_create(
+
+    _settings = [[RCNConfigSettings alloc] initWithDatabaseManager:_DBManager
+                                                         namespace:_fullyQualifiedNamespace
+                                                   firebaseAppName:currentAppName
+                                                       googleAppID:currentOptions.googleAppID];
+    _queue = dispatch_queue_create(
         [[NSString stringWithFormat:@"testqueue: %d", i] cStringUsingEncoding:NSUTF8StringEncoding],
         DISPATCH_QUEUE_SERIAL);
-    _configFetch[i] = OCMPartialMock([[RCNConfigFetch alloc] initWithContent:configContent
-                                                                   DBManager:_DBManager
-                                                                    settings:settings
-                                                                   analytics:nil
-                                                                  experiment:_experimentMock
-                                                                       queue:queue
-                                                                   namespace:fullyQualifiedNamespace
-                                                                     options:currentOptions]);
+    _configFetch[i] =
+        OCMPartialMock([[RCNConfigFetch alloc] initWithContent:configContent
+                                                     DBManager:_DBManager
+                                                      settings:_settings
+                                                     analytics:nil
+                                                    experiment:_experimentMock
+                                                         queue:_queue
+                                                     namespace:_fullyQualifiedNamespace
+                                                       options:currentOptions]);
 
     OCMStubRecorder *mock = OCMStub([_configFetch[i] fetchConfigWithExpirationDuration:0
                                                                      completionHandler:OCMOCK_ANY]);
@@ -220,12 +224,12 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     id completionBlock =
         [OCMArg invokeBlockWithArgs:_responseData[i], _URLResponse[i], [NSNull null], nil];
 
-    OCMExpect([_configFetch[i] URLSessionDataTaskWithContent:[OCMArg any]
-                                           completionHandler:completionBlock])
+    OCMStub([_configFetch[i] URLSessionDataTaskWithContent:[OCMArg any]
+                                         completionHandler:completionBlock])
         .andReturn(nil);
     [_configInstances[i] updateWithNewInstancesForConfigFetch:_configFetch[i]
                                                 configContent:configContent
-                                               configSettings:settings
+                                               configSettings:_settings
                                              configExperiment:_experimentMock];
   }
 }
@@ -485,12 +489,10 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
         currentNamespace = RCNTestsFIRNamespace;
         break;
     }
-    NSString *fullyQualifiedNamespace =
-        [NSString stringWithFormat:@"%@:%@", currentNamespace, currentAppName];
     RCNUserDefaultsManager *userDefaultsManager =
         [[RCNUserDefaultsManager alloc] initWithAppName:currentAppName
                                                bundleID:[NSBundle mainBundle].bundleIdentifier
-                                              namespace:fullyQualifiedNamespace];
+                                              namespace:_fullyQualifiedNamespace];
     userDefaultsManager.lastFetchTime = 0;
 
     FIRRemoteConfig *config =
@@ -502,28 +504,20 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                                       analytics:nil]);
 
     _configInstances[i] = config;
-    RCNConfigSettings *settings =
-        [[RCNConfigSettings alloc] initWithDatabaseManager:_DBManager
-                                                 namespace:fullyQualifiedNamespace
-                                           firebaseAppName:currentAppName
-                                               googleAppID:currentOptions.googleAppID];
-    dispatch_queue_t queue = dispatch_queue_create(
-        [[NSString stringWithFormat:@"testqueue: %d", i] cStringUsingEncoding:NSUTF8StringEncoding],
-        DISPATCH_QUEUE_SERIAL);
-    _configFetch[i] = OCMPartialMock([[RCNConfigFetch alloc] initWithContent:configContent
-                                                                   DBManager:_DBManager
-                                                                    settings:settings
-                                                                   analytics:nil
-                                                                  experiment:nil
-                                                                       queue:queue
-                                                                   namespace:fullyQualifiedNamespace
-                                                                     options:currentOptions]);
+    _configFetch[i] =
+        OCMPartialMock([[RCNConfigFetch alloc] initWithContent:configContent
+                                                     DBManager:_DBManager
+                                                      settings:_settings
+                                                     analytics:nil
+                                                    experiment:nil
+                                                         queue:_queue
+                                                     namespace:_fullyQualifiedNamespace
+                                                       options:currentOptions]);
 
     OCMStub([_configFetch[i] fetchConfigWithExpirationDuration:43200 completionHandler:OCMOCK_ANY])
         .andDo(^(NSInvocation *invocation) {
           __unsafe_unretained void (^handler)(FIRRemoteConfigFetchStatus status,
                                               NSError *_Nullable error) = nil;
-          // void (^handler)(FIRRemoteConfigFetchCompletion);
           [invocation getArgument:&handler atIndex:3];
           [self->_configFetch[i] fetchWithUserProperties:[[NSDictionary alloc] init]
                                        completionHandler:handler];
@@ -539,15 +533,9 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                    HTTPVersion:nil
                                   headerFields:@{@"etag" : @"etag1"}];
 
-    id completionBlock =
-        [OCMArg invokeBlockWithArgs:_responseData[i], _URLResponse[i], [NSNull null], nil];
-
-    OCMExpect([_configFetch[i] URLSessionDataTaskWithContent:[OCMArg any]
-                                           completionHandler:completionBlock])
-        .andReturn(nil);
     [_configInstances[i] updateWithNewInstancesForConfigFetch:_configFetch[i]
                                                 configContent:configContent
-                                               configSettings:settings
+                                               configSettings:_settings
                                              configExperiment:nil];
   }
   // Make the fetch calls for all instances.
@@ -645,7 +633,6 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
         .andDo(^(NSInvocation *invocation) {
           __unsafe_unretained void (^handler)(FIRRemoteConfigFetchStatus status,
                                               NSError *_Nullable error) = nil;
-          // void (^handler)(FIRRemoteConfigFetchCompletion);
           [invocation getArgument:&handler atIndex:3];
           [self->_configFetch[i] fetchWithUserProperties:[[NSDictionary alloc] init]
                                        completionHandler:handler];
@@ -662,12 +649,6 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                    HTTPVersion:nil
                                   headerFields:@{@"etag" : @"etag1"}];
 
-    id completionBlock =
-        [OCMArg invokeBlockWithArgs:_responseData[i], _URLResponse[i], [NSNull null], nil];
-
-    OCMExpect([_configFetch[i] URLSessionDataTaskWithContent:[OCMArg any]
-                                           completionHandler:completionBlock])
-        .andReturn(nil);
     [_configInstances[i] updateWithNewInstancesForConfigFetch:_configFetch[i]
                                                 configContent:configContent
                                                configSettings:settings
@@ -794,9 +775,10 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     id completionBlock =
         [OCMArg invokeBlockWithArgs:_responseData[i], _URLResponse[i], [NSNull null], nil];
 
-    OCMExpect([_configFetch[i] URLSessionDataTaskWithContent:[OCMArg any]
-                                           completionHandler:completionBlock])
+    OCMStub([_configFetch[i] URLSessionDataTaskWithContent:[OCMArg any]
+                                         completionHandler:completionBlock])
         .andReturn(nil);
+
     [_configInstances[i] updateWithNewInstancesForConfigFetch:_configFetch[i]
                                                 configContent:configContent
                                                configSettings:settings

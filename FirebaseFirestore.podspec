@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFirestore'
-  s.version          = '7.3.0'
+  s.version          = '7.6.0'
   s.summary          = 'Google Cloud Firestore'
 
   s.description      = <<-DESC
@@ -23,6 +23,24 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   s.cocoapods_version = '>= 1.4.0'
   s.prefix_header_file = false
 
+  # Header files that constitute the interface to this module. Only Objective-C
+  # headers belong here, since FirebaseFirestore is primarily an Objective-C
+  # framework.
+  s.public_header_files = 'Firestore/Source/Public/FirebaseFirestore/*.h'
+
+  # source_files contains most of the header and source files for the project.
+  # This includes files named in `public_header_files`.
+  #
+  # Each header in this list must be globally unique, even within customer
+  # projects. This generally means that only Objective-C Headers with a `FIR`
+  # or `FST` prefix can be in `source_files`. Non-public C++ headers that have
+  # no filename prefix must be in `preserve_paths`. See
+  # https://github.com/firebase/firebase-ios-sdk/issues/4035 for more details.
+  #
+  # Note: headers from FirebaseCore can be in this list because while they're
+  # not globally unique, each copy will be the same. It doesn't matter which
+  # version wins in the global header map. The benefit of keeping them here is
+  # that "quick open" by filename in Xcode will continue to work.
   s.source_files = [
     'FirebaseCore/Sources/Private/*.h',
     'Firestore/Source/Public/FirebaseFirestore/*.h',
@@ -32,6 +50,13 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     'Firestore/core/src/**/*.{cc,mm}',
     'Interop/Auth/Public/*.h',
   ]
+
+  # Internal headers that aren't necessarily globally unique. Most C++ internal
+  # headers should be here to avoid polluting the global header map with
+  # unprefixed filenames.
+  #
+  # These filenames won't be available in Xcode's "quick open" but the types
+  # inside these files will be available.
   s.preserve_paths = [
     'Firestore/Source/API/*.h',
     'Firestore/Source/Core/*.h',
@@ -46,8 +71,11 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     'Firestore/Source/**/*',
     'Firestore/core/src/**/*.mm',
   ]
+
+  # Exclude alternate implementations for other platforms. These types depend
+  # upon link-time substitution, and there's no provision within CocoaPods for
+  # selecting files dynamically.
   s.exclude_files = [
-    # Exclude alternate implementations for other platforms
     'Firestore/core/src/api/input_validation_std.cc',
     'Firestore/core/src/remote/connectivity_monitor_noop.cc',
     'Firestore/core/src/util/filesystem_win.cc',
@@ -55,7 +83,6 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     'Firestore/core/src/util/log_stdio.cc',
     'Firestore/core/src/util/secure_random_openssl.cc'
   ]
-  s.public_header_files = 'Firestore/Source/Public/FirebaseFirestore/*.h'
 
   s.dependency 'FirebaseCore', '~> 7.0'
 

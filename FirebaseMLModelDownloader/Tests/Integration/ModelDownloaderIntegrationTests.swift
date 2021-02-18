@@ -1,4 +1,4 @@
-// Copyright 2020 Google LLC
+// Copyright 2021 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,19 +18,25 @@ import XCTest
 @testable import FirebaseMLModelDownloader
 
 extension UserDefaults {
-  /// For testing: returns a new cleared instance of user defaults.
-  static func getTestInstance() -> UserDefaults {
-    let suiteName = "com.google.firebase.ml.test"
-    // TODO: reconsider force unwrapping
+  /// Returns a new cleared instance of user defaults.
+  static func createTestInstance(testName: String) -> UserDefaults {
+    let suiteName = "com.google.firebase.ml.test.\(testName)"
     let defaults = UserDefaults(suiteName: suiteName)!
     defaults.removePersistentDomain(forName: suiteName)
     return defaults
+  }
+
+  /// Returns the existing user defaults instance.
+  static func getTestInstance(testName: String) -> UserDefaults {
+    let suiteName = "com.google.firebase.ml.test.\(testName)"
+    return UserDefaults(suiteName: suiteName)!
   }
 }
 
 final class ModelDownloaderIntegrationTests: XCTestCase {
   override class func setUp() {
     super.setUp()
+    // TODO: Use FirebaseApp internal for test app.
     let bundle = Bundle(for: self)
     if let plistPath = bundle.path(forResource: "GoogleService-Info", ofType: "plist"),
       let options = FirebaseOptions(contentsOfFile: plistPath) {
@@ -38,32 +44,15 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     } else {
       XCTFail("Could not locate GoogleService-Info.plist.")
     }
+    FirebaseConfiguration.shared.setLoggerLevel(.debug)
   }
 
-  /// Test to retrieve FIS token - makes an actual network call.
-  func testGetAuthToken() {
-    guard let testApp = FirebaseApp.app() else {
-      XCTFail("Default app was not configured.")
-      return
+  override func setUp() {
+    do {
+      try ModelFileManager.emptyModelsDirectory()
+    } catch {
+      XCTFail("Could not empty models directory.")
     }
-    let testModelName = "image-classification"
-    let modelInfoRetriever = ModelInfoRetriever(
-      modelName: testModelName,
-      options: testApp.options,
-      installations: Installations.installations(app: testApp)
-    )
-    let expectation = self.expectation(description: "Wait for FIS auth token.")
-    modelInfoRetriever.getAuthToken(completion: { result in
-      switch result {
-      case let .success(token):
-        XCTAssertNotNil(token)
-      case let .failure(error):
-        XCTFail(error.localizedDescription)
-      }
-      expectation.fulfill()
-
-    })
-    waitForExpectations(timeout: 5, handler: nil)
   }
 
   /// Test to download model info - makes an actual network call.
@@ -72,84 +61,519 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       XCTFail("Default app was not configured.")
       return
     }
+    testApp.isDataCollectionDefaultEnabled = false
+
+    let testName = String(#function.dropLast(2))
     let testModelName = "pose-detection"
+
     let modelInfoRetriever = ModelInfoRetriever(
       modelName: testModelName,
-      options: testApp.options,
-      installations: Installations.installations(app: testApp)
+      projectID: testApp.options.projectID!,
+      apiKey: testApp.options.apiKey!,
+      appName: testApp.name, installations: Installations.installations(app: testApp)
     )
-    let downloadExpectation = expectation(description: "Wait for model info to download.")
-    modelInfoRetriever.downloadModelInfo(completion: { error in
-      XCTAssertNil(error)
-      guard let modelInfo = modelInfoRetriever.modelInfo else {
-        XCTFail("Empty model info.")
-        return
+
+    let modelInfoDownloadExpectation = expectation(description: "Wait for model info to download.")
+    modelInfoRetriever.downloadModelInfo(completion: { result in
+      switch result {
+      case let .success(modelInfoResult):
+        switch modelInfoResult {
+        case let .modelInfo(modelInfo):
+          XCTAssertNotNil(modelInfo.urlExpiryTime)
+          XCTAssertGreaterThan(modelInfo.downloadURL.absoluteString.count, 0)
+          XCTAssertGreaterThan(modelInfo.modelHash.count, 0)
+          XCTAssertGreaterThan(modelInfo.size, 0)
+          let localModelInfo = LocalModelInfo(from: modelInfo)
+          localModelInfo.writeToDefaults(
+            .createTestInstance(testName: testName),
+            appName: testApp.name
+          )
+        case .notModified:
+          XCTFail("Failed to retrieve model info.")
+        }
+      case let .failure(error):
+        XCTAssertNotNil(error)
+        XCTFail("Failed to retrieve model info - \(error)")
       }
-      XCTAssertNotNil(modelInfo.modelHash)
-      XCTAssertGreaterThan(modelInfo.size, 0)
-      downloadExpectation.fulfill()
+      modelInfoDownloadExpectation.fulfill()
     })
 
-    waitForExpectations(timeout: 5, handler: nil)
+    wait(for: [modelInfoDownloadExpectation], timeout: 5)
 
-    let retrieveExpectation = expectation(description: "Wait for model info to be retrieved.")
-    modelInfoRetriever.downloadModelInfo(completion: { error in
-      XCTAssertNil(error)
-      guard let modelInfo = modelInfoRetriever.modelInfo else {
-        XCTFail("Empty model info.")
-        return
+    if let localInfo = LocalModelInfo(
+      fromDefaults: .getTestInstance(testName: testName),
+      name: testModelName,
+      appName: testApp.name
+    ) {
+      XCTAssertNotNil(localInfo)
+      testRetrieveModelInfo(localInfo: localInfo)
+    } else {
+      XCTFail("Could not save model info locally.")
+    }
+  }
+
+  func testRetrieveModelInfo(localInfo: LocalModelInfo) {
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
+    let testModelName = "pose-detection"
+
+    let modelInfoRetriever = ModelInfoRetriever(
+      modelName: testModelName,
+      projectID: testApp.options.projectID!,
+      apiKey: testApp.options.apiKey!,
+      appName: testApp.name, installations: Installations.installations(app: testApp),
+      localModelInfo: localInfo
+    )
+
+    let modelInfoRetrieveExpectation =
+      expectation(description: "Wait for model info to be retrieved.")
+    modelInfoRetriever.downloadModelInfo(completion: { result in
+      switch result {
+      case let .success(modelInfoResult):
+        switch modelInfoResult {
+        case .modelInfo:
+          XCTFail("Local model info is already the latest and should not be set again.")
+        case .notModified: break
+        }
+      case let .failure(error):
+        XCTAssertNotNil(error)
+        XCTFail("Failed to retrieve model info - \(error)")
       }
-      XCTAssertNotNil(modelInfo.downloadURL)
-      XCTAssertNotEqual(modelInfo.modelHash, "")
-      XCTAssertGreaterThan(modelInfo.size, 0)
-      retrieveExpectation.fulfill()
+      modelInfoRetrieveExpectation.fulfill()
     })
 
-    waitForExpectations(timeout: 500, handler: nil)
+    wait(for: [modelInfoRetrieveExpectation], timeout: 5)
   }
 
   /// Test to download model file - makes an actual network call.
-  func testResumeModelDownload() {
-    let testApp = FirebaseApp.app()!
-    let functionName = #function.dropLast(2)
-    let testModelName = "\(functionName)-test-model"
-    let modelInfoRetriever = ModelInfoRetriever(
-      modelName: testModelName,
-      options: testApp.options,
-      installations: Installations.installations(app: testApp)
-    )
+  func testModelDownload() throws {
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
+    testApp.isDataCollectionDefaultEnabled = false
+
+    let testName = String(#function.dropLast(2))
+    let testModelName = "\(testName)-test-model"
     let urlString =
       "https://tfhub.dev/tensorflow/lite-model/ssd_mobilenet_v1/1/metadata/1?lite-format=tflite"
     let url = URL(string: urlString)!
 
-    modelInfoRetriever.modelInfo = ModelInfo(
+    let remoteModelInfo = RemoteModelInfo(
       name: testModelName,
       downloadURL: url,
       modelHash: "mock-valid-hash",
-      size: 10
+      size: 10,
+      urlExpiryTime: Date()
     )
-    let expectation = self.expectation(description: "Wait for model to download.")
+
+    let conditions = ModelDownloadConditions()
+    let downloadExpectation = expectation(description: "Wait for model to download.")
+    let downloader = ModelFileDownloader(conditions: conditions)
+    let taskProgressHandler: ModelDownloadTask.ProgressHandler = { progress in
+      XCTAssertLessThanOrEqual(progress, 1)
+      XCTAssertGreaterThanOrEqual(progress, 0)
+    }
+    let taskCompletion: ModelDownloadTask.Completion = { result in
+      switch result {
+      case let .success(model):
+        let modelURL = URL(fileURLWithPath: model.path)
+        XCTAssertTrue(ModelFileManager.isFileReachable(at: modelURL))
+        // Remove downloaded model file.
+        do {
+          try ModelFileManager.removeFile(at: modelURL)
+        } catch {
+          XCTFail("Model removal failed - \(error)")
+        }
+      case let .failure(error):
+        XCTFail("Error: \(error)")
+      }
+      downloadExpectation.fulfill()
+    }
     let modelDownloadManager = ModelDownloadTask(
-      modelInfo: modelInfoRetriever.modelInfo!, appName: testApp.name,
+      remoteModelInfo: remoteModelInfo,
+      appName: testApp.name,
+      defaults: .createTestInstance(testName: testName),
+      downloader: downloader,
+      progressHandler: taskProgressHandler,
+      completion: taskCompletion
+    )
+
+    modelDownloadManager.resume()
+    wait(for: [downloadExpectation], timeout: 5)
+    XCTAssertEqual(modelDownloadManager.downloadStatus, .complete)
+  }
+
+  func testGetModel() {
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
+    testApp.isDataCollectionDefaultEnabled = false
+
+    let testName = String(#function.dropLast(2))
+    let testModelName = "image-classification"
+
+    let conditions = ModelDownloadConditions()
+    let modelDownloader = ModelDownloader.modelDownloaderWithDefaults(
+      .createTestInstance(testName: testName),
+      app: testApp
+    )
+
+    /// Test download type - latest model.
+    var downloadType: ModelDownloadType = .latestModel
+    let latestModelExpectation = expectation(description: "Get latest model.")
+
+    modelDownloader.getModel(
+      name: testModelName,
+      downloadType: downloadType,
+      conditions: conditions,
       progressHandler: { progress in
-        XCTAssertNotNil(progress)
+        XCTAssertTrue(Thread.isMainThread, "Completion must be called on the main thread.")
+
+        XCTAssertLessThanOrEqual(progress, 1)
+        XCTAssertGreaterThanOrEqual(progress, 0)
+      }
+    ) { result in
+      XCTAssertTrue(Thread.isMainThread, "Completion must be called on the main thread.")
+
+      switch result {
+      case let .success(model):
+        XCTAssertNotNil(model.path)
+        let modelURL = URL(fileURLWithPath: model.path)
+        XCTAssertTrue(ModelFileManager.isFileReachable(at: modelURL))
+      case let .failure(error):
+        XCTFail("Failed to download model - \(error)")
+      }
+      latestModelExpectation.fulfill()
+    }
+
+    wait(for: [latestModelExpectation], timeout: 5)
+
+    /// Test download type - local model update in background.
+    downloadType = .localModelUpdateInBackground
+    let backgroundModelExpectation =
+      expectation(description: "Get local model and update in background.")
+
+    modelDownloader.getModel(
+      name: testModelName,
+      downloadType: downloadType,
+      conditions: conditions,
+      progressHandler: { progress in
+        XCTFail("Model is already available on device.")
       }
     ) { result in
       switch result {
       case let .success(model):
-        guard let modelPath = URL(string: model.path) else {
-          XCTFail("Invalid or empty model path.")
-          return
-        }
-        XCTAssertTrue(ModelFileManager.isFileReachable(at: modelPath))
+        XCTAssertNotNil(model.path)
+        let modelURL = URL(fileURLWithPath: model.path)
+        XCTAssertTrue(ModelFileManager.isFileReachable(at: modelURL))
       case let .failure(error):
-        XCTFail(error.localizedDescription)
+        XCTFail("Failed to download model - \(error)")
       }
-      expectation.fulfill()
+      backgroundModelExpectation.fulfill()
+    }
+    wait(for: [backgroundModelExpectation], timeout: 5)
+
+    /// Test download type - local model.
+    downloadType = .localModel
+    let localModelExpectation = expectation(description: "Get local model.")
+
+    modelDownloader.getModel(
+      name: testModelName,
+      downloadType: downloadType,
+      conditions: conditions,
+      progressHandler: { progress in
+        XCTFail("Model is already available on device.")
+      }
+    ) { result in
+      switch result {
+      case let .success(model):
+        XCTAssertNotNil(model.path)
+        let modelURL = URL(fileURLWithPath: model.path)
+        XCTAssertTrue(ModelFileManager.isFileReachable(at: modelURL))
+        // Remove downloaded model file.
+        do {
+          try ModelFileManager.removeFile(at: modelURL)
+        } catch {
+          XCTFail("Model removal failed - \(error)")
+        }
+      case let .failure(error):
+        XCTFail("Failed to download model - \(error)")
+      }
+      localModelExpectation.fulfill()
+    }
+    wait(for: [localModelExpectation], timeout: 5)
+  }
+
+  func testGetModelWhenNameIsEmpty() {
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
+    testApp.isDataCollectionDefaultEnabled = false
+
+    let testName = String(#function.dropLast(2))
+    let emptyModelName = ""
+
+    let conditions = ModelDownloadConditions()
+    let modelDownloader = ModelDownloader.modelDownloaderWithDefaults(
+      .createTestInstance(testName: testName),
+      app: testApp
+    )
+
+    let completionExpectation = expectation(description: "getModel")
+    let progressExpectation = expectation(description: "progressHandler")
+    progressExpectation.isInverted = true
+
+    modelDownloader.getModel(
+      name: emptyModelName,
+      downloadType: .latestModel,
+      conditions: conditions,
+      progressHandler: { progress in
+        progressExpectation.fulfill()
+      }
+    ) { result in
+      XCTAssertTrue(Thread.isMainThread, "Completion must be called on the main thread.")
+
+      switch result {
+      case .failure(.emptyModelName):
+        // The expected error.
+        break
+
+      default:
+        XCTFail("Unexpected result: \(result)")
+      }
+      completionExpectation.fulfill()
     }
 
-    modelDownloadManager.resumeModelDownload()
-    waitForExpectations(timeout: 5, handler: nil)
-    XCTAssertEqual(modelDownloadManager.downloadStatus, .completed)
+    wait(for: [completionExpectation, progressExpectation], timeout: 5)
+  }
+
+  /// Delete previously downloaded model.
+  func testDeleteModel() {
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
+    testApp.isDataCollectionDefaultEnabled = false
+
+    let testName = String(#function.dropLast(2))
+    let testModelName = "pose-detection"
+
+    let conditions = ModelDownloadConditions()
+    let modelDownloader = ModelDownloader.modelDownloaderWithDefaults(
+      .createTestInstance(testName: testName),
+      app: testApp
+    )
+
+    let downloadType: ModelDownloadType = .latestModel
+    let latestModelExpectation = expectation(description: "Get latest model for deletion.")
+
+    modelDownloader.getModel(
+      name: testModelName,
+      downloadType: downloadType,
+      conditions: conditions,
+      progressHandler: { progress in
+        XCTAssertTrue(Thread.isMainThread, "Completion must be called on the main thread.")
+        XCTAssertLessThanOrEqual(progress, 1)
+        XCTAssertGreaterThanOrEqual(progress, 0)
+      }
+    ) { result in
+      XCTAssertTrue(Thread.isMainThread, "Completion must be called on the main thread.")
+
+      switch result {
+      case let .success(model):
+        XCTAssertNotNil(model.path)
+        let filePath = URL(fileURLWithPath: model.path)
+        XCTAssertTrue(ModelFileManager.isFileReachable(at: filePath))
+      case let .failure(error):
+        XCTFail("Failed to download model - \(error)")
+      }
+      latestModelExpectation.fulfill()
+    }
+
+    wait(for: [latestModelExpectation], timeout: 5)
+
+    let deleteExpectation = expectation(description: "Wait for model deletion.")
+    modelDownloader.deleteDownloadedModel(name: testModelName) { result in
+      deleteExpectation.fulfill()
+      XCTAssertTrue(Thread.isMainThread, "Completion must be called on the main thread.")
+
+      switch result {
+      case .success: break
+      case let .failure(error):
+        XCTFail("Failed to delete model - \(error)")
+      }
+    }
+
+    wait(for: [deleteExpectation], timeout: 5)
+  }
+
+  /// Test listing models in model directory.
+  func testListModels() {
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
+    testApp.isDataCollectionDefaultEnabled = false
+
+    let testName = String(#function.dropLast(2))
+    let testModelName = "pose-detection"
+
+    let conditions = ModelDownloadConditions()
+    let modelDownloader = ModelDownloader.modelDownloaderWithDefaults(
+      .createTestInstance(testName: testName),
+      app: testApp
+    )
+
+    let downloadType: ModelDownloadType = .latestModel
+    let latestModelExpectation = expectation(description: "Get latest model.")
+
+    modelDownloader.getModel(
+      name: testModelName,
+      downloadType: downloadType,
+      conditions: conditions,
+      progressHandler: { progress in
+        XCTAssertLessThanOrEqual(progress, 1)
+        XCTAssertGreaterThanOrEqual(progress, 0)
+      }
+    ) { result in
+      switch result {
+      case let .success(model):
+        XCTAssertNotNil(model.path)
+        let filePath = URL(fileURLWithPath: model.path)
+        XCTAssertTrue(ModelFileManager.isFileReachable(at: filePath))
+      case let .failure(error):
+        XCTFail("Failed to download model - \(error)")
+      }
+      latestModelExpectation.fulfill()
+    }
+
+    wait(for: [latestModelExpectation], timeout: 5)
+
+    let listExpectation = expectation(description: "Wait for list models.")
+    modelDownloader.listDownloadedModels { result in
+      listExpectation.fulfill()
+      switch result {
+      case let .success(models):
+        XCTAssertGreaterThan(models.count, 0)
+      case let .failure(error):
+        XCTFail("Failed to list models - \(error)")
+      }
+    }
+
+    wait(for: [listExpectation], timeout: 5)
+  }
+
+  /// Test logging telemetry event.
+  func testLogTelemetryEvent() {
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
+    // Flip this to `true` to test logging.
+    testApp.isDataCollectionDefaultEnabled = false
+
+    let testModelName = "digit-classification"
+    let testName = String(#function.dropLast(2))
+
+    let conditions = ModelDownloadConditions()
+    let modelDownloader = ModelDownloader.modelDownloaderWithDefaults(
+      .createTestInstance(testName: testName),
+      app: testApp
+    )
+
+    let latestModelExpectation = expectation(description: "Test get model telemetry.")
+
+    modelDownloader.getModel(
+      name: testModelName,
+      downloadType: .latestModel,
+      conditions: conditions
+    ) { result in
+      switch result {
+      case .success: break
+      case let .failure(error):
+        XCTFail("Failed to download model - \(error)")
+      }
+      latestModelExpectation.fulfill()
+    }
+    wait(for: [latestModelExpectation], timeout: 5)
+
+    let deleteModelExpectation = expectation(description: "Test delete model telemetry.")
+    modelDownloader.deleteDownloadedModel(name: testModelName) { result in
+      switch result {
+      case .success(()): break
+      case let .failure(error):
+        XCTFail("Failed to delete model - \(error)")
+      }
+      deleteModelExpectation.fulfill()
+    }
+
+    wait(for: [deleteModelExpectation], timeout: 5)
+
+    let notFoundModelName = "fakeModelName"
+    let notFoundModelExpectation =
+      expectation(description: "Test get model telemetry with unknown model.")
+
+    modelDownloader.getModel(
+      name: notFoundModelName,
+      downloadType: .latestModel,
+      conditions: conditions
+    ) { result in
+      switch result {
+      case .success: XCTFail("Unexpected model success.")
+      case let .failure(error):
+        XCTAssertEqual(error, .notFound)
+      }
+      notFoundModelExpectation.fulfill()
+    }
+    wait(for: [notFoundModelExpectation], timeout: 5)
+  }
+
+  func testGetModelWithConditions() {
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
+    testApp.isDataCollectionDefaultEnabled = false
+
+    let testModelName = "pose-detection"
+    let testName = String(#function.dropLast(2))
+
+    let conditions = ModelDownloadConditions(allowsCellularAccess: false)
+
+    let modelDownloader = ModelDownloader.modelDownloaderWithDefaults(
+      .createTestInstance(testName: testName),
+      app: testApp
+    )
+
+    let latestModelExpectation = expectation(description: "Get latest model with conditions.")
+
+    modelDownloader.getModel(
+      name: testModelName,
+      downloadType: .latestModel,
+      conditions: conditions,
+      progressHandler: { progress in
+        XCTAssertTrue(Thread.isMainThread, "Completion must be called on the main thread.")
+        XCTAssertLessThanOrEqual(progress, 1)
+        XCTAssertGreaterThanOrEqual(progress, 0)
+      }
+    ) { result in
+      XCTAssertTrue(Thread.isMainThread, "Completion must be called on the main thread.")
+
+      switch result {
+      case let .success(model):
+        XCTAssertNotNil(model.path)
+        let filePath = URL(fileURLWithPath: model.path)
+        XCTAssertTrue(ModelFileManager.isFileReachable(at: filePath))
+      case let .failure(error):
+        XCTFail("Failed to download model - \(error)")
+      }
+      latestModelExpectation.fulfill()
+    }
+    wait(for: [latestModelExpectation], timeout: 5)
   }
 }
