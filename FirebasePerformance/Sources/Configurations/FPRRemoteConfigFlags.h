@@ -40,13 +40,6 @@
  */
 - (void)update;
 
-/**
- * Returns if there was a successful fetch in the past and if any remote config flag exists.
- *
- * @return YES if any remote config flag exists; NO otherwise.
- */
-- (BOOL)containsRemoteConfigFlags;
-
 #pragma mark - General configs.
 
 /**
@@ -206,18 +199,5 @@
  * @return Duration for which a sessions can be active.
  */
 - (int)sessionMaxDurationWithDefaultValue:(int)maxDurationInMinutes;
-
-#pragma mark - Google Data Transport related configs.
-
-/**
- * Returns the fll event transport percentage. A value of 100 means all the events are sent to
- * Fll. A value of 0 means, event are not sent to FLL. Range [0-100]. A value of -1 means
- * the value is not found. Name in remote config: "fpr_log_transport_ios_percent"
- *
- * @param percentage Default value of the transport rate to be returned if value does not exist
- * in remote config.
- * @return FLL transport percentage.
- */
-- (float)fllTransportPercentageWithDefaultValue:(float)percentage;
 
 @end

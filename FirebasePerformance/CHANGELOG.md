@@ -1,3 +1,6 @@
+# Unreleased
+* Deprecate Clearcut event transport mechanism.
+
 # Version 7.7.0
 * Add community supported tvOS.
 
