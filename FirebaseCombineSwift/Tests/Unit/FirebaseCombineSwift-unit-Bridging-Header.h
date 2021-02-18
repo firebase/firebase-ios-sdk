@@ -60,6 +60,3 @@
 
 #import "Functions/FirebaseFunctions/FIRFunctions+Internal.h"
 
-// uncommenting the following lin eresults in the compiler no longer being able to find the methods on the HTTPSCallable extension
-//#import "Functions/FirebaseFunctions/FIRHTTPSCallable+Internal.h"
-

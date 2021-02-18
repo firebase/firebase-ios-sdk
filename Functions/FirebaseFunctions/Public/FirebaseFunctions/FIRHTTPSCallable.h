@@ -22,7 +22,9 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(HTTPSCallableResult)
 @interface FIRHTTPSCallableResult : NSObject
 
-- (id)init;
+- (id)init NS_UNAVAILABLE;
+
+- (instancetype)initWithData:(id)result;
 
 /**
  * The data that was returned from the Callable HTTPS trigger.
