@@ -192,6 +192,7 @@
       [self expectationWithDescription:@"Write and load metadata in database successfully"];
   NSString *bundleIdentifier = [NSBundle mainBundle].bundleIdentifier;
   NSString *namespace = @"test_namespace";
+  NSString *namespace2 = @"test_namespace_2";
   NSTimeInterval lastFetchTimestamp = [NSDate date].timeIntervalSince1970;
 
   NSDictionary *deviceContext =
@@ -251,6 +252,12 @@
     XCTAssertEqual([result[RCNKeyLastFetchError] intValue], (int)FIRRemoteConfigErrorUnknown);
     XCTAssertEqual([result[RCNKeyLastApplyTime] doubleValue], now - 100);
     XCTAssertEqual([result[RCNKeyLastSetDefaultsTime] doubleValue], now - 200);
+
+    // Check that writing metadata for one namespace doesn't affect another namespace
+    NSDictionary *resultForOtherNamespace =
+        [self->_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier
+                                              andNamespace:namespace2];
+    XCTAssertEqual([resultForOtherNamespace count], 0);
 
     [writeAndLoadMetadataExpectation fulfill];
   };
@@ -494,9 +501,8 @@
   [self waitForExpectationsWithTimeout:_expectionTimeout handler:nil];
 }
 
-/// TODO: Fix test case.
 /// Tests that we can insert values in the database and can update them.
-- (void)ignore_InsertAndUpdateApplyTime {
+- (void)testInsertAndUpdateApplyTime {
   XCTestExpectation *updateAndLoadMetadataExpectation =
       [self expectationWithDescription:@"Update and load apply time in database successfully."];
   NSString *bundleIdentifier = [NSBundle mainBundle].bundleIdentifier;

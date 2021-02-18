@@ -673,7 +673,7 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
     }
   }
   // bind namespace to query
-  if (sqlite3_bind_text(statement, ++index, [namespace UTF8String], -1, SQLITE_STATIC) !=
+  if (sqlite3_bind_text(statement, ++index, [namespace UTF8String], -1, SQLITE_TRANSIENT) !=
       SQLITE_OK) {
     return [self logErrorWithSQL:SQL finalizeStatement:statement returnValue:NO];
   }
