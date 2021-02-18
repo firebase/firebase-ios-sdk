@@ -15,8 +15,8 @@
 import XCTest
 import FirebaseAnalytics
 #if canImport(SwiftUI)
-import SwiftUI
-import FirebaseAnalyticsSwift
+  import SwiftUI
+  import FirebaseAnalyticsSwift
 #endif
 
 class importTest: XCTestCase {
@@ -31,7 +31,7 @@ class importTest: XCTestCase {
   @available(macCatalyst, unavailable)
   @available(watchOS, unavailable)
   func testAnalyticsSwiftImported() {
-    let _ = Text("Hello, Analytics")
+    _ = Text("Hello, Analytics")
       .analyticsScreen(name: "analytics_text",
                        class: "Greeting",
                        extraParameters: ["greeted": true])
