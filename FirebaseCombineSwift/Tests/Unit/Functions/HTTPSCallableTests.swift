@@ -22,14 +22,12 @@ class MockFunctions: Functions {
                              with data: Any?,
                              timeout: TimeInterval,
                              completion: @escaping (HTTPSCallableResult?, Error?) -> Void) {
-    
     let result = HTTPSCallableResult(data: "mockResult")
     completion(result, nil)
   }
 }
 
 class HTTPSCallableTests: XCTestCase {
-  
   func testCallWithoutParameters() {
     // given
     var cancellables = Set<AnyCancellable>()
@@ -50,14 +48,13 @@ class HTTPSCallableTests: XCTestCase {
           XCTFail("Expected String data")
           return
         }
-        
+
         XCTAssertEqual(result, "mockResult")
         funcationWasCalledExpectation.fulfill()
       }
       .store(in: &cancellables)
-    
+
     // then
     wait(for: [funcationWasCalledExpectation], timeout: expectationTimeout)
   }
-  
 }

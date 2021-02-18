@@ -59,4 +59,3 @@
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "Functions/FirebaseFunctions/FIRFunctions+Internal.h"
-
