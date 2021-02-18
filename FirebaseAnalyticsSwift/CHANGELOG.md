@@ -1,6 +1,4 @@
 # Unreleased
-
-# 7.6.0-Beta
 - Initial public beta release. Introduces new SwiftUI friendly APIs for
   screen tracking. To use, add `pod 'FirebaseAnalyticsSwift'` to the Podfile or
   add the `FirebaseAnalyticsSwift-Beta` framework in Swift Package Manager, then 
