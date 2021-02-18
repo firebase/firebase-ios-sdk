@@ -56,8 +56,8 @@ let repo = url
 let lines = fileContents.components(separatedBy: .newlines)
 var outBuffer =
   "source 'https://github.com/firebase/SpecsDev.git'\n" +
-  "source 'https://github.com/firebase/SpecsStaging.git'\n"
-    + "source 'https://cdn.cocoapods.org/'\n"
+  "source 'https://github.com/firebase/SpecsStaging.git'\n" +
+  "source 'https://cdn.cocoapods.org/'\n"
 for line in lines {
   var newLine = line.trimmingCharacters(in: .whitespacesAndNewlines)
   let tokens = newLine.components(separatedBy: [" ", ","] as CharacterSet)
