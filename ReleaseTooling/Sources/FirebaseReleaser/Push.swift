@@ -52,7 +52,8 @@ enum Push {
             "--sources=\(stagingRepo).git,https://cdn.cocoapods.org"
         case .trunk:
           return "pod trunk push --skip-tests --synchronous \(warningsOK) " +
-            pod.skipImportValidation() + " ~/.cocoapods/repos/\(stagingLocation)/Specs/\(pod.name)/" +
+            pod
+            .skipImportValidation() + " ~/.cocoapods/repos/\(stagingLocation)/Specs/\(pod.name)/" +
             "\(manifest.versionString(pod))/\(pod.name).podspec.json"
         }
       }()
