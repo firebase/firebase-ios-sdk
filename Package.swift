@@ -124,12 +124,12 @@ let package = Package(
     .package(
       name: "abseil",
       url: "https://github.com/firebase/abseil-cpp-SwiftPM.git",
-      .revision("320052bd5dfbec803043ab838ec87b32d601aca0")
+      .revision("973d27376eedfb8f0f0a324be4b4121d44808dc9")
     ),
     .package(
       name: "gRPC",
       url: "https://github.com/firebase/grpc-SwiftPM.git",
-      .revision("3393c6955ee1097c87bbc5f8cf01b7dac736f418")
+      .revision("b54af2c0d3b77209ccc8dc25af902c31a2095943")
     ),
     .package(
       name: "OCMock",
@@ -139,7 +139,7 @@ let package = Package(
     .package(
       name: "leveldb",
       url: "https://github.com/firebase/leveldb.git",
-      "1.22.1" ..< "1.23.0"
+      .revision("e4e8ab44a2781a3656b4b5852e71c07fd18fecfa")
     ),
     // Branches need a force update with a run with the revision set like below.
     //   .package(url: "https://github.com/paulb777/nanopb.git", .revision("564392bd87bd093c308a3aaed3997466efb95f74"))
