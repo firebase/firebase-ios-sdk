@@ -24,7 +24,6 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
   s.tvos.deployment_target = tvos_deployment_target
 
   s.cocoapods_version = '>= 1.4.0'
-  s.static_framework = true
   s.prefix_header_file = false
 
   base_dir = "FirebasePerformance/"
