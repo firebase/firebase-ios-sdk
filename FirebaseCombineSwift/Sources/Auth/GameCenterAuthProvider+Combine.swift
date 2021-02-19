@@ -19,7 +19,6 @@
 
   @available(swift 5.0)
   @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
-
   extension GameCenterAuthProvider {
     /// Creates a `AuthCredential` for a Game Center sign in.
     ///
