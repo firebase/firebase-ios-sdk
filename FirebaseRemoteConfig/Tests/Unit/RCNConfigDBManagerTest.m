@@ -192,7 +192,6 @@
       [self expectationWithDescription:@"Write and load metadata in database successfully"];
   NSString *bundleIdentifier = [NSBundle mainBundle].bundleIdentifier;
   NSString *namespace = @"test_namespace";
-  NSString *namespace2 = @"test_namespace_2";
   NSTimeInterval lastFetchTimestamp = [NSDate date].timeIntervalSince1970;
 
   NSDictionary *deviceContext =
@@ -252,16 +251,107 @@
     XCTAssertEqual([result[RCNKeyLastFetchError] intValue], (int)FIRRemoteConfigErrorUnknown);
     XCTAssertEqual([result[RCNKeyLastApplyTime] doubleValue], now - 100);
     XCTAssertEqual([result[RCNKeyLastSetDefaultsTime] doubleValue], now - 200);
-
-    // Check that writing metadata for one namespace doesn't affect another namespace
-    NSDictionary *resultForOtherNamespace =
-        [self->_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier namespace:namespace2];
-    XCTAssertEqual([resultForOtherNamespace count], 0);
-
     [writeAndLoadMetadataExpectation fulfill];
   };
 
   [_DBManager insertMetadataTableWithValues:columnNameToValue completionHandler:completion];
+  [self waitForExpectationsWithTimeout:_expectionTimeout
+                               handler:^(NSError *error) {
+                                 XCTAssertNil(error);
+                               }];
+}
+
+- (void)testWriteAndLoadMetadataForMultipleNamespaces {
+  XCTestExpectation *writeAndLoadMetadataForMultipleNamespacesExpectation =
+      [self expectationWithDescription:@"Metadata is stored and read based on namespace"];
+  NSString *bundleIdentifier = [NSBundle mainBundle].bundleIdentifier;
+  NSDictionary *deviceContext = @{};
+  NSDictionary *syncedDBCustomVariables = @{};
+  NSError *error;
+  NSData *serializedAppContext = [NSJSONSerialization dataWithJSONObject:syncedDBCustomVariables
+                                                                 options:NSJSONWritingPrettyPrinted
+                                                                   error:&error];
+  NSData *serializedDeviceContext =
+      [NSJSONSerialization dataWithJSONObject:deviceContext
+                                      options:NSJSONWritingPrettyPrinted
+                                        error:&error];
+  NSData *serializedDigestPerNamespace =
+      [NSJSONSerialization dataWithJSONObject:@{} options:NSJSONWritingPrettyPrinted error:&error];
+  NSData *serializedSuccessTime = [NSJSONSerialization dataWithJSONObject:@[]
+                                                                  options:NSJSONWritingPrettyPrinted
+                                                                    error:&error];
+  NSData *serializedFailureTime = [NSJSONSerialization dataWithJSONObject:@[]
+                                                                  options:NSJSONWritingPrettyPrinted
+                                                                    error:&error];
+
+  // Metadata for first namespace
+  NSString *namespace = @"test_namespace";
+  double lastApplyTime = 100;
+  double lastSetDefaultsTime = 200;
+  NSDictionary *valuesForNamespace = @{
+    RCNKeyBundleIdentifier : bundleIdentifier,
+    RCNKeyNamespace : namespace,
+    RCNKeyFetchTime : @(0),
+    RCNKeyDigestPerNamespace : serializedDigestPerNamespace,
+    RCNKeyDeviceContext : serializedDeviceContext,
+    RCNKeyAppContext : serializedAppContext,
+    RCNKeySuccessFetchTime : serializedSuccessTime,
+    RCNKeyFailureFetchTime : serializedFailureTime,
+    RCNKeyLastFetchStatus : @(FIRRemoteConfigFetchStatusSuccess),
+    RCNKeyLastFetchError : @(FIRRemoteConfigErrorUnknown),
+    RCNKeyLastApplyTime : @(lastApplyTime),
+    RCNKeyLastSetDefaultsTime : @(lastSetDefaultsTime)
+  };
+
+  // Metadata for second namespace
+  NSString *namespace2 = @"test_namespace_2";
+  double lastApplyTime2 = 300;
+  double lastSetDefaultsTime2 = 400;
+  NSDictionary *valuesForNamespace2 = @{
+    RCNKeyBundleIdentifier : bundleIdentifier,
+    RCNKeyNamespace : namespace2,
+    RCNKeyFetchTime : @(0),
+    RCNKeyDigestPerNamespace : serializedDigestPerNamespace,
+    RCNKeyDeviceContext : serializedDeviceContext,
+    RCNKeyAppContext : serializedAppContext,
+    RCNKeySuccessFetchTime : serializedSuccessTime,
+    RCNKeyFailureFetchTime : serializedFailureTime,
+    RCNKeyLastFetchStatus : @(FIRRemoteConfigFetchStatusSuccess),
+    RCNKeyLastFetchError : @(FIRRemoteConfigErrorUnknown),
+    RCNKeyLastApplyTime : @(lastApplyTime2),
+    RCNKeyLastSetDefaultsTime : @(lastSetDefaultsTime2)
+  };
+
+  RCNDBCompletion insertMetadataCompletion = ^void(BOOL success, NSDictionary *result) {
+    XCTAssertTrue(success);
+
+    // Load metadata for both namespaces and verify they retain their separate values
+    NSDictionary *resultForNamespace =
+        [self->_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier namespace:namespace];
+    NSDictionary *resultForNamespace2 =
+        [self->_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier namespace:namespace2];
+
+    XCTAssertNotNil(resultForNamespace);
+    XCTAssertEqual([resultForNamespace[RCNKeyLastApplyTime] doubleValue], lastApplyTime);
+    XCTAssertEqual([resultForNamespace[RCNKeyLastSetDefaultsTime] doubleValue],
+                   lastSetDefaultsTime);
+
+    XCTAssertNotNil(resultForNamespace2);
+    XCTAssertEqual([resultForNamespace2[RCNKeyLastApplyTime] doubleValue], lastApplyTime2);
+    XCTAssertEqual([resultForNamespace2[RCNKeyLastSetDefaultsTime] doubleValue],
+                   lastSetDefaultsTime2);
+    [writeAndLoadMetadataForMultipleNamespacesExpectation fulfill];
+  };
+
+  // Write metadata for first namespace
+  [_DBManager insertMetadataTableWithValues:valuesForNamespace
+                          completionHandler:^(BOOL success, NSDictionary *result1) {
+                            XCTAssertTrue(success);
+                            // Write metadata for second namespace
+                            [self->_DBManager
+                                insertMetadataTableWithValues:valuesForNamespace2
+                                            completionHandler:insertMetadataCompletion];
+                          }];
   [self waitForExpectationsWithTimeout:_expectionTimeout
                                handler:^(NSError *error) {
                                  XCTAssertNil(error);
