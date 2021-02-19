@@ -17,7 +17,7 @@
 
 import PackageDescription
 
-let firebaseVersion = "7.5.0"
+let firebaseVersion = "7.6.0"
 
 let package = Package(
   name: "Firebase",
@@ -70,6 +70,10 @@ let package = Package(
     .library(
       name: "FirebaseMessaging",
       targets: ["FirebaseMessaging"]
+    ),
+    .library(
+      name: "FirebaseMLModelDownloader",
+      targets: ["FirebaseMLModelDownloader"]
     ),
     .library(
       name: "FirebaseRemoteConfig",

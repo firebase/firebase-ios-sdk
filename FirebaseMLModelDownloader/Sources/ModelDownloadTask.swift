@@ -93,12 +93,20 @@ extension ModelDownloadTask {
                             messageCode: .anotherDownloadInProgressError)
       telemetryLogger?.logModelDownloadEvent(eventName: .modelDownload,
                                              status: .failed,
+                                             model: CustomModel(name: remoteModelInfo.name,
+                                                                size: remoteModelInfo.size,
+                                                                path: "",
+                                                                hash: remoteModelInfo.modelHash),
                                              downloadErrorCode: .downloadFailed)
       return
     }
     downloadStatus = .downloading
     telemetryLogger?.logModelDownloadEvent(eventName: .modelDownload,
                                            status: .downloading,
+                                           model: CustomModel(name: remoteModelInfo.name,
+                                                              size: remoteModelInfo.size,
+                                                              path: "",
+                                                              hash: remoteModelInfo.modelHash),
                                            downloadErrorCode: .noError)
     downloader.downloadFile(with: remoteModelInfo.downloadURL,
                             progressHandler: { downloadedBytes, totalBytes in
@@ -131,6 +139,10 @@ extension ModelDownloadTask {
           self.telemetryLogger?.logModelDownloadEvent(
             eventName: .modelDownload,
             status: .failed,
+            model: CustomModel(name: self.remoteModelInfo.name,
+                               size: self.remoteModelInfo.size,
+                               path: "",
+                               hash: self.remoteModelInfo.modelHash),
             downloadErrorCode: .noConnection
           )
         case FileDownloaderError.unexpectedResponseType:
@@ -142,6 +154,10 @@ extension ModelDownloadTask {
           self.telemetryLogger?.logModelDownloadEvent(
             eventName: .modelDownload,
             status: .failed,
+            model: CustomModel(name: self.remoteModelInfo.name,
+                               size: self.remoteModelInfo.size,
+                               path: "",
+                               hash: self.remoteModelInfo.modelHash),
             downloadErrorCode: .downloadFailed
           )
         default:
@@ -153,6 +169,10 @@ extension ModelDownloadTask {
           self.telemetryLogger?.logModelDownloadEvent(
             eventName: .modelDownload,
             status: .failed,
+            model: CustomModel(name: self.remoteModelInfo.name,
+                               size: self.remoteModelInfo.size,
+                               path: "",
+                               hash: self.remoteModelInfo.modelHash),
             downloadErrorCode: .downloadFailed
           )
         }
@@ -175,6 +195,10 @@ extension ModelDownloadTask {
           telemetryLogger?.logModelDownloadEvent(
             eventName: .modelDownload,
             status: .failed,
+            model: CustomModel(name: remoteModelInfo.name,
+                               size: remoteModelInfo.size,
+                               path: "",
+                               hash: remoteModelInfo.modelHash),
             downloadErrorCode: .httpError(code: response.statusCode)
           )
           completion(.failure(.invalidArgument))
@@ -186,6 +210,10 @@ extension ModelDownloadTask {
         telemetryLogger?.logModelDownloadEvent(
           eventName: .modelDownload,
           status: .failed,
+          model: CustomModel(name: remoteModelInfo.name,
+                             size: remoteModelInfo.size,
+                             path: "",
+                             hash: remoteModelInfo.modelHash),
           downloadErrorCode: .urlExpired
         )
         completion(.failure(.expiredDownloadURL))
@@ -196,6 +224,10 @@ extension ModelDownloadTask {
         telemetryLogger?.logModelDownloadEvent(
           eventName: .modelDownload,
           status: .failed,
+          model: CustomModel(name: remoteModelInfo.name,
+                             size: remoteModelInfo.size,
+                             path: "",
+                             hash: remoteModelInfo.modelHash),
           downloadErrorCode: .httpError(code: response.statusCode)
         )
         completion(.failure(.permissionDenied))
@@ -207,6 +239,10 @@ extension ModelDownloadTask {
         telemetryLogger?.logModelDownloadEvent(
           eventName: .modelDownload,
           status: .failed,
+          model: CustomModel(name: remoteModelInfo.name,
+                             size: remoteModelInfo.size,
+                             path: "",
+                             hash: remoteModelInfo.modelHash),
           downloadErrorCode: .httpError(code: response.statusCode)
         )
         completion(.failure(.notFound))
@@ -219,6 +255,10 @@ extension ModelDownloadTask {
         telemetryLogger?.logModelDownloadEvent(
           eventName: .modelDownload,
           status: .failed,
+          model: CustomModel(name: remoteModelInfo.name,
+                             size: remoteModelInfo.size,
+                             path: "",
+                             hash: remoteModelInfo.modelHash),
           downloadErrorCode: .httpError(code: response.statusCode)
         )
         completion(.failure(.internalError(description: description)))
@@ -239,6 +279,10 @@ extension ModelDownloadTask {
       // Downloading the file succeeding but saving failed.
       telemetryLogger?.logModelDownloadEvent(eventName: .modelDownload,
                                              status: .succeeded,
+                                             model: CustomModel(name: remoteModelInfo.name,
+                                                                size: remoteModelInfo.size,
+                                                                path: "",
+                                                                hash: remoteModelInfo.modelHash),
                                              downloadErrorCode: .downloadFailed)
       completion(.failure(.internalError(description: description)))
       return
@@ -296,6 +340,10 @@ extension ModelDownloadTask {
       // Downloading the file succeeding but saving failed.
       telemetryLogger?.logModelDownloadEvent(eventName: .modelDownload,
                                              status: .succeeded,
+                                             model: CustomModel(name: remoteModelInfo.name,
+                                                                size: remoteModelInfo.size,
+                                                                path: "",
+                                                                hash: remoteModelInfo.modelHash),
                                              downloadErrorCode: .downloadFailed)
       completion(.failure(error))
       return
@@ -306,6 +354,10 @@ extension ModelDownloadTask {
       // Downloading the file succeeding but saving failed.
       telemetryLogger?.logModelDownloadEvent(eventName: .modelDownload,
                                              status: .succeeded,
+                                             model: CustomModel(name: remoteModelInfo.name,
+                                                                size: remoteModelInfo.size,
+                                                                path: "",
+                                                                hash: remoteModelInfo.modelHash),
                                              downloadErrorCode: .downloadFailed)
       completion(.failure(.internalError(description: error.localizedDescription)))
       return

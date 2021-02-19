@@ -15,7 +15,7 @@
 #import "FirebasePerformance/ProtoSupport/PerfMetric.pbobjc.h"
 #import "FirebasePerformance/Sources/FPRClient.h"
 
-@class FPRGDTCCLogger;
+@class FPRGDTLogger;
 @class FPRConfigurations;
 @class FIRInstallations;
 
@@ -28,7 +28,7 @@
 @property(nonatomic, getter=isConfigured, readwrite) BOOL configured;
 
 /** GDT Logger to transmit Fireperf events to Google Data Transport. */
-@property(nonatomic) FPRGDTCCLogger *gdtLogger;
+@property(nonatomic) FPRGDTLogger *gdtLogger;
 
 /** The queue group all FPRClient work will run on. Used for testing only. */
 @property(nonatomic, readonly) dispatch_group_t eventsQueueGroup;

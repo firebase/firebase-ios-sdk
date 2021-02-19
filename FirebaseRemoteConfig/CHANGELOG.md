@@ -1,3 +1,6 @@
+# v7.7.0
+- [added] Added community support for watchOS. (#7481)
+
 # v7.6.0
 - [fixed] Fixed build warnings introduced with Xcode 12.5. (#7432)
 

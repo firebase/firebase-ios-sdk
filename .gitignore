@@ -38,7 +38,7 @@ FirebaseSegmentation/Tests/Sample/GoogleService-Info.plist
 
 # FirebaseMLModelDownloader integration tests GoogleService-Info.plist
 FirebaseMLModelDownloader/Tests/Integration/Resources/GoogleService-Info.plist
-FirebaseMLModelDownloader/Apps/Sample/Resources/GoogleService-Info.plist
+FirebaseMLModelDownloader/Apps/Sample/**/GoogleService-Info.plist
 
 # FirebasePerformance dev test App and integration tests GoogleService-Info.plist
 FirebasePerformance/**/GoogleService-Info.plist

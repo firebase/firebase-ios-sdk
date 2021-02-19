@@ -1,6 +1,8 @@
-# Unreleased
+# v7.7.0
 - [fixed] Fixed a crash that could happen when the App is being deleted and
   there's an active listener (#6909).
+- [fixed] Fixed a bug where local cache inconsistencies were unnecessarily
+  being resolved (#7455).
 
 # v7.5.0
 - [changed] A write to a document that contains FieldValue transforms is no
