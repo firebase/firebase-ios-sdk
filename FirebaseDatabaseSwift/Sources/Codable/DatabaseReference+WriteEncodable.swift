@@ -23,17 +23,6 @@ extension Database.Encoder {
   }
 }
 
-private func mapCompletion(_ completion: @escaping (Result<Void, Error>) -> Void)
-  -> ((Error?, DatabaseReference) -> Void) {
-  return { error, _ in
-    if let error = error {
-      completion(.failure(error))
-    } else {
-      completion(.success(()))
-    }
-  }
-}
-
 extension DatabaseReference {
   /// Encodes an instance of `Encodable` and overwrites the encoded data
   /// to the path referred by this `DatabaseReference`. If no value exists,
@@ -50,11 +39,11 @@ extension DatabaseReference {
   ///                 immediately.
   public func setValue<T: Encodable>(from value: T,
                                      encoder: Database.Encoder = Database.Encoder.defaultEncoder(),
-                                     completion: ((Result<Void, Error>) -> Void)? =
+                                     completion: ((Error?) -> Void)? =
                                        nil) throws {
     let encoded = try encoder.encode(value)
     if let completion = completion {
-      setValue(encoded, withCompletionBlock: mapCompletion(completion))
+      setValue(encoded, withCompletionBlock: completion)
     } else {
       setValue(encoded)
     }
