@@ -18,16 +18,16 @@ import XCTest
 import FirebaseAuth
 
 extension FIRAuthBackend {
-
-    class func signIn(withGameCenter request: FIRSignInWithGameCenterRequest) -> Future<FIRSignInWithGameCenterResponse, Error> {
-        Future { promise in
-            self.signIn(withGameCenter: request) { response, error in
-                if let response = response {
-                    promise(.success(response))
-                } else if let error = error {
-                    promise(.failure(error))
-                }
-            }
+  class func signIn(withGameCenter request: FIRSignInWithGameCenterRequest)
+    -> Future<FIRSignInWithGameCenterResponse, Error> {
+    Future { promise in
+      self.signIn(withGameCenter: request) { response, error in
+        if let response = response {
+          promise(.success(response))
+        } else if let error = error {
+          promise(.failure(error))
         }
+      }
     }
+  }
 }
