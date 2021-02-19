@@ -28,8 +28,9 @@ namespace {
 class ByteStreamNSInputStreamFactory : public ByteStreamFactory {
   std::unique_ptr<ByteStream> CreateByteStream(
       const std::string& data) override {
-    auto* ns_string = MakeNSString(data);
-    NSInputStream* is = [NSInputStream inputStreamWithData:[ns_string dataUsingEncoding:NSUTF8StringEncoding]];
+    auto* str = MakeNSString(data);
+    NSInputStream* is = [NSInputStream
+        inputStreamWithData:[str dataUsingEncoding:NSUTF8StringEncoding]];
     [is open];
     return absl::make_unique<ByteStreamNSInputStream>(is);
   }
@@ -40,8 +41,8 @@ std::unique_ptr<ByteStreamFactory> ExecutorFactory() {
 }
 
 INSTANTIATE_TEST_SUITE_P(ByteStreamNSInputStreamTest,
-    ByteStreamTest,
-    ::testing::Values(ExecutorFactory));
+                         ByteStreamTest,
+                         ::testing::Values(ExecutorFactory));
 
 }  // namespace
 }  // namespace util

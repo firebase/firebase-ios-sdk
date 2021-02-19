@@ -16,6 +16,9 @@
 
 #include "Firestore/core/src/util/byte_stream_apple.h"
 
+#include <string>
+#include <utility>
+
 #include "Firestore/core/src/util/string_apple.h"
 #include "Firestore/core/src/util/string_util.h"
 
@@ -23,74 +26,56 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-StreamReadResult ByteStreamNSInputStream::ReadUntil(char delim, size_t max_length) {
+StreamReadResult ByteStreamNSInputStream::ReadUntil(char delim,
+                                                    size_t max_length) {
   size_t found_at = std::string::npos;
   do {
     found_at = buffer_.find(delim);
-    if(found_at != std::string::npos) {
+    if (found_at != std::string::npos) {
       break;
     }
     auto read = ReadToBuffer(max_length - buffer_.size());
     if (read < 0) {
       return ErrorResult();
     }
-    if(read == 0) {
+    if (read == 0) {
       break;
     }
 
-  } while(buffer_.size() < max_length);
+  } while (buffer_.size() < max_length);
 
   // One last try since the loop might break because eof or max_length reached.
-  if(found_at == std::string::npos) {
+  if (found_at == std::string::npos) {
     found_at = buffer_.find(delim);
   }
 
   // Still not found, return the whole `buffer_` and clear it.
-  if(found_at == std::string::npos) {
+  if (found_at == std::string::npos) {
     std::string buffer_copy(buffer_);
     buffer_.clear();
-    auto read_result = StreamReadResult(
-        std::move(buffer_copy),
-        eof());
+    auto read_result = StreamReadResult(std::move(buffer_copy), eof());
     return read_result;
   }
 
-  // Found, return the proper substring and erase it.
+  // Found, return the proper substring and erase the substring.
   std::string result = buffer_.substr(0, found_at);
   buffer_.erase(0, found_at);
-  auto read_result = StreamReadResult(
-      std::move(result),
-      eof());
+  auto read_result = StreamReadResult(std::move(result), eof());
   return read_result;
 }
 
 StreamReadResult ByteStreamNSInputStream::Read(size_t max_length) {
-  if(input_.streamStatus == NSStreamStatus::NSStreamStatusError) {
-    return ErrorResult();
-  }
-  if(input_.streamStatus == NSStreamStatus::NSStreamStatusAtEnd) {
-    return EofResult();
-  }
-  if(input_.streamStatus != NSStreamStatus::NSStreamStatusOpen) {
-    return StreamReadResult(
-        Status::FromErrno(Error::kErrorDataLoss,
-                          "Reading a NSInputStream that is not open"),
-        eof());
-  }
-
   auto read = ReadToBuffer(max_length);
   if (read < 0) {
     return ErrorResult();
   }
-  if(read == 0) {
+  if (read == 0) {
     return EofResult();
   }
 
   std::string buffer_copy(buffer_);
   buffer_.clear();
-  auto read_result = StreamReadResult(
-      std::move(buffer_),
-      eof());
+  auto read_result = StreamReadResult(std::move(buffer_copy), eof());
   return read_result;
 }
 
@@ -99,7 +84,7 @@ int32_t ByteStreamNSInputStream::ReadToBuffer(size_t max_length) {
   auto* data_ptr = (uint8_t*)result.data();
   NSInteger read = [input_ read:data_ptr maxLength:max_length];
 
-  if(read > 0) {
+  if (read > 0) {
     buffer_.append(result.substr(0, static_cast<unsigned long>(read)));
   }
 
@@ -107,14 +92,12 @@ int32_t ByteStreamNSInputStream::ReadToBuffer(size_t max_length) {
 }
 
 StreamReadResult ByteStreamNSInputStream::EofResult() {
-  return StreamReadResult(
-      buffer_,
-      true);
+  return StreamReadResult(buffer_, true);
 }
 
-StreamReadResult ByteStreamNSInputStream::ErrorResult(){
+StreamReadResult ByteStreamNSInputStream::ErrorResult() {
   std::string desc;
-  if(input_.streamError != NULL) {
+  if (input_.streamError != NULL) {
     desc = MakeString(input_.streamError.localizedDescription);
   }
   return StreamReadResult(
@@ -124,7 +107,8 @@ StreamReadResult ByteStreamNSInputStream::ErrorResult(){
 }
 
 bool ByteStreamNSInputStream::eof() {
-  return buffer_.empty() && input_.streamStatus == NSStreamStatus::NSStreamStatusAtEnd;
+  return buffer_.empty() &&
+         input_.streamStatus == NSStreamStatus::NSStreamStatusAtEnd;
 }
 
 }  // namespace util

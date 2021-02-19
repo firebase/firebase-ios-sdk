@@ -18,6 +18,8 @@
 
 #import <Foundation/Foundation.h>
 
+#include <cstdint>
+
 #include "Firestore/core/src/util/byte_stream.h"
 
 namespace firebase {
@@ -26,7 +28,9 @@ namespace util {
 
 class ByteStreamNSInputStream : public ByteStream {
  public:
-  explicit ByteStreamNSInputStream(NSInputStream* stream):input_(stream) {}
+  explicit ByteStreamNSInputStream(NSInputStream* stream) : input_(stream) {
+  }
+
   StreamReadResult ReadUntil(char delim, size_t max_length) override;
   StreamReadResult Read(size_t max_length) override;
 
