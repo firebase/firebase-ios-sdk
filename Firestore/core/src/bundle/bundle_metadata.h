@@ -55,8 +55,8 @@ class BundleMetadata : public BundleElement {
         total_bytes_(total_bytes) {
   }
 
-  BundleElementType ElementType() const override {
-    return BundleElementType::Metadata;
+  Type element_type() const override {
+    return Type::Metadata;
   }
 
   /**

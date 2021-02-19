@@ -20,20 +20,16 @@ namespace firebase {
 namespace firestore {
 namespace bundle {
 
-enum class BundleElementType {
-  Metadata,
-  NamedQuery,
-  DocumentMetadata,
-  Document
-};
-
 /**
  * Abstract class to give all elements from bundles a common type.
  */
 class BundleElement {
  public:
-  virtual BundleElementType ElementType() const = 0;
+  enum class Type { Metadata, NamedQuery, DocumentMetadata, Document };
+
   virtual ~BundleElement() = default;
+
+  virtual Type element_type() const = 0;
 };
 
 }  // namespace bundle

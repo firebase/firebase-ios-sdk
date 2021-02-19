@@ -43,8 +43,8 @@ class NamedQuery : public BundleElement {
         read_time_(read_time) {
   }
 
-  BundleElementType ElementType() const override {
-    return BundleElementType::NamedQuery;
+  Type element_type() const override {
+    return Type::NamedQuery;
   }
 
   /**

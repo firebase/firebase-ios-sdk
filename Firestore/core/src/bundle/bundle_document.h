@@ -34,8 +34,8 @@ class BundleDocument : public BundleElement {
       : document_(std::move(document)) {
   }
 
-  BundleElementType ElementType() const override {
-    return BundleElementType::Document;
+  Type element_type() const override {
+    return Type::Document;
   }
 
   /** Returns the key for this document. */
