@@ -36,7 +36,7 @@ static GPBStringInt64Dictionary *FPRGetProtoCounterForDictionary(
     NSDictionary<NSString *, NSNumber *> *dictionary);
 static FPRMSGNetworkRequestMetric_HttpMethod FPRHTTPMethodForString(NSString *methodString);
 static FPRMSGNetworkConnectionInfo_NetworkType FPRNetworkConnectionInfoNetworkType(void);
-#if __has_include("CoreTelephony/CTTelephonyNetworkInfo.h")
+#if __has_include("CoreTelephony/CTTelephonyNetworkInfo.h") && !TARGET_OS_MACCATALYST
 static FPRMSGNetworkConnectionInfo_MobileSubtype FPRCellularNetworkType(void);
 #endif
 NSArray<FPRSessionDetails *> *FPRMakeFirstSessionVerbose(NSArray<FPRSessionDetails *> *sessions);
@@ -340,7 +340,7 @@ static FPRMSGNetworkConnectionInfo_NetworkType FPRNetworkConnectionInfoNetworkTy
   return networkType;
 }
 
-#if __has_include("CoreTelephony/CTTelephonyNetworkInfo.h")
+#if __has_include("CoreTelephony/CTTelephonyNetworkInfo.h") && !TARGET_OS_MACCATALYST
 /** Get the current cellular network connection type in NetworkConnectionInfo_MobileSubtype format.
  *  @return Current cellular network connection type.
  */
