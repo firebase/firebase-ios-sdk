@@ -38,14 +38,14 @@ using util::StatusOr;
 
 StatusOr<absl::optional<LoadBundleTaskProgress>> BundleLoader::AddElement(
     const BundleElement& element, uint64_t byte_size) {
-  HARD_ASSERT(element.ElementType() != BundleElementType::Metadata,
+  HARD_ASSERT(element.element_type() != BundleElement::Type::Metadata,
               "Unexpected bundle metadata element.");
 
   auto before_count = documents_.size();
 
-  if (element.ElementType() == BundleElementType::NamedQuery) {
+  if (element.element_type() == BundleElement::Type::NamedQuery) {
     queries_.push_back(static_cast<const NamedQuery&>(element));
-  } else if (element.ElementType() == BundleElementType::DocumentMetadata) {
+  } else if (element.element_type() == BundleElement::Type::DocumentMetadata) {
     const auto& document_metadata =
         static_cast<const BundledDocumentMetadata&>(element);
     current_document_ = document_metadata.key();
@@ -58,7 +58,7 @@ StatusOr<absl::optional<LoadBundleTaskProgress>> BundleLoader::AddElement(
                      /*has_committed_mutations=*/false));
       current_document_ = absl::nullopt;
     }
-  } else if (element.ElementType() == BundleElementType::Document) {
+  } else if (element.element_type() == BundleElement::Type::Document) {
     const auto& document = static_cast<const BundleDocument&>(element);
     if (!current_document_.has_value() ||
         document.key() != current_document_.value()) {
