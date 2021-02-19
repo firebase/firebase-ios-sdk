@@ -121,13 +121,15 @@ let package = Package(
       // This revision adds SPM enablement to the 0.3.9.6 release tag.
       "2.30907.0" ..< "2.30908.0"
     ),
-    .package(name: "abseil",
-             url: "https://github.com/firebase/abseil-cpp-SwiftPM.git",
-             from: "0.20200225.0"),
+    .package(
+      name: "abseil",
+      url: "https://github.com/firebase/abseil-cpp-SwiftPM.git",
+      .revision("320052bd5dfbec803043ab838ec87b32d601aca0")
+    ),
     .package(
       name: "gRPC",
       url: "https://github.com/firebase/grpc-SwiftPM.git",
-      .revision("7a35043b663302bb3ff4be62ed85c8a265fb6338")
+      .revision("3393c6955ee1097c87bbc5f8cf01b7dac736f418")
     ),
     .package(
       name: "OCMock",
