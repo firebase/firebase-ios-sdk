@@ -687,12 +687,12 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
 #pragma mark - read from DB
 
 - (NSDictionary *)loadMetadataWithBundleIdentifier:(NSString *)bundleIdentifier
-                                      andNamespace:(NSString *)namespace {
+                                         namespace:(NSString *)namespace {
   __block NSDictionary *metadataTableResult;
   __weak RCNConfigDBManager *weakSelf = self;
   dispatch_sync(_databaseOperationQueue, ^{
     metadataTableResult = [weakSelf loadMetadataTableWithBundleIdentifier:bundleIdentifier
-                                                             andNamespace:namespace];
+                                                                namespace:namespace];
   });
   if (metadataTableResult) {
     return metadataTableResult;
@@ -701,7 +701,7 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
 }
 
 - (NSMutableDictionary *)loadMetadataTableWithBundleIdentifier:(NSString *)bundleIdentifier
-                                                  andNamespace:(NSString *)namespace {
+                                                     namespace:(NSString *)namespace {
   NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
   const char *SQL =
       "SELECT bundle_identifier, fetch_time, digest_per_ns, device_context, app_context, "
@@ -1058,6 +1058,7 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
 }
 
 - (void)deleteRecordWithBundleIdentifier:(NSString *)bundleIdentifier
+                               namespace:(NSString *)namespace
                             isInternalDB:(BOOL)isInternalDB {
   __weak RCNConfigDBManager *weakSelf = self;
   dispatch_async(_databaseOperationQueue, ^{
@@ -1066,10 +1067,11 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
       return;
     }
     const char *SQL = "DELETE FROM " RCNTableNameInternalMetadata " WHERE key LIKE ?";
-    if (!isInternalDB) {
-      SQL = "DELETE FROM " RCNTableNameMetadata " WHERE bundle_identifier = ?";
-    }
     NSArray *params = @[ bundleIdentifier ];
+    if (!isInternalDB) {
+      SQL = "DELETE FROM " RCNTableNameMetadata " WHERE bundle_identifier = ? and namespace = ?";
+      params = @[ bundleIdentifier, namespace ];
+    }
     [strongSelf executeQuery:SQL withParams:params];
   });
 }

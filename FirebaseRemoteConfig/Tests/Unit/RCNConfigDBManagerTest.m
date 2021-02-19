@@ -237,7 +237,7 @@
 
   RCNDBCompletion completion = ^(BOOL success, NSDictionary *result1) {
     NSDictionary *result = [self->_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier
-                                                                 andNamespace:namespace];
+                                                                    namespace:namespace];
     XCTAssertNotNil(result);
     XCTAssertEqualObjects(result[RCNKeyBundleIdentifier], bundleIdentifier);
     XCTAssertEqual([result[RCNKeyFetchTime] doubleValue], lastFetchTimestamp);
@@ -255,8 +255,7 @@
 
     // Check that writing metadata for one namespace doesn't affect another namespace
     NSDictionary *resultForOtherNamespace =
-        [self->_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier
-                                              andNamespace:namespace2];
+        [self->_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier namespace:namespace2];
     XCTAssertEqual([resultForOtherNamespace count], 0);
 
     [writeAndLoadMetadataExpectation fulfill];
@@ -468,7 +467,7 @@
   // Metadata row must exist before update
   RCNDBCompletion createMetadataCompletion = ^(BOOL success, NSDictionary *createResult) {
     NSDictionary *result = [self->_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier
-                                                                 andNamespace:namespace];
+                                                                    namespace:namespace];
     XCTAssertTrue(success);
     XCTAssertNotNil(result);
     XCTAssertEqual([result[RCNKeyLastFetchStatus] intValue],
@@ -477,7 +476,7 @@
 
     RCNDBCompletion updateMetadataCompletion = ^(BOOL success, NSDictionary *updateResult) {
       NSDictionary *result = [self->_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier
-                                                                   andNamespace:namespace];
+                                                                      namespace:namespace];
 
       XCTAssertTrue(success);
       XCTAssertNotNil(result);
@@ -514,12 +513,12 @@
     XCTAssertTrue(success);
     // Read newly created metadata.
     NSDictionary *result = [self->_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier
-                                                                 andNamespace:namespace];
+                                                                    namespace:namespace];
     XCTAssertNotNil(result);
     XCTAssertEqual([result[RCNKeyLastApplyTime] doubleValue], (double)100);
     RCNDBCompletion updateMetadataCompletion = ^(BOOL success, NSDictionary *updateResult) {
       NSDictionary *result = [self->_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier
-                                                                   andNamespace:namespace];
+                                                                      namespace:namespace];
 
       XCTAssertTrue(success);
       XCTAssertNotNil(result);
@@ -548,13 +547,13 @@
   // Metadata row must exist before update
   RCNDBCompletion createMetadataCompletion = ^(BOOL success, NSDictionary *createResult) {
     NSDictionary *result = [self->_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier
-                                                                 andNamespace:namespace];
+                                                                    namespace:namespace];
     XCTAssertTrue(success);
     XCTAssertNotNil(result);
     XCTAssertEqual([result[RCNKeyLastSetDefaultsTime] doubleValue], (double)200);
     RCNDBCompletion updateMetadataCompletion = ^(BOOL success, NSDictionary *updateResult) {
       NSDictionary *result = [self->_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier
-                                                                   andNamespace:namespace];
+                                                                      namespace:namespace];
 
       XCTAssertTrue(success);
       XCTAssertNotNil(result);

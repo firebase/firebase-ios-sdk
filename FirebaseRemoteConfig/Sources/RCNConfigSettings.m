@@ -143,7 +143,7 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
 #pragma mark - load from DB
 - (NSDictionary *)loadConfigFromMetadataTable {
   NSDictionary *metadata = [[_DBManager loadMetadataWithBundleIdentifier:_bundleIdentifier
-                                                            andNamespace:_FIRNamespace] copy];
+                                                               namespace:_FIRNamespace] copy];
   if (metadata) {
     // TODO: Remove (all metadata in general) once ready to
     // migrate to user defaults completely.
@@ -181,7 +181,9 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
 // Update internal metadata content to cache and DB.
 - (void)updateInternalContentWithResponse:(NSDictionary *)response {
   // Remove all the keys with current pakcage name.
-  [_DBManager deleteRecordWithBundleIdentifier:_bundleIdentifier isInternalDB:YES];
+  [_DBManager deleteRecordWithBundleIdentifier:_bundleIdentifier
+                                     namespace:_FIRNamespace
+                                  isInternalDB:YES];
 
   for (NSString *key in _internalMetadata.allKeys) {
     if ([key hasPrefix:_bundleIdentifier]) {
@@ -259,7 +261,9 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
 }
 
 - (void)updateMetadataTable {
-  [_DBManager deleteRecordWithBundleIdentifier:_bundleIdentifier isInternalDB:NO];
+  [_DBManager deleteRecordWithBundleIdentifier:_bundleIdentifier
+                                     namespace:_FIRNamespace
+                                  isInternalDB:NO];
   NSError *error;
   // Objects to be serialized cannot be invalid.
   if (!_bundleIdentifier) {
@@ -310,6 +314,7 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
 
   NSDictionary *columnNameToValue = @{
     RCNKeyBundleIdentifier : _bundleIdentifier,
+    RCNKeyNamespace : _FIRNamespace,
     RCNKeyFetchTime : @(self.lastFetchTimeInterval),
     RCNKeyDigestPerNamespace : serializedDigestPerNamespace,
     RCNKeyDeviceContext : serializedDeviceContext,
