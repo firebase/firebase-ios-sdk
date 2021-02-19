@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/util/byte_stream_istream.h"
 
+#include <string>
 #include <vector>
 
 #include "Firestore/core/src/util/statusor.h"

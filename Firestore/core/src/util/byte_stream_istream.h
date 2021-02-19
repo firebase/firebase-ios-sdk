@@ -18,6 +18,8 @@
 
 #include <istream>
 #include <memory>
+#include <string>
+#include <utility>
 
 #include "Firestore/core/src/util/byte_stream.h"
 

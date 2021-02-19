@@ -19,6 +19,7 @@
 #import <Foundation/Foundation.h>
 
 #include <cstdint>
+#include <string>
 
 #include "Firestore/core/src/util/byte_stream.h"
 
