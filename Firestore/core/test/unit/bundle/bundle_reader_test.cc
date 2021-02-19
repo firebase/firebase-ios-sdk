@@ -32,6 +32,7 @@
 #include "Firestore/core/src/nanopb/byte_string.h"
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/remote/serializer.h"
+#include "Firestore/core/src/util/byte_stream_istream.h"
 #include "Firestore/core/test/unit/nanopb/nanopb_testing.h"
 #include "Firestore/core/test/unit/testutil/status_testing.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
@@ -55,6 +56,8 @@ using ProtoNamedQuery = ::firestore::NamedQuery;
 using ProtoValue = ::google::firestore::v1::Value;
 using model::DatabaseId;
 using nanopb::ProtobufParse;
+using util::ByteStream;
+using util::ByteStreamIstream;
 
 class BundleReaderTest : public ::testing::Test {
  public:
@@ -122,6 +125,12 @@ class BundleReaderTest : public ::testing::Test {
     MessageToJsonString(element, &metadata_str);
 
     return std::to_string(metadata_str.size()) + metadata_str + bundle;
+  }
+
+  std::unique_ptr<util::ByteStream> ToByteStream(const std::string& bundle) {
+    auto bundle_istream = absl::make_unique<std::stringstream>(bundle);
+    return absl::make_unique<ByteStreamIstream>(
+        ByteStreamIstream(std::move(bundle_istream)));
   }
 
   ProtoNamedQuery LimitQuery() {
@@ -325,8 +334,7 @@ TEST_F(BundleReaderTest, ReadsQueryAndDocument) {
 
   const auto& bundle =
       BuildBundle("bundle-1", testutil::Version(6000004000), 1);
-  BundleReader reader(bundle_serializer,
-                      absl::make_unique<std::istringstream>(bundle));
+  BundleReader reader(bundle_serializer, ToByteStream(bundle));
 
   std::vector<std::unique_ptr<BundleElement>> elements =
       VerifyFullBundleParsed(reader, "bundle-1", testutil::Version(6000004000));
@@ -364,8 +372,7 @@ TEST_F(BundleReaderTest, ReadsQueryAndDocumentWithUnexpectedOrder) {
 
   const auto& bundle =
       BuildBundle("bundle-1", testutil::Version(6000004000), 2);
-  BundleReader reader(bundle_serializer,
-                      absl::make_unique<std::istringstream>(bundle));
+  BundleReader reader(bundle_serializer, ToByteStream(bundle));
 
   std::vector<std::unique_ptr<BundleElement>> elements =
       VerifyFullBundleParsed(reader, "bundle-1", testutil::Version(6000004000));
@@ -406,8 +413,7 @@ TEST_F(BundleReaderTest, ReadsWithoutNamedQuery) {
 
   const auto& bundle =
       BuildBundle("bundle-1", testutil::Version(6000004000), 1);
-  BundleReader reader(bundle_serializer,
-                      absl::make_unique<std::istringstream>(bundle));
+  BundleReader reader(bundle_serializer, ToByteStream(bundle));
 
   std::vector<std::unique_ptr<BundleElement>> elements =
       VerifyFullBundleParsed(reader, "bundle-1", testutil::Version(6000004000));
@@ -433,8 +439,7 @@ TEST_F(BundleReaderTest, ReadsWithDeletedDocument) {
 
   const auto& bundle =
       BuildBundle("bundle-1", testutil::Version(6000004000), 2);
-  BundleReader reader(bundle_serializer,
-                      absl::make_unique<std::istringstream>(bundle));
+  BundleReader reader(bundle_serializer, ToByteStream(bundle));
 
   std::vector<std::unique_ptr<BundleElement>> elements =
       VerifyFullBundleParsed(reader, "bundle-1", testutil::Version(6000004000));
@@ -462,8 +467,7 @@ TEST_F(BundleReaderTest, ReadsWithDeletedDocument) {
 TEST_F(BundleReaderTest, ReadsWithoutDocumentOrQuery) {
   const auto& bundle =
       BuildBundle("bundle-1", testutil::Version(6000004000), 0);
-  BundleReader reader(bundle_serializer,
-                      absl::make_unique<std::istringstream>(bundle));
+  BundleReader reader(bundle_serializer, ToByteStream(bundle));
 
   std::vector<std::unique_ptr<BundleElement>> elements =
       VerifyFullBundleParsed(reader, "bundle-1", testutil::Version(6000004000));
@@ -477,8 +481,7 @@ TEST_F(BundleReaderTest, ReadsLargeDocument) {
 
   const auto& bundle =
       BuildBundle("bundle-1", testutil::Version(6000004000), 0);
-  BundleReader reader(bundle_serializer,
-                      absl::make_unique<std::istringstream>(bundle));
+  BundleReader reader(bundle_serializer, ToByteStream(bundle));
 
   std::vector<std::unique_ptr<BundleElement>> elements =
       VerifyFullBundleParsed(reader, "bundle-1", testutil::Version(6000004000));
@@ -501,8 +504,7 @@ TEST_F(BundleReaderTest, FailsWithBadLengthPrefix) {
       BuildBundle("bundle-1", testutil::Version(6000004000), 0);
   for (int l = 1; l < 4; ++l) {
     auto bad_prefix = bundle.substr(l);
-    BundleReader reader(bundle_serializer,
-                        absl::make_unique<std::istringstream>(bad_prefix));
+    BundleReader reader(bundle_serializer, ToByteStream(bad_prefix));
 
     EXPECT_EQ(reader.GetBundleMetadata(), BundleMetadata());
     EXPECT_EQ(reader.GetNextElement(), nullptr);
@@ -514,8 +516,7 @@ TEST_F(BundleReaderTest, FailsWithBadLengthPrefix) {
 TEST_F(BundleReaderTest, FailsWhenSecondElementMissing) {
   const auto& bundle =
       BuildBundle("bundle-1", testutil::Version(6000004000), 0);
-  BundleReader reader(bundle_serializer,
-                      absl::make_unique<std::istringstream>(bundle + "foo"));
+  BundleReader reader(bundle_serializer, ToByteStream(bundle + "foo"));
 
   // Metadata can still be read because it is complete.
   EXPECT_EQ(reader.GetBundleMetadata(),
@@ -528,8 +529,7 @@ TEST_F(BundleReaderTest, FailsWhenSecondElementMissing) {
 TEST_F(BundleReaderTest, FailsWhenNoEnoughtDataCanBeRead) {
   const auto& bundle =
       BuildBundle("bundle-1", testutil::Version(6000004000), 0);
-  BundleReader reader(bundle_serializer,
-                      absl::make_unique<std::istringstream>("1" + bundle));
+  BundleReader reader(bundle_serializer, ToByteStream("1" + bundle));
 
   EXPECT_EQ(reader.GetBundleMetadata(), BundleMetadata());
   EXPECT_EQ(reader.GetNextElement(), nullptr);
@@ -546,8 +546,7 @@ TEST_F(BundleReaderTest, FailsWhenFirstElementIsNotBundleMetadata) {
   auto metadata_closing_bracket = bundle.find_last_of('}', found);
   auto bundle_without_meta =
       bundle.substr(metadata_closing_bracket + 1, bundle.size());
-  BundleReader reader(bundle_serializer, absl::make_unique<std::istringstream>(
-                                             bundle_without_meta));
+  BundleReader reader(bundle_serializer, ToByteStream(bundle_without_meta));
 
   EXPECT_EQ(reader.GetBundleMetadata(), BundleMetadata());
   EXPECT_EQ(reader.GetNextElement(), nullptr);
@@ -570,8 +569,7 @@ TEST_F(BundleReaderTest, FailsWhenBundleIsSomehowCorrupted) {
   for (size_t i = 0; i < bundle.size(); ++i) {
     std::string copy(bundle);
     copy.insert(i, "1");
-    BundleReader reader(bundle_serializer,
-                        absl::make_unique<std::istringstream>(copy));
+    BundleReader reader(bundle_serializer, ToByteStream(copy));
     while (reader.GetNextElement() != nullptr) {
     }
     EXPECT_NOT_OK(reader.ReaderStatus());

@@ -27,6 +27,8 @@ namespace firestore {
 namespace bundle {
 
 using nlohmann::json;
+using util::ByteStream;
+using util::StreamReadResult;
 
 namespace {
 
@@ -38,7 +40,7 @@ json Parse(absl::string_view s) {
 }  // namespace
 
 BundleReader::BundleReader(BundleSerializer serializer,
-                           std::unique_ptr<std::istream> input)
+                           std::unique_ptr<ByteStream> input)
     : serializer_(std::move(serializer)), input_(std::move(input)) {
 }
 
@@ -95,62 +97,42 @@ std::unique_ptr<BundleElement> BundleReader::ReadNextElement() {
 }
 
 absl::optional<std::string> BundleReader::ReadLengthPrefix() {
-  std::string result;
-  while (!input_->fail()) {
-    // Fill `length_chars` until a `{` is found. 10 should be more than enough
-    // to represent a length. Also appending `\0` is taken cared of by `get`.
-    char length_chars[10];
-    input_->get(length_chars, 10, '{');
-
-    // We broke out because underlying stream is closed, and there happens to be
-    // no more data to process.
-    if (input_->gcount() == 0 && input_->eof()) {
-      return absl::nullopt;
-    }
-
-    result.append(length_chars);
-
-    // We need a way to determine if `get` returned because a `{` is hit, or
-    // because we filled `length_chars`.
-    if (input_->gcount() < 9) {
-      break;
-    }
-  }
-
-  if (input_->fail()) {
-    Fail("Reached the end of bundle when a length string is expected.");
+  // length string of size 10 indicates an element about 9GB, which is
+  // impossible for valid bundles, given we have 1mb document size restriction.
+  StreamReadResult result = input_->ReadUntil('{', 10);
+  if (!result.result().ok()) {
+    reader_status_.Update(result.result().status());
     return absl::nullopt;
   }
 
-  return absl::make_optional(std::move(result));
+  // Underlying stream is closed, and there happens to be no more data to
+  // process.
+  if (result.eof() && result.result().ValueOrDie().empty()) {
+    return absl::nullopt;
+  }
+
+  return absl::make_optional(std::move(result.result().ValueOrDie()));
 }
 
-void BundleReader::ReadJsonToBuffer(size_t length) {
-  while (buffer_.size() < length) {
-    if (!PullMoreData(length - buffer_.size())) {
+void BundleReader::ReadJsonToBuffer(size_t required_size) {
+  while (buffer_.size() < required_size) {
+    // Read at most 1024 bytes every time, to avoid allocating a huge buffer
+    // when corruption leads to large `required_size`.
+    auto size = std::min(1024ul, required_size - buffer_.size());
+    StreamReadResult result = input_->Read(size);
+    if (!result.result().ok()) {
+      reader_status_.Update(result.result().status());
+      return;
+    }
+    buffer_.append(result.result().ValueOrDie());
+    if (result.eof()) {
       break;
     }
   }
 
-  if (buffer_.size() < length) {
+  if (buffer_.size() < required_size) {
     Fail("Available input string is smaller than what length prefix indicates");
   }
-}
-
-bool BundleReader::PullMoreData(uint32_t required_size) {
-  if (input_->fail() || input_->eof()) {
-    return false;
-  }
-
-  // Read at most 1024 bytes every time, to avoid allocating a huge buffer when
-  // corruption leads to large `required_size`.
-  auto size = std::min(1024u, required_size);
-  char data[1024 + 1];
-  input_->read(data, size);
-  // `read` does not do this for us, unlike `get`.
-  data[input_->gcount()] = '\0';
-  buffer_.append(data);
-  return true;
 }
 
 std::unique_ptr<BundleElement> BundleReader::DecodeBundleElementFromBuffer() {
