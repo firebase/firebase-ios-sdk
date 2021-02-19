@@ -43,7 +43,7 @@ struct FirebaseReleaser: ParsableCommand {
           help: "Publish the podspecs to the CocoaPodsTrunk")
   var publish: Bool
 
-  /// Set this option to only update the podspecs on cpdc.
+  /// Set this option to only update the podspecs on SpecsStaging.
   @Option(default: false,
           help: "Update the podspecs only")
   var pushOnly: Bool
@@ -72,11 +72,11 @@ struct FirebaseReleaser: ParsableCommand {
       Shell.executeCommand("git branch --set-upstream-to=origin/\(branch) \(branch)",
                            workingDir: gitRoot)
       Tags.createTags(gitRoot: gitRoot)
-      Push.pushPodsToCPDC(gitRoot: gitRoot)
+      Push.pushPodsToStaging(gitRoot: gitRoot)
     } else if updateTagsOnly {
       Tags.updateTags(gitRoot: gitRoot)
     } else if pushOnly {
-      Push.pushPodsToCPDC(gitRoot: gitRoot)
+      Push.pushPodsToStaging(gitRoot: gitRoot)
     } else if publish {
       Push.publishPodsToTrunk(gitRoot: gitRoot)
     }
