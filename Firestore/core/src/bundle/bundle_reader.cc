@@ -98,20 +98,21 @@ std::unique_ptr<BundleElement> BundleReader::ReadNextElement() {
 
 absl::optional<std::string> BundleReader::ReadLengthPrefix() {
   // length string of size 10 indicates an element about 9GB, which is
-  // impossible for valid bundles, given we have 1mb document size restriction.
+  // more than enough for valid bundles, given we have 1mb document size
+  // restriction.
   StreamReadResult result = input_->ReadUntil('{', 10);
-  if (!result.result().ok()) {
-    reader_status_.Update(result.result().status());
+  if (!result.ok()) {
+    reader_status_.Update(result.status());
     return absl::nullopt;
   }
 
   // Underlying stream is closed, and there happens to be no more data to
   // process.
-  if (result.eof() && result.result().ValueOrDie().empty()) {
+  if (result.eof() && result.ValueOrDie().empty()) {
     return absl::nullopt;
   }
 
-  return absl::make_optional(std::move(result.result().ValueOrDie()));
+  return absl::make_optional(std::move(result.ValueOrDie()));
 }
 
 void BundleReader::ReadJsonToBuffer(size_t required_size) {
@@ -120,11 +121,11 @@ void BundleReader::ReadJsonToBuffer(size_t required_size) {
     // when corruption leads to large `required_size`.
     auto size = std::min(1024ul, required_size - buffer_.size());
     StreamReadResult result = input_->Read(size);
-    if (!result.result().ok()) {
-      reader_status_.Update(result.result().status());
+    if (!result.ok()) {
+      reader_status_.Update(result.status());
       return;
     }
-    buffer_.append(result.result().ValueOrDie());
+    buffer_.append(result.ValueOrDie());
     if (result.eof()) {
       break;
     }

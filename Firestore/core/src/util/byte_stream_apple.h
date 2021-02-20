@@ -16,6 +16,10 @@
 #ifndef FIRESTORE_CORE_SRC_UTIL_BYTE_STREAM_APPLE_H_
 #define FIRESTORE_CORE_SRC_UTIL_BYTE_STREAM_APPLE_H_
 
+#if !defined(__OBJC__)
+#error "This header only supports Objective-C++."
+#endif  // !defined(__OBJC__)
+
 #import <Foundation/Foundation.h>
 
 #include <cstdint>
@@ -27,9 +31,9 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-class ByteStreamNSInputStream : public ByteStream {
+class ByteStreamApple : public ByteStream {
  public:
-  explicit ByteStreamNSInputStream(NSInputStream* stream) : input_(stream) {
+  explicit ByteStreamApple(NSInputStream* input) : input_(input) {
   }
 
   StreamReadResult ReadUntil(char delim, size_t max_length) override;
@@ -38,7 +42,7 @@ class ByteStreamNSInputStream : public ByteStream {
  private:
   StreamReadResult EofResult();
   StreamReadResult ErrorResult();
-  bool eof();
+  bool eof() const;
   int32_t ReadToBuffer(size_t max_length);
 
   NSInputStream* input_ = nullptr;

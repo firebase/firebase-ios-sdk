@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/util/byte_stream_istream.h"
+#include "Firestore/core/src/util/byte_stream_cpp.h"
 
 #include <string>
 #include <vector>
@@ -25,33 +25,33 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-StreamReadResult ByteStreamIstream::ReadUntil(char delim, size_t max_length) {
+StreamReadResult ByteStreamCpp::ReadUntil(char delim, size_t max_length) {
   // Fill `result` until a `{` is found.
   std::string result(max_length + 1, '\0');
-  input_->get(const_cast<char*>(result.data()), max_length + 1, delim);
+  input_->get(&result[0], max_length + 1, delim);
 
   return ToReadResult(result);
 }
 
-StreamReadResult ByteStreamIstream::Read(size_t max_length) {
+StreamReadResult ByteStreamCpp::Read(size_t max_length) {
   std::string result(max_length + 1, '\0');
-  input_->read(const_cast<char*>(result.data()), max_length);
+  input_->read(&result[0], max_length);
 
   return ToReadResult(result);
 }
 
-StreamReadResult ByteStreamIstream::ToReadResult(const std::string& result) {
+StreamReadResult ByteStreamCpp::ToReadResult(const std::string& result) {
   if (input_->bad()) {
     return StreamReadResult(
-        Status::FromErrno(Error::kErrorDataLoss,
-                          "Reading input stream failed with error"),
+        Status(Error::kErrorDataLoss, "Reading input stream failed with error"),
         input_->eof());
   }
 
-  // input_->fail() means less than expected characters are read, we can still
-  // continue until eof() is hit, so clearing failbit here.
+  // if fail() returns true while bad() returns false, it means less than
+  // expected characters are read, we can still continue until eof() is hit,
+  // so clearing failbit here.
   if (input_->fail() && !input_->eof()) {
-    input_->clear(std::istream::goodbit);
+    input_->clear();
   }
 
   return StreamReadResult(

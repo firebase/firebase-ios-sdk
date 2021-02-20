@@ -16,8 +16,9 @@
 #ifndef FIRESTORE_CORE_SRC_UTIL_BYTE_STREAM_H_
 #define FIRESTORE_CORE_SRC_UTIL_BYTE_STREAM_H_
 
-#include <cstdint>
+#include <cstddef>
 #include <string>
+#include <utility>
 
 #include "Firestore/core/src/util/statusor.h"
 
@@ -39,15 +40,29 @@ class StreamReadResult {
     return eof_;
   }
 
-  /**
-   * Returns the result from a read operation.
-   *
-   * Result will be in a std:string instance when read was successful, otherwise
-   * a `Status` instance will be returned, indicating the `ByteStream` instance
-   * has failed.
-   */
-  const StatusOr<std::string>& result() const {
-    return result_;
+  /** Whether the read operation is successful. */
+  bool ok() const {
+    return result_.ok();
+  }
+
+  Status status() const {
+    return result_.status();
+  }
+
+  const std::string& ValueOrDie() const& {
+    return result_.ValueOrDie();
+  }
+
+  std::string& ValueOrDie() & {
+    return result_.ValueOrDie();
+  }
+
+  const std::string&& ValueOrDie() const&& {
+    return std::move(result_.ValueOrDie());
+  }
+
+  std::string&& ValueOrDie() && {
+    return std::move(result_.ValueOrDie());
   }
 
  private:
