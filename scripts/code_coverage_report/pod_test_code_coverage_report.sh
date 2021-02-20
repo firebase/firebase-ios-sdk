@@ -28,7 +28,7 @@ if [ $SDK == "FirebaseFirestore" ]; then
   scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${platform} xcodebuild
 else
   scripts/setup_bundler.sh
-  scripts/third_party/travis/retry.sh scripts/build.sh "${SDK}" ${platform} unit
+  scripts/third_party/travis/retry.sh scripts/build.sh "Firebase${SDK}" ${platform} unit
   # Run unit tests of pods and put xcresult bundles into output_path, which
   # should be a targeted dir of actions/upload-artifact in workflows.
   # In code coverage workflow, files under output_path will be uploaded to
