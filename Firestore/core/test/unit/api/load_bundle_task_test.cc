@@ -21,7 +21,6 @@
 
 #include "Firestore/core/src/api/load_bundle_task.h"
 #include "Firestore/core/src/util/executor.h"
-#include "absl/synchronization/blocking_counter.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
@@ -80,33 +79,35 @@ LoadBundleTaskProgress InitialProgress() {
 
 TEST(LoadBundleTaskTest, SuccessObserveTriggers) {
   LoadBundleTask task(CreateUserQueue());
-  absl::BlockingCounter counter(3);
+  BlockingQueue<int> queue;
 
   auto handle1 = task.ObserveState(LoadBundleTaskState::Success,
                                    [&](LoadBundleTaskProgress p) {
                                      EXPECT_EQ(p, SuccessProgress());
-                                     counter.DecrementCount();
+                                     queue.push(1);
                                    });
   auto handle2 = task.ObserveState(LoadBundleTaskState::Success,
                                    [&](LoadBundleTaskProgress p) {
                                      EXPECT_EQ(p, SuccessProgress());
                                      (void)p;
-                                     counter.DecrementCount();
+                                     queue.push(2);
                                    });
   auto handle3 = task.ObserveState(LoadBundleTaskState::Success,
                                    [&](LoadBundleTaskProgress p) {
                                      EXPECT_EQ(p, SuccessProgress());
-                                     counter.DecrementCount();
+                                     queue.push(3);
                                    });
 
   task.SetSuccess(SuccessProgress());
 
-  counter.Wait();
+  EXPECT_EQ(1, queue.pop());
+  EXPECT_EQ(2, queue.pop());
+  EXPECT_EQ(3, queue.pop());
 }
 
 TEST(LoadBundleTaskTest, RemovesObserverByHandle) {
   LoadBundleTask task(CreateUserQueue());
-  absl::BlockingCounter counter(1);
+  BlockingQueue<int> queue;
 
   auto handle1 = task.ObserveState(LoadBundleTaskState::Success,
                                    [&](LoadBundleTaskProgress p) {
@@ -118,39 +119,41 @@ TEST(LoadBundleTaskTest, RemovesObserverByHandle) {
   auto handle2 = task.ObserveState(LoadBundleTaskState::Success,
                                    [&](LoadBundleTaskProgress p) {
                                      EXPECT_EQ(p, SuccessProgress());
-                                     counter.DecrementCount();
+                                     queue.push(1);
                                    });
 
   task.SetSuccess(SuccessProgress());
 
-  counter.Wait();
+  EXPECT_EQ(1, queue.pop());
 }
 
 TEST(LoadBundleTaskTest, ErrorObserveTriggers) {
   LoadBundleTaskProgress error_progress(0, 0, 0, 0, LoadBundleTaskState::Error);
   LoadBundleTask task(CreateUserQueue());
-  absl::BlockingCounter counter(3);
+  BlockingQueue<int> queue;
 
   auto handle1 = task.ObserveState(LoadBundleTaskState::Error,
                                    [&](LoadBundleTaskProgress p) {
                                      EXPECT_EQ(p, error_progress);
-                                     counter.DecrementCount();
+                                     queue.push(1);
                                    });
   auto handle2 = task.ObserveState(LoadBundleTaskState::Error,
                                    [&](LoadBundleTaskProgress p) {
                                      EXPECT_EQ(p, error_progress);
                                      (void)p;
-                                     counter.DecrementCount();
+                                     queue.push(2);
                                    });
   auto handle3 = task.ObserveState(LoadBundleTaskState::Error,
                                    [&](LoadBundleTaskProgress p) {
                                      EXPECT_EQ(p, error_progress);
-                                     counter.DecrementCount();
+                                     queue.push(3);
                                    });
 
   task.SetError();
 
-  counter.Wait();
+  EXPECT_EQ(1, queue.pop());
+  EXPECT_EQ(2, queue.pop());
+  EXPECT_EQ(3, queue.pop());
 }
 
 TEST(LoadBundleTaskTest, RemovesObserverByState) {
@@ -164,42 +167,44 @@ TEST(LoadBundleTaskTest, RemovesObserverByState) {
   task.RemoveObservers(LoadBundleTaskState::Error);
   task.SetError();
 
-  absl::BlockingCounter counter(1);
+  BlockingQueue<int> queue;
   LoadBundleTaskProgress error_progress(0, 0, 0, 0, LoadBundleTaskState::Error);
   auto handle2 = task.ObserveState(LoadBundleTaskState::Error,
                                    [&](LoadBundleTaskProgress p) {
                                      EXPECT_EQ(p, error_progress);
-                                     counter.DecrementCount();
+                                     queue.push(1);
                                    });
 
   task.SetError();
 
-  counter.Wait();
+  EXPECT_EQ(1, queue.pop());
 }
 
 TEST(LoadBundleTaskTest, ProgressObserveTriggers) {
   LoadBundleTask task(CreateUserQueue());
-  absl::BlockingCounter counter(3);
+  BlockingQueue<int> queue;
 
   auto handle1 = task.ObserveState(LoadBundleTaskState::InProgress,
                                    [&](LoadBundleTaskProgress p) {
                                      EXPECT_EQ(p, Progress(1, 5));
-                                     counter.DecrementCount();
+                                     queue.push(1);
                                    });
   auto handle2 = task.ObserveState(LoadBundleTaskState::InProgress,
                                    [&](LoadBundleTaskProgress p) {
                                      EXPECT_EQ(p, Progress(1, 5));
-                                     counter.DecrementCount();
+                                     queue.push(2);
                                    });
   auto handle3 = task.ObserveState(LoadBundleTaskState::InProgress,
                                    [&](LoadBundleTaskProgress p) {
                                      EXPECT_EQ(p, Progress(1, 5));
-                                     counter.DecrementCount();
+                                     queue.push(3);
                                    });
 
   task.UpdateProgress(Progress(1, 5));
 
-  counter.Wait();
+  EXPECT_EQ(1, queue.pop());
+  EXPECT_EQ(2, queue.pop());
+  EXPECT_EQ(3, queue.pop());
 }
 
 TEST(LoadBundleTaskTest, RemovesAllObservers) {
@@ -225,15 +230,15 @@ TEST(LoadBundleTaskTest, RemovesAllObservers) {
   task.UpdateProgress(Progress(1, 5));
   task.SetError();
 
-  absl::BlockingCounter counter(1);
+  BlockingQueue<int> queue;
   auto handle4 = task.ObserveState(LoadBundleTaskState::Success,
                                    [&](LoadBundleTaskProgress p) {
                                      EXPECT_EQ(p, SuccessProgress());
-                                     counter.DecrementCount();
+                                     queue.push(1);
                                    });
   task.SetSuccess(SuccessProgress());
 
-  counter.Wait();
+  EXPECT_EQ(1, queue.pop());
 }
 
 TEST(LoadBundleTaskTest, ProgressesFireInOrder) {

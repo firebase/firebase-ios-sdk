@@ -25,5 +25,4 @@ firebase_ios_add_test(
 target_link_libraries(
   firestore_api_test PRIVATE
   firestore_core
-  absl_synchronization
 )

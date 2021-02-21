@@ -100,9 +100,9 @@ using HandleObservers =
     std::vector<std::pair<LoadBundleHandle, ProgressObserver>>;
 
 /**
-* Represents the task of loading a Firestore bundle. It provides progress of bundle loading, as
-* well as task completion and error events.
-*/
+ * Represents the task of loading a Firestore bundle. It provides progress of
+ * bundle loading, as well as task completion and error events.
+ */
 class LoadBundleTask {
  public:
   explicit LoadBundleTask(std::shared_ptr<util::Executor> user_executor)
@@ -110,8 +110,8 @@ class LoadBundleTask {
   }
 
   /**
-   * Instructs the task to notify the specified observer when there is a progress
-   * update with the given `LoadBundleTaskState`.
+   * Instructs the task to notify the specified observer when there is a
+   * progress update with the given `LoadBundleTaskState`.
    *
    * @return A handle that can be used to remove the callback from this task.
    */
