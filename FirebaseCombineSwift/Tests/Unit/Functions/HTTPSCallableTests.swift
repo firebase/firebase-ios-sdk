@@ -15,27 +15,38 @@
 import Foundation
 import Combine
 import XCTest
-import FirebaseFunctions
+@testable import FirebaseFunctions
 
 class MockFunctions: Functions {
+  var mockCallFunction: () throws -> HTTPSCallableResult?
   override func callFunction(_ name: String,
                              with data: Any?,
                              timeout: TimeInterval,
                              completion: @escaping (HTTPSCallableResult?, Error?) -> Void) {
-    let result = HTTPSCallableResult(data: "mockResult")
-    completion(result, nil)
+    do {
+      let result = try mockCallFunction()
+      completion(result, nil)
+    } catch {
+      completion(nil, error)
+    }
   }
 }
 
 class HTTPSCallableTests: XCTestCase {
-  func testCallWithoutParameters() {
+  func testCallWithoutParametersSuccess() {
     // given
     var cancellables = Set<AnyCancellable>()
     let funcationWasCalledExpectation = expectation(description: "Function was called")
 
-    let dummy = MockFunctions.functions().httpsCallable("dummy")
-    dummy.foo()
-    dummy.call()
+    let functions = MockFunctions.functions()
+    let expectedResult = "mockResult w/o parameters"
+    functions.mockCallFunction = {
+      HTTPSCallableResult(data: expectedResult)
+    }
+    let dummyFunction = functions.httpsCallable("dummyFunction")
+
+    // when
+    dummyFunction.call()
       .sink { completion in
         switch completion {
         case .finished:
@@ -49,12 +60,81 @@ class HTTPSCallableTests: XCTestCase {
           return
         }
 
-        XCTAssertEqual(result, "mockResult")
+        XCTAssertEqual(result, expectedResult)
         funcationWasCalledExpectation.fulfill()
       }
       .store(in: &cancellables)
 
     // then
     wait(for: [funcationWasCalledExpectation], timeout: expectationTimeout)
+  }
+
+  func testCallWithParametersSuccess() {
+    // given
+    var cancellables = Set<AnyCancellable>()
+    let funcationWasCalledExpectation = expectation(description: "Function was called")
+
+    let functions = MockFunctions.functions()
+    let inputParameter = "input parameter"
+    let expectedResult = "mockResult w/ parameters: \(inputParameter)"
+    functions.mockCallFunction = {
+      HTTPSCallableResult(data: expectedResult)
+    }
+    let dummyFunction = functions.httpsCallable("dummyFunction")
+
+    // when
+    dummyFunction.call(inputParameter)
+      .sink { completion in
+        switch completion {
+        case .finished:
+          print("Finished")
+        case let .failure(error):
+          XCTFail("💥 Something went wrong: \(error)")
+        }
+      } receiveValue: { authDataResult in
+        guard let result = authDataResult.data as? String else {
+          XCTFail("Expected String data")
+          return
+        }
+
+        XCTAssertEqual(result, expectedResult)
+        funcationWasCalledExpectation.fulfill()
+      }
+      .store(in: &cancellables)
+
+    // then
+    wait(for: [funcationWasCalledExpectation], timeout: expectationTimeout)
+  }
+
+  func testCallWithParametersFailure() {
+    // given
+    var cancellables = Set<AnyCancellable>()
+    let functionCallFailedExpectation = expectation(description: "Function call failed")
+
+    let functions = MockFunctions.functions()
+    let inputParameter = "input parameter"
+    functions.mockCallFunction = {
+      throw NSError(domain: FunctionsErrorDomain,
+                    code: FunctionsErrorCode.internal.rawValue,
+                    userInfo: [NSLocalizedDescriptionKey: "Response is missing data field."])
+    }
+    let dummyFunction = functions.httpsCallable("dummyFunction")
+
+    // when
+    dummyFunction.call(inputParameter)
+      .sink { completion in
+        if case let .failure(error as NSError) = completion {
+          // Verify user mismatch error.
+          XCTAssertEqual(error.code, FunctionsErrorCode.internal.rawValue)
+
+          functionCallFailedExpectation.fulfill()
+        }
+      } receiveValue: { authDataResult in
+        XCTFail("💥 result unexpected")
+      }
+      .store(in: &cancellables)
+
+    // then
+    wait(for: [functionCallFailedExpectation], timeout: expectationTimeout)
   }
 }
