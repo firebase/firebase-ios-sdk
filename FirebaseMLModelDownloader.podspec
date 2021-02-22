@@ -29,7 +29,6 @@ Pod::Spec.new do |s|
   s.watchos.deployment_target = watchos_deployment_target
 
   s.cocoapods_version = '>= 1.4.0'
-  s.static_framework = true
   s.prefix_header_file = false
 
   s.source_files = [

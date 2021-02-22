@@ -256,7 +256,7 @@
                  FPRApplicationProcessState(100));
 }
 
-#if __has_include("CoreTelephony/CTTelephonyNetworkInfo.h")
+#ifdef TARGET_HAS_MOBILE_CONNECTIVITY
 /** Validates if network object creation works. */
 - (void)testNetworkInfoObjectCreation {
   XCTAssertNotNil(FPRNetworkInfo());
