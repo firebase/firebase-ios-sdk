@@ -26,7 +26,7 @@ fi
 if [ $SDK == "FirebasePerformance" ]; then
   scripts/setup_bundler.sh
   scripts/third_party/travis/retry.sh scripts/build.sh Performance ${platform} unit
-if [ $SDK == "FirebaseFirestore" ]; then
+elif [ $SDK == "FirebaseFirestore" ]; then
   scripts/install_prereqs.sh Firestore ${platform} xcodebuild
   scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${platform} xcodebuild
 else
