@@ -21,19 +21,15 @@
 #import "Functions/FirebaseFunctions/FIRFunctions+Internal.h"
 
 // Firebase Auth
+#import <FirebaseAuth/FIRAuth.h>
+#import <FirebaseAuth/FirebaseAuth.h>
 
-#import <FirebaseAuth/FIREmailAuthProvider.h>
-// ^-- importing FIREmailAuthProvider like this will throw an error from the linter
-
-// #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIREmailAuthProvider.h"
-// ^-- uncommenting this will break the compile
-
-#import "FirebaseAuth/Sources/AuthProvider/Email/FIREmailPasswordAuthCredential.h"
-
-#import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
+#import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
+
 #import "FirebaseAuth/Sources/AuthProvider/FIRAuthCredential_Internal.h"
 #import "FirebaseAuth/Sources/AuthProvider/OAuth/FIROAuthCredential_Internal.h"
+
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRCreateAuthURIRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRCreateAuthURIResponse.h"
