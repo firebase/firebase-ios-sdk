@@ -30,11 +30,13 @@ elif [ $SDK == "FirebaseFirestore" ]; then
   scripts/install_prereqs.sh Firestore ${platform} xcodebuild
   scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${platform} xcodebuild
 else
+  scripts/setup_bundler.sh
+  scripts/third_party/travis/retry.sh scripts/build.sh "Firebase${SDK}" ${platform} unit
   # Run unit tests of pods and put xcresult bundles into output_path, which
   # should be a targeted dir of actions/upload-artifact in workflows.
   # In code coverage workflow, files under output_path will be uploaded to
   # Github Actions.
-  scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb "${SDK}".podspec --platforms="$(tr '[:upper:]' '[:lower:]'<<<${platform})" --test-specs=unit
+  # scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb "${SDK}".podspec --platforms="$(tr '[:upper:]' '[:lower:]'<<<${platform})" --test-specs=unit
 fi
 
 find /Users/runner/Library/Developer/Xcode/DerivedData -type d -regex ".*/.*\.xcresult" -execdir cp -R '{}' "${output_path}" \;
