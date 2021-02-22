@@ -38,12 +38,13 @@ using util::Status;
 using util::StatusOr;
 
 StatusOr<absl::optional<LoadBundleTaskProgress>> BundleLoader::AddElement(
-    const BundleElement& element, uint64_t byte_size) {
-  HARD_ASSERT(element.element_type() != BundleElement::Type::Metadata,
+    std::unique_ptr<BundleElement> element_ptr, uint64_t byte_size) {
+  HARD_ASSERT(element_ptr->element_type() != BundleElement::Type::Metadata,
               "Unexpected bundle metadata element.");
 
   auto before_count = documents_.size();
 
+  const auto& element = *element_ptr;
   if (element.element_type() == BundleElement::Type::NamedQuery) {
     queries_.push_back(static_cast<const NamedQuery&>(element));
   } else if (element.element_type() == BundleElement::Type::DocumentMetadata) {
