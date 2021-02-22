@@ -18,7 +18,7 @@
 
 #include <utility>
 
-#include "Firestore/core/src/api/bundle_types.h"
+#include "Firestore/core/src/api/load_bundle_task.h"
 #include "Firestore/core/src/bundle/bundle_callback.h"
 #include "Firestore/core/src/bundle/bundle_element.h"
 #include "Firestore/core/src/bundle/bundled_document_metadata.h"
@@ -30,7 +30,8 @@ namespace firebase {
 namespace firestore {
 namespace bundle {
 
-using AddElementResult = util::StatusOr<absl::optional<LoadBundleTaskProgress>>;
+using AddElementResult =
+    util::StatusOr<absl::optional<api::LoadBundleTaskProgress>>;
 
 class BundleLoader {
  public:

@@ -33,6 +33,9 @@ namespace firestore {
 namespace bundle {
 namespace {
 
+using api::LoadBundleTask;
+using api::LoadBundleTaskProgress;
+using api::LoadBundleTaskState;
 using core::LimitType;
 using model::DocumentKeySet;
 using model::MaybeDocumentMap;
@@ -77,7 +80,7 @@ class BundleLoaderTest : public ::testing::Test {
       int total_documents,
       int bytes_loaded,
       int total_bytes,
-      TaskState state) {
+      LoadBundleTaskState state) {
     EXPECT_TRUE(progress_opt.has_value());
     auto progress = progress_opt.value();
     EXPECT_EQ(progress.documents_loaded(), documents_loaded);
@@ -115,7 +118,7 @@ TEST_F(BundleLoaderTest, LoadsDocuments) {
   EXPECT_OK(result);
   AssertProgress(result.ValueOrDie(), /*documents_loaded=*/1,
                  /*total_documents=*/2, /*bytes_loaded*/ 5, /*total_bytes*/ 10,
-                 TaskState::Running);
+                 LoadBundleTaskState::InProgress);
 
   result = loader.AddElement(BundledDocumentMetadata(testutil::Key("coll/doc2"),
                                                      create_time_, true, {}),
@@ -128,7 +131,7 @@ TEST_F(BundleLoaderTest, LoadsDocuments) {
   EXPECT_OK(result);
   AssertProgress(result.ValueOrDie(), /*documents_loaded=*/2,
                  /*total_documents=*/2, /*bytes_loaded*/ 10, /*total_bytes*/ 10,
-                 TaskState::Running);
+                 LoadBundleTaskState::InProgress);
 }
 
 TEST_F(BundleLoaderTest, LoadsDeletedDocuments) {
@@ -142,7 +145,7 @@ TEST_F(BundleLoaderTest, LoadsDeletedDocuments) {
   EXPECT_OK(result);
   AssertProgress(result.ValueOrDie(), /*documents_loaded=*/1,
                  /*total_documents=*/1, /*bytes_loaded*/ 10, /*total_bytes*/ 10,
-                 TaskState::Running);
+                 LoadBundleTaskState::InProgress);
 }
 
 TEST_F(BundleLoaderTest, AppliesDocumentChanges) {
