@@ -54,7 +54,7 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
   }
 
-  s.framework = 'CoreTelephony'
+  s.ios.framework = 'CoreTelephony'
   s.framework = 'QuartzCore'
   s.framework = 'SystemConfiguration'
   s.dependency 'FirebaseCore', '~> 7.0'
