@@ -82,14 +82,14 @@ class UserTests: XCTestCase {
     }
   }
 
-    class MockSetAccountInfoResponse: FIRSetAccountInfoResponse { }
-    
-    class MockVerifyPhoneNumberResponse: FIRVerifyPhoneNumberResponse {
-        fileprivate var providerCredentials: ProviderCredentials!
-        
-        override var phoneNumber: String? { providerCredentials.phoneNumber }
-    }
-    
+  class MockSetAccountInfoResponse: FIRSetAccountInfoResponse {}
+
+  class MockVerifyPhoneNumberResponse: FIRVerifyPhoneNumberResponse {
+    fileprivate var providerCredentials: ProviderCredentials!
+
+    override var phoneNumber: String? { providerCredentials.phoneNumber }
+  }
+
   class MockGetAccountInfoResponseUser: FIRGetAccountInfoResponseUser {
     fileprivate var providerCredentials: ProviderCredentials!
 
@@ -99,12 +99,12 @@ class UserTests: XCTestCase {
     override var passwordHash: String? { UserTests.passwordHash }
     override var phoneNumber: String? { providerCredentials.phoneNumber }
     override var providerUserInfo: [FIRGetAccountInfoResponseProviderUserInfo]? {
-        guard let userInfo = providerCredentials.userInfo else {
-            return nil
-        }
-        let response = MockGetAccountInfoResponseProviderUserInfo(dictionary: userInfo)
-        response.providerCredentials = providerCredentials
-        return [response]
+      guard let userInfo = providerCredentials.userInfo else {
+        return nil
+      }
+      let response = MockGetAccountInfoResponseProviderUserInfo(dictionary: userInfo)
+      response.providerCredentials = providerCredentials
+      return [response]
     }
   }
 
@@ -182,31 +182,33 @@ class UserTests: XCTestCase {
       response.providerCredentials = providerCredentials
       callback(response, nil)
     }
-    
-    override func setAccountInfo(_ request: FIRSetAccountInfoRequest, callback: @escaping FIRSetAccountInfoResponseCallback) {
-        XCTAssertEqual(request.apiKey, Credentials.apiKey)
-        XCTAssertEqual(request.accessToken, providerCredentials.accessToken)
-        XCTAssertNotNil(request.deleteProviders)
-        XCTAssertNil(request.email)
-        XCTAssertNil(request.localID)
-        XCTAssertNil(request.displayName)
-        XCTAssertNil(request.photoURL)
-        XCTAssertNil(request.password)
-        XCTAssertNil(request.providers)
-        XCTAssertNil(request.deleteAttributes)
-        
-        callback(MockSetAccountInfoResponse(), nil)
+
+    override func setAccountInfo(_ request: FIRSetAccountInfoRequest,
+                                 callback: @escaping FIRSetAccountInfoResponseCallback) {
+      XCTAssertEqual(request.apiKey, Credentials.apiKey)
+      XCTAssertEqual(request.accessToken, providerCredentials.accessToken)
+      XCTAssertNotNil(request.deleteProviders)
+      XCTAssertNil(request.email)
+      XCTAssertNil(request.localID)
+      XCTAssertNil(request.displayName)
+      XCTAssertNil(request.photoURL)
+      XCTAssertNil(request.password)
+      XCTAssertNil(request.providers)
+      XCTAssertNil(request.deleteAttributes)
+
+      callback(MockSetAccountInfoResponse(), nil)
     }
-    
-    override func verifyPhoneNumber(_ request: FIRVerifyPhoneNumberRequest, callback: @escaping FIRVerifyPhoneNumberResponseCallback) {
-        XCTAssertEqual(request.verificationID, UserTests.verificationID)
-        XCTAssertEqual(request.verificationCode, UserTests.verificationCode)
-        XCTAssertEqual(request.operation, FIRAuthOperationType.link)
-        XCTAssertEqual(request.accessToken, providerCredentials.accessToken)
-        
-        let response = MockVerifyPhoneNumberResponse()
-        response.providerCredentials = providerCredentials
-        callback(response, nil);
+
+    override func verifyPhoneNumber(_ request: FIRVerifyPhoneNumberRequest,
+                                    callback: @escaping FIRVerifyPhoneNumberResponseCallback) {
+      XCTAssertEqual(request.verificationID, UserTests.verificationID)
+      XCTAssertEqual(request.verificationCode, UserTests.verificationCode)
+      XCTAssertEqual(request.operation, FIRAuthOperationType.link)
+      XCTAssertEqual(request.accessToken, providerCredentials.accessToken)
+
+      let response = MockVerifyPhoneNumberResponse()
+      response.providerCredentials = providerCredentials
+      callback(response, nil)
     }
   }
 
@@ -218,7 +220,7 @@ class UserTests: XCTestCase {
       idToken: nil,
       accessToken: "FACEBOOK_ACCESS_TOKEN",
       email: UserTests.email,
-        localID: UserTests.localID
+      localID: UserTests.localID
     )
 
     let authBackend = MockAuthBackend()
@@ -250,8 +252,8 @@ class UserTests: XCTestCase {
           accessToken: "GOOGLE_ACCESS_TOKEN",
           email: UserTests.googleEmail,
           localID: UserTests.localID,
-            phoneNumber: nil,
-            userInfo: [:]
+          phoneNumber: nil,
+          userInfo: [:]
         )
 
         authBackend?.providerCredentials = googleCredentials
@@ -330,8 +332,8 @@ class UserTests: XCTestCase {
           accessToken: "GOOGLE_ACCESS_TOKEN",
           email: UserTests.googleEmail,
           localID: UserTests.localID,
-            phoneNumber: nil,
-            userInfo: [:]
+          phoneNumber: nil,
+          userInfo: [:]
         )
 
         authBackend?.providerCredentials = googleCredentials
@@ -469,8 +471,8 @@ class UserTests: XCTestCase {
           accessToken: "GOOGLE_ACCESS_TOKEN",
           email: UserTests.googleEmail,
           localID: UserTests.localID,
-            phoneNumber: nil,
-            userInfo: [:]
+          phoneNumber: nil,
+          userInfo: [:]
         )
 
         authBackend?.providerCredentials = googleCredentials
@@ -699,8 +701,8 @@ class UserTests: XCTestCase {
           accessToken: "GOOGLE_ACCESS_TOKEN",
           email: UserTests.googleEmail,
           localID: UserTests.localID,
-            phoneNumber: nil,
-            userInfo: [:]
+          phoneNumber: nil,
+          userInfo: [:]
         )
 
         authBackend.providerCredentials = googleCredentials
@@ -731,61 +733,66 @@ class UserTests: XCTestCase {
     wait(for: [userReauthenticateExpectation], timeout: expectationTimeout)
   }
 
-    func testUnlinkPhoneAuthCredentialSuccess() {
-        // given
-        let emailCredentials = ProviderCredentials(
-          providerID: PhoneAuthProviderID,
-          federatedID: "EMAIL_ID",
-          displayName: "Google Doe",
-          idToken: nil,
-          accessToken: UserTests.accessToken,
-          email: UserTests.email,
-          localID: UserTests.localID
+  func testUnlinkPhoneAuthCredentialSuccess() {
+    // given
+    let emailCredentials = ProviderCredentials(
+      providerID: PhoneAuthProviderID,
+      federatedID: "EMAIL_ID",
+      displayName: "Google Doe",
+      idToken: nil,
+      accessToken: UserTests.accessToken,
+      email: UserTests.email,
+      localID: UserTests.localID
+    )
+
+    let authBackend = MockAuthBackend()
+    authBackend.providerCredentials = emailCredentials
+    FIRAuthBackend.setBackendImplementation(authBackend)
+
+    var cancellables = Set<AnyCancellable>()
+    let userReauthenticateExpectation = expectation(description: "User authenticated")
+
+    // when
+    Auth.auth()
+      .signIn(withEmail: UserTests.email, password: UserTests.password)
+      .flatMap { authResult -> Future<AuthDataResult, Error> in
+
+        authBackend.providerCredentials.phoneNumber = Self.phoneNumber
+        authBackend.providerCredentials.userInfo = ["providerId": PhoneAuthProviderID]
+
+        let credential = PhoneAuthProvider.provider()
+          .credential(withVerificationID: Self.verificationID,
+                      verificationCode: Self.verificationCode)
+
+        return authResult.user
+          .link(with: credential)
+      }
+      .flatMap { authResult -> AnyPublisher<User, Error> in
+        XCTAssertEqual(
+          Auth.auth().currentUser?.providerData.first?.providerID,
+          PhoneAuthProviderID
         )
+        XCTAssertEqual(Auth.auth().currentUser?.phoneNumber, Self.phoneNumber)
 
-        let authBackend = MockAuthBackend()
-        authBackend.providerCredentials = emailCredentials
-        FIRAuthBackend.setBackendImplementation(authBackend)
+        return authResult.user
+          .unlink(fromProvider: PhoneAuthProviderID)
+          .eraseToAnyPublisher()
+      }
+      .sink { completion in
+        switch completion {
+        case .finished:
+          print("Finished")
+        case let .failure(error):
+          XCTFail("💥 Something went wrong: \(error)")
+        }
+      } receiveValue: { user in
+        XCTAssertNil(Auth.auth().currentUser?.phoneNumber)
 
-        var cancellables = Set<AnyCancellable>()
-        let userReauthenticateExpectation = expectation(description: "User authenticated")
+        userReauthenticateExpectation.fulfill()
+      }
+      .store(in: &cancellables)
 
-        // when
-        Auth.auth()
-          .signIn(withEmail: UserTests.email, password: UserTests.password)
-          .flatMap { authResult -> Future<AuthDataResult, Error> in
-
-            authBackend.providerCredentials.phoneNumber = Self.phoneNumber
-            authBackend.providerCredentials.userInfo = ["providerId": PhoneAuthProviderID]
-            
-            let credential = PhoneAuthProvider.provider().credential(withVerificationID: Self.verificationID, verificationCode: Self.verificationCode)
-
-            return authResult.user
-              .link(with: credential)
-          }
-          .flatMap { authResult -> AnyPublisher<User, Error> in
-            XCTAssertEqual(Auth.auth().currentUser?.providerData.first?.providerID, PhoneAuthProviderID)
-            XCTAssertEqual(Auth.auth().currentUser?.phoneNumber, Self.phoneNumber)
-
-            return authResult.user
-                .unlink(fromProvider: PhoneAuthProviderID)
-                .eraseToAnyPublisher()
-          }
-          .sink { completion in
-            switch completion {
-            case .finished:
-              print("Finished")
-            case let .failure(error):
-              XCTFail("💥 Something went wrong: \(error)")
-            }
-          } receiveValue: { user in
-            XCTAssertNil(Auth.auth().currentUser?.phoneNumber)
-
-            userReauthenticateExpectation.fulfill()
-          }
-          .store(in: &cancellables)
-
-        // then
-        wait(for: [userReauthenticateExpectation], timeout: expectationTimeout)
-    }
+    // then
+    wait(for: [userReauthenticateExpectation], timeout: expectationTimeout)
+  }
 }

@@ -94,7 +94,7 @@
         }
       }
     }
-    
+
     /// Disassociates a user account from a third-party identity provider with this user.
     ///
     /// The publisher will emit events on the **main** thread.
@@ -114,15 +114,15 @@
     ///
     ///   See `FIRAuthErrors` for a list of error codes that are common to all FIRUser methods.
     public func unlink(fromProvider provider: String) -> Future<User, Error> {
-        Future<User, Error> { promise in
-            self.unlink(fromProvider: provider) { user, error in
-                if let user = user {
-                    promise(.success(user))
-                } else if let error = error {
-                    promise(.failure(error))
-                }
-            }
+      Future<User, Error> { promise in
+        self.unlink(fromProvider: provider) { user, error in
+          if let user = user {
+            promise(.success(user))
+          } else if let error = error {
+            promise(.failure(error))
+          }
         }
+      }
     }
   }
 #endif
