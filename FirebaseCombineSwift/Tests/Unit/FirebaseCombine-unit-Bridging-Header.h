@@ -14,9 +14,25 @@
 
 #import "SharedTestUtilities/FIROptionsMock.h"
 
-#import "FirebaseAuth/FIREmailAuthProvider.h"
+// Firebase Core
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+
+// Firebase Functions
+#import "Functions/FirebaseFunctions/FIRFunctions+Internal.h"
+
+// Firebase Auth
+
+#import <FirebaseAuth/FIREmailAuthProvider.h>
+// ^-- importing FIREmailAuthProvider like this will throw an error from the linter
+
+// #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIREmailAuthProvider.h"
+// ^-- uncommenting this will break the compile
+
+#import "FirebaseAuth/Sources/AuthProvider/Email/FIREmailPasswordAuthCredential.h"
+
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
+#import "FirebaseAuth/Sources/AuthProvider/FIRAuthCredential_Internal.h"
 #import "FirebaseAuth/Sources/AuthProvider/OAuth/FIROAuthCredential_Internal.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRCreateAuthURIRequest.h"
@@ -56,6 +72,3 @@
 #import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthWebUtils.h"
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
-
-#import "Functions/FirebaseFunctions/FIRFunctions+Internal.h"
