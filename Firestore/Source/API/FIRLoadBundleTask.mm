@@ -75,10 +75,10 @@ api::LoadBundleTaskState InternalLoadBundleTaskState(FIRLoadBundleTaskState stat
 @end
 
 @implementation FIRLoadBundleTask {
-  std::unique_ptr<api::LoadBundleTask> _task;
+  std::shared_ptr<api::LoadBundleTask> _task;
 }
 
-- (instancetype)initWithTask:(std::unique_ptr<api::LoadBundleTask>)task {
+- (instancetype)initWithTask:(std::shared_ptr<api::LoadBundleTask>)task {
   if (self = [super init]) {
     _task = std::move(task);
   }
