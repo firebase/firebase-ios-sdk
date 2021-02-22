@@ -94,5 +94,35 @@
         }
       }
     }
+    
+    /// Disassociates a user account from a third-party identity provider with this user.
+    ///
+    /// The publisher will emit events on the **main** thread.
+    ///
+    /// - Parameter provider: The provider ID of the provider to unlink.
+    /// - Returns: A publisher that emits an `User` when the disassociation flow completed
+    ///   successfully, or an error otherwise. The publisher will emit on the *main* thread.
+    ///
+    ///   Possible error codes:
+    ///
+    ///   - `FIRAuthErrorCodeNoSuchProvider` - Indicates an attempt to unlink a provider
+    ///      that is not linked to the account.
+    ///   - `FIRAuthErrorCodeRequiresRecentLogin` - Updating email is a security sensitive
+    ///      operation that requires a recent login from the user. This error indicates the user
+    ///      has not signed in recently enough. To resolve, reauthenticate the user by invoking
+    ///      reauthenticateWithCredential:completion: on FIRUser.
+    ///
+    ///   See `FIRAuthErrors` for a list of error codes that are common to all FIRUser methods.
+    public func unlink(fromProvider provider: String) -> Future<User, Error> {
+        Future<User, Error> { promise in
+            self.unlink(fromProvider: provider) { user, error in
+                if let user = user {
+                    promise(.success(user))
+                } else if let error = error {
+                    promise(.failure(error))
+                }
+            }
+        }
+    }
   }
 #endif
