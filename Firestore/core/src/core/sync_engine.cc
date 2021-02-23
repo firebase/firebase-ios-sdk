@@ -17,6 +17,8 @@
 #include "Firestore/core/src/core/sync_engine.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
+#include "Firestore/core/src/bundle/bundle_element.h"
+#include "Firestore/core/src/bundle/bundle_loader.h"
 #include "Firestore/core/src/core/sync_engine_callback.h"
 #include "Firestore/core/src/core/transaction.h"
 #include "Firestore/core/src/core/transaction_runner.h"
@@ -43,6 +45,10 @@ namespace core {
 namespace {
 
 using auth::User;
+using bundle::BundleElement;
+using bundle::BundleLoader;
+using bundle::InitialProgress;
+using bundle::SuccessProgress;
 using firestore::Error;
 using local::LocalStore;
 using local::LocalViewChanges;
@@ -565,6 +571,75 @@ void SyncEngine::RemoveLimboTarget(const DocumentKey& key) {
   active_limbo_targets_by_key_.erase(key);
   active_limbo_resolutions_by_target_.erase(limbo_target_id);
   PumpEnqueuedLimboResolutions();
+}
+
+void SyncEngine::LoadBundle(std::shared_ptr<bundle::BundleReader> reader,
+                            std::shared_ptr<api::LoadBundleTask> result_task) {
+  auto bundle_metadata = reader->GetBundleMetadata();
+  if (!reader->ReaderStatus().ok()) {
+    LOG_WARN("Failed to GetBundleMetadata() for bundle with error %s",
+             reader->ReaderStatus().error_message());
+    result_task->SetError();
+    return;
+  }
+
+  auto has_newer_bundle = local_store_->HasNewerBundle(bundle_metadata);
+  if (has_newer_bundle) {
+    result_task->SetSuccess(SuccessProgress(bundle_metadata));
+    // TODO: reader.close()?
+    return;
+  }
+
+  result_task->UpdateProgress(InitialProgress(bundle_metadata));
+
+  BundleLoader loader(local_store_, bundle_metadata);
+
+  int64_t current_bytes_read = 0;
+  // Breaks when either error happened, or when there is no more element to
+  // read.
+  while (true) {
+    auto element = reader->GetNextElement();
+    if (!reader->ReaderStatus().ok()) {
+      LOG_WARN("Failed to GetNextElement() from bundle with error %s",
+               reader->ReaderStatus().error_message());
+      result_task->SetError();
+      return;
+    }
+
+    // No more elements from reader.
+    if (element == nullptr) {
+      break;
+    }
+
+    int64_t old_bytes_read = current_bytes_read;
+    current_bytes_read = reader->bytes_read();
+    auto progress = loader.AddElement(std::move(element),
+                                      current_bytes_read - old_bytes_read);
+    if (!progress.ok()) {
+      LOG_WARN("Failed to AddElement() to bundle loader with error %s",
+               progress.status().error_message());
+      result_task->SetError();
+      return;
+    }
+
+    if (progress.ValueOrDie().has_value()) {
+      result_task->UpdateProgress(progress.ConsumeValueOrDie().value());
+    }
+  }
+
+  util::StatusOr<MaybeDocumentMap> changes = loader.ApplyChanges();
+  if (!changes.ok()) {
+    LOG_WARN("Failed to ApplyChanges() for bundle elements with error %s",
+             changes.status().error_message());
+    result_task->SetError();
+    return;
+  }
+
+  EmitNewSnapshotsAndNotifyLocalStore(changes.ConsumeValueOrDie(),
+                                      absl::nullopt);
+
+  local_store_->SaveBundle(bundle_metadata);
+  result_task->SetSuccess(SuccessProgress(bundle_metadata));
 }
 
 }  // namespace core

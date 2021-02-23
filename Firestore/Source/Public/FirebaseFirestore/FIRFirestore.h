@@ -17,6 +17,7 @@
 #import <Foundation/Foundation.h>
 
 #import "FIRListenerRegistration.h"
+#import "FIRLoadBundleTask.h"
 
 @class FIRApp;
 @class FIRCollectionReference;
@@ -256,6 +257,31 @@ NS_SWIFT_NAME(Firestore)
  */
 - (void)terminateWithCompletion:(nullable void (^)(NSError *_Nullable error))completion
     NS_SWIFT_NAME(terminate(completion:));
+
+#pragma mark - Bundles
+
+- (FIRLoadBundleTask *)loadBundle:(NSData *)bundleData NS_SWIFT_NAME(loadBundle(_:));
+
+- (FIRLoadBundleTask *)loadBundle:(NSData *)bundleData
+    completion:(nullable void (^)
+(FIRLoadBundleTaskProgress *_Nullable progress,
+    NSError *_Nullable error))completion
+NS_SWIFT_NAME(loadBundle(_:completion:));
+
+- (FIRLoadBundleTask *)loadBundleStream:(NSInputStream *)bundleStream
+NS_SWIFT_NAME(loadBundle(_:));
+
+- (FIRLoadBundleTask *)loadBundleStream:(NSInputStream *)bundleStream
+    completion:(nullable void (^)
+(FIRLoadBundleTaskProgress *_Nullable progress,
+    NSError *_Nullable error))completion
+NS_SWIFT_NAME(loadBundle(_:completion:));
+
+- (void) getQueryNamed:(NSString *)name
+    completion:(void (^)
+(FIRQuery *_Nullable progress,
+    NSError *_Nullable error))completion
+NS_SWIFT_NAME(getQuery(named:completion:));
 
 @end
 

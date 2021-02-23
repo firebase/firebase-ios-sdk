@@ -26,6 +26,7 @@
 #import "Firestore/Source/API/FIRCollectionReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
+#import "Firestore/Source/API/FIRLoadBundleTask+Internal.h"
 #import "Firestore/Source/API/FIRQuery+Internal.h"
 #import "Firestore/Source/API/FIRTransaction+Internal.h"
 #import "Firestore/Source/API/FIRWriteBatch+Internal.h"
@@ -43,6 +44,7 @@
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/remote/firebase_metadata_provider.h"
 #include "Firestore/core/src/util/async_queue.h"
+#include "Firestore/core/src/util/byte_stream_apple.h"
 #include "Firestore/core/src/util/config.h"
 #include "Firestore/core/src/util/empty.h"
 #include "Firestore/core/src/util/error_apple.h"
@@ -381,6 +383,47 @@ NS_ASSUME_NONNULL_BEGIN
       _firestore->AddSnapshotsInSyncListener(std::move(eventListener));
   return [[FSTListenerRegistration alloc] initWithRegistration:std::move(result)];
 }
+
+  - (FIRLoadBundleTask *)loadBundle:(nonnull NSData *)bundleData{
+      auto stream = absl::make_unique<util::ByteStreamNSInputStream>([[NSInputStream alloc] initWithData:bundleData]);
+      std::shared_ptr<api::LoadBundleTask> task = _firestore->LoadBundle(std::move(stream));
+      return [[FIRLoadBundleTask alloc] initWithTask:task];
+  }
+
+  - (FIRLoadBundleTask *)loadBundle:(NSData *)bundleData
+                         completion:(nullable void (^)
+                             (FIRLoadBundleTaskProgress *_Nullable progress,
+                              NSError *_Nullable error))completion {
+      auto stream = absl::make_unique<util::ByteStreamNSInputStream>([[NSInputStream alloc] initWithData:bundleData]);
+      std::shared_ptr<api::LoadBundleTask> task = _firestore->LoadBundle(std::move(stream));
+      task->ObserveState(api::LoadBundleTaskState::Success, MakeCallback(completion));
+      task->ObserveState(api::LoadBundleTaskState::Error, MakeCallback(completion));
+      return [[FIRLoadBundleTask alloc] initWithTask:task];
+  }
+
+  - (FIRLoadBundleTask *)loadBundleStream:(NSInputStream *)bundleStream {
+      auto stream = absl::make_unique<util::ByteStreamNSInputStream>(bundleStream);
+      std::shared_ptr<api::LoadBundleTask> task = _firestore->LoadBundle(std::move(stream));
+      return [[FIRLoadBundleTask alloc] initWithTask:task];
+
+  }
+
+  - (FIRLoadBundleTask *)loadBundleStream:(NSInputStream *)bundleStream
+                               completion:(nullable void (^)
+                                   (FIRLoadBundleTaskProgress *_Nullable progress,
+                                    NSError *_Nullable error))completion {
+      auto stream = absl::make_unique<util::ByteStreamNSInputStream>(bundleStream);
+      std::shared_ptr<api::LoadBundleTask> task = _firestore->LoadBundle(std::move(stream));
+      return [[FIRLoadBundleTask alloc] initWithTask:task];
+  }
+
+  - (void) getQueryNamed:(NSString *)name
+              completion:(void (^)
+                  (FIRQuery *_Nullable query,
+                   NSError *_Nullable error))completion {
+      _firestore->GetNamedQuery(MakeString(name), MakeCallback(completion));
+  }
+
 
 @end
 

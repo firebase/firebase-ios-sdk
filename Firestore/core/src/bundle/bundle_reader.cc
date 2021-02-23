@@ -40,7 +40,7 @@ json Parse(absl::string_view s) {
 }  // namespace
 
 BundleReader::BundleReader(BundleSerializer serializer,
-                           std::unique_ptr<ByteStream> input)
+                           std::shared_ptr<ByteStream> input)
     : serializer_(std::move(serializer)), input_(std::move(input)) {
 }
 

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/bundle/bundle_reader.h"
+#include "Firestore/core/src/bundle/bundle_loader.h"
 
 #include "Firestore/Protos/cpp/google/firestore/v1/document.pb.h"
 #include "Firestore/core/src/bundle/bundle_callback.h"
-#include "Firestore/core/src/bundle/bundle_loader.h"
+#include "Firestore/core/src/bundle/bundle_reader.h"
 #include "Firestore/core/src/core/field_filter.h"
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/local/local_serializer.h"

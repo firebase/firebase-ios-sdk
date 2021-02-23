@@ -39,7 +39,7 @@ namespace bundle {
 class BundleReader {
  public:
   BundleReader(BundleSerializer serializer,
-               std::unique_ptr<util::ByteStream> input);
+               std::shared_ptr<util::ByteStream> input);
 
   /**
    * Returns the metadata element from the bundle.
@@ -110,7 +110,7 @@ class BundleReader {
   JsonReader json_reader_;
 
   // Input stream holding bundle data.
-  std::unique_ptr<util::ByteStream> input_;
+  std::shared_ptr<util::ByteStream> input_;
 
   // Cached bundle metadata.
   BundleMetadata metadata_;

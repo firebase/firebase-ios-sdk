@@ -26,6 +26,8 @@
 #include <utility>
 #include <vector>
 
+#include "Firestore/core/src/api/load_bundle_task.h"
+#include "Firestore/core/src/bundle/bundle_reader.h"
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/core/target_id_generator.h"
 #include "Firestore/core/src/core/view.h"
@@ -146,6 +148,9 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
                            util::Status error) override;
   void HandleOnlineStateChange(model::OnlineState online_state) override;
   model::DocumentKeySet GetRemoteKeys(model::TargetId target_id) const override;
+
+  void LoadBundle(std::shared_ptr<bundle::BundleReader> reader,
+                  std::shared_ptr<api::LoadBundleTask> result_task);
 
   // For tests only
   std::map<model::DocumentKey, model::TargetId>
