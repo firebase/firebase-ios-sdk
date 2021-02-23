@@ -112,7 +112,7 @@ absl::optional<std::string> BundleReader::ReadLengthPrefix() {
     return absl::nullopt;
   }
 
-  return absl::make_optional(std::move(result.ValueOrDie()));
+  return absl::make_optional(std::move(result).ValueOrDie());
 }
 
 void BundleReader::ReadJsonToBuffer(size_t required_size) {
@@ -125,8 +125,9 @@ void BundleReader::ReadJsonToBuffer(size_t required_size) {
       reader_status_.Update(result.status());
       return;
     }
-    buffer_.append(result.ValueOrDie());
-    if (result.eof()) {
+    bool eof = result.eof();
+    buffer_.append(std::move(result).ValueOrDie());
+    if (eof) {
       break;
     }
   }

@@ -45,7 +45,7 @@ class StreamReadResult {
     return result_.ok();
   }
 
-  Status status() const {
+  const Status& status() const {
     return result_.status();
   }
 
@@ -58,11 +58,11 @@ class StreamReadResult {
   }
 
   const std::string&& ValueOrDie() const&& {
-    return std::move(result_.ValueOrDie());
+    return std::move(result_).ValueOrDie();
   }
 
   std::string&& ValueOrDie() && {
-    return std::move(result_.ValueOrDie());
+    return std::move(result_).ValueOrDie();
   }
 
  private:

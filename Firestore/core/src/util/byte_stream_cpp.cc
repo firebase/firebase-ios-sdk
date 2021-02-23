@@ -54,8 +54,12 @@ StreamReadResult ByteStreamCpp::ToReadResult(const std::string& result) {
     input_->clear();
   }
 
+  // Saving the read count from reading `result`, because we are doing another
+  // read (peek) to determine if it is EOF yet.
+  auto result_read_count = input_->gcount();
+  bool is_eof = input_->eof() || (input_->peek() == EOF);
   return StreamReadResult(
-      StatusOr<std::string>(result.substr(0, input_->gcount())), input_->eof());
+      StatusOr<std::string>(result.substr(0, result_read_count)), is_eof);
 }
 }  // namespace util
 }  // namespace firestore

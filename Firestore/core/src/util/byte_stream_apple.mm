@@ -42,31 +42,24 @@ StreamReadResult ByteStreamApple::ReadUntil(char delim, size_t max_length) {
     }
   }
 
-  // One last try since the loop might break because eof or max_length reached.
-  if (found_at == std::string::npos) {
-    found_at = buffer_.find(delim);
-  }
-
   // Still not found, return the whole `buffer_` and clear it.
   if (found_at == std::string::npos) {
-    auto read_result = StreamReadResult(std::move(buffer_), eof());
-    buffer_.clear();
-    return read_result;
+    return ConsumeBuffer();
   }
 
   // Found, return the proper substring and erase the substring.
   std::string result = buffer_.substr(0, found_at);
   buffer_.erase(0, found_at);
-  auto read_result = StreamReadResult(std::move(result), eof());
+  StreamReadResult read_result(std::move(result), eof());
   return read_result;
 }
 
 StreamReadResult ByteStreamApple::Read(size_t max_length) {
   // Serve from buffer_
-  if (buffer_.size() >= max_length) {
+  if (buffer_.size() > max_length) {
     std::string result = buffer_.substr(0, max_length);
     buffer_.erase(0, max_length);
-    auto read_result = StreamReadResult(std::move(result), eof());
+    StreamReadResult read_result(std::move(result), eof());
     return read_result;
   }
 
@@ -74,13 +67,8 @@ StreamReadResult ByteStreamApple::Read(size_t max_length) {
   if (read < 0) {
     return ErrorResult();
   }
-  if (read == 0) {
-    return EofResult();
-  }
 
-  auto read_result = StreamReadResult(std::move(buffer_), eof());
-  buffer_.clear();
-  return read_result;
+  return ConsumeBuffer();
 }
 
 int32_t ByteStreamApple::ReadToBuffer(size_t max_length) {
@@ -95,8 +83,23 @@ int32_t ByteStreamApple::ReadToBuffer(size_t max_length) {
   return static_cast<int32_t>(read);
 }
 
-StreamReadResult ByteStreamApple::EofResult() {
-  return StreamReadResult(std::move(buffer_), true);
+StreamReadResult ByteStreamApple::ConsumeBuffer() {
+  // NSInputStream does not have consistent behavior with streamStatus, we
+  // perform a "peek" operation here to match with C++ istream implementation,
+  // and make the behavior deterministic.
+  std::string peek_result(1, '\0');
+  auto* data_ptr = reinterpret_cast<uint8_t*>(&peek_result[0]);
+  NSInteger read = [input_ read:data_ptr maxLength:1];
+
+  bool is_eof = (read == 0);
+  StreamReadResult read_result(std::move(buffer_), is_eof);
+
+  buffer_.clear();
+  // If peek actually succeeds, append the read char.
+  if (read > 0) {
+    buffer_.push_back(peek_result.at(0));
+  }
+  return read_result;
 }
 
 StreamReadResult ByteStreamApple::ErrorResult() {

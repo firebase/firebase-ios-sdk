@@ -40,7 +40,7 @@ class ByteStreamApple : public ByteStream {
   StreamReadResult Read(size_t max_length) override;
 
  private:
-  StreamReadResult EofResult();
+  StreamReadResult ConsumeBuffer();
   StreamReadResult ErrorResult();
   bool eof() const;
   int32_t ReadToBuffer(size_t max_length);
