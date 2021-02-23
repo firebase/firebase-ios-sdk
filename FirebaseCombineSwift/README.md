@@ -111,3 +111,41 @@ In the `sign(_:didSignInFor:withError:)` method, get a Google ID token and Googl
       .eraseToAnyPublisher()
   }
 ```
+
+### Functions
+
+```swift
+let helloWorld = Functions.functions().httpsCallable("helloWorld")
+helloWorld.call()
+  .sink { completion in
+    switch completion {
+      case .finished:
+        print("Finished")
+      case let .failure(error):
+        print("\(error.localizedDescription)")
+    }
+  } receiveValue: { functionResult in
+    if let result = functionResult.data as? String {
+      print("The function returned: \(result)")      
+    }
+  }
+  .store(in: &cancellables)
+```
+
+```swift
+let helloWorld = Functions.functions().httpsCallable("helloWorld")
+helloWorld.call("Peter")
+  .sink { completion in
+    switch completion {
+      case .finished:
+        print("Finished")
+      case let .failure(error):
+        print("\(error.localizedDescription)")
+    }
+  } receiveValue: { functionResult in
+    if let result = functionResult.data as? String {
+      print("The function returned: \(result)")      
+    }
+  }
+  .store(in: &cancellables)
+```

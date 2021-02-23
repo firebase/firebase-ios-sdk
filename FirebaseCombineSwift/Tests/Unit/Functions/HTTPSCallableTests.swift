@@ -54,8 +54,8 @@ class HTTPSCallableTests: XCTestCase {
         case let .failure(error):
           XCTFail("💥 Something went wrong: \(error)")
         }
-      } receiveValue: { authDataResult in
-        guard let result = authDataResult.data as? String else {
+      } receiveValue: { functionResult in
+        guard let result = functionResult.data as? String else {
           XCTFail("Expected String data")
           return
         }
@@ -91,8 +91,8 @@ class HTTPSCallableTests: XCTestCase {
         case let .failure(error):
           XCTFail("💥 Something went wrong: \(error)")
         }
-      } receiveValue: { authDataResult in
-        guard let result = authDataResult.data as? String else {
+      } receiveValue: { functionResult in
+        guard let result = functionResult.data as? String else {
           XCTFail("Expected String data")
           return
         }
@@ -129,7 +129,7 @@ class HTTPSCallableTests: XCTestCase {
 
           functionCallFailedExpectation.fulfill()
         }
-      } receiveValue: { authDataResult in
+      } receiveValue: { functionResult in
         XCTFail("💥 result unexpected")
       }
       .store(in: &cancellables)
