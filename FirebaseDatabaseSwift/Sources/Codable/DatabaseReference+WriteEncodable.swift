@@ -43,7 +43,7 @@ extension DatabaseReference {
                                        nil) throws {
     let encoded = try encoder.encode(value)
     if let completion = completion {
-      setValue(encoded, withCompletionBlock: completion)
+      setValue(encoded, withCompletionBlock: { error, _ in completion(error) })
     } else {
       setValue(encoded)
     }
