@@ -17,12 +17,13 @@
 #import <Foundation/Foundation.h>
 
 #import "FIRListenerRegistration.h"
-#import "FIRLoadBundleTask.h"
 
 @class FIRApp;
 @class FIRCollectionReference;
 @class FIRDocumentReference;
 @class FIRFirestoreSettings;
+@class FIRLoadBundleTask;
+@class FIRLoadBundleTaskProgress;
 @class FIRQuery;
 @class FIRTransaction;
 @class FIRWriteBatch;
@@ -279,8 +280,7 @@ NS_SWIFT_NAME(loadBundle(_:completion:));
 
 - (void) getQueryNamed:(NSString *)name
     completion:(void (^)
-(FIRQuery *_Nullable progress,
-    NSError *_Nullable error))completion
+(FIRQuery *_Nullable progress))completion
 NS_SWIFT_NAME(getQuery(named:completion:));
 
 @end

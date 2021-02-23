@@ -23,8 +23,14 @@ namespace api = firebase::firestore::api;
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface FIRLoadBundleTaskProgress (Internal)
+
+- (instancetype)initWithInternal:(api::LoadBundleTaskProgress)progress;
+
+@end
+
 /** Private implementation of the FIRListenerRegistration protocol. */
-@interface FIRLoadBundleTask : NSObject <FIRLoadBundleTask>
+@interface FIRLoadBundleTask (Internal)
 
 - (instancetype)initWithTask:(std::shared_ptr<api::LoadBundleTask>)task;
 

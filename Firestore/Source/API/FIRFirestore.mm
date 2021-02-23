@@ -396,8 +396,19 @@ NS_ASSUME_NONNULL_BEGIN
                               NSError *_Nullable error))completion {
       auto stream = absl::make_unique<util::ByteStreamNSInputStream>([[NSInputStream alloc] initWithData:bundleData]);
       std::shared_ptr<api::LoadBundleTask> task = _firestore->LoadBundle(std::move(stream));
-      task->ObserveState(api::LoadBundleTaskState::Success, MakeCallback(completion));
-      task->ObserveState(api::LoadBundleTaskState::Error, MakeCallback(completion));
+      auto callback = [completion](api::LoadBundleTaskProgress progress){
+        if(!completion) {
+          return;
+        }
+        if(progress.state() == api::LoadBundleTaskState::Success) {
+          completion([[FIRLoadBundleTaskProgress alloc] initWithInternal:progress], nil);
+        } else {
+          // TODO(wuandy): pass error up here.
+          completion([[FIRLoadBundleTaskProgress alloc] initWithInternal:progress], nil);
+        }
+      };
+      task->ObserveState(api::LoadBundleTaskState::Success, callback);
+      task->ObserveState(api::LoadBundleTaskState::Error, callback);
       return [[FIRLoadBundleTask alloc] initWithTask:task];
   }
 
@@ -419,11 +430,21 @@ NS_ASSUME_NONNULL_BEGIN
 
   - (void) getQueryNamed:(NSString *)name
               completion:(void (^)
-                  (FIRQuery *_Nullable query,
-                   NSError *_Nullable error))completion {
-      _firestore->GetNamedQuery(MakeString(name), MakeCallback(completion));
-  }
+                  (FIRQuery *_Nullable query))completion {
+      auto callback = [completion, self](absl::optional<core::Query> query){
+        if(!completion) {
+          return;
+        }
 
+        if(query.has_value()) {
+          FIRQuery* firQuery = [[FIRQuery alloc] initWithQuery:std::move(query.value()) firestore:_firestore];
+          completion(firQuery);
+        } else {
+          completion(nil);
+        }
+      };
+      _firestore->GetNamedQuery(MakeString(name), callback);
+  }
 
 @end
 
