@@ -47,12 +47,16 @@ supports email and password accounts, as well as several 3rd party authenticatio
   s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.0'
   s.dependency 'GoogleUtilities/Environment', '~> 7.0'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.4'
+  s.dependency 'GoogleMulticastAppDelegate', '~> 7.0'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }
     # Unit tests can't run on watchOS.
     unit_tests.platforms = {:ios => '10.0', :osx => '10.12', :tvos => '10.0'}
-    unit_tests.source_files = 'FirebaseAuth/Tests/Unit/*.[mh]'
+    unit_tests.source_files = [
+      'FirebaseAuth/Tests/Unit/*.[mh]',
+      'FirebaseAuth/Tests/Unit/*.swift'
+    ]
     unit_tests.osx.exclude_files = [
       'FirebaseAuth/Tests/Unit/FIRAuthAPNSTokenManagerTests.m',
       'FirebaseAuth/Tests/Unit/FIRAuthAPNSTokenTests.m',
