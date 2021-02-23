@@ -403,8 +403,8 @@ NS_ASSUME_NONNULL_BEGIN
         if(progress.state() == api::LoadBundleTaskState::Success) {
           completion([[FIRLoadBundleTaskProgress alloc] initWithInternal:progress], nil);
         } else {
-          // TODO(wuandy): pass error up here.
-          completion([[FIRLoadBundleTaskProgress alloc] initWithInternal:progress], nil);
+          HARD_ASSERT(!progress.error_status().ok(), "Progress set to Error, but error_status() is ok()");
+          completion([[FIRLoadBundleTaskProgress alloc] initWithInternal:progress], util::MakeNSError(progress.error_status()));
         }
       };
       task->ObserveState(api::LoadBundleTaskState::Success, callback);

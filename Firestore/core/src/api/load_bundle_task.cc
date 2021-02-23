@@ -80,10 +80,11 @@ void LoadBundleTask::SetSuccess(LoadBundleTaskProgress success_progress) {
   ExecuteCallbacks(progress_callbacks);
 }
 
-void LoadBundleTask::SetError() {
+void LoadBundleTask::SetError(const util::Status& status) {
   std::lock_guard<std::mutex> lock(mutex_);
 
   progress_snapshot_.set_state(LoadBundleTaskState::Error);
+  progress_snapshot_.set_error_status(status);
   const auto& callbacks = GetObservers(LoadBundleTaskState::Error);
   ExecuteCallbacks(callbacks);
 

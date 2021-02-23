@@ -19,8 +19,10 @@
 #include <queue>
 #include <thread>
 
+#include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/api/load_bundle_task.h"
 #include "Firestore/core/src/util/executor.h"
+#include "Firestore/core/src/util/status.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
@@ -128,7 +130,9 @@ TEST(LoadBundleTaskTest, RemovesObserverByHandle) {
 }
 
 TEST(LoadBundleTaskTest, ErrorObserveTriggers) {
-  LoadBundleTaskProgress error_progress(0, 0, 0, 0, LoadBundleTaskState::Error);
+  util::Status status(firestore::Error::kErrorDataLoss, "error message");
+  LoadBundleTaskProgress error_progress(0, 0, 0, 0, LoadBundleTaskState::Error,
+                                        status);
   LoadBundleTask task(CreateUserQueue());
   BlockingQueue<int> queue;
 
@@ -149,7 +153,7 @@ TEST(LoadBundleTaskTest, ErrorObserveTriggers) {
                                      queue.push(3);
                                    });
 
-  task.SetError();
+  task.SetError(status);
 
   EXPECT_EQ(1, queue.pop());
   EXPECT_EQ(2, queue.pop());
@@ -158,6 +162,7 @@ TEST(LoadBundleTaskTest, ErrorObserveTriggers) {
 
 TEST(LoadBundleTaskTest, RemovesObserverByState) {
   LoadBundleTask task(CreateUserQueue());
+  util::Status error_status(Error::kErrorDataLoss, "error message");
 
   auto handle1 = task.ObserveState(LoadBundleTaskState::Error,
                                    [&](LoadBundleTaskProgress p) {
@@ -165,17 +170,17 @@ TEST(LoadBundleTaskTest, RemovesObserverByState) {
                                      FAIL() << "Removed observer is called.";
                                    });
   task.RemoveObservers(LoadBundleTaskState::Error);
-  task.SetError();
+  task.SetError(error_status);
 
   BlockingQueue<int> queue;
-  LoadBundleTaskProgress error_progress(0, 0, 0, 0, LoadBundleTaskState::Error);
+  LoadBundleTaskProgress error_progress(0, 0, 0, 0, LoadBundleTaskState::Error, error_status);
   auto handle2 = task.ObserveState(LoadBundleTaskState::Error,
                                    [&](LoadBundleTaskProgress p) {
                                      EXPECT_EQ(p, error_progress);
                                      queue.push(1);
                                    });
 
-  task.SetError();
+  task.SetError(error_status);
 
   EXPECT_EQ(1, queue.pop());
 }
@@ -228,7 +233,7 @@ TEST(LoadBundleTaskTest, RemovesAllObservers) {
   task.RemoveAllObservers();
 
   task.UpdateProgress(Progress(1, 5));
-  task.SetError();
+  task.SetError(util::Status(Error::kErrorDataLoss, "error message"));
 
   BlockingQueue<int> queue;
   auto handle4 = task.ObserveState(LoadBundleTaskState::Success,
@@ -368,9 +373,11 @@ TEST(LoadBundleTaskTest, ProgressObservesUntilError) {
   task.UpdateProgress(Progress(2, 5));
   EXPECT_EQ(Progress(2, 5), queue.pop());
 
-  task.SetError();
+  util::Status error_status(Error::kErrorDataLoss, "error message");
+  task.SetError(error_status);
   auto expected = Progress(2, 5);
   expected.set_state(LoadBundleTaskState::Error);
+  expected.set_error_status(error_status);
   EXPECT_EQ(expected, queue.pop());
 
   EXPECT_TRUE(queue.empty());
@@ -382,9 +389,11 @@ TEST(LoadBundleTaskTest, ProgressObservesInitialError) {
   task.ObserveState(LoadBundleTaskState::InProgress,
                     [&](LoadBundleTaskProgress p) { queue.push(p); });
 
-  task.SetError();
+  util::Status error_status(Error::kErrorDataLoss, "error message");
+  task.SetError(error_status);
   auto expected = LoadBundleTaskProgress();
   expected.set_state(LoadBundleTaskState::Error);
+  expected.set_error_status(error_status);
   EXPECT_EQ(expected, queue.pop());
 
   EXPECT_TRUE(queue.empty());
@@ -397,7 +406,7 @@ TEST(LoadBundleTaskTest, NoObserversAlsoWork) {
   task.UpdateProgress(InitialProgress());
   task.UpdateProgress(Progress(2, 5));
   task.SetSuccess(SuccessProgress());
-  task.SetError();
+  task.SetError(util::Status(Error::kErrorDataLoss, "error message"));
 }
 
 }  // namespace api

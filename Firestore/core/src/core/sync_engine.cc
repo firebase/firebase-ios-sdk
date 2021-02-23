@@ -579,7 +579,7 @@ void SyncEngine::LoadBundle(std::shared_ptr<bundle::BundleReader> reader,
   if (!reader->ReaderStatus().ok()) {
     LOG_WARN("Failed to GetBundleMetadata() for bundle with error %s",
              reader->ReaderStatus().error_message());
-    result_task->SetError();
+    result_task->SetError(reader->ReaderStatus());
     return;
   }
 
@@ -602,7 +602,7 @@ void SyncEngine::LoadBundle(std::shared_ptr<bundle::BundleReader> reader,
     if (!reader->ReaderStatus().ok()) {
       LOG_WARN("Failed to GetNextElement() from bundle with error %s",
                reader->ReaderStatus().error_message());
-      result_task->SetError();
+      result_task->SetError(reader->ReaderStatus());
       return;
     }
 
@@ -618,7 +618,7 @@ void SyncEngine::LoadBundle(std::shared_ptr<bundle::BundleReader> reader,
     if (!progress.ok()) {
       LOG_WARN("Failed to AddElement() to bundle loader with error %s",
                progress.status().error_message());
-      result_task->SetError();
+      result_task->SetError(progress.status());
       return;
     }
 
@@ -631,7 +631,7 @@ void SyncEngine::LoadBundle(std::shared_ptr<bundle::BundleReader> reader,
   if (!changes.ok()) {
     LOG_WARN("Failed to ApplyChanges() for bundle elements with error %s",
              changes.status().error_message());
-    result_task->SetError();
+    result_task->SetError(changes.status());
     return;
   }
 
