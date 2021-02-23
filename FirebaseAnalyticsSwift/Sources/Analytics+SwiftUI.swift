@@ -60,7 +60,7 @@
     /// - Returns: A view with a custom `ViewModifier` used to log `screen_view` events when this
     ///    view appears on screen.
     func analyticsScreen(name: String,
-                         class: String = "",
+                         class: String = "View",
                          extraParameters: [String: Any] = [:]) -> some View {
       // `self` is the view, we're just adding an `LoggedAnalyticsModifier` modifier on it.
       modifier(LoggedAnalyticsModifier(screenName: name,
