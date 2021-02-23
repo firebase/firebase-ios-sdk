@@ -20,6 +20,7 @@
 [![Actions Status][gh-inappmessaging-badge]][gh-actions]
 [![Actions Status][gh-interop-badge]][gh-actions]
 [![Actions Status][gh-messaging-badge]][gh-actions]
+[![Actions Status][gh-mlmodeldownloader-badge]][gh-actions]
 [![Actions Status][gh-performance-badge]][gh-actions]
 [![Actions Status][gh-remoteconfig-badge]][gh-actions]
 [![Actions Status][gh-storage-badge]][gh-actions]
@@ -313,6 +314,7 @@ Your use of Firebase is governed by the
 [gh-inappmessaging-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/inappmessaging/badge.svg
 [gh-interop-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/interop/badge.svg
 [gh-messaging-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/messaging/badge.svg
+[gh-mlmodeldownloader-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/mlmodeldownloader/badge.svg
 [gh-performance-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/performance/badge.svg
 [gh-remoteconfig-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/remoteconfig/badge.svg
 [gh-storage-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/storage/badge.svg
