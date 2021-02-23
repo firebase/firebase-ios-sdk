@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Store fetch metadata per namespace to address activation issues. (#7179)
+
 # v7.7.0
 - [added] Added community support for watchOS. (#7481)
 

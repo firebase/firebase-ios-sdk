@@ -20,12 +20,12 @@ import FirebaseManifest
 import Utils
 
 private enum Destination {
-  case cpdc, trunk
+  case staging, trunk
 }
 
 enum Push {
-  static func pushPodsToCPDC(gitRoot: URL) {
-    push(to: .cpdc, gitRoot: gitRoot)
+  static func pushPodsToStaging(gitRoot: URL) {
+    push(to: .staging, gitRoot: gitRoot)
   }
 
   static func publishPodsToTrunk(gitRoot: URL) {
@@ -33,12 +33,6 @@ enum Push {
   }
 
   private static func push(to destination: Destination, gitRoot: URL) {
-    let cpdcRepo = "sso://cpdc-internal/firebase"
-    let cpdcLocation = findOrRegisterPrivateCocoaPodsRepo(
-      repo: cpdcRepo,
-      gitRoot: gitRoot,
-      defaultRepoName: "cpdc-internal-firebase"
-    )
     let stagingRepo = "git@github.com:firebase/SpecsStaging"
     let stagingLocation = findOrRegisterPrivateCocoaPodsRepo(
       repo: stagingRepo,
@@ -52,23 +46,14 @@ enum Push {
 
       let command: String = {
         switch destination {
-        case .cpdc:
-          var pushCommands = ""
-          if pod.isClosedSource {
-            // Push closed source pods to SpecsStaging to keep CI working.
-            pushCommands =
-              "pod repo push --skip-tests --use-json \(warningsOK) \(stagingLocation) " +
-              pod.skipImportValidation() + " \(pod.podspecName()) " +
-              "--sources=\(stagingRepo).git,https://cdn.cocoapods.org && "
-          }
-          pushCommands += "pod repo push --skip-tests --use-json \(warningsOK) \(cpdcLocation) " +
+        case .staging:
+          return "pod repo push --skip-tests --use-json \(warningsOK) \(stagingLocation) " +
             pod.skipImportValidation() + " \(pod.podspecName()) " +
-            "--sources=\(cpdcRepo).git,https://cdn.cocoapods.org"
-          return pushCommands
-
+            "--sources=\(stagingRepo).git,https://cdn.cocoapods.org"
         case .trunk:
           return "pod trunk push --skip-tests --synchronous \(warningsOK) " +
-            pod.skipImportValidation() + " ~/.cocoapods/repos/\(cpdcLocation)/Specs/\(pod.name)/" +
+            pod
+            .skipImportValidation() + " ~/.cocoapods/repos/\(stagingLocation)/Specs/\(pod.name)/" +
             "\(manifest.versionString(pod))/\(pod.name).podspec.json"
         }
       }()
