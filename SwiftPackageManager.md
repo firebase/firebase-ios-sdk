@@ -11,8 +11,8 @@ Package Manager](https://swift.org/package-manager/) in Beta status.
 - Requires Xcode 12.
 - Analytics requires clients to add `-ObjC` linker option.
 - Analytics is only supported for iOS and cannot be used in apps that support other platforms.
-- Performance and Firebase ML are not currently available.
-- watchOS support is introduced in 7.0.0 for Auth, Crashlytics, Messaging, and Storage.
+- Performance is not yet available.
+- watchOS support is available for Auth, Crashlytics, Messaging, RemoteConfig, and Storage.
 
 ## Installation
 
@@ -30,9 +30,6 @@ Select the Firebase GitHub repository - `https://github.com/firebase/firebase-io
 
 Select the version.
 
-Note: Prior to the 7.0.0 release, version selection is not available. Instead, the releases
-are available in branches with names like 6.34-spm-beta.
-
 Note: The Swift Package Manager distribution continues to be in beta even though it now
 supports standard Swift Package Manager versioning.
 
@@ -48,6 +45,7 @@ in the `Build Settings` tab.
 If you're using FirebaseAnalytics, Xcode 12.0, and have an issue with
 device installation or archive uploading, see the workaround at
 https://github.com/firebase/firebase-ios-sdk/issues/6472#issuecomment-694449182.
+This issue looks to be resolved in Xcode 12.5.
 
 <img src="docs/resources/SPMObjC.png">
 
