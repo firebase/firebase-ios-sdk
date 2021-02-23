@@ -25,6 +25,7 @@ struct InitializeRelease {
     let branch = createReleaseBranch(path: gitRoot, version: manifest.version)
     updatePodspecs(path: gitRoot, manifest: manifest)
     updatePodfiles(path: gitRoot, version: manifest.version)
+    updateSwiftPackageVersion(path: gitRoot, version: manifest.version)
     return branch
   }
 
@@ -127,5 +128,10 @@ struct InitializeRelease {
     let sedCommand2 = "sed -i.bak -e \"s#\\(pod " +
       "'Firebase',[[:space:]]*'\\).*'#\\1\(version)'#\" Podfile"
     Shell.executeCommand(sedCommand2, workingDir: collisionPodfile)
+  }
+
+  private static func updateSwiftPackageVersion(path: URL, version: String) {
+    Shell.executeCommand("sed -i.bak -e \"s/\\(let firebaseVersion.*=[[:space:]]*\\).*/\\1" +
+      "\\\"\(version)\\\"/\" Package.swift", workingDir: path)
   }
 }
