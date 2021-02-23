@@ -131,6 +131,7 @@ struct InitializeRelease {
   }
 
   private static func updateSwiftPackageVersion(path: URL, version: String) {
+    // Match strings like `let firebaseVersion = "7.7.0"` and update the version.
     Shell.executeCommand("sed -i.bak -e \"s/\\(let firebaseVersion.*=[[:space:]]*\\).*/\\1" +
       "\\\"\(version)\\\"/\" Package.swift", workingDir: path)
   }
