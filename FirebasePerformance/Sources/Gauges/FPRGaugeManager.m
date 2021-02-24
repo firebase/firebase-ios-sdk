@@ -37,7 +37,7 @@ NSInteger const kGaugeDataBatchSize = 25;
 @property(nonatomic) NSMutableArray *gaugeData;
 
 /** @brief Currently active sessionID. */
-@property(nonatomic, readwrite) NSString *currentSessionId;
+@property(nonatomic, readwrite, copy) NSString *currentSessionId;
 
 @end
 
@@ -117,7 +117,9 @@ NSInteger const kGaugeDataBatchSize = 25;
 }
 
 - (void)startCollectingGauges:(FPRGauges)gauges forSessionId:(NSString *)sessionId {
-  [self prepareAndDispatchGaugeData];
+  dispatch_async(self.gaugeDataProtectionQueue, ^{
+    [self prepareAndDispatchGaugeData];
+  });
 
   self.currentSessionId = sessionId;
   if (self.gaugeCollectionEnabled) {
@@ -143,7 +145,9 @@ NSInteger const kGaugeDataBatchSize = 25;
 
   self.activeGauges = self.activeGauges & ~(gauges);
 
-  [self prepareAndDispatchGaugeData];
+  dispatch_async(self.gaugeDataProtectionQueue, ^{
+    [self prepareAndDispatchGaugeData];
+  });
 }
 
 - (void)collectAllGauges {
@@ -173,7 +177,7 @@ NSInteger const kGaugeDataBatchSize = 25;
 #pragma mark - Utils
 
 - (void)prepareAndDispatchGaugeData {
-  NSArray *currentBatch = self.gaugeData;
+  NSArray *currentBatch = [self.gaugeData copy];
   NSString *currentSessionId = self.currentSessionId;
   self.gaugeData = [[NSMutableArray alloc] init];
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -188,12 +192,12 @@ NSInteger const kGaugeDataBatchSize = 25;
 /**
  * Adds the gauge to the batch and decide on when to dispatch the events to Google Data Transport.
  *
- * @param gaugeData Gauge data received from the collectors.
+ * @param gauge Gauge data received from the collectors.
  */
-- (void)addGaugeData:(id)gaugeData {
+- (void)addGaugeData:(id)gauge {
   dispatch_async(self.gaugeDataProtectionQueue, ^{
-    if (gaugeData) {
-      [self.gaugeData addObject:gaugeData];
+    if (gauge) {
+      [self.gaugeData addObject:gauge];
 
       if (self.gaugeData.count >= kGaugeDataBatchSize) {
         [self prepareAndDispatchGaugeData];
