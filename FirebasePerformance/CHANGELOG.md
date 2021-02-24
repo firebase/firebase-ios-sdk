@@ -1,6 +1,7 @@
 # Unreleased
 * Deprecate Clearcut event transport mechanism.
 * Enable dynamic framework support. (#7569)
+* Fix the crash on gauge manager due to race condition. (#7535)
 
 # Version 7.7.0
 * Add community supported tvOS.
