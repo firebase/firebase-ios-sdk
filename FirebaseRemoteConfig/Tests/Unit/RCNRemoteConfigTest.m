@@ -465,13 +465,14 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
 
 - (void)testFetch3pNamespaceUpdatesExperiments {
   [[_experimentMock expect] updateExperimentsWithResponse:[OCMArg any]];
+
   XCTestExpectation *expectation = [self
       expectationWithDescription:
           [NSString
               stringWithFormat:@"Fetch call for 'firebase' namespace updates experiment data"]];
   XCTAssertEqual(_configInstances[RCNTestRCInstanceDefault].lastFetchStatus,
                  FIRRemoteConfigFetchStatusNoFetchYet);
-  FIRRemoteConfigFetchCompletion fetchCompletionDefault =
+  FIRRemoteConfigFetchCompletion fetchCompletion =
       ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
         XCTAssertEqual(self->_configInstances[RCNTestRCInstanceDefault].lastFetchStatus,
                        FIRRemoteConfigFetchStatusSuccess);
@@ -479,7 +480,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
         [expectation fulfill];
       };
   [_configInstances[RCNTestRCInstanceDefault] fetchWithExpirationDuration:43200
-                                                        completionHandler:fetchCompletionDefault];
+                                                        completionHandler:fetchCompletion];
   [self waitForExpectationsWithTimeout:_expectationTimeout
                                handler:^(NSError *error) {
                                  XCTAssertNil(error);
@@ -495,16 +496,15 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                            @"doesn't update experiment data"]];
   XCTAssertEqual(_configInstances[RCNTestRCInstanceSecondNamespace].lastFetchStatus,
                  FIRRemoteConfigFetchStatusNoFetchYet);
-  FIRRemoteConfigFetchCompletion fetchCompletionSecondNamespace =
+  FIRRemoteConfigFetchCompletion fetchCompletion =
       ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
         XCTAssertEqual(self->_configInstances[RCNTestRCInstanceSecondNamespace].lastFetchStatus,
                        FIRRemoteConfigFetchStatusSuccess);
         XCTAssertNil(error);
         [expectation fulfill];
       };
-  [_configInstances[RCNTestRCInstanceSecondNamespace]
-      fetchWithExpirationDuration:43200
-                completionHandler:fetchCompletionSecondNamespace];
+  [_configInstances[RCNTestRCInstanceSecondNamespace] fetchWithExpirationDuration:43200
+                                                                completionHandler:fetchCompletion];
   [self waitForExpectationsWithTimeout:_expectationTimeout
                                handler:^(NSError *error) {
                                  XCTAssertNil(error);
