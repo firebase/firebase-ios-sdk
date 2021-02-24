@@ -117,33 +117,37 @@ NSInteger const kGaugeDataBatchSize = 25;
 }
 
 - (void)startCollectingGauges:(FPRGauges)gauges forSessionId:(NSString *)sessionId {
-  [self prepareAndDispatchGaugeData];
+  dispatch_async(self.gaugeDataProtectionQueue, ^{
+    [self prepareAndDispatchGaugeData];
 
-  self.currentSessionId = sessionId;
-  if (self.gaugeCollectionEnabled) {
-    if ((gauges & FPRGaugeCPU) == FPRGaugeCPU) {
-      self.cpuGaugeCollector = [[FPRCPUGaugeCollector alloc] initWithDelegate:self];
-    }
-    if ((gauges & FPRGaugeMemory) == FPRGaugeMemory) {
-      self.memoryGaugeCollector = [[FPRMemoryGaugeCollector alloc] initWithDelegate:self];
-    }
+    self.currentSessionId = sessionId;
+    if (self.gaugeCollectionEnabled) {
+      if ((gauges & FPRGaugeCPU) == FPRGaugeCPU) {
+        self.cpuGaugeCollector = [[FPRCPUGaugeCollector alloc] initWithDelegate:self];
+      }
+      if ((gauges & FPRGaugeMemory) == FPRGaugeMemory) {
+        self.memoryGaugeCollector = [[FPRMemoryGaugeCollector alloc] initWithDelegate:self];
+      }
 
-    self.activeGauges = self.activeGauges | gauges;
-  }
+      self.activeGauges = self.activeGauges | gauges;
+    }
+  });
 }
 
 - (void)stopCollectingGauges:(FPRGauges)gauges {
-  if ((gauges & FPRGaugeCPU) == FPRGaugeCPU) {
-    self.cpuGaugeCollector = nil;
-  }
+  dispatch_async(self.gaugeDataProtectionQueue, ^{
+    if ((gauges & FPRGaugeCPU) == FPRGaugeCPU) {
+      self.cpuGaugeCollector = nil;
+    }
 
-  if ((gauges & FPRGaugeMemory) == FPRGaugeMemory) {
-    self.memoryGaugeCollector = nil;
-  }
+    if ((gauges & FPRGaugeMemory) == FPRGaugeMemory) {
+      self.memoryGaugeCollector = nil;
+    }
 
-  self.activeGauges = self.activeGauges & ~(gauges);
+    self.activeGauges = self.activeGauges & ~(gauges);
 
-  [self prepareAndDispatchGaugeData];
+    [self prepareAndDispatchGaugeData];
+  });
 }
 
 - (void)collectAllGauges {
@@ -172,6 +176,7 @@ NSInteger const kGaugeDataBatchSize = 25;
 
 #pragma mark - Utils
 
+/// The method MUST be called on `gaugeDataProtectionQueue`.
 - (void)prepareAndDispatchGaugeData {
   NSArray *currentBatch = self.gaugeData;
   NSString *currentSessionId = self.currentSessionId;
