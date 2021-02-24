@@ -42,14 +42,17 @@ StreamReadResult ByteStreamApple::ReadUntil(char delim, size_t max_length) {
     }
   }
 
-  // Still not found, return the whole `buffer_` and clear it.
-  if (found_at == std::string::npos) {
+  // Still not found, or the buffer happens to be of the sized as requested
+  // either way, return the whole `buffer_` and clear it.
+  if (found_at == std::string::npos && buffer_.size() == max_length) {
     return ConsumeBuffer();
   }
 
-  // Found, return the proper substring and erase the substring.
-  std::string result = buffer_.substr(0, found_at);
-  buffer_.erase(0, found_at);
+  // Either we found the delim, or the buffer is already larger then requested,
+  // the result will be a substring here.
+  auto end_pos = std::min(max_length, found_at);
+  std::string result = buffer_.substr(0, end_pos);
+  buffer_.erase(0, end_pos);
   StreamReadResult read_result(std::move(result), eof());
   return read_result;
 }

@@ -114,6 +114,10 @@ TEST_P(ByteStreamTest, ReadsZeroSizes) {
   auto result = stream->Read(0);
   EXPECT_EQ(result.ValueOrDie(), "");
   EXPECT_FALSE(result.eof());
+
+  result = stream->ReadUntil('a', 0);
+  EXPECT_EQ(result.ValueOrDie(), "");
+  EXPECT_FALSE(result.eof());
 }
 
 TEST_P(ByteStreamTest, ReadsEmptyStrings) {
@@ -186,11 +190,11 @@ TEST_P(ByteStreamTest, ReadsNullCharacter) {
 
 TEST_P(ByteStreamTest, ReadsFullStringWithNullCharacter) {
   // Using explicit string(char*, size) constructor to include \0
-  auto stream =
-      stream_factory_->CreateByteStream(std::string("10{conten\0t}5{\0}", 16));
+  std::string data("10{conten\0t}5{\0}", 16);
+  auto stream = stream_factory_->CreateByteStream(data);
 
   auto result = stream->Read(100);
-  EXPECT_EQ(result.ValueOrDie(), std::string("10{conten\0t}5{\0}", 16));
+  EXPECT_EQ(result.ValueOrDie(), data);
   EXPECT_TRUE(result.eof());
 }
 
@@ -241,7 +245,7 @@ TEST_P(ByteStreamTest, ReadUntilReadsLargeStream) {
 }
 
 // This is a test designed for the apple implementation's internal buffer usage.
-// It deliberately fill the internal buffer with ReadsUntil, then uses Read to
+// It deliberately fills the internal buffer with ReadsUntil, then uses Read to
 // read from buffer, without IO.
 TEST_P(ByteStreamTest, ReadsFromInternalBuffer_AppleImpl) {
   auto stream = stream_factory_->CreateByteStream("0123456789");
