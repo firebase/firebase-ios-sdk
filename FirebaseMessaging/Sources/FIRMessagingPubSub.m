@@ -16,10 +16,10 @@
 
 #import "FirebaseMessaging/Sources/FIRMessagingPubSub.h"
 
+#import <GoogleUtilities/GULSecureCoding.h>
+#import <GoogleUtilities/GULUserDefaults.h>
 #import "Firebase/InstanceID/Private/FIRInstanceID_Private.h"
 #import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
-#import "GoogleUtilities/Environment/Public/GoogleUtilities/GULSecureCoding.h"
-#import "GoogleUtilities/UserDefaults/Public/GoogleUtilities/GULUserDefaults.h"
 
 #import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"

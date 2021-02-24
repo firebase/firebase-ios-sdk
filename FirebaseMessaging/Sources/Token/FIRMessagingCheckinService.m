@@ -16,13 +16,13 @@
 
 #import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinService.h"
 
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
 #import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingAuthService.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinPreferences.h"
-#import "GoogleUtilities/Environment/Public/GoogleUtilities/GULAppEnvironmentUtil.h"
 
 static NSString *const kDeviceCheckinURL = @"https://device-provisioning.googleapis.com/checkin";
 
