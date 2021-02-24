@@ -21,36 +21,9 @@ namespace firestore {
 namespace util {
 namespace {
 
-TEST_P(ByteStreamTest, ReadsStringStream) {
-  auto stream = stream_factory_->CreateByteStream("ok");
+uint64_t kMaxIterations = 10000 * 10000;
 
-  auto result = stream->ReadUntil('o', 10);
-  EXPECT_EQ(result.result().ValueOrDie(), "");
-  EXPECT_FALSE(result.eof());
-
-  result = stream->ReadUntil('k', 10);
-  EXPECT_EQ(result.result().ValueOrDie(), "o");
-  EXPECT_FALSE(result.eof());
-
-  result = stream->Read(10);
-  EXPECT_EQ(result.result().ValueOrDie(), "k");
-  EXPECT_TRUE(result.eof());
-}
-
-TEST_P(ByteStreamTest, ReadsNonAsciiCharacter) {
-  auto stream = stream_factory_->CreateByteStream("恭禧发财");
-
-  // \xE7 is the first char of "禧发财", and it is not a byte in "恭"
-  auto result = stream->ReadUntil('\xE7', 10);
-  EXPECT_EQ(result.result().ValueOrDie(), "恭");
-  EXPECT_FALSE(result.eof());
-
-  result = stream->Read(10);
-  EXPECT_EQ(result.result().ValueOrDie(), "禧发财");
-  EXPECT_TRUE(result.eof());
-}
-
-TEST_P(ByteStreamTest, ReadsLargeStream) {
+std::string LargeString() {
   std::string source;
   for (int i = 0; i < 10000; ++i) {
     source +=
@@ -66,36 +39,230 @@ TEST_P(ByteStreamTest, ReadsLargeStream) {
         "หัดอภัยเหมือนกีฬาอัชฌาสัย ปฏิบัติประพฤติกฎกำหนดใจ "
         "พูดจาให้จ๊ะ ๆ จ๋า ๆ น่าฟังเอยฯ}";
   }
+  return source;
+}
 
-  // Read()
-  {
-    auto stream = stream_factory_->CreateByteStream(source);
-    std::string actual;
-    while (true) {
-      auto result = stream->Read(10);
-      actual.append(result.result().ValueOrDie());
-      if (result.eof()) {
-        break;
-      }
-    }
-    EXPECT_EQ(actual, source);
-  }
+TEST_P(ByteStreamTest, ReadsStringStream) {
+  auto stream = stream_factory_->CreateByteStream("ok");
 
-  // ReadUntil
+  auto result = stream->ReadUntil('o', 10);
+  EXPECT_EQ(result.ValueOrDie(), "");
+  EXPECT_FALSE(result.eof());
+
+  result = stream->ReadUntil('k', 10);
+  EXPECT_EQ(result.ValueOrDie(), "o");
+  EXPECT_FALSE(result.eof());
+
+  result = stream->Read(10);
+  EXPECT_EQ(result.ValueOrDie(), "k");
+  EXPECT_TRUE(result.eof());
+}
+
+TEST_P(ByteStreamTest, ReadsEmptyStringStream) {
+  auto stream = stream_factory_->CreateByteStream("");
+
+  auto result = stream->ReadUntil('o', 10);
+  EXPECT_EQ(result.ValueOrDie(), "");
+  EXPECT_TRUE(result.eof());
+
+  result = stream->Read(10);
+  EXPECT_EQ(result.ValueOrDie(), "");
+  EXPECT_TRUE(result.eof());
+}
+
+TEST_P(ByteStreamTest, ReadsEdgeCaseSizes) {
   {
-    auto stream = stream_factory_->CreateByteStream(source);
-    std::string actual;
-    std::string chars = "}{";
-    int i = 0;
-    while (true) {
-      auto result = stream->ReadUntil(chars.at((i++) % 2), 1000);
-      actual.append(result.result().ValueOrDie());
-      if (result.eof()) {
-        break;
-      }
-    }
-    EXPECT_EQ(actual, source);
+    auto stream = stream_factory_->CreateByteStream("0123456");
+    auto result = stream->Read(6);
+    EXPECT_EQ(result.ValueOrDie(), "012345");
+    EXPECT_FALSE(result.eof());
   }
+  {
+    auto stream = stream_factory_->CreateByteStream("0123456");
+    auto result = stream->Read(7);
+    EXPECT_EQ(result.ValueOrDie(), "0123456");
+    EXPECT_TRUE(result.eof());
+  }
+  {
+    auto stream = stream_factory_->CreateByteStream("0123456");
+    auto result = stream->Read(8);
+    EXPECT_EQ(result.ValueOrDie(), "0123456");
+    EXPECT_TRUE(result.eof());
+  }
+  {
+    auto stream = stream_factory_->CreateByteStream("0123456");
+    auto result = stream->ReadUntil('a', 6);
+    EXPECT_EQ(result.ValueOrDie(), "012345");
+    EXPECT_FALSE(result.eof());
+  }
+  {
+    auto stream = stream_factory_->CreateByteStream("0123456");
+    auto result = stream->ReadUntil('a', 7);
+    EXPECT_EQ(result.ValueOrDie(), "0123456");
+    EXPECT_TRUE(result.eof());
+  }
+  {
+    auto stream = stream_factory_->CreateByteStream("0123456");
+    auto result = stream->ReadUntil('a', 8);
+    EXPECT_EQ(result.ValueOrDie(), "0123456");
+    EXPECT_TRUE(result.eof());
+  }
+}
+
+TEST_P(ByteStreamTest, ReadsZeroSizes) {
+  auto stream = stream_factory_->CreateByteStream("0123456");
+  auto result = stream->Read(0);
+  EXPECT_EQ(result.ValueOrDie(), "");
+  EXPECT_FALSE(result.eof());
+
+  result = stream->ReadUntil('a', 0);
+  EXPECT_EQ(result.ValueOrDie(), "");
+  EXPECT_FALSE(result.eof());
+}
+
+TEST_P(ByteStreamTest, ReadsEmptyStrings) {
+  {
+    auto stream = stream_factory_->CreateByteStream("");
+    auto result = stream->Read(0);
+    EXPECT_EQ(result.ValueOrDie(), "");
+    EXPECT_TRUE(result.eof());
+  }
+  {
+    auto stream = stream_factory_->CreateByteStream("");
+    auto result = stream->Read(10000);
+    EXPECT_EQ(result.ValueOrDie(), "");
+    EXPECT_TRUE(result.eof());
+  }
+}
+
+TEST_P(ByteStreamTest, ReadUntilReadsStringsWithoutDelim) {
+  auto stream = stream_factory_->CreateByteStream("aaabbbccc");
+  auto result = stream->ReadUntil('1', 1000);
+  EXPECT_EQ(result.ValueOrDie(), "aaabbbccc");
+  EXPECT_TRUE(result.eof());
+}
+
+TEST_P(ByteStreamTest, ReadUntilReadsDelimString) {
+  auto stream = stream_factory_->CreateByteStream("{{{{");
+
+  auto result = stream->ReadUntil('{', 10);
+  EXPECT_EQ(result.ValueOrDie(), "");
+  EXPECT_FALSE(result.eof());
+
+  // Repeat the read
+  result = stream->ReadUntil('{', 10);
+  EXPECT_EQ(result.ValueOrDie(), "");
+  EXPECT_FALSE(result.eof());
+}
+
+TEST_P(ByteStreamTest, ReadUntilReadsStringWithoutDelim) {
+  auto stream = stream_factory_->CreateByteStream("{{{{");
+
+  auto result = stream->ReadUntil('}', 10);
+  EXPECT_EQ(result.ValueOrDie(), "{{{{");
+  EXPECT_TRUE(result.eof());
+}
+
+TEST_P(ByteStreamTest, ReadsNullCharacter) {
+  // Using explicit string(char*, size) constructor to include \0
+  auto stream =
+      stream_factory_->CreateByteStream(std::string("10{conten\0t}5{\0}", 16));
+
+  auto result = stream->ReadUntil('{', 10);
+  EXPECT_EQ(result.ValueOrDie(), "10");
+  EXPECT_FALSE(result.eof());
+
+  result = stream->ReadUntil('\0', 10);
+  EXPECT_EQ(result.ValueOrDie(), "{conten");
+
+  result = stream->Read(3);
+  EXPECT_EQ(result.ValueOrDie(), std::string("\0t}", 3));
+  EXPECT_FALSE(result.eof());
+
+  result = stream->ReadUntil('}', 10);
+  EXPECT_EQ(result.ValueOrDie(), std::string("5{\0", 3));
+  EXPECT_FALSE(result.eof());
+
+  result = stream->Read(10);
+  EXPECT_EQ(result.ValueOrDie(), "}");
+  EXPECT_TRUE(result.eof());
+}
+
+TEST_P(ByteStreamTest, ReadsFullStringWithNullCharacter) {
+  // Using explicit string(char*, size) constructor to include \0
+  std::string data("10{conten\0t}5{\0}", 16);
+  auto stream = stream_factory_->CreateByteStream(data);
+
+  auto result = stream->Read(100);
+  EXPECT_EQ(result.ValueOrDie(), data);
+  EXPECT_TRUE(result.eof());
+}
+
+TEST_P(ByteStreamTest, ReadsNonAsciiCharacter) {
+  auto stream = stream_factory_->CreateByteStream("恭禧发财");
+
+  // \xE7 is the first char of "禧发财", and it is not a byte in "恭"
+  auto result = stream->ReadUntil('\xE7', 10);
+  EXPECT_EQ(result.ValueOrDie(), "恭");
+  EXPECT_FALSE(result.eof());
+
+  result = stream->Read(10);
+  EXPECT_EQ(result.ValueOrDie(), "禧发财");
+  EXPECT_TRUE(result.eof());
+}
+
+TEST_P(ByteStreamTest, ReadsLargeStream) {
+  auto source = LargeString();
+  auto stream = stream_factory_->CreateByteStream(source);
+  std::string actual;
+  uint64_t i = 0;
+  for (; i < kMaxIterations; ++i) {
+    auto result = stream->Read(10);
+    actual.append(result.ValueOrDie());
+    if (result.eof()) {
+      break;
+    }
+  }
+  EXPECT_LE(i, kMaxIterations);
+  EXPECT_EQ(actual, source);
+}
+
+TEST_P(ByteStreamTest, ReadUntilReadsLargeStream) {
+  auto source = LargeString();
+  auto stream = stream_factory_->CreateByteStream(source);
+  std::string actual;
+  uint64_t i = 0;
+  for (; i < kMaxIterations; ++i) {
+    char delim = i % 2 ? '}' : '{';
+    auto result = stream->ReadUntil(delim, 1000);
+    actual.append(result.ValueOrDie());
+    if (result.eof()) {
+      break;
+    }
+  }
+  EXPECT_LE(i, kMaxIterations);
+  EXPECT_EQ(actual, source);
+}
+
+// This is a test designed for the apple implementation's internal buffer usage.
+// It deliberately fills the internal buffer with ReadsUntil, then uses Read to
+// read from buffer, without IO.
+TEST_P(ByteStreamTest, ReadsFromInternalBuffer_AppleImpl) {
+  auto stream = stream_factory_->CreateByteStream("0123456789");
+  // Reads the entire stream into internal buffer, but returns "".
+  auto result = stream->ReadUntil('0', 100);
+  EXPECT_EQ(result.ValueOrDie(), "");
+  EXPECT_FALSE(result.eof());
+
+  // Internal buffer size > requested read
+  result = stream->Read(5);
+  EXPECT_EQ(result.ValueOrDie(), "01234");
+  EXPECT_FALSE(result.eof());
+
+  // Internal buffer size == requested read
+  result = stream->Read(5);
+  EXPECT_EQ(result.ValueOrDie(), "56789");
+  EXPECT_TRUE(result.eof());
 }
 
 }  // namespace

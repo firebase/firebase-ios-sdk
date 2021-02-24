@@ -32,7 +32,7 @@
 #include "Firestore/core/src/nanopb/byte_string.h"
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/remote/serializer.h"
-#include "Firestore/core/src/util/byte_stream_istream.h"
+#include "Firestore/core/src/util/byte_stream_cpp.h"
 #include "Firestore/core/test/unit/nanopb/nanopb_testing.h"
 #include "Firestore/core/test/unit/testutil/status_testing.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
@@ -57,7 +57,7 @@ using ProtoValue = ::google::firestore::v1::Value;
 using model::DatabaseId;
 using nanopb::ProtobufParse;
 using util::ByteStream;
-using util::ByteStreamIstream;
+using util::ByteStreamCpp;
 
 class BundleReaderTest : public ::testing::Test {
  public:
@@ -129,8 +129,8 @@ class BundleReaderTest : public ::testing::Test {
 
   std::unique_ptr<util::ByteStream> ToByteStream(const std::string& bundle) {
     auto bundle_istream = absl::make_unique<std::stringstream>(bundle);
-    return absl::make_unique<ByteStreamIstream>(
-        ByteStreamIstream(std::move(bundle_istream)));
+    return absl::make_unique<ByteStreamCpp>(
+        ByteStreamCpp(std::move(bundle_istream)));
   }
 
   ProtoNamedQuery LimitQuery() {

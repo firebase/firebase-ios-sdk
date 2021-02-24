@@ -16,7 +16,9 @@
 
 #include "Firestore/core/test/unit/util/byte_stream_test.h"
 
-#include "Firestore/core/src/util/byte_stream_istream.h"
+#include <sstream>
+
+#include "Firestore/core/src/util/byte_stream_cpp.h"
 #include "absl/memory/memory.h"
 
 namespace firebase {
@@ -24,19 +26,19 @@ namespace firestore {
 namespace util {
 namespace {
 
-class ByteStreamIstreamFactory : public ByteStreamFactory {
+class ByteStreamCppFactory : public ByteStreamFactory {
   std::unique_ptr<ByteStream> CreateByteStream(
       const std::string& data) override {
-    return absl::make_unique<ByteStreamIstream>(
+    return absl::make_unique<ByteStreamCpp>(
         absl::make_unique<std::stringstream>(std::stringstream(data)));
   }
 };
 
 std::unique_ptr<ByteStreamFactory> ExecutorFactory() {
-  return absl::make_unique<ByteStreamIstreamFactory>();
+  return absl::make_unique<ByteStreamCppFactory>();
 }
 
-INSTANTIATE_TEST_SUITE_P(ByteStreamIstreamTest,
+INSTANTIATE_TEST_SUITE_P(ByteStreamCppTest,
                          ByteStreamTest,
                          ::testing::Values(ExecutorFactory));
 

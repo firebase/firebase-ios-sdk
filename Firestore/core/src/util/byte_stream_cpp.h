@@ -27,9 +27,9 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-class ByteStreamIstream : public ByteStream {
+class ByteStreamCpp : public ByteStream {
  public:
-  explicit ByteStreamIstream(std::unique_ptr<std::istream> input)
+  explicit ByteStreamCpp(std::unique_ptr<std::istream> input)
       : input_(std::move(input)) {
   }
 

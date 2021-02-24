@@ -39,7 +39,7 @@ class ByteStreamTest : public ::testing::TestWithParam<FactoryFunc> {
  public:
   ByteStreamTest() : stream_factory_(GetParam()()) {
   }
-  std::unique_ptr<ByteStreamFactory> stream_factory_ = nullptr;
+  std::unique_ptr<ByteStreamFactory> stream_factory_;
 };
 
 }  // namespace util

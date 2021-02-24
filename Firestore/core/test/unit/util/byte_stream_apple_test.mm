@@ -25,22 +25,22 @@ namespace firestore {
 namespace util {
 namespace {
 
-class ByteStreamNSInputStreamFactory : public ByteStreamFactory {
+class ByteStreamAppleFactory : public ByteStreamFactory {
   std::unique_ptr<ByteStream> CreateByteStream(
       const std::string& data) override {
     auto* str = MakeNSString(data);
-    NSInputStream* is = [NSInputStream
+    NSInputStream* stream = [NSInputStream
         inputStreamWithData:[str dataUsingEncoding:NSUTF8StringEncoding]];
-    [is open];
-    return absl::make_unique<ByteStreamNSInputStream>(is);
+    [stream open];
+    return absl::make_unique<ByteStreamApple>(stream);
   }
 };
 
 std::unique_ptr<ByteStreamFactory> ExecutorFactory() {
-  return absl::make_unique<ByteStreamNSInputStreamFactory>();
+  return absl::make_unique<ByteStreamAppleFactory>();
 }
 
-INSTANTIATE_TEST_SUITE_P(ByteStreamNSInputStreamTest,
+INSTANTIATE_TEST_SUITE_P(ByteStreamAppleTest,
                          ByteStreamTest,
                          ::testing::Values(ExecutorFactory));
 
