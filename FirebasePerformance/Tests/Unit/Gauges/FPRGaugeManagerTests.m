@@ -103,6 +103,11 @@
 - (void)testStartCollectingGauges {
   FPRGaugeManager *manager = [FPRGaugeManager sharedInstance];
   [manager startCollectingGauges:FPRGaugeCPU forSessionId:@"abc"];
+
+  // Wait for operation to complete.
+  dispatch_sync(manager.gaugeDataProtectionQueue, ^{
+  });
+
   XCTAssertTrue((manager.activeGauges & FPRGaugeCPU) == 1);
   XCTAssertTrue((manager.activeGauges & FPRGaugeMemory) == 0);
   XCTAssertNotNil(manager.cpuGaugeCollector);
@@ -114,12 +119,22 @@
 - (void)testStopCollectingGauges {
   FPRGaugeManager *manager = [FPRGaugeManager sharedInstance];
   [manager startCollectingGauges:FPRGaugeCPU | FPRGaugeMemory forSessionId:@"abc"];
+
+  // Wait for operation to complete.
+  dispatch_sync(manager.gaugeDataProtectionQueue, ^{
+  });
+
   XCTAssertTrue((manager.activeGauges & FPRGaugeCPU) == FPRGaugeCPU);
   XCTAssertTrue((manager.activeGauges & FPRGaugeMemory) == FPRGaugeMemory);
   XCTAssertNotNil(manager.cpuGaugeCollector);
   XCTAssertNotNil(manager.memoryGaugeCollector);
 
   [manager stopCollectingGauges:FPRGaugeCPU];
+
+  // Wait for operation to complete.
+  dispatch_sync(manager.gaugeDataProtectionQueue, ^{
+  });
+
   XCTAssertTrue((manager.activeGauges & FPRGaugeCPU) == FPRGaugeNone);
   XCTAssertTrue((manager.activeGauges & FPRGaugeMemory) == FPRGaugeMemory);
   XCTAssertNil(manager.cpuGaugeCollector);
@@ -138,6 +153,11 @@
 - (void)testCollectAllGauges {
   FPRGaugeManager *manager = [FPRGaugeManager sharedInstance];
   [manager startCollectingGauges:FPRGaugeCPU | FPRGaugeMemory forSessionId:@"abc"];
+
+  // Wait for operation to complete.
+  dispatch_sync(manager.gaugeDataProtectionQueue, ^{
+  });
+
   id cpuMock = [OCMockObject partialMockForObject:manager.cpuGaugeCollector];
   id memoryMock = [OCMockObject partialMockForObject:manager.memoryGaugeCollector];
   OCMStub([cpuMock collectMetric]);
@@ -172,6 +192,10 @@
   id mock = [OCMockObject partialMockForObject:manager];
   [manager startCollectingGauges:FPRGaugeCPU forSessionId:@"abc"];
   [manager.cpuGaugeCollector stopCollecting];
+  // Wait for start/stop to complete.
+  dispatch_sync(manager.gaugeDataProtectionQueue, ^{
+  });
+
   OCMReject([mock prepareAndDispatchGaugeData]);
   for (int i = 0; i < kGaugeDataBatchSize - 1; i++) {
     [manager.cpuGaugeCollector collectMetric];
