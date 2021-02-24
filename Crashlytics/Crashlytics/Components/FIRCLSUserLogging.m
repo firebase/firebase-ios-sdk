@@ -198,8 +198,8 @@ void FIRCLSUserLoggingCompactKVEntries(FIRCLSUserLoggingKVStorage *storage) {
     // but it's very uncommon to go down this path.
     NSArray *keys = [finalKVs allKeys];
 
-    FIRCLSSDKLogInfo("Truncating %lu keys from KV set, which is above max %d\n",
-                     ([finalKVs count] - maxCount), maxCount);
+    FIRCLSSDKLogInfo("Truncating %d keys from KV set, which is above max %d\n",
+                     (uint32_t)(finalKVs.count - maxCount), maxCount);
 
     finalKVs =
         [finalKVs dictionaryWithValuesForKeys:[keys subarrayWithRange:NSMakeRange(0, maxCount)]];
