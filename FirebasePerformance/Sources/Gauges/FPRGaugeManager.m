@@ -178,7 +178,7 @@ NSInteger const kGaugeDataBatchSize = 25;
 
 /// The method MUST be called on `gaugeDataProtectionQueue`.
 - (void)prepareAndDispatchGaugeData {
-  NSArray *currentBatch = self.gaugeData;
+  NSArray *currentBatch = [self.gaugeData copy];
   NSString *currentSessionId = self.currentSessionId;
   self.gaugeData = [[NSMutableArray alloc] init];
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
