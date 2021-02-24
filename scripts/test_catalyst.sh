@@ -37,7 +37,7 @@ else
   scheme="$pod"
 fi
 
-bundle exec pod gen --local-sources=./ --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ \
+bundle exec pod gen --local-sources=./ --sources=https://github.com/firebase/SpecsDev.git,https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ \
   "$pod".podspec --platforms=ios
 
 args=(

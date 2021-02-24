@@ -187,13 +187,6 @@ FOUNDATION_EXTERN FPRConfigName kFPRConfigInstrumentationEnabled;
  */
 - (uint32_t)memorySamplingFrequencyInBackgroundInMS;
 
-/**
- * Returns a float specifying the transport percentage for FLL. Range [0-100].
- *
- * @return The percentage of devices sending events to FLL.
- */
-- (float_t)fllTransportPercentage;
-
 @end
 
 NS_ASSUME_NONNULL_END

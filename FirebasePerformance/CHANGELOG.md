@@ -1,4 +1,8 @@
 # Unreleased
+* Deprecate Clearcut event transport mechanism.
+* Enable dynamic framework support. (#7569)
+
+# Version 7.7.0
 * Add community supported tvOS.
 
 # Version 7.6.0
