@@ -124,7 +124,7 @@
         }
       }
     }
-    
+
     /// Initiates email verification for the user.
     ///
     /// The publisher will emit events on the **main** thread.
@@ -144,17 +144,17 @@
     ///
     ///   See `FIRAuthErrors` for a list of error codes that are common to all `FIRUser` methods.
     public func sendEmailVerification() -> Future<Void, Error> {
-        Future<Void, Error> { promise in
-            self.sendEmailVerification { error in
-                if let error = error {
-                    promise(.failure(error))
-                } else {
-                    promise(.success(()))
-                }
-            }
+      Future<Void, Error> { promise in
+        self.sendEmailVerification { error in
+          if let error = error {
+            promise(.failure(error))
+          } else {
+            promise(.success(()))
+          }
         }
+      }
     }
-    
+
     /// Initiates email verification for the user.
     ///
     /// The publisher will emit events on the **main** thread.
@@ -181,16 +181,17 @@
     ///    continue URL is not allowlisted in the Firebase console.
     ///   - `FIRAuthErrorCodeInvalidContinueURI` - Indicates that the domain specified in the
     ///    continue URI is not valid.
-    public func sendEmailVerification(with actionCodeSettings: ActionCodeSettings) -> Future<Void, Error> {
-        Future<Void, Error> { promise in
-            self.sendEmailVerification(with: actionCodeSettings) { error in
-                if let error = error {
-                    promise(.failure(error))
-                } else {
-                    promise(.success(()))
-                }
-            }
+    public func sendEmailVerification(with actionCodeSettings: ActionCodeSettings)
+      -> Future<Void, Error> {
+      Future<Void, Error> { promise in
+        self.sendEmailVerification(with: actionCodeSettings) { error in
+          if let error = error {
+            promise(.failure(error))
+          } else {
+            promise(.success(()))
+          }
         }
+      }
     }
   }
 #endif
