@@ -20,40 +20,41 @@
 #import "FirebasePerformance/Sources/Instrumentation/FPRNetworkTrace.h"
 #import "FirebasePerformance/Sources/Public/FIRTrace.h"
 
-#import "FirebasePerformance/ProtoSupport/PerfMetric.pbobjc.h"
+//#import "FirebasePerformance/ProtoSupport/PerfMetric.pbobjc.h"
+#import "FirebasePerformance/Sources/Protogen/nanopb/perf_metric.nanopb.h"
 
 /** Creates a new FPRMSGPerfMetric proto object populated with system metadata.
  *  @param appID The Google app id to put into the message
  *  @return Reference to a FPRMSGPerfMetric object.
  */
-extern FPRMSGPerfMetric* _Nullable FPRGetPerfMetricMessage(NSString* _Nonnull appID);
+extern firebase_perf_v1_PerfMetric FPRGetPerfMetricMessage(NSString* _Nonnull appID);
 
 /** Creates a new FPRMSGApplicationInfo proto object populated with system metadata.
  *  @return Reference to a FPRMSGApplicationInfo object.
  */
-extern FPRMSGApplicationInfo* _Nullable FPRGetApplicationInfoMessage(void);
+extern firebase_perf_v1_ApplicationInfo FPRGetApplicationInfoMessage(void);
 
 /** Converts the FIRTrace object to a FPRMSGTraceMetric proto object.
  *  @return Reference to a FPRMSGTraceMetric object.
  */
-extern FPRMSGTraceMetric* _Nullable FPRGetTraceMetric(FIRTrace* _Nonnull trace);
+extern firebase_perf_v1_TraceMetric FPRGetTraceMetric(FIRTrace* _Nonnull trace);
 
 /** Converts the FPRNetworkTrace object to a FPRMSGNetworkRequestMetric proto object.
  *  @return Reference to a FPRMSGNetworkRequestMetric object.
  */
-extern FPRMSGNetworkRequestMetric* _Nullable FPRGetNetworkRequestMetric(
+extern firebase_perf_v1_NetworkRequestMetric FPRGetNetworkRequestMetric(
     FPRNetworkTrace* _Nonnull trace);
 
 /** Converts the gaugeData array object to a FPRMSGGaugeMetric proto object.
  *  @return Reference to a FPRMSGGaugeMetric object.
  */
-extern FPRMSGGaugeMetric* _Nullable FPRGetGaugeMetric(NSArray* _Nonnull gaugeData,
+extern firebase_perf_v1_GaugeMetric FPRGetGaugeMetric(NSArray* _Nonnull gaugeData,
                                                       NSString* _Nonnull sessionId);
 
 /** Converts the FPRTraceState to a FPRMSGApplicationProcessState proto value.
  *  @return FPRMSGApplicationProcessState value.
  */
-extern FPRMSGApplicationProcessState FPRApplicationProcessState(FPRTraceState state);
+extern firebase_perf_v1_ApplicationProcessState FPRApplicationProcessState(FPRTraceState state);
 
 #if __has_include("CoreTelephony/CTTelephonyNetworkInfo.h")
 /** Obtain a CTTelephonyNetworkInfo object to determine device network attributes.

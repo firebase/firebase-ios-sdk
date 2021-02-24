@@ -41,43 +41,59 @@ static FPRMSGNetworkConnectionInfo_MobileSubtype FPRCellularNetworkType(void);
 #endif
 NSArray<FPRSessionDetails *> *FPRMakeFirstSessionVerbose(NSArray<FPRSessionDetails *> *sessions);
 
+#pragma mark - Private methods
+
+pb_bytes_array_t *FPREncodeData(NSData *data) {
+  pb_bytes_array_t *pbBytesArray = calloc(1, PB_BYTES_ARRAY_T_ALLOCSIZE(data.length));
+  if (pbBytesArray != NULL) {
+    [data getBytes:pbBytesArray->bytes length:data.length];
+    pbBytesArray->size = (pb_size_t)data.length;
+  }
+  return pbBytesArray;
+}
+
+pb_bytes_array_t *FPREncodeString(NSString *string) {
+  NSData *stringBytes = [string dataUsingEncoding:NSUTF8StringEncoding];
+  return FPREncodeData(stringBytes);
+}
+
 #pragma mark - Public methods
 
-FPRMSGPerfMetric *FPRGetPerfMetricMessage(NSString *appID) {
-  FPRMSGPerfMetric *perfMetricMessage = [FPRMSGPerfMetric message];
-  perfMetricMessage.applicationInfo = FPRGetApplicationInfoMessage();
-  perfMetricMessage.applicationInfo.googleAppId = appID;
+firebase_perf_v1_PerfMetric FPRGetPerfMetricMessage(NSString *appID) {
+  firebase_perf_v1_PerfMetric perfMetricMessage = firebase_perf_v1_PerfMetric_init_default;
+  perfMetricMessage.application_info = FPRGetApplicationInfoMessage();
+  perfMetricMessage.application_info.google_app_id = FPREncodeString(appID);
 
   return perfMetricMessage;
 }
 
-FPRMSGApplicationInfo *FPRGetApplicationInfoMessage() {
-  FPRMSGApplicationInfo *appInfoMessage = [FPRMSGApplicationInfo message];
-  FPRMSGIosApplicationInfo *iosAppInfo = [FPRMSGIosApplicationInfo message];
+firebase_perf_v1_ApplicationInfo FPRGetApplicationInfoMessage() {
+  firebase_perf_v1_ApplicationInfo appInfoMessage = firebase_perf_v1_ApplicationInfo_init_default;
+  firebase_perf_v1_IosApplicationInfo iosAppInfo = firebase_perf_v1_IosApplicationInfo_init_default;
   NSBundle *mainBundle = [NSBundle mainBundle];
-  iosAppInfo.bundleShortVersion = [mainBundle infoDictionary][@"CFBundleShortVersionString"];
-  iosAppInfo.sdkVersion = [NSString stringWithUTF8String:kFPRSDKVersion];
-  iosAppInfo.networkConnectionInfo.networkType = FPRNetworkConnectionInfoNetworkType();
+  iosAppInfo.bundle_short_version = FPREncodeString([mainBundle infoDictionary][@"CFBundleShortVersionString"]);
+  iosAppInfo.sdk_version = FPREncodeString([NSString stringWithUTF8String:kFPRSDKVersion]);
+  iosAppInfo.network_connection_info.network_type = FPRNetworkConnectionInfoNetworkType();
 #if __has_include("CoreTelephony/CTTelephonyNetworkInfo.h")
   CTTelephonyNetworkInfo *networkInfo = FPRNetworkInfo();
   CTCarrier *provider = networkInfo.subscriberCellularProvider;
   NSString *mccMnc = FPRValidatedMccMnc(provider.mobileCountryCode, provider.mobileNetworkCode);
   if (mccMnc) {
-    iosAppInfo.mccMnc = mccMnc;
+    iosAppInfo.mcc_mnc = FPREncodeString(mccMnc);
   }
-  if (iosAppInfo.networkConnectionInfo.networkType ==
+  if (iosAppInfo.network_connection_info.network_type ==
       FPRMSGNetworkConnectionInfo_NetworkType_Mobile) {
-    iosAppInfo.networkConnectionInfo.mobileSubtype = FPRCellularNetworkType();
+    iosAppInfo.network_connection_info.mobile_subtype = FPRCellularNetworkType();
   }
 #endif
-  appInfoMessage.iosAppInfo = iosAppInfo;
+  appInfoMessage.ios_app_info = iosAppInfo;
 
-  appInfoMessage.customAttributes = [[FIRPerformance sharedInstance].attributes mutableCopy];
+  appInfoMessage.custom_attributes = [[FIRPerformance sharedInstance].attributes mutableCopy];
 
   return appInfoMessage;
 }
 
-FPRMSGTraceMetric *FPRGetTraceMetric(FIRTrace *trace) {
+FPRMSGTraceMetric FPRGetTraceMetric(FIRTrace *trace) {
   if (trace == nil) {
     return nil;
   }

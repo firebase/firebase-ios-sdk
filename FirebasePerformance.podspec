@@ -29,7 +29,7 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
 
   base_dir = "FirebasePerformance/"
   s.source_files = [
-    base_dir + 'Sources/**/*.[mh]',
+    base_dir + 'Sources/**/*.[cmh]',
     base_dir + 'ProtoSupport/**/*.[mh]',
     'FirebaseCore/Sources/Private/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
@@ -44,6 +44,7 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
   s.public_header_files = base_dir + 'Sources/Public/*.h'
 
   preprocessor_definitions = 'GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1 ' + 'FIRPerformance_LIB_VERSION=' + String(s.version)
+  preprocessor_definitions += ' PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1'
   if ENV['FPR_UNSWIZZLE_AVAILABLE'] && ENV['FPR_UNSWIZZLE_AVAILABLE'] == '1' then
     preprocessor_definitions += ' UNSWIZZLE_AVAILABLE=1'
   end
