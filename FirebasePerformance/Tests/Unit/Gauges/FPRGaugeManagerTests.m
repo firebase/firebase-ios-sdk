@@ -106,7 +106,7 @@
 
   // Wait for operation to complete.
   dispatch_sync(manager.gaugeDataProtectionQueue, ^{
-  });
+                });
 
   XCTAssertTrue((manager.activeGauges & FPRGaugeCPU) == 1);
   XCTAssertTrue((manager.activeGauges & FPRGaugeMemory) == 0);
@@ -122,7 +122,7 @@
 
   // Wait for operation to complete.
   dispatch_sync(manager.gaugeDataProtectionQueue, ^{
-  });
+                });
 
   XCTAssertTrue((manager.activeGauges & FPRGaugeCPU) == FPRGaugeCPU);
   XCTAssertTrue((manager.activeGauges & FPRGaugeMemory) == FPRGaugeMemory);
@@ -133,7 +133,7 @@
 
   // Wait for operation to complete.
   dispatch_sync(manager.gaugeDataProtectionQueue, ^{
-  });
+                });
 
   XCTAssertTrue((manager.activeGauges & FPRGaugeCPU) == FPRGaugeNone);
   XCTAssertTrue((manager.activeGauges & FPRGaugeMemory) == FPRGaugeMemory);
@@ -156,7 +156,7 @@
 
   // Wait for operation to complete.
   dispatch_sync(manager.gaugeDataProtectionQueue, ^{
-  });
+                });
 
   id cpuMock = [OCMockObject partialMockForObject:manager.cpuGaugeCollector];
   id memoryMock = [OCMockObject partialMockForObject:manager.memoryGaugeCollector];
@@ -194,7 +194,7 @@
   [manager.cpuGaugeCollector stopCollecting];
   // Wait for start/stop to complete.
   dispatch_sync(manager.gaugeDataProtectionQueue, ^{
-  });
+                });
 
   OCMReject([mock prepareAndDispatchGaugeData]);
   for (int i = 0; i < kGaugeDataBatchSize - 1; i++) {
