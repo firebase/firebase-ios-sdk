@@ -37,7 +37,7 @@ NSInteger const kGaugeDataBatchSize = 25;
 @property(nonatomic) NSMutableArray *gaugeData;
 
 /** @brief Currently active sessionID. */
-@property(nonatomic, readwrite) NSString *currentSessionId;
+@property(nonatomic, readwrite, copy) NSString *currentSessionId;
 
 @end
 
