@@ -17,7 +17,7 @@
 #include "Firestore/core/src/bundle/bundle_loader.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
-#include "Firestore/core/src/api/bundle_types.h"
+#include "Firestore/core/src/api/load_bundle_task.h"
 #include "Firestore/core/src/bundle/bundle_document.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/document_key_set.h"
@@ -28,8 +28,10 @@ namespace firebase {
 namespace firestore {
 namespace bundle {
 
+using firestore::api::LoadBundleTaskState;
+using firestore::api::LoadBundleTaskProgress;
+using firestore::api::LoadBundleTaskState;
 using firestore::Error;
-using firestore::LoadBundleTaskProgress;
 using model::DocumentKeySet;
 using model::MaybeDocumentMap;
 using model::NoDocument;
@@ -79,7 +81,7 @@ StatusOr<absl::optional<LoadBundleTaskProgress>> BundleLoader::AddElement(
 
   return {absl::make_optional(LoadBundleTaskProgress(
       documents_.size(), metadata_.total_documents(), bytes_loaded_,
-      metadata_.total_bytes(), TaskState::Running))};
+      metadata_.total_bytes(), LoadBundleTaskState::InProgress))};
 }
 
 StatusOr<MaybeDocumentMap> BundleLoader::ApplyChanges() {
