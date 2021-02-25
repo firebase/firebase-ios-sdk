@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2021 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-#import "FirebaseMessaging/Tests/UnitTests/FIRInstanceIDFakeKeychain.h"
+#import "FirebaseMessaging/Tests/UnitTests/FIRMessagingFakeKeychain.h"
 
 static NSString *const kFakeKeychainErrorDomain = @"com.google.iid";
 
-@interface FIRInstanceIDFakeKeychain ()
+@interface FIRMessagingFakeKeychain ()
 
 @property(nonatomic, readwrite, strong) NSMutableDictionary *data;
 
 @end
 
-@implementation FIRInstanceIDFakeKeychain
+@implementation FIRMessagingFakeKeychain
 
 - (instancetype)init {
   self = [super init];
@@ -39,8 +39,8 @@ static NSString *const kFakeKeychainErrorDomain = @"com.google.iid";
     return @[];
   }
   NSMutableArray<NSData *> *results = [NSMutableArray array];
-  BOOL accountIsWildcard = [account isEqualToString:kFIRInstanceIDKeychainWildcardIdentifier];
-  BOOL serviceIsWildcard = [service isEqualToString:kFIRInstanceIDKeychainWildcardIdentifier];
+  BOOL accountIsWildcard = [account isEqualToString:kFIRMessagingKeychainWildcardIdentifier];
+  BOOL serviceIsWildcard = [service isEqualToString:kFIRMessagingKeychainWildcardIdentifier];
   for (NSString *accountKey in [self.data allKeys]) {
     if (!accountIsWildcard && ![accountKey isEqualToString:account]) {
       continue;
@@ -73,11 +73,11 @@ static NSString *const kFakeKeychainErrorDomain = @"com.google.iid";
     }
     return;
   }
-  if ([account isEqualToString:kFIRInstanceIDKeychainWildcardIdentifier]) {
+  if ([account isEqualToString:kFIRMessagingKeychainWildcardIdentifier]) {
     // Remove all account keys.
     [self.data removeAllObjects];
   } else {
-    if ([service isEqualToString:kFIRInstanceIDKeychainWildcardIdentifier]) {
+    if ([service isEqualToString:kFIRMessagingKeychainWildcardIdentifier]) {
       // Remove all service keys for this account key.
       [self.data[account] removeAllObjects];
     } else {
