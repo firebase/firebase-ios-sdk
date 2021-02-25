@@ -103,7 +103,7 @@ struct LruResults;
  * cache of the documents, to provide the initial set of results before any
  * remote changes have been received.
  */
-class LocalStore : public bundle::BundleCallback{
+class LocalStore : public bundle::BundleCallback {
  public:
   LocalStore(Persistence* persistence,
              QueryEngine* query_engine,
@@ -260,7 +260,8 @@ class LocalStore : public bundle::BundleCallback{
    * queue.
    */
   model::MaybeDocumentMap ApplyBundledDocuments(
-      const model::MaybeDocumentMap& documents, const std::string& bundle_id) override;
+      const model::MaybeDocumentMap& documents,
+      const std::string& bundle_id) override;
 
   /** Saves the given `NamedQuery` to local persistence. */
   void SaveNamedQuery(const bundle::NamedQuery& query,
