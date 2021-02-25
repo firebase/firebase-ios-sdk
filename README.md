@@ -106,7 +106,7 @@ the following software:
   * Xcode 12.0 (or later)
 
 CocoaPods is still the canonical way to develop, but much of the repo now supports
-development with Swift Package Manager
+development with Swift Package Manager.
 
 ### CocoaPods
 
@@ -128,11 +128,7 @@ CocoaPods workspaces.
 Firestore has a self contained Xcode project. See
 [Firestore/README.md](Firestore/README.md).
 
-### Swift Package Manager
-* `open Package.swift`
-* Xcode will open, then choose a scheme for a library to build or test suite to run.
-
-### Development for Catalyst
+#### Development for Catalyst
 * `pod gen {name here}.podspec --local-sources=./ --auto-open --platforms=ios`
 * Check the Mac box in the App-iOS Build Settings
 * Sign the App in the Settings Signing & Capabilities tab
@@ -146,6 +142,10 @@ Alternatively disable signing in each target:
 * Click `+`
 * Select `Add User-Defined Setting`
 * Add `CODE_SIGNING_REQUIRED` setting with a value of `NO`
+
+### Swift Package Manager
+* `open Package.swift`
+* Xcode will open, then choose a scheme for a library to build or test suite to run.
 
 ### Adding a New Firebase Pod
 
