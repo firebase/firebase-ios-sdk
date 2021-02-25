@@ -149,6 +149,7 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
 
   @synchronized([FSTIntegrationTestCase class]) {
     if (clearedPersistence) return;
+    std::cout << "clearing storage\n\n";
     DatabaseInfo dbInfo;
     LevelDbOpener opener(dbInfo);
     StatusOr<Path> maybeLevelDBDir = opener.FirestoreAppDataDir();
@@ -406,6 +407,9 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
 }
 
 - (FIRQuerySnapshot *)readDocumentSetForRef:(FIRQuery *)query source:(FIRFirestoreSource)source {
+  if (query == nil) {
+    XCTFail("Trying to read data from a nil query");
+  }
   __block FIRQuerySnapshot *result;
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"getData"];

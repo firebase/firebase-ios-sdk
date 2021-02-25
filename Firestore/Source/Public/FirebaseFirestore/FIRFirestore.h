@@ -264,24 +264,21 @@ NS_SWIFT_NAME(Firestore)
 - (FIRLoadBundleTask *)loadBundle:(NSData *)bundleData NS_SWIFT_NAME(loadBundle(_:));
 
 - (FIRLoadBundleTask *)loadBundle:(NSData *)bundleData
-    completion:(nullable void (^)
-(FIRLoadBundleTaskProgress *_Nullable progress,
-    NSError *_Nullable error))completion
-NS_SWIFT_NAME(loadBundle(_:completion:));
+                       completion:(nullable void (^)(FIRLoadBundleTaskProgress *_Nullable progress,
+                                                     NSError *_Nullable error))completion
+    NS_SWIFT_NAME(loadBundle(_:completion:));
+
+- (FIRLoadBundleTask *)loadBundleStream:(NSInputStream *)bundleStream NS_SWIFT_NAME(loadBundle(_:));
 
 - (FIRLoadBundleTask *)loadBundleStream:(NSInputStream *)bundleStream
-NS_SWIFT_NAME(loadBundle(_:));
+                             completion:
+                                 (nullable void (^)(FIRLoadBundleTaskProgress *_Nullable progress,
+                                                    NSError *_Nullable error))completion
+    NS_SWIFT_NAME(loadBundle(_:completion:));
 
-- (FIRLoadBundleTask *)loadBundleStream:(NSInputStream *)bundleStream
-    completion:(nullable void (^)
-(FIRLoadBundleTaskProgress *_Nullable progress,
-    NSError *_Nullable error))completion
-NS_SWIFT_NAME(loadBundle(_:completion:));
-
-- (void) getQueryNamed:(NSString *)name
-    completion:(void (^)
-(FIRQuery *_Nullable progress))completion
-NS_SWIFT_NAME(getQuery(named:completion:));
+- (void)getQueryNamed:(NSString *)name
+           completion:(void (^)(FIRQuery *_Nullable progress))completion
+    NS_SWIFT_NAME(getQuery(named:completion:));
 
 @end
 

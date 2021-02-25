@@ -173,7 +173,8 @@ TEST(LoadBundleTaskTest, RemovesObserverByState) {
   task.SetError(error_status);
 
   BlockingQueue<int> queue;
-  LoadBundleTaskProgress error_progress(0, 0, 0, 0, LoadBundleTaskState::Error, error_status);
+  LoadBundleTaskProgress error_progress(0, 0, 0, 0, LoadBundleTaskState::Error,
+                                        error_status);
   auto handle2 = task.ObserveState(LoadBundleTaskState::Error,
                                    [&](LoadBundleTaskProgress p) {
                                      EXPECT_EQ(p, error_progress);

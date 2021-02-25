@@ -638,7 +638,6 @@ void SyncEngine::LoadBundle(std::shared_ptr<bundle::BundleReader> reader,
   EmitNewSnapshotsAndNotifyLocalStore(changes.ConsumeValueOrDie(),
                                       absl::nullopt);
 
-  local_store_->SaveBundle(bundle_metadata);
   result_task->SetSuccess(SuccessProgress(bundle_metadata));
 }
 

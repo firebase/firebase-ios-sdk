@@ -384,67 +384,68 @@ NS_ASSUME_NONNULL_BEGIN
   return [[FSTListenerRegistration alloc] initWithRegistration:std::move(result)];
 }
 
-  - (FIRLoadBundleTask *)loadBundle:(nonnull NSData *)bundleData{
-      auto stream = absl::make_unique<util::ByteStreamNSInputStream>([[NSInputStream alloc] initWithData:bundleData]);
-      std::shared_ptr<api::LoadBundleTask> task = _firestore->LoadBundle(std::move(stream));
-      return [[FIRLoadBundleTask alloc] initWithTask:task];
-  }
+- (FIRLoadBundleTask *)loadBundle:(nonnull NSData *)bundleData {
+  auto stream =
+      absl::make_unique<util::ByteStreamApple>([[NSInputStream alloc] initWithData:bundleData]);
+  std::shared_ptr<api::LoadBundleTask> task = _firestore->LoadBundle(std::move(stream));
+  return [[FIRLoadBundleTask alloc] initWithTask:task];
+}
 
-  - (FIRLoadBundleTask *)loadBundle:(NSData *)bundleData
-                         completion:(nullable void (^)
-                             (FIRLoadBundleTaskProgress *_Nullable progress,
-                              NSError *_Nullable error))completion {
-      auto stream = absl::make_unique<util::ByteStreamNSInputStream>([[NSInputStream alloc] initWithData:bundleData]);
-      std::shared_ptr<api::LoadBundleTask> task = _firestore->LoadBundle(std::move(stream));
-      auto callback = [completion](api::LoadBundleTaskProgress progress){
-        if(!completion) {
-          return;
-        }
-        if(progress.state() == api::LoadBundleTaskState::Success) {
-          completion([[FIRLoadBundleTaskProgress alloc] initWithInternal:progress], nil);
-        } else {
-          HARD_ASSERT(!progress.error_status().ok(), "Progress set to Error, but error_status() is ok()");
-          completion([[FIRLoadBundleTaskProgress alloc] initWithInternal:progress], util::MakeNSError(progress.error_status()));
-        }
-      };
-      task->ObserveState(api::LoadBundleTaskState::Success, callback);
-      task->ObserveState(api::LoadBundleTaskState::Error, callback);
-      return [[FIRLoadBundleTask alloc] initWithTask:task];
-  }
+- (FIRLoadBundleTask *)loadBundle:(NSData *)bundleData
+                       completion:(nullable void (^)(FIRLoadBundleTaskProgress *_Nullable progress,
+                                                     NSError *_Nullable error))completion {
+  auto stream =
+      absl::make_unique<util::ByteStreamApple>([[NSInputStream alloc] initWithData:bundleData]);
+  std::shared_ptr<api::LoadBundleTask> task = _firestore->LoadBundle(std::move(stream));
+  auto callback = [completion](api::LoadBundleTaskProgress progress) {
+    if (!completion) {
+      return;
+    }
+    if (progress.state() == api::LoadBundleTaskState::Success) {
+      completion([[FIRLoadBundleTaskProgress alloc] initWithInternal:progress], nil);
+    } else {
+      HARD_ASSERT(!progress.error_status().ok(),
+                  "Progress set to Error, but error_status() is ok()");
+      completion([[FIRLoadBundleTaskProgress alloc] initWithInternal:progress],
+                 util::MakeNSError(progress.error_status()));
+    }
+  };
+  task->ObserveState(api::LoadBundleTaskState::Success, callback);
+  task->ObserveState(api::LoadBundleTaskState::Error, callback);
+  return [[FIRLoadBundleTask alloc] initWithTask:task];
+}
 
-  - (FIRLoadBundleTask *)loadBundleStream:(NSInputStream *)bundleStream {
-      auto stream = absl::make_unique<util::ByteStreamNSInputStream>(bundleStream);
-      std::shared_ptr<api::LoadBundleTask> task = _firestore->LoadBundle(std::move(stream));
-      return [[FIRLoadBundleTask alloc] initWithTask:task];
+- (FIRLoadBundleTask *)loadBundleStream:(NSInputStream *)bundleStream {
+  auto stream = absl::make_unique<util::ByteStreamApple>(bundleStream);
+  std::shared_ptr<api::LoadBundleTask> task = _firestore->LoadBundle(std::move(stream));
+  return [[FIRLoadBundleTask alloc] initWithTask:task];
+}
 
-  }
+- (FIRLoadBundleTask *)loadBundleStream:(NSInputStream *)bundleStream
+                             completion:
+                                 (nullable void (^)(FIRLoadBundleTaskProgress *_Nullable progress,
+                                                    NSError *_Nullable error))completion {
+  auto stream = absl::make_unique<util::ByteStreamApple>(bundleStream);
+  std::shared_ptr<api::LoadBundleTask> task = _firestore->LoadBundle(std::move(stream));
+  return [[FIRLoadBundleTask alloc] initWithTask:task];
+}
 
-  - (FIRLoadBundleTask *)loadBundleStream:(NSInputStream *)bundleStream
-                               completion:(nullable void (^)
-                                   (FIRLoadBundleTaskProgress *_Nullable progress,
-                                    NSError *_Nullable error))completion {
-      auto stream = absl::make_unique<util::ByteStreamNSInputStream>(bundleStream);
-      std::shared_ptr<api::LoadBundleTask> task = _firestore->LoadBundle(std::move(stream));
-      return [[FIRLoadBundleTask alloc] initWithTask:task];
-  }
+- (void)getQueryNamed:(NSString *)name completion:(void (^)(FIRQuery *_Nullable query))completion {
+  auto callback = [completion, self](absl::optional<core::Query> query) {
+    if (!completion) {
+      return;
+    }
 
-  - (void) getQueryNamed:(NSString *)name
-              completion:(void (^)
-                  (FIRQuery *_Nullable query))completion {
-      auto callback = [completion, self](absl::optional<core::Query> query){
-        if(!completion) {
-          return;
-        }
-
-        if(query.has_value()) {
-          FIRQuery* firQuery = [[FIRQuery alloc] initWithQuery:std::move(query.value()) firestore:_firestore];
-          completion(firQuery);
-        } else {
-          completion(nil);
-        }
-      };
-      _firestore->GetNamedQuery(MakeString(name), callback);
-  }
+    if (query.has_value()) {
+      FIRQuery *firQuery = [[FIRQuery alloc] initWithQuery:std::move(query.value())
+                                                 firestore:_firestore];
+      completion(firQuery);
+    } else {
+      completion(nil);
+    }
+  };
+  _firestore->GetNamedQuery(MakeString(name), callback);
+}
 
 @end
 

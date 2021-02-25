@@ -72,6 +72,20 @@ api::LoadBundleTaskState InternalLoadBundleTaskState(FIRLoadBundleTaskState stat
   return self;
 }
 
+- (BOOL)isEqual:(id)other {
+  if (self == other) {
+    return YES;
+  } else if (![other isKindOfClass:[FIRLoadBundleTaskProgress class]]) {
+    return NO;
+  }
+
+  FIRLoadBundleTaskProgress *otherProgress = (FIRLoadBundleTaskProgress *)other;
+  return self.documentsLoaded == otherProgress.documentsLoaded &&
+         self.totalDocuments == otherProgress.totalDocuments &&
+         self.bytesLoaded == otherProgress.bytesLoaded &&
+         self.totalBytes == otherProgress.totalBytes && self.state == otherProgress.state;
+}
+
 @end
 
 @implementation FIRLoadBundleTask {
