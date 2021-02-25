@@ -576,10 +576,10 @@ void SyncEngine::RemoveLimboTarget(const DocumentKey& key) {
 void SyncEngine::LoadBundle(std::shared_ptr<bundle::BundleReader> reader,
                             std::shared_ptr<api::LoadBundleTask> result_task) {
   auto bundle_metadata = reader->GetBundleMetadata();
-  if (!reader->ReaderStatus().ok()) {
+  if (!reader->reader_status().ok()) {
     LOG_WARN("Failed to GetBundleMetadata() for bundle with error %s",
-             reader->ReaderStatus().error_message());
-    result_task->SetError(reader->ReaderStatus());
+             reader->reader_status().error_message());
+    result_task->SetError(reader->reader_status());
     return;
   }
 
@@ -599,10 +599,10 @@ void SyncEngine::LoadBundle(std::shared_ptr<bundle::BundleReader> reader,
   // read.
   while (true) {
     auto element = reader->GetNextElement();
-    if (!reader->ReaderStatus().ok()) {
+    if (!reader->reader_status().ok()) {
       LOG_WARN("Failed to GetNextElement() from bundle with error %s",
-               reader->ReaderStatus().error_message());
-      result_task->SetError(reader->ReaderStatus());
+               reader->reader_status().error_message());
+      result_task->SetError(reader->reader_status());
       return;
     }
 

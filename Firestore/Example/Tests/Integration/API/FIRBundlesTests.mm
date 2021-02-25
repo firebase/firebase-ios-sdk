@@ -98,6 +98,9 @@ namespace util = firebase::firestore::util;
       [collection addSnapshotListener:self.eventAccumulator.valueEventHandler];
   [self.eventAccumulator awaitRemoteEvent];
 
+  // We should see no more snapshots from loading the bundle, because the data there is older.
+  [self.eventAccumulator assertNoAdditionalEvents];
+
   auto bundle = testutil::CreateBundle(util::MakeString([FSTIntegrationTestCase projectID]));
   NSMutableArray* progresses = [[NSMutableArray alloc] init];
   __block FIRLoadBundleTaskProgress* result;
@@ -115,7 +118,6 @@ namespace util = firebase::firestore::util;
              }];
 
   [self awaitExpectation:expectation];
-  // [self.eventAccumulator assertNoAdditionalEvents];
 
   XCTAssertEqual(4ul, progresses.count);
   [self verifyProgress:progresses[0] hasLoadedDocument:0];
