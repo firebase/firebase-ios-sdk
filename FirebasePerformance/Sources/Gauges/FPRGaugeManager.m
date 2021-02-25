@@ -117,9 +117,8 @@ NSInteger const kGaugeDataBatchSize = 25;
 }
 
 - (void)startCollectingGauges:(FPRGauges)gauges forSessionId:(NSString *)sessionId {
-  dispatch_async(self.gaugeDataProtectionQueue, ^{
-    [self prepareAndDispatchGaugeData];
-  });
+  // Dispatch the already available gauge data with old sessionId.
+  [self prepareAndDispatchCollectedGaugeDataWithSessionId:self.currentSessionId];
 
   self.currentSessionId = sessionId;
   if (self.gaugeCollectionEnabled) {
@@ -144,10 +143,9 @@ NSInteger const kGaugeDataBatchSize = 25;
   }
 
   self.activeGauges = self.activeGauges & ~(gauges);
-
-  dispatch_async(self.gaugeDataProtectionQueue, ^{
-    [self prepareAndDispatchGaugeData];
-  });
+  
+  // Flush out all the already collected gauge metrics
+  [self prepareAndDispatchCollectedGaugeDataWithSessionId:self.currentSessionId];
 }
 
 - (void)collectAllGauges {
@@ -176,16 +174,18 @@ NSInteger const kGaugeDataBatchSize = 25;
 
 #pragma mark - Utils
 
-- (void)prepareAndDispatchGaugeData {
-  NSArray *currentBatch = [self.gaugeData copy];
-  NSString *currentSessionId = self.currentSessionId;
-  self.gaugeData = [[NSMutableArray alloc] init];
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    if (currentBatch.count > 0) {
-      [[FPRClient sharedInstance] logGaugeMetric:currentBatch forSessionId:currentSessionId];
-      FPRLogDebug(kFPRGaugeManagerDataCollected, @"Logging %lu gauge metrics.",
-                  (unsigned long)currentBatch.count);
-    }
+- (void)prepareAndDispatchCollectedGaugeDataWithSessionId:(nullable NSString *)sessionId {
+  dispatch_async(self.gaugeDataProtectionQueue, ^{
+    NSArray *dispatchGauges = [self.gaugeData copy];
+    self.gaugeData = [[NSMutableArray alloc] init];
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+      if (dispatchGauges.count > 0 && sessionId != nil) {
+        [[FPRClient sharedInstance] logGaugeMetric:dispatchGauges forSessionId:sessionId];
+        FPRLogDebug(kFPRGaugeManagerDataCollected, @"Logging %lu gauge metrics.",
+                    (unsigned long)dispatchGauges.count);
+      }
+    });
   });
 }
 
@@ -200,7 +200,7 @@ NSInteger const kGaugeDataBatchSize = 25;
       [self.gaugeData addObject:gauge];
 
       if (self.gaugeData.count >= kGaugeDataBatchSize) {
-        [self prepareAndDispatchGaugeData];
+        [self prepareAndDispatchCollectedGaugeDataWithSessionId:self.currentSessionId];
       }
     }
   });
