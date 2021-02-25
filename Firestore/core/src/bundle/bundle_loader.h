@@ -34,9 +34,6 @@ namespace bundle {
 using AddElementResult =
     util::StatusOr<absl::optional<api::LoadBundleTaskProgress>>;
 
-/**
- * Add comment
- */
 class BundleLoader {
  public:
   BundleLoader(BundleCallback* callback, BundleMetadata metadata)
