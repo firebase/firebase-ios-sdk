@@ -13,37 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef FIRESTORE_CORE_TEST_UNIT_UTIL_BYTE_STREAM_TEST_H_
-#define FIRESTORE_CORE_TEST_UNIT_UTIL_BYTE_STREAM_TEST_H_
 
-#include <memory>
-#include <string>
+#include "Firestore/core/test/unit/util/byte_stream_test.h"
 
-#include "Firestore/core/src/util/byte_stream.h"
-#include "gtest/gtest.h"
+#include <sstream>
+
+#include "Firestore/core/src/util/byte_stream_cpp.h"
+#include "absl/memory/memory.h"
 
 namespace firebase {
 namespace firestore {
 namespace util {
+namespace {
 
-class ByteStreamFactory {
- public:
-  virtual ~ByteStreamFactory() = default;
-  virtual std::unique_ptr<ByteStream> CreateByteStream(
-      const std::string& data) = 0;
-};
-
-using FactoryFunc = std::unique_ptr<ByteStreamFactory> (*)();
-
-class ByteStreamTest : public ::testing::TestWithParam<FactoryFunc> {
- public:
-  ByteStreamTest() : stream_factory_(GetParam()()) {
+class ByteStreamCppFactory : public ByteStreamFactory {
+  std::unique_ptr<ByteStream> CreateByteStream(
+      const std::string& data) override {
+    return absl::make_unique<ByteStreamCpp>(
+        absl::make_unique<std::stringstream>(std::stringstream(data)));
   }
-  std::unique_ptr<ByteStreamFactory> stream_factory_;
 };
 
+std::unique_ptr<ByteStreamFactory> ExecutorFactory() {
+  return absl::make_unique<ByteStreamCppFactory>();
+}
+
+INSTANTIATE_TEST_SUITE_P(ByteStreamCppTest,
+                         ByteStreamTest,
+                         ::testing::Values(ExecutorFactory));
+
+}  // namespace
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase
-
-#endif  // FIRESTORE_CORE_TEST_UNIT_UTIL_BYTE_STREAM_TEST_H_

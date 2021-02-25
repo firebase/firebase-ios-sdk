@@ -13,37 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef FIRESTORE_CORE_TEST_UNIT_UTIL_BYTE_STREAM_TEST_H_
-#define FIRESTORE_CORE_TEST_UNIT_UTIL_BYTE_STREAM_TEST_H_
+#ifndef FIRESTORE_CORE_SRC_UTIL_BYTE_STREAM_ISTREAM_H_
+#define FIRESTORE_CORE_SRC_UTIL_BYTE_STREAM_ISTREAM_H_
 
+#include <istream>
 #include <memory>
 #include <string>
+#include <utility>
 
 #include "Firestore/core/src/util/byte_stream.h"
-#include "gtest/gtest.h"
 
 namespace firebase {
 namespace firestore {
 namespace util {
 
-class ByteStreamFactory {
+class ByteStreamCpp : public ByteStream {
  public:
-  virtual ~ByteStreamFactory() = default;
-  virtual std::unique_ptr<ByteStream> CreateByteStream(
-      const std::string& data) = 0;
-};
-
-using FactoryFunc = std::unique_ptr<ByteStreamFactory> (*)();
-
-class ByteStreamTest : public ::testing::TestWithParam<FactoryFunc> {
- public:
-  ByteStreamTest() : stream_factory_(GetParam()()) {
+  explicit ByteStreamCpp(std::unique_ptr<std::istream> input)
+      : input_(std::move(input)) {
   }
-  std::unique_ptr<ByteStreamFactory> stream_factory_;
+
+  StreamReadResult ReadUntil(char delim, size_t max_length) override;
+  StreamReadResult Read(size_t max_length) override;
+
+ private:
+  /**
+   * Checks the states of `input_` and returns a `StreamReadResult` based on the
+   * states and the given `read_string` as the read result.
+   */
+  StreamReadResult ToReadResult(const std::string& read_string);
+
+  std::unique_ptr<std::istream> input_;
 };
 
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_TEST_UNIT_UTIL_BYTE_STREAM_TEST_H_
+#endif  // FIRESTORE_CORE_SRC_UTIL_BYTE_STREAM_ISTREAM_H_

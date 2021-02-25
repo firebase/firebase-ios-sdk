@@ -32,7 +32,7 @@
 #include "Firestore/core/src/nanopb/byte_string.h"
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/remote/serializer.h"
-#include "Firestore/core/src/util/byte_stream_istream.h"
+#include "Firestore/core/src/util/byte_stream_cpp.h"
 #include "Firestore/core/test/unit/nanopb/nanopb_testing.h"
 #include "Firestore/core/test/unit/testutil/status_testing.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
@@ -57,7 +57,7 @@ using ProtoValue = ::google::firestore::v1::Value;
 using model::DatabaseId;
 using nanopb::ProtobufParse;
 using util::ByteStream;
-using util::ByteStreamIstream;
+using util::ByteStreamCpp;
 
 class BundleReaderTest : public ::testing::Test {
  public:
@@ -129,8 +129,8 @@ class BundleReaderTest : public ::testing::Test {
 
   std::unique_ptr<util::ByteStream> ToByteStream(const std::string& bundle) {
     auto bundle_istream = absl::make_unique<std::stringstream>(bundle);
-    return absl::make_unique<ByteStreamIstream>(
-        ByteStreamIstream(std::move(bundle_istream)));
+    return absl::make_unique<ByteStreamCpp>(
+        ByteStreamCpp(std::move(bundle_istream)));
   }
 
   ProtoNamedQuery LimitQuery() {
@@ -253,7 +253,7 @@ class BundleReaderTest : public ::testing::Test {
       model::SnapshotVersion version) {
     std::vector<std::unique_ptr<BundleElement>> result;
     auto actual_metadata = reader.GetBundleMetadata();
-    EXPECT_OK(reader.ReaderStatus());
+    EXPECT_OK(reader.reader_status());
     EXPECT_EQ(actual_metadata.bundle_id(), expected_id);
     EXPECT_EQ(actual_metadata.version(), 1);
     EXPECT_EQ(actual_metadata.create_time(), version);
@@ -264,7 +264,7 @@ class BundleReaderTest : public ::testing::Test {
 
     std::unique_ptr<BundleElement> next_element = reader.GetNextElement();
     while (next_element) {
-      EXPECT_OK(reader.ReaderStatus());
+      EXPECT_OK(reader.reader_status());
       result.push_back(std::move(next_element));
       next_element = reader.GetNextElement();
     }
@@ -350,17 +350,11 @@ TEST_F(BundleReaderTest, ReadsQueryAndDocument) {
     VerifyNamedQueryEncodesToOriginal(
         *static_cast<NamedQuery*>(elements[1].get()), LimitToLastQuery());
   }
-  {
-    SCOPED_TRACE("DocumentMetadata");
-    VerifyDocumentMetadataEquals(
-        *static_cast<BundledDocumentMetadata*>(elements[2].get()),
-        DocumentMetadata1());
-  }
-  {
-    SCOPED_TRACE("Document");
-    VerifyDocumentEncodesToOriginal(
-        *static_cast<BundleDocument*>(elements[3].get()), Document1());
-  }
+  VerifyDocumentMetadataEquals(
+      *static_cast<BundledDocumentMetadata*>(elements[2].get()),
+      DocumentMetadata1());
+  VerifyDocumentEncodesToOriginal(
+      *static_cast<BundleDocument*>(elements[3].get()), Document1());
 }
 
 TEST_F(BundleReaderTest, ReadsQueryAndDocumentWithUnexpectedOrder) {
@@ -419,17 +413,11 @@ TEST_F(BundleReaderTest, ReadsWithoutNamedQuery) {
       VerifyFullBundleParsed(reader, "bundle-1", testutil::Version(6000004000));
 
   EXPECT_EQ(elements.size(), 2);
-  {
-    SCOPED_TRACE("DocumentMetadata1");
-    VerifyDocumentMetadataEquals(
-        *static_cast<BundledDocumentMetadata*>(elements[0].get()),
-        DocumentMetadata1());
-  }
-  {
-    SCOPED_TRACE("Document1");
-    VerifyDocumentEncodesToOriginal(
-        *static_cast<BundleDocument*>(elements[1].get()), Document1());
-  }
+  VerifyDocumentMetadataEquals(
+      *static_cast<BundledDocumentMetadata*>(elements[0].get()),
+      DocumentMetadata1());
+  VerifyDocumentEncodesToOriginal(
+      *static_cast<BundleDocument*>(elements[1].get()), Document1());
 }
 
 TEST_F(BundleReaderTest, ReadsWithDeletedDocument) {
@@ -445,23 +433,14 @@ TEST_F(BundleReaderTest, ReadsWithDeletedDocument) {
       VerifyFullBundleParsed(reader, "bundle-1", testutil::Version(6000004000));
 
   EXPECT_EQ(elements.size(), 3);
-  {
-    SCOPED_TRACE("DeletedDocumentMetadata");
-    VerifyDocumentMetadataEquals(
-        *static_cast<BundledDocumentMetadata*>(elements[0].get()),
-        DeletedDocumentMetadata());
-  }
-  {
-    SCOPED_TRACE("DocumentMetadata2");
-    VerifyDocumentMetadataEquals(
-        *static_cast<BundledDocumentMetadata*>(elements[1].get()),
-        DocumentMetadata2());
-  }
-  {
-    SCOPED_TRACE("Document2");
-    VerifyDocumentEncodesToOriginal(
-        *static_cast<BundleDocument*>(elements[2].get()), Document2());
-  }
+  VerifyDocumentMetadataEquals(
+      *static_cast<BundledDocumentMetadata*>(elements[0].get()),
+      DeletedDocumentMetadata());
+  VerifyDocumentMetadataEquals(
+      *static_cast<BundledDocumentMetadata*>(elements[1].get()),
+      DocumentMetadata2());
+  VerifyDocumentEncodesToOriginal(
+      *static_cast<BundleDocument*>(elements[2].get()), Document2());
 }
 
 TEST_F(BundleReaderTest, ReadsWithoutDocumentOrQuery) {
@@ -486,17 +465,11 @@ TEST_F(BundleReaderTest, ReadsLargeDocument) {
   std::vector<std::unique_ptr<BundleElement>> elements =
       VerifyFullBundleParsed(reader, "bundle-1", testutil::Version(6000004000));
 
-  {
-    SCOPED_TRACE("DocumentMetadata2");
-    VerifyDocumentMetadataEquals(
-        *static_cast<BundledDocumentMetadata*>(elements[0].get()),
-        DocumentMetadata2());
-  }
-  {
-    SCOPED_TRACE("LargeDocument2");
-    VerifyDocumentEncodesToOriginal(
-        *static_cast<BundleDocument*>(elements[1].get()), LargeDocument2());
-  }
+  VerifyDocumentMetadataEquals(
+      *static_cast<BundledDocumentMetadata*>(elements[0].get()),
+      DocumentMetadata2());
+  VerifyDocumentEncodesToOriginal(
+      *static_cast<BundleDocument*>(elements[1].get()), LargeDocument2());
 }
 
 TEST_F(BundleReaderTest, FailsWithBadLengthPrefix) {
@@ -509,7 +482,7 @@ TEST_F(BundleReaderTest, FailsWithBadLengthPrefix) {
     EXPECT_EQ(reader.GetBundleMetadata(), BundleMetadata());
     EXPECT_EQ(reader.GetNextElement(), nullptr);
 
-    EXPECT_NOT_OK(reader.ReaderStatus());
+    EXPECT_NOT_OK(reader.reader_status());
   }
 }
 
@@ -523,7 +496,7 @@ TEST_F(BundleReaderTest, FailsWhenSecondElementMissing) {
             BundleMetadata("bundle-1", 1, testutil::Version(6000004000), 0, 0));
   EXPECT_EQ(reader.GetNextElement(), nullptr);
 
-  EXPECT_NOT_OK(reader.ReaderStatus());
+  EXPECT_NOT_OK(reader.reader_status());
 }
 
 TEST_F(BundleReaderTest, FailsWhenNoEnoughtDataCanBeRead) {
@@ -533,7 +506,7 @@ TEST_F(BundleReaderTest, FailsWhenNoEnoughtDataCanBeRead) {
 
   EXPECT_EQ(reader.GetBundleMetadata(), BundleMetadata());
   EXPECT_EQ(reader.GetNextElement(), nullptr);
-  EXPECT_NOT_OK(reader.ReaderStatus());
+  EXPECT_NOT_OK(reader.reader_status());
 }
 
 TEST_F(BundleReaderTest, FailsWhenFirstElementIsNotBundleMetadata) {
@@ -551,7 +524,7 @@ TEST_F(BundleReaderTest, FailsWhenFirstElementIsNotBundleMetadata) {
   EXPECT_EQ(reader.GetBundleMetadata(), BundleMetadata());
   EXPECT_EQ(reader.GetNextElement(), nullptr);
 
-  EXPECT_NOT_OK(reader.ReaderStatus());
+  EXPECT_NOT_OK(reader.reader_status());
 }
 
 // Simulate a corruption by inserting a char in the bundle, and verifies it
@@ -572,7 +545,7 @@ TEST_F(BundleReaderTest, FailsWhenBundleIsSomehowCorrupted) {
     BundleReader reader(bundle_serializer, ToByteStream(copy));
     while (reader.GetNextElement() != nullptr) {
     }
-    EXPECT_NOT_OK(reader.ReaderStatus());
+    EXPECT_NOT_OK(reader.reader_status());
   }
 }
 

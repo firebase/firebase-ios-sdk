@@ -7,7 +7,7 @@
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless Requiredd by applicable law or agreed to in writing, software
+ * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
@@ -71,13 +71,13 @@ class JsonReader : public util::ReadContext {
                         const nlohmann::json& value,
                         double default_value = 0);
 
-  template <typename int_type>
-  int_type RequiredInt(const char* name, const nlohmann::json& value);
+  template <typename IntType>
+  IntType RequiredInt(const char* name, const nlohmann::json& value);
 
-  template <typename int_type>
-  int_type OptionalInt(const char* name,
-                       const nlohmann::json& value,
-                       int_type default_value);
+  template <typename IntType>
+  IntType OptionalInt(const char* name,
+                      const nlohmann::json& value,
+                      IntType default_value);
 
   static bool OptionalBool(const char* name,
                            const nlohmann::json& json_object,
