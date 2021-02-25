@@ -15,7 +15,7 @@
  */
 
 #include <chrono>
-#include <mutex>
+#include <mutex>  // NOLINT(build/c++11)
 #include <queue>
 #include <thread>
 
@@ -64,17 +64,27 @@ std::unique_ptr<util::Executor> CreateUserQueue() {
 }
 
 LoadBundleTaskProgress SuccessProgress() {
-  return {2, 2, 10, 10, LoadBundleTaskState::Success};
+  return {/*documents_loaded=*/2,
+          /*total_documents=*/2,
+          /*bytes_loaded=*/10,
+          /*total_bytes=*/10, LoadBundleTaskState::Success};
+}
+
+LoadBundleTaskProgress ErrorProgress() {
+  return {/*documents_loaded=*/0,
+          /*total_documents=*/0,
+          /*bytes_loaded=*/0,
+          /*total_bytes=*/0, LoadBundleTaskState::Error};
 }
 
 LoadBundleTaskProgress Progress(uint32_t documents_loaded,
                                 uint64_t bytes_loaded) {
-  return {documents_loaded, 2, bytes_loaded, 10,
-          LoadBundleTaskState::InProgress};
+  return {documents_loaded, /*total_documents=*/2, bytes_loaded,
+          /*total_bytes=*/10, LoadBundleTaskState::InProgress};
 }
 
 LoadBundleTaskProgress InitialProgress() {
-  return Progress(0, 0);
+  return Progress(/*documents_loaded=*/0, /*bytes_loaded=*/0);
 }
 
 TEST(LoadBundleTaskTest, SuccessObserveTriggers) {
@@ -128,7 +138,7 @@ TEST(LoadBundleTaskTest, RemovesObserverByHandle) {
 }
 
 TEST(LoadBundleTaskTest, ErrorObserveTriggers) {
-  LoadBundleTaskProgress error_progress(0, 0, 0, 0, LoadBundleTaskState::Error);
+  auto error_progress = ErrorProgress();
   LoadBundleTask task(CreateUserQueue());
   BlockingQueue<int> queue;
 
@@ -168,7 +178,7 @@ TEST(LoadBundleTaskTest, RemovesObserverByState) {
   task.SetError();
 
   BlockingQueue<int> queue;
-  LoadBundleTaskProgress error_progress(0, 0, 0, 0, LoadBundleTaskState::Error);
+  auto error_progress = ErrorProgress();
   auto handle2 = task.ObserveState(LoadBundleTaskState::Error,
                                    [&](LoadBundleTaskProgress p) {
                                      EXPECT_EQ(p, error_progress);

@@ -29,8 +29,15 @@ namespace firebase {
 namespace firestore {
 namespace api {
 
+/**
+ * Represents the state of bundle loading tasks.
+ *
+ * Both `Success` and `Error` are final states: task will abort
+ * or complete and there will be no more updates after they are reported.
+ */
 enum class LoadBundleTaskState { Error = 0, InProgress = 1, Success = 2 };
 
+/** Represents a progress update or a final state from loading bundles. */
 class LoadBundleTaskProgress {
  public:
   LoadBundleTaskProgress() {
@@ -47,22 +54,31 @@ class LoadBundleTaskProgress {
         state_(state) {
   }
 
+  /** Returns how many documents have been loaded. */
   uint32_t documents_loaded() const {
     return documents_loaded_;
   }
 
+  /**
+   * Returns the total number of documents in the bundle. Returns 0 if the
+   * bundle failed to parse.
+   */
   uint32_t total_documents() const {
     return total_documents_;
   }
 
+  /** Returns how many bytes have been loaded. */
   uint64_t bytes_loaded() const {
     return bytes_loaded_;
   }
 
+  /** Returns the total number of bytes in the bundle. Returns 0 if the bundle
+   * failed to parse. */
   uint64_t total_bytes() const {
     return total_bytes_;
   }
 
+  /** Returns the current state of the task. */
   LoadBundleTaskState state() const {
     return state_;
   }
@@ -94,8 +110,13 @@ inline bool operator!=(const LoadBundleTaskProgress lhs,
   return !(lhs == rhs);
 }
 
+/** A handle used to lookup and remove observer from the task. */
 using LoadBundleHandle = std::string;
+
+/** Observer type that is called by the task when there is an update. */
 using ProgressObserver = std::function<void(LoadBundleTaskProgress)>;
+
+/** Holds the `LoadBundleHandle` to `ProgressObserver` mapping. */
 using HandleObservers =
     std::vector<std::pair<LoadBundleHandle, ProgressObserver>>;
 
@@ -161,8 +182,11 @@ class LoadBundleTask {
 
   /** Guard to all internal state mutation. */
   mutable std::mutex mutex_;
+
   /** An array holds mapping from `LoadBundleTaskState` values to observers. */
   std::array<HandleObservers, 3> observers_by_states_;
+
+  /** The last progress update. */
   LoadBundleTaskProgress progress_snapshot_;
 };
 

@@ -88,7 +88,7 @@ api::LoadBundleTaskState InternalLoadBundleTaskState(FIRLoadBundleTaskState stat
 - (FIRLoadBundleHandle)observeState:(FIRLoadBundleTaskState)state
                             handler:(void (^)(FIRLoadBundleTaskProgress *progress))handler {
   if (!handler) {
-    return @"";
+    return nil;
   }
 
   api::ProgressObserver observer = [handler](api::LoadBundleTaskProgress internal_progress) {
