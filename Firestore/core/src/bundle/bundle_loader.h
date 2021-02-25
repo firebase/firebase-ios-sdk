@@ -16,6 +16,7 @@
 #ifndef FIRESTORE_CORE_SRC_BUNDLE_BUNDLE_LOADER_H_
 #define FIRESTORE_CORE_SRC_BUNDLE_BUNDLE_LOADER_H_
 
+#include <memory>
 #include <utility>
 
 #include "Firestore/core/src/api/load_bundle_task.h"
@@ -30,7 +31,8 @@ namespace firebase {
 namespace firestore {
 namespace bundle {
 
-using AddElementResult = util::StatusOr<absl::optional<api::LoadBundleTaskProgress>>;
+using AddElementResult =
+    util::StatusOr<absl::optional<api::LoadBundleTaskProgress>>;
 
 class BundleLoader {
  public:
@@ -45,7 +47,8 @@ class BundleLoader {
    * otherwise returns `nullopt`. If an error occurred, returns a not `ok()`
    * status.
    */
-  AddElementResult AddElement(const BundleElement& element, uint64_t byte_size);
+  AddElementResult AddElement(std::unique_ptr<BundleElement> element,
+                              uint64_t byte_size);
 
   /**
    * Applies the loaded documents and queries to local store. Returns the
