@@ -54,13 +54,13 @@ class BundleReader {
    * by `GetBundleMetadata`, they are not returned from this method.
    *
    * When there is no more element to return, a `nullptr` is returned. Check
-   * `ReaderStatus()` to see if it is due to the completion of bundle (status
+   * `reader_status()` to see if it is due to the completion of bundle (status
    * will be `ok()`), or an error.
    */
   std::unique_ptr<BundleElement> GetNextElement();
 
   /** Returns whether this instance is in good state. */
-  util::Status ReaderStatus() const {
+  const util::Status& reader_status() const {
     return reader_status_;
   }
 
@@ -90,6 +90,10 @@ class BundleReader {
   /**
    * Reads the length prefix string from bundle stream. Returns `nullopt` when
    * at the end of stream.
+   *
+   * The string representing a length prefix is whatever string we have from
+   * the `input_` until the next character is a "{" (start of JSON element).
+   * So calling this a second time will return an empty string.
    */
   absl::optional<std::string> ReadLengthPrefix();
 

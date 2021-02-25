@@ -24,8 +24,10 @@ namespace firebase {
 namespace firestore {
 namespace bundle {
 
-/** Interface implemented by components that can apply changes from a bundle to
- * local storage. */
+/**
+ * Interface implemented by components that can apply changes from a bundle to
+ * local storage.
+ */
 class BundleCallback {
  public:
   virtual ~BundleCallback() = default;

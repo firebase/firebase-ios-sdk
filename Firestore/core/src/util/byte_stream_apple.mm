@@ -42,8 +42,8 @@ StreamReadResult ByteStreamApple::ReadUntil(char delim, size_t max_length) {
     }
   }
 
-  // Still not found, or the buffer happens to be of the sized as requested
-  // either way, return the whole `buffer_` and clear it.
+  // Still not found, or the buffer happens to be of the sized as requested.
+  // Either way, return the whole `buffer_` and clear it.
   if (found_at == std::string::npos && buffer_.size() == max_length) {
     return ConsumeBuffer();
   }
@@ -90,8 +90,8 @@ StreamReadResult ByteStreamApple::ConsumeBuffer() {
   // NSInputStream does not have consistent behavior with streamStatus, we
   // perform a "peek" operation here to match with C++ istream implementation,
   // and make the behavior deterministic.
-  std::string peek_result(1, '\0');
-  auto* data_ptr = reinterpret_cast<uint8_t*>(&peek_result[0]);
+  char peek_result = '\0';
+  auto* data_ptr = reinterpret_cast<uint8_t*>(&peek_result);
   NSInteger read = [input_ read:data_ptr maxLength:1];
 
   bool is_eof = (read == 0);
@@ -100,7 +100,7 @@ StreamReadResult ByteStreamApple::ConsumeBuffer() {
   buffer_.clear();
   // If peek actually succeeds, append the read char.
   if (read > 0) {
-    buffer_.push_back(peek_result.at(0));
+    buffer_.push_back(peek_result);
   }
   return read_result;
 }

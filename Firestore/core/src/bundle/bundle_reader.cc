@@ -50,12 +50,12 @@ BundleMetadata BundleReader::GetBundleMetadata() {
   }
 
   std::unique_ptr<BundleElement> element = ReadNextElement();
-  metadata_loaded_ = true;
   if (!element || element->element_type() != BundleElement::Type::Metadata) {
     Fail("Failed to get bundle metadata");
     return {};
   }
 
+  metadata_loaded_ = true;
   metadata_ = static_cast<BundleMetadata&>(*element);
   return metadata_;
 }
