@@ -17,13 +17,13 @@
 #define FIRESTORE_CORE_SRC_BUNDLE_BUNDLE_READER_H_
 
 #include <cstdint>
-#include <istream>
 #include <memory>
 #include <string>
 #include <utility>
 
 #include "Firestore/core/src/bundle/bundle_metadata.h"
 #include "Firestore/core/src/bundle/bundle_serializer.h"
+#include "Firestore/core/src/util/byte_stream.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
@@ -39,7 +39,7 @@ namespace bundle {
 class BundleReader {
  public:
   BundleReader(BundleSerializer serializer,
-               std::unique_ptr<std::istream> input);
+               std::unique_ptr<util::ByteStream> input);
 
   /**
    * Returns the metadata element from the bundle.
@@ -99,14 +99,6 @@ class BundleReader {
   void ReadJsonToBuffer(size_t length);
 
   /**
-   * Pulls `required_size` amount of bytes from `input_` into `buffer_`.
-   *
-   * Returns true if all bytes are pulled successfully, returns false if not all
-   * bytes can be pulled.
-   */
-  bool PullMoreData(uint32_t required_size);
-
-  /**
    * Decodes internal `buffer_` into a `BundleElement`, returned as a unique_ptr
    * pointing to the element. Returns nullptr if fails.
    *
@@ -118,7 +110,7 @@ class BundleReader {
   JsonReader json_reader_;
 
   // Input stream holding bundle data.
-  std::unique_ptr<std::istream> input_;
+  std::unique_ptr<util::ByteStream> input_;
 
   // Cached bundle metadata.
   BundleMetadata metadata_;
