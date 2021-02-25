@@ -144,8 +144,10 @@ Alternatively disable signing in each target:
 * Add `CODE_SIGNING_REQUIRED` setting with a value of `NO`
 
 ### Swift Package Manager
-* `open Package.swift`
-* Xcode will open, then choose a scheme for a library to build or test suite to run.
+* `open Package.swift` or double click `Package.swift` in Finder.
+* Xcode will open the project
+  * Choose a scheme for a library to build or test suite to run
+  * Choose a target platform by selecting the run destination along with the scheme
 
 ### Adding a New Firebase Pod
 
