@@ -82,8 +82,8 @@
 typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   RCNTestRCInstanceDefault,
   RCNTestRCInstanceSecondNamespace,
-  RCNTestRCInstanceSecondApp,
-  RCNTestRCNumTotalInstances
+  RCNTestRCNumTotalInstances,
+  RCNTestRCInstanceSecondApp
 };
 
 @interface RCNRemoteConfigTest : XCTestCase {
@@ -1371,10 +1371,12 @@ static NSString *UTCToLocal(NSString *utcTime) {
 }
 
 - (FIROptions *)secondAppOptions {
-  FIROptions *options =
-      [[FIROptions alloc] initWithContentsOfFile:[[NSBundle bundleForClass:[self class]]
-                                                     pathForResource:@"SecondApp-GoogleService-Info"
-                                                              ofType:@"plist"]];
+  NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+  NSString *plistPath = [bundle pathForResource:@"SecondApp-GoogleService-Info" ofType:@"plist"];
+#if SWIFT_PACKAGE
+  bundle = Firebase_RemoteConfigUnit_SWIFTPM_MODULE_BUNDLE();
+#endif
+  FIROptions *options = [[FIROptions alloc] initWithContentsOfFile:plistPath];
   XCTAssertNotNil(options);
   return options;
 }
