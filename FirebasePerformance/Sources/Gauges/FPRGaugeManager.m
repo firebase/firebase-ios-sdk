@@ -143,7 +143,7 @@ NSInteger const kGaugeDataBatchSize = 25;
   }
 
   self.activeGauges = self.activeGauges & ~(gauges);
-  
+
   // Flush out all the already collected gauge metrics
   [self prepareAndDispatchCollectedGaugeDataWithSessionId:self.currentSessionId];
 }
@@ -178,7 +178,7 @@ NSInteger const kGaugeDataBatchSize = 25;
   dispatch_async(self.gaugeDataProtectionQueue, ^{
     NSArray *dispatchGauges = [self.gaugeData copy];
     self.gaugeData = [[NSMutableArray alloc] init];
-    
+
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
       if (dispatchGauges.count > 0 && sessionId != nil) {
         [[FPRClient sharedInstance] logGaugeMetric:dispatchGauges forSessionId:sessionId];
