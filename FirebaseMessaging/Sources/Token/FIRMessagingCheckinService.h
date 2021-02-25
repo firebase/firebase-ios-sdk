@@ -32,6 +32,25 @@ FOUNDATION_EXPORT NSString *const kFIRMessagingDeviceDataVersionKey;
 @class FIRMessagingCheckinPreferences;
 
 /**
+ *  Response block for mock registration requests made during tests.
+ *
+ *  @param data     The data as returned by the mock request.
+ *  @param response The response as returned by the mock request.
+ *  @param error    The error if any as returned by the mock request.
+ */
+typedef void (^FIRMessagingURLRequestTestResponseBlock)(NSData *_Nullable data,
+                                                        NSURLResponse *response,
+                                                        NSError *_Nullable error);
+/**
+ *  Test block to mock registration requests response.
+ *
+ *  @param request  The request to mock response for.
+ *  @param response The response block for the mocked request.
+ */
+typedef void (^FIRMessagingURLRequestTestBlock)(NSURLRequest *request,
+                                                FIRMessagingURLRequestTestResponseBlock response);
+
+/**
  *  Register the device with Checkin Service and get back the `authID`, `secret
  *  token` etc. for the client. Checkin results are cached in the
  *  `FIRMessagingCache` and periodically refreshed to prevent them from being stale.

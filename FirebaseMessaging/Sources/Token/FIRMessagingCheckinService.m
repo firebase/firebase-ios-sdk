@@ -39,6 +39,8 @@ static NSUInteger const kCheckinType = 2;  // DeviceType IOS in l/w/a/_checkin.p
 static NSUInteger const kCheckinVersion = 2;
 static NSUInteger const kFragment = 0;
 
+static FIRMessagingURLRequestTestBlock testBlock;
+
 @interface FIRMessagingCheckinService () {
   NSURLSession *_session;
 }
@@ -47,6 +49,7 @@ static NSUInteger const kFragment = 0;
 @implementation FIRMessagingCheckinService
 
 - (void)dealloc {
+  testBlock = nil;
   [_session invalidateAndCancel];
 }
 
@@ -153,8 +156,19 @@ static NSUInteger const kFragment = 0;
   config.timeoutIntervalForResource = 60.0f;  // 1 minute
   _session = [NSURLSession sessionWithConfiguration:config];
   _session.sessionDescription = @"com.google.iid-checkin";
+
+  // Test block
+  if (testBlock) {
+    testBlock(request, handler);
+    return;
+  }
+
   NSURLSessionDataTask *task = [_session dataTaskWithRequest:request completionHandler:handler];
   [task resume];
+}
+
++ (void)setGlobalTestBlock:(FIRMessagingURLRequestTestBlock)block {
+  testBlock = [block copy];
 }
 
 - (void)stopFetching {
