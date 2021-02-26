@@ -106,7 +106,6 @@
 }
 
 - (BOOL)createFileWithContents:(NSString *)contents atPath:(NSString *)path {
-  NSLog(@"path: %@", path);
   return [self.fileManager.underlyingFileManager
       createFileAtPath:path
               contents:[contents dataUsingEncoding:NSUTF8StringEncoding]

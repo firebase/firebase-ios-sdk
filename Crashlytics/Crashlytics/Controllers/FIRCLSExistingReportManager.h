@@ -43,11 +43,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * This value needs to stay in sync with numUnsentReports, so if there is > 0 numUnsentReports,
- * collectNewestReport needs to return a value. Otherwise it needs to return null.
+ * newestUnsentReport needs to return a value. Otherwise it needs to return null.
  *
  * FIRCLSContext needs to be initialized before the FIRCrashlyticsReport is instantiated.
  */
-@property(nonatomic, strong) FIRCrashlyticsReport *_Nullable newestUnsentReport;
+@property(nonatomic, readonly) FIRCrashlyticsReport *_Nullable newestUnsentReport;
 
 - (instancetype)initWithManagerData:(FIRCLSManagerData *)managerData
                      reportUploader:(FIRCLSReportUploader *)reportUploader;
