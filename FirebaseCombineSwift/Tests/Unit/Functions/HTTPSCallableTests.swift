@@ -89,7 +89,7 @@ class HTTPSCallableTests: XCTestCase {
     let functions = MockFunctions.functions()
     let inputParameter = "input parameter"
     let expectedResult = "mockResult w/ parameters: \(inputParameter)"
-    functions.verifyParameters = { name, data, timeout  in
+    functions.verifyParameters = { name, data, timeout in
       XCTAssertEqual(name as String, "dummyFunction")
       XCTAssertEqual(data as? String, inputParameter)
       XCTAssertEqual(timeout as TimeInterval, kFunctionsTimeout)
@@ -121,7 +121,10 @@ class HTTPSCallableTests: XCTestCase {
       .store(in: &cancellables)
 
     // then
-    wait(for: [httpsFunctionWasCalledExpectation, functionWasCalledExpectation], timeout: expectationTimeout)
+    wait(
+      for: [httpsFunctionWasCalledExpectation, functionWasCalledExpectation],
+      timeout: expectationTimeout
+    )
   }
 
   func testCallWithParametersFailure() {
@@ -132,7 +135,7 @@ class HTTPSCallableTests: XCTestCase {
 
     let functions = MockFunctions.functions()
     let inputParameter = "input parameter"
-    functions.verifyParameters = { name, data, timeout  in
+    functions.verifyParameters = { name, data, timeout in
       XCTAssertEqual(name as String, "dummyFunction")
       XCTAssertEqual(data as? String, inputParameter)
       XCTAssertEqual(timeout as TimeInterval, kFunctionsTimeout)
@@ -160,6 +163,9 @@ class HTTPSCallableTests: XCTestCase {
       .store(in: &cancellables)
 
     // then
-    wait(for: [functionCallFailedExpectation, httpsFunctionWasCalledExpectation], timeout: expectationTimeout)
+    wait(
+      for: [functionCallFailedExpectation, httpsFunctionWasCalledExpectation],
+      timeout: expectationTimeout
+    )
   }
 }
