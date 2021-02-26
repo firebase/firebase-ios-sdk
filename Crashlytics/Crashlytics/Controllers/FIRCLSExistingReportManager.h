@@ -41,14 +41,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, readonly) NSUInteger unsentReportsCount;
 
-/**
- * This value needs to stay in sync with numUnsentReports, so if there is > 0 numUnsentReports,
- * newestUnsentReport needs to return a value. Otherwise it needs to return null.
- *
- * FIRCLSContext needs to be initialized before the FIRCrashlyticsReport is instantiated.
- */
-@property(nonatomic, readonly) FIRCrashlyticsReport *_Nullable newestUnsentReport;
-
 - (instancetype)initWithManagerData:(FIRCLSManagerData *)managerData
                      reportUploader:(FIRCLSReportUploader *)reportUploader;
 
@@ -62,6 +54,18 @@ NS_ASSUME_NONNULL_BEGIN
  * and we don't want to do that for the current run of the app.
  */
 - (void)collectExistingReports;
+
+/**
+ * This value needs to stay in sync with numUnsentReports, so if there is > 0 numUnsentReports,
+ * collectNewestReport needs to return a value. Otherwise it needs to return null.
+ *
+ * FIRCLSContext needs to be initialized before the FIRCrashlyticsReport is instantiated.
+ *
+ * This has the side effect of deleting any reports over the max, starting with oldest reports.
+ *
+ * This method is slow.
+ */
+- (FIRCrashlyticsReport *_Nullable)findNewestUnsentReport;
 
 /**
  * This is the side-effect of calling deleteUnsentReports, or collect_reports setting

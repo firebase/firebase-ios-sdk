@@ -17,10 +17,14 @@
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSReportUploader.h"
 #import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
 #import "Crashlytics/Crashlytics/Private/FIRCrashlyticsReport_Private.h"
 #import "Crashlytics/Crashlytics/Public/FirebaseCrashlytics/FIRCrashlyticsReport.h"
+
+// This value should stay in sync with the Android SDK
+const NSUInteger MAX_UNSENT_REPORTS = 4;
 
 @interface FIRCLSExistingReportManager ()
 
@@ -65,7 +69,7 @@ NSInteger compareOlder(FIRCLSInternalReport *reportA,
   self.preparedReportPaths = self.fileManager.preparedPathContents;
 }
 
-- (FIRCrashlyticsReport *)newestUnsentReport {
+- (FIRCrashlyticsReport *)findNewestUnsentReport {
   if (self.unsentReportsCount <= 0) {
     return nil;
   }
@@ -82,7 +86,21 @@ NSInteger compareOlder(FIRCLSInternalReport *reportA,
     [validReports addObject:report];
   }
 
+  // Sort with the newest at the end
   [validReports sortUsingFunction:compareOlder context:nil];
+
+  // Delete any reports above the limit, starting with the oldest
+  // which should be at the start of the array.
+  if (validReports.count > MAX_UNSENT_REPORTS) {
+    NSUInteger deletingCount = validReports.count - MAX_UNSENT_REPORTS;
+    FIRCLSInfoLog(@"Deleting %lu unsent reports over the limit of %lu to prevent disk space from filling up. To prevent this make sure to call send/deleteUnsentReports.", deletingCount, MAX_UNSENT_REPORTS);
+    for (int i = 0; i < deletingCount; i++) {
+      [self.operationQueue addOperationWithBlock:^{
+        NSString *path = [[validReports objectAtIndex:i] path];
+        [self.fileManager removeItemAtPath:path];
+      }];
+    }
+  }
 
   FIRCLSInternalReport *_Nullable internalReport = [validReports lastObject];
   return [[FIRCrashlyticsReport alloc] initWithInternalReport:internalReport];

@@ -1,5 +1,6 @@
 # Unreleased
 - [added] Added a new API checkAndUpdateUnsentReportsWithCompletion for updating the crash report from the previous run of the app if, for example, the developer wants to implement a feedback dialog to ask end-users for more information. Unsent Crashlytics Reports have familiar methods like setting custom keys and logs.
+- [changed] Added a limit to the number of unsent reports on disk to prevent disk filling up when automatic data collection is off. Developers can ensure this limit is never reached by calling send/deleteUnsentReports every run.
 
 # v7.6.0
 - [fixed] Fixed an issue where some developers experienced a race condition involving binary image operations (#7459).
