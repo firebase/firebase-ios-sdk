@@ -1,4 +1,8 @@
-# unreleased
+# Unreleased
+- [fixed] Store fetch metadata per namespace to address activation issues. (#7179)
+- [fixed] Only update experiment data for `firebase` namespace fetch requests to ensure correct experiment exposures. (#7604)
+
+# v7.7.0
 - [added] Added community support for watchOS. (#7481)
 
 # v7.6.0

@@ -92,10 +92,12 @@
 
   UIAlertController *alertVC = [UIAlertController
       alertControllerWithTitle:@"Got Dynamic Link!"
-                       message:[NSString stringWithFormat:
-                                             @"URL [%@], matchType [%ld], minimumAppVersion [%@]",
-                                             dynamicLink.url, (unsigned long)dynamicLink.matchType,
-                                             dynamicLink.minimumAppVersion]
+                       message:[NSString stringWithFormat:@"URL [%@], matchType [%ld], "
+                                                          @"minimumAppVersion [%@], utmParams [%@]",
+                                                          dynamicLink.url,
+                                                          (unsigned long)dynamicLink.matchType,
+                                                          dynamicLink.minimumAppVersion,
+                                                          dynamicLink.utmParametersDictionary]
                 preferredStyle:UIAlertControllerStyleAlert];
   [alertVC addAction:[UIAlertAction actionWithTitle:@"Dismiss"
                                               style:UIAlertActionStyleCancel

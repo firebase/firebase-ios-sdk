@@ -81,9 +81,9 @@
 
 typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   RCNTestRCInstanceDefault,
-  RCNTestRCNumTotalInstances,  // TODO(mandard): Remove once OCMock issue is resolved (#4877).
   RCNTestRCInstanceSecondNamespace,
   RCNTestRCInstanceSecondApp,
+  RCNTestRCNumTotalInstances
 };
 
 @interface RCNRemoteConfigTest : XCTestCase {
@@ -457,6 +457,54 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     };
     [_configInstances[i] fetchWithExpirationDuration:43200 completionHandler:fetchCompletion];
   }
+  [self waitForExpectationsWithTimeout:_expectationTimeout
+                               handler:^(NSError *error) {
+                                 XCTAssertNil(error);
+                               }];
+}
+
+- (void)testFetch3pNamespaceUpdatesExperiments {
+  [[_experimentMock expect] updateExperimentsWithResponse:[OCMArg any]];
+
+  XCTestExpectation *expectation = [self
+      expectationWithDescription:
+          [NSString
+              stringWithFormat:@"Fetch call for 'firebase' namespace updates experiment data"]];
+  XCTAssertEqual(_configInstances[RCNTestRCInstanceDefault].lastFetchStatus,
+                 FIRRemoteConfigFetchStatusNoFetchYet);
+  FIRRemoteConfigFetchCompletion fetchCompletion =
+      ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
+        XCTAssertEqual(self->_configInstances[RCNTestRCInstanceDefault].lastFetchStatus,
+                       FIRRemoteConfigFetchStatusSuccess);
+        XCTAssertNil(error);
+        [expectation fulfill];
+      };
+  [_configInstances[RCNTestRCInstanceDefault] fetchWithExpirationDuration:43200
+                                                        completionHandler:fetchCompletion];
+  [self waitForExpectationsWithTimeout:_expectationTimeout
+                               handler:^(NSError *error) {
+                                 XCTAssertNil(error);
+                               }];
+}
+
+- (void)testFetchOtherNamespaceDoesntUpdateExperiments {
+  [[_experimentMock reject] updateExperimentsWithResponse:[OCMArg any]];
+
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:
+                [NSString stringWithFormat:@"Fetch call for namespace other than 'firebase' "
+                                           @"doesn't update experiment data"]];
+  XCTAssertEqual(_configInstances[RCNTestRCInstanceSecondNamespace].lastFetchStatus,
+                 FIRRemoteConfigFetchStatusNoFetchYet);
+  FIRRemoteConfigFetchCompletion fetchCompletion =
+      ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
+        XCTAssertEqual(self->_configInstances[RCNTestRCInstanceSecondNamespace].lastFetchStatus,
+                       FIRRemoteConfigFetchStatusSuccess);
+        XCTAssertNil(error);
+        [expectation fulfill];
+      };
+  [_configInstances[RCNTestRCInstanceSecondNamespace] fetchWithExpirationDuration:43200
+                                                                completionHandler:fetchCompletion];
   [self waitForExpectationsWithTimeout:_expectationTimeout
                                handler:^(NSError *error) {
                                  XCTAssertNil(error);
@@ -1323,10 +1371,12 @@ static NSString *UTCToLocal(NSString *utcTime) {
 }
 
 - (FIROptions *)secondAppOptions {
-  FIROptions *options =
-      [[FIROptions alloc] initWithContentsOfFile:[[NSBundle bundleForClass:[self class]]
-                                                     pathForResource:@"SecondApp-GoogleService-Info"
-                                                              ofType:@"plist"]];
+  NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+#if SWIFT_PACKAGE
+  bundle = Firebase_RemoteConfigUnit_SWIFTPM_MODULE_BUNDLE();
+#endif
+  NSString *plistPath = [bundle pathForResource:@"SecondApp-GoogleService-Info" ofType:@"plist"];
+  FIROptions *options = [[FIROptions alloc] initWithContentsOfFile:plistPath];
   XCTAssertNotNil(options);
   return options;
 }

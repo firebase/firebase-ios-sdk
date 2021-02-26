@@ -24,6 +24,7 @@ extension Constants {
   static let dependencyLineSeparators = CharacterSet(charactersIn: " ,/")
   static let podSources = [
     "https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsTesting",
+    "https://github.com/firebase/SpecsDev.git",
     "https://github.com/firebase/SpecsStaging.git",
     "https://cdn.cocoapods.org/",
   ]

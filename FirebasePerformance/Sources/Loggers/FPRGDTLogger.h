@@ -19,7 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class FPRMSGPerfMetric;
 
 /** Logger used to dispatch events to Google Data Transport layer. */
-@interface FPRGDTCCLogger : NSObject
+@interface FPRGDTLogger : NSObject
 
 /** Log source initialized against. */
 @property(nonatomic, readonly) NSInteger logSource;
@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Instantiates an instance of this class.
  *
  * @param logSource The log source for this logger to be used.
- * @return Instance of FPRGDTCCLogger.
+ * @return Instance of FPRGDTLogger.
  */
 - (instancetype)initWithLogSource:(NSInteger)logSource NS_DESIGNATED_INITIALIZER;
 
