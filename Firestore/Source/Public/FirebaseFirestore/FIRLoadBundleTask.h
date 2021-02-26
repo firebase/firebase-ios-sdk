@@ -33,8 +33,8 @@ NS_SWIFT_NAME(LoadBundleTaskProgress)
 
 @property(readonly, nonatomic) NSInteger documentsLoaded;
 @property(readonly, nonatomic) NSInteger totalDocuments;
-@property(readonly, nonatomic) NSUInteger bytesLoaded;
-@property(readonly, nonatomic) NSUInteger totalBytes;
+@property(readonly, nonatomic) NSInteger bytesLoaded;
+@property(readonly, nonatomic) NSInteger totalBytes;
 
 @property(readonly, nonatomic) FIRLoadBundleTaskState state;
 

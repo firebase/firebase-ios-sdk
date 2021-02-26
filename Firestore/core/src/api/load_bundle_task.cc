@@ -21,35 +21,33 @@
 
 #include "Firestore/core/src/util/autoid.h"
 #include "Firestore/core/src/util/hard_assert.h"
+#include "absl/algorithm/container.h"
 
 namespace firebase {
 namespace firestore {
 namespace api {
 
-LoadBundleHandle LoadBundleTask::ObserveState(LoadBundleTaskState state,
-                                              ProgressObserver callback) {
+LoadBundleTask::LoadBundleHandle LoadBundleTask::ObserveState(
+    LoadBundleTaskState state, ProgressObserver observer) {
   std::lock_guard<std::mutex> lock(mutex_);
 
-  HandleObservers& callbacks = GetObservers(state);
-  const auto& handle = util::CreateAutoId();
-  callbacks.push_back({handle, std::move(callback)});
+  HandleObservers& observers = GetObservers(state);
+  auto handle = util::CreateAutoId();
+  observers.push_back({handle, std::move(observer)});
 
   return handle;
 }
 
-void LoadBundleTask::RemoveObserver(LoadBundleHandle handle) {
+void LoadBundleTask::RemoveObserver(const LoadBundleHandle& handle) {
   std::lock_guard<std::mutex> lock(mutex_);
 
-  for (auto& callbacks : observers_by_states_) {
-    auto found = callbacks.end();
-    for (auto iter = callbacks.begin(); iter < callbacks.end(); ++iter) {
-      if (iter->first == handle) {
-        found = iter;
-        break;
-      }
-    }
-    if (found != callbacks.end()) {
-      callbacks.erase(found);
+  for (auto& observers : observers_by_states_) {
+    auto found = absl::c_find_if(
+        observers, [&](const HandleObservers::value_type& observer) {
+          return observer.first == handle;
+        });
+    if (found != observers.end()) {
+      observers.erase(found);
     }
   }
 }
@@ -57,61 +55,63 @@ void LoadBundleTask::RemoveObserver(LoadBundleHandle handle) {
 void LoadBundleTask::RemoveObservers(LoadBundleTaskState state) {
   std::lock_guard<std::mutex> lock(mutex_);
 
-  HandleObservers& callbacks = GetObservers(state);
-  callbacks.clear();
+  HandleObservers& observers = GetObservers(state);
+  observers.clear();
 }
 
 void LoadBundleTask::RemoveAllObservers() {
   std::lock_guard<std::mutex> lock(mutex_);
 
-  for (auto& callbacks : observers_by_states_) {
-    callbacks.clear();
+  for (auto& observers : observers_by_states_) {
+    observers.clear();
   }
 }
 
 void LoadBundleTask::SetSuccess(LoadBundleTaskProgress success_progress) {
-  HARD_ASSERT(success_progress.state() == LoadBundleTaskState::Success,
+  HARD_ASSERT(success_progress.state() == LoadBundleTaskState::kSuccess,
               "Calling SetSuccess() with a state that is not 'Success'");
   std::lock_guard<std::mutex> lock(mutex_);
 
   progress_snapshot_ = success_progress;
-  const auto& callbacks = GetObservers(LoadBundleTaskState::Success);
-  ExecuteCallbacks(callbacks);
 
-  const auto& progress_callbacks =
-      GetObservers(LoadBundleTaskState::InProgress);
-  ExecuteCallbacks(progress_callbacks);
+  for (auto state :
+       {LoadBundleTaskState::kInProgress, LoadBundleTaskState::kSuccess}) {
+    const auto& observers = GetObservers(state);
+    NotifyObservers(observers);
+  }
 }
 
 void LoadBundleTask::SetError() {
   std::lock_guard<std::mutex> lock(mutex_);
 
-  progress_snapshot_.set_state(LoadBundleTaskState::Error);
-  const auto& callbacks = GetObservers(LoadBundleTaskState::Error);
-  ExecuteCallbacks(callbacks);
+  progress_snapshot_.set_state(LoadBundleTaskState::kError);
 
-  const auto& progress_callbacks =
-      GetObservers(LoadBundleTaskState::InProgress);
-  ExecuteCallbacks(progress_callbacks);
+  for (auto state :
+       {LoadBundleTaskState::kInProgress, LoadBundleTaskState::kError}) {
+    const auto& observers = GetObservers(state);
+    NotifyObservers(observers);
+  }
 }
 
 void LoadBundleTask::UpdateProgress(LoadBundleTaskProgress progress) {
   std::lock_guard<std::mutex> lock(mutex_);
 
   progress_snapshot_ = progress;
-  const auto& callbacks = GetObservers(LoadBundleTaskState::InProgress);
-  ExecuteCallbacks(callbacks);
+  const auto& observers = GetObservers(LoadBundleTaskState::kInProgress);
+  NotifyObservers(observers);
 }
 
-void LoadBundleTask::ExecuteCallbacks(const HandleObservers& callbacks) {
-  for (const auto& entry : callbacks) {
-    const auto& callback = entry.second;
-    user_executor_->Execute([=] { callback(progress_snapshot_); });
+void LoadBundleTask::NotifyObservers(const HandleObservers& observers) {
+  for (const auto& entry : observers) {
+    const auto& observer = entry.second;
+    const auto& progress = progress_snapshot_;
+    user_executor_->Execute([observer, progress] { observer(progress); });
   }
 }
 
-HandleObservers& LoadBundleTask::GetObservers(LoadBundleTaskState state) {
-  return observers_by_states_.at(static_cast<uint64_t>(state));
+LoadBundleTask::HandleObservers& LoadBundleTask::GetObservers(
+    LoadBundleTaskState state) {
+  return observers_by_states_.at(static_cast<int>(state));
 }
 
 }  // namespace api

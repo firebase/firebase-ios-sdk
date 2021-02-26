@@ -18,9 +18,11 @@
 
 #include <array>
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <mutex>  // NOLINT(build/c++11)
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "Firestore/core/src/util/executor.h"
@@ -32,16 +34,15 @@ namespace api {
 /**
  * Represents the state of bundle loading tasks.
  *
- * Both `Success` and `Error` are final states: task will abort
+ * Both `kSuccess` and `kError` are final states: task will abort
  * or complete and there will be no more updates after they are reported.
  */
-enum class LoadBundleTaskState { Error = 0, InProgress = 1, Success = 2 };
+enum class LoadBundleTaskState { kError = 0, kInProgress = 1, kSuccess = 2 };
 
 /** Represents a progress update or a final state from loading bundles. */
 class LoadBundleTaskProgress {
  public:
-  LoadBundleTaskProgress() {
-  }
+  LoadBundleTaskProgress() = default;
   LoadBundleTaskProgress(uint32_t documents_loaded,
                          uint32_t total_documents,
                          uint64_t bytes_loaded,
@@ -72,8 +73,10 @@ class LoadBundleTaskProgress {
     return bytes_loaded_;
   }
 
-  /** Returns the total number of bytes in the bundle. Returns 0 if the bundle
-   * failed to parse. */
+  /**
+   * Returns the total number of bytes in the bundle. Returns 0 if the bundle
+   * failed to parse.
+   */
   uint64_t total_bytes() const {
     return total_bytes_;
   }
@@ -93,7 +96,7 @@ class LoadBundleTaskProgress {
   uint64_t bytes_loaded_ = 0;
   uint64_t total_bytes_ = 0;
 
-  LoadBundleTaskState state_ = LoadBundleTaskState::InProgress;
+  LoadBundleTaskState state_ = LoadBundleTaskState::kInProgress;
 };
 
 inline bool operator==(const LoadBundleTaskProgress lhs,
@@ -110,22 +113,18 @@ inline bool operator!=(const LoadBundleTaskProgress lhs,
   return !(lhs == rhs);
 }
 
-/** A handle used to lookup and remove observer from the task. */
-using LoadBundleHandle = std::string;
-
-/** Observer type that is called by the task when there is an update. */
-using ProgressObserver = std::function<void(LoadBundleTaskProgress)>;
-
-/** Holds the `LoadBundleHandle` to `ProgressObserver` mapping. */
-using HandleObservers =
-    std::vector<std::pair<LoadBundleHandle, ProgressObserver>>;
-
 /**
  * Represents the task of loading a Firestore bundle. It provides progress of
  * bundle loading, as well as task completion and error events.
  */
 class LoadBundleTask {
  public:
+  /** A handle used to look up and remove observer from the task. */
+  using LoadBundleHandle = std::string;
+
+  /** Observer type that is called by the task when there is an update. */
+  using ProgressObserver = std::function<void(LoadBundleTaskProgress)>;
+
   explicit LoadBundleTask(std::shared_ptr<util::Executor> user_executor)
       : user_executor_(std::move(user_executor)) {
   }
@@ -133,6 +132,8 @@ class LoadBundleTask {
   /**
    * Instructs the task to notify the specified observer when there is a
    * progress update with the given `LoadBundleTaskState`.
+   *
+   * TODO: Add ordering guarantee.
    *
    * @return A handle that can be used to remove the callback from this task.
    */
@@ -143,7 +144,7 @@ class LoadBundleTask {
    * Removes the observer associated with the given handle, does nothing if the
    * callback cannot be found.
    */
-  void RemoveObserver(LoadBundleHandle);
+  void RemoveObserver(const LoadBundleHandle&);
 
   /**
    * Removes all observers associated with the given `LoadBundleTaskState`.
@@ -171,11 +172,15 @@ class LoadBundleTask {
   void UpdateProgress(LoadBundleTaskProgress progress);
 
  private:
+  /** Holds the `LoadBundleHandle` to `ProgressObserver` mapping. */
+  using HandleObservers =
+      std::vector<std::pair<LoadBundleHandle, ProgressObserver>>;
+
   /** Gets all observers associated with the given state. */
   HandleObservers& GetObservers(LoadBundleTaskState state);
 
   /** Notifies all given observers. */
-  void ExecuteCallbacks(const HandleObservers& observers);
+  void NotifyObservers(const HandleObservers& observers);
 
   /** The executor to run all observers when notified. */
   std::shared_ptr<util::Executor> user_executor_;

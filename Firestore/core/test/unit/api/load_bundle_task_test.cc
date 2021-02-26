@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#include <chrono>
-#include <mutex>  // NOLINT(build/c++11)
+#include <chrono>  // NOLINT(build/c++11)
+#include <mutex>   // NOLINT(build/c++11)
 #include <queue>
-#include <thread>
+#include <thread>  // NOLINT(build/c++11)
 
 #include "Firestore/core/src/api/load_bundle_task.h"
 #include "Firestore/core/src/util/executor.h"
@@ -26,6 +26,20 @@
 namespace firebase {
 namespace firestore {
 namespace api {
+namespace {
+
+std::unique_ptr<util::Executor> CreateUserQueue() {
+  return util::Executor::CreateSerial("Testing User Queue");
+}
+
+class LoadBundleTaskTest : public ::testing::Test {
+ public:
+  LoadBundleTaskTest() : task(CreateUserQueue()) {
+  }
+
+ protected:
+  LoadBundleTask task;
+};
 
 // A very naive implementation of blocking queue, only blocks on `pop()` though.
 template <typename T>
@@ -42,7 +56,6 @@ class BlockingQueue {
   }
 
   T pop() {
-    // Spin locks, works for our purpose ¯\_(ツ)_/¯
     while (true) {
       std::this_thread::sleep_for(std::chrono::milliseconds(5));
       std::lock_guard<std::mutex> lock(mutex_);
@@ -59,50 +72,44 @@ class BlockingQueue {
   mutable std::mutex mutex_;
 };
 
-std::unique_ptr<util::Executor> CreateUserQueue() {
-  return util::Executor::CreateSerial("Testing User Queue");
-}
-
 LoadBundleTaskProgress SuccessProgress() {
   return {/*documents_loaded=*/2,
           /*total_documents=*/2,
           /*bytes_loaded=*/10,
-          /*total_bytes=*/10, LoadBundleTaskState::Success};
+          /*total_bytes=*/10, LoadBundleTaskState::kSuccess};
 }
 
 LoadBundleTaskProgress ErrorProgress() {
   return {/*documents_loaded=*/0,
           /*total_documents=*/0,
           /*bytes_loaded=*/0,
-          /*total_bytes=*/0, LoadBundleTaskState::Error};
+          /*total_bytes=*/0, LoadBundleTaskState::kError};
 }
 
 LoadBundleTaskProgress Progress(uint32_t documents_loaded,
                                 uint64_t bytes_loaded) {
   return {documents_loaded, /*total_documents=*/2, bytes_loaded,
-          /*total_bytes=*/10, LoadBundleTaskState::InProgress};
+          /*total_bytes=*/10, LoadBundleTaskState::kInProgress};
 }
 
 LoadBundleTaskProgress InitialProgress() {
   return Progress(/*documents_loaded=*/0, /*bytes_loaded=*/0);
 }
 
-TEST(LoadBundleTaskTest, SuccessObserveTriggers) {
-  LoadBundleTask task(CreateUserQueue());
+TEST_F(LoadBundleTaskTest, SuccessObserveTriggers) {
   BlockingQueue<int> queue;
 
-  auto handle1 = task.ObserveState(LoadBundleTaskState::Success,
+  auto handle1 = task.ObserveState(LoadBundleTaskState::kSuccess,
                                    [&](LoadBundleTaskProgress p) {
                                      EXPECT_EQ(p, SuccessProgress());
                                      queue.push(1);
                                    });
-  auto handle2 = task.ObserveState(LoadBundleTaskState::Success,
+  auto handle2 = task.ObserveState(LoadBundleTaskState::kSuccess,
                                    [&](LoadBundleTaskProgress p) {
                                      EXPECT_EQ(p, SuccessProgress());
-                                     (void)p;
                                      queue.push(2);
                                    });
-  auto handle3 = task.ObserveState(LoadBundleTaskState::Success,
+  auto handle3 = task.ObserveState(LoadBundleTaskState::kSuccess,
                                    [&](LoadBundleTaskProgress p) {
                                      EXPECT_EQ(p, SuccessProgress());
                                      queue.push(3);
@@ -115,18 +122,17 @@ TEST(LoadBundleTaskTest, SuccessObserveTriggers) {
   EXPECT_EQ(3, queue.pop());
 }
 
-TEST(LoadBundleTaskTest, RemovesObserverByHandle) {
-  LoadBundleTask task(CreateUserQueue());
+TEST_F(LoadBundleTaskTest, RemovesObserverByHandle) {
   BlockingQueue<int> queue;
 
-  auto handle1 = task.ObserveState(LoadBundleTaskState::Success,
+  auto handle1 = task.ObserveState(LoadBundleTaskState::kSuccess,
                                    [&](LoadBundleTaskProgress p) {
                                      (void)p;
                                      FAIL() << "Removed observer is called.";
                                    });
   task.RemoveObserver(handle1);
 
-  auto handle2 = task.ObserveState(LoadBundleTaskState::Success,
+  auto handle2 = task.ObserveState(LoadBundleTaskState::kSuccess,
                                    [&](LoadBundleTaskProgress p) {
                                      EXPECT_EQ(p, SuccessProgress());
                                      queue.push(1);
@@ -137,23 +143,22 @@ TEST(LoadBundleTaskTest, RemovesObserverByHandle) {
   EXPECT_EQ(1, queue.pop());
 }
 
-TEST(LoadBundleTaskTest, ErrorObserveTriggers) {
+TEST_F(LoadBundleTaskTest, ErrorObserveTriggers) {
   auto error_progress = ErrorProgress();
-  LoadBundleTask task(CreateUserQueue());
   BlockingQueue<int> queue;
 
-  auto handle1 = task.ObserveState(LoadBundleTaskState::Error,
+  auto handle1 = task.ObserveState(LoadBundleTaskState::kError,
                                    [&](LoadBundleTaskProgress p) {
                                      EXPECT_EQ(p, error_progress);
                                      queue.push(1);
                                    });
-  auto handle2 = task.ObserveState(LoadBundleTaskState::Error,
+  auto handle2 = task.ObserveState(LoadBundleTaskState::kError,
                                    [&](LoadBundleTaskProgress p) {
                                      EXPECT_EQ(p, error_progress);
                                      (void)p;
                                      queue.push(2);
                                    });
-  auto handle3 = task.ObserveState(LoadBundleTaskState::Error,
+  auto handle3 = task.ObserveState(LoadBundleTaskState::kError,
                                    [&](LoadBundleTaskProgress p) {
                                      EXPECT_EQ(p, error_progress);
                                      queue.push(3);
@@ -166,20 +171,18 @@ TEST(LoadBundleTaskTest, ErrorObserveTriggers) {
   EXPECT_EQ(3, queue.pop());
 }
 
-TEST(LoadBundleTaskTest, RemovesObserverByState) {
-  LoadBundleTask task(CreateUserQueue());
-
-  auto handle1 = task.ObserveState(LoadBundleTaskState::Error,
+TEST_F(LoadBundleTaskTest, RemovesObserverByState) {
+  auto handle1 = task.ObserveState(LoadBundleTaskState::kError,
                                    [&](LoadBundleTaskProgress p) {
                                      (void)p;
                                      FAIL() << "Removed observer is called.";
                                    });
-  task.RemoveObservers(LoadBundleTaskState::Error);
+  task.RemoveObservers(LoadBundleTaskState::kError);
   task.SetError();
 
   BlockingQueue<int> queue;
   auto error_progress = ErrorProgress();
-  auto handle2 = task.ObserveState(LoadBundleTaskState::Error,
+  auto handle2 = task.ObserveState(LoadBundleTaskState::kError,
                                    [&](LoadBundleTaskProgress p) {
                                      EXPECT_EQ(p, error_progress);
                                      queue.push(1);
@@ -190,47 +193,44 @@ TEST(LoadBundleTaskTest, RemovesObserverByState) {
   EXPECT_EQ(1, queue.pop());
 }
 
-TEST(LoadBundleTaskTest, ProgressObserveTriggers) {
-  LoadBundleTask task(CreateUserQueue());
+TEST_F(LoadBundleTaskTest, ProgressObserveTriggers) {
   BlockingQueue<int> queue;
-
-  auto handle1 = task.ObserveState(LoadBundleTaskState::InProgress,
+  auto progress = Progress(1, 5);
+  auto handle1 = task.ObserveState(LoadBundleTaskState::kInProgress,
                                    [&](LoadBundleTaskProgress p) {
-                                     EXPECT_EQ(p, Progress(1, 5));
+                                     EXPECT_EQ(p, progress);
                                      queue.push(1);
                                    });
-  auto handle2 = task.ObserveState(LoadBundleTaskState::InProgress,
+  auto handle2 = task.ObserveState(LoadBundleTaskState::kInProgress,
                                    [&](LoadBundleTaskProgress p) {
-                                     EXPECT_EQ(p, Progress(1, 5));
+                                     EXPECT_EQ(p, progress);
                                      queue.push(2);
                                    });
-  auto handle3 = task.ObserveState(LoadBundleTaskState::InProgress,
+  auto handle3 = task.ObserveState(LoadBundleTaskState::kInProgress,
                                    [&](LoadBundleTaskProgress p) {
-                                     EXPECT_EQ(p, Progress(1, 5));
+                                     EXPECT_EQ(p, progress);
                                      queue.push(3);
                                    });
 
-  task.UpdateProgress(Progress(1, 5));
+  task.UpdateProgress(progress);
 
   EXPECT_EQ(1, queue.pop());
   EXPECT_EQ(2, queue.pop());
   EXPECT_EQ(3, queue.pop());
 }
 
-TEST(LoadBundleTaskTest, RemovesAllObservers) {
-  LoadBundleTask task(CreateUserQueue());
-
-  auto handle1 = task.ObserveState(LoadBundleTaskState::InProgress,
+TEST_F(LoadBundleTaskTest, RemovesAllObservers) {
+  auto handle1 = task.ObserveState(LoadBundleTaskState::kInProgress,
                                    [&](LoadBundleTaskProgress p) {
                                      (void)p;
                                      FAIL() << "Removed observer is called.";
                                    });
-  auto handle2 = task.ObserveState(LoadBundleTaskState::InProgress,
+  auto handle2 = task.ObserveState(LoadBundleTaskState::kInProgress,
                                    [&](LoadBundleTaskProgress p) {
                                      (void)p;
                                      FAIL() << "Removed observer is called.";
                                    });
-  auto handle3 = task.ObserveState(LoadBundleTaskState::Error,
+  auto handle3 = task.ObserveState(LoadBundleTaskState::kError,
                                    [&](LoadBundleTaskProgress p) {
                                      (void)p;
                                      FAIL() << "Removed observer is called.";
@@ -241,7 +241,7 @@ TEST(LoadBundleTaskTest, RemovesAllObservers) {
   task.SetError();
 
   BlockingQueue<int> queue;
-  auto handle4 = task.ObserveState(LoadBundleTaskState::Success,
+  auto handle4 = task.ObserveState(LoadBundleTaskState::kSuccess,
                                    [&](LoadBundleTaskProgress p) {
                                      EXPECT_EQ(p, SuccessProgress());
                                      queue.push(1);
@@ -251,24 +251,14 @@ TEST(LoadBundleTaskTest, RemovesAllObservers) {
   EXPECT_EQ(1, queue.pop());
 }
 
-TEST(LoadBundleTaskTest, ProgressesFireInOrder) {
-  LoadBundleTask task(CreateUserQueue());
+TEST_F(LoadBundleTaskTest, ProgressesFireInOrder) {
   BlockingQueue<int> queue;
-  task.ObserveState(LoadBundleTaskState::InProgress,
-                    [&](LoadBundleTaskProgress p) {
-                      (void)p;
-                      queue.push(1);
-                    });
-  task.ObserveState(LoadBundleTaskState::InProgress,
-                    [&](LoadBundleTaskProgress p) {
-                      (void)p;
-                      queue.push(2);
-                    });
-  task.ObserveState(LoadBundleTaskState::InProgress,
-                    [&](LoadBundleTaskProgress p) {
-                      (void)p;
-                      queue.push(3);
-                    });
+  task.ObserveState(LoadBundleTaskState::kInProgress,
+                    [&](LoadBundleTaskProgress) { queue.push(1); });
+  task.ObserveState(LoadBundleTaskState::kInProgress,
+                    [&](LoadBundleTaskProgress) { queue.push(2); });
+  task.ObserveState(LoadBundleTaskState::kInProgress,
+                    [&](LoadBundleTaskProgress) { queue.push(3); });
 
   task.SetSuccess(SuccessProgress());
 
@@ -277,16 +267,15 @@ TEST(LoadBundleTaskTest, ProgressesFireInOrder) {
   EXPECT_EQ(3, queue.pop());
 }
 
-TEST(LoadBundleTaskTest, ProgressObserverCanAddObserver) {
-  LoadBundleTask task(CreateUserQueue());
+TEST_F(LoadBundleTaskTest, ProgressObserverCanAddObserver) {
   BlockingQueue<int> queue;
 
-  task.ObserveState(LoadBundleTaskState::InProgress,
+  task.ObserveState(LoadBundleTaskState::kInProgress,
                     [&](LoadBundleTaskProgress p) {
                       (void)p;
                       queue.push(1);
 
-                      task.ObserveState(LoadBundleTaskState::InProgress,
+                      task.ObserveState(LoadBundleTaskState::kInProgress,
                                         [&](LoadBundleTaskProgress p) {
                                           (void)p;
                                           queue.push(2);
@@ -301,24 +290,23 @@ TEST(LoadBundleTaskTest, ProgressObserverCanAddObserver) {
   EXPECT_EQ(2, queue.pop());
 }
 
-TEST(LoadBundleTaskTest, ProgressObserverCanRemoveObserver) {
-  LoadBundleTask task(CreateUserQueue());
+TEST_F(LoadBundleTaskTest, ProgressObserverCanRemoveObserver) {
   BlockingQueue<int> queue;
 
-  LoadBundleHandle handle1;
-  LoadBundleHandle handle2;
+  LoadBundleTask::LoadBundleHandle handle1;
+  LoadBundleTask::LoadBundleHandle handle2;
   handle1 = task.ObserveState(
-      LoadBundleTaskState::InProgress, [&](LoadBundleTaskProgress p) {
+      LoadBundleTaskState::kInProgress, [&](LoadBundleTaskProgress p) {
         (void)p;
         queue.push(1);
         task.RemoveObserver(handle1);
 
         handle2 = task.ObserveState(
-            LoadBundleTaskState::InProgress, [&](LoadBundleTaskProgress p) {
+            LoadBundleTaskState::kInProgress, [&](LoadBundleTaskProgress p) {
               (void)p;
               queue.push(2);
               // handle3
-              task.ObserveState(LoadBundleTaskState::InProgress,
+              task.ObserveState(LoadBundleTaskState::kInProgress,
                                 [&](LoadBundleTaskProgress p) {
                                   (void)p;
                                   queue.push(3);
@@ -348,10 +336,9 @@ TEST(LoadBundleTaskTest, ProgressObserverCanRemoveObserver) {
   EXPECT_TRUE(queue.empty());
 }
 
-TEST(LoadBundleTaskTest, ProgressObservesUntilSuccess) {
-  LoadBundleTask task(CreateUserQueue());
+TEST_F(LoadBundleTaskTest, ProgressObservesUntilSuccess) {
   BlockingQueue<LoadBundleTaskProgress> queue;
-  task.ObserveState(LoadBundleTaskState::InProgress,
+  task.ObserveState(LoadBundleTaskState::kInProgress,
                     [&](LoadBundleTaskProgress p) { queue.push(p); });
 
   task.UpdateProgress(InitialProgress());
@@ -366,10 +353,9 @@ TEST(LoadBundleTaskTest, ProgressObservesUntilSuccess) {
   EXPECT_TRUE(queue.empty());
 }
 
-TEST(LoadBundleTaskTest, ProgressObservesUntilError) {
-  LoadBundleTask task(CreateUserQueue());
+TEST_F(LoadBundleTaskTest, ProgressObservesUntilError) {
   BlockingQueue<LoadBundleTaskProgress> queue;
-  task.ObserveState(LoadBundleTaskState::InProgress,
+  task.ObserveState(LoadBundleTaskState::kInProgress,
                     [&](LoadBundleTaskProgress p) { queue.push(p); });
 
   task.UpdateProgress(InitialProgress());
@@ -380,36 +366,31 @@ TEST(LoadBundleTaskTest, ProgressObservesUntilError) {
 
   task.SetError();
   auto expected = Progress(2, 5);
-  expected.set_state(LoadBundleTaskState::Error);
+  expected.set_state(LoadBundleTaskState::kError);
   EXPECT_EQ(expected, queue.pop());
 
   EXPECT_TRUE(queue.empty());
 }
 
-TEST(LoadBundleTaskTest, ProgressObservesInitialError) {
-  LoadBundleTask task(CreateUserQueue());
+TEST_F(LoadBundleTaskTest, ProgressObservesInitialError) {
   BlockingQueue<LoadBundleTaskProgress> queue;
-  task.ObserveState(LoadBundleTaskState::InProgress,
+  task.ObserveState(LoadBundleTaskState::kInProgress,
                     [&](LoadBundleTaskProgress p) { queue.push(p); });
 
   task.SetError();
-  auto expected = LoadBundleTaskProgress();
-  expected.set_state(LoadBundleTaskState::Error);
-  EXPECT_EQ(expected, queue.pop());
 
+  EXPECT_EQ(ErrorProgress(), queue.pop());
   EXPECT_TRUE(queue.empty());
 }
 
-TEST(LoadBundleTaskTest, NoObserversAlsoWork) {
-  LoadBundleTask task(CreateUserQueue());
-
+TEST_F(LoadBundleTaskTest, NoObserversAlsoWork) {
   // No way to observe, simple checking no crashing happens.
-  task.UpdateProgress(InitialProgress());
-  task.UpdateProgress(Progress(2, 5));
-  task.SetSuccess(SuccessProgress());
-  task.SetError();
+  EXPECT_NO_THROW(task.UpdateProgress(InitialProgress());
+                  task.UpdateProgress(Progress(2, 5));
+                  task.SetSuccess(SuccessProgress()); task.SetError(););
 }
 
+}  // namespace
 }  // namespace api
 }  // namespace firestore
 }  // namespace firebase
