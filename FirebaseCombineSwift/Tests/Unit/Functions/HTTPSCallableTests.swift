@@ -19,11 +19,13 @@ import XCTest
 
 class MockFunctions: Functions {
   var mockCallFunction: () throws -> HTTPSCallableResult?
+  var mockVerifyParameter: ((_ data: Any?) throws -> Void)?
   override func callFunction(_ name: String,
                              with data: Any?,
                              timeout: TimeInterval,
                              completion: @escaping (HTTPSCallableResult?, Error?) -> Void) {
     do {
+      try mockVerifyParameter?(data)
       let result = try mockCallFunction()
       completion(result, nil)
     } catch {
@@ -36,12 +38,16 @@ class HTTPSCallableTests: XCTestCase {
   func testCallWithoutParametersSuccess() {
     // given
     var cancellables = Set<AnyCancellable>()
-    let funcationWasCalledExpectation = expectation(description: "Function was called")
+    let functionWasCalledExpectation = expectation(description: "Function was called")
+    functionWasCalledExpectation.assertForOverFulfill = true
+    let callbackWasCalledExpectation = expectation(description: "Callback was called")
 
     let functions = MockFunctions.functions()
     let expectedResult = "mockResult w/o parameters"
+
     functions.mockCallFunction = {
-      HTTPSCallableResult(data: expectedResult)
+      functionWasCalledExpectation.fulfill()
+      return HTTPSCallableResult(data: expectedResult)
     }
     let dummyFunction = functions.httpsCallable("dummyFunction")
 
@@ -61,12 +67,15 @@ class HTTPSCallableTests: XCTestCase {
         }
 
         XCTAssertEqual(result, expectedResult)
-        funcationWasCalledExpectation.fulfill()
+        callbackWasCalledExpectation.fulfill()
       }
       .store(in: &cancellables)
 
     // then
-    wait(for: [funcationWasCalledExpectation], timeout: expectationTimeout)
+    wait(
+      for: [callbackWasCalledExpectation, functionWasCalledExpectation],
+      timeout: expectationTimeout
+    )
   }
 
   func testCallWithParametersSuccess() {
@@ -77,6 +86,9 @@ class HTTPSCallableTests: XCTestCase {
     let functions = MockFunctions.functions()
     let inputParameter = "input parameter"
     let expectedResult = "mockResult w/ parameters: \(inputParameter)"
+    functions.mockVerifyParameter = { data in
+      XCTAssertEqual(data as? String, inputParameter)
+    }
     functions.mockCallFunction = {
       HTTPSCallableResult(data: expectedResult)
     }
