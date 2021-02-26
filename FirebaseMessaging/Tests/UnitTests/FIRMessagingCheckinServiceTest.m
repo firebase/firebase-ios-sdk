@@ -16,12 +16,12 @@
 
 #import <XCTest/XCTest.h>
 
-#import "SharedTestUtilities/URLSession/FIRURLSessionOCMockStub.h"
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
 #import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinPreferences.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinService.h"
 #import "OCMock.h"
+#import "SharedTestUtilities/URLSession/FIRURLSessionOCMockStub.h"
 
 static NSString *const kDeviceAuthId = @"1234";
 static NSString *const kSecretToken = @"567890";
@@ -47,10 +47,12 @@ static NSString *const kDeviceCheckinURL = @"https://device-provisioning.googlea
 - (void)setUp {
   [super setUp];
 
-  // Stub NSURLSession constructor before instantiating FIRMessagingCheckinService to inject URLSessionMock.
+  // Stub NSURLSession constructor before instantiating FIRMessagingCheckinService to inject
+  // URLSessionMock.
   // TODO: inject NSURLSession instance via an initializer.
   self.URLSessionMock = OCMClassMock([NSURLSession class]);
-  OCMStub(ClassMethod([self.URLSessionMock sessionWithConfiguration:[OCMArg any]])).andReturn(self.URLSessionMock);
+  OCMStub(ClassMethod([self.URLSessionMock sessionWithConfiguration:[OCMArg any]]))
+      .andReturn(self.URLSessionMock);
 
   self.checkinService = [[FIRMessagingCheckinService alloc] init];
 }
@@ -80,16 +82,15 @@ static NSString *const kDeviceCheckinURL = @"https://device-provisioning.googlea
   NSData *data = [NSJSONSerialization dataWithJSONObject:dataResponse
                                                  options:NSJSONWritingPrettyPrinted
                                                    error:nil];
-      [FIRURLSessionOCMockStub
-            stubURLSessionDataTaskWithResponse:expectedResponse
-                                          body:data
-                                         error:nil
-                                URLSessionMock:self.URLSessionMock
-                        requestValidationBlock:^BOOL(NSURLRequest *_Nonnull sentRequest) {
-        [self assertValidCheckinRequest:sentRequest expectedURL:expectedRequestURL];
-        return YES;
-
-                        }];
+  [FIRURLSessionOCMockStub
+      stubURLSessionDataTaskWithResponse:expectedResponse
+                                    body:data
+                                   error:nil
+                          URLSessionMock:self.URLSessionMock
+                  requestValidationBlock:^BOOL(NSURLRequest *_Nonnull sentRequest) {
+                    [self assertValidCheckinRequest:sentRequest expectedURL:expectedRequestURL];
+                    return YES;
+                  }];
 
   XCTestExpectation *checkinCompletionExpectation =
       [self expectationWithDescription:@"Checkin Completion"];
@@ -122,20 +123,19 @@ static NSString *const kDeviceCheckinURL = @"https://device-provisioning.googlea
   NSURL *expectedRequestURL = [NSURL URLWithString:kDeviceCheckinURL];
 
   NSHTTPURLResponse *failureResponse = [[NSHTTPURLResponse alloc] initWithURL:expectedRequestURL
-                                                                    statusCode:404
-                                                                   HTTPVersion:@"1.1"
-                                                                  headerFields:nil];
+                                                                   statusCode:404
+                                                                  HTTPVersion:@"1.1"
+                                                                 headerFields:nil];
 
   [FIRURLSessionOCMockStub
-        stubURLSessionDataTaskWithResponse:failureResponse
-                                      body:[@"Not Found" dataUsingEncoding:NSUTF8StringEncoding]
-                                     error:nil
-                            URLSessionMock:self.URLSessionMock
-                    requestValidationBlock:^BOOL(NSURLRequest *_Nonnull sentRequest) {
-    [self assertValidCheckinRequest:sentRequest expectedURL:expectedRequestURL];
-    return YES;
-
-                    }];
+      stubURLSessionDataTaskWithResponse:failureResponse
+                                    body:[@"Not Found" dataUsingEncoding:NSUTF8StringEncoding]
+                                   error:nil
+                          URLSessionMock:self.URLSessionMock
+                  requestValidationBlock:^BOOL(NSURLRequest *_Nonnull sentRequest) {
+                    [self assertValidCheckinRequest:sentRequest expectedURL:expectedRequestURL];
+                    return YES;
+                  }];
 
   XCTestExpectation *checkinCompletionExpectation =
       [self expectationWithDescription:@"Checkin Completion"];
@@ -168,15 +168,14 @@ static NSString *const kDeviceCheckinURL = @"https://device-provisioning.googlea
       [self expectationWithDescription:@"Checkin Completion"];
 
   [FIRURLSessionOCMockStub
-        stubURLSessionDataTaskWithResponse:nil
-                                      body:nil
-                                     error:error
-                            URLSessionMock:self.URLSessionMock
-                    requestValidationBlock:^BOOL(NSURLRequest *_Nonnull sentRequest) {
-    [self assertValidCheckinRequest:sentRequest expectedURL:expectedRequestURL];
-    return YES;
-
-                    }];
+      stubURLSessionDataTaskWithResponse:nil
+                                    body:nil
+                                   error:error
+                          URLSessionMock:self.URLSessionMock
+                  requestValidationBlock:^BOOL(NSURLRequest *_Nonnull sentRequest) {
+                    [self assertValidCheckinRequest:sentRequest expectedURL:expectedRequestURL];
+                    return YES;
+                  }];
 
   [self.checkinService
       checkinWithExistingCheckin:nil
@@ -214,7 +213,7 @@ static NSString *const kDeviceCheckinURL = @"https://device-provisioning.googlea
 
 - (void)assertValidCheckinRequest:(NSURLRequest *)request expectedURL:(NSURL *)expectedURL {
   XCTAssertEqualObjects(request.URL, expectedURL);
-  XCTAssertEqualObjects(request.allHTTPHeaderFields, @{ @"Content-Type": @"application/json"});
+  XCTAssertEqualObjects(request.allHTTPHeaderFields, @{@"Content-Type" : @"application/json"});
 
   // TODO: Validate body.
 }
