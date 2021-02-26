@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-//#import "SharedTestUtilities/URLSession/FIRURLSessionOCMockStub.h"
+#import "SharedTestUtilities/URLSession/FIRURLSessionOCMockStub.h"
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
 #import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinPreferences.h"
@@ -37,7 +37,6 @@ static NSString *const kDeviceCheckinURL = @"https://device-provisioning.googlea
 
 @interface FIRMessagingCheckinServiceTest : XCTestCase
 
-@property(nonatomic) NSURLSession *URLSession;
 @property(nonatomic) id URLSessionMock;
 @property(nonatomic) FIRMessagingCheckinService *checkinService;
 
@@ -47,23 +46,27 @@ static NSString *const kDeviceCheckinURL = @"https://device-provisioning.googlea
 
 - (void)setUp {
   [super setUp];
+
+  // Stub NSURLSession constructor before instantiating FIRMessagingCheckinService to inject URLSessionMock.
+  // TODO: inject NSURLSession instance via an initializer.
+  self.URLSessionMock = OCMClassMock([NSURLSession class]);
+  OCMStub(ClassMethod([self.URLSessionMock sessionWithConfiguration:[OCMArg any]])).andReturn(self.URLSessionMock);
+
   self.checkinService = [[FIRMessagingCheckinService alloc] init];
-  self.URLSession = self.checkinService.session;
-  self.URLSessionMock = OCMPartialMock(self.URLSession);
-  OCMStub([NSURLSession sessionWithConfiguration:[OCMArg any]]).andReturn(self.URLSessionMock);
 }
 
 - (void)tearDown {
   self.checkinService = nil;
+  [self.URLSessionMock stopMocking];
+  self.URLSessionMock = nil;
   [super tearDown];
 }
 
 - (void)testCheckinWithSuccessfulCompletion {
   FIRMessagingCheckinPreferences *existingCheckin = [self stubCheckinCacheWithValidData];
-  NSURL *url = [NSURL URLWithString:kDeviceCheckinURL];
-  NSURLRequest *request = [NSURLRequest requestWithURL:url];
+  NSURL *expectedRequestURL = [NSURL URLWithString:kDeviceCheckinURL];
 
-  NSHTTPURLResponse *expectedResponse = [[NSHTTPURLResponse alloc] initWithURL:url
+  NSHTTPURLResponse *expectedResponse = [[NSHTTPURLResponse alloc] initWithURL:expectedRequestURL
                                                                     statusCode:200
                                                                    HTTPVersion:@"1.1"
                                                                   headerFields:nil];
@@ -77,15 +80,16 @@ static NSString *const kDeviceCheckinURL = @"https://device-provisioning.googlea
   NSData *data = [NSJSONSerialization dataWithJSONObject:dataResponse
                                                  options:NSJSONWritingPrettyPrinted
                                                    error:nil];
-  //    [FIRURLSessionOCMockStub
-  //          stubURLSessionDataTaskWithResponse:expectedResponse
-  //                                        body:data
-  //                                       error:nil
-  //                              URLSessionMock:self.URLSessionMock
-  //                      requestValidationBlock:^BOOL(NSURLRequest *_Nonnull sentRequest) {
-  //        return [sentRequest isEqual:request];
-  //
-  //                      }];
+      [FIRURLSessionOCMockStub
+            stubURLSessionDataTaskWithResponse:expectedResponse
+                                          body:data
+                                         error:nil
+                                URLSessionMock:self.URLSessionMock
+                        requestValidationBlock:^BOOL(NSURLRequest *_Nonnull sentRequest) {
+        [self assertValidCheckinRequest:sentRequest expectedURL:expectedRequestURL];
+        return YES;
+
+                        }];
 
   XCTestExpectation *checkinCompletionExpectation =
       [self expectationWithDescription:@"Checkin Completion"];
@@ -114,9 +118,65 @@ static NSString *const kDeviceCheckinURL = @"https://device-provisioning.googlea
                                }];
 }
 
-- (void)testFailedCheckinService {
+- (void)testCheckinServiceFailure {
+  NSURL *expectedRequestURL = [NSURL URLWithString:kDeviceCheckinURL];
+
+  NSHTTPURLResponse *failureResponse = [[NSHTTPURLResponse alloc] initWithURL:expectedRequestURL
+                                                                    statusCode:404
+                                                                   HTTPVersion:@"1.1"
+                                                                  headerFields:nil];
+
+  [FIRURLSessionOCMockStub
+        stubURLSessionDataTaskWithResponse:failureResponse
+                                      body:[@"Not Found" dataUsingEncoding:NSUTF8StringEncoding]
+                                     error:nil
+                            URLSessionMock:self.URLSessionMock
+                    requestValidationBlock:^BOOL(NSURLRequest *_Nonnull sentRequest) {
+    [self assertValidCheckinRequest:sentRequest expectedURL:expectedRequestURL];
+    return YES;
+
+                    }];
+
   XCTestExpectation *checkinCompletionExpectation =
       [self expectationWithDescription:@"Checkin Completion"];
+
+  [self.checkinService
+      checkinWithExistingCheckin:nil
+                      completion:^(FIRMessagingCheckinPreferences *preferences, NSError *error) {
+                        XCTAssertNotNil(error);
+                        XCTAssertNil(preferences.deviceID);
+                        XCTAssertNil(preferences.secretToken);
+                        XCTAssertFalse([preferences hasValidCheckinInfo]);
+                        [checkinCompletionExpectation fulfill];
+                      }];
+
+  [self waitForExpectationsWithTimeout:5
+                               handler:^(NSError *error) {
+                                 if (error) {
+                                   XCTFail(@"Checkin Timeout Error: %@", error);
+                                 }
+                               }];
+}
+
+- (void)testCheckinServiceNetworkFailure {
+  NSURL *expectedRequestURL = [NSURL URLWithString:kDeviceCheckinURL];
+
+  NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidRequest
+                                     failureReason:@"Checkin failed with invalid request."];
+
+  XCTestExpectation *checkinCompletionExpectation =
+      [self expectationWithDescription:@"Checkin Completion"];
+
+  [FIRURLSessionOCMockStub
+        stubURLSessionDataTaskWithResponse:nil
+                                      body:nil
+                                     error:error
+                            URLSessionMock:self.URLSessionMock
+                    requestValidationBlock:^BOOL(NSURLRequest *_Nonnull sentRequest) {
+    [self assertValidCheckinRequest:sentRequest expectedURL:expectedRequestURL];
+    return YES;
+
+                    }];
 
   [self.checkinService
       checkinWithExistingCheckin:nil
@@ -150,40 +210,13 @@ static NSString *const kDeviceCheckinURL = @"https://device-provisioning.googlea
   return checkinPreferences;
 }
 
-#pragma mark - Swizzle
+#pragma mark - Helpers
 
-- (FIRMessagingURLRequestTestBlock)successfulCheckinCompletionHandler {
-  return ^(NSURLRequest *request, FIRMessagingURLRequestTestResponseBlock testResponse) {
-    NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:request.URL
-                                                              statusCode:200
-                                                             HTTPVersion:@"HTTP/1.1"
-                                                            headerFields:nil];
+- (void)assertValidCheckinRequest:(NSURLRequest *)request expectedURL:(NSURL *)expectedURL {
+  XCTAssertEqualObjects(request.URL, expectedURL);
+  XCTAssertEqualObjects(request.allHTTPHeaderFields, @{ @"Content-Type": @"application/json"});
 
-    NSMutableDictionary *dataResponse = [NSMutableDictionary dictionary];
-    dataResponse[@"android_id"] = @([kDeviceAuthId longLongValue]);
-    dataResponse[@"security_token"] = @([kSecretToken longLongValue]);
-    dataResponse[@"time_msec"] = @(FIRMessagingCurrentTimestampInMilliseconds());
-    dataResponse[@"version_info"] = kVersionInfo;
-    dataResponse[@"digest"] = kDigest;
-    NSData *data = [NSJSONSerialization dataWithJSONObject:dataResponse
-                                                   options:NSJSONWritingPrettyPrinted
-                                                     error:nil];
-    testResponse(data, response, nil);
-  };
-}
-
-- (FIRMessagingURLRequestTestBlock)failCheckinCompletionHandler {
-  return ^(NSURLRequest *request, FIRMessagingURLRequestTestResponseBlock testResponse) {
-    NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:request.URL
-                                                              statusCode:200
-                                                             HTTPVersion:@"HTTP/1.1"
-                                                            headerFields:nil];
-
-    NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidRequest
-                                       failureReason:@"Checkin failed with invalid request."];
-
-    testResponse(nil, response, error);
-  };
+  // TODO: Validate body.
 }
 
 @end
