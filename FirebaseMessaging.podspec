@@ -37,13 +37,6 @@ device, and it is completely free.
     'FirebaseInstallations/Source/Library/Private/*.h',
   ]
 
-  # TODO: Find out why `requires_arc` was required. 
-  # Currently it forces test files to use MRC though the tests were written with ARC in mind.
-  # s.requires_arc = [
-  #   base_dir + 'Sources/*.m',
-  #   base_dir + 'Sources/Token/*.m'
-  # ]
-
   s.public_header_files = base_dir + 'Sources/Public/FirebaseMessaging/*.h'
   s.library = 'sqlite3'
   s.pod_target_xcconfig = {
