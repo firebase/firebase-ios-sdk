@@ -41,20 +41,45 @@ static NSUInteger const kFragment = 0;
 
 static FIRMessagingURLRequestTestBlock testBlock;
 
-@interface FIRMessagingCheckinService () {
-  NSURLSession *_session;
-}
+@interface FIRMessagingCheckinService ()
+
+@property(nonatomic, readwrite, strong) NSURLSession *session;
+
 @end
 
 @implementation FIRMessagingCheckinService
 
+- (instancetype)init {
+  self = [super init];
+  if (self) {
+    // Create an URLSession once, even though checkin should happen about once a day
+    NSURLSessionConfiguration *config = NSURLSessionConfiguration.defaultSessionConfiguration;
+    config.timeoutIntervalForResource = 60.0f;  // 1 minute
+    config.allowsCellularAccess = YES;
+
+    self.session = [NSURLSession sessionWithConfiguration:config];
+    self.session.sessionDescription = @"com.google.iid-checkin";
+  }
+  return self;
+}
 - (void)dealloc {
   testBlock = nil;
-  [_session invalidateAndCancel];
+  [self.session invalidateAndCancel];
 }
 
 - (void)checkinWithExistingCheckin:(FIRMessagingCheckinPreferences *)existingCheckin
                         completion:(FIRMessagingDeviceCheckinCompletion)completion {
+  if (self.session == nil) {
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeService005,
+                            @"Inconsistent state: NSURLSession has been invalidated");
+    NSError *error =
+        [NSError messagingErrorWithCode:kFIRMessagingErrorCodeRegistrarFailedToCheckIn
+                          failureReason:@"Failed to checkin. NSURLSession is invalid."];
+    if (completion) {
+      completion(nil, error);
+    }
+    return;
+  }
   NSURL *url = [NSURL URLWithString:kDeviceCheckinURL];
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
   [request setValue:@"application/json" forHTTPHeaderField:@"content-type"];
@@ -152,10 +177,6 @@ static FIRMessagingURLRequestTestBlock testBlock;
           completion(checkinPreferences, nil);
         }
       };
-  NSURLSessionConfiguration *config = NSURLSessionConfiguration.defaultSessionConfiguration;
-  config.timeoutIntervalForResource = 60.0f;  // 1 minute
-  _session = [NSURLSession sessionWithConfiguration:config];
-  _session.sessionDescription = @"com.google.iid-checkin";
 
   // Test block
   if (testBlock) {
@@ -163,18 +184,14 @@ static FIRMessagingURLRequestTestBlock testBlock;
     return;
   }
 
-  NSURLSessionDataTask *task = [_session dataTaskWithRequest:request completionHandler:handler];
+  NSURLSessionDataTask *task = [self.session dataTaskWithRequest:request completionHandler:handler];
   [task resume];
 }
 
-+ (void)setGlobalTestBlock:(FIRMessagingURLRequestTestBlock)block {
-  testBlock = [block copy];
-}
-
 - (void)stopFetching {
-  [_session invalidateAndCancel];
+  [self.session invalidateAndCancel];
   // The session cannot be reused after invalidation. Dispose it to prevent accident reusing.
-  _session = nil;
+  self.session = nil;
 }
 
 #pragma mark - Private

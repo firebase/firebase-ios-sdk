@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseMessaging/Sources/Token/FIRMessagingAuthKeyChain.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingAuthKeychain.h"
 
 @interface FIRMessagingFakeKeychain : FIRMessagingAuthKeychain
 

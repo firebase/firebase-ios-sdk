@@ -75,21 +75,22 @@ static NSString *const kVersionInfo = @"1.0";
 - (void)testScheduleCheckin_initialSuccess {
   XCTestExpectation *checkinExpectation =
       [self expectationWithDescription:@"Did call checkin service"];
-
   FIRMessagingCheckinPreferences *checkinPreferences = [self validCheckinPreferences];
-  [[[self.mockCheckinService stub] andDo:^(NSInvocation *invocation) {
-    self.checkinCompletion(checkinPreferences, nil);
-  }] checkinWithExistingCheckin:[OCMArg any]
-                     completion:[OCMArg checkWithBlock:^BOOL(id obj) {
-                       [checkinExpectation fulfill];
-                       self.checkinCompletion = obj;
-                       return obj != nil;
-                     }]];
 
+  OCMStub([self.mockCheckinService
+              checkinWithExistingCheckin:self.checkinService.checkinPreferences
+                              completion:([OCMArg checkWithBlock:^BOOL(id obj) {
+                                [checkinExpectation fulfill];
+                                self.checkinCompletion = obj;
+                                return obj != nil;
+                              }])])
+      .andDo(^(NSInvocation *invocation) {
+        self.checkinCompletion(checkinPreferences, nil);
+      });
   // Always return YES for whether we succeeded in persisting the checkin
-  [[self.mockStore stub] saveCheckinPreferences:[OCMArg any]
-                                        handler:[OCMArg invokeBlockWithArgs:[NSNull null], nil]];
-
+  OCMStub([self.mockStore
+      saveCheckinPreferences:checkinPreferences
+                     handler:([OCMArg invokeBlockWithArgs:[NSNull null], nil])]);
   [self.authService scheduleCheckin:YES];
 
   XCTAssertTrue([self.authService hasValidCheckinInfo]);
@@ -106,17 +107,16 @@ static NSString *const kVersionInfo = @"1.0";
       [self expectationWithDescription:@"Did receive error after checkin"];
 
   FIRMessagingCheckinPreferences *checkinPreferences = [self validCheckinPreferences];
-  [[[self.mockCheckinService stub] andDo:^(NSInvocation *invocation) {
-    self.checkinCompletion(checkinPreferences, nil);
-  }] checkinWithExistingCheckin:[OCMArg any]
-                     completion:[OCMArg checkWithBlock:^BOOL(id obj) {
-                       self.checkinCompletion = obj;
-                       return obj != nil;
-                     }]];
+  OCMStub([self.mockCheckinService checkinWithExistingCheckin:self.checkinService.checkinPreferences
+                                                   completion:[OCMArg checkWithBlock:^BOOL(id obj) {
+                                                     [checkinFailureExpectation fulfill];
+                                                     self.checkinCompletion = obj;
+                                                     return obj != nil;
+                                                   }]]);
 
   // Always return NO for whether we succeeded in persisting the checkin, to simulate Keychain error
-  [[self.mockStore stub] saveCheckinPreferences:[OCMArg any]
-                                        handler:[OCMArg invokeBlockWithArgs:[OCMArg any], nil]];
+  OCMStub([self.mockStore saveCheckinPreferences:checkinPreferences
+                                         handler:([OCMArg invokeBlockWithArgs:[OCMArg any], nil])]);
 
   [self.authService
       fetchCheckinInfoWithHandler:^(FIRMessagingCheckinPreferences *checkin, NSError *error) {
@@ -137,23 +137,25 @@ static NSString *const kVersionInfo = @"1.0";
   __block int checkinHandlerInvocationCount = 0;
 
   FIRMessagingCheckinPreferences *checkinPreferences = [self validCheckinPreferences];
-  [[[self.mockCheckinService stub] andDo:^(NSInvocation *invocation) {
-    checkinHandlerInvocationCount++;
-    // Mock successful Checkin after delay.
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)),
-                   dispatch_get_main_queue(), ^{
-                     [checkinExpectation fulfill];
-                     self.checkinCompletion(checkinPreferences, nil);
-                   });
-  }] checkinWithExistingCheckin:[OCMArg any]
-                     completion:[OCMArg checkWithBlock:^BOOL(id obj) {
-                       self.checkinCompletion = obj;
-                       return obj != nil;
-                     }]];
+  OCMStub([self.mockCheckinService checkinWithExistingCheckin:self.checkinService.checkinPreferences
+                                                   completion:[OCMArg checkWithBlock:^BOOL(id obj) {
+                                                     self.checkinCompletion = obj;
+                                                     return obj != nil;
+                                                   }]])
+      .andDo(^(NSInvocation *invocation) {
+        checkinHandlerInvocationCount++;
+        // Mock successful Checkin after delay.
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)),
+                       dispatch_get_main_queue(), ^{
+                         [checkinExpectation fulfill];
+                         self.checkinCompletion(checkinPreferences, nil);
+                       });
+      });
 
   // Always return YES for whether we succeeded in persisting the checkin
-  [[self.mockStore stub] saveCheckinPreferences:[OCMArg any]
-                                        handler:[OCMArg invokeBlockWithArgs:[NSNull null], nil]];
+  OCMStub([self.mockStore
+      saveCheckinPreferences:checkinPreferences
+                     handler:([OCMArg invokeBlockWithArgs:[NSNull null], nil])]);
   [self.authService scheduleCheckin:YES];
 
   // Schedule an immediate checkin again.
@@ -179,22 +181,24 @@ static NSString *const kVersionInfo = @"1.0";
       [self expectationWithDescription:@"Did call checkin service"];
 
   FIRMessagingCheckinPreferences *checkinPreferences = [self validCheckinPreferences];
-  [[[self.mockCheckinService stub] andDo:^(NSInvocation *invocation) {
-    // Mock successful Checkin after delay.
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)),
-                   dispatch_get_main_queue(), ^{
-                     [checkinExpectation fulfill];
-                     self.checkinCompletion(checkinPreferences, nil);
-                   });
-  }] checkinWithExistingCheckin:[OCMArg any]
-                     completion:[OCMArg checkWithBlock:^BOOL(id obj) {
-                       self.checkinCompletion = obj;
-                       return obj != nil;
-                     }]];
+  OCMStub([self.mockCheckinService checkinWithExistingCheckin:self.checkinService.checkinPreferences
+                                                   completion:[OCMArg checkWithBlock:^BOOL(id obj) {
+                                                     self.checkinCompletion = obj;
+                                                     return obj != nil;
+                                                   }]])
+      .andDo(^(NSInvocation *invocation) {
+        // Mock successful Checkin after delay.
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)),
+                       dispatch_get_main_queue(), ^{
+                         [checkinExpectation fulfill];
+                         self.checkinCompletion(checkinPreferences, nil);
+                       });
+      });
 
   // Always return YES for whether we succeeded in persisting the checkin
-  [[self.mockStore stub] saveCheckinPreferences:[OCMArg any]
-                                        handler:[OCMArg invokeBlockWithArgs:[NSNull null], nil]];
+  OCMStub([self.mockStore
+      saveCheckinPreferences:checkinPreferences
+                     handler:([OCMArg invokeBlockWithArgs:[NSNull null], nil])]);
 
   [self.authService scheduleCheckin:YES];
 
@@ -217,31 +221,33 @@ static NSString *const kVersionInfo = @"1.0";
       [self expectationWithDescription:@"Did call checkin service"];
   __block int checkinHandlerInvocationCount = 0;
 
-  [[[self.mockCheckinService stub] andDo:^(NSInvocation *invocation) {
-    checkinHandlerInvocationCount++;
+  OCMStub([self.mockCheckinService checkinWithExistingCheckin:[OCMArg any]
+                                                   completion:[OCMArg checkWithBlock:^BOOL(id obj) {
+                                                     self.checkinCompletion = obj;
+                                                     return obj != nil;
+                                                   }]])
+      .andDo(^(NSInvocation *invocation) {
+        checkinHandlerInvocationCount++;
 
-    if (checkinHandlerInvocationCount == 1) {
-      // Mock failure on first try
-      NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown
-                                         failureReason:@"Timeout"];
-      self.checkinCompletion(nil, error);
-    } else if (checkinHandlerInvocationCount == 2) {
-      // Mock success on second try
-      [checkinExpectation fulfill];
-      self.checkinCompletion([self validCheckinPreferences], nil);
-    } else {
-      // We should not retry for a third time again.
-      XCTFail(@"Invoking checkin handler invalid number of times.");
-    }
-  }] checkinWithExistingCheckin:[OCMArg any]
-                     completion:[OCMArg checkWithBlock:^BOOL(id obj) {
-                       self.checkinCompletion = obj;
-                       return obj != nil;
-                     }]];
+        if (checkinHandlerInvocationCount == 1) {
+          // Mock failure on first try
+          NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown
+                                             failureReason:@"Timeout"];
+          self.checkinCompletion(nil, error);
+        } else if (checkinHandlerInvocationCount == 2) {
+          // Mock success on second try
+          [checkinExpectation fulfill];
+          self.checkinCompletion([self validCheckinPreferences], nil);
+        } else {
+          // We should not retry for a third time again.
+          XCTFail(@"Invoking checkin handler invalid number of times.");
+        }
+      });
 
   // Always return YES for whether we succeeded in persisting the checkin
-  [[self.mockStore stub] saveCheckinPreferences:[OCMArg any]
-                                        handler:[OCMArg invokeBlockWithArgs:[NSNull null], nil]];
+  OCMStub([self.mockStore
+      saveCheckinPreferences:[OCMArg any]
+                     handler:([OCMArg invokeBlockWithArgs:[NSNull null], nil])]);
 
   [self.authService scheduleCheckin:YES];
   // Schedule another checkin after some delay while the first checkin has not yet returned
@@ -266,31 +272,33 @@ static NSString *const kVersionInfo = @"1.0";
       [self expectationWithDescription:@"Did call checkin service"];
   __block int checkinHandlerInvocationCount = 0;
 
-  [[[self.mockCheckinService stub] andDo:^(NSInvocation *invocation) {
-    checkinHandlerInvocationCount++;
+  OCMStub([self.mockCheckinService checkinWithExistingCheckin:[OCMArg any]
+                                                   completion:[OCMArg checkWithBlock:^BOOL(id obj) {
+                                                     self.checkinCompletion = obj;
+                                                     return obj != nil;
+                                                   }]])
+      .andDo(^(NSInvocation *invocation) {
+        checkinHandlerInvocationCount++;
 
-    if (checkinHandlerInvocationCount <= 2) {
-      // Mock failure on first try
-      NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown
-                                         failureReason:@"Timeout"];
-      self.checkinCompletion(nil, error);
-    } else if (checkinHandlerInvocationCount == 3) {
-      // Mock success on second try
-      [checkinExpectation fulfill];
-      self.checkinCompletion([self validCheckinPreferences], nil);
-    } else {
-      // We should not retry for a third time again.
-      XCTFail(@"Invoking checkin handler invalid number of times.");
-    }
-  }] checkinWithExistingCheckin:[OCMArg any]
-                     completion:[OCMArg checkWithBlock:^BOOL(id obj) {
-                       self.checkinCompletion = obj;
-                       return obj != nil;
-                     }]];
+        if (checkinHandlerInvocationCount <= 2) {
+          // Mock failure on first try
+          NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown
+                                             failureReason:@"Timeout"];
+          self.checkinCompletion(nil, error);
+        } else if (checkinHandlerInvocationCount == 3) {
+          // Mock success on second try
+          [checkinExpectation fulfill];
+          self.checkinCompletion([self validCheckinPreferences], nil);
+        } else {
+          // We should not retry for a third time again.
+          XCTFail(@"Invoking checkin handler invalid number of times.");
+        }
+      });
 
   // Always return YES for whether we succeeded in persisting the checkin
-  [[self.mockStore stub] saveCheckinPreferences:[OCMArg any]
-                                        handler:[OCMArg invokeBlockWithArgs:[NSNull null], nil]];
+  OCMStub([self.mockStore
+      saveCheckinPreferences:[OCMArg any]
+                     handler:([OCMArg invokeBlockWithArgs:[NSNull null], nil])]);
 
   [self.authService scheduleCheckin:YES];
 
@@ -310,18 +318,20 @@ static NSString *const kVersionInfo = @"1.0";
   __block NSInteger checkinServiceInvocationCount = 0;
 
   // Always return a successful checkin, and count the number of times CheckinService is called
-  [[[self.mockCheckinService stub] andDo:^(NSInvocation *invocation) {
-    checkinServiceInvocationCount++;
-    self.checkinCompletion([self validCheckinPreferences], nil);
-  }] checkinWithExistingCheckin:[OCMArg any]
-                     completion:[OCMArg checkWithBlock:^BOOL(id obj) {
-                       self.checkinCompletion = obj;
-                       return obj != nil;
-                     }]];
+  OCMStub([self.mockCheckinService checkinWithExistingCheckin:[OCMArg any]
+                                                   completion:[OCMArg checkWithBlock:^BOOL(id obj) {
+                                                     self.checkinCompletion = obj;
+                                                     return obj != nil;
+                                                   }]])
+      .andDo(^(NSInvocation *invocation) {
+        checkinServiceInvocationCount++;
+        self.checkinCompletion([self validCheckinPreferences], nil);
+      });
 
   // Always return YES for whether we succeeded in persisting the checkin
-  [[self.mockStore stub] saveCheckinPreferences:[OCMArg any]
-                                        handler:[OCMArg invokeBlockWithArgs:[NSNull null], nil]];
+  OCMStub([self.mockStore
+      saveCheckinPreferences:[OCMArg any]
+                     handler:([OCMArg invokeBlockWithArgs:[NSNull null], nil])]);
 
   NSInteger numHandlers = 10;
   for (NSInteger i = 0; i < numHandlers; i++) {
@@ -350,22 +360,24 @@ static NSString *const kVersionInfo = @"1.0";
   __block NSInteger checkinServiceInvocationCount = 0;
 
   // Always return a successful checkin, and count the number of times CheckinService is called
-  [[[self.mockCheckinService stub] andDo:^(NSInvocation *invocation) {
-    checkinServiceInvocationCount++;
-    // Give the checkin service some time to complete the request
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)),
-                   dispatch_get_main_queue(), ^{
-                     self.checkinCompletion([self validCheckinPreferences], nil);
-                   });
-  }] checkinWithExistingCheckin:[OCMArg any]
-                     completion:[OCMArg checkWithBlock:^BOOL(id obj) {
-                       self.checkinCompletion = obj;
-                       return obj != nil;
-                     }]];
+  OCMStub([self.mockCheckinService checkinWithExistingCheckin:[OCMArg any]
+                                                   completion:[OCMArg checkWithBlock:^BOOL(id obj) {
+                                                     self.checkinCompletion = obj;
+                                                     return obj != nil;
+                                                   }]])
+      .andDo(^(NSInvocation *invocation) {
+        checkinServiceInvocationCount++;
+        // Give the checkin service some time to complete the request
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)),
+                       dispatch_get_main_queue(), ^{
+                         self.checkinCompletion([self validCheckinPreferences], nil);
+                       });
+      });
 
   // Always return YES for whether we succeeded in persisting the checkin
-  [[self.mockStore stub] saveCheckinPreferences:[OCMArg any]
-                                        handler:[OCMArg invokeBlockWithArgs:[NSNull null], nil]];
+  OCMStub([self.mockStore
+      saveCheckinPreferences:[OCMArg any]
+                     handler:([OCMArg invokeBlockWithArgs:[NSNull null], nil])]);
 
   // Start a scheduled (though immediate) checkin
   [self.authService scheduleCheckin:YES];

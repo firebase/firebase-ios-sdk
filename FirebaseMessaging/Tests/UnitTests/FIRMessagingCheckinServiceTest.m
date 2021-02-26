@@ -16,6 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
+//#import "SharedTestUtilities/URLSession/FIRURLSessionOCMockStub.h"
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
 #import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinPreferences.h"
@@ -26,14 +27,19 @@ static NSString *const kDeviceAuthId = @"1234";
 static NSString *const kSecretToken = @"567890";
 static NSString *const kDigest = @"com.google.digest";
 static NSString *const kVersionInfo = @"1.0";
+static NSString *const kDeviceCheckinURL = @"https://device-provisioning.googleapis.com/checkin";
 
 @interface FIRMessagingCheckinService (ExposedForTest)
-+ (void)setGlobalTestBlock:(FIRMessagingURLRequestTestBlock)testBlock;
+
+@property(nonatomic, readwrite, strong) NSURLSession *session;
+
 @end
 
 @interface FIRMessagingCheckinServiceTest : XCTestCase
 
-@property(nonatomic, readwrite, strong) FIRMessagingCheckinService *checkinService;
+@property(nonatomic) NSURLSession *URLSession;
+@property(nonatomic) id URLSessionMock;
+@property(nonatomic) FIRMessagingCheckinService *checkinService;
 
 @end
 
@@ -42,6 +48,9 @@ static NSString *const kVersionInfo = @"1.0";
 - (void)setUp {
   [super setUp];
   self.checkinService = [[FIRMessagingCheckinService alloc] init];
+  self.URLSession = self.checkinService.session;
+  self.URLSessionMock = OCMPartialMock(self.URLSession);
+  OCMStub([NSURLSession sessionWithConfiguration:[OCMArg any]]).andReturn(self.URLSessionMock);
 }
 
 - (void)tearDown {
@@ -51,8 +60,32 @@ static NSString *const kVersionInfo = @"1.0";
 
 - (void)testCheckinWithSuccessfulCompletion {
   FIRMessagingCheckinPreferences *existingCheckin = [self stubCheckinCacheWithValidData];
+  NSURL *url = [NSURL URLWithString:kDeviceCheckinURL];
+  NSURLRequest *request = [NSURLRequest requestWithURL:url];
 
-  [FIRMessagingCheckinService setGlobalTestBlock:[self successfulCheckinCompletionHandler]];
+  NSHTTPURLResponse *expectedResponse = [[NSHTTPURLResponse alloc] initWithURL:url
+                                                                    statusCode:200
+                                                                   HTTPVersion:@"1.1"
+                                                                  headerFields:nil];
+
+  NSMutableDictionary *dataResponse = [NSMutableDictionary dictionary];
+  dataResponse[@"android_id"] = @([kDeviceAuthId longLongValue]);
+  dataResponse[@"security_token"] = @([kSecretToken longLongValue]);
+  dataResponse[@"time_msec"] = @(FIRMessagingCurrentTimestampInMilliseconds());
+  dataResponse[@"version_info"] = kVersionInfo;
+  dataResponse[@"digest"] = kDigest;
+  NSData *data = [NSJSONSerialization dataWithJSONObject:dataResponse
+                                                 options:NSJSONWritingPrettyPrinted
+                                                   error:nil];
+  //    [FIRURLSessionOCMockStub
+  //          stubURLSessionDataTaskWithResponse:expectedResponse
+  //                                        body:data
+  //                                       error:nil
+  //                              URLSessionMock:self.URLSessionMock
+  //                      requestValidationBlock:^BOOL(NSURLRequest *_Nonnull sentRequest) {
+  //        return [sentRequest isEqual:request];
+  //
+  //                      }];
 
   XCTestExpectation *checkinCompletionExpectation =
       [self expectationWithDescription:@"Checkin Completion"];
@@ -82,8 +115,6 @@ static NSString *const kVersionInfo = @"1.0";
 }
 
 - (void)testFailedCheckinService {
-  [FIRMessagingCheckinService setGlobalTestBlock:[self failCheckinCompletionHandler]];
-
   XCTestExpectation *checkinCompletionExpectation =
       [self expectationWithDescription:@"Checkin Completion"];
 
