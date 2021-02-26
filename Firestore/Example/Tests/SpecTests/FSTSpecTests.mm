@@ -24,6 +24,7 @@
 #include <map>
 #include <memory>
 #include <set>
+#include <sstream>
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -35,7 +36,10 @@
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
+#include "Firestore/core/src/api/load_bundle_task.h"
 #include "Firestore/core/src/auth/user.h"
+#include "Firestore/core/src/bundle/bundle_reader.h"
+#include "Firestore/core/src/bundle/bundle_serializer.h"
 #include "Firestore/core/src/core/field_filter.h"
 #include "Firestore/core/src/local/persistence.h"
 #include "Firestore/core/src/local/target_data.h"
@@ -56,6 +60,7 @@
 #include "Firestore/core/src/remote/serializer.h"
 #include "Firestore/core/src/remote/watch_change.h"
 #include "Firestore/core/src/util/async_queue.h"
+#include "Firestore/core/src/util/byte_stream_cpp.h"
 #include "Firestore/core/src/util/comparison.h"
 #include "Firestore/core/src/util/filesystem.h"
 #include "Firestore/core/src/util/hard_assert.h"
@@ -65,13 +70,17 @@
 #include "Firestore/core/src/util/string_apple.h"
 #include "Firestore/core/src/util/to_string.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
+#include "absl/memory/memory.h"
 #include "absl/types/optional.h"
 
 namespace objc = firebase::firestore::objc;
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
+using firebase::firestore::api::LoadBundleTask;
 using firebase::firestore::Error;
 using firebase::firestore::auth::User;
+using firebase::firestore::bundle::BundleReader;
+using firebase::firestore::bundle::BundleSerializer;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::Query;
 using firebase::firestore::local::Persistence;
@@ -195,6 +204,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   size_t _maxConcurrentLimboResolutions;
   BOOL _networkEnabled;
   FSTUserDataConverter *_converter;
+  std::shared_ptr<util::Executor> user_executor_;
 }
 
 #define FSTAbstractMethodException()                                                               \
@@ -220,6 +230,8 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
 
 - (void)setUpForSpecWithConfig:(NSDictionary *)config {
   _converter = FSTTestUserDataConverter();
+  std::unique_ptr<util::Executor> user_executor = util::Executor::CreateSerial("user executor");
+  user_executor_ = absl::ShareUniquePtr(std::move(user_executor));
 
   // Store GCEnabled so we can re-use it in doRestart.
   NSNumber *GCEnabled = config[@"useGarbageCollection"];
@@ -327,17 +339,28 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
 
 #pragma mark - Methods for doing the steps of the spec test.
 
-- (void)doListen:(NSArray *)listenSpec {
-  Query query = [self parseQuery:listenSpec[1]];
+- (void)doListen:(NSDictionary *)listenSpec {
+  Query query = [self parseQuery:listenSpec[@"query"]];
   TargetId actualID = [self.driver addUserListenerWithQuery:std::move(query)];
 
-  TargetId expectedID = [listenSpec[0] intValue];
+  TargetId expectedID = [listenSpec[@"targetId"] intValue];
   XCTAssertEqual(actualID, expectedID, @"targetID assigned to listen");
 }
 
 - (void)doUnlisten:(NSArray *)unlistenSpec {
   Query query = [self parseQuery:unlistenSpec[1]];
   [self.driver removeUserListenerWithQuery:std::move(query)];
+}
+
+- (void)doLoadBundle:(NSString *)bundleJson {
+  const auto &database_info = [self.driver databaseInfo];
+  BundleSerializer bundle_serializer(remote::Serializer(database_info.database_id()));
+  auto data = util::MakeString(bundleJson);
+  auto bundle = std::make_shared<util::ByteStreamCpp>(
+      absl::make_unique<std::stringstream>(std::stringstream(data)));
+  auto reader = std::make_shared<BundleReader>(std::move(bundle_serializer), std::move(bundle));
+  auto task = std::make_shared<LoadBundleTask>(user_executor_);
+  [self.driver loadBundleWithReader:reader task:task];
 }
 
 - (void)doSet:(NSArray *)setSpec {
@@ -573,6 +596,8 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
     [self doRemoveSnapshotsInSyncListener];
   } else if (step[@"drainQueue"]) {
     [self doDrainQueue];
+  } else if (step[@"loadBundle"]) {
+    [self doLoadBundle:step[@"loadBundle"]];
   } else if (step[@"watchAck"]) {
     [self doWatchAck:step[@"watchAck"]];
   } else if (step[@"watchCurrent"]) {
@@ -734,7 +759,6 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
           enumerateKeysAndObjectsUsingBlock:^(NSString *targetIDString, NSDictionary *queryData,
                                               BOOL *) {
             TargetId targetID = [targetIDString intValue];
-            ByteString resumeToken = MakeResumeToken(queryData[@"resumeToken"]);
             NSArray *queriesJson = queryData[@"queries"];
             std::vector<TargetData> queries;
             for (id queryJson in queriesJson) {
@@ -742,11 +766,17 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
               // TODO(mcg): populate the purpose of the target once it's possible to encode that in
               // the spec tests. For now, hard-code that it's a listen despite the fact that it's
               // not always the right value.
-              queries.push_back(TargetData(query.ToTarget(), targetID, 0, QueryPurpose::Listen,
-                                           SnapshotVersion::None(), SnapshotVersion::None(),
-                                           std::move(resumeToken)));
+              TargetData target_data(query.ToTarget(), targetID, 0, QueryPurpose::Listen);
+              if ([queryData objectForKey:@"resumeToken"] != nil) {
+                target_data = target_data.WithResumeToken(
+                    MakeResumeToken(queryData[@"resumeToken"]), SnapshotVersion::None());
+              } else {
+                target_data = target_data.WithResumeToken(
+                    ByteString(), [self parseVersion:queryData[@"readTime"]]);
+              }
+              queries.push_back(std::move(target_data));
             }
-            expectedActiveTargets[targetID] = std::make_pair(std::move(queries), resumeToken);
+            expectedActiveTargets[targetID] = std::move(queries);
           }];
       [self.driver setExpectedActiveTargets:std::move(expectedActiveTargets)];
     }
@@ -844,8 +874,8 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
 
   for (const auto &kv : [self.driver expectedActiveTargets]) {
     TargetId targetID = kv.first;
-    const std::pair<std::vector<TargetData>, ByteString> &queries = kv.second;
-    const TargetData &targetData = queries.first[0];
+    const std::vector<TargetData> &queries = kv.second;
+    const TargetData &targetData = queries[0];
 
     auto found = actualTargets.find(targetID);
     XCTAssertNotEqual(found, actualTargets.end(), @"Expected active target not found: %s",
