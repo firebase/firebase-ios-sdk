@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #import <XCTest/XCTest.h>
 
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
@@ -70,6 +69,7 @@ static int64_t const kLastCheckinTimestamp = 123456;
   [super tearDown];
 }
 
+#if !TARGET_OS_MACCATALYST
 /**
  *  Keychain read failure should lead to checkin preferences with invalid credentials.
  */
@@ -78,7 +78,6 @@ static int64_t const kLastCheckinTimestamp = 123456;
       expectationWithDescription:@"Checkin preference should be invalid after keychain failure"];
 
   FIRMessagingFakeKeychain *fakeKeychain = [[FIRMessagingFakeKeychain alloc] init];
-
   FIRMessagingCheckinStore *checkinStore = [[FIRMessagingCheckinStore alloc] init];
   checkinStore.keychain = fakeKeychain;
   __block FIRMessagingCheckinPreferences *preferences =
@@ -98,7 +97,7 @@ static int64_t const kLastCheckinTimestamp = 123456;
                                }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
 }
-
+#endif
 /**
  *  CheckinStore should not be able to save the checkin preferences if the write to the
  *  Keychain fails.
@@ -161,6 +160,7 @@ static int64_t const kLastCheckinTimestamp = 123456;
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
 }
 
+#if !TARGET_OS_MACCATALYST
 - (void)testCheckinSaveSuccess {
   XCTestExpectation *checkinSaveSuccessExpectation =
       [self expectationWithDescription:@"Checkin save should succeed"];
@@ -183,6 +183,7 @@ static int64_t const kLastCheckinTimestamp = 123456;
                                }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
 }
+#endif
 
 #pragma mark - Private Helpers
 
