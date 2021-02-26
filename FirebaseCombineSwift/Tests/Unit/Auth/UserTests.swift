@@ -47,7 +47,7 @@ class UserTests: XCTestCase {
     var email: String
     var localID: String
     var phoneNumber: String? = nil
-    var userInfo: [String: String]? = nil
+    var userInfo: [String: String]? = [:]
   }
 
   fileprivate static let phoneNumber = "12345658"
@@ -393,7 +393,7 @@ class UserTests: XCTestCase {
     // when
     Auth.auth()
       .signIn(with: facebookCredential)
-      .flatMap { [weak authBackend] (authResult) -> Future<AuthDataResult, Error> in
+      .flatMap { (authResult) -> Future<AuthDataResult, Error> in
         XCTAssertEqual(authResult.additionalUserInfo?.profile,
                        UserTests.googleProfile as [String: NSString])
         XCTAssertEqual(authResult.additionalUserInfo?.username,
@@ -402,8 +402,8 @@ class UserTests: XCTestCase {
                        FacebookAuthProviderID)
         XCTAssertEqual(Auth.auth().currentUser, authResult.user)
 
-        authBackend?.providerCredentials = facebookCredentials
-        authBackend?
+        authBackend.providerCredentials = facebookCredentials
+        authBackend
           .verifyAssertionCallback = .failure(FIRAuthErrorUtils
             .accountExistsWithDifferentCredentialError(
               withEmail: UserTests.userName,
@@ -742,7 +742,8 @@ class UserTests: XCTestCase {
       idToken: nil,
       accessToken: UserTests.accessToken,
       email: UserTests.email,
-      localID: UserTests.localID
+      localID: UserTests.localID,
+      userInfo: nil
     )
 
     let authBackend = MockAuthBackend()
