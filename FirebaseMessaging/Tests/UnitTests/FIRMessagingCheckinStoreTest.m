@@ -164,10 +164,6 @@ static int64_t const kLastCheckinTimestamp = 123456;
 - (void)testCheckinSaveSuccess {
   XCTestExpectation *checkinSaveSuccessExpectation =
       [self expectationWithDescription:@"Checkin save should succeed"];
-  FIRMessagingBackupExcludedPlist *checkinPlist =
-      [[FIRMessagingBackupExcludedPlist alloc] initWithFileName:kFakeCheckinPlistName
-                                                   subDirectory:kSubDirectoryName];
-  id plistMock = OCMPartialMock(checkinPlist);
 
   FIRMessagingFakeKeychain *fakeKeychain = [[FIRMessagingFakeKeychain alloc] init];
   FIRMessagingCheckinStore *checkinStore = [[FIRMessagingCheckinStore alloc] init];
