@@ -36,10 +36,14 @@ device, and it is completely free.
     'Firebase/InstanceID/Public/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
   ]
-  s.requires_arc = [
-    base_dir + 'Sources/*.m',
-    base_dir + 'Sources/Token/*.m'
-  ]
+
+  # TODO: Find out why `requires_arc` was required. 
+  # Currently it forces test files to use MRC though the tests were written with ARC in mind.
+  # s.requires_arc = [
+  #   base_dir + 'Sources/*.m',
+  #   base_dir + 'Sources/Token/*.m'
+  # ]
+
   s.public_header_files = base_dir + 'Sources/Public/FirebaseMessaging/*.h'
   s.library = 'sqlite3'
   s.pod_target_xcconfig = {
@@ -65,6 +69,7 @@ device, and it is completely free.
       'FirebaseMessaging/Tests/UnitTests*/*.{m,h,swift}',
       'SharedTestUtilities/URLSession/*.[mh]',
     ]
+
     unit_tests.requires_app_host = true
     unit_tests.pod_target_xcconfig = {
      'CLANG_ENABLE_OBJC_WEAK' => 'YES'
