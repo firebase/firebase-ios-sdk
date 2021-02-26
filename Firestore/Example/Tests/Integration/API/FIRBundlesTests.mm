@@ -171,15 +171,11 @@ namespace util = firebase::firestore::util;
   __block FIRLoadBundleTaskProgress* result;
   XCTestExpectation* expectation = [self expectationWithDescription:@"loading complete"];
   FIRLoadBundleTask* task =
-      [self.db loadBundle:[util::MakeNSString(bundle) dataUsingEncoding:NSUTF8StringEncoding]
-               completion:^(FIRLoadBundleTaskProgress* progress, NSError* error) {
-                 result = progress;
-                 XCTAssertNil(error);
-                 [expectation fulfill];
-               }];
+      [self.db loadBundle:[util::MakeNSString(bundle) dataUsingEncoding:NSUTF8StringEncoding]];
   [task observeState:FIRLoadBundleTaskStateInProgress
              handler:^(FIRLoadBundleTaskProgress* progress) {
                [progresses addObject:progress];
+               [expectation fulfill];
              }];
 
   [self awaitExpectation:expectation];
