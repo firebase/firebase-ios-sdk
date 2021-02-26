@@ -42,8 +42,10 @@ Combine Publishers for Firebase.
   s.ios.framework = 'UIKit'
   s.osx.framework = 'AppKit'
   s.tvos.framework = 'UIKit'
+
   s.dependency 'FirebaseCore', '~> 7.0'
   s.dependency 'FirebaseAuth', '~> 7.0'
+  s.dependency 'FirebaseFunctions', '~> 7.0'
 
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
@@ -53,17 +55,18 @@ Combine Publishers for Firebase.
   }
 
   s.test_spec 'unit' do |unit_tests|
-    unit_tests.platforms = {:ios => '13.0', :osx => '10.11', :tvos => '10.0'}
+    unit_tests.scheme = { :code_coverage => true }
+    unit_tests.platforms = {:ios => '13.0', :osx => '10.12', :tvos => '10.0'}
     unit_tests.source_files = [
       'FirebaseCombineSwift/Tests/Unit/**/*.swift',
       'FirebaseCombineSwift/Tests/Unit/**/*.h',
       'SharedTestUtilities/FIROptionsMock.[mh]',
     ]
     unit_tests.exclude_files = 'FirebaseCombineSwift/Tests/Unit/**/*Template.swift'
-    unit_tests.pod_target_xcconfig = {
-      'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseCombineSwift/Tests/Unit/FirebaseCombineSwift-unit-Bridging-Header.h'
-    }
     unit_tests.requires_app_host = true
+    unit_tests.pod_target_xcconfig = {
+      'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseCombineSwift/Tests/Unit/FirebaseCombine-unit-Bridging-Header.h'
+    }
     unit_tests.dependency 'OCMock'
   end
 end
