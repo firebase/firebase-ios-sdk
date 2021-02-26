@@ -67,6 +67,7 @@ DerivedData
 *.ipa
 
 # Swift Package Manager
+.build/
 */.build
 ReleaseTooling/Packages
 ReleaseTooling/*.xcodeproj
