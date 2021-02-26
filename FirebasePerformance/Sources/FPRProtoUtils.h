@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if __has_include("CoreTelephony/CTTelephonyNetworkInfo.h")
+#import <TargetConditionals.h>
+#if __has_include("CoreTelephony/CTTelephonyNetworkInfo.h") && !TARGET_OS_MACCATALYST
+#define TARGET_HAS_MOBILE_CONNECTIVITY
 #import <CoreTelephony/CTTelephonyNetworkInfo.h>
 #endif
 
@@ -55,7 +57,7 @@ extern FPRMSGGaugeMetric* _Nullable FPRGetGaugeMetric(NSArray* _Nonnull gaugeDat
  */
 extern FPRMSGApplicationProcessState FPRApplicationProcessState(FPRTraceState state);
 
-#if __has_include("CoreTelephony/CTTelephonyNetworkInfo.h")
+#ifdef TARGET_HAS_MOBILE_CONNECTIVITY
 /** Obtain a CTTelephonyNetworkInfo object to determine device network attributes.
  *  @return CTTelephonyNetworkInfo object.
  */

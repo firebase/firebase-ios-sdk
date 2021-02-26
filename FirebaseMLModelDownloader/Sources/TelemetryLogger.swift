@@ -28,15 +28,23 @@ extension SystemInfo {
   }
 }
 
+/// Extension to set model info.
+extension ModelInfo {
+  mutating func setModelInfo(modelName: String, modelHash: String) {
+    name = modelName
+    if !modelHash.isEmpty {
+      hash = modelHash
+    }
+    modelType = .custom
+  }
+}
+
 /// Extension to set model options.
 extension ModelOptions {
-  mutating func setModelOptions(model: CustomModel, isModelUpdateEnabled: Bool? = nil) {
-    if let updateEnabled = isModelUpdateEnabled {
-      self.isModelUpdateEnabled = updateEnabled
-    }
-    modelInfo.name = model.name
-    modelInfo.hash = model.hash
-    modelInfo.modelType = .custom
+  mutating func setModelOptions(modelName: String, modelHash: String) {
+    var modelInfo = ModelInfo()
+    modelInfo.setModelInfo(modelName: modelName, modelHash: modelHash)
+    self.modelInfo = modelInfo
   }
 }
 
@@ -51,8 +59,8 @@ extension DeleteModelLogEvent {
 /// Extension to build model download log event.
 extension ModelDownloadLogEvent {
   mutating func setEvent(status: DownloadStatus, errorCode: ErrorCode,
-                         roughDownloadDuration: UInt64? = nil, exactDownloadDuration: UInt64? = nil,
-                         downloadFailureStatus: Int64? = nil, modelOptions: ModelOptions) {
+                         roughDownloadDuration: UInt64? = 0, exactDownloadDuration: UInt64? = 0,
+                         downloadFailureStatus: Int64? = 0, modelOptions: ModelOptions) {
     downloadStatus = status
     self.errorCode = errorCode
     if let roughDuration = roughDownloadDuration {
@@ -162,6 +170,7 @@ class TelemetryLogger {
   /// Log model info retrieval event to Firelog.
   func logModelInfoRetrievalEvent(eventName: EventName,
                                   status: ModelDownloadLogEvent.DownloadStatus,
+                                  model: CustomModel,
                                   modelInfoErrorCode: ModelInfoErrorCode) {
     guard app.isDataCollectionDefaultEnabled else { return }
     var systemInfo = SystemInfo()
@@ -169,6 +178,7 @@ class TelemetryLogger {
     let projectID = app.options.projectID
     systemInfo.setAppInfo(apiKey: apiKey, projectID: projectID)
     var errorCode = ErrorCode()
+    var failureCode: Int64?
     switch modelInfoErrorCode {
     case .noError:
       errorCode = .noError
@@ -179,13 +189,21 @@ class TelemetryLogger {
     case .hashMismatch:
       errorCode = .modelHashMismatch
     case let .httpError(code):
-      errorCode = ErrorCode(rawValue: code) ?? .modelInfoDownloadUnsuccessfulHTTPStatus
+      errorCode = .modelInfoDownloadUnsuccessfulHTTPStatus
+      failureCode = Int64(code)
+    case .unknown:
+      errorCode = .unknownError
     }
-    let modelOptions = ModelOptions()
+    var modelOptions = ModelOptions()
+    modelOptions.setModelOptions(
+      modelName: model.name,
+      modelHash: model.hash
+    )
     var modelDownloadLogEvent = ModelDownloadLogEvent()
     modelDownloadLogEvent.setEvent(
       status: status,
       errorCode: errorCode,
+      downloadFailureStatus: failureCode,
       modelOptions: modelOptions
     )
     var fbmlEvent = FirebaseMlLogEvent()
@@ -198,19 +216,21 @@ class TelemetryLogger {
   }
 
   /// Log model download event to Firelog.
-  func logModelDownloadEvent(eventName: EventName, status: ModelDownloadLogEvent.DownloadStatus,
-                             model: CustomModel? = nil, downloadErrorCode: ModelDownloadErrorCode) {
+  func logModelDownloadEvent(eventName: EventName,
+                             status: ModelDownloadLogEvent.DownloadStatus,
+                             model: CustomModel,
+                             downloadErrorCode: ModelDownloadErrorCode) {
     guard app.isDataCollectionDefaultEnabled else { return }
     var modelOptions = ModelOptions()
-    if let model = model {
-      modelOptions.setModelOptions(model: model)
-    }
+    modelOptions.setModelOptions(modelName: model.name, modelHash: model.hash)
     var systemInfo = SystemInfo()
     let apiKey = app.options.apiKey
     let projectID = app.options.projectID
     systemInfo.setAppInfo(apiKey: apiKey, projectID: projectID)
 
     var errorCode = ErrorCode()
+    var failureCode: Int64?
+
     switch downloadErrorCode {
     case .noError:
       errorCode = .noError
@@ -221,13 +241,15 @@ class TelemetryLogger {
     case .downloadFailed:
       errorCode = .downloadFailed
     case let .httpError(code):
-      errorCode = ErrorCode(rawValue: code) ?? .unknownError
+      errorCode = .unknownError
+      failureCode = Int64(code)
     }
 
     var modelDownloadLogEvent = ModelDownloadLogEvent()
     modelDownloadLogEvent.setEvent(
       status: status,
       errorCode: errorCode,
+      downloadFailureStatus: failureCode,
       modelOptions: modelOptions
     )
 
