@@ -103,10 +103,8 @@ static NSString *const kFakeSenderID = @"123456789123";
     }
     _mockPubsub = OCMPartialMock(_messaging.pubsub);
     _mockTokenManager = OCMPartialMock(_messaging.tokenManager);
-
     _mockMessagingClass = OCMClassMock([FIRMessaging class]);
     OCMStub([_mockMessagingClass messaging]).andReturn(_mockMessaging);
-
     OCMStub([_mockTokenManager fcmSenderID]).andReturn(kFakeSenderID);
   }
   return self;
@@ -118,6 +116,7 @@ static NSString *const kFakeSenderID = @"123456789123";
   [_messaging.messagingUserDefaults removePersistentDomainForName:kFIRMessagingDefaultsTestDomain];
   [_mockPubsub stopMocking];
   [_mockMessaging stopMocking];
+  [_mockMessagingClass stopMocking];
   [_mockTokenManager stopMocking];
   [_mockInstallations stopMocking];
 }

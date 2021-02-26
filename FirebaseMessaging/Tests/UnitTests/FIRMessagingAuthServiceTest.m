@@ -53,7 +53,6 @@ static NSString *const kVersionInfo = @"1.0";
 
 - (void)setUp {
   [super setUp];
-
   _mockStore = OCMClassMock([FIRMessagingCheckinStore class]);
   _authService = [[FIRMessagingAuthService alloc] initWithCheckinStore:_mockStore];
   _mockCheckinService = OCMPartialMock(_authService.checkinService);
@@ -64,6 +63,8 @@ static NSString *const kVersionInfo = @"1.0";
 }
 
 - (void)tearDown {
+  [_mockStore stopMocking];
+  [_mockCheckinService stopMocking];
   _checkinCompletion = nil;
   [super tearDown];
 }
