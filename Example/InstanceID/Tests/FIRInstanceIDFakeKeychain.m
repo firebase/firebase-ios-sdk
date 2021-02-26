@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseMessaging/Tests/UnitTests/FIRInstanceIDFakeKeychain.h"
+#import "Example/InstanceID/Tests/FIRInstanceIDFakeKeychain.h"
 
 static NSString *const kFakeKeychainErrorDomain = @"com.google.iid";
 
