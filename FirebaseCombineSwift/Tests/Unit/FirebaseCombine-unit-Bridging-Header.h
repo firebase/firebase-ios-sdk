@@ -28,6 +28,7 @@
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 
 #import "FirebaseAuth/Sources/AuthProvider/FIRAuthCredential_Internal.h"
+#import "FirebaseAuth/Sources/AuthProvider/GameCenter/FIRGameCenterAuthCredential.h"
 #import "FirebaseAuth/Sources/AuthProvider/OAuth/FIROAuthCredential_Internal.h"
 
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"

@@ -94,5 +94,104 @@
         }
       }
     }
+
+    /// Disassociates a user account from a third-party identity provider with this user.
+    ///
+    /// The publisher will emit events on the **main** thread.
+    ///
+    /// - Parameter provider: The provider ID of the provider to unlink.
+    /// - Returns: A publisher that emits an `User` when the disassociation flow completed
+    ///   successfully, or an error otherwise. The publisher will emit on the *main* thread.
+    ///
+    ///   Possible error codes:
+    ///
+    ///   - `FIRAuthErrorCodeNoSuchProvider` - Indicates an attempt to unlink a provider
+    ///      that is not linked to the account.
+    ///   - `FIRAuthErrorCodeRequiresRecentLogin` - Updating email is a security sensitive
+    ///      operation that requires a recent login from the user. This error indicates the user
+    ///      has not signed in recently enough. To resolve, reauthenticate the user by invoking
+    ///      reauthenticateWithCredential:completion: on `FIRUser`.
+    ///
+    ///   See `FIRAuthErrors` for a list of error codes that are common to all `FIRUser` methods.
+    public func unlink(fromProvider provider: String) -> Future<User, Error> {
+      Future<User, Error> { promise in
+        self.unlink(fromProvider: provider) { user, error in
+          if let user = user {
+            promise(.success(user))
+          } else if let error = error {
+            promise(.failure(error))
+          }
+        }
+      }
+    }
+
+    /// Initiates email verification for the user.
+    ///
+    /// The publisher will emit events on the **main** thread.
+    ///
+    /// - Returns: A publisher that emits no type when the verification flow completed
+    ///   successfully, or an error otherwise. The publisher will emit on the *main* thread.
+    ///
+    ///   Possible error codes:
+    ///
+    ///   - `FIRAuthErrorCodeInvalidRecipientEmail` - Indicates an invalid recipient email was
+    ///      sent in the request.
+    ///   - `FIRAuthErrorCodeInvalidSender` - Indicates an invalid sender email is set in
+    ///      the console for this action.
+    ///   - `FIRAuthErrorCodeInvalidMessagePayload` - Indicates an invalid email template for
+    ///      sending update email.
+    ///   - `FIRAuthErrorCodeUserNotFound` - Indicates the user account was not found.
+    ///
+    ///   See `FIRAuthErrors` for a list of error codes that are common to all `FIRUser` methods.
+    public func sendEmailVerification() -> Future<Void, Error> {
+      Future<Void, Error> { promise in
+        self.sendEmailVerification { error in
+          if let error = error {
+            promise(.failure(error))
+          } else {
+            promise(.success(()))
+          }
+        }
+      }
+    }
+
+    /// Initiates email verification for the user.
+    ///
+    /// The publisher will emit events on the **main** thread.
+    ///
+    /// - Parameter actionCodeSettings: An `FIRActionCodeSettings` object containing settings related to
+    ///   handling action codes.
+    /// - Returns: A publisher that emits no type when the verification flow completed
+    ///   successfully, or an error otherwise. The publisher will emit on the *main* thread.
+    ///
+    ///   Possible error codes:
+    ///
+    ///   -  `FIRAuthErrorCodeInvalidRecipientEmail` - Indicates an invalid recipient email was
+    ///    sent in the request.
+    ///   - `FIRAuthErrorCodeInvalidSender` - Indicates an invalid sender email is set in
+    ///    the console for this action.
+    ///   - `FIRAuthErrorCodeInvalidMessagePayload` - Indicates an invalid email template for
+    ///    sending update email.
+    ///   - `FIRAuthErrorCodeUserNotFound` - Indicates the user account was not found.
+    ///   - `FIRAuthErrorCodeMissingIosBundleID` - Indicates that the iOS bundle ID is missing when
+    ///    a iOS App Store ID is provided.
+    ///   - `FIRAuthErrorCodeMissingAndroidPackageName` - Indicates that the android package name
+    ///    is missing when the `androidInstallApp` flag is set to true.
+    ///   - `FIRAuthErrorCodeUnauthorizedDomain` - Indicates that the domain specified in the
+    ///    continue URL is not allowlisted in the Firebase console.
+    ///   - `FIRAuthErrorCodeInvalidContinueURI` - Indicates that the domain specified in the
+    ///    continue URI is not valid.
+    public func sendEmailVerification(with actionCodeSettings: ActionCodeSettings)
+      -> Future<Void, Error> {
+      Future<Void, Error> { promise in
+        self.sendEmailVerification(with: actionCodeSettings) { error in
+          if let error = error {
+            promise(.failure(error))
+          } else {
+            promise(.success(()))
+          }
+        }
+      }
+    }
   }
 #endif

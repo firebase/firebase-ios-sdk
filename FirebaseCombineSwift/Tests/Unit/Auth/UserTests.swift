@@ -46,9 +46,17 @@ class UserTests: XCTestCase {
     var accessToken: String
     var email: String
     var localID: String
+    var phoneNumber: String? = nil
+    var userInfo: [String: String]? = [:]
   }
 
+  fileprivate static let continueURL = "continueURL"
+  fileprivate static let fakeOOBCode = "testoobcode"
+  fileprivate static let phoneNumber = "12345658"
+  fileprivate static let verificationID = "55432"
+  fileprivate static let verificationCode = "12345678"
   fileprivate static let accessTokenTimeToLive: TimeInterval = 60 * 60
+  fileprivate static let approximateExpirationDate: TimeInterval = 60 * 60
   fileprivate static let refreshToken = "REFRESH_TOKEN"
   fileprivate static let accessToken = "ACCESS_TOKEN"
   fileprivate static let newAccessToken = "NewAccessToken"
@@ -77,6 +85,14 @@ class UserTests: XCTestCase {
     }
   }
 
+  class MockSetAccountInfoResponse: FIRSetAccountInfoResponse {}
+
+  class MockVerifyPhoneNumberResponse: FIRVerifyPhoneNumberResponse {
+    fileprivate var providerCredentials: ProviderCredentials!
+
+    override var phoneNumber: String? { providerCredentials.phoneNumber }
+  }
+
   class MockGetAccountInfoResponseUser: FIRGetAccountInfoResponseUser {
     fileprivate var providerCredentials: ProviderCredentials!
 
@@ -84,8 +100,12 @@ class UserTests: XCTestCase {
     override var email: String { providerCredentials.email }
     override var displayName: String { providerCredentials.displayName }
     override var passwordHash: String? { UserTests.passwordHash }
+    override var phoneNumber: String? { providerCredentials.phoneNumber }
     override var providerUserInfo: [FIRGetAccountInfoResponseProviderUserInfo]? {
-      let response = MockGetAccountInfoResponseProviderUserInfo(dictionary: [:])
+      guard let userInfo = providerCredentials.userInfo else {
+        return nil
+      }
+      let response = MockGetAccountInfoResponseProviderUserInfo(dictionary: userInfo)
       response.providerCredentials = providerCredentials
       return [response]
     }
@@ -165,6 +185,53 @@ class UserTests: XCTestCase {
       response.providerCredentials = providerCredentials
       callback(response, nil)
     }
+
+    override func setAccountInfo(_ request: FIRSetAccountInfoRequest,
+                                 callback: @escaping FIRSetAccountInfoResponseCallback) {
+      XCTAssertEqual(request.apiKey, Credentials.apiKey)
+      XCTAssertEqual(request.accessToken, providerCredentials.accessToken)
+      XCTAssertNotNil(request.deleteProviders)
+      XCTAssertNil(request.email)
+      XCTAssertNil(request.localID)
+      XCTAssertNil(request.displayName)
+      XCTAssertNil(request.photoURL)
+      XCTAssertNil(request.password)
+      XCTAssertNil(request.providers)
+      XCTAssertNil(request.deleteAttributes)
+
+      callback(MockSetAccountInfoResponse(), nil)
+    }
+
+    override func verifyPhoneNumber(_ request: FIRVerifyPhoneNumberRequest,
+                                    callback: @escaping FIRVerifyPhoneNumberResponseCallback) {
+      XCTAssertEqual(request.verificationID, UserTests.verificationID)
+      XCTAssertEqual(request.verificationCode, UserTests.verificationCode)
+      XCTAssertEqual(request.operation, FIRAuthOperationType.link)
+      XCTAssertEqual(request.accessToken, providerCredentials.accessToken)
+
+      let response = MockVerifyPhoneNumberResponse()
+      response.providerCredentials = providerCredentials
+      callback(response, nil)
+    }
+
+    var actionCodeSettings: ActionCodeSettings?
+    var getOOBConfirmationCodeError: Error?
+    override func getOOBConfirmationCode(_ request: FIRGetOOBConfirmationCodeRequest,
+                                         callback: @escaping FIRGetOOBConfirmationCodeResponseCallback) {
+      XCTAssertEqual(request.accessToken, UserTests.accessToken)
+      XCTAssertEqual(request.continueURL, actionCodeSettings?.url?.absoluteString)
+      XCTAssertEqual(request.dynamicLinkDomain, actionCodeSettings?.dynamicLinkDomain)
+
+      if let error = getOOBConfirmationCodeError {
+        callback(nil, error)
+      } else {
+        callback(MockGetOOBConfirmationCodeResponse(), nil)
+      }
+    }
+  }
+
+  class MockGetOOBConfirmationCodeResponse: FIRGetOOBConfirmationCodeResponse {
+    override var oobCode: String { return UserTests.fakeOOBCode }
   }
 
   func testlinkAndRetrieveDataSuccess() {
@@ -206,7 +273,9 @@ class UserTests: XCTestCase {
           idToken: "GOOGLE_ID_TOKEN",
           accessToken: "GOOGLE_ACCESS_TOKEN",
           email: UserTests.googleEmail,
-          localID: UserTests.localID
+          localID: UserTests.localID,
+          phoneNumber: nil,
+          userInfo: [:]
         )
 
         authBackend?.providerCredentials = googleCredentials
@@ -284,7 +353,9 @@ class UserTests: XCTestCase {
           idToken: "GOOGLE_ID_TOKEN",
           accessToken: "GOOGLE_ACCESS_TOKEN",
           email: UserTests.googleEmail,
-          localID: UserTests.localID
+          localID: UserTests.localID,
+          phoneNumber: nil,
+          userInfo: [:]
         )
 
         authBackend?.providerCredentials = googleCredentials
@@ -344,7 +415,7 @@ class UserTests: XCTestCase {
     // when
     Auth.auth()
       .signIn(with: facebookCredential)
-      .flatMap { [weak authBackend] (authResult) -> Future<AuthDataResult, Error> in
+      .flatMap { (authResult) -> Future<AuthDataResult, Error> in
         XCTAssertEqual(authResult.additionalUserInfo?.profile,
                        UserTests.googleProfile as [String: NSString])
         XCTAssertEqual(authResult.additionalUserInfo?.username,
@@ -353,8 +424,8 @@ class UserTests: XCTestCase {
                        FacebookAuthProviderID)
         XCTAssertEqual(Auth.auth().currentUser, authResult.user)
 
-        authBackend?.providerCredentials = facebookCredentials
-        authBackend?
+        authBackend.providerCredentials = facebookCredentials
+        authBackend
           .verifyAssertionCallback = .failure(FIRAuthErrorUtils
             .accountExistsWithDifferentCredentialError(
               withEmail: UserTests.userName,
@@ -421,7 +492,9 @@ class UserTests: XCTestCase {
           idToken: "GOOGLE_ID_TOKEN",
           accessToken: "GOOGLE_ACCESS_TOKEN",
           email: UserTests.googleEmail,
-          localID: UserTests.localID
+          localID: UserTests.localID,
+          phoneNumber: nil,
+          userInfo: [:]
         )
 
         authBackend?.providerCredentials = googleCredentials
@@ -649,7 +722,9 @@ class UserTests: XCTestCase {
           idToken: "GOOGLE_ID_TOKEN",
           accessToken: "GOOGLE_ACCESS_TOKEN",
           email: UserTests.googleEmail,
-          localID: UserTests.localID
+          localID: UserTests.localID,
+          phoneNumber: nil,
+          userInfo: [:]
         )
 
         authBackend.providerCredentials = googleCredentials
@@ -678,5 +753,210 @@ class UserTests: XCTestCase {
 
     // then
     wait(for: [userReauthenticateExpectation], timeout: expectationTimeout)
+  }
+
+  func testUnlinkPhoneAuthCredentialSuccess() {
+    // given
+    let emailCredentials = ProviderCredentials(
+      providerID: PhoneAuthProviderID,
+      federatedID: "EMAIL_ID",
+      displayName: "Google Doe",
+      idToken: nil,
+      accessToken: UserTests.accessToken,
+      email: UserTests.email,
+      localID: UserTests.localID,
+      userInfo: nil
+    )
+
+    let authBackend = MockAuthBackend()
+    authBackend.providerCredentials = emailCredentials
+    FIRAuthBackend.setBackendImplementation(authBackend)
+
+    var cancellables = Set<AnyCancellable>()
+    let userUnlinkedExpectation = expectation(description: "User Unlinked")
+
+    // when
+    Auth.auth()
+      .signIn(withEmail: UserTests.email, password: UserTests.password)
+      .flatMap { authResult -> Future<AuthDataResult, Error> in
+
+        authBackend.providerCredentials.phoneNumber = Self.phoneNumber
+        authBackend.providerCredentials.userInfo = ["providerId": PhoneAuthProviderID]
+
+        let credential = PhoneAuthProvider.provider()
+          .credential(withVerificationID: Self.verificationID,
+                      verificationCode: Self.verificationCode)
+
+        return authResult.user
+          .link(with: credential)
+      }
+      .flatMap { authResult -> AnyPublisher<User, Error> in
+        XCTAssertEqual(
+          Auth.auth().currentUser?.providerData.first?.providerID,
+          PhoneAuthProviderID
+        )
+        XCTAssertEqual(Auth.auth().currentUser?.phoneNumber, Self.phoneNumber)
+
+        return authResult.user
+          .unlink(fromProvider: PhoneAuthProviderID)
+          .eraseToAnyPublisher()
+      }
+      .sink { completion in
+        switch completion {
+        case .finished:
+          print("Finished")
+        case let .failure(error):
+          XCTFail("💥 Something went wrong: \(error)")
+        }
+      } receiveValue: { user in
+        XCTAssertNil(Auth.auth().currentUser?.phoneNumber)
+
+        userUnlinkedExpectation.fulfill()
+      }
+      .store(in: &cancellables)
+
+    // then
+    wait(for: [userUnlinkedExpectation], timeout: expectationTimeout)
+  }
+
+  func testSendVerificationEmailSuccess() {
+    // given
+    let emailCredentials = ProviderCredentials(
+      providerID: PhoneAuthProviderID,
+      federatedID: "EMAIL_ID",
+      displayName: "Google Doe",
+      idToken: nil,
+      accessToken: UserTests.accessToken,
+      email: UserTests.email,
+      localID: UserTests.localID
+    )
+
+    let authBackend = MockAuthBackend()
+    authBackend.providerCredentials = emailCredentials
+    FIRAuthBackend.setBackendImplementation(authBackend)
+
+    var cancellables = Set<AnyCancellable>()
+    let sentVerificationEmailExpectation = expectation(description: "Sent verification email")
+
+    // when
+    Auth.auth()
+      .signIn(withEmail: UserTests.email, password: UserTests.password)
+      .flatMap { authResult -> Future<Void, Error> in
+        XCTAssertNotNil(authResult.user)
+
+        return authResult.user
+          .sendEmailVerification()
+      }
+      .sink { completion in
+        switch completion {
+        case .finished:
+          print("Finished")
+        case let .failure(error):
+          XCTFail("💥 Something went wrong: \(error)")
+        }
+      } receiveValue: { _ in
+
+        sentVerificationEmailExpectation.fulfill()
+      }
+      .store(in: &cancellables)
+
+    // then
+    wait(for: [sentVerificationEmailExpectation], timeout: expectationTimeout)
+  }
+
+  func testSendVerificationEmailWithActionCodeSettingsSuccess() {
+    // given
+    let emailCredentials = ProviderCredentials(
+      providerID: PhoneAuthProviderID,
+      federatedID: "EMAIL_ID",
+      displayName: "Google Doe",
+      idToken: nil,
+      accessToken: UserTests.accessToken,
+      email: UserTests.email,
+      localID: UserTests.localID
+    )
+
+    let authBackend = MockAuthBackend()
+    authBackend.providerCredentials = emailCredentials
+    FIRAuthBackend.setBackendImplementation(authBackend)
+
+    var cancellables = Set<AnyCancellable>()
+    let sentVerificationEmailExpectation = expectation(description: "Sent verification email")
+
+    // when
+    Auth.auth()
+      .signIn(withEmail: UserTests.email, password: UserTests.password)
+      .flatMap { authResult -> Future<Void, Error> in
+        XCTAssertNotNil(authResult.user)
+
+        let actionCodeSettings = ActionCodeSettings()
+        actionCodeSettings.url = URL(string: UserTests.continueURL)
+        actionCodeSettings.dynamicLinkDomain = "example.page.link"
+        authBackend.actionCodeSettings = actionCodeSettings
+
+        return authResult.user
+          .sendEmailVerification(with: actionCodeSettings)
+      }
+      .sink { completion in
+        switch completion {
+        case .finished:
+          print("Finished")
+        case let .failure(error):
+          XCTFail("💥 Something went wrong: \(error)")
+        }
+      } receiveValue: { _ in
+
+        sentVerificationEmailExpectation.fulfill()
+      }
+      .store(in: &cancellables)
+
+    // then
+    wait(for: [sentVerificationEmailExpectation], timeout: expectationTimeout)
+  }
+
+  func testSendVerificationEmailInvalidRecipientEmail() {
+    // given
+    let emailCredentials = ProviderCredentials(
+      providerID: PhoneAuthProviderID,
+      federatedID: "EMAIL_ID",
+      displayName: "Google Doe",
+      idToken: nil,
+      accessToken: UserTests.accessToken,
+      email: UserTests.email,
+      localID: UserTests.localID
+    )
+
+    let authBackend = MockAuthBackend()
+    authBackend.providerCredentials = emailCredentials
+    authBackend.getOOBConfirmationCodeError = FIRAuthErrorUtils
+      .invalidRecipientEmailError(withMessage: nil)
+    FIRAuthBackend.setBackendImplementation(authBackend)
+
+    var cancellables = Set<AnyCancellable>()
+    let sentVerificationEmailExpectation = expectation(description: "Sent verification email")
+
+    // when
+    Auth.auth()
+      .signIn(withEmail: UserTests.email, password: UserTests.password)
+      .flatMap { authResult -> Future<Void, Error> in
+        XCTAssertNotNil(authResult.user)
+
+        return authResult.user
+          .sendEmailVerification()
+      }
+      .sink { completion in
+        if case let .failure(error as NSError) = completion {
+          // Verify user mismatch error.
+          XCTAssertEqual(error.code, AuthErrorCode.invalidRecipientEmail.rawValue)
+
+          sentVerificationEmailExpectation.fulfill()
+        }
+      } receiveValue: { authResult in
+        XCTFail("💥 result unexpected")
+      }
+      .store(in: &cancellables)
+
+    // then
+    wait(for: [sentVerificationEmailExpectation], timeout: expectationTimeout)
   }
 }
