@@ -29,12 +29,6 @@ static NSString *const kDigest = @"com.google.digest";
 static NSString *const kVersionInfo = @"1.0";
 static NSString *const kDeviceCheckinURL = @"https://device-provisioning.googleapis.com/checkin";
 
-@interface FIRMessagingCheckinService (ExposedForTest)
-
-@property(nonatomic, readwrite, strong) NSURLSession *session;
-
-@end
-
 @interface FIRMessagingCheckinServiceTest : XCTestCase
 
 @property(nonatomic) id URLSessionMock;
