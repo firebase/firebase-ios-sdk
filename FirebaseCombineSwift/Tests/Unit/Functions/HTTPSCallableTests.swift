@@ -17,15 +17,18 @@ import Combine
 import XCTest
 @testable import FirebaseFunctions
 
+// hardcoded in FIRHTTPSCallable.m
+private let kFunctionsTimeout: TimeInterval = 70.0
+
 class MockFunctions: Functions {
   var mockCallFunction: () throws -> HTTPSCallableResult?
-  var mockVerifyParameter: ((_ data: Any?) throws -> Void)?
+  var verifyParameters: ((_ name: String, _ data: Any?, _ timeout: TimeInterval) throws -> Void)?
   override func callFunction(_ name: String,
                              with data: Any?,
                              timeout: TimeInterval,
                              completion: @escaping (HTTPSCallableResult?, Error?) -> Void) {
     do {
-      try mockVerifyParameter?(data)
+      try verifyParameters?(name, data, timeout)
       let result = try mockCallFunction()
       completion(result, nil)
     } catch {
@@ -38,15 +41,14 @@ class HTTPSCallableTests: XCTestCase {
   func testCallWithoutParametersSuccess() {
     // given
     var cancellables = Set<AnyCancellable>()
+    let httpsFunctionWasCalledExpectation = expectation(description: "HTTPS Function was called")
     let functionWasCalledExpectation = expectation(description: "Function was called")
-    functionWasCalledExpectation.assertForOverFulfill = true
-    let callbackWasCalledExpectation = expectation(description: "Callback was called")
 
     let functions = MockFunctions.functions()
     let expectedResult = "mockResult w/o parameters"
 
     functions.mockCallFunction = {
-      functionWasCalledExpectation.fulfill()
+      httpsFunctionWasCalledExpectation.fulfill()
       return HTTPSCallableResult(data: expectedResult)
     }
     let dummyFunction = functions.httpsCallable("dummyFunction")
@@ -67,13 +69,13 @@ class HTTPSCallableTests: XCTestCase {
         }
 
         XCTAssertEqual(result, expectedResult)
-        callbackWasCalledExpectation.fulfill()
+        functionWasCalledExpectation.fulfill()
       }
       .store(in: &cancellables)
 
     // then
     wait(
-      for: [callbackWasCalledExpectation, functionWasCalledExpectation],
+      for: [functionWasCalledExpectation, httpsFunctionWasCalledExpectation],
       timeout: expectationTimeout
     )
   }
@@ -81,16 +83,20 @@ class HTTPSCallableTests: XCTestCase {
   func testCallWithParametersSuccess() {
     // given
     var cancellables = Set<AnyCancellable>()
-    let funcationWasCalledExpectation = expectation(description: "Function was called")
+    let httpsFunctionWasCalledExpectation = expectation(description: "HTTPS Function was called")
+    let functionWasCalledExpectation = expectation(description: "Function was called")
 
     let functions = MockFunctions.functions()
     let inputParameter = "input parameter"
     let expectedResult = "mockResult w/ parameters: \(inputParameter)"
-    functions.mockVerifyParameter = { data in
+    functions.verifyParameters = { name, data, timeout  in
+      XCTAssertEqual(name as String, "dummyFunction")
       XCTAssertEqual(data as? String, inputParameter)
+      XCTAssertEqual(timeout as TimeInterval, kFunctionsTimeout)
     }
     functions.mockCallFunction = {
-      HTTPSCallableResult(data: expectedResult)
+      httpsFunctionWasCalledExpectation.fulfill()
+      return HTTPSCallableResult(data: expectedResult)
     }
     let dummyFunction = functions.httpsCallable("dummyFunction")
 
@@ -110,22 +116,29 @@ class HTTPSCallableTests: XCTestCase {
         }
 
         XCTAssertEqual(result, expectedResult)
-        funcationWasCalledExpectation.fulfill()
+        functionWasCalledExpectation.fulfill()
       }
       .store(in: &cancellables)
 
     // then
-    wait(for: [funcationWasCalledExpectation], timeout: expectationTimeout)
+    wait(for: [httpsFunctionWasCalledExpectation, functionWasCalledExpectation], timeout: expectationTimeout)
   }
 
   func testCallWithParametersFailure() {
     // given
     var cancellables = Set<AnyCancellable>()
+    let httpsFunctionWasCalledExpectation = expectation(description: "HTTPS Function was called")
     let functionCallFailedExpectation = expectation(description: "Function call failed")
 
     let functions = MockFunctions.functions()
     let inputParameter = "input parameter"
+    functions.verifyParameters = { name, data, timeout  in
+      XCTAssertEqual(name as String, "dummyFunction")
+      XCTAssertEqual(data as? String, inputParameter)
+      XCTAssertEqual(timeout as TimeInterval, kFunctionsTimeout)
+    }
     functions.mockCallFunction = {
+      httpsFunctionWasCalledExpectation.fulfill()
       throw NSError(domain: FunctionsErrorDomain,
                     code: FunctionsErrorCode.internal.rawValue,
                     userInfo: [NSLocalizedDescriptionKey: "Response is missing data field."])
@@ -147,6 +160,6 @@ class HTTPSCallableTests: XCTestCase {
       .store(in: &cancellables)
 
     // then
-    wait(for: [functionCallFailedExpectation], timeout: expectationTimeout)
+    wait(for: [functionCallFailedExpectation, httpsFunctionWasCalledExpectation], timeout: expectationTimeout)
   }
 }
