@@ -64,6 +64,10 @@ let package = Package(
       targets: ["FirebaseInAppMessagingTarget"]
     ),
     .library(
+      name: "FirebaseInAppMessagingSwift-Beta",
+      targets: ["FirebaseInAppMessagingSwift"]
+    ),
+    .library(
       name: "FirebaseInstallations",
       targets: ["FirebaseInstallations"]
     ),
@@ -571,6 +575,12 @@ let package = Package(
     ),
 
     .target(
+      name: "FirebaseInAppMessagingSwift",
+      dependencies: ["FirebaseInAppMessaging"],
+      path: "FirebaseInAppMessaging/Swift/Source"
+    ),
+
+    .target(
       name: "FirebaseInstanceID",
       dependencies: [
         "FirebaseCore",
@@ -756,6 +766,7 @@ let package = Package(
         "FirebaseFirestoreSwift",
         "FirebaseFunctions",
         "FirebaseInAppMessaging",
+        "FirebaseInAppMessagingSwift",
         "FirebaseInstallations",
         "FirebaseMessaging",
         "FirebaseRemoteConfig",
