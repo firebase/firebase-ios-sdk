@@ -13,10 +13,8 @@
 // limitations under the License.
 
 import Foundation
-import FirebaseCore
 
 /// Model info object with details about downloaded and locally available model.
-// TODO: Can this be backed by user defaults property wrappers?
 class LocalModelInfo {
   /// Model name.
   let name: String
@@ -27,41 +25,35 @@ class LocalModelInfo {
   /// Size of the model, as returned by server.
   let size: Int
 
-  /// Local path of the model.
-  let path: String
-
-  init(name: String, modelHash: String, size: Int, path: String) {
+  init(name: String, modelHash: String, size: Int) {
     self.name = name
     self.modelHash = modelHash
     self.size = size
-    self.path = path
   }
 
-  /// Convenience init to create local model info from remotely downloaded model info and a local model path.
-  convenience init(from remoteModelInfo: RemoteModelInfo, path: String) {
+  /// Convenience init to create local model info from remotely downloaded model info.
+  convenience init(from remoteModelInfo: RemoteModelInfo) {
     self.init(
       name: remoteModelInfo.name,
       modelHash: remoteModelInfo.modelHash,
-      size: remoteModelInfo.size,
-      path: path
+      size: remoteModelInfo.size
     )
   }
 
   /// Convenience init to create local model info from stored info in user defaults.
   convenience init?(fromDefaults defaults: UserDefaults, name: String, appName: String) {
     let defaultsPrefix = LocalModelInfo.getUserDefaultsKeyPrefix(appName: appName, modelName: name)
-    guard let modelHash = defaults.value(forKey: "\(defaultsPrefix).model-hash") as? String,
-      let size = defaults.value(forKey: "\(defaultsPrefix).model-size") as? Int,
-      let path = defaults.value(forKey: "\(defaultsPrefix).model-path") as? String else {
+    guard let modelHash = defaults.string(forKey: "\(defaultsPrefix).model-hash") else {
       return nil
     }
-    self.init(name: name, modelHash: modelHash, size: size, path: path)
+    let size = defaults.integer(forKey: "\(defaultsPrefix).model-size")
+    self.init(name: name, modelHash: modelHash, size: size)
   }
 }
 
 /// Extension to write local model info to user defaults.
 extension LocalModelInfo: DownloaderUserDefaultsWriteable {
-  /// Get user defaults key prefix.
+  // Get user defaults key prefix.
   private static func getUserDefaultsKeyPrefix(appName: String, modelName: String) -> String {
     let bundleID = Bundle.main.bundleIdentifier ?? ""
     return "\(bundleID).\(appName).\(modelName)"
@@ -72,7 +64,12 @@ extension LocalModelInfo: DownloaderUserDefaultsWriteable {
     let defaultsPrefix = LocalModelInfo.getUserDefaultsKeyPrefix(appName: appName, modelName: name)
     defaults.setValue(modelHash, forKey: "\(defaultsPrefix).model-hash")
     defaults.setValue(size, forKey: "\(defaultsPrefix).model-size")
-    defaults.setValue(path, forKey: "\(defaultsPrefix).model-path")
+  }
+
+  func removeFromDefaults(_ defaults: UserDefaults, appName: String) {
+    let defaultsPrefix = LocalModelInfo.getUserDefaultsKeyPrefix(appName: appName, modelName: name)
+    defaults.removeObject(forKey: "\(defaultsPrefix).model-hash")
+    defaults.removeObject(forKey: "\(defaultsPrefix).model-size")
   }
 }
 
@@ -80,8 +77,9 @@ extension LocalModelInfo: DownloaderUserDefaultsWriteable {
 extension UserDefaults {
   static var firebaseMLDefaults: UserDefaults {
     let suiteName = "com.google.firebase.ml"
-    // TODO: reconsider force unwrapping
-    let defaults = UserDefaults(suiteName: suiteName)!
+    guard let defaults = UserDefaults(suiteName: suiteName) else {
+      return UserDefaults.standard
+    }
     return defaults
   }
 }

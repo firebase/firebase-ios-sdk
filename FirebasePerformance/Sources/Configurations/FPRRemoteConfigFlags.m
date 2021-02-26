@@ -95,7 +95,6 @@ typedef NS_ENUM(NSInteger, FPRConfigValueType) {
     [keysToCache setObject:@(FPRConfigValueTypeInteger)
                     forKey:@"fpr_session_gauge_memory_capture_frequency_bg_ms"];
     [keysToCache setObject:@(FPRConfigValueTypeInteger) forKey:@"fpr_session_max_duration_min"];
-    [keysToCache setObject:@(FPRConfigValueTypeFloat) forKey:@"fpr_log_transport_ios_percent"];
     self.configKeys = [keysToCache copy];
 
     [self update];
@@ -134,19 +133,6 @@ typedef NS_ENUM(NSInteger, FPRConfigValueType) {
     // Update the last fetched time to know that remote config fetch has happened in the past.
     self.lastFetchedTime = self.fprRemoteConfig.lastFetchTime;
   }
-}
-
-- (BOOL)containsRemoteConfigFlags {
-  // Ideally this should not be tied to any specific flag but since "fpr_enabled" is and should
-  // always be available we simply check for its existence to validate that the RC flags exists
-  // in the cache or not.
-  id cachedValueObject = [self cachedValueForConfigFlag:@"fpr_enabled"];
-
-  if (cachedValueObject) {
-    return true;
-  }
-
-  return false;
 }
 
 #pragma mark - Util methods.
@@ -342,12 +328,6 @@ typedef NS_ENUM(NSInteger, FPRConfigValueType) {
 - (int)sessionMaxDurationWithDefaultValue:(int)maxDurationInMinutes {
   return [self getIntValueForFlag:@"fpr_session_max_duration_min"
                      defaultValue:maxDurationInMinutes];
-}
-
-#pragma mark - Google Data Transport related methods
-
-- (float)fllTransportPercentageWithDefaultValue:(float)percentage {
-  return [self getFloatValueForFlag:@"fpr_log_transport_ios_percent" defaultValue:percentage];
 }
 
 @end

@@ -7,8 +7,8 @@ on:
     - '.github/workflows/google-utilities-components.yml'
     - 'Gemfile'
   schedule:
-    # Run every day at 11pm (PST) - cron uses UTC times
-    - cron:  '0 7 * * *'
+    # Run every day at 10pm (PST) - cron uses UTC times
+    - cron:  '0 6 * * *'
 
 jobs:
   pod-lib-lint:

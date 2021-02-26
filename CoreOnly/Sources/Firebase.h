@@ -99,12 +99,6 @@ FirebaseAnalytics dependency to your project to ensure Messaging works as intend
 
   #if __has_include(<FirebasePerformance/FirebasePerformance.h>)
     #import <FirebasePerformance/FirebasePerformance.h>
-    #if TARGET_OS_IOS && !__has_include(<FirebaseAnalytics/FirebaseAnalytics.h>)
-      #ifndef FIREBASE_ANALYTICS_SUPPRESS_WARNING
-        #warning "FirebaseAnalytics.framework is not included in your target. Please add the \
-FirebaseAnalytics dependency to your project to ensure Firebase Performance works as intended."
-      #endif // #ifndef FIREBASE_ANALYTICS_SUPPRESS_WARNING
-    #endif
   #endif
 
   #if __has_include(<FirebaseRemoteConfig/FirebaseRemoteConfig.h>)

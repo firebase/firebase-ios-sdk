@@ -17,7 +17,6 @@
 #import <Foundation/Foundation.h>
 
 #include <cstddef>
-#include <deque>
 #include <map>
 #include <memory>
 #include <unordered_map>
@@ -302,7 +301,7 @@ typedef std::unordered_map<auth::User, NSMutableArray<FSTOutstandingWrite *> *, 
 - (std::map<model::DocumentKey, model::TargetId>)activeLimboDocumentResolutions;
 
 /** The current set of documents in limbo that are enqueued for resolution. */
-- (std::deque<model::DocumentKey>)enqueuedLimboDocumentResolutions;
+- (std::vector<model::DocumentKey>)enqueuedLimboDocumentResolutions;
 
 /** The expected set of documents in limbo with an active target. */
 - (const model::DocumentKeySet &)expectedActiveLimboDocuments;

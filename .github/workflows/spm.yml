@@ -7,8 +7,8 @@ on:
     - 'Package.swift'
     - 'Gemfile'
   schedule:
-    # Run every day at 11pm (PST) - cron uses UTC times
-    - cron:  '0 7 * * *'
+    # Run every day at 12am (PST) - cron uses UTC times
+    - cron:  '0 8 * * *'
 
 # This workflow builds and tests the Swift Package Manager. Only iOS runs on PRs
 # because each platform takes 15-20 minutes after adding Firestore.

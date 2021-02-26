@@ -23,7 +23,6 @@
 #import "FirebasePerformance/Sources/Configurations/FPRRemoteConfigFlags.h"
 
 #import "FirebasePerformance/Tests/Unit/Configurations/FPRFakeRemoteConfig.h"
-#import "FirebasePerformance/Tests/Unit/Configurations/FPRFakeRemoteConfigFlags.h"
 
 @interface FPRConfigurationsTest : XCTestCase
 
@@ -72,8 +71,6 @@
 
   XCTAssertEqual([configurations memorySamplingFrequencyInForegroundInMS], 100.0);
   XCTAssertEqual([configurations memorySamplingFrequencyInBackgroundInMS], 0.0);
-
-  XCTAssertEqual([configurations fllTransportPercentage], 0.0);
 }
 
 /** Validates if overrides work for diagnostics enabled. */
@@ -540,108 +537,6 @@
   [userDefaults setObject:@(200) forKey:configKey];
   XCTAssertEqual([configurations maxSessionLengthInMinutes], 200);
   [configFlags resetCache];
-}
-
-/** Validates if Firebase Remote Config overrides work for FLL transport rate. */
-- (void)testFllTransportRemoteConfigOverrides {
-  // Initialize the configurations
-  FPRConfigurations *configurations =
-      [[FPRConfigurations alloc] initWithSources:FPRConfigurationSourceRemoteConfig];
-
-  // Set fakes to the configurations
-  FPRFakeRemoteConfig *fakeRemoteConfig = [[FPRFakeRemoteConfig alloc] init];
-  FPRFakeRemoteConfigFlags *fakeConfigFlags =
-      [[FPRFakeRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)fakeRemoteConfig];
-  fakeConfigFlags.userDefaults = [[NSUserDefaults alloc] init];
-  configurations.remoteConfigFlags = fakeConfigFlags;
-
-  // Condition: when contains RC flags
-  fakeConfigFlags.containsRemoteConfigFlagValues = true;
-
-  // Verify (1): that Remote Config value is honoured
-  NSString *transportFlagConfigKey =
-      [NSString stringWithFormat:@"%@.%@", kFPRConfigPrefix, @"fpr_log_transport_ios_percent"];
-  [fakeConfigFlags.userDefaults setObject:@(25.00) forKey:transportFlagConfigKey];
-  XCTAssertEqual([configurations fllTransportPercentage], 25.00);
-
-  // Empty PList
-  NSDictionary<NSString *, id> *infoDictionary = configurations.infoDictionary;
-
-  // Verify (2): that PList Override takes the priority
-  configurations.infoDictionary = @{@"fllTransportPercentage" : @(1.00)};
-  XCTAssertEqual([configurations fllTransportPercentage], 1.00);
-
-  // Verify (3): that Remote Config value is honoured after removing the PList Override
-  configurations.infoDictionary = infoDictionary;
-  XCTAssertEqual([configurations fllTransportPercentage], 25.00);
-}
-
-/** Validates the onboarding scenario for the FLL Transport flag. */
-- (void)testFllTransportRateWithoutAnyRCFlag {
-  // Initialize the configurations
-  FPRConfigurations *configurations =
-      [[FPRConfigurations alloc] initWithSources:FPRConfigurationSourceRemoteConfig];
-
-  // Set fakes to the configurations
-  FPRFakeRemoteConfig *fakeRemoteConfig = [[FPRFakeRemoteConfig alloc] init];
-  FPRFakeRemoteConfigFlags *fakeConfigFlags =
-      [[FPRFakeRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)fakeRemoteConfig];
-  fakeConfigFlags.userDefaults = [[NSUserDefaults alloc] init];
-  configurations.remoteConfigFlags = fakeConfigFlags;
-
-  // Condition (1): when does not contains any RC flag
-  fakeConfigFlags.containsRemoteConfigFlagValues = false;
-
-  // Verify: that we send 0% to FLL
-  XCTAssertEqual([configurations fllTransportPercentage], 0.00);
-}
-
-/** Validates the active rollout scenario for the FLL Transport flag. */
-- (void)testFllTransportRateWhenContainsRCFlagsIncludingTransport {
-  // Initialize the configurations
-  FPRConfigurations *configurations =
-      [[FPRConfigurations alloc] initWithSources:FPRConfigurationSourceRemoteConfig];
-
-  // Set fakes to the configurations
-  FPRFakeRemoteConfig *fakeRemoteConfig = [[FPRFakeRemoteConfig alloc] init];
-  FPRFakeRemoteConfigFlags *fakeConfigFlags =
-      [[FPRFakeRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)fakeRemoteConfig];
-  fakeConfigFlags.userDefaults = [[NSUserDefaults alloc] init];
-  configurations.remoteConfigFlags = fakeConfigFlags;
-
-  // Condition (1): when contains RC flags
-  fakeConfigFlags.containsRemoteConfigFlagValues = true;
-  // Condition (2): including Transport percentage flag
-  NSString *transportFlagConfigKey =
-      [NSString stringWithFormat:@"%@.%@", kFPRConfigPrefix, @"fpr_log_transport_ios_percent"];
-  [fakeConfigFlags.userDefaults setObject:@(25.00) forKey:transportFlagConfigKey];
-
-  // Verify: that we honor the flag value
-  XCTAssertEqual([configurations fllTransportPercentage], 25.00);
-}
-
-/** Validates the deprecation scenario for the FLL Transport flag. */
-- (void)testFllTransportRateWhenContainsRCFlagsWithoutTransport {
-  // Initialize the configurations
-  FPRConfigurations *configurations =
-      [[FPRConfigurations alloc] initWithSources:FPRConfigurationSourceRemoteConfig];
-
-  // Set fakes to the configurations
-  FPRFakeRemoteConfig *fakeRemoteConfig = [[FPRFakeRemoteConfig alloc] init];
-  FPRFakeRemoteConfigFlags *fakeConfigFlags =
-      [[FPRFakeRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)fakeRemoteConfig];
-  fakeConfigFlags.userDefaults = [[NSUserDefaults alloc] init];
-  configurations.remoteConfigFlags = fakeConfigFlags;
-
-  // Condition (1): When contains RC flags
-  fakeConfigFlags.containsRemoteConfigFlagValues = true;
-  // Condition (2): But does not contains Transport percentage flag
-  NSString *transportFlagConfigKey =
-      [NSString stringWithFormat:@"%@.%@", kFPRConfigPrefix, @"fpr_log_transport_ios_percent"];
-  XCTAssertNil([fakeConfigFlags.userDefaults objectForKey:transportFlagConfigKey]);
-
-  // Verify: that we send 100% to FLL
-  XCTAssertEqual([configurations fllTransportPercentage], 100.00);
 }
 
 @end

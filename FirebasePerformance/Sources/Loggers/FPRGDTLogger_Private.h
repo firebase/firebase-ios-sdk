@@ -14,19 +14,16 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebasePerformance/Sources/Loggers/FPRGDTCCLogger.h"
+#import "FirebasePerformance/Sources/Loggers/FPRGDTLogger.h"
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
 
-/** FPRGDTCCLogger private definition used for unit testing. */
-@interface FPRGDTCCLogger ()
+/** FPRGDTLogger private definition used for unit testing. */
+@interface FPRGDTLogger ()
 
 /** Log source for which the logger is being used. */
 @property(nonatomic, readwrite) NSInteger logSource;
-
-/** Google Data Transport instance for Clearcut. */
-@property(nonatomic, readwrite) GDTCORTransport *gdtcctTransport;
 
 /** Google Data Transport instance for FLL. */
 @property(nonatomic, readwrite) GDTCORTransport *gdtfllTransport;
