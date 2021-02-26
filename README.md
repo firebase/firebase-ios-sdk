@@ -187,6 +187,13 @@ files without real values, but can be replaced with real plist files. To get you
 identifier (e.g. `com.google.Database-Example`)
 4. Download the resulting `GoogleService-Info.plist` and add it to the Xcode project.
 
+### Coverage Report Generation
+
+This tool is to help generate coverage reports for pull requests. It's defined
+by the [test_coverage workflow](https://github.com/firebase/firebase-ios-sdk/blob/master/.github/workflows/test_coverage.yml).
+Currently this will support internal developers. More details are in
+[scripts/code_coverage_report](https://github.com/firebase/firebase-ios-sdk/tree/master/scripts/code_coverage_report)
+
 ## Specific Component Instructions
 See the sections below for any special instructions for those components.
 
