@@ -110,7 +110,7 @@ static NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test
   [self waitForExpectationsWithTimeout:0.1
                                handler:^(NSError *error) {
                                  XCTAssertNil(error);
-                                 [_mockPubSub verify];
+                                 [self->_mockPubSub verify];
                                }];
 }
 
@@ -144,7 +144,7 @@ static NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test
   [self waitForExpectationsWithTimeout:0.1
                                handler:^(NSError *error) {
                                  XCTAssertNil(error);
-                                 [_mockPubSub verify];
+                                 [self->_mockPubSub verify];
                                }];
 }
 

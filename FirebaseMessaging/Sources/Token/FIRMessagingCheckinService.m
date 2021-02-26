@@ -39,8 +39,6 @@ static NSUInteger const kCheckinType = 2;  // DeviceType IOS in l/w/a/_checkin.p
 static NSUInteger const kCheckinVersion = 2;
 static NSUInteger const kFragment = 0;
 
-static FIRMessagingURLRequestTestBlock testBlock;
-
 @interface FIRMessagingCheckinService ()
 
 @property(nonatomic, readwrite, strong) NSURLSession *session;
@@ -63,7 +61,6 @@ static FIRMessagingURLRequestTestBlock testBlock;
   return self;
 }
 - (void)dealloc {
-  testBlock = nil;
   [self.session invalidateAndCancel];
 }
 
@@ -177,12 +174,6 @@ static FIRMessagingURLRequestTestBlock testBlock;
           completion(checkinPreferences, nil);
         }
       };
-
-  // Test block
-  if (testBlock) {
-    testBlock(request, handler);
-    return;
-  }
 
   NSURLSessionDataTask *task = [self.session dataTaskWithRequest:request completionHandler:handler];
   [task resume];
