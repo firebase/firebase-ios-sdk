@@ -126,7 +126,7 @@ helloWorld.call()
     }
   } receiveValue: { functionResult in
     if let result = functionResult.data as? String {
-      print("The function returned: \(result)")      
+      print("The function returned: \(result)")
     }
   }
   .store(in: &cancellables)
@@ -144,7 +144,7 @@ helloWorld.call("Peter")
     }
   } receiveValue: { functionResult in
     if let result = functionResult.data as? String {
-      print("The function returned: \(result)")      
+      print("The function returned: \(result)")
     }
   }
   .store(in: &cancellables)
