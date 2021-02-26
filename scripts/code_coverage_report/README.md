@@ -10,7 +10,7 @@ Coverage reports of SDK frameworks will be displayed in a pull request if the ch
 To create a code coverage workflow for a new SDK,
 1. Add `newsdk` and its patterns in [code_coverage_file_list.json](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/code_coverage_report/code_coverage_file_list.json).
 2. Add a new output flag, e.g. `newsdk_run_job`, in the [coverage workflow](https://github.com/firebase/firebase-ios-sdk/blob/64d50a7f7b3af104a88f9c9203285ae20ea309d4/.github/workflows/test_coverage.yml#L17). `newsdk_run_job` should be aligned with the name of SDK `newsdk` in code_coverage_file_list.json.
-3. Add a new testing job in the [workflow](https://github.com/firebase/firebase-ios-sdk/blob/master/.github/workflows/test_coverage.yml):
+3. Add a newsdk coverage job in the [workflow](https://github.com/firebase/firebase-ios-sdk/blob/master/.github/workflows/test_coverage.yml):
 ```
 pod-lib-lint-newsdk:
     needs: check
