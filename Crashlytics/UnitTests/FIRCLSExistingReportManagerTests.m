@@ -129,7 +129,8 @@
 }
 
 - (BOOL)reportPathAtIndex:(NSUInteger)index isReportID:(NSString *)reportID {
-  return [[self.existingReportManager.existingUnemptyActiveReportPaths objectAtIndex:index] containsString:reportID];
+  return [[self.existingReportManager.existingUnemptyActiveReportPaths objectAtIndex:index]
+      containsString:reportID];
 }
 
 #pragma mark - Tests
