@@ -43,7 +43,6 @@ static NSString *const kDeviceCheckinURL = @"https://device-provisioning.googlea
 
   // Stub NSURLSession constructor before instantiating FIRMessagingCheckinService to inject
   // URLSessionMock.
-  // TODO: inject NSURLSession instance via an initializer.
   self.URLSessionMock = OCMClassMock([NSURLSession class]);
   OCMStub(ClassMethod([self.URLSessionMock sessionWithConfiguration:[OCMArg any]]))
       .andReturn(self.URLSessionMock);
