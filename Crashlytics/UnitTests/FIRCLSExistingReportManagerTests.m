@@ -1,9 +1,16 @@
+// Copyright 2021 Google LLC
 //
-//  FIRCLSExistingReportManagerTests.m
-//  Pods
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-//  Created by Sam Edson on 2/26/21.
+//      http://www.apache.org/licenses/LICENSE-2.0
 //
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #import <XCTest/XCTest.h>
 
@@ -121,6 +128,10 @@
                                atPath:[report pathForContentFile:FIRCLSReportExceptionFile]];
 }
 
+- (BOOL)reportPathAtIndex:(NSUInteger)index isReportID:(NSString *)reportID {
+  return [[self.existingReportManager.existingUnemptyActiveReportPaths objectAtIndex:index] containsString:reportID];
+}
+
 #pragma mark - Tests
 
 - (void)testNoReports {
@@ -191,6 +202,12 @@
 
   // Newest report based on started_at timestamp
   XCTAssertEqualObjects(self.existingReportManager.newestUnsentReport.reportID, @"report_G");
+
+  // Make sure we're sorting correctly
+  XCTAssertEqual([self reportPathAtIndex:0 isReportID:@"report_G"], true);
+  XCTAssertEqual([self reportPathAtIndex:1 isReportID:@"report_D"], true);
+  XCTAssertEqual([self reportPathAtIndex:2 isReportID:@"report_I"], true);
+  XCTAssertEqual([self reportPathAtIndex:3 isReportID:@"report_F"], true);
 }
 
 @end
