@@ -1,6 +1,7 @@
 # Code Coverage Report Generation
 
-This tool is to help generate coverage reports for pull requests in the [test_coverage  workflow](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/code_coverage_report/code_coverage_file_list.json).
+This tool is to help generate coverage reports for pull requests. It's defined by the [test_coverage  workflow](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/code_coverage_report/code_coverage_file_list.json).
+
 Coverage reports of SDK frameworks will be displayed in a pull request if the change is under corresponding SDK file patterns.
 
 [UpdatedFilesCollector](https://github.com/firebase/firebase-ios-sdk/tree/master/scripts/code_coverage_report/generate_code_coverage_report/Sources/UpdatedFilesCollector) will detect file changes and compare file paths to file patterns in [code_coverage_file_list.json](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/code_coverage_report/code_coverage_file_list.json). If updated file paths fit any patterns, corresponding SDK coverage job will be triggered.
