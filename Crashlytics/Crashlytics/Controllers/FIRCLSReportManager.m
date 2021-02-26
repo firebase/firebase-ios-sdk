@@ -192,7 +192,7 @@ typedef NSNumber FIRCLSWrappedReportAction;
 //    2. The developer uses the processCrashReports API to indicate whether the report
 //       should be sent or deleted, at which point the promise will be resolved with the action.
 - (FBLPromise<FIRCLSWrappedReportAction *> *)waitForReportAction {
-  FIRCrashlyticsReport *unsentReport = [self.existingReportManager findNewestUnsentReport];
+  FIRCrashlyticsReport *unsentReport = [self.existingReportManager newestUnsentReport];
   [_unsentReportsAvailable fulfill:unsentReport];
 
   // If data collection gets enabled while we are waiting for an action, go ahead and send the
