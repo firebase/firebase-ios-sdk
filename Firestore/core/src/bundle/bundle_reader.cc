@@ -97,10 +97,9 @@ std::unique_ptr<BundleElement> BundleReader::ReadNextElement() {
 }
 
 absl::optional<std::string> BundleReader::ReadLengthPrefix() {
-  // length string of size 10 indicates an element about 9GB, which is
-  // more than enough for valid bundles, given we have 1mb document size
-  // restriction.
-  StreamReadResult result = input_->ReadUntil('{', 10);
+  // length string of size 16 indicates an element about 1PB, which is
+  // impossible for valid bundles.
+  StreamReadResult result = input_->ReadUntil('{', 16);
   if (!result.ok()) {
     reader_status_.Update(result.status());
     return absl::nullopt;
