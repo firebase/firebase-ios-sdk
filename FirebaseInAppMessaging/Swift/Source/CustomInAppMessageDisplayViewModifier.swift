@@ -20,7 +20,7 @@ import SwiftUI
 @available(iOS 13, tvOS 13, *)
 struct ImageOnlyInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModifier {
   var closure: (InAppMessagingImageOnlyDisplay, InAppMessagingDisplayDelegate) -> DisplayMessage
-  @ObservedObject var delegateBridge: DelegateBridge = DelegateBridge()
+  @ObservedObject var delegateBridge: DelegateBridge = DelegateBridge.shared
 
   func body(content: Content) -> some View {
     return content.overlay(overlayView())
@@ -54,7 +54,7 @@ public extension View {
 @available(iOS 13, tvOS 13, *)
 struct BannerInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModifier {
   var closure: (InAppMessagingBannerDisplay, InAppMessagingDisplayDelegate) -> DisplayMessage
-  @ObservedObject var delegateBridge: DelegateBridge = DelegateBridge()
+  @ObservedObject var delegateBridge: DelegateBridge = DelegateBridge.shared
 
   func body(content: Content) -> some View {
     return content.overlay(overlayView())
@@ -87,7 +87,7 @@ public extension View {
 @available(iOS 13, tvOS 13, *)
 struct ModalInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModifier {
   var closure: (InAppMessagingModalDisplay, InAppMessagingDisplayDelegate) -> DisplayMessage
-  @ObservedObject var delegateBridge: DelegateBridge = DelegateBridge()
+  @ObservedObject var delegateBridge: DelegateBridge = DelegateBridge.shared
 
   func body(content: Content) -> some View {
     return content.overlay(overlayView())
@@ -120,7 +120,7 @@ public extension View {
 @available(iOS 13, tvOS 13, *)
 struct CardInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModifier {
   var closure: (InAppMessagingCardDisplay, InAppMessagingDisplayDelegate) -> DisplayMessage
-  @ObservedObject var delegateBridge: DelegateBridge = DelegateBridge()
+  @ObservedObject var delegateBridge: DelegateBridge = DelegateBridge.shared
 
   func body(content: Content) -> some View {
     return content.overlay(overlayView())
@@ -150,10 +150,13 @@ public extension View {
 
 // MARK: Bridge to Firebase In-App Messaging SDK.
 
+@available(iOS 13, tvOS 13, *)
 class DelegateBridge: NSObject, InAppMessagingDisplay, InAppMessagingDisplayDelegate,
   ObservableObject {
   @Published var inAppMessageData: (InAppMessagingDisplayMessage,
                                     InAppMessagingDisplayDelegate)? = nil
+  
+  static let shared = DelegateBridge()
 
   override init() {
     super.init()
