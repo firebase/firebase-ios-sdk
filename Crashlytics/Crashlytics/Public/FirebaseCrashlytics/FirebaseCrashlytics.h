@@ -15,5 +15,6 @@
  */
 
 #import "FIRCrashlytics.h"
+#import "FIRCrashlyticsReport.h"
 #import "FIRExceptionModel.h"
 #import "FIRStackFrame.h"

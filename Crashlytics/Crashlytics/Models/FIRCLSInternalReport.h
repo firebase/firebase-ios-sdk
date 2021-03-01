@@ -49,7 +49,7 @@ extern NSString *const FIRCLSReportUserCompactedKVFile;
 
 @property(nonatomic, copy, readonly) NSString *directoryName;
 @property(nonatomic, copy) NSString *path;
-@property(nonatomic, assign, readonly) BOOL needsToBeSubmitted;
+@property(nonatomic, assign, readonly) BOOL hasAnyEvents;
 
 // content paths
 @property(nonatomic, copy, readonly) NSString *binaryImagePath;
