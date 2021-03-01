@@ -155,7 +155,7 @@ class DelegateBridge: NSObject, InAppMessagingDisplay, InAppMessagingDisplayDele
   ObservableObject {
   @Published var inAppMessageData: (InAppMessagingDisplayMessage,
                                     InAppMessagingDisplayDelegate)? = nil
-  
+
   static let shared = DelegateBridge()
 
   override init() {
