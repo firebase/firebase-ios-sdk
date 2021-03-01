@@ -71,7 +71,7 @@ using firebase::firestore::util::ThrowInvalidArgument;
 
 - (FIRLoadBundleHandle)observeWithHandler:(void (^)(FIRLoadBundleTaskProgress *progress))handler {
   if (!handler) {
-    ThrowInvalidArgument("Handle cannot be nil");
+    ThrowInvalidArgument("Handler cannot be nil");
   }
 
   api::LoadBundleTask::ProgressObserver observer =
