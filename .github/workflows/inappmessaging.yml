@@ -38,7 +38,9 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Prereqs
-      run:  scripts/install_prereqs.sh InAppMessaging ${{ matrix.platform }} xcodebuild
+      run: |
+       scripts/install_prereqs.sh InAppMessaging ${{ matrix.platform }} xcodebuild
+       scripts/install_prereqs.sh InAppMessagingSwift ${{ matrix.platform }} xcodebuild
     - name: Build and test
       run: |
        scripts/third_party/travis/retry.sh scripts/build.sh InAppMessaging ${{ matrix.platform }} xcodebuild
