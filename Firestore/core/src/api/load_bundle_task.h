@@ -16,7 +16,6 @@
 #ifndef FIRESTORE_CORE_SRC_API_LOAD_BUNDLE_TASK_H_
 #define FIRESTORE_CORE_SRC_API_LOAD_BUNDLE_TASK_H_
 
-#include <array>
 #include <cstdint>
 #include <functional>
 #include <memory>
@@ -37,7 +36,7 @@ namespace api {
  * Both `kSuccess` and `kError` are final states: task will abort
  * or complete and there will be no more updates after they are reported.
  */
-enum class LoadBundleTaskState { kError = 0, kInProgress = 1, kSuccess = 2 };
+enum class LoadBundleTaskState { kError, kInProgress, kSuccess };
 
 /** Represents a progress update or a final state from loading bundles. */
 class LoadBundleTaskProgress {
@@ -120,7 +119,7 @@ inline bool operator!=(const LoadBundleTaskProgress lhs,
 class LoadBundleTask {
  public:
   /** A handle used to look up and remove observer from the task. */
-  using LoadBundleHandle = std::string;
+  using LoadBundleHandle = int64_t;
 
   /** Observer type that is called by the task when there is an update. */
   using ProgressObserver = std::function<void(LoadBundleTaskProgress)>;
@@ -131,40 +130,29 @@ class LoadBundleTask {
 
   /**
    * Instructs the task to notify the specified observer when there is a
-   * progress update with the given `LoadBundleTaskState`.
-   *
-   * TODO: Add ordering guarantee.
+   * progress update.
    *
    * @return A handle that can be used to remove the callback from this task.
    */
-  LoadBundleHandle ObserveState(LoadBundleTaskState state,
-                                ProgressObserver callback);
+  LoadBundleHandle ObserveState(ProgressObserver callback);
 
   /**
    * Removes the observer associated with the given handle, does nothing if the
    * callback cannot be found.
    */
-  void RemoveObserver(const LoadBundleHandle&);
-
-  /**
-   * Removes all observers associated with the given `LoadBundleTaskState`.
-   */
-  void RemoveObservers(LoadBundleTaskState state);
+  void RemoveObserver(const LoadBundleHandle& handle);
 
   /** Removes all observers. */
   void RemoveAllObservers();
 
   /**
-   * Notifies observers with a success progress. Both `Success` and `InProgress`
-   * observers will get notified.
+   * Notifies observers with a `Success` progress.
    */
   void SetSuccess(LoadBundleTaskProgress success_progress);
 
   /**
    * Notifies observers with a error progress, by changing the last progress
    * this instance has been with an `Error` state.
-   *
-   * Both `Error` and `InProgress` observers will get notified.
    */
   void SetError();
 
@@ -176,11 +164,10 @@ class LoadBundleTask {
   using HandleObservers =
       std::vector<std::pair<LoadBundleHandle, ProgressObserver>>;
 
-  /** Gets all observers associated with the given state. */
-  HandleObservers& GetObservers(LoadBundleTaskState state);
+  /** Notifies all observers with current `progress_snapshot_`. */
+  void NotifyObservers();
 
-  /** Notifies all given observers. */
-  void NotifyObservers(const HandleObservers& observers);
+  LoadBundleHandle next_handle_ = 1;
 
   /** The executor to run all observers when notified. */
   std::shared_ptr<util::Executor> user_executor_;
@@ -188,8 +175,8 @@ class LoadBundleTask {
   /** Guard to all internal state mutation. */
   mutable std::mutex mutex_;
 
-  /** An array holds mapping from `LoadBundleTaskState` values to observers. */
-  std::array<HandleObservers, 3> observers_by_states_;
+  /** An vector holds observers. */
+  HandleObservers observers_;
 
   /** The last progress update. */
   LoadBundleTaskProgress progress_snapshot_;

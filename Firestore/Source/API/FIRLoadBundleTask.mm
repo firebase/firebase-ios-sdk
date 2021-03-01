@@ -19,8 +19,6 @@
 #include <memory>
 
 #include "Firestore/core/src/api/load_bundle_task.h"
-#include "Firestore/core/src/util/hard_assert.h"
-#include "Firestore/core/src/util/string_apple.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -28,22 +26,6 @@ namespace {
 
 namespace api = firebase::firestore::api;
 namespace util = firebase::firestore::util;
-
-/**
- * Converts a public FIRLoadBundleTaskState into its internal equivalent.
- */
-api::LoadBundleTaskState ConvertEnum(FIRLoadBundleTaskState state) {
-  switch (state) {
-    case FIRLoadBundleTaskStateInProgress:
-      return api::LoadBundleTaskState::kInProgress;
-    case FIRLoadBundleTaskStateSuccess:
-      return api::LoadBundleTaskState::kSuccess;
-    case FIRLoadBundleTaskStateError:
-      return api::LoadBundleTaskState::kError;
-    default:
-      HARD_FAIL("Unexpected load bundle task state : %s", state);
-  }
-}
 
 }  // namespace
 
@@ -85,25 +67,20 @@ api::LoadBundleTaskState ConvertEnum(FIRLoadBundleTaskState state) {
   return self;
 }
 
-- (FIRLoadBundleHandle)observeState:(FIRLoadBundleTaskState)state
-                            handler:(void (^)(FIRLoadBundleTaskProgress *progress))handler {
+- (FIRLoadBundleHandle)observeWithHandler:(void (^)(FIRLoadBundleTaskProgress *progress))handler {
   if (!handler) {
-    return nil;
+    return NSIntegerMin;
   }
 
   api::LoadBundleTask::ProgressObserver observer =
       [handler](api::LoadBundleTaskProgress internal_progress) {
         handler([[FIRLoadBundleTaskProgress alloc] initWithInternal:internal_progress]);
       };
-  return util::MakeNSString(_task->ObserveState(ConvertEnum(state), std::move(observer)));
+  return _task->ObserveState(std::move(observer));
 }
 
 - (void)removeObserverWithHandle:(FIRLoadBundleHandle)handle {
-  _task->RemoveObserver(util::MakeString(handle));
-}
-
-- (void)removeAllObserversForState:(FIRLoadBundleTaskState)state {
-  _task->RemoveObservers(ConvertEnum(state));
+  _task->RemoveObserver(handle);
 }
 
 - (void)removeAllObservers {

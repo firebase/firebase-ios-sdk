@@ -28,12 +28,11 @@ namespace firestore {
 namespace api {
 
 LoadBundleTask::LoadBundleHandle LoadBundleTask::ObserveState(
-    LoadBundleTaskState state, ProgressObserver observer) {
+    ProgressObserver observer) {
   std::lock_guard<std::mutex> lock(mutex_);
 
-  HandleObservers& observers = GetObservers(state);
-  auto handle = util::CreateAutoId();
-  observers.push_back({handle, std::move(observer)});
+  auto handle = next_handle_++;
+  observers_.push_back({handle, std::move(observer)});
 
   return handle;
 }
@@ -41,30 +40,19 @@ LoadBundleTask::LoadBundleHandle LoadBundleTask::ObserveState(
 void LoadBundleTask::RemoveObserver(const LoadBundleHandle& handle) {
   std::lock_guard<std::mutex> lock(mutex_);
 
-  for (auto& observers : observers_by_states_) {
-    auto found = absl::c_find_if(
-        observers, [&](const HandleObservers::value_type& observer) {
-          return observer.first == handle;
-        });
-    if (found != observers.end()) {
-      observers.erase(found);
-    }
+  auto found = absl::c_find_if(
+      observers_, [&](const HandleObservers::value_type& observer) {
+        return observer.first == handle;
+      });
+  if (found != observers_.end()) {
+    observers_.erase(found);
   }
-}
-
-void LoadBundleTask::RemoveObservers(LoadBundleTaskState state) {
-  std::lock_guard<std::mutex> lock(mutex_);
-
-  HandleObservers& observers = GetObservers(state);
-  observers.clear();
 }
 
 void LoadBundleTask::RemoveAllObservers() {
   std::lock_guard<std::mutex> lock(mutex_);
 
-  for (auto& observers : observers_by_states_) {
-    observers.clear();
-  }
+  observers_.clear();
 }
 
 void LoadBundleTask::SetSuccess(LoadBundleTaskProgress success_progress) {
@@ -73,45 +61,29 @@ void LoadBundleTask::SetSuccess(LoadBundleTaskProgress success_progress) {
   std::lock_guard<std::mutex> lock(mutex_);
 
   progress_snapshot_ = success_progress;
-
-  for (auto state :
-       {LoadBundleTaskState::kInProgress, LoadBundleTaskState::kSuccess}) {
-    const auto& observers = GetObservers(state);
-    NotifyObservers(observers);
-  }
+  NotifyObservers();
 }
 
 void LoadBundleTask::SetError() {
   std::lock_guard<std::mutex> lock(mutex_);
 
   progress_snapshot_.set_state(LoadBundleTaskState::kError);
-
-  for (auto state :
-       {LoadBundleTaskState::kInProgress, LoadBundleTaskState::kError}) {
-    const auto& observers = GetObservers(state);
-    NotifyObservers(observers);
-  }
+  NotifyObservers();
 }
 
 void LoadBundleTask::UpdateProgress(LoadBundleTaskProgress progress) {
   std::lock_guard<std::mutex> lock(mutex_);
 
   progress_snapshot_ = progress;
-  const auto& observers = GetObservers(LoadBundleTaskState::kInProgress);
-  NotifyObservers(observers);
+  NotifyObservers();
 }
 
-void LoadBundleTask::NotifyObservers(const HandleObservers& observers) {
-  for (const auto& entry : observers) {
+void LoadBundleTask::NotifyObservers() {
+  for (const auto& entry : observers_) {
     const auto& observer = entry.second;
     const auto& progress = progress_snapshot_;
     user_executor_->Execute([observer, progress] { observer(progress); });
   }
-}
-
-LoadBundleTask::HandleObservers& LoadBundleTask::GetObservers(
-    LoadBundleTaskState state) {
-  return observers_by_states_.at(static_cast<int>(state));
 }
 
 }  // namespace api

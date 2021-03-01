@@ -40,17 +40,14 @@ NS_SWIFT_NAME(LoadBundleTaskProgress)
 
 @end
 
-typedef NSString *FIRLoadBundleHandle NS_SWIFT_NAME(LoadBundleHandle);
+typedef NSInteger FIRLoadBundleHandle NS_SWIFT_NAME(LoadBundleHandle);
 
 NS_SWIFT_NAME(LoadBundleTask)
 @interface FIRLoadBundleTask : NSObject
 
-- (FIRLoadBundleHandle)observeState:(FIRLoadBundleTaskState)state
-                            handler:(void (^)(FIRLoadBundleTaskProgress *progress))handler;
+- (FIRLoadBundleHandle)observeWithHandler:(void (^)(FIRLoadBundleTaskProgress *progress))handler;
 
 - (void)removeObserverWithHandle:(FIRLoadBundleHandle)handle;
-
-- (void)removeAllObserversForState:(FIRLoadBundleTaskState)state;
 
 - (void)removeAllObservers;
 
