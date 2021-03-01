@@ -2205,12 +2205,6 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     return NO;
   }
 
-  if (_userAccessGroup == nil && accessGroup != nil) {
-    NSString *userKey = [NSString stringWithFormat:kUserKey, _firebaseAppName];
-    [_keychainServices removeDataForKey:userKey error:outError];
-  }
-  _userAccessGroup = accessGroup;
-
   FIRUser *user = [self getStoredUserForAccessGroup:accessGroup error:outError];
   if (!user && outError && *outError) {
     return NO;
@@ -2220,6 +2214,11 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     return NO;
   }
 
+  if (_userAccessGroup == nil && accessGroup != nil) {
+    NSString *userKey = [NSString stringWithFormat:kUserKey, _firebaseAppName];
+    [_keychainServices removeDataForKey:userKey error:outError];
+  }
+  _userAccessGroup = accessGroup;
   self->_lastNotifiedUserToken = user.rawAccessToken;
 
   return YES;
@@ -2259,7 +2258,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 #endif  // TARGET_OS_WATCH
     user = [unarchiver decodeObjectOfClass:[FIRUser class] forKey:userKey];
   } else {
-    user = [self.storedUserManager getStoredUserForAccessGroup:self.userAccessGroup
+    user = [self.storedUserManager getStoredUserForAccessGroup:accessGroup
                                    shareAuthStateAcrossDevices:self.shareAuthStateAcrossDevices
                                              projectIdentifier:self.app.options.APIKey
                                                          error:outError];
