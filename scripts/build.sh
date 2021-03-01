@@ -33,6 +33,7 @@ product can be one of:
   Firebase
   Firestore
   InAppMessaging
+  InAppMessagingSwift
   Messaging
   MessagingSample
   MLModelDownloaderSample
@@ -307,6 +308,16 @@ case "$product-$platform-$method" in
         "${xcb_flags[@]}" \
         build \
         test
+    ;;
+
+  InAppMessagingSwift-*-unit)
+    pod_gen FirebaseInAppMessagingSwift.podspec --platforms="${gen_platform}"
+    RunXcodebuild \
+      -workspace 'gen/FirebaseInAppMessagingSwift/FirebaseInAppMessagingSwift.xcworkspace' \
+      -scheme "FirebaseInAppMessagingSwift-Unit-unit" \
+      "${xcb_flags[@]}" \
+      build \
+      test
     ;;
 
   Firestore-*-xcodebuild)
