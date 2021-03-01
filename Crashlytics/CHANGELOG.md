@@ -1,6 +1,9 @@
 # Unreleased
 - [added] Added a new API checkAndUpdateUnsentReportsWithCompletion for updating the crash report from the previous run of the app if, for example, the developer wants to implement a feedback dialog to ask end-users for more information. Unsent Crashlytics Reports have familiar methods like setting custom keys and logs.
 
+# v7.7.0
+- [added] Added a new API to allow for bulk logging of custom keys and values (#7302).
+
 # v7.6.0
 - [fixed] Fixed an issue where some developers experienced a race condition involving binary image operations (#7459).
 
