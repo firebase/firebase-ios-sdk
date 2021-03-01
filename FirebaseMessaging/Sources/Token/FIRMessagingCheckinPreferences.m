@@ -16,9 +16,9 @@
 
 #import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinPreferences.h"
 
+#import <GoogleUtilities/GULUserDefaults.h>
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinService.h"
-#import "GoogleUtilities/UserDefaults/Public/GoogleUtilities/GULUserDefaults.h"
 
 const NSTimeInterval kFIRMessagingDefaultCheckinInterval = 7 * 24 * 60 * 60;  // 7 days.
 static NSString *const kCheckinKeychainContentSeparatorString = @"|";

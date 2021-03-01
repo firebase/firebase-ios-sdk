@@ -20,15 +20,15 @@
 #endif
 
 #import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
+#import <GoogleUtilities/GULAppDelegateSwizzler.h>
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#import <GoogleUtilities/GULReachabilityChecker.h>
+#import <GoogleUtilities/GULUserDefaults.h>
 #import "Firebase/InstanceID/Private/FIRInstanceID_Private.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Public/FirebaseInstallations/FirebaseInstallations.h"
 #import "FirebaseMessaging/Sources/Interop/FIRMessagingInterop.h"
 #import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessagingExtensionHelper.h"
-#import "GoogleUtilities/AppDelegateSwizzler/Public/GoogleUtilities/GULAppDelegateSwizzler.h"
-#import "GoogleUtilities/Environment/Public/GoogleUtilities/GULAppEnvironmentUtil.h"
-#import "GoogleUtilities/Reachability/Public/GoogleUtilities/GULReachabilityChecker.h"
-#import "GoogleUtilities/UserDefaults/Public/GoogleUtilities/GULUserDefaults.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 #import "FirebaseMessaging/Sources/FIRMessagingAnalytics.h"

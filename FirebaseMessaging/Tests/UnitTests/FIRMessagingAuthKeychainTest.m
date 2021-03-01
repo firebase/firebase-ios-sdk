@@ -15,8 +15,8 @@
  */
 
 #import <TargetConditionals.h>
-#if !TARGET_OS_MACCATALYST && !TARGET_OS_IOS
-// Skip keychain tests on Catalyst and iOS
+#if !TARGET_OS_MACCATALYST && !SWIFT_PACKAGE
+// Skip keychain tests on Catalyst and swift package
 
 #import <XCTest/XCTest.h>
 #import "OCMock.h"

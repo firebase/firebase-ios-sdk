@@ -36,10 +36,7 @@ device, and it is completely free.
     'Firebase/InstanceID/Public/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
   ]
-  s.requires_arc = [
-    base_dir + 'Sources/*.m',
-    base_dir + 'Sources/Token/*.m'
-  ]
+
   s.public_header_files = base_dir + 'Sources/Public/FirebaseMessaging/*.h'
   s.library = 'sqlite3'
   s.pod_target_xcconfig = {
@@ -61,7 +58,11 @@ device, and it is completely free.
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }
     unit_tests.platforms = {:ios => '10.0', :osx => '10.12', :tvos => '10.0'}
-    unit_tests.source_files = 'FirebaseMessaging/Tests/UnitTests*/*.{m,h,swift}'
+    unit_tests.source_files = [
+      'FirebaseMessaging/Tests/UnitTests*/*.{m,h,swift}',
+      'SharedTestUtilities/URLSession/*.[mh]',
+    ]
+
     unit_tests.requires_app_host = true
     unit_tests.pod_target_xcconfig = {
      'CLANG_ENABLE_OBJC_WEAK' => 'YES'

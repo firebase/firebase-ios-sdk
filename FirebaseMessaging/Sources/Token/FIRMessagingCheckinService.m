@@ -16,13 +16,13 @@
 
 #import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinService.h"
 
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
 #import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingAuthService.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinPreferences.h"
-#import "GoogleUtilities/Environment/Public/GoogleUtilities/GULAppEnvironmentUtil.h"
 
 static NSString *const kDeviceCheckinURL = @"https://device-provisioning.googleapis.com/checkin";
 
@@ -39,19 +39,44 @@ static NSUInteger const kCheckinType = 2;  // DeviceType IOS in l/w/a/_checkin.p
 static NSUInteger const kCheckinVersion = 2;
 static NSUInteger const kFragment = 0;
 
-@interface FIRMessagingCheckinService () {
-  NSURLSession *_session;
-}
+@interface FIRMessagingCheckinService ()
+
+@property(nonatomic, readwrite, strong) NSURLSession *session;
+
 @end
 
 @implementation FIRMessagingCheckinService
 
+- (instancetype)init {
+  self = [super init];
+  if (self) {
+    // Create an URLSession once, even though checkin should happen about once a day
+    NSURLSessionConfiguration *config = NSURLSessionConfiguration.defaultSessionConfiguration;
+    config.timeoutIntervalForResource = 60.0f;  // 1 minute
+    config.allowsCellularAccess = YES;
+
+    self.session = [NSURLSession sessionWithConfiguration:config];
+    self.session.sessionDescription = @"com.google.iid-checkin";
+  }
+  return self;
+}
 - (void)dealloc {
-  [_session invalidateAndCancel];
+  [self.session invalidateAndCancel];
 }
 
 - (void)checkinWithExistingCheckin:(FIRMessagingCheckinPreferences *)existingCheckin
                         completion:(FIRMessagingDeviceCheckinCompletion)completion {
+  if (self.session == nil) {
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeService005,
+                            @"Inconsistent state: NSURLSession has been invalidated");
+    NSError *error =
+        [NSError messagingErrorWithCode:kFIRMessagingErrorCodeRegistrarFailedToCheckIn
+                          failureReason:@"Failed to checkin. NSURLSession is invalid."];
+    if (completion) {
+      completion(nil, error);
+    }
+    return;
+  }
   NSURL *url = [NSURL URLWithString:kDeviceCheckinURL];
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
   [request setValue:@"application/json" forHTTPHeaderField:@"content-type"];
@@ -149,18 +174,15 @@ static NSUInteger const kFragment = 0;
           completion(checkinPreferences, nil);
         }
       };
-  NSURLSessionConfiguration *config = NSURLSessionConfiguration.defaultSessionConfiguration;
-  config.timeoutIntervalForResource = 60.0f;  // 1 minute
-  _session = [NSURLSession sessionWithConfiguration:config];
-  _session.sessionDescription = @"com.google.iid-checkin";
-  NSURLSessionDataTask *task = [_session dataTaskWithRequest:request completionHandler:handler];
+
+  NSURLSessionDataTask *task = [self.session dataTaskWithRequest:request completionHandler:handler];
   [task resume];
 }
 
 - (void)stopFetching {
-  [_session invalidateAndCancel];
+  [self.session invalidateAndCancel];
   // The session cannot be reused after invalidation. Dispose it to prevent accident reusing.
-  _session = nil;
+  self.session = nil;
 }
 
 #pragma mark - Private
