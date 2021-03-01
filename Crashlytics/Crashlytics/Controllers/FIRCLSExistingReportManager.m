@@ -17,22 +17,28 @@
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSReportUploader.h"
 #import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
 #import "Crashlytics/Crashlytics/Private/FIRCrashlyticsReport_Private.h"
 #import "Crashlytics/Crashlytics/Public/FirebaseCrashlytics/FIRCrashlyticsReport.h"
 
+// This value should stay in sync with the Android SDK
+NSUInteger const FIRCLSMaxUnsentReports = 4;
+
 @interface FIRCLSExistingReportManager ()
 
 @property(nonatomic, strong) FIRCLSFileManager *fileManager;
-@property(nonatomic, strong) NSOperationQueue *operationQueue;
 @property(nonatomic, strong) FIRCLSReportUploader *reportUploader;
+@property(nonatomic, strong) NSOperationQueue *operationQueue;
 
 // This list of active reports excludes the brand new active report that will be created this run of
 // the app.
 @property(nonatomic, strong) NSArray *existingUnemptyActiveReportPaths;
 @property(nonatomic, strong) NSArray *processingReportPaths;
 @property(nonatomic, strong) NSArray *preparedReportPaths;
+
+@property(nonatomic, strong) FIRCLSInternalReport *newestInternalReport;
 
 @end
 
@@ -52,15 +58,16 @@
   return self;
 }
 
-NSInteger compareOlder(FIRCLSInternalReport *reportA,
+NSInteger compareNewer(FIRCLSInternalReport *reportA,
                        FIRCLSInternalReport *reportB,
                        void *context) {
-  return [reportA.dateCreated compare:reportB.dateCreated];
+  // Compare naturally sorts with oldest first, so swap A and B
+  return [reportB.dateCreated compare:reportA.dateCreated];
 }
 
 - (void)collectExistingReports {
   self.existingUnemptyActiveReportPaths =
-      [self getUnemptyExistingActiveReportsAndDeleteEmpty:self.fileManager.activePathContents];
+      [self getUnsentActiveReportsAndDeleteEmptyOrOld:self.fileManager.activePathContents];
   self.processingReportPaths = self.fileManager.processingPathContents;
   self.preparedReportPaths = self.fileManager.preparedPathContents;
 }
@@ -70,22 +77,7 @@ NSInteger compareOlder(FIRCLSInternalReport *reportA,
     return nil;
   }
 
-  NSMutableArray<NSString *> *allReportPaths =
-      [NSMutableArray arrayWithArray:self.existingUnemptyActiveReportPaths];
-
-  NSMutableArray<FIRCLSInternalReport *> *validReports = [NSMutableArray array];
-  for (NSString *path in allReportPaths) {
-    FIRCLSInternalReport *_Nullable report = [FIRCLSInternalReport reportWithPath:path];
-    if (!report) {
-      continue;
-    }
-    [validReports addObject:report];
-  }
-
-  [validReports sortUsingFunction:compareOlder context:nil];
-
-  FIRCLSInternalReport *_Nullable internalReport = [validReports lastObject];
-  return [[FIRCrashlyticsReport alloc] initWithInternalReport:internalReport];
+  return [[FIRCrashlyticsReport alloc] initWithInternalReport:self.newestInternalReport];
 }
 
 - (NSUInteger)unsentReportsCount {
@@ -94,19 +86,62 @@ NSInteger compareOlder(FIRCLSInternalReport *reportA,
   return self.existingUnemptyActiveReportPaths.count;
 }
 
-- (NSArray *)getUnemptyExistingActiveReportsAndDeleteEmpty:(NSArray *)reportPaths {
-  NSMutableArray *unemptyReports = [NSMutableArray array];
+/*
+ * This has the side effect of deleting any reports over the max, starting with oldest reports.
+ */
+- (NSArray<NSString *> *)getUnsentActiveReportsAndDeleteEmptyOrOld:(NSArray *)reportPaths {
+  NSMutableArray<FIRCLSInternalReport *> *validReports = [NSMutableArray array];
   for (NSString *path in reportPaths) {
-    FIRCLSInternalReport *report = [FIRCLSInternalReport reportWithPath:path];
-    if ([report hasAnyEvents]) {
-      [unemptyReports addObject:path];
-    } else {
+    FIRCLSInternalReport *_Nullable report = [FIRCLSInternalReport reportWithPath:path];
+    if (!report) {
+      continue;
+    }
+
+    // Delete reports without any crashes or non-fatals
+    if (![report hasAnyEvents]) {
       [self.operationQueue addOperationWithBlock:^{
         [self.fileManager removeItemAtPath:path];
       }];
+      continue;
+    }
+
+    [validReports addObject:report];
+  }
+
+  if (validReports.count == 0) {
+    return @[];
+  }
+
+  // Sort with the newest at the end
+  [validReports sortUsingFunction:compareNewer context:nil];
+
+  // Set our report for updating in checkAndUpdateUnsentReports
+  self.newestInternalReport = [validReports firstObject];
+
+  // Delete any reports above the limit, starting with the oldest
+  // which should be at the start of the array.
+  if (validReports.count > FIRCLSMaxUnsentReports) {
+    NSUInteger deletingCount = validReports.count - FIRCLSMaxUnsentReports;
+    FIRCLSInfoLog(@"Deleting %lu unsent reports over the limit of %lu to prevent disk space from "
+                  @"filling up. To prevent this make sure to call send/deleteUnsentReports.",
+                  deletingCount, FIRCLSMaxUnsentReports);
+  }
+
+  // Not that validReports is sorted, delete any reports at indices > MAX_UNSENT_REPORTS, and
+  // collect the rest of the reports to return.
+  NSMutableArray<NSString *> *validReportPaths = [NSMutableArray array];
+  for (int i = 0; i < validReports.count; i++) {
+    if (i >= FIRCLSMaxUnsentReports) {
+      [self.operationQueue addOperationWithBlock:^{
+        NSString *path = [[validReports objectAtIndex:i] path];
+        [self.fileManager removeItemAtPath:path];
+      }];
+    } else {
+      [validReportPaths addObject:[[validReports objectAtIndex:i] path]];
     }
   }
-  return unemptyReports;
+
+  return validReportPaths;
 }
 
 - (void)sendUnsentReportsWithToken:(FIRCLSDataCollectionToken *)dataCollectionToken
