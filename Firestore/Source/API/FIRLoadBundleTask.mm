@@ -19,6 +19,7 @@
 #include <memory>
 
 #include "Firestore/core/src/api/load_bundle_task.h"
+#include "Firestore/core/src/util/exception.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -26,6 +27,7 @@ namespace {
 
 namespace api = firebase::firestore::api;
 namespace util = firebase::firestore::util;
+using firebase::firestore::util::ThrowInvalidArgument;
 
 }  // namespace
 
@@ -69,7 +71,7 @@ namespace util = firebase::firestore::util;
 
 - (FIRLoadBundleHandle)observeWithHandler:(void (^)(FIRLoadBundleTaskProgress *progress))handler {
   if (!handler) {
-    return NSIntegerMin;
+    ThrowInvalidArgument("Handle cannot be nil");
   }
 
   api::LoadBundleTask::ProgressObserver observer =

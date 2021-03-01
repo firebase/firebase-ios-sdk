@@ -175,7 +175,7 @@ class LoadBundleTask {
   /** Guard to all internal state mutation. */
   mutable std::mutex mutex_;
 
-  /** An vector holds observers. */
+  /** A vector holds observers. */
   HandleObservers observers_;
 
   /** The last progress update. */

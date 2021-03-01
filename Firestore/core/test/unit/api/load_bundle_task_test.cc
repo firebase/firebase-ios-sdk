@@ -98,7 +98,7 @@ LoadBundleTaskProgress InitialProgress() {
   return Progress(/*documents_loaded=*/0, /*bytes_loaded=*/0);
 }
 
-TEST_F(LoadBundleTaskTest, SetSuccessTrigersObservers) {
+TEST_F(LoadBundleTaskTest, SetSuccessTriggersObservers) {
   BlockingQueue<LoadBundleTaskProgress> queue;
 
   task.ObserveState([&](LoadBundleTaskProgress p) { queue.push(p); });
