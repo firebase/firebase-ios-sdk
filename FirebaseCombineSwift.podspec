@@ -63,10 +63,15 @@ Combine Publishers for Firebase.
       'FirebaseCombineSwift/Tests/Unit/**/*.swift',
       'FirebaseCombineSwift/Tests/Unit/**/*.h',
       'SharedTestUtilities/FIROptionsMock.[mh]',
+      # 'Firestore/Example/Tests/API/FSTAPIHelpers.h',
+      # 'Firestore/Example/Tests/API/FSTAPIHelpers.mm'
     ]
     unit_tests.exclude_files = 'FirebaseCombineSwift/Tests/Unit/**/*Template.swift'
     unit_tests.requires_app_host = true
+    unit_tests.library = 'c++'
     unit_tests.pod_target_xcconfig = {
+      'CLANG_CXX_LANGUAGE_STANDARD' => 'c++0x',
+      'GCC_C_LANGUAGE_STANDARD' => 'c99',  
       'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseCombineSwift/Tests/Unit/FirebaseCombine-unit-Bridging-Header.h'
     }
     unit_tests.dependency 'OCMock'

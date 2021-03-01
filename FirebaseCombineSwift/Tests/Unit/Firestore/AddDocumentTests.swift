@@ -18,196 +18,222 @@ import FirebaseFirestore
 import Combine
 import XCTest
 
+class MockDocumentReference: DocumentReferenceExtension {
+  func setData(_ documentData: [String : Any], completion: ((Error?) -> Void)?) {
+  }
+}
+
 class AddDocumentTests: XCTestCase {
+  
+  class MockCollectionReference: CollectionReferenceExtension {
+    var document: DocumentReference! = nil
     
-    class MockCollectionReference: CollectionReference {
-        
-        var mockAddDocument: () throws -> Void = {
-            fatalError("You need to implement \(#function) in your mock.")
-        }
-        
-        var verifyData: ((_ data: [String : Any]) throws -> Void)?
-        
-        override func addDocument(data: [String : Any], completion: ((Error?) -> Void)? = nil) -> DocumentReference {
-            do {
-                try verifyData?(data)
-                try mockAddDocument()
-                completion?(nil)
-            } catch {
-                completion?(error)
-            }
-            return document()
-        }
-        
-        override init() {
-        }
+    var mockAddDocument: () throws -> Void = {
+      fatalError("You need to implement \(#function) in your mock.")
     }
     
-    override class func setUp() {
-        FirebaseApp.configureForTests()
+    var verifyData: ((_ data: [String : Any]) throws -> Void)?
+    
+    func addDocument(data: [String : Any], completion: ((Error?) -> Void)?) -> DocumentReference {
+      do {
+        try verifyData?(data)
+        try mockAddDocument()
+        completion?(nil)
+      } catch {
+        completion?(error)
+      }
+      return document
+    }
+  }
+  
+//  class MockCollectionReference: CollectionReference {
+//
+//    var mockAddDocument: () throws -> Void = {
+//      fatalError("You need to implement \(#function) in your mock.")
+//    }
+//
+//    var verifyData: ((_ data: [String : Any]) throws -> Void)?
+//
+//    override func addDocument(data: [String : Any], completion: ((Error?) -> Void)? = nil) -> DocumentReference {
+//      do {
+//        try verifyData?(data)
+//        try mockAddDocument()
+//        completion?(nil)
+//      } catch {
+//        completion?(error)
+//      }
+//      return document()
+//    }
+//
+//    override init() {
+//    }
+//  }
+//
+  override class func setUp() {
+    FirebaseApp.configureForTests()
+  }
+  
+  override class func tearDown() {
+    FirebaseApp.app()?.delete { success in
+      if success {
+        print("Shut down app successfully.")
+      } else {
+        print("💥 There was a problem when shutting down the app..")
+      }
+    }
+  }
+  
+  override func setUp() {
+    do {
+      try Auth.auth().signOut()
+    } catch {}
+  }
+  
+  func testAddDocumentWithDataSuccess() {
+    // given
+    var cancellables = Set<AnyCancellable>()
+    
+    let addDocumentWasCalledExpectation = expectation(description: "addDocument was called")
+    let addDocumentSuccessExpectation = expectation(description: "addDocument succeeded")
+    
+    let reference = MockCollectionReference()
+    
+    reference.mockAddDocument = {
+      addDocumentWasCalledExpectation.fulfill()
     }
     
-    override class func tearDown() {
-        FirebaseApp.app()?.delete { success in
-            if success {
-                print("Shut down app successfully.")
-            } else {
-                print("💥 There was a problem when shutting down the app..")
-            }
-        }
-    }
+    let dummyData = ["name": "Johnny Appleseed"]
     
-    override func setUp() {
-        do {
-            try Auth.auth().signOut()
-        } catch {}
-    }
+    // when
+    reference.addDocument(data: dummyData)
+      .sink { completion in
+        switch completion {
+        case .finished:
+          print("Finished")
+        case let .failure(error):
+          XCTFail("💥 Something went wrong: \(error)")
+        }
+      } receiveValue: { _ in
+        addDocumentSuccessExpectation.fulfill()
+      }
+      .store(in: &cancellables)
     
-    func testAddDocumentWithDataSuccess() {
-        // given
-        var cancellables = Set<AnyCancellable>()
-        
-        let addDocumentWasCalledExpectation = expectation(description: "addDocument was called")
-        let addDocumentSuccessExpectation = expectation(description: "addDocument succeeded")
-        
-        let reference = MockCollectionReference()
-        
-        reference.mockAddDocument = {
-            addDocumentWasCalledExpectation.fulfill()
-        }
-        
-        let dummyData = ["name": "Johnny Appleseed"]
-        
-        // when
-        reference.addDocument(data: dummyData)
-            .sink { completion in
-                switch completion {
-                case .finished:
-                    print("Finished")
-                case let .failure(error):
-                    XCTFail("💥 Something went wrong: \(error)")
-                }
-            } receiveValue: { _ in
-                addDocumentSuccessExpectation.fulfill()
-            }
-            .store(in: &cancellables)
-        
-        // then
-        wait(
-            for: [addDocumentWasCalledExpectation, addDocumentSuccessExpectation],
-            timeout: expectationTimeout
-        )
-    }
-    
-    func testAddDocumentWithEncodableSuccess() {
-        // given
-        var cancellables = Set<AnyCancellable>()
-        
-        let addDocumentWasCalledExpectation = expectation(description: "addDocument was called")
-        let addDocumentSuccessExpectation = expectation(description: "addDocument succeeded")
-        
-        let reference = MockCollectionReference()
-        
-        reference.mockAddDocument = {
-            addDocumentWasCalledExpectation.fulfill()
-        }
-        
-        let dummyData = ["name": "Johnny Appleseed"]
-        
-        // when
-        reference.addDocument(from: dummyData)
-            .sink { completion in
-                switch completion {
-                case .finished:
-                    print("Finished")
-                case let .failure(error):
-                    XCTFail("💥 Something went wrong: \(error)")
-                }
-            } receiveValue: { _ in
-                addDocumentSuccessExpectation.fulfill()
-            }
-            .store(in: &cancellables)
-        
-        // then
-        wait(
-            for: [addDocumentWasCalledExpectation, addDocumentSuccessExpectation],
-            timeout: expectationTimeout
-        )
-    }
-    func testAddDocumentWithDataFailure() {
-        // given
-        var cancellables = Set<AnyCancellable>()
-        
-        let addDocumentWasCalledExpectation = expectation(description: "addDocument was called")
-        let addDocumentFailureExpectation = expectation(description: "addDocument failed")
-        
-        let reference = MockCollectionReference()
-        
-        reference.mockAddDocument = {
-            addDocumentWasCalledExpectation.fulfill()
-        }
-        
-        let dummyData = ["name": "Johnny Appleseed"]
-        
-        // when
-        reference.addDocument(data: dummyData)
-            .sink { completion in
-                switch completion {
-                case .finished:
-                    print("Finished")
-                case let .failure(error as NSError):
-                    XCTAssertEqual(error.code, FirestoreErrorCode.unknown.rawValue)
-                    addDocumentFailureExpectation.fulfill()
-                }
-            } receiveValue: { _ in
-                XCTFail("💥 Something went wrong")
-            }
-            .store(in: &cancellables)
-        
-        // then
-        wait(
-            for: [addDocumentWasCalledExpectation, addDocumentFailureExpectation],
-            timeout: expectationTimeout
-        )
-    }
-    
-    func testAddDocumentWithEncodableFailure() {
-        // given
-        var cancellables = Set<AnyCancellable>()
-        
-        let addDocumentWasCalledExpectation = expectation(description: "addDocument was called")
-        let addDocumentFailureExpectation = expectation(description: "addDocument failed")
-        
-        let reference = MockCollectionReference()
-        
-        reference.mockAddDocument = {
-            addDocumentWasCalledExpectation.fulfill()
-            throw NSError(domain: FirestoreErrorDomain,
-                          code: FirestoreErrorCode.unknown.rawValue,
-                          userInfo: [NSLocalizedDescriptionKey: "Dummy Error"])
-        }
-        
-        let dummyData = ["name": "Johnny Appleseed"]
-        
-        // when
-        reference.addDocument(from: dummyData)
-            .sink { completion in
-                switch completion {
-                case .finished:
-                    print("Finished")
-                case let .failure(error as NSError):
-                    XCTAssertEqual(error.code, FirestoreErrorCode.unknown.rawValue)
-                    addDocumentFailureExpectation.fulfill()
-                }
-            } receiveValue: { _ in
-                XCTFail("💥 Something went wrong")
-            }
-            .store(in: &cancellables)
-        
-        // then
-        wait(
-            for: [addDocumentWasCalledExpectation, addDocumentFailureExpectation],
-            timeout: expectationTimeout
-        )
-    }
+    // then
+    wait(
+      for: [addDocumentWasCalledExpectation, addDocumentSuccessExpectation],
+      timeout: expectationTimeout
+    )
+  }
+  
+//  func testAddDocumentWithEncodableSuccess() {
+//    // given
+//    var cancellables = Set<AnyCancellable>()
+//
+//    let addDocumentWasCalledExpectation = expectation(description: "addDocument was called")
+//    let addDocumentSuccessExpectation = expectation(description: "addDocument succeeded")
+//
+//    let reference = MockCollectionReference()
+//
+//    reference.mockAddDocument = {
+//      addDocumentWasCalledExpectation.fulfill()
+//    }
+//
+//    let dummyData = ["name": "Johnny Appleseed"]
+//
+//    // when
+//    reference.addDocument(from: dummyData)
+//      .sink { completion in
+//        switch completion {
+//        case .finished:
+//          print("Finished")
+//        case let .failure(error):
+//          XCTFail("💥 Something went wrong: \(error)")
+//        }
+//      } receiveValue: { _ in
+//        addDocumentSuccessExpectation.fulfill()
+//      }
+//      .store(in: &cancellables)
+//
+//    // then
+//    wait(
+//      for: [addDocumentWasCalledExpectation, addDocumentSuccessExpectation],
+//      timeout: expectationTimeout
+//    )
+//  }
+//  func testAddDocumentWithDataFailure() {
+//    // given
+//    var cancellables = Set<AnyCancellable>()
+//
+//    let addDocumentWasCalledExpectation = expectation(description: "addDocument was called")
+//    let addDocumentFailureExpectation = expectation(description: "addDocument failed")
+//
+//    let reference = MockCollectionReference()
+//
+//    reference.mockAddDocument = {
+//      addDocumentWasCalledExpectation.fulfill()
+//    }
+//
+//    let dummyData = ["name": "Johnny Appleseed"]
+//
+//    // when
+//    reference.addDocument(data: dummyData)
+//      .sink { completion in
+//        switch completion {
+//        case .finished:
+//          print("Finished")
+//        case let .failure(error as NSError):
+//          XCTAssertEqual(error.code, FirestoreErrorCode.unknown.rawValue)
+//          addDocumentFailureExpectation.fulfill()
+//        }
+//      } receiveValue: { _ in
+//        XCTFail("💥 Something went wrong")
+//      }
+//      .store(in: &cancellables)
+//
+//    // then
+//    wait(
+//      for: [addDocumentWasCalledExpectation, addDocumentFailureExpectation],
+//      timeout: expectationTimeout
+//    )
+//  }
+//
+//  func testAddDocumentWithEncodableFailure() {
+//    // given
+//    var cancellables = Set<AnyCancellable>()
+//
+//    let addDocumentWasCalledExpectation = expectation(description: "addDocument was called")
+//    let addDocumentFailureExpectation = expectation(description: "addDocument failed")
+//
+//    let reference = MockCollectionReference()
+//
+//    reference.mockAddDocument = {
+//      addDocumentWasCalledExpectation.fulfill()
+//      throw NSError(domain: FirestoreErrorDomain,
+//                    code: FirestoreErrorCode.unknown.rawValue,
+//                    userInfo: [NSLocalizedDescriptionKey: "Dummy Error"])
+//    }
+//
+//    let dummyData = ["name": "Johnny Appleseed"]
+//
+//    // when
+//    reference.addDocument(from: dummyData)
+//      .sink { completion in
+//        switch completion {
+//        case .finished:
+//          print("Finished")
+//        case let .failure(error as NSError):
+//          XCTAssertEqual(error.code, FirestoreErrorCode.unknown.rawValue)
+//          addDocumentFailureExpectation.fulfill()
+//        }
+//      } receiveValue: { _ in
+//        XCTFail("💥 Something went wrong")
+//      }
+//      .store(in: &cancellables)
+//
+//    // then
+//    wait(
+//      for: [addDocumentWasCalledExpectation, addDocumentFailureExpectation],
+//      timeout: expectationTimeout
+//    )
+//  }
 }

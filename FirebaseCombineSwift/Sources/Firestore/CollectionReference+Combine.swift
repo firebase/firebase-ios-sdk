@@ -25,6 +25,39 @@ import FirebaseFirestoreSwift
 
 #endif
 
+public protocol CollectionReferenceExtension {
+  func addDocument(data: [String : Any], completion: ((Error?) -> Void)?) -> DocumentReference
+}
+
+public extension CollectionReferenceExtension {
+  // MARK: - Add Document
+  
+  /// Adds a new document to this collection with the specified data, assigning it a document ID
+  /// automatically.
+  /// - Parameter data: A `Dictionary` containing the data for the new document.
+  /// - Returns: A publisher emitting a `Void` value once the document has been successfully
+  /// written to the server. This publisher will not emits  while the client is offline, though
+  /// local changes will be visible immediately.
+  func addDocument(data: [String: Any])
+  -> AnyPublisher<DocumentReference, Error> {
+    var reference: DocumentReference!
+    return Future { promise in
+      reference = self.addDocument(data: data) { error in
+        if let error = error {
+          promise(.failure(error))
+        } else {
+          promise(.success(()))
+        }
+      }
+    }
+    .map { reference }
+    .eraseToAnyPublisher()
+  }
+}
+
+// conform the original class to the protocol, and tack on the protocol extension
+extension CollectionReference: CollectionReferenceExtension {}
+
 @available(swift 5.0)
 @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
 extension CollectionReference {

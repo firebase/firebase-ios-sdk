@@ -19,6 +19,27 @@
 import Combine
 import FirebaseFirestore
 
+public protocol DocumentReferenceExtension {
+  func setData(_ documentData: [String : Any], completion: ((Error?) -> Void)?)
+  func setData(_ documentData: [String: Any]) -> Future<Void, Error>
+}
+
+public extension DocumentReferenceExtension {
+  func setData(_ documentData: [String: Any]) -> Future<Void, Error> {
+    Future { promise in
+      self.setData(documentData) { error in
+        if let error = error {
+          promise(.failure(error))
+        } else {
+          promise(.success(()))
+        }
+      }
+    }
+  }
+}
+
+extension DocumentReference: DocumentReferenceExtension { }
+
 @available(swift 5.0)
 @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
 extension DocumentReference {
