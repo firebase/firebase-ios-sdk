@@ -24,7 +24,7 @@
 #import "Crashlytics/Crashlytics/Public/FirebaseCrashlytics/FIRCrashlyticsReport.h"
 
 // This value should stay in sync with the Android SDK
-const NSUInteger MAX_UNSENT_REPORTS = 4;
+NSUInteger const FIRCLSMaxUnsentReports = 4;
 
 @interface FIRCLSExistingReportManager ()
 
@@ -61,7 +61,8 @@ const NSUInteger MAX_UNSENT_REPORTS = 4;
 NSInteger compareNewer(FIRCLSInternalReport *reportA,
                        FIRCLSInternalReport *reportB,
                        void *context) {
-  return -1 * [reportA.dateCreated compare:reportB.dateCreated];
+  // Compare naturally sorts with oldest first, so swap A and B
+  return [reportB.dateCreated compare:reportA.dateCreated];
 }
 
 - (void)collectExistingReports {
@@ -119,18 +120,18 @@ NSInteger compareNewer(FIRCLSInternalReport *reportA,
 
   // Delete any reports above the limit, starting with the oldest
   // which should be at the start of the array.
-  if (validReports.count > MAX_UNSENT_REPORTS) {
-    NSUInteger deletingCount = validReports.count - MAX_UNSENT_REPORTS;
+  if (validReports.count > FIRCLSMaxUnsentReports) {
+    NSUInteger deletingCount = validReports.count - FIRCLSMaxUnsentReports;
     FIRCLSInfoLog(@"Deleting %lu unsent reports over the limit of %lu to prevent disk space from "
                   @"filling up. To prevent this make sure to call send/deleteUnsentReports.",
-                  deletingCount, MAX_UNSENT_REPORTS);
+                  deletingCount, FIRCLSMaxUnsentReports);
   }
 
   // Not that validReports is sorted, delete any reports at indices > MAX_UNSENT_REPORTS, and
   // collect the rest of the reports to return.
   NSMutableArray<NSString *> *validReportPaths = [NSMutableArray array];
   for (int i = 0; i < validReports.count; i++) {
-    if (i >= MAX_UNSENT_REPORTS) {
+    if (i >= FIRCLSMaxUnsentReports) {
       [self.operationQueue addOperationWithBlock:^{
         NSString *path = [[validReports objectAtIndex:i] path];
         [self.fileManager removeItemAtPath:path];

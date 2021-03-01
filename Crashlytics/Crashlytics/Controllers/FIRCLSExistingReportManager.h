@@ -21,6 +21,8 @@ NS_ASSUME_NONNULL_BEGIN
 @class FIRCLSDataCollectionToken;
 @class FIRCrashlyticsReport;
 
+FOUNDATION_EXPORT NSUInteger const FIRCLSMaxUnsentReports;
+
 @interface FIRCLSExistingReportManager : NSObject
 
 /**
