@@ -310,7 +310,7 @@ case "$product-$platform-$method" in
         test
     ;;
 
-  InAppMessagingSwift-*-unit)
+  InAppMessagingSwift-*-xcodebuild)
     pod_gen FirebaseInAppMessagingSwift.podspec --platforms="${gen_platform}"
     RunXcodebuild \
       -workspace 'gen/FirebaseInAppMessagingSwift/FirebaseInAppMessagingSwift.xcworkspace' \
