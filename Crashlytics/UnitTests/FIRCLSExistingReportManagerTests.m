@@ -175,15 +175,17 @@
   // Reports with events should be kept if there's less than MAX_UNSENT_REPORTS reports
   XCTAssertEqual([[self contentsOfActivePath] count], FIRCLSMaxUnsentReports);
   XCTAssertEqual(self.existingReportManager.unsentReportsCount, FIRCLSMaxUnsentReports);
-  XCTAssertEqual(self.existingReportManager.existingUnemptyActiveReportPaths.count, FIRCLSMaxUnsentReports);
+  XCTAssertEqual(self.existingReportManager.existingUnemptyActiveReportPaths.count,
+                 FIRCLSMaxUnsentReports);
 
   // Newest report based on started_at timestamp
   XCTAssertEqualObjects(self.existingReportManager.newestUnsentReport.reportID, @"report_D");
 }
 
 /**
- * When we go over the limit of FIRCLSMaxUnsentReports, we delete any reports over the limit to ensure performant
- * startup and prevent disk space from filling up. Delete starting with the oldest first.
+ * When we go over the limit of FIRCLSMaxUnsentReports, we delete any reports over the limit to
+ * ensure performant startup and prevent disk space from filling up. Delete starting with the oldest
+ * first.
  */
 - (void)testUnsentReportsOverLimit {
   // Create a bunch of reports starting at different times
@@ -204,7 +206,8 @@
   // Remove any reports over the limit, starting with the oldest
   XCTAssertEqual([[self contentsOfActivePath] count], FIRCLSMaxUnsentReports);
   XCTAssertEqual(self.existingReportManager.unsentReportsCount, FIRCLSMaxUnsentReports);
-  XCTAssertEqual(self.existingReportManager.existingUnemptyActiveReportPaths.count, FIRCLSMaxUnsentReports);
+  XCTAssertEqual(self.existingReportManager.existingUnemptyActiveReportPaths.count,
+                 FIRCLSMaxUnsentReports);
 
   // Newest report based on started_at timestamp
   XCTAssertEqualObjects(self.existingReportManager.newestUnsentReport.reportID, @"report_G");
