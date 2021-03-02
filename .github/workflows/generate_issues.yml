@@ -1,5 +1,12 @@
 name: generate_issues
-on: [pull_request]
+on:
+  pull_request:
+    paths:
+    - '.github/workflows/generate_issues.yml'
+    - '.github/actions/testing_report_generation**'
+  schedule:
+    # Run every day at 5am (PST) - cron uses UTC times
+    - cron:  '0 13 * * *'
 jobs:
   generate_an_issue:
     # Don't run on private repo.
