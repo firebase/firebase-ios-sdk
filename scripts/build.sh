@@ -186,6 +186,7 @@ case "$platform" in
 
   iPad)
     xcb_flags=("${ipad_flags[@]}")
+    gen_platform=ios
   ;;
 
   macOS)
