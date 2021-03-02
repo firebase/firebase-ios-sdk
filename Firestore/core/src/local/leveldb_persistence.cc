@@ -196,7 +196,7 @@ StatusOr<int64_t> LevelDbPersistence::CalculateByteSize() {
     int64_t file_size = maybe_size.ValueOrDie();
     count += file_size;
 
-    if (count < old_count || count > std::numeric_limits<int64_t>::max()) {
+    if (count < old_count || count > std::numeric_limits<uint64_t>::max()) {
       return Status(Error::kErrorOutOfRange,
                     "Failed to size LevelDB: count overflowed");
     }
