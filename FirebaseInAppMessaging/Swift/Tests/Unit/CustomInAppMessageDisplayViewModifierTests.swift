@@ -61,8 +61,8 @@ class DelegateBridgeTests: XCTestCase {
       super.init(messageID: messageID,
                  campaignName: "testCampaign",
                  renderAsTestMessage: false,
-                 messageType: .card,
-                 triggerType: .onAppForeground)
+                 messageType: FIRInAppMessagingDisplayMessageType.card,
+                 triggerType: FIRInAppMessagingDisplayTriggerType.onAppForeground)
     }
   }
 }
