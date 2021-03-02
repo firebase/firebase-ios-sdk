@@ -96,6 +96,7 @@ if is_platform(:ios)
       pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
 
       pod 'leveldb-library'
+      pod 'nlohmann_json', :podspec => 'nlohmann_json.podspec'
     end
 
     target 'Firestore_Benchmarks_iOS' do
@@ -113,6 +114,7 @@ if is_platform(:ios)
       pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
 
       pod 'leveldb-library'
+      pod 'nlohmann_json', :podspec => 'nlohmann_json.podspec'
     end
 
     target 'Firestore_FuzzTests_iOS' do
@@ -138,6 +140,7 @@ if is_platform(:osx)
       pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
 
       pod 'leveldb-library'
+      pod 'nlohmann_json', :podspec => 'nlohmann_json.podspec'
     end
 
     target 'Firestore_IntegrationTests_macOS' do
@@ -149,6 +152,7 @@ if is_platform(:osx)
       pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
 
       pod 'leveldb-library'
+      pod 'nlohmann_json', :podspec => 'nlohmann_json.podspec'
     end
   end
 end
@@ -167,6 +171,7 @@ if is_platform(:tvos)
       pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
 
       pod 'leveldb-library'
+      pod 'nlohmann_json', :podspec => 'nlohmann_json.podspec'
     end
 
     target 'Firestore_IntegrationTests_tvOS' do
@@ -178,6 +183,7 @@ if is_platform(:tvos)
       pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
 
       pod 'leveldb-library'
+      pod 'nlohmann_json', :podspec => 'nlohmann_json.podspec'
     end
   end
 end

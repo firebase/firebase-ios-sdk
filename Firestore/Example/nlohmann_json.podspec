@@ -1,3 +1,7 @@
+# Below is copied from existing podspec in official cocoapods repo, with added
+# platform support for macOS and tvOS.
+
+# ---- Original podspec begins here
 
 # upgrades how to:
 # 1. update s.version
@@ -25,7 +29,7 @@ Pod::Spec.new do |s|
   s.screenshots  = "https://raw.githubusercontent.com/nlohmann/json/master/doc/json.gif"
 
 
-  license_text = File.read("LICENSE.MIT")
+  license_text = File.read("NLOHMANN_JSON_LICENSE.MIT")
   # cocoapods checks extension and expects it to be a txt. so instead
   # we read the file and pass it in as text.
   s.license      = { :type => "MIT", :text => license_text }
@@ -37,13 +41,11 @@ Pod::Spec.new do |s|
 
   s.platform     = :ios, "8.0"
 
-  # When using multiple platforms. I haven't tested integration with other
-  # platforms. Theoretically it should just work without problem.
-  # s.ios.deployment_target = "8.0"
-  # s.osx.deployment_target = "10.7"
-  # s.watchos.deployment_target = "2.0"
-  # s.tvos.deployment_target = "9.0"
-
+  # Below is where it is changed for firebase.
+  s.ios.deployment_target = "8.0"
+  s.osx.deployment_target = "10.7"
+  s.tvos.deployment_target = "9.0"
+  # Firebase change ends here.
 
   s.source       = { :git => "https://github.com/nlohmann/json.git", :tag => "v#{s.version}" }
 
