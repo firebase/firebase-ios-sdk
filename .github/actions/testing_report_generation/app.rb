@@ -116,11 +116,13 @@ for wf in get_workflows(client, REPO_NAME_WITH_OWNER) do
     else
       failure_report.add_workflow_run_and_result(workflow_text, result_text)
     end
+  else
+    failure_report.add_workflow_run_and_result(workflow_text, "The cron job did not run inthe last 24 hrs.")
   end
 end
 
 # Check if there exists any cron jobs.
-if failure_report.get_report.nil? && success_report.get_report.nil?
+if failure_report.get_report.nil? && success_report.get_report.nil
   if last_issue.state == "open"
     client.add_comment(REPO_NAME_WITH_OWNER, last_issue.number, NO_WORKFLOW_RUNNING_INFO)
   else
