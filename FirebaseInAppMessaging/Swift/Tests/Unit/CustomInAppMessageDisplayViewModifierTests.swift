@@ -21,7 +21,13 @@ class DelegateBridgeTests: XCTestCase {
   var delegateBridge = DelegateBridge()
 
   func testClearsInAppMessageOnDismiss() {
-    let inAppMessage = MockFIAM(messageID: "messageID")
+    let inAppMessage = InAppMessagingDisplayMessage(messageID: "messageID",
+                                                    campaignName: "testCampaign",
+                                                    renderAsTestMessage: false,
+                                                    messageType: FIRInAppMessagingDisplayMessageType
+                                                      .card,
+                                                    triggerType: FIRInAppMessagingDisplayTriggerType
+                                                      .onAppForeground)
     delegateBridge.displayMessage(inAppMessage, displayDelegate: TestDelegate())
 
     DispatchQueue.main.async {
@@ -36,7 +42,13 @@ class DelegateBridgeTests: XCTestCase {
   }
 
   func testClearsInAppMessageOnClick() {
-    let inAppMessage = MockFIAM(messageID: "messageID")
+    let inAppMessage = InAppMessagingDisplayMessage(messageID: "messageID",
+                                                    campaignName: "testCampaign",
+                                                    renderAsTestMessage: false,
+                                                    messageType: FIRInAppMessagingDisplayMessageType
+                                                      .card,
+                                                    triggerType: FIRInAppMessagingDisplayTriggerType
+                                                      .onAppForeground)
     delegateBridge.displayMessage(inAppMessage, displayDelegate: TestDelegate())
 
     DispatchQueue.main.async {
@@ -55,14 +67,4 @@ class DelegateBridgeTests: XCTestCase {
   }
 
   class TestDelegate: NSObject, InAppMessagingDisplayDelegate {}
-
-  class MockFIAM: InAppMessagingDisplayMessage {
-    init(messageID: String) {
-      super.init(messageID: messageID,
-                 campaignName: "testCampaign",
-                 renderAsTestMessage: false,
-                 messageType: FIRInAppMessagingDisplayMessageType.card,
-                 triggerType: FIRInAppMessagingDisplayTriggerType.onAppForeground)
-    }
-  }
 }
