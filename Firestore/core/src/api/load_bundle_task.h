@@ -16,11 +16,12 @@
 #ifndef FIRESTORE_CORE_SRC_API_LOAD_BUNDLE_TASK_H_
 #define FIRESTORE_CORE_SRC_API_LOAD_BUNDLE_TASK_H_
 
-#include <array>
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <mutex>  // NOLINT(build/c++11)
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "Firestore/core/src/util/executor.h"
@@ -29,12 +30,18 @@ namespace firebase {
 namespace firestore {
 namespace api {
 
-enum class LoadBundleTaskState { Error = 0, InProgress = 1, Success = 2 };
+/**
+ * Represents the state of bundle loading tasks.
+ *
+ * Both `kSuccess` and `kError` are final states: task will abort
+ * or complete and there will be no more updates after they are reported.
+ */
+enum class LoadBundleTaskState { kError, kInProgress, kSuccess };
 
+/** Represents a progress update or a final state from loading bundles. */
 class LoadBundleTaskProgress {
  public:
-  LoadBundleTaskProgress() {
-  }
+  LoadBundleTaskProgress() = default;
   LoadBundleTaskProgress(uint32_t documents_loaded,
                          uint32_t total_documents,
                          uint64_t bytes_loaded,
@@ -47,22 +54,33 @@ class LoadBundleTaskProgress {
         state_(state) {
   }
 
+  /** Returns how many documents have been loaded. */
   uint32_t documents_loaded() const {
     return documents_loaded_;
   }
 
+  /**
+   * Returns the total number of documents in the bundle. Returns 0 if the
+   * bundle failed to parse.
+   */
   uint32_t total_documents() const {
     return total_documents_;
   }
 
+  /** Returns how many bytes have been loaded. */
   uint64_t bytes_loaded() const {
     return bytes_loaded_;
   }
 
+  /**
+   * Returns the total number of bytes in the bundle. Returns 0 if the bundle
+   * failed to parse.
+   */
   uint64_t total_bytes() const {
     return total_bytes_;
   }
 
+  /** Returns the current state of the task. */
   LoadBundleTaskState state() const {
     return state_;
   }
@@ -77,7 +95,7 @@ class LoadBundleTaskProgress {
   uint64_t bytes_loaded_ = 0;
   uint64_t total_bytes_ = 0;
 
-  LoadBundleTaskState state_ = LoadBundleTaskState::InProgress;
+  LoadBundleTaskState state_ = LoadBundleTaskState::kInProgress;
 };
 
 inline bool operator==(const LoadBundleTaskProgress lhs,
@@ -94,55 +112,47 @@ inline bool operator!=(const LoadBundleTaskProgress lhs,
   return !(lhs == rhs);
 }
 
-using LoadBundleHandle = std::string;
-using ProgressObserver = std::function<void(LoadBundleTaskProgress)>;
-using HandleObservers =
-    std::vector<std::pair<LoadBundleHandle, ProgressObserver>>;
-
 /**
  * Represents the task of loading a Firestore bundle. It provides progress of
  * bundle loading, as well as task completion and error events.
  */
 class LoadBundleTask {
  public:
+  /** A handle used to look up and remove observer from the task. */
+  using LoadBundleHandle = int64_t;
+
+  /** Observer type that is called by the task when there is an update. */
+  using ProgressObserver = std::function<void(LoadBundleTaskProgress)>;
+
   explicit LoadBundleTask(std::shared_ptr<util::Executor> user_executor)
       : user_executor_(std::move(user_executor)) {
   }
 
   /**
    * Instructs the task to notify the specified observer when there is a
-   * progress update with the given `LoadBundleTaskState`.
+   * progress update.
    *
    * @return A handle that can be used to remove the callback from this task.
    */
-  LoadBundleHandle ObserveState(LoadBundleTaskState state,
-                                ProgressObserver callback);
+  LoadBundleHandle ObserveState(ProgressObserver callback);
 
   /**
    * Removes the observer associated with the given handle, does nothing if the
    * callback cannot be found.
    */
-  void RemoveObserver(LoadBundleHandle);
-
-  /**
-   * Removes all observers associated with the given `LoadBundleTaskState`.
-   */
-  void RemoveObservers(LoadBundleTaskState state);
+  void RemoveObserver(const LoadBundleHandle& handle);
 
   /** Removes all observers. */
   void RemoveAllObservers();
 
   /**
-   * Notifies observers with a success progress. Both `Success` and `InProgress`
-   * observers will get notified.
+   * Notifies observers with a `Success` progress.
    */
   void SetSuccess(LoadBundleTaskProgress success_progress);
 
   /**
    * Notifies observers with a error progress, by changing the last progress
    * this instance has been with an `Error` state.
-   *
-   * Both `Error` and `InProgress` observers will get notified.
    */
   void SetError();
 
@@ -150,19 +160,25 @@ class LoadBundleTask {
   void UpdateProgress(LoadBundleTaskProgress progress);
 
  private:
-  /** Gets all observers associated with the given state. */
-  HandleObservers& GetObservers(LoadBundleTaskState state);
+  /** Holds the `LoadBundleHandle` to `ProgressObserver` mapping. */
+  using HandleObservers =
+      std::vector<std::pair<LoadBundleHandle, ProgressObserver>>;
 
-  /** Notifies all given observers. */
-  void ExecuteCallbacks(const HandleObservers& observers);
+  /** Notifies all observers with current `progress_snapshot_`. */
+  void NotifyObservers();
+
+  LoadBundleHandle next_handle_ = 1;
 
   /** The executor to run all observers when notified. */
   std::shared_ptr<util::Executor> user_executor_;
 
   /** Guard to all internal state mutation. */
   mutable std::mutex mutex_;
-  /** An array holds mapping from `LoadBundleTaskState` values to observers. */
-  std::array<HandleObservers, 3> observers_by_states_;
+
+  /** A vector holds observers. */
+  HandleObservers observers_;
+
+  /** The last progress update. */
   LoadBundleTaskProgress progress_snapshot_;
 };
 

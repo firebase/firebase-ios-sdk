@@ -19,31 +19,15 @@
 #include <memory>
 
 #include "Firestore/core/src/api/load_bundle_task.h"
-#include "Firestore/core/src/util/hard_assert.h"
-#include "Firestore/core/src/util/string_apple.h"
-
-namespace api = firebase::firestore::api;
-namespace util = firebase::firestore::util;
+#include "Firestore/core/src/util/exception.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 namespace {
 
-/**
- * Converts a public FIRLoadBundleTaskState into its internal equivalent.
- */
-api::LoadBundleTaskState InternalLoadBundleTaskState(FIRLoadBundleTaskState state) {
-  switch (state) {
-    case FIRLoadBundleTaskStateInProgress:
-      return api::LoadBundleTaskState::InProgress;
-    case FIRLoadBundleTaskStateSuccess:
-      return api::LoadBundleTaskState::Success;
-    case FIRLoadBundleTaskStateError:
-      return api::LoadBundleTaskState::Error;
-    default:
-      HARD_FAIL("Unexpected load bundle task state : %s", state);
-  }
-}
+namespace api = firebase::firestore::api;
+namespace util = firebase::firestore::util;
+using firebase::firestore::util::ThrowInvalidArgument;
 
 }  // namespace
 
@@ -58,13 +42,13 @@ api::LoadBundleTaskState InternalLoadBundleTaskState(FIRLoadBundleTaskState stat
     _totalDocuments = progress.total_documents();
 
     switch (progress.state()) {
-      case api::LoadBundleTaskState::InProgress:
+      case api::LoadBundleTaskState::kInProgress:
         _state = FIRLoadBundleTaskStateInProgress;
         break;
-      case api::LoadBundleTaskState::Success:
+      case api::LoadBundleTaskState::kSuccess:
         _state = FIRLoadBundleTaskStateSuccess;
         break;
-      case api::LoadBundleTaskState::Error:
+      case api::LoadBundleTaskState::kError:
         _state = FIRLoadBundleTaskStateError;
         break;
     }
@@ -85,25 +69,20 @@ api::LoadBundleTaskState InternalLoadBundleTaskState(FIRLoadBundleTaskState stat
   return self;
 }
 
-- (FIRLoadBundleHandle)observeState:(FIRLoadBundleTaskState)state
-                            handler:(void (^)(FIRLoadBundleTaskProgress *progress))handler {
+- (FIRLoadBundleHandle)observeWithHandler:(void (^)(FIRLoadBundleTaskProgress *progress))handler {
   if (!handler) {
-    return @"";
+    ThrowInvalidArgument("Handler cannot be nil");
   }
 
-  api::ProgressObserver observer = [handler](api::LoadBundleTaskProgress internal_progress) {
-    handler([[FIRLoadBundleTaskProgress alloc] initWithInternal:internal_progress]);
-  };
-  return util::MakeNSString(
-      _task->ObserveState(InternalLoadBundleTaskState(state), std::move(observer)));
+  api::LoadBundleTask::ProgressObserver observer =
+      [handler](api::LoadBundleTaskProgress internal_progress) {
+        handler([[FIRLoadBundleTaskProgress alloc] initWithInternal:internal_progress]);
+      };
+  return _task->ObserveState(std::move(observer));
 }
 
 - (void)removeObserverWithHandle:(FIRLoadBundleHandle)handle {
-  _task->RemoveObserver(util::MakeString(handle));
-}
-
-- (void)removeAllObserversForState:(FIRLoadBundleTaskState)state {
-  _task->RemoveObservers(InternalLoadBundleTaskState(state));
+  _task->RemoveObserver(handle);
 }
 
 - (void)removeAllObservers {

@@ -97,10 +97,9 @@ std::unique_ptr<BundleElement> BundleReader::ReadNextElement() {
 }
 
 absl::optional<std::string> BundleReader::ReadLengthPrefix() {
-  // length string of size 10 indicates an element about 9GB, which is
-  // more than enough for valid bundles, given we have 1mb document size
-  // restriction.
-  StreamReadResult result = input_->ReadUntil('{', 10);
+  // length string of size 16 indicates an element about 1PB, which is
+  // impossible for valid bundles.
+  StreamReadResult result = input_->ReadUntil('{', 16);
   if (!result.ok()) {
     reader_status_.Update(result.status());
     return absl::nullopt;
@@ -116,6 +115,9 @@ absl::optional<std::string> BundleReader::ReadLengthPrefix() {
 }
 
 void BundleReader::ReadJsonToBuffer(size_t required_size) {
+  if(!reader_status_.ok()){
+    return;
+  }
   while (buffer_.size() < required_size) {
     // Read at most 1024 bytes every time, to avoid allocating a huge buffer
     // when corruption leads to large `required_size`.
