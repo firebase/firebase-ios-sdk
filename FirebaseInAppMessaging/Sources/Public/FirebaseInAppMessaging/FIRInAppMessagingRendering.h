@@ -161,8 +161,8 @@ NS_SWIFT_NAME(InAppMessagingDisplayMessage)
  */
 @property(nonatomic, nullable, readonly) NSDictionary *appData;
 
-/// Unavailable.
-- (instancetype)init NS_UNAVAILABLE;
+/// Used only for unit testing.
+- (instancetype)init;
 
 @end
 
