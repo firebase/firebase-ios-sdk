@@ -27,7 +27,7 @@ jobs:
     # Don't run on private repo.
     if: github.repository == 'Firebase/firebase-ios-sdk' && github.event_name != 'schedule'
     runs-on: ubuntu-latest
-    name: Generate a nightly testing report issue
+    name: Test nightly report generations
     steps:
     - uses: actions/checkout@v2
     - name: Create a nightly report
@@ -36,4 +36,5 @@ jobs:
         access-token: '${{ secrets.GITHUB_TOKEN }}'
         # This is to exclude workflows that will be searched in the nightly report.
         exclude-workflow-files: 'performance-integration-tests.yml'
-        issue-labels: 'night-testing-report-test'
+        issue-labels: 'nightly-testing-report-generation-test'
+        issue-title: 'Nightly Testing Report For Presubmit Testing'
