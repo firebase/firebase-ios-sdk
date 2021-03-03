@@ -16,6 +16,9 @@
 
 #include "Firestore/core/src/bundle/bundle_loader.h"
 
+#include <memory>
+#include <unordered_map>
+
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/api/load_bundle_task.h"
 #include "Firestore/core/src/bundle/bundle_document.h"
@@ -81,7 +84,7 @@ StatusOr<absl::optional<LoadBundleTaskProgress>> BundleLoader::AddElement(
 
   return {absl::make_optional(LoadBundleTaskProgress(
       documents_.size(), metadata_.total_documents(), bytes_loaded_,
-      metadata_.total_bytes(), LoadBundleTaskState::InProgress))};
+      metadata_.total_bytes(), LoadBundleTaskState::kInProgress))};
 }
 
 StatusOr<MaybeDocumentMap> BundleLoader::ApplyChanges() {

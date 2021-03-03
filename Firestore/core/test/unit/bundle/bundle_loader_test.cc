@@ -16,13 +16,16 @@
 
 #include "Firestore/core/src/bundle/bundle_loader.h"
 
-#include "Firestore/Protos/cpp/google/firestore/v1/document.pb.h"
+#include <memory>
+#include <string>
+#include <unordered_map>
+#include <vector>
+
 #include "Firestore/core/src/bundle/bundle_callback.h"
 #include "Firestore/core/src/bundle/bundle_reader.h"
 #include "Firestore/core/src/core/field_filter.h"
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/local/local_serializer.h"
-#include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/document_key_set.h"
 #include "Firestore/core/test/unit/testutil/status_testing.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
@@ -120,7 +123,7 @@ TEST_F(BundleLoaderTest, LoadsDocuments) {
   EXPECT_OK(result);
   AssertProgress(result.ValueOrDie(), /*documents_loaded=*/1,
                  /*total_documents=*/2, /*bytes_loaded*/ 5, /*total_bytes*/ 10,
-                 LoadBundleTaskState::InProgress);
+                 LoadBundleTaskState::kInProgress);
 
   result = loader.AddElement(absl::make_unique<BundledDocumentMetadata>(
                                  testutil::Key("coll/doc2"), create_time_, true,
@@ -135,7 +138,7 @@ TEST_F(BundleLoaderTest, LoadsDocuments) {
   EXPECT_OK(result);
   AssertProgress(result.ValueOrDie(), /*documents_loaded=*/2,
                  /*total_documents=*/2, /*bytes_loaded*/ 10, /*total_bytes*/ 10,
-                 LoadBundleTaskState::InProgress);
+                 LoadBundleTaskState::kInProgress);
 }
 
 TEST_F(BundleLoaderTest, LoadsDeletedDocuments) {
@@ -150,7 +153,7 @@ TEST_F(BundleLoaderTest, LoadsDeletedDocuments) {
   EXPECT_OK(result);
   AssertProgress(result.ValueOrDie(), /*documents_loaded=*/1,
                  /*total_documents=*/1, /*bytes_loaded*/ 10, /*total_bytes*/ 10,
-                 LoadBundleTaskState::InProgress);
+                 LoadBundleTaskState::kInProgress);
 }
 
 TEST_F(BundleLoaderTest, AppliesDocumentChanges) {
