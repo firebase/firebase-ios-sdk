@@ -70,7 +70,7 @@ class Table
     @is_empty_table = true
     @text = String.new ""
     @text << "# %s\n" % [title]
-    @text << "This issue([log](%s)) is generated at %s, fetching workflow runs triggered in the last %s secs.\n" % [GITHUB_WORKFLOW_URL, cur_time.strftime('%m/%d/%Y %H:%M %p'), TESTS_TIME_INTERVAL_IN_HOURS ]
+    @text << "This issue([log](%s)) is generated at %s, fetching workflow runs triggered in the last %s.\n" % [GITHUB_WORKFLOW_URL, cur_time.strftime('%m/%d/%Y %H:%M %p'), TESTS_TIME_INTERVAL_IN_HOURS ]
     # get a table with two columns, workflow and the date of yesterday.
     @text << "| Workflow |"
     @text << (cur_time - TESTS_TIME_INTERVAL).strftime('%m/%d') + "|"
