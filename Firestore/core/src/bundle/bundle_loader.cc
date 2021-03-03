@@ -81,7 +81,7 @@ StatusOr<absl::optional<LoadBundleTaskProgress>> BundleLoader::AddElement(
 
   return {absl::make_optional(LoadBundleTaskProgress(
       documents_.size(), metadata_.total_documents(), bytes_loaded_,
-      metadata_.total_bytes(), LoadBundleTaskState::InProgress))};
+      metadata_.total_bytes(), LoadBundleTaskState::kInProgress))};
 }
 
 StatusOr<MaybeDocumentMap> BundleLoader::ApplyChanges() {

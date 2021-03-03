@@ -120,7 +120,7 @@ TEST_F(BundleLoaderTest, LoadsDocuments) {
   EXPECT_OK(result);
   AssertProgress(result.ValueOrDie(), /*documents_loaded=*/1,
                  /*total_documents=*/2, /*bytes_loaded*/ 5, /*total_bytes*/ 10,
-                 LoadBundleTaskState::InProgress);
+                 LoadBundleTaskState::kInProgress);
 
   result = loader.AddElement(absl::make_unique<BundledDocumentMetadata>(
                                  testutil::Key("coll/doc2"), create_time_, true,
@@ -135,7 +135,7 @@ TEST_F(BundleLoaderTest, LoadsDocuments) {
   EXPECT_OK(result);
   AssertProgress(result.ValueOrDie(), /*documents_loaded=*/2,
                  /*total_documents=*/2, /*bytes_loaded*/ 10, /*total_bytes*/ 10,
-                 LoadBundleTaskState::InProgress);
+                 LoadBundleTaskState::kInProgress);
 }
 
 TEST_F(BundleLoaderTest, LoadsDeletedDocuments) {
@@ -150,7 +150,7 @@ TEST_F(BundleLoaderTest, LoadsDeletedDocuments) {
   EXPECT_OK(result);
   AssertProgress(result.ValueOrDie(), /*documents_loaded=*/1,
                  /*total_documents=*/1, /*bytes_loaded*/ 10, /*total_bytes*/ 10,
-                 LoadBundleTaskState::InProgress);
+                 LoadBundleTaskState::kInProgress);
 }
 
 TEST_F(BundleLoaderTest, AppliesDocumentChanges) {
