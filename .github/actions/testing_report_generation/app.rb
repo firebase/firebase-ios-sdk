@@ -119,8 +119,6 @@ for wf in get_workflows(client, REPO_NAME_WITH_OWNER) do
   else
     puts "created_at: %s" % [latest_run.created_at]
     puts "conclusion: %s" % [latest_run.conclusion]
-    result_text = "[%s](%s)" % [latest_run.conclusion.nil? ? "in_process" : latest_run.conclusion, latest_run.html_url]
-    failure_report.add_workflow_run_and_result(workflow_text, result_text + "The cron job created_at: %s did not run in the last 24 hrs." % [latest_run.created_at])
   end
 end
 
