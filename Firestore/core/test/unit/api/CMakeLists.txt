@@ -19,6 +19,7 @@ endif()
 firebase_ios_add_test(
   firestore_api_test
   cc_compilation_test.cc
+  load_bundle_task_test.cc
 )
 
 target_link_libraries(
