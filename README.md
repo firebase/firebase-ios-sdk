@@ -189,10 +189,7 @@ identifier (e.g. `com.google.Database-Example`)
 
 ### Coverage Report Generation
 
-This tool is to help generate coverage reports for pull requests. It's defined
-by the [test_coverage workflow](https://github.com/firebase/firebase-ios-sdk/blob/master/.github/workflows/test_coverage.yml).
-Currently this will support internal developers. More details are in
-[scripts/code_coverage_report](https://github.com/firebase/firebase-ios-sdk/tree/master/scripts/code_coverage_report)
+See [scripts/code_coverage_report/README.md](scripts/code_coverage_report/README.md).
 
 ## Specific Component Instructions
 See the sections below for any special instructions for those components.
