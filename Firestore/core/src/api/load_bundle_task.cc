@@ -27,12 +27,12 @@ namespace firebase {
 namespace firestore {
 namespace api {
 
-LoadBundleTask::LoadBundleHandle LoadBundleTask::ObserveState(
-    ProgressObserver observer) {
+LoadBundleTask::LoadBundleHandle LoadBundleTask::Observe(
+    ProgressObserver callback) {
   std::lock_guard<std::mutex> lock(mutex_);
 
   auto handle = next_handle_++;
-  observers_.push_back({handle, std::move(observer)});
+  observers_.push_back({handle, std::move(callback)});
 
   return handle;
 }
@@ -67,14 +67,10 @@ void LoadBundleTask::SetSuccess(LoadBundleTaskProgress success_progress) {
 void LoadBundleTask::SetError(const util::Status& status) {
   std::lock_guard<std::mutex> lock(mutex_);
 
-  progress_snapshot_.set_state(LoadBundleTaskState::Error);
+  progress_snapshot_.set_state(LoadBundleTaskState::kError);
   progress_snapshot_.set_error_status(status);
-  const auto& callbacks = GetObservers(LoadBundleTaskState::Error);
-  ExecuteCallbacks(callbacks);
 
-  const auto& progress_callbacks =
-      GetObservers(LoadBundleTaskState::InProgress);
-  ExecuteCallbacks(progress_callbacks);
+  NotifyObservers();
 }
 
 void LoadBundleTask::UpdateProgress(LoadBundleTaskProgress progress) {

@@ -387,38 +387,18 @@ NS_ASSUME_NONNULL_BEGIN
 - (FIRLoadBundleTask *)loadBundle:(nonnull NSData *)bundleData {
   auto stream =
       absl::make_unique<util::ByteStreamApple>([[NSInputStream alloc] initWithData:bundleData]);
-  std::shared_ptr<api::LoadBundleTask> task = _firestore->LoadBundle(std::move(stream));
-  return [[FIRLoadBundleTask alloc] initWithTask:task];
+  return [self loadBundleStream:[[NSInputStream alloc] initWithData:bundleData] completion:nil];
 }
 
 - (FIRLoadBundleTask *)loadBundle:(NSData *)bundleData
                        completion:(nullable void (^)(FIRLoadBundleTaskProgress *_Nullable progress,
                                                      NSError *_Nullable error))completion {
-  auto stream =
-      absl::make_unique<util::ByteStreamApple>([[NSInputStream alloc] initWithData:bundleData]);
-  std::shared_ptr<api::LoadBundleTask> task = _firestore->LoadBundle(std::move(stream));
-  auto callback = [completion](api::LoadBundleTaskProgress progress) {
-    if (!completion) {
-      return;
-    }
-    if (progress.state() == api::LoadBundleTaskState::Success) {
-      completion([[FIRLoadBundleTaskProgress alloc] initWithInternal:progress], nil);
-    } else {
-      HARD_ASSERT(!progress.error_status().ok(),
-                  "Progress set to Error, but error_status() is ok()");
-      completion([[FIRLoadBundleTaskProgress alloc] initWithInternal:progress],
-                 util::MakeNSError(progress.error_status()));
-    }
-  };
-  task->ObserveState(api::LoadBundleTaskState::Success, callback);
-  task->ObserveState(api::LoadBundleTaskState::Error, callback);
-  return [[FIRLoadBundleTask alloc] initWithTask:task];
+  return [self loadBundleStream:[[NSInputStream alloc] initWithData:bundleData]
+                     completion:completion];
 }
 
 - (FIRLoadBundleTask *)loadBundleStream:(NSInputStream *)bundleStream {
-  auto stream = absl::make_unique<util::ByteStreamApple>(bundleStream);
-  std::shared_ptr<api::LoadBundleTask> task = _firestore->LoadBundle(std::move(stream));
-  return [[FIRLoadBundleTask alloc] initWithTask:task];
+  return [self loadBundleStream:bundleStream completion:nil];
 }
 
 - (FIRLoadBundleTask *)loadBundleStream:(NSInputStream *)bundleStream
@@ -427,6 +407,25 @@ NS_ASSUME_NONNULL_BEGIN
                                                     NSError *_Nullable error))completion {
   auto stream = absl::make_unique<util::ByteStreamApple>(bundleStream);
   std::shared_ptr<api::LoadBundleTask> task = _firestore->LoadBundle(std::move(stream));
+  auto callback = [completion](api::LoadBundleTaskProgress progress) {
+    if (!completion) {
+      return;
+    }
+    if (progress.state() == api::LoadBundleTaskState::kSuccess) {
+      completion([[FIRLoadBundleTaskProgress alloc] initWithInternal:progress], nil);
+    } else if (progress.state() == api::LoadBundleTaskState::kError) {
+      NSError *error = nil;
+      if (!progress.error_status().ok()) {
+        LOG_WARN("Progress set to Error, but error_status() is ok()");
+        error = util::MakeNSError(firebase::firestore::Error::kErrorUnknown,
+                                  "Loading bundle failed with unknown error");
+      } else {
+        error = util::MakeNSError(progress.error_status());
+      }
+      completion([[FIRLoadBundleTaskProgress alloc] initWithInternal:progress], error);
+    }
+  };
+  task->Observe(callback);
   return [[FIRLoadBundleTask alloc] initWithTask:task];
 }
 

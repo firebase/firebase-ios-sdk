@@ -16,6 +16,7 @@
 #ifndef FIRESTORE_CORE_TEST_UNIT_TESTUTIL_BUNDLE_BUILDER_H_
 #define FIRESTORE_CORE_TEST_UNIT_TESTUTIL_BUNDLE_BUILDER_H_
 
+#include <array>
 #include <string>
 #include <vector>
 

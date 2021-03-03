@@ -92,7 +92,7 @@ using firebase::firestore::util::ThrowInvalidArgument;
       [handler](api::LoadBundleTaskProgress internal_progress) {
         handler([[FIRLoadBundleTaskProgress alloc] initWithInternal:internal_progress]);
       };
-  return _task->ObserveState(std::move(observer));
+  return _task->Observe(std::move(observer));
 }
 
 - (void)removeObserverWithHandle:(FIRLoadBundleHandle)handle {

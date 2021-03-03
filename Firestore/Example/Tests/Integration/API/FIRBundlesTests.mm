@@ -61,7 +61,7 @@ namespace util = firebase::firestore::util;
 
 - (void)verifyErrorProgress:(FIRLoadBundleTaskProgress*)progress {
   XCTAssertEqual(progress.state, FIRLoadBundleTaskStateError);
-  XCTAssertEqual(progress.bytesLoaded, 0ul);
+  XCTAssertEqual(progress.bytesLoaded, 0);
   XCTAssertEqual(progress.documentsLoaded, 0);
 }
 
@@ -112,10 +112,9 @@ namespace util = firebase::firestore::util;
                  XCTAssertNil(error);
                  [expectation fulfill];
                }];
-  [task observeState:FIRLoadBundleTaskStateInProgress
-             handler:^(FIRLoadBundleTaskProgress* progress) {
-               [progresses addObject:progress];
-             }];
+  [task observeWithHandler:^(FIRLoadBundleTaskProgress* progress) {
+    [progresses addObject:progress];
+  }];
 
   [self awaitExpectation:expectation];
 
@@ -145,10 +144,9 @@ namespace util = firebase::firestore::util;
                  XCTAssertNil(error);
                  [expectation fulfill];
                }];
-  [task observeState:FIRLoadBundleTaskStateInProgress
-             handler:^(FIRLoadBundleTaskProgress* progress) {
-               [progresses addObject:progress];
-             }];
+  [task observeWithHandler:^(FIRLoadBundleTaskProgress* progress) {
+    [progresses addObject:progress];
+  }];
 
   [self awaitExpectation:expectation];
 
@@ -171,12 +169,15 @@ namespace util = firebase::firestore::util;
   __block FIRLoadBundleTaskProgress* result;
   XCTestExpectation* expectation = [self expectationWithDescription:@"loading complete"];
   FIRLoadBundleTask* task =
-      [self.db loadBundle:[util::MakeNSString(bundle) dataUsingEncoding:NSUTF8StringEncoding]];
-  [task observeState:FIRLoadBundleTaskStateInProgress
-             handler:^(FIRLoadBundleTaskProgress* progress) {
-               [progresses addObject:progress];
-               [expectation fulfill];
-             }];
+      [self.db loadBundle:[util::MakeNSString(bundle) dataUsingEncoding:NSUTF8StringEncoding]
+               completion:^(FIRLoadBundleTaskProgress* progress, NSError* error) {
+                 result = progress;
+                 XCTAssertNil(error);
+               }];
+  [task observeWithHandler:^(FIRLoadBundleTaskProgress* progress) {
+    [progresses addObject:progress];
+    [expectation fulfill];
+  }];
 
   [self awaitExpectation:expectation];
 
@@ -225,10 +226,9 @@ namespace util = firebase::firestore::util;
                  XCTAssertNotNil(error);
                  [expectation fulfill];
                }];
-  [task observeState:FIRLoadBundleTaskStateInProgress
-             handler:^(FIRLoadBundleTaskProgress* progress) {
-               [progresses addObject:progress];
-             }];
+  [task observeWithHandler:^(FIRLoadBundleTaskProgress* progress) {
+    [progresses addObject:progress];
+  }];
   [self awaitExpectation:expectation];
 
   XCTAssertEqual(2ul, progresses.count);

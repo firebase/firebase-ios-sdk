@@ -159,7 +159,7 @@ class LoadBundleTask {
    *
    * @return A handle that can be used to remove the callback from this task.
    */
-  LoadBundleHandle ObserveState(ProgressObserver callback);
+  LoadBundleHandle Observe(ProgressObserver callback);
 
   /**
    * Removes the observer associated with the given handle, does nothing if the
