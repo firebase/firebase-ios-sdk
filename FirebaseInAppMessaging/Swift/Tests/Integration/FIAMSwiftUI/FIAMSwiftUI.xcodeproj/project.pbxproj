@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -15,9 +15,13 @@
 		25122B2125D3482F009EE4BE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 25122B0B25D3482F009EE4BE /* Assets.xcassets */; };
 		25122B2D25D34F10009EE4BE /* Podfile in Resources */ = {isa = PBXBuildFile; fileRef = 25122B2C25D34F10009EE4BE /* Podfile */; };
 		25122B2E25D34F10009EE4BE /* Podfile in Resources */ = {isa = PBXBuildFile; fileRef = 25122B2C25D34F10009EE4BE /* Podfile */; };
+		2578F0A825EC13C200081E42 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2578F0A725EC13C200081E42 /* GoogleService-Info.plist */; };
+		2578F0A925EC13C200081E42 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2578F0A725EC13C200081E42 /* GoogleService-Info.plist */; };
+		D3879463309C5EF475DAD161 /* Pods_FIAMSwiftUI__iOS_.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 947FA46289A89F5788211889 /* Pods_FIAMSwiftUI__iOS_.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0846884077D9B202A018E1E3 /* Pods-FIAMSwiftUI (iOS).release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FIAMSwiftUI (iOS).release.xcconfig"; path = "Target Support Files/Pods-FIAMSwiftUI (iOS)/Pods-FIAMSwiftUI (iOS).release.xcconfig"; sourceTree = "<group>"; };
 		25122B0925D3482E009EE4BE /* FIAMSwiftUIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FIAMSwiftUIApp.swift; sourceTree = "<group>"; };
 		25122B0A25D3482E009EE4BE /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		25122B0B25D3482F009EE4BE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -26,7 +30,10 @@
 		25122B1825D3482F009EE4BE /* FIAMSwiftUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FIAMSwiftUI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		25122B1A25D3482F009EE4BE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		25122B1B25D3482F009EE4BE /* macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = macOS.entitlements; sourceTree = "<group>"; };
-		25122B2C25D34F10009EE4BE /* Podfile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Podfile; sourceTree = SOURCE_ROOT; };
+		25122B2C25D34F10009EE4BE /* Podfile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Podfile; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		2578F0A725EC13C200081E42 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		3870F7D4AC793F66B002526B /* Pods-FIAMSwiftUI (iOS).debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FIAMSwiftUI (iOS).debug.xcconfig"; path = "Target Support Files/Pods-FIAMSwiftUI (iOS)/Pods-FIAMSwiftUI (iOS).debug.xcconfig"; sourceTree = "<group>"; };
+		947FA46289A89F5788211889 /* Pods_FIAMSwiftUI__iOS_.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FIAMSwiftUI__iOS_.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -34,6 +41,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D3879463309C5EF475DAD161 /* Pods_FIAMSwiftUI__iOS_.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -54,12 +62,15 @@
 				25122B1225D3482F009EE4BE /* iOS */,
 				25122B1925D3482F009EE4BE /* macOS */,
 				25122B1125D3482F009EE4BE /* Products */,
+				B618D9DB875F4638A0004176 /* Pods */,
+				837D6D0EB82CE5A494AD0B9F /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
 		25122B0825D3482E009EE4BE /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				2578F0A725EC13C200081E42 /* GoogleService-Info.plist */,
 				25122B2C25D34F10009EE4BE /* Podfile */,
 				25122B0925D3482E009EE4BE /* FIAMSwiftUIApp.swift */,
 				25122B0A25D3482E009EE4BE /* ContentView.swift */,
@@ -94,6 +105,23 @@
 			path = macOS;
 			sourceTree = "<group>";
 		};
+		837D6D0EB82CE5A494AD0B9F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				947FA46289A89F5788211889 /* Pods_FIAMSwiftUI__iOS_.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		B618D9DB875F4638A0004176 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				3870F7D4AC793F66B002526B /* Pods-FIAMSwiftUI (iOS).debug.xcconfig */,
+				0846884077D9B202A018E1E3 /* Pods-FIAMSwiftUI (iOS).release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -101,9 +129,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 25122B2425D3482F009EE4BE /* Build configuration list for PBXNativeTarget "FIAMSwiftUI (iOS)" */;
 			buildPhases = (
+				9BDCBE062E98C90E58F54867 /* [CP] Check Pods Manifest.lock */,
 				25122B0C25D3482F009EE4BE /* Sources */,
 				25122B0D25D3482F009EE4BE /* Frameworks */,
 				25122B0E25D3482F009EE4BE /* Resources */,
+				C68A6EDC1398D3DC0CFE8D2C /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -174,6 +204,7 @@
 			files = (
 				25122B2D25D34F10009EE4BE /* Podfile in Resources */,
 				25122B2025D3482F009EE4BE /* Assets.xcassets in Resources */,
+				2578F0A825EC13C200081E42 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -183,10 +214,53 @@
 			files = (
 				25122B2E25D34F10009EE4BE /* Podfile in Resources */,
 				25122B2125D3482F009EE4BE /* Assets.xcassets in Resources */,
+				2578F0A925EC13C200081E42 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		9BDCBE062E98C90E58F54867 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-FIAMSwiftUI (iOS)-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		C68A6EDC1398D3DC0CFE8D2C /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-FIAMSwiftUI (iOS)/Pods-FIAMSwiftUI (iOS)-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-FIAMSwiftUI (iOS)/Pods-FIAMSwiftUI (iOS)-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-FIAMSwiftUI (iOS)/Pods-FIAMSwiftUI (iOS)-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		25122B0C25D3482F009EE4BE /* Sources */ = {
@@ -323,6 +397,7 @@
 		};
 		25122B2525D3482F009EE4BE /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 3870F7D4AC793F66B002526B /* Pods-FIAMSwiftUI (iOS).debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -345,6 +420,7 @@
 		};
 		25122B2625D3482F009EE4BE /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0846884077D9B202A018E1E3 /* Pods-FIAMSwiftUI (iOS).release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;

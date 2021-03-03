@@ -21,7 +21,15 @@ class DelegateBridgeTests: XCTestCase {
   var delegateBridge = DelegateBridge()
 
   func testClearsInAppMessageOnDismiss() {
-    let inAppMessage = InAppMessagingDisplayMessage()
+    let inAppMessage = InAppMessagingDisplayMessage(
+      messageID: "messageID",
+      campaignName: "testCampaign",
+      experimentPayload: nil,
+      renderAsTestMessage: false,
+      messageType: FIRInAppMessagingDisplayMessageType.card,
+      triggerType: FIRInAppMessagingDisplayTriggerType.onAppForeground,
+      appData: nil
+    )
     delegateBridge.displayMessage(inAppMessage, displayDelegate: TestDelegate())
 
     DispatchQueue.main.async {
@@ -36,7 +44,15 @@ class DelegateBridgeTests: XCTestCase {
   }
 
   func testClearsInAppMessageOnClick() {
-    let inAppMessage = InAppMessagingDisplayMessage()
+    let inAppMessage = InAppMessagingDisplayMessage(
+      messageID: "messageID",
+      campaignName: "testCampaign",
+      experimentPayload: nil,
+      renderAsTestMessage: false,
+      messageType: FIRInAppMessagingDisplayMessageType.card,
+      triggerType: FIRInAppMessagingDisplayTriggerType.onAppForeground,
+      appData: nil
+    )
     delegateBridge.displayMessage(inAppMessage, displayDelegate: TestDelegate())
 
     DispatchQueue.main.async {
