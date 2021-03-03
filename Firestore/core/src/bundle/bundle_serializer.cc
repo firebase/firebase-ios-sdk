@@ -7,7 +7,7 @@
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
+ * Unless Requiredd by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
@@ -74,10 +74,6 @@ const std::vector<T>& EmptyVector() {
   return *empty;
 }
 
-json Parse(const std::string& s) {
-  return json::parse(s, /*callback=*/nullptr, /*allow_exception=*/false);
-}
-
 Timestamp DecodeTimestamp(JsonReader& reader, const json& version) {
   StatusOr<Timestamp> decoded;
   if (version.is_string()) {
@@ -93,8 +89,8 @@ Timestamp DecodeTimestamp(JsonReader& reader, const json& version) {
     }
   } else {
     decoded = TimestampInternal::FromUntrustedSecondsAndNanos(
-        reader.RequireInt<int64_t>("seconds", version),
-        reader.RequireInt<int32_t>("nanos", version));
+        reader.RequiredInt<int64_t>("seconds", version),
+        reader.RequiredInt<int32_t>("nanos", version));
   }
 
   if (!decoded.ok()) {
@@ -149,7 +145,7 @@ void DecodeCollectionSource(JsonReader& reader,
   }
   const auto& collection_selector = from.at(0);
   const auto& collection_id =
-      reader.RequireString("collectionId", collection_selector);
+      reader.RequiredString("collectionId", collection_selector);
   bool all_descendants =
       reader.OptionalBool("allDescendants", collection_selector);
 
@@ -166,7 +162,7 @@ FieldPath DecodeFieldReference(JsonReader& reader, const json& field) {
     return {};
   }
 
-  const auto& field_path = reader.RequireString("fieldPath", field);
+  const auto& field_path = reader.RequiredString("fieldPath", field);
   auto result = FieldPath::FromServerFormat(field_path);
 
   if (!result.ok()) {
@@ -214,8 +210,8 @@ Filter InvalidFilter() {
 
 Filter DecodeUnaryFilter(JsonReader& reader, const json& filter) {
   FieldPath path =
-      DecodeFieldReference(reader, reader.RequireObject("field", filter));
-  std::string op = reader.RequireString("op", filter);
+      DecodeFieldReference(reader, reader.RequiredObject("field", filter));
+  std::string op = reader.RequiredString("op", filter);
 
   // Return early if !ok(), because `FieldFilter::Create` will abort with
   // invalid inputs.
@@ -243,9 +239,9 @@ Filter DecodeUnaryFilter(JsonReader& reader, const json& filter) {
 
 OrderByList DecodeOrderBy(JsonReader& reader, const json& query) {
   OrderByList result;
-  for (const auto& order_by : reader.RequireArray("orderBy", query)) {
+  for (const auto& order_by : reader.RequiredArray("orderBy", query)) {
     FieldPath path =
-        DecodeFieldReference(reader, reader.RequireObject("field", order_by));
+        DecodeFieldReference(reader, reader.RequiredObject("field", order_by));
 
     std::string direction_string =
         reader.OptionalString("direction", order_by, "ASCENDING");
@@ -311,8 +307,8 @@ FieldValue DecodeBytesValue(JsonReader& reader,
 
 // Mark: JsonReader
 
-const std::string& JsonReader::RequireString(const char* name,
-                                             const json& json_object) {
+const std::string& JsonReader::RequiredString(const char* name,
+                                              const json& json_object) {
   if (json_object.contains(name)) {
     const json& child = json_object.at(name);
     if (child.is_string()) {
@@ -338,8 +334,8 @@ const std::string& JsonReader::OptionalString(
   return default_value;
 }
 
-const std::vector<json>& JsonReader::RequireArray(const char* name,
-                                                  const json& json_object) {
+const std::vector<json>& JsonReader::RequiredArray(const char* name,
+                                                   const json& json_object) {
   if (json_object.contains(name)) {
     const json& child = json_object.at(name);
     if (child.is_array()) {
@@ -351,6 +347,23 @@ const std::vector<json>& JsonReader::RequireArray(const char* name,
   return EmptyVector<json>();
 }
 
+const std::vector<json>& JsonReader::OptionalArray(
+    const char* name,
+    const json& json_object,
+    const std::vector<json>& default_value) {
+  if (!json_object.contains(name)) {
+    return default_value;
+  }
+
+  const json& child = json_object.at(name);
+  if (child.is_array()) {
+    return child.get_ref<const std::vector<json>&>();
+  } else {
+    Fail("'%s' is not an array", name);
+    return EmptyVector<json>();
+  }
+}
+
 bool JsonReader::OptionalBool(const char* name,
                               const json& json_object,
                               bool default_value) {
@@ -359,8 +372,8 @@ bool JsonReader::OptionalBool(const char* name,
          default_value;
 }
 
-const nlohmann::json& JsonReader::RequireObject(const char* child_name,
-                                                const json& json_object) {
+const nlohmann::json& JsonReader::RequiredObject(const char* child_name,
+                                                 const json& json_object) {
   if (!json_object.contains(child_name)) {
     Fail("Missing child '%s'", child_name);
     return json_object;
@@ -368,7 +381,7 @@ const nlohmann::json& JsonReader::RequireObject(const char* child_name,
   return json_object.at(child_name);
 }
 
-double JsonReader::RequireDouble(const char* name, const json& json_object) {
+double JsonReader::RequiredDouble(const char* name, const json& json_object) {
   if (json_object.contains(name)) {
     double result = DecodeDouble(json_object.at(name));
     if (ok()) {
@@ -409,77 +422,85 @@ double JsonReader::DecodeDouble(const nlohmann::json& value) {
   return result;
 }
 
-template <typename int_type>
-int_type JsonReader::RequireInt(const char* name, const json& json_object) {
-  if (json_object.contains(name)) {
-    const json& value = json_object.at(name);
-    if (value.is_number_integer()) {
-      return value.get<int_type>();
-    }
-
-    int_type result = 0;
-    if (value.is_string()) {
-      const auto& s = value.get_ref<const std::string&>();
-      auto ok = absl::SimpleAtoi<int_type>(s, &result);
-      if (!ok) {
-        Fail("Failed to parse into integer: " + s);
-      }
-
-      return result;
-    }
+template <typename IntType>
+IntType ParseInt(const json& value, JsonReader& reader) {
+  if (value.is_number_integer()) {
+    return value.get<IntType>();
   }
 
-  Fail("'%s' is missing or is not a double", name);
+  IntType result = 0;
+  if (value.is_string()) {
+    const auto& s = value.get_ref<const std::string&>();
+    auto ok = absl::SimpleAtoi<IntType>(s, &result);
+    if (!ok) {
+      reader.Fail("Failed to parse into integer: " + s);
+      return 0;
+    }
+
+    return result;
+  }
+
+  reader.Fail("Only integer and string can be parsed into int type");
   return 0;
+}
+
+template <typename IntType>
+IntType JsonReader::RequiredInt(const char* name, const json& json_object) {
+  if (!json_object.contains(name)) {
+    Fail("'%s' is missing or is not a double", name);
+    return 0;
+  }
+
+  const json& value = json_object.at(name);
+  return ParseInt<IntType>(value, *this);
+}
+
+template <typename IntType>
+IntType JsonReader::OptionalInt(const char* name,
+                                const json& json_object,
+                                IntType default_value) {
+  if (!json_object.contains(name)) {
+    return default_value;
+  }
+
+  const json& value = json_object.at(name);
+  return ParseInt<IntType>(value, *this);
 }
 
 // Mark: BundleSerializer
 
 BundleMetadata BundleSerializer::DecodeBundleMetadata(
-    JsonReader& reader, const std::string& metadata_string) const {
-  const json& metadata = Parse(metadata_string);
-
-  if (metadata.is_discarded()) {
-    reader.Fail("Failed to parse string into json: " + metadata_string);
-    return {};
-  }
-
+    JsonReader& reader, const json& metadata) const {
   return BundleMetadata(
-      reader.RequireString("id", metadata),
-      reader.RequireInt<uint32_t>("version", metadata),
+      reader.RequiredString("id", metadata),
+      reader.RequiredInt<uint32_t>("version", metadata),
       DecodeSnapshotVersion(reader,
-                            reader.RequireObject("createTime", metadata)),
-      reader.RequireInt<uint32_t>("totalDocuments", metadata),
-      reader.RequireInt<uint64_t>("totalBytes", metadata));
+                            reader.RequiredObject("createTime", metadata)),
+      reader.OptionalInt<uint32_t>("totalDocuments", metadata, 0),
+      reader.OptionalInt<uint64_t>("totalBytes", metadata, 0));
 }
 
-NamedQuery BundleSerializer::DecodeNamedQuery(
-    JsonReader& reader, const std::string& named_query_string) const {
-  const json& named_query = Parse(named_query_string);
-
-  if (named_query.is_discarded()) {
-    reader.Fail("Failed to parse string into json: " + named_query_string);
-    return {};
-  }
-
+NamedQuery BundleSerializer::DecodeNamedQuery(JsonReader& reader,
+                                              const json& named_query) const {
   return NamedQuery(
-      reader.RequireString("name", named_query),
+      reader.RequiredString("name", named_query),
       DecodeBundledQuery(reader,
-                         reader.RequireObject("bundledQuery", named_query)),
+                         reader.RequiredObject("bundledQuery", named_query)),
       DecodeSnapshotVersion(reader,
-                            reader.RequireObject("readTime", named_query)));
+                            reader.RequiredObject("readTime", named_query)));
 }
 
 BundledQuery BundleSerializer::DecodeBundledQuery(
     JsonReader& reader, const nlohmann::json& query) const {
-  const json& structured_query = reader.RequireObject("structuredQuery", query);
+  const json& structured_query =
+      reader.RequiredObject("structuredQuery", query);
   VerifyStructuredQuery(reader, structured_query);
   if (!reader.ok()) {
     return {};
   }
 
   ResourcePath parent =
-      DecodeName(reader, reader.RequireObject("parent", query));
+      DecodeName(reader, reader.RequiredObject("parent", query));
   std::string collection_group_string;
   DecodeCollectionSource(reader, structured_query.at("from"), parent,
                          collection_group_string);
@@ -557,12 +578,13 @@ FilterList BundleSerializer::DecodeWhere(JsonReader& reader,
 Filter BundleSerializer::DecodeFieldFilter(JsonReader& reader,
                                            const json& filter) const {
   FieldPath path =
-      DecodeFieldReference(reader, reader.RequireObject("field", filter));
+      DecodeFieldReference(reader, reader.RequiredObject("field", filter));
 
-  const auto& op_string = reader.RequireString("op", filter);
+  const auto& op_string = reader.RequiredString("op", filter);
   auto op = DecodeFieldFilterOperator(reader, op_string);
 
-  FieldValue value = DecodeValue(reader, reader.RequireObject("value", filter));
+  FieldValue value =
+      DecodeValue(reader, reader.RequiredObject("value", filter));
 
   // Return early if !ok(), because `FieldFilter::Create` will abort with
   // invalid inputs.
@@ -575,16 +597,16 @@ Filter BundleSerializer::DecodeFieldFilter(JsonReader& reader,
 
 FilterList BundleSerializer::DecodeCompositeFilter(JsonReader& reader,
                                                    const json& filter) const {
-  if (reader.RequireString("op", filter) != "AND") {
+  if (reader.RequiredString("op", filter) != "AND") {
     reader.Fail("The SDK only supports composite filters of type 'AND'");
     return {};
   }
 
-  auto filters = reader.RequireArray("filters", filter);
+  auto filters = reader.RequiredArray("filters", filter);
   FilterList result;
   for (const auto& f : filters) {
     result = result.push_back(
-        DecodeFieldFilter(reader, reader.RequireObject("fieldFilter", f)));
+        DecodeFieldFilter(reader, reader.RequiredObject("fieldFilter", f)));
     if (!reader.ok()) {
       return {};
     }
@@ -601,12 +623,12 @@ Bound BundleSerializer::DecodeBound(JsonReader& reader,
     return default_bound;
   }
 
-  const json& bound_json = reader.RequireObject(bound_name, query);
+  const json& bound_json = reader.RequiredObject(bound_name, query);
   bool before = reader.OptionalBool("before", bound_json);
 
   std::vector<FieldValue> positions;
 
-  for (const auto& value : reader.RequireArray("values", bound_json)) {
+  for (const auto& value : reader.RequiredArray("values", bound_json)) {
     positions.push_back(DecodeValue(reader, value));
   }
 
@@ -631,20 +653,20 @@ FieldValue BundleSerializer::DecodeValue(JsonReader& reader,
     return FieldValue::FromBoolean(val.get<bool>());
   } else if (value.contains("integerValue")) {
     return FieldValue::FromInteger(
-        reader.RequireInt<int64_t>("integerValue", value));
+        reader.RequiredInt<int64_t>("integerValue", value));
   } else if (value.contains("doubleValue")) {
-    return FieldValue::FromDouble(reader.RequireDouble("doubleValue", value));
+    return FieldValue::FromDouble(reader.RequiredDouble("doubleValue", value));
   } else if (value.contains("timestampValue")) {
     auto val = DecodeTimestamp(reader, value.at("timestampValue"));
     return FieldValue::FromTimestamp(val);
   } else if (value.contains("stringValue")) {
-    auto val = reader.RequireString("stringValue", value);
+    auto val = reader.RequiredString("stringValue", value);
     return FieldValue::FromString(std::move(val));
   } else if (value.contains("bytesValue")) {
-    return DecodeBytesValue(reader, reader.RequireString("bytesValue", value));
+    return DecodeBytesValue(reader, reader.RequiredString("bytesValue", value));
   } else if (value.contains("referenceValue")) {
     return DecodeReferenceValue(reader,
-                                reader.RequireString("referenceValue", value));
+                                reader.RequiredString("referenceValue", value));
   } else if (value.contains("geoPointValue")) {
     return DecodeGeoPointValue(reader, value.at("geoPointValue"));
   } else if (value.contains("arrayValue")) {
@@ -680,7 +702,7 @@ FieldValue BundleSerializer::DecodeMapValue(JsonReader& reader,
 
 FieldValue BundleSerializer::DecodeArrayValue(JsonReader& reader,
                                               const json& array_json) const {
-  const auto& values = reader.RequireArray("values", array_json);
+  const auto& values = reader.RequiredArray("values", array_json);
   std::vector<FieldValue> field_values;
   for (const json& json_value : values) {
     field_values.push_back(DecodeValue(reader, json_value));
@@ -703,17 +725,9 @@ FieldValue BundleSerializer::DecodeReferenceValue(
 }
 
 BundledDocumentMetadata BundleSerializer::DecodeDocumentMetadata(
-    JsonReader& reader, const std::string& document_metadata_string) const {
-  const json& document_metadata = Parse(document_metadata_string);
-
-  if (document_metadata.is_discarded()) {
-    reader.Fail("Failed to parse string into json: " +
-                document_metadata_string);
-    return {};
-  }
-
+    JsonReader& reader, const json& document_metadata) const {
   ResourcePath path =
-      DecodeName(reader, reader.RequireObject("name", document_metadata));
+      DecodeName(reader, reader.RequiredObject("name", document_metadata));
   // Return early if !ok(), `DocumentKey` aborts with invalid inputs.
   if (!reader.ok()) {
     return {};
@@ -721,12 +735,13 @@ BundledDocumentMetadata BundleSerializer::DecodeDocumentMetadata(
   DocumentKey key = DocumentKey(path);
 
   SnapshotVersion read_time = DecodeSnapshotVersion(
-      reader, reader.RequireObject("readTime", document_metadata));
+      reader, reader.RequiredObject("readTime", document_metadata));
 
   bool exists = reader.OptionalBool("exists", document_metadata);
 
   std::vector<std::string> queries;
-  for (const json& query : reader.RequireArray("queries", document_metadata)) {
+  for (const json& query :
+       reader.OptionalArray("queries", document_metadata, {})) {
     if (!query.is_string()) {
       reader.Fail("Query name should be encoded as string");
       return {};
@@ -739,18 +754,10 @@ BundledDocumentMetadata BundleSerializer::DecodeDocumentMetadata(
                                  std::move(queries));
 }
 
-BundleDocument BundleSerializer::DecodeDocument(
-    JsonReader& reader, const std::string& document_string) const {
-  const json& document = Parse(document_string);
-
-  if (document.is_discarded()) {
-    reader.Fail("Failed to parse document string into json: " +
-                document_string);
-    return {};
-  }
-
+BundleDocument BundleSerializer::DecodeDocument(JsonReader& reader,
+                                                const json& document) const {
   ResourcePath path =
-      DecodeName(reader, reader.RequireObject("name", document));
+      DecodeName(reader, reader.RequiredObject("name", document));
   // Return early if !ok(), `DocumentKey` aborts with invalid inputs.
   if (!reader.ok()) {
     return {};
@@ -758,7 +765,7 @@ BundleDocument BundleSerializer::DecodeDocument(
   DocumentKey key = DocumentKey(path);
 
   SnapshotVersion update_time = DecodeSnapshotVersion(
-      reader, reader.RequireObject("updateTime", document));
+      reader, reader.RequiredObject("updateTime", document));
 
   auto map_value = DecodeMapValue(reader, document);
 

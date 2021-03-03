@@ -40,9 +40,9 @@ namespace bundle {
  * Provides the ability to report failure cases by inheriting `ReadContext`, and
  * checks and reads json object into specified types.
  *
- * `Require*` methods check the existence of the given name and compatibility of
- * its value (can it be read into the given type?). They fail the reader if any
- * of the checks fail, otherwise return the read value.
+ * `Required*` methods check the existence of the given name and compatibility
+ * of its value (can it be read into the given type?). They fail the reader if
+ * any of the checks fail, otherwise return the read value.
  *
  * `Optional*` methods check the existence of the given name, and return a
  * specified default value if the name does not exist. They then check
@@ -51,24 +51,33 @@ namespace bundle {
  */
 class JsonReader : public util::ReadContext {
  public:
-  const std::string& RequireString(const char* name,
-                                   const nlohmann::json& json_object);
+  const std::string& RequiredString(const char* name,
+                                    const nlohmann::json& json_object);
   const std::string& OptionalString(const char* name,
                                     const nlohmann::json& json_object,
                                     const std::string& default_value);
 
-  const std::vector<nlohmann::json>& RequireArray(
+  const std::vector<nlohmann::json>& RequiredArray(
       const char* name, const nlohmann::json& json_object);
-  const nlohmann::json& RequireObject(const char* child_name,
-                                      const nlohmann::json& json_object);
+  const std::vector<nlohmann::json>& OptionalArray(
+      const char* name,
+      const nlohmann::json& json_object,
+      const std::vector<nlohmann::json>& default_value);
+  const nlohmann::json& RequiredObject(const char* child_name,
+                                       const nlohmann::json& json_object);
 
-  double RequireDouble(const char* name, const nlohmann::json& value);
+  double RequiredDouble(const char* name, const nlohmann::json& value);
   double OptionalDouble(const char* name,
                         const nlohmann::json& value,
                         double default_value = 0);
 
-  template <typename int_type>
-  int_type RequireInt(const char* name, const nlohmann::json& value);
+  template <typename IntType>
+  IntType RequiredInt(const char* name, const nlohmann::json& value);
+
+  template <typename IntType>
+  IntType OptionalInt(const char* name,
+                      const nlohmann::json& value,
+                      IntType default_value);
 
   static bool OptionalBool(const char* name,
                            const nlohmann::json& json_object,
@@ -85,16 +94,16 @@ class BundleSerializer {
       : rpc_serializer_(std::move(serializer)) {
   }
   BundleMetadata DecodeBundleMetadata(JsonReader& context,
-                                      const std::string& metadata) const;
+                                      const nlohmann::json& metadata) const;
 
   NamedQuery DecodeNamedQuery(JsonReader& context,
-                              const std::string& named_query) const;
+                              const nlohmann::json& named_query) const;
 
   BundledDocumentMetadata DecodeDocumentMetadata(
-      JsonReader& context, const std::string& document_metadata) const;
+      JsonReader& context, const nlohmann::json& document_metadata) const;
 
   BundleDocument DecodeDocument(JsonReader& context,
-                                const std::string& document) const;
+                                const nlohmann::json& document) const;
 
  private:
   BundledQuery DecodeBundledQuery(JsonReader& context,
