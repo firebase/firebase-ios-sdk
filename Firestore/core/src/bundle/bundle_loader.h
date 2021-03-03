@@ -17,7 +17,9 @@
 #define FIRESTORE_CORE_SRC_BUNDLE_BUNDLE_LOADER_H_
 
 #include <memory>
+#include <unordered_map>
 #include <utility>
+#include <vector>
 
 #include "Firestore/core/src/api/load_bundle_task.h"
 #include "Firestore/core/src/bundle/bundle_callback.h"
@@ -57,6 +59,10 @@ class BundleLoader {
   util::StatusOr<model::MaybeDocumentMap> ApplyChanges();
 
  private:
+  /**
+   * @return A map whose keys are the query names in the loading bundle, and
+   * values are matching document keys.
+   */
   std::unordered_map<std::string, model::DocumentKeySet>
   GetQueryDocumentMapping();
 
@@ -67,10 +73,9 @@ class BundleLoader {
                      BundledDocumentMetadata,
                      model::DocumentKeyHash>
       documents_metadata_;
-
   model::MaybeDocumentMap documents_;
-  uint64_t bytes_loaded_ = 0;
 
+  uint64_t bytes_loaded_ = 0;
   absl::optional<model::DocumentKey> current_document_;
 };
 
