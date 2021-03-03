@@ -115,6 +115,9 @@ absl::optional<std::string> BundleReader::ReadLengthPrefix() {
 }
 
 void BundleReader::ReadJsonToBuffer(size_t required_size) {
+  if(!reader_status_.ok()){
+    return;
+  }
   while (buffer_.size() < required_size) {
     // Read at most 1024 bytes every time, to avoid allocating a huge buffer
     // when corruption leads to large `required_size`.
