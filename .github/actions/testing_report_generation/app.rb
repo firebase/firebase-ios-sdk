@@ -22,7 +22,7 @@ require 'tzinfo'
 REPO_NAME_WITH_OWNER = ENV['GITHUB_REPOSITORY']
 GITHUB_WORKFLOW_URL = "https://github.com/#{REPO_NAME_WITH_OWNER}/actions/runs/#{ENV['GITHUB_RUN_ID']}"
 TESTS_TIME_INTERVAL_IN_HOURS = 24
-TESTS_TIME_INTERVAL_IN_SECS = TESTS_TIME_INTERVAL_IN_HOURS * 60
+TESTS_TIME_INTERVAL_IN_SECS = TESTS_TIME_INTERVAL_IN_HOURS * 3600
 NO_WORKFLOW_RUNNING_INFO = "All nightly cron job were not run in the last #{TESTS_TIME_INTERVAL_IN_HOURS} hrs. Please review [log](#{GITHUB_WORKFLOW_URL}) make sure there at least exists one cron job running.".freeze
 EXCLUDED_WORKFLOWS = []
 ISSUE_LABELS = ""
