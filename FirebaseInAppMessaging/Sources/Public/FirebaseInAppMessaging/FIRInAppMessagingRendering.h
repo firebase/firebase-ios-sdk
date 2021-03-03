@@ -19,8 +19,6 @@
 
 #import <UIKit/UIKit.h>
 
-@class ABTExperimentPayload;
-
 NS_ASSUME_NONNULL_BEGIN
 
 /// The type and UI style of an in-app message.
@@ -166,13 +164,12 @@ NS_SWIFT_NAME(InAppMessagingDisplayMessage)
 /// Unavailable.
 - (instancetype)init NS_UNAVAILABLE;
 
+/// Exposed for unit testing only. Don't instantiate this in your app directly.
 - (instancetype)initWithMessageID:(NSString *)messageID
                      campaignName:(NSString *)campaignName
-                experimentPayload:(nullable ABTExperimentPayload *)experimentPayload
               renderAsTestMessage:(BOOL)renderAsTestMessage
                       messageType:(FIRInAppMessagingDisplayMessageType)messageType
-                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
-                          appData:(nullable NSDictionary *)appData;
+                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType;
 
 @end
 

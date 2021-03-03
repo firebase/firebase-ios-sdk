@@ -21,14 +21,12 @@ class DelegateBridgeTests: XCTestCase {
   var delegateBridge = DelegateBridge()
 
   func testClearsInAppMessageOnDismiss() {
-    let inAppMessage = InAppMessagingDisplayMessage(
+    let inAppMessage: InAppMessagingDisplayMessage = InAppMessagingDisplayMessage(
       messageID: "messageID",
       campaignName: "testCampaign",
-      experimentPayload: nil,
       renderAsTestMessage: false,
-      messageType: FIRInAppMessagingDisplayMessageType.card,
-      triggerType: FIRInAppMessagingDisplayTriggerType.onAppForeground,
-      appData: nil
+      messageType: .card,
+      triggerType: .onAppForeground
     )
     delegateBridge.displayMessage(inAppMessage, displayDelegate: TestDelegate())
 
@@ -44,14 +42,12 @@ class DelegateBridgeTests: XCTestCase {
   }
 
   func testClearsInAppMessageOnClick() {
-    let inAppMessage = InAppMessagingDisplayMessage(
+    let inAppMessage: InAppMessagingDisplayMessage = InAppMessagingDisplayMessage(
       messageID: "messageID",
       campaignName: "testCampaign",
-      experimentPayload: nil,
       renderAsTestMessage: false,
-      messageType: FIRInAppMessagingDisplayMessageType.card,
-      triggerType: FIRInAppMessagingDisplayTriggerType.onAppForeground,
-      appData: nil
+      messageType: .card,
+      triggerType: .onAppForeground
     )
     delegateBridge.displayMessage(inAppMessage, displayDelegate: TestDelegate())
 

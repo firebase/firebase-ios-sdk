@@ -71,6 +71,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+@interface FIRInAppMessagingDisplayMessage (Private)
+
+- (instancetype)initWithMessageID:(NSString *)messageID
+                     campaignName:(NSString *)campaignName
+                experimentPayload:(nullable ABTExperimentPayload *)experimentPayload
+              renderAsTestMessage:(BOOL)renderAsTestMessage
+                      messageType:(FIRInAppMessagingDisplayMessageType)messageType
+                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
+                          appData:(nullable NSDictionary *)appData;
+
+@end
+
 @interface FIRInAppMessagingModalDisplay (Private)
 
 - (instancetype)initWithMessageID:(NSString *)messageID
