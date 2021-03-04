@@ -1,4 +1,4 @@
-# 2021-3 -- v.7.7.0
+# 2021-3 -- v.7.9.0
 - [added] Added support for building custom in-app messages with SwiftUI (#7496).
 
 # 2021-2 -- v.7.7.0
