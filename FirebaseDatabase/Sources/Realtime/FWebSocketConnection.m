@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 // Targetted compilation is ONLY for testing. UIKit is weak-linked in actual
 // release build.
 
@@ -29,7 +28,7 @@
 
 #if TARGET_OS_IOS || TARGET_OS_TV
 #import <UIKit/UIKit.h>
-#endif
+#endif  // TARGET_OS_IOS || TARGET_OS_TV
 
 #if TARGET_OS_WATCH
 #import <Network/Network.h>
@@ -68,7 +67,7 @@
 @synthesize delegate;
 #if !TARGET_OS_WATCH
 @synthesize webSocket;
-#endif
+#endif  // !TARGET_OS_WATCH
 @synthesize connectionId;
 
 - (id)initWith:(FRepoInfo *)repoInfo
@@ -137,7 +136,7 @@
         deviceName = [uiDeviceClass currentDevice].model;
         hasUiDeviceClass = YES;
     }
-#endif
+#endif  // TARGET_OS_IOS || TARGET_OS_TV
 
     if (!hasUiDeviceClass) {
         NSDictionary *systemVersionDictionary = [NSDictionary
@@ -179,11 +178,11 @@
     // TODO Assert url
 #if TARGET_OS_WATCH
     [self.webSocketTask resume];
-    // Start the receive web socket.
+    // We need to request data from the web socket in order for it to start sending data.
     [self receiveWebSocketData];
 #else
     [self.webSocket open];
-#endif
+#endif  // TARGET_OS_WATCH
     dispatch_time_t when = dispatch_time(
         DISPATCH_TIME_NOW, kWebsocketConnectTimeout * NSEC_PER_SEC);
     dispatch_after(when, self.dispatchQueue, ^{
@@ -200,7 +199,7 @@
                                      reason:nil];
 #else
     [self.webSocket close];
-#endif
+#endif  // TARGET_OS_WATCH
 }
 
 - (void)start {
@@ -235,7 +234,7 @@
       }];
 #else
       [self.webSocket send:formattedData];
-#endif
+#endif  // TARGET_OS_WATCH
     }
 
     // Then, actually send the segments.
@@ -250,7 +249,7 @@
       }];
 #else
         [self.webSocket send:segment];
-#endif
+#endif  // TARGET_OS_WATCH
     }
 }
 
@@ -268,7 +267,7 @@
         }];
 #else
         [self.webSocket send:@"0"];
-#endif
+#endif  // TARGET_OS_WATCH
     } else {
         FFLog(@"I-RDB083005",
               @"(wsc:%@) No more websocket; invalidating nop timer.",

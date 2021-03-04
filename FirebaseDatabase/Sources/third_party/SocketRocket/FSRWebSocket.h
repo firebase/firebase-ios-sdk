@@ -107,4 +107,4 @@ extern NSString *const FSRWebSocketErrorDomain;
 
 @end
 
-#endif  // TARGET_OS_WATCH || 1
+#endif  // TARGET_OS_WATCH

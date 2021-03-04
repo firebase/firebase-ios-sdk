@@ -413,8 +413,6 @@ static __strong NSData *CRLFCRLF;
     }
 }
 
-//#endif  // !TARGET_OS_WATCH
-
 #ifndef NDEBUG
 
 - (void)setReadyState:(FSRReadyState)aReadyState;
@@ -427,7 +425,6 @@ static __strong NSData *CRLFCRLF;
 
 #endif
 
-//#if !TARGET_OS_WATCH
 - (void)open;
 {
     assert(_url);
@@ -1872,4 +1869,4 @@ static NSRunLoop *networkRunLoop = nil;
 }
 
 @end
-#endif  // TARGET_OS_WATCH || 1
+#endif  // TARGET_OS_WATCH
