@@ -17,12 +17,6 @@
 import Foundation
 import FirebaseDatabase
 
-extension Database.Encoder {
-  public static var defaultEncoder: () -> Database.Encoder = {
-    .init()
-  }
-}
-
 extension DatabaseReference {
   /// Encodes an instance of `Encodable` and overwrites the encoded data
   /// to the path referred by this `DatabaseReference`. If no value exists,
@@ -38,7 +32,7 @@ extension DatabaseReference {
   ///                 the client is offline, though local changes will be visible
   ///                 immediately.
   public func setValue<T: Encodable>(from value: T,
-                                     encoder: Database.Encoder = Database.Encoder.defaultEncoder(),
+                                     encoder: Database.Encoder = Database.Encoder(),
                                      completion: ((Error?) -> Void)? =
                                        nil) throws {
     let encoded = try encoder.encode(value)

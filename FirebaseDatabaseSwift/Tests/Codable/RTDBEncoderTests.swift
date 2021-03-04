@@ -19,36 +19,6 @@ import FirebaseDatabase
 import FirebaseDatabaseSwift
 import XCTest
 
-class FirebaseDatabaseDefaultingTests: XCTestCase {
-  override func setUp() {
-    Database.Encoder.defaultEncoder = {
-      let encoder = Database.Encoder()
-      encoder.keyEncodingStrategy = .convertToSnakeCase
-      return encoder
-    }
-
-    Database.Decoder.defaultDecoder = {
-      let decoder = Database.Decoder()
-      decoder.keyDecodingStrategy = .convertFromSnakeCase
-      return decoder
-    }
-  }
-
-  override func tearDown() {
-    Database.Encoder.defaultEncoder = { .init() }
-    Database.Decoder.defaultDecoder = { .init() }
-  }
-
-  func testDefaultEncoderDecoder() throws {
-    struct Model: Codable, Equatable {
-      let snakeCase: Int
-    }
-    let model = Model(snakeCase: 42)
-    let dict = ["snake_case": 42]
-    assertThat(model).roundTrips(to: dict)
-  }
-}
-
 class FirebaseDatabaseEncoderTests: XCTestCase {
   func testInt() {
     struct Model: Codable, Equatable {
@@ -75,6 +45,19 @@ class FirebaseDatabaseEncoderTests: XCTestCase {
       let s: String
     }
     assertThat(Model(s: "abc")).roundTrips(to: ["s": "abc"])
+  }
+
+  func testCaseConversion() throws {
+    struct Model: Codable, Equatable {
+      let snakeCase: Int
+    }
+    let model = Model(snakeCase: 42)
+    let dict = ["snake_case": 42]
+    let encoder = Database.Encoder()
+    encoder.keyEncodingStrategy = .convertToSnakeCase
+    let decoder = Database.Decoder()
+    decoder.keyDecodingStrategy = .convertFromSnakeCase
+    assertThat(model).roundTrips(to: dict, using: encoder, decoder: decoder)
   }
 
   func testOptional() {
@@ -435,14 +418,17 @@ class EncodableSubject<X: Equatable & Encodable> {
   }
 
   @discardableResult
-  func encodes(to expected: [String: Any]) -> DictionarySubject {
-    let encoded = assertEncodes(to: expected)
+  func encodes(to expected: [String: Any],
+               using encoder: Database.Encoder = .init()) -> DictionarySubject {
+    let encoded = assertEncodes(to: expected, using: encoder)
     return DictionarySubject(encoded, file: file, line: line)
   }
 
   func failsToEncode() {
     do {
-      _ = try Database.Encoder.defaultEncoder().encode(subject)
+      let encoder = Database.Encoder()
+      encoder.keyEncodingStrategy = .convertToSnakeCase
+      _ = try encoder.encode(subject)
     } catch {
       return
     }
@@ -451,7 +437,9 @@ class EncodableSubject<X: Equatable & Encodable> {
 
   func failsEncodingAtTopLevel() {
     do {
-      _ = try Database.Encoder.defaultEncoder().encode(subject)
+      let encoder = Database.Encoder()
+      encoder.keyEncodingStrategy = .convertToSnakeCase
+      _ = try encoder.encode(subject)
       XCTFail("Failed to throw", file: file, line: line)
     } catch EncodingError.invalidValue(_, _) {
       return
@@ -460,9 +448,10 @@ class EncodableSubject<X: Equatable & Encodable> {
     }
   }
 
-  private func assertEncodes(to expected: [String: Any]) -> [String: Any] {
+  private func assertEncodes(to expected: [String: Any],
+                             using encoder: Database.Encoder = .init()) -> [String: Any] {
     do {
-      let enc = try Database.Encoder.defaultEncoder().encode(subject)
+      let enc = try encoder.encode(subject)
       XCTAssertEqual(enc as? NSDictionary, expected as NSDictionary, file: file, line: line)
       return (enc as! NSDictionary) as! [String: Any]
     } catch {
@@ -473,9 +462,11 @@ class EncodableSubject<X: Equatable & Encodable> {
 }
 
 class CodableSubject<X: Equatable & Codable>: EncodableSubject<X> {
-  func roundTrips(to expected: [String: Any]) {
-    let reverseSubject = encodes(to: expected)
-    reverseSubject.decodes(to: subject)
+  func roundTrips(to expected: [String: Any],
+                  using encoder: Database.Encoder = .init(),
+                  decoder: Database.Decoder = .init()) {
+    let reverseSubject = encodes(to: expected, using: encoder)
+    reverseSubject.decodes(to: subject, using: decoder)
   }
 }
 
@@ -490,18 +481,20 @@ class DictionarySubject {
     self.line = line
   }
 
-  func decodes<X: Equatable & Codable>(to expected: X) -> Void {
+  func decodes<X: Equatable & Codable>(to expected: X,
+                                       using decoder: Database.Decoder = .init()) -> Void {
     do {
-      let decoded = try Database.Decoder.defaultDecoder().decode(X.self, from: subject)
+      let decoded = try decoder.decode(X.self, from: subject)
       XCTAssertEqual(decoded, expected)
     } catch {
       XCTFail("Failed to decode \(X.self): \(error)", file: file, line: line)
     }
   }
 
-  func failsDecoding<X: Equatable & Codable>(to _: X.Type) -> Void {
+  func failsDecoding<X: Equatable & Codable>(to _: X.Type,
+                                             using decoder: Database.Decoder = .init()) -> Void {
     XCTAssertThrowsError(
-      try Database.Decoder.defaultDecoder().decode(X.self, from: subject),
+      try decoder.decode(X.self, from: subject),
       file: file,
       line: line
     )
