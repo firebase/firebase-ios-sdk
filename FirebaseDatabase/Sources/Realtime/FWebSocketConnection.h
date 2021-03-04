@@ -17,7 +17,7 @@
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 #if !TARGET_OS_WATCH
 #import "FirebaseDatabase/Sources/third_party/SocketRocket/FSRWebSocket.h"
-#endif  // !TARGET_OS_WATCH
+#endif // !TARGET_OS_WATCH
 #import <Foundation/Foundation.h>
 
 @protocol FWebSocketDelegate;
@@ -26,7 +26,7 @@
 @interface FWebSocketConnection : NSObject <FSRWebSocketDelegate>
 #else
 @interface FWebSocketConnection : NSObject <NSURLSessionWebSocketDelegate>
-#endif  // else !TARGET_OS_WATCH
+#endif // else !TARGET_OS_WATCH
 
 @property(nonatomic, weak) id<FWebSocketDelegate> delegate;
 
@@ -49,7 +49,7 @@
     didCloseWithCode:(NSInteger)code
               reason:(NSString *)reason
             wasClean:(BOOL)wasClean;
-#endif  // !TARGET_OS_WATCH
+#endif // !TARGET_OS_WATCH
 
 @end
 

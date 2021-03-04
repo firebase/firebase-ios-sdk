@@ -28,12 +28,12 @@
 
 #if TARGET_OS_IOS || TARGET_OS_TV
 #import <UIKit/UIKit.h>
-#endif  // TARGET_OS_IOS || TARGET_OS_TV
+#endif // TARGET_OS_IOS || TARGET_OS_TV
 
 #if TARGET_OS_WATCH
 #import <Network/Network.h>
 #import <WatchKit/WatchKit.h>
-#endif  // TARGET_OS_WATCH
+#endif // TARGET_OS_WATCH
 
 @interface FWebSocketConnection () {
     NSMutableString *frame;
@@ -46,12 +46,11 @@
 - (void)onClosed;
 - (void)closeIfNeverConnected;
 
-
 #if TARGET_OS_WATCH
 @property(nonatomic, strong) NSURLSessionWebSocketTask *webSocketTask;
 #else
 @property(nonatomic, strong) FSRWebSocket *webSocket;
-#endif  // TARGET_OS_WATCH
+#endif // TARGET_OS_WATCH
 @property(nonatomic, strong) NSNumber *connectionId;
 @property(nonatomic, readwrite) int totalFrames;
 @property(nonatomic, readonly) BOOL buffering;
@@ -67,7 +66,7 @@
 @synthesize delegate;
 #if !TARGET_OS_WATCH
 @synthesize webSocket;
-#endif  // !TARGET_OS_WATCH
+#endif // !TARGET_OS_WATCH
 @synthesize connectionId;
 
 - (id)initWith:(FRepoInfo *)repoInfo
@@ -92,32 +91,38 @@
         NSURLRequest *req = [[NSURLRequest alloc]
             initWithURL:[[NSURL alloc] initWithString:connectionUrl]];
 #if TARGET_OS_WATCH
-      // Regular NSURLSession websocket.
-      NSOperationQueue *opQueue = [[NSOperationQueue alloc] init];
-      opQueue.underlyingQueue = queue;
-      NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]
-                                                            delegate:self
-                                                       delegateQueue:opQueue];
-      NSURLSessionWebSocketTask *task = [session webSocketTaskWithRequest:req];
-      self.webSocketTask = task;
+        // Regular NSURLSession websocket.
+        NSOperationQueue *opQueue = [[NSOperationQueue alloc] init];
+        opQueue.underlyingQueue = queue;
+        NSURLSession *session = [NSURLSession
+            sessionWithConfiguration:[NSURLSessionConfiguration
+                                         defaultSessionConfiguration]
+                            delegate:self
+                       delegateQueue:opQueue];
+        NSURLSessionWebSocketTask *task =
+            [session webSocketTaskWithRequest:req];
+        self.webSocketTask = task;
 
-      if (@available(watchOS 7.0, *)) {
-        [[NSNotificationCenter defaultCenter] addObserverForName:WKApplicationWillResignActiveNotification
-                                                          object:nil
-                                                           queue:opQueue
-                                                      usingBlock:^(NSNotification * _Nonnull note) {
-          FFLog(@"I-RDB083015", @"Received watchOS background notification, closing web socket.");
-          [self onClosed];
-        }];
-      }
+        if (@available(watchOS 7.0, *)) {
+            [[NSNotificationCenter defaultCenter]
+                addObserverForName:WKApplicationWillResignActiveNotification
+                            object:nil
+                             queue:opQueue
+                        usingBlock:^(NSNotification *_Nonnull note) {
+                          FFLog(@"I-RDB083015",
+                                @"Received watchOS background notification, "
+                                @"closing web socket.");
+                          [self onClosed];
+                        }];
+        }
 #else
-      self.webSocket = [[FSRWebSocket alloc] initWithURLRequest:req
-                                                          queue:queue
-                                                    googleAppID:googleAppID
-                                                   andUserAgent:ua];
-      [self.webSocket setDelegateDispatchQueue:queue];
-      self.webSocket.delegate = self;
-#endif  // TARGET_OS_WATCH
+        self.webSocket = [[FSRWebSocket alloc] initWithURLRequest:req
+                                                            queue:queue
+                                                      googleAppID:googleAppID
+                                                     andUserAgent:ua];
+        [self.webSocket setDelegateDispatchQueue:queue];
+        self.webSocket.delegate = self;
+#endif // TARGET_OS_WATCH
     }
     return self;
 }
@@ -136,7 +141,7 @@
         deviceName = [uiDeviceClass currentDevice].model;
         hasUiDeviceClass = YES;
     }
-#endif  // TARGET_OS_IOS || TARGET_OS_TV
+#endif // TARGET_OS_IOS || TARGET_OS_TV
 
     if (!hasUiDeviceClass) {
         NSDictionary *systemVersionDictionary = [NSDictionary
@@ -178,11 +183,12 @@
     // TODO Assert url
 #if TARGET_OS_WATCH
     [self.webSocketTask resume];
-    // We need to request data from the web socket in order for it to start sending data.
+    // We need to request data from the web socket in order for it to start
+    // sending data.
     [self receiveWebSocketData];
 #else
     [self.webSocket open];
-#endif  // TARGET_OS_WATCH
+#endif // TARGET_OS_WATCH
     dispatch_time_t when = dispatch_time(
         DISPATCH_TIME_NOW, kWebsocketConnectTimeout * NSEC_PER_SEC);
     dispatch_after(when, self.dispatchQueue, ^{
@@ -195,11 +201,12 @@
           self.connectionId);
     isClosed = YES;
 #if TARGET_OS_WATCH
-    [self.webSocketTask cancelWithCloseCode:NSURLSessionWebSocketCloseCodeNormalClosure
-                                     reason:nil];
+    [self.webSocketTask
+        cancelWithCloseCode:NSURLSessionWebSocketCloseCodeNormalClosure
+                     reason:nil];
 #else
     [self.webSocket close];
-#endif  // TARGET_OS_WATCH
+#endif // TARGET_OS_WATCH
 }
 
 - (void)start {
@@ -223,33 +230,39 @@
     // First send the header so the server knows how many segments are
     // forthcoming
     if (dataSegs.count > 1) {
-      NSString *formattedData = [NSString stringWithFormat:@"%u", (unsigned int)dataSegs.count];
+        NSString *formattedData =
+            [NSString stringWithFormat:@"%u", (unsigned int)dataSegs.count];
 #if TARGET_OS_WATCH
-      [self.webSocketTask sendMessage:[[NSURLSessionWebSocketMessage alloc] initWithString:formattedData]
-                    completionHandler:^(NSError * _Nullable error) {
-        if (error) {
-          FFWarn(@"I-RDB083017", @"Error sending initial web socket data: %@.", error);
-          return;
-        }
-      }];
+        [self.webSocketTask
+                  sendMessage:[[NSURLSessionWebSocketMessage alloc]
+                                  initWithString:formattedData]
+            completionHandler:^(NSError *_Nullable error) {
+              if (error) {
+                  FFWarn(@"I-RDB083017",
+                         @"Error sending initial web socket data: %@.", error);
+                  return;
+              }
+            }];
 #else
-      [self.webSocket send:formattedData];
-#endif  // TARGET_OS_WATCH
+        [self.webSocket send:formattedData];
+#endif // TARGET_OS_WATCH
     }
 
     // Then, actually send the segments.
     for (NSString *segment in dataSegs) {
 #if TARGET_OS_WATCH
-      [self.webSocketTask sendMessage:[[NSURLSessionWebSocketMessage alloc] initWithString:segment]
-                    completionHandler:^(NSError * _Nullable error) {
-        if (error) {
-          FFWarn(@"I-RDB083018", @"Error sending web socket data: %@", error);
-          return;
-        }
-      }];
+        [self.webSocketTask sendMessage:[[NSURLSessionWebSocketMessage alloc]
+                                            initWithString:segment]
+                      completionHandler:^(NSError *_Nullable error) {
+                        if (error) {
+                            FFWarn(@"I-RDB083018",
+                                   @"Error sending web socket data: %@", error);
+                            return;
+                        }
+                      }];
 #else
         [self.webSocket send:segment];
-#endif  // TARGET_OS_WATCH
+#endif // TARGET_OS_WATCH
     }
 }
 
@@ -257,17 +270,21 @@
     if (!isClosed) {
         FFLog(@"I-RDB083004", @"(wsc:%@) nop", self.connectionId);
 #if TARGET_OS_WATCH
-        // Note: There's a built in `sendPingWithPongReceiveHandler` call that's available, but it
-        // doesn't match with what the backend is expecting. Send a string with "0" instead.
-        [self.webSocketTask sendMessage:[[NSURLSessionWebSocketMessage alloc] initWithString:@"0"]
-                      completionHandler:^(NSError * _Nullable error) {
-          if (error) {
-            FFWarn(@"I-RDB083019", @"Error sending web socket ping 0: %@", error);
-          }
-        }];
+        // Note: There's a built in `sendPingWithPongReceiveHandler` call that's
+        // available, but it doesn't match with what the backend is expecting.
+        // Send a string with "0" instead.
+        [self.webSocketTask
+                  sendMessage:[[NSURLSessionWebSocketMessage alloc]
+                                  initWithString:@"0"]
+            completionHandler:^(NSError *_Nullable error) {
+              if (error) {
+                  FFWarn(@"I-RDB083019", @"Error sending web socket ping 0: %@",
+                         error);
+              }
+            }];
 #else
         [self.webSocket send:@"0"];
-#endif  // TARGET_OS_WATCH
+#endif // TARGET_OS_WATCH
     } else {
         FFLog(@"I-RDB083005",
               @"(wsc:%@) No more websocket; invalidating nop timer.",
@@ -333,21 +350,21 @@
 #if TARGET_OS_WATCH
 
 - (void)URLSession:(NSURLSession *)session
-         webSocketTask:(NSURLSessionWebSocketTask *)webSocketTask
-   didOpenWithProtocol:(NSString *)protocol {
+          webSocketTask:(NSURLSessionWebSocketTask *)webSocketTask
+    didOpenWithProtocol:(NSString *)protocol {
     FFLog(@"I-RDB083008", @"(wsc:%@) webSocketDidOpen", self.connectionId);
 
     everConnected = YES;
 
     dispatch_async(dispatch_get_main_queue(), ^{
-        self->keepAlive =
-            [NSTimer scheduledTimerWithTimeInterval:kWebsocketKeepaliveInterval
-                                             target:self
-                                           selector:@selector(nop:)
-                                           userInfo:nil
-                                            repeats:YES];
-        FFLog(@"I-RDB083009", @"(wsc:%@) nop timer kicked off",
-              self.connectionId);
+      self->keepAlive =
+          [NSTimer scheduledTimerWithTimeInterval:kWebsocketKeepaliveInterval
+                                           target:self
+                                         selector:@selector(nop:)
+                                         userInfo:nil
+                                          repeats:YES];
+      FFLog(@"I-RDB083009", @"(wsc:%@) nop timer kicked off",
+            self.connectionId);
     });
 }
 
@@ -361,16 +378,20 @@
 }
 
 - (void)receiveWebSocketData {
-    [self.webSocketTask receiveMessageWithCompletionHandler:^(NSURLSessionWebSocketMessage * _Nullable message, NSError * _Nullable error) {
-        if (message) {
-            [self handleIncomingFrame:message.string];
-        } else if (error && !isClosed) {
-            FFWarn(@"I-RDB083020", @"Error received from web socket, closing the connection. %@", error);
-            [self shutdown];
-            return;
-        }
+    [self.webSocketTask receiveMessageWithCompletionHandler:^(
+                            NSURLSessionWebSocketMessage *_Nullable message,
+                            NSError *_Nullable error) {
+      if (message) {
+          [self handleIncomingFrame:message.string];
+      } else if (error && !isClosed) {
+          FFWarn(@"I-RDB083020",
+                 @"Error received from web socket, closing the connection. %@",
+                 error);
+          [self shutdown];
+          return;
+      }
 
-        [self receiveWebSocketData];
+      [self receiveWebSocketData];
     }];
 }
 
@@ -414,8 +435,7 @@
     [self onClosed];
 }
 
-
-#endif  // TARGET_OS_WATCH
+#endif // TARGET_OS_WATCH
 
 #pragma mark -
 #pragma mark Private methods
@@ -437,11 +457,12 @@
         FFLog(@"I-RDB083012", @"(wsc:%@) Websocket timed out on connect",
               self.connectionId);
 #if TARGET_OS_WATCH
-        [self.webSocketTask cancelWithCloseCode:NSURLSessionWebSocketCloseCodeNoStatusReceived
-                                         reason:nil];
+        [self.webSocketTask
+            cancelWithCloseCode:NSURLSessionWebSocketCloseCodeNoStatusReceived
+                         reason:nil];
 #else
         [self.webSocket close];
-#endif  // TARGET_OS_WATCH
+#endif // TARGET_OS_WATCH
     }
 }
 
@@ -461,7 +482,7 @@
     self.webSocketTask = nil;
 #else
     self.webSocket = nil;
-#endif  // TARGET_OS_WATCH
+#endif // TARGET_OS_WATCH
     if (keepAlive.isValid) {
         [keepAlive invalidate];
     }

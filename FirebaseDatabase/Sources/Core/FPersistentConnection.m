@@ -38,7 +38,7 @@
 #import <WatchKit/WatchKit.h>
 #else
 #import <SystemConfiguration/SystemConfiguration.h>
-#endif  // TARGET_OS_WATCH
+#endif // TARGET_OS_WATCH
 #import <dlfcn.h>
 #import <netinet/in.h>
 
@@ -96,7 +96,7 @@ typedef enum {
     NSTimeInterval lastConnectionEstablishedTime;
 #if !TARGET_OS_WATCH
     SCNetworkReachabilityRef reachability;
-#endif  // !TARGET_OS_WATCH
+#endif // !TARGET_OS_WATCH
 }
 
 - (int)getNextRequestNumber;
@@ -186,7 +186,7 @@ typedef enum {
         SCNetworkReachabilitySetDispatchQueue(reachability, NULL);
         CFRelease(reachability);
     }
-#endif  // !TARGET_OS_WATCH
+#endif // !TARGET_OS_WATCH
 }
 
 #pragma mark -
@@ -561,7 +561,7 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
         FFLog(@"I-RDB034015", @"Network is not reachable");
     }
 }
-#endif  // !TARGET_OS_WATCH
+#endif // !TARGET_OS_WATCH
 
 - (void)enteringForeground {
     dispatch_async(self.dispatchQueue, ^{
@@ -581,9 +581,9 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
         [center addObserverForName:WKApplicationWillEnterForegroundNotification
                             object:nil
                              queue:nil
-                        usingBlock:^(NSNotification * _Nonnull note) {
-            [weakSelf enteringForeground];
-        }];
+                        usingBlock:^(NSNotification *_Nonnull note) {
+                          [weakSelf enteringForeground];
+                        }];
     }
 #else
     NSString *const *foregroundConstant = (NSString *const *)dlsym(
@@ -613,7 +613,7 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
         CFRelease(reachability);
         reachability = NULL;
     }
-#endif  // !TARGET_OS_WATCH
+#endif // !TARGET_OS_WATCH
 }
 
 - (void)sendAuthAndRestoreStateAfterComplete:(BOOL)restoreStateAfterComplete {
