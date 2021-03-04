@@ -16,10 +16,16 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
     :tag => 'CocoaPods-' + s.version.to_s
   }
   s.social_media_url = 'https://twitter.com/Firebase'
-  s.ios.deployment_target = '10.0'
-  s.osx.deployment_target = '10.12'
-  s.tvos.deployment_target = '10.0'
-  s.watchos.deployment_target = '6.0'
+
+  ios_deployment_target = '10.0'
+  osx_deployment_target = '10.12'
+  tvos_deployment_target = '10.0'
+  watchos_deployment_target = '7.0'
+
+  s.ios.deployment_target = ios_deployment_target
+  s.osx.deployment_target = osx_deployment_target
+  s.tvos.deployment_target = tvos_deployment_target
+  s.watchos.deployment_target = watchos_deployment_target
 
   s.cocoapods_version = '>= 1.4.0'
   s.prefix_header_file = false
@@ -46,7 +52,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   }
 
   s.test_spec 'unit' do |unit_tests|
-    unit_tests.platforms = {:ios => '10.0', :osx => '10.12', :tvos => '10.0'}
+    unit_tests.platforms = {:ios => ios_deployment_target, :osx => osx_deployment_target, :tvos => tvos_deployment_target}
     unit_tests.source_files = [
       'FirebaseDatabase/Tests/Unit/*.[mh]',
       'FirebaseDatabase/Tests/Helpers/*.[mh]',
@@ -61,7 +67,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   end
 
   s.test_spec 'integration' do |int_tests|
-    int_tests.platforms = {:ios => '10.0', :osx => '10.12', :tvos => '10.0'}
+    int_tests.platforms = {:ios => ios_deployment_target, :osx => osx_deployment_target, :tvos => tvos_deployment_target}
     int_tests.source_files = [
       'FirebaseDatabase/Tests/Integration/*.[mh]',
       'FirebaseDatabase/Tests/Helpers/*.[mh]',

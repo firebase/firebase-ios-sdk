@@ -518,6 +518,20 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
+               BlueprintIdentifier = "FirebaseAppDistribution-Beta"
+               BuildableName = "FirebaseAppDistribution-Beta"
+               BlueprintName = "FirebaseAppDistribution-Beta"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
                BlueprintIdentifier = "FirebaseFirestoreSwift-Beta"
                BuildableName = "FirebaseFirestoreSwift-Beta"
                BlueprintName = "FirebaseFirestoreSwift-Beta"
@@ -546,9 +560,65 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
+               BlueprintIdentifier = "Firebase_AppDistributionUnit"
+               BuildableName = "Firebase_AppDistributionUnit"
+               BlueprintName = "Firebase_AppDistributionUnit"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
                BlueprintIdentifier = "FirebaseAnalyticsTarget"
                BuildableName = "FirebaseAnalyticsTarget"
                BlueprintName = "FirebaseAnalyticsTarget"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "FirebaseAppDistribution"
+               BuildableName = "FirebaseAppDistribution"
+               BlueprintName = "FirebaseAppDistribution"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "FirebaseAppDistributionTarget"
+               BuildableName = "FirebaseAppDistributionTarget"
+               BlueprintName = "FirebaseAppDistributionTarget"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "FirebaseDatabaseTarget"
+               BuildableName = "FirebaseDatabaseTarget"
+               BlueprintName = "FirebaseDatabaseTarget"
                ReferencedContainer = "container:">
             </BuildableReference>
          </BuildActionEntry>
@@ -647,6 +717,20 @@
                BlueprintIdentifier = "FirebaseRemoteConfigTarget"
                BuildableName = "FirebaseRemoteConfigTarget"
                BlueprintName = "FirebaseRemoteConfigTarget"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "Firebase_RemoteConfigUnit"
+               BuildableName = "Firebase_RemoteConfigUnit"
+               BlueprintName = "Firebase_RemoteConfigUnit"
                ReferencedContainer = "container:">
             </BuildableReference>
          </BuildActionEntry>
@@ -815,6 +899,16 @@
                BlueprintIdentifier = "MessagingUnit"
                BuildableName = "MessagingUnit"
                BlueprintName = "MessagingUnit"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "AppDistributionUnit"
+               BuildableName = "AppDistributionUnit"
+               BlueprintName = "AppDistributionUnit"
                ReferencedContainer = "container:">
             </BuildableReference>
          </TestableReference>

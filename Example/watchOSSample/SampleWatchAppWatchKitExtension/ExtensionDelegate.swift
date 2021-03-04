@@ -16,6 +16,7 @@ import WatchKit
 
 import FirebaseCore
 import FirebaseMessaging
+import FirebaseRemoteConfig
 
 /// Entry point of the watch app.
 class ExtensionDelegate: NSObject, WKExtensionDelegate, MessagingDelegate {
@@ -23,25 +24,34 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, MessagingDelegate {
   func applicationDidFinishLaunching() {
     FirebaseApp.configure()
     let center = UNUserNotificationCenter.current()
-    center.requestAuthorization(options: [.alert, .sound]) { granted, error in
+    center.requestAuthorization(options: [.alert, .sound]) { granted, _ in
       if granted {
         WKExtension.shared().registerForRemoteNotifications()
       }
     }
     Messaging.messaging().delegate = self
-
+    let remoteConfig = RemoteConfig.remoteConfig()
+    remoteConfig.fetchAndActivate { _, error in
+      guard error == nil else {
+        print("error:" + error.debugDescription)
+        return
+      }
+      let defaultOutput = "You have not set up a 'test' key in Remote Config console."
+      let configValue: String =
+        remoteConfig["test"].stringValue ?? defaultOutput
+      print("value:\n" + configValue)
+    }
   }
 
   /// MessagingDelegate
-
-  func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-    print("token:\n" + (fcmToken ?? ""))
+  func messaging(_: Messaging, didReceiveRegistrationToken fcmToken: String?) {
+    print("token:\n" + fcmToken!)
     Messaging.messaging().subscribe(toTopic: "watch") { error in
-      if error != nil {
+      guard error == nil else {
         print("error:" + error.debugDescription)
-      } else {
-        print("Successfully subscribed to topic")
+        return
       }
+      print("Successfully subscribed to topic")
     }
   }
 
