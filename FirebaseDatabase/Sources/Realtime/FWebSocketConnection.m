@@ -110,13 +110,6 @@
           FFLog(@"I-RDB083015", @"Received watchOS background notification, closing web socket.");
           [self onClosed];
         }];
-        [[NSNotificationCenter defaultCenter] addObserverForName:WKApplicationWillEnterForegroundNotification
-                                                          object:nil
-                                                           queue:opQueue
-                                                      usingBlock:^(NSNotification * _Nonnull note) {
-          FFLog(@"I-RDB083016", @"Received watchOS foreground notification, re-starting web socket.");
-          [self open];
-        }];
       }
 #else
       self.webSocket = [[FSRWebSocket alloc] initWithURLRequest:req
@@ -372,7 +365,7 @@
     [self.webSocketTask receiveMessageWithCompletionHandler:^(NSURLSessionWebSocketMessage * _Nullable message, NSError * _Nullable error) {
         if (message) {
             [self handleIncomingFrame:message.string];
-        } else if (error) {
+        } else if (error && !isClosed) {
             FFWarn(@"I-RDB083020", @"Error received from web socket, closing the connection. %@", error);
             [self shutdown];
             return;

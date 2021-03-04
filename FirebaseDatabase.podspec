@@ -37,7 +37,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.ios.frameworks = 'CFNetwork', 'Security', 'SystemConfiguration'
   s.tvos.frameworks = 'CFNetwork', 'Security', 'SystemConfiguration'
   s.macos.frameworks = 'CFNetwork', 'Security', 'SystemConfiguration'
-  s.watchos.frameworks = 'CFNetwork', 'Security'
+  s.watchos.frameworks = 'CFNetwork', 'Security', 'WatchKit'
   s.dependency 'leveldb-library', '~> 1.22'
   s.dependency 'FirebaseCore', '~> 7.0'
   s.pod_target_xcconfig = {
