@@ -15,17 +15,18 @@
  */
 
 #include "Firestore/core/src/model/values.h"
+
+#include <map>
+#include <memory>
+#include <unordered_map>
+#include <vector>
+
 #include "Firestore/core/src/model/server_timestamps.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/util/comparison.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "absl/strings/str_join.h"
 #include "absl/strings/str_split.h"
-
-#include <map>
-#include <memory>
-#include <unordered_map>
-#include <vector>
 
 namespace firebase {
 namespace firestore {
@@ -418,14 +419,12 @@ std::string Values::CanonifyBlob(const google_firestore_v1_Value& value) {
 
   int size = value.bytes_value->size;
 
-  char buf[size * 2 + 1];
+  std::string result(size * 2, 0);
   for (size_t i = 0; i < value.bytes_value->size; ++i) {
-    buf[2 * i] = hex[value.bytes_value->bytes[i] >> 4];
-    buf[(2 * i) + 1] = hex[value.bytes_value->bytes[i] & 0x0F];
+    result[2 * i] = hex[value.bytes_value->bytes[i] >> 4];
+    result[(2 * i) + 1] = hex[value.bytes_value->bytes[i] & 0x0F];
   }
-  buf[size * 2] = '\0';
-
-  return std::string(buf);
+  return result;
 }
 
 std::string Values::CanonifyReference(const google_firestore_v1_Value& value) {

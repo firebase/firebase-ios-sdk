@@ -154,7 +154,6 @@ TEST_F(ValuesTest, Equality) {
   // Doubles and Longs aren't equal (even though they compare same).
   Add(equals_group, Wrap(1.0), Wrap(1.0));
   Add(equals_group, Wrap(1.1), Wrap(1.1));
-  // TODO fixme
   Add(equals_group, Wrap(BlobValue(0, 1, 1)));
   Add(equals_group, Wrap(BlobValue(0, 1)));
   Add(equals_group, Wrap("string"), Wrap("string"));
