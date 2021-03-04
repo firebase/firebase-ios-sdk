@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/model/values.h"
 
+#include <algorithm>
 #include <map>
 #include <memory>
 #include <unordered_map>
