@@ -33,11 +33,11 @@ namespace firebase {
 namespace firestore {
 namespace bundle {
 
-using AddElementResult =
-    util::StatusOr<absl::optional<api::LoadBundleTaskProgress>>;
-
 class BundleLoader {
  public:
+  using AddElementResult =
+      util::StatusOr<absl::optional<api::LoadBundleTaskProgress>>;
+
   BundleLoader(BundleCallback* callback, BundleMetadata metadata)
       : callback_(callback), metadata_(std::move(metadata)) {
   }

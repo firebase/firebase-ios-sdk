@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/bundle/bundle_loader.h"
 
+#include <cstdint>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -29,6 +30,7 @@
 #include "Firestore/core/src/model/document_key_set.h"
 #include "Firestore/core/test/unit/testutil/status_testing.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
+#include "absl/types/optional.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
@@ -109,7 +111,7 @@ class BundleLoaderTest : public ::testing::Test {
 TEST_F(BundleLoaderTest, LoadsDocuments) {
   BundleLoader loader(callback_.get(), CreateMetadata(2));
 
-  AddElementResult result = loader.AddElement(
+  BundleLoader::AddElementResult result = loader.AddElement(
       absl::make_unique<BundledDocumentMetadata>(
           testutil::Key("coll/doc1"), create_time_,
           /*exists=*/true, /*queries*/ std::vector<std::string>{}),
@@ -144,7 +146,7 @@ TEST_F(BundleLoaderTest, LoadsDocuments) {
 TEST_F(BundleLoaderTest, LoadsDeletedDocuments) {
   BundleLoader loader(callback_.get(), CreateMetadata(1));
 
-  AddElementResult result = loader.AddElement(
+  BundleLoader::AddElementResult result = loader.AddElement(
       absl::make_unique<BundledDocumentMetadata>(
           testutil::Key("coll/doc1"), create_time_,
           /*exists=*/false, /*queries=*/std::vector<std::string>{}),

@@ -16,6 +16,8 @@
 #ifndef FIRESTORE_CORE_SRC_BUNDLE_BUNDLE_CALLBACK_H_
 #define FIRESTORE_CORE_SRC_BUNDLE_BUNDLE_CALLBACK_H_
 
+#include <string>
+
 #include "Firestore/core/src/bundle/bundle_metadata.h"
 #include "Firestore/core/src/bundle/named_query.h"
 #include "Firestore/core/src/model/document_map.h"
