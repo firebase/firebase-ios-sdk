@@ -373,4 +373,3 @@ class Serializer {
 }  // namespace firebase
 
 #endif  // FIRESTORE_CORE_SRC_REMOTE_SERIALIZER_H_
-m
