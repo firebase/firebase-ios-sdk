@@ -1,4 +1,4 @@
-# Unreleased
+# v7.8.0
 - [fixed] Store fetch metadata per namespace to address activation issues. (#7179)
 - [fixed] Only update experiment data for `firebase` namespace fetch requests to ensure correct experiment exposures. (#7604)
 
