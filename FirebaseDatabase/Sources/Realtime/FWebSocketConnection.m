@@ -48,7 +48,7 @@
 - (void)closeIfNeverConnected;
 
 
-#if !TARGET_OS_WATCH && 0
+#if !TARGET_OS_WATCH
 @property(nonatomic, strong) FSRWebSocket *webSocket;
 #else
 @property(nonatomic, strong) NSURLSessionWebSocketTask *webSocketTask;
@@ -66,7 +66,7 @@
 @implementation FWebSocketConnection
 
 @synthesize delegate;
-#if !TARGET_OS_WATCH && 0
+#if !TARGET_OS_WATCH
 @synthesize webSocket;
 #else
 #endif
@@ -93,7 +93,7 @@
 
         NSURLRequest *req = [[NSURLRequest alloc]
             initWithURL:[[NSURL alloc] initWithString:connectionUrl]];
-#if !TARGET_OS_WATCH && 0
+#if !TARGET_OS_WATCH
         self.webSocket = [[FSRWebSocket alloc] initWithURLRequest:req
                                                             queue:queue
                                                       googleAppID:googleAppID
@@ -185,7 +185,7 @@
     assert(delegate);
     everConnected = NO;
     // TODO Assert url
-#if !TARGET_OS_WATCH && 0
+#if !TARGET_OS_WATCH
     [self.webSocket open];
 #else
     [self.webSocketTask resume];
@@ -203,7 +203,7 @@
     FFLog(@"I-RDB083003", @"(wsc:%@) FWebSocketConnection is being closed.",
           self.connectionId);
     isClosed = YES;
-#if !TARGET_OS_WATCH && 0
+#if !TARGET_OS_WATCH
   [self.webSocket close];
 #else
   [self.webSocketTask cancelWithCloseCode:NSURLSessionWebSocketCloseCodeNormalClosure
@@ -233,7 +233,7 @@
     // forthcoming
     if (dataSegs.count > 1) {
       NSString *formattedData = [NSString stringWithFormat:@"%u", (unsigned int)dataSegs.count];
-#if !TARGET_OS_WATCH && 0
+#if !TARGET_OS_WATCH
         [self.webSocket send:formattedData];
 #else
       [self.webSocketTask sendMessage:[[NSURLSessionWebSocketMessage alloc] initWithString:formattedData]
@@ -249,7 +249,7 @@
 
     // Then, actually send the segments.
     for (NSString *segment in dataSegs) {
-#if !TARGET_OS_WATCH && 0
+#if !TARGET_OS_WATCH
         [self.webSocket send:segment];
 #else
       [self.webSocketTask sendMessage:[[NSURLSessionWebSocketMessage alloc] initWithString:segment]
@@ -267,7 +267,7 @@
 - (void)nop:(NSTimer *)timer {
     if (!isClosed) {
         FFLog(@"I-RDB083004", @"(wsc:%@) nop", self.connectionId);
-#if !TARGET_OS_WATCH && 0
+#if !TARGET_OS_WATCH
         [self.webSocket send:@"0"];
 #else
       // TODO(watch): Send
@@ -344,7 +344,7 @@
 
 #pragma mark -
 #pragma mark SRWebSocketDelegate implementation
-#if !TARGET_OS_WATCH && 0
+#if !TARGET_OS_WATCH
 - (void)webSocket:(FSRWebSocket *)webSocket didReceiveMessage:(id)message {
     [self handleIncomingFrame:message];
 }
@@ -424,7 +424,7 @@
   }];
 }
 
-#endif  // !TARGET_OS_WATCH && 0
+#endif  // !TARGET_OS_WATCH
 
 #pragma mark -
 #pragma mark Private methods
@@ -445,7 +445,7 @@
     if (!everConnected) {
         FFLog(@"I-RDB083012", @"(wsc:%@) Websocket timed out on connect",
               self.connectionId);
-#if !TARGET_OS_WATCH && 0
+#if !TARGET_OS_WATCH
         [self.webSocket close];
 #else
         // TODO(watch): Is this the right code?
@@ -467,7 +467,7 @@
         FFLog(@"I-RDB083013", @"Websocket is closing itself");
         [self shutdown];
     }
-#if !TARGET_OS_WATCH && 0
+#if !TARGET_OS_WATCH
     self.webSocket = nil;
 #else
     self.webSocketTask = nil;

@@ -14,7 +14,7 @@
 //   limitations under the License.
 //
 
-#if !TARGET_OS_WATCH && 0
+#if !TARGET_OS_WATCH
 #import <Foundation/Foundation.h>
 #import <Security/SecCertificate.h>
 

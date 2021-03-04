@@ -34,9 +34,9 @@
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 #import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleCallbackStatus.h"
 #import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleOnDisconnect.h"
-#if !TARGET_OS_WATCH && 0
+#if !TARGET_OS_WATCH
 #import <SystemConfiguration/SystemConfiguration.h>
-#endif  // !TARGET_OS_WATCH && 0
+#endif  // !TARGET_OS_WATCH
 #import <dlfcn.h>
 #import <netinet/in.h>
 
@@ -80,9 +80,9 @@ typedef enum {
     NSTimeInterval reconnectDelay;
     NSTimeInterval lastConnectionAttemptTime;
     NSTimeInterval lastConnectionEstablishedTime;
-#if !TARGET_OS_WATCH && 0
+#if !TARGET_OS_WATCH
     SCNetworkReachabilityRef reachability;
-#endif  // !TARGET_OS_WATCH && 0
+#endif  // !TARGET_OS_WATCH
 }
 
 - (int)getNextRequestNumber;
@@ -162,13 +162,13 @@ typedef enum {
 }
 
 - (void)dealloc {
-#if !TARGET_OS_WATCH && 0
+#if !TARGET_OS_WATCH
     if (reachability) {
         // Unschedule the notifications
         SCNetworkReachabilitySetDispatchQueue(reachability, NULL);
         CFRelease(reachability);
     }
-#endif  // !TARGET_OS_WATCH && 0
+#endif  // !TARGET_OS_WATCH
 }
 
 #pragma mark -
@@ -523,7 +523,7 @@ typedef enum {
     [self.realtime open];
 }
 
-#if !TARGET_OS_WATCH && 0
+#if !TARGET_OS_WATCH
 static void reachabilityCallback(SCNetworkReachabilityRef ref,
                                  SCNetworkReachabilityFlags flags, void *info) {
     if (flags & kSCNetworkReachabilityFlagsReachable) {
@@ -539,7 +539,7 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
         FFLog(@"I-RDB034015", @"Network is not reachable");
     }
 }
-#endif  // !TARGET_OS_WATCH && 0
+#endif  // !TARGET_OS_WATCH
 
 - (void)enteringForeground {
     dispatch_async(self.dispatchQueue, ^{
@@ -552,7 +552,7 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
 }
 
 - (void)setupNotifications {
-#if !TARGET_OS_WATCH && 0
+#if !TARGET_OS_WATCH
     NSString *const *foregroundConstant = (NSString *const *)dlsym(
         RTLD_DEFAULT, "UIApplicationWillEnterForegroundNotification");
     if (foregroundConstant) {
@@ -580,7 +580,7 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
         CFRelease(reachability);
         reachability = NULL;
     }
-#endif  // !TARGET_OS_WATCH && 0
+#endif  // !TARGET_OS_WATCH
 }
 
 - (void)sendAuthAndRestoreStateAfterComplete:(BOOL)restoreStateAfterComplete {
