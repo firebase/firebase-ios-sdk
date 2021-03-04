@@ -73,8 +73,6 @@ NSString *const kFIRGlobalAppDataCollectionEnabledDefaultsKeyFormat =
 NSString *const kFIRGlobalAppDataCollectionEnabledPlistKey =
     @"FirebaseDataCollectionDefaultEnabled";
 
-NSString *const kFIRAppDiagnosticsNotification = @"FIRAppDiagnosticsNotification";
-
 NSString *const kFIRAppDiagnosticsConfigurationTypeKey = @"ConfigType";
 NSString *const kFIRAppDiagnosticsErrorKey = @"Error";
 NSString *const kFIRAppDiagnosticsFIRAppKey = @"FIRApp";
@@ -348,7 +346,6 @@ static FIRApp *sDefaultApp;
     return NO;
   }
 
-#if TARGET_OS_IOS
   // Initialize the Analytics once there is a valid options under default app. Analytics should
   // always initialize first by itself before the other SDKs.
   if ([self.name isEqualToString:kFIRDefaultAppName]) {
@@ -369,7 +366,6 @@ static FIRApp *sDefaultApp;
       }
     }
   }
-#endif
 
   [self subscribeForAppDidBecomeActiveNotifications];
 

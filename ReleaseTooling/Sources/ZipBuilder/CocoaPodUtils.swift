@@ -36,12 +36,39 @@ enum CocoaPodUtils {
 
   // MARK: - Public API
 
-  struct VersionedPod: Decodable, CustomDebugStringConvertible {
+  // Codable is required because Decodable does not make CodingKeys available.
+  struct VersionedPod: Codable, CustomDebugStringConvertible {
     /// Public name of the pod.
     let name: String
 
     /// The version of the requested pod.
     let version: String?
+
+    /// Platforms supported
+    let platforms: Set<String>
+
+    init(name: String,
+         version: String?,
+         platforms: Set<String> = ["ios", "macos", "tvos"]) {
+      self.name = name
+      self.version = version
+      self.platforms = platforms
+    }
+
+    init(from decoder: Decoder) throws {
+      let container = try decoder.container(keyedBy: CodingKeys.self)
+      name = try container.decode(String.self, forKey: .name)
+      if let platforms = try container.decodeIfPresent(Set<String>.self, forKey: .platforms) {
+        self.platforms = platforms
+      } else {
+        platforms = ["ios", "macos", "tvos"]
+      }
+      if let version = try container.decodeIfPresent(String.self, forKey: .version) {
+        self.version = version
+      } else {
+        version = nil
+      }
+    }
 
     /// The debug description as required by `CustomDebugStringConvertible`.
     var debugDescription: String {
@@ -141,7 +168,7 @@ enum CocoaPodUtils {
   /// - Parameters:
   ///   - pods: List of VersionedPods to install
   ///   - directory: Destination directory for the pods.
-  ///   - minimumIOSVersion: The minimum iOS version as a string. Ex. `10.0`.
+  ///   - platform: Install for one platform at a time.
   ///   - customSpecRepos: Additional spec repos to check for installation.
   ///   - linkage: Specifies the linkage type. When `forcedStatic` is used, for the module map
   ///        construction, we want pod names not module names in the generated OTHER_LD_FLAGS
@@ -150,7 +177,7 @@ enum CocoaPodUtils {
   @discardableResult
   static func installPods(_ pods: [VersionedPod],
                           inDir directory: URL,
-                          minimumIOSVersion: String,
+                          platform: Platform,
                           customSpecRepos: [URL]?,
                           localPodspecPath: URL?,
                           linkage: LinkageType) -> [String: PodInfo] {
@@ -171,7 +198,7 @@ enum CocoaPodUtils {
       try writePodfile(for: pods,
                        toDirectory: directory,
                        customSpecRepos: customSpecRepos,
-                       minimumIOSVersion: minimumIOSVersion,
+                       platform: platform,
                        localPodspecPath: localPodspecPath,
                        linkage: linkage)
     } catch let FileManager.FileError.directoryNotFound(path) {
@@ -300,7 +327,7 @@ enum CocoaPodUtils {
     }
   }
 
-  static func podInstallPrepare(inProjectDir projectDir: URL, paths: ZipBuilder.FilesystemPaths) {
+  static func podInstallPrepare(inProjectDir projectDir: URL, templateDir: URL) {
     do {
       // Create the directory and all intermediate directories.
       try FileManager.default.createDirectory(at: projectDir, withIntermediateDirectories: true)
@@ -310,7 +337,7 @@ enum CocoaPodUtils {
     }
     // Copy the Xcode project needed in order to be able to install Pods there.
     let templateFiles = Constants.ProjectPath.requiredFilesForBuilding.map {
-      paths.templateDir.appendingPathComponent($0)
+      templateDir.appendingPathComponent($0)
     }
     for file in templateFiles {
       // Each file should be copied to the temporary project directory with the same name.
@@ -414,7 +441,7 @@ enum CocoaPodUtils {
   /// is not empty.
   private static func generatePodfile(for pods: [VersionedPod],
                                       customSpecsRepos: [URL]?,
-                                      minimumIOSVersion: String,
+                                      platform: Platform,
                                       localPodspecPath: URL?,
                                       linkage: LinkageType) -> String {
     // Start assembling the Podfile.
@@ -440,9 +467,9 @@ enum CocoaPodUtils {
       podfile += "  use_frameworks! :linkage => :static\n"
     }
 
-    // Include the minimum iOS version.
+    // Include the platform and its minimum version.
     podfile += """
-    platform :ios, '\(minimumIOSVersion)'
+    platform :\(platform.name), '\(platform.minimumVersion)'
     target 'FrameworkMaker' do\n
     """
 
@@ -485,8 +512,9 @@ enum CocoaPodUtils {
         if podspec == "FirebaseInstanceID.podspec" ||
           podspec == "FirebaseInstallations.podspec" ||
           podspec == "FirebaseCoreDiagnostics.podspec" ||
-          podspec == "GoogleUtilities.podspec" ||
-          podspec == "GoogleDataTransport.podspec" {
+          podspec == "FirebaseCore.podspec" ||
+          podspec == "FirebaseRemoteConfig.podspec" ||
+          podspec == "FirebaseABTesting.podspec" {
           let podName = podspec.replacingOccurrences(of: ".podspec", with: "")
           podfile += "  pod '\(podName)', :path => '\(localURL.path)/\(podspec)'\n"
         }
@@ -501,7 +529,7 @@ enum CocoaPodUtils {
   private static func writePodfile(for pods: [VersionedPod],
                                    toDirectory directory: URL,
                                    customSpecRepos: [URL]?,
-                                   minimumIOSVersion: String,
+                                   platform: Platform,
                                    localPodspecPath: URL?,
                                    linkage: LinkageType) throws {
     guard FileManager.default.directoryExists(at: directory) else {
@@ -513,7 +541,7 @@ enum CocoaPodUtils {
     let path = directory.appendingPathComponent("Podfile")
     let podfile = generatePodfile(for: pods,
                                   customSpecsRepos: customSpecRepos,
-                                  minimumIOSVersion: minimumIOSVersion,
+                                  platform: platform,
                                   localPodspecPath: localPodspecPath,
                                   linkage: linkage)
     do {

@@ -50,7 +50,7 @@ NSString *const kFIRDLReadDeepLinkAfterInstallKey =
 // We should only open url once. We use the following key to store the state in the user defaults.
 static NSString *const kFIRDLOpenURLKey = @"com.google.appinvite.openURL";
 
-// Custom domains to be whitelisted are optionally added as an array to the info.plist.
+// Custom domains to be allowed are optionally added as an array to the info.plist.
 static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustomDomains";
 
 NS_ASSUME_NONNULL_BEGIN
@@ -397,7 +397,20 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
   return nil;
 }
 
-- (nullable FIRDynamicLink *)dynamicLinkFromUniversalLinkURL:(NSURL *)url {
+- (nullable FIRDynamicLink *)
+    dynamicLinkInternalFromUniversalLinkURL:(NSURL *)url
+                                 completion:
+                                     (nullable FIRDynamicLinkUniversalLinkHandler)completion {
+  // Make sure the completion is always called on the main queue.
+  FIRDynamicLinkUniversalLinkHandler mainQueueCompletion =
+      ^(FIRDynamicLink *_Nullable dynamicLink, NSError *_Nullable error) {
+        if (completion) {
+          dispatch_async(dispatch_get_main_queue(), ^{
+            completion(dynamicLink, error);
+          });
+        }
+      };
+
   if ([self canParseUniversalLinkURL:url]) {
     if (url.query.length > 0) {
       NSDictionary *parameters = FIRDLDictionaryFromQuery(url.query);
@@ -414,8 +427,8 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
           [self.dynamicLinkNetworking
               resolveShortLink:url
                  FDLSDKVersion:FIRFirebaseVersion()
-                    completion:^(NSURL *_Nullable resolverURL, NSError *_Nullable resolverError){
-                        // Nothing to do
+                    completion:^(NSURL *_Nullable resolverURL, NSError *_Nullable resolverError) {
+                      mainQueueCompletion(dynamicLink, resolverError);
                     }];
 #ifdef GIN_SCION_LOGGING
           FIRDLLogEventToScion(FIRDLLogEventAppOpen, parameters[kFIRDLParameterSource],
@@ -427,7 +440,17 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
       }
     }
   }
+  mainQueueCompletion(nil, nil);
   return nil;
+}
+
+- (nullable FIRDynamicLink *)dynamicLinkFromUniversalLinkURL:(NSURL *)url {
+  return [self dynamicLinkInternalFromUniversalLinkURL:url completion:nil];
+}
+
+- (void)dynamicLinkFromUniversalLinkURL:(NSURL *)url
+                             completion:(FIRDynamicLinkUniversalLinkHandler)completion {
+  [self dynamicLinkInternalFromUniversalLinkURL:url completion:completion];
 }
 
 - (BOOL)handleUniversalLink:(NSURL *)universalLinkURL
@@ -448,14 +471,12 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
                 }];
     return YES;
   } else {
-    FIRDynamicLink *dynamicLink = [self dynamicLinkFromUniversalLinkURL:universalLinkURL];
-    if (dynamicLink) {
-      completion(dynamicLink, nil);
-      return YES;
-    }
+    [self dynamicLinkFromUniversalLinkURL:universalLinkURL completion:completion];
+    BOOL canHandleUniversalLink =
+        [self canParseUniversalLinkURL:universalLinkURL] && universalLinkURL.query.length > 0 &&
+        FIRDLDictionaryFromQuery(universalLinkURL.query)[kFIRDLParameterLink];
+    return canHandleUniversalLink;
   }
-
-  return NO;
 }
 
 - (void)resolveShortLink:(NSURL *)url completion:(FIRDynamicLinkResolverHandler)completion {

@@ -1,3 +1,27 @@
+# v7.8.0
+- [added] Added a new API checkAndUpdateUnsentReportsWithCompletion for updating the crash report from the previous run of the app if, for example, the developer wants to implement a feedback dialog to ask end-users for more information. Unsent Crashlytics Reports have familiar methods like setting custom keys and logs (#7503).
+- [changed] Added a limit to the number of unsent reports on disk to prevent disk filling up when automatic data collection is off. Developers can ensure this limit is never reached by calling send/deleteUnsentReports every run (#7619).
+
+# v7.7.0
+- [added] Added a new API to allow for bulk logging of custom keys and values (#7302).
+
+# v7.6.0
+- [fixed] Fixed an issue where some developers experienced a race condition involving binary image operations (#7459).
+
+# v7.5.0
+- [changed] Improve start-up performance by moving some initialization work to a background thread (#7332).
+- [changed] Updated upload-symbols to a version that is notarized to avoid macOS security alerts (#7323).
+- [changed] Deleting unsent reports with deleteUnsentReports no longer happens on the main thread (#7298).
+
+# v7.4.0
+- [changed] Removed obsolete crash reporting mechanism from the SDK (#7076).
+
+# v7.3.0
+- [added] Added Crashlytics support for x86 apps running on Apple Silicon via Rosetta 2
+- [changed] Decreased Crashlytics CocoaPods minimum deployment target from iOS 10 to iOS 9
+- [changed] Removed obsolete API calls from upload-symbols
+- [changed] Removed obsolete onboarding calls from the SDK.
+
 # v7.1.0
 - [fixed] Fixed an issue where symbol uploads would fail when there are spaces in the project path, particularly in Unity builds (#6789).
 - [changed] Added additional logging when settings requests fail with a 404 status to help customers debug onboarding issues (#6847).

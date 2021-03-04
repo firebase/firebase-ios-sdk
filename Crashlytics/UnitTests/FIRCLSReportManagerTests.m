@@ -24,8 +24,10 @@
 #endif
 
 #include "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
+#import "Crashlytics/Crashlytics/Controllers/FIRCLSAnalyticsManager.h"
+#import "Crashlytics/Crashlytics/Controllers/FIRCLSExistingReportManager.h"
+#import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
 #import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionArbiter.h"
-#include "Crashlytics/Crashlytics/Helpers/FIRAEvent+Internal.h"
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
@@ -50,11 +52,13 @@
 
 @interface FIRCLSReportManagerTests : XCTestCase
 
-@property(nonatomic, strong) FIRCLSTempMockFileManager *fileManager;
 @property(nonatomic, strong) FIRCLSMockReportManager *reportManager;
+@property(nonatomic, strong) FIRCLSMockSettings *mockSettings;
+@property(nonatomic, strong) FIRCLSMockReportUploader *mockReportUploader;
+@property(nonatomic, strong) FIRCLSTempMockFileManager *fileManager;
+
 @property(nonatomic, strong) FIRCLSDataCollectionArbiter *dataArbiter;
 @property(nonatomic, strong) FIRCLSApplicationIdentifierModel *appIDModel;
-@property(nonatomic, strong) FIRCLSMockSettings *settings;
 
 @end
 
@@ -77,22 +81,31 @@
 
   FIRMockInstallations *iid = [[FIRMockInstallations alloc] initWithFID:@"test_token"];
 
-  FIRMockGDTCORTransport *transport = [[FIRMockGDTCORTransport alloc] initWithMappingID:@"id"
-                                                                           transformers:nil
-                                                                                 target:0];
+  FIRMockGDTCORTransport *mockGoogleTransport =
+      [[FIRMockGDTCORTransport alloc] initWithMappingID:@"id" transformers:nil target:0];
   self.appIDModel = [[FIRCLSApplicationIdentifierModel alloc] init];
-  self.settings = [[FIRCLSMockSettings alloc] initWithFileManager:self.fileManager
-                                                       appIDModel:self.appIDModel];
+  self.mockSettings = [[FIRCLSMockSettings alloc] initWithFileManager:self.fileManager
+                                                           appIDModel:self.appIDModel];
 
-  self.reportManager = [[FIRCLSMockReportManager alloc] initWithFileManager:self.fileManager
-                                                              installations:iid
-                                                                  analytics:nil
-                                                                googleAppID:TEST_GOOGLE_APP_ID
-                                                                dataArbiter:self.dataArbiter
-                                                            googleTransport:transport
-                                                                 appIDModel:self.appIDModel
-                                                                   settings:self.settings];
-  self.reportManager.bundleIdentifier = TEST_BUNDLE_ID;
+  FIRCLSManagerData *managerData =
+      [[FIRCLSManagerData alloc] initWithGoogleAppID:TEST_GOOGLE_APP_ID
+                                     googleTransport:mockGoogleTransport
+                                       installations:iid
+                                           analytics:nil
+                                         fileManager:self.fileManager
+                                         dataArbiter:self.dataArbiter
+                                            settings:self.mockSettings];
+
+  self.mockReportUploader = [[FIRCLSMockReportUploader alloc] initWithManagerData:managerData];
+
+  FIRCLSExistingReportManager *existingReportManager =
+      [[FIRCLSExistingReportManager alloc] initWithManagerData:managerData
+                                                reportUploader:self.mockReportUploader];
+  FIRCLSAnalyticsManager *analyticsManager = [[FIRCLSAnalyticsManager alloc] initWithAnalytics:nil];
+
+  self.reportManager = [[FIRCLSMockReportManager alloc] initWithManagerData:managerData
+                                                      existingReportManager:existingReportManager
+                                                           analyticsManager:analyticsManager];
 }
 
 - (void)tearDown {
@@ -118,9 +131,8 @@
 }
 
 - (NSArray *)contentsOfPreparedPath {
-  return
-      [[NSFileManager defaultManager] contentsOfDirectoryAtPath:self.fileManager.legacyPreparedPath
-                                                          error:nil];
+  return [[NSFileManager defaultManager] contentsOfDirectoryAtPath:self.fileManager.preparedPath
+                                                             error:nil];
 }
 
 - (NSArray *)contentsOfProcessingPath {
@@ -149,7 +161,6 @@
 }
 
 - (BOOL)createFileWithContents:(NSString *)contents atPath:(NSString *)path {
-  NSLog(@"path: %@", path);
   return [self.fileManager.underlyingFileManager
       createFileAtPath:path
               contents:[contents dataUsingEncoding:NSUTF8StringEncoding]
@@ -162,23 +173,11 @@
 
 #pragma mark - Property Helpers
 - (NSArray *)prepareAndSubmitReportArray {
-  return self.reportManager.uploader.prepareAndSubmitReportArray;
+  return self.mockReportUploader.prepareAndSubmitReportArray;
 }
 
 - (NSArray *)uploadReportArray {
-  return self.reportManager.uploader.uploadReportArray;
-}
-
-- (NSString *)installID {
-  return TEST_INSTALL_ID;
-}
-
-- (nonnull NSString *)bundleIdentifier {
-  return TEST_BUNDLE_ID;
-}
-
-- (nonnull NSString *)googleAppID {
-  return TEST_GOOGLE_APP_ID;
+  return self.mockReportUploader.uploadReportArray;
 }
 
 #pragma mark - File/Directory Handling
@@ -230,17 +229,15 @@
   XCTestExpectation *processReportsComplete =
       [[XCTestExpectation alloc] initWithDescription:@"processReports: complete"];
   __block BOOL reportsAvailable = NO;
-  [[[self.reportManager checkForUnsentReports] then:^id _Nullable(NSNumber *_Nullable value) {
-    reportsAvailable = [value boolValue];
-    if (!reportsAvailable) {
-      return nil;
-    }
-    if (send) {
-      return [self->_reportManager sendUnsentReports];
-    } else {
-      return [self->_reportManager deleteUnsentReports];
-    }
-  }] then:^id _Nullable(id _Nullable ignored) {
+  [[[self.reportManager checkForUnsentReports]
+      then:^id _Nullable(FIRCrashlyticsReport *_Nullable report) {
+        reportsAvailable = report ? true : false;
+        if (send) {
+          return [self->_reportManager sendUnsentReports];
+        } else {
+          return [self->_reportManager deleteUnsentReports];
+        }
+      }] then:^id _Nullable(id _Nullable ignored) {
     [processReportsComplete fulfill];
     return nil;
   }];
@@ -257,12 +254,15 @@
 }
 
 - (void)testExistingUnimportantReportOnStart {
-  // create a report and put it in place
+  // Create a report representing the last run and put it in place
   [self createActiveReport];
 
-  // Report should get deleted, and nothing else specials should happen.
+  // Report from the last run should get deleted, and a new
+  // one should be created for this run.
   [self startReportManager];
 
+  // If this is > 1 it means we're not cleaning up reports from previous runs.
+  // If this == 0, it means we're not creating new reports.
   XCTAssertEqual([[self contentsOfActivePath] count], 1);
 
   XCTAssertEqual([self.prepareAndSubmitReportArray count], 0);
@@ -273,10 +273,8 @@
   // create a report and put it in place
   [self createActiveReport];
 
-  // Report should get deleted, and nothing else specials should happen.
-  FBLPromise<NSNumber *> *promise = [self startReportManagerWithDataCollectionEnabled:NO];
-  // It should not be necessary to call processReports, since there are no reports.
-  [self waitForPromise:promise];
+  // Starting with data collection disabled should report in nothing changing
+  [self startReportManagerWithDataCollectionEnabled:NO];
 
   XCTAssertEqual([[self contentsOfActivePath] count], 1);
 
@@ -406,7 +404,7 @@
   XCTAssertEqual([[self contentsOfActivePath] count], 1);
 
   // Put the launch marker in place
-  [self.reportManager createLaunchFailureMarker];
+  [self.reportManager.launchMarker createLaunchFailureMarker];
 
   // should call back to the delegate on start
   [self startReportManager];
@@ -429,7 +427,7 @@
   XCTAssertEqual([[self contentsOfActivePath] count], 1);
 
   // Put the launch marker in place
-  [self.reportManager createLaunchFailureMarker];
+  [self.reportManager.launchMarker createLaunchFailureMarker];
 
   // Should wait for processReports: to be called.
   [self startReportManagerWithDataCollectionEnabled:NO];
@@ -466,6 +464,11 @@
   XCTAssertEqualObjects(self.prepareAndSubmitReportArray[0][@"urgent"], @(NO));
 }
 
+/*
+ * This tests an edge case where there is a report in processing. For the purposes of unsent
+ * reports these are not shown to the developer, but they are uploaded / deleted upon
+ * calling send / delete.
+ */
 - (void)testFilesLeftInProcessingWithDataCollectionDisabled {
   // Put report in processing.
   FIRCLSInternalReport *report = [self createActiveReport];
@@ -479,10 +482,14 @@
                  @"Processing should still have the report");
   XCTAssertEqual([self.prepareAndSubmitReportArray count], 0);
 
-  [self processReports:YES];
+  // We don't expect reports here because we don't consider processing or prepared
+  // reports as unsent as they need to be marked for sending before being placed
+  // in those directories.
+  [self processReports:YES andExpectReports:NO];
 
   // We should not process reports left over in processing.
   XCTAssertEqual([[self contentsOfProcessingPath] count], 0, @"Processing should be cleared");
+  XCTAssertEqual([[self contentsOfPreparedPath] count], 0, @"Prepared should be cleared");
 
   XCTAssertEqual([self.prepareAndSubmitReportArray count], 1);
   XCTAssertEqualObjects(self.prepareAndSubmitReportArray[0][@"process"], @(NO));
@@ -491,9 +498,9 @@
 
 - (void)testFilesLeftInPrepared {
   // Drop a phony multipart-mime file in here, with non-zero contents.
-  XCTAssert([_fileManager createDirectoryAtPath:_fileManager.legacyPreparedPath]);
-  NSString *path = [_fileManager.legacyPreparedPath stringByAppendingPathComponent:@"phony-report"];
-  path = [path stringByAppendingPathExtension:@".multipart-mime"];
+  XCTAssert([_fileManager createDirectoryAtPath:_fileManager.preparedPath]);
+  NSString *path = [_fileManager.preparedPath stringByAppendingPathComponent:@"phony-report"];
+  path = [path stringByAppendingPathExtension:@"multipart-mime"];
 
   XCTAssertTrue([[_fileManager underlyingFileManager]
       createFileAtPath:path
@@ -502,7 +509,7 @@
 
   [self startReportManager];
 
-  // We should not process reports left over in prepared.
+  // Reports should be moved out of prepared
   XCTAssertEqual([[self contentsOfPreparedPath] count], 0, @"Prepared should be cleared");
 
   XCTAssertEqual([self.prepareAndSubmitReportArray count], 0);
@@ -510,11 +517,16 @@
   XCTAssertEqualObjects(self.uploadReportArray[0][@"path"], path);
 }
 
+/*
+ * This tests an edge case where there is a report in prepared. For the purposes of unsent
+ * reports these are not shown to the developer, but they are uploaded / deleted upon
+ * calling send / delete.
+ */
 - (void)testFilesLeftInPreparedWithDataCollectionDisabled {
   // drop a phony multipart-mime file in here, with non-zero contents
-  XCTAssert([_fileManager createDirectoryAtPath:_fileManager.legacyPreparedPath]);
-  NSString *path = [_fileManager.legacyPreparedPath stringByAppendingPathComponent:@"phony-report"];
-  path = [path stringByAppendingPathExtension:@".multipart-mime"];
+  XCTAssert([_fileManager createDirectoryAtPath:_fileManager.preparedPath]);
+  NSString *path = [_fileManager.preparedPath stringByAppendingPathComponent:@"phony-report"];
+  path = [path stringByAppendingPathExtension:@"multipart-mime"];
 
   XCTAssertTrue([[_fileManager underlyingFileManager]
       createFileAtPath:path
@@ -528,10 +540,14 @@
                  @"Prepared should still have the report");
   XCTAssertEqual([self.prepareAndSubmitReportArray count], 0);
 
-  [self processReports:YES];
+  // We don't expect reports here because we don't consider processing or prepared
+  // reports as unsent as they need to be marked for sending before being placed
+  // in those directories.
+  [self processReports:YES andExpectReports:NO];
 
-  // we should not process reports left over in processing
+  // Reports should be moved out of prepared
   XCTAssertEqual([[self contentsOfPreparedPath] count], 0, @"Prepared should be cleared");
+  XCTAssertEqual([[self contentsOfProcessingPath] count], 0, @"Processing should be cleared");
 
   XCTAssertEqual([self.prepareAndSubmitReportArray count], 0);
   XCTAssertEqual([self.uploadReportArray count], 1);
@@ -540,9 +556,9 @@
 
 - (void)testSuccessfulSubmission {
   // drop a phony multipart-mime file in here, with non-zero contents
-  XCTAssert([_fileManager createDirectoryAtPath:_fileManager.legacyPreparedPath]);
-  NSString *path = [_fileManager.legacyPreparedPath stringByAppendingPathComponent:@"phony-report"];
-  path = [path stringByAppendingPathExtension:@".multipart-mime"];
+  XCTAssert([_fileManager createDirectoryAtPath:_fileManager.preparedPath]);
+  NSString *path = [_fileManager.preparedPath stringByAppendingPathComponent:@"phony-report"];
+  path = [path stringByAppendingPathExtension:@"multipart-mime"];
 
   XCTAssertTrue([[_fileManager underlyingFileManager]
       createFileAtPath:path
@@ -558,18 +574,10 @@
   XCTAssertEqual([self.uploadReportArray count], 1);
   XCTAssertEqualObjects(self.uploadReportArray[0][@"path"], path);
 
-  // fake out the delegate callbacks
-  [self.reportManager.operationQueue addOperationWithBlock:^{
-    [self.reportManager didCompletePackageSubmission:path dataCollectionToken:nil error:nil];
-  }];
-
-  [self.reportManager.operationQueue addOperationWithBlock:^{
-    [self.reportManager didCompleteAllSubmissions];
-  }];
-
   [self.reportManager.operationQueue waitUntilAllOperationsAreFinished];
 
   // not 100% sure what to verify here
+  // lol
 }
 
 - (void)testLogInvalidJSONAnalyticsEvents {

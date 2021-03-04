@@ -2020,12 +2020,15 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     }
   } else {
     if (!user) {
-      success = [self.storedUserManager removeStoredUserForAccessGroup:self.userAccessGroup
-                                                     projectIdentifier:self.app.options.APIKey
-                                                                 error:outError];
+      success =
+          [self.storedUserManager removeStoredUserForAccessGroup:self.userAccessGroup
+                                     shareAuthStateAcrossDevices:self.shareAuthStateAcrossDevices
+                                               projectIdentifier:self.app.options.APIKey
+                                                           error:outError];
     } else {
       success = [self.storedUserManager setStoredUser:user
                                        forAccessGroup:self.userAccessGroup
+                          shareAuthStateAcrossDevices:self.shareAuthStateAcrossDevices
                                     projectIdentifier:self.app.options.APIKey
                                                 error:outError];
     }
@@ -2077,9 +2080,11 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 
     return YES;
   } else {
-    FIRUser *user = [self.storedUserManager getStoredUserForAccessGroup:self.userAccessGroup
-                                                      projectIdentifier:self.app.options.APIKey
-                                                                  error:error];
+    FIRUser *user =
+        [self.storedUserManager getStoredUserForAccessGroup:self.userAccessGroup
+                                shareAuthStateAcrossDevices:self.shareAuthStateAcrossDevices
+                                          projectIdentifier:self.app.options.APIKey
+                                                      error:error];
     user.auth = self;
     *outUser = user;
     if (user) {
@@ -2253,7 +2258,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 #endif  // TARGET_OS_WATCH
     user = [unarchiver decodeObjectOfClass:[FIRUser class] forKey:userKey];
   } else {
-    user = [self.storedUserManager getStoredUserForAccessGroup:self.userAccessGroup
+    user = [self.storedUserManager getStoredUserForAccessGroup:accessGroup
+                                   shareAuthStateAcrossDevices:self.shareAuthStateAcrossDevices
                                              projectIdentifier:self.app.options.APIKey
                                                          error:outError];
   }

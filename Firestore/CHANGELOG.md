@@ -1,5 +1,25 @@
-# Unreleased
-- [added] Made emulator connection API consistent between Auth, Database, Firestore, and Functions (#5916).
+# v7.7.0
+- [fixed] Fixed a crash that could happen when the App is being deleted and
+  there's an active listener (#6909).
+- [fixed] Fixed a bug where local cache inconsistencies were unnecessarily
+  being resolved (#7455).
+
+# v7.5.0
+- [changed] A write to a document that contains FieldValue transforms is no
+  longer split up into two separate operations. This reduces the number of
+  writes the backend performs and allows each WriteBatch to hold 500 writes
+  regardless of how many FieldValue transformations are attached.
+- [fixed] Fixed an issue where using `FieldValue.arrayRemove()` would only
+  delete the first occurrence of an element in an array in a latency
+  compensated snapshots.
+
+# v7.3.0
+- [fixed] Fixed a crash that could happen when the SDK encountered invalid
+  data during garbage collection (#6721).
+
+# v7.2.0
+- [added] Made emulator connection API consistent between Auth, Database,
+  Firestore, and Functions (#5916).
 
 # v7.1.0
 - [changed] Added the original query data to error messages for Queries that

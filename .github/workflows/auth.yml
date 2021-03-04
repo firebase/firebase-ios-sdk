@@ -8,8 +8,8 @@ on:
     - '.github/workflows/auth.yml'
     - 'Gemfile'
   schedule:
-    # Run every day at 11pm (PST) - cron uses UTC times
-    - cron:  '0 7 * * *'
+    # Run every day at 7pm (PST) - cron uses UTC times
+    - cron:  '0 3 * * *'
 
 jobs:
 
@@ -67,26 +67,11 @@ jobs:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     runs-on: macOS-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: Xcode 12
-      run: sudo xcode-select -s /Applications/Xcode_12.app/Contents/Developer
-    - name: Initialize xcodebuild
-      run: xcodebuild -list
-    - name: iOS Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh AuthUnit iOS spm
-
-  spm-cron:
-    # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macOS-latest
     strategy:
       matrix:
-        target: [tvOS, macOS, catalyst]
+        target: [iOS, tvOS, macOS, catalyst]
     steps:
     - uses: actions/checkout@v2
-    - name: Xcode 12
-      run: sudo xcode-select -s /Applications/Xcode_12.app/Contents/Developer
     - name: Initialize xcodebuild
       run: xcodebuild -list
     - name: Unit Tests
@@ -102,7 +87,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Setup project and Build for Catalyst
-      # Only build the unit tests on Catalyst
+      # Only build the unit tests on Catalyst. Their keychain reliance causes several failures.
       run: scripts/test_catalyst.sh FirebaseAuth build FirebaseAuth-Unit-unit
 
   quickstart:

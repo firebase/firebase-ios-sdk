@@ -57,5 +57,10 @@
   "6.8.1": "https://dl.google.com/dl/firebase/ios/carthage/6.8.1/Storage-73eea0ecda33e371.zip",
   "6.9.0": "https://dl.google.com/dl/firebase/ios/carthage/6.9.0/Storage-5f764ed00ef28bc5.zip",
   "7.0.0": "https://dl.google.com/dl/firebase/ios/carthage/7.0.0/FirebaseStorage-ea15e0f50128942a.zip",
-  "7.1.0": "https://dl.google.com/dl/firebase/ios/carthage/7.1.0/FirebaseStorage-a55ab12dede48ee4.zip"
+  "7.1.0": "https://dl.google.com/dl/firebase/ios/carthage/7.1.0/FirebaseStorage-a55ab12dede48ee4.zip",
+  "7.3.0": "https://dl.google.com/dl/firebase/ios/carthage/7.3.0/FirebaseStorage-d95d0ccc1adb4be7.zip",
+  "7.4.0": "https://dl.google.com/dl/firebase/ios/carthage/7.4.0/FirebaseStorage-11f55b9894aa5fdc.zip",
+  "7.5.0": "https://dl.google.com/dl/firebase/ios/carthage/7.5.0/FirebaseStorage-ef46729ad6576351.zip",
+  "7.6.0": "https://dl.google.com/dl/firebase/ios/carthage/7.6.0/FirebaseStorage-edab02bc99437b4c.zip",
+  "7.7.0": "https://dl.google.com/dl/firebase/ios/carthage/7.7.0/FirebaseStorage-f29ababab558a52d.zip"
 }

@@ -16,6 +16,9 @@ if(NOT APPLE)
   return()
 endif()
 
+# GoogleUtilities is an external dependency without its own cmake configuration.
+include(GoogleUtilities)
+
 file(GLOB headers Sources/Private/*.h Sources/Public/FirebaseCore/*.h)
 file(GLOB sources Sources/*.m)
 

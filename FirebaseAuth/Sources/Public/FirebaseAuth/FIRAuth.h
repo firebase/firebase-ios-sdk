@@ -340,6 +340,14 @@ NS_SWIFT_NAME(Auth)
  */
 @property(readonly, nonatomic, copy, nullable) NSString *userAccessGroup;
 
+/** @property shareAuthStateAcrossDevices
+    @brief Contains shareAuthStateAcrossDevices setting related to the auth object.
+    @remarks If userAccessGroup is not set, setting shareAuthStateAcrossDevices will
+        have no effect. You should set shareAuthStateAcrossDevices to it's desired
+        state and then set the userAccessGroup after.
+ */
+@property(nonatomic) BOOL shareAuthStateAcrossDevices;
+
 /** @property tenantID
     @brief The tenant ID of the auth instance. nil if none is available.
  */
@@ -695,7 +703,7 @@ NS_SWIFT_NAME(Auth)
         + `FIRAuthErrorCodeMissingAndroidPackageName` - Indicates that the android package name
             is missing when the `androidInstallApp` flag is set to true.
         + `FIRAuthErrorCodeUnauthorizedDomain` - Indicates that the domain specified in the
-            continue URL is not whitelisted in the Firebase console.
+            continue URL is not allowlisted in the Firebase console.
         + `FIRAuthErrorCodeInvalidContinueURI` - Indicates that the domain specified in the
             continue URI is not valid.
 

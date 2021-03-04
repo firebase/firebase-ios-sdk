@@ -92,7 +92,6 @@ extension CarthageUtils {
                                               artifacts: ZipBuilder.ReleaseArtifacts,
                                               outputDir: URL,
                                               versionCheckEnabled: Bool) {
-    factorProtobuf(inPackagedDir: packagedDir)
     let directories: [String]
     do {
       directories = try FileManager.default.contentsOfDirectory(atPath: packagedDir.path)
@@ -105,6 +104,19 @@ extension CarthageUtils {
     for product in directories {
       let fullPath = packagedDir.appendingPathComponent(product)
       guard FileManager.default.isDirectory(at: fullPath) else { continue }
+
+      // Abort Carthage generation if there are any xcframeworks.
+      do {
+        let files = try FileManager.default.contentsOfDirectory(at: fullPath,
+                                                                includingPropertiesForKeys: nil)
+        let xcfFiles = files.filter { $0.pathExtension == "xcframework" }
+        if xcfFiles.count > 0 {
+          print("Skipping Carthage generation for \(product) since it includes xcframeworks.")
+          continue
+        }
+      } catch {
+        fatalError("Failed to get contents of \(fullPath).")
+      }
 
       // Parse the JSON file, ensure that we're not trying to overwrite a release.
       var jsonManifest = parseJSONFile(fromDir: jsonDir, product: product)
@@ -119,7 +131,10 @@ extension CarthageUtils {
       // Analytics includes all the Core frameworks and Firebase module, do extra work to package
       // it.
       if product == "FirebaseAnalytics" {
-        createFirebaseFramework(inDir: fullPath, rootDir: packagedDir, templateDir: templateDir)
+        createFirebaseFramework(version: firebaseVersion,
+                                inDir: fullPath,
+                                rootDir: packagedDir,
+                                templateDir: templateDir)
 
         // Copy the NOTICES file from FirebaseCore.
         let noticesName = "NOTICES"
@@ -197,51 +212,15 @@ extension CarthageUtils {
     }
   }
 
-  /// Factor Protobuf into a separate Carthage distribution to avoid Carthage install issues
-  /// trying to install the same framework from multiple bundles(#5276).
-  ///
-  /// - Parameters:
-  ///   - packagedDir: The packaged directory assembled for Carthage and Zip distribution.
-
-  private static func factorProtobuf(inPackagedDir packagedDir: URL) {
-    let directories: [String]
-    let protobufDir = packagedDir.appendingPathComponent("FirebaseProtobuf")
-    do {
-      directories = try FileManager.default.contentsOfDirectory(atPath: packagedDir.path)
-    } catch {
-      fatalError("Could not get contents of Firebase directory to package Carthage build. \(error)")
-    }
-    let fileManager = FileManager.default
-    var didMove = false
-    // Loop through each directory to see if it includes Protobuf.framework.
-    for package in directories {
-      let fullPath = packagedDir.appendingPathComponent(package)
-        .appendingPathComponent("Protobuf.framework")
-      if fileManager.fileExists(atPath: fullPath.path) {
-        if didMove == false {
-          didMove = true
-          do {
-            try fileManager.createDirectory(at: protobufDir, withIntermediateDirectories: true)
-            try fileManager
-              .moveItem(at: fullPath, to: protobufDir.appendingPathComponent("Protobuf.framework"))
-          } catch {
-            fatalError("Failed to create Carthage protobuf directory at \(protobufDir) \(error)")
-          }
-
-        } else {
-          fileManager.removeIfExists(at: fullPath)
-        }
-      }
-    }
-  }
-
   /// Creates a fake Firebase.framework to use the module for `import Firebase` compatibility.
   ///
   /// - Parameters:
+  ///   - version: Firebase version.
   ///   - destination: The destination directory for the Firebase framework.
   ///   - rootDir: The root directory that contains other required files (like the Firebase header).
   ///   - templateDir: The template directory containing the dummy Firebase library.
-  private static func createFirebaseFramework(inDir destination: URL,
+  private static func createFirebaseFramework(version: String,
+                                              inDir destination: URL,
                                               rootDir: URL,
                                               templateDir: URL) {
     // Local FileManager for better readability.
@@ -286,14 +265,17 @@ extension CarthageUtils {
     }
 
     // Write the Info.plist.
-    generatePlistContents(forName: "Firebase", to: frameworkDir)
+    generatePlistContents(forName: "Firebase", withVersion: version, to: frameworkDir)
   }
 
-  static func generatePlistContents(forName name: String, to location: URL) {
+  static func generatePlistContents(forName name: String,
+                                    withVersion version: String,
+                                    to location: URL) {
+    let ver = version.components(separatedBy: "-")[0] // remove any version suffix.
     let plist: [String: String] = ["CFBundleIdentifier": "com.firebase.Firebase-\(name)",
                                    "CFBundleInfoDictionaryVersion": "6.0",
                                    "CFBundlePackageType": "FMWK",
-                                   "CFBundleVersion": "1",
+                                   "CFBundleVersion": ver,
                                    "DTSDKName": "iphonesimulator11.2",
                                    "CFBundleExecutable": name,
                                    "CFBundleName": name]

@@ -1,3 +1,4 @@
+# Copyright 2017 Google LLC
 
 require 'pathname'
 
@@ -5,6 +6,7 @@ require 'pathname'
 #source 'sso://cpdc-internal/firebase'
 #source 'https://cdn.cocoapods.org/'
 
+source 'https://github.com/firebase/SpecsDev.git'
 source 'https://github.com/firebase/SpecsStaging.git'
 source 'https://cdn.cocoapods.org/'
 
@@ -22,6 +24,8 @@ install! 'cocoapods',
     #   https://www.ralfebert.de/ios/blog/cocoapods-clean-input-output-files/
     :disable_input_output_paths => true
 
+# Invoke sync_project.rb after installation to force all tests to be a part of
+# the project.
 post_install do |installer|
   sync = Pathname.new(__FILE__).dirname.join('../../scripts/sync_project.rb')
   system('ruby', sync.to_s)
@@ -38,6 +42,10 @@ end
 
 # Adds a `pod name, :path => ../..` declaration to use local sources if the
 # Podfile has been configured to operate that way.
+#
+# This is a build optimization that allows most CI builds to run more quickly
+# by just using local sources but allows for nightly and other builds to
+# validate that Firestore remains compatible with existing published pods.
 def maybe_local_pod(name)
   if use_local_sources()
     pod name, :path => '../..'
@@ -49,20 +57,16 @@ end
 def configure_local_pods()
   # Firestore is always local; that's what's under development here.
   pod 'FirebaseFirestore', :path => '../..'
-  pod 'GoogleUtilities', :path => '../..'
 
   # FirebaseCore must always be a local pod so that CI builds that make changes
   # to its podspec can still function. See Firestore-*-xcodebuild in
   # scripts/install_prereqs.sh for more details.
   pod 'FirebaseCore', :path => '../..'
   pod 'FirebaseCoreDiagnostics', :path => '../..'
-  pod 'GoogleDataTransport', :path => '../..'
 
   # Pull in local sources conditionally.
   maybe_local_pod 'FirebaseAuth'
-
   maybe_local_pod 'FirebaseCoreDiagnostics'
-  maybe_local_pod 'GoogleDataTransport'
 end
 
 # Reads the value of the PLATFORM environment variable, converts it to the

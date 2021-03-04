@@ -52,9 +52,5 @@ NSString* FIRCLSSDKGeneratorName(void) {
 }
 
 NSString* FIRCLSSDKVersion(void) {
-#ifdef CRASHLYTICS_1P
-  return [FIRFirebaseVersion() stringByAppendingString:@"_1P"];
-#else
   return FIRFirebaseVersion();
-#endif
 }

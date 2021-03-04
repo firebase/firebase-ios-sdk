@@ -1,5 +1,30 @@
+# FirebaseCore 7.7.0
+- [changed] Deprecated FirebaseMLModelInterpreter and FirebaseMLVision.
+- [added] Introduced FirebaseMLModelDownloader.
+- [fixed] Fixed missing doc comment in `FirebaseVersion()`. (#7506)
+- [changed] Minimum required Xcode version for Zip and Carthage distributions changed to 12.2 (was 12.0).
+- [added] The zip distribution now includes Catalyst arm64 simulator slices. (#7007)
+
+# FirebaseCore 7.6.0
+- [fixed] Fixed build warnings introduced with Xcode 12.5. (#7431)
+
+# Firebase 7.5.0
+- [fixed] Fixed potential deadlock with objc_copyImageNames call. (#7310)
+
+# Firebase 7.4.0
+- [changed] Patch update to nanopb 0.3.9.7 that fixes a memory leak and other issues. (#7090)
+- [added] Zip distribution now includes community supported macOS and tvOS libraries. Product
+  support detailed
+  [here](https://github.com/firebase/firebase-ios-sdk#tvos-macos-watchos-and-catalyst).
+
+# Firebase 7.3.0
+- [added] Added FirebaseAppDistribution-Beta product to Swift Package Manager. (#7045)
+
 # Firebase 7.2.0
 - [fixed] Reduced `FirebaseApp.configure()` and `+[FIRApp registerInternalLibrary:withName:]` impact on app launch time. (#6902)
+- [added] Added arm64 simulator support to support new Apple silicon based Macs.
+- [changed] Due to the new arm64 simulator support, Xcode 12 is now required for any binary
+  products (Analytics, Performance, zip file distribution).
 
 # Firebase 7.0.0
 - [changed] Update minimum iOS version to iOS 10 except for Analytics which is now iOS 9. (#4847)

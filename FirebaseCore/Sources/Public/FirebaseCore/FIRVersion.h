@@ -18,6 +18,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/** Returns the current version of Firebase. */
 NS_SWIFT_NAME(FirebaseVersion())
 NSString* FIRFirebaseVersion(void);
 

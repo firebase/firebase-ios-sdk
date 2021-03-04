@@ -142,6 +142,7 @@ static const CGFloat kSwipeUpThreshold = -10.0f;
       }
     }
     self.imageView.image = image;
+    self.imageView.accessibilityLabel = self.inAppMessage.campaignInfo.campaignName;
   } else {
     // Hide image and remove the bottom constraint between body label and image view.
     self.imageViewWidthConstraint.constant = 0;
@@ -161,7 +162,7 @@ static const CGFloat kSwipeUpThreshold = -10.0f;
   // Calculate status bar height.
   CGFloat statusBarHeight = 0;
 #if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-  if (@available(iOS 13.0, *)) {
+  if (@available(iOS 13.0, tvOS 13.0, *)) {
     UIStatusBarManager *manager =
         [UIApplication sharedApplication].keyWindow.windowScene.statusBarManager;
 
@@ -286,6 +287,9 @@ static const CGFloat kSwipeUpThreshold = -10.0f;
                      self.view.center = normalCenterPoint;
                    }
                    completion:nil];
+
+  // Announce via VoiceOver that the banner has appeared. Highlight the title label.
+  UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, self.titleLabel);
 }
 
 - (void)setupAutoDismissTimer {

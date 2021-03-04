@@ -1,16 +1,21 @@
+source 'https://github.com/firebase/SpecsDev.git'
+source 'https://github.com/firebase/SpecsStaging.git'
+source 'https://cdn.cocoapods.org/'
+
 use_frameworks!
 
 target 'SampleWatchAppWatchKitExtension' do
   platform :watchos, '6.0'
 
   pod 'FirebaseCore', :path => '../../'
-  pod 'GoogleUtilities', :path => '../../'
   pod 'FirebaseMessaging', :path => '../../'
   pod 'FirebaseInstanceID', :path => '../../'
   pod 'FirebaseCoreDiagnostics', :path => '../../'
-  pod 'GoogleDataTransport', :path => '../../'
   pod 'FirebaseInstallations', :path => '../../'
   pod 'FirebaseStorage', :path => '../../'
+  pod 'FirebaseRemoteConfig', :path => '../../'
+  pod 'FirebaseABTesting', :path => '../../'
+
 
 end
 

@@ -21,26 +21,24 @@ public struct Pod {
   public let name: String
   public let isClosedSource: Bool
   public let isBeta: Bool
-  public let isFirebase: Bool
   public let allowWarnings: Bool // Allow validation warnings. Ideally these should all be false
-  public let podVersion: String? // Non-Firebase pods have their own version
+  public let platforms: Set<String> // Set of platforms to build this pod for
   public let releasing: Bool // Non-Firebase pods may not release
   public let zip: Bool // Top level pod in Zip Distribution
 
   init(_ name: String,
        isClosedSource: Bool = false,
        isBeta: Bool = false,
-       isFirebase: Bool = true,
        allowWarnings: Bool = false,
+       platforms: Set<String> = ["ios", "macos", "tvos"],
        podVersion: String? = nil,
        releasing: Bool = true,
        zip: Bool = false) {
     self.name = name
     self.isClosedSource = isClosedSource
     self.isBeta = isBeta
-    self.isFirebase = isFirebase
     self.allowWarnings = allowWarnings
-    self.podVersion = podVersion
+    self.platforms = platforms
     self.releasing = releasing
     self.zip = zip
   }
@@ -49,9 +47,10 @@ public struct Pod {
     return isClosedSource ? "\(name).podspec.json" : "\(name).podspec"
   }
 
-  /// Closed source pods do not validate on Xcode 12 until they support the ARM simulator slice.
+  /// The Firebase pod does not support import validation with Xcode 12 because of the deprecated
+  /// ML pods not supporting the ARM Mac slice.
   public func skipImportValidation() -> String {
-    if isClosedSource || name == "Firebase" {
+    if name == "Firebase" {
       return "--skip-import-validation"
     } else {
       return ""

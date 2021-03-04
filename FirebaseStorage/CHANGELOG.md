@@ -1,5 +1,11 @@
+# 7.4.0
+- [fixed] Prevent second `listAll` callback. (#7197)
+
+# 7.3.0
+- [fixed] Verify block is still alive before calling it in task callbacks. (#7051)
+
 # 7.1.0
-- [Fixed] Remove explicit MobileCoreServices library linkage from podspec. (#6850)
+- [fixed] Remove explicit MobileCoreServices library linkage from podspec. (#6850)
 
 # 7.0.0
 - [changed] The global variable `FIRStorageVersionString` is deleted.

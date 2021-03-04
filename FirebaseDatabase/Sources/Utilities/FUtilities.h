@@ -27,7 +27,10 @@
 + (NSString *)getJavascriptType:(id)obj;
 + (NSError *)errorForStatus:(NSString *)status andReason:(NSString *)reason;
 + (NSNumber *)intForString:(NSString *)string;
++ (NSInteger)int32min;
++ (NSInteger)int32max;
 + (NSString *)ieee754StringForNumber:(NSNumber *)val;
++ (BOOL)tryParseString:(NSString *)string asInt:(NSInteger *)integer;
 + (void)setLoggingEnabled:(BOOL)enabled;
 + (BOOL)getLoggingEnabled;
 
@@ -75,6 +78,9 @@ FOUNDATION_EXPORT NSString *const kFPersistenceLogTag;
                           ##__VA_ARGS__);                                      \
         }                                                                      \
     } while (0)
+
+#define INTEGER_32_MIN (-2147483648)
+#define INTEGER_32_MAX 2147483647
 
 extern FIRLoggerService kFIRLoggerDatabase;
 BOOL FFIsLoggingEnabled(FLogLevel logLevel);

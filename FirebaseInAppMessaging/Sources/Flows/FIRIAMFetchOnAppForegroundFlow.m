@@ -15,7 +15,7 @@
  */
 
 #import <TargetConditionals.h>
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_TV
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
@@ -30,7 +30,7 @@
                                                name:UIApplicationWillEnterForegroundNotification
                                              object:nil];
 #if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-  if (@available(iOS 13.0, *)) {
+  if (@available(iOS 13.0, tvOS 13.0, *)) {
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(appWillEnterForeground:)
                                                  name:UISceneWillEnterForegroundNotification
@@ -61,4 +61,4 @@
 }
 @end
 
-#endif  // TARGET_OS_IOS
+#endif  // TARGET_OS_IOS || TARGET_OS_TV

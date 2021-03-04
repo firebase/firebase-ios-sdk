@@ -1,4 +1,4 @@
-// Copyright 2020 Google LLC
+// Copyright 2021 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,4 +15,12 @@
 import Foundation
 
 /// Model download conditions.
-public struct ModelDownloadConditions {}
+public struct ModelDownloadConditions {
+  let allowsCellularAccess: Bool
+
+  /// Conditions that need to be met to start a model file download.
+  /// - Parameter allowsCellularAccess: Allow model downloading on a cellular connection. Default is `true`.
+  public init(allowsCellularAccess: Bool = true) {
+    self.allowsCellularAccess = allowsCellularAccess
+  }
+}

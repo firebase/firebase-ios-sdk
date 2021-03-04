@@ -2,6 +2,7 @@
 #source 'sso://cpdc-internal/firebase'
 #source 'https://cdn.cocoapods.org/'
 
+source 'https://github.com/firebase/SpecsDev.git'
 source 'https://github.com/firebase/SpecsStaging.git'
 source 'https://cdn.cocoapods.org/'
 
@@ -11,8 +12,6 @@ target 'AuthSample' do
   platform :ios, '10.0'
   pod 'FirebaseCore', :path => '../../../'
   pod 'FirebaseCoreDiagnostics', :path => '../../../'
-  pod 'GoogleDataTransport', :path => '../../../'
-  pod 'GoogleUtilities', :path => '../../../'
   pod 'FirebaseAuth', :path => '../../../', :testspecs => ['unit']
   pod 'FirebaseInstallations', :path => '../../..'
   pod 'FirebaseInstanceID', :path => '../../..'

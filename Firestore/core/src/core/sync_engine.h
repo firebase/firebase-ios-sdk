@@ -32,6 +32,7 @@
 #include "Firestore/core/src/local/reference_set.h"
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/remote/remote_store.h"
+#include "Firestore/core/src/util/random_access_queue.h"
 #include "Firestore/core/src/util/status.h"
 #include "absl/strings/string_view.h"
 
@@ -155,9 +156,8 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
   }
 
   // For tests only
-  std::deque<model::DocumentKey> GetEnqueuedLimboDocumentResolutions() const {
-    // Return defensive copy
-    return enqueued_limbo_resolutions_;
+  std::vector<model::DocumentKey> GetEnqueuedLimboDocumentResolutions() const {
+    return enqueued_limbo_resolutions_.elements();
   }
 
  private:
@@ -301,7 +301,8 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
    * The keys of documents that are in limbo for which we haven't yet started a
    * limbo resolution query.
    */
-  std::deque<model::DocumentKey> enqueued_limbo_resolutions_;
+  util::RandomAccessQueue<model::DocumentKey, model::DocumentKeyHash>
+      enqueued_limbo_resolutions_;
 
   /**
    * Keeps track of the target ID for each document that is in limbo with an
