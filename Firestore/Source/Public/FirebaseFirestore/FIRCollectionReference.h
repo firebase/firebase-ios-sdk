@@ -29,8 +29,8 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(CollectionReference)
 @interface FIRCollectionReference : FIRQuery
 
-/** :nodoc: */
-- (id)init __attribute__((unavailable("FIRCollectionReference cannot be created directly.")));
+/** Initialiser. Only for use in unit tests. */
+- (id)init;
 
 /** ID of the referenced collection. */
 @property(nonatomic, strong, readonly) NSString *collectionID;
