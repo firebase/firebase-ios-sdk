@@ -20,6 +20,7 @@
 #include <utility>
 
 #include "Firestore/core/src/util/status.h"
+#include "Firestore/core/src/util/string_format.h"
 
 namespace firebase {
 namespace firestore {
@@ -55,6 +56,11 @@ class ReadContext {
    */
   void Fail(std::string description) {
     status_.Update(util::Status(Error::kErrorDataLoss, std::move(description)));
+  }
+
+  template <typename... FA>
+  void Fail(const char* format, const FA&... args) {
+    Fail(StringFormat(format, args...));
   }
 
  private:

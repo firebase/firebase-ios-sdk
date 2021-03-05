@@ -32,6 +32,9 @@
 
 namespace firebase {
 namespace firestore {
+namespace bundle {
+class BundleSerializer;
+}
 namespace core {
 
 using CollectionGroupId = std::shared_ptr<const std::string>;
@@ -120,6 +123,7 @@ class Target {
   }
   friend class Query;
   friend class remote::Serializer;
+  friend class bundle::BundleSerializer;
 
   model::ResourcePath path_;
   std::shared_ptr<const std::string> collection_group_;

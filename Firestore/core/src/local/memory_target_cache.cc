@@ -137,6 +137,10 @@ void MemoryTargetCache::SetLastRemoteSnapshotVersion(SnapshotVersion version) {
   last_remote_snapshot_version_ = std::move(version);
 }
 
+void MemoryTargetCache::RemoveMatchingKeysForTarget(model::TargetId target_id) {
+  references_.RemoveReferences(target_id);
+}
+
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase

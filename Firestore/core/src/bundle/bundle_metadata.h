@@ -21,6 +21,7 @@
 #include <string>
 #include <utility>
 
+#include "Firestore/core/src/bundle/bundle_element.h"
 #include "Firestore/core/src/model/snapshot_version.h"
 
 namespace firebase {
@@ -30,7 +31,7 @@ namespace bundle {
 /**
  * Represents Firestore bundle metadata saved by the SDK in its local storage.
  */
-class BundleMetadata {
+class BundleMetadata : public BundleElement {
  public:
   BundleMetadata() = default;
 
@@ -52,6 +53,10 @@ class BundleMetadata {
         create_time_(create_time),
         total_documents_(total_documents),
         total_bytes_(total_bytes) {
+  }
+
+  Type element_type() const override {
+    return Type::Metadata;
   }
 
   /**
