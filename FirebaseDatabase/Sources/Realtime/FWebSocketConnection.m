@@ -233,13 +233,17 @@
         NSString *formattedData =
             [NSString stringWithFormat:@"%u", (unsigned int)dataSegs.count];
 #if TARGET_OS_WATCH
-        [self sendStringToWebSocket:formattedData completion:^(NSError *_Nullable error) {
-            if (error) {
-                FFWarn(@"I-RDB083017",
-                       @"Error sending initial web socket data: %@.", error);
-                return;
-            }
-        }];
+        [self
+            sendStringToWebSocket:formattedData
+                       completion:^(NSError *_Nullable error) {
+                         if (error) {
+                             FFWarn(
+                                 @"I-RDB083017",
+                                 @"Error sending initial web socket data: %@.",
+                                 error);
+                             return;
+                         }
+                       }];
 #else
         [self.webSocket send:formattedData];
 #endif // TARGET_OS_WATCH
@@ -248,13 +252,15 @@
     // Then, actually send the segments.
     for (NSString *segment in dataSegs) {
 #if TARGET_OS_WATCH
-        [self sendStringToWebSocket:segment completion:^(NSError *_Nullable error) {
-            if (error) {
-                FFWarn(@"I-RDB083018",
-                       @"Error sending web socket data: %@", error);
-                return;
-            }
-        }];
+        [self sendStringToWebSocket:segment
+                         completion:^(NSError *_Nullable error) {
+                           if (error) {
+                               FFWarn(@"I-RDB083018",
+                                      @"Error sending web socket data: %@",
+                                      error);
+                               return;
+                           }
+                         }];
 #else
         [self.webSocket send:segment];
 #endif // TARGET_OS_WATCH
@@ -268,11 +274,14 @@
         // Note: There's a built in `sendPingWithPongReceiveHandler` call that's
         // available, but it doesn't match with what the backend is expecting.
         // Send a string with "0" instead.
-        [self sendStringToWebSocket:@"0" completion:^(NSError *_Nullable error) {
-            if (error) {
-                FFWarn(@"I-RDB083019", @"Error sending web socket ping 0: %@", error);
-            }
-        }];
+        [self sendStringToWebSocket:@"0"
+                         completion:^(NSError *_Nullable error) {
+                           if (error) {
+                               FFWarn(@"I-RDB083019",
+                                      @"Error sending web socket ping 0: %@",
+                                      error);
+                           }
+                         }];
 #else
         [self.webSocket send:@"0"];
 #endif // TARGET_OS_WATCH
@@ -382,7 +391,7 @@
 }
 
 - (void)webSocketDidOpen:(FSRWebSocket *)webSocket {
-  [self webSocketOpened];
+    [self webSocketOpened];
 }
 
 - (void)webSocket:(FSRWebSocket *)webSocket didFailWithError:(NSError *)error {
@@ -409,11 +418,13 @@
 
 /// Sends data to the web socket through native APIs.
 /// @param string The data to send.
-/// @param completion Called when the transaction is complete, indicating an error if applicable.
-- (void)sendStringToWebSocket:(NSString *)string completion:(void (^)(NSError * _Nullable))completion {
-    [self.webSocketTask
-            sendMessage:[[NSURLSessionWebSocketMessage alloc] initWithString:string]
-      completionHandler:completion];
+/// @param completion Called when the transaction is complete, indicating an
+/// error if applicable.
+- (void)sendStringToWebSocket:(NSString *)string
+                   completion:(void (^)(NSError *_Nullable))completion {
+    [self.webSocketTask sendMessage:[[NSURLSessionWebSocketMessage alloc]
+                                        initWithString:string]
+                  completionHandler:completion];
 }
 #endif // TARGET_OS_WATCH
 
@@ -423,14 +434,14 @@
     everConnected = YES;
 
     dispatch_async(dispatch_get_main_queue(), ^{
-        self->keepAlive =
-              [NSTimer scheduledTimerWithTimeInterval:kWebsocketKeepaliveInterval
-                                               target:self
-                                             selector:@selector(nop:)
-                                             userInfo:nil
-                                              repeats:YES];
-        FFLog(@"I-RDB083009", @"(wsc:%@) nop timer kicked off",
-              self.connectionId);
+      self->keepAlive =
+          [NSTimer scheduledTimerWithTimeInterval:kWebsocketKeepaliveInterval
+                                           target:self
+                                         selector:@selector(nop:)
+                                         userInfo:nil
+                                          repeats:YES];
+      FFLog(@"I-RDB083009", @"(wsc:%@) nop timer kicked off",
+            self.connectionId);
     });
 }
 
