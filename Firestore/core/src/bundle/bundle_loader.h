@@ -37,14 +37,14 @@ using AddElementResult =
     util::StatusOr<absl::optional<api::LoadBundleTaskProgress>>;
 
 inline api::LoadBundleTaskProgress SuccessProgress(
-    const bundle::BundleMetadata metadata) {
+    const bundle::BundleMetadata& metadata) {
   return {metadata.total_documents(), metadata.total_documents(),
           metadata.total_bytes(), metadata.total_bytes(),
           api::LoadBundleTaskState::kSuccess};
 }
 
 inline api::LoadBundleTaskProgress InitialProgress(
-    const bundle::BundleMetadata metadata) {
+    const bundle::BundleMetadata& metadata) {
   return {0, metadata.total_documents(), 0, metadata.total_bytes(),
           api::LoadBundleTaskState::kInProgress};
 }

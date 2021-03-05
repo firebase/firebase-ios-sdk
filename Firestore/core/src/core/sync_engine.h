@@ -27,6 +27,7 @@
 #include <vector>
 
 #include "Firestore/core/src/api/load_bundle_task.h"
+#include "Firestore/core/src/bundle/bundle_loader.h"
 #include "Firestore/core/src/bundle/bundle_reader.h"
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/core/target_id_generator.h"
@@ -266,6 +267,11 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
    */
   void TriggerPendingWriteCallbacks(model::BatchId batch_id);
   void FailOutstandingPendingWriteCallbacks(const std::string& message);
+
+  absl::optional<bundle::BundleLoader> ReadIntoLoader(
+      const bundle::BundleMetadata& metadata,
+      const std::shared_ptr<bundle::BundleReader>& reader,
+      const std::shared_ptr<api::LoadBundleTask>& result_task);
 
   /** The local store, used to persist mutations and cached documents. */
   local::LocalStore* local_store_ = nullptr;

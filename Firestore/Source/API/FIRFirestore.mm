@@ -56,6 +56,7 @@
 #include "Firestore/core/src/util/status.h"
 #include "Firestore/core/src/util/statusor.h"
 #include "Firestore/core/src/util/string_apple.h"
+#include "absl/memory/memory.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::api::DocumentReference;
@@ -66,6 +67,7 @@ using firebase::firestore::core::EventListener;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::remote::FirebaseMetadataProvider;
 using firebase::firestore::util::AsyncQueue;
+using firebase::firestore::util::ByteStreamApple;
 using firebase::firestore::util::Empty;
 using firebase::firestore::util::MakeCallback;
 using firebase::firestore::util::MakeNSError;
@@ -385,8 +387,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FIRLoadBundleTask *)loadBundle:(nonnull NSData *)bundleData {
-  auto stream =
-      absl::make_unique<util::ByteStreamApple>([[NSInputStream alloc] initWithData:bundleData]);
+  auto stream = absl::make_unique<ByteStreamApple>([[NSInputStream alloc] initWithData:bundleData]);
   return [self loadBundleStream:[[NSInputStream alloc] initWithData:bundleData] completion:nil];
 }
 
@@ -405,12 +406,14 @@ NS_ASSUME_NONNULL_BEGIN
                              completion:
                                  (nullable void (^)(FIRLoadBundleTaskProgress *_Nullable progress,
                                                     NSError *_Nullable error))completion {
-  auto stream = absl::make_unique<util::ByteStreamApple>(bundleStream);
+  auto stream = absl::make_unique<ByteStreamApple>(bundleStream);
   std::shared_ptr<api::LoadBundleTask> task = _firestore->LoadBundle(std::move(stream));
   auto callback = [completion](api::LoadBundleTaskProgress progress) {
     if (!completion) {
       return;
     }
+
+    // Ignoring `kInProgress` because we are setting up for completion callback.
     if (progress.state() == api::LoadBundleTaskState::kSuccess) {
       completion([[FIRLoadBundleTaskProgress alloc] initWithInternal:progress], nil);
     } else if (progress.state() == api::LoadBundleTaskState::kError) {
@@ -425,19 +428,21 @@ NS_ASSUME_NONNULL_BEGIN
       completion([[FIRLoadBundleTaskProgress alloc] initWithInternal:progress], error);
     }
   };
+
   task->Observe(callback);
   return [[FIRLoadBundleTask alloc] initWithTask:task];
 }
 
 - (void)getQueryNamed:(NSString *)name completion:(void (^)(FIRQuery *_Nullable query))completion {
-  auto callback = [completion, self](absl::optional<core::Query> query) {
+  auto firestore = _firestore;
+  auto callback = [completion, firestore](absl::optional<core::Query> query) {
     if (!completion) {
       return;
     }
 
     if (query.has_value()) {
       FIRQuery *firQuery = [[FIRQuery alloc] initWithQuery:std::move(query.value())
-                                                 firestore:_firestore];
+                                                 firestore:firestore];
       completion(firQuery);
     } else {
       completion(nil);

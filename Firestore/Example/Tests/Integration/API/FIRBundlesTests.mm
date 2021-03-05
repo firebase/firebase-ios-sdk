@@ -39,8 +39,7 @@ namespace util = firebase::firestore::util;
   [super setUp];
   self.db = [self firestore];
   XCTestExpectation* exp = [self expectationWithDescription:@"clear persistence"];
-  [self.db clearPersistenceWithCompletion:^(NSError* error) {
-    (void)error;
+  [self.db clearPersistenceWithCompletion:^(NSError*) {
     [exp fulfill];
   }];
   [self awaitExpectation:exp];
@@ -55,7 +54,9 @@ namespace util = firebase::firestore::util;
 
 - (void)verifySuccessProgress:(FIRLoadBundleTaskProgress*)progress {
   XCTAssertEqual(progress.state, FIRLoadBundleTaskStateSuccess);
+  XCTAssertGreaterThan(progress.bytesLoaded, 0);
   XCTAssertEqual(progress.bytesLoaded, progress.totalBytes);
+  XCTAssertGreaterThan(progress.documentsLoaded, 0);
   XCTAssertEqual(progress.documentsLoaded, progress.totalDocuments);
 }
 
@@ -63,6 +64,14 @@ namespace util = firebase::firestore::util;
   XCTAssertEqual(progress.state, FIRLoadBundleTaskStateError);
   XCTAssertEqual(progress.bytesLoaded, 0);
   XCTAssertEqual(progress.documentsLoaded, 0);
+}
+
+- (std::string)bundleForDefault {
+  return testutil::CreateBundle(util::MakeString([FSTIntegrationTestCase projectID]));
+}
+
+- (std::string)bundleForProject:(NSString*)projectID {
+  return testutil::CreateBundle(util::MakeString(projectID));
 }
 
 - (void)verifyQueryResults {
@@ -101,7 +110,7 @@ namespace util = firebase::firestore::util;
   // We should see no more snapshots from loading the bundle, because the data there is older.
   [self.eventAccumulator assertNoAdditionalEvents];
 
-  auto bundle = testutil::CreateBundle(util::MakeString([FSTIntegrationTestCase projectID]));
+  auto bundle = [self bundleForDefault];
   NSMutableArray* progresses = [[NSMutableArray alloc] init];
   __block FIRLoadBundleTaskProgress* result;
   XCTestExpectation* expectation = [self expectationWithDescription:@"loading complete"];
@@ -133,7 +142,7 @@ namespace util = firebase::firestore::util;
 
 - (void)testLoadDocumentsWithProgressUpdates {
   NSMutableArray* progresses = [[NSMutableArray alloc] init];
-  auto bundle = testutil::CreateBundle(util::MakeString([FSTIntegrationTestCase projectID]));
+  auto bundle = [self bundleForDefault];
 
   __block FIRLoadBundleTaskProgress* result;
   XCTestExpectation* expectation = [self expectationWithDescription:@"loading complete"];
@@ -161,7 +170,7 @@ namespace util = firebase::firestore::util;
 }
 
 - (void)testLoadForASecondTimeSkips {
-  auto bundle = testutil::CreateBundle(util::MakeString([FSTIntegrationTestCase projectID]));
+  auto bundle = [self bundleForDefault];
   [self.db loadBundle:[util::MakeNSString(bundle) dataUsingEncoding:NSUTF8StringEncoding]];
 
   // Load for a second time
@@ -193,7 +202,7 @@ namespace util = firebase::firestore::util;
   [settings setPersistenceEnabled:FALSE];
   [self.db setSettings:settings];
 
-  auto bundle = testutil::CreateBundle(util::MakeString([FSTIntegrationTestCase projectID]));
+  auto bundle = [self bundleForDefault];
   __block FIRLoadBundleTaskProgress* result;
   XCTestExpectation* expectation = [self expectationWithDescription:@"loading complete"];
   [self.db loadBundle:[util::MakeNSString(bundle) dataUsingEncoding:NSUTF8StringEncoding]
@@ -218,7 +227,7 @@ namespace util = firebase::firestore::util;
   NSMutableArray* progresses = [[NSMutableArray alloc] init];
   __block FIRLoadBundleTaskProgress* result;
   XCTestExpectation* expectation = [self expectationWithDescription:@"loading complete"];
-  auto bundle = testutil::CreateBundle("OtherProject");
+  auto bundle = [self bundleForProject:@"OtherProject"];
   FIRLoadBundleTask* task =
       [self.db loadBundle:[util::MakeNSString(bundle) dataUsingEncoding:NSUTF8StringEncoding]
                completion:^(FIRLoadBundleTaskProgress* progress, NSError* error) {

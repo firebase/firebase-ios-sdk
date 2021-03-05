@@ -28,11 +28,11 @@ namespace firestore {
 namespace api {
 
 LoadBundleTask::LoadBundleHandle LoadBundleTask::Observe(
-    ProgressObserver callback) {
+    ProgressObserver observer) {
   std::lock_guard<std::mutex> lock(mutex_);
 
   auto handle = next_handle_++;
-  observers_.push_back({handle, std::move(callback)});
+  observers_.push_back({handle, std::move(observer)});
 
   return handle;
 }

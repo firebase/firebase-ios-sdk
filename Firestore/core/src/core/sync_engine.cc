@@ -573,6 +573,47 @@ void SyncEngine::RemoveLimboTarget(const DocumentKey& key) {
   PumpEnqueuedLimboResolutions();
 }
 
+absl::optional<BundleLoader> SyncEngine::ReadIntoLoader(
+    const bundle::BundleMetadata& metadata,
+    const std::shared_ptr<bundle::BundleReader>& reader,
+    const std::shared_ptr<api::LoadBundleTask>& result_task) {
+  BundleLoader loader(local_store_, metadata);
+  int64_t current_bytes_read = 0;
+  // Breaks when either error happened, or when there is no more element to
+  // read.
+  while (true) {
+    auto element = reader->GetNextElement();
+    if (!reader->reader_status().ok()) {
+      LOG_WARN("Failed to GetNextElement() from bundle with error %s",
+               reader->reader_status().error_message());
+      result_task->SetError(reader->reader_status());
+      return absl::nullopt;
+    }
+
+    // No more elements from reader.
+    if (element == nullptr) {
+      break;
+    }
+
+    int64_t old_bytes_read = current_bytes_read;
+    current_bytes_read = reader->bytes_read();
+    auto maybe_progress = loader.AddElement(
+        std::move(element), current_bytes_read - old_bytes_read);
+    if (!maybe_progress.ok()) {
+      LOG_WARN("Failed to AddElement() to bundle loader with error %s",
+               maybe_progress.status().error_message());
+      result_task->SetError(maybe_progress.status());
+      return absl::nullopt;
+    }
+
+    if (maybe_progress.ValueOrDie().has_value()) {
+      result_task->UpdateProgress(maybe_progress.ConsumeValueOrDie().value());
+    }
+  }
+
+  return loader;
+}
+
 void SyncEngine::LoadBundle(std::shared_ptr<bundle::BundleReader> reader,
                             std::shared_ptr<api::LoadBundleTask> result_task) {
   auto bundle_metadata = reader->GetBundleMetadata();
@@ -583,51 +624,20 @@ void SyncEngine::LoadBundle(std::shared_ptr<bundle::BundleReader> reader,
     return;
   }
 
-  auto has_newer_bundle = local_store_->HasNewerBundle(bundle_metadata);
+  bool has_newer_bundle = local_store_->HasNewerBundle(bundle_metadata);
   if (has_newer_bundle) {
     result_task->SetSuccess(SuccessProgress(bundle_metadata));
-    // TODO: reader.close()?
     return;
   }
 
   result_task->UpdateProgress(InitialProgress(bundle_metadata));
-
-  BundleLoader loader(local_store_, bundle_metadata);
-
-  int64_t current_bytes_read = 0;
-  // Breaks when either error happened, or when there is no more element to
-  // read.
-  while (true) {
-    auto element = reader->GetNextElement();
-    if (!reader->reader_status().ok()) {
-      LOG_WARN("Failed to GetNextElement() from bundle with error %s",
-               reader->reader_status().error_message());
-      result_task->SetError(reader->reader_status());
-      return;
-    }
-
-    // No more elements from reader.
-    if (element == nullptr) {
-      break;
-    }
-
-    int64_t old_bytes_read = current_bytes_read;
-    current_bytes_read = reader->bytes_read();
-    auto progress = loader.AddElement(std::move(element),
-                                      current_bytes_read - old_bytes_read);
-    if (!progress.ok()) {
-      LOG_WARN("Failed to AddElement() to bundle loader with error %s",
-               progress.status().error_message());
-      result_task->SetError(progress.status());
-      return;
-    }
-
-    if (progress.ValueOrDie().has_value()) {
-      result_task->UpdateProgress(progress.ConsumeValueOrDie().value());
-    }
+  auto maybe_loader = ReadIntoLoader(bundle_metadata, reader, result_task);
+  if (!maybe_loader.has_value()) {
+    return;
   }
 
-  util::StatusOr<MaybeDocumentMap> changes = loader.ApplyChanges();
+  util::StatusOr<MaybeDocumentMap> changes =
+      maybe_loader.value().ApplyChanges();
   if (!changes.ok()) {
     LOG_WARN("Failed to ApplyChanges() for bundle elements with error %s",
              changes.status().error_message());

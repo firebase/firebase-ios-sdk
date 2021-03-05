@@ -16,102 +16,91 @@
 #ifndef FIRESTORE_CORE_TEST_UNIT_TESTUTIL_BUNDLE_BUILDER_H_
 #define FIRESTORE_CORE_TEST_UNIT_TESTUTIL_BUNDLE_BUILDER_H_
 
-#include <array>
 #include <string>
 #include <vector>
 
-#include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/util/status_fwd.h"
-#include "gmock/gmock.h"
-#include "gtest/gtest.h"
+#include "absl/strings/str_replace.h"
 
 namespace firebase {
 namespace firestore {
 namespace testutil {
 
-namespace {
-
-std::array<std::string, 7> BundleTemplate() {
+inline std::vector<std::string> BundleTemplate() {
   std::string metadata =
-      "{\"metadata\":{\"id\":\"test-bundle\",\"createTime\":{\"seconds\":1001,"
-      "\"nanos\":9999},"
-      "\"version\":1,\"totalDocuments\":2,\"totalBytes\":{totalBytes}}}";
+      R"|({"metadata":{"id":"test-bundle","createTime":{"seconds":1001,)|"
+      R"|("nanos":9999},)|"
+      R"|("version":1,"totalDocuments":2,"totalBytes":{totalBytes}}})|";
+
   std::string named_query1 =
-      "{\"namedQuery\":{\"name\":\"limit\",\"readTime\":{\"seconds\":1000,"
-      "\"nanos\":9999},"
-      "\"bundledQuery\":{\"parent\":\"projects/{projectId}/databases/(default)/"
-      "documents\","
-      "\"structuredQuery\":{\"from\":[{\"collectionId\":\"coll-1\"}],"
-      "\"orderBy\":"
-      "[{\"field\":{\"fieldPath\":\"bar\"},\"direction\":\"DESCENDING\"},{"
-      "\"field\":"
-      "{\"fieldPath\":\"__name__\"},\"direction\":\"DESCENDING\"}],\"limit\":"
-      "{\"value\":1}},\"limitType\":\"FIRST\"}}}";
+      R"|({"namedQuery":{"name":"limit","readTime":{"seconds":1000,)|"
+      R"|("nanos":9999},)|"
+      R"|("bundledQuery":{"parent":"projects/{projectId}/databases/(default)/)|"
+      R"|(documents",)|"
+      R"|("structuredQuery":{"from":[{"collectionId":"coll-1"}],)|"
+      R"|("orderBy":)|"
+      R"|([{"field":{"fieldPath":"bar"},"direction":"DESCENDING"},{)|"
+      R"|("field":)|"
+      R"|({"fieldPath":"__name__"},"direction":"DESCENDING"}],"limit":)|"
+      R"|({"value":1}},"limitType":"FIRST"}}})|";
+
   std::string named_query2 =
-      "{\"namedQuery\":{\"name\":\"limit-to-last\",\"readTime\":{\"seconds\":"
-      "1000,\"nanos\":9999},"
-      "\"bundledQuery\":{\"parent\":\"projects/{projectId}/databases/(default)/"
-      "documents\","
-      "\"structuredQuery\":{\"from\":[{\"collectionId\":\"coll-1\"}],"
-      "\"orderBy\":"
-      "[{\"field\":{\"fieldPath\":\"bar\"},\"direction\":\"DESCENDING\"},{"
-      "\"field\":"
-      "{\"fieldPath\":\"__name__\"},\"direction\":\"DESCENDING\"}],\"limit\":"
-      "{\"value\":1}},\"limitType\":\"LAST\"}}}";
+      R"|({"namedQuery":{"name":"limit-to-last","readTime":{"seconds":)|"
+      R"|(1000,"nanos":9999},)|"
+      R"|("bundledQuery":{"parent":"projects/{projectId}/databases/(default)/)|"
+      R"|(documents",)|"
+      R"|("structuredQuery":{"from":[{"collectionId":"coll-1"}],)|"
+      R"|("orderBy":)|"
+      R"|([{"field":{"fieldPath":"bar"},"direction":"DESCENDING"},{)|"
+      R"|("field":)|"
+      R"|({"fieldPath":"__name__"},"direction":"DESCENDING"}],"limit":)|"
+      R"|({"value":1}},"limitType":"LAST"}}})|";
+
   std::string document_metadata1 =
-      "{\"documentMetadata\":{\"name\":"
-      "\"projects/{projectId}/databases/(default)/documents/coll-1/"
-      "a\",\"readTime\":"
-      "{\"seconds\":1000,\"nanos\":9999},\"exists\":true}}";
+      R"|({"documentMetadata":{"name":)|"
+      R"|("projects/{projectId}/databases/(default)/documents/coll-1/)|"
+      R"|(a","readTime":)|"
+      R"|({"seconds":1000,"nanos":9999},"exists":true}})|";
+
   std::string document_1 =
-      "{\"document\":{\"name\":\"projects/{projectId}/databases/(default)/"
-      "documents/coll-1/a\","
-      "\"createTime\":{\"seconds\":1,\"nanos\":9},\"updateTime\":{\"seconds\":"
-      "1,"
-      "\"nanos\":9},\"fields\":{\"k\":{\"stringValue\":\"a\"},\"bar\":"
-      "{\"integerValue\":1}}}}";
+      R"|({"document":{"name":"projects/{projectId}/databases/(default)/)|"
+      R"|(documents/coll-1/a",)|"
+      R"|("createTime":{"seconds":1,"nanos":9},"updateTime":{"seconds":)|"
+      R"|(1,)|"
+      R"|("nanos":9},"fields":{"k":{"stringValue":"a"},"bar":)|"
+      R"|({"integerValue":1}}}})|";
+
   std::string document_metadata2 =
-      "{\"documentMetadata\":{\"name\":"
-      "\"projects/{projectId}/databases/(default)/documents/coll-1/"
-      "b\",\"readTime\":"
-      "{\"seconds\":1000,\"nanos\":9999},\"exists\":true}}";
+      R"|({"documentMetadata":{"name":)|"
+      R"|("projects/{projectId}/databases/(default)/documents/coll-1/)|"
+      R"|(b","readTime":)|"
+      R"|({"seconds":1000,"nanos":9999},"exists":true}})|";
+
   std::string document_2 =
-      "{\"document\":{\"name\":\"projects/{projectId}/databases/(default)/"
-      "documents/coll-1/b\","
-      "\"createTime\":{\"seconds\":1,\"nanos\":9},\"updateTime\":{\"seconds\":"
-      "1,"
-      "\"nanos\":9},\"fields\":{\"k\":{\"stringValue\":\"b\"},\"bar\":"
-      "{\"integerValue\":2}}}}";
+      R"|({"document":{"name":"projects/{projectId}/databases/(default)/)|"
+      R"|(documents/coll-1/b",)|"
+      R"|("createTime":{"seconds":1,"nanos":9},"updateTime":{"seconds":)|"
+      R"|(1,)|"
+      R"|("nanos":9},"fields":{"k":{"stringValue":"b"},"bar":)|"
+      R"|({"integerValue":2}}}})|";
+
   return {metadata,   named_query1,       named_query2, document_metadata1,
           document_1, document_metadata2, document_2};
 }
 
-std::string ReplaceAll(std::string str,
-                       const std::string& from,
-                       const std::string& to) {
-  size_t start_pos = 0;
-  while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
-    str.replace(start_pos, from.length(), to);
-    start_pos +=
-        to.length();  // Handles case where 'to' is a substring of 'from'
-  }
-  return str;
-}
-
-}  // namespace
-
-std::string CreateBundle(const std::string& project_id) {
+inline std::string CreateBundle(const std::string& project_id) {
   std::string bundle;
 
-  auto bundle_tempalte = BundleTemplate();
-  for (size_t i = 1; i < bundle_tempalte.size(); ++i) {
-    auto element = ReplaceAll(bundle_tempalte[i], "{projectId}", project_id);
+  auto bundle_template = BundleTemplate();
+  for (size_t i = 1; i < bundle_template.size(); ++i) {
+    auto element =
+        absl::StrReplaceAll(bundle_template[i], {{"{projectId}", project_id}});
     bundle.append(std::to_string(element.size()));
     bundle.append(std::move(element));
   }
 
-  std::string metadata = ReplaceAll(bundle_tempalte[0], "{totalBytes}",
-                                    std::to_string(bundle.size()));
+  std::string metadata = absl::StrReplaceAll(
+      bundle_template[0], {{"{totalBytes}", std::to_string(bundle.size())}});
   return std::to_string(metadata.size()) + metadata + bundle;
 }
 
