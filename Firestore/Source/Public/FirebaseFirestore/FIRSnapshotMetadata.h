@@ -22,8 +22,8 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(SnapshotMetadata)
 @interface FIRSnapshotMetadata : NSObject
 
-/** :nodoc: */
-- (instancetype)init NS_UNAVAILABLE;
+/** Initialiser. Only for use in unit tests. */
+- (instancetype)init;
 
 /**
  * Returns YES if the snapshot contains the result of local writes (e.g. set() or update() calls)

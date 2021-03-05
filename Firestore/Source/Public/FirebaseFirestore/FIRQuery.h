@@ -38,8 +38,9 @@ typedef void (^FIRQuerySnapshotBlock)(FIRQuerySnapshot *_Nullable snapshot,
  */
 NS_SWIFT_NAME(Query)
 @interface FIRQuery : NSObject
-/** :nodoc: */
-- (id)init __attribute__((unavailable("FIRQuery cannot be created directly.")));
+
+/** Initialiser. Only for use in unit tests. */
+- (id)init;
 
 /** The `FIRFirestore` for the Firestore database (useful for performing transactions, etc.). */
 @property(nonatomic, strong, readonly) FIRFirestore *firestore;

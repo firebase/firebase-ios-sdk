@@ -33,8 +33,8 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(WriteBatch)
 @interface FIRWriteBatch : NSObject
 
-/** :nodoc: */
-- (id)init __attribute__((unavailable("FIRWriteBatch cannot be created directly.")));
+/** Initialiser. Only for use in unit tests. */
+- (id)init;
 
 /**
  * Writes to the document referred to by `document`. If the document doesn't yet exist,

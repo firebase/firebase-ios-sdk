@@ -58,9 +58,8 @@ typedef NS_ENUM(NSInteger, FIRServerTimestampBehavior) {
 NS_SWIFT_NAME(DocumentSnapshot)
 @interface FIRDocumentSnapshot : NSObject
 
-/** :nodoc: */
-- (instancetype)init
-    __attribute__((unavailable("FIRDocumentSnapshot cannot be created directly.")));
+/** Initialiser. Only for use in unit tests. */
+- (instancetype)init;
 
 /** True if the document exists. */
 @property(nonatomic, assign, readonly) BOOL exists;

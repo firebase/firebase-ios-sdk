@@ -31,8 +31,8 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(QuerySnapshot)
 @interface FIRQuerySnapshot : NSObject
 
-/** :nodoc: */
-- (id)init __attribute__((unavailable("FIRQuerySnapshot cannot be created directly.")));
+/** Initialiser. Only for use in unit tests. */
+- (id)init;
 
 /**
  * The query on which you called `getDocuments` or listened to in order to get this
