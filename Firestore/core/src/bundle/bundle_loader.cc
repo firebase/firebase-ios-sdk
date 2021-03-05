@@ -54,7 +54,7 @@ StatusOr<absl::optional<LoadBundleTaskProgress>> BundleLoader::AddElement(
     const auto& document_metadata =
         static_cast<const BundledDocumentMetadata&>(element);
     current_document_ = document_metadata.key();
-    documents_metadata_.insert({document_metadata.key(), document_metadata});
+    documents_metadata_.emplace(document_metadata.key(), document_metadata);
 
     if (!document_metadata.exists()) {
       documents_ = documents_.insert(
@@ -67,7 +67,7 @@ StatusOr<absl::optional<LoadBundleTaskProgress>> BundleLoader::AddElement(
     const auto& document = static_cast<const BundleDocument&>(element);
     if (!current_document_.has_value() ||
         document.key() != current_document_.value()) {
-      return {util::Status::FromErrno(
+      return {util::Status(
           Error::kErrorInvalidArgument,
           "The document being added does not match the stored metadata.")};
     }
@@ -82,29 +82,30 @@ StatusOr<absl::optional<LoadBundleTaskProgress>> BundleLoader::AddElement(
     return {absl::nullopt};
   }
 
-  return {absl::make_optional(LoadBundleTaskProgress(
+  LoadBundleTaskProgress progress{
       documents_.size(), metadata_.total_documents(), bytes_loaded_,
-      metadata_.total_bytes(), LoadBundleTaskState::kInProgress))};
+      metadata_.total_bytes(), LoadBundleTaskState::kInProgress};
+  return {absl::make_optional(std::move(progress))};
 }
 
 StatusOr<MaybeDocumentMap> BundleLoader::ApplyChanges() {
   if (current_document_ != absl::nullopt) {
     return StatusOr<MaybeDocumentMap>(
-        Status::FromErrno(Error::kErrorInvalidArgument,
-                          "Bundled documents end with a document metadata "
-                          "element instead of a document."));
+        Status(Error::kErrorInvalidArgument,
+               "Bundled documents end with a document metadata "
+               "element instead of a document."));
   }
   if (metadata_.total_documents() != documents_.size()) {
-    return StatusOr<MaybeDocumentMap>(Status::FromErrno(
-        Error::kErrorInvalidArgument,
-        "Loaded documents count is not the same as in metadata."));
+    return StatusOr<MaybeDocumentMap>(
+        Status(Error::kErrorInvalidArgument,
+               "Loaded documents count is not the same as in metadata."));
   }
 
   auto changes =
       callback_->ApplyBundledDocuments(documents_, metadata_.bundle_id());
   auto query_document_map = GetQueryDocumentMapping();
   for (const auto& named_query : queries_) {
-    auto matching_keys = query_document_map[named_query.query_name()];
+    const auto& matching_keys = query_document_map[named_query.query_name()];
     callback_->SaveNamedQuery(named_query, matching_keys);
   }
 
@@ -117,8 +118,9 @@ std::unordered_map<std::string, DocumentKeySet>
 BundleLoader::GetQueryDocumentMapping() {
   std::unordered_map<std::string, DocumentKeySet> result;
   for (const auto& named_query : queries_) {
-    result.insert({named_query.query_name(), DocumentKeySet{}});
+    result.emplace(named_query.query_name(), DocumentKeySet{});
   }
+
   for (const auto& doc_metadata : documents_metadata_) {
     const auto& metadata = doc_metadata.second;
     for (const auto& query : doc_metadata.second.queries()) {

@@ -33,9 +33,6 @@ namespace firebase {
 namespace firestore {
 namespace bundle {
 
-using AddElementResult =
-    util::StatusOr<absl::optional<api::LoadBundleTaskProgress>>;
-
 inline api::LoadBundleTaskProgress SuccessProgress(
     const bundle::BundleMetadata& metadata) {
   return {metadata.total_documents(), metadata.total_documents(),
@@ -51,6 +48,9 @@ inline api::LoadBundleTaskProgress InitialProgress(
 
 class BundleLoader {
  public:
+  using AddElementResult =
+      util::StatusOr<absl::optional<api::LoadBundleTaskProgress>>;
+
   BundleLoader(BundleCallback* callback, BundleMetadata metadata)
       : callback_(callback), metadata_(std::move(metadata)) {
   }
