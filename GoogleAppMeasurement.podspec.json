@@ -27,7 +27,7 @@
         "ios": "9.0"
     },
     "source": {
-        "http": "https://dl.google.com/firebase/ios/analytics/52f974e4f3964c26/GoogleAppMeasurement-7.8.0.tar.gz"
+        "http": "https://dl.google.com/firebase/ios/analytics/43f476f690196e4b/GoogleAppMeasurement-7.8.0.tar.gz"
     },
     "summary": "Shared measurement methods for Google libraries. Not intended for direct use.",
     "vendored_frameworks": [
