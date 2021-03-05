@@ -17,6 +17,7 @@
 #define FIRESTORE_CORE_TEST_UNIT_TESTUTIL_BUNDLE_BUILDER_H_
 
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "Firestore/core/src/util/status_fwd.h"

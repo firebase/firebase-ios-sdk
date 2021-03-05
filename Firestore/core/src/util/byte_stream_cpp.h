@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef FIRESTORE_CORE_SRC_UTIL_BYTE_STREAM_ISTREAM_H_
-#define FIRESTORE_CORE_SRC_UTIL_BYTE_STREAM_ISTREAM_H_
+#ifndef FIRESTORE_CORE_SRC_UTIL_BYTE_STREAM_CPP_H_
+#define FIRESTORE_CORE_SRC_UTIL_BYTE_STREAM_CPP_H_
 
 #include <istream>
 #include <memory>
@@ -50,4 +50,4 @@ class ByteStreamCpp : public ByteStream {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_UTIL_BYTE_STREAM_ISTREAM_H_
+#endif  // FIRESTORE_CORE_SRC_UTIL_BYTE_STREAM_CPP_H_
