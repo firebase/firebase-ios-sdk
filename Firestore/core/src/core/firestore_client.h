@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_SRC_CORE_FIRESTORE_CLIENT_H_
 
 #include <memory>
+#include <string>
 #include <vector>
 
 #include "Firestore/core/src/api/api_fwd.h"

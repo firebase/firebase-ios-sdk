@@ -17,6 +17,7 @@
 #define FIRESTORE_CORE_SRC_BUNDLE_BUNDLE_LOADER_H_
 
 #include <memory>
+#include <string>
 #include <unordered_map>
 #include <utility>
 #include <vector>

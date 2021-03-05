@@ -19,6 +19,7 @@
 #include <functional>
 #include <future>  // NOLINT(build/c++11)
 #include <memory>
+#include <string>
 #include <utility>
 
 #include "Firestore/core/src/api/document_reference.h"
