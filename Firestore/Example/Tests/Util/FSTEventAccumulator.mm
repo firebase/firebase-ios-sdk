@@ -105,7 +105,7 @@ NS_ASSUME_NONNULL_BEGIN
     id event = value ? value : [NSNull null];
 
     @synchronized(self) {
-      HARD_ASSERT(!_rejectAdditionalEvents, "Unexpected event: %s", event);
+      HARD_ASSERT(!self->_rejectAdditionalEvents, "Unexpected event: %s", event);
 
       [self->_events addObject:event];
       [self checkFulfilled];
