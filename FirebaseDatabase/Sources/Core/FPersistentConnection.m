@@ -1256,7 +1256,7 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
     if (self.config.persistenceEnabled) {
         stats[@"persistence.osx.enabled"] = @1;
     }
-#elif TARGET_OS_WATCH || 1
+#elif TARGET_OS_WATCH
     if (self.config.persistenceEnabled) {
         stats[@"persistence.watchos.enabled"] = @1;
     }
