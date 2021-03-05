@@ -18,7 +18,7 @@ jobs:
     env:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       local_repo: specstesting
-      nightly_version: "7.5.0"
+      nightly_version: "7.8.0"
       local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
       podspec_repo_branch: master
     runs-on: macOS-latest
