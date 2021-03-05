@@ -29,8 +29,8 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(Transaction)
 @interface FIRTransaction : NSObject
 
-/** Initialiser. Only for use in unit tests. */
-- (id)init;
+/** :nodoc: */
+- (id)init __attribute__((unavailable("FIRTransaction cannot be created directly.")));
 
 /**
  * Writes to the document referred to by `document`. If the document doesn't yet exist,

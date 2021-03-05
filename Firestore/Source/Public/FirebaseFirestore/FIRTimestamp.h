@@ -33,8 +33,8 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(Timestamp)
 @interface FIRTimestamp : NSObject <NSCopying>
 
-/** Initialiser. Only for use in unit tests. */
-- (instancetype)init;
+/** :nodoc: */
+- (instancetype)init NS_UNAVAILABLE;
 
 /**
  * Creates a new timestamp.

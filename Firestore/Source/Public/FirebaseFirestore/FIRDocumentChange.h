@@ -46,8 +46,8 @@ typedef NS_ENUM(NSInteger, FIRDocumentChangeType)
 NS_SWIFT_NAME(DocumentChange)
 @interface FIRDocumentChange : NSObject
 
-/** Initialiser. Only for use in unit tests. */
-- (id)init;
+/** :nodoc: */
+- (id)init __attribute__((unavailable("FIRDocumentChange cannot be created directly.")));
 
 /** The type of change that occurred (added, modified, or removed). */
 @property(nonatomic, readonly) FIRDocumentChangeType type;
