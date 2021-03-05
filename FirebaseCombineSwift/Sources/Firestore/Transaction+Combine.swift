@@ -16,13 +16,12 @@
 
 #if canImport(Combine) && swift(>=5.0) && canImport(FirebaseFirestore)
 
-import Combine
-import FirebaseFirestore
+  import Combine
+  import FirebaseFirestore
 
-@available(swift 5.0)
-@available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
-extension Firestore {
-    
+  @available(swift 5.0)
+  @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
+  extension Firestore {
     /// Executes the given updateBlock and then attempts to commit the changes applied within an
     /// atomic transaction.
     ///
@@ -57,24 +56,24 @@ extension Firestore {
     /// - Returns: A publisher emitting a value instance passed from the updateBlock. This block
     ///  will run even if the client is offline, unless the process is killed.
     public func runTransaction<T>(_ updateBlock: @escaping (Transaction) throws -> T)
-    -> Future<T, Error> {
-        Future { promise in
-            self.runTransaction({ transaction, errorPointer in
-                do {
-                    return try updateBlock(transaction)
-                } catch {
-                    errorPointer?.pointee = error as NSError
-                    return nil
-                }
-            }) { value, error in
-                if let error = error {
-                    promise(.failure(error))
-                } else if let value = value as? T {
-                    promise(.success(value))
-                }
-            }
+      -> Future<T, Error> {
+      Future { promise in
+        self.runTransaction({ transaction, errorPointer in
+          do {
+            return try updateBlock(transaction)
+          } catch {
+            errorPointer?.pointee = error as NSError
+            return nil
+          }
+        }) { value, error in
+          if let error = error {
+            promise(.failure(error))
+          } else if let value = value as? T {
+            promise(.success(value))
+          }
         }
+      }
     }
-}
+  }
 
 #endif
