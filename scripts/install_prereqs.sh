@@ -99,9 +99,6 @@ case "$project-$platform-$method" in
     bundle exec pod install --project-directory=FirebaseInAppMessaging/Tests/Integration/DefaultUITestApp --no-repo-update
     ;;
 
-  InAppMessagingSwift-*)
-    ;;
-
   Firestore-*-xcodebuild | Firestore-*-fuzz)
     install_xcpretty
 

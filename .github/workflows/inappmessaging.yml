@@ -18,12 +18,15 @@ jobs:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
 
     runs-on: macOS-latest
+    strategy:
+      matrix:
+        podspec: [FirebaseInAppMessaging.podspec, FirebaseInAppMessagingSwift.podspec]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: FirebaseInAppMessaging
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb ${{ matrix.podspec}}
 
   tests:
     # Don't run on private repo unless it is a PR.
@@ -38,13 +41,9 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Prereqs
-      run: |
-       scripts/install_prereqs.sh InAppMessaging ${{ matrix.platform }} xcodebuild
-       scripts/install_prereqs.sh InAppMessagingSwift ${{ matrix.platform }} xcodebuild
+      run: scripts/install_prereqs.sh InAppMessaging ${{ matrix.platform }} xcodebuild
     - name: Build and test
       run: scripts/third_party/travis/retry.sh scripts/build.sh InAppMessaging ${{ matrix.platform }} xcodebuild
-    - name: Build and test Swift extensions
-      run: scripts/third_party/travis/retry.sh scripts/build.sh InAppMessagingSwift ${{ matrix.platform }} xcodebuild
 
   spm:
     # Don't run on private repo unless it is a PR.
@@ -58,8 +57,6 @@ jobs:
       run: xcodebuild -list
     - name: iOS Unit Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseInAppMessaging-Beta iOS spmbuildonly
-    - name: Swift Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseInAppMessagingSwift-Beta iOS spmbuildonly
 
   fiam-cron-only:
     # Don't run on private repo.
