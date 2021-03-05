@@ -40,7 +40,7 @@ typedef void (^FIRDocumentSnapshotBlock)(FIRDocumentSnapshot *_Nullable snapshot
 NS_SWIFT_NAME(DocumentReference)
 @interface FIRDocumentReference : NSObject
 
-/** Initialiser. Only for use in unit tests. */
+/** Initializer. Only for use in unit tests. */
 - (instancetype)init;
 
 /** The ID of the document referred to. */

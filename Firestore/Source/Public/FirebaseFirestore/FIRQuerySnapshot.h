@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(QuerySnapshot)
 @interface FIRQuerySnapshot : NSObject
 
-/** Initialiser. Only for use in unit tests. */
+/** Initializer. Only for use in unit tests. */
 - (id)init;
 
 /**

@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(SnapshotMetadata)
 @interface FIRSnapshotMetadata : NSObject
 
-/** Initialiser. Only for use in unit tests. */
+/** Initializer. Only for use in unit tests. */
 - (instancetype)init;
 
 /**

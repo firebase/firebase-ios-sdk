@@ -58,7 +58,7 @@ typedef NS_ENUM(NSInteger, FIRServerTimestampBehavior) {
 NS_SWIFT_NAME(DocumentSnapshot)
 @interface FIRDocumentSnapshot : NSObject
 
-/** Initialiser. Only for use in unit tests. */
+/** Initializer. Only for use in unit tests. */
 - (instancetype)init;
 
 /** True if the document exists. */

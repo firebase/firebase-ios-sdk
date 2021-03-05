@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(CollectionReference)
 @interface FIRCollectionReference : FIRQuery
 
-/** Initialiser. Only for use in unit tests. */
+/** Initializer. Only for use in unit tests. */
 - (id)init;
 
 /** ID of the referenced collection. */
