@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
     - 'FirebaseAnalytics.podspec.json'
+    - 'FirebaseAnalyticsSwift**'
     - 'GoogleAppMeasurement.podspec.json'
     - 'Gemfile'
   schedule:
@@ -22,6 +23,8 @@ jobs:
       run: scripts/setup_bundler.sh
     - name: GoogleAppMeasurement
       run: scripts/third_party/travis/retry.sh pod spec lint GoogleAppMeasurement.podspec.json
+    - name: FirebaseAnalyticsSwift
+      run: scripts/third_party/travis/retry.sh pod spec lint FirebaseAnalyticsSwift.podspec
 
 # TODO: Consider pushing GoogleAppMeasurement.podspec.json to SpecsStaging to enable similar test
 # for FirebaseAnalytics.podspec.json
