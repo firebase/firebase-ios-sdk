@@ -16,14 +16,18 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef void(^FIRFirestoreGetDocumentsHandler)(FIRQuerySnapshotBlock completion);
+typedef void (^FIRFirestoreGetDocumentsHandler)(FIRQuerySnapshotBlock completion);
 
+/// A fake object to replace a real `Query` in tests.
 NS_SWIFT_NAME(QueryFake)
 @interface FIRQueryFake : FIRQuery
 
 - (instancetype)init;
 
-@property(nonatomic, copy) FIRFirestoreGetDocumentsHandler getDocumentsHandler;
+/// The block to be called each time when `getDocuments(completion:)` method is called.
+@property(nonatomic, nullable, copy) FIRFirestoreGetDocumentsHandler getDocumentsHandler;
+
+// TODO: Implement other handlers as needed.
 
 @end
 

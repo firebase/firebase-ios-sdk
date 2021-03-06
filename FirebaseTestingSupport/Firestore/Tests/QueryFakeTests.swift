@@ -16,7 +16,6 @@ import XCTest
 @testable import FirebaseFirestoreTestingSupport
 
 class QueryFakeTests: XCTestCase {
-
   func testQueryFakeConstructor() throws {
     let fakeQuery = QueryFake()
     XCTAssertNotNil(fakeQuery)
@@ -42,5 +41,4 @@ class QueryFakeTests: XCTestCase {
 
     wait(for: [handlerExpectation, completionExpectation], timeout: 0.5)
   }
-
 }
