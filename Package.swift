@@ -837,6 +837,17 @@ let package = Package(
         .define("FIR_VERSION", to: firebaseVersion),
       ]
     ),
+
+    // MARK: Testing support
+    .target(
+      name: "FirebaseFirestoreTestingSupport",
+      dependencies: ["FirebaseFirestore"],
+      path: "FirebaseTestingSupport/Firestore/Sources",
+      cSettings: [
+        .headerSearchPath("../.."),
+      ]
+    ),
+
   ],
   cLanguageStandard: .c99,
   cxxLanguageStandard: CXXLanguageStandard.gnucxx14
