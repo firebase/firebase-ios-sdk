@@ -44,6 +44,7 @@ public struct ServerTimestamp: Codable, Equatable, Hashable {
   }
 
   // MARK: Codable
+
   public init(from decoder: Decoder) throws {
     let container = try decoder.singleValueContainer()
     if container.decodeNil() {
