@@ -45,7 +45,7 @@ let package = Package(
       targets: ["FirebaseDatabase"]
     ),
     .library(
-      name: "FirebaseDatabaseSwift",
+      name: "FirebaseDatabaseSwift-Beta",
       targets: ["FirebaseDatabaseSwift"]
     ),
     .library(
