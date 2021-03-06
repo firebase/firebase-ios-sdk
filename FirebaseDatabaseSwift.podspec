@@ -5,7 +5,7 @@
 
 Pod::Spec.new do |s|
   s.name                    = 'FirebaseDatabaseSwift'
-  s.version                 = '0.4.0'
+  s.version                 = '7.9.0-beta'
   s.summary                 = 'Swift Extensions for Firebase Realtime Database'
 
   s.description      = <<-DESC
@@ -18,22 +18,20 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
 
   s.source                  = {
     :git => 'https://github.com/Firebase/firebase-ios-sdk.git',
-    :tag => 'DatabaseSwift-' + s.version.to_s
+    :tag => 'CocoaPods-' + s.version.to_s
   }
 
   s.swift_version           = '5.1'
-  s.ios.deployment_target   = '8.0'
-  s.osx.deployment_target   = '10.11'
+  s.ios.deployment_target   = '10.0'
+  s.osx.deployment_target   = '10.12'
   s.tvos.deployment_target  = '10.0'
 
   s.cocoapods_version       = '>= 1.4.0'
-  s.static_framework        = true
   s.prefix_header_file      = false
 
-  s.requires_arc            = true
   s.source_files = [
     'FirebaseDatabaseSwift/Sources/**/*.swift',
   ]
 
-  s.dependency 'FirebaseDatabase', '~> 1.6', '>= 1.6.1'
+  s.dependency 'FirebaseDatabase', '~> 7.8'
 end
