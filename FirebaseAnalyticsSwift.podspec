@@ -26,5 +26,5 @@ Firebase Analytics is a free, out-of-the-box analytics solution that inspires ac
     'FirebaseAnalyticsSwift/Sources/*.swift',
   ]
 
-  s.dependency 'FirebaseAnalytics', '~> 7.8'
+  s.dependency 'FirebaseAnalytics', '~> 7.7'
 end
