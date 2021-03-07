@@ -7,8 +7,8 @@ on:
     - '.github/workflows/installations.yml'
     - 'Gemfile'
   schedule:
-    # Run every day at 11pm (PST) - cron uses UTC times
-    - cron:  '0 7 * * *'
+    # Run every day at 10pm (PST) - cron uses UTC times
+    - cron:  '0 6 * * *'
 
 jobs:
   pod-lib-lint:
@@ -69,6 +69,7 @@ jobs:
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseInstallations ${{ matrix.target }} spmbuildonly
 
   catalyst:
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2

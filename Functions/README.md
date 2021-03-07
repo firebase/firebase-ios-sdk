@@ -7,7 +7,7 @@ integration test FirebaseFunctions:
 
 ### Prereqs
 
-- At least CocoaPods 1.7.2
+- At least CocoaPods 1.10.0
 - Install [cocoapods-generate](https://github.com/square/cocoapods-generate)
 
 ### To Develop

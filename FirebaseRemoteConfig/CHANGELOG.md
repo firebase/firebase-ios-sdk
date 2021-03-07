@@ -1,3 +1,13 @@
+# v7.8.0
+- [fixed] Store fetch metadata per namespace to address activation issues. (#7179)
+- [fixed] Only update experiment data for `firebase` namespace fetch requests to ensure correct experiment exposures. (#7604)
+
+# v7.7.0
+- [added] Added community support for watchOS. (#7481)
+
+# v7.6.0
+- [fixed] Fixed build warnings introduced with Xcode 12.5. (#7432)
+
 # v7.5.0
 - [fixed] Fixed bug that was incorrectly flagging ABT experiment payloads as invalid. (#7184)
 - [changed] Standardize support for Firebase products that integrate with Remote Config. (#7094)

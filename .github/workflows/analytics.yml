@@ -7,8 +7,8 @@ on:
     - 'GoogleAppMeasurement.podspec.json'
     - 'Gemfile'
   schedule:
-    # Run every day at 11pm (PST) - cron uses UTC times
-    - cron:  '0 7 * * *'
+    # Run every day at 7pm (PST) - cron uses UTC times
+    - cron:  '0 3 * * *'
 
 jobs:
   pod-lib-lint:
@@ -23,5 +23,5 @@ jobs:
     - name: GoogleAppMeasurement
       run: scripts/third_party/travis/retry.sh pod spec lint GoogleAppMeasurement.podspec.json
 
-# TODO: Consider pushing GoogleAppMeasurement.podspec.json to SpecsStaging to enable similar test
+# TODO: Consider pushing GoogleAppMeasurement.podspec.json to SpecsDev to enable similar test
 # for FirebaseAnalytics.podspec.json

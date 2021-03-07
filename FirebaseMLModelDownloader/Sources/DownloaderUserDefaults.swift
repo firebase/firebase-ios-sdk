@@ -14,7 +14,8 @@
 
 import Foundation
 
-/// Protocol to write info to user defaults.
+/// Protocol to save or delete model info in user defaults.
 protocol DownloaderUserDefaultsWriteable {
   func writeToDefaults(_ defaults: UserDefaults, appName: String)
+  func removeFromDefaults(_ defaults: UserDefaults, appName: String)
 }
