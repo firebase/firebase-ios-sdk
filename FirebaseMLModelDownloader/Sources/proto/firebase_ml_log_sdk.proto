@@ -67,7 +67,7 @@ enum EventName {
   UNKNOWN_EVENT = 0;
   MODEL_DOWNLOAD = 100;
   MODEL_UPDATE = 101;
-
+  REMOTE_MODEL_DELETE_ON_DEVICE = 252;
 }
 
 // A list of error codes for various components of the system. For model downloading, the
@@ -192,6 +192,13 @@ message ModelDownloadLogEvent {
   int64 download_failure_status = 6;
 }
 
+// Information about deleting a downloaded model on device.
+message DeleteModelLogEvent {
+  // The type of the downloaded model requested to be deleted.
+  ModelInfo.ModelType model_type = 1;
+  // Whether the downloaded model is deleted successfully.
+  bool is_successful = 2;
+}
 
 // Main log event for FirebaseMl, that contains individual API events, like model
 // download.
@@ -203,7 +210,9 @@ message FirebaseMlLogEvent {
   // The event name.
   EventName event_name = 2;
 
-  // Model downloading logs.
-  // ==========================
+  // Information about model download.
   ModelDownloadLogEvent model_download_log_event = 3;
+
+  // Information about deleting a downloaded model.
+  DeleteModelLogEvent delete_model_log_event = 40;
 }

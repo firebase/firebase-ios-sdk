@@ -1,3 +1,9 @@
+# v7.7.0
+- [added] Added `utmParametersDictionary` property to `DynamicLink`. (#6730)
+
+# v7.6.0
+- [fixed] Fixed build warnings introduced with Xcode 12.5. (#7434)
+
 # v7.3.1
 - [fixed] New callback added in 7.3.0 should be on the main thread. (#7159)
 

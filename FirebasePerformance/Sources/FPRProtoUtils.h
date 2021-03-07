@@ -12,7 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#import <TargetConditionals.h>
+#if __has_include("CoreTelephony/CTTelephonyNetworkInfo.h") && !TARGET_OS_MACCATALYST
+#define TARGET_HAS_MOBILE_CONNECTIVITY
 #import <CoreTelephony/CTTelephonyNetworkInfo.h>
+#endif
 
 #import "FirebasePerformance/Sources/AppActivity/FPRTraceBackgroundActivityTracker.h"
 #import "FirebasePerformance/Sources/Instrumentation/FPRNetworkTrace.h"
@@ -53,7 +57,9 @@ extern FPRMSGGaugeMetric* _Nullable FPRGetGaugeMetric(NSArray* _Nonnull gaugeDat
  */
 extern FPRMSGApplicationProcessState FPRApplicationProcessState(FPRTraceState state);
 
+#ifdef TARGET_HAS_MOBILE_CONNECTIVITY
 /** Obtain a CTTelephonyNetworkInfo object to determine device network attributes.
  *  @return CTTelephonyNetworkInfo object.
  */
 extern CTTelephonyNetworkInfo* _Nullable FPRNetworkInfo(void);
+#endif

@@ -14,9 +14,10 @@
 set -x
 REPO=`pwd`
 
-if [[ $# -lt 1 ]]; then
-  cat 1>&2 <<EOF
+if [[ $# -lt 2 ]]; then
+  cat 2>&2 <<EOF
 USAGE: $0 [output_directory]
+USAGE: $1 [custom-spec-repos]
 EOF
   exit 1
 fi
@@ -25,8 +26,10 @@ fi
 # output directory.
 OUTPUT_DIR="$REPO/$1"
 
+CUSTOM_SPEC_REPOS="$2"
+
 cd ReleaseTooling
 swift run zip-builder --keep-build-artifacts --update-pod-repo \
     --local-podspec-path "${REPO}" \
     --enable-carthage-build --output-dir "${OUTPUT_DIR}" \
-    --custom-spec-repos https://github.com/firebase/SpecsStaging.git
+    --custom-spec-repos "${CUSTOM_SPEC_REPOS}"

@@ -13,11 +13,12 @@
 // limitations under the License.
 
 import Foundation
+import TensorFlowLite
 import FirebaseMLModelDownloader
 
 class Downloader: ObservableObject {
   @Published var downloadProgress: Float = 0.0
-  @Published var selectedModel = "pose-detection"
+  @Published var modelName = ""
   @Published var filePath = ""
   @Published var error = ""
   @Published var isDownloaded = false
@@ -45,8 +46,6 @@ class Downloader: ObservableObject {
   func downloadModel(downloadType: ModelDownloadType) {
     let modelDownloader = ModelDownloader.modelDownloader()
     let conditions = ModelDownloadConditions()
-
-    let modelName = selectedModel
     modelDownloader.getModel(
       name: modelName,
       downloadType: downloadType,
@@ -59,6 +58,23 @@ class Downloader: ObservableObject {
       case let .success(model):
         self.isDownloaded = true
         self.filePath = model.path
+        let fileURL = URL(fileURLWithPath: self.filePath)
+        do {
+          _ = try fileURL.checkResourceIsReachable()
+          let attr = try FileManager.default.attributesOfItem(atPath: self.filePath)
+          if let size = attr[FileAttributeKey.size] {
+            print("File size: \(size)")
+          } else {
+            print("Error - could not get file size.")
+          }
+        } catch {
+          print("File access error - \(error)")
+        }
+        do {
+          _ = try Interpreter(modelPath: self.filePath)
+        } catch {
+          print("Tensorflow error - \(error)")
+        }
       case let .failure(error):
         self.isDownloaded = false
         self.isError = true
@@ -76,7 +92,6 @@ class Downloader: ObservableObject {
 
   func deleteModel() {
     let modelDownloader = ModelDownloader.modelDownloader()
-    let modelName = selectedModel
     modelDownloader.deleteDownloadedModel(name: modelName) { result in
       switch result {
       case .success:
