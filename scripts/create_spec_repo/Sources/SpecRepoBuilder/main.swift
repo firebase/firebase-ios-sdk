@@ -237,8 +237,11 @@ struct SpecRepoBuilder: ParsableCommand {
     let podPath = sdkRepo + "/" + pod + ".podspec"
     let sourcesArg = sources.joined(separator: ",")
     let flagsArg = flags.joined(separator: " ")
-    let pushCommand = "bundle exec pod repo push \(localSpecRepoName) \(podPath) " +
-      "--sources=\(sourcesArg) \(flagsArg)"
+    var pushCommand = "pod repo push \(localSpecRepoName) \(podPath) --sources=\(sourcesArg) " +
+      "\(flagsArg)"
+    if pod == "FirebsaseMLModelDownloader" {
+      pushCommand += " --skip-import-validation"
+    }
 
     print("Running: \(pushCommand)")
     let outcome = shell.run(pushCommand)
