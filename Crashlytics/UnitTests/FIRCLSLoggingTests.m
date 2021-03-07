@@ -211,6 +211,86 @@
   XCTAssertEqual([compactedKeyValues count], 64, @"");
 }
 
+- (void)testEmptyKeysAndValues {
+  FIRCLSUserLoggingRecordUserKeysAndValues(@{});
+  XCTAssertEqual([self incrementalKeyValues].count, 0, @"");
+}
+
+- (void)testKeysAndValuesWithNilValue {
+  FIRCLSUserLoggingRecordUserKeysAndValues(@{@"mykey" : [NSNull null]});
+
+  XCTAssertEqual([[self incrementalKeyValues] count], 1, @"");
+}
+
+- (void)testKeysAndValuesLog {
+  NSDictionary* keysAndValues =
+      @{@"mykey" : @"some string value", @"mykey2" : @"some string value 2"};
+  FIRCLSUserLoggingRecordUserKeysAndValues(keysAndValues);
+
+  NSArray* keyValues = [self incrementalKeyValues];
+
+  XCTAssertEqual([keyValues count], 2, @"");
+  XCTAssertEqualObjects(keyValues[0][@"key"], @"6d796b6579", @"");
+  XCTAssertEqualObjects(keyValues[0][@"value"], @"736f6d6520737472696e672076616c7565", @"");
+  XCTAssertEqualObjects(keyValues[1][@"key"], @"6d796b657932", @"");
+  XCTAssertEqualObjects(keyValues[1][@"value"], @"736f6d6520737472696e672076616c75652032", @"");
+}
+
+- (void)testKeysAndValuesLogKeyCompaction {
+  for (NSUInteger i = 0; i < FIRCLSUserLoggingMaxKVEntries; ++i) {
+    NSString* value = [NSString stringWithFormat:@"some string value: %lu", (unsigned long)i];
+    FIRCLSUserLoggingRecordUserKeysAndValues(@{@"mykey" : value});
+  }
+
+  // we now need to wait for compaction to complete
+  dispatch_sync(FIRCLSGetLoggingQueue(), ^{
+    NSLog(@"queue emptied");
+  });
+
+  NSArray* keyValues = [self incrementalKeyValues];
+  NSArray* compactedKeyValues = [self compactedKeyValues];
+
+  XCTAssertEqual([keyValues count], 0, @"");
+  XCTAssertEqual([compactedKeyValues count], 1, @"");
+  XCTAssertEqualObjects(compactedKeyValues[0][@"key"], @"6d796b6579", @"");
+
+  // the final value of this key should be "some string value: 63"
+  XCTAssertEqualObjects(compactedKeyValues[0][@"value"],
+                        @"736f6d6520737472696e672076616c75653a203633", @"");
+}
+
+- (void)testKeysAndValuesLogMoreThanMaxKeys {
+  NSUInteger keysAndValuesCount = _firclsContext.readonly->logging.userKVStorage.maxCount + 1;
+  NSMutableDictionary* keysAndValuesToBeCompactedIn = [NSMutableDictionary dictionary];
+
+  // we need to end up with max + 1 keys written
+  for (NSUInteger i = 0; i <= keysAndValuesCount; ++i) {
+    NSString* key = [NSString stringWithFormat:@"key%lu", (unsigned long)i];
+    NSString* value = [NSString stringWithFormat:@"some string value: %lu", (unsigned long)i];
+
+    if (i == 0) {
+      FIRCLSUserLoggingRecordUserKeyValue(key, value);
+    } else {
+      keysAndValuesToBeCompactedIn[key] = value;
+    }
+  }
+
+  FIRCLSUserLoggingRecordUserKeysAndValues(keysAndValuesToBeCompactedIn);
+
+  // Do a full compaction here. This does two things. First, it makes sure
+  // we don't have any incremental keys. It also accounts for differences between
+  // the max and incremental values.
+  dispatch_sync(FIRCLSGetLoggingQueue(), ^{
+    FIRCLSUserLoggingCompactKVEntries(&_firclsContext.readonly->logging.userKVStorage);
+  });
+
+  NSArray* keyValues = [self incrementalKeyValues];
+  NSArray* compactedKeyValues = [self compactedKeyValues];
+
+  XCTAssertEqual([keyValues count], 0, @"");
+  XCTAssertEqual([compactedKeyValues count], 64, @"");
+}
+
 - (void)testUserLogNil {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"

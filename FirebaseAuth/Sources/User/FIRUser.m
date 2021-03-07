@@ -881,18 +881,22 @@ static void callInMainThreadWithAuthDataResultAndError(
 - (void)getIDTokenResultForcingRefresh:(BOOL)forceRefresh
                             completion:(nullable FIRAuthTokenResultCallback)completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
-    [self internalGetTokenForcingRefresh:forceRefresh
-                                callback:^(NSString *_Nullable token, NSError *_Nullable error) {
-                                  FIRAuthTokenResult *tokenResult;
-                                  if (token) {
-                                    tokenResult = [FIRAuthTokenResult tokenResultWithToken:token];
-                                  }
-                                  if (completion) {
-                                    dispatch_async(dispatch_get_main_queue(), ^{
-                                      completion(tokenResult, error);
-                                    });
-                                  }
-                                }];
+    [self
+        internalGetTokenForcingRefresh:forceRefresh
+                              callback:^(NSString *_Nullable token, NSError *_Nullable error) {
+                                FIRAuthTokenResult *tokenResult;
+                                if (token) {
+                                  tokenResult = [FIRAuthTokenResult tokenResultWithToken:token];
+                                  FIRLogDebug(kFIRLoggerAuth, @"I-AUT000017",
+                                              @"Actual token expiration date: %@, current date: %@",
+                                              tokenResult.expirationDate, [NSDate date]);
+                                }
+                                if (completion) {
+                                  dispatch_async(dispatch_get_main_queue(), ^{
+                                    completion(tokenResult, error);
+                                  });
+                                }
+                              }];
   });
 }
 

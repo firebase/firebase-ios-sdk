@@ -39,7 +39,7 @@
 @property(nonatomic) FPRGDTLogSampler *logSampler;
 
 /** Transport object which generates initial GDTCOREvent. */
-@property(nonatomic) GDTCORTransport *gdtcctTransport;
+@property(nonatomic) GDTCORTransport *gdtfllTransport;
 
 /** GDTCOREvent which contains trace event for testing. */
 @property(nonatomic) GDTCOREvent *transportTraceEvent;
@@ -68,14 +68,14 @@
   [self.fakeConfigs setNetworkSamplingRate:1.0];
 
   // Defines transport logger for generating log events.
-  self.gdtcctTransport = [[GDTCORTransport alloc] initWithMappingID:@"462"
+  self.gdtfllTransport = [[GDTCORTransport alloc] initWithMappingID:@"462"
                                                        transformers:nil
-                                                             target:kGDTCORTargetCCT];
+                                                             target:kGDTCORTargetFLL];
 
   // Generates sample trace metric.
   FPRMSGPerfMetric *tracePerfMetric = [FPRTestUtils createRandomPerfMetric:@"Random"];
 
-  self.transportTraceEvent = [self.gdtcctTransport eventForTransport];
+  self.transportTraceEvent = [self.gdtfllTransport eventForTransport];
   self.transportTraceEvent.qosTier = GDTCOREventQosDefault;
   self.transportTraceEvent.dataObject = [FPRGDTEvent gdtEventForPerfMetric:tracePerfMetric];
 
@@ -100,7 +100,7 @@
   networkTrace.activeSessions = [NSMutableArray array];
   networkTraceMetric.networkRequestMetric = FPRGetNetworkRequestMetric(networkTrace);
 
-  self.transportNetworkEvent = [self.gdtcctTransport eventForTransport];
+  self.transportNetworkEvent = [self.gdtfllTransport eventForTransport];
   self.transportNetworkEvent.qosTier = GDTCOREventQosDefault;
   self.transportNetworkEvent.dataObject = [FPRGDTEvent gdtEventForPerfMetric:networkTraceMetric];
 }
@@ -187,7 +187,7 @@
   // Trace is verbose.
   FPRMSGPerfMetric *traceMetric = [FPRTestUtils createVerboseRandomPerfMetric:@"Random"];
 
-  GDTCOREvent *traceEvent = [self.gdtcctTransport eventForTransport];
+  GDTCOREvent *traceEvent = [self.gdtfllTransport eventForTransport];
   traceEvent.qosTier = GDTCOREventQosDefault;
   traceEvent.dataObject = [FPRGDTEvent gdtEventForPerfMetric:traceMetric];
 
@@ -202,7 +202,7 @@
   // Trace is non-verbose.
   FPRMSGPerfMetric *tracePerfMetric = [FPRTestUtils createRandomPerfMetric:@"random"];
 
-  GDTCOREvent *traceEvent = [self.gdtcctTransport eventForTransport];
+  GDTCOREvent *traceEvent = [self.gdtfllTransport eventForTransport];
   traceEvent.qosTier = GDTCOREventQosDefault;
   traceEvent.dataObject = [FPRGDTEvent gdtEventForPerfMetric:tracePerfMetric];
 
@@ -231,7 +231,7 @@
   networkTrace.activeSessions = [[NSMutableArray alloc] initWithObjects:details, nil];
   networkMetric.networkRequestMetric = FPRGetNetworkRequestMetric(networkTrace);
 
-  GDTCOREvent *networkEvent = [self.gdtcctTransport eventForTransport];
+  GDTCOREvent *networkEvent = [self.gdtfllTransport eventForTransport];
   networkEvent.qosTier = GDTCOREventQosDefault;
   networkEvent.dataObject = [FPRGDTEvent gdtEventForPerfMetric:networkMetric];
 
@@ -258,7 +258,7 @@
   networkTrace.activeSessions = [NSMutableArray array];
   networkMetric.networkRequestMetric = FPRGetNetworkRequestMetric(networkTrace);
 
-  GDTCOREvent *networkEvent = [self.gdtcctTransport eventForTransport];
+  GDTCOREvent *networkEvent = [self.gdtfllTransport eventForTransport];
   networkEvent.qosTier = GDTCOREventQosDefault;
   networkEvent.dataObject = [FPRGDTEvent gdtEventForPerfMetric:networkMetric];
 

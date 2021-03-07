@@ -23,6 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                      .LaunchOptionsKey: Any]?) -> Bool {
     // Override point for customization after application launch.
     FirebaseApp.configure()
+    FirebaseConfiguration.shared.setLoggerLevel(.debug)
     return true
   }
 

@@ -16,7 +16,7 @@ If the `--zip-pods` option is not specified, the tool will build a Firebase zip 
 
 For release engineers (Googlers packaging an upcoming Firebase release) these commands should also
 be used:
--  `--custom-spec-repos sso://cpdc-internal/firebase`
+-  `--custom-spec-repos https://github.com/firebase/SpecsStaging.git`
   - This pulls the latest podspecs from the CocoaPods staging area.
 - `--enable-carthage-build` Turns on generation of Carthage zips and json file updates.
 - `--keep-build-artifacts` Useful for debugging and verifying the zip build contents.
@@ -25,7 +25,7 @@ Putting them all together, here's a common command to build a releaseable Zip fi
 
 ```
 swift run zip-builder --update-pod-repo \
---custom-spec-repos sso://cpdc-internal/firebase \
+--custom-spec-repos https://github.com/firebase/SpecsStaging.git \
 --enable-carthage-build \
 --keep-build-artifacts
 ```

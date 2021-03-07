@@ -9,8 +9,8 @@ on:
     - 'Gemfile'
     - 'scripts/generate_access_token.sh'
   schedule:
-    # Run every day at 11pm (PST) - cron uses UTC times
-    - cron:  '0 7 * * *'
+    # Run every day at 12am (PST) - cron uses UTC times
+    - cron:  '0 8 * * *'
 
 jobs:
 
@@ -32,8 +32,8 @@ jobs:
           FirebaseRemoteConfig/Tests/SwiftAPI/GoogleService-Info.plist "$plist_secret"
     - name: Generate Access Token for RemoteConfigConsoleAPI in IntegrationTests
       if: matrix.target == 'iOS'
-      run: scripts/generate_access_token.sh "$plist_secret" scripts/gha-encrypted/RemoteConfigSwiftAPI/ServiceAccount.json.gpg
-          FirebaseRemoteConfig/Tests/SwiftAPI/AccessToken.json
+      run: ([ -z $plist_secret ] || scripts/generate_access_token.sh "$plist_secret" scripts/gha-encrypted/RemoteConfigSwiftAPI/ServiceAccount.json.gpg
+          FirebaseRemoteConfig/Tests/SwiftAPI/AccessToken.json)
     - name: BuildAndUnitTest # can be replaced with pod lib lint with CocoaPods 1.10
       run: scripts/third_party/travis/retry.sh scripts/build.sh RemoteConfig ${{ matrix.target }} unit
     - name: Fake Console API Tests
@@ -49,7 +49,7 @@ jobs:
 
     strategy:
       matrix:
-        target: [ios, tvos, macos]
+        target: [ios, tvos, macos, watchos]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler

@@ -1,15 +1,33 @@
 name: test_coverage
 
-on: [pull_request]
-#run specific jobs when specific files are updated.
-#https://github.community/t/how-to-execute-jobs-if-folder-updated-recursive/117344/5
+on:
+  pull_request:
+    # open will be triggered when a pull request is created.
+    # synchronize will be triggered when a pull request has new commits.
+    # closed will be triggered when a pull request is closed.
+    types: [opened, synchronize, closed]
+
+env:
+  METRICS_SERVICE_SECRET: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
 jobs:
   check:
+    if: github.repository == 'Firebase/firebase-ios-sdk' && (github.event.action == 'opened' || github.event.action == 'synchronize')
     name: Check changed files
     outputs:
+      abtesting_run_job: ${{ steps.check_files.outputs.abtesting_run_job }}
+      auth_run_job: ${{ steps.check_files.outputs.auth_run_job }}
       database_run_job: ${{ steps.check_files.outputs.database_run_job }}
+      dynamiclinks_run_job: ${{ steps.check_files.outputs.dynamiclinks_run_job }}
+      firestore_run_job: ${{ steps.check_files.outputs.firestore_run_job }}
       functions_run_job: ${{ steps.check_files.outputs.functions_run_job }}
+      inappmessaging_run_job: ${{ steps.check_files.outputs.inappmessaging_run_job }}
+      instanceid_run_job: ${{ steps.check_files.outputs.instanceid_run_job }}
+      messaging_run_job: ${{ steps.check_files.outputs.messaging_run_job }}
+      performance_run_job: ${{ steps.check_files.outputs.performance_run_job }}
+      remoteconfig_run_job: ${{ steps.check_files.outputs.remoteconfig_run_job }}
+      storage_run_job: ${{ steps.check_files.outputs.storage_run_job }}
+      base_commit: ${{ steps.check_files.outputs.base_commit }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -20,38 +38,39 @@ jobs:
         id: check_files
         env:
           pr_branch: ${{ github.event.pull_request.head.ref }}
-        run: ./scripts/code_coverage_report/get_updated_files.sh
-  pod-lib-lint-database:
-    # Don't run on private repo unless it is a PR.
-    needs: check
-    if: github.repository == 'Firebase/firebase-ios-sdk' && needs.check.outputs.database_run_job == 'true'
-    runs-on: macOS-latest
+        run: |
+          if [ ! -z "${{ env.METRICS_SERVICE_SECRET }}"  ]; then
+          ./scripts/code_coverage_report/get_updated_files.sh
+          fi
 
+  pod-lib-lint-database:
+    needs: check
+    # Don't run on private repo unless it is a PR.
+    # always() will trigger this job when `needs` are skipped in a `merge` pull_request event.
+    if: always() && github.repository == 'Firebase/firebase-ios-sdk' && (needs.check.outputs.database_run_job == 'true' || github.event.pull_request.merged)
+    runs-on: macOS-latest
     strategy:
       matrix:
-        target: [ios, tvos, macos]
+        target: [iOS]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      env:
-        SDK: database
       run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh FirebaseDatabase "${{ matrix.target }}"
     - uses: actions/upload-artifact@v2
       with:
-        name: database-codecoverage
+        name: codecoverage
         path: /Users/runner/*.xcresult
 
   pod-lib-lint-functions:
-    # Don't run on private repo unless it is a PR.
     needs: check
-    if: github.repository == 'Firebase/firebase-ios-sdk' && needs.check.outputs.functions_run_job == 'true'
+    # Don't run on private repo unless it is a PR.
+    if: always() && github.repository == 'Firebase/firebase-ios-sdk' && (needs.check.outputs.functions_run_job == 'true'|| github.event.pull_request.merged)
     runs-on: macOS-latest
-
     strategy:
       matrix:
-        target: [ios, tvos, macos]
+        target: [iOS]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -60,20 +79,238 @@ jobs:
       run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh FirebaseFunctions "${{ matrix.target }}"
     - uses: actions/upload-artifact@v2
       with:
-        name: functions-codecoverage
+        name: codecoverage
+        path: /Users/runner/*.xcresult
+
+  pod-lib-lint-abtesting:
+    needs: check
+    # Don't run on private repo unless it is a PR.
+    if: always() && github.repository == 'Firebase/firebase-ios-sdk' && (needs.check.outputs.abtesting_run_job == 'true'|| github.event.pull_request.merged)
+    runs-on: macOS-latest
+    strategy:
+      matrix:
+        target: [iOS]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Build and test
+      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh FirebaseABTesting "${{ matrix.target }}"
+    - uses: actions/upload-artifact@v2
+      with:
+        name: codecoverage
+        path: /Users/runner/*.xcresult
+
+  pod-lib-lint-auth:
+    needs: check
+    # Don't run on private repo unless it is a PR.
+    if: always() && github.repository == 'Firebase/firebase-ios-sdk' && (needs.check.outputs.auth_run_job == 'true'|| github.event.pull_request.merged)
+    runs-on: macOS-latest
+    strategy:
+      matrix:
+        target: [iOS]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Build and test
+      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh FirebaseAuth "${{ matrix.target }}"
+    - uses: actions/upload-artifact@v2
+      with:
+        name: codecoverage
+        path: /Users/runner/*.xcresult
+
+  pod-lib-lint-dynamiclinks:
+    needs: check
+    # Don't run on private repo unless it is a PR.
+    if: always() && github.repository == 'Firebase/firebase-ios-sdk' && (needs.check.outputs.dynamiclinks_run_job == 'true'|| github.event.pull_request.merged)
+    runs-on: macOS-latest
+    strategy:
+      matrix:
+        target: [iOS]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Build and test
+      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh FirebaseDynamicLinks "${{ matrix.target }}"
+    - uses: actions/upload-artifact@v2
+      with:
+        name: codecoverage
+        path: /Users/runner/*.xcresult
+
+  pod-lib-lint-firestore:
+    needs: check
+    # Don't run on private repo unless it is a PR.
+    # Disable Firestore for now since Firestore currently does not have unit tests in podspecs.
+    if: always() && github.repository == 'Firebase/firebase-ios-sdk' && (needs.check.outputs.firestore_run_job == 'true'|| github.event.pull_request.merged)
+    runs-on: macOS-latest
+    strategy:
+      matrix:
+        target: [iOS]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Build and test
+      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh FirebaseFirestore "${{ matrix.target }}"
+    - uses: actions/upload-artifact@v2
+      with:
+        name: codecoverage
+        path: /Users/runner/*.xcresult
+
+  pod-lib-lint-inappmessaging:
+    needs: check
+    # Don't run on private repo unless it is a PR.
+    if: always() && github.repository == 'Firebase/firebase-ios-sdk' && (needs.check.outputs.inappmessaging_run_job == 'true'|| github.event.pull_request.merged)
+    runs-on: macOS-latest
+    strategy:
+      matrix:
+        target: [iOS]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Build and test
+      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh FirebaseInAppMessaging "${{ matrix.target }}"
+    - uses: actions/upload-artifact@v2
+      with:
+        name: codecoverage
+        path: /Users/runner/*.xcresult
+
+  pod-lib-lint-instanceid:
+    needs: check
+    # Don't run on private repo unless it is a PR.
+    if: always() && github.repository == 'Firebase/firebase-ios-sdk' && (needs.check.outputs.instanceid_run_job == 'true'|| github.event.pull_request.merged)
+    runs-on: macOS-latest
+    strategy:
+      matrix:
+        target: [iOS]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Build and test
+      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh FirebaseInstanceID "${{ matrix.target }}"
+    - uses: actions/upload-artifact@v2
+      with:
+        name: codecoverage
+        path: /Users/runner/*.xcresult
+
+  pod-lib-lint-messaging:
+    needs: check
+    # Don't run on private repo unless it is a PR.
+    if: always() && github.repository == 'Firebase/firebase-ios-sdk' && (needs.check.outputs.messaging_run_job == 'true'|| github.event.pull_request.merged)
+    runs-on: macOS-latest
+    strategy:
+      matrix:
+        target: [iOS]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Build and test
+      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh FirebaseMessaging "${{ matrix.target }}"
+    - uses: actions/upload-artifact@v2
+      with:
+        name: codecoverage
+        path: /Users/runner/*.xcresult
+
+  pod-lib-lint-performance:
+    needs: check
+    # Don't run on private repo unless it is a PR.
+    if: always() && github.repository == 'Firebase/firebase-ios-sdk' && (needs.check.outputs.performance_run_job == 'true'|| github.event.pull_request.merged)
+    runs-on: macOS-latest
+    strategy:
+      matrix:
+        target: [iOS]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Build and test
+      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh FirebasePerformance "${{ matrix.target }}"
+    - uses: actions/upload-artifact@v2
+      with:
+        name: codecoverage
+        path: /Users/runner/*.xcresult
+
+  pod-lib-lint-remoteconfig:
+    needs: check
+    # Don't run on private repo unless it is a PR.
+    if: always() && github.repository == 'Firebase/firebase-ios-sdk' && (needs.check.outputs.remoteconfig_run_job == 'true'|| github.event.pull_request.merged)
+    runs-on: macOS-latest
+    strategy:
+      matrix:
+        target: [iOS]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Build and test
+      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh FirebaseRemoteConfig "${{ matrix.target }}"
+    - uses: actions/upload-artifact@v2
+      with:
+        name: codecoverage
+        path: /Users/runner/*.xcresult
+
+  pod-lib-lint-storage:
+    needs: check
+    # Don't run on private repo unless it is a PR.
+    if: always() && github.repository == 'Firebase/firebase-ios-sdk' && (needs.check.outputs.storage_run_job == 'true'|| github.event.pull_request.merged)
+    runs-on: macOS-latest
+    strategy:
+      matrix:
+        target: [iOS]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Build and test
+      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh FirebaseStorage "${{ matrix.target }}"
+    - uses: actions/upload-artifact@v2
+      with:
+        name: codecoverage
         path: /Users/runner/*.xcresult
 
   create_report:
-    needs: [pod-lib-lint-functions, pod-lib-lint-database]
+    needs: [check, pod-lib-lint-abtesting, pod-lib-lint-auth, pod-lib-lint-database, pod-lib-lint-dynamiclinks, pod-lib-lint-firestore, pod-lib-lint-functions, pod-lib-lint-inappmessaging, pod-lib-lint-instanceid, pod-lib-lint-messaging, pod-lib-lint-performance, pod-lib-lint-remoteconfig, pod-lib-lint-storage]
     if: always()
     runs-on: macOS-latest
     steps:
+      - uses: actions/checkout@v2
+      - name: Access to Metrics Service
+        if:  ${{ env.METRICS_SERVICE_SECRET }}
+        run: |
+          # Install gcloud sdk
+          curl https://sdk.cloud.google.com > install.sh
+          bash install.sh --disable-prompts
+          echo "${HOME}/google-cloud-sdk/bin/" >> $GITHUB_PATH
+          export PATH="${HOME}/google-cloud-sdk/bin/:${PATH}"
+
+          # Activate the service account for Metrics Service.
+          scripts/decrypt_gha_secret.sh scripts/gha-encrypted/metrics_service_access.json.gpg \
+          metrics-access.json "${{ env.METRICS_SERVICE_SECRET }}"
+          gcloud auth activate-service-account --key-file metrics-access.json
       - uses: actions/download-artifact@v2
         id: download
         with:
           path: /Users/runner/test
-      - name: display results
+      - name: Compare Diff and Post a Report
+        if: github.event_name == 'pull_request' && ${{ env.METRICS_SERVICE_SECRET }}
+        env:
+          base_commit: ${{ needs.check.outputs.base_commit }}
+        run: |
+          # Get Head commit of the branch, instead of a merge commit created by actions/checkout.
+          GITHUB_SHA=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.head.sha)
+          if [ -d "${{steps.download.outputs.download-path}}" ]; then
+          cd scripts/code_coverage_report/generate_code_coverage_report
+          swift run CoverageReportGenerator --presubmit "firebase/firebase-ios-sdk" --commit "${GITHUB_SHA}" --token $(gcloud auth print-identity-token) --xcresult-dir "/Users/runner/test/codecoverage" --log-link "https://github.com/firebase/firebase-ios-sdk/actions/runs/${GITHUB_RUN_ID}" --pull-request-num ${{github.event.pull_request.number}} --base-commit "$base_commit"
+          fi
+      - name: Update New Coverage Data
+        if: github.event.pull_request.merged == true && ${{ env.METRICS_SERVICE_SECRET }}
         run: |
           if [ -d "${{steps.download.outputs.download-path}}" ]; then
-          find "/Users/runner/test" -print -regex ".*/.*\.xcresult" -exec xcrun xccov view --report {} \;
+          cd scripts/code_coverage_report/generate_code_coverage_report
+          swift run CoverageReportGenerator --merge "firebase/firebase-ios-sdk" --commit "${GITHUB_SHA}" --token $(gcloud auth print-identity-token) --xcresult-dir "/Users/runner/test/codecoverage" --log-link "https://github.com/firebase/firebase-ios-sdk/actions/runs/${GITHUB_RUN_ID}" --branch "${GITHUB_REF##*/}"
           fi
