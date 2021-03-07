@@ -256,10 +256,12 @@
                  FPRApplicationProcessState(100));
 }
 
+#ifdef TARGET_HAS_MOBILE_CONNECTIVITY
 /** Validates if network object creation works. */
 - (void)testNetworkInfoObjectCreation {
   XCTAssertNotNil(FPRNetworkInfo());
 }
+#endif
 
 /** Validates if network events are dropped when there is not valid response code. */
 - (void)testDroppingNetworkEventsWithInvalidStatusCode {

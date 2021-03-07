@@ -187,11 +187,10 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   [[[self.mockInstanceID stub] andReturn:kToken] cachedTokenIfAvailable];
   [[[self.mockTokenManager stub] andReturnValue:@(YES)]
       checkTokenRefreshPolicyWithIID:[OCMArg any]];
-  [[[self.mockInstanceID stub] andDo:^(NSInvocation *invocation){
-  }] tokenWithAuthorizedEntity:[OCMArg any]
-                         scope:[OCMArg any]
-                       options:[OCMArg any]
-                       handler:[OCMArg any]];
+  [[self.mockInstanceID stub] tokenWithAuthorizedEntity:[OCMArg any]
+                                                  scope:[OCMArg any]
+                                                options:[OCMArg any]
+                                                handler:[OCMArg any]];
   [self expectInstallationsInstallationIDWithFID:kToken error:nil];
 
   [self.mockInstanceID didCompleteConfigure];
@@ -202,11 +201,10 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 - (void)testTokenShouldBeRefreshedIfNoCacheTokenButAutoInitAllowed {
   [[[self.mockInstanceID stub] andReturn:nil] cachedTokenIfAvailable];
   [[[self.mockInstanceID stub] andReturnValue:@(YES)] isFCMAutoInitEnabled];
-  [[[self.mockInstanceID stub] andDo:^(NSInvocation *invocation){
-  }] tokenWithAuthorizedEntity:[OCMArg any]
-                         scope:[OCMArg any]
-                       options:[OCMArg any]
-                       handler:[OCMArg any]];
+  [[self.mockInstanceID stub] tokenWithAuthorizedEntity:[OCMArg any]
+                                                  scope:[OCMArg any]
+                                                options:[OCMArg any]
+                                                handler:[OCMArg any]];
 
   [self.mockInstanceID didCompleteConfigure];
 
@@ -254,11 +252,10 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 
 - (void)testTokenIsDeletedAlongWithIdentity {
   [[[self.mockInstanceID stub] andReturnValue:@(YES)] isFCMAutoInitEnabled];
-  [[[self.mockInstanceID stub] andDo:^(NSInvocation *invocation){
-  }] tokenWithAuthorizedEntity:[OCMArg any]
-                         scope:[OCMArg any]
-                       options:[OCMArg any]
-                       handler:[OCMArg any]];
+  [[self.mockInstanceID stub] tokenWithAuthorizedEntity:[OCMArg any]
+                                                  scope:[OCMArg any]
+                                                options:[OCMArg any]
+                                                handler:[OCMArg any]];
 
   [self.mockInstanceID deleteIdentityWithHandler:^(NSError *_Nullable error) {
     XCTAssertNil([self.mockInstanceID token]);
@@ -452,17 +449,17 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
     serverTypeKey : @(NO),
   };
 
-  [[[self.mockTokenManager stub] andDo:^(NSInvocation *invocation){
-  }] fetchNewTokenWithAuthorizedEntity:kAuthorizedEntity
-                                 scope:kScope
-                            instanceID:[OCMArg any]
-                               options:[OCMArg checkWithBlock:^BOOL(id obj) {
-                                 NSDictionary *options = (NSDictionary *)obj;
-                                 XCTAssertTrue([options[APNSKey] hasPrefix:@"p_"]);
-                                 XCTAssertFalse([options[serverTypeKey] boolValue]);
-                                 return YES;
-                               }]
-                               handler:OCMOCK_ANY];
+  [[self.mockTokenManager stub]
+      fetchNewTokenWithAuthorizedEntity:kAuthorizedEntity
+                                  scope:kScope
+                             instanceID:[OCMArg any]
+                                options:[OCMArg checkWithBlock:^BOOL(id obj) {
+                                  NSDictionary *options = (NSDictionary *)obj;
+                                  XCTAssertTrue([options[APNSKey] hasPrefix:@"p_"]);
+                                  XCTAssertFalse([options[serverTypeKey] boolValue]);
+                                  return YES;
+                                }]
+                                handler:OCMOCK_ANY];
 
   [self.instanceID tokenWithAuthorizedEntity:kAuthorizedEntity
                                        scope:kScope
@@ -638,7 +635,8 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   // will change. Normal stubbing will always return the initial pointer,
   // which in this case is 0x0 (nil).
   [[[self.mockTokenManager stub] andDo:^(NSInvocation *invocation) {
-    [invocation setReturnValue:&cachedTokenInfo];
+    __autoreleasing FIRInstanceIDTokenInfo *tokenInfo = cachedTokenInfo;
+    [invocation setReturnValue:&tokenInfo];
   }] cachedTokenInfoWithAuthorizedEntity:kAuthorizedEntity scope:kFIRInstanceIDDefaultTokenScope];
 
   [[[self.mockTokenManager stub] andDo:^(NSInvocation *invocation) {
@@ -705,7 +703,8 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   // will change. Normal stubbing will always return the initial pointer,
   // which in this case is 0x0 (nil).
   [[[self.mockTokenManager stub] andDo:^(NSInvocation *invocation) {
-    [invocation setReturnValue:&cachedTokenInfo];
+    __autoreleasing FIRInstanceIDTokenInfo *tokenInfo = cachedTokenInfo;
+    [invocation setReturnValue:&tokenInfo];
   }] cachedTokenInfoWithAuthorizedEntity:kAuthorizedEntity scope:kFIRInstanceIDDefaultTokenScope];
 
   [[[self.mockTokenManager stub] andDo:^(NSInvocation *invocation) {
@@ -764,7 +763,8 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   // will change. Normal stubbing will always return the initial pointer,
   // which in this case is 0x0 (nil).
   [[[self.mockTokenManager stub] andDo:^(NSInvocation *invocation) {
-    [invocation setReturnValue:&cachedTokenInfo];
+    __autoreleasing FIRInstanceIDTokenInfo *tokenInfo = cachedTokenInfo;
+    [invocation setReturnValue:&tokenInfo];
   }] cachedTokenInfoWithAuthorizedEntity:kAuthorizedEntity scope:kFIRInstanceIDDefaultTokenScope];
 
   [[[self.mockTokenManager stub] andDo:^(NSInvocation *invocation) {
@@ -841,7 +841,8 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   // will change. Normal stubbing will always return the initial pointer,
   // which in this case is 0x0 (nil).
   [[[self.mockTokenManager stub] andDo:^(NSInvocation *invocation) {
-    [invocation setReturnValue:&cachedTokenInfo];
+    __autoreleasing FIRInstanceIDTokenInfo *tokenInfo = cachedTokenInfo;
+    [invocation setReturnValue:&tokenInfo];
   }] cachedTokenInfoWithAuthorizedEntity:kAuthorizedEntity scope:kFIRInstanceIDDefaultTokenScope];
 
   [[[self.mockTokenManager stub] andDo:^(NSInvocation *invocation) {
@@ -949,7 +950,9 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   __block FIRInstanceIDTokenHandler tokenHandler;
 
   [[[self.mockTokenManager stub] andDo:^(NSInvocation *invocation) {
-    [invocation getArgument:&tokenHandler atIndex:6];
+    __unsafe_unretained FIRInstanceIDTokenHandler handler;
+    [invocation getArgument:&handler atIndex:6];
+    tokenHandler = handler;
     [fetchNewTokenExpectation fulfill];
   }] fetchNewTokenWithAuthorizedEntity:kAuthorizedEntity
                                  scope:kFIRInstanceIDDefaultTokenScope
@@ -1005,7 +1008,9 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   __block FIRInstanceIDTokenHandler tokenHandler;
 
   [[[self.mockTokenManager stub] andDo:^(NSInvocation *invocation) {
-    [invocation getArgument:&tokenHandler atIndex:6];
+    __unsafe_unretained FIRInstanceIDTokenHandler handler;
+    [invocation getArgument:&handler atIndex:6];
+    tokenHandler = handler;
     [fetchNewTokenExpectations[fetchNewTokenCallCount] fulfill];
     fetchNewTokenCallCount += 1;
   }] fetchNewTokenWithAuthorizedEntity:kAuthorizedEntity
@@ -1070,7 +1075,9 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   __block FIRInstanceIDTokenHandler tokenHandler;
 
   [[[self.mockTokenManager stub] andDo:^(NSInvocation *invocation) {
-    [invocation getArgument:&tokenHandler atIndex:6];
+    __unsafe_unretained FIRInstanceIDTokenHandler handler;
+    [invocation getArgument:&handler atIndex:6];
+    tokenHandler = handler;
     [fetchNewTokenExpectations[fetchNewTokenCallCount] fulfill];
     fetchNewTokenCallCount += 1;
   }] fetchNewTokenWithAuthorizedEntity:kAuthorizedEntity
@@ -1166,7 +1173,7 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
 
   [[[self.mockTokenManager stub] andDo:^(NSInvocation *invocation) {
     // Inspect
-    NSDictionary *options;
+    __unsafe_unretained NSDictionary *options;
     [invocation getArgument:&options atIndex:5];
     if (options[kFIRInstanceIDTokenOptionsAPNSIsSandboxKey] != nil) {
       [apnsServerTypeExpectation fulfill];
@@ -1205,12 +1212,6 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   // This token is |kToken|, but we will simulate that a fetch will return another token
   NSString *oldCachedToken = kToken;
   NSString *fetchedToken = @"abcd123_newtoken";
-  __block FIRInstanceIDTokenInfo *cachedTokenInfo =
-      [[FIRInstanceIDTokenInfo alloc] initWithAuthorizedEntity:kAuthorizedEntity
-                                                         scope:kFIRInstanceIDDefaultTokenScope
-                                                         token:oldCachedToken
-                                                    appVersion:@"1.0"
-                                                 firebaseAppID:@"firebaseAppID"];
 
   [self stubInstallationsToReturnValidID];
 
@@ -1223,7 +1224,13 @@ static NSString *const kGoogleAppID = @"1:123:ios:123abc";
   // will change. Normal stubbing will always return the initial pointer,
   // which in this case is 0x0 (nil).
   [[[self.mockTokenManager stub] andDo:^(NSInvocation *invocation) {
-    [invocation setReturnValue:&cachedTokenInfo];
+    __autoreleasing FIRInstanceIDTokenInfo *tokenInfo =
+        [[FIRInstanceIDTokenInfo alloc] initWithAuthorizedEntity:kAuthorizedEntity
+                                                           scope:kFIRInstanceIDDefaultTokenScope
+                                                           token:oldCachedToken
+                                                      appVersion:@"1.0"
+                                                   firebaseAppID:@"firebaseAppID"];
+    [invocation setReturnValue:&tokenInfo];
   }] cachedTokenInfoWithAuthorizedEntity:kAuthorizedEntity scope:kFIRInstanceIDDefaultTokenScope];
 
   // Mock the network request to return |fetchedToken|, so we can clearly see if the token is

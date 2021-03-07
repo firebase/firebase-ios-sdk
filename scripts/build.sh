@@ -20,7 +20,7 @@
 
 function pod_gen() {
   # Call pod gen with a podspec and additional optional arguments.
-  bundle exec pod gen --local-sources=./ --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ "$@"
+  bundle exec pod gen --local-sources=./ --sources=https://github.com/firebase/SpecsDev.git,https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ "$@"
 }
 
 set -euo pipefail
@@ -316,6 +316,7 @@ case "$product-$platform-$method" in
     RunXcodebuild \
         -workspace 'Firestore/Example/Firestore.xcworkspace' \
         -scheme "Firestore_IntegrationTests_$platform" \
+        -enableCodeCoverage YES \
         "${xcb_flags[@]}" \
         build \
         test
@@ -557,27 +558,27 @@ case "$product-$platform-$method" in
       build
     ;;
 
-  Performance-*-xcodebuild)
+  Performance-*-unit)
     # Run unit tests on prod environment with unswizzle capabilities.
     export FPR_UNSWIZZLE_AVAILABLE="1"
     export FPR_AUTOPUSH_ENV="0"
-    pod_gen FirebasePerformance.podspec --platforms=ios --clean
+    pod_gen FirebasePerformance.podspec --platforms="${gen_platform}"
     RunXcodebuild \
       -workspace 'gen/FirebasePerformance/FirebasePerformance.xcworkspace' \
       -scheme "FirebasePerformance-Unit-unit" \
-      "${ios_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
       test
+    ;;
 
+  Performance-*-proddev)
     # Build the prod dev test app.
     export FPR_UNSWIZZLE_AVAILABLE="0"
     export FPR_AUTOPUSH_ENV="0"
-    pod_gen FirebasePerformance.podspec --platforms=ios --clean
+    pod_gen FirebasePerformance.podspec --platforms="${gen_platform}"
     RunXcodebuild \
       -workspace 'gen/FirebasePerformance/FirebasePerformance.xcworkspace' \
       -scheme "FirebasePerformance-TestApp" \
-      "${ios_flags[@]}" \
       "${xcb_flags[@]}" \
       build
     ;;

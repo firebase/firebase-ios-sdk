@@ -467,7 +467,6 @@ static const NSTimeInterval kWaitInterval = .5;
         to an empty verification code
  */
 - (void)testPhoneAuthMissingVerificationCode {
-  [self expectGetAccountInfo];
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
   [[FIRAuth auth] signOut:NULL];
   FIRAuthCredential *credential =
@@ -490,7 +489,6 @@ static const NSTimeInterval kWaitInterval = .5;
         to an empty verification ID.
  */
 - (void)testPhoneAuthMissingVerificationID {
-  [self expectGetAccountInfo];
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
   [[FIRAuth auth] signOut:NULL];
   FIRAuthCredential *credential =
@@ -1059,7 +1057,6 @@ static const NSTimeInterval kWaitInterval = .5;
  */
 - (void)testSignInWithEmailCredentialEmptyPassword {
   NSString *emptyString = @"";
-  [self expectGetAccountInfo];
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
   [[FIRAuth auth] signOut:NULL];
   FIRAuthCredential *emailCredential = [FIREmailAuthProvider credentialWithEmail:kEmail
@@ -1720,7 +1717,6 @@ static const NSTimeInterval kWaitInterval = .5;
         response.
  */
 - (void)testCreateUserEmptyPasswordFailure {
-  [self expectGetAccountInfo];
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
   [[FIRAuth auth] signOut:NULL];
   [[FIRAuth auth]
@@ -1740,7 +1736,6 @@ static const NSTimeInterval kWaitInterval = .5;
         response.
  */
 - (void)testCreateUserEmptyEmailFailure {
-  [self expectGetAccountInfo];
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
   [[FIRAuth auth] signOut:NULL];
   [[FIRAuth auth]

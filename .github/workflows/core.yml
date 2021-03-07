@@ -8,8 +8,8 @@ on:
     - '.github/workflows/core.yml'
     - 'Gemfile'
   schedule:
-    # Run every day at 11pm (PST) - cron uses UTC times
-    - cron:  '0 7 * * *'
+    # Run every day at 8pm (PST) - cron uses UTC times
+    - cron:  '0 4 * * *'
 
 jobs:
   pod-lib-lint:

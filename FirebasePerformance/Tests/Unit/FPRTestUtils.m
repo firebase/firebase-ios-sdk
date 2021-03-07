@@ -122,7 +122,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   FPRMSGPerfMetric *perfMetric = [self createRandomPerfMetric:traceName];
 
   NSString *mappingID = [NSString stringWithFormat:@"%ld", (long)kLogSource];
-  GDTCOREvent *gdtEvent = [[GDTCOREvent alloc] initWithMappingID:mappingID target:kGDTCORTargetCCT];
+  GDTCOREvent *gdtEvent = [[GDTCOREvent alloc] initWithMappingID:mappingID target:kGDTCORTargetFLL];
   gdtEvent.dataObject = [FPRGDTEvent gdtEventForPerfMetric:perfMetric];
   return gdtEvent;
 }
@@ -131,7 +131,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   FPRMSGPerfMetric *perfMetric = [self createRandomInternalPerfMetric:traceName];
 
   NSString *mappingID = [NSString stringWithFormat:@"%ld", (long)kLogSource];
-  GDTCOREvent *gdtEvent = [[GDTCOREvent alloc] initWithMappingID:mappingID target:kGDTCORTargetCCT];
+  GDTCOREvent *gdtEvent = [[GDTCOREvent alloc] initWithMappingID:mappingID target:kGDTCORTargetFLL];
   gdtEvent.dataObject = [FPRGDTEvent gdtEventForPerfMetric:perfMetric];
   return gdtEvent;
 }
@@ -140,7 +140,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   FPRMSGPerfMetric *perfMetric = [self createRandomNetworkPerfMetric:url];
 
   NSString *mappingID = [NSString stringWithFormat:@"%ld", (long)kLogSource];
-  GDTCOREvent *gdtEvent = [[GDTCOREvent alloc] initWithMappingID:mappingID target:kGDTCORTargetCCT];
+  GDTCOREvent *gdtEvent = [[GDTCOREvent alloc] initWithMappingID:mappingID target:kGDTCORTargetFLL];
   gdtEvent.dataObject = [FPRGDTEvent gdtEventForPerfMetric:perfMetric];
   return gdtEvent;
 }

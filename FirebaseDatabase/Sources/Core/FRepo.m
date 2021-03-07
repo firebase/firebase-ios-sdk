@@ -518,10 +518,8 @@
         (void (^_Nonnull)(NSError *__nullable error,
                           FIRDataSnapshot *__nullable snapshot))block {
     FQuerySpec *querySpec = [query querySpec];
-    id<FNode> node =
-        [self.serverSyncTree calcCompleteEventCacheAtPath:querySpec.path
-                                          excludeWriteIds:@[]];
-    if (![node isEmpty]) {
+    id<FNode> node = [self.serverSyncTree getServerValue:[query querySpec]];
+    if (node != nil) {
         block(nil, [[FIRDataSnapshot alloc]
                        initWithRef:query.ref
                        indexedNode:[FIndexedNode

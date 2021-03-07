@@ -7,9 +7,8 @@ on:
     - '.github/workflows/appdistribution.yml'
     - 'Gemfile'
   schedule:
-    # Run every day at 3am (PST) - cron uses UTC times
-    # This is set to 3 hours after zip workflow finishes so zip testing can run after.
-    - cron:  '0 11 * * *'
+    # Run every day at 7pm (PST) - cron uses UTC times
+    - cron:  '0 3 * * *'
 
 jobs:
   pod-lib-lint:

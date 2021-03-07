@@ -14,6 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FIRCrashlyticsReport.h"
 #import "FIRExceptionModel.h"
 
 #if __has_include(<Crashlytics/Crashlytics.h>)
@@ -82,6 +83,15 @@ NS_SWIFT_NAME(Crashlytics)
  * @param key A unique key
  */
 - (void)setCustomValue:(id)value forKey:(NSString *)key;
+
+/**
+ * Sets custom keys and values to be associated with subsequent fatal and non-fatal reports.
+ * The objects in the dictionary are converted to strings. This is
+ * typically done by calling "-[NSObject description]".
+ *
+ * @param keysAndValues The values to be associated with the corresponding keys
+ */
+- (void)setCustomKeysAndValues:(NSDictionary *)keysAndValues;
 
 /**
  * Records a user ID (identifier) that's associated with subsequent fatal and non-fatal reports.
@@ -169,6 +179,34 @@ NS_SWIFT_NAME(Crashlytics)
  */
 - (void)checkForUnsentReportsWithCompletion:(void (^)(BOOL))completion
     NS_SWIFT_NAME(checkForUnsentReports(completion:));
+
+/**
+ * Determines whether there are any unsent crash reports cached on the device, then calls the given
+ * callback with a CrashlyticsReport object that you can use to update the unsent report.
+ * CrashlyticsReports have a lot of the familiar Crashlytics methods like setting custom keys and
+ * logs.
+ *
+ * The callback only executes if automatic data collection is disabled. You can use
+ * the callback to get one-time consent from a user upon a crash, and then call
+ * sendUnsentReports or deleteUnsentReports, depending on whether or not the user gives consent.
+ *
+ * Disable automatic collection by:
+ *  - Adding the FirebaseCrashlyticsCollectionEnabled: NO key to your App's Info.plist
+ *  - Calling [[FIRCrashlytics crashlytics] setCrashlyticsCollectionEnabled:NO] in your app
+ *  - Setting FIRApp's isDataCollectionDefaultEnabled to NO
+ *
+ * Not calling send/deleteUnsentReports will result in the report staying on disk, which means the
+ * same CrashlyticsReport can show up in multiple runs of the app. If you want avoid duplicates,
+ * ensure there was a crash on the last run of the app by checking the value of
+ * didCrashDuringPreviousExecution.
+ *
+ * @param completion The callback that's executed once Crashlytics finishes checking for unsent
+ * reports. The callback is called with the newest unsent Crashlytics Report, or nil if there are
+ * none cached on disk.
+ */
+- (void)checkAndUpdateUnsentReportsWithCompletion:
+    (void (^)(FIRCrashlyticsReport *_Nullable))completion
+    NS_SWIFT_NAME(checkAndUpdateUnsentReports(completion:));
 
 /**
  * Enqueues any unsent reports on the device to upload to Crashlytics.

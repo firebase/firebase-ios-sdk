@@ -37,7 +37,7 @@ jobs:
         cd scripts/create_spec_repo/
         swift build
         pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/FirebasePrivate/SpecsReleasing.git
-        BOT_TOKEN="${botaccess}"  .build/debug/spec-repo-builder --sdk-repo "${local_sdk_repo_dir}" --local-spec-repo-name "${local_repo}" --sdk-repo-name SpecsReleasing --pod-sources 'https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsReleasing' --pod-sources "https://github.com/firebase/SpecsStaging.git" --pod-sources "https://cdn.cocoapods.org/"
+        BOT_TOKEN="${botaccess}"  .build/debug/spec-repo-builder --sdk-repo "${local_sdk_repo_dir}" --local-spec-repo-name "${local_repo}" --sdk-repo-name SpecsReleasing --pod-sources 'https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsReleasing' --pod-sources "https://github.com/firebase/SpecsDev.git" --pod-sources "https://github.com/firebase/SpecsStaging.git" --pod-sources "https://cdn.cocoapods.org/"
     - name: Clean Artifacts
       if: ${{ always() }}
       run: |
