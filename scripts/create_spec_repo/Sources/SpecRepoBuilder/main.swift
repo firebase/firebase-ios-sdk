@@ -239,7 +239,7 @@ struct SpecRepoBuilder: ParsableCommand {
     let flagsArg = flags.joined(separator: " ")
     var pushCommand = "pod repo push \(localSpecRepoName) \(podPath) --sources=\(sourcesArg) " +
       "\(flagsArg)"
-    if pod == "FirebsaseMLModelDownloader" {
+    if pod == "FirebaseMLModelDownloader" {
       pushCommand += " --verbose"
     }
 
