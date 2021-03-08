@@ -76,22 +76,28 @@ class ObjectValue {
    * @param data A map of fields to values (or null for deletes).
    */
   void SetAll(
-      const FieldMask& field_mask,
+      const model::FieldMask& field_mask,
       const std::unordered_map<FieldPath, google_firestore_v1_Value>& data);
 
  private:
   struct Overlay {
-      Overlay() = default;
-    enum class Tag { Delete, Value, NestedValue };
+    Overlay() = default;
+    ~Overlay(){};
+    enum class Tag { Delete, Value, OverlayMap };
 
     Tag tag_;
     union {
       google_firestore_v1_Value value_;
-      std::unordered_map<std::string, google_firestore_v1_Value> nested_value_{};
+      std::unordered_map<std::string, Overlay> overlay_map_{};
     };
   };
 
-  FieldMask ExtractFieldMask(const google_firestore_v1_MapValue& value) const;
+  typedef std::unordered_map<std::string, Overlay> OverlayMap;
+
+  static OverlayMap ConvertToOverlay(const google_firestore_v1_MapValue& map);
+    static google_firestore_v1_MapValue ConvertToMapValue(const ObjectValue::OverlayMap& overlay_map;
+
+  model::FieldMask ExtractFieldMask(const google_firestore_v1_MapValue& value) const;
   absl::optional<google_firestore_v1_Value> ExtractNestedValue(
       const google_firestore_v1_Value& value,
       const FieldPath& field_path) const;
@@ -114,9 +120,9 @@ class ObjectValue {
    * @return The merged data at currentPath or an empty optional if no
    * modifications were applied.
    */
-  const absl::optional<google_firestore_v1_MapValue> ApplyOverlay(
+  absl::optional<OverlayMap> ApplyOverlay(
       const FieldPath& current_path,
-      const std::unordered_map<std::string, Overlay>& current_overlays) const;
+      const OverlayMap& current_overlays) const;
 
   /**
    * The immutable Value proto for this object. Local mutations are stored in
@@ -130,7 +136,7 @@ class ObjectValue {
    * protos, {@code Map<String, Object>} values (to represent additional
    * nesting) or {@code null} (to represent field deletes).
    */
-  mutable std::unordered_map<std::string, Overlay> overlap_map_;
+  mutable OverlayMap overlap_map_;
 };
 
 bool operator==(const ObjectValue& lhs, const ObjectValue& rhs);
