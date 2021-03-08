@@ -1,4 +1,4 @@
-MIT License 
+MIT License
 
 Copyright (c) 2013-2020 Niels Lohmann
 
