@@ -30,7 +30,7 @@ Pod::Spec.new do |s|
   s.prefix_header_file      = false
   s.requires_arc            = true
 
-  base_dir = 'Firestore/'
+  base_dir = 'FirebaseTestingSupport/Firestore/'
 
   s.source_files = [
     base_dir + 'Sources/**/*.{m,mm,h}',
