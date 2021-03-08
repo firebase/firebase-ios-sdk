@@ -12,10 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Firebase
 import SwiftUI
 
 @main
 struct WatchDemoApp: App {
+  init() {
+    FirebaseApp.configure()
+  }
+
   var body: some Scene {
     WindowGroup {
       ContentView()
