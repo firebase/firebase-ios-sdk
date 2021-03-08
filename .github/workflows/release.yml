@@ -6,6 +6,8 @@ on:
     - '.github/workflows/release.yml'
     - 'scripts/create_spec_repo/**'
     - 'Gemfile'
+    # DELETE next line before merge.
+    - 'FirebaseMLModelDownloader.podspec'
   workflow_dispatch:
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
