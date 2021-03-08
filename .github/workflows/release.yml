@@ -35,8 +35,8 @@ jobs:
     - name: Update SpecsTesting repo
       run: |
         botaccess=`cat bot-access.txt`
-        cd scripts/create_spec_repo/
-        swift build
+        # cd scripts/create_spec_repo/
+        # swift build
         pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/FirebasePrivate/SpecsTesting.git
         pod repo push specstesting FirebaseMLModelDownloader.podspec --sources=https://"$botaccess"@github.com/FirebasePrivate/SpecsTesting,https://github.com/firebase/SpecsDev.git,https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --skip-tests --allow-warnings --verbose
         # BOT_TOKEN="${botaccess}"  .build/debug/spec-repo-builder --sdk-repo "${local_sdk_repo_dir}" --local-spec-repo-name "${local_repo}"
