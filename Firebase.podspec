@@ -92,7 +92,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.dependency 'Firebase/CoreOnly'
     ss.dependency 'FirebaseCrashlytics', '~> 7.8.0'
     # Standard platforms PLUS watchOS.
-    ss.ios.deployment_target = '10.0'
+    ss.ios.deployment_target = '9.0'
     ss.osx.deployment_target = '10.12'
     ss.tvos.deployment_target = '10.0'
     ss.watchos.deployment_target = '6.0'
