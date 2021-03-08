@@ -847,17 +847,17 @@ let package = Package(
       publicHeadersPath: "./",
       cSettings: [
         .headerSearchPath("../../.."),
-        .headerSearchPath("../../../Firestore/Source/Public/FirebaseFirestore")
+        .headerSearchPath("../../../Firestore/Source/Public/FirebaseFirestore"),
       ]
     ),
     .testTarget(
-      name:"FirestoreTestingSupportTests",
+      name: "FirestoreTestingSupportTests",
       dependencies: ["FirebaseFirestoreTestingSupport"],
       path: "FirebaseTestingSupport/Firestore/Tests",
       cSettings: [
         .headerSearchPath("../../.."),
       ]
-    )
+    ),
 
   ],
   cLanguageStandard: .c99,
