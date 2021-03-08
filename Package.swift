@@ -844,10 +844,20 @@ let package = Package(
       name: "FirebaseFirestoreTestingSupport",
       dependencies: ["FirebaseFirestore"],
       path: "FirebaseTestingSupport/Firestore/Sources",
+      publicHeadersPath: "./",
       cSettings: [
-        .headerSearchPath("../.."),
+        .headerSearchPath("../../.."),
+        .headerSearchPath("../../../Firestore/Source/Public/FirebaseFirestore")
       ]
     ),
+    .testTarget(
+      name:"FirestoreTestingSupportTests",
+      dependencies: ["FirebaseFirestoreTestingSupport"],
+      path: "FirebaseTestingSupport/Firestore/Tests",
+      cSettings: [
+        .headerSearchPath("../../.."),
+      ]
+    )
 
   ],
   cLanguageStandard: .c99,
