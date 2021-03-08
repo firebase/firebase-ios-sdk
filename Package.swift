@@ -98,7 +98,7 @@ let package = Package(
     .package(
       name: "GoogleAppMeasurement",
       url: "https://github.com/google/GoogleAppMeasurement.git",
-      .exact("7.5.1")
+      .exact("7.8.0")
     ),
     .package(
       name: "GoogleDataTransport",
@@ -245,8 +245,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/7.5.0/FirebaseAnalytics.zip",
-      checksum: "2a622329e1f233d9bd38333c62c900854cb2eb9c63a00b65df14dadf4ef7988e"
+      url: "https://dl.google.com/firebase/ios/swiftpm/7.8.0/FirebaseAnalytics.zip",
+      checksum: "1a833b113a8d877e978c4b4b55ad5ae7c7f10b148dc37f1321be7bb7e7053f3a"
     ),
 
     .target(
