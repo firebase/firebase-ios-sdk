@@ -1,6 +1,6 @@
-# Firebase Testing Support
+# Firebase Testing Support (for automated test developers)
 
-Firebase Testing Support is a collection of libraries that provide tools and type definitions required for testing code that uses Firebase, e.g.:
+Firebase Testing Support is a collection of libraries that provide type definitions  and tools required for writing tests for code that uses Firebase, e.g.:
 
 - Instances of types like `Query` cannot be created with a simple constructor which makes unit testing of the code that depends on them difficult/impossible. Firestore Testing Support lib provides a type `QueryFake` that can be instantiated and used instead of actual `Query` instances in the tests.
 
@@ -37,7 +37,7 @@ See test for example, e.g. [QueryFakeTests.swift](../FirebaseTestingSupport/Fire
 E.g. for `FirebaseFirestoreTestingSupport` run the following command for the root repo directory:
 
 ```
-pod gen --auto-open --local-sources=./,./FirbaseTestingSupport/ ./FirebaseTestingSupport/FirebaseFirestoreTestingSupport.podspec --platforms=ios
+pod gen --auto-open --local-sources=./ FirebaseFirestoreTestingSupport.podspec --platforms=ios
 ```
 
 #### Swift Package Manager
@@ -48,6 +48,6 @@ pod gen --auto-open --local-sources=./,./FirbaseTestingSupport/ ./FirebaseTestin
 xed Package.swift
 ```
 
-- Select (or add if not exists yet) a scheme for the test targte, e.g. `FirestoreTestingSupportTests`
+- Select (or add if not exists yet) a scheme for the test target, e.g. `FirestoreTestingSupportTests`
 
 - make required modifications and run tests as needed.
