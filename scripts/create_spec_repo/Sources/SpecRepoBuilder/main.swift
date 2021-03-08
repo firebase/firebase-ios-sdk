@@ -239,9 +239,9 @@ struct SpecRepoBuilder: ParsableCommand {
     let flagsArg = flags.joined(separator: " ")
     var pushCommand = "pod repo push \(localSpecRepoName) \(podPath) --sources=\(sourcesArg) " +
       "\(flagsArg)"
-    if pod == "FirebsaseMLModelDownloader" {
-      pushCommand += " --skip-import-validation"
-    }
+//    if pod == "FirebaseMLModelDownloader" {
+//      pushCommand += " --skip-import-validation"
+//    }
 
     print("Running: \(pushCommand)")
     let outcome = shell.run(pushCommand)
