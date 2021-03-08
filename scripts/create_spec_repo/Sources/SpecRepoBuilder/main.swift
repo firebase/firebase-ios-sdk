@@ -343,9 +343,9 @@ struct SpecRepoBuilder: ParsableCommand {
           sources: podSources,
           flags: Constants.flags
         )
-      }
       default:
         print ("Skip pod - \(pod)")
+      }
         
       if podExitCode != 0 {
         exitCode = 1
