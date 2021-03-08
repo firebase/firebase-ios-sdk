@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                    = 'FirebaseFirestoreTestingSupport'
-  s.version                 = '7.7.0'
+  s.version                 = '1.0.0'
   s.summary                 = 'Firebase SDKs testing support types and utilities.'
 
   s.description      = <<-DESC
