@@ -24,7 +24,7 @@ jobs:
     - name: GoogleAppMeasurement
       run: scripts/third_party/travis/retry.sh pod spec lint GoogleAppMeasurement.podspec.json
     - name: FirebaseAnalyticsSwift
-      run: scripts/third_party/travis/retry.sh pod spec lint FirebaseAnalyticsSwift.podspec
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAnalyticsSwift.podspec --platforms=ios
 
 # TODO: Consider pushing GoogleAppMeasurement.podspec.json to SpecsStaging to enable similar test
 # for FirebaseAnalytics.podspec.json
