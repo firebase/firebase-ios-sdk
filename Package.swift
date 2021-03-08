@@ -98,7 +98,7 @@ let package = Package(
     .package(
       name: "GoogleAppMeasurement",
       url: "https://github.com/google/GoogleAppMeasurement.git",
-      .exact("7.5.1")
+      .exact("7.8.0")
     ),
     .package(
       name: "GoogleDataTransport",
