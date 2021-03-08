@@ -1,4 +1,4 @@
-// Copyright 2020 Google LLC
+// Copyright 2021 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,12 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Tests/Unit/Configurations/FPRFakeRemoteConfigFlags.h"
+#ifndef FIRCrashlyticsReport_Private_h
+#define FIRCrashlyticsReport_Private_h
 
-@implementation FPRFakeRemoteConfigFlags
+#import "Crashlytics/Crashlytics/Public/FirebaseCrashlytics/FIRCrashlyticsReport.h"
 
-- (BOOL)containsRemoteConfigFlags {
-  return self.containsRemoteConfigFlagValues;
-}
+NS_ASSUME_NONNULL_BEGIN
+
+/**
+ * Internal initializer because this object is created by the SDK.
+ **/
+@interface FIRCrashlyticsReport (Private)
+
+- (instancetype)initWithInternalReport:(FIRCLSInternalReport *)internalReport;
+
+@property(nonatomic, strong) FIRCLSInternalReport *internalReport;
 
 @end
+
+NS_ASSUME_NONNULL_END
+
+#endif /* FIRCrashlyticsReport_Private_h */

@@ -14,7 +14,7 @@
 
 #import "FirebasePerformance/Sources/FPRProtoUtils.h"
 
-#if __has_include("CoreTelephony/CTTelephonyNetworkInfo.h")
+#ifdef TARGET_HAS_MOBILE_CONNECTIVITY
 #import <CoreTelephony/CTCarrier.h>
 #import <CoreTelephony/CTTelephonyNetworkInfo.h>
 #endif
@@ -36,7 +36,7 @@ static GPBStringInt64Dictionary *FPRGetProtoCounterForDictionary(
     NSDictionary<NSString *, NSNumber *> *dictionary);
 static FPRMSGNetworkRequestMetric_HttpMethod FPRHTTPMethodForString(NSString *methodString);
 static FPRMSGNetworkConnectionInfo_NetworkType FPRNetworkConnectionInfoNetworkType(void);
-#if __has_include("CoreTelephony/CTTelephonyNetworkInfo.h")
+#ifdef TARGET_HAS_MOBILE_CONNECTIVITY
 static FPRMSGNetworkConnectionInfo_MobileSubtype FPRCellularNetworkType(void);
 #endif
 NSArray<FPRSessionDetails *> *FPRMakeFirstSessionVerbose(NSArray<FPRSessionDetails *> *sessions);
@@ -71,10 +71,10 @@ firebase_perf_v1_ApplicationInfo FPRGetApplicationInfoMessage() {
   firebase_perf_v1_ApplicationInfo appInfoMessage = firebase_perf_v1_ApplicationInfo_init_default;
   firebase_perf_v1_IosApplicationInfo iosAppInfo = firebase_perf_v1_IosApplicationInfo_init_default;
   NSBundle *mainBundle = [NSBundle mainBundle];
-  iosAppInfo.bundle_short_version = FPREncodeString([mainBundle infoDictionary][@"CFBundleShortVersionString"]);
-  iosAppInfo.sdk_version = FPREncodeString([NSString stringWithUTF8String:kFPRSDKVersion]);
-  iosAppInfo.network_connection_info.network_type = FPRNetworkConnectionInfoNetworkType();
-#if __has_include("CoreTelephony/CTTelephonyNetworkInfo.h")
+  iosAppInfo.bundleShortVersion = [mainBundle infoDictionary][@"CFBundleShortVersionString"];
+  iosAppInfo.sdkVersion = [NSString stringWithUTF8String:kFPRSDKVersion];
+  iosAppInfo.networkConnectionInfo.networkType = FPRNetworkConnectionInfoNetworkType();
+#ifdef TARGET_HAS_MOBILE_CONNECTIVITY
   CTTelephonyNetworkInfo *networkInfo = FPRNetworkInfo();
   CTCarrier *provider = networkInfo.subscriberCellularProvider;
   NSString *mccMnc = FPRValidatedMccMnc(provider.mobileCountryCode, provider.mobileNetworkCode);
@@ -272,7 +272,7 @@ FPRMSGApplicationProcessState FPRApplicationProcessState(FPRTraceState state) {
   return processState;
 }
 
-#if __has_include("CoreTelephony/CTTelephonyNetworkInfo.h")
+#ifdef TARGET_HAS_MOBILE_CONNECTIVITY
 CTTelephonyNetworkInfo *FPRNetworkInfo() {
   static CTTelephonyNetworkInfo *networkInfo;
   static dispatch_once_t onceToken;
@@ -356,7 +356,7 @@ static FPRMSGNetworkConnectionInfo_NetworkType FPRNetworkConnectionInfoNetworkTy
   return networkType;
 }
 
-#if __has_include("CoreTelephony/CTTelephonyNetworkInfo.h")
+#ifdef TARGET_HAS_MOBILE_CONNECTIVITY
 /** Get the current cellular network connection type in NetworkConnectionInfo_MobileSubtype format.
  *  @return Current cellular network connection type.
  */

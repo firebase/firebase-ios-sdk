@@ -17,7 +17,7 @@
 
 import PackageDescription
 
-let firebaseVersion = "7.6.0"
+let firebaseVersion = "7.8.0"
 
 let package = Package(
   name: "Firebase",
@@ -98,7 +98,7 @@ let package = Package(
     .package(
       name: "GoogleAppMeasurement",
       url: "https://github.com/google/GoogleAppMeasurement.git",
-      .exact("7.5.1")
+      .exact("7.8.0")
     ),
     .package(
       name: "GoogleDataTransport",
@@ -121,13 +121,15 @@ let package = Package(
       // This revision adds SPM enablement to the 0.3.9.6 release tag.
       "2.30907.0" ..< "2.30908.0"
     ),
-    .package(name: "abseil",
-             url: "https://github.com/firebase/abseil-cpp-SwiftPM.git",
-             from: "0.20200225.0"),
+    .package(
+      name: "abseil",
+      url: "https://github.com/firebase/abseil-cpp-SwiftPM.git",
+      .revision("973d27376eedfb8f0f0a324be4b4121d44808dc9")
+    ),
     .package(
       name: "gRPC",
       url: "https://github.com/firebase/grpc-SwiftPM.git",
-      "1.28.2" ..< "1.29.0"
+      .revision("b54af2c0d3b77209ccc8dc25af902c31a2095943")
     ),
     .package(
       name: "OCMock",
@@ -137,7 +139,7 @@ let package = Package(
     .package(
       name: "leveldb",
       url: "https://github.com/firebase/leveldb.git",
-      "1.22.1" ..< "1.23.0"
+      .revision("e4e8ab44a2781a3656b4b5852e71c07fd18fecfa")
     ),
     // Branches need a force update with a run with the revision set like below.
     //   .package(url: "https://github.com/paulb777/nanopb.git", .revision("564392bd87bd093c308a3aaed3997466efb95f74"))
@@ -245,8 +247,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/7.5.0/FirebaseAnalytics.zip",
-      checksum: "2a622329e1f233d9bd38333c62c900854cb2eb9c63a00b65df14dadf4ef7988e"
+      url: "https://dl.google.com/firebase/ios/swiftpm/7.8.0/FirebaseAnalytics.zip",
+      checksum: "1a833b113a8d877e978c4b4b55ad5ae7c7f10b148dc37f1321be7bb7e7053f3a"
     ),
 
     .target(

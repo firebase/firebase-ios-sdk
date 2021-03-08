@@ -205,10 +205,4 @@
   self.memorySamplingFrequencyInBackground = frequency;
 }
 
-#pragma mark - FLL related configurations.
-
-- (float_t)fllTransportPercentage {
-  return self.fllTransportPercentageValue;
-}
-
 @end
