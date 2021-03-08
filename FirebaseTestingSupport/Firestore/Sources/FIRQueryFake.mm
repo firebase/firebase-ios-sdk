@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRQueryFake.h"
+#import "FirebaseTestingSupport/Firestore/Sources/Public/FirebaseFirestoreTestingSupport/FIRQueryFake.h"
 
 #import "Firestore/Source/API/FIRQuery+Internal.h"
 
