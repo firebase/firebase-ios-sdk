@@ -16,6 +16,7 @@ Firebase Analytics is a free, out-of-the-box analytics solution that inspires ac
     :tag => 'CocoaPods-' + s.version.to_s
   }
 
+  s.static_framework        = true
   s.swift_version           = '5.0'
   s.ios.deployment_target   = '13.0'
 
