@@ -336,15 +336,13 @@ struct SpecRepoBuilder: ParsableCommand {
           sources: podSources,
           flags: Constants.umbrellaPodFlags
         )
-      case "FirebaseMLModelDownloader":
+      default:
         podExitCode = pushPodspec(
           forPod: pod,
           sdkRepo: sdkRepo,
           sources: podSources,
           flags: Constants.flags
         )
-      default:
-        print ("Skip pod - \(pod)")
       }
         
       if podExitCode != 0 {
