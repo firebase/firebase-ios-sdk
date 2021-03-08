@@ -344,7 +344,7 @@ struct SpecRepoBuilder: ParsableCommand {
           flags: Constants.flags
         )
       }
-        
+
       if podExitCode != 0 {
         exitCode = 1
         failedPods.append(pod)
