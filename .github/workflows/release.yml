@@ -34,6 +34,7 @@ jobs:
          BOT_TOKEN="${ossbotaccess}" test_version="${nightly_version}" scripts/release_testing_setup.sh nightly_testing
     - name: Update SpecsTesting repo
       run: |
+        set -ex
         botaccess=`cat bot-access.txt`
         pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/FirebasePrivate/SpecsTesting.git
         # pod repo push specstesting FirebaseMLModelDownloader.podspec --sources=https://"$botaccess"@github.com/FirebasePrivate/SpecsTesting,https://github.com/firebase/SpecsDev.git,https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --skip-tests --allow-warnings --verbose
