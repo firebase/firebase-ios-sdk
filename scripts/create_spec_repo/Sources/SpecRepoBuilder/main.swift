@@ -33,7 +33,7 @@ extension Constants {
 
 // flags for 'pod push'
 extension Constants {
-  static let flags = ["--skip-tests", "--allow-warnings"]
+  static let flags = ["--skip-tests", "--allow-warnings", "--verbose"]
   static let umbrellaPodFlags = Constants.flags + ["--skip-import-validation", "--use-json"]
 }
 
@@ -317,7 +317,7 @@ struct SpecRepoBuilder: ParsableCommand {
         print("remove \(sdkRepoName) dir.")
         try fileManager.removeItem(at: URL(fileURLWithPath: "\(curDir)/\(sdkRepoName)"))
       }
-      eraseRemoteRepo(repoPath: "\(curDir)", from: githubAccount, sdkRepoName)
+      // eraseRemoteRepo(repoPath: "\(curDir)", from: githubAccount, sdkRepoName)
 
     } catch {
       print("error occurred. \(error)")
