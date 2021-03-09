@@ -81,17 +81,18 @@ class ObjectValue {
 
  private:
   struct Overlay {
-    Overlay(std::unordered_map<std::string, Overlay>) : tag_();
-      Overlay(const Overlay& other) : tag_(other.tag_) {
-
-      }
-    ~Overlay(){};
     enum class Tag { Delete, Value, OverlayMap };
+
+    Overlay(std::unordered_map<std::string, Overlay> overlap_map) : tag_(Tag::OverlayMap), overlap_map_(std::move<overlap_map>);
+      Overlay(google_firestore_v1_Value value) : tag_(Tag::Value), value_(value), overlap_map_({});
+      Overlay() : tag_(Tag::Delete), overlap_map_({});
+
+    ~Overlay(){};
 
     Tag tag_;
     union {
       google_firestore_v1_Value value_;
-      std::unordered_map<std::string, Overlay> overlay_map_{};
+      std::unordered_map<std::string, Overlay> overlay_map_;
     };
   };
 
