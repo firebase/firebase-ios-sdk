@@ -32,7 +32,7 @@ class ServerTimestamps {
   /**
    * Returns whether the provided value is a field map that contains the
    * sentinel values of a ServerTimestamp.
-   * */
+   */
   static bool IsServerTimestamp(const google_firestore_v1_Value& value);
 
   /**
