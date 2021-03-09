@@ -47,7 +47,6 @@ jobs:
         pod repo remove "${local_repo}"
         rm -rf bot-access.txt
     - uses: actions/upload-artifact@v2
-      if: ${{ failure() }}
       with:
         name: verbose_log
         path: /tmp/test/firebase-ios-sdk
