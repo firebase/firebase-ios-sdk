@@ -275,6 +275,52 @@ struct SpecRepoBuilder: ParsableCommand {
   }
 
   mutating func run() throws {
+    let fileManager = FileManager.default
+    let curDir = FileManager().currentDirectoryPath
+    var podSpecFiles: [String: URL] = [:]
+
+    let documentsURL = URL(fileURLWithPath: sdkRepo)
+    do {
+      let fileURLs = try fileManager.contentsOfDirectory(
+        at: documentsURL,
+        includingPropertiesForKeys: nil
+      )
+      let podspecURLs = fileURLs.filter { $0.pathExtension == "podspec" }
+      for podspecURL in podspecURLs {
+        let podName = podspecURL.deletingPathExtension().lastPathComponent
+        if !Constants.exclusivePods.contains(podName) {
+          podSpecFiles[podName] = podspecURL
+        }
+      }
+    } catch {
+      print(
+        "Error while enumerating files \(documentsURL.path): \(error.localizedDescription)"
+      )
+    }
+
+    // This set is used to keep parent dependencies and help detect circular
+    // dependencies.
+    var tmpSet: Set<String> = []
+    print("Detect podspecs: \(podSpecFiles.keys)")
+    let specFileDict = SpecFiles(podSpecFiles, from: sdkRepo)
+    generateOrderOfInstallation(
+      pods: Array(podSpecFiles.keys),
+      specFiles: specFileDict,
+      parentDeps: &tmpSet
+    )
+    print("Podspec push order:\n", specFileDict.depInstallOrder.joined(separator: "->\t"))
+
+    do {
+      if fileManager.fileExists(atPath: "\(curDir)/\(sdkRepoName)") {
+        print("remove \(sdkRepoName) dir.")
+        try fileManager.removeItem(at: URL(fileURLWithPath: "\(curDir)/\(sdkRepoName)"))
+      }
+      eraseRemoteRepo(repoPath: "\(curDir)", from: githubAccount, sdkRepoName)
+
+    } catch {
+      print("error occurred. \(error)")
+    }
+
   }
 }
 
