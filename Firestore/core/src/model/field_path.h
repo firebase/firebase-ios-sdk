@@ -115,11 +115,11 @@ class FieldPath : public impl::BasePath<FieldPath>,
 
 // Specializations of std::hash is prohibited. We define a hash function to be
 // passed through manually.
-    struct HashFieldPath {
-        inline int64_t operator()(const FieldPath& path) const {
-            return path.Hash();
-        }
-    };
+struct HashFieldPath {
+  inline int64_t operator()(const FieldPath& path) const {
+    return path.Hash();
+  }
+};
 
 }  // namespace model
 }  // namespace firestore

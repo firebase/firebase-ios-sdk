@@ -88,19 +88,17 @@ absl::optional<google_firestore_v1_Value> ObjectValue::ExtractNestedValue(
   }
 }
 
-void ObjectValue::Set(
-    const model::FieldPath& path,
-    const google_firestore_v1_Value& value) {
+void ObjectValue::Set(const model::FieldPath& path,
+                      const google_firestore_v1_Value& value) {
   HARD_ASSERT(!path.empty(), "Cannot set field for empty path on ObjectValue");
   Overlay overlay;
   overlay.tag_ = Overlay::Tag::Value;
   overlay.value_ = value;
-  SetOverlay(path, overlay);
+  SetOverlay(path, std::move(overlay));
 }
 
-void ObjectValue::SetAll(
-    const model::FieldMask& field_mask,
-    const ValueMap& data) {
+void ObjectValue::SetAll(const model::FieldMask& field_mask,
+                         const ValueMap& data) {
   for (const FieldPath& path : field_mask) {
     const auto& value = data.find(path);
     if (value == data.end()) {
@@ -112,20 +110,18 @@ void ObjectValue::SetAll(
 }
 
 void ObjectValue::Delete(const FieldPath& path) {
-  Overlay overlay;
-  overlay.tag_ = Overlay::Tag::Delete;
-  SetOverlay(path, overlay);
+  SetOverlay(path, {});
 }
 
 void ObjectValue::SetOverlay(const FieldPath& path,
-                             const ObjectValue::Overlay& value) {
-    std::unordered_map<std::string, Overlay>* current_level = &overlap_map_;
+        ObjectValue::Overlay value) {
+  std::unordered_map<std::string, Overlay>* current_level = &overlap_map_;
 
   for (const std::string& segment : path.PopLast()) {
     const auto& current_value = current_level->find(segment);
 
     if (current_value != current_level->end()) {
-        Overlay& existing_overlay = current_value->second;
+      Overlay& existing_overlay = current_value->second;
       if (existing_overlay.tag_ == Overlay::Tag::OverlayMap) {
         // Re-use a previously created map
         current_level = &existing_overlay.overlay_map_;
@@ -133,24 +129,23 @@ void ObjectValue::SetOverlay(const FieldPath& path,
                  existing_overlay.value_.which_value_type ==
                      google_firestore_v1_Value_map_value_tag) {
         // Convert the existing Protobuf MapValue into a Java map
-        Overlay overlay;
-        overlay.tag_ = Overlay::Tag::OverlayMap;
-        overlay.overlay_map_ = ConvertToOverlayMap(existing_overlay.value_.map_value);
-        current_level->emplace(segment, overlay);
-        current_level = & overlay.overlay_map_;
+        Overlay overlay{ConvertToOverlayMap(existing_overlay.value_.map_value)};
+        std::unordered_map<std::string, Overlay>* next_level =
+            &overlay.overlay_map_;
+        current_level->emplace(segment, std::move(overlay));
+        current_level = next_level;
       }
     } else {
       // Create an empty hash map to represent the current nesting level
       std::unordered_map<std::string, Overlay> next_level;
-      Overlay overlay;
-      overlay.tag_ = Overlay::Tag::OverlayMap;
-      overlay.overlay_map_ = next_level;
-      current_level->emplace(segment, overlay);
-      current_level = &next_level;
+      Overlay overlay{std::move(next_level)};
+      auto ptr = &overlay.overlay_map_;
+      current_level->emplace(segment, std::move(overlay));
+      current_level = ptr;
     }
   }
 
-  current_level->emplace(path.last_segment(), value);
+  current_level->emplace(path.last_segment(), std::move(value));
 }
 
 const google_firestore_v1_Value& ObjectValue::BuildProto() const {
@@ -218,7 +213,7 @@ ObjectValue::OverlayMap ObjectValue::ConvertToOverlayMap(
     Overlay overlay;
     overlay.tag_ = Overlay::Tag::Value;
     overlay.value_ = map.fields[i].value;
-    result.emplace(nanopb::MakeString(map.fields[i].key), overlay);
+    result.emplace(nanopb::MakeString(map.fields[i].key), std::move(overlay));
   }
   return result;
 }

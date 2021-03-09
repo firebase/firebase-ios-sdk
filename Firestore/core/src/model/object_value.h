@@ -29,7 +29,9 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-typedef std::unordered_map<FieldPath, google_firestore_v1_Value, model::HashFieldPath> ValueMap;
+typedef std::
+    unordered_map<FieldPath, google_firestore_v1_Value, model::HashFieldPath>
+        ValueMap;
 
 /** A structured object value stored in Firestore. */
 class ObjectValue {
@@ -76,16 +78,27 @@ class ObjectValue {
    *
    * @param data A map of fields to values (or null for deletes).
    */
-  void SetAll(
-      const model::FieldMask& field_mask, const ValueMap& data);
+  void SetAll(const model::FieldMask& field_mask, const ValueMap& data);
 
  private:
   struct Overlay {
     enum class Tag { Delete, Value, OverlayMap };
 
-    Overlay(std::unordered_map<std::string, Overlay> overlap_map) : tag_(Tag::OverlayMap), overlap_map_(std::move<overlap_map>);
-      Overlay(google_firestore_v1_Value value) : tag_(Tag::Value), value_(value), overlap_map_({});
-      Overlay() : tag_(Tag::Delete), overlap_map_({});
+    Overlay(std::unordered_map<std::string, Overlay> overlay_map)
+        : tag_(Tag::OverlayMap), overlay_map_(std::move(overlay_map)) {
+    }
+    Overlay(google_firestore_v1_Value value) : tag_(Tag::Value), value_(value) {
+    }
+    Overlay() : tag_(Tag::Delete), value_({}) {
+    }
+
+    Overlay(Overlay&& other) : tag_(other.tag_) {
+      if (tag_ == Overlay::Tag::Value) {
+        value_ = other.value_;
+      } else if (tag_ == Overlay::Tag::OverlayMap) {
+        overlay_map_ = std::move(other.overlay_map_);
+      }
+    };
 
     ~Overlay(){};
 
@@ -98,10 +111,13 @@ class ObjectValue {
 
   typedef std::unordered_map<std::string, Overlay> OverlayMap;
 
-  static OverlayMap ConvertToOverlayMap(const google_firestore_v1_MapValue& map);
-    static google_firestore_v1_MapValue ConvertToMapValue(const ObjectValue::OverlayMap& overlay_map);
+  static OverlayMap ConvertToOverlayMap(
+      const google_firestore_v1_MapValue& map);
+  static google_firestore_v1_MapValue ConvertToMapValue(
+      const ObjectValue::OverlayMap& overlay_map);
 
-  model::FieldMask ExtractFieldMask(const google_firestore_v1_MapValue& value) const;
+  model::FieldMask ExtractFieldMask(
+      const google_firestore_v1_MapValue& value) const;
   absl::optional<google_firestore_v1_Value> ExtractNestedValue(
       const google_firestore_v1_Value& value,
       const FieldPath& field_path) const;
@@ -111,7 +127,7 @@ class ObjectValue {
    * Adds value to the overlay map at { path. Creates nested map entries if
    * needed.
    */
-  void SetOverlay(const FieldPath& path, const Overlay& overlay);
+  void SetOverlay(const FieldPath& path,  Overlay overlay);
 
   /**
    * Applies any overlays from currentOverlays that exist at currentPath and
@@ -125,8 +141,7 @@ class ObjectValue {
    * modifications were applied.
    */
   absl::optional<OverlayMap> ApplyOverlay(
-      const FieldPath& current_path,
-      const OverlayMap& current_overlays) const;
+      const FieldPath& current_path, const OverlayMap& current_overlays) const;
 
   /**
    * The immutable Value proto for this object. Local mutations are stored in
