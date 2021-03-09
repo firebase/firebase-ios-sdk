@@ -746,9 +746,8 @@ BundledDocumentMetadata BundleSerializer::DecodeDocumentMetadata(
   bool exists = reader.OptionalBool("exists", document_metadata);
 
   std::vector<std::string> queries;
-  std::vector<json> default_queries;
   for (const json& query :
-       reader.OptionalArray("queries", document_metadata, default_queries)) {
+       reader.OptionalArray("queries", document_metadata, {})) {
     if (!query.is_string()) {
       reader.Fail("Query name should be encoded as string");
       return {};
