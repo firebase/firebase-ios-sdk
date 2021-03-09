@@ -23,6 +23,8 @@ extension Constants {
   static let skipLinesWithWords = ["unit_tests", "test_spec"]
   static let dependencyLineSeparators = CharacterSet(charactersIn: " ,/")
   static let podSources = [
+    "https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsTesting",
+    "https://github.com/firebase/SpecsStaging.git",
     "https://cdn.cocoapods.org/",
   ]
   static let exclusivePods: [String] = ["FirebaseSegmentation"]
@@ -330,15 +332,20 @@ struct SpecRepoBuilder: ParsableCommand {
       var podExitCode: Int32 = 0
       print("----------\(pod)-----------")
       switch pod {
-      case "FirebaseMLModelDownloader":
+      case "Firebase":
+        podExitCode = pushPodspec(
+          forPod: pod,
+          sdkRepo: sdkRepo,
+          sources: podSources,
+          flags: Constants.umbrellaPodFlags
+        )
+      default:
         podExitCode = pushPodspec(
           forPod: pod,
           sdkRepo: sdkRepo,
           sources: podSources,
           flags: Constants.flags
         )
-      default:
-        print("skip \(pod).")
       }
       if podExitCode != 0 {
         exitCode = 1
