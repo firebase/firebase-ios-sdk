@@ -41,6 +41,52 @@ using model::NoDocument;
 using util::Status;
 using util::StatusOr;
 
+Status BundleLoader::AddElementInternal(const BundleElement& element) {
+  HARD_ASSERT(element.element_type() != BundleElement::Type::Metadata,
+              "Unexpected bundle metadata element.");
+
+  switch (element.element_type()) {
+    case BundleElement::Type::NamedQuery: {
+      queries_.push_back(static_cast<const NamedQuery&>(element));
+      break;
+    }
+    case BundleElement::Type::DocumentMetadata: {
+      const auto& document_metadata =
+          static_cast<const BundledDocumentMetadata&>(element);
+      current_document_ = document_metadata.key();
+      documents_metadata_.emplace(document_metadata.key(), document_metadata);
+
+      if (!document_metadata.exists()) {
+        documents_ = documents_.insert(
+            document_metadata.key(),
+            NoDocument(document_metadata.key(), document_metadata.read_time(),
+                       /*has_committed_mutations=*/false));
+        current_document_ = absl::nullopt;
+      }
+      break;
+    }
+    case BundleElement::Type::Document: {
+      const auto& document = static_cast<const BundleDocument&>(element);
+      if (!current_document_.has_value() ||
+          document.key() != current_document_.value()) {
+        return {Status(
+            Error::kErrorInvalidArgument,
+            "The document being added does not match the stored metadata.")};
+      }
+
+      documents_ = documents_.insert(document.key(), document.document());
+      current_document_ = absl::nullopt;
+      break;
+    }
+    default:
+      // It is impossible to reach here, because Type::Metadata is checked at
+      // the beginning of the method.
+      UNREACHABLE();
+  }
+
+  return Status::OK();
+}
+
 StatusOr<absl::optional<LoadBundleTaskProgress>> BundleLoader::AddElement(
     std::unique_ptr<BundleElement> element_ptr, uint64_t byte_size) {
   HARD_ASSERT(element_ptr->element_type() != BundleElement::Type::Metadata,
@@ -48,37 +94,14 @@ StatusOr<absl::optional<LoadBundleTaskProgress>> BundleLoader::AddElement(
 
   auto before_count = documents_.size();
 
-  const auto& element = *element_ptr;
-  if (element.element_type() == BundleElement::Type::NamedQuery) {
-    queries_.push_back(static_cast<const NamedQuery&>(element));
-  } else if (element.element_type() == BundleElement::Type::DocumentMetadata) {
-    const auto& document_metadata =
-        static_cast<const BundledDocumentMetadata&>(element);
-    current_document_ = document_metadata.key();
-    documents_metadata_.emplace(document_metadata.key(), document_metadata);
-
-    if (!document_metadata.exists()) {
-      documents_ = documents_.insert(
-          document_metadata.key(),
-          NoDocument(document_metadata.key(), document_metadata.read_time(),
-                     /*has_committed_mutations=*/false));
-      current_document_ = absl::nullopt;
-    }
-  } else if (element.element_type() == BundleElement::Type::Document) {
-    const auto& document = static_cast<const BundleDocument&>(element);
-    if (!current_document_.has_value() ||
-        document.key() != current_document_.value()) {
-      return {util::Status(
-          Error::kErrorInvalidArgument,
-          "The document being added does not match the stored metadata.")};
-    }
-
-    documents_ = documents_.insert(document.key(), document.document());
-    current_document_ = absl::nullopt;
+  auto result = AddElementInternal(*element_ptr);
+  if (!result.ok()) {
+    return result;
   }
 
   bytes_loaded_ += byte_size;
 
+  // Document has only been partially loaded, no progress to report.
   if (before_count == documents_.size()) {
     return {absl::nullopt};
   }
