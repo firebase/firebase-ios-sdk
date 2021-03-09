@@ -161,7 +161,6 @@
 }
 
 - (BOOL)createFileWithContents:(NSString *)contents atPath:(NSString *)path {
-  NSLog(@"path: %@", path);
   return [self.fileManager.underlyingFileManager
       createFileAtPath:path
               contents:[contents dataUsingEncoding:NSUTF8StringEncoding]
@@ -230,17 +229,15 @@
   XCTestExpectation *processReportsComplete =
       [[XCTestExpectation alloc] initWithDescription:@"processReports: complete"];
   __block BOOL reportsAvailable = NO;
-  [[[self.reportManager checkForUnsentReports] then:^id _Nullable(NSNumber *_Nullable value) {
-    reportsAvailable = [value boolValue];
-    if (!reportsAvailable) {
-      return nil;
-    }
-    if (send) {
-      return [self->_reportManager sendUnsentReports];
-    } else {
-      return [self->_reportManager deleteUnsentReports];
-    }
-  }] then:^id _Nullable(id _Nullable ignored) {
+  [[[self.reportManager checkForUnsentReports]
+      then:^id _Nullable(FIRCrashlyticsReport *_Nullable report) {
+        reportsAvailable = report ? true : false;
+        if (send) {
+          return [self->_reportManager sendUnsentReports];
+        } else {
+          return [self->_reportManager deleteUnsentReports];
+        }
+      }] then:^id _Nullable(id _Nullable ignored) {
     [processReportsComplete fulfill];
     return nil;
   }];
@@ -257,12 +254,15 @@
 }
 
 - (void)testExistingUnimportantReportOnStart {
-  // create a report and put it in place
+  // Create a report representing the last run and put it in place
   [self createActiveReport];
 
-  // Report should get deleted, and nothing else specials should happen.
+  // Report from the last run should get deleted, and a new
+  // one should be created for this run.
   [self startReportManager];
 
+  // If this is > 1 it means we're not cleaning up reports from previous runs.
+  // If this == 0, it means we're not creating new reports.
   XCTAssertEqual([[self contentsOfActivePath] count], 1);
 
   XCTAssertEqual([self.prepareAndSubmitReportArray count], 0);
@@ -273,10 +273,8 @@
   // create a report and put it in place
   [self createActiveReport];
 
-  // Report should get deleted, and nothing else specials should happen.
-  FBLPromise<NSNumber *> *promise = [self startReportManagerWithDataCollectionEnabled:NO];
-  // It should not be necessary to call processReports, since there are no reports.
-  [self waitForPromise:promise];
+  // Starting with data collection disabled should report in nothing changing
+  [self startReportManagerWithDataCollectionEnabled:NO];
 
   XCTAssertEqual([[self contentsOfActivePath] count], 1);
 
@@ -466,6 +464,11 @@
   XCTAssertEqualObjects(self.prepareAndSubmitReportArray[0][@"urgent"], @(NO));
 }
 
+/*
+ * This tests an edge case where there is a report in processing. For the purposes of unsent
+ * reports these are not shown to the developer, but they are uploaded / deleted upon
+ * calling send / delete.
+ */
 - (void)testFilesLeftInProcessingWithDataCollectionDisabled {
   // Put report in processing.
   FIRCLSInternalReport *report = [self createActiveReport];
@@ -479,10 +482,14 @@
                  @"Processing should still have the report");
   XCTAssertEqual([self.prepareAndSubmitReportArray count], 0);
 
-  [self processReports:YES];
+  // We don't expect reports here because we don't consider processing or prepared
+  // reports as unsent as they need to be marked for sending before being placed
+  // in those directories.
+  [self processReports:YES andExpectReports:NO];
 
   // We should not process reports left over in processing.
   XCTAssertEqual([[self contentsOfProcessingPath] count], 0, @"Processing should be cleared");
+  XCTAssertEqual([[self contentsOfPreparedPath] count], 0, @"Prepared should be cleared");
 
   XCTAssertEqual([self.prepareAndSubmitReportArray count], 1);
   XCTAssertEqualObjects(self.prepareAndSubmitReportArray[0][@"process"], @(NO));
@@ -493,7 +500,7 @@
   // Drop a phony multipart-mime file in here, with non-zero contents.
   XCTAssert([_fileManager createDirectoryAtPath:_fileManager.preparedPath]);
   NSString *path = [_fileManager.preparedPath stringByAppendingPathComponent:@"phony-report"];
-  path = [path stringByAppendingPathExtension:@".multipart-mime"];
+  path = [path stringByAppendingPathExtension:@"multipart-mime"];
 
   XCTAssertTrue([[_fileManager underlyingFileManager]
       createFileAtPath:path
@@ -502,7 +509,7 @@
 
   [self startReportManager];
 
-  // We should not process reports left over in prepared.
+  // Reports should be moved out of prepared
   XCTAssertEqual([[self contentsOfPreparedPath] count], 0, @"Prepared should be cleared");
 
   XCTAssertEqual([self.prepareAndSubmitReportArray count], 0);
@@ -510,11 +517,16 @@
   XCTAssertEqualObjects(self.uploadReportArray[0][@"path"], path);
 }
 
+/*
+ * This tests an edge case where there is a report in prepared. For the purposes of unsent
+ * reports these are not shown to the developer, but they are uploaded / deleted upon
+ * calling send / delete.
+ */
 - (void)testFilesLeftInPreparedWithDataCollectionDisabled {
   // drop a phony multipart-mime file in here, with non-zero contents
   XCTAssert([_fileManager createDirectoryAtPath:_fileManager.preparedPath]);
   NSString *path = [_fileManager.preparedPath stringByAppendingPathComponent:@"phony-report"];
-  path = [path stringByAppendingPathExtension:@".multipart-mime"];
+  path = [path stringByAppendingPathExtension:@"multipart-mime"];
 
   XCTAssertTrue([[_fileManager underlyingFileManager]
       createFileAtPath:path
@@ -528,10 +540,14 @@
                  @"Prepared should still have the report");
   XCTAssertEqual([self.prepareAndSubmitReportArray count], 0);
 
-  [self processReports:YES];
+  // We don't expect reports here because we don't consider processing or prepared
+  // reports as unsent as they need to be marked for sending before being placed
+  // in those directories.
+  [self processReports:YES andExpectReports:NO];
 
-  // we should not process reports left over in processing
+  // Reports should be moved out of prepared
   XCTAssertEqual([[self contentsOfPreparedPath] count], 0, @"Prepared should be cleared");
+  XCTAssertEqual([[self contentsOfProcessingPath] count], 0, @"Processing should be cleared");
 
   XCTAssertEqual([self.prepareAndSubmitReportArray count], 0);
   XCTAssertEqual([self.uploadReportArray count], 1);
@@ -542,7 +558,7 @@
   // drop a phony multipart-mime file in here, with non-zero contents
   XCTAssert([_fileManager createDirectoryAtPath:_fileManager.preparedPath]);
   NSString *path = [_fileManager.preparedPath stringByAppendingPathComponent:@"phony-report"];
-  path = [path stringByAppendingPathExtension:@".multipart-mime"];
+  path = [path stringByAppendingPathExtension:@"multipart-mime"];
 
   XCTAssertTrue([[_fileManager underlyingFileManager]
       createFileAtPath:path

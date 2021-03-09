@@ -47,24 +47,23 @@
   NSString *customAPath = [report pathForContentFile:FIRCLSReportCustomExceptionAFile];
   NSString *customBPath = [report pathForContentFile:FIRCLSReportCustomExceptionBFile];
 
-  XCTAssertFalse(report.needsToBeSubmitted, @"metadata only should not need to be submitted");
+  XCTAssertFalse(report.hasAnyEvents, @"metadata only should not need to be submitted");
 
   [[NSFileManager defaultManager] createFileAtPath:customAPath
                                           contents:[NSData data]
                                         attributes:nil];
 
-  XCTAssert(report.needsToBeSubmitted, @"with the A file present, needs to be submitted");
+  XCTAssert(report.hasAnyEvents, @"with the A file present, needs to be submitted");
 
   [[NSFileManager defaultManager] createFileAtPath:customBPath
                                           contents:[NSData data]
                                         attributes:nil];
 
   // with A and B, also needs
-  XCTAssert(report.needsToBeSubmitted,
-            @"with both the A and B files present, needs to be submitted");
+  XCTAssert(report.hasAnyEvents, @"with both the A and B files present, needs to be submitted");
 
   XCTAssert([[NSFileManager defaultManager] removeItemAtPath:customAPath error:nil]);
-  XCTAssert(report.needsToBeSubmitted, @"with the B file present, needs to be submitted");
+  XCTAssert(report.hasAnyEvents, @"with the B file present, needs to be submitted");
 }
 
 @end

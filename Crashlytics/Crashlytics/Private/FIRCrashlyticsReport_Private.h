@@ -1,4 +1,4 @@
-// Copyright 2019 Google
+// Copyright 2021 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,16 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Crashlytics/Crashlytics/Models/FIRCLSReport.h"
+#ifndef FIRCrashlyticsReport_Private_h
+#define FIRCrashlyticsReport_Private_h
 
-@class FIRCLSInternalReport;
+#import "Crashlytics/Crashlytics/Public/FirebaseCrashlytics/FIRCrashlyticsReport.h"
 
-@interface FIRCLSReport ()
+NS_ASSUME_NONNULL_BEGIN
 
-- (instancetype)initWithInternalReport:(FIRCLSInternalReport *)report
-                          prefetchData:(BOOL)shouldPrefetch NS_DESIGNATED_INITIALIZER;
-- (instancetype)initWithInternalReport:(FIRCLSInternalReport *)report;
+/**
+ * Internal initializer because this object is created by the SDK.
+ **/
+@interface FIRCrashlyticsReport (Private)
 
-@property(nonatomic, strong, readonly) FIRCLSInternalReport *internalReport;
+- (instancetype)initWithInternalReport:(FIRCLSInternalReport *)internalReport;
+
+@property(nonatomic, strong) FIRCLSInternalReport *internalReport;
 
 @end
+
+NS_ASSUME_NONNULL_END
+
+#endif /* FIRCrashlyticsReport_Private_h */
