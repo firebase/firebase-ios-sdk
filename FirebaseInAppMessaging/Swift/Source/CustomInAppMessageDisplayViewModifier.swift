@@ -28,8 +28,8 @@ struct ImageOnlyInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModif
 
   @ViewBuilder
   func overlayView() -> some View {
-    if let imageOnlyMessage = delegateBridge.inAppMessageData?.0 as? InAppMessagingImageOnlyDisplay,
-      let delegate = delegateBridge.inAppMessageData?.1 {
+    if let (message, delegate) = delegateBridge.inAppMessageData,
+      let imageOnlyMessage = message as? InAppMessagingImageOnlyDisplay {
       closure(imageOnlyMessage, delegate)
         .onAppear { delegate.impressionDetected?(for: imageOnlyMessage) }
     } else {
@@ -62,8 +62,8 @@ struct BannerInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModifier
 
   @ViewBuilder
   func overlayView() -> some View {
-    if let bannerMessage = delegateBridge.inAppMessageData?.0 as? InAppMessagingBannerDisplay,
-      let delegate = delegateBridge.inAppMessageData?.1 {
+    if let (message, delegate) = delegateBridge.inAppMessageData,
+      let bannerMessage = message as? InAppMessagingBannerDisplay {
       closure(bannerMessage, delegate).onAppear { delegate.impressionDetected?(for: bannerMessage) }
     } else {
       EmptyView()
@@ -95,8 +95,8 @@ struct ModalInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModifier 
 
   @ViewBuilder
   func overlayView() -> some View {
-    if let modalMessage = delegateBridge.inAppMessageData?.0 as? InAppMessagingModalDisplay,
-      let delegate = delegateBridge.inAppMessageData?.1 {
+    if let (message, delegate) = delegateBridge.inAppMessageData,
+      let modalMessage = message as? InAppMessagingModalDisplay {
       closure(modalMessage, delegate).onAppear { delegate.impressionDetected?(for: modalMessage) }
     } else {
       EmptyView()
@@ -128,8 +128,8 @@ struct CardInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModifier {
 
   @ViewBuilder
   func overlayView() -> some View {
-    if let cardMessage = delegateBridge.inAppMessageData?.0 as? InAppMessagingCardDisplay,
-      let delegate = delegateBridge.inAppMessageData?.1 {
+    if let (message, delegate) = delegateBridge.inAppMessageData,
+      let cardMessage = message as? InAppMessagingCardDisplay {
       closure(cardMessage, delegate).onAppear { delegate.impressionDetected?(for: cardMessage) }
     } else {
       EmptyView()
@@ -150,6 +150,10 @@ public extension View {
 
 // MARK: Bridge to Firebase In-App Messaging SDK.
 
+/**
+ * A singleton that acts as the bridge between view modifiers for displaying custom in-app messages and the
+ * in-app message fetch/display/interaction flow.
+ */
 @available(iOS 13, tvOS 13, *)
 class DelegateBridge: NSObject, InAppMessagingDisplay, InAppMessagingDisplayDelegate,
   ObservableObject {
