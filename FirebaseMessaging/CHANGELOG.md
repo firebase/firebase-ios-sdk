@@ -1,3 +1,6 @@
+# 2021-02 -- v7.7.0
+- [fixed] Fixed an issue in which, when checking storage size before writing to disk, the client was checking document folders that were no longer used. (#7480)
+
 # 2021-02 -- v7.6.0
 - [fixed] Fixed build warnings introduced with Xcode 12.5. (#7433)
 

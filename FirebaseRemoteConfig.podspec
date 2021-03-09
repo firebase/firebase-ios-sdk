@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseRemoteConfig'
-  s.version          = '7.5.0'
+  s.version          = '7.8.0'
   s.summary          = 'Firebase Remote Config'
 
   s.description      = <<-DESC
@@ -18,9 +18,15 @@ app update.
     :tag => 'CocoaPods-' + s.version.to_s
   }
   s.social_media_url = 'https://twitter.com/Firebase'
-  s.ios.deployment_target = '10.0'
-  s.osx.deployment_target = '10.12'
-  s.tvos.deployment_target = '10.0'
+  ios_deployment_target = '10.0'
+  osx_deployment_target = '10.12'
+  tvos_deployment_target = '10.0'
+  watchos_deployment_target = '6.0'
+
+  s.ios.deployment_target = ios_deployment_target
+  s.osx.deployment_target = osx_deployment_target
+  s.tvos.deployment_target = tvos_deployment_target
+  s.watchos.deployment_target = watchos_deployment_target
 
   s.cocoapods_version = '>= 1.4.0'
   s.prefix_header_file = false

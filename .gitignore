@@ -9,6 +9,8 @@ FirebaseAuth/Tests/Sample/SwiftApiTests/Credentials.swift
 FirebaseDatabase/Tests/Resources/GoogleService-Info.plist
 
 FirebaseRemoteConfig/Tests/SwiftAPI/Resources/GoogleService-Info.plist
+FirebaseRemoteConfig/Tests/Sample/RemoteConfigSampleApp/GoogleService-Info.plist
+FirebaseRemoteConfig/Tests/Sample/RemoteConfigSampleApp/SecondApp-GoogleService-Info.plist
 
 # FirebaseStorage integration tests GoogleService-Info.plist
 FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist
@@ -36,7 +38,7 @@ FirebaseSegmentation/Tests/Sample/GoogleService-Info.plist
 
 # FirebaseMLModelDownloader integration tests GoogleService-Info.plist
 FirebaseMLModelDownloader/Tests/Integration/Resources/GoogleService-Info.plist
-FirebaseMLModelDownloader/Apps/Sample/Resources/GoogleService-Info.plist
+FirebaseMLModelDownloader/Apps/Sample/**/GoogleService-Info.plist
 
 # FirebasePerformance dev test App and integration tests GoogleService-Info.plist
 FirebasePerformance/**/GoogleService-Info.plist

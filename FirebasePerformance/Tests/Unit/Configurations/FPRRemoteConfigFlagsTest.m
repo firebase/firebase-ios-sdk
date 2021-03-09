@@ -56,10 +56,10 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   [remoteConfig.configValues setObject:boolRCValueFromRemote forKey:@"fpr_enabled"];
 
   FIRRemoteConfigValue *floatRCValueFromRemote =
-      [[FIRRemoteConfigValue alloc] initWithData:[@"10.0" dataUsingEncoding:NSUTF8StringEncoding]
+      [[FIRRemoteConfigValue alloc] initWithData:[@"0.1" dataUsingEncoding:NSUTF8StringEncoding]
                                           source:FIRRemoteConfigSourceRemote];
   [remoteConfig.configValues setObject:floatRCValueFromRemote
-                                forKey:@"fpr_log_transport_ios_percent"];
+                                forKey:@"fpr_vc_session_sampling_rate"];
 
   // Trigger the RC config fetch
   remoteConfig.fetchStatus = FIRRemoteConfigFetchStatusSuccess;
@@ -72,19 +72,20 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   XCTAssertNotNil([configFlags.userDefaults objectForKey:fprEnabledConfigKey]);
   XCTAssertEqual([[configFlags.userDefaults objectForKey:fprEnabledConfigKey] boolValue], true);
 
-  NSString *fprTransportConfigKey =
-      [NSString stringWithFormat:@"%@.%@", kFPRConfigPrefix, @"fpr_log_transport_ios_percent"];
-  XCTAssertNotNil([configFlags.userDefaults objectForKey:fprTransportConfigKey]);
-  XCTAssertEqual([[configFlags.userDefaults objectForKey:fprTransportConfigKey] floatValue], 10.0);
+  NSString *fprSamplingConfigKey =
+      [NSString stringWithFormat:@"%@.%@", kFPRConfigPrefix, @"fpr_vc_session_sampling_rate"];
+  XCTAssertNotNil([configFlags.userDefaults objectForKey:fprSamplingConfigKey]);
+  XCTAssertEqualWithAccuracy(
+      [[configFlags.userDefaults objectForKey:fprSamplingConfigKey] floatValue], 0.1, 0.001);
 
   // Provide another expected remote config values (different than what was previously provided)
   [remoteConfig.configValues removeAllObjects];
 
   FIRRemoteConfigValue *floatRCValueFromRemote2 =
-      [[FIRRemoteConfigValue alloc] initWithData:[@"20.0" dataUsingEncoding:NSUTF8StringEncoding]
+      [[FIRRemoteConfigValue alloc] initWithData:[@"0.2" dataUsingEncoding:NSUTF8StringEncoding]
                                           source:FIRRemoteConfigSourceRemote];
   [remoteConfig.configValues setObject:floatRCValueFromRemote2
-                                forKey:@"fpr_log_transport_ios_percent"];
+                                forKey:@"fpr_vc_session_sampling_rate"];
 
   // Retrigger the RC config fetch
   remoteConfig.fetchStatus = FIRRemoteConfigFetchStatusSuccess;
@@ -94,8 +95,9 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   // Verify the new expected remote config values
   XCTAssertNil([configFlags.userDefaults objectForKey:fprEnabledConfigKey]);
 
-  XCTAssertNotNil([configFlags.userDefaults objectForKey:fprTransportConfigKey]);
-  XCTAssertEqual([[configFlags.userDefaults objectForKey:fprTransportConfigKey] floatValue], 20.0);
+  XCTAssertNotNil([configFlags.userDefaults objectForKey:fprSamplingConfigKey]);
+  XCTAssertEqualWithAccuracy(
+      [[configFlags.userDefaults objectForKey:fprSamplingConfigKey] floatValue], 0.2, 0.001);
 }
 
 /** Validate the configuration update happens. */
@@ -1135,28 +1137,6 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   [configFlags cacheConfigValues];
   XCTAssertEqualObjects([configFlags sdkDisabledVersionsWithDefaultValue:emptySet], emptySet);
   [configFlags resetCache];
-}
-
-#pragma mark - Google Data Transport related config tests
-
-/** Validates if the fetch for the session sampling rate config happens from cache, else return
- * default value. */
-- (void)testConfigFetchForFllTransportPercentage {
-  FPRFakeRemoteConfig *remoteConfig = [[FPRFakeRemoteConfig alloc] init];
-
-  FPRRemoteConfigFlags *configFlags =
-      [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
-
-  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] init];
-  configFlags.userDefaults = userDefaults;
-
-  NSString *configKey =
-      [NSString stringWithFormat:@"%@.%@", kFPRConfigPrefix, @"fpr_log_transport_ios_percent"];
-  [userDefaults setObject:@(1) forKey:configKey];
-  XCTAssertEqual([configFlags fllTransportPercentageWithDefaultValue:100], 1);
-
-  [userDefaults removeObjectForKey:configKey];
-  XCTAssertEqual([configFlags fllTransportPercentageWithDefaultValue:100], 100);
 }
 
 @end

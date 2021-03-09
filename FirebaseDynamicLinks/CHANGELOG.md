@@ -1,3 +1,6 @@
+# v7.7.0
+- [added] Added `utmParametersDictionary` property to `DynamicLink`. (#6730)
+
 # v7.6.0
 - [fixed] Fixed build warnings introduced with Xcode 12.5. (#7434)
 

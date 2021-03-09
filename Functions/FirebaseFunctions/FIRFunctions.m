@@ -149,12 +149,13 @@ NSString *const kFUNDefaultRegion = @"us-central1";
 }
 
 - (void)useLocalhost {
-  [self useEmulatorWithHost:@"http://localhost" port:5005];
+  [self useEmulatorWithHost:@"localhost" port:5005];
 }
 
 - (void)useEmulatorWithHost:(NSString *)host port:(NSInteger)port {
   NSAssert(host.length > 0, @"Cannot connect to nil or empty host");
-  NSString *origin = [NSString stringWithFormat:@"%@:%li", host, (long)port];
+  NSString *prefix = [host hasPrefix:@"http"] ? @"" : @"http://";
+  NSString *origin = [NSString stringWithFormat:@"%@%@:%li", prefix, host, (long)port];
   _emulatorOrigin = origin;
 }
 

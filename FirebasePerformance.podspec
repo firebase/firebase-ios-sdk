@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebasePerformance'
-  s.version          = '7.5.0'
+  s.version          = '7.8.0'
   s.summary          = 'Firebase Performance'
 
   s.description      = <<-DESC
@@ -24,7 +24,6 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
   s.tvos.deployment_target = tvos_deployment_target
 
   s.cocoapods_version = '>= 1.4.0'
-  s.static_framework = true
   s.prefix_header_file = false
 
   base_dir = "FirebasePerformance/"
@@ -56,8 +55,8 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
   }
 
   s.ios.framework = 'CoreTelephony'
-  s.ios.framework = 'QuartzCore'
-  s.ios.framework = 'SystemConfiguration'
+  s.framework = 'QuartzCore'
+  s.framework = 'SystemConfiguration'
   s.dependency 'FirebaseCore', '~> 7.0'
   s.dependency 'FirebaseInstallations', '~> 7.0'
   s.dependency 'FirebaseRemoteConfig', '~> 7.0'

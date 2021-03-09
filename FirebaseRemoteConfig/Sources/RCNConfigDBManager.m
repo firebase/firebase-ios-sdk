@@ -26,7 +26,8 @@
 #define RCNTableNameMain "main"
 #define RCNTableNameMainActive "main_active"
 #define RCNTableNameMainDefault "main_default"
-#define RCNTableNameMetadata "fetch_metadata"
+#define RCNTableNameMetadataDeprecated "fetch_metadata"
+#define RCNTableNameMetadata "fetch_metadata_v2"
 #define RCNTableNameInternalMetadata "internal_metadata"
 #define RCNTableNameExperiment "experiment"
 #define RCNTableNamePersonalization "personalization"
@@ -98,9 +99,9 @@ static BOOL RemoteConfigCreateFilePathIfNotExist(NSString *filePath) {
 
 static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
   return @[
-    RCNKeyBundleIdentifier, RCNKeyFetchTime, RCNKeyDigestPerNamespace, RCNKeyDeviceContext,
-    RCNKeyAppContext, RCNKeySuccessFetchTime, RCNKeyFailureFetchTime, RCNKeyLastFetchStatus,
-    RCNKeyLastFetchError, RCNKeyLastApplyTime, RCNKeyLastSetDefaultsTime
+    RCNKeyBundleIdentifier, RCNKeyNamespace, RCNKeyFetchTime, RCNKeyDigestPerNamespace,
+    RCNKeyDeviceContext, RCNKeyAppContext, RCNKeySuccessFetchTime, RCNKeyFailureFetchTime,
+    RCNKeyLastFetchStatus, RCNKeyLastFetchError, RCNKeyLastApplyTime, RCNKeyLastSetDefaultsTime
   ];
 }
 
@@ -267,8 +268,8 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
 
   static const char *createTableMetadata =
       "create TABLE IF NOT EXISTS " RCNTableNameMetadata
-      " (_id INTEGER PRIMARY KEY, bundle_identifier"
-      " TEXT, fetch_time INTEGER, digest_per_ns BLOB, device_context BLOB, app_context BLOB, "
+      " (_id INTEGER PRIMARY KEY, bundle_identifier TEXT, namespace TEXT,"
+      " fetch_time INTEGER, digest_per_ns BLOB, device_context BLOB, app_context BLOB, "
       "success_fetch_time BLOB, failure_fetch_time BLOB, last_fetch_status INTEGER, "
       "last_fetch_error INTEGER, last_apply_time INTEGER, last_set_defaults_time INTEGER)";
 
@@ -354,9 +355,9 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
   RCN_MUST_NOT_BE_MAIN_THREAD();
   static const char *SQL =
       "INSERT INTO " RCNTableNameMetadata
-      " (bundle_identifier, fetch_time, digest_per_ns, device_context, "
+      " (bundle_identifier, namespace, fetch_time, digest_per_ns, device_context, "
       "app_context, success_fetch_time, failure_fetch_time, last_fetch_status, "
-      "last_fetch_error, last_apply_time, last_set_defaults_time) values (?, ?, ?, ?, ?, "
+      "last_fetch_error, last_apply_time, last_set_defaults_time) values (?, ?, ?, ?, ?, ?, "
       "?, ?, ?, ?, ?, ?)";
 
   sqlite3_stmt *statement = [self prepareSQL:SQL];
@@ -368,7 +369,8 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
   NSArray *columns = RemoteConfigMetadataTableColumnsInOrder();
   int index = 0;
   for (NSString *columnName in columns) {
-    if ([columnName isEqualToString:RCNKeyBundleIdentifier]) {
+    if ([columnName isEqualToString:RCNKeyBundleIdentifier] ||
+        [columnName isEqualToString:RCNKeyNamespace]) {
       NSString *value = columnNameToValue[columnName];
       if (![self bindStringToStatement:statement index:++index string:value]) {
         return [self logErrorWithSQL:SQL finalizeStatement:statement returnValue:NO];
@@ -618,10 +620,11 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
 #pragma mark - update
 
 - (void)updateMetadataWithOption:(RCNUpdateOption)option
+                       namespace:(NSString *)namespace
                           values:(NSArray *)values
                completionHandler:(RCNDBCompletion)handler {
   dispatch_async(_databaseOperationQueue, ^{
-    BOOL success = [self updateMetadataTableWithOption:option andValues:values];
+    BOOL success = [self updateMetadataTableWithOption:option namespace:namespace andValues:values];
     if (handler) {
       dispatch_async(dispatch_get_main_queue(), ^{
         handler(success, nil);
@@ -630,17 +633,20 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
   });
 }
 
-- (BOOL)updateMetadataTableWithOption:(RCNUpdateOption)option andValues:(NSArray *)values {
+- (BOOL)updateMetadataTableWithOption:(RCNUpdateOption)option
+                            namespace:(NSString *)namespace
+                            andValues:(NSArray *)values {
   RCN_MUST_NOT_BE_MAIN_THREAD();
   static const char *SQL =
       "UPDATE " RCNTableNameMetadata " (last_fetch_status, last_fetch_error, last_apply_time, "
-      "last_set_defaults_time) values (?, ?, ?, ?)";
+      "last_set_defaults_time) values (?, ?, ?, ?) WHERE namespace = ?";
   if (option == RCNUpdateOptionFetchStatus) {
-    SQL = "UPDATE " RCNTableNameMetadata " SET last_fetch_status = ?, last_fetch_error = ?";
+    SQL = "UPDATE " RCNTableNameMetadata
+          " SET last_fetch_status = ?, last_fetch_error = ? WHERE namespace = ?";
   } else if (option == RCNUpdateOptionApplyTime) {
-    SQL = "UPDATE " RCNTableNameMetadata " SET last_apply_time = ?";
+    SQL = "UPDATE " RCNTableNameMetadata " SET last_apply_time = ? WHERE namespace = ?";
   } else if (option == RCNUpdateOptionDefaultTime) {
-    SQL = "UPDATE " RCNTableNameMetadata " SET last_set_defaults_time = ?";
+    SQL = "UPDATE " RCNTableNameMetadata " SET last_set_defaults_time = ? WHERE namespace = ?";
   } else {
     return NO;
   }
@@ -666,6 +672,12 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
       return [self logErrorWithSQL:SQL finalizeStatement:statement returnValue:NO];
     }
   }
+  // bind namespace to query
+  if (sqlite3_bind_text(statement, ++index, [namespace UTF8String], -1, SQLITE_TRANSIENT) !=
+      SQLITE_OK) {
+    return [self logErrorWithSQL:SQL finalizeStatement:statement returnValue:NO];
+  }
+
   if (sqlite3_step(statement) != SQLITE_DONE) {
     return [self logErrorWithSQL:SQL finalizeStatement:statement returnValue:NO];
   }
@@ -674,11 +686,13 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
 }
 #pragma mark - read from DB
 
-- (NSDictionary *)loadMetadataWithBundleIdentifier:(NSString *)bundleIdentifier {
+- (NSDictionary *)loadMetadataWithBundleIdentifier:(NSString *)bundleIdentifier
+                                         namespace:(NSString *)namespace {
   __block NSDictionary *metadataTableResult;
   __weak RCNConfigDBManager *weakSelf = self;
   dispatch_sync(_databaseOperationQueue, ^{
-    metadataTableResult = [weakSelf loadMetadataTableWithBundleIdentifier:bundleIdentifier];
+    metadataTableResult = [weakSelf loadMetadataTableWithBundleIdentifier:bundleIdentifier
+                                                                namespace:namespace];
   });
   if (metadataTableResult) {
     return metadataTableResult;
@@ -686,19 +700,20 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
   return [[NSDictionary alloc] init];
 }
 
-- (NSMutableDictionary *)loadMetadataTableWithBundleIdentifier:(NSString *)bundleIdentifier {
+- (NSMutableDictionary *)loadMetadataTableWithBundleIdentifier:(NSString *)bundleIdentifier
+                                                     namespace:(NSString *)namespace {
   NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
   const char *SQL =
       "SELECT bundle_identifier, fetch_time, digest_per_ns, device_context, app_context, "
       "success_fetch_time, failure_fetch_time , last_fetch_status, "
       "last_fetch_error, last_apply_time, last_set_defaults_time FROM " RCNTableNameMetadata
-      " WHERE bundle_identifier = ?";
+      " WHERE bundle_identifier = ? and namespace = ?";
   sqlite3_stmt *statement = [self prepareSQL:SQL];
   if (!statement) {
     return nil;
   }
 
-  NSArray *params = @[ bundleIdentifier ];
+  NSArray *params = @[ bundleIdentifier, namespace ];
   [self bindStringsToStatement:statement stringArray:params];
 
   while (sqlite3_step(statement) == SQLITE_ROW) {
@@ -1043,6 +1058,7 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
 }
 
 - (void)deleteRecordWithBundleIdentifier:(NSString *)bundleIdentifier
+                               namespace:(NSString *)namespace
                             isInternalDB:(BOOL)isInternalDB {
   __weak RCNConfigDBManager *weakSelf = self;
   dispatch_async(_databaseOperationQueue, ^{
@@ -1051,10 +1067,11 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
       return;
     }
     const char *SQL = "DELETE FROM " RCNTableNameInternalMetadata " WHERE key LIKE ?";
-    if (!isInternalDB) {
-      SQL = "DELETE FROM " RCNTableNameMetadata " WHERE bundle_identifier = ?";
-    }
     NSArray *params = @[ bundleIdentifier ];
+    if (!isInternalDB) {
+      SQL = "DELETE FROM " RCNTableNameMetadata " WHERE bundle_identifier = ? and namespace = ?";
+      params = @[ bundleIdentifier, namespace ];
+    }
     [strongSelf executeQuery:SQL withParams:params];
   });
 }

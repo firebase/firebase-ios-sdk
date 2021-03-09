@@ -1,4 +1,4 @@
-// Copyright 2020 Google LLC
+// Copyright 2021 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,15 +13,27 @@
 // limitations under the License.
 
 #import <Foundation/Foundation.h>
-#import "FirebasePerformance/Sources/Configurations/FPRRemoteConfigFlags+Private.h"
-#import "FirebasePerformance/Sources/Configurations/FPRRemoteConfigFlags.h"
+
+#import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FPRFakeRemoteConfigFlags : FPRRemoteConfigFlags
+/*
+ * Writes a file during startup, and deletes it at the end. Existence
+ * of this file on the next run means there was a crash at launch,
+ * because the file wasn't deleted. This is used to make Crashlytics
+ * block startup on uploading the crash.
+ */
+@interface FIRCLSLaunchMarkerModel : NSObject
 
-/** A fake representing whether any RC flag value exists. */
-@property(nonatomic) BOOL containsRemoteConfigFlagValues;
+- (instancetype)initWithFileManager:(FIRCLSFileManager *)fileManager;
+
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+
+- (BOOL)checkForAndCreateLaunchMarker;
+- (BOOL)createLaunchFailureMarker;
+- (BOOL)removeLaunchFailureMarker;
 
 @end
 

@@ -20,7 +20,7 @@
 
 function pod_gen() {
   # Call pod gen with a podspec and additional optional arguments.
-  bundle exec pod gen --local-sources=./ --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ "$@"
+  bundle exec pod gen --local-sources=./ --sources=https://github.com/firebase/SpecsDev.git,https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ "$@"
 }
 
 set -euo pipefail
@@ -316,6 +316,7 @@ case "$product-$platform-$method" in
     RunXcodebuild \
         -workspace 'Firestore/Example/Firestore.xcworkspace' \
         -scheme "Firestore_IntegrationTests_$platform" \
+        -enableCodeCoverage YES \
         "${xcb_flags[@]}" \
         build \
         test
