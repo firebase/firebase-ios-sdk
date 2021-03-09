@@ -28,6 +28,10 @@ let package = Package(
       targets: ["FirebaseAnalyticsTarget"]
     ),
     .library(
+      name: "FirebaseAnalyticsSwift-Beta",
+      targets: ["FirebaseAnalyticsSwiftTarget"]
+    ),
+    .library(
       name: "FirebaseAuth",
       targets: ["FirebaseAuth"]
     ),
@@ -249,6 +253,17 @@ let package = Package(
       name: "FirebaseAnalytics",
       url: "https://dl.google.com/firebase/ios/swiftpm/7.8.0/FirebaseAnalytics.zip",
       checksum: "1a833b113a8d877e978c4b4b55ad5ae7c7f10b148dc37f1321be7bb7e7053f3a"
+    ),
+    .target(
+      name: "FirebaseAnalyticsSwiftTarget",
+      dependencies: [.target(name: "FirebaseAnalyticsSwift",
+                             condition: .when(platforms: [.iOS]))],
+      path: "SwiftPM-PlatformExclude/FirebaseAnalyticsSwiftWrap"
+    ),
+    .target(
+      name: "FirebaseAnalyticsSwift",
+      dependencies: ["FirebaseAnalyticsWrapper"],
+      path: "FirebaseAnalyticsSwift/Sources"
     ),
 
     .target(
@@ -774,6 +789,7 @@ let package = Package(
     .testTarget(
       name: "analytics-import-test",
       dependencies: [
+        "FirebaseAnalyticsSwiftTarget",
         "FirebaseAnalyticsWrapper",
         "Firebase",
       ],
