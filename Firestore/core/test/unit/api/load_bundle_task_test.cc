@@ -318,6 +318,26 @@ TEST_F(LoadBundleTaskTest, NoObserversAlsoWork) {
   });
 }
 
+TEST_F(LoadBundleTaskTest, ObserveAtLastIsHonored) {
+  BlockingQueue<int> queue;
+  task.ObserveAtLast([&](LoadBundleTaskProgress) { queue.push(1); });
+  task.Observe([&](LoadBundleTaskProgress) { queue.push(2); });
+
+  task.UpdateProgress(InitialProgress());
+  EXPECT_EQ(2, queue.pop());
+  EXPECT_EQ(1, queue.pop());
+
+  task.UpdateProgress(Progress(2, 5));
+  EXPECT_EQ(2, queue.pop());
+  EXPECT_EQ(1, queue.pop());
+
+  task.SetSuccess(SuccessProgress());
+  EXPECT_EQ(2, queue.pop());
+  EXPECT_EQ(1, queue.pop());
+
+  EXPECT_TRUE(queue.empty());
+}
+
 }  // namespace
 }  // namespace api
 }  // namespace firestore

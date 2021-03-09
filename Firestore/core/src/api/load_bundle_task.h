@@ -26,6 +26,7 @@
 
 #include "Firestore/core/src/util/executor.h"
 #include "Firestore/core/src/util/status.h"
+#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
@@ -159,7 +160,19 @@ class LoadBundleTask {
    *
    * @return A handle that can be used to remove the callback from this task.
    */
-  LoadBundleHandle Observe(ProgressObserver callback);
+  LoadBundleHandle Observe(ProgressObserver observer);
+
+  /**
+   * Instructs the task to notify the specified observer when there is a
+   * progress update.
+   *
+   * For a given progress update, this observer is guaranteed to be called
+   * after all other observers. Calling `ObserveAtLast` a second time will
+   * override the observer registered the first time.
+   *
+   * @return A handle that can be used to remove the callback from this task.
+   */
+  LoadBundleHandle ObserveAtLast(ProgressObserver observer);
 
   /**
    * Removes the observer associated with the given handle, does nothing if the
@@ -202,6 +215,9 @@ class LoadBundleTask {
 
   /** A vector holds observers. */
   HandleObservers observers_;
+
+  /** Observer guaranteed to be called the last. */
+  absl::optional<std::pair<LoadBundleHandle, ProgressObserver>> last_observer_;
 
   /** The last progress update. */
   LoadBundleTaskProgress progress_snapshot_;

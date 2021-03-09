@@ -37,6 +37,16 @@ LoadBundleTask::LoadBundleHandle LoadBundleTask::Observe(
   return handle;
 }
 
+LoadBundleTask::LoadBundleHandle LoadBundleTask::ObserveAtLast(
+    ProgressObserver observer) {
+  std::lock_guard<std::mutex> lock(mutex_);
+
+  auto handle = next_handle_++;
+  last_observer_ = {handle, std::move(observer)};
+
+  return handle;
+}
+
 void LoadBundleTask::RemoveObserver(const LoadBundleHandle& handle) {
   std::lock_guard<std::mutex> lock(mutex_);
 
@@ -47,12 +57,17 @@ void LoadBundleTask::RemoveObserver(const LoadBundleHandle& handle) {
   if (found != observers_.end()) {
     observers_.erase(found);
   }
+
+  if (last_observer_.has_value() && last_observer_.value().first == handle) {
+    last_observer_ = absl::nullopt;
+  }
 }
 
 void LoadBundleTask::RemoveAllObservers() {
   std::lock_guard<std::mutex> lock(mutex_);
 
   observers_.clear();
+  last_observer_ = absl::nullopt;
 }
 
 void LoadBundleTask::SetSuccess(LoadBundleTaskProgress success_progress) {
@@ -83,6 +98,12 @@ void LoadBundleTask::UpdateProgress(LoadBundleTaskProgress progress) {
 void LoadBundleTask::NotifyObservers() {
   for (const auto& entry : observers_) {
     const auto& observer = entry.second;
+    const auto& progress = progress_snapshot_;
+    user_executor_->Execute([observer, progress] { observer(progress); });
+  }
+
+  if (last_observer_.has_value()) {
+    const auto& observer = last_observer_.value().second;
     const auto& progress = progress_snapshot_;
     user_executor_->Execute([observer, progress] { observer(progress); });
   }

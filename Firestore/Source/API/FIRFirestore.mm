@@ -429,7 +429,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
   };
 
-  task->Observe(callback);
+  task->ObserveAtLast(callback);
   return [[FIRLoadBundleTask alloc] initWithTask:task];
 }
 
