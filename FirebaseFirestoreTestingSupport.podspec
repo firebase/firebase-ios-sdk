@@ -37,13 +37,9 @@ Pod::Spec.new do |s|
     'Firestore/Source/API/*\+Internal.h'
   ]
 
-  s.preserve_paths = [
-    'Firestore/Source/API/*.h',
-  ]
-
   s.public_header_files = base_dir + '**/*.h'
 
-  s.dependency 'FirebaseFirestore', '~> 7.0'
+  s.dependency 'FirebaseFirestore', '~> 7.7'
 
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
@@ -53,11 +49,10 @@ Pod::Spec.new do |s|
   }
 
   s.test_spec 'unit' do |unit_tests|
-    # unit_tests.scheme = { :code_coverage => true }
+    unit_tests.scheme = { :code_coverage => true }
     unit_tests.platforms = {:ios => ios_deployment_target, :osx => osx_deployment_target, :tvos => tvos_deployment_target}
     unit_tests.source_files = [
       base_dir + 'Tests/**/*.swift'
     ]
-    # unit_tests.requires_app_host = true
   end
 end
