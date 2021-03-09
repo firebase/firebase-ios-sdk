@@ -321,6 +321,31 @@ struct SpecRepoBuilder: ParsableCommand {
       print("error occurred. \(error)")
     }
 
+    var exitCode: Int32 = 0
+    var failedPods: [String] = []
+    for pod in specFileDict.depInstallOrder {
+      var podExitCode: Int32 = 0
+      print("----------\(pod)-----------")
+      switch pod {
+      case "FirebaseMLModelDownloader":
+        podExitCode = pushPodspec(
+          forPod: pod,
+          sdkRepo: sdkRepo,
+          sources: podSources,
+          flags: Constants.flags
+        )
+      default:
+        print("skip \(pod).")
+      }
+      if podExitCode != 0 {
+        exitCode = 1
+        failedPods.append(pod)
+        print("Failed pod - \(pod)")
+      }
+    }
+    if exitCode != 0 {
+      Self.exit(withError: SpecRepoBuilderError.failedToPush(pods: failedPods))
+    }
   }
 }
 
