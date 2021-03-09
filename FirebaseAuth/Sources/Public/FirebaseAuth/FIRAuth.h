@@ -448,6 +448,20 @@ NS_SWIFT_NAME(Auth)
                                            NSError *_Nullable error))completion
     API_UNAVAILABLE(watchos);
 
+/** @fn signInWithRefreshToken:completion:
+    @brief Signs in using a refresh token.
+
+    @param refreshToken The user refresh token.
+    @param completion Optionally; a block which is invoked when the sign in flow finishes, or is
+        canceled. Invoked asynchronously on the main thread in the future.
+
+
+    @remarks See `FIRAuthErrors` for a list of error codes that are common to all API methods.
+ */
+
+- (void)signInWithRefreshToken:(NSString *)refreshToken
+             completion:(nullable FIRAuthResultCallback)completion;
+
 /** @fn signInWithProvider:UIDelegate:completion:
     @brief Signs in using the provided auth provider instance.
 
@@ -539,6 +553,7 @@ NS_SWIFT_NAME(Auth)
 - (void)signInWithCredential:(FIRAuthCredential *)credential
                   completion:(nullable void (^)(FIRAuthDataResult *_Nullable authResult,
                                                 NSError *_Nullable error))completion;
+
 
 /** @fn signInAnonymouslyWithCompletion:
     @brief Asynchronously creates and becomes an anonymous user.

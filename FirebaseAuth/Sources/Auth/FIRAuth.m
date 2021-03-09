@@ -655,6 +655,11 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   });
 }
 
+- (void)signInWithRefreshToken:(NSString *)refreshToken
+             completion:(nullable FIRAuthResultCallback)completion {
+    [self completeSignInWithAccessToken:nil accessTokenExpirationDate:nil refreshToken:refreshToken anonymous:true callback:completion];
+}
+
 /** @fn signInWithEmail:password:callback:
     @brief Signs in using an email address and password.
     @param email The user's email address.
