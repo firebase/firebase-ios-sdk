@@ -14,6 +14,7 @@ on:
 jobs:
   buildup_SpecsReleasing_repo:
     # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     env:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       local_repo: specstesting
@@ -46,6 +47,7 @@ jobs:
 
   abtesting_quickstart:
     # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
 
     needs: buildup_SpecsReleasing_repo
     env:
@@ -80,6 +82,7 @@ jobs:
 
   auth_quickstart:
     # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     needs: buildup_SpecsReleasing_repo
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -113,6 +116,7 @@ jobs:
 
   crashlytics_quickstart:
     # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     needs: buildup_SpecsReleasing_repo
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -155,6 +159,7 @@ jobs:
 
   database_quickstart:
     # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     needs: buildup_SpecsReleasing_repo
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -192,6 +197,7 @@ jobs:
 
   dynamiclinks_quickstart:
     # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     needs: buildup_SpecsReleasing_repo
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -235,6 +241,7 @@ jobs:
 
   firestore_quickstart:
     # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     needs: buildup_SpecsReleasing_repo
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -271,6 +278,7 @@ jobs:
 
   functions_quickstart:
     # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     needs: buildup_SpecsReleasing_repo
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -312,6 +320,7 @@ jobs:
 
   inappmessaging_quickstart:
     # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     needs: buildup_SpecsReleasing_repo
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -351,6 +360,7 @@ jobs:
 
   messaging_quickstart:
     # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     needs: buildup_SpecsReleasing_repo
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -390,6 +400,7 @@ jobs:
 
   remoteconfig_quickstart:
     # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     needs: buildup_SpecsReleasing_repo
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -423,6 +434,7 @@ jobs:
 
   storage_quickstart:
     # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     needs: buildup_SpecsReleasing_repo
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -460,6 +472,7 @@ jobs:
 
   performance_quickstart:
     # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     needs: buildup_SpecsReleasing_repo
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}

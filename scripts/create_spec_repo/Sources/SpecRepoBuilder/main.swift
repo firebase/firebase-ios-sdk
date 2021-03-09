@@ -30,7 +30,7 @@ extension Constants {
 
 // flags for 'pod push'
 extension Constants {
-  static let flags = ["--skip-tests", "--allow-warnings", "--verbose"]
+  static let flags = ["--skip-tests", "--allow-warnings"]
   static let umbrellaPodFlags = Constants.flags + ["--skip-import-validation", "--use-json"]
 }
 
@@ -234,12 +234,12 @@ struct SpecRepoBuilder: ParsableCommand {
     let podPath = sdkRepo + "/" + pod + ".podspec"
     let sourcesArg = sources.joined(separator: ",")
     let flagsArg = flags.joined(separator: " ")
-    print("pushing \(podPath) to \(localSpecRepoName).")
+    print("pushing \(podPath) to \(localSpecRepoName)")
 
     let outcome =
       shell
         .run(
-          "pod repo push \(localSpecRepoName) \(podPath) \(flagsArg)"
+          "pod repo push \(localSpecRepoName) \(podPath) --sources=\(sourcesArg) \(flagsArg)"
         )
     shell.run("pod repo update")
 
