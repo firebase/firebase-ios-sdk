@@ -23,6 +23,7 @@
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
+#import "../../../../../../../../../Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1/experimental/string"
 #include "Firestore/core/src/util/string_apple.h"
 #include "Firestore/core/test/unit/testutil/bundle_builder.h"
 
@@ -66,7 +67,7 @@ namespace util = firebase::firestore::util;
   XCTAssertEqual(progress.documentsLoaded, 0);
 }
 
-- (std::string)bundleForDefault {
+- (std::string)defaultBundle {
   return testutil::CreateBundle(util::MakeString([FSTIntegrationTestCase projectID]));
 }
 
@@ -110,7 +111,7 @@ namespace util = firebase::firestore::util;
   // We should see no more snapshots from loading the bundle, because the data there is older.
   [self.eventAccumulator assertNoAdditionalEvents];
 
-  auto bundle = [self bundleForDefault];
+  auto bundle = [self defaultBundle];
   NSMutableArray* progresses = [[NSMutableArray alloc] init];
   __block FIRLoadBundleTaskProgress* result;
   XCTestExpectation* expectation = [self expectationWithDescription:@"loading complete"];
@@ -142,7 +143,7 @@ namespace util = firebase::firestore::util;
 
 - (void)testLoadDocumentsWithProgressUpdates {
   NSMutableArray* progresses = [[NSMutableArray alloc] init];
-  auto bundle = [self bundleForDefault];
+  auto bundle = [self defaultBundle];
 
   __block FIRLoadBundleTaskProgress* result;
   XCTestExpectation* expectation = [self expectationWithDescription:@"loading complete"];
@@ -170,7 +171,7 @@ namespace util = firebase::firestore::util;
 }
 
 - (void)testLoadForASecondTimeSkips {
-  auto bundle = [self bundleForDefault];
+  auto bundle = [self defaultBundle];
   [self.db loadBundle:[util::MakeNSString(bundle) dataUsingEncoding:NSUTF8StringEncoding]];
 
   // Load for a second time
@@ -202,7 +203,7 @@ namespace util = firebase::firestore::util;
   [settings setPersistenceEnabled:FALSE];
   [self.db setSettings:settings];
 
-  auto bundle = [self bundleForDefault];
+  auto bundle = [self defaultBundle];
   __block FIRLoadBundleTaskProgress* result;
   XCTestExpectation* expectation = [self expectationWithDescription:@"loading complete"];
   [self.db loadBundle:[util::MakeNSString(bundle) dataUsingEncoding:NSUTF8StringEncoding]

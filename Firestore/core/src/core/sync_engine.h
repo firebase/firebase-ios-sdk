@@ -271,7 +271,7 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
   absl::optional<bundle::BundleLoader> ReadIntoLoader(
       const bundle::BundleMetadata& metadata,
       const std::shared_ptr<bundle::BundleReader>& reader,
-      const std::shared_ptr<api::LoadBundleTask>& result_task);
+      api::LoadBundleTask& result_task);
 
   /** The local store, used to persist mutations and cached documents. */
   local::LocalStore* local_store_ = nullptr;
