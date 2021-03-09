@@ -261,8 +261,8 @@ ComparisonResult Values::CompareTimestamps(
 ComparisonResult Values::CompareStrings(
     const google_firestore_v1_Value& left,
     const google_firestore_v1_Value& right) {
-  absl::string_view left_string = nanopb::MakeString(left.string_value);
-  absl::string_view right_string = nanopb::MakeString(right.string_value);
+  absl::string_view left_string = nanopb::MakeStringView(left.string_value);
+  absl::string_view right_string = nanopb::MakeStringView(right.string_value);
   return util::Compare(left_string, right_string);
 }
 
@@ -286,9 +286,9 @@ ComparisonResult Values::CompareReferences(
     const google_firestore_v1_Value& left,
     const google_firestore_v1_Value& right) {
   std::vector<std::string> left_segments = absl::StrSplit(
-      nanopb::MakeString(left.reference_value), '/', absl::SkipEmpty());
+      nanopb::MakeStringView(left.reference_value), '/', absl::SkipEmpty());
   std::vector<std::string> right_segments = absl::StrSplit(
-      nanopb::MakeString(right.reference_value), '/', absl::SkipEmpty());
+      nanopb::MakeStringView(right.reference_value), '/', absl::SkipEmpty());
 
   int min_length = std::min(left_segments.size(), right_segments.size());
   for (int i = 0; i < min_length; i++) {
