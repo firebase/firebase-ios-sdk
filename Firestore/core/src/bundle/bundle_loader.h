@@ -16,6 +16,7 @@
 #ifndef FIRESTORE_CORE_SRC_BUNDLE_BUNDLE_LOADER_H_
 #define FIRESTORE_CORE_SRC_BUNDLE_BUNDLE_LOADER_H_
 
+#include <cstdint>
 #include <memory>
 #include <unordered_map>
 #include <utility>
@@ -28,6 +29,7 @@
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/document_map.h"
 #include "Firestore/core/src/util/statusor.h"
+#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
@@ -65,6 +67,12 @@ class BundleLoader {
    */
   std::unordered_map<std::string, model::DocumentKeySet>
   GetQueryDocumentMapping();
+
+  /**
+   * Adds the given BundleElement to the internal containers, depending on the
+   * element type.
+   */
+  util::Status AddElementInternal(const BundleElement& element);
 
   BundleCallback* callback_ = nullptr;
   BundleMetadata metadata_;
