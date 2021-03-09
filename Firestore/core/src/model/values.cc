@@ -26,6 +26,8 @@
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/util/comparison.h"
 #include "Firestore/core/src/util/hard_assert.h"
+#include "absl/strings/escaping.h"
+#include "absl/strings/str_format.h"
 #include "absl/strings/str_join.h"
 #include "absl/strings/str_split.h"
 
@@ -38,38 +40,38 @@ using util::ComparisonResult;
 int32_t Values::GetTypeOrder(const google_firestore_v1_Value& value) {
   switch (value.which_value_type) {
     case google_firestore_v1_Value_null_value_tag:
-      return TYPE_ORDER_NULL;
+      return kTypeOrderNull;
 
     case google_firestore_v1_Value_boolean_value_tag:
-      return TYPE_ORDER_BOOLEAN;
+      return kTypeOrderBoolean;
 
     case google_firestore_v1_Value_integer_value_tag:
     case google_firestore_v1_Value_double_value_tag:
-      return TYPE_ORDER_NUMBER;
+      return kTypeOrderNumber;
 
     case google_firestore_v1_Value_timestamp_value_tag:
-      return TYPE_ORDER_TIMESTAMP;
+      return kTypeOrderTimestamp;
 
     case google_firestore_v1_Value_string_value_tag:
-      return TYPE_ORDER_STRING;
+      return kTypeOrderString;
 
     case google_firestore_v1_Value_bytes_value_tag:
-      return TYPE_ORDER_BLOB;
+      return kTypeOrderBlob;
 
     case google_firestore_v1_Value_reference_value_tag:
-      return TYPE_ORDER_REFERENCE;
+      return kTypeOrderReference;
 
     case google_firestore_v1_Value_geo_point_value_tag:
-      return TYPE_ORDER_GEOPOINT;
+      return kTypeOrderGeoPoint;
 
     case google_firestore_v1_Value_array_value_tag:
-      return TYPE_ORDER_ARRAY;
+      return kTypeOrderArray;
 
     case google_firestore_v1_Value_map_value_tag: {
       if (ServerTimestamps::IsServerTimestamp(value)) {
-        return TYPE_ORDER_SERVER_TIMESTAMP;
+        return kTypeOrderServerTimestamp;
       }
-      return TYPE_ORDER_MAP;
+      return kTypeOrderMap;
     }
 
     default:
@@ -86,32 +88,32 @@ bool Values::Equals(const google_firestore_v1_Value& left,
   }
 
   switch (left_type) {
-    case TYPE_ORDER_NULL:
+    case kTypeOrderNull:
       return true;
-    case TYPE_ORDER_BOOLEAN:
+    case kTypeOrderBoolean:
       return left.boolean_value == right.boolean_value;
-    case TYPE_ORDER_NUMBER:
+    case kTypeOrderNumber:
       return NumberEquals(left, right);
-    case TYPE_ORDER_TIMESTAMP:
+    case kTypeOrderTimestamp:
       return left.timestamp_value.seconds == right.timestamp_value.seconds &&
              left.timestamp_value.nanos == right.timestamp_value.nanos;
-    case TYPE_ORDER_SERVER_TIMESTAMP:
+    case kTypeOrderServerTimestamp:
       return Equals(ServerTimestamps::GetLocalWriteTime(left),
                     ServerTimestamps::GetLocalWriteTime(right));
-    case TYPE_ORDER_STRING:
+    case kTypeOrderString:
       return nanopb::MakeStringView(left.string_value) ==
              nanopb::MakeStringView(right.string_value);
-    case TYPE_ORDER_BLOB:
+    case kTypeOrderBlob:
       return CompareBlobs(left, right) == ComparisonResult::Same;
-    case TYPE_ORDER_REFERENCE:
-      return nanopb::MakeString(left.reference_value) ==
-             nanopb::MakeString(right.reference_value);
-    case TYPE_ORDER_GEOPOINT:
+    case kTypeOrderReference:
+      return nanopb::MakeStringView(left.reference_value) ==
+             nanopb::MakeStringView(right.reference_value);
+    case kTypeOrderGeoPoint:
       return left.geo_point_value.latitude == right.geo_point_value.latitude &&
              left.geo_point_value.longitude == right.geo_point_value.longitude;
-    case TYPE_ORDER_ARRAY:
+    case kTypeOrderArray:
       return ArrayEquals(left, right);
-    case TYPE_ORDER_MAP:
+    case kTypeOrderMap:
       return ObjectEquals(left, right);
     default:
       HARD_FAIL("Invalid type value: %s", left_type);
@@ -196,28 +198,28 @@ ComparisonResult Values::Compare(const google_firestore_v1_Value& left,
   }
 
   switch (left_type) {
-    case TYPE_ORDER_NULL:
+    case kTypeOrderNull:
       return ComparisonResult::Same;
-    case TYPE_ORDER_BOOLEAN:
+    case kTypeOrderBoolean:
       return util::Compare(left.boolean_value, right.boolean_value);
-    case TYPE_ORDER_NUMBER:
+    case kTypeOrderNumber:
       return CompareNumbers(left, right);
-    case TYPE_ORDER_TIMESTAMP:
+    case kTypeOrderTimestamp:
       return CompareTimestamps(left, right);
-    case TYPE_ORDER_SERVER_TIMESTAMP:
+    case kTypeOrderServerTimestamp:
       return CompareTimestamps(ServerTimestamps::GetLocalWriteTime(left),
                                ServerTimestamps::GetLocalWriteTime(right));
-    case TYPE_ORDER_STRING:
+    case kTypeOrderString:
       return CompareStrings(left, right);
-    case TYPE_ORDER_BLOB:
+    case kTypeOrderBlob:
       return CompareBlobs(left, right);
-    case TYPE_ORDER_REFERENCE:
+    case kTypeOrderReference:
       return CompareReferences(left, right);
-    case TYPE_ORDER_GEOPOINT:
+    case kTypeOrderGeoPoint:
       return CompareGeoPoints(left, right);
-    case TYPE_ORDER_ARRAY:
+    case kTypeOrderArray:
       return CompareArrays(left, right);
-    case TYPE_ORDER_MAP:
+    case kTypeOrderMap:
       return CompareObjects(left, right);
     default:
       HARD_FAIL("Invalid type value: %s", left_type);
@@ -259,8 +261,8 @@ ComparisonResult Values::CompareTimestamps(
 ComparisonResult Values::CompareStrings(
     const google_firestore_v1_Value& left,
     const google_firestore_v1_Value& right) {
-  const std::string& left_string = nanopb::MakeString(left.string_value);
-  const std::string& right_string = nanopb::MakeString(right.string_value);
+  absl::string_view left_string = nanopb::MakeString(left.string_value);
+  absl::string_view right_string = nanopb::MakeString(right.string_value);
   return util::Compare(left_string, right_string);
 }
 
@@ -381,7 +383,7 @@ std::string Values::CanonicalId(const google_firestore_v1_Value& value) {
       return std::to_string(value.integer_value);
 
     case google_firestore_v1_Value_double_value_tag:
-      return std::to_string(value.double_value);
+      return absl::StrFormat("%.1f", value.double_value);
 
     case google_firestore_v1_Value_timestamp_value_tag:
       return CanonifyTimestamp(value);
@@ -411,41 +413,31 @@ std::string Values::CanonicalId(const google_firestore_v1_Value& value) {
 }
 
 std::string Values::CanonifyTimestamp(const google_firestore_v1_Value& value) {
-  return "time(" + std::to_string(value.timestamp_value.seconds) + "," +
-         std::to_string(value.timestamp_value.nanos) + ")";
+  return absl::StrFormat("time(%d,%d)", value.timestamp_value.seconds,
+                         value.timestamp_value.nanos);
 }
 
 std::string Values::CanonifyBlob(const google_firestore_v1_Value& value) {
-  static const char hex[] = "0123456789ABCDEF";
-
-  int size = value.bytes_value->size;
-
-  std::string result(size * 2, 0);
-  for (size_t i = 0; i < value.bytes_value->size; ++i) {
-    result[2 * i] = hex[value.bytes_value->bytes[i] >> 4];
-    result[(2 * i) + 1] = hex[value.bytes_value->bytes[i] & 0x0F];
-  }
-  return result;
+  return absl::BytesToHexString(nanopb::MakeStringView(value.bytes_value));
 }
 
 std::string Values::CanonifyReference(const google_firestore_v1_Value& value) {
   std::vector<std::string> segments = absl::StrSplit(
       nanopb::MakeStringView(value.reference_value), '/', absl::SkipEmpty());
-  return absl::StrJoin(
-      std::vector<std::string>(segments.begin() + 5, segments.end()), "/");
+  return absl::StrJoin(segments.begin() + 5, segments.end(), "/");
 }
 
 std::string Values::CanonifyGeoPoint(const google_firestore_v1_Value& value) {
-  return "geo(" + std::to_string(value.geo_point_value.latitude) + "," +
-         std::to_string(value.geo_point_value.longitude) + ")";
+  return absl::StrFormat("geo(%.1f,%.1f)", value.geo_point_value.latitude,
+                         value.geo_point_value.longitude);
 }
 
 std::string Values::CanonifyArray(const google_firestore_v1_Value& value) {
   std::string result = "[";
   for (size_t i = 0; i < value.array_value.values_count; ++i) {
-    result += CanonicalId(value.array_value.values[i]);
+    absl::StrAppend(&result, CanonicalId(value.array_value.values[i]));
     if (i != value.array_value.values_count - 1) {
-      result += ",";
+      absl::StrAppend(&result, ",");
     }
   }
   result += "]";
@@ -467,12 +459,13 @@ std::string Values::CanonifyObject(const google_firestore_v1_Value& value) {
   bool first = true;
   for (const auto& entry : sorted_keys_to_index) {
     if (!first) {
-      result += ",";
+      absl::StrAppend(&result, ",");
     } else {
       first = false;
     }
-    result += entry.first + ":" +
-              CanonicalId(value.map_value.fields[entry.second].value);
+
+    absl::StrAppend(&result, entry.first, ":",
+                    CanonicalId(value.map_value.fields[entry.second].value));
   }
   result += "}";
 

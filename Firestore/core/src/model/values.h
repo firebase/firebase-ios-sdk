@@ -34,17 +34,17 @@ namespace model {
  * The order of types in Firestore. This order is based on the backend's
  * ordering, but modified to support server timestamps.
  */
-const int32_t TYPE_ORDER_NULL = 0;
-const int32_t TYPE_ORDER_BOOLEAN = 1;
-const int32_t TYPE_ORDER_NUMBER = 2;
-const int32_t TYPE_ORDER_TIMESTAMP = 3;
-const int32_t TYPE_ORDER_SERVER_TIMESTAMP = 4;
-const int32_t TYPE_ORDER_STRING = 5;
-const int32_t TYPE_ORDER_BLOB = 6;
-const int32_t TYPE_ORDER_REFERENCE = 7;
-const int32_t TYPE_ORDER_GEOPOINT = 8;
-const int32_t TYPE_ORDER_ARRAY = 9;
-const int32_t TYPE_ORDER_MAP = 10;
+const int32_t kTypeOrderNull = 0;
+const int32_t kTypeOrderBoolean = 1;
+const int32_t kTypeOrderNumber = 2;
+const int32_t kTypeOrderTimestamp = 3;
+const int32_t kTypeOrderServerTimestamp = 4;
+const int32_t kTypeOrderString = 5;
+const int32_t kTypeOrderBlob = 6;
+const int32_t kTypeOrderReference = 7;
+const int32_t kTypeOrderGeoPoint = 8;
+const int32_t kTypeOrderArray = 9;
+const int32_t kTypeOrderMap = 10;
 
 class Values {
  public:

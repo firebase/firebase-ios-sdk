@@ -46,8 +46,6 @@ double ToDouble(uint64_t value) {
 
 const uint64_t kNanBits = 0x7fff000000000000ULL;
 
-}  // namespace
-
 static time_point kDate1 = testutil::MakeTimePoint(2016, 5, 20, 10, 20, 0);
 static Timestamp kTimestamp1{1463739600, 0};
 
@@ -101,29 +99,24 @@ class ValuesTest : public ::testing::Test {
     groups.emplace_back(group);
   }
 
-  void VerifyEquals(std::vector<google_firestore_v1_Value>& group) {
-    for (size_t i = 0; i < group.size(); ++i) {
-      for (size_t j = 0; j < group.size(); ++j) {
-        EXPECT_TRUE(Values::Equals(group[i], group[j]));
-      }
-    }
-  }
-
-  void VerifyNotEquals(std::vector<google_firestore_v1_Value>& left,
-                       std::vector<google_firestore_v1_Value>& right) {
+  void VerifyEquality(std::vector<google_firestore_v1_Value>& left,
+                      std::vector<google_firestore_v1_Value>& right,
+                      bool expected_equals) {
     for (const auto& val1 : left) {
       for (const auto& val2 : right) {
-        EXPECT_FALSE(Values::Equals(val1, val2));
+        EXPECT_EQ(expected_equals, Values::Equals(val1, val2));
       }
     }
   }
 
   void VerifyOrdering(std::vector<google_firestore_v1_Value>& left,
                       std::vector<google_firestore_v1_Value>& right,
-                      ComparisonResult cmp) {
+                      ComparisonResult expected_result) {
     for (const auto& val1 : left) {
       for (const auto& val2 : right) {
-        EXPECT_EQ(cmp, Values::Compare(val1, val2));
+        EXPECT_EQ(expected_result, Values::Compare(val1, val2));
+        EXPECT_EQ(util::ReverseOrder(expected_result),
+                  Values::Compare(val2, val1));
       }
     }
   }
@@ -139,6 +132,10 @@ class ValuesTest : public ::testing::Test {
 };
 
 TEST_F(ValuesTest, Equality) {
+  // Create a matrix that defines an equality group. The outer vector has
+  // multiple rows and each row can have an arbitrary number of entries.
+  // The elements within a row must equal each other, but not be equal
+  // to all elements of other rows.
   std::vector<std::vector<google_firestore_v1_Value>> equals_group;
 
   Add(equals_group, Wrap(nullptr), Wrap(nullptr));
@@ -162,6 +159,7 @@ TEST_F(ValuesTest, Equality) {
   Add(equals_group, Wrap("e\u0301b"));
   // latin small letter e with acute accent
   Add(equals_group, Wrap("\u00e9a"));
+  Add(equals_group, Wrap("\u00e9\0a"));
   Add(equals_group, Wrap(Timestamp::FromTimePoint(kDate1)), Wrap(kTimestamp1));
   Add(equals_group, Wrap(Timestamp::FromTimePoint(kDate2)), Wrap(kTimestamp2));
   // NOTE: ServerTimestampValues can't be parsed via Wrap().
@@ -187,16 +185,18 @@ TEST_F(ValuesTest, Equality) {
 
   for (size_t i = 0; i < equals_group.size(); ++i) {
     for (size_t j = i; j < equals_group.size(); ++j) {
-      if (i == j) {
-        VerifyEquals(equals_group[i]);
-      } else {
-        VerifyNotEquals(equals_group[i], equals_group[j]);
-      }
+      VerifyEquality(equals_group[i], equals_group[j],
+                     /* expected_equals= */ i == j);
     }
   }
 }
 
 TEST_F(ValuesTest, Ordering) {
+  // Create a matrix that defines a comparison group. The outer vector has
+  // multiple rows and each row can have an arbitrary number of entries.
+  // The elements within a row must compare each other, but order after all
+  // elements in previous groups and before all elements in later groups.
+
   std::vector<std::vector<google_firestore_v1_Value>> comparison_groups;
 
   // null first
@@ -285,13 +285,9 @@ TEST_F(ValuesTest, Ordering) {
 
   for (size_t i = 0; i < comparison_groups.size(); ++i) {
     for (size_t j = i; j < comparison_groups.size(); ++j) {
-      if (i == j) {
-        VerifyOrdering(comparison_groups[i], comparison_groups[i],
-                       ComparisonResult::Same);
-      } else {
-        VerifyOrdering(comparison_groups[i], comparison_groups[j],
-                       ComparisonResult::Ascending);
-      }
+      VerifyOrdering(
+          comparison_groups[i], comparison_groups[j],
+          i == j ? ComparisonResult::Same : ComparisonResult::Ascending);
     }
   }
 }
@@ -301,22 +297,24 @@ TEST_F(ValuesTest, CanonicalId) {
   VerifyCanonicalId(Wrap(true), "true");
   VerifyCanonicalId(Wrap(false), "false");
   VerifyCanonicalId(Wrap(1), "1");
-  VerifyCanonicalId(Wrap(1.0), "1.000000");
+  VerifyCanonicalId(Wrap(1.0), "1.0");
   VerifyCanonicalId(Wrap(Timestamp(30, 1000)), "time(30,1000)");
   VerifyCanonicalId(Wrap("a"), "a");
   VerifyCanonicalId(Wrap(BlobValue(1, 2, 3)), "010203");
   VerifyCanonicalId(WrapReference(DbId("p1/d1"), Key("c1/doc1")), "c1/doc1");
-  VerifyCanonicalId(Wrap(GeoPoint(30, 60)), "geo(30.000000,60.000000)");
+  VerifyCanonicalId(Wrap(GeoPoint(30, 60)), "geo(30.0,60.0)");
   VerifyCanonicalId(WrapArray(1, 2, 3), "[1,2,3]");
   VerifyCanonicalId(WrapObject("a", 1, "b", 2, "c", "3"), "{a:1,b:2,c:3}");
   VerifyCanonicalId(WrapObject("a", Array("b", Map("c", GeoPoint(30, 60)))),
-                    "{a:[b,{c:geo(30.000000,60.000000)}]}");
+                    "{a:[b,{c:geo(30.0,60.0)}]}");
 }
 
 TEST_F(ValuesTest, CanonicalIdIgnoresSortOrder) {
   VerifyCanonicalId(WrapObject("a", 1, "b", 2, "c", "3"), "{a:1,b:2,c:3}");
   VerifyCanonicalId(WrapObject("c", 3, "b", 2, "a", "1"), "{a:1,b:2,c:3}");
 }
+
+}  // namespace
 
 }  // namespace model
 }  // namespace firestore

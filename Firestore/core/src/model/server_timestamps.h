@@ -17,8 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_MODEL_SERVER_TIMESTAMPS_H_
 #define FIRESTORE_CORE_SRC_MODEL_SERVER_TIMESTAMPS_H_
 
-#include <string>
-
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 
 namespace firebase {
@@ -31,8 +29,15 @@ namespace model {
  */
 class ServerTimestamps {
  public:
+  /**
+   * Returns whether the provided value is a field map that contains the
+   * sentinel values of a ServerTimestamp.
+   * */
   static bool IsServerTimestamp(const google_firestore_v1_Value& value);
 
+  /**
+   * Returns the local time at which the timestamp was written to the document.
+   */
   static const google_firestore_v1_Value& GetLocalWriteTime(
       const google_firestore_v1_Value& value);
 

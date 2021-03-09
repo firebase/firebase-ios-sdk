@@ -17,6 +17,7 @@
 #include "Firestore/core/src/model/server_timestamps.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/util/hard_assert.h"
+#include "absl/strings/string_view.h"
 
 namespace firebase {
 namespace firestore {
@@ -37,7 +38,8 @@ bool ServerTimestamps::IsServerTimestamp(
   }
 
   for (size_t i = 0; i < value.map_value.fields_count; ++i) {
-    std::string key = nanopb::MakeString(value.map_value.fields[i].key);
+    absl::string_view key =
+        nanopb::MakeStringView(value.map_value.fields[i].key);
     if (key == kTypeKey) {
       return value.map_value.fields[i].value.which_value_type ==
                  google_firestore_v1_Value_string_value_tag &&
@@ -53,7 +55,8 @@ bool ServerTimestamps::IsServerTimestamp(
 const google_firestore_v1_Value& ServerTimestamps::GetLocalWriteTime(
     const firebase::firestore::google_firestore_v1_Value& value) {
   for (size_t i = 0; i < value.map_value.fields_count; ++i) {
-    std::string key = nanopb::MakeString(value.map_value.fields[i].key);
+    absl::string_view key =
+        nanopb::MakeStringView(value.map_value.fields[i].key);
     if (key == kLocalWriteTimeKey) {
       return value.map_value.fields[i].value;
     }
