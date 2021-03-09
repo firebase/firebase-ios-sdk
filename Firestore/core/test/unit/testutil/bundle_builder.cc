@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "Firestore/core/test/unit/testutil/bundle_builder.h"
 
 #include <utility>
 #include <vector>
