@@ -22,13 +22,14 @@
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/model/field_mask.h"
+#include "Firestore/core/src/model/field_path.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
 namespace model {
 
-class FieldPath;
+typedef std::unordered_map<FieldPath, google_firestore_v1_Value, model::HashFieldPath> ValueMap;
 
 /** A structured object value stored in Firestore. */
 class ObjectValue {
@@ -76,12 +77,14 @@ class ObjectValue {
    * @param data A map of fields to values (or null for deletes).
    */
   void SetAll(
-      const model::FieldMask& field_mask,
-      const std::unordered_map<FieldPath, google_firestore_v1_Value>& data);
+      const model::FieldMask& field_mask, const ValueMap& data);
 
  private:
   struct Overlay {
-    Overlay() = default;
+    Overlay(std::unordered_map<std::string, Overlay>) : tag_();
+      Overlay(const Overlay& other) : tag_(other.tag_) {
+
+      }
     ~Overlay(){};
     enum class Tag { Delete, Value, OverlayMap };
 
@@ -94,8 +97,8 @@ class ObjectValue {
 
   typedef std::unordered_map<std::string, Overlay> OverlayMap;
 
-  static OverlayMap ConvertToOverlay(const google_firestore_v1_MapValue& map);
-    static google_firestore_v1_MapValue ConvertToMapValue(const ObjectValue::OverlayMap& overlay_map;
+  static OverlayMap ConvertToOverlayMap(const google_firestore_v1_MapValue& map);
+    static google_firestore_v1_MapValue ConvertToMapValue(const ObjectValue::OverlayMap& overlay_map);
 
   model::FieldMask ExtractFieldMask(const google_firestore_v1_MapValue& value) const;
   absl::optional<google_firestore_v1_Value> ExtractNestedValue(

@@ -89,8 +89,8 @@ absl::optional<google_firestore_v1_Value> ObjectValue::ExtractNestedValue(
 }
 
 void ObjectValue::Set(
-    const firebase::firestore::model::FieldPath& path,
-    const firebase::firestore::google_firestore_v1_Value& value) {
+    const model::FieldPath& path,
+    const google_firestore_v1_Value& value) {
   HARD_ASSERT(!path.empty(), "Cannot set field for empty path on ObjectValue");
   Overlay overlay;
   overlay.tag_ = Overlay::Tag::Value;
@@ -100,13 +100,13 @@ void ObjectValue::Set(
 
 void ObjectValue::SetAll(
     const model::FieldMask& field_mask,
-    const std::unordered_map<FieldPath, google_firestore_v1_Value>& data) {
+    const ValueMap& data) {
   for (const FieldPath& path : field_mask) {
     const auto& value = data.find(path);
     if (value == data.end()) {
       Delete(path);
     } else {
-      Set(path, *value);
+      Set(path, value->second);
     }
   }
 }
@@ -119,28 +119,25 @@ void ObjectValue::Delete(const FieldPath& path) {
 
 void ObjectValue::SetOverlay(const FieldPath& path,
                              const ObjectValue::Overlay& value) {
-  std::unordered_map<std::string, Overlay> current_level = overlap_map_;
+    std::unordered_map<std::string, Overlay>* current_level = &overlap_map_;
 
   for (const std::string& segment : path.PopLast()) {
-    const auto& current_value = current_level.find(segment);
+    const auto& current_value = current_level->find(segment);
 
-    if (current_value != current_level.end()) {
-      const Overlay& existing_overlay = current_value->second;
+    if (current_value != current_level->end()) {
+        Overlay& existing_overlay = current_value->second;
       if (existing_overlay.tag_ == Overlay::Tag::OverlayMap) {
         // Re-use a previously created map
-        current_level = existing_overlay.overlay_map_;
+        current_level = &existing_overlay.overlay_map_;
       } else if (existing_overlay.tag_ == Overlay::Tag::Value &&
                  existing_overlay.value_.which_value_type ==
                      google_firestore_v1_Value_map_value_tag) {
         // Convert the existing Protobuf MapValue into a Java map
-
-        std::unordered_map<std::string, Overlay> next_level =
-            ConvertToOverlay(existing_overlay.value_.map_value);
         Overlay overlay;
         overlay.tag_ = Overlay::Tag::OverlayMap;
-        overlay.overlay_map_ = next_level;
-        current_level.emplace(segment, next_level);
-        current_level = next_level;
+        overlay.overlay_map_ = ConvertToOverlayMap(existing_overlay.value_.map_value);
+        current_level->emplace(segment, overlay);
+        current_level = & overlay.overlay_map_;
       }
     } else {
       // Create an empty hash map to represent the current nesting level
@@ -148,12 +145,12 @@ void ObjectValue::SetOverlay(const FieldPath& path,
       Overlay overlay;
       overlay.tag_ = Overlay::Tag::OverlayMap;
       overlay.overlay_map_ = next_level;
-      current_level.emplace(segment, overlay);
-      current_level = next_level;
+      current_level->emplace(segment, overlay);
+      current_level = &next_level;
     }
   }
 
-  current_level.emplace(path.last_segment(), value);
+  current_level->emplace(path.last_segment(), value);
 }
 
 const google_firestore_v1_Value& ObjectValue::BuildProto() const {
@@ -180,7 +177,7 @@ absl::optional<ObjectValue::OverlayMap> ObjectValue::ApplyOverlay(
   // of the existing data.
   if (existing_value && existing_value->which_value_type ==
                             google_firestore_v1_Value_map_value_tag) {
-    result_at_path = ConvertToOverlay(existing_value->map_value);
+    result_at_path = ConvertToOverlayMap(existing_value->map_value);
   }
 
   for (const auto& entry : current_overlays) {
@@ -188,14 +185,14 @@ absl::optional<ObjectValue::OverlayMap> ObjectValue::ApplyOverlay(
     const Overlay& value = entry.second;
 
     if (value.tag_ == Overlay::Tag::OverlayMap) {
-      absl::optional<std::unordered_map<std::string, Overlay>> nested =
+      absl::optional<OverlayMap> nested =
           ApplyOverlay(current_path.Append(path_segment), value.overlay_map_);
       if (nested) {
         Overlay overlay;
         overlay.tag_ = Overlay::Tag::OverlayMap;
         google_firestore_v1_Value nested_map;
         nested_map.which_value_type = google_firestore_v1_Value_map_value_tag;
-        nested_map.map_value = *nested;
+        nested_map.map_value = ConvertToMapValue(*nested);
         result_at_path.emplace(path_segment, nested_map);
         modified = true;
       }
@@ -211,10 +208,10 @@ absl::optional<ObjectValue::OverlayMap> ObjectValue::ApplyOverlay(
   }
 
   return modified ? absl::optional<OverlayMap>{result_at_path}
-                  : absl::optional<google_firestore_v1_MapValue>{};
+                  : absl::optional<OverlayMap>{};
 }
 
-ObjectValue::OverlayMap ObjectValue::ConvertToOverlay(
+ObjectValue::OverlayMap ObjectValue::ConvertToOverlayMap(
     const google_firestore_v1_MapValue& map) {
   std::unordered_map<std::string, Overlay> result;
   for (size_t i = 0; i < map.fields_count; ++i) {
