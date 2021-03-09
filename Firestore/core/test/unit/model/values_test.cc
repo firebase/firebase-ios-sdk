@@ -104,7 +104,10 @@ class ValuesTest : public ::testing::Test {
                       bool expected_equals) {
     for (const auto& val1 : left) {
       for (const auto& val2 : right) {
-        EXPECT_EQ(expected_equals, Values::Equals(val1, val2));
+        EXPECT_EQ(expected_equals, Values::Equals(val1, val2))
+            << "Equality check failed for '" << Values::CanonicalId(val1)
+            << "' and ' " << Values::CanonicalId(val2) << " (expected "
+            << expected_equals << ")";
       }
     }
   }
@@ -114,9 +117,15 @@ class ValuesTest : public ::testing::Test {
                       ComparisonResult expected_result) {
     for (const auto& val1 : left) {
       for (const auto& val2 : right) {
-        EXPECT_EQ(expected_result, Values::Compare(val1, val2));
+        EXPECT_EQ(expected_result, Values::Compare(val1, val2))
+            << "Order check failed for '" << Values::CanonicalId(val1)
+            << "' and ' " << Values::CanonicalId(val2) << " (expected "
+            << expected_result << ")";
         EXPECT_EQ(util::ReverseOrder(expected_result),
-                  Values::Compare(val2, val1));
+                  Values::Compare(val2, val1))
+            << "Reverse order check failed for '" << Values::CanonicalId(val1)
+            << "' and ' " << Values::CanonicalId(val2) << " (expected "
+            << util::ReverseOrder(expected_result) << ")";
       }
     }
   }
