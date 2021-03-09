@@ -203,9 +203,8 @@ TEST_F(ValuesTest, Equality) {
 TEST_F(ValuesTest, Ordering) {
   // Create a matrix that defines a comparison group. The outer vector has
   // multiple rows and each row can have an arbitrary number of entries.
-  // The elements within a row must compare each other, but order after all
-  // elements in previous groups and before all elements in later groups.
-
+  // The elements within a row must compare equal to each other, but order after
+  // all elements in previous groups and before all elements in later groups.
   std::vector<std::vector<google_firestore_v1_Value>> comparison_groups;
 
   // null first
