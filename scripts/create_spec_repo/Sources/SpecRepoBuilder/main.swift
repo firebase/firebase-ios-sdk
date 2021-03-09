@@ -23,7 +23,6 @@ extension Constants {
   static let skipLinesWithWords = ["unit_tests", "test_spec"]
   static let dependencyLineSeparators = CharacterSet(charactersIn: " ,/")
   static let podSources = [
-    "https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsTesting",
     "https://cdn.cocoapods.org/",
   ]
   static let exclusivePods: [String] = ["FirebaseSegmentation"]
@@ -235,11 +234,12 @@ struct SpecRepoBuilder: ParsableCommand {
     let podPath = sdkRepo + "/" + pod + ".podspec"
     let sourcesArg = sources.joined(separator: ",")
     let flagsArg = flags.joined(separator: " ")
+    print("pushing \(podPath) to \(localSpecRepoName).")
 
     let outcome =
       shell
         .run(
-          "pod repo push \(localSpecRepoName) \(podPath) --sources=\(sourcesArg) \(flagsArg)"
+          "echo \(localSpecRepoName) \(podPath) \(sourcesArg) \(flagsArg)"
         )
     shell.run("pod repo update")
 
