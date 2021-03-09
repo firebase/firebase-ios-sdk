@@ -30,7 +30,7 @@ extension Constants {
 
 // flags for 'pod push'
 extension Constants {
-  static let flags = ["--skip-tests", "--allow-warnings"]
+  static let flags = ["--skip-tests", "--allow-warnings", "--verbose"]
   static let umbrellaPodFlags = Constants.flags + ["--skip-import-validation", "--use-json"]
 }
 
@@ -234,17 +234,20 @@ struct SpecRepoBuilder: ParsableCommand {
     let podPath = sdkRepo + "/" + pod + ".podspec"
     let sourcesArg = sources.joined(separator: ",")
     let flagsArg = flags.joined(separator: " ")
-    print("pushing \(podPath) to \(localSpecRepoName)")
+    var pushCommand = "pod repo push \(localSpecRepoName) \(podPath) --sources=\(sourcesArg) " +
+      "\(flagsArg)"
+    if pod == "FirebaseMLModelDownloader" {
+      pushCommand += " --skip-import-validation"
+    }
 
-    let outcome =
-      shell
-        .run(
-          "pod repo push \(localSpecRepoName) \(podPath) --sources=\(sourcesArg) \(flagsArg)"
-        )
+    print("Running: \(pushCommand)")
+    let outcome = shell.run(pushCommand)
+
     shell.run("pod repo update")
 
     print("Outcome is \(outcome)")
 
+    shell.run("cat \(podPath)")
     return outcome
   }
 
