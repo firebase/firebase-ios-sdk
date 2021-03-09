@@ -48,8 +48,8 @@ let package = Package(
       targets: ["FirebaseFunctionsCombineSwift"]
     ),
     .library(
-        name: "FirebaseStorageCombineSwift-Beta",
-        targets: ["FirebaseStorageCombineSwift"]
+      name: "FirebaseStorageCombineSwift-Beta",
+      targets: ["FirebaseStorageCombineSwift"]
     ),
     .library(
       name: "FirebaseCrashlytics",
