@@ -233,10 +233,9 @@ struct SpecRepoBuilder: ParsableCommand {
                    flags: [String], shell: Shell = Shell.shared) -> Int32 {
     let podPath = sdkRepo + "/" + pod + ".podspec"
     let sourcesArg = sources.joined(separator: ",")
-    // let flagsArg = flags.joined(separator: " ")
-    // var pushCommand = "pod repo push \(localSpecRepoName) \(podPath) --sources=\(sourcesArg) " +
-    // "\(flagsArg)"
-    var pushCommand = "echo \(localSpecRepoName) \(podPath) \(sourcesArg) "
+    let flagsArg = flags.joined(separator: " ")
+    var pushCommand = "pod repo push \(localSpecRepoName) \(podPath) --sources=\(sourcesArg) " +
+    "\(flagsArg)"
     if flags.contains("--verbose") {
         pushCommand += " >> \(sdkRepo)/log.txt"
     }
