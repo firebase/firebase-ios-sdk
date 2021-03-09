@@ -242,6 +242,7 @@ TEST_F(ValuesTest, Ordering) {
   Add(comparison_groups, Wrap("\001\ud7ff\ue000\uffff"));
   Add(comparison_groups, Wrap("(╯°□°）╯︵ ┻━┻"));
   Add(comparison_groups, Wrap("a"));
+  Add(comparison_groups, Wrap("abc\0 def"));
   Add(comparison_groups, Wrap("abc def"));
   // latin small letter e + combining acute accent + latin small letter b
   Add(comparison_groups, Wrap("e\u0301b"));
@@ -308,6 +309,7 @@ TEST_F(ValuesTest, CanonicalId) {
   VerifyCanonicalId(Wrap(1.0), "1.0");
   VerifyCanonicalId(Wrap(Timestamp(30, 1000)), "time(30,1000)");
   VerifyCanonicalId(Wrap("a"), "a");
+  VerifyCanonicalId(Wrap("a\0a"), "a\0a");
   VerifyCanonicalId(Wrap(BlobValue(1, 2, 3)), "010203");
   VerifyCanonicalId(WrapReference(DbId("p1/d1"), Key("c1/doc1")), "c1/doc1");
   VerifyCanonicalId(Wrap(GeoPoint(30, 60)), "geo(30.0,60.0)");
