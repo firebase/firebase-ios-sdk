@@ -24,8 +24,6 @@ extension Constants {
   static let dependencyLineSeparators = CharacterSet(charactersIn: " ,/")
   static let podSources = [
     "https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsTesting",
-    "https://github.com/firebase/SpecsDev.git",
-    "https://github.com/firebase/SpecsStaging.git",
     "https://cdn.cocoapods.org/",
   ]
   static let exclusivePods: [String] = ["FirebaseSegmentation"]
@@ -280,6 +278,7 @@ struct SpecRepoBuilder: ParsableCommand {
     let fileManager = FileManager.default
     let curDir = FileManager().currentDirectoryPath
     var podSpecFiles: [String: URL] = [:]
+    print("Detect podspecs: \(podSpecFiles.keys)")
 
     let documentsURL = URL(fileURLWithPath: sdkRepo)
     do {
