@@ -239,7 +239,7 @@ struct SpecRepoBuilder: ParsableCommand {
     let outcome =
       shell
         .run(
-          "echo \(localSpecRepoName) \(podPath) \(sourcesArg) \(flagsArg)"
+          "pod repo push \(localSpecRepoName) \(podPath) \(flagsArg)"
         )
     shell.run("pod repo update")
 
