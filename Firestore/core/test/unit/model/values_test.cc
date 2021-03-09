@@ -106,7 +106,7 @@ class ValuesTest : public ::testing::Test {
       for (const auto& val2 : right) {
         EXPECT_EQ(expected_equals, Values::Equals(val1, val2))
             << "Equality check failed for '" << Values::CanonicalId(val1)
-            << "' and ' " << Values::CanonicalId(val2) << " (expected "
+            << "' and '" << Values::CanonicalId(val2) << "' (expected "
             << expected_equals << ")";
       }
     }
@@ -119,12 +119,12 @@ class ValuesTest : public ::testing::Test {
       for (const auto& val2 : right) {
         EXPECT_EQ(expected_result, Values::Compare(val1, val2))
             << "Order check failed for '" << Values::CanonicalId(val1)
-            << "' and ' " << Values::CanonicalId(val2) << " (expected "
+            << "' and '" << Values::CanonicalId(val2) << "' (expected "
             << static_cast<int>(expected_result) << ")";
         EXPECT_EQ(util::ReverseOrder(expected_result),
                   Values::Compare(val2, val1))
             << "Reverse order check failed for '" << Values::CanonicalId(val1)
-            << "' and ' " << Values::CanonicalId(val2) << " (expected "
+            << "' and '" << Values::CanonicalId(val2) << "' (expected "
             << static_cast<int>(util::ReverseOrder(expected_result)) << ")";
       }
     }
