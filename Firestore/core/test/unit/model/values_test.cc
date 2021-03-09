@@ -164,11 +164,11 @@ TEST_F(ValuesTest, Equality) {
   Add(equals_group, Wrap(BlobValue(0, 1)));
   Add(equals_group, Wrap("string"), Wrap("string"));
   Add(equals_group, Wrap("strin"));
+  Add(equals_group, Wrap(std::string("strin\0", 6)));
   // latin small letter e + combining acute accent
   Add(equals_group, Wrap("e\u0301b"));
   // latin small letter e with acute accent
   Add(equals_group, Wrap("\u00e9a"));
-  Add(equals_group, Wrap("\u00e9\0a"));
   Add(equals_group, Wrap(Timestamp::FromTimePoint(kDate1)), Wrap(kTimestamp1));
   Add(equals_group, Wrap(Timestamp::FromTimePoint(kDate2)), Wrap(kTimestamp2));
   // NOTE: ServerTimestampValues can't be parsed via Wrap().
@@ -242,7 +242,7 @@ TEST_F(ValuesTest, Ordering) {
   Add(comparison_groups, Wrap("\001\ud7ff\ue000\uffff"));
   Add(comparison_groups, Wrap("(╯°□°）╯︵ ┻━┻"));
   Add(comparison_groups, Wrap("a"));
-  Add(comparison_groups, Wrap("abc\0 def"));
+  Add(comparison_groups, Wrap(std::string("abc\0 def", 8)));
   Add(comparison_groups, Wrap("abc def"));
   // latin small letter e + combining acute accent + latin small letter b
   Add(comparison_groups, Wrap("e\u0301b"));
@@ -309,7 +309,7 @@ TEST_F(ValuesTest, CanonicalId) {
   VerifyCanonicalId(Wrap(1.0), "1.0");
   VerifyCanonicalId(Wrap(Timestamp(30, 1000)), "time(30,1000)");
   VerifyCanonicalId(Wrap("a"), "a");
-  VerifyCanonicalId(Wrap("a\0a"), "a\0a");
+  VerifyCanonicalId(Wrap(std::string("a\0b", 3)), std::string("a\0b", 3));
   VerifyCanonicalId(Wrap(BlobValue(1, 2, 3)), "010203");
   VerifyCanonicalId(WrapReference(DbId("p1/d1"), Key("c1/doc1")), "c1/doc1");
   VerifyCanonicalId(Wrap(GeoPoint(30, 60)), "geo(30.0,60.0)");
