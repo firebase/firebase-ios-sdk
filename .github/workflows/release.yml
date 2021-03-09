@@ -49,7 +49,7 @@ jobs:
     - uses: actions/upload-artifact@v2
       with:
         name: verbose_log
-        path: /tmp/test/firebase-ios-sdk
+        path: /tmp/test/firebase-ios-sdk/log.txt
 
   abtesting_quickstart:
     # Don't run on private repo unless it is a PR.
