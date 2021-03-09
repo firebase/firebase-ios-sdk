@@ -120,10 +120,12 @@ namespace util = firebase::firestore::util;
                completion:^(FIRLoadBundleTaskProgress* progress, NSError* error) {
                  result = progress;
                  XCTAssertNil(error);
-                 [expectation fulfill];
                }];
   [task observeWithHandler:^(FIRLoadBundleTaskProgress* progress) {
     [progresses addObject:progress];
+    if (result != nil) {
+      [expectation fulfill];
+    }
   }];
 
   [self awaitExpectation:expectation];
@@ -152,10 +154,12 @@ namespace util = firebase::firestore::util;
                completion:^(FIRLoadBundleTaskProgress* progress, NSError* error) {
                  result = progress;
                  XCTAssertNil(error);
-                 [expectation fulfill];
                }];
   [task observeWithHandler:^(FIRLoadBundleTaskProgress* progress) {
     [progresses addObject:progress];
+    if (result != nil) {
+      [expectation fulfill];
+    }
   }];
 
   [self awaitExpectation:expectation];
@@ -234,10 +238,12 @@ namespace util = firebase::firestore::util;
                completion:^(FIRLoadBundleTaskProgress* progress, NSError* error) {
                  result = progress;
                  XCTAssertNotNil(error);
-                 [expectation fulfill];
                }];
   [task observeWithHandler:^(FIRLoadBundleTaskProgress* progress) {
     [progresses addObject:progress];
+    if (result != nil) {
+      [expectation fulfill];
+    }
   }];
   [self awaitExpectation:expectation];
 
