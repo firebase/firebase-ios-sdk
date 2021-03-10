@@ -36,13 +36,13 @@ jobs:
          BOT_TOKEN="${ossbotaccess}" test_version="${nightly_version}" scripts/release_testing_setup.sh nightly_testing
     - name: Update SpecsTesting repo
       run: |
+        set -ex
+        pod repo push specstesting FirebaseMLModelDownloader.podspec --sources=https://github.com/FirebasePrivate/SpecsTesting,https://github.com/firebase/SpecsDev.git,https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --skip-tests --allow-warnings
+        set +ex
         botaccess=`cat bot-access.txt`
         cd scripts/create_spec_repo/
         swift build
         pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/FirebasePrivate/SpecsTesting.git
-        set -ex
-        pod repo push specstesting FirebaseMLModelDownloader.podspec --sources=https://github.com/FirebasePrivate/SpecsTesting,https://github.com/firebase/SpecsDev.git,https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --skip-tests --allow-warnings
-        set +ex
         BOT_TOKEN="${botaccess}"  .build/debug/spec-repo-builder --sdk-repo "${local_sdk_repo_dir}" --local-spec-repo-name "${local_repo}"
     - name: Clean Artifacts
       if: ${{ always() }}
