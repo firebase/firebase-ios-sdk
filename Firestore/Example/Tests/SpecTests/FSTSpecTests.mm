@@ -356,7 +356,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   const auto &database_info = [self.driver databaseInfo];
   BundleSerializer bundle_serializer(remote::Serializer(database_info.database_id()));
   auto data = util::MakeString(bundleJson);
-  auto bundle = std::make_shared<util::ByteStreamCpp>(
+  auto bundle = absl::make_unique<util::ByteStreamCpp>(
       absl::make_unique<std::stringstream>(std::stringstream(data)));
   auto reader = std::make_shared<BundleReader>(std::move(bundle_serializer), std::move(bundle));
   auto task = std::make_shared<LoadBundleTask>(user_executor_);
