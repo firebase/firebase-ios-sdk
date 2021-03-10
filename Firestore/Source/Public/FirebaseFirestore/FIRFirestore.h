@@ -262,7 +262,7 @@ NS_SWIFT_NAME(Firestore)
 #pragma mark - Bundles
 
 /**
- * Loads a Firstore bundle into the local cache.
+ * Loads a Firestore bundle into the local cache.
  *
  * @param bundleData Data from the bundle to be loaded.
  * @return A `FIRLoadBundleTask` (`LoadBundleTask` in Swift), which allow registering observers
@@ -271,7 +271,7 @@ NS_SWIFT_NAME(Firestore)
 - (FIRLoadBundleTask *)loadBundle:(NSData *)bundleData NS_SWIFT_NAME(loadBundle(_:));
 
 /**
- * Loads a Firstore bundle into the local cache.
+ * Loads a Firestore bundle into the local cache.
  *
  * @param bundleData Data from the bundle to be loaded.
  * @param completion A block to execute when the loading is in a final state, the `error` parameter
@@ -286,7 +286,7 @@ NS_SWIFT_NAME(Firestore)
     NS_SWIFT_NAME(loadBundle(_:completion:));
 
 /**
- * Loads a Firstore bundle into the local cache.
+ * Loads a Firestore bundle into the local cache.
  *
  * @param bundleStream A input stream from which the bundle can be read.
  * @return A `FIRLoadBundleTask` (`LoadBundleTask` in Swift), which allow registering observers
@@ -295,7 +295,7 @@ NS_SWIFT_NAME(Firestore)
 - (FIRLoadBundleTask *)loadBundleStream:(NSInputStream *)bundleStream NS_SWIFT_NAME(loadBundle(_:));
 
 /**
- * Loads a Firstore bundle into the local cache.
+ * Loads a Firestore bundle into the local cache.
  *
  * @param bundleStream A input stream from which the bundle can be read.
  * @param completion A block to execute when the loading is in a final state, the `error` parameter
