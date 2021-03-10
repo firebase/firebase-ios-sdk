@@ -261,23 +261,67 @@ NS_SWIFT_NAME(Firestore)
 
 #pragma mark - Bundles
 
+/**
+ * Loads a Firstore bundle into the local cache.
+ *
+ * @param bundleData Data from the bundle to be loaded.
+ * @return A `FIRLoadBundleTask` (`LoadBundleTask` in Swift), which allow registering observers
+ * to receive progress updates, and completion or error events.
+ */
 - (FIRLoadBundleTask *)loadBundle:(NSData *)bundleData NS_SWIFT_NAME(loadBundle(_:));
 
+/**
+ * Loads a Firstore bundle into the local cache.
+ *
+ * @param bundleData Data from the bundle to be loaded.
+ * @param completion A block to execute when the loading is in a final state, the `error` parameter
+ * of the block will be set if it is due to an error. If observers are registered to the returning
+ * `FIRLoadBundleTask`, this block will be called after all observers are notified.
+ * @return A `FIRLoadBundleTask` (`LoadBundleTask` in Swift), which allow registering observers
+ * to receive progress updates, and completion or error events.
+ */
 - (FIRLoadBundleTask *)loadBundle:(NSData *)bundleData
                        completion:(nullable void (^)(FIRLoadBundleTaskProgress *_Nullable progress,
                                                      NSError *_Nullable error))completion
     NS_SWIFT_NAME(loadBundle(_:completion:));
 
+/**
+ * Loads a Firstore bundle into the local cache.
+ *
+ * @param bundleStream A input stream from which the bundle can be read.
+ * @return A `FIRLoadBundleTask` (`LoadBundleTask` in Swift), which allow registering observers
+ * to receive progress updates, and completion or error events.
+ */
 - (FIRLoadBundleTask *)loadBundleStream:(NSInputStream *)bundleStream NS_SWIFT_NAME(loadBundle(_:));
 
+/**
+ * Loads a Firstore bundle into the local cache.
+ *
+ * @param bundleStream A input stream from which the bundle can be read.
+ * @param completion A block to execute when the loading is in a final state, the `error` parameter
+ * of the block will be set if it is due to an error. If observers are registered to the returning
+ * `FIRLoadBundleTask`, this block will be called after all observers are notified.
+ * @return A `FIRLoadBundleTask` (`LoadBundleTask` in Swift), which allow registering observers
+ * to receive progress updates, and completion or error events.
+ */
 - (FIRLoadBundleTask *)loadBundleStream:(NSInputStream *)bundleStream
                              completion:
                                  (nullable void (^)(FIRLoadBundleTaskProgress *_Nullable progress,
                                                     NSError *_Nullable error))completion
     NS_SWIFT_NAME(loadBundle(_:completion:));
 
+/**
+ * Reads a `FIRQuery` (`Query` in Swift) from local cache, identified by the given name.
+ *
+ * The named queries are packaged into bundles on the server side (along with resulting documents)
+ * and loaded into local cache using `loadBundle`. Once in local cache, you can use this method to
+ * extract a query by name.
+ *
+ * @param completion A block to execute with the query read from local cache. If no query can be
+ * found, it's parameter will be `nil`.
+ */
 - (void)getQueryNamed:(NSString *)name
-           completion:(void (^)(FIRQuery *_Nullable progress))completion
+           completion:(void (^)(FIRQuery *_Nullable query))completion
     NS_SWIFT_NAME(getQuery(named:completion:));
 
 @end
