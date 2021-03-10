@@ -50,6 +50,7 @@ Status BundleLoader::AddElementInternal(const BundleElement& element) {
       queries_.push_back(static_cast<const NamedQuery&>(element));
       break;
     }
+
     case BundleElement::Type::DocumentMetadata: {
       const auto& document_metadata =
           static_cast<const BundledDocumentMetadata&>(element);
@@ -65,6 +66,7 @@ Status BundleLoader::AddElementInternal(const BundleElement& element) {
       }
       break;
     }
+
     case BundleElement::Type::Document: {
       const auto& document = static_cast<const BundleDocument&>(element);
       if (!current_document_.has_value() ||
@@ -78,6 +80,7 @@ Status BundleLoader::AddElementInternal(const BundleElement& element) {
       current_document_ = absl::nullopt;
       break;
     }
+
     default:
       // It is impossible to reach here, because Type::Metadata is checked at
       // the beginning of the method.
