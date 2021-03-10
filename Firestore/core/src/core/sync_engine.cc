@@ -576,18 +576,18 @@ void SyncEngine::RemoveLimboTarget(const DocumentKey& key) {
 
 absl::optional<BundleLoader> SyncEngine::ReadIntoLoader(
     const bundle::BundleMetadata& metadata,
-    const std::shared_ptr<bundle::BundleReader>& reader,
+    bundle::BundleReader& reader,
     api::LoadBundleTask& result_task) {
   BundleLoader loader(local_store_, metadata);
   int64_t current_bytes_read = 0;
   // Breaks when either error happened, or when there is no more element to
   // read.
   while (true) {
-    auto element = reader->GetNextElement();
-    if (!reader->reader_status().ok()) {
+    auto element = reader.GetNextElement();
+    if (!reader.reader_status().ok()) {
       LOG_WARN("Failed to GetNextElement() from bundle with error %s",
-               reader->reader_status().error_message());
-      result_task.SetError(reader->reader_status());
+               reader.reader_status().error_message());
+      result_task.SetError(reader.reader_status());
       return absl::nullopt;
     }
 
@@ -597,7 +597,7 @@ absl::optional<BundleLoader> SyncEngine::ReadIntoLoader(
     }
 
     int64_t old_bytes_read = current_bytes_read;
-    current_bytes_read = reader->bytes_read();
+    current_bytes_read = reader.bytes_read();
     auto maybe_progress = loader.AddElement(
         std::move(element), current_bytes_read - old_bytes_read);
     if (!maybe_progress.ok()) {
@@ -632,7 +632,7 @@ void SyncEngine::LoadBundle(std::shared_ptr<bundle::BundleReader> reader,
   }
 
   result_task->UpdateProgress(InitialProgress(bundle_metadata));
-  auto maybe_loader = ReadIntoLoader(bundle_metadata, reader, *result_task);
+  auto maybe_loader = ReadIntoLoader(bundle_metadata, *reader, *result_task);
   if (!maybe_loader.has_value()) {
     // `ReadIntoLoader` would call `result_task.SetError` should there be an
     // error, so we do not need set it here.
