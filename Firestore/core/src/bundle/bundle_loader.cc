@@ -17,7 +17,6 @@
 #include "Firestore/core/src/bundle/bundle_loader.h"
 
 #include <memory>
-#include <string>
 #include <unordered_map>
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
