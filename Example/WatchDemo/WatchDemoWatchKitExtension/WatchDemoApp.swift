@@ -13,9 +13,7 @@
 // limitations under the License.
 
 import SwiftUI
-import FirebaseMessaging
-import FirebaseCore
-// import FirebaseRemoteConfig
+import Firebase
 
 @main
 struct WatchDemoApp: App {

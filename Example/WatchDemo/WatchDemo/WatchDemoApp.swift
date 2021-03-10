@@ -14,7 +14,6 @@
 
 import Firebase
 import SwiftUI
-import FirebaseCore
 
 @main
 struct WatchDemoApp: App {
