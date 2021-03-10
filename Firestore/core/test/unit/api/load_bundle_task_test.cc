@@ -320,7 +320,7 @@ TEST_F(LoadBundleTaskTest, NoObserversAlsoWork) {
 
 TEST_F(LoadBundleTaskTest, ObserveAtLastIsHonored) {
   BlockingQueue<int> queue;
-  task.ObserveAtLast([&](LoadBundleTaskProgress) { queue.push(1); });
+  task.SetLastObserver([&](LoadBundleTaskProgress) { queue.push(1); });
   task.Observe([&](LoadBundleTaskProgress) { queue.push(2); });
 
   task.UpdateProgress(InitialProgress());

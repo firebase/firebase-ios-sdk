@@ -169,12 +169,12 @@ class LoadBundleTask {
    * progress update.
    *
    * For a given progress update, this observer is guaranteed to be called
-   * after all other observers. Calling `ObserveAtLast` a second time will
+   * after all other observers. Calling `SetLastObserver` a second time will
    * override the observer registered the first time.
    *
    * @return A handle that can be used to remove the callback from this task.
    */
-  LoadBundleHandle ObserveAtLast(ProgressObserver observer);
+  LoadBundleHandle SetLastObserver(ProgressObserver observer);
 
   /**
    * Removes the observer associated with the given handle, does nothing if the
