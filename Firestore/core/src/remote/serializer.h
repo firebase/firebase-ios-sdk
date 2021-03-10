@@ -17,8 +17,9 @@
 #ifndef FIRESTORE_CORE_SRC_REMOTE_SERIALIZER_H_
 #define FIRESTORE_CORE_SRC_REMOTE_SERIALIZER_H_
 
+#include <stddef.h>
+
 #include <cstdint>
-#include <cstdlib>
 #include <memory>
 #include <string>
 #include <unordered_map>
