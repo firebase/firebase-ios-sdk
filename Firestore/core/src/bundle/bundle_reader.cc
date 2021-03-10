@@ -115,7 +115,7 @@ absl::optional<std::string> BundleReader::ReadLengthPrefix() {
 }
 
 void BundleReader::ReadJsonToBuffer(size_t required_size) {
-  if(!reader_status_.ok()){
+  if (!reader_status_.ok()) {
     return;
   }
   while (buffer_.size() < required_size) {
