@@ -47,7 +47,7 @@ jobs:
     needs: check
     # Don't run on private repo unless it is a PR.
     # always() will trigger this job when `needs` are skipped in a `merge` pull_request event.
-    if: always() && github.repository == 'Firebase/firebase-ios-sdk' && (needs.check.outputs.database_run_job == 'true' || github.event.pull_request.merged)
+    if: always() && github.repository == 'Firebase/firebase-ios-sdk' && (needs.check.outputs.database_run_job || github.event.pull_request.merged)
     runs-on: macOS-latest
     strategy:
       matrix:
