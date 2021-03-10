@@ -236,6 +236,7 @@ struct SpecRepoBuilder: ParsableCommand {
     let podPath = sdkRepo + "/" + pod + ".podspec"
     let sourcesArg = sources.joined(separator: ",")
     let flagsArg = flags.joined(separator: " ")
+
     var pushCommand = "pod repo push \(localSpecRepoName) \(podPath) --sources=\(sourcesArg) " +
       "\(flagsArg)"
     if flags.contains("--verbose") {
@@ -245,6 +246,11 @@ struct SpecRepoBuilder: ParsableCommand {
     print("Running: \(pushCommand)")
     let outcome = shell.run(pushCommand)
 
+    print("------running raw codes------"")
+    shell.run("pod repo push specstesting FirebaseMLModelDownloader.podspec --sources=https://github.com/firebase/SpecsDev.git,https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --skip-tests --allow-warnings")
+    print("Running: pod repo push specstesting FirebaseMLModelDownloader.podspec --sources=https://github.com/firebase/SpecsDev.git,https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --skip-tests --allow-warnings")
+
+    print("------pod repo update------"")
     shell.run("pod repo update")
 
     print("Outcome is \(outcome)")
