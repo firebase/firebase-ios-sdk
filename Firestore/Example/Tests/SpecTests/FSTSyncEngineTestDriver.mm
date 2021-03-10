@@ -486,7 +486,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)loadBundleWithReader:(std::shared_ptr<BundleReader>)reader
                         task:(std::shared_ptr<LoadBundleTask>)task {
-  _workerQueue->EnqueueBlocking([=] { _syncEngine->LoadBundle(reader, task); });
+  _workerQueue->EnqueueBlocking(
+      [=] { _syncEngine->LoadBundle(std::move(reader), std::move(task)); });
 }
 
 - (void)writeUserMutation:(Mutation)mutation {

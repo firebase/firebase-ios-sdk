@@ -161,12 +161,12 @@ typedef std::unordered_map<auth::User, NSMutableArray<FSTOutstandingWrite *> *, 
 - (void)removeUserListenerWithQuery:(const core::Query &)query;
 
 /**
- * Loads a firestore bundle captured in `reader` into the local storage..
+ * Loads a Firestore bundle captured in `reader` into the local storage.
  *
  * Resulting events are captured and made available via the capturedEventsSinceLastCall method.
  *
- * @param reader A object to read from the underlying input stream of the bundle.
- * @param task A object to report loading progress and result.
+ * @param reader An object to read from the underlying input stream of the bundle.
+ * @param task An object to report loading progress and result.
  */
 - (void)loadBundleWithReader:(std::shared_ptr<bundle::BundleReader>)reader
                         task:(std::shared_ptr<api::LoadBundleTask>)task;
@@ -342,7 +342,7 @@ typedef std::unordered_map<auth::User, NSMutableArray<FSTOutstandingWrite *> *, 
 @property(nonatomic, readonly) int waitForPendingWritesEvents;
 
 /**
- * The number of waitForPendingWrites events that have been received.
+ * The DatabaseInfo of the Firestore instance.
  */
 @property(nonatomic, readonly) const core::DatabaseInfo &databaseInfo;
 

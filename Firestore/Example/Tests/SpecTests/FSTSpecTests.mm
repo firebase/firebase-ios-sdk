@@ -360,7 +360,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
       absl::make_unique<std::stringstream>(std::stringstream(data)));
   auto reader = std::make_shared<BundleReader>(std::move(bundle_serializer), std::move(bundle));
   auto task = std::make_shared<LoadBundleTask>(user_executor_);
-  [self.driver loadBundleWithReader:reader task:task];
+  [self.driver loadBundleWithReader:std::move(reader) task:std::move(task)];
 }
 
 - (void)doSet:(NSArray *)setSpec {
