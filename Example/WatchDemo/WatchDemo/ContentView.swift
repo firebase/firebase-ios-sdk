@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import SwiftUI
+import FirebaseMessaging
 
 struct ContentView: View {
   var body: some View {

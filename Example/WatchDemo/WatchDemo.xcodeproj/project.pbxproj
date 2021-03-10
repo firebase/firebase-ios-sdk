@@ -7,13 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		51B7EC2725F84722000C52DB /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 51B7EC2625F84722000C52DB /* UIKit.framework */; };
+		51B7EC2C25F84A95000C52DB /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 51B7EC2B25F84A95000C52DB /* FirebaseMessaging */; };
+		51B7EC2E25F84A95000C52DB /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = 51B7EC2D25F84A95000C52DB /* FirebaseRemoteConfig */; };
+		51B7EC3025F84AFC000C52DB /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = 51B7EC2F25F84AFC000C52DB /* FirebaseRemoteConfig */; };
+		51B7EC3225F84B00000C52DB /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 51B7EC3125F84B00000C52DB /* FirebaseMessaging */; };
 		EDA16F0325F68B7100A0546E /* WatchDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDA16F0225F68B7100A0546E /* WatchDemoApp.swift */; };
 		EDA16F0525F68B7100A0546E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDA16F0425F68B7100A0546E /* ContentView.swift */; };
 		EDA16F0725F68B7200A0546E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EDA16F0625F68B7200A0546E /* Assets.xcassets */; };
 		EDA16F0A25F68B7200A0546E /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EDA16F0925F68B7200A0546E /* Preview Assets.xcassets */; };
-		EDA16F0F25F68B7200A0546E /* WatchDemo WatchKit App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = EDA16F0E25F68B7200A0546E /* WatchDemo WatchKit App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		EDA16F0F25F68B7200A0546E /* WatchDemoWatchKitApp.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = EDA16F0E25F68B7200A0546E /* WatchDemoWatchKitApp.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		EDA16F1425F68B7300A0546E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EDA16F1325F68B7300A0546E /* Assets.xcassets */; };
-		EDA16F1B25F68B7300A0546E /* WatchDemo WatchKit Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = EDA16F1A25F68B7300A0546E /* WatchDemo WatchKit Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		EDA16F1B25F68B7300A0546E /* WatchDemoWatchKitExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = EDA16F1A25F68B7300A0546E /* WatchDemoWatchKitExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		EDA16F2025F68B7300A0546E /* WatchDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDA16F1F25F68B7300A0546E /* WatchDemoApp.swift */; };
 		EDA16F2225F68B7300A0546E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDA16F2125F68B7300A0546E /* ContentView.swift */; };
 		EDA16F2425F68B7300A0546E /* NotificationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDA16F2325F68B7300A0546E /* NotificationController.swift */; };
@@ -21,13 +26,6 @@
 		EDA16F2825F68B7300A0546E /* ComplicationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDA16F2725F68B7300A0546E /* ComplicationController.swift */; };
 		EDA16F2A25F68B7300A0546E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EDA16F2925F68B7300A0546E /* Assets.xcassets */; };
 		EDA16F2D25F68B7300A0546E /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EDA16F2C25F68B7300A0546E /* Preview Assets.xcassets */; };
-		EDA16F4225F68D8600A0546E /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = EDA16F4125F68D8600A0546E /* FirebaseDatabase */; };
-		EDA16F4425F68D8600A0546E /* FirebaseStorageSwift-Beta in Frameworks */ = {isa = PBXBuildFile; productRef = EDA16F4325F68D8600A0546E /* FirebaseStorageSwift-Beta */; };
-		EDA16F4625F68D8600A0546E /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = EDA16F4525F68D8600A0546E /* FirebaseStorage */; };
-		EDA16F4825F68D8600A0546E /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = EDA16F4725F68D8600A0546E /* FirebaseCrashlytics */; };
-		EDA16F4A25F68D8600A0546E /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = EDA16F4925F68D8600A0546E /* FirebaseMessaging */; };
-		EDA16F4C25F68D8600A0546E /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = EDA16F4B25F68D8600A0546E /* FirebaseAuth */; };
-		EDA16F4E25F68D8600A0546E /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = EDA16F4D25F68D8600A0546E /* FirebaseRemoteConfig */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -54,7 +52,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				EDA16F1B25F68B7300A0546E /* WatchDemo WatchKit Extension.appex in Embed App Extensions */,
+				EDA16F1B25F68B7300A0546E /* WatchDemoWatchKitExtension.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -65,7 +63,7 @@
 			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
 			dstSubfolderSpec = 16;
 			files = (
-				EDA16F0F25F68B7200A0546E /* WatchDemo WatchKit App.app in Embed Watch Content */,
+				EDA16F0F25F68B7200A0546E /* WatchDemoWatchKitApp.app in Embed Watch Content */,
 			);
 			name = "Embed Watch Content";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -73,16 +71,18 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		51B7EC2625F84722000C52DB /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS7.4.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
+		51B7EC3525F8AD3C000C52DB /* WatchDemoWatchKitExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WatchDemoWatchKitExtension.entitlements; sourceTree = "<group>"; };
 		EDA16EFF25F68B7100A0546E /* WatchDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WatchDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EDA16F0225F68B7100A0546E /* WatchDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchDemoApp.swift; sourceTree = "<group>"; };
 		EDA16F0425F68B7100A0546E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		EDA16F0625F68B7200A0546E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		EDA16F0925F68B7200A0546E /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		EDA16F0B25F68B7200A0546E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		EDA16F0E25F68B7200A0546E /* WatchDemo WatchKit App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "WatchDemo WatchKit App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		EDA16F0E25F68B7200A0546E /* WatchDemoWatchKitApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WatchDemoWatchKitApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EDA16F1325F68B7300A0546E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		EDA16F1525F68B7300A0546E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		EDA16F1A25F68B7300A0546E /* WatchDemo WatchKit Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "WatchDemo WatchKit Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		EDA16F1A25F68B7300A0546E /* WatchDemoWatchKitExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WatchDemoWatchKitExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		EDA16F1F25F68B7300A0546E /* WatchDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchDemoApp.swift; sourceTree = "<group>"; };
 		EDA16F2125F68B7300A0546E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		EDA16F2325F68B7300A0546E /* NotificationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationController.swift; sourceTree = "<group>"; };
@@ -99,13 +99,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EDA16F4225F68D8600A0546E /* FirebaseDatabase in Frameworks */,
-				EDA16F4C25F68D8600A0546E /* FirebaseAuth in Frameworks */,
-				EDA16F4825F68D8600A0546E /* FirebaseCrashlytics in Frameworks */,
-				EDA16F4E25F68D8600A0546E /* FirebaseRemoteConfig in Frameworks */,
-				EDA16F4A25F68D8600A0546E /* FirebaseMessaging in Frameworks */,
-				EDA16F4425F68D8600A0546E /* FirebaseStorageSwift-Beta in Frameworks */,
-				EDA16F4625F68D8600A0546E /* FirebaseStorage in Frameworks */,
+				51B7EC2C25F84A95000C52DB /* FirebaseMessaging in Frameworks */,
+				51B7EC2E25F84A95000C52DB /* FirebaseRemoteConfig in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -113,19 +108,31 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				51B7EC3225F84B00000C52DB /* FirebaseMessaging in Frameworks */,
+				51B7EC2725F84722000C52DB /* UIKit.framework in Frameworks */,
+				51B7EC3025F84AFC000C52DB /* FirebaseRemoteConfig in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		51B7EC2325F84342000C52DB /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				51B7EC2625F84722000C52DB /* UIKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		EDA16EF625F68B7100A0546E = {
 			isa = PBXGroup;
 			children = (
 				EDA16F0125F68B7100A0546E /* WatchDemo */,
-				EDA16F1225F68B7200A0546E /* WatchDemo WatchKit App */,
-				EDA16F1E25F68B7300A0546E /* WatchDemo WatchKit Extension */,
+				EDA16F1225F68B7200A0546E /* WatchDemoWatchKitApp */,
+				EDA16F1E25F68B7300A0546E /* WatchDemoWatchKitExtension */,
 				EDA16F0025F68B7100A0546E /* Products */,
+				51B7EC2325F84342000C52DB /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -133,8 +140,8 @@
 			isa = PBXGroup;
 			children = (
 				EDA16EFF25F68B7100A0546E /* WatchDemo.app */,
-				EDA16F0E25F68B7200A0546E /* WatchDemo WatchKit App.app */,
-				EDA16F1A25F68B7300A0546E /* WatchDemo WatchKit Extension.appex */,
+				EDA16F0E25F68B7200A0546E /* WatchDemoWatchKitApp.app */,
+				EDA16F1A25F68B7300A0546E /* WatchDemoWatchKitExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -159,18 +166,19 @@
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
-		EDA16F1225F68B7200A0546E /* WatchDemo WatchKit App */ = {
+		EDA16F1225F68B7200A0546E /* WatchDemoWatchKitApp */ = {
 			isa = PBXGroup;
 			children = (
 				EDA16F1325F68B7300A0546E /* Assets.xcassets */,
 				EDA16F1525F68B7300A0546E /* Info.plist */,
 			);
-			path = "WatchDemo WatchKit App";
+			path = WatchDemoWatchKitApp;
 			sourceTree = "<group>";
 		};
-		EDA16F1E25F68B7300A0546E /* WatchDemo WatchKit Extension */ = {
+		EDA16F1E25F68B7300A0546E /* WatchDemoWatchKitExtension */ = {
 			isa = PBXGroup;
 			children = (
+				51B7EC3525F8AD3C000C52DB /* WatchDemoWatchKitExtension.entitlements */,
 				EDA16F1F25F68B7300A0546E /* WatchDemoApp.swift */,
 				EDA16F2125F68B7300A0546E /* ContentView.swift */,
 				EDA16F2325F68B7300A0546E /* NotificationController.swift */,
@@ -181,7 +189,7 @@
 				EDA16F2F25F68B7300A0546E /* PushNotificationPayload.apns */,
 				EDA16F2B25F68B7300A0546E /* Preview Content */,
 			);
-			path = "WatchDemo WatchKit Extension";
+			path = WatchDemoWatchKitExtension;
 			sourceTree = "<group>";
 		};
 		EDA16F2B25F68B7300A0546E /* Preview Content */ = {
@@ -211,21 +219,16 @@
 			);
 			name = WatchDemo;
 			packageProductDependencies = (
-				EDA16F4125F68D8600A0546E /* FirebaseDatabase */,
-				EDA16F4325F68D8600A0546E /* FirebaseStorageSwift-Beta */,
-				EDA16F4525F68D8600A0546E /* FirebaseStorage */,
-				EDA16F4725F68D8600A0546E /* FirebaseCrashlytics */,
-				EDA16F4925F68D8600A0546E /* FirebaseMessaging */,
-				EDA16F4B25F68D8600A0546E /* FirebaseAuth */,
-				EDA16F4D25F68D8600A0546E /* FirebaseRemoteConfig */,
+				51B7EC2B25F84A95000C52DB /* FirebaseMessaging */,
+				51B7EC2D25F84A95000C52DB /* FirebaseRemoteConfig */,
 			);
 			productName = WatchDemo;
 			productReference = EDA16EFF25F68B7100A0546E /* WatchDemo.app */;
 			productType = "com.apple.product-type.application";
 		};
-		EDA16F0D25F68B7200A0546E /* WatchDemo WatchKit App */ = {
+		EDA16F0D25F68B7200A0546E /* WatchDemoWatchKitApp */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = EDA16F3625F68B7300A0546E /* Build configuration list for PBXNativeTarget "WatchDemo WatchKit App" */;
+			buildConfigurationList = EDA16F3625F68B7300A0546E /* Build configuration list for PBXNativeTarget "WatchDemoWatchKitApp" */;
 			buildPhases = (
 				EDA16F0C25F68B7200A0546E /* Resources */,
 				EDA16F3525F68B7300A0546E /* Embed App Extensions */,
@@ -235,14 +238,14 @@
 			dependencies = (
 				EDA16F1D25F68B7300A0546E /* PBXTargetDependency */,
 			);
-			name = "WatchDemo WatchKit App";
+			name = WatchDemoWatchKitApp;
 			productName = "WatchDemo WatchKit App";
-			productReference = EDA16F0E25F68B7200A0546E /* WatchDemo WatchKit App.app */;
+			productReference = EDA16F0E25F68B7200A0546E /* WatchDemoWatchKitApp.app */;
 			productType = "com.apple.product-type.application.watchapp2";
 		};
-		EDA16F1925F68B7300A0546E /* WatchDemo WatchKit Extension */ = {
+		EDA16F1925F68B7300A0546E /* WatchDemoWatchKitExtension */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = EDA16F3225F68B7300A0546E /* Build configuration list for PBXNativeTarget "WatchDemo WatchKit Extension" */;
+			buildConfigurationList = EDA16F3225F68B7300A0546E /* Build configuration list for PBXNativeTarget "WatchDemoWatchKitExtension" */;
 			buildPhases = (
 				EDA16F1625F68B7300A0546E /* Sources */,
 				EDA16F1725F68B7300A0546E /* Frameworks */,
@@ -252,9 +255,13 @@
 			);
 			dependencies = (
 			);
-			name = "WatchDemo WatchKit Extension";
+			name = WatchDemoWatchKitExtension;
+			packageProductDependencies = (
+				51B7EC2F25F84AFC000C52DB /* FirebaseRemoteConfig */,
+				51B7EC3125F84B00000C52DB /* FirebaseMessaging */,
+			);
 			productName = "WatchDemo WatchKit Extension";
-			productReference = EDA16F1A25F68B7300A0546E /* WatchDemo WatchKit Extension.appex */;
+			productReference = EDA16F1A25F68B7300A0546E /* WatchDemoWatchKitExtension.appex */;
 			productType = "com.apple.product-type.watchkit2-extension";
 		};
 /* End PBXNativeTarget section */
@@ -287,15 +294,15 @@
 			);
 			mainGroup = EDA16EF625F68B7100A0546E;
 			packageReferences = (
-				EDA16F4025F68D8600A0546E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				51B7EC2A25F84A95000C52DB /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			productRefGroup = EDA16F0025F68B7100A0546E /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				EDA16EFE25F68B7100A0546E /* WatchDemo */,
-				EDA16F0D25F68B7200A0546E /* WatchDemo WatchKit App */,
-				EDA16F1925F68B7300A0546E /* WatchDemo WatchKit Extension */,
+				EDA16F0D25F68B7200A0546E /* WatchDemoWatchKitApp */,
+				EDA16F1925F68B7300A0546E /* WatchDemoWatchKitExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -356,12 +363,12 @@
 /* Begin PBXTargetDependency section */
 		EDA16F1125F68B7200A0546E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = EDA16F0D25F68B7200A0546E /* WatchDemo WatchKit App */;
+			target = EDA16F0D25F68B7200A0546E /* WatchDemoWatchKitApp */;
 			targetProxy = EDA16F1025F68B7200A0546E /* PBXContainerItemProxy */;
 		};
 		EDA16F1D25F68B7300A0546E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = EDA16F1925F68B7300A0546E /* WatchDemo WatchKit Extension */;
+			target = EDA16F1925F68B7300A0546E /* WatchDemoWatchKitExtension */;
 			targetProxy = EDA16F1C25F68B7300A0546E /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -482,17 +489,21 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_ASSET_PATHS = "\"WatchDemo WatchKit Extension/Preview Content\"";
+				CODE_SIGN_ENTITLEMENTS = WatchDemoWatchKitExtension/WatchDemoWatchKitExtension.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_ASSET_PATHS = "\"WatchDemoWatchKitExtension/Preview Content\"";
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
-				INFOPLIST_FILE = "WatchDemo WatchKit Extension/Info.plist";
+				INFOPLIST_FILE = WatchDemoWatchKitExtension/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.firebase.WatchDemo.watchkitapp.watchkitextension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev.WatchKitApp.WatchKitExtension;
 				PRODUCT_NAME = "${TARGET_NAME}";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -505,17 +516,21 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_ASSET_PATHS = "\"WatchDemo WatchKit Extension/Preview Content\"";
+				CODE_SIGN_ENTITLEMENTS = WatchDemoWatchKitExtension/WatchDemoWatchKitExtension.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_ASSET_PATHS = "\"WatchDemoWatchKitExtension/Preview Content\"";
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
-				INFOPLIST_FILE = "WatchDemo WatchKit Extension/Info.plist";
+				INFOPLIST_FILE = WatchDemoWatchKitExtension/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.firebase.WatchDemo.watchkitapp.watchkitextension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev.WatchKitApp.WatchKitExtension;
 				PRODUCT_NAME = "${TARGET_NAME}";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -531,11 +546,14 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
 				IBSC_MODULE = WatchDemo_WatchKit_Extension;
-				INFOPLIST_FILE = "WatchDemo WatchKit App/Info.plist";
-				PRODUCT_BUNDLE_IDENTIFIER = com.firebase.WatchDemo.watchkitapp;
+				INFOPLIST_FILE = WatchDemoWatchKitApp/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev.WatchKitApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -550,11 +568,14 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
 				IBSC_MODULE = WatchDemo_WatchKit_Extension;
-				INFOPLIST_FILE = "WatchDemo WatchKit App/Info.plist";
-				PRODUCT_BUNDLE_IDENTIFIER = com.firebase.WatchDemo.watchkitapp;
+				INFOPLIST_FILE = WatchDemoWatchKitApp/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev.WatchKitApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -569,8 +590,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_ASSET_PATHS = "\"WatchDemo/Preview Content\"";
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = WatchDemo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.4;
@@ -578,8 +601,9 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.firebase.WatchDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -591,8 +615,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_ASSET_PATHS = "\"WatchDemo/Preview Content\"";
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = WatchDemo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.4;
@@ -600,8 +626,9 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.firebase.WatchDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -621,7 +648,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		EDA16F3225F68B7300A0546E /* Build configuration list for PBXNativeTarget "WatchDemo WatchKit Extension" */ = {
+		EDA16F3225F68B7300A0546E /* Build configuration list for PBXNativeTarget "WatchDemoWatchKitExtension" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				EDA16F3325F68B7300A0546E /* Debug */,
@@ -630,7 +657,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		EDA16F3625F68B7300A0546E /* Build configuration list for PBXNativeTarget "WatchDemo WatchKit App" */ = {
+		EDA16F3625F68B7300A0546E /* Build configuration list for PBXNativeTarget "WatchDemoWatchKitApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				EDA16F3725F68B7300A0546E /* Debug */,
@@ -651,51 +678,36 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		EDA16F4025F68D8600A0546E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+		51B7EC2A25F84A95000C52DB /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
 			requirement = {
-				branch = "rw-database-watchos";
-				kind = branch;
+				kind = upToNextMajorVersion;
+				minimumVersion = 7.8.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		EDA16F4125F68D8600A0546E /* FirebaseDatabase */ = {
+		51B7EC2B25F84A95000C52DB /* FirebaseMessaging */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = EDA16F4025F68D8600A0546E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseDatabase;
-		};
-		EDA16F4325F68D8600A0546E /* FirebaseStorageSwift-Beta */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = EDA16F4025F68D8600A0546E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = "FirebaseStorageSwift-Beta";
-		};
-		EDA16F4525F68D8600A0546E /* FirebaseStorage */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = EDA16F4025F68D8600A0546E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseStorage;
-		};
-		EDA16F4725F68D8600A0546E /* FirebaseCrashlytics */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = EDA16F4025F68D8600A0546E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseCrashlytics;
-		};
-		EDA16F4925F68D8600A0546E /* FirebaseMessaging */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = EDA16F4025F68D8600A0546E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			package = 51B7EC2A25F84A95000C52DB /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseMessaging;
 		};
-		EDA16F4B25F68D8600A0546E /* FirebaseAuth */ = {
+		51B7EC2D25F84A95000C52DB /* FirebaseRemoteConfig */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = EDA16F4025F68D8600A0546E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseAuth;
-		};
-		EDA16F4D25F68D8600A0546E /* FirebaseRemoteConfig */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = EDA16F4025F68D8600A0546E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			package = 51B7EC2A25F84A95000C52DB /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseRemoteConfig;
+		};
+		51B7EC2F25F84AFC000C52DB /* FirebaseRemoteConfig */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 51B7EC2A25F84A95000C52DB /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseRemoteConfig;
+		};
+		51B7EC3125F84B00000C52DB /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 51B7EC2A25F84A95000C52DB /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
