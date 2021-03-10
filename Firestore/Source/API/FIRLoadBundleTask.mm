@@ -18,6 +18,8 @@
 
 #include <memory>
 
+#import "Firestore/Source/API/FIRLoadBundleTask+Internal.h"
+
 #include "Firestore/core/src/api/load_bundle_task.h"
 #include "Firestore/core/src/util/exception.h"
 
@@ -56,6 +58,20 @@ using firebase::firestore::util::ThrowInvalidArgument;
   return self;
 }
 
+- (BOOL)isEqual:(id)other {
+  if (self == other) {
+    return YES;
+  } else if (![other isKindOfClass:[FIRLoadBundleTaskProgress class]]) {
+    return NO;
+  }
+
+  FIRLoadBundleTaskProgress *otherProgress = (FIRLoadBundleTaskProgress *)other;
+  return self.documentsLoaded == otherProgress.documentsLoaded &&
+         self.totalDocuments == otherProgress.totalDocuments &&
+         self.bytesLoaded == otherProgress.bytesLoaded &&
+         self.totalBytes == otherProgress.totalBytes && self.state == otherProgress.state;
+}
+
 @end
 
 @implementation FIRLoadBundleTask {
@@ -78,7 +94,7 @@ using firebase::firestore::util::ThrowInvalidArgument;
       [handler](api::LoadBundleTaskProgress internal_progress) {
         handler([[FIRLoadBundleTaskProgress alloc] initWithInternal:internal_progress]);
       };
-  return _task->ObserveState(std::move(observer));
+  return _task->Observe(std::move(observer));
 }
 
 - (void)removeObserverWithHandle:(FIRLoadBundleHandle)handle {

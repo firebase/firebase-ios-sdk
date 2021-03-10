@@ -960,6 +960,19 @@ TEST_F(BundleSerializerTest, DecodesLimitToLastQueries) {
   VerifyNamedQueryRoundtrip(original);
 }
 
+TEST_F(BundleSerializerTest, DecodeLimitEncodedAsObject) {
+  core::Query original = testutil::Query("colls")
+                             .AddingOrderBy(OrderBy("f1", "asc"))
+                             .WithLimitToLast(4);
+  std::string json_string = NamedQueryJsonString(original);
+  auto json_copy =
+      ReplacedCopy(json_string, "\"limit\":4", R"("limit":{"value": 4})");
+  JsonReader reader;
+  auto decoded = bundle_serializer.DecodeNamedQuery(reader, Parse(json_copy));
+  EXPECT_OK(reader.status());
+  EXPECT_EQ(decoded.bundled_query().target(), original.ToTarget());
+}
+
 TEST_F(BundleSerializerTest, DecodeInvalidLimitQueriesFails) {
   std::string json_string =
       NamedQueryJsonString(testutil::Query("colls")

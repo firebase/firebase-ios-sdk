@@ -25,6 +25,7 @@
 #include <vector>
 
 #include "Firestore/core/src/util/executor.h"
+#include "Firestore/core/src/util/status.h"
 
 namespace firebase {
 namespace firestore {
@@ -52,6 +53,20 @@ class LoadBundleTaskProgress {
         bytes_loaded_(bytes_loaded),
         total_bytes_(total_bytes),
         state_(state) {
+  }
+
+  LoadBundleTaskProgress(uint32_t documents_loaded,
+                         uint32_t total_documents,
+                         uint64_t bytes_loaded,
+                         uint64_t total_bytes,
+                         LoadBundleTaskState state,
+                         const util::Status& error_status)
+      : documents_loaded_(documents_loaded),
+        total_documents_(total_documents),
+        bytes_loaded_(bytes_loaded),
+        total_bytes_(total_bytes),
+        state_(state),
+        error_status_(error_status) {
   }
 
   /** Returns how many documents have been loaded. */
@@ -89,6 +104,14 @@ class LoadBundleTaskProgress {
     state_ = state;
   }
 
+  const util::Status& error_status() const {
+    return error_status_;
+  }
+
+  void set_error_status(const util::Status& error_status) {
+    error_status_.Update(error_status);
+  }
+
  private:
   uint32_t documents_loaded_ = 0;
   uint32_t total_documents_ = 0;
@@ -96,6 +119,7 @@ class LoadBundleTaskProgress {
   uint64_t total_bytes_ = 0;
 
   LoadBundleTaskState state_ = LoadBundleTaskState::kInProgress;
+  util::Status error_status_;
 };
 
 inline bool operator==(const LoadBundleTaskProgress lhs,
@@ -104,7 +128,8 @@ inline bool operator==(const LoadBundleTaskProgress lhs,
          lhs.bytes_loaded() == rhs.bytes_loaded() &&
          lhs.documents_loaded() == rhs.documents_loaded() &&
          lhs.total_bytes() == rhs.total_bytes() &&
-         lhs.total_documents() == rhs.total_documents();
+         lhs.total_documents() == rhs.total_documents() &&
+         lhs.error_status() == rhs.error_status();
 }
 
 inline bool operator!=(const LoadBundleTaskProgress lhs,
@@ -134,7 +159,7 @@ class LoadBundleTask {
    *
    * @return A handle that can be used to remove the callback from this task.
    */
-  LoadBundleHandle ObserveState(ProgressObserver callback);
+  LoadBundleHandle Observe(ProgressObserver callback);
 
   /**
    * Removes the observer associated with the given handle, does nothing if the
@@ -154,7 +179,7 @@ class LoadBundleTask {
    * Notifies observers with a error progress, by changing the last progress
    * this instance has been with an `Error` state.
    */
-  void SetError();
+  void SetError(const util::Status& status);
 
   /** Notifies observers with a `InProgress` progress. */
   void UpdateProgress(LoadBundleTaskProgress progress);

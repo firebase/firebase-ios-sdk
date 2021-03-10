@@ -34,6 +34,9 @@ namespace util {
 class ByteStreamApple : public ByteStream {
  public:
   explicit ByteStreamApple(NSInputStream* input) : input_(input) {
+    if ([input_ streamStatus] == NSStreamStatusNotOpen) {
+      [input_ open];
+    }
   }
 
   StreamReadResult ReadUntil(char delim, size_t max_length) override;

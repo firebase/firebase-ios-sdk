@@ -27,7 +27,7 @@ namespace firebase {
 namespace firestore {
 namespace api {
 
-LoadBundleTask::LoadBundleHandle LoadBundleTask::ObserveState(
+LoadBundleTask::LoadBundleHandle LoadBundleTask::Observe(
     ProgressObserver observer) {
   std::lock_guard<std::mutex> lock(mutex_);
 
@@ -64,10 +64,12 @@ void LoadBundleTask::SetSuccess(LoadBundleTaskProgress success_progress) {
   NotifyObservers();
 }
 
-void LoadBundleTask::SetError() {
+void LoadBundleTask::SetError(const util::Status& status) {
   std::lock_guard<std::mutex> lock(mutex_);
 
   progress_snapshot_.set_state(LoadBundleTaskState::kError);
+  progress_snapshot_.set_error_status(status);
+
   NotifyObservers();
 }
 
