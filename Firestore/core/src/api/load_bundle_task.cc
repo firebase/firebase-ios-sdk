@@ -27,6 +27,10 @@ namespace firebase {
 namespace firestore {
 namespace api {
 
+LoadBundleTask::~LoadBundleTask() {
+  std::lock_guard<std::mutex> lock(mutex_);
+}
+
 LoadBundleTask::LoadBundleHandle LoadBundleTask::Observe(
     ProgressObserver observer) {
   std::lock_guard<std::mutex> lock(mutex_);
