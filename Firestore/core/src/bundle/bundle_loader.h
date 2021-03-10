@@ -16,8 +16,12 @@
 #ifndef FIRESTORE_CORE_SRC_BUNDLE_BUNDLE_LOADER_H_
 #define FIRESTORE_CORE_SRC_BUNDLE_BUNDLE_LOADER_H_
 
+#include <cstdint>
 #include <memory>
+#include <string>
+#include <unordered_map>
 #include <utility>
+#include <vector>
 
 #include "Firestore/core/src/api/load_bundle_task.h"
 #include "Firestore/core/src/bundle/bundle_callback.h"
@@ -26,29 +30,30 @@
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/document_map.h"
 #include "Firestore/core/src/util/statusor.h"
+#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
 namespace bundle {
 
-using AddElementResult =
-    util::StatusOr<absl::optional<api::LoadBundleTaskProgress>>;
-
 inline api::LoadBundleTaskProgress SuccessProgress(
-    const bundle::BundleMetadata metadata) {
+    const bundle::BundleMetadata& metadata) {
   return {metadata.total_documents(), metadata.total_documents(),
           metadata.total_bytes(), metadata.total_bytes(),
-          api::LoadBundleTaskState::Success};
+          api::LoadBundleTaskState::kSuccess};
 }
 
 inline api::LoadBundleTaskProgress InitialProgress(
-    const bundle::BundleMetadata metadata) {
+    const bundle::BundleMetadata& metadata) {
   return {0, metadata.total_documents(), 0, metadata.total_bytes(),
-          api::LoadBundleTaskState::InProgress};
+          api::LoadBundleTaskState::kInProgress};
 }
 
 class BundleLoader {
  public:
+  using AddElementResult =
+      util::StatusOr<absl::optional<api::LoadBundleTaskProgress>>;
+
   BundleLoader(BundleCallback* callback, BundleMetadata metadata)
       : callback_(callback), metadata_(std::move(metadata)) {
   }
@@ -70,8 +75,18 @@ class BundleLoader {
   util::StatusOr<model::MaybeDocumentMap> ApplyChanges();
 
  private:
+  /**
+   * @return A map whose keys are the query names in the loading bundle, and
+   * values are matching document keys.
+   */
   std::unordered_map<std::string, model::DocumentKeySet>
   GetQueryDocumentMapping();
+
+  /**
+   * Adds the given BundleElement to the internal containers, depending on the
+   * element type.
+   */
+  util::Status AddElementInternal(const BundleElement& element);
 
   BundleCallback* callback_ = nullptr;
   BundleMetadata metadata_;
@@ -80,10 +95,9 @@ class BundleLoader {
                      BundledDocumentMetadata,
                      model::DocumentKeyHash>
       documents_metadata_;
-
   model::MaybeDocumentMap documents_;
-  uint64_t bytes_loaded_ = 0;
 
+  uint64_t bytes_loaded_ = 0;
   absl::optional<model::DocumentKey> current_document_;
 };
 

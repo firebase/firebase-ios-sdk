@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/util/byte_stream_apple.h"
 
+#include <algorithm>
 #include <string>
 #include <utility>
 

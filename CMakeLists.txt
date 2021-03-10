@@ -251,13 +251,6 @@ target_include_directories(
   $<BUILD_INTERFACE:${FIREBASE_EXTERNAL_SOURCE_DIR}/nanopb>
 )
 
-
-# nlohmann JSON
-set(JSON_BuildTests OFF CACHE BOOL "Disable tests in nlohmann_json")
-set(JSON_Install OFF CACHE BOOL "Disable install scripts in nlohmann_json")
-add_external_subdirectory(nlohmann_json)
-
-
 # XCTest
 if(APPLE)
   find_package(XCTest)

@@ -17,7 +17,9 @@
 #ifndef FIRESTORE_CORE_SRC_API_API_FWD_H_
 #define FIRESTORE_CORE_SRC_API_API_FWD_H_
 
+#include <functional>
 #include <memory>
+
 #include "absl/types/optional.h"
 
 namespace firebase {

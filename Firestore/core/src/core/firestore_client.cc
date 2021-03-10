@@ -19,6 +19,7 @@
 #include <functional>
 #include <future>  // NOLINT(build/c++11)
 #include <memory>
+#include <string>
 #include <utility>
 
 #include "Firestore/core/src/api/document_reference.h"
@@ -521,9 +522,8 @@ void FirestoreClient::LoadBundle(
 
   bundle::BundleSerializer bundle_serializer(
       remote::Serializer(database_info_.database_id()));
-  auto data = absl::ShareUniquePtr(std::move(bundle_data));
   auto reader = std::make_shared<bundle::BundleReader>(
-      std::move(bundle_serializer), std::move(data));
+      std::move(bundle_serializer), std::move(bundle_data));
   worker_queue_->Enqueue([this, reader, result_task] {
     sync_engine_->LoadBundle(std::move(reader), std::move(result_task));
   });
@@ -535,7 +535,7 @@ void FirestoreClient::GetNamedQuery(const std::string& name,
 
   // Dispatch the result back onto the user dispatch queue.
   auto async_callback =
-      [this, callback](absl::optional<bundle::NamedQuery> named_query) {
+      [this, callback](const absl::optional<bundle::NamedQuery>& named_query) {
         if (callback) {
           if (named_query.has_value()) {
             const Target& target = named_query.value().bundled_query().target();
@@ -543,9 +543,10 @@ void FirestoreClient::GetNamedQuery(const std::string& name,
                         target.filters(), target.order_bys(), target.limit(),
                         named_query.value().bundled_query().limit_type(),
                         target.start_at(), target.end_at());
-            user_executor_->Execute([=] { callback(std::move(query)); });
+            user_executor_->Execute(
+                [query, callback] { callback(std::move(query)); });
           } else {
-            user_executor_->Execute([=] { callback(absl::nullopt); });
+            user_executor_->Execute([callback] { callback(absl::nullopt); });
           }
         }
       };

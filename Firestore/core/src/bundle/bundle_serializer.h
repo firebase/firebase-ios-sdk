@@ -30,7 +30,7 @@
 #include "Firestore/core/src/model/snapshot_version.h"
 #include "Firestore/core/src/remote/serializer.h"
 #include "Firestore/core/src/util/read_context.h"
-#include "nlohmann/json.hpp"
+#include "Firestore/third_party/nlohmann_json/json.hpp"
 
 namespace firebase {
 namespace firestore {

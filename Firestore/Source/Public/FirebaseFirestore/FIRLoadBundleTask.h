@@ -33,24 +33,21 @@ NS_SWIFT_NAME(LoadBundleTaskProgress)
 
 @property(readonly, nonatomic) NSInteger documentsLoaded;
 @property(readonly, nonatomic) NSInteger totalDocuments;
-@property(readonly, nonatomic) NSUInteger bytesLoaded;
-@property(readonly, nonatomic) NSUInteger totalBytes;
+@property(readonly, nonatomic) NSInteger bytesLoaded;
+@property(readonly, nonatomic) NSInteger totalBytes;
 
 @property(readonly, nonatomic) FIRLoadBundleTaskState state;
 
 @end
 
-typedef NSString *FIRLoadBundleHandle NS_SWIFT_NAME(LoadBundleHandle);
+typedef NSInteger FIRLoadBundleHandle NS_SWIFT_NAME(LoadBundleHandle);
 
 NS_SWIFT_NAME(LoadBundleTask)
 @interface FIRLoadBundleTask : NSObject
 
-- (FIRLoadBundleHandle)observeState:(FIRLoadBundleTaskState)state
-                            handler:(void (^)(FIRLoadBundleTaskProgress *progress))handler;
+- (FIRLoadBundleHandle)observeWithHandler:(void (^)(FIRLoadBundleTaskProgress *progress))handler;
 
 - (void)removeObserverWithHandle:(FIRLoadBundleHandle)handle;
-
-- (void)removeAllObserversForState:(FIRLoadBundleTaskState)state;
 
 - (void)removeAllObservers;
 

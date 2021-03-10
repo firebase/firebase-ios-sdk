@@ -149,7 +149,6 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
 
   @synchronized([FSTIntegrationTestCase class]) {
     if (clearedPersistence) return;
-    std::cout << "clearing storage\n\n";
     DatabaseInfo dbInfo;
     LevelDbOpener opener(dbInfo);
     StatusOr<Path> maybeLevelDBDir = opener.FirestoreAppDataDir();
