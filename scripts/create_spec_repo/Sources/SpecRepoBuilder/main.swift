@@ -237,9 +237,9 @@ struct SpecRepoBuilder: ParsableCommand {
     let sourcesArg = sources.joined(separator: ",")
     let flagsArg = flags.joined(separator: " ")
     var pushCommand = "pod repo push \(localSpecRepoName) \(podPath) --sources=\(sourcesArg) " +
-    "\(flagsArg)"
+      "\(flagsArg)"
     if flags.contains("--verbose") {
-        pushCommand += " >> \(sdkRepo)/log.txt"
+      pushCommand += " >> \(sdkRepo)/log.txt"
     }
 
     print("Running: \(pushCommand)")
@@ -320,7 +320,7 @@ struct SpecRepoBuilder: ParsableCommand {
         print("remove \(sdkRepoName) dir.")
         try fileManager.removeItem(at: URL(fileURLWithPath: "\(curDir)/\(sdkRepoName)"))
       }
-      eraseRemoteRepo(repoPath: "\(curDir)", from: githubAccount, sdkRepoName)
+      // eraseRemoteRepo(repoPath: "\(curDir)", from: githubAccount, sdkRepoName)
 
     } catch {
       print("error occurred. \(error)")
@@ -332,20 +332,15 @@ struct SpecRepoBuilder: ParsableCommand {
       var podExitCode: Int32 = 0
       print("----------\(pod)-----------")
       switch pod {
-      case "Firebase":
-        podExitCode = pushPodspec(
-          forPod: pod,
-          sdkRepo: sdkRepo,
-          sources: podSources,
-          flags: Constants.umbrellaPodFlags
-        )
-      default:
+      case "FirebaseMLModelDownloader":
         podExitCode = pushPodspec(
           forPod: pod,
           sdkRepo: sdkRepo,
           sources: podSources,
           flags: Constants.flags
         )
+      default:
+        print("Skip pod - \(pod)")
       }
       if podExitCode != 0 {
         exitCode = 1
