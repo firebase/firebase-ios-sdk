@@ -154,6 +154,8 @@ class LoadBundleTask {
       : user_executor_(std::move(user_executor)) {
   }
 
+  ~LoadBundleTask();
+
   /**
    * Instructs the task to notify the specified observer when there is a
    * progress update.
