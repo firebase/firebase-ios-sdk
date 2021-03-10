@@ -259,6 +259,13 @@ TEST_F(LoadBundleTaskTest, ProgressObserverCanRemoveObserver) {
   EXPECT_EQ(3, queue.pop());
   EXPECT_EQ(3, queue.pop());
   EXPECT_TRUE(queue.empty());
+
+  // NOTE: This is necessary to avoid a TSAN failure. Without this, the test
+  // will try destruct `task` while handle3 are still running (but pushed
+  // results to the blocking queue already). Calling `RemoveAllObservers` will
+  // make sure it wait for the observers to complete, because it needs to
+  // unlock the internal mutex first.
+  task.RemoveAllObservers();
 }
 
 TEST_F(LoadBundleTaskTest, ProgressObservesUntilSuccess) {
