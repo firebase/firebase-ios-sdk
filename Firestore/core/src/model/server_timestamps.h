@@ -23,27 +23,20 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
+// Utility methods to handle ServerTimestamps, which are stored using special
+// sentinal fields in MapValues.
+
 /**
- * Utility class to handle ServerTimestamps, which are stored using special
- * sentinal fields in MapValues.
+ * Returns whether the provided value is a field map that contains the
+ * sentinel values of a ServerTimestamp.
  */
-class ServerTimestamps {
- public:
-  /**
-   * Returns whether the provided value is a field map that contains the
-   * sentinel values of a ServerTimestamp.
-   */
-  static bool IsServerTimestamp(const google_firestore_v1_Value& value);
+bool IsServerTimestamp(const google_firestore_v1_Value& value);
 
-  /**
-   * Returns the local time at which the timestamp was written to the document.
-   */
-  static const google_firestore_v1_Value& GetLocalWriteTime(
-      const google_firestore_v1_Value& value);
-
- private:
-  ServerTimestamps() = default;
-};
+/**
+ * Returns the local time at which the timestamp was written to the document.
+ */
+const google_firestore_v1_Value& GetLocalWriteTime(
+    const google_firestore_v1_Value& value);
 
 }  // namespace model
 }  // namespace firestore

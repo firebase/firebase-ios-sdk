@@ -1,0 +1,490 @@
+/*
+ * Copyright 2021 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "Firestore/core/src/model/value.h"
+
+#include <algorithm>
+#include <map>
+#include <memory>
+#include <unordered_map>
+#include <vector>
+
+#include "Firestore/core/src/model/server_timestamps.h"
+#include "Firestore/core/src/nanopb/nanopb_util.h"
+#include "Firestore/core/src/util/comparison.h"
+#include "Firestore/core/src/util/hard_assert.h"
+#include "absl/strings/escaping.h"
+#include "absl/strings/str_format.h"
+#include "absl/strings/str_join.h"
+#include "absl/strings/str_split.h"
+
+namespace firebase {
+namespace firestore {
+namespace model {
+
+using util::ComparisonResult;
+
+TypeOrder GetTypeOrder(const google_firestore_v1_Value& value) {
+  switch (value.which_value_type) {
+    case google_firestore_v1_Value_null_value_tag:
+      return kTypeOrderNull;
+
+    case google_firestore_v1_Value_boolean_value_tag:
+      return kTypeOrderBoolean;
+
+    case google_firestore_v1_Value_integer_value_tag:
+    case google_firestore_v1_Value_double_value_tag:
+      return kTypeOrderNumber;
+
+    case google_firestore_v1_Value_timestamp_value_tag:
+      return kTypeOrderTimestamp;
+
+    case google_firestore_v1_Value_string_value_tag:
+      return kTypeOrderString;
+
+    case google_firestore_v1_Value_bytes_value_tag:
+      return kTypeOrderBlob;
+
+    case google_firestore_v1_Value_reference_value_tag:
+      return kTypeOrderReference;
+
+    case google_firestore_v1_Value_geo_point_value_tag:
+      return kTypeOrderGeoPoint;
+
+    case google_firestore_v1_Value_array_value_tag:
+      return kTypeOrderArray;
+
+    case google_firestore_v1_Value_map_value_tag: {
+      if (IsServerTimestamp(value)) {
+        return kTypeOrderServerTimestamp;
+      }
+      return kTypeOrderMap;
+    }
+
+    default:
+      HARD_FAIL("Invalid type value: %s", value.which_value_type);
+  }
+}
+
+ComparisonResult CompareNumbers(const google_firestore_v1_Value& left,
+                                const google_firestore_v1_Value& right) {
+  if (left.which_value_type == google_firestore_v1_Value_double_value_tag) {
+    double left_double = left.double_value;
+    if (right.which_value_type == google_firestore_v1_Value_double_value_tag) {
+      return util::Compare(left_double, right.double_value);
+    } else {
+      return util::CompareMixedNumber(left_double, right.integer_value);
+    }
+  } else {
+    int64_t left_long = left.integer_value;
+    if (right.which_value_type == google_firestore_v1_Value_integer_value_tag) {
+      return util::Compare(left_long, right.integer_value);
+    } else {
+      return util::ReverseOrder(
+          util::CompareMixedNumber(right.double_value, left_long));
+    }
+  }
+}
+
+ComparisonResult CompareTimestamps(const google_firestore_v1_Value& left,
+                                   const google_firestore_v1_Value& right) {
+  ComparisonResult cmp = util::Compare(left.timestamp_value.seconds,
+                                       right.timestamp_value.seconds);
+  if (cmp != ComparisonResult::Same) {
+    return cmp;
+  }
+  return util::Compare(left.timestamp_value.nanos, right.timestamp_value.nanos);
+}
+
+ComparisonResult CompareStrings(const google_firestore_v1_Value& left,
+                                const google_firestore_v1_Value& right) {
+  absl::string_view left_string = nanopb::MakeStringView(left.string_value);
+  absl::string_view right_string = nanopb::MakeStringView(right.string_value);
+  return util::Compare(left_string, right_string);
+}
+
+ComparisonResult CompareBlobs(const google_firestore_v1_Value& left,
+                              const google_firestore_v1_Value& right) {
+  if (left.bytes_value && right.bytes_value) {
+    size_t size = std::min(left.bytes_value->size, right.bytes_value->size);
+    int cmp =
+        std::memcmp(left.bytes_value->bytes, right.bytes_value->bytes, size);
+    return cmp != 0
+               ? util::ComparisonResultFromInt(cmp)
+               : util::Compare(left.bytes_value->size, right.bytes_value->size);
+  } else {
+    // An empty blob is represented by a nullptr
+    return util::Compare(left.bytes_value != nullptr,
+                         right.bytes_value != nullptr);
+  }
+}
+
+ComparisonResult CompareReferences(const google_firestore_v1_Value& left,
+                                   const google_firestore_v1_Value& right) {
+  std::vector<std::string> left_segments = absl::StrSplit(
+      nanopb::MakeStringView(left.reference_value), '/', absl::SkipEmpty());
+  std::vector<std::string> right_segments = absl::StrSplit(
+      nanopb::MakeStringView(right.reference_value), '/', absl::SkipEmpty());
+
+  int min_length = std::min(left_segments.size(), right_segments.size());
+  for (int i = 0; i < min_length; ++i) {
+    ComparisonResult cmp = util::Compare(left_segments[i], right_segments[i]);
+    if (cmp != ComparisonResult::Same) {
+      return cmp;
+    }
+  }
+  return util::Compare(left_segments.size(), right_segments.size());
+}
+
+ComparisonResult CompareGeoPoints(const google_firestore_v1_Value& left,
+                                  const google_firestore_v1_Value& right) {
+  ComparisonResult cmp = util::Compare(left.geo_point_value.latitude,
+                                       right.geo_point_value.latitude);
+  if (cmp != ComparisonResult::Same) {
+    return cmp;
+  }
+  return util::Compare(left.geo_point_value.longitude,
+                       right.geo_point_value.longitude);
+}
+
+ComparisonResult CompareArrays(const google_firestore_v1_Value& left,
+                               const google_firestore_v1_Value& right) {
+  int min_length =
+      std::min(left.array_value.values_count, right.array_value.values_count);
+  for (int i = 0; i < min_length; ++i) {
+    ComparisonResult cmp =
+        Compare(left.array_value.values[i], right.array_value.values[i]);
+    if (cmp != ComparisonResult::Same) {
+      return cmp;
+    }
+  }
+  return util::Compare(left.array_value.values_count,
+                       right.array_value.values_count);
+}
+
+ComparisonResult CompareObjects(const google_firestore_v1_Value& left,
+                                const google_firestore_v1_Value& right) {
+  google_firestore_v1_MapValue left_map = left.map_value;
+  google_firestore_v1_MapValue right_map = right.map_value;
+
+  // Create a sorted mapping of field key to index. This is then used to walk
+  // both maps in sorted order.
+  std::map<std::string, size_t> left_key_to_value_index;
+  for (size_t i = 0; i < left_map.fields_count; ++i) {
+    left_key_to_value_index.emplace(nanopb::MakeString(left_map.fields[i].key),
+                                    i);
+  }
+  std::map<std::string, size_t> right_key_to_value_index;
+  for (size_t i = 0; i < right_map.fields_count; ++i) {
+    right_key_to_value_index.emplace(
+        nanopb::MakeString(right_map.fields[i].key), i);
+  }
+
+  for (auto left_it = left_key_to_value_index.begin(),
+            right_it = right_key_to_value_index.begin();
+       left_it != left_key_to_value_index.end() &&
+       right_it != right_key_to_value_index.end();
+       ++left_it, ++right_it) {
+    ComparisonResult key_cmp = util::Compare(left_it->first, right_it->first);
+    if (key_cmp != ComparisonResult::Same) {
+      return key_cmp;
+    }
+
+    ComparisonResult value_cmp =
+        Compare(left.map_value.fields[left_it->second].value,
+                right.map_value.fields[right_it->second].value);
+    if (value_cmp != ComparisonResult::Same) {
+      return value_cmp;
+    }
+  }
+
+  return util::Compare(left_map.fields_count, right_map.fields_count);
+}
+
+ComparisonResult Compare(const google_firestore_v1_Value& left,
+                         const google_firestore_v1_Value& right) {
+  int left_type = GetTypeOrder(left);
+  int right_type = GetTypeOrder(right);
+
+  if (left_type != right_type) {
+    return util::Compare(left_type, right_type);
+  }
+
+  switch (left_type) {
+    case kTypeOrderNull:
+      return ComparisonResult::Same;
+
+    case kTypeOrderBoolean:
+      return util::Compare(left.boolean_value, right.boolean_value);
+
+    case kTypeOrderNumber:
+      return CompareNumbers(left, right);
+
+    case kTypeOrderTimestamp:
+      return CompareTimestamps(left, right);
+
+    case kTypeOrderServerTimestamp:
+      return CompareTimestamps(GetLocalWriteTime(left),
+                               GetLocalWriteTime(right));
+
+    case kTypeOrderString:
+      return CompareStrings(left, right);
+
+    case kTypeOrderBlob:
+      return CompareBlobs(left, right);
+
+    case kTypeOrderReference:
+      return CompareReferences(left, right);
+
+    case kTypeOrderGeoPoint:
+      return CompareGeoPoints(left, right);
+
+    case kTypeOrderArray:
+      return CompareArrays(left, right);
+
+    case kTypeOrderMap:
+      return CompareObjects(left, right);
+
+    default:
+      HARD_FAIL("Invalid type value: %s", left_type);
+  }
+}
+
+bool NumberEquals(const firebase::firestore::google_firestore_v1_Value& left,
+                  const firebase::firestore::google_firestore_v1_Value& right) {
+  if (left.which_value_type == google_firestore_v1_Value_integer_value_tag &&
+      right.which_value_type == google_firestore_v1_Value_integer_value_tag) {
+    return left.integer_value == right.integer_value;
+  } else if (left.which_value_type ==
+                 google_firestore_v1_Value_double_value_tag &&
+             right.which_value_type ==
+                 google_firestore_v1_Value_double_value_tag) {
+    return util::DoubleBitwiseEquals(left.double_value, right.double_value);
+  }
+  return false;
+}
+
+bool ArrayEquals(const firebase::firestore::google_firestore_v1_Value& left,
+                 const firebase::firestore::google_firestore_v1_Value& right) {
+  const google_firestore_v1_ArrayValue& left_array = left.array_value;
+  const google_firestore_v1_ArrayValue& right_array = right.array_value;
+
+  if (left_array.values_count != right_array.values_count) {
+    return false;
+  }
+
+  for (size_t i = 0; i < left_array.values_count; ++i) {
+    if (left_array.values[i] != right_array.values[i]) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+bool ObjectEquals(const firebase::firestore::google_firestore_v1_Value& left,
+                  const firebase::firestore::google_firestore_v1_Value& right) {
+  google_firestore_v1_MapValue left_map = left.map_value;
+  google_firestore_v1_MapValue right_map = right.map_value;
+
+  if (left_map.fields_count != right_map.fields_count) {
+    return false;
+  }
+
+  // Create a map of field names to index for one of the maps. This is then used
+  // look up the corresponding value for the other map's fields.
+  std::unordered_map<std::string, size_t> key_to_value_index;
+  for (size_t i = 0; i < left_map.fields_count; ++i) {
+    key_to_value_index.emplace(nanopb::MakeString(left_map.fields[i].key), i);
+  }
+
+  for (size_t i = 0; i < right_map.fields_count; ++i) {
+    std::string key = nanopb::MakeString(right_map.fields[i].key);
+    auto left_index_it = key_to_value_index.find(key);
+
+    if (left_index_it == key_to_value_index.end()) {
+      return false;
+    }
+
+    if (left_map.fields[left_index_it->second].value !=
+        right_map.fields[i].value) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+bool operator==(const google_firestore_v1_Value& lhs,
+                const google_firestore_v1_Value& rhs) {
+  int left_type = GetTypeOrder(lhs);
+  int right_type = GetTypeOrder(rhs);
+  if (left_type != right_type) {
+    return false;
+  }
+
+  switch (left_type) {
+    case kTypeOrderNull:
+      return true;
+
+    case kTypeOrderBoolean:
+      return lhs.boolean_value == rhs.boolean_value;
+
+    case kTypeOrderNumber:
+      return NumberEquals(lhs, rhs);
+
+    case kTypeOrderTimestamp:
+      return lhs.timestamp_value.seconds == rhs.timestamp_value.seconds &&
+             lhs.timestamp_value.nanos == rhs.timestamp_value.nanos;
+
+    case kTypeOrderServerTimestamp:
+      return GetLocalWriteTime(lhs) == GetLocalWriteTime(rhs);
+
+    case kTypeOrderString:
+      return nanopb::MakeStringView(lhs.string_value) ==
+             nanopb::MakeStringView(rhs.string_value);
+
+    case kTypeOrderBlob:
+      return CompareBlobs(lhs, rhs) == ComparisonResult::Same;
+
+    case kTypeOrderReference:
+      return nanopb::MakeStringView(lhs.reference_value) ==
+             nanopb::MakeStringView(rhs.reference_value);
+
+    case kTypeOrderGeoPoint:
+      return lhs.geo_point_value.latitude == rhs.geo_point_value.latitude &&
+             lhs.geo_point_value.longitude == rhs.geo_point_value.longitude;
+
+    case kTypeOrderArray:
+      return ArrayEquals(lhs, rhs);
+
+    case kTypeOrderMap:
+      return ObjectEquals(lhs, rhs);
+
+    default:
+      HARD_FAIL("Invalid type value: %s", left_type);
+  }
+}
+
+std::string CanonifyTimestamp(const google_firestore_v1_Value& value) {
+  return absl::StrFormat("time(%d,%d)", value.timestamp_value.seconds,
+                         value.timestamp_value.nanos);
+}
+
+std::string CanonifyBlob(const google_firestore_v1_Value& value) {
+  return absl::BytesToHexString(nanopb::MakeStringView(value.bytes_value));
+}
+
+std::string CanonifyReference(const google_firestore_v1_Value& value) {
+  std::vector<std::string> segments = absl::StrSplit(
+      nanopb::MakeStringView(value.reference_value), '/', absl::SkipEmpty());
+  HARD_ASSERT(segments.size() >= 5,
+              "Reference values should have at least 5 components");
+  return absl::StrJoin(segments.begin() + 5, segments.end(), "/");
+}
+
+std::string CanonifyGeoPoint(const google_firestore_v1_Value& value) {
+  return absl::StrFormat("geo(%.1f,%.1f)", value.geo_point_value.latitude,
+                         value.geo_point_value.longitude);
+}
+
+std::string CanonifyArray(const google_firestore_v1_Value& value) {
+  const auto& array = value.array_value;
+
+  std::string result = "[";
+  for (size_t i = 0; i < array.values_count; ++i) {
+    absl::StrAppend(&result, CanonicalId(array.values[i]));
+    if (i != array.values_count - 1) {
+      absl::StrAppend(&result, ",");
+    }
+  }
+  result += "]";
+  return result;
+}
+
+std::string CanonifyObject(const google_firestore_v1_Value& value) {
+  const auto& fields = value.map_value.fields;
+
+  // Even though MapValue are likely sorted correctly based on their insertion
+  // order (e.g. when received from the backend), local modifications can bring
+  // elements out of order. We need to re-sort the elements to ensure that
+  // canonical IDs are independent of insertion order.
+  std::map<std::string, size_t> sorted_keys_to_index;
+  for (size_t i = 0; i < value.map_value.fields_count; ++i) {
+    sorted_keys_to_index.emplace(nanopb::MakeString(fields[i].key), i);
+  }
+
+  std::string result = "{";
+  bool first = true;
+  for (const auto& entry : sorted_keys_to_index) {
+    if (!first) {
+      absl::StrAppend(&result, ",");
+    } else {
+      first = false;
+    }
+
+    absl::StrAppend(&result, entry.first, ":",
+                    CanonicalId(fields[entry.second].value));
+  }
+  result += "}";
+
+  return result;
+}
+
+std::string CanonicalId(const google_firestore_v1_Value& value) {
+  switch (value.which_value_type) {
+    case google_firestore_v1_Value_null_value_tag:
+      return "null";
+
+    case google_firestore_v1_Value_boolean_value_tag:
+      return value.boolean_value ? "true" : "false";
+
+    case google_firestore_v1_Value_integer_value_tag:
+      return std::to_string(value.integer_value);
+
+    case google_firestore_v1_Value_double_value_tag:
+      return absl::StrFormat("%.1f", value.double_value);
+
+    case google_firestore_v1_Value_timestamp_value_tag:
+      return CanonifyTimestamp(value);
+
+    case google_firestore_v1_Value_string_value_tag:
+      return nanopb::MakeString(value.string_value);
+
+    case google_firestore_v1_Value_bytes_value_tag:
+      return CanonifyBlob(value);
+
+    case google_firestore_v1_Value_reference_value_tag:
+      return CanonifyReference(value);
+
+    case google_firestore_v1_Value_geo_point_value_tag:
+      return CanonifyGeoPoint(value);
+
+    case google_firestore_v1_Value_array_value_tag:
+      return CanonifyArray(value);
+
+    case google_firestore_v1_Value_map_value_tag: {
+      return CanonifyObject(value);
+    }
+
+    default:
+      HARD_FAIL("Invalid type value: %s", value.which_value_type);
+  }
+}
+
+}  // namespace model
+}  // namespace firestore
+}  // namespace firebase

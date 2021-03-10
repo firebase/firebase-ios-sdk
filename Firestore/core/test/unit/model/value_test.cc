@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/model/values.h"
+#include "Firestore/core/src/model/value.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/model/field_value.h"
 #include "Firestore/core/src/remote/serializer.h"
@@ -28,6 +28,7 @@
 namespace firebase {
 namespace firestore {
 namespace model {
+namespace {
 
 using testutil::Array;
 using testutil::BlobValue;
@@ -38,25 +39,20 @@ using testutil::time_point;
 using testutil::Value;
 using util::ComparisonResult;
 
-namespace {
-
 double ToDouble(uint64_t value) {
   return absl::bit_cast<double>(value);
 }
 
 const uint64_t kNanBits = 0x7fff000000000000ULL;
 
-static time_point kDate1 = testutil::MakeTimePoint(2016, 5, 20, 10, 20, 0);
-static Timestamp kTimestamp1{1463739600, 0};
+const time_point kDate1 = testutil::MakeTimePoint(2016, 5, 20, 10, 20, 0);
+const Timestamp kTimestamp1{1463739600, 0};
 
-static time_point kDate2 = testutil::MakeTimePoint(2016, 10, 21, 15, 32, 0);
-static Timestamp kTimestamp2{1477063920, 0};
+const time_point kDate2 = testutil::MakeTimePoint(2016, 10, 21, 15, 32, 0);
+const Timestamp kTimestamp2{1477063920, 0};
 
-class ValuesTest : public ::testing::Test {
+class ValueTest : public ::testing::Test {
  public:
-  ValuesTest() : serializer(DbId()) {
-  }
-
   template <typename T>
   google_firestore_v1_Value Wrap(T input) {
     model::FieldValue fv = Value(input);
@@ -64,20 +60,21 @@ class ValuesTest : public ::testing::Test {
   }
 
   template <typename... Args>
-  google_firestore_v1_Value WrapObject(Args... key_value_pairs) {
-    FieldValue fv = testutil::WrapObject((key_value_pairs)...);
+  google_firestore_v1_Value WrapObject(Args&&... key_value_pairs) {
+    FieldValue fv =
+        testutil::WrapObject(std::forward<Args>(key_value_pairs)...);
     return serializer.EncodeFieldValue(fv);
   }
 
   template <typename... Args>
-  google_firestore_v1_Value WrapArray(Args... values) {
+  google_firestore_v1_Value WrapArray(Args&&... values) {
     std::vector<model::FieldValue> contents{Value(values)...};
     FieldValue fv = FieldValue::FromArray(std::move(contents));
     return serializer.EncodeFieldValue(fv);
   }
 
-  google_firestore_v1_Value WrapReference(DatabaseId database_id,
-                                          DocumentKey key) {
+  google_firestore_v1_Value WrapReference(const DatabaseId& database_id,
+                                          const DocumentKey& key) {
     google_firestore_v1_Value result{};
     result.which_value_type = google_firestore_v1_Value_reference_value_tag;
     result.reference_value =
@@ -104,10 +101,9 @@ class ValuesTest : public ::testing::Test {
                       bool expected_equals) {
     for (const auto& val1 : left) {
       for (const auto& val2 : right) {
-        EXPECT_EQ(expected_equals, Values::Equals(val1, val2))
-            << "Equality check failed for '" << Values::CanonicalId(val1)
-            << "' and '" << Values::CanonicalId(val2) << "' (expected "
-            << expected_equals << ")";
+        EXPECT_EQ(expected_equals, val1 == val2)
+            << "Equality check failed for '" << CanonicalId(val1) << "' and '"
+            << CanonicalId(val2) << "' (expected " << expected_equals << ")";
       }
     }
   }
@@ -117,14 +113,13 @@ class ValuesTest : public ::testing::Test {
                       ComparisonResult expected_result) {
     for (const auto& val1 : left) {
       for (const auto& val2 : right) {
-        EXPECT_EQ(expected_result, Values::Compare(val1, val2))
-            << "Order check failed for '" << Values::CanonicalId(val1)
-            << "' and '" << Values::CanonicalId(val2) << "' (expected "
+        EXPECT_EQ(expected_result, Compare(val1, val2))
+            << "Order check failed for '" << CanonicalId(val1) << "' and '"
+            << CanonicalId(val2) << "' (expected "
             << static_cast<int>(expected_result) << ")";
-        EXPECT_EQ(util::ReverseOrder(expected_result),
-                  Values::Compare(val2, val1))
-            << "Reverse order check failed for '" << Values::CanonicalId(val1)
-            << "' and '" << Values::CanonicalId(val2) << "' (expected "
+        EXPECT_EQ(util::ReverseOrder(expected_result), Compare(val2, val1))
+            << "Reverse order check failed for '" << CanonicalId(val1)
+            << "' and '" << CanonicalId(val2) << "' (expected "
             << static_cast<int>(util::ReverseOrder(expected_result)) << ")";
       }
     }
@@ -132,15 +127,15 @@ class ValuesTest : public ::testing::Test {
 
   void VerifyCanonicalId(const google_firestore_v1_Value& value,
                          const std::string& expected_canonical_id) {
-    const std::string& actual_canonical_id = Values::CanonicalId(value);
+    std::string actual_canonical_id = CanonicalId(value);
     EXPECT_EQ(expected_canonical_id, actual_canonical_id);
   }
 
  private:
-  remote::Serializer serializer;
+  remote::Serializer serializer{DbId()};
 };
 
-TEST_F(ValuesTest, Equality) {
+TEST_F(ValueTest, Equality) {
   // Create a matrix that defines an equality group. The outer vector has
   // multiple rows and each row can have an arbitrary number of entries.
   // The elements within a row must equal each other, but not be equal
@@ -200,7 +195,7 @@ TEST_F(ValuesTest, Equality) {
   }
 }
 
-TEST_F(ValuesTest, Ordering) {
+TEST_F(ValueTest, Ordering) {
   // Create a matrix that defines a comparison group. The outer vector has
   // multiple rows and each row can have an arbitrary number of entries.
   // The elements within a row must compare equal to each other, but order after
@@ -301,7 +296,7 @@ TEST_F(ValuesTest, Ordering) {
   }
 }
 
-TEST_F(ValuesTest, CanonicalId) {
+TEST_F(ValueTest, CanonicalId) {
   VerifyCanonicalId(Wrap(nullptr), "null");
   VerifyCanonicalId(Wrap(true), "true");
   VerifyCanonicalId(Wrap(false), "false");
@@ -319,7 +314,7 @@ TEST_F(ValuesTest, CanonicalId) {
                     "{a:[b,{c:geo(30.0,60.0)}]}");
 }
 
-TEST_F(ValuesTest, CanonicalIdIgnoresSortOrder) {
+TEST_F(ValueTest, CanonicalIdIgnoresSortOrder) {
   VerifyCanonicalId(WrapObject("a", 1, "b", 2, "c", "3"), "{a:1,b:2,c:3}");
   VerifyCanonicalId(WrapObject("c", 3, "b", 2, "a", "1"), "{a:1,b:2,c:3}");
 }

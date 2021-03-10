@@ -23,12 +23,11 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-const char* const kTypeKey = "__type__";
-const char* const kLocalWriteTimeKey = "__local_write_time__";
-const char* const kServerTimestampSentinel = "server_timestamp";
+const char kTypeKey[] = "__type__";
+const char kLocalWriteTimeKey[] = "__local_write_time__";
+const char kServerTimestampSentinel[] = "server_timestamp";
 
-bool ServerTimestamps::IsServerTimestamp(
-    const google_firestore_v1_Value& value) {
+bool IsServerTimestamp(const google_firestore_v1_Value& value) {
   if (value.which_value_type != google_firestore_v1_Value_map_value_tag) {
     return false;
   }
@@ -38,13 +37,12 @@ bool ServerTimestamps::IsServerTimestamp(
   }
 
   for (size_t i = 0; i < value.map_value.fields_count; ++i) {
-    absl::string_view key =
-        nanopb::MakeStringView(value.map_value.fields[i].key);
+    const auto& field = value.map_value.fields[i];
+    absl::string_view key = nanopb::MakeStringView(field.key);
     if (key == kTypeKey) {
-      return value.map_value.fields[i].value.which_value_type ==
+      return field.value.which_value_type ==
                  google_firestore_v1_Value_string_value_tag &&
-             nanopb::MakeStringView(
-                 value.map_value.fields[i].value.string_value) ==
+             nanopb::MakeStringView(field.value.string_value) ==
                  kServerTimestampSentinel;
     }
   }
@@ -52,13 +50,13 @@ bool ServerTimestamps::IsServerTimestamp(
   return false;
 }
 
-const google_firestore_v1_Value& ServerTimestamps::GetLocalWriteTime(
+const google_firestore_v1_Value& GetLocalWriteTime(
     const firebase::firestore::google_firestore_v1_Value& value) {
   for (size_t i = 0; i < value.map_value.fields_count; ++i) {
-    absl::string_view key =
-        nanopb::MakeStringView(value.map_value.fields[i].key);
+    const auto& field = value.map_value.fields[i];
+    absl::string_view key = nanopb::MakeStringView(field.key);
     if (key == kLocalWriteTimeKey) {
-      return value.map_value.fields[i].value;
+      return field.value;
     }
   }
 
