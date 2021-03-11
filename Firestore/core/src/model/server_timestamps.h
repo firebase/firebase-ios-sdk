@@ -24,7 +24,7 @@ namespace firestore {
 namespace model {
 
 // Utility methods to handle ServerTimestamps, which are stored using special
-// sentinal fields in MapValues.
+// sentinel fields in MapValues.
 
 /**
  * Returns whether the provided value is a field map that contains the

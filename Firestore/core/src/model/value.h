@@ -34,18 +34,18 @@ namespace model {
  * The order of types in Firestore. This order is based on the backend's
  * ordering, but modified to support server timestamps.
  */
-enum TypeOrder {
-  kTypeOrderNull = 0,
-  kTypeOrderBoolean = 1,
-  kTypeOrderNumber = 2,
-  kTypeOrderTimestamp = 3,
-  kTypeOrderServerTimestamp = 4,
-  kTypeOrderString = 5,
-  kTypeOrderBlob = 6,
-  kTypeOrderReference = 7,
-  kTypeOrderGeoPoint = 8,
-  kTypeOrderArray = 9,
-  kTypeOrderMap = 10
+enum class TypeOrder {
+  Null = 0,
+  Boolean = 1,
+  Number = 2,
+  Timestamp = 3,
+  ServerTimestamp = 4,
+  String = 5,
+  Blob = 6,
+  Reference = 7,
+  GeoPoint = 8,
+  Array = 9,
+  Map = 10
 };
 
 /** Returns the backend's type order of the given Value type. */

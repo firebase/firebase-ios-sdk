@@ -68,7 +68,8 @@ class ValueTest : public ::testing::Test {
 
   template <typename... Args>
   google_firestore_v1_Value WrapArray(Args&&... values) {
-    std::vector<model::FieldValue> contents{Value(values)...};
+    std::vector<model::FieldValue> contents{
+        Value(std::forward<Args>(values))...};
     FieldValue fv = FieldValue::FromArray(std::move(contents));
     return serializer.EncodeFieldValue(fv);
   }
@@ -92,7 +93,7 @@ class ValueTest : public ::testing::Test {
   template <typename... Args>
   void Add(std::vector<std::vector<google_firestore_v1_Value>>& groups,
            Args... values) {
-    std::vector<google_firestore_v1_Value> group{(values)...};
+    std::vector<google_firestore_v1_Value> group{std::forward<Args>(values)...};
     groups.emplace_back(group);
   }
 
