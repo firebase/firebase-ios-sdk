@@ -243,7 +243,8 @@ struct SpecRepoBuilder: ParsableCommand {
       pushCommand += " >> \(sdkRepo)/log.txt"
     }
 
-    print("Running: \(pushCommand)")
+    shell.run("echo 'commandline tool env'")
+    shell.run("printenv")
     let outcome = shell.run(pushCommand)
 
     print("------running raw codes------")
