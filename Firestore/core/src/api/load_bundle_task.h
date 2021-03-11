@@ -154,6 +154,10 @@ class LoadBundleTask {
       : user_executor_(std::move(user_executor)) {
   }
 
+  // This class cannot be copied or moved, because it holds a mutex.
+  LoadBundleTask(const LoadBundleTask& other) = delete;
+  LoadBundleTask& operator=(LoadBundleTask& other) = delete;
+
   ~LoadBundleTask();
 
   /**
