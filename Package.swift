@@ -81,7 +81,7 @@ let package = Package(
     ),
     .library(
       name: "FirebaseRemoteConfig",
-      targets: ["FirebaseRemoteConfigTarget"]
+      targets: ["FirebaseRemoteConfig"]
     ),
     .library(
       name: "FirebaseStorage",
@@ -688,13 +688,6 @@ let package = Package(
       cSettings: [
         .headerSearchPath("../"),
       ]
-    ),
-
-    .target(
-      name: "FirebaseRemoteConfigTarget",
-      dependencies: [.target(name: "FirebaseRemoteConfig",
-                             condition: .when(platforms: [.iOS, .tvOS, .macOS]))],
-      path: "SwiftPM-PlatformExclude/FirebaseRemoteConfigWrap"
     ),
 
     .target(
