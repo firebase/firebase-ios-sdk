@@ -69,7 +69,7 @@ struct Shell {
   static let shared = Shell()
   @discardableResult
   func run(_ command: String, displayCommand: Bool = true,
-           displayFailureResult: Bool = true) -> Int32 {
+           displayFailureResult: Bool = true, displayLog: Bool = false) -> Int32 {
     let task = Process()
     let pipe = Pipe()
     task.standardOutput = pipe
@@ -82,7 +82,7 @@ struct Shell {
     task.waitUntilExit()
     let data = pipe.fileHandleForReading.readDataToEndOfFile()
     let log = String(data: data, encoding: .utf8)!
-    if displayFailureResult, task.terminationStatus != 0 {
+    if displayFailureResult && task.terminationStatus != 0 || displayLog {
       print("-----Exit code: \(task.terminationStatus)")
       print("-----Log:\n \(log)")
     }
@@ -244,14 +244,9 @@ struct SpecRepoBuilder: ParsableCommand {
     }
 
     shell.run("echo 'commandline tool env'")
-    shell.run("printenv")
-    let outcome = shell.run(pushCommand)
+    // let outcome = shell.run(pushCommand)
+    let outcome = shell.run("printenv", displayLog: true)
 
-    print("------running raw codes------")
-    shell.run("pod repo push specstesting \(podPath) --sources=https://github.com/firebase/SpecsDev.git,https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --skip-tests --allow-warnings")
-    print("Running: pod repo push specstesting FirebaseMLModelDownloader.podspec --sources=https://github.com/firebase/SpecsDev.git,https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --skip-tests --allow-warnings")
-
-    print("------pod repo update------")
     shell.run("pod repo update")
 
     print("Outcome is \(outcome)")
