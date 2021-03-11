@@ -15,8 +15,8 @@
  */
 
 #import <XCTest/XCTest.h>
+#import "OCMock.h"
 
-#import <OCMock/OCMock.h>
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
 #import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingBackupExcludedPlist.h"

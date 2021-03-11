@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import <OCMock/OCMock.h>
+#import "OCMock.h"
 
 #import <GoogleUtilities/GULHeartbeatDateStorage.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
