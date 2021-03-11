@@ -318,7 +318,7 @@ TEST_F(LoadBundleTaskTest, NoObserversAlsoWork) {
   });
 }
 
-TEST_F(LoadBundleTaskTest, ObserveAtLastIsHonored) {
+TEST_F(LoadBundleTaskTest, SetLastObserverIsHonored) {
   BlockingQueue<int> queue;
   task.SetLastObserver([&](LoadBundleTaskProgress) { queue.push(1); });
   task.Observe([&](LoadBundleTaskProgress) { queue.push(2); });
