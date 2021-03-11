@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_MODEL_SERVER_TIMESTAMPS_H_
-#define FIRESTORE_CORE_SRC_MODEL_SERVER_TIMESTAMPS_H_
+#ifndef FIRESTORE_CORE_SRC_MODEL_SERVER_TIMESTAMP_H_
+#define FIRESTORE_CORE_SRC_MODEL_SERVER_TIMESTAMP_H_
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 
@@ -42,4 +42,4 @@ const google_firestore_v1_Value& GetLocalWriteTime(
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_MODEL_SERVER_TIMESTAMPS_H_
+#endif  // FIRESTORE_CORE_SRC_MODEL_SERVER_TIMESTAMP_H_

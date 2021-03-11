@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_MODEL_VALUES_H_
-#define FIRESTORE_CORE_SRC_MODEL_VALUES_H_
+#ifndef FIRESTORE_CORE_SRC_MODEL_VALUE_H_
+#define FIRESTORE_CORE_SRC_MODEL_VALUE_H_
 
 #include <string>
 
@@ -72,4 +72,4 @@ inline bool operator!=(const google_firestore_v1_Value& lhs,
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_MODEL_VALUES_H_
+#endif  // FIRESTORE_CORE_SRC_MODEL_VALUE_H_

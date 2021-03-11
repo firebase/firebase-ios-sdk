@@ -22,7 +22,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "Firestore/core/src/model/server_timestamps.h"
+#include "Firestore/core/src/model/server_timestamp.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/util/comparison.h"
 #include "Firestore/core/src/util/hard_assert.h"
