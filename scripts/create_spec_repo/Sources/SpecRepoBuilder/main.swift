@@ -247,7 +247,7 @@ struct SpecRepoBuilder: ParsableCommand {
     let outcome = shell.run(pushCommand)
 
     print("------running raw codes------")
-    shell.run("pod repo push specstesting FirebaseMLModelDownloader.podspec --sources=https://github.com/firebase/SpecsDev.git,https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --skip-tests --allow-warnings")
+    shell.run("pod repo push specstesting \(podPath) --sources=https://github.com/firebase/SpecsDev.git,https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --skip-tests --allow-warnings")
     print("Running: pod repo push specstesting FirebaseMLModelDownloader.podspec --sources=https://github.com/firebase/SpecsDev.git,https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ --skip-tests --allow-warnings")
 
     print("------pod repo update------")
