@@ -12,11 +12,41 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 import SwiftUI
+import FirebaseAuth
+import FirebaseStorage
 
 struct ContentView: View {
+  @State var image: UIImage = UIImage()
+
   var body: some View {
-    Text("Hello, World!")
-      .padding()
+    VStack(alignment: .leading) {
+      Image(uiImage: image).resizable()
+        .frame(width: 64.0, height: 64.0)
+
+      Button(action: getImage) {
+        HStack {
+          Image(systemName: "arrow.clockwise.circle.fill")
+          Text("getImage")
+            .fontWeight(.semibold)
+        }
+      }
+    }
+  }
+
+  func getImage() {
+//    if (Auth.auth().currentUser == nil) {
+//        Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
+//        }
+//    }
+//    Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
+    let storage = Storage.storage()
+    let storageRef = storage.reference().child("sparky.png")
+    storageRef.getData(maxSize: 20 * 1024 * 1024) { (data: Data?, error: Error?) in
+      if data != nil {
+        self.image = UIImage(data: data!)!
+      }
+    }
+//    }
   }
 }
 
