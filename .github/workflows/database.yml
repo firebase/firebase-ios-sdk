@@ -12,6 +12,7 @@ on:
     - 'scripts/run_database_emulator.sh'
   schedule:
     # Run every day at 8pm (PST) - cron uses UTC times
+    # Make sure this job is finished before generate_issues.yml is triggered
     - cron:  '0 4 * * *'
 
 jobs:

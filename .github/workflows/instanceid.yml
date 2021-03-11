@@ -10,6 +10,7 @@ on:
     - 'Gemfile'
   schedule:
     # Run every day at 10pm (PST) - cron uses UTC times
+    # Make sure this job is finished before generate_issues.yml is triggered
     - cron:  '0 6 * * *'
 
 jobs:
