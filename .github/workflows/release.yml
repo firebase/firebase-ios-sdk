@@ -57,7 +57,7 @@ jobs:
       if: ${{ always() }}
       with:
         name: verbose_log
-        path: /tmp/test/firebase-ios-sdk/log.txt
+        path: /tmp/test/firebase-ios-sdk/
 
   abtesting_quickstart:
     # Don't run on private repo unless it is a PR.
