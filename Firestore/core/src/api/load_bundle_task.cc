@@ -28,6 +28,9 @@ namespace firestore {
 namespace api {
 
 LoadBundleTask::~LoadBundleTask() {
+  // NOTE: this is needed because users might call to modify some fields from
+  // user callback thread. With this lock guard, we could be destroying the
+  // instance while those calls are still in flight.
   std::lock_guard<std::mutex> lock(mutex_);
 }
 
@@ -41,7 +44,7 @@ LoadBundleTask::LoadBundleHandle LoadBundleTask::Observe(
   return handle;
 }
 
-LoadBundleTask::LoadBundleHandle LoadBundleTask::ObserveAtLast(
+LoadBundleTask::LoadBundleHandle LoadBundleTask::SetLastObserver(
     ProgressObserver observer) {
   std::lock_guard<std::mutex> lock(mutex_);
 
