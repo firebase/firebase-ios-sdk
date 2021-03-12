@@ -34,7 +34,7 @@ jobs:
     - name: Update SpecsTesting repo setup
       run: |
          ossbotaccess=`cat oss-bot-access.txt`
-         BOT_TOKEN="${ossbotaccess}" test_scripts/release_testing_setup.sh nightly_testing
+         BOT_TOKEN="${ossbotaccess}" scripts/release_testing_setup.sh nightly_testing
     - name: Update SpecsTesting repo
       run: |
         botaccess=`cat bot-access.txt`
