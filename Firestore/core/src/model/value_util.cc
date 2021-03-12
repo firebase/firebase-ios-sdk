@@ -19,13 +19,13 @@
 #include <algorithm>
 #include <map>
 #include <memory>
-#include <unordered_map>
 #include <vector>
 
 #include "Firestore/core/src/model/server_timestamp_util.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/util/comparison.h"
 #include "Firestore/core/src/util/hard_assert.h"
+#include "absl/container/flat_hash_map.h"
 #include "absl/strings/escaping.h"
 #include "absl/strings/str_format.h"
 #include "absl/strings/str_join.h"
@@ -306,13 +306,14 @@ bool ObjectEquals(const firebase::firestore::google_firestore_v1_Value& left,
 
   // Create a map of field names to index for one of the maps. This is then used
   // look up the corresponding value for the other map's fields.
-  std::unordered_map<std::string, size_t> key_to_value_index;
+  absl::flat_hash_map<absl::string_view, size_t> key_to_value_index;
   for (size_t i = 0; i < left_map.fields_count; ++i) {
-    key_to_value_index.emplace(nanopb::MakeString(left_map.fields[i].key), i);
+    key_to_value_index.emplace(nanopb::MakeStringView(left_map.fields[i].key),
+                               i);
   }
 
   for (size_t i = 0; i < right_map.fields_count; ++i) {
-    std::string key = nanopb::MakeString(right_map.fields[i].key);
+    absl::string_view key = nanopb::MakeStringView(right_map.fields[i].key);
     auto left_index_it = key_to_value_index.find(key);
 
     if (left_index_it == key_to_value_index.end()) {
