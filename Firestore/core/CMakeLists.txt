@@ -131,11 +131,12 @@ target_compile_definitions(
 
 target_link_libraries(
   firestore_util PUBLIC
-  absl_base
-  absl_memory
-  absl_meta
-  absl_optional
-  absl_strings
+  absl::base
+  absl::flat_hash_map
+  absl::memory
+  absl::meta
+  absl::optional
+  absl::strings
 )
 
 if(HAVE_OPENSSL_RAND_H)
@@ -232,11 +233,12 @@ target_include_directories(
 target_link_libraries(
   firestore_core PUBLIC
   LevelDB::LevelDB
-  absl_base
-  absl_memory
-  absl_meta
-  absl_optional
-  absl_strings
+  absl::base
+  absl::flat_hash_map
+  absl::memory
+  absl::meta
+  absl::optional
+  absl::strings
   firestore_nanopb
   firestore_protos_nanopb
   firestore_util

@@ -29,18 +29,6 @@ namespace util {
 
 using std::isnan;
 
-/**
- * Creates a ComparisonResult from a typical integer return value, where
- * 0 means "same", less than zero means "ascending", and greater than zero
- * means "descending".
- */
-constexpr ComparisonResult ComparisonResultFromInt(int value) {
-  // TODO(c++14): convert this to an if statement.
-  return value < 0 ? ComparisonResult::Ascending
-                   : (value > 0 ? ComparisonResult::Descending
-                                : ComparisonResult::Same);
-}
-
 ComparisonResult Comparator<absl::string_view>::Compare(
     absl::string_view left, absl::string_view right) const {
   return ComparisonResultFromInt(left.compare(right));

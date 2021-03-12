@@ -249,6 +249,15 @@ class Serializer {
       nanopb::Reader* reader,
       const google_firestore_v1_StructuredQuery_Filter& proto) const;
 
+  /**
+   * Encodes a database ID and resource path into the following form:
+   * /projects/$project_id/database/$database_id/documents/$path
+   *
+   * Does not verify that the database_id matches the current instance.
+   */
+  pb_bytes_array_t* EncodeResourceName(const model::DatabaseId& database_id,
+                                       const model::ResourcePath& path) const;
+
  private:
   google_firestore_v1_Value EncodeNull() const;
   google_firestore_v1_Value EncodeBoolean(bool value) const;
@@ -271,13 +280,6 @@ class Serializer {
   pb_bytes_array_t* EncodeQueryPath(const model::ResourcePath& path) const;
   model::ResourcePath DecodeQueryPath(nanopb::Reader* reader,
                                       absl::string_view name) const;
-
-  /**
-   * Encodes a database ID and resource path into the following form:
-   * /projects/$project_id/database/$database_id/documents/$path
-   */
-  pb_bytes_array_t* EncodeResourceName(const model::DatabaseId& database_id,
-                                       const model::ResourcePath& path) const;
 
   /**
    * Decodes a fully qualified resource name into a resource path and validates
