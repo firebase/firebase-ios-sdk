@@ -86,7 +86,7 @@ void MutableObjectValue::Set(const model::FieldPath& path,
   _google_firestore_v1_MapValue* parent_map = ParentMap(path.PopLast());
   std::string last_segment = path.last_segment();
 
-  absl::flat_hash_map<absl::string_view, google_firestore_v1_Value> inserts{
+  absl::flat_hash_map<std::string , google_firestore_v1_Value> inserts{
       {last_segment, value}};
 
   ApplyChanges(parent_map, std::move(inserts), /* deletes= */ {});
@@ -96,8 +96,8 @@ void MutableObjectValue::SetAll(const model::FieldMask& field_mask,
                                 const MutableObjectValue& data) {
   FieldPath parent;
 
-  absl::flat_hash_set<absl::string_view> deletes;
-  absl::flat_hash_map<absl::string_view, google_firestore_v1_Value> inserts;
+  absl::flat_hash_set<std::string > deletes;
+  absl::flat_hash_map<std::string , google_firestore_v1_Value> inserts;
 
   for (const FieldPath& path : field_mask) {
     if (!parent.IsImmediateParentOf(path)) {
@@ -143,7 +143,7 @@ google_firestore_v1_MapValue* MutableObjectValue::ParentMap(
       _google_firestore_v1_Value new_entry{};
       new_entry.which_value_type = google_firestore_v1_Value_map_value_tag;
 
-      absl::flat_hash_map<absl::string_view, google_firestore_v1_Value> inserts{
+      absl::flat_hash_map<std::string , google_firestore_v1_Value> inserts{
           {segment, new_entry}};
       ApplyChanges(&(parent->map_value), std::move(inserts), {});
 
@@ -157,8 +157,8 @@ google_firestore_v1_MapValue* MutableObjectValue::ParentMap(
 
 void MutableObjectValue::ApplyChanges(
     google_firestore_v1_MapValue* parent,
-    absl::flat_hash_map<absl::string_view, google_firestore_v1_Value> inserts,
-    absl::flat_hash_set<absl::string_view> deletes) const {
+    absl::flat_hash_map<std::string, google_firestore_v1_Value> inserts,
+    absl::flat_hash_set<std::string> deletes) const {
   // Compute the size of the map after applying all mutations. The final size is
   // the number of existing entries, plus the number of new entries
   // minus the number of deleted entries.
@@ -166,8 +166,8 @@ void MutableObjectValue::ApplyChanges(
       inserts.size() +
       std::count_if(parent->fields, parent->fields + parent->fields_count,
                     [&](_google_firestore_v1_MapValue_FieldsEntry entry) {
-                      absl::string_view field =
-                          nanopb::MakeStringView(entry.key);
+                        std::string field =
+                          nanopb::MakeString(entry.key);
                       // Check if the entry is deleted or if it is a replacement
                       // rather than an insert.
                       return deletes.find(field) == deletes.end() &&
@@ -185,8 +185,8 @@ void MutableObjectValue::ApplyChanges(
   pb_size_t target_index = 0;
   for (pb_size_t source_index = 0; source_index < parent->fields_count;
        ++source_index) {
-    absl::string_view key =
-        nanopb::MakeStringView(parent->fields[source_index].key);
+      std::string  key =
+        nanopb::MakeString(parent->fields[source_index].key);
 
     const auto& delete_it = deletes.find(key);
     const auto& insert_it = inserts.find(key);
@@ -238,7 +238,7 @@ void MutableObjectValue::Delete(const FieldPath& path) {
   // We can only delete a leaf entry if its parent is a map.
   if (nested_value->which_value_type ==
       google_firestore_v1_Value_map_value_tag) {
-    absl::flat_hash_set<absl::string_view> deletes{path.last_segment()};
+    absl::flat_hash_set<std::string > deletes{path.last_segment()};
     ApplyChanges(&nested_value->map_value, {}, std::move(deletes));
   }
 }

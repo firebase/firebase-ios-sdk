@@ -72,7 +72,7 @@ absl::string_view MakeStringView(const pb_bytes_array_t* _Nullable str);
  */
 absl::string_view MakeStringView(const ByteString& bytes);
 
-inline pb_bytes_array_t* _Nullable MakeBytesArray(absl::string_view str) {
+inline pb_bytes_array_t* _Nullable MakeBytesArray(std::string str) {
   return MakeBytesArray(str.data(), str.size());
 }
 

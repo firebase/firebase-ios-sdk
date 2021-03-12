@@ -29,7 +29,6 @@
 #include "Firestore/core/src/util/hard_assert.h"
 #include "absl/container/flat_hash_map.h"
 #include "absl/container/flat_hash_set.h"
-#include "absl/strings/string_view.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
@@ -120,8 +119,8 @@ class MutableObjectValue {
    */
   void ApplyChanges(
       google_firestore_v1_MapValue* parent,
-      absl::flat_hash_map<absl::string_view, google_firestore_v1_Value> inserts,
-      absl::flat_hash_set<absl::string_view> deletes) const;
+      absl::flat_hash_map<std::string, google_firestore_v1_Value> inserts,
+      absl::flat_hash_set<std::string> deletes) const;
 };
 
 inline bool operator==(const MutableObjectValue& lhs,
