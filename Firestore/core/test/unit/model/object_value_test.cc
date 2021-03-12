@@ -119,11 +119,11 @@ TEST_F(ObjectValueTest, ReplacesNestedObject) {
   EXPECT_EQ(WrapObject("a", Map("c", kBarString)), object_value);
 }
 
-    TEST_F(ObjectValueTest, ReplacesFieldWithNestedObject) {
-        MutableObjectValue object_value = WrapObject("a", 1);
-        object_value.Set(Field("a"), Wrap(Map("b", 2)));
-        EXPECT_EQ(WrapObject("a", Map("b", 2)), object_value);
-    }
+TEST_F(ObjectValueTest, ReplacesFieldWithNestedObject) {
+  MutableObjectValue object_value = WrapObject("a", 1);
+  object_value.Set(Field("a"), Wrap(Map("b", 2)));
+  EXPECT_EQ(WrapObject("a", Map("b", 2)), object_value);
+}
 
 TEST_F(ObjectValueTest, AddsNewFields) {
   MutableObjectValue object_value{};
@@ -140,14 +140,14 @@ TEST_F(ObjectValueTest, AddsMultipleFields) {
   MutableObjectValue object_value{};
   EXPECT_EQ(MutableObjectValue{}, object_value);
 
-  object_value.SetAll(FieldMask({Field("a"), Field("b"), Field("c.d"),
-                                 Field("c.e"), Field("c.f")}),
-                      WrapObject("a", 1, "b", 2, "c",
-                                 Map("d", 3, "e", 4, "f", Map("g", 5),
-                                     "ignored", 6)));
-  EXPECT_EQ(WrapObject("a", 1, "b", 2, "c",
-                       Map("d", 3, "e", 4, "f", Map("g", 5))),
-            object_value);
+  object_value.SetAll(
+      FieldMask(
+          {Field("a"), Field("b"), Field("c.d"), Field("c.e"), Field("c.f")}),
+      WrapObject("a", 1, "b", 2, "c",
+                 Map("d", 3, "e", 4, "f", Map("g", 5), "ignored", 6)));
+  EXPECT_EQ(
+      WrapObject("a", 1, "b", 2, "c", Map("d", 3, "e", 4, "f", Map("g", 5))),
+      object_value);
 }
 
 TEST_F(ObjectValueTest, AddsNestedField) {

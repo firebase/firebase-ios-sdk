@@ -23,9 +23,9 @@
 #include <unordered_set>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
-#include "Firestore/core/src/model/value_util.h"
-#include "Firestore/core/src/model/field_path.h"
 #include "Firestore/core/src/model/field_mask.h"
+#include "Firestore/core/src/model/field_path.h"
+#include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "absl/container/flat_hash_map.h"
 #include "absl/container/flat_hash_set.h"
@@ -59,7 +59,8 @@ class MutableObjectValue {
    * @param fieldPath the path to search
    * @return The value at the path or null if it doesn't exist.
    */
-  absl::optional<google_firestore_v1_Value> Get(const model::FieldPath& path) const;
+  absl::optional<google_firestore_v1_Value> Get(
+      const model::FieldPath& path) const;
 
   /**
    * Removes the field at the specified path. If there is no field at the
@@ -101,15 +102,16 @@ class MutableObjectValue {
       const google_firestore_v1_MapValue& value) const;
 
   /** Finds an entry by key in the provided map value. Runs in O(1) */
-  static _google_firestore_v1_MapValue_FieldsEntry* FindNestedEntry(
-      const google_firestore_v1_Value&, const std::string& segment);
+  static _google_firestore_v1_MapValue_FieldsEntry* FindEntry(
+      const google_firestore_v1_Value& value, const std::string& segment);
 
   google_firestore_v1_MapValue* ParentMap(const FieldPath& path);
 
-  void ApplyChanges(google_firestore_v1_MapValue* parent,
-                     absl::flat_hash_set<absl::string_view> deletes,
-                     absl::flat_hash_map<absl::string_view, google_firestore_v1_Value>
-                        inserts) const;
+  void ApplyChanges(
+      google_firestore_v1_MapValue* parent,
+      absl::flat_hash_set<absl::string_view> deletes,
+      absl::flat_hash_map<absl::string_view, google_firestore_v1_Value> inserts)
+      const;
 };
 
 inline bool operator==(const MutableObjectValue& lhs,
