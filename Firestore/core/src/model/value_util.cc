@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/model/value.h"
+#include "Firestore/core/src/model/value_util.h"
 
 #include <algorithm>
 #include <map>
@@ -22,7 +22,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "Firestore/core/src/model/server_timestamp.h"
+#include "Firestore/core/src/model/server_timestamp_util.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/util/comparison.h"
 #include "Firestore/core/src/util/hard_assert.h"
@@ -40,38 +40,38 @@ using util::ComparisonResult;
 TypeOrder GetTypeOrder(const google_firestore_v1_Value& value) {
   switch (value.which_value_type) {
     case google_firestore_v1_Value_null_value_tag:
-      return TypeOrder::Null;
+      return TypeOrder::kNull;
 
     case google_firestore_v1_Value_boolean_value_tag:
-      return TypeOrder::Boolean;
+      return TypeOrder::kBoolean;
 
     case google_firestore_v1_Value_integer_value_tag:
     case google_firestore_v1_Value_double_value_tag:
-      return TypeOrder::Number;
+      return TypeOrder::kNumber;
 
     case google_firestore_v1_Value_timestamp_value_tag:
-      return TypeOrder::Timestamp;
+      return TypeOrder::kTimestamp;
 
     case google_firestore_v1_Value_string_value_tag:
-      return TypeOrder::String;
+      return TypeOrder::kString;
 
     case google_firestore_v1_Value_bytes_value_tag:
-      return TypeOrder::Blob;
+      return TypeOrder::kBlob;
 
     case google_firestore_v1_Value_reference_value_tag:
-      return TypeOrder::Reference;
+      return TypeOrder::kReference;
 
     case google_firestore_v1_Value_geo_point_value_tag:
-      return TypeOrder::GeoPoint;
+      return TypeOrder::kGeoPoint;
 
     case google_firestore_v1_Value_array_value_tag:
-      return TypeOrder::Array;
+      return TypeOrder::kArray;
 
     case google_firestore_v1_Value_map_value_tag: {
       if (IsServerTimestamp(value)) {
-        return TypeOrder::ServerTimestamp;
+        return TypeOrder::kServerTimestamp;
       }
-      return TypeOrder::Map;
+      return TypeOrder::kMap;
     }
 
     default:
@@ -224,38 +224,38 @@ ComparisonResult Compare(const google_firestore_v1_Value& left,
   }
 
   switch (left_type) {
-    case TypeOrder::Null:
+    case TypeOrder::kNull:
       return ComparisonResult::Same;
 
-    case TypeOrder::Boolean:
+    case TypeOrder::kBoolean:
       return util::Compare(left.boolean_value, right.boolean_value);
 
-    case TypeOrder::Number:
+    case TypeOrder::kNumber:
       return CompareNumbers(left, right);
 
-    case TypeOrder::Timestamp:
+    case TypeOrder::kTimestamp:
       return CompareTimestamps(left, right);
 
-    case TypeOrder::ServerTimestamp:
+    case TypeOrder::kServerTimestamp:
       return CompareTimestamps(GetLocalWriteTime(left),
                                GetLocalWriteTime(right));
 
-    case TypeOrder::String:
+    case TypeOrder::kString:
       return CompareStrings(left, right);
 
-    case TypeOrder::Blob:
+    case TypeOrder::kBlob:
       return CompareBlobs(left, right);
 
-    case TypeOrder::Reference:
+    case TypeOrder::kReference:
       return CompareReferences(left, right);
 
-    case TypeOrder::GeoPoint:
+    case TypeOrder::kGeoPoint:
       return CompareGeoPoints(left, right);
 
-    case TypeOrder::Array:
+    case TypeOrder::kArray:
       return CompareArrays(left, right);
 
-    case TypeOrder::Map:
+    case TypeOrder::kMap:
       return CompareObjects(left, right);
 
     default:
@@ -337,41 +337,41 @@ bool operator==(const google_firestore_v1_Value& lhs,
   }
 
   switch (left_type) {
-    case TypeOrder::Null:
+    case TypeOrder::kNull:
       return true;
 
-    case TypeOrder::Boolean:
+    case TypeOrder::kBoolean:
       return lhs.boolean_value == rhs.boolean_value;
 
-    case TypeOrder::Number:
+    case TypeOrder::kNumber:
       return NumberEquals(lhs, rhs);
 
-    case TypeOrder::Timestamp:
+    case TypeOrder::kTimestamp:
       return lhs.timestamp_value.seconds == rhs.timestamp_value.seconds &&
              lhs.timestamp_value.nanos == rhs.timestamp_value.nanos;
 
-    case TypeOrder::ServerTimestamp:
+    case TypeOrder::kServerTimestamp:
       return GetLocalWriteTime(lhs) == GetLocalWriteTime(rhs);
 
-    case TypeOrder::String:
+    case TypeOrder::kString:
       return nanopb::MakeStringView(lhs.string_value) ==
              nanopb::MakeStringView(rhs.string_value);
 
-    case TypeOrder::Blob:
+    case TypeOrder::kBlob:
       return CompareBlobs(lhs, rhs) == ComparisonResult::Same;
 
-    case TypeOrder::Reference:
+    case TypeOrder::kReference:
       return nanopb::MakeStringView(lhs.reference_value) ==
              nanopb::MakeStringView(rhs.reference_value);
 
-    case TypeOrder::GeoPoint:
+    case TypeOrder::kGeoPoint:
       return lhs.geo_point_value.latitude == rhs.geo_point_value.latitude &&
              lhs.geo_point_value.longitude == rhs.geo_point_value.longitude;
 
-    case TypeOrder::Array:
+    case TypeOrder::kArray:
       return ArrayEquals(lhs, rhs);
 
-    case TypeOrder::Map:
+    case TypeOrder::kMap:
       return ObjectEquals(lhs, rhs);
 
     default:

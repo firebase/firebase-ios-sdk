@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/model/value.h"
+#include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/model/field_value.h"
 #include "Firestore/core/src/remote/serializer.h"
@@ -51,7 +51,7 @@ const Timestamp kTimestamp1{1463739600, 0};
 const time_point kDate2 = testutil::MakeTimePoint(2016, 10, 21, 15, 32, 0);
 const Timestamp kTimestamp2{1477063920, 0};
 
-class ValueTest : public ::testing::Test {
+class ValueUtilTest : public ::testing::Test {
  public:
   template <typename T>
   google_firestore_v1_Value Wrap(T input) {
@@ -136,7 +136,7 @@ class ValueTest : public ::testing::Test {
   remote::Serializer serializer{DbId()};
 };
 
-TEST_F(ValueTest, Equality) {
+TEST_F(ValueUtilTest, Equality) {
   // Create a matrix that defines an equality group. The outer vector has
   // multiple rows and each row can have an arbitrary number of entries.
   // The elements within a row must equal each other, but not be equal
@@ -196,7 +196,7 @@ TEST_F(ValueTest, Equality) {
   }
 }
 
-TEST_F(ValueTest, Ordering) {
+TEST_F(ValueUtilTest, Ordering) {
   // Create a matrix that defines a comparison group. The outer vector has
   // multiple rows and each row can have an arbitrary number of entries.
   // The elements within a row must compare equal to each other, but order after
@@ -297,7 +297,7 @@ TEST_F(ValueTest, Ordering) {
   }
 }
 
-TEST_F(ValueTest, CanonicalId) {
+TEST_F(ValueUtilTest, CanonicalId) {
   VerifyCanonicalId(Wrap(nullptr), "null");
   VerifyCanonicalId(Wrap(true), "true");
   VerifyCanonicalId(Wrap(false), "false");
@@ -315,7 +315,7 @@ TEST_F(ValueTest, CanonicalId) {
                     "{a:[b,{c:geo(30.0,60.0)}]}");
 }
 
-TEST_F(ValueTest, CanonicalIdIgnoresSortOrder) {
+TEST_F(ValueUtilTest, CanonicalIdIgnoresSortOrder) {
   VerifyCanonicalId(WrapObject("a", 1, "b", 2, "c", "3"), "{a:1,b:2,c:3}");
   VerifyCanonicalId(WrapObject("c", 3, "b", 2, "a", "1"), "{a:1,b:2,c:3}");
 }

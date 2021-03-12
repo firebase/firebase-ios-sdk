@@ -35,17 +35,17 @@ namespace model {
  * ordering, but modified to support server timestamps.
  */
 enum class TypeOrder {
-  Null = 0,
-  Boolean = 1,
-  Number = 2,
-  Timestamp = 3,
-  ServerTimestamp = 4,
-  String = 5,
-  Blob = 6,
-  Reference = 7,
-  GeoPoint = 8,
-  Array = 9,
-  Map = 10
+  kNull = 0,
+  kBoolean = 1,
+  kNumber = 2,
+  kTimestamp = 3,
+  kServerTimestamp = 4,
+  kString = 5,
+  kBlob = 6,
+  kReference = 7,
+  kGeoPoint = 8,
+  kArray = 9,
+  kMap = 10
 };
 
 /** Returns the backend's type order of the given Value type. */
