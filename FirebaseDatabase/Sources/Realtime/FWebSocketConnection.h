@@ -43,7 +43,10 @@
 // Ignore FSRWebSocketDelegate calls on watchOS.
 #if !TARGET_OS_WATCH
 - (void)webSocket:(FSRWebSocket *)webSocket didReceiveMessage:(id)message;
-- (void)webSocketDidOpen:(FSRWebSocket *)webSocket;
+
+// Exclude the `webSocket` argument since it isn't used in this codebase and it allows for better
+// code sharing with watchOS.
+- (void)webSocketDidOpen;
 - (void)webSocket:(FSRWebSocket *)webSocket didFailWithError:(NSError *)error;
 - (void)webSocket:(FSRWebSocket *)webSocket
     didCloseWithCode:(NSInteger)code

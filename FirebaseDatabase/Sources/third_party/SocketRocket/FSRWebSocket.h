@@ -81,7 +81,9 @@ extern NSString *const FSRWebSocketErrorDomain;
 
 @optional
 
-- (void)webSocketDidOpen:(FSRWebSocket *)webSocket;
+// Exclude the `webSocket` argument since it isn't used in this codebase and it allows for better
+// code sharing with watchOS.
+- (void)webSocketDidOpen;
 - (void)webSocket:(FSRWebSocket *)webSocket didFailWithError:(NSError *)error;
 - (void)webSocket:(FSRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(NSString *)reason wasClean:(BOOL)wasClean;
 

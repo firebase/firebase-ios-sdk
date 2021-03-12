@@ -232,59 +232,21 @@
     if (dataSegs.count > 1) {
         NSString *formattedData =
             [NSString stringWithFormat:@"%u", (unsigned int)dataSegs.count];
-#if TARGET_OS_WATCH
-        [self
-            sendStringToWebSocket:formattedData
-                       completion:^(NSError *_Nullable error) {
-                         if (error) {
-                             FFWarn(
-                                 @"I-RDB083017",
-                                 @"Error sending initial web socket data: %@.",
-                                 error);
-                             return;
-                         }
-                       }];
-#else
-        [self.webSocket send:formattedData];
-#endif // TARGET_OS_WATCH
+        [self sendStringToWebSocket:formattedData];
     }
 
     // Then, actually send the segments.
     for (NSString *segment in dataSegs) {
-#if TARGET_OS_WATCH
-        [self sendStringToWebSocket:segment
-                         completion:^(NSError *_Nullable error) {
-                           if (error) {
-                               FFWarn(@"I-RDB083018",
-                                      @"Error sending web socket data: %@",
-                                      error);
-                               return;
-                           }
-                         }];
-#else
-        [self.webSocket send:segment];
-#endif // TARGET_OS_WATCH
+        [self sendStringToWebSocket:segment];
     }
 }
 
 - (void)nop:(NSTimer *)timer {
     if (!isClosed) {
         FFLog(@"I-RDB083004", @"(wsc:%@) nop", self.connectionId);
-#if TARGET_OS_WATCH
-        // Note: There's a built in `sendPingWithPongReceiveHandler` call that's
-        // available, but it doesn't match with what the backend is expecting.
-        // Send a string with "0" instead.
-        [self sendStringToWebSocket:@"0"
-                         completion:^(NSError *_Nullable error) {
-                           if (error) {
-                               FFWarn(@"I-RDB083019",
-                                      @"Error sending web socket ping 0: %@",
-                                      error);
-                           }
-                         }];
-#else
-        [self.webSocket send:@"0"];
-#endif // TARGET_OS_WATCH
+        // Note: the backend is expecting a string "0" here, not any special ping/pong from build in
+        // websocket APIs.
+        [self sendStringToWebSocket:@"0"];
     } else {
         FFLog(@"I-RDB083005",
               @"(wsc:%@) No more websocket; invalidating nop timer.",
@@ -352,7 +314,7 @@
 - (void)URLSession:(NSURLSession *)session
           webSocketTask:(NSURLSessionWebSocketTask *)webSocketTask
     didOpenWithProtocol:(NSString *)protocol {
-    [self webSocketOpened];
+    [self webSocketDidOpen];
 }
 
 - (void)URLSession:(NSURLSession *)session
@@ -390,10 +352,6 @@
     [self handleIncomingFrame:message];
 }
 
-- (void)webSocketDidOpen:(FSRWebSocket *)webSocket {
-    [self webSocketOpened];
-}
-
 - (void)webSocket:(FSRWebSocket *)webSocket didFailWithError:(NSError *)error {
     FFLog(@"I-RDB083010", @"(wsc:%@) didFailWithError didFailWithError: %@",
           self.connectionId, [error description]);
@@ -411,24 +369,9 @@
 
 #endif // TARGET_OS_WATCH
 
-#pragma mark -
-#pragma mark Private methods
+// Common to both SRWebSocketDelegate and URLSessionWebSocketDelegate.
 
-#if TARGET_OS_WATCH
-
-/// Sends data to the web socket through native APIs.
-/// @param string The data to send.
-/// @param completion Called when the transaction is complete, indicating an
-/// error if applicable.
-- (void)sendStringToWebSocket:(NSString *)string
-                   completion:(void (^)(NSError *_Nullable))completion {
-    [self.webSocketTask sendMessage:[[NSURLSessionWebSocketMessage alloc]
-                                        initWithString:string]
-                  completionHandler:completion];
-}
-#endif // TARGET_OS_WATCH
-
-- (void)webSocketOpened {
+- (void)webSocketDidOpen {
     FFLog(@"I-RDB083008", @"(wsc:%@) webSocketDidOpen", self.connectionId);
 
     everConnected = YES;
@@ -443,6 +386,27 @@
       FFLog(@"I-RDB083009", @"(wsc:%@) nop timer kicked off",
             self.connectionId);
     });
+}
+
+#pragma mark -
+#pragma mark Private methods
+
+/** Sends a string through the open web socket. */
+- (void)sendStringToWebSocket:(NSString *)string {
+#if TARGET_OS_WATCH
+    // Use built-in URLSessionWebSocket functionality.
+    [self.webSocketTask sendMessage:[[NSURLSessionWebSocketMessage alloc]
+                                        initWithString:string]
+                  completionHandler:^(NSError *_Nullable error) {
+        if (error) {
+            FFWarn(@"I-RDB083016", @"Error sending web socket data: %@.", error);
+            return;
+        }
+    }];
+#else
+    // Use existing SocketRocket implementation.
+    [self.webSocket send:string];
+#endif // TARGET_OS_WATCH
 }
 
 /**
