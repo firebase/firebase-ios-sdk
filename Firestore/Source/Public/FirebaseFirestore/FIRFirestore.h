@@ -275,7 +275,7 @@ NS_SWIFT_NAME(Firestore)
  *
  * @param bundleData Data from the bundle to be loaded.
  * @param completion A block to execute when loading is in a final state. The `error` parameter
- * of will be set if the block is invoked due to an error. If observers are registered to the
+ * will be set if the block is invoked due to an error. If observers are registered to the
  * `FIRLoadBundleTask` being returned, this block will be called after all observers are notified.
  * @return A `FIRLoadBundleTask` (`LoadBundleTask` in Swift) which allows registered observers
  * to receive progress updates and completion or error events.
