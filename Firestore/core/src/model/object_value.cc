@@ -17,6 +17,7 @@
 #include "Firestore/core/src/model/object_value.h"
 
 #include <set>
+#include <utility>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/nanopb/message.h"
