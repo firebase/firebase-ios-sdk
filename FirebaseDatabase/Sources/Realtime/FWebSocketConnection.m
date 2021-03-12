@@ -244,8 +244,8 @@
 - (void)nop:(NSTimer *)timer {
     if (!isClosed) {
         FFLog(@"I-RDB083004", @"(wsc:%@) nop", self.connectionId);
-        // Note: the backend is expecting a string "0" here, not any special ping/pong from build in
-        // websocket APIs.
+        // Note: the backend is expecting a string "0" here, not any special
+        // ping/pong from build in websocket APIs.
         [self sendStringToWebSocket:@"0"];
     } else {
         FFLog(@"I-RDB083005",
@@ -398,11 +398,12 @@
     [self.webSocketTask sendMessage:[[NSURLSessionWebSocketMessage alloc]
                                         initWithString:string]
                   completionHandler:^(NSError *_Nullable error) {
-        if (error) {
-            FFWarn(@"I-RDB083016", @"Error sending web socket data: %@.", error);
-            return;
-        }
-    }];
+                    if (error) {
+                        FFWarn(@"I-RDB083016",
+                               @"Error sending web socket data: %@.", error);
+                        return;
+                    }
+                  }];
 #else
     // Use existing SocketRocket implementation.
     [self.webSocket send:string];
