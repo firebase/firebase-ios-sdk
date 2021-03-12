@@ -251,7 +251,7 @@ struct SpecRepoBuilder: ParsableCommand {
 
     print("Outcome is \(outcome)")
 
-    shell.run("cat \(podPath)", displaylog: true)
+    shell.run("cat \(podPath)", displayLog: true)
     return outcome
   }
 
