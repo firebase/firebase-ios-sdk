@@ -17,11 +17,8 @@
 #include "Firestore/core/src/model/object_value.h"
 
 #include <set>
-#include <unordered_map>
-#include <unordered_set>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
-#include "Firestore/core/src/model/field_path.h"
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 
@@ -86,17 +83,21 @@ void MutableObjectValue::Set(const model::FieldPath& path,
   HARD_ASSERT(!path.empty(), "Cannot set field for empty path on ObjectValue");
 
   _google_firestore_v1_MapValue* parent_map = ParentMap(path.PopLast());
-  std::unordered_map<std::string, google_firestore_v1_Value> inserts = {
-      {path.last_segment(), value}};
-  ApplyChanges(parent_map, {}, inserts);
+  std::string last_segment = path.last_segment();
+
+  absl::flat_hash_map<absl::string_view, google_firestore_v1_Value> inserts=
+    {{last_segment, value}};
+
+  ApplyChanges(parent_map, {}, std::move(inserts));
 }
 
 void MutableObjectValue::SetAll(const model::FieldMask& field_mask,
                                 const MutableObjectValue& data) {
   FieldPath parent = {};
 
-  std::unordered_set<std::string> deletes;
-  std::unordered_map<std::string, google_firestore_v1_Value> inserts;
+  absl::flat_hash_set<absl::string_view> deletes;
+    absl::flat_hash_map<absl::string_view, google_firestore_v1_Value> inserts;
+
   for (const FieldPath& path : field_mask) {
     if (!parent.IsImmediateParentOf(path)) {
       _google_firestore_v1_MapValue* parent_map = ParentMap(parent);
@@ -115,7 +116,7 @@ void MutableObjectValue::SetAll(const model::FieldMask& field_mask,
   }
 
   _google_firestore_v1_MapValue* parent_map = ParentMap(parent);
-  ApplyChanges(parent_map, deletes, inserts);
+  ApplyChanges(parent_map, std::move(deletes), std::move(inserts));
 }
 
 google_firestore_v1_MapValue* MutableObjectValue::ParentMap(
@@ -138,9 +139,9 @@ google_firestore_v1_MapValue* MutableObjectValue::ParentMap(
     } else {
       _google_firestore_v1_Value new_entry{};
       new_entry.which_value_type = google_firestore_v1_Value_map_value_tag;
-      std::unordered_map<std::string, google_firestore_v1_Value> inserts = {
+        absl::flat_hash_map<absl::string_view, google_firestore_v1_Value> inserts = {
           {segment, new_entry}};
-      ApplyChanges(&(parent->map_value), {}, inserts);
+      ApplyChanges(&(parent->map_value), {}, std::move(inserts));
       parent =
           &parent->map_value.fields[parent->map_value.fields_count - 1].value;
     }
@@ -149,15 +150,15 @@ google_firestore_v1_MapValue* MutableObjectValue::ParentMap(
   return &parent->map_value;
 }
 
-void MutableObjectValue::ApplyChanges(
-    google_firestore_v1_MapValue* parent,
-    const std::unordered_set<std::string>& deletes,
-    std::unordered_map<std::string, google_firestore_v1_Value>& inserts) const {
+void MutableObjectValue::ApplyChanges(google_firestore_v1_MapValue* parent,
+         absl::flat_hash_set<absl::string_view> deletes,
+                                      absl::flat_hash_map<absl::string_view, google_firestore_v1_Value>
+                                      inserts) const {
   size_t target_size =
       inserts.size() +
       std::count_if(parent->fields, parent->fields + parent->fields_count,
                     [&](_google_firestore_v1_MapValue_FieldsEntry entry) {
-                      std::string field = nanopb::MakeString(entry.key);
+                      absl::string_view field = nanopb::MakeStringView(entry.key);
                       return deletes.find(field) == deletes.end() &&
                              inserts.find(field) == inserts.end();
                     });
@@ -172,14 +173,14 @@ void MutableObjectValue::ApplyChanges(
   pb_size_t target_index = 0;
   for (pb_size_t source_index = 0; source_index < parent->fields_count;
        ++source_index) {
-    std::string key = nanopb::MakeString(parent->fields[source_index].key);
+    absl::string_view key = nanopb::MakeStringView(parent->fields[source_index].key);
 
     const auto& delete_it = deletes.find(key);
     const auto& insert_it = inserts.find(key);
 
     if (insert_it != inserts.end()) {
       parent->fields[target_index].value = insert_it->second;
-      inserts.erase(key);
+      inserts.erase(insert_it);
       ++target_index;
     } else if (delete_it == deletes.end()) {
       parent->fields[target_index] = parent->fields[source_index];
@@ -206,8 +207,7 @@ void MutableObjectValue::ApplyChanges(
 void MutableObjectValue::Delete(const FieldPath& path) {
   HARD_ASSERT(!path.empty(), "Cannot set field for empty path on ObjectValue");
 
-  std::unordered_set<std::string> deletes;
-  std::unordered_map<std::string, google_firestore_v1_Value> inserts;
+    absl::flat_hash_set<absl::string_view> deletes;
 
     google_firestore_v1_Value* nested_value = &value_;
     for (const std::string& segment : path.PopLast()) {
@@ -218,7 +218,7 @@ void MutableObjectValue::Delete(const FieldPath& path) {
     }
 
   deletes.emplace(path.last_segment());
-  ApplyChanges(&nested_value->map_value, deletes, inserts);
+  ApplyChanges(&nested_value->map_value, std::move(deletes), {});
 }
 
 _google_firestore_v1_MapValue_FieldsEntry* MutableObjectValue::FindNestedEntry(
