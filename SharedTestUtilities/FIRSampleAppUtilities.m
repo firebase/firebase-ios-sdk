@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-#if __has_include(<UIKit/UIKit.h>)
+#import <TargetConditionals.h>
+#if __has_include(<UIKit/UIKit.h>) && !TARGET_OS_WATCH
 #import "SharedTestUtilities/FIRSampleAppUtilities.h"
 
 #if __has_include(<SafariServices/SafariServices.h>)
@@ -116,4 +117,4 @@ NSString *const kInvalidPlistAlertMessage = @"This sample app needs to be update
 }
 
 @end
-#endif
+#endif  // __has_include(<UIKit/UIKit.h>) && !TARGET_OS_WATCH
