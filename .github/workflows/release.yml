@@ -18,9 +18,7 @@ jobs:
     env:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       local_repo: specstesting
-      nightly_version: "7.5.0"
       local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
-      podspec_repo_branch: master
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
@@ -33,7 +31,7 @@ jobs:
     - name: Update SpecsTesting repo setup
       run: |
          ossbotaccess=`cat oss-bot-access.txt`
-         BOT_TOKEN="${ossbotaccess}" test_version="${nightly_version}" scripts/release_testing_setup.sh nightly_testing
+         BOT_TOKEN="${ossbotaccess}" test_scripts/release_testing_setup.sh nightly_testing
     - name: Update SpecsTesting repo
       run: |
         botaccess=`cat bot-access.txt`

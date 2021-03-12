@@ -23,6 +23,7 @@ fi
 mkdir -p "${local_sdk_repo_dir}"
 echo "git clone ${podspec_repo_branch} from github.com/firebase/firebase-ios-sdk.git to ${local_sdk_repo_dir}"
 set +x
+# Using token here to update tags later.
 git clone -q https://"${BOT_TOKEN}"@github.com/firebase/firebase-ios-sdk.git "${local_sdk_repo_dir}"
 set -x
 
@@ -43,8 +44,10 @@ if [ -z $release_branch ];then
   fi
 fi
 
-# Get release branch, release-X.Y.Z.
-podspec_repo_branch=$(echo $release_branch | sed -n 's/\s*origin\///p')
+if [ -z $podspec_repo_branch ];then
+  # Get release branch, release-X.Y.Z.
+  podspec_repo_branch=$(echo $release_branch | sed -n 's/\s*origin\///p')
+fi
 
 git config --global user.email "google-oss-bot@example.com"
 git config --global user.name "google-oss-bot"
