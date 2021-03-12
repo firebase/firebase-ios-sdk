@@ -27,12 +27,29 @@ namespace firebase {
 namespace firestore {
 namespace api {
 
+LoadBundleTask::~LoadBundleTask() {
+  // NOTE: this is needed because users might call to modify some fields from
+  // user callback thread. With this lock guard, we could be destroying the
+  // instance while those calls are still in flight.
+  std::lock_guard<std::mutex> lock(mutex_);
+}
+
 LoadBundleTask::LoadBundleHandle LoadBundleTask::Observe(
     ProgressObserver observer) {
   std::lock_guard<std::mutex> lock(mutex_);
 
   auto handle = next_handle_++;
   observers_.push_back({handle, std::move(observer)});
+
+  return handle;
+}
+
+LoadBundleTask::LoadBundleHandle LoadBundleTask::SetLastObserver(
+    ProgressObserver observer) {
+  std::lock_guard<std::mutex> lock(mutex_);
+
+  auto handle = next_handle_++;
+  last_observer_ = {handle, std::move(observer)};
 
   return handle;
 }
@@ -47,12 +64,17 @@ void LoadBundleTask::RemoveObserver(const LoadBundleHandle& handle) {
   if (found != observers_.end()) {
     observers_.erase(found);
   }
+
+  if (last_observer_.has_value() && last_observer_.value().first == handle) {
+    last_observer_ = absl::nullopt;
+  }
 }
 
 void LoadBundleTask::RemoveAllObservers() {
   std::lock_guard<std::mutex> lock(mutex_);
 
   observers_.clear();
+  last_observer_ = absl::nullopt;
 }
 
 void LoadBundleTask::SetSuccess(LoadBundleTaskProgress success_progress) {
@@ -83,6 +105,12 @@ void LoadBundleTask::UpdateProgress(LoadBundleTaskProgress progress) {
 void LoadBundleTask::NotifyObservers() {
   for (const auto& entry : observers_) {
     const auto& observer = entry.second;
+    const auto& progress = progress_snapshot_;
+    user_executor_->Execute([observer, progress] { observer(progress); });
+  }
+
+  if (last_observer_.has_value()) {
+    const auto& observer = last_observer_.value().second;
     const auto& progress = progress_snapshot_;
     user_executor_->Execute([observer, progress] { observer(progress); });
   }
