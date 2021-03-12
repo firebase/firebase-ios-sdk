@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# This script will `git clone` the SDK repo to local and look for the latest
+# release branch
 set -xe
 
 TESTINGMODE=${1-}
@@ -28,7 +30,8 @@ git clone -q https://"${BOT_TOKEN}"@github.com/firebase/firebase-ios-sdk.git "${
 set -x
 
 cd  "${local_sdk_repo_dir}"
-# This is to search Cocoapods-X.Y.Z tags from all branches of the sdk repo and test_version is X.Y.Z
+# The chunk below is to determine the latest version by searching
+# Cocoapods-X.Y.Z tags from all branches of the sdk repo and test_version is X.Y.Z
 test_version=$(git tag -l --sort=-version:refname CocoaPods-*[0-9] | head -n 1 | sed -n 's/CocoaPods-//p')
 # Check if release-X.Y.Z branch exists in the remote repo.
 release_branch=$(git branch -r -l "origin/release-${test_version}")

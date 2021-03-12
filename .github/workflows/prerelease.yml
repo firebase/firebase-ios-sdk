@@ -17,9 +17,10 @@ jobs:
     env:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       local_repo: specstesting
-      # Podspecs from this repo will be validated and pushed to the testing repo.
+      # The SDK repo will be cloned to this dir and podspecs from
+      # 'podspec_repo_branch' of this repo will be validated and pushed to the
+      # testing repo.
       local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
-      # Podspecs from the master branch will be tested.
       podspec_repo_branch: master
     runs-on: macOS-latest
     steps:
