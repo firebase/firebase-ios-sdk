@@ -38,6 +38,9 @@ jobs:
       run: |
         botaccess=`cat bot-access.txt`
         pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/FirebasePrivate/SpecsTesting.git
+        pwd
+        echo "---"
+        cat FirebaseMLModelDownloader.podspec
         cd scripts/create_spec_repo/
         swift build
         BOT_TOKEN="${botaccess}"  .build/debug/spec-repo-builder --sdk-repo "${local_sdk_repo_dir}" --local-spec-repo-name "${local_repo}"
