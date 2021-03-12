@@ -101,17 +101,27 @@ class MutableObjectValue {
   model::FieldMask ExtractFieldMask(
       const google_firestore_v1_MapValue& value) const;
 
-  /** Finds an entry by key in the provided map value. Runs in O(1) */
+  /**
+   * Finds an entry by key in the provided map value. Returns nullptr if the
+   * entry does not exist. Runs in O(1)
+   */
   static _google_firestore_v1_MapValue_FieldsEntry* FindEntry(
       const google_firestore_v1_Value& value, const std::string& segment);
 
+  /**
+   * Returns the map that contains the leaf element of `path`. If the parent
+   * entry does not yet exist, or if it is not a map, a new map will be created.
+   */
   google_firestore_v1_MapValue* ParentMap(const FieldPath& path);
 
+  /**
+   * Modifies `parent_map` by adding, replacing or deleting the specified
+   * entries.
+   */
   void ApplyChanges(
       google_firestore_v1_MapValue* parent,
-      absl::flat_hash_set<absl::string_view> deletes,
-      absl::flat_hash_map<absl::string_view, google_firestore_v1_Value> inserts)
-      const;
+      absl::flat_hash_map<absl::string_view, google_firestore_v1_Value> inserts,
+      absl::flat_hash_set<absl::string_view> deletes) const;
 };
 
 inline bool operator==(const MutableObjectValue& lhs,
