@@ -45,7 +45,7 @@ let package = Package(
     ),
     .library(
       name: "FirebaseDatabase",
-      targets: ["FirebaseDatabaseTarget"]
+      targets: ["FirebaseDatabase"]
     ),
     .library(
       name: "FirebaseDynamicLinks",
@@ -373,13 +373,6 @@ let package = Package(
     ),
 
     .target(
-      name: "FirebaseDatabaseTarget",
-      dependencies: [.target(name: "FirebaseDatabase",
-                             condition: .when(platforms: [.iOS, .tvOS, .macOS]))],
-      path: "SwiftPM-PlatformExclude/FirebaseDatabaseWrap"
-    ),
-
-    .target(
       name: "FirebaseDatabase",
       dependencies: [
         "FirebaseCore",
@@ -400,6 +393,7 @@ let package = Package(
         .linkedFramework("CFNetwork"),
         .linkedFramework("Security"),
         .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
+        .linkedFramework("WatchKit", .when(platforms: [.watchOS])),
       ]
     ),
     .testTarget(
