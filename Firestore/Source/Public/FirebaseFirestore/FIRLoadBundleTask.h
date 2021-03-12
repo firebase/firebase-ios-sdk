@@ -22,7 +22,8 @@ NS_ASSUME_NONNULL_BEGIN
  * Represents the state of bundle loading tasks.
  *
  * Both `FIRLoadBundleTaskStateError` and `FIRLoadBundleTaskStateSuccess` are final states: task
- * will abort or complete and there will be no more updates after they are reported.
+ * will be in either aborted or completed state and there will be no more updates after they are
+ * reported.
  */
 typedef NS_ENUM(NSInteger, FIRLoadBundleTaskState) {
 
@@ -55,12 +56,12 @@ NS_SWIFT_NAME(LoadBundleTaskProgress)
 
 @end
 
-/** A handle associated with registered observers, that can be used to remove them. */
+/** A handle associated with registered observers that can be used to remove them. */
 typedef NSInteger FIRLoadBundleHandle NS_SWIFT_NAME(LoadBundleHandle);
 
 /**
  * Represents the task of loading a Firestore bundle. Observers can be registered with this task to
- * observe progresses of bundle loading, as well as task completion and error events.
+ * observe the bundle loading progress, as well as task completion and error events.
  */
 NS_SWIFT_NAME(LoadBundleTask)
 @interface FIRLoadBundleTask : NSObject
@@ -68,7 +69,7 @@ NS_SWIFT_NAME(LoadBundleTask)
 /**
  * Registers an observer to observe the progress updates, completion or error events.
  *
- * @return A handle to the registered observer, which can be used to remove the observer once it is
+ * @return A handle to the registered observer which can be used to remove the observer once it is
  * no longer needed.
  */
 - (FIRLoadBundleHandle)observeWith:(void (^)(FIRLoadBundleTaskProgress *progress))handler
