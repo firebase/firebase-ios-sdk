@@ -656,8 +656,12 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 }
 
 - (void)signInWithRefreshToken:(NSString *)refreshToken
-             completion:(nullable FIRAuthResultCallback)completion {
-    [self completeSignInWithAccessToken:nil accessTokenExpirationDate:nil refreshToken:refreshToken anonymous:true callback:completion];
+                    completion:(nullable FIRAuthResultCallback)completion {
+  [self completeSignInWithAccessToken:nil
+            accessTokenExpirationDate:nil
+                         refreshToken:refreshToken
+                            anonymous:true
+                             callback:completion];
 }
 
 /** @fn signInWithEmail:password:callback:

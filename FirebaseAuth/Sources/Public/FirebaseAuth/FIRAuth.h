@@ -460,7 +460,7 @@ NS_SWIFT_NAME(Auth)
  */
 
 - (void)signInWithRefreshToken:(NSString *)refreshToken
-             completion:(nullable FIRAuthResultCallback)completion;
+                    completion:(nullable FIRAuthResultCallback)completion;
 
 /** @fn signInWithProvider:UIDelegate:completion:
     @brief Signs in using the provided auth provider instance.
@@ -553,7 +553,6 @@ NS_SWIFT_NAME(Auth)
 - (void)signInWithCredential:(FIRAuthCredential *)credential
                   completion:(nullable void (^)(FIRAuthDataResult *_Nullable authResult,
                                                 NSError *_Nullable error))completion;
-
 
 /** @fn signInAnonymouslyWithCompletion:
     @brief Asynchronously creates and becomes an anonymous user.
