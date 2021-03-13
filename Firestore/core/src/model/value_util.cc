@@ -17,7 +17,6 @@
 #include "Firestore/core/src/model/value_util.h"
 
 #include <algorithm>
-#include <map>
 #include <memory>
 #include <vector>
 
