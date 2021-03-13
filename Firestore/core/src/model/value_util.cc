@@ -25,7 +25,6 @@
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/util/comparison.h"
 #include "Firestore/core/src/util/hard_assert.h"
-#include "absl/container/flat_hash_map.h"
 #include "absl/strings/escaping.h"
 #include "absl/strings/str_format.h"
 #include "absl/strings/str_join.h"
@@ -180,32 +179,19 @@ ComparisonResult CompareObjects(const google_firestore_v1_Value& left,
   google_firestore_v1_MapValue left_map = left.map_value;
   google_firestore_v1_MapValue right_map = right.map_value;
 
-  // Create a sorted mapping of field key to index. This is then used to walk
-  // both maps in sorted order.
-  std::map<std::string, size_t> left_key_to_value_index;
-  for (size_t i = 0; i < left_map.fields_count; ++i) {
-    left_key_to_value_index.emplace(nanopb::MakeString(left_map.fields[i].key),
-                                    i);
-  }
-  std::map<std::string, size_t> right_key_to_value_index;
-  for (size_t i = 0; i < right_map.fields_count; ++i) {
-    right_key_to_value_index.emplace(
-        nanopb::MakeString(right_map.fields[i].key), i);
-  }
-
-  for (auto left_it = left_key_to_value_index.begin(),
-            right_it = right_key_to_value_index.begin();
-       left_it != left_key_to_value_index.end() &&
-       right_it != right_key_to_value_index.end();
-       ++left_it, ++right_it) {
-    ComparisonResult key_cmp = util::Compare(left_it->first, right_it->first);
+  // Porting Note: MapValues in iOS are always kept in sorted order. We
+  // therefore do no need to sort them before comparing.
+  for (pb_size_t i = 0; i < left_map.fields_count && i < right_map.fields_count;
+       ++i) {
+    ComparisonResult key_cmp =
+        util::Compare(nanopb::MakeStringView(left_map.fields[i].key),
+                      nanopb::MakeStringView(right_map.fields[i].key));
     if (key_cmp != ComparisonResult::Same) {
       return key_cmp;
     }
 
     ComparisonResult value_cmp =
-        Compare(left.map_value.fields[left_it->second].value,
-                right.map_value.fields[right_it->second].value);
+        Compare(left_map.fields[i].value, right.map_value.fields[i].value);
     if (value_cmp != ComparisonResult::Same) {
       return value_cmp;
     }
@@ -304,24 +290,15 @@ bool ObjectEquals(const firebase::firestore::google_firestore_v1_Value& left,
     return false;
   }
 
-  // Create a map of field names to index for one of the maps. This is then used
-  // look up the corresponding value for the other map's fields.
-  absl::flat_hash_map<absl::string_view, size_t> key_to_value_index;
-  for (size_t i = 0; i < left_map.fields_count; ++i) {
-    key_to_value_index.emplace(nanopb::MakeStringView(left_map.fields[i].key),
-                               i);
-  }
-
+  // Porting Note: MapValues in iOS are always kept in sorted order. We
+  // therefore do no need to sort them before comparing.
   for (size_t i = 0; i < right_map.fields_count; ++i) {
-    absl::string_view key = nanopb::MakeStringView(right_map.fields[i].key);
-    auto left_index_it = key_to_value_index.find(key);
-
-    if (left_index_it == key_to_value_index.end()) {
+    if (nanopb::MakeStringView(left_map.fields[i].key) !=
+        nanopb::MakeStringView(right_map.fields[i].key)) {
       return false;
     }
 
-    if (left_map.fields[left_index_it->second].value !=
-        right_map.fields[i].value) {
+    if (left_map.fields[i].value != right_map.fields[i].value) {
       return false;
     }
   }
@@ -417,28 +394,18 @@ std::string CanonifyArray(const google_firestore_v1_Value& value) {
 }
 
 std::string CanonifyObject(const google_firestore_v1_Value& value) {
+  pb_size_t fields_count = value.map_value.fields_count;
   const auto& fields = value.map_value.fields;
 
-  // Even though MapValue are likely sorted correctly based on their insertion
-  // order (e.g. when received from the backend), local modifications can bring
-  // elements out of order. We need to re-sort the elements to ensure that
-  // canonical IDs are independent of insertion order.
-  std::map<std::string, size_t> sorted_keys_to_index;
-  for (size_t i = 0; i < value.map_value.fields_count; ++i) {
-    sorted_keys_to_index.emplace(nanopb::MakeString(fields[i].key), i);
-  }
-
+  // Porting Note: MapValues in iOS are always kept in sorted order. We
+  // therefore do no need to sort them before generating the canonical ID.
   std::string result = "{";
-  bool first = true;
-  for (const auto& entry : sorted_keys_to_index) {
-    if (!first) {
+  for (pb_size_t i = 0; i < fields_count; ++i) {
+    if (i > 0) {
       absl::StrAppend(&result, ",");
-    } else {
-      first = false;
     }
-
-    absl::StrAppend(&result, entry.first, ":",
-                    CanonicalId(fields[entry.second].value));
+    absl::StrAppend(&result, nanopb::MakeStringView(fields[i].key), ":",
+                    CanonicalId(fields[i].value));
   }
   result += "}";
 

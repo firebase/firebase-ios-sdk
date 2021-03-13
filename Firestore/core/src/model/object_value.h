@@ -100,7 +100,7 @@ class MutableObjectValue {
 
   /**
    * Finds an entry by key in the provided map value. Returns nullptr if the
-   * entry does not exist. Runs in O(1)
+   * entry does not exist.
    */
   static _google_firestore_v1_MapValue_FieldsEntry* FindEntry(
       const google_firestore_v1_Value& value, const std::string& segment);

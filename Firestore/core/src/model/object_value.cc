@@ -85,38 +85,38 @@ void MutableObjectValue::Set(const model::FieldPath& path,
   _google_firestore_v1_MapValue* parent_map = ParentMap(path.PopLast());
   std::string last_segment = path.last_segment();
 
-  std::map<std::string, google_firestore_v1_Value> inserts{
+  std::map<std::string, google_firestore_v1_Value> upserts{
       {last_segment, value}};
 
-  ApplyChanges(parent_map, inserts, /* deletes= */ {});
+  ApplyChanges(parent_map, upserts, /* deletes= */ {});
 }
 
 void MutableObjectValue::SetAll(const model::FieldMask& field_mask,
                                 const MutableObjectValue& data) {
   FieldPath parent;
 
+  std::map<std::string, google_firestore_v1_Value> upserts;
   std::set<std::string> deletes;
-  std::map<std::string, google_firestore_v1_Value> inserts;
 
   for (const FieldPath& path : field_mask) {
     if (!parent.IsImmediateParentOf(path)) {
       _google_firestore_v1_MapValue* parent_map = ParentMap(parent);
-      ApplyChanges(parent_map, inserts, deletes);
-      inserts.clear();
+      ApplyChanges(parent_map, upserts, deletes);
+      upserts.clear();
       deletes.clear();
       parent = path.PopLast();
     }
 
     absl::optional<google_firestore_v1_Value> value = data.Get(path);
     if (value) {
-      inserts.emplace(path.last_segment(), *value);
+      upserts.emplace(path.last_segment(), *value);
     } else {
       deletes.insert(path.last_segment());
     }
   }
 
   _google_firestore_v1_MapValue* parent_map = ParentMap(parent);
-  ApplyChanges(parent_map, inserts, deletes);
+  ApplyChanges(parent_map, upserts, deletes);
 }
 
 google_firestore_v1_MapValue* MutableObjectValue::ParentMap(
@@ -143,9 +143,9 @@ google_firestore_v1_MapValue* MutableObjectValue::ParentMap(
       _google_firestore_v1_Value new_entry{};
       new_entry.which_value_type = google_firestore_v1_Value_map_value_tag;
 
-      std::map<std::string, google_firestore_v1_Value> inserts{
+      std::map<std::string, google_firestore_v1_Value> upserts{
           {segment, new_entry}};
-      ApplyChanges(&(parent->map_value), inserts, {});
+      ApplyChanges(&(parent->map_value), upserts, {});
 
       parent =
           &parent->map_value.fields[parent->map_value.fields_count - 1].value;
@@ -159,15 +159,15 @@ void MutableObjectValue::ApplyChanges(
     google_firestore_v1_MapValue* parent,
     std::map<std::string, google_firestore_v1_Value> upserts,
     std::set<std::string> deletes) const {
-  auto source_size = parent->fields_count;
+  auto source_count = parent->fields_count;
   auto source_fields = parent->fields;
 
   // Compute the size of the map after applying all mutations. The final size is
   // the number of existing entries, plus the number of new entries
   // minus the number of deleted entries.
-  size_t target_size =
+  size_t target_count =
       upserts.size() +
-      std::count_if(source_fields, source_fields + source_size,
+      std::count_if(source_fields, source_fields + source_count,
                     [&](_google_firestore_v1_MapValue_FieldsEntry entry) {
                       std::string field = nanopb::MakeString(entry.key);
                       // Check if the entry is deleted or if it is a replacement
@@ -177,15 +177,15 @@ void MutableObjectValue::ApplyChanges(
                     });
 
   auto target_fields = static_cast<_google_firestore_v1_MapValue_FieldsEntry*>(
-  malloc(target_size * sizeof(_google_firestore_v1_MapValue_FieldsEntry)));
+      malloc(target_count * sizeof(_google_firestore_v1_MapValue_FieldsEntry)));
 
   auto delete_it = deletes.begin();
   auto upsert_it = upserts.begin();
 
   // Merge the existing data with the deletes and updates.
   for (pb_size_t target_index = 0, source_index = 0;
-       target_index < target_size;) {
-    if (source_index < source_size) {
+       target_index < target_count;) {
+    if (source_index < source_count) {
       std::string key = nanopb::MakeString(source_fields[source_index].key);
 
       // Check if the current key is deleted
@@ -229,7 +229,7 @@ void MutableObjectValue::ApplyChanges(
   free(source_fields);
 
   parent->fields = target_fields;
-  parent->fields_count = target_size;
+  parent->fields_count = target_count;
 }
 
 void MutableObjectValue::Delete(const FieldPath& path) {
@@ -250,7 +250,7 @@ void MutableObjectValue::Delete(const FieldPath& path) {
   if (nested_value->which_value_type ==
       google_firestore_v1_Value_map_value_tag) {
     std::set<std::string> deletes{path.last_segment()};
-    ApplyChanges(&nested_value->map_value, {}, deletes);
+    ApplyChanges(&nested_value->map_value, /* upserts= */ {}, deletes);
   }
 }
 
@@ -258,9 +258,23 @@ _google_firestore_v1_MapValue_FieldsEntry* MutableObjectValue::FindEntry(
     const google_firestore_v1_Value& value, const std::string& segment) {
   if (value.which_value_type == google_firestore_v1_Value_map_value_tag) {
     const _google_firestore_v1_MapValue& map_value = value.map_value;
-    for (size_t i = 0; i < map_value.fields_count; ++i) {
-      if (nanopb::MakeStringView(map_value.fields[i].key) == segment) {
-        return &map_value.fields[i];
+
+    // MapValues in iOS are always stored in sorted order. Binary search for the
+    // key.
+    pb_size_t low = 0;
+    pb_size_t high = map_value.fields_count;
+
+    while (low < high) {
+      int mid = (low + (high - 1)) / 2;
+
+      absl::string_view current_key =
+          nanopb::MakeStringView(map_value.fields[mid].key);
+      if (current_key < segment) {
+        low = mid + 1;
+      } else if (current_key == segment) {
+        return &map_value.fields[mid];
+      } else {
+        high = mid;
       }
     }
   }
