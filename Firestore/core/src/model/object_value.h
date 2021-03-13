@@ -17,18 +17,16 @@
 #ifndef FIRESTORE_CORE_SRC_MODEL_OBJECT_VALUE_H_
 #define FIRESTORE_CORE_SRC_MODEL_OBJECT_VALUE_H_
 
+#include <map>
 #include <ostream>
+#include <set>
 #include <string>
-#include <unordered_map>
-#include <unordered_set>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/model/field_mask.h"
 #include "Firestore/core/src/model/field_path.h"
 #include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/util/hard_assert.h"
-#include "absl/container/flat_hash_map.h"
-#include "absl/container/flat_hash_set.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
@@ -117,10 +115,9 @@ class MutableObjectValue {
    * Modifies `parent_map` by adding, replacing or deleting the specified
    * entries.
    */
-  void ApplyChanges(
-      google_firestore_v1_MapValue* parent,
-      absl::flat_hash_map<std::string, google_firestore_v1_Value> inserts,
-      absl::flat_hash_set<std::string> deletes) const;
+  void ApplyChanges(google_firestore_v1_MapValue* parent,
+                    std::map<std::string, google_firestore_v1_Value> upserts,
+                    std::set<std::string> deletes) const;
 };
 
 inline bool operator==(const MutableObjectValue& lhs,
