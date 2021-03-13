@@ -53,7 +53,7 @@ class MutableObjectValue {
   /**
    * Returns the value at the given path or null.
    *
-   * @param fieldPath the path to search
+   * @param path the path to search
    * @return The value at the path or null if it doesn't exist.
    */
   absl::optional<google_firestore_v1_Value> Get(
