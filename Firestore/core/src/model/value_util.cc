@@ -400,11 +400,11 @@ std::string CanonifyObject(const google_firestore_v1_Value& value) {
   // therefore do no need to sort them before generating the canonical ID.
   std::string result = "{";
   for (pb_size_t i = 0; i < fields_count; ++i) {
-    if (i > 0) {
-      absl::StrAppend(&result, ",");
-    }
     absl::StrAppend(&result, nanopb::MakeStringView(fields[i].key), ":",
                     CanonicalId(fields[i].value));
+    if (i != fields_count - 1) {
+      absl::StrAppend(&result, ",");
+    }
   }
   result += "}";
 
