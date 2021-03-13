@@ -315,11 +315,6 @@ TEST_F(ValueUtilTest, CanonicalId) {
                     "{a:[b,{c:geo(30.0,60.0)}]}");
 }
 
-TEST_F(ValueUtilTest, CanonicalIdIgnoresSortOrder) {
-  VerifyCanonicalId(WrapObject("a", 1, "b", 2, "c", "3"), "{a:1,b:2,c:3}");
-  VerifyCanonicalId(WrapObject("c", 3, "b", 2, "a", "1"), "{a:1,b:2,c:3}");
-}
-
 }  // namespace
 
 }  // namespace model
