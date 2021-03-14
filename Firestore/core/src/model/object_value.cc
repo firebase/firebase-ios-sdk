@@ -28,14 +28,14 @@ namespace firestore {
 namespace model {
 
 MutableObjectValue::MutableObjectValue() {
-  value_.which_value_type = google_firestore_v1_Value_map_value_tag;
-  value_.map_value.fields_count = 0;
-  value_.map_value.fields =
+  value_->which_value_type = google_firestore_v1_Value_map_value_tag;
+  value_->map_value.fields_count = 0;
+  value_->map_value.fields =
       nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(0);
 }
 
 model::FieldMask MutableObjectValue::ToFieldMask() const {
-  return ExtractFieldMask(value_.map_value);
+  return ExtractFieldMask(value_->map_value);
 }
 
 model::FieldMask MutableObjectValue::ExtractFieldMask(
@@ -66,9 +66,9 @@ model::FieldMask MutableObjectValue::ExtractFieldMask(
 absl::optional<google_firestore_v1_Value> MutableObjectValue::Get(
     const firebase::firestore::model::FieldPath& path) const {
   if (path.empty()) {
-    return value_;
+    return *value_;
   } else {
-    google_firestore_v1_Value nested_value = value_;
+    google_firestore_v1_Value nested_value = *value_;
     for (const std::string& segment : path) {
       _google_firestore_v1_MapValue_FieldsEntry* entry =
           FindEntry(nested_value, segment);
@@ -123,7 +123,7 @@ void MutableObjectValue::SetAll(const model::FieldMask& field_mask,
 
 google_firestore_v1_MapValue* MutableObjectValue::ParentMap(
     const FieldPath& path) {
-  google_firestore_v1_Value* parent = &value_;
+  google_firestore_v1_Value* parent = value_.get();
 
   // Find a or create a parent map entry for `path`.
   for (const std::string& segment : path) {
@@ -204,7 +204,7 @@ void MutableObjectValue::ApplyChanges(
         nanopb::FreeNanopbMessage(google_firestore_v1_Value_fields,
                                   &source_fields[source_index].value);
         target_fields[target_index].key = source_fields[source_index].key;
-        target_fields[target_index].value = upsert_it->second;
+        target_fields[target_index].value = DeepClone(upsert_it->second);
         ++upsert_it;
         ++target_index;
         ++source_index;
@@ -222,7 +222,7 @@ void MutableObjectValue::ApplyChanges(
 
     // Otherwise, insert the next upsert.
     target_fields[target_index].key = nanopb::MakeBytesArray(upsert_it->first);
-    target_fields[target_index].value = upsert_it->second;
+    target_fields[target_index].value = DeepClone(upsert_it->second);
     ++upsert_it;
     ++target_index;
   }
@@ -236,7 +236,7 @@ void MutableObjectValue::ApplyChanges(
 void MutableObjectValue::Delete(const FieldPath& path) {
   HARD_ASSERT(!path.empty(), "Cannot set field for empty path on ObjectValue");
 
-  google_firestore_v1_Value* nested_value = &value_;
+  google_firestore_v1_Value* nested_value = value_.get();
   for (const std::string& segment : path.PopLast()) {
     _google_firestore_v1_MapValue_FieldsEntry* entry =
         FindEntry(*nested_value, segment);

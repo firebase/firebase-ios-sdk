@@ -452,6 +452,50 @@ std::string CanonicalId(const google_firestore_v1_Value& value) {
   }
 }
 
+google_firestore_v1_Value DeepClone(google_firestore_v1_Value source) {
+  google_firestore_v1_Value target = source;
+  switch (source.which_value_type) {
+    case google_firestore_v1_Value_string_value_tag:
+      target.string_value = nanopb::MakeBytesArray(source.string_value->bytes,
+                                                   source.string_value->size);
+      break;
+
+    case google_firestore_v1_Value_reference_value_tag:
+      target.reference_value = nanopb::MakeBytesArray(
+          source.reference_value->bytes, source.reference_value->size);
+      break;
+
+    case google_firestore_v1_Value_bytes_value_tag:
+      target.bytes_value = nanopb::MakeBytesArray(source.bytes_value->bytes,
+                                                  source.bytes_value->size);
+      break;
+
+    case google_firestore_v1_Value_array_value_tag:
+      target.array_value.values_count = source.array_value.values_count;
+      target.array_value.values = nanopb::MakeArray<google_firestore_v1_Value>(
+          source.array_value.values_count);
+      for (pb_size_t i = 0; i < source.array_value.values_count; ++i) {
+        target.array_value.values[i] = DeepClone(source.array_value.values[i]);
+      }
+      break;
+
+    case google_firestore_v1_Value_map_value_tag:
+      target.map_value.fields_count = source.map_value.fields_count;
+      target.map_value.fields =
+          nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(
+              source.map_value.fields_count);
+      for (pb_size_t i = 0; i < source.map_value.fields_count; ++i) {
+        target.map_value.fields[i].key =
+            nanopb::MakeBytesArray(source.map_value.fields[i].key->bytes,
+                                   source.map_value.fields[i].key->size);
+        target.map_value.fields[i].value =
+            DeepClone(source.map_value.fields[i].value);
+      }
+      break;
+  }
+  return target;
+}
+
 }  // namespace model
 }  // namespace firestore
 }  // namespace firebase

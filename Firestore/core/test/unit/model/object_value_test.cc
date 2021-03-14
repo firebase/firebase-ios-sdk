@@ -295,6 +295,8 @@ TEST_F(ObjectValueTest, DeletesNestedObject) {
       "a", Map("b", Map("c", kFooString, "d", kFooString), "f", kFooString));
   object_value.Delete(Field("a.b"));
   EXPECT_EQ(WrapObject("a", Map("f", kFooString)), object_value);
+  object_value.Delete(Field("a.f"));
+  EXPECT_EQ(WrapObject("a", Map()), object_value);
 }
 
 TEST_F(ObjectValueTest, AddsAndDeletesField) {

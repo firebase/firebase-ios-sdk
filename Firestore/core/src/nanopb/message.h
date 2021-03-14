@@ -66,6 +66,12 @@ class Message {
   Message() = default;
 
   /**
+   * Creates a `Message` object that wraps `proto`. Takes ownership of proto.
+   */
+  explicit Message(T proto) : owns_proto_(true), proto_(proto) {
+  }
+
+  /**
    * Attempts to parse a Nanopb message from the given `reader`. If the reader
    * contains ill-formed bytes, returns a default-constructed `Message`; check
    * the status on `reader` to see whether parsing was successful.

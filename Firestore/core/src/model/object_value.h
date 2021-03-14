@@ -26,6 +26,7 @@
 #include "Firestore/core/src/model/field_mask.h"
 #include "Firestore/core/src/model/field_path.h"
 #include "Firestore/core/src/model/value_util.h"
+#include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "absl/types/optional.h"
 
@@ -46,6 +47,14 @@ class MutableObjectValue {
         value.which_value_type == google_firestore_v1_Value_map_value_tag,
         "ObjectValues should be backed by a MapValue");
   }
+
+  MutableObjectValue(MutableObjectValue&& other) noexcept
+      : value_(std::move(other.value_)) {
+  }
+
+  /** `MutableObjectValue` models unique ownership. */
+  MutableObjectValue(const MutableObjectValue&) = delete;
+  MutableObjectValue& operator=(const MutableObjectValue&) = delete;
 
   /** Recursively extracts the FieldPaths that are set in this ObjectValue. */
   FieldMask ToFieldMask() const;
@@ -92,7 +101,7 @@ class MutableObjectValue {
                                   const MutableObjectValue& object_value);
 
  private:
-  google_firestore_v1_Value value_{};
+  nanopb::Message<google_firestore_v1_Value> value_{};
 
   /** Returns the field mask for the provided map value. */
   model::FieldMask ExtractFieldMask(
@@ -122,12 +131,12 @@ class MutableObjectValue {
 
 inline bool operator==(const MutableObjectValue& lhs,
                        const MutableObjectValue& rhs) {
-  return lhs.value_ == rhs.value_;
+  return *lhs.value_ == *rhs.value_;
 }
 
 inline std::ostream& operator<<(std::ostream& out,
                                 const MutableObjectValue& object_value) {
-  return out << CanonicalId(object_value.value_);
+  return out << CanonicalId(*object_value.value_);
 }
 
 }  // namespace model

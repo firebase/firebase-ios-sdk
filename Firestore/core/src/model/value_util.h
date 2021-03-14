@@ -60,6 +60,9 @@ util::ComparisonResult Compare(const google_firestore_v1_Value& left,
  */
 std::string CanonicalId(const google_firestore_v1_Value& value);
 
+/** Creates a copy of the contents of the Value proto. */
+google_firestore_v1_Value DeepClone(google_firestore_v1_Value source);
+
 bool operator==(const google_firestore_v1_Value& lhs,
                 const google_firestore_v1_Value& rhs);
 
