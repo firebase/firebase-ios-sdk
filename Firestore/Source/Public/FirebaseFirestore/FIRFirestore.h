@@ -276,7 +276,7 @@ NS_SWIFT_NAME(Firestore)
  * @param bundleData Data from the bundle to be loaded.
  * @param completion A block to execute when loading is in a final state. The `error` parameter
  * will be set if the block is invoked due to an error. If observers are registered to the
- * `FIRLoadBundleTask` being returned, this block will be called after all observers are notified.
+ * `FIRLoadBundleTask`, this block will be called after all observers are notified.
  * @return A `FIRLoadBundleTask` (`LoadBundleTask` in Swift) which allows registered observers
  * to receive progress updates and completion or error events.
  */
@@ -297,8 +297,8 @@ NS_SWIFT_NAME(Firestore)
 /**
  * Loads a Firestore bundle into the local cache.
  *
- * @param bundleStream A input stream from which the bundle can be read.
- * @param completion A block to execute when the loading is in a final state, the `error` parameter
+ * @param bundleStream An input stream from which the bundle can be read.
+ * @param completion A block to execute when the loading is in a final state. The `error` parameter
  * of the block will be set if it is due to an error. If observers are registered to the returning
  * `FIRLoadBundleTask`, this block will be called after all observers are notified.
  * @return A `FIRLoadBundleTask` (`LoadBundleTask` in Swift), which allow registering observers
