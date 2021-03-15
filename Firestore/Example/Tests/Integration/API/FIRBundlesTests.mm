@@ -122,7 +122,7 @@ namespace util = firebase::firestore::util;
                  XCTAssertNil(error);
                  [expectation fulfill];
                }];
-  [task observeWithHandler:^(FIRLoadBundleTaskProgress* progress) {
+  [task observeWith:^(FIRLoadBundleTaskProgress* progress) {
     [progresses addObject:progress];
   }];
 
@@ -154,7 +154,7 @@ namespace util = firebase::firestore::util;
                  XCTAssertNil(error);
                  [expectation fulfill];
                }];
-  [task observeWithHandler:^(FIRLoadBundleTaskProgress* progress) {
+  [task observeWith:^(FIRLoadBundleTaskProgress* progress) {
     [progresses addObject:progress];
   }];
 
@@ -184,7 +184,7 @@ namespace util = firebase::firestore::util;
                  result = progress;
                  XCTAssertNil(error);
                }];
-  [task observeWithHandler:^(FIRLoadBundleTaskProgress* progress) {
+  [task observeWith:^(FIRLoadBundleTaskProgress* progress) {
     [progresses addObject:progress];
     [expectation fulfill];
   }];
@@ -236,7 +236,7 @@ namespace util = firebase::firestore::util;
                  XCTAssertNotNil(error);
                  [expectation fulfill];
                }];
-  [task observeWithHandler:^(FIRLoadBundleTaskProgress* progress) {
+  [task observeWith:^(FIRLoadBundleTaskProgress* progress) {
     [progresses addObject:progress];
   }];
   [self awaitExpectation:expectation];

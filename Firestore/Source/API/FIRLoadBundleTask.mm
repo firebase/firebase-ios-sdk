@@ -85,7 +85,7 @@ using firebase::firestore::util::ThrowInvalidArgument;
   return self;
 }
 
-- (FIRLoadBundleHandle)observeWithHandler:(void (^)(FIRLoadBundleTaskProgress *progress))handler {
+- (FIRLoadBundleHandle)observeWith:(void (^)(FIRLoadBundleTaskProgress *progress))handler {
   if (!handler) {
     ThrowInvalidArgument("Handler cannot be nil");
   }
