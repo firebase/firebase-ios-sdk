@@ -1,4 +1,4 @@
-# Swift Package Manager for Firebase **Beta**
+# Swift Package Manager for Firebase
 
 ## Introduction
 
