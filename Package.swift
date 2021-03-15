@@ -767,7 +767,7 @@ let package = Package(
         "FirebaseFunctions",
         "FirebaseInAppMessaging",
         .target(name: "FirebaseInAppMessagingSwift",
-                condition: .when(platforms: [.iOS])),
+                condition: .when(platforms: [.iOS, .tvOS])),
         "FirebaseInstallations",
         "FirebaseMessaging",
         "FirebaseRemoteConfig",
