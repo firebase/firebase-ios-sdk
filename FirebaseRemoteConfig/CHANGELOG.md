@@ -1,3 +1,7 @@
+# v7.9.0
+- [added] Enabled community supported watchOS build in Swift Package Manager. (#7696)
+- [fixed] Don't generate missing Analytics warning on Catalyst. (#7693)
+
 # v7.8.0
 - [fixed] Store fetch metadata per namespace to address activation issues. (#7179)
 - [fixed] Only update experiment data for `firebase` namespace fetch requests to ensure correct experiment exposures. (#7604)

@@ -28,6 +28,10 @@ let package = Package(
       targets: ["FirebaseAnalyticsTarget"]
     ),
     .library(
+      name: "FirebaseAnalyticsSwift-Beta",
+      targets: ["FirebaseAnalyticsSwiftTarget"]
+    ),
+    .library(
       name: "FirebaseAuth",
       targets: ["FirebaseAuth"]
     ),
@@ -41,7 +45,11 @@ let package = Package(
     ),
     .library(
       name: "FirebaseDatabase",
-      targets: ["FirebaseDatabaseTarget"]
+      targets: ["FirebaseDatabase"]
+    ),
+    .library(
+      name: "FirebaseDatabaseSwift-Beta",
+      targets: ["FirebaseDatabaseSwift"]
     ),
     .library(
       name: "FirebaseDynamicLinks",
@@ -77,7 +85,7 @@ let package = Package(
     ),
     .library(
       name: "FirebaseRemoteConfig",
-      targets: ["FirebaseRemoteConfigTarget"]
+      targets: ["FirebaseRemoteConfig"]
     ),
     .library(
       name: "FirebaseStorage",
@@ -98,7 +106,7 @@ let package = Package(
     .package(
       name: "GoogleAppMeasurement",
       url: "https://github.com/google/GoogleAppMeasurement.git",
-      .exact("7.5.1")
+      .exact("7.8.0")
     ),
     .package(
       name: "GoogleDataTransport",
@@ -247,8 +255,19 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/7.5.0/FirebaseAnalytics.zip",
-      checksum: "2a622329e1f233d9bd38333c62c900854cb2eb9c63a00b65df14dadf4ef7988e"
+      url: "https://dl.google.com/firebase/ios/swiftpm/7.8.0/FirebaseAnalytics.zip",
+      checksum: "1a833b113a8d877e978c4b4b55ad5ae7c7f10b148dc37f1321be7bb7e7053f3a"
+    ),
+    .target(
+      name: "FirebaseAnalyticsSwiftTarget",
+      dependencies: [.target(name: "FirebaseAnalyticsSwift",
+                             condition: .when(platforms: [.iOS]))],
+      path: "SwiftPM-PlatformExclude/FirebaseAnalyticsSwiftWrap"
+    ),
+    .target(
+      name: "FirebaseAnalyticsSwift",
+      dependencies: ["FirebaseAnalyticsWrapper"],
+      path: "FirebaseAnalyticsSwift/Sources"
     ),
 
     .target(
@@ -358,13 +377,6 @@ let package = Package(
     ),
 
     .target(
-      name: "FirebaseDatabaseTarget",
-      dependencies: [.target(name: "FirebaseDatabase",
-                             condition: .when(platforms: [.iOS, .tvOS, .macOS]))],
-      path: "SwiftPM-PlatformExclude/FirebaseDatabaseWrap"
-    ),
-
-    .target(
       name: "FirebaseDatabase",
       dependencies: [
         "FirebaseCore",
@@ -385,6 +397,7 @@ let package = Package(
         .linkedFramework("CFNetwork"),
         .linkedFramework("Security"),
         .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
+        .linkedFramework("WatchKit", .when(platforms: [.watchOS])),
       ]
     ),
     .testTarget(
@@ -399,7 +412,20 @@ let package = Package(
         .headerSearchPath("../.."),
       ]
     ),
-
+    .target(
+      name: "FirebaseDatabaseSwift",
+      dependencies: ["FirebaseDatabase"],
+      path: "FirebaseDatabaseSwift/Sources",
+      exclude: [
+        "third_party/RTDBEncoder/LICENSE",
+        "third_party/RTDBEncoder/METADATA",
+      ]
+    ),
+    .testTarget(
+      name: "FirebaseDatabaseSwiftTests",
+      dependencies: ["FirebaseDatabase", "FirebaseDatabaseSwift"],
+      path: "FirebaseDatabaseSwift/Tests/"
+    ),
     .target(
       name: "FirebaseDynamicLinksTarget",
       dependencies: [.target(name: "FirebaseDynamicLinks",
@@ -676,13 +702,6 @@ let package = Package(
     ),
 
     .target(
-      name: "FirebaseRemoteConfigTarget",
-      dependencies: [.target(name: "FirebaseRemoteConfig",
-                             condition: .when(platforms: [.iOS, .tvOS, .macOS]))],
-      path: "SwiftPM-PlatformExclude/FirebaseRemoteConfigWrap"
-    ),
-
-    .target(
       name: "FirebaseRemoteConfig",
       dependencies: [
         "FirebaseCore",
@@ -774,6 +793,7 @@ let package = Package(
     .testTarget(
       name: "analytics-import-test",
       dependencies: [
+        "FirebaseAnalyticsSwiftTarget",
         "FirebaseAnalyticsWrapper",
         "Firebase",
       ],
