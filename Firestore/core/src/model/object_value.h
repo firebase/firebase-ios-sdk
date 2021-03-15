@@ -21,6 +21,7 @@
 #include <ostream>
 #include <set>
 #include <string>
+#include <utility>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/model/field_mask.h"

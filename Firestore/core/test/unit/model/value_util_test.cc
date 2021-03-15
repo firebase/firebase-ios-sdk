@@ -17,6 +17,7 @@
 #include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/model/field_value.h"
+#include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/remote/serializer.h"
 #include "Firestore/core/src/util/comparison.h"
 #include "Firestore/core/test/unit/testutil/equals_tester.h"
@@ -130,6 +131,15 @@ class ValueUtilTest : public ::testing::Test {
                          const std::string& expected_canonical_id) {
     std::string actual_canonical_id = CanonicalId(value);
     EXPECT_EQ(expected_canonical_id, actual_canonical_id);
+  }
+
+  void VerifyDeepClone(const google_firestore_v1_Value& value) {
+    // `Message` takes ownership of the proto value and destroys it. We use
+    // it to verify that all values own their own memory.
+    nanopb::Message<google_firestore_v1_Value> clone1{DeepClone(value)};
+    nanopb::Message<google_firestore_v1_Value> clone2{DeepClone(*clone1)};
+    EXPECT_TRUE(value == *clone1);
+    EXPECT_TRUE(value == *clone2);
   }
 
  private:
@@ -313,6 +323,23 @@ TEST_F(ValueUtilTest, CanonicalId) {
   VerifyCanonicalId(WrapObject("a", 1, "b", 2, "c", "3"), "{a:1,b:2,c:3}");
   VerifyCanonicalId(WrapObject("a", Array("b", Map("c", GeoPoint(30, 60)))),
                     "{a:[b,{c:geo(30.0,60.0)}]}");
+}
+
+TEST_F(ValueUtilTest, DeepClone) {
+  VerifyDeepClone(Wrap(nullptr));
+  VerifyDeepClone(Wrap(true));
+  VerifyDeepClone(Wrap(false));
+  VerifyDeepClone(Wrap(1));
+  VerifyDeepClone(Wrap(1.0));
+  VerifyDeepClone(Wrap(Timestamp(30, 1000)));
+  VerifyDeepClone(Wrap("a"));
+  VerifyDeepClone(Wrap(std::string("a\0b", 3)));
+  VerifyDeepClone(Wrap(BlobValue(1, 2, 3)));
+  VerifyDeepClone(WrapReference(DbId("p1/d1"), Key("c1/doc1")));
+  VerifyDeepClone(Wrap(GeoPoint(30, 60)));
+  VerifyDeepClone(WrapArray(1, 2, 3));
+  VerifyDeepClone(WrapObject("a", 1, "b", 2, "c", "3"));
+  VerifyDeepClone(WrapObject("a", Array("b", Map("c", GeoPoint(30, 60)))));
 }
 
 }  // namespace
