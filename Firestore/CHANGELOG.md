@@ -1,4 +1,4 @@
-# v7.8.0
+# v7.9.0
 - [feature] Added support for Firestore Bundles via
   `FIRFirestore.loadBundle`, `FIRFirestore.loadBundleStream` and
   `FIRFirestore.getQueryNamed`. Bundles contain pre-packaged data produced
