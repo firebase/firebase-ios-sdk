@@ -57,7 +57,7 @@ NS_SWIFT_NAME(LoadBundleTaskProgress)
 @end
 
 /** A handle associated with registered observers that can be used to remove them. */
-typedef NSInteger FIRLoadBundleHandle NS_SWIFT_NAME(LoadBundleHandle);
+typedef NSInteger FIRLoadBundleObserverHandle NS_SWIFT_NAME(LoadBundleObserverHandle);
 
 /**
  * Represents the task of loading a Firestore bundle. Observers can be registered with this task to
@@ -72,14 +72,14 @@ NS_SWIFT_NAME(LoadBundleTask)
  * @return A handle to the registered observer which can be used to remove the observer once it is
  * no longer needed.
  */
-- (FIRLoadBundleHandle)observeWith:(void (^)(FIRLoadBundleTaskProgress *progress))handler
-    NS_SWIFT_NAME(observeWith(_:));
+- (FIRLoadBundleObserverHandle)addObserver:(void (^)(FIRLoadBundleTaskProgress *progress))observer
+    NS_SWIFT_NAME(addObserver(_:));
 
 /**
  * Removes a registered observer associated with the given handle. If no observer can be found, this
  * will be a no-op.
  */
-- (void)removeObserverWithHandle:(FIRLoadBundleHandle)handle
+- (void)removeObserverWithHandle:(FIRLoadBundleObserverHandle)handle
     NS_SWIFT_NAME(removeObserverWith(handle:));
 
 /**

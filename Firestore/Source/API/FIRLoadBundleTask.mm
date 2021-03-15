@@ -85,19 +85,19 @@ using firebase::firestore::util::ThrowInvalidArgument;
   return self;
 }
 
-- (FIRLoadBundleHandle)observeWith:(void (^)(FIRLoadBundleTaskProgress *progress))handler {
-  if (!handler) {
+- (FIRLoadBundleObserverHandle)addObserver:(void (^)(FIRLoadBundleTaskProgress *progress))observer {
+  if (!observer) {
     ThrowInvalidArgument("Handler cannot be nil");
   }
 
-  api::LoadBundleTask::ProgressObserver observer =
-      [handler](api::LoadBundleTaskProgress internal_progress) {
-        handler([[FIRLoadBundleTaskProgress alloc] initWithInternal:internal_progress]);
+  api::LoadBundleTask::ProgressObserver core_observer =
+      [observer](api::LoadBundleTaskProgress internal_progress) {
+        observer([[FIRLoadBundleTaskProgress alloc] initWithInternal:internal_progress]);
       };
-  return _task->Observe(std::move(observer));
+  return _task->Observe(std::move(core_observer));
 }
 
-- (void)removeObserverWithHandle:(FIRLoadBundleHandle)handle {
+- (void)removeObserverWithHandle:(FIRLoadBundleObserverHandle)handle {
   _task->RemoveObserver(handle);
 }
 
