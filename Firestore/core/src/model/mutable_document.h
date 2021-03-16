@@ -1,5 +1,3 @@
-#include <utility>
-
 /*
  * Copyright 2021 Google LLC
  *
@@ -19,13 +17,13 @@
 #ifndef FIRESTORE_CORE_SRC_MODEL_MUTABLE_DOCUMENT_H_
 #define FIRESTORE_CORE_SRC_MODEL_MUTABLE_DOCUMENT_H_
 
+#include <ostream>
+#include <utility>
+
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/field_value.h"
 #include "Firestore/core/src/model/snapshot_version.h"
-
-#include <ostream>
-#include <utility>
 
 // TODO(mutabledocuments): We might want to call this class Document and replace
 // the existing class.
