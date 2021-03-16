@@ -167,6 +167,35 @@
   XCTAssertThrows([component remoteConfigForNamespace:@"some_namespace"]);
 }
 
+- (void)testThrowsWithEmptyProjectID {
+  FIROptions *options = [self fakeOptions];
+  options.projectID = @"";
+
+  // Create the provider to vend Remote Config instances.
+  NSString *appName = [self generatedTestAppName];
+  FIRApp *app = [[FIRApp alloc] initInstanceWithName:appName options:options];
+  FIRRemoteConfigComponent *component = [[FIRRemoteConfigComponent alloc] initWithApp:app];
+
+  // Creating a Remote Config instance should fail since the GCMSenderID is empty.
+  XCTAssertThrows([component remoteConfigForNamespace:@"some_namespace"]);
+}
+
+- (void)testThrowsWithNilProjectID {
+  FIROptions *options = [self fakeOptions];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
+  options.GCMSenderID = nil;
+#pragma clang diagnostic pop
+
+  // Create the provider to vend Remote Config instances.
+  NSString *appName = [self generatedTestAppName];
+  FIRApp *app = [[FIRApp alloc] initInstanceWithName:appName options:options];
+  FIRRemoteConfigComponent *component = [[FIRRemoteConfigComponent alloc] initWithApp:app];
+
+  // Creating a Remote Config instance should fail since the GCMSenderID is empty.
+  XCTAssertThrows([component remoteConfigForNamespace:@"some_namespace"]);
+}
+
 #pragma mark - Helpers
 
 - (FIROptions *)fakeOptions {
