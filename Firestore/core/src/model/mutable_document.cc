@@ -16,9 +16,6 @@
 
 #include "Firestore/core/src/model/mutable_document.h"
 
-#include <ostream>
-#include <utility>
-
 namespace firebase {
 namespace firestore {
 namespace model {
@@ -41,27 +38,18 @@ MutableDocument MutableDocument::FoundDocument(
 }
 
 /* static */
-MutableDocument MutableDocument::UnknownDocument(
-    const firebase::firestore::model::DocumentKey& document_key,
-    const firebase::firestore::model::SnapshotVersion& version) {
-  return std::move(
-      InvalidDocument(document_key).ConvertToUnknownDocument(version));
-}
-
-/* static */
 MutableDocument MutableDocument::NoDocument(
     const firebase::firestore::model::DocumentKey& document_key,
     const firebase::firestore::model::SnapshotVersion& version) {
   return std::move(InvalidDocument(document_key).ConvertToNoDocument(version));
 }
 
-MutableDocument& MutableDocument::ConvertToUnknownDocument(
+/* static */
+MutableDocument MutableDocument::UnknownDocument(
+    const firebase::firestore::model::DocumentKey& document_key,
     const firebase::firestore::model::SnapshotVersion& version) {
-  version_ = version;
-  document_type_ = DocumentType::kUnknownDocument;
-  value_ = {};
-  document_state_ = DocumentState::kHasCommittedMutations;
-  return *this;
+  return std::move(
+      InvalidDocument(document_key).ConvertToUnknownDocument(version));
 }
 
 MutableDocument& MutableDocument::ConvertToFoundDocument(
@@ -80,6 +68,15 @@ MutableDocument& MutableDocument::ConvertToNoDocument(
   document_type_ = DocumentType::kNoDocument;
   value_ = {};
   document_state_ = DocumentState::kSynced;
+  return *this;
+}
+
+MutableDocument& MutableDocument::ConvertToUnknownDocument(
+    const firebase::firestore::model::SnapshotVersion& version) {
+  version_ = version;
+  document_type_ = DocumentType::kUnknownDocument;
+  value_ = {};
+  document_state_ = DocumentState::kHasCommittedMutations;
   return *this;
 }
 

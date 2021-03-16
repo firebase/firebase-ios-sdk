@@ -24,6 +24,7 @@
 #include "Firestore/core/src/model/field_value.h"
 #include "Firestore/core/src/model/snapshot_version.h"
 
+#include <ostream>
 #include <utility>
 
 // TODO(mutabledocuments): We might want to call this class Document and replace
