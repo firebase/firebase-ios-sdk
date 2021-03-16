@@ -37,21 +37,21 @@ namespace firestore {
 namespace model {
 
 /** A structured object value stored in Firestore. */
-// TODO(mutabledcouments): Rename to ObjectValue once other ObjectValue class
+// TODO(mutabledocuments): Rename to ObjectValue once other ObjectValue class
 // is removed
 class MutableObjectValue {
  public:
   MutableObjectValue();
 
-  explicit MutableObjectValue(google_firestore_v1_Value value) : value_(value) {
+  explicit MutableObjectValue(const google_firestore_v1_Value& value)
+      : value_(value) {
     HARD_ASSERT(
         value.which_value_type == google_firestore_v1_Value_map_value_tag,
         "ObjectValues should be backed by a MapValue");
   }
 
-  MutableObjectValue(MutableObjectValue&& other) noexcept
-      : value_(std::move(other.value_)) {
-  }
+  MutableObjectValue(MutableObjectValue&& other) noexcept = default;
+  MutableObjectValue& operator=(MutableObjectValue&& other) = default;
 
   /** `MutableObjectValue` models unique ownership. */
   MutableObjectValue(const MutableObjectValue&) = delete;
@@ -66,16 +66,7 @@ class MutableObjectValue {
    * @param path the path to search
    * @return The value at the path or null if it doesn't exist.
    */
-  absl::optional<google_firestore_v1_Value> Get(
-      const model::FieldPath& path) const;
-
-  /**
-   * Removes the field at the specified path. If there is no field at the
-   * specified path nothing is changed.
-   *
-   * @param path The field path to remove
-   */
-  void Delete(const FieldPath& path);
+  absl::optional<google_firestore_v1_Value> Get(const FieldPath& path) const;
 
   /**
    * Sets the field to the provided value.
@@ -91,10 +82,19 @@ class MutableObjectValue {
    * missing in `data`, it is deleted.
    *
    * @param field_mask The field mask that controls which fields to modify.
-   * @param data An ObjectValue that contains the field values.
+   * @param data A MutableObjectValue that contains the field values.
    */
-  void SetAll(const model::FieldMask& field_mask,
-              const MutableObjectValue& data);
+  void SetAll(const FieldMask& field_mask, const MutableObjectValue& data);
+
+  /**
+   * Removes the field at the specified path. If there is no field at the
+   * specified path, nothing is changed.
+   *
+   * The path must not be empty.
+   *
+   * @param path The field path to remove.
+   */
+  void Delete(const FieldPath& path);
 
   friend bool operator==(const MutableObjectValue& lhs,
                          const MutableObjectValue& rhs);
@@ -102,18 +102,8 @@ class MutableObjectValue {
                                   const MutableObjectValue& object_value);
 
  private:
-  nanopb::Message<google_firestore_v1_Value> value_{};
-
   /** Returns the field mask for the provided map value. */
-  model::FieldMask ExtractFieldMask(
-      const google_firestore_v1_MapValue& value) const;
-
-  /**
-   * Finds an entry by key in the provided map value. Returns `nullptr` if the
-   * entry does not exist.
-   */
-  static _google_firestore_v1_MapValue_FieldsEntry* FindEntry(
-      const google_firestore_v1_Value& value, const std::string& segment);
+  FieldMask ExtractFieldMask(const google_firestore_v1_MapValue& value) const;
 
   /**
    * Returns the map that contains the leaf element of `path`. If the parent
@@ -125,9 +115,12 @@ class MutableObjectValue {
    * Modifies `parent_map` by adding, replacing or deleting the specified
    * entries.
    */
-  void ApplyChanges(google_firestore_v1_MapValue* parent,
-                    std::map<std::string, google_firestore_v1_Value> upserts,
-                    std::set<std::string> deletes) const;
+  void ApplyChanges(
+      google_firestore_v1_MapValue* parent,
+      const std::map<std::string, google_firestore_v1_Value>& upserts,
+      const std::set<std::string>& deletes) const;
+
+  nanopb::Message<google_firestore_v1_Value> value_;
 };
 
 inline bool operator==(const MutableObjectValue& lhs,

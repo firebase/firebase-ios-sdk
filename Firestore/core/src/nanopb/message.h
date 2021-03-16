@@ -66,9 +66,9 @@ class Message {
   Message() = default;
 
   /**
-   * Creates a `Message` object that wraps `proto`. Takes ownership of proto.
+   * Creates a `Message` object that wraps `proto`. Takes ownership of `proto`.
    */
-  explicit Message(T proto) : owns_proto_(true), proto_(proto) {
+  explicit Message(const T& proto) : owns_proto_(true), proto_(proto) {
   }
 
   /**

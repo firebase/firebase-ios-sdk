@@ -16,10 +16,12 @@
 
 #include "Firestore/core/src/model/object_value.h"
 
+#include <algorithm>
 #include <map>
 #include <set>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
+#include "Firestore/core/src/nanopb/fields_array.h"
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 
@@ -27,11 +29,55 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
+namespace {
+
+using nanopb::FieldsArray;
+using nanopb::FreeNanopbMessage;
+using nanopb::MakeArray;
+using nanopb::MakeBytesArray;
+using nanopb::MakeString;
+using nanopb::MakeStringView;
+
+struct MapEntryKeyCompare {
+  bool operator()(const google_firestore_v1_MapValue_FieldsEntry& entry,
+                  absl::string_view segment) {
+    return nanopb::MakeStringView(entry.key) < segment;
+  }
+  bool operator()(absl::string_view segment,
+                  const google_firestore_v1_MapValue_FieldsEntry& entry) {
+    return segment < nanopb::MakeStringView(entry.key);
+  }
+};
+
+/**
+ * Finds an entry by key in the provided map value. Returns `nullptr` if the
+ * entry does not exist.
+ */
+static google_firestore_v1_MapValue_FieldsEntry* FindEntry(
+    const google_firestore_v1_Value& value, absl::string_view segment) {
+  if (value.which_value_type != google_firestore_v1_Value_map_value_tag) {
+    return nullptr;
+  }
+  const google_firestore_v1_MapValue& map_value = value.map_value;
+
+  // MapValues in iOS are always stored in sorted order.
+  auto found = std::equal_range(map_value.fields,
+                                map_value.fields + map_value.fields_count,
+                                segment, MapEntryKeyCompare());
+
+  if (found.first == found.second) {
+    return nullptr;
+  }
+
+  return found.first;
+}
+
+}  // namespace
+
 MutableObjectValue::MutableObjectValue() {
   value_->which_value_type = google_firestore_v1_Value_map_value_tag;
   value_->map_value.fields_count = 0;
-  value_->map_value.fields =
-      nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(0);
+  value_->map_value.fields = nullptr;
 }
 
 model::FieldMask MutableObjectValue::ToFieldMask() const {
@@ -41,58 +87,62 @@ model::FieldMask MutableObjectValue::ToFieldMask() const {
 model::FieldMask MutableObjectValue::ExtractFieldMask(
     const google_firestore_v1_MapValue& value) const {
   std::set<FieldPath> fields;
+
   for (size_t i = 0; i < value.fields_count; ++i) {
-    FieldPath current_path({nanopb::MakeString(value.fields[i].key)});
-    if (value.fields[i].value.which_value_type ==
+    google_firestore_v1_MapValue_FieldsEntry& entry = value.fields[i];
+    FieldPath current_path({MakeString(entry.key)});
+
+    if (entry.value.which_value_type !=
         google_firestore_v1_Value_map_value_tag) {
-      // Recursively extract the nested map
-      model::FieldMask nested_mask =
-          ExtractFieldMask(value.fields[i].value.map_value);
-      if (nested_mask.begin() == nested_mask.end()) {
-        // Preserve the empty map by adding it to the FieldMask.
-        fields.insert(current_path);
-      } else {
-        for (const FieldPath& nested_path : nested_mask) {
-          fields.insert(current_path.Append(nested_path));
-        }
-      }
-    } else {
       fields.insert(current_path);
+      continue;
+    }
+
+    // Recursively extract the nested map
+    FieldMask nested_mask = ExtractFieldMask(entry.value.map_value);
+    if (nested_mask.begin() == nested_mask.end()) {
+      // Preserve the empty map by adding it to the FieldMask.
+      fields.insert(current_path);
+    } else {
+      for (const FieldPath& nested_path : nested_mask) {
+        fields.insert(current_path.Append(nested_path));
+      }
     }
   }
-  return model::FieldMask(fields);
+
+  return FieldMask(std::move(fields));
 }
 
 absl::optional<google_firestore_v1_Value> MutableObjectValue::Get(
-    const firebase::firestore::model::FieldPath& path) const {
+    const FieldPath& path) const {
   if (path.empty()) {
     return *value_;
-  } else {
-    google_firestore_v1_Value nested_value = *value_;
-    for (const std::string& segment : path) {
-      _google_firestore_v1_MapValue_FieldsEntry* entry =
-          FindEntry(nested_value, segment);
-      if (!entry) return {};
-      nested_value = entry->value;
-    }
-    return nested_value;
   }
+
+  google_firestore_v1_Value nested_value = *value_;
+  for (const std::string& segment : path) {
+    google_firestore_v1_MapValue_FieldsEntry* entry =
+        FindEntry(nested_value, segment);
+    if (!entry) return {};
+    nested_value = entry->value;
+  }
+  return nested_value;
 }
 
-void MutableObjectValue::Set(const model::FieldPath& path,
+void MutableObjectValue::Set(const FieldPath& path,
                              const google_firestore_v1_Value& value) {
   HARD_ASSERT(!path.empty(), "Cannot set field for empty path on ObjectValue");
 
-  _google_firestore_v1_MapValue* parent_map = ParentMap(path.PopLast());
+  google_firestore_v1_MapValue* parent_map = ParentMap(path.PopLast());
 
   std::string last_segment = path.last_segment();
   std::map<std::string, google_firestore_v1_Value> upserts{
-      {last_segment, value}};
+      {std::move(last_segment), value}};
 
-  ApplyChanges(parent_map, upserts, /* deletes= */ {});
+  ApplyChanges(parent_map, upserts, /*deletes=*/{});
 }
 
-void MutableObjectValue::SetAll(const model::FieldMask& field_mask,
+void MutableObjectValue::SetAll(const FieldMask& field_mask,
                                 const MutableObjectValue& data) {
   FieldPath parent;
 
@@ -102,7 +152,7 @@ void MutableObjectValue::SetAll(const model::FieldMask& field_mask,
   for (const FieldPath& path : field_mask) {
     if (!parent.IsImmediateParentOf(path)) {
       // Insert the accumulated changes at this parent location
-      _google_firestore_v1_MapValue* parent_map = ParentMap(parent);
+      google_firestore_v1_MapValue* parent_map = ParentMap(parent);
       ApplyChanges(parent_map, upserts, deletes);
       upserts.clear();
       deletes.clear();
@@ -117,17 +167,43 @@ void MutableObjectValue::SetAll(const model::FieldMask& field_mask,
     }
   }
 
-  _google_firestore_v1_MapValue* parent_map = ParentMap(parent);
+  google_firestore_v1_MapValue* parent_map = ParentMap(parent);
   ApplyChanges(parent_map, upserts, deletes);
 }
 
+void MutableObjectValue::Delete(const FieldPath& path) {
+  HARD_ASSERT(!path.empty(), "Cannot set field for empty path on ObjectValue");
+
+  google_firestore_v1_Value* nested_value = value_.get();
+  for (const std::string& segment : path.PopLast()) {
+    google_firestore_v1_MapValue_FieldsEntry* entry =
+        FindEntry(*nested_value, segment);
+    if (!entry) {
+      // If the entry is not found, exit early. There is nothing to delete.
+      return;
+    }
+    nested_value = &entry->value;
+  }
+
+  // We can only delete a leaf entry if its parent is a map.
+  if (nested_value->which_value_type ==
+      google_firestore_v1_Value_map_value_tag) {
+    std::set<std::string> deletes{path.last_segment()};
+    ApplyChanges(&nested_value->map_value, /*upserts=*/{}, deletes);
+  }
+}
+
+/**
+ * Returns the map that contains the leaf element of `path`. If the parent
+ * entry does not yet exist, or if it is not a map, a new map will be created.
+ */
 google_firestore_v1_MapValue* MutableObjectValue::ParentMap(
     const FieldPath& path) {
   google_firestore_v1_Value* parent = value_.get();
 
   // Find a or create a parent map entry for `path`.
   for (const std::string& segment : path) {
-    _google_firestore_v1_MapValue_FieldsEntry* entry =
+    google_firestore_v1_MapValue_FieldsEntry* entry =
         FindEntry(*parent, segment);
 
     if (entry) {
@@ -135,19 +211,20 @@ google_firestore_v1_MapValue* MutableObjectValue::ParentMap(
           google_firestore_v1_Value_map_value_tag) {
         // Since the element is not a map value, free all existing data and
         // change it to a map type
-        nanopb::FreeNanopbMessage(google_firestore_v1_Value_fields,
-                                  &entry->value);
+        FreeNanopbMessage(FieldsArray<google_firestore_v1_Value>(),
+                          &entry->value);
         entry->value.which_value_type = google_firestore_v1_Value_map_value_tag;
       }
+
       parent = &entry->value;
     } else {
       // Create a new map value for the current segment
-      _google_firestore_v1_Value new_entry{};
+      google_firestore_v1_Value new_entry{};
       new_entry.which_value_type = google_firestore_v1_Value_map_value_tag;
 
       std::map<std::string, google_firestore_v1_Value> upserts{
           {segment, new_entry}};
-      ApplyChanges(&(parent->map_value), upserts, {});
+      ApplyChanges(&(parent->map_value), upserts, /*deletes=*/{});
 
       parent = &(FindEntry(*parent, segment)->value);
     }
@@ -158,10 +235,10 @@ google_firestore_v1_MapValue* MutableObjectValue::ParentMap(
 
 void MutableObjectValue::ApplyChanges(
     google_firestore_v1_MapValue* parent,
-    std::map<std::string, google_firestore_v1_Value> upserts,
-    std::set<std::string> deletes) const {
+    const std::map<std::string, google_firestore_v1_Value>& upserts,
+    const std::set<std::string>& deletes) const {
   auto source_count = parent->fields_count;
-  auto source_fields = parent->fields;
+  auto* source_fields = parent->fields;
 
   // Compute the size of the map after applying all mutations. The final size is
   // the number of existing entries, plus the number of new entries
@@ -169,31 +246,30 @@ void MutableObjectValue::ApplyChanges(
   size_t target_count =
       upserts.size() +
       std::count_if(source_fields, source_fields + source_count,
-                    [&](_google_firestore_v1_MapValue_FieldsEntry entry) {
-                      std::string field = nanopb::MakeString(entry.key);
-                      // Check if the entry is deleted or if it is a replacement
-                      // rather than an insert.
+                    [&](const google_firestore_v1_MapValue_FieldsEntry& entry) {
+                      std::string field = MakeString(entry.key);
+                      // Don't count if entry is deleted or if it is a
+                      // replacement rather than an insert.
                       return deletes.find(field) == deletes.end() &&
                              upserts.find(field) == upserts.end();
                     });
 
-  auto target_fields = static_cast<_google_firestore_v1_MapValue_FieldsEntry*>(
-      malloc(target_count * sizeof(_google_firestore_v1_MapValue_FieldsEntry)));
+  auto* target_fields =
+      MakeArray<google_firestore_v1_MapValue_FieldsEntry>(target_count);
 
   auto delete_it = deletes.begin();
   auto upsert_it = upserts.begin();
 
   // Merge the existing data with the deletes and updates.
-  for (pb_size_t target_index = 0, source_index = 0;
+  for (pb_size_t source_index = 0, target_index = 0;
        target_index < target_count;) {
     if (source_index < source_count) {
-      std::string key = nanopb::MakeString(source_fields[source_index].key);
+      std::string key = MakeString(source_fields[source_index].key);
 
       // Check if the source key is deleted
       if (delete_it != deletes.end() && *delete_it == key) {
-        nanopb::FreeNanopbMessage(
-            google_firestore_v1_MapValue_FieldsEntry_fields,
-            source_fields + source_index);
+        FreeNanopbMessage(google_firestore_v1_MapValue_FieldsEntry_fields,
+                          source_fields + source_index);
         ++delete_it;
         ++source_index;
         continue;
@@ -201,8 +277,8 @@ void MutableObjectValue::ApplyChanges(
 
       // Check if the source key is updated by the next upsert
       if (upsert_it != upserts.end() && upsert_it->first == key) {
-        nanopb::FreeNanopbMessage(google_firestore_v1_Value_fields,
-                                  &source_fields[source_index].value);
+        FreeNanopbMessage(google_firestore_v1_Value_fields,
+                          &source_fields[source_index].value);
         target_fields[target_index].key = source_fields[source_index].key;
         target_fields[target_index].value = DeepClone(upsert_it->second);
         ++upsert_it;
@@ -221,7 +297,7 @@ void MutableObjectValue::ApplyChanges(
     }
 
     // Otherwise, insert the next upsert.
-    target_fields[target_index].key = nanopb::MakeBytesArray(upsert_it->first);
+    target_fields[target_index].key = MakeBytesArray(upsert_it->first);
     target_fields[target_index].value = DeepClone(upsert_it->second);
     ++upsert_it;
     ++target_index;
@@ -231,55 +307,6 @@ void MutableObjectValue::ApplyChanges(
 
   parent->fields = target_fields;
   parent->fields_count = target_count;
-}
-
-void MutableObjectValue::Delete(const FieldPath& path) {
-  HARD_ASSERT(!path.empty(), "Cannot set field for empty path on ObjectValue");
-
-  google_firestore_v1_Value* nested_value = value_.get();
-  for (const std::string& segment : path.PopLast()) {
-    _google_firestore_v1_MapValue_FieldsEntry* entry =
-        FindEntry(*nested_value, segment);
-    if (!entry) {
-      // If the entry is not found, exit early. There is nothing to delete.
-      return;
-    }
-    nested_value = &entry->value;
-  }
-
-  // We can only delete a leaf entry if its parent is a map.
-  if (nested_value->which_value_type ==
-      google_firestore_v1_Value_map_value_tag) {
-    std::set<std::string> deletes{path.last_segment()};
-    ApplyChanges(&nested_value->map_value, /* upserts= */ {}, deletes);
-  }
-}
-
-_google_firestore_v1_MapValue_FieldsEntry* MutableObjectValue::FindEntry(
-    const google_firestore_v1_Value& value, const std::string& segment) {
-  if (value.which_value_type == google_firestore_v1_Value_map_value_tag) {
-    const _google_firestore_v1_MapValue& map_value = value.map_value;
-
-    // MapValues in iOS are always stored in sorted order. Binary search for the
-    // key.
-    pb_size_t low = 0;
-    pb_size_t high = map_value.fields_count;
-
-    while (low < high) {
-      int mid = (low + (high - 1)) / 2;
-
-      absl::string_view current_key =
-          nanopb::MakeStringView(map_value.fields[mid].key);
-      if (current_key < segment) {
-        low = mid + 1;
-      } else if (current_key == segment) {
-        return &map_value.fields[mid];
-      } else {
-        high = mid;
-      }
-    }
-  }
-  return nullptr;
 }
 
 }  // namespace model
