@@ -57,7 +57,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh FirebaseDatabase "${{ matrix.target }}"
+      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh --sdk=FirebaseDatabase --platform=${{ matrix.target }}
     - uses: actions/upload-artifact@v2
       with:
         name: codecoverage
@@ -76,7 +76,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh FirebaseFunctions "${{ matrix.target }}"
+      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh --sdk=FirebaseFunctions --platform=${{ matrix.target }}
     - uses: actions/upload-artifact@v2
       with:
         name: codecoverage
@@ -95,7 +95,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh FirebaseABTesting "${{ matrix.target }}"
+      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh --sdk=FirebaseABTesting --platform=${{ matrix.target }}
     - uses: actions/upload-artifact@v2
       with:
         name: codecoverage
@@ -114,7 +114,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh FirebaseAuth "${{ matrix.target }}"
+      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh --sdk=FirebaseAuth --platform=${{ matrix.target }}
     - uses: actions/upload-artifact@v2
       with:
         name: codecoverage
@@ -133,7 +133,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh FirebaseDynamicLinks "${{ matrix.target }}"
+      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh --sdk=FirebaseDynamicLinks --platform=${{ matrix.target }}
     - uses: actions/upload-artifact@v2
       with:
         name: codecoverage
@@ -153,7 +153,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh FirebaseFirestore "${{ matrix.target }}"
+      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh --sdk=FirebaseFirestore --platform=${{ matrix.target }}
     - uses: actions/upload-artifact@v2
       with:
         name: codecoverage
@@ -172,7 +172,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh FirebaseInAppMessaging "${{ matrix.target }}"
+      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh --sdk=FirebaseInAppMessaging --platform=${{ matrix.target }}
     - uses: actions/upload-artifact@v2
       with:
         name: codecoverage
@@ -191,7 +191,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh FirebaseInstanceID "${{ matrix.target }}"
+      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh --sdk=FirebaseInstanceID --platform=${{ matrix.target }}
     - uses: actions/upload-artifact@v2
       with:
         name: codecoverage
@@ -210,7 +210,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh FirebaseMessaging "${{ matrix.target }}"
+      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh --sdk=FirebaseMessaging --platform=${{ matrix.target }}
     - uses: actions/upload-artifact@v2
       with:
         name: codecoverage
@@ -229,7 +229,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh FirebasePerformance "${{ matrix.target }}"
+      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh --sdk=FirebasePerformance --platform=${{ matrix.target }}
     - uses: actions/upload-artifact@v2
       with:
         name: codecoverage
@@ -248,7 +248,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh FirebaseRemoteConfig "${{ matrix.target }}"
+      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh --sdk=FirebaseRemoteConfig --platform=${{ matrix.target }}
     - uses: actions/upload-artifact@v2
       with:
         name: codecoverage
@@ -267,7 +267,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh FirebaseStorage "${{ matrix.target }}"
+      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh --sdk=FirebaseStorage --platform=${{ matrix.target }}
     - uses: actions/upload-artifact@v2
       with:
         name: codecoverage
