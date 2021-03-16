@@ -47,7 +47,7 @@ let package = Package(
       name: "FirebaseDatabase",
       targets: ["FirebaseDatabase"]
     ),
-    // TODO: Re-enable after API reivew passes.
+    // TODO: Re-enable after API review passes.
 //    .library(
 //      name: "FirebaseDatabaseSwift-Beta",
 //      targets: ["FirebaseDatabaseSwift"]
