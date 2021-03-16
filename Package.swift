@@ -47,10 +47,11 @@ let package = Package(
       name: "FirebaseDatabase",
       targets: ["FirebaseDatabase"]
     ),
-    .library(
-      name: "FirebaseDatabaseSwift-Beta",
-      targets: ["FirebaseDatabaseSwift"]
-    ),
+// TODO: Re-enable after API reivew passes.
+//    .library(
+//      name: "FirebaseDatabaseSwift-Beta",
+//      targets: ["FirebaseDatabaseSwift"]
+//    ),
     .library(
       name: "FirebaseDynamicLinks",
       targets: ["FirebaseDynamicLinksTarget"]
