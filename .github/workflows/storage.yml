@@ -1,6 +1,7 @@
 name: storage
 
 on:
+
   pull_request:
     paths:
     - 'FirebaseStorage**'
