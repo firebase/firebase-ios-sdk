@@ -61,11 +61,11 @@ elif [ $SDK == "FirebaseFirestore" ]; then
   scripts/install_prereqs.sh Firestore ${PLATFORM} xcodebuild
   scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${PLATFORM} xcodebuild
 else
-  # Run unit tests of pods and put xcresult bundles into output_path, which
+  # Run unit tests of pods and put xcresult bundles into OUTPUT_PATH, which
   # should be a targeted dir of actions/upload-artifact in workflows.
-  # In code coverage workflow, files under output_path will be uploaded to
+  # In code coverage workflow, files under OUTPUT_PATH will be uploaded to
   # Github Actions.
   scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb "${SDK}".podspec --platforms="$(tr '[:upper:]' '[:lower:]'<<<${PLATFORM})" --test-specs="${TEST_SPEC}"
 fi
 
-find /Users/runner/Library/Developer/Xcode/DerivedData -type d -regex ".*/.*\.xcresult" -execdir cp -R '{}' "${output_path}" \;
+find /Users/runner/Library/Developer/Xcode/DerivedData -type d -regex ".*/.*\.xcresult" -execdir cp -R '{}' "${OUTPUT_PATH}" \;
