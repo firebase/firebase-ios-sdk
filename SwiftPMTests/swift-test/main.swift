@@ -26,6 +26,10 @@ import FirebaseFirestore
 import FirebaseFirestoreSwift
 import FirebaseFunctions
 import FirebaseInAppMessaging
+#if os(iOS) || os(tvOS)
+  @testable import FirebaseInAppMessagingSwift
+  import SwiftUI
+#endif
 import FirebaseInstallations
 import FirebaseMessaging
 import FirebaseRemoteConfig
@@ -64,4 +68,50 @@ class importTest: XCTestCase {
 
     print("System version? Answer: \(GULAppEnvironmentUtil.systemVersion())")
   }
+
+  #if os(iOS) || os(tvOS)
+    func testSwiftUI() {
+      if #available(iOS 13, *) {
+        _ = ImageOnlyInAppMessageDisplayViewModifier { _, _ in
+          EmptyView()
+        }
+
+        _ = BannerInAppMessageDisplayViewModifier { _, _ in
+          EmptyView()
+        }
+
+        _ = CardInAppMessageDisplayViewModifier { _, _ in
+          EmptyView()
+        }
+
+        _ = ModalInAppMessageDisplayViewModifier { _, _ in
+          EmptyView()
+        }
+
+        XCTAssertNotNil(
+          EmptyView().imageOnlyInAppMessage { _, _ in
+            EmptyView()
+          }
+        )
+
+        XCTAssertNotNil(
+          EmptyView().bannerInAppMessage { _, _ in
+            EmptyView()
+          }
+        )
+
+        XCTAssertNotNil(
+          EmptyView().cardInAppMessage { _, _ in
+            EmptyView()
+          }
+        )
+
+        XCTAssertNotNil(
+          EmptyView().modalInAppMessage { _, _ in
+            EmptyView()
+          }
+        )
+      }
+    }
+  #endif
 }
