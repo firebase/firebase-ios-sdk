@@ -18,7 +18,7 @@ on:
       custom_spec_repos:
         description: 'Custom Podspec repos'
         required: true
-        default: 'https://cpdc-internal.git.corp.google.com/firebase.git'
+        default: 'https://github.com/firebase/SpecsStaging.git'
 
 jobs:
   build:

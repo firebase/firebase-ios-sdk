@@ -21,6 +21,8 @@ NS_ASSUME_NONNULL_BEGIN
 @class FIRCLSDataCollectionToken;
 @class FIRCrashlyticsReport;
 
+FOUNDATION_EXPORT NSUInteger const FIRCLSMaxUnsentReports;
+
 @interface FIRCLSExistingReportManager : NSObject
 
 /**
@@ -60,6 +62,10 @@ NS_ASSUME_NONNULL_BEGIN
  * new report for this run of the app has been created. Any
  * reports in ExistingReportManager will be uploaded or deleted
  * and we don't want to do that for the current run of the app.
+ *
+ * If there are over MAX_UNSENT_REPORTS valid reports, this will delete them.
+ *
+ * This methods is slow and should be called only once.
  */
 - (void)collectExistingReports;
 

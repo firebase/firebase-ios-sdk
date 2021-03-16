@@ -14,10 +14,26 @@
 
 import XCTest
 import FirebaseAnalytics
+#if canImport(SwiftUI)
+  import SwiftUI
+  import FirebaseAnalyticsSwift
+#endif
 
 class importTest: XCTestCase {
   func testAnalyticsImported() {
     Analytics.logEvent(AnalyticsEventEcommercePurchase,
                        parameters: [AnalyticsParameterShipping: 10.0])
+  }
+
+  @available(iOS 13, *)
+  @available(tvOS, unavailable)
+  @available(macOS, unavailable)
+  @available(macCatalyst, unavailable)
+  @available(watchOS, unavailable)
+  func testAnalyticsSwiftImported() {
+    _ = Text("Hello, Analytics")
+      .analyticsScreen(name: "analytics_text",
+                       class: "Greeting",
+                       extraParameters: ["greeted": true])
   }
 }

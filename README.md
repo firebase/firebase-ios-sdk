@@ -187,6 +187,10 @@ files without real values, but can be replaced with real plist files. To get you
 identifier (e.g. `com.google.Database-Example`)
 4. Download the resulting `GoogleService-Info.plist` and add it to the Xcode project.
 
+### Coverage Report Generation
+
+See [scripts/code_coverage_report/README.md](scripts/code_coverage_report/README.md).
+
 ## Specific Component Instructions
 See the sections below for any special instructions for those components.
 
