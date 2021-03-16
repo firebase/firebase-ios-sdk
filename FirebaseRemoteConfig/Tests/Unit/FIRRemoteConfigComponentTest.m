@@ -176,7 +176,7 @@
   FIRApp *app = [[FIRApp alloc] initInstanceWithName:appName options:options];
   FIRRemoteConfigComponent *component = [[FIRRemoteConfigComponent alloc] initWithApp:app];
 
-  // Creating a Remote Config instance should fail since the GCMSenderID is empty.
+  // Creating a Remote Config instance should fail since the projectID is empty.
   XCTAssertThrows([component remoteConfigForNamespace:@"some_namespace"]);
 }
 
@@ -192,7 +192,7 @@
   FIRApp *app = [[FIRApp alloc] initInstanceWithName:appName options:options];
   FIRRemoteConfigComponent *component = [[FIRRemoteConfigComponent alloc] initWithApp:app];
 
-  // Creating a Remote Config instance should fail since the GCMSenderID is empty.
+  // Creating a Remote Config instance should fail since the projectID is empty.
   XCTAssertThrows([component remoteConfigForNamespace:@"some_namespace"]);
 }
 
