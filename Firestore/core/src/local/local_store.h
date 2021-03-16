@@ -18,9 +18,13 @@
 #define FIRESTORE_CORE_SRC_LOCAL_LOCAL_STORE_H_
 
 #include <memory>
+#include <string>
 #include <unordered_map>
 #include <vector>
 
+#include "Firestore/core/src/bundle/bundle_callback.h"
+#include "Firestore/core/src/bundle/bundle_metadata.h"
+#include "Firestore/core/src/bundle/named_query.h"
 #include "Firestore/core/src/core/target_id_generator.h"
 #include "Firestore/core/src/local/reference_set.h"
 #include "Firestore/core/src/local/target_data.h"
@@ -45,6 +49,7 @@ class TargetChange;
 
 namespace local {
 
+class BundleCache;
 class LocalDocumentsView;
 class LocalViewChanges;
 class LocalWriteResult;
@@ -98,7 +103,7 @@ struct LruResults;
  * cache of the documents, to provide the initial set of results before any
  * remote changes have been received.
  */
-class LocalStore {
+class LocalStore : public bundle::BundleCallback {
  public:
   LocalStore(Persistence* persistence,
              QueryEngine* query_engine,
@@ -238,6 +243,36 @@ class LocalStore {
 
   LruResults CollectGarbage(LruGarbageCollector* garbage_collector);
 
+  /**
+   * Returns whether the given bundle has already been loaded and its create
+   * time is newer or equal to the currently loading bundle.
+   */
+  bool HasNewerBundle(const bundle::BundleMetadata& metadata);
+
+  /** Saves the given `BundleMetadata` to local persistence. */
+  void SaveBundle(const bundle::BundleMetadata& metadata) override;
+
+  /**
+   * Applies the documents from a bundle to the "ground-state" (remote)
+   * documents.
+   *
+   * Local documents are re-calculated if there are remaining mutations in the
+   * queue.
+   */
+  model::MaybeDocumentMap ApplyBundledDocuments(
+      const model::MaybeDocumentMap& documents,
+      const std::string& bundle_id) override;
+
+  /** Saves the given `NamedQuery` to local persistence. */
+  void SaveNamedQuery(const bundle::NamedQuery& query,
+                      const model::DocumentKeySet& keys) override;
+
+  /**
+   * Returns the NameQuery associated with query_name or `nullopt` if not found.
+   */
+  absl::optional<bundle::NamedQuery> GetNamedQuery(
+      const std::string& query_name);
+
  private:
   friend class LocalStoreTest;  // for `GetTargetData()`
 
@@ -265,6 +300,33 @@ class LocalStore {
    */
   absl::optional<TargetData> GetTargetData(const core::Target& query);
 
+  /**
+   * Creates a new target using the given bundle name, which will be used to
+   * hold the keys of all documents from the bundle in query-document mappings.
+   * This ensures that the loaded documents do not get garbage collected right
+   * away.
+   */
+  static core::Target NewUmbrellaTarget(const std::string& bundle_id);
+
+  /**
+   * Populates the remote document cache with documents from backend or a
+   * bundle. Returns the document changes resulting from applying those
+   * documents.
+   *
+   * Note: this function will use `document_versions` if it is defined. When it
+   * is not defined, it resorts to `global_version`.
+   *
+   * @param documents Documents to be applied.
+   * @param document_versions A DocumentKey-to-SnapshotVersion map if documents
+   * have their own read time.
+   * @param global_version A SnapshotVersion representing the read time if all
+   * documents have the same read time.
+   */
+  model::OptionalMaybeDocumentMap PopulateDocumentChanges(
+      const model::DocumentUpdateMap& documents,
+      const model::DocumentVersionMap& document_versions,
+      const model::SnapshotVersion& global_version);
+
   /** Manages our in-memory or durable persistence. Owned by FirestoreClient. */
   Persistence* persistence_ = nullptr;
 
@@ -282,6 +344,9 @@ class LocalStore {
 
   /** Maps a query to the data about that query. */
   TargetCache* target_cache_ = nullptr;
+
+  /** Holds information about the bundles loaded into the SDK. */
+  BundleCache* bundle_cache_ = nullptr;
 
   /**
    * Performs queries over the localDocuments (and potentially maintains

@@ -38,6 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTEventAccumulator {
   NSMutableArray<id> *_events;
+  bool _rejectAdditionalEvents;
 }
 
 + (instancetype)accumulatorForTest:(XCTestCase *)testCase {
@@ -48,6 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
   if (self = [super init]) {
     _testCase = testCase;
     _events = [NSMutableArray array];
+    _rejectAdditionalEvents = false;
   }
   return self;
 }
@@ -103,10 +105,18 @@ NS_ASSUME_NONNULL_BEGIN
     id event = value ? value : [NSNull null];
 
     @synchronized(self) {
+      HARD_ASSERT(!self->_rejectAdditionalEvents, "Unexpected event: %s", event);
+
       [self->_events addObject:event];
       [self checkFulfilled];
     }
   };
+}
+
+- (void)assertNoAdditionalEvents {
+  @synchronized(self) {
+    _rejectAdditionalEvents = true;
+  }
 }
 
 - (void)checkFulfilled {
