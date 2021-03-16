@@ -16,7 +16,7 @@ import SwiftUI
 import FirebaseInAppMessaging
 
 struct ContentView: View {
-  @State var analyticsEvent = ""
+  @State private var analyticsEvent = ""
 
   var body: some View {
     VStack {
