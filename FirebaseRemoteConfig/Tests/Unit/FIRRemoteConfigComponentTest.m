@@ -184,7 +184,7 @@
   FIROptions *options = [self fakeOptions];
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
-  options.GCMSenderID = nil;
+  options.projectID = nil;
 #pragma clang diagnostic pop
 
   // Create the provider to vend Remote Config instances.
