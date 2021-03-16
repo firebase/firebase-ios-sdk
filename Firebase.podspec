@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'Firebase'
-  s.version          = '7.8.0'
+  s.version          = '7.8.1'
   s.summary          = 'Firebase'
 
   s.description      = <<-DESC
@@ -34,7 +34,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.ios.deployment_target = '9.0'
     ss.osx.deployment_target = '10.12'
     ss.tvos.deployment_target = '10.0'
-    ss.ios.dependency 'FirebaseAnalytics', '7.8.0'
+    ss.ios.dependency 'FirebaseAnalytics', '7.8.1'
     ss.dependency 'Firebase/CoreOnly'
   end
 
