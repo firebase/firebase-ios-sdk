@@ -136,7 +136,7 @@ target_link_libraries(
   absl_meta
   absl_optional
   absl_strings
-  absl_time
+  absl::time
 )
 
 if(HAVE_OPENSSL_RAND_H)
