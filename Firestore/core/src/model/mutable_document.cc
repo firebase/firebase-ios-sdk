@@ -16,45 +16,42 @@
 
 #include "Firestore/core/src/model/mutable_document.h"
 
+#include <sstream>
+
 namespace firebase {
 namespace firestore {
 namespace model {
 
 /* static */
 MutableDocument MutableDocument::InvalidDocument(
-    const firebase::firestore::model::DocumentKey& document_key) {
-  return MutableDocument{document_key, DocumentType::kInvalid,
-                         SnapshotVersion::None(), ObjectValue{},
-                         DocumentState::kSynced};
+    const DocumentKey& document_key) {
+  return {document_key, DocumentType::kInvalid, SnapshotVersion::None(),
+          ObjectValue{}, DocumentState::kSynced};
 }
 
 /* static */
-MutableDocument MutableDocument::FoundDocument(
-    const firebase::firestore::model::DocumentKey& document_key,
-    const firebase::firestore::model::SnapshotVersion& version,
-    firebase::firestore::model::ObjectValue value) {
+MutableDocument MutableDocument::FoundDocument(const DocumentKey& document_key,
+                                               const SnapshotVersion& version,
+                                               ObjectValue value) {
   return std::move(InvalidDocument(document_key)
                        .ConvertToFoundDocument(version, std::move(value)));
 }
 
 /* static */
-MutableDocument MutableDocument::NoDocument(
-    const firebase::firestore::model::DocumentKey& document_key,
-    const firebase::firestore::model::SnapshotVersion& version) {
+MutableDocument MutableDocument::NoDocument(const DocumentKey& document_key,
+                                            const SnapshotVersion& version) {
   return std::move(InvalidDocument(document_key).ConvertToNoDocument(version));
 }
 
 /* static */
 MutableDocument MutableDocument::UnknownDocument(
-    const firebase::firestore::model::DocumentKey& document_key,
-    const firebase::firestore::model::SnapshotVersion& version) {
+    const DocumentKey& document_key, const SnapshotVersion& version) {
   return std::move(
       InvalidDocument(document_key).ConvertToUnknownDocument(version));
 }
 
 MutableDocument& MutableDocument::ConvertToFoundDocument(
-    const firebase::firestore::model::SnapshotVersion& version,
-    firebase::firestore::model::ObjectValue value) {
+    const SnapshotVersion& version, ObjectValue value) {
   version_ = version;
   document_type_ = DocumentType::kFoundDocument;
   value_ = std::move(value);
@@ -63,7 +60,7 @@ MutableDocument& MutableDocument::ConvertToFoundDocument(
 }
 
 MutableDocument& MutableDocument::ConvertToNoDocument(
-    const firebase::firestore::model::SnapshotVersion& version) {
+    const SnapshotVersion& version) {
   version_ = version;
   document_type_ = DocumentType::kNoDocument;
   value_ = {};
@@ -72,7 +69,7 @@ MutableDocument& MutableDocument::ConvertToNoDocument(
 }
 
 MutableDocument& MutableDocument::ConvertToUnknownDocument(
-    const firebase::firestore::model::SnapshotVersion& version) {
+    const SnapshotVersion& version) {
   version_ = version;
   document_type_ = DocumentType::kUnknownDocument;
   value_ = {};
@@ -90,10 +87,18 @@ MutableDocument& MutableDocument::SetHasLocalMutations() {
   return *this;
 }
 
+std::string MutableDocument::ToString() const {
+  std::stringstream stream;
+  stream << "MutableDocument(key=" << key_ << ", type=" << document_type_
+         << ", version=" << version_ << ", value=" << value_
+         << ", state=" << document_state_;
+  return stream.str();
+}
+
 bool operator==(const MutableDocument& lhs, const MutableDocument& rhs) {
   return lhs.key_ == rhs.key_ && lhs.document_type_ == rhs.document_type_ &&
-         lhs.version_ == rhs.version_ && lhs.value_ == rhs.value_ &&
-         lhs.document_state_ == rhs.document_state_;
+         lhs.version_ == rhs.version_ &&
+         lhs.document_state_ == rhs.document_state_ && lhs.value_ == rhs.value_;
 }
 
 std::ostream& operator<<(std::ostream& os,
@@ -124,12 +129,6 @@ std::ostream& operator<<(std::ostream& os,
   }
 
   UNREACHABLE();
-}
-
-std::ostream& operator<<(std::ostream& os, const MutableDocument& doc) {
-  return os << "MutableDocument(key=" << doc.key_
-            << ", type=" << doc.document_type_ << ", version=" << doc.version_
-            << ", value=" << doc.value_ << ", state=" << doc.document_state_;
 }
 
 }  // namespace model

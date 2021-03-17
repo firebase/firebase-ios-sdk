@@ -68,11 +68,15 @@ class MutableDocument {
 
   /** Describes the `hasPendingWrites` state of a document. */
   enum class DocumentState {
-    /** Local mutations applied via the mutation queue. Document is potentially
-       inconsistent. */
+    /**
+     * Local mutations applied via the mutation queue. Document is potentially
+     * inconsistent.
+     */
     kHasLocalMutations,
-    /** Mutations applied based on a write acknowledgment. Document is
-       potentially inconsistent. */
+    /**
+     * Mutations applied based on a write acknowledgment. Document is
+     * potentially inconsistent.
+     */
     kHasCommittedMutations,
     /** No mutations applied. Document was sent to us by Watch. */
     kSynced
@@ -88,19 +92,21 @@ class MutableDocument {
   MutableDocument(MutableDocument&& other) noexcept
       : key_{std::move(other.key_)},
         document_type_{other.document_type_},
-        version_{other.version_},
+        version_{std::move(other.version_)},
         value_{std::move(other.value_)},
         document_state_{other.document_state_} {
   }
 
   /**
-   * Creates a document with no known version or data, but which can serve as
-   * base document for mutations.
+   * Creates a document with no known version or data. This document can serve
+   * as a base document for mutations.
    */
   static MutableDocument InvalidDocument(const DocumentKey& document_key);
 
-  /** Creates a new document that is known to exist with the given data at the
-   * given version. */
+  /**
+   * Creates a new document that is known to exist with the given data at the
+   * given version.
+   */
   static MutableDocument FoundDocument(const DocumentKey& document_key,
                                        const SnapshotVersion& version,
                                        ObjectValue value);
@@ -124,8 +130,10 @@ class MutableDocument {
   MutableDocument& ConvertToFoundDocument(const SnapshotVersion& version,
                                           ObjectValue value);
 
-  /** Changes the document type to indicate that it doesn't exist at the given
-   * version. */
+  /**
+   * Changes the document type to indicate that it doesn't exist at the given
+   * version.
+   */
   MutableDocument& ConvertToNoDocument(const SnapshotVersion& version);
 
   /**
@@ -159,7 +167,7 @@ class MutableDocument {
     return has_local_mutations() || has_committed_mutations();
   }
 
-  const model::ObjectValue& data() const {
+  const ObjectValue& data() const {
     return value_;
   }
 
@@ -170,7 +178,7 @@ class MutableDocument {
    * @param field_path the path to search.
    * @return The value at the path or absl::nullopt if it doesn't exist.
    */
-  absl::optional<FieldValue> field(const model::FieldPath& field_path) const {
+  absl::optional<FieldValue> field(const FieldPath& field_path) const {
     return value_.Get(field_path);
   }
 
@@ -190,10 +198,11 @@ class MutableDocument {
     return document_type_ == DocumentType ::kUnknownDocument;
   }
 
+  std::string ToString() const;
+
   friend bool operator==(const MutableDocument& lhs,
                          const MutableDocument& rhs);
 
-  friend std::ostream& operator<<(std::ostream& os, const MutableDocument& doc);
   friend std::ostream& operator<<(std::ostream& os, DocumentState state);
   friend std::ostream& operator<<(std::ostream& os, DocumentType type);
 
@@ -205,7 +214,7 @@ class MutableDocument {
                   DocumentState document_state)
       : key_{std::move(key)},
         document_type_{document_type},
-        version_{version},
+        version_{std::move(version)},
         value_{std::move(value)},
         document_state_{document_state} {
   }
@@ -219,7 +228,9 @@ class MutableDocument {
 
 bool operator==(const MutableDocument& lhs, const MutableDocument& rhs);
 
-std::ostream& operator<<(std::ostream& os, const MutableDocument& doc);
+std::ostream& operator<<(std::ostream& os, const MutableDocument& doc) {
+  return os << doc.ToString();
+}
 
 inline bool operator!=(const MutableDocument& lhs, const MutableDocument& rhs) {
   return !(lhs == rhs);
