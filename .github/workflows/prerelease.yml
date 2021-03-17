@@ -5,6 +5,8 @@ on:
     paths:
     - '.github/workflows/prerelease.yml'
     - 'Gemfile'
+    # Revert me. Test that Firestore podspec is fixed.
+    - 'FirebaseFirestore.podspec'
   workflow_dispatch:
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
