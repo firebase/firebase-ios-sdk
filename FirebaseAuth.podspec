@@ -47,6 +47,7 @@ supports email and password accounts, as well as several 3rd party authenticatio
   s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.0'
   s.dependency 'GoogleUtilities/Environment', '~> 7.0'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.4'
+  s.dependency 'GoogleMulticastAppDelegate', '~> 7.0'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }
