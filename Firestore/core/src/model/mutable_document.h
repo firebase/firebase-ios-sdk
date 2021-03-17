@@ -19,6 +19,7 @@
 
 #include <ostream>
 #include <utility>
+#include <string>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/model/document_key.h"

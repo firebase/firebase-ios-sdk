@@ -17,7 +17,6 @@
 #include "Firestore/core/src/model/mutable_document.h"
 
 #include <sstream>
-#include <string>
 
 namespace firebase {
 namespace firestore {
