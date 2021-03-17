@@ -933,7 +933,8 @@ TEST_F(BundleSerializerTest, DecodeMissingOrderBysWorks) {
   // This is `NamedQueryToJson(testutil::Query("bundles/docs/colls"))` with
   // orderBy field manually removed.
   auto json_string = R"|(
-{"name":"query-1",
+{
+  "name":"query-1",
   "bundledQuery":{
     "parent":"projects/p/databases/default/documents/bundles/docs",
     "structuredQuery":{"from":[{"collectionId":"colls"}]}
