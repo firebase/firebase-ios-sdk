@@ -490,6 +490,8 @@ let package = Package(
         "core/test/",
         "fuzzing/",
         "test.sh",
+        // Swift PM doesn't recognize hpp files, so we're relying on search paths
+        // to find third_party/nlohmann_json/json.hpp.
         "third_party/",
 
         // Exclude alternate implementations for other platforms
@@ -547,6 +549,7 @@ let package = Package(
         "Swift/CHANGELOG.md",
         "Swift/README.md",
         "Swift/Tests/",
+        "third_party/nlohmann_json",
         "third_party/FirestoreEncoder/LICENSE",
         "third_party/FirestoreEncoder/METADATA",
       ],
