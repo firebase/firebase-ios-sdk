@@ -23,6 +23,7 @@
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/Protos/nanopb/google/firestore/v1/firestore.nanopb.h"
 #include "Firestore/Protos/nanopb/google/type/latlng.nanopb.h"
+#include "Firestore/core/src/nanopb/message.h"
 
 namespace firebase {
 namespace firestore {
@@ -130,6 +131,12 @@ inline const pb_field_t* FieldsArray<google_firestore_v1_Target_QueryTarget>() {
 template <>
 inline const pb_field_t* FieldsArray<google_firestore_v1_Value>() {
   return google_firestore_v1_Value_fields;
+}
+
+template <>
+inline const pb_field_t*
+FieldsArray<google_firestore_v1_MapValue_FieldsEntry>() {
+  return google_firestore_v1_MapValue_FieldsEntry_fields;
 }
 
 template <>
