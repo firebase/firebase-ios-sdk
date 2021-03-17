@@ -33,5 +33,5 @@ See more product details at https://firebase.google.com/products/in-app-messagin
       unit_tests.requires_app_host = true
    end
 
-  s.dependency 'FirebaseInAppMessaging'
+  s.dependency 'FirebaseInAppMessaging', '~> 7.8-beta'
 end
