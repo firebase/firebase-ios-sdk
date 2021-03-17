@@ -129,9 +129,9 @@ void ApplyChanges(
 
       // Check if the source key is updated by the next upsert
       if (upsert_it != upserts.end() && upsert_it->first == key) {
-        FreeNanopbMessage(google_firestore_v1_Value_fields,
-                          &source_fields[source_index].value);
-        target_fields[target_index].key = source_fields[source_index].key;
+        FreeNanopbMessage(google_firestore_v1_MapValue_FieldsEntry_fields,
+                          &source_fields[source_index]);
+        target_fields[target_index].key = MakeBytesArray(upsert_it->first);
         target_fields[target_index].value = DeepClone(upsert_it->second);
 
         ++upsert_it;
