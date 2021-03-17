@@ -35,7 +35,6 @@ jobs:
       run: |
          ossbotaccess=`cat oss-bot-access.txt`
          BOT_TOKEN="${ossbotaccess}" scripts/release_testing_setup.sh nightly_testing
-         BOT_TOKEN="${ossbotaccess}" sdk_version_config="${GITHUB_WORKSPACE}/scripts/create_spec_repo/RC_firebase_sdk.textproto" local_sdk_repo_dir="${local_sdk_repo_dir}" podspec_repo_branch="${podspec_repo_branch}" scripts/release_testing_setup.sh RC_testing
     - name: Update SpecsTesting repo
       run: |
         botaccess=`cat bot-access.txt`
