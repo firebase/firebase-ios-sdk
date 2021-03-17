@@ -115,7 +115,7 @@ void ApplyChanges(
   for (pb_size_t source_index = 0, target_index = 0;
        target_index < target_count;) {
     if (source_index < source_count) {
-      absl::string_view key = MakeString(source_fields[source_index].key);
+      std::string key = MakeString(source_fields[source_index].key);
 
       // Check if the source key is deleted
       if (delete_it != deletes.end() && *delete_it == key) {
@@ -129,9 +129,9 @@ void ApplyChanges(
 
       // Check if the source key is updated by the next upsert
       if (upsert_it != upserts.end() && upsert_it->first == key) {
-        FreeNanopbMessage(google_firestore_v1_MapValue_FieldsEntry_fields,
-                          &source_fields[source_index]);
-        target_fields[target_index].key = MakeBytesArray(upsert_it->first);
+        FreeNanopbMessage(google_firestore_v1_Value_fields,
+                          &source_fields[source_index].value);
+        target_fields[target_index].key = source_fields[source_index].key;
         target_fields[target_index].value = DeepClone(upsert_it->second);
 
         ++upsert_it;
