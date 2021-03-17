@@ -327,11 +327,15 @@
 }
 
 - (void)receiveWebSocketData {
-    __weak FWebSocketConnection *weakSelf = self;
+    __weak __autotype *weakSelf = self;
     [self.webSocketTask receiveMessageWithCompletionHandler:^(
                             NSURLSessionWebSocketMessage *_Nullable message,
                             NSError *_Nullable error) {
-      FWebSocketConnection *strongSelf = weakSelf;
+      __autotype *strongSelf = weakSelf;
+      if (strongSelf == nil ) {
+        return;
+      }
+
       if (message) {
           [strongSelf handleIncomingFrame:message.string];
       } else if (error && !strongSelf->isClosed) {
