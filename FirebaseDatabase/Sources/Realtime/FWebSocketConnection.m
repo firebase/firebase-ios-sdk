@@ -332,7 +332,7 @@
                             NSURLSessionWebSocketMessage *_Nullable message,
                             NSError *_Nullable error) {
       __autotype *strongSelf = weakSelf;
-      if (strongSelf == nil ) {
+      if (strongSelf == nil) {
         return;
       }
 
