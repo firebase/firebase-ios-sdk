@@ -327,20 +327,26 @@
 }
 
 - (void)receiveWebSocketData {
+    __weak __auto_type weakSelf = self;
     [self.webSocketTask receiveMessageWithCompletionHandler:^(
                             NSURLSessionWebSocketMessage *_Nullable message,
                             NSError *_Nullable error) {
-      if (message) {
-          [self handleIncomingFrame:message.string];
-      } else if (error && !isClosed) {
-          FFWarn(@"I-RDB083020",
-                 @"Error received from web socket, closing the connection. %@",
-                 error);
-          [self shutdown];
+      __auto_type strongSelf = weakSelf;
+      if (strongSelf == nil) {
           return;
       }
 
-      [self receiveWebSocketData];
+      if (message) {
+          [strongSelf handleIncomingFrame:message.string];
+      } else if (error && !strongSelf->isClosed) {
+          FFWarn(@"I-RDB083020",
+                 @"Error received from web socket, closing the connection. %@",
+                 error);
+          [strongSelf shutdown];
+          return;
+      }
+
+      [strongSelf receiveWebSocketData];
     }];
 }
 
