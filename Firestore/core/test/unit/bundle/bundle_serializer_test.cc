@@ -21,6 +21,7 @@
 #include "Firestore/Protos/cpp/google/firestore/v1/document.pb.h"
 #include "Firestore/core/src/core/field_filter.h"
 #include "Firestore/core/src/core/query.h"
+#include "Firestore/core/src/core/target.h"
 #include "Firestore/core/src/local/local_serializer.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
@@ -49,6 +50,7 @@ using ProtoMaybeDocument = ::firestore::client::MaybeDocument;
 using ProtoNamedQuery = ::firestore::NamedQuery;
 using ProtoValue = ::google::firestore::v1::Value;
 using core::Query;
+using core::Target;
 using local::LocalSerializer;
 using model::DatabaseId;
 using nanopb::ByteString;
@@ -922,6 +924,39 @@ TEST_F(BundleSerializerTest, DecodesOrderBys) {
                              .AddingOrderBy(OrderBy("f3", "desc"));
 
   VerifyNamedQueryRoundtrip(original);
+}
+
+// By default, the queries used for testing in this file always have default
+// OrderBy ("__name__") generated. We need to explicitly remove that for this
+// test.
+TEST_F(BundleSerializerTest, DecodeMissingOrderBysWorks) {
+  // This is `NamedQueryToJson(testutil::Query("bundles/docs/colls"))` with
+  // orderBy field manually removed.
+  auto json_string = R"|(
+{
+  "name":"query-1",
+  "bundledQuery":{
+    "parent":"projects/p/databases/default/documents/bundles/docs",
+    "structuredQuery":{"from":[{"collectionId":"colls"}]}
+  },
+  "readTime":"2021-03-17T14:04:20.166729927Z"
+}
+)|";
+  JsonReader reader;
+  auto named_query =
+      bundle_serializer.DecodeNamedQuery(reader, Parse(json_string));
+
+  EXPECT_OK(reader.status());
+  EXPECT_EQ(named_query.query_name(), "query-1");
+
+  // Reconstruct a core::Query from the deserialized target, this is how
+  // eventually the named query is used.
+  const Target& target = named_query.bundled_query().target();
+  Query query(target.path(), target.collection_group(), target.filters(),
+              target.order_bys(), target.limit(),
+              named_query.bundled_query().limit_type(), target.start_at(),
+              target.end_at());
+  EXPECT_EQ(query.ToTarget(), testutil::Query("bundles/docs/colls").ToTarget());
 }
 
 TEST_F(BundleSerializerTest, DecodeInvalidOrderBysFails) {
