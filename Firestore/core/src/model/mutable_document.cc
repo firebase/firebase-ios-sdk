@@ -106,6 +106,8 @@ std::ostream& operator<<(std::ostream& os,
     case MutableDocument::DocumentState::kSynced:
       return os << "kSynced";
   }
+
+  UNREACHABLE();
 }
 
 std::ostream& operator<<(std::ostream& os,
@@ -120,6 +122,8 @@ std::ostream& operator<<(std::ostream& os,
     case MutableDocument::DocumentType::kUnknownDocument:
       return os << "kUnknownDocument";
   }
+
+  UNREACHABLE();
 }
 
 std::ostream& operator<<(std::ostream& os, const MutableDocument& doc) {
