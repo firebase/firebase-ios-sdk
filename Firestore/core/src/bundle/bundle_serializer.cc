@@ -239,7 +239,9 @@ Filter DecodeUnaryFilter(JsonReader& reader, const json& filter) {
 
 OrderByList DecodeOrderBy(JsonReader& reader, const json& query) {
   OrderByList result;
-  for (const auto& order_by : reader.RequiredArray("orderBy", query)) {
+  std::vector<json> default_order_by;
+  for (const auto& order_by :
+       reader.OptionalArray("orderBy", query, default_order_by)) {
     FieldPath path =
         DecodeFieldReference(reader, reader.RequiredObject("field", order_by));
 
@@ -349,7 +351,7 @@ const std::vector<json>& JsonReader::RequiredArray(const char* name,
     }
   }
 
-  Fail("'%s' is missing or is not a string", name);
+  Fail("'%s' is missing or is not an array", name);
   return EmptyVector<json>();
 }
 
