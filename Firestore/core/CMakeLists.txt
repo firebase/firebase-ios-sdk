@@ -234,6 +234,7 @@ target_link_libraries(
   firestore_core PUBLIC
   LevelDB::LevelDB
   absl::base
+  absl::flat_hash_map
   absl::memory
   absl::meta
   absl::optional
