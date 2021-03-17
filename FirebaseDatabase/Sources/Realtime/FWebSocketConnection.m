@@ -327,11 +327,11 @@
 }
 
 - (void)receiveWebSocketData {
-    __weak __autotype *weakSelf = self;
+    __weak __auto_type weakSelf = self;
     [self.webSocketTask receiveMessageWithCompletionHandler:^(
                             NSURLSessionWebSocketMessage *_Nullable message,
                             NSError *_Nullable error) {
-      __autotype *strongSelf = weakSelf;
+      __auto_type strongSelf = weakSelf;
       if (strongSelf == nil) {
           return;
       }
