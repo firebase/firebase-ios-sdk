@@ -32,7 +32,7 @@ namespace model {
 namespace {
 
 using nanopb::FieldsArray;
-using nanopb::FreeNanopbMessage;
+using nanopb::FreeFieldsArray;
 using nanopb::MakeArray;
 using nanopb::MakeBytesArray;
 using nanopb::MakeString;
@@ -73,7 +73,7 @@ google_firestore_v1_MapValue_FieldsEntry* FindEntry(
 }
 
 size_t CalculateSizeOfUnion(
-    google_firestore_v1_MapValue* map_value,
+    const google_firestore_v1_MapValue& map_value,
     const std::map<std::string, google_firestore_v1_Value>& upserts,
     const std::set<std::string>& deletes) {
   // Compute the size of the map after applying all mutations. The final size is
@@ -104,7 +104,7 @@ void ApplyChanges(
   auto source_count = parent->fields_count;
   auto* source_fields = parent->fields;
 
-  size_t target_count = CalculateSizeOfUnion(parent, upserts, deletes);
+  size_t target_count = CalculateSizeOfUnion(*parent, upserts, deletes);
   auto* target_fields =
       MakeArray<google_firestore_v1_MapValue_FieldsEntry>(target_count);
 
@@ -115,12 +115,14 @@ void ApplyChanges(
   for (pb_size_t source_index = 0, target_index = 0;
        target_index < target_count;) {
     if (source_index < source_count) {
-      std::string key = MakeString(source_fields[source_index].key);
+      auto& source_entry = source_fields[source_index];
+      auto& target_entry = target_fields[target_index];
+
+      std::string source_key = MakeString(source_entry.key);
 
       // Check if the source key is deleted
-      if (delete_it != deletes.end() && *delete_it == key) {
-        FreeNanopbMessage(google_firestore_v1_MapValue_FieldsEntry_fields,
-                          source_fields + source_index);
+      if (delete_it != deletes.end() && *delete_it == source_key) {
+        FreeFieldsArray(&source_entry);
 
         ++delete_it;
         ++source_index;
@@ -128,11 +130,11 @@ void ApplyChanges(
       }
 
       // Check if the source key is updated by the next upsert
-      if (upsert_it != upserts.end() && upsert_it->first == key) {
-        FreeNanopbMessage(google_firestore_v1_Value_fields,
-                          &source_fields[source_index].value);
-        target_fields[target_index].key = source_fields[source_index].key;
-        target_fields[target_index].value = DeepClone(upsert_it->second);
+      if (upsert_it != upserts.end() && upsert_it->first == source_key) {
+        FreeFieldsArray(&source_entry.value);
+
+        target_entry.key = source_entry.key;
+        target_entry.value = DeepClone(upsert_it->second);
 
         ++upsert_it;
         ++source_index;
@@ -141,8 +143,8 @@ void ApplyChanges(
       }
 
       // Check if the source key comes before the next upsert
-      if (upsert_it == upserts.end() || upsert_it->first > key) {
-        target_fields[target_index] = source_fields[source_index];
+      if (upsert_it == upserts.end() || upsert_it->first > source_key) {
+        target_entry = source_entry;
 
         ++source_index;
         ++target_index;
@@ -151,8 +153,8 @@ void ApplyChanges(
     }
 
     // Otherwise, insert the next upsert.
-    target_fields[target_index].key = MakeBytesArray(upsert_it->first);
-    target_fields[target_index].value = DeepClone(upsert_it->second);
+    target_entry.key = MakeBytesArray(upsert_it->first);
+    target_entry.value = DeepClone(upsert_it->second);
 
     ++upsert_it;
     ++target_index;
@@ -181,11 +183,11 @@ FieldMask MutableObjectValue::ExtractFieldMask(
 
   for (size_t i = 0; i < value.fields_count; ++i) {
     const google_firestore_v1_MapValue_FieldsEntry& entry = value.fields[i];
-    FieldPath current_path({MakeString(entry.key)});
+    FieldPath current_path{MakeString(entry.key)};
 
     if (entry.value.which_value_type !=
         google_firestore_v1_Value_map_value_tag) {
-      fields.insert(std::move((current_path)));
+      fields.insert(std::move(current_path));
       continue;
     }
 
@@ -263,7 +265,7 @@ void MutableObjectValue::SetAll(const FieldMask& field_mask,
 }
 
 void MutableObjectValue::Delete(const FieldPath& path) {
-  HARD_ASSERT(!path.empty(), "Cannot set field for empty path on ObjectValue");
+  HARD_ASSERT(!path.empty(), "Cannot delete field with empty path");
 
   google_firestore_v1_Value* nested_value = value_.get();
   for (const std::string& segment : path.PopLast()) {
@@ -302,8 +304,7 @@ google_firestore_v1_MapValue* MutableObjectValue::ParentMap(
           google_firestore_v1_Value_map_value_tag) {
         // Since the element is not a map value, free all existing data and
         // change it to a map type.
-        FreeNanopbMessage(FieldsArray<google_firestore_v1_Value>(),
-                          &entry->value);
+        FreeFieldsArray(&entry->value);
         entry->value.which_value_type = google_firestore_v1_Value_map_value_tag;
       }
 

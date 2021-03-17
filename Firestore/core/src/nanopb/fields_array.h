@@ -157,6 +157,11 @@ inline const pb_field_t* FieldsArray<google_protobuf_Empty>() {
   return google_protobuf_Empty_fields;
 }
 
+template <typename T>
+void FreeFieldsArray(T* message) {
+  FreeNanopbMessage(FieldsArray<T>(), message);
+}
+
 }  // namespace nanopb
 }  // namespace firestore
 }  // namespace firebase

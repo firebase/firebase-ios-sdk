@@ -139,13 +139,15 @@ class ValueUtilTest : public ::testing::Test {
     [&] {
       nanopb::Message<google_firestore_v1_Value> clone2{DeepClone(value)};
       EXPECT_TRUE(value == *clone2)
-          << "Equality failed for '" << CanonicalId(value) << "' (before free)";
+          << "Equality failed for '" << CanonicalId(value) << "' and '"
+          << CanonicalId(*clone2) << "'";
       clone1 = nanopb::Message<google_firestore_v1_Value>{DeepClone(*clone2)};
     }();
 
     // `clone2` is destroyed at this point, but `clone1` should be still valid.
     EXPECT_TRUE(value == *clone1)
-        << "Equality failed for '" << CanonicalId(value) << "' (after free)";
+        << "Equality failed for '" << CanonicalId(value) << "' and '"
+        << CanonicalId(*clone1) << "'";
   }
 
  private:
