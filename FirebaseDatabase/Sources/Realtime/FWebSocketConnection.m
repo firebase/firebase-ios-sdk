@@ -333,7 +333,7 @@
                             NSError *_Nullable error) {
       __autotype *strongSelf = weakSelf;
       if (strongSelf == nil) {
-        return;
+          return;
       }
 
       if (message) {
