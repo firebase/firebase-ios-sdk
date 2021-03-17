@@ -134,12 +134,18 @@ class ValueUtilTest : public ::testing::Test {
   }
 
   void VerifyDeepClone(const google_firestore_v1_Value& value) {
-    // `Message` takes ownership of the proto value and destroys it. We use
-    // it to verify that all values own their own memory.
-    nanopb::Message<google_firestore_v1_Value> clone1{DeepClone(value)};
-    nanopb::Message<google_firestore_v1_Value> clone2{DeepClone(*clone1)};
-    EXPECT_TRUE(value == *clone1);
-    EXPECT_TRUE(value == *clone2);
+    nanopb::Message<google_firestore_v1_Value> clone1;
+
+    [&] {
+      nanopb::Message<google_firestore_v1_Value> clone2{DeepClone(value)};
+      EXPECT_TRUE(value == *clone2)
+          << "Equality check failed for '" << value << "' (before cleanup)";
+      clone1 = nanopb::Message<google_firestore_v1_Value>{DeepClone(*clone2)};
+    }();
+
+    // `clone2` is destroyed at this point, but `clone1` should be still valid.
+    EXPECT_TRUE(value == *clone1)
+        << "Equality check failed for '" << value << "' (after cleanup)";
   }
 
  private:

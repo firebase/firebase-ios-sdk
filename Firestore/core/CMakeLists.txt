@@ -132,6 +132,8 @@ target_compile_definitions(
 target_link_libraries(
   firestore_util PUBLIC
   absl::base
+  absl::flat_hash_map
+  absl::flat_hash_set
   absl::memory
   absl::meta
   absl::optional

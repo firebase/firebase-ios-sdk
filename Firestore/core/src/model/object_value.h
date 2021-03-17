@@ -43,6 +43,7 @@ class MutableObjectValue {
  public:
   MutableObjectValue();
 
+  /** Creates a new MutableObjectValue and takes ownership of `value`. */
   explicit MutableObjectValue(const google_firestore_v1_Value& value)
       : value_(value) {
     HARD_ASSERT(
@@ -71,7 +72,7 @@ class MutableObjectValue {
   /**
    * Sets the field to the provided value.
    *
-   * @param path The field path to set.
+   * @param path The field path to set. The path must not be empty.
    * @param value The value to set.
    */
   void Set(const FieldPath& path, const google_firestore_v1_Value& value);
@@ -90,9 +91,7 @@ class MutableObjectValue {
    * Removes the field at the specified path. If there is no field at the
    * specified path, nothing is changed.
    *
-   * The path must not be empty.
-   *
-   * @param path The field path to remove.
+   * @param path The field path to remove. The path must not be empty.
    */
   void Delete(const FieldPath& path);
 
@@ -110,15 +109,6 @@ class MutableObjectValue {
    * entry does not yet exist, or if it is not a map, a new map will be created.
    */
   google_firestore_v1_MapValue* ParentMap(const FieldPath& path);
-
-  /**
-   * Modifies `parent_map` by adding, replacing or deleting the specified
-   * entries.
-   */
-  void ApplyChanges(
-      google_firestore_v1_MapValue* parent,
-      const std::map<std::string, google_firestore_v1_Value>& upserts,
-      const std::set<std::string>& deletes) const;
 
   nanopb::Message<google_firestore_v1_Value> value_;
 };
