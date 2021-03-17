@@ -59,7 +59,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
       'FirebaseDatabase/Tests/Helpers/*.[mh]',
       'FirebaseDatabase/Tests/third_party/*.[mh]',
       'SharedTestUtilities/FIRAuthInteropFake.[mh]',
-      'SharedTestUtilities/FIRComponentTestUtilities.h',
+      'SharedTestUtilities/FIRComponentTestUtilities.[mh]',
       'SharedTestUtilities/FIROptionsMock.[mh]',
     ]
     unit_tests.dependency 'OCMock'
@@ -74,6 +74,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
       'FirebaseDatabase/Tests/Integration/*.[mh]',
       'FirebaseDatabase/Tests/Helpers/*.[mh]',
       'SharedTestUtilities/FIRAuthInteropFake.[mh]',
+      'SharedTestUtilities/FIRComponentTestUtilities.[mh]',
       'SharedTestUtilities/FIROptionsMock.[mh]',
     ]
     int_tests.dependency 'OCMock'
