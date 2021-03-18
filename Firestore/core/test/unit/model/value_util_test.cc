@@ -103,9 +103,11 @@ class ValueUtilTest : public ::testing::Test {
                       bool expected_equals) {
     for (const auto& val1 : left) {
       for (const auto& val2 : right) {
-        EXPECT_EQ(expected_equals, val1 == val2)
-            << "Equality check failed for '" << CanonicalId(val1) << "' and '"
-            << CanonicalId(val2) << "' (expected " << expected_equals << ")";
+        if (expected_equals) {
+          EXPECT_EQ(val1, val2);
+        } else {
+          EXPECT_NE(val1, val2);
+        }
       }
     }
   }
@@ -138,16 +140,12 @@ class ValueUtilTest : public ::testing::Test {
 
     [&] {
       nanopb::Message<google_firestore_v1_Value> clone2{DeepClone(value)};
-      EXPECT_TRUE(value == *clone2)
-          << "Equality failed for '" << CanonicalId(value) << "' and '"
-          << CanonicalId(*clone2) << "'";
+      EXPECT_EQ(value, *clone2);
       clone1 = nanopb::Message<google_firestore_v1_Value>{DeepClone(*clone2)};
     }();
 
     // `clone2` is destroyed at this point, but `clone1` should be still valid.
-    EXPECT_TRUE(value == *clone1)
-        << "Equality failed for '" << CanonicalId(value) << "' and '"
-        << CanonicalId(*clone1) << "'";
+    EXPECT_EQ(value, *clone1);
   }
 
  private:

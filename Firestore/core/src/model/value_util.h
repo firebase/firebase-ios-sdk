@@ -54,6 +54,9 @@ TypeOrder GetTypeOrder(const google_firestore_v1_Value& value);
 util::ComparisonResult Compare(const google_firestore_v1_Value& left,
                                const google_firestore_v1_Value& right);
 
+bool Equals(const google_firestore_v1_Value& left,
+            const google_firestore_v1_Value& right);
+
 /**
  * Generate the canonical ID for the provided field value (as used in Target
  * serialization).
@@ -63,15 +66,23 @@ std::string CanonicalId(const google_firestore_v1_Value& value);
 /** Creates a copy of the contents of the Value proto. */
 google_firestore_v1_Value DeepClone(google_firestore_v1_Value source);
 
-bool operator==(const google_firestore_v1_Value& lhs,
-                const google_firestore_v1_Value& rhs);
+}  // namespace model
+
+inline bool operator==(const google_firestore_v1_Value& lhs,
+                       const google_firestore_v1_Value& rhs) {
+  return model::Equals(lhs, rhs);
+}
 
 inline bool operator!=(const google_firestore_v1_Value& lhs,
                        const google_firestore_v1_Value& rhs) {
-  return !(lhs == rhs);
+  return !model::Equals(lhs, rhs);
 }
 
-}  // namespace model
+inline std::ostream& operator<<(std::ostream& out,
+                                const google_firestore_v1_Value& value) {
+  return out << model::CanonicalId(value);
+}
+
 }  // namespace firestore
 }  // namespace firebase
 

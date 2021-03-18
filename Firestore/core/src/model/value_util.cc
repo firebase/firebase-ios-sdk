@@ -305,8 +305,8 @@ bool ObjectEquals(const firebase::firestore::google_firestore_v1_Value& left,
   return true;
 }
 
-bool operator==(const google_firestore_v1_Value& lhs,
-                const google_firestore_v1_Value& rhs) {
+bool Equals(const google_firestore_v1_Value& lhs,
+            const google_firestore_v1_Value& rhs) {
   TypeOrder left_type = GetTypeOrder(lhs);
   TypeOrder right_type = GetTypeOrder(rhs);
   if (left_type != right_type) {

@@ -120,7 +120,7 @@ inline bool operator==(const MutableObjectValue& lhs,
 
 inline std::ostream& operator<<(std::ostream& out,
                                 const MutableObjectValue& object_value) {
-  return out << CanonicalId(*object_value.value_);
+  return out << "ObjectValue(" << *object_value.value_ << ")";
 }
 
 }  // namespace model
