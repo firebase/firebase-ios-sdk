@@ -71,7 +71,7 @@ class importTest: XCTestCase {
 
   #if (os(iOS) || os(tvOS)) && !targetEnvironment(macCatalyst)
     func testSwiftUI() {
-      if #available(iOS 13, *) {
+      if #available(iOS 13, tvOS 13, *) {
         _ = ImageOnlyInAppMessageDisplayViewModifier { _, _ in
           EmptyView()
         }
