@@ -1,7 +1,9 @@
+# Unreleased
+- [changed] Throw exception if projectID is missing from FirebaseOptions. (#7725)
+
 # v7.9.0
 - [added] Enabled community supported watchOS build in Swift Package Manager. (#7696)
 - [fixed] Don't generate missing Analytics warning on Catalyst. (#7693)
-- [changed] Throw exception if projectID is missing from FirebaseOptions. (#7725)
 
 # v7.8.0
 - [fixed] Store fetch metadata per namespace to address activation issues. (#7179)

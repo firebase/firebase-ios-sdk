@@ -218,19 +218,6 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
                                                     NSLocalizedDescriptionKey : errorDescription
                                                   }]];
   }
-  // Check for projectID
-  if (!_options.projectID) {
-    NSString *errorDescription = @"Failed to get `projectID`";
-    FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000070", @"%@",
-                [NSString stringWithFormat:@"%@", errorDescription]);
-    NSError *error = [NSError errorWithDomain:FIRRemoteConfigErrorDomain
-                                         code:FIRRemoteConfigErrorInternalError
-                                     userInfo:@{NSLocalizedDescriptionKey : errorDescription}];
-    self->_settings.isFetchInProgress = NO;
-    return [self reportCompletionOnHandler:completionHandler
-                                withStatus:FIRRemoteConfigFetchStatusFailure
-                                 withError:error];
-  }
 
   __weak RCNConfigFetch *weakSelf = self;
   FIRInstallationsTokenHandler installationsTokenHandler = ^(
