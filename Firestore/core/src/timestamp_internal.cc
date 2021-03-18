@@ -31,7 +31,7 @@ util::StatusOr<Timestamp> TimestampInternal::FromUntrustedTime(
   // requirement.
   int64_t seconds = absl::ToUnixSeconds(time);
   int32_t nanos =
-      (time - absl::FromUnixSeconds(seconds)) / absl::Nanoseconds(1);
+      static_cast<int32_t>((time - absl::FromUnixSeconds(seconds)) / absl::Nanoseconds(1));
   return FromUntrustedSecondsAndNanos(seconds, nanos);
 }
 
