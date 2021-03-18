@@ -499,8 +499,9 @@ NSString *const kTestPassword = KPASSWORD;
   NSURL *tmpDirURL = [NSURL fileURLWithPath:NSTemporaryDirectory()];
   NSURL *fileURL =
       [[tmpDirURL URLByAppendingPathComponent:@"hello"] URLByAppendingPathExtension:@"txt"];
+  NSData *fileData = [@"Hello World" dataUsingEncoding:NSUTF8StringEncoding];
 
-  [ref putData:[@"Hello World" dataUsingEncoding:NSUTF8StringEncoding]
+  [ref putData:fileData
         metadata:nil
       completion:^(FIRStorageMetadata *metadata, NSError *error) {
         FIRStorageDownloadTask *task = [ref writeToFile:fileURL];
@@ -510,10 +511,11 @@ NSString *const kTestPassword = KPASSWORD;
                       NSString *data = [NSString stringWithContentsOfURL:fileURL
                                                                 encoding:NSUTF8StringEncoding
                                                                    error:NULL];
-                      NSString *expectedData = @"Hello World";
-                      XCTAssertEqualObjects(data, expectedData);
-                      XCTAssertEqualObjects([snapshot description], @"<State: Success>");
-                      [expectation fulfill];
+                      [ref dataWithMaxSize:128
+                                completion:^(NSData *_Nullable data, NSError *_Nullable error) {
+                                  XCTAssertEqualObjects(data, fileData);
+                                  [expectation fulfill];
+                                }];
                     }];
 
         [task observeStatus:FIRStorageTaskStatusProgress
