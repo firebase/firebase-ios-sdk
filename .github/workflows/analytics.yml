@@ -23,6 +23,8 @@ jobs:
       run: scripts/setup_bundler.sh
     - name: GoogleAppMeasurement
       run: scripts/third_party/travis/retry.sh pod spec lint GoogleAppMeasurement.podspec.json
+    - name: FirebaseAnalytics
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAnalytics.podspec.json
     - name: FirebaseAnalyticsSwift
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAnalyticsSwift.podspec --platforms=ios
 
