@@ -66,6 +66,12 @@ class Message {
   Message() = default;
 
   /**
+   * Creates a `Message` object that wraps `proto`. Takes ownership of `proto`.
+   */
+  explicit Message(const T& proto) : owns_proto_(true), proto_(proto) {
+  }
+
+  /**
    * Attempts to parse a Nanopb message from the given `reader`. If the reader
    * contains ill-formed bytes, returns a default-constructed `Message`; check
    * the status on `reader` to see whether parsing was successful.
@@ -219,6 +225,12 @@ std::string MakeStdString(const Message<T>& message) {
   StringWriter writer;
   writer.Write(message.fields(), message.get());
   return writer.Release();
+}
+
+/** Free the dynamically-allocated memory for the fields array of type T. */
+template <typename T>
+void FreeFieldsArray(T* message) {
+  FreeNanopbMessage(FieldsArray<T>(), message);
 }
 
 }  // namespace nanopb
