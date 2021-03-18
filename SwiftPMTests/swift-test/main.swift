@@ -26,7 +26,7 @@ import FirebaseFirestore
 import FirebaseFirestoreSwift
 import FirebaseFunctions
 import FirebaseInAppMessaging
-#if os(iOS) || os(tvOS)
+#if (os(iOS) || os(tvOS)) && !targetEnvironment(macCatalyst)
   @testable import FirebaseInAppMessagingSwift
   import SwiftUI
 #endif
@@ -69,9 +69,9 @@ class importTest: XCTestCase {
     print("System version? Answer: \(GULAppEnvironmentUtil.systemVersion())")
   }
 
-  #if os(iOS) || os(tvOS)
+  #if (os(iOS) || os(tvOS)) && !targetEnvironment(macCatalyst)
     func testSwiftUI() {
-      if #available(iOS 13, *) {
+      if #available(iOS 13, tvOS 13, *) {
         _ = ImageOnlyInAppMessageDisplayViewModifier { _, _ in
           EmptyView()
         }
