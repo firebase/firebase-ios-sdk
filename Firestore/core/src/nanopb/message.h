@@ -227,7 +227,6 @@ std::string MakeStdString(const Message<T>& message) {
   return writer.Release();
 }
 
-
 /** Free the dynamically-allocated memory for the fields array of type T. */
 template <typename T>
 void FreeFieldsArray(T* message) {
