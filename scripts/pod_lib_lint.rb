@@ -140,14 +140,18 @@ def find_local_deps(podspec_file, seen = Set[])
   specs = load_specs(podspec_file)
   deps = all_deps(specs)
 
+  spec_suffixes = [".podspec", ".podspec.json"]
+
   deps.each do |dep_name|
-    dep_file = File.join(spec_dir, "#{dep_name}.podspec")
-    if File.exist?(dep_file) then
-      dep_podspec = File.basename(dep_file)
-      if seen.add?(dep_podspec)
-        # Depend on the podspec we found and any podspecs it depends upon.
-        results.push(dep_podspec)
-        results.push(*find_local_deps(dep_file, seen))
+    spec_suffixes.each do |spec_suffix|
+      dep_file = File.join(spec_dir, "#{dep_name}#{spec_suffix}")
+      if File.exist?(dep_file) then
+        dep_podspec = File.basename(dep_file)
+        if seen.add?(dep_podspec)
+          # Depend on the podspec we found and any podspecs it depends upon.
+          results.push(dep_podspec)
+          results.push(*find_local_deps(dep_file, seen))
+        end
       end
     end
   end
