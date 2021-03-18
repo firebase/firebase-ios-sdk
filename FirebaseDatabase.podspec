@@ -52,7 +52,11 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   }
 
   s.test_spec 'unit' do |unit_tests|
-    unit_tests.platforms = {:ios => ios_deployment_target, :osx => osx_deployment_target, :tvos => tvos_deployment_target}
+    unit_tests.platforms = {
+      :ios => ios_deployment_target,
+      :osx => osx_deployment_target,
+      :tvos => tvos_deployment_target
+    }
     unit_tests.scheme = { :code_coverage => true }
     unit_tests.source_files = [
       'FirebaseDatabase/Tests/Unit/*.[mh]',
