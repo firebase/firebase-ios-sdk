@@ -23,7 +23,6 @@
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/Protos/nanopb/google/firestore/v1/firestore.nanopb.h"
 #include "Firestore/Protos/nanopb/google/type/latlng.nanopb.h"
-#include "Firestore/core/src/nanopb/message.h"
 
 namespace firebase {
 namespace firestore {
