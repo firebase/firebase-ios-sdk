@@ -1,6 +1,3 @@
-# Unreleased
-- [changed] Added a warning to upload-symbols when it detects a dSYM without any symbols.
-
 # v7.9.0
 - [changed] Updated Firebase pod to allow iOS 9 installation via `pod 'Firebase/Crashlytics'`
 
