@@ -71,10 +71,40 @@ std::shared_ptr<grpc::ChannelCredentials> CreateSslCredentials(
   return grpc::SslCredentials(options);
 }
 
-struct HostConfig {
-  util::Path certificate_path;
-  std::string target_name;
-  bool use_insecure_channel = false;
+class HostConfig {
+  using Guard = std::lock_guard<std::mutex>;
+
+ public:
+  void certificate_path(const util::Path& new_value) {
+    Guard guard(mutex_);
+    certificate_path_ = new_value;
+  }
+  util::Path certificate_path() const {
+    Guard guard(mutex_);
+    return certificate_path_;
+  }
+  void target_name(const std::string& new_value) {
+    Guard guard(mutex_);
+    target_name_ = new_value;
+  }
+  std::string target_name() const {
+    Guard guard(mutex_);
+    return target_name_;
+  }
+  void use_insecure_channel(bool new_value) {
+    Guard guard(mutex_);
+    use_insecure_channel_ = new_value;
+  }
+  bool use_insecure_channel() const {
+    Guard guard(mutex_);
+    return use_insecure_channel_;
+  }
+
+ private:
+  mutable std::mutex mutex_;
+  util::Path certificate_path_;
+  std::string target_name_;
+  bool use_insecure_channel_ = false;
 };
 
 class HostConfigMap {
@@ -106,8 +136,8 @@ class HostConfigMap {
 
     Guard guard(mutex_);
     HostConfig& host_config = map_[host];
-    host_config.certificate_path = certificate_path;
-    host_config.target_name = target_name;
+    host_config.certificate_path(certificate_path);
+    host_config.target_name(target_name);
   }
 
   void UseInsecureChannel(const std::string& host) {
@@ -115,7 +145,7 @@ class HostConfigMap {
 
     Guard guard(mutex_);
     HostConfig& host_config = map_[host];
-    host_config.use_insecure_channel = true;
+    host_config.use_insecure_channel(true);
   }
 
  private:
@@ -271,15 +301,15 @@ std::shared_ptr<grpc::Channel> GrpcConnection::CreateChannel() const {
   }
 
   // For the case when `Settings.set_ssl_enabled(false)`.
-  if (host_config->use_insecure_channel) {
+  if (host_config->use_insecure_channel()) {
     return grpc::CreateCustomChannel(host, grpc::InsecureChannelCredentials(),
                                      args);
   }
 
   // For tests only
   auto* fs = Filesystem::Default();
-  args.SetSslTargetNameOverride(host_config->target_name);
-  Path path = host_config->certificate_path;
+  args.SetSslTargetNameOverride(host_config->target_name());
+  Path path = host_config->certificate_path();
   StatusOr<std::string> test_certificate = fs->ReadFile(path);
   HARD_ASSERT(test_certificate.ok(),
               StringFormat("Unable to open root certificates at file path %s",
