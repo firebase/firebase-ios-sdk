@@ -30,7 +30,7 @@
         "ios": "9.0"
     },
     "source": {
-        "http": "https://dl.google.com/firebase/ios/analytics/69e023c92a5ea741/FirebaseAnalytics-7.9.0.tar.gz"
+        "http": "https://dl.google.com/firebase/ios/analytics/c224fb8e370c1cfd/FirebaseAnalytics-7.9.0.tar.gz"
     },
     "summary": "Firebase Analytics for iOS",
     "vendored_frameworks": [
