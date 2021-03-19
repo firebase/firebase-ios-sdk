@@ -16,8 +16,9 @@
 
 #include "Firestore/core/src/remote/grpc_connection.h"
 
-#include <algorithm>
 #include <cstdlib>
+
+#include <algorithm>
 #include <mutex>  // NOLINT(build/c++11)
 #include <string>
 #include <utility>
