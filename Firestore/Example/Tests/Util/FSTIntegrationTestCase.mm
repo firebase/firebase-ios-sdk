@@ -406,6 +406,9 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
 }
 
 - (FIRQuerySnapshot *)readDocumentSetForRef:(FIRQuery *)query source:(FIRFirestoreSource)source {
+  if (query == nil) {
+    XCTFail("Trying to read data from a nil query");
+  }
   __block FIRQuerySnapshot *result;
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"getData"];

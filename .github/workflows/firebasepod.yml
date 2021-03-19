@@ -10,8 +10,8 @@ on:
     - '.github/workflows/firebasepod.yml'
     - 'Gemfile'
   schedule:
-    # Run every day at 9pm (PST) - cron uses UTC times
-    - cron:  '0 5 * * *'
+    # Run every day at 3am (PST) - cron uses UTC times
+    - cron:  '0 11 * * *'
 
 jobs:
   installation-test:

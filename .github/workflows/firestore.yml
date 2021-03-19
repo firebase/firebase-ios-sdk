@@ -56,8 +56,8 @@ on:
     - 'Gemfile'
 
   schedule:
-    # Run every day at 9pm (PST) - cron uses UTC times
-    - cron:  '0 5 * * *'
+    # Run every day at 2am (PST) - cron uses UTC times
+    - cron:  '0 10 * * *'
 
 jobs:
   check:

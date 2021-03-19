@@ -9,8 +9,8 @@ on:
     - 'Interop/Analytics/Public/*.h'
     - 'Gemfile'
   schedule:
-    # Run every day at 8pm (PST) - cron uses UTC times
-    - cron:  '0 4 * * *'
+    # Run every day at 10am (PST) - cron uses UTC times
+    - cron:  '0 2 * * *'
 
 jobs:
 

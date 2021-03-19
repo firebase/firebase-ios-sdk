@@ -8,8 +8,8 @@ on:
     - '.github/workflows/auth.yml'
     - 'Gemfile'
   schedule:
-    # Run every day at 7pm (PST) - cron uses UTC times
-    - cron:  '0 3 * * *'
+    # Run every day at 1am (PST) - cron uses UTC times
+    - cron:  '0 9 * * *'
 
 jobs:
 

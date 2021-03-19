@@ -17,7 +17,7 @@
 
 import PackageDescription
 
-let firebaseVersion = "7.8.0"
+let firebaseVersion = "7.9.0"
 
 let package = Package(
   name: "Firebase",
@@ -51,10 +51,11 @@ let package = Package(
       name: "FirebaseDatabase",
       targets: ["FirebaseDatabase"]
     ),
-    .library(
-      name: "FirebaseDatabaseSwift-Beta",
-      targets: ["FirebaseDatabaseSwift"]
-    ),
+    // TODO: Re-enable after API review passes.
+//    .library(
+//      name: "FirebaseDatabaseSwift-Beta",
+//      targets: ["FirebaseDatabaseSwift"]
+//    ),
     .library(
       name: "FirebaseDynamicLinks",
       targets: ["FirebaseDynamicLinksTarget"]
@@ -74,6 +75,10 @@ let package = Package(
     .library(
       name: "FirebaseInAppMessaging-Beta",
       targets: ["FirebaseInAppMessagingTarget"]
+    ),
+    .library(
+      name: "FirebaseInAppMessagingSwift-Beta",
+      targets: ["FirebaseInAppMessagingSwift"]
     ),
     .library(
       name: "FirebaseInstallations",
@@ -110,7 +115,7 @@ let package = Package(
     .package(
       name: "GoogleAppMeasurement",
       url: "https://github.com/google/GoogleAppMeasurement.git",
-      .exact("7.8.0")
+      .exact("7.8.1")
     ),
     .package(
       name: "GoogleDataTransport",
@@ -259,8 +264,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/7.8.0/FirebaseAnalytics.zip",
-      checksum: "1a833b113a8d877e978c4b4b55ad5ae7c7f10b148dc37f1321be7bb7e7053f3a"
+      url: "https://dl.google.com/firebase/ios/swiftpm/7.8.1/FirebaseAnalytics.zip",
+      checksum: "d3838e4d498a4846254feebf8d1995f63904a845fb57036b0520a413fb39b8a4"
     ),
     .target(
       name: "FirebaseAnalyticsSwiftTarget",
@@ -489,6 +494,8 @@ let package = Package(
         "core/test/",
         "fuzzing/",
         "test.sh",
+        // Swift PM doesn't recognize hpp files, so we're relying on search paths
+        // to find third_party/nlohmann_json/json.hpp.
         "third_party/",
 
         // Exclude alternate implementations for other platforms
@@ -546,6 +553,7 @@ let package = Package(
         "Swift/CHANGELOG.md",
         "Swift/README.md",
         "Swift/Tests/",
+        "third_party/nlohmann_json",
         "third_party/FirestoreEncoder/LICENSE",
         "third_party/FirestoreEncoder/METADATA",
       ],
@@ -604,6 +612,12 @@ let package = Package(
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
         .define("PB_ENABLE_MALLOC", to: "1"),
       ]
+    ),
+
+    .target(
+      name: "FirebaseInAppMessagingSwift",
+      dependencies: ["FirebaseInAppMessaging"],
+      path: "FirebaseInAppMessaging/Swift/Source"
     ),
 
     .target(
@@ -785,6 +799,8 @@ let package = Package(
         "FirebaseFirestoreSwift",
         "FirebaseFunctions",
         "FirebaseInAppMessaging",
+        .target(name: "FirebaseInAppMessagingSwift",
+                condition: .when(platforms: [.iOS, .tvOS])),
         "FirebaseInstallations",
         "FirebaseMessaging",
         "FirebaseRemoteConfig",

@@ -24,6 +24,7 @@
 #include <vector>
 
 #include "Firestore/core/src/auth/user.h"
+#include "Firestore/core/src/local/memory_bundle_cache.h"
 #include "Firestore/core/src/local/memory_index_manager.h"
 #include "Firestore/core/src/local/memory_mutation_queue.h"
 #include "Firestore/core/src/local/memory_remote_document_cache.h"
@@ -77,6 +78,8 @@ class MemoryPersistence : public Persistence {
 
   MemoryTargetCache* target_cache() override;
 
+  MemoryBundleCache* bundle_cache() override;
+
   MemoryRemoteDocumentCache* remote_document_cache() override;
 
   MemoryIndexManager* index_manager() override;
@@ -112,6 +115,8 @@ class MemoryPersistence : public Persistence {
   MemoryRemoteDocumentCache remote_document_cache_;
 
   MemoryIndexManager index_manager_;
+
+  MemoryBundleCache bundle_cache_;
 
   std::unique_ptr<ReferenceDelegate> reference_delegate_;
 

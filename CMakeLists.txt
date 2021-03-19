@@ -251,7 +251,6 @@ target_include_directories(
   $<BUILD_INTERFACE:${FIREBASE_EXTERNAL_SOURCE_DIR}/nanopb>
 )
 
-
 # XCTest
 if(APPLE)
   find_package(XCTest)

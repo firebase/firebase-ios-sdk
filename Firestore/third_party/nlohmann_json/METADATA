@@ -1,0 +1,19 @@
+name: "NLOHMANN JSON library"
+description:
+  "This is a copy of the original library, which does not provide cocoapods "
+  "SPM builds, making it impossible to use directly in those environments."
+  "It is a header-only library though, so simply copy the header will do the "
+  "job."
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://github.com/nlohmann/json"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/nlohmann/json"
+  }
+  version: "3.9.1"
+  last_upgrade_date { year: 2020 month: 8 day: 6 }
+}
