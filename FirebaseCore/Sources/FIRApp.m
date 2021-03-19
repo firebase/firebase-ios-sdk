@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifdef BUILDFAIL
+#error 1
+#endif
+
 #include <sys/utsname.h>
 
 #if __has_include(<UIKit/UIKit.h>)

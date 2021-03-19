@@ -10,7 +10,7 @@ use_frameworks!
 
 target 'AuthSample' do
   platform :ios, '10.0'
-  pod 'FirebaseCore', :path => '../../../'
+  pod 'FirebaseCore/BuildFail', :path => '../../../'
   pod 'FirebaseCoreDiagnostics', :path => '../../../'
   pod 'FirebaseAuth', :path => '../../../', :testspecs => ['unit']
   pod 'FirebaseInstallations', :path => '../../..'

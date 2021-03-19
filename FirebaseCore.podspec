@@ -55,6 +55,19 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
     'OTHER_CFLAGS' => '-fno-autolink'
   }
+
+  s.default_subspec = 'Lite'
+
+  s.subspec 'Lite' do |lite|
+  # default subspec for users who don't want the defined stuff.
+  end
+
+  s.subspec 'BuildFail' do |bf|
+    bf.pod_target_xcconfig =   
+        { 'GCC_PREPROCESSOR_DEFINITIONS' => 'BUILDFAIL=1' }
+  end
+
+
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }
     unit_tests.platforms = {
