@@ -30,8 +30,8 @@ util::StatusOr<Timestamp> TimestampInternal::FromUntrustedTime(
   // `nanos` calculated below always non-negative, meeting protobuf's
   // requirement.
   int64_t seconds = absl::ToUnixSeconds(time);
-  int32_t nanos =
-      (time - absl::FromUnixSeconds(seconds)) / absl::Nanoseconds(1);
+  int32_t nanos = static_cast<int32_t>((time - absl::FromUnixSeconds(seconds)) /
+                                       absl::Nanoseconds(1));
   return FromUntrustedSecondsAndNanos(seconds, nanos);
 }
 
