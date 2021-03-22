@@ -48,6 +48,7 @@ Combine Publishers for Firebase.
   s.dependency 'FirebaseFunctions', '~> 7.0'
   s.dependency 'FirebaseFirestore', '~> 7.0'
   s.dependency 'FirebaseFirestoreSwift', '~> 7.0'
+  s.dependency 'FirebaseFirestoreTestingSupport'
 
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
