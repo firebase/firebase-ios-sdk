@@ -62,8 +62,8 @@ extension Firestore {
             self.runTransaction({ transaction, errorPointer in
                 do {
                     return try updateBlock(transaction)
-                } catch {
-                    errorPointer?.pointee = error as NSError
+                } catch let fetchError as NSError  {
+                    errorPointer?.pointee = fetchError
                     return nil
                 }
             }) { value, error in
