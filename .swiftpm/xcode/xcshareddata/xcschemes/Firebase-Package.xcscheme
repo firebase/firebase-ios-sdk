@@ -812,37 +812,23 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
+               BlueprintIdentifier = "FirebaseFirestoreTestingSupport"
+               BuildableName = "FirebaseFirestoreTestingSupport"
+               BlueprintName = "FirebaseFirestoreTestingSupport"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
                BlueprintIdentifier = "FirebaseFunctionsCombineSwift"
                BuildableName = "FirebaseFunctionsCombineSwift"
                BlueprintName = "FirebaseFunctionsCombineSwift"
-               ReferencedContainer = "container:">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "FirebaseFirestoreCombineSwift-Beta"
-               BuildableName = "FirebaseFirestoreCombineSwift-Beta"
-               BlueprintName = "FirebaseFirestoreCombineSwift-Beta"
-               ReferencedContainer = "container:">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "FirebaseFirestoreCombineSwift"
-               BuildableName = "FirebaseFirestoreCombineSwift"
-               BlueprintName = "FirebaseFirestoreCombineSwift"
                ReferencedContainer = "container:">
             </BuildableReference>
          </BuildActionEntry>
@@ -1031,6 +1017,16 @@
                BlueprintIdentifier = "FirebaseMLModelDownloaderUnit"
                BuildableName = "FirebaseMLModelDownloaderUnit"
                BlueprintName = "FirebaseMLModelDownloaderUnit"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "FirestoreTestingSupportTests"
+               BuildableName = "FirestoreTestingSupportTests"
+               BlueprintName = "FirestoreTestingSupportTests"
                ReferencedContainer = "container:">
             </BuildableReference>
          </TestableReference>
