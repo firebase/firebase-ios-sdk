@@ -35,7 +35,7 @@ extension CollectionReference {
     /// automatically.
     /// - Parameter data: A `Dictionary` containing the data for the new document.
     /// - Returns: A publisher emitting a `Void` value once the document has been successfully
-    /// written to the server. This publisher will not emits  while the client is offline, though
+    /// written to the server. This publisher will not emit  while the client is offline, though
     /// local changes will be visible immediately.
     public func addDocument(data: [String: Any])
     -> AnyPublisher<DocumentReference, Error> {
@@ -61,7 +61,7 @@ extension CollectionReference {
     ///   - value: An instance of Encodable to be encoded to a document.
     ///   - encoder: An encoder instance to use to run the encoding.
     /// - Returns: A publisher emitting a `Void` value once the document has been successfully
-    /// written to the server. This publisher will not emits  while the client is offline, though
+    /// written to the server. This publisher will not emit  while the client is offline, though
     /// local changes will be visible immediately.
     public func addDocument<T: Encodable>(from value: T, encoder: Firestore.Encoder = Firestore.Encoder()) -> AnyPublisher<DocumentReference, Error> {
         var reference: DocumentReference!
