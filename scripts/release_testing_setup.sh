@@ -61,7 +61,7 @@ if [ "$TESTINGMODE" = "release_testing" ]; then
   # Update source and tag, e.g.  ":tag => 'CocoaPods-' + s.version.to_s" to
   # ":tag => 'CocoaPods-7.9.0'"
   sed  -i "" "s/\s*:tag.*/:tag => '${latest_cocoapods_tag}'/" *.podspec
-el if [ "$TESTINGMODE" = "prerelease_testing" ]; then
+elif [ "$TESTINGMODE" = "prerelease_testing" ]; then
   tag_version="CocoaPods-${test_version}.nightly"
   echo "A new tag, ${tag_version},for prerelease testing will be created."
   git checkout "${podspec_repo_branch}"
