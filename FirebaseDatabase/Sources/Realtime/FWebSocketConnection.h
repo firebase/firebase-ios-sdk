@@ -15,12 +15,18 @@
  */
 
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
+#if !TARGET_OS_WATCH
 #import "FirebaseDatabase/Sources/third_party/SocketRocket/FSRWebSocket.h"
+#endif // !TARGET_OS_WATCH
 #import <Foundation/Foundation.h>
 
 @protocol FWebSocketDelegate;
 
+#if !TARGET_OS_WATCH
 @interface FWebSocketConnection : NSObject <FSRWebSocketDelegate>
+#else
+@interface FWebSocketConnection : NSObject <NSURLSessionWebSocketDelegate>
+#endif // else !TARGET_OS_WATCH
 
 @property(nonatomic, weak) id<FWebSocketDelegate> delegate;
 
@@ -34,13 +40,19 @@
 - (void)start;
 - (void)send:(NSDictionary *)dictionary;
 
+// Ignore FSRWebSocketDelegate calls on watchOS.
+#if !TARGET_OS_WATCH
 - (void)webSocket:(FSRWebSocket *)webSocket didReceiveMessage:(id)message;
-- (void)webSocketDidOpen:(FSRWebSocket *)webSocket;
+
+// Exclude the `webSocket` argument since it isn't used in this codebase and it
+// allows for better code sharing with watchOS.
+- (void)webSocketDidOpen;
 - (void)webSocket:(FSRWebSocket *)webSocket didFailWithError:(NSError *)error;
 - (void)webSocket:(FSRWebSocket *)webSocket
     didCloseWithCode:(NSInteger)code
               reason:(NSString *)reason
             wasClean:(BOOL)wasClean;
+#endif // !TARGET_OS_WATCH
 
 @end
 

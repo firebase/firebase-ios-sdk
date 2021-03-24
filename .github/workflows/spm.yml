@@ -27,9 +27,9 @@ jobs:
     - name: iOS Unit Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh Firebase-Package iOS spm
 
-  cron-only:
-    # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+  platforms:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
 
     runs-on: macOS-latest
     strategy:

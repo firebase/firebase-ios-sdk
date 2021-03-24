@@ -17,7 +17,11 @@ jobs:
     env:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       local_repo: specstesting
+      # The SDK repo will be cloned to this dir and podspecs from
+      # 'podspec_repo_branch' of this repo will be validated and pushed to the
+      # testing repo.
       local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
+      podspec_repo_branch: master
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
@@ -30,7 +34,7 @@ jobs:
     - name: Update SpecsReleasing repo setup
       run: |
          ossbotaccess=`cat oss-bot-access.txt`
-         BOT_TOKEN="${ossbotaccess}" test_version="${nightly_version}" sdk_version_config="${GITHUB_WORKSPACE}/scripts/create_spec_repo/RC_firebase_sdk.textproto" scripts/release_testing_setup.sh RC_testing
+         BOT_TOKEN="${ossbotaccess}" test_version="${nightly_version}" sdk_version_config="${GITHUB_WORKSPACE}/scripts/create_spec_repo/RC_firebase_sdk.textproto" local_sdk_repo_dir="${local_sdk_repo_dir}" podspec_repo_branch="${podspec_repo_branch}" scripts/release_testing_setup.sh RC_testing
     - name: Update SpecsReleasing repo
       run: |
         botaccess=`cat bot-access.txt`

@@ -41,6 +41,8 @@ typedef void (^FSTValueEventHandler)(id _Nullable, NSError *_Nullable error);
 /** Waits for a snapshot that has no pending writes */
 - (EventType)awaitRemoteEvent;
 
+- (void)assertNoAdditionalEvents;
+
 @property(nonatomic, strong, readonly) FSTValueEventHandler valueEventHandler;
 
 @end

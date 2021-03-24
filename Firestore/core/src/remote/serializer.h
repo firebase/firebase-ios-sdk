@@ -17,8 +17,9 @@
 #ifndef FIRESTORE_CORE_SRC_REMOTE_SERIALIZER_H_
 #define FIRESTORE_CORE_SRC_REMOTE_SERIALIZER_H_
 
+#include <stddef.h>
+
 #include <cstdint>
-#include <cstdlib>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -32,10 +33,11 @@
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/model/field_value.h"
 #include "Firestore/core/src/model/model_fwd.h"
+#include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
-#include "Firestore/core/src/nanopb/reader.h"
 #include "Firestore/core/src/nanopb/writer.h"
 #include "Firestore/core/src/remote/watch_change.h"
+#include "Firestore/core/src/util/read_context.h"
 #include "Firestore/core/src/util/status_fwd.h"
 #include "absl/base/attributes.h"
 #include "absl/strings/string_view.h"
@@ -125,12 +127,9 @@ class Serializer {
   /**
    * @brief Converts from nanopb proto to the model FieldValue format.
    */
-  // TODO(rsgowman): Once the proto is read, the only thing the reader object is
-  // used for is error handling. This seems questionable. We probably need to
-  // rework error handling. Again. But we'll defer that for now and continue
-  // just passing the reader object.
+  // TODO(wuandy): all `context` here should be mutable reference instead.
   model::FieldValue DecodeFieldValue(
-      nanopb::Reader* reader, const google_firestore_v1_Value& proto) const;
+      util::ReadContext* context, const google_firestore_v1_Value& proto) const;
 
   /**
    * Encodes the given document key as a fully qualified name. This includes the
@@ -143,7 +142,7 @@ class Serializer {
    * Decodes the given document key from a fully qualified name.
    */
   firebase::firestore::model::DocumentKey DecodeKey(
-      nanopb::Reader* reader, const pb_bytes_array_t* name) const;
+      util::ReadContext* context, const pb_bytes_array_t* name) const;
 
   /**
    * @brief Converts the Document (i.e. key/value) into bytes.
@@ -155,33 +154,34 @@ class Serializer {
    * @brief Converts from nanopb proto to the model Document format.
    */
   model::MaybeDocument DecodeMaybeDocument(
-      nanopb::Reader* reader,
+      util::ReadContext* context,
       const google_firestore_v1_BatchGetDocumentsResponse& response) const;
 
   google_firestore_v1_Write EncodeMutation(
       const model::Mutation& mutation) const;
   model::Mutation DecodeMutation(
-      nanopb::Reader* reader, const google_firestore_v1_Write& mutation) const;
+      util::ReadContext* context,
+      const google_firestore_v1_Write& mutation) const;
 
   static google_firestore_v1_Precondition EncodePrecondition(
       const model::Precondition& precondition);
   static model::Precondition DecodePrecondition(
-      nanopb::Reader* reader,
+      util::ReadContext* context,
       const google_firestore_v1_Precondition& precondition);
 
   static google_firestore_v1_DocumentMask EncodeFieldMask(
       const model::FieldMask& mask);
   static model::FieldMask DecodeFieldMask(
-      nanopb::Reader* reader, const google_firestore_v1_DocumentMask& mask);
+      util::ReadContext* context, const google_firestore_v1_DocumentMask& mask);
 
   google_firestore_v1_DocumentTransform_FieldTransform EncodeFieldTransform(
       const model::FieldTransform& field_transform) const;
   model::FieldTransform DecodeFieldTransform(
-      nanopb::Reader* reader,
+      util::ReadContext* context,
       const google_firestore_v1_DocumentTransform_FieldTransform& proto) const;
 
   model::MutationResult DecodeMutationResult(
-      nanopb::Reader* reader,
+      util::ReadContext* context,
       const google_firestore_v1_WriteResult& write_result,
       const model::SnapshotVersion& commit_version) const;
 
@@ -189,7 +189,7 @@ class Serializer {
   EncodeListenRequestLabels(const local::TargetData& target_data) const;
 
   static pb_bytes_array_t* EncodeFieldPath(const model::FieldPath& field_path);
-  static model::FieldPath DecodeFieldPath(nanopb::Reader* reader,
+  static model::FieldPath DecodeFieldPath(util::ReadContext* context,
                                           const pb_bytes_array_t* field_path);
 
   static google_protobuf_Timestamp EncodeVersion(
@@ -199,18 +199,19 @@ class Serializer {
       const Timestamp& timestamp_value);
 
   static model::SnapshotVersion DecodeVersion(
-      nanopb::Reader* reader, const google_protobuf_Timestamp& proto);
+      util::ReadContext* context, const google_protobuf_Timestamp& proto);
 
   static Timestamp DecodeTimestamp(
-      nanopb::Reader* reader, const google_protobuf_Timestamp& timestamp_proto);
+      util::ReadContext* context,
+      const google_protobuf_Timestamp& timestamp_proto);
 
-  static GeoPoint DecodeGeoPoint(nanopb::Reader* reader,
+  static GeoPoint DecodeGeoPoint(util::ReadContext* context,
                                  const google_type_LatLng& latlng_proto);
 
   google_firestore_v1_ArrayValue EncodeArray(
       const std::vector<model::FieldValue>& array_value) const;
   std::vector<model::FieldValue> DecodeArray(
-      nanopb::Reader* reader,
+      util::ReadContext* context,
       const google_firestore_v1_ArrayValue& array_proto) const;
 
   google_firestore_v1_MapValue EncodeMapValue(
@@ -221,24 +222,28 @@ class Serializer {
   google_firestore_v1_Target_DocumentsTarget EncodeDocumentsTarget(
       const core::Target& target) const;
   core::Target DecodeDocumentsTarget(
-      nanopb::Reader* reader,
+      util::ReadContext* context,
       const google_firestore_v1_Target_DocumentsTarget& proto) const;
   google_firestore_v1_Target_QueryTarget EncodeQueryTarget(
       const core::Target& target) const;
   core::Target DecodeQueryTarget(
-      nanopb::Reader* reader,
+      util::ReadContext* context,
       const google_firestore_v1_Target_QueryTarget& proto) const;
+  core::Target DecodeStructuredQuery(
+      util::ReadContext* context,
+      pb_bytes_array_t* parent,
+      const google_firestore_v1_StructuredQuery& query) const;
 
   std::unique_ptr<remote::WatchChange> DecodeWatchChange(
-      nanopb::Reader* reader,
+      util::ReadContext* context,
       const google_firestore_v1_ListenResponse& watch_change) const;
 
   model::SnapshotVersion DecodeVersionFromListenResponse(
-      nanopb::Reader* reader,
+      util::ReadContext* context,
       const google_firestore_v1_ListenResponse& listen_response) const;
 
   model::ObjectValue DecodeFields(
-      nanopb::Reader* reader,
+      util::ReadContext* context,
       size_t count,
       const google_firestore_v1_Document_FieldsEntry* fields) const;
 
@@ -246,8 +251,13 @@ class Serializer {
   google_firestore_v1_StructuredQuery_Filter EncodeFilters(
       const core::FilterList& filters) const;
   core::FilterList DecodeFilters(
-      nanopb::Reader* reader,
+      util::ReadContext* context,
       const google_firestore_v1_StructuredQuery_Filter& proto) const;
+
+  bool IsLocalResourceName(const model::ResourcePath& path) const;
+
+  model::FieldValue DecodeReference(util::ReadContext* context,
+                                    absl::string_view reference_value) const;
 
  private:
   google_firestore_v1_Value EncodeNull() const;
@@ -262,14 +272,14 @@ class Serializer {
   google_firestore_v1_Value EncodeGeoPoint(const GeoPoint& value) const;
 
   model::Document DecodeFoundDocument(
-      nanopb::Reader* reader,
+      util::ReadContext* context,
       const google_firestore_v1_BatchGetDocumentsResponse& response) const;
   model::NoDocument DecodeMissingDocument(
-      nanopb::Reader* reader,
+      util::ReadContext* context,
       const google_firestore_v1_BatchGetDocumentsResponse& response) const;
 
   pb_bytes_array_t* EncodeQueryPath(const model::ResourcePath& path) const;
-  model::ResourcePath DecodeQueryPath(nanopb::Reader* reader,
+  model::ResourcePath DecodeQueryPath(util::ReadContext* context,
                                       absl::string_view name) const;
 
   /**
@@ -284,81 +294,84 @@ class Serializer {
    * that there is a project and database encoded in the path. There are no
    * guarantees that a local path is also encoded in this resource name.
    */
-  model::ResourcePath DecodeResourceName(nanopb::Reader* reader,
+  model::ResourcePath DecodeResourceName(util::ReadContext* context,
                                          absl::string_view encoded) const;
 
-  void ValidateDocumentKeyPath(nanopb::Reader* reader,
+  void ValidateDocumentKeyPath(util::ReadContext* context,
                                const model::ResourcePath& resource_name) const;
-  model::DocumentKey DecodeKey(nanopb::Reader* reader,
+  model::DocumentKey DecodeKey(util::ReadContext* context,
                                const model::ResourcePath& resource_name) const;
 
   model::FieldValue::Map::value_type DecodeFieldsEntry(
-      nanopb::Reader* reader,
+      util::ReadContext* context,
       const google_firestore_v1_Document_FieldsEntry& fields) const;
 
   model::FieldValue::Map DecodeMapValue(
-      nanopb::Reader* reader,
+      util::ReadContext* context,
       const google_firestore_v1_MapValue& map_value) const;
 
   model::DatabaseId DecodeDatabaseId(
-      nanopb::Reader* reader, const model::ResourcePath& resource_name) const;
+      util::ReadContext* context,
+      const model::ResourcePath& resource_name) const;
   model::FieldValue DecodeReference(
-      nanopb::Reader* reader, const pb_bytes_array_t* resource_name_raw) const;
+      util::ReadContext* context,
+      const pb_bytes_array_t* resource_name_raw) const;
 
   std::string EncodeLabel(local::QueryPurpose purpose) const;
 
   google_firestore_v1_StructuredQuery_Filter EncodeSingularFilter(
       const core::FieldFilter& filter) const;
   core::Filter DecodeFieldFilter(
-      nanopb::Reader* reader,
+      util::ReadContext* context,
       const google_firestore_v1_StructuredQuery_FieldFilter& field_filter)
       const;
   core::Filter DecodeUnaryFilter(
-      nanopb::Reader* reader,
+      util::ReadContext* context,
       const google_firestore_v1_StructuredQuery_UnaryFilter& unary) const;
   core::FilterList DecodeCompositeFilter(
-      nanopb::Reader* reader,
+      util::ReadContext* context,
       const google_firestore_v1_StructuredQuery_CompositeFilter& composite)
       const;
 
   google_firestore_v1_StructuredQuery_FieldFilter_Operator
   EncodeFieldFilterOperator(core::Filter::Operator op) const;
   core::Filter::Operator DecodeFieldFilterOperator(
-      nanopb::Reader* reader,
+      util::ReadContext* context,
       google_firestore_v1_StructuredQuery_FieldFilter_Operator op) const;
 
   google_firestore_v1_StructuredQuery_Order* EncodeOrderBys(
       const core::OrderByList& orders) const;
   core::OrderByList DecodeOrderBys(
-      nanopb::Reader* reader,
+      util::ReadContext* context,
       google_firestore_v1_StructuredQuery_Order* order_bys,
       pb_size_t size) const;
   core::OrderBy DecodeOrderBy(
-      nanopb::Reader* reader,
+      util::ReadContext* context,
       const google_firestore_v1_StructuredQuery_Order& order_by) const;
 
   google_firestore_v1_Cursor EncodeBound(const core::Bound& bound) const;
   std::shared_ptr<core::Bound> DecodeBound(
-      nanopb::Reader* reader, const google_firestore_v1_Cursor& cursor) const;
+      util::ReadContext* context,
+      const google_firestore_v1_Cursor& cursor) const;
 
   std::unique_ptr<remote::WatchChange> DecodeTargetChange(
-      nanopb::Reader* reader,
+      util::ReadContext* context,
       const google_firestore_v1_TargetChange& change) const;
   static remote::WatchTargetChangeState DecodeTargetChangeState(
-      nanopb::Reader* reader,
+      util::ReadContext* context,
       const google_firestore_v1_TargetChange_TargetChangeType state);
 
   std::unique_ptr<remote::WatchChange> DecodeDocumentChange(
-      nanopb::Reader* reader,
+      util::ReadContext* context,
       const google_firestore_v1_DocumentChange& change) const;
   std::unique_ptr<remote::WatchChange> DecodeDocumentDelete(
-      nanopb::Reader* reader,
+      util::ReadContext* context,
       const google_firestore_v1_DocumentDelete& change) const;
   std::unique_ptr<remote::WatchChange> DecodeDocumentRemove(
-      nanopb::Reader* reader,
+      util::ReadContext* context,
       const google_firestore_v1_DocumentRemove& change) const;
   std::unique_ptr<remote::WatchChange> DecodeExistenceFilterWatchChange(
-      nanopb::Reader* reader,
+      util::ReadContext* context,
       const google_firestore_v1_ExistenceFilter& filter) const;
 
   model::DatabaseId database_id_;

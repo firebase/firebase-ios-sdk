@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAppDistribution'
-  s.version          = '7.8.0-beta'
+  s.version          = '7.9.0-beta'
   s.summary          = 'App Distribution for Firebase iOS SDK.'
 
   s.description      = <<-DESC

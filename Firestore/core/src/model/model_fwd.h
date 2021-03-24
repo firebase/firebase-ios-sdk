@@ -98,6 +98,10 @@ using OptionalMaybeDocumentMap =
 using DocumentVersionMap =
     std::unordered_map<DocumentKey, SnapshotVersion, DocumentKeyHash>;
 
+using DocumentUpdateMap = std::unordered_map<model::DocumentKey,
+                                             model::MaybeDocument,
+                                             model::DocumentKeyHash>;
+
 }  // namespace model
 }  // namespace firestore
 }  // namespace firebase

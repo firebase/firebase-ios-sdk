@@ -734,6 +734,90 @@
                ReferencedContainer = "container:">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "FirebaseAnalyticsSwift"
+               BuildableName = "FirebaseAnalyticsSwift"
+               BlueprintName = "FirebaseAnalyticsSwift"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "FirebaseAnalyticsSwiftTarget"
+               BuildableName = "FirebaseAnalyticsSwiftTarget"
+               BlueprintName = "FirebaseAnalyticsSwiftTarget"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "FirebaseAnalyticsSwift-Beta"
+               BuildableName = "FirebaseAnalyticsSwift-Beta"
+               BlueprintName = "FirebaseAnalyticsSwift-Beta"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "FirebaseInAppMessagingSwift-Beta"
+               BuildableName = "FirebaseInAppMessagingSwift-Beta"
+               BlueprintName = "FirebaseInAppMessagingSwift-Beta"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "FirebaseDatabaseSwift"
+               BuildableName = "FirebaseDatabaseSwift"
+               BlueprintName = "FirebaseDatabaseSwift"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "FirebaseInAppMessagingSwift"
+               BuildableName = "FirebaseInAppMessagingSwift"
+               BlueprintName = "FirebaseInAppMessagingSwift"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -919,6 +1003,16 @@
                BlueprintIdentifier = "FirebaseMLModelDownloaderUnit"
                BuildableName = "FirebaseMLModelDownloaderUnit"
                BlueprintName = "FirebaseMLModelDownloaderUnit"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "FirebaseDatabaseSwiftTests"
+               BuildableName = "FirebaseDatabaseSwiftTests"
+               BlueprintName = "FirebaseDatabaseSwiftTests"
                ReferencedContainer = "container:">
             </BuildableReference>
          </TestableReference>
