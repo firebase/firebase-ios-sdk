@@ -99,5 +99,4 @@ static NSString *const kTestPlistFileName = @"com.google.test.IIDBackupExcludedP
   NSString *plistPath = [NSString pathWithComponents:components];
   return [[NSFileManager defaultManager] fileExistsAtPath:plistPath];
 }
-
 @end

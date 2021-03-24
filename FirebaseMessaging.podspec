@@ -63,6 +63,7 @@ device, and it is completely free.
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }
+
     unit_tests.platforms = {
       :ios => ios_deployment_target,
       :osx => osx_deployment_target,

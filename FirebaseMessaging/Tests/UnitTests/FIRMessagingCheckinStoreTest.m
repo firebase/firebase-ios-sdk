@@ -187,6 +187,11 @@ static int64_t const kLastCheckinTimestamp = 123456;
 
 #pragma mark - Private Helpers
 
+- (BOOL)savePreferencesToPlist:(NSDictionary *)preferences {
+  NSString *path = [self pathForCheckinPlist];
+  return [preferences writeToFile:path atomically:YES];
+}
+
 - (NSString *)pathForCheckinPlist {
   NSArray *paths =
       NSSearchPathForDirectoriesInDomains(NSApplicationDirectory, NSUserDomainMask, YES);
