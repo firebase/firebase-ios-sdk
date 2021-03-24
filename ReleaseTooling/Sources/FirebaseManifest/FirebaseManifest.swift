@@ -21,7 +21,7 @@ import Foundation
 /// The version and releasing fields of the non-Firebase pods should be reviewed every release.
 /// The array should be ordered so that any pod's dependencies precede it in the list.
 public let shared = Manifest(
-  version: "7.8.0",
+  version: "7.9.0",
   pods: [
     Pod("FirebaseCoreDiagnostics"),
     Pod("FirebaseCore"),
@@ -29,17 +29,21 @@ public let shared = Manifest(
     Pod("FirebaseInstanceID"),
     Pod("GoogleAppMeasurement", isClosedSource: true, platforms: ["ios"]),
     Pod("FirebaseAnalytics", isClosedSource: true, platforms: ["ios"], zip: true),
+    Pod("FirebaseAnalyticsSwift", isBeta: true, platforms: ["ios"]),
     Pod("FirebaseABTesting", zip: true),
     Pod("FirebaseRemoteConfig", zip: true),
     Pod("FirebaseAppDistribution", isBeta: true, platforms: ["ios"], zip: true),
     Pod("FirebaseAuth", zip: true),
     Pod("FirebaseCrashlytics", zip: true),
     Pod("FirebaseDatabase", zip: true),
+    // TODO: Re-enable after API review.
+//    Pod("FirebaseDatabaseSwift", isBeta: true),
     Pod("FirebaseDynamicLinks", platforms: ["ios"], zip: true),
     Pod("FirebaseFirestore", allowWarnings: true, zip: true),
     Pod("FirebaseFirestoreSwift", isBeta: true),
     Pod("FirebaseFunctions", zip: true),
     Pod("FirebaseInAppMessaging", isBeta: true, platforms: ["ios"], zip: true),
+    Pod("FirebaseInAppMessagingSwift", isBeta: true, platforms: ["ios"]),
     Pod("FirebaseMessaging", zip: true),
     Pod("FirebasePerformance", platforms: ["ios", "tvos"], zip: true),
     Pod("FirebaseStorage", zip: true),

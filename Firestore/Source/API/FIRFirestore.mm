@@ -26,6 +26,7 @@
 #import "Firestore/Source/API/FIRCollectionReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
+#import "Firestore/Source/API/FIRLoadBundleTask+Internal.h"
 #import "Firestore/Source/API/FIRQuery+Internal.h"
 #import "Firestore/Source/API/FIRTransaction+Internal.h"
 #import "Firestore/Source/API/FIRWriteBatch+Internal.h"
@@ -43,6 +44,7 @@
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/remote/firebase_metadata_provider.h"
 #include "Firestore/core/src/util/async_queue.h"
+#include "Firestore/core/src/util/byte_stream_apple.h"
 #include "Firestore/core/src/util/config.h"
 #include "Firestore/core/src/util/empty.h"
 #include "Firestore/core/src/util/error_apple.h"
@@ -54,6 +56,7 @@
 #include "Firestore/core/src/util/status.h"
 #include "Firestore/core/src/util/statusor.h"
 #include "Firestore/core/src/util/string_apple.h"
+#include "absl/memory/memory.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::api::DocumentReference;
@@ -64,6 +67,7 @@ using firebase::firestore::core::EventListener;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::remote::FirebaseMetadataProvider;
 using firebase::firestore::util::AsyncQueue;
+using firebase::firestore::util::ByteStreamApple;
 using firebase::firestore::util::Empty;
 using firebase::firestore::util::MakeCallback;
 using firebase::firestore::util::MakeNSError;
@@ -380,6 +384,71 @@ NS_ASSUME_NONNULL_BEGIN
   std::unique_ptr<ListenerRegistration> result =
       _firestore->AddSnapshotsInSyncListener(std::move(eventListener));
   return [[FSTListenerRegistration alloc] initWithRegistration:std::move(result)];
+}
+
+- (FIRLoadBundleTask *)loadBundle:(nonnull NSData *)bundleData {
+  auto stream = absl::make_unique<ByteStreamApple>([[NSInputStream alloc] initWithData:bundleData]);
+  return [self loadBundleStream:[[NSInputStream alloc] initWithData:bundleData] completion:nil];
+}
+
+- (FIRLoadBundleTask *)loadBundle:(NSData *)bundleData
+                       completion:(nullable void (^)(FIRLoadBundleTaskProgress *_Nullable progress,
+                                                     NSError *_Nullable error))completion {
+  return [self loadBundleStream:[[NSInputStream alloc] initWithData:bundleData]
+                     completion:completion];
+}
+
+- (FIRLoadBundleTask *)loadBundleStream:(NSInputStream *)bundleStream {
+  return [self loadBundleStream:bundleStream completion:nil];
+}
+
+- (FIRLoadBundleTask *)loadBundleStream:(NSInputStream *)bundleStream
+                             completion:
+                                 (nullable void (^)(FIRLoadBundleTaskProgress *_Nullable progress,
+                                                    NSError *_Nullable error))completion {
+  auto stream = absl::make_unique<ByteStreamApple>(bundleStream);
+  std::shared_ptr<api::LoadBundleTask> task = _firestore->LoadBundle(std::move(stream));
+  auto callback = [completion](api::LoadBundleTaskProgress progress) {
+    if (!completion) {
+      return;
+    }
+
+    // Ignoring `kInProgress` because we are setting up for completion callback.
+    if (progress.state() == api::LoadBundleTaskState::kSuccess) {
+      completion([[FIRLoadBundleTaskProgress alloc] initWithInternal:progress], nil);
+    } else if (progress.state() == api::LoadBundleTaskState::kError) {
+      NSError *error = nil;
+      if (!progress.error_status().ok()) {
+        LOG_WARN("Progress set to Error, but error_status() is ok()");
+        error = util::MakeNSError(firebase::firestore::Error::kErrorUnknown,
+                                  "Loading bundle failed with unknown error");
+      } else {
+        error = util::MakeNSError(progress.error_status());
+      }
+      completion([[FIRLoadBundleTaskProgress alloc] initWithInternal:progress], error);
+    }
+  };
+
+  task->SetLastObserver(callback);
+  return [[FIRLoadBundleTask alloc] initWithTask:task];
+}
+
+- (void)getQueryNamed:(NSString *)name completion:(void (^)(FIRQuery *_Nullable query))completion {
+  auto firestore = _firestore;
+  auto callback = [completion, firestore](absl::optional<core::Query> query) {
+    if (!completion) {
+      return;
+    }
+
+    if (query.has_value()) {
+      FIRQuery *firQuery = [[FIRQuery alloc] initWithQuery:std::move(query.value())
+                                                 firestore:firestore];
+      completion(firQuery);
+    } else {
+      completion(nil);
+    }
+  };
+  _firestore->GetNamedQuery(MakeString(name), callback);
 }
 
 @end
