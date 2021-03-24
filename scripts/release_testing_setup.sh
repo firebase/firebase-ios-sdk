@@ -38,11 +38,11 @@ release_branch=$(git branch -r -l "origin/release-${test_version}")
 if [ -z $release_branch ];then
   echo "release-${test_version} branch does not exist in the sdk repo."
   # Get substring before the last ".", e.g. "release-7.0.0" -> "release-7.0"
-  test_version=${test_version%.*}
-  echo "search for release-${test_version} branch."
-  release_branch=$(git branch -r -l "origin/release-${test_version}")
+  minor_test_version=${test_version%.*}
+  echo "search for release-${minor_test_version} branch."
+  release_branch=$(git branch -r -l "origin/release-${minor_test_version}")
   if [ -z $release_branch ];then
-    echo "release-${test_version} branch does not exist in the sdk repo."
+    echo "release-${minor_test_version} branch does not exist in the sdk repo."
     exit 1
   fi
 fi
@@ -54,16 +54,16 @@ fi
 
 git config --global user.email "google-oss-bot@example.com"
 git config --global user.name "google-oss-bot"
-if [ "$TESTINGMODE" = "nightly_testing" ]; then
-  tag_version="nightly-test-${test_version}"
-  echo "A new tag, ${tag_version},for nightly release testing will be created."
-fi
-if [ "$TESTINGMODE" = "RC_testing" ]; then
+if [ "$TESTINGMODE" = "release_testing" ]; then
+  # Latest Cocoapods tag on the repo, e.g. Cocoapods-7.9.0
+  latest_cocoapods_tag=$(git tag -l --sort=-version:refname CocoaPods-*[0-9] | head -n 1 )
+  echo "Podspecs tags of Nightly release testing will be updated to ${latest_cocoapods_tag}."
+  # Update source and tag, e.g.  ":tag => 'CocoaPods-' + s.version.to_s" to
+  # ":tag => 'CocoaPods-7.9.0'"
+  sed  -i "" "s/\s*:tag.*/:tag => '${latest_cocoapods_tag}'/" *.podspec
+elif [ "$TESTINGMODE" = "prerelease_testing" ]; then
   tag_version="CocoaPods-${test_version}.nightly"
   echo "A new tag, ${tag_version},for prerelease testing will be created."
-fi
-# Update a tag.
-if [ -n "$tag_version" ]; then
   git checkout "${podspec_repo_branch}"
   set +e
   # If tag_version is new to the remote, remote cannot delete a non-existent
