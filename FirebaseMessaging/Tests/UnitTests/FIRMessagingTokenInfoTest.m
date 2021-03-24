@@ -72,20 +72,6 @@ static BOOL const kAPNSSandbox = NO;
   [super tearDown];
 }
 
-- (void)testTokenInfoCreationWithInvalidArchive {
-  NSData *badData = [@"badData" dataUsingEncoding:NSUTF8StringEncoding];
-  FIRMessagingTokenInfo *info = nil;
-  @try {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    info = [NSKeyedUnarchiver unarchiveObjectWithData:badData];
-#pragma clang diagnostic pop
-  } @catch (NSException *e) {
-    XCTAssertEqualObjects([e name], @"NSInvalidArgumentException");
-  }
-  XCTAssertNil(info);
-}
-
 // Test that archiving a FIRMessagingTokenInfo object and restoring it from the archive
 // yields the same values for all the fields.
 - (void)testTokenInfoEncodingAndDecoding {
