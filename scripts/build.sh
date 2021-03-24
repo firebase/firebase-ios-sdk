@@ -104,20 +104,13 @@ esac
 # Source function to check if CI secrets are available.
 source scripts/check_secrets.sh
 
-# Runs xcodebuild with the given flags, piping output to xcpretty
+# Runs xcodebuild with the given flags.
 # If xcodebuild fails with known error codes, retries once.
 function RunXcodebuild() {
   echo xcodebuild "$@"
 
-  xcpretty_cmd=(xcpretty)
-  if [[ -n "${TRAVIS:-}" ]]; then
-    # The formatter argument takes a file location of a formatter.
-    # The xcpretty-travis-formatter binary prints its location on stdout.
-    xcpretty_cmd+=(-f $(xcpretty-travis-formatter))
-  fi
-
   result=0
-  xcodebuild "$@" | tee xcodebuild.log | "${xcpretty_cmd[@]}" || result=$?
+  xcodebuild "$@" || result=$?
 
   if [[ $result == 65 ]]; then
     ExportLogs "$@"
@@ -126,7 +119,7 @@ function RunXcodebuild() {
     sleep 5
 
     result=0
-    xcodebuild "$@" | tee xcodebuild.log | "${xcpretty_cmd[@]}" || result=$?
+    xcodebuild "$@" || result=$?
   fi
 
   if [[ $result != 0 ]]; then
