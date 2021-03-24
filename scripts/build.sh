@@ -224,6 +224,7 @@ xcb_flags+=(
   CODE_SIGNING_REQUIRED=NO
   CODE_SIGNING_ALLOWED=YES
   COMPILER_INDEX_STORE_ENABLE=NO
+  -enableThreadSanitizer YES
 )
 
 # TODO(varconst): Add --warn-unused-vars and --warn-uninitialized.
