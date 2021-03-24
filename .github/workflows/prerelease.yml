@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
     - '.github/workflows/prerelease.yml'
+    - 'scripts/create_spec_repo/**'
     - 'Gemfile'
   workflow_dispatch:
   schedule:

@@ -32,7 +32,7 @@ extension Constants {
 
 // flags for 'pod push'
 extension Constants {
-  static let flags = ["--skip-tests", "--allow-warnings"]
+  static let flags = ["--skip-tests", "--allow-warnings", "--verbose"]
   static let umbrellaPodFlags = Constants.flags + ["--skip-import-validation", "--use-json"]
 }
 
@@ -69,7 +69,7 @@ struct Shell {
   static let shared = Shell()
   @discardableResult
   func run(_ command: String, displayCommand: Bool = true,
-           displayFailureResult: Bool = true) -> Int32 {
+           displayFailureResult: Bool = true, displayLog: Bool = false) -> Int32 {
     let task = Process()
     let pipe = Pipe()
     task.standardOutput = pipe
@@ -82,7 +82,7 @@ struct Shell {
     task.waitUntilExit()
     let data = pipe.fileHandleForReading.readDataToEndOfFile()
     let log = String(data: data, encoding: .utf8)!
-    if displayFailureResult, task.terminationStatus != 0 {
+    if displayFailureResult && task.terminationStatus != 0 || displayLog {
       print("-----Exit code: \(task.terminationStatus)")
       print("-----Log:\n \(log)")
     }
@@ -237,15 +237,21 @@ struct SpecRepoBuilder: ParsableCommand {
     let sourcesArg = sources.joined(separator: ",")
     let flagsArg = flags.joined(separator: " ")
 
-    let outcome =
-      shell
-        .run(
-          "pod repo push \(localSpecRepoName) \(podPath) --sources=\(sourcesArg) \(flagsArg)"
-        )
+    var pushCommand = "pod repo push \(localSpecRepoName) \(podPath) --sources=\(sourcesArg) " +
+      "\(flagsArg)"
+    if flags.contains("--verbose") {
+      pushCommand += " >> \(sdkRepo)/log.txt"
+    }
+
+    shell.run("echo 'commandline tool env'")
+    // let outcome = shell.run(pushCommand)
+    let outcome = shell.run("printenv", displayLog: true)
+
     shell.run("pod repo update")
 
     print("Outcome is \(outcome)")
 
+    shell.run("cat \(podPath)", displayLog: true)
     return outcome
   }
 
@@ -316,7 +322,7 @@ struct SpecRepoBuilder: ParsableCommand {
         print("remove \(sdkRepoName) dir.")
         try fileManager.removeItem(at: URL(fileURLWithPath: "\(curDir)/\(sdkRepoName)"))
       }
-      eraseRemoteRepo(repoPath: "\(curDir)", from: githubAccount, sdkRepoName)
+      // eraseRemoteRepo(repoPath: "\(curDir)", from: githubAccount, sdkRepoName)
 
     } catch {
       print("error occurred. \(error)")
@@ -328,20 +334,15 @@ struct SpecRepoBuilder: ParsableCommand {
       var podExitCode: Int32 = 0
       print("----------\(pod)-----------")
       switch pod {
-      case "Firebase":
-        podExitCode = pushPodspec(
-          forPod: pod,
-          sdkRepo: sdkRepo,
-          sources: podSources,
-          flags: Constants.umbrellaPodFlags
-        )
-      default:
+      case "FirebaseMLModelDownloader":
         podExitCode = pushPodspec(
           forPod: pod,
           sdkRepo: sdkRepo,
           sources: podSources,
           flags: Constants.flags
         )
+      default:
+        print("Skip pod - \(pod)")
       }
       if podExitCode != 0 {
         exitCode = 1
