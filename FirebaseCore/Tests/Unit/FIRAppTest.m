@@ -932,23 +932,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   OCMVerifyAllWithDelay(self.mockCoreDiagnosticsConnector, 0.5);
 }
 
-// TODO: Remove after testing the TSAN flag.
-- (void)testTSAN {
-  __block BOOL variable = YES;
-  NSInteger count = 10;
-  XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
-  expectation.expectedFulfillmentCount = count;
-  for (NSInteger i = 0; i <= count; i++) {
-    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
-      // Should fail on the thread sanitizer diagnostics.
-      variable = !variable;
-      [expectation fulfill];
-    });
-  }
-
-  [self waitForExpectations:@[ expectation ] timeout:1];
-}
-
 #pragma mark - private
 
 - (XCTestExpectation *)expectNotificationNamed:(NSNotificationName)name
