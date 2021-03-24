@@ -34,7 +34,7 @@ static NSString *const kScope = @"test-scope";
 static NSString *const kToken = @"test-token";
 static NSString *const kAuthID = @"test-auth-id";
 static NSString *const kSecret = @"test-secret";
-static NSString *const kFakeCheckinPlistName = @"com.google.test.IIDStoreTestCheckin";
+static NSString *const kFakeCheckinPlistName = @"com.google.test.TestTokenStore";
 
 @interface FIRMessaging (ExposedForTest)
 + (BOOL)createSubDirectory:(NSString *)subDirectoryName;
