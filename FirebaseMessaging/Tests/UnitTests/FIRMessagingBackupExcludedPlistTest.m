@@ -99,15 +99,4 @@ static NSString *const kTestPlistFileName = @"com.google.test.IIDBackupExcludedP
   NSString *plistPath = [NSString pathWithComponents:components];
   return [[NSFileManager defaultManager] fileExistsAtPath:plistPath];
 }
-
-- (BOOL)isPlistInDocumentsDirectory {
-  NSArray *directoryPaths =
-      NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-  NSString *documentsSupportDirPath = directoryPaths.lastObject;
-  NSArray *components =
-      @[ documentsSupportDirPath, [NSString stringWithFormat:@"%@.plist", kTestPlistFileName] ];
-  NSString *plistPath = [NSString pathWithComponents:components];
-  return [[NSFileManager defaultManager] fileExistsAtPath:plistPath];
-}
-
 @end

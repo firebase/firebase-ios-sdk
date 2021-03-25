@@ -33,10 +33,10 @@
 
 @interface FIRMessagingTokenManager () {
   FIRMessagingTokenStore *_tokenStore;
-  FIRMessagingCheckinStore *_checkinStore;
   NSString *_defaultFCMToken;
 }
 
+@property(nonatomic, readwrite, strong) FIRMessagingCheckinStore *checkinStore;
 @property(nonatomic, readwrite, strong) FIRMessagingAuthService *authService;
 @property(nonatomic, readonly, strong) NSOperationQueue *tokenOperations;
 

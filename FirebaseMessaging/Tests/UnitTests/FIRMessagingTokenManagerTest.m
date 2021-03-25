@@ -17,6 +17,8 @@
 #import <XCTest/XCTest.h>
 #import "OCMock.h"
 
+#import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinPreferences.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinStore.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
 #import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
 
@@ -26,12 +28,21 @@
 
 @end
 
+@interface FIRMessagingTokenManager (ExposedForTest)
+
+@property(nonatomic, readwrite, strong) FIRMessagingCheckinStore *checkinStore;
+
+- (void)resetCredentialsIfNeeded;
+
+@end
+
 @interface FIRMessagingTokenManagerTest : XCTestCase {
   FIRMessaging *_messaging;
   id _mockMessaging;
   id _mockPubSub;
   id _mockTokenManager;
   id _mockInstallations;
+  id _mockCheckinStore;
   FIRMessagingTestUtilities *_testUtil;
 }
 
@@ -48,6 +59,7 @@
   _mockMessaging = _testUtil.mockMessaging;
   _messaging = _testUtil.messaging;
   _mockTokenManager = _testUtil.mockTokenManager;
+  _mockCheckinStore = OCMPartialMock(_messaging.tokenManager.checkinStore);
 }
 
 - (void)tearDown {
@@ -95,5 +107,33 @@
   newToken = nil;
   XCTAssertFalse([_messaging.tokenManager hasTokenChangedFromOldToken:oldToken
                                                            toNewToken:newToken]);
+}
+
+- (void)testResetCredentialsWithNoCachedCheckin {
+  id niceMockCheckinStore = [OCMockObject niceMockForClass:[FIRMessagingCheckinStore class]];
+  [[niceMockCheckinStore reject]
+      removeCheckinPreferencesWithHandler:[OCMArg invokeBlockWithArgs:[NSNull null], nil]];
+  // Always setting up stub after expect.
+  OCMStub([_mockCheckinStore cachedCheckinPreferences]).andReturn(nil);
+
+  [_messaging.tokenManager resetCredentialsIfNeeded];
+
+  OCMVerifyAll(niceMockCheckinStore);
+}
+
+- (void)testResetCredentialsWithFreshInstall {
+  FIRMessagingCheckinPreferences *checkinPreferences =
+      [[FIRMessagingCheckinPreferences alloc] initWithDeviceID:@"test-auth-id"
+                                                   secretToken:@"test-secret"];
+  // Expect checkin is removed if it's a fresh install.
+  [[_mockCheckinStore expect]
+      removeCheckinPreferencesWithHandler:[OCMArg invokeBlockWithArgs:[NSNull null], nil]];
+  // Always setting up stub after expect.
+  OCMStub([_mockCheckinStore cachedCheckinPreferences]).andReturn(checkinPreferences);
+  // Plist file doesn't exist, meaning this is a fresh install.
+  OCMStub([_mockCheckinStore hasCheckinPlist]).andReturn(NO);
+
+  [_messaging.tokenManager resetCredentialsIfNeeded];
+  OCMVerifyAll(_mockCheckinStore);
 }
 @end

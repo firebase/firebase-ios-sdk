@@ -41,7 +41,7 @@ static const NSTimeInterval kExpectationTimeout = 12;
 @end
 
 // Testing constants
-static NSString *const kFakeCheckinPlistName = @"com.google.test.IIDStoreTestCheckin";
+static NSString *const kFakeCheckinPlistName = @"com.google.test.TestCheckin";
 static NSString *const kSubDirectoryName = @"FirebaseInstanceIDCheckinTest";
 
 static NSString *const kAuthID = @"test-auth-id";
@@ -193,7 +193,8 @@ static int64_t const kLastCheckinTimestamp = 123456;
 }
 
 - (NSString *)pathForCheckinPlist {
-  NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+  NSArray *paths =
+      NSSearchPathForDirectoriesInDomains(NSApplicationDirectory, NSUserDomainMask, YES);
   NSString *plistNameWithExtension = [NSString stringWithFormat:@"%@.plist", kFakeCheckinPlistName];
   return [paths[0] stringByAppendingPathComponent:plistNameWithExtension];
 }
