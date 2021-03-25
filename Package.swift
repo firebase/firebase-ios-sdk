@@ -115,7 +115,7 @@ let package = Package(
     .package(
       name: "GoogleAppMeasurement",
       url: "https://github.com/google/GoogleAppMeasurement.git",
-      .exact("7.8.1")
+      .exact("7.9.0")
     ),
     .package(
       name: "GoogleDataTransport",
@@ -141,12 +141,12 @@ let package = Package(
     .package(
       name: "abseil",
       url: "https://github.com/firebase/abseil-cpp-SwiftPM.git",
-      .revision("973d27376eedfb8f0f0a324be4b4121d44808dc9")
+      from: "0.20200225.1"
     ),
     .package(
       name: "gRPC",
       url: "https://github.com/firebase/grpc-SwiftPM.git",
-      .revision("b54af2c0d3b77209ccc8dc25af902c31a2095943")
+      "1.28.3" ..< "1.29.0"
     ),
     .package(
       name: "OCMock",
@@ -156,7 +156,7 @@ let package = Package(
     .package(
       name: "leveldb",
       url: "https://github.com/firebase/leveldb.git",
-      .revision("e4e8ab44a2781a3656b4b5852e71c07fd18fecfa")
+      "1.22.2" ..< "1.23.0"
     ),
     // Branches need a force update with a run with the revision set like below.
     //   .package(url: "https://github.com/paulb777/nanopb.git", .revision("564392bd87bd093c308a3aaed3997466efb95f74"))
@@ -264,8 +264,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/7.8.1/FirebaseAnalytics.zip",
-      checksum: "d3838e4d498a4846254feebf8d1995f63904a845fb57036b0520a413fb39b8a4"
+      url: "https://dl.google.com/firebase/ios/swiftpm/7.9.0/FirebaseAnalytics.zip",
+      checksum: "939cf0df51b97de5f53bfa3cb1e3d6fa83e875a9d3c47d1dff1ba67fdd9c7538"
     ),
     .target(
       name: "FirebaseAnalyticsSwiftTarget",
