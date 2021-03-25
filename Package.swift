@@ -599,7 +599,7 @@ let package = Package(
       exclude: [
         "DefaultUI/CHANGELOG.md",
         "DefaultUI/README.md",
-        "Resources/FIRInAppMessageDisplayStoryboardTV.storyboard"
+        "Resources/tvOS"
       ],
       resources: [
         .process("Resources/iOS"),
