@@ -56,17 +56,15 @@
   Class myClass = [self class];
 
   dispatch_once(&onceToken, ^{
+      
+    // When using SPM, Xcode scopes resources to a target, creating a specific bundle.
+    #if SWIFT_PACKAGE
+    bundledResource = SWIFTPM_MODULE_BUNDLE;
+    #else
     NSBundle *containingBundle;
     NSURL *bundleURL;
 
-    // When using SPM, Xcode scopes resources to a target, creating a specific bundle.
-    NSString *bundledResource;
-    #if SWIFT_PACKAGE
-    bundledResource = SWIFTPM_MODULE_BUNDLE; //@"Firebase_FirebaseInAppMessagingWrapper";
-    #else
-    bundledResource = @"InAppMessagingDisplayResources";
-    #endif
-
+    NSString *bundledResource = @"InAppMessagingDisplayResources";
     // The containing bundle is different whether FIAM is statically or dynamically linked.
     for (containingBundle in @[ [NSBundle mainBundle], [NSBundle bundleForClass:myClass] ]) {
       bundleURL = [containingBundle URLForResource:bundledResource
@@ -89,6 +87,7 @@
                      "is missing: not contained within bundle %@",
                     containingBundle);
     }
+    #endif // SWIFT_PACKAGE
   });
   return resourceBundle;
 }
