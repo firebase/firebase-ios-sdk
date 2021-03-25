@@ -581,13 +581,13 @@ let package = Package(
 
     .target(
       name: "FirebaseInAppMessagingTarget",
-      dependencies: [.target(name: "FirebaseInAppMessagingWrapper",
+      dependencies: [.target(name: "FirebaseInAppMessaging",
                              condition: .when(platforms: [.iOS]))],
       path: "SwiftPM-PlatformExclude/FirebaseInAppMessagingWrap"
     ),
 
     .target(
-      name: "FirebaseInAppMessagingWrapper",
+      name: "FirebaseInAppMessaging",
       dependencies: [
         "FirebaseCore",
         "FirebaseInstallations",
@@ -616,7 +616,7 @@ let package = Package(
 
     .target(
       name: "FirebaseInAppMessagingSwift",
-      dependencies: ["FirebaseInAppMessagingWrapper"],
+      dependencies: ["FirebaseInAppMessaging"],
       path: "FirebaseInAppMessaging/Swift/Source"
     ),
 
@@ -798,7 +798,7 @@ let package = Package(
         "FirebaseFirestore",
         "FirebaseFirestoreSwift",
         "FirebaseFunctions",
-        "FirebaseInAppMessagingWrapper",
+        "FirebaseInAppMessaging",
         .target(name: "FirebaseInAppMessagingSwift",
                 condition: .when(platforms: [.iOS, .tvOS])),
         "FirebaseInstallations",
@@ -833,7 +833,7 @@ let package = Package(
         "FirebaseDynamicLinks",
         "FirebaseFirestore",
         "FirebaseFunctions",
-        "FirebaseInAppMessagingWrapper",
+        "FirebaseInAppMessaging",
         "FirebaseInstallations",
         "FirebaseMessaging",
         "FirebaseRemoteConfig",
