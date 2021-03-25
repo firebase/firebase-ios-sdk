@@ -1,5 +1,5 @@
 - [changed] Update Nanopb to version 0.3.9.8. It fixes a possible security issue and some other
-  issues. (#????)
+  issues. (#7787)
 
 # FirebaseCore 7.7.0
 - [changed] Deprecated FirebaseMLModelInterpreter and FirebaseMLVision.
