@@ -59,7 +59,7 @@
       
     // When using SPM, Xcode scopes resources to a target, creating a specific bundle.
     #if SWIFT_PACKAGE
-    bundledResource = SWIFTPM_MODULE_BUNDLE;
+    resourceBundle = SWIFTPM_MODULE_BUNDLE;
     #else
     NSBundle *containingBundle;
     NSURL *bundleURL;
