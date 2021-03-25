@@ -581,13 +581,13 @@ let package = Package(
 
     .target(
       name: "FirebaseInAppMessagingTarget",
-      dependencies: [.target(name: "FirebaseInAppMessaging",
+      dependencies: [.target(name: "FirebaseInAppMessagingWrapper",
                              condition: .when(platforms: [.iOS]))],
       path: "SwiftPM-PlatformExclude/FirebaseInAppMessagingWrap"
     ),
 
     .target(
-      name: "FirebaseInAppMessaging",
+      name: "FirebaseInAppMessagingWrapper",
       dependencies: [
         "FirebaseCore",
         "FirebaseInstallations",
@@ -599,8 +599,12 @@ let package = Package(
       exclude: [
         "DefaultUI/CHANGELOG.md",
         "DefaultUI/README.md",
+        "Resources/FIRInAppMessageDisplayStoryboardTV.storyboard"
       ],
-      resources: [.process("Resources")],
+      resources: [
+        .process("Resources/iOS"),
+        .process("Resources/Shared")
+      ],
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
@@ -612,7 +616,7 @@ let package = Package(
 
     .target(
       name: "FirebaseInAppMessagingSwift",
-      dependencies: ["FirebaseInAppMessaging"],
+      dependencies: ["FirebaseInAppMessagingWrapper"],
       path: "FirebaseInAppMessaging/Swift/Source"
     ),
 
@@ -794,7 +798,7 @@ let package = Package(
         "FirebaseFirestore",
         "FirebaseFirestoreSwift",
         "FirebaseFunctions",
-        "FirebaseInAppMessaging",
+        "FirebaseInAppMessagingWrapper",
         .target(name: "FirebaseInAppMessagingSwift",
                 condition: .when(platforms: [.iOS, .tvOS])),
         "FirebaseInstallations",
@@ -829,7 +833,7 @@ let package = Package(
         "FirebaseDynamicLinks",
         "FirebaseFirestore",
         "FirebaseFunctions",
-        "FirebaseInAppMessaging",
+        "FirebaseInAppMessagingWrapper",
         "FirebaseInstallations",
         "FirebaseMessaging",
         "FirebaseRemoteConfig",
