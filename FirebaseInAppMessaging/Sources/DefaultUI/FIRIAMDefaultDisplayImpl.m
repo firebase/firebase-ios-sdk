@@ -62,7 +62,7 @@
     // When using SPM, Xcode scopes resources to a target, creating a specific bundle.
     NSString *bundledResource;
     #if SWIFT_PACKAGE
-    bundledResource = @"Firebase_FirebaseInAppMessaging";
+    bundledResource = @"Firebase_FirebaseInAppMessagingWrapper";
     #else
     bundledResource = @"InAppMessagingDisplayResources";
     #endif
