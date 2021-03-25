@@ -63,15 +63,15 @@ See more product details at https://firebase.google.com/products/in-app-messagin
 
   s.ios.resource_bundles = {
     'InAppMessagingDisplayResources' => [
-       base_dir + 'Resources/FIRInAppMessageDisplayStoryboard.storyboard',
-       base_dir + 'Resources/*.png'
+       base_dir + 'Resources/iOS',
+       base_dir + 'Resources/Shared'
      ]
   }
 
   s.tvos.resource_bundles = {
     'InAppMessagingDisplayResources' => [
-       base_dir + 'Resources/FIRInAppMessageDisplayStoryboardTV.storyboard',
-       base_dir + 'Resources/*.png'
+       base_dir + 'Resources/tvOS',
+       base_dir + 'Resources/Shared'
      ]
   }
 
