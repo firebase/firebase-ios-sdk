@@ -56,11 +56,11 @@
   Class myClass = [self class];
 
   dispatch_once(&onceToken, ^{
-      
-    // When using SPM, Xcode scopes resources to a target, creating a specific bundle.
-    #if SWIFT_PACKAGE
+
+// When using SPM, Xcode scopes resources to a target, creating a specific bundle.
+#if SWIFT_PACKAGE
     resourceBundle = SWIFTPM_MODULE_BUNDLE;
-    #else
+#else
     NSBundle *containingBundle;
     NSURL *bundleURL;
 
@@ -87,7 +87,7 @@
                      "is missing: not contained within bundle %@",
                     containingBundle);
     }
-    #endif // SWIFT_PACKAGE
+#endif  // SWIFT_PACKAGE
   });
   return resourceBundle;
 }
