@@ -6,6 +6,7 @@ on:
     - 'FirebaseAnalytics.podspec.json'
     - 'FirebaseAnalyticsSwift**'
     - 'GoogleAppMeasurement.podspec.json'
+    - '.github/workflows/analytics.yml'
     - 'Gemfile'
   schedule:
     # Run every day at 1am (PST) - cron uses UTC times
