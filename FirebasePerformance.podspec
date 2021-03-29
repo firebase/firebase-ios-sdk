@@ -71,6 +71,7 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
     unit_tests.scheme = { :code_coverage => true }
     unit_tests.source_files = [
       'FirebasePerformance/Tests/Unit/**/*.{m,h,plist}',
+      'GoogleDataTransport/GDTCORTests/Common/**/*.[hm]',
     ]
     unit_tests.resources = ['FirebasePerformance/Tests/Unit/Server/*File']
     unit_tests.requires_arc = true
