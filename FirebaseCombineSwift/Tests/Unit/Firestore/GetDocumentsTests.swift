@@ -19,15 +19,15 @@ import Combine
 import XCTest
 
 class GetDocumentsTests: XCTestCase {
-    
+
     class MockQuery: QueryFake {
-        
+
         var mockGetDocuments: () throws -> QuerySnapshot = {
             fatalError("You need to implement \(#function) in your mock.")
         }
-        
+
         var verifySource: ((_ source: FirestoreSource) -> Void)?
-        
+
         override func getDocuments(source: FirestoreSource, completion: @escaping FIRQuerySnapshotBlock) {
             do {
                 verifySource?(source)
@@ -38,11 +38,11 @@ class GetDocumentsTests: XCTestCase {
             }
         }
     }
-    
+
     override class func setUp() {
         FirebaseApp.configureForTests()
     }
-    
+
     override class func tearDown() {
         FirebaseApp.app()?.delete { success in
             if success {
@@ -52,10 +52,10 @@ class GetDocumentsTests: XCTestCase {
             }
         }
     }
-    
+
     //    override func setUp() {
     //    }
-    
+
     //    func testAddDocumentWithDataSuccess() {
     //        // given
     //
@@ -96,29 +96,29 @@ class GetDocumentsTests: XCTestCase {
     //            timeout: expectationTimeout
     //        )
     //    }
-    
+
     func testGetDocumentsFailure() {
         // given
         var cancellables = Set<AnyCancellable>()
-        
+
         let getDocumentsWasCalledExpectation = expectation(description: "getDocuments was called")
         let getDocumentsFailureExpectation = expectation(description: "getDocuments failed")
-        
+
         let query = MockQuery()
         let source: FirestoreSource = .server
-        
-        
+
+
         query.mockGetDocuments = {
             getDocumentsWasCalledExpectation.fulfill()
             throw NSError(domain: FirestoreErrorDomain,
                           code: FirestoreErrorCode.unknown.rawValue,
                           userInfo: [NSLocalizedDescriptionKey: "Dummy Error"])
         }
-        
+
         query.verifySource = {
             XCTAssertTrue(source == $0, "💥 Something went wrong: source changed")
         }
-        
+
         // when
         query.getDocuments(source: source)
             .sink { completion in
@@ -133,7 +133,7 @@ class GetDocumentsTests: XCTestCase {
                 XCTFail("💥 Something went wrong")
             }
             .store(in: &cancellables)
-        
+
         // then
         wait(
             for: [getDocumentsWasCalledExpectation, getDocumentsFailureExpectation],

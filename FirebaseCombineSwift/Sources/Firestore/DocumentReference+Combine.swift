@@ -1,18 +1,16 @@
-/*
- * Copyright 2021 Google
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2021 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #if canImport(Combine) && swift(>=5.0) && canImport(FirebaseFirestore)
 
@@ -22,9 +20,9 @@ import FirebaseFirestore
 @available(swift 5.0)
 @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
 extension DocumentReference {
-    
+
     // MARK: - Set Data
-    
+
     /// Overwrites the document referred to by this `DocumentReference`. If no document exists, it
     /// is created. If a document already exists, it is overwritten.
     /// - Parameter documentData: A `Dictionary` containing the fields that make up the document to
@@ -43,7 +41,7 @@ extension DocumentReference {
             }
         }
     }
-    
+
     /// Writes to the document referred to by this `DocumentReference`. If the document does not yet
     /// exist, it will be created. If you pass `merge: true`, the provided data will be merged into
     /// any existing document.
@@ -65,7 +63,7 @@ extension DocumentReference {
             }
         }
     }
-    
+
     /// Writes to the document referred to by this `DocumentReference` and only replace the fields
     /// specified under `mergeFields`. Any field that is not specified in `mergeFields` is ignored
     /// and remains untouched. If the document doesn't yet exist, this method creates it and then
@@ -90,7 +88,7 @@ extension DocumentReference {
             }
         }
     }
-    
+
     /// Encodes an instance of `Encodable` and overwrites the encoded data to the document referred
     ///  by this `DocumentReference`. If no document exists, it is created. If a document already
     ///  exists, it is overwritten.
@@ -115,7 +113,7 @@ extension DocumentReference {
             }
         }
     }
-    
+
     /// Encodes an instance of `Encodable` and overwrites the encoded data to the document referred
     ///  by this `DocumentReference`. If no document exists, it is created. If a document already
     ///  exists, it is overwritten. If you pass `merge: true`, the provided Encodable will be merged
@@ -142,7 +140,7 @@ extension DocumentReference {
             }
         }
     }
-    
+
     /// Encodes an instance of `Encodable` and writes the encoded data to the document referred by
     /// this DocumentReference by only replacing the fields specified under mergeFields. Any field
     /// that is not specified in mergeFields is ignored and remains untouched. If the document
@@ -171,11 +169,11 @@ extension DocumentReference {
             }
         }
     }
-    
+
     // MARK: - Update Data
-    
+
     /// Updates fields in the document referred to by this `DocumentReference`. If the document does
-    ///  not exist, the update fails and the specified completion block receives an error.
+    /// not exist, the update fails and the specified completion block receives an error.
     /// - Parameter documentData: A `Dictionary` containing the fields (expressed as a `String` or
     /// `FieldPath`) and values with which to update the document.
     /// - Returns: A publisher emitting a `Void` when the update is complete. This block will only
@@ -193,9 +191,9 @@ extension DocumentReference {
         }
         }
     }
-    
+
     // MARK: - Delete
-    
+
     /// Deletes the document referred to by this `DocumentReference`.
     /// - Returns: A publisher emitting a `Void` when the document has been deleted from the server.
     ///  This publisher will not emit while the device is offline, though local changes will be
@@ -211,9 +209,9 @@ extension DocumentReference {
             }
         }
     }
-    
+
     // MARK: - Get Document
-    
+
     /// Reads the document referenced by this `DocumentReference`.
     /// - Parameter source: Indicates whether the results should be fetched from the cache only
     ///  (`Source.cache`), the server only (`Source.server`), or to attempt the server and fall back
@@ -231,9 +229,9 @@ extension DocumentReference {
             }
         }
     }
-    
+
     // MARK: - Snapshot Publisher
-    
+
     /// Registers a publisher that publishes document snapshot changes.
     /// - Parameter includeMetadataChanges: Whether metadata-only changes (i.e. only
     /// `DocumentSnapshot.metadata` changed) should trigger snapshot events.

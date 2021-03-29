@@ -1,19 +1,16 @@
-/*
- * Copyright 2021 Google
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
+// Copyright 2021 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 #if canImport(Combine) && swift(>=5.0) && canImport(FirebaseFirestore)
 
 import Combine
@@ -28,9 +25,9 @@ import FirebaseFirestoreSwift
 @available(swift 5.0)
 @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
 extension CollectionReference {
-    
+
     // MARK: - Add Document
-    
+
     /// Adds a new document to this collection with the specified data, assigning it a document ID
     /// automatically.
     /// - Parameter data: A `Dictionary` containing the data for the new document.
@@ -52,9 +49,9 @@ extension CollectionReference {
         .map { reference }
         .eraseToAnyPublisher()
     }
-    
+
     #if canImport(FirebaseFirestoreSwift)
-    
+
     /// Adds a new document to this collection with the specified data, assigning it a document ID
     /// automatically.
     /// - Parameters:
@@ -81,9 +78,9 @@ extension CollectionReference {
         .map { reference }
         .eraseToAnyPublisher()
     }
-    
+
     #endif
-    
+
 }
 
 #endif
