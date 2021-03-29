@@ -68,6 +68,16 @@ NSString *const kFIRAppCheckErrorDomain = @"com.firebase.appCheck";
                      underlyingError:error];
 }
 
++ (NSError *)unsupportedAttestationProvider:(NSString *)providerName {
+  NSString *failureReason = [NSString
+      stringWithFormat:
+          @"The attestation provider %@ is not supported on current platform and OS version.",
+          providerName];
+  return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnsupported
+                       failureReason:failureReason
+                     underlyingError:nil];
+}
+
 + (NSError *)errorWithFailureReason:(NSString *)failureReason {
   return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnknown
                        failureReason:failureReason
