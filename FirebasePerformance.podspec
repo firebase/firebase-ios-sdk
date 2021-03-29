@@ -60,7 +60,7 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
   s.dependency 'FirebaseCore', '~> 7.0'
   s.dependency 'FirebaseInstallations', '~> 7.0'
   s.dependency 'FirebaseRemoteConfig', '~> 7.0'
-  s.dependency 'GoogleDataTransport', '~> 8.2'
+  s.dependency 'GoogleDataTransport', '~> 8.4'
   s.dependency 'GoogleUtilities/Environment', '~> 7.0'
   s.dependency 'GoogleUtilities/ISASwizzler', '~> 7.0'
   s.dependency 'GoogleUtilities/MethodSwizzler', '~> 7.0'
@@ -71,7 +71,6 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
     unit_tests.scheme = { :code_coverage => true }
     unit_tests.source_files = [
       'FirebasePerformance/Tests/Unit/**/*.{m,h,plist}',
-      'GoogleDataTransport/GDTCORTests/Common/**/*.[hm]',
     ]
     unit_tests.resources = ['FirebasePerformance/Tests/Unit/Server/*File']
     unit_tests.requires_arc = true
