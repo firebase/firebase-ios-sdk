@@ -19,8 +19,7 @@
 
   @available(swift 5.0)
   @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
-extension MultiFactor {
-    
+  extension MultiFactor {
     /// Get a session for a second factor enrollment operation.
     ///
     /// The publisher will emit events on the **main** thread.
@@ -30,17 +29,17 @@ extension MultiFactor {
     ///   The publisher will emit on the *main* thread.
     @discardableResult
     public func getSession() -> Future<MultiFactorSession, Error> {
-        Future<MultiFactorSession, Error> { promise in
-            self.getSessionWithCompletion { session, error in
-                if let session = session {
-                    promise(.success(session))
-                } else if let error = error {
-                    promise(.failure(error))
-                }
-            }
+      Future<MultiFactorSession, Error> { promise in
+        self.getSessionWithCompletion { session, error in
+          if let session = session {
+            promise(.success(session))
+          } else if let error = error {
+            promise(.failure(error))
+          }
         }
+      }
     }
-    
+
     /// Enrolls a second factor as identified by the `MultiFactorAssertion` parameter for the
     /// current user.
     ///
@@ -52,18 +51,19 @@ extension MultiFactor {
     ///
     /// - Returns: A publisher that emits whether the call was successful or not. The publisher will emit on the *main* thread.
     @discardableResult
-    public func enroll(with assertion: MultiFactorAssertion, displayName: String?) -> Future<Void, Error> {
-        Future<Void, Error> { promise in
-            self.enroll(with: assertion, displayName: displayName) { error in
-                if let error = error {
-                    promise(.failure(error))
-                } else {
-                    promise(.success(()))
-                }
-            }
+    public func enroll(with assertion: MultiFactorAssertion,
+                       displayName: String?) -> Future<Void, Error> {
+      Future<Void, Error> { promise in
+        self.enroll(with: assertion, displayName: displayName) { error in
+          if let error = error {
+            promise(.failure(error))
+          } else {
+            promise(.success(()))
+          }
         }
+      }
     }
-    
+
     /// Unenroll the given multi factor.
     ///
     /// The publisher will emit events on the **main** thread.
@@ -72,17 +72,17 @@ extension MultiFactor {
     /// - Returns: A publisher that emits when the request to send the verification email is complete. The publisher will emit on the *main* thread.
     @discardableResult
     public func unenroll(with factorInfo: MultiFactorInfo) -> Future<Void, Error> {
-        Future<Void, Error> { promise in
-            self.unenroll(with: factorInfo) { error in
-                if let error = error {
-                    promise(.failure(error))
-                } else {
-                    promise(.success(()))
-                }
-            }
+      Future<Void, Error> { promise in
+        self.unenroll(with: factorInfo) { error in
+          if let error = error {
+            promise(.failure(error))
+          } else {
+            promise(.success(()))
+          }
         }
+      }
     }
-    
+
     /// Unenroll the given multi factor.
     ///
     /// The publisher will emit events on the **main** thread.
@@ -90,15 +90,15 @@ extension MultiFactor {
     /// - Returns: A publisher that emits when the request to send the verification email is complete. The publisher will emit on the *main* thread.
     @discardableResult
     public func unenroll(withFactorUID factorUID: String) -> Future<Void, Error> {
-        Future<Void, Error> { promise in
-            self.unenroll(withFactorUID: factorUID) { error in
-                if let error = error {
-                    promise(.failure(error))
-                } else {
-                    promise(.success(()))
-                }
-            }
+      Future<Void, Error> { promise in
+        self.unenroll(withFactorUID: factorUID) { error in
+          if let error = error {
+            promise(.failure(error))
+          } else {
+            promise(.success(()))
+          }
         }
+      }
     }
-}
+  }
 #endif

@@ -24,7 +24,8 @@ NS_SWIFT_NAME(PhoneAuthProviderFake)
 
 - (instancetype)init;
 
-/// The block to be called each time when `verifyPhoneNumber(_:uiDelegate:completion:)` method is called.
+/// The block to be called each time when `verifyPhoneNumber(_:uiDelegate:completion:)` method is
+/// called.
 @property(nonatomic, nullable, copy) FIRVerifyPhoneNumberHandler verifyPhoneNumberHandler;
 
 // TODO: Implement other handlers as needed.

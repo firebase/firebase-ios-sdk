@@ -21,7 +21,6 @@
   @available(swift 5.0)
   @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
   extension PhoneAuthProvider {
-    
     /// Starts the phone number authentication flow by sending a verification code to the
     /// specified phone number.
     ///
@@ -49,17 +48,17 @@
     public func verifyPhoneNumber(with phoneNumber: String,
                                   uiDelegate: AuthUIDelegate? = nil)
       -> Future<String, Error> {
-        Future<String, Error> { promise in
-            self.verifyPhoneNumber(phoneNumber, uiDelegate: uiDelegate) { verificationID, error in
-                if let error = error {
-                  promise(.failure(error))
-                } else if let verificationID = verificationID {
-                  promise(.success(verificationID))
-                }
-            }
+      Future<String, Error> { promise in
+        self.verifyPhoneNumber(phoneNumber, uiDelegate: uiDelegate) { verificationID, error in
+          if let error = error {
+            promise(.failure(error))
+          } else if let verificationID = verificationID {
+            promise(.success(verificationID))
+          }
         }
+      }
     }
-    
+
     /// Verify ownership of the second factor phone number by the current user.
     ///
     /// The publisher will emit events on the **main** thread.
@@ -90,17 +89,21 @@
                                   uiDelegate: AuthUIDelegate? = nil,
                                   multiFactorSession: MultiFactorSession?)
       -> Future<String, Error> {
-        Future<String, Error> { promise in
-            self.verifyPhoneNumber(phoneNumber, uiDelegate: uiDelegate, multiFactorSession: multiFactorSession) { verificationID, error in
-                if let error = error {
-                  promise(.failure(error))
-                } else if let verificationID = verificationID {
-                  promise(.success(verificationID))
-                }
-            }
+      Future<String, Error> { promise in
+        self.verifyPhoneNumber(
+          phoneNumber,
+          uiDelegate: uiDelegate,
+          multiFactorSession: multiFactorSession
+        ) { verificationID, error in
+          if let error = error {
+            promise(.failure(error))
+          } else if let verificationID = verificationID {
+            promise(.success(verificationID))
+          }
         }
+      }
     }
-    
+
     /// Verify ownership of the second factor phone number by the current user.
     ///
     /// The publisher will emit events on the **main** thread.

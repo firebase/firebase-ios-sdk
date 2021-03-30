@@ -17,29 +17,29 @@ import XCTest
 @testable import FirebaseAuthTestingSupport
 
 class PhoneAuthProviderFakeTests: XCTestCase {
-    func testPhoneAuthProviderFakeConstructor() throws {
-      let fakePhoneAuthProvider = PhoneAuthProviderFake()
-      XCTAssertNotNil(fakePhoneAuthProvider)
-      XCTAssertTrue(fakePhoneAuthProvider.isKind(of: PhoneAuthProvider.self))
+  func testPhoneAuthProviderFakeConstructor() throws {
+    let fakePhoneAuthProvider = PhoneAuthProviderFake()
+    XCTAssertNotNil(fakePhoneAuthProvider)
+    XCTAssertTrue(fakePhoneAuthProvider.isKind(of: PhoneAuthProvider.self))
+  }
+
+  func testVerifyPhoneNumberHandler() {
+    let fakePhoneAuthProvider = PhoneAuthProviderFake()
+
+    let handlerExpectation = expectation(description: "Handler called")
+    fakePhoneAuthProvider.verifyPhoneNumberHandler = { completion in
+      handlerExpectation.fulfill()
+
+      completion(nil, nil)
     }
-    
-    func testVerifyPhoneNumberHandler() {
-      let fakePhoneAuthProvider = PhoneAuthProviderFake()
 
-      let handlerExpectation = expectation(description: "Handler called")
-        fakePhoneAuthProvider.verifyPhoneNumberHandler = { completion in
-            handlerExpectation.fulfill()
-
-            completion(nil, nil)
-        }
-
-      let completionExpectation = expectation(description: "Completion called")
-        fakePhoneAuthProvider.verifyPhoneNumber("", uiDelegate: nil) { verficationID, error in
-            completionExpectation.fulfill()
-            XCTAssertNil(verficationID)
-            XCTAssertNil(error)
-        }
-
-      wait(for: [handlerExpectation, completionExpectation], timeout: 0.5)
+    let completionExpectation = expectation(description: "Completion called")
+    fakePhoneAuthProvider.verifyPhoneNumber("", uiDelegate: nil) { verficationID, error in
+      completionExpectation.fulfill()
+      XCTAssertNil(verficationID)
+      XCTAssertNil(error)
     }
+
+    wait(for: [handlerExpectation, completionExpectation], timeout: 0.5)
+  }
 }

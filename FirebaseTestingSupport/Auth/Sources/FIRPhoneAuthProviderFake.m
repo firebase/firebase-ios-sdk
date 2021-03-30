@@ -21,10 +21,12 @@
   return self;
 }
 
-- (void)verifyPhoneNumber:(NSString *)phoneNumber UIDelegate:(id<FIRAuthUIDelegate>)UIDelegate completion:(FIRVerificationResultCallback)completion {
-    if (self.verifyPhoneNumberHandler) {
-      self.verifyPhoneNumberHandler(completion);
-    }
+- (void)verifyPhoneNumber:(NSString *)phoneNumber
+               UIDelegate:(id<FIRAuthUIDelegate>)UIDelegate
+               completion:(FIRVerificationResultCallback)completion {
+  if (self.verifyPhoneNumberHandler) {
+    self.verifyPhoneNumberHandler(completion);
+  }
 }
 
 @end
