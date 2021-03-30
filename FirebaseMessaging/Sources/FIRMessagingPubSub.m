@@ -20,7 +20,6 @@
 #import <GoogleUtilities/GULUserDefaults.h>
 #import "Firebase/InstanceID/Private/FIRInstanceID_Private.h"
 #import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
-
 #import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 #import "FirebaseMessaging/Sources/FIRMessagingPendingTopicsList.h"
