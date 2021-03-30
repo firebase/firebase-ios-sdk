@@ -43,7 +43,6 @@ static const NSTimeInterval kExpectationTimeout = 12;
 // Testing constants
 static NSString *const kFakeCheckinPlistName = @"com.google.test.TestCheckin";
 static NSString *const kSubDirectoryName = @"FirebaseInstanceIDCheckinTest";
-
 static NSString *const kAuthID = @"test-auth-id";
 static NSString *const kDigest = @"test-digest";
 static NSString *const kSecret = @"test-secret";
