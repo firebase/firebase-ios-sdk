@@ -22,7 +22,7 @@
 
 @implementation FIRIAMRenderingWindowHelper
 
-+ (UIWindow *)UIWindowForModalView {
++ (UIWindow *)windowForBlockingView {
   static UIWindow *UIWindowForModal;
   static dispatch_once_t onceToken;
 
@@ -41,7 +41,7 @@
   return UIWindowForModal;
 }
 
-+ (UIWindow *)UIWindowForBannerView {
++ (UIWindow *)windowForNonBlockingView {
   static UIWindow *UIWindowForBanner;
   static dispatch_once_t onceToken;
 
@@ -60,26 +60,6 @@
   });
 
   return UIWindowForBanner;
-}
-
-+ (UIWindow *)UIWindowForImageOnlyView {
-  static UIWindow *UIWindowForImageOnly;
-  static dispatch_once_t onceToken;
-
-  dispatch_once(&onceToken, ^{
-#if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-    if (@available(iOS 13.0, tvOS 13.0, *)) {
-      UIWindowForImageOnly = [[self class] iOS13PlusWindow];
-    } else {
-#endif  // defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-      UIWindowForImageOnly = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-#if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-    }
-#endif  // defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-    UIWindowForImageOnly.windowLevel = UIWindowLevelNormal;
-  });
-
-  return UIWindowForImageOnly;
 }
 
 #if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000

@@ -6,7 +6,7 @@
         "GoogleUtilities/MethodSwizzler": "~> 7.0",
         "GoogleUtilities/NSData+zlib": "~> 7.0",
         "GoogleUtilities/Network": "~> 7.0",
-        "nanopb": "~> 2.30907.0"
+        "nanopb": "~> 2.30908.0"
     },
     "description": "Measurement methods that are shared between Google libraries. This pod does not expose any headers and isn't intended for direct use, but rather as a dependency of some Google libraries.",
     "frameworks": [
