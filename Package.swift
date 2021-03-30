@@ -599,10 +599,10 @@ let package = Package(
       exclude: [
         "DefaultUI/CHANGELOG.md",
         "DefaultUI/README.md",
-//        "Resources/tvOS",
+        "Resources/tvOS",
       ],
       resources: [
-//        .process("Resources/iOS"),
+        .process("Resources/iOS"),
         .process("Resources/Shared"),
       ],
       publicHeadersPath: "Public",
