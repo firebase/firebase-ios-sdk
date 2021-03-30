@@ -42,7 +42,7 @@ device, and it is completely free.
     'Firebase/InstanceID/Public/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
   ]
-
+  s.requires_arc = base_dir + 'Sources/**/*.m'
   s.public_header_files = base_dir + 'Sources/Public/FirebaseMessaging/*.h'
   s.library = 'sqlite3'
   s.pod_target_xcconfig = {
@@ -54,7 +54,7 @@ device, and it is completely free.
   s.tvos.framework = 'SystemConfiguration'
   s.osx.framework = 'SystemConfiguration'
   s.weak_framework = 'UserNotifications'
-  s.dependency 'FirebaseInstallations', '~> 7.0'
+  s.dependency 'FirebaseInstanceID', '~> 7.0'
   s.dependency 'FirebaseCore', '~> 7.0'
   s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.0'
   s.dependency 'GoogleUtilities/Reachability', '~> 7.0'
