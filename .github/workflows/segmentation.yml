@@ -3,7 +3,7 @@ name: segmentation
 on:
   pull_request:
     paths:
-    - 'FirebasesSegmentation**'
+    - 'FirebaseSegmentation**'
     - '.github/workflows/segmentation.yml'
     - 'Gemfile'
   schedule:
