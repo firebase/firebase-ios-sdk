@@ -27,9 +27,6 @@
 #import "Firebase/InstanceID/Private/FIRInstanceID_Private.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Public/FirebaseInstallations/FirebaseInstallations.h"
-#import "FirebaseMessaging/Sources/Interop/FIRMessagingInterop.h"
-#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessagingExtensionHelper.h"
-#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 #import "FirebaseMessaging/Sources/FIRMessagingAnalytics.h"
 #import "FirebaseMessaging/Sources/FIRMessagingCode.h"
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
@@ -42,10 +39,13 @@
 #import "FirebaseMessaging/Sources/FIRMessagingSyncMessageManager.h"
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
 #import "FirebaseMessaging/Sources/FIRMessaging_Private.h"
+#import "FirebaseMessaging/Sources/Interop/FIRMessagingInterop.h"
 #import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
+#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessagingExtensionHelper.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingAuthService.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenInfo.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
+#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 static NSString *const kFIRMessagingMessageViaAPNSRootKey = @"aps";
 static NSString *const kFIRMessagingReachabilityHostname = @"www.google.com";

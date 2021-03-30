@@ -18,7 +18,6 @@
 
 #import <GoogleUtilities/GULSecureCoding.h>
 #import <GoogleUtilities/GULUserDefaults.h>
-#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
 #import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 #import "FirebaseMessaging/Sources/FIRMessagingPendingTopicsList.h"
@@ -28,6 +27,7 @@
 #import "FirebaseMessaging/Sources/FIRMessaging_Private.h"
 #import "FirebaseMessaging/Sources/NSDictionary+FIRMessaging.h"
 #import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
+#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
 
 static NSString *const kPendingSubscriptionsListKey =
