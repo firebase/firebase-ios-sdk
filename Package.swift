@@ -855,9 +855,11 @@ let package = Package(
     // MARK: - Firebase App Check
 
     .target(name: "FirebaseAppCheck",
-            dependencies: ["FirebaseCore",
-                           .product(name: "FBLPromises", package: "Promises"),
-                           "GoogleUtilities_Environment"],
+            dependencies: [
+              "FirebaseCore",
+              .product(name: "FBLPromises", package: "Promises"),
+              .product(name: "GULEnvironment", package: "GoogleUtilities"),
+            ],
             path: "FirebaseAppCheck/Sources",
             publicHeadersPath: "Public",
             cSettings: [

@@ -25,6 +25,7 @@ Cloud Functions for Firebase.
   s.source_files = [
     'Functions/FirebaseFunctions/**/*',
     'Interop/Auth/Public/*.h',
+    'FirebaseAppCheck/Sources/Interop/*.h',
     'FirebaseCore/Sources/Private/*.h',
     'FirebaseMessaging/Sources/Interop/FIRMessagingInterop.h',
   ]
@@ -44,6 +45,7 @@ Cloud Functions for Firebase.
       'Functions/Example/Test*/*.[mh]',
       'SharedTestUtilities/FIRAuthInteropFake*',
       'SharedTestUtilities/FIRMessagingInteropFake*',
+      'SharedTestUtilities/AppCheckFake/*.[mh]',
   ]
   end
 
