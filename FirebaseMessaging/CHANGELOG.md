@@ -1,3 +1,6 @@
+#unreleased
+- [changed] Refactor Messaging to internally not depending on InstanceID, but can co-exist. Will remove InstanceID dependency in the next Firebase breaking change. (#7814)
+
 # 2021-02 -- v7.7.0
 - [fixed] Fixed an issue in which, when checking storage size before writing to disk, the client was checking document folders that were no longer used. (#7480)
 
