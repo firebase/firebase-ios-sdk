@@ -32,15 +32,15 @@ std::atomic<LogLevel> g_log_level(kLogLevelNotice);
 }  // namespace
 
 void LogSetLevel(LogLevel level) {
-  g_log_level.store(level);
+  g_log_level = level;
 }
 
 bool LogIsLoggable(LogLevel level) {
-  return level >= g_log_level.load();
+  return level >= g_log_level;
 }
 
 void LogMessage(LogLevel log_level, const std::string& message) {
-  if (log_level < g_log_level.load()) {
+  if (log_level < g_log_level) {
     return;
   }
 
