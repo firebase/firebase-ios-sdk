@@ -12,7 +12,7 @@ on:
     # YML configuration file
     - '.github/workflows/performance.yml'
     # Rebuild on Ruby infrastructure changes
-    - 'Gemfile'
+    - 'Gemfile*'
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
     # Specified in format 'minutes hours day month dayofweek'
