@@ -124,6 +124,20 @@
          (oldToken.length && newToken.length && ![oldToken isEqualToString:newToken]);
 }
 
+- (void)saveDefaultTokenInfo:(NSString *)defaultFcmToken {
+  _defaultFCMToken = [defaultFcmToken copy];
+  FIRMessagingTokenInfo *tokenInfo =
+      [[FIRMessagingTokenInfo alloc] initWithAuthorizedEntity:_fcmSenderID
+                                                        scope:kFIRMessagingDefaultTokenScope
+                                                        token:defaultFcmToken
+                                                   appVersion:FIRMessagingCurrentAppVersion()
+                                                firebaseAppID:_firebaseAppID];
+  tokenInfo.APNSInfo =
+      [[FIRMessagingAPNSInfo alloc] initWithTokenOptionsDictionary:[self tokenOptions]];
+
+  [self->_tokenStore saveTokenInfoInCache:tokenInfo];
+}
+
 - (NSDictionary *)tokenOptions {
   NSDictionary *instanceIDOptions = @{};
   NSData *apnsTokenData = self.currentAPNSInfo.deviceToken;
@@ -407,6 +421,8 @@
         if (handler) {
           [operation addCompletionHandler:^(FIRMessagingTokenOperationResult result,
                                             NSString *_Nullable token, NSError *_Nullable error) {
+
+            self->_defaultFCMToken = nil;
             dispatch_async(dispatch_get_main_queue(), ^{
               handler(error);
             });
@@ -435,6 +451,7 @@
     }
     [self deleteAllTokensLocallyWithHandler:^(NSError *localError) {
       [self postTokenRefreshNotificationWithDefaultFCMToken:nil];
+      self->_defaultFCMToken = nil;
       if (localError) {
         handler(localError);
         return;

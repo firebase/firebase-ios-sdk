@@ -167,6 +167,7 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
 - (NSString *)tokenAndRequestIfNotExist;
 
 /*
+<<<<<<< HEAD
  * Saves the default token to the keychain.
  */
 - (void)saveDefaultTokenInfoInKeychain:(NSString *)defaultFcmToken;
@@ -181,5 +182,10 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
  * Checks if two tokens have changed.
  */
 - (BOOL)hasTokenChangedFromOldToken:(NSString *)oldToken toNewToken:(NSString *)newToken;
+
+/*
+ * Saves the default token to cache. This is to set the cache if token is updated from iid.
+ */
+- (void)saveDefaultTokenInfo:(NSString *)defaultFcmToken;
 
 @end
