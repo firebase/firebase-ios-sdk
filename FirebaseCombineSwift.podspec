@@ -61,6 +61,7 @@ Combine Publishers for Firebase.
       'FirebaseCombineSwift/Tests/Unit/**/*.swift',
       'FirebaseCombineSwift/Tests/Unit/**/*.h',
       'SharedTestUtilities/FIROptionsMock.[mh]',
+      'Fakes/*.[mh]',
     ]
     unit_tests.exclude_files = 'FirebaseCombineSwift/Tests/Unit/**/*Template.swift'
     unit_tests.requires_app_host = true
@@ -68,5 +69,6 @@ Combine Publishers for Firebase.
       'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseCombineSwift/Tests/Unit/FirebaseCombine-unit-Bridging-Header.h'
     }
     unit_tests.dependency 'OCMock'
+    unit_tests.dependency 'FirebaseAuthTestingSupport'
   end
 end
