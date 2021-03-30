@@ -6,7 +6,7 @@ on:
     - 'FirebaseRemoteConfig**'
     - 'Interop/Analytics/Public/*.h'
     - '.github/workflows/remoteconfig.yml'
-    - 'Gemfile'
+    - 'Gemfile*'
     - 'scripts/generate_access_token.sh'
   schedule:
     # Run every day at 12am (PST) - cron uses UTC times

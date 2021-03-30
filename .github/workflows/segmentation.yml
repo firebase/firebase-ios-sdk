@@ -5,7 +5,7 @@ on:
     paths:
     - 'FirebaseSegmentation**'
     - '.github/workflows/segmentation.yml'
-    - 'Gemfile'
+    - 'Gemfile*'
   schedule:
     # Run every day at 12am (PST) - cron uses UTC times
     - cron:  '0 8 * * *'

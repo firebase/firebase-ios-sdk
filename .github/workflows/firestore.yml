@@ -53,7 +53,7 @@ on:
     - '.github/workflows/firestore.yml'
 
     # Rebuild on Ruby infrastructure changes.
-    - 'Gemfile'
+    - 'Gemfile*'
 
   schedule:
     # Run every day at 2am (PST) - cron uses UTC times
