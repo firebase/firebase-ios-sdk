@@ -121,7 +121,7 @@ NSSearchPathDirectory FIRMessagingSupportedDirectory(void) {
 
 #pragma mark - Locales
 
-NSDictionary *FIRMessagingFirebaselocalesMap() {
+NSDictionary *FIRMessagingFirebaselocalesMap(void) {
   return @{
     // Albanian
     @"sq" : @[ @"sq_AL" ],
@@ -239,7 +239,7 @@ NSDictionary *FIRMessagingFirebaselocalesMap() {
   };
 }
 
-NSArray *FIRMessagingFirebaseLocales() {
+NSArray *FIRMessagingFirebaseLocales(void) {
   NSMutableArray *locales = [NSMutableArray array];
   NSDictionary *localesMap = FIRMessagingFirebaselocalesMap();
   for (NSString *key in localesMap) {
