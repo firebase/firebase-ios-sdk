@@ -45,7 +45,7 @@
     ///      invalid.
     ///   - `FIRAuthErrorCodeMissingPhoneNumber` - Indicates that a phone number was not provided.
     @discardableResult
-    public func verifyPhoneNumber(with phoneNumber: String,
+    public func verifyPhoneNumber(_ phoneNumber: String,
                                   uiDelegate: AuthUIDelegate? = nil)
       -> Future<String, Error> {
       Future<String, Error> { promise in
@@ -85,7 +85,7 @@
     ///      invalid.
     ///   - `FIRAuthErrorCodeMissingPhoneNumber` - Indicates that a phone number was not provided.
     @discardableResult
-    public func verifyPhoneNumber(with phoneNumber: String,
+    public func verifyPhoneNumber(_ phoneNumber: String,
                                   uiDelegate: AuthUIDelegate? = nil,
                                   multiFactorSession: MultiFactorSession?)
       -> Future<String, Error> {

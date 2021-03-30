@@ -24,7 +24,7 @@
     ///
     /// The publisher will emit events on the **main** thread.
     ///
-    /// - Returns: A publisher that emits an `MultiFactorSession` for a second factor
+    /// - Returns: A publisher that emits a `MultiFactorSession` for a second factor
     ///   enrollment operation. This is used to identify the current user trying to enroll a second factor.
     ///   The publisher will emit on the *main* thread.
     @discardableResult
