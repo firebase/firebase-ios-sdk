@@ -33,7 +33,7 @@ jobs:
     runs-on: macOS-latest
     strategy:
       matrix:
-        target: [iOS], #, tvOS, macOS, catalyst]
+        target: [iOS] #, tvOS, macOS, catalyst]
         # Full set of Firebase-Package tests only run on iOS because of Analytics.
         test: [
           ABTestingUnit,
