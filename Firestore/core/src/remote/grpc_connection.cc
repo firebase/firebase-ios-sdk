@@ -76,15 +76,15 @@ class HostConfig {
   using Guard = std::lock_guard<std::mutex>;
 
  public:
-  void certificate_path(const util::Path& new_value) {
+  void set_certificate_path(const Path& new_value) {
     Guard guard(mutex_);
     certificate_path_ = new_value;
   }
-  util::Path certificate_path() const {
+  Path certificate_path() const {
     Guard guard(mutex_);
     return certificate_path_;
   }
-  void target_name(const std::string& new_value) {
+  void set_target_name(const std::string& new_value) {
     Guard guard(mutex_);
     target_name_ = new_value;
   }
@@ -92,7 +92,7 @@ class HostConfig {
     Guard guard(mutex_);
     return target_name_;
   }
-  void use_insecure_channel(bool new_value) {
+  void set_use_insecure_channel(bool new_value) {
     Guard guard(mutex_);
     use_insecure_channel_ = new_value;
   }
@@ -103,7 +103,7 @@ class HostConfig {
 
  private:
   mutable std::mutex mutex_;
-  util::Path certificate_path_;
+  Path certificate_path_;
   std::string target_name_;
   bool use_insecure_channel_ = false;
 };
@@ -137,8 +137,8 @@ class HostConfigMap {
 
     Guard guard(mutex_);
     HostConfig& host_config = map_[host];
-    host_config.certificate_path(certificate_path);
-    host_config.target_name(target_name);
+    host_config.set_certificate_path(certificate_path);
+    host_config.set_target_name(target_name);
   }
 
   void UseInsecureChannel(const std::string& host) {
@@ -146,7 +146,7 @@ class HostConfigMap {
 
     Guard guard(mutex_);
     HostConfig& host_config = map_[host];
-    host_config.use_insecure_channel(true);
+    host_config.set_use_insecure_channel(true);
   }
 
  private:

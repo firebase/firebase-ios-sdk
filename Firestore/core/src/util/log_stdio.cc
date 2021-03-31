@@ -27,7 +27,7 @@ namespace firestore {
 namespace util {
 namespace {
 
-std::atomic<LogLevel> g_log_level(kLogLevelNotice);
+std::atomic<LogLevel> g_log_level = kLogLevelNotice;
 
 }  // namespace
 
