@@ -8,7 +8,7 @@ on:
     - '*.podspec'
     - 'CoreOnly/**'
     - '.github/workflows/firebasepod.yml'
-    - 'Gemfile*'
+    - 'Gemfile'
   schedule:
     # Run every day at 3am (PST) - cron uses UTC times
     - cron:  '0 11 * * *'
