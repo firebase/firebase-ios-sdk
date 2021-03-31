@@ -582,7 +582,7 @@ let package = Package(
     .target(
       name: "FirebaseInAppMessagingTarget",
       dependencies: [
-        .target(name: "FirebaseInAppMessaging", condition: .when(platforms: [.iOS, .tvOS]))
+        .target(name: "FirebaseInAppMessaging", condition: .when(platforms: [.iOS, .tvOS])),
       ],
       path: "SwiftPM-PlatformExclude/FirebaseInAppMessagingWrap"
     ),
@@ -608,12 +608,12 @@ let package = Package(
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "nanopb", package: "nanopb"),
         .target(name: "FirebaseInAppMessaging_iOS", condition: .when(platforms: [.iOS])),
-        .target(name: "FirebaseInAppMessaging_tvOS", condition: .when(platforms: [.tvOS]))
+        .target(name: "FirebaseInAppMessaging_tvOS", condition: .when(platforms: [.tvOS])),
       ],
       path: "FirebaseInAppMessaging/Sources",
       exclude: [
         "DefaultUI/CHANGELOG.md",
-        "DefaultUI/README.md"
+        "DefaultUI/README.md",
       ],
       resources: [.process("Resources")],
       publicHeadersPath: "Public",
