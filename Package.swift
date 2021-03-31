@@ -581,9 +581,22 @@ let package = Package(
 
     .target(
       name: "FirebaseInAppMessagingTarget",
-      dependencies: [.target(name: "FirebaseInAppMessaging",
-                             condition: .when(platforms: [.iOS]))],
+      dependencies: [
+        .target(name: "FirebaseInAppMessaging", condition: .when(platforms: [.iOS, .tvOS]))
+      ],
       path: "SwiftPM-PlatformExclude/FirebaseInAppMessagingWrap"
+    ),
+
+    .target(
+      name: "FirebaseInAppMessaging_iOS",
+      path: "FirebaseInAppMessaging/iOS",
+      resources: [.process("Resources")]
+    ),
+
+    .target(
+      name: "FirebaseInAppMessaging_tvOS",
+      path: "FirebaseInAppMessaging/tvOS",
+      resources: [.process("Resources")]
     ),
 
     .target(
@@ -594,17 +607,15 @@ let package = Package(
         "FirebaseABTesting",
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "nanopb", package: "nanopb"),
+        .target(name: "FirebaseInAppMessaging_iOS", condition: .when(platforms: [.iOS])),
+        .target(name: "FirebaseInAppMessaging_tvOS", condition: .when(platforms: [.tvOS]))
       ],
       path: "FirebaseInAppMessaging/Sources",
       exclude: [
         "DefaultUI/CHANGELOG.md",
-        "DefaultUI/README.md",
-        "Resources/tvOS",
+        "DefaultUI/README.md"
       ],
-      resources: [
-        .process("Resources/iOS"),
-        .process("Resources/Shared"),
-      ],
+      resources: [.process("Resources")],
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
@@ -798,7 +809,8 @@ let package = Package(
         "FirebaseFirestore",
         "FirebaseFirestoreSwift",
         "FirebaseFunctions",
-        "FirebaseInAppMessaging",
+        .target(name: "FirebaseInAppMessaging",
+                condition: .when(platforms: [.iOS, .tvOS])),
         .target(name: "FirebaseInAppMessagingSwift",
                 condition: .when(platforms: [.iOS, .tvOS])),
         "FirebaseInstallations",
@@ -833,7 +845,8 @@ let package = Package(
         "FirebaseDynamicLinks",
         "FirebaseFirestore",
         "FirebaseFunctions",
-        "FirebaseInAppMessaging",
+        .target(name: "FirebaseInAppMessaging",
+                condition: .when(platforms: [.iOS, .tvOS])),
         "FirebaseInstallations",
         "FirebaseMessaging",
         "FirebaseRemoteConfig",
