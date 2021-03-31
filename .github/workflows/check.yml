@@ -5,7 +5,8 @@ on:
     paths-ignore:
       - 'Firestore/**'
   push:
-    branches: master
+    branches-ignore:
+      - '**'
 
 jobs:
   check:
