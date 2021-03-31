@@ -614,6 +614,8 @@ let package = Package(
       exclude: [
         "DefaultUI/CHANGELOG.md",
         "DefaultUI/README.md",
+        "iOS",
+        "tvOS"
       ],
       resources: [.process("Resources")],
       publicHeadersPath: "Public",
