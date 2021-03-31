@@ -601,7 +601,7 @@ let package = Package(
       path: "FirebaseInAppMessaging/Sources",
       exclude: [
         "DefaultUI/CHANGELOG.md",
-        "DefaultUI/README.md"
+        "DefaultUI/README.md",
       ],
       resources: [.process("Resources")],
       publicHeadersPath: "Public",
