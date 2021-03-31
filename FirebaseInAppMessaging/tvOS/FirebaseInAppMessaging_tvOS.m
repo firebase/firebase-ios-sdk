@@ -12,7 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <TargetConditionals.h>
-#if !(TARGET_OS_IOS || TARGET_OS_TVOS)
-#warning "Firebase In App Messaging only supports the iOS and tvOS platforms."
-#endif
+// Prevent a missing umbrella header warning.

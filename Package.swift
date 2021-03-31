@@ -588,18 +588,6 @@ let package = Package(
     ),
 
     .target(
-      name: "FirebaseInAppMessaging_iOS",
-      path: "FirebaseInAppMessaging/iOS",
-      resources: [.process("Resources")]
-    ),
-
-    .target(
-      name: "FirebaseInAppMessaging_tvOS",
-      path: "FirebaseInAppMessaging/tvOS",
-      resources: [.process("Resources")]
-    ),
-
-    .target(
       name: "FirebaseInAppMessaging",
       dependencies: [
         "FirebaseCore",
@@ -613,9 +601,7 @@ let package = Package(
       path: "FirebaseInAppMessaging/Sources",
       exclude: [
         "DefaultUI/CHANGELOG.md",
-        "DefaultUI/README.md",
-        "iOS",
-        "tvOS"
+        "DefaultUI/README.md"
       ],
       resources: [.process("Resources")],
       publicHeadersPath: "Public",
@@ -625,6 +611,18 @@ let package = Package(
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
         .define("PB_ENABLE_MALLOC", to: "1"),
       ]
+    ),
+
+    .target(
+      name: "FirebaseInAppMessaging_iOS",
+      path: "FirebaseInAppMessaging/iOS",
+      resources: [.process("Resources")]
+    ),
+
+    .target(
+      name: "FirebaseInAppMessaging_tvOS",
+      path: "FirebaseInAppMessaging/tvOS",
+      resources: [.process("Resources")]
     ),
 
     .target(
