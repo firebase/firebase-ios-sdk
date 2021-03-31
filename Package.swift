@@ -695,7 +695,7 @@ let package = Package(
     ),
     .testTarget(
       name: "MessagingUnit",
-      dependencies: ["FirebaseMessaging", "OCMock"],
+      dependencies: ["FirebaseMessaging", "SharedTestUtilities", "OCMock"],
       path: "FirebaseMessaging/Tests/UnitTests",
       exclude: [
         "FIRMessagingContextManagerServiceTest.m", // TODO: Adapt its NSBundle usage to SPM.
