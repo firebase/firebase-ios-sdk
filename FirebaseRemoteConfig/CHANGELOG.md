@@ -1,4 +1,4 @@
-# Unreleased
+# v7.10.0
 - [changed] Throw exception if projectID is missing from FirebaseOptions. (#7725)
 
 # v7.9.0

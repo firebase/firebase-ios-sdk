@@ -116,7 +116,7 @@
       return;
     }
 
-    UIWindow *displayUIWindow = [FIRIAMRenderingWindowHelper UIWindowForModalView];
+    UIWindow *displayUIWindow = [FIRIAMRenderingWindowHelper windowForBlockingView];
     displayUIWindow.rootViewController = cardVC;
     [displayUIWindow setHidden:NO];
   });
@@ -153,7 +153,7 @@
       return;
     }
 
-    UIWindow *displayUIWindow = [FIRIAMRenderingWindowHelper UIWindowForModalView];
+    UIWindow *displayUIWindow = [FIRIAMRenderingWindowHelper windowForBlockingView];
     displayUIWindow.rootViewController = modalVC;
     [displayUIWindow setHidden:NO];
   });
@@ -190,7 +190,7 @@
       return;
     }
 
-    UIWindow *displayUIWindow = [FIRIAMRenderingWindowHelper UIWindowForBannerView];
+    UIWindow *displayUIWindow = [FIRIAMRenderingWindowHelper windowForNonBlockingView];
     displayUIWindow.rootViewController = bannerVC;
     [displayUIWindow setHidden:NO];
   });
@@ -228,7 +228,7 @@
       return;
     }
 
-    UIWindow *displayUIWindow = [FIRIAMRenderingWindowHelper UIWindowForImageOnlyView];
+    UIWindow *displayUIWindow = [FIRIAMRenderingWindowHelper windowForBlockingView];
     displayUIWindow.rootViewController = imageOnlyVC;
     [displayUIWindow setHidden:NO];
   });

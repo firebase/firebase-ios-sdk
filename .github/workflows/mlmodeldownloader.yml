@@ -5,7 +5,7 @@ on:
     paths:
     - 'FirebaseMLModelDownloader**'
     - '.github/workflows/mlmodeldownloader.yml'
-    - 'Gemfile'
+    - 'Gemfile*'
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
     - cron:  '0 7 * * *'
