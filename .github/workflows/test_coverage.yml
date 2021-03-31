@@ -6,8 +6,6 @@ on:
     # synchronize will be triggered when a pull request has new commits.
     # closed will be triggered when a pull request is closed.
     types: [opened, synchronize, closed]
-  branches-ignore:
-    - '**'
 
 env:
   METRICS_SERVICE_SECRET: ${{ secrets.GHASecretsGPGPassphrase1 }}
