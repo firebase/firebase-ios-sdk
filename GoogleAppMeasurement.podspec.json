@@ -33,5 +33,5 @@
     "vendored_frameworks": [
         "Frameworks/GoogleAppMeasurement.xcframework"
     ],
-    "version": "7.9.0"
+    "version": "7.10.0"
 }

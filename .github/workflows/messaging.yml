@@ -12,7 +12,7 @@ on:
     # This file
     - '.github/workflows/messaging.yml'
     # Rebuild on Ruby infrastructure changes
-    - 'Gemfile'
+    - 'Gemfile*'
   schedule:
     # Run every day at 10pm (PST) - cron uses UTC times
     - cron:  '0 6 * * *'

@@ -6,7 +6,7 @@ on:
     - 'FirebaseDynamicLinks**'
     - '.github/workflows/dynamiclinks.yml'
     - 'Interop/Analytics/Public/*.h'
-    - 'Gemfile'
+    - 'Gemfile*'
   schedule:
     # Run every day at 3am (PST) - cron uses UTC times
     - cron:  '0 11 * * *'

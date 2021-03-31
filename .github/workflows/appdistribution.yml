@@ -5,7 +5,7 @@ on:
     paths:
     - 'FirebaseAppDistribution**'
     - '.github/workflows/appdistribution.yml'
-    - 'Gemfile'
+    - 'Gemfile*'
   schedule:
     # Run every day at 1am (PST) - cron uses UTC times
     - cron: '0 9 * * *'
