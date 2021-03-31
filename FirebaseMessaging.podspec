@@ -38,11 +38,10 @@ device, and it is completely free.
     base_dir + 'Sources/**/*.[mh]',
     'Interop/Analytics/Public/*.h',
     'FirebaseCore/Sources/Private/*.h',
+    'FirebaseInstallations/Source/Library/Private/*.h',
     'Firebase/InstanceID/Private/*.h',
     'Firebase/InstanceID/Public/*.h',
-    'FirebaseInstallations/Source/Library/Private/*.h',
   ]
-  s.requires_arc = base_dir + 'Sources/**/*.m'
   s.public_header_files = base_dir + 'Sources/Public/FirebaseMessaging/*.h'
   s.library = 'sqlite3'
   s.pod_target_xcconfig = {

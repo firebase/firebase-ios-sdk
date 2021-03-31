@@ -41,8 +41,7 @@ FOUNDATION_EXPORT NSString *const kFIRMessagingRegistrationTokenRefreshNotificat
 FOUNDATION_EXPORT const int kFIRMessagingSendTtlDefault;  // 24 hours
 
 /**
- *  Value included in a structured response or GCM message from IID, indicating
- *  an identity reset.
+ *  Value included in a structured response indicating an identity reset.
  */
 FOUNDATION_EXPORT NSString *const kFIRMessaging_CMD_RST;
 
