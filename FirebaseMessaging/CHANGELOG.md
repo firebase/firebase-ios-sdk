@@ -1,4 +1,4 @@
-#unreleased - v7.11.0
+# 2021-04 -- v7.11.0
 - [changed] Refactor Messaging to internally not depending on InstanceID, but can co-exist. Will remove InstanceID dependency in the next Firebase breaking change. (#7814)
 
 # 2021-02 -- v7.7.0
