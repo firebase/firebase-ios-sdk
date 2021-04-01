@@ -16,8 +16,8 @@
 
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenInfo.h"
 
+#import <GoogleUtilities/GULSecureCoding.h>
 #import <XCTest/XCTest.h>
-
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingAPNSInfo.h"
@@ -76,11 +76,14 @@ static BOOL const kAPNSSandbox = NO;
 // yields the same values for all the fields.
 - (void)testTokenInfoEncodingAndDecoding {
   FIRMessagingTokenInfo *info = self.validTokenInfo;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  NSData *archive = [NSKeyedArchiver archivedDataWithRootObject:info];
-  FIRMessagingTokenInfo *restoredInfo = [NSKeyedUnarchiver unarchiveObjectWithData:archive];
-#pragma clang diagnostic pop
+  NSError *archiverError;
+  NSData *archive = [GULSecureCoding archivedDataWithRootObject:info error:&archiverError];
+  NSError *unarchiverError;
+  FIRMessagingTokenInfo *restoredInfo =
+      [GULSecureCoding unarchivedObjectOfClasses:[NSSet setWithObjects:FIRMessagingTokenInfo.class,
+                                                                       NSDate.class, nil]
+                                        fromData:archive
+                                           error:&unarchiverError];
   XCTAssertEqualObjects(restoredInfo.authorizedEntity, info.authorizedEntity);
   XCTAssertEqualObjects(restoredInfo.scope, info.scope);
   XCTAssertEqualObjects(restoredInfo.token, info.token);

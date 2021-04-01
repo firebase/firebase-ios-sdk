@@ -220,11 +220,11 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingMessageCodeTokenManagerAPNSChangedTokenInvalidated = 34011,
   kFIRMessagingMessageCodeTokenManagerInvalidateStaleToken = 34012,
   // FIRMessagingTokenStore.m
-  // DO NOT USE 15002 - 15013
+  // DO NOT USE 35002 - 35013
   kFIRMessagingMessageCodeTokenStore000 = 35000,
   kFIRMessagingMessageCodeTokenStore001 = 35001,
-  kFIRMessagingMessageCodeTokenStoreExceptionUnarchivingTokenInfo = 35015,
-
+  kFIRMessagingMessageCodeTokenStoreUnarchivingTokenInfo = 35015,
+  kFIRMessagingMessageCodeTokenStoreArchiveError = 35016,
   // DO NOT USE 16000, 18004
 
   // FIRMessagingUtilities.m

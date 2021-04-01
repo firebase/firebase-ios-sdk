@@ -18,12 +18,12 @@
 #if !TARGET_OS_MACCATALYST && !SWIFT_PACKAGE
 // Skip keychain tests on Catalyst and swift package
 
+#import <GoogleUtilities/GULSecureCoding.h>
 #import <XCTest/XCTest.h>
-#import "OCMock.h"
-
 #import "FirebaseMessaging/Sources/Token/FIRMessagingAuthKeychain.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinPreferences.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenInfo.h"
+#import "OCMock.h"
 
 static NSString *const kFIRMessagingTestKeychainId = @"com.google.iid-tests";
 
@@ -406,10 +406,8 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
                                                         token:token
                                                    appVersion:@"1.0"
                                                 firebaseAppID:kFirebaseAppID];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  return [NSKeyedArchiver archivedDataWithRootObject:tokenInfo];
-#pragma clang diagnostic pop
+  NSError *error;
+  return [GULSecureCoding archivedDataWithRootObject:tokenInfo error:&error];
 }
 @end
 
