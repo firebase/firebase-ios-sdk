@@ -27,11 +27,12 @@ fi
 OUTPUT_DIR="$REPO/$1"
 
 CUSTOM_SPEC_REPOS="$2"
+echo $CUSTOM_SPEC_REPOS
 
 source_repo=()
 IFS=','
 read -a specrepo <<< "${CUSTOM_SPEC_REPOS}"
-for repo in "${CUSTOM_SPEC_REPOS[@]}";
+for repo in "${specrepo[@]}";
 do
   source_repo+=( --custom-spec-repos "$repo" )
 done
