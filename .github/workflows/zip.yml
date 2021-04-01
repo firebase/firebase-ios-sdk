@@ -48,7 +48,7 @@ jobs:
     - name: ZipBuildingTest
       run: |
          mkdir -p zip_output_dir
-         sh -x scripts/build_zip.sh zip_output_dir "${{ github.event.inputs.custom_spec_repos || 'https://github.com/firebase/SpecsStaging.git https://github.com/firebase/SpecsDev.git' }}"
+         sh -x scripts/build_zip.sh zip_output_dir "${{ github.event.inputs.custom_spec_repos || 'https://github.com/firebase/SpecsStaging.git,https://github.com/firebase/SpecsDev.git' }}"
     - uses: actions/upload-artifact@v1
       with:
         name: Firebase-actions-dir
