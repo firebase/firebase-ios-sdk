@@ -14,24 +14,10 @@ on:
 # because each platform takes 15-20 minutes after adding Firestore.
 
 jobs:
-  iOS-build-run:
+  swift-build-run:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     runs-on: macOS-latest
-    strategy:
-      matrix:
-        test: [
-        ABTestingUnit,
-        AppDistributionUnit,
-        AuthUnit,
-        CoreUnit,
-        DatabaseUnit,
-        FirebaseMLModelDownloaderUnit,
-        MessagingUnit,
-        RemoteConfigUnit,
-        StorageUnit,
-        analytics-import-test
-        ]
     steps:
     - uses: actions/checkout@v2
     - name: Xcode 12
@@ -39,7 +25,7 @@ jobs:
     - name: Initialize xcodebuild
       run: xcodebuild -list
     - name: iOS Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh ${{ matrix.test }} iOS spm
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh Firebase-Package iOS spm
 
   platforms:
     # Don't run on private repo unless it is a PR.
