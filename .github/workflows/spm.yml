@@ -29,7 +29,9 @@ jobs:
         FirebaseMLModelDownloaderUnit,
         MessagingUnit,
         RemoteConfigUnit,
-        StorageUnit
+        StorageUnit,
+        FirebaseDatabaseSwiftTests,
+        analytics-import-test
         ]
     steps:
     - uses: actions/checkout@v2
@@ -40,20 +42,20 @@ jobs:
     - name: iOS Unit Tests
       run: ./scripts/build.sh ${{ matrix.test }} iOS spm
 
-  platforms:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macOS-latest
-    strategy:
-      matrix:
-        target: [iOS, tvOS, macOS, catalyst]
-        # Full set of Firebase-Package tests only run on iOS because of Analytics.
-        test: [objc-import-test, swift-test, version-test]
-    steps:
-    - uses: actions/checkout@v2
-    - name: Xcode 12
-      run: sudo xcode-select -s /Applications/Xcode_12.app/Contents/Developer
-    - name: Initialize xcodebuild
-      run: xcodebuild -list
-    - name: Unit Tests
-      run: ./scripts/build.sh ${{ matrix.test }} ${{ matrix.target }} spm
+#  platforms:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+#    runs-on: macOS-latest
+#    strategy:
+#      matrix:
+#        target: [iOS, tvOS, macOS, catalyst]
+#        # Full set of Firebase-Package tests only run on iOS because of Analytics.
+#        test: [objc-import-test, swift-test, version-test]
+#    steps:
+#    - uses: actions/checkout@v2
+#    - name: Xcode 12
+#      run: sudo xcode-select -s /Applications/Xcode_12.app/Contents/Developer
+#    - name: Initialize xcodebuild
+#      run: xcodebuild -list
+#    - name: Unit Tests
+#      run: ./scripts/build.sh ${{ matrix.test }} ${{ matrix.target }} spm
