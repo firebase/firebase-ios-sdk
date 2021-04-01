@@ -110,7 +110,7 @@
 - (void)deferredInit {
     // TODO: cleanup on dealloc
     __weak FRepo *weakSelf = self;
-    [self.config.authTokenProvider listenForTokenChanges:^(NSString *token) {
+    [self.config.contextProvider listenForAuthTokenChanges:^(NSString *token) {
       [weakSelf.connection refreshAuthToken:token];
     }];
 

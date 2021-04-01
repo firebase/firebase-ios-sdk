@@ -27,7 +27,7 @@
 #import "FirebaseDatabase/Sources/Core/Utilities/FIRRetryHelper.h"
 #import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
 #import "FirebaseDatabase/Sources/FIndex.h"
-#import "FirebaseDatabase/Sources/Login/FAuthTokenProvider.h"
+#import "FirebaseDatabase/Sources/Login/FIRDatabaseConnectionContextProvider.h"
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseReference.h"
 #import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
 #import "FirebaseDatabase/Sources/Utilities/FAtomicNumber.h"
@@ -124,7 +124,8 @@ typedef enum {
 @property(nonatomic, strong) NSString *lastSessionID;
 @property(nonatomic, strong) NSMutableSet *interruptReasons;
 @property(nonatomic, strong) FIRRetryHelper *retryHelper;
-@property(nonatomic, strong) id<FAuthTokenProvider> authTokenProvider;
+@property(nonatomic, strong) id<FIRDatabaseConnectionContextProvider>
+    contextProvider;
 @property(nonatomic, strong) NSString *authToken;
 @property(nonatomic) BOOL forceAuthTokenRefresh;
 @property(nonatomic) NSUInteger currentFetchTokenAttempt;
@@ -141,8 +142,8 @@ typedef enum {
         self->_config = config;
         self->_repoInfo = repoInfo;
         self->_dispatchQueue = dispatchQueue;
-        self->_authTokenProvider = config.authTokenProvider;
-        NSAssert(self->_authTokenProvider != nil,
+        self->_contextProvider = config.contextProvider;
+        NSAssert(self->_contextProvider != nil,
                  @"Expected auth token provider");
         self.interruptReasons = [NSMutableSet set];
 
@@ -485,62 +486,69 @@ typedef enum {
           self->connectionState = ConnectionStateGettingToken;
           self.currentFetchTokenAttempt++;
           NSUInteger thisFetchTokenAttempt = self.currentFetchTokenAttempt;
-          [self.authTokenProvider
-              fetchTokenForcingRefresh:forceRefresh
-                          withCallback:^(NSString *token, NSError *error) {
-                            if (thisFetchTokenAttempt ==
-                                self.currentFetchTokenAttempt) {
-                                if (error != nil) {
-                                    self->connectionState =
-                                        ConnectionStateDisconnected;
-                                    FFLog(@"I-RDB034010",
-                                          @"Error fetching token: %@", error);
-                                    [self tryScheduleReconnect];
-                                } else {
-                                    // Someone could have interrupted us while
-                                    // fetching the token, marking the
-                                    // connection as Disconnected
-                                    if (self->connectionState ==
-                                        ConnectionStateGettingToken) {
-                                        FFLog(@"I-RDB034011",
-                                              @"Successfully fetched token, "
-                                              @"opening connection");
-                                        [self openNetworkConnectionWithToken:
-                                                  token];
-                                    } else {
-                                        NSAssert(
-                                            self->connectionState ==
-                                                ConnectionStateDisconnected,
-                                            @"Expected connection state "
-                                            @"disconnected, but got %d",
-                                            self->connectionState);
-                                        FFLog(@"I-RDB034012",
-                                              @"Not opening connection after "
-                                              @"token refresh, because "
-                                              @"connection was set to "
-                                              @"disconnected.");
-                                    }
-                                }
-                            } else {
-                                FFLog(@"I-RDB034013",
-                                      @"Ignoring fetch token result, because "
-                                      @"this was not the latest attempt.");
-                            }
-                          }];
+          [self.contextProvider
+              fetchContextForcingRefresh:forceRefresh
+                            withCallback:^(
+                                FIRDatabaseConnectionContext *context,
+                                NSError *error) {
+                              if (thisFetchTokenAttempt ==
+                                  self.currentFetchTokenAttempt) {
+                                  if (error != nil) {
+                                      self->connectionState =
+                                          ConnectionStateDisconnected;
+                                      FFLog(@"I-RDB034010",
+                                            @"Error fetching token: %@", error);
+                                      [self tryScheduleReconnect];
+                                  } else {
+                                      // Someone could have interrupted us while
+                                      // fetching the token, marking the
+                                      // connection as Disconnected
+                                      if (self->connectionState ==
+                                          ConnectionStateGettingToken) {
+                                          FFLog(@"I-RDB034011",
+                                                @"Successfully fetched token, "
+                                                @"opening connection");
+                                          [self
+                                              openNetworkConnectionWithContext:
+                                                  context];
+                                      } else {
+                                          NSAssert(
+                                              self->connectionState ==
+                                                  ConnectionStateDisconnected,
+                                              @"Expected connection state "
+                                              @"disconnected, but got %d",
+                                              self->connectionState);
+                                          FFLog(@"I-RDB034012",
+                                                @"Not opening connection after "
+                                                @"token refresh, because "
+                                                @"connection was set to "
+                                                @"disconnected.");
+                                      }
+                                  }
+                              } else {
+                                  FFLog(@"I-RDB034013",
+                                        @"Ignoring fetch token result, because "
+                                        @"this was not the latest attempt.");
+                              }
+                            }];
         }];
     }
 }
 
-- (void)openNetworkConnectionWithToken:(NSString *)token {
+- (void)openNetworkConnectionWithContext:
+    (FIRDatabaseConnectionContext *)context {
     NSAssert(self->connectionState == ConnectionStateGettingToken,
              @"Trying to open network connection while in wrong state: %d",
              self->connectionState);
-    self.authToken = token;
+    // TODO: Save entire context?
+    self.authToken = context.authToken;
+
     self->connectionState = ConnectionStateConnecting;
     self.realtime = [[FConnection alloc] initWith:self.repoInfo
                                  andDispatchQueue:self.dispatchQueue
                                       googleAppID:self.config.googleAppID
-                                    lastSessionID:self.lastSessionID];
+                                    lastSessionID:self.lastSessionID
+                                    appCheckToken:context.appCheckToken];
     self.realtime.delegate = self;
     [self.realtime open];
 }
