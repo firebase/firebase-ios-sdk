@@ -27,7 +27,6 @@ fi
 OUTPUT_DIR="$REPO/$1"
 
 CUSTOM_SPEC_REPOS="$2"
-echo $CUSTOM_SPEC_REPOS
 
 source_repo=()
 IFS=','
