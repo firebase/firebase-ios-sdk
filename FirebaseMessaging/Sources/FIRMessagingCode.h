@@ -36,10 +36,10 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingMessageCodeMessaging012 = 2012,                  // I-FCM002012
   kFIRMessagingMessageCodeMessaging013 = 2013,                  // I-FCM002013
   kFIRMessagingMessageCodeMessaging014 = 2014,                  // I-FCM002014
-  kFIRMessagingMessageCodeMessaging015 = 2015,                  // I-FCM002015
-  kFIRMessagingMessageCodeMessaging016 = 2016,                  // I-FCM002016 - no longer used
-  kFIRMessagingMessageCodeMessaging017 = 2017,                  // I-FCM002017
-  kFIRMessagingMessageCodeMessaging018 = 2018,                  // I-FCM002018
+  kFIRMessagingMessageCodeMessaging015 = 2015,
+  kFIRMessagingMessageCodeMessaging016 = 2016,  // I-FCM002016 - no longer used
+  kFIRMessagingMessageCodeMessaging017 = 2017,  // I-FCM002017
+  kFIRMessagingMessageCodeMessaging018 = 2018,  // I-FCM002018
   kFIRMessagingMessageCodeRemoteMessageDelegateMethodNotImplemented = 2019,  // I-FCM002019
   kFIRMessagingMessageCodeSenderIDNotSuppliedForTokenFetch = 2020,           // I-FCM002020
   kFIRMessagingMessageCodeSenderIDNotSuppliedForTokenDelete = 2021,          // I-FCM002021
@@ -137,4 +137,121 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingServiceExtensionLocalFileNotCreated = 20002,
   kFIRMessagingServiceExtensionImageNotAttached = 20003,
 
+  kFIRMessagingMessageCodeFIRApp002 = 22002,
+  kFIRMessagingMessageCodeInternal001 = 22001,
+  kFIRMessagingMessageCodeInternal002 = 22002,
+  // FIRMessaging.m
+  // DO NOT USE 4000.
+  kFIRMessagingMessageCodeInstanceID000 = 23000,
+  kFIRMessagingMessageCodeInstanceID001 = 23001,
+  kFIRMessagingMessageCodeInstanceID002 = 23002,
+  kFIRMessagingMessageCodeInstanceID003 = 23003,
+  kFIRMessagingMessageCodeInstanceID004 = 23004,
+  kFIRMessagingMessageCodeInstanceID005 = 23005,
+  kFIRMessagingMessageCodeInstanceID006 = 23006,
+  kFIRMessagingMessageCodeInstanceID007 = 23007,
+  kFIRMessagingMessageCodeInstanceID008 = 23008,
+  kFIRMessagingMessageCodeInstanceID009 = 23009,
+  kFIRMessagingMessageCodeInstanceID010 = 23010,
+  kFIRMessagingMessageCodeInstanceID011 = 23011,
+  kFIRMessagingMessageCodeInstanceID012 = 23012,
+  kFIRMessagingMessageCodeInstanceID013 = 23013,
+  kFIRMessagingMessageCodeInstanceID014 = 23014,
+  kFIRMessagingMessageCodeInstanceID015 = 23015,
+  kFIRMessagingMessageCodeRefetchingTokenForAPNS = 23016,
+  kFIRMessagingMessageCodeInstanceID017 = 23017,
+  kFIRMessagingMessageCodeInstanceID018 = 23018,
+  // FIRMessagingAuthService.m
+  kFIRMessagingMessageCodeAuthService000 = 25000,
+  kFIRMessagingMessageCodeAuthService001 = 25001,
+  kFIRMessagingMessageCodeAuthService002 = 25002,
+  kFIRMessagingMessageCodeAuthService003 = 25003,
+  kFIRMessagingMessageCodeAuthService004 = 25004,
+  kFIRMessagingMessageCodeAuthServiceCheckinInProgress = 25004,
+
+  // FIRMessagingBackupExcludedPlist.m
+  // Do NOT USE 6003
+  kFIRMessagingMessageCodeBackupExcludedPlist000 = 26000,
+  kFIRMessagingMessageCodeBackupExcludedPlist001 = 26001,
+  kFIRMessagingMessageCodeBackupExcludedPlist002 = 26002,
+  // FIRMessagingCheckinService.m
+  kFIRMessagingMessageCodeService000 = 27000,
+  kFIRMessagingMessageCodeService001 = 27001,
+  kFIRMessagingMessageCodeService002 = 27002,
+  kFIRMessagingMessageCodeService003 = 27003,
+  kFIRMessagingMessageCodeService004 = 27004,
+  kFIRMessagingMessageCodeService005 = 27005,
+  kFIRMessagingMessageCodeService006 = 27006,
+  kFIRMessagingInvalidSettingResponse = 27008,
+  // FIRMessagingCheckinStore.m
+  // DO NOT USE 8002, 8004 - 8008
+  kFIRMessagingMessageCodeCheckinStore000 = 28000,
+  kFIRMessagingMessageCodeCheckinStore001 = 28001,
+  kFIRMessagingMessageCodeCheckinStore003 = 28003,
+  kFIRMessagingMessageCodeCheckinStoreCheckinPlistDeleted = 28009,
+  kFIRMessagingMessageCodeCheckinStoreCheckinPlistSaved = 28010,
+
+  // DO NOT USE 9000 - 9006
+
+  // DO NOT USE 10000 - 10009
+
+  // DO NOT USE 11000 - 11002
+
+  // DO NOT USE 12000 - 12014
+
+  // DO NOT USE 13004, 13005, 13007, 13008, 13010, 13011, 13013, 13014
+  kFIRMessagingMessageCodeStore000 = 33000,
+  kFIRMessagingMessageCodeStore002 = 33002,
+  kFIRMessagingMessageCodeStore003 = 33003,
+  kFIRMessagingMessageCodeStore006 = 33006,
+  kFIRMessagingMessageCodeStore009 = 33009,
+  kFIRMessagingMessageCodeStore012 = 33012,
+  // FIRMessagingTokenManager.m
+  // DO NOT USE 14002, 14005
+  kFIRMessagingMessageCodeTokenManager000 = 34000,
+  kFIRMessagingMessageCodeTokenManager001 = 34001,
+  kFIRMessagingMessageCodeTokenManager003 = 34003,
+  kFIRMessagingMessageCodeTokenManager004 = 34004,
+  kFIRMessagingMessageCodeTokenManagerErrorDeletingFCMTokensOnAppReset = 34006,
+  kFIRMessagingMessageCodeTokenManagerDeletedFCMTokensOnAppReset = 34007,
+  kFIRMessagingMessageCodeTokenManagerSavedAppVersion = 34008,
+  kFIRMessagingMessageCodeTokenManagerErrorInvalidatingAllTokens = 34009,
+  kFIRMessagingMessageCodeTokenManagerAPNSChanged = 34010,
+  kFIRMessagingMessageCodeTokenManagerAPNSChangedTokenInvalidated = 34011,
+  kFIRMessagingMessageCodeTokenManagerInvalidateStaleToken = 34012,
+  // FIRMessagingTokenStore.m
+  // DO NOT USE 15002 - 15013
+  kFIRMessagingMessageCodeTokenStore000 = 35000,
+  kFIRMessagingMessageCodeTokenStore001 = 35001,
+  kFIRMessagingMessageCodeTokenStoreExceptionUnarchivingTokenInfo = 35015,
+
+  // DO NOT USE 16000, 18004
+
+  // FIRMessagingUtilities.m
+  kFIRMessagingMessageCodeUtilitiesMissingBundleIdentifier = 38000,
+  kFIRMessagingMessageCodeUtilitiesAppEnvironmentUtilNotAvailable = 38001,
+  kFIRMessagingMessageCodeUtilitiesCannotGetHardwareModel = 38002,
+  kFIRMessagingMessageCodeUtilitiesCannotGetSystemVersion = 38003,
+  // FIRMessagingTokenOperation.m
+  kFIRMessagingMessageCodeTokenOperationFailedToSignParams = 39000,
+  // FIRMessagingTokenFetchOperation.m
+  // DO NOT USE 40004, 40005
+  kFIRMessagingMessageCodeTokenFetchOperationFetchRequest = 40000,
+  kFIRMessagingMessageCodeTokenFetchOperationRequestError = 40001,
+  kFIRMessagingMessageCodeTokenFetchOperationBadResponse = 40002,
+  kFIRMessagingMessageCodeTokenFetchOperationBadTokenStructure = 40003,
+  // FIRMessagingTokenDeleteOperation.m
+  kFIRMessagingMessageCodeTokenDeleteOperationFetchRequest = 41000,
+  kFIRMessagingMessageCodeTokenDeleteOperationRequestError = 41001,
+  kFIRMessagingMessageCodeTokenDeleteOperationBadResponse = 41002,
+  // FIRMessagingTokenInfo.m
+  kFIRMessagingMessageCodeTokenInfoBadAPNSInfo = 42000,
+  kFIRMessagingMessageCodeTokenInfoFirebaseAppIDChanged = 42001,
+  kFIRMessagingMessageCodeTokenInfoLocaleChanged = 42002,
+  // FIRMessagingKeychain.m
+  kFIRMessagingKeychainReadItemError = 43000,
+  kFIRMessagingKeychainAddItemError = 43001,
+  kFIRMessagingKeychainDeleteItemError = 43002,
+  kFIRMessagingKeychainCreateKeyPairError = 43003,
+  kFIRMessagingKeychainUpdateItemError = 43004,
 };

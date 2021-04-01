@@ -17,7 +17,7 @@
 
 import PackageDescription
 
-let firebaseVersion = "7.9.0"
+let firebaseVersion = "7.10.0"
 
 let package = Package(
   name: "Firebase",
@@ -115,12 +115,12 @@ let package = Package(
     .package(
       name: "GoogleAppMeasurement",
       url: "https://github.com/google/GoogleAppMeasurement.git",
-      .exact("7.9.0")
+      .exact("7.10.0")
     ),
     .package(
       name: "GoogleDataTransport",
       url: "https://github.com/google/GoogleDataTransport.git",
-      "8.2.0" ..< "9.0.0"
+      "8.4.0" ..< "9.0.0"
     ),
     .package(
       name: "GoogleUtilities",
@@ -136,7 +136,7 @@ let package = Package(
       name: "nanopb",
       url: "https://github.com/firebase/nanopb.git",
       // This revision adds SPM enablement to the 0.3.9.6 release tag.
-      "2.30907.0" ..< "2.30908.0"
+      "2.30908.0" ..< "2.30909.0"
     ),
     .package(
       name: "abseil",
@@ -699,7 +699,7 @@ let package = Package(
     ),
     .testTarget(
       name: "MessagingUnit",
-      dependencies: ["FirebaseMessaging", "OCMock"],
+      dependencies: ["FirebaseMessaging", "SharedTestUtilities", "OCMock"],
       path: "FirebaseMessaging/Tests/UnitTests",
       exclude: [
         "FIRMessagingContextManagerServiceTest.m", // TODO: Adapt its NSBundle usage to SPM.

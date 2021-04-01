@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseMessaging'
-  s.version          = '7.9.0'
+  s.version          = '7.10.0'
   s.summary          = 'Firebase Messaging'
 
   s.description      = <<-DESC
@@ -38,11 +38,10 @@ device, and it is completely free.
     base_dir + 'Sources/**/*.[mh]',
     'Interop/Analytics/Public/*.h',
     'FirebaseCore/Sources/Private/*.h',
+    'FirebaseInstallations/Source/Library/Private/*.h',
     'Firebase/InstanceID/Private/*.h',
     'Firebase/InstanceID/Public/*.h',
-    'FirebaseInstallations/Source/Library/Private/*.h',
   ]
-  s.requires_arc = base_dir + 'Sources/*.m'
   s.public_header_files = base_dir + 'Sources/Public/FirebaseMessaging/*.h'
   s.library = 'sqlite3'
   s.pod_target_xcconfig = {
@@ -54,8 +53,9 @@ device, and it is completely free.
   s.tvos.framework = 'SystemConfiguration'
   s.osx.framework = 'SystemConfiguration'
   s.weak_framework = 'UserNotifications'
-  s.dependency 'FirebaseCore', '~> 7.0'
   s.dependency 'FirebaseInstanceID', '~> 7.0'
+  s.dependency 'FirebaseInstallations', '~> 7.0'
+  s.dependency 'FirebaseCore', '~> 7.0'
   s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.0'
   s.dependency 'GoogleUtilities/Reachability', '~> 7.0'
   s.dependency 'GoogleUtilities/Environment', '~> 7.0'
@@ -68,7 +68,10 @@ device, and it is completely free.
       :osx => osx_deployment_target,
       :tvos => tvos_deployment_target
     }
-    unit_tests.source_files = 'FirebaseMessaging/Tests/UnitTests*/*.{m,h,swift}'
+    unit_tests.source_files = [
+      'FirebaseMessaging/Tests/UnitTests*/*.{m,h,swift}',
+      'SharedTestUtilities/URLSession/*.[mh]',
+    ]
     unit_tests.requires_app_host = true
     unit_tests.pod_target_xcconfig = {
      'CLANG_ENABLE_OBJC_WEAK' => 'YES'

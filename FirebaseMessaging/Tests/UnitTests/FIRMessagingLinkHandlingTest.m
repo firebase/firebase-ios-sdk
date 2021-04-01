@@ -18,11 +18,8 @@
 #import "OCMock.h"
 
 #import <GoogleUtilities/GULUserDefaults.h>
-#import "Firebase/InstanceID/Public/FIRInstanceID.h"
-
-#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
-
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
+#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
 #import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestNotificationUtilities.h"
 #import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
 
