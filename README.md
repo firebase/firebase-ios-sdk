@@ -245,10 +245,10 @@ physical device.
 
 ## Building with Firebase on Apple platforms
 
-At this time, not all of Firebase's products are available across all Apple platforms. However, 
-Firebase is constantly evolving and community supported efforts have helped expand Firebase's support. 
-To keep up with the latest info regarding Firebase's support across Apple platforms, refer to 
-[this chart](https://firebase.google.com/docs/ios/learn-more#firebase_library_support_by_platform) 
+At this time, not all of Firebase's products are available across all Apple platforms. However,
+Firebase is constantly evolving and community supported efforts have helped expand Firebase's support.
+To keep up with the latest info regarding Firebase's support across Apple platforms, refer to
+[this chart](https://firebase.google.com/docs/ios/learn-more#firebase_library_support_by_platform)
 in Firebase's documentation.
 
 ### Community Supported Efforts
