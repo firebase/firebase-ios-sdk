@@ -52,7 +52,7 @@ class StorageReferenceTests: XCTestCase {
     let dummyFileURL = URL(fileURLWithPath: "some_non_existing-folder/file.data")
 
     // When
-    ref?.putFilePublisher(from: dummyFileURL, metadata: nil)
+    ref?.putFile(from: dummyFileURL, metadata: nil)
       .sink { completion in
         if case let .failure(error as NSError) = completion {
           putFileExpectation.fulfill()
