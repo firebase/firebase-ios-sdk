@@ -120,7 +120,6 @@ static NSString *kRegistrationToken = @"token-12345";
   _checkinService = nil;
   _mockTokenStore = nil;
   [_mockInstallations stopMocking];
-
 }
 
 - (void)testThatTokenOperationsAuthHeaderStringMatchesCheckin {
