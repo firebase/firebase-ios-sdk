@@ -76,14 +76,14 @@ All of the official releases are tagged in this repo and available via CocoaPods
 source snapshot or unreleased branch, use Podfile directives like the following:
 
 To access FirebaseFirestore via a branch:
-```
+```ruby
 pod 'FirebaseCore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :branch => 'master'
 pod 'FirebaseFirestore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :branch => 'master'
 ```
 
 To access FirebaseMessaging via a checked out version of the firebase-ios-sdk repo do:
 
-```
+```ruby
 pod 'FirebaseCore', :path => '/path/to/firebase-ios-sdk'
 pod 'FirebaseMessaging', :path => '/path/to/firebase-ios-sdk'
 ```
@@ -116,7 +116,9 @@ Install
 
 For the pod that you want to develop:
 
-`pod gen Firebase{name here}.podspec --local-sources=./ --auto-open --platforms=ios`
+```ruby
+pod gen Firebase{name here}.podspec --local-sources=./ --auto-open --platforms=ios
+```
 
 Note: If the CocoaPods cache is out of date, you may need to run
 `pod repo update` before the `pod gen` command.
@@ -166,7 +168,7 @@ before creating a PR.
 GitHub Actions will verify that any code changes are done in a style compliant
 way. Install `clang-format` and `mint`:
 
-```
+```console
 brew install clang-format@11
 brew install mint
 ```
