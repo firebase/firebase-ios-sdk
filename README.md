@@ -276,22 +276,6 @@ app has communicated with our servers". This relies on Analytics and will not wo
 macOS/tvOS/watchOS/Catalyst.
 **It's safe to ignore the message and continue**, the rest of the SDKs will work as expected.
 
-To install, add a subset of the following to the Podfile:
-
-```
-pod 'Firebase/ABTesting'
-pod 'Firebase/Auth'           # Limited watchOS support
-pod 'Firebase/Crashlytics'
-pod 'Firebase/Database'       # No watchOS support yet
-pod 'Firebase/Firestore'      # No watchOS support yet
-pod 'Firebase/Functions'      # No watchOS support yet
-pod 'Firebase/InAppMessaging' # No macOS, watchOS, and Catalyst support yet
-pod 'Firebase/Messaging'
-pod 'Firebase/Performance'    # No macOS, watchOS, and Catalyst support yet
-pod 'Firebase/RemoteConfig'
-pod 'Firebase/Storage'
-```
-
 #### Additional Catalyst Notes
 
 * FirebaseAuth and FirebaseMessaging require adding `Keychain Sharing Capability`
