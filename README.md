@@ -243,13 +243,21 @@ The iOS Simulator cannot register for remote notifications, and will not receive
 In order to receive push notifications, you'll have to follow the steps above and run the app on a
 physical device.
 
-## Community Supported Efforts
+## Building with Firebase on Apple platforms
+
+At this time, not all of Firebase's products are available across all Apple platforms. However,
+Firebase is constantly evolving and community supported efforts have helped expand Firebase's support.
+To keep up with the latest info regarding Firebase's support across Apple platforms, refer to
+[this chart](https://firebase.google.com/docs/ios/learn-more#firebase_library_support_by_platform)
+in Firebase's documentation.
+
+### Community Supported Efforts
 
 We've seen an amazing amount of interest and contributions to improve the Firebase SDKs, and we are
 very grateful!  We'd like to empower as many developers as we can to be able to use Firebase and
 participate in the Firebase community.
 
-### tvOS, macOS, watchOS and Catalyst
+#### tvOS, macOS, watchOS and Catalyst
 Thanks to contributions from the community, many of Firebase SDKs now compile, run unit tests, and
 work on tvOS, macOS, watchOS and Catalyst.
 
@@ -267,22 +275,6 @@ During app setup in the console, you may get to a step that mentions something l
 app has communicated with our servers". This relies on Analytics and will not work on
 macOS/tvOS/watchOS/Catalyst.
 **It's safe to ignore the message and continue**, the rest of the SDKs will work as expected.
-
-To install, add a subset of the following to the Podfile:
-
-```
-pod 'Firebase/ABTesting'
-pod 'Firebase/Auth'           # Limited watchOS support
-pod 'Firebase/Crashlytics'
-pod 'Firebase/Database'       # No watchOS support yet
-pod 'Firebase/Firestore'      # No watchOS support yet
-pod 'Firebase/Functions'      # No watchOS support yet
-pod 'Firebase/InAppMessaging' # No macOS, watchOS, and Catalyst support yet
-pod 'Firebase/Messaging'
-pod 'Firebase/Performance'    # No macOS, watchOS, and Catalyst support yet
-pod 'Firebase/RemoteConfig'
-pod 'Firebase/Storage'
-```
 
 #### Additional Catalyst Notes
 
