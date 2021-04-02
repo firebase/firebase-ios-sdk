@@ -52,6 +52,12 @@ static NSString *const kFakeCheckinPlistName = @"com.google.test.TestTokenStore"
 
 @end
 
+@interface FIRMessagingBackupExcludedPlist (ExposedForTest)
+
+- (BOOL)deleteFile:(NSError **)error;
+
+@end
+
 @interface FIRMessagingTokenStoreTest : XCTestCase
 
 @property(strong, nonatomic) FIRMessagingBackupExcludedPlist *checkinPlist;
@@ -86,11 +92,7 @@ static NSString *const kFakeCheckinPlistName = @"com.google.test.TestTokenStore"
 }
 
 - (void)tearDown {
-  NSString *path = [self pathForCheckinPlist];
-  if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
-    NSError *error;
-    [[NSFileManager defaultManager] removeItemAtPath:path error:&error];
-  }
+  [self.checkinPlist deleteFile:nil];
   [_tokenStore removeAllTokensWithHandler:nil];
   [_mockCheckinStore stopMocking];
   [_mockTokenStore stopMocking];
