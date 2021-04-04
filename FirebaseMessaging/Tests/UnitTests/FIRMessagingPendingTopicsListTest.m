@@ -120,7 +120,7 @@
         // Simulate that the handler is generally called asynchronously
         dispatch_async(dispatch_get_main_queue(), ^{
           if (action == FIRMessagingTopicActionUnsubscribe) {
-            __unused id self = weakSelf; // In Xcode 11, XCTAssertEqual references self.
+            __unused id self = weakSelf;  // In Xcode 11, XCTAssertEqual references self.
             XCTAssertEqual(pendingTopics.numberOfBatches, 1);
             [batchSizeReductionExpectation fulfill];
           }
