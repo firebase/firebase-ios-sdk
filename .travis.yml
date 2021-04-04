@@ -75,6 +75,12 @@ jobs:
 
     - stage: test
       env:
+        - PROJECT=Messaging METHOD=pod-lib-lint
+      script:
+        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=ios
+
+    - stage: test
+      env:
         - PROJECT=RemoteConfig METHOD=pod-lib-lint
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=ios --skip-tests
