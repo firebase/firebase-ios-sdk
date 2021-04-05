@@ -16,6 +16,7 @@
 
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenStore.h"
 
+#import <GoogleUtilities/GULSecureCoding.h>
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
@@ -87,21 +88,18 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
   // NOTE: Passing in nil to unarchiveObjectWithData will result in an iOS error logged
   // in the console on iOS 10 and below. Avoid by checking item.data's existence.
   if (item) {
-    // TODO(chliangGoogle: Use the new API and secureCoding protocol.
-    @try {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-      [NSKeyedUnarchiver setClass:[FIRMessagingTokenInfo class]
-                     forClassName:@"FIRInstanceIDTokenInfo"];
-      tokenInfo = [NSKeyedUnarchiver unarchiveObjectWithData:item];
-#pragma clang diagnostic pop
-
-    } @catch (NSException *exception) {
-      FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenStoreExceptionUnarchivingTokenInfo,
+    NSError *unarchiverError;
+    tokenInfo = [GULSecureCoding
+        unarchivedObjectOfClasses:[NSSet
+                                      setWithObjects:FIRMessagingTokenInfo.class, NSDate.class, nil]
+                         fromData:item
+                            error:&unarchiverError];
+    if (unarchiverError) {
+      FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenStoreUnarchivingTokenInfo,
                               @"Unable to parse token info from Keychain item; item was in an "
-                              @"invalid format");
+                              @"invalid format %@",
+                              unarchiverError);
       tokenInfo = nil;
-    } @finally {
     }
   }
   return tokenInfo;
@@ -115,13 +113,13 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
               handler:(void (^)(NSError *))handler {  // Keep the cachetime up-to-date.
   tokenInfo.cacheTime = [NSDate date];
   // Always write to the Keychain, so that the cacheTime is up-to-date.
-  NSData *tokenInfoData;
-  // TODO(chliangGoogle: Use the new API and secureCoding protocol.
-  [NSKeyedArchiver setClassName:@"FIRInstanceIDTokenInfo" forClass:[FIRMessagingTokenInfo class]];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  tokenInfoData = [NSKeyedArchiver archivedDataWithRootObject:tokenInfo];
-#pragma clang diagnostic pop
+  NSError *archiverError;
+  NSData *tokenInfoData = [GULSecureCoding archivedDataWithRootObject:tokenInfo
+                                                                error:&archiverError];
+  if (archiverError) {
+    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenStoreArchiveError,
+                            @"Failed to archive token info: %@", archiverError);
+  }
   NSString *account = FIRMessagingAppIdentifier();
   NSString *service = [[self class] serviceKeyForAuthorizedEntity:tokenInfo.authorizedEntity
                                                             scope:tokenInfo.scope];
@@ -130,14 +128,15 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
 
 - (void)saveTokenInfoInCache:(FIRMessagingTokenInfo *)tokenInfo {
   tokenInfo.cacheTime = [NSDate date];
-  // TODO(chliangGoogle): Use the new API and secureCoding protocol.
   // Always write to the Keychain, so that the cacheTime is up-to-date.
-  NSData *tokenInfoData;
-  [NSKeyedArchiver setClassName:@"FIRInstanceIDTokenInfo" forClass:[FIRMessagingTokenInfo class]];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  tokenInfoData = [NSKeyedArchiver archivedDataWithRootObject:tokenInfo];
-#pragma clang diagnostic pop
+  NSError *archiverError;
+  NSData *tokenInfoData = [GULSecureCoding archivedDataWithRootObject:tokenInfo
+                                                                error:&archiverError];
+  if (archiverError) {
+    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenStoreArchiveError,
+                            @"Failed to archive token info: %@", archiverError);
+  }
+
   NSString *account = FIRMessagingAppIdentifier();
   NSString *service = [[self class] serviceKeyForAuthorizedEntity:tokenInfo.authorizedEntity
                                                             scope:tokenInfo.scope];
