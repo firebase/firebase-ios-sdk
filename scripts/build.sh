@@ -46,6 +46,7 @@ product can be one of:
 
 platform can be one of:
   iOS (default)
+  iOS-device
   macOS
   tvOS
   watchOS
@@ -154,6 +155,10 @@ else
   )
 fi
 
+ios_device_flags=(
+  -sdk 'iphoneos'
+)
+
 ipad_flags=(
   -sdk 'iphonesimulator'
   -destination 'platform=iOS Simulator,name=iPad Pro (9.7-inch)'
@@ -180,6 +185,11 @@ catalyst_flags=(
 case "$platform" in
   iOS)
     xcb_flags=("${ios_flags[@]}")
+    gen_platform=ios
+    ;;
+
+  iOS-device)
+    xcb_flags=("${ios_device_flags[@]}")
     gen_platform=ios
     ;;
 
