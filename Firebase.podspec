@@ -65,6 +65,11 @@ Simplify your app development, grow your user base, and monetize more effectivel
   s.subspec 'ABTesting' do |ss|
     ss.dependency 'Firebase/CoreOnly'
     ss.dependency 'FirebaseABTesting', '~> 7.10.0'
+    # Standard platforms PLUS watchOS.
+    ss.ios.deployment_target = '10.0'
+    ss.osx.deployment_target = '10.12'
+    ss.tvos.deployment_target = '10.0'
+    ss.watchos.deployment_target = '6.0'
   end
 
   s.subspec 'AdMob' do |ss|
@@ -101,6 +106,11 @@ Simplify your app development, grow your user base, and monetize more effectivel
   s.subspec 'Database' do |ss|
     ss.dependency 'Firebase/CoreOnly'
     ss.dependency 'FirebaseDatabase', '~> 7.10.0'
+    # Standard platforms PLUS watchOS 7.
+    ss.ios.deployment_target = '10.0'
+    ss.osx.deployment_target = '10.12'
+    ss.tvos.deployment_target = '10.0'
+    ss.watchos.deployment_target = '7.0'
   end
 
   s.subspec 'DynamicLinks' do |ss|
@@ -151,6 +161,11 @@ Simplify your app development, grow your user base, and monetize more effectivel
   s.subspec 'RemoteConfig' do |ss|
     ss.dependency 'Firebase/CoreOnly'
     ss.dependency 'FirebaseRemoteConfig', '~> 7.10.0'
+    # Standard platforms PLUS watchOS.
+    ss.ios.deployment_target = '10.0'
+    ss.osx.deployment_target = '10.12'
+    ss.tvos.deployment_target = '10.0'
+    ss.watchos.deployment_target = '6.0'
   end
 
   s.subspec 'Storage' do |ss|
