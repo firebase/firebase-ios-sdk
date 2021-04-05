@@ -33,22 +33,22 @@
     ///
     /// - Returns: A publisher emitting a `StorageMetadata` instance. The publisher will emit on the *main* thread.
     @discardableResult
-    public func putDataPublisher(_ data: Data,
-                                 metadata: StorageMetadata?)
-      -> AnyPublisher<StorageMetadata, Error> {
-      let subject = PassthroughSubject<StorageMetadata, Error>()
-      let task = putData(data, metadata: metadata) { metadata, error in
-        if let metadata = metadata {
-          subject.send(metadata)
-          subject.send(completion: .finished)
-        } else if let error = error {
-          subject.send(completion: .failure(error))
+    public func putData(_ data: Data,
+                        metadata: StorageMetadata?) -> Future<StorageMetadata, Error> {
+      var task: StorageUploadTask?
+      return Future<StorageMetadata, Error> { [weak self] promise in
+        task = self?.putData(data, metadata: metadata) { metadata, error in
+          if let metadata = metadata {
+            promise(.success(metadata))
+          } else if let error = error {
+            promise(.failure(error))
+          }
         }
       }
-
-      return subject.handleEvents(receiveCancel: {
-        task.cancel()
-      }).eraseToAnyPublisher()
+      .handleEvents(receiveCancel: {
+        task?.cancel()
+      })
+      .upstream
     }
 
     /// Asynchronously uploads a file to the currently specified `StorageReference`.
@@ -61,22 +61,23 @@
     ///
     /// - Returns: A publisher emitting a `StorageMetadata` instance. The publisher will emit on the *main* thread.
     @discardableResult
-    public func putFilePublisher(from fileURL: URL,
-                                 metadata: StorageMetadata?)
-      -> AnyPublisher<StorageMetadata, Error> {
-      let subject = PassthroughSubject<StorageMetadata, Error>()
-      let task = putFile(from: fileURL, metadata: metadata) { metadata, error in
-        if let metadata = metadata {
-          subject.send(metadata)
-          subject.send(completion: .finished)
-        } else if let error = error {
-          subject.send(completion: .failure(error))
+    public func putFile(from fileURL: URL,
+                        metadata: StorageMetadata?)
+      -> Future<StorageMetadata, Error> {
+      var task: StorageUploadTask?
+      return Future<StorageMetadata, Error> { [weak self] promise in
+        task = self?.putFile(from: fileURL, metadata: metadata) { metadata, error in
+          if let metadata = metadata {
+            promise(.success(metadata))
+          } else if let error = error {
+            promise(.failure(error))
+          }
         }
       }
-
-      return subject.handleEvents(receiveCancel: {
-        task.cancel()
-      }).eraseToAnyPublisher()
+      .handleEvents(receiveCancel: {
+        task?.cancel()
+      })
+      .upstream
     }
 
     // MARK: - Downloads
@@ -93,20 +94,21 @@
     ///
     /// - Returns: A publisher emitting a `Data` instance. The publisher will emit on the *main* thread.
     @discardableResult
-    public func getData(maxSize size: Int64) -> AnyPublisher<Data, Error> {
-      let subject = PassthroughSubject<Data, Error>()
-      let task = getData(maxSize: size) { data, error in
-        if let data = data {
-          subject.send(data)
-          subject.send(completion: .finished)
-        } else if let error = error {
-          subject.send(completion: .failure(error))
+    public func getData(maxSize size: Int64) -> Future<Data, Error> {
+      var task: StorageDownloadTask?
+      return Future<Data, Error> { [weak self] promise in
+        task = self?.getData(maxSize: size) { data, error in
+          if let data = data {
+            promise(.success(data))
+          } else if let error = error {
+            promise(.failure(error))
+          }
         }
       }
-
-      return subject.handleEvents(receiveCancel: {
-        task.cancel()
-      }).eraseToAnyPublisher()
+      .handleEvents(receiveCancel: {
+        task?.cancel()
+      })
+      .upstream
     }
 
     /// Asynchronously downloads the object at the current path to a specified system filepath.
@@ -119,20 +121,21 @@
     /// - Returns: A publisher emitting a `URL`  pointing to the file path of the downloaded file
     ///   on success. The publisher will emit on the *main* thread.
     @discardableResult
-    public func write(toFile fileURL: URL) -> AnyPublisher<URL, Error> {
-      let subject = PassthroughSubject<URL, Error>()
-      let task = write(toFile: fileURL) { url, error in
-        if let url = url {
-          subject.send(url)
-          subject.send(completion: .finished)
-        } else if let error = error {
-          subject.send(completion: .failure(error))
+    public func write(toFile fileURL: URL) -> Future<URL, Error> {
+      var task: StorageDownloadTask?
+      return Future<URL, Error> { [weak self] promise in
+        task = self?.write(toFile: fileURL) { url, error in
+          if let url = url {
+            promise(.success(url))
+          } else if let error = error {
+            promise(.failure(error))
+          }
         }
       }
-
-      return subject.handleEvents(receiveCancel: {
-        task.cancel()
-      }).eraseToAnyPublisher()
+      .handleEvents(receiveCancel: {
+        task?.cancel()
+      })
+      .upstream
     }
 
     /// Asynchronously retrieves a long lived download URL with a revokable token.
