@@ -16,11 +16,14 @@
 
 #include "Firestore/Source/API/converters.h"
 
+#import "FIRDocumentReference+Internal.h"
+#import "FIRFirestore+Internal.h"
 #import "FIRGeoPoint.h"
 #import "FIRTimestamp.h"
 
 #include "Firestore/core/include/firebase/firestore/geo_point.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
+#include "Firestore/core/src/model/document_key.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -49,6 +52,11 @@ Timestamp MakeTimestamp(NSDate* date) {
 FIRTimestamp* MakeFIRTimestamp(const Timestamp& timestamp) {
   return [[FIRTimestamp alloc] initWithSeconds:timestamp.seconds()
                                    nanoseconds:timestamp.nanoseconds()];
+}
+
+FIRDocumentReference* MakeFIRDocumentReference(const model::DocumentKey& key,
+                                               FIRFirestore* firestore) {
+  return [[FIRDocumentReference alloc] initWithKey:key firestore:firestore.wrapped];
 }
 
 }  // namespace api

@@ -22,7 +22,7 @@
 #include <set>
 #include <utility>
 
-#import "Firestore/Source/API/FSTUserDataConverter.h"
+#import "Firestore/Source/API/FSTUserDataReader.h"
 
 #include "Firestore/core/src/core/user_data.h"
 #include "Firestore/core/src/model/delete_mutation.h"
@@ -94,20 +94,20 @@ NSDateComponents *FSTTestDateComponents(
   return comps;
 }
 
-FSTUserDataConverter *FSTTestUserDataConverter() {
-  FSTUserDataConverter *converter =
-      [[FSTUserDataConverter alloc] initWithDatabaseID:DatabaseId("project")
-                                          preConverter:^id _Nullable(id _Nullable input) {
-                                            return input;
-                                          }];
-  return converter;
+FSTUserDataReader *FSTTestUserDataReader() {
+  FSTUserDataReader *reader =
+      [[FSTUserDataReader alloc] initWithDatabaseID:DatabaseId("project")
+                                       preConverter:^id _Nullable(id _Nullable input) {
+                                         return input;
+                                       }];
+  return reader;
 }
 
 FieldValue FSTTestFieldValue(id _Nullable value) {
-  FSTUserDataConverter *converter = FSTTestUserDataConverter();
+  FSTUserDataReader *reader = FSTTestUserDataReader();
   // HACK: We use parsedQueryValue: since it accepts scalars as well as arrays / objects, and
   // our tests currently use FSTTestFieldValue() pretty generically so we don't know the intent.
-  return [converter parsedQueryValue:value];
+  return [reader parsedQueryValue:value];
 }
 
 ObjectValue FSTTestObjectValue(NSDictionary<NSString *, id> *data) {
@@ -126,8 +126,8 @@ FSTDocumentKeyReference *FSTTestRef(std::string projectID, std::string database,
 }
 
 SetMutation FSTTestSetMutation(NSString *path, NSDictionary<NSString *, id> *values) {
-  FSTUserDataConverter *converter = FSTTestUserDataConverter();
-  ParsedSetData result = [converter parsedSetData:values];
+  FSTUserDataReader *reader = FSTTestUserDataReader();
+  ParsedSetData result = [reader parsedSetData:values];
   return SetMutation(FSTTestDocKey(path), result.data(), Precondition::None(),
                      result.field_transforms());
 }
@@ -144,8 +144,8 @@ PatchMutation FSTTestPatchMutation(NSString *path,
     }
   }];
 
-  FSTUserDataConverter *converter = FSTTestUserDataConverter();
-  ParsedUpdateData parsed = [converter parsedUpdateData:mutableValues];
+  FSTUserDataReader *reader = FSTTestUserDataReader();
+  ParsedUpdateData parsed = [reader parsedUpdateData:mutableValues];
 
   DocumentKey key = FSTTestDocKey(path);
 

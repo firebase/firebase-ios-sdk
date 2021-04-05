@@ -31,7 +31,7 @@
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRQuerySnapshot+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
-#import "Firestore/Source/API/FSTUserDataConverter.h"
+#import "Firestore/Source/API/FSTUserDataReader.h"
 
 #include "Firestore/core/src/core/view_snapshot.h"
 #include "Firestore/core/src/model/document.h"
@@ -85,8 +85,8 @@ FIRDocumentSnapshot *FSTTestDocSnapshot(const char *path,
                                         BOOL fromCache) {
   absl::optional<Document> doc;
   if (data) {
-    FSTUserDataConverter *converter = FSTTestUserDataConverter();
-    FieldValue parsed = [converter parsedQueryValue:data];
+    FSTUserDataReader *reader = FSTTestUserDataReader();
+    FieldValue parsed = [reader parsedQueryValue:data];
 
     doc = Doc(path, version, parsed,
               hasMutations ? DocumentState::kLocalMutations : DocumentState::kSynced);
@@ -115,13 +115,13 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
     NSDictionary<NSString *, NSDictionary<NSString *, id> *> *docsToAdd,
     BOOL hasPendingWrites,
     BOOL fromCache) {
-  FSTUserDataConverter *converter = FSTTestUserDataConverter();
+  FSTUserDataReader *reader = FSTTestUserDataReader();
 
   SnapshotMetadata metadata(hasPendingWrites, fromCache);
   DocumentSet oldDocuments(DocumentComparator::ByKey());
   DocumentKeySet mutatedKeys;
   for (NSString *key in oldDocs) {
-    FieldValue doc = [converter parsedQueryValue:oldDocs[key]];
+    FieldValue doc = [reader parsedQueryValue:oldDocs[key]];
     std::string documentKey = util::StringFormat("%s/%s", path, key);
     oldDocuments = oldDocuments.insert(
         Doc(documentKey, 1, doc,
@@ -134,7 +134,7 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
   DocumentSet newDocuments = oldDocuments;
   std::vector<DocumentViewChange> documentChanges;
   for (NSString *key in docsToAdd) {
-    FieldValue doc = [converter parsedQueryValue:docsToAdd[key]];
+    FieldValue doc = [reader parsedQueryValue:docsToAdd[key]];
     std::string documentKey = util::StringFormat("%s/%s", path, key);
     Document docToAdd =
         Doc(documentKey, 1, doc,

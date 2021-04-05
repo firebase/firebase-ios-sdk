@@ -29,7 +29,7 @@
 #include <utility>
 #include <vector>
 
-#import "Firestore/Source/API/FSTUserDataConverter.h"
+#import "Firestore/Source/API/FSTUserDataReader.h"
 
 #import "Firestore/Example/Tests/SpecTests/FSTSyncEngineTestDriver.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
@@ -194,7 +194,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   BOOL _gcEnabled;
   size_t _maxConcurrentLimboResolutions;
   BOOL _networkEnabled;
-  FSTUserDataConverter *_converter;
+  FSTUserDataReader *_reader;
 }
 
 #define FSTAbstractMethodException()                                                               \
@@ -219,7 +219,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
 }
 
 - (void)setUpForSpecWithConfig:(NSDictionary *)config {
-  _converter = FSTTestUserDataConverter();
+  _reader = FSTTestUserDataReader();
 
   // Store GCEnabled so we can re-use it in doRestart.
   NSNumber *GCEnabled = config[@"useGarbageCollection"];
@@ -285,7 +285,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
       for (NSArray<id> *filter in filters) {
         std::string key = util::MakeString(filter[0]);
         std::string op = util::MakeString(filter[1]);
-        FieldValue value = [_converter parsedQueryValue:filter[2]];
+        FieldValue value = [_reader parsedQueryValue:filter[2]];
         query = query.AddingFilter(Filter(key, op, value));
       }
     }
@@ -319,7 +319,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
                                            : DocumentState::kSynced);
 
   XCTAssert([jsonDoc[@"key"] isKindOfClass:[NSString class]]);
-  FieldValue data = [_converter parsedQueryValue:jsonDoc[@"value"]];
+  FieldValue data = [_reader parsedQueryValue:jsonDoc[@"value"]];
   Document doc = Doc(util::MakeString((NSString *)jsonDoc[@"key"]), version.longLongValue, data,
                      documentState);
   return DocumentViewChange{doc, type};

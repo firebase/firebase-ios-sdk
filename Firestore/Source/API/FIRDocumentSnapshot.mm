@@ -72,7 +72,8 @@ namespace {
  * Converts a public FIRServerTimestampBehavior into its internal equivalent.
  */
 ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavior behavior) {
-  switch (behavior) {
+// TODO(mutabledocuments): Remove since we only use FIRServerTimestampBehavior
+switch (behavior) {
     case FIRServerTimestampBehaviorNone:
       return ServerTimestampBehavior::kNone;
     case FIRServerTimestampBehaviorEstimate:
@@ -207,6 +208,7 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
   return FieldValueOptions(InternalServerTimestampBehavior(serverTimestampBehavior));
 }
 
+// TODO(mutabledocuments): Replace with UserDataWriter
 - (id)convertedValue:(FieldValue)value options:(const FieldValueOptions &)options {
   switch (value.type()) {
     case FieldValue::Type::Null:

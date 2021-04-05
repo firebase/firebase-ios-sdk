@@ -173,6 +173,7 @@ pb_bytes_array_t* Serializer::EncodeDatabaseName() const {
   return EncodeString(DatabaseName(database_id_).CanonicalString());
 }
 
+// TODO(mutabledocuments): Remove this and related methods.
 google_firestore_v1_Value Serializer::EncodeFieldValue(
     const FieldValue& field_value) const {
   switch (field_value.type()) {
@@ -476,7 +477,7 @@ pb_bytes_array_t* Serializer::EncodeResourceName(
 
 ResourcePath Serializer::DecodeResourceName(Reader* reader,
                                             absl::string_view encoded) const {
-  ResourcePath resource = ResourcePath::FromStringView(encoded);
+  ResourcePath resource = ResourcePath::FromString(encoded);
   if (!IsValidResourceName(resource)) {
     reader->Fail(StringFormat("Tried to deserialize an invalid key %s",
                               resource.CanonicalString()));
