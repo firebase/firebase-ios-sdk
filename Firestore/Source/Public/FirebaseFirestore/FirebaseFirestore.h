@@ -31,3 +31,4 @@
 #import "FIRTimestamp.h"
 #import "FIRTransaction.h"
 #import "FIRWriteBatch.h"
+#import "FIRLoadBundleTask.h"
