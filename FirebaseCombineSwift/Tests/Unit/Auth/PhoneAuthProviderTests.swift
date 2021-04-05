@@ -35,7 +35,7 @@ class PhoneAuthProviderTests: XCTestCase {
     let expectation = self.expectation(description: #function)
 
     // When
-    provider.verifyPhoneNumber(with: "", uiDelegate: nil)
+    provider.verifyPhoneNumber("", uiDelegate: nil)
       .sink { completion in
         if case let .failure(error as NSError) = completion {
           XCTAssertEqual(error.code, AuthErrorCode.missingPhoneNumber.rawValue)
@@ -62,7 +62,7 @@ class PhoneAuthProviderTests: XCTestCase {
     let expectation = self.expectation(description: #function)
 
     // When
-    provider.verifyPhoneNumber(with: Self.invalidPhoneNumber, uiDelegate: nil)
+    provider.verifyPhoneNumber(Self.invalidPhoneNumber, uiDelegate: nil)
       .sink { completion in
         if case let .failure(error as NSError) = completion {
           XCTAssertEqual(error.code, AuthErrorCode.invalidPhoneNumber.rawValue)
@@ -89,7 +89,7 @@ class PhoneAuthProviderTests: XCTestCase {
     let expectation = self.expectation(description: #function)
 
     // When
-    provider.verifyPhoneNumber(with: Self.phoneNumber, uiDelegate: nil)
+    provider.verifyPhoneNumber(Self.phoneNumber, uiDelegate: nil)
       .sink { completion in
         switch completion {
         case .finished:
@@ -120,7 +120,7 @@ class PhoneAuthProviderTests: XCTestCase {
     let expectation = self.expectation(description: #function)
 
     // When
-    provider.verifyPhoneNumber(with: Self.phoneNumber, uiDelegate: nil)
+    provider.verifyPhoneNumber(Self.phoneNumber, uiDelegate: nil)
       .sink { completion in
         if case let .failure(error as NSError) = completion {
           XCTAssertEqual(error.code, AuthErrorCode.networkError.rawValue)
