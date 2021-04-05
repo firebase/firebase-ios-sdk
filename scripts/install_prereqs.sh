@@ -154,6 +154,11 @@ case "$project-$platform-$method" in
     bundle exec pod install --project-directory=FirebaseSegmentation/Tests/Sample --repo-update
     ;;
 
+  WatchOSSample-*)
+    install_xcpretty
+    bundle exec pod install --project-directory=Example/watchOSSample --repo-update
+    ;;
+
   GoogleDataTransport-watchOS-xcodebuild)
     install_xcpretty
     bundle exec pod install --project-directory=GoogleDataTransport/GDTWatchOSTestApp/ --repo-update
