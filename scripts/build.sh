@@ -425,6 +425,14 @@ case "$product-$platform-$method" in
       build
     ;;
 
+  WatchOSSample-*-*)
+    RunXcodebuild \
+      -workspace 'Example/watchOSSample/SampleWatchApp.xcworkspace' \
+      -scheme "SampleWatchAppWatchKitApp" \
+      "${xcb_flags[@]}" \
+      build
+    ;;
+
   Database-*-unit)
     pod_gen FirebaseDatabase.podspec --platforms="${gen_platform}"
     RunXcodebuild \
