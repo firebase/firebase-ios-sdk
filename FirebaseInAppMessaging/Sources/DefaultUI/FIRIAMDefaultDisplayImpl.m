@@ -57,6 +57,8 @@
 
     // When using SPM, Xcode scopes resources to a target, creating a bundle.
 #if SWIFT_PACKAGE
+    // FIAM only provides default UIs for iOS. FIAM for tvOS will not attempt to provide a default
+    // display.
     bundledResource = @"Firebase_FirebaseInAppMessaging_iOS";
 #else
     bundledResource = @"InAppMessagingDisplayResources";
