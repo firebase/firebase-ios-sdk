@@ -1,4 +1,4 @@
-name: messaging
+name: watchos-sample
 
 on:
   pull_request:
