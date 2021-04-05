@@ -5,7 +5,7 @@ on:
     paths:
     - '.github/workflows/spm.yml'
     - 'Package.swift'
-    - 'Gemfile'
+    - 'Gemfile*'
   schedule:
     # Run every day at 12am (PST) - cron uses UTC times
     - cron:  '0 8 * * *'
@@ -30,10 +30,11 @@ jobs:
   platforms:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+
     runs-on: macOS-latest
     strategy:
       matrix:
-        target: [iOS, tvOS, macOS, catalyst]
+        target: [tvOS, macOS, catalyst]
         # Full set of Firebase-Package tests only run on iOS because of Analytics.
         test: [objc-import-test, swift-test, version-test]
     steps:

@@ -596,14 +596,12 @@ let package = Package(
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "nanopb", package: "nanopb"),
         .target(name: "FirebaseInAppMessaging_iOS", condition: .when(platforms: [.iOS])),
-        .target(name: "FirebaseInAppMessaging_tvOS", condition: .when(platforms: [.tvOS])),
       ],
       path: "FirebaseInAppMessaging/Sources",
       exclude: [
         "DefaultUI/CHANGELOG.md",
         "DefaultUI/README.md",
       ],
-      resources: [.process("Resources")],
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
@@ -616,12 +614,6 @@ let package = Package(
     .target(
       name: "FirebaseInAppMessaging_iOS",
       path: "FirebaseInAppMessaging/iOS",
-      resources: [.process("Resources")]
-    ),
-
-    .target(
-      name: "FirebaseInAppMessaging_tvOS",
-      path: "FirebaseInAppMessaging/tvOS",
       resources: [.process("Resources")]
     ),
 
@@ -809,8 +801,7 @@ let package = Package(
         "FirebaseFirestore",
         "FirebaseFirestoreSwift",
         "FirebaseFunctions",
-        .target(name: "FirebaseInAppMessaging",
-                condition: .when(platforms: [.iOS, .tvOS])),
+        "FirebaseInAppMessaging",
         .target(name: "FirebaseInAppMessagingSwift",
                 condition: .when(platforms: [.iOS, .tvOS])),
         "FirebaseInstallations",
@@ -845,8 +836,7 @@ let package = Package(
         "FirebaseDynamicLinks",
         "FirebaseFirestore",
         "FirebaseFunctions",
-        .target(name: "FirebaseInAppMessaging",
-                condition: .when(platforms: [.iOS, .tvOS])),
+        "FirebaseInAppMessaging",
         "FirebaseInstallations",
         "FirebaseMessaging",
         "FirebaseRemoteConfig",

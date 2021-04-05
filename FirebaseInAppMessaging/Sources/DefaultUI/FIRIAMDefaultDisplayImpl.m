@@ -17,8 +17,6 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS
 
-#import <Foundation/Foundation.h>
-
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "FirebaseInAppMessaging/Sources/DefaultUI/Banner/FIRIAMBannerViewController.h"
@@ -30,7 +28,6 @@
 #import "FirebaseInAppMessaging/Sources/DefaultUI/Modal/FIRIAMModalViewController.h"
 #import "FirebaseInAppMessaging/Sources/Private/Util/FIRIAMTimeFetcher.h"
 #import "FirebaseInAppMessaging/Sources/Public/FirebaseInAppMessaging/FIRInAppMessaging.h"
-#import "FirebaseInAppMessaging/Sources/Public/FirebaseInAppMessaging/FIRInAppMessagingRendering.h"
 
 @implementation FIRIAMDefaultDisplayImpl
 
@@ -56,19 +53,23 @@
   Class myClass = [self class];
 
   dispatch_once(&onceToken, ^{
-// When using SPM, Xcode scopes resources to a target, creating a specific bundle.
+    NSString *bundledResource;
+
+    // When using SPM, Xcode scopes resources to a target, creating a bundle.
 #if SWIFT_PACKAGE
-    resourceBundle = SWIFTPM_MODULE_BUNDLE;
+    bundledResource = @"Firebase_FirebaseInAppMessaging_iOS";
 #else
+    bundledResource = @"InAppMessagingDisplayResources";
+#endif  // SWIFT_PACKAGE
+
     NSBundle *containingBundle;
     NSURL *bundleURL;
-    NSString *bundledResource = @"InAppMessagingDisplayResources";
     // The containing bundle is different whether FIAM is statically or dynamically linked.
     for (containingBundle in @[ [NSBundle mainBundle], [NSBundle bundleForClass:myClass] ]) {
-      bundleURL = [containingBundle URLForResource:bundledResource
-                                     withExtension:@"bundle"];
+      bundleURL = [containingBundle URLForResource:bundledResource withExtension:@"bundle"];
       if (bundleURL != nil) break;
     }
+
     if (bundleURL == nil) {
       FIRLogWarning(kFIRLoggerInAppMessagingDisplay, @"I-FID100007",
                     @"FIAM Display Resource bundle "
@@ -85,7 +86,6 @@
                      "is missing: not contained within bundle %@",
                     containingBundle);
     }
-#endif  // SWIFT_PACKAGE
   });
   return resourceBundle;
 }

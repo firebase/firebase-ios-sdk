@@ -68,13 +68,6 @@ See more product details at https://firebase.google.com/products/in-app-messagin
      ]
   }
 
-  s.tvos.resource_bundles = {
-    'InAppMessagingDisplayResources' => [
-       base_dir + 'tvOS/Resources/FIRInAppMessageDisplayTVStoryboard.storyboard',
-       base_dir + 'Sources/Resources/Shared/*.png'
-     ]
-  }
-
   s.pod_target_xcconfig = {
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       '$(inherited) ' +
