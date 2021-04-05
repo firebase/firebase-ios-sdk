@@ -102,11 +102,14 @@ let package = Package(
     ),
   ],
   dependencies: [
-    .package(name: "Promises", url: "https://github.com/google/promises.git", "1.2.8" ..< "1.3.0"),
+    .package(name: "Promises",
+      url: "https://github.com/google/promises.git",
+      "1.2.8" ..< "1.3.0"
+    ),
     .package(
       name: "SwiftProtobuf",
       url: "https://github.com/apple/swift-protobuf.git",
-      from: "1.14.0"
+      "1.15.0" ..< "2.0.0"
     ),
     .package(
       name: "GoogleAppMeasurement",
@@ -131,18 +134,17 @@ let package = Package(
     .package(
       name: "nanopb",
       url: "https://github.com/firebase/nanopb.git",
-      // This revision adds SPM enablement to the 0.3.9.6 release tag.
       "2.30908.0" ..< "2.30909.0"
     ),
     .package(
       name: "abseil",
       url: "https://github.com/firebase/abseil-cpp-SwiftPM.git",
-      from: "0.20200225.1"
+      "0.20200225.3" ..< "0.20200226.0"
     ),
     .package(
       name: "gRPC",
       url: "https://github.com/firebase/grpc-SwiftPM.git",
-      "1.28.3" ..< "1.29.0"
+      "1.28.4" ..< "1.29.0"
     ),
     .package(
       name: "OCMock",
