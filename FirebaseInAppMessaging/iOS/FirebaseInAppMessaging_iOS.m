@@ -1,4 +1,4 @@
-// Copyright 2020 Google LLC
+// Copyright 2021 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,6 +13,6 @@
 // limitations under the License.
 
 #import <TargetConditionals.h>
-#if !(TARGET_OS_IOS || TARGET_OS_TV)
+#if !(TARGET_OS_IOS || TARGET_OS_TVOS)
 #warning "Firebase In App Messaging only supports the iOS and tvOS platforms."
 #endif

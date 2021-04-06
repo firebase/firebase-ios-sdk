@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Fixed SPM resource inclusion for in-app messages (#7715).
+
 # 2021-3 -- v.7.9.0
 - [added] Added support for building custom in-app messages with SwiftUI (#7496).
 
