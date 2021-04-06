@@ -473,6 +473,10 @@ TEST_F(LevelDbMigrationsTest, RewritesCanonicalIds) {
   TargetData initial_target_data(query.ToTarget(),
                                  /* target_id= */ 2,
                                  /*sequence_numder*/ 1, QueryPurpose::Listen);
+  auto invalid_key =
+      LevelDbQueryTargetKey::Key("invalid_canonical_id",
+                                 initial_target_data.target_id());
+
 
   // Write the target with invalid canonical id into leveldb.
   {
@@ -482,10 +486,8 @@ TEST_F(LevelDbMigrationsTest, RewritesCanonicalIds) {
     transaction.Put(target_key,
                     serializer_->EncodeTargetData(initial_target_data));
 
-    auto query_target_key =
-        LevelDbQueryTargetKey::Key("invalid_canonical_id", 2);
     std::string empty_buffer;
-    transaction.Put(query_target_key, empty_buffer);
+    transaction.Put(invalid_key, empty_buffer);
 
     transaction.Commit();
   }
@@ -501,11 +503,13 @@ TEST_F(LevelDbMigrationsTest, RewritesCanonicalIds) {
         LevelDbQueryTargetKey::Key(initial_target_data.target().CanonicalId(),
                                    initial_target_data.target_id());
     auto it = transaction.NewIterator();
-    it->Seek(query_target_key);
-    ASSERT_TRUE(it->Valid());
     // Verify we are able to seek to the key built with proper canonical ID.
+    it->Seek(query_target_key);
     ASSERT_EQ(it->key(), query_target_key);
 
+    // Verify original invalid key is deleted.
+    it->Seek(invalid_key);
+    ASSERT_NE(it->key(), invalid_key);
     transaction.Commit();
   }
 }
