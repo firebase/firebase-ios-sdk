@@ -25,7 +25,6 @@ namespace model {
 
 const char kTypeKey[] = "__type__";
 const char kLocalWriteTimeKey[] = "__local_write_time__";
-const char kPreviousValueKey[] = "__previous_value__";
 const char kServerTimestampSentinel[] = "server_timestamp";
 
 bool IsServerTimestamp(const google_firestore_v1_Value& value) {
@@ -64,23 +63,6 @@ const google_protobuf_Timestamp& GetLocalWriteTime(
   }
 
   HARD_FAIL("LocalWriteTime not found");
-}
-
-absl::optional<google_firestore_v1_Value> GetPreviousValue(
-    const google_firestore_v1_Value& value) {
-  for (size_t i = 0; i < value.map_value.fields_count; ++i) {
-    const auto& field = value.map_value.fields[i];
-    absl::string_view key = nanopb::MakeStringView(field.key);
-    if (key == kPreviousValueKey) {
-      if (IsServerTimestamp(field.value)) {
-        return GetPreviousValue(field.value);
-      } else {
-        return field.value;
-      }
-    }
-  }
-
-  return absl::nullopt;
 }
 
 }  // namespace model
