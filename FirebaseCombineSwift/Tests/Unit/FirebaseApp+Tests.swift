@@ -25,6 +25,7 @@ extension FirebaseApp {
     options.clientID = Credentials.clientID
     options.bundleID = Credentials.bundleID
     options.projectID = Credentials.projectID
+    options.storageBucket = Credentials.bucket
     return options
   }
 
@@ -34,5 +35,12 @@ extension FirebaseApp {
 
   static func appForAuthUnitTestsWithName(name: String) -> FirebaseApp {
     return FirebaseApp(instanceWithName: name, options: appOptions())
+  }
+
+  static func appForStorageUnitTestsWithName(name: String) -> FirebaseApp {
+    let app = FirebaseApp(instanceWithName: name, options: appOptions())
+    let registrants = NSMutableSet(object: FIRStorageComponent.self)
+    app.container = FirebaseComponentContainer(app: app, registrants: registrants)
+    return app
   }
 }

@@ -46,6 +46,7 @@ Combine Publishers for Firebase.
   s.dependency 'FirebaseCore', '~> 7.0'
   s.dependency 'FirebaseAuth', '~> 7.0'
   s.dependency 'FirebaseFunctions', '~> 7.0'
+  s.dependency 'FirebaseStorage', '~> 7.0'
 
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
@@ -61,6 +62,7 @@ Combine Publishers for Firebase.
       'FirebaseCombineSwift/Tests/Unit/**/*.swift',
       'FirebaseCombineSwift/Tests/Unit/**/*.h',
       'SharedTestUtilities/FIROptionsMock.[mh]',
+      'SharedTestUtilities/FIRComponentTestUtilities.[mh]',
     ]
     unit_tests.exclude_files = 'FirebaseCombineSwift/Tests/Unit/**/*Template.swift'
     unit_tests.requires_app_host = true
