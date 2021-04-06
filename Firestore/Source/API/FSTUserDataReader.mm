@@ -16,8 +16,6 @@
 
 #import "Firestore/Source/API/FSTUserDataReader.h"
 
-#include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
-
 #include <memory>
 #include <set>
 #include <string>
@@ -35,6 +33,7 @@
 #import "Firestore/Source/API/FSTUserDataConverter_legacy.h"
 #import "Firestore/Source/API/converters.h"
 
+#include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/core/user_data.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/model/document_key.h"
