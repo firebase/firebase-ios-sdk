@@ -55,6 +55,7 @@ fi
 git config --global user.email "google-oss-bot@example.com"
 git config --global user.name "google-oss-bot"
 if [ "$TESTINGMODE" = "release_testing" ]; then
+  git checkout "${release_branch}"
   # Latest Cocoapods tag on the repo, e.g. Cocoapods-7.9.0
   latest_cocoapods_tag=$(git tag -l --sort=-version:refname CocoaPods-*[0-9] | head -n 1 )
   echo "Podspecs tags of Nightly release testing will be updated to ${latest_cocoapods_tag}."
