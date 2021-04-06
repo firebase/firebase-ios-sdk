@@ -31,6 +31,18 @@ typedef void (^FIRAppCheckTokenHandlerInterop)(id<FIRAppCheckTokenResultInterop>
                     completion:(FIRAppCheckTokenHandlerInterop)handler
     NS_SWIFT_NAME(getToken(forcingRefresh:completion:));
 
+/// A notification with the specified name is sent to the default notification center
+/// (`NotificationCenter.default`) each time a Firebase app check token is refreshed.
+/// The user info dictionary contains `-[self notificationTokenKey]` and
+/// `-[self notificationAppNameKey]` keys.
+- (NSString *)tokenDidChangeNotificationName;
+
+/// `userInfo` key for the FAC token in a notification for `tokenDidChangeNotificationName`.
+- (NSString *)notificationTokenKey;
+/// `userInfo` key for the `FirebaseApp.name` in a notification for
+/// `tokenDidChangeNotificationName`.
+- (NSString *)notificationAppNameKey;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -40,7 +40,8 @@
 - (instancetype)initWithAppName:(NSString *)appName
                appCheckProvider:(id<FIRAppCheckProvider>)appCheckProvider
                         storage:(id<FIRAppCheckStorageProtocol>)storage
-                 tokenRefresher:(id<FIRAppCheckTokenRefresherProtocol>)tokenRefresher;
+                 tokenRefresher:(id<FIRAppCheckTokenRefresherProtocol>)tokenRefresher
+             notificationCenter:(NSNotificationCenter *)notificationCenter;
 
 - (nullable instancetype)initWithApp:(FIRApp *)app;
 @end
@@ -51,6 +52,7 @@
 @property(nonatomic) OCMockObject<FIRAppCheckStorageProtocol> *mockStorage;
 @property(nonatomic) OCMockObject<FIRAppCheckProvider> *mockAppCheckProvider;
 @property(nonatomic) OCMockObject<FIRAppCheckTokenRefresherProtocol> *mockTokenRefresher;
+@property(nonatomic) NSNotificationCenter *notificationCenter;
 @property(nonatomic) FIRAppCheck<FIRAppCheckInterop> *appCheck;
 
 @property(nonatomic, copy, nullable) FIRAppCheckTokenRefreshBlock tokenRefreshHandler;
@@ -66,13 +68,15 @@
   self.mockStorage = OCMProtocolMock(@protocol(FIRAppCheckStorageProtocol));
   self.mockAppCheckProvider = OCMProtocolMock(@protocol(FIRAppCheckProvider));
   self.mockTokenRefresher = OCMProtocolMock(@protocol(FIRAppCheckTokenRefresherProtocol));
+  self.notificationCenter = [[NSNotificationCenter alloc] init];
 
   [self stubSetTokenRefreshHandler];
 
   self.appCheck = [[FIRAppCheck alloc] initWithAppName:self.appName
                                       appCheckProvider:self.mockAppCheckProvider
                                                storage:self.mockStorage
-                                        tokenRefresher:self.mockTokenRefresher];
+                                        tokenRefresher:self.mockTokenRefresher
+                                    notificationCenter:self.notificationCenter];
 }
 
 - (void)tearDown {
@@ -164,7 +168,11 @@
   OCMExpect([self.mockStorage setToken:tokenToReturn])
       .andReturn([FBLPromise resolvedWith:tokenToReturn]);
 
-  // 4. Request token.
+  // 4. Expect token update notification to be sent.
+  XCTestExpectation *notificationExpectation =
+      [self tokenUpdateNotificationWithExpectedToken:tokenToReturn.token];
+
+  // 5. Request token.
   XCTestExpectation *getTokenExpectation = [self expectationWithDescription:@"getToken"];
   [self.appCheck getTokenForcingRefresh:NO
                              completion:^(id<FIRAppCheckTokenResultInterop> tokenResult) {
@@ -175,8 +183,8 @@
                                XCTAssertNil(tokenResult.error);
                              }];
 
-  // 5. Wait for expectations and validate mocks.
-  [self waitForExpectations:@[ getTokenExpectation ] timeout:0.5];
+  // 6. Wait for expectations and validate mocks.
+  [self waitForExpectations:@[ notificationExpectation, getTokenExpectation ] timeout:0.5];
   OCMVerifyAll(self.mockStorage);
   OCMVerifyAll(self.mockAppCheckProvider);
 }
@@ -191,7 +199,11 @@
   // 2. Don't expect token requested from app check provider.
   OCMReject([self.mockAppCheckProvider getTokenWithCompletion:[OCMArg any]]);
 
-  // 3. Request token.
+  // 3. Don't expect token update notification to be sent.
+  XCTestExpectation *notificationExpectation = [self tokenUpdateNotificationWithExpectedToken:@""];
+  notificationExpectation.inverted = YES;
+
+  // 4. Request token.
   XCTestExpectation *getTokenExpectation = [self expectationWithDescription:@"getToken"];
   [self.appCheck getTokenForcingRefresh:NO
                              completion:^(id<FIRAppCheckTokenResultInterop> tokenResult) {
@@ -201,8 +213,8 @@
                                XCTAssertNil(tokenResult.error);
                              }];
 
-  // 4. Wait for expectations and validate mocks.
-  [self waitForExpectations:@[ getTokenExpectation ] timeout:0.5];
+  // 5. Wait for expectations and validate mocks.
+  [self waitForExpectations:@[ notificationExpectation, getTokenExpectation ] timeout:0.5];
   OCMVerifyAll(self.mockStorage);
   OCMVerifyAll(self.mockAppCheckProvider);
 }
@@ -221,7 +233,11 @@
   OCMExpect([self.mockStorage setToken:tokenToReturn])
       .andReturn([FBLPromise resolvedWith:tokenToReturn]);
 
-  // 4. Request token.
+  // 4. Expect token update notification to be sent.
+  XCTestExpectation *notificationExpectation =
+      [self tokenUpdateNotificationWithExpectedToken:tokenToReturn.token];
+
+  // 5. Request token.
   XCTestExpectation *getTokenExpectation = [self expectationWithDescription:@"getToken"];
   [self.appCheck getTokenForcingRefresh:YES
                              completion:^(id<FIRAppCheckTokenResultInterop> tokenResult) {
@@ -232,8 +248,8 @@
                                XCTAssertNil(tokenResult.error);
                              }];
 
-  // 5. Wait for expectations and validate mocks.
-  [self waitForExpectations:@[ getTokenExpectation ] timeout:0.5];
+  // 6. Wait for expectations and validate mocks.
+  [self waitForExpectations:@[ notificationExpectation, getTokenExpectation ] timeout:0.5];
   OCMVerifyAll(self.mockStorage);
   OCMVerifyAll(self.mockAppCheckProvider);
 }
@@ -255,7 +271,11 @@
   OCMExpect([self.mockStorage setToken:tokenToReturn])
       .andReturn([FBLPromise resolvedWith:tokenToReturn]);
 
-  // 4. Request token.
+  // 4. Expect token update notification to be sent.
+  XCTestExpectation *notificationExpectation =
+      [self tokenUpdateNotificationWithExpectedToken:tokenToReturn.token];
+
+  // 5. Request token.
   XCTestExpectation *getTokenExpectation = [self expectationWithDescription:@"getToken"];
   [self.appCheck getTokenForcingRefresh:NO
                              completion:^(id<FIRAppCheckTokenResultInterop> tokenResult) {
@@ -265,8 +285,8 @@
                                XCTAssertNil(tokenResult.error);
                              }];
 
-  // 5. Wait for expectations and validate mocks.
-  [self waitForExpectations:@[ getTokenExpectation ] timeout:0.5];
+  // 6. Wait for expectations and validate mocks.
+  [self waitForExpectations:@[ notificationExpectation, getTokenExpectation ] timeout:0.5];
   OCMVerifyAll(self.mockStorage);
   OCMVerifyAll(self.mockAppCheckProvider);
 }
@@ -287,7 +307,11 @@
   // 3. Don't expect token requested from app check provider.
   OCMReject([self.mockAppCheckProvider getTokenWithCompletion:[OCMArg any]]);
 
-  // 4. Request token.
+  // 4. Don't expect token update notification to be sent.
+  XCTestExpectation *notificationExpectation = [self tokenUpdateNotificationWithExpectedToken:@""];
+  notificationExpectation.inverted = YES;
+
+  // 5. Request token.
   XCTestExpectation *getTokenExpectation = [self expectationWithDescription:@"getToken"];
   [self.appCheck
       getTokenForcingRefresh:NO
@@ -302,8 +326,8 @@
                     XCTAssertEqualObjects(result.error, providerError);
                   }];
 
-  // 5. Wait for expectations and validate mocks.
-  [self waitForExpectations:@[ getTokenExpectation ] timeout:0.5];
+  // 6. Wait for expectations and validate mocks.
+  [self waitForExpectations:@[ notificationExpectation, getTokenExpectation ] timeout:0.5];
   OCMVerifyAll(self.mockStorage);
   OCMVerifyAll(self.mockAppCheckProvider);
 }
@@ -325,7 +349,11 @@
   OCMExpect([self.mockStorage setToken:tokenToReturn])
       .andReturn([FBLPromise resolvedWith:tokenToReturn]);
 
-  // 4. Trigger refresh and expect the result.
+  // 4. Expect token update notification to be sent.
+  XCTestExpectation *notificationExpectation =
+      [self tokenUpdateNotificationWithExpectedToken:tokenToReturn.token];
+
+  // 5. Trigger refresh and expect the result.
   if (self.tokenRefreshHandler == nil) {
     XCTFail(@"`tokenRefreshHandler` must be not `nil`.");
     return;
@@ -338,7 +366,7 @@
     XCTAssertTrue(success);
   });
 
-  [self waitForExpectations:@[ completionExpectation ] timeout:0.5];
+  [self waitForExpectations:@[ notificationExpectation, completionExpectation ] timeout:0.5];
   OCMVerifyAll(self.mockStorage);
   OCMVerifyAll(self.mockAppCheckProvider);
 }
@@ -355,7 +383,11 @@
   // 3. Don't expect token requested from app check provider.
   OCMReject([self.mockAppCheckProvider getTokenWithCompletion:[OCMArg any]]);
 
-  // 4. Trigger refresh and expect the result.
+  // 4. Don't expect token update notification to be sent.
+  XCTestExpectation *notificationExpectation = [self tokenUpdateNotificationWithExpectedToken:@""];
+  notificationExpectation.inverted = YES;
+
+  // 5. Trigger refresh and expect the result.
   if (self.tokenRefreshHandler == nil) {
     XCTFail(@"`tokenRefreshHandler` must be not `nil`.");
     return;
@@ -368,9 +400,19 @@
     XCTAssertFalse(success);
   });
 
-  [self waitForExpectations:@[ completionExpectation ] timeout:0.5];
+  [self waitForExpectations:@[ notificationExpectation, completionExpectation ] timeout:0.5];
   OCMVerifyAll(self.mockStorage);
   OCMVerifyAll(self.mockAppCheckProvider);
+}
+
+#pragma mark - Token update notifications
+
+- (void)testTokenUpdateNotificationKeys {
+  XCTAssertEqualObjects([self.appCheck tokenDidChangeNotificationName],
+                        @"FIRAppCheckAppCheckTokenDidChangeNotification");
+  XCTAssertEqualObjects([self.appCheck notificationAppNameKey],
+                        @"FIRAppCheckAppNameNotificationKey");
+  XCTAssertEqualObjects([self.appCheck notificationTokenKey], @"FIRAppCheckTokenNotificationKey");
 }
 
 #pragma mark - Helpers
@@ -381,6 +423,24 @@
     return YES;
   }];
   OCMExpect([self.mockTokenRefresher setTokenRefreshHandler:arg]);
+}
+
+- (XCTestExpectation *)tokenUpdateNotificationWithExpectedToken:(NSString *)expectedToken {
+  XCTestExpectation *expectation =
+      [self expectationForNotification:[self.appCheck tokenDidChangeNotificationName]
+                                object:nil
+                    notificationCenter:self.notificationCenter
+                               handler:^BOOL(NSNotification *_Nonnull notification) {
+                                 XCTAssertEqualObjects(
+                                     notification.userInfo[[self.appCheck notificationAppNameKey]],
+                                     self.appName);
+                                 XCTAssertEqualObjects(
+                                     notification.userInfo[[self.appCheck notificationTokenKey]],
+                                     expectedToken);
+                                 return YES;
+                               }];
+
+  return expectation;
 }
 
 @end

@@ -35,4 +35,16 @@
   });
 }
 
+- (nonnull NSString *)notificationAppNameKey {
+  return @"FakeAppCheckTokenDidChangeNotification";
+}
+
+- (nonnull NSString *)notificationTokenKey {
+  return @"FakeTokenNotificationKey";
+}
+
+- (nonnull NSString *)tokenDidChangeNotificationName {
+  return @"FakeAppCheckTokenDidChangeNotification";
+}
+
 @end
