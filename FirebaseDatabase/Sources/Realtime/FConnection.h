@@ -24,10 +24,11 @@
 
 @property(nonatomic, weak) id<FConnectionDelegate> delegate;
 
-- (id)initWith:(FRepoInfo *)aRepoInfo
-    andDispatchQueue:(dispatch_queue_t)queue
-         googleAppID:(NSString *)googleAppID
-       lastSessionID:(NSString *)lastSessionID;
+- (instancetype)initWith:(FRepoInfo *)aRepoInfo
+        andDispatchQueue:(dispatch_queue_t)queue
+             googleAppID:(NSString *)googleAppID
+           lastSessionID:(NSString *)lastSessionID
+           appCheckToken:(NSString *)appCheckToken;
 
 - (void)open;
 - (void)close;

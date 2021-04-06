@@ -38,6 +38,19 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/// A notification with the specified name is sent to the default notification center
+/// (`NotificationCenter.default`) each time a Firebase app check token is refreshed.
+/// The user info dictionary contains `kFIRAppCheckTokenNotificationKey` and
+/// `kFIRAppCheckAppNameNotificationKey` keys.
+const NSNotificationName FIRAppCheckAppCheckTokenDidChangeNotification =
+    @"FIRAppCheckAppCheckTokenDidChangeNotification";
+
+/// `userInfo` key for the `AppCheckToken` in `appCheckTokenRefreshNotification`.
+NSString *const kFIRAppCheckTokenNotificationKey = @"FIRAppCheckTokenNotificationKey";
+
+/// `userInfo` key for the `FirebaseApp.name` in `appCheckTokenRefreshNotification`.
+NSString *const kFIRAppCheckAppNameNotificationKey = @"FIRAppCheckAppNameNotificationKey";
+
 static id<FIRAppCheckProviderFactory> _providerFactory;
 
 static const NSTimeInterval kTokenExpirationThreshold = 5 * 60;  // 5 min.
@@ -50,6 +63,7 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 @property(nonatomic, readonly) NSString *appName;
 @property(nonatomic, readonly) id<FIRAppCheckProvider> appCheckProvider;
 @property(nonatomic, readonly) id<FIRAppCheckStorageProtocol> storage;
+@property(nonatomic, readonly) NSNotificationCenter *notificationCenter;
 
 @property(nonatomic, readonly, nullable) id<FIRAppCheckTokenRefresherProtocol> tokenRefresher;
 
@@ -115,19 +129,22 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
   return [self initWithAppName:app.name
               appCheckProvider:appCheckProvider
                        storage:storage
-                tokenRefresher:tokenRefresher];
+                tokenRefresher:tokenRefresher
+            notificationCenter:NSNotificationCenter.defaultCenter];
 }
 
 - (instancetype)initWithAppName:(NSString *)appName
                appCheckProvider:(id<FIRAppCheckProvider>)appCheckProvider
                         storage:(id<FIRAppCheckStorageProtocol>)storage
-                 tokenRefresher:(id<FIRAppCheckTokenRefresherProtocol>)tokenRefresher {
+                 tokenRefresher:(id<FIRAppCheckTokenRefresherProtocol>)tokenRefresher
+             notificationCenter:(NSNotificationCenter *)notificationCenter {
   self = [super init];
   if (self) {
     _appName = appName;
     _appCheckProvider = appCheckProvider;
     _storage = storage;
     _tokenRefresher = tokenRefresher;
+    _notificationCenter = notificationCenter;
 
     __auto_type __weak weakSelf = self;
     tokenRefresher.tokenRefreshHandler = ^(FIRAppCheckTokenRefreshCompletion _Nonnull completion) {
@@ -176,6 +193,18 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
       });
 }
 
+- (nonnull NSString *)tokenDidChangeNotificationName {
+  return FIRAppCheckAppCheckTokenDidChangeNotification;
+}
+
+- (nonnull NSString *)notificationAppNameKey {
+  return kFIRAppCheckAppNameNotificationKey;
+}
+
+- (nonnull NSString *)notificationTokenKey {
+  return kFIRAppCheckTokenNotificationKey;
+}
+
 #pragma mark - FAA token cache
 
 - (FBLPromise<FIRAppCheckToken *> *)retrieveOrRefreshTokenForcingRefresh:(BOOL)forcingRefresh {
@@ -208,12 +237,16 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 }
 
 - (FBLPromise<FIRAppCheckToken *> *)refreshToken {
-  return
-      [FBLPromise wrapObjectOrErrorCompletion:^(
-                      FBLPromiseObjectOrErrorCompletion _Nonnull handler) {
-        [self.appCheckProvider getTokenWithCompletion:handler];
-      }].then(^id _Nullable(FIRAppCheckToken *_Nullable token) {
+  return [FBLPromise
+             wrapObjectOrErrorCompletion:^(FBLPromiseObjectOrErrorCompletion _Nonnull handler) {
+               [self.appCheckProvider getTokenWithCompletion:handler];
+             }]
+      .then(^id _Nullable(FIRAppCheckToken *_Nullable token) {
         return [self.storage setToken:token];
+      })
+      .then(^id _Nullable(FIRAppCheckToken *_Nullable token) {
+        [self postTokenUpdateNotificationWithToken:token];
+        return token;
       });
 }
 
@@ -228,6 +261,17 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
       .catch(^(NSError *error) {
         completion(NO, nil);
       });
+}
+
+#pragma mark - Token update notification
+
+- (void)postTokenUpdateNotificationWithToken:(FIRAppCheckToken *)token {
+  [self.notificationCenter postNotificationName:FIRAppCheckAppCheckTokenDidChangeNotification
+                                         object:nil
+                                       userInfo:@{
+                                         kFIRAppCheckTokenNotificationKey : token.token,
+                                         kFIRAppCheckAppNameNotificationKey : self.appName
+                                       }];
 }
 
 @end

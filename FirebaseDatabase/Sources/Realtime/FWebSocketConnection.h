@@ -30,10 +30,11 @@
 
 @property(nonatomic, weak) id<FWebSocketDelegate> delegate;
 
-- (id)initWith:(FRepoInfo *)repoInfo
-         andQueue:(dispatch_queue_t)queue
-      googleAppID:(NSString *)googleAppID
-    lastSessionID:(NSString *)lastSessionID;
+- (instancetype)initWith:(FRepoInfo *)repoInfo
+                andQueue:(dispatch_queue_t)queue
+             googleAppID:(NSString *)googleAppID
+           lastSessionID:(NSString *)lastSessionID
+           appCheckToken:(NSString *)appCheckToken;
 
 - (void)open;
 - (void)close;

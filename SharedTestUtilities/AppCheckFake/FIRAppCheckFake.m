@@ -16,13 +16,35 @@
 
 #import "SharedTestUtilities/AppCheckFake/FIRAppCheckFake.h"
 
+#import "SharedTestUtilities/AppCheckFake/FIRAppCheckTokenResultFake.h"
+
 @implementation FIRAppCheckFake
+
+- (instancetype)init {
+  self = [super init];
+  if (self) {
+    _tokenResult = [[FIRAppCheckTokenResultFake alloc] initWithToken:@"fake_valid_token" error:nil];
+  }
+  return self;
+}
 
 - (void)getTokenForcingRefresh:(BOOL)forcingRefresh
                     completion:(nonnull FIRAppCheckTokenHandlerInterop)handler {
   dispatch_async(dispatch_get_main_queue(), ^{
     handler(self.tokenResult);
   });
+}
+
+- (nonnull NSString *)notificationAppNameKey {
+  return @"FakeAppCheckTokenDidChangeNotification";
+}
+
+- (nonnull NSString *)notificationTokenKey {
+  return @"FakeTokenNotificationKey";
+}
+
+- (nonnull NSString *)tokenDidChangeNotificationName {
+  return @"FakeAppCheckTokenDidChangeNotification";
 }
 
 @end
