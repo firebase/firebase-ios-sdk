@@ -332,14 +332,14 @@ NS_ASSUME_NONNULL_BEGIN
   google_firestore_v1_Value result;
   result.which_value_type = google_firestore_v1_Value_map_value_tag;
 
+  __block std::vector<google_firestore_v1_MapValue_FieldsEntry> fields;
+
   if (dict.count == 0) {
     const FieldPath *path = context.path();
     if (path && !path->empty()) {
       context.AddToFieldMask(*path);
     }
   } else {
-    __block std::vector<google_firestore_v1_MapValue_FieldsEntry> fields;
-
     // Populate a vector of fields since we don't know the size of the final fields array.
     [dict enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *) {
       absl::optional<google_firestore_v1_Value> parsedValue =
@@ -351,15 +351,16 @@ NS_ASSUME_NONNULL_BEGIN
         fields.push_back(fieldsEntry);
       }
     }];
-
-    result.map_value.fields_count = static_cast<pb_size_t>(fields.size());
-    result.map_value.fields =
-        nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(result.map_value.fields_count);
-
-    for (size_t i = 0; i < fields.size(); ++i) {
-      result.map_value.fields[i] = fields[i];
-    }
   }
+
+  result.map_value.fields_count = static_cast<pb_size_t>(fields.size());
+  result.map_value.fields =
+      nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(result.map_value.fields_count);
+
+  for (size_t i = 0; i < fields.size(); ++i) {
+    result.map_value.fields[i] = fields[i];
+  }
+
   return result;
 }
 
