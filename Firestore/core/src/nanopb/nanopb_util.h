@@ -116,10 +116,6 @@ inline NSData* _Nonnull MakeNSData(const ByteString& str) {
   return [[NSData alloc] initWithBytes:str.data() length:str.size()];
 }
 
-inline NSData* _Nonnull MakeNSData(const pb_bytes_array_t* _Nullable data) {
-  return [[NSData alloc] initWithBytes:data->bytes length:data->size];
-}
-
 inline NSData* _Nullable MakeNullableNSData(const ByteString& str) {
   if (str.empty()) return nil;
   return MakeNSData(str);

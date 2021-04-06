@@ -50,15 +50,13 @@ bool IsServerTimestamp(const google_firestore_v1_Value& value) {
   return false;
 }
 
-const google_protobuf_Timestamp& GetLocalWriteTime(
+const google_firestore_v1_Value& GetLocalWriteTime(
     const firebase::firestore::google_firestore_v1_Value& value) {
   for (size_t i = 0; i < value.map_value.fields_count; ++i) {
     const auto& field = value.map_value.fields[i];
     absl::string_view key = nanopb::MakeStringView(field.key);
-    if (key == kLocalWriteTimeKey &&
-        field.value.which_value_type ==
-            google_firestore_v1_Value_timestamp_value_tag) {
-      return field.value.timestamp_value;
+    if (key == kLocalWriteTimeKey) {
+      return field.value;
     }
   }
 

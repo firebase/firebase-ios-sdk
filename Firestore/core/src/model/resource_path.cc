@@ -28,7 +28,11 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-ResourcePath ResourcePath::FromString(absl::string_view path) {
+ResourcePath ResourcePath::FromString(const std::string& path) {
+  return FromStringView(path);
+}
+
+ResourcePath ResourcePath::FromStringView(absl::string_view path) {
   // NOTE: The client is ignorant of any path segments containing escape
   // sequences (e.g. __id123__) and just passes them through raw (they exist
   // for legacy reasons and should not be used frequently).

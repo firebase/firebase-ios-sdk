@@ -23,8 +23,6 @@
 #include <memory>
 #include <string>
 
-#include "absl/strings/string_view.h"
-
 namespace firebase {
 namespace firestore {
 
@@ -58,9 +56,6 @@ class DocumentKey {
 
   /** Creates and returns a new document key with the given segments. */
   static DocumentKey FromSegments(std::initializer_list<std::string> list);
-
-  /** Returns a DocumentKey from a fully qualified resource name. */
-  static DocumentKey FromName(absl::string_view name);
 
   /** Returns a shared instance of an empty document key. */
   static const DocumentKey& Empty();
