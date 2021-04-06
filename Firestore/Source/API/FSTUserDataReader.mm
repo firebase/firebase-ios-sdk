@@ -46,9 +46,9 @@
 #include "Firestore/core/src/model/precondition.h"
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/model/transform_operation.h"
-#include "Firestore/core/src/remote/serializer.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/nanopb/reader.h"
+#include "Firestore/core/src/remote/serializer.h"
 #include "Firestore/core/src/timestamp_internal.h"
 #include "Firestore/core/src/util/exception.h"
 #include "Firestore/core/src/util/hard_assert.h"
@@ -261,7 +261,7 @@ NS_ASSUME_NONNULL_BEGIN
   }];
 
   google_firestore_v1_Value rootValue = updateData.Get(FieldPath::EmptyPath()).value();
-  return std::move(accumulator) .UpdateData([self wrapObject:rootValue]);
+  return std::move(accumulator).UpdateData([self wrapObject:rootValue]);
 }
 
 - (FieldValue)parsedQueryValue:(id)input {

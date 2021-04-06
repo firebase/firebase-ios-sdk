@@ -72,8 +72,8 @@ namespace {
  * Converts a public FIRServerTimestampBehavior into its internal equivalent.
  */
 ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavior behavior) {
-// TODO(mutabledocuments): Remove since we only use FIRServerTimestampBehavior
-switch (behavior) {
+  // TODO(mutabledocuments): Remove since we only use FIRServerTimestampBehavior
+  switch (behavior) {
     case FIRServerTimestampBehaviorNone:
       return ServerTimestampBehavior::kNone;
     case FIRServerTimestampBehaviorEstimate:
