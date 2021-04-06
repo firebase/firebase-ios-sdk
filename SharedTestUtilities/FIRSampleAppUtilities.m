@@ -110,7 +110,7 @@ NSString *const kInvalidPlistAlertMessage = @"This sample app needs to be update
     [viewController showDetailViewController:safariController sender:nil];
   } else {
 #endif
-    [[UIApplication sharedApplication] openURL:url];
+    [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
 #if __has_include(<SafariServices/SafariServices.h>)
   }
 #endif
