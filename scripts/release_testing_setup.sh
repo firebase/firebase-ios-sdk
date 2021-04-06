@@ -34,7 +34,7 @@ cd  "${local_sdk_repo_dir}"
 # Cocoapods-X.Y.Z tags from all branches of the sdk repo and test_version is X.Y.Z
 test_version=$(git tag -l --sort=-version:refname CocoaPods-*[0-9] | head -n 1 | sed -n 's/CocoaPods-//p')
 # Check if release-X.Y.Z branch exists in the remote repo.
-release_branch=`
+release_branch=$(git branch -r -l "origin/release-${test_version}")
 if [ -z $release_branch ];then
   echo "release-${test_version} branch does not exist in the sdk repo."
   # Get substring before the last ".", e.g. "release-7.0.0" -> "release-7.0"
