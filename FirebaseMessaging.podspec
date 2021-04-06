@@ -39,8 +39,6 @@ device, and it is completely free.
     'Interop/Analytics/Public/*.h',
     'FirebaseCore/Sources/Private/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
-    'Firebase/InstanceID/Private/*.h',
-    'Firebase/InstanceID/Public/*.h',
   ]
   s.public_header_files = base_dir + 'Sources/Public/FirebaseMessaging/*.h'
   s.library = 'sqlite3'

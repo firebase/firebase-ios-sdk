@@ -40,6 +40,10 @@ static const NSTimeInterval kExpectationTimeout = 12;
 + (BOOL)createSubDirectory:(NSString *)subDirectoryName;
 @end
 
+@interface FIRMessagingBackupExcludedPlist (ExposedForTest)
+- (BOOL)deleteFile:(NSError **)error;
+@end
+
 // Testing constants
 static NSString *const kFakeCheckinPlistName = @"com.google.test.TestCheckin";
 static NSString *const kSubDirectoryName = @"FirebaseInstanceIDCheckinTest";
@@ -53,6 +57,8 @@ static int64_t const kLastCheckinTimestamp = 123456;
 
 @interface FIRMessagingCheckinStoreTest : XCTestCase
 
+@property(nonatomic, strong) FIRMessagingCheckinStore *checkinStore;
+@property(nonatomic, strong) FIRMessagingBackupExcludedPlist *plist;
 @end
 
 @implementation FIRMessagingCheckinStoreTest
@@ -60,14 +66,14 @@ static int64_t const kLastCheckinTimestamp = 123456;
 - (void)setUp {
   [super setUp];
   [FIRMessaging createSubDirectory:kSubDirectoryName];
+  self.checkinStore = [[FIRMessagingCheckinStore alloc] init];
+  self.plist = [[FIRMessagingBackupExcludedPlist alloc] initWithFileName:kFakeCheckinPlistName
+                                                            subDirectory:kSubDirectoryName];
+  self.checkinStore.plist = self.plist;
 }
 
 - (void)tearDown {
-  NSString *path = [self pathForCheckinPlist];
-  if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
-    NSError *error;
-    [[NSFileManager defaultManager] removeItemAtPath:path error:&error];
-  }
+  [self.plist deleteFile:nil];
   [super tearDown];
 }
 
@@ -79,23 +85,22 @@ static int64_t const kLastCheckinTimestamp = 123456;
       expectationWithDescription:@"Checkin preference should be invalid after keychain failure"];
 
   FIRMessagingFakeKeychain *fakeKeychain = [[FIRMessagingFakeKeychain alloc] init];
-  FIRMessagingCheckinStore *checkinStore = [[FIRMessagingCheckinStore alloc] init];
-  checkinStore.keychain = fakeKeychain;
+  self.checkinStore.keychain = fakeKeychain;
   __block FIRMessagingCheckinPreferences *preferences =
       [[FIRMessagingCheckinPreferences alloc] initWithDeviceID:kAuthID secretToken:kSecret];
   [preferences updateWithCheckinPlistContents:[[self class] newCheckinPlistPreferences]];
-  [checkinStore saveCheckinPreferences:preferences
-                               handler:^(NSError *error) {
-                                 XCTAssertNil(error);
-                                 fakeKeychain.cannotReadFromKeychain = YES;
-                                 preferences = [checkinStore cachedCheckinPreferences];
+  [self.checkinStore saveCheckinPreferences:preferences
+                                    handler:^(NSError *error) {
+                                      XCTAssertNil(error);
+                                      fakeKeychain.cannotReadFromKeychain = YES;
+                                      preferences = [self->_checkinStore cachedCheckinPreferences];
 
-                                 XCTAssertNil(preferences.deviceID);
-                                 XCTAssertNil(preferences.secretToken);
-                                 XCTAssertFalse([preferences hasValidCheckinInfo]);
+                                      XCTAssertNil(preferences.deviceID);
+                                      XCTAssertNil(preferences.secretToken);
+                                      XCTAssertFalse([preferences hasValidCheckinInfo]);
 
-                                 [checkinInvalidExpectation fulfill];
-                               }];
+                                      [checkinInvalidExpectation fulfill];
+                                    }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
 }
 
@@ -108,56 +113,49 @@ static int64_t const kLastCheckinTimestamp = 123456;
       [self expectationWithDescription:@"Checkin save should fail after keychain write failure"];
   FIRMessagingFakeKeychain *fakeKeychain = [[FIRMessagingFakeKeychain alloc] init];
   fakeKeychain.cannotWriteToKeychain = YES;
-
-  FIRMessagingCheckinStore *checkinStore = [[FIRMessagingCheckinStore alloc] init];
-  checkinStore.keychain = fakeKeychain;
+  self.checkinStore.keychain = fakeKeychain;
 
   __block FIRMessagingCheckinPreferences *preferences =
       [[FIRMessagingCheckinPreferences alloc] initWithDeviceID:kAuthID secretToken:kSecret];
   [preferences updateWithCheckinPlistContents:[[self class] newCheckinPlistPreferences]];
-  [checkinStore saveCheckinPreferences:preferences
-                               handler:^(NSError *error) {
-                                 XCTAssertNotNil(error);
+  [self.checkinStore saveCheckinPreferences:preferences
+                                    handler:^(NSError *error) {
+                                      XCTAssertNotNil(error);
 
-                                 preferences = [checkinStore cachedCheckinPreferences];
-                                 XCTAssertNil(preferences.deviceID);
-                                 XCTAssertNil(preferences.secretToken);
-                                 XCTAssertFalse([preferences hasValidCheckinInfo]);
-                                 [checkinSaveFailsExpectation fulfill];
-                               }];
+                                      preferences = [self->_checkinStore cachedCheckinPreferences];
+                                      XCTAssertNil(preferences.deviceID);
+                                      XCTAssertNil(preferences.secretToken);
+                                      XCTAssertFalse([preferences hasValidCheckinInfo]);
+                                      [checkinSaveFailsExpectation fulfill];
+                                    }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
 }
 
 - (void)testCheckinSaveFailsOnPlistWriteFailure {
   XCTestExpectation *checkinSaveFailsExpectation =
       [self expectationWithDescription:@"Checkin save should fail after plist write failure"];
-  FIRMessagingBackupExcludedPlist *checkinPlist =
-      [[FIRMessagingBackupExcludedPlist alloc] initWithFileName:kFakeCheckinPlistName
-                                                   subDirectory:kSubDirectoryName];
-  id plistMock = OCMPartialMock(checkinPlist);
+
+  id plistMock = OCMPartialMock(self.plist);
   NSError *error = [NSError errorWithDomain:kFakeErrorDomain code:kFakeErrorCode userInfo:nil];
   OCMStub([plistMock writeDictionary:[OCMArg any] error:[OCMArg setTo:error]]).andReturn(NO);
 
   FIRMessagingFakeKeychain *fakeKeychain = [[FIRMessagingFakeKeychain alloc] init];
-
-  FIRMessagingCheckinStore *checkinStore = [[FIRMessagingCheckinStore alloc] init];
-  checkinStore.keychain = fakeKeychain;
-  checkinStore.plist = checkinPlist;
+  self.checkinStore.keychain = fakeKeychain;
 
   __block FIRMessagingCheckinPreferences *preferences =
       [[FIRMessagingCheckinPreferences alloc] initWithDeviceID:kAuthID secretToken:kSecret];
   [preferences updateWithCheckinPlistContents:[[self class] newCheckinPlistPreferences]];
-  [checkinStore saveCheckinPreferences:preferences
-                               handler:^(NSError *error) {
-                                 XCTAssertNotNil(error);
-                                 XCTAssertEqual(error.code, kFakeErrorCode);
+  [self.checkinStore saveCheckinPreferences:preferences
+                                    handler:^(NSError *error) {
+                                      XCTAssertNotNil(error);
+                                      XCTAssertEqual(error.code, kFakeErrorCode);
 
-                                 preferences = [checkinStore cachedCheckinPreferences];
-                                 XCTAssertNil(preferences.deviceID);
-                                 XCTAssertNil(preferences.secretToken);
-                                 XCTAssertFalse([preferences hasValidCheckinInfo]);
-                                 [checkinSaveFailsExpectation fulfill];
-                               }];
+                                      preferences = [self->_checkinStore cachedCheckinPreferences];
+                                      XCTAssertNil(preferences.deviceID);
+                                      XCTAssertNil(preferences.secretToken);
+                                      XCTAssertFalse([preferences hasValidCheckinInfo]);
+                                      [checkinSaveFailsExpectation fulfill];
+                                    }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
 }
 
@@ -166,37 +164,24 @@ static int64_t const kLastCheckinTimestamp = 123456;
       [self expectationWithDescription:@"Checkin save should succeed"];
 
   FIRMessagingFakeKeychain *fakeKeychain = [[FIRMessagingFakeKeychain alloc] init];
-  FIRMessagingCheckinStore *checkinStore = [[FIRMessagingCheckinStore alloc] init];
-  checkinStore.keychain = fakeKeychain;
+  self.checkinStore.keychain = fakeKeychain;
 
   __block FIRMessagingCheckinPreferences *preferences =
       [[FIRMessagingCheckinPreferences alloc] initWithDeviceID:kAuthID secretToken:kSecret];
   [preferences updateWithCheckinPlistContents:[[self class] newCheckinPlistPreferences]];
-  [checkinStore saveCheckinPreferences:preferences
-                               handler:^(NSError *error) {
-                                 XCTAssertNil(error);
+  [self.checkinStore saveCheckinPreferences:preferences
+                                    handler:^(NSError *error) {
+                                      XCTAssertNil(error);
 
-                                 preferences = [checkinStore cachedCheckinPreferences];
-                                 XCTAssertEqualObjects(preferences.deviceID, kAuthID);
-                                 XCTAssertEqualObjects(preferences.secretToken, kSecret);
-                                 [checkinSaveSuccessExpectation fulfill];
-                               }];
+                                      preferences = [self->_checkinStore cachedCheckinPreferences];
+                                      XCTAssertEqualObjects(preferences.deviceID, kAuthID);
+                                      XCTAssertEqualObjects(preferences.secretToken, kSecret);
+                                      [checkinSaveSuccessExpectation fulfill];
+                                    }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
 }
 
 #pragma mark - Private Helpers
-
-- (BOOL)savePreferencesToPlist:(NSDictionary *)preferences {
-  NSString *path = [self pathForCheckinPlist];
-  return [preferences writeToFile:path atomically:YES];
-}
-
-- (NSString *)pathForCheckinPlist {
-  NSArray *paths =
-      NSSearchPathForDirectoriesInDomains(NSApplicationDirectory, NSUserDomainMask, YES);
-  NSString *plistNameWithExtension = [NSString stringWithFormat:@"%@.plist", kFakeCheckinPlistName];
-  return [paths[0] stringByAppendingPathComponent:plistNameWithExtension];
-}
 
 + (NSDictionary *)checkinPreferences {
   return @{

@@ -24,9 +24,8 @@
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULReachabilityChecker.h>
 #import <GoogleUtilities/GULUserDefaults.h>
-#import "Firebase/InstanceID/Private/FIRInstanceID_Private.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
-#import "FirebaseInstallations/Source/Library/Public/FirebaseInstallations/FirebaseInstallations.h"
+#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 #import "FirebaseMessaging/Sources/FIRMessagingAnalytics.h"
 #import "FirebaseMessaging/Sources/FIRMessagingCode.h"
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
