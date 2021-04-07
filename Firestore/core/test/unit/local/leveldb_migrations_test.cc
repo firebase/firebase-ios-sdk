@@ -472,11 +472,10 @@ TEST_F(LevelDbMigrationsTest, RewritesCanonicalIds) {
   auto query = Query("collection").AddingFilter(Filter("foo", "==", "bar"));
   TargetData initial_target_data(query.ToTarget(),
                                  /* target_id= */ 2,
-                                 /*sequence_numder*/ 1, QueryPurpose::Listen);
-  auto invalid_key =
-      LevelDbQueryTargetKey::Key("invalid_canonical_id",
-                                 initial_target_data.target_id());
-
+                                 /* sequence_number= */ 1,
+                                 QueryPurpose::Listen);
+  auto invalid_key = LevelDbQueryTargetKey::Key(
+      "invalid_canonical_id", initial_target_data.target_id());
 
   // Write the target with invalid canonical id into leveldb.
   {

@@ -23,6 +23,7 @@
 #include "Firestore/Protos/nanopb/firestore/local/target.nanopb.h"
 #include "Firestore/core/src/local/leveldb_key.h"
 #include "Firestore/core/src/local/memory_index_manager.h"
+#include "Firestore/core/src/local/target_data.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/types.h"
 #include "Firestore/core/src/nanopb/message.h"
@@ -31,7 +32,6 @@
 #include "Firestore/core/src/util/log.h"
 #include "Firestore/core/src/util/statusor.h"
 #include "absl/strings/match.h"
-#include "target_data.h"
 
 namespace firebase {
 namespace firestore {
@@ -319,21 +319,26 @@ util::StatusOr<TargetData> ReadTargetData(
   const auto& target_key = LevelDbTargetKey::Key(query_target_key.target_id());
   target_it->Seek(target_key);
   if (!target_it->Valid()) {
-    LOG_WARN("Dangling query-target reference found: seeking %s found %s",
-             DescribeKey(target_key), DescribeKey(target_it));
-    return util::Status(kErrorNotFound,
-                        "Dangling query-target reference found.");
+    return util::Status(
+        kErrorNotFound,
+        util::StringFormat(
+            "Dangling query-target reference found: seeking %s found %s",
+            DescribeKey(target_key), DescribeKey(target_it)));
   }
 
   StringReader reader{target_it->value()};
   auto message = Message<firestore_client_Target>::TryParse(&reader);
   if (!reader.ok()) {
-    HARD_FAIL("Target proto failed to parse: %s", reader.status().ToString());
+    return util::Status(kErrorDataLoss,
+                        util::StringFormat("Target proto failed to parse: %s",
+                                           reader.status().ToString()));
   }
   auto target_data = serializer.DecodeTargetData(&reader, *message);
   if (!reader.ok()) {
-    HARD_FAIL("Target failed to parse: %s, message: %s",
-              reader.status().ToString(), message.ToString());
+    return util::Status(
+        kErrorDataLoss,
+        util::StringFormat("Target failed to parse: %s, message: %s",
+                           reader.status().ToString(), message.ToString()));
   }
 
   return target_data;
