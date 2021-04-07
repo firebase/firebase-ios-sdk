@@ -17,8 +17,9 @@
 #ifndef FIRESTORE_CORE_TEST_UNIT_LOCAL_PERSISTENCE_TESTING_H_
 #define FIRESTORE_CORE_TEST_UNIT_LOCAL_PERSISTENCE_TESTING_H_
 
-#include <Firestore/core/src/local/local_serializer.h>
 #include <memory>
+
+#include "Firestore/core/src/local/local_serializer.h"
 
 namespace firebase {
 namespace firestore {
