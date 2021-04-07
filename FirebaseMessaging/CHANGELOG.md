@@ -1,5 +1,5 @@
 # 2021-04 -- v7.11.0
-- [changed] Refactor Messaging to internally not depending on InstanceID, but can co-exist. Will remove InstanceID dependency in the next Firebase breaking change. (#7814)
+- [changed] Refactor Messaging to internally not depend on InstanceID, but can co-exist. This makes Messaging's APIs of handling FCM registration token no longer depend on InstanceID to function. Recommend use Messaging to handle FCm registration tokens. (#7814)
 - [changed] Replaced NSCoding with NSSecureCoding. (#7831)
 
 # 2021-02 -- v7.7.0
