@@ -168,9 +168,12 @@ static const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7
                          fromData:rawAPNSInfo
                             error:&error];
     if (error) {
-      FIRMessagingLoggerDebug(
+      FIRMessagingLoggerInfo(
           kFIRMessagingMessageCodeTokenInfoBadAPNSInfo,
-          @"Could not parse raw APNS Info while parsing unarchived token info: %@", error);
+          @"Could not parse raw APNS Info while parsing unarchived token info: %@. If you are "
+          @"still using the deprecated InstanceID SDK to handle FCM registration token. Please "
+          @"replace them with the Firebase Messaging token APIs.",
+          error);
     }
   }
 

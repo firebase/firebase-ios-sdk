@@ -94,11 +94,14 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
                                       setWithObjects:FIRMessagingTokenInfo.class, NSDate.class, nil]
                          fromData:item
                             error:&unarchiverError];
+
     if (unarchiverError) {
-      FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenStoreUnarchivingTokenInfo,
-                              @"Unable to parse token info from Keychain item; item was in an "
-                              @"invalid format %@",
-                              unarchiverError);
+      FIRMessagingLoggerInfo(
+          kFIRMessagingMessageCodeTokenStoreUnarchivingTokenInfo,
+          @"Unable to parse token info from Keychain item; item was in an "
+          @"invalid format %@. If you are still using the deprecated InstanceID SDK to handle FCM "
+          @"registration token. Please replace them with the Firebase Messaging token APIs.",
+          unarchiverError);
       tokenInfo = nil;
     }
   }
