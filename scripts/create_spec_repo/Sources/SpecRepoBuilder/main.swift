@@ -260,10 +260,17 @@ struct SpecRepoBuilder: ParsableCommand {
       )
     let fileManager = FileManager.default
     do {
-      print("the repo path is  \(repoPath)/\(sdkRepoName)")
+      let sdk_repo_path = "\(repoPath)/\(sdkRepoName)"
+      print("The repo path is  \(sdk_repo_path)")
+      guard let repo_url = URL(string: sdk_repo_path) {
+        print("Error: cannot find \(sdk_repo_path).")
+        Self
+          .exit(withError: SpecRepoBuilderError
+            .pathNotFound(sdk_repo_path)
+      }
       // Skip hidden files, e.g. /.git
       let dirs = try fileManager.contentsOfDirectory(
-        at: URL(string: "\(repoPath)/\(sdkRepoName)")!,
+        at: repo_url,
         includingPropertiesForKeys: nil,
         options: [.skipsHiddenFiles]
       )
