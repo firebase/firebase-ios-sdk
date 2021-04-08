@@ -1,5 +1,5 @@
 # 2021-04 -- v7.11.0
-- [changed] Refactor Messaging to internally not depend on InstanceID, but can co-exist. This makes Messaging's APIs of handling FCM registration token no longer depend on InstanceID to function. Recommend use Messaging to handle FCm registration tokens. (#7814)
+- [changed] Remove Messaging's dependency on InstanceID while continuing to optionally interoperate with it. This makes Messaging's APIs of handling FCM registration tokens no longer depend on InstanceID. We recommend migrating the handling of FCM registration tokens from InstanceID APIs to FCM APIs. https://firebase.google.com/docs/cloud-messaging/ios/client#access_the_registration_token (#7814)
 - [changed] Replaced NSCoding with NSSecureCoding. (#7831)
 
 # 2021-02 -- v7.7.0
