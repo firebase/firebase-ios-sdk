@@ -84,27 +84,37 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
 
 + (nullable FIRMessagingTokenInfo *)tokenInfoFromKeychainItem:(NSData *)item {
   // Check if it is saved as an archived FIRMessagingTokenInfo, otherwise return nil.
-  FIRMessagingTokenInfo *tokenInfo = nil;
   // NOTE: Passing in nil to unarchiveObjectWithData will result in an iOS error logged
   // in the console on iOS 10 and below. Avoid by checking item.data's existence.
-  if (item) {
-    NSError *unarchiverError;
-    tokenInfo = [GULSecureCoding
-        unarchivedObjectOfClasses:[NSSet
-                                      setWithObjects:FIRMessagingTokenInfo.class, NSDate.class, nil]
-                         fromData:item
-                            error:&unarchiverError];
+  if (!item) {
+    return nil;
+  }
 
-    if (unarchiverError) {
-      FIRMessagingLoggerInfo(
-          kFIRMessagingMessageCodeTokenStoreUnarchivingTokenInfo,
-          @"Unable to parse token info from Keychain item; item was in an "
-          @"invalid format %@. If you are still using the deprecated InstanceID SDK to handle FCM "
-          @"registration token. Please replace them with the Firebase Messaging token APIs.",
-          unarchiverError);
-      tokenInfo = nil;
+  NSError *archiverError;
+  NSKeyedUnarchiver *unarchiver;
+  if (@available(iOS 11.0, tvOS 11.0, macOS 10.13, *)) {
+    unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:item error:&archiverError];
+  } else {
+    @try {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+      unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:item];
+#pragma clang diagnostic pop
+    } @catch (NSException *exception) {
+      FIRMessagingLoggerInfo(kFIRMessagingMessageCodeTokenStoreUnarchivingTokenInfo,
+                             @"Unable to parse token info from Keychain item; item was in an "
+                             @"invalid format %@.",
+                             exception);
     }
   }
+
+  if (!unarchiver) {
+    return nil;
+  }
+
+  [unarchiver setClass:[FIRMessagingTokenInfo class] forClassName:@"FIRInstanceIDTokenInfo"];
+  FIRMessagingTokenInfo *tokenInfo = [unarchiver decodeObjectOfClass:[FIRMessagingTokenInfo class]
+                                                              forKey:NSKeyedArchiveRootObjectKey];
   return tokenInfo;
 }
 

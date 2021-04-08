@@ -162,19 +162,31 @@ static const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7
 
   FIRMessagingAPNSInfo *APNSInfo = nil;
   if (rawAPNSInfo) {
-    NSError *error;
-    APNSInfo = [GULSecureCoding
-        unarchivedObjectOfClasses:[NSSet setWithObjects:FIRMessagingAPNSInfo.class, nil]
-                         fromData:rawAPNSInfo
-                            error:&error];
-    if (error) {
-      FIRMessagingLoggerInfo(
-          kFIRMessagingMessageCodeTokenInfoBadAPNSInfo,
-          @"Could not parse raw APNS Info while parsing unarchived token info: %@. If you are "
-          @"still using the deprecated InstanceID SDK to handle FCM registration token. Please "
-          @"replace them with the Firebase Messaging token APIs.",
-          error);
+    NSError *archiverError;
+    NSKeyedUnarchiver *unarchiver;
+    if (@available(iOS 11.0, tvOS 11.0, macOS 10.13, *)) {
+      unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:rawAPNSInfo
+                                                               error:&archiverError];
+    } else {
+      @try {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:rawAPNSInfo];
+#pragma clang diagnostic pop
+      } @catch (NSException *exception) {
+        FIRMessagingLoggerInfo(
+            kFIRMessagingMessageCodeTokenInfoBadAPNSInfo,
+            @"Could not parse raw APNS Info while parsing unarchived token info: %@.", exception);
+      }
     }
+
+    if (!unarchiver) {
+      return nil;
+    }
+
+    [unarchiver setClass:[FIRMessagingAPNSInfo class] forClassName:@"FIRInstanceIDAPNSInfo"];
+    APNSInfo = [unarchiver decodeObjectOfClass:[FIRMessagingTokenInfo class]
+                                        forKey:NSKeyedArchiveRootObjectKey];
   }
 
   id cacheTime = [aDecoder decodeObjectForKey:kFIRInstanceIDCacheTimeKey];
