@@ -137,8 +137,8 @@ jobs:
       matrix:
         target: [ios, tvos, macos]
         flags: [
-          '--skip-tests --use-static-frameworks',
-          '--skip-tests --use-libraries'
+          '--use-static-frameworks --skip-tests ',
+          '--use-libraries --skip-tests '
         ]
     needs: pod-lib-lint
     steps:
@@ -148,4 +148,22 @@ jobs:
     - name: PodLibLint Storage Cron
       run: |
         scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseStorage.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
+
+  storageswift-cron-only:
+    # Don't run on private repo.
+    #if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        target: [ios, tvos, macos]
+        flags: [
+          '--use-static-frameworks --skip-tests', # Swift pods do not support --use-libraries
+        ]
+    needs: pod-lib-lint
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: PodLibLint Storage Cron
+      run: |
         scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseStorageSwift.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
