@@ -48,14 +48,14 @@ if [ -z $release_branch ];then
 fi
 
 if [ -z $podspec_repo_branch ];then
-  # Get release branch, release-X.Y.Z.
-  podspec_repo_branch=$(echo $release_branch | sed -n 's/\s*origin\///p')
+  # Get release branch, origin/release-X.Y.Z.
+  podspec_repo_branch=$(echo $release_branch | sed -n 's/[[:blank:]]//p')
 fi
 
 git config --global user.email "google-oss-bot@example.com"
 git config --global user.name "google-oss-bot"
+git checkout "${podspec_repo_branch}"
 if [ "$TESTINGMODE" = "release_testing" ]; then
-  git checkout "${release_branch}"
   # Latest Cocoapods tag on the repo, e.g. Cocoapods-7.9.0
   latest_cocoapods_tag=$(git tag -l --sort=-version:refname CocoaPods-*[0-9] | head -n 1 )
   echo "Podspecs tags of Nightly release testing will be updated to ${latest_cocoapods_tag}."
@@ -65,7 +65,6 @@ if [ "$TESTINGMODE" = "release_testing" ]; then
 elif [ "$TESTINGMODE" = "prerelease_testing" ]; then
   tag_version="CocoaPods-${test_version}.nightly"
   echo "A new tag, ${tag_version},for prerelease testing will be created."
-  git checkout "${podspec_repo_branch}"
   set +e
   # If tag_version is new to the remote, remote cannot delete a non-existent
   # tag, so error is allowed here.
