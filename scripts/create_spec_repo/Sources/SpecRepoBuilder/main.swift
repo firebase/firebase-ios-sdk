@@ -355,4 +355,3 @@ struct SpecRepoBuilder: ParsableCommand {
   }
 }
 
-SpecRepoBuilder.main()
