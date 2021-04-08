@@ -348,7 +348,10 @@ let package = Package(
     ),
     .target(
       name: "FirebaseStorageCombineSwift",
-      dependencies: ["FirebaseStorage"],
+      dependencies: [
+        "FirebaseStorage",
+        "FirebaseStorageSwift",
+      ],
       path: "FirebaseCombineSwift/Sources/Storage"
     ),
     .target(

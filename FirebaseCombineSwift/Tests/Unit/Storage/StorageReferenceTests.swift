@@ -61,7 +61,8 @@ class StorageReferenceTests: XCTestCase {
           XCTAssertEqual(error.code, StorageErrorCode.unknown.rawValue)
 
           let expectedDescription =
-            "File at URL: \(dummyFileURL.absoluteString) is not reachable. Ensure file URL is not a directory, symbolic link, or invalid url."
+            "File at URL: \(dummyFileURL.absoluteString) is not reachable. Ensure file URL is not" +
+            " a directory, symbolic link, or invalid url."
           XCTAssertEqual(error.localizedDescription, expectedDescription)
         }
       } receiveValue: { metadata in

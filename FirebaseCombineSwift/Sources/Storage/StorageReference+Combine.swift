@@ -16,6 +16,7 @@
 
   import Combine
   import FirebaseStorage
+  import FirebaseStorageSwift
 
   @available(swift 5.0)
   @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
@@ -37,10 +38,11 @@
                         metadata: StorageMetadata?) -> Future<StorageMetadata, Error> {
       var task: StorageUploadTask?
       return Future<StorageMetadata, Error> { [weak self] promise in
-        task = self?.putData(data, metadata: metadata) { metadata, error in
-          if let metadata = metadata {
+        task = self?.putData(data, metadata: metadata) { result in
+          switch result {
+          case let .success(metadata):
             promise(.success(metadata))
-          } else if let error = error {
+          case let .failure(error):
             promise(.failure(error))
           }
         }
@@ -66,10 +68,11 @@
       -> Future<StorageMetadata, Error> {
       var task: StorageUploadTask?
       return Future<StorageMetadata, Error> { [weak self] promise in
-        task = self?.putFile(from: fileURL, metadata: metadata) { metadata, error in
-          if let metadata = metadata {
+        task = self?.putFile(from: fileURL, metadata: metadata) { result in
+          switch result {
+          case let .success(metadata):
             promise(.success(metadata))
-          } else if let error = error {
+          case let .failure(error):
             promise(.failure(error))
           }
         }
@@ -97,10 +100,11 @@
     public func getData(maxSize size: Int64) -> Future<Data, Error> {
       var task: StorageDownloadTask?
       return Future<Data, Error> { [weak self] promise in
-        task = self?.getData(maxSize: size) { data, error in
-          if let data = data {
+        task = self?.getData(maxSize: size) { result in
+          switch result {
+          case let .success(data):
             promise(.success(data))
-          } else if let error = error {
+          case let .failure(error):
             promise(.failure(error))
           }
         }
@@ -124,10 +128,11 @@
     public func write(toFile fileURL: URL) -> Future<URL, Error> {
       var task: StorageDownloadTask?
       return Future<URL, Error> { [weak self] promise in
-        task = self?.write(toFile: fileURL) { url, error in
-          if let url = url {
+        task = self?.write(toFile: fileURL) { result in
+          switch result {
+          case let .success(url):
             promise(.success(url))
-          } else if let error = error {
+          case let .failure(error):
             promise(.failure(error))
           }
         }
@@ -148,10 +153,11 @@
     @discardableResult
     public func downloadURL() -> Future<URL, Error> {
       Future<URL, Error> { promise in
-        self.downloadURL { url, error in
-          if let url = url {
+        self.downloadURL { result in
+          switch result {
+          case let .success(url):
             promise(.success(url))
-          } else if let error = error {
+          case let .failure(error):
             promise(.failure(error))
           }
         }
@@ -175,11 +181,12 @@
     @discardableResult
     public func listAll() -> Future<StorageListResult, Error> {
       Future<StorageListResult, Error> { promise in
-        self.listAll { result, error in
-          if let error = error {
+        self.listAll { result in
+          switch result {
+          case let .success(list):
+            promise(.success(list))
+          case let .failure(error):
             promise(.failure(error))
-          } else {
-            promise(.success(result))
           }
         }
       }
@@ -204,11 +211,12 @@
     @discardableResult
     public func list(maxResults: Int64) -> Future<StorageListResult, Error> {
       Future<StorageListResult, Error> { promise in
-        self.list(maxResults: maxResults) { result, error in
-          if let error = error {
+        self.list(maxResults: maxResults) { result in
+          switch result {
+          case let .success(list):
+            promise(.success(list))
+          case let .failure(error):
             promise(.failure(error))
-          } else {
-            promise(.success(result))
           }
         }
       }
@@ -235,11 +243,12 @@
     @discardableResult
     public func list(maxResults: Int64, pageToken: String) -> Future<StorageListResult, Error> {
       Future<StorageListResult, Error> { promise in
-        self.list(maxResults: maxResults, pageToken: pageToken) { result, error in
-          if let error = error {
+        self.list(maxResults: maxResults, pageToken: pageToken) { result in
+          switch result {
+          case let .success(list):
+            promise(.success(list))
+          case let .failure(error):
             promise(.failure(error))
-          } else {
-            promise(.success(result))
           }
         }
       }
@@ -255,10 +264,11 @@
     @discardableResult
     public func getMetadata() -> Future<StorageMetadata, Error> {
       Future<StorageMetadata, Error> { promise in
-        self.getMetadata { metadata, error in
-          if let metadata = metadata {
+        self.getMetadata { result in
+          switch result {
+          case let .success(metadata):
             promise(.success(metadata))
-          } else if let error = error {
+          case let .failure(error):
             promise(.failure(error))
           }
         }
@@ -276,10 +286,11 @@
     @discardableResult
     public func updateMetadata(_ metadata: StorageMetadata) -> Future<StorageMetadata, Error> {
       Future<StorageMetadata, Error> { promise in
-        self.updateMetadata(metadata) { metadata, error in
-          if let metadata = metadata {
+        self.updateMetadata(metadata) { result in
+          switch result {
+          case let .success(metadata):
             promise(.success(metadata))
-          } else if let error = error {
+          case let .failure(error):
             promise(.failure(error))
           }
         }
