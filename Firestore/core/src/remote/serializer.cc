@@ -42,6 +42,7 @@
 #include "Firestore/core/src/model/no_document.h"
 #include "Firestore/core/src/model/patch_mutation.h"
 #include "Firestore/core/src/model/resource_path.h"
+#include "Firestore/core/src/model/server_timestamp_util.h"
 #include "Firestore/core/src/model/set_mutation.h"
 #include "Firestore/core/src/model/verify_mutation.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
@@ -78,6 +79,7 @@ using model::DeleteMutation;
 using model::Document;
 using model::DocumentKey;
 using model::DocumentState;
+using model::EncodeServerTimestamp;
 using model::FieldMask;
 using model::FieldPath;
 using model::FieldTransform;
@@ -218,8 +220,7 @@ google_firestore_v1_Value Serializer::EncodeFieldValue(
     }
 
     case FieldValue::Type::ServerTimestamp:
-      HARD_FAIL("Unhandled type %s on %s", field_value.type(),
-                field_value.ToString());
+      return EncodeServerTimestampValue(field_value.server_timestamp_value());
   }
   UNREACHABLE();
 }
@@ -258,6 +259,17 @@ google_firestore_v1_Value Serializer::EncodeTimestampValue(
   result.which_value_type = google_firestore_v1_Value_timestamp_value_tag;
   result.timestamp_value = EncodeTimestamp(value);
   return result;
+}
+
+google_firestore_v1_Value Serializer::EncodeServerTimestampValue(
+    const FieldValue::ServerTimestamp& value) const {
+  auto previous_value =
+      value.previous_value()
+          ? absl::optional<google_firestore_v1_Value>{EncodeFieldValue(
+                *value.previous_value())}
+          : absl::nullopt;
+  return EncodeServerTimestamp(EncodeTimestamp(value.local_write_time()),
+                               previous_value);
 }
 
 google_firestore_v1_Value Serializer::EncodeStringValue(
@@ -476,7 +488,7 @@ pb_bytes_array_t* Serializer::EncodeResourceName(
 
 ResourcePath Serializer::DecodeResourceName(Reader* reader,
                                             absl::string_view encoded) const {
-  ResourcePath resource = ResourcePath::FromStringView(encoded);
+  ResourcePath resource = ResourcePath::FromString(encoded);
   if (!IsValidResourceName(resource)) {
     reader->Fail(StringFormat("Tried to deserialize an invalid key %s",
                               resource.CanonicalString()));

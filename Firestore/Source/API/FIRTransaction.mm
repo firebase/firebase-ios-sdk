@@ -134,16 +134,15 @@ NS_ASSUME_NONNULL_BEGIN
         HARD_ASSERT(documents.size() == 1, "Mismatch in docs returned from document lookup.");
         const MaybeDocument &internalDoc = documents.front();
         if (internalDoc.is_no_document()) {
-          FIRDocumentSnapshot *doc =
-              [[FIRDocumentSnapshot alloc] initWithFirestore:self.firestore.wrapped
-                                                 documentKey:document.key
-                                                    document:absl::nullopt
-                                                   fromCache:false
-                                            hasPendingWrites:false];
+          FIRDocumentSnapshot *doc = [[FIRDocumentSnapshot alloc] initWithFirestore:self.firestore
+                                                                        documentKey:document.key
+                                                                           document:absl::nullopt
+                                                                          fromCache:false
+                                                                   hasPendingWrites:false];
           completion(doc, nil);
         } else if (internalDoc.is_document()) {
           FIRDocumentSnapshot *doc =
-              [[FIRDocumentSnapshot alloc] initWithFirestore:self.firestore.wrapped
+              [[FIRDocumentSnapshot alloc] initWithFirestore:self.firestore
                                                  documentKey:internalDoc.key()
                                                     document:Document(internalDoc)
                                                    fromCache:false

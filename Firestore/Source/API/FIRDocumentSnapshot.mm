@@ -27,8 +27,10 @@
 #import "Firestore/Source/API/FIRGeoPoint+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
 #import "Firestore/Source/API/FIRTimestamp+Internal.h"
+#import "Firestore/Source/API/FSTUserDataWriter.h"
 #import "Firestore/Source/API/converters.h"
 
+#include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/api/document_reference.h"
 #include "Firestore/core/src/api/document_snapshot.h"
 #include "Firestore/core/src/api/firestore.h"
@@ -39,6 +41,7 @@
 #include "Firestore/core/src/model/field_value.h"
 #include "Firestore/core/src/model/field_value_options.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
+#include "Firestore/core/src/remote/serializer.h"
 #include "Firestore/core/src/util/exception.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/log.h"
@@ -60,9 +63,11 @@ using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::FieldValueOptions;
 using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::ServerTimestampBehavior;
+using firebase::firestore::remote::Serializer;
 using firebase::firestore::nanopb::MakeNSData;
 using firebase::firestore::util::MakeString;
 using firebase::firestore::util::ThrowInvalidArgument;
+using firebase::firestore::google_firestore_v1_Value;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -89,32 +94,35 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
 @implementation FIRDocumentSnapshot {
   DocumentSnapshot _snapshot;
 
+  std::unique_ptr<Serializer> _serializer;
   FIRSnapshotMetadata *_cachedMetadata;
 }
 
 - (instancetype)initWithSnapshot:(DocumentSnapshot &&)snapshot {
   if (self = [super init]) {
     _snapshot = std::move(snapshot);
+    _serializer.reset(new Serializer(_snapshot.firestore()->database_id()));
   }
   return self;
 }
 
-- (instancetype)initWithFirestore:(std::shared_ptr<Firestore>)firestore
+- (instancetype)initWithFirestore:(FIRFirestore *)firestore
                       documentKey:(DocumentKey)documentKey
                          document:(const absl::optional<Document> &)document
                          metadata:(SnapshotMetadata)metadata {
   DocumentSnapshot wrapped;
   if (document.has_value()) {
     wrapped =
-        DocumentSnapshot::FromDocument(std::move(firestore), document.value(), std::move(metadata));
+        DocumentSnapshot::FromDocument(firestore.wrapped, document.value(), std::move(metadata));
   } else {
-    wrapped = DocumentSnapshot::FromNoDocument(std::move(firestore), std::move(documentKey),
+    wrapped = DocumentSnapshot::FromNoDocument(firestore.wrapped, std::move(documentKey),
                                                std::move(metadata));
   }
+  _serializer.reset(new Serializer(firestore.databaseID));
   return [self initWithSnapshot:std::move(wrapped)];
 }
 
-- (instancetype)initWithFirestore:(std::shared_ptr<Firestore>)firestore
+- (instancetype)initWithFirestore:(FIRFirestore *)firestore
                       documentKey:(DocumentKey)documentKey
                          document:(const absl::optional<Document> &)document
                         fromCache:(bool)fromCache
@@ -175,7 +183,7 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
   absl::optional<ObjectValue> data = _snapshot.GetData();
   if (!data) return nil;
 
-  return [self convertedObject:data->GetInternalValue() options:options];
+  return [self convertedValue:*data options:options];
 }
 
 - (nullable id)valueForField:(id)field {
@@ -207,93 +215,27 @@ ServerTimestampBehavior InternalServerTimestampBehavior(FIRServerTimestampBehavi
   return FieldValueOptions(InternalServerTimestampBehavior(serverTimestampBehavior));
 }
 
+// TODO(mutabledocuments): Replace this method and call UserDataWriter directly
 - (id)convertedValue:(FieldValue)value options:(const FieldValueOptions &)options {
-  switch (value.type()) {
-    case FieldValue::Type::Null:
-      return [NSNull null];
-    case FieldValue::Type::Boolean:
-      return value.boolean_value() ? @YES : @NO;
-    case FieldValue::Type::Integer:
-      return @(value.integer_value());
-    case FieldValue::Type::Double:
-      return @(value.double_value());
-    case FieldValue::Type::Timestamp:
-      return [self convertedTimestamp:value];
-    case FieldValue::Type::ServerTimestamp:
-      return [self convertedServerTimestamp:value options:options];
-    case FieldValue::Type::String:
-      return util::MakeNSString(value.string_value());
-    case FieldValue::Type::Blob:
-      return MakeNSData(value.blob_value());
-    case FieldValue::Type::Reference:
-      return [self convertedReference:value];
-    case FieldValue::Type::GeoPoint:
-      return MakeFIRGeoPoint(value.geo_point_value());
-    case FieldValue::Type::Array:
-      return [self convertedArray:value.array_value() options:options];
-    case FieldValue::Type::Object:
-      return [self convertedObject:value.object_value() options:options];
-  }
-
-  UNREACHABLE();
-}
-
-- (id)convertedTimestamp:(const FieldValue &)value {
-  return MakeFIRTimestamp(value.timestamp_value());
-}
-
-- (id)convertedServerTimestamp:(const FieldValue &)value
-                       options:(const FieldValueOptions &)options {
-  const auto &sts = value.server_timestamp_value();
+  FIRServerTimestampBehavior behavior;
   switch (options.server_timestamp_behavior()) {
     case ServerTimestampBehavior::kNone:
-      return [NSNull null];
-    case ServerTimestampBehavior::kEstimate: {
-      FieldValue local_write_time = FieldValue::FromTimestamp(sts.local_write_time());
-      return [self convertedTimestamp:local_write_time];
-    }
+      behavior = FIRServerTimestampBehaviorNone;
+      break;
+    case ServerTimestampBehavior::kEstimate:
+      behavior = FIRServerTimestampBehaviorEstimate;
+      break;
     case ServerTimestampBehavior::kPrevious:
-      return sts.previous_value() ? [self convertedValue:*sts.previous_value() options:options]
-                                  : [NSNull null];
+      behavior = FIRServerTimestampBehaviorPrevious;
+      break;
+    default:
+      HARD_FAIL("Unexpected server timestamp option: %s", options.server_timestamp_behavior());
   }
 
-  UNREACHABLE();
-}
-
-- (id)convertedReference:(const FieldValue &)value {
-  const auto &ref = value.reference_value();
-  const DatabaseId &refDatabase = ref.database_id();
-  const DatabaseId &database = _snapshot.firestore()->database_id();
-  if (refDatabase != database) {
-    LOG_WARN("Document %s contains a document reference within a different database (%s/%s) which "
-             "is not supported. It will be treated as a reference within the current database "
-             "(%s/%s) instead.",
-             _snapshot.CreateReference().Path(), refDatabase.project_id(),
-             refDatabase.database_id(), database.project_id(), database.database_id());
-  }
-  const DocumentKey &key = ref.key();
-  return [[FIRDocumentReference alloc] initWithKey:key firestore:_snapshot.firestore()];
-}
-
-- (NSArray<id> *)convertedArray:(const FieldValue::Array &)arrayContents
-                        options:(const FieldValueOptions &)options {
-  NSMutableArray *result = [NSMutableArray arrayWithCapacity:arrayContents.size()];
-  for (const FieldValue &value : arrayContents) {
-    [result addObject:[self convertedValue:value options:options]];
-  }
-  return result;
-}
-
-- (NSDictionary<NSString *, id> *)convertedObject:(const FieldValue::Map &)objectValue
-                                          options:(const FieldValueOptions &)options {
-  NSMutableDictionary *result = [NSMutableDictionary dictionary];
-  for (const auto &kv : objectValue) {
-    const std::string &key = kv.first;
-    const FieldValue &value = kv.second;
-
-    result[util::MakeNSString(key)] = [self convertedValue:value options:options];
-  }
-  return result;
+  FSTUserDataWriter *dataWriter = [[FSTUserDataWriter alloc] initWithFirestore:_snapshot.firestore()
+                                                       serverTimestampBehavior:behavior];
+  google_firestore_v1_Value protoValue = _serializer->EncodeFieldValue(value);
+  return [dataWriter convertedValue:protoValue];
 }
 
 @end

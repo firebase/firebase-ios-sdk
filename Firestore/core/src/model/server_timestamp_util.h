@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_SRC_MODEL_SERVER_TIMESTAMP_UTIL_H_
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
+#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
@@ -27,6 +28,12 @@ namespace model {
 // sentinel fields in MapValues.
 
 /**
+ * Encodes the backing data for a server timestamp in a Value proto.
+ */
+google_firestore_v1_Value EncodeServerTimestamp(
+    google_protobuf_Timestamp local_write_time,
+    absl::optional<google_firestore_v1_Value> previous_value);
+/**
  * Returns whether the provided value is a field map that contains the
  * sentinel values of a ServerTimestamp.
  */
@@ -35,7 +42,16 @@ bool IsServerTimestamp(const google_firestore_v1_Value& value);
 /**
  * Returns the local time at which the timestamp was written to the document.
  */
-const google_firestore_v1_Value& GetLocalWriteTime(
+const google_protobuf_Timestamp& GetLocalWriteTime(
+    const google_firestore_v1_Value& value);
+
+/**
+ * Returns the value of the field before this ServerTimestamp was set.
+ *
+ * Preserving the previous values allows the user to display the last resoled
+ * value until the backend responds with the timestamp.
+ */
+absl::optional<google_firestore_v1_Value> GetPreviousValue(
     const google_firestore_v1_Value& value);
 
 }  // namespace model

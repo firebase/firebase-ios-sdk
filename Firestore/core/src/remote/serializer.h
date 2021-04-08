@@ -264,6 +264,8 @@ class Serializer {
   google_firestore_v1_Value EncodeInteger(int64_t value) const;
   google_firestore_v1_Value EncodeDouble(double value) const;
   google_firestore_v1_Value EncodeTimestampValue(Timestamp value) const;
+  google_firestore_v1_Value EncodeServerTimestampValue(
+      const model::FieldValue::ServerTimestamp& value) const;
   google_firestore_v1_Value EncodeStringValue(const std::string& value) const;
   google_firestore_v1_Value EncodeBlob(const nanopb::ByteString& value) const;
   google_firestore_v1_Value EncodeReference(
