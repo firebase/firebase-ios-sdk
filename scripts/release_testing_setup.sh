@@ -49,7 +49,7 @@ fi
 
 if [ -z $podspec_repo_branch ];then
   # Get release branch, origin/release-X.Y.Z.
-  podspec_repo_branch=$(echo $release_branch | sed -n 's/[[:blank:]]//p')
+  podspec_repo_branch=$(echo $release_branch | sed -n 's/\s*//p')
 fi
 
 git config --global user.email "google-oss-bot@example.com"
