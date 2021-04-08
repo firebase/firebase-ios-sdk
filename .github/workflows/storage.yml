@@ -118,7 +118,7 @@ jobs:
         # specified for the other three platforms.
         target: [ios, tvos, macos]
         spec: [
-          'FirebaseStorage.podspec --test-specs=unit' # The integration tests need more set up.
+          'FirebaseStorage.podspec --test-specs=unit', # The integration tests need more set up.
           'FirebaseStorageSwift.podspec --skip-tests' # No current unit tests.
         ]
     steps:
