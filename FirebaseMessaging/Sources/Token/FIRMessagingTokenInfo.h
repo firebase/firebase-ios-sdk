@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  associated with it. It can read from and write to an NSDictionary object, for
  *  simple serialization.
  */
-@interface FIRMessagingTokenInfo : NSObject <NSSecureCoding>
+@interface FIRMessagingTokenInfo : NSObject <NSCoding>
 
 /// The authorized entity (also known as Sender ID), associated with the token.
 @property(nonatomic, readonly, copy) NSString *authorizedEntity;

@@ -16,7 +16,6 @@
 
 #import <XCTest/XCTest.h>
 
-#import <GoogleUtilities/GULSecureCoding.h>
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingAPNSInfo.h"
 
@@ -77,13 +76,11 @@
   };
   FIRMessagingAPNSInfo *info =
       [[FIRMessagingAPNSInfo alloc] initWithTokenOptionsDictionary:validDictionary];
-  NSError *error;
-  NSData *archive = [GULSecureCoding archivedDataWithRootObject:info error:&error];
-  NSError *unarchiveError;
-  FIRMessagingAPNSInfo *restoredInfo = [GULSecureCoding
-      unarchivedObjectOfClasses:[NSSet setWithObjects:FIRMessagingAPNSInfo.class, nil]
-                       fromData:archive
-                          error:&unarchiveError];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  NSData *archive = [NSKeyedArchiver archivedDataWithRootObject:info];
+  FIRMessagingAPNSInfo *restoredInfo = [NSKeyedUnarchiver unarchiveObjectWithData:archive];
+#pragma clang diagnostic pop
   XCTAssertEqualObjects(info.deviceToken, restoredInfo.deviceToken);
   XCTAssertEqual(info.sandbox, restoredInfo.sandbox);
 }
