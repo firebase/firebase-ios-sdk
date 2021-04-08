@@ -262,16 +262,20 @@ struct SpecRepoBuilder: ParsableCommand {
     do {
       print("the repo path is  \(repoPath)/\(sdkRepoName)")
       // Skip hidden files, e.g. /.git
-      let dirs = try fileManager.contentsOfDirectory(at: URL(string: "\(repoPath)/\(sdkRepoName)")!, includingPropertiesForKeys: nil, options: [.skipsHiddenFiles])
+      let dirs = try fileManager.contentsOfDirectory(
+        at: URL(string: "\(repoPath)/\(sdkRepoName)")!,
+        includingPropertiesForKeys: nil,
+        options: [.skipsHiddenFiles]
+      )
       print("Found following unhidden dirs: \(dirs)")
       for dir in dirs {
         guard let isDir = (try dir.resourceValues(forKeys: [.isDirectoryKey])).isDirectory else {
-            print("Error: cannot determine if \(dir.path) is a directory or not.")
-              Self
-                .exit(withError: SpecRepoBuilderError
-                  .pathNotFound(dir.path))
+          print("Error: cannot determine if \(dir.path) is a directory or not.")
+          Self
+            .exit(withError: SpecRepoBuilderError
+              .pathNotFound(dir.path))
         }
-        if isDir{
+        if isDir {
           print("Removing \(dir.path)")
           shell.run("cd \(sdkRepoName); git rm -r \(dir.path)")
         }
