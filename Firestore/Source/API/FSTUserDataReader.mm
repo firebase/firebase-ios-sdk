@@ -51,6 +51,7 @@
 #include "Firestore/core/src/timestamp_internal.h"
 #include "Firestore/core/src/util/exception.h"
 #include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/read_context.h"
 #include "Firestore/core/src/util/string_apple.h"
 
 #include "absl/memory/memory.h"
@@ -83,6 +84,7 @@ using firebase::firestore::model::ServerTimestampTransform;
 using firebase::firestore::model::TransformOperation;
 using firebase::firestore::remote::Serializer;
 using firebase::firestore::util::ThrowInvalidArgument;
+using firebase::firestore::util::ReadContext;
 using firebase::firestore::google_firestore_v1_Value;
 using firebase::firestore::google_firestore_v1_MapValue;
 using firebase::firestore::google_firestore_v1_ArrayValue;
@@ -144,8 +146,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 // TODO(mutabledocuments): Remove these methods once we remove FieldValue
 - (FieldValue)wrapValue:(google_firestore_v1_Value)value {
-  StringReader reader;
-  return _serializer->DecodeFieldValue(&reader, value);
+  ReadContext context;
+  return _serializer->DecodeFieldValue(&context, value);
 }
 
 - (std::vector<FieldValue>)wrapValues:(const std::vector<google_firestore_v1_Value> &)values {
@@ -292,8 +294,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (absl::optional<google_firestore_v1_Value>)parseData:(id)input context:(ParseContext &&)context {
   input = self.preConverter(input);
   if ([input isKindOfClass:[NSDictionary class]]) {
-    return absl::optional<google_firestore_v1_Value>{[self parseDictionary:(NSDictionary *)input
-                                                                   context:std::move(context)]};
+    return [self parseDictionary:(NSDictionary *)input context:std::move(context)];
 
   } else if ([input isKindOfClass:[FIRFieldValue class]]) {
     // FieldValues usually parse into transforms (except FieldValue.delete()) in which case we
@@ -318,21 +319,19 @@ NS_ASSUME_NONNULL_BEGIN
       if (context.array_element() && context.data_source() != UserDataSource::ArrayArgument) {
         ThrowInvalidArgument("Nested arrays are not supported");
       }
-      return absl::optional<google_firestore_v1_Value>([self parseArray:(NSArray *)input
-                                                                context:std::move(context)]);
+      return [self parseArray:(NSArray *)input context:std::move(context)];
     } else {
-      return absl::optional<google_firestore_v1_Value>([self parseScalarValue:input
-                                                                      context:std::move(context)]);
+      return [self parseScalarValue:input context:std::move(context)];
     }
   }
 }
 
 - (google_firestore_v1_Value)parseDictionary:(NSDictionary<NSString *, id> *)dict
                                      context:(ParseContext &&)context {
-  google_firestore_v1_Value result;
+  google_firestore_v1_Value result{};
   result.which_value_type = google_firestore_v1_Value_map_value_tag;
 
-  __block std::vector<google_firestore_v1_MapValue_FieldsEntry> fields;
+  __block std::vector<google_firestore_v1_MapValue_FieldsEntry> fields{};
 
   if (dict.count == 0) {
     const FieldPath *path = context.path();
@@ -376,7 +375,7 @@ NS_ASSUME_NONNULL_BEGIN
         [self parseData:entry context:context.ChildContext(idx)];
     if (!parsedEntry) {
       // Just include nulls in the array for fields being replaced with a sentinel.
-      parsedEntry = absl::optional<google_firestore_v1_Value>{[self encodeNullValue]};
+      parsedEntry = [self encodeNullValue];
     }
     result.array_value.values[idx] = *parsedEntry;
   }];
@@ -423,16 +422,16 @@ NS_ASSUME_NONNULL_BEGIN
   } else if ([fieldValue isKindOfClass:[FSTArrayUnionFieldValue class]]) {
     std::vector<google_firestore_v1_Value> parsedElements =
         [self parseArrayTransformElements:((FSTArrayUnionFieldValue *)fieldValue).elements];
-    ArrayTransform array_union(TransformOperation::Type::ArrayUnion,
-                               [self wrapValues:std::move(parsedElements)]);
-    context.AddToFieldTransforms(*context.path(), std::move(array_union));
+    ArrayTransform arrayUnion(TransformOperation::Type::ArrayUnion,
+                              [self wrapValues:std::move(parsedElements)]);
+    context.AddToFieldTransforms(*context.path(), std::move(arrayUnion));
 
   } else if ([fieldValue isKindOfClass:[FSTArrayRemoveFieldValue class]]) {
     std::vector<google_firestore_v1_Value> parsedElements =
         [self parseArrayTransformElements:((FSTArrayRemoveFieldValue *)fieldValue).elements];
-    ArrayTransform array_remove(TransformOperation::Type::ArrayRemove,
-                                [self wrapValues:std::move(parsedElements)]);
-    context.AddToFieldTransforms(*context.path(), std::move(array_remove));
+    ArrayTransform arrayRemove(TransformOperation::Type::ArrayRemove,
+                               [self wrapValues:std::move(parsedElements)]);
+    context.AddToFieldTransforms(*context.path(), std::move(arrayRemove));
 
   } else if ([fieldValue isKindOfClass:[FSTNumericIncrementFieldValue class]]) {
     FSTNumericIncrementFieldValue *numericIncrementFieldValue =
