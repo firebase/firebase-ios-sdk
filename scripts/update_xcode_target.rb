@@ -34,5 +34,5 @@ project.targets.each do |t|
   end
 end
 
-#save project
+# Save project
 project.save()
