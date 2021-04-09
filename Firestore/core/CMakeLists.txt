@@ -137,6 +137,7 @@ target_link_libraries(
   absl::meta
   absl::optional
   absl::strings
+  absl::time
 )
 
 if(HAVE_OPENSSL_RAND_H)
@@ -190,6 +191,8 @@ firebase_ios_glob(
   src/api/*.h
   src/auth/*.cc
   src/auth/*.h
+  src/bundle/*.cc
+  src/bundle/*.h
   src/core/*.cc
   src/core/*.h
   src/immutable/*.cc
@@ -303,6 +306,7 @@ add_subdirectory(test/unit/testutil)
 add_subdirectory(test/unit)
 add_subdirectory(test/unit/api)
 add_subdirectory(test/unit/auth)
+add_subdirectory(test/unit/bundle)
 add_subdirectory(test/unit/core)
 add_subdirectory(test/unit/immutable)
 add_subdirectory(test/unit/local)

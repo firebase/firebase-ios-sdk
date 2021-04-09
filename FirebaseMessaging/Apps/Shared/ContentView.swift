@@ -142,7 +142,6 @@ struct ContentView: View {
             .multilineTextAlignment(.leading)
         }
         .navigationBarTitle("Firebase Messaging")
-
       }.buttonStyle(IdentityButtonStyle())
     }
   }
@@ -338,8 +337,9 @@ struct IdentityButtonStyle: ButtonStyle {
       .padding()
       .foregroundColor(.white)
       .background(Color.yellow)
-      .cornerRadius(40)
+      .cornerRadius(20)
       // Push the button down a bit when it's pressed.
       .scaleEffect(configuration.isPressed ? 0.9 : 1)
+      .font(.footnote)
   }
 }

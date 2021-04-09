@@ -5,7 +5,7 @@ on:
     paths:
     - 'FirebaseMLModelDownloader**'
     - '.github/workflows/mlmodeldownloader.yml'
-    - 'Gemfile'
+    - 'Gemfile*'
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
     - cron:  '0 7 * * *'
@@ -29,7 +29,8 @@ jobs:
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/MLModelDownloader/GoogleService-Info.plist.gpg \
           FirebaseMLModelDownloader/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
     - name: Build and test
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseMLModelDownloader.podspec --platforms=${{ matrix.target }})
+      # TODO: Disable verbose logging after flaky test investigation.
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseMLModelDownloader.podspec --verbose --platforms=${{ matrix.target }})
 
   mlmodeldownloader-cron-only:
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'

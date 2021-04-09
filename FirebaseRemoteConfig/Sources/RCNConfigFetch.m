@@ -516,16 +516,8 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
 - (NSString *)constructServerURL {
   NSString *serverURLStr = [[NSString alloc] initWithString:kServerURLDomain];
   serverURLStr = [serverURLStr stringByAppendingString:kServerURLVersion];
-
-  if (_options.projectID) {
-    serverURLStr = [serverURLStr stringByAppendingString:kServerURLProjects];
-    serverURLStr = [serverURLStr stringByAppendingString:_options.projectID];
-  } else {
-    FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000070",
-                @"Missing `projectID` from `FirebaseOptions`, please ensure the configured "
-                @"`FirebaseApp` is configured with `FirebaseOptions` that contains a `projectID`.");
-  }
-
+  serverURLStr = [serverURLStr stringByAppendingString:kServerURLProjects];
+  serverURLStr = [serverURLStr stringByAppendingString:_options.projectID];
   serverURLStr = [serverURLStr stringByAppendingString:kServerURLNamespaces];
 
   // Get the namespace from the fully qualified namespace string of "namespace:FIRAppName".
