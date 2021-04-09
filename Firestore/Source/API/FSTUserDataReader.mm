@@ -331,7 +331,7 @@ NS_ASSUME_NONNULL_BEGIN
   google_firestore_v1_Value result{};
   result.which_value_type = google_firestore_v1_Value_map_value_tag;
 
-  __block std::vector<google_firestore_v1_MapValue_FieldsEntry> fields{};
+  __block std::vector<google_firestore_v1_MapValue_FieldsEntry> fields;
 
   if (dict.count == 0) {
     const FieldPath *path = context.path();
@@ -364,7 +364,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (google_firestore_v1_Value)parseArray:(NSArray<id> *)array context:(ParseContext &&)context {
-  __block google_firestore_v1_Value result;
+  __block google_firestore_v1_Value result{};
   result.which_value_type = google_firestore_v1_Value_array_value_tag;
   result.array_value.values_count = static_cast<pb_size_t>([array count]);
   result.array_value.values =
