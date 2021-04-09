@@ -58,6 +58,9 @@
 - (void)listenForAuthTokenChanges:(fbt_void_nsstring)listener {
 }
 
+- (void)listenForAppCheckTokenChanges:(nonnull fbt_void_nsstring)listener {
+}
+
 @end
 @implementation FTransactionTest
 

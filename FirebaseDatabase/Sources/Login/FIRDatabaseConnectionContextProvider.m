@@ -89,7 +89,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Strong references to the auth listeners as they are only weak in
 /// FIRFirebaseApp.
-@property(nonatomic, strong) NSMutableArray *authListeners;
+@property(nonatomic, readonly) NSMutableArray *authListeners;
+
+/// Observer objects returned by
+/// `-[NSNotificationCenter addObserverForName:object:queue:usingBlock:]`
+/// method. Required to cleanup the observers on dealloc.
+@property(nonatomic, readonly) NSMutableArray *appCheckNotificationObservers;
+
+/// An NSOperationQueue to call listeners on.
+@property(nonatomic, readonly) NSOperationQueue *listenerQueue;
 
 @end
 
@@ -102,8 +110,22 @@ NS_ASSUME_NONNULL_BEGIN
         self->_appCheck = appCheck;
         self->_auth = auth;
         self->_authListeners = [NSMutableArray array];
+        self->_appCheckNotificationObservers = [NSMutableArray array];
+        self->_listenerQueue = [[NSOperationQueue alloc] init];
+        self->_listenerQueue.underlyingQueue = [FIRDatabaseQuery sharedQueue];
     }
     return self;
+}
+
+- (void)dealloc {
+    @synchronized(self) {
+        // Make sure notification observers are removed from
+        // NSNotificationCenter.
+        for (id notificationObserver in self.appCheckNotificationObservers) {
+            [NSNotificationCenter.defaultCenter
+                removeObserver:notificationObserver];
+        }
+    }
 }
 
 - (void)
@@ -165,12 +187,31 @@ NS_ASSUME_NONNULL_BEGIN
     });
 }
 
-// TODO: Add FAC token update listener.
 - (void)listenForAuthTokenChanges:(_Nonnull fbt_void_nsstring)listener {
     FAuthStateListenerWrapper *wrapper =
         [[FAuthStateListenerWrapper alloc] initWithListener:listener
                                                        auth:self.auth];
     [self.authListeners addObject:wrapper];
+}
+
+- (void)listenForAppCheckTokenChanges:(fbt_void_nsstring)listener {
+    if (self.appCheck == nil) {
+        return;
+    }
+    NSString *appCheckTokenKey = [self.appCheck notificationTokenKey];
+    __auto_type notificationObserver = [NSNotificationCenter.defaultCenter
+        addObserverForName:[self.appCheck tokenDidChangeNotificationName]
+                    object:self.appCheck
+                     queue:self.listenerQueue
+                usingBlock:^(NSNotification *_Nonnull notification) {
+                  NSString *appCheckToken =
+                      notification.userInfo[appCheckTokenKey];
+                  listener(appCheckToken);
+                }];
+
+    @synchronized(self) {
+        [self.appCheckNotificationObservers addObject:notificationObserver];
+    }
 }
 
 + (id<FIRDatabaseConnectionContextProvider>)

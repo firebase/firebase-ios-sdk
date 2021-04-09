@@ -246,4 +246,29 @@
   [self waitForExpectations:@[ callbackExpectation ] timeout:0.5];
 }
 
+- (void)testListenForAppCheckTokenChanges {
+  NSString *updatedToken = @"updated_app_check_token";
+  __auto_type provider =
+      [FIRDatabaseConnectionContextProvider contextProviderWithAuth:self.authFake
+                                                           appCheck:self.appCheckFake];
+
+  XCTestExpectation *callbackExpectation = [self expectationWithDescription:@"callbackExpectation"];
+
+  [provider listenForAppCheckTokenChanges:^(NSString *token) {
+    XCTAssertEqualObjects(token, updatedToken);
+    [callbackExpectation fulfill];
+  }];
+
+  // Post auth token change notification.
+  [[NSNotificationCenter defaultCenter]
+      postNotificationName:[self.appCheckFake tokenDidChangeNotificationName]
+                    object:self.appCheckFake
+                  userInfo:@{
+                    [self.appCheckFake notificationTokenKey] : updatedToken,
+                    [self.appCheckFake notificationAppNameKey] : @"app_name",
+                  }];
+
+  [self waitForExpectations:@[ callbackExpectation ] timeout:0.5];
+}
+
 @end

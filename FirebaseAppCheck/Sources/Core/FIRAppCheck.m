@@ -267,7 +267,7 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 
 - (void)postTokenUpdateNotificationWithToken:(FIRAppCheckToken *)token {
   [self.notificationCenter postNotificationName:FIRAppCheckAppCheckTokenDidChangeNotification
-                                         object:nil
+                                         object:self
                                        userInfo:@{
                                          kFIRAppCheckTokenNotificationKey : token.token,
                                          kFIRAppCheckAppNameNotificationKey : self.appName

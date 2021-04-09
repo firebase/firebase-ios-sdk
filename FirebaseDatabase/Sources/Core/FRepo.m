@@ -114,6 +114,11 @@
       [weakSelf.connection refreshAuthToken:token];
     }];
 
+    [self.config.contextProvider
+        listenForAppCheckTokenChanges:^(NSString *token) {
+          [weakSelf.connection refreshAppCheckToken:token];
+        }];
+
     // Open connection now so that by the time we are connected the deferred
     // init has run This relies on the fact that all callbacks run on repos
     // queue

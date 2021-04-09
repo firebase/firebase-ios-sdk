@@ -127,7 +127,7 @@ typedef enum {
 @property(nonatomic, strong) id<FIRDatabaseConnectionContextProvider>
     contextProvider;
 @property(nonatomic, strong) NSString *authToken;
-@property(nonatomic) BOOL forceAuthTokenRefresh;
+@property(nonatomic) BOOL forceTokenRefreshes;
 @property(nonatomic) NSUInteger currentFetchTokenAttempt;
 
 @end
@@ -476,8 +476,8 @@ typedef enum {
     if ([self shouldReconnect]) {
         NSAssert(self->connectionState == ConnectionStateDisconnected,
                  @"Not in disconnected state: %d", self->connectionState);
-        BOOL forceRefresh = self.forceAuthTokenRefresh;
-        self.forceAuthTokenRefresh = NO;
+        BOOL forceRefresh = self.forceTokenRefreshes;
+        self.forceTokenRefreshes = NO;
         FFLog(@"I-RDB034008", @"Scheduling connection attempt");
         [self.retryHelper retry:^{
           FFLog(@"I-RDB034009", @"Trying to fetch auth token");
@@ -650,7 +650,7 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
                   }
               } else {
                   self.authToken = nil;
-                  self.forceAuthTokenRefresh = YES;
+                  self.forceTokenRefreshes = YES;
                   if ([status isEqualToString:@"expired_token"]) {
                       FFLog(@"I-RDB034017", @"Authentication failed: %@ (%@)",
                             status, responseData);
@@ -681,7 +681,7 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
         FFWarn(@"I-RDB034020", @"Auth token revoked: %@ (%@)", status, reason);
     }
     self.authToken = nil;
-    self.forceAuthTokenRefresh = YES;
+    self.forceTokenRefreshes = YES;
     // Try reconnecting on auth revocation
     [self.realtime close];
 }
@@ -1281,6 +1281,54 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
 
 - (NSDictionary *)dumpListens {
     return self.listens;
+}
+
+#pragma mark - App Check Token update
+
+// TODO: Add tests!
+- (void)refreshAppCheckToken:(NSString *)token {
+    if (![self connected]) {
+        // A fresh FAC token will be sent as a part of initial handshake.
+        return;
+    }
+
+    if (token.length == 0) {
+        // No token to send.
+        return;
+    }
+
+    // Send updated FAC token to the open connection.
+    [self sendAppCheckToken:token];
+}
+
+- (void)sendAppCheckToken:(NSString *)token {
+    NSDictionary *requestData = @{kFWPRequestAppCheckToken : self.authToken};
+    [self sendAction:kFWPRequestActionAppCheck
+                body:requestData
+           sensitive:YES
+            callback:^(NSDictionary *data) {
+              NSString *status =
+                  [data objectForKey:kFWPResponseForActionStatus];
+              id responseData = [data objectForKey:kFWPResponseForActionData];
+              if (responseData == nil) {
+                  responseData = @"Response data was empty.";
+              }
+
+              BOOL statusOk =
+                  [status isEqualToString:kFWPResponseForActionStatusOk];
+              if (!statusOk) {
+                  self.authToken = nil;
+                  self.forceTokenRefreshes = YES;
+                  if ([status isEqualToString:@"invalid_token"]) {
+                      FFLog(@"I-RDB034045", @"App check failed: %@ (%@)",
+                            status, responseData);
+                  } else {
+                      FFWarn(@"I-RDB034046", @"App check failed: %@ (%@)",
+                             status, responseData);
+                  }
+                  [self.realtime close];
+              }
+            }];
 }
 
 @end

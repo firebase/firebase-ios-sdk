@@ -44,9 +44,15 @@ NS_ASSUME_NONNULL_BEGIN
                       (void (^)(FIRDatabaseConnectionContext *_Nullable context,
                                 NSError *_Nullable error))callback;
 
+/// Adds a listener to the Auth token updates.
+/// @param listener A block that will be invoked each time the Auth token is
+/// updated.
 - (void)listenForAuthTokenChanges:(fbt_void_nsstring)listener;
 
-// TODO: Add FAC token update listener API.
+/// Adds a listener to the FAC token updates.
+/// @param listener A block that will be invoked each time the FAC token is
+/// updated.
+- (void)listenForAppCheckTokenChanges:(fbt_void_nsstring)listener;
 
 @end
 

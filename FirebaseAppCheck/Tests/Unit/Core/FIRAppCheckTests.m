@@ -437,6 +437,7 @@
                                  XCTAssertEqualObjects(
                                      notification.userInfo[[self.appCheck notificationTokenKey]],
                                      expectedToken);
+                                 XCTAssertEqualObjects(notification.object, self.appCheck);
                                  return YES;
                                }];
 
