@@ -496,14 +496,6 @@ case "$product-$platform-$method" in
 
   Storage-*-xcodebuild)
     pod_gen FirebaseStorage.podspec --platforms=ios
-    RunXcodebuild \
-      -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
-      -scheme "FirebaseStorage-Unit-unit" \
-      "${ios_flags[@]}" \
-      "${xcb_flags[@]}" \
-      build \
-      test
-
     if check_secrets; then
       # Integration tests are only run on iOS to minimize flake failures.
       RunXcodebuild \
@@ -522,24 +514,6 @@ case "$product-$platform-$method" in
         build \
         test
       fi
-
-    pod_gen FirebaseStorage.podspec --platforms=macos --clean
-    RunXcodebuild \
-      -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
-      -scheme "FirebaseStorage-Unit-unit" \
-      "${macos_flags[@]}" \
-      "${xcb_flags[@]}" \
-      build \
-      test
-
-    pod_gen FirebaseStorage.podspec --platforms=tvos --clean
-    RunXcodebuild \
-      -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
-      -scheme "FirebaseStorage-Unit-unit" \
-      "${tvos_flags[@]}" \
-      "${xcb_flags[@]}" \
-      build \
-      test
     ;;
 
   StorageSwift-*-xcodebuild)
