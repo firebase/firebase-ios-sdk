@@ -39,12 +39,7 @@
       var task: StorageUploadTask?
       return Future<StorageMetadata, Error> { [weak self] promise in
         task = self?.putData(data, metadata: metadata) { result in
-          switch result {
-          case let .success(metadata):
-            promise(.success(metadata))
-          case let .failure(error):
-            promise(.failure(error))
-          }
+          promise(result)
         }
       }
       .handleEvents(receiveCancel: {
@@ -69,12 +64,7 @@
       var task: StorageUploadTask?
       return Future<StorageMetadata, Error> { [weak self] promise in
         task = self?.putFile(from: fileURL, metadata: metadata) { result in
-          switch result {
-          case let .success(metadata):
-            promise(.success(metadata))
-          case let .failure(error):
-            promise(.failure(error))
-          }
+          promise(result)
         }
       }
       .handleEvents(receiveCancel: {
@@ -101,12 +91,7 @@
       var task: StorageDownloadTask?
       return Future<Data, Error> { [weak self] promise in
         task = self?.getData(maxSize: size) { result in
-          switch result {
-          case let .success(data):
-            promise(.success(data))
-          case let .failure(error):
-            promise(.failure(error))
-          }
+          promise(result)
         }
       }
       .handleEvents(receiveCancel: {
@@ -129,12 +114,7 @@
       var task: StorageDownloadTask?
       return Future<URL, Error> { [weak self] promise in
         task = self?.write(toFile: fileURL) { result in
-          switch result {
-          case let .success(url):
-            promise(.success(url))
-          case let .failure(error):
-            promise(.failure(error))
-          }
+          promise(result)
         }
       }
       .handleEvents(receiveCancel: {
@@ -154,12 +134,7 @@
     public func downloadURL() -> Future<URL, Error> {
       Future<URL, Error> { promise in
         self.downloadURL { result in
-          switch result {
-          case let .success(url):
-            promise(.success(url))
-          case let .failure(error):
-            promise(.failure(error))
-          }
+          promise(result)
         }
       }
     }
@@ -182,12 +157,7 @@
     public func listAll() -> Future<StorageListResult, Error> {
       Future<StorageListResult, Error> { promise in
         self.listAll { result in
-          switch result {
-          case let .success(list):
-            promise(.success(list))
-          case let .failure(error):
-            promise(.failure(error))
-          }
+          promise(result)
         }
       }
     }
@@ -212,12 +182,7 @@
     public func list(maxResults: Int64) -> Future<StorageListResult, Error> {
       Future<StorageListResult, Error> { promise in
         self.list(maxResults: maxResults) { result in
-          switch result {
-          case let .success(list):
-            promise(.success(list))
-          case let .failure(error):
-            promise(.failure(error))
-          }
+          promise(result)
         }
       }
     }
@@ -244,12 +209,7 @@
     public func list(maxResults: Int64, pageToken: String) -> Future<StorageListResult, Error> {
       Future<StorageListResult, Error> { promise in
         self.list(maxResults: maxResults, pageToken: pageToken) { result in
-          switch result {
-          case let .success(list):
-            promise(.success(list))
-          case let .failure(error):
-            promise(.failure(error))
-          }
+          promise(result)
         }
       }
     }
@@ -265,12 +225,7 @@
     public func getMetadata() -> Future<StorageMetadata, Error> {
       Future<StorageMetadata, Error> { promise in
         self.getMetadata { result in
-          switch result {
-          case let .success(metadata):
-            promise(.success(metadata))
-          case let .failure(error):
-            promise(.failure(error))
-          }
+          promise(result)
         }
       }
     }
@@ -287,12 +242,7 @@
     public func updateMetadata(_ metadata: StorageMetadata) -> Future<StorageMetadata, Error> {
       Future<StorageMetadata, Error> { promise in
         self.updateMetadata(metadata) { result in
-          switch result {
-          case let .success(metadata):
-            promise(.success(metadata))
-          case let .failure(error):
-            promise(.failure(error))
-          }
+          promise(result)
         }
       }
     }
