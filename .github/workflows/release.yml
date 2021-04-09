@@ -5,7 +5,7 @@ on:
     paths:
     - '.github/workflows/release.yml'
     - 'scripts/create_spec_repo/**'
-    - 'Gemfile'
+    - 'Gemfile*'
   workflow_dispatch:
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
@@ -18,9 +18,10 @@ jobs:
     env:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       local_repo: specstesting
-      nightly_version: "7.5.0"
+      # The SDK repo will be cloned to this dir and podspecs from
+      # the latest release branch of this repo will be validated and pushed to
+      # the testing repo.
       local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
-      podspec_repo_branch: master
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
@@ -33,14 +34,14 @@ jobs:
     - name: Update SpecsTesting repo setup
       run: |
          ossbotaccess=`cat oss-bot-access.txt`
-         BOT_TOKEN="${ossbotaccess}" test_version="${nightly_version}" scripts/release_testing_setup.sh nightly_testing
+         BOT_TOKEN="${ossbotaccess}" scripts/release_testing_setup.sh release_testing
     - name: Update SpecsTesting repo
       run: |
         botaccess=`cat bot-access.txt`
         cd scripts/create_spec_repo/
         swift build
         pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/FirebasePrivate/SpecsTesting.git
-        BOT_TOKEN="${botaccess}"  .build/debug/spec-repo-builder --sdk-repo "${local_sdk_repo_dir}" --local-spec-repo-name "${local_repo}"
+        BOT_TOKEN="${botaccess}"  .build/debug/spec-repo-builder --sdk-repo "${local_sdk_repo_dir}" --local-spec-repo-name "${local_repo}" --pod-sources 'https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsTesting' --pod-sources "https://github.com/firebase/SpecsStaging.git" --pod-sources "https://cdn.cocoapods.org/"
     - name: Clean Artifacts
       if: ${{ always() }}
       run: |

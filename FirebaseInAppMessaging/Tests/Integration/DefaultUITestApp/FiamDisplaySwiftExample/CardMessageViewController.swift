@@ -109,6 +109,11 @@ class CardMessageViewController: CommonMessageTestVC {
                                                   isTestMessage: false)
       writableMessageType = FIRInAppMessagingDisplayMessageType.card
       writableTriggerType = FIRInAppMessagingDisplayTriggerType.onAnalyticsEvent
+      super.init(messageID: "testID",
+                 campaignName: "testCampaign",
+                 renderAsTestMessage: false,
+                 messageType: .imageOnly,
+                 triggerType: .onAnalyticsEvent)
     }
   }
 

@@ -16,6 +16,10 @@
 
 #import <Foundation/Foundation.h>
 
+#pragma mark - URL Helpers
+
+FOUNDATION_EXPORT NSString *FIRMessagingTokenRegisterServer(void);
+
 #pragma mark - Time
 
 FOUNDATION_EXPORT int64_t FIRMessagingCurrentTimestampInSeconds(void);
@@ -25,8 +29,21 @@ FOUNDATION_EXPORT int64_t FIRMessagingCurrentTimestampInMilliseconds(void);
 
 FOUNDATION_EXPORT NSString *FIRMessagingCurrentAppVersion(void);
 FOUNDATION_EXPORT NSString *FIRMessagingAppIdentifier(void);
+FOUNDATION_EXPORT NSString *FIRMessagingFirebaseAppID(void);
 
 #pragma mark - Others
 
 FOUNDATION_EXPORT uint64_t FIRMessagingGetFreeDiskSpaceInMB(void);
 FOUNDATION_EXPORT NSSearchPathDirectory FIRMessagingSupportedDirectory(void);
+
+#pragma mark - Device Info
+FOUNDATION_EXPORT NSString *FIRMessagingCurrentLocale(void);
+FOUNDATION_EXPORT BOOL FIRMessagingHasLocaleChanged(void);
+/// locale key stored in GULUserDefaults
+FOUNDATION_EXPORT NSString *const kFIRMessagingInstanceIDUserDefaultsKeyLocale;
+
+FOUNDATION_EXPORT NSString *FIRMessagingStringForAPNSDeviceToken(NSData *deviceToken);
+FOUNDATION_EXPORT NSString *FIRMessagingAPNSTupleStringForTokenAndServerType(NSData *deviceToken,
+                                                                             BOOL isSandbox);
+
+FOUNDATION_EXPORT BOOL FIRMessagingIsSandboxApp(void);

@@ -89,7 +89,7 @@ StatusOr<std::unique_ptr<LevelDbPersistence>> LevelDbPersistence::Create(
   if (!created.ok()) return created.status();
 
   std::unique_ptr<DB> db = std::move(created).ValueOrDie();
-  LevelDbMigrations::RunMigrations(db.get());
+  LevelDbMigrations::RunMigrations(db.get(), serializer);
 
   LevelDbTransaction transaction(db.get(), "Start LevelDB");
   std::set<std::string> users = CollectUserSet(&transaction);
@@ -117,6 +117,7 @@ LevelDbPersistence::LevelDbPersistence(std::unique_ptr<leveldb::DB> db,
   index_manager_ = absl::make_unique<LevelDbIndexManager>(this);
   reference_delegate_ =
       absl::make_unique<LevelDbLruReferenceDelegate>(this, lru_params);
+  bundle_cache_ = absl::make_unique<LevelDbBundleCache>(this, &serializer_);
 
   // TODO(gsoltis): set up a leveldb transaction for these operations.
   target_cache_->Start();
@@ -246,6 +247,10 @@ LevelDbIndexManager* LevelDbPersistence::index_manager() {
 
 LevelDbLruReferenceDelegate* LevelDbPersistence::reference_delegate() {
   return reference_delegate_.get();
+}
+
+LevelDbBundleCache* LevelDbPersistence::bundle_cache() {
+  return bundle_cache_.get();
 }
 
 void LevelDbPersistence::RunInternal(absl::string_view label,

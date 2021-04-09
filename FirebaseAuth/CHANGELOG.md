@@ -1,4 +1,4 @@
-# Unreleased
+# 7.8.0
 - [fixed] Fixed auth state sharing during first app launch. (#7472)
 
 # 7.6.0

@@ -17,6 +17,8 @@
 #include "Firestore/core/src/core/sync_engine.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
+#include "Firestore/core/src/bundle/bundle_element.h"
+#include "Firestore/core/src/bundle/bundle_loader.h"
 #include "Firestore/core/src/core/sync_engine_callback.h"
 #include "Firestore/core/src/core/transaction.h"
 #include "Firestore/core/src/core/transaction_runner.h"
@@ -43,6 +45,10 @@ namespace core {
 namespace {
 
 using auth::User;
+using bundle::BundleElement;
+using bundle::BundleLoader;
+using bundle::InitialProgress;
+using bundle::SuccessProgress;
 using firestore::Error;
 using local::LocalStore;
 using local::LocalViewChanges;
@@ -54,6 +60,7 @@ using model::BatchId;
 using model::DocumentKey;
 using model::DocumentKeySet;
 using model::DocumentMap;
+using model::DocumentUpdateMap;
 using model::kBatchIdUnknown;
 using model::ListenSequenceNumber;
 using model::MaybeDocumentMap;
@@ -327,7 +334,7 @@ void SyncEngine::HandleRejectedListen(TargetId target_id, Status error) {
     DocumentKeySet limbo_documents{limbo_key};
     RemoteEvent::TargetChangeMap target_changes;
     RemoteEvent::TargetSet target_mismatches;
-    RemoteEvent::DocumentUpdateMap document_updates{{limbo_key, doc}};
+    DocumentUpdateMap document_updates{{limbo_key, doc}};
 
     RemoteEvent event{SnapshotVersion::None(), std::move(target_changes),
                       std::move(target_mismatches), std::move(document_updates),
@@ -565,6 +572,86 @@ void SyncEngine::RemoveLimboTarget(const DocumentKey& key) {
   active_limbo_targets_by_key_.erase(key);
   active_limbo_resolutions_by_target_.erase(limbo_target_id);
   PumpEnqueuedLimboResolutions();
+}
+
+absl::optional<BundleLoader> SyncEngine::ReadIntoLoader(
+    const bundle::BundleMetadata& metadata,
+    bundle::BundleReader& reader,
+    api::LoadBundleTask& result_task) {
+  BundleLoader loader(local_store_, metadata);
+  int64_t current_bytes_read = 0;
+  // Breaks when either error happened, or when there is no more element to
+  // read.
+  while (true) {
+    auto element = reader.GetNextElement();
+    if (!reader.reader_status().ok()) {
+      LOG_WARN("Failed to GetNextElement() from bundle with error %s",
+               reader.reader_status().error_message());
+      result_task.SetError(reader.reader_status());
+      return absl::nullopt;
+    }
+
+    // No more elements from reader.
+    if (element == nullptr) {
+      break;
+    }
+
+    int64_t old_bytes_read = current_bytes_read;
+    current_bytes_read = reader.bytes_read();
+    auto maybe_progress = loader.AddElement(
+        std::move(element), current_bytes_read - old_bytes_read);
+    if (!maybe_progress.ok()) {
+      LOG_WARN("Failed to AddElement() to bundle loader with error %s",
+               maybe_progress.status().error_message());
+      result_task.SetError(maybe_progress.status());
+      return absl::nullopt;
+    }
+
+    if (maybe_progress.ValueOrDie().has_value()) {
+      result_task.UpdateProgress(maybe_progress.ConsumeValueOrDie().value());
+    }
+  }
+
+  return loader;
+}
+
+void SyncEngine::LoadBundle(std::shared_ptr<bundle::BundleReader> reader,
+                            std::shared_ptr<api::LoadBundleTask> result_task) {
+  auto bundle_metadata = reader->GetBundleMetadata();
+  if (!reader->reader_status().ok()) {
+    LOG_WARN("Failed to GetBundleMetadata() for bundle with error %s",
+             reader->reader_status().error_message());
+    result_task->SetError(reader->reader_status());
+    return;
+  }
+
+  bool has_newer_bundle = local_store_->HasNewerBundle(bundle_metadata);
+  if (has_newer_bundle) {
+    result_task->SetSuccess(SuccessProgress(bundle_metadata));
+    return;
+  }
+
+  result_task->UpdateProgress(InitialProgress(bundle_metadata));
+  auto maybe_loader = ReadIntoLoader(bundle_metadata, *reader, *result_task);
+  if (!maybe_loader.has_value()) {
+    // `ReadIntoLoader` would call `result_task.SetError` should there be an
+    // error, so we do not need set it here.
+    return;
+  }
+
+  util::StatusOr<MaybeDocumentMap> changes =
+      maybe_loader.value().ApplyChanges();
+  if (!changes.ok()) {
+    LOG_WARN("Failed to ApplyChanges() for bundle elements with error %s",
+             changes.status().error_message());
+    result_task->SetError(changes.status());
+    return;
+  }
+
+  EmitNewSnapshotsAndNotifyLocalStore(changes.ConsumeValueOrDie(),
+                                      absl::nullopt);
+
+  result_task->SetSuccess(SuccessProgress(bundle_metadata));
 }
 
 }  // namespace core

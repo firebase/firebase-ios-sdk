@@ -28,8 +28,12 @@ OUTPUT_DIR="$REPO/$1"
 
 CUSTOM_SPEC_REPOS="$2"
 
+source_repo=()
+IFS=','
+read -a specrepo <<< "${CUSTOM_SPEC_REPOS}"
+
 cd ReleaseTooling
 swift run zip-builder --keep-build-artifacts --update-pod-repo \
     --local-podspec-path "${REPO}" \
     --enable-carthage-build --output-dir "${OUTPUT_DIR}" \
-    --custom-spec-repos "${CUSTOM_SPEC_REPOS}"
+    --custom-spec-repos  "${specrepo[@]}"

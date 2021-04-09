@@ -228,6 +228,22 @@ DatabaseInfo Firestore::MakeDatabaseInfo() const {
                       settings_.ssl_enabled());
 }
 
+std::shared_ptr<LoadBundleTask> Firestore::LoadBundle(
+    std::unique_ptr<util::ByteStream> bundle_data) {
+  EnsureClientConfigured();
+
+  auto task = std::make_shared<LoadBundleTask>(user_executor_);
+  client_->LoadBundle(std::move(bundle_data), task);
+
+  return task;
+}
+
+void Firestore::GetNamedQuery(const std::string& name,
+                              api::QueryCallback callback) {
+  EnsureClientConfigured();
+  client_->GetNamedQuery(name, std::move(callback));
+}
+
 }  // namespace api
 }  // namespace firestore
 }  // namespace firebase

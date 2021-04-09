@@ -33,6 +33,7 @@ class User;
 
 namespace local {
 
+class BundleCache;
 class IndexManager;
 class MutationQueue;
 class ReferenceDelegate;
@@ -96,6 +97,11 @@ class Persistence {
 
   /** Returns a TargetCache representing the persisted cache of queries. */
   virtual TargetCache* target_cache() = 0;
+
+  /**
+   * Returns a BundleCache representing the persisted cache of loaded bundles.
+   */
+  virtual BundleCache* bundle_cache() = 0;
 
   /**
    * Returns a RemoteDocumentCache representing the persisted cache of remote

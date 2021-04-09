@@ -103,7 +103,7 @@ FirebaseAnalytics dependency to your project to ensure Messaging works as intend
 
   #if __has_include(<FirebaseRemoteConfig/FirebaseRemoteConfig.h>)
     #import <FirebaseRemoteConfig/FirebaseRemoteConfig.h>
-    #if TARGET_OS_IOS && !__has_include(<FirebaseAnalytics/FirebaseAnalytics.h>)
+    #if TARGET_OS_IOS && !TARGET_OS_MACCATALYST && !__has_include(<FirebaseAnalytics/FirebaseAnalytics.h>)
       #ifndef FIREBASE_ANALYTICS_SUPPRESS_WARNING
         #warning "FirebaseAnalytics.framework is not included in your target. Please add the \
 FirebaseAnalytics dependency to your project to ensure Firebase Remote Config works as intended."
