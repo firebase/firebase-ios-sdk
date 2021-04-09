@@ -163,10 +163,15 @@
           FPRApplicationProcessState(trace.backgroundTraceState);
       FPRLogDebug(kFPRClientMetricLogged, @"Logging trace metric - %@ %.4fms",
                   metric.traceMetric.name, metric.traceMetric.durationUs / 1000.0);
-      NSString *plistPath = [[NSBundle mainBundle] pathForResource:@"GoogleService-Info" ofType:@"plist"];
-      NSMutableDictionary *googleServiceDict = [NSMutableDictionary dictionaryWithContentsOfFile:plistPath];
+      NSString *plistPath = [[NSBundle mainBundle] pathForResource:@"GoogleService-Info"
+                                                            ofType:@"plist"];
+      NSMutableDictionary *googleServiceDict =
+          [NSMutableDictionary dictionaryWithContentsOfFile:plistPath];
 
-      FPRLogDebug(kFPRClientMetricLogged, @"Please visit https://console.firebase.google.com/project/%@/performance/app/ios:%@/metrics/trace/DURATION_TRACE/%@ for more information",
+      FPRLogDebug(kFPRClientMetricLogged,
+                  @"Please visit "
+                  @"https://console.firebase.google.com/project/%@/performance/app/ios:%@/metrics/"
+                  @"trace/DURATION_TRACE/%@ for more information",
                   googleServiceDict[@"PROJECT_ID"], googleServiceDict[@"BUNDLE_ID"], trace.name);
       [self processAndLogEvent:metric];
     });
@@ -194,10 +199,15 @@
       FPRLogDebug(kFPRClientMetricLogged,
                   @"Logging network request trace - %@, Response code: %@, %.4fms",
                   networkRequestMetric.URL, responseCode, duration / 1000.0);
-      NSString *plistPath = [[NSBundle mainBundle] pathForResource:@"GoogleService-Info" ofType:@"plist"];
-      NSMutableDictionary *googleServiceDict = [NSMutableDictionary dictionaryWithContentsOfFile:plistPath];
-    
-      FPRLogDebug(kFPRClientMetricLogged, @"Please visit https://console.firebase.google.com/project/%@/performance/app/ios:%@/trends for more information",
+      NSString *plistPath = [[NSBundle mainBundle] pathForResource:@"GoogleService-Info"
+                                                            ofType:@"plist"];
+      NSMutableDictionary *googleServiceDict =
+          [NSMutableDictionary dictionaryWithContentsOfFile:plistPath];
+
+      FPRLogDebug(kFPRClientMetricLogged,
+                  @"Please visit "
+                  @"https://console.firebase.google.com/project/%@/performance/app/ios:%@/trends "
+                  @"for more information",
                   googleServiceDict[@"PROJECT_ID"], googleServiceDict[@"BUNDLE_ID"]);
       FPRMSGPerfMetric *metric = FPRGetPerfMetricMessage(self.config.appID);
       metric.networkRequestMetric = networkRequestMetric;
