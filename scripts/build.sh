@@ -496,6 +496,12 @@ case "$product-$platform-$method" in
 
   Storage-*-xcodebuild)
     pod_gen FirebaseStorage.podspec --platforms=ios
+
+    # Add GoogleService-Info.plist to generated Test Wrapper App.
+    ruby ./scripts/update_xcode_target.rb gen/FirebaseStorage/Pods/Pods.xcodeproj \
+      AppHost-FirebaseStorage-Unit-Tests \
+      ../../../FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist
+
     if check_secrets; then
       # Integration tests are only run on iOS to minimize flake failures.
       RunXcodebuild \
@@ -518,6 +524,12 @@ case "$product-$platform-$method" in
 
   StorageSwift-*-xcodebuild)
     pod_gen FirebaseStorageSwift.podspec --platforms=ios
+
+    # Add GoogleService-Info.plist to generated Test Wrapper App.
+    ruby ./scripts/update_xcode_target.rb gen/FirebaseStorageSwift/Pods/Pods.xcodeproj \
+      AppHost-FirebaseStorageSwift-Unit-Tests \
+      ../../../FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist
+
     if check_secrets; then
       # Integration tests are only run on iOS to minimize flake failures.
       RunXcodebuild \
