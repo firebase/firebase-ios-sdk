@@ -328,10 +328,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (google_firestore_v1_Value)parseDictionary:(NSDictionary<NSString *, id> *)dict
                                      context:(ParseContext &&)context {
-  google_firestore_v1_Value result{};
+  __block google_firestore_v1_Value result{};
   result.which_value_type = google_firestore_v1_Value_map_value_tag;
-
-  __block std::vector<google_firestore_v1_MapValue_FieldsEntry> fields;
 
   if (dict.count == 0) {
     const FieldPath *path = context.path();
@@ -339,25 +337,28 @@ NS_ASSUME_NONNULL_BEGIN
       context.AddToFieldMask(*path);
     }
   } else {
-    // Populate a vector of fields since we don't know the size of the final fields array.
+    // Compute the final size of the fields array, which contains an entry for
+    // all fields that are not FieldValue sentinels
+    __block pb_size_t count = 0;
+    [dict enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *) {
+      if (![value isKindOfClass:[FIRFieldValue class]]) {
+        ++count;
+      }
+    }];
+
+    result.map_value.fields_count = count;
+    result.map_value.fields = nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(count);
+
+    __block pb_size_t index = 0;
     [dict enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *) {
       absl::optional<google_firestore_v1_Value> parsedValue =
           [self parseData:value context:context.ChildContext(util::MakeString(key))];
       if (parsedValue) {
-        google_firestore_v1_MapValue_FieldsEntry fieldsEntry;
-        fieldsEntry.key = nanopb::MakeBytesArray(util::MakeString(key));
-        fieldsEntry.value = *parsedValue;
-        fields.push_back(fieldsEntry);
+        result.map_value.fields[index].key = nanopb::MakeBytesArray(util::MakeString(key));
+        result.map_value.fields[index].value = *parsedValue;
+        ++index;
       }
     }];
-  }
-
-  result.map_value.fields_count = static_cast<pb_size_t>(fields.size());
-  result.map_value.fields =
-      nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(result.map_value.fields_count);
-
-  for (size_t i = 0; i < fields.size(); ++i) {
-    result.map_value.fields[i] = fields[i];
   }
 
   return result;
