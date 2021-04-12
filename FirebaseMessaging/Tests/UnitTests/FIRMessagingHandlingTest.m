@@ -19,7 +19,6 @@
 #import "OCMock.h"
 
 #import <GoogleUtilities/GULUserDefaults.h>
-#import "Firebase/InstanceID/Public/FirebaseInstanceID.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
@@ -32,17 +31,9 @@
 
 extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 
-/// The NSUserDefaults domain for testing.
-static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
-
 @interface FIRMessaging ()
 
 @property(nonatomic, readwrite, strong) NSString *defaultFcmToken;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-@property(nonatomic, readwrite, strong) FIRInstanceID *instanceID;
-#pragma clang diagnostic pop
-
 - (BOOL)handleContextManagerMessage:(NSDictionary *)message;
 - (void)handleIncomingLinkIfNeededFromMessage:(NSDictionary *)message;
 

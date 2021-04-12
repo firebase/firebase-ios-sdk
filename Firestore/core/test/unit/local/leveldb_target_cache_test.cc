@@ -123,12 +123,12 @@ TEST_F(LevelDbTargetCacheTest, RemoveMatchingKeysForTargetID) {
     ASSERT_TRUE(cache->Contains(key2));
     ASSERT_TRUE(cache->Contains(key3));
 
-    cache->RemoveAllDocumentKeysForTarget(1);
+    cache->RemoveMatchingKeysForTarget(1);
     ASSERT_FALSE(cache_->Contains(key1));
     ASSERT_FALSE(cache_->Contains(key2));
     ASSERT_TRUE(cache_->Contains(key3));
 
-    cache->RemoveAllDocumentKeysForTarget(2);
+    cache->RemoveMatchingKeysForTarget(2);
     ASSERT_FALSE(cache_->Contains(key1));
     ASSERT_FALSE(cache_->Contains(key2));
     ASSERT_FALSE(cache_->Contains(key3));

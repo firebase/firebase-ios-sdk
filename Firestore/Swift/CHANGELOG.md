@@ -1,4 +1,4 @@
-# Unreleased
+# v7.7.0
 - [feature] Added support for specifying `ServerTimestampBehavior` when
   decoding a `DocumentSnapshot`.
 
