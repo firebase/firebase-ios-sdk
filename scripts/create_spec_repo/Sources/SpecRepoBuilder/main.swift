@@ -23,7 +23,7 @@ extension Constants {
   static let skipLinesWithWords = ["unit_tests", "test_spec"]
   static let dependencyLineSeparators = CharacterSet(charactersIn: " ,/")
   static let podSources = [
-    "https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsTesting",
+    "https://${BOT_TOKEN}@github.com/Firebase/SpecsTesting",
     "https://github.com/firebase/SpecsStaging.git",
     "https://cdn.cocoapods.org/",
   ]
@@ -100,6 +100,8 @@ enum SpecRepoBuilderError: Error {
   case failedToPush(pods: [String])
   // Error occurs when a podspec is not found in the repo.
   case podspecNotFound(_ podspec: String, from: String)
+  // Error occurs when a direotyr path cannot be determined.
+  case pathNotFound(_ path: String)
 }
 
 struct SpecRepoBuilder: ParsableCommand {
@@ -258,10 +260,31 @@ struct SpecRepoBuilder: ParsableCommand {
       )
     let fileManager = FileManager.default
     do {
-      let dirs = try fileManager.contentsOfDirectory(atPath: "\(repoPath)/\(sdkRepoName)")
+      let sdk_repo_path = "\(repoPath)/\(sdkRepoName)"
+      print("The repo path is  \(sdk_repo_path)")
+      guard let repo_url = URL(string: sdk_repo_path) else {
+        print("Error: cannot find \(sdk_repo_path).")
+        Self
+          .exit(withError: SpecRepoBuilderError
+            .pathNotFound(sdk_repo_path))
+      }
+      // Skip hidden files, e.g. /.git
+      let dirs = try fileManager.contentsOfDirectory(
+        at: repo_url,
+        includingPropertiesForKeys: nil,
+        options: [.skipsHiddenFiles]
+      )
+      print("Found following unhidden dirs: \(dirs)")
       for dir in dirs {
-        if dir != ".git" {
-          shell.run("cd \(sdkRepoName); git rm -r \(dir)")
+        guard let isDir = (try dir.resourceValues(forKeys: [.isDirectoryKey])).isDirectory else {
+          print("Error: cannot determine if \(dir.path) is a directory or not.")
+          Self
+            .exit(withError: SpecRepoBuilderError
+              .pathNotFound(dir.path))
+        }
+        if isDir {
+          print("Removing \(dir.path)")
+          shell.run("cd \(sdkRepoName); git rm -r \(dir.path)")
         }
       }
       shell.run("cd \(sdkRepoName); git commit -m 'Empty repo'; git push")
