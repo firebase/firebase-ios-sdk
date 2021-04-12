@@ -58,7 +58,7 @@ DocumentKey DocumentKey::FromSegments(std::initializer_list<std::string> list) {
 }
 
 DocumentKey DocumentKey::FromName(const std::string& name) {
-  ResourcePath resource_name = ResourcePath::FromString(name);
+  auto resource_name = ResourcePath::FromString(name);
   HARD_ASSERT(resource_name.size() > 4 && resource_name[0] == "projects" &&
                   resource_name[2] == "databases" &&
                   resource_name[4] == "documents",
