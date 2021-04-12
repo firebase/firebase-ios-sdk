@@ -30,6 +30,6 @@ import Foundation
  */
 
 class Credentials {
-  static let kUserName = KUSER_NAME
-  static let kPassword = KPASSWORD
+  static let kUserName = "user"
+  static let kPassword = "pwd"
 }
