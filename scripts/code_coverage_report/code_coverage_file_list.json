@@ -46,16 +46,6 @@
       "FirebaseFirestore\\.podspec",
       "CMakeLists\\.txt",
       "cmake/.*",
-      "scripts/binary_to_array\\.py",
-      "scripts/build\\.sh",
-      "scripts/install_prereqs\\.sh",
-      "scripts/localize_podfile\\.swift",
-      "scripts/pod_lib_lint\\.rb",
-      "scripts/run_firestore_emulator\\.sh",
-      "scripts/setup_[^/]+",
-      "scripts/sync_project\\.rb",
-      "scripts/test_quickstart\\.sh",
-      "scripts/xcresult_logs\\.py",
       "\\.github/workflows/firestore\\.yml",
       "Gemfile"
     ]
