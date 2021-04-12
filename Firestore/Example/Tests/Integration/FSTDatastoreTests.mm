@@ -23,7 +23,7 @@
 #include <vector>
 
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
-#import "Firestore/Source/API/FSTUserDataConverter.h"
+#import "Firestore/Source/API/FSTUserDataReader.h"
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
