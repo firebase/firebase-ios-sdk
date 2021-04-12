@@ -42,13 +42,13 @@ bool IsServerTimestamp(const google_firestore_v1_Value& value);
 /**
  * Returns the local time at which the timestamp was written to the document.
  */
-const google_protobuf_Timestamp& GetLocalWriteTime(
+google_protobuf_Timestamp GetLocalWriteTime(
     const google_firestore_v1_Value& value);
 
 /**
  * Returns the value of the field before this ServerTimestamp was set.
  *
- * Preserving the previous values allows the user to display the last resoled
+ * Preserving the previous values allows the user to display the last resolved
  * value until the backend responds with the timestamp.
  */
 absl::optional<google_firestore_v1_Value> GetPreviousValue(

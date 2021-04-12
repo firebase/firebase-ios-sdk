@@ -83,7 +83,7 @@ bool IsServerTimestamp(const google_firestore_v1_Value& value) {
   return false;
 }
 
-const google_protobuf_Timestamp& GetLocalWriteTime(
+google_protobuf_Timestamp GetLocalWriteTime(
     const firebase::firestore::google_firestore_v1_Value& value) {
   for (size_t i = 0; i < value.map_value.fields_count; ++i) {
     const auto& field = value.map_value.fields[i];

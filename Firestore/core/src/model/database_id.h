@@ -48,7 +48,7 @@ class DatabaseId : public util::Comparable<DatabaseId> {
                       std::string database_id = kDefault);
 
   /** Returns a DatabaseId from a fully qualified resource name. */
-  static DatabaseId FromName(absl::string_view name);
+  static DatabaseId FromName(const std::string& name);
 
   const std::string& project_id() const {
     return rep_->project_id;

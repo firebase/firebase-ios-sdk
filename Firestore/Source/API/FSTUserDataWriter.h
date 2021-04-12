@@ -16,7 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-#include <map>
 #include <memory>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"

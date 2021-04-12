@@ -36,10 +36,9 @@ DatabaseId::DatabaseId(std::string project_id, std::string database_id) {
   rep_ = std::make_shared<Rep>(std::move(project_id), std::move(database_id));
 }
 
-/* static */
-DatabaseId DatabaseId::FromName(absl::string_view name) {
+DatabaseId DatabaseId::FromName(const std::string& name) {
   ResourcePath resource_name = ResourcePath::FromString(name);
-  HARD_ASSERT(resource_name.size() >= 3 && resource_name[0] == "projects" &&
+  HARD_ASSERT(resource_name.size() > 3 && resource_name[0] == "projects" &&
                   resource_name[2] == "databases",
               "Tried to parse an invalid resource name: %s", name);
   return DatabaseId{resource_name[1], resource_name[3]};

@@ -49,20 +49,17 @@ DocumentKey::DocumentKey(ResourcePath&& path)
   AssertValidPath(*path_);
 }
 
-/* static */
 DocumentKey DocumentKey::FromPathString(const std::string& path) {
   return DocumentKey{ResourcePath::FromString(path)};
 }
 
-/* static */
 DocumentKey DocumentKey::FromSegments(std::initializer_list<std::string> list) {
   return DocumentKey{ResourcePath{list}};
 }
 
-/* static */
-DocumentKey DocumentKey::FromName(absl::string_view name) {
+DocumentKey DocumentKey::FromName(const std::string& name) {
   ResourcePath resource_name = ResourcePath::FromString(name);
-  HARD_ASSERT(resource_name.size() >= 4 && resource_name[0] == "projects" &&
+  HARD_ASSERT(resource_name.size() > 4 && resource_name[0] == "projects" &&
                   resource_name[2] == "databases" &&
                   resource_name[4] == "documents",
               "Tried to parse an invalid key: %s", name);

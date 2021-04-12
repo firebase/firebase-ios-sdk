@@ -60,7 +60,7 @@ class DocumentKey {
   static DocumentKey FromSegments(std::initializer_list<std::string> list);
 
   /** Returns a DocumentKey from a fully qualified resource name. */
-  static DocumentKey FromName(absl::string_view name);
+  static DocumentKey FromName(const std::string& name);
 
   /** Returns a shared instance of an empty document key. */
   static const DocumentKey& Empty();

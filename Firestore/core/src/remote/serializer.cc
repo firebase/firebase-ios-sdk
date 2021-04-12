@@ -488,7 +488,7 @@ pb_bytes_array_t* Serializer::EncodeResourceName(
 
 ResourcePath Serializer::DecodeResourceName(Reader* reader,
                                             absl::string_view encoded) const {
-  ResourcePath resource = ResourcePath::FromString(encoded);
+  auto resource = ResourcePath::FromStringView(encoded);
   if (!IsValidResourceName(resource)) {
     reader->Fail(StringFormat("Tried to deserialize an invalid key %s",
                               resource.CanonicalString()));

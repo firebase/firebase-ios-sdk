@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "Firestore/Source/API/FSTUserDataWriter.h"
+
 #import <Firestore/core/src/nanopb/nanopb_util.h>
 #import <Firestore/core/src/util/hard_assert.h>
 #import <Foundation/Foundation.h>
@@ -21,7 +23,6 @@
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/Source/API/FIRDocumentReference+Internal.h"
-#include "Firestore/Source/API/FSTUserDataWriter.h"
 #include "Firestore/Source/API/converters.h"
 #include "Firestore/core/include/firebase/firestore/geo_point.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
@@ -40,24 +41,25 @@ namespace util = firebase::firestore::util;
 namespace model = firebase::firestore::model;
 namespace nanopb = firebase::firestore::nanopb;
 
-using firebase::firestore::GeoPoint;
-using firebase::firestore::google_firestore_v1_Value;
-using firebase::firestore::google_firestore_v1_MapValue;
-using firebase::firestore::google_firestore_v1_ArrayValue;
-using firebase::firestore::google_protobuf_Timestamp;
-using nanopb::MakeNSData;
-using nanopb::MakeBytesArray;
-using nanopb::MakeByteString;
-using nanopb::MakeStringView;
+using api::MakeFIRDocumentReference;
 using api::MakeFIRGeoPoint;
 using api::MakeFIRTimestamp;
-using api::MakeFIRDocumentReference;
-using model::GetTypeOrder;
-using model::TypeOrder;
-using model::GetPreviousValue;
-using model::GetLocalWriteTime;
+using firebase::firestore::GeoPoint;
+using firebase::firestore::google_firestore_v1_ArrayValue;
+using firebase::firestore::google_firestore_v1_MapValue;
+using firebase::firestore::google_firestore_v1_Value;
+using firebase::firestore::google_protobuf_Timestamp;
 using model::DatabaseId;
 using model::DocumentKey;
+using model::GetLocalWriteTime;
+using model::GetPreviousValue;
+using model::GetTypeOrder;
+using model::TypeOrder;
+using nanopb::MakeByteString;
+using nanopb::MakeBytesArray;
+using nanopb::MakeNSData;
+using nanopb::MakeString;
+using nanopb::MakeStringView;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -76,7 +78,7 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (id)convertedValue:(const firebase::firestore::google_firestore_v1_Value &)value {
+- (id)convertedValue:(const google_firestore_v1_Value &)value {
   switch (GetTypeOrder(value)) {
     case TypeOrder::kMap:
       return [self convertedObject:value.map_value];
@@ -111,7 +113,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSDictionary<NSString *, id> *)convertedObject:(const google_firestore_v1_MapValue &)mapValue {
   NSMutableDictionary *result = [NSMutableDictionary dictionary];
   for (pb_size_t i = 0; i < mapValue.fields_count; ++i) {
-    const std::string &key = nanopb::MakeString(mapValue.fields[i].key);
+    absl::string_view key = MakeStringView(mapValue.fields[i].key);
     const google_firestore_v1_Value &value = mapValue.fields[i].value;
     result[util::MakeNSString(key)] = [self convertedValue:value];
   }
@@ -146,7 +148,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FIRDocumentReference *)convertedReference:(const google_firestore_v1_Value &)value {
-  absl::string_view ref = MakeStringView(value.reference_value);
+  std::string ref = MakeString(value.reference_value);
   DatabaseId databaseID = DatabaseId::FromName(ref);
   DocumentKey key = DocumentKey::FromName(ref);
   if (databaseID != _firestore->database_id()) {
