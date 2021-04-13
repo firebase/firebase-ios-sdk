@@ -41,7 +41,7 @@ google_firestore_v1_Value EncodeServerTimestamp(
   map_value.fields =
       nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(count);
 
-  auto field = map_value.fields;
+  auto* field = map_value.fields;
   field->key = nanopb::MakeBytesArray(kTypeKey);
   field->value.which_value_type = google_firestore_v1_Value_string_value_tag;
   field->value.string_value = nanopb::MakeBytesArray(kServerTimestampSentinel);
