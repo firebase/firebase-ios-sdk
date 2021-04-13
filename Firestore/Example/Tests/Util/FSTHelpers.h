@@ -24,7 +24,7 @@
 
 @class FIRGeoPoint;
 @class FSTDocumentKeyReference;
-@class FSTUserDataConverter;
+@class FSTUserDataReader;
 
 namespace model = firebase::firestore::model;
 
@@ -93,7 +93,7 @@ NSData *FSTTestData(int bytes, ...);
 FIRGeoPoint *FSTTestGeoPoint(double latitude, double longitude);
 
 /** Creates a user data converter set up for a generic project. */
-FSTUserDataConverter *FSTTestUserDataConverter();
+FSTUserDataReader *FSTTestUserDataReader();
 
 /**
  * Creates a new NSDateComponents from components. Note that year, month, and day are all

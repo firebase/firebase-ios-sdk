@@ -32,7 +32,7 @@
 #import "Firestore/Source/API/FIRQuery+Internal.h"
 #import "Firestore/Source/API/FIRQuerySnapshot+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
-#import "Firestore/Source/API/FSTUserDataConverter.h"
+#import "Firestore/Source/API/FSTUserDataReader.h"
 
 #include "Firestore/core/src/api/query_core.h"
 #include "Firestore/core/src/api/query_listener_registration.h"
@@ -474,11 +474,11 @@ int32_t SaturatedLimitValue(NSInteger limit) {
 #pragma mark - Private Methods
 
 - (FieldValue)parsedQueryValue:(id)value {
-  return [self.firestore.dataConverter parsedQueryValue:value];
+  return [self.firestore.dataReader parsedQueryValue:value];
 }
 
 - (FieldValue)parsedQueryValue:(id)value allowArrays:(bool)allowArrays {
-  return [self.firestore.dataConverter parsedQueryValue:value allowArrays:allowArrays];
+  return [self.firestore.dataReader parsedQueryValue:value allowArrays:allowArrays];
 }
 
 - (QuerySnapshotListener)wrapQuerySnapshotBlock:(FIRQuerySnapshotBlock)block {
