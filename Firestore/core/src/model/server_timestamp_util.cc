@@ -25,7 +25,40 @@ namespace model {
 
 const char kTypeKey[] = "__type__";
 const char kLocalWriteTimeKey[] = "__local_write_time__";
+const char kPreviousValueKey[] = "__previous_value__";
 const char kServerTimestampSentinel[] = "server_timestamp";
+
+google_firestore_v1_Value EncodeServerTimestamp(
+    google_protobuf_Timestamp local_write_time,
+    absl::optional<google_firestore_v1_Value> previous_value) {
+  google_firestore_v1_Value result{};
+  result.which_value_type = google_firestore_v1_Value_map_value_tag;
+
+  pb_size_t count = previous_value ? 3 : 2;
+
+  auto& map_value = result.map_value;
+  map_value.fields_count = count;
+  map_value.fields =
+      nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(count);
+
+  auto* field = map_value.fields;
+  field->key = nanopb::MakeBytesArray(kTypeKey);
+  field->value.which_value_type = google_firestore_v1_Value_string_value_tag;
+  field->value.string_value = nanopb::MakeBytesArray(kServerTimestampSentinel);
+
+  ++field;
+  field->key = nanopb::MakeBytesArray(kLocalWriteTimeKey);
+  field->value.which_value_type = google_firestore_v1_Value_timestamp_value_tag;
+  field->value.timestamp_value = local_write_time;
+
+  if (previous_value) {
+    ++field;
+    field->key = nanopb::MakeBytesArray(kPreviousValueKey);
+    field->value = *previous_value;
+  }
+
+  return result;
+}
 
 bool IsServerTimestamp(const google_firestore_v1_Value& value) {
   if (value.which_value_type != google_firestore_v1_Value_map_value_tag) {
@@ -50,17 +83,36 @@ bool IsServerTimestamp(const google_firestore_v1_Value& value) {
   return false;
 }
 
-const google_firestore_v1_Value& GetLocalWriteTime(
+google_protobuf_Timestamp GetLocalWriteTime(
     const firebase::firestore::google_firestore_v1_Value& value) {
   for (size_t i = 0; i < value.map_value.fields_count; ++i) {
     const auto& field = value.map_value.fields[i];
     absl::string_view key = nanopb::MakeStringView(field.key);
-    if (key == kLocalWriteTimeKey) {
-      return field.value;
+    if (key == kLocalWriteTimeKey &&
+        field.value.which_value_type ==
+            google_firestore_v1_Value_timestamp_value_tag) {
+      return field.value.timestamp_value;
     }
   }
 
   HARD_FAIL("LocalWriteTime not found");
+}
+
+absl::optional<google_firestore_v1_Value> GetPreviousValue(
+    const google_firestore_v1_Value& value) {
+  for (size_t i = 0; i < value.map_value.fields_count; ++i) {
+    const auto& field = value.map_value.fields[i];
+    absl::string_view key = nanopb::MakeStringView(field.key);
+    if (key == kPreviousValueKey) {
+      if (IsServerTimestamp(field.value)) {
+        return GetPreviousValue(field.value);
+      } else {
+        return field.value;
+      }
+    }
+  }
+
+  return absl::nullopt;
 }
 
 }  // namespace model

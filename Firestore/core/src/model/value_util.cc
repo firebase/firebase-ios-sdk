@@ -97,14 +97,13 @@ ComparisonResult CompareNumbers(const google_firestore_v1_Value& left,
   }
 }
 
-ComparisonResult CompareTimestamps(const google_firestore_v1_Value& left,
-                                   const google_firestore_v1_Value& right) {
-  ComparisonResult cmp = util::Compare(left.timestamp_value.seconds,
-                                       right.timestamp_value.seconds);
+ComparisonResult CompareTimestamps(const google_protobuf_Timestamp& left,
+                                   const google_protobuf_Timestamp& right) {
+  ComparisonResult cmp = util::Compare(left.seconds, right.seconds);
   if (cmp != ComparisonResult::Same) {
     return cmp;
   }
-  return util::Compare(left.timestamp_value.nanos, right.timestamp_value.nanos);
+  return util::Compare(left.nanos, right.nanos);
 }
 
 ComparisonResult CompareStrings(const google_firestore_v1_Value& left,
@@ -219,7 +218,7 @@ ComparisonResult Compare(const google_firestore_v1_Value& left,
       return CompareNumbers(left, right);
 
     case TypeOrder::kTimestamp:
-      return CompareTimestamps(left, right);
+      return CompareTimestamps(left.timestamp_value, right.timestamp_value);
 
     case TypeOrder::kServerTimestamp:
       return CompareTimestamps(GetLocalWriteTime(left),
@@ -327,8 +326,12 @@ bool Equals(const google_firestore_v1_Value& lhs,
       return lhs.timestamp_value.seconds == rhs.timestamp_value.seconds &&
              lhs.timestamp_value.nanos == rhs.timestamp_value.nanos;
 
-    case TypeOrder::kServerTimestamp:
-      return GetLocalWriteTime(lhs) == GetLocalWriteTime(rhs);
+    case TypeOrder::kServerTimestamp: {
+      const auto& left_ts = GetLocalWriteTime(lhs);
+      const auto& right_ts = GetLocalWriteTime(rhs);
+      return left_ts.seconds == right_ts.seconds &&
+             left_ts.nanos == right_ts.nanos;
+    }
 
     case TypeOrder::kString:
       return nanopb::MakeStringView(lhs.string_value) ==

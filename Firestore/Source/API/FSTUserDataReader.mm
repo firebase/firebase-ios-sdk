@@ -340,7 +340,7 @@ NS_ASSUME_NONNULL_BEGIN
     // Compute the final size of the fields array, which contains an entry for
     // all fields that are not FieldValue sentinels
     __block pb_size_t count = 0;
-    [dict enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *) {
+    [dict enumerateKeysAndObjectsUsingBlock:^(NSString *, id value, BOOL *) {
       if (![value isKindOfClass:[FIRFieldValue class]]) {
         ++count;
       }

@@ -21,6 +21,8 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
+// TODO(mutabledocuments): Remove this class
+
 /** Defines the return value for pending server timestamps. */
 enum class ServerTimestampBehavior { kNone, kEstimate, kPrevious };
 

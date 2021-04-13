@@ -91,7 +91,7 @@ FIRDocumentSnapshot *FSTTestDocSnapshot(const char *path,
     doc = Doc(path, version, parsed,
               hasMutations ? DocumentState::kLocalMutations : DocumentState::kSynced);
   }
-  return [[FIRDocumentSnapshot alloc] initWithFirestore:FSTTestFirestore().wrapped
+  return [[FIRDocumentSnapshot alloc] initWithFirestore:FSTTestFirestore()
                                             documentKey:testutil::Key(path)
                                                document:doc
                                               fromCache:fromCache
