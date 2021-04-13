@@ -1,6 +1,3 @@
-# Unreleased
-- [fixed] Return FirebaseVersion as FIRRemoteConfigPodVersion. (#7892)
-
 # v7.10.0
 - [changed] Throw exception if projectID is missing from FirebaseOptions. (#7725)
 
