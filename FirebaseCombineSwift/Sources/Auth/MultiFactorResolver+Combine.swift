@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if canImport(Combine) && swift(>=5.0) && canImport(FirebaseAuth)
+#if canImport(Combine) && swift(>=5.0) && canImport(FirebaseAuth) && !os(tvOS)
   import Foundation
 
   import Combine

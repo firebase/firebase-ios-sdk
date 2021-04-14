@@ -418,6 +418,8 @@
     }
 
     // MARK: - Other Authentication providers
+    
+    #if !os(tvOS)
 
     /// Signs in using the provided auth provider instance.
     ///
@@ -463,6 +465,8 @@
         }
       }
     }
+    
+    #endif
 
     /// Asynchronously signs in to Firebase with the given Auth token.
     ///
