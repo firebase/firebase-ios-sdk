@@ -1,4 +1,4 @@
-# Unreleased
+# Version 7.8.0
 * Deprecate Clearcut event transport mechanism.
 * Enable dynamic framework support. (#7569)
 * Remove the warning to include Firebase Analytics as Perf does not depend on Analytics (#7487)

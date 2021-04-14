@@ -59,7 +59,7 @@ script. Place it in the directory where your `.xcodeproj` file lives,
 eg. `scripts/upload-symbols`, and make sure that the file is executable:
 `chmod +x scripts/upload-symbols`.
 This script can be used to manually upload dSYM files (for usage notes and
-additional instructions, run without any parameters).
+additional instructions, run with the `--help` parameter).
 
 ### Alternatively, add Firebase to a `Package.swift` manifest
 

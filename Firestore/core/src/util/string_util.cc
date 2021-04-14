@@ -48,6 +48,11 @@ std::string ImmediateSuccessor(absl::string_view s) {
   return out;
 }
 
+const std::string& EmptyString() {
+  static auto* empty = new std::string;
+  return *empty;
+}
+
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase

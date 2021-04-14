@@ -34,7 +34,11 @@
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 #import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleCallbackStatus.h"
 #import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleOnDisconnect.h"
+#if TARGET_OS_WATCH
+#import <WatchKit/WatchKit.h>
+#else
 #import <SystemConfiguration/SystemConfiguration.h>
+#endif // TARGET_OS_WATCH
 #import <dlfcn.h>
 #import <netinet/in.h>
 
@@ -90,7 +94,9 @@ typedef enum {
     NSTimeInterval reconnectDelay;
     NSTimeInterval lastConnectionAttemptTime;
     NSTimeInterval lastConnectionEstablishedTime;
+#if !TARGET_OS_WATCH
     SCNetworkReachabilityRef reachability;
+#endif // !TARGET_OS_WATCH
 }
 
 - (int)getNextRequestNumber;
@@ -174,11 +180,13 @@ typedef enum {
 }
 
 - (void)dealloc {
+#if !TARGET_OS_WATCH
     if (reachability) {
         // Unschedule the notifications
         SCNetworkReachabilitySetDispatchQueue(reachability, NULL);
         CFRelease(reachability);
     }
+#endif // !TARGET_OS_WATCH
 }
 
 #pragma mark -
@@ -537,6 +545,7 @@ typedef enum {
     [self.realtime open];
 }
 
+#if !TARGET_OS_WATCH
 static void reachabilityCallback(SCNetworkReachabilityRef ref,
                                  SCNetworkReachabilityFlags flags, void *info) {
     if (flags & kSCNetworkReachabilityFlagsReachable) {
@@ -552,6 +561,7 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
         FFLog(@"I-RDB034015", @"Network is not reachable");
     }
 }
+#endif // !TARGET_OS_WATCH
 
 - (void)enteringForeground {
     dispatch_async(self.dispatchQueue, ^{
@@ -564,7 +574,18 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
 }
 
 - (void)setupNotifications {
-
+#if TARGET_OS_WATCH
+    if (@available(watchOS 7.0, *)) {
+        __weak FPersistentConnection *weakSelf = self;
+        NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+        [center addObserverForName:WKApplicationWillEnterForegroundNotification
+                            object:nil
+                             queue:nil
+                        usingBlock:^(NSNotification *_Nonnull note) {
+                          [weakSelf enteringForeground];
+                        }];
+    }
+#else
     NSString *const *foregroundConstant = (NSString *const *)dlsym(
         RTLD_DEFAULT, "UIApplicationWillEnterForegroundNotification");
     if (foregroundConstant) {
@@ -592,6 +613,7 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
         CFRelease(reachability);
         reachability = NULL;
     }
+#endif // !TARGET_OS_WATCH
 }
 
 - (void)sendAuthAndRestoreStateAfterComplete:(BOOL)restoreStateAfterComplete {
@@ -1233,6 +1255,10 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
 #elif TARGET_OS_OSX
     if (self.config.persistenceEnabled) {
         stats[@"persistence.osx.enabled"] = @1;
+    }
+#elif TARGET_OS_WATCH
+    if (self.config.persistenceEnabled) {
+        stats[@"persistence.watchos.enabled"] = @1;
     }
 #endif
     NSString *sdkVersion =

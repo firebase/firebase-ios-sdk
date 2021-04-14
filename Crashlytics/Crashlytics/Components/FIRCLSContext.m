@@ -197,6 +197,9 @@ bool FIRCLSContextInitialize(FIRCLSInternalReport* report,
         FIRCLSContextAppendToRoot(rootPath, fileName);
   });
 
+  // To initialize Crashlytics handlers even if the Xcode debugger is attached, replace this check
+  // with YES. Note that this is only possible to do on an actual device as it will cause the
+  // simulator to crash.
   if (!_firclsContext.readonly->debuggerAttached) {
 #if CLS_SIGNAL_SUPPORTED
     dispatch_group_async(group, queue, ^{

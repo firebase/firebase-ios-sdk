@@ -8,11 +8,11 @@ on:
     - 'Example/Database/**'
     - 'Interop/Auth/Public/*.h'
     - '.github/workflows/database.yml'
-    - 'Gemfile'
+    - 'Gemfile*'
     - 'scripts/run_database_emulator.sh'
   schedule:
-    # Run every day at 8pm (PST) - cron uses UTC times
-    - cron:  '0 4 * * *'
+    # Run every day at 2am (PST) - cron uses UTC times
+    - cron:  '0 10 * * *'
 
 jobs:
   unit:
@@ -111,7 +111,7 @@ jobs:
 
     strategy:
       matrix:
-        target: [ios, tvos, macos]
+        target: [ios, tvos, macos, watchos]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler

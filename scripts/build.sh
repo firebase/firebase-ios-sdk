@@ -47,6 +47,7 @@ product can be one of:
 
 platform can be one of:
   iOS (default)
+  iOS-device
   macOS
   tvOS
   watchOS
@@ -155,6 +156,10 @@ else
   )
 fi
 
+ios_device_flags=(
+  -sdk 'iphoneos'
+)
+
 ipad_flags=(
   -sdk 'iphonesimulator'
   -destination 'platform=iOS Simulator,name=iPad Pro (9.7-inch)'
@@ -181,6 +186,11 @@ catalyst_flags=(
 case "$platform" in
   iOS)
     xcb_flags=("${ios_flags[@]}")
+    gen_platform=ios
+    ;;
+
+  iOS-device)
+    xcb_flags=("${ios_device_flags[@]}")
     gen_platform=ios
     ;;
 
@@ -426,6 +436,14 @@ case "$product-$platform-$method" in
       build
     ;;
 
+  WatchOSSample-*-*)
+    RunXcodebuild \
+      -workspace 'Example/watchOSSample/SampleWatchApp.xcworkspace' \
+      -scheme "SampleWatchAppWatchKitApp" \
+      "${xcb_flags[@]}" \
+      build
+    ;;
+
   Database-*-unit)
     pod_gen FirebaseDatabase.podspec --platforms="${gen_platform}"
     RunXcodebuild \
@@ -489,13 +507,11 @@ case "$product-$platform-$method" in
 
   Storage-*-xcodebuild)
     pod_gen FirebaseStorage.podspec --platforms=ios
-    RunXcodebuild \
-      -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
-      -scheme "FirebaseStorage-Unit-unit" \
-      "${ios_flags[@]}" \
-      "${xcb_flags[@]}" \
-      build \
-      test
+
+    # Add GoogleService-Info.plist to generated Test Wrapper App.
+    ruby ./scripts/update_xcode_target.rb gen/FirebaseStorage/Pods/Pods.xcodeproj \
+      AppHost-FirebaseStorage-Unit-Tests \
+      ../../../FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist
 
     if check_secrets; then
       # Integration tests are only run on iOS to minimize flake failures.
@@ -515,28 +531,16 @@ case "$product-$platform-$method" in
         build \
         test
       fi
-
-    pod_gen FirebaseStorage.podspec --platforms=macos --clean
-    RunXcodebuild \
-      -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
-      -scheme "FirebaseStorage-Unit-unit" \
-      "${macos_flags[@]}" \
-      "${xcb_flags[@]}" \
-      build \
-      test
-
-    pod_gen FirebaseStorage.podspec --platforms=tvos --clean
-    RunXcodebuild \
-      -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
-      -scheme "FirebaseStorage-Unit-unit" \
-      "${tvos_flags[@]}" \
-      "${xcb_flags[@]}" \
-      build \
-      test
     ;;
 
   StorageSwift-*-xcodebuild)
     pod_gen FirebaseStorageSwift.podspec --platforms=ios
+
+    # Add GoogleService-Info.plist to generated Test Wrapper App.
+    ruby ./scripts/update_xcode_target.rb gen/FirebaseStorageSwift/Pods/Pods.xcodeproj \
+      AppHost-FirebaseStorageSwift-Unit-Tests \
+      ../../../FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist
+
     if check_secrets; then
       # Integration tests are only run on iOS to minimize flake failures.
       RunXcodebuild \

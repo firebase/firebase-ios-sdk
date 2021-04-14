@@ -17,7 +17,10 @@
 #ifndef FIRESTORE_CORE_SRC_API_API_FWD_H_
 #define FIRESTORE_CORE_SRC_API_API_FWD_H_
 
+#include <functional>
 #include <memory>
+
+#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
@@ -25,6 +28,7 @@ namespace firestore {
 namespace core {
 template <typename T>
 class EventListener;
+class Query;
 }  // namespace core
 
 namespace api {
@@ -48,6 +52,8 @@ using DocumentSnapshotListener =
 
 using QuerySnapshotListener =
     std::unique_ptr<core::EventListener<QuerySnapshot>>;
+
+using QueryCallback = std::function<void(absl::optional<core::Query>)>;
 
 }  // namespace api
 }  // namespace firestore
