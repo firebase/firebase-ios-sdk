@@ -418,54 +418,54 @@
     }
 
     // MARK: - Other Authentication providers
-    
+
     #if !os(tvOS)
 
-    /// Signs in using the provided auth provider instance.
-    ///
-    /// The publisher will emit events on the **main** thread.
-    ///
-    /// - Parameters:
-    ///   - provider: An instance of an auth provider used to initiate the sign-in flow.
-    ///   - uiDelegate: Optionally an instance of a class conforming to the `AuthUIDelegate`
-    ///   protocol. This is used for presenting the web context. If `nil`, a default `AuthUIDelegate`
-    ///   will be used.
-    /// - Returns: A publisher that emits an `AuthDataResult` when the sign-in flow completed
-    ///   successfully, or an error otherwise. The publisher will emit on the *main* thread.
-    /// - Remark: Possible error codes:
-    ///   - `AuthErrorCodeOperationNotAllowed` - Indicates that email and password accounts are not enabled.
-    ///     Enable them in the Auth section of the Firebase console.
-    ///   - `AuthErrorCodeUserDisabled` - Indicates the user's account is disabled.
-    ///   - `AuthErrorCodeWebNetworkRequestFailed` - Indicates that a network request within a
-    ///     `SFSafariViewController` or `WKWebView` failed.
-    ///   - `AuthErrorCodeWebInternalError` - Indicates that an internal error occurred within a
-    ///     `SFSafariViewController` or `WKWebView`.`
-    ///   - `AuthErrorCodeWebSignInUserInteractionFailure` - Indicates a general failure during a web sign-in flow.`
-    ///   - `AuthErrorCodeWebContextAlreadyPresented` - Indicates that an attempt was made to present a new web
-    ///     context while one was already being presented.`
-    ///   - `AuthErrorCodeWebContextCancelled` - Indicates that the URL presentation was cancelled prematurely
-    ///     by the user.`
-    ///   - `AuthErrorCodeAccountExistsWithDifferentCredential` - Indicates the email asserted by the credential
-    ///     (e.g. the email in a Facebook access token) is already in use by an existing account that cannot be
-    ///     authenticated with this sign-in method. Call `fetchProvidersForEmail` for this user’s email and then
-    ///     prompt them to sign in with any of the sign-in providers returned. This error will only be thrown if
-    ///     the "One account per email address" setting is enabled in the Firebase console, under Auth settings.
-    ///
-    ///   See `AuthErrors` for a list of error codes that are common to all API methods
-    @discardableResult
-    public func signIn(with provider: FederatedAuthProvider,
-                       uiDelegate: AuthUIDelegate?) -> Future<AuthDataResult, Error> {
-      Future<AuthDataResult, Error> { promise in
-        self.signIn(with: provider, uiDelegate: uiDelegate) { authDataResult, error in
-          if let error = error {
-            promise(.failure(error))
-          } else if let authDataResult = authDataResult {
-            promise(.success(authDataResult))
+      /// Signs in using the provided auth provider instance.
+      ///
+      /// The publisher will emit events on the **main** thread.
+      ///
+      /// - Parameters:
+      ///   - provider: An instance of an auth provider used to initiate the sign-in flow.
+      ///   - uiDelegate: Optionally an instance of a class conforming to the `AuthUIDelegate`
+      ///   protocol. This is used for presenting the web context. If `nil`, a default `AuthUIDelegate`
+      ///   will be used.
+      /// - Returns: A publisher that emits an `AuthDataResult` when the sign-in flow completed
+      ///   successfully, or an error otherwise. The publisher will emit on the *main* thread.
+      /// - Remark: Possible error codes:
+      ///   - `AuthErrorCodeOperationNotAllowed` - Indicates that email and password accounts are not enabled.
+      ///     Enable them in the Auth section of the Firebase console.
+      ///   - `AuthErrorCodeUserDisabled` - Indicates the user's account is disabled.
+      ///   - `AuthErrorCodeWebNetworkRequestFailed` - Indicates that a network request within a
+      ///     `SFSafariViewController` or `WKWebView` failed.
+      ///   - `AuthErrorCodeWebInternalError` - Indicates that an internal error occurred within a
+      ///     `SFSafariViewController` or `WKWebView`.`
+      ///   - `AuthErrorCodeWebSignInUserInteractionFailure` - Indicates a general failure during a web sign-in flow.`
+      ///   - `AuthErrorCodeWebContextAlreadyPresented` - Indicates that an attempt was made to present a new web
+      ///     context while one was already being presented.`
+      ///   - `AuthErrorCodeWebContextCancelled` - Indicates that the URL presentation was cancelled prematurely
+      ///     by the user.`
+      ///   - `AuthErrorCodeAccountExistsWithDifferentCredential` - Indicates the email asserted by the credential
+      ///     (e.g. the email in a Facebook access token) is already in use by an existing account that cannot be
+      ///     authenticated with this sign-in method. Call `fetchProvidersForEmail` for this user’s email and then
+      ///     prompt them to sign in with any of the sign-in providers returned. This error will only be thrown if
+      ///     the "One account per email address" setting is enabled in the Firebase console, under Auth settings.
+      ///
+      ///   See `AuthErrors` for a list of error codes that are common to all API methods
+      @discardableResult
+      public func signIn(with provider: FederatedAuthProvider,
+                         uiDelegate: AuthUIDelegate?) -> Future<AuthDataResult, Error> {
+        Future<AuthDataResult, Error> { promise in
+          self.signIn(with: provider, uiDelegate: uiDelegate) { authDataResult, error in
+            if let error = error {
+              promise(.failure(error))
+            } else if let authDataResult = authDataResult {
+              promise(.success(authDataResult))
+            }
           }
         }
       }
-    }
-    
+
     #endif
 
     /// Asynchronously signs in to Firebase with the given Auth token.
