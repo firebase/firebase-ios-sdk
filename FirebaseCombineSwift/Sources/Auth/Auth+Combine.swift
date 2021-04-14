@@ -56,7 +56,8 @@
     ///
     /// The publisher will emit events on the **main** thread.
     ///
-    /// - Returns: A publisher emitting a `User` instance (if a different user as signed in or the ID token of the current user has changed) or `nil` (if the user has signed out)
+    /// - Returns: A publisher emitting a `User` instance (if a different user as signed in or
+    ///   the ID token of the current user has changed) or `nil` (if the user has signed out)
     public func idTokenDidChangePublisher() -> AnyPublisher<User?, Never> {
       let subject = PassthroughSubject<User?, Never>()
       let handle = addIDTokenDidChangeListener { auth, user in
