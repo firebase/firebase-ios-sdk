@@ -419,7 +419,7 @@
 
     // MARK: - Other Authentication providers
 
-    #if !os(tvOS)
+    #if !os(tvOS) && !os(macOS)
 
       /// Signs in using the provided auth provider instance.
       ///

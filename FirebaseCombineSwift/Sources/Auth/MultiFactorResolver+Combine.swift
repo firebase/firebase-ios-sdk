@@ -12,14 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if canImport(Combine) && swift(>=5.0) && canImport(FirebaseAuth) && !os(tvOS)
+#if canImport(Combine) && swift(>=5.0) && canImport(FirebaseAuth) && !os(tvOS) && !os(macOS)
   import Foundation
 
   import Combine
   import FirebaseAuth
 
   @available(swift 5.0)
-  @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
+  @available(iOS 13, watchOS 6, *)
+  @available(tvOS, unavailable)
+  @available(macOS, unavailable)
   extension MultiFactorResolver {
     /// A helper function to help users complete sign in with a second factor using an
     /// `MultiFactorAssertion` confirming the user successfully completed the second factor

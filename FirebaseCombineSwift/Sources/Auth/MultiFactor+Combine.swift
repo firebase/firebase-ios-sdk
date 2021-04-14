@@ -12,13 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if canImport(Combine) && swift(>=5.0) && canImport(FirebaseAuth) && !os(tvOS)
+#if canImport(Combine) && swift(>=5.0) && canImport(FirebaseAuth) && !os(tvOS) && !os(macOS)
 
   import Combine
   import FirebaseAuth
 
   @available(swift 5.0)
-  @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
+  @available(iOS 13, watchOS 6, *)
+  @available(tvOS, unavailable)
+  @available(macOS, unavailable)
   extension MultiFactor {
     /// Get a session for a second factor enrollment operation.
     ///
