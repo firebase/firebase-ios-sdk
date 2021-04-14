@@ -24,16 +24,17 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/// Firebase app check provider that verifies the app integrity using
+/// [DeviceCheck](https://developer.apple.com/documentation/devicecheck) API.
+NS_SWIFT_NAME(DeviceCheckProvider)
 @interface FIRDeviceCheckProvider : NSObject <FIRAppCheckProvider>
 
 - (instancetype)init NS_UNAVAILABLE;
 
-- (instancetype)initWithAPIService:(id<FIRDeviceCheckAPIServiceProtocol>)APIService;
-
-- (instancetype)initWithAPIService:(id<FIRDeviceCheckAPIServiceProtocol>)APIService
-              deviceTokenGenerator:(id<FIRDeviceCheckTokenGenerator>)deviceTokenGenerator
-    NS_DESIGNATED_INITIALIZER;
-
+/// The default initializer.
+/// @param app A `FirebaseApp` instance.
+/// @return An instance of `DeviceCheckProvider` if the provided `FirebaseApp` instance contains all
+/// required parameters.
 - (nullable instancetype)initWithApp:(FIRApp *)app;
 
 @end

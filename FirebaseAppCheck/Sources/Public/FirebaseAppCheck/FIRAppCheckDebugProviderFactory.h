@@ -20,6 +20,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/// An implementation of `AppCheckProviderFactory` that creates a new instance of
+/// `AppCheckDebugProvider` when requested.
 NS_SWIFT_NAME(AppCheckDebugProviderFactory)
 @interface FIRAppCheckDebugProviderFactory : NSObject <FIRAppCheckProviderFactory>
 

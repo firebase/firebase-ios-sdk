@@ -20,14 +20,17 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_SWIFT_NAME(AppCheckTokenHandler)
-typedef void (^FIRAppCheckTokenHandler)(FIRAppCheckToken *_Nullable token,
-                                        NSError *_Nullable error);
-
+/// Defines the methods required to be implemented by a specific Firebase app check
+/// provider.
 NS_SWIFT_NAME(AppCheckProvider)
 @protocol FIRAppCheckProvider <NSObject>
 
-- (void)getTokenWithCompletion:(FIRAppCheckTokenHandler)handler
+/// Returns a new Firebase app check token.
+/// @param handler The completion handler. Please make sure to call the handler with either a token
+/// or an error.
+- (void)getTokenWithCompletion:
+    (void (^)(FIRAppCheckToken *_Nullable token, NSError *_Nullable error))handler
+
     NS_SWIFT_NAME(getToken(completion:));
 
 @end

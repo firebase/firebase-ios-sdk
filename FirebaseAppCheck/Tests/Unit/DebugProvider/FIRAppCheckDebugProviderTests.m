@@ -28,6 +28,12 @@
 static NSString *const kDebugTokenEnvKey = @"FIRAAppCheckDebugToken";
 static NSString *const kDebugTokenUserDefaultsKey = @"FIRAAppCheckDebugToken";
 
+@interface FIRAppCheckDebugProvider (Tests)
+
+- (instancetype)initWithAPIService:(id<FIRAppCheckDebugProviderAPIServiceProtocol>)APIService;
+
+@end
+
 @interface FIRAppCheckDebugProviderTests : XCTestCase
 
 @property(nonatomic) FIRAppCheckDebugProvider *provider;

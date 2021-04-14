@@ -32,6 +32,13 @@
 @property(nonatomic) id fakeTokenGenerator;
 @end
 
+@interface FIRDeviceCheckProvider (Tests)
+
+- (instancetype)initWithAPIService:(id<FIRDeviceCheckAPIServiceProtocol>)APIService
+              deviceTokenGenerator:(id<FIRDeviceCheckTokenGenerator>)deviceTokenGenerator;
+
+@end
+
 @implementation FIRDeviceCheckProviderTests
 
 - (void)setUp {

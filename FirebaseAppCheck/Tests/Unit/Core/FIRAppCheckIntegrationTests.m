@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation DummyAppCheckProvider
 
-- (void)getTokenWithCompletion:(FIRAppCheckTokenHandler)handler {
+- (void)getTokenWithCompletion:(void (^)(FIRAppCheckToken *_Nullable, NSError *_Nullable))handler {
   FIRAppCheckToken *token = [[FIRAppCheckToken alloc] initWithToken:@"Token"
                                                      expirationDate:[NSDate distantFuture]];
   handler(token, nil);

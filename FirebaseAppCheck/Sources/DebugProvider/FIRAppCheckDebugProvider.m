@@ -106,7 +106,8 @@ static NSString *const kDebugTokenUserDefaultsKey = @"FIRAAppCheckDebugToken";
 
 #pragma mark - FIRAppCheckProvider
 
-- (void)getTokenWithCompletion:(FIRAppCheckTokenHandler)handler {
+- (void)getTokenWithCompletion:(void (^)(FIRAppCheckToken *_Nullable token,
+                                         NSError *_Nullable error))handler {
   [FBLPromise do:^NSString * {
     return [self currentDebugToken];
   }]

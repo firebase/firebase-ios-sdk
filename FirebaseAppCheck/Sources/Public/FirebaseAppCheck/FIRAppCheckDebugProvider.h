@@ -23,15 +23,46 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-// TODO: Add more detailed documentation on how to use the debug provider.
-
+/// A Firebase app check provider that can exchange a debug token registered in Firebase console to
+/// a Firebase app check token. The debug provider is designed to enable testing applications on a
+/// simulator or platforms that are not supported yet.
+///
+/// NOTE: Please make sure the debug provider is not used in applications used by real users.
+///
+/// WARNING: Keep the Firebase app check debug token in secret. If you accidentally shared one (e.g.
+/// committed to a public source repo) make sure to remove it in the Firebase console ASAP.
+///
+/// To use `AppCheckDebugProvider` on a local simulator:
+/// 1. Configure  `AppCheckDebugProviderFactory` before `FirebaseApp.configure()`
+/// `AppCheck.setAppCheckProviderFactory(AppCheckDebugProviderFactory())`
+/// 2. Enable debug logging by adding `-FIRDebugEnabled` launch argument to the app target.
+/// 3. Launch the app. A local debug token will be logged when Firebase is configured. For example:
+/// "[Firebase/AppCheck][I-FAA001001] Firebase App Check Debug Token:
+/// '3BA09C8C-8A0D-4030-ACD5-B96D99DB73F9'".
+/// 4. Register the debug token in the Firebase console.
+///
+/// Once the debug token is registered the debug provider will be able to provide a valid Firebase
+/// app check token.
+///
+/// To use `AppCheckDebugProvider` on a simulator on a build server:
+/// 1. Create a new Firebase app check debug token in the Firebase console
+/// 2. Add the debug token to the secure storage of your build environment, e.g. see [Encrypted
+/// secrets](https://docs.github.com/en/actions/reference/encrypted-secrets) for GitHub Actions,
+/// etc.
+/// 3. Configure  `AppCheckDebugProviderFactory` before `FirebaseApp.configure()`
+/// `AppCheck.setAppCheckProviderFactory(AppCheckDebugProviderFactory())`
+/// 4. Add an environment variable to the scheme with a name `FIRAAppCheckDebugToken` and value like
+/// `$(MY_APP_CHECK_DEBUG_TOKEN)`.
+/// 5. Configure the build script to pass the debug token as the environment variable, e.g.:
+/// `xcodebuild test -scheme InstallationsExample -workspace InstallationsExample.xcworkspace \
+/// MY_APP_CHECK_DEBUG_TOKEN=$(MY_SECRET_ON_CI)`
+///
+NS_SWIFT_NAME(AppCheckDebugProvider)
 @interface FIRAppCheckDebugProvider : NSObject <FIRAppCheckProvider>
 
 - (instancetype)init NS_UNAVAILABLE;
 
 - (nullable instancetype)initWithApp:(FIRApp *)app;
-
-- (instancetype)initWithAPIService:(id<FIRAppCheckDebugProviderAPIServiceProtocol>)APIService;
 
 /** Return the locally generated token. */
 - (NSString *)localDebugToken;

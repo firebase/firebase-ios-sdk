@@ -30,7 +30,7 @@ class AppCheckTests: XCTestCase {
 }
 
 class DummyAppCheckProvider: NSObject, AppCheckProvider {
-  func getToken(completion handler: @escaping AppCheckTokenHandler) {
+  func getToken(completion handler: @escaping (AppCheckToken?, Error?) -> Void) {
     handler(AppCheckToken(token: "token", expirationDate: .distantFuture), nil)
   }
 }

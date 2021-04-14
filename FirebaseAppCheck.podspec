@@ -4,7 +4,7 @@ Pod::Spec.new do |s|
   s.summary          = 'Firebase App Check SDK.'
 
   s.description      = <<-DESC
-  Firebase App Check SDK.
+  Firebase SDK for anti-abuse compatibility.
                        DESC
 
   s.homepage         = 'https://firebase.google.com'

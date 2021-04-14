@@ -41,6 +41,11 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRDeviceCheckProvider ()
 @property(nonatomic, readonly) id<FIRDeviceCheckAPIServiceProtocol> APIService;
 @property(nonatomic, readonly) id<FIRDeviceCheckTokenGenerator> deviceTokenGenerator;
+
+- (instancetype)initWithAPIService:(id<FIRDeviceCheckAPIServiceProtocol>)APIService
+              deviceTokenGenerator:(id<FIRDeviceCheckTokenGenerator>)deviceTokenGenerator
+    NS_DESIGNATED_INITIALIZER;
+
 @end
 
 @implementation FIRDeviceCheckProvider
@@ -89,7 +94,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FIRAppCheckProvider
 
-- (void)getTokenWithCompletion:(FIRAppCheckTokenHandler)handler {
+- (void)getTokenWithCompletion:(void (^)(FIRAppCheckToken *_Nullable token,
+                                         NSError *_Nullable error))handler {
   [self deviceToken]
       .then(^FBLPromise<FIRAppCheckToken *> *(NSData *deviceToken) {
         return [self.APIService appCheckTokenWithDeviceToken:deviceToken];
