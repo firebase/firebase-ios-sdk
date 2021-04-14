@@ -68,7 +68,7 @@
   FPRFakeDate *fakeDate = [[FPRFakeDate alloc] init];
   FPRGDTRateLimiter *transformer = [[FPRGDTRateLimiter alloc] initWithDate:fakeDate];
   GDTCOREvent *gdtEvent = [FPRTestUtils createRandomTraceGDTEvent:@"trace"];
-  XCTAssertNotNil([transformer transform:gdtEvent]);
+  XCTAssertNotNil([transformer transformGDTEvent:gdtEvent]);
 }
 
 /** Validates the rate limiter allows sending valid network events. */
@@ -76,7 +76,7 @@
   FPRFakeDate *fakeDate = [[FPRFakeDate alloc] init];
   FPRGDTRateLimiter *transformer = [[FPRGDTRateLimiter alloc] initWithDate:fakeDate];
   GDTCOREvent *gdtEvent = [FPRTestUtils createRandomNetworkGDTEvent:@"https://abc.xyz"];
-  XCTAssertNotNil([transformer transform:gdtEvent]);
+  XCTAssertNotNil([transformer transformGDTEvent:gdtEvent]);
 }
 
 /** Validates the rate limiter allows sending events and drops events when exceeds allowed events
@@ -96,15 +96,15 @@
   [fakeDate incrementTime:1];
 
   // Send an event to see if that event is accepted.
-  XCTAssertNotNil([transformer transform:gdtEvent]);
+  XCTAssertNotNil([transformer transformGDTEvent:gdtEvent]);
 
   // Ensure that the event is dropped as we have reached allowed events count.
-  XCTAssertNil([transformer transform:gdtEvent]);
+  XCTAssertNil([transformer transformGDTEvent:gdtEvent]);
 
   // Events should be accepted after few seconds.
   transformer.lastTraceEventTime = fakeDate.now;
   [fakeDate incrementTime:1];
-  XCTAssertNotNil([transformer transform:gdtEvent]);
+  XCTAssertNotNil([transformer transformGDTEvent:gdtEvent]);
 }
 
 /** Validates the rate limiter does not apply on internal traces even when exceeds allowed events
@@ -124,11 +124,11 @@
   [fakeDate incrementTime:1];
 
   // Send an event to see if that event is accepted.
-  XCTAssertNotNil([transformer transform:gdtEvent]);
+  XCTAssertNotNil([transformer transformGDTEvent:gdtEvent]);
 
   // Ensure that the internal event is not dropped even though we have exceeded allowed events
   // count.
-  XCTAssertNotNil([transformer transform:gdtEvent]);
+  XCTAssertNotNil([transformer transformGDTEvent:gdtEvent]);
 }
 
 /** Validates the rate limiter allows sending network events drops network events when exceeds
@@ -147,15 +147,15 @@
 
   transformer.lastNetworkEventTime = fakeDate.now;
   [fakeDate incrementTime:1];
-  XCTAssertNotNil([transformer transform:gdtEvent]);
+  XCTAssertNotNil([transformer transformGDTEvent:gdtEvent]);
 
   // Ensure that the event is dropped as we have reached the rate limit and the burst size.
-  XCTAssertNil([transformer transform:gdtEvent]);
+  XCTAssertNil([transformer transformGDTEvent:gdtEvent]);
 
   // Events should be accepted after few seconds.
   transformer.lastTraceEventTime = fakeDate.now;
   [fakeDate incrementTime:1];
-  XCTAssertNotNil([transformer transform:gdtEvent]);
+  XCTAssertNotNil([transformer transformGDTEvent:gdtEvent]);
 }
 
 /** Validates the rate limiter allows sending events and adjusts the rate dynamically. */
@@ -174,7 +174,7 @@
   [fakeDate incrementTime:1];
 
   // Send an event to see if that event is accepted.
-  XCTAssertNotNil([transformer transform:gdtEvent]);
+  XCTAssertNotNil([transformer transformGDTEvent:gdtEvent]);
 
   // Set the rate limit to 15 events per minute.
   [transformer setOverrideRate:15];
@@ -183,11 +183,11 @@
   // allow a new event to flow through.
   transformer.lastTraceEventTime = fakeDate.now;
   [fakeDate incrementTime:1];
-  XCTAssertNil([transformer transform:gdtEvent]);
+  XCTAssertNil([transformer transformGDTEvent:gdtEvent]);
 
   // Incrementing the time with another 4 seconds would allow an event to flow through.
   [fakeDate incrementTime:4];
-  XCTAssertNotNil([transformer transform:gdtEvent]);
+  XCTAssertNotNil([transformer transformGDTEvent:gdtEvent]);
 }
 
 /** Validates the rate limiter drops events when exceeds burst size. */
@@ -208,11 +208,11 @@
   transformer.lastTraceEventTime = fakeDate.now;
 
   for (int i = 0; i < 60; i++) {
-    XCTAssertNotNil([transformer transform:gdtEvent]);
+    XCTAssertNotNil([transformer transformGDTEvent:gdtEvent]);
   }
 
   // After 60 events, no more events should be allowed.
-  XCTAssertNil([transformer transform:gdtEvent]);
+  XCTAssertNil([transformer transformGDTEvent:gdtEvent]);
 }
 
 /** Validates the rate limiter drops network events when exceeds burst size. */
@@ -233,11 +233,11 @@
   transformer.lastNetworkEventTime = fakeDate.now;
 
   for (int i = 0; i < 60; i++) {
-    XCTAssertNotNil([transformer transform:gdtEvent]);
+    XCTAssertNotNil([transformer transformGDTEvent:gdtEvent]);
   }
 
   // After 60 events, no more events should be allowed.
-  XCTAssertNil([transformer transform:gdtEvent]);
+  XCTAssertNil([transformer transformGDTEvent:gdtEvent]);
 }
 
 @end
