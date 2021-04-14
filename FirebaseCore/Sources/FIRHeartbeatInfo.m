@@ -17,6 +17,7 @@
 #import <GoogleUtilities/GULHeartbeatDateStorage.h>
 #import <GoogleUtilities/GULHeartbeatDateStorageUserDefaults.h>
 #import <GoogleUtilities/GULLogger.h>
+#import "FirebaseCore/Sources/Private/FIRAppInternal.h"
 
 const static long secondsInDay = 86400;
 @implementation FIRHeartbeatInfo : NSObject
@@ -30,8 +31,8 @@ const static long secondsInDay = 86400;
     NSString *const kHeartbeatStorageName = @"HEARTBEAT_INFO_STORAGE";
     id<GULHeartbeatDateStorable> dataStorage;
 #if TARGET_OS_TV
-    NSString *const kFIRCoreSuiteName = @"com.firebase.core";
-    NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:kFIRCoreSuiteName];
+    NSUserDefaults *defaults =
+        [[NSUserDefaults alloc] initWithSuiteName:kFirebaseCoreDefaultsSuiteName];
     dataStorage =
         [[GULHeartbeatDateStorageUserDefaults alloc] initWithDefaults:defaults
                                                                   key:kHeartbeatStorageName];
