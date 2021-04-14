@@ -13,7 +13,9 @@
 // limitations under the License.
 
 #import "FirebaseCore/Sources/Private/FIRHeartbeatInfo.h"
+#import <GoogleUtilities/GULHeartbeatDateStorable.h>
 #import <GoogleUtilities/GULHeartbeatDateStorage.h>
+#import <GoogleUtilities/GULHeartbeatDateStorageUserDefaults.h>
 #import <GoogleUtilities/GULLogger.h>
 
 const static long secondsInDay = 86400;
@@ -25,9 +27,17 @@ const static long secondsInDay = 86400;
  */
 + (BOOL)updateIfNeededHeartbeatDateForTag:(NSString *)heartbeatTag {
   @synchronized(self) {
-    NSString *const kHeartbeatStorageFile = @"HEARTBEAT_INFO_STORAGE";
-    GULHeartbeatDateStorage *dataStorage =
-        [[GULHeartbeatDateStorage alloc] initWithFileName:kHeartbeatStorageFile];
+    NSString *const kHeartbeatStorageName = @"HEARTBEAT_INFO_STORAGE";
+    id<GULHeartbeatDateStorable> dataStorage;
+#if TARGET_OS_TV
+    NSString *const kFIRCoreSuiteName = @"com.firebase.core";
+    NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:kFIRCoreSuiteName];
+    dataStorage =
+        [[GULHeartbeatDateStorageUserDefaults alloc] initWithDefaults:defaults
+                                                                  key:kHeartbeatStorageName];
+#else
+    dataStorage = [[GULHeartbeatDateStorage alloc] initWithFileName:kHeartbeatStorageName];
+#endif
     NSDate *heartbeatTime = [dataStorage heartbeatDateForTag:heartbeatTag];
     NSDate *currentDate = [NSDate date];
     if (heartbeatTime != nil) {
