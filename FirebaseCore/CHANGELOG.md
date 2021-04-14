@@ -1,3 +1,6 @@
+# Firebase 8.0.0
+- [changed] Migrate `transform:` callsites and introduce breaking version of GDT (9.0). (#7899)
+
 # Firebase 7.10.0
 - [changed] Update Nanopb to version 0.3.9.8. It fixes a possible security issue. (#7787)
 
