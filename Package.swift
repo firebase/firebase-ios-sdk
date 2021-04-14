@@ -28,6 +28,10 @@ let package = Package(
       targets: ["FirebaseAnalyticsTarget"]
     ),
     .library(
+      name: "FirebaseAnalyticsWithoutAdIdSupport",
+      targets: ["FirebaseAnalyticsWithoutAdIdSupportTarget"]
+    ),
+    .library(
       name: "FirebaseAnalyticsSwift-Beta",
       targets: ["FirebaseAnalyticsSwiftTarget"]
     ),
@@ -276,6 +280,36 @@ let package = Package(
       name: "FirebaseAnalyticsSwift",
       dependencies: ["FirebaseAnalyticsWrapper"],
       path: "FirebaseAnalyticsSwift/Sources"
+    ),
+
+    .target(
+      name: "FirebaseAnalyticsWithoutAdIdSupportTarget",
+      dependencies: [.target(name: "FirebaseAnalyticsWithoutAdIdSupportWrapper",
+                             condition: .when(platforms: [.iOS]))],
+      path: "SwiftPM-PlatformExclude/FirebaseAnalyticsWithoutAdIdSupportWrap"
+    ),
+    .target(
+      name: "FirebaseAnalyticsWithoutAdIdSupportWrapper",
+      dependencies: [
+        .target(name: "FirebaseAnalytics", condition: .when(platforms: [.iOS])),
+        .product(name: "GoogleAppMeasurementWithoutAdIdSupport",
+                 package: "GoogleAppMeasurement",
+                 condition: .when(platforms: [.iOS])),
+        "FirebaseCore",
+        "FirebaseInstallations",
+        .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
+        .product(name: "GULMethodSwizzler", package: "GoogleUtilities"),
+        .product(name: "GULNSData", package: "GoogleUtilities"),
+        .product(name: "GULNetwork", package: "GoogleUtilities"),
+        .product(name: "nanopb", package: "nanopb"),
+      ],
+      path: "FirebaseAnalyticsWithoutAdIdSupportWrapper",
+      linkerSettings: [
+        .linkedLibrary("sqlite3"),
+        .linkedLibrary("c++"),
+        .linkedLibrary("z"),
+        .linkedFramework("StoreKit"),
+      ]
     ),
 
     .target(

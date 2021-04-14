@@ -62,6 +62,19 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.dependency 'Firebase/Core'
   end
 
+  s.subspec 'CoreWithoutAdIdSupport' do |ss|
+    ss.ios.deployment_target = '9.0'
+    ss.osx.deployment_target = '10.12'
+    ss.tvos.deployment_target = '10.0'
+    ss.ios.dependency 'FirebaseAnalytics/WithoutAdIdSupport', '~> 7.11.0'
+    ss.dependency 'Firebase/CoreOnly'
+  end  
+
+  s.subspec 'AnalyticsWithoutAdIdSupport' do |ss|
+    ss.ios.deployment_target = '9.0'
+    ss.dependency 'Firebase/CoreWithoutAdIdSupport'
+  end
+
   s.subspec 'ABTesting' do |ss|
     ss.dependency 'Firebase/CoreOnly'
     ss.dependency 'FirebaseABTesting', '~> 7.10.0'
