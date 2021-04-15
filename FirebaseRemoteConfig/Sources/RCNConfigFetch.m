@@ -387,6 +387,7 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
               statusCode == kRCNFetchResponseHTTPStatusCodeInternalError ||
               statusCode == kRCNFetchResponseHTTPStatusCodeServiceUnavailable ||
               statusCode == kRCNFetchResponseHTTPStatusCodeGatewayTimeout) {
+            [strongSelf->_settings updateExponentialBackoffTime];
             if ([strongSelf->_settings shouldThrottle]) {
               // Must set lastFetchStatus before FailReason.
               strongSelf->_settings.lastFetchStatus = FIRRemoteConfigFetchStatusThrottled;
@@ -404,8 +405,8 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
                                                 withStatus:strongSelf->_settings.lastFetchStatus
                                                  withError:error];
             }
-          }  // Response error code 429, 500, 503
-        }    // StatusCode != kRCNFetchResponseHTTPStatusCodeOK
+          }
+        }
         // Return back the received error.
         // Must set lastFetchStatus before setting Fetch Error.
         strongSelf->_settings.lastFetchStatus = FIRRemoteConfigFetchStatusFailure;
