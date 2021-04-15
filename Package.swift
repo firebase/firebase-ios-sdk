@@ -28,6 +28,10 @@ let package = Package(
       targets: ["FirebaseAnalyticsTarget"]
     ),
     .library(
+      name: "FirebaseAnalyticsWithoutAdIdSupport",
+      targets: ["FirebaseAnalyticsWithoutAdIdSupportTarget"]
+    ),
+    .library(
       name: "FirebaseAnalyticsSwift-Beta",
       targets: ["FirebaseAnalyticsSwiftTarget"]
     ),
@@ -119,7 +123,7 @@ let package = Package(
     .package(
       name: "GoogleAppMeasurement",
       url: "https://github.com/google/GoogleAppMeasurement.git",
-      .exact("7.10.0")
+      .exact("7.11.0")
     ),
     .package(
       name: "GoogleDataTransport",
@@ -267,8 +271,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/7.9.0/FirebaseAnalytics.zip",
-      checksum: "939cf0df51b97de5f53bfa3cb1e3d6fa83e875a9d3c47d1dff1ba67fdd9c7538"
+      url: "https://dl.google.com/firebase/ios/swiftpm/7.11.0/FirebaseAnalytics.zip",
+      checksum: "96fdd7d7e7812748b11ec2e8ca9c0cec186e1caa6037996b74410d89a4ddf6af"
     ),
     .target(
       name: "FirebaseAnalyticsSwiftTarget",
@@ -280,6 +284,36 @@ let package = Package(
       name: "FirebaseAnalyticsSwift",
       dependencies: ["FirebaseAnalyticsWrapper"],
       path: "FirebaseAnalyticsSwift/Sources"
+    ),
+
+    .target(
+      name: "FirebaseAnalyticsWithoutAdIdSupportTarget",
+      dependencies: [.target(name: "FirebaseAnalyticsWithoutAdIdSupportWrapper",
+                             condition: .when(platforms: [.iOS]))],
+      path: "SwiftPM-PlatformExclude/FirebaseAnalyticsWithoutAdIdSupportWrap"
+    ),
+    .target(
+      name: "FirebaseAnalyticsWithoutAdIdSupportWrapper",
+      dependencies: [
+        .target(name: "FirebaseAnalytics", condition: .when(platforms: [.iOS])),
+        .product(name: "GoogleAppMeasurementWithoutAdIdSupport",
+                 package: "GoogleAppMeasurement",
+                 condition: .when(platforms: [.iOS])),
+        "FirebaseCore",
+        "FirebaseInstallations",
+        .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
+        .product(name: "GULMethodSwizzler", package: "GoogleUtilities"),
+        .product(name: "GULNSData", package: "GoogleUtilities"),
+        .product(name: "GULNetwork", package: "GoogleUtilities"),
+        .product(name: "nanopb", package: "nanopb"),
+      ],
+      path: "FirebaseAnalyticsWithoutAdIdSupportWrapper",
+      linkerSettings: [
+        .linkedLibrary("sqlite3"),
+        .linkedLibrary("c++"),
+        .linkedLibrary("z"),
+        .linkedFramework("StoreKit"),
+      ]
     ),
 
     .target(
