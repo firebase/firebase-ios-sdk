@@ -26,6 +26,8 @@
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
+API_AVAILABLE(ios(11.0), macos(10.15), tvos(11.0))
+API_UNAVAILABLE(watchos)
 @interface FIRDeviceCheckProviderTests : XCTestCase
 @property(nonatomic) FIRDeviceCheckProvider *provider;
 @property(nonatomic) id fakeAPIService;

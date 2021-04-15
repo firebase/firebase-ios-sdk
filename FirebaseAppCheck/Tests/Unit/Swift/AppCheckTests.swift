@@ -19,7 +19,6 @@ import FirebaseCore
 import FirebaseAppCheck
 
 class AppCheckTests: XCTestCase {
-  // TODO: Remove usage example once API review approval obtained.
   func usageExample() {
     AppCheck.setAppCheckProviderFactory(self)
     FirebaseApp.configure()

@@ -104,11 +104,6 @@ NS_ASSUME_NONNULL_BEGIN
         handler(appCheckToken, nil);
         return nil;
       })
-      .recover(^id(NSError *error) {
-        // TODO: Handle errors.
-        NSLog(@"Error: %@", error);
-        return error;
-      })
       .catch(^void(NSError *error) {
         handler(nil, error);
       });

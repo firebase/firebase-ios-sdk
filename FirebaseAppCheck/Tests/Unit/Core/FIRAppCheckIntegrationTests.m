@@ -90,31 +90,36 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testDefaultAppCheckProvider {
-  NSString *appName = @"testDefaultAppCheckProvider";
+  if (@available(iOS 11.0, tvOS 11.0, macOS 10.15, *)) {
+    NSString *appName = @"testDefaultAppCheckProvider";
 
-  // 1. Expect FIRDeviceCheckProvider to be instantiated.
-  id deviceCheckProviderMock = OCMClassMock([FIRDeviceCheckProvider class]);
-  id appValidationArg = [OCMArg checkWithBlock:^BOOL(FIRApp *app) {
-    XCTAssertEqualObjects(app.name, appName);
-    return YES;
-  }];
+    // 1. Expect FIRDeviceCheckProvider to be instantiated.
 
-  OCMStub([deviceCheckProviderMock alloc]).andReturn(deviceCheckProviderMock);
-  OCMExpect([deviceCheckProviderMock initWithApp:appValidationArg])
-      .andReturn(deviceCheckProviderMock);
+    id deviceCheckProviderMock = OCMClassMock([FIRDeviceCheckProvider class]);
+    id appValidationArg = [OCMArg checkWithBlock:^BOOL(FIRApp *app) {
+      XCTAssertEqualObjects(app.name, appName);
+      return YES;
+    }];
 
-  // 2. Configure Firebase
-  [self configureAppWithName:appName];
+    OCMStub([deviceCheckProviderMock alloc]).andReturn(deviceCheckProviderMock);
+    OCMExpect([deviceCheckProviderMock initWithApp:appValidationArg])
+        .andReturn(deviceCheckProviderMock);
 
-  FIRApp *app = [FIRApp appNamed:appName];
-  XCTAssertNotNil(FIR_COMPONENT(FIRAppCheckInterop, app.container));
+    // 2. Configure Firebase
+    [self configureAppWithName:appName];
 
-  // 3. Verify
-  OCMVerifyAll(deviceCheckProviderMock);
+    FIRApp *app = [FIRApp appNamed:appName];
+    XCTAssertNotNil(FIR_COMPONENT(FIRAppCheckInterop, app.container));
 
-  // 4. Cleanup
-  [FIRAppCheck setAppCheckProviderFactory:nil];
-  [deviceCheckProviderMock stopMocking];
+    // 3. Verify
+    OCMVerifyAll(deviceCheckProviderMock);
+
+    // 4. Cleanup
+    [FIRAppCheck setAppCheckProviderFactory:nil];
+    [deviceCheckProviderMock stopMocking];
+  } else {
+    // Fallback on earlier versions
+  }
 }
 
 - (void)testSetAppCheckProviderFactoryWithDefaultApp {
@@ -170,7 +175,6 @@ NS_ASSUME_NONNULL_BEGIN
   [FIRApp configureWithName:appName options:options];
 }
 
-// TODO: Remove usage example once API review approval obtained.
 - (void)usageExample {
   // Set a custom app check provider factory for the default FIRApp.
   [FIRAppCheck setAppCheckProviderFactory:[[AppCheckProviderFactory alloc] init]];
