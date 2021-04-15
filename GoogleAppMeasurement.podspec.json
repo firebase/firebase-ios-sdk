@@ -1,6 +1,7 @@
 {
     "authors": "Google, Inc.",
     "cocoapods_version": ">= 1.10.0",
+    "default_subspecs": "AdIdSupport",
     "dependencies": {
         "GoogleUtilities/AppDelegateSwizzler": "~> 7.0",
         "GoogleUtilities/MethodSwizzler": "~> 7.0",
@@ -27,11 +28,22 @@
         "ios": "9.0"
     },
     "source": {
-        "http": "https://dl.google.com/firebase/ios/analytics/dd4bf2e43d43af9f/GoogleAppMeasurement-7.9.0.tar.gz"
+        "http": "https://dl.google.com/firebase/ios/analytics/2053f0bf92324be1/GoogleAppMeasurement-7.11.0.tar.gz"
     },
-    "summary": "Shared measurement methods for Google libraries. Not intended for direct use.",
-    "vendored_frameworks": [
-        "Frameworks/GoogleAppMeasurement.xcframework"
+    "subspecs": [
+        {
+            "name": "AdIdSupport",
+            "vendored_frameworks": [
+                "Frameworks/GoogleAppMeasurement.xcframework"
+            ]
+        },
+        {
+            "name": "WithoutAdIdSupport",
+            "vendored_frameworks": [
+                "Frameworks/GoogleAppMeasurementWithoutAdIdSupport.xcframework"
+            ]
+        }
     ],
-    "version": "7.10.0"
+    "summary": "Shared measurement methods for Google libraries. Not intended for direct use.",
+    "version": "7.11.0"
 }
