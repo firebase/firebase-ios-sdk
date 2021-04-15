@@ -65,15 +65,13 @@ extern NSString *const FIRAuthErrorUserInfoEmailKey NS_SWIFT_NAME(AuthErrorUserI
         NSError object returned. This is the updated auth credential the developer should use for
         recovery if applicable.
  */
-extern NSString *const FIRAuthErrorUserInfoUpdatedCredentialKey
-    NS_SWIFT_NAME(AuthErrorUserInfoUpdatedCredentialKey);
+extern NSString *const FIRAuthErrorUserInfoUpdatedCredentialKey NS_SWIFT_NAME(AuthErrorUserInfoUpdatedCredentialKey);
 
 /**
     @brief The key used to read the MFA resolver from the userInfo dictionary of the NSError object
         returned when 2FA is required for sign-incompletion.
  */
-extern NSString *const FIRAuthErrorUserInfoMultiFactorResolverKey
-    NS_SWIFT_NAME(AuthErrorUserInfoMultiFactorResolverKey);
+extern NSString *const FIRAuthErrorUserInfoMultiFactorResolverKey NS_SWIFT_NAME(AuthErrorUserInfoMultiFactorResolverKey);
 
 /**
     @brief Error codes used by Firebase Auth.

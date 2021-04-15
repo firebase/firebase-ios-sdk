@@ -19,13 +19,11 @@ NS_ASSUME_NONNULL_BEGIN
 /// Default event name for when an experiment is set.
 extern NSString *const FIRSetExperimentEventName NS_SWIFT_NAME(DefaultSetExperimentEventName);
 /// Default event name for when an experiment is activated.
-extern NSString *const FIRActivateExperimentEventName
-    NS_SWIFT_NAME(DefaultActivateExperimentEventName);
+extern NSString *const FIRActivateExperimentEventName NS_SWIFT_NAME(DefaultActivateExperimentEventName);
 /// Default event name for when an experiment is cleared.
 extern NSString *const FIRClearExperimentEventName NS_SWIFT_NAME(DefaultClearExperimentEventName);
 /// Default event name for when an experiment times out for being activated.
-extern NSString *const FIRTimeoutExperimentEventName
-    NS_SWIFT_NAME(DefaultTimeoutExperimentEventName);
+extern NSString *const FIRTimeoutExperimentEventName NS_SWIFT_NAME(DefaultTimeoutExperimentEventName);
 /// Default event name for when an experiment is expired as it reaches the end of TTL.
 extern NSString *const FIRExpireExperimentEventName NS_SWIFT_NAME(DefaultExpireExperimentEventName);
 

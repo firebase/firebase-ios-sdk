@@ -44,8 +44,7 @@ typedef void (^FIRUserUpdateCallback)(NSError *_Nullable error) NS_SWIFT_NAME(Us
 /** @typedef FIRAuthStateDidChangeListenerHandle
     @brief The type of handle returned by `FIRAuth.addAuthStateDidChangeListener:`.
  */
-typedef id<NSObject> FIRAuthStateDidChangeListenerHandle
-    NS_SWIFT_NAME(AuthStateDidChangeListenerHandle);
+typedef id<NSObject> FIRAuthStateDidChangeListenerHandle NS_SWIFT_NAME(AuthStateDidChangeListenerHandle);
 
 /** @typedef FIRAuthStateDidChangeListenerBlock
     @brief The type of block which can be registered as a listener for auth state did change events.
@@ -59,8 +58,7 @@ typedef void (^FIRAuthStateDidChangeListenerBlock)(FIRAuth *auth, FIRUser *_Null
 /** @typedef FIRIDTokenDidChangeListenerHandle
     @brief The type of handle returned by `FIRAuth.addIDTokenDidChangeListener:`.
  */
-typedef id<NSObject> FIRIDTokenDidChangeListenerHandle
-    NS_SWIFT_NAME(IDTokenDidChangeListenerHandle);
+typedef id<NSObject> FIRIDTokenDidChangeListenerHandle NS_SWIFT_NAME(IDTokenDidChangeListenerHandle);
 
 /** @typedef FIRIDTokenDidChangeListenerBlock
     @brief The type of block which can be registered as a listener for ID token did change events.
@@ -95,8 +93,7 @@ extern const NSNotificationName FIRAuthStateDidChangeNotification NS_SWIFT_NAME(
         changes (for example, a new token has been produced, a user signs in or signs out). The
         object parameter of the notification is the sender `FIRAuth` instance.
  */
-extern NSString *const FIRAuthStateDidChangeNotification
-    NS_SWIFT_NAME(AuthStateDidChangeNotification);
+extern NSString *const FIRAuthStateDidChangeNotification NS_SWIFT_NAME(AuthStateDidChangeNotification);
 #endif  // defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 
 /** @typedef FIRAuthResultCallback
