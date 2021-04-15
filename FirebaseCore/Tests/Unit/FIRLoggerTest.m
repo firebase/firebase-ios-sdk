@@ -75,7 +75,6 @@ static NSString *const kMessageCode = @"I-COR000001";
   // Strings of type FIRLoggerServices.
   XCTAssertEqualObjects(kFIRLoggerAnalytics, @"[Firebase/Analytics]");
   XCTAssertEqualObjects(kFIRLoggerCore, @"[Firebase/Core]");
-  XCTAssertEqualObjects(kFIRLoggerMLKit, @"[Firebase/MLKit]");
 }
 
 - (void)testInitializeASLForNonDebugMode {
