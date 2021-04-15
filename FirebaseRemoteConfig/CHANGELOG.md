@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Fixed throttling issue when fetch fails due to no network. (#6628)
+
 # v7.10.0
 - [changed] Throw exception if projectID is missing from FirebaseOptions. (#7725)
 

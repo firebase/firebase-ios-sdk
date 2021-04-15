@@ -234,10 +234,6 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
 
 - (void)updateMetadataWithFetchSuccessStatus:(BOOL)fetchSuccess {
   FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000056", @"Updating metadata with fetch result.");
-  if (!fetchSuccess) {
-    [self updateExponentialBackoffTime];
-  }
-
   [self updateFetchTimeWithSuccessFetch:fetchSuccess];
   _lastFetchStatus =
       fetchSuccess ? FIRRemoteConfigFetchStatusSuccess : FIRRemoteConfigFetchStatusFailure;
