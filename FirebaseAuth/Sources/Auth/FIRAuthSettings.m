@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (instancetype)copyWithZone:(NSZone *__unused)zone {
+- (instancetype)copyWithZone:(NSZone *__unused _Nullable)zone {
   // Auth settings are mutable, so always return a copy.
   FIRAuthSettings *newSettings = [[FIRAuthSettings alloc] init];
   newSettings.appVerificationDisabledForTesting = self.isAppVerificationDisabledForTesting;
