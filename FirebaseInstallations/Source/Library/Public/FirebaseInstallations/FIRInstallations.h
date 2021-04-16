@@ -22,11 +22,14 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** A notification with this name is sent each time an installation is created or deleted. */
+// clang-format off
+// clang-format12 merges the next two lines.
 FOUNDATION_EXPORT const NSNotificationName FIRInstallationIDDidChangeNotification
     NS_SWIFT_NAME(InstallationIDDidChange);
 /** `userInfo` key for the `FirebaseApp.name` in `FIRInstallationIDDidChangeNotification`. */
 FOUNDATION_EXPORT NSString *const kFIRInstallationIDDidChangeNotificationAppNameKey
     NS_SWIFT_NAME(InstallationIDDidChangeAppNameKey);
+// clang-format on
 
 /**
  * An installation ID handler block.

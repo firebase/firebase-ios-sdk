@@ -16,6 +16,8 @@
 
 #import "FIRPerformanceAttributable.h"
 
+// clang-format off
+// clang-format12 does a weird cascading indent of this enum.
 /* Different HTTP methods. */
 typedef NS_ENUM(NSInteger, FIRHTTPMethod) {
   /** HTTP Method GET */
@@ -37,6 +39,7 @@ typedef NS_ENUM(NSInteger, FIRHTTPMethod) {
   /** HTTP Method CONNECT */
   FIRHTTPMethodCONNECT NS_SWIFT_NAME(connect)
 } NS_SWIFT_NAME(HTTPMethod);
+// clang-format on
 
 /**
  * FIRHTTPMetric object can be used to make the SDK record information about a HTTP network request.

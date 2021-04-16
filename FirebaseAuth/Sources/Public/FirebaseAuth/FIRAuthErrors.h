@@ -65,15 +65,21 @@ extern NSString *const FIRAuthErrorUserInfoEmailKey NS_SWIFT_NAME(AuthErrorUserI
         NSError object returned. This is the updated auth credential the developer should use for
         recovery if applicable.
  */
+// clang-format off
+// clang-format12 merges the next two lines.
 extern NSString *const FIRAuthErrorUserInfoUpdatedCredentialKey
     NS_SWIFT_NAME(AuthErrorUserInfoUpdatedCredentialKey);
+// clang-format on
 
 /**
     @brief The key used to read the MFA resolver from the userInfo dictionary of the NSError object
         returned when 2FA is required for sign-incompletion.
  */
+// clang-format off
+// clang-format12 merges the next two lines.
 extern NSString *const FIRAuthErrorUserInfoMultiFactorResolverKey
     NS_SWIFT_NAME(AuthErrorUserInfoMultiFactorResolverKey);
+// clang-format on
 
 /**
     @brief Error codes used by Firebase Auth.
