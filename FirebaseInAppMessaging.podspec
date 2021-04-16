@@ -63,7 +63,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
 
   s.ios.resource_bundles = {
     'InAppMessagingDisplayResources' => [
-       base_dir + 'iOS/Resources/'*.{storyboard,png},
+       base_dir + 'iOS/Resources/*.{storyboard,png}',
      ]
   }
 
