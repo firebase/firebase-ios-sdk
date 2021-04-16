@@ -283,7 +283,8 @@ NS_SWIFT_NAME(Query)
  * @return The created `FIRQuery`.
  */
 - (FIRQuery *)queryWhereField:(NSString *)field
-             arrayContainsAny:(NSArray<id> *)values NS_SWIFT_NAME(whereField(_:arrayContainsAny:));
+             arrayContainsAny:(NSArray<id> *)values
+    NS_SWIFT_NAME(whereField(_:arrayContainsAny:));
 
 /**
  * Creates and returns a new `FIRQuery` with the additional filter that documents must contain
@@ -525,7 +526,8 @@ NS_SWIFT_NAME(Query)
  *
  * @return The created `FIRQuery`.
  */
-- (FIRQuery *)queryEndingAtDocument:(FIRDocumentSnapshot *)document NS_SWIFT_NAME(end(atDocument:));
+- (FIRQuery *)queryEndingAtDocument:(FIRDocumentSnapshot *)document
+    NS_SWIFT_NAME(end(atDocument:));
 
 /**
  * Creates and returns a new `FIRQuery` that ends at the provided fields relative to the order of
