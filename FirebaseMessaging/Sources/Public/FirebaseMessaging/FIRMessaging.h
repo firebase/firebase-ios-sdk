@@ -61,8 +61,11 @@ typedef void (^FIRMessagingTopicOperationCompletion)(NSError *_Nullable error);
  *  FIRMessaging delegate method `messaging:didReceiveRegistrationToken:` to receive current and
  *  updated tokens.
  */
+// clang-format off
+// clang-format12 merges the next two lines.
 FOUNDATION_EXPORT const NSNotificationName FIRMessagingRegistrationTokenRefreshedNotification
     NS_SWIFT_NAME(MessagingRegistrationTokenRefreshed);
+// clang-format on
 
 /**
  *  @enum FIRMessagingError
