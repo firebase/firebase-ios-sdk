@@ -1,5 +1,5 @@
 # Firebase 8.0.0
-- [changed] The `Firebase/AdMob` CocoaPods subspec has been removed. Use the `Google-Mobile-Ads-SDK`
+- [removed] The `Firebase/AdMob` CocoaPods subspec has been removed. Use the `Google-Mobile-Ads-SDK`
   CocoaPod instead. (#7833)
 
 # Firebase 7.10.0
