@@ -24,7 +24,8 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *  The scope to be used when fetching/deleting a token for Firebase Messaging.
  */
-FOUNDATION_EXPORT NSString *const kFIRInstanceIDScopeFirebaseMessaging NS_SWIFT_NAME(InstanceIDScopeFirebaseMessaging) DEPRECATED_ATTRIBUTE;
+FOUNDATION_EXPORT NSString *const kFIRInstanceIDScopeFirebaseMessaging
+    NS_SWIFT_NAME(InstanceIDScopeFirebaseMessaging) DEPRECATED_ATTRIBUTE;
 
 #if defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 /**
@@ -35,7 +36,8 @@ FOUNDATION_EXPORT NSString *const kFIRInstanceIDScopeFirebaseMessaging NS_SWIFT_
  *  Instance ID service will throttle the refresh event across all devices
  *  to control the rate of token updates on application servers.
  */
-FOUNDATION_EXPORT const NSNotificationName kFIRInstanceIDTokenRefreshNotification NS_SWIFT_NAME(InstanceIDTokenRefresh) DEPRECATED_ATTRIBUTE;
+FOUNDATION_EXPORT const NSNotificationName kFIRInstanceIDTokenRefreshNotification
+    NS_SWIFT_NAME(InstanceIDTokenRefresh) DEPRECATED_ATTRIBUTE;
 #else
 /**
  *  Called when the system determines that tokens need to be refreshed.
@@ -45,7 +47,8 @@ FOUNDATION_EXPORT const NSNotificationName kFIRInstanceIDTokenRefreshNotificatio
  *  Instance ID service will throttle the refresh event across all devices
  *  to control the rate of token updates on application servers.
  */
-FOUNDATION_EXPORT NSString *const kFIRInstanceIDTokenRefreshNotification NS_SWIFT_NAME(InstanceIDTokenRefreshNotification) DEPRECATED_ATTRIBUTE;
+FOUNDATION_EXPORT NSString *const kFIRInstanceIDTokenRefreshNotification
+    NS_SWIFT_NAME(InstanceIDTokenRefreshNotification) DEPRECATED_ATTRIBUTE;
 #endif  // defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 
 /**

@@ -37,7 +37,7 @@ static NSString *kFirebaseTestAltNamespace = @"https://foobar.firebaseio.com";
 @implementation FIRDatabaseTests
 
 - (void)testFIRDatabaseForNilApp {
-  XCTAssertThrowsSpecificNamed([FIRDatabase databaseForApp:(FIRApp *_Nonnull)nil], NSException,
+  XCTAssertThrowsSpecificNamed([FIRDatabase databaseForApp:(FIRApp * _Nonnull) nil], NSException,
                                @"InvalidFIRApp");
 }
 
@@ -92,7 +92,7 @@ static NSString *kFirebaseTestAltNamespace = @"https://foobar.firebaseio.com";
 - (void)testDatabaseForAppWithInvalidCustomURLs {
   id app = [[FIRFakeApp alloc] initWithName:@"testDatabaseForAppWithInvalidCustomURLs"
                                         URL:kFirebaseTestAltNamespace];
-  XCTAssertThrows([FIRDatabase databaseForApp:app URL:(NSString *_Nonnull)nil]);
+  XCTAssertThrows([FIRDatabase databaseForApp:app URL:(NSString * _Nonnull) nil]);
   XCTAssertThrows([FIRDatabase databaseForApp:app URL:@"not-a-url"]);
   XCTAssertThrows([FIRDatabase databaseForApp:app URL:@"http://x.fblocal.com:9000/paths/are/bad"]);
 }

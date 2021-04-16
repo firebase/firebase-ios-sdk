@@ -62,8 +62,7 @@ NS_SWIFT_NAME(Performance)
  * @param name The name of the Trace.
  * @return The FIRTrace object.
  */
-+ (nullable FIRTrace *)startTraceWithName:(nonnull NSString *)name
-    NS_SWIFT_NAME(startTrace(name:));
++ (nullable FIRTrace *)startTraceWithName:(nonnull NSString *)name NS_SWIFT_NAME(startTrace(name:));
 
 /**
  * Creates an instance of FIRTrace. This API does not start the trace. To start the trace, use the

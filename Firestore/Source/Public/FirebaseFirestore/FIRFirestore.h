@@ -292,8 +292,7 @@ NS_SWIFT_NAME(Firestore)
  * @return A `FIRLoadBundleTask` (`LoadBundleTask` in Swift) which allows registered observers
  * to receive progress updates and completion or error events.
  */
-- (FIRLoadBundleTask *)loadBundleStream:(NSInputStream *)bundleStream
-    NS_SWIFT_NAME(loadBundle(_:));
+- (FIRLoadBundleTask *)loadBundleStream:(NSInputStream *)bundleStream NS_SWIFT_NAME(loadBundle(_:));
 
 /**
  * Loads a Firestore bundle into the local cache.

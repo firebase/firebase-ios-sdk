@@ -63,10 +63,12 @@ NS_SWIFT_NAME(AppDistribution)
 @end
 
 /// The error domain for codes in the `FIRAppDistributionError` enum.
-FOUNDATION_EXPORT NSString *const FIRAppDistributionErrorDomain NS_SWIFT_NAME(AppDistributionErrorDomain);
+FOUNDATION_EXPORT NSString *const FIRAppDistributionErrorDomain
+    NS_SWIFT_NAME(AppDistributionErrorDomain);
 
 /// The key for finding error details in the `NSError`'s `userInfo`.
-FOUNDATION_EXPORT NSString *const FIRAppDistributionErrorDetailsKey NS_SWIFT_NAME(FunctionsErrorDetailsKey);
+FOUNDATION_EXPORT NSString *const FIRAppDistributionErrorDetailsKey
+    NS_SWIFT_NAME(FunctionsErrorDetailsKey);
 
 /**
  * Error codes representing sign in or version check failure reasons.
