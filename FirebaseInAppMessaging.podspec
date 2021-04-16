@@ -55,7 +55,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
 	base_dir + "Sources/Util/**/*.[cmh]",
     'Interop/Analytics/Public/*.h',
     'FirebaseABTesting/Sources/Private/*.h',
-    'FirebaseCore/Sources/Private/*.h',
+    'FirebaseCore/Sources/Private/*.h',:
     'FirebaseInstallations/Source/Library/Private/*.h',
   ]
 
@@ -63,8 +63,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
 
   s.ios.resource_bundles = {
     'InAppMessagingDisplayResources' => [
-       base_dir + 'iOS/Resources/FIRInAppMessageDisplayStoryboard.storyboard',
-       base_dir + 'Sources/Resources/Shared/*.png'
+       base_dir + 'iOS/Resources/'*.{storyboard,png},
      ]
   }
 
