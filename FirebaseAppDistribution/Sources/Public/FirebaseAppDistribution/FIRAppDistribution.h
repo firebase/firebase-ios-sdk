@@ -64,14 +64,11 @@ NS_SWIFT_NAME(AppDistribution)
 
 /// The error domain for codes in the `FIRAppDistributionError` enum.
 // clang-format off
-// clang-format12 merges the next two lines.
+// clang-format12 will merge lines and exceed 100 character limit.
 FOUNDATION_EXPORT NSString *const FIRAppDistributionErrorDomain
     NS_SWIFT_NAME(AppDistributionErrorDomain);
-// clang-format on
 
 /// The key for finding error details in the `NSError`'s `userInfo`.
-// clang-format off
-// clang-format12 merges the next two lines.
 FOUNDATION_EXPORT NSString *const FIRAppDistributionErrorDetailsKey
     NS_SWIFT_NAME(FunctionsErrorDetailsKey);
 // clang-format on

@@ -20,15 +20,12 @@ NS_ASSUME_NONNULL_BEGIN
 extern NSString *const FIRSetExperimentEventName NS_SWIFT_NAME(DefaultSetExperimentEventName);
 /// Default event name for when an experiment is activated.
 // clang-format off
-// clang-format12 merges the next two lines.
+// clang-format12 will merge lines and exceed 100 character limit.
 extern NSString *const FIRActivateExperimentEventName
     NS_SWIFT_NAME(DefaultActivateExperimentEventName);
-// clang-format on
 /// Default event name for when an experiment is cleared.
 extern NSString *const FIRClearExperimentEventName NS_SWIFT_NAME(DefaultClearExperimentEventName);
 /// Default event name for when an experiment times out for being activated.
-// clang-format off
-// clang-format12 merges the next two lines.
 extern NSString *const FIRTimeoutExperimentEventName
     NS_SWIFT_NAME(DefaultTimeoutExperimentEventName);
 // clang-format on

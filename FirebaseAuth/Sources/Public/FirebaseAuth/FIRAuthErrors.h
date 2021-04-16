@@ -66,17 +66,14 @@ extern NSString *const FIRAuthErrorUserInfoEmailKey NS_SWIFT_NAME(AuthErrorUserI
         recovery if applicable.
  */
 // clang-format off
-// clang-format12 merges the next two lines.
+// clang-format12 will merge lines and exceed 100 character limit.
 extern NSString *const FIRAuthErrorUserInfoUpdatedCredentialKey
     NS_SWIFT_NAME(AuthErrorUserInfoUpdatedCredentialKey);
-// clang-format on
 
 /**
     @brief The key used to read the MFA resolver from the userInfo dictionary of the NSError object
         returned when 2FA is required for sign-incompletion.
  */
-// clang-format off
-// clang-format12 merges the next two lines.
 extern NSString *const FIRAuthErrorUserInfoMultiFactorResolverKey
     NS_SWIFT_NAME(AuthErrorUserInfoMultiFactorResolverKey);
 // clang-format on
