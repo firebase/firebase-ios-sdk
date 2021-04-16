@@ -53,7 +53,8 @@ NS_SWIFT_NAME(HTTPMetric)
  * @param httpMethod HTTP method used by the request.
  */
 - (nullable instancetype)initWithURL:(nonnull NSURL *)URL
-                          HTTPMethod:(FIRHTTPMethod)httpMethod NS_SWIFT_NAME(init(url:httpMethod:));
+                          HTTPMethod:(FIRHTTPMethod)httpMethod
+    NS_SWIFT_NAME(init(url:httpMethod:));
 
 /**
  * Use `initWithURL:HTTPMethod:` for Objective-C and `init(url:httpMethod:)` for Swift.
