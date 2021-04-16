@@ -83,12 +83,6 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.watchos.deployment_target = '6.0'
   end
 
-  s.subspec 'AdMob' do |ss|
-    ss.dependency 'Firebase/CoreOnly'
-    ss.ios.deployment_target = '9.0'
-    ss.ios.dependency 'Google-Mobile-Ads-SDK', '~> 7.66'
-  end
-
   s.subspec 'AppDistribution' do |ss|
     ss.dependency 'Firebase/CoreOnly'
     ss.ios.dependency 'FirebaseAppDistribution', '~> 7.11.0-beta'
