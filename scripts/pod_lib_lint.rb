@@ -74,7 +74,7 @@ def main(args)
   deps = find_local_deps(podspec_file, ignore_local_podspecs.to_set)
   arg = make_include_podspecs(deps)
   sources.unshift('https://github.com/firebase/SpecsTesting.git') if presubmit
-  command.push('--sources=' + sources.joins(","))
+  command.push('--sources=' + sources.join(","))
   command.push(arg) if arg
   command.push('--analyze') if analyze
 
