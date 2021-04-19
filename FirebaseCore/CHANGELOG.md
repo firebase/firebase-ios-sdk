@@ -3,6 +3,8 @@
   CocoaPod instead. (#7833)
 - [removed] Build warnings will no longer be generated to warn about missing capabilities resulting
   from not including FirebaseAnalytics in the app. See the Firebase docs instead. (#7487)
+- [removed] Removed FirebaseMLModelInterpreter. Use FirebaseMLDownloader instead.
+- [removed] Removed FirebaseMLVision. Use GoogleMLKit instead.
 
 # Firebase 7.10.0
 - [changed] Update Nanopb to version 0.3.9.8. It fixes a possible security issue. (#7787)
