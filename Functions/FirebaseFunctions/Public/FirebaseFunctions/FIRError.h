@@ -20,8 +20,11 @@ NS_ASSUME_NONNULL_BEGIN
 FOUNDATION_EXPORT NSString *const FIRFunctionsErrorDomain NS_SWIFT_NAME(FunctionsErrorDomain);
 
 // The key for finding error details in the NSError userInfo.
+// clang-format off
+// clang-format12 merges the next two lines.
 FOUNDATION_EXPORT NSString *const FIRFunctionsErrorDetailsKey
     NS_SWIFT_NAME(FunctionsErrorDetailsKey);
+// clang-format on
 
 /**
  * The set of error status codes that can be returned from a Callable HTTPS tigger. These are the

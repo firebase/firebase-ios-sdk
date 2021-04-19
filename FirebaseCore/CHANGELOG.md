@@ -1,3 +1,7 @@
+# Firebase 8.0.0
+- [removed] The `Firebase/AdMob` CocoaPods subspec has been removed. Use the `Google-Mobile-Ads-SDK`
+  CocoaPod instead. (#7833)
+
 # Firebase 7.10.0
 - [changed] Update Nanopb to version 0.3.9.8. It fixes a possible security issue. (#7787)
 
