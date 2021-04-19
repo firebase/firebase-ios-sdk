@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,5 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-
-NS_ASSUME_NONNULL_BEGIN
-
-/** @class FIRAuthSettings
-    @brief Determines settings related to an auth object.
- */
-NS_SWIFT_NAME(AuthSettings)
-@interface FIRAuthSettings : NSObject <NSCopying>
-
-/** @property appVerificationDisabledForTesting
-    @brief Flag to determine whether app verification should be disabled for testing or not.
- */
-@property(nonatomic, assign, getter=isAppVerificationDisabledForTesting)
-    BOOL appVerificationDisabledForTesting;
-
-@end
-
-NS_ASSUME_NONNULL_END
+// Swift Package Manager needs at least one header to prevent a warning. See
+// https://github.com/firebase/firebase-ios-sdk/pull/6504.
