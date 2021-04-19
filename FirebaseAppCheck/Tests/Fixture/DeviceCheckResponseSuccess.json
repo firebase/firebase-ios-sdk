@@ -1,4 +1,4 @@
 {
   "attestationToken": "valid_app_check_token",
-  "timeToLive": "1800s"
+  "ttl": "1800s"
 }

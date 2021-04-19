@@ -55,10 +55,10 @@
     return nil;
   }
 
-  NSString *timeToLiveString = responseDict[@"timeToLive"];
+  NSString *timeToLiveString = responseDict[@"ttl"];
   if (![token isKindOfClass:[NSString class]] || token.length <= 0) {
     FIRAppCheckSetErrorToPointer(
-        [FIRAppCheckErrorUtil appCheckTokenResponseErrorWithMissingField:@"timeToLive"], outError);
+        [FIRAppCheckErrorUtil appCheckTokenResponseErrorWithMissingField:@"ttl"], outError);
     return nil;
   }
 
@@ -69,7 +69,7 @@
 
   if (secondsToLive == 0) {
     FIRAppCheckSetErrorToPointer(
-        [FIRAppCheckErrorUtil appCheckTokenResponseErrorWithMissingField:@"timeToLive"], outError);
+        [FIRAppCheckErrorUtil appCheckTokenResponseErrorWithMissingField:@"ttl"], outError);
     return nil;
   }
 
