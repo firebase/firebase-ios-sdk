@@ -4,7 +4,7 @@
 - [removed] The `Firebase/AdMob` CocoaPods subspec has been removed. Use the `Google-Mobile-Ads-SDK`
   CocoaPod instead. (#7833)
 - [removed] The `Firebase/FirebaseMLModelInterpreter` CocoaPods subspec has been removed. Use the
- `Firebase/MLDownloader` subsspec instead.
+ `Firebase/MLMLModelDownloaderDownloader` subspec instead.
   CocoaPod instead.
 - [removed] The `Firebase/FirebaseMLVision` CocoaPods subspec has been removed. Use the
   `GoogleMLKit` CocoaPod instead.
