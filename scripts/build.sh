@@ -32,6 +32,7 @@ USAGE: $0 product [platform] [method]
 product can be one of:
   Firebase
   Firestore
+  CombineSwift
   InAppMessaging
   Messaging
   MessagingSample
@@ -308,6 +309,16 @@ case "$product-$platform-$method" in
         build \
         test
     fi
+    ;;
+
+  CombineSwift-*-xcodebuild)
+    pod_gen FirebaseCombineSwift.podspec --platforms=ios
+    RunXcodebuild \
+      -workspace 'gen/FirebaseCombineSwift/FirebaseCombineSwift.xcworkspace' \
+      -scheme "FirebaseCombineSwift-Unit-unit" \
+      "${xcb_flags[@]}" \
+      build \
+      test
     ;;
 
   InAppMessaging-*-xcodebuild)

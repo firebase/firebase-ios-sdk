@@ -83,6 +83,9 @@ case "$project-$platform-$method" in
   Crashlytics-*)
     ;;
 
+  CombineSwift-*)
+    ;;
+
   Database-*)
     ;;
 
