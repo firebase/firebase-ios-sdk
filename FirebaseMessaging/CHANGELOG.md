@@ -1,3 +1,6 @@
+# 2021-04 -- v7.11.1
+- [changed] Update to clang-format 12. (#7909)
+
 # 2021-04 -- v7.11.0
 - [changed] Refactor Messaging to internally not depending on InstanceID, but can co-exist. Will remove InstanceID dependency in the next Firebase breaking change. (#7814)
 
