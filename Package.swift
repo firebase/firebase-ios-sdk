@@ -39,26 +39,27 @@ let package = Package(
       name: "FirebaseAppDistribution-Beta",
       targets: ["FirebaseAppDistributionTarget"]
     ),
-    .library(
-      name: "FirebaseCombineSwift-Beta",
-      targets: ["FirebaseCombineSwift"]
-    ),
-    .library(
-      name: "FirebaseAuthCombineSwift-Beta",
-      targets: ["FirebaseAuthCombineSwift"]
-    ),
-    .library(
-      name: "FirebaseFunctionsCombineSwift-Beta",
-      targets: ["FirebaseFunctionsCombineSwift"]
-    ),
-    .library(
-      name: "FirebaseStorageCombineSwift-Beta",
-      targets: ["FirebaseStorageCombineSwift"]
-    ),
-    .library(
-      name: "FirebaseCrashlytics",
-      targets: ["FirebaseCrashlytics"]
-    ),
+    // TODO: Re-enable after API review passes.
+    // .library(
+    //   name: "FirebaseCombineSwift-Beta",
+    //   targets: ["FirebaseCombineSwift"]
+    // ),
+    // .library(
+    //   name: "FirebaseAuthCombineSwift-Beta",
+    //   targets: ["FirebaseAuthCombineSwift"]
+    // ),
+    // .library(
+    //   name: "FirebaseFunctionsCombineSwift-Beta",
+    //   targets: ["FirebaseFunctionsCombineSwift"]
+    // ),
+    // .library(
+    //   name: "FirebaseStorageCombineSwift-Beta",
+    //   targets: ["FirebaseStorageCombineSwift"]
+    // ),
+    // .library(
+    //   name: "FirebaseCrashlytics",
+    //   targets: ["FirebaseCrashlytics"]
+    // ),
     .library(
       name: "FirebaseDatabase",
       targets: ["FirebaseDatabase"]
