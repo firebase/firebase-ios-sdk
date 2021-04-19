@@ -1,4 +1,5 @@
 # Firebase 8.0.0
+- [changed] Migrate `transform:` callsites and introduce breaking version of GDT (9.0). (#7899)
 - [removed] Build warnings will no longer be generated to warn about missing capabilities resulting
   from not including FirebaseAnalytics in the app. See the Firebase docs instead. (#7487)
 - [removed] The `Firebase/AdMob` CocoaPods subspec has been removed. Use the `Google-Mobile-Ads-SDK`

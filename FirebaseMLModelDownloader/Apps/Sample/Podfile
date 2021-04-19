@@ -6,6 +6,7 @@ source 'https://github.com/firebase/SpecsStaging.git'
 source 'https://cdn.cocoapods.org/'
 
 pod 'FirebaseMLModelDownloader', :path => '../../../'
+pod 'FirebaseCoreDiagnostics', :path => '../../../'
 pod 'TensorFlowLiteSwift'
 
 target 'MLDownloaderTestApp' do

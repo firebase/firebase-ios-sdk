@@ -64,7 +64,7 @@
  * @param event The event to be evaluated by sampling logic.
  * @return A transformed event, or nil if the transformation dropped the event.
  */
-- (GDTCOREvent *)transform:(GDTCOREvent *)event {
+- (GDTCOREvent *)transformGDTEvent:(GDTCOREvent *)event {
   // An event is sampled means that the event is dropped.
 
   // If the current active session is verbose, do not sample any event.
