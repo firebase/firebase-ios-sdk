@@ -6,7 +6,7 @@
 - [removed] The `Firebase/MLModelInterpreter` CocoaPods subspec has been removed. Use the
  `Firebase/MLModelDownloader` subspec instead.
   CocoaPod instead.
-- [removed] The `Firebase/FirebaseMLVision` CocoaPods subspec has been removed. Use the
+- [removed] The `Firebase/MLVision` CocoaPods subspec has been removed. Use the
   `GoogleMLKit` CocoaPod instead.
 
 # Firebase 7.10.0
