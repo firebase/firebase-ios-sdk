@@ -15,7 +15,8 @@
 import Foundation
 import Combine
 import XCTest
-@testable import FirebaseFunctions
+import FirebaseFunctions
+@testable import FirebaseFunctionsTestingSupport
 
 // hardcoded in FIRHTTPSCallable.m
 private let kFunctionsTimeout: TimeInterval = 70.0
@@ -49,7 +50,7 @@ class HTTPSCallableTests: XCTestCase {
 
     functions.mockCallFunction = {
       httpsFunctionWasCalledExpectation.fulfill()
-      return HTTPSCallableResult(data: expectedResult)
+      return HTTPSCallableResultFake(data: expectedResult)
     }
     let dummyFunction = functions.httpsCallable("dummyFunction")
 
@@ -96,7 +97,7 @@ class HTTPSCallableTests: XCTestCase {
     }
     functions.mockCallFunction = {
       httpsFunctionWasCalledExpectation.fulfill()
-      return HTTPSCallableResult(data: expectedResult)
+      return HTTPSCallableResultFake(data: expectedResult)
     }
     let dummyFunction = functions.httpsCallable("dummyFunction")
 

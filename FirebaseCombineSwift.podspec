@@ -69,5 +69,6 @@ Combine Publishers for Firebase.
     }
     unit_tests.dependency 'OCMock'
     unit_tests.dependency 'FirebaseAuthTestingSupport'
+    unit_tests.dependency 'FirebaseFunctionsTestingSupport'
   end
 end
