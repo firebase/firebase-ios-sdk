@@ -1,6 +1,13 @@
 # Firebase 8.0.0
+- [removed] Build warnings will no longer be generated to warn about missing capabilities resulting
+  from not including FirebaseAnalytics in the app. See the Firebase docs instead. (#7487)
 - [removed] The `Firebase/AdMob` CocoaPods subspec has been removed. Use the `Google-Mobile-Ads-SDK`
   CocoaPod instead. (#7833)
+- [removed] The `Firebase/MLModelInterpreter` CocoaPods subspec has been removed. Use the
+ `Firebase/MLModelDownloader` subspec instead.
+  CocoaPod instead.
+- [removed] The `Firebase/MLVision` CocoaPods subspec has been removed. Use the
+  `GoogleMLKit` CocoaPod instead.
 
 # Firebase 7.10.0
 - [changed] Update Nanopb to version 0.3.9.8. It fixes a possible security issue. (#7787)
