@@ -264,7 +264,7 @@
   [self assertMissingFieldErrorWithFixture:@"DeviceCheckResponseMissingToken.json"
                               missingField:@"attestationToken"];
   [self assertMissingFieldErrorWithFixture:@"DeviceCheckResponseMissingTimeToLive.json"
-                              missingField:@"timeToLive"];
+                              missingField:@"ttl"];
 }
 
 - (void)assertMissingFieldErrorWithFixture:(NSString *)fixtureName
