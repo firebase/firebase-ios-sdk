@@ -38,7 +38,7 @@ static NSString *const kHeartbeatKey = @"X-firebase-client-log-type";
 static NSString *const kHeartbeatStorageTag = @"fire-app-check";
 static NSString *const kUserAgentKey = @"X-firebase-client";
 
-static NSString *const kDefaultBaseURL = @"https://firebaseappcheck.googleapis.com/v1alpha";
+static NSString *const kDefaultBaseURL = @"https://firebaseappcheck.googleapis.com/v1beta";
 
 @interface FIRAppCheckAPIService ()
 
