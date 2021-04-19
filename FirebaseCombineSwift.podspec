@@ -17,11 +17,18 @@ Combine Publishers for Firebase.
   }
 
   s.social_media_url = 'https://twitter.com/Firebase'
+
   s.swift_version         = '5.0'
-  s.ios.deployment_target = '13.0'
-  s.osx.deployment_target = '13.0'
-  s.tvos.deployment_target = '13.0'
-  s.watchos.deployment_target = '7.0'
+
+  ios_deployment_target = '13.0'
+  osx_deployment_target = '13.0'
+  tvos_deployment_target = '13.0'
+  watchos_deployment_target = '7.0'
+
+  s.ios.deployment_target = ios_deployment_target
+  s.osx.deployment_target = osx_deployment_target
+  s.tvos.deployment_target = tvos_deployment_target
+  s.watchos.deployment_target = watchos_deployment_target
 
   s.cocoapods_version = '>= 1.4.0'
   s.prefix_header_file = false
@@ -55,7 +62,11 @@ Combine Publishers for Firebase.
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }
-    unit_tests.platforms = {:ios => '13.0', :osx => '10.12', :tvos => '10.0'}
+    unit_tests.platforms = {
+      :ios => ios_deployment_target,
+      :osx => osx_deployment_target,
+      :tvos => tvos_deployment_target
+    }
     unit_tests.source_files = [
       'FirebaseCombineSwift/Tests/Unit/**/*.swift',
       'FirebaseCombineSwift/Tests/Unit/**/*.h',
