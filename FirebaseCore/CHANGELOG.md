@@ -8,6 +8,9 @@
   CocoaPod instead.
 - [removed] The `Firebase/MLVision` CocoaPods subspec has been removed. Use the
   `GoogleMLKit` CocoaPod instead.
+- [changed] The Swift Package Manager distribution now requires at least watchOS 7.0 for products
+  that support watchOS. The CocoaPods distribution continues to support watchOS 6.0 with the
+  exception of FirebaseDatabase.
 
 # Firebase 7.10.0
 - [changed] Update Nanopb to version 0.3.9.8. It fixes a possible security issue. (#7787)
