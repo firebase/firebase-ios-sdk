@@ -27,7 +27,7 @@ extension Constants {
     "https://github.com/firebase/SpecsStaging.git",
     "https://cdn.cocoapods.org/",
   ]
-  static let exclusivePods: [String] = ["FirebaseSegmentation"]
+  static let excludePods: [String] = ["FirebaseSegmentation", "FirebaseFirestoreTestingSupport"]
 }
 
 // flags for 'pod push'
@@ -112,7 +112,7 @@ struct SpecRepoBuilder: ParsableCommand {
   var podSources: [String] = Constants.podSources
 
   @Option(help: "Podspecs that will not be pushed to repo.")
-  var excludePods: [String] = Constants.exclusivePods
+  var excludePods: [String] = Constants.excludePods
 
   @Option(help: "Github Account Name.")
   var githubAccount: String = "FirebasePrivate"
@@ -312,7 +312,7 @@ struct SpecRepoBuilder: ParsableCommand {
       let podspecURLs = fileURLs.filter { $0.pathExtension == "podspec" }
       for podspecURL in podspecURLs {
         let podName = podspecURL.deletingPathExtension().lastPathComponent
-        if !Constants.exclusivePods.contains(podName) {
+        if !excludePods.contains(podName) {
           podSpecFiles[podName] = podspecURL
         }
       }
