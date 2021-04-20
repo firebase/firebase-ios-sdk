@@ -62,13 +62,13 @@ jobs:
       run: |
         common_commit=$(git merge-base remotes/origin/${pr_branch} remotes/origin/master)
         git diff --name-only $common_commit remotes/origin/${pr_branch} > updated_files.txt
-        while IFS= read -r line
+        while IFS= read -r line;
         do
           if [ ${line: -8} == ".podspec" ]
           then
-            udpated_podspecs="${updated_podspecs} ${basename -s .podspec line}"
-          endif
-        done < < (cat update_files.txt)
+            updated_podspecs="${updated_podspecs} ${basename -s .podspec line}"
+          fi
+        done < "${cat update_files.txt}"
         cd scripts/create_spec_repo/
         swift build
         pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/Firebase/SpecsTesting.git
