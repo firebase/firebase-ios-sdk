@@ -1,11 +1,6 @@
 name: release
 
 on:
-  pull_request:
-    paths:
-    - '.github/workflows/release.yml'
-    - 'scripts/create_spec_repo/**'
-    - 'Gemfile*'
   workflow_dispatch:
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
