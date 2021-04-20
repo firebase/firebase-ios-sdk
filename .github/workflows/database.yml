@@ -142,7 +142,6 @@ jobs:
     # Don't run on private repo unless it is a PR.
     if: github.repository == 'Firebase/firebase-ios-sdk' && github.event.pull_request.merged != true
     runs-on: macOS-latest
-
     strategy:
       matrix:
         target: [ios, tvos, macos, watchos]
@@ -152,3 +151,15 @@ jobs:
       run: scripts/setup_bundler.sh
     - name: Build and test
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseDatabase.podspec --skip-tests --platforms=${{ matrix.target }} --presubmit
+
+  podspec-postsubmit:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository == 'Firebase/firebase-ios-sdk' && github.event.pull_request.merged == true
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Push podspecs
+      run: |
+        pod repo add specstesting https://github.com/FirebasePrivate/SpecsTesting
+        pod repo push specstesting FirebaseDatabase.podspec
+
