@@ -54,6 +54,7 @@ jobs:
       local_repo: specstesting
       local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
       podspec_repo_branch: master
+      pr_branch: ${{ github.event.pull_request.head.ref }}
     steps:
     - uses: actions/checkout@v2
     - name: Get token
