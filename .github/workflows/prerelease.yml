@@ -69,7 +69,7 @@ jobs:
           then
             updated_podspecs="${updated_podspecs} ${basename -s .podspec line}"
           fi
-        done < "${cat update_files.txt}"
+        done < "$(cat update_files.txt)"
         cd scripts/create_spec_repo/
         swift build
         pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/Firebase/SpecsTesting.git
