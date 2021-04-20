@@ -56,7 +56,9 @@ jobs:
       pr_branch: ${{ github.event.pull_request.head.ref }}
     steps:
     - uses: actions/checkout@v2
-    - name: Get token
+      with:
+        fetch-depth: 0
+    - name: Push updated podspecs
       run: |
         common_commit=$(git merge-base remotes/origin/${pr_branch} remotes/origin/master)
         git diff --name-only $common_commit remotes/origin/${pr_branch} > updated_files.txt
