@@ -122,6 +122,12 @@ struct SpecRepoBuilder: ParsableCommand {
   @Option(help: "Local Podspec Repo Name.")
   var localSpecRepoName: String
 
+  @Option(help: "Push selected podspecs.")
+  var includePods: [String] = []
+
+  @Flag(help: "Keep or erase a repo before push.")
+  var keepRepo: Bool = false
+
   @Flag(help: "Raise error while circular dependency detected.")
   var raiseCircularDepError: Bool = false
 
@@ -311,9 +317,11 @@ struct SpecRepoBuilder: ParsableCommand {
       let podspecURLs = fileURLs.filter { $0.pathExtension == "podspec" }
       for podspecURL in podspecURLs {
         let podName = podspecURL.deletingPathExtension().lastPathComponent
-        if !excludePods.contains(podName) {
+        if Constants.exclusivePods.contains(podName) {
+            continue
+        } else if includePods.isEmpty || includePods.contains(podName){
           podSpecFiles[podName] = podspecURL
-        }
+        } 
       }
     } catch {
       print(
@@ -333,15 +341,17 @@ struct SpecRepoBuilder: ParsableCommand {
     )
     print("Podspec push order:\n", specFileDict.depInstallOrder.joined(separator: "->\t"))
 
-    do {
-      if fileManager.fileExists(atPath: "\(curDir)/\(sdkRepoName)") {
-        print("remove \(sdkRepoName) dir.")
-        try fileManager.removeItem(at: URL(fileURLWithPath: "\(curDir)/\(sdkRepoName)"))
-      }
-      eraseRemoteRepo(repoPath: "\(curDir)", from: githubAccount, sdkRepoName)
+    if !keepRepo {
+      do {
+        if fileManager.fileExists(atPath: "\(curDir)/\(sdkRepoName)") {
+          print("remove \(sdkRepoName) dir.")
+          try fileManager.removeItem(at: URL(fileURLWithPath: "\(curDir)/\(sdkRepoName)"))
+        }
+        eraseRemoteRepo(repoPath: "\(curDir)", from: githubAccount, sdkRepoName)
 
-    } catch {
-      print("error occurred. \(error)")
+      } catch {
+        print("error occurred. \(error)")
+      }
     }
 
     var exitCode: Int32 = 0
