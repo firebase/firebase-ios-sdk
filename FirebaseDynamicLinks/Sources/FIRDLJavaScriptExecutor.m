@@ -17,6 +17,8 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS
 
+#import <sys/sysctl.h>
+
 #import <WebKit/WebKit.h>
 
 #import "FirebaseDynamicLinks/Sources/FIRDLJavaScriptExecutor.h"
@@ -66,7 +68,20 @@ NSString *GINFingerprintJSMethodString(void) {
   if (self = [super init]) {
     _delegate = delegate;
     _script = [script copy];
+
+// A WebKit memory allocation error occurs on Apple Silicon when the
+// target is below iOS 14. The issue only occurs on the simulator.
+#if TARGET_OS_SIMULATOR
+    // Only make WebKit related memory allocations if the process
+    // is not running under Rosetta translation.
+    if (!processIsTranslated()) {
+      // The `start:` method allocates a WebKit object.
+      [self start];
+    }
+#else
     [self start];
+#endif
+
   }
   return self;
 }
@@ -133,6 +148,21 @@ NSString *GINFingerprintJSMethodString(void) {
     didFailNavigation:(null_unspecified WKNavigation *)navigation
             withError:(NSError *)error {
   [self handleExecutionError:error];
+}
+
+// Determine whether a process is running on a Rosetta translation.
+// Return 0 for a native process, 1 for a translated process,
+// and -1 when an error occurs.
+// From: https://developer.apple.com/documentation/apple-silicon/about-the-rosetta-translation-environment
+int processIsTranslated() {
+   int ret = 0;
+   size_t size = sizeof(ret);
+   if (sysctlbyname("sysctl.proc_translated", &ret, &size, NULL, 0) == -1) {
+      if (errno == ENOENT)
+         return 0;
+      return -1;
+   }
+   return ret;
 }
 
 @end
