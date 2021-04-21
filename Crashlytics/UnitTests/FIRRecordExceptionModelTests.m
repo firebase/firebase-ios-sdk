@@ -46,9 +46,6 @@
 
   FIRMockInstallations *iid = [[FIRMockInstallations alloc] initWithFID:@"test_instance_id"];
 
-  FIRCLSInstallIdentifierModel *installIDModel =
-      [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:iid];
-
   NSString *name = @"exception_model_report";
   self.reportPath = [self.fileManager.rootPath stringByAppendingPathComponent:name];
   [self.fileManager createDirectoryAtPath:self.reportPath];

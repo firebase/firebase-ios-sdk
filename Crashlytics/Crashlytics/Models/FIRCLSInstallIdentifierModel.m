@@ -35,8 +35,6 @@ static unsigned long long FIRCLSInstallationsWaitTime = 10 * NSEC_PER_SEC;
 
 @property(nonatomic, readonly) FIRInstallations *installations;
 
-@property(nonatomic, assign) dispatch_once_t regenerateOnceToken;
-
 @end
 
 @implementation FIRCLSInstallIdentifierModel
@@ -103,29 +101,26 @@ static unsigned long long FIRCLSInstallationsWaitTime = 10 * NSEC_PER_SEC;
 - (BOOL)regenerateInstallIDIfNeeded {
   BOOL __block didRotate = false;
 
-  // Run this only once because it can be run multiple times in succession,
-  // and if it's slow it could delay crash upload too much without providing
-  // user benefit.
-  dispatch_once(&_regenerateOnceToken, ^{
-    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
 
-    // This runs Completion async, so wait a reasonable amount of time for it to finish.
-    [self.installations
-        installationIDWithCompletion:^(NSString *_Nullable currentIID, NSError *_Nullable error) {
-          didRotate = [self rotateCrashlyticsInstallUUIDWithIID:currentIID error:error];
+  dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
 
-          if (didRotate) {
-            FIRCLSInfoLog(@"Rotated Crashlytics Install UUID because Firebase Install ID changed.");
-          }
-          dispatch_semaphore_signal(semaphore);
-        }];
+  // This runs Completion async, so wait a reasonable amount of time for it to finish.
+  [self.installations
+      installationIDWithCompletion:^(NSString *_Nullable currentIID, NSError *_Nullable error) {
+        didRotate = [self rotateCrashlyticsInstallUUIDWithIID:currentIID error:error];
 
-    intptr_t result = dispatch_semaphore_wait(
-        semaphore, dispatch_time(DISPATCH_TIME_NOW, FIRCLSInstallationsWaitTime));
-    if (result != 0) {
-      FIRCLSErrorLog(@"Crashlytics timed out while checking for Firebase Installation ID");
-    }
-  });
+        if (didRotate) {
+          FIRCLSInfoLog(@"Rotated Crashlytics Install UUID because Firebase Install ID changed.");
+        }
+        dispatch_semaphore_signal(semaphore);
+      }];
+
+  intptr_t result = dispatch_semaphore_wait(
+      semaphore, dispatch_time(DISPATCH_TIME_NOW, FIRCLSInstallationsWaitTime));
+  if (result != 0) {
+    FIRCLSErrorLog(@"Crashlytics timed out while checking for Firebase Installation ID");
+  }
+
   return didRotate;
 }
 
