@@ -318,10 +318,10 @@ struct SpecRepoBuilder: ParsableCommand {
       for podspecURL in podspecURLs {
         let podName = podspecURL.deletingPathExtension().lastPathComponent
         if Constants.exclusivePods.contains(podName) {
-            continue
-        } else if includePods.isEmpty || includePods.contains(podName){
+          continue
+        } else if includePods.isEmpty || includePods.contains(podName) {
           podSpecFiles[podName] = podspecURL
-        } 
+        }
       }
     } catch {
       print(
