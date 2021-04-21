@@ -27,7 +27,6 @@ extension Constants {
     "https://github.com/firebase/SpecsStaging.git",
     "https://cdn.cocoapods.org/",
   ]
-  static let excludePods: [String] = ["FirebaseSegmentation", "FirebaseFirestoreTestingSupport"]
 }
 
 // flags for 'pod push'
@@ -112,7 +111,7 @@ struct SpecRepoBuilder: ParsableCommand {
   var podSources: [String] = Constants.podSources
 
   @Option(parsing: .upToNextOption, help: "Podspecs that will not be pushed to repo.")
-  var excludePods: [String] = Constants.excludePods
+  var excludePods: [String] = []
 
   @Option(help: "Github Account Name.")
   var githubAccount: String = "FirebasePrivate"
