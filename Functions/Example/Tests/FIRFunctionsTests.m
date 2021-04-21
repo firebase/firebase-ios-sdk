@@ -163,7 +163,7 @@
 
   XCTestExpectation *httpRequestExpectation =
       [self expectationWithDescription:@"HTTPRequestExpectation"];
-  
+
   __weak __auto_type weakSelf = self;
   _fetcherService.testBlock = ^(GTMSessionFetcher *_Nonnull fetcherToTest,
                                 GTMSessionFetcherTestResponse _Nonnull testResponse) {
