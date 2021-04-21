@@ -18,6 +18,8 @@
 
 #import "FirebaseAppCheck/Sources/Core/TokenRefresh/FIRAppCheckTimer.h"
 
+@protocol FIRAppCheckSettingsProtocol;
+
 NS_ASSUME_NONNULL_BEGIN
 
 /** The block to be called on the token refresh completion.
@@ -38,15 +40,16 @@ typedef void (^FIRAppCheckTokenRefreshBlock)(FIRAppCheckTokenRefreshCompletion c
 /// refresh in the block.
 @property(nonatomic, copy) FIRAppCheckTokenRefreshBlock tokenRefreshHandler;
 
+/// Updates the next refresh date based on the new token expiration date. This method should be
+/// called when the token update was initiated not by the refresher.
+/// @param tokenExpirationDate A new token expiration date.
+- (void)updateTokenExpirationDate:(NSDate *)tokenExpirationDate;
+
 @end
 
 /// The class calls `tokenRefreshHandler` periodically to keep FAC token fresh to reduce FAC token
 /// exchange overhead for product requests.
 @interface FIRAppCheckTokenRefresher : NSObject <FIRAppCheckTokenRefresherProtocol>
-
-/// The block to be called when refresh is needed. The client is responsible for actual token
-/// refresh in the block.
-@property(nonatomic, copy) FIRAppCheckTokenRefreshBlock tokenRefreshHandler;
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -55,14 +58,17 @@ typedef void (^FIRAppCheckTokenRefreshBlock)(FIRAppCheckTokenRefreshCompletion c
 /// date in the past to trigger refresh once `tokenRefreshHandler` is set.
 /// @param tokenExpirationThreshold The token refresh will be triggered  `tokenExpirationThreshold`
 /// seconds before the actual token expiration time.
+/// @param settings An object that handles Firebase app check settings.
 - (instancetype)initWithTokenExpirationDate:(NSDate *)tokenExpirationDate
                    tokenExpirationThreshold:(NSTimeInterval)tokenExpirationThreshold
                               timerProvider:(FIRTimerProvider)timerProvider
+                                   settings:(id<FIRAppCheckSettingsProtocol>)settings
     NS_DESIGNATED_INITIALIZER;
 
 /// A convenience initializer with a timer provider returning an instance of  `FIRAppCheckTimer`.
 - (instancetype)initWithTokenExpirationDate:(NSDate *)tokenExpirationDate
-                   tokenExpirationThreshold:(NSTimeInterval)tokenExpirationThreshold;
+                   tokenExpirationThreshold:(NSTimeInterval)tokenExpirationThreshold
+                                   settings:(id<FIRAppCheckSettingsProtocol>)settings;
 
 @end
 

@@ -28,6 +28,7 @@
 #import "FirebaseAppCheck/Sources/Interop/FIRAppCheckInterop.h"
 #import "FirebaseAppCheck/Sources/Interop/FIRAppCheckTokenResultInterop.h"
 
+#import "FirebaseAppCheck/Sources/Core/FIRAppCheckSettings.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckTokenResult.h"
 #import "FirebaseAppCheck/Sources/Core/Storage/FIRAppCheckStorage.h"
 #import "FirebaseAppCheck/Sources/Core/TokenRefresh/FIRAppCheckTokenRefresher.h"
@@ -39,7 +40,8 @@
                appCheckProvider:(id<FIRAppCheckProvider>)appCheckProvider
                         storage:(id<FIRAppCheckStorageProtocol>)storage
                  tokenRefresher:(id<FIRAppCheckTokenRefresherProtocol>)tokenRefresher
-             notificationCenter:(NSNotificationCenter *)notificationCenter;
+             notificationCenter:(NSNotificationCenter *)notificationCenter
+                       settings:(id<FIRAppCheckSettingsProtocol>)settings;
 
 - (nullable instancetype)initWithApp:(FIRApp *)app;
 @end
@@ -50,6 +52,7 @@
 @property(nonatomic) OCMockObject<FIRAppCheckStorageProtocol> *mockStorage;
 @property(nonatomic) OCMockObject<FIRAppCheckProvider> *mockAppCheckProvider;
 @property(nonatomic) OCMockObject<FIRAppCheckTokenRefresherProtocol> *mockTokenRefresher;
+@property(nonatomic) OCMockObject<FIRAppCheckSettingsProtocol> *mockSettings;
 @property(nonatomic) NSNotificationCenter *notificationCenter;
 @property(nonatomic) FIRAppCheck<FIRAppCheckInterop> *appCheck;
 
@@ -66,6 +69,7 @@
   self.mockStorage = OCMProtocolMock(@protocol(FIRAppCheckStorageProtocol));
   self.mockAppCheckProvider = OCMProtocolMock(@protocol(FIRAppCheckProvider));
   self.mockTokenRefresher = OCMProtocolMock(@protocol(FIRAppCheckTokenRefresherProtocol));
+  self.mockSettings = OCMProtocolMock(@protocol(FIRAppCheckSettingsProtocol));
   self.notificationCenter = [[NSNotificationCenter alloc] init];
 
   [self stubSetTokenRefreshHandler];
@@ -74,7 +78,8 @@
                                       appCheckProvider:self.mockAppCheckProvider
                                                storage:self.mockStorage
                                         tokenRefresher:self.mockTokenRefresher
-                                    notificationCenter:self.notificationCenter];
+                                    notificationCenter:self.notificationCenter
+                                              settings:self.mockSettings];
 }
 
 - (void)tearDown {
@@ -105,13 +110,21 @@
   // 2. Stub FIRAppCheckTokenRefresher and validate usage.
   id mockTokenRefresher = OCMClassMock([FIRAppCheckTokenRefresher class]);
   OCMExpect([mockTokenRefresher alloc]).andReturn(mockTokenRefresher);
+
   id refresherDateValidator = [OCMArg checkWithBlock:^BOOL(NSDate *tokenExpirationDate) {
     NSTimeInterval accuracy = 1;
     XCTAssertLessThanOrEqual(ABS([tokenExpirationDate timeIntervalSinceNow]), accuracy);
     return YES;
   }];
+
+  id settingsValidator = [OCMArg checkWithBlock:^BOOL(id obj) {
+    XCTAssert([obj isKindOfClass:[FIRAppCheckSettings class]]);
+    return YES;
+  }];
+
   OCMExpect([mockTokenRefresher initWithTokenExpirationDate:refresherDateValidator
-                                   tokenExpirationThreshold:5 * 60])
+                                   tokenExpirationThreshold:5 * 60
+                                                   settings:settingsValidator])
       .andReturn(mockTokenRefresher);
   OCMExpect([mockTokenRefresher setTokenRefreshHandler:[OCMArg any]]);
 
@@ -150,6 +163,40 @@
   mockTokenRefresher = nil;
   [mockStorage stopMocking];
   mockStorage = nil;
+}
+
+- (void)testAppCheckDefaultInstance {
+  // Should throw an exception when the default app is not configured.
+  XCTAssertThrows([FIRAppCheck appCheck]);
+
+  // Configure default FIRApp.
+  FIROptions *options =
+      [[FIROptions alloc] initWithGoogleAppID:@"1:100000000000:ios:aaaaaaaaaaaaaaaaaaaaaaaa"
+                                  GCMSenderID:@"sender_id"];
+  options.APIKey = @"api_key";
+  options.projectID = @"project_id";
+  [FIRApp configureWithOptions:options];
+
+  // Check.
+  XCTAssertNotNil([FIRAppCheck appCheck]);
+
+  [FIRApp resetApps];
+}
+
+- (void)testAppCheckInstanceForApp {
+  FIROptions *options =
+      [[FIROptions alloc] initWithGoogleAppID:@"1:100000000000:ios:aaaaaaaaaaaaaaaaaaaaaaaa"
+                                  GCMSenderID:@"sender_id"];
+  options.APIKey = @"api_key";
+  options.projectID = @"project_id";
+
+  [FIRApp configureWithName:@"testAppCheckInstanceForApp" options:options];
+  FIRApp *app = [FIRApp appNamed:@"testAppCheckInstanceForApp"];
+  XCTAssertNotNil(app);
+
+  XCTAssertNotNil([FIRAppCheck appCheckWithApp:app]);
+
+  [FIRApp resetApps];
 }
 
 - (void)testGetToken_WhenNoCache_Success {
@@ -411,6 +458,29 @@
   XCTAssertEqualObjects([self.appCheck notificationAppNameKey],
                         @"FIRAppCheckAppNameNotificationKey");
   XCTAssertEqualObjects([self.appCheck notificationTokenKey], @"FIRAppCheckTokenNotificationKey");
+}
+
+#pragma mark - Auto-refresh enabled
+
+- (void)testIsTokenAutoRefreshEnabled {
+  // Expect value from settings to be used.
+  [[[self.mockSettings expect] andReturnValue:@(NO)] isTokenAutoRefreshEnabled];
+  XCTAssertFalse(self.appCheck.isTokenAutoRefreshEnabled);
+
+  [[[self.mockSettings expect] andReturnValue:@(YES)] isTokenAutoRefreshEnabled];
+  XCTAssertTrue(self.appCheck.isTokenAutoRefreshEnabled);
+
+  OCMVerifyAll(self.mockSettings);
+}
+
+- (void)testSetIsTokenAutoRefreshEnabled {
+  OCMExpect([self.mockSettings setIsTokenAutoRefreshEnabled:YES]);
+  self.appCheck.isTokenAutoRefreshEnabled = YES;
+
+  OCMExpect([self.mockSettings setIsTokenAutoRefreshEnabled:NO]);
+  self.appCheck.isTokenAutoRefreshEnabled = NO;
+
+  OCMVerifyAll(self.mockSettings);
 }
 
 #pragma mark - Helpers

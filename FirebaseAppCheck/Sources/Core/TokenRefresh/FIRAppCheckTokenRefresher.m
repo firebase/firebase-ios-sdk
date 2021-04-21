@@ -16,6 +16,7 @@
 
 #import "FirebaseAppCheck/Sources/Core/TokenRefresh/FIRAppCheckTokenRefresher.h"
 
+#import "FirebaseAppCheck/Sources/Core/FIRAppCheckSettings.h"
 #import "FirebaseAppCheck/Sources/Core/TokenRefresh/FIRAppCheckTimer.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -26,6 +27,8 @@ static const NSTimeInterval kMaximumBackoffTimeInterval = 16 * 60;
 @interface FIRAppCheckTokenRefresher ()
 
 @property(nonatomic, readonly) dispatch_queue_t refreshQueue;
+
+@property(nonatomic, readonly) id<FIRAppCheckSettingsProtocol> settings;
 
 @property(nonatomic, readonly) FIRTimerProvider timerProvider;
 @property(atomic, nullable) id<FIRAppCheckTimerProtocol> timer;
@@ -42,7 +45,8 @@ static const NSTimeInterval kMaximumBackoffTimeInterval = 16 * 60;
 
 - (instancetype)initWithTokenExpirationDate:(NSDate *)tokenExpirationDate
                    tokenExpirationThreshold:(NSTimeInterval)tokenExpirationThreshold
-                              timerProvider:(FIRTimerProvider)timerProvider {
+                              timerProvider:(FIRTimerProvider)timerProvider
+                                   settings:(id<FIRAppCheckSettingsProtocol>)settings {
   self = [super init];
   if (self) {
     _refreshQueue =
@@ -50,15 +54,18 @@ static const NSTimeInterval kMaximumBackoffTimeInterval = 16 * 60;
     _tokenExpirationThreshold = tokenExpirationThreshold;
     _initialTokenExpirationDate = tokenExpirationDate;
     _timerProvider = timerProvider;
+    _settings = settings;
   }
   return self;
 }
 
 - (instancetype)initWithTokenExpirationDate:(NSDate *)tokenExpirationDate
-                   tokenExpirationThreshold:(NSTimeInterval)tokenExpirationThreshold {
+                   tokenExpirationThreshold:(NSTimeInterval)tokenExpirationThreshold
+                                   settings:(id<FIRAppCheckSettingsProtocol>)settings {
   return [self initWithTokenExpirationDate:tokenExpirationDate
                   tokenExpirationThreshold:tokenExpirationThreshold
-                             timerProvider:[FIRAppCheckTimer timerProvider]];
+                             timerProvider:[FIRAppCheckTimer timerProvider]
+                                  settings:settings];
 }
 
 - (void)dealloc {
@@ -70,7 +77,8 @@ static const NSTimeInterval kMaximumBackoffTimeInterval = 16 * 60;
     _tokenRefreshHandler = tokenRefreshHandler;
 
     // Check if handler is being set for the first time and if yes then schedule first refresh.
-    if (tokenRefreshHandler && self.initialTokenExpirationDate) {
+    if (tokenRefreshHandler && self.initialTokenExpirationDate &&
+        self.settings.isTokenAutoRefreshEnabled) {
       NSDate *initialTokenExpirationDate = self.initialTokenExpirationDate;
       self.initialTokenExpirationDate = nil;
       [self scheduleWithTokenExpirationDate:initialTokenExpirationDate];
@@ -84,8 +92,18 @@ static const NSTimeInterval kMaximumBackoffTimeInterval = 16 * 60;
   }
 }
 
+- (void)updateTokenExpirationDate:(NSDate *)tokenExpirationDate {
+  if (self.settings.isTokenAutoRefreshEnabled) {
+    [self scheduleWithTokenExpirationDate:tokenExpirationDate];
+  }
+}
+
 - (void)refresh {
   if (self.tokenRefreshHandler == nil) {
+    return;
+  }
+
+  if (!self.settings.isTokenAutoRefreshEnabled) {
     return;
   }
 

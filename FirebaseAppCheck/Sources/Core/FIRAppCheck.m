@@ -29,12 +29,15 @@
 
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckLogger.h"
+#import "FirebaseAppCheck/Sources/Core/FIRAppCheckSettings.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckTokenResult.h"
 #import "FirebaseAppCheck/Sources/Core/Storage/FIRAppCheckStorage.h"
 #import "FirebaseAppCheck/Sources/Core/TokenRefresh/FIRAppCheckTokenRefresher.h"
 
 #import "FirebaseAppCheck/Sources/Interop/FIRAppCheckInterop.h"
 #import "FirebaseAppCheck/Sources/Interop/FIRAppCheckTokenResultInterop.h"
+
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -64,6 +67,7 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 @property(nonatomic, readonly) id<FIRAppCheckProvider> appCheckProvider;
 @property(nonatomic, readonly) id<FIRAppCheckStorageProtocol> storage;
 @property(nonatomic, readonly) NSNotificationCenter *notificationCenter;
+@property(nonatomic, readonly) id<FIRAppCheckSettingsProtocol> settings;
 
 @property(nonatomic, readonly, nullable) id<FIRAppCheckTokenRefresherProtocol> tokenRefresher;
 
@@ -118,9 +122,14 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
     return nil;
   }
 
-  id<FIRAppCheckTokenRefresherProtocol> tokenRefresher =
+  FIRAppCheckSettings *settings =
+      [[FIRAppCheckSettings alloc] initWithApp:app
+                                   userDefault:[NSUserDefaults standardUserDefaults]
+                                    mainBundle:[NSBundle mainBundle]];
+  FIRAppCheckTokenRefresher *tokenRefresher =
       [[FIRAppCheckTokenRefresher alloc] initWithTokenExpirationDate:[NSDate date]
-                                            tokenExpirationThreshold:kTokenExpirationThreshold];
+                                            tokenExpirationThreshold:kTokenExpirationThreshold
+                                                            settings:settings];
 
   FIRAppCheckStorage *storage = [[FIRAppCheckStorage alloc] initWithAppName:app.name
                                                                       appID:app.options.googleAppID
@@ -130,14 +139,16 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
               appCheckProvider:appCheckProvider
                        storage:storage
                 tokenRefresher:tokenRefresher
-            notificationCenter:NSNotificationCenter.defaultCenter];
+            notificationCenter:NSNotificationCenter.defaultCenter
+                      settings:settings];
 }
 
 - (instancetype)initWithAppName:(NSString *)appName
                appCheckProvider:(id<FIRAppCheckProvider>)appCheckProvider
                         storage:(id<FIRAppCheckStorageProtocol>)storage
                  tokenRefresher:(id<FIRAppCheckTokenRefresherProtocol>)tokenRefresher
-             notificationCenter:(NSNotificationCenter *)notificationCenter {
+             notificationCenter:(NSNotificationCenter *)notificationCenter
+                       settings:(id<FIRAppCheckSettingsProtocol>)settings {
   self = [super init];
   if (self) {
     _appName = appName;
@@ -145,6 +156,7 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
     _storage = storage;
     _tokenRefresher = tokenRefresher;
     _notificationCenter = notificationCenter;
+    _settings = settings;
 
     __auto_type __weak weakSelf = self;
     tokenRefresher.tokenRefreshHandler = ^(FIRAppCheckTokenRefreshCompletion _Nonnull completion) {
@@ -157,8 +169,34 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 
 #pragma mark - Public
 
++ (instancetype)appCheck {
+  FIRApp *defaultApp = [FIRApp defaultApp];
+  if (!defaultApp) {
+    [NSException raise:kFIRAppCheckErrorDomain
+                format:@"The default FirebaseApp instance must be configured before the default"
+                       @"AppCheck instance can be initialized. One way to ensure that is to "
+                       @"call `[FIRApp configure];` (`FirebaseApp.configure()` in Swift) in the App"
+                       @" Delegate's `application:didFinishLaunchingWithOptions:` "
+                       @"(`application(_:didFinishLaunchingWithOptions:)` in Swift)."];
+  }
+  return [self appCheckWithApp:defaultApp];
+}
+
++ (nullable instancetype)appCheckWithApp:(FIRApp *)firebaseApp {
+  id<FIRAppCheckInterop> appCheck = FIR_COMPONENT(FIRAppCheckInterop, firebaseApp.container);
+  return (FIRAppCheck *)appCheck;
+}
+
 + (void)setAppCheckProviderFactory:(nullable id<FIRAppCheckProviderFactory>)factory {
   self.providerFactory = factory;
+}
+
+- (void)setIsTokenAutoRefreshEnabled:(BOOL)isTokenAutoRefreshEnabled {
+  self.settings.isTokenAutoRefreshEnabled = isTokenAutoRefreshEnabled;
+}
+
+- (BOOL)isTokenAutoRefreshEnabled {
+  return self.settings.isTokenAutoRefreshEnabled;
 }
 
 #pragma mark - App Check Provider Ingestion
@@ -245,6 +283,10 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
         return [self.storage setToken:token];
       })
       .then(^id _Nullable(FIRAppCheckToken *_Nullable token) {
+        // TODO: Make sure the self.tokenRefresher is updated only once. Currently the timer will be
+        // updated twice in the case when the refresh triggered by self.tokenRefresher, but it
+        // should be fine for now as it is a relatively cheap operation.
+        [self.tokenRefresher updateTokenExpirationDate:token.expirationDate];
         [self postTokenUpdateNotificationWithToken:token];
         return token;
       });

@@ -26,6 +26,7 @@
 #import "FirebaseAppCheck/Sources/Interop/FIRAppCheckInterop.h"
 #import "FirebaseAppCheck/Sources/Interop/FIRAppCheckTokenResultInterop.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRDeviceCheckProvider.h"
+#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRDeviceCheckProviderFactory.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
@@ -77,7 +78,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)tearDown {
   [FIRApp resetApps];
-  [FIRAppCheck setAppCheckProviderFactory:nil];
+  // Recover default provider factory.
+  [FIRAppCheck setAppCheckProviderFactory:[[FIRDeviceCheckProviderFactory alloc] init]];
 
   [self.mockTokenRefresher stopMocking];
   self.mockTokenRefresher = nil;
@@ -115,7 +117,8 @@ NS_ASSUME_NONNULL_BEGIN
     OCMVerifyAll(deviceCheckProviderMock);
 
     // 4. Cleanup
-    [FIRAppCheck setAppCheckProviderFactory:nil];
+    // Recover default provider factory.
+    [FIRAppCheck setAppCheckProviderFactory:[[FIRDeviceCheckProviderFactory alloc] init]];
     [deviceCheckProviderMock stopMocking];
   } else {
     // Fallback on earlier versions
@@ -200,7 +203,8 @@ NS_ASSUME_NONNULL_BEGIN
   self.mockTokenRefresher = OCMClassMock([FIRAppCheckTokenRefresher class]);
   OCMStub([self.mockTokenRefresher alloc]).andReturn(self.mockTokenRefresher);
   OCMStub([self.mockTokenRefresher initWithTokenExpirationDate:[OCMArg any]
-                                      tokenExpirationThreshold:5 * 60])
+                                      tokenExpirationThreshold:5 * 60
+                                                      settings:[OCMArg any]])
       .andReturn(self.mockTokenRefresher);
 }
 
