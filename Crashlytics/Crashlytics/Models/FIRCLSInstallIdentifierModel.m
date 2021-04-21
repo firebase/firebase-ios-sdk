@@ -109,7 +109,7 @@ static unsigned long long FIRCLSInstallationsWaitTime = 10 * NSEC_PER_SEC;
         didRotate = [self rotateCrashlyticsInstallUUIDWithIID:currentIID error:error];
 
         if (didRotate) {
-          FIRCLSInfoLog(@"Rotated Crashlytics Install UUID because Firebase Install ID changed.");
+          FIRCLSInfoLog(@"Rotated Crashlytics Install UUID because Firebase Install ID changed");
         }
         dispatch_semaphore_signal(semaphore);
       }];
