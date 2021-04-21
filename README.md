@@ -40,6 +40,8 @@ monetize your app. More information about Firebase can be found at
 The repository also includes GoogleUtilities and GoogleDataTransport source
 which are utilities used by Firebase and other Google products.
 
+**Note** _FirebaseCombineSwift_ contains support for Apple's Combine framework. This module is currently under development, and not yet supported for use in production environments. Fore more details, please refer to the [docs](FirebaseCombineSwift/README.md).
+
 ## Installation
 
 See the subsections below for details about the different installation methods.

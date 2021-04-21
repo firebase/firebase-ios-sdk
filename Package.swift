@@ -21,7 +21,7 @@ let firebaseVersion = "7.11.0"
 
 let package = Package(
   name: "Firebase",
-  platforms: [.iOS(.v10), .macOS(.v10_12), .tvOS(.v10), .watchOS(.v6)],
+  platforms: [.iOS(.v10), .macOS(.v10_12), .tvOS(.v10), .watchOS(.v7)],
   products: [
     .library(
       name: "FirebaseAnalytics",
@@ -47,10 +47,27 @@ let package = Package(
       name: "FirebaseAppDistribution-Beta",
       targets: ["FirebaseAppDistributionTarget"]
     ),
-    .library(
-      name: "FirebaseCrashlytics",
-      targets: ["FirebaseCrashlytics"]
-    ),
+    // TODO: Re-enable after API review passes.
+    // .library(
+    //   name: "FirebaseCombineSwift-Beta",
+    //   targets: ["FirebaseCombineSwift"]
+    // ),
+    // .library(
+    //   name: "FirebaseAuthCombineSwift-Beta",
+    //   targets: ["FirebaseAuthCombineSwift"]
+    // ),
+    // .library(
+    //   name: "FirebaseFunctionsCombineSwift-Beta",
+    //   targets: ["FirebaseFunctionsCombineSwift"]
+    // ),
+    // .library(
+    //   name: "FirebaseStorageCombineSwift-Beta",
+    //   targets: ["FirebaseStorageCombineSwift"]
+    // ),
+    // .library(
+    //   name: "FirebaseCrashlytics",
+    //   targets: ["FirebaseCrashlytics"]
+    // ),
     .library(
       name: "FirebaseDatabase",
       targets: ["FirebaseDatabase"]
@@ -377,6 +394,33 @@ let package = Package(
       cSettings: [
         .headerSearchPath("../../.."),
       ]
+    ),
+    .target(
+      name: "FirebaseCombineSwift",
+      dependencies: [
+        "FirebaseAuthCombineSwift",
+        "FirebaseFunctionsCombineSwift",
+        "FirebaseStorageCombineSwift",
+      ],
+      path: "FirebaseCombineSwift/Sources/Core"
+    ),
+    .target(
+      name: "FirebaseAuthCombineSwift",
+      dependencies: ["FirebaseAuth"],
+      path: "FirebaseCombineSwift/Sources/Auth"
+    ),
+    .target(
+      name: "FirebaseFunctionsCombineSwift",
+      dependencies: ["FirebaseFunctions"],
+      path: "FirebaseCombineSwift/Sources/Functions"
+    ),
+    .target(
+      name: "FirebaseStorageCombineSwift",
+      dependencies: [
+        "FirebaseStorage",
+        "FirebaseStorageSwift",
+      ],
+      path: "FirebaseCombineSwift/Sources/Storage"
     ),
     .target(
       name: "FirebaseCrashlytics",
@@ -835,6 +879,7 @@ let package = Package(
         .target(name: "FirebaseAppDistribution",
                 condition: .when(platforms: [.iOS])),
         "Firebase",
+        "FirebaseCombineSwift",
         "FirebaseCrashlytics",
         "FirebaseCore",
         "FirebaseDatabase",
@@ -940,6 +985,27 @@ let package = Package(
         .headerSearchPath("../.."),
       ]
     ),
+    // MARK: Testing support
+
+    .target(
+      name: "FirebaseFirestoreTestingSupport",
+      dependencies: ["FirebaseFirestore"],
+      path: "FirebaseTestingSupport/Firestore/Sources",
+      publicHeadersPath: "./",
+      cSettings: [
+        .headerSearchPath("../../.."),
+        .headerSearchPath("../../../Firestore/Source/Public/FirebaseFirestore"),
+      ]
+    ),
+    .testTarget(
+      name: "FirestoreTestingSupportTests",
+      dependencies: ["FirebaseFirestoreTestingSupport"],
+      path: "FirebaseTestingSupport/Firestore/Tests",
+      cSettings: [
+        .headerSearchPath("../../.."),
+      ]
+    ),
+
   ],
   cLanguageStandard: .c99,
   cxxLanguageStandard: CXXLanguageStandard.gnucxx14
