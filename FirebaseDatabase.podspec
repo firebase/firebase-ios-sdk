@@ -7,6 +7,7 @@ Pod::Spec.new do |s|
 Simplify your iOS development, grow your user base, and monetize more effectively with Firebase.
                        DESC
 
+
   s.homepage         = 'https://firebase.google.com'
   s.license          = { :type => 'Apache', :file => 'LICENSE' }
   s.authors          = 'Google, Inc.'
