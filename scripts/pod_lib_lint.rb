@@ -47,23 +47,19 @@ def main(args)
 
   STDOUT.sync = true
 
-  command = %w(bundle exec pod lib lint)
-  sources = ['https://github.com/firebase/SpecsDev.git','https://github.com/firebase/SpecsStaging.git','https://cdn.cocoapods.org/']
+  command = %w(bundle exec pod lib lint --sources=https://github.com/firebase/SpecsDev.git,https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/)
 
   # Split arguments that need to be processed by the script itself and passed
   # to the pod command.
   pod_args = []
   ignore_local_podspecs = []
   analyze = true
-  presubmit = false
 
   args.each do |arg|
     if arg =~ /--ignore-local-podspecs=(.*)/
       ignore_local_podspecs = $1.split(',')
     elsif arg =~ /--no-analyze/
       analyze = false
-    elsif arg =~ /--presubmit/
-      presubmit = true
     else
       pod_args.push(arg)
     end
@@ -73,8 +69,6 @@ def main(args)
   # Figure out which dependencies are local
   deps = find_local_deps(podspec_file, ignore_local_podspecs.to_set)
   arg = make_include_podspecs(deps)
-  sources.unshift('https://github.com/firebase/SpecsTesting.git') if presubmit
-  command.push('--sources=' + sources.join(","))
   command.push(arg) if arg
   command.push('--analyze') if analyze
 
