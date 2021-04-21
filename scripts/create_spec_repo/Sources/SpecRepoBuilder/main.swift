@@ -108,10 +108,10 @@ struct SpecRepoBuilder: ParsableCommand {
   @Option(help: "The root of the firebase-ios-sdk checked out git repo.")
   var sdkRepo: String = FileManager().currentDirectoryPath
 
-  @Option(help: "A list of podspec sources in Podfiles.")
+  @Option(parsing: .upToNextOption, help: "A list of podspec sources in Podfiles.")
   var podSources: [String] = Constants.podSources
 
-  @Option(help: "Podspecs that will not be pushed to repo.")
+  @Option(parsing: .upToNextOption, help: "Podspecs that will not be pushed to repo.")
   var excludePods: [String] = Constants.excludePods
 
   @Option(help: "Github Account Name.")
