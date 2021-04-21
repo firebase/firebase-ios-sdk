@@ -62,8 +62,12 @@ jobs:
       run: |
          scripts/decrypt_gha_secret.sh scripts/gha-encrypted/oss-bot-access.txt.gpg \
          oss-bot-access.txt "$bot_token_secret"
+         pwd
+         ls
     - name: Update SpecsTesting repo setup
       run: |
+         pwd
+         ls
          ossbotaccess=`cat oss-bot-access.txt`
          # Update/create a nightly tag to the head of the master branch.
          BOT_TOKEN="${ossbotaccess}" test_version="${nightly_version}" sdk_version_config="${GITHUB_WORKSPACE}/scripts/create_spec_repo/RC_firebase_sdk.textproto" local_sdk_repo_dir="${local_sdk_repo_dir}" podspec_repo_branch="${podspec_repo_branch}" scripts/release_testing_setup.sh prerelease_testing
