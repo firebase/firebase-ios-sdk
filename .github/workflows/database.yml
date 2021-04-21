@@ -150,4 +150,4 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseDatabase.podspec --skip-tests --platforms=${{ matrix.target }} --presubmit
+      run: scripts/third_party/travis/retry.sh pod spec lint FirebaseDatabase.podspec --skip-tests --platforms=${{ matrix.target }} --sources='https://github.com/firebase/SpecsTesting','https://github.com/firebase/SpecsDev.git','https://github.com/firebase/SpecsStaging.git','https://cdn.cocoapods.org/'
