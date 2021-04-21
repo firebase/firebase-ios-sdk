@@ -101,7 +101,6 @@ static unsigned long long FIRCLSInstallationsWaitTime = 10 * NSEC_PER_SEC;
 - (BOOL)regenerateInstallIDIfNeeded {
   BOOL __block didRotate = false;
 
-
   dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
 
   // This runs Completion async, so wait a reasonable amount of time for it to finish.
