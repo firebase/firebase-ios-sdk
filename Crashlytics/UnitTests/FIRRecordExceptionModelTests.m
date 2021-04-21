@@ -44,8 +44,6 @@
   self.mockSettings = [[FIRCLSMockSettings alloc] initWithFileManager:self.fileManager
                                                            appIDModel:appIDModel];
 
-  FIRMockInstallations *iid = [[FIRMockInstallations alloc] initWithFID:@"test_instance_id"];
-
   NSString *name = @"exception_model_report";
   self.reportPath = [self.fileManager.rootPath stringByAppendingPathComponent:name];
   [self.fileManager createDirectoryAtPath:self.reportPath];
