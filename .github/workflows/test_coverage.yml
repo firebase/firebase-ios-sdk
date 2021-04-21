@@ -297,7 +297,7 @@ jobs:
         with:
           path: /Users/runner/test
       - name: Compare Diff and Post a Report
-        if: github.event.pull_request.merged != true && env.METRICS_SERVICE_SECRET
+        if: github.event.pull_request.merged != true && github.event.action != 'closed' && env.METRICS_SERVICE_SECRET
         env:
           base_commit: ${{ needs.check.outputs.base_commit }}
         run: |
