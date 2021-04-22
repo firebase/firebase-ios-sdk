@@ -18,7 +18,6 @@
 #import "FIRAppCheckProvider.h"
 #import "FIRAppCheckProviderFactory.h"
 #import "FIRAppCheckToken.h"
-#import "FIRAppCheckVersion.h"
 
 // Debug provider
 #import "FIRAppCheckDebugProvider.h"
