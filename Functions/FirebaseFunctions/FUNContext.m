@@ -15,6 +15,8 @@
 
 #import "Functions/FirebaseFunctions/FUNContext.h"
 
+#import "FirebaseAppCheck/Sources/Interop/FIRAppCheckInterop.h"
+#import "FirebaseAppCheck/Sources/Interop/FIRAppCheckTokenResultInterop.h"
 #import "FirebaseMessaging/Sources/Interop/FIRMessagingInterop.h"
 #import "Interop/Auth/Public/FIRAuthInterop.h"
 
@@ -23,18 +25,21 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FUNContext ()
 
 - (instancetype)initWithAuthToken:(NSString *_Nullable)authToken
-                         FCMToken:(NSString *_Nullable)FCMToken NS_DESIGNATED_INITIALIZER;
+                         FCMToken:(NSString *_Nullable)FCMToken
+                    appCheckToken:(NSString *_Nullable)appCheckToken NS_DESIGNATED_INITIALIZER;
 
 @end
 
 @implementation FUNContext
 
 - (instancetype)initWithAuthToken:(NSString *_Nullable)authToken
-                         FCMToken:(NSString *_Nullable)FCMToken {
+                         FCMToken:(NSString *_Nullable)FCMToken
+                    appCheckToken:(NSString *_Nullable)appCheckToken {
   self = [super init];
   if (self) {
     _authToken = [authToken copy];
     _FCMToken = [FCMToken copy];
+    _appCheckToken = [appCheckToken copy];
   }
   return self;
 }
@@ -42,19 +47,22 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @interface FUNContextProvider () {
-  id<FIRAuthInterop> _auth;
-  id<FIRMessagingInterop> _messaging;
+  id<FIRAuthInterop> _Nullable _auth;
+  id<FIRMessagingInterop> _Nullable _messaging;
+  id<FIRAppCheckInterop> _Nullable _appCheck;
 }
 @end
 
 @implementation FUNContextProvider
 
 - (instancetype)initWithAuth:(nullable id<FIRAuthInterop>)auth
-                   messaging:(nullable id<FIRMessagingInterop>)messaging {
+                   messaging:(nullable id<FIRMessagingInterop>)messaging
+                    appCheck:(nullable id<FIRAppCheckInterop>)appCheck {
   self = [super init];
   if (self) {
     _auth = auth;
     _messaging = messaging;
+    _appCheck = appCheck;
   }
   return self;
 }
@@ -64,31 +72,50 @@ NS_ASSUME_NONNULL_BEGIN
   return _messaging.FCMToken;
 }
 
-- (void)getContext:(void (^)(FUNContext *_Nullable context, NSError *_Nullable error))completion {
-  // If auth isn't included, call the completion handler and return.
-  if (_auth == nil) {
-    // With no auth, just populate FCMToken and call the completion handler.
-    NSString *FCMToken = [self FCMToken];
-    FUNContext *context = [[FUNContext alloc] initWithAuthToken:nil FCMToken:FCMToken];
-    completion(context, nil);
-    return;
+- (void)getContext:(void (^)(FUNContext *context, NSError *_Nullable error))completion {
+  dispatch_group_t dispatchGroup = dispatch_group_create();
+
+  // Try to get FCM token.
+  NSString *FCMToken = [self FCMToken];
+
+  __block NSString *authToken;
+  __block NSString *appCheckToken;
+  __block NSError *authError;
+
+  // Fetch auth token if available.
+  if (_auth != nil) {
+    dispatch_group_enter(dispatchGroup);
+
+    [_auth getTokenForcingRefresh:NO
+                     withCallback:^(NSString *_Nullable token, NSError *_Nullable error) {
+                       authToken = token;
+                       authError = error;
+
+                       dispatch_group_leave(dispatchGroup);
+                     }];
   }
 
-  // Auth exists, get the auth token.
-  [_auth getTokenForcingRefresh:NO
-                   withCallback:^(NSString *_Nullable token, NSError *_Nullable error) {
-                     if (error) {
-                       completion(nil, error);
-                       return;
-                     }
+  // Fetch FAC token if available.
+  if (_appCheck) {
+    dispatch_group_enter(dispatchGroup);
 
-                     // Get the instance id token.
-                     NSString *_Nullable FCMToken = [self FCMToken];
+    [_appCheck getTokenForcingRefresh:NO
+                           completion:^(id<FIRAppCheckTokenResultInterop> _Nonnull tokenResult) {
+                             appCheckToken = tokenResult.token;
 
-                     FUNContext *context = [[FUNContext alloc] initWithAuthToken:token
-                                                                        FCMToken:FCMToken];
-                     completion(context, nil);
-                   }];
+                             dispatch_group_leave(dispatchGroup);
+                           }];
+  }
+
+  dispatch_group_notify(dispatchGroup, dispatch_get_main_queue(), ^{
+    FUNContext *context = [[FUNContext alloc] initWithAuthToken:authToken
+                                                       FCMToken:FCMToken
+                                                  appCheckToken:appCheckToken];
+
+    if (completion) {
+      completion(context, authError);
+    }
+  });
 }
 
 @end

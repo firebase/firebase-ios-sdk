@@ -511,10 +511,10 @@ _CPP_HEADERS = frozenset([
     'cstdalign',
     'cstdarg',
     'cstdbool',
-    'cstddef',
+    # 'cstddef', https://github.com/firebase/firebase-ios-sdk/pull/7563
     'cstdint',
     'cstdio',
-    'cstdlib',
+    # 'cstdlib', https://github.com/firebase/firebase-ios-sdk/pull/7563
     'cstring',
     'ctgmath',
     'ctime',

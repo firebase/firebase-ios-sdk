@@ -7,10 +7,10 @@ on:
     - 'FirebaseCrashlytics.podspec'
     - '.github/workflows/crashlytics.yml'
     - 'Interop/Analytics/Public/*.h'
-    - 'Gemfile'
+    - 'Gemfile*'
   schedule:
-    # Run every day at 11pm (PST) - cron uses UTC times
-    - cron:  '0 7 * * *'
+    # Run every day at 10am (PST) - cron uses UTC times
+    - cron:  '0 2 * * *'
 
 jobs:
 

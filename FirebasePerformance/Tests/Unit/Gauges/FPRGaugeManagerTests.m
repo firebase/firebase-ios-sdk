@@ -154,7 +154,7 @@
 - (void)testBatchingOfGaugeEvents {
   FPRGaugeManager *manager = [FPRGaugeManager sharedInstance];
   id mock = [OCMockObject partialMockForObject:manager];
-  OCMExpect([mock prepareAndDispatchGaugeData]).andDo(nil);
+  OCMExpect([mock prepareAndDispatchCollectedGaugeDataWithSessionId:@"abc"]).andDo(nil);
   [manager startCollectingGauges:FPRGaugeCPU forSessionId:@"abc"];
   [manager.cpuGaugeCollector stopCollecting];
   for (int i = 0; i < kGaugeDataBatchSize; i++) {
@@ -172,7 +172,7 @@
   id mock = [OCMockObject partialMockForObject:manager];
   [manager startCollectingGauges:FPRGaugeCPU forSessionId:@"abc"];
   [manager.cpuGaugeCollector stopCollecting];
-  OCMReject([mock prepareAndDispatchGaugeData]);
+  OCMReject([mock prepareAndDispatchCollectedGaugeDataWithSessionId:@"abc"]);
   for (int i = 0; i < kGaugeDataBatchSize - 1; i++) {
     [manager.cpuGaugeCollector collectMetric];
   }

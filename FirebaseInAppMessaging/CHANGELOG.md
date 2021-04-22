@@ -1,3 +1,13 @@
+# 2021-4 -- v.7.11.0
+- [fixed] Fixed SPM resource inclusion for in-app messages (#7715).
+
+# 2021-3 -- v.7.9.0
+- [added] Added support for building custom in-app messages with SwiftUI (#7496).
+
+# 2021-2 -- v.7.7.0
+- [fixed] Fixed accessibility experience for in-app messages (#7445).
+- [fixed] Fixed conversion tracking for in-app messages with a conversion event but not a button / action URL (#7306).
+
 # 2021-1 -- v7.5.0
 - [fixed] Fixed failed assertion causing app to crash during test on device flow (#7299).
 

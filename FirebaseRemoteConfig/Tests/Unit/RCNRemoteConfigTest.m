@@ -81,9 +81,9 @@
 
 typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   RCNTestRCInstanceDefault,
-  RCNTestRCNumTotalInstances,  // TODO(mandard): Remove once OCMock issue is resolved (#4877).
   RCNTestRCInstanceSecondNamespace,
   RCNTestRCInstanceSecondApp,
+  RCNTestRCNumTotalInstances
 };
 
 @interface RCNRemoteConfigTest : XCTestCase {
@@ -94,7 +94,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   NSMutableArray<NSDictionary<NSString *, id> *> *_response;
   NSMutableArray<NSData *> *_responseData;
   NSMutableArray<NSURLResponse *> *_URLResponse;
-  NSMutableArray<RCNConfigFetch *> *_configFetch;
+  NSMutableArray<id> *_configFetch;
   RCNConfigDBManager *_DBManager;
   NSUserDefaults *_userDefaults;
   NSString *_userDefaultsSuiteName;
@@ -102,6 +102,9 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   id _DBManagerMock;
   id _experimentMock;
   id _userDefaultsMock;
+  NSString *_fullyQualifiedNamespace;
+  RCNConfigSettings *_settings;
+  dispatch_queue_t _queue;
 }
 @end
 
@@ -169,7 +172,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
         currentNamespace = RCNTestsFIRNamespace;
         break;
     }
-    NSString *fullyQualifiedNamespace =
+    _fullyQualifiedNamespace =
         [NSString stringWithFormat:@"%@:%@", currentNamespace, currentAppName];
     FIRRemoteConfig *config =
         OCMPartialMock([[FIRRemoteConfig alloc] initWithAppName:currentAppName
@@ -179,22 +182,23 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                                   configContent:configContent
                                                       analytics:nil]);
     _configInstances[i] = config;
-    RCNConfigSettings *settings =
-        [[RCNConfigSettings alloc] initWithDatabaseManager:_DBManager
-                                                 namespace:fullyQualifiedNamespace
-                                           firebaseAppName:currentAppName
-                                               googleAppID:currentOptions.googleAppID];
-    dispatch_queue_t queue = dispatch_queue_create(
+
+    _settings = [[RCNConfigSettings alloc] initWithDatabaseManager:_DBManager
+                                                         namespace:_fullyQualifiedNamespace
+                                                   firebaseAppName:currentAppName
+                                                       googleAppID:currentOptions.googleAppID];
+    _queue = dispatch_queue_create(
         [[NSString stringWithFormat:@"testqueue: %d", i] cStringUsingEncoding:NSUTF8StringEncoding],
         DISPATCH_QUEUE_SERIAL);
-    _configFetch[i] = OCMPartialMock([[RCNConfigFetch alloc] initWithContent:configContent
-                                                                   DBManager:_DBManager
-                                                                    settings:settings
-                                                                   analytics:nil
-                                                                  experiment:_experimentMock
-                                                                       queue:queue
-                                                                   namespace:fullyQualifiedNamespace
-                                                                     options:currentOptions]);
+    _configFetch[i] =
+        OCMPartialMock([[RCNConfigFetch alloc] initWithContent:configContent
+                                                     DBManager:_DBManager
+                                                      settings:_settings
+                                                     analytics:nil
+                                                    experiment:_experimentMock
+                                                         queue:_queue
+                                                     namespace:_fullyQualifiedNamespace
+                                                       options:currentOptions]);
 
     OCMStubRecorder *mock = OCMStub([_configFetch[i] fetchConfigWithExpirationDuration:0
                                                                      completionHandler:OCMOCK_ANY]);
@@ -220,12 +224,12 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     id completionBlock =
         [OCMArg invokeBlockWithArgs:_responseData[i], _URLResponse[i], [NSNull null], nil];
 
-    OCMExpect([_configFetch[i] URLSessionDataTaskWithContent:[OCMArg any]
-                                           completionHandler:completionBlock])
+    OCMStub([_configFetch[i] URLSessionDataTaskWithContent:[OCMArg any]
+                                         completionHandler:completionBlock])
         .andReturn(nil);
     [_configInstances[i] updateWithNewInstancesForConfigFetch:_configFetch[i]
                                                 configContent:configContent
-                                               configSettings:settings
+                                               configSettings:_settings
                                              configExperiment:_experimentMock];
   }
 }
@@ -459,6 +463,54 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                }];
 }
 
+- (void)testFetch3pNamespaceUpdatesExperiments {
+  [[_experimentMock expect] updateExperimentsWithResponse:[OCMArg any]];
+
+  XCTestExpectation *expectation = [self
+      expectationWithDescription:
+          [NSString
+              stringWithFormat:@"Fetch call for 'firebase' namespace updates experiment data"]];
+  XCTAssertEqual(_configInstances[RCNTestRCInstanceDefault].lastFetchStatus,
+                 FIRRemoteConfigFetchStatusNoFetchYet);
+  FIRRemoteConfigFetchCompletion fetchCompletion =
+      ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
+        XCTAssertEqual(self->_configInstances[RCNTestRCInstanceDefault].lastFetchStatus,
+                       FIRRemoteConfigFetchStatusSuccess);
+        XCTAssertNil(error);
+        [expectation fulfill];
+      };
+  [_configInstances[RCNTestRCInstanceDefault] fetchWithExpirationDuration:43200
+                                                        completionHandler:fetchCompletion];
+  [self waitForExpectationsWithTimeout:_expectationTimeout
+                               handler:^(NSError *error) {
+                                 XCTAssertNil(error);
+                               }];
+}
+
+- (void)testFetchOtherNamespaceDoesntUpdateExperiments {
+  [[_experimentMock reject] updateExperimentsWithResponse:[OCMArg any]];
+
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:
+                [NSString stringWithFormat:@"Fetch call for namespace other than 'firebase' "
+                                           @"doesn't update experiment data"]];
+  XCTAssertEqual(_configInstances[RCNTestRCInstanceSecondNamespace].lastFetchStatus,
+                 FIRRemoteConfigFetchStatusNoFetchYet);
+  FIRRemoteConfigFetchCompletion fetchCompletion =
+      ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
+        XCTAssertEqual(self->_configInstances[RCNTestRCInstanceSecondNamespace].lastFetchStatus,
+                       FIRRemoteConfigFetchStatusSuccess);
+        XCTAssertNil(error);
+        [expectation fulfill];
+      };
+  [_configInstances[RCNTestRCInstanceSecondNamespace] fetchWithExpirationDuration:43200
+                                                                completionHandler:fetchCompletion];
+  [self waitForExpectationsWithTimeout:_expectationTimeout
+                               handler:^(NSError *error) {
+                                 XCTAssertNil(error);
+                               }];
+}
+
 - (void)testFetchConfigsFailed {
   // Override the setup values to return back an error status.
   RCNConfigContent *configContent = [[RCNConfigContent alloc] initWithDBManager:_DBManager];
@@ -485,12 +537,10 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
         currentNamespace = RCNTestsFIRNamespace;
         break;
     }
-    NSString *fullyQualifiedNamespace =
-        [NSString stringWithFormat:@"%@:%@", currentNamespace, currentAppName];
     RCNUserDefaultsManager *userDefaultsManager =
         [[RCNUserDefaultsManager alloc] initWithAppName:currentAppName
                                                bundleID:[NSBundle mainBundle].bundleIdentifier
-                                              namespace:fullyQualifiedNamespace];
+                                              namespace:_fullyQualifiedNamespace];
     userDefaultsManager.lastFetchTime = 0;
 
     FIRRemoteConfig *config =
@@ -502,28 +552,20 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                                       analytics:nil]);
 
     _configInstances[i] = config;
-    RCNConfigSettings *settings =
-        [[RCNConfigSettings alloc] initWithDatabaseManager:_DBManager
-                                                 namespace:fullyQualifiedNamespace
-                                           firebaseAppName:currentAppName
-                                               googleAppID:currentOptions.googleAppID];
-    dispatch_queue_t queue = dispatch_queue_create(
-        [[NSString stringWithFormat:@"testqueue: %d", i] cStringUsingEncoding:NSUTF8StringEncoding],
-        DISPATCH_QUEUE_SERIAL);
-    _configFetch[i] = OCMPartialMock([[RCNConfigFetch alloc] initWithContent:configContent
-                                                                   DBManager:_DBManager
-                                                                    settings:settings
-                                                                   analytics:nil
-                                                                  experiment:nil
-                                                                       queue:queue
-                                                                   namespace:fullyQualifiedNamespace
-                                                                     options:currentOptions]);
+    _configFetch[i] =
+        OCMPartialMock([[RCNConfigFetch alloc] initWithContent:configContent
+                                                     DBManager:_DBManager
+                                                      settings:_settings
+                                                     analytics:nil
+                                                    experiment:nil
+                                                         queue:_queue
+                                                     namespace:_fullyQualifiedNamespace
+                                                       options:currentOptions]);
 
     OCMStub([_configFetch[i] fetchConfigWithExpirationDuration:43200 completionHandler:OCMOCK_ANY])
         .andDo(^(NSInvocation *invocation) {
           __unsafe_unretained void (^handler)(FIRRemoteConfigFetchStatus status,
                                               NSError *_Nullable error) = nil;
-          // void (^handler)(FIRRemoteConfigFetchCompletion);
           [invocation getArgument:&handler atIndex:3];
           [self->_configFetch[i] fetchWithUserProperties:[[NSDictionary alloc] init]
                                        completionHandler:handler];
@@ -539,15 +581,9 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                    HTTPVersion:nil
                                   headerFields:@{@"etag" : @"etag1"}];
 
-    id completionBlock =
-        [OCMArg invokeBlockWithArgs:_responseData[i], _URLResponse[i], [NSNull null], nil];
-
-    OCMExpect([_configFetch[i] URLSessionDataTaskWithContent:[OCMArg any]
-                                           completionHandler:completionBlock])
-        .andReturn(nil);
     [_configInstances[i] updateWithNewInstancesForConfigFetch:_configFetch[i]
                                                 configContent:configContent
-                                               configSettings:settings
+                                               configSettings:_settings
                                              configExperiment:nil];
   }
   // Make the fetch calls for all instances.
@@ -645,7 +681,6 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
         .andDo(^(NSInvocation *invocation) {
           __unsafe_unretained void (^handler)(FIRRemoteConfigFetchStatus status,
                                               NSError *_Nullable error) = nil;
-          // void (^handler)(FIRRemoteConfigFetchCompletion);
           [invocation getArgument:&handler atIndex:3];
           [self->_configFetch[i] fetchWithUserProperties:[[NSDictionary alloc] init]
                                        completionHandler:handler];
@@ -662,12 +697,6 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                    HTTPVersion:nil
                                   headerFields:@{@"etag" : @"etag1"}];
 
-    id completionBlock =
-        [OCMArg invokeBlockWithArgs:_responseData[i], _URLResponse[i], [NSNull null], nil];
-
-    OCMExpect([_configFetch[i] URLSessionDataTaskWithContent:[OCMArg any]
-                                           completionHandler:completionBlock])
-        .andReturn(nil);
     [_configInstances[i] updateWithNewInstancesForConfigFetch:_configFetch[i]
                                                 configContent:configContent
                                                configSettings:settings
@@ -698,6 +727,83 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     };
     [_configInstances[i] fetchWithExpirationDuration:43200 completionHandler:fetchCompletion];
   }
+  [self waitForExpectationsWithTimeout:_expectationTimeout
+                               handler:^(NSError *error) {
+                                 XCTAssertNil(error);
+                               }];
+}
+
+- (void)testFetchFailedNoNetworkErrorDoesNotThrottle {
+  RCNConfigContent *configContent = [[RCNConfigContent alloc] initWithDBManager:_DBManager];
+  NSString *currentAppName = RCNTestsDefaultFIRAppName;
+  FIROptions *currentOptions = [self firstAppOptions];
+  NSString *currentNamespace = RCNTestsFIRNamespace;
+  NSString *fullyQualifiedNamespace =
+      [NSString stringWithFormat:@"%@:%@", currentNamespace, currentAppName];
+
+  RCNUserDefaultsManager *userDefaultsManager =
+      [[RCNUserDefaultsManager alloc] initWithAppName:currentAppName
+                                             bundleID:[NSBundle mainBundle].bundleIdentifier
+                                            namespace:fullyQualifiedNamespace];
+  userDefaultsManager.lastFetchTime = 0;
+
+  FIRRemoteConfig *config = OCMPartialMock([[FIRRemoteConfig alloc] initWithAppName:currentAppName
+                                                                         FIROptions:currentOptions
+                                                                          namespace:currentNamespace
+                                                                          DBManager:_DBManager
+                                                                      configContent:configContent
+                                                                          analytics:nil]);
+  RCNConfigSettings *settings =
+      [[RCNConfigSettings alloc] initWithDatabaseManager:_DBManager
+                                               namespace:fullyQualifiedNamespace
+                                         firebaseAppName:currentAppName
+                                             googleAppID:currentOptions.googleAppID];
+  dispatch_queue_t queue = dispatch_queue_create(
+      [[NSString stringWithFormat:@"testqueue"] cStringUsingEncoding:NSUTF8StringEncoding],
+      DISPATCH_QUEUE_SERIAL);
+  RCNConfigFetch *configFetch =
+      OCMPartialMock([[RCNConfigFetch alloc] initWithContent:configContent
+                                                   DBManager:_DBManager
+                                                    settings:settings
+                                                   analytics:nil
+                                                  experiment:nil
+                                                       queue:queue
+                                                   namespace:fullyQualifiedNamespace
+                                                     options:currentOptions]);
+
+  OCMStub([configFetch fetchConfigWithExpirationDuration:43200 completionHandler:OCMOCK_ANY])
+      .andDo(^(NSInvocation *invocation) {
+        __unsafe_unretained void (^handler)(FIRRemoteConfigFetchStatus status,
+                                            NSError *_Nullable error) = nil;
+        [invocation getArgument:&handler atIndex:3];
+        [configFetch fetchWithUserProperties:[[NSDictionary alloc] init] completionHandler:handler];
+      });
+  _responseData[0] = [NSJSONSerialization dataWithJSONObject:@{} options:0 error:nil];
+
+  // A no network error is accompanied with an HTTP status code of 0.
+  _URLResponse[0] =
+      [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@"https://firebase.com"]
+                                  statusCode:0
+                                 HTTPVersion:nil
+                                headerFields:@{@"etag" : @"etag1"}];
+  [config updateWithNewInstancesForConfigFetch:configFetch
+                                 configContent:configContent
+                                configSettings:settings
+                              configExperiment:nil];
+
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"Network error doesn't increase throttle interval"];
+  XCTAssertEqual(config.lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
+
+  FIRRemoteConfigFetchCompletion fetchCompletion =
+      ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
+        XCTAssertEqual(config.lastFetchStatus, FIRRemoteConfigFetchStatusFailure);
+        XCTAssertEqual(settings.exponentialBackoffRetryInterval, 0);
+        [expectation fulfill];
+      };
+
+  [config fetchWithExpirationDuration:43200 completionHandler:fetchCompletion];
+
   [self waitForExpectationsWithTimeout:_expectationTimeout
                                handler:^(NSError *error) {
                                  XCTAssertNil(error);
@@ -794,9 +900,10 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     id completionBlock =
         [OCMArg invokeBlockWithArgs:_responseData[i], _URLResponse[i], [NSNull null], nil];
 
-    OCMExpect([_configFetch[i] URLSessionDataTaskWithContent:[OCMArg any]
-                                           completionHandler:completionBlock])
+    OCMStub([_configFetch[i] URLSessionDataTaskWithContent:[OCMArg any]
+                                         completionHandler:completionBlock])
         .andReturn(nil);
+
     [_configInstances[i] updateWithNewInstancesForConfigFetch:_configFetch[i]
                                                 configContent:configContent
                                                configSettings:settings
@@ -1341,10 +1448,12 @@ static NSString *UTCToLocal(NSString *utcTime) {
 }
 
 - (FIROptions *)secondAppOptions {
-  FIROptions *options =
-      [[FIROptions alloc] initWithContentsOfFile:[[NSBundle bundleForClass:[self class]]
-                                                     pathForResource:@"SecondApp-GoogleService-Info"
-                                                              ofType:@"plist"]];
+  NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+#if SWIFT_PACKAGE
+  bundle = Firebase_RemoteConfigUnit_SWIFTPM_MODULE_BUNDLE();
+#endif
+  NSString *plistPath = [bundle pathForResource:@"SecondApp-GoogleService-Info" ofType:@"plist"];
+  FIROptions *options = [[FIROptions alloc] initWithContentsOfFile:plistPath];
   XCTAssertNotNil(options);
   return options;
 }

@@ -23,6 +23,7 @@
 #import "FirebaseStorage/Sources/FIRStorageUtils.h"
 #import "FirebaseStorage/Sources/FIRStorage_Private.h"
 
+#import "FirebaseAppCheck/Sources/Interop/FIRAppCheckInterop.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "Interop/Auth/Public/FIRAuthInterop.h"
 
@@ -41,6 +42,7 @@ static GTMSessionFetcherRetryBlock _retryWhenOffline;
 @interface FIRStorage () {
   /// Stored Auth reference, if it exists. This needs to be stored for `copyWithZone:`.
   id<FIRAuthInterop> _Nullable _auth;
+  id<FIRAppCheckInterop> _Nullable _appCheck;
   NSTimeInterval _maxUploadRetryTime;
   NSTimeInterval _maxDownloadRetryTime;
   NSTimeInterval _maxOperationRetryTime;
@@ -68,7 +70,8 @@ static GTMSessionFetcherRetryBlock _retryWhenOffline;
 
 + (GTMSessionFetcherService *)fetcherServiceForApp:(FIRApp *)app
                                             bucket:(NSString *)bucket
-                                              auth:(nullable id<FIRAuthInterop>)auth {
+                                              auth:(nullable id<FIRAuthInterop>)auth
+                                          appCheck:(nullable id<FIRAppCheckInterop>)appCheck {
   @synchronized(_fetcherServiceMap) {
     NSMutableDictionary *bucketMap = _fetcherServiceMap[app.name];
     if (!bucketMap) {
@@ -85,7 +88,8 @@ static GTMSessionFetcherRetryBlock _retryWhenOffline;
       FIRStorageTokenAuthorizer *authorizer =
           [[FIRStorageTokenAuthorizer alloc] initWithGoogleAppID:app.options.googleAppID
                                                   fetcherService:fetcherService
-                                                    authProvider:auth];
+                                                    authProvider:auth
+                                                        appCheck:appCheck];
       [fetcherService setAuthorizer:authorizer];
       bucketMap[bucket] = fetcherService;
     }
@@ -149,11 +153,13 @@ static GTMSessionFetcherRetryBlock _retryWhenOffline;
 
 - (instancetype)initWithApp:(FIRApp *)app
                      bucket:(NSString *)bucket
-                       auth:(nullable id<FIRAuthInterop>)auth {
+                       auth:(nullable id<FIRAuthInterop>)auth
+                   appCheck:(nullable id<FIRAppCheckInterop>)appCheck {
   self = [super init];
   if (self) {
     _app = app;
     _auth = auth;
+    _appCheck = appCheck;
     _storageBucket = bucket;
     _host = kFIRStorageHost;
     _scheme = kFIRStorageScheme;
@@ -184,7 +190,8 @@ static GTMSessionFetcherRetryBlock _retryWhenOffline;
 - (instancetype)copyWithZone:(NSZone *)zone {
   FIRStorage *storage = [[[self class] allocWithZone:zone] initWithApp:_app
                                                                 bucket:_storageBucket
-                                                                  auth:_auth];
+                                                                  auth:_auth
+                                                              appCheck:_appCheck];
   storage.callbackQueue = self.callbackQueue;
   return storage;
 }
@@ -347,7 +354,10 @@ static GTMSessionFetcherRetryBlock _retryWhenOffline;
 
 - (void)ensureConfigured {
   if (!_fetcherServiceForApp) {
-    _fetcherServiceForApp = [FIRStorage fetcherServiceForApp:_app bucket:_storageBucket auth:_auth];
+    _fetcherServiceForApp = [FIRStorage fetcherServiceForApp:_app
+                                                      bucket:bucket
+                                                        auth:auth
+                                                    appCheck:appCheck];
   }
 }
 

@@ -15,15 +15,14 @@
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 #import "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
+#import "Crashlytics/Crashlytics/Controllers/FIRCLSAnalyticsManager.h"
+#import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSReportUploader_Private.h"
-#import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionArbiter.h"
 #import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
-#import "Crashlytics/Crashlytics/Helpers/FIRCLSFCRAnalytics.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSInstallIdentifierModel.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSSymbolResolver.h"
 #import "Crashlytics/Crashlytics/Models/Record/FIRCLSReportAdapter.h"
 #import "Crashlytics/Crashlytics/Operations/Reports/FIRCLSProcessReportOperation.h"
@@ -39,23 +38,28 @@
 @interface FIRCLSReportUploader () {
   id<FIRAnalyticsInterop> _analytics;
 }
+
+@property(nonatomic, strong) GDTCORTransport *googleTransport;
+@property(nonatomic, strong) FIRCLSInstallIdentifierModel *installIDModel;
+
+@property(nonatomic, readonly) NSString *googleAppID;
+
 @end
 
 @implementation FIRCLSReportUploader
 
-- (instancetype)initWithQueue:(NSOperationQueue *)queue
-                   dataSource:(id<FIRCLSReportUploaderDataSource>)dataSource
-                  fileManager:(FIRCLSFileManager *)fileManager
-                    analytics:(id<FIRAnalyticsInterop>)analytics {
+- (instancetype)initWithManagerData:(FIRCLSManagerData *)managerData {
   self = [super init];
   if (!self) {
     return nil;
   }
 
-  _operationQueue = queue;
-  _dataSource = dataSource;
-  _fileManager = fileManager;
-  _analytics = analytics;
+  _operationQueue = managerData.operationQueue;
+  _googleAppID = managerData.googleAppID;
+  _googleTransport = managerData.googleTransport;
+  _installIDModel = managerData.installIDModel;
+  _fileManager = managerData.fileManager;
+  _analytics = managerData.analytics;
 
   return self;
 }
@@ -82,6 +86,16 @@
   // symbolication operation may be computationally intensive.
   FIRCLSApplicationActivity(
       FIRCLSApplicationActivityDefault, @"Crashlytics Crash Report Processing", ^{
+        // Run this only once because it can be run multiple times in succession,
+        // and if it's slow it could delay crash upload too much without providing
+        // user benefit.
+        static dispatch_once_t regenerateOnceToken;
+        dispatch_once(&regenerateOnceToken, ^{
+          // Check to see if the FID has rotated before we construct the payload
+          // so that the payload has an updated value.
+          [self.installIDModel regenerateInstallIDIfNeeded];
+        });
+
         // Run on-device symbolication before packaging if we should process
         if (shouldProcess) {
           if (![self.fileManager moveItemAtPath:report.path
@@ -131,8 +145,8 @@
         //   2) In the past we did try to check for success, but it was a useless check because
         //      sendDataEvent is async (unless we're sending urgently).
         if (isCrash) {
-          [FIRCLSFCRAnalytics logCrashWithTimeStamp:report.crashedOnDate.timeIntervalSince1970
-                                        toAnalytics:self->_analytics];
+          [FIRCLSAnalyticsManager logCrashWithTimeStamp:report.crashedOnDate.timeIntervalSince1970
+                                            toAnalytics:self->_analytics];
         }
       });
 
@@ -160,16 +174,17 @@
     return;
   }
 
-  FIRCLSReportAdapter *adapter =
-      [[FIRCLSReportAdapter alloc] initWithPath:path googleAppId:self.dataSource.googleAppID];
+  FIRCLSReportAdapter *adapter = [[FIRCLSReportAdapter alloc] initWithPath:path
+                                                               googleAppId:self.googleAppID
+                                                            installIDModel:self.installIDModel];
 
-  GDTCOREvent *event = [self.dataSource.googleTransport eventForTransport];
+  GDTCOREvent *event = [self.googleTransport eventForTransport];
   event.dataObject = adapter;
   event.qosTier = GDTCOREventQoSFast;  // Bypass batching, send immediately
 
   dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
 
-  [self.dataSource.googleTransport
+  [self.googleTransport
       sendDataEvent:event
          onComplete:^(BOOL wasWritten, NSError *error) {
            if (!wasWritten) {

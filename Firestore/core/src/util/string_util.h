@@ -65,6 +65,11 @@ std::string PrefixSuccessor(absl::string_view prefix);
  */
 std::string ImmediateSuccessor(absl::string_view s);
 
+/**
+ * Returns an reference to a static empty string.
+ */
+const std::string& EmptyString();
+
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase

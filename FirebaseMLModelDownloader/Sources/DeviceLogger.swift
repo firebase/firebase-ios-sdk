@@ -19,37 +19,36 @@ import Foundation
   import GoogleUtilities
 #endif
 
-/// Enum of debug messages.
-// TODO: Create list of all possible messages with code - according to format.
+/// Enum of log messages.
 enum LoggerMessageCode: Int {
-  case modelDownloaded = 1
-  case downloadedModelFileSaved
-  case downloadedModelInfoSaved
-  case downloaderInstanceCreated
+  case downloaderInstanceCreated = 1
   case downloaderInstanceRetrieved
   case downloaderInstanceDeleted
-  case localModelFound
+  case modelDownloaded
+  case modelDownloadError
+  case retryDownload
   case backgroundModelDownloaded
-  case modelNameParseError
-  case noLocalModelInfo
-  case outdatedModelPathError
+  case backgroundDownloadError
+  case disableBackupError
+  case downloadedModelFileSaved
+  case downloadedModelSaveError
+  case anotherDownloadInProgressError
+  case invalidDownloadSessionError
+  case mergeRequests
+  case localModelFound
   case allLocalModelsFound
   case listModelsError
-  case modelNotFound
+  case modelNameParseError
+  case noLocalModelInfo
+  case noLocalModelFile
+  case outdatedModelPathError
   case modelDeleted
-  case invalidOptions
-  case retryDownload
-  case anotherDownloadInProgressError
-  case invalidModelName
-  case permissionDenied
-  case notEnoughSpace
+  case modelDeletionFailed
   case validHTTPResponse
-  case invalidModelInfoFetchURL
-  case modelInfoRetrievalError
   case validAuthToken
-  case hostnameError
-  case invalidDownloadSessionError
-  case invalidHTTPResponse
+  case invalidOptions
+  case invalidModelInfoFetchURL
+  case downloadedModelInfoSaved
   case missingModelHash
   case invalidModelInfoJSON
   case modelInfoDeleted
@@ -57,19 +56,26 @@ enum LoggerMessageCode: Int {
   case modelInfoUnmodified
   case authTokenError
   case expiredModelInfo
-  case modelDownloadError
-  case downloadedModelSaveError
   case modelHashMismatchError
   case noModelHash
+  case modelInfoRetrievalError
+  case modelNotFound
+  case invalidArgument
+  case permissionDenied
+  case resourceExhausted
+  case notEnoughSpace
+  case hostnameError
+  case invalidHTTPResponse
   case analyticsEventEncodeError
   case telemetryInitError
-  case backgroundDownloadError
   case testError
 }
 
 /// On-device logger.
 class DeviceLogger {
+  /// Log identifier.
   static let service = "[Firebase/MLModelDownloader]"
+
   static func logEvent(level: GoogleLoggerLevel, message: String, messageCode: LoggerMessageCode) {
     let code = String(format: "I-MLM%06d", messageCode.rawValue)
     let args: [CVarArg] = []

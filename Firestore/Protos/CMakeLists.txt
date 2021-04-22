@@ -33,6 +33,7 @@ set(
   firestore/local/maybe_document
   firestore/local/mutation
   firestore/local/target
+  firestore/bundle
   google/api/annotations
   google/api/http
   google/firestore/v1/common

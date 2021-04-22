@@ -22,9 +22,11 @@
 #include <string>
 
 #include "Firestore/core/src/api/api_fwd.h"
+#include "Firestore/core/src/api/load_bundle_task.h"
 #include "Firestore/core/src/api/settings.h"
 #include "Firestore/core/src/core/core_fwd.h"
 #include "Firestore/core/src/model/database_id.h"
+#include "Firestore/core/src/util/byte_stream.h"
 #include "Firestore/core/src/util/status_fwd.h"
 
 namespace firebase {
@@ -100,6 +102,10 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
 
   void EnableNetwork(util::StatusCallback callback);
   void DisableNetwork(util::StatusCallback callback);
+
+  std::shared_ptr<api::LoadBundleTask> LoadBundle(
+      std::unique_ptr<util::ByteStream> bundle_data);
+  void GetNamedQuery(const std::string& name, api::QueryCallback callback);
 
   /**
    * Sets the language of the public API in the format of

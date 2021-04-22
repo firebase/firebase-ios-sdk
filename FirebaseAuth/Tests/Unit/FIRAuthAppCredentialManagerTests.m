@@ -24,7 +24,7 @@
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredential.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredentialManager.h"
 
-#define ANY_ERROR_POINTER ((NSError * __autoreleasing * _Nullable)[OCMArg anyPointer])
+#define ANY_ERROR_POINTER ((NSError * __autoreleasing *_Nullable)[OCMArg anyPointer])
 #define SAVE_TO(var)                     \
   [OCMArg checkWithBlock:^BOOL(id arg) { \
     var = arg;                           \

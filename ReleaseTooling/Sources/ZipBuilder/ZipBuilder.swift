@@ -406,6 +406,10 @@ struct ZipBuilder {
     }.sorted { $0.key < $1.key }
     for pod in remainingPods {
       do {
+        if frameworksToAssemble[pod.key] == nil {
+          // Continue if the pod wasn't built - like Swift frameworks for Carthage.
+          continue
+        }
         let (productDir, podFrameworks) =
           try installAndCopyFrameworks(forPod: pod.key,
                                        withInstalledPods: installedPods,
@@ -622,9 +626,13 @@ struct ZipBuilder {
                                                                         frameworks: [String]) {
     let podsToCopy = [podName] +
       CocoaPodUtils.transitiveMasterPodDependencies(for: podName, in: installedPods)
+    // Remove any duplicates from the `podsToCopy` array. The easiest way to do this is to wrap it
+    // in a set then back to an array.
+    let dedupedPods = Array(Set(podsToCopy))
+
     // Copy the frameworks into the proper product directory.
     let productDir = rootZipDir.appendingPathComponent(podName)
-    let namedFrameworks = try copyFrameworks(fromPods: podsToCopy,
+    let namedFrameworks = try copyFrameworks(fromPods: dedupedPods,
                                              toDirectory: productDir,
                                              frameworkLocations: builtFrameworks,
                                              podsToIgnore: podsToIgnore)

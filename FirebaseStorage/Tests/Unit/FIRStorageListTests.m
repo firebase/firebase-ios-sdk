@@ -42,7 +42,8 @@ NSString *kListPath = @"object";
   self.fetcherService.authorizer =
       [[FIRStorageTokenAuthorizer alloc] initWithGoogleAppID:@"dummyAppID"
                                               fetcherService:self.fetcherService
-                                                authProvider:nil];
+                                                authProvider:nil
+                                                    appCheck:nil];
 
   self.dispatchQueue = dispatch_queue_create("Test dispatch queue", DISPATCH_QUEUE_SERIAL);
 

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCore'
-  s.version          = '7.5.0'
+  s.version          = '7.11.0'
   s.summary          = 'Firebase Core'
 
   s.description      = <<-DESC
@@ -57,7 +57,11 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   }
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }
-    unit_tests.platforms = {:ios => ios_deployment_target, :osx => osx_deployment_target, :tvos => tvos_deployment_target}
+    unit_tests.platforms = {
+      :ios => ios_deployment_target,
+      :osx => osx_deployment_target,
+      :tvos => tvos_deployment_target
+    }
     unit_tests.source_files = [
       'FirebaseCore/Tests/Unit/**/*.[mh]',
       'SharedTestUtilities/FIROptionsMock.[mh]',
@@ -68,7 +72,11 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   end
 
   s.test_spec 'swift-unit' do |swift_unit_tests|
-    swift_unit_tests.platforms = {:ios => ios_deployment_target, :osx => osx_deployment_target, :tvos => tvos_deployment_target}
+    swift_unit_tests.platforms = {
+      :ios => ios_deployment_target,
+      :osx => osx_deployment_target,
+      :tvos => tvos_deployment_target
+    }
     swift_unit_tests.source_files = [
       'FirebaseCore/Tests/SwiftUnit/**/*.swift',
       'FirebaseCore/Tests/SwiftUnit/**/*.h',

@@ -51,6 +51,7 @@
 
 - (void)unlisten:(FQuerySpec *)query tagId:(NSNumber *)tagId;
 - (void)refreshAuthToken:(NSString *)token;
+- (void)refreshAppCheckToken:(NSString *)token;
 - (void)onDisconnectPutData:(id)data
                     forPath:(FPath *)path
                withCallback:(fbt_void_nsstring_nsstring)callback;

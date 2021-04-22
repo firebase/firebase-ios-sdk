@@ -15,7 +15,7 @@
  */
 
 #import "FirebaseDatabase/Sources/Api/FIRDatabaseConfig.h"
-#import "FirebaseDatabase/Sources/Login/FAuthTokenProvider.h"
+#import "FirebaseDatabase/Sources/Login/FIRDatabaseConnectionContextProvider.h"
 
 @protocol FStorageEngine;
 
@@ -24,7 +24,8 @@
 @property(nonatomic, readonly) BOOL isFrozen;
 @property(nonatomic, strong, readonly) NSString *sessionIdentifier;
 @property(nonatomic, strong, readonly) NSString *googleAppID;
-@property(nonatomic, strong) id<FAuthTokenProvider> authTokenProvider;
+@property(nonatomic, strong) id<FIRDatabaseConnectionContextProvider>
+    contextProvider;
 @property(nonatomic, strong) id<FStorageEngine> forceStorageEngine;
 
 - (void)freeze;

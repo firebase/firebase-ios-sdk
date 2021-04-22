@@ -1,5 +1,6 @@
 platform :ios, '10.0'
 
+source 'https://github.com/firebase/SpecsDev.git'
 source 'https://github.com/firebase/SpecsStaging.git'
 source 'https://cdn.cocoapods.org/'
 
@@ -24,9 +25,6 @@ target 'SymbolCollisionTest' do
     pod 'FirebaseInstanceID', :path => '../'
     pod 'FirebaseInstallations', :path => '../'
     pod 'FirebaseMessaging', :path => '../'
-    pod 'Firebase/MLCommon', :path => '../'
-    pod 'Firebase/MLModelInterpreter', :path => '../'
-    pod 'Firebase/MLVision', :path => '../'
     pod 'FirebasePerformance', :path => '../'
     pod 'FirebaseRemoteConfig', :path => '../'
     pod 'FirebaseStorage', :path => '../'

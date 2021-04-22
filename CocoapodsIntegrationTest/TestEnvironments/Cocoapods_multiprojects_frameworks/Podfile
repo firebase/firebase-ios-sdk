@@ -1,3 +1,7 @@
+source 'https://github.com/firebase/SpecsDev.git'
+source 'https://github.com/firebase/SpecsStaging.git'
+source 'https://cdn.cocoapods.org/'
+
 # Uncomment the next line to define a global platform for your project
 platform :ios, '10.0'
 

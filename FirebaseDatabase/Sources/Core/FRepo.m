@@ -110,9 +110,14 @@
 - (void)deferredInit {
     // TODO: cleanup on dealloc
     __weak FRepo *weakSelf = self;
-    [self.config.authTokenProvider listenForTokenChanges:^(NSString *token) {
+    [self.config.contextProvider listenForAuthTokenChanges:^(NSString *token) {
       [weakSelf.connection refreshAuthToken:token];
     }];
+
+    [self.config.contextProvider
+        listenForAppCheckTokenChanges:^(NSString *token) {
+          [weakSelf.connection refreshAppCheckToken:token];
+        }];
 
     // Open connection now so that by the time we are connected the deferred
     // init has run This relies on the fact that all callbacks run on repos
@@ -518,10 +523,8 @@
         (void (^_Nonnull)(NSError *__nullable error,
                           FIRDataSnapshot *__nullable snapshot))block {
     FQuerySpec *querySpec = [query querySpec];
-    id<FNode> node =
-        [self.serverSyncTree calcCompleteEventCacheAtPath:querySpec.path
-                                          excludeWriteIds:@[]];
-    if (![node isEmpty]) {
+    id<FNode> node = [self.serverSyncTree getServerValue:[query querySpec]];
+    if (node != nil) {
         block(nil, [[FIRDataSnapshot alloc]
                        initWithRef:query.ref
                        indexedNode:[FIndexedNode

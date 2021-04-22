@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFunctions'
-  s.version          = '7.5.0'
+  s.version          = '7.11.0'
   s.summary          = 'Cloud Functions for Firebase'
 
   s.description      = <<-DESC
@@ -25,6 +25,7 @@ Cloud Functions for Firebase.
   s.source_files = [
     'Functions/FirebaseFunctions/**/*',
     'Interop/Auth/Public/*.h',
+    'FirebaseAppCheck/Sources/Interop/*.h',
     'FirebaseCore/Sources/Private/*.h',
     'FirebaseMessaging/Sources/Interop/FIRMessagingInterop.h',
   ]
@@ -44,6 +45,7 @@ Cloud Functions for Firebase.
       'Functions/Example/Test*/*.[mh]',
       'SharedTestUtilities/FIRAuthInteropFake*',
       'SharedTestUtilities/FIRMessagingInteropFake*',
+      'SharedTestUtilities/AppCheckFake/*.[mh]',
   ]
   end
 

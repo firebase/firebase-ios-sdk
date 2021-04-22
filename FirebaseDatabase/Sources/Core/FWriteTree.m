@@ -256,14 +256,14 @@
                 return nil;
             } else {
                 BOOL (^filter)(FWriteRecord *) = ^(FWriteRecord *record) {
-                  return (BOOL)(
-                      (record.visible || includeHiddenWrites) &&
-                      (writeIdsToExclude == nil ||
-                       ![writeIdsToExclude
-                           containsObject:
-                               [NSNumber numberWithInteger:record.writeId]]) &&
-                      ([record.path contains:treePath] ||
-                       [treePath contains:record.path]));
+                  return (BOOL)((record.visible || includeHiddenWrites) &&
+                                (writeIdsToExclude == nil ||
+                                 ![writeIdsToExclude
+                                     containsObject:[NSNumber
+                                                        numberWithInteger:
+                                                            record.writeId]]) &&
+                                ([record.path contains:treePath] ||
+                                 [treePath contains:record.path]));
                 };
                 FCompoundWrite *mergeAtPath =
                     [FWriteTree layerTreeFromWrites:self.allWrites

@@ -32,7 +32,7 @@ set(
   ${FIREBASE_SOURCE_DIR}/Firestore/Example/FuzzTests/FuzzingResources
 )
 
-link_libraries(firestore_core)
+link_libraries(firestore_core firestore_util)
 
 
 # Serializer fuzzing target.

@@ -1,3 +1,28 @@
+# Firebase 8.0.0
+- [changed] Migrate `transform:` callsites and introduce breaking version of GDT (9.0). (#7899)
+- [removed] Build warnings will no longer be generated to warn about missing capabilities resulting
+  from not including FirebaseAnalytics in the app. See the Firebase docs instead. (#7487)
+- [removed] The `Firebase/AdMob` CocoaPods subspec has been removed. Use the `Google-Mobile-Ads-SDK`
+  CocoaPod instead. (#7833)
+- [removed] The `Firebase/MLModelInterpreter` CocoaPods subspec has been removed. Use the
+ `Firebase/MLModelDownloader` subspec instead.
+  CocoaPod instead.
+- [removed] The `Firebase/MLVision` CocoaPods subspec has been removed. Use the
+  `GoogleMLKit` CocoaPod instead.
+- [changed] The Swift Package Manager distribution now requires at least watchOS 7.0 for products
+  that support watchOS. The CocoaPods distribution continues to support watchOS 6.0 with the
+  exception of FirebaseDatabase.
+
+# Firebase 7.10.0
+- [changed] Update Nanopb to version 0.3.9.8. It fixes a possible security issue. (#7787)
+
+# FirebaseCore 7.7.0
+- [changed] Deprecated FirebaseMLModelInterpreter and FirebaseMLVision.
+- [added] Introduced FirebaseMLModelDownloader.
+- [fixed] Fixed missing doc comment in `FirebaseVersion()`. (#7506)
+- [changed] Minimum required Xcode version for Zip and Carthage distributions changed to 12.2 (was 12.0).
+- [added] The zip distribution now includes Catalyst arm64 simulator slices. (#7007)
+
 # FirebaseCore 7.6.0
 - [fixed] Fixed build warnings introduced with Xcode 12.5. (#7431)
 

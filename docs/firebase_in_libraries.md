@@ -5,6 +5,9 @@ With Firebase 7.0, CocoaPods developers can control whether Firebase is linked s
 dynamically from the `Podfile`. Use the Podfile option `use_frameworks! :linkage => :static` to get
 the Firebase 6.x linkage behavior.
 
+The 7.x update applies to all Firebase libraries except
+FirebaseAnalytics, which continues to be distributed as a binary static framework.
+
 The zip and Carthage distributions continue to only be built for static linking.
 
 The Swift Package Manager distribution follows the Swift Package Manager defaults which is

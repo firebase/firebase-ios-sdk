@@ -14,38 +14,29 @@
 
 #import <Foundation/Foundation.h>
 
-#include "Crashlytics/Crashlytics/Helpers/FIRCLSProfiling.h"
-#include "Crashlytics/Crashlytics/Public/FirebaseCrashlytics/FIRCrashlytics.h"
-#include "Crashlytics/Crashlytics/Settings/Models/FIRCLSApplicationIdentifierModel.h"
+#import "Crashlytics/Crashlytics/Public/FirebaseCrashlytics/FIRCrashlytics.h"
+
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSProfiling.h"
 
 @class FBLPromise<T>;
+@class FIRCLSExistingReportManager;
+@class FIRCLSAnalyticsManager;
+@class FIRCLSManagerData;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class FIRCLSDataCollectionArbiter;
-@class FIRCLSFileManager;
-@class FIRCLSInternalReport;
-@class FIRCLSSettings;
-@class GDTCORTransport;
-@class FIRInstallations;
-@protocol FIRAnalyticsInterop;
-
 @interface FIRCLSReportManager : NSObject
 
-- (instancetype)initWithFileManager:(FIRCLSFileManager *)fileManager
-                      installations:(FIRInstallations *)installations
-                          analytics:(nullable id<FIRAnalyticsInterop>)analytics
-                        googleAppID:(NSString *)googleAppID
-                        dataArbiter:(FIRCLSDataCollectionArbiter *)dataArbiter
-                    googleTransport:(GDTCORTransport *)googleTransport
-                         appIDModel:(FIRCLSApplicationIdentifierModel *)appIDModel
-                           settings:(FIRCLSSettings *)settings NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithManagerData:(FIRCLSManagerData *)managerData
+              existingReportManager:(FIRCLSExistingReportManager *)existingReportManager
+                   analyticsManager:(FIRCLSAnalyticsManager *)analyticsManager
+    NS_DESIGNATED_INITIALIZER;
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
 
 - (FBLPromise<NSNumber *> *)startWithProfilingMark:(FIRCLSProfileMark)mark;
 
-- (FBLPromise<NSNumber *> *)checkForUnsentReports;
+- (FBLPromise<FIRCrashlyticsReport *> *)checkForUnsentReports;
 - (FBLPromise *)sendUnsentReports;
 - (FBLPromise *)deleteUnsentReports;
 
