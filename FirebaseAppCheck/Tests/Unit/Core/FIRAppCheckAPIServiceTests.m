@@ -19,8 +19,6 @@
 #import "FBLPromise+Testing.h"
 #import "OCMock.h"
 
-#import <FirebaseAppCheck/FIRAppCheckVersion.h>
-
 #import <GoogleUtilities/GULURLSessionDataResponse.h>
 #import <GoogleUtilities/NSURLSession+GULPromises.h>
 
@@ -93,7 +91,7 @@
 
     // TODO: Replace the assertions by the commented below once platform logging approved.
     NSString *appCheckVersionHeader =
-        [NSString stringWithFormat:@"fire-app-check/%s", FIRAppCheckVersionStr];
+    [NSString stringWithFormat:@"fire-app-check/%@", FIRFirebaseVersion()];
     XCTAssertEqualObjects(request.allHTTPHeaderFields[@"x-firebase-client"], appCheckVersionHeader);
     XCTAssertNil(request.allHTTPHeaderFields[@"X-firebase-client-log-type"]);
     //    XCTAssertEqualObjects(request.allHTTPHeaderFields[@"x-firebase-client"],
