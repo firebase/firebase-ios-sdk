@@ -15,8 +15,6 @@
  */
 
 import XCTest
-import FirebaseCore
-import FirebaseAppCheck
 
 class AppCheckTests: XCTestCase {
   func usageExample() {

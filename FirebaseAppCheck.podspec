@@ -64,16 +64,23 @@ Pod::Spec.new do |s|
 
   s.test_spec 'integration' do |integration_tests|
     integration_tests.platforms = {:ios => ios_deployment_target, :osx => osx_deployment_target, :tvos => tvos_deployment_target}
-    integration_tests.source_files = base_dir + 'Tests/Integration/**/*.[mh]',
-                              base_dir + 'Tests/Integration/**/*.[mh]',
-                              integration_tests.resources = base_dir + 'Tests/Fixture/**/*'
-                              integration_tests.requires_app_host = true
+    integration_tests.source_files = [
+      base_dir + 'Tests/Integration/**/*.[mh]',
+      base_dir + 'Tests/Integration/**/*.[mh]',
+    ]
+    integration_tests.resources = base_dir + 'Tests/Fixture/**/*'
+    integration_tests.requires_app_host = true
   end
 
   s.test_spec 'swift-unit' do |swift_unit_tests|
     swift_unit_tests.platforms = {:ios => ios_deployment_target, :osx => osx_deployment_target, :tvos => tvos_deployment_target}
-    swift_unit_tests.source_files = base_dir + 'Tests/Unit/Swift/**/*.swift',
-                                    base_dir + 'Tests/Unit/Swift/**/*.h'
+    swift_unit_tests.source_files = [
+      base_dir + 'Tests/Unit/Swift/**/*.swift',
+      base_dir + 'Tests/Unit/Swift/**/*.h',
+    ]
+    swift_unit_tests.pod_target_xcconfig = {
+      'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseAppCheck/Tests/Unit/Swift/FirebaseAppCheck-swift-unit-Bridging-Header.h'
+    }
   end
 
 end
