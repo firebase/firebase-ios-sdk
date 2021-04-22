@@ -51,29 +51,25 @@ jobs:
     # if: github.repository == 'Firebase/firebase-ios-sdk' && github.event.pull_request.merged == true
     runs-on: macOS-latest
     env:
+      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       local_repo: specstesting
       local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
       podspec_repo_branch: master
       pr_branch: ${{ github.event.pull_request.head.ref }}
     steps:
     - uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
     - name: Get token
       run: |
          scripts/decrypt_gha_secret.sh scripts/gha-encrypted/oss-bot-access.txt.gpg \
          oss-bot-access.txt "$bot_token_secret"
-         pwd
-         ls
     - name: Update SpecsTesting repo setup
       run: |
-         pwd
-         ls
          ossbotaccess=`cat oss-bot-access.txt`
          # Update/create a nightly tag to the head of the master branch.
          BOT_TOKEN="${ossbotaccess}" test_version="${nightly_version}" sdk_version_config="${GITHUB_WORKSPACE}/scripts/create_spec_repo/RC_firebase_sdk.textproto" local_sdk_repo_dir="${local_sdk_repo_dir}" podspec_repo_branch="${podspec_repo_branch}" scripts/release_testing_setup.sh prerelease_testing
     - name: Push updated podspecs
       run: |
+        cd "${local_sdk_repo_dir}"
         common_commit=$(git merge-base remotes/origin/${pr_branch} remotes/origin/master)
         git diff --name-only $common_commit remotes/origin/${pr_branch} > updated_files.txt
         while IFS= read -r line;
