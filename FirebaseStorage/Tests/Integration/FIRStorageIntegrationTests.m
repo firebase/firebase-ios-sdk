@@ -511,7 +511,7 @@ NSString *const kTestPassword = KPASSWORD;
                       NSString *data = [NSString stringWithContentsOfURL:fileURL
                                                                 encoding:NSUTF8StringEncoding
                                                                    error:NULL];
-                      [ref dataWithMaxSize:128
+                      [ref dataWithMaxSize:fileData.length
                                 completion:^(NSData *_Nullable data, NSError *_Nullable error) {
                                   XCTAssertEqualObjects(data, fileData);
                                   [expectation fulfill];
