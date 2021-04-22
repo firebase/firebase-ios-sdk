@@ -74,6 +74,15 @@ jobs:
         echo "updated_files.txt :"
         cat updated_files.txt
         echo "updated_files.txt end"
+        while IFS= read -r line;
+        do
+          echo $line
+          if [ ${line: -8} == ".podspec" ]
+          then
+            updated_podspecs="${basename -s .podspec line} ${updated_podspecs}"
+            echo $updated_podspecs
+          fi
+        done < updated_files.txt
 
   abtesting_quickstart:
     # Don't run on private repo unless it is a PR.
