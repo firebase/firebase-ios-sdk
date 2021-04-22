@@ -53,7 +53,7 @@ jobs:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       local_repo: specstesting
       local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
-      podspec_repo_branch: master
+      podspec_repo_branch: podspec_pre
       pr_branch: ${{ github.event.pull_request.head.ref }}
     steps:
     - uses: actions/checkout@v2
