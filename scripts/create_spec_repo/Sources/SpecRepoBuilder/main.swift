@@ -122,7 +122,7 @@ struct SpecRepoBuilder: ParsableCommand {
   @Option(help: "Local Podspec Repo Name.")
   var localSpecRepoName: String
 
-  @Option(help: "Push selected podspecs.")
+  @Option(parsing: .upToNextOption, help: "Push selected podspecs.")
   var includePods: [String] = []
 
   @Flag(help: "Keep or erase a repo before push.")
