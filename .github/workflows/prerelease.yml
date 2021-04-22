@@ -76,8 +76,11 @@ jobs:
           if [ ${line: -8} == ".podspec" ]
           then
             updated_podspecs="${updated_podspecs} ${basename -s .podspec line}"
+            echo $updated_podspecs
           fi
         done < "$(cat updated_files.txt)"
+        echo "--------"
+        echo $updated_podspecs
         if [ -z "$updated_podspecs" ]
         then
           exit
