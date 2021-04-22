@@ -73,6 +73,6 @@ elif [ "$TESTINGMODE" = "prerelease_testing" ]; then
   git tag -f -a "${tag_version}" -m "release testing"
   git push origin "${tag_version}"
   # Update source and tag, e.g.  ":tag => 'CocoaPods-' + s.version.to_s" to
-  # ":tag => test"
+  # ":tag => CocoaPods-${test_version}.nightly"
   sed  -i "" "s/\s*:tag.*/:tag => '${tag_version}'/" *.podspec
 fi
