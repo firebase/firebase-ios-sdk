@@ -114,30 +114,33 @@
 - (void)testLogSamplingWithBucketIdentifier {
   [self.fakeConfigs setTraceSamplingRate:0.05];
   [self.fakeConfigs setNetworkSamplingRate:0.05];
-  XCTAssertNil([self.logSampler transform:self.transportTraceEvent]);
-  XCTAssertNil([self.logSampler transform:self.transportNetworkEvent]);
+  XCTAssertNil([self.logSampler transformGDTEvent:self.transportTraceEvent]);
+  XCTAssertNil([self.logSampler transformGDTEvent:self.transportNetworkEvent]);
 
   [self.fakeConfigs setTraceSamplingRate:0.65];
   [self.fakeConfigs setNetworkSamplingRate:0.65];
-  XCTAssertNil([self.logSampler transform:self.transportTraceEvent]);
-  XCTAssertNil([self.logSampler transform:self.transportNetworkEvent]);
+  XCTAssertNil([self.logSampler transformGDTEvent:self.transportTraceEvent]);
+  XCTAssertNil([self.logSampler transformGDTEvent:self.transportNetworkEvent]);
 
   [self.fakeConfigs setTraceSamplingRate:0.66];
   [self.fakeConfigs setNetworkSamplingRate:0.66];
-  XCTAssertEqual([self.logSampler transform:self.transportTraceEvent], self.transportTraceEvent);
-  XCTAssertEqual([self.logSampler transform:self.transportNetworkEvent],
+  XCTAssertEqual([self.logSampler transformGDTEvent:self.transportTraceEvent],
+                 self.transportTraceEvent);
+  XCTAssertEqual([self.logSampler transformGDTEvent:self.transportNetworkEvent],
                  self.transportNetworkEvent);
 
   [self.fakeConfigs setTraceSamplingRate:0.67];
   [self.fakeConfigs setNetworkSamplingRate:0.67];
-  XCTAssertEqual([self.logSampler transform:self.transportTraceEvent], self.transportTraceEvent);
-  XCTAssertEqual([self.logSampler transform:self.transportNetworkEvent],
+  XCTAssertEqual([self.logSampler transformGDTEvent:self.transportTraceEvent],
+                 self.transportTraceEvent);
+  XCTAssertEqual([self.logSampler transformGDTEvent:self.transportNetworkEvent],
                  self.transportNetworkEvent);
 
   [self.fakeConfigs setTraceSamplingRate:1.0];
   [self.fakeConfigs setNetworkSamplingRate:1.0];
-  XCTAssertEqual([self.logSampler transform:self.transportTraceEvent], self.transportTraceEvent);
-  XCTAssertEqual([self.logSampler transform:self.transportNetworkEvent],
+  XCTAssertEqual([self.logSampler transformGDTEvent:self.transportTraceEvent],
+                 self.transportTraceEvent);
+  XCTAssertEqual([self.logSampler transformGDTEvent:self.transportNetworkEvent],
                  self.transportNetworkEvent);
 }
 
@@ -145,39 +148,41 @@
 - (void)testSamplingWhenTracesAndNetworkSamplingRatesAreDifferent {
   [self.fakeConfigs setTraceSamplingRate:0.65];
   [self.fakeConfigs setNetworkSamplingRate:0.67];
-  XCTAssertNil([self.logSampler transform:self.transportTraceEvent]);
-  XCTAssertEqual([self.logSampler transform:self.transportNetworkEvent],
+  XCTAssertNil([self.logSampler transformGDTEvent:self.transportTraceEvent]);
+  XCTAssertEqual([self.logSampler transformGDTEvent:self.transportNetworkEvent],
                  self.transportNetworkEvent);
 
   [self.fakeConfigs setTraceSamplingRate:0.67];
   [self.fakeConfigs setNetworkSamplingRate:0.65];
-  XCTAssertEqual([self.logSampler transform:self.transportTraceEvent], self.transportTraceEvent);
-  XCTAssertNil([self.logSampler transform:self.transportNetworkEvent]);
+  XCTAssertEqual([self.logSampler transformGDTEvent:self.transportTraceEvent],
+                 self.transportTraceEvent);
+  XCTAssertNil([self.logSampler transformGDTEvent:self.transportNetworkEvent]);
 }
 
 /** Validates if sampling works when trace sampling rate is greater than 1. */
 - (void)testTraceSamplingWithInvalidNumerator {
   [self.fakeConfigs setTraceSamplingRate:2.0];
-  XCTAssertEqual([self.logSampler transform:self.transportTraceEvent], self.transportTraceEvent);
+  XCTAssertEqual([self.logSampler transformGDTEvent:self.transportTraceEvent],
+                 self.transportTraceEvent);
 }
 
 /** Validates if sampling works with trace sampling rate of Zero. */
 - (void)testTraceSamplingWithZeroNumerator {
   [self.fakeConfigs setTraceSamplingRate:0.0];
-  XCTAssertNil([self.logSampler transform:self.transportTraceEvent]);
+  XCTAssertNil([self.logSampler transformGDTEvent:self.transportTraceEvent]);
 }
 
 /** Validates if sampling works when network sampling rate is greater than 1. */
 - (void)testNetworkSamplingWithInvalidNumerator {
   [self.fakeConfigs setNetworkSamplingRate:2.0];
-  XCTAssertEqual([self.logSampler transform:self.transportNetworkEvent],
+  XCTAssertEqual([self.logSampler transformGDTEvent:self.transportNetworkEvent],
                  self.transportNetworkEvent);
 }
 
 /** Validates if sampling works with network sampling rate of Zero. */
 - (void)testNetworkSamplingWithZeroNumerator {
   [self.fakeConfigs setNetworkSamplingRate:0.0];
-  XCTAssertNil([self.logSampler transform:self.transportNetworkEvent]);
+  XCTAssertNil([self.logSampler transformGDTEvent:self.transportNetworkEvent]);
 }
 
 /** Validates if the trace event is not dropped if the session is verbose. */
@@ -192,7 +197,7 @@
   traceEvent.dataObject = [FPRGDTEvent gdtEventForPerfMetric:traceMetric];
 
   // Trace event will not be dropped.
-  XCTAssertEqual([self.logSampler transform:traceEvent], traceEvent);
+  XCTAssertEqual([self.logSampler transformGDTEvent:traceEvent], traceEvent);
 }
 
 /** Validates if the trace event is sampled if the session is not verbose. */
@@ -207,7 +212,7 @@
   traceEvent.dataObject = [FPRGDTEvent gdtEventForPerfMetric:tracePerfMetric];
 
   // Trace event is dropped because of sampling.
-  XCTAssertNil([self.logSampler transform:traceEvent]);
+  XCTAssertNil([self.logSampler transformGDTEvent:traceEvent]);
 }
 
 /** Validates if the network trace event is not sampled if the session is verbose. */
@@ -236,7 +241,7 @@
   networkEvent.dataObject = [FPRGDTEvent gdtEventForPerfMetric:networkMetric];
 
   // Network event will not be dropped.
-  XCTAssertEqual([self.logSampler transform:networkEvent], networkEvent);
+  XCTAssertEqual([self.logSampler transformGDTEvent:networkEvent], networkEvent);
 }
 
 /** Validates if the network trace event is sampled if the session is not verbose. */
@@ -263,7 +268,7 @@
   networkEvent.dataObject = [FPRGDTEvent gdtEventForPerfMetric:networkMetric];
 
   // Network event is dropped because of sampling.
-  XCTAssertNil([self.logSampler transform:networkEvent]);
+  XCTAssertNil([self.logSampler transformGDTEvent:networkEvent]);
 }
 
 @end

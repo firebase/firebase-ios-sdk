@@ -114,6 +114,10 @@
 /// @param fetchSuccess True if fetch was successful.
 - (void)updateMetadataWithFetchSuccessStatus:(BOOL)fetchSuccess;
 
+/// Increases the throttling time. Should only be called if the fetch error indicates a server
+/// issue.
+- (void)updateExponentialBackoffTime;
+
 /// Returns true if we are in exponential backoff mode and it is not yet the next request time.
 - (BOOL)shouldThrottle;
 

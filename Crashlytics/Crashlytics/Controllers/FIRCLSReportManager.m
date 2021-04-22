@@ -262,14 +262,6 @@ typedef NSNumber FIRCLSWrappedReportAction;
     report = nil;
   }
 
-  // Regenerate the Install ID on a background thread if it needs to rotate because
-  // fetching the Firebase Install ID can be slow on some devices. This should happen after we
-  // create the session on disk so that we can update the Install ID in the written crash report
-  // metadata.
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-    [self checkAndRotateInstallUUIDIfNeededWithReport:report];
-  });
-
   FBLPromise<NSNumber *> *promise = [FBLPromise resolvedWith:@(report != nil)];
 
   if ([self.dataArbiter isCrashlyticsCollectionEnabled]) {
@@ -348,16 +340,6 @@ typedef NSNumber FIRCLSWrappedReportAction;
   return promise;
 }
 
-- (void)checkAndRotateInstallUUIDIfNeededWithReport:(FIRCLSInternalReport *)report {
-  [self.installIDModel regenerateInstallIDIfNeededWithBlock:^(BOOL didRotate) {
-    if (!didRotate) {
-      return;
-    }
-
-    FIRCLSContextUpdateMetadata(report, self.settings, self.installIDModel, self->_fileManager);
-  }];
-}
-
 - (void)beginSettingsWithToken:(FIRCLSDataCollectionToken *)token {
   if (self.settings.isCacheExpired) {
     // This method can be called more than once if the user calls
@@ -386,7 +368,7 @@ typedef NSNumber FIRCLSWrappedReportAction;
     return NO;
   }
 
-  if (!FIRCLSContextInitialize(report, self.settings, self.installIDModel, _fileManager)) {
+  if (!FIRCLSContextInitialize(report, self.settings, _fileManager)) {
     return NO;
   }
 

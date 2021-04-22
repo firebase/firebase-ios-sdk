@@ -35,6 +35,10 @@
 #import <WatchKit/WatchKit.h>
 #endif // TARGET_OS_WATCH
 
+static NSString *const kAppCheckTokenHeader = @"X-Firebase-AppCheck";
+static NSString *const kUserAgentHeader = @"User-Agent";
+static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
+
 @interface FWebSocketConnection () {
     NSMutableString *frame;
     BOOL everConnected;
@@ -69,10 +73,11 @@
 #endif // !TARGET_OS_WATCH
 @synthesize connectionId;
 
-- (id)initWith:(FRepoInfo *)repoInfo
-         andQueue:(dispatch_queue_t)queue
-      googleAppID:(NSString *)googleAppID
-    lastSessionID:(NSString *)lastSessionID {
+- (instancetype)initWith:(FRepoInfo *)repoInfo
+                andQueue:(dispatch_queue_t)queue
+             googleAppID:(NSString *)googleAppID
+           lastSessionID:(NSString *)lastSessionID
+           appCheckToken:(nullable NSString *)appCheckToken {
     self = [super init];
     if (self) {
         everConnected = NO;
@@ -82,14 +87,17 @@
         self.dispatchQueue = queue;
         frame = nil;
 
-        NSString *connectionUrl =
+        NSString *userAgent = [self userAgent];
+        NSString *connectionURL =
             [repoInfo connectionURLWithLastSessionID:lastSessionID];
-        NSString *ua = [self userAgent];
-        FFLog(@"I-RDB083001", @"(wsc:%@) Connecting to: %@ as %@",
-              self.connectionId, connectionUrl, ua);
 
-        NSURLRequest *req = [[NSURLRequest alloc]
-            initWithURL:[[NSURL alloc] initWithString:connectionUrl]];
+        FFLog(@"I-RDB083001", @"(wsc:%@) Connecting to: %@ as %@",
+              self.connectionId, connectionURL, userAgent);
+
+        NSURLRequest *req = [[self class] createRequestWithURL:connectionURL
+                                                     userAgent:userAgent
+                                                   googleAppID:googleAppID
+                                                 appCheckToken:appCheckToken];
 #if TARGET_OS_WATCH
         // Regular NSURLSession websocket.
         NSOperationQueue *opQueue = [[NSOperationQueue alloc] init];
@@ -116,10 +124,12 @@
                         }];
         }
 #else
+        // TODO(mmaksym): Remove googleAppID and userAgent from FSRWebSocket as
+        // they are passed via NSURLRequest.
         self.webSocket = [[FSRWebSocket alloc] initWithURLRequest:req
                                                             queue:queue
                                                       googleAppID:googleAppID
-                                                     andUserAgent:ua];
+                                                     andUserAgent:userAgent];
         [self.webSocket setDelegateDispatchQueue:queue];
         self.webSocket.delegate = self;
 #endif // TARGET_OS_WATCH
@@ -474,6 +484,21 @@
               self.connectionId, newTime, [keepAlive fireDate]);
         [keepAlive setFireDate:newTime];
     }
+}
+
++ (NSURLRequest *)createRequestWithURL:(NSString *)connectionURL
+                             userAgent:(NSString *)userAgent
+                           googleAppID:(NSString *)googleAppID
+                         appCheckToken:(nullable NSString *)appCheckToken {
+
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc]
+        initWithURL:[[NSURL alloc] initWithString:connectionURL]];
+
+    [request setValue:appCheckToken forHTTPHeaderField:kAppCheckTokenHeader];
+    [request setValue:userAgent forHTTPHeaderField:kUserAgentHeader];
+    [request setValue:googleAppID forHTTPHeaderField:kGoogleAppIDHeader];
+
+    return [request copy];
 }
 
 @end

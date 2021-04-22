@@ -142,7 +142,7 @@ private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL)
             logger.importLog("Import \(importFileRaw) does not exist.", file, lineNum)
           }
         }
-      } else if importFile.first == "<", !isPrivate, !isTestFile, !isBridgingHeader {
+      } else if importFile.first == "<", !isPrivate, !isTestFile, !isBridgingHeader, !isPublic {
         // Verify that double quotes are always used for intra-module imports.
         if importFileRaw.starts(with: "Firebase") {
           logger

@@ -733,6 +733,83 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                }];
 }
 
+- (void)testFetchFailedNoNetworkErrorDoesNotThrottle {
+  RCNConfigContent *configContent = [[RCNConfigContent alloc] initWithDBManager:_DBManager];
+  NSString *currentAppName = RCNTestsDefaultFIRAppName;
+  FIROptions *currentOptions = [self firstAppOptions];
+  NSString *currentNamespace = RCNTestsFIRNamespace;
+  NSString *fullyQualifiedNamespace =
+      [NSString stringWithFormat:@"%@:%@", currentNamespace, currentAppName];
+
+  RCNUserDefaultsManager *userDefaultsManager =
+      [[RCNUserDefaultsManager alloc] initWithAppName:currentAppName
+                                             bundleID:[NSBundle mainBundle].bundleIdentifier
+                                            namespace:fullyQualifiedNamespace];
+  userDefaultsManager.lastFetchTime = 0;
+
+  FIRRemoteConfig *config = OCMPartialMock([[FIRRemoteConfig alloc] initWithAppName:currentAppName
+                                                                         FIROptions:currentOptions
+                                                                          namespace:currentNamespace
+                                                                          DBManager:_DBManager
+                                                                      configContent:configContent
+                                                                          analytics:nil]);
+  RCNConfigSettings *settings =
+      [[RCNConfigSettings alloc] initWithDatabaseManager:_DBManager
+                                               namespace:fullyQualifiedNamespace
+                                         firebaseAppName:currentAppName
+                                             googleAppID:currentOptions.googleAppID];
+  dispatch_queue_t queue = dispatch_queue_create(
+      [[NSString stringWithFormat:@"testqueue"] cStringUsingEncoding:NSUTF8StringEncoding],
+      DISPATCH_QUEUE_SERIAL);
+  RCNConfigFetch *configFetch =
+      OCMPartialMock([[RCNConfigFetch alloc] initWithContent:configContent
+                                                   DBManager:_DBManager
+                                                    settings:settings
+                                                   analytics:nil
+                                                  experiment:nil
+                                                       queue:queue
+                                                   namespace:fullyQualifiedNamespace
+                                                     options:currentOptions]);
+
+  OCMStub([configFetch fetchConfigWithExpirationDuration:43200 completionHandler:OCMOCK_ANY])
+      .andDo(^(NSInvocation *invocation) {
+        __unsafe_unretained void (^handler)(FIRRemoteConfigFetchStatus status,
+                                            NSError *_Nullable error) = nil;
+        [invocation getArgument:&handler atIndex:3];
+        [configFetch fetchWithUserProperties:[[NSDictionary alloc] init] completionHandler:handler];
+      });
+  _responseData[0] = [NSJSONSerialization dataWithJSONObject:@{} options:0 error:nil];
+
+  // A no network error is accompanied with an HTTP status code of 0.
+  _URLResponse[0] =
+      [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@"https://firebase.com"]
+                                  statusCode:0
+                                 HTTPVersion:nil
+                                headerFields:@{@"etag" : @"etag1"}];
+  [config updateWithNewInstancesForConfigFetch:configFetch
+                                 configContent:configContent
+                                configSettings:settings
+                              configExperiment:nil];
+
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"Network error doesn't increase throttle interval"];
+  XCTAssertEqual(config.lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
+
+  FIRRemoteConfigFetchCompletion fetchCompletion =
+      ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
+        XCTAssertEqual(config.lastFetchStatus, FIRRemoteConfigFetchStatusFailure);
+        XCTAssertEqual(settings.exponentialBackoffRetryInterval, 0);
+        [expectation fulfill];
+      };
+
+  [config fetchWithExpirationDuration:43200 completionHandler:fetchCompletion];
+
+  [self waitForExpectationsWithTimeout:_expectationTimeout
+                               handler:^(NSError *error) {
+                                 XCTAssertNil(error);
+                               }];
+}
+
 // Activate should return false if a fetch response returns 200 with NO_CHANGE as the response body.
 - (void)testActivateOnFetchNoChangeStatus {
   // Override the setup values to return back an error status.

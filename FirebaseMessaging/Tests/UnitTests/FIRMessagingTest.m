@@ -189,7 +189,7 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
                        }];
   [self waitForExpectationsWithTimeout:0.1 handler:nil];
 }
-#pragma clang diagnostic pop
+
 - (void)testReturnsErrorWhenFetchingTokenWithoutSenderID {
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Returned an error fetching token without Sender ID"];
