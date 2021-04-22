@@ -54,8 +54,8 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
  * You can define these access rights in the Firebase Console of your project.
  */
 
-NSString *const kTestUser = @"user";
-NSString *const kTestPassword = @"pwd";
+NSString *const kTestUser = KUSER_NAME;
+NSString *const kTestPassword = KPASSWORD;
 
 @interface FIRStorageIntegrationTests : XCTestCase
 
@@ -77,8 +77,6 @@ NSString *const kTestPassword = @"pwd";
   self.app = [FIRApp defaultApp];
   self.auth = [FIRAuth authWithApp:self.app];
   self.storage = [FIRStorage storageForApp:self.app];
-    
-   [ self.storage useEmulatorWithHost:@"localhost" port:9199];
 
   static dispatch_once_t once;
   dispatch_once(&once, ^{
@@ -109,7 +107,7 @@ NSString *const kTestPassword = @"pwd";
     XCTAssertNotNil(data, "Could not load bundled file");
 
     for (NSString *largeFile in largeFiles) {
-      FIRStorageReference *file = [self.storage.reference child:largeFile];
+      FIRStorageReference *file = [[FIRStorage storage].reference child:largeFile];
       [file putData:data
             metadata:nil
           completion:^(FIRStorageMetadata *metadata, NSError *error) {
@@ -119,8 +117,8 @@ NSString *const kTestPassword = @"pwd";
     }
 
     for (NSString *emptyFile in emptyFiles) {
-      FIRStorageReference *file = [self.storage.reference child:emptyFile];
-        [file putData:[@"foo" dataUsingEncoding:NSUTF8StringEncoding]
+      FIRStorageReference *file = [[FIRStorage storage].reference child:emptyFile];
+      [file putData:[NSData data]
             metadata:nil
           completion:^(FIRStorageMetadata *metadata, NSError *error) {
             XCTAssertNil(error);
