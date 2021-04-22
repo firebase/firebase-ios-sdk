@@ -71,23 +71,9 @@ jobs:
         cd "${local_sdk_repo_dir}"
         common_commit=$(git merge-base remotes/origin/${pr_branch} remotes/origin/master)
         git diff --name-only $common_commit remotes/origin/${pr_branch} > updated_files.txt
-        while IFS= read -r line;
-        do
-          if [ ${line: -8} == ".podspec" ]
-          then
-            updated_podspecs="${updated_podspecs} ${basename -s .podspec line}"
-            echo $updated_podspecs
-          fi
-        done < "$(cat updated_files.txt)"
-        echo "--------"
-        echo $updated_podspecs
-        echo "--------"
-        if [ -z "$updated_podspecs" ]
-        then
-          exit
-        fi
-        pwd
-        cd scripts/create_spec_repo/
+        echo "updated_files.txt :"
+        cat updated_files.txt
+        echo "updated_files.txt end"
 
   abtesting_quickstart:
     # Don't run on private repo unless it is a PR.
