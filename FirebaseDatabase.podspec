@@ -36,6 +36,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
     base_dir + 'third_party/Wrap-leveldb/APLevelDB.mm',
     base_dir + 'third_party/SocketRocket/fbase64.c',
     'Interop/Auth/Public/*.h',
+    'FirebaseAppCheck/Sources/Interop/*.h',
     'FirebaseCore/Sources/Private/*.h',
   ]
   s.public_header_files = base_dir + 'Public/FirebaseDatabase/*.h'
@@ -62,6 +63,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
       'FirebaseDatabase/Tests/Unit/*.[mh]',
       'FirebaseDatabase/Tests/Helpers/*.[mh]',
       'FirebaseDatabase/Tests/third_party/*.[mh]',
+      'SharedTestUtilities/AppCheckFake/*.[mh]',
       'SharedTestUtilities/FIRAuthInteropFake.[mh]',
       'SharedTestUtilities/FIRComponentTestUtilities.[mh]',
       'SharedTestUtilities/FIROptionsMock.[mh]',
@@ -77,6 +79,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
     int_tests.source_files = [
       'FirebaseDatabase/Tests/Integration/*.[mh]',
       'FirebaseDatabase/Tests/Helpers/*.[mh]',
+      'SharedTestUtilities/AppCheckFake/*.[mh]',
       'SharedTestUtilities/FIRAuthInteropFake.[mh]',
       'SharedTestUtilities/FIRComponentTestUtilities.[mh]',
       'SharedTestUtilities/FIROptionsMock.[mh]',

@@ -15,6 +15,7 @@
 #import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRFunctions.h"
 #import "Functions/FirebaseFunctions/FIRFunctions+Internal.h"
 
+#import "FirebaseAppCheck/Sources/Interop/FIRAppCheckInterop.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseMessaging/Sources/Interop/FIRMessagingInterop.h"
 #import "Interop/Auth/Public/FIRAuthInterop.h"
@@ -35,6 +36,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+NSString *const kFUNAppCheckTokenHeader = @"X-Firebase-AppCheck";
 NSString *const kFUNFCMTokenHeader = @"Firebase-Instance-ID-Token";
 NSString *const kFUNDefaultRegion = @"us-central1";
 
@@ -65,6 +67,8 @@ NSString *const kFUNDefaultRegion = @"us-central1";
                      customDomain:(nullable NSString *)customDomain
                              auth:(nullable id<FIRAuthInterop>)auth
                         messaging:(nullable id<FIRMessagingInterop>)messaging
+                         appCheck:(nullable id<FIRAppCheckInterop>)appCheck
+                   fetcherService:(GTMSessionFetcherService *)fetcherService
     NS_DESIGNATED_INITIALIZER;
 
 @end
@@ -124,25 +128,45 @@ NSString *const kFUNDefaultRegion = @"us-central1";
                           region:region
                     customDomain:customDomain
                             auth:FIR_COMPONENT(FIRAuthInterop, app.container)
-                       messaging:FIR_COMPONENT(FIRMessagingInterop, app.container)];
+                       messaging:FIR_COMPONENT(FIRMessagingInterop, app.container)
+                        appCheck:FIR_COMPONENT(FIRAppCheckInterop, app.container)];
 }
 
 - (instancetype)initWithProjectID:(NSString *)projectID
                            region:(NSString *)region
                      customDomain:(nullable NSString *)customDomain
                              auth:(nullable id<FIRAuthInterop>)auth
-                        messaging:(nullable id<FIRMessagingInterop>)messaging {
+                        messaging:(nullable id<FIRMessagingInterop>)messaging
+                         appCheck:(nullable id<FIRAppCheckInterop>)appCheck {
+  return [self initWithProjectID:projectID
+                          region:region
+                    customDomain:customDomain
+                            auth:auth
+                       messaging:messaging
+                        appCheck:appCheck
+                  fetcherService:[[GTMSessionFetcherService alloc] init]];
+}
+
+- (instancetype)initWithProjectID:(NSString *)projectID
+                           region:(NSString *)region
+                     customDomain:(nullable NSString *)customDomain
+                             auth:(nullable id<FIRAuthInterop>)auth
+                        messaging:(nullable id<FIRMessagingInterop>)messaging
+                         appCheck:(nullable id<FIRAppCheckInterop>)appCheck
+                   fetcherService:(GTMSessionFetcherService *)fetcherService {
   self = [super init];
   if (self) {
     if (!region) {
       FUNThrowInvalidArgument(@"FIRFunctions region cannot be nil.");
     }
-    _fetcherService = [[GTMSessionFetcherService alloc] init];
+    _fetcherService = fetcherService;
     _projectID = [projectID copy];
     _region = [region copy];
     _customDomain = [customDomain copy];
     _serializer = [[FUNSerializer alloc] init];
-    _contextProvider = [[FUNContextProvider alloc] initWithAuth:auth messaging:messaging];
+    _contextProvider = [[FUNContextProvider alloc] initWithAuth:auth
+                                                      messaging:messaging
+                                                       appCheck:appCheck];
     _emulatorOrigin = nil;
   }
   return self;
@@ -185,7 +209,7 @@ NSString *const kFUNDefaultRegion = @"us-central1";
              timeout:(NSTimeInterval)timeout
           completion:(void (^)(FIRHTTPSCallableResult *_Nullable result,
                                NSError *_Nullable error))completion {
-  [_contextProvider getContext:^(FUNContext *_Nullable context, NSError *_Nullable error) {
+  [_contextProvider getContext:^(FUNContext *context, NSError *_Nullable error) {
     if (error) {
       if (completion) {
         completion(nil, error);
@@ -243,6 +267,9 @@ NSString *const kFUNDefaultRegion = @"us-central1";
   }
   if (context.FCMToken) {
     [fetcher setRequestValue:context.FCMToken forHTTPHeaderField:kFUNFCMTokenHeader];
+  }
+  if (context.appCheckToken) {
+    [fetcher setRequestValue:context.appCheckToken forHTTPHeaderField:kFUNAppCheckTokenHeader];
   }
 
   // Override normal security rules if this is a local test.

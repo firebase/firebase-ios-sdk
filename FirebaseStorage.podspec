@@ -34,6 +34,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     'FirebaseStorage/Sources/**/*.[mh]',
     'Interop/Auth/Public/*.h',
     'FirebaseCore/Sources/Private/*.h',
+    'FirebaseAppCheck/Sources/Interop/*.h',
   ]
   s.public_header_files = 'FirebaseStorage/Sources/Public/FirebaseStorage/*.h'
 
@@ -53,9 +54,12 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
       :osx => osx_deployment_target,
       :tvos => tvos_deployment_target
     }
-    unit_tests.source_files = 'FirebaseStorage/Tests/Unit/*.[mh]',
-                              'SharedTestUtilities/FIRComponentTestUtilities.*',
-                              'SharedTestUtilities/FIRAuthInteropFake.*'
+    unit_tests.source_files = [
+      'FirebaseStorage/Tests/Unit/*.[mh]',
+      'SharedTestUtilities/FIRComponentTestUtilities.*',
+      'SharedTestUtilities/FIRAuthInteropFake.*',
+      'SharedTestUtilities/AppCheckFake/*.[mh]',
+  ]
     unit_tests.dependency 'OCMock'
   end
 

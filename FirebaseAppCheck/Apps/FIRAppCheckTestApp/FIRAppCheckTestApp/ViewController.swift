@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-#import "FirebaseDatabase/Sources/Login/FAuthTokenProvider.h"
+import UIKit
 
-@interface FIRTestAuthTokenProvider : NSObject <FAuthTokenProvider>
-
-@property(nonatomic, strong) NSString *token;
-@property(nonatomic, strong) NSString *nextToken;
-
-- (instancetype)initWithToken:(NSString *)token;
-- (instancetype)init NS_UNAVAILABLE;
-
-@end
+class ViewController: UIViewController {
+  override func viewDidLoad() {
+    super.viewDidLoad()
+    // Do any additional setup after loading the view.
+  }
+}

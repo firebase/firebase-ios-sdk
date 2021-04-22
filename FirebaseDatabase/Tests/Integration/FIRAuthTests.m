@@ -20,10 +20,12 @@
 #import "Interop/Auth/Public/FIRAuthInterop.h"
 
 #import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
-#import "FirebaseDatabase/Tests/Helpers/FIRTestAuthTokenProvider.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestAuthTokenGenerator.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestBase.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
+
+#import "SharedTestUtilities/AppCheckFake/FIRAppCheckFake.h"
+#import "SharedTestUtilities/AppCheckFake/FIRAppCheckTokenResultFake.h"
 #import "SharedTestUtilities/FIRAuthInteropFake.h"
 
 @interface FIRAuthTests : FTestBase
@@ -43,10 +45,12 @@
 - (void)testListensAndAuthRaceCondition {
   [FIRDatabase setLoggingEnabled:YES];
   FIRAuthInteropFake *auth = [[FIRAuthInteropFake alloc] initWithToken:nil userID:nil error:nil];
-  id<FAuthTokenProvider> authTokenProvider = [FAuthTokenProvider authTokenProviderWithAuth:auth];
+  id<FIRAppCheckInterop> appCheck = [[FIRAppCheckFake alloc] init];
+  id<FIRDatabaseConnectionContextProvider> contextProvider =
+      [FIRDatabaseConnectionContextProvider contextProviderWithAuth:auth appCheck:appCheck];
 
   FIRDatabaseConfig *config = [FTestHelpers configForName:@"testWritesRestoredAfterAuth"];
-  config.authTokenProvider = authTokenProvider;
+  config.contextProvider = contextProvider;
 
   FIRDatabaseReference *ref = [[[FTestHelpers databaseForConfig:config] reference] childByAutoId];
 

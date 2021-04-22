@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,24 +16,14 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseDatabase/Sources/Api/Private/FTypedefs_Private.h"
-#import "FirebaseDatabase/Sources/Utilities/FTypedefs.h"
+NS_ASSUME_NONNULL_BEGIN
 
-@protocol FIRAuthInterop;
+@interface FIRDateTestUtils : NSObject
 
-@protocol FAuthTokenProvider <NSObject>
-
-- (void)fetchTokenForcingRefresh:(BOOL)forceRefresh
-                    withCallback:(fbt_void_nsstring_nserror)callback;
-
-- (void)listenForTokenChanges:(fbt_void_nsstring)listener;
++ (BOOL)isDate:(NSDate *)date
+    approximatelyEqualCurrentPlusTimeInterval:(NSTimeInterval)timeInterval
+                                    precision:(NSTimeInterval)precision;
 
 @end
 
-@interface FAuthTokenProvider : NSObject
-
-+ (id<FAuthTokenProvider>)authTokenProviderWithAuth:(id<FIRAuthInterop>)auth;
-
-- (instancetype)init NS_UNAVAILABLE;
-
-@end
+NS_ASSUME_NONNULL_END

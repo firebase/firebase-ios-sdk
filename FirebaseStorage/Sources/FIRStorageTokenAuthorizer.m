@@ -19,10 +19,16 @@
 
 #import "FirebaseStorage/Sources/FIRStorageConstants_Private.h"
 #import "FirebaseStorage/Sources/FIRStorageErrors.h"
+#import "FirebaseStorage/Sources/FIRStorageLogger.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
+#import "FirebaseAppCheck/Sources/Interop/FIRAppCheckInterop.h"
+#import "FirebaseAppCheck/Sources/Interop/FIRAppCheckTokenResultInterop.h"
 #import "Interop/Auth/Public/FIRAuthInterop.h"
+
+static NSString *const kAppCheckTokenHeader = @"X-Firebase-AppCheck";
+static NSString *const kAuthHeader = @"Authorization";
 
 @implementation FIRStorageTokenAuthorizer {
  @private
@@ -31,18 +37,21 @@
 
   /// Auth provider.
   id<FIRAuthInterop> _auth;
+  id<FIRAppCheckInterop> _appCheck;
 }
 
 @synthesize fetcherService = _fetcherService;
 
 - (instancetype)initWithGoogleAppID:(NSString *)googleAppID
                      fetcherService:(GTMSessionFetcherService *)service
-                       authProvider:(nullable id<FIRAuthInterop>)auth {
+                       authProvider:(nullable id<FIRAuthInterop>)auth
+                           appCheck:(nullable id<FIRAppCheckInterop>)appCheck {
   self = [super init];
   if (self) {
     _googleAppID = googleAppID;
     _fetcherService = service;
     _auth = auth;
+    _appCheck = appCheck;
   }
   return self;
 }
@@ -74,7 +83,12 @@
     }
 
     [invocation retainArguments];
+
+    dispatch_group_t fetchTokenGroup = dispatch_group_create();
+
     if (_auth) {
+      dispatch_group_enter(fetchTokenGroup);
+
       [_auth getTokenForcingRefresh:NO
                        withCallback:^(NSString *_Nullable token, NSError *_Nullable error) {
                          if (error) {
@@ -90,17 +104,34 @@
                          } else if (token) {
                            NSString *firebaseToken =
                                [NSString stringWithFormat:kFIRStorageAuthTokenFormat, token];
-                           [request setValue:firebaseToken forHTTPHeaderField:@"Authorization"];
+                           [request setValue:firebaseToken forHTTPHeaderField:kAuthHeader];
                          }
-                         dispatch_async(callbackQueue, ^{
-                           [invocation invoke];
-                         });
+
+                         dispatch_group_leave(fetchTokenGroup);
                        }];
-    } else {
-      dispatch_async(callbackQueue, ^{
-        [invocation invoke];
-      });
     }
+
+    if (_appCheck) {
+      dispatch_group_enter(fetchTokenGroup);
+
+      [_appCheck getTokenForcingRefresh:NO
+                             completion:^(id<FIRAppCheckTokenResultInterop> tokenResult) {
+                               [request setValue:tokenResult.token
+                                   forHTTPHeaderField:kAppCheckTokenHeader];
+
+                               if (tokenResult.error) {
+                                 FIRLogDebug(kFIRLoggerStorage, kFIRStorageMessageCodeAppCheckError,
+                                             @"Failed to fetch AppCheck token. Error: %@",
+                                             tokenResult.error);
+                               }
+
+                               dispatch_group_leave(fetchTokenGroup);
+                             }];
+    }
+
+    dispatch_group_notify(fetchTokenGroup, callbackQueue, ^{
+      [invocation invoke];
+    });
   }
 }
 
