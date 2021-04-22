@@ -3,8 +3,8 @@
     "cocoapods_version": ">= 1.10.0",
     "default_subspecs": "AdIdSupport",
     "dependencies": {
-        "FirebaseCore": "~> 7.0",
-        "FirebaseInstallations": "~> 7.0",
+        "FirebaseCore": "~> 8.0",
+        "FirebaseInstallations": "~> 8.0",
         "GoogleUtilities/AppDelegateSwizzler": "~> 7.0",
         "GoogleUtilities/MethodSwizzler": "~> 7.0",
         "GoogleUtilities/NSData+zlib": "~> 7.0",
@@ -36,15 +36,15 @@
         {
             "name": "AdIdSupport",
             "dependencies": {
-                "FirebaseAnalytics/Base": "7.11.0",
-                "GoogleAppMeasurement/AdIdSupport": "7.11.0"
+                "FirebaseAnalytics/Base": "9.0.0",
+                "GoogleAppMeasurement/AdIdSupport": "8.0.0"
             }
         },
         {
             "name": "WithoutAdIdSupport",
             "dependencies": {
-                "FirebaseAnalytics/Base": "7.11.0",
-                "GoogleAppMeasurement/WithoutAdIdSupport": "7.11.0"
+                "FirebaseAnalytics/Base": "8.0.0",
+                "GoogleAppMeasurement/WithoutAdIdSupport": "8.0.0"
             }
         },
         {
@@ -55,5 +55,5 @@
         }
     ],
     "summary": "Firebase Analytics for iOS",
-    "version": "7.11.0"
+    "version": "8.0.0"
 }

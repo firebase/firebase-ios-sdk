@@ -51,8 +51,8 @@ Pod::Spec.new do |s|
     cp -f ./Crashlytics/upload-symbols ./upload-symbols
   PREPARE_COMMAND_END
 
-  s.dependency 'FirebaseCore', '~> 7.0'
-  s.dependency 'FirebaseInstallations', '~> 7.0'
+  s.dependency 'FirebaseCore', '~> 8.0'
+  s.dependency 'FirebaseInstallations', '~> 8.0'
   s.dependency 'PromisesObjC', '~> 1.2'
   s.dependency 'GoogleDataTransport', '~> 9.0'
   s.dependency 'nanopb', '~> 2.30908.0'

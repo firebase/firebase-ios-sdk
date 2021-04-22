@@ -28,10 +28,10 @@ iOS SDK for App Distribution for Firebase.
   ]
   s.public_header_files = base_dir + 'Public/FirebaseAppDistribution/*.h'
 
-  s.dependency 'FirebaseCore', '~> 7.0'
+  s.dependency 'FirebaseCore', '~> 8.0'
   s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.0'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 7.0'
-  s.dependency 'FirebaseInstallations', '~> 7.0'
+  s.dependency 'FirebaseInstallations', '~> 8.0'
   s.dependency 'GoogleDataTransport', '~> 9.0'
 
   s.pod_target_xcconfig = {

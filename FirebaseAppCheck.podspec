@@ -38,7 +38,7 @@ Pod::Spec.new do |s|
 
   s.framework = 'DeviceCheck'
 
-  s.dependency 'FirebaseCore', '~> 7.0'
+  s.dependency 'FirebaseCore', '~> 8.0'
   s.dependency 'PromisesObjC', '~> 1.2'
   s.dependency 'GoogleUtilities/Environment', '~> 7.2'
 
