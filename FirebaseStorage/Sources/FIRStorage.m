@@ -355,9 +355,9 @@ static GTMSessionFetcherRetryBlock _retryWhenOffline;
 - (void)ensureConfigured {
   if (!_fetcherServiceForApp) {
     _fetcherServiceForApp = [FIRStorage fetcherServiceForApp:_app
-                                                      bucket:bucket
-                                                        auth:auth
-                                                    appCheck:appCheck];
+                                                      bucket:_storageBucket
+                                                        auth:_auth
+                                                    appCheck:_appCheck];
   }
 }
 
