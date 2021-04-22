@@ -81,12 +81,13 @@ jobs:
         done < "$(cat updated_files.txt)"
         echo "--------"
         echo $updated_podspecs
+        echo "--------"
         if [ -z "$updated_podspecs" ]
         then
           exit
         fi
+        pwd
         cd scripts/create_spec_repo/
-        swift build
 
   abtesting_quickstart:
     # Don't run on private repo unless it is a PR.
