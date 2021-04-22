@@ -88,6 +88,11 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.ios.dependency 'FirebaseAppDistribution', '~> 7.11.0-beta'
   end
 
+  s.subspec 'AppCheck' do |ss|
+    ss.dependency 'Firebase/CoreOnly'
+    ss.ios.dependency 'FirebaseAppCheck', '~> 7.11.0-beta'
+  end
+
   s.subspec 'Auth' do |ss|
     ss.dependency 'Firebase/CoreOnly'
     ss.dependency 'FirebaseAuth', '~> 7.11.0'
