@@ -70,9 +70,9 @@ jobs:
          BOT_TOKEN="${ossbotaccess}" test_version="${nightly_version}" sdk_version_config="${GITHUB_WORKSPACE}/scripts/create_spec_repo/RC_firebase_sdk.textproto" local_sdk_repo_dir="${local_sdk_repo_dir}" podspec_repo_branch="${podspec_repo_branch}" scripts/release_testing_setup.sh prerelease_testing
     - name: Push updated podspecs
       run: |
+        botaccess=`cat bot-access.txt`
         cd "${local_sdk_repo_dir}"
         # TODO: this token is used to update podspec repo, see if we can update it to GHA token.
-        botaccess=`cat bot-access.txt`
         # TODO: when in post submit, it should compare master and HEAD^ of master.
         common_commit=$(git merge-base remotes/origin/${pr_branch} remotes/origin/master)
         git diff --name-only $common_commit remotes/origin/${pr_branch} > updated_files.txt
