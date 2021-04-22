@@ -79,7 +79,7 @@ jobs:
           echo $line
           if [ ${line: -8} == ".podspec" ]
           then
-            updated_podspecs="${basename -s .podspec line} ${updated_podspecs}"
+            updated_podspecs="$(basename -s .podspec line) ${updated_podspecs}"
             echo $updated_podspecs
           fi
         done < updated_files.txt
