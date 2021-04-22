@@ -74,19 +74,28 @@ jobs:
         echo "updated_files.txt :"
         cat updated_files.txt
         echo "updated_files.txt end"
+        updated_podspecs=()
         while IFS= read -r line;
         do
           echo $line
           if [ ${line: -8} == ".podspec" ]
           then
             echo "----"
-            updated_podspecs="$(basename -s .podspec ${line}) ${updated_podspecs}"
+            updated_podspecs+=("$(basename -s .podspec ${line})")
             echo $updated_podspecs
             echo "----"
           fi
         done < updated_files.txt
         echo "updated_podspecs : "
-        echo $updated_podspecs
+        echo ${updated_podspecs[@]}
+        if [ -z "$updated_podspecs" ]
+        then
+          exit
+        fi
+        cd scripts/create_spec_repo/
+        # swift build
+        # pod repo add --silent "${local_repo}" https://github.com/Firebase/SpecsTesting.git
+        # .build/debug/spec-repo-builder --sdk-repo "${local_sdk_repo_dir}" --local-spec-repo-name "${local_repo}" --sdk-repo-name SpecsTesting --github-account Firebase --pod-sources 'https://${BOT_TOKEN}@github.com/Firebase/SpecsTesting' --pod-sources "https://github.com/firebase/SpecsDev.git" "https://github.com/firebase/SpecsStaging.git" "https://cdn.cocoapods.org/" --exclude-pods "FirebaseSegmentation" "FirebaseFirestoreTestingSupport" "FirebaseAuthTestingSupport" "FirebaseCombineSwift" "FirebaseFunctionsTestingSupport" --keep-repo --include-pods ${updated_podspecs[@]}
 
   abtesting_quickstart:
     # Don't run on private repo unless it is a PR.
