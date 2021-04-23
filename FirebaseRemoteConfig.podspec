@@ -44,7 +44,7 @@ app update.
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
-  s.dependency 'FirebaseABTesting', '~> 7.0'
+  s.dependency 'FirebaseABTesting', '~> 8.0'
   s.dependency 'FirebaseCore', '~> 8.0'
   s.dependency 'FirebaseInstallations', '~> 8.0'
   s.dependency 'GoogleUtilities/Environment', '~> 7.0'
