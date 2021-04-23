@@ -1,5 +1,5 @@
 # unreleased
-- [changed] Remove Instance ID dependency from Messaging. This is a breaking change for Firebase Messaging users who use Instance ID to manage registration tokens without explicitly specifying Instance ID in their podfile or Swift Package Manager. For a short-term resolution, those Messaging users can update their app configuration to explicitly specify Instance ID. Longer term, all users should migrate to Messaging's token APIs. (#7836)
+- [changed] Remove Instance ID dependency from Messaging. This is a breaking change for Firebase Messaging users who use Instance ID to manage registration tokens without explicitly specifying Instance ID in their podfile or Swift Package Manager. For a short-term resolution, those Messaging users can update their dependencies to explicitly specify Instance ID. Longer term, all users should migrate to Messaging's token APIs. (#7836)
 
 # 2021-04 -- v7.11.0
 - [changed] Refactor Messaging to internally not depending on InstanceID, but can co-exist. Will remove InstanceID dependency in the next Firebase breaking change. (#7814)
