@@ -36,7 +36,7 @@
         {
             "name": "AdIdSupport",
             "dependencies": {
-                "FirebaseAnalytics/Base": "9.0.0",
+                "FirebaseAnalytics/Base": "8.0.0",
                 "GoogleAppMeasurement/AdIdSupport": "8.0.0"
             }
         },
