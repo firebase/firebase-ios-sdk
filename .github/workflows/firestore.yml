@@ -256,10 +256,16 @@ jobs:
     runs-on: macOS-latest
     strategy:
       matrix:
-        target: [ios, tvos, macos, watchos]
+        flags: [
+          '--use-static-frameworks',
+          '',
+        ]
+    strategy:
+      matrix:
+        target: [ios, tvos, macos]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      run: scripts/third_party/travis/retry.sh pod spec lint FirebaseFirestore.podspec --skip-tests --platforms=${{ matrix.target }} --sources='https://github.com/firebase/SpecsTesting','https://github.com/firebase/SpecsDev.git','https://github.com/firebase/SpecsStaging.git','https://cdn.cocoapods.org/'
+      run: scripts/third_party/travis/retry.sh pod spec lint FirebaseFirestore.podspec --skip-tests ${{ matrix.flags }} --platforms=${{ matrix.target }} --sources='https://github.com/firebase/SpecsTesting','https://github.com/firebase/SpecsDev.git','https://github.com/firebase/SpecsStaging.git','https://cdn.cocoapods.org/'
