@@ -111,18 +111,11 @@ static NSString *const kDefaultBaseURL = @"https://firebaseappcheck.googleapis.c
 
              [request setValue:self.APIKey forHTTPHeaderField:kAPIKeyHeaderKey];
 
-             NSString *versionHeader =
-                 [NSString stringWithFormat:@"fire-app-check/%@", FIRFirebaseVersion()];
-             [request setValue:versionHeader forHTTPHeaderField:kUserAgentKey];
-             // TODO: Uncomment to re-enable platform logging once approved.
-             // User agent header.
-             //             [request setValue:[FIRApp firebaseUserAgent]
-             //             forHTTPHeaderField:kUserAgentKey];
-             //             // Heartbeat header.
-             //             [request setValue:@([FIRHeartbeatInfo
-             //             heartbeatCodeForTag:kHeartbeatStorageTag])
-             //                                   .stringValue
-             //                 forHTTPHeaderField:kHeartbeatKey];
+             [request setValue:[FIRApp firebaseUserAgent] forHTTPHeaderField:kUserAgentKey];
+
+             [request setValue:@([FIRHeartbeatInfo heartbeatCodeForTag:kHeartbeatStorageTag])
+                                   .stringValue
+                 forHTTPHeaderField:kHeartbeatKey];
 
              [additionalHeaders
                  enumerateKeysAndObjectsUsingBlock:^(NSString *_Nonnull key, NSString *_Nonnull obj,
