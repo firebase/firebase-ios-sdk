@@ -69,7 +69,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'AnalyticsWithoutAdIdSupport' do |ss|
     ss.ios.deployment_target = '9.0'
-    ss.ios.dependency 'FirebaseAnalytics/WithoutAdIdSupport', '~> 7.11.0'
+    ss.ios.dependency 'FirebaseAnalytics/WithoutAdIdSupport', '~> 8.0.0'
     ss.dependency 'Firebase/CoreOnly'
   end
 
@@ -91,6 +91,9 @@ Simplify your app development, grow your user base, and monetize more effectivel
   s.subspec 'AppCheck' do |ss|
     ss.dependency 'Firebase/CoreOnly'
     ss.ios.dependency 'FirebaseAppCheck', '~> 8.0.0-beta'
+    ss.ios.deployment_target = '11.0'
+    ss.osx.deployment_target = '10.15'
+    ss.tvos.deployment_target = '11.0'
   end
 
   s.subspec 'Auth' do |ss|
