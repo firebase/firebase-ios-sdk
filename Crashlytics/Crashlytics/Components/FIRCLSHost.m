@@ -25,6 +25,8 @@
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
 #import "Crashlytics/Shared/FIRCLSFABHost.h"
 
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
+
 #if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
 #else
@@ -158,6 +160,7 @@ static void FIRCLSHostWriteOSVersionInfo(FIRCLSFile* file) {
   FIRCLSFileWriteHashEntryString(file, "os_display_version",
                                  [FIRCLSHostOSDisplayVersion() UTF8String]);
   FIRCLSFileWriteHashEntryString(file, "platform", [FIRCLSApplicationGetPlatform() UTF8String]);
+  FIRCLSFileWriteHashEntryString(file, "firebase_platform", [[GULAppEnvironmentUtil applePlatform] UTF8String]);
 }
 
 bool FIRCLSHostRecord(FIRCLSFile* file) {
