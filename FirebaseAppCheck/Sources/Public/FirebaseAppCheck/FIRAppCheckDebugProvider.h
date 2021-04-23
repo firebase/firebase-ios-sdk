@@ -23,30 +23,34 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/// A Firebase app check provider that can exchange a debug token registered in Firebase console to
-/// a Firebase app check token. The debug provider is designed to enable testing applications on a
-/// simulator or platforms that are not supported yet.
+/// A Firebase App Check provider that can exchange a debug token registered
+/// in the Firebase console for a Firebase App Check token. The debug provider
+/// is designed to enable testing applications on a simulator or test
+/// environment.
 ///
-/// NOTE: Please make sure the debug provider is not used in applications used by real users.
+/// NOTE: Do not use the debug provider in applications used by real users.
 ///
-/// WARNING: Keep the Firebase app check debug token in secret. If you accidentally shared one (e.g.
-/// committed to a public source repo) make sure to remove it in the Firebase console ASAP.
+/// WARNING: Keep the Firebase App Check debug token secret. If you
+/// accidentally share one (e.g. commit to a public source repo), remove it in
+/// the Firebase console ASAP.
 ///
 /// To use `AppCheckDebugProvider` on a local simulator:
-/// 1. Configure  `AppCheckDebugProviderFactory` before `FirebaseApp.configure()`
-/// `AppCheck.setAppCheckProviderFactory(AppCheckDebugProviderFactory())`
-/// 2. Enable debug logging by adding `-FIRDebugEnabled` launch argument to the app target.
-/// 3. Launch the app. A local debug token will be logged when Firebase is configured. For example:
+/// 1. Configure `AppCheckDebugProviderFactory` before `FirebaseApp.configure()`:
+///    ```AppCheck.setAppCheckProviderFactory(AppCheckDebugProviderFactory())```
+/// 2. Enable debug logging by adding the `-FIRDebugEnabled` launch argument to
+///    the app target.
+/// 3. Launch the app. A local debug token will be logged when Firebase is
+///    configured. For example:
 /// "[Firebase/AppCheck][I-FAA001001] Firebase App Check Debug Token:
 /// '3BA09C8C-8A0D-4030-ACD5-B96D99DB73F9'".
 /// 4. Register the debug token in the Firebase console.
 ///
 /// Once the debug token is registered the debug provider will be able to provide a valid Firebase
-/// app check token.
+/// App Check token.
 ///
 /// To use `AppCheckDebugProvider` on a simulator on a build server:
-/// 1. Create a new Firebase app check debug token in the Firebase console
-/// 2. Add the debug token to the secure storage of your build environment, e.g. see [Encrypted
+/// 1. Create a new Firebase App Check debug token in the Firebase console
+/// 2. Add the debug token to the secure storage of your build environment. E.g. see [Encrypted
 /// secrets](https://docs.github.com/en/actions/reference/encrypted-secrets) for GitHub Actions,
 /// etc.
 /// 3. Configure  `AppCheckDebugProviderFactory` before `FirebaseApp.configure()`
@@ -69,8 +73,8 @@ NS_SWIFT_NAME(AppCheckDebugProvider)
 
 /** Returns the currently used App Check debug token. The priority:
  *  - `FIRAAppCheckDebugToken` env variable value
- *  - previously generated stored local token
- *  - newly generated random token
+ *  - Previously generated stored local token
+ *  - Newly generated random token
  * @return The currently used App Check debug token.
  */
 - (NSString *)currentDebugToken;
