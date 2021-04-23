@@ -56,7 +56,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface FIRDatabaseConnectionContextProvider : NSObject
+@interface FIRDatabaseConnectionContextProvider : NSObject <FIRDatabaseConnectionContextProvider>
 
 + (id<FIRDatabaseConnectionContextProvider>)
     contextProviderWithAuth:(nullable id<FIRAuthInterop>)auth

@@ -217,9 +217,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (id<FIRDatabaseConnectionContextProvider>)
     contextProviderWithAuth:(nullable id<FIRAuthInterop>)auth
                    appCheck:(nullable id<FIRAppCheckInterop>)appCheck {
-    return (id<FIRDatabaseConnectionContextProvider>)[[self alloc]
-        initWithAuth:auth
-            appCheck:appCheck];
+    return [[self alloc] initWithAuth:auth appCheck:appCheck];
 }
 
 @end
