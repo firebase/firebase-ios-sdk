@@ -103,3 +103,17 @@ jobs:
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] ||
             scripts/third_party/travis/retry.sh scripts/test_quickstart.sh InAppMessaging swift)
+
+  podspec-presubmit:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository == 'Firebase/firebase-ios-sdk' && github.event.pull_request.merged != true
+    runs-on: macOS-latest
+    strategy:
+      matrix:
+        podspec: [FirebaseInAppMessaging.podspec, FirebaseInAppMessagingSwift.podspec]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Build and test
+      run: scripts/third_party/travis/retry.sh pod spec lint ${{ matrix.podspec}} --skip-tests --sources='https://github.com/firebase/SpecsTesting','https://github.com/firebase/SpecsDev.git','https://github.com/firebase/SpecsStaging.git','https://cdn.cocoapods.org/'
