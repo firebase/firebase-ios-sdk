@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFunctions'
-  s.version          = '7.11.0'
+  s.version          = '8.0.0'
   s.summary          = 'Cloud Functions for Firebase'
 
   s.description      = <<-DESC
@@ -31,7 +31,7 @@ Cloud Functions for Firebase.
   ]
   s.public_header_files = 'Functions/FirebaseFunctions/Public/FirebaseFunctions/*.h'
 
-  s.dependency 'FirebaseCore', '~> 7.0'
+  s.dependency 'FirebaseCore', '~> 8.0'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.4'
 
   s.pod_target_xcconfig = {

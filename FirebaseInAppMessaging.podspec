@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseInAppMessaging'
-  s.version          = '7.11.0-beta'
+  s.version          = '8.0.0-beta'
   s.summary          = 'Firebase In-App Messaging for iOS'
 
   s.description      = <<-DESC
@@ -74,9 +74,9 @@ See more product details at https://firebase.google.com/products/in-app-messagin
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
 
-  s.dependency 'FirebaseCore', '~> 7.0'
-  s.dependency 'FirebaseInstallations', '~> 7.0'
-  s.dependency 'FirebaseABTesting', '~> 7.0'
+  s.dependency 'FirebaseCore', '~> 8.0'
+  s.dependency 'FirebaseInstallations', '~> 8.0'
+  s.dependency 'FirebaseABTesting', '~> 8.0'
   s.dependency 'GoogleUtilities/Environment', '~> 7.0'
   s.dependency 'nanopb', '~> 2.30908.0'
 

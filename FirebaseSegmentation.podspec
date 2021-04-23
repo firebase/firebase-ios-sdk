@@ -27,8 +27,8 @@ Firebase Segmentation enables you to associate your custom application instance 
   ]
   s.public_header_files = 'FirebaseSegmentation/Sources/Public/*.h'
 
-  s.dependency 'FirebaseCore', '~> 7.0'
-  s.dependency 'FirebaseInstallations', '~> 7.0'
+  s.dependency 'FirebaseCore', '~> 8.0'
+  s.dependency 'FirebaseInstallations', '~> 8.0'
 
    header_search_paths = {
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'

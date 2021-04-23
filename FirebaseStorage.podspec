@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseStorage'
-  s.version          = '7.11.0'
+  s.version          = '8.0.0'
   s.summary          = 'Firebase Storage'
 
   s.description      = <<-DESC
@@ -40,7 +40,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
 
   s.osx.framework = 'CoreServices'
 
-  s.dependency 'FirebaseCore', '~> 7.0'
+  s.dependency 'FirebaseCore', '~> 8.0'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.4'
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
@@ -74,7 +74,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     int_tests.requires_app_host = true
     int_tests.resources = 'FirebaseStorage/Tests/Integration/Resources/1mb.dat',
                           'FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist'
-    int_tests.dependency 'FirebaseAuth', '~> 7.0'
+    int_tests.dependency 'FirebaseAuth', '~> 8.0'
   end
 
   s.test_spec 'swift-integration' do |swift_int_tests|
@@ -83,6 +83,6 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     swift_int_tests.requires_app_host = true
     swift_int_tests.resources = 'FirebaseStorage/Tests/Integration/Resources/1mb.dat',
                           'FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist'
-    swift_int_tests.dependency 'FirebaseAuth', '~> 7.0'
+    swift_int_tests.dependency 'FirebaseAuth', '~> 8.0'
   end
 end

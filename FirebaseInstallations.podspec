@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseInstallations'
-  s.version          = '7.11.0'
+  s.version          = '8.0.0'
   s.summary          = 'Firebase Installations'
 
   s.description      = <<-DESC
@@ -40,7 +40,7 @@ Pod::Spec.new do |s|
   ]
 
   s.framework = 'Security'
-  s.dependency 'FirebaseCore', '~> 7.0'
+  s.dependency 'FirebaseCore', '~> 8.0'
   s.dependency 'PromisesObjC', '~> 1.2'
   s.dependency 'GoogleUtilities/Environment', '~> 7.0'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 7.0'
