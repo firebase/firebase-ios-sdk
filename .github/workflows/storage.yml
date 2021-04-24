@@ -174,9 +174,6 @@ jobs:
     runs-on: macOS-latest
     strategy:
       matrix:
-        # watchos is disabled since pod lib lint cannot handle test Auth dep even if the dep is only
-        # specified for the other three platforms.
-        target: [ios, tvos, macos]
         spec: [
           'FirebaseStorage.podspec --test-specs=unit', # The integration tests need more set up.
           'FirebaseStorageSwift.podspec --skip-tests' # No current unit tests.
@@ -186,4 +183,4 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      run: scripts/third_party/travis/retry.sh pod spec lint ${{ matrix.spec }} --skip-tests --platforms=${{ matrix.target }} --sources='https://github.com/firebase/SpecsTesting','https://github.com/firebase/SpecsDev.git','https://github.com/firebase/SpecsStaging.git','https://cdn.cocoapods.org/'
+      run: scripts/third_party/travis/retry.sh pod spec lint ${{ matrix.spec }} --skip-tests --sources='https://github.com/firebase/SpecsTesting','https://github.com/firebase/SpecsDev.git','https://github.com/firebase/SpecsStaging.git','https://cdn.cocoapods.org/'

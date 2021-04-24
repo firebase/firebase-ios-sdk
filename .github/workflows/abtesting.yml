@@ -117,12 +117,9 @@ jobs:
     # Don't run on private repo unless it is a PR.
     if: github.repository == 'Firebase/firebase-ios-sdk' && github.event.pull_request.merged != true
     runs-on: macOS-latest
-    strategy:
-      matrix:
-        target: [ios, tvos, macos, watchos]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      run: scripts/third_party/travis/retry.sh pod spec lint FirebaseABTesting.podspec --skip-tests --platforms=${{ matrix.target }} --sources='https://github.com/firebase/SpecsTesting','https://github.com/firebase/SpecsDev.git','https://github.com/firebase/SpecsStaging.git','https://cdn.cocoapods.org/'
+      run: scripts/third_party/travis/retry.sh pod spec lint FirebaseABTesting.podspec --skip-tests --sources='https://github.com/firebase/SpecsTesting','https://github.com/firebase/SpecsDev.git','https://github.com/firebase/SpecsStaging.git','https://cdn.cocoapods.org/'
