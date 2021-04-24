@@ -12,6 +12,9 @@
 - [changed] The Swift Package Manager distribution now requires at least watchOS 7.0 for products
   that support watchOS. The CocoaPods distribution continues to support watchOS 6.0 with the
   exception of FirebaseDatabase.
+- [changed] The zip and Carthage distributions now require a minimum iOS version of 11.0,
+  macOS 10.13 and tvOS 11.0. The CocoaPods distribution remains unchanged - the minimum supported
+  iOS version is 10.0 (Analytics and Crashlytics 9.0).
 
 # Firebase 7.10.0
 - [changed] Update Nanopb to version 0.3.9.8. It fixes a possible security issue. (#7787)
