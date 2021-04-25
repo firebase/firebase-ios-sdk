@@ -1,3 +1,6 @@
+# 8.0.0
+- [added] Added abuse reduction features. (#7928)
+
 # 7.4.0
 - [fixed] Prevent second `listAll` callback. (#7197)
 

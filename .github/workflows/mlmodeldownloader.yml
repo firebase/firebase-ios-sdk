@@ -110,3 +110,14 @@ jobs:
       run: scripts/install_prereqs.sh MLModelDownloaderSample iOS
     - name: Build
       run: ([ -z $plist_secret ] || scripts/build.sh MLModelDownloaderSample iOS)
+
+  podspec-presubmit:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository == 'Firebase/firebase-ios-sdk' && github.event.pull_request.merged != true
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Build and test
+      run: scripts/third_party/travis/retry.sh pod spec lint FirebaseMLModelDownloader.podspec --skip-tests --sources='https://github.com/firebase/SpecsTesting','https://github.com/firebase/SpecsDev.git','https://github.com/firebase/SpecsStaging.git','https://cdn.cocoapods.org/'
