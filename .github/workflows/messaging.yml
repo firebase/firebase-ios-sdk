@@ -191,7 +191,7 @@ jobs:
 
   podspec-presubmit:
     # Don't run on private repo unless it is a PR.
-    if: github.repository == 'Firebase/firebase-ios-sdk' && github.event.pull_request.merged != true
+    if: github.repository == 'Firebase/firebase-ios-sdk' && github.event.pull_request.merged != true && github.event.action != 'closed'
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
