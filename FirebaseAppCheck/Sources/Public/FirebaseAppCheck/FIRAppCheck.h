@@ -38,9 +38,14 @@ NS_SWIFT_NAME(AppCheck)
 /// @throw Throws an exception if required `FirebaseApp` options are missing.
 + (nullable instancetype)appCheckWithApp:(FIRApp *)firebaseApp NS_SWIFT_NAME(appCheck(app:));
 
-/// Sets the App Check provider. An instance of `DeviceCheckProviderFactory` is
-/// used by default, but you can use an instance of `AppCheckDebugProvider` to
-/// test your app on a simulator on a local machine or a build server.
+/// Sets the `AppCheckProviderFactory` to use to generate
+/// `AppCheckDebugProvider` objects.
+///
+/// An instance of `DeviceCheckProviderFactory` is used by default, but you can
+/// also use a custom `AppCheckDebugProviderFactory` implementation or an
+/// instance of `AppCheckDebugProviderFactory` to test your app on a simulator
+/// on a local machine or a build server.
+///
 /// NOTE: Make sure to call this method before `FirebaseApp.configure()`. If
 /// this method is called after configuring Firebase, the changes will not take
 /// effect.

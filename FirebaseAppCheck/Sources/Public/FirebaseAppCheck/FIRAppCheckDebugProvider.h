@@ -73,8 +73,9 @@ NS_SWIFT_NAME(AppCheckDebugProvider)
 
 /** Returns the currently used App Check debug token. The priority:
  *  - `FIRAAppCheckDebugToken` env variable value
- *  - Previously generated stored local token
- *  - Newly generated random token
+ *  - A previously generated token, stored locally on the device
+ *  - A newly generated random token. The generated token will be stored
+ *    locally for future use
  * @return The currently used App Check debug token.
  */
 - (NSString *)currentDebugToken;
