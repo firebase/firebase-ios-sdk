@@ -25,7 +25,6 @@ target 'FirebasePodTest' do
   pod 'FirebaseInAppMessaging', :path => '../../../'
   pod 'FirebaseInAppMessagingSwift', :path => '../../../'
   pod 'FirebaseInstallations', :path => '../../../'
-  pod 'FirebaseInstanceID', :path => '../../../'
   pod 'FirebaseMessaging', :path => '../../../'
   pod 'FirebasePerformance', :path => '../../../'
   pod 'FirebaseRemoteConfig', :path => '../../../'
