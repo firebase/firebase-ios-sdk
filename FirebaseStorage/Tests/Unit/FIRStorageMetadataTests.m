@@ -133,12 +133,14 @@
     kFIRStorageMetadataBucket : @"bucket",
     kFIRStorageMetadataName : @"path/to/object",
   };
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
   FIRStorageGetDownloadURLTask *task =
       [[FIRStorageGetDownloadURLTask alloc] initWithReference:[FIRStorageTestHelpers rootReference]
                                                fetcherService:nil
                                                 dispatchQueue:nil
                                                    completion:nil];
+#pragma clang diagnostic pop
   NSURL *actualURL = [task downloadURLFromMetadataDictionary:metaDict];
   XCTAssertNil(actualURL);
 }
@@ -155,12 +157,14 @@
       stringWithFormat:URLformat, metaDict[kFIRStorageMetadataBucket],
                        [FIRStorageUtils GCSEscapedString:metaDict[kFIRStorageMetadataName]],
                        @"12345"];
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
   FIRStorageGetDownloadURLTask *task = [[FIRStorageGetDownloadURLTask alloc]
       initWithReference:[[FIRStorageTestHelpers rootReference] child:@"path/to/object"]
          fetcherService:nil
           dispatchQueue:nil
              completion:nil];
+#pragma clang diagnostic pop
   NSURL *actualURL = [task downloadURLFromMetadataDictionary:metaDict];
   XCTAssertEqualObjects([actualURL absoluteString], expectedURL);
 }
