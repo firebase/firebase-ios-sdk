@@ -304,9 +304,7 @@ struct ZipBuilderTool: ParsableCommand {
       // For the Firebase zip distribution, we disable version checking at install time by
       // setting a high version to install. The minimum versions are controlled by each individual
       // pod's podspec options.
-      PlatformMinimum.initialize(ios: "14.0",
-                                 macos: "11.0",
-                                 tvos: "14.0")
+      PlatformMinimum.useRecentVersions()
 
       var carthageOptions: CarthageBuildOptions?
       if carthageBuild {
