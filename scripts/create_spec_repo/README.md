@@ -16,7 +16,7 @@ will update the [SpecsTesting repo](https://github.com/firebase/SpecsTesting) ni
 head of the master branch.
 In order to let presubmit tests run on the latest podspec repo, [SpecsTesting repo](https://github.com/firebase/SpecsTesting)
 will be updated when a PR with changed podspecs is merged.
-When this PR is merged, changed pospecs will be `pod repo push`ed to the podsepc repo in
+When this PR is merged, changed podspecs will be `pod repo push`ed to the podspec repo in
 [postsubmit tests](https://github.com/firebase/firebase-ios-sdk/blob/master/.github/workflows/prerelease.yml#L48-L94).
 
 Since `pod spec lint` will test podspecs with remote sources. One PR with changes on multiple
