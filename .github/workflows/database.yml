@@ -137,3 +137,14 @@ jobs:
       run: scripts/setup_bundler.sh
     - name: PodLibLint database Cron
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseDatabase.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
+
+  podspec-presubmit:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository == 'Firebase/firebase-ios-sdk' && github.event.pull_request.merged != true
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Build and test
+      run: scripts/third_party/travis/retry.sh pod spec lint FirebaseDatabase.podspec --skip-tests --sources='https://github.com/firebase/SpecsTesting','https://github.com/firebase/SpecsDev.git','https://github.com/firebase/SpecsStaging.git','https://cdn.cocoapods.org/'

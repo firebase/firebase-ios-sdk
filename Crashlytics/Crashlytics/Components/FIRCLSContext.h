@@ -103,10 +103,6 @@ bool FIRCLSContextInitialize(FIRCLSInternalReport* report,
                              FIRCLSSettings* settings,
                              FIRCLSFileManager* fileManager);
 
-// Re-writes the metadata file on the current thread
-void FIRCLSContextUpdateMetadata(FIRCLSInternalReport* report,
-                                 FIRCLSSettings* settings,
-                                 FIRCLSFileManager* fileManager);
 #endif
 
 void FIRCLSContextBaseInit(void);
