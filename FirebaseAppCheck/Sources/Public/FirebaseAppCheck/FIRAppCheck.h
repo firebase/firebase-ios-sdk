@@ -28,21 +28,27 @@ NS_SWIFT_NAME(AppCheck)
 
 /// Returns a default instance of `AppCheck`.
 /// @return An instance of `AppCheck` for `FirebaseApp.defaultApp()`.
-/// @throw Throws an exception if the default app is not configured yet or required  `FirebaseApp`
+/// @throw Throws an exception if the default app is not configured yet or required `FirebaseApp`
 /// options are missing.
 + (instancetype)appCheck NS_SWIFT_NAME(appCheck());
 
 /// Returns an instance of `AppCheck` for an application.
 /// @param firebaseApp A configured `FirebaseApp` instance if exists.
 /// @returns An instance of `AppCheck` corresponding to the passed application.
-/// @throw May throws an exception if required `FirebaseApp` options are missing.
+/// @throw Throws an exception if required `FirebaseApp` options are missing.
 + (nullable instancetype)appCheckWithApp:(FIRApp *)firebaseApp NS_SWIFT_NAME(appCheck(app:));
 
-/// Set an instance of a Firebase app check provider factory. An instance of
-/// `DeviceCheckProviderFactory` is used by default. An instance of `AppCheckDebugProvider` can be
-/// used to test on a simulator on a local machine or a build server.
-/// NOTE: Make sure to call the method before `FirebaseApp.configure()`. If the method is called
-/// after configuring Firebase, the changes will not be applied.
+/// Sets the `AppCheckProviderFactory` to use to generate
+/// `AppCheckDebugProvider` objects.
+///
+/// An instance of `DeviceCheckProviderFactory` is used by default, but you can
+/// also use a custom `AppCheckProviderFactory` implementation or an
+/// instance of `AppCheckDebugProviderFactory` to test your app on a simulator
+/// on a local machine or a build server.
+///
+/// NOTE: Make sure to call this method before `FirebaseApp.configure()`. If
+/// this method is called after configuring Firebase, the changes will not take
+/// effect.
 + (void)setAppCheckProviderFactory:(nullable id<FIRAppCheckProviderFactory>)factory;
 
 /// If this flag is disabled then Firebase app check will not periodically auto-refresh the app
