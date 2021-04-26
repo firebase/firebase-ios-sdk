@@ -61,10 +61,10 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
   s.dependency 'FirebaseInstallations', '~> 8.0'
   s.dependency 'FirebaseRemoteConfig', '~> 8.0'
   s.dependency 'GoogleDataTransport', '~> 9.0'
-  s.dependency 'GoogleUtilities/Environment', '~> 7.0'
-  s.dependency 'GoogleUtilities/ISASwizzler', '~> 7.0'
-  s.dependency 'GoogleUtilities/MethodSwizzler', '~> 7.0'
-  s.dependency 'Protobuf', '~> 3.12'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.4'
+  s.dependency 'GoogleUtilities/ISASwizzler', '~> 7.4'
+  s.dependency 'GoogleUtilities/MethodSwizzler', '~> 7.4'
+  s.dependency 'Protobuf', '~> 3.15'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.platforms = {:ios => ios_deployment_target, :tvos => tvos_deployment_target}

@@ -41,7 +41,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
   s.osx.framework = 'CoreServices'
 
   s.dependency 'FirebaseCore', '~> 8.0'
-  s.dependency 'GTMSessionFetcher/Core', '~> 1.4'
+  s.dependency 'GTMSessionFetcher/Core', '~> 1.5'
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'

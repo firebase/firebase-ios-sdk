@@ -32,7 +32,7 @@ Cloud Functions for Firebase.
   s.public_header_files = 'Functions/FirebaseFunctions/Public/FirebaseFunctions/*.h'
 
   s.dependency 'FirebaseCore', '~> 8.0'
-  s.dependency 'GTMSessionFetcher/Core', '~> 1.4'
+  s.dependency 'GTMSessionFetcher/Core', '~> 1.5'
 
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
