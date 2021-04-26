@@ -230,11 +230,6 @@ struct ZipBuilderTool: ParsableCommand {
       fatalError("Missing template inside of the repo. \(templateDir) does not exist.")
     }
 
-    // Set the platform minimum versions.
-    PlatformMinimum.initialize(ios: minimumIOSVersion,
-                               macos: minimumMacOSVersion,
-                               tvos: minimumTVOSVersion)
-
     // Update iOS target platforms if `--include-catalyst` was specified.
     if !includeCatalyst {
       SkipCatalyst.set()
@@ -272,6 +267,12 @@ struct ZipBuilderTool: ParsableCommand {
     }
 
     if let podsToBuild = podsToBuild {
+
+      // Set the platform minimum versions.
+      PlatformMinimum.initialize(ios: minimumIOSVersion,
+                                 macos: minimumMacOSVersion,
+                                 tvos: minimumTVOSVersion)
+
       let (installedPods, frameworks, _) =
         builder.buildAndAssembleZip(podsToInstall: podsToBuild,
                                     includeDependencies: buildDependencies)
@@ -300,6 +301,14 @@ struct ZipBuilderTool: ParsableCommand {
       }
     } else {
       // Do a Firebase Zip Release package build.
+
+      // For the Firebase zip distribution, we disable version checking at install time by
+      // setting a high version to install. The minimum versions are controlled by each individual
+      // pod's podspec options.
+      PlatformMinimum.initialize(ios: "14.0",
+                                 macos: "11.0",
+                                 tvos: "14.0")
+
       var carthageOptions: CarthageBuildOptions?
       if carthageBuild {
         let jsonDir = paths.repoDir.appendingPathComponents(["ReleaseTooling", "CarthageJSON"])
