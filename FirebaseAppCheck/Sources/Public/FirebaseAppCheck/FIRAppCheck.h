@@ -42,7 +42,7 @@ NS_SWIFT_NAME(AppCheck)
 /// `AppCheckDebugProvider` objects.
 ///
 /// An instance of `DeviceCheckProviderFactory` is used by default, but you can
-/// also use a custom `AppCheckDebugProviderFactory` implementation or an
+/// also use a custom `AppCheckProviderFactory` implementation or an
 /// instance of `AppCheckDebugProviderFactory` to test your app on a simulator
 /// on a local machine or a build server.
 ///
