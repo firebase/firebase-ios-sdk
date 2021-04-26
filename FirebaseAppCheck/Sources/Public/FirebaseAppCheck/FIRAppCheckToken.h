@@ -18,20 +18,20 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/// An object representing Firebase app check token.
+/// An object representing a Firebase App Check token.
 NS_SWIFT_NAME(AppCheckToken)
 @interface FIRAppCheckToken : NSObject
 
-/// A Firebase app check token.
+/// A Firebase App Check token.
 @property(nonatomic, readonly) NSString *token;
-/// A Firebase app check token expiration date in the device local time.
+/// The App Check token's expiration date in the device's local time.
 @property(nonatomic, readonly) NSDate *expirationDate;
 
 - (instancetype)init NS_UNAVAILABLE;
 
 /// The designated initializer.
-/// @param token A Firebase app check token.
-/// @param expirationDate A Firebase app check token expiration date in the device local time.
+/// @param token A Firebase App Check token.
+/// @param expirationDate A Firebase App Check token expiration date in the device local time.
 - (instancetype)initWithToken:(NSString *)token
                expirationDate:(NSDate *)expirationDate NS_DESIGNATED_INITIALIZER;
 
