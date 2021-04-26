@@ -117,7 +117,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FIRAppCheckProvider
 
-- (void)getTokenWithCompletion:(nonnull FIRAppCheckTokenHandler)handler {
+- (void)getTokenWithCompletion:(void (^)(FIRAppCheckToken *_Nullable, NSError *_Nullable))handler {
   // 1. Check `DCAppAttestService.isSupported`.
   [self isAppAttestSupported]
       .thenOn(self.queue,
