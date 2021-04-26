@@ -70,16 +70,6 @@
     ]
   },
   {
-    "sdk": "instanceid",
-    "filePatterns": [
-      "FirebaseInstanceID.*",
-      "Firebase/InstanceID/.*",
-      "Example/InstanceID/.*",
-      "\\.github/workflows/instanceid\\.yml",
-      "Gemfile"
-    ]
-  },
-  {
     "sdk": "messaging",
     "filePatterns": [
       "FirebaseMessaging/.*",

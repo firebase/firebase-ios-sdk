@@ -27,7 +27,7 @@ import Foundation
 let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseStorage/Tests/Integration",
                        "FirebaseDynamicLinks/Tests/Integration",
                        "FirebaseInAppMessaging/Tests/Integration/",
-                       "Example/InstanceID/App", "SymbolCollisionTest/", "/gen/",
+                       "SymbolCollisionTest/", "/gen/",
                        "CocoapodsIntegrationTest/", "FirebasePerformance/Tests/TestApp/",
                        "FirebasePerformance/Tests/FIRPerfE2E/"] +
   [
