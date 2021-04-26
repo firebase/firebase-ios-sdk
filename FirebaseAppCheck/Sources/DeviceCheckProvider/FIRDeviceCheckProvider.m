@@ -16,8 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import <DeviceCheck/DeviceCheck.h>
-
 #if __has_include(<FBLPromises/FBLPromises.h>)
 #import <FBLPromises/FBLPromises.h>
 #else
