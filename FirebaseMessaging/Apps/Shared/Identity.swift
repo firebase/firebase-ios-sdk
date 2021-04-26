@@ -18,7 +18,7 @@ import FirebaseInstallations
 
 public final class Identity: ObservableObject {
   // Identity that is unique per app.
-  @Published public var instanceID: String? = nil
+  @Published public var installationsID: String? = nil
   // The token that Firebase Messaging use to send notifications.
   @Published public var token: String? = nil
 
@@ -28,7 +28,7 @@ public final class Identity: ObservableObject {
         print("Failed to get FID: ", error)
         return
       }
-      self.instanceID = fid
+      self.installationsID = fid
     })
   }
 }

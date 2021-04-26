@@ -136,7 +136,6 @@ static const NSTimeInterval kLegacyRegistrationTimeout = 30;
 
 /** @fn isProductionApp
     @brief Whether or not the app has production (versus sandbox) provisioning profile.
-    @remarks This method is adapted from @c FIRInstanceID .
  */
 + (BOOL)isProductionApp {
   const BOOL defaultAppTypeProd = YES;

@@ -34,7 +34,7 @@ struct ContentView: View {
               .font(.subheadline)
               .fontWeight(.semibold)
 
-            Text(identity.instanceID ?? "None").foregroundColor(.green)
+            Text(identity.installationsID ?? "None").foregroundColor(.green)
           }
 
           VStack(alignment: .leading) {
@@ -134,7 +134,7 @@ struct ContentView: View {
       self.log = "Successfully got token."
       print("Token: ", self.identity.token ?? "")
       Installations.installations().installationID { fid, error in
-        self.identity.instanceID = fid
+        self.identity.installationsID = fid
         self.log = "Successfully got iid and token."
       }
     }
@@ -246,7 +246,7 @@ struct ContentView_Previews: PreviewProvider {
   // A fake filled identity for testing rendering of a filled cell.
   static let filledIdentity: Identity = {
     var identity = Identity()
-    identity.instanceID = UUID().uuidString
+    identity.installationsID = UUID().uuidString
 
     // The token is a long string, generate a very long repeating string of characters to see how the view
     // will react.
