@@ -752,6 +752,7 @@ let package = Package(
       name: "FirebaseMessaging",
       dependencies: [
         "FirebaseCore",
+        "FirebaseInstallations",
         .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "GULReachability", package: "GoogleUtilities"),
