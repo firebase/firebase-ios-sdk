@@ -82,4 +82,23 @@ Combine Publishers for Firebase.
     unit_tests.dependency 'FirebaseAuthTestingSupport'
     unit_tests.dependency 'FirebaseFunctionsTestingSupport'
   end
+
+  s.test_spec 'integration' do |int_tests|
+    int_tests.scheme = { :code_coverage => true }
+    int_tests.platforms = {
+      :ios => ios_deployment_target,
+      :osx => osx_deployment_target,
+      :tvos => tvos_deployment_target
+    }
+    int_tests.source_files = [
+      'FirebaseCombineSwift/Tests/Integration/Storage/StorageIntegration.swift',
+      'FirebaseStorage/Tests/SwiftIntegration/Credentials.swift'
+    ]
+    int_tests.requires_app_host = true
+    # Resources are shared with FirebaseStorage's integration tests.
+    int_tests.resources = 'FirebaseStorage/Tests/Integration/Resources/1mb.dat',
+                          'FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist',
+                          'FirebaseStorage/Tests/Integration/Resources/HomeImprovement.numbers'
+    int_tests.dependency 'FirebaseAuth', '~> 8.0'
+  end
 end
