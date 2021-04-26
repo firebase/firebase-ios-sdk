@@ -267,7 +267,6 @@ struct ZipBuilderTool: ParsableCommand {
     }
 
     if let podsToBuild = podsToBuild {
-
       // Set the platform minimum versions.
       PlatformMinimum.initialize(ios: minimumIOSVersion,
                                  macos: minimumMacOSVersion,
