@@ -8,6 +8,7 @@ Podspec presubmit test is to help ensure podspec is releasable. 'pod spec lint' 
 - https://cdn.cocoapods.org/
 
 where [SpecsTesting](https://github.com/firebase/SpecsTesting) is generated from the head of the master branch of [firebase-ios-sdk repo](https://github.com/firebase/firebase-ios-sdk).
+
 The [prerelease workflow](https://github.com/firebase/firebase-ios-sdk/blob/master/.github/workflows/prerelease.yml#L11-L46) will update the [SpecsTesting repo](https://github.com/firebase/SpecsTesting) nightly from the head of the master branch.
 In order to let presubmit tests run on the latest podspec repo, [SpecsTesting repo](https://github.com/firebase/SpecsTesting) will be updated when a PR with changed podspecs is merged.
 When this PR is merged, changed pospecs will be `pod repo push`ed to the podsepc repo in [postsubmit tests](https://github.com/firebase/firebase-ios-sdk/blob/master/.github/workflows/prerelease.yml#L48-L94).
