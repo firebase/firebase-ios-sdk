@@ -12,7 +12,7 @@ where [SpecsTesting](https://github.com/firebase/SpecsTesting) is generated from
 master branch of [firebase-ios-sdk repo](https://github.com/firebase/firebase-ios-sdk).
 
 The [prerelease workflow](https://github.com/firebase/firebase-ios-sdk/blob/master/.github/workflows/prerelease.yml#L11-L46)
-will update the [SpecsTesting repo](https://github.com/firebase/SpecsTesting) nightly from the 
+will update the [SpecsTesting repo](https://github.com/firebase/SpecsTesting) nightly from the
 head of the master branch.
 In order to let presubmit tests run on the latest podspec repo, [SpecsTesting repo](https://github.com/firebase/SpecsTesting)
 will be updated when a PR with changed podspecs is merged.
