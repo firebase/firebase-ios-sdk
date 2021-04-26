@@ -62,7 +62,7 @@ class importTest: XCTestCase {
 
     let versionParts = FirebaseVersion().split(separator: ".")
     XCTAssert(versionParts.count == 3)
-    XCTAssertEqual(Int(versionParts[0]), 7)
+    XCTAssertEqual(Int(versionParts[0]), 8)
     XCTAssertNotNil(Int(versionParts[1]))
     XCTAssertNotNil(Int(versionParts[2]))
 

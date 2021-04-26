@@ -48,8 +48,8 @@ jobs:
     strategy:
       matrix:
         flags: [
-          '--use-modular-headers',
-          '--use-libraries'
+          '--skip-tests --use-modular-headers',
+          '--skip-tests --use-libraries'
         ]
     needs: pod_lib_lint
     steps:

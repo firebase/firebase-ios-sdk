@@ -25,7 +25,6 @@
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckProvider.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckProviderFactory.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckVersion.h"
 
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckLogger.h"
@@ -78,10 +77,7 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 #pragma mark - FIRComponents
 
 + (void)load {
-  // TODO: Provide valid lib name and version once platform logging approved.
-  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self
-                         withName:@"*"  //@"fire-app-check"
-                      withVersion:@"*"];
+  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self withName:@"fire-app-check"];
 }
 
 + (NSArray<FIRComponent *> *)componentsToRegister {

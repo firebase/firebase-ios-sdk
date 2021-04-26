@@ -19,8 +19,6 @@
 #import "FBLPromise+Testing.h"
 #import "OCMock.h"
 
-#import <FirebaseAppCheck/FIRAppCheckVersion.h>
-
 #import <GoogleUtilities/GULURLSessionDataResponse.h>
 #import <GoogleUtilities/NSURLSession+GULPromises.h>
 
@@ -91,14 +89,9 @@
   FIRRequestValidationBlock requestValidation = ^BOOL(NSURLRequest *request) {
     XCTAssertEqualObjects(request.URL, URL);
 
-    // TODO: Replace the assertions by the commented below once platform logging approved.
-    NSString *appCheckVersionHeader =
-        [NSString stringWithFormat:@"fire-app-check/%s", FIRAppCheckVersionStr];
-    XCTAssertEqualObjects(request.allHTTPHeaderFields[@"x-firebase-client"], appCheckVersionHeader);
-    XCTAssertNil(request.allHTTPHeaderFields[@"X-firebase-client-log-type"]);
-    //    XCTAssertEqualObjects(request.allHTTPHeaderFields[@"x-firebase-client"],
-    //                          [FIRApp firebaseUserAgent]);
-    //    XCTAssertEqualObjects(request.allHTTPHeaderFields[@"X-firebase-client-log-type"], @"3");
+    XCTAssertEqualObjects(request.allHTTPHeaderFields[@"x-firebase-client"],
+                          [FIRApp firebaseUserAgent]);
+    XCTAssertEqualObjects(request.allHTTPHeaderFields[@"X-firebase-client-log-type"], @"3");
 
     XCTAssertEqualObjects(request.allHTTPHeaderFields[@"X-Goog-Api-Key"], self.APIKey);
 
