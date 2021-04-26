@@ -17,7 +17,6 @@ import Combine
 import SwiftUI
 import FirebaseCore
 import FirebaseMessaging
-import FirebaseInstanceID
 import FirebaseInstallations
 
 struct ContentView: View {
@@ -68,21 +67,14 @@ struct ContentView: View {
               Button(action: getIDAndToken) {
                 HStack {
                   Image(systemName: "arrow.clockwise.circle.fill")
-                  Text("IID.ID")
-                    .fontWeight(.semibold)
-                }
-              }
-              Button(action: getToken) {
-                HStack {
-                  Image(systemName: "arrow.clockwise.circle.fill")
-                  Text("IID")
+                  Text("FID & Token")
                     .fontWeight(.semibold)
                 }
               }
               Button(action: getFCMToken) {
                 HStack {
                   Image(systemName: "arrow.clockwise.circle.fill").font(.body)
-                  Text("FM")
+                  Text("getToken")
                     .fontWeight(.semibold)
                 }
               }
@@ -93,17 +85,10 @@ struct ContentView: View {
             Text("deleteToken")
               .fontWeight(.semibold)
             HStack {
-              Button(action: deleteToken) {
-                HStack {
-                  Image(systemName: "trash.fill")
-                  Text("IID")
-                    .fontWeight(.semibold)
-                }
-              }
               Button(action: deleteFCMToken) {
                 HStack {
                   Image(systemName: "trash.fill")
-                  Text("FM")
+                  Text("deleteToken")
                     .fontWeight(.semibold)
                 }
               }
@@ -114,24 +99,17 @@ struct ContentView: View {
             Text("delete")
               .fontWeight(.semibold)
             HStack {
-              Button(action: deleteID) {
-                HStack {
-                  Image(systemName: "trash.fill")
-                  Text("IID")
-                    .fontWeight(.bold)
-                }
-              }
               Button(action: deleteFCM) {
                 HStack {
                   Image(systemName: "trash.fill")
-                  Text("FM")
+                  Text("FM.delete")
                     .fontWeight(.semibold)
                 }
               }
               Button(action: deleteFID) {
                 HStack {
                   Image(systemName: "trash.fill")
-                  Text("FIS")
+                  Text("FIS.delete")
                     .fontWeight(.semibold)
                 }
               }
@@ -147,37 +125,19 @@ struct ContentView: View {
   }
 
   func getIDAndToken() {
-    InstanceID.instanceID().instanceID { result, error in
-      guard let result = result, error == nil else {
+    Messaging.messaging().token { token, error in
+      guard let token = token, error == nil else {
         self.log = "Failed getting iid and token: \(String(describing: error))"
         return
       }
-      self.identity.token = result.token
-      self.identity.instanceID = result.instanceID
-      self.log = "Successfully got iid and token."
-    }
-  }
-
-  func getToken() {
-    guard let app = FirebaseApp.app() else {
-      return
-    }
-    let senderID = app.options.gcmSenderID
-    var options: [String: Any] = [:]
-    if Messaging.messaging().apnsToken == nil {
-      log = "There's no APNS token available at the moment."
-      return
-    }
-    options = ["apns_token": Messaging.messaging().apnsToken as Any]
-    InstanceID.instanceID()
-      .token(withAuthorizedEntity: senderID, scope: "*", options: options) { token, error in
-        guard let token = token, error == nil else {
-          self.log = "Failed getting token: \(String(describing: error))"
-          return
-        }
-        self.identity.token = token
-        self.log = "Successfully got token."
+      self.identity.token = token
+      self.log = "Successfully got token."
+      print("Token: ", self.identity.token ?? "")
+      Installations.installations().installationID { fid, error in
+        self.identity.instanceID = fid
+        self.log = "Successfully got iid and token."
       }
+    }
   }
 
   func getFCMToken() {
@@ -199,26 +159,6 @@ struct ContentView: View {
         return
       }
       self.log = "Successfully deleted token."
-    }
-  }
-
-  func deleteToken() {
-    guard let app = FirebaseApp.app() else {
-      return
-    }
-    let senderID = app.options.gcmSenderID
-    InstanceID.instanceID()
-      .deleteToken(withAuthorizedEntity: senderID, scope: "*") { error in
-      }
-  }
-
-  func deleteID() {
-    InstanceID.instanceID().deleteID { error in
-      if let error = error as NSError? {
-        self.log = "Failed deleting ID: \(error)"
-        return
-      }
-      self.log = "Successfully deleted ID."
     }
   }
 
@@ -333,7 +273,7 @@ struct ContentView_Previews: PreviewProvider {
 struct IdentityButtonStyle: ButtonStyle {
   func makeBody(configuration: Self.Configuration) -> some View {
     configuration.label
-      .frame(minWidth: 0, maxWidth: 60)
+      .frame(minWidth: 0, maxWidth: 120)
       .padding()
       .foregroundColor(.white)
       .background(Color.yellow)
