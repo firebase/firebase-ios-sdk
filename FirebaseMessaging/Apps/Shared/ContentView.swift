@@ -30,7 +30,7 @@ struct ContentView: View {
       VStack {
         List {
           VStack(alignment: .leading) {
-            Text("InstanceID")
+            Text("InstallationsID")
               .font(.subheadline)
               .fontWeight(.semibold)
 
