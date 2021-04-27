@@ -12,6 +12,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//
+// Firebase Storage Integration tests
+//
+// To run these tests, you need to define the following access rights:
+// *
+//  rules_version = '2';
+//  service firebase.storage {
+//    match /b/{bucket}/o {
+//      match /{directChild=*} {
+//        allow read: if request.auth != null;
+//      }
+//      match /ios {
+//        match /public/{allPaths=**} {
+//          allow write: if request.auth != null;
+//          allow read: if true;
+//        }
+//        match /private/{allPaths=**} {
+//          allow read, write: if false;
+//        }
+//      }
+//    }
+//  }
+//
+// You also need to enable email/password sign in and add a test user in your
+// Firebase Authentication settings. Your account credentials need to match
+// the credentials defined in `kTestUser` and `kTestPassword` in Credentials.swift.
+//
+// You can define these access rights in the Firebase Console of your project.
+//
+
 import Combine
 import FirebaseAuth
 import FirebaseCore
@@ -224,21 +254,20 @@ class StorageIntegration: XCTestCase {
     let expectation = self.expectation(description: #function)
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
 
-    storage.reference(withPath: "ios/private/secretfile.txt")
+    storage
+      .reference(withPath: "ios/private/secretfile.txt")
       .putData(data)
-      .filter {
-        print($0)
-        XCTFail("Unexpected success return from putFile)")
-        return false
-      }
-      .mapError { error -> Error in
-        XCTAssertEqual((error as NSError).code, StorageErrorCode.unauthorized.rawValue)
-        expectation.fulfill()
-        return error
-      }
-      .sink { _ in
-      } receiveValue: { _ in
-      }
+      .sink(receiveCompletion: { completion in
+        switch completion {
+        case .finished:
+          XCTFail("Unexpected success return from putData)")
+        case let .failure(error):
+          XCTAssertEqual((error as NSError).code, StorageErrorCode.unauthorized.rawValue)
+          expectation.fulfill()
+        }
+      }, receiveValue: { value in
+        print("Received value \(value)")
+      })
       .store(in: &cancellables)
 
     waitForExpectations()
@@ -252,11 +281,10 @@ class StorageIntegration: XCTestCase {
     let bundle = Bundle(for: StorageIntegration.self)
     let fileURL = try XCTUnwrap(bundle.url(forResource: fileName, withExtension: ""),
                                 "Failed to get filePath")
-    let ref = storage.reference(withPath: "ios/public/" + fileName)
-
-    ref.putFile(from: fileURL)
+    storage
+      .reference(withPath: "ios/public/" + fileName)
+      .putFile(from: fileURL)
       .sink(receiveCompletion: { completion in
-        print("Reveived completion \(completion)")
         switch completion {
         case .finished:
           XCTFail("Unexpected success return from putFile)")
@@ -407,19 +435,17 @@ class StorageIntegration: XCTestCase {
     storage
       .reference(withPath: "ios/public/1mb")
       .getData(maxSize: 1024)
-      .filter {
-        print($0)
-        XCTFail("Unexpected success return from putFile)")
-        return false
-      }
-      .mapError { error -> Error in
-        XCTAssertEqual((error as NSError).domain, StorageErrorDomain)
-        expectation.fulfill()
-        return error
-      }
-      .sink { _ in
-      } receiveValue: { _ in
-      }
+      .sink(receiveCompletion: { completion in
+        switch completion {
+        case .finished:
+          XCTFail("Unexpected success return from getData)")
+        case let .failure(error):
+          XCTAssertEqual((error as NSError).domain, StorageErrorDomain)
+          expectation.fulfill()
+        }
+      }, receiveValue: { value in
+        print("Received value \(value)")
+      })
       .store(in: &cancellables)
 
     waitForExpectations()
