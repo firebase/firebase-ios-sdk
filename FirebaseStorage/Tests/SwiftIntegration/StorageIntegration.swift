@@ -438,7 +438,6 @@ class StorageIntegration: XCTestCase {
         let testRegex = try NSRegularExpression(pattern: downloadURLPattern)
         let downloadURL = try XCTUnwrap(downloadURL, "Failed to unwrap downloadURL")
         let urlString = downloadURL.absoluteString
-        print("url: \(urlString)")
         XCTAssertEqual(testRegex.numberOfMatches(in: urlString,
                                                  range: NSRange(location: 0,
                                                                 length: urlString.count)), 1)
