@@ -260,7 +260,7 @@ class StorageIntegration: XCTestCase {
         switch completion {
         case .finished:
           XCTFail("Unexpected success return from putFile)")
-        case .failure(let error):
+        case let .failure(error):
           XCTAssertEqual((error as NSError).domain, StorageErrorDomain)
           expectation.fulfill()
         }
