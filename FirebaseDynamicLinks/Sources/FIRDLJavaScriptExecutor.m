@@ -68,26 +68,25 @@ NSString *GINFingerprintJSMethodString(void) {
   if (self = [super init]) {
     _delegate = delegate;
     _script = [script copy];
-
-// A WebKit memory allocation error occurs on Apple Silicon when the
-// target is below iOS 14. The issue only occurs on the simulator.
-#if TARGET_OS_SIMULATOR
-    // Only make WebKit related memory allocations if the process
-    // is not running under Rosetta translation.
-    if (!processIsTranslated()) {
-      // The `start:` method allocates a WebKit object.
-      [self start];
-    }
-#else
     [self start];
-#endif
-
   }
   return self;
 }
 
 #pragma mark - Internal methods
 - (void)start {
+  // Initializing a `WKWebView` causes a memory allocation error when the process
+  // is running under Rosetta translation on Apple Silicon.
+  // The issue only occurs on the simulator in apps targeting below iOS 14. (Issue #7618)
+  #if TARGET_OS_SIMULATOR
+  BOOL systemVersionAtLeastiOS14 =
+    [NSProcessInfo.processInfo isOperatingSystemAtLeastVersion:(NSOperatingSystemVersion){14,0,0}];
+  // Perform an early exit if the process is running under Rosetta translation and targeting
+  // under iOS 14.
+  if (processIsTranslated() && !systemVersionAtLeastiOS14) {
+    return;
+  }
+  #endif
   NSString *htmlContent =
       [NSString stringWithFormat:@"<html><head><script>%@</script></head></html>", _script];
 
@@ -150,8 +149,8 @@ NSString *GINFingerprintJSMethodString(void) {
   [self handleExecutionError:error];
 }
 
-// Determine whether a process is running on a Rosetta translation.
-// Return 0 for a native process, 1 for a translated process,
+// Determine whether a process is running under Rosetta translation.
+// Returns 0 for a native process, 1 for a translated process,
 // and -1 when an error occurs.
 // From: https://developer.apple.com/documentation/apple-silicon/about-the-rosetta-translation-environment
 int processIsTranslated() {
