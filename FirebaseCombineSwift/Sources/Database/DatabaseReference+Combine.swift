@@ -28,7 +28,11 @@
     ///   - value: An instance of `Encodable` to be encoded to a document.
     ///   - encoder: An encoder instance to use to run the encoding.
     /// - Returns: A Future that emits the result of encoding/writing the value.
-    func setValue<T: Encodable>(from encodable: T, encoder: Database.Encoder = Database.Encoder()) -> Future<Void, Error> {
+    func setValue<T: Encodable>(from encodable: T,
+                                encoder: Database.Encoder = Database.Encoder()) -> Future<
+      Void,
+      Error
+    > {
       Future<Void, Error> { promise in
         do {
           try self.setValue(from: encodable, encoder: encoder, completion: { error in
@@ -51,15 +55,15 @@
     }
 
     func observeSingleEvent<T: Decodable>(of eventType: DataEventType,
-                                                 as type: T.Type,
-                                                 decoder: Database.Decoder = Database.Decoder()) -> Future<T, Error> {
+                                          as type: T.Type,
+                                          decoder: Database.Decoder = Database
+                                            .Decoder()) -> Future<T, Error> {
       Future<T, Error> { promise in
         self.observeSingleEvent(of: eventType) { snapshot in
           do {
             let t = try snapshot.data(as: T.self, decoder: decoder)
             promise(.success(t))
-          }
-          catch {
+          } catch {
             promise(.failure(error))
           }
         }
@@ -71,15 +75,15 @@
     // Should this be built upon the snapshotPublisher, or is it an ok
     // performance improvement to create this 'directly'?
     func observe<T: Decodable>(_ eventType: DataEventType,
-                                      as type: T.Type,
-                                      decoder: Database.Decoder = Database.Decoder()) -> AnyPublisher<T, Error> {
+                               as type: T.Type,
+                               decoder: Database.Decoder = Database
+                                 .Decoder()) -> AnyPublisher<T, Error> {
       let subject = PassthroughSubject<T, Error>()
       let handle = observe(eventType) { snapshot in
         do {
           let t = try snapshot.data(as: T.self, decoder: decoder)
           subject.send(t)
-        }
-        catch {
+        } catch {
           subject.send(completion: .failure(error))
         }
       }
@@ -93,7 +97,7 @@
     func snapshotPublisher(_ eventType: DataEventType) -> AnyPublisher<DataSnapshot, Never> {
       let subject = PassthroughSubject<DataSnapshot, Never>()
       let handle = observe(eventType) { snapshot in
-          subject.send(snapshot)
+        subject.send(snapshot)
       }
       return subject
         .handleEvents(receiveCancel: {
