@@ -155,7 +155,7 @@ NSString *GINFingerprintJSMethodString(void) {
 // and -1 when an error occurs.
 // From:
 // https://developer.apple.com/documentation/apple-silicon/about-the-rosetta-translation-environment
-int processIsTranslated() {
+static int processIsTranslated() {
   int ret = 0;
   size_t size = sizeof(ret);
   if (sysctlbyname("sysctl.proc_translated", &ret, &size, NULL, 0) == -1) {
