@@ -120,8 +120,8 @@ void SetRepeatedField(T** fields_array,
                       Iterator last,
                       Func converter) {
   *fields_count =
-      static_cast<pb_size_t>(nanopb::CheckedSize(std::distance(first, last)));
-  *fields_array = nanopb::MakeArray<T>(*fields_count);
+      static_cast<pb_size_t>(CheckedSize(std::distance(first, last)));
+  *fields_array = MakeArray<T>(*fields_count);
   auto* current = *fields_array;
   while (first != last) {
     *current = converter(*first);
@@ -139,8 +139,8 @@ void SetRepeatedField(T** fields_array,
                       pb_size_t* fields_count,
                       const Container& fields,
                       Func converter) {
-  *fields_count = nanopb::CheckedSize(fields.size());
-  *fields_array = nanopb::MakeArray<T>(*fields_count);
+  *fields_count = CheckedSize(fields.size());
+  *fields_array = MakeArray<T>(*fields_count);
   auto* current = *fields_array;
   for (const auto& field : fields) {
     *current = converter(field);
