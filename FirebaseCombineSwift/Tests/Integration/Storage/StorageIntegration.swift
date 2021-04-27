@@ -255,19 +255,18 @@ class StorageIntegration: XCTestCase {
     let ref = storage.reference(withPath: "ios/public/" + fileName)
 
     ref.putFile(from: fileURL)
-      .filter {
-        print($0)
-        XCTFail("Unexpected success return from putFile)")
-        return false
-      }
-      .mapError { error -> Error in
-        XCTAssertEqual((error as NSError).domain, StorageErrorDomain)
-        expectation.fulfill()
-        return error
-      }
-      .sink { _ in
-      } receiveValue: { _ in
-      }
+      .sink(receiveCompletion: { completion in
+        print("Reveived completion \(completion)")
+        switch completion {
+        case .finished:
+          XCTFail("Unexpected success return from putFile)")
+        case let .failure(error):
+          XCTAssertEqual((error as NSError).domain, StorageErrorDomain)
+          expectation.fulfill()
+        }
+      }, receiveValue: { value in
+        print("Received value \(value)")
+      })
       .store(in: &cancellables)
 
     waitForExpectations()
