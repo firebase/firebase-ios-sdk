@@ -33,11 +33,17 @@ extension DatabaseReference {
   ///                 immediately.
   public func setValue<T: Encodable>(from value: T,
                                      encoder: Database.Encoder = Database.Encoder(),
-                                     completion: ((Error?) -> Void)? =
+                                     completion: ((Result<Void, Error>) -> Void)? =
                                        nil) throws {
     let encoded = try encoder.encode(value)
     if let completion = completion {
-      setValue(encoded, withCompletionBlock: { error, _ in completion(error) })
+      setValue(encoded, withCompletionBlock: { error, _ in
+        if let error = error {
+          completion(.failure(error))
+        } else {
+          completion(.success(()))
+        }
+      })
     } else {
       setValue(encoded)
     }
