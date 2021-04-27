@@ -377,7 +377,7 @@ struct ZipBuilder {
     let analyticsDir: URL
     do {
       // This returns the Analytics directory and a list of framework names that Analytics requires.
-      /// Example: ["FirebaseInstanceID", "GoogleAppMeasurement", "nanopb", <...>]
+      /// Example: ["FirebaseInstallations, "GoogleAppMeasurement", "nanopb", <...>]
       let (dir, frameworks) = try installAndCopyFrameworks(forPod: "FirebaseAnalytics",
                                                            withInstalledPods: installedPods,
                                                            rootZipDir: zipDir,
