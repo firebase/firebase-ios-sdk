@@ -40,7 +40,7 @@ Pod::Spec.new do |s|
   s.dependency 'FirebaseInstallations', '~> 8.0'
   s.dependency 'GoogleDataTransport', '~> 9.0'
   # TODO: Revisit this dependency
-  s.dependency 'GoogleUtilities/Logger', '~> 7.2'
+  s.dependency 'GoogleUtilities/Logger', '~> 7.4'
   s.dependency 'SwiftProtobuf', '~> 1.0'
 
   s.pod_target_xcconfig = {
