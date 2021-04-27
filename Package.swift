@@ -709,24 +709,6 @@ let package = Package(
     ),
 
     .target(
-      name: "FirebaseInstanceID",
-      dependencies: [
-        "FirebaseCore",
-        "FirebaseInstallations",
-        .product(name: "GULEnvironment", package: "GoogleUtilities"),
-        .product(name: "GULUserDefaults", package: "GoogleUtilities"),
-      ],
-      path: "Firebase/InstanceID",
-      exclude: [
-        "CHANGELOG.md",
-      ],
-      publicHeadersPath: "Public",
-      cSettings: [
-        .headerSearchPath("../../"),
-      ]
-    ),
-
-    .target(
       name: "FirebaseInstallations",
       dependencies: [
         "FirebaseCore",
@@ -770,7 +752,7 @@ let package = Package(
       name: "FirebaseMessaging",
       dependencies: [
         "FirebaseCore",
-        "FirebaseInstanceID",
+        "FirebaseInstallations",
         .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "GULReachability", package: "GoogleUtilities"),

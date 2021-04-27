@@ -35,7 +35,7 @@ def usage()
     --ignore-local-podspecs: list of podspecs that should not be added to
       "--include-podspecs" list. If not specified, then all podspec
       dependencies will be passed to "--include-podspecs".
-      Example: --ignore-local-podspecs=FirebaseInstanceID.podspec,GoogleDataTransport.podspec
+      Example: --ignore-local-podspecs=GoogleDataTransport.podspec
   EOF
 end
 

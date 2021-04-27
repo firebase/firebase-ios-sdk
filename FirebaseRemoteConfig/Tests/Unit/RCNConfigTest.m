@@ -17,8 +17,6 @@
 #import <XCTest/XCTest.h>
 #import "OCMock.h"
 
-//#import <FirebaseInstanceID/FIRInstanceID+Private.h>
-//#import <FirebaseInstanceID/FIRInstanceIDCheckinPreferences.h>
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"
@@ -369,87 +367,6 @@ static NSString *const RCNFakeSecretToken = @"6377571288467228941";
   [_configFetch fetchAllConfigsWithExpirationDuration:0
                                     completionHandler:fetchAllConfigsCompletion];
 
-  [self waitForExpectationsWithTimeout:_expectationTimeout
-                               handler:^(NSError *error) {
-                                 XCTAssertNil(error);
-                               }];
-}
-
-- (void)testRefreshInstanceIDToken {
-  XCTestExpectation *refreshTokenExpectation =
-      [self expectationWithDescription:@"Test refresh Instance ID token."];
-
-  FIRInstanceID *instanceID = [FIRInstanceID instanceID];
-  _settings.senderID = RCNFakeSenderID;
-  id mock = OCMPartialMock(instanceID);
-  OCMStub([mock
-      tokenWithAuthorizedEntity:RCNFakeSenderID
-                          scope:@"*"
-                        options:nil
-                        handler:([OCMArg invokeBlockWithArgs:RCNFakeToken, [NSNull null], nil])]);
-
-  FIRRemoteConfigFetchCompletion completionHandler =
-      ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
-        XCTAssertEqualObjects(RCNFakeToken, _settings.configInstanceIDToken);
-        [mock stopMocking];
-        [refreshTokenExpectation fulfill];
-      };
-  [_configFetch refreshInstanceIDTokenAndFetchCheckInInfoWithCompletionHandler:completionHandler];
-  [self waitForExpectationsWithTimeout:_expectationTimeout
-                               handler:^(NSError *error) {
-                                 XCTAssertNil(error);
-                               }];
-}
-
-- (void)testRefreshInstanceIDTokenWithError {
-  XCTestExpectation *refreshTokenExpectation =
-      [self expectationWithDescription:@"Test refresh Instance ID token."];
-
-  FIRInstanceID *instanceID = [FIRInstanceID instanceID];
-  _settings.senderID = RCNFakeSenderID;
-  NSError *error = [NSError errorWithDomain:@"errorDomain" code:20 userInfo:nil];
-  id mock = OCMPartialMock(instanceID);
-  OCMStub([mock
-      tokenWithAuthorizedEntity:RCNFakeSenderID
-                          scope:@"*"
-                        options:nil
-                        handler:([OCMArg invokeBlockWithArgs:[NSNull null], error, nil])]);
-
-  FIRRemoteConfigFetchCompletion completionHandler =
-      ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
-        XCTAssertNil(_settings.configInstanceIDToken);
-        XCTAssertNil(_settings.configInstanceID);
-        [mock stopMocking];
-        [refreshTokenExpectation fulfill];
-      };
-  [_configFetch refreshInstanceIDTokenAndFetchCheckInInfoWithCompletionHandler:completionHandler];
-  [self waitForExpectationsWithTimeout:_expectationTimeout
-                               handler:^(NSError *error) {
-                                 XCTAssertNil(error);
-                               }];
-}
-
-- (void)testFetchCheckin {
-  XCTestExpectation *refreshTokenExpectation =
-      [self expectationWithDescription:@"Test fetch checkin."];
-
-  FIRInstanceID *instanceID = [FIRInstanceID instanceID];
-  _settings.senderID = RCNFakeSenderID;
-  id mock = OCMPartialMock(instanceID);
-  FIRInstanceIDCheckinPreferences *preferences =
-      [[FIRInstanceIDCheckinPreferences alloc] initWithDeviceID:RCNFakeDeviceID
-                                                    secretToken:RCNFakeSecretToken];
-  OCMStub([mock
-      fetchCheckinInfoWithHandler:([OCMArg invokeBlockWithArgs:preferences, [NSNull null], nil])]);
-
-  FIRRemoteConfigFetchCompletion completionHandler =
-      ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
-        XCTAssertEqualObjects(RCNFakeDeviceID, _settings.deviceAuthID);
-        XCTAssertEqualObjects(RCNFakeSecretToken, _settings.secretToken);
-        [mock stopMocking];
-        [refreshTokenExpectation fulfill];
-      };
-  [_configFetch refreshInstanceIDTokenAndFetchCheckInInfoWithCompletionHandler:completionHandler];
   [self waitForExpectationsWithTimeout:_expectationTimeout
                                handler:^(NSError *error) {
                                  XCTAssertNil(error);
