@@ -150,9 +150,7 @@ let package = Package(
     .package(
       name: "GoogleUtilities",
       url: "https://github.com/google/GoogleUtilities.git",
-      // TODO: Move from `revision` to version below before publishing.
-      .revision("66f5945ac3a4c4ac268bf94c31f226116b14e327")
-//      "7.4.0" ..< "8.0.0"
+      "7.4.0" ..< "8.0.0"
     ),
     .package(
       name: "GTMSessionFetcher",
