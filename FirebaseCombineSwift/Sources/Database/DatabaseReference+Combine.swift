@@ -31,7 +31,13 @@
     func setValue<T: Encodable>(from encodable: T, encoder: Database.Encoder = Database.Encoder()) -> Future<Void, Error> {
       Future<Void, Error> { promise in
         do {
-          try self.setValue(from: encodable, encoder: encoder, completion: promise)
+          try self.setValue(from: encodable, encoder: encoder, completion: { error in
+            if let error = error {
+              promise(.failure(error))
+            } else {
+              promise(.success(()))
+            }
+          })
         } catch {
           // NOTE: This is only correct since we know that if `try setValue` fails
           // then the completion is not called.
