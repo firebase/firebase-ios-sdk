@@ -394,9 +394,9 @@ class StorageIntegration: XCTestCase {
     let ref = storage.reference(withPath: "ios/public/1mb")
 
     // Download URL format is
-    // "https://firebasestorage.googleapis.com/v0/b/{bucket}/o/{path}?alt=media&token={token}"
+    // "https://firebasestorage.googleapis.com:443/v0/b/{bucket}/o/{path}?alt=media&token={token}"
     let downloadURLPattern =
-      "^https:\\/\\/firebasestorage.googleapis.com\\/v0\\/b\\/[^\\/]*\\/o\\/" +
+      "^https:\\/\\/firebasestorage.googleapis.com:443\\/v0\\/b\\/[^\\/]*\\/o\\/" +
       "ios%2Fpublic%2F1mb\\?alt=media&token=[a-z0-9-]*$"
 
     ref.downloadURL { result in

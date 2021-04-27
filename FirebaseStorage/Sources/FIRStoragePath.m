@@ -59,25 +59,21 @@
   NSURL *httpsURL = [NSURL URLWithString:aURLString];
   NSArray *pathComponents = httpsURL.pathComponents;  // [/, v0, b, <bucket>, o, <objects/...>]
 
-  if ([httpsURL.host isEqual:kFIRStorageHost]) {
-    // Have a bucket name
-    if ([pathComponents count] > 3) {
-      bucketName = pathComponents[3];
-    }
-
-    // Have an object name
-    if ([pathComponents count] > 5) {
-      NSRange objectRange = NSMakeRange(5, [pathComponents count] - 5);
-      objectName = [[pathComponents subarrayWithRange:objectRange] componentsJoinedByString:@"/"];
-    }
-  }
-
-  if (bucketName.length == 0) {
+  if ([pathComponents count] <= 3 || ![pathComponents[1] isEqual:@"v0"] ||
+      ![pathComponents[2] isEqual:@"b"]) {
     [NSException raise:NSInternalInconsistencyException
                 format:@"URL must be in the form of "
-                       @"http[s]://firebasestorage.googleapis.com/v0/b/<bucket>/o/<path/to/"
+                       @"http[s]://<host>/v0/b/<bucket>/o/<path/to/"
                        @"object>[?token=signed_url_params]"];
     return nil;
+  }
+
+  bucketName = pathComponents[3];
+
+  // Have an object name
+  if ([pathComponents count] > 5) {
+    NSRange objectRange = NSMakeRange(5, [pathComponents count] - 5);
+    objectName = [[pathComponents subarrayWithRange:objectRange] componentsJoinedByString:@"/"];
   }
 
   if (objectName.length == 0) {

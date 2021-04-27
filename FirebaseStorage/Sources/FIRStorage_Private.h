@@ -23,11 +23,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(strong, nonatomic, readwrite) FIRApp *app;
 
-@property(strong, nonatomic) GTMSessionFetcherService *fetcherServiceForApp;
+@property(strong, nonatomic, nullable) GTMSessionFetcherService *fetcherServiceForApp;
 
 @property(nonatomic, readonly) dispatch_queue_t dispatchQueue;
 
 @property(strong, nonatomic) NSString *storageBucket;
+
+@property(strong, nonatomic) NSString *scheme;
+
+@property(strong, nonatomic) NSString *host;
+
+@property(strong, nonatomic) NSNumber *port;
 
 /**
  * Maximum time between retry attempts for uploads.
@@ -55,6 +61,9 @@ NS_ASSUME_NONNULL_BEGIN
  * @param isLoggingEnabled Boolean passed through to enable/disable GTMSessionFetcher logging
  */
 + (void)setGTMSessionFetcherLoggingEnabled:(BOOL)isLoggingEnabled;
+
+/** Configures the storage instance. Freezes the host setting. */
+- (void)ensureConfigured;
 
 @end
 

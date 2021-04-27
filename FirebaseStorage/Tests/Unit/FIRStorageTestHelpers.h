@@ -95,9 +95,19 @@ static NSTimeInterval kExpectationTimeoutSeconds = 10;
 + (FIRStoragePath *)notFoundPath;
 
 /**
+ * Returns a FIRStorageReference that is backed by a mocked FIRApp.
+ */
++ (FIRStorageReference *)rootReference;
+
+/**
  * Returns a successful response block.
  */
 + (GTMSessionFetcherTestBlock)successBlock;
+
+/**
+ * Returns a successful response block that validates the provided URL.
+ */
++ (GTMSessionFetcherTestBlock)successBlockWithURL:(NSString *)url;
 
 /**
  * Returns a successful response block containing object metadata.
