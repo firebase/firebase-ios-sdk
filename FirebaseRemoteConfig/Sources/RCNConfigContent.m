@@ -86,8 +86,7 @@ static const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
       _bundleIdentifier = @"";
     }
     _DBManager = DBManager;
-    // Waits for both config and Personalization data to load.
-    _configLoadFromDBSemaphore = dispatch_semaphore_create(1);
+    _configLoadFromDBSemaphore = dispatch_semaphore_create(0);
     [self loadConfigFromMainTable];
   }
   return self;
@@ -128,7 +127,6 @@ static const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
                   NSDictionary *activePersonalization, NSDictionary *defaultConfig) {
     self->_fetchedPersonalization = [fetchedPersonalization copy];
     self->_activePersonalization = [activePersonalization copy];
-    dispatch_semaphore_signal(self->_configLoadFromDBSemaphore);
   }];
 }
 
