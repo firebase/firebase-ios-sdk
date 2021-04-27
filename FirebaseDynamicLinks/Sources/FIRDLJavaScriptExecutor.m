@@ -84,6 +84,7 @@ NSString *GINFingerprintJSMethodString(void) {
   // Perform an early exit if the process is running under Rosetta translation and targeting
   // under iOS 14.
   if (processIsTranslated() && !systemVersionAtLeastiOS14) {
+    [self handleExecutionError:nil];
     return;
   }
 #endif
