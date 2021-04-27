@@ -806,6 +806,14 @@ struct FrameworkBuilder {
         return frameworkURL.appendingPathComponent(binaryName)
       }
 
+    // TODO: remove this when we either remove iOS 10 support or have a cleaner way to support
+    // iOS 11+ only pods.
+    if let arm64Path = builtSlices[.iOSDevice],
+       let armv7Path = builtSlices[.iOSSimulator],
+       arm64Path.lastPathComponent == "FirebaseAppCheck" {
+        return [.arm64: arm64Path, .armv7: armv7Path]
+    }
+
     let fileManager = FileManager.default
     let individualSlices = workingDir.appendingPathComponent("slices")
     if !fileManager.directoryExists(at: individualSlices) {
