@@ -75,18 +75,18 @@ NSString *GINFingerprintJSMethodString(void) {
 
 #pragma mark - Internal methods
 - (void)start {
-  // Initializing a `WKWebView` causes a memory allocation error when the process
-  // is running under Rosetta translation on Apple Silicon.
-  // The issue only occurs on the simulator in apps targeting below iOS 14. (Issue #7618)
-  #if TARGET_OS_SIMULATOR
-  BOOL systemVersionAtLeastiOS14 =
-    [NSProcessInfo.processInfo isOperatingSystemAtLeastVersion:(NSOperatingSystemVersion){14,0,0}];
+// Initializing a `WKWebView` causes a memory allocation error when the process
+// is running under Rosetta translation on Apple Silicon.
+// The issue only occurs on the simulator in apps targeting below iOS 14. (Issue #7618)
+#if TARGET_OS_SIMULATOR
+  BOOL systemVersionAtLeastiOS14 = [NSProcessInfo.processInfo
+      isOperatingSystemAtLeastVersion:(NSOperatingSystemVersion){14, 0, 0}];
   // Perform an early exit if the process is running under Rosetta translation and targeting
   // under iOS 14.
   if (processIsTranslated() && !systemVersionAtLeastiOS14) {
     return;
   }
-  #endif
+#endif
   NSString *htmlContent =
       [NSString stringWithFormat:@"<html><head><script>%@</script></head></html>", _script];
 
@@ -152,16 +152,16 @@ NSString *GINFingerprintJSMethodString(void) {
 // Determine whether a process is running under Rosetta translation.
 // Returns 0 for a native process, 1 for a translated process,
 // and -1 when an error occurs.
-// From: https://developer.apple.com/documentation/apple-silicon/about-the-rosetta-translation-environment
+// From:
+// https://developer.apple.com/documentation/apple-silicon/about-the-rosetta-translation-environment
 int processIsTranslated() {
-   int ret = 0;
-   size_t size = sizeof(ret);
-   if (sysctlbyname("sysctl.proc_translated", &ret, &size, NULL, 0) == -1) {
-      if (errno == ENOENT)
-         return 0;
-      return -1;
-   }
-   return ret;
+  int ret = 0;
+  size_t size = sizeof(ret);
+  if (sysctlbyname("sysctl.proc_translated", &ret, &size, NULL, 0) == -1) {
+    if (errno == ENOENT) return 0;
+    return -1;
+  }
+  return ret;
 }
 
 @end
