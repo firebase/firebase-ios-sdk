@@ -184,7 +184,18 @@ struct FrameworkBuilder {
     let distributionFlag = setCarthage ? "-DFIREBASE_BUILD_CARTHAGE" :
       "-DFIREBASE_BUILD_ZIP_FILE"
     let cFlags = "OTHER_CFLAGS=$(value) \(distributionFlag)"
-    let archs = targetPlatform.archs.map { $0.rawValue }.joined(separator: " ")
+
+    var archs = targetPlatform.archs.map { $0.rawValue }.joined(separator: " ")
+    // The 32 bit archs do not build for iOS 11.
+    // TODO: Make a more robust solution if we need to support more of a mix between iOS 11 and
+    // under.
+    if framework == "FirebaseAppCheck" {
+      if targetPlatform == .iOSDevice {
+        archs = "arm64"
+      } else if targetPlatform == .iOSSimulator {
+        archs = "x86_64"
+      }
+    }
 
     var args = ["build",
                 "-configuration", "release",

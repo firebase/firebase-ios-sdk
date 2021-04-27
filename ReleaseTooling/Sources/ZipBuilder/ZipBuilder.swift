@@ -322,7 +322,7 @@ struct ZipBuilder {
                                            frameworksToAssemble: frameworks,
                                            firebasePod: firebasePod)
     var carthageDir: URL?
-    if let carthageFrameworks = carthageFrameworks {
+    if let carthageFrameworks = carthageFrameworks, carthageFrameworks.count > 0 {
       carthageDir = try assembleDistributions(withPackageKind: "CarthageFirebase",
                                               podsToInstall: podsToInstall,
                                               installedPods: installedPods,
