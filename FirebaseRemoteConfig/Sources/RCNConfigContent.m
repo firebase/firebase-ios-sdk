@@ -122,6 +122,7 @@ static const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
                    dispatch_semaphore_signal(self->_configLoadFromDBSemaphore);
                  }];
 
+  // TODO(karenzeng): Refactor personalization to be returned in loadMainWithBundleIdentifier above
   [_DBManager loadPersonalizationWithCompletionHandler:^(
                   BOOL success, NSDictionary *fetchedPersonalization,
                   NSDictionary *activePersonalization, NSDictionary *defaultConfig) {
