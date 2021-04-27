@@ -17,13 +17,18 @@
 #include "Firestore/core/src/model/value_util.h"
 
 #include <algorithm>
+#include <cmath>
+#include <limits>
 #include <memory>
 #include <vector>
 
+#include "Firestore/core/src/model/database_id.h"
+#include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/server_timestamp_util.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/util/comparison.h"
 #include "Firestore/core/src/util/hard_assert.h"
+
 #include "absl/strings/escaping.h"
 #include "absl/strings/str_format.h"
 #include "absl/strings/str_join.h"
@@ -34,6 +39,19 @@ namespace firestore {
 namespace model {
 
 using util::ComparisonResult;
+
+// We use a canonical NaN bit pattern that's common for both Objective-C and
+// Java. Specifically:
+//
+//   - sign: 0
+//   - exponent: 11 bits, all 1
+//   - significand: 52 bits, MSB=1, rest=0
+//
+// This matches the Firestore backend which uses Double.doubleToLongBits from
+// the JDK (which is defined to normalize all NaNs to this value). This also
+// happens to be a common value for NAN in C++, but C++ does not require this
+// specific NaN value to be used, so we normalize.
+const uint64_t kCanonicalNanBits = 0x7ff8000000000000ULL;
 
 TypeOrder GetTypeOrder(const google_firestore_v1_Value& value) {
   switch (value.which_value_type) {
@@ -123,9 +141,10 @@ ComparisonResult CompareBlobs(const google_firestore_v1_Value& left,
                ? util::ComparisonResultFromInt(cmp)
                : util::Compare(left.bytes_value->size, right.bytes_value->size);
   } else {
-    // An empty blob is represented by a nullptr
-    return util::Compare(left.bytes_value != nullptr,
-                         right.bytes_value != nullptr);
+    // An empty blob is represented by a nullptr or an empty byte array
+    return util::Compare(
+        !(left.bytes_value == nullptr || left.bytes_value->size == 0),
+        !(right.bytes_value == nullptr || right.bytes_value->size == 0));
   }
 }
 
@@ -247,8 +266,8 @@ ComparisonResult Compare(const google_firestore_v1_Value& left,
   }
 }
 
-bool NumberEquals(const firebase::firestore::google_firestore_v1_Value& left,
-                  const firebase::firestore::google_firestore_v1_Value& right) {
+bool NumberEquals(const google_firestore_v1_Value& left,
+                  const google_firestore_v1_Value& right) {
   if (left.which_value_type == google_firestore_v1_Value_integer_value_tag &&
       right.which_value_type == google_firestore_v1_Value_integer_value_tag) {
     return left.integer_value == right.integer_value;
@@ -261,17 +280,14 @@ bool NumberEquals(const firebase::firestore::google_firestore_v1_Value& left,
   return false;
 }
 
-bool ArrayEquals(const firebase::firestore::google_firestore_v1_Value& left,
-                 const firebase::firestore::google_firestore_v1_Value& right) {
-  const google_firestore_v1_ArrayValue& left_array = left.array_value;
-  const google_firestore_v1_ArrayValue& right_array = right.array_value;
-
-  if (left_array.values_count != right_array.values_count) {
+bool ArrayEquals(const google_firestore_v1_ArrayValue& left,
+                 const google_firestore_v1_ArrayValue& right) {
+  if (left.values_count != right.values_count) {
     return false;
   }
 
-  for (size_t i = 0; i < left_array.values_count; ++i) {
-    if (left_array.values[i] != right_array.values[i]) {
+  for (size_t i = 0; i < left.values_count; ++i) {
+    if (left.values[i] != right.values[i]) {
       return false;
     }
   }
@@ -279,24 +295,21 @@ bool ArrayEquals(const firebase::firestore::google_firestore_v1_Value& left,
   return true;
 }
 
-bool ObjectEquals(const firebase::firestore::google_firestore_v1_Value& left,
-                  const firebase::firestore::google_firestore_v1_Value& right) {
-  google_firestore_v1_MapValue left_map = left.map_value;
-  google_firestore_v1_MapValue right_map = right.map_value;
-
-  if (left_map.fields_count != right_map.fields_count) {
+bool ObjectEquals(const google_firestore_v1_MapValue& left,
+                  const google_firestore_v1_MapValue& right) {
+  if (left.fields_count != right.fields_count) {
     return false;
   }
 
   // Porting Note: MapValues in iOS are always kept in sorted order. We
   // therefore do no need to sort them before comparing.
-  for (size_t i = 0; i < right_map.fields_count; ++i) {
-    if (nanopb::MakeStringView(left_map.fields[i].key) !=
-        nanopb::MakeStringView(right_map.fields[i].key)) {
+  for (size_t i = 0; i < right.fields_count; ++i) {
+    if (nanopb::MakeStringView(left.fields[i].key) !=
+        nanopb::MakeStringView(right.fields[i].key)) {
       return false;
     }
 
-    if (left_map.fields[i].value != right_map.fields[i].value) {
+    if (left.fields[i].value != right.fields[i].value) {
       return false;
     }
   }
@@ -349,14 +362,19 @@ bool Equals(const google_firestore_v1_Value& lhs,
              lhs.geo_point_value.longitude == rhs.geo_point_value.longitude;
 
     case TypeOrder::kArray:
-      return ArrayEquals(lhs, rhs);
+      return ArrayEquals(lhs.array_value, rhs.array_value);
 
     case TypeOrder::kMap:
-      return ObjectEquals(lhs, rhs);
+      return ObjectEquals(lhs.map_value, rhs.map_value);
 
     default:
       HARD_FAIL("Invalid type value: %s", left_type);
   }
+}
+
+bool Equals(const google_firestore_v1_ArrayValue& lhs,
+            const google_firestore_v1_ArrayValue& rhs) {
+  return ArrayEquals(lhs, rhs);
 }
 
 std::string CanonifyTimestamp(const google_firestore_v1_Value& value) {
@@ -381,13 +399,11 @@ std::string CanonifyGeoPoint(const google_firestore_v1_Value& value) {
                          value.geo_point_value.longitude);
 }
 
-std::string CanonifyArray(const google_firestore_v1_Value& value) {
-  const auto& array = value.array_value;
-
+std::string CanonifyArray(const google_firestore_v1_ArrayValue& array_value) {
   std::string result = "[";
-  for (size_t i = 0; i < array.values_count; ++i) {
-    absl::StrAppend(&result, CanonicalId(array.values[i]));
-    if (i != array.values_count - 1) {
+  for (size_t i = 0; i < array_value.values_count; ++i) {
+    absl::StrAppend(&result, CanonicalId(array_value.values[i]));
+    if (i != array_value.values_count - 1) {
       absl::StrAppend(&result, ",");
     }
   }
@@ -444,7 +460,7 @@ std::string CanonicalId(const google_firestore_v1_Value& value) {
       return CanonifyGeoPoint(value);
 
     case google_firestore_v1_Value_array_value_tag:
-      return CanonifyArray(value);
+      return CanonifyArray(value.array_value);
 
     case google_firestore_v1_Value_map_value_tag: {
       return CanonifyObject(value);
@@ -455,12 +471,61 @@ std::string CanonicalId(const google_firestore_v1_Value& value) {
   }
 }
 
-google_firestore_v1_Value DeepClone(google_firestore_v1_Value source) {
+std::string CanonicalId(const google_firestore_v1_ArrayValue& value) {
+  return CanonifyArray(value);
+}
+
+bool Contains(google_firestore_v1_ArrayValue haystack,
+              google_firestore_v1_Value needle) {
+  for (pb_size_t i = 0; i < haystack.values_count; ++i) {
+    if (Equals(haystack.values[i], needle)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+google_firestore_v1_Value NullValue() {
+  google_firestore_v1_Value null_value{};
+  null_value.which_value_type = google_firestore_v1_Value_null_value_tag;
+  return null_value;
+}
+
+bool IsNullValue(const google_firestore_v1_Value& value) {
+  return value.which_value_type == google_firestore_v1_Value_null_value_tag;
+}
+
+google_firestore_v1_Value NaNValue() {
+  google_firestore_v1_Value nan_value{};
+  nan_value.which_value_type = google_firestore_v1_Value_double_value_tag;
+  nan_value.double_value = std::numeric_limits<double>::quiet_NaN();
+  return nan_value;
+}
+
+bool IsNaNValue(const google_firestore_v1_Value& value) {
+  return value.which_value_type == google_firestore_v1_Value_double_value_tag &&
+         isnan(value.double_value);
+}
+
+google_firestore_v1_Value RefValue(const model::DatabaseId& database_id,
+                                   const model::DocumentKey& document_key) {
+  google_firestore_v1_Value result{};
+  result.which_value_type = google_firestore_v1_Value_reference_value_tag;
+  result.string_value = nanopb::MakeBytesArray(util::StringFormat(
+      "projects/%s/databases/%s/documents/%s", database_id.project_id(),
+      database_id.database_id(), document_key.ToString()));
+  return result;
+}
+
+google_firestore_v1_Value DeepClone(const google_firestore_v1_Value& source) {
   google_firestore_v1_Value target = source;
   switch (source.which_value_type) {
     case google_firestore_v1_Value_string_value_tag:
-      target.string_value = nanopb::MakeBytesArray(source.string_value->bytes,
-                                                   source.string_value->size);
+      target.string_value =
+          source.string_value
+              ? nanopb::MakeBytesArray(source.string_value->bytes,
+                                       source.string_value->size)
+              : nullptr;
       break;
 
     case google_firestore_v1_Value_reference_value_tag:
@@ -469,8 +534,10 @@ google_firestore_v1_Value DeepClone(google_firestore_v1_Value source) {
       break;
 
     case google_firestore_v1_Value_bytes_value_tag:
-      target.bytes_value = nanopb::MakeBytesArray(source.bytes_value->bytes,
-                                                  source.bytes_value->size);
+      target.bytes_value =
+          source.bytes_value ? nanopb::MakeBytesArray(source.bytes_value->bytes,
+                                                      source.bytes_value->size)
+                             : nullptr;
       break;
 
     case google_firestore_v1_Value_array_value_tag:
@@ -495,6 +562,18 @@ google_firestore_v1_Value DeepClone(google_firestore_v1_Value source) {
             DeepClone(source.map_value.fields[i].value);
       }
       break;
+  }
+  return target;
+}
+
+google_firestore_v1_ArrayValue DeepClone(
+    const google_firestore_v1_ArrayValue& source) {
+  google_firestore_v1_ArrayValue target = source;
+  target.values_count = source.values_count;
+  target.values =
+      nanopb::MakeArray<google_firestore_v1_Value>(source.values_count);
+  for (pb_size_t i = 0; i < source.values_count; ++i) {
+    target.values[i] = DeepClone(source.values[i]);
   }
   return target;
 }

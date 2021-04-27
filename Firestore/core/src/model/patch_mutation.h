@@ -23,7 +23,6 @@
 #include <vector>
 
 #include "Firestore/core/src/model/field_mask.h"
-#include "Firestore/core/src/model/field_value.h"
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/model/mutation.h"
 
@@ -102,13 +101,12 @@ class PatchMutation : public Mutation {
       return mask_;
     }
 
-    MaybeDocument ApplyToRemoteDocument(
-        const absl::optional<MaybeDocument>& maybe_doc,
+    void ApplyToRemoteDocument(
+        MutableDocument& document,
         const MutationResult& mutation_result) const override;
 
-    absl::optional<MaybeDocument> ApplyToLocalView(
-        const absl::optional<MaybeDocument>& maybe_doc,
-        const Timestamp& local_write_time) const override;
+    void ApplyToLocalView(MutableDocument& document,
+                          const Timestamp& local_write_time) const override;
 
     bool Equals(const Mutation::Rep& other) const override;
 
@@ -117,12 +115,6 @@ class PatchMutation : public Mutation {
     std::string ToString() const override;
 
    private:
-    ObjectValue PatchDocument(
-        const absl::optional<MaybeDocument>& maybe_doc,
-        const std::vector<FieldValue>& transform_results) const;
-
-    ObjectValue PatchObject(ObjectValue obj) const;
-
     ObjectValue value_;
     FieldMask mask_;
   };

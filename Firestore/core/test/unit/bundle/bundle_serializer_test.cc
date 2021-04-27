@@ -24,6 +24,7 @@
 #include "Firestore/core/src/core/target.h"
 #include "Firestore/core/src/local/local_serializer.h"
 #include "Firestore/core/src/model/database_id.h"
+#include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/remote/serializer.h"
@@ -113,8 +114,8 @@ class BundleSerializerTest : public ::testing::Test {
     VerifyDecodedDocumentEncodesToOriginal(actual.document(), document);
   }
 
-  void VerifyDecodedDocumentEncodesToOriginal(const model::Document& decoded,
-                                              const ProtoDocument& original) {
+  void VerifyDecodedDocumentEncodesToOriginal(
+      const model::MutableDocument& decoded, const ProtoDocument& original) {
     ByteString bytes =
         nanopb::MakeByteString(local_serializer.EncodeMaybeDocument(decoded));
     ProtoMaybeDocument maybe_document;
@@ -455,7 +456,7 @@ TEST_F(BundleSerializerTest, DecodesNanDoubleValues) {
   EXPECT_OK(reader.status());
   auto actual_value = actual.document().data().Get(
       model::FieldPath::FromDotSeparatedString("foo"));
-  EXPECT_TRUE(actual_value->is_nan());
+  EXPECT_TRUE(model::IsNaNValue(*actual_value));
 }
 
 TEST_F(BundleSerializerTest, DecodesStrings) {
@@ -596,29 +597,6 @@ TEST_F(BundleSerializerTest, DecodesReferenceValues) {
   ProtoValue value;
   value.set_reference_value(FullPath("bundle/test_doc"));
   VerifyFieldValueRoundtrip(value);
-}
-
-TEST_F(BundleSerializerTest, DecodeReferenceValuesFromOtherProjectsFails) {
-  ProtoValue value;
-  value.set_reference_value(
-      "projects/p1/databases/new/documents/bundle/test_doc");
-  ProtoDocument document = TestDocument(value);
-
-  std::string json_string;
-  MessageToJsonString(document, &json_string);
-
-  VerifyJsonStringDecodeFails(json_string);
-}
-
-TEST_F(BundleSerializerTest, DecodeInvalidReferenceFails) {
-  ProtoValue value;
-  value.set_reference_value("projectxx/p1/datmm/new/documents/bundle/test_doc");
-  ProtoDocument document = TestDocument(value);
-
-  std::string json_string;
-  MessageToJsonString(document, &json_string);
-
-  VerifyJsonStringDecodeFails(json_string);
 }
 
 TEST_F(BundleSerializerTest, DecodesArrayValues) {
@@ -1030,19 +1008,21 @@ TEST_F(BundleSerializerTest, DecodeInvalidLimitQueriesFails) {
 }
 
 TEST_F(BundleSerializerTest, DecodesStartAtCursor) {
-  core::Query original = testutil::Query("colls")
-                             .AddingOrderBy(OrderBy("f1", "asc"))
-                             .StartingAt(core::Bound({Value("f1"), Value(1000)},
-                                                     /* is_before= */ true));
+  core::Query original =
+      testutil::Query("colls")
+          .AddingOrderBy(OrderBy("f1", "asc"))
+          .StartingAt(core::Bound({Array("f1", 1000).array_value},
+                                  /* is_before= */ true));
 
   VerifyNamedQueryRoundtrip(original);
 }
 
 TEST_F(BundleSerializerTest, DecodesEndAtCursor) {
-  core::Query original = testutil::Query("colls")
-                             .AddingOrderBy(OrderBy("f1", "desc"))
-                             .EndingAt(core::Bound({Value("f1"), Value("1000")},
-                                                   /* is_before= */ false));
+  core::Query original =
+      testutil::Query("colls")
+          .AddingOrderBy(OrderBy("f1", "desc"))
+          .EndingAt(core::Bound({Array("f1", "1000").array_value},
+                                /* is_before= */ false));
 
   VerifyNamedQueryRoundtrip(original);
 }
@@ -1051,7 +1031,7 @@ TEST_F(BundleSerializerTest, DecodeInvalidCursorQueriesFails) {
   std::string json_string = NamedQueryJsonString(
       testutil::Query("colls")
           .AddingOrderBy(OrderBy("f1", "desc"))
-          .EndingAt(core::Bound({Value("f1"), Value("1000")},
+          .EndingAt(core::Bound({Array("f1", "1000").array_value},
                                 /* is_before= */ false)));
   auto json_copy = ReplacedCopy(json_string, "\"1000\"", "[]");
   auto reader = JsonReader();

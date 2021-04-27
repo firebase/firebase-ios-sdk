@@ -87,13 +87,13 @@ class LocalSerializer {
    * local storage.
    */
   nanopb::Message<firestore_client_MaybeDocument> EncodeMaybeDocument(
-      const model::MaybeDocument& maybe_doc) const;
+      const model::MutableDocument& maybe_doc) const;
 
   /**
    * @brief Decodes nanopb proto representing a MaybeDocument proto to the
    * equivalent model.
    */
-  model::MaybeDocument DecodeMaybeDocument(
+  model::MutableDocument DecodeMaybeDocument(
       nanopb::Reader* reader,
       const firestore_client_MaybeDocument& proto) const;
 
@@ -123,7 +123,7 @@ class LocalSerializer {
    * ::firestore::client::WriteBatch proto to the equivalent MutationBatch.
    */
   model::MutationBatch DecodeMutationBatch(
-      nanopb::Reader* reader, const firestore_client_WriteBatch& proto) const;
+      nanopb::Reader* reader, firestore_client_WriteBatch& proto) const;
 
   google_protobuf_Timestamp EncodeVersion(
       const model::SnapshotVersion& version) const;
@@ -147,22 +147,25 @@ class LocalSerializer {
    * serializer for Documents in that it preserves the update_time, which is
    * considered an output only value by the server.
    */
-  google_firestore_v1_Document EncodeDocument(const model::Document& doc) const;
+  google_firestore_v1_Document EncodeDocument(
+      const model::MutableDocument& doc) const;
 
-  model::Document DecodeDocument(nanopb::Reader* reader,
-                                 const google_firestore_v1_Document& proto,
-                                 bool has_committed_mutations) const;
+  model::MutableDocument DecodeDocument(
+      nanopb::Reader* reader,
+      const google_firestore_v1_Document& proto,
+      bool has_committed_mutations) const;
 
   firestore_client_NoDocument EncodeNoDocument(
-      const model::NoDocument& no_doc) const;
+      const model::MutableDocument& no_doc) const;
 
-  model::NoDocument DecodeNoDocument(nanopb::Reader* reader,
-                                     const firestore_client_NoDocument& proto,
-                                     bool has_committed_mutations) const;
+  model::MutableDocument DecodeNoDocument(
+      nanopb::Reader* reader,
+      const firestore_client_NoDocument& proto,
+      bool has_committed_mutations) const;
 
   firestore_client_UnknownDocument EncodeUnknownDocument(
-      const model::UnknownDocument& unknown_doc) const;
-  model::UnknownDocument DecodeUnknownDocument(
+      const model::MutableDocument& unknown_doc) const;
+  model::MutableDocument DecodeUnknownDocument(
       nanopb::Reader* reader,
       const firestore_client_UnknownDocument& proto) const;
 

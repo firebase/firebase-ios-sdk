@@ -221,16 +221,16 @@ Query Query::AsCollectionQueryAtPath(ResourcePath path) const {
 // MARK: - Matching
 
 bool Query::Matches(const Document& doc) const {
-  return MatchesPathAndCollectionGroup(doc) && MatchesOrderBy(doc) &&
-         MatchesFilters(doc) && MatchesBounds(doc);
+  return doc->is_found_document() && MatchesPathAndCollectionGroup(doc) &&
+         MatchesOrderBy(doc) && MatchesFilters(doc) && MatchesBounds(doc);
 }
 
 bool Query::MatchesPathAndCollectionGroup(const Document& doc) const {
-  const ResourcePath& doc_path = doc.key().path();
+  const ResourcePath& doc_path = doc->key().path();
   if (collection_group_) {
     // NOTE: path_ is currently always empty since we don't expose Collection
     // Group queries rooted at a document path yet.
-    return doc.key().HasCollectionId(*collection_group_) &&
+    return doc->key().HasCollectionId(*collection_group_) &&
            path_.IsPrefixOf(doc_path);
   } else if (DocumentKey::IsDocumentKey(path_)) {
     // Exact match for document queries.
@@ -253,7 +253,7 @@ bool Query::MatchesOrderBy(const Document& doc) const {
     const FieldPath& field_path = order_by.field();
     // order by key always matches
     if (field_path != FieldPath::KeyFieldPath() &&
-        doc.field(field_path) == absl::nullopt) {
+        doc->field(field_path) == absl::nullopt) {
       return false;
     }
   }

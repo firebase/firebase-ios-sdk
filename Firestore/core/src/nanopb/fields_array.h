@@ -134,6 +134,11 @@ inline const pb_field_t* FieldsArray<google_firestore_v1_Value>() {
 }
 
 template <>
+inline const pb_field_t* FieldsArray<google_firestore_v1_ArrayValue>() {
+  return google_firestore_v1_Value_fields;
+}
+
+template <>
 inline const pb_field_t*
 FieldsArray<google_firestore_v1_MapValue_FieldsEntry>() {
   return google_firestore_v1_MapValue_FieldsEntry_fields;

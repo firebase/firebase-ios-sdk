@@ -25,7 +25,6 @@
 #include "Firestore/core/src/core/view_snapshot.h"
 #include "Firestore/core/src/model/document_key_set.h"
 #include "Firestore/core/src/model/document_set.h"
-#include "Firestore/core/src/model/no_document.h"
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 #include "Firestore/core/test/unit/testutil/view_testing.h"
@@ -37,11 +36,9 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
-using model::Document;
 using model::DocumentKeySet;
 using model::DocumentSet;
-using model::DocumentState;
-using model::FieldValue;
+using model::MutableDocument;
 using model::ResourcePath;
 
 using testing::ElementsAre;
@@ -64,7 +61,7 @@ MATCHER_P(ContainsDocs, expected, "") {
   if (expected.size() != arg.size()) {
     return false;
   }
-  for (const Document& doc : expected) {
+  for (const MutableDocument& doc : expected) {
     if (!arg.ContainsKey(doc.key())) {
       return false;
     }
@@ -73,9 +70,9 @@ MATCHER_P(ContainsDocs, expected, "") {
 }
 
 /** Constructs `ContainsDocs` instances with an initializer list. */
-inline ContainsDocsMatcherP<std::vector<Document>> ContainsDocs(
-    std::vector<Document> docs) {
-  return ContainsDocsMatcherP<std::vector<Document>>(std::move(docs));
+inline ContainsDocsMatcherP<std::vector<MutableDocument>> ContainsDocs(
+    std::vector<MutableDocument> docs) {
+  return ContainsDocsMatcherP<std::vector<MutableDocument>>(std::move(docs));
 }
 
 /** Returns a new empty query to use for testing. */
@@ -87,9 +84,9 @@ TEST(ViewTest, AddsDocumentsBasedOnQuery) {
   Query query = QueryForMessages();
   View view(query, DocumentKeySet{});
 
-  Document doc1 = Doc("rooms/eros/messages/1", 0, Map("text", "msg1"));
-  Document doc2 = Doc("rooms/eros/messages/2", 0, Map("text", "msg2"));
-  Document doc3 = Doc("rooms/other/messages/1", 0, Map("text", "msg3"));
+  MutableDocument doc1 = Doc("rooms/eros/messages/1", 0, Map("text", "msg1"));
+  MutableDocument doc2 = Doc("rooms/eros/messages/2", 0, Map("text", "msg2"));
+  MutableDocument doc3 = Doc("rooms/other/messages/1", 0, Map("text", "msg3"));
 
   absl::optional<ViewSnapshot> maybe_snapshot =
       ApplyChanges(&view, {doc1, doc2, doc3}, AckTarget({doc1, doc2, doc3}));
@@ -114,9 +111,9 @@ TEST(ViewTest, RemovesDocuments) {
   Query query = QueryForMessages();
   View view(query, DocumentKeySet{});
 
-  Document doc1 = Doc("rooms/eros/messages/1", 0, Map("text", "msg1"));
-  Document doc2 = Doc("rooms/eros/messages/2", 0, Map("text", "msg2"));
-  Document doc3 = Doc("rooms/eros/messages/3", 0, Map("text", "msg3"));
+  MutableDocument doc1 = Doc("rooms/eros/messages/1", 0, Map("text", "msg1"));
+  MutableDocument doc2 = Doc("rooms/eros/messages/2", 0, Map("text", "msg2"));
+  MutableDocument doc3 = Doc("rooms/eros/messages/3", 0, Map("text", "msg3"));
 
   // initial state
   ApplyChanges(&view, {doc1, doc2}, absl::nullopt);
@@ -145,8 +142,8 @@ TEST(ViewTest, ReturnsNilIfThereAreNoChanges) {
   Query query = QueryForMessages();
   View view(query, DocumentKeySet{});
 
-  Document doc1 = Doc("rooms/eros/messages/1", 0, Map("text", "msg1"));
-  Document doc2 = Doc("rooms/eros/messages/2", 0, Map("text", "msg2"));
+  MutableDocument doc1 = Doc("rooms/eros/messages/1", 0, Map("text", "msg1"));
+  MutableDocument doc2 = Doc("rooms/eros/messages/2", 0, Map("text", "msg2"));
 
   // initial state
   ApplyChanges(&view, {doc1, doc2}, absl::nullopt);
@@ -170,11 +167,12 @@ TEST(ViewTest, FiltersDocumentsBasedOnQueryWithFilter) {
   Query query = QueryForMessages().AddingFilter(Filter("sort", "<=", 2));
 
   View view(query, DocumentKeySet{});
-  Document doc1 = Doc("rooms/eros/messages/1", 0, Map("sort", 1));
-  Document doc2 = Doc("rooms/eros/messages/2", 0, Map("sort", 2));
-  Document doc3 = Doc("rooms/eros/messages/3", 0, Map("sort", 3));
-  Document doc4 = Doc("rooms/eros/messages/4", 0, Map());  // no sort, no match
-  Document doc5 = Doc("rooms/eros/messages/5", 0, Map("sort", 1));
+  MutableDocument doc1 = Doc("rooms/eros/messages/1", 0, Map("sort", 1));
+  MutableDocument doc2 = Doc("rooms/eros/messages/2", 0, Map("sort", 2));
+  MutableDocument doc3 = Doc("rooms/eros/messages/3", 0, Map("sort", 3));
+  MutableDocument doc4 =
+      Doc("rooms/eros/messages/4", 0, Map());  // no sort, no match
+  MutableDocument doc5 = Doc("rooms/eros/messages/5", 0, Map("sort", 1));
 
   absl::optional<ViewSnapshot> maybe_snapshot =
       ApplyChanges(&view, {doc1, doc2, doc3, doc4, doc5}, absl::nullopt);
@@ -199,10 +197,10 @@ TEST(ViewTest, UpdatesDocumentsBasedOnQueryWithFilter) {
   Query query = QueryForMessages().AddingFilter(Filter("sort", "<=", 2));
 
   View view(query, DocumentKeySet{});
-  Document doc1 = Doc("rooms/eros/messages/1", 0, Map("sort", 1));
-  Document doc2 = Doc("rooms/eros/messages/2", 0, Map("sort", 3));
-  Document doc3 = Doc("rooms/eros/messages/3", 0, Map("sort", 2));
-  Document doc4 = Doc("rooms/eros/messages/4", 0, Map());
+  MutableDocument doc1 = Doc("rooms/eros/messages/1", 0, Map("sort", 1));
+  MutableDocument doc2 = Doc("rooms/eros/messages/2", 0, Map("sort", 3));
+  MutableDocument doc3 = Doc("rooms/eros/messages/3", 0, Map("sort", 2));
+  MutableDocument doc4 = Doc("rooms/eros/messages/4", 0, Map());
 
   ViewSnapshot snapshot =
       ApplyChanges(&view, {doc1, doc2, doc3, doc4}, absl::nullopt).value();
@@ -211,9 +209,9 @@ TEST(ViewTest, UpdatesDocumentsBasedOnQueryWithFilter) {
 
   ASSERT_THAT(snapshot.documents(), ElementsAre(doc1, doc3));
 
-  Document new_doc2 = Doc("rooms/eros/messages/2", 1, Map("sort", 2));
-  Document new_doc3 = Doc("rooms/eros/messages/3", 1, Map("sort", 3));
-  Document new_doc4 = Doc("rooms/eros/messages/4", 1, Map("sort", 0));
+  MutableDocument new_doc2 = Doc("rooms/eros/messages/2", 1, Map("sort", 2));
+  MutableDocument new_doc3 = Doc("rooms/eros/messages/3", 1, Map("sort", 3));
+  MutableDocument new_doc4 = Doc("rooms/eros/messages/4", 1, Map("sort", 0));
 
   snapshot = ApplyChanges(&view, {new_doc2, new_doc3, new_doc4}, absl::nullopt)
                  .value();
@@ -237,9 +235,9 @@ TEST(ViewTest, RemovesDocumentsForQueryWithLimit) {
   Query query = QueryForMessages().WithLimitToFirst(2);
   View view(query, DocumentKeySet{});
 
-  Document doc1 = Doc("rooms/eros/messages/1", 0, Map("text", "msg1"));
-  Document doc2 = Doc("rooms/eros/messages/2", 0, Map("text", "msg2"));
-  Document doc3 = Doc("rooms/eros/messages/3", 0, Map("text", "msg3"));
+  MutableDocument doc1 = Doc("rooms/eros/messages/1", 0, Map("text", "msg1"));
+  MutableDocument doc2 = Doc("rooms/eros/messages/2", 0, Map("text", "msg2"));
+  MutableDocument doc3 = Doc("rooms/eros/messages/3", 0, Map("text", "msg3"));
 
   // initial state
   ApplyChanges(&view, {doc1, doc3}, absl::nullopt);
@@ -266,10 +264,10 @@ TEST(ViewTest, DoesntReportChangesForDocumentBeyondLimitOfQuery) {
       QueryForMessages().AddingOrderBy(OrderBy("num")).WithLimitToFirst(2);
   View view(query, DocumentKeySet{});
 
-  Document doc1 = Doc("rooms/eros/messages/1", 0, Map("num", 1));
-  Document doc2 = Doc("rooms/eros/messages/2", 0, Map("num", 2));
-  Document doc3 = Doc("rooms/eros/messages/3", 0, Map("num", 3));
-  Document doc4 = Doc("rooms/eros/messages/4", 0, Map("num", 4));
+  MutableDocument doc1 = Doc("rooms/eros/messages/1", 0, Map("num", 1));
+  MutableDocument doc2 = Doc("rooms/eros/messages/2", 0, Map("num", 2));
+  MutableDocument doc3 = Doc("rooms/eros/messages/3", 0, Map("num", 3));
+  MutableDocument doc4 = Doc("rooms/eros/messages/4", 0, Map("num", 4));
 
   // initial state
   ApplyChanges(&view, {doc1, doc2}, absl::nullopt);
@@ -308,9 +306,9 @@ TEST(ViewTest, KeepsTrackOfLimboDocuments) {
   Query query = QueryForMessages();
   View view(query, DocumentKeySet{});
 
-  Document doc1 = Doc("rooms/eros/messages/0", 0, Map());
-  Document doc2 = Doc("rooms/eros/messages/1", 0, Map());
-  Document doc3 = Doc("rooms/eros/messages/2", 0, Map());
+  MutableDocument doc1 = Doc("rooms/eros/messages/0", 0, Map());
+  MutableDocument doc2 = Doc("rooms/eros/messages/1", 0, Map());
+  MutableDocument doc3 = Doc("rooms/eros/messages/2", 0, Map());
 
   ViewChange change =
       view.ApplyChanges(view.ComputeDocumentChanges(DocUpdates({doc1})));
@@ -343,8 +341,8 @@ TEST(ViewTest, KeepsTrackOfLimboDocuments) {
 TEST(ViewTest, ResumingQueryCreatesNoLimbos) {
   Query query = QueryForMessages();
 
-  Document doc1 = Doc("rooms/eros/messages/0", 0, Map());
-  Document doc2 = Doc("rooms/eros/messages/1", 0, Map());
+  MutableDocument doc1 = Doc("rooms/eros/messages/0", 0, Map());
+  MutableDocument doc2 = Doc("rooms/eros/messages/1", 0, Map());
 
   // Unlike other cases, here the view is initialized with a set of previously
   // synced documents which happens when listening to a previously listened-to
@@ -358,8 +356,8 @@ TEST(ViewTest, ResumingQueryCreatesNoLimbos) {
 
 TEST(ViewTest, ReturnsNeedsRefillOnDeleteInLimitQuery) {
   Query query = QueryForMessages().WithLimitToFirst(2);
-  Document doc1 = Doc("rooms/eros/messages/0", 0, Map());
-  Document doc2 = Doc("rooms/eros/messages/1", 0, Map());
+  MutableDocument doc1 = Doc("rooms/eros/messages/0", 0, Map());
+  MutableDocument doc2 = Doc("rooms/eros/messages/1", 0, Map());
   View view(query, DocumentKeySet{});
 
   // Start with a full view.
@@ -387,9 +385,9 @@ TEST(ViewTest, ReturnsNeedsRefillOnDeleteInLimitQuery) {
 TEST(ViewTest, ReturnsNeedsRefillOnReorderInLimitQuery) {
   Query query =
       QueryForMessages().AddingOrderBy(OrderBy("order")).WithLimitToFirst(2);
-  Document doc1 = Doc("rooms/eros/messages/0", 0, Map("order", 1));
-  Document doc2 = Doc("rooms/eros/messages/1", 0, Map("order", 2));
-  Document doc3 = Doc("rooms/eros/messages/2", 0, Map("order", 3));
+  MutableDocument doc1 = Doc("rooms/eros/messages/0", 0, Map("order", 1));
+  MutableDocument doc2 = Doc("rooms/eros/messages/1", 0, Map("order", 2));
+  MutableDocument doc3 = Doc("rooms/eros/messages/2", 0, Map("order", 3));
   View view(query, DocumentKeySet{});
 
   // Start with a full view.
@@ -418,11 +416,11 @@ TEST(ViewTest, ReturnsNeedsRefillOnReorderInLimitQuery) {
 TEST(ViewTest, DoesntNeedRefillOnReorderWithinLimit) {
   Query query =
       QueryForMessages().AddingOrderBy(OrderBy("order")).WithLimitToFirst(3);
-  Document doc1 = Doc("rooms/eros/messages/0", 0, Map("order", 1));
-  Document doc2 = Doc("rooms/eros/messages/1", 0, Map("order", 2));
-  Document doc3 = Doc("rooms/eros/messages/2", 0, Map("order", 3));
-  Document doc4 = Doc("rooms/eros/messages/3", 0, Map("order", 4));
-  Document doc5 = Doc("rooms/eros/messages/4", 0, Map("order", 5));
+  MutableDocument doc1 = Doc("rooms/eros/messages/0", 0, Map("order", 1));
+  MutableDocument doc2 = Doc("rooms/eros/messages/1", 0, Map("order", 2));
+  MutableDocument doc3 = Doc("rooms/eros/messages/2", 0, Map("order", 3));
+  MutableDocument doc4 = Doc("rooms/eros/messages/3", 0, Map("order", 4));
+  MutableDocument doc5 = Doc("rooms/eros/messages/4", 0, Map("order", 5));
   View view(query, DocumentKeySet{});
 
   // Start with a full view.
@@ -445,11 +443,11 @@ TEST(ViewTest, DoesntNeedRefillOnReorderWithinLimit) {
 TEST(ViewTest, DoesntNeedRefillOnReorderAfterLimitQuery) {
   Query query =
       QueryForMessages().AddingOrderBy(OrderBy("order")).WithLimitToFirst(3);
-  Document doc1 = Doc("rooms/eros/messages/0", 0, Map("order", 1));
-  Document doc2 = Doc("rooms/eros/messages/1", 0, Map("order", 2));
-  Document doc3 = Doc("rooms/eros/messages/2", 0, Map("order", 3));
-  Document doc4 = Doc("rooms/eros/messages/3", 0, Map("order", 4));
-  Document doc5 = Doc("rooms/eros/messages/4", 0, Map("order", 5));
+  MutableDocument doc1 = Doc("rooms/eros/messages/0", 0, Map("order", 1));
+  MutableDocument doc2 = Doc("rooms/eros/messages/1", 0, Map("order", 2));
+  MutableDocument doc3 = Doc("rooms/eros/messages/2", 0, Map("order", 3));
+  MutableDocument doc4 = Doc("rooms/eros/messages/3", 0, Map("order", 4));
+  MutableDocument doc5 = Doc("rooms/eros/messages/4", 0, Map("order", 5));
   View view(query, DocumentKeySet{});
 
   // Start with a full view.
@@ -471,8 +469,8 @@ TEST(ViewTest, DoesntNeedRefillOnReorderAfterLimitQuery) {
 
 TEST(ViewTest, DoesntNeedRefillForAdditionAfterTheLimit) {
   Query query = QueryForMessages().WithLimitToFirst(2);
-  Document doc1 = Doc("rooms/eros/messages/0", 0, Map());
-  Document doc2 = Doc("rooms/eros/messages/1", 0, Map());
+  MutableDocument doc1 = Doc("rooms/eros/messages/0", 0, Map());
+  MutableDocument doc2 = Doc("rooms/eros/messages/1", 0, Map());
   View view(query, DocumentKeySet{});
 
   // Start with a full view.
@@ -484,7 +482,7 @@ TEST(ViewTest, DoesntNeedRefillForAdditionAfterTheLimit) {
   view.ApplyChanges(changes);
 
   // Add a doc that is past the limit.
-  Document doc3 = Doc("rooms/eros/messages/2", 1, Map());
+  MutableDocument doc3 = Doc("rooms/eros/messages/2", 1, Map());
   changes = view.ComputeDocumentChanges(DocUpdates({doc3}));
   ASSERT_THAT(changes.document_set(), ContainsDocs({doc1, doc2}));
   ASSERT_FALSE(changes.needs_refill());
@@ -494,8 +492,8 @@ TEST(ViewTest, DoesntNeedRefillForAdditionAfterTheLimit) {
 
 TEST(ViewTest, DoesntNeedRefillForDeletionsWhenNotNearTheLimit) {
   Query query = QueryForMessages().WithLimitToFirst(20);
-  Document doc1 = Doc("rooms/eros/messages/0", 0, Map());
-  Document doc2 = Doc("rooms/eros/messages/1", 0, Map());
+  MutableDocument doc1 = Doc("rooms/eros/messages/0", 0, Map());
+  MutableDocument doc2 = Doc("rooms/eros/messages/1", 0, Map());
   View view(query, DocumentKeySet{});
 
   ViewDocumentChanges changes =
@@ -516,8 +514,8 @@ TEST(ViewTest, DoesntNeedRefillForDeletionsWhenNotNearTheLimit) {
 
 TEST(ViewTest, HandlesApplyingIrrelevantDocs) {
   Query query = QueryForMessages().WithLimitToFirst(2);
-  Document doc1 = Doc("rooms/eros/messages/0", 0, Map());
-  Document doc2 = Doc("rooms/eros/messages/1", 0, Map());
+  MutableDocument doc1 = Doc("rooms/eros/messages/0", 0, Map());
+  MutableDocument doc2 = Doc("rooms/eros/messages/1", 0, Map());
   View view(query, DocumentKeySet{});
 
   // Start with a full view.
@@ -539,8 +537,8 @@ TEST(ViewTest, HandlesApplyingIrrelevantDocs) {
 
 TEST(ViewTest, ComputesMutatedKeys) {
   Query query = QueryForMessages();
-  Document doc1 = Doc("rooms/eros/messages/0", 0, Map());
-  Document doc2 = Doc("rooms/eros/messages/1", 0, Map());
+  MutableDocument doc1 = Doc("rooms/eros/messages/0", 0, Map());
+  MutableDocument doc2 = Doc("rooms/eros/messages/1", 0, Map());
   View view(query, DocumentKeySet{});
 
   // Start with a full view.
@@ -549,17 +547,17 @@ TEST(ViewTest, ComputesMutatedKeys) {
   view.ApplyChanges(changes);
   ASSERT_EQ(changes.mutated_keys(), DocumentKeySet{});
 
-  Document doc3 =
-      Doc("rooms/eros/messages/2", 0, Map(), DocumentState::kLocalMutations);
+  MutableDocument doc3 =
+      Doc("rooms/eros/messages/2", 0, Map()).SetHasLocalMutations();
   changes = view.ComputeDocumentChanges(DocUpdates({doc3}));
   ASSERT_EQ(changes.mutated_keys(), DocumentKeySet{doc3.key()});
 }
 
 TEST(ViewTest, RemovesKeysFromMutatedKeysWhenNewDocHasNoLocalChanges) {
   Query query = QueryForMessages();
-  Document doc1 = Doc("rooms/eros/messages/0", 0, Map());
-  Document doc2 =
-      Doc("rooms/eros/messages/1", 0, Map(), DocumentState::kLocalMutations);
+  MutableDocument doc1 = Doc("rooms/eros/messages/0", 0, Map());
+  MutableDocument doc2 =
+      Doc("rooms/eros/messages/1", 0, Map()).SetHasLocalMutations();
   View view(query, DocumentKeySet{});
 
   // Start with a full view.
@@ -568,7 +566,7 @@ TEST(ViewTest, RemovesKeysFromMutatedKeysWhenNewDocHasNoLocalChanges) {
   view.ApplyChanges(changes);
   ASSERT_EQ(changes.mutated_keys(), (DocumentKeySet{doc2.key()}));
 
-  Document doc2_prime = Doc("rooms/eros/messages/1", 0, Map());
+  MutableDocument doc2_prime = Doc("rooms/eros/messages/1", 0, Map());
   changes = view.ComputeDocumentChanges(DocUpdates({doc2_prime}));
   view.ApplyChanges(changes);
   ASSERT_EQ(changes.mutated_keys(), DocumentKeySet{});
@@ -576,9 +574,9 @@ TEST(ViewTest, RemovesKeysFromMutatedKeysWhenNewDocHasNoLocalChanges) {
 
 TEST(ViewTest, RemembersLocalMutationsFromPreviousSnapshot) {
   Query query = QueryForMessages();
-  Document doc1 = Doc("rooms/eros/messages/0", 0, Map());
-  Document doc2 =
-      Doc("rooms/eros/messages/1", 0, Map(), DocumentState::kLocalMutations);
+  MutableDocument doc1 = Doc("rooms/eros/messages/0", 0, Map());
+  MutableDocument doc2 =
+      Doc("rooms/eros/messages/1", 0, Map()).SetHasLocalMutations();
   View view(query, DocumentKeySet{});
 
   // Start with a full view.
@@ -587,7 +585,7 @@ TEST(ViewTest, RemembersLocalMutationsFromPreviousSnapshot) {
   view.ApplyChanges(changes);
   ASSERT_EQ(changes.mutated_keys(), (DocumentKeySet{doc2.key()}));
 
-  Document doc3 = Doc("rooms/eros/messages/2", 0, Map());
+  MutableDocument doc3 = Doc("rooms/eros/messages/2", 0, Map());
   changes = view.ComputeDocumentChanges(DocUpdates({doc3}));
   view.ApplyChanges(changes);
   ASSERT_EQ(changes.mutated_keys(), (DocumentKeySet{doc2.key()}));
@@ -596,9 +594,9 @@ TEST(ViewTest, RemembersLocalMutationsFromPreviousSnapshot) {
 TEST(ViewTest,
      RemembersLocalMutationsFromPreviousCallToComputeDocumentChanges) {
   Query query = QueryForMessages();
-  Document doc1 = Doc("rooms/eros/messages/0", 0, Map());
-  Document doc2 =
-      Doc("rooms/eros/messages/1", 0, Map(), DocumentState::kLocalMutations);
+  MutableDocument doc1 = Doc("rooms/eros/messages/0", 0, Map());
+  MutableDocument doc2 =
+      Doc("rooms/eros/messages/1", 0, Map()).SetHasLocalMutations();
   View view(query, DocumentKeySet{});
 
   // Start with a full view.
@@ -606,15 +604,15 @@ TEST(ViewTest,
       view.ComputeDocumentChanges(DocUpdates({doc1, doc2}));
   ASSERT_EQ(changes.mutated_keys(), (DocumentKeySet{doc2.key()}));
 
-  Document doc3 = Doc("rooms/eros/messages/2", 0, Map());
+  MutableDocument doc3 = Doc("rooms/eros/messages/2", 0, Map());
   changes = view.ComputeDocumentChanges(DocUpdates({doc3}), changes);
   ASSERT_EQ(changes.mutated_keys(), (DocumentKeySet{doc2.key()}));
 }
 
 TEST(ViewTest, RaisesHasPendingWritesForPendingMutationsInInitialSnapshot) {
   Query query = QueryForMessages();
-  Document doc1 =
-      Doc("rooms/eros/messages/1", 0, Map(), DocumentState::kLocalMutations);
+  MutableDocument doc1 =
+      Doc("rooms/eros/messages/1", 0, Map()).SetHasLocalMutations();
   View view(query, DocumentKeySet{});
   ViewDocumentChanges changes = view.ComputeDocumentChanges(DocUpdates({doc1}));
   ViewChange view_change = view.ApplyChanges(changes);
@@ -624,8 +622,8 @@ TEST(ViewTest, RaisesHasPendingWritesForPendingMutationsInInitialSnapshot) {
 TEST(ViewTest,
      DoesntRaiseHasPendingWritesForCommittedMutationsInInitialSnapshot) {
   Query query = QueryForMessages();
-  Document doc1 = Doc("rooms/eros/messages/1", 0, Map(),
-                      DocumentState::kCommittedMutations);
+  MutableDocument doc1 =
+      Doc("rooms/eros/messages/1", 0, Map()).SetHasCommittedMutations();
   View view(query, DocumentKeySet{});
   ViewDocumentChanges changes = view.ComputeDocumentChanges(DocUpdates({doc1}));
   ViewChange view_change = view.ApplyChanges(changes);
@@ -638,16 +636,19 @@ TEST(ViewTest, SuppressesWriteAcknowledgementIfWatchHasNotCaughtUp) {
   // instead wait for Watch to catch up.
 
   Query query = QueryForMessages();
-  Document doc1 = Doc("rooms/eros/messages/1", 1, Map("time", 1),
-                      DocumentState::kLocalMutations);
-  Document doc1_committed = Doc("rooms/eros/messages/1", 2, Map("time", 2),
-                                DocumentState::kCommittedMutations);
-  Document doc1_acknowledged = Doc("rooms/eros/messages/1", 2, Map("time", 2));
-  Document doc2 = Doc("rooms/eros/messages/2", 1, Map("time", 1),
-                      DocumentState::kLocalMutations);
-  Document doc2_modified = Doc("rooms/eros/messages/2", 2, Map("time", 3),
-                               DocumentState::kLocalMutations);
-  Document doc2_acknowledged = Doc("rooms/eros/messages/2", 2, Map("time", 3));
+  MutableDocument doc1 =
+      Doc("rooms/eros/messages/1", 1, Map("time", 1)).SetHasLocalMutations();
+  MutableDocument doc1_committed =
+      Doc("rooms/eros/messages/1", 2, Map("time", 2))
+          .SetHasCommittedMutations();
+  MutableDocument doc1_acknowledged =
+      Doc("rooms/eros/messages/1", 2, Map("time", 2));
+  MutableDocument doc2 =
+      Doc("rooms/eros/messages/2", 1, Map("time", 1)).SetHasLocalMutations();
+  MutableDocument doc2_modified =
+      Doc("rooms/eros/messages/2", 2, Map("time", 3)).SetHasLocalMutations();
+  MutableDocument doc2_acknowledged =
+      Doc("rooms/eros/messages/2", 2, Map("time", 3));
   View view(query, DocumentKeySet{});
   ViewDocumentChanges changes =
       view.ComputeDocumentChanges(DocUpdates({doc1, doc2}));

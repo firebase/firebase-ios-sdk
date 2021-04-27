@@ -20,22 +20,25 @@
 #include <utility>
 
 #include "Firestore/core/src/model/document.h"
+#include "Firestore/core/src/model/value_util.h"
 #include "absl/algorithm/container.h"
 
 namespace firebase {
 namespace firestore {
 namespace core {
 
+using model::Contains;
 using model::Document;
 using model::FieldPath;
-using model::FieldValue;
+using model ::GetTypeOrder;
+using model::TypeOrder;
 
 using Operator = Filter::Operator;
 
 class NotInFilter::Rep : public FieldFilter::Rep {
  public:
-  Rep(FieldPath field, FieldValue value)
-      : FieldFilter::Rep(std::move(field), Operator::NotIn, std::move(value)) {
+  Rep(FieldPath field, google_firestore_v1_Value value)
+      : FieldFilter::Rep(std::move(field), Operator::NotIn, value) {
   }
 
   Type type() const override {
@@ -45,18 +48,18 @@ class NotInFilter::Rep : public FieldFilter::Rep {
   bool Matches(const model::Document& doc) const override;
 };
 
-NotInFilter::NotInFilter(FieldPath field, FieldValue value)
-    : FieldFilter(
-          std::make_shared<const Rep>(std::move(field), std::move(value))) {
+NotInFilter::NotInFilter(FieldPath field, google_firestore_v1_Value value)
+    : FieldFilter(std::make_shared<const Rep>(std::move(field), value)) {
 }
 
 bool NotInFilter::Rep::Matches(const Document& doc) const {
-  const FieldValue::Array& array_value = value().array_value();
-  if (absl::c_linear_search(array_value, FieldValue::Null())) {
+  const google_firestore_v1_ArrayValue& array_value = value().array_value;
+
+  if (Contains(array_value, model::NullValue())) {
     return false;
   }
-  absl::optional<FieldValue> maybe_lhs = doc.field(field());
-  return maybe_lhs && !absl::c_linear_search(array_value, *maybe_lhs);
+  absl::optional<google_firestore_v1_Value> maybe_lhs = doc->field(field());
+  return maybe_lhs && !Contains(array_value, *maybe_lhs);
 }
 
 }  // namespace core

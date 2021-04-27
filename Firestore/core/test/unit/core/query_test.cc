@@ -20,10 +20,9 @@
 
 #include "Firestore/core/src/core/bound.h"
 #include "Firestore/core/src/core/field_filter.h"
-#include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/document_set.h"
 #include "Firestore/core/src/model/field_path.h"
-#include "Firestore/core/src/model/field_value.h"
+#include "Firestore/core/src/model/mutable_document.h"
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 #include "gmock/gmock.h"
@@ -34,10 +33,9 @@ namespace firestore {
 namespace core {
 
 using firebase::firestore::util::ComparisonResult;
-using model::Document;
 using model::DocumentComparator;
 using model::FieldPath;
-using model::FieldValue;
+using model::MutableDocument;
 using model::ResourcePath;
 
 using testing::AssertionResult;
@@ -465,12 +463,13 @@ TEST(QueryTest, FiltersBasedOnObjectValue) {
  * Checks that an ordered array of elements yields the correct pair-wise
  * comparison result for the supplied comparator.
  */
-testing::AssertionResult CorrectComparisons(const std::vector<Document>& vector,
-                                            const DocumentComparator& comp) {
+testing::AssertionResult CorrectComparisons(
+    const std::vector<MutableDocument>& vector,
+    const DocumentComparator& comp) {
   for (size_t i = 0; i < vector.size(); i++) {
     for (size_t j = 0; j < vector.size(); j++) {
-      const Document& i_doc = vector[i];
-      const Document& j_doc = vector[j];
+      const MutableDocument& i_doc = vector[i];
+      const MutableDocument& j_doc = vector[j];
       ComparisonResult expected = util::Compare(i, j);
       ComparisonResult actual = comp.Compare(i_doc, j_doc);
       if (actual != expected) {
@@ -487,7 +486,7 @@ TEST(QueryTest, SortsDocumentsInTheCorrectOrder) {
   auto query = testutil::Query("collection").AddingOrderBy(OrderBy("sort"));
 
   // clang-format off
-  std::vector<Document> docs = {
+  std::vector<MutableDocument> docs = {
       Doc("collection/1", 0, Map("sort", nullptr)),
       Doc("collection/1", 0, Map("sort", false)),
       Doc("collection/1", 0, Map("sort", true)),
@@ -514,7 +513,7 @@ TEST(QueryTest, SortsDocumentsUsingMultipleFields) {
                    .AddingOrderBy(OrderBy("sort2"));
 
   // clang-format off
-  std::vector<Document> docs = {
+  std::vector<MutableDocument> docs = {
       Doc("collection/1", 0, Map("sort1", 1, "sort2", 1)),
       Doc("collection/1", 0, Map("sort1", 1, "sort2", 2)),
       Doc("collection/2", 0, Map("sort1", 1, "sort2", 2)),  // by key
@@ -537,7 +536,7 @@ TEST(QueryTest, SortsDocumentsWithDescendingToo) {
                    .AddingOrderBy(OrderBy("sort2", "desc"));
 
   // clang-format off
-  std::vector<Document> docs = {
+  std::vector<MutableDocument> docs = {
       Doc("collection/1", 0, Map("sort1", 2, "sort2", 3)),
       Doc("collection/3", 0, Map("sort1", 2, "sort2", 2)),
       Doc("collection/2", 0, Map("sort1", 2, "sort2", 2)),  // by key
@@ -770,7 +769,7 @@ TEST(QueryTest, CanonicalIDs) {
   filters = testutil::Query("coll").AddingFilter(
       Filter("a", "not-in", Array(1, 2, 3)));
   EXPECT_THAT(filters,
-              HasCanonicalId("coll|f:anot-in[1, 2, 3]|ob:aasc__name__asc"));
+              HasCanonicalId("coll|f:anot-in[1,2,3]|ob:aasc__name__asc"));
 
   auto order_bys = testutil::Query("coll").AddingOrderBy(OrderBy("up", "asc"));
   EXPECT_THAT(order_bys, HasCanonicalId("coll|f:|ob:upasc__name__asc"));
@@ -783,12 +782,13 @@ TEST(QueryTest, CanonicalIDs) {
   auto limit = testutil::Query("coll").WithLimitToFirst(25);
   EXPECT_THAT(limit, HasCanonicalId("coll|f:|ob:__name__asc|l:25|lt:f"));
 
-  auto bounds =
-      testutil::Query("airports")
-          .AddingOrderBy(OrderBy("name", "asc"))
-          .AddingOrderBy(OrderBy("score", "desc"))
-          .StartingAt(Bound({Value("OAK"), Value(1000)}, /* is_before= */ true))
-          .EndingAt(Bound({Value("SFO"), Value(2000)}, /* is_before= */ false));
+  auto bounds = testutil::Query("airports")
+                    .AddingOrderBy(OrderBy("name", "asc"))
+                    .AddingOrderBy(OrderBy("score", "desc"))
+                    .StartingAt(Bound({Array("OAK", 1000).array_value},
+                                      /* is_before= */ true))
+                    .EndingAt(Bound({Array("SFO", 2000).array_value},
+                                    /* is_before= */ false));
   EXPECT_THAT(bounds, HasCanonicalId("airports|f:|ob:nameascscoredesc__name__"
                                      "desc|lb:b:OAK1000|ub:a:SFO2000"));
 }
@@ -809,10 +809,10 @@ TEST(QueryTest, MatchesAllDocuments) {
   query = base_query.WithLimitToFirst(1);
   EXPECT_FALSE(query.MatchesAllDocuments());
 
-  query = base_query.StartingAt(Bound({Value("SFO")}, true));
+  query = base_query.StartingAt(Bound({Array("SFO").array_value}, true));
   EXPECT_FALSE(query.MatchesAllDocuments());
 
-  query = base_query.StartingAt(Bound({Value("OAK")}, true));
+  query = base_query.StartingAt(Bound({Array("OAK").array_value}, true));
   EXPECT_FALSE(query.MatchesAllDocuments());
 }
 

@@ -24,6 +24,7 @@
 #include "Firestore/core/src/nanopb/fields_array.h"
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
+#include "absl/types/span.h"
 
 namespace firebase {
 namespace firestore {
@@ -31,12 +32,14 @@ namespace model {
 
 namespace {
 
-using nanopb::FieldsArray;
 using nanopb::FreeFieldsArray;
+using nanopb::FreeNanopbMessage;
 using nanopb::MakeArray;
 using nanopb::MakeBytesArray;
 using nanopb::MakeString;
 using nanopb::MakeStringView;
+using nanopb::ReleaseFieldsArray;
+using nanopb::SetRepeatedField;
 
 struct MapEntryKeyCompare {
   bool operator()(const google_firestore_v1_MapValue_FieldsEntry& entry,
@@ -162,22 +165,76 @@ void ApplyChanges(
 
   free(parent->fields);
   parent->fields = target_fields;
-  parent->fields_count = target_count;
+  parent->fields_count = static_cast<pb_size_t>(target_count);
+}
+
+void SortFields(google_firestore_v1_Value& value);
+
+void SortFields(google_firestore_v1_MapValue& map_value) {
+  std::sort(map_value.fields, map_value.fields + map_value.fields_count,
+            [](const google_firestore_v1_MapValue_FieldsEntry& lhs,
+               const google_firestore_v1_MapValue_FieldsEntry& rhs) {
+              return nanopb::MakeStringView(lhs.key) <
+                     nanopb::MakeStringView(rhs.key);
+            });
+
+  for (pb_size_t i = 0; i < map_value.fields_count; ++i) {
+    SortFields(map_value.fields[i].value);
+  }
+}
+
+void SortFields(google_firestore_v1_Value& value) {
+  if (value.which_value_type == google_firestore_v1_Value_map_value_tag) {
+    SortFields(value.map_value);
+  } else if (value.which_value_type ==
+             google_firestore_v1_Value_array_value_tag) {
+    for (pb_size_t i = 0; i < value.array_value.values_count; ++i) {
+      SortFields(value.array_value.values[i]);
+    }
+  }
 }
 
 }  // namespace
 
-MutableObjectValue::MutableObjectValue() {
+ObjectValue::ObjectValue() {
   value_->which_value_type = google_firestore_v1_Value_map_value_tag;
   value_->map_value.fields_count = 0;
   value_->map_value.fields = nullptr;
 }
 
-FieldMask MutableObjectValue::ToFieldMask() const {
+ObjectValue::ObjectValue(const ObjectValue& other)
+    : sorted_(other.sorted_), value_(DeepClone(*other.value_)) {
+}
+
+ObjectValue ObjectValue::FromMapValue(google_firestore_v1_MapValue map_value) {
+  google_firestore_v1_Value value{};
+  value.which_value_type = google_firestore_v1_Value_map_value_tag;
+  value.map_value = map_value;
+  return ObjectValue{value};
+}
+
+ObjectValue ObjectValue::FromFieldsEntry(
+    google_firestore_v1_Document_FieldsEntry* fields_entry, pb_size_t count) {
+  google_firestore_v1_Value value{};
+  value.which_value_type = google_firestore_v1_Value_map_value_tag;
+  SetRepeatedField(
+      &value.map_value.fields, &value.map_value.fields_count,
+      absl::Span<google_firestore_v1_Document_FieldsEntry>(fields_entry, count),
+      [](const google_firestore_v1_Document_FieldsEntry& entry) {
+        google_firestore_v1_MapValue_FieldsEntry result{};
+        result.key = entry.key;
+        result.value = entry.value;
+        return result;
+      });
+  ReleaseFieldsArray(fields_entry, count);
+  return ObjectValue{value};
+}
+
+FieldMask ObjectValue::ToFieldMask() const {
   return ExtractFieldMask(value_->map_value);
 }
 
-FieldMask MutableObjectValue::ExtractFieldMask(
+FieldMask ObjectValue::ExtractFieldMask(
     const google_firestore_v1_MapValue& value) const {
   std::set<FieldPath> fields;
 
@@ -206,11 +263,20 @@ FieldMask MutableObjectValue::ExtractFieldMask(
   return FieldMask(std::move(fields));
 }
 
-absl::optional<google_firestore_v1_Value> MutableObjectValue::Get(
+void ObjectValue::EnsureSorted() const {
+  if (!sorted_) {
+    SortFields(*value_);
+    sorted_ = true;
+  }
+}
+
+absl::optional<google_firestore_v1_Value> ObjectValue::Get(
     const FieldPath& path) const {
   if (path.empty()) {
     return *value_;
   }
+
+  EnsureSorted();
 
   google_firestore_v1_Value nested_value = *value_;
   for (const std::string& segment : path) {
@@ -222,9 +288,15 @@ absl::optional<google_firestore_v1_Value> MutableObjectValue::Get(
   return nested_value;
 }
 
-void MutableObjectValue::Set(const FieldPath& path,
-                             const google_firestore_v1_Value& value) {
+google_firestore_v1_Value ObjectValue::Get() const {
+  return *value_;
+}
+
+void ObjectValue::Set(const FieldPath& path,
+                      const google_firestore_v1_Value& value) {
   HARD_ASSERT(!path.empty(), "Cannot set field for empty path on ObjectValue");
+
+  EnsureSorted();
 
   google_firestore_v1_MapValue* parent_map = ParentMap(path.PopLast());
 
@@ -235,8 +307,9 @@ void MutableObjectValue::Set(const FieldPath& path,
   ApplyChanges(parent_map, upserts, /*deletes=*/{});
 }
 
-void MutableObjectValue::SetAll(const FieldMask& field_mask,
-                                const MutableObjectValue& data) {
+void ObjectValue::SetAll(const FieldMask& field_mask, const ObjectValue& data) {
+  EnsureSorted();
+
   FieldPath parent;
 
   std::map<std::string, google_firestore_v1_Value> upserts;
@@ -264,8 +337,10 @@ void MutableObjectValue::SetAll(const FieldMask& field_mask,
   ApplyChanges(parent_map, upserts, deletes);
 }
 
-void MutableObjectValue::Delete(const FieldPath& path) {
+void ObjectValue::Delete(const FieldPath& path) {
   HARD_ASSERT(!path.empty(), "Cannot delete field with empty path");
+
+  EnsureSorted();
 
   google_firestore_v1_Value* nested_value = value_.get();
   for (const std::string& segment : path.PopLast()) {
@@ -286,12 +361,19 @@ void MutableObjectValue::Delete(const FieldPath& path) {
   }
 }
 
+std::string ObjectValue::ToString() const {
+  return CanonicalId(*value_);
+}
+
+size_t ObjectValue::Hash() const {
+  return std::hash<std::string>()(CanonicalId(*value_));
+}
+
 /**
  * Returns the map that contains the leaf element of `path`. If the parent
  * entry does not yet exist, or if it is not a map, a new map will be created.
  */
-google_firestore_v1_MapValue* MutableObjectValue::ParentMap(
-    const FieldPath& path) {
+google_firestore_v1_MapValue* ObjectValue::ParentMap(const FieldPath& path) {
   google_firestore_v1_Value* parent = value_.get();
 
   // Find a or create a parent map entry for `path`.

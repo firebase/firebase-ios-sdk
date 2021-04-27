@@ -31,12 +31,9 @@
 #include "Firestore/core/src/bundle/named_query.h"
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/local/target_data.h"
-#include "Firestore/core/src/model/document.h"
-#include "Firestore/core/src/model/field_value.h"
+#include "Firestore/core/src/model/mutable_document.h"
 #include "Firestore/core/src/model/mutation_batch.h"
-#include "Firestore/core/src/model/no_document.h"
 #include "Firestore/core/src/model/snapshot_version.h"
-#include "Firestore/core/src/model/unknown_document.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
@@ -52,17 +49,13 @@ using bundle::BundledQuery;
 using bundle::BundleMetadata;
 using bundle::NamedQuery;
 using core::Target;
-using model::Document;
-using model::DocumentState;
+using model::DeepClone;
 using model::FieldTransform;
-using model::FieldValue;
-using model::MaybeDocument;
+using model::MutableDocument;
 using model::Mutation;
 using model::MutationBatch;
-using model::NoDocument;
 using model::ObjectValue;
 using model::SnapshotVersion;
-using model::UnknownDocument;
 using nanopb::ByteString;
 using nanopb::CheckedSize;
 using nanopb::CopyBytesArray;
@@ -77,46 +70,37 @@ using util::StringFormat;
 }  // namespace
 
 Message<firestore_client_MaybeDocument> LocalSerializer::EncodeMaybeDocument(
-    const MaybeDocument& maybe_doc) const {
+    const MutableDocument& document) const {
   Message<firestore_client_MaybeDocument> result;
 
-  switch (maybe_doc.type()) {
-    case MaybeDocument::Type::Document: {
-      result->which_document_type = firestore_client_MaybeDocument_document_tag;
-      Document doc(maybe_doc);
-      // TODO(b/142956770): other platforms check for whether the `Document`
-      // contains a memoized proto and use it if available instead of
-      // re-encoding.
-      result->document = EncodeDocument(doc);
-      result->has_committed_mutations = doc.has_committed_mutations();
-      return result;
-    }
-
-    case MaybeDocument::Type::NoDocument: {
-      result->which_document_type =
-          firestore_client_MaybeDocument_no_document_tag;
-      NoDocument no_doc(maybe_doc);
-      result->no_document = EncodeNoDocument(no_doc);
-      result->has_committed_mutations = no_doc.has_committed_mutations();
-      return result;
-    }
-
-    case MaybeDocument::Type::UnknownDocument:
-      result->which_document_type =
-          firestore_client_MaybeDocument_unknown_document_tag;
-      result->unknown_document =
-          EncodeUnknownDocument(UnknownDocument(maybe_doc));
-      result->has_committed_mutations = true;
-      return result;
-
-    case MaybeDocument::Type::Invalid:
-      HARD_FAIL("Unknown document type %s", maybe_doc.type());
+  if (document.is_found_document()) {
+    result->which_document_type = firestore_client_MaybeDocument_document_tag;
+    // TODO(b/142956770): other platforms check for whether the `Document`
+    // contains a memoized proto and use it if available instead of
+    // re-encoding.
+    result->document = EncodeDocument(document);
+    result->has_committed_mutations = document.has_committed_mutations();
+    return result;
+  } else if (document.is_no_document()) {
+    result->which_document_type =
+        firestore_client_MaybeDocument_no_document_tag;
+    result->no_document = EncodeNoDocument(document);
+    result->has_committed_mutations = document.has_committed_mutations();
+    return result;
+  } else if (document.is_unknown_document()) {
+    result->which_document_type =
+        firestore_client_MaybeDocument_unknown_document_tag;
+    result->unknown_document = EncodeUnknownDocument(document);
+    result->has_committed_mutations = true;
+    return result;
+  } else {
+    HARD_FAIL("Unknown document type %s", document.ToString());
   }
 
   UNREACHABLE();
 }
 
-MaybeDocument LocalSerializer::DecodeMaybeDocument(
+MutableDocument LocalSerializer::DecodeMaybeDocument(
     Reader* reader, const firestore_client_MaybeDocument& proto) const {
   if (!reader->status().ok()) return {};
 
@@ -134,7 +118,7 @@ MaybeDocument LocalSerializer::DecodeMaybeDocument(
 
     default:
       reader->Fail(
-          StringFormat("Invalid MaybeDocument document type: %s. Expected "
+          StringFormat("Invalid Document document type: %s. Expected "
                        "'no_document' (%s) or 'document' (%s)",
                        proto.which_document_type,
                        firestore_client_MaybeDocument_no_document_tag,
@@ -146,20 +130,20 @@ MaybeDocument LocalSerializer::DecodeMaybeDocument(
 }
 
 google_firestore_v1_Document LocalSerializer::EncodeDocument(
-    const Document& doc) const {
+    const MutableDocument& doc) const {
   google_firestore_v1_Document result{};
 
   result.name = rpc_serializer_.EncodeKey(doc.key());
 
   // Encode Document.fields (unless it's empty)
-  pb_size_t count = CheckedSize(doc.data().GetInternalValue().size());
+  const google_firestore_v1_MapValue& fields_map = doc.data().Get().map_value;
+  pb_size_t count = fields_map.fields_count;
   result.fields_count = count;
   result.fields = MakeArray<google_firestore_v1_Document_FieldsEntry>(count);
-  int i = 0;
-  for (const auto& kv : doc.data().GetInternalValue()) {
-    result.fields[i].key = rpc_serializer_.EncodeString(kv.first);
-    result.fields[i].value = rpc_serializer_.EncodeFieldValue(kv.second);
-    i++;
+
+  for (pb_size_t i = 0; i < count; ++i) {
+    result.fields[i].key = nanopb::CopyBytesArray(fields_map.fields[i].key);
+    result.fields[i].value = DeepClone(fields_map.fields[i].value);
   }
 
   result.has_update_time = true;
@@ -169,25 +153,28 @@ google_firestore_v1_Document LocalSerializer::EncodeDocument(
   return result;
 }
 
-Document LocalSerializer::DecodeDocument(
+MutableDocument LocalSerializer::DecodeDocument(
     Reader* reader,
     const google_firestore_v1_Document& proto,
     bool has_committed_mutations) const {
-  ObjectValue fields = rpc_serializer_.DecodeFields(
-      reader->context(), proto.fields_count, proto.fields);
+  ObjectValue fields =
+      ObjectValue::FromFieldsEntry(proto.fields, proto.fields_count);
   SnapshotVersion version =
       rpc_serializer_.DecodeVersion(reader->context(), proto.update_time);
 
-  DocumentState state = has_committed_mutations
-                            ? DocumentState::kCommittedMutations
-                            : DocumentState::kSynced;
-  return Document(std::move(fields),
-                  rpc_serializer_.DecodeKey(reader->context(), proto.name),
-                  version, state);
+  MutableDocument document = MutableDocument::FoundDocument(
+      rpc_serializer_.DecodeKey(reader->context(), proto.name), version,
+      std::move(fields));
+
+  if (has_committed_mutations) {
+    document.SetHasCommittedMutations();
+  }
+
+  return document;
 }
 
 firestore_client_NoDocument LocalSerializer::EncodeNoDocument(
-    const NoDocument& no_doc) const {
+    const MutableDocument& no_doc) const {
   firestore_client_NoDocument result{};
 
   result.name = rpc_serializer_.EncodeKey(no_doc.key());
@@ -196,19 +183,25 @@ firestore_client_NoDocument LocalSerializer::EncodeNoDocument(
   return result;
 }
 
-NoDocument LocalSerializer::DecodeNoDocument(
+MutableDocument LocalSerializer::DecodeNoDocument(
     Reader* reader,
     const firestore_client_NoDocument& proto,
     bool has_committed_mutations) const {
   SnapshotVersion version =
       rpc_serializer_.DecodeVersion(reader->context(), proto.read_time);
 
-  return NoDocument(rpc_serializer_.DecodeKey(reader->context(), proto.name),
-                    version, has_committed_mutations);
+  MutableDocument document = MutableDocument::NoDocument(
+      rpc_serializer_.DecodeKey(reader->context(), proto.name), version);
+
+  if (has_committed_mutations) {
+    document.SetHasCommittedMutations();
+  }
+
+  return document;
 }
 
 firestore_client_UnknownDocument LocalSerializer::EncodeUnknownDocument(
-    const UnknownDocument& unknown_doc) const {
+    const MutableDocument& unknown_doc) const {
   firestore_client_UnknownDocument result{};
 
   result.name = rpc_serializer_.EncodeKey(unknown_doc.key());
@@ -217,12 +210,12 @@ firestore_client_UnknownDocument LocalSerializer::EncodeUnknownDocument(
   return result;
 }
 
-UnknownDocument LocalSerializer::DecodeUnknownDocument(
+MutableDocument LocalSerializer::DecodeUnknownDocument(
     Reader* reader, const firestore_client_UnknownDocument& proto) const {
   SnapshotVersion version =
       rpc_serializer_.DecodeVersion(reader->context(), proto.version);
 
-  return UnknownDocument(
+  return MutableDocument::UnknownDocument(
       rpc_serializer_.DecodeKey(reader->context(), proto.name), version);
 }
 
@@ -307,7 +300,7 @@ Message<firestore_client_WriteBatch> LocalSerializer::EncodeMutationBatch(
   int i = 0;
   for (const auto& mutation : mutation_batch.base_mutations()) {
     result->base_writes[i] = rpc_serializer_.EncodeMutation(mutation);
-    i++;
+    ++i;
   }
 
   count = CheckedSize(mutation_batch.mutations().size());
@@ -316,7 +309,7 @@ Message<firestore_client_WriteBatch> LocalSerializer::EncodeMutationBatch(
   i = 0;
   for (const auto& mutation : mutation_batch.mutations()) {
     result->writes[i] = rpc_serializer_.EncodeMutation(mutation);
-    i++;
+    ++i;
   }
 
   result->local_write_time =
@@ -326,7 +319,7 @@ Message<firestore_client_WriteBatch> LocalSerializer::EncodeMutationBatch(
 }
 
 MutationBatch LocalSerializer::DecodeMutationBatch(
-    nanopb::Reader* reader, const firestore_client_WriteBatch& proto) const {
+    nanopb::Reader* reader, firestore_client_WriteBatch& proto) const {
   int batch_id = proto.batch_id;
   Timestamp local_write_time = rpc_serializer_.DecodeTimestamp(
       reader->context(), proto.local_write_time);
@@ -350,7 +343,7 @@ MutationBatch LocalSerializer::DecodeMutationBatch(
                          proto.writes[i + 1].which_operation ==
                              google_firestore_v1_Write_transform_tag;
     if (has_transform) {
-      _google_firestore_v1_Write transform_mutation = proto.writes[i + 1];
+      google_firestore_v1_Write& transform_mutation = proto.writes[i + 1];
       HARD_ASSERT(
           proto.writes[i].which_operation ==
               google_firestore_v1_Write_update_tag,
@@ -360,6 +353,9 @@ MutationBatch LocalSerializer::DecodeMutationBatch(
           transform_mutation.transform.field_transforms_count;
       new_mutation.update_transforms =
           transform_mutation.transform.field_transforms;
+      // Prevent callsite from freeing memory
+      transform_mutation.transform.field_transforms_count = 0;
+      transform_mutation.transform.field_transforms = nullptr;
 
       mutations.push_back(
           rpc_serializer_.DecodeMutation(reader->context(), new_mutation));

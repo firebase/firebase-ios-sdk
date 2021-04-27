@@ -104,6 +104,70 @@ T* _Nonnull MakeArray(pb_size_t count) {
   return static_cast<T*>(calloc(count, sizeof(T)));
 }
 
+template <typename T>
+T* _Nonnull ResizeArray(void* _Nullable ptr, pb_size_t count) {
+  return static_cast<T*>(realloc(ptr, count * sizeof(T)));
+}
+
+/**
+ * Initializes a repeated field with a list of values. Applies `converter` to
+ * each value before assigning.
+ */
+template <typename T, typename Iterator, typename Func>
+void SetRepeatedField(T** fields_array,
+                      pb_size_t* fields_count,
+                      Iterator first,
+                      Iterator last,
+                      Func converter) {
+  *fields_count =
+      static_cast<pb_size_t>(nanopb::CheckedSize(std::distance(first, last)));
+  *fields_array = nanopb::MakeArray<T>(*fields_count);
+  auto* current = *fields_array;
+  while (first != last) {
+    *current = converter(*first);
+    ++current;
+    ++first;
+  }
+}
+
+/**
+ * Initializes a repeated field with a list of values. Applies `converter` to
+ * each value before assigning.
+ */
+template <typename T, typename Container, typename Func>
+void SetRepeatedField(T** fields_array,
+                      pb_size_t* fields_count,
+                      const Container& fields,
+                      Func converter) {
+  *fields_count = nanopb::CheckedSize(fields.size());
+  *fields_array = nanopb::MakeArray<T>(*fields_count);
+  auto* current = *fields_array;
+  for (const auto& field : fields) {
+    *current = converter(field);
+    ++current;
+  }
+}
+
+/** Initializes a repeated field with a list of values. */
+template <typename T>
+void SetRepeatedField(T** fields_array,
+                      pb_size_t* fields_count,
+                      const std::vector<T>& fields) {
+  return SetRepeatedField(fields_array, fields_count, fields,
+                          [](const T& val) { return val; });
+}
+
+/**
+ * Zeroes out the memory of `fields`. This can be used if the contents of fields
+ * array were moved to another message that takes on ownership.
+ */
+template <typename T>
+void ReleaseFieldsArray(T* _Nonnull fields, pb_size_t fields_count) {
+  for (pb_size_t i = 0; i < fields_count; ++i) {
+    fields[i] = {};
+  }
+}
+
 #if __OBJC__
 inline ByteString MakeByteString(NSData* _Nullable value) {
   if (value == nil) return ByteString();

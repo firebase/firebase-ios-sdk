@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_SRC_CORE_ARRAY_CONTAINS_ANY_FILTER_H_
 
 #include <string>
+#include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 
 #include "Firestore/core/src/core/field_filter.h"
 
@@ -36,7 +37,8 @@ namespace core {
  */
 class ArrayContainsAnyFilter : public FieldFilter {
  public:
-  ArrayContainsAnyFilter(model::FieldPath field, model::FieldValue value);
+  ArrayContainsAnyFilter(model::FieldPath field,
+                         google_firestore_v1_Value value);
 
  private:
   class Rep;

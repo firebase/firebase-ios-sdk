@@ -19,6 +19,7 @@
 
 #include <string>
 
+#include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/core/field_filter.h"
 
 namespace firebase {
@@ -26,7 +27,6 @@ namespace firestore {
 
 namespace model {
 class FieldPath;
-class FieldValue;
 }  // namespace model
 
 namespace core {
@@ -36,7 +36,7 @@ namespace core {
  */
 class InFilter : public FieldFilter {
  public:
-  InFilter(model::FieldPath field, model::FieldValue value);
+  InFilter(const model::FieldPath& field, google_firestore_v1_Value value);
 
  private:
   class Rep;

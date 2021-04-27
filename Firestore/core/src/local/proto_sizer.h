@@ -33,7 +33,7 @@ class ProtoSizer : public Sizer {
   explicit ProtoSizer(LocalSerializer serializer);
 
   int64_t CalculateByteSize(
-      const model::MaybeDocument& maybe_doc) const override;
+      const model::MutableDocument& maybe_doc) const override;
 
   int64_t CalculateByteSize(
       const model::MutationBatch& mutation_batch) const override;

@@ -21,6 +21,7 @@
 
 #include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/document_key.h"
+#include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "absl/algorithm/container.h"
 
 namespace firebase {
@@ -30,14 +31,13 @@ namespace core {
 using model::Document;
 using model::DocumentKey;
 using model::FieldPath;
-using model::FieldValue;
 
 using Operator = Filter::Operator;
 
 class KeyFieldFilter::Rep : public FieldFilter::Rep {
  public:
-  Rep(FieldPath field, Operator op, FieldValue value)
-      : FieldFilter::Rep(std::move(field), op, std::move(value)) {
+  Rep(FieldPath field, Operator op, google_firestore_v1_Value value)
+      : FieldFilter::Rep(std::move(field), op, value) {
   }
 
   Type type() const override {
@@ -47,14 +47,16 @@ class KeyFieldFilter::Rep : public FieldFilter::Rep {
   bool Matches(const model::Document& doc) const override;
 };
 
-KeyFieldFilter::KeyFieldFilter(FieldPath field, Operator op, FieldValue value)
-    : FieldFilter(
-          std::make_shared<const Rep>(std::move(field), op, std::move(value))) {
+KeyFieldFilter::KeyFieldFilter(const FieldPath& field,
+                               Operator op,
+                               google_firestore_v1_Value value)
+    : FieldFilter(std::make_shared<const Rep>(field, op, value)) {
 }
 
 bool KeyFieldFilter::Rep::Matches(const Document& doc) const {
-  const DocumentKey& lhs_key = doc.key();
-  const DocumentKey& rhs_key = value().reference_value().key();
+  const DocumentKey& lhs_key = doc->key();
+  const DocumentKey& rhs_key =
+      DocumentKey::FromName(nanopb::MakeString(value().reference_value));
 
   return MatchesComparison(lhs_key.CompareTo(rhs_key));
 }

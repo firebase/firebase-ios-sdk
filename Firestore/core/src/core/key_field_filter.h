@@ -19,6 +19,7 @@
 
 #include <string>
 
+#include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/core/field_filter.h"
 
 namespace firebase {
@@ -30,9 +31,9 @@ namespace core {
  */
 class KeyFieldFilter : public FieldFilter {
  public:
-  KeyFieldFilter(model::FieldPath field,
+  KeyFieldFilter(const model::FieldPath& field,
                  core::Filter::Operator op,
-                 model::FieldValue value);
+                 google_firestore_v1_Value value);
 
  private:
   class Rep;

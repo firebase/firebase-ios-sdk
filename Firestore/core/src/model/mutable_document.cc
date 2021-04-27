@@ -1,3 +1,5 @@
+#include <memory>
+
 /*
  * Copyright 2021 Google LLC
  *
@@ -14,22 +16,20 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/model/mutable_document.h"
-
 #include <sstream>
+#include "Firestore/core/src/model/mutable_document.h"
+#include "Firestore/core/src/model/value_util.h"
 
 namespace firebase {
 namespace firestore {
 namespace model {
 
-/* static */
 MutableDocument MutableDocument::InvalidDocument(
     const DocumentKey& document_key) {
   return {document_key, DocumentType::kInvalid, SnapshotVersion::None(),
-          ObjectValue{}, DocumentState::kSynced};
+          std::make_shared<ObjectValue>(), DocumentState::kSynced};
 }
 
-/* static */
 MutableDocument MutableDocument::FoundDocument(const DocumentKey& document_key,
                                                const SnapshotVersion& version,
                                                ObjectValue value) {
@@ -37,13 +37,11 @@ MutableDocument MutableDocument::FoundDocument(const DocumentKey& document_key,
                        .ConvertToFoundDocument(version, std::move(value)));
 }
 
-/* static */
 MutableDocument MutableDocument::NoDocument(const DocumentKey& document_key,
                                             const SnapshotVersion& version) {
   return std::move(InvalidDocument(document_key).ConvertToNoDocument(version));
 }
 
-/* static */
 MutableDocument MutableDocument::UnknownDocument(
     const DocumentKey& document_key, const SnapshotVersion& version) {
   return std::move(
@@ -52,9 +50,10 @@ MutableDocument MutableDocument::UnknownDocument(
 
 MutableDocument& MutableDocument::ConvertToFoundDocument(
     const SnapshotVersion& version, ObjectValue value) {
+  std::shared_ptr<const ObjectValue> data{new ObjectValue(std::move(value))};
   version_ = version;
   document_type_ = DocumentType::kFoundDocument;
-  value_ = std::move(value);
+  value_ = std::move(data);
   document_state_ = DocumentState::kSynced;
   return *this;
 }
@@ -63,7 +62,7 @@ MutableDocument& MutableDocument::ConvertToNoDocument(
     const SnapshotVersion& version) {
   version_ = version;
   document_type_ = DocumentType::kNoDocument;
-  value_ = {};
+  value_ = std::make_shared<ObjectValue>();
   document_state_ = DocumentState::kSynced;
   return *this;
 }
@@ -72,7 +71,7 @@ MutableDocument& MutableDocument::ConvertToUnknownDocument(
     const SnapshotVersion& version) {
   version_ = version;
   document_type_ = DocumentType::kUnknownDocument;
-  value_ = {};
+  value_ = std::make_shared<ObjectValue>();
   document_state_ = DocumentState::kHasCommittedMutations;
   return *this;
 }
@@ -87,10 +86,14 @@ MutableDocument& MutableDocument::SetHasLocalMutations() {
   return *this;
 }
 
+size_t MutableDocument::Hash() const {
+  return key_.Hash();
+}
+
 std::string MutableDocument::ToString() const {
   std::stringstream stream;
-  stream << "MutableDocument(key=" << key_ << ", type=" << document_type_
-         << ", version=" << version_ << ", value=" << value_
+  stream << "Document(key=" << key_ << ", type=" << document_type_
+         << ", version=" << version_ << ", value=" << CanonicalId(value_->Get())
          << ", state=" << document_state_;
   return stream.str();
 }
@@ -98,7 +101,12 @@ std::string MutableDocument::ToString() const {
 bool operator==(const MutableDocument& lhs, const MutableDocument& rhs) {
   return lhs.key_ == rhs.key_ && lhs.document_type_ == rhs.document_type_ &&
          lhs.version_ == rhs.version_ &&
-         lhs.document_state_ == rhs.document_state_ && lhs.value_ == rhs.value_;
+         lhs.document_state_ == rhs.document_state_ &&
+         *lhs.value_ == *rhs.value_;
+}
+
+std::ostream& operator<<(std::ostream& os, const MutableDocument& doc) {
+  return os << doc.ToString();
 }
 
 std::ostream& operator<<(std::ostream& os,

@@ -31,7 +31,6 @@
 #include "Firestore/core/src/core/core_fwd.h"
 #include "Firestore/core/src/core/filter.h"
 #include "Firestore/core/src/model/database_id.h"
-#include "Firestore/core/src/model/field_value.h"
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
@@ -82,7 +81,7 @@ class Serializer {
    * @param database_id Must remain valid for the lifetime of this Serializer
    * object.
    */
-  explicit Serializer(model::DatabaseId database_id);
+  explicit Serializer(const model::DatabaseId& database_id);
 
   /**
    * Encodes the string to nanopb bytes.
@@ -101,35 +100,10 @@ class Serializer {
   static std::string DecodeString(const pb_bytes_array_t* str);
 
   /**
-   * Encodes the std::vector to nanopb bytes. If the input vector is empty, then
-   * the resulting return bytes will have length 0 (but will otherwise be valid,
-   * i.e. not null.)
-   *
-   * This method allocates memory; the caller is responsible for freeing it.
-   * Typically, the returned value will be added to a pointer field within a
-   * nanopb proto struct. Calling pb_release() on the resulting struct will
-   * cause all proto fields to be freed.
-   */
-  static pb_bytes_array_t* EncodeBytes(const std::vector<uint8_t>& bytes);
-
-  /**
    * Returns the database ID, such as
    * `projects/{project_id}/databases/{database_id}`.
    */
   pb_bytes_array_t* EncodeDatabaseName() const;
-
-  /**
-   * @brief Converts the FieldValue model passed into bytes.
-   */
-  google_firestore_v1_Value EncodeFieldValue(
-      const model::FieldValue& field_value) const;
-
-  /**
-   * @brief Converts from nanopb proto to the model FieldValue format.
-   */
-  // TODO(wuandy): all `context` here should be mutable reference instead.
-  model::FieldValue DecodeFieldValue(
-      util::ReadContext* context, const google_firestore_v1_Value& proto) const;
 
   /**
    * Encodes the given document key as a fully qualified name. This includes the
@@ -153,7 +127,7 @@ class Serializer {
   /**
    * @brief Converts from nanopb proto to the model Document format.
    */
-  model::MaybeDocument DecodeMaybeDocument(
+  model::MutableDocument DecodeMaybeDocument(
       util::ReadContext* context,
       const google_firestore_v1_BatchGetDocumentsResponse& response) const;
 
@@ -178,7 +152,7 @@ class Serializer {
       const model::FieldTransform& field_transform) const;
   model::FieldTransform DecodeFieldTransform(
       util::ReadContext* context,
-      const google_firestore_v1_DocumentTransform_FieldTransform& proto) const;
+      google_firestore_v1_DocumentTransform_FieldTransform& proto) const;
 
   model::MutationResult DecodeMutationResult(
       util::ReadContext* context,
@@ -209,8 +183,8 @@ class Serializer {
                                  const google_type_LatLng& latlng_proto);
 
   google_firestore_v1_ArrayValue EncodeArray(
-      const std::vector<model::FieldValue>& array_value) const;
-  std::vector<model::FieldValue> DecodeArray(
+      const std::vector<google_firestore_v1_Value>& array_value) const;
+  std::vector<google_firestore_v1_Value> DecodeArray(
       util::ReadContext* context,
       const google_firestore_v1_ArrayValue& array_proto) const;
 
@@ -242,11 +216,6 @@ class Serializer {
       util::ReadContext* context,
       const google_firestore_v1_ListenResponse& listen_response) const;
 
-  model::ObjectValue DecodeFields(
-      util::ReadContext* context,
-      size_t count,
-      const google_firestore_v1_Document_FieldsEntry* fields) const;
-
   // Public for the sake of tests.
   google_firestore_v1_StructuredQuery_Filter EncodeFilters(
       const core::FilterList& filters) const;
@@ -265,27 +234,11 @@ class Serializer {
 
   bool IsLocalResourceName(const model::ResourcePath& path) const;
 
-  model::FieldValue DecodeReference(util::ReadContext* context,
-                                    absl::string_view reference_value) const;
-
  private:
-  google_firestore_v1_Value EncodeNull() const;
-  google_firestore_v1_Value EncodeBoolean(bool value) const;
-  google_firestore_v1_Value EncodeInteger(int64_t value) const;
-  google_firestore_v1_Value EncodeDouble(double value) const;
-  google_firestore_v1_Value EncodeTimestampValue(Timestamp value) const;
-  google_firestore_v1_Value EncodeServerTimestampValue(
-      const model::FieldValue::ServerTimestamp& value) const;
-  google_firestore_v1_Value EncodeStringValue(const std::string& value) const;
-  google_firestore_v1_Value EncodeBlob(const nanopb::ByteString& value) const;
-  google_firestore_v1_Value EncodeReference(
-      const model::FieldValue::Reference& value) const;
-  google_firestore_v1_Value EncodeGeoPoint(const GeoPoint& value) const;
-
-  model::Document DecodeFoundDocument(
+  model::MutableDocument DecodeFoundDocument(
       util::ReadContext* context,
       const google_firestore_v1_BatchGetDocumentsResponse& response) const;
-  model::NoDocument DecodeMissingDocument(
+  model::MutableDocument DecodeMissingDocument(
       util::ReadContext* context,
       const google_firestore_v1_BatchGetDocumentsResponse& response) const;
 
@@ -306,18 +259,10 @@ class Serializer {
   model::DocumentKey DecodeKey(util::ReadContext* context,
                                const model::ResourcePath& resource_name) const;
 
-  model::FieldValue::Map::value_type DecodeFieldsEntry(
-      util::ReadContext* context,
-      const google_firestore_v1_Document_FieldsEntry& fields) const;
-
-  model::FieldValue::Map DecodeMapValue(
-      util::ReadContext* context,
-      const google_firestore_v1_MapValue& map_value) const;
-
   model::DatabaseId DecodeDatabaseId(
       util::ReadContext* context,
       const model::ResourcePath& resource_name) const;
-  model::FieldValue DecodeReference(
+  google_firestore_v1_Value DecodeReference(
       util::ReadContext* context,
       const pb_bytes_array_t* resource_name_raw) const;
 
@@ -355,7 +300,6 @@ class Serializer {
 
   google_firestore_v1_Cursor EncodeBound(const core::Bound& bound) const;
   std::shared_ptr<core::Bound> DecodeBound(
-      util::ReadContext* context,
       const google_firestore_v1_Cursor& cursor) const;
 
   std::unique_ptr<remote::WatchChange> DecodeTargetChange(

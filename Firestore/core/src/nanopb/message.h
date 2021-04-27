@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_NANOPB_MESSAGE_H_
 #define FIRESTORE_CORE_SRC_NANOPB_MESSAGE_H_
 
+#include <memory>
 #include <string>
 #include <utility>
 
@@ -184,6 +185,49 @@ class Message {
   // The Nanopb-proto is value-initialized (zeroed out) to make sure that any
   // member variables that aren't written to are in a valid state.
   T proto_{};
+};
+
+/**
+ * An wrapper of const Message objects that facilitates shared owenrehship
+ * of non-mutable Protobuf data.
+ */
+template <typename T>
+class SharedMessage {
+ public:
+  /**
+   * Creates a valid `SharedMessage` that wraps a value-constructed ("zeroed
+   * out") Nanopb proto.
+   */
+  SharedMessage() = default;
+
+  /**
+   * Creates a `SharedMessage` object that wraps `proto`. Takes ownership of
+   * `proto`.
+   */
+  explicit SharedMessage(const T& proto) : message_{new Message<T>{proto}} {
+  }
+
+  /**
+   * Returns a pointer to the underlying Nanopb proto or null if the `Message`
+   * is moved-from.
+   */
+  const T* get() const {
+    return message_->get();
+  }
+
+  /**
+   * Returns a reference to the underlying Nanopb proto.
+   */
+  const T& operator*() const {
+    return *get();
+  }
+
+  const T* operator->() const {
+    return get();
+  }
+
+ private:
+  std::shared_ptr<const Message<T>> message_;
 };
 
 template <typename T>

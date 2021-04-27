@@ -38,20 +38,19 @@
 #include "Firestore/Protos/cpp/google/firestore/v1/document.pb.h"
 #include "Firestore/Protos/cpp/google/firestore/v1/firestore.pb.h"
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
+#include "Firestore/core/include/firebase/firestore/geo_point.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/core/bound.h"
 #include "Firestore/core/src/core/field_filter.h"
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/local/target_data.h"
 #include "Firestore/core/src/model/delete_mutation.h"
-#include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/field_path.h"
-#include "Firestore/core/src/model/field_value.h"
-#include "Firestore/core/src/model/no_document.h"
+#include "Firestore/core/src/model/mutable_document.h"
 #include "Firestore/core/src/model/patch_mutation.h"
 #include "Firestore/core/src/model/set_mutation.h"
 #include "Firestore/core/src/model/snapshot_version.h"
-#include "Firestore/core/src/model/unknown_document.h"
+#include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/model/verify_mutation.h"
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/nanopb/reader.h"
@@ -82,21 +81,21 @@ using local::TargetData;
 using model::ArrayTransform;
 using model::DatabaseId;
 using model::DeleteMutation;
-using model::Document;
 using model::DocumentKey;
 using model::FieldPath;
-using model::FieldValue;
-using model::MaybeDocument;
+using model::GetTypeOrder;
+using model::MutableDocument;
 using model::Mutation;
 using model::MutationResult;
-using model::NoDocument;
 using model::ObjectValue;
 using model::PatchMutation;
 using model::Precondition;
+using model::RefValue;
 using model::ServerTimestampTransform;
 using model::SetMutation;
 using model::SnapshotVersion;
 using model::TransformOperation;
+using model::TypeOrder;
 using model::VerifyMutation;
 using nanopb::ByteString;
 using nanopb::ByteStringWriter;
@@ -226,7 +225,6 @@ class SerializerTest : public ::testing::Test {
     StringReader reader(bytes);
 
     auto message = Message<google_firestore_v1_Value>::TryParse(&reader);
-    serializer.DecodeFieldValue(reader.context(), *message);
 
     ASSERT_NOT_OK(reader.status());
     EXPECT_EQ(status.code(), reader.status().code());
@@ -245,11 +243,9 @@ class SerializerTest : public ::testing::Test {
     EXPECT_EQ(status.code(), reader.status().code());
   }
 
-  ByteString EncodeFieldValue(const FieldValue& fv) {
+  ByteString EncodeFieldValue(const google_firestore_v1_Value& fv) {
     ByteStringWriter writer;
-    google_firestore_v1_Value proto = serializer.EncodeFieldValue(fv);
-    writer.Write(google_firestore_v1_Value_fields, &proto);
-    FreeNanopbMessage(google_firestore_v1_Value_fields, &proto);
+    writer.Write(google_firestore_v1_Value_fields, &fv);
     return writer.Release();
   }
 
@@ -277,22 +273,22 @@ class SerializerTest : public ::testing::Test {
   }
 
   v1::Value ValueProto(std::nullptr_t) {
-    ByteString bytes = EncodeFieldValue(FieldValue::Null());
+    ByteString bytes = EncodeFieldValue(Value(nullptr));
     return ProtobufParse<v1::Value>(bytes);
   }
 
   v1::Value ValueProto(bool b) {
-    ByteString bytes = EncodeFieldValue(FieldValue::FromBoolean(b));
+    ByteString bytes = EncodeFieldValue(Value(b));
     return ProtobufParse<v1::Value>(bytes);
   }
 
   v1::Value ValueProto(int64_t i) {
-    ByteString bytes = EncodeFieldValue(FieldValue::FromInteger(i));
+    ByteString bytes = EncodeFieldValue(Value(i));
     return ProtobufParse<v1::Value>(bytes);
   }
 
   v1::Value ValueProto(double d) {
-    ByteString bytes = EncodeFieldValue(FieldValue::FromDouble(d));
+    ByteString bytes = EncodeFieldValue(Value(d));
     return ProtobufParse<v1::Value>(bytes);
   }
 
@@ -307,38 +303,33 @@ class SerializerTest : public ::testing::Test {
   }
 
   v1::Value ValueProto(const std::string& s) {
-    ByteString bytes = EncodeFieldValue(FieldValue::FromString(s));
+    ByteString bytes = EncodeFieldValue(Value(s));
     return ProtobufParse<v1::Value>(bytes);
   }
 
   v1::Value ValueProto(const Timestamp& ts) {
-    ByteString bytes = EncodeFieldValue(FieldValue::FromTimestamp(ts));
+    ByteString bytes = EncodeFieldValue(Value(ts));
     return ProtobufParse<v1::Value>(bytes);
   }
 
   v1::Value ValueProto(const ByteString& blob) {
-    ByteString bytes = EncodeFieldValue(FieldValue::FromBlob(blob));
+    ByteString bytes = EncodeFieldValue(Value(blob));
     return ProtobufParse<v1::Value>(bytes);
   }
 
-  v1::Value ValueProto(const FieldValue::Reference& ref) {
-    ByteString bytes = EncodeFieldValue(
-        FieldValue::FromReference(ref.database_id(), ref.key()));
+  v1::Value ValueProto(const DatabaseId& database_id,
+                       const DocumentKey& document_key) {
+    ByteString bytes = EncodeFieldValue(RefValue(database_id, document_key));
     return ProtobufParse<v1::Value>(bytes);
   }
 
   v1::Value ValueProto(const GeoPoint& geo_point) {
-    ByteString bytes = EncodeFieldValue(FieldValue::FromGeoPoint(geo_point));
+    ByteString bytes = EncodeFieldValue(Value(geo_point));
     return ProtobufParse<v1::Value>(bytes);
   }
 
-  v1::Value ValueProto(const std::vector<FieldValue>& array) {
-    ByteString bytes = EncodeFieldValue(FieldValue::FromArray(array));
-    return ProtobufParse<v1::Value>(bytes);
-  }
-
-  v1::Value ValueProto(const FieldValue::Map& map) {
-    ByteString bytes = EncodeFieldValue(FieldValue::FromMap(map));
+  v1::Value ValueProto(const google_firestore_v1_Value& value) {
+    ByteString bytes = EncodeFieldValue(value);
     return ProtobufParse<v1::Value>(bytes);
   }
 
@@ -367,7 +358,7 @@ class SerializerTest : public ::testing::Test {
   }
 
   void ExpectUnaryOperator(std::string op_str,
-                           const FieldValue& value,
+                           const google_firestore_v1_Value& value,
                            v1::StructuredQuery::UnaryFilter::Operator op) {
     core::Query q = Query("docs").AddingFilter(Filter("prop", op_str, value));
     TargetData model = CreateTargetData(std::move(q));
@@ -408,29 +399,59 @@ class SerializerTest : public ::testing::Test {
   }
 
  private:
-  void ExpectSerializationRoundTrip(const FieldValue& model,
+  void ExpectSerializationRoundTrip(const google_firestore_v1_Value& model,
                                     const v1::Value& proto,
-                                    FieldValue::Type type) {
-    EXPECT_EQ(type, model.type());
+                                    TypeOrder type) {
+    EXPECT_EQ(type, GetTypeOrder(model));
     ByteString bytes = EncodeFieldValue(model);
     auto actual_proto = ProtobufParse<v1::Value>(bytes);
 
     EXPECT_TRUE(msg_diff.Compare(proto, actual_proto)) << message_differences;
   }
 
-  void ExpectDeserializationRoundTrip(const FieldValue& model,
+  void Sort(google_firestore_v1_Value& value) {
+    if (value.which_value_type == google_firestore_v1_Value_map_value_tag) {
+      std::sort(value.map_value.fields,
+                value.map_value.fields + value.map_value.fields_count,
+                [](const google_firestore_v1_MapValue_FieldsEntry& lhs,
+                   const google_firestore_v1_MapValue_FieldsEntry& rhs) {
+                  return nanopb::MakeStringView(lhs.key) <
+                         nanopb::MakeStringView(rhs.key);
+                });
+
+      for (pb_size_t i = 0; i < value.map_value.fields_count; ++i) {
+        Sort(value.map_value.fields[i].value);
+      }
+    } else if (value.which_value_type ==
+               google_firestore_v1_Value_array_value_tag) {
+      for (pb_size_t i = 0; i < value.array_value.values_count; ++i) {
+        Sort(value.array_value.values[i]);
+      }
+    }
+  }
+
+  void Sort(google_firestore_v1_Document& value) {
+    std::sort(value.fields, value.fields + value.fields_count,
+              [](const google_firestore_v1_Document_FieldsEntry& lhs,
+                 const google_firestore_v1_Document_FieldsEntry& rhs) {
+                return nanopb::MakeStringView(lhs.key) <
+                       nanopb::MakeStringView(rhs.key);
+              });
+  }
+
+  void ExpectDeserializationRoundTrip(const google_firestore_v1_Value& model,
                                       const v1::Value& proto,
-                                      FieldValue::Type type) {
+                                      TypeOrder type) {
     ByteString bytes = ProtobufSerialize(proto);
     StringReader reader(bytes);
 
     auto message = Message<google_firestore_v1_Value>::TryParse(&reader);
-    FieldValue actual_model =
-        serializer.DecodeFieldValue(reader.context(), *message);
-
     EXPECT_OK(reader.status());
-    EXPECT_EQ(type, actual_model.type());
-    EXPECT_EQ(model, actual_model);
+    EXPECT_EQ(type, GetTypeOrder(*message));
+    // libprotobuf does not retain map ordering. We need to restore the
+    // ordering.
+    Sort(*message);
+    EXPECT_EQ(model, *message);
   }
 
   void ExpectSerializationRoundTrip(
@@ -474,28 +495,29 @@ class SerializerTest : public ::testing::Test {
     auto message =
         Message<google_firestore_v1_BatchGetDocumentsResponse>::TryParse(
             &reader);
-    MaybeDocument actual_model =
+    if (message->which_result ==
+        google_firestore_v1_BatchGetDocumentsResponse_found_tag) {
+      // libprotobuf does not retain map ordering. We need to restore the
+      // ordering.
+      Sort(message->found);
+    }
+    MutableDocument actual_model =
         serializer.DecodeMaybeDocument(reader.context(), *message);
 
     EXPECT_EQ(key, actual_model.key());
     EXPECT_EQ(version, actual_model.version());
-    switch (actual_model.type()) {
-      case MaybeDocument::Type::Document: {
-        Document actual_doc_model(actual_model);
-        EXPECT_EQ(value, actual_doc_model.data());
-        break;
-      }
-      case MaybeDocument::Type::NoDocument:
-        EXPECT_FALSE(value.has_value());
-        break;
-      case MaybeDocument::Type::UnknownDocument:
-        // TODO(rsgowman): implement.
-        // In particular, since this statement isn't hit, it implies a missing
-        // test for UnknownDocument. However, we'll defer that until after
-        // nanopb-master is merged to master.
-        abort();
-      case MaybeDocument::Type::Invalid:
-        FAIL() << "We somehow created an invalid model object";
+    if (actual_model.is_found_document()) {
+      EXPECT_EQ(value, actual_model.data());
+    } else if (actual_model.is_no_document()) {
+      EXPECT_EQ(ObjectValue{}, actual_model.data());
+    } else if (actual_model.is_unknown_document()) {
+      // TODO(rsgowman): implement.
+      // In particular, since this statement isn't hit, it implies a missing
+      // test for UnknownDocument. However, we'll defer that until after
+      // nanopb-master is merged to master.
+      abort();
+    } else {
+      FAIL() << "We somehow created an invalid model object";
     }
   }
 
@@ -534,8 +556,13 @@ class SerializerTest : public ::testing::Test {
 
   void ExpectDeserializationRoundTrip(const Mutation& model,
                                       const v1::Write& proto) {
-    Mutation actual_model = Decode<google_firestore_v1_Write>(
-        std::mem_fn(&Serializer::DecodeMutation), proto);
+    ByteString bytes = ProtobufSerialize(proto);
+    StringReader reader(bytes);
+
+    auto message = Message<google_firestore_v1_Write>::TryParse(&reader);
+    Sort(message->update);
+    Mutation actual_model =
+        serializer.DecodeMutation(reader.context(), *message);
 
     EXPECT_EQ(model, actual_model);
   }
@@ -573,7 +600,8 @@ class SerializerTest : public ::testing::Test {
     StringReader reader{bytes};
 
     auto message = Message<T>::TryParse(&reader);
-    auto model = decode_func(serializer, reader.context(), *message, args...);
+    auto model =
+        decode_func(serializer, reader.context(), std::move(*message), args...);
 
     EXPECT_OK(reader.status());
     return model;
@@ -584,14 +612,14 @@ class SerializerTest : public ::testing::Test {
 };
 
 TEST_F(SerializerTest, EncodesNull) {
-  FieldValue model = FieldValue::Null();
-  ExpectRoundTrip(model, ValueProto(nullptr), FieldValue::Type::Null);
+  google_firestore_v1_Value model = Value(nullptr);
+  ExpectRoundTrip(model, ValueProto(nullptr), TypeOrder::kNull);
 }
 
 TEST_F(SerializerTest, EncodesBool) {
   for (bool bool_value : {true, false}) {
-    FieldValue model = FieldValue::FromBoolean(bool_value);
-    ExpectRoundTrip(model, ValueProto(bool_value), FieldValue::Type::Boolean);
+    google_firestore_v1_Value model = Value(bool_value);
+    ExpectRoundTrip(model, ValueProto(bool_value), TypeOrder::kBoolean);
   }
 }
 
@@ -605,8 +633,8 @@ TEST_F(SerializerTest, EncodesIntegers) {
                              std::numeric_limits<int64_t>::max()};
 
   for (int64_t int_value : cases) {
-    FieldValue model = FieldValue::FromInteger(int_value);
-    ExpectRoundTrip(model, ValueProto(int_value), FieldValue::Type::Integer);
+    google_firestore_v1_Value model = Value(int_value);
+    ExpectRoundTrip(model, ValueProto(int_value), TypeOrder::kNumber);
   }
 }
 
@@ -644,8 +672,8 @@ TEST_F(SerializerTest, EncodesDoubles) {
   };
 
   for (double double_value : cases) {
-    FieldValue model = FieldValue::FromDouble(double_value);
-    ExpectRoundTrip(model, ValueProto(double_value), FieldValue::Type::Double);
+    google_firestore_v1_Value model = Value(double_value);
+    ExpectRoundTrip(model, ValueProto(double_value), TypeOrder::kNumber);
   }
 }
 
@@ -667,8 +695,8 @@ TEST_F(SerializerTest, EncodesString) {
   };
 
   for (const std::string& string_value : cases) {
-    FieldValue model = FieldValue::FromString(string_value);
-    ExpectRoundTrip(model, ValueProto(string_value), FieldValue::Type::String);
+    google_firestore_v1_Value model = Value(string_value);
+    ExpectRoundTrip(model, ValueProto(string_value), TypeOrder::kString);
   }
 }
 
@@ -684,8 +712,8 @@ TEST_F(SerializerTest, EncodesTimestamps) {
   };
 
   for (const Timestamp& ts_value : cases) {
-    FieldValue model = FieldValue::FromTimestamp(ts_value);
-    ExpectRoundTrip(model, ValueProto(ts_value), FieldValue::Type::Timestamp);
+    google_firestore_v1_Value model = Value(ts_value);
+    ExpectRoundTrip(model, ValueProto(ts_value), TypeOrder::kTimestamp);
   }
 }
 
@@ -697,20 +725,20 @@ TEST_F(SerializerTest, EncodesBlobs) {
   };
 
   for (const ByteString& blob_value : cases) {
-    FieldValue model = FieldValue::FromBlob(blob_value);
-    ExpectRoundTrip(model, ValueProto(blob_value), FieldValue::Type::Blob);
+    google_firestore_v1_Value model = Value(blob_value);
+    ExpectRoundTrip(model, ValueProto(blob_value), TypeOrder::kBlob);
   }
 }
 
 TEST_F(SerializerTest, EncodesNullBlobs) {
   ByteString blob;
   ASSERT_EQ(blob.get(), nullptr);  // Empty blobs are backed by a null buffer.
-  FieldValue model = FieldValue::FromBlob(blob);
+  google_firestore_v1_Value model = Value(blob);
 
   // Avoid calling SerializerTest::EncodeFieldValue here because the Serializer
   // could be allocating an empty byte array. These assertions show that the
   // null blob really does materialize in the proto as null.
-  google_firestore_v1_Value proto = serializer.EncodeFieldValue(model);
+  google_firestore_v1_Value proto = model;
   ASSERT_EQ(proto.which_value_type, google_firestore_v1_Value_bytes_value_tag);
   ASSERT_EQ(proto.bytes_value, nullptr);
 
@@ -730,15 +758,14 @@ TEST_F(SerializerTest, EncodesNullBlobs) {
 }
 
 TEST_F(SerializerTest, EncodesReferences) {
-  std::vector<FieldValue::Reference> cases{
-      {DatabaseId{kProjectId, kDatabaseId},
-       DocumentKey::FromPathString("baz/a")},
+  std::vector<google_firestore_v1_Value> cases{
+      RefValue(DatabaseId{kProjectId, kDatabaseId},
+               DocumentKey::FromPathString("baz/a")),
   };
 
   for (const auto& ref_value : cases) {
-    FieldValue model =
-        FieldValue::FromReference(ref_value.database_id(), ref_value.key());
-    ExpectRoundTrip(model, ValueProto(ref_value), FieldValue::Type::Reference);
+    google_firestore_v1_Value model = ref_value;
+    ExpectRoundTrip(model, ValueProto(ref_value), TypeOrder::kReference);
   }
 }
 
@@ -748,64 +775,45 @@ TEST_F(SerializerTest, EncodesGeoPoint) {
   };
 
   for (const GeoPoint& geo_value : cases) {
-    FieldValue model = FieldValue::FromGeoPoint(geo_value);
-    ExpectRoundTrip(model, ValueProto(geo_value), FieldValue::Type::GeoPoint);
+    google_firestore_v1_Value model = Value(geo_value);
+    ExpectRoundTrip(model, ValueProto(geo_value), TypeOrder::kGeoPoint);
   }
 }
 
 TEST_F(SerializerTest, EncodesArray) {
-  std::vector<std::vector<FieldValue>> cases{
+  std::vector<google_firestore_v1_Value> cases{
       // Empty Array.
-      {},
+      Array(),
       // Typical Array.
-      {FieldValue::FromBoolean(true), FieldValue::FromString("foo")},
+      Array(true, "foo"),
       // Nested Array. NB: the protos explicitly state that directly nested
       // arrays are not allowed, however arrays *can* contain a map which
       // contains another array.
-      {FieldValue::FromString("foo"),
-       FieldValue::FromMap(
-           {{"nested array",
-             FieldValue::FromArray(
-                 {FieldValue::FromString("nested array value 1"),
-                  FieldValue::FromString("nested array value 2")})}}),
-       FieldValue::FromString("bar")}};
+      Array("foo",
+            Map("nested array",
+                Array("nested array value 1", "nested array value 2")),
+            "bar")};
 
-  for (const std::vector<FieldValue>& array_value : cases) {
-    FieldValue model = FieldValue::FromArray(array_value);
-    ExpectRoundTrip(model, ValueProto(array_value), FieldValue::Type::Array);
+  for (const google_firestore_v1_Value& array_value : cases) {
+    google_firestore_v1_Value model = array_value;
+    ExpectRoundTrip(model, ValueProto(array_value), TypeOrder::kArray);
   }
 }
 
 TEST_F(SerializerTest, EncodesEmptyMap) {
-  FieldValue model = FieldValue::EmptyObject();
+  google_firestore_v1_Value model = Map();
 
   v1::Value proto;
   proto.mutable_map_value();
 
-  ExpectRoundTrip(model, proto, FieldValue::Type::Object);
+  ExpectRoundTrip(model, proto, TypeOrder::kMap);
 }
 
 TEST_F(SerializerTest, EncodesNestedObjects) {
-  FieldValue model = FieldValue::FromMap({
-      {"b", FieldValue::True()},
-      {"d", FieldValue::FromDouble(std::numeric_limits<double>::max())},
-      {"i", FieldValue::FromInteger(1)},
-      {"n", FieldValue::Null()},
-      {"s", FieldValue::FromString("foo")},
-      {"a", FieldValue::FromArray(
-                {FieldValue::FromInteger(2), FieldValue::FromString("bar"),
-                 FieldValue::FromMap({{"b", FieldValue::False()}})})},
-      {"o", FieldValue::FromMap({
-                {"d", FieldValue::FromInteger(100)},
-                {"nested", FieldValue::FromMap({
-                               {
-                                   "e",
-                                   FieldValue::FromInteger(
-                                       std::numeric_limits<int64_t>::max()),
-                               },
-                           })},
-            })},
-  });
+  google_firestore_v1_Value model = Map(
+      "b", true, "d", std::numeric_limits<double>::max(), "i", 1, "n", nullptr,
+      "s", "foo", "a", Array(2, "bar", Map("b", false)), "o",
+      Map("d", 100, "nested", Map("e", std::numeric_limits<int64_t>::max())));
 
   v1::Value inner_proto;
   google::protobuf::Map<std::string, v1::Value>* inner_fields =
@@ -838,7 +846,7 @@ TEST_F(SerializerTest, EncodesNestedObjects) {
   (*fields)["a"] = array_proto;
   (*fields)["o"] = middle_proto;
 
-  ExpectRoundTrip(model, proto, FieldValue::Type::Object);
+  ExpectRoundTrip(model, proto, TypeOrder::kMap);
 }
 
 TEST_F(SerializerTest, EncodesFieldValuesWithRepeatedEntries) {
@@ -888,45 +896,31 @@ TEST_F(SerializerTest, EncodesFieldValuesWithRepeatedEntries) {
   // Decode the bytes into the model
   StringReader reader(bytes);
 
-  auto message = Message<google_firestore_v1_Value>::TryParse(&reader);
-  FieldValue actual_model =
-      serializer.DecodeFieldValue(reader.context(), *message);
+  auto actual_model = Message<google_firestore_v1_Value>::TryParse(&reader);
   EXPECT_OK(reader.status());
 
   // Ensure the decoded model is as expected.
-  FieldValue expected_model = FieldValue::FromInteger(42);
-  EXPECT_EQ(FieldValue::Type::Integer, actual_model.type());
-  EXPECT_EQ(expected_model, actual_model);
-}
-
-TEST_F(SerializerTest, BadNullValue) {
-  std::vector<uint8_t> bytes = MakeVector(EncodeFieldValue(FieldValue::Null()));
-
-  // Alter the null value from 0 to 1.
-  Mutate(&bytes[1], /*expected_initial_value=*/0, /*new_value=*/1);
-
-  ExpectFailedStatusDuringFieldValueDecode(
-      Status(Error::kErrorDataLoss, "ignored"), bytes);
+  google_firestore_v1_Value expected_model = Value(42);
+  EXPECT_EQ(TypeOrder::kNumber, GetTypeOrder(*actual_model));
+  EXPECT_EQ(expected_model, *actual_model);
 }
 
 TEST_F(SerializerTest, BadBoolValueInterpretedAsTrue) {
-  std::vector<uint8_t> bytes =
-      MakeVector(EncodeFieldValue(FieldValue::FromBoolean(true)));
+  std::vector<uint8_t> bytes = MakeVector(EncodeFieldValue(Value(true)));
 
   // Alter the bool value from 1 to 2. (Value values are 0,1)
   Mutate(&bytes[1], /*expected_initial_value=*/1, /*new_value=*/2);
 
   StringReader reader(bytes);
-  auto message = Message<google_firestore_v1_Value>::TryParse(&reader);
-  FieldValue model = serializer.DecodeFieldValue(reader.context(), *message);
+  auto actual_model = Message<google_firestore_v1_Value>::TryParse(&reader);
 
   ASSERT_OK(reader.status());
-  EXPECT_TRUE(model.boolean_value());
+  EXPECT_TRUE(actual_model->boolean_value);
 }
 
 TEST_F(SerializerTest, BadIntegerValue) {
   // Encode 'maxint'. This should result in 9 0xff bytes, followed by a 1.
-  auto max_int = FieldValue::FromInteger(std::numeric_limits<uint64_t>::max());
+  auto max_int = Value(std::numeric_limits<uint64_t>::max());
   std::vector<uint8_t> bytes = MakeVector(EncodeFieldValue(max_int));
   ASSERT_EQ(11u, bytes.size());
   for (size_t i = 1; i < bytes.size() - 1; i++) {
@@ -943,34 +937,11 @@ TEST_F(SerializerTest, BadIntegerValue) {
 }
 
 TEST_F(SerializerTest, BadStringValue) {
-  std::vector<uint8_t> bytes =
-      MakeVector(EncodeFieldValue(FieldValue::FromString("a")));
+  std::vector<uint8_t> bytes = MakeVector(EncodeFieldValue(Value("a")));
 
   // Claim that the string length is 5 instead of 1. (The first two bytes are
   // used by the encoded tag.)
   Mutate(&bytes[2], /*expected_initial_value=*/1, /*new_value=*/5);
-
-  ExpectFailedStatusDuringFieldValueDecode(
-      Status(Error::kErrorDataLoss, "ignored"), bytes);
-}
-
-TEST_F(SerializerTest, BadTimestampValue_TooLarge) {
-  auto max_ts = FieldValue::FromTimestamp(TimestampInternal::Max());
-  std::vector<uint8_t> bytes = MakeVector(EncodeFieldValue(max_ts));
-
-  // Add some time, which should push us above the maximum allowed timestamp.
-  Mutate(&bytes[4], 0x82, 0x83);
-
-  ExpectFailedStatusDuringFieldValueDecode(
-      Status(Error::kErrorDataLoss, "ignored"), bytes);
-}
-
-TEST_F(SerializerTest, BadTimestampValue_TooSmall) {
-  auto min_ts = FieldValue::FromTimestamp(TimestampInternal::Min());
-  std::vector<uint8_t> bytes = MakeVector(EncodeFieldValue(min_ts));
-
-  // Remove some time, which should push us below the minimum allowed timestamp.
-  Mutate(&bytes[4], 0x92, 0x91);
 
   ExpectFailedStatusDuringFieldValueDecode(
       Status(Error::kErrorDataLoss, "ignored"), bytes);
@@ -982,7 +953,7 @@ TEST_F(SerializerTest, BadFieldValueTagAndNoOtherTagPresent) {
   // assume some sort of default type in this situation, we've decided to fail
   // the deserialization process in this case instead.
 
-  std::vector<uint8_t> bytes = MakeVector(EncodeFieldValue(FieldValue::Null()));
+  std::vector<uint8_t> bytes = MakeVector(EncodeFieldValue(Value(nullptr)));
 
   // The v1::Value value_type oneof currently has tags up to 18. For this test,
   // we'll pick a tag that's unlikely to be added in the near term but still
@@ -1031,40 +1002,23 @@ TEST_F(SerializerTest, BadFieldValueTagWithOtherValidTagsPresent) {
 
   // Decode the bytes into the model
   StringReader reader(bytes);
-  auto message = Message<google_firestore_v1_Value>::TryParse(&reader);
-  FieldValue actual_model =
-      serializer.DecodeFieldValue(reader.context(), *message);
+  auto actual_model = Message<google_firestore_v1_Value>::TryParse(&reader);
   EXPECT_OK(reader.status());
 
   // Ensure the decoded model is as expected.
-  FieldValue expected_model = FieldValue::FromBoolean(true);
-  EXPECT_EQ(FieldValue::Type::Boolean, actual_model.type());
-  EXPECT_EQ(expected_model, actual_model);
+  google_firestore_v1_Value expected_model = Value(true);
+  EXPECT_EQ(TypeOrder::kBoolean, GetTypeOrder(*actual_model));
+  EXPECT_EQ(expected_model, *actual_model);
 }
 
 TEST_F(SerializerTest, IncompleteFieldValue) {
-  std::vector<uint8_t> bytes = MakeVector(EncodeFieldValue(FieldValue::Null()));
+  std::vector<uint8_t> bytes = MakeVector(EncodeFieldValue(Value(nullptr)));
   ASSERT_EQ(2u, bytes.size());
 
   // Remove the (null) payload
   ASSERT_EQ(0x00, bytes[1]);
   bytes.pop_back();
 
-  ExpectFailedStatusDuringFieldValueDecode(
-      Status(Error::kErrorDataLoss, "ignored"), bytes);
-}
-
-TEST_F(SerializerTest, IncompleteTag) {
-  std::vector<uint8_t> bytes;
-  ExpectFailedStatusDuringFieldValueDecode(
-      Status(Error::kErrorDataLoss, "ignored"), bytes);
-}
-
-TEST_F(SerializerTest, FailOnInvalidInputBytes) {
-  // Invalid inputs should fail gracefully without assertions. The following
-  // bytes correspond to a Map FieldValue with an empty value. It was
-  // generated by our fuzz tests and used to trigger an assertion.
-  std::vector<uint8_t> bytes = {0x32, 0x02, 0x0a, 0x00};
   ExpectFailedStatusDuringFieldValueDecode(
       Status(Error::kErrorDataLoss, "ignored"), bytes);
 }
@@ -1113,7 +1067,7 @@ TEST_F(SerializerTest, BadKey) {
 
 TEST_F(SerializerTest, EncodesEmptyDocument) {
   DocumentKey key = DocumentKey::FromPathString("path/to/the/doc");
-  ObjectValue empty_value = ObjectValue::Empty();
+  ObjectValue empty_value{};
   SnapshotVersion update_time = SnapshotVersion{{1234, 5678}};
 
   v1::BatchGetDocumentsResponse proto;
@@ -1133,13 +1087,8 @@ TEST_F(SerializerTest, EncodesEmptyDocument) {
 
 TEST_F(SerializerTest, EncodesNonEmptyDocument) {
   DocumentKey key = DocumentKey::FromPathString("path/to/the/doc");
-  ObjectValue fields = ObjectValue::FromMap({
-      {"foo", FieldValue::FromString("bar")},
-      {"two", FieldValue::FromInteger(2)},
-      {"nested", FieldValue::FromMap({
-                     {"fourty-two", FieldValue::FromInteger(42)},
-                 })},
-  });
+  ObjectValue fields{
+      Map("foo", "bar", "two", 2, "nested", Map("fourty-two", 42))};
   SnapshotVersion update_time = SnapshotVersion{{1234, 5678}};
 
   v1::Value inner_proto;
@@ -1400,11 +1349,11 @@ TEST_F(SerializerTest, EncodesSortOrders) {
 }
 
 TEST_F(SerializerTest, EncodesBounds) {
-  core::Query q =
-      Query("docs")
-          .StartingAt(Bound{{Value("prop"), Value(42)}, /*is_before=*/false})
-          .EndingAt(
-              Bound{{Value("author"), Value("dimond")}, /*is_before=*/true});
+  core::Query q = Query("docs")
+                      .StartingAt(Bound{{Array("prop", 42).array_value},
+                                        /*is_before=*/false})
+                      .EndingAt(Bound{{Array("author", "dimond").array_value},
+                                      /*is_before=*/true});
   TargetData model = CreateTargetData(std::move(q));
 
   v1::Target proto;
@@ -1551,11 +1500,10 @@ TEST_F(SerializerTest, EncodesListenRequestLabels) {
 }
 
 TEST_F(SerializerTest, DecodesMutationResult) {
-  std::vector<FieldValue> transformations({FieldValue::FromBoolean(true),
-                                           FieldValue::FromInteger(1234),
-                                           FieldValue::FromString("string")});
+  google_firestore_v1_ArrayValue transformations =
+      Array(true, 1234, "string").array_value;
   auto version = Version(123456789);
-  MutationResult model(version, std::move(transformations));
+  MutationResult model(version, transformations);
 
   v1::WriteResult proto;
 
@@ -1854,9 +1802,9 @@ TEST_F(SerializerTest, EncodesServerTimestampTransform) {
 
 TEST_F(SerializerTest, EncodesArrayTransform) {
   ArrayTransform array_union{TransformOperation::Type::ArrayUnion,
-                             {Value("a"), Value(2)}};
+                             {Array("a", 2).array_value}};
   ArrayTransform array_remove{TransformOperation::Type::ArrayRemove,
-                              {Value(Map("x", 1))}};
+                              {Array(Map("x", 1)).array_value}};
   SetMutation set_model = testutil::SetMutation(
       "docs/1", Map(), {{"a", array_union}, {"bar", array_remove}});
 
@@ -1996,7 +1944,7 @@ TEST_F(SerializerTest, EncodesArrayContainsAnyFilter) {
   v1::StructuredQuery::FieldFilter& field = *proto.mutable_field_filter();
   field.mutable_field()->set_field_path("item.tags");
   field.set_op(v1::StructuredQuery::FieldFilter::ARRAY_CONTAINS_ANY);
-  *field.mutable_value() = ValueProto(std::vector<FieldValue>{Value("food")});
+  *field.mutable_value() = ValueProto(Array("food"));
 
   ExpectRoundTrip(model, proto);
 }
@@ -2008,7 +1956,7 @@ TEST_F(SerializerTest, EncodesInFilter) {
   v1::StructuredQuery::FieldFilter& field = *proto.mutable_field_filter();
   field.mutable_field()->set_field_path("item.tags");
   field.set_op(v1::StructuredQuery::FieldFilter::IN_);
-  *field.mutable_value() = ValueProto(std::vector<FieldValue>{Value("food")});
+  *field.mutable_value() = ValueProto(Array("food"));
 
   ExpectRoundTrip(model, proto);
 }
@@ -2020,21 +1968,19 @@ TEST_F(SerializerTest, EncodesNotInFilter) {
   v1::StructuredQuery::FieldFilter& field = *proto.mutable_field_filter();
   field.mutable_field()->set_field_path("item.tags");
   field.set_op(v1::StructuredQuery::FieldFilter::NOT_IN);
-  *field.mutable_value() = ValueProto(std::vector<FieldValue>{Value("food")});
+  *field.mutable_value() = ValueProto(Array("food"));
 
   ExpectRoundTrip(model, proto);
 }
 
 TEST_F(SerializerTest, EncodesNotInFilterWithNull) {
-  auto model =
-      testutil::Filter("item.tags", "not-in", Array(FieldValue::Null()));
+  auto model = testutil::Filter("item.tags", "not-in", Array(nullptr));
 
   v1::StructuredQuery::Filter proto;
   v1::StructuredQuery::FieldFilter& field = *proto.mutable_field_filter();
   field.mutable_field()->set_field_path("item.tags");
   field.set_op(v1::StructuredQuery::FieldFilter::NOT_IN);
-  *field.mutable_value() =
-      ValueProto(std::vector<FieldValue>{FieldValue::Null()});
+  *field.mutable_value() = ValueProto(Array(nullptr));
 
   ExpectRoundTrip(model, proto);
 }
@@ -2046,8 +1992,7 @@ TEST_F(SerializerTest, EncodesKeyFieldFilter) {
   v1::StructuredQuery::FieldFilter& field = *proto.mutable_field_filter();
   field.mutable_field()->set_field_path("__name__");
   field.set_op(v1::StructuredQuery::FieldFilter::EQUAL);
-  *field.mutable_value() =
-      ValueProto(FieldValue::Reference{DatabaseId{"p", "d"}, Key("coll/doc")});
+  *field.mutable_value() = ValueProto(DatabaseId{"p", "d"}, Key("coll/doc"));
 
   ExpectRoundTrip(model, proto);
 }

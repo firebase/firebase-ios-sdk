@@ -18,7 +18,8 @@
 
 #include <utility>
 
-#include "Firestore/core/src/model/maybe_document.h"
+#include "Firestore/core/src/model/document.h"
+#include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/mutation.h"
 #include "Firestore/core/src/model/patch_mutation.h"
 #include "Firestore/core/src/model/set_mutation.h"

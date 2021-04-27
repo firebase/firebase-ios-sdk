@@ -17,17 +17,19 @@
 #ifndef FIRESTORE_CORE_SRC_MODEL_MUTABLE_DOCUMENT_H_
 #define FIRESTORE_CORE_SRC_MODEL_MUTABLE_DOCUMENT_H_
 
+#include <memory>
 #include <ostream>
 #include <string>
 #include <utility>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/model/document_key.h"
-#include "Firestore/core/src/model/field_value.h"
+#include "Firestore/core/src/model/object_value.h"
 #include "Firestore/core/src/model/snapshot_version.h"
 
-// TODO(mutabledocuments): We might want to call this class Document and replace
-// the existing class.
+namespace firebase {
+namespace firestore {
+namespace model {
 
 /**
  * Represents a document in Firestore with a key, version, data and whether it
@@ -39,10 +41,6 @@
  * applied, `is_valid_document()` returns false and the document should be
  * removed from all views.
  */
-namespace firebase {
-namespace firestore {
-namespace model {
-
 class MutableDocument {
  private:
   enum class DocumentType {
@@ -84,19 +82,7 @@ class MutableDocument {
   };
 
  public:
-  // MutableDocument contain Proto data that cannot be implicitly created or
-  // copied.
-  MutableDocument() = delete;
-  MutableDocument(const MutableDocument&) = delete;
-  MutableDocument& operator=(const MutableDocument&) = delete;
-
-  MutableDocument(MutableDocument&& other) noexcept
-      : key_{std::move(other.key_)},
-        document_type_{other.document_type_},
-        version_{std::move(other.version_)},
-        value_{std::move(other.value_)},
-        document_state_{other.document_state_} {
-  }
+  MutableDocument() = default;
 
   /**
    * Creates a document with no known version or data. This document can serve
@@ -169,7 +155,7 @@ class MutableDocument {
   }
 
   const ObjectValue& data() const {
-    return value_;
+    return *value_;
   }
 
   /**
@@ -179,8 +165,9 @@ class MutableDocument {
    * @param field_path the path to search.
    * @return The value at the path or absl::nullopt if it doesn't exist.
    */
-  absl::optional<FieldValue> field(const FieldPath& field_path) const {
-    return value_.Get(field_path);
+  absl::optional<google_firestore_v1_Value> field(
+      const FieldPath& field_path) const {
+    return value_->Get(field_path);
   }
 
   bool is_valid_document() const {
@@ -199,6 +186,8 @@ class MutableDocument {
     return document_type_ == DocumentType ::kUnknownDocument;
   }
 
+  size_t Hash() const;
+
   std::string ToString() const;
 
   friend bool operator==(const MutableDocument& lhs,
@@ -211,7 +200,7 @@ class MutableDocument {
   MutableDocument(DocumentKey key,
                   DocumentType document_type,
                   SnapshotVersion version,
-                  ObjectValue value,
+                  std::shared_ptr<const ObjectValue> value,
                   DocumentState document_state)
       : key_{std::move(key)},
         document_type_{document_type},
@@ -223,15 +212,13 @@ class MutableDocument {
   DocumentKey key_;
   DocumentType document_type_ = DocumentType::kInvalid;
   SnapshotVersion version_;
-  ObjectValue value_;
+  std::shared_ptr<const ObjectValue> value_{new ObjectValue};
   DocumentState document_state_ = DocumentState::kSynced;
 };
 
 bool operator==(const MutableDocument& lhs, const MutableDocument& rhs);
 
-std::ostream& operator<<(std::ostream& os, const MutableDocument& doc) {
-  return os << doc.ToString();
-}
+std::ostream& operator<<(std::ostream& os, const MutableDocument& doc);
 
 inline bool operator!=(const MutableDocument& lhs, const MutableDocument& rhs) {
   return !(lhs == rhs);

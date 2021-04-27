@@ -19,6 +19,7 @@
 
 #include <string>
 
+#include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/core/field_filter.h"
 #include "Firestore/core/src/model/model_fwd.h"
 
@@ -31,7 +32,7 @@ namespace core {
  */
 class KeyFieldNotInFilter : public FieldFilter {
  public:
-  KeyFieldNotInFilter(model::FieldPath field, model::FieldValue value);
+  KeyFieldNotInFilter(model::FieldPath field, google_firestore_v1_Value value);
 
  private:
   class Rep;

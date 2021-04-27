@@ -41,7 +41,6 @@ class TargetData;
 
 namespace model {
 class DocumentKey;
-class MaybeDocument;
 class SnapshotVersion;
 }  // namespace model
 
@@ -124,7 +123,7 @@ class DatastoreSerializer {
    * Merges results of the streaming read together. The array is sorted by the
    * document key.
    */
-  util::StatusOr<std::vector<model::MaybeDocument>> MergeLookupResponses(
+  util::StatusOr<std::vector<model::Document>> MergeLookupResponses(
       const std::vector<grpc::ByteBuffer>& responses) const;
 
   const Serializer& serializer() const {
