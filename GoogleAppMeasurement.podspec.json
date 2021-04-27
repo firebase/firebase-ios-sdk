@@ -28,7 +28,7 @@
         "ios": "9.0"
     },
     "source": {
-        "http": "https://dl.google.com/firebase/ios/analytics/2053f0bf92324be1/GoogleAppMeasurement-7.11.0.tar.gz"
+        "http": "https://dl.google.com/firebase/ios/analytics/bbfb73e03d64790f/GoogleAppMeasurement-8.0.0.tar.gz"
     },
     "subspecs": [
         {
