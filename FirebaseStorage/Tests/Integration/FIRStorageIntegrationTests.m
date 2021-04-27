@@ -473,7 +473,7 @@ NSString *const kTestPassword = KPASSWORD;
   // Download URL format is
   // "https://firebasestorage.googleapis.com/v0/b/{bucket}/o/{path}?alt=media&token={token}"
   NSString *downloadURLPattern =
-      @"^https:\\/\\/firebasestorage.googleapis.com\\/v0\\/b\\/[^\\/]*\\/o\\/"
+      @"^https:\\/\\/firebasestorage.googleapis.com:443\\/v0\\/b\\/[^\\/]*\\/o\\/"
       @"ios%2Fpublic%2F1mb\\?alt=media&token=[a-z0-9-]*$";
 
   [ref downloadURLWithCompletion:^(NSURL *downloadURL, NSError *error) {
@@ -508,9 +508,6 @@ NSString *const kTestPassword = KPASSWORD;
 
         [task observeStatus:FIRStorageTaskStatusSuccess
                     handler:^(FIRStorageTaskSnapshot *snapshot) {
-                      NSString *data = [NSString stringWithContentsOfURL:fileURL
-                                                                encoding:NSUTF8StringEncoding
-                                                                   error:NULL];
                       [ref dataWithMaxSize:fileData.length
                                 completion:^(NSData *_Nullable data, NSError *_Nullable error) {
                                   XCTAssertEqualObjects(data, fileData);
