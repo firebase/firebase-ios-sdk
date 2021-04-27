@@ -1,5 +1,4 @@
 # Firebase 8.0.0
-- [changed] Migrate `transform:` callsites and introduce breaking version of GDT (9.0). (#7899)
 - [removed] The deprecated Firebase InstanceID has been removed. Use Firebase Installations to manage
   app instance and use Firebase Messaging to manage FCM registration token instead. (#7970)
 - [removed] Build warnings will no longer be generated to warn about missing capabilities resulting
@@ -14,6 +13,8 @@
 - [changed] The Swift Package Manager distribution now requires at least watchOS 7.0 for products
   that support watchOS. The CocoaPods distribution continues to support watchOS 6.0 with the
   exception of FirebaseDatabase.
+- [changed] Migrate `transform:` callsites and introduce breaking version of
+  GoogleDataTransport (9.0). (#7899)
 
 # Firebase 7.10.0
 - [changed] Update Nanopb to version 0.3.9.8. It fixes a possible security issue. (#7787)

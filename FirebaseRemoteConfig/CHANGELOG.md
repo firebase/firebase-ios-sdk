@@ -1,4 +1,4 @@
-# Unreleased
+# v8.0.0
 - [fixed] Fixed throttling issue when fetch fails due to no network. (#6628)
 
 # v7.10.0
