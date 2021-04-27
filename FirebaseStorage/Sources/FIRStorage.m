@@ -307,10 +307,12 @@ static GTMSessionFetcherRetryBlock _retryWhenOffline;
 }
 
 - (dispatch_queue_t)callbackQueue {
+  [self ensureConfigured];
   return _fetcherServiceForApp.callbackQueue;
 }
 
 - (void)setCallbackQueue:(dispatch_queue_t)callbackQueue {
+  [self ensureConfigured];
   _fetcherServiceForApp.callbackQueue = callbackQueue;
 }
 
