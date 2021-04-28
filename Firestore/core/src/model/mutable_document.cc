@@ -61,7 +61,7 @@ MutableDocument& MutableDocument::ConvertToNoDocument(
     const SnapshotVersion& version) {
   version_ = version;
   document_type_ = DocumentType::kNoDocument;
-  value_ = std::make_shared<ObjectValue>();
+  value_ = std::make_shared<const ObjectValue>();
   document_state_ = DocumentState::kSynced;
   return *this;
 }
@@ -70,7 +70,7 @@ MutableDocument& MutableDocument::ConvertToUnknownDocument(
     const SnapshotVersion& version) {
   version_ = version;
   document_type_ = DocumentType::kUnknownDocument;
-  value_ = std::make_shared<ObjectValue>();
+  value_ = std::make_shared<const ObjectValue>();
   document_state_ = DocumentState::kHasCommittedMutations;
   return *this;
 }
