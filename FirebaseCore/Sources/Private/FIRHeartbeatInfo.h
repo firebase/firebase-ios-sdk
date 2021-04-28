@@ -27,7 +27,7 @@ typedef NS_ENUM(NSInteger, FIRHeartbeatInfoCode) {
 };
 
 /**
- * Get heartbeat code requred for the sdk.
+ * Get heartbeat code required for the sdk.
  * @param heartbeatTag String representing the sdk heartbeat tag.
  * @return Heartbeat code indicating whether or not an sdk/global heartbeat
  * needs to be sent

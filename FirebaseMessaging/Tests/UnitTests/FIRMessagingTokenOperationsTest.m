@@ -18,7 +18,9 @@
 
 #import "OCMock.h"
 
+#import <GoogleUtilities/GULHeartbeatDateStorable.h>
 #import <GoogleUtilities/GULHeartbeatDateStorage.h>
+#import <GoogleUtilities/GULHeartbeatDateStorageUserDefaults.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
@@ -107,10 +109,7 @@ static NSString *kRegistrationToken = @"token-12345";
   // Stub `FIRInstallations` to avoid using a real object.
   [self stubInstallations];
 
-  NSString *const kHeartbeatStorageFile = @"HEARTBEAT_INFO_STORAGE";
-  GULHeartbeatDateStorage *dataStorage =
-      [[GULHeartbeatDateStorage alloc] initWithFileName:kHeartbeatStorageFile];
-  [[NSFileManager defaultManager] removeItemAtURL:[dataStorage fileURL] error:nil];
+  [self setupHeartbeatStorageForTesting];
 }
 
 - (void)tearDown {
@@ -390,7 +389,10 @@ static NSString *kRegistrationToken = @"token-12345";
                     XCTAssertEqualObjects(userAgentValue, [FIRApp firebaseUserAgent]);
                     NSString *heartBeatCode =
                         sentRequest.allHTTPHeaderFields[kFIRMessagingFirebaseHeartbeatKey];
-                    XCTAssertEqualObjects(heartBeatCode, @"3");
+                    // See FirebaseCore/Sources/Private/FIRHeartbeatInfo.h for heartbeat codes.
+                    NSInteger sdkAndGlobalHeartbeatRequestedCode = 3;
+                    XCTAssertEqual(heartBeatCode.integerValue, sdkAndGlobalHeartbeatRequestedCode,
+                                   @"Heartbeat storage info needed to be updated but was not.");
                     [completionExpectation fulfill];
 
                     return YES;
@@ -436,6 +438,25 @@ static NSString *kRegistrationToken = @"token-12345";
                                               expirationDate:[NSDate distantFuture]];
   id authTokenWithCompletionArg = [OCMArg invokeBlockWithArgs:authToken, [NSNull null], nil];
   OCMStub([_mockInstallations authTokenWithCompletion:authTokenWithCompletionArg]);
+}
+
+- (void)setupHeartbeatStorageForTesting {
+  NSString *const kHeartbeatStorageName = @"HEARTBEAT_INFO_STORAGE";
+  id<GULHeartbeatDateStorable> dataStorage;
+#if TARGET_OS_TV
+  NSUserDefaults *defaults =
+      [[NSUserDefaults alloc] initWithSuiteName:kFirebaseCoreDefaultsSuiteName];
+  dataStorage =
+      [[GULHeartbeatDateStorageUserDefaults alloc] initWithDefaults:defaults
+                                                                key:kHeartbeatStorageName];
+  // Manually cleans up any created heartbeat info from previous testing if needed.
+  [defaults removeObjectForKey:kHeartbeatStorageName];
+#else
+  dataStorage = [[GULHeartbeatDateStorage alloc] initWithFileName:kHeartbeatStorageName];
+  // Manually cleans up any created heartbeat info from previous testing if needed.
+  [[NSFileManager defaultManager] removeItemAtURL:[(GULHeartbeatDateStorage *)dataStorage fileURL]
+                                            error:nil];
+#endif
 }
 
 @end
