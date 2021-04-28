@@ -119,8 +119,7 @@ void SetRepeatedField(T** fields_array,
                       Iterator first,
                       Iterator last,
                       Func converter) {
-  *fields_count =
-      static_cast<pb_size_t>(CheckedSize(std::distance(first, last)));
+  *fields_count = CheckedSize(std::distance(first, last));
   *fields_array = MakeArray<T>(*fields_count);
   auto* current = *fields_array;
   while (first != last) {
