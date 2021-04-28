@@ -212,7 +212,20 @@ struct ZipBuilder {
         platformPods.map { $0.name.components(separatedBy: "/").first }.contains($0.key)
       }
 
-      for (podName, podInfo) in podsToBuild {
+      // Build in a sorted order to make the build deterministic and to avoid exposing random
+      // build order bugs.
+      // Also AppCheck must be built after other pods so that its restricted architecture
+      // selection does not restrict any of its dependencies.
+      var sortedPods = podsToBuild.keys.sorted()
+      sortedPods.removeAll(where: { value in
+        value == "FirebaseAppCheck"
+      })
+      sortedPods.append("FirebaseAppCheck")
+
+      for podName in sortedPods {
+        guard let podInfo = podsToBuild[podName] else {
+          continue
+        }
         if podName == "Firebase" {
           // Don't build the Firebase pod.
         } else if podInfo.isSourcePod {

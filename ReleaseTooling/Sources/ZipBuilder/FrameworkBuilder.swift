@@ -193,7 +193,7 @@ struct FrameworkBuilder {
       if targetPlatform == .iOSDevice {
         archs = "arm64"
       } else if targetPlatform == .iOSSimulator {
-        archs = "x86_64"
+        archs = "x86_64 arm64"
       }
     }
 
