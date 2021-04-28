@@ -105,7 +105,7 @@ T* _Nonnull MakeArray(pb_size_t count) {
 }
 
 template <typename T>
-T* _Nonnull ResizeArray(void* _Nullable ptr, pb_size_t count) {
+T* _Nonnull ResizeArray(void* _Nonnull ptr, pb_size_t count) {
   return static_cast<T*>(realloc(ptr, count * sizeof(T)));
 }
 
@@ -114,8 +114,8 @@ T* _Nonnull ResizeArray(void* _Nullable ptr, pb_size_t count) {
  * each value before assigning.
  */
 template <typename T, typename Iterator, typename Func>
-void SetRepeatedField(T** fields_array,
-                      pb_size_t* fields_count,
+void SetRepeatedField(T* _Nonnull* _Nonnull fields_array,
+                      pb_size_t* _Nonnull fields_count,
                       Iterator first,
                       Iterator last,
                       Func converter) {
@@ -135,8 +135,8 @@ void SetRepeatedField(T** fields_array,
  * each value before assigning.
  */
 template <typename T, typename Container, typename Func>
-void SetRepeatedField(T** fields_array,
-                      pb_size_t* fields_count,
+void SetRepeatedField(T* _Nonnull* _Nonnull fields_array,
+                      pb_size_t* _Nonnull fields_count,
                       const Container& fields,
                       Func converter) {
   *fields_count = nanopb::CheckedSize(fields.size());
@@ -150,8 +150,8 @@ void SetRepeatedField(T** fields_array,
 
 /** Initializes a repeated field with a list of values. */
 template <typename T>
-void SetRepeatedField(T** fields_array,
-                      pb_size_t* fields_count,
+void SetRepeatedField(T* _Nonnull* _Nonnull fields_array,
+                      pb_size_t* _Nonnull fields_count,
                       const std::vector<T>& fields) {
   return SetRepeatedField(fields_array, fields_count, fields,
                           [](const T& val) { return val; });

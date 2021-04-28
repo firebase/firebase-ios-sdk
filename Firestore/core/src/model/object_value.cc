@@ -41,7 +41,6 @@ using nanopb::MakeStringView;
 using nanopb::ReleaseFieldsArray;
 using nanopb::SetRepeatedField;
 
-
 void SortFields(google_firestore_v1_Value& value);
 
 struct MapEntryKeyCompare {

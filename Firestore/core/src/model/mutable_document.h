@@ -204,7 +204,7 @@ class MutableDocument {
                   DocumentState document_state)
       : key_{std::move(key)},
         document_type_{document_type},
-        version_{std::move(version)},
+        version_{version},
         value_{std::move(value)},
         document_state_{document_state} {
   }
@@ -212,7 +212,7 @@ class MutableDocument {
   DocumentKey key_;
   DocumentType document_type_ = DocumentType::kInvalid;
   SnapshotVersion version_;
-  std::shared_ptr<const ObjectValue> value_{new ObjectValue};
+  std::shared_ptr<const ObjectValue> value_ = std::make_shared<ObjectValue>();
   DocumentState document_state_ = DocumentState::kSynced;
 };
 

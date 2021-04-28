@@ -27,14 +27,11 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-/**
- * Represents a non-mutable document in Firestore with a key, version, data and
- * whether it has local mutations applied to it.
- */
+/** Represents a non-mutable document in Firestore. */
 class Document {
  public:
-  Document(MutableDocument document)
-      : document_{std::move(document)} {  // NOLINT(runtime/explicit)
+  Document(MutableDocument document)  // NOLINT(runtime/explicit)
+      : document_{std::move(document)} {
   }
 
   Document() = default;

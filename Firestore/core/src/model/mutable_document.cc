@@ -50,10 +50,9 @@ MutableDocument MutableDocument::UnknownDocument(
 
 MutableDocument& MutableDocument::ConvertToFoundDocument(
     const SnapshotVersion& version, ObjectValue value) {
-  std::shared_ptr<const ObjectValue> data{new ObjectValue(std::move(value))};
   version_ = version;
   document_type_ = DocumentType::kFoundDocument;
-  value_ = std::move(data);
+  value_ = std::make_shared<ObjectValue>(std::move(value));
   document_state_ = DocumentState::kSynced;
   return *this;
 }
@@ -92,7 +91,7 @@ size_t MutableDocument::Hash() const {
 
 std::string MutableDocument::ToString() const {
   std::stringstream stream;
-  stream << "Document(key=" << key_ << ", type=" << document_type_
+  stream << "MutableDocument(key=" << key_ << ", type=" << document_type_
          << ", version=" << version_ << ", value=" << CanonicalId(value_->Get())
          << ", state=" << document_state_;
   return stream.str();
