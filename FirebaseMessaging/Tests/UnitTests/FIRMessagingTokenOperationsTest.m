@@ -18,7 +18,6 @@
 
 #import "OCMock.h"
 
-#import <GoogleUtilities/GULHeartbeatDateStorage.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
@@ -78,6 +77,7 @@ static NSString *kRegistrationToken = @"token-12345";
 @property(strong, readonly, nonatomic) FIRMessagingCheckinService *checkinService;
 @property(strong, readonly, nonatomic) id mockCheckinService;
 @property(strong, readonly, nonatomic) id mockInstallations;
+@property(strong, readonly, nonatomic) id mockHeartbeatInfo;
 
 @property(strong, readonly, nonatomic) NSString *instanceID;
 
@@ -107,10 +107,9 @@ static NSString *kRegistrationToken = @"token-12345";
   // Stub `FIRInstallations` to avoid using a real object.
   [self stubInstallations];
 
-  NSString *const kHeartbeatStorageFile = @"HEARTBEAT_INFO_STORAGE";
-  GULHeartbeatDateStorage *dataStorage =
-      [[GULHeartbeatDateStorage alloc] initWithFileName:kHeartbeatStorageFile];
-  [[NSFileManager defaultManager] removeItemAtURL:[dataStorage fileURL] error:nil];
+  // `FIRMessagingTokenFetchOperation` uses `FIRHeartbeatInfo` to retrieve a heartbeat code.
+  // Stub `FIRHeartbeatInfo` to avoid using a real object.
+  [self stubHeartbeatInfo];
 }
 
 - (void)tearDown {
@@ -120,6 +119,7 @@ static NSString *kRegistrationToken = @"token-12345";
   _checkinService = nil;
   _mockTokenStore = nil;
   [_mockInstallations stopMocking];
+  [_mockHeartbeatInfo stopMocking];
 }
 
 - (void)testThatTokenOperationsAuthHeaderStringMatchesCheckin {
@@ -390,7 +390,9 @@ static NSString *kRegistrationToken = @"token-12345";
                     XCTAssertEqualObjects(userAgentValue, [FIRApp firebaseUserAgent]);
                     NSString *heartBeatCode =
                         sentRequest.allHTTPHeaderFields[kFIRMessagingFirebaseHeartbeatKey];
-                    XCTAssertEqualObjects(heartBeatCode, @"3");
+                    // It is expected that both the SDK and global heartbeat are requested.
+                    XCTAssertEqual(heartBeatCode.integerValue, FIRHeartbeatInfoCodeCombined,
+                                   @"Heartbeat storage info needed to be updated but was not.");
                     [completionExpectation fulfill];
 
                     return YES;
@@ -436,6 +438,12 @@ static NSString *kRegistrationToken = @"token-12345";
                                               expirationDate:[NSDate distantFuture]];
   id authTokenWithCompletionArg = [OCMArg invokeBlockWithArgs:authToken, [NSNull null], nil];
   OCMStub([_mockInstallations authTokenWithCompletion:authTokenWithCompletionArg]);
+}
+
+- (void)stubHeartbeatInfo {
+  _mockHeartbeatInfo = OCMClassMock([FIRHeartbeatInfo class]);
+  OCMStub([_mockHeartbeatInfo heartbeatCodeForTag:@"fire-iid"])
+      .andReturn(FIRHeartbeatInfoCodeCombined);
 }
 
 @end
