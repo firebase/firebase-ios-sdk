@@ -391,9 +391,8 @@ static NSString *kRegistrationToken = @"token-12345";
                     XCTAssertEqualObjects(userAgentValue, [FIRApp firebaseUserAgent]);
                     NSString *heartBeatCode =
                         sentRequest.allHTTPHeaderFields[kFIRMessagingFirebaseHeartbeatKey];
-                    // See FirebaseCore/Sources/Private/FIRHeartbeatInfo.h for heartbeat codes.
-                    NSInteger sdkAndGlobalHeartbeatRequestedCode = 3;
-                    XCTAssertEqual(heartBeatCode.integerValue, sdkAndGlobalHeartbeatRequestedCode,
+                    // It is expected that both the SDK and global heartbeat are requested.
+                    XCTAssertEqual(heartBeatCode.integerValue, FIRHeartbeatInfoCodeCombined,
                                    @"Heartbeat storage info needed to be updated but was not.");
                     [completionExpectation fulfill];
 
@@ -444,9 +443,8 @@ static NSString *kRegistrationToken = @"token-12345";
 
 - (void)stubHeartbeatInfo {
   _mockHeartbeatInfo = OCMClassMock([FIRHeartbeatInfo class]);
-  NSInteger sdkAndGlobalHeartbeatRequestedCode = 3;
-  OCMStub([_mockHeartbeatInfo heartbeatCodeForTag:[OCMArg any]])
-      .andReturn(sdkAndGlobalHeartbeatRequestedCode);
+  OCMStub([_mockHeartbeatInfo heartbeatCodeForTag:@"fire-iid"])
+      .andReturn(FIRHeartbeatInfoCodeCombined);
 }
 
 @end
