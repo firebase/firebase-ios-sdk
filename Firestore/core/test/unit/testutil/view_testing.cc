@@ -33,21 +33,20 @@ using core::ViewSnapshot;
 using model::Document;
 using model::DocumentKeySet;
 using model::DocumentMap;
-using model::MutableDocument;
 using nanopb::ByteString;
 using remote::TargetChange;
 
-model::DocumentMap DocUpdates(const std::vector<model::MutableDocument>& docs) {
+model::DocumentMap DocUpdates(const std::vector<model::Document>& docs) {
   DocumentMap updates;
-  for (const MutableDocument& doc : docs) {
-    updates = updates.insert(doc.key(), doc);
+  for (const Document& doc : docs) {
+    updates = updates.insert(doc->key(), doc);
   }
   return updates;
 }
 
 absl::optional<ViewSnapshot> ApplyChanges(
     View* view,
-    const std::vector<MutableDocument>& docs,
+    const std::vector<Document>& docs,
     const absl::optional<TargetChange>& target_change) {
   ViewChange change = view->ApplyChanges(
       view->ComputeDocumentChanges(DocUpdates(docs)), target_change);
@@ -62,10 +61,10 @@ TargetChange AckTarget(DocumentKeySet docs) {
           /*removed_documents*/ DocumentKeySet{}};
 }
 
-TargetChange AckTarget(std::initializer_list<MutableDocument> docs) {
+TargetChange AckTarget(std::initializer_list<Document> docs) {
   DocumentKeySet keys;
   for (const auto& doc : docs) {
-    keys = keys.insert(doc.key());
+    keys = keys.insert(doc->key());
   }
   return AckTarget(keys);
 }

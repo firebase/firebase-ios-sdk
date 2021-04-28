@@ -34,7 +34,7 @@ class TargetChange;
 namespace testutil {
 
 /** Converts a list of documents to a sorted map. */
-model::DocumentMap DocUpdates(const std::vector<model::MutableDocument>& docs);
+model::DocumentMap DocUpdates(const std::vector<model::Document>& docs);
 
 /**
  * Computes changes to the view with the docs and then applies them and returns
@@ -42,7 +42,7 @@ model::DocumentMap DocUpdates(const std::vector<model::MutableDocument>& docs);
  */
 absl::optional<core::ViewSnapshot> ApplyChanges(
     core::View* view,
-    const std::vector<model::MutableDocument>& docs,
+    const std::vector<model::Document>& docs,
     const absl::optional<remote::TargetChange>& target_change);
 
 /**
@@ -51,8 +51,7 @@ absl::optional<core::ViewSnapshot> ApplyChanges(
  */
 remote::TargetChange AckTarget(model::DocumentKeySet docs);
 
-remote::TargetChange AckTarget(
-    std::initializer_list<model::MutableDocument> docs);
+remote::TargetChange AckTarget(std::initializer_list<model::Document> docs);
 
 /** Creates a test target change that marks the target as CURRENT  */
 remote::TargetChange MarkCurrent();
