@@ -1,6 +1,9 @@
 # Firebase 8.0.0
 - [removed] The deprecated Firebase InstanceID has been removed. Use Firebase Installations to manage
   app instance and use Firebase Messaging to manage FCM registration token instead. (#7970)
+- [changed] The experimental Carthage distribution is temporarily discontinued pending integration
+  with the pending Carthage 0.38.0 release with support for binary xcframeworks. In the meantime,
+  a mix of 7.4.0 and 7.11.0 will be the latest Carthage distribution.
 - [removed] Build warnings will no longer be generated to warn about missing capabilities resulting
   from not including FirebaseAnalytics in the app. See the Firebase docs instead. (#7487)
 - [removed] The `Firebase/AdMob` CocoaPods subspec has been removed. Use the `Google-Mobile-Ads-SDK`
