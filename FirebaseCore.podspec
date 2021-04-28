@@ -45,6 +45,8 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   s.ios.framework = 'UIKit'
   s.osx.framework = 'AppKit'
   s.tvos.framework = 'UIKit'
+
+  # Remember to also update version in `cmake/external/GoogleUtilities.cmake`
   s.dependency 'GoogleUtilities/Environment', '~> 7.4'
   s.dependency 'GoogleUtilities/Logger', '~> 7.4'
   s.dependency 'FirebaseCoreDiagnostics', '~> 8.0'
