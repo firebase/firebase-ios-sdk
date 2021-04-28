@@ -16,8 +16,10 @@
  * limitations under the License.
  */
 
-#include <sstream>
 #include "Firestore/core/src/model/mutable_document.h"
+
+#include <sstream>
+
 #include "Firestore/core/src/model/value_util.h"
 
 namespace firebase {
@@ -92,7 +94,7 @@ size_t MutableDocument::Hash() const {
 std::string MutableDocument::ToString() const {
   std::stringstream stream;
   stream << "MutableDocument(key=" << key_ << ", type=" << document_type_
-         << ", version=" << version_ << ", value=" << CanonicalId(value_->Get())
+         << ", version=" << version_ << ", value=" << *value_
          << ", state=" << document_state_;
   return stream.str();
 }
