@@ -12,7 +12,7 @@ Package Manager](https://swift.org/package-manager/) in Beta status.
 - Analytics requires clients to add `-ObjC` linker option.
 - Analytics is only supported for iOS and cannot be used in apps that support other platforms.
 - Performance is not yet available.
-- watchOS support is available for Auth, Crashlytics, Messaging, RemoteConfig, and Storage.
+- watchOS support is available for Auth, Crashlytics, Messaging, Realtime Database, RemoteConfig, and Storage.
 
 ## Installation
 
