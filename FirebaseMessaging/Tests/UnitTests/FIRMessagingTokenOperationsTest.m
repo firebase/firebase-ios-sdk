@@ -108,8 +108,6 @@ static NSString *kRegistrationToken = @"token-12345";
   // `FIRMessagingTokenOperation` uses `FIRInstallations` under the hood to get FIS auth token.
   // Stub `FIRInstallations` to avoid using a real object.
   [self stubInstallations];
-
-  [self setupHeartbeatStorageForTesting];
 }
 
 - (void)tearDown {
@@ -119,6 +117,8 @@ static NSString *kRegistrationToken = @"token-12345";
   _checkinService = nil;
   _mockTokenStore = nil;
   [_mockInstallations stopMocking];
+
+  [self tearDownHeartbeatStorage];
 }
 
 - (void)testThatTokenOperationsAuthHeaderStringMatchesCheckin {
@@ -440,7 +440,7 @@ static NSString *kRegistrationToken = @"token-12345";
   OCMStub([_mockInstallations authTokenWithCompletion:authTokenWithCompletionArg]);
 }
 
-- (void)setupHeartbeatStorageForTesting {
+- (void)tearDownHeartbeatStorage {
   NSString *const kHeartbeatStorageName = @"HEARTBEAT_INFO_STORAGE";
   id<GULHeartbeatDateStorable> dataStorage;
 #if TARGET_OS_TV
