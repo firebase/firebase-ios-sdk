@@ -18,9 +18,6 @@
 
 #import "OCMock.h"
 
-#import <GoogleUtilities/GULHeartbeatDateStorable.h>
-#import <GoogleUtilities/GULHeartbeatDateStorage.h>
-#import <GoogleUtilities/GULHeartbeatDateStorageUserDefaults.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
@@ -107,9 +104,11 @@ static NSString *kRegistrationToken = @"token-12345";
   _instanceID = @"instanceID";
 
   // `FIRMessagingTokenOperation` uses `FIRInstallations` under the hood to get FIS auth token.
-  // `FIRMessagingTokenFetchOperation` uses `FIRHeartbeatInfo` to retrieve a heartbeat code.
-  // Stub `FIRInstallations` and `FIRHeartbeatInfo` to avoid using real objects.
+  // Stub `FIRInstallations` to avoid using a real object.
   [self stubInstallations];
+
+  // `FIRMessagingTokenFetchOperation` uses `FIRHeartbeatInfo` to retrieve a heartbeat code.
+  // Stub `FIRHeartbeatInfo` to avoid using a real object.
   [self stubHeartbeatInfo];
 }
 
