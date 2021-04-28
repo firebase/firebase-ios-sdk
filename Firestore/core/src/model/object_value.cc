@@ -41,6 +41,9 @@ using nanopb::MakeStringView;
 using nanopb::ReleaseFieldsArray;
 using nanopb::SetRepeatedField;
 
+
+void SortFields(google_firestore_v1_Value& value);
+
 struct MapEntryKeyCompare {
   bool operator()(const google_firestore_v1_MapValue_FieldsEntry& entry,
                   absl::string_view segment) const {
@@ -138,6 +141,7 @@ void ApplyChanges(
 
         target_entry.key = source_entry.key;
         target_entry.value = DeepClone(upsert_it->second);
+        SortFields(target_entry.value);
 
         ++upsert_it;
         ++source_index;
@@ -167,8 +171,6 @@ void ApplyChanges(
   parent->fields = target_fields;
   parent->fields_count = static_cast<pb_size_t>(target_count);
 }
-
-void SortFields(google_firestore_v1_Value& value);
 
 void SortFields(google_firestore_v1_MapValue& map_value) {
   std::sort(map_value.fields, map_value.fields + map_value.fields_count,
