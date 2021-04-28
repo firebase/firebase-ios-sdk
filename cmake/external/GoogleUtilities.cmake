@@ -14,7 +14,7 @@
 
 include(ExternalProject)
 
-set(version 7.2.0)
+set(version 7.4.0)
 
 ExternalProject_Add(
   GoogleUtilities
@@ -22,7 +22,7 @@ ExternalProject_Add(
   DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
   DOWNLOAD_NAME GoogleUtilities-${version}.tar.gz
   URL https://github.com/google/GoogleUtilities/archive/${version}.tar.gz
-  URL_HASH SHA256=93c92b28c49b8f7e8cccc2cefe6411fad6e68cbf9638422d3e7ca537cca881a8
+  URL_HASH SHA256=7770d19727e091ade5e9ff898822b1c3fd654f43ccad4c39809826e918a20fde
 
   PREFIX ${PROJECT_BINARY_DIR}
 
