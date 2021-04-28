@@ -64,6 +64,7 @@ using model::NaNValue;
 using model::NullValue;
 using model::ObjectValue;
 using model::ResourcePath;
+using nanopb::SetRepeatedField;
 using model::SnapshotVersion;
 using nanopb::ByteString;
 using nanopb::Reader;
@@ -300,7 +301,6 @@ LimitType DecodeLimitType(JsonReader& reader, const json& query) {
 google_type_LatLng DecodeGeoPointValue(JsonReader& reader,
                                        const json& geo_json) {
   google_type_LatLng result{};
-
   result.latitude = reader.OptionalDouble("latitude", geo_json, 0.0);
   result.longitude = reader.OptionalDouble("longitude", geo_json, 0.0);
   return result;
@@ -637,18 +637,14 @@ Bound BundleSerializer::DecodeBound(JsonReader& reader,
   }
 
   const json& bound_json = reader.RequiredObject(bound_name, query);
+  std::vector<json> values = reader.RequiredArray("values", bound_json);
   bool before = reader.OptionalBool("before", bound_json);
 
   google_firestore_v1_ArrayValue positions;
-
-  std::vector<json> values = reader.RequiredArray("values", bound_json);
-  positions.values_count = static_cast<pb_size_t>(values.size());
-  positions.values =
-      nanopb::MakeArray<google_firestore_v1_Value>(positions.values_count);
-  for (size_t i = 0; i < values.size(); ++i) {
-    positions.values[i] = DecodeValue(reader, values[i]);
-  }
-
+  SetRepeatedField(&positions.values, &positions.values_count, values,
+                   [&](const json& j) {
+                     return DecodeValue(reader, j);
+                   });
   return Bound(positions, before);
 }
 
@@ -677,8 +673,8 @@ google_firestore_v1_Value BundleSerializer::DecodeValue(
     result.which_value_type = google_firestore_v1_Value_double_value_tag;
     result.double_value = reader.RequiredDouble("doubleValue", value);
   } else if (value.contains("timestampValue")) {
-    result.which_value_type = google_firestore_v1_Value_timestamp_value_tag;
     auto val = DecodeTimestamp(reader, value.at("timestampValue"));
+    result.which_value_type = google_firestore_v1_Value_timestamp_value_tag;
     result.timestamp_value.seconds = val.seconds();
     result.timestamp_value.nanos = val.nanoseconds();
   } else if (value.contains("stringValue")) {
@@ -722,24 +718,14 @@ google_firestore_v1_MapValue BundleSerializer::DecodeMapValue(
     return {};
   }
 
-  // Note: The SDK expects MapValues to be sorted.
-  std::map<std::string, google_firestore_v1_Value> sorted_values;
-  for (auto it = fields.begin(); it != fields.end(); ++it) {
-    sorted_values.emplace(it.key(), DecodeValue(reader, it.value()));
-  }
-
   google_firestore_v1_MapValue map_value{};
-  map_value.fields_count = static_cast<pb_size_t>(sorted_values.size());
-  map_value.fields =
-      nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(
-          map_value.fields_count);
-
-  auto* field = map_value.fields;
-  for (const auto& entry : sorted_values) {
-    field->key = nanopb::MakeBytesArray(entry.first);
-    field->value = entry.second;
-    ++field;
-  }
+  SetRepeatedField(&map_value.fields, &map_value.fields_count, fields,
+                   [&](const std::pair<std::string, json>& entry) {
+                     google_firestore_v1_MapValue_FieldsEntry result{};
+                     result.key = nanopb::MakeBytesArray(entry.first);
+                     result.value = DecodeValue(reader, entry.second);
+                     return result;
+                   });
   return map_value;
 }
 
@@ -748,16 +734,9 @@ google_firestore_v1_ArrayValue BundleSerializer::DecodeArrayValue(
   const auto& values = reader.RequiredArray("values", array_json);
 
   google_firestore_v1_ArrayValue array_value{};
-  array_value.values_count = static_cast<pb_size_t>(values.size());
-  array_value.values =
-      nanopb::MakeArray<google_firestore_v1_Value>(array_value.values_count);
-
-  auto* value = array_value.values;
-  for (const json& json_value : values) {
-    *value = DecodeValue(reader, json_value);
-    ++value;
-  }
-
+  SetRepeatedField(
+      &array_value.values, &array_value.values_count, values,
+      [&](const json& j) { return DecodeValue(reader, j); });
   return array_value;
 }
 
