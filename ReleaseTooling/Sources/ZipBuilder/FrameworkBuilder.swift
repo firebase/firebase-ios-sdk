@@ -806,14 +806,6 @@ struct FrameworkBuilder {
         return frameworkURL.appendingPathComponent(binaryName)
       }
 
-    // TODO: remove this when we either remove iOS 10 support or have a cleaner way to support
-    // iOS 11+ only pods.
-    if let arm64Path = builtSlices[.iOSDevice],
-      let x86_64Path = builtSlices[.iOSSimulator],
-      arm64Path.lastPathComponent == "FirebaseAppCheck" {
-      return [.arm64: arm64Path, .x86_64: x86_64Path]
-    }
-
     let fileManager = FileManager.default
     let individualSlices = workingDir.appendingPathComponent("slices")
     if !fileManager.directoryExists(at: individualSlices) {
@@ -832,6 +824,12 @@ struct FrameworkBuilder {
       if platform == .iOSSimulator {
         // Exclude the arm64 slice for simulator since Carthage can't package as an XCFramework.
         archs.removeAll(where: { $0 == .arm64 })
+      }
+
+      // lipo doesn't work if only one architecture.
+      if archs.count == 1 {
+        slices[archs.first!] = binary
+        continue
       }
 
       // Loop through the architectures and strip out each by using `lipo`.
