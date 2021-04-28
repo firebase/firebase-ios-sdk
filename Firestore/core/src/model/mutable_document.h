@@ -17,8 +17,8 @@
 #ifndef FIRESTORE_CORE_SRC_MODEL_MUTABLE_DOCUMENT_H_
 #define FIRESTORE_CORE_SRC_MODEL_MUTABLE_DOCUMENT_H_
 
+#include <iosfwd>
 #include <memory>
-#include <ostream>
 #include <string>
 #include <utility>
 
@@ -212,7 +212,10 @@ class MutableDocument {
   DocumentKey key_;
   DocumentType document_type_ = DocumentType::kInvalid;
   SnapshotVersion version_;
-  std::shared_ptr<const ObjectValue> value_ = std::make_shared<ObjectValue>();
+  // Using a shared pointer to ObjectValue makes MutableDocument copy-assignable
+  // without having to manually create a deep clone of its Protobuf contents
+  std::shared_ptr<const ObjectValue> value_ =
+      std::make_shared<const ObjectValue>();
   DocumentState document_state_ = DocumentState::kSynced;
 };
 
