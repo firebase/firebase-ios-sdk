@@ -64,10 +64,10 @@ using model::NaNValue;
 using model::NullValue;
 using model::ObjectValue;
 using model::ResourcePath;
-using nanopb::SetRepeatedField;
 using model::SnapshotVersion;
 using nanopb::ByteString;
 using nanopb::Reader;
+using nanopb::SetRepeatedField;
 using nlohmann::json;
 using util::ReadContext;
 using util::StatusOr;
@@ -642,9 +642,7 @@ Bound BundleSerializer::DecodeBound(JsonReader& reader,
 
   google_firestore_v1_ArrayValue positions;
   SetRepeatedField(&positions.values, &positions.values_count, values,
-                   [&](const json& j) {
-                     return DecodeValue(reader, j);
-                   });
+                   [&](const json& j) { return DecodeValue(reader, j); });
   return Bound(positions, before);
 }
 
@@ -734,9 +732,8 @@ google_firestore_v1_ArrayValue BundleSerializer::DecodeArrayValue(
   const auto& values = reader.RequiredArray("values", array_json);
 
   google_firestore_v1_ArrayValue array_value{};
-  SetRepeatedField(
-      &array_value.values, &array_value.values_count, values,
-      [&](const json& j) { return DecodeValue(reader, j); });
+  SetRepeatedField(&array_value.values, &array_value.values_count, values,
+                   [&](const json& j) { return DecodeValue(reader, j); });
   return array_value;
 }
 
