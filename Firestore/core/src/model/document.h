@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2018 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_MODEL_DOCUMENT_H_
 #define FIRESTORE_CORE_SRC_MODEL_DOCUMENT_H_
 
-#include <iostream>
+#include <iosfwd>
 #include <string>
 #include <utility>
 
@@ -64,9 +64,7 @@ inline bool operator!=(const Document& lhs, const Document& rhs) {
   return !(lhs == rhs);
 }
 
-inline std::ostream& operator<<(std::ostream& os, const Document& doc) {
-  return os << doc.ToString();
-}
+std::ostream& operator<<(std::ostream& os, const Document& doc);
 
 }  // namespace model
 }  // namespace firestore
