@@ -809,9 +809,9 @@ struct FrameworkBuilder {
     // TODO: remove this when we either remove iOS 10 support or have a cleaner way to support
     // iOS 11+ only pods.
     if let arm64Path = builtSlices[.iOSDevice],
-      let armv7Path = builtSlices[.iOSSimulator],
+      let x86_64Path = builtSlices[.iOSSimulator],
       arm64Path.lastPathComponent == "FirebaseAppCheck" {
-      return [.arm64: arm64Path, .armv7: armv7Path]
+      return [.arm64: arm64Path, .x86_64: x86_64Path]
     }
 
     let fileManager = FileManager.default
