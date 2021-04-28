@@ -19,13 +19,13 @@
 #include <ostream>
 
 namespace firebase {
-    namespace firestore {
-        namespace model {
+namespace firestore {
+namespace model {
 
-             std::ostream& operator<<(std::ostream& os, const Document& doc) {
-              return os << doc.ToString();
-            }
+std::ostream& operator<<(std::ostream& os, const Document& doc) {
+  return os << doc.ToString();
+}
 
-        }  // namespace model
-    }  // namespace firestore
+}  // namespace model
+}  // namespace firestore
 }  // namespace firebase
