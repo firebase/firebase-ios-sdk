@@ -821,13 +821,25 @@ struct FrameworkBuilder {
     var slices: [Architecture: URL] = [:]
     for (platform, binary) in builtSlices {
       var archs = platform.archs
+      var forceLipoOnOneArch = false
       if platform == .iOSSimulator {
         // Exclude the arm64 slice for simulator since Carthage can't package as an XCFramework.
         archs.removeAll(where: { $0 == .arm64 })
+        if binary.lastPathComponent == "FirebaseAppCheck" {
+          // Exclude i386 slice for iOS 11+ frameworks.
+          archs.removeAll(where: { $0 == .i386 })
+          forceLipoOnOneArch = true // Still need to run lipo because .x86_64 and arm64 were built.
+        }
+      }
+      if platform == .iOSDevice {
+        if binary.lastPathComponent == "FirebaseAppCheck" {
+          // Exclude armv7 slice for iOS 11+ frameworks.
+          archs.removeAll(where: { $0 == .armv7 })
+        }
       }
 
       // lipo doesn't work if only one architecture.
-      if archs.count == 1 {
+      if archs.count == 1, !forceLipoOnOneArch {
         slices[archs.first!] = binary
         continue
       }
