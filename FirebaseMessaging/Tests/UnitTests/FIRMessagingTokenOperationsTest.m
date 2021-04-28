@@ -80,6 +80,7 @@ static NSString *kRegistrationToken = @"token-12345";
 @property(strong, readonly, nonatomic) FIRMessagingCheckinService *checkinService;
 @property(strong, readonly, nonatomic) id mockCheckinService;
 @property(strong, readonly, nonatomic) id mockInstallations;
+@property(strong, readonly, nonatomic) id mockHeartbeatInfo;
 
 @property(strong, readonly, nonatomic) NSString *instanceID;
 
@@ -106,8 +107,10 @@ static NSString *kRegistrationToken = @"token-12345";
   _instanceID = @"instanceID";
 
   // `FIRMessagingTokenOperation` uses `FIRInstallations` under the hood to get FIS auth token.
-  // Stub `FIRInstallations` to avoid using a real object.
+  // `FIRMessagingTokenFetchOperation` uses `FIRHeartbeatInfo` to retrieve a heartbeat code.
+  // Stub `FIRInstallations` and `FIRHeartbeatInfo` to avoid using real objects.
   [self stubInstallations];
+  [self stubHeartbeatInfo];
 }
 
 - (void)tearDown {
@@ -117,8 +120,7 @@ static NSString *kRegistrationToken = @"token-12345";
   _checkinService = nil;
   _mockTokenStore = nil;
   [_mockInstallations stopMocking];
-
-  [self tearDownHeartbeatStorage];
+  [_mockHeartbeatInfo stopMocking];
 }
 
 - (void)testThatTokenOperationsAuthHeaderStringMatchesCheckin {
@@ -440,23 +442,11 @@ static NSString *kRegistrationToken = @"token-12345";
   OCMStub([_mockInstallations authTokenWithCompletion:authTokenWithCompletionArg]);
 }
 
-- (void)tearDownHeartbeatStorage {
-  NSString *const kHeartbeatStorageName = @"HEARTBEAT_INFO_STORAGE";
-  id<GULHeartbeatDateStorable> dataStorage;
-#if TARGET_OS_TV
-  NSUserDefaults *defaults =
-      [[NSUserDefaults alloc] initWithSuiteName:kFirebaseCoreDefaultsSuiteName];
-  dataStorage =
-      [[GULHeartbeatDateStorageUserDefaults alloc] initWithDefaults:defaults
-                                                                key:kHeartbeatStorageName];
-  // Manually cleans up any created heartbeat info from previous testing if needed.
-  [defaults removeObjectForKey:kHeartbeatStorageName];
-#else
-  dataStorage = [[GULHeartbeatDateStorage alloc] initWithFileName:kHeartbeatStorageName];
-  // Manually cleans up any created heartbeat info from previous testing if needed.
-  [[NSFileManager defaultManager] removeItemAtURL:[(GULHeartbeatDateStorage *)dataStorage fileURL]
-                                            error:nil];
-#endif
+- (void)stubHeartbeatInfo {
+  _mockHeartbeatInfo = OCMClassMock([FIRHeartbeatInfo class]);
+  NSInteger sdkAndGlobalHeartbeatRequestedCode = 3;
+  OCMStub([_mockHeartbeatInfo heartbeatCodeForTag:[OCMArg any]])
+      .andReturn(sdkAndGlobalHeartbeatRequestedCode);
 }
 
 @end
