@@ -57,6 +57,15 @@ MutableDocument& MutableDocument::ConvertToFoundDocument(
   return *this;
 }
 
+    MutableDocument& MutableDocument::ConvertToFoundDocument(
+            const SnapshotVersion& version) {
+      version_ = version;
+      document_type_ = DocumentType::kFoundDocument;
+      document_state_ = DocumentState::kSynced;
+      return *this;
+    }
+
+
 MutableDocument& MutableDocument::ConvertToNoDocument(
     const SnapshotVersion& version) {
   version_ = version;

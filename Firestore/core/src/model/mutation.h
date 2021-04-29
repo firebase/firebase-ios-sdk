@@ -285,32 +285,33 @@ class Mutation {
     virtual absl::optional<ObjectValue> ExtractTransformBaseValue(
         const Document& document) const;
 
+ /** Extracts the previous values for all field transforms. */
+      std::vector< absl::optional<google_firestore_v1_Value>> ExtractPreviousValuesForTransforms(const ObjectValue& value) const ;
+
     /**
      * Applies the result of applying a transform by the backend.
      *
      * @param value The object value to mutate.
-     * @param existing_data The current state of the document after applying all
-     * previous mutations.
+     * @param previous_values A list of previous values for transformed fields.
      * @param server_transform_results The transform results received by the
      *     server.
      */
     void ApplyServerTransformResults(
         ObjectValue& value,
-        const MutableDocument& existing_data,
+        const std::vector< absl::optional<google_firestore_v1_Value>>& previous_values,
         const google_firestore_v1_ArrayValue& server_transform_results) const;
 
     /**
      * Applies the result of a transform locally.
      *
      * @param value The object value to mutate.
-     * @param existing_data The current state of the document after applying all
-     * previous mutations.
+     * @param previous_values A list of previous values for transformed fields.
      * @param local_write_time The local time of the transform (used to
      *     generate ServerTimestampValues).
      */
     virtual void ApplyLocalTransformResults(
         ObjectValue& value,
-        const MutableDocument& existing_data,
+        const std::vector< absl::optional<google_firestore_v1_Value>>& previous_values,
         const Timestamp& local_write_time) const;
 
     virtual bool Equals(const Rep& other) const;

@@ -118,6 +118,12 @@ class MutableDocument {
                                           ObjectValue value);
 
   /**
+   * Changes the document type to indicate that it exists and that its version
+   * and data are known.
+   */
+    MutableDocument& ConvertToFoundDocument(const SnapshotVersion& version);
+
+  /**
    * Changes the document type to indicate that it doesn't exist at the given
    * version.
    */
@@ -157,6 +163,10 @@ class MutableDocument {
   const ObjectValue& data() const {
     return *value_;
   }
+
+     ObjectValue& data()  {
+      return *value_;
+    }
 
   /**
    * Returns the value at the given path or absl::nullopt. If the path is empty,
@@ -214,8 +224,7 @@ class MutableDocument {
   SnapshotVersion version_;
   // Using a shared pointer to ObjectValue makes MutableDocument copy-assignable
   // without having to manually create a deep clone of its Protobuf contents.
-  std::shared_ptr<const ObjectValue> value_ =
-      std::make_shared<const ObjectValue>();
+  std::shared_ptr<ObjectValue> value_ = std::make_shared<ObjectValue>();
   DocumentState document_state_ = DocumentState::kSynced;
 };
 

@@ -83,12 +83,12 @@ void PatchMutation::Rep::ApplyToRemoteDocument(
     return;
   }
 
-  ObjectValue new_data{document.data()};
-  new_data.SetAll(mask_, value_);
-  ApplyServerTransformResults(new_data, document,
-                              mutation_result.transform_results());
+  auto previous_values = ExtractPreviousValuesForTransforms(document.data());
+  document.data().SetAll(mask_, value_);
+  ApplyServerTransformResults(document.data(),previous_values,
+                              mutation_result.transform_results();
   document
-      .ConvertToFoundDocument(mutation_result.version(), std::move(new_data))
+      .ConvertToFoundDocument(mutation_result.version())
       .SetHasCommittedMutations();
 }
 
@@ -100,10 +100,10 @@ void PatchMutation::Rep::ApplyToLocalView(
     return;
   }
 
-  ObjectValue new_data{document.data()};
-  new_data.SetAll(mask_, value_);
-  ApplyLocalTransformResults(new_data, document, local_write_time);
-  document.ConvertToFoundDocument(GetPostMutationVersion(document), new_data)
+  auto previous_values = ExtractPreviousValuesForTransforms(document.data());
+  document.data().SetAll(mask_, value_);
+  ApplyLocalTransformResults(document.data(), previous_values,local_write_time);
+  document.ConvertToFoundDocument(GetPostMutationVersion(document))
       .SetHasLocalMutations();
 }
 

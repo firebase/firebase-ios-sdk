@@ -112,9 +112,17 @@ SnapshotVersion Mutation::Rep::GetPostMutationVersion(
   }
 }
 
+    std::vector< absl::optional<google_firestore_v1_Value>> Mutation::Rep::ExtractPreviousValuesForTransforms(const ObjectValue& value) const{
+      std::vector< absl::optional<google_firestore_v1_Value>> previous_values;
+      for (const FieldTransform& field_transform : field_transforms_) {
+        previous_values.push_back( value.Get(field_transform.path()));
+      }
+      return previous_values;
+}
+
 void Mutation::Rep::ApplyServerTransformResults(
     ObjectValue& value,
-    const MutableDocument& existing_data,
+    const std::vector< absl::optional<google_firestore_v1_Value>>& previous_values,
     const google_firestore_v1_ArrayValue& server_transform_results) const {
   HARD_ASSERT(field_transforms_.size() == server_transform_results.values_count,
               "server transform result size (%s) should match field transforms "
@@ -124,10 +132,8 @@ void Mutation::Rep::ApplyServerTransformResults(
   for (size_t i = 0; i < server_transform_results.values_count; i++) {
     const FieldTransform& field_transform = field_transforms_[i];
     const TransformOperation& transform = field_transform.transformation();
-    absl::optional<google_firestore_v1_Value> previous_value =
-        existing_data.field(field_transform.path());
     google_firestore_v1_Value transformed_value =
-        transform.ApplyToRemoteDocument(previous_value,
+        transform.ApplyToRemoteDocument(previous_values[i],
                                         server_transform_results.values[i]);
     value.Set(field_transform.path(), transformed_value);
   }
@@ -135,15 +141,15 @@ void Mutation::Rep::ApplyServerTransformResults(
 
 void Mutation::Rep::ApplyLocalTransformResults(
     ObjectValue& value,
-    const MutableDocument& existing_data,
+    const std::vector< absl::optional<google_firestore_v1_Value>>& previous_values,
     const Timestamp& local_write_time) const {
+  auto previous_value = previous_values.begin();
   for (const FieldTransform& field_transform : field_transforms_) {
     const TransformOperation& transform = field_transform.transformation();
-    absl::optional<google_firestore_v1_Value> previous_value =
-        existing_data.field(field_transform.path());
     google_firestore_v1_Value transformed_value =
-        transform.ApplyToLocalView(previous_value, local_write_time);
+        transform.ApplyToLocalView(*previous_value, local_write_time);
     value.Set(field_transform.path(), transformed_value);
+    ++previous_value;
   }
 }
 

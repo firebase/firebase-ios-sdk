@@ -73,8 +73,9 @@ void SetMutation::Rep::ApplyToRemoteDocument(
   // Unlike ApplyToLocalView, if we're applying a mutation to a remote document
   // the server has accepted the mutation so the precondition must have held.
 
+  auto previous_values = ExtractPreviousValuesForTransforms(document.data());
   ObjectValue new_data{DeepClone(value_.Get())};
-  ApplyServerTransformResults(new_data, document,
+  ApplyServerTransformResults(new_data, previous_values,
                               mutation_result.transform_results());
   document
       .ConvertToFoundDocument(mutation_result.version(), std::move(new_data))
@@ -89,8 +90,9 @@ void SetMutation::Rep::ApplyToLocalView(
     return;
   }
 
+  auto previous_values = ExtractPreviousValuesForTransforms(document.data());
   ObjectValue new_data{DeepClone(value_.Get())};
-  ApplyLocalTransformResults(new_data, document, local_write_time);
+  ApplyLocalTransformResults(new_data, previous_values, local_write_time);
   document
       .ConvertToFoundDocument(GetPostMutationVersion(document),
                               std::move(new_data))
