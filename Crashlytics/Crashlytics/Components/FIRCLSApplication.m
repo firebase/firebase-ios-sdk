@@ -17,6 +17,8 @@
 #import "Crashlytics/Crashlytics/Components/FIRCLSHost.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
 
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
+
 #if CLS_TARGET_OS_OSX
 #import <AppKit/AppKit.h>
 #endif
@@ -47,6 +49,19 @@ NSString* FIRCLSApplicationGetPlatform(void) {
 #elif TARGET_OS_WATCH
   return @"ios";  // TODO: temporarily use iOS until Firebase can add watchos to the backend
 #endif
+}
+
+NSString* FIRCLSApplicationGetFirebasePlatform(void) {
+  NSString* firebasePlatform = [GULAppEnvironmentUtil applePlatform];
+
+#if TARGET_OS_IOS
+  if ([firebasePlatform isEqualToString:@"ios"] &&
+      UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+    return @"ipados";
+  }
+#endif
+
+  return firebasePlatform;
 }
 
 // these defaults match the FIRCLSInfoPlist helper in FIRCLSIDEFoundation
