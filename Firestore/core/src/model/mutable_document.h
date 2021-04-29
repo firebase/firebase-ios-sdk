@@ -213,7 +213,7 @@ class MutableDocument {
   DocumentType document_type_ = DocumentType::kInvalid;
   SnapshotVersion version_;
   // Using a shared pointer to ObjectValue makes MutableDocument copy-assignable
-  // without having to manually create a deep clone of its Protobuf contents
+  // without having to manually create a deep clone of its Protobuf contents.
   std::shared_ptr<const ObjectValue> value_ =
       std::make_shared<const ObjectValue>();
   DocumentState document_state_ = DocumentState::kSynced;
