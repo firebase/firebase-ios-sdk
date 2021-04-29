@@ -52,8 +52,9 @@ NSString* FIRCLSApplicationGetPlatform(void) {
 }
 
 NSString* FIRCLSApplicationGetFirebasePlatform(void) {
-  NSString *firebasePlatform = [GULAppEnvironmentUtil applePlatform];
-  if ([firebasePlatform isEqualToString:@"ios"] && UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+  NSString* firebasePlatform = [GULAppEnvironmentUtil applePlatform];
+  if ([firebasePlatform isEqualToString:@"ios"] &&
+      UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
     return @"ipados";
   }
   return firebasePlatform;
