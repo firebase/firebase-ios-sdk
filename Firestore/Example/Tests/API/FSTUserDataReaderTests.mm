@@ -43,6 +43,9 @@ using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldTransform;
 using firebase::firestore::model::GetTypeOrder;
+using firebase::firestore::model::IsArray;
+using firebase::firestore::model::IsNullValue;
+using firebase::firestore::model::IsNumber;
 using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::PatchMutation;
 using firebase::firestore::model::RefValue;
@@ -67,7 +70,7 @@ using firebase::firestore::testutil::Value;
   ];
   for (NSNumber *value in values) {
     google_firestore_v1_Value wrapped = FSTTestFieldValue(value);
-    XCTAssertEqual(GetTypeOrder(wrapped), TypeOrder::kNumber);
+    XCTAssertTrue(IsNumber(wrapped));
     XCTAssertEqual(wrapped.integer_value, [value longLongValue]);
   }
 }
@@ -81,14 +84,14 @@ using firebase::firestore::testutil::Value;
   ];
   for (NSNumber *value in values) {
     google_firestore_v1_Value wrapped = FSTTestFieldValue(value);
-    XCTAssertEqual(GetTypeOrder(wrapped), TypeOrder::kNumber);
+    XCTAssertTrue(IsNumber(wrapped));
     XCTAssertEqual(wrapped.double_value, [value doubleValue]);
   }
 }
 
 - (void)testConvertsNilAndNSNull {
   google_firestore_v1_Value nullValue = Value(nullptr);
-  XCTAssertEqual(GetTypeOrder(nullValue), TypeOrder::kNull);
+  XCTAssertTrue(IsNullValue(nullValue));
   XCTAssertEqual(FSTTestFieldValue(nil), nullValue);
   XCTAssertEqual(FSTTestFieldValue([NSNull null]), nullValue);
 }
@@ -190,11 +193,11 @@ union DoubleBits {
 }
 
 - (void)testConvertsArrays {
-  google_firestore_v1_Value expected = Array("value", true);
+  google_firestore_v1_Value expected = Value(Array("value", true));
 
   google_firestore_v1_Value actual = FSTTestFieldValue(@[ @"value", @YES ]);
-  XCTAssertEqual(actual, expected);
-  XCTAssertEqual(GetTypeOrder(actual), TypeOrder::kArray);
+  XCTAssertTrue(actual == expected);
+  XCTAssertTrue(IsArray(actual));
 }
 
 - (void)testNSDatesAreConvertedToTimestamps {
@@ -223,38 +226,38 @@ union DoubleBits {
 
 - (void)testCreatesArrayUnionTransforms {
   PatchMutation patchMutation = FSTTestPatchMutation(@"collection/key", @{
-    @"a" : [FIRFieldValue fieldValueForArrayUnion:@[ @"tag" ]],
-    @"b.c" : [FIRFieldValue fieldValueForArrayUnion:@[ @YES, @{@"nested" : @{@"a" : @[ @1, @2 ]}} ]]
+    @"foo" : [FIRFieldValue fieldValueForArrayUnion:@[ @"tag" ]],
+    @"bar.baz" :
+        [FIRFieldValue fieldValueForArrayUnion:@[ @YES, @{@"nested" : @{@"a" : @[ @1, @2 ]}} ]]
   },
                                                      {});
   XCTAssertEqual(patchMutation.field_transforms().size(), 2u);
 
   SetMutation setMutation = FSTTestSetMutation(@"collection/key", @{
-    @"a" : [FIRFieldValue fieldValueForArrayUnion:@[ @"tag" ]],
-    @"b" : [FIRFieldValue fieldValueForArrayUnion:@[ @YES, @{@"nested" : @{@"a" : @[ @1, @2 ]}} ]]
+    @"foo" : [FIRFieldValue fieldValueForArrayUnion:@[ @"tag" ]],
+    @"bar" : [FIRFieldValue fieldValueForArrayUnion:@[ @YES, @{@"nested" : @{@"a" : @[ @1, @2 ]}} ]]
   });
   XCTAssertEqual(setMutation.field_transforms().size(), 2u);
 
   const FieldTransform &patchFirst = patchMutation.field_transforms()[0];
-  XCTAssertEqual(patchFirst.path(), FieldPath({"a"}));
+  XCTAssertEqual(patchFirst.path(), FieldPath({"foo"}));
   const FieldTransform &setFirst = setMutation.field_transforms()[0];
-  XCTAssertEqual(setFirst.path(), FieldPath({"a"}));
+  XCTAssertEqual(setFirst.path(), FieldPath({"foo"}));
   {
-    google_firestore_v1_ArrayValue expectedElements = Array(FSTTestFieldValue(@"tag")).array_value;
+    google_firestore_v1_ArrayValue expectedElements = Array(FSTTestFieldValue(@"tag"));
     ArrayTransform expected(TransformOperation::Type::ArrayUnion, expectedElements);
     XCTAssertEqual(static_cast<const ArrayTransform &>(patchFirst.transformation()), expected);
     XCTAssertEqual(static_cast<const ArrayTransform &>(setFirst.transformation()), expected);
   }
 
   const FieldTransform &patchSecond = patchMutation.field_transforms()[1];
-  XCTAssertEqual(patchSecond.path(), FieldPath({"b", "c"}));
+  XCTAssertEqual(patchSecond.path(), FieldPath({"bar", "baz"}));
   const FieldTransform &setSecond = setMutation.field_transforms()[1];
-  XCTAssertEqual(setSecond.path(), FieldPath({"b"}));
+  XCTAssertEqual(setSecond.path(), FieldPath({"bar"}));
   {
     google_firestore_v1_ArrayValue expectedElements =
         Array(FSTTestFieldValue(@YES), FSTTestFieldValue(
-                                           @{@"nested" : @{@"a" : @[ @1, @2 ]}}))
-            .array_value;
+                                           @{@"nested" : @{@"a" : @[ @1, @2 ]}}));
     ArrayTransform expected(TransformOperation::Type::ArrayUnion, expectedElements);
     XCTAssertEqual(static_cast<const ArrayTransform &>(patchSecond.transformation()), expected);
     XCTAssertEqual(static_cast<const ArrayTransform &>(setSecond.transformation()), expected);
@@ -278,7 +281,7 @@ union DoubleBits {
   const FieldTransform &setFirst = setMutation.field_transforms()[0];
   XCTAssertEqual(setFirst.path(), FieldPath({"foo"}));
   {
-    google_firestore_v1_ArrayValue expectedElements = Array(FSTTestFieldValue(@"tag")).array_value;
+    google_firestore_v1_ArrayValue expectedElements = Array(FSTTestFieldValue(@"tag"));
     const ArrayTransform expected(TransformOperation::Type::ArrayRemove, expectedElements);
     XCTAssertEqual(static_cast<const ArrayTransform &>(patchFirst.transformation()), expected);
     XCTAssertEqual(static_cast<const ArrayTransform &>(setFirst.transformation()), expected);

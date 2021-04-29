@@ -124,9 +124,9 @@ google_firestore_v1_Value BlobValue(Ints... octets) {
   return details::BlobValue({static_cast<uint8_t>(octets)...});
 }
 
-// This overload allows Object() to appear as a value (along with any explicitly
-// constructed FieldValues).
 google_firestore_v1_Value Value(const google_firestore_v1_Value& value);
+
+google_firestore_v1_Value Value(const google_firestore_v1_ArrayValue& value);
 
 google_firestore_v1_Value Value(const model::ObjectValue& value);
 
@@ -166,13 +166,6 @@ google_firestore_v1_Value AddPairs(const google_firestore_v1_Value& prior,
   result.map_value.fields[new_count - 1].key = nanopb::MakeBytesArray(key);
   result.map_value.fields[new_count - 1].value = Value(value);
 
-  std::sort(result.map_value.fields, result.map_value.fields + new_count,
-            [](const google_firestore_v1_MapValue_FieldsEntry& lhs,
-               const google_firestore_v1_MapValue_FieldsEntry& rhs) -> bool {
-              return nanopb::MakeStringView(lhs.key) <
-                     nanopb::MakeStringView(rhs.key);
-            });
-
   return AddPairs(result, rest...);
 }
 
@@ -192,16 +185,10 @@ google_firestore_v1_Value MakeMap(Args... key_value_pairs) {
 }  // namespace details
 
 template <typename... Args>
-google_firestore_v1_Value Array(Args... values) {
+google_firestore_v1_ArrayValue Array(Args... values) {
   std::vector<google_firestore_v1_Value> contents{Value(values)...};
-  google_firestore_v1_Value result{};
-  result.which_value_type = google_firestore_v1_Value_array_value_tag;
-  result.array_value.values_count = static_cast<pb_size_t>(contents.size());
-  result.array_value.values = nanopb::MakeArray<google_firestore_v1_Value>(
-      result.array_value.values_count);
-  for (size_t i = 0; i < contents.size(); ++i) {
-    result.array_value.values[i] = contents[i];
-  }
+  google_firestore_v1_ArrayValue result{};
+  nanopb::SetRepeatedField(&result.values, &result.values_count, contents);
   return result;
 }
 
@@ -288,7 +275,7 @@ core::FieldFilter Filter(absl::string_view key,
 
 core::FieldFilter Filter(absl::string_view key,
                          absl::string_view op,
-                         google_firestore_v1_Value value);
+                         google_firestore_v1_ArrayValue value);
 
 core::FieldFilter Filter(absl::string_view key,
                          absl::string_view op,

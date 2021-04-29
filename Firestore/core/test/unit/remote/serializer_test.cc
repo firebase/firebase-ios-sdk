@@ -333,6 +333,11 @@ class SerializerTest : public ::testing::Test {
     return ProtobufParse<v1::Value>(bytes);
   }
 
+  v1::Value ValueProto(const google_firestore_v1_ArrayValue& value) {
+    ByteString bytes = EncodeFieldValue(Value(value));
+    return ProtobufParse<v1::Value>(bytes);
+  }
+
   /**
    * Creates entries in the proto that we don't care about.
    *
@@ -781,7 +786,7 @@ TEST_F(SerializerTest, EncodesGeoPoint) {
 }
 
 TEST_F(SerializerTest, EncodesArray) {
-  std::vector<google_firestore_v1_Value> cases{
+  std::vector<google_firestore_v1_ArrayValue> cases{
       // Empty Array.
       Array(),
       // Typical Array.
@@ -794,9 +799,9 @@ TEST_F(SerializerTest, EncodesArray) {
                 Array("nested array value 1", "nested array value 2")),
             "bar")};
 
-  for (const google_firestore_v1_Value& array_value : cases) {
-    google_firestore_v1_Value model = array_value;
-    ExpectRoundTrip(model, ValueProto(array_value), TypeOrder::kArray);
+  for (const google_firestore_v1_ArrayValue& array_value : cases) {
+    google_firestore_v1_Value model = Value(array_value);
+    ExpectRoundTrip(model, ValueProto(model), TypeOrder::kArray);
   }
 }
 
@@ -1350,9 +1355,9 @@ TEST_F(SerializerTest, EncodesSortOrders) {
 
 TEST_F(SerializerTest, EncodesBounds) {
   core::Query q = Query("docs")
-                      .StartingAt(Bound{{Array("prop", 42).array_value},
+                      .StartingAt(Bound{{Array("prop", 42)},
                                         /*is_before=*/false})
-                      .EndingAt(Bound{{Array("author", "dimond").array_value},
+                      .EndingAt(Bound{{Array("author", "dimond")},
                                       /*is_before=*/true});
   TargetData model = CreateTargetData(std::move(q));
 
@@ -1500,8 +1505,7 @@ TEST_F(SerializerTest, EncodesListenRequestLabels) {
 }
 
 TEST_F(SerializerTest, DecodesMutationResult) {
-  google_firestore_v1_ArrayValue transformations =
-      Array(true, 1234, "string").array_value;
+  google_firestore_v1_ArrayValue transformations = Array(true, 1234, "string");
   auto version = Version(123456789);
   MutationResult model(version, transformations);
 
@@ -1802,9 +1806,9 @@ TEST_F(SerializerTest, EncodesServerTimestampTransform) {
 
 TEST_F(SerializerTest, EncodesArrayTransform) {
   ArrayTransform array_union{TransformOperation::Type::ArrayUnion,
-                             {Array("a", 2).array_value}};
+                             {Array("a", 2)}};
   ArrayTransform array_remove{TransformOperation::Type::ArrayRemove,
-                              {Array(Map("x", 1)).array_value}};
+                              {Array(Map("x", 1))}};
   SetMutation set_model = testutil::SetMutation(
       "docs/1", Map(), {{"a", array_union}, {"bar", array_remove}});
 

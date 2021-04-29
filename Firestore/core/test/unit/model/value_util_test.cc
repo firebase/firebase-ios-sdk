@@ -60,7 +60,8 @@ class ValueUtilTest : public ::testing::Test {
   template <typename... Args>
   void Add(std::vector<std::vector<google_firestore_v1_Value>>& groups,
            Args... values) {
-    std::vector<google_firestore_v1_Value> group{std::forward<Args>(values)...};
+    std::vector<google_firestore_v1_Value> group{
+        Value(std::forward<Args>(values))...};
     groups.emplace_back(group);
   }
 
@@ -288,7 +289,7 @@ TEST_F(ValueUtilTest, CanonicalId) {
   VerifyCanonicalId(Value(BlobValue(1, 2, 3)), "010203");
   VerifyCanonicalId(RefValue(DbId("p1/d1"), Key("c1/doc1")), "c1/doc1");
   VerifyCanonicalId(Value(GeoPoint(30, 60)), "geo(30.0,60.0)");
-  VerifyCanonicalId(Array(1, 2, 3), "[1,2,3]");
+  VerifyCanonicalId(Value(Array(1, 2, 3)), "[1,2,3]");
   VerifyCanonicalId(Map("a", 1, "b", 2, "c", "3"), "{a:1,b:2,c:3}");
   VerifyCanonicalId(Map("a", Array("b", Map("c", GeoPoint(30, 60)))),
                     "{a:[b,{c:geo(30.0,60.0)}]}");
@@ -306,7 +307,7 @@ TEST_F(ValueUtilTest, DeepClone) {
   VerifyDeepClone(Value(BlobValue(1, 2, 3)));
   VerifyDeepClone(RefValue(DbId("p1/d1"), Key("c1/doc1")));
   VerifyDeepClone(Value(GeoPoint(30, 60)));
-  VerifyDeepClone(Array(1, 2, 3));
+  VerifyDeepClone(Value(Array(1, 2, 3)));
   VerifyDeepClone(Map("a", 1, "b", 2, "c", "3"));
   VerifyDeepClone(Map("a", Array("b", Map("c", GeoPoint(30, 60)))));
 }

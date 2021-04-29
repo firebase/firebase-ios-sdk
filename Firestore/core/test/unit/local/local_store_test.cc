@@ -250,7 +250,7 @@ void LocalStoreTest::AcknowledgeMutationWithVersion(
 
   google_firestore_v1_ArrayValue mutation_transform_result{};
   if (transform_result) {
-    mutation_transform_result = Array(*transform_result).array_value;
+    mutation_transform_result = Array(*transform_result);
   }
 
   MutationResult mutation_result(version, mutation_transform_result);

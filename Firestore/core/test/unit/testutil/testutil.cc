@@ -139,6 +139,13 @@ google_firestore_v1_Value Value(const google_firestore_v1_Value& value) {
   return value;
 }
 
+google_firestore_v1_Value Value(const google_firestore_v1_ArrayValue& value) {
+  google_firestore_v1_Value result{};
+  result.which_value_type = google_firestore_v1_Value_array_value_tag;
+  result.array_value = value;
+  return result;
+}
+
 google_firestore_v1_Value Value(const model::ObjectValue& value) {
   return value.Get();
 }
@@ -267,8 +274,14 @@ core::Filter::Operator OperatorFromString(absl::string_view s) {
 core::FieldFilter Filter(absl::string_view key,
                          absl::string_view op,
                          google_firestore_v1_Value value) {
+  return core::FieldFilter::Create(Field(key), OperatorFromString(op), value);
+}
+
+core::FieldFilter Filter(absl::string_view key,
+                         absl::string_view op,
+                         google_firestore_v1_ArrayValue value) {
   return core::FieldFilter::Create(Field(key), OperatorFromString(op),
-                                   std::move(value));
+                                   Value(value));
 }
 
 core::FieldFilter Filter(absl::string_view key,

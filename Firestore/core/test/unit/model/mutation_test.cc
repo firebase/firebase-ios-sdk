@@ -204,16 +204,12 @@ auto Increment(T value) -> decltype(NumericIncrementTransform(Value(value))) {
 
 template <typename... Args>
 TransformOperation ArrayUnion(Args... args) {
-  google_firestore_v1_Value values = Array(args...);
-  return ArrayTransform(TransformOperation::Type::ArrayUnion,
-                        values.array_value);
+  return ArrayTransform(TransformOperation::Type::ArrayUnion, Array(args...));
 }
 
 template <typename... Args>
 TransformOperation ArrayRemove(Args... args) {
-  google_firestore_v1_Value values = Array(args...);
-  return ArrayTransform(TransformOperation::Type::ArrayRemove,
-                        values.array_value);
+  return ArrayTransform(TransformOperation::Type::ArrayRemove, Array(args...));
 }
 
 }  // namespace
@@ -405,7 +401,7 @@ TEST(MutationTest, AppliesServerAckedIncrementTransformToDocuments) {
   Mutation transform =
       SetMutation("collection/key", Map(), {{"sum", Increment(2)}});
 
-  model::MutationResult mutation_result(Version(1), Array(3).array_value);
+  model::MutationResult mutation_result(Version(1), Array(3));
 
   transform.ApplyToRemoteDocument(doc, mutation_result);
 
@@ -421,7 +417,7 @@ TEST(MutationTest, AppliesServerAckedServerTimestampTransformToDocuments) {
   Mutation transform = PatchMutation("collection/key", Map(),
                                      {{"foo.bar", ServerTimestampTransform()}});
 
-  model::MutationResult mutation_result(Version(1), Array(now).array_value);
+  model::MutationResult mutation_result(Version(1), Array(now));
 
   transform.ApplyToRemoteDocument(doc, mutation_result);
 
@@ -444,8 +440,7 @@ TEST(MutationTest, AppliesServerAckedArrayTransformsToDocuments) {
                                      });
 
   // Server just sends null transform results for array operations.
-  model::MutationResult mutation_result(Version(1),
-                                        Array(nullptr, nullptr).array_value);
+  model::MutationResult mutation_result(Version(1), Array(nullptr, nullptr));
 
   transform.ApplyToRemoteDocument(doc, mutation_result);
 
