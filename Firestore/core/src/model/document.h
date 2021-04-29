@@ -27,7 +27,7 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-/** Represents a immutable document in Firestore. */
+/** Represents an immutable document in Firestore. */
 class Document {
  public:
   Document(MutableDocument document)  // NOLINT(runtime/explicit)

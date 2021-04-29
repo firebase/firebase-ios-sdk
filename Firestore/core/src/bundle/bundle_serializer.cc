@@ -16,7 +16,6 @@
 
 #include "Firestore/core/src/bundle/bundle_serializer.h"
 
-#include <map>
 #include <memory>
 #include <vector>
 
@@ -527,13 +526,13 @@ BundledQuery BundleSerializer::DecodeBundledQuery(
 
   auto start_at_bound = DecodeBound(reader, structured_query, "startAt");
   std::shared_ptr<Bound> start_at;
-  if (start_at_bound.position().values_count) {
+  if (start_at_bound.position().values_count > 0) {
     start_at = std::make_shared<Bound>(std::move(start_at_bound));
   }
 
   auto end_at_bound = DecodeBound(reader, structured_query, "endAt");
   std::shared_ptr<Bound> end_at;
-  if (end_at_bound.position().values_count) {
+  if (end_at_bound.position().values_count > 0) {
     end_at = std::make_shared<Bound>(std::move(end_at_bound));
   }
 
@@ -640,7 +639,7 @@ Bound BundleSerializer::DecodeBound(JsonReader& reader,
   std::vector<json> values = reader.RequiredArray("values", bound_json);
   bool before = reader.OptionalBool("before", bound_json);
 
-  google_firestore_v1_ArrayValue positions;
+  google_firestore_v1_ArrayValue positions{};
   SetRepeatedField(&positions.values, &positions.values_count, values,
                    [&](const json& j) { return DecodeValue(reader, j); });
   return Bound(positions, before);
