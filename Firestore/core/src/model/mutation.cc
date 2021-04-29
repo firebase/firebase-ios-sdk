@@ -112,18 +112,12 @@ SnapshotVersion Mutation::Rep::GetPostMutationVersion(
   }
 }
 
-    std::vector< absl::optional<google_firestore_v1_Value>> Mutation::Rep::ExtractPreviousValuesForTransforms(const ObjectValue& value) const{
-      std::vector< absl::optional<google_firestore_v1_Value>> previous_values;
-      for (const FieldTransform& field_transform : field_transforms_) {
-        previous_values.push_back( value.Get(field_transform.path()));
-      }
-      return previous_values;
-}
-
-void Mutation::Rep::ApplyServerTransformResults(
-    ObjectValue& value,
-    const std::vector< absl::optional<google_firestore_v1_Value>>& previous_values,
+std::map<FieldPath, absl::optional<google_firestore_v1_Value>>
+Mutation::Rep::ServerTransformResults(
+    const ObjectValue& previous_data,
     const google_firestore_v1_ArrayValue& server_transform_results) const {
+  std::map<FieldPath, absl::optional<google_firestore_v1_Value>>
+      transform_results;
   HARD_ASSERT(field_transforms_.size() == server_transform_results.values_count,
               "server transform result size (%s) should match field transforms "
               "size (%s)",
@@ -132,25 +126,28 @@ void Mutation::Rep::ApplyServerTransformResults(
   for (size_t i = 0; i < server_transform_results.values_count; i++) {
     const FieldTransform& field_transform = field_transforms_[i];
     const TransformOperation& transform = field_transform.transformation();
+    const auto& previous_value = previous_data.Get(field_transform.path());
     google_firestore_v1_Value transformed_value =
-        transform.ApplyToRemoteDocument(previous_values[i],
+        transform.ApplyToRemoteDocument(previous_value,
                                         server_transform_results.values[i]);
-    value.Set(field_transform.path(), transformed_value);
+    transform_results.insert({field_transform.path(), transformed_value});
   }
+  return transform_results;
 }
 
-void Mutation::Rep::ApplyLocalTransformResults(
-    ObjectValue& value,
-    const std::vector< absl::optional<google_firestore_v1_Value>>& previous_values,
-    const Timestamp& local_write_time) const {
-  auto previous_value = previous_values.begin();
+std::map<FieldPath, absl::optional<google_firestore_v1_Value>>
+Mutation::Rep::LocalTransformResults(const ObjectValue& previous_data,
+                                     const Timestamp& local_write_time) const {
+  std::map<FieldPath, absl::optional<google_firestore_v1_Value>>
+      transform_results;
   for (const FieldTransform& field_transform : field_transforms_) {
     const TransformOperation& transform = field_transform.transformation();
+    const auto& previous_value = previous_data.Get(field_transform.path());
     google_firestore_v1_Value transformed_value =
         transform.ApplyToLocalView(*previous_value, local_write_time);
-    value.Set(field_transform.path(), transformed_value);
-    ++previous_value;
+    transform_results.insert({field_transform.path(), transformed_value});
   }
+  return transform_results;
 }
 
 bool operator==(const Mutation& lhs, const Mutation& rhs) {

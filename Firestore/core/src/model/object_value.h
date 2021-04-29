@@ -79,14 +79,13 @@ class ObjectValue {
   void Set(const FieldPath& path, const google_firestore_v1_Value& value);
 
   /**
-   * Sets the provided fields to the provided values. Only fields included in
-   * `field_mask` are modified. If a field is included in field_mask, but
-   * missing in `data`, it is deleted.
+   * Sets the provided fields to the provided values. Fields set to `nullopt`
+   * are deleted.
    *
-   * @param field_mask The field mask that controls which fields to modify.
-   * @param data A MutableObjectValue that contains the field values.
+   * @param data A map of fields to values (or nullopt for deletes)
    */
-  void SetAll(const FieldMask& field_mask, const ObjectValue& data);
+  void SetAll(
+      std::map<FieldPath, absl::optional<google_firestore_v1_Value>> data);
 
   /**
    * Removes the field at the specified path. If there is no field at the

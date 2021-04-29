@@ -285,34 +285,34 @@ class Mutation {
     virtual absl::optional<ObjectValue> ExtractTransformBaseValue(
         const Document& document) const;
 
- /** Extracts the previous values for all field transforms. */
-      std::vector< absl::optional<google_firestore_v1_Value>> ExtractPreviousValuesForTransforms(const ObjectValue& value) const ;
-
     /**
-     * Applies the result of applying a transform by the backend.
+     * Creates a list of "transform results" (a transform result is a field
+     * value representing the result of applying a transform) for use after a
+     * mutation containing transforms has been acknowledged by the server.
      *
-     * @param value The object value to mutate.
-     * @param previous_values A list of previous values for transformed fields.
+     * @param previous_data The state of the data before applying this mutation.
      * @param server_transform_results The transform results received by the
-     *     server.
+     * server.
+     * @return A map of fields to transform results.
      */
-    void ApplyServerTransformResults(
-        ObjectValue& value,
-        const std::vector< absl::optional<google_firestore_v1_Value>>& previous_values,
+    std::map<FieldPath, absl::optional<google_firestore_v1_Value>>
+    ServerTransformResults(
+        const ObjectValue& existing_data,
         const google_firestore_v1_ArrayValue& server_transform_results) const;
 
     /**
-     * Applies the result of a transform locally.
+     * Creates a list of "transform results" (a transform result is a field
+     * value representing the result of applying a transform) for use when
+     * applying a transform locally.
      *
-     * @param value The object value to mutate.
-     * @param previous_values A list of previous values for transformed fields.
-     * @param local_write_time The local time of the transform (used to
-     *     generate ServerTimestampValues).
+     * @param previous_data The state of the data before applying this mutation.
+     * @param local_write_time The local time of the mutation (used to generate
+     * ServerTimestampValues).
+     * @return A map of fields to transform results.
      */
-    virtual void ApplyLocalTransformResults(
-        ObjectValue& value,
-        const std::vector< absl::optional<google_firestore_v1_Value>>& previous_values,
-        const Timestamp& local_write_time) const;
+    std::map<FieldPath, absl::optional<google_firestore_v1_Value>>
+    LocalTransformResults(const ObjectValue& previous_data,
+                          const Timestamp& local_write_time) const;
 
     virtual bool Equals(const Rep& other) const;
 

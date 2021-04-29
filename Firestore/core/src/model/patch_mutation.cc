@@ -83,12 +83,12 @@ void PatchMutation::Rep::ApplyToRemoteDocument(
     return;
   }
 
-  auto previous_values = ExtractPreviousValuesForTransforms(document.data());
-  document.data().SetAll(mask_, value_);
-  ApplyServerTransformResults(document.data(),previous_values,
-                              mutation_result.transform_results();
-  document
-      .ConvertToFoundDocument(mutation_result.version())
+  ObjectValue& data = document.data();
+  auto transform_results =
+      ServerTransformResults(data, mutation_result.transform_results());
+  data.SetAll(GetPatch());
+  data.SetAll(transform_results);
+  document.ConvertToFoundDocument(mutation_result.version())
       .SetHasCommittedMutations();
 }
 
@@ -100,11 +100,23 @@ void PatchMutation::Rep::ApplyToLocalView(
     return;
   }
 
-  auto previous_values = ExtractPreviousValuesForTransforms(document.data());
-  document.data().SetAll(mask_, value_);
-  ApplyLocalTransformResults(document.data(), previous_values,local_write_time);
+  ObjectValue& data = document.data();
+  auto transform_results = LocalTransformResults(data, local_write_time);
+  data.SetAll(GetPatch());
+  data.SetAll(transform_results);
   document.ConvertToFoundDocument(GetPostMutationVersion(document))
       .SetHasLocalMutations();
+}
+
+std::map<FieldPath, absl::optional<google_firestore_v1_Value>>
+PatchMutation::Rep::GetPatch() const {
+  std::map<FieldPath, absl::optional<google_firestore_v1_Value>> result;
+  for (const FieldPath& path : mask_) {
+    if (!path.empty()) {
+      result.insert({path, value_.Get(path)});
+    }
+  }
+  return result;
 }
 
 bool PatchMutation::Rep::Equals(const Mutation::Rep& other) const {

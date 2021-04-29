@@ -127,11 +127,11 @@ TEST_F(ObjectValueTest, AddsMultipleFields) {
   ObjectValue object_value{};
   EXPECT_EQ(ObjectValue{}, object_value);
 
-  object_value.SetAll(
-      FieldMask(
-          {Field("a"), Field("b"), Field("c.d"), Field("c.e"), Field("c.f")}),
-      WrapObject("a", 1, "b", 2, "c",
-                 Map("d", 3, "e", 4, "f", Map("g", 5), "ignored", 6)));
+  object_value.SetAll({{Field("a"), Value(1)},
+                       {Field("b"), Value(2)},
+                       {Field("c.d"), Value(3)},
+                       {Field("c.e"), Value(4)},
+                       {Field("c.f.g"), Value(5)}});
   EXPECT_EQ(
       WrapObject("a", 1, "b", 2, "c", Map("d", 3, "e", 4, "f", Map("g", 5))),
       object_value);
@@ -241,8 +241,9 @@ TEST_F(ObjectValueTest, DeletesMultipleKeys) {
   ObjectValue object_value =
       WrapObject("a", 1, "b", 2, "c", Map("d", 3, "e", 4));
 
-  object_value.SetAll(FieldMask({Field("a"), Field("b"), Field("c.d")}),
-                      WrapObject());
+  object_value.SetAll({{Field("a"), absl::nullopt},
+                       {Field("b"), absl::nullopt},
+                       {Field("c.d"), absl::nullopt}});
 
   EXPECT_EQ(WrapObject("c", Map("e", 4)), object_value);
 }
@@ -295,7 +296,9 @@ TEST_F(ObjectValueTest, AddsAndDeletesField) {
 
 TEST_F(ObjectValueTest, AddsAndDeletesMultipleFields) {
   ObjectValue object_value = WrapObject("b", 2, "c", 3);
-  object_value.SetAll(FieldMask({Field("a"), Field("b")}), WrapObject("a", 1));
+  object_value.SetAll({{Field("a"), Value(1)},
+                       {Field("b"), absl::nullopt},
+                       {Field("c.d"), absl::nullopt}});
   EXPECT_EQ(WrapObject("a", 1, "c", 3), object_value);
 }
 

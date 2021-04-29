@@ -299,27 +299,27 @@ void ObjectValue::Set(const FieldPath& path,
   ApplyChanges(parent_map, upserts, /*deletes=*/{});
 }
 
-void ObjectValue::SetAll(const FieldMask& field_mask, const ObjectValue& data) {
+void ObjectValue::SetAll(
+    std::map<FieldPath, absl::optional<google_firestore_v1_Value>> data) {
   FieldPath parent;
 
   std::map<std::string, google_firestore_v1_Value> upserts;
   std::set<std::string> deletes;
 
-  for (const FieldPath& path : field_mask) {
-    if (!parent.IsImmediateParentOf(path)) {
+  for (const auto& it : data) {
+    if (!parent.IsImmediateParentOf(it.first)) {
       // Insert the accumulated changes at this parent location
       google_firestore_v1_MapValue* parent_map = ParentMap(parent);
       ApplyChanges(parent_map, upserts, deletes);
       upserts.clear();
       deletes.clear();
-      parent = path.PopLast();
+      parent = it.first.PopLast();
     }
 
-    absl::optional<google_firestore_v1_Value> value = data.Get(path);
-    if (value) {
-      upserts.emplace(path.last_segment(), *value);
+    if (it.second) {
+      upserts.emplace(it.first.last_segment(), *it.second);
     } else {
-      deletes.insert(path.last_segment());
+      deletes.insert(it.first.last_segment());
     }
   }
 

@@ -121,7 +121,7 @@ class MutableDocument {
    * Changes the document type to indicate that it exists and that its version
    * and data are known.
    */
-    MutableDocument& ConvertToFoundDocument(const SnapshotVersion& version);
+  MutableDocument& ConvertToFoundDocument(const SnapshotVersion& version);
 
   /**
    * Changes the document type to indicate that it doesn't exist at the given
@@ -164,9 +164,9 @@ class MutableDocument {
     return *value_;
   }
 
-     ObjectValue& data()  {
-      return *value_;
-    }
+  ObjectValue& data() {
+    return *value_;
+  }
 
   /**
    * Returns the value at the given path or absl::nullopt. If the path is empty,
@@ -210,7 +210,7 @@ class MutableDocument {
   MutableDocument(DocumentKey key,
                   DocumentType document_type,
                   SnapshotVersion version,
-                  std::shared_ptr<const ObjectValue> value,
+                  std::shared_ptr<ObjectValue> value,
                   DocumentState document_state)
       : key_{std::move(key)},
         document_type_{document_type},
