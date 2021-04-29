@@ -105,7 +105,7 @@ T* _Nonnull MakeArray(pb_size_t count) {
 }
 
 template <typename T>
-T* _Nonnull ResizeArray(void* _Nullable ptr, pb_size_t count) {
+T* _Nonnull ResizeArray(void* _Nonnull ptr, pb_size_t count) {
   return static_cast<T*>(realloc(ptr, count * sizeof(T)));
 }
 
@@ -114,13 +114,13 @@ T* _Nonnull ResizeArray(void* _Nullable ptr, pb_size_t count) {
  * each value before assigning.
  */
 template <typename T, typename Iterator, typename Func>
-void SetRepeatedField(T** fields_array,
-                      pb_size_t* fields_count,
+void SetRepeatedField(T* _Nonnull* _Nonnull fields_array,
+                      pb_size_t* _Nonnull fields_count,
                       Iterator first,
                       Iterator last,
-                      Func converter) {
-  *fields_count = CheckedSize(std::distance(first, last));
-  *fields_array = MakeArray<T>(*fields_count);
+                      const Func& converter) {
+  *fields_count = nanopb::CheckedSize(std::distance(first, last));
+  *fields_array = nanopb::MakeArray<T>(*fields_count);
   auto* current = *fields_array;
   while (first != last) {
     *current = converter(*first);
@@ -134,23 +134,18 @@ void SetRepeatedField(T** fields_array,
  * each value before assigning.
  */
 template <typename T, typename Container, typename Func>
-void SetRepeatedField(T** fields_array,
-                      pb_size_t* fields_count,
+void SetRepeatedField(T* _Nonnull* _Nonnull fields_array,
+                      pb_size_t* _Nonnull fields_count,
                       const Container& fields,
-                      Func converter) {
-  *fields_count = CheckedSize(fields.size());
-  *fields_array = MakeArray<T>(*fields_count);
-  auto* current = *fields_array;
-  for (const auto& field : fields) {
-    *current = converter(field);
-    ++current;
-  }
+                      const Func& converter) {
+  return SetRepeatedField(fields_array, fields_count, fields.begin(),
+                          fields.end(), converter);
 }
 
 /** Initializes a repeated field with a list of values. */
 template <typename T>
-void SetRepeatedField(T** fields_array,
-                      pb_size_t* fields_count,
+void SetRepeatedField(T* _Nonnull* _Nonnull fields_array,
+                      pb_size_t* _Nonnull fields_count,
                       const std::vector<T>& fields) {
   return SetRepeatedField(fields_array, fields_count, fields,
                           [](const T& val) { return val; });
@@ -158,10 +153,10 @@ void SetRepeatedField(T** fields_array,
 
 /**
  * Zeroes out the memory of `fields`. This can be used if the contents of fields
- * array are moved to another message that takes on ownership.
+ * array were moved to another message that takes on ownership.
  */
 template <typename T>
-void ReleaseFieldsArray(T* _Nonnull fields, pb_size_t fields_count) {
+void ReleaseFieldOwnership(T* _Nonnull fields, pb_size_t fields_count) {
   for (pb_size_t i = 0; i < fields_count; ++i) {
     fields[i] = {};
   }
