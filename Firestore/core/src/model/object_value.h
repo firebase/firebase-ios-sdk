@@ -42,11 +42,7 @@ class ObjectValue {
   ObjectValue();
 
   /** Creates a new MutableObjectValue and takes ownership of `value`. */
-  explicit ObjectValue(const google_firestore_v1_Value& value) : value_(value) {
-    HARD_ASSERT(
-        value.which_value_type == google_firestore_v1_Value_map_value_tag,
-        "ObjectValues should be backed by a MapValue");
-  }
+  explicit ObjectValue(const google_firestore_v1_Value& value);
 
   ObjectValue(ObjectValue&& other) noexcept = default;
   ObjectValue& operator=(ObjectValue&& other) = default;
@@ -118,16 +114,7 @@ class ObjectValue {
    */
   google_firestore_v1_MapValue* ParentMap(const FieldPath& path);
 
-  /** Sorts the underlying Protobuf if needed. Required for field access. */
-  void EnsureSorted() const;
-
-  /**
-   * Whether any map data in the underlying Protobuf is sorted. Data needs
-   * to be sorted for modifications and field access.
-   */
-  mutable bool sorted_ = false;
-
-  mutable nanopb::Message<google_firestore_v1_Value> value_;
+  nanopb::Message<google_firestore_v1_Value> value_;
 };
 
 inline bool operator==(const ObjectValue& lhs, const ObjectValue& rhs) {

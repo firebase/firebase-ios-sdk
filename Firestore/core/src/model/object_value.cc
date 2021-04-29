@@ -41,8 +41,6 @@ using nanopb::MakeStringView;
 using nanopb::ReleaseFieldOwnership;
 using nanopb::SetRepeatedField;
 
-void SortFields(google_firestore_v1_Value& value);
-
 struct MapEntryKeyCompare {
   bool operator()(const google_firestore_v1_MapValue_FieldsEntry& entry,
                   absl::string_view segment) const {
@@ -53,6 +51,27 @@ struct MapEntryKeyCompare {
     return segment < nanopb::MakeStringView(entry.key);
   }
 };
+
+void SortFields(google_firestore_v1_Value& value) {
+  if (value.which_value_type == google_firestore_v1_Value_map_value_tag) {
+    google_firestore_v1_MapValue& map_value = value.map_value;
+    std::sort(map_value.fields, map_value.fields + map_value.fields_count,
+              [](const google_firestore_v1_MapValue_FieldsEntry& lhs,
+                 const google_firestore_v1_MapValue_FieldsEntry& rhs) {
+                return nanopb::MakeStringView(lhs.key) <
+                       nanopb::MakeStringView(rhs.key);
+              });
+
+    for (pb_size_t i = 0; i < map_value.fields_count; ++i) {
+      SortFields(map_value.fields[i].value);
+    }
+  } else if (value.which_value_type ==
+             google_firestore_v1_Value_array_value_tag) {
+    for (pb_size_t i = 0; i < value.array_value.values_count; ++i) {
+      SortFields(value.array_value.values[i]);
+    }
+  }
+}
 
 /**
  * Finds an entry by key in the provided map value. Returns `nullptr` if the
@@ -171,30 +190,6 @@ void ApplyChanges(
   parent->fields_count = static_cast<pb_size_t>(target_count);
 }
 
-void SortFields(google_firestore_v1_MapValue& map_value) {
-  std::sort(map_value.fields, map_value.fields + map_value.fields_count,
-            [](const google_firestore_v1_MapValue_FieldsEntry& lhs,
-               const google_firestore_v1_MapValue_FieldsEntry& rhs) {
-              return nanopb::MakeStringView(lhs.key) <
-                     nanopb::MakeStringView(rhs.key);
-            });
-
-  for (pb_size_t i = 0; i < map_value.fields_count; ++i) {
-    SortFields(map_value.fields[i].value);
-  }
-}
-
-void SortFields(google_firestore_v1_Value& value) {
-  if (value.which_value_type == google_firestore_v1_Value_map_value_tag) {
-    SortFields(value.map_value);
-  } else if (value.which_value_type ==
-             google_firestore_v1_Value_array_value_tag) {
-    for (pb_size_t i = 0; i < value.array_value.values_count; ++i) {
-      SortFields(value.array_value.values[i]);
-    }
-  }
-}
-
 }  // namespace
 
 ObjectValue::ObjectValue() {
@@ -203,8 +198,15 @@ ObjectValue::ObjectValue() {
   value_->map_value.fields = nullptr;
 }
 
+ObjectValue::ObjectValue(const google_firestore_v1_Value& value)
+    : value_(value) {
+  HARD_ASSERT(value.which_value_type == google_firestore_v1_Value_map_value_tag,
+              "ObjectValues should be backed by a MapValue");
+  SortFields(*value_);
+}
+
 ObjectValue::ObjectValue(const ObjectValue& other)
-    : sorted_(other.sorted_), value_(DeepClone(*other.value_)) {
+    : value_(DeepClone(*other.value_)) {
 }
 
 ObjectValue ObjectValue::FromMapValue(google_firestore_v1_MapValue map_value) {
@@ -264,20 +266,11 @@ FieldMask ObjectValue::ExtractFieldMask(
   return FieldMask(std::move(fields));
 }
 
-void ObjectValue::EnsureSorted() const {
-  if (!sorted_) {
-    SortFields(*value_);
-    sorted_ = true;
-  }
-}
-
 absl::optional<google_firestore_v1_Value> ObjectValue::Get(
     const FieldPath& path) const {
   if (path.empty()) {
     return *value_;
   }
-
-  EnsureSorted();
 
   google_firestore_v1_Value nested_value = *value_;
   for (const std::string& segment : path) {
@@ -297,8 +290,6 @@ void ObjectValue::Set(const FieldPath& path,
                       const google_firestore_v1_Value& value) {
   HARD_ASSERT(!path.empty(), "Cannot set field for empty path on ObjectValue");
 
-  EnsureSorted();
-
   google_firestore_v1_MapValue* parent_map = ParentMap(path.PopLast());
 
   std::string last_segment = path.last_segment();
@@ -309,8 +300,6 @@ void ObjectValue::Set(const FieldPath& path,
 }
 
 void ObjectValue::SetAll(const FieldMask& field_mask, const ObjectValue& data) {
-  EnsureSorted();
-
   FieldPath parent;
 
   std::map<std::string, google_firestore_v1_Value> upserts;
@@ -341,8 +330,6 @@ void ObjectValue::SetAll(const FieldMask& field_mask, const ObjectValue& data) {
 void ObjectValue::Delete(const FieldPath& path) {
   HARD_ASSERT(!path.empty(), "Cannot delete field with empty path");
 
-  EnsureSorted();
-
   google_firestore_v1_Value* nested_value = value_.get();
   for (const std::string& segment : path.PopLast()) {
     google_firestore_v1_MapValue_FieldsEntry* entry =
@@ -363,7 +350,6 @@ void ObjectValue::Delete(const FieldPath& path) {
 }
 
 std::string ObjectValue::ToString() const {
-  EnsureSorted();
   return CanonicalId(*value_);
 }
 
