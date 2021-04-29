@@ -38,7 +38,7 @@ using nanopb::MakeArray;
 using nanopb::MakeBytesArray;
 using nanopb::MakeString;
 using nanopb::MakeStringView;
-using nanopb::ReleaseFieldsArray;
+using nanopb::ReleaseFieldOwnership;
 using nanopb::SetRepeatedField;
 
 void SortFields(google_firestore_v1_Value& value);
@@ -227,7 +227,7 @@ ObjectValue ObjectValue::FromFieldsEntry(
         result.value = entry.value;
         return result;
       });
-  ReleaseFieldsArray(fields_entry, count);
+  ReleaseFieldOwnership(fields_entry, count);
   return ObjectValue{value};
 }
 

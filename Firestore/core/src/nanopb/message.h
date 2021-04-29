@@ -188,23 +188,18 @@ class Message {
 };
 
 /**
- * An wrapper of const Message objects that facilitates shared owenrehship
- * of non-mutable Protobuf data.
+ * An wrapper of const Message objects that facilitates shared ownership
+ * of immutable Protobuf data.
  */
 template <typename T>
 class SharedMessage {
  public:
   /**
-   * Creates a valid `SharedMessage` that wraps a value-constructed ("zeroed
-   * out") Nanopb proto.
-   */
-  SharedMessage() = default;
-
-  /**
    * Creates a `SharedMessage` object that wraps `proto`. Takes ownership of
    * `proto`.
    */
-  explicit SharedMessage(const T& proto) : message_{new Message<T>{proto}} {
+  explicit SharedMessage(const T& proto)
+      : message_{std::make_shared<Message<T>>(proto)} {
   }
 
   /**

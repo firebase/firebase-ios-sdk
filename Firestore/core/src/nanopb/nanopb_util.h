@@ -118,7 +118,7 @@ void SetRepeatedField(T* _Nonnull* _Nonnull fields_array,
                       pb_size_t* _Nonnull fields_count,
                       Iterator first,
                       Iterator last,
-                      Func converter) {
+                      const Func& converter) {
   *fields_count =
       static_cast<pb_size_t>(nanopb::CheckedSize(std::distance(first, last)));
   *fields_array = nanopb::MakeArray<T>(*fields_count);
@@ -138,14 +138,9 @@ template <typename T, typename Container, typename Func>
 void SetRepeatedField(T* _Nonnull* _Nonnull fields_array,
                       pb_size_t* _Nonnull fields_count,
                       const Container& fields,
-                      Func converter) {
-  *fields_count = nanopb::CheckedSize(fields.size());
-  *fields_array = nanopb::MakeArray<T>(*fields_count);
-  auto* current = *fields_array;
-  for (const auto& field : fields) {
-    *current = converter(field);
-    ++current;
-  }
+                      const Func& converter) {
+  return SetRepeatedField(fields_array, fields_count, fields.begin(),
+                          fields.end(), converter);
 }
 
 /** Initializes a repeated field with a list of values. */
@@ -162,7 +157,7 @@ void SetRepeatedField(T* _Nonnull* _Nonnull fields_array,
  * array were moved to another message that takes on ownership.
  */
 template <typename T>
-void ReleaseFieldsArray(T* _Nonnull fields, pb_size_t fields_count) {
+void ReleaseFieldOwnership(T* _Nonnull fields, pb_size_t fields_count) {
   for (pb_size_t i = 0; i < fields_count; ++i) {
     fields[i] = {};
   }
