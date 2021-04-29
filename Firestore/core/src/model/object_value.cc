@@ -363,6 +363,7 @@ void ObjectValue::Delete(const FieldPath& path) {
 }
 
 std::string ObjectValue::ToString() const {
+  EnsureSorted();
   return CanonicalId(*value_);
 }
 

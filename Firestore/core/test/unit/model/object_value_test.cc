@@ -260,8 +260,7 @@ TEST_F(ObjectValueTest, DeletesHandleMissingKeys) {
 }
 
 TEST_F(ObjectValueTest, DeletesNestedKeys) {
-  google_firestore_v1_Value orig =
-      Map("a", Map("b", 1, "c", Map("d", 2, "e", 3)));
+  auto orig = Map("a", Map("b", 1, "c", Map("d", 2, "e", 3)));
   ObjectValue object_value = WrapObject(orig);
   object_value.Delete(Field("a.c.d"));
 
@@ -318,6 +317,19 @@ TEST_F(ObjectValueTest, MergesExistingObject) {
   object_value.Set(Field("a.c"), Value(kFooString));
   EXPECT_EQ(WrapObject("a", Map("b", kFooString, "c", kFooString)),
             object_value);
+}
+
+TEST_F(ObjectValueTest, DoesNotRequireSortedValues) {
+  ObjectValue object_value = WrapObject("c", 2, "a", 1);
+  EXPECT_EQ(Value(2), *object_value.Get(Field("c")));
+}
+
+TEST_F(ObjectValueTest, DoesNotRequireSortedInserts) {
+  ObjectValue object_value{};
+  object_value.Set(Field("nested"),
+                   Map("c", 2, "nested", Map("c", 2, "a", 1), "a", 1));
+  EXPECT_EQ(Value(2), *object_value.Get(Field("nested.c")));
+  EXPECT_EQ(Value(2), *object_value.Get(Field("nested.nested.c")));
 }
 
 }  // namespace

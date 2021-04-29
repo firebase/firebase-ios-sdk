@@ -123,7 +123,7 @@ class ObjectValue {
 
   /**
    * Whether any map data in the underlying Protobuf is sorted. Data needs
-   * to be sorted for any modifications or field access.
+   * to be sorted for modifications and field access.
    */
   mutable bool sorted_ = false;
 
