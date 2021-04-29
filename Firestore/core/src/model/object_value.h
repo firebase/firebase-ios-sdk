@@ -37,26 +37,26 @@ namespace firestore {
 namespace model {
 
 /** A structured object value stored in Firestore. */
-// TODO(mutabledocuments): Rename to ObjectValue once other ObjectValue class
-// is removed
-class MutableObjectValue {
+class ObjectValue {
  public:
-  MutableObjectValue();
+  ObjectValue();
 
   /** Creates a new MutableObjectValue and takes ownership of `value`. */
-  explicit MutableObjectValue(const google_firestore_v1_Value& value)
-      : value_(value) {
+  explicit ObjectValue(const google_firestore_v1_Value& value) : value_(value) {
     HARD_ASSERT(
         value.which_value_type == google_firestore_v1_Value_map_value_tag,
         "ObjectValues should be backed by a MapValue");
   }
 
-  MutableObjectValue(MutableObjectValue&& other) noexcept = default;
-  MutableObjectValue& operator=(MutableObjectValue&& other) = default;
+  ObjectValue(ObjectValue&& other) noexcept = default;
+  ObjectValue& operator=(ObjectValue&& other) = default;
 
-  /** `MutableObjectValue` models unique ownership. */
-  MutableObjectValue(const MutableObjectValue&) = delete;
-  MutableObjectValue& operator=(const MutableObjectValue&) = delete;
+  ObjectValue(const ObjectValue& other);
+  ObjectValue& operator=(const ObjectValue&) = delete;
+
+  static ObjectValue FromMapValue(google_firestore_v1_MapValue map_value);
+  static ObjectValue FromFieldsEntry(
+      google_firestore_v1_Document_FieldsEntry* fields_entry, pb_size_t count);
 
   /** Recursively extracts the FieldPaths that are set in this ObjectValue. */
   FieldMask ToFieldMask() const;
@@ -68,6 +68,11 @@ class MutableObjectValue {
    * @return The value at the path or null if it doesn't exist.
    */
   absl::optional<google_firestore_v1_Value> Get(const FieldPath& path) const;
+
+  /**
+   * Returns the ObjectValue in its Protobuf representation.
+   */
+  google_firestore_v1_Value Get() const;
 
   /**
    * Sets the field to the provided value.
@@ -85,7 +90,7 @@ class MutableObjectValue {
    * @param field_mask The field mask that controls which fields to modify.
    * @param data A MutableObjectValue that contains the field values.
    */
-  void SetAll(const FieldMask& field_mask, const MutableObjectValue& data);
+  void SetAll(const FieldMask& field_mask, const ObjectValue& data);
 
   /**
    * Removes the field at the specified path. If there is no field at the
@@ -95,10 +100,13 @@ class MutableObjectValue {
    */
   void Delete(const FieldPath& path);
 
-  friend bool operator==(const MutableObjectValue& lhs,
-                         const MutableObjectValue& rhs);
+  std::string ToString() const;
+
+  size_t Hash() const;
+
+  friend bool operator==(const ObjectValue& lhs, const ObjectValue& rhs);
   friend std::ostream& operator<<(std::ostream& out,
-                                  const MutableObjectValue& object_value);
+                                  const ObjectValue& object_value);
 
  private:
   /** Returns the field mask for the provided map value. */
@@ -110,16 +118,24 @@ class MutableObjectValue {
    */
   google_firestore_v1_MapValue* ParentMap(const FieldPath& path);
 
-  nanopb::Message<google_firestore_v1_Value> value_;
+  /** Sorts the underlying Protobuf if needed. Required for field access. */
+  void EnsureSorted() const;
+
+  /**
+   * Whether any map data in the underlying Protobuf is sorted. Data needs
+   * to be sorted for modifications and field access.
+   */
+  mutable bool sorted_ = false;
+
+  mutable nanopb::Message<google_firestore_v1_Value> value_;
 };
 
-inline bool operator==(const MutableObjectValue& lhs,
-                       const MutableObjectValue& rhs) {
+inline bool operator==(const ObjectValue& lhs, const ObjectValue& rhs) {
   return *lhs.value_ == *rhs.value_;
 }
 
 inline std::ostream& operator<<(std::ostream& out,
-                                const MutableObjectValue& object_value) {
+                                const ObjectValue& object_value) {
   return out << "ObjectValue(" << *object_value.value_ << ")";
 }
 
