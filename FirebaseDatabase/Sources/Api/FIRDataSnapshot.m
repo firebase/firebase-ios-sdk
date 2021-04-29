@@ -102,4 +102,9 @@
         [NSString stringWithFormat:@"Snap (%@) %@", self.key, self.node.node];
 }
 
+- (NSString *)dummy_function {
+    NSString *hString = @"Hello";
+    return
+        [NSString stringWithFormat:@"%@, world.", hString];
+}
 @end
