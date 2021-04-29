@@ -284,7 +284,6 @@ absl::optional<google_firestore_v1_Value> ObjectValue::Get(
 }
 
 google_firestore_v1_Value ObjectValue::Get() const {
-  EnsureSorted();
   return *value_;
 }
 
