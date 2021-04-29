@@ -29,6 +29,7 @@
 #import "FirebaseAppCheck/Sources/AppAttestProvider/Storage/FIRAppAttestKeyIDStorage.h"
 #import "FirebaseAppCheck/Sources/Core/APIService/FIRAppCheckAPIService.h"
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
+#import "FirebaseAppCheck/Sources/AppAttestProvider/Storage/FIRAppAttestArtifactStorage.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
@@ -154,6 +155,8 @@ NS_ASSUME_NONNULL_BEGIN
         handler(nil, error);
       });
 }
+
+//- ()
 
 /// Returns a resolved promise if App Attest is supported and a rejected promise if it is not.
 - (FBLPromise<NSNull *> *)isAppAttestSupported {
