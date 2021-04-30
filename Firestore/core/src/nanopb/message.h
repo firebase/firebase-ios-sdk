@@ -188,8 +188,8 @@ class Message {
 };
 
 /**
- * An wrapper of const Message objects that facilitates shared ownership
- * of immutable Protobuf data.
+ * A wrapper of const Message objects that facilitates shared ownership of
+ * immutable Protobuf data.
  */
 template <typename T>
 class SharedMessage {
