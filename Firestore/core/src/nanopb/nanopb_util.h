@@ -25,6 +25,7 @@
 #include <vector>
 
 #include "Firestore/core/src/nanopb/byte_string.h"
+#include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/nullability.h"
 #include "absl/base/casts.h"
 #include "absl/memory/memory.h"
@@ -119,6 +120,8 @@ void SetRepeatedField(T* _Nonnull* _Nonnull fields_array,
                       Iterator first,
                       Iterator last,
                       const Func& converter) {
+  HARD_ASSERT(fields_array, "fields_array must be non-null");
+  HARD_ASSERT(fields_count, "fields_count must be non-null");
   *fields_count = nanopb::CheckedSize(std::distance(first, last));
   *fields_array = nanopb::MakeArray<T>(*fields_count);
   auto* current = *fields_array;
