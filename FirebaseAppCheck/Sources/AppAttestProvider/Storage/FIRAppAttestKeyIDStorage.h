@@ -25,14 +25,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Manages storage of an app attest key ID.
  *  @param keyID The app attest key ID to store or `nil` to remove the existing app attest key ID.
- *  @returns A promise that is resolved with a stored app attest key ID or `nil` if the existing
- * existing app attest key ID has been removed.
+ *  @returns A promise that is resolved with a stored app attest key ID or `nil` if the existing app
+ * attest key ID has been removed.
  */
 - (FBLPromise<NSString *> *)setAppAttestKeyID:(nullable NSString *)keyID;
 
 /** Reads a stored app attest key ID.
  *  @returns A promise that is resolved with a stored app attest key ID or `nil` if there is not a
- * stored app attest key ID. The promise is rejected with an error in the case of a failure.
+ * stored app attest key ID. The promise is rejected with an error in the case of a missing app
+ * attest key ID .
  */
 - (FBLPromise<NSString *> *)getAppAttestKeyID;
 
