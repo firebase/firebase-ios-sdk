@@ -215,7 +215,7 @@ bool ArrayTransform::Rep::Equals(const TransformOperation::Rep& other) const {
   if (other_rep.elements_->values_count != elements_->values_count) {
     return false;
   }
-  for (size_t i = 0; i < elements_->values_count; i++) {
+  for (pb_size_t i = 0; i < elements_->values_count; i++) {
     if (other_rep.elements_->values[i] != elements_->values[i]) {
       return false;
     }
@@ -241,7 +241,7 @@ std::string ArrayTransform::Rep::ToString() const {
 google_firestore_v1_ArrayValue ArrayTransform::Rep::CoercedFieldValueArray(
     const absl::optional<google_firestore_v1_Value>& value) const {
   if (IsArray(value)) {
-    return DeepClone(*value).array_value;
+    return value->array_value;
   } else {
     // coerce to empty array.;
     return {};
