@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
+#include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
-#include "Firestore/Protos/nanopb/firestore/local/maybe_document.nanopb.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 
 #include "gmock/gmock.h"
@@ -28,7 +28,7 @@ namespace {
 using testing::ElementsAre;
 using testutil::Value;
 
-TEST(NanoPBUtilTest, SetsRepeatedField) {
+TEST(NanopbUtilTest, SetsRepeatedField) {
   Message<google_firestore_v1_ArrayValue> m;
   std::vector<google_firestore_v1_Value> values{Value(1), Value(2), Value(3)};
   SetRepeatedField(&m->values, &m->values_count, values);
@@ -36,7 +36,7 @@ TEST(NanoPBUtilTest, SetsRepeatedField) {
                         m->values, m->values + m->values_count));
 }
 
-TEST(NanoPBUtilTest, SetsRepeatedFieldWithConverter) {
+TEST(NanopbUtilTest, SetsRepeatedFieldWithConverter) {
   Message<google_firestore_v1_ArrayValue> m;
   std::vector<int> values{1, 2, 3};
   SetRepeatedField(&m->values, &m->values_count, values,
