@@ -25,6 +25,7 @@
 #include <vector>
 
 #include "Firestore/core/src/nanopb/byte_string.h"
+#include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/nullability.h"
 #include "absl/base/casts.h"
 #include "absl/memory/memory.h"
@@ -102,6 +103,66 @@ inline bool SafeReadBoolean(const bool& nanopb_boolean) {
 template <typename T>
 T* _Nonnull MakeArray(pb_size_t count) {
   return static_cast<T*>(calloc(count, sizeof(T)));
+}
+
+template <typename T>
+T* _Nonnull ResizeArray(void* _Nonnull ptr, pb_size_t count) {
+  return static_cast<T*>(realloc(ptr, count * sizeof(T)));
+}
+
+/**
+ * Initializes a repeated field with a list of values. Applies `converter` to
+ * each value before assigning.
+ */
+template <typename T, typename Iterator, typename Func>
+void SetRepeatedField(T* _Nonnull* _Nonnull fields_array,
+                      pb_size_t* _Nonnull fields_count,
+                      Iterator first,
+                      Iterator last,
+                      const Func& converter) {
+  HARD_ASSERT(fields_array, "fields_array must be non-null");
+  HARD_ASSERT(fields_count, "fields_count must be non-null");
+  *fields_count = nanopb::CheckedSize(std::distance(first, last));
+  *fields_array = nanopb::MakeArray<T>(*fields_count);
+  auto* current = *fields_array;
+  while (first != last) {
+    *current = converter(*first);
+    ++current;
+    ++first;
+  }
+}
+
+/**
+ * Initializes a repeated field with a list of values. Applies `converter` to
+ * each value before assigning.
+ */
+template <typename T, typename Container, typename Func>
+void SetRepeatedField(T* _Nonnull* _Nonnull fields_array,
+                      pb_size_t* _Nonnull fields_count,
+                      const Container& fields,
+                      const Func& converter) {
+  return SetRepeatedField(fields_array, fields_count, fields.begin(),
+                          fields.end(), converter);
+}
+
+/** Initializes a repeated field with a list of values. */
+template <typename T>
+void SetRepeatedField(T* _Nonnull* _Nonnull fields_array,
+                      pb_size_t* _Nonnull fields_count,
+                      const std::vector<T>& fields) {
+  return SetRepeatedField(fields_array, fields_count, fields,
+                          [](const T& val) { return val; });
+}
+
+/**
+ * Zeroes out the memory of `fields`. This can be used if the contents of fields
+ * array were moved to another message that takes on ownership.
+ */
+template <typename T>
+void ReleaseFieldOwnership(T* _Nonnull fields, pb_size_t fields_count) {
+  for (pb_size_t i = 0; i < fields_count; ++i) {
+    fields[i] = {};
+  }
 }
 
 #if __OBJC__
