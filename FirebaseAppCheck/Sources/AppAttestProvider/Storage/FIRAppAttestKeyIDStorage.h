@@ -23,8 +23,15 @@ NS_ASSUME_NONNULL_BEGIN
 /// The protocol defines methods to store App Attest key IDs per Firebase app.
 @protocol FIRAppAttestKeyIDStorageProtocol <NSObject>
 
+/** Manages storage of an app attest key ID.
+ *  @param keyID The app attest key ID to store or `nil` to remove the existing app attest key ID.
+ *  @returns A promise that is resolved with the stored app attest key ID in the case of success or is rejected with a specific error otherwise.
+ */
 - (FBLPromise<NSString *> *)setAppAttestKeyID:(nullable NSString *)keyID;
 
+/** Reads a stored app attest key ID.
+ *  @returns A promise that is resolved with a stored app attest key ID or `nil` if there is not a stored app attest key ID. The promise is rejected with an error in the case of a failure.
+ */
 - (FBLPromise<NSString *> *)getAppAttestKeyID;
 
 @end

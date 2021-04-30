@@ -22,10 +22,21 @@
 #import "FBLPromises.h"
 #endif
 
+#import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
+
+/// The `NSUserDefaults` suite name for the storage location of the app attest key ID.
+static NSString *const kFIRAppAttestKeyIDStorageDefaultsSuiteName = @"com.firebase.FIRAppAttestKeyIDStorage";
+
+/// The key used to retrieve the app attest key ID from its storage suite.
+static NSString *const kFIRAppAttestKeyIDKey = @"FIRAppAttestKeyID";
+
 @interface FIRAppAttestKeyIDStorage ()
 
 @property(nonatomic, readonly) NSString *appName;
 @property(nonatomic, readonly) NSString *appID;
+
+/// The app attest key ID is stored using `NSUserDefaults` .
+@property(nonatomic, readonly) NSUserDefaults *userDefaults;
 
 @end
 
@@ -36,18 +47,46 @@
   if (self) {
     _appName = [appName copy];
     _appID = [appID copy];
+    _userDefaults = [[NSUserDefaults alloc] initWithSuiteName:kFIRAppAttestKeyIDStorageDefaultsSuiteName];
   }
   return self;
 }
 
-- (nonnull FBLPromise<NSString *> *)getAppAttestKeyID {
-  // TODO: Implement.
-  return [FBLPromise resolvedWith:nil];
+- (nonnull FBLPromise<NSString *> *)setAppAttestKeyID:(nullable NSString *)keyID {
+  [self storeAppAttestKeyID:keyID];
+  return [FBLPromise resolvedWith:keyID];
 }
 
-- (nonnull FBLPromise<NSString *> *)setAppAttestKeyID:(nullable NSString *)keyID {
-  // TODO: Implement.
-  return [FBLPromise resolvedWith:nil];
+- (nonnull FBLPromise<NSString *> *)getAppAttestKeyID {
+  NSString *appAttestKeyID = [self appAttestKeyIDFromStorage];
+  if (appAttestKeyID) {
+    return [FBLPromise resolvedWith:appAttestKeyID];
+  } else {
+    NSError *error = [FIRAppCheckErrorUtil appAttestKeyIDNotFound];
+    FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
+    [rejectedPromise reject:error];
+    return rejectedPromise;
+  }
+}
+
+#pragma mark - Helpers
+
+- (void)storeAppAttestKeyID:(nullable NSString *)keyID {
+  @synchronized (self.userDefaults) {
+    if (keyID) {
+      [self.userDefaults setObject:keyID forKey:kFIRAppAttestKeyIDKey];
+    } else {
+      [self.userDefaults removeObjectForKey:kFIRAppAttestKeyIDKey];
+    }
+  }
+}
+
+- (nullable NSString *)appAttestKeyIDFromStorage {
+  NSString *appAttestKeyID = nil;
+  @synchronized (self.userDefaults) {
+    appAttestKeyID = [self.userDefaults objectForKey:kFIRAppAttestKeyIDKey];
+  }
+  return appAttestKeyID;
 }
 
 @end
