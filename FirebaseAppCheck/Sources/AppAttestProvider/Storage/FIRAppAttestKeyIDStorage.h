@@ -40,6 +40,9 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 /// The App Attest key ID storage implementation.
+/// This class is designed for use by `FIRAppAttestProvider`. It's operations are managed by
+/// `FIRAppAttestProvider`'s internal serial queue. It is not considered thread safe and should not
+/// be used by other classes at this time.
 @interface FIRAppAttestKeyIDStorage : NSObject <FIRAppAttestKeyIDStorageProtocol>
 
 - (instancetype)init NS_UNAVAILABLE;

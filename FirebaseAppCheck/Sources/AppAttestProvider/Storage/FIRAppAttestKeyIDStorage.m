@@ -69,20 +69,16 @@ static NSString *const kKeyIDStorageDefaultsSuiteName = @"com.firebase.FIRAppAtt
 #pragma mark - Helpers
 
 - (void)storeAppAttestKeyID:(nullable NSString *)keyID {
-  @synchronized(self.userDefaults) {
-    if (keyID) {
-      [self.userDefaults setObject:keyID forKey:[self keyIDStorageKey]];
-    } else {
-      [self.userDefaults removeObjectForKey:[self keyIDStorageKey]];
-    }
+  if (keyID) {
+    [self.userDefaults setObject:keyID forKey:[self keyIDStorageKey]];
+  } else {
+    [self.userDefaults removeObjectForKey:[self keyIDStorageKey]];
   }
 }
 
 - (nullable NSString *)appAttestKeyIDFromStorage {
   NSString *appAttestKeyID = nil;
-  @synchronized(self.userDefaults) {
-    appAttestKeyID = [self.userDefaults objectForKey:[self keyIDStorageKey]];
-  }
+  appAttestKeyID = [self.userDefaults objectForKey:[self keyIDStorageKey]];
   return appAttestKeyID;
 }
 
