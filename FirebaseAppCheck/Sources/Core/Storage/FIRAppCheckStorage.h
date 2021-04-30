@@ -26,8 +26,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Manages storage of the FAA token.
  *  @param token A token object to store or `nil` to remove existing token.
- *  @returns A promise that is resolved with the stored object or `nil` if the existing token has
- * been removed.
+ *  @returns A promise that is resolved with the stored object in the case of success or is rejected
+ * with a specific error otherwise.
  */
 - (FBLPromise<FIRAppCheckToken *> *)setToken:(nullable FIRAppCheckToken *)token;
 
