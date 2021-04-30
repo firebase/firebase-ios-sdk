@@ -25,10 +25,7 @@
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 
 /// The `NSUserDefaults` suite name for the storage location of the app attest key ID.
-static NSString *const kFIRAppAttestKeyIDStorageDefaultsSuiteName = @"com.firebase.FIRAppAttestKeyIDStorage";
-
-/// The key used to retrieve the app attest key ID from its storage suite.
-static NSString *const kFIRAppAttestKeyIDKey = @"FIRAppAttestKeyID";
+static NSString *const kKeyIDStorageDefaultsSuiteName = @"com.firebase.FIRAppAttestKeyIDStorage";
 
 @interface FIRAppAttestKeyIDStorage ()
 
@@ -47,7 +44,7 @@ static NSString *const kFIRAppAttestKeyIDKey = @"FIRAppAttestKeyID";
   if (self) {
     _appName = [appName copy];
     _appID = [appID copy];
-    _userDefaults = [[NSUserDefaults alloc] initWithSuiteName:kFIRAppAttestKeyIDStorageDefaultsSuiteName];
+    _userDefaults = [[NSUserDefaults alloc] initWithSuiteName:kKeyIDStorageDefaultsSuiteName];
   }
   return self;
 }
@@ -72,21 +69,29 @@ static NSString *const kFIRAppAttestKeyIDKey = @"FIRAppAttestKeyID";
 #pragma mark - Helpers
 
 - (void)storeAppAttestKeyID:(nullable NSString *)keyID {
-  @synchronized (self.userDefaults) {
+  @synchronized(self.userDefaults) {
     if (keyID) {
-      [self.userDefaults setObject:keyID forKey:kFIRAppAttestKeyIDKey];
+      [self.userDefaults setObject:keyID forKey:[self keyIDStorageKey]];
     } else {
-      [self.userDefaults removeObjectForKey:kFIRAppAttestKeyIDKey];
+      [self.userDefaults removeObjectForKey:[self keyIDStorageKey]];
     }
   }
 }
 
 - (nullable NSString *)appAttestKeyIDFromStorage {
   NSString *appAttestKeyID = nil;
-  @synchronized (self.userDefaults) {
-    appAttestKeyID = [self.userDefaults objectForKey:kFIRAppAttestKeyIDKey];
+  @synchronized(self.userDefaults) {
+    appAttestKeyID = [self.userDefaults objectForKey:[self keyIDStorageKey]];
   }
   return appAttestKeyID;
+}
+
+- (NSString *)keyIDStorageKey {
+  return [[self class] keyIDStorageKeyForAppName:self.appName appID:self.appID];
+}
+
++ (NSString *)keyIDStorageKeyForAppName:(NSString *)appName appID:(NSString *)appID {
+  return [NSString stringWithFormat:@"app_attest_keyID.%@.%@", appName, appID];
 }
 
 @end
