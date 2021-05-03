@@ -163,10 +163,11 @@ You generally only need to submit a CLA once, so if you've already submitted one
 again.
 
 ## Code of Conduct
-<!-- TODO: link to code of conduct and remind people to be kind and respectful. -->
+We aim to foster a community of learning and kindness at Firebase. By participating, you are expected to have reviewed and agreed to
+our [CODE_OF_CONDUCT].
 
 ## License
-<!-- TODO: state license and link to LICENSE. -->
+For more information about the license used for this project, please refer to [LICENSE].
 
 
 <!-- ---------------------------------- -->
@@ -186,3 +187,7 @@ again.
 [new issue]: https://github.com/firebase/firebase-ios-sdk/issues/new/choose
 [minimal reproducible example]: https://stackoverflow.com/help/minimal-reproducible-example
 [pitch-discussions]: https://github.com/firebase/firebase-ios-sdk/discussions/categories/pitches
+
+<!-- File/Code Identifiers, in alphabetical order -->
+[LICENSE]: ./LICENSE
+[CODE_OF_CONDUCT]: ./CODE_OF_CONDUCT.md
