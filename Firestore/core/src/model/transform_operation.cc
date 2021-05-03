@@ -243,7 +243,7 @@ google_firestore_v1_ArrayValue ArrayTransform::Rep::CoercedFieldValueArray(
   if (IsArray(value)) {
     return value->array_value;
   } else {
-    // coerce to empty array.;
+    // coerce to empty array.
     return {};
   }
 }
