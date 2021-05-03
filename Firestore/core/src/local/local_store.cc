@@ -212,7 +212,7 @@ void LocalStore::ApplyBatchResult(const MutationBatchResult& batch_result) {
     const SnapshotVersion& ack_version = ack_version_iter->second;
 
     if (doc.version() < ack_version) {
-      batch.ApplyToRemoteDocument(doc, doc_key, batch_result);
+      batch.ApplyToRemoteDocument(doc, batch_result);
       if (doc.is_valid_document()) {
         remote_document_cache_->Add(doc, batch_result.commit_version());
       }
