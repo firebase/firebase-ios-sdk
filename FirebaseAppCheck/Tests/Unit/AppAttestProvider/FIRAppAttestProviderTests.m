@@ -23,6 +23,7 @@
 
 #import "FirebaseAppCheck/Sources/AppAttestProvider/API/FIRAppAttestAPIService.h"
 #import "FirebaseAppCheck/Sources/AppAttestProvider/FIRAppAttestService.h"
+#import "FirebaseAppCheck/Sources/AppAttestProvider/Storage/FIRAppAttestArtifactStorage.h"
 #import "FirebaseAppCheck/Sources/AppAttestProvider/Storage/FIRAppAttestKeyIDStorage.h"
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"
@@ -35,7 +36,8 @@
 @interface FIRAppAttestProvider (Tests)
 - (instancetype)initWithAppAttestService:(id<FIRAppAttestService>)appAttestService
                               APIService:(id<FIRAppAttestAPIServiceProtocol>)APIService
-                            keyIDStorage:(id<FIRAppAttestKeyIDStorageProtocol>)keyIDStorage;
+                            keyIDStorage:(id<FIRAppAttestKeyIDStorageProtocol>)keyIDStorage
+                         artifactStorage:(id<FIRAppAttestArtifactStorageProtocol>)artifactStorage;
 @end
 
 API_AVAILABLE(ios(14.0))
@@ -46,6 +48,7 @@ API_AVAILABLE(ios(14.0))
 @property(nonatomic) OCMockObject<FIRAppAttestService> *mockAppAttestService;
 @property(nonatomic) OCMockObject<FIRAppAttestAPIServiceProtocol> *mockAPIService;
 @property(nonatomic) OCMockObject<FIRAppAttestKeyIDStorageProtocol> *mockStorage;
+@property(nonatomic) OCMockObject<FIRAppAttestArtifactStorageProtocol> *mockArtifactStorage;
 
 @end
 
@@ -57,14 +60,17 @@ API_AVAILABLE(ios(14.0))
   self.mockAppAttestService = OCMProtocolMock(@protocol(FIRAppAttestService));
   self.mockAPIService = OCMProtocolMock(@protocol(FIRAppAttestAPIServiceProtocol));
   self.mockStorage = OCMProtocolMock(@protocol(FIRAppAttestKeyIDStorageProtocol));
+  self.mockArtifactStorage = OCMProtocolMock(@protocol(FIRAppAttestArtifactStorageProtocol));
 
   self.provider = [[FIRAppAttestProvider alloc] initWithAppAttestService:self.mockAppAttestService
                                                               APIService:self.mockAPIService
-                                                            keyIDStorage:self.mockStorage];
+                                                            keyIDStorage:self.mockStorage
+                                                         artifactStorage:self.mockArtifactStorage];
 }
 
 - (void)tearDown {
   self.provider = nil;
+  self.mockArtifactStorage = nil;
   self.mockStorage = nil;
   self.mockAPIService = nil;
   self.mockAppAttestService = nil;
