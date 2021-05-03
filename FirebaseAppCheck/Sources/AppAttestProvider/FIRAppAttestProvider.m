@@ -212,15 +212,20 @@ NS_ASSUME_NONNULL_BEGIN
   // pipeline but may needed later. It simplifies chaining a bit.
   __block NSString *appAttestKeyID;
 
+  __block FIRAppAttestProviderState *resultState;
+
   return
       // 1. Check if App Attest is supported.
       [self isAppAttestSupported]
           .recoverOn(self.queue,
-                     ^FBLPromise<FIRAppAttestProviderState *> *(NSError *error) {
+                     ^NSError *(NSError *error) {
                        // App Attest is not supported.
-                       __auto_type state =
+
+                       // Set result state var.
+                       resultState =
                            [[FIRAppAttestProviderState alloc] initUnsupportedWithError:error];
-                       return [FBLPromise resolvedWith:state];
+                       // Re-throw error to interrupt the pipeline.
+                       return error;
                      })
 
           // 2. Check for stored key ID of the generated App Attest key pair.
@@ -229,11 +234,14 @@ NS_ASSUME_NONNULL_BEGIN
                     return [self.keyIDStorage getAppAttestKeyID];
                   })
           .recoverOn(self.queue,
-                     ^FBLPromise<FIRAppAttestProviderState *> *(NSError *error) {
+                     ^NSError *(NSError *error) {
                        // There is no a valid App Attest key pair generated.
-                       __auto_type state =
+
+                       // Set result state var.
+                       resultState =
                            [[FIRAppAttestProviderState alloc] initWithSupportedInitialState];
-                       return [FBLPromise resolvedWith:state];
+                       // Re-throw error to interrupt the pipeline.
+                       return error;
                      })
 
           // 3. Check for stored attestation artefact received from Firebase backend.
@@ -245,21 +253,29 @@ NS_ASSUME_NONNULL_BEGIN
                     return [self.artifactStorage getArtifact];
                   })
           .recoverOn(self.queue,
-                     ^FBLPromise<NSNumber *> *(NSError *error) {
+                     ^NSError *(NSError *error) {
                        // A valid App Attest key pair was generated but has not been registered with
                        // Firebase backend.
-                       __auto_type state = [[FIRAppAttestProviderState alloc]
+
+                       // Set result state var.
+                       resultState = [[FIRAppAttestProviderState alloc]
                            initWithGeneratedKeyID:appAttestKeyID];
-                       return [FBLPromise resolvedWith:state];
+                       // Re-throw error to interrupt the pipeline.
+                       return error;
                      })
-          .thenOn(
-              self.queue, ^FBLPromise<FIRAppAttestProviderState *> *(NSData *attestationArtifact) {
-                // A valid App Attest key pair was generated and registered with Firebase backend.
-                __auto_type state =
-                    [[FIRAppAttestProviderState alloc] initWithRegisteredKeyID:appAttestKeyID
-                                                                      artifact:attestationArtifact];
-                return [FBLPromise resolvedWith:state];
-              });
+          .thenOn(self.queue,
+                  ^FBLPromise<FIRAppAttestProviderState *> *(NSData *attestationArtifact) {
+                    // A valid App Attest key pair was generated and registered with Firebase
+                    // backend.
+                    __auto_type state = [[FIRAppAttestProviderState alloc]
+                        initWithRegisteredKeyID:appAttestKeyID
+                                       artifact:attestationArtifact];
+                    return [FBLPromise resolvedWith:state];
+                  })
+          .recoverOn(self.queue, ^FBLPromise<FIRAppAttestProviderState *> *(NSError *error) {
+            // Catch early pipeline interruption error and return a corresponding state instead.
+            return [FBLPromise resolvedWith:resultState];
+          });
 }
 
 #pragma mark - Helpers
