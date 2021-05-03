@@ -126,8 +126,46 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - FIRAppCheckProvider
 
 - (void)getTokenWithCompletion:(void (^)(FIRAppCheckToken *_Nullable, NSError *_Nullable))handler {
+  [self getToken]
+      // Call the handler with the result.
+      .then(^FBLPromise *(FIRAppCheckToken *token) {
+        handler(token, nil);
+        return nil;
+      })
+      .catch(^(NSError *error) {
+        handler(nil, error);
+      });
+}
+
+- (FBLPromise<FIRAppCheckToken *> *)getToken {
+  // Check attestation state to decide on the next steps.
+  return [self attestationState].thenOn(self.queue, ^id(FIRAppAttestProviderState *attestState) {
+    switch (attestState.state) {
+      case FIRAppAttestAttestationStateUnsupported:
+        return attestState.appAttestUnsupportedError;
+        break;
+
+      case FIRAppAttestAttestationStateSupportedInitial:
+      case FIRAppAttestAttestationStateKeyGenerated:
+        // Initial handshake is required.
+        // TODO: Maybe optimize to pass already fetched key ID when exists.
+        return [self initialHandshake];
+        break;
+
+      case FIRAppAttestAttestationStateKeyRegistered:
+
+        return [self refreshTokenWithKeyID:attestState.appAttestKeyID
+                                  artifact:attestState.attestationArtifact];
+        break;
+    }
+  });
+}
+
+#pragma mark - Initial handshake sequence
+
+- (FBLPromise<FIRAppCheckToken *> *)initialHandshake {
   // 1. Check `DCAppAttestService.isSupported`.
-  [self isAppAttestSupported]
+  return [self isAppAttestSupported]
       .thenOn(self.queue,
               ^FBLPromise<NSArray *> *(id result) {
                 return [FBLPromise onQueue:self.queue
@@ -146,68 +184,25 @@ NS_ASSUME_NONNULL_BEGIN
 
                 return [self attestKey:keyID challenge:challenge];
               })
+      // TODO: Handle a possible key rejection - generate another key.
       .thenOn(self.queue,
               ^FBLPromise<FIRAppCheckToken *> *(FIRAppAttestKeyAttestationResult *result) {
                 // 5. Exchange the attestation to FAC token.
                 return [self.APIService appCheckTokenWithAttestation:result.attestation
                                                                keyID:result.keyID
                                                            challenge:result.challenge];
-              })
-      // 6. Call the handler with the result.
-      .then(^FBLPromise *(FIRAppCheckToken *token) {
-        handler(token, nil);
-        return nil;
-      })
-      .catch(^(NSError *error) {
-        handler(nil, error);
-      });
-}
-
-//- (FBLPromise<FIRAppCheckToken *> *)getToken {
-//  // 1. Check attestation state to decide on the next steps.
-////  return [self attestationState]
-////  thenOn(self.queue, ^id());
-//}
-
-#pragma mark - Initial handshake sequence
-
-- (FBLPromise<FIRAppCheckToken *> *)initialHandshake {
-  return  // 1. Check `DCAppAttestService.isSupported`.
-      [self isAppAttestSupported]
-          .thenOn(self.queue,
-                  ^FBLPromise<NSArray *> *(id result) {
-                    return [FBLPromise onQueue:self.queue
-                                           all:@[
-                                             // 2. Request random challenge.
-                                             [self.APIService getRandomChallenge],
-                                             // 3. Get App Attest key ID.
-                                             [self getAppAttestKeyIDGenerateIfNeeded]
-                                           ]];
-                  })
-          .thenOn(self.queue,
-                  ^FBLPromise<FIRAppAttestKeyAttestationResult *> *(NSArray *challengeAndKeyID) {
-                    // 4. Attest the key.
-                    NSData *challenge = challengeAndKeyID.firstObject;
-                    NSString *keyID = challengeAndKeyID.lastObject;
-
-                    return [self attestKey:keyID challenge:challenge];
-                  })
-          .thenOn(self.queue,
-                  ^FBLPromise<FIRAppCheckToken *> *(FIRAppAttestKeyAttestationResult *result) {
-                    // 5. Exchange the attestation to FAC token.
-                    return [self.APIService appCheckTokenWithAttestation:result.attestation
-                                                                   keyID:result.keyID
-                                                               challenge:result.challenge];
-                  });
+              });
 }
 
 #pragma mark - Token refresh sequence
 
-- (FBLPromise<FIRAppCheckToken *> *)refreshTokenWithKeyID {
+- (FBLPromise<FIRAppCheckToken *> *)refreshTokenWithKeyID:(NSString *)keyID
+                                                 artifact:(NSData *)artifact {
+  // TODO: Implement (b/186438346).
   return [FBLPromise resolvedWith:nil];
 }
 
-#pragma mark - Helpers
+#pragma mark - State handling
 
 /// Calculates and returns current `FIRAppAttestAttestationState`.
 /// @return A promise that is resolved with FIRAppAttestProviderState with the state and associated
@@ -266,6 +261,8 @@ NS_ASSUME_NONNULL_BEGIN
                 return [FBLPromise resolvedWith:state];
               });
 }
+
+#pragma mark - Helpers
 
 /// Returns a resolved promise if App Attest is supported and a rejected promise if it is not.
 - (FBLPromise<NSNull *> *)isAppAttestSupported {
