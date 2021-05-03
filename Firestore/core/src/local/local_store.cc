@@ -158,7 +158,7 @@ LocalWriteResult LocalStore::WriteLocally(std::vector<Mutation>&& mutations) {
     // Load and apply all existing mutations. This lets us compute the current
     // base state for all non-idempotent transforms before applying any
     // additional user-provided writes.
-    DocumentMap documents = local_documents_->GetDocuments(keys);
+    DocumentMap existing_documents = local_documents_->GetDocuments(keys);
 
     // For non-idempotent mutations (such as `FieldValue.increment()`), we
     // record the base state in a separate patch mutation. This is later used to
@@ -166,7 +166,7 @@ LocalWriteResult LocalStore::WriteLocally(std::vector<Mutation>&& mutations) {
     // sends us an update that already includes our transform.
     std::vector<Mutation> base_mutations;
     for (const Mutation& mutation : mutations) {
-      absl::optional<Document> base_document = documents.get(mutation.key());
+      absl::optional<Document> base_document = existing_documents.get(mutation.key());
 
       absl::optional<ObjectValue> base_value =
           mutation.ExtractTransformBaseValue(*base_document);
@@ -181,8 +181,8 @@ LocalWriteResult LocalStore::WriteLocally(std::vector<Mutation>&& mutations) {
 
     MutationBatch batch = mutation_queue_->AddMutationBatch(
         local_write_time, std::move(base_mutations), std::move(mutations));
-    batch.ApplyToLocalDocumentSet(documents);
-    return LocalWriteResult{batch.batch_id(), std::move(documents)};
+    batch.ApplyToLocalDocumentSet(existing_documents);
+    return LocalWriteResult{batch.batch_id(), std::move(existing_documents)};
   });
 }
 
@@ -276,9 +276,9 @@ model::DocumentMap LocalStore::ApplyRemoteEvent(
       target_cache_->AddMatchingKeys(change.added_documents(), target_id);
 
       // Update the resume token if the change includes one. Don't clear any
-      // preexisting value. Bump the sequence number as well, so that
-      // documents being removed now are ordered later than documents that
-      // were reviously _removed from this target.
+      // preexisting value. Bump the sequence number as well, so that documents
+      // being removed now are ordered later than documents that were previously
+      // removed from this target.
       const ByteString& resume_token = change.resume_token();
       // Update the resume token if the change includes one.
       if (!resume_token.empty()) {
@@ -288,8 +288,8 @@ model::DocumentMap LocalStore::ApplyRemoteEvent(
                 .WithSequenceNumber(sequence_number);
         target_data_by_target_[target_id] = new_target_data;
 
-        // Update the target data if there are target changes (or if
-        // sufficient time has passed since the last update).
+        // Update the target data if there are target changes (or if sufficient
+        // time has passed since the last update).
         if (ShouldPersistTargetData(new_target_data, old_target_data, change)) {
           target_cache_->UpdateTarget(new_target_data);
         }
@@ -299,8 +299,7 @@ model::DocumentMap LocalStore::ApplyRemoteEvent(
     const DocumentKeySet& limbo_documents =
         remote_event.limbo_document_changes();
     for (const auto& kv : remote_event.document_updates()) {
-      // If this was a limbo resolution, make sure we mark when it was
-      // accessed.
+      // If this was a limbo resolution, make sure we mark when it was accessed.
       if (limbo_documents.contains(kv.first)) {
         persistence_->reference_delegate()->UpdateLimboDocument(kv.first);
       }
@@ -450,10 +449,10 @@ void LocalStore::ReleaseTarget(TargetId target_id) {
 
     TargetData target_data = found->second;
 
-    // References for documents sent via Watch are automatically removed when
-    // we delete a query's target data from the reference delegate. Since this
-    // does not remove references for locally mutated documents, we have to
-    // remove the target associations for these documents manually.
+    // References for documents sent via Watch are automatically removed when we
+    // delete a query's target data from the reference delegate. Since this does
+    // not remove references for locally mutated documents, we have to remove
+    // the target associations for these documents manually.
     DocumentKeySet removed =
         local_view_references_.RemoveReferences(target_data.target_id());
     for (const DocumentKey& key : removed) {
@@ -547,9 +546,9 @@ DocumentMap LocalStore::ApplyBundledDocuments(
 void LocalStore::SaveNamedQuery(const bundle::NamedQuery& query,
                                 const model::DocumentKeySet& keys) {
   // Allocate a target for the named query such that it can be resumed from
-  // associated read time if users use it to listen. NOTE: this also means if
-  // no corresponding target exists, the new target will remain active and
-  // will not get collected, unless users happen to unlisten the query.
+  // associated read time if users use it to listen. NOTE: this also means if no
+  // corresponding target exists, the new target will remain active and will not
+  // get collected, unless users happen to unlisten the query.
   TargetData existing = AllocateTarget(query.bundled_query().target());
   int target_id = existing.target_id();
 
@@ -557,8 +556,7 @@ void LocalStore::SaveNamedQuery(const bundle::NamedQuery& query,
     // Only update the matching documents if it is newer than what the SDK
     // already has.
     if (query.read_time() > existing.snapshot_version()) {
-      // Update existing target data because the query from the bundle is
-      // newer.
+      // Update existing target data because the query from the bundle is newer.
       TargetData new_target_data =
           existing.WithResumeToken(nanopb::ByteString(), query.read_time());
 
@@ -603,7 +601,7 @@ MutableDocumentMap LocalStore::PopulateDocumentChanges(
   for (const auto& kv : documents) {
     const DocumentKey& key = kv.first;
     const MutableDocument& doc = kv.second;
-    const MutableDocument& existing_doc = *(existing_docs.get(key));
+    const MutableDocument& existing_doc = *existing_docs.get(key);
     auto search_version = document_versions.find(key);
     const SnapshotVersion& read_time = search_version != document_versions.end()
                                            ? search_version->second

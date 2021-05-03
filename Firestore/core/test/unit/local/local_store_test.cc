@@ -159,7 +159,7 @@ RemoteEvent AddedRemoteEvent(const std::vector<MutableDocument>& docs,
 
   SnapshotVersion version;
   for (const MutableDocument& doc : docs) {
-    HARD_ASSERT(!doc.is_found_document() || !doc.has_local_mutations(),
+    HARD_ASSERT(!doc.has_local_mutations(),
                 "Docs from remote updates shouldn't have local changes.");
     DocumentWatchChange change{added_to_targets, {}, doc.key(), doc};
     aggregator.HandleDocumentChange(change);
