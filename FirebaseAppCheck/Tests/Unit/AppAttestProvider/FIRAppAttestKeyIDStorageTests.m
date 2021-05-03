@@ -86,13 +86,13 @@
                                               appName2:self.appName
                                                 appID2:@"app_id_2"];
   // Assert storages for apps with the same app ID can independently set/get app attest key ID.
-  [self assertIndependentSetGetForStoragesWithAppName1:self.appName
+  [self assertIndependentSetGetForStoragesWithAppName1:@"app_1"
                                                 appID1:self.appID
                                               appName2:@"app_2"
                                                 appID2:self.appID];
   // Assert storages for apps with different info can independently set/get app attest key ID.
-  [self assertIndependentSetGetForStoragesWithAppName1:self.appName
-                                                appID1:self.appID
+  [self assertIndependentSetGetForStoragesWithAppName1:@"app_1"
+                                                appID1:@"app_id_1"
                                               appName2:@"app_2"
                                                 appID2:@"app_id_2"];
 }
