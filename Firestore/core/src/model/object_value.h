@@ -45,12 +45,23 @@ class ObjectValue {
   explicit ObjectValue(const google_firestore_v1_Value& value);
 
   ObjectValue(ObjectValue&& other) noexcept = default;
-  ObjectValue& operator=(ObjectValue&& other) = default;
+  ObjectValue& operator=(ObjectValue&& other) noexcept = default;
   ObjectValue(const ObjectValue& other);
 
   ObjectValue& operator=(const ObjectValue&) = delete;
 
+  /**
+   * Creates a new ObjectValue that is backed by the given `map_value`.
+   * ObjectValue takes on ownership of the data.
+   */
   static ObjectValue FromMapValue(google_firestore_v1_MapValue map_value);
+
+  /**
+   * Creates a new ObjectValue that is backed by the provided document fields.
+   * ObjectValue takes on ownership of the data and zeroes out the pointers in
+   * `fields_entry`. This allows the callsite to destruct the Document proto
+   * without affecting the fields data.
+   */
   static ObjectValue FromFieldsEntry(
       google_firestore_v1_Document_FieldsEntry* fields_entry, pb_size_t count);
 
