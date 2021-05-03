@@ -3,7 +3,7 @@
 Thank you for your interest in contributing and welcome to the Firebase community! <!-- Sparky? -->
 
 This guide describes the many ways to contribute to Firebase and outlines the preferred 
-Firebase development workflow.
+workflow for Firebase development.
 
 
 ## Contents
@@ -25,10 +25,14 @@ Firebase development workflow.
 ----
 <!-- Ways to contribute -->
 
-## Reporting a bug
-[bug]
+## [Reporting a bug][bug]
+To report a bug, fill out a new issue [here][bug]. The pre-populated form should be filled out accordingly to
+provide others with useful information regarding the discovered bug. In most cases, a [minimal reproducible
+example] is very helpful in allowing us to quickly reproduce the bug and work on a fix. New issues that include
+instructions on how to reproduce or provide a link to a simple project that reproduces the bug will likely be
+addressed much sooner.
 
-## Making a feature request
+## [Making a feature request][feature-request]
 Feature requests should ideally be clear and concise (i.e. "Add Sign in with Apple support").
 If the feature request is more specific, describe it by providing a use case that is not achievable with
 existing Firebase APIs and include an API proposal that would make the use case possible. The proposed API
@@ -40,7 +44,13 @@ For large or ambiguous requests, such as significant breaking changes or use cas
 features, consider instead starting a [Pitch][pitch-discussions] to discuss and flush out ideas with the
 Firebase community.
 
-## Starting a discussion
+## [Starting a discussion][new-discussion]
+We are using [GitHub discussions][discussions-docs] as a collaborative space where developers can discuss
+questions and proposals regarding Firebase. For large proposals, start a [Pitch][pitch-discussions] to discuss
+ideas with the community.
+
+View the [Firebase discussions][discussions] or start one [here][new-discussion].
+
 ## Contributing code
 Before starting work on a contribution, it's important to allow the Firebase community an opportunity to discuss
 your proposal. First, check to see if your proposal has appeared in an [existing issue]'s discussion. If it has
@@ -56,7 +66,7 @@ feedback and advice for how to best implement your proposal.
 > opportunities to get invovled!
 
 ### API Review
-Please note that changes to public APIs require an internal API review from the Firebase team. Contributions involving changes to existing APIs or new APIs are  
+Please note that changes or additions to public APIs require an internal API review from the Firebase team. Contributions involving such changes will require additional time to allow for an internal API review to be scheduled and thoroughly conducted. We appreciate your patience while we review your amazing contributions!
 
 ### Breaking Changes
 Firebase's release schedule is designed to reduce the amount of breaking changes that developers have to deal  with. Ideally, breaking changes should be avoided when making a contribution.
@@ -102,10 +112,21 @@ google swift? swift docs. google objc guide
 
 
 ### Testing
-tests are an important part
+Tests are an essential part to building successful software. Many of the tests for Firebase run as part of our continous intengration (CI) setup with [GitHub Actions]. _Fixing a bug?_ Add a test to catch potential regressions in the future. _Adding a new feature?_ Add tests to test the new or modified APIs.
+
+Oftentimes, tests can be useful in understanding how a particular class works. Keep this in mind while adding tests as they can serve as an additional tool for demonstrating how an API should be used.
+
+#### Unit Tests
+
+#### Integration Tests
 
 #### Viewing Code Coverage
-`⌥⌘U` `Product → Scheme ➞ Edit Scheme`
+When creating tests, it's helpful to verify that certain codepaths are indeed getting tested. Xcode has a built-in
+code coverage tool that makes it easy to know what codepaths are run. To enable it, navigate from 
+`Product → Scheme ➞ Edit Scheme` or use the `⌥⌘U` keyboard shortcut to show the current testing scheme. Enable
+code coverage by selecting the _Options_ tab and checking the _Code Coverage_ box.
+
+<!-- TODO: Insert picture of enabling code coverage. -->
 
 
 
@@ -151,12 +172,17 @@ again.
 <!-- ---------------------------------- -->
 <!-- Identifiers, in alphabetical order -->
 [bug]: https://github.com/firebase/firebase-ios-sdk/issues/new?assignees=&labels=&template=bug_report.md
+[discussions]: https://github.com/firebase/firebase-ios-sdk/discussions
+[discussions-docs]: https://docs.github.com/en/discussions
 [existing issue]: https://github.com/firebase/firebase-ios-sdk/issues
 [feature-request]: https://github.com/firebase/firebase-ios-sdk/issues/new?assignees=&labels=type%3A+feature+request&template=feature_request.md
 [feature-requests]: https://github.com/firebase/firebase-ios-sdk/issues?q=is%3Aopen+is%3Aissue+label%3A%22type%3A+feature+request%22
+[GitHub Actions]: https://docs.github.com/en/actions
 [GitHub Help]: https://help.github.com/articles/about-pull-requests/
 [good-first-issue]: https://github.com/firebase/firebase-ios-sdk/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22
 [Google CLA dashboard]: https://cla.developers.google.com
 [help-wanted]: https://github.com/firebase/firebase-ios-sdk/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22
+[new-discussion]: https://github.com/firebase/firebase-ios-sdk/discussions/new
 [new issue]: https://github.com/firebase/firebase-ios-sdk/issues/new/choose
+[minimal reproducible example]: https://stackoverflow.com/help/minimal-reproducible-example
 [pitch-discussions]: https://github.com/firebase/firebase-ios-sdk/discussions/categories/pitches
