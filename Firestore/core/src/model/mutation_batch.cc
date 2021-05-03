@@ -43,7 +43,6 @@ MutationBatch::MutationBatch(int batch_id,
 
 void MutationBatch::ApplyToRemoteDocument(
     MutableDocument& document,
-    const DocumentKey& document_key,
     const MutationBatchResult& mutation_batch_result) const {
   const auto& mutation_results = mutation_batch_result.mutation_results();
   HARD_ASSERT(mutation_results.size() == mutations_.size(),
@@ -53,29 +52,24 @@ void MutationBatch::ApplyToRemoteDocument(
   for (size_t i = 0; i < mutations_.size(); i++) {
     const Mutation& mutation = mutations_[i];
     const MutationResult& mutation_result = mutation_results[i];
-    if (mutation.key() == document_key) {
+    if (mutation.key() == document.key()) {
       mutation.ApplyToRemoteDocument(document, mutation_result);
     }
   }
 }
 
-void MutationBatch::ApplyToLocalDocument(
-    MutableDocument& document, const DocumentKey& document_key) const {
-  HARD_ASSERT(document.key() == document_key,
-              "key %s doesn't match document key %s", document_key.ToString(),
-              document.key().ToString());
-
+void MutationBatch::ApplyToLocalDocument(MutableDocument &document) const {
   // First, apply the base state. This allows us to apply non-idempotent
   // transform against a consistent set of values.
   for (const Mutation& mutation : base_mutations_) {
-    if (mutation.key() == document_key) {
+    if (mutation.key() == document.key()) {
       mutation.ApplyToLocalView(document, local_write_time_);
     }
   }
 
   // Second, apply all user-provided mutations.
   for (const Mutation& mutation : mutations_) {
-    if (mutation.key() == document_key) {
+    if (mutation.key() == document.key())) {
       mutation.ApplyToLocalView(document, local_write_time_);
     }
   }
@@ -95,7 +89,7 @@ void MutationBatch::ApplyToLocalDocumentSet(DocumentMap& document_map) const {
     // TODO(mutabledocuments): This method should take a map of MutableDocuments
     // and we should remove this cast.
     auto& document = const_cast<MutableDocument&>(it->second.get());
-    ApplyToLocalDocument(document, key);
+    ApplyToLocalDocument(document);
     if (!document.is_valid_document()) {
       document.ConvertToNoDocument(SnapshotVersion::None());
     }

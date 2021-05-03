@@ -58,7 +58,7 @@ Document LocalDocumentsView::GetDocument(
     const DocumentKey& key, const std::vector<MutationBatch>& batches) {
   MutableDocument document = remote_document_cache_->Get(key);
   for (const MutationBatch& batch : batches) {
-    batch.ApplyToLocalDocument(document, key);
+    batch.ApplyToLocalDocument(document);
   }
   return Document{std::move(document)};
 }
@@ -70,7 +70,7 @@ DocumentMap LocalDocumentsView::ApplyLocalMutationsToDocuments(
     const DocumentKey& key = kv.first;
     MutableDocument local_view = kv.second;
     for (const MutationBatch& batch : batches) {
-      batch.ApplyToLocalDocument(local_view, key);
+      batch.ApplyToLocalDocument(local_view);
     }
     results = results.insert(kv.first, std::move(local_view));
   }
