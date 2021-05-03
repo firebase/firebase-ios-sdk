@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 #import "FIRAppAttestInitialHandshakeResponse.h"
 
 @implementation FIRAppAttestInitialHandshakeResponse

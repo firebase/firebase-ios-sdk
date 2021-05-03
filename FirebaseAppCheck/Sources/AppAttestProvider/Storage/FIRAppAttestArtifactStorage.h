@@ -20,7 +20,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-
 @protocol FIRAppAttestArtifactStorageProtocol <NSObject>
 
 - (FBLPromise<NSData *> *)setArtifact:(NSData *)artifact;
