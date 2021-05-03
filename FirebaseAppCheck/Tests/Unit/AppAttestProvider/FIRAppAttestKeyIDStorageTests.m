@@ -41,6 +41,7 @@
 - (void)tearDown {
   // Remove the app attest key ID from storage.
   [self.storage setAppAttestKeyID:nil];
+  FBLWaitForPromisesWithTimeout(1.0);
   self.storage = nil;
 
   [super tearDown];
@@ -54,38 +55,88 @@
   NSString *appAttestKeyID = @"app_attest_key_ID";
 
   FBLPromise *setPromise = [self.storage setAppAttestKeyID:appAttestKeyID];
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
   XCTAssertEqualObjects(setPromise.value, appAttestKeyID);
   XCTAssertNil(setPromise.error);
 
   __auto_type getPromise = [self.storage getAppAttestKeyID];
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
   XCTAssertEqualObjects(getPromise.value, appAttestKeyID);
   XCTAssertNil(getPromise.error);
 }
 
 - (void)testRemoveAppAttestKeyID {
   FBLPromise *setPromise = [self.storage setAppAttestKeyID:nil];
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
   XCTAssertEqualObjects(setPromise.value, nil);
   XCTAssertNil(setPromise.error);
 }
 
 - (void)testSetAppAttestKeyIDPerApp {
-  // 1. Store an app attest key ID in an app's app attest key ID storage.
-  NSString *appAttestKeyID = @"app_attest_key_ID";
+  // 1. Create two additional key ID storages.
+  //    This one shares the same app name as `self.storage`.
+  FIRAppAttestKeyIDStorage *storage2 =
+      [[FIRAppAttestKeyIDStorage alloc] initWithAppName:self.appName appID:@"app_id_2"];
+  //    This one shares the same app id as `self.storage`.
+  FIRAppAttestKeyIDStorage *storage3 =
+      [[FIRAppAttestKeyIDStorage alloc] initWithAppName:@"FIRAppAttestKeyIDStorageTestsApp2"
+                                                  appID:self.appID];
 
+  // 2. Store an app attest key ID in an app's app attest key ID storage.
+  NSString *appAttestKeyID = @"app_attest_key_ID";
   FBLPromise *setPromise = [self.storage setAppAttestKeyID:appAttestKeyID];
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
   XCTAssertEqualObjects(setPromise.value, appAttestKeyID);
   XCTAssertNil(setPromise.error);
 
-  // 2. Try to read the app attest key ID in another app's app attest key ID storage.
-  FIRAppAttestKeyIDStorage *storage2 =
-      [[FIRAppAttestKeyIDStorage alloc] initWithAppName:self.appName appID:@"app_id_2"];
-  __auto_type getPromise = [storage2 getAppAttestKeyID];
-  XCTAssertNotNil(getPromise.error);
-  XCTAssertEqualObjects(getPromise.error, [FIRAppCheckErrorUtil appAttestKeyIDNotFound]);
+  // 3. Try to read the app attest key ID from the other app storages.
+  __auto_type getPromise2 = [storage2 getAppAttestKeyID];
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+  XCTAssertNotNil(getPromise2.error);
+  XCTAssertEqualObjects(getPromise2.error, [FIRAppCheckErrorUtil appAttestKeyIDNotFound]);
+
+  __auto_type getPromise3 = [storage3 getAppAttestKeyID];
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+  XCTAssertNotNil(getPromise3.error);
+  XCTAssertEqualObjects(getPromise3.error, [FIRAppCheckErrorUtil appAttestKeyIDNotFound]);
+
+  // 4. Assert that storages can be updated independently.
+  NSString *appAttestKeyID_2 = @"app_attest_key_ID_2";
+  __auto_type setPromise2 = [storage2 setAppAttestKeyID:appAttestKeyID_2];
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+  XCTAssertEqualObjects(setPromise2.value, appAttestKeyID_2);
+  XCTAssertNil(setPromise2.error);
+
+  NSString *appAttestKeyID_3 = @"app_attest_key_ID_3";
+  __auto_type setPromise3 = [storage3 setAppAttestKeyID:appAttestKeyID_3];
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+  XCTAssertEqualObjects(setPromise3.value, appAttestKeyID_3);
+  XCTAssertNil(setPromise3.error);
+
+  __auto_type getPromiseForAppAttestKeyID = [self.storage getAppAttestKeyID];
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+  XCTAssertNil(getPromiseForAppAttestKeyID.error);
+
+  __auto_type getPromiseForAppAttestKeyID_2 = [storage2 getAppAttestKeyID];
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+  XCTAssertNil(getPromiseForAppAttestKeyID_2.error);
+
+  __auto_type getPromiseForAppAttestKeyID_3 = [storage3 getAppAttestKeyID];
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+  XCTAssertNil(getPromiseForAppAttestKeyID_3.error);
+
+  XCTAssertNotEqualObjects(getPromiseForAppAttestKeyID.value, getPromiseForAppAttestKeyID_2.value);
+  XCTAssertNotEqualObjects(getPromiseForAppAttestKeyID_2.value,
+                           getPromiseForAppAttestKeyID_3.value);
+
+  // 5. Cleanup other storages.
+  [storage2 setAppAttestKeyID:nil];
+  [storage3 setAppAttestKeyID:nil];
 }
 
 - (void)testGetAppAttestKeyID_WhenAppAttestKeyIDNotFoundError {
   __auto_type getPromise = [self.storage getAppAttestKeyID];
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
   XCTAssertNotNil(getPromise.error);
   XCTAssertEqualObjects(getPromise.error, [FIRAppCheckErrorUtil appAttestKeyIDNotFound]);
 }
