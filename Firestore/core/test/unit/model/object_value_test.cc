@@ -48,13 +48,13 @@ TEST_F(ObjectValueTest, ExtractsFields) {
   ASSERT_EQ(google_firestore_v1_Value_map_value_tag,
             value.Get(Field("foo"))->which_value_type);
 
-  EXPECT_TRUE(Value(1) == *value.Get(Field("foo.a")));
-  EXPECT_TRUE(Value(true) == *value.Get(Field("foo.b")));
-  EXPECT_TRUE(Value("string") == *value.Get(Field("foo.c")));
+  EXPECT_EQ(Value(1), *value.Get(Field("foo.a")));
+  EXPECT_EQ(Value(true), *value.Get(Field("foo.b")));
+  EXPECT_EQ(Value("string"), *value.Get(Field("foo.c")));
 
-  EXPECT_TRUE(nullopt == value.Get(Field("foo.a.b")));
-  EXPECT_TRUE(nullopt == value.Get(Field("bar")));
-  EXPECT_TRUE(nullopt == value.Get(Field("bar.a")));
+  EXPECT_EQ(nullopt, value.Get(Field("foo.a.b")));
+  EXPECT_EQ(nullopt, value.Get(Field("bar")));
+  EXPECT_EQ(nullopt, value.Get(Field("bar.a")));
 }
 
 TEST_F(ObjectValueTest, ExtractsFieldMask) {

@@ -24,6 +24,7 @@
 #include "Firestore/core/src/nanopb/fields_array.h"
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
+#include "Firestore/core/src/util/hashing.h"
 #include "absl/types/span.h"
 
 namespace firebase {
@@ -52,6 +53,7 @@ struct MapEntryKeyCompare {
   }
 };
 
+/** Traverses a Value proto and sorts all MapValues by key. */
 void SortFields(google_firestore_v1_Value& value) {
   if (value.which_value_type == google_firestore_v1_Value_map_value_tag) {
     google_firestore_v1_MapValue& map_value = value.map_value;
@@ -354,7 +356,7 @@ std::string ObjectValue::ToString() const {
 }
 
 size_t ObjectValue::Hash() const {
-  return std::hash<std::string>()(CanonicalId(*value_));
+  return util::Hash(CanonicalId(*value_));
 }
 
 /**
