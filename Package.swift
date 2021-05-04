@@ -64,10 +64,10 @@ let package = Package(
     //   name: "FirebaseStorageCombineSwift-Beta",
     //   targets: ["FirebaseStorageCombineSwift"]
     // ),
-    // .library(
-    //   name: "FirebaseCrashlytics",
-    //   targets: ["FirebaseCrashlytics"]
-    // ),
+    .library(
+      name: "FirebaseCrashlytics",
+      targets: ["FirebaseCrashlytics"]
+    ),
     .library(
       name: "FirebaseDatabase",
       targets: ["FirebaseDatabase"]
