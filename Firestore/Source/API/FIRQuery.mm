@@ -91,7 +91,10 @@ using firebase::firestore::model::IsServerTimestamp;
 using firebase::firestore::model::RefValue;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::TypeOrder;
+using firebase::firestore::nanopb::CheckedSize;
 using firebase::firestore::nanopb::FreeNanopbMessage;
+using firebase::firestore::nanopb::MakeArray;
+using firebase::firestore::nanopb::MakeString;
 using firebase::firestore::util::MakeNSError;
 using firebase::firestore::util::MakeString;
 using firebase::firestore::util::StatusOr;
@@ -553,8 +556,8 @@ int32_t SaturatedLimitValue(NSInteger limit) {
   const OrderByList &order_bys = self.query.order_bys();
 
   google_firestore_v1_ArrayValue components;
-  components.values_count = static_cast<pb_size_t>(order_bys.size());
-  components.values = nanopb::MakeArray<google_firestore_v1_Value>(components.values_count);
+  components.values_count = CheckedSize(order_bys.size());
+  components.values = MakeArray<google_firestore_v1_Value>(components.values_count);
 
   // Because people expect to continue/end a query at the exact document provided, we need to
   // use the implicit sort order rather than the explicit sort order, because it's guaranteed to
@@ -598,8 +601,8 @@ int32_t SaturatedLimitValue(NSInteger limit) {
   }
 
   google_firestore_v1_ArrayValue components;
-  components.values_count = static_cast<pb_size_t>(fieldValues.count);
-  components.values = nanopb::MakeArray<google_firestore_v1_Value>(components.values_count);
+  components.values_count = CheckedSize(fieldValues.count);
+  components.values = MakeArray<google_firestore_v1_Value>(components.values_count);
   for (NSUInteger idx = 0, max = fieldValues.count; idx < max; ++idx) {
     id rawValue = fieldValues[idx];
     const OrderBy &sortOrder = explicitSortOrders[idx];
@@ -609,7 +612,7 @@ int32_t SaturatedLimitValue(NSInteger limit) {
       if (GetTypeOrder(fieldValue) != TypeOrder::kString) {
         ThrowInvalidArgument("Invalid query. Expected a string for the document ID.");
       }
-      std::string documentID = nanopb::MakeString(fieldValue.string_value);
+      std::string documentID = MakeString(fieldValue.string_value);
       if (!self.query.IsCollectionGroupQuery() && documentID.find('/') != std::string::npos) {
         ThrowInvalidArgument("Invalid query. When querying a collection and ordering by document "
                              "ID, you must pass a plain document ID, but '%s' contains a slash.",
