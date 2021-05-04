@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRAppAttestInitialHandshakeResponse.h"
+#import "FirebaseAppCheck/Sources/AppAttestProvider/API/FIRAppAttestInitialHandshakeResponse.h"
 
 @implementation FIRAppAttestInitialHandshakeResponse
 
