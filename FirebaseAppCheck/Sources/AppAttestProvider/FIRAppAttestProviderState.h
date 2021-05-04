@@ -35,7 +35,7 @@ typedef NS_ENUM(NSInteger, FIRAppAttestAttestationState) {
   FIRAppAttestAttestationStateKeyRegistered,
 };
 
-/// Represents attestation stage of App Attest. The class is designed to be used exclusively by
+/// Represents attestation stages of App Attest. The class is designed to be used exclusively by
 /// `FIRAppAttestProvider`.
 @interface FIRAppAttestProviderState : NSObject
 
