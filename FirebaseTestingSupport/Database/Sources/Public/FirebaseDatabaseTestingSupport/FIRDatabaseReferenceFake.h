@@ -19,15 +19,23 @@ NS_ASSUME_NONNULL_BEGIN
 /// A fake object to replace a real `DatabaseReference` in tests.
 NS_SWIFT_NAME(DatabaseReferenceFake)
 @interface FIRDatabaseReferenceFake : FIRDatabaseReference
-
 - (instancetype)init;
+
+@property(nonatomic, nullable, copy) void (^callbackBlock)(FIRDataSnapshot *_Nonnull __strong);
 
 @property(nonatomic, nullable, copy) id value;
 
 - (void)setValue:(nullable id)value
-    withCompletionBlock:
-        (nonnull void (^)(NSError *_Nullable __strong,
-                          FIRDatabaseReference *_Nonnull __strong))block;
+    withCompletionBlock:(nonnull void (^)(NSError *_Nullable __strong,
+                                          FIRDatabaseReference *_Nonnull __strong))block;
+
+- (void)observeSingleEventOfType:(FIRDataEventType)eventType
+                       withBlock:(nonnull void (^)(FIRDataSnapshot *_Nonnull __strong))block;
+
+- (FIRDatabaseHandle)observeEventType:(FIRDataEventType)eventType
+                            withBlock:(nonnull void (^)(FIRDataSnapshot *_Nonnull __strong))block;
+
+- (void)removeObserverWithHandle:(FIRDatabaseHandle)handle;
 
 @end
 

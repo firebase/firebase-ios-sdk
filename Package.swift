@@ -418,6 +418,11 @@ let package = Package(
       dependencies: ["FirebaseDatabaseSwift"],
       path: "FirebaseCombineSwift/Sources/Database"
     ),
+    .testTarget(
+      name: "FirebaseDatabaseCombineSwiftTests",
+      dependencies: ["FirebaseDatabaseCombineSwift", "FirebaseDatabaseTestingSupport"],
+      path: "FirebaseCombineSwift/Tests/Unit/Database"
+    ),
     .target(
       name: "FirebaseFunctionsCombineSwift",
       dependencies: ["FirebaseFunctions"],

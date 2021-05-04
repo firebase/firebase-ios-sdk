@@ -1,6 +1,6 @@
 //
-//  File.swift
-//  
+//  DataSnapshotTests.swift
+//
 //
 //  Created by Morten Bek Ditlevsen on 04/05/2021.
 //
@@ -18,7 +18,6 @@ class DataSnapshotTests: XCTestCase {
   }
 
   func testGetValue() throws {
-
     let fake = DataSnapshotFake()
     fake.fakeValue = ["a": "hello", "b": 42]
 
@@ -32,7 +31,6 @@ class DataSnapshotTests: XCTestCase {
   // Test that if we ask for an `Optional`, then it's
   // still ok to decode an actual value
   func testGetValueOptional() throws {
-
     let fake = DataSnapshotFake()
     fake.fakeValue = ["a": "hello", "b": 42]
 
@@ -46,7 +44,6 @@ class DataSnapshotTests: XCTestCase {
   // Test that if we ask for an `Optional`, then it's
   // ok to decode a `nil` value
   func testGetNonExistingValueOptional() throws {
-
     let fake = DataSnapshotFake()
     fake.fakeValue = nil
 
@@ -58,7 +55,6 @@ class DataSnapshotTests: XCTestCase {
   // Test that if we do NOT ask for an `Optional`, then it's
   // an error
   func testGetNonExistingValueFailure() throws {
-
     let fake = DataSnapshotFake()
     fake.fakeValue = nil
 
@@ -66,8 +62,11 @@ class DataSnapshotTests: XCTestCase {
       _ = try fake.data(as: Model.self)
     } catch let error as DecodingError {
       switch error {
-      case .valueNotFound(_, let context):
-        XCTAssertEqual(context.debugDescription, "Cannot get keyed decoding container -- found null value instead.")
+      case let .valueNotFound(_, context):
+        XCTAssertEqual(
+          context.debugDescription,
+          "Cannot get keyed decoding container -- found null value instead."
+        )
       default:
         XCTFail("Unexpected error")
       }
@@ -75,6 +74,4 @@ class DataSnapshotTests: XCTestCase {
       XCTFail("Unexpected error")
     }
   }
-
-
 }

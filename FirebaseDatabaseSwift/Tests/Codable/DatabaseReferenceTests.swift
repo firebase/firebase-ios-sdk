@@ -1,6 +1,6 @@
 //
-//  File.swift
-//  
+//  DatabaseReferenceTests.swift
+//
 //
 //  Created by Morten Bek Ditlevsen on 04/05/2021.
 //
@@ -44,5 +44,4 @@ class DatabaseReferenceTests: XCTestCase {
     let decoded = try decoder.decode(Model.self, from: fake.value as Any)
     XCTAssertEqual(decoded, model)
   }
-
 }
