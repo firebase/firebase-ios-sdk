@@ -109,7 +109,7 @@ class MutationBatch {
    * @param document The document to which to apply mutations or an invalid
    *     document if there's no existing document.
    */
-  void ApplyToLocalDocument(MutableDocument &document) const;
+  void ApplyToLocalDocument(MutableDocument& document) const;
 
   /**
    * Computes the local view for all provided documents given the mutations in

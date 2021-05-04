@@ -132,20 +132,20 @@ NS_ASSUME_NONNULL_BEGIN
         const auto &documents = maybe_documents.ValueOrDie();
         HARD_ASSERT(documents.size() == 1, "Mismatch in docs returned from document lookup.");
         const Document &internalDoc = documents.front();
-        if (internalDoc->is_no_document()) {
-          FIRDocumentSnapshot *doc = [[FIRDocumentSnapshot alloc] initWithFirestore:self.firestore
-                                                                        documentKey:document.key
-                                                                           document:absl::nullopt
-                                                                          fromCache:false
-                                                                   hasPendingWrites:false];
-          completion(doc, nil);
-        } else if (internalDoc->is_found_document()) {
+        if (internalDoc->is_found_document()) {
           FIRDocumentSnapshot *doc =
               [[FIRDocumentSnapshot alloc] initWithFirestore:self.firestore
                                                  documentKey:internalDoc->key()
                                                     document:internalDoc
                                                    fromCache:false
                                             hasPendingWrites:false];
+          completion(doc, nil);
+        } else if (internalDoc->is_no_document()) {
+          FIRDocumentSnapshot *doc = [[FIRDocumentSnapshot alloc] initWithFirestore:self.firestore
+                                                                        documentKey:document.key
+                                                                           document:absl::nullopt
+                                                                          fromCache:false
+                                                                   hasPendingWrites:false];
           completion(doc, nil);
         } else {
           HARD_FAIL("BatchGetDocumentsRequest returned unexpected document type: %s",

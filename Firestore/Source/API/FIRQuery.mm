@@ -80,7 +80,9 @@ using firebase::firestore::core::QueryListener;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::google_firestore_v1_ArrayValue;
 using firebase::firestore::google_firestore_v1_Value;
+using firebase::firestore::google_firestore_v1_Value_fields;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::DeepClone;
 using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldPath;
@@ -89,6 +91,7 @@ using firebase::firestore::model::IsServerTimestamp;
 using firebase::firestore::model::RefValue;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::TypeOrder;
+using firebase::firestore::nanopb::FreeNanopbMessage;
 using firebase::firestore::util::MakeNSError;
 using firebase::firestore::util::MakeString;
 using firebase::firestore::util::StatusOr;
@@ -572,7 +575,7 @@ int32_t SaturatedLimitValue(NSInteger limit) {
               "is unknown, you cannot start/end a query with it.)",
               order_bys[i].field().CanonicalString());
         } else {
-          components.values[i] = (*value);
+          components.values[i] = DeepClone(*value);
         }
       } else {
         ThrowInvalidArgument(
@@ -620,6 +623,7 @@ int32_t SaturatedLimitValue(NSInteger limit) {
                              path.CanonicalString());
       }
       DocumentKey key{path};
+      FreeNanopbMessage(google_firestore_v1_Value_fields, &fieldValue);
       fieldValue = RefValue(self.firestore.databaseID, key);
     }
 

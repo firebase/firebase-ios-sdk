@@ -43,6 +43,7 @@
 #include "Firestore/core/src/model/precondition.h"
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/model/transform_operation.h"
+#include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/nanopb/reader.h"
 #include "Firestore/core/src/remote/serializer.h"
@@ -79,6 +80,8 @@ using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ServerTimestampTransform;
 using firebase::firestore::model::TransformOperation;
+using firebase::firestore::nanopb::CheckedSize;
+using firebase::firestore::nanopb::FreeNanopbMessage;
 using firebase::firestore::remote::Serializer;
 using firebase::firestore::util::ThrowInvalidArgument;
 using firebase::firestore::util::ReadContext;
@@ -325,19 +328,16 @@ NS_ASSUME_NONNULL_BEGIN
     result.map_value.fields_count = count;
     result.map_value.fields = nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(count);
 
-    // iOS requires MapValues to be sorted
-    NSArray *sortedKeys = [[dict allKeys] sortedArrayUsingSelector:@selector(compare:)];
     __block pb_size_t index = 0;
-    for (NSString *key in sortedKeys) {
+    [dict enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *) {
       absl::optional<google_firestore_v1_Value> parsedValue =
-          [self parseData:[dict valueForKey:key]
-                  context:context.ChildContext(util::MakeString(key))];
+          [self parseData:value context:context.ChildContext(util::MakeString(key))];
       if (parsedValue) {
         result.map_value.fields[index].key = nanopb::MakeBytesArray(util::MakeString(key));
         result.map_value.fields[index].value = *parsedValue;
         ++index;
       }
-    };
+    }];
   }
 
   return result;
@@ -355,9 +355,6 @@ NS_ASSUME_NONNULL_BEGIN
         [self parseData:entry context:context.ChildContext(idx)];
     if (!parsedEntry) {
       // Just include nulls in the array for fields being replaced with a sentinel.
-      google_firestore_v1_Value result2{};
-      result2.which_value_type = google_firestore_v1_Value_null_value_tag;
-      result2.null_value = google_protobuf_NullValue_NULL_VALUE;
       parsedEntry = NullValue();
     }
     result.array_value.values[idx] = *parsedEntry;
@@ -443,9 +440,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (google_firestore_v1_Value)parseScalarValue:(nullable id)input context:(ParseContext &&)context {
   if (!input || [input isMemberOfClass:[NSNull class]]) {
-    google_firestore_v1_Value result1{};
-    result1.which_value_type = google_firestore_v1_Value_null_value_tag;
-    result1.null_value = google_protobuf_NullValue_NULL_VALUE;
     return NullValue();
 
   } else if ([input isKindOfClass:[NSNumber class]]) {
@@ -618,8 +612,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (google_firestore_v1_ArrayValue)parseArrayTransformElements:(NSArray<id> *)elements {
   ParseAccumulator accumulator{UserDataSource::Argument};
 
-  google_firestore_v1_ArrayValue array_value;
-  array_value.values_count = static_cast<pb_size_t>(elements.count);
+  google_firestore_v1_ArrayValue array_value{};
+  array_value.values_count = CheckedSize(elements.count);
   array_value.values = nanopb::MakeArray<google_firestore_v1_Value>(array_value.values_count);
 
   for (NSUInteger i = 0; i < elements.count; i++) {

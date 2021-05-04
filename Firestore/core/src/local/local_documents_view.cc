@@ -67,7 +67,6 @@ DocumentMap LocalDocumentsView::ApplyLocalMutationsToDocuments(
     MutableDocumentMap& docs, const std::vector<MutationBatch>& batches) {
   DocumentMap results;
   for (const auto& kv : docs) {
-    const DocumentKey& key = kv.first;
     MutableDocument local_view = kv.second;
     for (const MutationBatch& batch : batches) {
       batch.ApplyToLocalDocument(local_view);

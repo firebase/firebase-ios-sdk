@@ -58,7 +58,7 @@ void MutationBatch::ApplyToRemoteDocument(
   }
 }
 
-void MutationBatch::ApplyToLocalDocument(MutableDocument &document) const {
+void MutationBatch::ApplyToLocalDocument(MutableDocument& document) const {
   // First, apply the base state. This allows us to apply non-idempotent
   // transform against a consistent set of values.
   for (const Mutation& mutation : base_mutations_) {
@@ -69,7 +69,7 @@ void MutationBatch::ApplyToLocalDocument(MutableDocument &document) const {
 
   // Second, apply all user-provided mutations.
   for (const Mutation& mutation : mutations_) {
-    if (mutation.key() == document.key())) {
+    if (mutation.key() == document.key()) {
       mutation.ApplyToLocalView(document, local_write_time_);
     }
   }
