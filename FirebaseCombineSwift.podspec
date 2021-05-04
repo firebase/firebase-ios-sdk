@@ -52,6 +52,8 @@ Combine Publishers for Firebase.
 
   s.dependency 'FirebaseCore', '~> 8.0'
   s.dependency 'FirebaseAuth', '~> 8.0'
+  s.dependency 'FirebaseDatabase', '~> 8.0'
+  s.dependency 'FirebaseDatabaseSwift', '~> 8.0-beta'
   s.dependency 'FirebaseFunctions', '~> 8.0'
   s.dependency 'FirebaseStorage', '~> 8.0'
   s.dependency 'FirebaseStorageSwift', '~> 8.0-beta'
@@ -80,6 +82,7 @@ Combine Publishers for Firebase.
     }
     unit_tests.dependency 'OCMock'
     unit_tests.dependency 'FirebaseAuthTestingSupport'
+    unit_tests.dependency 'FirebaseDatabaseTestingSupport'
     unit_tests.dependency 'FirebaseFunctionsTestingSupport'
   end
 end
