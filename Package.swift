@@ -57,6 +57,10 @@ let package = Package(
     //   targets: ["FirebaseAuthCombineSwift"]
     // ),
     // .library(
+    //   name: "FirebaseDatabaseCombineSwift-Beta",
+    //   targets: ["FirebaseDatabaseCombineSwift"]
+    // ),
+    // .library(
     //   name: "FirebaseFunctionsCombineSwift-Beta",
     //   targets: ["FirebaseFunctionsCombineSwift"]
     // ),
@@ -410,6 +414,11 @@ let package = Package(
       path: "FirebaseCombineSwift/Sources/Auth"
     ),
     .target(
+      name: "FirebaseDatabaseCombineSwift",
+      dependencies: ["FirebaseDatabaseSwift"],
+      path: "FirebaseCombineSwift/Sources/Database"
+    ),
+    .target(
       name: "FirebaseFunctionsCombineSwift",
       dependencies: ["FirebaseFunctions"],
       path: "FirebaseCombineSwift/Sources/Functions"
@@ -513,7 +522,7 @@ let package = Package(
     ),
     .testTarget(
       name: "FirebaseDatabaseSwiftTests",
-      dependencies: ["FirebaseDatabase", "FirebaseDatabaseSwift"],
+      dependencies: ["FirebaseDatabase", "FirebaseDatabaseSwift", "FirebaseDatabaseTestingSupport"],
       path: "FirebaseDatabaseSwift/Tests/"
     ),
     .target(
@@ -1002,6 +1011,25 @@ let package = Package(
       name: "FirestoreTestingSupportTests",
       dependencies: ["FirebaseFirestoreTestingSupport"],
       path: "FirebaseTestingSupport/Firestore/Tests",
+      cSettings: [
+        .headerSearchPath("../../.."),
+      ]
+    ),
+
+    .target(
+      name: "FirebaseDatabaseTestingSupport",
+      dependencies: ["FirebaseDatabase"],
+      path: "FirebaseTestingSupport/Database/Sources",
+      publicHeadersPath: "./",
+      cSettings: [
+        .headerSearchPath("../../.."),
+        .headerSearchPath("../../../FirebaseDatabase/Source/Public/FirebaseDatabase"),
+      ]
+    ),
+    .testTarget(
+      name: "FirebaseDatabaseTestingSupportTests",
+      dependencies: ["FirebaseDatabaseTestingSupport"],
+      path: "FirebaseTestingSupport/Database/Tests",
       cSettings: [
         .headerSearchPath("../../.."),
       ]
