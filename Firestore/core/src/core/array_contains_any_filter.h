@@ -37,7 +37,7 @@ namespace core {
  */
 class ArrayContainsAnyFilter : public FieldFilter {
  public:
-  ArrayContainsAnyFilter(model::FieldPath field,
+  ArrayContainsAnyFilter(const model::FieldPath& field,
                          google_firestore_v1_Value value);
 
  private:

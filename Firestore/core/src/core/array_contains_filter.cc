@@ -30,8 +30,7 @@ namespace core {
 using model::Contains;
 using model::Document;
 using model::FieldPath;
-using model::GetTypeOrder;
-using model::TypeOrder;
+using model::IsArray;
 using Operator = Filter::Operator;
 
 class ArrayContainsFilter::Rep : public FieldFilter::Rep {
@@ -47,9 +46,9 @@ class ArrayContainsFilter::Rep : public FieldFilter::Rep {
   bool Matches(const model::Document& doc) const override;
 };
 
-ArrayContainsFilter::ArrayContainsFilter(FieldPath field,
+ArrayContainsFilter::ArrayContainsFilter(const model::FieldPath& field,
                                          google_firestore_v1_Value value)
-    : FieldFilter(std::make_shared<const Rep>(std::move(field), value)) {
+    : FieldFilter(std::make_shared<const Rep>(field, value)) {
 }
 
 bool ArrayContainsFilter::Rep::Matches(const Document& doc) const {
@@ -57,7 +56,7 @@ bool ArrayContainsFilter::Rep::Matches(const Document& doc) const {
   if (!maybe_lhs) return false;
 
   const google_firestore_v1_Value& lhs = *maybe_lhs;
-  if (GetTypeOrder(lhs) != TypeOrder::kArray) return false;
+  if (!IsArray(lhs)) return false;
 
   const google_firestore_v1_ArrayValue& contents = lhs.array_value;
   return Contains(contents, value());

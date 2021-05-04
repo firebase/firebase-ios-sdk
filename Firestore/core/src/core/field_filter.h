@@ -43,7 +43,7 @@ class FieldFilter : public Filter {
   /**
    * Creates a Filter instance for the provided path, operator, and value.
    */
-  static FieldFilter Create(model::FieldPath path,
+  static FieldFilter Create(const model::FieldPath& path,
                             Operator op,
                             google_firestore_v1_Value value_rhs);
 

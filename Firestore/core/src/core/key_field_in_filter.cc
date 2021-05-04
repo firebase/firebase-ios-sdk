@@ -34,6 +34,7 @@ using model::Document;
 using model::DocumentKey;
 using model::FieldPath;
 using model::GetTypeOrder;
+using model::IsArray;
 using model::TypeOrder;
 
 using Operator = Filter::Operator;
@@ -55,9 +56,9 @@ class KeyFieldInFilter::Rep : public FieldFilter::Rep {
   std::set<DocumentKey> keys_;
 };
 
-KeyFieldInFilter::KeyFieldInFilter(FieldPath field,
+KeyFieldInFilter::KeyFieldInFilter(const FieldPath& field,
                                    google_firestore_v1_Value value)
-    : FieldFilter(std::make_shared<const Rep>(std::move(field), value)) {
+    : FieldFilter(std::make_shared<const Rep>(field, value)) {
 }
 
 bool KeyFieldInFilter::Rep::Matches(const Document& doc) const {
@@ -66,9 +67,9 @@ bool KeyFieldInFilter::Rep::Matches(const Document& doc) const {
 
 std::set<model::DocumentKey> KeyFieldInFilter::ExtractDocumentKeysFromValue(
     const google_firestore_v1_Value& value) {
-  std::set<DocumentKey> keys;
-  HARD_ASSERT(GetTypeOrder(value) == TypeOrder::kArray,
+  HARD_ASSERT(IsArray(value),
               "Comparing on key with In/NotIn, but the value was not an Array");
+  std::set<DocumentKey> keys;
   const google_firestore_v1_ArrayValue& array_value = value.array_value;
   for (pb_size_t i = 0; i < array_value.values_count; ++i) {
     HARD_ASSERT(GetTypeOrder(array_value.values[i]) == TypeOrder::kReference,

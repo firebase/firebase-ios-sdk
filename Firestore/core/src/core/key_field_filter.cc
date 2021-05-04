@@ -21,7 +21,9 @@
 
 #include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/document_key.h"
+#include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
+#include "Firestore/core/src/util/hard_assert.h"
 #include "absl/algorithm/container.h"
 
 namespace firebase {
@@ -31,6 +33,8 @@ namespace core {
 using model::Document;
 using model::DocumentKey;
 using model::FieldPath;
+using model::GetTypeOrder;
+using model::TypeOrder;
 
 using Operator = Filter::Operator;
 
@@ -38,6 +42,9 @@ class KeyFieldFilter::Rep : public FieldFilter::Rep {
  public:
   Rep(FieldPath field, Operator op, google_firestore_v1_Value value)
       : FieldFilter::Rep(std::move(field), op, value) {
+    HARD_ASSERT(GetTypeOrder(value) == TypeOrder::kReference,
+                "KeyFieldFilter expects a ReferenceValue");
+    key_ = DocumentKey::FromName(nanopb::MakeString(value.reference_value));
   }
 
   Type type() const override {
@@ -45,6 +52,9 @@ class KeyFieldFilter::Rep : public FieldFilter::Rep {
   }
 
   bool Matches(const model::Document& doc) const override;
+
+ private:
+  DocumentKey key_;
 };
 
 KeyFieldFilter::KeyFieldFilter(const FieldPath& field,
@@ -54,11 +64,7 @@ KeyFieldFilter::KeyFieldFilter(const FieldPath& field,
 }
 
 bool KeyFieldFilter::Rep::Matches(const Document& doc) const {
-  const DocumentKey& lhs_key = doc->key();
-  const DocumentKey& rhs_key =
-      DocumentKey::FromName(nanopb::MakeString(value().reference_value));
-
-  return MatchesComparison(lhs_key.CompareTo(rhs_key));
+  return MatchesComparison(doc->key().CompareTo(key_));
 }
 
 }  // namespace core

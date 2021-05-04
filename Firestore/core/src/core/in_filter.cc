@@ -20,6 +20,8 @@
 #include <utility>
 
 #include "Firestore/core/src/model/document.h"
+#include "Firestore/core/src/model/value_util.h"
+#include "Firestore/core/src/util/hard_assert.h"
 #include "absl/algorithm/container.h"
 
 namespace firebase {
@@ -29,6 +31,7 @@ namespace core {
 using model::Contains;
 using model::Document;
 using model::FieldPath;
+using model::IsArray;
 
 using Operator = Filter::Operator;
 
@@ -36,6 +39,7 @@ class InFilter::Rep : public FieldFilter::Rep {
  public:
   Rep(FieldPath field, google_firestore_v1_Value value)
       : FieldFilter::Rep(std::move(field), Operator::In, value) {
+    HARD_ASSERT(IsArray(value), "InFilter expects an ArrayValue");
   }
 
   Type type() const override {
@@ -46,7 +50,7 @@ class InFilter::Rep : public FieldFilter::Rep {
 };
 
 InFilter::InFilter(const FieldPath& field, google_firestore_v1_Value value)
-    : FieldFilter(std::make_shared<const Rep>(std::move(field), value)) {
+    : FieldFilter(std::make_shared<const Rep>(field, value)) {
 }
 
 bool InFilter::Rep::Matches(const Document& doc) const {

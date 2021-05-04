@@ -52,9 +52,9 @@ class KeyFieldNotInFilter::Rep : public FieldFilter::Rep {
   std::set<DocumentKey> keys_;
 };
 
-KeyFieldNotInFilter::KeyFieldNotInFilter(FieldPath field,
+KeyFieldNotInFilter::KeyFieldNotInFilter(const FieldPath& field,
                                          google_firestore_v1_Value value)
-    : FieldFilter(std::make_shared<const Rep>(std::move(field), value)) {
+    : FieldFilter(std::make_shared<const Rep>(field, value)) {
 }
 
 bool KeyFieldNotInFilter::Rep::Matches(const Document& doc) const {

@@ -21,6 +21,7 @@
 
 #include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/value_util.h"
+#include "Firestore/core/src/util/hard_assert.h"
 #include "absl/algorithm/container.h"
 
 namespace firebase {
@@ -30,8 +31,8 @@ namespace core {
 using model::Contains;
 using model::Document;
 using model::FieldPath;
-using model ::GetTypeOrder;
-using model::TypeOrder;
+using model::IsArray;
+using model::NullValue;
 
 using Operator = Filter::Operator;
 
@@ -39,6 +40,7 @@ class NotInFilter::Rep : public FieldFilter::Rep {
  public:
   Rep(FieldPath field, google_firestore_v1_Value value)
       : FieldFilter::Rep(std::move(field), Operator::NotIn, value) {
+    HARD_ASSERT(IsArray(value), "NotInFilter expects an ArrayValue");
   }
 
   Type type() const override {
@@ -48,14 +50,15 @@ class NotInFilter::Rep : public FieldFilter::Rep {
   bool Matches(const model::Document& doc) const override;
 };
 
-NotInFilter::NotInFilter(FieldPath field, google_firestore_v1_Value value)
-    : FieldFilter(std::make_shared<const Rep>(std::move(field), value)) {
+NotInFilter::NotInFilter(const FieldPath& field,
+                         google_firestore_v1_Value value)
+    : FieldFilter(std::make_shared<const Rep>(field, value)) {
 }
 
 bool NotInFilter::Rep::Matches(const Document& doc) const {
   const google_firestore_v1_ArrayValue& array_value = value().array_value;
 
-  if (Contains(array_value, model::NullValue())) {
+  if (Contains(array_value, NullValue())) {
     return false;
   }
   absl::optional<google_firestore_v1_Value> maybe_lhs = doc->field(field());

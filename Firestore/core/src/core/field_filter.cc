@@ -42,6 +42,7 @@ namespace core {
 using model::Compare;
 using model::FieldPath;
 using model::GetTypeOrder;
+using model::IsArray;
 using model::TypeOrder;
 using util::ComparisonResult;
 using util::ThrowInvalidArgument;
@@ -81,38 +82,29 @@ const char* CanonicalName(Filter::Operator op) {
 
 }  // namespace
 
-FieldFilter FieldFilter::Create(FieldPath path,
+FieldFilter FieldFilter::Create(const FieldPath& path,
                                 Operator op,
                                 google_firestore_v1_Value value_rhs) {
   if (path.IsKeyFieldPath()) {
     if (op == Filter::Operator::In) {
-      return KeyFieldInFilter(std::move(path), value_rhs);
+      return KeyFieldInFilter(path, value_rhs);
     } else if (op == Filter::Operator::NotIn) {
-      return KeyFieldNotInFilter(std::move(path), value_rhs);
+      return KeyFieldNotInFilter(path, value_rhs);
     } else {
-      HARD_ASSERT(GetTypeOrder(value_rhs) == TypeOrder::kReference,
-                  "Comparing on key, but filter value not a Reference.");
       HARD_ASSERT(!IsArrayOperator(op),
                   "%s queries don't make sense on document keys.",
                   CanonicalName(op));
-      return KeyFieldFilter(std::move(path), op, value_rhs);
+      return KeyFieldFilter(path, op, value_rhs);
     }
   } else if (op == Operator::ArrayContains) {
-    return ArrayContainsFilter(std::move(path), value_rhs);
+    return ArrayContainsFilter(path, value_rhs);
 
   } else if (op == Operator::In) {
-    HARD_ASSERT(GetTypeOrder(value_rhs) == TypeOrder::kArray,
-                "IN filter has invalid value: %s", GetTypeOrder(value_rhs));
-    return InFilter(std::move(path), value_rhs);
+    return InFilter(path, value_rhs);
   } else if (op == Operator::ArrayContainsAny) {
-    HARD_ASSERT(GetTypeOrder(value_rhs) == TypeOrder::kArray,
-                "arrayContainsAny filter has invalid value: %s",
-                GetTypeOrder(value_rhs));
-    return ArrayContainsAnyFilter(std::move(path), value_rhs);
+    return ArrayContainsAnyFilter(path, value_rhs);
   } else if (op == Operator::NotIn) {
-    HARD_ASSERT(GetTypeOrder(value_rhs) == TypeOrder::kArray,
-                "notIn filter has invalid value: %s", GetTypeOrder(value_rhs));
-    return NotInFilter(std::move(path), value_rhs);
+    return NotInFilter(path, value_rhs);
   } else {
     Rep filter(std::move(path), op, value_rhs);
     return FieldFilter(std::make_shared<const Rep>(std::move(filter)));
