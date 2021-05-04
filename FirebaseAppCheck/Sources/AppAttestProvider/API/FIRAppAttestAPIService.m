@@ -22,6 +22,7 @@
 #import "FBLPromises.h"
 #endif
 
+#import <GoogleUtilities/GULURLSessionDataResponse.h>
 #import "FirebaseAppCheck/Sources/Core/APIService/FIRAppCheckAPIService.h"
 
 @interface FIRAppAttestAPIService ()
@@ -56,8 +57,30 @@
 }
 
 - (nonnull FBLPromise<NSData *> *)getRandomChallenge {
-  // TODO: Implement.
-  return [FBLPromise resolvedWith:nil];
+  NSString *URLString =
+      [NSString stringWithFormat:@"%@/projects/%@/apps/%@:generateAppAttestChallenge",
+                                 self.APIService.baseURL, self.projectID, self.appID];
+  NSURL *URL = [NSURL URLWithString:URLString];
+
+  return [FBLPromise onQueue:[self defaultQueue]
+                          do:^id _Nullable {
+                            return [self.APIService sendRequestWithURL:URL
+                                                            HTTPMethod:@"POST"
+                                                                  body:nil
+                                                     additionalHeaders:nil];
+                          }]
+      .then(^id _Nullable(GULURLSessionDataResponse *_Nullable response) {
+        return [self randomChallengeWithAPIResponse:response];
+      });
+}
+
+- (FBLPromise<NSData *> *)randomChallengeWithAPIResponse:(GULURLSessionDataResponse *)response {
+  NSData *randomChallenge = response.HTTPBody;
+  return [FBLPromise resolvedWith:randomChallenge];
+}
+
+- (dispatch_queue_t)defaultQueue {
+  return dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0);
 }
 
 @end
