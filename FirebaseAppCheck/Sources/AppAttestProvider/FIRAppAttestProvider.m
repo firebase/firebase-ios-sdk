@@ -214,7 +214,6 @@ NS_ASSUME_NONNULL_BEGIN
                      ^NSError *(NSError *error) {
                        // App Attest is not supported.
 
-                       // Set result state var.
                        __auto_type state =
                            [[FIRAppAttestProviderState alloc] initUnsupportedWithError:error];
                        // Throw error to interrupt the pipeline earlier.
@@ -229,8 +228,9 @@ NS_ASSUME_NONNULL_BEGIN
           // 3. Check for stored attestation artefact received from Firebase backend.
           .thenOn(self.queue,
                   ^FBLPromise<NSData *> *(NSString *keyID) {
-                    // Save the key ID to be accessible in the recover block in the case when there
-                    // is no artifact stored.
+                    // Save the key ID to be accessible down the pipeline.
+                    appAttestKeyID = keyID;
+
                     return [self artifactOrStateWithAppAttestKeyID:keyID];
                   })
           // 4. A valid App Attest key pair was generated and registered with Firebase
@@ -263,7 +263,6 @@ NS_ASSUME_NONNULL_BEGIN
   return [self.keyIDStorage getAppAttestKeyID].recoverOn(self.queue, ^NSError *(NSError *error) {
     // There is no a valid App Attest key pair generated.
 
-    // Set result state var.
     __auto_type state = [[FIRAppAttestProviderState alloc] initWithSupportedInitialState];
     // Throw error to interrupt the pipeline earlier.
     return [self errorWithState:state];
@@ -279,7 +278,6 @@ NS_ASSUME_NONNULL_BEGIN
     // A valid App Attest key pair was generated but has not been registered with
     // Firebase backend.
 
-    // Set result state var.
     __auto_type state = [[FIRAppAttestProviderState alloc] initWithGeneratedKeyID:appAttestKeyID];
     // Throw error to interrupt the pipeline earlier.
     return [self errorWithState:state];
