@@ -18,6 +18,7 @@
 #include "Firestore/core/src/core/key_field_in_filter.h"
 
 #include <memory>
+#include <set>
 #include <utility>
 
 #include "Firestore/core/src/model/document.h"
@@ -31,15 +32,14 @@ namespace core {
 using model::Document;
 using model::DocumentKey;
 using model::FieldPath;
-using model::FieldValue;
 
 using Operator = Filter::Operator;
 
 class KeyFieldNotInFilter::Rep : public FieldFilter::Rep {
  public:
-  Rep(FieldPath field, FieldValue value)
-      : FieldFilter::Rep(std::move(field), Operator::NotIn, std::move(value)) {
-    KeyFieldInFilter::ValidateArrayValue(this->value());
+  Rep(FieldPath field, google_firestore_v1_Value value)
+      : FieldFilter::Rep(std::move(field), Operator::NotIn, value) {
+    keys_ = KeyFieldInFilter::ExtractDocumentKeysFromValue(this->value());
   }
 
   Type type() const override {
@@ -47,16 +47,18 @@ class KeyFieldNotInFilter::Rep : public FieldFilter::Rep {
   }
 
   bool Matches(const model::Document& doc) const override;
+
+ private:
+  std::set<DocumentKey> keys_;
 };
 
-KeyFieldNotInFilter::KeyFieldNotInFilter(FieldPath field, FieldValue value)
-    : FieldFilter(
-          std::make_shared<const Rep>(std::move(field), std::move(value))) {
+KeyFieldNotInFilter::KeyFieldNotInFilter(const FieldPath& field,
+                                         google_firestore_v1_Value value)
+    : FieldFilter(std::make_shared<const Rep>(field, value)) {
 }
 
 bool KeyFieldNotInFilter::Rep::Matches(const Document& doc) const {
-  const FieldValue::Array& array_value = value().array_value();
-  return !KeyFieldInFilter::Contains(array_value, doc);
+  return keys_.find(doc->key()) == keys_.end();
 }
 
 }  // namespace core
