@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (FBLPromise<FIRAppCheckToken *> *)setToken:(nullable FIRAppCheckToken *)token;
 
 /** Reads a stored FAA token.
- *  @returns A promise that is resolved with a stored token or `nil` if there is no a stored token.
+ *  @returns A promise that is resolved with a stored token or `nil` if there is not a stored token.
  * The promise is rejected with an error in the case of a failure.
  */
 - (FBLPromise<FIRAppCheckToken *> *)getToken;

@@ -78,6 +78,13 @@ NSString *const kFIRAppCheckErrorDomain = @"com.firebase.appCheck";
                      underlyingError:nil];
 }
 
++ (NSError *)appAttestKeyIDNotFound {
+  NSString *failureReason = @"App attest key ID not found.";
+  return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnknown
+                       failureReason:failureReason
+                     underlyingError:nil];
+}
+
 + (NSError *)errorWithFailureReason:(NSString *)failureReason {
   return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnknown
                        failureReason:failureReason

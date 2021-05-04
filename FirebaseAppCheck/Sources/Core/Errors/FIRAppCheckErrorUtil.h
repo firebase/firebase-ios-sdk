@@ -42,6 +42,8 @@ void FIRAppCheckSetErrorToPointer(NSError *error, NSError **pointer);
 
 + (NSError *)unsupportedAttestationProvider:(NSString *)providerName;
 
++ (NSError *)appAttestKeyIDNotFound;
+
 @end
 
 typedef NS_ERROR_ENUM(kFIRAppCheckErrorDomain, FIRAppCheckErrorCode){
