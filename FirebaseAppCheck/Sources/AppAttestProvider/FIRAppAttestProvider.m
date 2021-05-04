@@ -148,8 +148,7 @@ NS_ASSUME_NONNULL_BEGIN
       case FIRAppAttestAttestationStateSupportedInitial:
       case FIRAppAttestAttestationStateKeyGenerated:
         // Initial handshake is required.
-        // TODO: Maybe optimize to pass already fetched key ID when exists.
-        return [self initialHandshake];
+        return [self initialHandshakeWithKeyID:attestState.appAttestKeyID];
         break;
 
       case FIRAppAttestAttestationStateKeyRegistered:
@@ -163,19 +162,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Initial handshake sequence
 
-- (FBLPromise<FIRAppCheckToken *> *)initialHandshake {
+- (FBLPromise<FIRAppCheckToken *> *)initialHandshakeWithKeyID:(nullable NSString *)keyID {
   // 1. Check `DCAppAttestService.isSupported`.
-  return [self isAppAttestSupported]
-      .thenOn(self.queue,
-              ^FBLPromise<NSArray *> *(id result) {
-                return [FBLPromise onQueue:self.queue
-                                       all:@[
-                                         // 2. Request random challenge.
-                                         [self.APIService getRandomChallenge],
-                                         // 3. Get App Attest key ID.
-                                         [self getAppAttestKeyIDGenerateIfNeeded]
-                                       ]];
-              })
+  return [FBLPromise onQueue:self.queue
+                         all:@[
+                           // 2. Request random challenge.
+                           [self.APIService getRandomChallenge],
+                           // 3. Get App Attest key ID.
+                           [self generateAppAttestKeyIDIfNeeded:keyID]
+                         ]]
       .thenOn(self.queue,
               ^FBLPromise<FIRAppAttestKeyAttestationResult *> *(NSArray *challengeAndKeyID) {
                 // 4. Attest the key.
@@ -212,8 +207,6 @@ NS_ASSUME_NONNULL_BEGIN
   // pipeline but may needed later. It simplifies chaining a bit.
   __block NSString *appAttestKeyID;
 
-  __block FIRAppAttestProviderState *resultState;
-
   return
       // 1. Check if App Attest is supported.
       [self isAppAttestSupported]
@@ -222,60 +215,99 @@ NS_ASSUME_NONNULL_BEGIN
                        // App Attest is not supported.
 
                        // Set result state var.
-                       resultState =
+                       __auto_type state =
                            [[FIRAppAttestProviderState alloc] initUnsupportedWithError:error];
-                       // Re-throw error to interrupt the pipeline.
-                       return error;
+                       // Throw error to interrupt the pipeline earlier.
+                       return [self errorWithState:state];
                      })
 
           // 2. Check for stored key ID of the generated App Attest key pair.
           .thenOn(self.queue,
                   ^FBLPromise<NSString *> *(id result) {
-                    return [self.keyIDStorage getAppAttestKeyID];
+                    return [self appAttestKeyIDOrErrorWithState];
                   })
-          .recoverOn(self.queue,
-                     ^NSError *(NSError *error) {
-                       // There is no a valid App Attest key pair generated.
-
-                       // Set result state var.
-                       resultState =
-                           [[FIRAppAttestProviderState alloc] initWithSupportedInitialState];
-                       // Re-throw error to interrupt the pipeline.
-                       return error;
-                     })
-
           // 3. Check for stored attestation artefact received from Firebase backend.
           .thenOn(self.queue,
                   ^FBLPromise<NSData *> *(NSString *keyID) {
                     // Save the key ID to be accessible in the recover block in the case when there
                     // is no artifact stored.
-                    appAttestKeyID = keyID;
-                    return [self.artifactStorage getArtifact];
+                    return [self artifactOrStateWithAppAttestKeyID:keyID];
                   })
-          .recoverOn(self.queue,
-                     ^NSError *(NSError *error) {
-                       // A valid App Attest key pair was generated but has not been registered with
-                       // Firebase backend.
-
-                       // Set result state var.
-                       resultState = [[FIRAppAttestProviderState alloc]
-                           initWithGeneratedKeyID:appAttestKeyID];
-                       // Re-throw error to interrupt the pipeline.
-                       return error;
-                     })
+          // 4. A valid App Attest key pair was generated and registered with Firebase
+          // backend. Return the corresponding state
           .thenOn(self.queue,
                   ^FBLPromise<FIRAppAttestProviderState *> *(NSData *attestationArtifact) {
-                    // A valid App Attest key pair was generated and registered with Firebase
-                    // backend.
                     __auto_type state = [[FIRAppAttestProviderState alloc]
                         initWithRegisteredKeyID:appAttestKeyID
                                        artifact:attestationArtifact];
                     return [FBLPromise resolvedWith:state];
                   })
-          .recoverOn(self.queue, ^FBLPromise<FIRAppAttestProviderState *> *(NSError *error) {
+          // 5. Convert any errors thrown to interrupt the pipeline earlier when the state into the
+          // state to return.
+          .recoverOn(self.queue, ^id(NSError *error) {
             // Catch early pipeline interruption error and return a corresponding state instead.
-            return [FBLPromise resolvedWith:resultState];
+            FIRAppAttestProviderState *resultState = [self stateFromError:error];
+            if (resultState) {
+              return [FBLPromise resolvedWith:resultState];
+            } else {
+              // Re-throw the error otherwise.
+              return error;
+            }
           });
+}
+
+/// This is a helper method used by `attestationState` method.
+/// @return a promise that is resolved with a stored App Attest key ID or rejected with a specific
+/// error that contains the corresponding state.
+- (FBLPromise<NSString *> *)appAttestKeyIDOrErrorWithState {
+  return [self.keyIDStorage getAppAttestKeyID].recoverOn(self.queue, ^NSError *(NSError *error) {
+    // There is no a valid App Attest key pair generated.
+
+    // Set result state var.
+    __auto_type state = [[FIRAppAttestProviderState alloc] initWithSupportedInitialState];
+    // Throw error to interrupt the pipeline earlier.
+    return [self errorWithState:state];
+  });
+}
+
+/// This is a helper method used by `attestationState` method.
+/// @param appAttestKeyID A stored App Attest key ID.
+/// @return a promise that is resolved with a stored attestation artifact or rejected with a
+/// specific error that contains the corresponding state.
+- (FBLPromise<NSData *> *)artifactOrStateWithAppAttestKeyID:appAttestKeyID {
+  return [self.artifactStorage getArtifact].recoverOn(self.queue, ^NSError *(NSError *error) {
+    // A valid App Attest key pair was generated but has not been registered with
+    // Firebase backend.
+
+    // Set result state var.
+    __auto_type state = [[FIRAppAttestProviderState alloc] initWithGeneratedKeyID:appAttestKeyID];
+    // Throw error to interrupt the pipeline earlier.
+    return [self errorWithState:state];
+  });
+}
+
+/// A domain for errors with a state object. See  `stateFromError:` and `stateFromError:` methods
+/// for more details.
+static NSString *const kErrorWithStateDomain = @"FIRAppAttestProvider.errorWithState";
+/// An error user info key to store a state objects. See  `stateFromError:` and `stateFromError:`
+/// methods for more details.
+static NSString *const kUserInfoStateKey = @"FIRAppAttestProvider.stateKey";
+
+/// Encodes the sates into NSError object. This is a helper for `attestationState` method.
+- (NSError *)errorWithState:(FIRAppAttestProviderState *)state {
+  return [NSError errorWithDomain:kErrorWithStateDomain
+                             code:0
+                         userInfo:@{kUserInfoStateKey : state}];
+}
+
+/// Decodes the sates from the NSError object previously encoded by `errorWithState:` method. This
+/// is a helper for `attestationState` method.
+- (nullable FIRAppAttestProviderState *)stateFromError:(NSError *)error {
+  if (![error.domain isEqualToString:kErrorWithStateDomain]) {
+    return nil;
+  }
+
+  return error.userInfo[kUserInfoStateKey];
 }
 
 #pragma mark - Helpers
@@ -292,12 +324,15 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-/// Retrieves or generates App Attest key associated with the Firebase app.
-- (FBLPromise<NSString *> *)getAppAttestKeyIDGenerateIfNeeded {
-  return [self.keyIDStorage getAppAttestKeyID].recoverOn(self.queue,
-                                                         ^FBLPromise<NSString *> *(NSError *error) {
-                                                           return [self generateAppAttestKey];
-                                                         });
+/// Generates a new App Attest key associated with the Firebase app if `storedKeyID == nil`.
+- (FBLPromise<NSString *> *)generateAppAttestKeyIDIfNeeded:(nullable NSString *)storedKeyID {
+  if (storedKeyID) {
+    // The key ID has been fetched already, just return it.
+    return [FBLPromise resolvedWith:storedKeyID];
+  } else {
+    // Generate and save a new key otherwise.
+    return [self generateAppAttestKey];
+  }
 }
 
 /// Generates and stores App Attest key associated with the Firebase app.
