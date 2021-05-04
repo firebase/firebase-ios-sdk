@@ -20,7 +20,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/// Defines API of a storage capable to store an encrypted artifact required to refresh Firebase App Check token obtained with App Attest provider.
+/// Defines API of a storage capable to store an encrypted artifact required to refresh Firebase App
+/// Check token obtained with App Attest provider.
 @protocol FIRAppAttestArtifactStorageProtocol <NSObject>
 
 /// Set the artifact.
