@@ -3,16 +3,18 @@
 ## Introduction
 
 Starting with the 6.31.0 release, Firebase supports installation via [Swift
-Package Manager](https://swift.org/package-manager/) in Beta status.
+Package Manager](https://swift.org/package-manager/) in Beta status. Exiting Beta is targeted for
+the 8.0.0 release.
 
 
 ## Limitations
 
-- Requires Xcode 12.
+- Requires Xcode 12.5
 - Analytics requires clients to add `-ObjC` linker option.
 - Analytics is only supported for iOS and cannot be used in apps that support other platforms.
 - Performance is not yet available.
-- watchOS support is available for Auth, Crashlytics, Messaging, RemoteConfig, and Storage.
+- watchOS support is available for Auth, Crashlytics, Messaging, Realtime Database, RemoteConfig,
+  and Storage.
 
 ## Installation
 
@@ -41,11 +43,6 @@ Choose the Firebase products that you want installed in your app.
 
 If you've installed FirebaseAnalytics, Add the `-ObjC` option to `Other Linker Flags`
 in the `Build Settings` tab.
-
-If you're using FirebaseAnalytics, Xcode 12.0, and have an issue with
-device installation or archive uploading, see the workaround at
-https://github.com/firebase/firebase-ios-sdk/issues/6472#issuecomment-694449182.
-This issue looks to be resolved in Xcode 12.5.
 
 <img src="docs/resources/SPMObjC.png">
 
