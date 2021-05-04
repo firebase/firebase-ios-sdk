@@ -147,12 +147,12 @@ NS_ASSUME_NONNULL_BEGIN
 
       case FIRAppAttestAttestationStateSupportedInitial:
       case FIRAppAttestAttestationStateKeyGenerated:
-        // Initial handshake is required.
+        // Initial handshake is required for both the "initial" and the "key generated" states.
         return [self initialHandshakeWithKeyID:attestState.appAttestKeyID];
         break;
 
       case FIRAppAttestAttestationStateKeyRegistered:
-
+        // Refresh FAC token using the existing registerred App Attest key pair.
         return [self refreshTokenWithKeyID:attestState.appAttestKeyID
                                   artifact:attestState.attestationArtifact];
         break;
@@ -225,7 +225,7 @@ NS_ASSUME_NONNULL_BEGIN
                   ^FBLPromise<NSString *> *(id result) {
                     return [self appAttestKeyIDOrErrorWithState];
                   })
-          // 3. Check for stored attestation artefact received from Firebase backend.
+          // 3. Check for stored attestation artifact received from Firebase backend.
           .thenOn(self.queue,
                   ^FBLPromise<NSData *> *(NSString *keyID) {
                     // Save the key ID to be accessible down the pipeline.
@@ -291,14 +291,14 @@ static NSString *const kErrorWithStateDomain = @"FIRAppAttestProvider.errorWithS
 /// methods for more details.
 static NSString *const kUserInfoStateKey = @"FIRAppAttestProvider.stateKey";
 
-/// Encodes the sates into NSError object. This is a helper for `attestationState` method.
+/// Encodes the states into NSError object. This is a helper for `attestationState` method.
 - (NSError *)errorWithState:(FIRAppAttestProviderState *)state {
   return [NSError errorWithDomain:kErrorWithStateDomain
                              code:0
                          userInfo:@{kUserInfoStateKey : state}];
 }
 
-/// Decodes the sates from the NSError object previously encoded by `errorWithState:` method. This
+/// Decodes the states from the NSError object previously encoded by `errorWithState:` method. This
 /// is a helper for `attestationState` method.
 - (nullable FIRAppAttestProviderState *)stateFromError:(NSError *)error {
   if (![error.domain isEqualToString:kErrorWithStateDomain]) {
