@@ -16,9 +16,21 @@
 
 #import <Foundation/Foundation.h>
 
+@class FIRAppCheckToken;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRAppAttestInitialHandshakeResponse : NSObject
+
+/// App Attest attestation artifact required to refresh Firebase App Check token.
+@property(nonatomic, readonly) NSData *artifact;
+
+/// Firebase App Check token.
+@property(nonatomic, readonly) FIRAppCheckToken *token;
+
+- (instancetype)init NS_UNAVAILABLE;
+
+- (instancetype)initWithArtifact:(NSData *)artifact token:(FIRAppCheckToken *)token NS_DESIGNATED_INITIALIZER;
 
 @end
 
