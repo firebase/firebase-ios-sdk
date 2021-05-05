@@ -14,10 +14,10 @@
 
 #import <Foundation/Foundation.h>
 
-/** This class generate the console URLs for a project or a metric*/
+/** This class generated the console URLs for a project or a metric.*/
 @interface FPRConsoleUrlGenerator : NSObject
 
-/** This is a class method to generate the console URL for the project's dashboard page.*/
+/** This is a class method to generate the console URL for the dashboard page of the project.*/
 + (NSString *)generateDashboardUrlWithProjectId:(NSString *)projectId bundleId:(NSString *)bundleId;
 
 /** This is a class method to generate the console URL for the custom trace.*/
