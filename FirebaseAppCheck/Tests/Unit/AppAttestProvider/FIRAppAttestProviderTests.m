@@ -98,9 +98,9 @@ API_AVAILABLE(ios(14.0))
   OCMReject([self.mockAppAttestService attestKey:OCMOCK_ANY
                                   clientDataHash:OCMOCK_ANY
                                completionHandler:OCMOCK_ANY]);
-  OCMReject([self.mockAPIService appCheckTokenWithAttestation:OCMOCK_ANY
-                                                        keyID:OCMOCK_ANY
-                                                    challenge:OCMOCK_ANY]);
+  OCMReject([self.mockAPIService attestKeyWithAttestation:OCMOCK_ANY
+                                                    keyID:OCMOCK_ANY
+                                                challenge:OCMOCK_ANY]);
 
   // 3. Call get token.
   XCTestExpectation *completionExpectation =
@@ -157,9 +157,9 @@ API_AVAILABLE(ios(14.0))
   // 7. Expect exchange request to be sent.
   FIRAppCheckToken *FACToken = [[FIRAppCheckToken alloc] initWithToken:@"FAC token"
                                                         expirationDate:[NSDate date]];
-  OCMExpect([self.mockAPIService appCheckTokenWithAttestation:attestationData
-                                                        keyID:generatedKeyID
-                                                    challenge:randomChallenge])
+  OCMExpect([self.mockAPIService attestKeyWithAttestation:attestationData
+                                                    keyID:generatedKeyID
+                                                challenge:randomChallenge])
       .andReturn([FBLPromise resolvedWith:FACToken]);
 
   // 8. Call get token.
@@ -219,9 +219,9 @@ API_AVAILABLE(ios(14.0))
   // 8. Expect exchange request to be sent.
   FIRAppCheckToken *FACToken = [[FIRAppCheckToken alloc] initWithToken:@"FAC token"
                                                         expirationDate:[NSDate date]];
-  OCMExpect([self.mockAPIService appCheckTokenWithAttestation:attestationData
-                                                        keyID:existingKeyID
-                                                    challenge:randomChallenge])
+  OCMExpect([self.mockAPIService attestKeyWithAttestation:attestationData
+                                                    keyID:existingKeyID
+                                                challenge:randomChallenge])
       .andReturn([FBLPromise resolvedWith:FACToken]);
 
   // 9. Call get token.
@@ -271,9 +271,9 @@ API_AVAILABLE(ios(14.0))
   OCMReject([self.mockAppAttestService attestKey:OCMOCK_ANY
                                   clientDataHash:OCMOCK_ANY
                                completionHandler:OCMOCK_ANY]);
-  OCMReject([self.mockAPIService appCheckTokenWithAttestation:OCMOCK_ANY
-                                                        keyID:OCMOCK_ANY
-                                                    challenge:OCMOCK_ANY]);
+  OCMReject([self.mockAPIService attestKeyWithAttestation:OCMOCK_ANY
+                                                    keyID:OCMOCK_ANY
+                                                challenge:OCMOCK_ANY]);
 
   // 6. Call get token.
   XCTestExpectation *completionExpectation =
@@ -325,9 +325,9 @@ API_AVAILABLE(ios(14.0))
                                completionHandler:attestCompletionArg]);
 
   // 6. Don't exchange API request.
-  OCMReject([self.mockAPIService appCheckTokenWithAttestation:OCMOCK_ANY
-                                                        keyID:OCMOCK_ANY
-                                                    challenge:OCMOCK_ANY]);
+  OCMReject([self.mockAPIService attestKeyWithAttestation:OCMOCK_ANY
+                                                    keyID:OCMOCK_ANY
+                                                challenge:OCMOCK_ANY]);
 
   // 7. Call get token.
   XCTestExpectation *completionExpectation =
@@ -380,9 +380,9 @@ API_AVAILABLE(ios(14.0))
   NSError *exchangeError = [NSError errorWithDomain:@"testGetTokenWhenKeyAttestationExchangeError"
                                                code:0
                                            userInfo:nil];
-  OCMExpect([self.mockAPIService appCheckTokenWithAttestation:attestationData
-                                                        keyID:existingKeyID
-                                                    challenge:randomChallenge])
+  OCMExpect([self.mockAPIService attestKeyWithAttestation:attestationData
+                                                    keyID:existingKeyID
+                                                challenge:randomChallenge])
       .andReturn([self rejectedPromiseWithError:exchangeError]);
 
   // 7. Call get token.

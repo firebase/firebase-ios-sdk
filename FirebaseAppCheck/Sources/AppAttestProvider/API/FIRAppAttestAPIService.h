@@ -17,7 +17,7 @@
 #import <Foundation/Foundation.h>
 
 @class FBLPromise<Result>;
-@class FIRAppCheckToken;
+@class FIRAppAttestInitialHandshakeResponse;
 @protocol FIRAppCheckAPIServiceProtocol;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -27,10 +27,16 @@ NS_ASSUME_NONNULL_BEGIN
 /// Request a random challenge from server.
 - (FBLPromise<NSData *> *)getRandomChallenge;
 
-/// Exchanges attestation data to FAC token.
-- (FBLPromise<FIRAppCheckToken *> *)appCheckTokenWithAttestation:(NSData *)attestation
-                                                           keyID:(NSString *)keyID
-                                                       challenge:(NSData *)challenge;
+/// Sends attestation data to Firebase backend for validation.
+/// @param attestation The App Attest key attestation data obtained from the method
+/// `-[DCAppAttestService attestKey:clientDataHash:completionHandler:]` using the random challenge
+/// received from Firebase backend.
+/// @param keyID The key ID used to generate the attestation.
+/// @param challenge The challenge used to generate the attestation.
+- (FBLPromise<FIRAppAttestInitialHandshakeResponse *> *)
+    attestKeyWithAttestation:(NSData *)attestation
+                       keyID:(NSString *)keyID
+                   challenge:(NSData *)challenge;
 
 @end
 

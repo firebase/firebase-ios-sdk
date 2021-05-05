@@ -47,10 +47,10 @@
   return self;
 }
 
-- (nonnull FBLPromise<FIRAppCheckToken *> *)
-    appCheckTokenWithAttestation:(nonnull NSData *)attestation
-                           keyID:(nonnull NSString *)keyID
-                       challenge:(nonnull NSData *)challenge {
+- (FBLPromise<FIRAppAttestInitialHandshakeResponse *> *)
+    attestKeyWithAttestation:(NSData *)attestation
+                       keyID:(NSString *)keyID
+                   challenge:(NSData *)challenge {
   // TODO: Implement.
   return [FBLPromise resolvedWith:nil];
 }
