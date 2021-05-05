@@ -47,8 +47,11 @@
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/field_path.h"
-#include "Firestore/core/src/model/field_value.h"
 #include "Firestore/core/src/model/resource_path.h"
+#include "Firestore/core/src/model/server_timestamp_util.h"
+#include "Firestore/core/src/model/value_util.h"
+#include "Firestore/core/src/nanopb/nanopb_util.h"
+#include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/util/error_apple.h"
 #include "Firestore/core/src/util/exception.h"
 #include "Firestore/core/src/util/hard_assert.h"
@@ -57,6 +60,7 @@
 #include "absl/memory/memory.h"
 
 namespace util = firebase::firestore::util;
+namespace nanopb = firebase::firestore::nanopb;
 using firebase::firestore::api::Firestore;
 using firebase::firestore::api::ListenerRegistration;
 using firebase::firestore::api::Query;
@@ -75,12 +79,23 @@ using firebase::firestore::core::OrderBy;
 using firebase::firestore::core::OrderByList;
 using firebase::firestore::core::QueryListener;
 using firebase::firestore::core::ViewSnapshot;
+using firebase::firestore::google_firestore_v1_ArrayValue;
+using firebase::firestore::google_firestore_v1_Value;
+using firebase::firestore::google_firestore_v1_Value_fields;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::DeepClone;
 using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldPath;
-using firebase::firestore::model::FieldValue;
+using firebase::firestore::model::GetTypeOrder;
+using firebase::firestore::model::IsServerTimestamp;
+using firebase::firestore::model::RefValue;
 using firebase::firestore::model::ResourcePath;
+using firebase::firestore::model::TypeOrder;
+using firebase::firestore::nanopb::CheckedSize;
+using firebase::firestore::nanopb::MakeArray;
+using firebase::firestore::nanopb::MakeString;
+using firebase::firestore::nanopb::Message;
 using firebase::firestore::util::MakeNSError;
 using firebase::firestore::util::MakeString;
 using firebase::firestore::util::StatusOr;
@@ -473,11 +488,11 @@ int32_t SaturatedLimitValue(NSInteger limit) {
 
 #pragma mark - Private Methods
 
-- (FieldValue)parsedQueryValue:(id)value {
+- (google_firestore_v1_Value)parsedQueryValue:(id)value {
   return [self.firestore.dataReader parsedQueryValue:value];
 }
 
-- (FieldValue)parsedQueryValue:(id)value allowArrays:(bool)allowArrays {
+- (google_firestore_v1_Value)parsedQueryValue:(id)value allowArrays:(bool)allowArrays {
   return [self.firestore.dataReader parsedQueryValue:value allowArrays:allowArrays];
 }
 
@@ -514,9 +529,10 @@ int32_t SaturatedLimitValue(NSInteger limit) {
 - (FIRQuery *)queryWithFilterOperator:(Filter::Operator)filterOperator
                                  path:(const FieldPath &)fieldPath
                                 value:(id)value {
-  FieldValue fieldValue = [self parsedQueryValue:value
-                                     allowArrays:filterOperator == Filter::Operator::In ||
-                                                 filterOperator == Filter::Operator::NotIn];
+  google_firestore_v1_Value fieldValue =
+      [self parsedQueryValue:value
+                 allowArrays:filterOperator == Filter::Operator::In ||
+                             filterOperator == Filter::Operator::NotIn];
   auto describer = [value] { return MakeString(NSStringFromClass([value class])); };
   return Wrap(_query.Filter(fieldPath, filterOperator, std::move(fieldValue), describer));
 }
@@ -538,38 +554,42 @@ int32_t SaturatedLimitValue(NSInteger limit) {
   }
   const Document &document = *snapshot.internalDocument;
   const DatabaseId &databaseID = self.firestore.databaseID;
-  std::vector<FieldValue> components;
+  const OrderByList &order_bys = self.query.order_bys();
+
+  google_firestore_v1_ArrayValue components;
+  components.values_count = CheckedSize(order_bys.size());
+  components.values = MakeArray<google_firestore_v1_Value>(components.values_count);
 
   // Because people expect to continue/end a query at the exact document provided, we need to
   // use the implicit sort order rather than the explicit sort order, because it's guaranteed to
   // contain the document key. That way the position becomes unambiguous and the query
   // continues/ends exactly at the provided document. Without the key (by using the explicit sort
   // orders), multiple documents could match the position, yielding duplicate results.
-  for (const OrderBy &orderBy : self.query.order_bys()) {
-    if (orderBy.field() == FieldPath::KeyFieldPath()) {
-      components.push_back(FieldValue::FromReference(databaseID, document.key()));
+  for (size_t i = 0; i < order_bys.size(); ++i) {
+    if (order_bys[i].field() == FieldPath::KeyFieldPath()) {
+      components.values[i] = RefValue(databaseID, document->key());
     } else {
-      absl::optional<FieldValue> value = document.field(orderBy.field());
+      absl::optional<google_firestore_v1_Value> value = document->field(order_bys[i].field());
 
       if (value) {
-        if (value->type() == FieldValue::Type::ServerTimestamp) {
+        if (IsServerTimestamp(*value)) {
           ThrowInvalidArgument(
               "Invalid query. You are trying to start or end a query using a document for which "
               "the field '%s' is an uncommitted server timestamp. (Since the value of this field "
               "is unknown, you cannot start/end a query with it.)",
-              orderBy.field().CanonicalString());
+              order_bys[i].field().CanonicalString());
         } else {
-          components.push_back(*value);
+          components.values[i] = DeepClone(*value);
         }
       } else {
         ThrowInvalidArgument(
             "Invalid query. You are trying to start or end a query using a document for which the "
             "field '%s' (used as the order by) does not exist.",
-            orderBy.field().CanonicalString());
+            order_bys[i].field().CanonicalString());
       }
     }
   }
-  return Bound(std::move(components), isBefore);
+  return Bound(components, isBefore);
 }
 
 /** Converts a list of field values to an Bound. */
@@ -581,17 +601,19 @@ int32_t SaturatedLimitValue(NSInteger limit) {
                          "than were specified in the order by.");
   }
 
-  std::vector<FieldValue> components;
+  google_firestore_v1_ArrayValue components;
+  components.values_count = CheckedSize(fieldValues.count);
+  components.values = MakeArray<google_firestore_v1_Value>(components.values_count);
   for (NSUInteger idx = 0, max = fieldValues.count; idx < max; ++idx) {
     id rawValue = fieldValues[idx];
     const OrderBy &sortOrder = explicitSortOrders[idx];
 
-    FieldValue fieldValue = [self parsedQueryValue:rawValue];
+    Message<google_firestore_v1_Value> fieldValue{[self parsedQueryValue:rawValue]};
     if (sortOrder.field().IsKeyFieldPath()) {
-      if (fieldValue.type() != FieldValue::Type::String) {
+      if (GetTypeOrder(*fieldValue) != TypeOrder::kString) {
         ThrowInvalidArgument("Invalid query. Expected a string for the document ID.");
       }
-      const std::string &documentID = fieldValue.string_value();
+      std::string documentID = MakeString(fieldValue->string_value);
       if (!self.query.IsCollectionGroupQuery() && documentID.find('/') != std::string::npos) {
         ThrowInvalidArgument("Invalid query. When querying a collection and ordering by document "
                              "ID, you must pass a plain document ID, but '%s' contains a slash.",
@@ -605,13 +627,15 @@ int32_t SaturatedLimitValue(NSInteger limit) {
                              path.CanonicalString());
       }
       DocumentKey key{path};
-      fieldValue = FieldValue::FromReference(self.firestore.databaseID, key);
+      components.values[idx] = RefValue(self.firestore.databaseID, key);
+    } else {
+      fieldValue.release();
+      components.values[idx] = *fieldValue;
     }
 
-    components.push_back(fieldValue);
   }
 
-  return Bound(std::move(components), isBefore);
+  return Bound(components, isBefore);
 }
 
 @end
