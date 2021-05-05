@@ -17,10 +17,13 @@
 
 @implementation FIRDatabaseReferenceFake
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wobjc-designated-initializers"
 - (instancetype)init {
   // The object is partially initialized. Make sure the methods used during testing are overridden.
   return self;
 }
+#pragma clang diagnostic pop
 
 - (void)setValue:(nullable id)value
     withCompletionBlock:(nonnull void (^)(NSError *_Nullable __strong,

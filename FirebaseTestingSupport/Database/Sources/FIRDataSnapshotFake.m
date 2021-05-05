@@ -16,10 +16,13 @@
 
 @implementation FIRDataSnapshotFake
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wobjc-designated-initializers"
 - (instancetype)init {
   // The object is partially initialized. Make sure the methods used during testing are overridden.
   return self;
 }
+#pragma clang diagnostic pop
 
 - (nullable id)value {
   return self.fakeValue;
