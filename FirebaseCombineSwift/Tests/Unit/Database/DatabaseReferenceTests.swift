@@ -35,7 +35,10 @@ class DatabaseReferenceTests: XCTestCase {
 
     cancellable = future.sink { completion in
       completionExpectation.fulfill()
-    } receiveValue: { _ in
+    } receiveValue: { value in
+      // Void does not conform to Equatable, but
+      // can be tested using ==
+      XCTAssert(value == Void())
       valueExpectation.fulfill()
     }
 
@@ -81,7 +84,7 @@ class DatabaseReferenceTests: XCTestCase {
 
     var expected = models
     cancellable = publisher.sink { _ in
-      // No completion is expected
+      XCTFail("The publisher should not complete")
     } receiveValue: { received in
       let model = expected[0]
       XCTAssertEqual(model, received)
