@@ -30,7 +30,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init NS_UNAVAILABLE;
 
-- (instancetype)initWithArtifact:(NSData *)artifact token:(FIRAppCheckToken *)token NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithArtifact:(NSData *)artifact
+                           token:(FIRAppCheckToken *)token NS_DESIGNATED_INITIALIZER;
 
 @end
 

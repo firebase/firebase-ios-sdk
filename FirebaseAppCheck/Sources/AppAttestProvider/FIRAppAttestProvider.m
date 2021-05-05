@@ -200,33 +200,39 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - State handling
 
 - (FBLPromise<FIRAppAttestProviderState *> *)attestationState {
-  dispatch_queue_t stateQueue = dispatch_queue_create("FIRAppAttestProvider.state", DISPATCH_QUEUE_SERIAL);
+  dispatch_queue_t stateQueue =
+      dispatch_queue_create("FIRAppAttestProvider.state", DISPATCH_QUEUE_SERIAL);
 
-  return [FBLPromise onQueue:stateQueue do:^id _Nullable {
-    NSError *error;
+  return [FBLPromise
+      onQueue:stateQueue
+           do:^id _Nullable {
+             NSError *error;
 
-    // 1. Check if App Attest is supported.
-    id isSupportedResult = FBLPromiseAwait([self isAppAttestSupported], &error);
-    if (isSupportedResult == nil) {
-      return [[FIRAppAttestProviderState alloc] initUnsupportedWithError:error];
-    }
+             // 1. Check if App Attest is supported.
+             id isSupportedResult = FBLPromiseAwait([self isAppAttestSupported], &error);
+             if (isSupportedResult == nil) {
+               return [[FIRAppAttestProviderState alloc] initUnsupportedWithError:error];
+             }
 
-    // 2. Check for stored key ID of the generated App Attest key pair.
-    NSString *appAttestKeyID = FBLPromiseAwait([self.keyIDStorage getAppAttestKeyID], &error);
-    if (appAttestKeyID == nil) {
-      return [[FIRAppAttestProviderState alloc] initWithSupportedInitialState];
-    }
+             // 2. Check for stored key ID of the generated App Attest key pair.
+             NSString *appAttestKeyID =
+                 FBLPromiseAwait([self.keyIDStorage getAppAttestKeyID], &error);
+             if (appAttestKeyID == nil) {
+               return [[FIRAppAttestProviderState alloc] initWithSupportedInitialState];
+             }
 
-    // 3. Check for stored attestation artifact received from Firebase backend.
-    NSData *attestationArtifact = FBLPromiseAwait([self.artifactStorage getArtifact], &error);
-    if (attestationArtifact == nil) {
-      return [[FIRAppAttestProviderState alloc] initWithGeneratedKeyID:appAttestKeyID];
-    }
+             // 3. Check for stored attestation artifact received from Firebase backend.
+             NSData *attestationArtifact =
+                 FBLPromiseAwait([self.artifactStorage getArtifact], &error);
+             if (attestationArtifact == nil) {
+               return [[FIRAppAttestProviderState alloc] initWithGeneratedKeyID:appAttestKeyID];
+             }
 
-    // 4. A valid App Attest key pair was generated and registered with Firebase
-    // backend. Return the corresponding state.
-    return [[FIRAppAttestProviderState alloc] initWithRegisteredKeyID:appAttestKeyID artifact:attestationArtifact];
-  }];
+             // 4. A valid App Attest key pair was generated and registered with Firebase
+             // backend. Return the corresponding state.
+             return [[FIRAppAttestProviderState alloc] initWithRegisteredKeyID:appAttestKeyID
+                                                                      artifact:attestationArtifact];
+           }];
 }
 
 #pragma mark - Helpers
