@@ -17,9 +17,11 @@
 
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 #import "FirebasePerformance/Sources/AppActivity/FPRScreenTraceTracker.h"
+#import "FirebasePerformance/Sources/AppActivity/FPRScreenTraceTracker+Private.h"
 #import "FirebasePerformance/Sources/AppActivity/FPRSessionManager+Private.h"
 #import "FirebasePerformance/Sources/AppActivity/FPRTraceBackgroundActivityTracker.h"
 #import "FirebasePerformance/Sources/Common/FPRConstants.h"
+#import "FirebasePerformance/Sources/Common/FPRConsoleUrlGenerator.h"
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
 #import "FirebasePerformance/Sources/Configurations/FPRRemoteConfigFlags.h"
 #import "FirebasePerformance/Sources/FPRConsoleLogger.h"
@@ -28,6 +30,8 @@
 #import "FirebasePerformance/Sources/Loggers/FPRGDTLogger.h"
 #import "FirebasePerformance/Sources/Timer/FIRTrace+Internal.h"
 #import "FirebasePerformance/Sources/Timer/FIRTrace+Private.h"
+
+#import "FirebasePerformance/Sources/Public/FIRPerformance.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
@@ -107,6 +111,13 @@
     _eventsQueue = dispatch_queue_create("com.google.perf.FPREventsQueue", DISPATCH_QUEUE_SERIAL);
     _eventsQueueGroup = dispatch_group_create();
     _configuration = [FPRConfigurations sharedInstance];
+    NSString *plistPath = [[NSBundle mainBundle] pathForResource:@"GoogleService-Info"
+                                                                ofType:@"plist"];
+    NSMutableDictionary *googleServiceDict =
+        [NSMutableDictionary dictionaryWithContentsOfFile:plistPath];
+    _projectId = googleServiceDict[@"PROJECT_ID"];
+    _bundleId = googleServiceDict[@"BUNDLE_ID"];
+    _isFirstTimeProcessAndLogEvent = true;
   }
   return self;
 }
@@ -161,18 +172,15 @@
       metric.traceMetric = FPRGetTraceMetric(trace);
       metric.applicationInfo.applicationProcessState =
           FPRApplicationProcessState(trace.backgroundTraceState);
-      FPRLogDebug(kFPRClientMetricLogged, @"Logging trace metric - %@ %.4fms",
-                  metric.traceMetric.name, metric.traceMetric.durationUs / 1000.0);
-      NSString *plistPath = [[NSBundle mainBundle] pathForResource:@"GoogleService-Info"
-                                                            ofType:@"plist"];
-      NSMutableDictionary *googleServiceDict =
-          [NSMutableDictionary dictionaryWithContentsOfFile:plistPath];
-
-      FPRLogDebug(kFPRClientMetricLogged,
-                  @"Please visit "
-                  @"https://console.firebase.google.com/project/%@/performance/app/ios:%@/metrics/"
-                  @"trace/DURATION_TRACE/%@ for more information",
-                  googleServiceDict[@"PROJECT_ID"], googleServiceDict[@"BUNDLE_ID"], trace.name);
+      
+      // Log the trace metric with its console URL.
+      if ([trace.name hasPrefix:kFPRPrefixForScreenTraceName]) {
+        FPRLogDebug(kFPRClientMetricLogged, @"Logging trace metric - %@ %.4fms. Please visit %@ in a minute for details.",
+                    metric.traceMetric.name, metric.traceMetric.durationUs / 1000.0, [FPRConsoleUrlGenerator generateScreenTraceUrlWithProjectId:self.projectId bundleId:self.bundleId traceName:trace.name]);
+      } else {
+        FPRLogDebug(kFPRClientMetricLogged, @"Logging trace metric - %@ %.4fms. Please visit %@ in a minute for details.",
+                    metric.traceMetric.name, metric.traceMetric.durationUs / 1000.0, [FPRConsoleUrlGenerator generateCustomTraceUrlWithProjectId:self.projectId bundleId:self.bundleId traceName:trace.name]);
+      }
       [self processAndLogEvent:metric];
     });
   } else {
@@ -199,16 +207,6 @@
       FPRLogDebug(kFPRClientMetricLogged,
                   @"Logging network request trace - %@, Response code: %@, %.4fms",
                   networkRequestMetric.URL, responseCode, duration / 1000.0);
-      NSString *plistPath = [[NSBundle mainBundle] pathForResource:@"GoogleService-Info"
-                                                            ofType:@"plist"];
-      NSMutableDictionary *googleServiceDict =
-          [NSMutableDictionary dictionaryWithContentsOfFile:plistPath];
-
-      FPRLogDebug(kFPRClientMetricLogged,
-                  @"Please visit "
-                  @"https://console.firebase.google.com/project/%@/performance/app/ios:%@/trends "
-                  @"for more information",
-                  googleServiceDict[@"PROJECT_ID"], googleServiceDict[@"BUNDLE_ID"]);
       FPRMSGPerfMetric *metric = FPRGetPerfMetricMessage(self.config.appID);
       metric.networkRequestMetric = networkRequestMetric;
       metric.applicationInfo.applicationProcessState =
@@ -245,6 +243,11 @@
   if (!sdkEnabled) {
     FPRLogInfo(kFPRClientSDKDisabled, @"Dropping event since Performance SDK is disabled.");
     return;
+  }
+  
+  if (self.isFirstTimeProcessAndLogEvent) {
+    FPRLogInfo(kFPRClientMetricLogged, @"Welcome to Firebase Performance Monitoring! Please visit %@ in a minute for details.",[FPRConsoleUrlGenerator generateDashboardUrlWithProjectId:self.projectId bundleId:self.bundleId]);
+    self.isFirstTimeProcessAndLogEvent = false;
   }
 
   static dispatch_once_t onceToken;
