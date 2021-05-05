@@ -259,7 +259,7 @@
         @"Welcome to Firebase Performance Monitoring! Please visit %@ in a minute for details.",
         [FPRConsoleUrlGenerator generateDashboardUrlWithProjectId:self.projectId
                                                          bundleId:self.bundleId]);
-    self.isFirstTimeProcessAndLogEvent = false;
+    self.isFirstTimeProcessAndLogEvent = NO;
   }
 
   static dispatch_once_t onceToken;
