@@ -42,6 +42,8 @@
 }
 
 - (void)tearDown {
+  // Cleanup the storage.
+  [self.storage setArtifact:nil];
   self.storage = nil;
   [super tearDown];
 }
