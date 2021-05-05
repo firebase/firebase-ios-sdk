@@ -38,7 +38,7 @@ class DatabaseReferenceTests: XCTestCase {
     } receiveValue: { value in
       // Void does not conform to Equatable, but
       // can be tested using ==
-      XCTAssert(value == Void())
+      XCTAssert(value == ())
       valueExpectation.fulfill()
     }
 
