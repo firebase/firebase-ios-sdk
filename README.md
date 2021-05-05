@@ -3,6 +3,7 @@
 [![Platform](https://img.shields.io/cocoapods/p/Firebase.svg?style=flat)](https://cocoapods.org/pods/Firebase)
 
 [![Actions Status][gh-abtesting-badge]][gh-actions]
+[![Actions Status][gh-appcheck-badge]][gh-actions]
 [![Actions Status][gh-appdistribution-badge]][gh-actions]
 [![Actions Status][gh-auth-badge]][gh-actions]
 [![Actions Status][gh-cocoapods-integration-badge]][gh-actions]
@@ -39,6 +40,8 @@ monetize your app. More information about Firebase can be found at
 
 The repository also includes GoogleUtilities and GoogleDataTransport source
 which are utilities used by Firebase and other Google products.
+
+**Note** _FirebaseCombineSwift_ contains support for Apple's Combine framework. This module is currently under development, and not yet supported for use in production environments. Fore more details, please refer to the [docs](FirebaseCombineSwift/README.md).
 
 ## Installation
 
@@ -103,7 +106,7 @@ Instructions for the experimental Carthage distribution are at
 To develop Firebase software in this repository, ensure that you have at least
 the following software:
 
-  * Xcode 12.0 (or later)
+  * Xcode 12.2 (or later)
 
 CocoaPods is still the canonical way to develop, but much of the repo now supports
 development with Swift Package Manager.
@@ -169,7 +172,7 @@ GitHub Actions will verify that any code changes are done in a style compliant
 way. Install `clang-format` and `mint`:
 
 ```console
-brew install clang-format@11
+brew install clang-format@12
 brew install mint
 ```
 
@@ -309,6 +312,7 @@ Your use of Firebase is governed by the
 
 [gh-actions]: https://github.com/firebase/firebase-ios-sdk/actions
 [gh-abtesting-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/abtesting/badge.svg
+[gh-appcheck-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/app_check/badge.svg
 [gh-appdistribution-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/appdistribution/badge.svg
 [gh-auth-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/auth/badge.svg
 [gh-cocoapods-integration-badge]: https://github.com/firebase/firebase-ios-sdk/workflows/cocoapods-integration/badge.svg

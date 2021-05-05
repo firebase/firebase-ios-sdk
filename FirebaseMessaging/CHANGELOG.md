@@ -1,3 +1,6 @@
+# 2021-04 -- v8.0.0
+- [changed] Remove the Instance ID dependency from Firebase Cloud Messaging. This is a breaking change for FCM users who use the deprecated Instance ID API to manage registration tokens. Users should migrate to FCM's token APIs by following the migration guide: https://firebase.google.com/docs/projects/manage-installations#fid-iid. (#7836)
+
 # 2021-04 -- v7.11.0
 - [changed] Refactor Messaging to internally not depending on InstanceID, but can co-exist. Will remove InstanceID dependency in the next Firebase breaking change. (#7814)
 

@@ -25,6 +25,7 @@ NSString *const kGCSObjectPathFormat = @"o/%@";
 
 NSString *const kFIRStorageScheme = @"https";
 NSString *const kFIRStorageHost = @"firebasestorage.googleapis.com";
+NSInteger const kFIRStoragePort = 443;
 NSString *const kFIRStorageVersionPath = @"v0";
 NSString *const kFIRStorageBucketPathFormat = @"b/%@";
 NSString *const kFIRStorageObjectPathFormat = @"o/%@";

@@ -24,13 +24,13 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRAuthInteropFake : NSObject <FIRAuthInterop>
 
 /// The error to be returned in the `getToken` callback.
-@property(nonatomic, nullable, strong, readonly) NSError *error;
+@property(nonatomic, nullable, strong) NSError *error;
 
 /// The token to be returned in the `getToken` callback.
-@property(nonatomic, nullable, strong, readonly) NSString *token;
+@property(nonatomic, nullable, copy) NSString *token;
 
 /// The user ID to be returned from `getUserID`.
-@property(nonatomic, nullable, strong, readonly) NSString *userID;
+@property(nonatomic, nullable, copy) NSString *userID;
 
 /// Default initializer.
 - (instancetype)initWithToken:(nullable NSString *)token

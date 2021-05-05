@@ -167,10 +167,6 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
 - (NSString *)tokenAndRequestIfNotExist;
 
 /*
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 058239521 (Should only have only one local cache of token  (#7233))
  * Saves the default token to the keychain.
  */
 - (void)saveDefaultTokenInfoInKeychain:(NSString *)defaultFcmToken;

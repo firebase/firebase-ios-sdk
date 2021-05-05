@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseInstallations'
-  s.version          = '7.10.0'
+  s.version          = '8.0.0'
   s.summary          = 'Firebase Installations'
 
   s.description      = <<-DESC
@@ -40,16 +40,12 @@ Pod::Spec.new do |s|
   ]
 
   s.framework = 'Security'
-  s.dependency 'FirebaseCore', '~> 7.0'
+  s.dependency 'FirebaseCore', '~> 8.0'
   s.dependency 'PromisesObjC', '~> 1.2'
-  s.dependency 'GoogleUtilities/Environment', '~> 7.0'
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 7.0'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.4'
+  s.dependency 'GoogleUtilities/UserDefaults', '~> 7.4'
 
   preprocessor_definitions = ''
-  if ENV['FIS_ALLOWS_INCOMPATIBLE_IID_VERSION'] && ENV['FIS_ALLOWS_INCOMPATIBLE_IID_VERSION'] == '1' then
-    # Disable FirebaseInstanceID compatibility assert to test IID migration.
-    preprocessor_definitions += ' FIR_INSTALLATIONS_ALLOWS_INCOMPATIBLE_IID_VERSION=1'
-  end
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' => preprocessor_definitions,
@@ -71,7 +67,6 @@ Pod::Spec.new do |s|
 
     if ENV['FIS_IID_MIGRATION_TESTING'] && ENV['FIS_IID_MIGRATION_TESTING'] == '1' then
       unit_tests.source_files += base_dir + 'Tests/Unit/IIDStoreTests/*.[mh]'
-      unit_tests.dependency 'FirebaseInstanceID', '~> 4.2.0' # The version before FirebaseInstanceID updated to use FirebaseInstallations under the hood.
     end
  end
 

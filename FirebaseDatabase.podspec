@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseDatabase'
-  s.version          = '7.10.0'
+  s.version          = '8.0.0'
   s.summary          = 'Firebase Realtime Database'
 
   s.description      = <<-DESC
@@ -36,6 +36,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
     base_dir + 'third_party/Wrap-leveldb/APLevelDB.mm',
     base_dir + 'third_party/SocketRocket/fbase64.c',
     'Interop/Auth/Public/*.h',
+    'FirebaseAppCheck/Sources/Interop/*.h',
     'FirebaseCore/Sources/Private/*.h',
   ]
   s.public_header_files = base_dir + 'Public/FirebaseDatabase/*.h'
@@ -45,7 +46,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.macos.frameworks = 'CFNetwork', 'Security', 'SystemConfiguration'
   s.watchos.frameworks = 'CFNetwork', 'Security', 'WatchKit'
   s.dependency 'leveldb-library', '~> 1.22'
-  s.dependency 'FirebaseCore', '~> 7.0'
+  s.dependency 'FirebaseCore', '~> 8.0'
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
@@ -62,6 +63,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
       'FirebaseDatabase/Tests/Unit/*.[mh]',
       'FirebaseDatabase/Tests/Helpers/*.[mh]',
       'FirebaseDatabase/Tests/third_party/*.[mh]',
+      'SharedTestUtilities/AppCheckFake/*.[mh]',
       'SharedTestUtilities/FIRAuthInteropFake.[mh]',
       'SharedTestUtilities/FIRComponentTestUtilities.[mh]',
       'SharedTestUtilities/FIROptionsMock.[mh]',
@@ -77,6 +79,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
     int_tests.source_files = [
       'FirebaseDatabase/Tests/Integration/*.[mh]',
       'FirebaseDatabase/Tests/Helpers/*.[mh]',
+      'SharedTestUtilities/AppCheckFake/*.[mh]',
       'SharedTestUtilities/FIRAuthInteropFake.[mh]',
       'SharedTestUtilities/FIRComponentTestUtilities.[mh]',
       'SharedTestUtilities/FIROptionsMock.[mh]',

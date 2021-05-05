@@ -17,8 +17,7 @@
 #import "FirebaseDatabase/Sources/Api/FIRDatabaseConfig.h"
 
 #import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
-#import "FirebaseDatabase/Sources/Login/FAuthTokenProvider.h"
-#import "FirebaseDatabase/Sources/Login/FIRNoopAuthTokenProvider.h"
+#import "FirebaseDatabase/Sources/Login/FIRDatabaseConnectionContextProvider.h"
 
 @interface FIRDatabaseConfig (Private)
 
@@ -37,7 +36,8 @@
 
 - (id)initWithSessionIdentifier:(NSString *)identifier
                     googleAppID:(NSString *)googleAppID
-              authTokenProvider:(id<FAuthTokenProvider>)authTokenProvider {
+                contextProvider:
+                    (id<FIRDatabaseConnectionContextProvider>)contextProvider {
     self = [super init];
     if (self != nil) {
         self->_sessionIdentifier = identifier;
@@ -45,7 +45,7 @@
         self->_googleAppID = googleAppID;
         self->_persistenceCacheSizeBytes =
             10 * 1024 * 1024; // Default cache size is 10MB
-        self->_authTokenProvider = authTokenProvider;
+        self->_contextProvider = contextProvider;
     }
     return self;
 }
@@ -58,9 +58,10 @@
     }
 }
 
-- (void)setAuthTokenProvider:(id<FAuthTokenProvider>)authTokenProvider {
+- (void)setContextProvider:
+    (id<FIRDatabaseConnectionContextProvider>)contextProvider {
     [self assertUnfrozen];
-    self->_authTokenProvider = authTokenProvider;
+    self->_contextProvider = contextProvider;
 }
 
 - (void)setPersistenceEnabled:(BOOL)persistenceEnabled {

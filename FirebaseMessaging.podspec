@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseMessaging'
-  s.version          = '7.10.0'
+  s.version          = '8.0.0'
   s.summary          = 'Firebase Messaging'
 
   s.description      = <<-DESC
@@ -51,13 +51,12 @@ device, and it is completely free.
   s.tvos.framework = 'SystemConfiguration'
   s.osx.framework = 'SystemConfiguration'
   s.weak_framework = 'UserNotifications'
-  s.dependency 'FirebaseInstanceID', '~> 7.0'
-  s.dependency 'FirebaseInstallations', '~> 7.0'
-  s.dependency 'FirebaseCore', '~> 7.0'
-  s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.0'
-  s.dependency 'GoogleUtilities/Reachability', '~> 7.0'
-  s.dependency 'GoogleUtilities/Environment', '~> 7.0'
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 7.0'
+  s.dependency 'FirebaseInstallations', '~> 8.0'
+  s.dependency 'FirebaseCore', '~> 8.0'
+  s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.4'
+  s.dependency 'GoogleUtilities/Reachability', '~> 7.4'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.4'
+  s.dependency 'GoogleUtilities/UserDefaults', '~> 7.4'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }

@@ -3,9 +3,7 @@ name: release
 on:
   pull_request:
     paths:
-    - '.github/workflows/release.yml'
-    - 'scripts/create_spec_repo/**'
-    - 'Gemfile*'
+    - 'scripts/release_testing_setup.sh'
   workflow_dispatch:
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
@@ -41,7 +39,7 @@ jobs:
         cd scripts/create_spec_repo/
         swift build
         pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/FirebasePrivate/SpecsTesting.git
-        BOT_TOKEN="${botaccess}"  .build/debug/spec-repo-builder --sdk-repo "${local_sdk_repo_dir}" --local-spec-repo-name "${local_repo}" --pod-sources 'https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsTesting' --pod-sources "https://github.com/firebase/SpecsStaging.git" --pod-sources "https://cdn.cocoapods.org/"
+        BOT_TOKEN="${botaccess}"  .build/debug/spec-repo-builder --sdk-repo "${local_sdk_repo_dir}" --local-spec-repo-name "${local_repo}" --pod-sources 'https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsTesting' "https://github.com/firebase/SpecsStaging.git" "https://cdn.cocoapods.org/" --exclude-pods "FirebaseSegmentation" "FirebaseFirestoreTestingSupport" "FirebaseAuthTestingSupport" "FirebaseCombineSwift" "FirebaseFunctionsTestingSupport"
     - name: Clean Artifacts
       if: ${{ always() }}
       run: |

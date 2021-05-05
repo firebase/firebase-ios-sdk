@@ -471,9 +471,9 @@ NSString *const kTestPassword = KPASSWORD;
   FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/1mb"];
 
   // Download URL format is
-  // "https://firebasestorage.googleapis.com/v0/b/{bucket}/o/{path}?alt=media&token={token}"
+  // "https://firebasestorage.googleapis.com:443/v0/b/{bucket}/o/{path}?alt=media&token={token}"
   NSString *downloadURLPattern =
-      @"^https:\\/\\/firebasestorage.googleapis.com\\/v0\\/b\\/[^\\/]*\\/o\\/"
+      @"^https:\\/\\/firebasestorage.googleapis.com:443\\/v0\\/b\\/[^\\/]*\\/o\\/"
       @"ios%2Fpublic%2F1mb\\?alt=media&token=[a-z0-9-]*$";
 
   [ref downloadURLWithCompletion:^(NSURL *downloadURL, NSError *error) {
@@ -499,21 +499,20 @@ NSString *const kTestPassword = KPASSWORD;
   NSURL *tmpDirURL = [NSURL fileURLWithPath:NSTemporaryDirectory()];
   NSURL *fileURL =
       [[tmpDirURL URLByAppendingPathComponent:@"hello"] URLByAppendingPathExtension:@"txt"];
+  NSData *fileData = [@"Hello World" dataUsingEncoding:NSUTF8StringEncoding];
 
-  [ref putData:[@"Hello World" dataUsingEncoding:NSUTF8StringEncoding]
+  [ref putData:fileData
         metadata:nil
       completion:^(FIRStorageMetadata *metadata, NSError *error) {
         FIRStorageDownloadTask *task = [ref writeToFile:fileURL];
 
         [task observeStatus:FIRStorageTaskStatusSuccess
                     handler:^(FIRStorageTaskSnapshot *snapshot) {
-                      NSString *data = [NSString stringWithContentsOfURL:fileURL
-                                                                encoding:NSUTF8StringEncoding
-                                                                   error:NULL];
-                      NSString *expectedData = @"Hello World";
-                      XCTAssertEqualObjects(data, expectedData);
-                      XCTAssertEqualObjects([snapshot description], @"<State: Success>");
-                      [expectation fulfill];
+                      [ref dataWithMaxSize:fileData.length
+                                completion:^(NSData *_Nullable data, NSError *_Nullable error) {
+                                  XCTAssertEqualObjects(data, fileData);
+                                  [expectation fulfill];
+                                }];
                     }];
 
         [task observeStatus:FIRStorageTaskStatusProgress

@@ -22,7 +22,6 @@
   self = [super initWithDict:dict];
   if (self) {
     _build_version = dict[@"build_version"];
-    _install_id = dict[@"install_id"];
   }
   return self;
 }

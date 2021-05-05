@@ -12,23 +12,37 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#import <GoogleUtilities/GULHeartbeatDateStorable.h>
 #import <GoogleUtilities/GULHeartbeatDateStorage.h>
+#import <GoogleUtilities/GULHeartbeatDateStorageUserDefaults.h>
 #import <XCTest/XCTest.h>
 #import "FirebaseCore/Sources/Private/FIRHeartbeatInfo.h"
 
+/// Taken from the implementation of `FIRHeartbeatInfo.m`.
+NSString *const kFIRCoreSuiteName = @"com.firebase.core";
+
 @interface FIRHeartbeatInfoTest : XCTestCase
 
-@property(nonatomic, strong) GULHeartbeatDateStorage *dataStorage;
+@property(nonatomic, strong) id<GULHeartbeatDateStorable> dataStorage;
 
-@property(nonatomic, strong) NSMutableDictionary *dictionary;
+#if TARGET_OS_TV
+@property(nonatomic, strong) NSUserDefaults *defaults;
+#endif  // TARGET_OS_TV
 
 @end
 
 @implementation FIRHeartbeatInfoTest
 
 - (void)setUp {
-  NSString *const kHeartbeatStorageFile = @"HEARTBEAT_INFO_STORAGE";
-  self.dataStorage = [[GULHeartbeatDateStorage alloc] initWithFileName:kHeartbeatStorageFile];
+  NSString *const kHeartbeatStorageName = @"HEARTBEAT_INFO_STORAGE";
+#if TARGET_OS_TV
+  self.defaults = [[NSUserDefaults alloc] initWithSuiteName:kFIRCoreSuiteName];
+  self.dataStorage =
+      [[GULHeartbeatDateStorageUserDefaults alloc] initWithDefaults:self.defaults
+                                                                key:kHeartbeatStorageName];
+#else
+  self.dataStorage = [[GULHeartbeatDateStorage alloc] initWithFileName:kHeartbeatStorageName];
+#endif  // TARGET_OS_TV
   NSDateComponents *componentsToAdd = [[NSDateComponents alloc] init];
   componentsToAdd.day = -1;
 
@@ -39,6 +53,16 @@
   [self.dataStorage setHearbeatDate:dayAgo forTag:@"fire-iid"];
   [self.dataStorage setHearbeatDate:dayAgo forTag:@"GLOBAL"];
 }
+
+#if TARGET_OS_TV
+- (void)tearDown {
+  // Delete any residual storage.
+  [self.defaults removePersistentDomainForName:kFIRCoreSuiteName];
+  self.defaults = nil;
+
+  [super tearDown];
+}
+#endif  // TARGET_OS_TV
 
 - (void)testCombinedHeartbeat {
   FIRHeartbeatInfoCode heartbeatCode = [FIRHeartbeatInfo heartbeatCodeForTag:@"fire-iid"];

@@ -23,6 +23,9 @@
 #import "FirebaseDatabase/Sources/Constants/FConstants.h"
 #import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestAuthTokenGenerator.h"
+
+#import "SharedTestUtilities/AppCheckFake/FIRAppCheckFake.h"
+#import "SharedTestUtilities/AppCheckFake/FIRAppCheckTokenResultFake.h"
 #import "SharedTestUtilities/FIRAuthInteropFake.h"
 
 @implementation FTestHelpers
@@ -53,10 +56,12 @@
 
 + (FIRDatabaseConfig *)configForName:(NSString *)name {
   id<FIRAuthInterop> auth = [[FIRAuthInteropFake alloc] initWithToken:nil userID:nil error:nil];
-  id<FAuthTokenProvider> authTokenProvider = [FAuthTokenProvider authTokenProviderWithAuth:auth];
+  id<FIRAppCheckInterop> appCheck = [[FIRAppCheckFake alloc] init];
+  id<FIRDatabaseConnectionContextProvider> contextProvider =
+      [FIRDatabaseConnectionContextProvider contextProviderWithAuth:auth appCheck:appCheck];
   return [[FIRDatabaseConfig alloc] initWithSessionIdentifier:name
                                                   googleAppID:@"fake-app-id"
-                                            authTokenProvider:authTokenProvider];
+                                              contextProvider:contextProvider];
 }
 
 + (NSString *)databaseURL {

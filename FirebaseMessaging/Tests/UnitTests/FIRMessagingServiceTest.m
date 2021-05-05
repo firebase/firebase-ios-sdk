@@ -308,6 +308,5 @@ static NSString *const kFIRMessagingTestsServiceSuiteName = @"com.messaging.test
       retrieveFCMTokenForSenderID:[OCMArg any]
                        completion:([OCMArg invokeBlockWithArgs:kFakeToken, [NSNull null], nil])]);
 }
-#pragma clang diagnostic pop
 
 @end

@@ -1,14 +1,14 @@
 {
     "authors": "Google, Inc.",
     "cocoapods_version": ">= 1.10.0",
+    "default_subspecs": "AdIdSupport",
     "dependencies": {
-        "FirebaseCore": "~> 7.0",
-        "FirebaseInstallations": "~> 7.0",
-        "GoogleAppMeasurement": "7.10.0",
-        "GoogleUtilities/AppDelegateSwizzler": "~> 7.0",
-        "GoogleUtilities/MethodSwizzler": "~> 7.0",
-        "GoogleUtilities/NSData+zlib": "~> 7.0",
-        "GoogleUtilities/Network": "~> 7.0",
+        "FirebaseCore": "~> 8.0",
+        "FirebaseInstallations": "~> 8.0",
+        "GoogleUtilities/AppDelegateSwizzler": "~> 7.4",
+        "GoogleUtilities/MethodSwizzler": "~> 7.4",
+        "GoogleUtilities/NSData+zlib": "~> 7.4",
+        "GoogleUtilities/Network": "~> 7.4",
         "nanopb": "~> 2.30908.0"
     },
     "description": "Firebase Analytics is a free, out-of-the-box analytics solution that inspires actionable insights based on app usage and user engagement.",
@@ -30,11 +30,30 @@
         "ios": "9.0"
     },
     "source": {
-        "http": "https://dl.google.com/firebase/ios/analytics/c224fb8e370c1cfd/FirebaseAnalytics-7.9.0.tar.gz"
+        "http": "https://dl.google.com/firebase/ios/analytics/86f6bb645de4aa4b/FirebaseAnalytics-8.0.0.tar.gz"
     },
-    "summary": "Firebase Analytics for iOS",
-    "vendored_frameworks": [
-        "Frameworks/FirebaseAnalytics.xcframework"
+    "subspecs": [
+        {
+            "name": "AdIdSupport",
+            "dependencies": {
+                "FirebaseAnalytics/Base": "8.0.0",
+                "GoogleAppMeasurement": "8.0.0"
+            }
+        },
+        {
+            "name": "WithoutAdIdSupport",
+            "dependencies": {
+                "FirebaseAnalytics/Base": "8.0.0",
+                "GoogleAppMeasurement/WithoutAdIdSupport": "8.0.0"
+            }
+        },
+        {
+            "name": "Base",
+            "vendored_frameworks": [
+                "Frameworks/FirebaseAnalytics.xcframework"
+            ]
+        }
     ],
-    "version": "7.10.0"
+    "summary": "Firebase Analytics for iOS",
+    "version": "8.0.0"
 }

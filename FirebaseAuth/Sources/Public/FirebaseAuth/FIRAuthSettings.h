@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
     @brief Determines settings related to an auth object.
  */
 NS_SWIFT_NAME(AuthSettings)
-@interface FIRAuthSettings : NSObject
+@interface FIRAuthSettings : NSObject <NSCopying>
 
 /** @property appVerificationDisabledForTesting
     @brief Flag to determine whether app verification should be disabled for testing or not.

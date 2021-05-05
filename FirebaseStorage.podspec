@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseStorage'
-  s.version          = '7.10.0'
+  s.version          = '8.0.0'
   s.summary          = 'Firebase Storage'
 
   s.description      = <<-DESC
@@ -34,13 +34,14 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     'FirebaseStorage/Sources/**/*.[mh]',
     'Interop/Auth/Public/*.h',
     'FirebaseCore/Sources/Private/*.h',
+    'FirebaseAppCheck/Sources/Interop/*.h',
   ]
   s.public_header_files = 'FirebaseStorage/Sources/Public/FirebaseStorage/*.h'
 
   s.osx.framework = 'CoreServices'
 
-  s.dependency 'FirebaseCore', '~> 7.0'
-  s.dependency 'GTMSessionFetcher/Core', '~> 1.4'
+  s.dependency 'FirebaseCore', '~> 8.0'
+  s.dependency 'GTMSessionFetcher/Core', '~> 1.5'
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
@@ -53,9 +54,12 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
       :osx => osx_deployment_target,
       :tvos => tvos_deployment_target
     }
-    unit_tests.source_files = 'FirebaseStorage/Tests/Unit/*.[mh]',
-                              'SharedTestUtilities/FIRComponentTestUtilities.*',
-                              'SharedTestUtilities/FIRAuthInteropFake.*'
+    unit_tests.source_files = [
+      'FirebaseStorage/Tests/Unit/*.[mh]',
+      'SharedTestUtilities/FIRComponentTestUtilities.*',
+      'SharedTestUtilities/FIRAuthInteropFake.*',
+      'SharedTestUtilities/AppCheckFake/*.[mh]',
+  ]
     unit_tests.dependency 'OCMock'
   end
 
@@ -70,7 +74,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     int_tests.requires_app_host = true
     int_tests.resources = 'FirebaseStorage/Tests/Integration/Resources/1mb.dat',
                           'FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist'
-    int_tests.dependency 'FirebaseAuth', '~> 7.0'
+    int_tests.dependency 'FirebaseAuth', '~> 8.0'
   end
 
   s.test_spec 'swift-integration' do |swift_int_tests|
@@ -79,6 +83,6 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     swift_int_tests.requires_app_host = true
     swift_int_tests.resources = 'FirebaseStorage/Tests/Integration/Resources/1mb.dat',
                           'FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist'
-    swift_int_tests.dependency 'FirebaseAuth', '~> 7.0'
+    swift_int_tests.dependency 'FirebaseAuth', '~> 8.0'
   end
 end

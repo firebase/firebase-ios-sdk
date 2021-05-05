@@ -23,11 +23,10 @@ extension Constants {
   static let skipLinesWithWords = ["unit_tests", "test_spec"]
   static let dependencyLineSeparators = CharacterSet(charactersIn: " ,/")
   static let podSources = [
-    "https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsTesting",
+    "https://${BOT_TOKEN}@github.com/Firebase/SpecsTesting",
     "https://github.com/firebase/SpecsStaging.git",
     "https://cdn.cocoapods.org/",
   ]
-  static let exclusivePods: [String] = ["FirebaseSegmentation"]
 }
 
 // flags for 'pod push'
@@ -100,17 +99,19 @@ enum SpecRepoBuilderError: Error {
   case failedToPush(pods: [String])
   // Error occurs when a podspec is not found in the repo.
   case podspecNotFound(_ podspec: String, from: String)
+  // Error occurs when a direotyr path cannot be determined.
+  case pathNotFound(_ path: String)
 }
 
 struct SpecRepoBuilder: ParsableCommand {
   @Option(help: "The root of the firebase-ios-sdk checked out git repo.")
   var sdkRepo: String = FileManager().currentDirectoryPath
 
-  @Option(help: "A list of podspec sources in Podfiles.")
+  @Option(parsing: .upToNextOption, help: "A list of podspec sources in Podfiles.")
   var podSources: [String] = Constants.podSources
 
-  @Option(help: "Podspecs that will not be pushed to repo.")
-  var excludePods: [String] = Constants.exclusivePods
+  @Option(parsing: .upToNextOption, help: "Podspecs that will not be pushed to repo.")
+  var excludePods: [String] = []
 
   @Option(help: "Github Account Name.")
   var githubAccount: String = "FirebasePrivate"
@@ -120,6 +121,12 @@ struct SpecRepoBuilder: ParsableCommand {
 
   @Option(help: "Local Podspec Repo Name.")
   var localSpecRepoName: String
+
+  @Option(parsing: .upToNextOption, help: "Push selected podspecs.")
+  var includePods: [String] = []
+
+  @Flag(help: "Keep or erase a repo before push.")
+  var keepRepo: Bool = false
 
   @Flag(help: "Raise error while circular dependency detected.")
   var raiseCircularDepError: Bool = false
@@ -258,10 +265,31 @@ struct SpecRepoBuilder: ParsableCommand {
       )
     let fileManager = FileManager.default
     do {
-      let dirs = try fileManager.contentsOfDirectory(atPath: "\(repoPath)/\(sdkRepoName)")
+      let sdk_repo_path = "\(repoPath)/\(sdkRepoName)"
+      print("The repo path is  \(sdk_repo_path)")
+      guard let repo_url = URL(string: sdk_repo_path) else {
+        print("Error: cannot find \(sdk_repo_path).")
+        Self
+          .exit(withError: SpecRepoBuilderError
+            .pathNotFound(sdk_repo_path))
+      }
+      // Skip hidden files, e.g. /.git
+      let dirs = try fileManager.contentsOfDirectory(
+        at: repo_url,
+        includingPropertiesForKeys: nil,
+        options: [.skipsHiddenFiles]
+      )
+      print("Found following unhidden dirs: \(dirs)")
       for dir in dirs {
-        if dir != ".git" {
-          shell.run("cd \(sdkRepoName); git rm -r \(dir)")
+        guard let isDir = (try dir.resourceValues(forKeys: [.isDirectoryKey])).isDirectory else {
+          print("Error: cannot determine if \(dir.path) is a directory or not.")
+          Self
+            .exit(withError: SpecRepoBuilderError
+              .pathNotFound(dir.path))
+        }
+        if isDir {
+          print("Removing \(dir.path)")
+          shell.run("cd \(sdkRepoName); git rm -r \(dir.path)")
         }
       }
       shell.run("cd \(sdkRepoName); git commit -m 'Empty repo'; git push")
@@ -289,7 +317,9 @@ struct SpecRepoBuilder: ParsableCommand {
       let podspecURLs = fileURLs.filter { $0.pathExtension == "podspec" }
       for podspecURL in podspecURLs {
         let podName = podspecURL.deletingPathExtension().lastPathComponent
-        if !Constants.exclusivePods.contains(podName) {
+        if excludePods.contains(podName) {
+          continue
+        } else if includePods.isEmpty || includePods.contains(podName) {
           podSpecFiles[podName] = podspecURL
         }
       }
@@ -311,15 +341,17 @@ struct SpecRepoBuilder: ParsableCommand {
     )
     print("Podspec push order:\n", specFileDict.depInstallOrder.joined(separator: "->\t"))
 
-    do {
-      if fileManager.fileExists(atPath: "\(curDir)/\(sdkRepoName)") {
-        print("remove \(sdkRepoName) dir.")
-        try fileManager.removeItem(at: URL(fileURLWithPath: "\(curDir)/\(sdkRepoName)"))
-      }
-      eraseRemoteRepo(repoPath: "\(curDir)", from: githubAccount, sdkRepoName)
+    if !keepRepo {
+      do {
+        if fileManager.fileExists(atPath: "\(curDir)/\(sdkRepoName)") {
+          print("remove \(sdkRepoName) dir.")
+          try fileManager.removeItem(at: URL(fileURLWithPath: "\(curDir)/\(sdkRepoName)"))
+        }
+        eraseRemoteRepo(repoPath: "\(curDir)", from: githubAccount, sdkRepoName)
 
-    } catch {
-      print("error occurred. \(error)")
+      } catch {
+        print("error occurred. \(error)")
+      }
     }
 
     var exitCode: Int32 = 0

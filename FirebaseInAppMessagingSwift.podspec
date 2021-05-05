@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                    = 'FirebaseInAppMessagingSwift'
-  s.version                 = '7.10.0-beta'
+  s.version                 = '8.0.0-beta'
   s.summary                 = 'Swift Extensions for Firebase In-App Messaging'
 
   s.description      = <<-DESC
@@ -33,5 +33,5 @@ See more product details at https://firebase.google.com/products/in-app-messagin
       unit_tests.requires_app_host = true
    end
 
-  s.dependency 'FirebaseInAppMessaging', '~> 7.8-beta'
+  s.dependency 'FirebaseInAppMessaging', '~> 8.0-beta'
 end

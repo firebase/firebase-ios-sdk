@@ -1,3 +1,7 @@
+# v8.0.0
+- [fixed] Fixed throttling issue when fetch fails due to no network. (#6628)
+- [fixed] Fixed issue where sometimes the local config returned is empty. (#7424)
+
 # v7.10.0
 - [changed] Throw exception if projectID is missing from FirebaseOptions. (#7725)
 

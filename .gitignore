@@ -18,9 +18,6 @@ FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist
 # FirebaseInstallations integration tests GoogleService-Info.plist
 FirebaseInstallations/Source/Tests/Resources/GoogleService-Info.plist
 
-# FirebaseInstanceID integration tests GoogleService-Info.plist
-Example/InstanceID/Resources/GoogleService-Info.plist
-
 # FirebaseMessaging integration tests GoogleService-Info.plist
 FirebaseMessaging/Tests/IntegrationTests/Resources/GoogleService-Info.plist
 # FirebaseMessaging test app GoogleService-Info.plist
@@ -144,3 +141,7 @@ CocoaPodsIntegrationTest/Podfile
 # In-app messaging integration tests
 FirebaseInAppMessaging/Tests/Integration/FunctionalTestApp/GoogleService-Info.plist
 FirebaseInAppMessaging/Tests/Integration/FunctionalTestApp/App/InAppMessaging-Example-iOS/AppDelegate.m
+
+# FIRAppCheckTestApp
+FirebaseAppCheck/Apps/FIRAppCheckTestApp/FIRAppCheckTestApp/GoogleService-Info.plist
+FirebaseAppCheck/Apps/AppCheckCustomProvideApp/AppCheckCustomProvideApp/GoogleService-Info.plist
