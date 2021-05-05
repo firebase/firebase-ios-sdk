@@ -22,8 +22,10 @@
 #import "FBLPromises.h"
 #endif
 
-#import <GoogleUtilities/GULURLSessionDataResponse.h>
 #import "FirebaseAppCheck/Sources/Core/APIService/FIRAppCheckAPIService.h"
+
+#import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
+#import <GoogleUtilities/GULURLSessionDataResponse.h>
 
 @interface FIRAppAttestAPIService ()
 
@@ -75,8 +77,61 @@
 }
 
 - (FBLPromise<NSData *> *)randomChallengeWithAPIResponse:(GULURLSessionDataResponse *)response {
-  NSData *randomChallenge = response.HTTPBody;
-  return [FBLPromise resolvedWith:randomChallenge];
+  return [FBLPromise onQueue:[self defaultQueue] do:^id _Nullable{
+    NSError *error;
+
+    NSData *randomChallenge = [self randomChallengeFromResponseBody:response.HTTPBody error:&error];
+
+    return randomChallenge ?: error;
+  }];
+}
+
+- (NSData *)randomChallengeFromResponseBody:(NSData *)response
+                                      error:(NSError **)outError {
+  if (response.length <= 0) {
+    FIRAppCheckSetErrorToPointer(
+        [FIRAppCheckErrorUtil errorWithFailureReason:@"Empty server response body."], outError);
+    return nil;
+  }
+
+  NSError *JSONError;
+  NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:response
+                                                               options:0
+                                                                 error:&JSONError];
+
+  if (![responseDict isKindOfClass:[NSDictionary class]]) {
+    FIRAppCheckSetErrorToPointer([FIRAppCheckErrorUtil JSONSerializationError:JSONError], outError);
+    return nil;
+  }
+
+  NSString *challenge = responseDict[@"challenge"];
+  if (![challenge isKindOfClass:[NSString class]]) {
+    FIRAppCheckSetErrorToPointer(
+        [FIRAppCheckErrorUtil appCheckTokenResponseErrorWithMissingField:@"challenge"],
+        outError);
+    return nil;
+  }
+
+  NSString *timeToLiveString = responseDict[@"ttl"];
+  if (![challenge isKindOfClass:[NSString class]] || challenge.length <= 0) {
+    FIRAppCheckSetErrorToPointer(
+        [FIRAppCheckErrorUtil appCheckTokenResponseErrorWithMissingField:@"ttl"], outError);
+    return nil;
+  }
+
+  // Expect a string like "3600s" representing a time interval in seconds.
+  NSString *timeToLiveValueString = [timeToLiveString stringByReplacingOccurrencesOfString:@"s"
+                                                                                withString:@""];
+  NSTimeInterval secondsToLive = timeToLiveValueString.doubleValue;
+
+  if (secondsToLive == 0) {
+    FIRAppCheckSetErrorToPointer(
+        [FIRAppCheckErrorUtil appCheckTokenResponseErrorWithMissingField:@"ttl"], outError);
+    return nil;
+  }
+
+  NSData *randomChallenge = [challenge dataUsingEncoding:NSUTF8StringEncoding];
+  return randomChallenge;
 }
 
 - (dispatch_queue_t)defaultQueue {
