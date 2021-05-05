@@ -51,6 +51,7 @@
 #include "Firestore/core/src/model/server_timestamp_util.h"
 #include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
+#include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/util/error_apple.h"
 #include "Firestore/core/src/util/exception.h"
 #include "Firestore/core/src/util/hard_assert.h"
@@ -92,9 +93,9 @@ using firebase::firestore::model::RefValue;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::TypeOrder;
 using firebase::firestore::nanopb::CheckedSize;
-using firebase::firestore::nanopb::FreeNanopbMessage;
 using firebase::firestore::nanopb::MakeArray;
 using firebase::firestore::nanopb::MakeString;
+using firebase::firestore::nanopb::Message;
 using firebase::firestore::util::MakeNSError;
 using firebase::firestore::util::MakeString;
 using firebase::firestore::util::StatusOr;
@@ -607,12 +608,12 @@ int32_t SaturatedLimitValue(NSInteger limit) {
     id rawValue = fieldValues[idx];
     const OrderBy &sortOrder = explicitSortOrders[idx];
 
-    google_firestore_v1_Value fieldValue = [self parsedQueryValue:rawValue];
+    Message<google_firestore_v1_Value> fieldValue{[self parsedQueryValue:rawValue]};
     if (sortOrder.field().IsKeyFieldPath()) {
-      if (GetTypeOrder(fieldValue) != TypeOrder::kString) {
+      if (GetTypeOrder(*fieldValue) != TypeOrder::kString) {
         ThrowInvalidArgument("Invalid query. Expected a string for the document ID.");
       }
-      std::string documentID = MakeString(fieldValue.string_value);
+      std::string documentID = MakeString(fieldValue->string_value);
       if (!self.query.IsCollectionGroupQuery() && documentID.find('/') != std::string::npos) {
         ThrowInvalidArgument("Invalid query. When querying a collection and ordering by document "
                              "ID, you must pass a plain document ID, but '%s' contains a slash.",
@@ -626,11 +627,12 @@ int32_t SaturatedLimitValue(NSInteger limit) {
                              path.CanonicalString());
       }
       DocumentKey key{path};
-      FreeNanopbMessage(google_firestore_v1_Value_fields, &fieldValue);
-      fieldValue = RefValue(self.firestore.databaseID, key);
+      components.values[idx] = RefValue(self.firestore.databaseID, key);
+    } else {
+      fieldValue.release();
+      components.values[idx] = *fieldValue;
     }
 
-    components.values[idx] = fieldValue;
   }
 
   return Bound(components, isBefore);
