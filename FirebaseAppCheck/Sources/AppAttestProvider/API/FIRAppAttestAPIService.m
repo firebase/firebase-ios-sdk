@@ -24,8 +24,8 @@
 
 #import "FirebaseAppCheck/Sources/Core/APIService/FIRAppCheckAPIService.h"
 
-#import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 #import <GoogleUtilities/GULURLSessionDataResponse.h>
+#import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 
 @interface FIRAppAttestAPIService ()
 
@@ -79,17 +79,19 @@
 #pragma mark - Helpers
 
 - (FBLPromise<NSData *> *)randomChallengeWithAPIResponse:(GULURLSessionDataResponse *)response {
-  return [FBLPromise onQueue:[self defaultQueue] do:^id _Nullable{
-    NSError *error;
+  return [FBLPromise onQueue:[self defaultQueue]
+                          do:^id _Nullable {
+                            NSError *error;
 
-    NSData *randomChallenge = [self randomChallengeFromResponseBody:response.HTTPBody error:&error];
+                            NSData *randomChallenge =
+                                [self randomChallengeFromResponseBody:response.HTTPBody
+                                                                error:&error];
 
-    return randomChallenge ?: error;
-  }];
+                            return randomChallenge ?: error;
+                          }];
 }
 
-- (NSData *)randomChallengeFromResponseBody:(NSData *)response
-                                      error:(NSError **)outError {
+- (NSData *)randomChallengeFromResponseBody:(NSData *)response error:(NSError **)outError {
   if (response.length <= 0) {
     FIRAppCheckSetErrorToPointer(
         [FIRAppCheckErrorUtil errorWithFailureReason:@"Empty server response body."], outError);
@@ -109,12 +111,11 @@
   NSString *challenge = responseDict[@"challenge"];
   if (![challenge isKindOfClass:[NSString class]]) {
     FIRAppCheckSetErrorToPointer(
-        [FIRAppCheckErrorUtil appCheckTokenResponseErrorWithMissingField:@"challenge"],
-        outError);
+        [FIRAppCheckErrorUtil appCheckTokenResponseErrorWithMissingField:@"challenge"], outError);
     return nil;
   }
 
-  NSData *randomChallenge = [[NSData alloc] initWithBase64EncodedString:challenge options:0];
+  NSData *randomChallenge = [challenge dataUsingEncoding:NSUTF8StringEncoding];
   return randomChallenge;
 }
 
