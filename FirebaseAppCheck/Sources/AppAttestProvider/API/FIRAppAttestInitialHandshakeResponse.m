@@ -18,4 +18,13 @@
 
 @implementation FIRAppAttestInitialHandshakeResponse
 
+- (instancetype)initWithArtifact:(NSData *)artifact token:(FIRAppCheckToken *)token {
+  self = [super init];
+  if (self) {
+    _artifact = artifact;
+    _token = token;
+  }
+  return self;
+}
+
 @end
