@@ -76,6 +76,8 @@
       });
 }
 
+#pragma mark - Helpers
+
 - (FBLPromise<NSData *> *)randomChallengeWithAPIResponse:(GULURLSessionDataResponse *)response {
   return [FBLPromise onQueue:[self defaultQueue] do:^id _Nullable{
     NSError *error;
@@ -112,25 +114,7 @@
     return nil;
   }
 
-  NSString *timeToLiveString = responseDict[@"ttl"];
-  if (![challenge isKindOfClass:[NSString class]] || challenge.length <= 0) {
-    FIRAppCheckSetErrorToPointer(
-        [FIRAppCheckErrorUtil appCheckTokenResponseErrorWithMissingField:@"ttl"], outError);
-    return nil;
-  }
-
-  // Expect a string like "3600s" representing a time interval in seconds.
-  NSString *timeToLiveValueString = [timeToLiveString stringByReplacingOccurrencesOfString:@"s"
-                                                                                withString:@""];
-  NSTimeInterval secondsToLive = timeToLiveValueString.doubleValue;
-
-  if (secondsToLive == 0) {
-    FIRAppCheckSetErrorToPointer(
-        [FIRAppCheckErrorUtil appCheckTokenResponseErrorWithMissingField:@"ttl"], outError);
-    return nil;
-  }
-
-  NSData *randomChallenge = [challenge dataUsingEncoding:NSUTF8StringEncoding];
+  NSData *randomChallenge = [[NSData alloc] initWithBase64EncodedString:challenge options:0];
   return randomChallenge;
 }
 
