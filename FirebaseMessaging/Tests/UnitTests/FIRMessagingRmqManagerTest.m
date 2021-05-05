@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "OCMock.h"
+#import <OCMock/OCMock.h>
 
 #import "FirebaseMessaging/Tests/UnitTests/FIRTestsAssertionHandler.h"
 #import "FirebaseMessaging/Tests/UnitTests/XCTestCase+FIRMessagingRmqManagerTests.h"

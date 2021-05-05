@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "OCMock.h"
+#import <OCMock/OCMock.h>
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"

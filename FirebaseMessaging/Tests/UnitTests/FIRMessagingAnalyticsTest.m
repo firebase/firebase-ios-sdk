@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
+#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
-#import "OCMock.h"
 
 #import "Interop/Analytics/Public/FIRInteropEventNames.h"
 #import "Interop/Analytics/Public/FIRInteropParameterNames.h"

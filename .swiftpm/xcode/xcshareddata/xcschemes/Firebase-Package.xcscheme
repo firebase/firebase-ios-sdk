@@ -860,6 +860,118 @@
                ReferencedContainer = "container:">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "FirebaseAnalyticsWithoutAdIdSupport"
+               BuildableName = "FirebaseAnalyticsWithoutAdIdSupport"
+               BlueprintName = "FirebaseAnalyticsWithoutAdIdSupport"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "FirebaseAnalyticsWithoutAdIdSupportTarget"
+               BuildableName = "FirebaseAnalyticsWithoutAdIdSupportTarget"
+               BlueprintName = "FirebaseAnalyticsWithoutAdIdSupportTarget"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "FirebaseAnalyticsWithoutAdIdSupportWrapper"
+               BuildableName = "FirebaseAnalyticsWithoutAdIdSupportWrapper"
+               BlueprintName = "FirebaseAnalyticsWithoutAdIdSupportWrapper"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "FirebaseAuthCombineSwift"
+               BuildableName = "FirebaseAuthCombineSwift"
+               BlueprintName = "FirebaseAuthCombineSwift"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "FirebaseCombineSwift"
+               BuildableName = "FirebaseCombineSwift"
+               BlueprintName = "FirebaseCombineSwift"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "FirebaseFirestoreTestingSupport"
+               BuildableName = "FirebaseFirestoreTestingSupport"
+               BlueprintName = "FirebaseFirestoreTestingSupport"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "FirebaseFunctionsCombineSwift"
+               BuildableName = "FirebaseFunctionsCombineSwift"
+               BlueprintName = "FirebaseFunctionsCombineSwift"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "FirebaseStorageCombineSwift"
+               BuildableName = "FirebaseStorageCombineSwift"
+               BlueprintName = "FirebaseStorageCombineSwift"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -1075,6 +1187,16 @@
                BlueprintIdentifier = "AppCheckUnitSwift"
                BuildableName = "AppCheckUnitSwift"
                BlueprintName = "AppCheckUnitSwift"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "FirestoreTestingSupportTests"
+               BuildableName = "FirestoreTestingSupportTests"
+               BlueprintName = "FirestoreTestingSupportTests"
                ReferencedContainer = "container:">
             </BuildableReference>
          </TestableReference>
