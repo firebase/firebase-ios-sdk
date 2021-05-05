@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
+#import <OCMock/OCMStubRecorder.h>
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
-#import "OCMStubRecorder.h"
 
 #import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
