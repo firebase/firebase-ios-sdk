@@ -25,7 +25,9 @@
 #endif
 
 #import "FirebaseAppCheck/Sources/AppAttestProvider/API/FIRAppAttestAPIService.h"
+#import "FirebaseAppCheck/Sources/AppAttestProvider/FIRAppAttestProviderState.h"
 #import "FirebaseAppCheck/Sources/AppAttestProvider/FIRAppAttestService.h"
+#import "FirebaseAppCheck/Sources/AppAttestProvider/Storage/FIRAppAttestArtifactStorage.h"
 #import "FirebaseAppCheck/Sources/AppAttestProvider/Storage/FIRAppAttestKeyIDStorage.h"
 #import "FirebaseAppCheck/Sources/Core/APIService/FIRAppCheckAPIService.h"
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
@@ -68,6 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly) id<FIRAppAttestAPIServiceProtocol> APIService;
 @property(nonatomic, readonly) id<FIRAppAttestService> appAttestService;
 @property(nonatomic, readonly) id<FIRAppAttestKeyIDStorageProtocol> keyIDStorage;
+@property(nonatomic, readonly) id<FIRAppAttestArtifactStorageProtocol> artifactStorage;
 
 @property(nonatomic, readonly) dispatch_queue_t queue;
 
@@ -77,12 +80,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithAppAttestService:(id<FIRAppAttestService>)appAttestService
                               APIService:(id<FIRAppAttestAPIServiceProtocol>)APIService
-                            keyIDStorage:(id<FIRAppAttestKeyIDStorageProtocol>)keyIDStorage {
+                            keyIDStorage:(id<FIRAppAttestKeyIDStorageProtocol>)keyIDStorage
+                         artifactStorage:(id<FIRAppAttestArtifactStorageProtocol>)artifactStorage {
   self = [super init];
   if (self) {
     _appAttestService = appAttestService;
     _APIService = APIService;
     _keyIDStorage = keyIDStorage;
+    _artifactStorage = artifactStorage;
     _queue = dispatch_queue_create("com.firebase.FIRAppAttestProvider", DISPATCH_QUEUE_SERIAL);
   }
   return self;
@@ -107,9 +112,12 @@ NS_ASSUME_NONNULL_BEGIN
                                                projectID:app.options.projectID
                                                    appID:app.options.googleAppID];
 
+  FIRAppAttestArtifactStorage *artifactStorage = [[FIRAppAttestArtifactStorage alloc] init];
+
   return [self initWithAppAttestService:DCAppAttestService.sharedService
                              APIService:appAttestAPIService
-                           keyIDStorage:keyIDStorage];
+                           keyIDStorage:keyIDStorage
+                        artifactStorage:artifactStorage];
 #else   // TARGET_OS_IOS
   return nil;
 #endif  // TARGET_OS_IOS
@@ -118,34 +126,8 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - FIRAppCheckProvider
 
 - (void)getTokenWithCompletion:(void (^)(FIRAppCheckToken *_Nullable, NSError *_Nullable))handler {
-  // 1. Check `DCAppAttestService.isSupported`.
-  [self isAppAttestSupported]
-      .thenOn(self.queue,
-              ^FBLPromise<NSArray *> *(id result) {
-                return [FBLPromise onQueue:self.queue
-                                       all:@[
-                                         // 2. Request random challenge.
-                                         [self.APIService getRandomChallenge],
-                                         // 3. Get App Attest key ID.
-                                         [self getAppAttestKeyIDGenerateIfNeeded]
-                                       ]];
-              })
-      .thenOn(self.queue,
-              ^FBLPromise<FIRAppAttestKeyAttestationResult *> *(NSArray *challengeAndKeyID) {
-                // 4. Attest the key.
-                NSData *challenge = challengeAndKeyID.firstObject;
-                NSString *keyID = challengeAndKeyID.lastObject;
-
-                return [self attestKey:keyID challenge:challenge];
-              })
-      .thenOn(self.queue,
-              ^FBLPromise<FIRAppCheckToken *> *(FIRAppAttestKeyAttestationResult *result) {
-                // 5. Exchange the attestation to FAC token.
-                return [self.APIService appCheckTokenWithAttestation:result.attestation
-                                                               keyID:result.keyID
-                                                           challenge:result.challenge];
-              })
-      // 6. Call the handler with the result.
+  [self getToken]
+      // Call the handler with the result.
       .then(^FBLPromise *(FIRAppCheckToken *token) {
         handler(token, nil);
         return nil;
@@ -154,6 +136,106 @@ NS_ASSUME_NONNULL_BEGIN
         handler(nil, error);
       });
 }
+
+- (FBLPromise<FIRAppCheckToken *> *)getToken {
+  // Check attestation state to decide on the next steps.
+  return [self attestationState].thenOn(self.queue, ^id(FIRAppAttestProviderState *attestState) {
+    switch (attestState.state) {
+      case FIRAppAttestAttestationStateUnsupported:
+        return attestState.appAttestUnsupportedError;
+        break;
+
+      case FIRAppAttestAttestationStateSupportedInitial:
+      case FIRAppAttestAttestationStateKeyGenerated:
+        // Initial handshake is required for both the "initial" and the "key generated" states.
+        return [self initialHandshakeWithKeyID:attestState.appAttestKeyID];
+        break;
+
+      case FIRAppAttestAttestationStateKeyRegistered:
+        // Refresh FAC token using the existing registerred App Attest key pair.
+        return [self refreshTokenWithKeyID:attestState.appAttestKeyID
+                                  artifact:attestState.attestationArtifact];
+        break;
+    }
+  });
+}
+
+#pragma mark - Initial handshake sequence
+
+- (FBLPromise<FIRAppCheckToken *> *)initialHandshakeWithKeyID:(nullable NSString *)keyID {
+  // 1. Check `DCAppAttestService.isSupported`.
+  return [FBLPromise onQueue:self.queue
+                         all:@[
+                           // 2. Request random challenge.
+                           [self.APIService getRandomChallenge],
+                           // 3. Get App Attest key ID.
+                           [self generateAppAttestKeyIDIfNeeded:keyID]
+                         ]]
+      .thenOn(self.queue,
+              ^FBLPromise<FIRAppAttestKeyAttestationResult *> *(NSArray *challengeAndKeyID) {
+                // 4. Attest the key.
+                NSData *challenge = challengeAndKeyID.firstObject;
+                NSString *keyID = challengeAndKeyID.lastObject;
+
+                return [self attestKey:keyID challenge:challenge];
+              })
+      // TODO: Handle a possible key rejection - generate another key.
+      .thenOn(self.queue,
+              ^FBLPromise<FIRAppCheckToken *> *(FIRAppAttestKeyAttestationResult *result) {
+                // 5. Exchange the attestation to FAC token.
+                return [self.APIService appCheckTokenWithAttestation:result.attestation
+                                                               keyID:result.keyID
+                                                           challenge:result.challenge];
+              });
+}
+
+#pragma mark - Token refresh sequence
+
+- (FBLPromise<FIRAppCheckToken *> *)refreshTokenWithKeyID:(NSString *)keyID
+                                                 artifact:(NSData *)artifact {
+  // TODO: Implement (b/186438346).
+  return [FBLPromise resolvedWith:nil];
+}
+
+#pragma mark - State handling
+
+- (FBLPromise<FIRAppAttestProviderState *> *)attestationState {
+  dispatch_queue_t stateQueue =
+      dispatch_queue_create("FIRAppAttestProvider.state", DISPATCH_QUEUE_SERIAL);
+
+  return [FBLPromise
+      onQueue:stateQueue
+           do:^id _Nullable {
+             NSError *error;
+
+             // 1. Check if App Attest is supported.
+             id isSupportedResult = FBLPromiseAwait([self isAppAttestSupported], &error);
+             if (isSupportedResult == nil) {
+               return [[FIRAppAttestProviderState alloc] initUnsupportedWithError:error];
+             }
+
+             // 2. Check for stored key ID of the generated App Attest key pair.
+             NSString *appAttestKeyID =
+                 FBLPromiseAwait([self.keyIDStorage getAppAttestKeyID], &error);
+             if (appAttestKeyID == nil) {
+               return [[FIRAppAttestProviderState alloc] initWithSupportedInitialState];
+             }
+
+             // 3. Check for stored attestation artifact received from Firebase backend.
+             NSData *attestationArtifact =
+                 FBLPromiseAwait([self.artifactStorage getArtifact], &error);
+             if (attestationArtifact == nil) {
+               return [[FIRAppAttestProviderState alloc] initWithGeneratedKeyID:appAttestKeyID];
+             }
+
+             // 4. A valid App Attest key pair was generated and registered with Firebase
+             // backend. Return the corresponding state.
+             return [[FIRAppAttestProviderState alloc] initWithRegisteredKeyID:appAttestKeyID
+                                                                      artifact:attestationArtifact];
+           }];
+}
+
+#pragma mark - Helpers
 
 /// Returns a resolved promise if App Attest is supported and a rejected promise if it is not.
 - (FBLPromise<NSNull *> *)isAppAttestSupported {
@@ -167,12 +249,15 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-/// Retrieves or generates App Attest key associated with the Firebase app.
-- (FBLPromise<NSString *> *)getAppAttestKeyIDGenerateIfNeeded {
-  return [self.keyIDStorage getAppAttestKeyID].recoverOn(self.queue,
-                                                         ^FBLPromise<NSString *> *(NSError *error) {
-                                                           return [self generateAppAttestKey];
-                                                         });
+/// Generates a new App Attest key associated with the Firebase app if `storedKeyID == nil`.
+- (FBLPromise<NSString *> *)generateAppAttestKeyIDIfNeeded:(nullable NSString *)storedKeyID {
+  if (storedKeyID) {
+    // The key ID has been fetched already, just return it.
+    return [FBLPromise resolvedWith:storedKeyID];
+  } else {
+    // Generate and save a new key otherwise.
+    return [self generateAppAttestKey];
+  }
 }
 
 /// Generates and stores App Attest key associated with the Firebase app.
