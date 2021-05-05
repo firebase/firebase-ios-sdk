@@ -112,7 +112,10 @@ NS_ASSUME_NONNULL_BEGIN
                                                projectID:app.options.projectID
                                                    appID:app.options.googleAppID];
 
-  FIRAppAttestArtifactStorage *artifactStorage = [[FIRAppAttestArtifactStorage alloc] init];
+  FIRAppAttestArtifactStorage *artifactStorage =
+      [[FIRAppAttestArtifactStorage alloc] initWithAppName:app.name
+                                                     appID:app.options.googleAppID
+                                               accessGroup:app.options.appGroupID];
 
   return [self initWithAppAttestService:DCAppAttestService.sharedService
                              APIService:appAttestAPIService
