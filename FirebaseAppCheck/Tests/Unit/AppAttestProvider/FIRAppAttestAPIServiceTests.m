@@ -63,14 +63,18 @@
 }
 
 - (void)testGetRandomChallengeWhenAPIResponseValid {
+  // 1. Prepare API response.
   NSData *responseBody = [FIRFixtureLoader loadFixtureNamed:@"AppAttestResponseSuccess.json"];
   GULURLSessionDataResponse *validAPIResponse = [self APIResponseWithCode:200
                                                              responseBody:responseBody];
+  // 2. Stub API Service Request to return prepared API response.
   [self stubMockAPIServiceRequestWithResponse:validAPIResponse];
 
+  // 3. Request the random challenge and verify results.
   __auto_type *promise = [self.appAttestAPIService getRandomChallenge];
   XCTAssert(FBLWaitForPromisesWithTimeout(1));
   XCTAssert(promise.isFulfilled);
+  XCTAssertNotNil(promise.value);
   XCTAssertNil(promise.error);
 
   NSString *challengeString = [[NSString alloc] initWithData:promise.value
@@ -81,20 +85,24 @@
 }
 
 - (void)testGetRandomChallengeWhenAPIError {
+  // 1. Prepare API response.
   NSString *responseBodyString = @"Generate challenge failed with invalid format.";
   NSData *responseBody = [responseBodyString dataUsingEncoding:NSUTF8StringEncoding];
   GULURLSessionDataResponse *invalidAPIResponse = [self APIResponseWithCode:300
                                                                responseBody:responseBody];
   NSError *APIError = [FIRAppCheckErrorUtil APIErrorWithHTTPResponse:invalidAPIResponse.HTTPResponse
                                                                 data:invalidAPIResponse.HTTPBody];
+  // 2. Stub API Service Request to return prepared API response.
   [self stubMockAPIServiceRequestWithResponse:APIError];
 
+  // 3. Request the random challenge and verify results.
   __auto_type *promise = [self.appAttestAPIService getRandomChallenge];
   XCTAssert(FBLWaitForPromisesWithTimeout(1));
   XCTAssert(promise.isRejected);
+  XCTAssertNotNil(promise.error);
   XCTAssertNil(promise.value);
 
-  XCTAssertNotNil(promise.error);
+  // Assert error is as expected.
   XCTAssertEqualObjects(promise.error.domain, kFIRAppCheckErrorDomain);
   XCTAssertEqual(promise.error.code, FIRAppCheckErrorCodeUnknown);
 
@@ -106,20 +114,43 @@
   OCMVerifyAll(self.mockAPIService);
 }
 
-- (void)testGetRandomChallengeWhenAPIResponseInvalidFormat {
-  NSString *responseBodyString = @"Generate challenge failed with invalid format.";
-  NSData *responseBody = [responseBodyString dataUsingEncoding:NSUTF8StringEncoding];
-
-  GULURLSessionDataResponse *validAPIResponse = [self APIResponseWithCode:200
+- (void)testGetRandomChallengeWhenAPIResponseEmpty {
+  // 1. Prepare API response.
+  NSData *responseBody = [NSData data];
+  GULURLSessionDataResponse *emptyAPIResponse = [self APIResponseWithCode:200
                                                              responseBody:responseBody];
-  [self stubMockAPIServiceRequestWithResponse:validAPIResponse];
+  // 2. Stub API Service Request to return prepared API response.
+  [self stubMockAPIServiceRequestWithResponse:emptyAPIResponse];
 
+  // 3. Request the random challenge and verify results.
   __auto_type *promise = [self.appAttestAPIService getRandomChallenge];
   XCTAssert(FBLWaitForPromisesWithTimeout(1));
   XCTAssert(promise.isRejected);
+  XCTAssertNotNil(promise.error);
   XCTAssertNil(promise.value);
 
+  // Expect response body and HTTP status code to be included in the error.
+  NSString *failureReason = promise.error.userInfo[NSLocalizedFailureReasonErrorKey];
+  XCTAssertEqualObjects(failureReason, @"Empty server response body.");
+
+  OCMVerifyAll(self.mockAPIService);
+}
+
+- (void)testGetRandomChallengeWhenAPIResponseInvalidFormat {
+  // 1. Prepare API response.
+  NSString *responseBodyString = @"Generate challenge failed with invalid format.";
+  NSData *responseBody = [responseBodyString dataUsingEncoding:NSUTF8StringEncoding];
+  GULURLSessionDataResponse *validAPIResponse = [self APIResponseWithCode:200
+                                                             responseBody:responseBody];
+  // 2. Stub API Service Request to return prepared API response.
+  [self stubMockAPIServiceRequestWithResponse:validAPIResponse];
+
+  // 3. Request the random challenge and verify results.
+  __auto_type *promise = [self.appAttestAPIService getRandomChallenge];
+  XCTAssert(FBLWaitForPromisesWithTimeout(1));
+  XCTAssert(promise.isRejected);
   XCTAssertNotNil(promise.error);
+  XCTAssertNil(promise.value);
 
   // Expect response body and HTTP status code to be included in the error.
   NSString *failureReason = promise.error.userInfo[NSLocalizedFailureReasonErrorKey];
@@ -135,18 +166,21 @@
 
 - (void)assertMissingFieldErrorWithFixture:(NSString *)fixtureName
                               missingField:(NSString *)fieldName {
+  // 1. Prepare API response.
   NSData *missingFieldBody = [FIRFixtureLoader loadFixtureNamed:fixtureName];
   GULURLSessionDataResponse *incompleteAPIResponse = [self APIResponseWithCode:200
                                                                   responseBody:missingFieldBody];
+  // 2. Stub API Service Request to return prepared API response.
   [self stubMockAPIServiceRequestWithResponse:incompleteAPIResponse];
+
+  // 3. Request the random challenge and verify results.
   __auto_type *promise = [self.appAttestAPIService getRandomChallenge];
-
   XCTAssert(FBLWaitForPromisesWithTimeout(1));
-
   XCTAssert(promise.isRejected);
+  XCTAssertNotNil(promise.error);
   XCTAssertNil(promise.value);
 
-  XCTAssertNotNil(promise.error);
+  // Assert error is as expected.
   XCTAssertEqualObjects(promise.error.domain, kFIRAppCheckErrorDomain);
   XCTAssertEqual(promise.error.code, FIRAppCheckErrorCodeUnknown);
 
@@ -177,7 +211,7 @@
       .andDo(^(NSInvocation *invocation) {
         XCTAssertFalse([NSThread isMainThread]);
       })
-      .andReturn(response);
+      .andReturn([FBLPromise resolvedWith:response]);
 }
 
 @end
