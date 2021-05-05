@@ -42,7 +42,7 @@ class DatabaseReferenceTests: XCTestCase {
       valueExpectation.fulfill()
     }
 
-    wait(for: [completionExpectation, valueExpectation], timeout: 0.1)
+    wait(for: [completionExpectation, valueExpectation], timeout: 0.5)
 
     let decoder = Database.Decoder()
     let decoded = try decoder.decode(Model.self, from: fake.value as Any)
@@ -66,7 +66,7 @@ class DatabaseReferenceTests: XCTestCase {
       valueExpectation.fulfill()
     }
 
-    wait(for: [completionExpectation, valueExpectation], timeout: 0.1)
+    wait(for: [completionExpectation, valueExpectation], timeout: 0.5)
   }
 
   func testObserve() throws {
@@ -98,7 +98,7 @@ class DatabaseReferenceTests: XCTestCase {
       try fake.setValue(from: model, completion: nil)
     }
 
-    wait(for: [valueExpectation], timeout: 0.1)
+    wait(for: [valueExpectation], timeout: 0.5)
   }
 
   func testObserveSnapshots() throws {
@@ -141,6 +141,6 @@ class DatabaseReferenceTests: XCTestCase {
       try fake.setValue(from: model, completion: nil)
     }
 
-    wait(for: [valueExpectation], timeout: 0.1)
+    wait(for: [valueExpectation], timeout: 0.5)
   }
 }

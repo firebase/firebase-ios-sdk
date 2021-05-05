@@ -45,7 +45,7 @@ class DatabaseReferenceTests: XCTestCase {
       completionExpectation.fulfill()
     })
 
-    wait(for: [completionExpectation], timeout: 0.1)
+    wait(for: [completionExpectation], timeout: 0.5)
 
     let decoder = Database.Decoder()
     let decoded = try decoder.decode(Model.self, from: fake.value as Any)

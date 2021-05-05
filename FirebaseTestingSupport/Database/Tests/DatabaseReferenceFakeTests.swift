@@ -42,7 +42,7 @@ class DatabaseReferenceFakeTests: XCTestCase {
       completionExpectation.fulfill()
     })
 
-    wait(for: [completionExpectation], timeout: 0.1)
+    wait(for: [completionExpectation], timeout: 0.5)
 
     XCTAssertEqual(fakeReference.value as? String, value)
   }
