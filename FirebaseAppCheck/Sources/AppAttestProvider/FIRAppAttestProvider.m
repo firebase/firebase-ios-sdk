@@ -229,30 +229,6 @@ NS_ASSUME_NONNULL_BEGIN
   }];
 }
 
-/// A domain for errors with a state object. See  `stateFromError:` and `stateFromError:` methods
-/// for more details.
-static NSString *const kErrorWithStateDomain = @"FIRAppAttestProvider.errorWithState";
-/// An error user info key to store a state objects. See  `stateFromError:` and `stateFromError:`
-/// methods for more details.
-static NSString *const kUserInfoStateKey = @"FIRAppAttestProvider.stateKey";
-
-/// Encodes the states into NSError object. This is a helper for `attestationState` method.
-- (NSError *)errorWithState:(FIRAppAttestProviderState *)state {
-  return [NSError errorWithDomain:kErrorWithStateDomain
-                             code:0
-                         userInfo:@{kUserInfoStateKey : state}];
-}
-
-/// Decodes the states from the NSError object previously encoded by `errorWithState:` method. This
-/// is a helper for `attestationState` method.
-- (nullable FIRAppAttestProviderState *)stateFromError:(NSError *)error {
-  if (![error.domain isEqualToString:kErrorWithStateDomain]) {
-    return nil;
-  }
-
-  return error.userInfo[kUserInfoStateKey];
-}
-
 #pragma mark - Helpers
 
 /// Returns a resolved promise if App Attest is supported and a rejected promise if it is not.
