@@ -1,5 +1,6 @@
 # v8.0.0
 - [added] Added abuse reduction features. (#7928, #7943)
+
 # v7.9.0
 - [added] Added community support for watchOS. (#4556)
 

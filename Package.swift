@@ -21,7 +21,7 @@ let firebaseVersion = "8.0.0"
 
 let package = Package(
   name: "Firebase",
-  platforms: [.iOS(.v10), .macOS(.v10_12), .tvOS(.v10), .watchOS(.v7)],
+  platforms: [.iOS(.v11), .macOS(.v10_12), .tvOS(.v10), .watchOS(.v7)],
   products: [
     .library(
       name: "FirebaseAnalytics",
@@ -68,10 +68,10 @@ let package = Package(
     //   name: "FirebaseStorageCombineSwift-Beta",
     //   targets: ["FirebaseStorageCombineSwift"]
     // ),
-    // .library(
-    //   name: "FirebaseCrashlytics",
-    //   targets: ["FirebaseCrashlytics"]
-    // ),
+    .library(
+      name: "FirebaseCrashlytics",
+      targets: ["FirebaseCrashlytics"]
+    ),
     .library(
       name: "FirebaseDatabase",
       targets: ["FirebaseDatabase"]
@@ -154,12 +154,12 @@ let package = Package(
     .package(
       name: "GoogleUtilities",
       url: "https://github.com/google/GoogleUtilities.git",
-      "7.2.1" ..< "8.0.0"
+      "7.4.0" ..< "8.0.0"
     ),
     .package(
       name: "GTMSessionFetcher",
       url: "https://github.com/google/gtm-session-fetcher.git",
-      "1.4.0" ..< "2.0.0"
+      "1.5.0" ..< "2.0.0"
     ),
     .package(
       name: "nanopb",
@@ -723,24 +723,6 @@ let package = Package(
     ),
 
     .target(
-      name: "FirebaseInstanceID",
-      dependencies: [
-        "FirebaseCore",
-        "FirebaseInstallations",
-        .product(name: "GULEnvironment", package: "GoogleUtilities"),
-        .product(name: "GULUserDefaults", package: "GoogleUtilities"),
-      ],
-      path: "Firebase/InstanceID",
-      exclude: [
-        "CHANGELOG.md",
-      ],
-      publicHeadersPath: "Public",
-      cSettings: [
-        .headerSearchPath("../../"),
-      ]
-    ),
-
-    .target(
       name: "FirebaseInstallations",
       dependencies: [
         "FirebaseCore",
@@ -784,7 +766,7 @@ let package = Package(
       name: "FirebaseMessaging",
       dependencies: [
         "FirebaseCore",
-        "FirebaseInstanceID",
+        "FirebaseInstallations",
         .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "GULReachability", package: "GoogleUtilities"),

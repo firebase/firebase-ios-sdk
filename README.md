@@ -106,7 +106,7 @@ Instructions for the experimental Carthage distribution are at
 To develop Firebase software in this repository, ensure that you have at least
 the following software:
 
-  * Xcode 12.0 (or later)
+  * Xcode 12.2 (or later)
 
 CocoaPods is still the canonical way to develop, but much of the repo now supports
 development with Swift Package Manager.

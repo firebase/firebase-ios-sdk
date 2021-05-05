@@ -22,7 +22,6 @@ target 'SymbolCollisionTest' do
     pod 'FirebaseFirestore', :path => '../'
     pod 'FirebaseFunctions', :path => '../'
     pod 'FirebaseInAppMessaging', :path => '../'
-    pod 'FirebaseInstanceID', :path => '../'
     pod 'FirebaseInstallations', :path => '../'
     pod 'FirebaseMessaging', :path => '../'
     pod 'FirebasePerformance', :path => '../'

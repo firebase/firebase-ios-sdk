@@ -53,10 +53,10 @@ device, and it is completely free.
   s.weak_framework = 'UserNotifications'
   s.dependency 'FirebaseInstallations', '~> 8.0'
   s.dependency 'FirebaseCore', '~> 8.0'
-  s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.0'
-  s.dependency 'GoogleUtilities/Reachability', '~> 7.0'
-  s.dependency 'GoogleUtilities/Environment', '~> 7.0'
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 7.0'
+  s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.4'
+  s.dependency 'GoogleUtilities/Reachability', '~> 7.4'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.4'
+  s.dependency 'GoogleUtilities/UserDefaults', '~> 7.4'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }

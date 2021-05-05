@@ -9,7 +9,6 @@ target 'SampleWatchAppWatchKitExtension' do
 
   pod 'FirebaseCore', :path => '../../'
   pod 'FirebaseMessaging', :path => '../../'
-  pod 'FirebaseInstanceID', :path => '../../'
   pod 'FirebaseCoreDiagnostics', :path => '../../'
   pod 'FirebaseInstallations', :path => '../../'
   pod 'FirebaseStorage', :path => '../../'
@@ -28,5 +27,4 @@ end
 target 'ServiceExtension' do
   platform :watchos, '7.0'
   pod 'FirebaseMessaging', :path => '../../'
-  pod 'FirebaseInstanceID', :path => '../../'
 end

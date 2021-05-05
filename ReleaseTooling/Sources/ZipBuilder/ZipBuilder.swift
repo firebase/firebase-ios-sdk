@@ -212,7 +212,20 @@ struct ZipBuilder {
         platformPods.map { $0.name.components(separatedBy: "/").first }.contains($0.key)
       }
 
-      for (podName, podInfo) in podsToBuild {
+      // Build in a sorted order to make the build deterministic and to avoid exposing random
+      // build order bugs.
+      // Also AppCheck must be built after other pods so that its restricted architecture
+      // selection does not restrict any of its dependencies.
+      var sortedPods = podsToBuild.keys.sorted()
+      sortedPods.removeAll(where: { value in
+        value == "FirebaseAppCheck"
+      })
+      sortedPods.append("FirebaseAppCheck")
+
+      for podName in sortedPods {
+        guard let podInfo = podsToBuild[podName] else {
+          continue
+        }
         if podName == "Firebase" {
           // Don't build the Firebase pod.
         } else if podInfo.isSourcePod {
@@ -322,7 +335,7 @@ struct ZipBuilder {
                                            frameworksToAssemble: frameworks,
                                            firebasePod: firebasePod)
     var carthageDir: URL?
-    if let carthageFrameworks = carthageFrameworks {
+    if let carthageFrameworks = carthageFrameworks, carthageFrameworks.count > 0 {
       carthageDir = try assembleDistributions(withPackageKind: "CarthageFirebase",
                                               podsToInstall: podsToInstall,
                                               installedPods: installedPods,
@@ -377,7 +390,7 @@ struct ZipBuilder {
     let analyticsDir: URL
     do {
       // This returns the Analytics directory and a list of framework names that Analytics requires.
-      /// Example: ["FirebaseInstanceID", "GoogleAppMeasurement", "nanopb", <...>]
+      /// Example: ["FirebaseInstallations, "GoogleAppMeasurement", "nanopb", <...>]
       let (dir, frameworks) = try installAndCopyFrameworks(forPod: "FirebaseAnalytics",
                                                            withInstalledPods: installedPods,
                                                            rootZipDir: zipDir,

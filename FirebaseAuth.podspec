@@ -50,9 +50,9 @@ supports email and password accounts, as well as several 3rd party authenticatio
   s.framework = 'Security'
   s.ios.framework = 'SafariServices'
   s.dependency 'FirebaseCore', '~> 8.0'
-  s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.0'
-  s.dependency 'GoogleUtilities/Environment', '~> 7.0'
-  s.dependency 'GTMSessionFetcher/Core', '~> 1.4'
+  s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.4'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.4'
+  s.dependency 'GTMSessionFetcher/Core', '~> 1.5'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }

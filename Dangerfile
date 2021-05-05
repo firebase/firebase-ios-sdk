@@ -47,7 +47,6 @@ def labelsForModifiedFiles()
   labels.push("api: functions") if @has_functions_changes
   labels.push("api: inappmessaging") if @has_inappmessaging_changes
   labels.push("api: installations") if @has_installations_changes
-  labels.push("api: instanceid") if @has_instanceid_changes
   labels.push("api: messaging") if @has_messaging_changes
   labels.push("api: performance") if @has_performance_changes
   labels.push("api: remoteconfig") if @has_remoteconfig_changes
@@ -99,8 +98,6 @@ has_license_changes = didModify(["LICENSE"])
 @has_inappmessaging_api_changes = hasChangesIn(["FirebaseInAppMessaging/Sources/Public/"])
 @has_installations_changes = hasChangesIn("FirebaseInstallations")
 @has_installations_api_changes = hasChangesIn("FirebaseInstallations/Source/Library/Public/")
-@has_instanceid_changes = hasChangesIn("Firebase/InstanceID/")
-@has_instanceid_api_changes = hasChangesIn("Firebase/InstanceID/Public/")
 @has_messaging_changes = hasChangesIn("FirebaseMessaging")
 @has_messaging_api_changes = hasChangesIn("FirebaseMessaging/Sources/Public/")
 @has_performance_changes = hasChangesIn("FirebasePerformance")
@@ -127,7 +124,6 @@ has_license_changes = didModify(["LICENSE"])
                      @has_functions_api_changes ||
                      @has_inappmessaging_api_changes ||
                      @has_installations_api_changes ||
-                     @has_instanceid_api_changes ||
                      @has_messaging_api_changes ||
                      @has_performance_api_changes ||
                      @has_remoteconfig_api_changes ||
