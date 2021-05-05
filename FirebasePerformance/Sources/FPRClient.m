@@ -16,12 +16,12 @@
 #import "FirebasePerformance/Sources/FPRClient+Private.h"
 
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
-#import "FirebasePerformance/Sources/AppActivity/FPRScreenTraceTracker.h"
 #import "FirebasePerformance/Sources/AppActivity/FPRScreenTraceTracker+Private.h"
+#import "FirebasePerformance/Sources/AppActivity/FPRScreenTraceTracker.h"
 #import "FirebasePerformance/Sources/AppActivity/FPRSessionManager+Private.h"
 #import "FirebasePerformance/Sources/AppActivity/FPRTraceBackgroundActivityTracker.h"
-#import "FirebasePerformance/Sources/Common/FPRConstants.h"
 #import "FirebasePerformance/Sources/Common/FPRConsoleUrlGenerator.h"
+#import "FirebasePerformance/Sources/Common/FPRConstants.h"
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
 #import "FirebasePerformance/Sources/Configurations/FPRRemoteConfigFlags.h"
 #import "FirebasePerformance/Sources/FPRConsoleLogger.h"
@@ -112,7 +112,7 @@
     _eventsQueueGroup = dispatch_group_create();
     _configuration = [FPRConfigurations sharedInstance];
     NSString *plistPath = [[NSBundle mainBundle] pathForResource:@"GoogleService-Info"
-                                                                ofType:@"plist"];
+                                                          ofType:@"plist"];
     NSMutableDictionary *googleServiceDict =
         [NSMutableDictionary dictionaryWithContentsOfFile:plistPath];
     _projectId = googleServiceDict[@"PROJECT_ID"];
@@ -172,14 +172,22 @@
       metric.traceMetric = FPRGetTraceMetric(trace);
       metric.applicationInfo.applicationProcessState =
           FPRApplicationProcessState(trace.backgroundTraceState);
-      
+
       // Log the trace metric with its console URL.
       if ([trace.name hasPrefix:kFPRPrefixForScreenTraceName]) {
-        FPRLogDebug(kFPRClientMetricLogged, @"Logging trace metric - %@ %.4fms. Please visit %@ in a minute for details.",
-                    metric.traceMetric.name, metric.traceMetric.durationUs / 1000.0, [FPRConsoleUrlGenerator generateScreenTraceUrlWithProjectId:self.projectId bundleId:self.bundleId traceName:trace.name]);
+        FPRLogDebug(kFPRClientMetricLogged,
+                    @"Logging trace metric - %@ %.4fms. Please visit %@ in a minute for details.",
+                    metric.traceMetric.name, metric.traceMetric.durationUs / 1000.0,
+                    [FPRConsoleUrlGenerator generateScreenTraceUrlWithProjectId:self.projectId
+                                                                       bundleId:self.bundleId
+                                                                      traceName:trace.name]);
       } else {
-        FPRLogDebug(kFPRClientMetricLogged, @"Logging trace metric - %@ %.4fms. Please visit %@ in a minute for details.",
-                    metric.traceMetric.name, metric.traceMetric.durationUs / 1000.0, [FPRConsoleUrlGenerator generateCustomTraceUrlWithProjectId:self.projectId bundleId:self.bundleId traceName:trace.name]);
+        FPRLogDebug(kFPRClientMetricLogged,
+                    @"Logging trace metric - %@ %.4fms. Please visit %@ in a minute for details.",
+                    metric.traceMetric.name, metric.traceMetric.durationUs / 1000.0,
+                    [FPRConsoleUrlGenerator generateCustomTraceUrlWithProjectId:self.projectId
+                                                                       bundleId:self.bundleId
+                                                                      traceName:trace.name]);
       }
       [self processAndLogEvent:metric];
     });
@@ -244,9 +252,13 @@
     FPRLogInfo(kFPRClientSDKDisabled, @"Dropping event since Performance SDK is disabled.");
     return;
   }
-  
+
   if (self.isFirstTimeProcessAndLogEvent) {
-    FPRLogInfo(kFPRClientMetricLogged, @"Welcome to Firebase Performance Monitoring! Please visit %@ in a minute for details.",[FPRConsoleUrlGenerator generateDashboardUrlWithProjectId:self.projectId bundleId:self.bundleId]);
+    FPRLogInfo(
+        kFPRClientMetricLogged,
+        @"Welcome to Firebase Performance Monitoring! Please visit %@ in a minute for details.",
+        [FPRConsoleUrlGenerator generateDashboardUrlWithProjectId:self.projectId
+                                                         bundleId:self.bundleId]);
     self.isFirstTimeProcessAndLogEvent = false;
   }
 

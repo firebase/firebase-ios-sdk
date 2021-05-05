@@ -21,9 +21,13 @@
 + (NSString *)generateDashboardUrlWithProjectId:(NSString *)projectId bundleId:(NSString *)bundleId;
 
 /** This is a class method to generate the console URL for the custom trace.*/
-+ (NSString *)generateCustomTraceUrlWithProjectId:(NSString *)projectId bundleId:(NSString *)bundleId traceName:(NSString *) traceName;
++ (NSString *)generateCustomTraceUrlWithProjectId:(NSString *)projectId
+                                         bundleId:(NSString *)bundleId
+                                        traceName:(NSString *)traceName;
 
 /** This is a class method to generate the console URL for the screen trace.*/
-+ (NSString *)generateScreenTraceUrlWithProjectId:(NSString *)projectId bundleId:(NSString *)bundleId traceName:(NSString *) traceName;
++ (NSString *)generateScreenTraceUrlWithProjectId:(NSString *)projectId
+                                         bundleId:(NSString *)bundleId
+                                        traceName:(NSString *)traceName;
 
 @end
