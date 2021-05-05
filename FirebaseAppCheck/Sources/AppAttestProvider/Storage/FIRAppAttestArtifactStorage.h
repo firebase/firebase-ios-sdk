@@ -25,9 +25,14 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol FIRAppAttestArtifactStorageProtocol <NSObject>
 
 /// Set the artifact.
+/// @param artifact The artifact data to store.
+/// @return An artifact that is resolved with the artifact data passed into the method in case of
+/// success or is rejected with an error.
 - (FBLPromise<NSData *> *)setArtifact:(nullable NSData *)artifact;
 
 /// Get the artifact.
+/// @return A promise that is resolved with the artifact data if artifact exists, is resolved with
+/// `nil` if no artifact found or is rejected with an error.
 - (FBLPromise<NSData *> *)getArtifact;
 
 @end
