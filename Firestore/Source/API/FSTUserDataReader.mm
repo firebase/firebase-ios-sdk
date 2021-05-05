@@ -81,10 +81,6 @@ using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ServerTimestampTransform;
 using firebase::firestore::model::TransformOperation;
 using firebase::firestore::nanopb::CheckedSize;
-<<<<<<< HEAD
-using firebase::firestore::nanopb::FreeNanopbMessage;
-=======
->>>>>>> mrschmidt/mutabledocuments
 using firebase::firestore::remote::Serializer;
 using firebase::firestore::util::ThrowInvalidArgument;
 using firebase::firestore::util::ReadContext;

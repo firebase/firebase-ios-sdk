@@ -89,8 +89,7 @@ class MutationBatch {
    * Applies all the mutations in this MutationBatch to the specified document
    * to create a new remote document.
    *
-   * @param document The document to which to apply mutations or an invalid
-   *     document if there's no existing document.
+   * @param document The document to which to apply mutations to.
    * @param mutation_batch_result The result of applying the MutationBatch to
    *     the backend.
    */
@@ -106,8 +105,7 @@ class MutationBatch {
    * been committed and so it's possible that the mutation is operating on a
    * locally non-existent document and may produce a non-existent document.
    *
-   * @param document The document to which to apply mutations or an invalid
-   *     document if there's no existing document.
+   * @param document The document to which to apply mutations to.
    */
   void ApplyToLocalDocument(MutableDocument& document) const;
 

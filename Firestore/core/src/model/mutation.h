@@ -36,6 +36,9 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
+typedef std::map<FieldPath, absl::optional<google_firestore_v1_Value>>
+    TransformMap;
+
 class Document;
 class MutableDocument;
 
@@ -49,6 +52,7 @@ class MutableDocument;
  */
 class MutationResult {
  public:
+  /** Creates a new MutationResult. Takes ownership of `transform_results`. */
   MutationResult(SnapshotVersion version,
                  google_firestore_v1_ArrayValue transform_results)
       : version_(version), transform_results_{transform_results} {
@@ -191,10 +195,6 @@ class Mutation {
    * @param document The document to mutate.
    * @param mutation_result The backend's response of successfully applying the
    *     mutation.
-   * @return The mutated document. The returned document is not optional
-   *     because the server successfully committed this mutation. If the local
-   *     cache might have caused a `nullopt` result, this method will return an
-   *     `UnknownDocument` instead.
    */
   void ApplyToRemoteDocument(MutableDocument& document,
                              const MutationResult& mutation_result) const;
@@ -210,9 +210,6 @@ class Mutation {
    * @param document The document to mutate.
    * @param local_write_time A timestamp indicating the local write time of the
    *     batch this mutation is a part of.
-   * @return The mutated document. The returned document may be nullopt, but
-   *     only if maybe_doc was nullopt and the mutation would not create a new
-   *     document.
    */
   void ApplyToLocalView(MutableDocument& document,
                         const Timestamp& local_write_time) const;
@@ -286,7 +283,7 @@ class Mutation {
         const Document& document) const;
 
     /**
-     * Creates a list of "transform results" (a transform result is a field
+     * Creates a map of "transform results" (a transform result is a field
      * value representing the result of applying a transform) for use after a
      * mutation containing transforms has been acknowledged by the server.
      *
@@ -295,13 +292,12 @@ class Mutation {
      * server.
      * @return A map of fields to transform results.
      */
-    std::map<FieldPath, absl::optional<google_firestore_v1_Value>>
-    ServerTransformResults(
+    TransformMap ServerTransformResults(
         const ObjectValue& existing_data,
         const google_firestore_v1_ArrayValue& server_transform_results) const;
 
     /**
-     * Creates a list of "transform results" (a transform result is a field
+     * Creates a map of "transform results" (a transform result is a field
      * value representing the result of applying a transform) for use when
      * applying a transform locally.
      *
@@ -310,9 +306,8 @@ class Mutation {
      * ServerTimestampValues).
      * @return A map of fields to transform results.
      */
-    std::map<FieldPath, absl::optional<google_firestore_v1_Value>>
-    LocalTransformResults(const ObjectValue& previous_data,
-                          const Timestamp& local_write_time) const;
+    TransformMap LocalTransformResults(const ObjectValue& previous_data,
+                                       const Timestamp& local_write_time) const;
 
     virtual bool Equals(const Rep& other) const;
 

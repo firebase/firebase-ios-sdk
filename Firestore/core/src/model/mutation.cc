@@ -63,9 +63,8 @@ absl::optional<ObjectValue> Mutation::Rep::ExtractTransformBaseValue(
   absl::optional<ObjectValue> base_object;
 
   for (const FieldTransform& transform : field_transforms_) {
-    absl::optional<google_firestore_v1_Value> existing_value =
-        document->field(transform.path());
-    absl::optional<google_firestore_v1_Value> coerced_value =
+    auto existing_value = document->field(transform.path());
+    auto coerced_value =
         transform.transformation().ComputeBaseValue(existing_value);
     if (coerced_value) {
       if (!base_object) {
@@ -112,12 +111,10 @@ SnapshotVersion Mutation::Rep::GetPostMutationVersion(
   }
 }
 
-std::map<FieldPath, absl::optional<google_firestore_v1_Value>>
-Mutation::Rep::ServerTransformResults(
+TransformMap Mutation::Rep::ServerTransformResults(
     const ObjectValue& previous_data,
     const google_firestore_v1_ArrayValue& server_transform_results) const {
-  std::map<FieldPath, absl::optional<google_firestore_v1_Value>>
-      transform_results;
+  TransformMap transform_results;
   HARD_ASSERT(field_transforms_.size() == server_transform_results.values_count,
               "server transform result size (%s) should match field transforms "
               "size (%s)",
@@ -135,11 +132,9 @@ Mutation::Rep::ServerTransformResults(
   return transform_results;
 }
 
-std::map<FieldPath, absl::optional<google_firestore_v1_Value>>
-Mutation::Rep::LocalTransformResults(const ObjectValue& previous_data,
-                                     const Timestamp& local_write_time) const {
-  std::map<FieldPath, absl::optional<google_firestore_v1_Value>>
-      transform_results;
+TransformMap Mutation::Rep::LocalTransformResults(
+    const ObjectValue& previous_data, const Timestamp& local_write_time) const {
+  TransformMap transform_results;
   for (const FieldTransform& field_transform : field_transforms_) {
     const TransformOperation& transform = field_transform.transformation();
     const auto& previous_value = previous_data.Get(field_transform.path());
