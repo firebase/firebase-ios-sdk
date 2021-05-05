@@ -16,7 +16,7 @@ import Foundation
 import Combine
 import FirebaseDatabaseTestingSupport
 import XCTest
-@testable import FirebaseDatabaseCombineSwift
+@testable import FirebaseCombineSwift
 
 class DatabaseReferenceTests: XCTestCase {
   var cancellable: AnyCancellable?
