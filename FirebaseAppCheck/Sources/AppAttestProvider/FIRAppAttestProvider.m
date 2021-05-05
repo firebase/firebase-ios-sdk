@@ -112,7 +112,10 @@ NS_ASSUME_NONNULL_BEGIN
                                                projectID:app.options.projectID
                                                    appID:app.options.googleAppID];
 
-  FIRAppAttestArtifactStorage *artifactStorage = [[FIRAppAttestArtifactStorage alloc] init];
+  FIRAppAttestArtifactStorage *artifactStorage =
+      [[FIRAppAttestArtifactStorage alloc] initWithAppName:app.name
+                                                     appID:app.options.googleAppID
+                                               accessGroup:app.options.appGroupID];
 
   return [self initWithAppAttestService:DCAppAttestService.sharedService
                              APIService:appAttestAPIService
@@ -163,17 +166,17 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Initial handshake sequence
 
 - (FBLPromise<FIRAppCheckToken *> *)initialHandshakeWithKeyID:(nullable NSString *)keyID {
-  // 1. Check `DCAppAttestService.isSupported`.
+  // 1. Request a random challenge and get App Attest key ID concurrently.
   return [FBLPromise onQueue:self.queue
                          all:@[
-                           // 2. Request random challenge.
+                           // 1.1. Request random challenge.
                            [self.APIService getRandomChallenge],
-                           // 3. Get App Attest key ID.
+                           // 1.2. Get App Attest key ID.
                            [self generateAppAttestKeyIDIfNeeded:keyID]
                          ]]
       .thenOn(self.queue,
               ^FBLPromise<FIRAppAttestKeyAttestationResult *> *(NSArray *challengeAndKeyID) {
-                // 4. Attest the key.
+                // 2. Attest the key.
                 NSData *challenge = challengeAndKeyID.firstObject;
                 NSString *keyID = challengeAndKeyID.lastObject;
 
@@ -182,7 +185,7 @@ NS_ASSUME_NONNULL_BEGIN
       // TODO: Handle a possible key rejection - generate another key.
       .thenOn(self.queue,
               ^FBLPromise<FIRAppCheckToken *> *(FIRAppAttestKeyAttestationResult *result) {
-                // 5. Exchange the attestation to FAC token.
+                // 3. Exchange the attestation to FAC token.
                 return [self.APIService appCheckTokenWithAttestation:result.attestation
                                                                keyID:result.keyID
                                                            challenge:result.challenge];

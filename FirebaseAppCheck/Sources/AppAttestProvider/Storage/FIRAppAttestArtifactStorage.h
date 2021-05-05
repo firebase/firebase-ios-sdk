@@ -25,9 +25,14 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol FIRAppAttestArtifactStorageProtocol <NSObject>
 
 /// Set the artifact.
-- (FBLPromise<NSData *> *)setArtifact:(NSData *)artifact;
+/// @param artifact The artifact data to store. Pass `nil` to remove the stored artifact.
+/// @return An artifact that is resolved with the artifact data passed into the method in case of
+/// success or is rejected with an error.
+- (FBLPromise<NSData *> *)setArtifact:(nullable NSData *)artifact;
 
 /// Get the artifact.
+/// @return A promise that is resolved with the artifact data if artifact exists, is resolved with
+/// `nil` if no artifact found or is rejected with an error.
 - (FBLPromise<NSData *> *)getArtifact;
 
 @end
@@ -35,6 +40,17 @@ NS_ASSUME_NONNULL_BEGIN
 /// An implementation of FIRAppAttestArtifactStorageProtocol.
 @interface FIRAppAttestArtifactStorage : NSObject <FIRAppAttestArtifactStorageProtocol>
 
+- (instancetype)init NS_UNAVAILABLE;
+
+/// A default initializer.
+/// @param appName A Firebase App name (`FirebaseApp.name`). The app name will be used as a part of
+/// the key to store the token for the storage instance.
+/// @param appID A Firebase App identifier (`FirebaseOptions.googleAppID`). The app ID will be used
+/// as a part of the key to store the token for the storage instance.
+/// @param accessGroup The Keychain Access Group.
+- (instancetype)initWithAppName:(NSString *)appName
+                          appID:(NSString *)appID
+                    accessGroup:(nullable NSString *)accessGroup;
 @end
 
 NS_ASSUME_NONNULL_END
