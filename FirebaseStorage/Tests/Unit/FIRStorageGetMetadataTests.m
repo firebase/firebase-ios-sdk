@@ -126,6 +126,7 @@
          fetcherService:self.fetcherService
           dispatchQueue:self.dispatchQueue
              completion:^(FIRStorageMetadata *metadata, NSError *error) {
+               XCTAssertNil(error);
                [expectation fulfill];
              }];
   [task enqueue];

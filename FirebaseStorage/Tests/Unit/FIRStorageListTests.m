@@ -151,6 +151,7 @@ NSString *kListPath = @"object";
                pageSize:nil
       previousPageToken:nil
              completion:^(FIRStorageListResult *result, NSError *error) {
+               XCTAssertNil(error);
                [expectation fulfill];
              }];
   [task enqueue];

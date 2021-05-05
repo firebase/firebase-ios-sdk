@@ -117,7 +117,7 @@
                                                                 fetcherService:self.fetcherService
                                                                  dispatchQueue:self.dispatchQueue
                                                                     completion:^(NSError *error) {
-                                                                      XCTAssertEqual(error, nil);
+                                                                      XCTAssertNil(error);
                                                                       [expectation fulfill];
                                                                     }];
   [task enqueue];
