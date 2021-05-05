@@ -403,6 +403,7 @@ let package = Package(
       name: "FirebaseCombineSwift",
       dependencies: [
         "FirebaseAuthCombineSwift",
+        "FirebaseDatabaseCombineSwift",
         "FirebaseFunctionsCombineSwift",
         "FirebaseStorageCombineSwift",
       ],
