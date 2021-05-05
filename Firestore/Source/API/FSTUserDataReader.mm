@@ -81,7 +81,10 @@ using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ServerTimestampTransform;
 using firebase::firestore::model::TransformOperation;
 using firebase::firestore::nanopb::CheckedSize;
+<<<<<<< HEAD
 using firebase::firestore::nanopb::FreeNanopbMessage;
+=======
+>>>>>>> mrschmidt/mutabledocuments
 using firebase::firestore::remote::Serializer;
 using firebase::firestore::util::ThrowInvalidArgument;
 using firebase::firestore::util::ReadContext;
@@ -346,7 +349,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (google_firestore_v1_Value)parseArray:(NSArray<id> *)array context:(ParseContext &&)context {
   __block google_firestore_v1_Value result{};
   result.which_value_type = google_firestore_v1_Value_array_value_tag;
-  result.array_value.values_count = static_cast<pb_size_t>([array count]);
+  result.array_value.values_count = CheckedSize([array count]);
   result.array_value.values =
       nanopb::MakeArray<google_firestore_v1_Value>(result.array_value.values_count);
 
