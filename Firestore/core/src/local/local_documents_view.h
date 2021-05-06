@@ -31,10 +31,6 @@ namespace core {
 class Query;
 }  // namespace core
 
-namespace model {
-class Document;
-}  // namespace model
-
 namespace local {
 
 /**
