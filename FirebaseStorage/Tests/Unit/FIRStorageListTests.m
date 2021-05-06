@@ -140,6 +140,7 @@ NSString *kListPath = @"object";
   XCTestExpectation *expectation = [self expectationWithDescription:@"testDefaultListWithEmulator"];
 
   [self.storage useEmulatorWithHost:@"localhost" port:8080];
+  self.fetcherService.allowLocalhostRequest=YES;
   self.fetcherService.testBlock = [FIRStorageTestHelpers
       successBlockWithURL:@"http://localhost:8080/v0/b/bucket/o?prefix=object/&delimiter=/"];
 

@@ -1,6 +1,6 @@
 # 8.0.1
 - [fixed] Fixed an issue that prevented the SDK from connecting to the Emulator
-  on iOS 8 or older.
+  for some apps.
 
 # 8.0.0
 - [added] Added `FirebaseStorage.useEmulator()`, which allows the Storage SDK to
