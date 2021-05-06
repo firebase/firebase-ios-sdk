@@ -23,9 +23,20 @@
 #endif
 
 #import "FirebaseAppCheck/Sources/Core/APIService/FIRAppCheckAPIService.h"
+#import "FirebaseAppCheck/Sources/AppAttestProvider/API/FIRAppAttestInitialHandshakeResponse.h"
 
 #import <GoogleUtilities/GULURLSessionDataResponse.h>
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
+
+
+NS_ASSUME_NONNULL_BEGIN
+
+static NSString *const kRequestFieldAttestation = @"attestation_statement";
+static NSString *const kRequestFieldKeyID = @"key_id";
+static NSString *const kRequestFieldChallenge = @"challenge";
+
+static NSString *const kContentTypeKey = @"Content-Type";
+static NSString *const kJSONContentType = @"application/json";
 
 @interface FIRAppAttestAPIService ()
 
@@ -50,13 +61,11 @@
   return self;
 }
 
-- (FBLPromise<FIRAppAttestInitialHandshakeResponse *> *)
-    attestKeyWithAttestation:(NSData *)attestation
-                       keyID:(NSString *)keyID
-                   challenge:(NSData *)challenge {
-  // TODO: Implement.
-  return [FBLPromise resolvedWith:nil];
+- (dispatch_queue_t)backgroundQueue {
+  return dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0);
 }
+
+#pragma mark - Random Challenge
 
 - (nonnull FBLPromise<NSData *> *)getRandomChallenge {
   NSString *URLString =
@@ -64,7 +73,7 @@
                                  self.APIService.baseURL, self.projectID, self.appID];
   NSURL *URL = [NSURL URLWithString:URLString];
 
-  return [FBLPromise onQueue:[self defaultQueue]
+  return [FBLPromise onQueue:[self backgroundQueue]
                           do:^id _Nullable {
                             return [self.APIService sendRequestWithURL:URL
                                                             HTTPMethod:@"POST"
@@ -79,7 +88,7 @@
 #pragma mark - Challenge response parsing
 
 - (FBLPromise<NSData *> *)randomChallengeWithAPIResponse:(GULURLSessionDataResponse *)response {
-  return [FBLPromise onQueue:[self defaultQueue]
+  return [FBLPromise onQueue:[self backgroundQueue]
                           do:^id _Nullable {
                             NSError *error;
 
@@ -119,8 +128,68 @@
   return randomChallenge;
 }
 
-- (dispatch_queue_t)defaultQueue {
-  return dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0);
+#pragma mark - Attestation request
+
+- (FBLPromise<FIRAppAttestInitialHandshakeResponse *> *)
+    attestKeyWithAttestation:(NSData *)attestation
+                       keyID:(NSString *)keyID
+                   challenge:(NSData *)challenge {
+  NSString *URLString =
+      [NSString stringWithFormat:@"%@/projects/%@/apps/%@:exchangeAppAttestAttestation",
+                                 self.APIService.baseURL, self.projectID, self.appID];
+  NSURL *URL = [NSURL URLWithString:URLString];
+
+  return [self HTTPBodyWithAttestation:attestation keyID:keyID challenge:challenge]
+      .then(^FBLPromise<GULURLSessionDataResponse *> *(NSData *HTTPBody) {
+        return [self.APIService sendRequestWithURL:URL
+                                        HTTPMethod:@"POST"
+                                              body:HTTPBody
+                                 additionalHeaders:@{kContentTypeKey : kJSONContentType}];
+      })
+      .then(^id _Nullable(GULURLSessionDataResponse *_Nullable URLResponse) {
+        NSError *error;
+
+        __auto_type response = [[FIRAppAttestInitialHandshakeResponse alloc] initWithResponseData:URLResponse.HTTPBody requestDate:[NSDate date] error:&error];
+
+        return response ?: error;
+      });
+}
+
+- (FBLPromise<NSData *> *)HTTPBodyWithAttestation:(NSData *)attestation
+                                            keyID:(NSString *)keyID
+                                        challenge:(NSData *)challenge {
+  if (attestation.length <= 0 || keyID.length <= 0 || challenge.length <= 0) {
+    FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
+    [rejectedPromise
+        reject:[FIRAppCheckErrorUtil errorWithFailureReason:@"Missing or empty request parameter."]];
+    return rejectedPromise;
+  }
+
+  return [FBLPromise onQueue:[self backgroundQueue]
+                          do:^id _Nullable {
+                            NSError *encodingError;
+                            NSData *payloadJSON = [NSJSONSerialization
+                                dataWithJSONObject:@{
+                                  kRequestFieldKeyID : keyID,
+                                  kRequestFieldAttestation : [self base64StringWithData:attestation],
+                                  kRequestFieldChallenge : [self base64StringWithData:challenge]
+                                }
+                                           options:0
+                                             error:&encodingError];
+
+                            if (payloadJSON != nil) {
+                              return payloadJSON;
+                            } else {
+                              return [FIRAppCheckErrorUtil JSONSerializationError:encodingError];
+                            }
+                          }];
+}
+
+- (NSString *)base64StringWithData:(NSData *)data {
+  // TODO: Need to encode in base64URL?
+  return [data base64EncodedStringWithOptions:0];
 }
 
 @end
+
+NS_ASSUME_NONNULL_END
