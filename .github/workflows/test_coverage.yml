@@ -318,6 +318,8 @@ jobs:
           if [ -d "${{steps.download.outputs.download-path}}" ]; then
           cd scripts/code_coverage_report/generate_code_coverage_report
           .build/debug/IncrementalCoverageReportGenerator --changed-files ../../../test.json --file-archive-root-path /Users/granluo/test/firebase-ios-sdk/ --xcresult-path /Users/runner/test/codecoverage/FirebaseDatabase-iOS.xcresult
+          pull_number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
+          REPO=ENV['GITHUB_REPOSITORY'] UNCOVERED_LINE_FILE="uncovered_file_lines.json" TESTING_COMMIT=${GITHUB_SHA} PULL_REQUEST=${pull_number} ruby post_incremental_coverage_in_pr.rb
           fi
       - name: Update New Coverage Data
         if: github.event.pull_request.merged && env.METRICS_SERVICE_SECRET

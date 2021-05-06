@@ -16,18 +16,18 @@ diff-lines() {
     local line=
     local lines=()
     while read; do
-        esc=$'\033'
-        if [[ $REPLY =~ ---\ (a/)?.* ]]; then
+        esc='\033'
+        if [[ "$REPLY" =~ ---\ (a/)?.* ]]; then
             continue
-        elif [[ $REPLY =~ \+\+\+\ (b/)?([^[:blank:]$esc]+).* ]]; then
+        elif [[ "$REPLY" =~ ^\+\+\+\ (b/)?([^[:blank:]$esc]+).* ]]; then
           if [ ${#lines[@]} -ne 0 ]; then
             json_output+="$(concatenate "${path}" ${lines[@]}),"
           fi
             lines=()
             path=${BASH_REMATCH[2]}
-        elif [[ $REPLY =~ @@\ -[0-9]+(,[0-9]+)?\ \+([0-9]+)(,[0-9]+)?\ @@.* ]]; then
+        elif [[ "$REPLY" =~ @@\ -[0-9]+(,[0-9]+)?\ \+([0-9]+)(,[0-9]+)?\ @@.* ]]; then
             line=${BASH_REMATCH[2]}
-        elif [[ $REPLY =~ ^($esc\[[0-9;]+m)*([+]) ]]; then
+        elif [[ "$REPLY" =~ ^($esc\[[0-9;]+m)*([+]) ]]; then
             lines+=($line)
             ((line++))
         fi
@@ -37,5 +37,5 @@ diff-lines() {
 
 diff-lines
 json_output="${json_output}]"
-echo $json_output >> "${output_file}"
+echo $json_output > "${output_file}"
 
