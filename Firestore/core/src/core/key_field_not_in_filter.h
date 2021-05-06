@@ -32,6 +32,7 @@ namespace core {
  */
 class KeyFieldNotInFilter : public FieldFilter {
  public:
+  /** Creates a new document keys not-in filter. Takes ownership of `value`. */
   KeyFieldNotInFilter(const model::FieldPath& field,
                       google_firestore_v1_Value value);
 

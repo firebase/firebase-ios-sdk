@@ -36,6 +36,7 @@ namespace core {
  */
 class InFilter : public FieldFilter {
  public:
+  /** Creates a new 'in' filter. Takes ownership of `value`. */
   InFilter(const model::FieldPath& field, google_firestore_v1_Value value);
 
  private:

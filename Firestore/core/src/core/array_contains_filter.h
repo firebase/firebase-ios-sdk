@@ -37,6 +37,7 @@ namespace core {
  */
 class ArrayContainsFilter : public FieldFilter {
  public:
+  /** Creates a new array-contains filter. Takes ownership of `value`. */
   ArrayContainsFilter(const model::FieldPath& field,
                       google_firestore_v1_Value value);
 

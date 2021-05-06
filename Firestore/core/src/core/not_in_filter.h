@@ -32,6 +32,7 @@ namespace core {
  */
 class NotInFilter : public FieldFilter {
  public:
+  /** Creates a new not-in filter. Takes ownership of `value`. */
   NotInFilter(const model::FieldPath& field, google_firestore_v1_Value value);
 
  private:

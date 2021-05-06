@@ -106,7 +106,7 @@ FieldFilter FieldFilter::Create(const FieldPath& path,
   } else if (op == Operator::NotIn) {
     return NotInFilter(path, value_rhs);
   } else {
-    Rep filter(std::move(path), op, value_rhs);
+    Rep filter(path, op, value_rhs);
     return FieldFilter(std::make_shared<const Rep>(std::move(filter)));
   }
 }
@@ -186,7 +186,7 @@ size_t FieldFilter::Rep::Hash() const {
 bool FieldFilter::Rep::Equals(const Filter::Rep& other) const {
   if (type() != other.type()) return false;
 
-  const auto& other_rep = dynamic_cast<const FieldFilter::Rep&>(other);
+  const auto& other_rep = static_cast<const FieldFilter::Rep&>(other);
   return op_ == other_rep.op_ && field_ == other_rep.field_ &&
          *value_rhs_ == *other_rep.value_rhs_;
 }

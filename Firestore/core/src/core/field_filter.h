@@ -99,6 +99,8 @@ class FieldFilter : public Filter {
      * Creates a new filter that compares fields and values. Only intended to be
      * called from Filter::Create().
      *
+     * The FieldFilter takes ownership of `value_rhs`.
+     *
      * @param field A path to a field in the document to filter on. The LHS of
      * the expression.
      * @param op The binary operator to apply.

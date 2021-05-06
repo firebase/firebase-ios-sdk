@@ -31,6 +31,7 @@ namespace core {
  */
 class KeyFieldFilter : public FieldFilter {
  public:
+  /** Creates a new document key filter. Takes ownership of `value`. */
   KeyFieldFilter(const model::FieldPath& field,
                  core::Filter::Operator op,
                  google_firestore_v1_Value value);

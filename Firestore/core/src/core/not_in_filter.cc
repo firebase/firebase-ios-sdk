@@ -57,7 +57,6 @@ NotInFilter::NotInFilter(const FieldPath& field,
 
 bool NotInFilter::Rep::Matches(const Document& doc) const {
   const google_firestore_v1_ArrayValue& array_value = value().array_value;
-
   if (Contains(array_value, NullValue())) {
     return false;
   }
