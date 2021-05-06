@@ -80,6 +80,8 @@
 
   NSString *challengeString = [[NSString alloc] initWithData:promise.value
                                                     encoding:NSUTF8StringEncoding];
+  // The challenge stored in `AppAttestResponseSuccess.json` is a valid base64 encoding of
+  // the string "random_challenge".
   XCTAssert([challengeString isEqualToString:@"random_challenge"]);
 
   OCMVerifyAll(self.mockAPIService);

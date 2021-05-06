@@ -76,7 +76,7 @@
       });
 }
 
-#pragma mark - Helpers
+#pragma mark - Challenge response parsing
 
 - (FBLPromise<NSData *> *)randomChallengeWithAPIResponse:(GULURLSessionDataResponse *)response {
   return [FBLPromise onQueue:[self defaultQueue]
@@ -115,7 +115,7 @@
     return nil;
   }
 
-  NSData *randomChallenge = [challenge dataUsingEncoding:NSUTF8StringEncoding];
+  NSData *randomChallenge = [[NSData alloc] initWithBase64EncodedString:challenge options:0];
   return randomChallenge;
 }
 
