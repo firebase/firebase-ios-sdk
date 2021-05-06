@@ -124,6 +124,7 @@ NSString *const kFIRStorageAppName = @"app";
                                 statusCode:(NSInteger)code {
   GTMSessionFetcherTestBlock block =
       ^(GTMSessionFetcher *fetcher, GTMSessionFetcherTestResponse response) {
+        NSLog(@"Running tests with url: %@", url);
         if (url) {
           XCTAssertEqualObjects(url, [fetcher.request.URL absoluteString]);
         }
