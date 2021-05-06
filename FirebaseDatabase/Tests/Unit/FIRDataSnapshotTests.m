@@ -499,7 +499,7 @@
 }
 - (void)testDummyFunction {
   FIRDataSnapshot* snap = [self snapshotFor:@{}];
-  XCTAssertEqual([snap dummyFunction], @"Hello, world.");
+  XCTAssertEqualObjects([snap dummyFunction], @"Hello, world.");
 }
 
 @end
