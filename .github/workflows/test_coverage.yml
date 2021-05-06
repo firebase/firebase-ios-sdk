@@ -258,7 +258,10 @@ jobs:
     if: always()
     runs-on: macOS-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - name: Access to Metrics Service
         if: ${{ env.METRICS_SERVICE_SECRET }} && (github.event.action != 'closed' || github.event.pull_request.merged)
         run: |
