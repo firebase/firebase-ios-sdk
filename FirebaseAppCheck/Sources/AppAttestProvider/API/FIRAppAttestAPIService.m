@@ -24,6 +24,9 @@
 
 #import "FirebaseAppCheck/Sources/Core/APIService/FIRAppCheckAPIService.h"
 
+#import <GoogleUtilities/GULURLSessionDataResponse.h>
+#import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
+
 @interface FIRAppAttestAPIService ()
 
 @property(nonatomic, readonly) id<FIRAppCheckAPIServiceProtocol> APIService;
@@ -56,8 +59,68 @@
 }
 
 - (nonnull FBLPromise<NSData *> *)getRandomChallenge {
-  // TODO: Implement.
-  return [FBLPromise resolvedWith:nil];
+  NSString *URLString =
+      [NSString stringWithFormat:@"%@/projects/%@/apps/%@:generateAppAttestChallenge",
+                                 self.APIService.baseURL, self.projectID, self.appID];
+  NSURL *URL = [NSURL URLWithString:URLString];
+
+  return [FBLPromise onQueue:[self defaultQueue]
+                          do:^id _Nullable {
+                            return [self.APIService sendRequestWithURL:URL
+                                                            HTTPMethod:@"POST"
+                                                                  body:nil
+                                                     additionalHeaders:nil];
+                          }]
+      .then(^id _Nullable(GULURLSessionDataResponse *_Nullable response) {
+        return [self randomChallengeWithAPIResponse:response];
+      });
+}
+
+#pragma mark - Challenge response parsing
+
+- (FBLPromise<NSData *> *)randomChallengeWithAPIResponse:(GULURLSessionDataResponse *)response {
+  return [FBLPromise onQueue:[self defaultQueue]
+                          do:^id _Nullable {
+                            NSError *error;
+
+                            NSData *randomChallenge =
+                                [self randomChallengeFromResponseBody:response.HTTPBody
+                                                                error:&error];
+
+                            return randomChallenge ?: error;
+                          }];
+}
+
+- (NSData *)randomChallengeFromResponseBody:(NSData *)response error:(NSError **)outError {
+  if (response.length <= 0) {
+    FIRAppCheckSetErrorToPointer(
+        [FIRAppCheckErrorUtil errorWithFailureReason:@"Empty server response body."], outError);
+    return nil;
+  }
+
+  NSError *JSONError;
+  NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:response
+                                                               options:0
+                                                                 error:&JSONError];
+
+  if (![responseDict isKindOfClass:[NSDictionary class]]) {
+    FIRAppCheckSetErrorToPointer([FIRAppCheckErrorUtil JSONSerializationError:JSONError], outError);
+    return nil;
+  }
+
+  NSString *challenge = responseDict[@"challenge"];
+  if (![challenge isKindOfClass:[NSString class]]) {
+    FIRAppCheckSetErrorToPointer(
+        [FIRAppCheckErrorUtil appCheckTokenResponseErrorWithMissingField:@"challenge"], outError);
+    return nil;
+  }
+
+  NSData *randomChallenge = [[NSData alloc] initWithBase64EncodedString:challenge options:0];
+  return randomChallenge;
+}
+
+- (dispatch_queue_t)defaultQueue {
+  return dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0);
 }
 
 @end

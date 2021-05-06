@@ -83,7 +83,7 @@ static NSString *const kDefaultBaseURL = @"https://firebaseappcheck.googleapis.c
 - (FBLPromise<GULURLSessionDataResponse *> *)
     sendRequestWithURL:(NSURL *)requestURL
             HTTPMethod:(NSString *)HTTPMethod
-                  body:(NSData *)body
+                  body:(nullable NSData *)body
      additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders {
   return [self requestWithURL:requestURL
                     HTTPMethod:HTTPMethod
@@ -103,7 +103,7 @@ static NSString *const kDefaultBaseURL = @"https://firebaseappcheck.googleapis.c
                              additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)
                                                    additionalHeaders {
   return [FBLPromise
-      onQueue:dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)
+      onQueue:[self defaultQueue]
            do:^id _Nullable {
              __block NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:requestURL];
              request.HTTPMethod = HTTPMethod;
@@ -155,7 +155,7 @@ static NSString *const kDefaultBaseURL = @"https://firebaseappcheck.googleapis.c
 
 - (FBLPromise<FIRAppCheckToken *> *)appCheckTokenWithAPIResponse:
     (GULURLSessionDataResponse *)response {
-  return [FBLPromise onQueue:dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0)
+  return [FBLPromise onQueue:[self defaultQueue]
                           do:^id _Nullable {
                             NSError *error;
 
@@ -165,6 +165,10 @@ static NSString *const kDefaultBaseURL = @"https://firebaseappcheck.googleapis.c
                                                         error:&error];
                             return token ?: error;
                           }];
+}
+
+- (dispatch_queue_t)defaultQueue {
+  return dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0);
 }
 
 @end

@@ -20,6 +20,7 @@
 
   @available(swift 5.0)
   @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
+
   extension StorageReference {
     // MARK: - Uploads
 
@@ -35,7 +36,7 @@
     /// - Returns: A publisher emitting a `StorageMetadata` instance. The publisher will emit on the *main* thread.
     @discardableResult
     public func putData(_ data: Data,
-                        metadata: StorageMetadata?) -> Future<StorageMetadata, Error> {
+                        metadata: StorageMetadata? = nil) -> Future<StorageMetadata, Error> {
       var task: StorageUploadTask?
       return Future<StorageMetadata, Error> { [weak self] promise in
         task = self?.putData(data, metadata: metadata) { result in
@@ -59,7 +60,7 @@
     /// - Returns: A publisher emitting a `StorageMetadata` instance. The publisher will emit on the *main* thread.
     @discardableResult
     public func putFile(from fileURL: URL,
-                        metadata: StorageMetadata?)
+                        metadata: StorageMetadata? = nil)
       -> Future<StorageMetadata, Error> {
       var task: StorageUploadTask?
       return Future<StorageMetadata, Error> { [weak self] promise in
@@ -255,13 +256,13 @@
     ///
     /// - Returns: A publisher that emits whether the call was successful or not. The publisher will emit on the *main* thread.
     @discardableResult
-    public func delete() -> Future<Void, Error> {
-      Future<Void, Error> { promise in
+    public func delete() -> Future<Bool, Error> {
+      Future<Bool, Error> { promise in
         self.delete { error in
           if let error = error {
             promise(.failure(error))
           } else {
-            promise(.success(()))
+            promise(.success(true))
           }
         }
       }

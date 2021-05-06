@@ -6,11 +6,14 @@ Starting with the 6.31.0 release, Firebase supports installation via [Swift
 Package Manager](https://swift.org/package-manager/) in Beta status. Exiting Beta is targeted for
 the 8.0.0 release.
 
-
-## Limitations
+## Requirements
 
 - Requires Xcode 12.5
 - Analytics requires clients to add `-ObjC` linker option.
+- See [Package.swift](Package.swift) for supported platform versions.
+
+## Limitations
+
 - Analytics is only supported for iOS and cannot be used in apps that support other platforms.
 - Performance is not yet available.
 - watchOS support is available for Auth, Crashlytics, Messaging, Realtime Database, RemoteConfig,

@@ -15,6 +15,8 @@
   CocoaPod instead.
 - [removed] The `Firebase/MLVision` CocoaPods subspec has been removed. Use the
   `GoogleMLKit` CocoaPod instead.
+- [changed] The Swift Package Manager distribution now requires at least iOS 11.0. The CocoaPods
+  distribution continues to support iOS 10.0.
 - [changed] The Swift Package Manager distribution now requires at least watchOS 7.0 for products
   that support watchOS. The CocoaPods distribution continues to support watchOS 6.0 with the
   exception of FirebaseDatabase.
