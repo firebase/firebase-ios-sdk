@@ -33,6 +33,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithArtifact:(NSData *)artifact
                            token:(FIRAppCheckToken *)token NS_DESIGNATED_INITIALIZER;
 
+/// Init with the server response.
+- (nullable instancetype)initWithResponseData:(NSData *)response
+                                  requestDate:(NSDate *)requestDate
+                                        error:(NSError **)outError;
+
 @end
 
 NS_ASSUME_NONNULL_END

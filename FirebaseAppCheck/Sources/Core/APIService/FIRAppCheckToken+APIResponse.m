@@ -47,6 +47,12 @@
     return nil;
   }
 
+  return [self initWithResponseDict:responseDict requestDate:requestDate error:outError];
+}
+
+- (nullable instancetype)initWithResponseDict:(NSDictionary<NSString *, id> *)responseDict
+                                  requestDate:(NSDate *)requestDate
+                                        error:(NSError **)outError {
   NSString *token = responseDict[@"attestationToken"];
   if (![token isKindOfClass:[NSString class]]) {
     FIRAppCheckSetErrorToPointer(

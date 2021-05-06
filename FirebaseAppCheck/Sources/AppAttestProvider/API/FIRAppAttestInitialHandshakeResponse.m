@@ -16,6 +16,9 @@
 
 #import "FirebaseAppCheck/Sources/AppAttestProvider/API/FIRAppAttestInitialHandshakeResponse.h"
 
+#import "FirebaseAppCheck/Sources/Core/APIService/FIRAppCheckToken+APIResponse.h"
+#import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
+
 @implementation FIRAppAttestInitialHandshakeResponse
 
 - (instancetype)initWithArtifact:(NSData *)artifact token:(FIRAppCheckToken *)token {
@@ -25,6 +28,57 @@
     _token = token;
   }
   return self;
+}
+
+- (nullable instancetype)initWithResponseData:(NSData *)response
+                                  requestDate:(NSDate *)requestDate
+                                        error:(NSError **)outError {
+  if (response.length <= 0) {
+    FIRAppCheckSetErrorToPointer(
+        [FIRAppCheckErrorUtil errorWithFailureReason:@"Failed to parse the initial handshake response. Empty server response body."], outError);
+    return nil;
+  }
+
+  NSError *JSONError;
+  NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:response
+                                                               options:0
+                                                                 error:&JSONError];
+
+  if (![responseDict isKindOfClass:[NSDictionary class]]) {
+    FIRAppCheckSetErrorToPointer([FIRAppCheckErrorUtil JSONSerializationError:JSONError], outError);
+    return nil;
+  }
+
+  NSString *artifactBase64String = responseDict[@"artifact"];
+  if (![artifactBase64String isKindOfClass:[NSString class]]) {
+    FIRAppCheckSetErrorToPointer(
+        [FIRAppCheckErrorUtil appAttestAttestationResponseErrorWithMissingField:@"artifact"],
+        outError);
+    return nil;
+  }
+  NSData *artifactData = [[NSData init] initWithBase64EncodedString:artifactBase64String options:0];
+  if (artifactData == nil) {
+    FIRAppCheckSetErrorToPointer(
+        [FIRAppCheckErrorUtil appAttestAttestationResponseErrorWithMissingField:@"artifact"],
+        outError);
+    return nil;
+  }
+
+  NSDictionary *attestationTokenDict = responseDict[@"attestationToken"];
+  if (![attestationTokenDict isKindOfClass:[NSDictionary class]]) {
+    FIRAppCheckSetErrorToPointer(
+        [FIRAppCheckErrorUtil appAttestAttestationResponseErrorWithMissingField:@"attestationToken"],
+        outError);
+    return nil;
+  }
+
+  FIRAppCheckToken *appCheckToken = [[FIRAppCheckToken alloc] initWithResponseDict:attestationTokenDict requestDate:requestDate error:outError];
+
+  if (appCheckToken == nil) {
+    return nil;
+  }
+
+  return [[FIRAppAttestInitialHandshakeResponse alloc] initWithArtifact:artifactData token:appCheckToken];
 }
 
 @end
