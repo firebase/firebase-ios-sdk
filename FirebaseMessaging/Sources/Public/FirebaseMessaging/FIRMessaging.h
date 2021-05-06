@@ -157,7 +157,7 @@ NS_SWIFT_NAME(MessagingDelegate)
  *  Firebase Messaging lets you reliably deliver messages at no cost.
  *
  *  To send or receive messages, the app must get a
- *  registration token from FIRInstanceID. This token authorizes an
+ *  registration token. This token authorizes an
  *  app server to send messages to an app instance.
  *
  *  In order to receive FIRMessaging messages, declare

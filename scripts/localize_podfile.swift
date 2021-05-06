@@ -33,7 +33,7 @@ if arg_cnts > 2 {
 // Always add these, since they may not be in the Podfile, but we still want the local
 // versions when they're dependencies of other requested local pods.
 let implicitPods = [
-  "FirebaseCore", "FirebaseInstanceID", "FirebaseInstallations", "Firebase",
+  "FirebaseCore", "FirebaseInstallations", "Firebase",
   "FirebaseAuth", "FirebaseABTesting",
   "FirebaseCoreDiagnostics", "FirebaseRemoteConfig",
 ]

@@ -64,7 +64,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, MessagingDelegate {
             print("Failed to get FID: ", error)
             return
           }
-          self.identity.instanceID = fid
+          self.identity.installationsID = fid
         })
       })
       .store(in: &cancellables)

@@ -21,7 +21,7 @@ let firebaseVersion = "8.0.0"
 
 let package = Package(
   name: "Firebase",
-  platforms: [.iOS(.v10), .macOS(.v10_12), .tvOS(.v10), .watchOS(.v7)],
+  platforms: [.iOS(.v11), .macOS(.v10_12), .tvOS(.v10), .watchOS(.v7)],
   products: [
     .library(
       name: "FirebaseAnalytics",
@@ -64,10 +64,10 @@ let package = Package(
     //   name: "FirebaseStorageCombineSwift-Beta",
     //   targets: ["FirebaseStorageCombineSwift"]
     // ),
-    // .library(
-    //   name: "FirebaseCrashlytics",
-    //   targets: ["FirebaseCrashlytics"]
-    // ),
+    .library(
+      name: "FirebaseCrashlytics",
+      targets: ["FirebaseCrashlytics"]
+    ),
     .library(
       name: "FirebaseDatabase",
       targets: ["FirebaseDatabase"]
@@ -140,7 +140,7 @@ let package = Package(
     .package(
       name: "GoogleAppMeasurement",
       url: "https://github.com/google/GoogleAppMeasurement.git",
-      .exact("7.11.0")
+      .exact("8.0.0")
     ),
     .package(
       name: "GoogleDataTransport",
@@ -150,7 +150,7 @@ let package = Package(
     .package(
       name: "GoogleUtilities",
       url: "https://github.com/google/GoogleUtilities.git",
-      "7.3.0" ..< "8.0.0"
+      "7.4.0" ..< "8.0.0"
     ),
     .package(
       name: "GTMSessionFetcher",
@@ -288,8 +288,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/7.11.0/FirebaseAnalytics.zip",
-      checksum: "96fdd7d7e7812748b11ec2e8ca9c0cec186e1caa6037996b74410d89a4ddf6af"
+      url: "https://dl.google.com/firebase/ios/swiftpm/8.0.0/FirebaseAnalytics.zip",
+      checksum: "b4820ede2e4ee4001695f372da65f24e262881715be635d87ed87e7568cfda9f"
     ),
     .target(
       name: "FirebaseAnalyticsSwiftTarget",
@@ -709,24 +709,6 @@ let package = Package(
     ),
 
     .target(
-      name: "FirebaseInstanceID",
-      dependencies: [
-        "FirebaseCore",
-        "FirebaseInstallations",
-        .product(name: "GULEnvironment", package: "GoogleUtilities"),
-        .product(name: "GULUserDefaults", package: "GoogleUtilities"),
-      ],
-      path: "Firebase/InstanceID",
-      exclude: [
-        "CHANGELOG.md",
-      ],
-      publicHeadersPath: "Public",
-      cSettings: [
-        .headerSearchPath("../../"),
-      ]
-    ),
-
-    .target(
       name: "FirebaseInstallations",
       dependencies: [
         "FirebaseCore",
@@ -770,7 +752,7 @@ let package = Package(
       name: "FirebaseMessaging",
       dependencies: [
         "FirebaseCore",
-        "FirebaseInstanceID",
+        "FirebaseInstallations",
         .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "GULReachability", package: "GoogleUtilities"),

@@ -28,5 +28,5 @@
 #define STR_EXPAND(x) #x
 
 NSString* FIRFirebaseVersion(void) {
-  return [NSString stringWithUTF8String:(const char* const)STR(Firebase_VERSION)];
+  return @STR(Firebase_VERSION);
 }

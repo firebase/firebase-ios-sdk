@@ -1,5 +1,11 @@
 # Firebase 8.0.0
-- [changed] Migrate `transform:` callsites and introduce breaking version of GDT (9.0). (#7899)
+- [removed] The deprecated Firebase InstanceID has been removed. Use Firebase Installations to manage
+  app instance and use Firebase Messaging to manage FCM registration token instead. (#7970)
+- [changed] The experimental Carthage distribution is temporarily discontinued pending integration
+  with the upcoming [Carthage 0.38.0 release](https://github.com/Carthage/Carthage/pull/3152) with
+  support for binary xcframeworks. In the meantime, a mix of 7.4.0 and 7.11.0 will be the latest
+  Carthage distribution. Use the [zip distribution](https://firebase.google.com/download/ios) as an
+  alternative way to get the latest 8.x binary distribution.
 - [removed] Build warnings will no longer be generated to warn about missing capabilities resulting
   from not including FirebaseAnalytics in the app. See the Firebase docs instead. (#7487)
 - [removed] The `Firebase/AdMob` CocoaPods subspec has been removed. Use the `Google-Mobile-Ads-SDK`
@@ -9,9 +15,13 @@
   CocoaPod instead.
 - [removed] The `Firebase/MLVision` CocoaPods subspec has been removed. Use the
   `GoogleMLKit` CocoaPod instead.
+- [changed] The Swift Package Manager distribution now requires at least iOS 11.0. The CocoaPods
+  distribution continues to support iOS 10.0.
 - [changed] The Swift Package Manager distribution now requires at least watchOS 7.0 for products
   that support watchOS. The CocoaPods distribution continues to support watchOS 6.0 with the
   exception of FirebaseDatabase.
+- [changed] Migrate `transform:` callsites and introduce breaking version of
+  GoogleDataTransport (9.0). (#7899)
 
 # Firebase 7.10.0
 - [changed] Update Nanopb to version 0.3.9.8. It fixes a possible security issue. (#7787)

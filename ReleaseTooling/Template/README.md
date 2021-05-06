@@ -9,7 +9,7 @@ Each Firebase component requires several frameworks in order to function
 properly. Each section below lists the frameworks you'll need to include
 in your project in order to use that Firebase SDK in your application.
 
-Xcode 12.0 or newer is required.
+Xcode 12.2 or newer is required.
 
 To integrate a Firebase SDK with your app:
 
