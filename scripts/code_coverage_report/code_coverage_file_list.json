@@ -4,8 +4,7 @@
     "filePatterns": [
       "FirebaseABTesting.*",
       "Interop/Analytics/Public/[^/]+\\.h",
-      "\\.github/workflows/abtesting\\.yml",
-      "Gemfile"
+      "\\.github/workflows/abtesting\\.yml"
     ]
   },
   {
@@ -13,8 +12,7 @@
     "filePatterns": [
       "FirebaseAuth.*",
       "Interop/Auth/Public/[^/]+\\.h",
-      "\\.github/workflows/auth\\.yml",
-      "Gemfile"
+      "\\.github/workflows/auth\\.yml"
     ]
   },
   {
@@ -32,8 +30,7 @@
     "filePatterns": [
       "FirebaseDynamicLinks.*",
       "\\.github/workflows/dynamiclinks\\.yml",
-      "Interop/Analytics/Public/[^/]+\\.h",
-      "Gemfile"
+      "Interop/Analytics/Public/[^/]+\\.h"
     ]
   },
   {
@@ -46,8 +43,7 @@
       "FirebaseFirestore\\.podspec",
       "CMakeLists\\.txt",
       "cmake/.*",
-      "\\.github/workflows/firestore\\.yml",
-      "Gemfile"
+      "\\.github/workflows/firestore\\.yml"
     ]
   },
   {
@@ -56,8 +52,7 @@
       "Functions.*",
       "\\.github/workflows/functions\\.yml",
       "Interop/Auth/Public/.*\\.h",
-      "FirebaseMessaging/Sources/Interop/[^/]+\\.h",
-      "Gemfile"
+      "FirebaseMessaging/Sources/Interop/[^/]+\\.h"
     ]
   },
   {
@@ -65,8 +60,7 @@
     "filePatterns": [
       "FirebaseInAppMessaging.*",
       "Interop/Analytics/Public/[^/]+\\.h",
-      "\\.github/workflows/inappmessaging\\.yml",
-      "Gemfile"
+      "\\.github/workflows/inappmessaging\\.yml"
     ]
   },
   {
@@ -75,8 +69,7 @@
       "FirebaseInstanceID.*",
       "Firebase/InstanceID/.*",
       "Example/InstanceID/.*",
-      "\\.github/workflows/instanceid\\.yml",
-      "Gemfile"
+      "\\.github/workflows/instanceid\\.yml"
     ]
   },
   {
@@ -85,8 +78,7 @@
       "FirebaseMessaging/.*",
       "Interop/Analytics/Public/[^/]+\\.h",
       "FirebaseMessaging\\.podspec",
-      "\\.github/workflows/messaging\\.yml",
-      "Gemfile"
+      "\\.github/workflows/messaging\\.yml"
     ]
   },
   {
@@ -94,8 +86,7 @@
     "filePatterns": [
       "FirebasePerformance/.*",
       "FirebasePerformance\\.podspec",
-      "\\.github/workflows/performance\\.yml",
-      "Gemfile"
+      "\\.github/workflows/performance\\.yml"
     ]
   },
   {
@@ -104,7 +95,6 @@
       "FirebaseRemoteConfig.*",
       "Interop/Analytics/Public/[^/]+\\.h",
       "\\.github/workflows/remoteconfig\\.yml",
-      "Gemfile",
       "scripts/generate_access_token\\.sh"
     ]
   },
@@ -113,8 +103,7 @@
     "filePatterns": [
       "FirebaseStorage.*",
       "Interop/Auth/Public/[^/]+\\.h",
-      "\\.github/workflows/storage\\.yml",
-      "Gemfile"
+      "\\.github/workflows/storage\\.yml"
     ]
   }
 ]

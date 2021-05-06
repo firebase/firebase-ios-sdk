@@ -4,9 +4,6 @@ require 'json'
 
 COMMENT = "### Incremental code coverage report \nNew code lines here are not covered by tests, please add tests on highlighted lines."
 REMOVE_PATTERN = /### Incremental code coverage report/
-REPO = ENV['GITHUB_REPOSITORY']
-UNCOVERED_LINE_FILE = ENV["UNCOVERED_LINE_FILE"]
-TESTING_COMMIT = ENV["TESTING_COMMIT"]
 PULL_REQUEST = ENV["PULL_REQUEST"].to_i
 
 client = Octokit::Client.new(access_token: ENV["INPUT_ACCESS_TOKEN"])
