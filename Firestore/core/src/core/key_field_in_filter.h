@@ -17,8 +17,8 @@
 #ifndef FIRESTORE_CORE_SRC_CORE_KEY_FIELD_IN_FILTER_H_
 #define FIRESTORE_CORE_SRC_CORE_KEY_FIELD_IN_FILTER_H_
 
-#include <set>
 #include <string>
+#include <unordered_set>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/core/field_filter.h"
@@ -41,8 +41,8 @@ class KeyFieldInFilter : public FieldFilter {
  private:
   class Rep;
 
-  static std::set<model::DocumentKey> ExtractDocumentKeysFromValue(
-      const google_firestore_v1_Value& value);
+  static std::unordered_set<model::DocumentKey, model::DocumentKeyHash>
+  ExtractDocumentKeysFromValue(const google_firestore_v1_Value& value);
 
   friend class KeyFieldNotInFilter;
 };

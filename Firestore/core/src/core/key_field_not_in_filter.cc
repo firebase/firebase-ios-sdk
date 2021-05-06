@@ -18,7 +18,7 @@
 #include "Firestore/core/src/core/key_field_in_filter.h"
 
 #include <memory>
-#include <set>
+#include <unordered_set>
 #include <utility>
 
 #include "Firestore/core/src/model/document.h"
@@ -31,6 +31,7 @@ namespace core {
 
 using model::Document;
 using model::DocumentKey;
+using model::DocumentKeyHash;
 using model::FieldPath;
 
 using Operator = Filter::Operator;
@@ -49,7 +50,7 @@ class KeyFieldNotInFilter::Rep : public FieldFilter::Rep {
   bool Matches(const model::Document& doc) const override;
 
  private:
-  std::set<DocumentKey> keys_;
+  std::unordered_set<DocumentKey, DocumentKeyHash> keys_;
 };
 
 KeyFieldNotInFilter::KeyFieldNotInFilter(const FieldPath& field,

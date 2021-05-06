@@ -17,7 +17,6 @@
 #include "Firestore/core/src/core/key_field_in_filter.h"
 
 #include <memory>
-#include <set>
 #include <utility>
 
 #include "Firestore/core/src/model/document.h"
@@ -32,6 +31,7 @@ namespace core {
 
 using model::Document;
 using model::DocumentKey;
+using model::DocumentKeyHash;
 using model::FieldPath;
 using model::GetTypeOrder;
 using model::IsArray;
@@ -53,7 +53,7 @@ class KeyFieldInFilter::Rep : public FieldFilter::Rep {
   bool Matches(const model::Document& doc) const override;
 
  private:
-  std::set<DocumentKey> keys_;
+  std::unordered_set<DocumentKey, DocumentKeyHash> keys_;
 };
 
 KeyFieldInFilter::KeyFieldInFilter(const FieldPath& field,
@@ -65,11 +65,12 @@ bool KeyFieldInFilter::Rep::Matches(const Document& doc) const {
   return keys_.find(doc->key()) != keys_.end();
 }
 
-std::set<model::DocumentKey> KeyFieldInFilter::ExtractDocumentKeysFromValue(
+std::unordered_set<DocumentKey, DocumentKeyHash>
+KeyFieldInFilter::ExtractDocumentKeysFromValue(
     const google_firestore_v1_Value& value) {
   HARD_ASSERT(IsArray(value),
               "Comparing on key with In/NotIn, but the value was not an Array");
-  std::set<DocumentKey> keys;
+  std::unordered_set<DocumentKey, DocumentKeyHash> keys;
   const google_firestore_v1_ArrayValue& array_value = value.array_value;
   for (pb_size_t i = 0; i < array_value.values_count; ++i) {
     HARD_ASSERT(GetTypeOrder(array_value.values[i]) == TypeOrder::kReference,

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
+#include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 
 #include "gmock/gmock.h"
