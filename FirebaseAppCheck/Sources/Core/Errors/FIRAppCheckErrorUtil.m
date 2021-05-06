@@ -62,9 +62,9 @@ NSString *const kFIRAppCheckErrorDomain = @"com.firebase.appCheck";
 }
 
 + (NSError *)appAttestAttestationResponseErrorWithMissingField:(NSString *)fieldName {
-  NSString *failureReason = [NSString
-      stringWithFormat:@"Unexpected attestation response format. Field `%@` is missing.",
-                       fieldName];
+  NSString *failureReason =
+      [NSString stringWithFormat:@"Unexpected attestation response format. Field `%@` is missing.",
+                                 fieldName];
   return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnknown
                        failureReason:failureReason
                      underlyingError:nil];

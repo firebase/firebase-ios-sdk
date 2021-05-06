@@ -22,12 +22,12 @@
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppAttestProvider.h"
 
 #import "FirebaseAppCheck/Sources/AppAttestProvider/API/FIRAppAttestAPIService.h"
+#import "FirebaseAppCheck/Sources/AppAttestProvider/API/FIRAppAttestInitialHandshakeResponse.h"
 #import "FirebaseAppCheck/Sources/AppAttestProvider/FIRAppAttestService.h"
 #import "FirebaseAppCheck/Sources/AppAttestProvider/Storage/FIRAppAttestArtifactStorage.h"
 #import "FirebaseAppCheck/Sources/AppAttestProvider/Storage/FIRAppAttestKeyIDStorage.h"
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"
-#import "FirebaseAppCheck/Sources/AppAttestProvider/API/FIRAppAttestInitialHandshakeResponse.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
@@ -159,14 +159,16 @@ API_AVAILABLE(ios(14.0))
   FIRAppCheckToken *FACToken = [[FIRAppCheckToken alloc] initWithToken:@"FAC token"
                                                         expirationDate:[NSDate date]];
   NSData *artifactData = [@"attestation artifact" dataUsingEncoding:NSUTF8StringEncoding];
-  __auto_type attestKeyResponse = [[FIRAppAttestInitialHandshakeResponse alloc] initWithArtifact:artifactData token:FACToken];
+  __auto_type attestKeyResponse =
+      [[FIRAppAttestInitialHandshakeResponse alloc] initWithArtifact:artifactData token:FACToken];
   OCMExpect([self.mockAPIService attestKeyWithAttestation:attestationData
                                                     keyID:generatedKeyID
                                                 challenge:randomChallenge])
       .andReturn([FBLPromise resolvedWith:attestKeyResponse]);
 
   // 8. Expect the artifact received from Firebase backend to be saved.
-  OCMExpect([self.mockArtifactStorage setArtifact:artifactData]).andReturn([FBLPromise resolvedWith:artifactData]);
+  OCMExpect([self.mockArtifactStorage setArtifact:artifactData])
+      .andReturn([FBLPromise resolvedWith:artifactData]);
 
   // 9. Call get token.
   XCTestExpectation *completionExpectation =
@@ -226,14 +228,16 @@ API_AVAILABLE(ios(14.0))
   FIRAppCheckToken *FACToken = [[FIRAppCheckToken alloc] initWithToken:@"FAC token"
                                                         expirationDate:[NSDate date]];
   NSData *artifactData = [@"attestation artifact" dataUsingEncoding:NSUTF8StringEncoding];
-  __auto_type attestKeyResponse = [[FIRAppAttestInitialHandshakeResponse alloc] initWithArtifact:artifactData token:FACToken];
+  __auto_type attestKeyResponse =
+      [[FIRAppAttestInitialHandshakeResponse alloc] initWithArtifact:artifactData token:FACToken];
   OCMExpect([self.mockAPIService attestKeyWithAttestation:attestationData
                                                     keyID:existingKeyID
                                                 challenge:randomChallenge])
       .andReturn([FBLPromise resolvedWith:attestKeyResponse]);
 
   // 9. Expect the artifact received from Firebase backend to be saved.
-  OCMExpect([self.mockArtifactStorage setArtifact:artifactData]).andReturn([FBLPromise resolvedWith:artifactData]);
+  OCMExpect([self.mockArtifactStorage setArtifact:artifactData])
+      .andReturn([FBLPromise resolvedWith:artifactData]);
 
   // 10. Call get token.
   XCTestExpectation *completionExpectation =

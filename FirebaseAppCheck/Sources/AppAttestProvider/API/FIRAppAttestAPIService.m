@@ -22,12 +22,11 @@
 #import "FBLPromises.h"
 #endif
 
-#import "FirebaseAppCheck/Sources/Core/APIService/FIRAppCheckAPIService.h"
 #import "FirebaseAppCheck/Sources/AppAttestProvider/API/FIRAppAttestInitialHandshakeResponse.h"
+#import "FirebaseAppCheck/Sources/Core/APIService/FIRAppCheckAPIService.h"
 
 #import <GoogleUtilities/GULURLSessionDataResponse.h>
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
-
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -149,7 +148,10 @@ static NSString *const kJSONContentType = @"application/json";
       .then(^id _Nullable(GULURLSessionDataResponse *_Nullable URLResponse) {
         NSError *error;
 
-        __auto_type response = [[FIRAppAttestInitialHandshakeResponse alloc] initWithResponseData:URLResponse.HTTPBody requestDate:[NSDate date] error:&error];
+        __auto_type response =
+            [[FIRAppAttestInitialHandshakeResponse alloc] initWithResponseData:URLResponse.HTTPBody
+                                                                   requestDate:[NSDate date]
+                                                                         error:&error];
 
         return response ?: error;
       });
@@ -160,29 +162,29 @@ static NSString *const kJSONContentType = @"application/json";
                                         challenge:(NSData *)challenge {
   if (attestation.length <= 0 || keyID.length <= 0 || challenge.length <= 0) {
     FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
-    [rejectedPromise
-        reject:[FIRAppCheckErrorUtil errorWithFailureReason:@"Missing or empty request parameter."]];
+    [rejectedPromise reject:[FIRAppCheckErrorUtil
+                                errorWithFailureReason:@"Missing or empty request parameter."]];
     return rejectedPromise;
   }
 
-  return [FBLPromise onQueue:[self backgroundQueue]
-                          do:^id _Nullable {
-                            NSError *encodingError;
-                            NSData *payloadJSON = [NSJSONSerialization
-                                dataWithJSONObject:@{
-                                  kRequestFieldKeyID : keyID,
-                                  kRequestFieldAttestation : [self base64StringWithData:attestation],
-                                  kRequestFieldChallenge : [self base64StringWithData:challenge]
-                                }
-                                           options:0
-                                             error:&encodingError];
+  return [FBLPromise
+      onQueue:[self backgroundQueue]
+           do:^id _Nullable {
+             NSError *encodingError;
+             NSData *payloadJSON = [NSJSONSerialization dataWithJSONObject:@{
+               kRequestFieldKeyID : keyID,
+               kRequestFieldAttestation : [self base64StringWithData:attestation],
+               kRequestFieldChallenge : [self base64StringWithData:challenge]
+             }
+                                                                   options:0
+                                                                     error:&encodingError];
 
-                            if (payloadJSON != nil) {
-                              return payloadJSON;
-                            } else {
-                              return [FIRAppCheckErrorUtil JSONSerializationError:encodingError];
-                            }
-                          }];
+             if (payloadJSON != nil) {
+               return payloadJSON;
+             } else {
+               return [FIRAppCheckErrorUtil JSONSerializationError:encodingError];
+             }
+           }];
 }
 
 - (NSString *)base64StringWithData:(NSData *)data {

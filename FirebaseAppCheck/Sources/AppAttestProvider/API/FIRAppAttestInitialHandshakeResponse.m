@@ -35,7 +35,10 @@
                                         error:(NSError **)outError {
   if (response.length <= 0) {
     FIRAppCheckSetErrorToPointer(
-        [FIRAppCheckErrorUtil errorWithFailureReason:@"Failed to parse the initial handshake response. Empty server response body."], outError);
+        [FIRAppCheckErrorUtil
+            errorWithFailureReason:
+                @"Failed to parse the initial handshake response. Empty server response body."],
+        outError);
     return nil;
   }
 
@@ -67,18 +70,22 @@
   NSDictionary *attestationTokenDict = responseDict[@"attestationToken"];
   if (![attestationTokenDict isKindOfClass:[NSDictionary class]]) {
     FIRAppCheckSetErrorToPointer(
-        [FIRAppCheckErrorUtil appAttestAttestationResponseErrorWithMissingField:@"attestationToken"],
+        [FIRAppCheckErrorUtil
+            appAttestAttestationResponseErrorWithMissingField:@"attestationToken"],
         outError);
     return nil;
   }
 
-  FIRAppCheckToken *appCheckToken = [[FIRAppCheckToken alloc] initWithResponseDict:attestationTokenDict requestDate:requestDate error:outError];
+  FIRAppCheckToken *appCheckToken =
+      [[FIRAppCheckToken alloc] initWithResponseDict:attestationTokenDict
+                                         requestDate:requestDate
+                                               error:outError];
 
   if (appCheckToken == nil) {
     return nil;
   }
 
-  return [[FIRAppAttestInitialHandshakeResponse alloc] initWithArtifact:artifactData token:appCheckToken];
+  return [self initWithArtifact:artifactData token:appCheckToken];
 }
 
 @end
