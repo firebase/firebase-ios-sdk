@@ -166,7 +166,8 @@ LocalWriteResult LocalStore::WriteLocally(std::vector<Mutation>&& mutations) {
     // sends us an update that already includes our transform.
     std::vector<Mutation> base_mutations;
     for (const Mutation& mutation : mutations) {
-      absl::optional<Document> base_document = existing_documents.get(mutation.key());
+      absl::optional<Document> base_document =
+          existing_documents.get(mutation.key());
 
       absl::optional<ObjectValue> base_value =
           mutation.ExtractTransformBaseValue(*base_document);
