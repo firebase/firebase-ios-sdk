@@ -278,6 +278,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                     challenge:(NSData *)challenge {
   return [FBLPromise onQueue:self.queue
                           do:^id _Nullable {
+                            //  TODO: Hash challenge.
                             return [challenge base64EncodedDataWithOptions:0];
                           }]
       .thenOn(
