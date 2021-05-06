@@ -47,7 +47,8 @@
   self.projectID = @"project_id";
   self.appID = @"app_id";
 
-  self.mockAPIService = OCMClassMock([FIRAppCheckAPIService class]);
+  self.mockAPIService = OCMProtocolMock(@protocol(FIRAppCheckAPIServiceProtocol));
+  OCMStub([self.mockAPIService baseURL]).andReturn(@"https://test.appcheck.url.com/beta");
 
   self.appAttestAPIService = [[FIRAppAttestAPIService alloc] initWithAPIService:self.mockAPIService
                                                                       projectID:self.projectID
@@ -204,7 +205,8 @@
 }
 
 - (void)stubMockAPIServiceRequestWithResponse:(id)response {
-  OCMStub([self.mockAPIService sendRequestWithURL:[OCMArg any]
+  id URLValidationArg = [self URLValidationCheckBlock];
+  OCMStub([self.mockAPIService sendRequestWithURL:URLValidationArg
                                        HTTPMethod:@"POST"
                                              body:nil
                                 additionalHeaders:nil])
@@ -212,6 +214,18 @@
         XCTAssertFalse([NSThread isMainThread]);
       })
       .andReturn([FBLPromise resolvedWith:response]);
+}
+
+- (id)URLValidationCheckBlock {
+  NSString *expectedRequestURL =
+      [NSString stringWithFormat:@"%@/projects/%@/apps/%@:generateAppAttestChallenge",
+                                 [self.mockAPIService baseURL], self.projectID, self.appID];
+
+  id URLValidationArg = [OCMArg checkWithBlock:^BOOL(NSURL *URL) {
+    XCTAssertEqualObjects(URL.absoluteString, expectedRequestURL);
+    return YES;
+  }];
+  return URLValidationArg;
 }
 
 @end
