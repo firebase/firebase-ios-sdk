@@ -301,7 +301,7 @@ jobs:
           if [ -d "${{steps.download.outputs.download-path}}" ]; then
           cd scripts/code_coverage_report/generate_code_coverage_report
           swift build
-          .build/debug/IncrementalCoverageReportGenerator --changed-files ../../../test.json --file-archive-root-path /Users/granluo/test/firebase-ios-sdk/ --xcresult-path /Users/runner/test/codecoverage/FirebaseDatabase-iOS.xcresult
+          .build/debug/IncrementalCoverageReportGenerator --changed-files ../../../test.json --file-archive-root-path "${GITHUB_WORKSPACE}" --xcresult-path /Users/runner/test/codecoverage/FirebaseDatabase-iOS.xcresult
           pull_number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
           cd ..
           bundle install
