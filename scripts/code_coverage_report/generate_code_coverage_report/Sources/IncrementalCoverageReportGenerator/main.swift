@@ -161,7 +161,7 @@ A JSON file with changed files and added line numbers. E.g. JSON file:
               for addedLineIndex in change.addedLines{
                   if addedLineIndex < coverageFile.coverage.count { 
                       if let test_cover_run = coverageFile.coverage[addedLineIndex] {
-                          if test_cover_run > 0 {uncoveredLine.coverage.append(addedLineIndex)}
+                          if test_cover_run == 0 {uncoveredLine.coverage.append(addedLineIndex)}
                           print ("\(addedLineIndex) : \(test_cover_run)")
                       } 
                   }
