@@ -297,7 +297,7 @@ jobs:
         run: |
           # Get Head commit of the branch, instead of a merge commit created by actions/checkout.
           GITHUB_SHA=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.head.sha)
-          git diff -U0 ${base_commit} GITHUB_SHA | scripts/code_coverage_report/get_diff_lines.sh test.json "/Users/runner/work/firebase-ios-sdk/firebase-ios-sdk/" "/Users/runner/test/codecoverage/FirebaseDatabase-iOS.xcresult"
+          git diff -U0 ${base_commit} "${GITHUB_SHA}" | scripts/code_coverage_report/get_diff_lines.sh test.json "/Users/runner/work/firebase-ios-sdk/firebase-ios-sdk/" "/Users/runner/test/codecoverage/FirebaseDatabase-iOS.xcresult"
           if [ -d "${{steps.download.outputs.download-path}}" ]; then
           cd scripts/code_coverage_report/generate_code_coverage_report
           swift build
