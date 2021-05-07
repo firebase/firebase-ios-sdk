@@ -629,7 +629,7 @@ int32_t SaturatedLimitValue(NSInteger limit) {
       DocumentKey key{path};
       components.values[idx] = RefValue(self.firestore.databaseID, key);
     } else {
-      components.values[idx] = * fieldValue.release();
+      components.values[idx] = *fieldValue.release();
     }
   }
 
