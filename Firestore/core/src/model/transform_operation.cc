@@ -19,7 +19,6 @@
 #include <functional>
 #include <memory>
 #include <ostream>
-#include <set>
 #include <utility>
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
@@ -37,13 +36,6 @@ namespace firestore {
 namespace model {
 
 using Type = TransformOperation::Type;
-
-struct ValueCompare {
-  bool operator()(const google_firestore_v1_Value& lhs,
-                  const google_firestore_v1_Value& rhs) const {
-    return Compare(lhs, rhs) == util::ComparisonResult::Ascending;
-  }
-};
 
 // MARK: - TransformOperation
 
@@ -254,10 +246,15 @@ google_firestore_v1_Value ArrayTransform::Rep::Apply(
       CoercedFieldValueArray(previous_value);
   if (type_ == Type::ArrayUnion) {
     // Gather the list of elements that have to be added.
-    std::set<google_firestore_v1_Value, ValueCompare> new_elements;
+    std::vector<google_firestore_v1_Value> new_elements;
     for (pb_size_t i = 0; i < elements_->values_count; ++i) {
-      if (!Contains(array_value, elements_->values[i])) {
-        new_elements.insert(elements_->values[i]);
+      const google_firestore_v1_Value& new_element = elements_->values[i];
+      if (!Contains(array_value, new_element) &&
+          !std::any_of(new_elements.begin(), new_elements.end(),
+                       [&](const google_firestore_v1_Value& value) {
+                         return value == new_element;
+                       })) {
+        new_elements.push_back(new_element);
       }
     }
 
