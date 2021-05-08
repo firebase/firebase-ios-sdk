@@ -215,7 +215,8 @@ jobs:
               chmod +x quickstart-ios/crashlytics/run
               chmod +x quickstart-ios/crashlytics/upload-symbols
     - name: Setup swift quickstart
-      run: SAMPLE="$SDK" TARGET="${SDK}ExampleSwift" NON_FIREBASE_SDKS="ReachabilitySwift" scripts/setup_quickstart_framework.sh \
+      run: |
+              SAMPLE="$SDK" TARGET="${SDK}ExampleSwift" NON_FIREBASE_SDKS="ReachabilitySwift" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseCrashlytics/*
     - name: Install Secret GoogleService-Info.plist
