@@ -217,8 +217,7 @@ jobs:
     - name: Setup swift quickstart
       run: |
               SAMPLE="$SDK" TARGET="${SDK}ExampleSwift" NON_FIREBASE_SDKS="ReachabilitySwift" scripts/setup_quickstart_framework.sh \
-                                               "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/* \
-                                               "${HOME}"/ios_frameworks/Firebase/FirebaseCrashlytics/*
+                                               "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/*
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-crashlytics.plist.gpg \
         quickstart-ios/crashlytics/GoogleService-Info.plist "$plist_secret"
