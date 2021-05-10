@@ -33,6 +33,7 @@ namespace model {
 
 namespace {
 
+using nanopb::CheckedSize;
 using nanopb::FreeFieldsArray;
 using nanopb::FreeNanopbMessage;
 using nanopb::MakeArray;
@@ -189,7 +190,7 @@ void ApplyChanges(
 
   free(parent->fields);
   parent->fields = target_fields;
-  parent->fields_count = static_cast<pb_size_t>(target_count);
+  parent->fields_count = CheckedSize(target_count);
 }
 
 }  // namespace

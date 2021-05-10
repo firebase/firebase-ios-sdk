@@ -47,6 +47,7 @@ class ObjectValue {
   ObjectValue(ObjectValue&& other) noexcept = default;
   ObjectValue& operator=(ObjectValue&& other) noexcept = default;
   ObjectValue(const ObjectValue& other);
+
   ObjectValue& operator=(const ObjectValue&) = delete;
 
   /**
