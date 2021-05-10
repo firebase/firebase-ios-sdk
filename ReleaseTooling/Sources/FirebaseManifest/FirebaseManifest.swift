@@ -36,8 +36,7 @@ public let shared = Manifest(
     Pod("FirebaseAuth", zip: true),
     Pod("FirebaseCrashlytics", zip: true),
     Pod("FirebaseDatabase", zip: true),
-    // TODO: Re-enable after API review.
-//    Pod("FirebaseDatabaseSwift", isBeta: true),
+    Pod("FirebaseDatabaseSwift", isBeta: true),
     Pod("FirebaseDynamicLinks", platforms: ["ios"], zip: true),
     Pod("FirebaseFirestore", allowWarnings: true, zip: true),
     Pod("FirebaseFirestoreSwift", isBeta: true),
