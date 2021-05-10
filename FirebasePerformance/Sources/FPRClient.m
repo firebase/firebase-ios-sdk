@@ -20,7 +20,7 @@
 #import "FirebasePerformance/Sources/AppActivity/FPRScreenTraceTracker.h"
 #import "FirebasePerformance/Sources/AppActivity/FPRSessionManager+Private.h"
 #import "FirebasePerformance/Sources/AppActivity/FPRTraceBackgroundActivityTracker.h"
-#import "FirebasePerformance/Sources/Common/FPRConsoleUrlGenerator.h"
+#import "FirebasePerformance/Sources/Common/FPRConsoleURLGenerator.h"
 #import "FirebasePerformance/Sources/Common/FPRConstants.h"
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
 #import "FirebasePerformance/Sources/Configurations/FPRRemoteConfigFlags.h"

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Common/FPRConsoleUrlGenerator.h"
+#import "FirebasePerformance/Sources/Common/FPRConsoleURLGenerator.h"
 
 NSString *const URL_BASE_PATH = @"https://console.firebase.google.com";
 NSString *const UTM_MEDIUM = @"ios-ide";
