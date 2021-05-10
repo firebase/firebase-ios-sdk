@@ -18,7 +18,9 @@
 #define FIRESTORE_CORE_SRC_CORE_KEY_FIELD_IN_FILTER_H_
 
 #include <string>
+#include <unordered_set>
 
+#include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/core/field_filter.h"
 #include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/model_fwd.h"
@@ -32,15 +34,15 @@ namespace core {
  */
 class KeyFieldInFilter : public FieldFilter {
  public:
-  KeyFieldInFilter(model::FieldPath field, model::FieldValue value);
+  /** Creates a new document keys filter. Takes ownership of `value`. */
+  KeyFieldInFilter(const model::FieldPath& field,
+                   google_firestore_v1_Value value);
 
  private:
   class Rep;
 
-  static bool Contains(const model::FieldValue::Array& array_value,
-                       const model::Document& doc);
-
-  static void ValidateArrayValue(const model::FieldValue& value);
+  static std::unordered_set<model::DocumentKey, model::DocumentKeyHash>
+  ExtractDocumentKeysFromValue(const google_firestore_v1_Value& value);
 
   friend class KeyFieldNotInFilter;
 };
