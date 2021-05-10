@@ -36,7 +36,7 @@ fi
 for file in "$@"
 do
   if [ ! -f "Firebase/${file}" ]; then
-    cp -nR ${file} Firebase/
+    cp -R ${file} Firebase/
   fi
 done
 
