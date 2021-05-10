@@ -43,10 +43,10 @@
 @property(nonatomic) FIRInstallations *installations;
 
 /** The Firebase Project ID of the project. */
-@property(nonatomic, readonly) NSString *projectId;
+@property(nonatomic, readonly) NSString *projectID;
 
 /** The bundle ID of the project*/
-@property(nonatomic, readonly) NSString *bundleId;
+@property(nonatomic, readonly) NSString *bundleID;
 /**
  * Determines the log directory path in the caches directory.
  *

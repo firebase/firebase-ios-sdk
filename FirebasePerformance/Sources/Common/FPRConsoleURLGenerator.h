@@ -20,32 +20,32 @@
 /**
  * Generates the console URL for the dashboard page of the project.
  *
- * @param projectId The Firebase project ID.
- * @param bundleId The bundle ID of this project.
+ * @param projectID The Firebase project ID.
+ * @param bundleID The bundle ID of this project.
  * @return The console URL for the dashboard page.
  */
-+ (NSString *)generateDashboardURLWithProjectId:(NSString *)projectId bundleId:(NSString *)bundleId;
++ (NSString *)generateDashboardURLWithProjectID:(NSString *)projectID bundleID:(NSString *)bundleID;
 
 /**
  * Generates the console URL for the custom trace page.
  *
- * @param projectId The Firebase project ID.
- * @param bundleId The bundle ID of this project.
+ * @param projectID The Firebase project ID.
+ * @param bundleID The bundle ID of this project.
  * @return The console URL for the custom trace page.
  */
-+ (NSString *)generateCustomTraceURLWithProjectId:(NSString *)projectId
-                                         bundleId:(NSString *)bundleId
++ (NSString *)generateCustomTraceURLWithProjectID:(NSString *)projectID
+                                         bundleID:(NSString *)bundleID
                                         traceName:(NSString *)traceName;
 
 /**
  * Generates the console URL for the screen trace page.
  *
- * @param projectId The Firebase project ID.
- * @param bundleId The bundle ID of this project.
+ * @param projectID The Firebase project ID.
+ * @param bundleID The bundle ID of this project.
  * @return The console URL for the custom trace page.
  */
-+ (NSString *)generateScreenTraceURLWithProjectId:(NSString *)projectId
-                                         bundleId:(NSString *)bundleId
++ (NSString *)generateScreenTraceURLWithProjectID:(NSString *)projectID
+                                         bundleID:(NSString *)bundleID
                                         traceName:(NSString *)traceName;
 
 @end

@@ -111,8 +111,8 @@
     _eventsQueue = dispatch_queue_create("com.google.perf.FPREventsQueue", DISPATCH_QUEUE_SERIAL);
     _eventsQueueGroup = dispatch_group_create();
     _configuration = [FPRConfigurations sharedInstance];
-    _projectId = [FIROptions defaultOptions].projectID;
-    _bundleId = [FIROptions defaultOptions].bundleID;
+    _projectID = [FIROptions defaultOptions].projectID;
+    _bundleID = [FIROptions defaultOptions].bundleID;
   }
   return self;
 }
@@ -173,15 +173,15 @@
         FPRLogDebug(kFPRClientMetricLogged,
                     @"Logging trace metric - %@ %.4fms. Please visit %@ in a minute for details.",
                     metric.traceMetric.name, metric.traceMetric.durationUs / 1000.0,
-                    [FPRConsoleURLGenerator generateScreenTraceURLWithProjectId:self.projectId
-                                                                       bundleId:self.bundleId
+                    [FPRConsoleURLGenerator generateScreenTraceURLWithProjectID:self.projectID
+                                                                       bundleID:self.bundleID
                                                                       traceName:trace.name]);
       } else {
         FPRLogDebug(kFPRClientMetricLogged,
                     @"Logging trace metric - %@ %.4fms. Please visit %@ in a minute for details.",
                     metric.traceMetric.name, metric.traceMetric.durationUs / 1000.0,
-                    [FPRConsoleURLGenerator generateCustomTraceURLWithProjectId:self.projectId
-                                                                       bundleId:self.bundleId
+                    [FPRConsoleURLGenerator generateCustomTraceURLWithProjectID:self.projectID
+                                                                       bundleID:self.bundleID
                                                                       traceName:trace.name]);
       }
       [self processAndLogEvent:metric];
@@ -257,8 +257,8 @@
     FPRLogInfo(
         kFPRClientMetricLogged,
         @"Welcome to Firebase Performance Monitoring! Please visit %@ in a minute for details.",
-        [FPRConsoleURLGenerator generateDashboardURLWithProjectId:self.projectId
-                                                         bundleId:self.bundleId]);
+        [FPRConsoleURLGenerator generateDashboardURLWithProjectID:self.projectID
+                                                         bundleID:self.bundleID]);
   });
 
   // Attempts to dispatch events if successfully retrieve installation ID.
