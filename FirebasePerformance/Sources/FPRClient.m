@@ -111,13 +111,8 @@
     _eventsQueue = dispatch_queue_create("com.google.perf.FPREventsQueue", DISPATCH_QUEUE_SERIAL);
     _eventsQueueGroup = dispatch_group_create();
     _configuration = [FPRConfigurations sharedInstance];
-    NSString *plistPath = [[NSBundle mainBundle] pathForResource:@"GoogleService-Info"
-                                                          ofType:@"plist"];
-    NSMutableDictionary *googleServiceDict =
-        [NSMutableDictionary dictionaryWithContentsOfFile:plistPath];
-    _projectId = googleServiceDict[@"PROJECT_ID"];
-    _bundleId = googleServiceDict[@"BUNDLE_ID"];
-    _isFirstTimeProcessAndLogEvent = true;
+    _projectId = [FIROptions defaultOptions].projectID;
+    _bundleId = [FIROptions defaultOptions].bundleID;
   }
   return self;
 }
@@ -178,14 +173,14 @@
         FPRLogDebug(kFPRClientMetricLogged,
                     @"Logging trace metric - %@ %.4fms. Please visit %@ in a minute for details.",
                     metric.traceMetric.name, metric.traceMetric.durationUs / 1000.0,
-                    [FPRConsoleUrlGenerator generateScreenTraceUrlWithProjectId:self.projectId
+                    [FPRConsoleURLGenerator generateScreenTraceURLWithProjectId:self.projectId
                                                                        bundleId:self.bundleId
                                                                       traceName:trace.name]);
       } else {
         FPRLogDebug(kFPRClientMetricLogged,
                     @"Logging trace metric - %@ %.4fms. Please visit %@ in a minute for details.",
                     metric.traceMetric.name, metric.traceMetric.durationUs / 1000.0,
-                    [FPRConsoleUrlGenerator generateCustomTraceUrlWithProjectId:self.projectId
+                    [FPRConsoleURLGenerator generateCustomTraceURLWithProjectId:self.projectId
                                                                        bundleId:self.bundleId
                                                                       traceName:trace.name]);
       }
@@ -253,21 +248,17 @@
     return;
   }
 
-  if (self.isFirstTimeProcessAndLogEvent) {
-    FPRLogInfo(
-        kFPRClientMetricLogged,
-        @"Welcome to Firebase Performance Monitoring! Please visit %@ in a minute for details.",
-        [FPRConsoleUrlGenerator generateDashboardUrlWithProjectId:self.projectId
-                                                         bundleId:self.bundleId]);
-    self.isFirstTimeProcessAndLogEvent = NO;
-  }
-
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     if (self.installations == nil) {
       // Delayed initialization of installations because FIRApp needs to be configured first.
       self.installations = [FIRInstallations installations];
     }
+    FPRLogInfo(
+        kFPRClientMetricLogged,
+        @"Welcome to Firebase Performance Monitoring! Please visit %@ in a minute for details.",
+        [FPRConsoleURLGenerator generateDashboardURLWithProjectId:self.projectId
+                                                         bundleId:self.bundleId]);
   });
 
   // Attempts to dispatch events if successfully retrieve installation ID.

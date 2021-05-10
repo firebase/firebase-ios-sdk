@@ -15,18 +15,36 @@
 #import <Foundation/Foundation.h>
 
 /** This class generated the console URLs for a project or a metric.*/
-@interface FPRConsoleUrlGenerator : NSObject
+@interface FPRConsoleURLGenerator : NSObject
 
-/** This is a class method to generate the console URL for the dashboard page of the project.*/
-+ (NSString *)generateDashboardUrlWithProjectId:(NSString *)projectId bundleId:(NSString *)bundleId;
+/**
+ * Generates the console URL for the dashboard page of the project.
+ *
+ * @param projectId The Firebase project ID.
+ * @param bundleId The bundle ID of this project.
+ * @return The console URL for the dashboard page.
+ */
++ (NSString *)generateDashboardURLWithProjectId:(NSString *)projectId bundleId:(NSString *)bundleId;
 
-/** This is a class method to generate the console URL for the custom trace.*/
-+ (NSString *)generateCustomTraceUrlWithProjectId:(NSString *)projectId
+/**
+ * Generates the console URL for the custom trace page.
+ *
+ * @param projectId The Firebase project ID.
+ * @param bundleId The bundle ID of this project.
+ * @return The console URL for the custom trace page.
+ */
++ (NSString *)generateCustomTraceURLWithProjectId:(NSString *)projectId
                                          bundleId:(NSString *)bundleId
                                         traceName:(NSString *)traceName;
 
-/** This is a class method to generate the console URL for the screen trace.*/
-+ (NSString *)generateScreenTraceUrlWithProjectId:(NSString *)projectId
+/**
+ * Generates the console URL for the screen trace page.
+ *
+ * @param projectId The Firebase project ID.
+ * @param bundleId The bundle ID of this project.
+ * @return The console URL for the custom trace page.
+ */
++ (NSString *)generateScreenTraceURLWithProjectId:(NSString *)projectId
                                          bundleId:(NSString *)bundleId
                                         traceName:(NSString *)traceName;
 

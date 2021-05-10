@@ -15,35 +15,37 @@
 #import "FirebasePerformance/Sources/Common/FPRConsoleUrlGenerator.h"
 
 NSString *const URL_BASE_PATH = @"https://console.firebase.google.com";
-NSString *const UTM_MEDIUM = @"perf-xcode";
+NSString *const UTM_MEDIUM = @"ios-ide";
+NSString *const UTM_SOURCE = @"perf-ios-sdk";
 
-@implementation FPRConsoleUrlGenerator
+@implementation FPRConsoleURLGenerator
 
 /** This is a class method to generate the console URL for the project's dashboard page.*/
-+ (NSString *)generateDashboardUrlWithProjectId:(NSString *)projectId
++ (NSString *)generateDashboardURLWithProjectId:(NSString *)projectId
                                        bundleId:(NSString *)bundleId {
-  return [NSString stringWithFormat:@"%@/project/%@/performance/app/ios:%@/trends?utm_medium=%@",
-                                    URL_BASE_PATH, projectId, bundleId, UTM_MEDIUM];
+  return [NSString
+      stringWithFormat:@"%@/project/%@/performance/app/ios:%@/trends?utm_source=%@&utm_medium=%@",
+                       URL_BASE_PATH, projectId, bundleId, UTM_SOURCE, UTM_MEDIUM];
 }
 
 /** This is a class method to generate the console URL for the custom trace.*/
-+ (NSString *)generateCustomTraceUrlWithProjectId:(NSString *)projectId
++ (NSString *)generateCustomTraceURLWithProjectId:(NSString *)projectId
                                          bundleId:(NSString *)bundleId
                                         traceName:(NSString *)traceName {
-  return [NSString
-      stringWithFormat:
-          @"%@/project/%@/performance/app/ios:%@/metrics/trace/DURATION_TRACE/%@?utm_medium=%@",
-          URL_BASE_PATH, projectId, bundleId, traceName, UTM_MEDIUM];
+  return [NSString stringWithFormat:@"%@/project/%@/performance/app/ios:%@/metrics/trace/"
+                                    @"DURATION_TRACE/%@?utm_source=%@&utm_medium=%@",
+                                    URL_BASE_PATH, projectId, bundleId, traceName, UTM_SOURCE,
+                                    UTM_MEDIUM];
 }
 
 /** This is a class method to generate the console URL for the screen trace.*/
-+ (NSString *)generateScreenTraceUrlWithProjectId:(NSString *)projectId
++ (NSString *)generateScreenTraceURLWithProjectId:(NSString *)projectId
                                          bundleId:(NSString *)bundleId
                                         traceName:(NSString *)traceName {
-  return [NSString
-      stringWithFormat:
-          @"%@/project/%@/performance/app/ios:%@/metrics/trace/SCREEN_TRACE/%@?utm_medium=%@",
-          URL_BASE_PATH, projectId, bundleId, traceName, UTM_MEDIUM];
+  return [NSString stringWithFormat:@"%@/project/%@/performance/app/ios:%@/metrics/trace/"
+                                    @"SCREEN_TRACE/%@?utm_source=%@&utm_medium=%@",
+                                    URL_BASE_PATH, projectId, bundleId, traceName, UTM_SOURCE,
+                                    UTM_MEDIUM];
 }
 
 @end

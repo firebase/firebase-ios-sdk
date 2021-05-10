@@ -42,9 +42,6 @@
 /** Firebase Installations object for FPRClient. */
 @property(nonatomic) FIRInstallations *installations;
 
-/** Returns true if it is the first time events are processed. */
-@property(nonatomic, readwrite) BOOL isFirstTimeProcessAndLogEvent;
-
 /** The Firebase Project ID of the project. */
 @property(nonatomic, readonly) NSString *projectId;
 
