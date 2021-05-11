@@ -34,4 +34,9 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   ]
 
   s.dependency 'FirebaseDatabase', '~> 8.0'
+
+  s.test_spec 'unit' do |unit_tests|
+    unit_tests.scheme = { :code_coverage => true }
+    unit_tests.dependency 'FirebaseDatabaseTestingSupport'
+  end
 end

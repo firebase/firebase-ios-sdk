@@ -57,6 +57,10 @@ let package = Package(
     //   targets: ["FirebaseAuthCombineSwift"]
     // ),
     // .library(
+    //   name: "FirebaseDatabaseCombineSwift-Beta",
+    //   targets: ["FirebaseDatabaseCombineSwift"]
+    // ),
+    // .library(
     //   name: "FirebaseFunctionsCombineSwift-Beta",
     //   targets: ["FirebaseFunctionsCombineSwift"]
     // ),
@@ -398,6 +402,7 @@ let package = Package(
       name: "FirebaseCombineSwift",
       dependencies: [
         "FirebaseAuthCombineSwift",
+        "FirebaseDatabaseCombineSwift",
         "FirebaseFunctionsCombineSwift",
         "FirebaseStorageCombineSwift",
       ],
@@ -407,6 +412,16 @@ let package = Package(
       name: "FirebaseAuthCombineSwift",
       dependencies: ["FirebaseAuth"],
       path: "FirebaseCombineSwift/Sources/Auth"
+    ),
+    .target(
+      name: "FirebaseDatabaseCombineSwift",
+      dependencies: ["FirebaseDatabaseSwift"],
+      path: "FirebaseCombineSwift/Sources/Database"
+    ),
+    .testTarget(
+      name: "FirebaseDatabaseCombineSwiftTests",
+      dependencies: ["FirebaseDatabaseCombineSwift", "FirebaseDatabaseTestingSupport"],
+      path: "FirebaseCombineSwift/Tests/Unit/Database"
     ),
     .target(
       name: "FirebaseFunctionsCombineSwift",
@@ -512,7 +527,7 @@ let package = Package(
     ),
     .testTarget(
       name: "FirebaseDatabaseSwiftTests",
-      dependencies: ["FirebaseDatabase", "FirebaseDatabaseSwift"],
+      dependencies: ["FirebaseDatabase", "FirebaseDatabaseSwift", "FirebaseDatabaseTestingSupport"],
       path: "FirebaseDatabaseSwift/Tests/"
     ),
     .target(
@@ -983,6 +998,25 @@ let package = Package(
       name: "FirestoreTestingSupportTests",
       dependencies: ["FirebaseFirestoreTestingSupport"],
       path: "FirebaseTestingSupport/Firestore/Tests",
+      cSettings: [
+        .headerSearchPath("../../.."),
+      ]
+    ),
+
+    .target(
+      name: "FirebaseDatabaseTestingSupport",
+      dependencies: ["FirebaseDatabase"],
+      path: "FirebaseTestingSupport/Database/Sources",
+      publicHeadersPath: "./",
+      cSettings: [
+        .headerSearchPath("../../.."),
+        .headerSearchPath("../../../FirebaseDatabase/Source/Public/FirebaseDatabase"),
+      ]
+    ),
+    .testTarget(
+      name: "FirebaseDatabaseTestingSupportTests",
+      dependencies: ["FirebaseDatabaseTestingSupport"],
+      path: "FirebaseTestingSupport/Database/Tests",
       cSettings: [
         .headerSearchPath("../../.."),
       ]
