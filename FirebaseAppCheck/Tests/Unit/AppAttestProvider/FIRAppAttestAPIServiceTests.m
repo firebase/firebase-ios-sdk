@@ -237,6 +237,68 @@
   OCMVerifyAll(self.mockAPIService);
 }
 
+- (void)testAttestKeyNetworkError {
+  NSData *attestation = [self generateRandomData];
+  NSData *challenge = [self generateRandomData];
+  NSString *keyID = [NSUUID UUID].UUIDString;
+
+  // 1. Stub API Service
+  // 1.1. Return prepared response.
+  NSError *networkError = [NSError errorWithDomain:self.name code:0 userInfo:nil];
+  [self expectAttestAPIRequestWithAttestation:attestation
+                                        keyID:keyID
+                                    challenge:challenge
+                                     response:nil
+                                        error:networkError];
+
+  // 2. Send request.
+  __auto_type promise = [self.appAttestAPIService attestKeyWithAttestation:attestation
+                                                                     keyID:keyID
+                                                                 challenge:challenge];
+
+  // 3. Verify.
+  XCTAssert(FBLWaitForPromisesWithTimeout(1));
+
+  XCTAssertTrue(promise.isRejected);
+  XCTAssertNil(promise.value);
+  XCTAssertEqualObjects(promise.error, networkError);
+
+  OCMVerifyAll(self.mockAPIService);
+}
+
+- (void)testAttestKeyUnexpectedResponse {
+  NSData *attestation = [self generateRandomData];
+  NSData *challenge = [self generateRandomData];
+  NSString *keyID = [NSUUID UUID].UUIDString;
+
+  // 1. Prepare unexpected response.
+  NSData *responseBody = [FIRFixtureLoader loadFixtureNamed:@"DeviceCheckResponseSuccess.json"];
+  GULURLSessionDataResponse *validAPIResponse = [self APIResponseWithCode:200
+                                                             responseBody:responseBody];
+
+  // 2. Stub API Service
+  // 2.1. Return prepared response.
+  [self expectAttestAPIRequestWithAttestation:attestation
+                                        keyID:keyID
+                                    challenge:challenge
+                                     response:validAPIResponse
+                                        error:nil];
+
+  // 3. Send request.
+  __auto_type promise = [self.appAttestAPIService attestKeyWithAttestation:attestation
+                                                                     keyID:keyID
+                                                                 challenge:challenge];
+
+  // 4. Verify.
+  XCTAssert(FBLWaitForPromisesWithTimeout(1));
+
+  XCTAssertTrue(promise.isRejected);
+  XCTAssertNil(promise.value);
+  XCTAssertNotNil(promise.error);
+
+  OCMVerifyAll(self.mockAPIService);
+}
+
 #pragma mark - Helpers
 
 - (GULURLSessionDataResponse *)APIResponseWithCode:(NSInteger)code
