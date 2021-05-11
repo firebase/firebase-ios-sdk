@@ -330,6 +330,15 @@ TEST(MutationTest,
   TransformBaseDoc(base_data, transforms, expected);
 }
 
+TEST(MutationTest,
+     AppliesLocalArrayUnionTransformWithExistingElementsInOrder) {
+  // New elements should be appended in order.
+  auto base_data = Map("array", Array(1, 3));
+  TransformPairs transforms = {{"array", ArrayUnion(1, 2, 3, 4, 5)}};
+  auto expected = Map("array", Array(1, 3, 2, 4, 5));
+  TransformBaseDoc(base_data, transforms, expected);
+}
+
 TEST(MutationTest, AppliesLocalArrayUnionTransformWithDuplicateUnionElements) {
   // Duplicate entries in your union array should only be added once.
   auto base_data = Map("array", Array(1, 3));
