@@ -54,7 +54,7 @@ ABSL_ATTRIBUTE_NORETURN void DefaultThrowHandler(ExceptionType type,
 
   // Always log the error -- it helps if there are any issues with the exception
   // propagation mechanism and also makes sure the exception makes it into the
-  // log.
+  // log regardless of how it's handled.
   LOG_ERROR("%s", what);
 
 #if ABSL_HAVE_EXCEPTIONS
