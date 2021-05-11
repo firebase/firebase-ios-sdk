@@ -169,10 +169,7 @@ DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionQuery(
       }
 
       mutation.ApplyToLocalView(*document, batch.local_write_time());
-
-      if (document->is_found_document()) {
-        remote_documents = remote_documents.insert(key, *document);
-      } else {
+      if (!document->is_found_document()) {
         remote_documents = remote_documents.erase(key);
       }
     }
@@ -185,7 +182,7 @@ DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionQuery(
   DocumentMap results;
   for (const auto& kv : remote_documents) {
     const DocumentKey& key = kv.first;
-    Document doc{std::move(kv.second)};
+    Document doc{kv.second};
     if (query.Matches(doc)) {
       results = results.insert(key, doc);
     }
