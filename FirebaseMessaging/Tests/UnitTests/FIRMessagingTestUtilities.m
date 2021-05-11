@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "OCMock.h"
+#import <OCMock/OCMock.h>
 
 #import <GoogleUtilities/GULUserDefaults.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"

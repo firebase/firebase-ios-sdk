@@ -47,7 +47,7 @@ which are utilities used by Firebase and other Google products.
 
 See the subsections below for details about the different installation methods.
 1. [Standard pod install](README.md#standard-pod-install)
-1. [Swift Package Manager (Beta)](SwiftPackageManager.md)
+1. [Swift Package Manager](SwiftPackageManager.md)
 1. [Installing from the GitHub repo](README.md#installing-from-github)
 1. [Experimental Carthage](README.md#carthage-ios-only)
 
@@ -57,10 +57,10 @@ Go to
 [https://firebase.google.com/docs/ios/setup](https://firebase.google.com/docs/ios/setup). If you
 have a new Mac with an Apple silicon chip, please see [these instructions](AppleSilicon.md).
 
-### Swift Package Manager (Beta)
+### Swift Package Manager
 
-Instructions for the Beta of [Swift Package Manager](https://swift.org/package-manager/)
-support can be found at [SwiftPackageManager.md](SwiftPackageManager.md).
+Instructions for [Swift Package Manager](https://swift.org/package-manager/) support can be
+found at [SwiftPackageManager.md](SwiftPackageManager.md).
 
 ### Installing from GitHub
 

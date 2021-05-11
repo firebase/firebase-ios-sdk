@@ -72,11 +72,10 @@ let package = Package(
       name: "FirebaseDatabase",
       targets: ["FirebaseDatabase"]
     ),
-    // TODO: Re-enable after API review passes.
-//    .library(
-//      name: "FirebaseDatabaseSwift-Beta",
-//      targets: ["FirebaseDatabaseSwift"]
-//    ),
+    .library(
+      name: "FirebaseDatabaseSwift-Beta",
+      targets: ["FirebaseDatabaseSwift"]
+    ),
     .library(
       name: "FirebaseDynamicLinks",
       targets: ["FirebaseDynamicLinksTarget"]
@@ -174,8 +173,8 @@ let package = Package(
     ),
     .package(
       name: "OCMock",
-      url: "https://github.com/firebase/ocmock.git",
-      .revision("7291762d3551c5c7e31c49cce40a0e391a52e889")
+      url: "https://github.com/erikdoe/ocmock.git",
+      .revision("21cce26d223d49a9ab5ae47f28864f422bfe3951")
     ),
     .package(
       name: "leveldb",

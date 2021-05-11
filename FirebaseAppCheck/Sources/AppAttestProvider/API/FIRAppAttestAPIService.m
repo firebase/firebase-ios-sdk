@@ -64,6 +64,13 @@ static NSString *const kJSONContentType = @"application/json";
   return dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0);
 }
 
+- (FBLPromise<FIRAppCheckToken *> *)appCheckTokenWithArtifact:(NSData *)artifact
+                                                    challenge:(NSData *)challenge
+                                                    assertion:(NSData *)assertion {
+  // TODO: Implement.
+  return [FBLPromise resolvedWith:nil];
+}
+
 #pragma mark - Random Challenge
 
 - (nonnull FBLPromise<NSData *> *)getRandomChallenge {

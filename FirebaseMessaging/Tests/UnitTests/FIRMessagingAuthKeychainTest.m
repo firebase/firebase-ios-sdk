@@ -18,8 +18,8 @@
 #if !TARGET_OS_MACCATALYST && !SWIFT_PACKAGE
 // Skip keychain tests on Catalyst and swift package
 
+#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
-#import "OCMock.h"
 
 #import "FirebaseMessaging/Sources/Token/FIRMessagingAuthKeychain.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinPreferences.h"

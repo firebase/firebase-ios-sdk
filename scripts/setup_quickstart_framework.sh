@@ -28,15 +28,15 @@ if [[ ! -z "$NON_FIREBASE_SDKS" ]]; then
   REPO="${REPO}" NON_FIREBASE_SDKS="${NON_FIREBASE_SDKS}" "${REPO}"/scripts/build_non_firebase_sdks.sh
 fi
 if [ ! -f "Firebase/Firebase.h" ]; then
-  mv "${HOME}"/ios_frameworks/Firebase/Firebase.h Firebase/
+  cp "${HOME}"/ios_frameworks/Firebase/Firebase.h Firebase/
 fi
 if [ ! -f "Firebase/module.modulemap" ]; then
-  mv "${HOME}"/ios_frameworks/Firebase/module.modulemap Firebase/
+  cp "${HOME}"/ios_frameworks/Firebase/module.modulemap Firebase/
 fi
 for file in "$@"
 do
   if [ ! -f "Firebase/${file}" ]; then
-    mv -n ${file} Firebase/
+    cp -R ${file} Firebase/
   fi
 done
 

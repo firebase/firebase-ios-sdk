@@ -40,6 +40,11 @@ NS_ASSUME_NONNULL_BEGIN
                                                                       keyID:(NSString *)keyID
                                                                   challenge:(NSData *)challenge;
 
+/// Exchanges attestation data (artifact & assertion) and a challenge for a FAC token.
+- (FBLPromise<FIRAppCheckToken *> *)appCheckTokenWithArtifact:(NSData *)artifact
+                                                    challenge:(NSData *)challenge
+                                                    assertion:(NSData *)assertion;
+
 @end
 
 /// A default implementation of `FIRAppAttestAPIServiceProtocol`.
