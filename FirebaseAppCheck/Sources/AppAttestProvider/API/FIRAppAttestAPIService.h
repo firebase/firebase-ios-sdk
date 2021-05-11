@@ -18,6 +18,7 @@
 
 @class FBLPromise<Result>;
 @class FIRAppAttestAttestationResponse;
+@class FIRAppCheckToken;
 @protocol FIRAppCheckAPIServiceProtocol;
 
 NS_ASSUME_NONNULL_BEGIN
