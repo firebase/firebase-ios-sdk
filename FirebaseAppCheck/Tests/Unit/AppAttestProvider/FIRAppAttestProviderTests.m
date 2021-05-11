@@ -16,8 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FBLPromise+Testing.h"
 #import <OCMock/OCMock.h>
+#import "FBLPromise+Testing.h"
 
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppAttestProvider.h"
 
