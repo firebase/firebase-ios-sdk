@@ -16,11 +16,11 @@
 
 #import <XCTest/XCTest.h>
 
+#import <OCMock/OCMock.h>
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
 #import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinPreferences.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinService.h"
-#import "OCMock.h"
 #import "SharedTestUtilities/URLSession/FIRURLSessionOCMockStub.h"
 
 static NSString *const kDeviceAuthId = @"1234";

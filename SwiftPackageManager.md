@@ -1,10 +1,11 @@
-# Swift Package Manager for Firebase **Beta**
+# Swift Package Manager for Firebase
 
 ## Introduction
 
-Starting with the 6.31.0 release, Firebase supports installation via [Swift
-Package Manager](https://swift.org/package-manager/) in Beta status. Exiting Beta is targeted for
-the 8.0.0 release.
+Starting with the 8.0.0 release, Firebase officially supports installation via [Swift
+Package Manager](https://swift.org/package-manager/).
+
+Prior to version 8.0.0 (starting with version 6.31.0) support was in Beta.
 
 ## Requirements
 
