@@ -18,8 +18,8 @@
     __TV_OS_VERSION_MAX_ALLOWED >= __TV_10_0 || __MAC_OS_X_VERSION_MAX_ALLOWED >= __MAC_10_14
 #import <UserNotifications/UserNotifications.h>
 #endif
+#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
-#import "OCMock.h"
 
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"

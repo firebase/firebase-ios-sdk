@@ -18,9 +18,9 @@
 #if TARGET_OS_IOS
 
 #import <Foundation/Foundation.h>
+#import <OCMock/OCMock.h>
 #import <SafariServices/SafariServices.h>
 #import <XCTest/XCTest.h>
-#import "OCMock.h"
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthUIDelegate.h"
 
