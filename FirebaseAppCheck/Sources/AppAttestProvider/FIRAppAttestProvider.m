@@ -25,7 +25,7 @@
 #endif
 
 #import "FirebaseAppCheck/Sources/AppAttestProvider/API/FIRAppAttestAPIService.h"
-#import "FirebaseAppCheck/Sources/AppAttestProvider/API/FIRAppAttestInitialHandshakeResponse.h"
+#import "FirebaseAppCheck/Sources/AppAttestProvider/API/FIRAppAttestAttestationResponse.h"
 #import "FirebaseAppCheck/Sources/AppAttestProvider/FIRAppAttestProviderState.h"
 #import "FirebaseAppCheck/Sources/AppAttestProvider/FIRAppAttestService.h"
 #import "FirebaseAppCheck/Sources/AppAttestProvider/Storage/FIRAppAttestArtifactStorage.h"
@@ -185,7 +185,7 @@ NS_ASSUME_NONNULL_BEGIN
               })
       // TODO: Handle a possible key rejection - generate another key.
       .thenOn(self.queue,
-              ^FBLPromise<FIRAppAttestInitialHandshakeResponse *> *(
+              ^FBLPromise<FIRAppAttestAttestationResponse *> *(
                   FIRAppAttestKeyAttestationResult *result) {
                 // 3. Exchange the attestation to FAC token.
                 return [self.APIService attestKeyWithAttestation:result.attestation
@@ -193,14 +193,14 @@ NS_ASSUME_NONNULL_BEGIN
                                                        challenge:result.challenge];
               })
       .thenOn(self.queue,
-              ^FBLPromise<FIRAppCheckToken *> *(FIRAppAttestInitialHandshakeResponse *response) {
+              ^FBLPromise<FIRAppCheckToken *> *(FIRAppAttestAttestationResponse *response) {
                 // 4. Save the artifact and return the received FAC token.
                 return [self saveArtifactAndGetAppCheckTokenFromResponse:response];
               });
 }
 
 - (FBLPromise<FIRAppCheckToken *> *)saveArtifactAndGetAppCheckTokenFromResponse:
-    (FIRAppAttestInitialHandshakeResponse *)response {
+    (FIRAppAttestAttestationResponse *)response {
   return [self.artifactStorage setArtifact:response.artifact].thenOn(
       self.queue, ^FIRAppCheckToken *(id result) {
         return response.token;

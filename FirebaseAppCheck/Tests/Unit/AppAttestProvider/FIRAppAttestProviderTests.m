@@ -22,7 +22,7 @@
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppAttestProvider.h"
 
 #import "FirebaseAppCheck/Sources/AppAttestProvider/API/FIRAppAttestAPIService.h"
-#import "FirebaseAppCheck/Sources/AppAttestProvider/API/FIRAppAttestInitialHandshakeResponse.h"
+#import "FirebaseAppCheck/Sources/AppAttestProvider/API/FIRAppAttestAttestationResponse.h"
 #import "FirebaseAppCheck/Sources/AppAttestProvider/FIRAppAttestService.h"
 #import "FirebaseAppCheck/Sources/AppAttestProvider/Storage/FIRAppAttestArtifactStorage.h"
 #import "FirebaseAppCheck/Sources/AppAttestProvider/Storage/FIRAppAttestKeyIDStorage.h"
@@ -160,7 +160,7 @@ API_AVAILABLE(ios(14.0))
                                                         expirationDate:[NSDate date]];
   NSData *artifactData = [@"attestation artifact" dataUsingEncoding:NSUTF8StringEncoding];
   __auto_type attestKeyResponse =
-      [[FIRAppAttestInitialHandshakeResponse alloc] initWithArtifact:artifactData token:FACToken];
+      [[FIRAppAttestAttestationResponse alloc] initWithArtifact:artifactData token:FACToken];
   OCMExpect([self.mockAPIService attestKeyWithAttestation:attestationData
                                                     keyID:generatedKeyID
                                                 challenge:randomChallenge])
@@ -229,7 +229,7 @@ API_AVAILABLE(ios(14.0))
                                                         expirationDate:[NSDate date]];
   NSData *artifactData = [@"attestation artifact" dataUsingEncoding:NSUTF8StringEncoding];
   __auto_type attestKeyResponse =
-      [[FIRAppAttestInitialHandshakeResponse alloc] initWithArtifact:artifactData token:FACToken];
+      [[FIRAppAttestAttestationResponse alloc] initWithArtifact:artifactData token:FACToken];
   OCMExpect([self.mockAPIService attestKeyWithAttestation:attestationData
                                                     keyID:existingKeyID
                                                 challenge:randomChallenge])

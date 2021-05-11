@@ -22,7 +22,7 @@
 #import "FBLPromises.h"
 #endif
 
-#import "FirebaseAppCheck/Sources/AppAttestProvider/API/FIRAppAttestInitialHandshakeResponse.h"
+#import "FirebaseAppCheck/Sources/AppAttestProvider/API/FIRAppAttestAttestationResponse.h"
 #import "FirebaseAppCheck/Sources/Core/APIService/FIRAppCheckAPIService.h"
 
 #import <GoogleUtilities/GULURLSessionDataResponse.h>
@@ -129,10 +129,9 @@ static NSString *const kJSONContentType = @"application/json";
 
 #pragma mark - Attestation request
 
-- (FBLPromise<FIRAppAttestInitialHandshakeResponse *> *)
-    attestKeyWithAttestation:(NSData *)attestation
-                       keyID:(NSString *)keyID
-                   challenge:(NSData *)challenge {
+- (FBLPromise<FIRAppAttestAttestationResponse *> *)attestKeyWithAttestation:(NSData *)attestation
+                                                                      keyID:(NSString *)keyID
+                                                                  challenge:(NSData *)challenge {
   NSString *URLString =
       [NSString stringWithFormat:@"%@/projects/%@/apps/%@:exchangeAppAttestAttestation",
                                  self.APIService.baseURL, self.projectID, self.appID];
@@ -149,9 +148,9 @@ static NSString *const kJSONContentType = @"application/json";
         NSError *error;
 
         __auto_type response =
-            [[FIRAppAttestInitialHandshakeResponse alloc] initWithResponseData:URLResponse.HTTPBody
-                                                                   requestDate:[NSDate date]
-                                                                         error:&error];
+            [[FIRAppAttestAttestationResponse alloc] initWithResponseData:URLResponse.HTTPBody
+                                                              requestDate:[NSDate date]
+                                                                    error:&error];
 
         return response ?: error;
       });

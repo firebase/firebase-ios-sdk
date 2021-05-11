@@ -17,11 +17,12 @@
 #import <Foundation/Foundation.h>
 
 @class FBLPromise<Result>;
-@class FIRAppAttestInitialHandshakeResponse;
+@class FIRAppAttestAttestationResponse;
 @protocol FIRAppCheckAPIServiceProtocol;
 
 NS_ASSUME_NONNULL_BEGIN
 
+/// Methods to send API requests required for App Attest based attestation sequence.
 @protocol FIRAppAttestAPIServiceProtocol <NSObject>
 
 /// Request a random challenge from server.
@@ -33,15 +34,22 @@ NS_ASSUME_NONNULL_BEGIN
 /// received from Firebase backend.
 /// @param keyID The key ID used to generate the attestation.
 /// @param challenge The challenge used to generate the attestation.
-- (FBLPromise<FIRAppAttestInitialHandshakeResponse *> *)
-    attestKeyWithAttestation:(NSData *)attestation
-                       keyID:(NSString *)keyID
-                   challenge:(NSData *)challenge;
+/// @return A promise that is fulfilled with a response object with an encrypted attestation
+/// artifact and an Firebase App Check token or rejected with an error.
+- (FBLPromise<FIRAppAttestAttestationResponse *> *)attestKeyWithAttestation:(NSData *)attestation
+                                                                      keyID:(NSString *)keyID
+                                                                  challenge:(NSData *)challenge;
 
 @end
 
+/// A default implementation of `FIRAppAttestAPIServiceProtocol`.
 @interface FIRAppAttestAPIService : NSObject <FIRAppAttestAPIServiceProtocol>
 
+/// Default initializer.
+/// @param APIService An instance implementing `FIRAppCheckAPIServiceProtocol` to be used to send
+/// network for Firebase App Check backend requests.
+/// @param projectID A Firebase project ID for the requests (`FIRApp.options.projectID`).
+/// @param appID A Firebase app ID for the requests (`FIRApp.options.googleAppID`).
 - (instancetype)initWithAPIService:(id<FIRAppCheckAPIServiceProtocol>)APIService
                          projectID:(NSString *)projectID
                              appID:(NSString *)appID;

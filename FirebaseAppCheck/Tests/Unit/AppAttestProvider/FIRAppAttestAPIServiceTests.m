@@ -22,7 +22,7 @@
 #import <GoogleUtilities/GULURLSessionDataResponse.h>
 
 #import "FirebaseAppCheck/Sources/AppAttestProvider/API/FIRAppAttestAPIService.h"
-#import "FirebaseAppCheck/Sources/AppAttestProvider/API/FIRAppAttestInitialHandshakeResponse.h"
+#import "FirebaseAppCheck/Sources/AppAttestProvider/API/FIRAppAttestAttestationResponse.h"
 #import "FirebaseAppCheck/Sources/Core/APIService/FIRAppCheckAPIService.h"
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"

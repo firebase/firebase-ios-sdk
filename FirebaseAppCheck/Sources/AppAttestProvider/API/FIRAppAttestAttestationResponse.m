@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#import "FirebaseAppCheck/Sources/AppAttestProvider/API/FIRAppAttestInitialHandshakeResponse.h"
+#import "FirebaseAppCheck/Sources/AppAttestProvider/API/FIRAppAttestAttestationResponse.h"
 
 #import "FirebaseAppCheck/Sources/Core/APIService/FIRAppCheckToken+APIResponse.h"
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 
-@implementation FIRAppAttestInitialHandshakeResponse
+@implementation FIRAppAttestAttestationResponse
 
 - (instancetype)initWithArtifact:(NSData *)artifact token:(FIRAppCheckToken *)token {
   self = [super init];
