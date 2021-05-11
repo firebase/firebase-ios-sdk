@@ -59,7 +59,8 @@
         outError);
     return nil;
   }
-  NSData *artifactData = [[NSData alloc] initWithBase64EncodedString:artifactBase64String options:0];
+  NSData *artifactData = [[NSData alloc] initWithBase64EncodedString:artifactBase64String
+                                                             options:0];
   if (artifactData == nil) {
     FIRAppCheckSetErrorToPointer(
         [FIRAppCheckErrorUtil appAttestAttestationResponseErrorWithMissingField:@"artifact"],

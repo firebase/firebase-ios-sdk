@@ -22,14 +22,14 @@
 #import <GoogleUtilities/GULURLSessionDataResponse.h>
 
 #import "FirebaseAppCheck/Sources/AppAttestProvider/API/FIRAppAttestAPIService.h"
+#import "FirebaseAppCheck/Sources/AppAttestProvider/API/FIRAppAttestInitialHandshakeResponse.h"
 #import "FirebaseAppCheck/Sources/Core/APIService/FIRAppCheckAPIService.h"
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
-#import "FirebaseAppCheck/Sources/AppAttestProvider/API/FIRAppAttestInitialHandshakeResponse.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"
 
 #import "FirebaseAppCheck/Tests/Unit/Utils/FIRFixtureLoader.h"
-#import "SharedTestUtilities/URLSession/FIRURLSessionOCMockStub.h"
 #import "SharedTestUtilities/Date/FIRDateTestUtils.h"
+#import "SharedTestUtilities/URLSession/FIRURLSessionOCMockStub.h"
 
 @interface FIRAppAttestAPIServiceTests : XCTestCase
 
@@ -208,25 +208,32 @@
   NSString *keyID = [NSUUID UUID].UUIDString;
 
   // 1. Prepare response.
-  NSData *responseBody = [FIRFixtureLoader loadFixtureNamed:@"AppAttestAttestationResponseSuccess.json"];
+  NSData *responseBody =
+      [FIRFixtureLoader loadFixtureNamed:@"AppAttestAttestationResponseSuccess.json"];
   GULURLSessionDataResponse *validAPIResponse = [self APIResponseWithCode:200
                                                              responseBody:responseBody];
 
-
   // 2. Stub API Service
   // 2.1. Return prepared response.
-  [self expectAttestAPIRequestWithAttestation:attestation keyID:keyID challenge:challenge response:validAPIResponse error:nil];
-
+  [self expectAttestAPIRequestWithAttestation:attestation
+                                        keyID:keyID
+                                    challenge:challenge
+                                     response:validAPIResponse
+                                        error:nil];
 
   // 3. Send request.
-  __auto_type promise = [self.appAttestAPIService attestKeyWithAttestation:attestation keyID:keyID challenge:challenge];
-
+  __auto_type promise = [self.appAttestAPIService attestKeyWithAttestation:attestation
+                                                                     keyID:keyID
+                                                                 challenge:challenge];
 
   // 4. Verify.
   XCTAssert(FBLWaitForPromisesWithTimeout(1));
 
-  NSData *expectedArtifact = [@"valid Firebase app attest artifact" dataUsingEncoding:NSUTF8StringEncoding];
+  XCTAssertTrue(promise.isFulfilled);
+  XCTAssertNil(promise.error);
 
+  NSData *expectedArtifact =
+      [@"valid Firebase app attest artifact" dataUsingEncoding:NSUTF8StringEncoding];
 
   XCTAssertEqualObjects(promise.value.artifact, expectedArtifact);
   XCTAssertEqualObjects(promise.value.token.token, @"valid_app_check_token");
@@ -324,8 +331,8 @@
 
 - (id)URLValidationArgumentWithResource:(NSString *)resource {
   NSString *expectedRequestURL =
-      [NSString stringWithFormat:@"%@/projects/%@/apps/%@:%@",
-                                 [self.mockAPIService baseURL], self.projectID, self.appID, resource];
+      [NSString stringWithFormat:@"%@/projects/%@/apps/%@:%@", [self.mockAPIService baseURL],
+                                 self.projectID, self.appID, resource];
 
   id URLValidationArg = [OCMArg checkWithBlock:^BOOL(NSURL *URL) {
     XCTAssertEqualObjects(URL.absoluteString, expectedRequestURL);
@@ -335,11 +342,10 @@
 }
 
 - (void)expectAttestAPIRequestWithAttestation:(NSData *)attestation
-                                     keyID:(NSString *)keyID
-                                 challenge:(NSData *)challenge
-                                  response:(nullable GULURLSessionDataResponse *)response
+                                        keyID:(NSString *)keyID
+                                    challenge:(NSData *)challenge
+                                     response:(nullable GULURLSessionDataResponse *)response
                                         error:(nullable NSError *)error {
-
   id URLValidationArg = [self URLValidationArgumentWithResource:@"exchangeAppAttestAttestation"];
 
   id bodyValidationArg = [OCMArg checkWithBlock:^BOOL(NSData *requestBody) {
@@ -353,8 +359,8 @@
     NSString *base64EncodedAttestation = decodedData[@"attestation_statement"];
     XCTAssert([base64EncodedAttestation isKindOfClass:[NSString class]]);
 
-    NSData *decodedAttestation = [[NSData alloc] initWithBase64EncodedString:base64EncodedAttestation
-                                                               options:0];
+    NSData *decodedAttestation =
+        [[NSData alloc] initWithBase64EncodedString:base64EncodedAttestation options:0];
     XCTAssertEqualObjects(decodedAttestation, attestation);
 
     // Validate challenge field.
@@ -362,7 +368,7 @@
     XCTAssert([base64EncodedAttestation isKindOfClass:[NSString class]]);
 
     NSData *decodedChallenge = [[NSData alloc] initWithBase64EncodedString:base64EncodedChallenge
-                                                               options:0];
+                                                                   options:0];
     XCTAssertEqualObjects(decodedChallenge, challenge);
 
     // Validate key ID field.
@@ -381,8 +387,11 @@
     [resultPromise fulfill:response];
   }
 
-  OCMExpect([self.mockAPIService sendRequestWithURL:URLValidationArg HTTPMethod:@"POST" body:bodyValidationArg additionalHeaders:@{@"Content-Type" : @"application/json"}]).andReturn(resultPromise);
-
+  OCMExpect([self.mockAPIService sendRequestWithURL:URLValidationArg
+                                         HTTPMethod:@"POST"
+                                               body:bodyValidationArg
+                                  additionalHeaders:@{@"Content-Type" : @"application/json"}])
+      .andReturn(resultPromise);
 }
 
 - (NSData *)generateRandomData {
