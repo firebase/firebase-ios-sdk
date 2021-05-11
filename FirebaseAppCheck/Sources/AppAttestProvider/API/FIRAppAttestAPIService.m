@@ -50,6 +50,13 @@
   return self;
 }
 
+- (FBLPromise<FIRAppCheckToken *> *)appCheckTokenWithArtifact:(NSData *)artifact
+                                                    challenge:(NSData *)challenge
+                                                    assertion:(NSData *)assertion {
+  // TODO: Implement.
+  return [FBLPromise resolvedWith:nil];
+}
+
 - (nonnull FBLPromise<FIRAppCheckToken *> *)
     appCheckTokenWithAttestation:(nonnull NSData *)attestation
                            keyID:(nonnull NSString *)keyID
