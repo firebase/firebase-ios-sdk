@@ -106,7 +106,7 @@ static NSString *const kJSONContentType = @"application/json";
                           }];
 }
 
-- (NSData *)randomChallengeFromResponseBody:(NSData *)response error:(NSError **)outError {
+- (nullable NSData *)randomChallengeFromResponseBody:(NSData *)response error:(NSError **)outError {
   if (response.length <= 0) {
     FIRAppCheckSetErrorToPointer(
         [FIRAppCheckErrorUtil errorWithFailureReason:@"Empty server response body."], outError);
