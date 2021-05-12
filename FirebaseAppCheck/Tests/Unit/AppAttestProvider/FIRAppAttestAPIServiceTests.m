@@ -208,7 +208,8 @@
   NSData *assertion = [self generateRandomData];
 
   // 1. Prepare response.
-  NSData *responseBody = [FIRFixtureLoader loadFixtureNamed:@"AppCheckTokenResponseSuccess.json"];
+  NSData *responseBody =
+      [FIRFixtureLoader loadFixtureNamed:@"AttestationTokenResponseSuccess.json"];
   GULURLSessionDataResponse *validAPIResponse = [self APIResponseWithCode:200
                                                              responseBody:responseBody];
 
@@ -246,7 +247,8 @@
   NSData *assertion = [self generateRandomData];
 
   // 1. Prepare response.
-  NSData *responseBody = [FIRFixtureLoader loadFixtureNamed:@"AppCheckTokenResponseSuccess.json"];
+  NSData *responseBody =
+      [FIRFixtureLoader loadFixtureNamed:@"AttestationTokenResponseSuccess.json"];
   GULURLSessionDataResponse *validAPIResponse = [self APIResponseWithCode:200
                                                              responseBody:responseBody];
 
@@ -387,7 +389,8 @@
   NSString *keyID = [NSUUID UUID].UUIDString;
 
   // 1. Prepare unexpected response.
-  NSData *responseBody = [FIRFixtureLoader loadFixtureNamed:@"AppCheckTokenResponseSuccess.json"];
+  NSData *responseBody =
+      [FIRFixtureLoader loadFixtureNamed:@"AttestationTokenResponseSuccess.json"];
   GULURLSessionDataResponse *validAPIResponse = [self APIResponseWithCode:200
                                                              responseBody:responseBody];
 
