@@ -28,7 +28,7 @@ macro(podspec_version VARIABLE PODSPEC_FILE)
       FATAL_ERROR
       "Running the sed script ${PROJECT_SOURCE_DIR}/cmake/podspec_version.sed \
       on file ${PODSPEC_FILE} failed; ensure that the `sed` executable is \
-      installed and that its directoroy is present in the PATH environment \
+      installed and that its directory is present in the PATH environment \
       variable."
     )
   endif()
@@ -48,7 +48,7 @@ macro(firebase_version VARIABLE PODSPEC_FILE)
       FATAL_ERROR
       "Running the sed script ${PROJECT_SOURCE_DIR}/cmake/firebase_version.sed \
       on file ${PODSPEC_FILE} failed; ensure that the `sed` executable is \
-      installed and that its directoroy is present in the PATH environment \
+      installed and that its directory is present in the PATH environment \
       variable."
     )
   endif()
