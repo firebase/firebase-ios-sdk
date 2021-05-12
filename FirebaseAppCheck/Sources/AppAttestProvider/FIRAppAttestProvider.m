@@ -157,7 +157,7 @@ NS_ASSUME_NONNULL_BEGIN
         break;
 
       case FIRAppAttestAttestationStateKeyRegistered:
-        // Refresh FAC token using the existing registerred App Attest key pair.
+        // Refresh FAC token using the existing registered App Attest key pair.
         return [self refreshTokenWithKeyID:attestState.appAttestKeyID
                                   artifact:attestState.attestationArtifact];
         break;
