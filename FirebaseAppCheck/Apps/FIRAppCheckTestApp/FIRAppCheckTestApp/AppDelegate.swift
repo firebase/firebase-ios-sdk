@@ -64,7 +64,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       return
     }
 
-    DeviceCheckProvider(app: firebaseApp)?.getToken(completion: { token, error in
+    DeviceCheckProvider(app: firebaseApp)?.getToken { token, error in
       if let token = token {
         print("DeviceCheck token: \(token.token), expiration date: \(token.expirationDate)")
       }
@@ -72,7 +72,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       if let error = error {
         print("DeviceCheck error: \((error as NSError).userInfo)")
       }
-    })
+    }
   }
 
   func requestDebugToken() {
@@ -83,7 +83,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     if let debugProvider = AppCheckDebugProvider(app: firebaseApp) {
       print("Debug token: \(debugProvider.currentDebugToken())")
 
-      debugProvider.getToken(completion: { token, error in
+      debugProvider.getToken { token, error in
         if let token = token {
           print("Debug FAC token: \(token.token), expiration date: \(token.expirationDate)")
         }
@@ -91,7 +91,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if let error = error {
           print("Debug error: \(error)")
         }
-      })
+      }
     }
   }
 
