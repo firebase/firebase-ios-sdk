@@ -51,6 +51,9 @@ API_AVAILABLE(ios(14.0))
 @property(nonatomic) OCMockObject<FIRAppAttestKeyIDStorageProtocol> *mockStorage;
 @property(nonatomic) OCMockObject<FIRAppAttestArtifactStorageProtocol> *mockArtifactStorage;
 
+@property(nonatomic) NSData *randomChallenge;
+@property(nonatomic) NSData *randomChallengeHash;
+
 @end
 
 @implementation FIRAppAttestProviderTests
@@ -67,6 +70,11 @@ API_AVAILABLE(ios(14.0))
                                                               APIService:self.mockAPIService
                                                             keyIDStorage:self.mockStorage
                                                          artifactStorage:self.mockArtifactStorage];
+
+  self.randomChallenge = [@"random challenge" dataUsingEncoding:NSUTF8StringEncoding];
+  self.randomChallengeHash =
+      [[NSData alloc] initWithBase64EncodedString:@"vEq8yE9g+WwfifNqC2wsXN9M3NIDeOKpDBVYLpGbUDY="
+                                          options:0];
 }
 
 - (void)tearDown {
@@ -143,16 +151,14 @@ API_AVAILABLE(ios(14.0))
       .andReturn([FBLPromise resolvedWith:generatedKeyID]);
 
   // 5. Expect random challenge to be requested.
-  NSData *randomChallenge = [@"random challenge" dataUsingEncoding:NSUTF8StringEncoding];
   OCMExpect([self.mockAPIService getRandomChallenge])
-      .andReturn([FBLPromise resolvedWith:randomChallenge]);
+      .andReturn([FBLPromise resolvedWith:self.randomChallenge]);
 
   // 6. Expect the key to be attested with the challenge.
-  NSData *expectedChallengeHash = [randomChallenge base64EncodedDataWithOptions:0];
   NSData *attestationData = [@"attestation data" dataUsingEncoding:NSUTF8StringEncoding];
   id attestCompletionArg = [OCMArg invokeBlockWithArgs:attestationData, [NSNull null], nil];
   OCMExpect([self.mockAppAttestService attestKey:generatedKeyID
-                                  clientDataHash:expectedChallengeHash
+                                  clientDataHash:self.randomChallengeHash
                                completionHandler:attestCompletionArg]);
 
   // 7. Expect key attestation request to be sent.
@@ -163,7 +169,7 @@ API_AVAILABLE(ios(14.0))
       [[FIRAppAttestAttestationResponse alloc] initWithArtifact:artifactData token:FACToken];
   OCMExpect([self.mockAPIService attestKeyWithAttestation:attestationData
                                                     keyID:generatedKeyID
-                                                challenge:randomChallenge])
+                                                challenge:self.randomChallenge])
       .andReturn([FBLPromise resolvedWith:attestKeyResponse]);
 
   // 8. Expect the artifact received from Firebase backend to be saved.
@@ -212,16 +218,14 @@ API_AVAILABLE(ios(14.0))
   OCMExpect([self.mockArtifactStorage getArtifact]).andReturn(rejectedPromise);
 
   // 6. Expect random challenge to be requested.
-  NSData *randomChallenge = [@"random challenge" dataUsingEncoding:NSUTF8StringEncoding];
   OCMExpect([self.mockAPIService getRandomChallenge])
-      .andReturn([FBLPromise resolvedWith:randomChallenge]);
+      .andReturn([FBLPromise resolvedWith:self.randomChallenge]);
 
   // 7. Expect the key to be attested with the challenge.
-  NSData *expectedChallengeHash = [randomChallenge base64EncodedDataWithOptions:0];
   NSData *attestationData = [@"attestation data" dataUsingEncoding:NSUTF8StringEncoding];
   id attestCompletionArg = [OCMArg invokeBlockWithArgs:attestationData, [NSNull null], nil];
   OCMExpect([self.mockAppAttestService attestKey:existingKeyID
-                                  clientDataHash:expectedChallengeHash
+                                  clientDataHash:self.randomChallengeHash
                                completionHandler:attestCompletionArg]);
 
   // 8. Expect key attestation request to be sent.
@@ -232,7 +236,7 @@ API_AVAILABLE(ios(14.0))
       [[FIRAppAttestAttestationResponse alloc] initWithArtifact:artifactData token:FACToken];
   OCMExpect([self.mockAPIService attestKeyWithAttestation:attestationData
                                                     keyID:existingKeyID
-                                                challenge:randomChallenge])
+                                                challenge:self.randomChallenge])
       .andReturn([FBLPromise resolvedWith:attestKeyResponse]);
 
   // 9. Expect the artifact received from Firebase backend to be saved.
@@ -325,18 +329,16 @@ API_AVAILABLE(ios(14.0))
   OCMExpect([self.mockArtifactStorage getArtifact]).andReturn(rejectedPromise);
 
   // 4. Expect random challenge to be requested.
-  NSData *randomChallenge = [@"random challenge" dataUsingEncoding:NSUTF8StringEncoding];
   OCMExpect([self.mockAPIService getRandomChallenge])
-      .andReturn([FBLPromise resolvedWith:randomChallenge]);
+      .andReturn([FBLPromise resolvedWith:self.randomChallenge]);
 
   // 5. Expect the key to be attested with the challenge.
-  NSData *expectedChallengeHash = [randomChallenge base64EncodedDataWithOptions:0];
   NSError *attestationError = [NSError errorWithDomain:@"testGetTokenWhenKeyAttestationError"
                                                   code:0
                                               userInfo:nil];
   id attestCompletionArg = [OCMArg invokeBlockWithArgs:[NSNull null], attestationError, nil];
   OCMExpect([self.mockAppAttestService attestKey:existingKeyID
-                                  clientDataHash:expectedChallengeHash
+                                  clientDataHash:self.randomChallengeHash
                                completionHandler:attestCompletionArg]);
 
   // 6. Don't exchange API request.
@@ -379,16 +381,14 @@ API_AVAILABLE(ios(14.0))
   OCMExpect([self.mockArtifactStorage getArtifact]).andReturn(rejectedPromise);
 
   // 4. Expect random challenge to be requested.
-  NSData *randomChallenge = [@"random challenge" dataUsingEncoding:NSUTF8StringEncoding];
   OCMExpect([self.mockAPIService getRandomChallenge])
-      .andReturn([FBLPromise resolvedWith:randomChallenge]);
+      .andReturn([FBLPromise resolvedWith:self.randomChallenge]);
 
   // 5. Expect the key to be attested with the challenge.
-  NSData *expectedChallengeHash = [randomChallenge base64EncodedDataWithOptions:0];
   NSData *attestationData = [@"attestation data" dataUsingEncoding:NSUTF8StringEncoding];
   id attestCompletionArg = [OCMArg invokeBlockWithArgs:attestationData, [NSNull null], nil];
   OCMExpect([self.mockAppAttestService attestKey:existingKeyID
-                                  clientDataHash:expectedChallengeHash
+                                  clientDataHash:self.randomChallengeHash
                                completionHandler:attestCompletionArg]);
 
   // 6. Expect exchange request to be sent.
@@ -397,7 +397,7 @@ API_AVAILABLE(ios(14.0))
                                            userInfo:nil];
   OCMExpect([self.mockAPIService attestKeyWithAttestation:attestationData
                                                     keyID:existingKeyID
-                                                challenge:randomChallenge])
+                                                challenge:self.randomChallenge])
       .andReturn([self rejectedPromiseWithError:exchangeError]);
 
   // 7. Call get token.
