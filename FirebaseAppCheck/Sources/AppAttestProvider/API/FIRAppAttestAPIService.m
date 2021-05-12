@@ -185,22 +185,14 @@ static NSString *const kHTTPMethodPost = @"POST";
   }
 
   return [FBLPromise onQueue:[self backgroundQueue]
-                          do:^id _Nullable {
-                            NSError *encodingError;
-                            NSData *payloadJSON =
-                                [NSJSONSerialization dataWithJSONObject:@{
-                                  kRequestFieldArtifact : [self base64StringWithData:artifact],
-                                  kRequestFieldChallenge : [self base64StringWithData:challenge],
-                                  kRequestFieldAssertion : [self base64StringWithData:assertion]
-                                }
-                                                                options:0
-                                                                  error:&encodingError];
+                          do:^id {
+                            id JSONObject = @{
+                              kRequestFieldArtifact : [self base64StringWithData:artifact],
+                              kRequestFieldChallenge : [self base64StringWithData:challenge],
+                              kRequestFieldAssertion : [self base64StringWithData:assertion]
+                            };
 
-                            if (payloadJSON != nil) {
-                              return payloadJSON;
-                            } else {
-                              return [FIRAppCheckErrorUtil JSONSerializationError:encodingError];
-                            }
+                            return [self HTTPBodyWithJSONObject:JSONObject];
                           }];
 }
 
@@ -214,27 +206,27 @@ static NSString *const kHTTPMethodPost = @"POST";
     return rejectedPromise;
   }
 
-  return [FBLPromise
-      onQueue:[self backgroundQueue]
-           do:^id _Nullable {
-             NSError *encodingError;
-             NSData *payloadJSON = [NSJSONSerialization dataWithJSONObject:@{
-               kRequestFieldKeyID : keyID,
-               kRequestFieldAttestation : [self base64StringWithData:attestation],
-               kRequestFieldChallenge : [self base64StringWithData:challenge]
-             }
-                                                                   options:0
-                                                                     error:&encodingError];
+  return [FBLPromise onQueue:[self backgroundQueue]
+                          do:^id {
+                            id JSONObject = @{
+                              kRequestFieldKeyID : keyID,
+                              kRequestFieldAttestation : [self base64StringWithData:attestation],
+                              kRequestFieldChallenge : [self base64StringWithData:challenge]
+                            };
 
-             if (payloadJSON != nil) {
-               return payloadJSON;
-             } else {
-               return [FIRAppCheckErrorUtil JSONSerializationError:encodingError];
-             }
-           }];
+                            return [self HTTPBodyWithJSONObject:JSONObject];
+                          }];
 }
 
 #pragma mark - Helpers
+
+- (id)HTTPBodyWithJSONObject:(nonnull id)JSONObject {
+  NSError *encodingError;
+  NSData *payloadJSON = [NSJSONSerialization dataWithJSONObject:JSONObject
+                                                        options:0
+                                                          error:&encodingError];
+  return payloadJSON ?: [FIRAppCheckErrorUtil JSONSerializationError:encodingError];
+}
 
 - (NSString *)base64StringWithData:(NSData *)data {
   // TODO: Need to encode in base64URL?
