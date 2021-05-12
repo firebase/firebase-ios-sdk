@@ -303,7 +303,7 @@ namespace testutil = firebase::firestore::testutil;
   FIRFirestore *db2 = [self firestore];
   XCTAssertNotEqual(db1, db2);
 
-  NSString *reason = @"Provided document reference is from a different Firestore instance.";
+  NSString *reason = @"Provided document reference is from a different Cloud Firestore instance.";
   id data = @{@"foo" : @1};
   FIRDocumentReference *badRef = [db2 documentWithPath:@"foo/bar"];
   FIRWriteBatch *batch = [db1 batch];
@@ -318,7 +318,7 @@ namespace testutil = firebase::firestore::testutil;
   FIRFirestore *db2 = [self firestore];
   XCTAssertNotEqual(db1, db2);
 
-  NSString *reason = @"Provided document reference is from a different Firestore instance.";
+  NSString *reason = @"Provided document reference is from a different Cloud Firestore instance.";
   id data = @{@"foo" : @1};
   FIRDocumentReference *badRef = [db2 documentWithPath:@"foo/bar"];
 
