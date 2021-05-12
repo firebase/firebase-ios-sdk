@@ -356,7 +356,7 @@
     XCTAssert([decodedData isKindOfClass:[NSDictionary class]]);
 
     // Validate attestation field.
-    NSString *base64EncodedAttestation = decodedData[@"attestation_statement"];
+    NSString *base64EncodedAttestation = decodedData[@"attestationStatement"];
     XCTAssert([base64EncodedAttestation isKindOfClass:[NSString class]]);
 
     NSData *decodedAttestation =
@@ -372,7 +372,7 @@
     XCTAssertEqualObjects(decodedChallenge, challenge);
 
     // Validate key ID field.
-    NSString *keyIDField = decodedData[@"key_id"];
+    NSString *keyIDField = decodedData[@"keyId"];
     XCTAssert([base64EncodedAttestation isKindOfClass:[NSString class]]);
 
     XCTAssertEqualObjects(keyIDField, keyID);
