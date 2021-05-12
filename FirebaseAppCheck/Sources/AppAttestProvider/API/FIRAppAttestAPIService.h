@@ -53,7 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Default initializer.
 /// @param APIService An instance implementing `FIRAppCheckAPIServiceProtocol` to be used to send
-/// network for Firebase App Check backend requests.
+/// network requests to Firebase App Check backend.
 /// @param projectID A Firebase project ID for the requests (`FIRApp.options.projectID`).
 /// @param appID A Firebase app ID for the requests (`FIRApp.options.googleAppID`).
 - (instancetype)initWithAPIService:(id<FIRAppCheckAPIServiceProtocol>)APIService
