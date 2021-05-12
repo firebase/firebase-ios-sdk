@@ -27,6 +27,10 @@ NS_ASSUME_NONNULL_BEGIN
                                            requestDate:(NSDate *)requestDate
                                                  error:(NSError **)outError;
 
+- (nullable instancetype)initWithResponseDict:(NSDictionary<NSString *, id> *)responseDict
+                                  requestDate:(NSDate *)requestDate
+                                        error:(NSError **)outError;
+
 @end
 
 NS_ASSUME_NONNULL_END

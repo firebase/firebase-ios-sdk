@@ -61,6 +61,15 @@ NSString *const kFIRAppCheckErrorDomain = @"com.firebase.appCheck";
                      underlyingError:nil];
 }
 
++ (NSError *)appAttestAttestationResponseErrorWithMissingField:(NSString *)fieldName {
+  NSString *failureReason =
+      [NSString stringWithFormat:@"Unexpected attestation response format. Field `%@` is missing.",
+                                 fieldName];
+  return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnknown
+                       failureReason:failureReason
+                     underlyingError:nil];
+}
+
 + (NSError *)JSONSerializationError:(NSError *)error {
   NSString *failureReason = [NSString stringWithFormat:@"JSON serialization error."];
   return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnknown

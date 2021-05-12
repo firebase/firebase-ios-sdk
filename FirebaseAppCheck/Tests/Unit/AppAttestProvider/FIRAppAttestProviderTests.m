@@ -16,12 +16,13 @@
 
 #import <XCTest/XCTest.h>
 
+#import <OCMock/OCMock.h>
 #import "FBLPromise+Testing.h"
-#import "OCMock.h"
 
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppAttestProvider.h"
 
 #import "FirebaseAppCheck/Sources/AppAttestProvider/API/FIRAppAttestAPIService.h"
+#import "FirebaseAppCheck/Sources/AppAttestProvider/API/FIRAppAttestAttestationResponse.h"
 #import "FirebaseAppCheck/Sources/AppAttestProvider/FIRAppAttestService.h"
 #import "FirebaseAppCheck/Sources/AppAttestProvider/Storage/FIRAppAttestArtifactStorage.h"
 #import "FirebaseAppCheck/Sources/AppAttestProvider/Storage/FIRAppAttestKeyIDStorage.h"
@@ -98,9 +99,9 @@ API_AVAILABLE(ios(14.0))
   OCMReject([self.mockAppAttestService attestKey:OCMOCK_ANY
                                   clientDataHash:OCMOCK_ANY
                                completionHandler:OCMOCK_ANY]);
-  OCMReject([self.mockAPIService appCheckTokenWithAttestation:OCMOCK_ANY
-                                                        keyID:OCMOCK_ANY
-                                                    challenge:OCMOCK_ANY]);
+  OCMReject([self.mockAPIService attestKeyWithAttestation:OCMOCK_ANY
+                                                    keyID:OCMOCK_ANY
+                                                challenge:OCMOCK_ANY]);
 
   // 3. Call get token.
   XCTestExpectation *completionExpectation =
@@ -154,15 +155,22 @@ API_AVAILABLE(ios(14.0))
                                   clientDataHash:expectedChallengeHash
                                completionHandler:attestCompletionArg]);
 
-  // 7. Expect exchange request to be sent.
+  // 7. Expect key attestation request to be sent.
   FIRAppCheckToken *FACToken = [[FIRAppCheckToken alloc] initWithToken:@"FAC token"
                                                         expirationDate:[NSDate date]];
-  OCMExpect([self.mockAPIService appCheckTokenWithAttestation:attestationData
-                                                        keyID:generatedKeyID
-                                                    challenge:randomChallenge])
-      .andReturn([FBLPromise resolvedWith:FACToken]);
+  NSData *artifactData = [@"attestation artifact" dataUsingEncoding:NSUTF8StringEncoding];
+  __auto_type attestKeyResponse =
+      [[FIRAppAttestAttestationResponse alloc] initWithArtifact:artifactData token:FACToken];
+  OCMExpect([self.mockAPIService attestKeyWithAttestation:attestationData
+                                                    keyID:generatedKeyID
+                                                challenge:randomChallenge])
+      .andReturn([FBLPromise resolvedWith:attestKeyResponse]);
 
-  // 8. Call get token.
+  // 8. Expect the artifact received from Firebase backend to be saved.
+  OCMExpect([self.mockArtifactStorage setArtifact:artifactData])
+      .andReturn([FBLPromise resolvedWith:artifactData]);
+
+  // 9. Call get token.
   XCTestExpectation *completionExpectation =
       [self expectationWithDescription:@"completionExpectation"];
   [self.provider
@@ -176,7 +184,7 @@ API_AVAILABLE(ios(14.0))
 
   [self waitForExpectations:@[ completionExpectation ] timeout:0.5];
 
-  // 9. Verify mocks.
+  // 10. Verify mocks.
   [self verifyAllMocks];
 }
 
@@ -216,15 +224,22 @@ API_AVAILABLE(ios(14.0))
                                   clientDataHash:expectedChallengeHash
                                completionHandler:attestCompletionArg]);
 
-  // 8. Expect exchange request to be sent.
+  // 8. Expect key attestation request to be sent.
   FIRAppCheckToken *FACToken = [[FIRAppCheckToken alloc] initWithToken:@"FAC token"
                                                         expirationDate:[NSDate date]];
-  OCMExpect([self.mockAPIService appCheckTokenWithAttestation:attestationData
-                                                        keyID:existingKeyID
-                                                    challenge:randomChallenge])
-      .andReturn([FBLPromise resolvedWith:FACToken]);
+  NSData *artifactData = [@"attestation artifact" dataUsingEncoding:NSUTF8StringEncoding];
+  __auto_type attestKeyResponse =
+      [[FIRAppAttestAttestationResponse alloc] initWithArtifact:artifactData token:FACToken];
+  OCMExpect([self.mockAPIService attestKeyWithAttestation:attestationData
+                                                    keyID:existingKeyID
+                                                challenge:randomChallenge])
+      .andReturn([FBLPromise resolvedWith:attestKeyResponse]);
 
-  // 9. Call get token.
+  // 9. Expect the artifact received from Firebase backend to be saved.
+  OCMExpect([self.mockArtifactStorage setArtifact:artifactData])
+      .andReturn([FBLPromise resolvedWith:artifactData]);
+
+  // 10. Call get token.
   XCTestExpectation *completionExpectation =
       [self expectationWithDescription:@"completionExpectation"];
   [self.provider
@@ -238,7 +253,7 @@ API_AVAILABLE(ios(14.0))
 
   [self waitForExpectations:@[ completionExpectation ] timeout:0.5];
 
-  // 10. Verify mocks.
+  // 11. Verify mocks.
   [self verifyAllMocks];
 }
 
@@ -271,9 +286,9 @@ API_AVAILABLE(ios(14.0))
   OCMReject([self.mockAppAttestService attestKey:OCMOCK_ANY
                                   clientDataHash:OCMOCK_ANY
                                completionHandler:OCMOCK_ANY]);
-  OCMReject([self.mockAPIService appCheckTokenWithAttestation:OCMOCK_ANY
-                                                        keyID:OCMOCK_ANY
-                                                    challenge:OCMOCK_ANY]);
+  OCMReject([self.mockAPIService attestKeyWithAttestation:OCMOCK_ANY
+                                                    keyID:OCMOCK_ANY
+                                                challenge:OCMOCK_ANY]);
 
   // 6. Call get token.
   XCTestExpectation *completionExpectation =
@@ -325,9 +340,9 @@ API_AVAILABLE(ios(14.0))
                                completionHandler:attestCompletionArg]);
 
   // 6. Don't exchange API request.
-  OCMReject([self.mockAPIService appCheckTokenWithAttestation:OCMOCK_ANY
-                                                        keyID:OCMOCK_ANY
-                                                    challenge:OCMOCK_ANY]);
+  OCMReject([self.mockAPIService attestKeyWithAttestation:OCMOCK_ANY
+                                                    keyID:OCMOCK_ANY
+                                                challenge:OCMOCK_ANY]);
 
   // 7. Call get token.
   XCTestExpectation *completionExpectation =
@@ -380,9 +395,9 @@ API_AVAILABLE(ios(14.0))
   NSError *exchangeError = [NSError errorWithDomain:@"testGetTokenWhenKeyAttestationExchangeError"
                                                code:0
                                            userInfo:nil];
-  OCMExpect([self.mockAPIService appCheckTokenWithAttestation:attestationData
-                                                        keyID:existingKeyID
-                                                    challenge:randomChallenge])
+  OCMExpect([self.mockAPIService attestKeyWithAttestation:attestationData
+                                                    keyID:existingKeyID
+                                                challenge:randomChallenge])
       .andReturn([self rejectedPromiseWithError:exchangeError]);
 
   // 7. Call get token.

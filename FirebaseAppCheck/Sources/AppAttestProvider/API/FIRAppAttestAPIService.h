@@ -17,20 +17,29 @@
 #import <Foundation/Foundation.h>
 
 @class FBLPromise<Result>;
+@class FIRAppAttestAttestationResponse;
 @class FIRAppCheckToken;
 @protocol FIRAppCheckAPIServiceProtocol;
 
 NS_ASSUME_NONNULL_BEGIN
 
+/// Methods to send API requests required for App Attest based attestation sequence.
 @protocol FIRAppAttestAPIServiceProtocol <NSObject>
 
 /// Request a random challenge from server.
 - (FBLPromise<NSData *> *)getRandomChallenge;
 
-/// Exchanges attestation data to FAC token.
-- (FBLPromise<FIRAppCheckToken *> *)appCheckTokenWithAttestation:(NSData *)attestation
-                                                           keyID:(NSString *)keyID
-                                                       challenge:(NSData *)challenge;
+/// Sends attestation data to Firebase backend for validation.
+/// @param attestation The App Attest key attestation data obtained from the method
+/// `-[DCAppAttestService attestKey:clientDataHash:completionHandler:]` using the random challenge
+/// received from Firebase backend.
+/// @param keyID The key ID used to generate the attestation.
+/// @param challenge The challenge used to generate the attestation.
+/// @return A promise that is fulfilled with a response object with an encrypted attestation
+/// artifact and an Firebase App Check token or rejected with an error.
+- (FBLPromise<FIRAppAttestAttestationResponse *> *)attestKeyWithAttestation:(NSData *)attestation
+                                                                      keyID:(NSString *)keyID
+                                                                  challenge:(NSData *)challenge;
 
 /// Exchanges attestation data (artifact & assertion) and a challenge for a FAC token.
 - (FBLPromise<FIRAppCheckToken *> *)appCheckTokenWithArtifact:(NSData *)artifact
@@ -39,8 +48,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+/// A default implementation of `FIRAppAttestAPIServiceProtocol`.
 @interface FIRAppAttestAPIService : NSObject <FIRAppAttestAPIServiceProtocol>
 
+/// Default initializer.
+/// @param APIService An instance implementing `FIRAppCheckAPIServiceProtocol` to be used to send
+/// network requests to Firebase App Check backend.
+/// @param projectID A Firebase project ID for the requests (`FIRApp.options.projectID`).
+/// @param appID A Firebase app ID for the requests (`FIRApp.options.googleAppID`).
 - (instancetype)initWithAPIService:(id<FIRAppCheckAPIServiceProtocol>)APIService
                          projectID:(NSString *)projectID
                              appID:(NSString *)appID;

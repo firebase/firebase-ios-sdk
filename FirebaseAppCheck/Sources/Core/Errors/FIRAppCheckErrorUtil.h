@@ -36,6 +36,8 @@ void FIRAppCheckSetErrorToPointer(NSError *error, NSError **pointer);
 
 + (NSError *)appCheckTokenResponseErrorWithMissingField:(NSString *)fieldName;
 
++ (NSError *)appAttestAttestationResponseErrorWithMissingField:(NSString *)fieldName;
+
 + (NSError *)JSONSerializationError:(NSError *)error;
 
 + (NSError *)errorWithFailureReason:(NSString *)failureReason;

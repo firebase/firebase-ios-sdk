@@ -20,7 +20,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRAppAttestInitialHandshakeResponse : NSObject
+@interface FIRAppAttestAttestationResponse : NSObject
 
 /// App Attest attestation artifact required to refresh Firebase App Check token.
 @property(nonatomic, readonly) NSData *artifact;
@@ -32,6 +32,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithArtifact:(NSData *)artifact
                            token:(FIRAppCheckToken *)token NS_DESIGNATED_INITIALIZER;
+
+/// Init with the server response.
+- (nullable instancetype)initWithResponseData:(NSData *)response
+                                  requestDate:(NSDate *)requestDate
+                                        error:(NSError **)outError;
 
 @end
 
