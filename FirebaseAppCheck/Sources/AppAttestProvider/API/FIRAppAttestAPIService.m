@@ -30,6 +30,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+// TODO: Verify the following request fields.
 static NSString *const kRequestFieldArtifact = @"artifact";
 static NSString *const kRequestFieldAssertion = @"assertion";
 static NSString *const kRequestFieldAttestation = @"attestationStatement";
@@ -160,6 +161,7 @@ static NSString *const kHTTPMethodPost = @"POST";
                                               body:HTTPBody
                                  additionalHeaders:@{kContentTypeKey : kJSONContentType}];
       })
+      // TODO: Move to default queue.
       .then(^id _Nullable(GULURLSessionDataResponse *_Nullable URLResponse) {
         NSError *error;
 

@@ -200,6 +200,114 @@
                 fieldNameString);
 }
 
+#pragma mark - Assertion request
+
+- (void)testGetAppCheckTokenSuccess {
+  NSData *artifact = [self generateRandomData];
+  NSData *challenge = [self generateRandomData];
+  NSData *assertion = [self generateRandomData];
+
+  // 1. Prepare response.
+  NSData *responseBody = [FIRFixtureLoader loadFixtureNamed:@"AppCheckTokenResponseSuccess.json"];
+  GULURLSessionDataResponse *validAPIResponse = [self APIResponseWithCode:200
+                                                             responseBody:responseBody];
+
+  // 2. Stub API Service
+  // 2.1. Return prepared response.
+  FIRAppCheckToken *expectedToken = [[FIRAppCheckToken alloc] initWithToken:@"app_check_token"
+                                                             expirationDate:[NSDate date]];
+  [self expectTokenAPIRequestWithArtifact:artifact
+                                challenge:challenge
+                                assertion:assertion
+                                 response:validAPIResponse
+                                    error:nil
+                           andExpectToken:expectedToken];
+
+  // 3. Send request.
+  __auto_type promise = [self.appAttestAPIService getAppCheckTokenWithArtifact:artifact
+                                                                     challenge:challenge
+                                                                     assertion:assertion];
+  // 4. Verify.
+  XCTAssert(FBLWaitForPromisesWithTimeout(100));
+
+  XCTAssertTrue(promise.isFulfilled);
+  XCTAssertNil(promise.error);
+
+  XCTAssertEqualObjects(promise.value, expectedToken);
+  XCTAssertEqualObjects(promise.value.token, expectedToken.token);
+  XCTAssertEqualObjects(promise.value.expirationDate, expectedToken.expirationDate);
+
+  OCMVerifyAll(self.mockAPIService);
+}
+
+- (void)testGetAppCheckTokenNetworkError {
+  NSData *artifact = [self generateRandomData];
+  NSData *challenge = [self generateRandomData];
+  NSData *assertion = [self generateRandomData];
+
+  // 1. Prepare response.
+  NSData *responseBody = [FIRFixtureLoader loadFixtureNamed:@"AppCheckTokenResponseSuccess.json"];
+  GULURLSessionDataResponse *validAPIResponse = [self APIResponseWithCode:200
+                                                             responseBody:responseBody];
+
+  // 2. Stub API Service
+  // 2.1. Return prepared response.
+  NSError *networkError = [NSError errorWithDomain:self.name code:0 userInfo:nil];
+  [self expectTokenAPIRequestWithArtifact:artifact
+                                challenge:challenge
+                                assertion:assertion
+                                 response:validAPIResponse
+                                    error:networkError
+                           andExpectToken:nil];
+
+  // 3. Send request.
+  __auto_type promise = [self.appAttestAPIService getAppCheckTokenWithArtifact:artifact
+                                                                     challenge:challenge
+                                                                     assertion:assertion];
+  // 4. Verify.
+  XCTAssert(FBLWaitForPromisesWithTimeout(1));
+
+  XCTAssertTrue(promise.isRejected);
+  XCTAssertNil(promise.value);
+  XCTAssertEqualObjects(promise.error, networkError);
+
+  OCMVerifyAll(self.mockAPIService);
+}
+
+- (void)testGetAppCheckTokenUnexpectedResponse {
+  NSData *artifact = [self generateRandomData];
+  NSData *challenge = [self generateRandomData];
+  NSData *assertion = [self generateRandomData];
+
+  // 1. Prepare response.
+  NSData *responseBody =
+      [FIRFixtureLoader loadFixtureNamed:@"DeviceCheckResponseMissingToken.json"];
+  GULURLSessionDataResponse *validAPIResponse = [self APIResponseWithCode:200
+                                                             responseBody:responseBody];
+
+  // 2. Stub API Service
+  // 2.1. Return prepared response.
+  [self expectTokenAPIRequestWithArtifact:artifact
+                                challenge:challenge
+                                assertion:assertion
+                                 response:validAPIResponse
+                                    error:nil
+                           andExpectToken:nil];
+
+  // 3. Send request.
+  __auto_type promise = [self.appAttestAPIService getAppCheckTokenWithArtifact:artifact
+                                                                     challenge:challenge
+                                                                     assertion:assertion];
+  // 4. Verify.
+  XCTAssert(FBLWaitForPromisesWithTimeout(1));
+
+  XCTAssertTrue(promise.isRejected);
+  XCTAssertNil(promise.value);
+  XCTAssertNotNil(promise.error);
+
+  OCMVerifyAll(self.mockAPIService);
+}
+
 #pragma mark - Attestation request
 
 - (void)testAttestKeySuccess {
@@ -279,7 +387,7 @@
   NSString *keyID = [NSUUID UUID].UUIDString;
 
   // 1. Prepare unexpected response.
-  NSData *responseBody = [FIRFixtureLoader loadFixtureNamed:@"DeviceCheckResponseSuccess.json"];
+  NSData *responseBody = [FIRFixtureLoader loadFixtureNamed:@"AppCheckTokenResponseSuccess.json"];
   GULURLSessionDataResponse *validAPIResponse = [self APIResponseWithCode:200
                                                              responseBody:responseBody];
 
@@ -339,6 +447,72 @@
     return YES;
   }];
   return URLValidationArg;
+}
+
+- (void)expectTokenAPIRequestWithArtifact:(NSData *)attestation
+                                challenge:(NSData *)challenge
+                                assertion:(NSData *)assertion
+                                 response:(nullable GULURLSessionDataResponse *)response
+                                    error:(nullable NSError *)error
+                           andExpectToken:(nullable FIRAppCheckToken *)token {
+  id URLValidationArg = [self URLValidationArgumentWithResource:@"exchangeAppAttestAssertion"];
+
+  id bodyValidationArg = [OCMArg checkWithBlock:^BOOL(NSData *requestBody) {
+    NSDictionary<NSString *, id> *decodedData = [NSJSONSerialization JSONObjectWithData:requestBody
+                                                                                options:0
+                                                                                  error:nil];
+
+    XCTAssert([decodedData isKindOfClass:[NSDictionary class]]);
+
+    // Validate artifact field.
+    NSString *base64EncodedArtifact = decodedData[@"artifact"];
+    XCTAssert([base64EncodedArtifact isKindOfClass:[NSString class]]);
+
+    NSData *decodedAttestation = [[NSData alloc] initWithBase64EncodedString:base64EncodedArtifact
+                                                                     options:0];
+    XCTAssertEqualObjects(decodedAttestation, attestation);
+
+    // Validate challenge field.
+    NSString *base64EncodedChallenge = decodedData[@"challenge"];
+    XCTAssert([base64EncodedChallenge isKindOfClass:[NSString class]]);
+
+    NSData *decodedChallenge = [[NSData alloc] initWithBase64EncodedString:base64EncodedChallenge
+                                                                   options:0];
+    XCTAssertEqualObjects(decodedChallenge, challenge);
+
+    // Validate assertion field.
+    NSString *base64EncodedAssertion = decodedData[@"assertion"];
+    XCTAssert([base64EncodedAssertion isKindOfClass:[NSString class]]);
+
+    NSData *decodedAssertion = [[NSData alloc] initWithBase64EncodedString:base64EncodedAssertion
+                                                                   options:0];
+    XCTAssertEqualObjects(decodedAssertion, assertion);
+
+    return YES;
+  }];
+
+  FBLPromise *responsePromise = [FBLPromise pendingPromise];
+  if (error) {
+    [responsePromise reject:error];
+  } else {
+    [responsePromise fulfill:response];
+  }
+  OCMExpect([self.mockAPIService sendRequestWithURL:URLValidationArg
+                                         HTTPMethod:@"POST"
+                                               body:bodyValidationArg
+                                  additionalHeaders:@{@"Content-Type" : @"application/json"}])
+      .andReturn(responsePromise);
+
+  if (responsePromise.isFulfilled) {
+    FBLPromise *tokenPromise = [FBLPromise pendingPromise];
+    if (token) {
+      [tokenPromise fulfill:token];
+    } else {
+      NSError *tokenError = [NSError errorWithDomain:self.name code:0 userInfo:nil];
+      [tokenPromise reject:tokenError];
+    }
+    OCMExpect([self.mockAPIService appCheckTokenWithAPIResponse:response]).andReturn(tokenPromise);
+  }
 }
 
 - (void)expectAttestAPIRequestWithAttestation:(NSData *)attestation
