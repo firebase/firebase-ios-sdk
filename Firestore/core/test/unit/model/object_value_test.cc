@@ -296,9 +296,7 @@ TEST_F(ObjectValueTest, AddsAndDeletesField) {
 
 TEST_F(ObjectValueTest, AddsAndDeletesMultipleFields) {
   ObjectValue object_value = WrapObject("b", 2, "c", 3);
-  object_value.SetAll({{Field("a"), Value(1)},
-                       {Field("b"), absl::nullopt},
-                       {Field("c.d"), absl::nullopt}});
+  object_value.SetAll({{Field("a"), Value(1)}, {Field("b"), absl::nullopt}});
   EXPECT_EQ(WrapObject("a", 1, "c", 3), object_value);
 }
 
