@@ -32,6 +32,7 @@
 #import "FirebaseAppCheck/Sources/AppAttestProvider/Storage/FIRAppAttestKeyIDStorage.h"
 #import "FirebaseAppCheck/Sources/Core/APIService/FIRAppCheckAPIService.h"
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
+#import "FirebaseAppCheck/Sources/Core/Utils/FIRAppCheckCryptoUtils.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
@@ -207,6 +208,31 @@ NS_ASSUME_NONNULL_BEGIN
       });
 }
 
+- (FBLPromise<FIRAppAttestKeyAttestationResult *> *)attestKey:(NSString *)keyID
+                                                    challenge:(NSData *)challenge {
+  return [FBLPromise onQueue:self.queue
+                          do:^NSData *_Nullable {
+                            return [FIRAppCheckCryptoUtils sha256HashFromData:challenge];
+                          }]
+      .thenOn(
+          self.queue,
+          ^FBLPromise<NSData *> *(NSData *challengeHash) {
+            return [FBLPromise onQueue:self.queue
+                wrapObjectOrErrorCompletion:^(FBLPromiseObjectOrErrorCompletion _Nonnull handler) {
+                  [self.appAttestService attestKey:keyID
+                                    clientDataHash:challengeHash
+                                 completionHandler:handler];
+                }];
+          })
+      .thenOn(self.queue, ^FBLPromise<FIRAppAttestKeyAttestationResult *> *(NSData *attestation) {
+        FIRAppAttestKeyAttestationResult *result =
+            [[FIRAppAttestKeyAttestationResult alloc] initWithKeyID:keyID
+                                                          challenge:challenge
+                                                        attestation:attestation];
+        return [FBLPromise resolvedWith:result];
+      });
+}
+
 #pragma mark - Token refresh sequence
 
 - (FBLPromise<FIRAppCheckToken *> *)refreshTokenWithKeyID:(NSString *)keyID
@@ -286,32 +312,6 @@ NS_ASSUME_NONNULL_BEGIN
              }]
       .thenOn(self.queue, ^FBLPromise<NSString *> *(NSString *keyID) {
         return [self.keyIDStorage setAppAttestKeyID:keyID];
-      });
-}
-
-- (FBLPromise<FIRAppAttestKeyAttestationResult *> *)attestKey:(NSString *)keyID
-                                                    challenge:(NSData *)challenge {
-  return [FBLPromise onQueue:self.queue
-                          do:^id _Nullable {
-                            //  TODO: Hash challenge.
-                            return [challenge base64EncodedDataWithOptions:0];
-                          }]
-      .thenOn(
-          self.queue,
-          ^FBLPromise<NSData *> *(NSData *challengeHash) {
-            return [FBLPromise onQueue:self.queue
-                wrapObjectOrErrorCompletion:^(FBLPromiseObjectOrErrorCompletion _Nonnull handler) {
-                  [self.appAttestService attestKey:keyID
-                                    clientDataHash:challengeHash
-                                 completionHandler:handler];
-                }];
-          })
-      .thenOn(self.queue, ^FBLPromise<FIRAppAttestKeyAttestationResult *> *(NSData *attestation) {
-        FIRAppAttestKeyAttestationResult *result =
-            [[FIRAppAttestKeyAttestationResult alloc] initWithKeyID:keyID
-                                                          challenge:challenge
-                                                        attestation:attestation];
-        return [FBLPromise resolvedWith:result];
       });
 }
 
