@@ -180,7 +180,7 @@ void TransformBaseDoc(const google_firestore_v1_Value base_data,
   for (const auto& transform : transforms) {
     Mutation mutation = PatchMutation("collection/key", Map(), {transform});
     mutation.ApplyToLocalView(current_doc, now);
-    ASSERT_TRUE(current_doc.is_found_document());
+    EXPECT_TRUE(current_doc.is_found_document());
   }
 
   MutableDocument expected_doc =
@@ -330,7 +330,8 @@ TEST(MutationTest,
   TransformBaseDoc(base_data, transforms, expected);
 }
 
-TEST(MutationTest, AppliesLocalArrayUnionTransformWithExistingElementsInOrder) {
+TEST(MutationTest,
+     AppliesLocalArrayUnionTransformWithExistingElementsInOrder) {
   // New elements should be appended in order.
   auto base_data = Map("array", Array(1, 3));
   TransformPairs transforms = {{"array", ArrayUnion(1, 2, 3, 4, 5)}};
