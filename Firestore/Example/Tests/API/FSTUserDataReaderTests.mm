@@ -57,6 +57,7 @@ using firebase::firestore::testutil::Array;
 using firebase::firestore::testutil::Field;
 using firebase::firestore::testutil::Map;
 using firebase::firestore::testutil::Value;
+using firebase::firestore::testutil::WrapObject;
 
 @interface FSTUserDataReaderTests : XCTestCase
 @end
@@ -182,13 +183,13 @@ union DoubleBits {
 - (void)testConvertsSimpleObjects {
   ObjectValue actual =
       FSTTestObjectValue(@{@"a" : @"foo", @"b" : @(1L), @"c" : @YES, @"d" : [NSNull null]});
-  ObjectValue expected = ObjectValue(Map("a", "foo", "b", 1, "c", true, "d", nullptr));
+  ObjectValue expected = WrapObject("a", "foo", "b", 1, "c", true, "d", nullptr);
   XCTAssertEqual(actual, expected);
 }
 
 - (void)testConvertsNestedObjects {
   ObjectValue actual = FSTTestObjectValue(@{@"a" : @{@"b" : @{@"c" : @"foo"}, @"d" : @YES}});
-  ObjectValue expected = ObjectValue(Map("a", Map("b", Map("c", "foo"), "d", true)));
+  ObjectValue expected = WrapObject("a", Map("b", Map("c", "foo"), "d", true));
   XCTAssertEqual(actual, expected);
 }
 
