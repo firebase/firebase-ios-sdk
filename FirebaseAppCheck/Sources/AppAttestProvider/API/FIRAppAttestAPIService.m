@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 // TODO: Verify the following request fields.
 static NSString *const kRequestFieldArtifact = @"artifact";
 static NSString *const kRequestFieldAssertion = @"assertion";
-static NSString *const kRequestFieldAttestation = @"attestationStatement";
+static NSString *const kRequestFieldAttestation = @"attestation_statement";
 static NSString *const kRequestFieldChallenge = @"challenge";
 static NSString *const kRequestFieldKeyID = @"keyId";
 
@@ -161,18 +161,20 @@ static NSString *const kHTTPMethodPost = @"POST";
                                               body:HTTPBody
                                  additionalHeaders:@{kContentTypeKey : kJSONContentType}];
       })
-      // TODO: Move to default queue.
-      .then(^id _Nullable(GULURLSessionDataResponse *_Nullable URLResponse) {
-        NSError *error;
+      .thenOn(
+          [self backgroundQueue], ^id _Nullable(GULURLSessionDataResponse *_Nullable URLResponse) {
+            NSError *error;
 
-        __auto_type response =
-            [[FIRAppAttestAttestationResponse alloc] initWithResponseData:URLResponse.HTTPBody
-                                                              requestDate:[NSDate date]
-                                                                    error:&error];
+            __auto_type response =
+                [[FIRAppAttestAttestationResponse alloc] initWithResponseData:URLResponse.HTTPBody
+                                                                  requestDate:[NSDate date]
+                                                                        error:&error];
 
-        return response ?: error;
-      });
+            return response ?: error;
+          });
 }
+
+#pragma mark - Request HTTP Body
 
 - (FBLPromise<NSData *> *)HTTPBodyWithArtifact:(NSData *)artifact
                                      challenge:(NSData *)challenge
@@ -218,15 +220,21 @@ static NSString *const kHTTPMethodPost = @"POST";
                           }];
 }
 
-#pragma mark - Helpers
-
-- (id)HTTPBodyWithJSONObject:(nonnull id)JSONObject {
+- (FBLPromise<NSData *> *)HTTPBodyWithJSONObject:(nonnull id)JSONObject {
   NSError *encodingError;
   NSData *payloadJSON = [NSJSONSerialization dataWithJSONObject:JSONObject
                                                         options:0
                                                           error:&encodingError];
-  return payloadJSON ?: [FIRAppCheckErrorUtil JSONSerializationError:encodingError];
+  __auto_type HTTPBodyPromise = [FBLPromise pendingPromise];
+  if (payloadJSON) {
+    [HTTPBodyPromise fulfill:payloadJSON];
+  } else {
+    [HTTPBodyPromise reject:[FIRAppCheckErrorUtil JSONSerializationError:encodingError]];
+  }
+  return HTTPBodyPromise;
 }
+
+#pragma mark - Helpers
 
 - (NSString *)base64StringWithData:(NSData *)data {
   // TODO: Need to encode in base64URL?
