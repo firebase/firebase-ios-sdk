@@ -35,7 +35,7 @@ static NSString *const kRequestFieldArtifact = @"artifact";
 static NSString *const kRequestFieldAssertion = @"assertion";
 static NSString *const kRequestFieldAttestation = @"attestation_statement";
 static NSString *const kRequestFieldChallenge = @"challenge";
-static NSString *const kRequestFieldKeyID = @"keyId";
+static NSString *const kRequestFieldKeyID = @"key_id";
 
 static NSString *const kExchangeAppAttestAssertionEndpoint = @"exchangeAppAttestAssertion";
 static NSString *const kExchangeAppAttestAttestationEndpoint = @"exchangeAppAttestAttestation";

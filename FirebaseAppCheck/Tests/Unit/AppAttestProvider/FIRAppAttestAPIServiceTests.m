@@ -550,7 +550,7 @@
     XCTAssertEqualObjects(decodedChallenge, challenge);
 
     // Validate key ID field.
-    NSString *keyIDField = decodedData[@"keyId"];
+    NSString *keyIDField = decodedData[@"key_id"];
     XCTAssert([base64EncodedAttestation isKindOfClass:[NSString class]]);
 
     XCTAssertEqualObjects(keyIDField, keyID);
