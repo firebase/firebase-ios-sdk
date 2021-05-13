@@ -95,6 +95,27 @@ TypeOrder GetTypeOrder(const google_firestore_v1_Value& value) {
   }
 }
 
+void SortFields(google_firestore_v1_Value& value) {
+  if (value.which_value_type == google_firestore_v1_Value_map_value_tag) {
+    google_firestore_v1_MapValue& map_value = value.map_value;
+    std::sort(map_value.fields, map_value.fields + map_value.fields_count,
+              [](const google_firestore_v1_MapValue_FieldsEntry& lhs,
+                 const google_firestore_v1_MapValue_FieldsEntry& rhs) {
+                return nanopb::MakeStringView(lhs.key) <
+                       nanopb::MakeStringView(rhs.key);
+              });
+
+    for (pb_size_t i = 0; i < map_value.fields_count; ++i) {
+      SortFields(map_value.fields[i].value);
+    }
+  } else if (value.which_value_type ==
+             google_firestore_v1_Value_array_value_tag) {
+    for (pb_size_t i = 0; i < value.array_value.values_count; ++i) {
+      SortFields(value.array_value.values[i]);
+    }
+  }
+}
+
 ComparisonResult CompareNumbers(const google_firestore_v1_Value& left,
                                 const google_firestore_v1_Value& right) {
   if (left.which_value_type == google_firestore_v1_Value_double_value_tag) {

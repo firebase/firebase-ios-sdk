@@ -94,6 +94,7 @@ using model::RefValue;
 using model::ServerTimestampTransform;
 using model::SetMutation;
 using model::SnapshotVersion;
+using model::SortFields;
 using model::TransformOperation;
 using model::TypeOrder;
 using model::VerifyMutation;
@@ -414,39 +415,10 @@ class SerializerTest : public ::testing::Test {
     EXPECT_TRUE(msg_diff.Compare(proto, actual_proto)) << message_differences;
   }
 
-  void Sort(google_firestore_v1_Value& value) {
-    if (value.which_value_type == google_firestore_v1_Value_map_value_tag) {
-      std::sort(value.map_value.fields,
-                value.map_value.fields + value.map_value.fields_count,
-                [](const google_firestore_v1_MapValue_FieldsEntry& lhs,
-                   const google_firestore_v1_MapValue_FieldsEntry& rhs) {
-                  return nanopb::MakeStringView(lhs.key) <
-                         nanopb::MakeStringView(rhs.key);
-                });
-
-      for (pb_size_t i = 0; i < value.map_value.fields_count; ++i) {
-        Sort(value.map_value.fields[i].value);
-      }
-    } else if (value.which_value_type ==
-               google_firestore_v1_Value_array_value_tag) {
-      for (pb_size_t i = 0; i < value.array_value.values_count; ++i) {
-        Sort(value.array_value.values[i]);
-      }
-    }
-  }
-
-  void Sort(google_firestore_v1_Document& value) {
-    std::sort(value.fields, value.fields + value.fields_count,
-              [](const google_firestore_v1_Document_FieldsEntry& lhs,
-                 const google_firestore_v1_Document_FieldsEntry& rhs) {
-                return nanopb::MakeStringView(lhs.key) <
-                       nanopb::MakeStringView(rhs.key);
-              });
-  }
-
   void ExpectDeserializationRoundTrip(const google_firestore_v1_Value& model,
                                       const v1::Value& proto,
                                       TypeOrder type) {
+    google_firestore_v1_Value expected = model;
     ByteString bytes = ProtobufSerialize(proto);
     StringReader reader(bytes);
 
@@ -455,8 +427,9 @@ class SerializerTest : public ::testing::Test {
     EXPECT_EQ(type, GetTypeOrder(*message));
     // libprotobuf does not retain map ordering. We need to restore the
     // ordering.
-    Sort(*message);
-    EXPECT_EQ(model, *message);
+    SortFields(expected);
+    SortFields(*message);
+    EXPECT_EQ(expected, *message);
   }
 
   void ExpectSerializationRoundTrip(
@@ -500,12 +473,7 @@ class SerializerTest : public ::testing::Test {
     auto message =
         Message<google_firestore_v1_BatchGetDocumentsResponse>::TryParse(
             &reader);
-    if (message->which_result ==
-        google_firestore_v1_BatchGetDocumentsResponse_found_tag) {
-      // libprotobuf does not retain map ordering. We need to restore the
-      // ordering.
-      Sort(message->found);
-    }
+
     MutableDocument actual_model =
         serializer.DecodeMaybeDocument(reader.context(), *message);
 
@@ -565,7 +533,6 @@ class SerializerTest : public ::testing::Test {
     StringReader reader(bytes);
 
     auto message = Message<google_firestore_v1_Write>::TryParse(&reader);
-    Sort(message->update);
     Mutation actual_model =
         serializer.DecodeMutation(reader.context(), *message);
 

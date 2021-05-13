@@ -41,6 +41,7 @@
 #include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/model/verify_mutation.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
+#include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/statusor.h"
 #include "Firestore/core/src/util/string_format.h"
@@ -61,9 +62,9 @@ using model::MutableDocument;
 using model::NullValue;
 using model::ObjectValue;
 using model::Precondition;
-using model::SetRepeatedField;
 using model::TransformOperation;
 using nanopb::ByteString;
+using nanopb::SetRepeatedField;
 using util::StringFormat;
 
 /**
