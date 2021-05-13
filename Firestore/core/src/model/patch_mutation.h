@@ -101,8 +101,10 @@ class PatchMutation : public Mutation {
       return mask_;
     }
 
-    /** Returns this patch mutation as a list of field paths to values (or
-     * nullopt for deletes). */
+    /**
+     * Returns this patch mutation as a list of field paths to values (or
+     * nullopt for deletes).
+     */
     std::map<FieldPath, absl::optional<google_firestore_v1_Value>> GetPatch()
         const;
 

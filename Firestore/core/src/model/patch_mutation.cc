@@ -113,7 +113,7 @@ PatchMutation::Rep::GetPatch() const {
   std::map<FieldPath, absl::optional<google_firestore_v1_Value>> result;
   for (const FieldPath& path : mask_) {
     if (!path.empty()) {
-      result.insert({path, value_.Get(path)});
+      result[path] = value_.Get(path);
     }
   }
   return result;

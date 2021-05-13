@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_SRC_MODEL_MUTATION_H_
 
 #include <iosfwd>
+#include <map>
 #include <memory>
 #include <string>
 #include <utility>
@@ -36,8 +37,11 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-typedef std::map<FieldPath, absl::optional<google_firestore_v1_Value>>
-    TransformMap;
+// A map of FieldPaths to transforms. Sorted so it can be used in
+// ObjectValue::SetAll, which is more efficient it the input map is sorted as
+// it processes field maps one layer at a time.
+using TransformMap =
+    std::map<FieldPath, absl::optional<google_firestore_v1_Value>>;
 
 class Document;
 class MutableDocument;
@@ -52,7 +56,7 @@ class MutableDocument;
  */
 class MutationResult {
  public:
-  /** Creates a new MutationResult. Takes ownership of `transform_results`. */
+  /** Takes ownership of `transform_results`. */
   MutationResult(SnapshotVersion version,
                  google_firestore_v1_ArrayValue transform_results)
       : version_(version), transform_results_{transform_results} {

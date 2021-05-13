@@ -47,6 +47,7 @@ class ObjectValue {
   ObjectValue(ObjectValue&& other) noexcept = default;
   ObjectValue& operator=(ObjectValue&& other) noexcept = default;
   ObjectValue(const ObjectValue& other);
+
   ObjectValue& operator=(const ObjectValue&) = delete;
 
   /**
@@ -94,8 +95,8 @@ class ObjectValue {
    *
    * @param data A map of fields to values (or nullopt for deletes)
    */
-  void SetAll(
-      std::map<FieldPath, absl::optional<google_firestore_v1_Value>> data);
+  void SetAll(const std::map<FieldPath,
+                             absl::optional<google_firestore_v1_Value>>& data);
 
   /**
    * Removes the field at the specified path. If there is no field at the

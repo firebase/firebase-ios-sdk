@@ -61,6 +61,7 @@ using model::MutableDocument;
 using model::NullValue;
 using model::ObjectValue;
 using model::Precondition;
+using model::SetRepeatedField;
 using model::TransformOperation;
 using nanopb::ByteString;
 using util::StringFormat;
@@ -150,7 +151,6 @@ google_firestore_v1_Value Value(const model::ObjectValue& value) {
   return value.Get();
 }
 
-/** Wraps an immutable sorted map into an ObjectValue. */
 ObjectValue WrapObject(const google_firestore_v1_Value& value) {
   return ObjectValue{value};
 }
@@ -430,10 +430,7 @@ std::pair<std::string, TransformOperation> Increment(
 std::pair<std::string, TransformOperation> ArrayUnion(
     std::string field, std::vector<google_firestore_v1_Value> operands) {
   google_firestore_v1_ArrayValue array_value;
-  array_value.values_count = static_cast<pb_size_t>(operands.size());
-  for (size_t i = 0; i < operands.size(); ++i) {
-    array_value.values[i] = operands[i];
-  }
+  SetRepeatedField(&array_value.values, &array_value.values_count, operands);
   model::ArrayTransform transform(TransformOperation::Type::ArrayUnion,
                                   array_value);
   return std::pair<std::string, TransformOperation>(std::move(field),
@@ -450,8 +447,7 @@ model::VerifyMutation VerifyMutation(absl::string_view path, int64_t version) {
 }
 
 model::MutationResult MutationResult(int64_t version) {
-  return model::MutationResult(Version(version),
-                               google_firestore_v1_ArrayValue{});
+  return model::MutationResult(Version(version), Array());
 }
 
 nanopb::ByteString ResumeToken(int64_t snapshot_version) {

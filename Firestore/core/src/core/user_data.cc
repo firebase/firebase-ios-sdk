@@ -73,6 +73,7 @@ void ParseAccumulator::AddToFieldMask(FieldPath field_path) {
 
 void ParseAccumulator::AddToFieldTransforms(
     FieldPath field_path, TransformOperation transform_operation) {
+  // TODO(mrschmidt): Validate that the paths are unique
   field_transforms_.emplace_back(std::move(field_path),
                                  std::move(transform_operation));
 }
