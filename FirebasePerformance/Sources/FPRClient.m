@@ -113,6 +113,19 @@
     _configuration = [FPRConfigurations sharedInstance];
     _projectID = [FIROptions defaultOptions].projectID;
     _bundleID = [FIROptions defaultOptions].bundleID;
+
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+      if (self.installations == nil) {
+        // Delayed initialization of installations because FIRApp needs to be configured first.
+        self.installations = [FIRInstallations installations];
+      }
+      FPRLogInfo(kFPRClientMetricLogged,
+                 @"Firebase Performance Monitoring is successfully initialized! In a minute, visit "
+                 @"the Firebase console to view your data: %@",
+                 [FPRConsoleURLGenerator generateDashboardURLWithProjectID:self.projectID
+                                                                  bundleID:self.bundleID]);
+    });
   }
   return self;
 }
@@ -171,14 +184,16 @@
       // Log the trace metric with its console URL.
       if ([trace.name hasPrefix:kFPRPrefixForScreenTraceName]) {
         FPRLogDebug(kFPRClientMetricLogged,
-                    @"Logging trace metric - %@ %.4fms. Please visit %@ in a minute for details.",
+                    @"Logging trace metric - %@ %.4fms. In a minute, visit the Firebase console to "
+                    @"view your data: %@",
                     metric.traceMetric.name, metric.traceMetric.durationUs / 1000.0,
                     [FPRConsoleURLGenerator generateScreenTraceURLWithProjectID:self.projectID
                                                                        bundleID:self.bundleID
                                                                       traceName:trace.name]);
       } else {
         FPRLogDebug(kFPRClientMetricLogged,
-                    @"Logging trace metric - %@ %.4fms. Please visit %@ in a minute for details.",
+                    @"Logging trace metric - %@ %.4fms. In a minute, visit the Firebase console to "
+                    @"view your data: %@",
                     metric.traceMetric.name, metric.traceMetric.durationUs / 1000.0,
                     [FPRConsoleURLGenerator generateCustomTraceURLWithProjectID:self.projectID
                                                                        bundleID:self.bundleID
@@ -254,11 +269,6 @@
       // Delayed initialization of installations because FIRApp needs to be configured first.
       self.installations = [FIRInstallations installations];
     }
-    FPRLogInfo(
-        kFPRClientMetricLogged,
-        @"Welcome to Firebase Performance Monitoring! Please visit %@ in a minute for details.",
-        [FPRConsoleURLGenerator generateDashboardURLWithProjectID:self.projectID
-                                                         bundleID:self.bundleID]);
   });
 
   // Attempts to dispatch events if successfully retrieve installation ID.
