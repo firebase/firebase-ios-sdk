@@ -68,7 +68,7 @@ MutableDocumentMap MemoryRemoteDocumentCache::GetAll(
     // Make sure each key has a corresponding entry, which is nullopt in case
     // the document is not found.
     // TODO(http://b/32275378): Don't conflate missing / deleted.
-    results = results.insert(key, std::move(Get(key)));
+    results = results.insert(key, Get(key));
   }
   return results;
 }
