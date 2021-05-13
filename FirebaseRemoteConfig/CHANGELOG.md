@@ -1,3 +1,21 @@
+# v8.0.0
+- [fixed] Fixed throttling issue when fetch fails due to no network. (#6628)
+- [fixed] Fixed issue where sometimes the local config returned is empty. (#7424)
+
+# v7.10.0
+- [changed] Throw exception if projectID is missing from FirebaseOptions. (#7725)
+
+# v7.9.0
+- [added] Enabled community supported watchOS build in Swift Package Manager. (#7696)
+- [fixed] Don't generate missing Analytics warning on Catalyst. (#7693)
+
+# v7.8.0
+- [fixed] Store fetch metadata per namespace to address activation issues. (#7179)
+- [fixed] Only update experiment data for `firebase` namespace fetch requests to ensure correct experiment exposures. (#7604)
+
+# v7.7.0
+- [added] Added community support for watchOS. (#7481)
+
 # v7.6.0
 - [fixed] Fixed build warnings introduced with Xcode 12.5. (#7432)
 

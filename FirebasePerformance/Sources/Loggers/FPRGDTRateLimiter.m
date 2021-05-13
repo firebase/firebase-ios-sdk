@@ -75,7 +75,7 @@
  * @param logEvent The event to be evaluated by rate limiting logic.
  * @return A transformed event, or nil if the transformation dropped the event.
  */
-- (GDTCOREvent *)transform:(nonnull GDTCOREvent *)logEvent {
+- (GDTCOREvent *)transformGDTEvent:(nonnull GDTCOREvent *)logEvent {
   if ([logEvent.dataObject isKindOfClass:[FPRGDTEvent class]]) {
     FPRGDTEvent *gdtEvent = (FPRGDTEvent *)logEvent.dataObject;
     FPRMSGPerfMetric *perfMetric = gdtEvent.metric;

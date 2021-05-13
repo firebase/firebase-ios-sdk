@@ -104,11 +104,17 @@ const Settings& Firestore::settings() const {
 void Firestore::set_settings(const Settings& settings) {
   std::lock_guard<std::mutex> lock{mutex_};
   if (client_) {
-    HARD_FAIL(
+    util::ThrowIllegalState(
         "Firestore instance has already been started and its settings can "
         "no longer be changed. You can only set settings before calling any "
         "other methods on a Firestore instance.");
   }
+  if (!settings.ssl_enabled() && settings.host() == Settings::DefaultHost) {
+    util::ThrowIllegalState(
+        "You can't set the 'sslEnabled' setting unless you also set a "
+        "non-default 'host'.");
+  }
+
   settings_ = settings;
 }
 
@@ -226,6 +232,22 @@ void Firestore::EnsureClientConfigured() {
 DatabaseInfo Firestore::MakeDatabaseInfo() const {
   return DatabaseInfo(database_id_, persistence_key_, settings_.host(),
                       settings_.ssl_enabled());
+}
+
+std::shared_ptr<LoadBundleTask> Firestore::LoadBundle(
+    std::unique_ptr<util::ByteStream> bundle_data) {
+  EnsureClientConfigured();
+
+  auto task = std::make_shared<LoadBundleTask>(user_executor_);
+  client_->LoadBundle(std::move(bundle_data), task);
+
+  return task;
+}
+
+void Firestore::GetNamedQuery(const std::string& name,
+                              api::QueryCallback callback) {
+  EnsureClientConfigured();
+  client_->GetNamedQuery(name, std::move(callback));
 }
 
 }  // namespace api

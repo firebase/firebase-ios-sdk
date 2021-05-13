@@ -424,6 +424,73 @@ TEST(RemoteDocumentReadTimeKeyTest, Description) {
       RemoteDocumentReadTimeKey("coll", 1000001, "doc"));
 }
 
+TEST(BundleKeyTest, Prefixing) {
+  auto table_key = LevelDbBundleKey::KeyPrefix();
+
+  ASSERT_TRUE(absl::StartsWith(LevelDbBundleKey::Key("foo/bar"), table_key));
+
+  ASSERT_FALSE(absl::StartsWith(LevelDbBundleKey::Key("foo/bar2"),
+                                LevelDbBundleKey::Key("foo/bar")));
+}
+
+TEST(BundleKeyTest, Ordering) {
+  ASSERT_LT(LevelDbBundleKey::Key("foo/bar"),
+            LevelDbBundleKey::Key("foo/bar2"));
+  ASSERT_LT(LevelDbBundleKey::Key("foo/bar"),
+            LevelDbBundleKey::Key("foo/bar/suffix/key"));
+}
+
+TEST(BundleKeyTest, EncodeDecodeCycle) {
+  LevelDbBundleKey key;
+
+  std::vector<std::string> ids{"foo", "bar", "foo-bar?baz!quux"};
+  for (auto&& id : ids) {
+    auto encoded = LevelDbBundleKey::Key(id);
+    bool ok = key.Decode(encoded);
+    ASSERT_TRUE(ok);
+    ASSERT_EQ(id, key.bundle_id());
+  }
+}
+
+TEST(BundleKeyTest, Description) {
+  AssertExpectedKeyDescription("[bundles: bundle_id=foo-bar?baz!quux]",
+                               LevelDbBundleKey::Key("foo-bar?baz!quux"));
+}
+
+TEST(NamedQueryKeyTest, Prefixing) {
+  auto table_key = LevelDbNamedQueryKey::KeyPrefix();
+
+  ASSERT_TRUE(
+      absl::StartsWith(LevelDbNamedQueryKey::Key("foo-bar"), table_key));
+
+  ASSERT_FALSE(absl::StartsWith(LevelDbNamedQueryKey::Key("foo-bar2"),
+                                LevelDbNamedQueryKey::Key("foo-bar")));
+}
+
+TEST(NamedQueryKeyTest, Ordering) {
+  ASSERT_LT(LevelDbNamedQueryKey::Key("foo/bar"),
+            LevelDbNamedQueryKey::Key("foo/bar2"));
+  ASSERT_LT(LevelDbNamedQueryKey::Key("foo/bar"),
+            LevelDbNamedQueryKey::Key("foo/bar/suffix/key"));
+}
+
+TEST(NamedQueryKeyTest, EncodeDecodeCycle) {
+  LevelDbNamedQueryKey key;
+
+  std::vector<std::string> names{"foo/bar", "foo/bar2", "foo-bar?baz!quux"};
+  for (auto&& name : names) {
+    auto encoded = LevelDbNamedQueryKey::Key(name);
+    bool ok = key.Decode(encoded);
+    ASSERT_TRUE(ok);
+    ASSERT_EQ(name, key.name());
+  }
+}
+
+TEST(NamedQueryKeyTest, Description) {
+  AssertExpectedKeyDescription("[named_queries: query_name=foo-bar?baz!quux]",
+                               LevelDbNamedQueryKey::Key("foo-bar?baz!quux"));
+}
+
 #undef AssertExpectedKeyDescription
 
 }  // namespace local

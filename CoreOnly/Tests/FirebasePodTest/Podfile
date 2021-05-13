@@ -1,6 +1,7 @@
 # Uncomment the next line to define a global platform for your project
-platform :ios, '10.0'
+platform :ios, '13.0'
 
+source 'https://github.com/firebase/SpecsDev.git'
 source 'https://github.com/firebase/SpecsStaging.git'
 source 'https://cdn.cocoapods.org/'
 
@@ -10,6 +11,7 @@ target 'FirebasePodTest' do
 
   pod 'Firebase', :path => '../../../'
   pod 'FirebaseABTesting', :path => '../../../'
+  pod 'FirebaseAnalyticsSwift', :path => '../../../'
   pod 'FirebaseAppDistribution', :path => '../../../'
   pod 'FirebaseAuth', :path => '../../../'
   pod 'FirebaseCore', :path => '../../../'
@@ -18,14 +20,16 @@ target 'FirebasePodTest' do
   pod 'FirebaseDatabase', :path => '../../../'
   pod 'FirebaseDynamicLinks', :path => '../../../'
   pod 'FirebaseFirestore', :path => '../../../'
+  pod 'FirebaseFirestoreSwift', :path => '../../../'
   pod 'FirebaseFunctions', :path => '../../../'
   pod 'FirebaseInAppMessaging', :path => '../../../'
+  pod 'FirebaseInAppMessagingSwift', :path => '../../../'
   pod 'FirebaseInstallations', :path => '../../../'
-  pod 'FirebaseInstanceID', :path => '../../../'
   pod 'FirebaseMessaging', :path => '../../../'
   pod 'FirebasePerformance', :path => '../../../'
   pod 'FirebaseRemoteConfig', :path => '../../../'
   pod 'FirebaseStorage', :path => '../../../'
+  pod 'FirebaseStorageSwift', :path => '../../../'
 
   # Get dependent pods from the repo also
   pod 'FirebaseCoreDiagnostics', :path => '../../../'

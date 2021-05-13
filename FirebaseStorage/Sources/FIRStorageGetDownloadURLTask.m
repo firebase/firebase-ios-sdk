@@ -15,6 +15,7 @@
 #import "FirebaseStorage/Sources/FIRStorageGetDownloadURLTask.h"
 
 #import "FirebaseStorage/Sources/FIRStorageTask_Private.h"
+#import "FirebaseStorage/Sources/FIRStorage_Private.h"
 
 @implementation FIRStorageGetDownloadURLTask {
  @private
@@ -39,7 +40,7 @@
   [_fetcher stopFetching];
 }
 
-+ (NSURL *)downloadURLFromMetadataDictionary:(NSDictionary *)dictionary {
+- (NSURL *)downloadURLFromMetadataDictionary:(NSDictionary *)dictionary {
   NSString *downloadTokens = dictionary[kFIRStorageMetadataDownloadTokens];
 
   if (downloadTokens && downloadTokens.length > 0) {
@@ -50,8 +51,9 @@
                                                     [FIRStorageUtils GCSEscapedString:path]];
 
     NSURLComponents *components = [[NSURLComponents alloc] init];
-    components.scheme = kFIRStorageScheme;
-    components.host = kFIRStorageHost;
+    components.scheme = self.reference.storage.scheme;
+    components.host = self.reference.storage.host;
+    components.port = self.reference.storage.port;
     components.percentEncodedPath = fullPath;
 
     // The backend can return an arbitrary number of download tokens, but we only expose the first
@@ -72,7 +74,6 @@
 
   [self dispatchAsync:^() {
     FIRStorageGetDownloadURLTask *strongSelf = weakSelf;
-
     if (!strongSelf) {
       return;
     }
@@ -97,8 +98,7 @@
       } else {
         NSDictionary *responseDictionary = [NSDictionary frs_dictionaryFromJSONData:data];
         if (responseDictionary != nil) {
-          downloadURL =
-              [FIRStorageGetDownloadURLTask downloadURLFromMetadataDictionary:responseDictionary];
+          downloadURL = [strongSelf downloadURLFromMetadataDictionary:responseDictionary];
           if (!downloadURL) {
             self.error =
                 [FIRStorageErrors errorWithCustomMessage:@"Failed to retrieve a download URL."];

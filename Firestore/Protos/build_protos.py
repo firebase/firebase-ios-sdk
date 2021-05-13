@@ -22,6 +22,7 @@ from __future__ import print_function
 import sys
 
 import argparse
+import datetime
 import os
 import os.path
 import re
@@ -33,7 +34,7 @@ CPP_GENERATOR = 'nanopb_cpp_generator.py'
 
 COPYRIGHT_NOTICE = '''
 /*
- * Copyright 2018 Google
+ * Copyright {} Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +48,7 @@ COPYRIGHT_NOTICE = '''
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'''.lstrip()
+'''.format(datetime.datetime.now().year).lstrip()
 
 
 def main():

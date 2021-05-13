@@ -5,11 +5,10 @@ on:
     paths:
     - 'FirebaseAppDistribution**'
     - '.github/workflows/appdistribution.yml'
-    - 'Gemfile'
+    - 'Gemfile*'
   schedule:
-    # Run every day at 3am (PST) - cron uses UTC times
-    # This is set to 3 hours after zip workflow finishes so zip testing can run after.
-    - cron:  '0 11 * * *'
+    # Run every day at 1am (PST) - cron uses UTC times
+    - cron: '0 9 * * *'
 
 jobs:
   pod-lib-lint:
@@ -36,8 +35,6 @@ jobs:
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Xcode 12
-      run: sudo xcode-select -s /Applications/Xcode_12.app/Contents/Developer
     - name: Initialize xcodebuild
       run: xcodebuild -list
     - name: iOS Unit Tests

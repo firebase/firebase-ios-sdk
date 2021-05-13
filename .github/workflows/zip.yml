@@ -6,7 +6,7 @@ on:
     - 'ReleaseTooling/**'
     - '.github/workflows/zip.yml'
     - 'scripts/build_non_firebase_sdks.sh'
-    - 'Gemfile'
+    - 'Gemfile*'
     # Don't run based on any markdown only changes.
     - '!ReleaseTooling/*.md'
   schedule:
@@ -18,7 +18,7 @@ on:
       custom_spec_repos:
         description: 'Custom Podspec repos'
         required: true
-        default: 'https://cpdc-internal.git.corp.google.com/firebase.git'
+        default: 'https://github.com/firebase/SpecsStaging.git'
 
 jobs:
   build:
@@ -27,6 +27,8 @@ jobs:
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
+    - name: Xcode 12.2
+      run: sudo xcode-select -s /Applications/Xcode_12.2.app/Contents/Developer
     - name: Build
       run: |
         cd ReleaseTooling
@@ -39,12 +41,14 @@ jobs:
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
+    - name: Xcode 12.2
+      run: sudo xcode-select -s /Applications/Xcode_12.2.app/Contents/Developer
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: ZipBuildingTest
       run: |
          mkdir -p zip_output_dir
-         sh -x scripts/build_zip.sh zip_output_dir "${{ github.event.inputs.custom_spec_repos || 'https://github.com/firebase/SpecsStaging.git' }}"
+         sh -x scripts/build_zip.sh zip_output_dir "${{ github.event.inputs.custom_spec_repos || 'https://github.com/firebase/SpecsStaging.git,https://github.com/firebase/SpecsDev.git' }}"
     - uses: actions/upload-artifact@v1
       with:
         name: Firebase-actions-dir
@@ -75,7 +79,6 @@ jobs:
     - name: Setup quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseRemoteConfig/* \
-                                               "${HOME}"/ios_frameworks/Firebase/FirebaseMessaging/FirebaseInstanceID.xcframework \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/FirebaseCore.xcframework \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/PromisesObjC.xcframework \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/FirebaseInstallations.xcframework \
@@ -211,8 +214,11 @@ jobs:
               cp quickstart-ios/crashlytics/Firebase/upload-symbols quickstart-ios/crashlytics
               chmod +x quickstart-ios/crashlytics/run
               chmod +x quickstart-ios/crashlytics/upload-symbols
-    - name: Setup swift quickstart
-      run: SAMPLE="$SDK" TARGET="${SDK}ExampleSwift" scripts/setup_quickstart_framework.sh
+    # TODO(#8057): Restore Swift Quickstart
+    # - name: Setup swift quickstart
+    #   run: |
+    #           SAMPLE="$SDK" TARGET="${SDK}ExampleSwift" NON_FIREBASE_SDKS="ReachabilitySwift" scripts/setup_quickstart_framework.sh \
+    #                                            "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/*
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-crashlytics.plist.gpg \
         quickstart-ios/crashlytics/GoogleService-Info.plist "$plist_secret"
@@ -221,8 +227,8 @@ jobs:
         quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test Quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
-    - name: Test Swift Quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}" swift)
+    # - name: Test Swift Quickstart
+    #   run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}" swift)
     - name: Remove data before upload
       if: ${{ failure() }}
       run: scripts/remove_data.sh crashlytics

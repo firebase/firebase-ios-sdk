@@ -99,6 +99,7 @@
 - (void)testStorageDefaultApp {
   FIRStorage *storage = [FIRStorage storageForApp:self.app];
   XCTAssertEqualObjects(storage.app.name, ((FIRApp *)self.app).name);
+  [storage reference];  // Initialize Storage
   XCTAssertNotNil(storage.fetcherServiceForApp);
 }
 
@@ -109,6 +110,7 @@
   OCMStub([secondApp name]).andReturn(@"secondApp");
   OCMStub([(FIRApp *)secondApp options]).andReturn(mockOptions);
   FIRStorage *storage = [FIRStorage storageForApp:secondApp];
+  [storage reference];  // Initialize Storage
   XCTAssertNotEqual(storage.app.name, ((FIRApp *)self.app).name);
   XCTAssertNotNil(storage.fetcherServiceForApp);
   XCTAssertNotEqualObjects(storage.fetcherServiceForApp,
@@ -144,6 +146,29 @@
   FIRStorage *storage = [FIRStorage storageForApp:secondApp];
   XCTAssertEqualObjects([(FIRApp *)secondApp options].storageBucket, @"notMyBucket");
   XCTAssertThrows([storage referenceForURL:@"gs://bucket/path/to/object"]);
+}
+
+- (void)testUseEmulator {
+  FIRStorage *storage = [FIRStorage storageForApp:self.app URL:@"gs://foo-bar.appspot.com"];
+  [storage useEmulatorWithHost:@"localhost" port:8080];
+  XCTAssertNoThrow([storage reference]);
+}
+
+- (void)testUseEmulatorValidatesHost {
+  FIRStorage *storage = [FIRStorage storageForApp:self.app URL:@"gs://foo-bar.appspot.com"];
+  XCTAssertThrows([storage useEmulatorWithHost:@"" port:8080]);
+}
+
+- (void)testUseEmulatorValidatesPort {
+  FIRStorage *storage = [FIRStorage storageForApp:self.app URL:@"gs://foo-bar.appspot.com"];
+  XCTAssertThrows([storage useEmulatorWithHost:@"localhost" port:-1]);
+}
+
+- (void)testUseEmulatorCannotBeCalledAfterObtainingReference {
+  FIRStorage *storage = [FIRStorage storageForApp:self.app
+                                              URL:@"gs://benwu-test1.storage.firebase.com"];
+  [storage reference];
+  XCTAssertThrows([storage useEmulatorWithHost:@"localhost" port:8080]);
 }
 
 - (void)testRefDefaultApp {

@@ -1,3 +1,9 @@
+# v8.0.0
+- [added] Added abuse reduction features. (#7928)
+
+# v7.7.0
+- [fixed] Fixed missing "http://" prefix when using Functions with the emulator. (#7537, #7538)
+
 # v7.2.0
 - [added] Made emulator connection API consistent between Auth, Database, Firestore, and Functions (#5916).
 

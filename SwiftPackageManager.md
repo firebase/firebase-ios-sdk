@@ -1,18 +1,24 @@
-# Swift Package Manager for Firebase **Beta**
+# Swift Package Manager for Firebase
 
 ## Introduction
 
-Starting with the 6.31.0 release, Firebase supports installation via [Swift
-Package Manager](https://swift.org/package-manager/) in Beta status.
+Starting with the 8.0.0 release, Firebase officially supports installation via [Swift
+Package Manager](https://swift.org/package-manager/).
 
+Prior to version 8.0.0 (starting with version 6.31.0) support was in Beta.
+
+## Requirements
+
+- Requires Xcode 12.5
+- Analytics requires clients to add `-ObjC` linker option.
+- See [Package.swift](Package.swift) for supported platform versions.
 
 ## Limitations
 
-- Requires Xcode 12.
-- Analytics requires clients to add `-ObjC` linker option.
 - Analytics is only supported for iOS and cannot be used in apps that support other platforms.
-- Performance and Firebase ML are not currently available.
-- watchOS support is introduced in 7.0.0 for Auth, Crashlytics, Messaging, and Storage.
+- Performance is not yet available.
+- watchOS support is available for Auth, Crashlytics, Messaging, Realtime Database, RemoteConfig,
+  and Storage.
 
 ## Installation
 
@@ -30,9 +36,6 @@ Select the Firebase GitHub repository - `https://github.com/firebase/firebase-io
 
 Select the version.
 
-Note: Prior to the 7.0.0 release, version selection is not available. Instead, the releases
-are available in branches with names like 6.34-spm-beta.
-
 Note: The Swift Package Manager distribution continues to be in beta even though it now
 supports standard Swift Package Manager versioning.
 
@@ -44,10 +47,6 @@ Choose the Firebase products that you want installed in your app.
 
 If you've installed FirebaseAnalytics, Add the `-ObjC` option to `Other Linker Flags`
 in the `Build Settings` tab.
-
-If you're using FirebaseAnalytics, Xcode 12.0, and have an issue with
-device installation or archive uploading, see the workaround at
-https://github.com/firebase/firebase-ios-sdk/issues/6472#issuecomment-694449182.
 
 <img src="docs/resources/SPMObjC.png">
 
@@ -61,7 +60,7 @@ script. Place it in the directory where your `.xcodeproj` file lives,
 eg. `scripts/upload-symbols`, and make sure that the file is executable:
 `chmod +x scripts/upload-symbols`.
 This script can be used to manually upload dSYM files (for usage notes and
-additional instructions, run without any parameters).
+additional instructions, run with the `--help` parameter).
 
 ### Alternatively, add Firebase to a `Package.swift` manifest
 

@@ -1,6 +1,15 @@
-# Unreleased
+# v7.9.0
+- [feature] Added support for Firestore Bundles via
+  `FIRFirestore.loadBundle`, `FIRFirestore.loadBundleStream` and
+  `FIRFirestore.getQueryNamed`. Bundles contain pre-packaged data produced
+  with the Server SDKs and can be used to populate Firestore's cache
+  without reading documents from the backend.
+
+# v7.7.0
 - [fixed] Fixed a crash that could happen when the App is being deleted and
   there's an active listener (#6909).
+- [fixed] Fixed a bug where local cache inconsistencies were unnecessarily
+  being resolved (#7455).
 
 # v7.5.0
 - [changed] A write to a document that contains FieldValue transforms is no

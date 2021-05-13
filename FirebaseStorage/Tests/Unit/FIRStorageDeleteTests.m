@@ -40,7 +40,8 @@
   self.fetcherService.authorizer =
       [[FIRStorageTokenAuthorizer alloc] initWithGoogleAppID:@"dummyAppID"
                                               fetcherService:self.fetcherService
-                                                authProvider:nil];
+                                                authProvider:nil
+                                                    appCheck:nil];
 
   self.dispatchQueue = dispatch_queue_create("Test dispatch queue", DISPATCH_QUEUE_SERIAL);
 
@@ -88,6 +89,28 @@
   XCTestExpectation *expectation = [self expectationWithDescription:@"testSuccessfulFetch"];
 
   self.fetcherService.testBlock = [FIRStorageTestHelpers successBlock];
+  FIRStoragePath *path = [FIRStorageTestHelpers objectPath];
+  FIRStorageReference *ref = [[FIRStorageReference alloc] initWithStorage:self.storage path:path];
+  FIRStorageDeleteTask *task = [[FIRStorageDeleteTask alloc] initWithReference:ref
+                                                                fetcherService:self.fetcherService
+                                                                 dispatchQueue:self.dispatchQueue
+                                                                    completion:^(NSError *error) {
+                                                                      XCTAssertEqual(error, nil);
+                                                                      [expectation fulfill];
+                                                                    }];
+  [task enqueue];
+
+  [FIRStorageTestHelpers waitForExpectation:self];
+}
+
+- (void)testSuccessfulFetchWithEmulator {
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"testSuccessfulFetchWithEmulator"];
+
+  [self.storage useEmulatorWithHost:@"localhost" port:8080];
+  self.fetcherService.testBlock =
+      [FIRStorageTestHelpers successBlockWithURL:@"http://localhost:8080/v0/b/bucket/o/object"];
+
   FIRStoragePath *path = [FIRStorageTestHelpers objectPath];
   FIRStorageReference *ref = [[FIRStorageReference alloc] initWithStorage:self.storage path:path];
   FIRStorageDeleteTask *task = [[FIRStorageDeleteTask alloc] initWithReference:ref

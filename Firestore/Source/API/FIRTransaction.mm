@@ -178,7 +178,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)validateReference:(FIRDocumentReference *)reference {
   if (reference.firestore != self.firestore) {
-    ThrowInvalidArgument("Provided document reference is from a different Firestore instance.");
+    ThrowInvalidArgument("Provided document reference is from a different Cloud Firestore "
+                         "instance.");
   }
 }
 

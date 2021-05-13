@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FBLPromise<NSNumber *> *)startWithProfilingMark:(FIRCLSProfileMark)mark;
 
-- (FBLPromise<NSNumber *> *)checkForUnsentReports;
+- (FBLPromise<FIRCrashlyticsReport *> *)checkForUnsentReports;
 - (FBLPromise *)sendUnsentReports;
 - (FBLPromise *)deleteUnsentReports;
 

@@ -18,8 +18,8 @@
     __WATCH_OS_VERSION_MAX_ALLOWED >= __WATCHOS_3_0 || TARGET_OS_MACCATALYST
 #import <UserNotifications/UserNotifications.h>
 #endif
+#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
-#import "OCMock.h"
 
 #import "FirebaseMessaging/Sources/FIRMessagingContextManagerService.h"
 
@@ -37,7 +37,7 @@ API_AVAILABLE(macos(10.14))
 @property(nonatomic, readwrite, strong) NSDateFormatter *dateFormatter;
 @property(nonatomic, readwrite, strong) NSMutableArray *scheduledLocalNotifications;
 @property(nonatomic, readwrite, strong)
-    NSMutableArray<UNNotificationRequest *> *requests API_AVAILABLE(ios(10.0));
+    NSMutableArray<UNNotificationRequest *> *requests API_AVAILABLE(ios(10.0), macos(10.4));
 
 @end
 

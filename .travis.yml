@@ -57,12 +57,6 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=InstanceID METHOD=pod-lib-lint
-      script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=ios
-
-    - stage: test
-      env:
         - PROJECT=Database PLATFORM=all METHOD=xcodebuild
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb FirebaseDatabase.podspec --skip-tests --platforms=ios

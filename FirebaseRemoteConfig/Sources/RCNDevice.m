@@ -19,6 +19,7 @@
 #import <sys/utsname.h>
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 
@@ -41,7 +42,7 @@ NSString *FIRRemoteConfigAppBuildVersion() {
 }
 
 NSString *FIRRemoteConfigPodVersion() {
-  return [NSString stringWithUTF8String:STR(FIRRemoteConfig_VERSION)];
+  return FIRFirebaseVersion();
 }
 
 RCNDeviceModel FIRRemoteConfigDeviceSubtype() {

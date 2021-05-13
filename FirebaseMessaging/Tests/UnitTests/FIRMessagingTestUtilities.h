@@ -16,15 +16,17 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firebase/InstanceID/Public/FIRInstanceID.h"
 #import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
 
 #import "FirebaseMessaging/Sources/FIRMessagingPendingTopicsList.h"
 #import "FirebaseMessaging/Sources/FIRMessagingTopicsCommon.h"
 
 @class GULUserDefaults;
+@class XCTestCase;
 
 NS_ASSUME_NONNULL_BEGIN
+
+extern NSString *const kFIRMessagingDefaultsTestDomain;
 
 typedef void (^MockDelegateSubscriptionHandler)(NSString *topic,
                                                 FIRMessagingTopicAction action,
@@ -52,15 +54,11 @@ typedef void (^MockDelegateSubscriptionHandler)(NSString *topic,
 
 @interface FIRMessagingTestUtilities : NSObject
 
-@property(nonatomic, strong) id mockInstanceID;
 @property(nonatomic, strong) id mockPubsub;
 @property(nonatomic, strong) id mockMessaging;
 @property(nonatomic, strong) id mockInstallations;
+@property(nonatomic, strong) id mockTokenManager;
 @property(nonatomic, readonly, strong) FIRMessaging *messaging;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-@property(nonatomic, readonly, strong) FIRInstanceID *instanceID;
-#pragma clang diagnostic pop
 
 - (instancetype)initWithUserDefaults:(NSUserDefaults *)userDefaults
                       withRMQManager:(BOOL)withRMQManager;
