@@ -38,7 +38,8 @@ namespace firestore {
 namespace model {
 
 // A map of FieldPaths to transforms. Sorted so it can be used in
-// ObjectValue::SetAll.
+// ObjectValue::SetAll, which is more efficient it the input map is sorted as
+// it processes field maps one layer at a time.
 using TransformMap =
     std::map<FieldPath, absl::optional<google_firestore_v1_Value>>;
 
