@@ -209,7 +209,7 @@
 
   // 1. Prepare response.
   NSData *responseBody =
-      [FIRFixtureLoader loadFixtureNamed:@"AttestationTokenResponseSuccess.json"];
+      [FIRFixtureLoader loadFixtureNamed:@"FACTokenExchangeResponseSuccess.json"];
   GULURLSessionDataResponse *validAPIResponse = [self APIResponseWithCode:200
                                                              responseBody:responseBody];
 
@@ -249,7 +249,7 @@
 
   // 1. Prepare response.
   NSData *responseBody =
-      [FIRFixtureLoader loadFixtureNamed:@"AttestationTokenResponseSuccess.json"];
+      [FIRFixtureLoader loadFixtureNamed:@"FACTokenExchangeResponseSuccess.json"];
   GULURLSessionDataResponse *validAPIResponse = [self APIResponseWithCode:200
                                                              responseBody:responseBody];
 
@@ -391,7 +391,7 @@
 
   // 1. Prepare unexpected response.
   NSData *responseBody =
-      [FIRFixtureLoader loadFixtureNamed:@"AttestationTokenResponseSuccess.json"];
+      [FIRFixtureLoader loadFixtureNamed:@"FACTokenExchangeResponseSuccess.json"];
   GULURLSessionDataResponse *validAPIResponse = [self APIResponseWithCode:200
                                                              responseBody:responseBody];
 

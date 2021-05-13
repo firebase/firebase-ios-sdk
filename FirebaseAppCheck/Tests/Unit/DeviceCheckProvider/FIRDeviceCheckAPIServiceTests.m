@@ -85,7 +85,7 @@ typedef BOOL (^FIRRequestValidationBlock)(NSURLRequest *request);
   id HTTPBodyValidationArg = [self HTTPBodyValidationArgWithDeviceToken:deviceTokenData];
 
   NSData *responseBody =
-      [FIRFixtureLoader loadFixtureNamed:@"AttestationTokenResponseSuccess.json"];
+      [FIRFixtureLoader loadFixtureNamed:@"FACTokenExchangeResponseSuccess.json"];
   XCTAssertNotNil(responseBody);
 
   NSHTTPURLResponse *HTTPResponse = [FIRURLSessionOCMockStub HTTPResponseWithCode:200];
@@ -136,7 +136,7 @@ typedef BOOL (^FIRRequestValidationBlock)(NSURLRequest *request);
   id HTTPBodyValidationArg = [self HTTPBodyValidationArgWithDeviceToken:deviceTokenData];
 
   NSData *responseBody =
-      [FIRFixtureLoader loadFixtureNamed:@"AttestationTokenResponseSuccess.json"];
+      [FIRFixtureLoader loadFixtureNamed:@"FACTokenExchangeResponseSuccess.json"];
   XCTAssertNotNil(responseBody);
 
   NSHTTPURLResponse *HTTPResponse = [FIRURLSessionOCMockStub HTTPResponseWithCode:200];

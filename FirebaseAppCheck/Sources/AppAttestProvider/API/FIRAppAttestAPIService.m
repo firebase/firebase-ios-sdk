@@ -225,7 +225,7 @@ static NSString *const kHTTPMethodPost = @"POST";
   NSData *payloadJSON = [NSJSONSerialization dataWithJSONObject:JSONObject
                                                         options:0
                                                           error:&encodingError];
-  __auto_type HTTPBodyPromise = [FBLPromise pendingPromise];
+  FBLPromise<NSData *> *HTTPBodyPromise = [FBLPromise pendingPromise];
   if (payloadJSON) {
     [HTTPBodyPromise fulfill:payloadJSON];
   } else {

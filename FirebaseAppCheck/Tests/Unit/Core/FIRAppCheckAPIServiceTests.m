@@ -204,7 +204,7 @@
 - (void)testAppCheckTokenWithAPIResponseValidResponse {
   // 1. Prepare input parameters.
   NSData *responseBody =
-      [FIRFixtureLoader loadFixtureNamed:@"AttestationTokenResponseSuccess.json"];
+      [FIRFixtureLoader loadFixtureNamed:@"FACTokenExchangeResponseSuccess.json"];
   XCTAssertNotNil(responseBody);
   NSHTTPURLResponse *HTTPResponse = [FIRURLSessionOCMockStub HTTPResponseWithCode:200];
   GULURLSessionDataResponse *APIResponse =
