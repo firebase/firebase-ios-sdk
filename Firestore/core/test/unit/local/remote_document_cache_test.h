@@ -64,8 +64,6 @@ class RemoteDocumentCacheTest : public ::testing::TestWithParam<FactoryFunc> {
                                          google_firestore_v1_Value data,
                                          int update_time,
                                          int read_time);
-  void VerifyValue(model::MutableDocument actual_doc,
-                   google_firestore_v1_Value data);
   void SetAndReadTestDocument(absl::string_view path);
 
   std::unique_ptr<Persistence> persistence_;

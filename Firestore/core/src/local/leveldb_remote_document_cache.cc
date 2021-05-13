@@ -251,7 +251,7 @@ MutableDocumentMap LevelDbRemoteDocumentCache::GetMatching(
       tasks.Execute([this, &results, document_key, contents] {
         MutableDocument document = DecodeMaybeDocument(contents, document_key);
         if (document.is_found_document()) {
-          results.Insert(MutableDocument(document));
+          results.Insert(document);
         }
       });
     }

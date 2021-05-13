@@ -47,6 +47,7 @@ using model::MutableDocumentMap;
 using model::ObjectValue;
 using model::SnapshotVersion;
 
+using testing::Eq;
 using testing::IsSupersetOf;
 using testing::Matches;
 using testing::UnorderedElementsAreArray;
@@ -94,6 +95,11 @@ MATCHER_P(HasAtLeastDocs,
           negation ? "missing docs" : "has at least docs") {
   std::vector<MutableDocument> arg_docs = ExtractDocuments(arg);
   return testing::Value(arg_docs, IsSupersetOf(expected));
+}
+
+MATCHER_P(MatchesValue, expected, "") {
+  const google_firestore_v1_Value& actual_value = arg.data().Get();
+  return testing::Value(actual_value, Eq(expected));
 }
 
 }  // namespace
@@ -246,36 +252,36 @@ TEST_P(RemoteDocumentCacheTest, DoesNotApplyDocumentModificationsToCache) {
   persistence_->Run("test_does_not_apply_document_modifications_to_cache", [&] {
     MutableDocument document = SetTestDocument("coll/doc", Map("value", "old"));
     document = cache_->Get(Key("coll/doc"));
-    VerifyValue(document, Map("value", "old"));
+    EXPECT_THAT(document, MatchesValue(Map("value", "old")));
     document.ConvertToFoundDocument(Version(kVersion),
                                     ObjectValue{Map("value", "new")});
 
     document = cache_->Get(Key("coll/doc"));
-    VerifyValue(document, Map("value", "old"));
+    EXPECT_THAT(document, MatchesValue(Map("value", "old")));
     document.ConvertToFoundDocument(Version(kVersion),
                                     ObjectValue{Map("value", "new")});
 
     MutableDocumentMap documents =
         cache_->GetAll(DocumentKeySet{Key("coll/doc")});
     document = documents.find(Key("coll/doc"))->second;
-    VerifyValue(document, Map("value", "old"));
+    EXPECT_THAT(document, MatchesValue(Map("value", "old")));
     document.ConvertToFoundDocument(Version(kVersion),
                                     ObjectValue{Map("value", "new")});
 
     documents = cache_->GetMatching(Query("coll"), SnapshotVersion::None());
     document = documents.find(Key("coll/doc"))->second;
-    VerifyValue(document, Map("value", "old"));
+    EXPECT_THAT(document, MatchesValue(Map("value", "old")));
     document.ConvertToFoundDocument(Version(kVersion),
                                     ObjectValue{Map("value", "new")});
 
     document = cache_->Get(Key("coll/doc"));
-    VerifyValue(document, Map("value", "old"));
+    EXPECT_THAT(document, MatchesValue(Map("value", "old")));
   });
 }
 // MARK: - Helpers
 
 MutableDocument RemoteDocumentCacheTest::SetTestDocument(
-    const absl::string_view path,
+    absl::string_view path,
     google_firestore_v1_Value data,
     int update_time,
     int read_time) {
@@ -284,13 +290,14 @@ MutableDocument RemoteDocumentCacheTest::SetTestDocument(
   return doc;
 }
 
-MutableDocument RemoteDocumentCacheTest::SetTestDocument(
-    const absl::string_view path, int update_time, int read_time) {
+MutableDocument RemoteDocumentCacheTest::SetTestDocument(absl::string_view path,
+                                                         int update_time,
+                                                         int read_time) {
   return SetTestDocument(path, DeepClone(kDocData), update_time, read_time);
 }
 
 MutableDocument RemoteDocumentCacheTest::SetTestDocument(
-    const absl::string_view path, google_firestore_v1_Value data) {
+    absl::string_view path, google_firestore_v1_Value data) {
   return SetTestDocument(path, data, kVersion, kVersion);
 }
 
@@ -299,19 +306,12 @@ MutableDocument RemoteDocumentCacheTest::SetTestDocument(
   return SetTestDocument(path, DeepClone(kDocData), kVersion, kVersion);
 }
 
-void RemoteDocumentCacheTest::VerifyValue(MutableDocument actual_doc,
-                                          google_firestore_v1_Value data) {
-  MutableDocument expected_doc =
-      Doc(actual_doc.key().ToString(), kVersion, data);
-  ASSERT_EQ(expected_doc, actual_doc);
-}
-
 void RemoteDocumentCacheTest::SetAndReadTestDocument(
     const absl::string_view path) {
   persistence_->Run("SetAndReadTestDocument", [&] {
     MutableDocument written = SetTestDocument(path);
     absl::optional<MutableDocument> read = cache_->Get(Key(path));
-    ASSERT_EQ(*read, written);
+    EXPECT_EQ(*read, written);
   });
 }
 
