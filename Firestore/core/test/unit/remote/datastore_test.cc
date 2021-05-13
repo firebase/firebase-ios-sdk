@@ -219,12 +219,12 @@ TEST_F(DatastoreTest, LookupDocumentsOneSuccessfulRead) {
   std::vector<Document> resulting_docs;
   Status resulting_status;
   datastore->LookupDocuments(
-      {}, [&](const StatusOr<std::vector<Document>>& maybe_documents) {
+      {}, [&](const StatusOr<std::vector<Document>>& documents) {
         done = true;
-        if (maybe_documents.ok()) {
-          resulting_docs = maybe_documents.ValueOrDie();
+        if (documents.ok()) {
+          resulting_docs = documents.ValueOrDie();
         }
-        resulting_status = maybe_documents.status();
+        resulting_status = documents.status();
       });
   // Make sure Auth has a chance to run.
   worker_queue->EnqueueBlocking([] {});
@@ -246,12 +246,12 @@ TEST_F(DatastoreTest, LookupDocumentsTwoSuccessfulReads) {
   std::vector<Document> resulting_docs;
   Status resulting_status;
   datastore->LookupDocuments(
-      {}, [&](const StatusOr<std::vector<Document>>& maybe_documents) {
+      {}, [&](const StatusOr<std::vector<Document>>& documents) {
         done = true;
-        if (maybe_documents.ok()) {
-          resulting_docs = maybe_documents.ValueOrDie();
+        if (documents.ok()) {
+          resulting_docs = documents.ValueOrDie();
         }
-        resulting_status = maybe_documents.status();
+        resulting_status = documents.status();
       });
   // Make sure Auth has a chance to run.
   worker_queue->EnqueueBlocking([] {});
@@ -293,9 +293,9 @@ TEST_F(DatastoreTest, LookupDocumentsErrorBeforeFirstRead) {
   bool done = false;
   Status resulting_status;
   datastore->LookupDocuments(
-      {}, [&](const StatusOr<std::vector<Document>>& maybe_documents) {
+      {}, [&](const StatusOr<std::vector<Document>>& documents) {
         done = true;
-        resulting_status = maybe_documents.status();
+        resulting_status = documents.status();
       });
   // Make sure Auth has a chance to run.
   worker_queue->EnqueueBlocking([] {});
@@ -314,9 +314,9 @@ TEST_F(DatastoreTest, LookupDocumentsErrorAfterFirstRead) {
   std::vector<Document> resulting_docs;
   Status resulting_status;
   datastore->LookupDocuments(
-      {}, [&](const StatusOr<std::vector<Document>>& maybe_documents) {
+      {}, [&](const StatusOr<std::vector<Document>>& documents) {
         done = true;
-        resulting_status = maybe_documents.status();
+        resulting_status = documents.status();
       });
   // Make sure Auth has a chance to run.
   worker_queue->EnqueueBlocking([] {});
@@ -349,8 +349,8 @@ TEST_F(DatastoreTest, LookupDocumentsAuthFailure) {
 
   Status resulting_status;
   datastore->LookupDocuments(
-      {}, [&](const StatusOr<std::vector<Document>>& maybe_documents) {
-        resulting_status = maybe_documents.status();
+      {}, [&](const StatusOr<std::vector<Document>>& documents) {
+        resulting_status = documents.status();
       });
   worker_queue->EnqueueBlocking([] {});
   EXPECT_FALSE(resulting_status.ok());
