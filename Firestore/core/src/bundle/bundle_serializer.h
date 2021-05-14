@@ -114,8 +114,8 @@ class BundleSerializer {
                                  const nlohmann::json& filter) const;
   core::FilterList DecodeCompositeFilter(JsonReader& context,
                                          const nlohmann::json& filter) const;
-  model::FieldValue DecodeValue(JsonReader& context,
-                                const nlohmann::json& value) const;
+  google_firestore_v1_Value DecodeValue(JsonReader& context,
+                                        const nlohmann::json& value) const;
   core::Bound DecodeBound(JsonReader& context,
                           const nlohmann::json& query,
                           const char* bound_name) const;
@@ -123,12 +123,10 @@ class BundleSerializer {
                                  const nlohmann::json& name) const;
 
   remote::Serializer rpc_serializer_;
-  model::FieldValue DecodeReferenceValue(JsonReader& context,
-                                         const std::string& value) const;
-  model::FieldValue DecodeArrayValue(JsonReader& context,
-                                     const nlohmann::json& array_json) const;
-  model::FieldValue DecodeMapValue(JsonReader& context,
-                                   const nlohmann::json& map_json) const;
+  google_firestore_v1_ArrayValue DecodeArrayValue(
+      JsonReader& context, const nlohmann::json& array_json) const;
+  google_firestore_v1_MapValue DecodeMapValue(
+      JsonReader& context, const nlohmann::json& map_json) const;
 };
 
 }  // namespace bundle
