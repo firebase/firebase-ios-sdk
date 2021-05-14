@@ -67,13 +67,13 @@ bool Equals(const google_firestore_v1_ArrayValue& left,
             const google_firestore_v1_ArrayValue& right);
 
 /**
- * Generate the canonical ID for the provided field value (as used in Target
+ * Generates the canonical ID for the provided field value (as used in Target
  * serialization).
  */
 std::string CanonicalId(const google_firestore_v1_Value& value);
 
 /**
- * Generate the canonical ID for the provided array value (as used in Target
+ * Generates the canonical ID for the provided array value (as used in Target
  * serialization).
  */
 std::string CanonicalId(const google_firestore_v1_ArrayValue& value);
