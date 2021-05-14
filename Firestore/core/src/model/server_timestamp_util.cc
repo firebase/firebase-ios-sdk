@@ -29,7 +29,7 @@ const char kPreviousValueKey[] = "__previous_value__";
 const char kServerTimestampSentinel[] = "server_timestamp";
 
 google_firestore_v1_Value EncodeServerTimestamp(
-    google_protobuf_Timestamp local_write_time,
+    const Timestamp& local_write_time,
     absl::optional<google_firestore_v1_Value> previous_value) {
   google_firestore_v1_Value result{};
   result.which_value_type = google_firestore_v1_Value_map_value_tag;

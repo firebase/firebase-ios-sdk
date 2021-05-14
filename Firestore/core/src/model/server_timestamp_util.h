@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_SRC_MODEL_SERVER_TIMESTAMP_UTIL_H_
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
+#include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
@@ -27,11 +28,9 @@ namespace model {
 // Utility methods to handle ServerTimestamps, which are stored using special
 // sentinel fields in MapValues.
 
-/**
- * Encodes the backing data for a server timestamp in a Value proto.
- */
+/** Encodes the backing data for a server timestamp in a Value proto. */
 google_firestore_v1_Value EncodeServerTimestamp(
-    google_protobuf_Timestamp local_write_time,
+    const Timestamp& local_write_time,
     absl::optional<google_firestore_v1_Value> previous_value);
 /**
  * Returns whether the provided value is a field map that contains the
