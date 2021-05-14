@@ -23,7 +23,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRHTTPSCallableResult (Internal)
+@interface FIRHTTPSCallableResult (Testing)
 
 /**
  * Initializes a callable result.
@@ -34,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface FIRHTTPSCallable (Internal)
+@interface FIRHTTPSCallable (Testing)
 
 /**
  * Initializes a reference to the given http trigger.

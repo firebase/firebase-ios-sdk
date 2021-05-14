@@ -26,7 +26,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRFunctions (Internal)
+@interface FIRFunctions (Testing)
 
 /**
  * Calls an http trigger endpoint.
