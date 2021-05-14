@@ -31,6 +31,7 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
+using model::CanonicalId;
 using model::Compare;
 using model::DocumentKey;
 using model::FieldPath;
@@ -81,15 +82,14 @@ bool Bound::SortsBeforeDocument(const OrderByList& order_by,
 std::string Bound::CanonicalId() const {
   std::string result = before_ ? "b:" : "a:";
   for (pb_size_t i = 0; i < position_->values_count; ++i) {
-    result.append(model::CanonicalId(position_->values[i]));
+    result.append(CanonicalId(position_->values[i]));
   }
   return result;
 }
 
 std::string Bound::ToString() const {
   return util::StringFormat("Bound(position=%s, before=%s)",
-                            model::CanonicalId(*position_),
-                            util::ToString(before_));
+                            CanonicalId(*position_), util::ToString(before_));
 }
 
 std::ostream& operator<<(std::ostream& os, const Bound& bound) {
