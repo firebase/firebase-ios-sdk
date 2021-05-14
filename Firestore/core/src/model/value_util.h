@@ -22,7 +22,6 @@
 #include <vector>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
-#include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
@@ -37,8 +36,6 @@ namespace model {
 class DocumentKey;
 class DatabaseId;
 
-// A bit pattern for our canonical NaN value. Exposed here for testing.
-ABSL_CONST_INIT extern const uint64_t kCanonicalNanBits;
 /**
  * The order of types in Firestore. This order is based on the backend's
  * ordering, but modified to support server timestamps.
@@ -60,9 +57,6 @@ enum class TypeOrder {
 /** Returns the backend's type order of the given Value type. */
 TypeOrder GetTypeOrder(const google_firestore_v1_Value& value);
 
-/** Traverses a Value proto and sorts all MapValues by key. */
-void SortFields(google_firestore_v1_Value& value);
-
 util::ComparisonResult Compare(const google_firestore_v1_Value& left,
                                const google_firestore_v1_Value& right);
 
@@ -73,25 +67,25 @@ bool Equals(const google_firestore_v1_ArrayValue& left,
             const google_firestore_v1_ArrayValue& right);
 
 /**
- * Generate the canonical ID for the provided field value (as used in Target
+ * Generates the canonical ID for the provided field value (as used in Target
  * serialization).
  */
 std::string CanonicalId(const google_firestore_v1_Value& value);
 
 /**
- * Generate the canonical ID for the provided array value (as used in Target
+ * Generates the canonical ID for the provided array value (as used in Target
  * serialization).
  */
 std::string CanonicalId(const google_firestore_v1_ArrayValue& value);
 
-/** Returns true if the Value list contains the specified element. */
+/** Returns true if the array value contains the specified element. */
 bool Contains(google_firestore_v1_ArrayValue haystack,
               google_firestore_v1_Value needle);
 
-/** Returns `nullptr` in its Protobuf representation. */
+/** Returns a null Protobuf value. */
 google_firestore_v1_Value NullValue();
 
-/** Returns `true` if `value` is `nullptr` in its Protobuf representation. */
+/** Returns `true` if `value` is null in its Protobuf representation. */
 bool IsNullValue(const google_firestore_v1_Value& value);
 
 /** Returns `NaN` in its Protobuf representation. */
@@ -100,6 +94,7 @@ google_firestore_v1_Value NaNValue();
 /** Returns `true` if `value` is `NaN` in its Protobuf representation. */
 bool IsNaNValue(const google_firestore_v1_Value& value);
 
+/** Returns a Protobuf reference value representing the given location. */
 google_firestore_v1_Value RefValue(const DatabaseId& database_id,
                                    const DocumentKey& document_key);
 

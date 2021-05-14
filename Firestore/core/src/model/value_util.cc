@@ -28,7 +28,6 @@
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/util/comparison.h"
 #include "Firestore/core/src/util/hard_assert.h"
-
 #include "absl/strings/escaping.h"
 #include "absl/strings/str_format.h"
 #include "absl/strings/str_join.h"
@@ -39,19 +38,6 @@ namespace firestore {
 namespace model {
 
 using util::ComparisonResult;
-
-// We use a canonical NaN bit pattern that's common for both Objective-C and
-// Java. Specifically:
-//
-//   - sign: 0
-//   - exponent: 11 bits, all 1
-//   - significand: 52 bits, MSB=1, rest=0
-//
-// This matches the Firestore backend which uses Double.doubleToLongBits from
-// the JDK (which is defined to normalize all NaNs to this value). This also
-// happens to be a common value for NAN in C++, but C++ does not require this
-// specific NaN value to be used, so we normalize.
-const uint64_t kCanonicalNanBits = 0x7ff8000000000000ULL;
 
 TypeOrder GetTypeOrder(const google_firestore_v1_Value& value) {
   switch (value.which_value_type) {
@@ -92,27 +78,6 @@ TypeOrder GetTypeOrder(const google_firestore_v1_Value& value) {
 
     default:
       HARD_FAIL("Invalid type value: %s", value.which_value_type);
-  }
-}
-
-void SortFields(google_firestore_v1_Value& value) {
-  if (value.which_value_type == google_firestore_v1_Value_map_value_tag) {
-    google_firestore_v1_MapValue& map_value = value.map_value;
-    std::sort(map_value.fields, map_value.fields + map_value.fields_count,
-              [](const google_firestore_v1_MapValue_FieldsEntry& lhs,
-                 const google_firestore_v1_MapValue_FieldsEntry& rhs) {
-                return nanopb::MakeStringView(lhs.key) <
-                       nanopb::MakeStringView(rhs.key);
-              });
-
-    for (pb_size_t i = 0; i < map_value.fields_count; ++i) {
-      SortFields(map_value.fields[i].value);
-    }
-  } else if (value.which_value_type ==
-             google_firestore_v1_Value_array_value_tag) {
-    for (pb_size_t i = 0; i < value.array_value.values_count; ++i) {
-      SortFields(value.array_value.values[i]);
-    }
   }
 }
 
@@ -162,7 +127,7 @@ ComparisonResult CompareBlobs(const google_firestore_v1_Value& left,
                ? util::ComparisonResultFromInt(cmp)
                : util::Compare(left.bytes_value->size, right.bytes_value->size);
   } else {
-    // An empty blob is represented by a nullptr or an empty byte array
+    // An empty blob is represented by a nullptr (or an empty byte array)
     return util::Compare(
         !(left.bytes_value == nullptr || left.bytes_value->size == 0),
         !(right.bytes_value == nullptr || right.bytes_value->size == 0));
@@ -525,7 +490,7 @@ google_firestore_v1_Value NaNValue() {
 
 bool IsNaNValue(const google_firestore_v1_Value& value) {
   return value.which_value_type == google_firestore_v1_Value_double_value_tag &&
-         isnan(value.double_value);
+         std::isnan(value.double_value);
 }
 
 google_firestore_v1_Value RefValue(const model::DatabaseId& database_id,

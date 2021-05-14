@@ -28,9 +28,7 @@ namespace model {
 // Utility methods to handle ServerTimestamps, which are stored using special
 // sentinel fields in MapValues.
 
-/**
- * Encodes the backing data for a server timestamp in a Value proto.
- */
+/** Encodes the backing data for a server timestamp in a Value proto. */
 google_firestore_v1_Value EncodeServerTimestamp(
     const Timestamp& local_write_time,
     absl::optional<google_firestore_v1_Value> previous_value);
