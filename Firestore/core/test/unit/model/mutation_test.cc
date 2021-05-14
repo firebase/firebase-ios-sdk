@@ -344,8 +344,7 @@ TEST(MutationTest,
   TransformBaseDoc(base_data, transforms, expected);
 }
 
-TEST(MutationTest,
-     AppliesLocalArrayUnionTransformWithExistingElementsInOrder) {
+TEST(MutationTest, AppliesLocalArrayUnionTransformWithExistingElementsInOrder) {
   // New elements should be appended in order.
   auto base_data = Map("array", Array(1, 3));
   TransformPairs transforms = {{"array", ArrayUnion(1, 2, 3, 4, 5)}};
