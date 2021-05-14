@@ -108,7 +108,7 @@ WatchStreamSerializer::ParseResponse(Reader* reader) const {
 
 std::unique_ptr<WatchChange> WatchStreamSerializer::DecodeWatchChange(
     nanopb::Reader* reader,
-    const google_firestore_v1_ListenResponse& response) const {
+    google_firestore_v1_ListenResponse& response) const {
   return serializer_.DecodeWatchChange(reader->context(), response);
 }
 
@@ -174,14 +174,13 @@ SnapshotVersion WriteStreamSerializer::DecodeCommitVersion(
 }
 
 std::vector<MutationResult> WriteStreamSerializer::DecodeMutationResults(
-    nanopb::Reader* reader,
-    google_firestore_v1_WriteResponse& proto) const {
+    nanopb::Reader* reader, google_firestore_v1_WriteResponse& proto) const {
   SnapshotVersion commit_version = DecodeCommitVersion(reader, proto);
   if (!reader->ok()) {
     return {};
   }
 
-   google_firestore_v1_WriteResult* writes = proto.write_results;
+  google_firestore_v1_WriteResult* writes = proto.write_results;
   pb_size_t count = proto.write_results_count;
   std::vector<MutationResult> results;
   results.reserve(count);

@@ -568,8 +568,7 @@ class SerializerTest : public ::testing::Test {
     StringReader reader{bytes};
 
     auto message = Message<T>::TryParse(&reader);
-    auto model =
-        decode_func(serializer, reader.context(), *message, args...);
+    auto model = decode_func(serializer, reader.context(), *message, args...);
 
     EXPECT_OK(reader.status());
     return model;

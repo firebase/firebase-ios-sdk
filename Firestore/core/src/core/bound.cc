@@ -88,7 +88,8 @@ std::string Bound::CanonicalId() const {
 
 std::string Bound::ToString() const {
   return util::StringFormat("Bound(position=%s, before=%s)",
-                            model::CanonicalId(*position_), util::ToString(before_));
+                            model::CanonicalId(*position_),
+                            util::ToString(before_));
 }
 
 std::ostream& operator<<(std::ostream& os, const Bound& bound) {

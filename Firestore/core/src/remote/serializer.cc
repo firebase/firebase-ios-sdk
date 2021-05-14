@@ -277,7 +277,7 @@ google_firestore_v1_Document Serializer::EncodeDocument(
                        map_value.fields, map_value.fields_count),
                    [](const google_firestore_v1_MapValue_FieldsEntry& entry) {
                      google_firestore_v1_Document_FieldsEntry result{};
-// TODO(mrschmidt): Figure out how to remove this clone
+                     // TODO(mrschmidt): Figure out how to remove this copy
                      result.key = nanopb::MakeBytesArray(entry.key->bytes,
                                                          entry.key->size);
                      result.value = DeepClone(entry.value);
@@ -292,7 +292,7 @@ google_firestore_v1_Document Serializer::EncodeDocument(
 
 MutableDocument Serializer::DecodeMaybeDocument(
     ReadContext* context,
-    const google_firestore_v1_BatchGetDocumentsResponse& response) const {
+    google_firestore_v1_BatchGetDocumentsResponse& response) const {
   switch (response.which_result) {
     case google_firestore_v1_BatchGetDocumentsResponse_found_tag:
       return DecodeFoundDocument(context, response);
@@ -309,7 +309,7 @@ MutableDocument Serializer::DecodeMaybeDocument(
 
 MutableDocument Serializer::DecodeFoundDocument(
     ReadContext* context,
-    const google_firestore_v1_BatchGetDocumentsResponse& response) const {
+    google_firestore_v1_BatchGetDocumentsResponse& response) const {
   HARD_ASSERT(response.which_result ==
                   google_firestore_v1_BatchGetDocumentsResponse_found_tag,
               "Tried to deserialize a found document from a missing document.");
@@ -396,8 +396,8 @@ google_firestore_v1_Write Serializer::EncodeMutation(
   UNREACHABLE();
 }
 
-Mutation Serializer::DecodeMutation(
-    ReadContext* context, const google_firestore_v1_Write& mutation) const {
+Mutation Serializer::DecodeMutation(ReadContext* context,
+                                    google_firestore_v1_Write& mutation) const {
   auto precondition = Precondition::None();
   if (mutation.has_current_document) {
     precondition = DecodePrecondition(context, mutation.current_document);
@@ -536,7 +536,7 @@ Serializer::EncodeFieldTransform(const FieldTransform& field_transform) const {
     case Type::ArrayUnion:
       proto.which_transform_type =
           google_firestore_v1_DocumentTransform_FieldTransform_append_missing_elements_tag;  // NOLINT
-          // TODO(mrschmidt): Figure out how to remove this clone
+      // TODO(mrschmidt): Figure out how to remove this copy
       proto.append_missing_elements = DeepClone(
           ArrayTransform(field_transform.transformation()).elements());
       return proto;
@@ -544,7 +544,7 @@ Serializer::EncodeFieldTransform(const FieldTransform& field_transform) const {
     case Type::ArrayRemove:
       proto.which_transform_type =
           google_firestore_v1_DocumentTransform_FieldTransform_remove_all_from_array_tag;  // NOLINT
-      // TODO(mrschmidt): Figure out how to remove this clone
+      // TODO(mrschmidt): Figure out how to remove this copy
       proto.remove_all_from_array = DeepClone(
           ArrayTransform(field_transform.transformation()).elements());
       return proto;
@@ -581,7 +581,7 @@ FieldTransform Serializer::DecodeFieldTransform(
       auto field_transform = FieldTransform(
           std::move(field), ArrayTransform(TransformOperation::Type::ArrayUnion,
                                            proto.append_missing_elements));
-      ReleaseFieldOwnership( proto.append_missing_elements.values ,   proto.append_missing_elements.values_count);
+      proto.append_missing_elements = {};  // Release field ownership
       return field_transform;
     }
 
@@ -590,7 +590,7 @@ FieldTransform Serializer::DecodeFieldTransform(
           FieldTransform(std::move(field),
                          ArrayTransform(TransformOperation::Type::ArrayRemove,
                                         proto.remove_all_from_array));
-      ReleaseFieldOwnership( proto.remove_all_from_array.values,    proto.remove_all_from_array.values_count);
+      proto.append_missing_elements = {};  // Release field ownership
       return field_transform;
     }
 
@@ -715,7 +715,7 @@ google_firestore_v1_Target_QueryTarget Serializer::EncodeQueryTarget(
 Target Serializer::DecodeStructuredQuery(
     ReadContext* context,
     pb_bytes_array_t* parent,
-     google_firestore_v1_StructuredQuery& query) const {
+    google_firestore_v1_StructuredQuery& query) const {
   ResourcePath path = DecodeQueryPath(context, DecodeString(parent));
 
   CollectionGroupId collection_group;
@@ -769,8 +769,7 @@ Target Serializer::DecodeStructuredQuery(
 }
 
 Target Serializer::DecodeQueryTarget(
-    ReadContext* context,
-    google_firestore_v1_Target_QueryTarget& query) const {
+    ReadContext* context, google_firestore_v1_Target_QueryTarget& query) const {
   // The QueryTarget oneof only has a single valid value.
   if (query.which_query_type !=
       google_firestore_v1_Target_QueryTarget_structured_query_tag) {
@@ -812,7 +811,7 @@ google_firestore_v1_StructuredQuery_Filter Serializer::EncodeFilters(
 
 FilterList Serializer::DecodeFilters(
     ReadContext* context,
-     google_firestore_v1_StructuredQuery_Filter& proto) const {
+    google_firestore_v1_StructuredQuery_Filter& proto) const {
   FilterList result;
 
   switch (proto.which_filter_type) {
@@ -871,7 +870,7 @@ google_firestore_v1_StructuredQuery_Filter Serializer::EncodeSingularFilter(
 
   result.field_filter.field.field_path = EncodeFieldPath(filter.field());
   result.field_filter.op = EncodeFieldFilterOperator(filter.op());
-  // TODO(mrschmidt): Figure out how to remove this clone
+  // TODO(mrschmidt): Figure out how to remove this copy
   result.field_filter.value = DeepClone(filter.value());
 
   return result;
@@ -879,13 +878,13 @@ google_firestore_v1_StructuredQuery_Filter Serializer::EncodeSingularFilter(
 
 Filter Serializer::DecodeFieldFilter(
     ReadContext* context,
-     google_firestore_v1_StructuredQuery_FieldFilter& field_filter) const {
+    google_firestore_v1_StructuredQuery_FieldFilter& field_filter) const {
   FieldPath field_path =
       DecodeFieldPath(context, field_filter.field.field_path);
   Filter::Operator op = DecodeFieldFilterOperator(context, field_filter.op);
-  Filter result = FieldFilter::Create(std::move(field_path), op,
-                             field_filter.value);
-  field_filter.value={}; // Release field ownership
+  Filter result =
+      FieldFilter::Create(std::move(field_path), op, field_filter.value);
+  field_filter.value = {};  // Release field ownership
   return result;
 }
 
@@ -1104,19 +1103,22 @@ OrderBy Serializer::DecodeOrderBy(
 google_firestore_v1_Cursor Serializer::EncodeBound(const Bound& bound) const {
   google_firestore_v1_Cursor result{};
   result.before = bound.before();
-  SetRepeatedField(&result.values, &result.values_count,
-         absl::Span<google_firestore_v1_Value>(bound.position().values, bound.position().values_count),
-  [](const google_firestore_v1_Value& value){return DeepClone(value);});
+  SetRepeatedField(
+      &result.values, &result.values_count,
+      absl::Span<google_firestore_v1_Value>(bound.position().values,
+                                            bound.position().values_count),
+      [](const google_firestore_v1_Value& value) { return DeepClone(value); });
   return result;
 }
 
 std::shared_ptr<Bound> Serializer::DecodeBound(
-     google_firestore_v1_Cursor& cursor) const {
+    google_firestore_v1_Cursor& cursor) const {
   google_firestore_v1_ArrayValue index_components;
   SetRepeatedField(&index_components.values, &index_components.values_count,
-                   absl::Span<google_firestore_v1_Value>(cursor.values, cursor.values_count));
-    ReleaseFieldOwnership(cursor.values, cursor.values_count);
-                       return std::make_shared<Bound>(index_components, cursor.before);
+                   absl::Span<google_firestore_v1_Value>(cursor.values,
+                                                         cursor.values_count));
+  ReleaseFieldOwnership(cursor.values, cursor.values_count);
+  return std::make_shared<Bound>(index_components, cursor.before);
 }
 
 /* static */
@@ -1180,8 +1182,11 @@ MutationResult Serializer::DecodeMutationResult(
 
   google_firestore_v1_ArrayValue transform_results{};
   SetRepeatedField(&transform_results.values, &transform_results.values_count,
-                   absl::Span<google_firestore_v1_Value>(write_result.transform_results, write_result.transform_results_count));
-  ReleaseFieldOwnership(write_result.transform_results, write_result.transform_results_count);
+                   absl::Span<google_firestore_v1_Value>(
+                       write_result.transform_results,
+                       write_result.transform_results_count));
+  ReleaseFieldOwnership(write_result.transform_results,
+                        write_result.transform_results_count);
   return MutationResult(version, transform_results);
 }
 
@@ -1213,7 +1218,7 @@ std::string Serializer::EncodeLabel(QueryPurpose purpose) const {
 
 std::unique_ptr<WatchChange> Serializer::DecodeWatchChange(
     ReadContext* context,
-    const google_firestore_v1_ListenResponse& watch_change) const {
+    google_firestore_v1_ListenResponse& watch_change) const {
   switch (watch_change.which_response_type) {
     case google_firestore_v1_ListenResponse_target_change_tag:
       return DecodeTargetChange(context, watch_change.target_change);
@@ -1295,8 +1300,7 @@ WatchTargetChangeState Serializer::DecodeTargetChangeState(
 }
 
 std::unique_ptr<WatchChange> Serializer::DecodeDocumentChange(
-    ReadContext* context,
-    const google_firestore_v1_DocumentChange& change) const {
+    ReadContext* context, google_firestore_v1_DocumentChange& change) const {
   ObjectValue value = ObjectValue::FromFieldsEntry(
       change.document.fields, change.document.fields_count);
   DocumentKey key = DecodeKey(context, change.document.name);

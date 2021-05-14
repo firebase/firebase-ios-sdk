@@ -129,13 +129,12 @@ class Serializer {
    */
   model::MutableDocument DecodeMaybeDocument(
       util::ReadContext* context,
-      const google_firestore_v1_BatchGetDocumentsResponse& response) const;
+      google_firestore_v1_BatchGetDocumentsResponse& response) const;
 
   google_firestore_v1_Write EncodeMutation(
       const model::Mutation& mutation) const;
-  model::Mutation DecodeMutation(
-      util::ReadContext* context,
-      const google_firestore_v1_Write& mutation) const;
+  model::Mutation DecodeMutation(util::ReadContext* context,
+                                 google_firestore_v1_Write& mutation) const;
 
   static google_firestore_v1_Precondition EncodePrecondition(
       const model::Precondition& precondition);
@@ -156,7 +155,7 @@ class Serializer {
 
   model::MutationResult DecodeMutationResult(
       util::ReadContext* context,
-       google_firestore_v1_WriteResult& write_result,
+      google_firestore_v1_WriteResult& write_result,
       const model::SnapshotVersion& commit_version) const;
 
   std::vector<google_firestore_v1_ListenRequest_LabelsEntry>
@@ -189,21 +188,30 @@ class Serializer {
   google_firestore_v1_Target_QueryTarget EncodeQueryTarget(
       const core::Target& target) const;
 
-    /** Decodes the query target. Modifies the provided proto to release ownership of any Value messages. */
+  /**
+   * Decodes the query target. Modifies the provided proto to release ownership
+   * of any Value messages.
+   */
   core::Target DecodeQueryTarget(
       util::ReadContext* context,
-       google_firestore_v1_Target_QueryTarget& proto) const;
+      google_firestore_v1_Target_QueryTarget& proto) const;
 
-
-    /** Decodes the structured query. Modifies the provided proto to release ownership of any Value messages. */
+  /**
+   * Decodes the structured query. Modifies the provided proto to release
+   * ownership of any Value messages.
+   */
   core::Target DecodeStructuredQuery(
       util::ReadContext* context,
       pb_bytes_array_t* parent,
-       google_firestore_v1_StructuredQuery& query) const;
+      google_firestore_v1_StructuredQuery& query) const;
 
+  /**
+   * Decodes the watch change. Modifies the provided proto to release
+   * ownership of any Value messages.
+   */
   std::unique_ptr<remote::WatchChange> DecodeWatchChange(
       util::ReadContext* context,
-      const google_firestore_v1_ListenResponse& watch_change) const;
+      google_firestore_v1_ListenResponse& watch_change) const;
 
   model::SnapshotVersion DecodeVersionFromListenResponse(
       util::ReadContext* context,
@@ -212,9 +220,14 @@ class Serializer {
   // Public for the sake of tests.
   google_firestore_v1_StructuredQuery_Filter EncodeFilters(
       const core::FilterList& filters) const;
+
+  /**
+   * Decodes the structured query. Modifies the provided proto to release
+   * ownership of any Value messages.
+   */
   core::FilterList DecodeFilters(
       util::ReadContext* context,
-       google_firestore_v1_StructuredQuery_Filter& proto) const;
+      google_firestore_v1_StructuredQuery_Filter& proto) const;
 
   /**
    * Encodes a database ID and resource path into the following form:
@@ -230,7 +243,7 @@ class Serializer {
  private:
   model::MutableDocument DecodeFoundDocument(
       util::ReadContext* context,
-      const google_firestore_v1_BatchGetDocumentsResponse& response) const;
+      google_firestore_v1_BatchGetDocumentsResponse& response) const;
   model::MutableDocument DecodeMissingDocument(
       util::ReadContext* context,
       const google_firestore_v1_BatchGetDocumentsResponse& response) const;
@@ -258,8 +271,7 @@ class Serializer {
       const core::FieldFilter& filter) const;
   core::Filter DecodeFieldFilter(
       util::ReadContext* context,
-      google_firestore_v1_StructuredQuery_FieldFilter& field_filter)
-      const;
+      google_firestore_v1_StructuredQuery_FieldFilter& field_filter) const;
   core::Filter DecodeUnaryFilter(
       util::ReadContext* context,
       const google_firestore_v1_StructuredQuery_UnaryFilter& unary) const;
@@ -286,7 +298,7 @@ class Serializer {
 
   google_firestore_v1_Cursor EncodeBound(const core::Bound& bound) const;
   std::shared_ptr<core::Bound> DecodeBound(
-       google_firestore_v1_Cursor& cursor) const;
+      google_firestore_v1_Cursor& cursor) const;
 
   std::unique_ptr<remote::WatchChange> DecodeTargetChange(
       util::ReadContext* context,
@@ -297,7 +309,7 @@ class Serializer {
 
   std::unique_ptr<remote::WatchChange> DecodeDocumentChange(
       util::ReadContext* context,
-      const google_firestore_v1_DocumentChange& change) const;
+      google_firestore_v1_DocumentChange& change) const;
   std::unique_ptr<remote::WatchChange> DecodeDocumentDelete(
       util::ReadContext* context,
       const google_firestore_v1_DocumentDelete& change) const;

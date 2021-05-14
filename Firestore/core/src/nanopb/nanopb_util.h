@@ -146,8 +146,7 @@ void SetRepeatedField(T* _Nonnull* _Nonnull fields_array,
 }
 
 /** Initializes a repeated field with a list of values. */
-template <typename T,
-        typename Container>
+template <typename T, typename Container>
 void SetRepeatedField(T* _Nonnull* _Nonnull fields_array,
                       pb_size_t* _Nonnull fields_count,
                       const Container& fields) {

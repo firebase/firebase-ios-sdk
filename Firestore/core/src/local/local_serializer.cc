@@ -63,9 +63,9 @@ using nanopb::CopyBytesArray;
 using nanopb::MakeArray;
 using nanopb::Message;
 using nanopb::Reader;
+using nanopb::ReleaseFieldOwnership;
 using nanopb::SafeReadBoolean;
-    using nanopb::SetRepeatedField;
-    using nanopb::ReleaseFieldOwnership;
+using nanopb::SetRepeatedField;
 using nanopb::Writer;
 using util::Status;
 using util::StringFormat;
@@ -118,7 +118,8 @@ MutableDocument LocalSerializer::DecodeMaybeDocument(
 
     default:
       reader->Fail(
-          StringFormat("Invalid document type: %s. Expected 'no_document' (%s) or 'document' (%s)",
+          StringFormat("Invalid document type: %s. Expected 'no_document' (%s) "
+                       "or 'document' (%s)",
                        proto.which_document_type,
                        firestore_client_MaybeDocument_no_document_tag,
                        firestore_client_MaybeDocument_document_tag));
@@ -135,16 +136,18 @@ google_firestore_v1_Document LocalSerializer::EncodeDocument(
   result.name = rpc_serializer_.EncodeKey(doc.key());
 
   // Encode Document.fields (unless it's empty)
-  // FIXME
   const google_firestore_v1_MapValue& fields_map = doc.data().Get().map_value;
-  SetRepeatedField(&result.fields, & result.fields_count, absl::Span<google_firestore_v1_MapValue_FieldsEntry>(fields_map.fields,fields_map.fields_count),
-          [](const google_firestore_v1_MapValue_FieldsEntry& map_entry){
-              google_firestore_v1_Document_FieldsEntry
-              fields_entry{};
-              fields_entry.key = nanopb::CopyBytesArray(map_entry.key);
-              fields_entry.value = DeepClone(map_entry.value);
-              return fields_entry;
-  });
+  SetRepeatedField(
+      &result.fields, &result.fields_count,
+      absl::Span<google_firestore_v1_MapValue_FieldsEntry>(
+          fields_map.fields, fields_map.fields_count),
+      [](const google_firestore_v1_MapValue_FieldsEntry& map_entry) {
+        google_firestore_v1_Document_FieldsEntry fields_entry{};
+        // TODO(mrschmidt): Figure out how to remove this copy
+        fields_entry.key = nanopb::CopyBytesArray(map_entry.key);
+        fields_entry.value = DeepClone(map_entry.value);
+        return fields_entry;
+      });
 
   result.has_update_time = true;
   result.update_time = rpc_serializer_.EncodeVersion(doc.version());
@@ -155,7 +158,7 @@ google_firestore_v1_Document LocalSerializer::EncodeDocument(
 
 MutableDocument LocalSerializer::DecodeDocument(
     Reader* reader,
-     google_firestore_v1_Document& proto,
+    google_firestore_v1_Document& proto,
     bool has_committed_mutations) const {
   ObjectValue fields =
       ObjectValue::FromFieldsEntry(proto.fields, proto.fields_count);
@@ -247,7 +250,7 @@ Message<firestore_client_Target> LocalSerializer::EncodeTargetData(
 }
 
 TargetData LocalSerializer::DecodeTargetData(
-    Reader* reader,  firestore_client_Target& proto) const {
+    Reader* reader, firestore_client_Target& proto) const {
   if (!reader->status().ok()) return TargetData();
 
   model::TargetId target_id = proto.target_id;
@@ -334,7 +337,7 @@ MutationBatch LocalSerializer::DecodeMutationBatch(
   // updated to `update_transforms`.
   // TODO(b/174608374): Remove this code once we perform a schema migration.
   for (size_t i = 0; i < proto.writes_count; ++i) {
-    _google_firestore_v1_Write current_mutation = proto.writes[i];
+    google_firestore_v1_Write current_mutation = proto.writes[i];
     bool has_transform = i + 1 < proto.writes_count &&
                          proto.writes[i + 1].which_operation ==
                              google_firestore_v1_Write_transform_tag;
@@ -344,13 +347,14 @@ MutationBatch LocalSerializer::DecodeMutationBatch(
           proto.writes[i].which_operation ==
               google_firestore_v1_Write_update_tag,
           "TransformMutation should be preceded by a patch or set mutation");
-      _google_firestore_v1_Write new_mutation{current_mutation};
+      google_firestore_v1_Write new_mutation{current_mutation};
       new_mutation.update_transforms_count =
           transform_mutation.transform.field_transforms_count;
       new_mutation.update_transforms =
           transform_mutation.transform.field_transforms;
-      ReleaseFieldOwnership(transform_mutation.transform.field_transforms,
-                             transform_mutation.transform.field_transforms_count );
+      ReleaseFieldOwnership(
+          transform_mutation.transform.field_transforms,
+          transform_mutation.transform.field_transforms_count);
       mutations.push_back(
           rpc_serializer_.DecodeMutation(reader->context(), new_mutation));
       ++i;
