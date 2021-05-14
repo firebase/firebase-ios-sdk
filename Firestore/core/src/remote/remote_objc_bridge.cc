@@ -175,13 +175,13 @@ SnapshotVersion WriteStreamSerializer::DecodeCommitVersion(
 
 std::vector<MutationResult> WriteStreamSerializer::DecodeMutationResults(
     nanopb::Reader* reader,
-    const google_firestore_v1_WriteResponse& proto) const {
+    google_firestore_v1_WriteResponse& proto) const {
   SnapshotVersion commit_version = DecodeCommitVersion(reader, proto);
   if (!reader->ok()) {
     return {};
   }
 
-  const google_firestore_v1_WriteResult* writes = proto.write_results;
+   google_firestore_v1_WriteResult* writes = proto.write_results;
   pb_size_t count = proto.write_results_count;
   std::vector<MutationResult> results;
   results.reserve(count);

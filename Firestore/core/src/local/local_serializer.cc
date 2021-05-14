@@ -39,6 +39,7 @@
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/string_format.h"
+#include "absl/types/span.h"
 
 namespace firebase {
 namespace firestore {
@@ -63,6 +64,8 @@ using nanopb::MakeArray;
 using nanopb::Message;
 using nanopb::Reader;
 using nanopb::SafeReadBoolean;
+    using nanopb::SetRepeatedField;
+    using nanopb::ReleaseFieldOwnership;
 using nanopb::Writer;
 using util::Status;
 using util::StringFormat;
@@ -98,7 +101,7 @@ Message<firestore_client_MaybeDocument> LocalSerializer::EncodeMaybeDocument(
 }
 
 MutableDocument LocalSerializer::DecodeMaybeDocument(
-    Reader* reader, const firestore_client_MaybeDocument& proto) const {
+    Reader* reader, firestore_client_MaybeDocument& proto) const {
   if (!reader->status().ok()) return {};
 
   switch (proto.which_document_type) {
@@ -115,7 +118,7 @@ MutableDocument LocalSerializer::DecodeMaybeDocument(
 
     default:
       reader->Fail(
-          StringFormat("Invalid document type: %s. Expected "'no_document' (%s) or 'document' (%s)",
+          StringFormat("Invalid document type: %s. Expected 'no_document' (%s) or 'document' (%s)",
                        proto.which_document_type,
                        firestore_client_MaybeDocument_no_document_tag,
                        firestore_client_MaybeDocument_document_tag));
@@ -134,14 +137,14 @@ google_firestore_v1_Document LocalSerializer::EncodeDocument(
   // Encode Document.fields (unless it's empty)
   // FIXME
   const google_firestore_v1_MapValue& fields_map = doc.data().Get().map_value;
-  pb_size_t count = fields_map.fields_count;
-  result.fields_count = count;
-  result.fields = MakeArray<google_firestore_v1_Document_FieldsEntry>(count);
-
-  for (pb_size_t i = 0; i < count; ++i) {
-    result.fields[i].key = nanopb::CopyBytesArray(fields_map.fields[i].key);
-    result.fields[i].value = DeepClone(fields_map.fields[i].value);
-  }
+  SetRepeatedField(&result.fields, & result.fields_count, absl::Span<google_firestore_v1_MapValue_FieldsEntry>(fields_map.fields,fields_map.fields_count),
+          [](const google_firestore_v1_MapValue_FieldsEntry& map_entry){
+              google_firestore_v1_Document_FieldsEntry
+              fields_entry{};
+              fields_entry.key = nanopb::CopyBytesArray(map_entry.key);
+              fields_entry.value = DeepClone(map_entry.value);
+              return fields_entry;
+  });
 
   result.has_update_time = true;
   result.update_time = rpc_serializer_.EncodeVersion(doc.version());
@@ -152,7 +155,7 @@ google_firestore_v1_Document LocalSerializer::EncodeDocument(
 
 MutableDocument LocalSerializer::DecodeDocument(
     Reader* reader,
-    const google_firestore_v1_Document& proto,
+     google_firestore_v1_Document& proto,
     bool has_committed_mutations) const {
   ObjectValue fields =
       ObjectValue::FromFieldsEntry(proto.fields, proto.fields_count);
@@ -244,7 +247,7 @@ Message<firestore_client_Target> LocalSerializer::EncodeTargetData(
 }
 
 TargetData LocalSerializer::DecodeTargetData(
-    Reader* reader, const firestore_client_Target& proto) const {
+    Reader* reader,  firestore_client_Target& proto) const {
   if (!reader->status().ok()) return TargetData();
 
   model::TargetId target_id = proto.target_id;
@@ -346,10 +349,8 @@ MutationBatch LocalSerializer::DecodeMutationBatch(
           transform_mutation.transform.field_transforms_count;
       new_mutation.update_transforms =
           transform_mutation.transform.field_transforms;
-      // FIXME
-      ReleaseFieldsOwnership(transform_mutation.transform.field_transforms,
+      ReleaseFieldOwnership(transform_mutation.transform.field_transforms,
                              transform_mutation.transform.field_transforms_count );
-
       mutations.push_back(
           rpc_serializer_.DecodeMutation(reader->context(), new_mutation));
       ++i;
@@ -404,7 +405,7 @@ Message<firestore_NamedQuery> LocalSerializer::EncodeNamedQuery(
 }
 
 NamedQuery LocalSerializer::DecodeNamedQuery(
-    nanopb::Reader* reader, const firestore_NamedQuery& proto) const {
+    nanopb::Reader* reader, firestore_NamedQuery& proto) const {
   return NamedQuery(rpc_serializer_.DecodeString(proto.name),
                     DecodeBundledQuery(reader, proto.bundled_query),
                     DecodeVersion(reader, proto.read_time));
@@ -429,7 +430,7 @@ firestore_BundledQuery LocalSerializer::EncodeBundledQuery(
 }
 
 BundledQuery LocalSerializer::DecodeBundledQuery(
-    nanopb::Reader* reader, const firestore_BundledQuery& query) const {
+    nanopb::Reader* reader, firestore_BundledQuery& query) const {
   // The QueryTarget oneof only has a single valid value.
   if (query.which_query_type != firestore_BundledQuery_structured_query_tag) {
     reader->Fail(

@@ -569,7 +569,7 @@ class SerializerTest : public ::testing::Test {
 
     auto message = Message<T>::TryParse(&reader);
     auto model =
-        decode_func(serializer, reader.context(), std::move(*message), args...);
+        decode_func(serializer, reader.context(), *message, args...);
 
     EXPECT_OK(reader.status());
     return model;

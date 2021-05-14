@@ -101,9 +101,10 @@ class WriteStreamSerializer {
   model::SnapshotVersion DecodeCommitVersion(
       nanopb::Reader* reader,
       const google_firestore_v1_WriteResponse& proto) const;
+    /** Decodes the write response. Modifies the provided proto to release ownership of any Value messages. */
   std::vector<model::MutationResult> DecodeMutationResults(
       nanopb::Reader* reader,
-      const google_firestore_v1_WriteResponse& proto) const;
+      google_firestore_v1_WriteResponse& proto) const;
 
  private:
   Serializer serializer_;
