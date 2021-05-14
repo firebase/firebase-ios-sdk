@@ -1039,7 +1039,7 @@ TEST_F(SerializerTest, BadKey) {
 
 TEST_F(SerializerTest, EncodesEmptyDocument) {
   DocumentKey key = DocumentKey::FromPathString("path/to/the/doc");
-  ObjectValue empty_value{};
+  ObjectValue empty_value;
   SnapshotVersion update_time = SnapshotVersion{{1234, 5678}};
 
   v1::BatchGetDocumentsResponse proto;
