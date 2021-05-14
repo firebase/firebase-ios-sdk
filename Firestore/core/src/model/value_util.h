@@ -82,10 +82,10 @@ std::string CanonicalId(const google_firestore_v1_ArrayValue& value);
 bool Contains(google_firestore_v1_ArrayValue haystack,
               google_firestore_v1_Value needle);
 
-/** Returns `nullptr` in its Protobuf representation. */
+/** Returns a null Protobuf value. */
 google_firestore_v1_Value NullValue();
 
-/** Returns `true` if `value` is `nullptr` in its Protobuf representation. */
+/** Returns `true` if `value` is null in its Protobuf representation. */
 bool IsNullValue(const google_firestore_v1_Value& value);
 
 /** Returns `NaN` in its Protobuf representation. */
@@ -94,6 +94,7 @@ google_firestore_v1_Value NaNValue();
 /** Returns `true` if `value` is `NaN` in its Protobuf representation. */
 bool IsNaNValue(const google_firestore_v1_Value& value);
 
+/** Returns a Protobuf reference value representing the given location. */
 google_firestore_v1_Value RefValue(const DatabaseId& database_id,
                                    const DocumentKey& document_key);
 

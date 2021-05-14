@@ -490,7 +490,7 @@ google_firestore_v1_Value NaNValue() {
 
 bool IsNaNValue(const google_firestore_v1_Value& value) {
   return value.which_value_type == google_firestore_v1_Value_double_value_tag &&
-         isnan(value.double_value);
+         std::isnan(value.double_value);
 }
 
 google_firestore_v1_Value RefValue(const model::DatabaseId& database_id,
