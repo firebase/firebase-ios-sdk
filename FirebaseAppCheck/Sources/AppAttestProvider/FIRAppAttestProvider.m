@@ -194,7 +194,7 @@ NS_ASSUME_NONNULL_BEGIN
   });
 }
 
-#pragma mark - Initial handshake sequence
+#pragma mark - Initial handshake sequence (attestation)
 
 - (FBLPromise<FIRAppCheckToken *> *)initialHandshakeWithKeyID:(nullable NSString *)keyID {
   // 1. Request a random challenge and get App Attest key ID concurrently.
@@ -262,7 +262,7 @@ NS_ASSUME_NONNULL_BEGIN
       });
 }
 
-#pragma mark - Token refresh sequence
+#pragma mark - Token refresh sequence (assertion)
 
 - (FBLPromise<FIRAppCheckToken *> *)refreshTokenWithKeyID:(NSString *)keyID
                                                  artifact:(NSData *)artifact {
@@ -271,8 +271,7 @@ NS_ASSUME_NONNULL_BEGIN
     return [self generateAssertionWithKeyID:keyID artifact:artifact challenge:challenge];
   })
   .thenOn(self.queue, ^id(FIRAppAttestAssertionData *assertion) {
-    // TODO: Implement.
-    return nil;
+    return [self.APIService getAppCheckTokenWithArtifact:assertion.artifact challenge:assertion.challenge assertion:assertion.assertion];
   })
   ;
 }
