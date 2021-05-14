@@ -42,9 +42,9 @@ NS_ASSUME_NONNULL_BEGIN
                                                                   challenge:(NSData *)challenge;
 
 /// Exchanges attestation data (artifact & assertion) and a challenge for a FAC token.
-- (FBLPromise<FIRAppCheckToken *> *)appCheckTokenWithArtifact:(NSData *)artifact
-                                                    challenge:(NSData *)challenge
-                                                    assertion:(NSData *)assertion;
+- (FBLPromise<FIRAppCheckToken *> *)getAppCheckTokenWithArtifact:(NSData *)artifact
+                                                       challenge:(NSData *)challenge
+                                                       assertion:(NSData *)assertion;
 
 @end
 

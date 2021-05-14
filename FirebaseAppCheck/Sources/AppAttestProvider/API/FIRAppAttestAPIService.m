@@ -30,12 +30,20 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+// TODO: Verify the following request fields.
+static NSString *const kRequestFieldArtifact = @"artifact";
+static NSString *const kRequestFieldAssertion = @"assertion";
 static NSString *const kRequestFieldAttestation = @"attestation_statement";
-static NSString *const kRequestFieldKeyID = @"key_id";
 static NSString *const kRequestFieldChallenge = @"challenge";
+static NSString *const kRequestFieldKeyID = @"key_id";
+
+static NSString *const kExchangeAppAttestAssertionEndpoint = @"exchangeAppAttestAssertion";
+static NSString *const kExchangeAppAttestAttestationEndpoint = @"exchangeAppAttestAttestation";
+static NSString *const kGenerateAppAttestChallengeEndpoint = @"generateAppAttestChallenge";
 
 static NSString *const kContentTypeKey = @"Content-Type";
 static NSString *const kJSONContentType = @"application/json";
+static NSString *const kHTTPMethodPost = @"POST";
 
 @interface FIRAppAttestAPIService ()
 
@@ -60,29 +68,34 @@ static NSString *const kJSONContentType = @"application/json";
   return self;
 }
 
-- (dispatch_queue_t)backgroundQueue {
-  return dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0);
-}
+#pragma mark - Assertion request
 
-- (FBLPromise<FIRAppCheckToken *> *)appCheckTokenWithArtifact:(NSData *)artifact
-                                                    challenge:(NSData *)challenge
-                                                    assertion:(NSData *)assertion {
-  // TODO: Implement.
-  return [FBLPromise resolvedWith:nil];
+- (FBLPromise<FIRAppCheckToken *> *)getAppCheckTokenWithArtifact:(NSData *)artifact
+                                                       challenge:(NSData *)challenge
+                                                       assertion:(NSData *)assertion {
+  NSURL *URL = [self URLForEndpoint:kExchangeAppAttestAssertionEndpoint];
+
+  return [self HTTPBodyWithArtifact:artifact challenge:challenge assertion:assertion]
+      .then(^FBLPromise<GULURLSessionDataResponse *> *(NSData *HTTPBody) {
+        return [self.APIService sendRequestWithURL:URL
+                                        HTTPMethod:kHTTPMethodPost
+                                              body:HTTPBody
+                                 additionalHeaders:@{kContentTypeKey : kJSONContentType}];
+      })
+      .then(^id _Nullable(GULURLSessionDataResponse *_Nullable response) {
+        return [self.APIService appCheckTokenWithAPIResponse:response];
+      });
 }
 
 #pragma mark - Random Challenge
 
 - (nonnull FBLPromise<NSData *> *)getRandomChallenge {
-  NSString *URLString =
-      [NSString stringWithFormat:@"%@/projects/%@/apps/%@:generateAppAttestChallenge",
-                                 self.APIService.baseURL, self.projectID, self.appID];
-  NSURL *URL = [NSURL URLWithString:URLString];
+  NSURL *URL = [self URLForEndpoint:kGenerateAppAttestChallengeEndpoint];
 
   return [FBLPromise onQueue:[self backgroundQueue]
                           do:^id _Nullable {
                             return [self.APIService sendRequestWithURL:URL
-                                                            HTTPMethod:@"POST"
+                                                            HTTPMethod:kHTTPMethodPost
                                                                   body:nil
                                                      additionalHeaders:nil];
                           }]
@@ -139,28 +152,50 @@ static NSString *const kJSONContentType = @"application/json";
 - (FBLPromise<FIRAppAttestAttestationResponse *> *)attestKeyWithAttestation:(NSData *)attestation
                                                                       keyID:(NSString *)keyID
                                                                   challenge:(NSData *)challenge {
-  NSString *URLString =
-      [NSString stringWithFormat:@"%@/projects/%@/apps/%@:exchangeAppAttestAttestation",
-                                 self.APIService.baseURL, self.projectID, self.appID];
-  NSURL *URL = [NSURL URLWithString:URLString];
+  NSURL *URL = [self URLForEndpoint:kExchangeAppAttestAttestationEndpoint];
 
   return [self HTTPBodyWithAttestation:attestation keyID:keyID challenge:challenge]
       .then(^FBLPromise<GULURLSessionDataResponse *> *(NSData *HTTPBody) {
         return [self.APIService sendRequestWithURL:URL
-                                        HTTPMethod:@"POST"
+                                        HTTPMethod:kHTTPMethodPost
                                               body:HTTPBody
                                  additionalHeaders:@{kContentTypeKey : kJSONContentType}];
       })
-      .then(^id _Nullable(GULURLSessionDataResponse *_Nullable URLResponse) {
-        NSError *error;
+      .thenOn(
+          [self backgroundQueue], ^id _Nullable(GULURLSessionDataResponse *_Nullable URLResponse) {
+            NSError *error;
 
-        __auto_type response =
-            [[FIRAppAttestAttestationResponse alloc] initWithResponseData:URLResponse.HTTPBody
-                                                              requestDate:[NSDate date]
-                                                                    error:&error];
+            __auto_type response =
+                [[FIRAppAttestAttestationResponse alloc] initWithResponseData:URLResponse.HTTPBody
+                                                                  requestDate:[NSDate date]
+                                                                        error:&error];
 
-        return response ?: error;
-      });
+            return response ?: error;
+          });
+}
+
+#pragma mark - Request HTTP Body
+
+- (FBLPromise<NSData *> *)HTTPBodyWithArtifact:(NSData *)artifact
+                                     challenge:(NSData *)challenge
+                                     assertion:(NSData *)assertion {
+  if (artifact.length <= 0 || challenge.length <= 0 || assertion.length <= 0) {
+    FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
+    [rejectedPromise reject:[FIRAppCheckErrorUtil
+                                errorWithFailureReason:@"Missing or empty request parameter."]];
+    return rejectedPromise;
+  }
+
+  return [FBLPromise onQueue:[self backgroundQueue]
+                          do:^id {
+                            id JSONObject = @{
+                              kRequestFieldArtifact : [self base64StringWithData:artifact],
+                              kRequestFieldChallenge : [self base64StringWithData:challenge],
+                              kRequestFieldAssertion : [self base64StringWithData:assertion]
+                            };
+
+                            return [self HTTPBodyWithJSONObject:JSONObject];
+                          }];
 }
 
 - (FBLPromise<NSData *> *)HTTPBodyWithAttestation:(NSData *)attestation
@@ -173,29 +208,54 @@ static NSString *const kJSONContentType = @"application/json";
     return rejectedPromise;
   }
 
-  return [FBLPromise
-      onQueue:[self backgroundQueue]
-           do:^id _Nullable {
-             NSError *encodingError;
-             NSData *payloadJSON = [NSJSONSerialization dataWithJSONObject:@{
-               kRequestFieldKeyID : keyID,
-               kRequestFieldAttestation : [self base64StringWithData:attestation],
-               kRequestFieldChallenge : [self base64StringWithData:challenge]
-             }
-                                                                   options:0
-                                                                     error:&encodingError];
+  return [FBLPromise onQueue:[self backgroundQueue]
+                          do:^id {
+                            id JSONObject = @{
+                              kRequestFieldKeyID : keyID,
+                              kRequestFieldAttestation : [self base64StringWithData:attestation],
+                              kRequestFieldChallenge : [self base64StringWithData:challenge]
+                            };
 
-             if (payloadJSON != nil) {
-               return payloadJSON;
-             } else {
-               return [FIRAppCheckErrorUtil JSONSerializationError:encodingError];
-             }
-           }];
+                            return [self HTTPBodyWithJSONObject:JSONObject];
+                          }];
 }
+
+- (FBLPromise<NSData *> *)HTTPBodyWithJSONObject:(nonnull id)JSONObject {
+  NSError *encodingError;
+  NSData *payloadJSON = [NSJSONSerialization dataWithJSONObject:JSONObject
+                                                        options:0
+                                                          error:&encodingError];
+  FBLPromise<NSData *> *HTTPBodyPromise = [FBLPromise pendingPromise];
+  if (payloadJSON) {
+    [HTTPBodyPromise fulfill:payloadJSON];
+  } else {
+    [HTTPBodyPromise reject:[FIRAppCheckErrorUtil JSONSerializationError:encodingError]];
+  }
+  return HTTPBodyPromise;
+}
+
+#pragma mark - Helpers
 
 - (NSString *)base64StringWithData:(NSData *)data {
   // TODO: Need to encode in base64URL?
   return [data base64EncodedStringWithOptions:0];
+}
+
+- (NSURL *)URLForEndpoint:(NSString *)endpoint {
+  NSString *URL = [[self class] URLWithBaseURL:self.APIService.baseURL
+                                     projectID:self.projectID
+                                         appID:self.appID];
+  return [NSURL URLWithString:[NSString stringWithFormat:@"%@:%@", URL, endpoint]];
+}
+
++ (NSString *)URLWithBaseURL:(NSString *)baseURL
+                   projectID:(NSString *)projectID
+                       appID:(NSString *)appID {
+  return [NSString stringWithFormat:@"%@/projects/%@/apps/%@", baseURL, projectID, appID];
+}
+
+- (dispatch_queue_t)backgroundQueue {
+  return dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0);
 }
 
 @end
