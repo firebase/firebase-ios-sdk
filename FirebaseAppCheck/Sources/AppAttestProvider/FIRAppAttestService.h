@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+@class FBLPromise<ValueType>;
+
 NS_ASSUME_NONNULL_BEGIN
 
 /// See `DCAppAttestService`
@@ -30,6 +32,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)attestKey:(NSString *)keyId
        clientDataHash:(NSData *)clientDataHash
     completionHandler:(void (^)(NSData *attestationObject, NSError *error))completionHandler;
+
+- (void)generateAssertion:(NSString *)keyId
+           clientDataHash:(NSData *)clientDataHash
+        completionHandler:(void (^)(NSData *assertionObject, NSError *error))completionHandler;
 
 @end
 
