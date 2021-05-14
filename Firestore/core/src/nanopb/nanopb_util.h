@@ -146,10 +146,10 @@ void SetRepeatedField(T* _Nonnull* _Nonnull fields_array,
 }
 
 /** Initializes a repeated field with a list of values. */
-template <typename T>
+template <typename T, typename Container>
 void SetRepeatedField(T* _Nonnull* _Nonnull fields_array,
                       pb_size_t* _Nonnull fields_count,
-                      const std::vector<T>& fields) {
+                      const Container& fields) {
   return SetRepeatedField(fields_array, fields_count, fields,
                           [](const T& val) { return val; });
 }
