@@ -68,7 +68,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 /// A data object that contains information required for assertion request.
-@interface FIRAppAttestAssertionData: NSObject
+@interface FIRAppAttestAssertionData : NSObject
 
 @property(nonatomic, readonly) NSData *challenge;
 @property(nonatomic, readonly) NSData *artifact;
@@ -86,7 +86,7 @@ NS_ASSUME_NONNULL_BEGIN
                          artifact:(NSData *)artifact
                         assertion:(NSData *)assertion {
   self = [super init];
-  if(self) {
+  if (self) {
     _challenge = challenge;
     _artifact = artifact;
     _assertion = assertion;
@@ -267,37 +267,50 @@ NS_ASSUME_NONNULL_BEGIN
 - (FBLPromise<FIRAppCheckToken *> *)refreshTokenWithKeyID:(NSString *)keyID
                                                  artifact:(NSData *)artifact {
   return [self.APIService getRandomChallenge]
-  .thenOn(self.queue, ^FBLPromise<FIRAppAttestAssertionData *> *(NSData *challenge) {
-    return [self generateAssertionWithKeyID:keyID artifact:artifact challenge:challenge];
-  })
-  .thenOn(self.queue, ^id(FIRAppAttestAssertionData *assertion) {
-    return [self.APIService getAppCheckTokenWithArtifact:assertion.artifact challenge:assertion.challenge assertion:assertion.assertion];
-  })
-  ;
+      .thenOn(self.queue,
+              ^FBLPromise<FIRAppAttestAssertionData *> *(NSData *challenge) {
+                return [self generateAssertionWithKeyID:keyID
+                                               artifact:artifact
+                                              challenge:challenge];
+              })
+      .thenOn(self.queue, ^id(FIRAppAttestAssertionData *assertion) {
+        return [self.APIService getAppCheckTokenWithArtifact:assertion.artifact
+                                                   challenge:assertion.challenge
+                                                   assertion:assertion.assertion];
+      });
 }
 
 - (FBLPromise<FIRAppAttestAssertionData *> *)generateAssertionWithKeyID:(NSString *)keyID
-                                                                artifact:(NSData *)artifact
-                                                               challenge:(NSData *)challenge {
+                                                               artifact:(NSData *)artifact
+                                                              challenge:(NSData *)challenge {
   // 1. Calculate the statement and its hash for assertion.
-  return [FBLPromise onQueue:self.queue do:^NSData * _Nullable {
-    // 1.1. Compose statement to generate assertion for.
-    NSMutableData *statementForAssertion = [artifact mutableCopy];
-    [statementForAssertion appendData:challenge];
+  return [FBLPromise
+             onQueue:self.queue
+                  do:^NSData *_Nullable {
+                    // 1.1. Compose statement to generate assertion for.
+                    NSMutableData *statementForAssertion = [artifact mutableCopy];
+                    [statementForAssertion appendData:challenge];
 
-    // 1.2. Get the statement SHA256 hash.
-    return [FIRAppCheckCryptoUtils sha256HashFromData:[statementForAssertion copy]];
-  }]
-  .thenOn(self.queue, ^FBLPromise<NSData *> *(NSData *statementHash) {
-    // 2. Generate App Attest assertion.
-    return [FBLPromise onQueue:self.queue wrapObjectOrErrorCompletion:^(FBLPromiseObjectOrErrorCompletion  _Nonnull handler) {
-      [self.appAttestService generateAssertion:keyID clientDataHash:statementHash completionHandler:handler];
-    }];
-  })
-  // 3. Compose the result object.
-  .thenOn(self.queue, ^FIRAppAttestAssertionData *(NSData *assertion) {
-    return [[FIRAppAttestAssertionData alloc] initWithChallenge:challenge artifact:artifact assertion:assertion];
-  });
+                    // 1.2. Get the statement SHA256 hash.
+                    return [FIRAppCheckCryptoUtils sha256HashFromData:[statementForAssertion copy]];
+                  }]
+      .thenOn(
+          self.queue,
+          ^FBLPromise<NSData *> *(NSData *statementHash) {
+            // 2. Generate App Attest assertion.
+            return [FBLPromise onQueue:self.queue
+                wrapObjectOrErrorCompletion:^(FBLPromiseObjectOrErrorCompletion _Nonnull handler) {
+                  [self.appAttestService generateAssertion:keyID
+                                            clientDataHash:statementHash
+                                         completionHandler:handler];
+                }];
+          })
+      // 3. Compose the result object.
+      .thenOn(self.queue, ^FIRAppAttestAssertionData *(NSData *assertion) {
+        return [[FIRAppAttestAssertionData alloc] initWithChallenge:challenge
+                                                           artifact:artifact
+                                                          assertion:assertion];
+      });
 }
 
 #pragma mark - State handling
