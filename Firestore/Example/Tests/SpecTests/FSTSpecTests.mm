@@ -328,9 +328,9 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   google_firestore_v1_Value data = [_reader parsedQueryValue:jsonDoc[@"value"]];
   MutableDocument doc =
       Doc(util::MakeString((NSString *)jsonDoc[@"key"]), version.longLongValue, data);
-  if ([options[@"hasLocalMutations"] isEqualToNumber:@YES]) {
+  if ([options[@"hasLocalMutations"] boolValue] == YES) {
     doc.SetHasLocalMutations();
-  } else if ([options[@"hasCommittedMutations"] isEqualToNumber:@YES]) {
+  } else if ([[options[@"hasCommittedMutations"] boolValue] == YES]) {
     doc.SetHasCommittedMutations();
   }
   return DocumentViewChange{std::move(doc), type};
@@ -504,8 +504,8 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
                 @"'keepInQueue=true' is not supported on iOS and should only be set in "
                 @"multi-client tests");
 
-  google_firestore_v1_ArrayValue tansforms{};
-  MutationResult mutationResult(version, tansforms);
+  google_firestore_v1_ArrayValue transforms{};
+  MutationResult mutationResult(version, transforms);
   std::vector<MutationResult> mutationResults;
   mutationResults.emplace_back(std::move(mutationResult));
   [self.driver receiveWriteAckWithVersion:version mutationResults:std::move(mutationResults)];
