@@ -529,12 +529,8 @@ class SerializerTest : public ::testing::Test {
 
   void ExpectDeserializationRoundTrip(const Mutation& model,
                                       const v1::Write& proto) {
-    ByteString bytes = ProtobufSerialize(proto);
-    StringReader reader(bytes);
-
-    auto message = Message<google_firestore_v1_Write>::TryParse(&reader);
-    Mutation actual_model =
-        serializer.DecodeMutation(reader.context(), *message);
+    Mutation actual_model = Decode<google_firestore_v1_Write>(
+        std::mem_fn(&Serializer::DecodeMutation), proto);
 
     EXPECT_EQ(model, actual_model);
   }
@@ -1039,7 +1035,7 @@ TEST_F(SerializerTest, BadKey) {
 
 TEST_F(SerializerTest, EncodesEmptyDocument) {
   DocumentKey key = DocumentKey::FromPathString("path/to/the/doc");
-  ObjectValue empty_value;
+  ObjectValue empty_value{};
   SnapshotVersion update_time = SnapshotVersion{{1234, 5678}};
 
   v1::BatchGetDocumentsResponse proto;

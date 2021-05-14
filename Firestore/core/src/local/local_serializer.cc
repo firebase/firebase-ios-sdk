@@ -75,9 +75,6 @@ Message<firestore_client_MaybeDocument> LocalSerializer::EncodeMaybeDocument(
 
   if (document.is_found_document()) {
     result->which_document_type = firestore_client_MaybeDocument_document_tag;
-    // TODO(b/142956770): other platforms check for whether the `Document`
-    // contains a memoized proto and use it if available instead of
-    // re-encoding.
     result->document = EncodeDocument(document);
     result->has_committed_mutations = document.has_committed_mutations();
     return result;
@@ -118,8 +115,7 @@ MutableDocument LocalSerializer::DecodeMaybeDocument(
 
     default:
       reader->Fail(
-          StringFormat("Invalid Document document type: %s. Expected "
-                       "'no_document' (%s) or 'document' (%s)",
+          StringFormat("Invalid document type: %s. Expected "'no_document' (%s) or 'document' (%s)",
                        proto.which_document_type,
                        firestore_client_MaybeDocument_no_document_tag,
                        firestore_client_MaybeDocument_document_tag));
@@ -136,6 +132,7 @@ google_firestore_v1_Document LocalSerializer::EncodeDocument(
   result.name = rpc_serializer_.EncodeKey(doc.key());
 
   // Encode Document.fields (unless it's empty)
+  // FIXME
   const google_firestore_v1_MapValue& fields_map = doc.data().Get().map_value;
   pb_size_t count = fields_map.fields_count;
   result.fields_count = count;
@@ -165,11 +162,9 @@ MutableDocument LocalSerializer::DecodeDocument(
   MutableDocument document = MutableDocument::FoundDocument(
       rpc_serializer_.DecodeKey(reader->context(), proto.name), version,
       std::move(fields));
-
   if (has_committed_mutations) {
     document.SetHasCommittedMutations();
   }
-
   return document;
 }
 
@@ -192,11 +187,9 @@ MutableDocument LocalSerializer::DecodeNoDocument(
 
   MutableDocument document = MutableDocument::NoDocument(
       rpc_serializer_.DecodeKey(reader->context(), proto.name), version);
-
   if (has_committed_mutations) {
     document.SetHasCommittedMutations();
   }
-
   return document;
 }
 
@@ -353,9 +346,9 @@ MutationBatch LocalSerializer::DecodeMutationBatch(
           transform_mutation.transform.field_transforms_count;
       new_mutation.update_transforms =
           transform_mutation.transform.field_transforms;
-      // Prevent callsite from freeing memory
-      transform_mutation.transform.field_transforms_count = 0;
-      transform_mutation.transform.field_transforms = nullptr;
+      // FIXME
+      ReleaseFieldsOwnership(transform_mutation.transform.field_transforms,
+                             transform_mutation.transform.field_transforms_count );
 
       mutations.push_back(
           rpc_serializer_.DecodeMutation(reader->context(), new_mutation));
