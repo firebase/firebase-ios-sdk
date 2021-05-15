@@ -240,9 +240,10 @@ struct ZipBuilder {
 
           if podName == "FirebaseCoreDiagnostics" {
             let (cdFrameworks, _) = builder.compileFrameworkAndResources(withName: podName,
-                                                 logsOutputDir: paths.logsOutputDir,
-                                                 setCarthage: true,
-                                                 podInfo: podInfo)
+                                                                         logsOutputDir: paths
+                                                                           .logsOutputDir,
+                                                                         setCarthage: true,
+                                                                         podInfo: podInfo)
             carthageCoreDiagnosticsFrameworks += cdFrameworks
           }
           if resourceContents != nil {
@@ -294,7 +295,8 @@ struct ZipBuilder {
       withName: "FirebaseCoreDiagnostics",
       frameworks: carthageCoreDiagnosticsFrameworks,
       xcframeworksDir: xcframeworksCarthageDir,
-      resourceContents: nil)
+      resourceContents: nil
+    )
     return (podsBuilt, xcframeworks, carthageCoreDiagnosticsXcframework)
   }
 
@@ -326,10 +328,10 @@ struct ZipBuilder {
 
     print("Final expected versions for the Zip file: \(podsToInstall)")
     let (installedPods, frameworks, carthageCoreDiagnosticsXcframework) =
-            buildAndAssembleZip(podsToInstall: podsToInstall,
-                                                   // Always include dependencies for Firebase zips.
-                                                   includeDependencies: true,
-                                                   includeCarthage: includeCarthage)
+      buildAndAssembleZip(podsToInstall: podsToInstall,
+                          // Always include dependencies for Firebase zips.
+                          includeDependencies: true,
+                          includeCarthage: includeCarthage)
 
     // We need the Firebase pod to get the version for Carthage and to copy the `Firebase.h` and
     // `module.modulemap` file from it.

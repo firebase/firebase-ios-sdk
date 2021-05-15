@@ -77,8 +77,13 @@ struct FrameworkBuilder {
       return (buildDynamicFrameworks(withName: framework, logsDir: logsDir, outputDir: outputDir),
               nil)
     } else {
-      return buildStaticFrameworks(withName: framework, logsDir: logsDir, outputDir: outputDir, setCarthage: setCarthage,
-                                   podInfo: podInfo)
+      return buildStaticFrameworks(
+        withName: framework,
+        logsDir: logsDir,
+        outputDir: outputDir,
+        setCarthage: setCarthage,
+        podInfo: podInfo
+      )
     }
   }
 
@@ -602,7 +607,8 @@ struct FrameworkBuilder {
 
     // Create a `.framework` for each of the thinArchives using the `fromFolder` as the base.
     let platformFrameworksDir = fileManager.temporaryDirectory(
-        withName: isCarthage ? "carthage_frameworks" : "platform_frameworks")
+      withName: isCarthage ? "carthage_frameworks" : "platform_frameworks"
+    )
     if !fileManager.directoryExists(at: platformFrameworksDir) {
       do {
         try fileManager.createDirectory(at: platformFrameworksDir,
