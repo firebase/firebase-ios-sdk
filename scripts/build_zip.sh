@@ -34,6 +34,5 @@ read -a specrepo <<< "${CUSTOM_SPEC_REPOS}"
 
 cd ReleaseTooling
 swift run zip-builder --keep-build-artifacts --update-pod-repo \
-    --local-podspec-path "${REPO}" \
     --enable-carthage-build --output-dir "${OUTPUT_DIR}" \
     --custom-spec-repos  "${specrepo[@]}"
