@@ -24,6 +24,8 @@
 
     /// Executes this Callable HTTPS trigger asynchronously without any parameters.
     ///
+    /// The publisher will emit on the **main** thread.
+    ///
     /// The request to the Cloud Functions backend made by this method automatically includes a
     /// Firebase Instance ID token to identify the app instance. If a user is logged in with Firebase
     /// Auth, an auth ID token for the user is also automatically included.
@@ -32,7 +34,7 @@
     /// regarding the app instance. To stop this, see `[FIRInstallations delete]`. It
     /// resumes with a new Instance ID the next time you call this method.
     ///
-    /// - Returns: A publisher emitting a `HTTPSCallableResult` instance. The publisher will emit on the *main* thread.
+    /// - Returns: A publisher emitting a `HTTPSCallableResult` instance.
     @discardableResult
     public func call() -> Future<HTTPSCallableResult, Error> {
       Future<HTTPSCallableResult, Error> { promise in
@@ -48,12 +50,14 @@
 
     /// Executes this Callable HTTPS trigger asynchronously.
     ///
+    /// The publisher will emit on the **main** thread.
+    ///
     /// The data passed into the trigger can be any of the following types:
     /// - `nil`
     /// - `String`
     /// - `Number`
     /// - `Array<Any>`, where the contained objects are also one of these types.
-    /// - `Dictionary<String, Any>`, , where the contained objects are also one of these types.
+    /// - `Dictionary<String, Any>`, where the contained objects are also one of these types.
     ///
     /// The request to the Cloud Functions backend made by this method automatically includes a
     /// Firebase Instance ID token to identify the app instance. If a user is logged in with Firebase
@@ -64,7 +68,7 @@
     /// resumes with a new Instance ID the next time you call this method.
     ///
     /// - Parameter data: The data passed into the Callable Function.
-    /// - Returns: A publisher emitting a `HTTPSCallableResult` instance. The publisher will emit on the *main* thread.
+    /// - Returns: A publisher emitting a `HTTPSCallableResult` instance.
     @discardableResult
     public func call(_ data: Any?) -> Future<HTTPSCallableResult, Error> {
       Future<HTTPSCallableResult, Error> { promise in
@@ -78,4 +82,5 @@
       }
     }
   }
+
 #endif

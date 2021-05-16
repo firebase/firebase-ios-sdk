@@ -27,7 +27,7 @@
     ///
     /// - Parameter credential: The credential for the identity provider.
     /// - Returns: A publisher that emits an `AuthDataResult` when the association flow completed
-    ///   successfully, or an error otherwise. The publisher will emit on the *main* thread.
+    ///   successfully, or an error otherwise.
     /// - Remark: Possible error codes:
     ///   - `FIRAuthErrorCodeProviderAlreadyLinked` - Indicates an attempt to link a provider of a type
     ///     already linked to this account.
@@ -50,14 +50,14 @@
     }
 
     /// Renews the user's authentication tokens by validating a fresh set of credentials supplied
-    /// by the user  and returns additional identity provider data.
+    /// by the user and returns additional identity provider data.
     ///
     /// The publisher will emit events on the **main** thread.
     ///
     /// - Parameter credential: A user-supplied credential, which will be validated by the server. This can be
     ///   a successful third-party identity provider sign-in, or an email address and password.
     /// - Returns: A publisher that emits an `AuthDataResult` when the reauthentication flow completed
-    ///   successfully, or an error otherwise. The publisher will emit on the *main* thread.
+    ///   successfully, or an error otherwise.
     /// - Remark: If the user associated with the supplied credential is different from the current user, or if the validation
     ///   of the supplied credentials fails; an error is returned and the current user remains signed in.
     ///
@@ -100,8 +100,8 @@
     /// The publisher will emit events on the **main** thread.
     ///
     /// - Parameter provider: The provider ID of the provider to unlink.
-    /// - Returns: A publisher that emits an `User` when the disassociation flow completed
-    ///   successfully, or an error otherwise. The publisher will emit on the *main* thread.
+    /// - Returns: A publisher that emits a `User` when the disassociation flow completed
+    ///   successfully, or an error otherwise.
     ///
     ///   Possible error codes:
     ///
@@ -130,7 +130,7 @@
     /// The publisher will emit events on the **main** thread.
     ///
     /// - Returns: A publisher that emits no type when the verification flow completed
-    ///   successfully, or an error otherwise. The publisher will emit on the *main* thread.
+    ///   successfully, or an error otherwise.
     ///
     ///   Possible error codes:
     ///
@@ -162,7 +162,7 @@
     /// - Parameter actionCodeSettings: An `FIRActionCodeSettings` object containing settings related to
     ///   handling action codes.
     /// - Returns: A publisher that emits no type when the verification flow completed
-    ///   successfully, or an error otherwise. The publisher will emit on the *main* thread.
+    ///   successfully, or an error otherwise.
     ///
     ///   Possible error codes:
     ///
@@ -194,4 +194,5 @@
       }
     }
   }
+
 #endif

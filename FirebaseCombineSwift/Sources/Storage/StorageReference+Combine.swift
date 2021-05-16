@@ -20,11 +20,10 @@
 
   @available(swift 5.0)
   @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
-
   extension StorageReference {
     // MARK: - Uploads
 
-    /// Asynchronously uploads data to the currently specified FIRStorageReference.
+    /// Asynchronously uploads data to the currently specified `StorageReference`.
     /// This is not recommended for large files, and one should instead upload a file from disk.
     ///
     /// The publisher will emit events on the **main** thread.
@@ -33,13 +32,13 @@
     ///   - uploadData: The Data to upload.
     ///   - metadata: metadata `StorageMetadata` containing additional information (MIME type, etc.)
     ///
-    /// - Returns: A publisher emitting a `StorageMetadata` instance. The publisher will emit on the *main* thread.
+    /// - Returns: A publisher emitting a `StorageMetadata` instance.
     @discardableResult
     public func putData(_ data: Data,
                         metadata: StorageMetadata? = nil) -> Future<StorageMetadata, Error> {
       var task: StorageUploadTask?
-      return Future<StorageMetadata, Error> { [weak self] promise in
-        task = self?.putData(data, metadata: metadata) { result in
+      return Future<StorageMetadata, Error> { promise in
+        task = self.putData(data, metadata: metadata) { result in
           promise(result)
         }
       }
@@ -57,14 +56,14 @@
     ///   - fileURL: A `URL` representing the system file path of the object to be uploaded.
     ///   - metadata: `StorageMetadata` containing additional information (MIME type, etc.) about the object being uploaded.
     ///
-    /// - Returns: A publisher emitting a `StorageMetadata` instance. The publisher will emit on the *main* thread.
+    /// - Returns: A publisher emitting a `StorageMetadata` instance.
     @discardableResult
     public func putFile(from fileURL: URL,
                         metadata: StorageMetadata? = nil)
       -> Future<StorageMetadata, Error> {
       var task: StorageUploadTask?
-      return Future<StorageMetadata, Error> { [weak self] promise in
-        task = self?.putFile(from: fileURL, metadata: metadata) { result in
+      return Future<StorageMetadata, Error> { promise in
+        task = self.putFile(from: fileURL, metadata: metadata) { result in
           promise(result)
         }
       }
@@ -78,7 +77,7 @@
 
     /// Asynchronously downloads the object at the `StorageReference` to an `Data` object in memory.
     /// An `Data` of the provided max size will be allocated, so ensure that the device has enough free
-    /// memory to complete the download. For downloading large files, writeToFile may be a better option.
+    /// memory to complete the download. For downloading large files, `writeToFile` may be a better option.
     ///
     /// The publisher will emit events on the **main** thread.
     ///
@@ -86,12 +85,12 @@
     ///   - size: The maximum size in bytes to download. If the download exceeds this size
     ///     the task will be cancelled and an error will be returned.
     ///
-    /// - Returns: A publisher emitting a `Data` instance. The publisher will emit on the *main* thread.
+    /// - Returns: A publisher emitting a `Data` instance.
     @discardableResult
     public func getData(maxSize size: Int64) -> Future<Data, Error> {
       var task: StorageDownloadTask?
-      return Future<Data, Error> { [weak self] promise in
-        task = self?.getData(maxSize: size) { result in
+      return Future<Data, Error> { promise in
+        task = self.getData(maxSize: size) { result in
           promise(result)
         }
       }
@@ -109,12 +108,12 @@
     ///   - fileURL: A file system URL representing the path the object should be downloaded to.
     ///
     /// - Returns: A publisher emitting a `URL`  pointing to the file path of the downloaded file
-    ///   on success. The publisher will emit on the *main* thread.
+    ///   on success.
     @discardableResult
     public func write(toFile fileURL: URL) -> Future<URL, Error> {
       var task: StorageDownloadTask?
-      return Future<URL, Error> { [weak self] promise in
-        task = self?.write(toFile: fileURL) { result in
+      return Future<URL, Error> { promise in
+        task = self.write(toFile: fileURL) { result in
           promise(result)
         }
       }
@@ -130,7 +129,7 @@
     ///
     /// The publisher will emit events on the **main** thread.
     ///
-    /// - Returns: A publisher emitting a `URL` instance. The publisher will emit on the *main* thread.
+    /// - Returns: A publisher emitting a `URL` instance.
     @discardableResult
     public func downloadURL() -> Future<URL, Error> {
       Future<URL, Error> { promise in
@@ -144,7 +143,7 @@
 
     /// List all items (files) and prefixes (folders) under this `StorageReference`.
     ///
-    /// This is a helper method for calling list() repeatedly until there are no more results.
+    /// This is a helper method for calling `list()` repeatedly until there are no more results.
     /// Consistency of the result is not guaranteed if objects are inserted or removed while this
     /// operation is executing. All results are buffered in memory.
     ///
@@ -153,7 +152,7 @@
     /// - Remark:
     ///    `listAll` is only available for projects using Firebase Rules Version 2.
     ///
-    /// - Returns: A publisher emitting a `StorageListResult` instance. The publisher will emit on the *main* thread.
+    /// - Returns: A publisher emitting a `StorageListResult` instance.
     @discardableResult
     public func listAll() -> Future<StorageListResult, Error> {
       Future<StorageListResult, Error> { promise in
@@ -165,8 +164,8 @@
 
     /// List up to `maxResults` items (files) and prefixes (folders) under this `StorageReference`.
     ///
-    /// "/" is treated as a path delimiter. Firebase Storage does not support unsupported object
-    /// paths that end with "/" or contain two consecutive "/"s. All invalid objects in GCS will be
+    /// Note that "/" is treated as a path delimiter. Firebase Storage does not support unsupported object
+    /// paths that end with "/" or contain two consecutive "/"s. All invalid objects in Firebase Storage will be
     /// filtered.
     ///
     /// The publisher will emit events on the **main** thread.
@@ -178,7 +177,7 @@
     /// - Remark:
     ///    `list(maxResults:)` is only available for projects using Firebase Rules Version 2.
     ///
-    /// - Returns: A publisher emitting a `StorageListResult` instance. The publisher will emit on the *main* thread.
+    /// - Returns: A publisher emitting a `StorageListResult` instance.
     @discardableResult
     public func list(maxResults: Int64) -> Future<StorageListResult, Error> {
       Future<StorageListResult, Error> { promise in
@@ -192,8 +191,8 @@
     /// Returns the next set of items (files) and prefixes (folders) under this `StorageReference.
     ///
     /// "/" is treated as a path delimiter. Firebase Storage does not support unsupported object
-    /// paths that end with "/" or contain two consecutive "/"s. All invalid objects in GCS will be
-    /// filtered.
+    /// paths that end with "/" or contain two consecutive "/"s. All invalid objects in Firebase Storage
+    /// will be filtered out.
     ///
     /// The publisher will emit events on the **main** thread.
     ///
@@ -205,7 +204,7 @@
     /// - Remark:
     ///    `list(maxResults:pageToken:)` is only available for projects using Firebase Rules Version 2.
     ///
-    /// - Returns: A publisher emitting a `StorageListResult` instance. The publisher will emit on the *main* thread.
+    /// - Returns: A publisher emitting a `StorageListResult` instance.
     @discardableResult
     public func list(maxResults: Int64, pageToken: String) -> Future<StorageListResult, Error> {
       Future<StorageListResult, Error> { promise in
@@ -221,7 +220,7 @@
     ///
     /// The publisher will emit events on the **main** thread.
     ///
-    /// - Returns: A publisher emitting a `StorageMetadata` instance. The publisher will emit on the *main* thread.
+    /// - Returns: A publisher emitting a `StorageMetadata` instance.
     @discardableResult
     public func getMetadata() -> Future<StorageMetadata, Error> {
       Future<StorageMetadata, Error> { promise in
@@ -236,9 +235,9 @@
     /// The publisher will emit events on the **main** thread.
     ///
     /// - Parameters:
-    ///   - metadata: An `StorageMetadata` object with the metadata to update.
+    ///   - metadata: A `StorageMetadata` object with the metadata to update.
     ///
-    /// - Returns: A publisher emitting a `StorageMetadata` instance. The publisher will emit on the *main* thread.
+    /// - Returns: A publisher emitting a `StorageMetadata` instance.
     @discardableResult
     public func updateMetadata(_ metadata: StorageMetadata) -> Future<StorageMetadata, Error> {
       Future<StorageMetadata, Error> { promise in
@@ -254,7 +253,7 @@
     ///
     /// The publisher will emit events on the **main** thread.
     ///
-    /// - Returns: A publisher that emits whether the call was successful or not. The publisher will emit on the *main* thread.
+    /// - Returns: A publisher that emits whether the call was successful or not.
     @discardableResult
     public func delete() -> Future<Bool, Error> {
       Future<Bool, Error> { promise in
@@ -268,4 +267,5 @@
       }
     }
   }
+
 #endif

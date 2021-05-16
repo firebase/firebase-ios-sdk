@@ -12,16 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if canImport(Combine) && swift(>=5.0) && canImport(FirebaseAuth) && !os(tvOS) && !os(macOS)
+#if canImport(Combine) && swift(>=5.0) && canImport(FirebaseAuth)
+
+#if os(iOS)
+
   import Foundation
 
   import Combine
   import FirebaseAuth
 
   @available(swift 5.0)
-  @available(iOS 13, watchOS 6, *)
-  @available(tvOS, unavailable)
+  @available(iOS 13, *)
+  @available(macCatalyst, unavailable)
   @available(macOS, unavailable)
+  @available(tvOS, unavailable)
+  @available(watchOS, unavailable)
   extension PhoneAuthProvider {
     /// Starts the phone number authentication flow by sending a verification code to the
     /// specified phone number.
@@ -136,4 +141,7 @@
       }
     }
   }
+
+#endif  // os(iOS)
+
 #endif

@@ -12,19 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if canImport(Combine) && swift(>=5.0) && canImport(FirebaseAuth) && !os(tvOS) && !os(macOS)
-  import Foundation
+#if canImport(Combine) && swift(>=5.0) && canImport(FirebaseAuth)
+
+#if os(iOS) || targetEnvironment(macCatalyst)
 
   import Combine
   import FirebaseAuth
 
   @available(swift 5.0)
-  @available(iOS 13, watchOS 6, *)
-  @available(tvOS, unavailable)
+  @available(iOS 13, macCatalyst 13, *)
   @available(macOS, unavailable)
+  @available(tvOS, unavailable)
+  @available(watchOS, unavailable)
   extension MultiFactorResolver {
-    /// A helper function to help users complete sign in with a second factor using an
-    /// `MultiFactorAssertion` confirming the user successfully completed the second factor
+    /// A helper function that helps users sign in with a second factor using a `MultiFactorAssertion`.
+    /// This assertion confirms that the user has successfully enabled the second factor.
     ///
     /// - Parameter assertion: The base class for asserting ownership of a second factor.
     /// - Returns: A publisher that emits an `AuthDataResult` when the sign-in flow completed
@@ -42,4 +44,7 @@
       }
     }
   }
+
+#endif  // os(iOS) || targetEnvironment(macCatalyst)
+
 #endif

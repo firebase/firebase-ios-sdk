@@ -18,15 +18,15 @@
   import FirebaseAuth
 
   @available(swift 5.0)
+  @available(macOS 10.15, macCatalyst 13, iOS 13, tvOS 13, *)
   @available(watchOS, unavailable)
-  @available(macOS 10.15, iOS 13, tvOS 13, *)
   extension GameCenterAuthProvider {
-    /// Creates a `AuthCredential` for a Game Center sign in.
+    /// Creates an `AuthCredential` for a Game Center sign in.
     ///
     /// The publisher will emit events on the **main** thread.
     ///
     /// - Returns: A publisher that emits an `AuthCredential` when the credential is obtained
-    ///   successfully, or an error otherwise. The publisher will emit on the *main* thread.
+    ///   successfully, or an error otherwise.
     public class func getCredential() -> Future<AuthCredential, Error> {
       Future<AuthCredential, Error> { promise in
         self.getCredential { authCredential, error in
