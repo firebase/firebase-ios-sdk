@@ -60,5 +60,6 @@
   "7.0.0": "https://dl.google.com/dl/firebase/ios/carthage/7.0.0/FirebaseAnalytics-13faccd30235aef6.zip",
   "7.1.0": "https://dl.google.com/dl/firebase/ios/carthage/7.1.0/FirebaseAnalytics-6ff5be548eef1a14.zip",
   "7.3.0": "https://dl.google.com/dl/firebase/ios/carthage/7.3.0/FirebaseAnalytics-08224b8e737b268b.zip",
-  "7.4.0": "https://dl.google.com/dl/firebase/ios/carthage/7.4.0/FirebaseAnalytics-b707977c5254fb87.zip"
+  "7.4.0": "https://dl.google.com/dl/firebase/ios/carthage/7.4.0/FirebaseAnalytics-b707977c5254fb87.zip",
+  "8.0.0": "https://dl.google.com/dl/firebase/ios/carthage/8.0.0/FirebaseAnalytics-f0ef93c2b7eb9e33.zip"
 }
