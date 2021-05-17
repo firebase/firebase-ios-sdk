@@ -51,9 +51,6 @@ google_firestore_v1_Value BlobValue(std::initializer_list<uint8_t>);
 
 }  // namespace details
 
-// A bit pattern for our canonical NaN value. Exposed here for testing.
-ABSL_CONST_INIT extern const uint64_t kCanonicalNanBits;
-
 // Convenience methods for creating instances for tests.
 
 nanopb::ByteString Bytes(std::initializer_list<uint8_t>);
