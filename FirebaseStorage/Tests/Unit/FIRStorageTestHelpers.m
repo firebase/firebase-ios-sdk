@@ -126,6 +126,7 @@ NSString *const kFIRStorageAppName = @"app";
                                 statusCode:(NSInteger)code {
   GTMSessionFetcherTestBlock block =
       ^(GTMSessionFetcher *fetcher, GTMSessionFetcherTestResponse response) {
+          
         if (url) {
           XCTAssertEqualObjects(url, [fetcher.request.URL absoluteString]);
         }
@@ -141,7 +142,8 @@ NSString *const kFIRStorageAppName = @"app";
           }
           error = [NSError errorWithDomain:kGoogleHTTPErrorDomain code:code userInfo:userInfo];
         }
-
+          
+              XCTFail("%@",  httpResponse);
         response(httpResponse, data, error);
       };
   return block;

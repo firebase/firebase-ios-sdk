@@ -103,7 +103,7 @@
   [FIRStorageTestHelpers waitForExpectation:self];
 }
 
-- (void)testSuccessfulFetchWithEmulator {
+- (void)testSuccessfulFetchWithEmulatorDELETE {
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"testSuccessfulFetchWithEmulator"];
 
