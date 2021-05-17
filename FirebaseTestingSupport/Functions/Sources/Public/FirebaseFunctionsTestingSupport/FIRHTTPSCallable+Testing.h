@@ -1,4 +1,4 @@
-// Copyright 2021 Google LLC
+// Copyright 2017 Google
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,17 +12,37 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// This file is a copy of Functions/Internal/FIRHTTPSCallable+Internal.h except for the modular
+// import of FirebaseFunctions.
+
 #import <Foundation/Foundation.h>
 
-#import <FirebaseFunctions/FIRHTTPSCallable.h>
+@import FirebaseFunctions;
+
+@class FIRFunctions;
 
 NS_ASSUME_NONNULL_BEGIN
 
-/// A fake object to replace a real `FIRHTTPSCallableResult` in tests.
-NS_SWIFT_NAME(HTTPSCallableResultFake)
-@interface FIRHTTPSCallableResultFake : FIRHTTPSCallableResult
+@interface FIRHTTPSCallableResult (Testing)
 
+/**
+ * Initializes a callable result.
+ *
+ * @param result The data to wrap.
+ */
 - (instancetype)initWithData:(id)result;
+
+@end
+
+@interface FIRHTTPSCallable (Testing)
+
+/**
+ * Initializes a reference to the given http trigger.
+ *
+ * @param functionsClient The functions client to use for making network requests.
+ * @param name The name of the http trigger.
+ */
+- (instancetype)initWithFunctions:(FIRFunctions *)functionsClient name:(NSString *)name;
 
 @end
 

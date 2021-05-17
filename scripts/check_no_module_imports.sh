@@ -34,6 +34,7 @@ git grep "${options[@]}" \
      ':(exclude,glob)Crashlytics/**' \
      ':(exclude,glob)FirebaseStorage/**' \
      ':(exclude,glob)SwiftPMTests/**' \
+     ':(exclude,glob)FirebaseTestingSupport/**' \
      ':(exclude)Functions/FirebaseFunctions/FIRFunctions.m' \
      ':(exclude)HeadersImports.md' && exit_with_error
 
