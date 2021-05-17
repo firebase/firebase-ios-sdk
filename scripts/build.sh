@@ -646,10 +646,12 @@ case "$product-$platform-$method" in
       test
     ;;
 
+  # Note that the combine tests require setting the minimum iOS version to 13.0
   *-*-spm)
     RunXcodebuild \
       -scheme $product \
       "${xcb_flags[@]}" \
+      IPHONEOS_DEPLOYMENT_TARGET=13.0 \
       test
     ;;
 
