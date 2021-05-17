@@ -56,7 +56,8 @@ static NSInteger const kStorageVersion = 1;
     // Handle migration here when new versions are added
   }
 
-  // If the version of the stored object is equal or higher than the current version then try the best to get enough data to initialize the object.
+  // If the version of the stored object is equal or higher than the current version then try the
+  // best to get enough data to initialize the object.
   NSString *keyID = [coder decodeObjectOfClass:[NSString class] forKey:kKeyIDKey];
   if (keyID.length < 1) {
     return nil;

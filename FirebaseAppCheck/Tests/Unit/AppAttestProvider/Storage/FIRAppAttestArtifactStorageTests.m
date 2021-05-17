@@ -138,7 +138,7 @@
     [weakSelf.storage setArtifact:nil forKey:keyID];
     XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
   }];
-  
+
   return keyID;
 }
 

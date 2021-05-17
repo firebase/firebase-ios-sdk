@@ -27,12 +27,14 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly) NSData *artifact;
 
 /// The object version.
-/// WARNING: The version must be incremented if properties are added, removed or modified. Migration must be handled accordingly in `initWithCoder:` method.
+/// WARNING: The version must be incremented if properties are added, removed or modified. Migration
+/// must be handled accordingly in `initWithCoder:` method.
 @property(nonatomic, readonly) NSInteger storageVersion;
 
 - (instancetype)init NS_UNAVAILABLE;
 
-- (instancetype)initWithKeyID:(NSString *)keyID artifact:(NSData *)artifact NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithKeyID:(NSString *)keyID
+                     artifact:(NSData *)artifact NS_DESIGNATED_INITIALIZER;
 
 @end
 

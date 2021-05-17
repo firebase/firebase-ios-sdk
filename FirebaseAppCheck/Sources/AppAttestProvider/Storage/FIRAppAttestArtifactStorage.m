@@ -72,7 +72,8 @@ static NSString *const kKeychainService = @"com.firebase.app_check.app_attest_ar
                                    accessGroup:self.accessGroup]
       .then(^NSData *(id<NSSecureCoding> storedArtifact) {
         FIRAppAttestStoredArtifact *artifact = (FIRAppAttestStoredArtifact *)storedArtifact;
-        if ([artifact isKindOfClass:[FIRAppAttestStoredArtifact class]] && [artifact.keyID isEqualToString:keyID]) {
+        if ([artifact isKindOfClass:[FIRAppAttestStoredArtifact class]] &&
+            [artifact.keyID isEqualToString:keyID]) {
           return artifact.artifact;
         } else {
           return nil;
@@ -82,7 +83,8 @@ static NSString *const kKeychainService = @"com.firebase.app_check.app_attest_ar
 
 - (FBLPromise<NSData *> *)setArtifact:(nullable NSData *)artifact forKey:(nonnull NSString *)keyID {
   if (artifact) {
-    FIRAppAttestStoredArtifact *storedArtifact = [[FIRAppAttestStoredArtifact alloc] initWithKeyID:keyID artifact:artifact];
+    FIRAppAttestStoredArtifact *storedArtifact =
+        [[FIRAppAttestStoredArtifact alloc] initWithKeyID:keyID artifact:artifact];
     return [self.keychainStorage setObject:storedArtifact
                                     forKey:[self artifactKey]
                                accessGroup:self.accessGroup]
