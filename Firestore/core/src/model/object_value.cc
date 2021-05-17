@@ -205,11 +205,10 @@ ObjectValue ObjectValue::FromFieldsEntry(
       &value.map_value.fields, &value.map_value.fields_count,
       absl::Span<google_firestore_v1_Document_FieldsEntry>(fields_entry, count),
       [](const google_firestore_v1_Document_FieldsEntry& entry) {
-        google_firestore_v1_MapValue_FieldsEntry result{};
-        result.key = entry.key;
-        result.value = entry.value;
-        return result;
+        return google_firestore_v1_MapValue_FieldsEntry{entry.key, entry.value};
       });
+  // Prevent double-freeing of the document's fields. The field are now owned by
+  // ObjectValue.
   ReleaseFieldOwnership(fields_entry, count);
   return ObjectValue{value};
 }

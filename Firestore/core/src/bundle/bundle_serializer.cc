@@ -718,10 +718,9 @@ google_firestore_v1_MapValue BundleSerializer::DecodeMapValue(
   google_firestore_v1_MapValue map_value{};
   SetRepeatedField(&map_value.fields, &map_value.fields_count, fields,
                    [&](const std::pair<std::string, json>& entry) {
-                     google_firestore_v1_MapValue_FieldsEntry result{};
-                     result.key = nanopb::MakeBytesArray(entry.first);
-                     result.value = DecodeValue(reader, entry.second);
-                     return result;
+                     return google_firestore_v1_MapValue_FieldsEntry{
+                         nanopb::MakeBytesArray(entry.first),
+                         DecodeValue(reader, entry.second)};
                    });
   return map_value;
 }
@@ -783,7 +782,7 @@ BundleDocument BundleSerializer::DecodeDocument(JsonReader& reader,
   auto map_value = DecodeMapValue(reader, document);
 
   return BundleDocument(MutableDocument::FoundDocument(
-      key, update_time, ObjectValue::FromMapValue(map_value)));
+      std::move(key), update_time, ObjectValue::FromMapValue(map_value)));
 }
 
 }  // namespace bundle

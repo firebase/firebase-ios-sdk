@@ -88,18 +88,18 @@ class MutableDocument {
    * Creates a document with no known version or data. This document can serve
    * as a base document for mutations.
    */
-  static MutableDocument InvalidDocument(const DocumentKey& document_key);
+  static MutableDocument InvalidDocument(DocumentKey document_key);
 
   /**
    * Creates a new document that is known to exist with the given data at the
    * given version.
    */
-  static MutableDocument FoundDocument(const DocumentKey& document_key,
+  static MutableDocument FoundDocument(DocumentKey document_key,
                                        const SnapshotVersion& version,
                                        ObjectValue value);
 
   /** Creates a new document that is known to not exisr at the given version. */
-  static MutableDocument NoDocument(const DocumentKey& document_key,
+  static MutableDocument NoDocument(DocumentKey document_key,
                                     const SnapshotVersion& version);
 
   /**
