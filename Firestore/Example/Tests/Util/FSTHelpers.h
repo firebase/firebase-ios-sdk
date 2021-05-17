@@ -19,6 +19,7 @@
 #include <string>
 #include <vector>
 
+#include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/model/model_fwd.h"
 #include "absl/strings/string_view.h"
 
@@ -103,7 +104,7 @@ NSDateComponents *FSTTestDateComponents(
     int year, int month, int day, int hour, int minute, int second);
 
 /** Wraps a plain value into an FieldValue instance. */
-model::FieldValue FSTTestFieldValue(id _Nullable value);
+firebase::firestore::google_firestore_v1_Value FSTTestFieldValue(id _Nullable value);
 
 /** Wraps a NSDictionary value into an ObjectValue instance. */
 model::ObjectValue FSTTestObjectValue(NSDictionary<NSString *, id> *data);
