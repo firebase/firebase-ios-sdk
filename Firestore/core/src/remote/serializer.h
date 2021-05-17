@@ -81,7 +81,7 @@ class Serializer {
    * @param database_id Must remain valid for the lifetime of this Serializer
    * object.
    */
-  explicit Serializer(const model::DatabaseId& database_id);
+  explicit Serializer(model::DatabaseId database_id);
 
   /**
    * Encodes the string to nanopb bytes.

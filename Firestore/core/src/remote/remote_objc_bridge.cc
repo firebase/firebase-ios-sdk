@@ -250,7 +250,7 @@ DatastoreSerializer::MergeLookupResponses(
         Message<google_firestore_v1_BatchGetDocumentsResponse>::TryParse(
             &reader);
 
-    Document doc{serializer_.DecodeMaybeDocument(reader.context(), *message)};
+    Document doc = serializer_.DecodeMaybeDocument(reader.context(), *message);
     if (!reader.ok()) {
       return reader.status();
     }

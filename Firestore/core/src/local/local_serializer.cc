@@ -142,11 +142,9 @@ google_firestore_v1_Document LocalSerializer::EncodeDocument(
       absl::Span<google_firestore_v1_MapValue_FieldsEntry>(
           fields_map.fields, fields_map.fields_count),
       [](const google_firestore_v1_MapValue_FieldsEntry& map_entry) {
-        google_firestore_v1_Document_FieldsEntry fields_entry{};
         // TODO(mrschmidt): Figure out how to remove this copy
-        fields_entry.key = nanopb::CopyBytesArray(map_entry.key);
-        fields_entry.value = DeepClone(map_entry.value);
-        return fields_entry;
+        return google_firestore_v1_Document_FieldsEntry{
+            nanopb::CopyBytesArray(map_entry.key), DeepClone(map_entry.value)};
       });
 
   result.has_update_time = true;
@@ -352,6 +350,8 @@ MutationBatch LocalSerializer::DecodeMutationBatch(
           transform_mutation.transform.field_transforms_count;
       new_mutation.update_transforms =
           transform_mutation.transform.field_transforms;
+      // Prevent double-freeing of the write's fields. The field are now owned
+      // by the mutation.
       ReleaseFieldOwnership(
           transform_mutation.transform.field_transforms,
           transform_mutation.transform.field_transforms_count);

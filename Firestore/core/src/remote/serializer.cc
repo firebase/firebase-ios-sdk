@@ -170,8 +170,8 @@ FieldPath InvalidFieldPath() {
 
 }  // namespace
 
-Serializer::Serializer(const DatabaseId& database_id)
-    : database_id_(database_id) {
+Serializer::Serializer(DatabaseId database_id)
+    : database_id_(std::move(database_id)) {
 }
 
 pb_bytes_array_t* Serializer::EncodeDatabaseName() const {
@@ -272,17 +272,16 @@ google_firestore_v1_Document Serializer::EncodeDocument(
 
   // Encode Document.fields (unless it's empty)
   const google_firestore_v1_MapValue& map_value = object_value.Get().map_value;
-  SetRepeatedField(&result.fields, &result.fields_count,
-                   absl::Span<google_firestore_v1_MapValue_FieldsEntry>(
-                       map_value.fields, map_value.fields_count),
-                   [](const google_firestore_v1_MapValue_FieldsEntry& entry) {
-                     google_firestore_v1_Document_FieldsEntry result{};
-                     // TODO(mrschmidt): Figure out how to remove this copy
-                     result.key = nanopb::MakeBytesArray(entry.key->bytes,
-                                                         entry.key->size);
-                     result.value = DeepClone(entry.value);
-                     return result;
-                   });
+  SetRepeatedField(
+      &result.fields, &result.fields_count,
+      absl::Span<google_firestore_v1_MapValue_FieldsEntry>(
+          map_value.fields, map_value.fields_count),
+      [](const google_firestore_v1_MapValue_FieldsEntry& entry) {
+        // TODO(mrschmidt): Figure out how to remove this copy
+        return google_firestore_v1_Document_FieldsEntry{
+            nanopb::MakeBytesArray(entry.key->bytes, entry.key->size),
+            DeepClone(entry.value)};
+      });
 
   // Skip Document.create_time and Document.update_time, since they're
   // output-only fields.
@@ -323,7 +322,8 @@ MutableDocument Serializer::DecodeFoundDocument(
     context->Fail("Got a document response with no snapshot version");
   }
 
-  return MutableDocument::FoundDocument(key, version, std::move(value));
+  return MutableDocument::FoundDocument(std::move(key), version,
+                                        std::move(value));
 }
 
 MutableDocument Serializer::DecodeMissingDocument(
@@ -340,7 +340,7 @@ MutableDocument Serializer::DecodeMissingDocument(
     context->Fail("Got a no document response with no snapshot version");
   }
 
-  return MutableDocument::NoDocument(key, version);
+  return MutableDocument::NoDocument(std::move(key), version);
 }
 
 google_firestore_v1_Write Serializer::EncodeMutation(
@@ -578,19 +578,23 @@ FieldTransform Serializer::DecodeFieldTransform(
     }
 
     case google_firestore_v1_DocumentTransform_FieldTransform_append_missing_elements_tag: {  // NOLINT
-      auto field_transform = FieldTransform(
+      FieldTransform field_transform(
           std::move(field), ArrayTransform(TransformOperation::Type::ArrayUnion,
                                            proto.append_missing_elements));
-      proto.append_missing_elements = {};  // Release field ownership
+      // Release field ownership to prevent doube-freeing. The values are now
+      // owned by the FieldTransform.
+      proto.append_missing_elements = {};
       return field_transform;
     }
 
     case google_firestore_v1_DocumentTransform_FieldTransform_remove_all_from_array_tag: {  // NOLINT
-      auto field_transform =
-          FieldTransform(std::move(field),
-                         ArrayTransform(TransformOperation::Type::ArrayRemove,
-                                        proto.remove_all_from_array));
-      proto.append_missing_elements = {};  // Release field ownership
+      FieldTransform field_transform(
+          std::move(field),
+          ArrayTransform(TransformOperation::Type::ArrayRemove,
+                         proto.remove_all_from_array));
+      // Release field ownership to prevent doube-freeing. The values are now
+      // owned by the FieldTransform.
+      proto.append_missing_elements = {};
       return field_transform;
     }
 
@@ -1117,6 +1121,8 @@ std::shared_ptr<Bound> Serializer::DecodeBound(
   SetRepeatedField(&index_components.values, &index_components.values_count,
                    absl::Span<google_firestore_v1_Value>(cursor.values,
                                                          cursor.values_count));
+  // Prevent double-freeing of the cursors's fields. The field are now owned by
+  // the bound.
   ReleaseFieldOwnership(cursor.values, cursor.values_count);
   return std::make_shared<Bound>(index_components, cursor.before);
 }
@@ -1185,6 +1191,8 @@ MutationResult Serializer::DecodeMutationResult(
                    absl::Span<google_firestore_v1_Value>(
                        write_result.transform_results,
                        write_result.transform_results_count));
+  // Prevent double-freeing of the transform result. The field are now owned by
+  // the muation result.
   ReleaseFieldOwnership(write_result.transform_results,
                         write_result.transform_results_count);
   return MutationResult(version, transform_results);
@@ -1316,7 +1324,7 @@ std::unique_ptr<WatchChange> Serializer::DecodeDocumentChange(
   // optimization C++ implementation is on par with the preceding Objective-C
   // implementation.
   MutableDocument document =
-      MutableDocument::FoundDocument(key, version, std::move(value));
+      MutableDocument::FoundDocument(std::move(key), version, std::move(value));
 
   std::vector<TargetId> updated_target_ids(
       change.target_ids, change.target_ids + change.target_ids_count);
@@ -1338,7 +1346,8 @@ std::unique_ptr<WatchChange> Serializer::DecodeDocumentDelete(
   SnapshotVersion version = change.has_read_time
                                 ? DecodeVersion(context, change.read_time)
                                 : SnapshotVersion::None();
-  MutableDocument document = MutableDocument::NoDocument(key, version);
+  MutableDocument document =
+      MutableDocument::NoDocument(std::move(key), version);
 
   std::vector<TargetId> removed_target_ids(
       change.removed_target_ids,
