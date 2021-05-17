@@ -231,7 +231,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FBLPromise<FIRAppCheckToken *> *)saveArtifactAndGetAppCheckTokenFromResponse:
     (FIRAppAttestAttestationResponse *)response {
-  return [self.artifactStorage setArtifact:response.artifact].thenOn(
+  // TODO: Pass proper key ID.
+  return [self.artifactStorage setArtifact:response.artifact forKey:@""].thenOn(
       self.queue, ^FIRAppCheckToken *(id result) {
         return response.token;
       });
@@ -339,7 +340,7 @@ NS_ASSUME_NONNULL_BEGIN
 
              // 3. Check for stored attestation artifact received from Firebase backend.
              NSData *attestationArtifact =
-                 FBLPromiseAwait([self.artifactStorage getArtifact], &error);
+                 FBLPromiseAwait([self.artifactStorage getArtifactForKey:appAttestKeyID], &error);
              if (attestationArtifact == nil) {
                return [[FIRAppAttestProviderState alloc] initWithGeneratedKeyID:appAttestKeyID];
              }

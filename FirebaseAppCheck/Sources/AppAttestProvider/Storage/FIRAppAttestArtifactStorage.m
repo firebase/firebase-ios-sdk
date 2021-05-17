@@ -64,7 +64,7 @@ static NSString *const kKeychainService = @"com.firebase.app_check.app_attest_ar
                    accessGroup:accessGroup];
 }
 
-- (FBLPromise<NSData *> *)getArtifact {
+- (FBLPromise<NSData *> *)getArtifactForKey:(NSString *)keyID {
   return [self.keychainStorage getObjectForKey:[self artifactKey]
                                    objectClass:[NSData class]
                                    accessGroup:self.accessGroup]
@@ -77,7 +77,7 @@ static NSString *const kKeychainService = @"com.firebase.app_check.app_attest_ar
       });
 }
 
-- (FBLPromise<NSData *> *)setArtifact:(nullable NSData *)artifact {
+- (FBLPromise<NSData *> *)setArtifact:(nullable NSData *)artifact forKey:(nonnull NSString *)keyID {
   if (artifact) {
     return [self.keychainStorage setObject:artifact
                                     forKey:[self artifactKey]

@@ -107,7 +107,7 @@ API_AVAILABLE(ios(14.0))
   // 2. Don't expect other operations.
   OCMReject([self.mockStorage getAppAttestKeyID]);
   OCMReject([self.mockAppAttestService generateKeyWithCompletionHandler:OCMOCK_ANY]);
-  OCMReject([self.mockArtifactStorage getArtifact]);
+  OCMReject([self.mockArtifactStorage getArtifactForKey:OCMOCK_ANY]);
   OCMReject([self.mockAPIService getRandomChallenge]);
   OCMReject([self.mockStorage setAppAttestKeyID:OCMOCK_ANY]);
   OCMReject([self.mockAppAttestService attestKey:OCMOCK_ANY
@@ -179,7 +179,7 @@ API_AVAILABLE(ios(14.0))
       .andReturn([FBLPromise resolvedWith:attestKeyResponse]);
 
   // 8. Expect the artifact received from Firebase backend to be saved.
-  OCMExpect([self.mockArtifactStorage setArtifact:artifactData])
+  OCMExpect([self.mockArtifactStorage setArtifact:artifactData forKey:generatedKeyID])
       .andReturn([FBLPromise resolvedWith:artifactData]);
 
   // 9. Call get token.
@@ -221,7 +221,7 @@ API_AVAILABLE(ios(14.0))
                 [NSError errorWithDomain:@"testGetToken_WhenExistingUnregisteredKey_Success"
                                     code:NSNotFound
                                 userInfo:nil]];
-  OCMExpect([self.mockArtifactStorage getArtifact]).andReturn(rejectedPromise);
+  OCMExpect([self.mockArtifactStorage getArtifactForKey:existingKeyID]).andReturn(rejectedPromise);
 
   // 6. Expect random challenge to be requested.
   OCMExpect([self.mockAPIService getRandomChallenge])
@@ -246,7 +246,7 @@ API_AVAILABLE(ios(14.0))
       .andReturn([FBLPromise resolvedWith:attestKeyResponse]);
 
   // 9. Expect the artifact received from Firebase backend to be saved.
-  OCMExpect([self.mockArtifactStorage setArtifact:artifactData])
+  OCMExpect([self.mockArtifactStorage setArtifact:artifactData forKey:existingKeyID])
       .andReturn([FBLPromise resolvedWith:artifactData]);
 
   // 10. Call get token.
@@ -282,7 +282,7 @@ API_AVAILABLE(ios(14.0))
                 [NSError errorWithDomain:@"testGetToken_WhenExistingUnregisteredKey_Success"
                                     code:NSNotFound
                                 userInfo:nil]];
-  OCMExpect([self.mockArtifactStorage getArtifact]).andReturn(rejectedPromise);
+  OCMExpect([self.mockArtifactStorage getArtifactForKey:existingKeyID]).andReturn(rejectedPromise);
 
   // 4. Expect random challenge to be requested.
   NSError *challengeError = [self expectRandomChallengeRequestError];
@@ -328,7 +328,7 @@ API_AVAILABLE(ios(14.0))
                 [NSError errorWithDomain:@"testGetToken_WhenExistingUnregisteredKey_Success"
                                     code:NSNotFound
                                 userInfo:nil]];
-  OCMExpect([self.mockArtifactStorage getArtifact]).andReturn(rejectedPromise);
+  OCMExpect([self.mockArtifactStorage getArtifactForKey:existingKeyID]).andReturn(rejectedPromise);
 
   // 4. Expect random challenge to be requested.
   OCMExpect([self.mockAPIService getRandomChallenge])
@@ -380,7 +380,7 @@ API_AVAILABLE(ios(14.0))
                 [NSError errorWithDomain:@"testGetToken_WhenExistingUnregisteredKey_Success"
                                     code:NSNotFound
                                 userInfo:nil]];
-  OCMExpect([self.mockArtifactStorage getArtifact]).andReturn(rejectedPromise);
+  OCMExpect([self.mockArtifactStorage getArtifactForKey:existingKeyID]).andReturn(rejectedPromise);
 
   // 4. Expect random challenge to be requested.
   OCMExpect([self.mockAPIService getRandomChallenge])
@@ -432,7 +432,7 @@ API_AVAILABLE(ios(14.0))
 
   // 3. Expect a stored artifact to be requested.
   NSData *storedArtifact = [@"storedArtifact" dataUsingEncoding:NSUTF8StringEncoding];
-  OCMExpect([self.mockArtifactStorage getArtifact])
+  OCMExpect([self.mockArtifactStorage getArtifactForKey:existingKeyID])
       .andReturn([FBLPromise resolvedWith:storedArtifact]);
 
   // 4. Expect random challenge to be requested.
@@ -484,7 +484,7 @@ API_AVAILABLE(ios(14.0))
 
   // 3. Expect a stored artifact to be requested.
   NSData *storedArtifact = [@"storedArtifact" dataUsingEncoding:NSUTF8StringEncoding];
-  OCMExpect([self.mockArtifactStorage getArtifact])
+  OCMExpect([self.mockArtifactStorage getArtifactForKey:existingKeyID])
       .andReturn([FBLPromise resolvedWith:storedArtifact]);
 
   // 4. Expect random challenge to be requested.
@@ -528,7 +528,7 @@ API_AVAILABLE(ios(14.0))
 
   // 3. Expect a stored artifact to be requested.
   NSData *storedArtifact = [@"storedArtifact" dataUsingEncoding:NSUTF8StringEncoding];
-  OCMExpect([self.mockArtifactStorage getArtifact])
+  OCMExpect([self.mockArtifactStorage getArtifactForKey:existingKeyID])
       .andReturn([FBLPromise resolvedWith:storedArtifact]);
 
   // 4. Expect random challenge to be requested.
@@ -579,7 +579,7 @@ API_AVAILABLE(ios(14.0))
 
   // 3. Expect a stored artifact to be requested.
   NSData *storedArtifact = [@"storedArtifact" dataUsingEncoding:NSUTF8StringEncoding];
-  OCMExpect([self.mockArtifactStorage getArtifact])
+  OCMExpect([self.mockArtifactStorage getArtifactForKey:existingKeyID])
       .andReturn([FBLPromise resolvedWith:storedArtifact]);
 
   // 4. Expect random challenge to be requested.

@@ -24,16 +24,18 @@ NS_ASSUME_NONNULL_BEGIN
 /// Check token obtained with App Attest provider.
 @protocol FIRAppAttestArtifactStorageProtocol <NSObject>
 
-/// Set the artifact.
+/// Set the artifact. An artifact previously set for *any* key ID will replace the new one with the new key ID. The storage always stores as single artifact.
 /// @param artifact The artifact data to store. Pass `nil` to remove the stored artifact.
+/// @param keyID The App Attest key ID used to generate the artifact.
 /// @return An artifact that is resolved with the artifact data passed into the method in case of
 /// success or is rejected with an error.
-- (FBLPromise<NSData *> *)setArtifact:(nullable NSData *)artifact;
+- (FBLPromise<NSData *> *)setArtifact:(nullable NSData *)artifact forKey:(NSString *)keyID;
 
 /// Get the artifact.
+/// @param keyID The App Attest key ID used to generate the artifact.
 /// @return A promise that is resolved with the artifact data if artifact exists, is resolved with
-/// `nil` if no artifact found or is rejected with an error.
-- (FBLPromise<NSData *> *)getArtifact;
+/// `nil` if no artifact found (or the existing artifact was set for a different key ID)  or is rejected with an error.
+- (FBLPromise<NSData *> *)getArtifactForKey:(NSString *)keyID;
 
 @end
 
