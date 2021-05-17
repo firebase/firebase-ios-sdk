@@ -14,134 +14,134 @@
 
 #if canImport(Combine) && swift(>=5.0) && canImport(FirebaseAuth)
 
-#if os(iOS)
+  #if os(iOS)
 
-  import Foundation
+    import Foundation
 
-  import Combine
-  import FirebaseAuth
+    import Combine
+    import FirebaseAuth
 
-  @available(swift 5.0)
-  @available(iOS 13, *)
-  @available(macCatalyst, unavailable)
-  @available(macOS, unavailable)
-  @available(tvOS, unavailable)
-  @available(watchOS, unavailable)
-  extension PhoneAuthProvider {
-    /// Starts the phone number authentication flow by sending a verification code to the
-    /// specified phone number.
-    ///
-    /// The publisher will emit events on the **main** thread.
-    ///
-    /// - Parameters:
-    ///     - phoneNumber: The phone number to be verified.
-    ///     - uiDelegate: An object used to present the `SFSafariViewController`. The object is retained
-    ///       by this method until the completion block is executed.
-    ///
-    /// - Returns: A publisher that emits an `VerificationID` when the verification flow completed
-    ///   successfully, or an error otherwise. The publisher will emit on the *main* thread.
-    ///
-    /// - Remark:
-    ///   Possible error codes:
-    ///
-    ///   - `FIRAuthErrorCodeCaptchaCheckFailed` - Indicates that the reCAPTCHA token obtained by
-    ///      the Firebase Auth is invalid or has expired.
-    ///   - `FIRAuthErrorCodeQuotaExceeded` - Indicates that the phone verification quota for this
-    ///      project has been exceeded.
-    ///   - `FIRAuthErrorCodeInvalidPhoneNumber` - Indicates that the phone number provided is
-    ///      invalid.
-    ///   - `FIRAuthErrorCodeMissingPhoneNumber` - Indicates that a phone number was not provided.
-    @discardableResult
-    public func verifyPhoneNumber(_ phoneNumber: String,
-                                  uiDelegate: AuthUIDelegate? = nil)
-      -> Future<String, Error> {
-      Future<String, Error> { promise in
-        self.verifyPhoneNumber(phoneNumber, uiDelegate: uiDelegate) { verificationID, error in
-          if let error = error {
-            promise(.failure(error))
-          } else if let verificationID = verificationID {
-            promise(.success(verificationID))
+    @available(swift 5.0)
+    @available(iOS 13, *)
+    @available(macCatalyst, unavailable)
+    @available(macOS, unavailable)
+    @available(tvOS, unavailable)
+    @available(watchOS, unavailable)
+    extension PhoneAuthProvider {
+      /// Starts the phone number authentication flow by sending a verification code to the
+      /// specified phone number.
+      ///
+      /// The publisher will emit events on the **main** thread.
+      ///
+      /// - Parameters:
+      ///     - phoneNumber: The phone number to be verified.
+      ///     - uiDelegate: An object used to present the `SFSafariViewController`. The object is retained
+      ///       by this method until the completion block is executed.
+      ///
+      /// - Returns: A publisher that emits an `VerificationID` when the verification flow completed
+      ///   successfully, or an error otherwise. The publisher will emit on the *main* thread.
+      ///
+      /// - Remark:
+      ///   Possible error codes:
+      ///
+      ///   - `FIRAuthErrorCodeCaptchaCheckFailed` - Indicates that the reCAPTCHA token obtained by
+      ///      the Firebase Auth is invalid or has expired.
+      ///   - `FIRAuthErrorCodeQuotaExceeded` - Indicates that the phone verification quota for this
+      ///      project has been exceeded.
+      ///   - `FIRAuthErrorCodeInvalidPhoneNumber` - Indicates that the phone number provided is
+      ///      invalid.
+      ///   - `FIRAuthErrorCodeMissingPhoneNumber` - Indicates that a phone number was not provided.
+      @discardableResult
+      public func verifyPhoneNumber(_ phoneNumber: String,
+                                    uiDelegate: AuthUIDelegate? = nil)
+        -> Future<String, Error> {
+        Future<String, Error> { promise in
+          self.verifyPhoneNumber(phoneNumber, uiDelegate: uiDelegate) { verificationID, error in
+            if let error = error {
+              promise(.failure(error))
+            } else if let verificationID = verificationID {
+              promise(.success(verificationID))
+            }
+          }
+        }
+      }
+
+      /// Verify ownership of the second factor phone number by the current user.
+      ///
+      /// The publisher will emit events on the **main** thread.
+      ///
+      /// - Parameters:
+      ///     - phoneNumber: The phone number to be verified.
+      ///     - uiDelegate: An object used to present the `SFSafariViewController`. The object is retained
+      ///       by this method until the completion block is executed.
+      ///     - session: A session to identify the MFA flow. For enrollment, this identifies the user
+      ///       trying to enroll. For sign-in, this identifies that the user already passed the first
+      ///       factor challenge.
+      ///
+      /// - Returns: A publisher that emits an `VerificationID` when the verification flow completed
+      ///   successfully, or an error otherwise. The publisher will emit on the *main* thread.
+      ///
+      /// - Remark:
+      ///   Possible error codes:
+      ///
+      ///   - `FIRAuthErrorCodeCaptchaCheckFailed` - Indicates that the reCAPTCHA token obtained by
+      ///      the Firebase Auth is invalid or has expired.
+      ///   - `FIRAuthErrorCodeQuotaExceeded` - Indicates that the phone verification quota for this
+      ///      project has been exceeded.
+      ///   - `FIRAuthErrorCodeInvalidPhoneNumber` - Indicates that the phone number provided is
+      ///      invalid.
+      ///   - `FIRAuthErrorCodeMissingPhoneNumber` - Indicates that a phone number was not provided.
+      @discardableResult
+      public func verifyPhoneNumber(_ phoneNumber: String,
+                                    uiDelegate: AuthUIDelegate? = nil,
+                                    multiFactorSession: MultiFactorSession?)
+        -> Future<String, Error> {
+        Future<String, Error> { promise in
+          self.verifyPhoneNumber(
+            phoneNumber,
+            uiDelegate: uiDelegate,
+            multiFactorSession: multiFactorSession
+          ) { verificationID, error in
+            if let error = error {
+              promise(.failure(error))
+            } else if let verificationID = verificationID {
+              promise(.success(verificationID))
+            }
+          }
+        }
+      }
+
+      /// Verify ownership of the second factor phone number by the current user.
+      ///
+      /// The publisher will emit events on the **main** thread.
+      ///
+      /// - Parameters:
+      ///   - phoneNumber: The phone number to be verified.
+      ///   - UIDelegate: An object used to present the SFSafariViewController. The object is retained
+      ///   by this method until the completion block is executed.
+      ///   - multiFactorSession: session A session to identify the MFA flow. For enrollment, this identifies the user
+      ///   trying to enroll. For sign-in, this identifies that the user already passed the first factor challenge.
+      /// - Returns: A publisher that emits an `VerificationID` when the verification flow completed
+      ///   successfully, or an error otherwise. The publisher will emit on the *main* thread.
+      @discardableResult
+      public func verifyPhoneNumber(with phoneMultiFactorInfo: PhoneMultiFactorInfo,
+                                    uiDelegate: AuthUIDelegate? = nil,
+                                    multiFactorSession: MultiFactorSession?)
+        -> Future<String, Error> {
+        Future<String, Error> { promise in
+          self.verifyPhoneNumber(with: phoneMultiFactorInfo,
+                                 uiDelegate: uiDelegate,
+                                 multiFactorSession: multiFactorSession) { verificationID, error in
+            if let error = error {
+              promise(.failure(error))
+            } else if let verificationID = verificationID {
+              promise(.success(verificationID))
+            }
           }
         }
       }
     }
 
-    /// Verify ownership of the second factor phone number by the current user.
-    ///
-    /// The publisher will emit events on the **main** thread.
-    ///
-    /// - Parameters:
-    ///     - phoneNumber: The phone number to be verified.
-    ///     - uiDelegate: An object used to present the `SFSafariViewController`. The object is retained
-    ///       by this method until the completion block is executed.
-    ///     - session: A session to identify the MFA flow. For enrollment, this identifies the user
-    ///       trying to enroll. For sign-in, this identifies that the user already passed the first
-    ///       factor challenge.
-    ///
-    /// - Returns: A publisher that emits an `VerificationID` when the verification flow completed
-    ///   successfully, or an error otherwise. The publisher will emit on the *main* thread.
-    ///
-    /// - Remark:
-    ///   Possible error codes:
-    ///
-    ///   - `FIRAuthErrorCodeCaptchaCheckFailed` - Indicates that the reCAPTCHA token obtained by
-    ///      the Firebase Auth is invalid or has expired.
-    ///   - `FIRAuthErrorCodeQuotaExceeded` - Indicates that the phone verification quota for this
-    ///      project has been exceeded.
-    ///   - `FIRAuthErrorCodeInvalidPhoneNumber` - Indicates that the phone number provided is
-    ///      invalid.
-    ///   - `FIRAuthErrorCodeMissingPhoneNumber` - Indicates that a phone number was not provided.
-    @discardableResult
-    public func verifyPhoneNumber(_ phoneNumber: String,
-                                  uiDelegate: AuthUIDelegate? = nil,
-                                  multiFactorSession: MultiFactorSession?)
-      -> Future<String, Error> {
-      Future<String, Error> { promise in
-        self.verifyPhoneNumber(
-          phoneNumber,
-          uiDelegate: uiDelegate,
-          multiFactorSession: multiFactorSession
-        ) { verificationID, error in
-          if let error = error {
-            promise(.failure(error))
-          } else if let verificationID = verificationID {
-            promise(.success(verificationID))
-          }
-        }
-      }
-    }
-
-    /// Verify ownership of the second factor phone number by the current user.
-    ///
-    /// The publisher will emit events on the **main** thread.
-    ///
-    /// - Parameters:
-    ///   - phoneNumber: The phone number to be verified.
-    ///   - UIDelegate: An object used to present the SFSafariViewController. The object is retained
-    ///   by this method until the completion block is executed.
-    ///   - multiFactorSession: session A session to identify the MFA flow. For enrollment, this identifies the user
-    ///   trying to enroll. For sign-in, this identifies that the user already passed the first factor challenge.
-    /// - Returns: A publisher that emits an `VerificationID` when the verification flow completed
-    ///   successfully, or an error otherwise. The publisher will emit on the *main* thread.
-    @discardableResult
-    public func verifyPhoneNumber(with phoneMultiFactorInfo: PhoneMultiFactorInfo,
-                                  uiDelegate: AuthUIDelegate? = nil,
-                                  multiFactorSession: MultiFactorSession?)
-      -> Future<String, Error> {
-      Future<String, Error> { promise in
-        self.verifyPhoneNumber(with: phoneMultiFactorInfo,
-                               uiDelegate: uiDelegate,
-                               multiFactorSession: multiFactorSession) { verificationID, error in
-          if let error = error {
-            promise(.failure(error))
-          } else if let verificationID = verificationID {
-            promise(.success(verificationID))
-          }
-        }
-      }
-    }
-  }
-
-#endif  // os(iOS)
+  #endif // os(iOS)
 
 #endif

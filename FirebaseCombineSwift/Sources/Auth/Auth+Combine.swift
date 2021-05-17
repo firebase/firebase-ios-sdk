@@ -469,7 +469,7 @@
         }
       }
 
-    #endif  // os(iOS) || targetEnvironment(macCatalyst)
+    #endif // os(iOS) || targetEnvironment(macCatalyst)
 
     /// Asynchronously signs in to Firebase with the given Auth token.
     ///
