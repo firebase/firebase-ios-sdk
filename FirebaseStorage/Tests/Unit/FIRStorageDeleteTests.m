@@ -14,6 +14,7 @@
 
 #import "FirebaseStorage/Sources/FIRStorageDeleteTask.h"
 #import "FirebaseStorage/Tests/Unit/FIRStorageTestHelpers.h"
+#import "GTMSessionFetcher/GTMSessionFetcherLogging.h"
 
 @interface FIRStorageDeleteTests : XCTestCase
 
@@ -104,6 +105,7 @@
 }
 
 - (void)testSuccessfulFetchWithEmulator {
+  [GTMSessionFetcher setLoggingEnabled:YES];
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"testSuccessfulFetchWithEmulator"];
 
