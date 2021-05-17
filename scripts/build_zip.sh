@@ -22,6 +22,11 @@ EOF
   exit 1
 fi
 
+build_head=""
+if [[ $# -gt 2 ]]; then
+  build_head="--local-podspec-path ${REPO}"
+fi
+
 # The first and only argument to this script should be the name of the
 # output directory.
 OUTPUT_DIR="$REPO/$1"
@@ -33,7 +38,7 @@ IFS=','
 read -a specrepo <<< "${CUSTOM_SPEC_REPOS}"
 
 cd ReleaseTooling
-swift run zip-builder --keep-build-artifacts --update-pod-repo \
-    --local-podspec-path "${REPO}" \
+echo swift run zip-builder --keep-build-artifacts --update-pod-repo \
+    "${build_head}" \
     --output-dir "${OUTPUT_DIR}" \
     --custom-spec-repos  "${specrepo[@]}"
