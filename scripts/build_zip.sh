@@ -38,7 +38,7 @@ IFS=','
 read -a specrepo <<< "${CUSTOM_SPEC_REPOS}"
 
 cd ReleaseTooling
-echo swift run zip-builder --keep-build-artifacts --update-pod-repo \
+swift run zip-builder --keep-build-artifacts --update-pod-repo \
     "${build_head}" \
     --output-dir "${OUTPUT_DIR}" \
     --custom-spec-repos  "${specrepo[@]}"
