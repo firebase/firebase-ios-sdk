@@ -73,6 +73,19 @@ using util::StringFormat;
  */
 constexpr const char* kDeleteSentinel = "<DELETE>";
 
+// We use a canonical NaN bit pattern that's common for both Objective-C and
+// Java. Specifically:
+//
+//   - sign: 0
+//   - exponent: 11 bits, all 1
+//   - significand: 52 bits, MSB=1, rest=0
+//
+// This matches the Firestore backend which uses Double.doubleToLongBits from
+// the JDK (which is defined to normalize all NaNs to this value). This also
+// happens to be a common value for NAN in C++, but C++ does not require this
+// specific NaN value to be used, so we normalize.
+const uint64_t kCanonicalNanBits = 0x7ff8000000000000ULL;
+
 namespace details {
 
 google_firestore_v1_Value BlobValue(std::initializer_list<uint8_t> octets) {
