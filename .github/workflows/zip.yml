@@ -24,7 +24,6 @@ jobs:
   package-release:
     # Don't run on private repo.
 #    if: (github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk') || github.event_name == 'workflow_dispatch'
-    needs: build-head
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
