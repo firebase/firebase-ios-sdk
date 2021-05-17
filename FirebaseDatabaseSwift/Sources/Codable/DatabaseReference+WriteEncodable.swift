@@ -18,19 +18,24 @@ import Foundation
 import FirebaseDatabase
 
 extension DatabaseReference {
-  /// Encodes an instance of `Encodable` and overwrites the encoded data
-  /// to the path referred by this `DatabaseReference`. If no value exists,
-  /// it is created. If a value already exists, it is overwritten.
-  ///
-  /// See `Database.Encoder` for more details about the encoding process.
-  ///
-  /// - Parameters:
-  ///   - value: An instance of `Encodable` to be encoded to a document.
-  ///   - encoder: An encoder instance to use to run the encoding.
-  ///   - completion: A block to execute once the value has been successfully
-  ///                 written to the server. This block will not be called while
-  ///                 the client is offline, though local changes will be visible
-  ///                 immediately.
+  /** Encode an `Encodable` instance and write it to this Firebase Database location.
+
+     See `Database.Encoder` for more details about the encoding process.
+
+     This will overwrite any data at this location and all child locations.
+
+     The effect of the write will be visible immediately and the corresponding
+     events will be triggered. Synchronization of the data to the Firebase Database
+     servers will also be started.
+
+   - Parameters:
+     - value: An instance of `Encodable` to be encoded to a document.
+     - encoder: An encoder instance to use to run the encoding.
+     - completion: A block to execute once the value has been successfully
+     written to the server. This block will not be called while
+     the client is offline, though local changes will be visible
+     immediately.
+      */
   public func setValue<T: Encodable>(from value: T,
                                      encoder: Database.Encoder = Database.Encoder(),
                                      completion: ((Error?) -> Void)? =

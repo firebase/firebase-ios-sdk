@@ -21,13 +21,25 @@
   @available(swift 5.0)
   @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
   public extension DatabaseReference {
-    // MARK: - Setting values on a `DatabaseReference`
+    // MARK: - Setting values on a DatabaseReference
 
-    /// Encodes an `Encodable` value and, on success, writes the encoded value to the database.
-    /// - Parameters:
-    ///   - value: An instance of `Encodable` to be encoded to a document.
-    ///   - encoder: An encoder instance to use to run the encoding.
-    /// - Returns: A Future that emits the result of encoding/writing the value.
+    /**
+
+         Encode an `Encodable` instance and write it to this Firebase Database location.
+
+         See `Database.Encoder` for more details about the encoding process.
+
+         This will overwrite any data at this location and all child locations.
+
+         The effect of the write will be visible immediately and the corresponding
+         events will be triggered. Synchronization of the data to the Firebase Database
+         servers will also be started.
+
+         - Parameters:
+           - encodable: An instance of `Encodable` to be encoded to a document.
+           - encoder: An encoder instance to use to run the encoding.
+         - Returns: A `Future` that emits the result of encoding/writing the value. Note: The `Future` will not complete while the client is offline, though local changes will be visible immediately.
+     */
     func setValue<T: Encodable>(from encodable: T,
                                 encoder: Database.Encoder = Database.Encoder()) -> Future<
       Void,
@@ -45,15 +57,29 @@
         } catch {
           // NOTE: This is only correct since we know that if `try setValue` fails
           // then the completion is not called.
-          // Would it be better/clearer to 'spell out' the setValue and basically
-          // copy what is in DatabaseReference+Decodable in order to make it clear
-          // that the `try` is connected to the encoding and not the setting of the
-          // value?
           promise(.failure(error))
         }
       }
     }
 
+    /**
+     This is equivalent to `observeSingleEvent(of eventType:, with block:)`, except
+     it returns a `Future` of the caller-specified type instead of taking a completion block as it's parameter.
+
+     The snapshot value is converted to an instance of
+     the caller-specified type.
+
+     The `Future` fails with `DecodingError.valueNotFound`
+     if the document does not exist and `T` is not an `Optional`.
+
+     See `Database.Decoder` for more details about the decoding process.
+
+     - Parameters:
+       - eventType: The type of event to listen for.
+       - type: The type to decode the data to.
+       - decoder: The decoder to use to convert the document. Defaults to use `Database.Decoder()`.
+     - Returns: A `Future` that emits the result of decoding the data to the specified type.
+     */
     func observeSingleEvent<T: Decodable>(of eventType: DataEventType,
                                           as type: T.Type,
                                           decoder: Database.Decoder = Database
@@ -70,10 +96,24 @@
       }
     }
 
-    // NOTE: Should this perhaps be named XXXPublisher(...)?
-    // If so, what should it be? 'modelPublisher', 'decodedPublisher'?
-    // Should this be built upon the snapshotPublisher, or is it an ok
-    // performance improvement to create this 'directly'?
+    /**
+     This is equivalent to `observe(eventType:, with block:)`, except
+     it returns an `AnyPublisher` of the caller-specified type instead of taking a completion block as it's parameter.
+
+     The snapshot value is converted to an instance of
+     the caller-specified type.
+
+     The `AnyPublisher` fails with `DecodingError.valueNotFound`
+     if the document does not exist and `T` is not an `Optional`.
+
+     See `Database.Decoder` for more details about the decoding process.
+
+     - Parameters:
+       - eventType: The type of event to listen for.
+       - type: The type to decode the data to.
+       - decoder: The decoder to use to convert the document. Defaults to use `Database.Decoder()`.
+     - Returns: An `AnyPublisher` that emits the result of decoding the data to the specified type.
+     */
     func observe<T: Decodable>(_ eventType: DataEventType,
                                as type: T.Type,
                                decoder: Database.Decoder = Database
@@ -94,6 +134,41 @@
         .eraseToAnyPublisher()
     }
 
+    /**
+     Note: This is a convenience overload of the `observe` method taking the same parameters.
+
+     This is equivalent to `observe(eventType:, with block:)`, except
+     it returns an `AnyPublisher` of the caller-specified type instead of taking a completion block as it's parameter.
+
+     The snapshot value is converted to an instance of
+     the caller-specified type.
+
+     The `AnyPublisher` fails with `DecodingError.valueNotFound`
+     if the document does not exist and `T` is not an `Optional`.
+
+     See `Database.Decoder` for more details about the decoding process.
+
+     - Parameters:
+       - eventType: The type of event to listen for.
+       - type: The type to decode the data to.
+       - decoder: The decoder to use to convert the document. Defaults to use `Database.Decoder()`.
+     - Returns: An `AnyPublisher` that emits the result of decoding the data to the specified type.
+     */
+    func valuePublisher<T: Decodable>(_ eventType: DataEventType,
+                                      as type: T.Type,
+                                      decoder: Database.Decoder = Database
+                                        .Decoder()) -> AnyPublisher<T, Error> {
+      return observe(eventType, as: type, decoder: decoder)
+    }
+
+    /**
+     This is equivalent to `observe(eventType:, with block:)`, except
+     it returns an `AnyPublisher<DataSnapshot, Never>` instead of taking a completion block as it's parameter.
+
+     - Parameters:
+       - eventType: The type of event to listen for.
+     - Returns: An `AnyPublisher` that emits `DataSnapshot` values.
+     */
     func snapshotPublisher(_ eventType: DataEventType) -> AnyPublisher<DataSnapshot, Never> {
       let subject = PassthroughSubject<DataSnapshot, Never>()
       let handle = observe(eventType) { snapshot in
