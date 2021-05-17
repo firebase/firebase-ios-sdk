@@ -67,6 +67,35 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+/// A data object that contains information required for assertion request.
+@interface FIRAppAttestAssertionData : NSObject
+
+@property(nonatomic, readonly) NSData *challenge;
+@property(nonatomic, readonly) NSData *artifact;
+@property(nonatomic, readonly) NSData *assertion;
+
+- (instancetype)initWithChallenge:(NSData *)challenge
+                         artifact:(NSData *)artifact
+                        assertion:(NSData *)assertion;
+
+@end
+
+@implementation FIRAppAttestAssertionData
+
+- (instancetype)initWithChallenge:(NSData *)challenge
+                         artifact:(NSData *)artifact
+                        assertion:(NSData *)assertion {
+  self = [super init];
+  if (self) {
+    _challenge = challenge;
+    _artifact = artifact;
+    _assertion = assertion;
+  }
+  return self;
+}
+
+@end
+
 @interface FIRAppAttestProvider ()
 
 @property(nonatomic, readonly) id<FIRAppAttestAPIServiceProtocol> APIService;
@@ -165,7 +194,7 @@ NS_ASSUME_NONNULL_BEGIN
   });
 }
 
-#pragma mark - Initial handshake sequence
+#pragma mark - Initial handshake sequence (attestation)
 
 - (FBLPromise<FIRAppCheckToken *> *)initialHandshakeWithKeyID:(nullable NSString *)keyID {
   // 1. Request a random challenge and get App Attest key ID concurrently.
@@ -233,12 +262,55 @@ NS_ASSUME_NONNULL_BEGIN
       });
 }
 
-#pragma mark - Token refresh sequence
+#pragma mark - Token refresh sequence (assertion)
 
 - (FBLPromise<FIRAppCheckToken *> *)refreshTokenWithKeyID:(NSString *)keyID
                                                  artifact:(NSData *)artifact {
-  // TODO: Implement (b/186438346).
-  return [FBLPromise resolvedWith:nil];
+  return [self.APIService getRandomChallenge]
+      .thenOn(self.queue,
+              ^FBLPromise<FIRAppAttestAssertionData *> *(NSData *challenge) {
+                return [self generateAssertionWithKeyID:keyID
+                                               artifact:artifact
+                                              challenge:challenge];
+              })
+      .thenOn(self.queue, ^id(FIRAppAttestAssertionData *assertion) {
+        return [self.APIService getAppCheckTokenWithArtifact:assertion.artifact
+                                                   challenge:assertion.challenge
+                                                   assertion:assertion.assertion];
+      });
+}
+
+- (FBLPromise<FIRAppAttestAssertionData *> *)generateAssertionWithKeyID:(NSString *)keyID
+                                                               artifact:(NSData *)artifact
+                                                              challenge:(NSData *)challenge {
+  // 1. Calculate the statement and its hash for assertion.
+  return [FBLPromise
+             onQueue:self.queue
+                  do:^NSData *_Nullable {
+                    // 1.1. Compose statement to generate assertion for.
+                    NSMutableData *statementForAssertion = [artifact mutableCopy];
+                    [statementForAssertion appendData:challenge];
+
+                    // 1.2. Get the statement SHA256 hash.
+                    return [FIRAppCheckCryptoUtils sha256HashFromData:[statementForAssertion copy]];
+                  }]
+      .thenOn(
+          self.queue,
+          ^FBLPromise<NSData *> *(NSData *statementHash) {
+            // 2. Generate App Attest assertion.
+            return [FBLPromise onQueue:self.queue
+                wrapObjectOrErrorCompletion:^(FBLPromiseObjectOrErrorCompletion _Nonnull handler) {
+                  [self.appAttestService generateAssertion:keyID
+                                            clientDataHash:statementHash
+                                         completionHandler:handler];
+                }];
+          })
+      // 3. Compose the result object.
+      .thenOn(self.queue, ^FIRAppAttestAssertionData *(NSData *assertion) {
+        return [[FIRAppAttestAssertionData alloc] initWithChallenge:challenge
+                                                           artifact:artifact
+                                                          assertion:assertion];
+      });
 }
 
 #pragma mark - State handling
