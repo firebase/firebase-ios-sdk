@@ -220,7 +220,7 @@ model::MutableDocument DeletedDoc(absl::string_view key, int64_t version) {
 }
 
 model::MutableDocument DeletedDoc(DocumentKey key, int64_t version) {
-  return MutableDocument::NoDocument(std::move(key), Version(version));
+  return MutableDocument::NoDocument(key, Version(version));
 }
 
 model::MutableDocument UnknownDoc(absl::string_view key, int64_t version) {

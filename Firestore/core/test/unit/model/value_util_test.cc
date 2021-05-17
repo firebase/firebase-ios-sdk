@@ -34,6 +34,7 @@ namespace {
 using testutil::Array;
 using testutil::BlobValue;
 using testutil::DbId;
+using testutil::kCanonicalNanBits;
 using testutil::Key;
 using testutil::Map;
 using testutil::time_point;

@@ -24,20 +24,20 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-MutableDocument MutableDocument::InvalidDocument(DocumentKey& document_key) {
+MutableDocument MutableDocument::InvalidDocument(DocumentKey document_key) {
   return {std::move(document_key), DocumentType::kInvalid,
           SnapshotVersion::None(), std::make_shared<ObjectValue>(),
           DocumentState::kSynced};
 }
 
-MutableDocument MutableDocument::FoundDocument(DocumentKey& document_key,
+MutableDocument MutableDocument::FoundDocument(DocumentKey document_key,
                                                const SnapshotVersion& version,
                                                ObjectValue value) {
   return std::move(InvalidDocument(std::move(document_key))
                        .ConvertToFoundDocument(version, std::move(value)));
 }
 
-MutableDocument MutableDocument::NoDocument(DocumentKey& document_key,
+MutableDocument MutableDocument::NoDocument(DocumentKey document_key,
                                             const SnapshotVersion& version) {
   return std::move(
       InvalidDocument(std::move(document_key)).ConvertToNoDocument(version));
