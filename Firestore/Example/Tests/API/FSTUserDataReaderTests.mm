@@ -34,6 +34,8 @@
 
 namespace util = firebase::firestore::util;
 namespace nanopb = firebase::firestore::nanopb;
+using firebase::Timestamp;
+using firebase::firestore::GeoPoint;
 using firebase::firestore::api::MakeGeoPoint;
 using firebase::firestore::api::MakeTimestamp;
 using firebase::firestore::google_firestore_v1_ArrayValue;
@@ -57,6 +59,7 @@ using firebase::firestore::testutil::Array;
 using firebase::firestore::testutil::Field;
 using firebase::firestore::testutil::Map;
 using firebase::firestore::testutil::Value;
+using firebase::firestore::testutil::WrapObject;
 
 @interface FSTUserDataReaderTests : XCTestCase
 @end
@@ -135,7 +138,7 @@ union DoubleBits {
   for (NSDate *value in values) {
     google_firestore_v1_Value wrapped = FSTTestFieldValue(value);
     XCTAssertEqual(GetTypeOrder(wrapped), TypeOrder::kTimestamp);
-    firebase::Timestamp timestamp = MakeTimestamp(value);
+    Timestamp timestamp = MakeTimestamp(value);
     XCTAssertEqual(wrapped.timestamp_value.nanos, timestamp.nanoseconds());
     XCTAssertEqual(wrapped.timestamp_value.seconds, timestamp.seconds());
   }
@@ -147,7 +150,7 @@ union DoubleBits {
   for (FIRGeoPoint *value in values) {
     google_firestore_v1_Value wrapped = FSTTestFieldValue(value);
     XCTAssertEqual(GetTypeOrder(wrapped), TypeOrder::kGeoPoint);
-    firebase::firestore::GeoPoint geo_point = MakeGeoPoint(value);
+    GeoPoint geo_point = MakeGeoPoint(value);
     XCTAssertEqual(wrapped.geo_point_value.longitude, geo_point.longitude());
     XCTAssertEqual(wrapped.geo_point_value.latitude, geo_point.latitude());
   }
@@ -182,13 +185,13 @@ union DoubleBits {
 - (void)testConvertsSimpleObjects {
   ObjectValue actual =
       FSTTestObjectValue(@{@"a" : @"foo", @"b" : @(1L), @"c" : @YES, @"d" : [NSNull null]});
-  ObjectValue expected = ObjectValue(Map("a", "foo", "b", 1, "c", true, "d", nullptr));
+  ObjectValue expected = WrapObject("a", "foo", "b", 1, "c", true, "d", nullptr);
   XCTAssertTrue(actual == expected);
 }
 
 - (void)testConvertsNestedObjects {
   ObjectValue actual = FSTTestObjectValue(@{@"a" : @{@"b" : @{@"c" : @"foo"}, @"d" : @YES}});
-  ObjectValue expected = ObjectValue(Map("a", Map("b", Map("c", "foo"), "d", true)));
+  ObjectValue expected = WrapObject("a", Map("b", Map("c", "foo"), "d", true));
   XCTAssertTrue(actual == expected);
 }
 
@@ -202,7 +205,7 @@ union DoubleBits {
 
 - (void)testNSDatesAreConvertedToTimestamps {
   NSDate *date = [NSDate date];
-  firebase::Timestamp timestamp = MakeTimestamp(date);
+  Timestamp timestamp = MakeTimestamp(date);
   id input = @{@"array" : @[ @1, date ], @"obj" : @{@"date" : date, @"string" : @"hi"}};
   ObjectValue value = FSTTestObjectValue(input);
   {

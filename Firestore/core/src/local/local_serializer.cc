@@ -350,7 +350,7 @@ MutationBatch LocalSerializer::DecodeMutationBatch(
           transform_mutation.transform.field_transforms_count;
       new_mutation.update_transforms =
           transform_mutation.transform.field_transforms;
-      // Prevent double-freeing of the write's fields. The field are now owned
+      // Prevent double-freeing of the write's fields. The fields are now owned
       // by the mutation.
       ReleaseFieldOwnership(
           transform_mutation.transform.field_transforms,

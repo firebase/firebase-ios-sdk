@@ -581,7 +581,7 @@ FieldTransform Serializer::DecodeFieldTransform(
       FieldTransform field_transform(
           std::move(field), ArrayTransform(TransformOperation::Type::ArrayUnion,
                                            proto.append_missing_elements));
-      // Release field ownership to prevent doube-freeing. The values are now
+      // Release field ownership to prevent double-freeing. The values are now
       // owned by the FieldTransform.
       proto.append_missing_elements = {};
       return field_transform;
@@ -592,7 +592,7 @@ FieldTransform Serializer::DecodeFieldTransform(
           std::move(field),
           ArrayTransform(TransformOperation::Type::ArrayRemove,
                          proto.remove_all_from_array));
-      // Release field ownership to prevent doube-freeing. The values are now
+      // Release field ownership to prevent double-freeing. The values are now
       // owned by the FieldTransform.
       proto.append_missing_elements = {};
       return field_transform;
@@ -1121,7 +1121,7 @@ std::shared_ptr<Bound> Serializer::DecodeBound(
   SetRepeatedField(&index_components.values, &index_components.values_count,
                    absl::Span<google_firestore_v1_Value>(cursor.values,
                                                          cursor.values_count));
-  // Prevent double-freeing of the cursors's fields. The field are now owned by
+  // Prevent double-freeing of the cursors's fields. The fields are now owned by
   // the bound.
   ReleaseFieldOwnership(cursor.values, cursor.values_count);
   return std::make_shared<Bound>(index_components, cursor.before);
@@ -1191,7 +1191,7 @@ MutationResult Serializer::DecodeMutationResult(
                    absl::Span<google_firestore_v1_Value>(
                        write_result.transform_results,
                        write_result.transform_results_count));
-  // Prevent double-freeing of the transform result. The field are now owned by
+  // Prevent double-freeing of the transform result. The fields are now owned by
   // the muation result.
   ReleaseFieldOwnership(write_result.transform_results,
                         write_result.transform_results_count);

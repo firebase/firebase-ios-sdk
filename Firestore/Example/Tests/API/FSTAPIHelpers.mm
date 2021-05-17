@@ -124,7 +124,6 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
     google_firestore_v1_Value value = [reader parsedQueryValue:oldDocs[key]];
     std::string documentKey = util::StringFormat("%s/%s", path, key);
     MutableDocument doc = Doc(documentKey, 1, value);
-
     if (hasPendingWrites) {
       mutatedKeys = mutatedKeys.insert(testutil::Key(documentKey));
       doc.SetHasLocalMutations();
