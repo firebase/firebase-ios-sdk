@@ -229,8 +229,8 @@ ObjectValue ObjectValue::FromFieldsEntry(
       [](const google_firestore_v1_Document_FieldsEntry& entry) {
         return google_firestore_v1_MapValue_FieldsEntry{entry.key, entry.value};
       });
-  // Prevent double-freeing of the document's fields. The field are now owned by
-  // ObjectValue.
+  // Prevent double-freeing of the document's fields. The fields are now owned
+  // by ObjectValue.
   ReleaseFieldOwnership(fields_entry, count);
   return ObjectValue{value};
 }
