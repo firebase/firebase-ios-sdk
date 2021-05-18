@@ -34,7 +34,7 @@
     /// regarding the app instance. To stop this, see `[FIRInstallations delete]`. It
     /// resumes with a new Instance ID the next time you call this method.
     ///
-    /// - Returns: A publisher emitting a `HTTPSCallableResult` instance.
+    /// - Returns: A publisher emitting a `HTTPSCallableResult` instance. The publisher will emit on the *main* thread.
     @discardableResult
     public func call() -> Future<HTTPSCallableResult, Error> {
       Future<HTTPSCallableResult, Error> { promise in
@@ -68,7 +68,7 @@
     /// resumes with a new Instance ID the next time you call this method.
     ///
     /// - Parameter data: The data passed into the Callable Function.
-    /// - Returns: A publisher emitting a `HTTPSCallableResult` instance.
+    /// - Returns: A publisher emitting a `HTTPSCallableResult` instance. The publisher will emit on the *main* thread.
     @discardableResult
     public func call(_ data: Any?) -> Future<HTTPSCallableResult, Error> {
       Future<HTTPSCallableResult, Error> { promise in

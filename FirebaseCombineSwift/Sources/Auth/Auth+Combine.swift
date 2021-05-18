@@ -440,7 +440,7 @@
       ///   protocol. This is used for presenting the web context. If `nil`, a default `AuthUIDelegate`
       ///   will be used.
       /// - Returns: A publisher that emits an `AuthDataResult` when the sign-in flow completed
-      ///   successfully, or an error otherwise.
+      ///   successfully, or an error otherwise. The publisher will emit on the *main* thread.
       /// - Remark: Possible error codes:
       ///   - `AuthErrorCodeOperationNotAllowed` - Indicates that email and password accounts are not enabled.
       ///     Enable them in the Auth section of the Firebase console.

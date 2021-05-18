@@ -27,7 +27,7 @@
     ///
     /// - Parameter credential: The credential for the identity provider.
     /// - Returns: A publisher that emits an `AuthDataResult` when the association flow completed
-    ///   successfully, or an error otherwise.
+    ///   successfully, or an error otherwise. The publisher will emit on the *main* thread.
     /// - Remark: Possible error codes:
     ///   - `FIRAuthErrorCodeProviderAlreadyLinked` - Indicates an attempt to link a provider of a type
     ///     already linked to this account.
