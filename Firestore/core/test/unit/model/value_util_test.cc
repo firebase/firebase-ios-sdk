@@ -215,7 +215,7 @@ TEST_F(ValueUtilTest, Equality) {
   Add(equals_group, Array("foo", "bar"), Array("foo", "bar"));
   Add(equals_group, Array("foo", "bar", "baz"));
   Add(equals_group, Array("foo"));
-  Add(equals_group, Map("bar", 1, "foo", 2), Map("foo", 2, "bar", 1));
+  Add(equals_group, Map("bar", 1, "foo", 2), Map("bar", 1, "foo", 2));
   Add(equals_group, Map("bar", 2, "foo", 1));
   Add(equals_group, Map("bar", 1));
   Add(equals_group, Map("foo", 1));
