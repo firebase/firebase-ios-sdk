@@ -24,8 +24,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// Check token obtained with App Attest provider.
 @protocol FIRAppAttestArtifactStorageProtocol <NSObject>
 
-/// Set the artifact. An artifact previously set for *any* key ID will replace the new one with the
-/// new key ID. The storage always stores as single artifact.
+/// Set the artifact. An artifact previously set for *any* key ID will be replaced by the new one
+/// with the new key ID. The storage always stores a single artifact.
 /// @param artifact The artifact data to store. Pass `nil` to remove the stored artifact.
 /// @param keyID The App Attest key ID used to generate the artifact.
 /// @return An artifact that is resolved with the artifact data passed into the method in case of
