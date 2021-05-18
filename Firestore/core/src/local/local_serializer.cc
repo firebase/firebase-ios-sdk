@@ -352,9 +352,8 @@ MutationBatch LocalSerializer::DecodeMutationBatch(
           transform_mutation.transform.field_transforms;
       // Prevent double-freeing of the write's fields. The fields are now owned
       // by the mutation.
-      ReleaseFieldOwnership(
-          transform_mutation.transform.field_transforms,
-          transform_mutation.transform.field_transforms_count);
+      transform_mutation.transform.field_transforms_count = 0;
+      transform_mutation.transform.field_transforms = nullptr;
       mutations.push_back(
           rpc_serializer_.DecodeMutation(reader->context(), new_mutation));
       ++i;
