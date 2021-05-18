@@ -161,6 +161,7 @@ void ApplyChanges(
     // Otherwise, insert the next upsert.
     target_entry.key = MakeBytesArray(upsert_it->first);
     target_entry.value = DeepClone(upsert_it->second);
+    SortFields(target_entry.value);
 
     ++upsert_it;
     ++target_index;
