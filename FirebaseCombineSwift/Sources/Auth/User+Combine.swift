@@ -18,7 +18,7 @@
   import FirebaseAuth
 
   @available(swift 5.0)
-  @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
+  @available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *)
   extension User {
     /// Associates a user account from a third-party identity provider with this user and
     /// returns additional identity provider data.
@@ -101,7 +101,7 @@
     ///
     /// - Parameter provider: The provider ID of the provider to unlink.
     /// - Returns: A publisher that emits a `User` when the disassociation flow completed
-    ///   successfully, or an error otherwise.
+    ///   successfully, or an error otherwise. The publisher will emit on the *main* thread.
     ///
     ///   Possible error codes:
     ///
@@ -195,4 +195,4 @@
     }
   }
 
-#endif
+#endif // canImport(Combine) && swift(>=5.0) && canImport(FirebaseAuth)

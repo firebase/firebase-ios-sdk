@@ -20,7 +20,7 @@
     import FirebaseAuth
 
     @available(swift 5.0)
-    @available(iOS 13, macCatalyst 13, *)
+    @available(iOS 13.0, macCatalyst 13.0, *)
     @available(macOS, unavailable)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
@@ -30,7 +30,8 @@
       /// The publisher will emit events on the **main** thread.
       ///
       /// - Returns: A publisher that emits a `MultiFactorSession` for a second factor
-      ///   enrollment operation. This is used to identify the current user trying to enroll a second factor.
+      ///   enrollment operation. This is used to identify the current user trying to enroll a second factor. The publisher will emit on
+      ///   the *main* thread.
       @discardableResult
       public func getSession() -> Future<MultiFactorSession, Error> {
         Future<MultiFactorSession, Error> { promise in
@@ -53,7 +54,7 @@
       ///     - assertion: The base class for asserting ownership of a second factor.
       ///     - displayName: An optional display name associated with the multi factor to enroll.
       ///
-      /// - Returns: A publisher that emits whether the call was successful or not.
+      /// - Returns: A publisher that emits whether the call was successful or not. The publisher will emit on the *main* thread.
       @discardableResult
       public func enroll(with assertion: MultiFactorAssertion,
                          displayName: String?) -> Future<Void, Error> {
@@ -73,7 +74,8 @@
       /// The publisher will emit events on the **main** thread.
       ///
       /// - Parameter factorInfo: The structure used to represent a second factor entity from a client perspective.
-      /// - Returns: A publisher that emits when the request to send the unenrollment verification email is complete.
+      /// - Returns: A publisher that emits when the request to send the unenrollment verification email is complete. The publisher
+      /// will emit on the *main* thread.
       @discardableResult
       public func unenroll(with factorInfo: MultiFactorInfo) -> Future<Void, Error> {
         Future<Void, Error> { promise in
@@ -92,6 +94,7 @@
       /// The publisher will emit events on the **main** thread.
       ///
       /// - Returns: A publisher that emits when the request to send the unenrollment verification email is complete.
+      /// The publisher will emit on the *main* thread.
       @discardableResult
       public func unenroll(withFactorUID factorUID: String) -> Future<Void, Error> {
         Future<Void, Error> { promise in
@@ -108,4 +111,4 @@
 
   #endif // os(iOS) || targetEnvironment(macCatalyst)
 
-#endif
+#endif // canImport(Combine) && swift(>=5.0) && canImport(FirebaseAuth)

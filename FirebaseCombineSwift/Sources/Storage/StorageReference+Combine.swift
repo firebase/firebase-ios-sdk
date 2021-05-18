@@ -19,7 +19,7 @@
   import FirebaseStorageSwift
 
   @available(swift 5.0)
-  @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
+  @available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *)
   extension StorageReference {
     // MARK: - Uploads
 
@@ -268,4 +268,4 @@
     }
   }
 
-#endif
+#endif // canImport(Combine) && swift(>=5.0) && canImport(FirebaseStorage)

@@ -20,7 +20,7 @@
     import FirebaseAuth
 
     @available(swift 5.0)
-    @available(iOS 13, macCatalyst 13, *)
+    @available(iOS 13.0, macCatalyst 13.0, *)
     @available(macOS, unavailable)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
@@ -48,4 +48,4 @@
 
   #endif // os(iOS) || targetEnvironment(macCatalyst)
 
-#endif
+#endif // canImport(Combine) && swift(>=5.0) && canImport(FirebaseAuth)

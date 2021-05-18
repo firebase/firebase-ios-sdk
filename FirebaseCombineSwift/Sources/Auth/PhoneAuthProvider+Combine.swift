@@ -22,9 +22,9 @@
     import FirebaseAuth
 
     @available(swift 5.0)
-    @available(iOS 13, *)
-    @available(macCatalyst, unavailable)
+    @available(iOS 13.0, *)
     @available(macOS, unavailable)
+    @available(macCatalyst, unavailable)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     extension PhoneAuthProvider {
@@ -144,4 +144,4 @@
 
   #endif // os(iOS)
 
-#endif
+#endif // canImport(Combine) && swift(>=5.0) && canImport(FirebaseAuth)

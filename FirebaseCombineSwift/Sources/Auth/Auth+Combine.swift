@@ -18,7 +18,7 @@
   import FirebaseAuth
 
   @available(swift 5.0)
-  @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
+  @available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *)
   extension Auth {
     // MARK: - Authentication State Management
 
@@ -32,7 +32,8 @@
     ///
     /// The publisher will emit events on the **main** thread.
     ///
-    /// - Returns: A publisher emitting a `User` instance (if the user has signed in) or `nil` (if the user has signed out)
+    /// - Returns: A publisher emitting a `User` instance (if the user has signed in) or `nil` (if the user has signed out).
+    /// The publisher will emit on the *main* thread.
     public func authStateDidChangePublisher() -> AnyPublisher<User?, Never> {
       let subject = PassthroughSubject<User?, Never>()
       let handle = addStateDidChangeListener { auth, user in
@@ -57,7 +58,8 @@
     /// The publisher will emit events on the **main** thread.
     ///
     /// - Returns: A publisher emitting a `User` instance (if a different user is signed in or
-    ///   the ID token of the current user has changed) or `nil` (if the user has signed out)
+    ///   the ID token of the current user has changed) or `nil` (if the user has signed out).
+    ///   The publisher will emit on the *main* thread.
     public func idTokenDidChangePublisher() -> AnyPublisher<User?, Never> {
       let subject = PassthroughSubject<User?, Never>()
       let handle = addIDTokenDidChangeListener { auth, user in
@@ -70,7 +72,7 @@
         .eraseToAnyPublisher()
     }
 
-    /// Sets the `currentUser` on the calling Auth instance to the provided `User` instance.
+    /// Sets the `currentUser` on the calling Auth instance to the provided `user` object.
     ///
     /// The publisher will emit events on the **main** thread.
     ///
@@ -99,7 +101,7 @@
     ///
     /// The publisher will emit events on the **main** thread.
     ///
-    /// - Returns: A publisher that emits the result of the sign in flow.
+    /// - Returns: A publisher that emits the result of the sign in flow. The publisher will emit on the *main* thread.
     /// - Remark:
     ///   Possible error codes:
     ///   - `AuthErrorCodeOperationNotAllowed` - Indicates that anonymous accounts are
@@ -128,7 +130,7 @@
     /// - Parameters:
     ///   - email: The user's email address.
     ///   - password: The user's desired password.
-    /// - Returns: A publisher that emits the result of the sign in flow.
+    /// - Returns: A publisher that emits the result of the sign in flow. The publisher will emit on the *main* thread.
     /// - Remark:
     ///   Possible error codes:
     ///   - `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
@@ -163,7 +165,7 @@
     /// - Parameters:
     ///   - email: The user's email address.
     ///   - password: The user's password.
-    /// - Returns: A publisher that emits the result of the sign in flow.
+    /// - Returns: A publisher that emits the result of the sign in flow. The publisher will emit on the *main* thread.
     /// - Remark:
     ///   Possible error codes:
     ///   - `AuthErrorCodeOperationNotAllowed` - Indicates that email and password
@@ -198,7 +200,7 @@
     /// - Parameters:
     ///   - email: The user's email address.
     ///   - link: The email sign-in link.
-    /// - Returns: A publisher that emits the result of the sign in flow.
+    /// - Returns: A publisher that emits the result of the sign in flow. The publisher will emit on the *main* thread.
     /// - Remark:
     ///   Possible error codes:
     ///   - `AuthErrorCodeOperationNotAllowed` - Indicates that email and password
@@ -231,7 +233,7 @@
     ///   - email: The email address of the user.
     ///   - actionCodeSettings: An `ActionCodeSettings` object containing settings related to
     ///     handling action codes.
-    /// - Returns: A publisher that emits whether the call was successful or not.
+    /// - Returns: A publisher that emits whether the call was successful or not. The publisher will emit on the *main* thread.
     @available(watchOS, unavailable)
     @discardableResult
     public func sendSignInLink(toEmail email: String,
@@ -255,7 +257,7 @@
     ///
     /// - Parameter email: The email address for which to obtain a list of sign-in methods.
     /// - Returns: A publisher that emits a list of sign-in methods for the specified email
-    ///   address, or an error if one occurred.
+    ///   address, or an error if one occurred. The publisher will emit on the *main* thread.
     /// - Remark: Possible error codes:
     ///   - `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
     ///
@@ -281,10 +283,10 @@
     /// - Parameters:
     ///   - code: Out-of-band (OOB) code given to the user outside of the app.
     ///   - newPassword: The new password.
-    /// - Returns: A publisher that emits whether the call was successful or not.
+    /// - Returns: A publisher that emits whether the call was successful or not. The publisher will emit on the *main* thread.
     /// - Remark: Possible error codes:
     ///   - `AuthErrorCodeWeakPassword` - Indicates an attempt to set a password that is considered too weak.
-    ///   - `AuthErrorCodeOperationNotAllowed` - Indicates the administrator disabled sign in with the specified identity provider.
+    ///   - `AuthErrorCodeOperationNotAllowed` - Indicates the admin disabled sign in with the specified identity provider.
     ///   - `AuthErrorCodeExpiredActionCode` - Indicates the OOB code is expired.
     ///   - `AuthErrorCodeInvalidActionCode` - Indicates the OOB code is invalid.
     ///
@@ -310,6 +312,7 @@
     /// - Parameter code: The password reset code to be verified.
     /// - Returns: A publisher that emits an error if the code could not be verified. If the code could be
     ///   verified, the publisher will emit the email address of the account the code was issued for.
+    ///   The publisher will emit on the *main* thread.
     @discardableResult
     public func verifyPasswordResetCode(_ code: String) -> Future<String, Error> {
       Future<String, Error> { promise in
@@ -329,7 +332,7 @@
     ///
     /// - Parameter code: The out of band code to check validity.
     /// - Returns: A publisher that emits the email address of the account the code was issued for or an error if
-    ///   the code could not be verified.
+    ///   the code could not be verified. The publisher will emit on the *main* thread.
     @discardableResult
     public func checkActionCode(code: String) -> Future<ActionCodeInfo, Error> {
       Future<ActionCodeInfo, Error> { promise in
@@ -347,8 +350,8 @@
     ///
     /// The publisher will emit events on the **main** thread.
     ///
-    /// - Parameter code: The out-of-band code to be applied.
-    /// - Returns: A publisher that emits an error if the code could not be applied.
+    /// - Parameter code: The out-of-band (OOB) code to be applied.
+    /// - Returns: A publisher that emits an error if the code could not be applied. The publisher will emit on the *main* thread.
     /// - Remark: This method will not work for out-of-band codes which require an additional parameter,
     ///   such as password reset codes.
     @discardableResult
@@ -369,7 +372,7 @@
     /// The publisher will emit events on the **main** thread.
     ///
     /// - Parameter email: The email address of the user.
-    /// - Returns: A publisher that emits whether the call was successful or not.
+    /// - Returns: A publisher that emits whether the call was successful or not. The publisher will emit on the *main* thread.
     /// - Remark: Possible error codes:
     ///   - `AuthErrorCodeInvalidRecipientEmail` - Indicates an invalid recipient email was sent in the request.
     ///   - `AuthErrorCodeInvalidSender` - Indicates an invalid sender email is set in the console for this action.
@@ -394,15 +397,19 @@
     /// The publisher will emit events on the **main** thread.
     ///
     /// - Parameter email: The email address of the user.
-    /// - Parameter actionCodeSettings: An `ActionCodeSettings` object containing settings related to handling action codes.
-    /// - Returns: A publisher that emits whether the call was successful or not.
+    /// - Parameter actionCodeSettings: An `ActionCodeSettings` object containing settings related to
+    /// handling action codes.
+    /// - Returns: A publisher that emits whether the call was successful or not. The publisher will emit on the *main* thread.
     /// - Remark: Possible error codes:
     ///   - `AuthErrorCodeInvalidRecipientEmail` - Indicates an invalid recipient email was sent in the request.
     ///   - `AuthErrorCodeInvalidSender` - Indicates an invalid sender email is set in the console for this action.
     ///   - `AuthErrorCodeInvalidMessagePayload` - Indicates an invalid email template for sending update email.
-    ///   - `AuthErrorCodeMissingIosBundleID` - Indicates that the iOS bundle ID is missing when `handleCodeInApp` is set to YES.
-    ///   - `AuthErrorCodeMissingAndroidPackageName` - Indicates that the android package name is missing when the `androidInstallApp` flag is set to true.
-    ///   - `AuthErrorCodeUnauthorizedDomain` - Indicates that the domain specified in the continue URL is not whitelisted in the Firebase console.
+    ///   - `AuthErrorCodeMissingIosBundleID` - Indicates that the iOS bundle ID is missing
+    ///   when `handleCodeInApp` is set to YES.
+    ///   - `AuthErrorCodeMissingAndroidPackageName` - Indicates that the android package name is missing
+    ///   when the `androidInstallApp` flag is set to true.
+    ///   - `AuthErrorCodeUnauthorizedDomain` - Indicates that the domain specified in the continue URL is not whitelisted
+    ///    in the Firebase console.
     ///   - `AuthErrorCodeInvalidContinueURI` - Indicates that the domain specified in the continue URI is not valid.
     ///
     ///   See `AuthErrors` for a list of error codes that are common to all API methods
@@ -423,7 +430,6 @@
     // MARK: - Other Authentication providers
 
     #if os(iOS) || targetEnvironment(macCatalyst)
-
       /// Signs in using the provided auth provider instance.
       ///
       /// The publisher will emit events on the **main** thread.
@@ -468,7 +474,6 @@
           }
         }
       }
-
     #endif // os(iOS) || targetEnvironment(macCatalyst)
 
     /// Asynchronously signs in to Firebase with the given Auth token.
@@ -548,4 +553,4 @@
     }
   }
 
-#endif
+#endif // canImport(Combine) && swift(>=5.0) && canImport(FirebaseAuth)

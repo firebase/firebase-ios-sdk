@@ -20,7 +20,7 @@
     import FirebaseAuth
 
     @available(swift 5.0)
-    @available(iOS 13, macCatalyst 13, *)
+    @available(iOS 13.0, macCatalyst 13.0, *)
     @available(macOS, unavailable)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
@@ -30,7 +30,7 @@
       ///
       /// - Parameter assertion: The base class for asserting ownership of a second factor.
       /// - Returns: A publisher that emits an `AuthDataResult` when the sign-in flow completed
-      ///   successfully, or an error otherwise.
+      ///   successfully, or an error otherwise. The publisher will emit on the *main* thread.
       public func resolveSignIn(with assertion: MultiFactorAssertion)
         -> Future<AuthDataResult, Error> {
         Future<AuthDataResult, Error> { promise in
@@ -47,4 +47,4 @@
 
   #endif // os(iOS) || targetEnvironment(macCatalyst)
 
-#endif
+#endif // canImport(Combine) && swift(>=5.0) && canImport(FirebaseAuth)

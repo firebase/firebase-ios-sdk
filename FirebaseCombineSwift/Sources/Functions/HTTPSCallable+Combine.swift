@@ -18,7 +18,7 @@
   import FirebaseFunctions
 
   @available(swift 5.0)
-  @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
+  @available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, *)
   extension HTTPSCallable {
     // MARK: - HTTPS Callable Functions
 
@@ -83,4 +83,4 @@
     }
   }
 
-#endif
+#endif // canImport(Combine) && swift(>=5.0) && canImport(FirebaseFunctions)
