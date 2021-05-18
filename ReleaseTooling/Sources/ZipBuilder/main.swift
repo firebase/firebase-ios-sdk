@@ -53,12 +53,6 @@ struct ZipBuilderTool: ParsableCommand {
         help: ArgumentHelp("Whether or not to build dependencies of requested pods."))
   var buildDependencies: Bool
 
-  /// Flag to also build Carthage artifacts.
-  @Flag(default: false,
-        inversion: .prefixedEnableDisable,
-        help: ArgumentHelp("A flag specifying to build Carthage artifacts."))
-  var carthageBuild: Bool
-
   /// Flag to enable or disable Carthage version checks. Skipping the check can speed up dev
   /// iterations.
   @Flag(default: true,
@@ -306,12 +300,9 @@ struct ZipBuilderTool: ParsableCommand {
       // pod's podspec options.
       PlatformMinimum.useRecentVersions()
 
-      var carthageOptions: CarthageBuildOptions?
-      if carthageBuild {
-        let jsonDir = paths.repoDir.appendingPathComponents(["ReleaseTooling", "CarthageJSON"])
-        carthageOptions = CarthageBuildOptions(jsonDir: jsonDir,
-                                               isVersionCheckEnabled: carthageVersionCheck)
-      }
+      let jsonDir = paths.repoDir.appendingPathComponents(["ReleaseTooling", "CarthageJSON"])
+      let carthageOptions = CarthageBuildOptions(jsonDir: jsonDir,
+                                                 isVersionCheckEnabled: carthageVersionCheck)
 
       FirebaseBuilder(zipBuilder: builder).build(templateDir: paths.templateDir,
                                                  carthageBuildOptions: carthageOptions)
