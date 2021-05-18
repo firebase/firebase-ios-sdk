@@ -1324,7 +1324,7 @@ std::unique_ptr<WatchChange> Serializer::DecodeDocumentChange(
   // optimization C++ implementation is on par with the preceding Objective-C
   // implementation.
   MutableDocument document =
-      MutableDocument::FoundDocument(std::move(key), version, std::move(value));
+      MutableDocument::FoundDocument(key, version, std::move(value));
 
   std::vector<TargetId> updated_target_ids(
       change.target_ids, change.target_ids + change.target_ids_count);
@@ -1346,8 +1346,7 @@ std::unique_ptr<WatchChange> Serializer::DecodeDocumentDelete(
   SnapshotVersion version = change.has_read_time
                                 ? DecodeVersion(context, change.read_time)
                                 : SnapshotVersion::None();
-  MutableDocument document =
-      MutableDocument::NoDocument(std::move(key), version);
+  MutableDocument document = MutableDocument::NoDocument(key, version);
 
   std::vector<TargetId> removed_target_ids(
       change.removed_target_ids,
