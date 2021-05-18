@@ -237,7 +237,14 @@ bool FIRCLSFileLoopWithWriteBlock(const void* buffer,
   for (size_t count = 0; length > 0 && count < CLS_FILE_MAX_WRITE_ATTEMPTS; ++count) {
     // try to write all that is left
     ssize_t ret = writeBlock(buffer, length);
-    if (ret >= 0 && ret == length) {
+
+    if (length > SIZE_MAX) {
+      // if this happens we can't convert it to a signed version due to overflow
+      return false;
+    }
+    const ssize_t signedLength = (ssize_t)length;
+
+    if (ret >= 0 && ret == signedLength) {
       return true;
     }
 
@@ -247,7 +254,7 @@ bool FIRCLSFileLoopWithWriteBlock(const void* buffer,
     }
 
     // We wrote more bytes than we expected, abort
-    if (ret > length) {
+    if (ret > signedLength) {
       return false;
     }
 
