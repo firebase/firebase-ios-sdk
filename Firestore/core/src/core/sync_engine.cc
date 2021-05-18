@@ -345,7 +345,7 @@ void SyncEngine::HandleRejectedListen(TargetId target_id, Status error) {
 }
 
 void SyncEngine::HandleSuccessfulWrite(
-    const model::MutationBatchResult& batch_result) {
+    model::MutationBatchResult batch_result) {
   AssertCallbackExists("HandleSuccessfulWrite");
 
   // The local store may or may not be able to apply the write result and

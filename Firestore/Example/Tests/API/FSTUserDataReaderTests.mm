@@ -186,20 +186,20 @@ union DoubleBits {
   ObjectValue actual =
       FSTTestObjectValue(@{@"a" : @"foo", @"b" : @(1L), @"c" : @YES, @"d" : [NSNull null]});
   ObjectValue expected = WrapObject("a", "foo", "b", 1, "c", true, "d", nullptr);
-  XCTAssertEqual(actual, expected);
+  XCTAssertTrue(actual == expected);
 }
 
 - (void)testConvertsNestedObjects {
   ObjectValue actual = FSTTestObjectValue(@{@"a" : @{@"b" : @{@"c" : @"foo"}, @"d" : @YES}});
   ObjectValue expected = WrapObject("a", Map("b", Map("c", "foo"), "d", true));
-  XCTAssertEqual(actual, expected);
+  XCTAssertTrue(actual == expected);
 }
 
 - (void)testConvertsArrays {
   google_firestore_v1_Value expected = Value(Array("value", true));
 
   google_firestore_v1_Value actual = FSTTestFieldValue(@[ @"value", @YES ]);
-  XCTAssertEqual(actual, expected);
+  XCTAssertTrue(actual == expected);
   XCTAssertTrue(IsArray(actual));
 }
 

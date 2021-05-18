@@ -442,7 +442,7 @@ void RemoteStore::OnWriteStreamMutationResult(
   MutationBatchResult batch_result(std::move(batch), commit_version,
                                    std::move(mutation_results),
                                    write_stream_->last_stream_token());
-  sync_engine_->HandleSuccessfulWrite(batch_result);
+  sync_engine_->HandleSuccessfulWrite(std::move(batch_result));
 
   // It's possible that with the completion of this mutation another slot has
   // freed up.

@@ -41,6 +41,7 @@
 #include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/model/verify_mutation.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
+#include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/statusor.h"
 #include "Firestore/core/src/util/string_format.h"
@@ -61,9 +62,9 @@ using model::MutableDocument;
 using model::NullValue;
 using model::ObjectValue;
 using model::Precondition;
-using model::SetRepeatedField;
 using model::TransformOperation;
 using nanopb::ByteString;
+using nanopb::SetRepeatedField;
 using util::StringFormat;
 
 /**
@@ -71,6 +72,19 @@ using util::StringFormat;
  * deletion.
  */
 constexpr const char* kDeleteSentinel = "<DELETE>";
+
+// We use a canonical NaN bit pattern that's common for both Objective-C and
+// Java. Specifically:
+//
+//   - sign: 0
+//   - exponent: 11 bits, all 1
+//   - significand: 52 bits, MSB=1, rest=0
+//
+// This matches the Firestore backend which uses Double.doubleToLongBits from
+// the JDK (which is defined to normalize all NaNs to this value). This also
+// happens to be a common value for NAN in C++, but C++ does not require this
+// specific NaN value to be used, so we normalize.
+const uint64_t kCanonicalNanBits = 0x7ff8000000000000ULL;
 
 namespace details {
 
@@ -220,7 +234,7 @@ model::MutableDocument DeletedDoc(absl::string_view key, int64_t version) {
 }
 
 model::MutableDocument DeletedDoc(DocumentKey key, int64_t version) {
-  return MutableDocument::NoDocument(key, Version(version));
+  return MutableDocument::NoDocument(std::move(key), Version(version));
 }
 
 model::MutableDocument UnknownDoc(absl::string_view key, int64_t version) {

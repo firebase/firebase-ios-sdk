@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_MODEL_PATCH_MUTATION_H_
 #define FIRESTORE_CORE_SRC_MODEL_PATCH_MUTATION_H_
 
+#include <map>
 #include <memory>
 #include <string>
 #include <utility>

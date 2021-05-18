@@ -49,7 +49,8 @@ google_firestore_v1_Value EncodeServerTimestamp(
   ++field;
   field->key = nanopb::MakeBytesArray(kLocalWriteTimeKey);
   field->value.which_value_type = google_firestore_v1_Value_timestamp_value_tag;
-  field->value.timestamp_value = local_write_time;
+  field->value.timestamp_value.seconds = local_write_time.seconds();
+  field->value.timestamp_value.nanos = local_write_time.nanoseconds();
 
   if (previous_value) {
     ++field;

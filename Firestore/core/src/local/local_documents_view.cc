@@ -182,9 +182,8 @@ DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionQuery(
   DocumentMap results;
   for (const auto& kv : remote_documents) {
     const DocumentKey& key = kv.first;
-    Document doc{std::move(kv.second)};
-    if (query.Matches(doc)) {
-      results = results.insert(key, std::move(doc));
+    if (query.Matches(kv.second)) {
+      results = results.insert(key, kv.second);
     }
   }
 

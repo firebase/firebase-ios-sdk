@@ -56,7 +56,7 @@ void MemoryRemoteDocumentCache::Remove(const DocumentKey& key) {
 
 MutableDocument MemoryRemoteDocumentCache::Get(const DocumentKey& key) {
   const auto& entry = docs_.get(key);
-  // Note: We create an explicit copy to prevent modifications or the backing
+  // Note: We create an explicit copy to prevent modifications of the backing
   // data.
   return entry ? entry->first : MutableDocument::InvalidDocument(key);
 }
@@ -99,7 +99,7 @@ MutableDocumentMap MemoryRemoteDocumentCache::GetMatching(
       continue;
     }
 
-    if (query.Matches(document)) {
+    if (!query.Matches(document)) {
       continue;
     }
 

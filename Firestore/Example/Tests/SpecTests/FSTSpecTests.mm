@@ -330,7 +330,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
       Doc(util::MakeString((NSString *)jsonDoc[@"key"]), version.longLongValue, data);
   if ([options[@"hasLocalMutations"] boolValue] == YES) {
     doc.SetHasLocalMutations();
-  } else if ([[options[@"hasCommittedMutations"] boolValue] == YES]) {
+  } else if ([options[@"hasCommittedMutations"] boolValue] == YES) {
     doc.SetHasCommittedMutations();
   }
   return DocumentViewChange{std::move(doc), type};

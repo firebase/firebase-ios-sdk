@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/model/mutable_document.h"
 
+#include <ostream>
 #include <sstream>
 
 #include "Firestore/core/src/model/value_util.h"
@@ -58,11 +59,19 @@ MutableDocument& MutableDocument::ConvertToFoundDocument(
   return *this;
 }
 
+MutableDocument& MutableDocument::ConvertToFoundDocument(
+    const SnapshotVersion& version) {
+  version_ = version;
+  document_type_ = DocumentType::kFoundDocument;
+  document_state_ = DocumentState::kSynced;
+  return *this;
+}
+
 MutableDocument& MutableDocument::ConvertToNoDocument(
     const SnapshotVersion& version) {
   version_ = version;
   document_type_ = DocumentType::kNoDocument;
-  value_ = std::make_shared<const ObjectValue>();
+  value_ = std::make_shared<ObjectValue>();
   document_state_ = DocumentState::kSynced;
   return *this;
 }
@@ -71,7 +80,7 @@ MutableDocument& MutableDocument::ConvertToUnknownDocument(
     const SnapshotVersion& version) {
   version_ = version;
   document_type_ = DocumentType::kUnknownDocument;
-  value_ = std::make_shared<const ObjectValue>();
+  value_ = std::make_shared<ObjectValue>();
   document_state_ = DocumentState::kHasCommittedMutations;
   return *this;
 }

@@ -444,7 +444,7 @@ TEST_F(BundleSerializerTest, DecodesInvalidDoubleValueFails) {
 
 TEST_F(BundleSerializerTest, DecodesNanDoubleValues) {
   ProtoValue value;
-  value.set_double_value(absl::bit_cast<double>(model::kCanonicalNanBits));
+  value.set_double_value(absl::bit_cast<double>(testutil::kCanonicalNanBits));
   ProtoDocument document = TestDocument(value);
 
   std::string json_string;
