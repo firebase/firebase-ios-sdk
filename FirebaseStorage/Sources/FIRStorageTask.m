@@ -27,7 +27,6 @@
 @import GTMSessionFetcherCore;
 #else
 #import <GTMSessionFetcher/GTMSessionFetcherService.h>
-#import <GTMSessionFetcher/GTMSessionFetcherLogging.h>
 #endif
 
 @implementation FIRStorageTask
@@ -43,7 +42,6 @@
                     dispatchQueue:(dispatch_queue_t)queue {
   self = [super init];
   if (self) {
-    [GTMSessionFetcher setLoggingEnabled:YES];
     _reference = reference;
     _baseRequest = [FIRStorageUtils defaultRequestForReference:reference];
     _fetcherService = service;

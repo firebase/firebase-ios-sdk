@@ -95,7 +95,7 @@ NSString *const kFIRStorageAppName = @"app";
 }
 
 + (GTMSessionFetcherTestBlock)successBlockWithURL:(NSString *)url {
-  NSData *data = [kUnauthenticatedResponseString dataUsingEncoding:NSUTF8StringEncoding];
+  NSData *data = [@"{}" dataUsingEncoding:NSUTF8StringEncoding];
   return [FIRStorageTestHelpers blockForData:data URL:url statusCode:200];
 }
 
@@ -126,7 +126,6 @@ NSString *const kFIRStorageAppName = @"app";
                                 statusCode:(NSInteger)code {
   GTMSessionFetcherTestBlock block =
       ^(GTMSessionFetcher *fetcher, GTMSessionFetcherTestResponse response) {
-          
         if (url) {
           XCTAssertEqualObjects(url, [fetcher.request.URL absoluteString]);
         }
@@ -142,8 +141,7 @@ NSString *const kFIRStorageAppName = @"app";
           }
           error = [NSError errorWithDomain:kGoogleHTTPErrorDomain code:code userInfo:userInfo];
         }
-          
-              XCTFail("%@",  httpResponse);
+
         response(httpResponse, data, error);
       };
   return block;
