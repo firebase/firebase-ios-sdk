@@ -26,7 +26,7 @@
     ///
     /// The publisher emits values when:
     ///
-    /// - A user is registered,
+    /// - It is registered,
     /// - a user with a different UID from the current user has signed in, or
     /// - the current user has signed out.
     ///
@@ -50,7 +50,7 @@
     ///
     /// The publisher emits values when:
     ///
-    /// - A user is registered,
+    /// - It is registered,
     /// - a user with a different UID from the current user has signed in,
     /// - the ID token of the current user has been refreshed, or
     /// - the current user has signed out.
