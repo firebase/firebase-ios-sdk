@@ -77,8 +77,8 @@
     /// The publisher will emit events on the **main** thread.
     ///
     /// - Parameter user: The user object to be set as the current user of the calling Auth instance.
-    /// - Returns: A publisher that emits when the user of the calling Auth instance has changed
-    ///   or an error was encountered. The publisher will emit on the **main** thread.
+    /// - Returns: A publisher that emits when the user of the calling Auth instance has been updated or
+    /// an error was encountered. The publisher will emit on the **main** thread.
     @discardableResult
     public func updateCurrentUser(_ user: User) -> Future<Void, Error> {
       Future<Void, Error> { promise in
