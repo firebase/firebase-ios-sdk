@@ -215,23 +215,35 @@ NS_ASSUME_NONNULL_BEGIN
               })
       // TODO: Handle a possible key rejection - generate another key.
       .thenOn(self.queue,
-              ^FBLPromise<FIRAppAttestAttestationResponse *> *(
-                  FIRAppAttestKeyAttestationResult *result) {
-                // 3. Exchange the attestation to FAC token.
-                return [self.APIService attestKeyWithAttestation:result.attestation
-                                                           keyID:result.keyID
-                                                       challenge:result.challenge];
+              ^FBLPromise<NSArray *> *(FIRAppAttestKeyAttestationResult *result) {
+                // 3. Exchange the attestation to FAC token and pass the results to the next step.
+                NSArray *attestationResults = @[
+                  // 3.1. Just pass the attestation result to the next step.
+                  [FBLPromise resolvedWith:result],
+                  // 3.2. Exchange the attestation to FAC token.
+                  [self.APIService attestKeyWithAttestation:result.attestation
+                                                      keyID:result.keyID
+                                                  challenge:result.challenge]
+                ];
+
+                return [FBLPromise onQueue:self.queue all:attestationResults];
               })
-      .thenOn(self.queue,
-              ^FBLPromise<FIRAppCheckToken *> *(FIRAppAttestAttestationResponse *response) {
-                // 4. Save the artifact and return the received FAC token.
-                return [self saveArtifactAndGetAppCheckTokenFromResponse:response];
-              });
+      .thenOn(self.queue, ^FBLPromise<FIRAppCheckToken *> *(NSArray *attestationResults) {
+        // 4. Save the artifact and return the received FAC token.
+
+        FIRAppAttestKeyAttestationResult *attestation = attestationResults.firstObject;
+        FIRAppAttestAttestationResponse *firebaseAttestationResponse =
+            attestationResults.lastObject;
+
+        return [self saveArtifactAndGetAppCheckTokenFromResponse:firebaseAttestationResponse
+                                                           keyID:attestation.keyID];
+      });
 }
 
 - (FBLPromise<FIRAppCheckToken *> *)saveArtifactAndGetAppCheckTokenFromResponse:
-    (FIRAppAttestAttestationResponse *)response {
-  return [self.artifactStorage setArtifact:response.artifact].thenOn(
+                                        (FIRAppAttestAttestationResponse *)response
+                                                                          keyID:(NSString *)keyID {
+  return [self.artifactStorage setArtifact:response.artifact forKey:keyID].thenOn(
       self.queue, ^FIRAppCheckToken *(id result) {
         return response.token;
       });
@@ -339,7 +351,7 @@ NS_ASSUME_NONNULL_BEGIN
 
              // 3. Check for stored attestation artifact received from Firebase backend.
              NSData *attestationArtifact =
-                 FBLPromiseAwait([self.artifactStorage getArtifact], &error);
+                 FBLPromiseAwait([self.artifactStorage getArtifactForKey:appAttestKeyID], &error);
              if (attestationArtifact == nil) {
                return [[FIRAppAttestProviderState alloc] initWithGeneratedKeyID:appAttestKeyID];
              }
