@@ -56,7 +56,7 @@ struct ZipBuilderTool: ParsableCommand {
   /// Flag to enable or disable Carthage version checks. Skipping the check can speed up dev
   /// iterations.
   @Flag(default: true,
-        // Allows `enableCarthageVersionCheck` and `disableCarthageVersionCheck`.
+        // Allows `--enable-carthage-version-check` and `--disable-carthage-version-check`.
         inversion: FlagInversion.prefixedEnableDisable,
         help: ArgumentHelp("A flag for enabling or disabling versions checks for Carthage builds."))
   var carthageVersionCheck: Bool
