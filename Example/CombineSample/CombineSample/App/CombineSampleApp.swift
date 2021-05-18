@@ -13,12 +13,17 @@
 // limitations under the License.
 
 import SwiftUI
+import Firebase
 
 @main
 struct CombineSampleApp: App {
+  init() {
+    FirebaseApp.configure()
+  }
+  
   var body: some Scene {
     WindowGroup {
-      ContentView()
+      MenuScreen()
     }
   }
 }

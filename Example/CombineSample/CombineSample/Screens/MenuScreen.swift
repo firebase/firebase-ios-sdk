@@ -14,15 +14,29 @@
 
 import SwiftUI
 
-struct ContentView: View {
+struct MenuScreen: View {
   var body: some View {
-    Text("Hello, world!")
-      .padding()
-  }
-}
+    NavigationView {
+      List {
+        Section(header: Text("Demos")) {
+          NavigationLink(destination: Text("Auth")) {
+            Label("Firebase Authentication", systemImage: "key")
+          }
+          NavigationLink(destination: Text("Functions")) {
+            Label("Cloud Functions", systemImage: "gearshape.2")
+          }
+          NavigationLink(destination: Text("Firestore")) {
+            Label("Cloud Firestore", systemImage: "externaldrive.badge.icloud")
+          }
+        }
+      }
+      .listStyle(InsetGroupedListStyle())
+      .navigationTitle("Firebase & Combine")
+    }
+  }}
 
 struct ContentView_Previews: PreviewProvider {
   static var previews: some View {
-    ContentView()
+    MenuScreen()
   }
 }
