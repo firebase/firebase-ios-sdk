@@ -162,7 +162,7 @@ google_firestore_v1_Value AddPairs(const google_firestore_v1_Value& prior,
   google_firestore_v1_Value result = prior;
   result.which_value_type = google_firestore_v1_Value_map_value_tag;
   size_t new_count = result.map_value.fields_count + 1;
-  result.map_value.fields_count = new_count;
+  result.map_value.fields_count = nanopb::CheckedSize(new_count);
   result.map_value.fields =
       nanopb::ResizeArray<google_firestore_v1_MapValue_FieldsEntry>(
           result.map_value.fields, new_count);
