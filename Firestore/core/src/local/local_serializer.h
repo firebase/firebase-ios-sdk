@@ -87,15 +87,15 @@ class LocalSerializer {
    * local storage.
    */
   nanopb::Message<firestore_client_MaybeDocument> EncodeMaybeDocument(
-      const model::MaybeDocument& maybe_doc) const;
+      const model::MutableDocument& maybe_doc) const;
 
   /**
    * @brief Decodes nanopb proto representing a MaybeDocument proto to the
    * equivalent model.
+   * Modifies the provided proto to release ownership of any Value messages.
    */
-  model::MaybeDocument DecodeMaybeDocument(
-      nanopb::Reader* reader,
-      const firestore_client_MaybeDocument& proto) const;
+  model::MutableDocument DecodeMaybeDocument(
+      nanopb::Reader* reader, firestore_client_MaybeDocument& proto) const;
 
   /**
    * @brief Encodes a TargetData to the equivalent nanopb proto, representing a
@@ -107,9 +107,10 @@ class LocalSerializer {
   /**
    * @brief Decodes nanopb proto representing a ::firestore::proto::Target proto
    * to the equivalent TargetData.
+   * Modifies the provided proto to release ownership of any Value messages.
    */
   TargetData DecodeTargetData(nanopb::Reader* reader,
-                              const firestore_client_Target& proto) const;
+                              firestore_client_Target& proto) const;
 
   /**
    * @brief Encodes a MutationBatch to the equivalent nanopb proto, representing
@@ -121,9 +122,10 @@ class LocalSerializer {
   /**
    * @brief Decodes a nanopb proto representing a
    * ::firestore::client::WriteBatch proto to the equivalent MutationBatch.
+   * Modifies the provided proto to release ownership of any Value messages.
    */
   model::MutationBatch DecodeMutationBatch(
-      nanopb::Reader* reader, const firestore_client_WriteBatch& proto) const;
+      nanopb::Reader* reader, firestore_client_WriteBatch& proto) const;
 
   google_protobuf_Timestamp EncodeVersion(
       const model::SnapshotVersion& version) const;
@@ -138,8 +140,13 @@ class LocalSerializer {
 
   nanopb::Message<firestore_NamedQuery> EncodeNamedQuery(
       const bundle::NamedQuery& query) const;
+
+  /**
+   * Decodes the named query. Modifies the provided proto to release ownership
+   * of any Value messages.
+   */
   bundle::NamedQuery DecodeNamedQuery(nanopb::Reader* reader,
-                                      const firestore_NamedQuery& proto) const;
+                                      firestore_NamedQuery& proto) const;
 
  private:
   /**
@@ -147,29 +154,31 @@ class LocalSerializer {
    * serializer for Documents in that it preserves the update_time, which is
    * considered an output only value by the server.
    */
-  google_firestore_v1_Document EncodeDocument(const model::Document& doc) const;
+  google_firestore_v1_Document EncodeDocument(
+      const model::MutableDocument& doc) const;
 
-  model::Document DecodeDocument(nanopb::Reader* reader,
-                                 const google_firestore_v1_Document& proto,
-                                 bool has_committed_mutations) const;
+  model::MutableDocument DecodeDocument(nanopb::Reader* reader,
+                                        google_firestore_v1_Document& proto,
+                                        bool has_committed_mutations) const;
 
   firestore_client_NoDocument EncodeNoDocument(
-      const model::NoDocument& no_doc) const;
+      const model::MutableDocument& no_doc) const;
 
-  model::NoDocument DecodeNoDocument(nanopb::Reader* reader,
-                                     const firestore_client_NoDocument& proto,
-                                     bool has_committed_mutations) const;
+  model::MutableDocument DecodeNoDocument(
+      nanopb::Reader* reader,
+      const firestore_client_NoDocument& proto,
+      bool has_committed_mutations) const;
 
   firestore_client_UnknownDocument EncodeUnknownDocument(
-      const model::UnknownDocument& unknown_doc) const;
-  model::UnknownDocument DecodeUnknownDocument(
+      const model::MutableDocument& unknown_doc) const;
+  model::MutableDocument DecodeUnknownDocument(
       nanopb::Reader* reader,
       const firestore_client_UnknownDocument& proto) const;
 
   firestore_BundledQuery EncodeBundledQuery(
       const bundle::BundledQuery& query) const;
-  bundle::BundledQuery DecodeBundledQuery(
-      nanopb::Reader* reader, const firestore_BundledQuery& query) const;
+  bundle::BundledQuery DecodeBundledQuery(nanopb::Reader* reader,
+                                          firestore_BundledQuery& query) const;
 
   remote::Serializer rpc_serializer_;
 };

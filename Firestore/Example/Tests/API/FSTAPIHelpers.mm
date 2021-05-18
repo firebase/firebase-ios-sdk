@@ -36,6 +36,7 @@
 #include "Firestore/core/src/core/view_snapshot.h"
 #include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/document_set.h"
+#include "Firestore/core/src/model/mutable_document.h"
 #include "Firestore/core/src/remote/firebase_metadata_provider.h"
 #include "Firestore/core/src/util/string_apple.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
@@ -45,14 +46,13 @@ namespace util = firebase::firestore::util;
 using firebase::firestore::api::SnapshotMetadata;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::ViewSnapshot;
+using firebase::firestore::google_firestore_v1_Value;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentComparator;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentSet;
-using firebase::firestore::model::DocumentState;
-using firebase::firestore::model::FieldValue;
-using firebase::firestore::model::NoDocument;
+using firebase::firestore::model::MutableDocument;
 
 using testutil::Doc;
 using testutil::Query;
@@ -83,13 +83,13 @@ FIRDocumentSnapshot *FSTTestDocSnapshot(const char *path,
                                         NSDictionary<NSString *, id> *_Nullable data,
                                         BOOL hasMutations,
                                         BOOL fromCache) {
-  absl::optional<Document> doc;
+  absl::optional<MutableDocument> doc;
   if (data) {
     FSTUserDataReader *reader = FSTTestUserDataReader();
-    FieldValue parsed = [reader parsedQueryValue:data];
+    google_firestore_v1_Value parsed = [reader parsedQueryValue:data];
 
-    doc = Doc(path, version, parsed,
-              hasMutations ? DocumentState::kLocalMutations : DocumentState::kSynced);
+    doc = Doc(path, version, parsed);
+    if (hasMutations) doc->SetHasLocalMutations();
   }
   return [[FIRDocumentSnapshot alloc] initWithFirestore:FSTTestFirestore()
                                             documentKey:testutil::Key(path)
@@ -121,29 +121,28 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
   DocumentSet oldDocuments(DocumentComparator::ByKey());
   DocumentKeySet mutatedKeys;
   for (NSString *key in oldDocs) {
-    FieldValue doc = [reader parsedQueryValue:oldDocs[key]];
+    google_firestore_v1_Value value = [reader parsedQueryValue:oldDocs[key]];
     std::string documentKey = util::StringFormat("%s/%s", path, key);
-    oldDocuments = oldDocuments.insert(
-        Doc(documentKey, 1, doc,
-            hasPendingWrites ? DocumentState::kLocalMutations : DocumentState::kSynced));
+    MutableDocument doc = Doc(documentKey, 1, value);
     if (hasPendingWrites) {
       mutatedKeys = mutatedKeys.insert(testutil::Key(documentKey));
+      doc.SetHasLocalMutations();
     }
+    oldDocuments = oldDocuments.insert(doc);
   }
 
   DocumentSet newDocuments = oldDocuments;
   std::vector<DocumentViewChange> documentChanges;
   for (NSString *key in docsToAdd) {
-    FieldValue doc = [reader parsedQueryValue:docsToAdd[key]];
+    google_firestore_v1_Value value = [reader parsedQueryValue:docsToAdd[key]];
     std::string documentKey = util::StringFormat("%s/%s", path, key);
-    Document docToAdd =
-        Doc(documentKey, 1, doc,
-            hasPendingWrites ? DocumentState::kLocalMutations : DocumentState::kSynced);
-    newDocuments = newDocuments.insert(docToAdd);
-    documentChanges.emplace_back(docToAdd, DocumentViewChange::Type::Added);
+    MutableDocument doc = Doc(documentKey, 1, value);
+    documentChanges.emplace_back(doc, DocumentViewChange::Type::Added);
     if (hasPendingWrites) {
       mutatedKeys = mutatedKeys.insert(testutil::Key(documentKey));
+      doc.SetHasLocalMutations();
     }
+    newDocuments = newDocuments.insert(doc);
   }
   ViewSnapshot viewSnapshot{Query(path),
                             newDocuments,
