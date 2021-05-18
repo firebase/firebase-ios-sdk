@@ -728,7 +728,6 @@ google_firestore_v1_MapValue BundleSerializer::DecodeMapValue(
                            DecodeValue(reader, it.value())};
     ++i;
   }
-
   return map_value;
 }
 

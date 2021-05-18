@@ -25,6 +25,7 @@
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/core/core_fwd.h"
 #include "Firestore/core/src/model/model_fwd.h"
+#include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/nanopb/message.h"
 
 namespace firebase {
@@ -56,6 +57,7 @@ class Bound {
    */
   Bound(google_firestore_v1_ArrayValue position, bool is_before)
       : position_{position}, before_(is_before) {
+    model::SortFields(position);
   }
 
   /**

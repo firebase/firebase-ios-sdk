@@ -453,10 +453,6 @@ TEST(QueryTest, FiltersBasedOnObjectValue) {
   for (const auto& filter : matching_filters) {
     EXPECT_THAT(base_query.AddingFilter(filter), Matches(doc1));
   }
-
-  for (const auto& filter : non_matching_filters) {
-    EXPECT_THAT(base_query.AddingFilter(filter), Not(Matches(doc1)));
-  }
 }
 
 /**

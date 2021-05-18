@@ -123,6 +123,7 @@ FieldFilter::Rep::Rep(FieldPath field,
                       Operator op,
                       google_firestore_v1_Value value_rhs)
     : field_(std::move(field)), op_(op), value_rhs_(value_rhs) {
+  model::SortFields(value_rhs);
 }
 
 bool FieldFilter::Rep::IsInequality() const {

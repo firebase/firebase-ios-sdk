@@ -30,6 +30,7 @@
 #include "Firestore/core/src/model/document_set.h"
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/model/precondition.h"
+#include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "absl/strings/string_view.h"
@@ -168,7 +169,6 @@ google_firestore_v1_Value AddPairs(const google_firestore_v1_Value& prior,
           result.map_value.fields, new_count);
   result.map_value.fields[new_count - 1].key = nanopb::MakeBytesArray(key);
   result.map_value.fields[new_count - 1].value = Value(value);
-
   return AddPairs(result, rest...);
 }
 

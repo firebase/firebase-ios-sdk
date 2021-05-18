@@ -81,6 +81,12 @@ TypeOrder GetTypeOrder(const google_firestore_v1_Value& value) {
   }
 }
 
+void SortFields(google_firestore_v1_ArrayValue& value) {
+  for (pb_size_t i = 0; i < value.values_count; ++i) {
+    SortFields(value.values[i]);
+  }
+}
+
 void SortFields(google_firestore_v1_Value& value) {
   if (value.which_value_type == google_firestore_v1_Value_map_value_tag) {
     google_firestore_v1_MapValue& map_value = value.map_value;
@@ -96,9 +102,7 @@ void SortFields(google_firestore_v1_Value& value) {
     }
   } else if (value.which_value_type ==
              google_firestore_v1_Value_array_value_tag) {
-    for (pb_size_t i = 0; i < value.array_value.values_count; ++i) {
-      SortFields(value.array_value.values[i]);
-    }
+    SortFields(value.array_value);
   }
 }
 
