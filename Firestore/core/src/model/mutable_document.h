@@ -140,6 +140,9 @@ class MutableDocument {
 
   MutableDocument& SetHasLocalMutations();
 
+  /** Creates a new document with a copy of the document's data and state. */
+  MutableDocument Clone() const;
+
   const DocumentKey& key() const {
     return key_;
   }

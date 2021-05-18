@@ -95,6 +95,12 @@ MutableDocument& MutableDocument::SetHasLocalMutations() {
   return *this;
 }
 
+MutableDocument MutableDocument::Clone() const {
+  return MutableDocument(
+      key_, document_type_, version_,
+      std::make_shared<ObjectValue>(DeepClone(value_->Get())), document_state_);
+}
+
 size_t MutableDocument::Hash() const {
   return key_.Hash();
 }

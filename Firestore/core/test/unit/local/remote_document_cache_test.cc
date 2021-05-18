@@ -253,26 +253,22 @@ TEST_P(RemoteDocumentCacheTest, DoesNotApplyDocumentModificationsToCache) {
     MutableDocument document = SetTestDocument("coll/doc", Map("value", "old"));
     document = cache_->Get(Key("coll/doc"));
     EXPECT_THAT(document, MatchesValue(Map("value", "old")));
-    document.ConvertToFoundDocument(Version(kVersion),
-                                    ObjectValue{Map("value", "new")});
+    document.data().Set(Field("value"), Value("new"));
 
     document = cache_->Get(Key("coll/doc"));
     EXPECT_THAT(document, MatchesValue(Map("value", "old")));
-    document.ConvertToFoundDocument(Version(kVersion),
-                                    ObjectValue{Map("value", "new")});
+    document.data().Set(Field("value"), Value("new"));
 
     MutableDocumentMap documents =
         cache_->GetAll(DocumentKeySet{Key("coll/doc")});
     document = documents.find(Key("coll/doc"))->second;
     EXPECT_THAT(document, MatchesValue(Map("value", "old")));
-    document.ConvertToFoundDocument(Version(kVersion),
-                                    ObjectValue{Map("value", "new")});
+    document.data().Set(Field("value"), Value("new"));
 
     documents = cache_->GetMatching(Query("coll"), SnapshotVersion::None());
     document = documents.find(Key("coll/doc"))->second;
     EXPECT_THAT(document, MatchesValue(Map("value", "old")));
-    document.ConvertToFoundDocument(Version(kVersion),
-                                    ObjectValue{Map("value", "new")});
+    document.data().Set(Field("value"), Value("new"));
 
     document = cache_->Get(Key("coll/doc"));
     EXPECT_THAT(document, MatchesValue(Map("value", "old")));
