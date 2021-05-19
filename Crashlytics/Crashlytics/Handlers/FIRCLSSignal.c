@@ -161,7 +161,7 @@ void FIRCLSSignalSafeRemoveHandlers(bool includingAbort) {
 }
 
 bool FIRCLSSignalSafeInstallPreexistingHandlers(FIRCLSSignalReadContext *roContext) {
-  __block bool success;
+  __block bool success = true;
 
   FIRCLSSignalSafeRemoveHandlers(true);
 
@@ -180,7 +180,6 @@ bool FIRCLSSignalSafeInstallPreexistingHandlers(FIRCLSSignalReadContext *roConte
 
   // re-install the original handlers, if any
   FIRCLSSignalEnumerateHandledSignals(^(int idx, int currentSignal) {
-    success = true;
     if (roContext->originalActions[idx].sa_sigaction == NULL) {
       return;
     }
