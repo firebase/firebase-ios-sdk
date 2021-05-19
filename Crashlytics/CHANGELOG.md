@@ -1,3 +1,6 @@
+# Unreleased
+- [changed] Added a check before casting unsigned to signed integer
+
 # v8.0.0
 - [changed] Added a warning to upload-symbols when it detects a dSYM with hidden symbols.
 
