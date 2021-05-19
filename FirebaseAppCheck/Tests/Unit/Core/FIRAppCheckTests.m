@@ -483,6 +483,60 @@
   OCMVerifyAll(self.mockSettings);
 }
 
+#pragma mark - Merging multiple get token requests
+
+- (void)testGetToken_WhenCalledSeveralTimes_ThenThereIsOnlyOneOperation {
+  // 1. Expect token to be requested from storage.
+  OCMExpect([self.mockStorage getToken]).andReturn([FBLPromise resolvedWith:nil]);
+
+  // 2. Expect token requested from app check provider.
+  FIRAppCheckToken *tokenToReturn = [[FIRAppCheckToken alloc] initWithToken:@"valid"
+                                                             expirationDate:[NSDate distantFuture]];
+  id completionArg = [OCMArg invokeBlockWithArgs:tokenToReturn, [NSNull null], nil];
+  OCMExpect([self.mockAppCheckProvider getTokenWithCompletion:completionArg]);
+
+  // 3. Expect new token to be stored.
+  // 3.1. Create a pending promise to resolve later.
+  FBLPromise<FIRAppCheckToken *> *storeTokenPromise = [FBLPromise pendingPromise];
+  // 3.2. Stub storage set token method.
+  OCMExpect([self.mockStorage setToken:tokenToReturn])
+      .andReturn(storeTokenPromise);
+
+  NSInteger getTokenCallsCount = 10;
+
+  // 4. Expect token update notification to be sent.
+  XCTestExpectation *notificationExpectation =
+      [self tokenUpdateNotificationWithExpectedToken:tokenToReturn.token];
+  notificationExpectation.expectedFulfillmentCount = getTokenCallsCount;
+
+  // 5. Request token several times.
+  NSMutableArray *getTokenCompletionExpectations  = [NSMutableArray arrayWithCapacity:getTokenCallsCount];
+
+  for (NSInteger i = 0; i < getTokenCallsCount; i++) {
+    // 5.1. Expect a completion to be called for each method call.
+    XCTestExpectation *getTokenExpectation = [self expectationWithDescription:[NSString stringWithFormat:@"getToken%@", @(i)]];
+    [getTokenCompletionExpectations addObject:getTokenExpectation];
+
+    // 5.2. Call get token.
+    [self.appCheck getTokenForcingRefresh:NO
+                               completion:^(id<FIRAppCheckTokenResultInterop> tokenResult) {
+      [getTokenExpectation fulfill];
+
+      XCTAssertNotNil(tokenResult);
+      XCTAssertEqualObjects(tokenResult.token, tokenToReturn.token);
+      XCTAssertNil(tokenResult.error);
+    }];
+  }
+
+  // 5.3. Fulfill the pending promise to finish the get token operation.
+  [storeTokenPromise fulfill:tokenToReturn];
+
+  // 6. Wait for expectations and validate mocks.
+  [self waitForExpectations:[getTokenCompletionExpectations arrayByAddingObject:notificationExpectation] timeout:0.5];
+  OCMVerifyAll(self.mockStorage);
+  OCMVerifyAll(self.mockAppCheckProvider);
+}
+
 #pragma mark - Helpers
 
 - (void)stubSetTokenRefreshHandler {
