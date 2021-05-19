@@ -1,3 +1,6 @@
+# Unreleased
+- [changed] Fixed a log statement to print the right variable.
+
 # v8.0.0
 - [changed] Added a warning to upload-symbols when it detects a dSYM with hidden symbols.
 
