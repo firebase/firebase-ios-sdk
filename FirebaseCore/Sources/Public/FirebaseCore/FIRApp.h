@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 typedef void (^FIRAppVoidBoolCallback)(BOOL success) NS_SWIFT_NAME(FirebaseAppVoidBoolCallback);
 
 /**
- * The entry point of Firebase SDKs. Verify Difff - delete me
+ * The entry point of Firebase SDKs.
  *
  * Initialize and configure FIRApp using +[FIRApp configure]
  * or other customized ways as shown below.
