@@ -108,6 +108,7 @@
       [self expectationWithDescription:@"testSuccessfulFetchWithEmulator"];
 
   [self.storage useEmulatorWithHost:@"localhost" port:8080];
+  self.fetcherService.allowLocalhostRequest = YES;
   self.fetcherService.testBlock =
       [FIRStorageTestHelpers successBlockWithURL:@"http://localhost:8080/v0/b/bucket/o/object"];
 
@@ -117,7 +118,7 @@
                                                                 fetcherService:self.fetcherService
                                                                  dispatchQueue:self.dispatchQueue
                                                                     completion:^(NSError *error) {
-                                                                      XCTAssertEqual(error, nil);
+                                                                      XCTAssertNil(error);
                                                                       [expectation fulfill];
                                                                     }];
   [task enqueue];

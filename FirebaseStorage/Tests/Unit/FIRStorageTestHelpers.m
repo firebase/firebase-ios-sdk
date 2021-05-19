@@ -94,8 +94,10 @@ NSString *const kFIRStorageAppName = @"app";
   return [FIRStorageTestHelpers blockForData:data URL:nil statusCode:200];
 }
 
-+ (GTMSessionFetcherTestBlock)successBlockWithURL:(NSString *)url;
-{ return [FIRStorageTestHelpers blockForData:nil URL:url statusCode:200]; }
++ (GTMSessionFetcherTestBlock)successBlockWithURL:(NSString *)url {
+  NSData *data = [@"{}" dataUsingEncoding:NSUTF8StringEncoding];
+  return [FIRStorageTestHelpers blockForData:data URL:url statusCode:200];
+}
 
 + (GTMSessionFetcherTestBlock)unauthenticatedBlock {
   NSData *data = [kUnauthenticatedResponseString dataUsingEncoding:NSUTF8StringEncoding];
