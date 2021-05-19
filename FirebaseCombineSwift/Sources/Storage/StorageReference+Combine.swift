@@ -19,12 +19,11 @@
   import FirebaseStorageSwift
 
   @available(swift 5.0)
-  @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
-
+  @available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *)
   extension StorageReference {
     // MARK: - Uploads
 
-    /// Asynchronously uploads data to the currently specified FIRStorageReference.
+    /// Asynchronously uploads data to the currently specified `StorageReference`.
     /// This is not recommended for large files, and one should instead upload a file from disk.
     ///
     /// The publisher will emit events on the **main** thread.
@@ -38,8 +37,8 @@
     public func putData(_ data: Data,
                         metadata: StorageMetadata? = nil) -> Future<StorageMetadata, Error> {
       var task: StorageUploadTask?
-      return Future<StorageMetadata, Error> { [weak self] promise in
-        task = self?.putData(data, metadata: metadata) { result in
+      return Future<StorageMetadata, Error> { promise in
+        task = self.putData(data, metadata: metadata) { result in
           promise(result)
         }
       }
@@ -63,8 +62,8 @@
                         metadata: StorageMetadata? = nil)
       -> Future<StorageMetadata, Error> {
       var task: StorageUploadTask?
-      return Future<StorageMetadata, Error> { [weak self] promise in
-        task = self?.putFile(from: fileURL, metadata: metadata) { result in
+      return Future<StorageMetadata, Error> { promise in
+        task = self.putFile(from: fileURL, metadata: metadata) { result in
           promise(result)
         }
       }
@@ -78,7 +77,7 @@
 
     /// Asynchronously downloads the object at the `StorageReference` to an `Data` object in memory.
     /// An `Data` of the provided max size will be allocated, so ensure that the device has enough free
-    /// memory to complete the download. For downloading large files, writeToFile may be a better option.
+    /// memory to complete the download. For downloading large files, `writeToFile` may be a better option.
     ///
     /// The publisher will emit events on the **main** thread.
     ///
@@ -90,8 +89,8 @@
     @discardableResult
     public func getData(maxSize size: Int64) -> Future<Data, Error> {
       var task: StorageDownloadTask?
-      return Future<Data, Error> { [weak self] promise in
-        task = self?.getData(maxSize: size) { result in
+      return Future<Data, Error> { promise in
+        task = self.getData(maxSize: size) { result in
           promise(result)
         }
       }
@@ -113,8 +112,8 @@
     @discardableResult
     public func write(toFile fileURL: URL) -> Future<URL, Error> {
       var task: StorageDownloadTask?
-      return Future<URL, Error> { [weak self] promise in
-        task = self?.write(toFile: fileURL) { result in
+      return Future<URL, Error> { promise in
+        task = self.write(toFile: fileURL) { result in
           promise(result)
         }
       }
@@ -144,7 +143,7 @@
 
     /// List all items (files) and prefixes (folders) under this `StorageReference`.
     ///
-    /// This is a helper method for calling list() repeatedly until there are no more results.
+    /// This is a helper method for calling `list()` repeatedly until there are no more results.
     /// Consistency of the result is not guaranteed if objects are inserted or removed while this
     /// operation is executing. All results are buffered in memory.
     ///
@@ -165,8 +164,8 @@
 
     /// List up to `maxResults` items (files) and prefixes (folders) under this `StorageReference`.
     ///
-    /// "/" is treated as a path delimiter. Firebase Storage does not support unsupported object
-    /// paths that end with "/" or contain two consecutive "/"s. All invalid objects in GCS will be
+    /// Note that "/" is treated as a path delimiter. Firebase Storage does not support unsupported object
+    /// paths that end with "/" or contain two consecutive "/"s. All invalid objects in Firebase Storage will be
     /// filtered.
     ///
     /// The publisher will emit events on the **main** thread.
@@ -191,9 +190,9 @@
     /// Resumes a previous call to `list(maxResults:)`, starting after a pagination token.
     /// Returns the next set of items (files) and prefixes (folders) under this `StorageReference.
     ///
-    /// "/" is treated as a path delimiter. Firebase Storage does not support unsupported object
-    /// paths that end with "/" or contain two consecutive "/"s. All invalid objects in GCS will be
-    /// filtered.
+    /// Note that "/" is treated as a path delimiter. Firebase Storage does not support unsupported object
+    /// paths that end with "/" or contain two consecutive "/"s. All invalid objects in Firebase Storage
+    /// will be filtered out.
     ///
     /// The publisher will emit events on the **main** thread.
     ///
@@ -236,7 +235,7 @@
     /// The publisher will emit events on the **main** thread.
     ///
     /// - Parameters:
-    ///   - metadata: An `StorageMetadata` object with the metadata to update.
+    ///   - metadata: A `StorageMetadata` object with the metadata to update.
     ///
     /// - Returns: A publisher emitting a `StorageMetadata` instance. The publisher will emit on the *main* thread.
     @discardableResult
@@ -268,4 +267,5 @@
       }
     }
   }
-#endif
+
+#endif // canImport(Combine) && swift(>=5.0) && canImport(FirebaseStorage)
