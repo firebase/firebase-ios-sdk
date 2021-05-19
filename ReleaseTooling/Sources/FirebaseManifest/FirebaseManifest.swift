@@ -23,9 +23,9 @@ import Foundation
 public let shared = Manifest(
   version: "8.0.0",
   pods: [
-    Pod("FirebaseCoreDiagnostics"),
-    Pod("FirebaseCore"),
-    Pod("FirebaseInstallations"),
+    Pod("FirebaseCoreDiagnostics", zip: true),
+    Pod("FirebaseCore", zip: true),
+    Pod("FirebaseInstallations", zip: true),
     Pod("GoogleAppMeasurement", isClosedSource: true, platforms: ["ios"]),
     Pod("FirebaseAnalytics", isClosedSource: true, platforms: ["ios"], zip: true),
     Pod("FirebaseAnalyticsSwift", isBeta: true, platforms: ["ios"]),
