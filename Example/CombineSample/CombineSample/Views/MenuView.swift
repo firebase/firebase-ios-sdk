@@ -21,10 +21,10 @@ struct MenuView: View {
         NavigationLink(destination: AuthenticationMenuView()) {
           Label("Firebase Authentication", systemImage: "key")
         }
-        NavigationLink(destination: Text("Functions")) {
+        NavigationLink(destination: Text("Not implemented yet")) {
           Label("Cloud Functions", systemImage: "gearshape.2")
         }
-        NavigationLink(destination: Text("Firestore")) {
+        NavigationLink(destination: Text("Not implemented yet")) {
           Label("Cloud Firestore", systemImage: "externaldrive.badge.icloud")
         }
       }
