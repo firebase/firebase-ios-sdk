@@ -60,7 +60,7 @@ TypeOrder GetTypeOrder(const google_firestore_v1_Value& value);
 /** Traverses a Value proto and sorts all MapValues by key. */
 void SortFields(google_firestore_v1_Value& value);
 
-/** Traverses a ArrayValue proto and sorts all MapValues by key. */
+/** Traverses an ArrayValue proto and sorts all MapValues by key. */
 void SortFields(google_firestore_v1_ArrayValue& value);
 
 util::ComparisonResult Compare(const google_firestore_v1_Value& left,

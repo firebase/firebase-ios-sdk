@@ -630,7 +630,7 @@ FilterList BundleSerializer::DecodeCompositeFilter(JsonReader& reader,
 Bound BundleSerializer::DecodeBound(JsonReader& reader,
                                     const json& query,
                                     const char* bound_name) const {
-  Bound default_bound = Bound({}, false);
+  Bound default_bound = Bound::FromValue({}, false);
   if (!query.contains(bound_name)) {
     return default_bound;
   }
@@ -642,7 +642,7 @@ Bound BundleSerializer::DecodeBound(JsonReader& reader,
   google_firestore_v1_ArrayValue positions{};
   SetRepeatedField(&positions.values, &positions.values_count, values,
                    [&](const json& j) { return DecodeValue(reader, j); });
-  return Bound(positions, before);
+  return Bound::FromValue(positions, before);
 }
 
 google_firestore_v1_Value BundleSerializer::DecodeValue(

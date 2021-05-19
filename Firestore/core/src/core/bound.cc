@@ -38,6 +38,12 @@ using model::GetTypeOrder;
 using model::TypeOrder;
 using util::ComparisonResult;
 
+Bound Bound::FromValue(google_firestore_v1_ArrayValue position,
+                       bool is_before) {
+  model::SortFields(position);
+  return Bound(position, is_before);
+}
+
 bool Bound::SortsBeforeDocument(const OrderByList& order_by,
                                 const model::Document& document) const {
   HARD_ASSERT(position_->values_count <= order_by.size(),

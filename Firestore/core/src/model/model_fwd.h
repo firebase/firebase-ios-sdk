@@ -18,7 +18,6 @@
 #define FIRESTORE_CORE_SRC_MODEL_MODEL_FWD_H_
 
 #include <cstdint>
-#include <memory>
 #include <unordered_map>
 
 #include "absl/types/optional.h"

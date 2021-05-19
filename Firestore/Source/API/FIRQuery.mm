@@ -589,7 +589,7 @@ int32_t SaturatedLimitValue(NSInteger limit) {
       }
     }
   }
-  return Bound(components, isBefore);
+  return Bound::FromValue(components, isBefore);
 }
 
 /** Converts a list of field values to an Bound. */
@@ -633,7 +633,7 @@ int32_t SaturatedLimitValue(NSInteger limit) {
     }
   }
 
-  return Bound(components, isBefore);
+  return Bound::FromValue(components, isBefore);
 }
 
 @end

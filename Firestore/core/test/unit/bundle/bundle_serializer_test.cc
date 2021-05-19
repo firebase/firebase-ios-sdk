@@ -1008,29 +1008,31 @@ TEST_F(BundleSerializerTest, DecodeInvalidLimitQueriesFails) {
 }
 
 TEST_F(BundleSerializerTest, DecodesStartAtCursor) {
-  core::Query original = testutil::Query("colls")
-                             .AddingOrderBy(OrderBy("f1", "asc"))
-                             .StartingAt(core::Bound({Array("f1", 1000)},
-                                                     /* is_before= */ true));
+  core::Query original =
+      testutil::Query("colls")
+          .AddingOrderBy(OrderBy("f1", "asc"))
+          .StartingAt(core::Bound::FromValue({Array("f1", 1000)},
+                                             /* is_before= */ true));
 
   VerifyNamedQueryRoundtrip(original);
 }
 
 TEST_F(BundleSerializerTest, DecodesEndAtCursor) {
-  core::Query original = testutil::Query("colls")
-                             .AddingOrderBy(OrderBy("f1", "desc"))
-                             .EndingAt(core::Bound({Array("f1", "1000")},
-                                                   /* is_before= */ false));
+  core::Query original =
+      testutil::Query("colls")
+          .AddingOrderBy(OrderBy("f1", "desc"))
+          .EndingAt(core::Bound::FromValue({Array("f1", "1000")},
+                                           /* is_before= */ false));
 
   VerifyNamedQueryRoundtrip(original);
 }
 
 TEST_F(BundleSerializerTest, DecodeInvalidCursorQueriesFails) {
-  std::string json_string =
-      NamedQueryJsonString(testutil::Query("colls")
-                               .AddingOrderBy(OrderBy("f1", "desc"))
-                               .EndingAt(core::Bound({Array("f1", "1000")},
-                                                     /* is_before= */ false)));
+  std::string json_string = NamedQueryJsonString(
+      testutil::Query("colls")
+          .AddingOrderBy(OrderBy("f1", "desc"))
+          .EndingAt(core::Bound::FromValue({Array("f1", "1000")},
+                                           /* is_before= */ false)));
   auto json_copy = ReplacedCopy(json_string, "\"1000\"", "[]");
   auto reader = JsonReader();
   bundle_serializer.DecodeNamedQuery(reader, Parse(json_copy));

@@ -199,7 +199,7 @@ union DoubleBits {
   google_firestore_v1_Value expected = Value(Array("value", true));
 
   google_firestore_v1_Value actual = FSTTestFieldValue(@[ @"value", @YES ]);
-  XCTAssertTrue(actual == expected);
+  XCTAssertEqual(actual, expected);
   XCTAssertTrue(IsArray(actual));
 }
 

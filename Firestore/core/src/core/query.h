@@ -270,6 +270,8 @@ class Query {
   int32_t limit_ = Target::kNoLimit;
   LimitType limit_type_ = LimitType::None;
 
+  // TODO(mutabledocuments): Make this an absl::optional since Bound already
+  // shares its memory
   std::shared_ptr<Bound> start_at_;
   std::shared_ptr<Bound> end_at_;
 

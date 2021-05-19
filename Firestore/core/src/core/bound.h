@@ -49,16 +49,14 @@ namespace core {
 class Bound {
  public:
   /**
-   * Creates a new bound.
+   * Creates a new bound. Takes ownership of `position`.
    *
    * @param position The position relative to the sort order.
    * @param is_before Whether this bound is just before or just after the
    *     position.
    */
-  Bound(google_firestore_v1_ArrayValue position, bool is_before)
-      : position_{position}, before_(is_before) {
-    model::SortFields(position);
-  }
+  static Bound FromValue(google_firestore_v1_ArrayValue position,
+                         bool is_before);
 
   /**
    * The index position of this bound represented as an array of field values.
@@ -86,6 +84,10 @@ class Bound {
   size_t Hash() const;
 
  private:
+  Bound(google_firestore_v1_ArrayValue position, bool is_before)
+      : position_{position}, before_(is_before) {
+  }
+
   nanopb::SharedMessage<google_firestore_v1_ArrayValue> position_;
   bool before_;
 };

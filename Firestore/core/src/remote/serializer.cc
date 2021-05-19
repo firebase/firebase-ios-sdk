@@ -1124,7 +1124,8 @@ std::shared_ptr<Bound> Serializer::DecodeBound(
   // Prevent double-freeing of the cursors's fields. The fields are now owned by
   // the bound.
   ReleaseFieldOwnership(cursor.values, cursor.values_count);
-  return std::make_shared<Bound>(index_components, cursor.before);
+  return std::make_shared<Bound>(
+      Bound::FromValue(index_components, cursor.before));
 }
 
 /* static */

@@ -602,7 +602,7 @@ MutableDocumentMap LocalStore::PopulateDocumentChanges(
   for (const auto& kv : documents) {
     const DocumentKey& key = kv.first;
     const MutableDocument& doc = kv.second;
-    const MutableDocument& existing_doc = *existing_docs.get(key);
+    MutableDocument existing_doc = *existing_docs.get(key);
     auto search_version = document_versions.find(key);
     const SnapshotVersion& read_time = search_version != document_versions.end()
                                            ? search_version->second

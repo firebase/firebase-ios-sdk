@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/model/value_util.h"
+#include <limits>
+
 #include "Firestore/core/include/firebase/firestore/geo_point.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/model/server_timestamp_util.h"
+#include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/remote/serializer.h"
 #include "Firestore/core/src/util/comparison.h"
@@ -142,13 +144,16 @@ TEST(FieldValueTest, ValueHelpers) {
   ASSERT_EQ(GetTypeOrder(int_value), TypeOrder::kNumber);
   EXPECT_EQ(int_value.integer_value, 5);
 
-  google_firestore_v1_Value long_value = Value(LONG_MAX);
+  google_firestore_v1_Value long_value =
+      Value(std::numeric_limits<long>::max());
   ASSERT_EQ(GetTypeOrder(long_value), TypeOrder::kNumber);
-  EXPECT_EQ(long_value.integer_value, LONG_MAX);
+  EXPECT_EQ(long_value.integer_value, std::numeric_limits<long>::max());
 
-  google_firestore_v1_Value long_long_value = Value(LLONG_MAX);
+  google_firestore_v1_Value long_long_value =
+      Value(std::numeric_limits<long long>::max());
   ASSERT_EQ(GetTypeOrder(long_long_value), TypeOrder::kNumber);
-  EXPECT_EQ(long_long_value.integer_value, LLONG_MAX);
+  EXPECT_EQ(long_long_value.integer_value,
+            std::numeric_limits<long long>::max());
 
   google_firestore_v1_Value double_value = Value(2.0);
   ASSERT_EQ(GetTypeOrder(double_value), TypeOrder::kNumber);
@@ -246,14 +251,14 @@ TEST_F(ValueUtilTest, Ordering) {
 
   // numbers
   Add(comparison_groups, Value(-1e20));
-  Add(comparison_groups, Value(LLONG_MIN));
+  Add(comparison_groups, Value(std::numeric_limits<long long>::min()));
   Add(comparison_groups, Value(-0.1));
   // Zeros all compare the same.
   Add(comparison_groups, Value(-0.0), Value(0.0), Value(0L));
   Add(comparison_groups, Value(0.1));
   // Doubles and longs Compare() the same.
   Add(comparison_groups, Value(1.0), Value(1L));
-  Add(comparison_groups, Value(LLONG_MAX));
+  Add(comparison_groups, Value(std::numeric_limits<long long>::min()));
   Add(comparison_groups, Value(1e20));
 
   // dates
