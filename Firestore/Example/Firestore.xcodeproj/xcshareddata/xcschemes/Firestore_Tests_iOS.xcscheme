@@ -26,17 +26,8 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES"
-      enableASanStackUseAfterReturn = "YES">
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "6003F5AD195388D20070C39A"
-            BuildableName = "Firestore_Tests_iOS.xctest"
-            BlueprintName = "Firestore_Tests_iOS"
-            ReferencedContainer = "container:Firestore.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
+      enableASanStackUseAfterReturn = "YES"
+      shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
          <TestableReference
             skipped = "NO">
@@ -49,6 +40,17 @@
             </BuildableReference>
          </TestableReference>
       </Testables>
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "6003F5AD195388D20070C39A"
+            BuildableName = "Firestore_Tests_iOS.xctest"
+            BlueprintName = "Firestore_Tests_iOS"
+            ReferencedContainer = "container:Firestore.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
+      <AdditionalOptions>
+      </AdditionalOptions>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
@@ -69,6 +71,8 @@
             ReferencedContainer = "container:Firestore.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
+      <AdditionalOptions>
+      </AdditionalOptions>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
