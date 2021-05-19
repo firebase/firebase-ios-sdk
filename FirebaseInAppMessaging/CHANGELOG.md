@@ -1,3 +1,6 @@
+# 2021-6 -- v.8.1.0
+- [fixed] Fixed bug where image-only messages had the wrong message type in message callbacks (#8081).
+
 # 2021-4 -- v.7.11.0
 - [fixed] Fixed SPM resource inclusion for in-app messages (#7715).
 
