@@ -161,7 +161,7 @@ void FIRCLSSignalSafeRemoveHandlers(bool includingAbort) {
 }
 
 bool FIRCLSSignalSafeInstallPreexistingHandlers(FIRCLSSignalReadContext *roContext) {
-  bool success;
+  __block bool success = true;
 
   FIRCLSSignalSafeRemoveHandlers(true);
 
@@ -179,17 +179,16 @@ bool FIRCLSSignalSafeInstallPreexistingHandlers(FIRCLSSignalReadContext *roConte
 #endif
 
   // re-install the original handlers, if any
-  success = true;
-  for (int i = 0; i < FIRCLSSignalCount; ++i) {
-    if (roContext->originalActions[i].sa_sigaction == NULL) {
-      continue;
+  FIRCLSSignalEnumerateHandledSignals(^(int idx, int currentSignal) {
+    if (roContext->originalActions[idx].sa_sigaction == NULL) {
+      return;
     }
 
-    if (sigaction(FIRCLSFatalSignals[i], &roContext->originalActions[i], 0) != 0) {
-      FIRCLSSDKLog("Unable to install handler for %d (%s)\n", i, strerror(errno));
+    if (sigaction(currentSignal, &roContext->originalActions[idx], 0) != 0) {
+      FIRCLSSDKLog("Unable to install handler for %d (%s)\n", currentSignal, strerror(errno));
       success = false;
     }
-  }
+  });
 
   return success;
 }
