@@ -331,7 +331,7 @@ struct ZipBuilder {
                                                     platforms: ["ios"]))
 
     print("Final expected versions for the Zip file: \(podsToInstall)")
-    let (installedPods, frameworks, carthageCoreDiagnosticsXcframework) =
+    let (installedPods, frameworks, carthageCoreDiagnosticsXcframeworkFirebase) =
       buildAndAssembleZip(podsToInstall: podsToInstall,
                           includeCarthage: true,
                           // Always include dependencies for Firebase zips.
@@ -344,7 +344,7 @@ struct ZipBuilder {
         "installed: \(installedPods)")
     }
 
-    guard let carthageCoreDiagnosticsXcframework = carthageCoreDiagnosticsXcframework else {
+    guard let carthageCoreDiagnosticsXcframework = carthageCoreDiagnosticsXcframeworkFirebase else {
       fatalError("CoreDiagnosticsXcframework is missing")
     }
 
