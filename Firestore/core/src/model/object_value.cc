@@ -110,8 +110,8 @@ void ApplyChanges(
   auto* source_fields = parent->fields;
 
   size_t target_count = CalculateSizeOfUnion(*parent, upserts, deletes);
-  auto* target_fields =
-      MakeArray<google_firestore_v1_MapValue_FieldsEntry>(target_count);
+  auto* target_fields = MakeArray<google_firestore_v1_MapValue_FieldsEntry>(
+      CheckedSize(target_count));
 
   auto delete_it = deletes.begin();
   auto upsert_it = upserts.begin();
@@ -119,10 +119,10 @@ void ApplyChanges(
   // Merge the existing data with the deletes and updates
   for (pb_size_t source_index = 0, target_index = 0;
        target_index < target_count;) {
-    auto& source_entry = source_fields[source_index];
     auto& target_entry = target_fields[target_index];
 
     if (source_index < source_count) {
+      auto& source_entry = source_fields[source_index];
       std::string source_key = MakeString(source_entry.key);
 
       // Check if the source key is deleted
