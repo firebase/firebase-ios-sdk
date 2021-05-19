@@ -46,9 +46,6 @@ void FIRCLSHandler(FIRCLSFile* file, thread_t crashedThread, void* uapVoid) {
   FIRCLSCreateCrashedMarkerFile();
 
   FIRCLSProcessResumeAllOtherThreads(&process);
-
-  // clean up after ourselves
-  FIRCLSProcessDestroy(&process);
 }
 
 void FIRCLSHandlerAttemptImmediateDelivery(void) {

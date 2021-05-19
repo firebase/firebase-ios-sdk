@@ -32,7 +32,6 @@ typedef struct {
 } FIRCLSProcess;
 
 bool FIRCLSProcessInit(FIRCLSProcess *process, thread_t crashedThread, void *uapVoid);
-bool FIRCLSProcessDestroy(FIRCLSProcess *process);
 bool FIRCLSProcessDebuggerAttached(void);
 
 bool FIRCLSProcessSuspendAllOtherThreads(FIRCLSProcess *process);
