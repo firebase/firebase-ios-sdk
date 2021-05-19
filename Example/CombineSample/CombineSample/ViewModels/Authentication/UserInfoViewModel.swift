@@ -12,22 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import SwiftUI
 import Firebase
+import FirebaseCombineSwift
+import Combine
 
-@main
-struct CombineSampleApp: App {
+class UserInfoViewModel: ObservableObject {
+  @Published var user: User?
+
+  @Published var isSignedIn = false
+
+  private var cancellables = Set<AnyCancellable>()
+
   init() {
-    FirebaseApp.configure()
-  }
+    Auth.auth().authStateDidChangePublisher()
+      .map { $0 }
+      .assign(to: &$user)
 
-  var body: some Scene {
-    WindowGroup {
-      NavigationView {
-        MenuView()
-      }
-      // see https://stackoverflow.com/questions/63740788/swiftui-displaymodebuttonitem-is-internally-managed
-      .navigationViewStyle(StackNavigationViewStyle())
-    }
+    $user
+      .map { $0 != nil }
+      .assign(to: &$isSignedIn)
   }
 }

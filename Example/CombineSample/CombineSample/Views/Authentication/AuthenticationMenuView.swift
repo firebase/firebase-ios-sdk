@@ -14,29 +14,25 @@
 
 import SwiftUI
 
-struct MenuScreen: View {
+struct AuthenticationMenuView: View {
+  @StateObject var viewModel = UserInfoViewModel()
+
   var body: some View {
-    NavigationView {
-      List {
-        Section(header: Text("Demos")) {
-          NavigationLink(destination: Text("Auth")) {
-            Label("Firebase Authentication", systemImage: "key")
-          }
-          NavigationLink(destination: Text("Functions")) {
-            Label("Cloud Functions", systemImage: "gearshape.2")
-          }
-          NavigationLink(destination: Text("Firestore")) {
-            Label("Cloud Firestore", systemImage: "externaldrive.badge.icloud")
-          }
+    List {
+      UserInfoView(viewModel: viewModel)
+      Section(header: Text("Demos")) {
+        NavigationLink(destination: AnonymousSignInView()) {
+          Label("Anonymous Sign In", systemImage: "person.fill.questionmark")
         }
       }
-      .listStyle(InsetGroupedListStyle())
-      .navigationTitle("Firebase & Combine")
     }
-  }}
+    .listStyle(InsetGroupedListStyle())
+    .navigationTitle("Firebase Auth")
+  }
+}
 
-struct ContentView_Previews: PreviewProvider {
+struct AuthenticationMenuView_Previews: PreviewProvider {
   static var previews: some View {
-    MenuScreen()
+    AuthenticationMenuView()
   }
 }

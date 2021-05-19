@@ -13,21 +13,31 @@
 // limitations under the License.
 
 import SwiftUI
-import Firebase
 
-@main
-struct CombineSampleApp: App {
-  init() {
-    FirebaseApp.configure()
+struct LabelTextView: View {
+  var label: String
+  var value: String
+
+  init(_ label: String, value: String) {
+    self.label = label
+    self.value = value
   }
 
-  var body: some Scene {
-    WindowGroup {
-      NavigationView {
-        MenuView()
-      }
-      // see https://stackoverflow.com/questions/63740788/swiftui-displaymodebuttonitem-is-internally-managed
-      .navigationViewStyle(StackNavigationViewStyle())
+  var body: some View {
+    VStack(alignment: .leading) {
+      Text(label)
+        .font(.caption)
+        .foregroundColor(.accentColor)
+      Text(value)
     }
+  }
+}
+
+struct LabelTextView_Previews: PreviewProvider {
+  static var previews: some View {
+    Form {
+      LabelTextView("Hello", value: "World")
+    }
+    .previewLayout(.device)
   }
 }
