@@ -18,7 +18,7 @@
   import FirebaseAuth
 
   @available(swift 5.0)
-  @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
+  @available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *)
   extension User {
     /// Associates a user account from a third-party identity provider with this user and
     /// returns additional identity provider data.
@@ -50,14 +50,14 @@
     }
 
     /// Renews the user's authentication tokens by validating a fresh set of credentials supplied
-    /// by the user  and returns additional identity provider data.
+    /// by the user and returns additional identity provider data.
     ///
     /// The publisher will emit events on the **main** thread.
     ///
     /// - Parameter credential: A user-supplied credential, which will be validated by the server. This can be
     ///   a successful third-party identity provider sign-in, or an email address and password.
     /// - Returns: A publisher that emits an `AuthDataResult` when the reauthentication flow completed
-    ///   successfully, or an error otherwise. The publisher will emit on the *main* thread.
+    ///   successfully, or an error otherwise.
     /// - Remark: If the user associated with the supplied credential is different from the current user, or if the validation
     ///   of the supplied credentials fails; an error is returned and the current user remains signed in.
     ///
@@ -100,7 +100,7 @@
     /// The publisher will emit events on the **main** thread.
     ///
     /// - Parameter provider: The provider ID of the provider to unlink.
-    /// - Returns: A publisher that emits an `User` when the disassociation flow completed
+    /// - Returns: A publisher that emits a `User` when the disassociation flow completed
     ///   successfully, or an error otherwise. The publisher will emit on the *main* thread.
     ///
     ///   Possible error codes:
@@ -130,7 +130,7 @@
     /// The publisher will emit events on the **main** thread.
     ///
     /// - Returns: A publisher that emits no type when the verification flow completed
-    ///   successfully, or an error otherwise. The publisher will emit on the *main* thread.
+    ///   successfully, or an error otherwise.
     ///
     ///   Possible error codes:
     ///
@@ -162,7 +162,7 @@
     /// - Parameter actionCodeSettings: An `FIRActionCodeSettings` object containing settings related to
     ///   handling action codes.
     /// - Returns: A publisher that emits no type when the verification flow completed
-    ///   successfully, or an error otherwise. The publisher will emit on the *main* thread.
+    ///   successfully, or an error otherwise.
     ///
     ///   Possible error codes:
     ///
@@ -194,4 +194,5 @@
       }
     }
   }
-#endif
+
+#endif // canImport(Combine) && swift(>=5.0) && canImport(FirebaseAuth)

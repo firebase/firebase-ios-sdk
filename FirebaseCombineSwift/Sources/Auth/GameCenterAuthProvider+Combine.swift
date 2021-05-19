@@ -18,10 +18,10 @@
   import FirebaseAuth
 
   @available(swift 5.0)
+  @available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, *)
   @available(watchOS, unavailable)
-  @available(macOS 10.15, iOS 13, tvOS 13, *)
   extension GameCenterAuthProvider {
-    /// Creates a `AuthCredential` for a Game Center sign in.
+    /// Creates an `AuthCredential` for a Game Center sign in.
     ///
     /// The publisher will emit events on the **main** thread.
     ///
@@ -40,4 +40,4 @@
     }
   }
 
-#endif
+#endif // canImport(Combine) && swift(>=5.0) && canImport(FirebaseAuth)
