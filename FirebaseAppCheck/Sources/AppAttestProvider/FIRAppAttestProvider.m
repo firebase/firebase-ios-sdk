@@ -103,6 +103,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly) id<FIRAppAttestKeyIDStorageProtocol> keyIDStorage;
 @property(nonatomic, readonly) id<FIRAppAttestArtifactStorageProtocol> artifactStorage;
 
+@property(nonatomic) FBLPromise<FIRAppCheckToken *> *ongoingGetTokenOperation;
+
 @property(nonatomic, readonly) dispatch_queue_t queue;
 
 @end
@@ -172,6 +174,16 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FBLPromise<FIRAppCheckToken *> *)getToken {
+  return [FBLPromise onQueue:self.queue do:^id _Nullable{
+    if (self.ongoingGetTokenOperation == nil) {
+      // Kick off a new handshake sequence only when there is no an ongoing handshake to avoid race conditions.
+      self.ongoingGetTokenOperation = [self createGetTokenSequencePromise];
+    }
+    return self.ongoingGetTokenOperation;
+  }];
+}
+
+- (FBLPromise<FIRAppCheckToken *> *)createGetTokenSequencePromise {
   // Check attestation state to decide on the next steps.
   return [self attestationState].thenOn(self.queue, ^id(FIRAppAttestProviderState *attestState) {
     switch (attestState.state) {
