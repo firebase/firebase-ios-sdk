@@ -502,14 +502,12 @@
   OCMExpect([self.mockStorage setToken:tokenToReturn])
       .andReturn(storeTokenPromise);
 
-  NSInteger getTokenCallsCount = 10;
-
   // 4. Expect token update notification to be sent.
   XCTestExpectation *notificationExpectation =
       [self tokenUpdateNotificationWithExpectedToken:tokenToReturn.token];
-  notificationExpectation.expectedFulfillmentCount = getTokenCallsCount;
 
   // 5. Request token several times.
+  NSInteger getTokenCallsCount = 10;
   NSMutableArray *getTokenCompletionExpectations  = [NSMutableArray arrayWithCapacity:getTokenCallsCount];
 
   for (NSInteger i = 0; i < getTokenCallsCount; i++) {
