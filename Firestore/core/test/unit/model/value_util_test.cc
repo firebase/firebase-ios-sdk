@@ -258,7 +258,7 @@ TEST_F(ValueUtilTest, Ordering) {
   Add(comparison_groups, Value(0.1));
   // Doubles and longs Compare() the same.
   Add(comparison_groups, Value(1.0), Value(1L));
-  Add(comparison_groups, Value(std::numeric_limits<long long>::min()));
+  Add(comparison_groups, Value(std::numeric_limits<long long>::max()));
   Add(comparison_groups, Value(1e20));
 
   // dates
