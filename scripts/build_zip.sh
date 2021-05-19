@@ -49,5 +49,5 @@ cd ReleaseTooling
 swift run zip-builder --keep-build-artifacts --update-pod-repo \
     ${build_head_option} ${build_head_value} \
     --output-dir "${OUTPUT_DIR}" \
-    "${carthage_version_check}"
+    "${carthage_version_check}" \
     --custom-spec-repos  "${specrepo[@]}"
