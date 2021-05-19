@@ -54,8 +54,7 @@ See the subsections below for details about the different installation methods.
 ### Standard pod install
 
 Go to
-[https://firebase.google.com/docs/ios/setup](https://firebase.google.com/docs/ios/setup). If you
-have a new Mac with an Apple silicon chip, please see [these instructions](AppleSilicon.md).
+[https://firebase.google.com/docs/ios/setup](https://firebase.google.com/docs/ios/setup).
 
 ### Swift Package Manager
 
