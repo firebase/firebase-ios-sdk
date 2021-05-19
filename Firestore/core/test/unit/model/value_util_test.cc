@@ -47,9 +47,11 @@ using util::ComparisonResult;
 
 namespace {
 
+#if __APPLE__
 uint64_t ToBits(double value) {
   return absl::bit_cast<uint64_t>(value);
 }
+#endif  // __APPLE__
 
 double ToDouble(uint64_t value) {
   return absl::bit_cast<double>(value);
