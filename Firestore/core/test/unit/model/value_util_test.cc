@@ -145,15 +145,14 @@ TEST(FieldValueTest, ValueHelpers) {
   EXPECT_EQ(int_value.integer_value, 5);
 
   google_firestore_v1_Value long_value =
-      Value(std::numeric_limits<long>::max());
+      Value(std::numeric_limits<int32_t>::max());
   ASSERT_EQ(GetTypeOrder(long_value), TypeOrder::kNumber);
-  EXPECT_EQ(long_value.integer_value, std::numeric_limits<long>::max());
+  EXPECT_EQ(long_value.integer_value, std::numeric_limits<int32_t>::max());
 
   google_firestore_v1_Value long_long_value =
-      Value(std::numeric_limits<long long>::max());
+      Value(std::numeric_limits<int64_t>::max());
   ASSERT_EQ(GetTypeOrder(long_long_value), TypeOrder::kNumber);
-  EXPECT_EQ(long_long_value.integer_value,
-            std::numeric_limits<long long>::max());
+  EXPECT_EQ(long_long_value.integer_value, std::numeric_limits<int64_t>::max());
 
   google_firestore_v1_Value double_value = Value(2.0);
   ASSERT_EQ(GetTypeOrder(double_value), TypeOrder::kNumber);
@@ -251,14 +250,14 @@ TEST_F(ValueUtilTest, Ordering) {
 
   // numbers
   Add(comparison_groups, Value(-1e20));
-  Add(comparison_groups, Value(std::numeric_limits<long long>::min()));
+  Add(comparison_groups, Value(std::numeric_limits<int64_t>::min()));
   Add(comparison_groups, Value(-0.1));
   // Zeros all compare the same.
   Add(comparison_groups, Value(-0.0), Value(0.0), Value(0L));
   Add(comparison_groups, Value(0.1));
   // Doubles and longs Compare() the same.
   Add(comparison_groups, Value(1.0), Value(1L));
-  Add(comparison_groups, Value(std::numeric_limits<long long>::max()));
+  Add(comparison_groups, Value(std::numeric_limits<int64_t>::max()));
   Add(comparison_groups, Value(1e20));
 
   // dates
