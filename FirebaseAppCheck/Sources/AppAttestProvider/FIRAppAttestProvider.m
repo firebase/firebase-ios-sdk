@@ -174,13 +174,15 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FBLPromise<FIRAppCheckToken *> *)getToken {
-  return [FBLPromise onQueue:self.queue do:^id _Nullable{
-    if (self.ongoingGetTokenOperation == nil) {
-      // Kick off a new handshake sequence only when there is no an ongoing handshake to avoid race conditions.
-      self.ongoingGetTokenOperation = [self createGetTokenSequencePromise];
-    }
-    return self.ongoingGetTokenOperation;
-  }];
+  return [FBLPromise onQueue:self.queue
+                          do:^id _Nullable {
+                            if (self.ongoingGetTokenOperation == nil) {
+                              // Kick off a new handshake sequence only when there is no an ongoing
+                              // handshake to avoid race conditions.
+                              self.ongoingGetTokenOperation = [self createGetTokenSequencePromise];
+                            }
+                            return self.ongoingGetTokenOperation;
+                          }];
 }
 
 - (FBLPromise<FIRAppCheckToken *> *)createGetTokenSequencePromise {

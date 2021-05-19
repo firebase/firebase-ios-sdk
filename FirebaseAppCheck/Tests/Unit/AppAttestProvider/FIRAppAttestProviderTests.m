@@ -637,13 +637,11 @@ API_AVAILABLE(ios(14.0))
   OCMExpect([self.mockArtifactStorage getArtifactForKey:existingKeyID])
       .andReturn([FBLPromise resolvedWith:storedArtifact]);
 
-
   // 4. Expect random challenge to be requested.
   // 4.1. Create a pending promise to fulfil later.
   FBLPromise<NSData *> *challengeRequestPromise = [FBLPromise pendingPromise];
   // 4.2. Stab getRandomChallenge method.
-  OCMExpect([self.mockAPIService getRandomChallenge])
-      .andReturn(challengeRequestPromise);
+  OCMExpect([self.mockAPIService getRandomChallenge]).andReturn(challengeRequestPromise);
 
   // 5. Expect assertion to be requested.
   NSData *assertion = [@"generatedAssertion" dataUsingEncoding:NSUTF8StringEncoding];
@@ -664,10 +662,11 @@ API_AVAILABLE(ios(14.0))
   // 7. Call get token several times.
   NSInteger callsCount = 10;
   NSMutableArray *completionExpectations = [NSMutableArray arrayWithCapacity:callsCount];
+
   for (NSInteger i = 0; i < callsCount; i++) {
     // 7.1 Expect the completion to be called for each get token method called.
-    XCTestExpectation *completionExpectation =
-        [self expectationWithDescription:[NSString stringWithFormat:@"completionExpectation%@", @(i)]];
+    XCTestExpectation *completionExpectation = [self
+        expectationWithDescription:[NSString stringWithFormat:@"completionExpectation%@", @(i)]];
     [completionExpectations addObject:completionExpectation];
 
     // 7.2. Call get token.

@@ -499,8 +499,7 @@
   // 3.1. Create a pending promise to resolve later.
   FBLPromise<FIRAppCheckToken *> *storeTokenPromise = [FBLPromise pendingPromise];
   // 3.2. Stub storage set token method.
-  OCMExpect([self.mockStorage setToken:tokenToReturn])
-      .andReturn(storeTokenPromise);
+  OCMExpect([self.mockStorage setToken:tokenToReturn]).andReturn(storeTokenPromise);
 
   // 4. Expect token update notification to be sent.
   XCTestExpectation *notificationExpectation =
@@ -508,29 +507,33 @@
 
   // 5. Request token several times.
   NSInteger getTokenCallsCount = 10;
-  NSMutableArray *getTokenCompletionExpectations  = [NSMutableArray arrayWithCapacity:getTokenCallsCount];
+  NSMutableArray *getTokenCompletionExpectations =
+      [NSMutableArray arrayWithCapacity:getTokenCallsCount];
 
   for (NSInteger i = 0; i < getTokenCallsCount; i++) {
     // 5.1. Expect a completion to be called for each method call.
-    XCTestExpectation *getTokenExpectation = [self expectationWithDescription:[NSString stringWithFormat:@"getToken%@", @(i)]];
+    XCTestExpectation *getTokenExpectation =
+        [self expectationWithDescription:[NSString stringWithFormat:@"getToken%@", @(i)]];
     [getTokenCompletionExpectations addObject:getTokenExpectation];
 
     // 5.2. Call get token.
     [self.appCheck getTokenForcingRefresh:NO
                                completion:^(id<FIRAppCheckTokenResultInterop> tokenResult) {
-      [getTokenExpectation fulfill];
+                                 [getTokenExpectation fulfill];
 
-      XCTAssertNotNil(tokenResult);
-      XCTAssertEqualObjects(tokenResult.token, tokenToReturn.token);
-      XCTAssertNil(tokenResult.error);
-    }];
+                                 XCTAssertNotNil(tokenResult);
+                                 XCTAssertEqualObjects(tokenResult.token, tokenToReturn.token);
+                                 XCTAssertNil(tokenResult.error);
+                               }];
   }
 
   // 5.3. Fulfill the pending promise to finish the get token operation.
   [storeTokenPromise fulfill:tokenToReturn];
 
   // 6. Wait for expectations and validate mocks.
-  [self waitForExpectations:[getTokenCompletionExpectations arrayByAddingObject:notificationExpectation] timeout:0.5];
+  [self waitForExpectations:[getTokenCompletionExpectations
+                                arrayByAddingObject:notificationExpectation]
+                    timeout:0.5];
   OCMVerifyAll(self.mockStorage);
   OCMVerifyAll(self.mockAppCheckProvider);
 }
