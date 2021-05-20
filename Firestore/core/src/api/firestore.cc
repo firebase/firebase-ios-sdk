@@ -111,7 +111,7 @@ void Firestore::set_settings(const Settings& settings) {
   }
   if (!settings.ssl_enabled() && settings.host() == Settings::DefaultHost) {
     util::ThrowIllegalState(
-        "You can't set the 'sslEnabled' setting unless you also set a "
+        "You can't set the 'sslEnabled' setting to false unless you also set a "
         "non-default 'host'.");
   }
 
