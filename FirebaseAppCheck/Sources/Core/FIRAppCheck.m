@@ -246,7 +246,7 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 - (FBLPromise<FIRAppCheckToken *> *)retrieveOrRefreshTokenForcingRefresh:(BOOL)forcingRefresh {
   return [FBLPromise do:^id _Nullable {
     if (self.ongoingRetrieveOrRefreshTokenPromise == nil) {
-      // Kick off a new operation only when there is no an ongoing one.
+      // Kick off a new operation only when there is not an ongoing one.
       self.ongoingRetrieveOrRefreshTokenPromise =
           [self createRetrieveOrRefreshTokenPromiseForcingRefresh:forcingRefresh]
 

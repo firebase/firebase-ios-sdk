@@ -590,7 +590,7 @@ API_AVAILABLE(ios(14.0))
       .andReturn([FBLPromise resolvedWith:storedArtifact]);
 
   // 4. Expect random challenge to be requested.
-  // 4.1. Create a pending promise to fulfil later.
+  // 4.1. Create a pending promise to fulfill later.
   FBLPromise<NSData *> *challengeRequestPromise = [FBLPromise pendingPromise];
   // 4.2. Stab getRandomChallenge method.
   OCMExpect([self.mockAPIService getRandomChallenge]).andReturn(challengeRequestPromise);

@@ -177,7 +177,7 @@ NS_ASSUME_NONNULL_BEGIN
   return [FBLPromise onQueue:self.queue
                           do:^id _Nullable {
                             if (self.ongoingGetTokenOperation == nil) {
-                              // Kick off a new handshake sequence only when there is no an ongoing
+                              // Kick off a new handshake sequence only when there is not an ongoing
                               // handshake to avoid race conditions.
                               self.ongoingGetTokenOperation =
                                   [self createGetTokenSequencePromise]
