@@ -299,8 +299,7 @@ class Serializer {
       const google_firestore_v1_StructuredQuery_Order& order_by) const;
 
   google_firestore_v1_Cursor EncodeBound(const core::Bound& bound) const;
-  std::shared_ptr<core::Bound> DecodeBound(
-      google_firestore_v1_Cursor& cursor) const;
+  core::Bound DecodeBound(google_firestore_v1_Cursor& cursor) const;
 
   std::unique_ptr<remote::WatchChange> DecodeTargetChange(
       util::ReadContext* context,
