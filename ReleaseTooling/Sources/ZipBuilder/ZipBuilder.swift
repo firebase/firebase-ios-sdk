@@ -286,7 +286,8 @@ struct ZipBuilder {
     for (framework, paths) in xcframeworks {
       print("Frameworks for pod: \(framework) were compiled at \(paths)")
     }
-    if !includeCarthage {
+    guard includeCarthage else {
+      // No Carthage build necessary, return now.
       return (podsBuilt, xcframeworks, nil)
     }
     let xcframeworksCarthageDir = FileManager.default.temporaryDirectory(withName: "xcf-carthage")
