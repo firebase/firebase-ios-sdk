@@ -34,6 +34,7 @@
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/timestamp_internal.h"
 #include "Firestore/core/src/util/statusor.h"
+#include "Firestore/core/src/util/string_format.h"
 #include "Firestore/core/src/util/string_util.h"
 #include "absl/strings/escaping.h"
 #include "absl/strings/numbers.h"
@@ -70,6 +71,7 @@ using nanopb::SetRepeatedField;
 using nlohmann::json;
 using util::ReadContext;
 using util::StatusOr;
+using util::StringFormat;
 
 template <typename T>
 const std::vector<T>& EmptyVector() {
@@ -684,8 +686,8 @@ google_firestore_v1_Value BundleSerializer::DecodeValue(
         DecodeBytesValue(reader, reader.RequiredString("bytesValue", value));
   } else if (value.contains("referenceValue")) {
     result.which_value_type = google_firestore_v1_Value_reference_value_tag;
-    result.reference_value =
-        nanopb::MakeBytesArray(reader.RequiredString("referenceValue", value));
+    result.reference_value = DecodeReferenceValue(
+        reader, reader.RequiredString("referenceValue", value));
   } else if (value.contains("geoPointValue")) {
     result.which_value_type = google_firestore_v1_Value_geo_point_value_tag;
     result.geo_point_value =
@@ -733,6 +735,16 @@ google_firestore_v1_ArrayValue BundleSerializer::DecodeArrayValue(
   SetRepeatedField(&array_value.values, &array_value.values_count, values,
                    [&](const json& j) { return DecodeValue(reader, j); });
   return array_value;
+}
+
+pb_bytes_array_t* BundleSerializer::DecodeReferenceValue(
+    JsonReader& reader, const std::string& ref_string) const {
+  if (reader.ok() && !rpc_serializer_.IsLocalDocumentKey(ref_string)) {
+    reader.Fail(
+        StringFormat("Tried to deserialize an invalid key %s", ref_string));
+  }
+
+  return nanopb::MakeBytesArray(ref_string);
 }
 
 BundledDocumentMetadata BundleSerializer::DecodeDocumentMetadata(

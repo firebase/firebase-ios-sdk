@@ -599,6 +599,29 @@ TEST_F(BundleSerializerTest, DecodesReferenceValues) {
   VerifyFieldValueRoundtrip(value);
 }
 
+TEST_F(BundleSerializerTest, DecodeReferenceValuesFromOtherProjectsFails) {
+  ProtoValue value;
+  value.set_reference_value(
+      "projects/p1/databases/new/documents/bundle/test_doc");
+  ProtoDocument document = TestDocument(value);
+
+  std::string json_string;
+  MessageToJsonString(document, &json_string);
+
+  VerifyJsonStringDecodeFails(json_string);
+}
+
+TEST_F(BundleSerializerTest, DecodeInvalidReferenceFails) {
+  ProtoValue value;
+  value.set_reference_value("projectxx/p1/datmm/new/documents/bundle/test_doc");
+  ProtoDocument document = TestDocument(value);
+
+  std::string json_string;
+  MessageToJsonString(document, &json_string);
+
+  VerifyJsonStringDecodeFails(json_string);
+}
+
 TEST_F(BundleSerializerTest, DecodesArrayValues) {
   ProtoValue elem1;
   elem1.set_string_value("testing");
