@@ -131,6 +131,10 @@ inline bool operator==(const ObjectValue& lhs, const ObjectValue& rhs) {
   return *lhs.value_ == *rhs.value_;
 }
 
+inline bool operator!=(const ObjectValue& lhs, const ObjectValue& rhs) {
+  return !(lhs == rhs);
+}
+
 inline std::ostream& operator<<(std::ostream& out,
                                 const ObjectValue& object_value) {
   return out << "ObjectValue(" << *object_value.value_ << ")";

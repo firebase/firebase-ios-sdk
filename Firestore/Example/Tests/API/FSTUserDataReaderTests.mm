@@ -186,13 +186,13 @@ union DoubleBits {
   ObjectValue actual =
       FSTTestObjectValue(@{@"a" : @"foo", @"b" : @(1L), @"c" : @YES, @"d" : [NSNull null]});
   ObjectValue expected = WrapObject("a", "foo", "b", 1, "c", true, "d", nullptr);
-  XCTAssertTrue(actual == expected);
+  XCTAssertEqual(actual, expected);
 }
 
 - (void)testConvertsNestedObjects {
   ObjectValue actual = FSTTestObjectValue(@{@"a" : @{@"b" : @{@"c" : @"foo"}, @"d" : @YES}});
   ObjectValue expected = WrapObject("a", Map("b", Map("c", "foo"), "d", true));
-  XCTAssertTrue(actual == expected);
+  XCTAssertEqual(actual, expected);
 }
 
 - (void)testConvertsArrays {
