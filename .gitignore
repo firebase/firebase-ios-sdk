@@ -65,6 +65,7 @@ DerivedData
 
 # Swift Package Manager
 */.build
+ReleaseTooling/.swiftpm
 ReleaseTooling/Packages
 ReleaseTooling/*.xcodeproj
 ReleaseTooling/Package.resolved

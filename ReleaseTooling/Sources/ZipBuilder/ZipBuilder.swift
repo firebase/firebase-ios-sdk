@@ -418,9 +418,12 @@ struct ZipBuilder {
     let analyticsPods = analyticsFrameworks.map {
       $0.replacingOccurrences(of: ".framework", with: "")
     }
+    // Skip Analytics and the pods bundled with it.
     let remainingPods = installedPods.filter {
       $0.key != "FirebaseAnalytics" &&
         $0.key != "FirebaseCore" &&
+        $0.key != "FirebaseCoreDiagnostics" &&
+        $0.key != "FirebaseInstallations" &&
         $0.key != "Firebase" &&
         podsToInstall.map { $0.name }.contains($0.key)
     }.sorted { $0.key < $1.key }
