@@ -715,17 +715,17 @@ google_firestore_v1_MapValue BundleSerializer::DecodeMapValue(
     return {};
   }
 
-  // Fill the map array. Note that we can't use SetRepeatedField here since
-  // the json iterator cannot be dereferenced.
+  // Fill the map array. Note that we can't use SetRepeatedField here since the
+  // JSON map doesn't currently work with SetRepeatedField.
   google_firestore_v1_MapValue map_value{};
   map_value.fields_count = nanopb::CheckedSize(fields.size());
   map_value.fields =
       nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(
           map_value.fields_count);
   pb_size_t i = 0;
-  for (auto it = fields.begin(); it != fields.end(); ++it) {
-    map_value.fields[i] = {nanopb::MakeBytesArray(it.key()),
-                           DecodeValue(reader, it.value())};
+  for (const auto& entry: fields.items()) {
+    map_value.fields[i] = {nanopb::MakeBytesArray(entry.key()),
+                           DecodeValue(reader, entry.value())};
     ++i;
   }
   return map_value;
