@@ -19,7 +19,7 @@ import Combine
 
 class AnonymousSignInViewModel: UserInfoViewModel {
   private var cancellables = Set<AnyCancellable>()
-  
+
   @Published var errorMessage: String = ""
 
   func signIn() {
@@ -28,8 +28,7 @@ class AnonymousSignInViewModel: UserInfoViewModel {
       .catch { error -> Just<User?> in
         if (error as NSError).code == AuthErrorCode.adminRestrictedOperation.rawValue {
           print("Make sure to enable Anonymous Auth for your project")
-        }
-        else {
+        } else {
           print(error)
         }
         return Just(nil)
