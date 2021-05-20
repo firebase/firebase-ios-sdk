@@ -1383,6 +1383,11 @@ bool Serializer::IsLocalResourceName(const ResourcePath& path) const {
          path[3] == database_id_.database_id();
 }
 
+bool Serializer::IsLocalDocumentKey(absl::string_view path) const {
+  auto resource = ResourcePath::FromStringView(path);
+  return IsLocalResourceName(resource) && DocumentKey::IsDocumentKey(resource);
+}
+
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
