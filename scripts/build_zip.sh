@@ -22,8 +22,6 @@ EOF
   exit 1
 fi
 
-build_head_option=
-build_head_value=
 # The release build won't generage Carthage distro if the curreent
 # PackageManifest version has already been released.
 carthage_version_check="--enable-carthage-version-check"
