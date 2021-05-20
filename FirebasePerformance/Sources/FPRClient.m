@@ -143,7 +143,7 @@
 
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    FPRLogInfo(kFPRClientMetricLogged,
+    FPRLogInfo(kFPRClientInitialize,
                @"Firebase Performance Monitoring is successfully initialized! In a minute, visit "
                @"the Firebase console to view your data: %@",
                [FPRConsoleURLGenerator generateDashboardURLWithProjectID:self.projectID
