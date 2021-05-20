@@ -162,9 +162,8 @@ struct ZipBuilder {
   /// - Parameter podsToInstall: All pods to install.
   /// - Returns: Arrays of pod install info and the frameworks installed.
   func buildAndAssembleZip(podsToInstall: [CocoaPodUtils.VersionedPod],
-                           includeDependencies: Bool,
-                           includeCarthage: Bool = false) ->
-    ([String: CocoaPodUtils.PodInfo], [String: [URL]], [String: [URL]]?) {
+                           includeDependencies: Bool) ->
+    ([String: CocoaPodUtils.PodInfo], [String: [URL]], URL) {
     // Remove CocoaPods cache so the build gets updates after a version is rebuilt during the
     // release process. Always do this, since it can be the source of subtle failures on rebuilds.
     CocoaPodUtils.cleanPodCache()
@@ -177,13 +176,12 @@ struct ZipBuilder {
     // the folders in each product directory.
     let linkage: CocoaPodUtils.LinkageType = dynamicFrameworks ? .dynamic : .standardStatic
     var groupedFrameworks: [String: [URL]] = [:]
-    var carthageToInstall: [String: [URL]] = [:]
+    var carthageCoreDiagnosticsFrameworks: [URL] = []
     var podsBuilt: [String: CocoaPodUtils.PodInfo] = [:]
     var xcframeworks: [String: [URL]] = [:]
     var resources: [String: URL] = [:]
 
     for platform in platforms {
-      let includeCarthage = includeCarthage && platform == .iOS
       let projectDir = FileManager.default.temporaryDirectory(withName: "project-" + platform.name)
       CocoaPodUtils.podInstallPrepare(inProjectDir: projectDir, templateDir: paths.templateDir)
 
@@ -231,30 +229,29 @@ struct ZipBuilder {
         } else if podInfo.isSourcePod {
           let builder = FrameworkBuilder(projectDir: projectDir,
                                          platform: platform,
-                                         includeCarthage: includeCarthage,
                                          dynamicFrameworks: dynamicFrameworks)
-          let (frameworks, carthageFramework, resourceContents) =
+          let (frameworks, resourceContents) =
             builder.compileFrameworkAndResources(withName: podName,
                                                  logsOutputDir: paths.logsOutputDir,
+                                                 setCarthage: false,
                                                  podInfo: podInfo)
           groupedFrameworks[podName] = (groupedFrameworks[podName] ?? []) + frameworks
-          if platform == .iOS {
-            if let carthageFramework = carthageFramework {
-              carthageToInstall[podName] = [carthageFramework]
-            }
+
+          if podName == "FirebaseCoreDiagnostics" {
+            let (cdFrameworks, _) = builder.compileFrameworkAndResources(withName: podName,
+                                                                         logsOutputDir: paths
+                                                                           .logsOutputDir,
+                                                                         setCarthage: true,
+                                                                         podInfo: podInfo)
+            carthageCoreDiagnosticsFrameworks += cdFrameworks
           }
           if resourceContents != nil {
             resources[podName] = resourceContents
           }
         } else if podsBuilt[podName] == nil {
           // Binary pods need to be collected once, since the platforms should already be merged.
-          let (binaryFrameworks, binaryCarthage) =
-            collectBinaryFrameworks(fromPod: podName,
-                                    podInfo: podInfo)
+          let binaryFrameworks = collectBinaryFrameworks(fromPod: podName, podInfo: podInfo)
           xcframeworks[podName] = binaryFrameworks
-          if includeCarthage {
-            carthageToInstall[podName] = binaryCarthage
-          }
         }
         // Union all pods built across platforms.
         // Be conservative and favor iOS if it exists - and workaround
@@ -274,6 +271,13 @@ struct ZipBuilder {
     } catch {
       fatalError("Could not create XCFrameworks directory: \(error)")
     }
+    let xcframeworksCarthageDir = FileManager.default.temporaryDirectory(withName: "xcf-carthage")
+    do {
+      try FileManager.default.createDirectory(at: xcframeworksCarthageDir,
+                                              withIntermediateDirectories: false)
+    } catch {
+      fatalError("Could not create XCFrameworks Carthage directory: \(error)")
+    }
 
     for groupedFramework in groupedFrameworks {
       let name = groupedFramework.key
@@ -286,17 +290,21 @@ struct ZipBuilder {
     for (framework, paths) in xcframeworks {
       print("Frameworks for pod: \(framework) were compiled at \(paths)")
     }
-    return (podsBuilt, xcframeworks, carthageToInstall)
+    let carthageCoreDiagnosticsXcframework = FrameworkBuilder.makeXCFramework(
+      withName: "FirebaseCoreDiagnostics",
+      frameworks: carthageCoreDiagnosticsFrameworks,
+      xcframeworksDir: xcframeworksCarthageDir,
+      resourceContents: nil
+    )
+    return (podsBuilt, xcframeworks, carthageCoreDiagnosticsXcframework)
   }
 
   /// Try to build and package the contents of the Zip file. This will throw an error as soon as it
   /// encounters an error, or will quit due to a fatal error with the appropriate log.
   ///
   /// - Parameter templateDir: The template project for pod install.
-  /// - Parameter includeCarthage: Whether to build and package Carthage.
   /// - Throws: One of many errors that could have happened during the build phase.
-  func buildAndAssembleFirebaseRelease(templateDir: URL,
-                                       includeCarthage: Bool) throws -> ReleaseArtifacts {
+  func buildAndAssembleFirebaseRelease(templateDir: URL) throws -> ReleaseArtifacts {
     let manifest = FirebaseManifest.shared
     var podsToInstall = manifest.pods.filter { $0.zip }.map {
       CocoaPodUtils.VersionedPod(name: $0.name,
@@ -316,11 +324,10 @@ struct ZipBuilder {
                                                     platforms: ["ios"]))
 
     print("Final expected versions for the Zip file: \(podsToInstall)")
-    let (installedPods, frameworks,
-         carthageFrameworks) = buildAndAssembleZip(podsToInstall: podsToInstall,
-                                                   // Always include dependencies for Firebase zips.
-                                                   includeDependencies: true,
-                                                   includeCarthage: includeCarthage)
+    let (installedPods, frameworks, carthageCoreDiagnosticsXcframework) =
+      buildAndAssembleZip(podsToInstall: podsToInstall,
+                          // Always include dependencies for Firebase zips.
+                          includeDependencies: true)
 
     // We need the Firebase pod to get the version for Carthage and to copy the `Firebase.h` and
     // `module.modulemap` file from it.
@@ -334,14 +341,14 @@ struct ZipBuilder {
                                            installedPods: installedPods,
                                            frameworksToAssemble: frameworks,
                                            firebasePod: firebasePod)
-    var carthageDir: URL?
-    if let carthageFrameworks = carthageFrameworks, carthageFrameworks.count > 0 {
-      carthageDir = try assembleDistributions(withPackageKind: "CarthageFirebase",
-                                              podsToInstall: podsToInstall,
-                                              installedPods: installedPods,
-                                              frameworksToAssemble: carthageFrameworks,
-                                              firebasePod: firebasePod)
-    }
+    // Replace Core Diagnostics
+    var carthageFrameworks = frameworks
+    carthageFrameworks["FirebaseCoreDiagnostics"] = [carthageCoreDiagnosticsXcframework]
+    let carthageDir = try assembleDistributions(withPackageKind: "CarthageFirebase",
+                                                podsToInstall: podsToInstall,
+                                                installedPods: installedPods,
+                                                frameworksToAssemble: carthageFrameworks,
+                                                firebasePod: firebasePod)
 
     return ReleaseArtifacts(firebaseVersion: firebasePod.version,
                             zipDir: zipDir, carthageDir: carthageDir)
@@ -723,26 +730,21 @@ struct ZipBuilder {
   /// EXCLUDING resources, as they are handled later (if not included in the .framework file
   /// already).
   private func collectBinaryFrameworks(fromPod podName: String,
-                                       podInfo: CocoaPodUtils.PodInfo) -> ([URL], [URL]) {
+                                       podInfo: CocoaPodUtils.PodInfo) -> [URL] {
     // Verify the Pods folder exists and we can get the contents of it.
     let fileManager = FileManager.default
 
     // Create the temporary directory we'll be storing the build/assembled frameworks in, and remove
     // the Resources directory if it already exists.
     let binaryZipDir = fileManager.temporaryDirectory(withName: "binary_zip")
-    let binaryCarthageDir = fileManager.temporaryDirectory(withName: "binary_carthage")
     do {
       try fileManager.createDirectory(at: binaryZipDir,
-                                      withIntermediateDirectories: true,
-                                      attributes: nil)
-      try fileManager.createDirectory(at: binaryCarthageDir,
                                       withIntermediateDirectories: true,
                                       attributes: nil)
     } catch {
       fatalError("Cannot create temporary directory to store binary frameworks: \(error)")
     }
     var frameworks: [URL] = []
-    var carthageFrameworks: [URL] = []
 
     // Package all resources into the frameworks since that's how Carthage needs it packaged.
     do {
@@ -756,28 +758,17 @@ struct ZipBuilder {
     for framework in podInfo.binaryFrameworks {
       // Copy it to the temporary directory and save it to our list of frameworks.
       let zipLocation = binaryZipDir.appendingPathComponent(framework.lastPathComponent)
-      let carthageLocation =
-        binaryCarthageDir.appendingPathComponent(framework.lastPathComponent)
 
       // Remove the framework if it exists since it could be out of date.
       fileManager.removeIfExists(at: zipLocation)
-      fileManager.removeIfExists(at: carthageLocation)
       do {
         try fileManager.copyItem(at: framework, to: zipLocation)
-        try fileManager.copyItem(at: framework, to: carthageLocation)
       } catch {
         fatalError("Cannot copy framework at \(framework) while " +
           "attempting to generate frameworks. \(error)")
       }
       frameworks.append(zipLocation)
-
-      CarthageUtils.generatePlistContents(
-        forName: framework.lastPathComponent.components(separatedBy: ".").first!,
-        withVersion: podInfo.version,
-        to: carthageLocation
-      )
-      carthageFrameworks.append(carthageLocation)
     }
-    return (frameworks, carthageFrameworks)
+    return frameworks
   }
 }

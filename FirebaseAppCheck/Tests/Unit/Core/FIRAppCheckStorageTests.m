@@ -18,8 +18,8 @@
 
 #import "FirebaseAppCheck/Sources/Core/Storage/FIRAppCheckStorage.h"
 
+#import <OCMock/OCMock.h>
 #import "FBLPromise+Testing.h"
-#import "OCMock.h"
 
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"
 

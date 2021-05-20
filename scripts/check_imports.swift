@@ -104,6 +104,9 @@ private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL)
       inSwiftPackageElse = false
     } else if inSwiftPackage {
       continue
+    } else if file.contains("FirebaseTestingSupport") {
+      // Module imports ok in SPM only test infrastructure.
+      continue
     } else if line.starts(with: "@import") {
       // "@import" is only allowed for Swift Package Manager.
       logger.importLog("@import should not be used in CocoaPods library code", file, lineNum)

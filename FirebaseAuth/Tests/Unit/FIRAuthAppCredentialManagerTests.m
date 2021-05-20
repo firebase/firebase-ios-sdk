@@ -17,8 +17,8 @@
 #import <TargetConditionals.h>
 #if !TARGET_OS_OSX
 
+#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
-#import "OCMock.h"
 
 #import "FirebaseAuth/Sources/Storage/FIRAuthKeychainServices.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredential.h"

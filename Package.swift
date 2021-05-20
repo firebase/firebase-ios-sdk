@@ -21,7 +21,7 @@ let firebaseVersion = "8.0.0"
 
 let package = Package(
   name: "Firebase",
-  platforms: [.iOS(.v10), .macOS(.v10_12), .tvOS(.v10), .watchOS(.v7)],
+  platforms: [.iOS(.v11), .macOS(.v10_12), .tvOS(.v10), .watchOS(.v7)],
   products: [
     .library(
       name: "FirebaseAnalytics",
@@ -64,19 +64,18 @@ let package = Package(
     //   name: "FirebaseStorageCombineSwift-Beta",
     //   targets: ["FirebaseStorageCombineSwift"]
     // ),
-    // .library(
-    //   name: "FirebaseCrashlytics",
-    //   targets: ["FirebaseCrashlytics"]
-    // ),
+    .library(
+      name: "FirebaseCrashlytics",
+      targets: ["FirebaseCrashlytics"]
+    ),
     .library(
       name: "FirebaseDatabase",
       targets: ["FirebaseDatabase"]
     ),
-    // TODO: Re-enable after API review passes.
-//    .library(
-//      name: "FirebaseDatabaseSwift-Beta",
-//      targets: ["FirebaseDatabaseSwift"]
-//    ),
+    .library(
+      name: "FirebaseDatabaseSwift-Beta",
+      targets: ["FirebaseDatabaseSwift"]
+    ),
     .library(
       name: "FirebaseDynamicLinks",
       targets: ["FirebaseDynamicLinksTarget"]
@@ -140,7 +139,7 @@ let package = Package(
     .package(
       name: "GoogleAppMeasurement",
       url: "https://github.com/google/GoogleAppMeasurement.git",
-      .exact("7.11.0")
+      .exact("8.0.0")
     ),
     .package(
       name: "GoogleDataTransport",
@@ -174,8 +173,8 @@ let package = Package(
     ),
     .package(
       name: "OCMock",
-      url: "https://github.com/firebase/ocmock.git",
-      .revision("7291762d3551c5c7e31c49cce40a0e391a52e889")
+      url: "https://github.com/erikdoe/ocmock.git",
+      .revision("21cce26d223d49a9ab5ae47f28864f422bfe3951")
     ),
     .package(
       name: "leveldb",
@@ -288,8 +287,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/7.11.0/FirebaseAnalytics.zip",
-      checksum: "96fdd7d7e7812748b11ec2e8ca9c0cec186e1caa6037996b74410d89a4ddf6af"
+      url: "https://dl.google.com/firebase/ios/swiftpm/8.0.0/FirebaseAnalytics.zip",
+      checksum: "b4820ede2e4ee4001695f372da65f24e262881715be635d87ed87e7568cfda9f"
     ),
     .target(
       name: "FirebaseAnalyticsSwiftTarget",
@@ -408,11 +407,6 @@ let package = Package(
       name: "FirebaseAuthCombineSwift",
       dependencies: ["FirebaseAuth"],
       path: "FirebaseCombineSwift/Sources/Auth"
-    ),
-    .target(
-      name: "FirebaseFunctionsCombineSwift",
-      dependencies: ["FirebaseFunctions"],
-      path: "FirebaseCombineSwift/Sources/Functions"
     ),
     .target(
       name: "FirebaseStorageCombineSwift",
@@ -644,6 +638,8 @@ let package = Package(
       ]
     ),
 
+    // MARK: Firebase Functions
+
     .target(
       name: "FirebaseFunctionsTarget",
       dependencies: [.target(name: "FirebaseFunctions",
@@ -661,6 +657,27 @@ let package = Package(
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
+      ]
+    ),
+    .target(
+      name: "FirebaseFunctionsCombineSwift",
+      dependencies: ["FirebaseFunctions"],
+      path: "FirebaseCombineSwift/Sources/Functions"
+    ),
+    .testTarget(
+      name: "FunctionsCombineUnit",
+      dependencies: ["FirebaseFunctionsCombineSwift",
+                     "FirebaseFunctionsTestingSupport",
+                     "SharedTestUtilities"],
+      path: "Functions/Tests/CombineUnit"
+    ),
+    .target(
+      name: "FirebaseFunctionsTestingSupport",
+      dependencies: ["FirebaseFunctions"],
+      path: "FirebaseTestingSupport/Functions/Sources",
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../../.."),
       ]
     ),
 

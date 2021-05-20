@@ -67,5 +67,6 @@
   "7.5.0": "https://dl.google.com/dl/firebase/ios/carthage/7.5.0/FirebaseFirestore-b091240a18b2a168.zip",
   "7.6.0": "https://dl.google.com/dl/firebase/ios/carthage/7.6.0/FirebaseFirestore-f449afca45e45a59.zip",
   "7.7.0": "https://dl.google.com/dl/firebase/ios/carthage/7.7.0/FirebaseFirestore-79abcc00e58832ae.zip",
-  "7.8.0": "https://dl.google.com/dl/firebase/ios/carthage/7.8.0/FirebaseFirestore-171c65fcda202ac1.zip"
+  "7.8.0": "https://dl.google.com/dl/firebase/ios/carthage/7.8.0/FirebaseFirestore-171c65fcda202ac1.zip",
+  "8.0.0": "https://dl.google.com/dl/firebase/ios/carthage/8.0.0/FirebaseFirestore-6c7035fccbea27c0.zip"
 }
