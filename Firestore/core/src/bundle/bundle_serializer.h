@@ -127,6 +127,9 @@ class BundleSerializer {
       JsonReader& context, const nlohmann::json& array_json) const;
   google_firestore_v1_MapValue DecodeMapValue(
       JsonReader& context, const nlohmann::json& map_json) const;
+
+  pb_bytes_array_t* DecodeReferenceValue(JsonReader& reader,
+                                         const std::string& ref_string) const;
 };
 
 }  // namespace bundle

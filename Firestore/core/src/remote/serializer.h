@@ -240,6 +240,8 @@ class Serializer {
 
   bool IsLocalResourceName(const model::ResourcePath& path) const;
 
+  bool IsLocalDocumentKey(absl::string_view path) const;
+
  private:
   model::MutableDocument DecodeFoundDocument(
       util::ReadContext* context,

@@ -258,7 +258,7 @@ ResourcePath Serializer::DecodeResourceName(ReadContext* context,
                                             absl::string_view encoded) const {
   auto resource = ResourcePath::FromStringView(encoded);
   if (!IsValidResourceName(resource)) {
-    context->Fail(StringFormat("Tried to deserialize an invalid key %s",
+    context->Fail(StringFormat("Tried to deserialize an invalid key: %s",
                                resource.CanonicalString()));
   }
   return resource;
@@ -1381,6 +1381,12 @@ std::unique_ptr<WatchChange> Serializer::DecodeExistenceFilterWatchChange(
 bool Serializer::IsLocalResourceName(const ResourcePath& path) const {
   return IsValidResourceName(path) && path[1] == database_id_.project_id() &&
          path[3] == database_id_.database_id();
+}
+
+bool Serializer::IsLocalDocumentKey(absl::string_view path) const {
+  auto resource = ResourcePath::FromStringView(path);
+  return IsLocalResourceName(resource) &&
+         DocumentKey::IsDocumentKey(resource.PopFirst(5));
 }
 
 }  // namespace remote
