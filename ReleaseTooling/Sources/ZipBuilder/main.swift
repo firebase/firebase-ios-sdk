@@ -268,6 +268,7 @@ struct ZipBuilderTool: ParsableCommand {
 
       let (installedPods, frameworks, _) =
         builder.buildAndAssembleZip(podsToInstall: podsToBuild,
+                                    includeCarthage: false,
                                     includeDependencies: buildDependencies)
       let staging = FileManager.default.temporaryDirectory(withName: "Binaries")
       try builder.copyFrameworks(fromPods: Array(installedPods.keys), toDirectory: staging,
