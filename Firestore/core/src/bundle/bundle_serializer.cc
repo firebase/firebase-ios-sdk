@@ -723,7 +723,7 @@ google_firestore_v1_MapValue BundleSerializer::DecodeMapValue(
       nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(
           map_value.fields_count);
   pb_size_t i = 0;
-  for (const auto& entry: fields.items()) {
+  for (const auto& entry : fields.items()) {
     map_value.fields[i] = {nanopb::MakeBytesArray(entry.key()),
                            DecodeValue(reader, entry.value())};
     ++i;

@@ -66,19 +66,19 @@ class ServerTimestampTransform::Rep : public TransformOperation::Rep {
   }
 
   google_firestore_v1_Value ApplyToLocalView(
-      const absl::optional<google_firestore_v1_Value>& previous_value,
+      const nanopb::OptionalMessage<google_firestore_v1_Value>& previous_value,
       const Timestamp& local_write_time) const override {
-    return EncodeServerTimestamp(local_write_time, previous_value);
+    return EncodeServerTimestamp(local_write_time, std::move(previous_value));
   }
 
   google_firestore_v1_Value ApplyToRemoteDocument(
-      const absl::optional<google_firestore_v1_Value>&,
+      const nanopb::OptionalMessage<google_firestore_v1_Value>&,
       const google_firestore_v1_Value& transform_result) const override {
     return transform_result;
   }
 
-  absl::optional<google_firestore_v1_Value> ComputeBaseValue(
-      const absl::optional<google_firestore_v1_Value>&) const override {
+  nanopb::OptionalMessage<google_firestore_v1_Value> ComputeBaseValue(
+      const absl::optional<google_firestore_v1_Value>) const override {
     // Server timestamps are idempotent and don't require a base value.
     return absl::nullopt;
   }
@@ -122,22 +122,22 @@ class ArrayTransform::Rep : public TransformOperation::Rep {
   }
 
   google_firestore_v1_Value ApplyToLocalView(
-      const absl::optional<google_firestore_v1_Value>& previous_value,
+      nanopb::OptionalMessage<google_firestore_v1_Value> previous_value,
       const Timestamp&) const override {
-    return Apply(previous_value);
+    return Apply(std::move(previous_value));
   }
 
   google_firestore_v1_Value ApplyToRemoteDocument(
-      const absl::optional<google_firestore_v1_Value>& previous_value,
+      nanopb::OptionalMessage<google_firestore_v1_Value> previous_value,
       const google_firestore_v1_Value&) const override {
     // The server just sends null as the transform result for array operations,
     // so we have to calculate a result the same as we do for local
     // applications.
-    return Apply(previous_value);
+    return Apply(std::move(previous_value));
   }
 
-  absl::optional<google_firestore_v1_Value> ComputeBaseValue(
-      const absl::optional<google_firestore_v1_Value>&) const override {
+  nanopb::OptionalMessage<google_firestore_v1_Value> ComputeBaseValue(
+      nanopb::OptionalMessage<google_firestore_v1_Value>) const override {
     // Array transforms are idempotent and don't require a base value.
     return absl::nullopt;
   }
@@ -161,10 +161,10 @@ class ArrayTransform::Rep : public TransformOperation::Rep {
    * google_firestore_v1_Value.
    */
   google_firestore_v1_ArrayValue CoercedFieldValueArray(
-      const absl::optional<google_firestore_v1_Value>& value) const;
+      nanopb::OptionalMessage<google_firestore_v1_Value> value) const;
 
   google_firestore_v1_Value Apply(
-      const absl::optional<google_firestore_v1_Value>& previous_value) const;
+      nanopb::OptionalMessage<google_firestore_v1_Value> previous_value) const;
 
   Type type_;
   nanopb::Message<google_firestore_v1_ArrayValue> elements_;
@@ -231,9 +231,9 @@ std::string ArrayTransform::Rep::ToString() const {
 }
 
 google_firestore_v1_ArrayValue ArrayTransform::Rep::CoercedFieldValueArray(
-    const absl::optional<google_firestore_v1_Value>& value) const {
-  if (IsArray(value)) {
-    return DeepClone(value->array_value);
+    nanopb::OptionalMessage<google_firestore_v1_Value> value) const {
+  if (value && IsArray(*value)) {
+    return value->array_value;
   } else {
     // coerce to empty array.
     return {};
@@ -241,9 +241,9 @@ google_firestore_v1_ArrayValue ArrayTransform::Rep::CoercedFieldValueArray(
 }
 
 google_firestore_v1_Value ArrayTransform::Rep::Apply(
-    const absl::optional<google_firestore_v1_Value>& previous_value) const {
+    nanopb::OptionalMessage<google_firestore_v1_Value> previous_value) const {
   google_firestore_v1_ArrayValue array_value =
-      CoercedFieldValueArray(previous_value);
+      CoercedFieldValueArray(std::move(previous_value));
   if (type_ == Type::ArrayUnion) {
     // Gather the list of elements that have to be added.
     std::vector<google_firestore_v1_Value> new_elements;
@@ -303,16 +303,16 @@ class NumericIncrementTransform::Rep : public TransformOperation::Rep {
   }
 
   google_firestore_v1_Value ApplyToLocalView(
-      const absl::optional<google_firestore_v1_Value>& previous_value,
+      nanopb::OptionalMessage<google_firestore_v1_Value> previous_value,
       const Timestamp& local_write_time) const override;
 
   google_firestore_v1_Value ApplyToRemoteDocument(
-      const absl::optional<google_firestore_v1_Value>&,
+      nanopb::OptionalMessage<google_firestore_v1_Value>,
       const google_firestore_v1_Value& transform_result) const override {
     return transform_result;
   }
 
-  absl::optional<google_firestore_v1_Value> ComputeBaseValue(
+  nanopb::OptionalMessage<google_firestore_v1_Value> ComputeBaseValue(
       const absl::optional<google_firestore_v1_Value>& previous_value)
       const override;
 
@@ -383,10 +383,10 @@ double NumericIncrementTransform::Rep::OperandAsDouble() const {
 }
 
 google_firestore_v1_Value NumericIncrementTransform::Rep::ApplyToLocalView(
-    const absl::optional<google_firestore_v1_Value>& previous_value,
+    nanopb::OptionalMessage<google_firestore_v1_Value> previous_value,
     const Timestamp& /* local_write_time */) const {
   absl::optional<google_firestore_v1_Value> base_value =
-      ComputeBaseValue(previous_value);
+      ComputeBaseValue(std::move(previous_value));
   google_firestore_v1_Value result{};
 
   // Return an integer value only if the previous value and the operand is an
@@ -407,10 +407,10 @@ google_firestore_v1_Value NumericIncrementTransform::Rep::ApplyToLocalView(
   return result;
 }
 
-absl::optional<google_firestore_v1_Value>
+nanopb::OptionalMessage<google_firestore_v1_Value>
 NumericIncrementTransform::Rep::ComputeBaseValue(
-    const absl::optional<google_firestore_v1_Value>& previous_value) const {
-  if (IsNumber(previous_value)) return previous_value;
+    nanopb::OptionalMessage<google_firestore_v1_Value> previous_value) const {
+  if (previous_value && IsNumber(*previous_value)) return previous_value;
 
   google_firestore_v1_Value zero_value{};
   zero_value.which_value_type = google_firestore_v1_Value_integer_value_tag;

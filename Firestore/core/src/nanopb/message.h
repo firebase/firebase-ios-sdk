@@ -187,6 +187,49 @@ class Message {
   T proto_{};
 };
 
+template <typename T>
+class OptionalMessage {
+ public:
+  OptionalMessage() : message_{absl::nullopt} {
+  }
+
+  OptionalMessage(T message) : message_{message} {};
+
+  OptionalMessage(const OptionalMessage&) = delete;
+  OptionalMessage& operator=(const OptionalMessage&) = delete;
+
+  OptionalMessage(OptionalMessage&& other) noexcept
+      : message_{other.message_ ? std::move(*other.message_) : absl::nullopt} {
+    other.owns_proto_ = false;
+  }
+
+  OptionalMessage& operator=(OptionalMessage&& other) noexcept {
+    if (message_) {
+      message_ = other.message_ ? std::move(other.message_) : absl::nullopt;
+    }
+    return *this;
+  }
+
+  const T* get() const {
+    return message_->get();
+  }
+
+  const T& operator*() const {
+    return *get();
+  }
+
+  const T* operator->() const {
+    return get();
+  }
+
+  constexpr explicit operator bool() const noexcept {
+    return this->message_;
+  }
+
+ private:
+  absl::optional<T> message_;
+};
+
 /**
  * A wrapper of const Message objects that facilitates shared ownership of
  * immutable Protobuf data.
