@@ -23,29 +23,34 @@ NSString *const UTM_SOURCE = @"perf-ios-sdk";
 /** This is a class method to generate the console URL for the project's dashboard page.*/
 + (NSString *)generateDashboardURLWithProjectID:(NSString *)projectID
                                        bundleID:(NSString *)bundleID {
+  NSString *rootUrl = [FPRConsoleURLGenerator getRootURLWithProjectID:projectID bundleID:bundleID];
   return [NSString
-      stringWithFormat:@"%@/project/%@/performance/app/ios:%@/trends?utm_source=%@&utm_medium=%@",
-                       URL_BASE_PATH, projectID, bundleID, UTM_SOURCE, UTM_MEDIUM];
+      stringWithFormat:@"%@/trends?utm_source=%@&utm_medium=%@", rootUrl, UTM_SOURCE, UTM_MEDIUM];
 }
 
 /** This is a class method to generate the console URL for the custom trace.*/
 + (NSString *)generateCustomTraceURLWithProjectID:(NSString *)projectID
                                          bundleID:(NSString *)bundleID
                                         traceName:(NSString *)traceName {
-  return [NSString stringWithFormat:@"%@/project/%@/performance/app/ios:%@/metrics/trace/"
+  NSString *rootUrl = [FPRConsoleURLGenerator getRootURLWithProjectID:projectID bundleID:bundleID];
+  return [NSString stringWithFormat:@"%@/metrics/trace/"
                                     @"DURATION_TRACE/%@?utm_source=%@&utm_medium=%@",
-                                    URL_BASE_PATH, projectID, bundleID, traceName, UTM_SOURCE,
-                                    UTM_MEDIUM];
+                                    rootUrl, traceName, UTM_SOURCE, UTM_MEDIUM];
 }
 
 /** This is a class method to generate the console URL for the screen trace.*/
 + (NSString *)generateScreenTraceURLWithProjectID:(NSString *)projectID
                                          bundleID:(NSString *)bundleID
                                         traceName:(NSString *)traceName {
-  return [NSString stringWithFormat:@"%@/project/%@/performance/app/ios:%@/metrics/trace/"
+  NSString *rootUrl = [FPRConsoleURLGenerator getRootURLWithProjectID:projectID bundleID:bundleID];
+  return [NSString stringWithFormat:@"%@/metrics/trace/"
                                     @"SCREEN_TRACE/%@?utm_source=%@&utm_medium=%@",
-                                    URL_BASE_PATH, projectID, bundleID, traceName, UTM_SOURCE,
-                                    UTM_MEDIUM];
+                                    rootUrl, traceName, UTM_SOURCE, UTM_MEDIUM];
 }
 
+/** This is a class method to get the root URL for the console .*/
++ (NSString *)getRootURLWithProjectID:(NSString *)projectID bundleID:(NSString *)bundleID {
+  return [NSString
+      stringWithFormat:@"%@/project/%@/performance/app/ios:%@", URL_BASE_PATH, projectID, bundleID];
+}
 @end

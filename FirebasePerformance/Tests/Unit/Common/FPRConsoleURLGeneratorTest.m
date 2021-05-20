@@ -30,10 +30,8 @@ static NSString *const TRACE_NAME = @"test-trace";
 - (void)testDashboardURL {
   NSString *url = [FPRConsoleURLGenerator generateDashboardURLWithProjectID:PROJECT_ID
                                                                    bundleID:BUNDLE_ID];
-  NSString *expectedURL =
-      [NSString stringWithFormat:@"https://console.firebase.google.com/project/%@/performance/app/"
-                                 @"ios:%@/trends?utm_source=perf-ios-sdk&utm_medium=ios-ide",
-                                 PROJECT_ID, BUNDLE_ID];
+  NSString *expectedURL = @"https://console.firebase.google.com/project/test-project/performance/"
+                          @"app/ios:test-bundle/trends?utm_source=perf-ios-sdk&utm_medium=ios-ide";
   XCTAssertEqualObjects(url, expectedURL);
 }
 
@@ -43,10 +41,8 @@ static NSString *const TRACE_NAME = @"test-trace";
                                                                      bundleID:BUNDLE_ID
                                                                     traceName:TRACE_NAME];
   NSString *expectedURL =
-      [NSString stringWithFormat:
-                    @"https://console.firebase.google.com/project/%@/performance/app/ios:%@/"
-                    @"metrics/trace/DURATION_TRACE/%@?utm_source=perf-ios-sdk&utm_medium=ios-ide",
-                    PROJECT_ID, BUNDLE_ID, TRACE_NAME];
+      @"https://console.firebase.google.com/project/test-project/performance/app/ios:test-bundle/"
+      @"metrics/trace/DURATION_TRACE/test-trace?utm_source=perf-ios-sdk&utm_medium=ios-ide";
   XCTAssertEqualObjects(url, expectedURL);
 }
 
@@ -55,10 +51,9 @@ static NSString *const TRACE_NAME = @"test-trace";
   NSString *url = [FPRConsoleURLGenerator generateScreenTraceURLWithProjectID:PROJECT_ID
                                                                      bundleID:BUNDLE_ID
                                                                     traceName:TRACE_NAME];
-  NSString *expectedURL = [NSString
-      stringWithFormat:@"https://console.firebase.google.com/project/%@/performance/app/ios:%@/"
-                       @"metrics/trace/SCREEN_TRACE/%@?utm_source=perf-ios-sdk&utm_medium=ios-ide",
-                       PROJECT_ID, BUNDLE_ID, TRACE_NAME];
+  NSString *expectedURL =
+      @"https://console.firebase.google.com/project/test-project/performance/app/ios:test-bundle/"
+      @"metrics/trace/SCREEN_TRACE/test-trace?utm_source=perf-ios-sdk&utm_medium=ios-ide";
   XCTAssertEqualObjects(url, expectedURL);
 }
 

@@ -120,11 +120,6 @@
         // Delayed initialization of installations because FIRApp needs to be configured first.
         self.installations = [FIRInstallations installations];
       }
-      FPRLogInfo(kFPRClientMetricLogged,
-                 @"Firebase Performance Monitoring is successfully initialized! In a minute, visit "
-                 @"the Firebase console to view your data: %@",
-                 [FPRConsoleURLGenerator generateDashboardURLWithProjectID:self.projectID
-                                                                  bundleID:self.bundleID]);
     });
   }
   return self;
@@ -147,6 +142,12 @@
     [self.configuration update];
 
     [FPRClient cleanupClearcutCacheDirectory];
+
+    FPRLogInfo(kFPRClientMetricLogged,
+               @"Firebase Performance Monitoring is successfully initialized! In a minute, visit "
+               @"the Firebase console to view your data: %@",
+               [FPRConsoleURLGenerator generateDashboardURLWithProjectID:self.projectID
+                                                                bundleID:self.bundleID]);
   });
 
   // Set up instrumentation.
