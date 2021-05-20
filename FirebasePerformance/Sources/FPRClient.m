@@ -113,14 +113,6 @@
     _configuration = [FPRConfigurations sharedInstance];
     _projectID = [FIROptions defaultOptions].projectID;
     _bundleID = [FIROptions defaultOptions].bundleID;
-
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-      if (self.installations == nil) {
-        // Delayed initialization of installations because FIRApp needs to be configured first.
-        self.installations = [FIRInstallations installations];
-      }
-    });
   }
   return self;
 }
@@ -142,18 +134,21 @@
     [self.configuration update];
 
     [FPRClient cleanupClearcutCacheDirectory];
-
-    FPRLogInfo(kFPRClientMetricLogged,
-               @"Firebase Performance Monitoring is successfully initialized! In a minute, visit "
-               @"the Firebase console to view your data: %@",
-               [FPRConsoleURLGenerator generateDashboardURLWithProjectID:self.projectID
-                                                                bundleID:self.bundleID]);
   });
 
   // Set up instrumentation.
   [self checkAndStartInstrumentation];
 
   self.configured = YES;
+
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    FPRLogInfo(kFPRClientMetricLogged,
+               @"Firebase Performance Monitoring is successfully initialized! In a minute, visit "
+               @"the Firebase console to view your data: %@",
+               [FPRConsoleURLGenerator generateDashboardURLWithProjectID:self.projectID
+                                                                bundleID:self.bundleID]);
+  });
 
   return YES;
 }
