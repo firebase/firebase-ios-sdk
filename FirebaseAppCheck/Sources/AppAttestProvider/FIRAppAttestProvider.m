@@ -103,7 +103,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly) id<FIRAppAttestKeyIDStorageProtocol> keyIDStorage;
 @property(nonatomic, readonly) id<FIRAppAttestArtifactStorageProtocol> artifactStorage;
 
-@property(nonatomic) FBLPromise<FIRAppCheckToken *> *ongoingGetTokenOperation;
+@property(nonatomic, nullable) FBLPromise<FIRAppCheckToken *> *ongoingGetTokenOperation;
 
 @property(nonatomic, readonly) dispatch_queue_t queue;
 
@@ -179,7 +179,17 @@ NS_ASSUME_NONNULL_BEGIN
                             if (self.ongoingGetTokenOperation == nil) {
                               // Kick off a new handshake sequence only when there is no an ongoing
                               // handshake to avoid race conditions.
-                              self.ongoingGetTokenOperation = [self createGetTokenSequencePromise];
+                              self.ongoingGetTokenOperation = [self createGetTokenSequencePromise]
+
+                              // Release the ongoing operation promise on completion.
+                              .then(^FIRAppCheckToken *(FIRAppCheckToken *token) {
+                                self.ongoingGetTokenOperation = nil;
+                                return token;
+                              })
+                              .recover(^NSError *(NSError *error) {
+                                self.ongoingGetTokenOperation = nil;
+                                return error;
+                              });
                             }
                             return self.ongoingGetTokenOperation;
                           }];

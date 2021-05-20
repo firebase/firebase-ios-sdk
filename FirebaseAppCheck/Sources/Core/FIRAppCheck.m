@@ -70,7 +70,7 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 
 @property(nonatomic, readonly, nullable) id<FIRAppCheckTokenRefresherProtocol> tokenRefresher;
 
-@property(nonatomic) FBLPromise<FIRAppCheckToken *> *ongoingRetrieveOrRefreshTokenPromise;
+@property(nonatomic, nullable) FBLPromise<FIRAppCheckToken *> *ongoingRetrieveOrRefreshTokenPromise;
 
 @end
 
@@ -248,7 +248,17 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
     if (self.ongoingRetrieveOrRefreshTokenPromise == nil) {
       // Kick off a new operation only when there is no an ongoing one.
       self.ongoingRetrieveOrRefreshTokenPromise =
-          [self createRetrieveOrRefreshTokenPromiseForcingRefresh:forcingRefresh];
+          [self createRetrieveOrRefreshTokenPromiseForcingRefresh:forcingRefresh]
+
+      // Release the ongoing operation promise on completion.
+      .then(^FIRAppCheckToken *(FIRAppCheckToken *token) {
+        self.ongoingRetrieveOrRefreshTokenPromise = nil;
+        return token;
+      })
+      .recover(^NSError *(NSError *error) {
+        self.ongoingRetrieveOrRefreshTokenPromise = nil;
+        return error;
+      });
     }
     return self.ongoingRetrieveOrRefreshTokenPromise;
   }];
