@@ -757,12 +757,12 @@ Target Serializer::DecodeStructuredQuery(
     limit = query.limit.value;
   }
 
-  std::shared_ptr<Bound> start_at;
+  absl::optional<Bound> start_at;
   if (query.start_at.values_count > 0) {
     start_at = DecodeBound(query.start_at);
   }
 
-  std::shared_ptr<Bound> end_at;
+  absl::optional<Bound> end_at;
   if (query.end_at.values_count > 0) {
     end_at = DecodeBound(query.end_at);
   }
@@ -1115,8 +1115,7 @@ google_firestore_v1_Cursor Serializer::EncodeBound(const Bound& bound) const {
   return result;
 }
 
-std::shared_ptr<Bound> Serializer::DecodeBound(
-    google_firestore_v1_Cursor& cursor) const {
+Bound Serializer::DecodeBound(google_firestore_v1_Cursor& cursor) const {
   google_firestore_v1_ArrayValue index_components;
   SetRepeatedField(&index_components.values, &index_components.values_count,
                    absl::Span<google_firestore_v1_Value>(cursor.values,
@@ -1124,8 +1123,7 @@ std::shared_ptr<Bound> Serializer::DecodeBound(
   // Prevent double-freeing of the cursors's fields. The fields are now owned by
   // the bound.
   ReleaseFieldOwnership(cursor.values, cursor.values_count);
-  return std::make_shared<Bound>(
-      Bound::FromValue(index_components, cursor.before));
+  return Bound::FromValue(index_components, cursor.before);
 }
 
 /* static */

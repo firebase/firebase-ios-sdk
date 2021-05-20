@@ -527,15 +527,15 @@ BundledQuery BundleSerializer::DecodeBundledQuery(
   auto order_bys = DecodeOrderBy(reader, structured_query);
 
   auto start_at_bound = DecodeBound(reader, structured_query, "startAt");
-  std::shared_ptr<Bound> start_at;
+  absl::optional<Bound> start_at;
   if (start_at_bound.position().values_count > 0) {
-    start_at = std::make_shared<Bound>(std::move(start_at_bound));
+    start_at = std::move(start_at_bound);
   }
 
   auto end_at_bound = DecodeBound(reader, structured_query, "endAt");
-  std::shared_ptr<Bound> end_at;
+  absl::optional<Bound> end_at;
   if (end_at_bound.position().values_count > 0) {
-    end_at = std::make_shared<Bound>(std::move(end_at_bound));
+    end_at = std::move(end_at_bound);
   }
 
   int32_t limit = DecodeLimit(reader, structured_query);
