@@ -57,6 +57,12 @@ enum class TypeOrder {
 /** Returns the backend's type order of the given Value type. */
 TypeOrder GetTypeOrder(const google_firestore_v1_Value& value);
 
+/** Traverses a Value proto and sorts all MapValues by key. */
+void SortFields(google_firestore_v1_Value& value);
+
+/** Traverses an ArrayValue proto and sorts all MapValues by key. */
+void SortFields(google_firestore_v1_ArrayValue& value);
+
 util::ComparisonResult Compare(const google_firestore_v1_Value& left,
                                const google_firestore_v1_Value& right);
 

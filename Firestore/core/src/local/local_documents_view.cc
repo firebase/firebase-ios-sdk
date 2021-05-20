@@ -165,13 +165,10 @@ DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionQuery(
       if (!document) {
         // Create invalid document to apply mutations on top of
         document = MutableDocument::InvalidDocument(key);
-        remote_documents = remote_documents.insert(key, *document);
       }
 
       mutation.ApplyToLocalView(*document, batch.local_write_time());
-      if (!document->is_found_document()) {
-        remote_documents = remote_documents.erase(key);
-      }
+      remote_documents = remote_documents.insert(key, *document);
     }
   }
 
@@ -182,9 +179,8 @@ DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionQuery(
   DocumentMap results;
   for (const auto& kv : remote_documents) {
     const DocumentKey& key = kv.first;
-    Document doc{std::move(kv.second)};
-    if (query.Matches(doc)) {
-      results = results.insert(key, std::move(doc));
+    if (query.Matches(kv.second)) {
+      results = results.insert(key, kv.second);
     }
   }
 

@@ -79,7 +79,7 @@ class RemoteStoreCallback {
    * removing the batch from the mutation queue.
    */
   virtual void HandleSuccessfulWrite(
-      const model::MutationBatchResult& batch_result) = 0;
+      model::MutationBatchResult batch_result) = 0;
 
   /**
    * Rejects the batch, removing the batch from the mutation queue, recomputing

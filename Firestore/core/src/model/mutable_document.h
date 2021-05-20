@@ -118,6 +118,12 @@ class MutableDocument {
                                           ObjectValue value);
 
   /**
+   * Changes the document type to indicate that it exists and that its version
+   * and data are known.
+   */
+  MutableDocument& ConvertToFoundDocument(const SnapshotVersion& version);
+
+  /**
    * Changes the document type to indicate that it doesn't exist at the given
    * version.
    */
@@ -133,6 +139,9 @@ class MutableDocument {
   MutableDocument& SetHasCommittedMutations();
 
   MutableDocument& SetHasLocalMutations();
+
+  /** Creates a new document with a copy of the document's data and state. */
+  MutableDocument Clone() const;
 
   const DocumentKey& key() const {
     return key_;
@@ -155,6 +164,10 @@ class MutableDocument {
   }
 
   const ObjectValue& data() const {
+    return *value_;
+  }
+
+  ObjectValue& data() {
     return *value_;
   }
 
@@ -200,7 +213,7 @@ class MutableDocument {
   MutableDocument(DocumentKey key,
                   DocumentType document_type,
                   SnapshotVersion version,
-                  std::shared_ptr<const ObjectValue> value,
+                  std::shared_ptr<ObjectValue> value,
                   DocumentState document_state)
       : key_{std::move(key)},
         document_type_{document_type},
@@ -214,8 +227,7 @@ class MutableDocument {
   SnapshotVersion version_;
   // Using a shared pointer to ObjectValue makes MutableDocument copy-assignable
   // without having to manually create a deep clone of its Protobuf contents.
-  std::shared_ptr<const ObjectValue> value_ =
-      std::make_shared<const ObjectValue>();
+  std::shared_ptr<ObjectValue> value_ = std::make_shared<ObjectValue>();
   DocumentState document_state_ = DocumentState::kSynced;
 };
 

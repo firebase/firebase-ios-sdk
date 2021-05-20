@@ -233,7 +233,7 @@ std::string ArrayTransform::Rep::ToString() const {
 google_firestore_v1_ArrayValue ArrayTransform::Rep::CoercedFieldValueArray(
     const absl::optional<google_firestore_v1_Value>& value) const {
   if (IsArray(value)) {
-    return value->array_value;
+    return DeepClone(value->array_value);
   } else {
     // coerce to empty array.
     return {};
@@ -259,7 +259,7 @@ google_firestore_v1_Value ArrayTransform::Rep::Apply(
     }
 
     // Append the elements to the end of the list
-    pb_size_t new_size = array_value.values_count + new_elements.size();
+    size_t new_size = array_value.values_count + new_elements.size();
     array_value.values = nanopb::ResizeArray<google_firestore_v1_Value>(
         array_value.values, new_size);
     for (const auto& element : new_elements) {

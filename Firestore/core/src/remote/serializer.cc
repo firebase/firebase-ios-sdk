@@ -258,7 +258,7 @@ ResourcePath Serializer::DecodeResourceName(ReadContext* context,
                                             absl::string_view encoded) const {
   auto resource = ResourcePath::FromStringView(encoded);
   if (!IsValidResourceName(resource)) {
-    context->Fail(StringFormat("Tried to deserialize an invalid key %s",
+    context->Fail(StringFormat("Tried to deserialize an invalid key: %s",
                                resource.CanonicalString()));
   }
   return resource;
@@ -1124,7 +1124,8 @@ std::shared_ptr<Bound> Serializer::DecodeBound(
   // Prevent double-freeing of the cursors's fields. The fields are now owned by
   // the bound.
   ReleaseFieldOwnership(cursor.values, cursor.values_count);
-  return std::make_shared<Bound>(index_components, cursor.before);
+  return std::make_shared<Bound>(
+      Bound::FromValue(index_components, cursor.before));
 }
 
 /* static */
@@ -1324,7 +1325,7 @@ std::unique_ptr<WatchChange> Serializer::DecodeDocumentChange(
   // optimization C++ implementation is on par with the preceding Objective-C
   // implementation.
   MutableDocument document =
-      MutableDocument::FoundDocument(std::move(key), version, std::move(value));
+      MutableDocument::FoundDocument(key, version, std::move(value));
 
   std::vector<TargetId> updated_target_ids(
       change.target_ids, change.target_ids + change.target_ids_count);
@@ -1346,8 +1347,7 @@ std::unique_ptr<WatchChange> Serializer::DecodeDocumentDelete(
   SnapshotVersion version = change.has_read_time
                                 ? DecodeVersion(context, change.read_time)
                                 : SnapshotVersion::None();
-  MutableDocument document =
-      MutableDocument::NoDocument(std::move(key), version);
+  MutableDocument document = MutableDocument::NoDocument(key, version);
 
   std::vector<TargetId> removed_target_ids(
       change.removed_target_ids,
@@ -1385,7 +1385,8 @@ bool Serializer::IsLocalResourceName(const ResourcePath& path) const {
 
 bool Serializer::IsLocalDocumentKey(absl::string_view path) const {
   auto resource = ResourcePath::FromStringView(path);
-  return IsLocalResourceName(resource) && DocumentKey::IsDocumentKey(resource);
+  return IsLocalResourceName(resource) &&
+         DocumentKey::IsDocumentKey(resource.PopFirst(5));
 }
 
 }  // namespace remote

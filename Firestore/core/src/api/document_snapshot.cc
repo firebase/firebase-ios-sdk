@@ -17,7 +17,6 @@
 #include "Firestore/core/src/api/document_snapshot.h"
 
 #include "Firestore/core/src/api/document_reference.h"
-#include "Firestore/core/src/model/field_value.h"
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/util/hashing.h"
 #include "absl/types/optional.h"
@@ -29,14 +28,13 @@ namespace api {
 using model::Document;
 using model::DocumentKey;
 using model::FieldPath;
-using model::FieldValue;
 using model::ObjectValue;
 
 DocumentSnapshot DocumentSnapshot::FromDocument(
     std::shared_ptr<Firestore> firestore,
     model::Document document,
     SnapshotMetadata metadata) {
-  return DocumentSnapshot{std::move(firestore), document.key(), document,
+  return DocumentSnapshot{std::move(firestore), document->key(), document,
                           std::move(metadata)};
 }
 
@@ -80,14 +78,14 @@ const std::string& DocumentSnapshot::document_id() const {
 }
 
 absl::optional<ObjectValue> DocumentSnapshot::GetData() const {
-  return internal_document_ ? internal_document_->data()
+  return internal_document_ ? (*internal_document_)->data()
                             : absl::optional<ObjectValue>{};
 }
 
-absl::optional<FieldValue> DocumentSnapshot::GetValue(
+absl::optional<google_firestore_v1_Value> DocumentSnapshot::GetValue(
     const FieldPath& field_path) const {
-  return internal_document_ ? internal_document_->field(field_path)
-                            : absl::optional<ObjectValue>{};
+  return internal_document_ ? (*internal_document_)->field(field_path)
+                            : absl::optional<google_firestore_v1_Value>{};
 }
 
 bool operator==(const DocumentSnapshot& lhs, const DocumentSnapshot& rhs) {

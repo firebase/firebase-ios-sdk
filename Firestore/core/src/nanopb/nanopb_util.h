@@ -106,8 +106,8 @@ T* _Nonnull MakeArray(pb_size_t count) {
 }
 
 template <typename T>
-T* _Nonnull ResizeArray(void* _Nonnull ptr, pb_size_t count) {
-  return static_cast<T*>(realloc(ptr, count * sizeof(T)));
+T* _Nonnull ResizeArray(void* _Nonnull ptr, size_t count) {
+  return static_cast<T*>(realloc(ptr, CheckedSize(count) * sizeof(T)));
 }
 
 /**

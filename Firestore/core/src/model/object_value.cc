@@ -54,28 +54,6 @@ struct MapEntryKeyCompare {
   }
 };
 
-/** Traverses a Value proto and sorts all MapValues by key. */
-void SortFields(google_firestore_v1_Value& value) {
-  if (value.which_value_type == google_firestore_v1_Value_map_value_tag) {
-    google_firestore_v1_MapValue& map_value = value.map_value;
-    std::sort(map_value.fields, map_value.fields + map_value.fields_count,
-              [](const google_firestore_v1_MapValue_FieldsEntry& lhs,
-                 const google_firestore_v1_MapValue_FieldsEntry& rhs) {
-                return nanopb::MakeStringView(lhs.key) <
-                       nanopb::MakeStringView(rhs.key);
-              });
-
-    for (pb_size_t i = 0; i < map_value.fields_count; ++i) {
-      SortFields(map_value.fields[i].value);
-    }
-  } else if (value.which_value_type ==
-             google_firestore_v1_Value_array_value_tag) {
-    for (pb_size_t i = 0; i < value.array_value.values_count; ++i) {
-      SortFields(value.array_value.values[i]);
-    }
-  }
-}
-
 /**
  * Finds an entry by key in the provided map value. Returns `nullptr` if the
  * entry does not exist.
@@ -132,8 +110,8 @@ void ApplyChanges(
   auto* source_fields = parent->fields;
 
   size_t target_count = CalculateSizeOfUnion(*parent, upserts, deletes);
-  auto* target_fields =
-      MakeArray<google_firestore_v1_MapValue_FieldsEntry>(target_count);
+  auto* target_fields = MakeArray<google_firestore_v1_MapValue_FieldsEntry>(
+      CheckedSize(target_count));
 
   auto delete_it = deletes.begin();
   auto upsert_it = upserts.begin();
@@ -141,10 +119,10 @@ void ApplyChanges(
   // Merge the existing data with the deletes and updates
   for (pb_size_t source_index = 0, target_index = 0;
        target_index < target_count;) {
-    auto& source_entry = source_fields[source_index];
     auto& target_entry = target_fields[target_index];
 
     if (source_index < source_count) {
+      auto& source_entry = source_fields[source_index];
       std::string source_key = MakeString(source_entry.key);
 
       // Check if the source key is deleted
@@ -183,6 +161,7 @@ void ApplyChanges(
     // Otherwise, insert the next upsert.
     target_entry.key = MakeBytesArray(upsert_it->first);
     target_entry.value = DeepClone(upsert_it->second);
+    SortFields(target_entry.value);
 
     ++upsert_it;
     ++target_index;
@@ -311,7 +290,7 @@ void ObjectValue::SetAll(
 
   for (const auto& it : data) {
     const FieldPath& path = it.first;
-    const google_firestore_v1_Value& value = it.second;
+    const auto& value = it.second;
 
     if (!parent.IsImmediateParentOf(path)) {
       // Insert the accumulated changes at this parent location

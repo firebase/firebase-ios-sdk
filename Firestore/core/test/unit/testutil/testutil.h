@@ -30,6 +30,7 @@
 #include "Firestore/core/src/model/document_set.h"
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/model/precondition.h"
+#include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "absl/strings/string_view.h"
@@ -50,6 +51,9 @@ namespace details {
 google_firestore_v1_Value BlobValue(std::initializer_list<uint8_t>);
 
 }  // namespace details
+
+// A bit pattern for our canonical NaN value.
+ABSL_CONST_INIT extern const uint64_t kCanonicalNanBits;
 
 // Convenience methods for creating instances for tests.
 
@@ -158,14 +162,13 @@ google_firestore_v1_Value AddPairs(const google_firestore_v1_Value& prior,
                                    Args... rest) {
   google_firestore_v1_Value result = prior;
   result.which_value_type = google_firestore_v1_Value_map_value_tag;
-  pb_size_t new_count = result.map_value.fields_count + 1;
-  result.map_value.fields_count = new_count;
+  size_t new_count = result.map_value.fields_count + 1;
+  result.map_value.fields_count = nanopb::CheckedSize(new_count);
   result.map_value.fields =
       nanopb::ResizeArray<google_firestore_v1_MapValue_FieldsEntry>(
           result.map_value.fields, new_count);
   result.map_value.fields[new_count - 1].key = nanopb::MakeBytesArray(key);
   result.map_value.fields[new_count - 1].value = Value(value);
-
   return AddPairs(result, rest...);
 }
 

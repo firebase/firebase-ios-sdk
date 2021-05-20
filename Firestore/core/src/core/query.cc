@@ -323,13 +323,13 @@ const Target& Query::ToTarget() const& {
       }
 
       // We need to swap the cursors to match the now-flipped query ordering.
-      auto new_start_at =
-          (end_at_ != nullptr)
-              ? std::make_shared<Bound>(end_at_->position(), !end_at_->before())
-              : nullptr;
+      auto new_start_at = (end_at_ != nullptr)
+                              ? std::make_shared<Bound>(Bound::FromValue(
+                                    end_at_->position(), !end_at_->before()))
+                              : nullptr;
       auto new_end_at = (start_at_ != nullptr)
-                            ? std::make_shared<Bound>(start_at_->position(),
-                                                      !start_at_->before())
+                            ? std::make_shared<Bound>(Bound::FromValue(
+                                  start_at_->position(), !start_at_->before()))
                             : nullptr;
 
       Target target(path(), collection_group(), filters(), new_order_bys,

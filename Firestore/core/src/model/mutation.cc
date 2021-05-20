@@ -139,7 +139,7 @@ TransformMap Mutation::Rep::LocalTransformResults(
     const TransformOperation& transform = field_transform.transformation();
     const auto& previous_value = previous_data.Get(field_transform.path());
     google_firestore_v1_Value transformed_value =
-        transform.ApplyToLocalView(*previous_value, local_write_time);
+        transform.ApplyToLocalView(previous_value, local_write_time);
     transform_results[field_transform.path()] = transformed_value;
   }
   return transform_results;

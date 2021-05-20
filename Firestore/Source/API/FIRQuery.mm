@@ -589,7 +589,7 @@ int32_t SaturatedLimitValue(NSInteger limit) {
       }
     }
   }
-  return Bound(components, isBefore);
+  return Bound::FromValue(components, isBefore);
 }
 
 /** Converts a list of field values to an Bound. */
@@ -629,12 +629,11 @@ int32_t SaturatedLimitValue(NSInteger limit) {
       DocumentKey key{path};
       components.values[idx] = RefValue(self.firestore.databaseID, key);
     } else {
-      fieldValue.release();
-      components.values[idx] = *fieldValue;
+      components.values[idx] = *fieldValue.release();
     }
   }
 
-  return Bound(components, isBefore);
+  return Bound::FromValue(components, isBefore);
 }
 
 @end

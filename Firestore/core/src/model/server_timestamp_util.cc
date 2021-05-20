@@ -15,6 +15,8 @@
  */
 
 #include "Firestore/core/src/model/server_timestamp_util.h"
+
+#include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "absl/strings/string_view.h"
@@ -49,12 +51,13 @@ google_firestore_v1_Value EncodeServerTimestamp(
   ++field;
   field->key = nanopb::MakeBytesArray(kLocalWriteTimeKey);
   field->value.which_value_type = google_firestore_v1_Value_timestamp_value_tag;
-  field->value.timestamp_value = local_write_time;
+  field->value.timestamp_value.seconds = local_write_time.seconds();
+  field->value.timestamp_value.nanos = local_write_time.nanoseconds();
 
   if (previous_value) {
     ++field;
     field->key = nanopb::MakeBytesArray(kPreviousValueKey);
-    field->value = *previous_value;
+    field->value = DeepClone(*previous_value);
   }
 
   return result;

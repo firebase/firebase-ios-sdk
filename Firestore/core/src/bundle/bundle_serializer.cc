@@ -632,7 +632,7 @@ FilterList BundleSerializer::DecodeCompositeFilter(JsonReader& reader,
 Bound BundleSerializer::DecodeBound(JsonReader& reader,
                                     const json& query,
                                     const char* bound_name) const {
-  Bound default_bound = Bound({}, false);
+  Bound default_bound = Bound::FromValue({}, false);
   if (!query.contains(bound_name)) {
     return default_bound;
   }
@@ -644,7 +644,7 @@ Bound BundleSerializer::DecodeBound(JsonReader& reader,
   google_firestore_v1_ArrayValue positions{};
   SetRepeatedField(&positions.values, &positions.values_count, values,
                    [&](const json& j) { return DecodeValue(reader, j); });
-  return Bound(positions, before);
+  return Bound::FromValue(positions, before);
 }
 
 google_firestore_v1_Value BundleSerializer::DecodeValue(
@@ -717,13 +717,19 @@ google_firestore_v1_MapValue BundleSerializer::DecodeMapValue(
     return {};
   }
 
+  // Fill the map array. Note that we can't use SetRepeatedField here since the
+  // JSON map doesn't currently work with SetRepeatedField.
   google_firestore_v1_MapValue map_value{};
-  SetRepeatedField(&map_value.fields, &map_value.fields_count, fields,
-                   [&](const std::pair<std::string, json>& entry) {
-                     return google_firestore_v1_MapValue_FieldsEntry{
-                         nanopb::MakeBytesArray(entry.first),
-                         DecodeValue(reader, entry.second)};
-                   });
+  map_value.fields_count = nanopb::CheckedSize(fields.size());
+  map_value.fields =
+      nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(
+          map_value.fields_count);
+  pb_size_t i = 0;
+  for (const auto& entry : fields.items()) {
+    map_value.fields[i] = {nanopb::MakeBytesArray(entry.key()),
+                           DecodeValue(reader, entry.value())};
+    ++i;
+  }
   return map_value;
 }
 
@@ -741,7 +747,7 @@ pb_bytes_array_t* BundleSerializer::DecodeReferenceValue(
     JsonReader& reader, const std::string& ref_string) const {
   if (reader.ok() && !rpc_serializer_.IsLocalDocumentKey(ref_string)) {
     reader.Fail(
-        StringFormat("Tried to deserialize an invalid key %s", ref_string));
+        StringFormat("Tried to deserialize an invalid key: %s", ref_string));
   }
 
   return nanopb::MakeBytesArray(ref_string);
