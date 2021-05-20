@@ -78,9 +78,9 @@ class TransformOperation {
    * optionally using the provided local_write_time.
    */
   google_firestore_v1_Value ApplyToLocalView(
-      const absl::optional<google_firestore_v1_Value>& previous_value,
+      nanopb::OptionalMessage<google_firestore_v1_Value> previous_value,
       const Timestamp& local_write_time) const {
-    return rep().ApplyToLocalView(previous_value, local_write_time);
+    return rep().ApplyToLocalView(std::move(previous_value), local_write_time);
   }
 
   /**
@@ -88,9 +88,10 @@ class TransformOperation {
    * by the server, potentially using the server-provided transform_result.
    */
   google_firestore_v1_Value ApplyToRemoteDocument(
-      const absl::optional<google_firestore_v1_Value>& previous_value,
+      nanopb::OptionalMessage<google_firestore_v1_Value> previous_value,
       const google_firestore_v1_Value& transform_result) const {
-    return rep().ApplyToRemoteDocument(previous_value, transform_result);
+    return rep().ApplyToRemoteDocument(std::move(previous_value),
+                                       transform_result);
   }
 
   /**
@@ -137,16 +138,15 @@ class TransformOperation {
     virtual Type type() const = 0;
 
     virtual google_firestore_v1_Value ApplyToLocalView(
-        const absl::optional<google_firestore_v1_Value>& previous_value,
+        nanopb::OptionalMessage<google_firestore_v1_Value> previous_value,
         const Timestamp& local_write_time) const = 0;
 
     virtual google_firestore_v1_Value ApplyToRemoteDocument(
-        const absl::optional<google_firestore_v1_Value>& previous_value,
+        nanopb::OptionalMessage<google_firestore_v1_Value> previous_value,
         const google_firestore_v1_Value& transform_result) const = 0;
 
     virtual absl::optional<google_firestore_v1_Value> ComputeBaseValue(
-        const absl::optional<google_firestore_v1_Value>& previous_value)
-        const = 0;
+        absl::optional<google_firestore_v1_Value> previous_value) const = 0;
 
     virtual bool Equals(const TransformOperation::Rep& other) const = 0;
 
