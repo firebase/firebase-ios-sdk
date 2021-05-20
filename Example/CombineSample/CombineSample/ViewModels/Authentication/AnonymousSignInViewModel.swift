@@ -19,13 +19,24 @@ import Combine
 
 class AnonymousSignInViewModel: UserInfoViewModel {
   private var cancellables = Set<AnyCancellable>()
+  
+  @Published var errorMessage: String = ""
 
   func signIn() {
     Auth.auth().signInAnonymously()
-      // the following is completely optional and just for demo purposes
-      .sink { completion in
-      } receiveValue: { result in
-        print(result.user.uid)
+      .map { $0.user }
+      .catch { error -> Just<User?> in
+        if (error as NSError).code == AuthErrorCode.adminRestrictedOperation.rawValue {
+          print("Make sure to enable Anonymous Auth for your project")
+        }
+        else {
+          print(error)
+        }
+        return Just(nil)
+      }
+      .compactMap { $0 }
+      .sink { user in
+        print("User \(user.uid) signed in")
       }
       .store(in: &cancellables)
   }
