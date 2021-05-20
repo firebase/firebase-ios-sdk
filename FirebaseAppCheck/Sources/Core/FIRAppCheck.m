@@ -250,15 +250,15 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
       self.ongoingRetrieveOrRefreshTokenPromise =
           [self createRetrieveOrRefreshTokenPromiseForcingRefresh:forcingRefresh]
 
-      // Release the ongoing operation promise on completion.
-      .then(^FIRAppCheckToken *(FIRAppCheckToken *token) {
-        self.ongoingRetrieveOrRefreshTokenPromise = nil;
-        return token;
-      })
-      .recover(^NSError *(NSError *error) {
-        self.ongoingRetrieveOrRefreshTokenPromise = nil;
-        return error;
-      });
+              // Release the ongoing operation promise on completion.
+              .then(^FIRAppCheckToken *(FIRAppCheckToken *token) {
+                self.ongoingRetrieveOrRefreshTokenPromise = nil;
+                return token;
+              })
+              .recover(^NSError *(NSError *error) {
+                self.ongoingRetrieveOrRefreshTokenPromise = nil;
+                return error;
+              });
     }
     return self.ongoingRetrieveOrRefreshTokenPromise;
   }];

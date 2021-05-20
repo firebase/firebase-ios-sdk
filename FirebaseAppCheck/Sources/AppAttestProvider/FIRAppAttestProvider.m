@@ -179,17 +179,18 @@ NS_ASSUME_NONNULL_BEGIN
                             if (self.ongoingGetTokenOperation == nil) {
                               // Kick off a new handshake sequence only when there is no an ongoing
                               // handshake to avoid race conditions.
-                              self.ongoingGetTokenOperation = [self createGetTokenSequencePromise]
+                              self.ongoingGetTokenOperation =
+                                  [self createGetTokenSequencePromise]
 
-                              // Release the ongoing operation promise on completion.
-                              .then(^FIRAppCheckToken *(FIRAppCheckToken *token) {
-                                self.ongoingGetTokenOperation = nil;
-                                return token;
-                              })
-                              .recover(^NSError *(NSError *error) {
-                                self.ongoingGetTokenOperation = nil;
-                                return error;
-                              });
+                                      // Release the ongoing operation promise on completion.
+                                      .then(^FIRAppCheckToken *(FIRAppCheckToken *token) {
+                                        self.ongoingGetTokenOperation = nil;
+                                        return token;
+                                      })
+                                      .recover(^NSError *(NSError *error) {
+                                        self.ongoingGetTokenOperation = nil;
+                                        return error;
+                                      });
                             }
                             return self.ongoingGetTokenOperation;
                           }];
