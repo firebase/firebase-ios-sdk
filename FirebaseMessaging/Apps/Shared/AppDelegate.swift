@@ -14,6 +14,7 @@
 
 import UIKit
 import FirebaseCore
+import FirebaseAnalytics
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
@@ -21,6 +22,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                    didFinishLaunchingWithOptions launchOptions: [UIApplication
                      .LaunchOptionsKey: Any]?) -> Bool {
     FirebaseApp.configure()
+    FirebaseAnalytics.Analytics.logEvent("test", parameters: nil)
+
     let center = UNUserNotificationCenter.current()
     center.delegate = self
 

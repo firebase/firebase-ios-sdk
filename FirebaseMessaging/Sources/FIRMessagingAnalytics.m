@@ -28,6 +28,8 @@ static NSString *const kLogTag = @"FIRMessagingAnalytics";
 // aps Key
 static NSString *const kApsKey = @"aps";
 static NSString *const kApsAlertKey = @"alert";
+static NSString *const kApsTitleKey = @"title";
+static NSString *const kApsBodyKey = @"body";
 static NSString *const kApsSoundKey = @"sound";
 static NSString *const kApsBadgeKey = @"badge";
 static NSString *const kApsContentAvailableKey = @"badge";
@@ -236,7 +238,7 @@ static NSString *const kAnalyticsTrackConversions = @"google.c.a."
   if (!alert || ![alert isKindOfClass:[NSDictionary class]]) {
     return NO;
   }
-  return (alert[@"body"] || alert[@"title"]);
+  return (alert[kApsBodyKey] || alert[kApsTitleKey]);
 }
 
 @end
