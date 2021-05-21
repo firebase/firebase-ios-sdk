@@ -383,7 +383,7 @@ NS_ASSUME_NONNULL_BEGIN
       context.AddToFieldMask(*context.path());
 
     } else if (context.data_source() == UserDataSource::Update) {
-      HARD_ASSERT(context.path()->size() > 0,
+      HARD_ASSERT(!context.path()->empty(),
                   "FieldValue.delete() at the top level should have already been handled.");
       ThrowInvalidArgument("FieldValue.delete() can only appear at the top level of your "
                            "update data%s",
@@ -411,14 +411,9 @@ NS_ASSUME_NONNULL_BEGIN
     context.AddToFieldTransforms(*context.path(), std::move(arrayRemove));
 
   } else if ([fieldValue isKindOfClass:[FSTNumericIncrementFieldValue class]]) {
-    FSTNumericIncrementFieldValue *numericIncrementFieldValue =
-        (FSTNumericIncrementFieldValue *)fieldValue;
-
-    // TODO(mutabledocuments): Use `parseQueryValue`;
-    ParseAccumulator accumulator{UserDataSource::Argument};
-    absl::optional<google_firestore_v1_Value> operand =
-        [self parseData:numericIncrementFieldValue.operand context:accumulator.RootContext()];
-    NumericIncrementTransform numeric_increment(*operand);
+    auto *numericIncrementFieldValue = (FSTNumericIncrementFieldValue *)fieldValue;
+    google_firestore_v1_Value operand = [self parsedQueryValue:numericIncrementFieldValue.operand];
+    NumericIncrementTransform numeric_increment(operand);
 
     context.AddToFieldTransforms(*context.path(), std::move(numeric_increment));
 
