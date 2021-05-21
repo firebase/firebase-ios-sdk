@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebasePerformance'
-  s.version          = '7.11.0'
+  s.version          = '8.0.0'
   s.summary          = 'Firebase Performance'
 
   s.description      = <<-DESC
@@ -57,14 +57,14 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
   s.ios.framework = 'CoreTelephony'
   s.framework = 'QuartzCore'
   s.framework = 'SystemConfiguration'
-  s.dependency 'FirebaseCore', '~> 7.0'
-  s.dependency 'FirebaseInstallations', '~> 7.0'
-  s.dependency 'FirebaseRemoteConfig', '~> 7.0'
+  s.dependency 'FirebaseCore', '~> 8.0'
+  s.dependency 'FirebaseInstallations', '~> 8.0'
+  s.dependency 'FirebaseRemoteConfig', '~> 8.0'
   s.dependency 'GoogleDataTransport', '~> 9.0'
-  s.dependency 'GoogleUtilities/Environment', '~> 7.0'
-  s.dependency 'GoogleUtilities/ISASwizzler', '~> 7.0'
-  s.dependency 'GoogleUtilities/MethodSwizzler', '~> 7.0'
-  s.dependency 'Protobuf', '~> 3.12'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.4'
+  s.dependency 'GoogleUtilities/ISASwizzler', '~> 7.4'
+  s.dependency 'GoogleUtilities/MethodSwizzler', '~> 7.4'
+  s.dependency 'Protobuf', '~> 3.15'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.platforms = {:ios => ios_deployment_target, :tvos => tvos_deployment_target}

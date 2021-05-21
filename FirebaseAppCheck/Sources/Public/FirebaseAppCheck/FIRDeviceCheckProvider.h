@@ -24,7 +24,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/// Firebase app check provider that verifies the app integrity using
+/// Firebase App Check provider that verifies app integrity using the
 /// [DeviceCheck](https://developer.apple.com/documentation/devicecheck) API.
 API_AVAILABLE(ios(11.0), macos(10.15), tvos(11.0))
 API_UNAVAILABLE(watchos)

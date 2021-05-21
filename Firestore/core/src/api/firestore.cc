@@ -104,11 +104,17 @@ const Settings& Firestore::settings() const {
 void Firestore::set_settings(const Settings& settings) {
   std::lock_guard<std::mutex> lock{mutex_};
   if (client_) {
-    HARD_FAIL(
+    util::ThrowIllegalState(
         "Firestore instance has already been started and its settings can "
         "no longer be changed. You can only set settings before calling any "
         "other methods on a Firestore instance.");
   }
+  if (!settings.ssl_enabled() && settings.host() == Settings::DefaultHost) {
+    util::ThrowIllegalState(
+        "You can't set the 'sslEnabled' setting to false unless you also set a "
+        "non-default 'host'.");
+  }
+
   settings_ = settings;
 }
 

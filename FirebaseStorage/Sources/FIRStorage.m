@@ -43,6 +43,7 @@ static GTMSessionFetcherRetryBlock _retryWhenOffline;
   /// Stored Auth reference, if it exists. This needs to be stored for `copyWithZone:`.
   id<FIRAuthInterop> _Nullable _auth;
   id<FIRAppCheckInterop> _Nullable _appCheck;
+  BOOL _usesEmulator;
   NSTimeInterval _maxUploadRetryTime;
   NSTimeInterval _maxDownloadRetryTime;
   NSTimeInterval _maxOperationRetryTime;
@@ -84,6 +85,7 @@ static GTMSessionFetcherRetryBlock _retryWhenOffline;
       fetcherService = [[GTMSessionFetcherService alloc] init];
       [fetcherService setRetryEnabled:YES];
       [fetcherService setRetryBlock:_retryWhenOffline];
+      [fetcherService setAllowLocalhostRequest:YES];
       FIRStorageTokenAuthorizer *authorizer =
           [[FIRStorageTokenAuthorizer alloc] initWithGoogleAppID:app.options.googleAppID
                                                   fetcherService:fetcherService
@@ -160,11 +162,11 @@ static GTMSessionFetcherRetryBlock _retryWhenOffline;
     _auth = auth;
     _appCheck = appCheck;
     _storageBucket = bucket;
+    _host = kFIRStorageHost;
+    _scheme = kFIRStorageScheme;
+    _port = @(kFIRStoragePort);
+    _fetcherServiceForApp = nil;  // Configured in `ensureConfigured()`
     _dispatchQueue = dispatch_queue_create("com.google.firebase.storage", DISPATCH_QUEUE_SERIAL);
-    _fetcherServiceForApp = [FIRStorage fetcherServiceForApp:_app
-                                                      bucket:bucket
-                                                        auth:auth
-                                                    appCheck:appCheck];
     _maxDownloadRetryTime = 600.0;
     _maxDownloadRetryInterval =
         [FIRStorageUtils computeRetryIntervalFromRetryTime:_maxDownloadRetryTime];
@@ -271,11 +273,15 @@ static GTMSessionFetcherRetryBlock _retryWhenOffline;
 #pragma mark - Public methods
 
 - (FIRStorageReference *)reference {
+  [self ensureConfigured];
+
   FIRStoragePath *path = [[FIRStoragePath alloc] initWithBucket:_storageBucket object:nil];
   return [[FIRStorageReference alloc] initWithStorage:self path:path];
 }
 
 - (FIRStorageReference *)referenceForURL:(NSString *)string {
+  [self ensureConfigured];
+
   FIRStoragePath *path = [FIRStoragePath pathFromString:string];
 
   // If no default bucket exists (empty string), accept anything.
@@ -302,11 +308,36 @@ static GTMSessionFetcherRetryBlock _retryWhenOffline;
 }
 
 - (dispatch_queue_t)callbackQueue {
+  [self ensureConfigured];
   return _fetcherServiceForApp.callbackQueue;
 }
 
 - (void)setCallbackQueue:(dispatch_queue_t)callbackQueue {
+  [self ensureConfigured];
   _fetcherServiceForApp.callbackQueue = callbackQueue;
+}
+
+- (void)useEmulatorWithHost:(NSString *)host port:(NSInteger)port {
+  if (host.length == 0) {
+    [NSException raise:NSInvalidArgumentException format:@"Cannot connect to nil or empty host."];
+  }
+
+  if (port < 0) {
+    [NSException raise:NSInvalidArgumentException
+                format:@"Port must be greater than or equal to zero."];
+  }
+
+  if (_fetcherServiceForApp != nil) {
+    [NSException raise:NSInternalInconsistencyException
+                format:@"Cannot connect to emulator after Storage SDK initialization. "
+                       @"Call useEmulator(host:port:) before creating a Storage "
+                       @"reference or trying to load data."];
+  }
+
+  _usesEmulator = YES;
+  _scheme = @"http";
+  _host = host;
+  _port = @(port);
 }
 
 #pragma mark - Background tasks
@@ -323,6 +354,16 @@ static GTMSessionFetcherRetryBlock _retryWhenOffline;
 - (NSArray<FIRStorageDownloadTask *> *)downloadTasks {
   [NSException raise:NSGenericException format:@"getDownloadTasks not implemented"];
   return nil;
+}
+
+- (void)ensureConfigured {
+  if (!_fetcherServiceForApp) {
+    _fetcherServiceForApp = [FIRStorage fetcherServiceForApp:_app
+                                                      bucket:_storageBucket
+                                                        auth:_auth
+                                                    appCheck:_appCheck];
+    _fetcherServiceForApp.allowLocalhostRequest = _usesEmulator;
+  }
 }
 
 @end

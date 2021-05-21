@@ -18,7 +18,6 @@ target 'CocoapodsIntegrationTest' do
   pod 'FirebaseFunctions', :path => '../'
   pod 'FirebaseInAppMessaging', :path => '../'
   pod 'FirebaseInstallations', :path => '../'
-  pod 'FirebaseInstanceID', :path => '../'
   pod 'FirebaseMessaging', :path => '../'
   pod 'FirebasePerformance', :path => '../'
   pod 'FirebaseStorage', :path => '../'

@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// An implementation of `AppCheckProviderFactory` that creates a new instance of
 /// `DeviceCheckProvider` for the specified `FirebaseApp` on request. Currently
-/// `DeviceCheckProviderFactory` is the default that will be used by Firebase app check if no other
+/// `DeviceCheckProviderFactory` is the default that will be used by Firebase App Check if no other
 /// provider is specified. See `AppCheck` class for more details.
 API_AVAILABLE(ios(11.0), macos(10.15), tvos(11.0))
 API_UNAVAILABLE(watchos)

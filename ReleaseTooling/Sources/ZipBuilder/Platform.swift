@@ -58,6 +58,14 @@ class PlatformMinimum {
     minimumMacOSVersion = macos
     minimumTVOSVersion = tvos
   }
+
+  /// Useful to disable minimum version checking on pod installation. Pods still get built with
+  /// for the minimum version specified in the podspec.
+  static func useRecentVersions() {
+    minimumIOSVersion = "14.0"
+    minimumMacOSVersion = "11.0"
+    minimumTVOSVersion = "14.0"
+  }
 }
 
 class SkipCatalyst {

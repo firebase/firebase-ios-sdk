@@ -269,7 +269,7 @@
                          campaignName:campaignName
                     experimentPayload:experimentPayload
                   renderAsTestMessage:renderAsTestMessage
-                          messageType:FIRInAppMessagingDisplayMessageTypeModal
+                          messageType:FIRInAppMessagingDisplayMessageTypeImageOnly
                           triggerType:triggerType
                               appData:appData]) {
     _imageData = imageData;

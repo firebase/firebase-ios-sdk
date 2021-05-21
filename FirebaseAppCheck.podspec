@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAppCheck'
-  s.version          = '7.6.0-beta'
+  s.version          = '8.0.0-beta'
   s.summary          = 'Firebase App Check SDK.'
 
   s.description      = <<-DESC
@@ -38,19 +38,21 @@ Pod::Spec.new do |s|
 
   s.framework = 'DeviceCheck'
 
-  s.dependency 'FirebaseCore', '~> 7.0'
+  s.dependency 'FirebaseCore', '~> 8.0'
   s.dependency 'PromisesObjC', '~> 1.2'
-  s.dependency 'GoogleUtilities/Environment', '~> 7.2'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.4'
 
-  preprocessor_definitions = 'FIRAppCheck_LIB_VERSION=' + String(s.version)
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
-    'GCC_PREPROCESSOR_DEFINITIONS' => preprocessor_definitions,
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
 
   s.test_spec 'unit' do |unit_tests|
-    unit_tests.platforms = {:ios => ios_deployment_target, :osx => osx_deployment_target, :tvos => tvos_deployment_target}
+    unit_tests.platforms = {
+      :ios => ios_deployment_target,
+      :osx => osx_deployment_target,
+      :tvos => tvos_deployment_target
+    }
     unit_tests.source_files = [
       base_dir + 'Tests/Unit/**/*.[mh]',
       base_dir + 'Tests/Utils/**/*.[mh]',
@@ -65,17 +67,29 @@ Pod::Spec.new do |s|
   end
 
   s.test_spec 'integration' do |integration_tests|
-    integration_tests.platforms = {:ios => ios_deployment_target, :osx => osx_deployment_target, :tvos => tvos_deployment_target}
-    integration_tests.source_files = base_dir + 'Tests/Integration/**/*.[mh]',
-                              base_dir + 'Tests/Integration/**/*.[mh]',
-                              integration_tests.resources = base_dir + 'Tests/Fixture/**/*'
-                              integration_tests.requires_app_host = true
+    integration_tests.platforms = {
+      :ios => ios_deployment_target,
+      :osx => osx_deployment_target,
+      :tvos => tvos_deployment_target
+    }
+    integration_tests.source_files = [
+      base_dir + 'Tests/Integration/**/*.[mh]',
+      base_dir + 'Tests/Integration/**/*.[mh]',
+    ]
+    integration_tests.resources = base_dir + 'Tests/Fixture/**/*'
+    integration_tests.requires_app_host = true
   end
 
   s.test_spec 'swift-unit' do |swift_unit_tests|
-    swift_unit_tests.platforms = {:ios => ios_deployment_target, :osx => osx_deployment_target, :tvos => tvos_deployment_target}
-    swift_unit_tests.source_files = base_dir + 'Tests/Unit/Swift/**/*.swift',
-                                    base_dir + 'Tests/Unit/Swift/**/*.h'
+    swift_unit_tests.platforms = {
+      :ios => ios_deployment_target,
+      :osx => osx_deployment_target,
+      :tvos => tvos_deployment_target
+    }
+    swift_unit_tests.source_files = [
+      base_dir + 'Tests/Unit/Swift/**/*.swift',
+      base_dir + 'Tests/Unit/Swift/**/*.h',
+    ]
   end
 
 end

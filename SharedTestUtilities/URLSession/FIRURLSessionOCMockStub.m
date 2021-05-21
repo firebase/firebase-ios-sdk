@@ -16,7 +16,7 @@
 
 #import "SharedTestUtilities/URLSession/FIRURLSessionOCMockStub.h"
 
-#import "OCMock.h"
+#import <OCMock/OCMock.h>
 
 @implementation FIRURLSessionOCMockStub
 

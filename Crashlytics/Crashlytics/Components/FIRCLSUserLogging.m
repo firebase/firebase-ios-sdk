@@ -33,6 +33,9 @@ NSString *const FIRCLSDevelopmentPlatformNameKey = @"com.crashlytics.development
 NSString *const FIRCLSDevelopmentPlatformVersionKey =
     @"com.crashlytics.development-platform-version";
 
+// Empty string object synchronized on to prevent a race condition when accessing AB file path
+NSString *const FIRCLSSynchronizedPathKey = @"";
+
 const uint32_t FIRCLSUserLoggingMaxKVEntries = 64;
 
 #pragma mark - Prototypes
@@ -488,7 +491,9 @@ void FIRCLSUserLoggingCheckAndSwapABFiles(FIRCLSUserLoggingABStorage *storage,
     [[NSFileManager defaultManager] removeItemAtPath:pathString error:nil];
   }
 
-  *activePath = otherPath;
+  @synchronized(FIRCLSSynchronizedPathKey) {
+    *activePath = otherPath;
+  }
 }
 
 void FIRCLSUserLoggingWriteAndCheckABFiles(FIRCLSUserLoggingABStorage *storage,
@@ -498,8 +503,10 @@ void FIRCLSUserLoggingWriteAndCheckABFiles(FIRCLSUserLoggingABStorage *storage,
     return;
   }
 
-  if (!*activePath) {
-    return;
+  @synchronized(FIRCLSSynchronizedPathKey) {
+    if (!*activePath) {
+      return;
+    }
   }
 
   if (storage->restrictBySize) {

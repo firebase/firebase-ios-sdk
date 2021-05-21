@@ -31,25 +31,20 @@ struct FirebaseBuilder {
   /// Wrapper around a generic zip builder that adds in Firebase specific steps including a
   /// multi-level zip file, a README, and optionally Carthage artifacts.
   func build(templateDir: URL,
-             carthageBuildOptions: CarthageBuildOptions?) {
+             carthageBuildOptions: CarthageBuildOptions) {
     // Build the zip file and get the path.
     do {
-      let artifacts = try zipBuilder.buildAndAssembleFirebaseRelease(templateDir: templateDir,
-                                                                     includeCarthage: carthageBuildOptions !=
-                                                                       nil)
+      let artifacts = try zipBuilder.buildAndAssembleFirebaseRelease(templateDir: templateDir)
       let firebaseVersion = artifacts.firebaseVersion
       let location = artifacts.zipDir
       print("Firebase \(firebaseVersion) directory is ready to be packaged: \(location)")
 
       // Package carthage if it's enabled.
-      var carthageRoot: URL?
-      if let carthageBuildOptions = carthageBuildOptions {
-        carthageRoot = CarthageUtils.packageCarthageRelease(
-          templateDir: zipBuilder.paths.templateDir,
-          artifacts: artifacts,
-          options: carthageBuildOptions
-        )
-      }
+      let carthageRoot = CarthageUtils.packageCarthageRelease(
+        templateDir: zipBuilder.paths.templateDir,
+        artifacts: artifacts,
+        options: carthageBuildOptions
+      )
 
       // Prepare the release directory for zip packaging.
       do {

@@ -22,7 +22,6 @@ target 'SymbolCollisionTest' do
     pod 'FirebaseFirestore', :path => '../'
     pod 'FirebaseFunctions', :path => '../'
     pod 'FirebaseInAppMessaging', :path => '../'
-    pod 'FirebaseInstanceID', :path => '../'
     pod 'FirebaseInstallations', :path => '../'
     pod 'FirebaseMessaging', :path => '../'
     pod 'FirebasePerformance', :path => '../'
@@ -31,6 +30,9 @@ target 'SymbolCollisionTest' do
     pod 'GoogleUtilitiesComponents', :path => '../'
 
 #    pod 'FirebaseUI'. - requires use_frameworks!
+
+    # Google Pods depending on a Firebase or GDT major version
+#    pod 'GoogleMLKit'
 
   # Other Google Pods
 #    pod 'ARCore' Conflicts with FirebasePerformance via Clearcut and google-cast-sdk
@@ -51,7 +53,6 @@ target 'SymbolCollisionTest' do
     pod 'GoogleInterchangeUtilities'
     pod 'GoogleMaps'
 
-    pod 'GoogleMLKit'
 #    pod 'GoogleMobileVision' # After Firebase 6.8.0, conflicts with FirebaseML
     pod 'GoogleNetworkingUtilities'
     pod 'GoogleParsingUtilities'

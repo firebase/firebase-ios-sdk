@@ -22,6 +22,10 @@
     #import <FirebaseAnalytics/FirebaseAnalytics.h>
   #endif
 
+  #if __has_include(<FirebaseAppCheck/FirebaseAppCheck.h>)
+    #import <FirebaseAppCheck/FirebaseAppCheck.h>
+  #endif
+
   #if __has_include(<FirebaseAppDistribution/FirebaseAppDistribution.h>)
     #import <FirebaseAppDistribution/FirebaseAppDistribution.h>
   #endif

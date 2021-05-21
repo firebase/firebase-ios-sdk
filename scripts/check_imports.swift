@@ -27,7 +27,7 @@ import Foundation
 let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseStorage/Tests/Integration",
                        "FirebaseDynamicLinks/Tests/Integration",
                        "FirebaseInAppMessaging/Tests/Integration/",
-                       "Example/InstanceID/App", "SymbolCollisionTest/", "/gen/",
+                       "SymbolCollisionTest/", "/gen/",
                        "CocoapodsIntegrationTest/", "FirebasePerformance/Tests/TestApp/",
                        "FirebasePerformance/Tests/FIRPerfE2E/"] +
   [
@@ -103,6 +103,9 @@ private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL)
     } else if inSwiftPackageElse, line.starts(with: "#endif") {
       inSwiftPackageElse = false
     } else if inSwiftPackage {
+      continue
+    } else if file.contains("FirebaseTestingSupport") {
+      // Module imports ok in SPM only test infrastructure.
       continue
     } else if line.starts(with: "@import") {
       // "@import" is only allowed for Swift Package Manager.

@@ -16,7 +16,7 @@ CocoaPods.
 
 In order to build the Zip file, you will need:
 
-- Xcode 11.0
+- Xcode 12.2
 - CocoaPods
 - An internet connection to fetch CocoaPods
 

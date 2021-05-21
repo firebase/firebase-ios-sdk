@@ -1,3 +1,9 @@
+# Unreleased
+- [changed] Incorporated code quality changes around integer overflow, potential race conditions, and reinstalling signal handlers.
+
+# v8.0.0
+- [changed] Added a warning to upload-symbols when it detects a dSYM with hidden symbols.
+
 # v7.10.0
 - [changed] Added a warning to upload-symbols when it detects a dSYM without any symbols.
 

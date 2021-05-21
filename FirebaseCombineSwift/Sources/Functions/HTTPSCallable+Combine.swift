@@ -18,18 +18,20 @@
   import FirebaseFunctions
 
   @available(swift 5.0)
-  @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
+  @available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, *)
   extension HTTPSCallable {
     // MARK: - HTTPS Callable Functions
 
     /// Executes this Callable HTTPS trigger asynchronously without any parameters.
     ///
+    /// The publisher will emit on the **main** thread.
+    ///
     /// The request to the Cloud Functions backend made by this method automatically includes a
     /// Firebase Instance ID token to identify the app instance. If a user is logged in with Firebase
     /// Auth, an auth ID token for the user is also automatically included.
     ///
-    /// Firebase Instance ID sends data to the Firebase backend periodically to collect information
-    /// regarding the app instance. To stop this, see `[FIRInstanceID deleteIDWithHandler:]`. It
+    /// Firebase Installations ID sends data to the Firebase backend periodically to collect information
+    /// regarding the app instance. To stop this, see `[FIRInstallations delete]`. It
     /// resumes with a new Instance ID the next time you call this method.
     ///
     /// - Returns: A publisher emitting a `HTTPSCallableResult` instance. The publisher will emit on the *main* thread.
@@ -48,12 +50,14 @@
 
     /// Executes this Callable HTTPS trigger asynchronously.
     ///
+    /// The publisher will emit on the **main** thread.
+    ///
     /// The data passed into the trigger can be any of the following types:
     /// - `nil`
     /// - `String`
     /// - `Number`
     /// - `Array<Any>`, where the contained objects are also one of these types.
-    /// - `Dictionary<String, Any>`, , where the contained objects are also one of these types.
+    /// - `Dictionary<String, Any>`, where the contained objects are also one of these types.
     ///
     /// The request to the Cloud Functions backend made by this method automatically includes a
     /// Firebase Instance ID token to identify the app instance. If a user is logged in with Firebase
@@ -78,4 +82,5 @@
       }
     }
   }
-#endif
+
+#endif // canImport(Combine) && swift(>=5.0) && canImport(FirebaseFunctions)

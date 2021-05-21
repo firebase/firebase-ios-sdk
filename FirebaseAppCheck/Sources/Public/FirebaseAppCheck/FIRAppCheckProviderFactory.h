@@ -22,11 +22,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/// The protocol defines interface for classes that can create Firebase app check providers.
+/// This protocol defines the interface for classes that can create Firebase App Check providers.
 NS_SWIFT_NAME(AppCheckProviderFactory)
 @protocol FIRAppCheckProviderFactory <NSObject>
 
-/// Creates a new instance of a Firebase app check provider.
+/// Creates a new instance of a Firebase App Check provider.
 /// @param app An instance of `FirebaseApp` to create the provider for.
 /// @return A new instance implementing `AppCheckProvider` protocol.
 - (nullable id<FIRAppCheckProvider>)createProviderWithApp:(FIRApp *)app;

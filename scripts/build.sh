@@ -553,6 +553,26 @@ case "$product-$platform-$method" in
       fi
     ;;
 
+  StorageCombine-*-xcodebuild)
+    pod_gen FirebaseCombineSwift.podspec --platforms=ios
+
+    # Add GoogleService-Info.plist to generated Test Wrapper App.
+    ruby ./scripts/update_xcode_target.rb gen/FirebaseCombineSwift/Pods/Pods.xcodeproj \
+      AppHost-FirebaseCombineSwift-Unit-Tests \
+      ../../../FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist
+
+    if check_secrets; then
+      # Integration tests are only run on iOS to minimize flake failures.
+      RunXcodebuild \
+        -workspace 'gen/FirebaseCombineSwift/FirebaseCombineSwift.xcworkspace' \
+        -scheme "FirebaseCombineSwift-Unit-integration" \
+        "${ios_flags[@]}" \
+        "${xcb_flags[@]}" \
+        build \
+        test
+      fi
+    ;;
+
   GoogleDataTransport-watchOS-xcodebuild)
     RunXcodebuild \
       -workspace 'GoogleDataTransport/GDTWatchOSTestApp/GDTWatchOSTestApp.xcworkspace' \
@@ -626,10 +646,12 @@ case "$product-$platform-$method" in
       test
     ;;
 
+  # Note that the combine tests require setting the minimum iOS version to 13.0
   *-*-spm)
     RunXcodebuild \
       -scheme $product \
       "${xcb_flags[@]}" \
+      IPHONEOS_DEPLOYMENT_TARGET=13.0 \
       test
     ;;
 

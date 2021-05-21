@@ -15,6 +15,7 @@
  */
 
 import XCTest
+
 import FirebaseCore
 import FirebaseAppCheck
 
