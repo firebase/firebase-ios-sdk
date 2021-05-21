@@ -3,7 +3,7 @@ name: zip
 on:
   pull_request:
     paths:
-    - 'ReleaseTooling/**'
+    - 'ReleaseTooling/Sources/**'
     - '.github/workflows/zip.yml'
     - 'scripts/build_non_firebase_sdks.sh'
     - 'Gemfile*'
@@ -23,7 +23,7 @@ on:
 jobs:
   package-release:
     # Don't run on private repo.
-    if: (github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk') || github.event_name == 'workflow_dispatch'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
@@ -59,7 +59,7 @@ jobs:
 
   package-head:
     # Don't run on private repo.
-    if: (github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk') || github.event_name == 'workflow_dispatch'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     needs: build
     runs-on: macOS-latest
     steps:
@@ -83,7 +83,7 @@ jobs:
 
   quickstart_framework_abtesting:
     # Don't run on private repo.
-    if: (github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk') || github.event_name == 'workflow_dispatch'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     needs: package-head
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -100,7 +100,7 @@ jobs:
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
-        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "*.zip" -maxdepth 3 -exec unzip -d "${HOME}"/ios_frameworks/ {} +
+        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - name: Setup quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseRemoteConfig/* \
@@ -127,7 +127,7 @@ jobs:
 
   quickstart_framework_auth:
     # Don't run on private repo.
-    if: (github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk') || github.event_name == 'workflow_dispatch'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     needs: package-head
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -144,7 +144,7 @@ jobs:
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
-        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "*.zip" -maxdepth 3 -exec unzip -d "${HOME}"/ios_frameworks/ {} +
+        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - name: Setup Swift Quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}Example" NON_FIREBASE_SDKS="FBSDKLoginKit FBSDKCoreKit" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/* \
@@ -171,7 +171,7 @@ jobs:
 
   quickstart_framework_config:
     # Don't run on private repo.
-    if: (github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk') || github.event_name == 'workflow_dispatch'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     needs: package-head
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -188,7 +188,7 @@ jobs:
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
-        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "*.zip" -maxdepth 3 -exec unzip -d "${HOME}"/ios_frameworks/ {} +
+        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - name: Setup Swift Quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseRemoteConfig/* \
@@ -212,7 +212,7 @@ jobs:
 
   quickstart_framework_crashlytics:
     # Don't run on private repo.
-    if: (github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk') || github.event_name == 'workflow_dispatch'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     needs: package-head
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -229,7 +229,7 @@ jobs:
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
-        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "*.zip" -maxdepth 3 -exec unzip -d "${HOME}"/ios_frameworks/ {} +
+        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - name: Setup quickstart
       run: |
               SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
@@ -265,7 +265,7 @@ jobs:
 
   quickstart_framework_database:
     # Don't run on private repo.
-    if: (github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk') || github.event_name == 'workflow_dispatch'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     needs: package-head
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -282,7 +282,7 @@ jobs:
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
-        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "*.zip" -maxdepth 3 -exec unzip -d "${HOME}"/ios_frameworks/ {} +
+        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - name: Setup quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}Example" NON_FIREBASE_SDKS="FirebaseUI/Database" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseDatabase/* \
@@ -310,7 +310,7 @@ jobs:
 
   quickstart_framework_dynamiclinks:
     # Don't run on private repo.
-    if: (github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk') || github.event_name == 'workflow_dispatch'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     needs: package-head
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -327,7 +327,7 @@ jobs:
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
-        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "*.zip" -maxdepth 3 -exec unzip -d "${HOME}"/ios_frameworks/ {} +
+        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - name: Setup Objc Quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseDynamicLinks/* \
@@ -360,7 +360,7 @@ jobs:
 
   quickstart_framework_firestore:
     # Don't run on private repo.
-    if: (github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk') || github.event_name == 'workflow_dispatch'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     needs: package-head
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -377,7 +377,7 @@ jobs:
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
-        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "*.zip" -maxdepth 3 -exec unzip -d "${HOME}"/ios_frameworks/ {} +
+        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - name: Setup quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}Example" NON_FIREBASE_SDKS="SDWebImage FirebaseUI/Auth FirebaseUI/Email FirebaseFirestoreSwift" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/* \
@@ -403,7 +403,7 @@ jobs:
 
   quickstart_framework_inappmessaging:
     # Don't run on private repo.
-    if: (github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk') || github.event_name == 'workflow_dispatch'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     needs: package-head
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -420,7 +420,7 @@ jobs:
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
-        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "*.zip" -maxdepth 3 -exec unzip -d "${HOME}"/ios_frameworks/ {} +
+        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - name: Setup quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseDynamicLinks/* \
@@ -449,7 +449,7 @@ jobs:
 
   quickstart_framework_messaging:
     # Don't run on private repo.
-    if: (github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk') || github.event_name == 'workflow_dispatch'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     needs: package-head
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -466,7 +466,7 @@ jobs:
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
-        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "*.zip" -maxdepth 3 -exec unzip -d "${HOME}"/ios_frameworks/ {} +
+        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - name: Setup quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseMessaging/* \
@@ -494,7 +494,7 @@ jobs:
 
   quickstart_framework_storage:
     # Don't run on private repo.
-    if: (github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk') || github.event_name == 'workflow_dispatch'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     needs: package-head
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -511,7 +511,7 @@ jobs:
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
-        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "*.zip" -maxdepth 3 -exec unzip -d "${HOME}"/ios_frameworks/ {} +
+        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - name: Setup quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseStorage/* \
