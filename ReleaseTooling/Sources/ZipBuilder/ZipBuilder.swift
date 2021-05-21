@@ -160,11 +160,13 @@ struct ZipBuilder {
   /// Builds and assembles the contents for the zip build.
   ///
   /// - Parameter podsToInstall: All pods to install.
+  /// - Parameter includeCarthage: Build Carthage distribution as well.
+  /// - Parameter includeDependencies: Include dependencies of requested pod in distribution.
   /// - Returns: Arrays of pod install info and the frameworks installed.
   func buildAndAssembleZip(podsToInstall: [CocoaPodUtils.VersionedPod],
-                           includeDependencies: Bool,
-                           includeCarthage: Bool = false) ->
-    ([String: CocoaPodUtils.PodInfo], [String: [URL]], URL) {
+                           includeCarthage: Bool,
+                           includeDependencies: Bool) ->
+    ([String: CocoaPodUtils.PodInfo], [String: [URL]], URL?) {
     // Remove CocoaPods cache so the build gets updates after a version is rebuilt during the
     // release process. Always do this, since it can be the source of subtle failures on rebuilds.
     CocoaPodUtils.cleanPodCache()
@@ -238,7 +240,7 @@ struct ZipBuilder {
                                                  podInfo: podInfo)
           groupedFrameworks[podName] = (groupedFrameworks[podName] ?? []) + frameworks
 
-          if podName == "FirebaseCoreDiagnostics" {
+          if includeCarthage, podName == "FirebaseCoreDiagnostics" {
             let (cdFrameworks, _) = builder.compileFrameworkAndResources(withName: podName,
                                                                          logsOutputDir: paths
                                                                            .logsOutputDir,
@@ -272,13 +274,6 @@ struct ZipBuilder {
     } catch {
       fatalError("Could not create XCFrameworks directory: \(error)")
     }
-    let xcframeworksCarthageDir = FileManager.default.temporaryDirectory(withName: "xcf-carthage")
-    do {
-      try FileManager.default.createDirectory(at: xcframeworksCarthageDir,
-                                              withIntermediateDirectories: false)
-    } catch {
-      fatalError("Could not create XCFrameworks Carthage directory: \(error)")
-    }
 
     for groupedFramework in groupedFrameworks {
       let name = groupedFramework.key
@@ -291,6 +286,18 @@ struct ZipBuilder {
     for (framework, paths) in xcframeworks {
       print("Frameworks for pod: \(framework) were compiled at \(paths)")
     }
+    guard includeCarthage else {
+      // No Carthage build necessary, return now.
+      return (podsBuilt, xcframeworks, nil)
+    }
+    let xcframeworksCarthageDir = FileManager.default.temporaryDirectory(withName: "xcf-carthage")
+    do {
+      try FileManager.default.createDirectory(at: xcframeworksCarthageDir,
+                                              withIntermediateDirectories: false)
+    } catch {
+      fatalError("Could not create XCFrameworks Carthage directory: \(error)")
+    }
+
     let carthageCoreDiagnosticsXcframework = FrameworkBuilder.makeXCFramework(
       withName: "FirebaseCoreDiagnostics",
       frameworks: carthageCoreDiagnosticsFrameworks,
@@ -304,10 +311,8 @@ struct ZipBuilder {
   /// encounters an error, or will quit due to a fatal error with the appropriate log.
   ///
   /// - Parameter templateDir: The template project for pod install.
-  /// - Parameter includeCarthage: Whether to build and package Carthage.
   /// - Throws: One of many errors that could have happened during the build phase.
-  func buildAndAssembleFirebaseRelease(templateDir: URL,
-                                       includeCarthage: Bool) throws -> ReleaseArtifacts {
+  func buildAndAssembleFirebaseRelease(templateDir: URL) throws -> ReleaseArtifacts {
     let manifest = FirebaseManifest.shared
     var podsToInstall = manifest.pods.filter { $0.zip }.map {
       CocoaPodUtils.VersionedPod(name: $0.name,
@@ -327,11 +332,11 @@ struct ZipBuilder {
                                                     platforms: ["ios"]))
 
     print("Final expected versions for the Zip file: \(podsToInstall)")
-    let (installedPods, frameworks, carthageCoreDiagnosticsXcframework) =
+    let (installedPods, frameworks, carthageCoreDiagnosticsXcframeworkFirebase) =
       buildAndAssembleZip(podsToInstall: podsToInstall,
+                          includeCarthage: true,
                           // Always include dependencies for Firebase zips.
-                          includeDependencies: true,
-                          includeCarthage: includeCarthage)
+                          includeDependencies: true)
 
     // We need the Firebase pod to get the version for Carthage and to copy the `Firebase.h` and
     // `module.modulemap` file from it.
@@ -340,22 +345,23 @@ struct ZipBuilder {
         "installed: \(installedPods)")
     }
 
+    guard let carthageCoreDiagnosticsXcframework = carthageCoreDiagnosticsXcframeworkFirebase else {
+      fatalError("CoreDiagnosticsXcframework is missing")
+    }
+
     let zipDir = try assembleDistributions(withPackageKind: "Firebase",
                                            podsToInstall: podsToInstall,
                                            installedPods: installedPods,
                                            frameworksToAssemble: frameworks,
                                            firebasePod: firebasePod)
-    var carthageDir: URL?
-    if includeCarthage {
-      // Replace Core Diagnostics
-      var carthageFrameworks = frameworks
-      carthageFrameworks["FirebaseCoreDiagnostics"] = [carthageCoreDiagnosticsXcframework]
-      carthageDir = try assembleDistributions(withPackageKind: "CarthageFirebase",
-                                              podsToInstall: podsToInstall,
-                                              installedPods: installedPods,
-                                              frameworksToAssemble: carthageFrameworks,
-                                              firebasePod: firebasePod)
-    }
+    // Replace Core Diagnostics
+    var carthageFrameworks = frameworks
+    carthageFrameworks["FirebaseCoreDiagnostics"] = [carthageCoreDiagnosticsXcframework]
+    let carthageDir = try assembleDistributions(withPackageKind: "CarthageFirebase",
+                                                podsToInstall: podsToInstall,
+                                                installedPods: installedPods,
+                                                frameworksToAssemble: carthageFrameworks,
+                                                firebasePod: firebasePod)
 
     return ReleaseArtifacts(firebaseVersion: firebasePod.version,
                             zipDir: zipDir, carthageDir: carthageDir)
@@ -425,9 +431,12 @@ struct ZipBuilder {
     let analyticsPods = analyticsFrameworks.map {
       $0.replacingOccurrences(of: ".framework", with: "")
     }
+    // Skip Analytics and the pods bundled with it.
     let remainingPods = installedPods.filter {
       $0.key != "FirebaseAnalytics" &&
         $0.key != "FirebaseCore" &&
+        $0.key != "FirebaseCoreDiagnostics" &&
+        $0.key != "FirebaseInstallations" &&
         $0.key != "Firebase" &&
         podsToInstall.map { $0.name }.contains($0.key)
     }.sorted { $0.key < $1.key }
