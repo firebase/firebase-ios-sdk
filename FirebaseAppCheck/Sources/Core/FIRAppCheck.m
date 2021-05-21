@@ -70,6 +70,8 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 
 @property(nonatomic, readonly, nullable) id<FIRAppCheckTokenRefresherProtocol> tokenRefresher;
 
+@property(nonatomic, nullable) FBLPromise<FIRAppCheckToken *> *ongoingRetrieveOrRefreshTokenPromise;
+
 @end
 
 @implementation FIRAppCheck
@@ -242,6 +244,28 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 #pragma mark - FAA token cache
 
 - (FBLPromise<FIRAppCheckToken *> *)retrieveOrRefreshTokenForcingRefresh:(BOOL)forcingRefresh {
+  return [FBLPromise do:^id _Nullable {
+    if (self.ongoingRetrieveOrRefreshTokenPromise == nil) {
+      // Kick off a new operation only when there is not an ongoing one.
+      self.ongoingRetrieveOrRefreshTokenPromise =
+          [self createRetrieveOrRefreshTokenPromiseForcingRefresh:forcingRefresh]
+
+              // Release the ongoing operation promise on completion.
+              .then(^FIRAppCheckToken *(FIRAppCheckToken *token) {
+                self.ongoingRetrieveOrRefreshTokenPromise = nil;
+                return token;
+              })
+              .recover(^NSError *(NSError *error) {
+                self.ongoingRetrieveOrRefreshTokenPromise = nil;
+                return error;
+              });
+    }
+    return self.ongoingRetrieveOrRefreshTokenPromise;
+  }];
+}
+
+- (FBLPromise<FIRAppCheckToken *> *)createRetrieveOrRefreshTokenPromiseForcingRefresh:
+    (BOOL)forcingRefresh {
   return [self getCachedValidTokenForcingRefresh:forcingRefresh].recover(
       ^id _Nullable(NSError *_Nonnull error) {
         return [self refreshToken];

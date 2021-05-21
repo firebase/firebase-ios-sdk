@@ -422,55 +422,7 @@ API_AVAILABLE(ios(14.0))
 #pragma mark - FAC token refresh (assertion)
 
 - (void)testGetToken_WhenKeyRegistered_Success {
-  // 1. Expect FIRAppAttestService.isSupported.
-  [OCMExpect([self.mockAppAttestService isSupported]) andReturnValue:@(YES)];
-
-  // 2. Expect storage getAppAttestKeyID.
-  NSString *existingKeyID = @"existingKeyID";
-  OCMExpect([self.mockStorage getAppAttestKeyID])
-      .andReturn([FBLPromise resolvedWith:existingKeyID]);
-
-  // 3. Expect a stored artifact to be requested.
-  NSData *storedArtifact = [@"storedArtifact" dataUsingEncoding:NSUTF8StringEncoding];
-  OCMExpect([self.mockArtifactStorage getArtifactForKey:existingKeyID])
-      .andReturn([FBLPromise resolvedWith:storedArtifact]);
-
-  // 4. Expect random challenge to be requested.
-  OCMExpect([self.mockAPIService getRandomChallenge])
-      .andReturn([FBLPromise resolvedWith:self.randomChallenge]);
-
-  // 5. Expect assertion to be requested.
-  NSData *assertion = [@"generatedAssertion" dataUsingEncoding:NSUTF8StringEncoding];
-  id completionBlockArg = [OCMArg invokeBlockWithArgs:assertion, [NSNull null], nil];
-  OCMExpect([self.mockAppAttestService
-      generateAssertion:existingKeyID
-         clientDataHash:[self dataHashForAssertionWithArtifactData:storedArtifact]
-      completionHandler:completionBlockArg]);
-
-  // 6. Expect assertion request to be sent.
-  FIRAppCheckToken *FACToken = [[FIRAppCheckToken alloc] initWithToken:@"FAC token"
-                                                        expirationDate:[NSDate date]];
-  OCMExpect([self.mockAPIService getAppCheckTokenWithArtifact:storedArtifact
-                                                    challenge:self.randomChallenge
-                                                    assertion:assertion])
-      .andReturn([FBLPromise resolvedWith:FACToken]);
-
-  // 7. Call get token.
-  XCTestExpectation *completionExpectation =
-      [self expectationWithDescription:@"completionExpectation"];
-  [self.provider
-      getTokenWithCompletion:^(FIRAppCheckToken *_Nullable token, NSError *_Nullable error) {
-        [completionExpectation fulfill];
-
-        XCTAssertEqualObjects(token.token, FACToken.token);
-        XCTAssertEqualObjects(token.expirationDate, FACToken.expirationDate);
-        XCTAssertNil(error);
-      }];
-
-  [self waitForExpectations:@[ completionExpectation ] timeout:0.5];
-
-  // 8. Verify mocks.
-  [self verifyAllMocks];
+  [self assertGetToken_WhenKeyRegistered_Success];
 }
 
 - (void)testGetToken_WhenKeyRegisteredAndChallengeRequestError {
@@ -621,6 +573,148 @@ API_AVAILABLE(ios(14.0))
   [self verifyAllMocks];
 }
 
+#pragma mark - Request merging
+
+- (void)testGetToken_WhenCalledSeveralTimesSuccess_ThenThereIsOnlyOneOngoingHandshake {
+  // 1. Expect FIRAppAttestService.isSupported.
+  [OCMExpect([self.mockAppAttestService isSupported]) andReturnValue:@(YES)];
+
+  // 2. Expect storage getAppAttestKeyID.
+  NSString *existingKeyID = @"existingKeyID";
+  OCMExpect([self.mockStorage getAppAttestKeyID])
+      .andReturn([FBLPromise resolvedWith:existingKeyID]);
+
+  // 3. Expect a stored artifact to be requested.
+  NSData *storedArtifact = [@"storedArtifact" dataUsingEncoding:NSUTF8StringEncoding];
+  OCMExpect([self.mockArtifactStorage getArtifactForKey:existingKeyID])
+      .andReturn([FBLPromise resolvedWith:storedArtifact]);
+
+  // 4. Expect random challenge to be requested.
+  // 4.1. Create a pending promise to fulfill later.
+  FBLPromise<NSData *> *challengeRequestPromise = [FBLPromise pendingPromise];
+  // 4.2. Stub getRandomChallenge method.
+  OCMExpect([self.mockAPIService getRandomChallenge]).andReturn(challengeRequestPromise);
+
+  // 5. Expect assertion to be requested.
+  NSData *assertion = [@"generatedAssertion" dataUsingEncoding:NSUTF8StringEncoding];
+  id completionBlockArg = [OCMArg invokeBlockWithArgs:assertion, [NSNull null], nil];
+  OCMExpect([self.mockAppAttestService
+      generateAssertion:existingKeyID
+         clientDataHash:[self dataHashForAssertionWithArtifactData:storedArtifact]
+      completionHandler:completionBlockArg]);
+
+  // 6. Expect assertion request to be sent.
+  FIRAppCheckToken *FACToken = [[FIRAppCheckToken alloc] initWithToken:@"FAC token"
+                                                        expirationDate:[NSDate date]];
+  OCMExpect([self.mockAPIService getAppCheckTokenWithArtifact:storedArtifact
+                                                    challenge:self.randomChallenge
+                                                    assertion:assertion])
+      .andReturn([FBLPromise resolvedWith:FACToken]);
+
+  // 7. Call get token several times.
+  NSInteger callsCount = 10;
+  NSMutableArray *completionExpectations = [NSMutableArray arrayWithCapacity:callsCount];
+
+  for (NSInteger i = 0; i < callsCount; i++) {
+    // 7.1 Expect the completion to be called for each get token method called.
+    XCTestExpectation *completionExpectation = [self
+        expectationWithDescription:[NSString stringWithFormat:@"completionExpectation%@", @(i)]];
+    [completionExpectations addObject:completionExpectation];
+
+    // 7.2. Call get token.
+    [self.provider
+        getTokenWithCompletion:^(FIRAppCheckToken *_Nullable token, NSError *_Nullable error) {
+          [completionExpectation fulfill];
+
+          XCTAssertEqualObjects(token.token, FACToken.token);
+          XCTAssertEqualObjects(token.expirationDate, FACToken.expirationDate);
+          XCTAssertNil(error);
+        }];
+  }
+
+  // 7.3. Resolve get challenge promise to finish the operation.
+  [challengeRequestPromise fulfill:self.randomChallenge];
+
+  // 7.4. Wait for all completions to be called.
+  [self waitForExpectations:completionExpectations timeout:1];
+
+  // 8. Verify mocks.
+  [self verifyAllMocks];
+
+  // 9. Check another get token call after.
+  [self assertGetToken_WhenKeyRegistered_Success];
+}
+
+- (void)testGetToken_WhenCalledSeveralTimesError_ThenThereIsOnlyOneOngoingHandshake {
+  // 1. Expect FIRAppAttestService.isSupported.
+  [OCMExpect([self.mockAppAttestService isSupported]) andReturnValue:@(YES)];
+
+  // 2. Expect storage getAppAttestKeyID.
+  NSString *existingKeyID = @"existingKeyID";
+  OCMExpect([self.mockStorage getAppAttestKeyID])
+      .andReturn([FBLPromise resolvedWith:existingKeyID]);
+
+  // 3. Expect a stored artifact to be requested.
+  NSData *storedArtifact = [@"storedArtifact" dataUsingEncoding:NSUTF8StringEncoding];
+  OCMExpect([self.mockArtifactStorage getArtifactForKey:existingKeyID])
+      .andReturn([FBLPromise resolvedWith:storedArtifact]);
+
+  // 4. Expect random challenge to be requested.
+  OCMExpect([self.mockAPIService getRandomChallenge])
+      .andReturn([FBLPromise resolvedWith:self.randomChallenge]);
+
+  // 5. Don't expect assertion to be requested.
+  NSData *assertion = [@"generatedAssertion" dataUsingEncoding:NSUTF8StringEncoding];
+  id completionBlockArg = [OCMArg invokeBlockWithArgs:assertion, [NSNull null], nil];
+  OCMExpect([self.mockAppAttestService
+      generateAssertion:existingKeyID
+         clientDataHash:[self dataHashForAssertionWithArtifactData:storedArtifact]
+      completionHandler:completionBlockArg]);
+
+  // 6. Expect assertion request to be sent.
+  // 6.1. Create a pending promise to reject later.
+  FBLPromise<FIRAppCheckToken *> *assertionRequestPromise = [FBLPromise pendingPromise];
+  // 6.2. Stub assertion request.
+  OCMExpect([self.mockAPIService getAppCheckTokenWithArtifact:storedArtifact
+                                                    challenge:self.randomChallenge
+                                                    assertion:assertion])
+      .andReturn(assertionRequestPromise);
+  // 6.3. Create an expected error to be rejected with later.
+  NSError *assertionRequestError = [NSError errorWithDomain:self.name code:0 userInfo:nil];
+
+  // 7. Call get token several times.
+  NSInteger callsCount = 10;
+  NSMutableArray *completionExpectations = [NSMutableArray arrayWithCapacity:callsCount];
+
+  for (NSInteger i = 0; i < callsCount; i++) {
+    // 7.1 Expect the completion to be called for each get token method called.
+    XCTestExpectation *completionExpectation = [self
+        expectationWithDescription:[NSString stringWithFormat:@"completionExpectation%@", @(i)]];
+    [completionExpectations addObject:completionExpectation];
+
+    // 7.2. Call get token.
+    [self.provider
+        getTokenWithCompletion:^(FIRAppCheckToken *_Nullable token, NSError *_Nullable error) {
+          [completionExpectation fulfill];
+
+          XCTAssertEqualObjects(error, assertionRequestError);
+          XCTAssertNil(token);
+        }];
+  }
+
+  // 7.3. Reject get challenge promise to finish the operation.
+  [assertionRequestPromise reject:assertionRequestError];
+
+  // 7.4. Wait for all completions to be called.
+  [self waitForExpectations:completionExpectations timeout:1];
+
+  // 8. Verify mocks.
+  [self verifyAllMocks];
+
+  // 9. Check another get token call after.
+  [self assertGetToken_WhenKeyRegistered_Success];
+}
+
 - (NSData *)dataHashForAssertionWithArtifactData:(NSData *)artifact {
   NSMutableData *statement = [artifact mutableCopy];
   [statement appendData:self.randomChallenge];
@@ -649,6 +743,58 @@ API_AVAILABLE(ios(14.0))
   OCMVerifyAll(self.mockAPIService);
   OCMVerifyAll(self.mockStorage);
   OCMVerifyAll(self.mockArtifactStorage);
+}
+
+- (void)assertGetToken_WhenKeyRegistered_Success {
+  // 1. Expect FIRAppAttestService.isSupported.
+  [OCMExpect([self.mockAppAttestService isSupported]) andReturnValue:@(YES)];
+
+  // 2. Expect storage getAppAttestKeyID.
+  NSString *existingKeyID = [NSUUID UUID].UUIDString;
+  OCMExpect([self.mockStorage getAppAttestKeyID])
+      .andReturn([FBLPromise resolvedWith:existingKeyID]);
+
+  // 3. Expect a stored artifact to be requested.
+  NSData *storedArtifact = [[NSUUID UUID].UUIDString dataUsingEncoding:NSUTF8StringEncoding];
+  OCMExpect([self.mockArtifactStorage getArtifactForKey:existingKeyID])
+      .andReturn([FBLPromise resolvedWith:storedArtifact]);
+
+  // 4. Expect random challenge to be requested.
+  OCMExpect([self.mockAPIService getRandomChallenge])
+      .andReturn([FBLPromise resolvedWith:self.randomChallenge]);
+
+  // 5. Expect assertion to be requested.
+  NSData *assertion = [[NSUUID UUID].UUIDString dataUsingEncoding:NSUTF8StringEncoding];
+  id completionBlockArg = [OCMArg invokeBlockWithArgs:assertion, [NSNull null], nil];
+  OCMExpect([self.mockAppAttestService
+      generateAssertion:existingKeyID
+         clientDataHash:[self dataHashForAssertionWithArtifactData:storedArtifact]
+      completionHandler:completionBlockArg]);
+
+  // 6. Expect assertion request to be sent.
+  FIRAppCheckToken *FACToken = [[FIRAppCheckToken alloc] initWithToken:[NSUUID UUID].UUIDString
+                                                        expirationDate:[NSDate date]];
+  OCMExpect([self.mockAPIService getAppCheckTokenWithArtifact:storedArtifact
+                                                    challenge:self.randomChallenge
+                                                    assertion:assertion])
+      .andReturn([FBLPromise resolvedWith:FACToken]);
+
+  // 7. Call get token.
+  XCTestExpectation *completionExpectation =
+      [self expectationWithDescription:@"completionExpectation"];
+  [self.provider
+      getTokenWithCompletion:^(FIRAppCheckToken *_Nullable token, NSError *_Nullable error) {
+        [completionExpectation fulfill];
+
+        XCTAssertEqualObjects(token.token, FACToken.token);
+        XCTAssertEqualObjects(token.expirationDate, FACToken.expirationDate);
+        XCTAssertNil(error);
+      }];
+
+  [self waitForExpectations:@[ completionExpectation ] timeout:0.5];
+
+  // 8. Verify mocks.
+  [self verifyAllMocks];
 }
 
 @end
