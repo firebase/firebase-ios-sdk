@@ -450,27 +450,37 @@ static FakeAnalyticsLogEventHandler _userPropertyHandler;
 
 - (void)testDisplayNotification {
   NSDictionary *notification = @{
-    @"aps" : @{@"alert" : @"to check the reporting format"},
-  };
-  XCTAssertFalse([FIRMessagingAnalytics isDisplayNotification:notification]);
-  notification = @{
     @"google.c.a.e" : @"1",
   };
   XCTAssertFalse([FIRMessagingAnalytics isDisplayNotification:notification]);
+
+  notification = @{
+    @"aps" : @{@"alert" : @"to check the reporting format"},
+  };
+  XCTAssertTrue([FIRMessagingAnalytics isDisplayNotification:notification]);
+
   notification = @{
     @"google.c.a.e" : @"1",
     @"aps" : @{@"alert" : @{@"title" : @"Hello World"}},
   };
   XCTAssertTrue([FIRMessagingAnalytics isDisplayNotification:notification]);
+
   notification = @{
     @"google.c.a.e" : @"1",
     @"aps" : @{@"alert" : @{@"body" : @"This is the body of notification."}},
   };
   XCTAssertTrue([FIRMessagingAnalytics isDisplayNotification:notification]);
+
   notification = @{
     @"google.c.a.e" : @"1",
     @"aps" :
         @{@"alert" : @{@"title" : @"Hello World", @"body" : @"This is the body of notification."}},
+  };
+  XCTAssertTrue([FIRMessagingAnalytics isDisplayNotification:notification]);
+
+  notification = @{
+    @"google.c.a.e" : @"1",
+    @"aps" : @{@"alert" : @{@"subtitle" : @"Hello World"}},
   };
   XCTAssertTrue([FIRMessagingAnalytics isDisplayNotification:notification]);
 }
