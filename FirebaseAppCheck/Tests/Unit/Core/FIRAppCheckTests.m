@@ -335,18 +335,17 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
 
   // 5. Request token.
   XCTestExpectation *getTokenExpectation = [self expectationWithDescription:@"getToken"];
-  [self.appCheck
-      getTokenForcingRefresh:NO
-                  completion:^(id<FIRAppCheckTokenResultInterop> result) {
-                    [getTokenExpectation fulfill];
+  [self.appCheck getTokenForcingRefresh:NO
+                             completion:^(id<FIRAppCheckTokenResultInterop> result) {
+                               [getTokenExpectation fulfill];
 
-                    XCTAssertNotNil(result);
-                    XCTAssertEqualObjects(result.token, kDummyToken);
+                               XCTAssertNotNil(result);
+                               XCTAssertEqualObjects(result.token, kDummyToken);
 
-                    // TODO: Expect a public domain error to be returned - not the
-                    // internal one.
-                    XCTAssertEqualObjects(result.error, providerError);
-                  }];
+                               // TODO: Expect a public domain error to be returned - not the
+                               // internal one.
+                               XCTAssertEqualObjects(result.error, providerError);
+                             }];
 
   // 6. Wait for expectations and validate mocks.
   [self waitForExpectations:@[ notificationExpectation, getTokenExpectation ] timeout:0.5];
@@ -559,7 +558,7 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
 
                                  XCTAssertNotNil(tokenResult);
                                  XCTAssertEqualObjects(tokenResult.error, storageError);
-      XCTAssertEqualObjects(tokenResult.token, kDummyToken);
+                                 XCTAssertEqualObjects(tokenResult.token, kDummyToken);
                                }];
   }
 
