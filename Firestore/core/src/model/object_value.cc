@@ -60,7 +60,7 @@ struct MapEntryKeyCompare {
  */
 google_firestore_v1_MapValue_FieldsEntry* FindEntry(
     const google_firestore_v1_Value& value, absl::string_view segment) {
-  if (value.which_value_type != google_firestore_v1_Value_map_value_tag) {
+  if (!IsMap(value)) {
     return nullptr;
   }
   const google_firestore_v1_MapValue& map_value = value.map_value;
@@ -182,8 +182,7 @@ ObjectValue::ObjectValue() {
 
 ObjectValue::ObjectValue(const google_firestore_v1_Value& value)
     : value_(value) {
-  HARD_ASSERT(value.which_value_type == google_firestore_v1_Value_map_value_tag,
-              "ObjectValues should be backed by a MapValue");
+  HARD_ASSERT(IsMap(value), "ObjectValues should be backed by a MapValue");
   SortFields(*value_);
 }
 
@@ -226,8 +225,7 @@ FieldMask ObjectValue::ExtractFieldMask(
     const google_firestore_v1_MapValue_FieldsEntry& entry = value.fields[i];
     FieldPath current_path{MakeString(entry.key)};
 
-    if (entry.value.which_value_type !=
-        google_firestore_v1_Value_map_value_tag) {
+    if (IsMap(entry.value)) {
       fields.insert(std::move(current_path));
       continue;
     }
@@ -315,22 +313,11 @@ void ObjectValue::SetAll(
 void ObjectValue::Delete(const FieldPath& path) {
   HARD_ASSERT(!path.empty(), "Cannot delete field with empty path");
 
-  google_firestore_v1_Value* nested_value = value_.get();
-  for (const std::string& segment : path.PopLast()) {
-    google_firestore_v1_MapValue_FieldsEntry* entry =
-        FindEntry(*nested_value, segment);
-    if (!entry) {
-      // If the entry is not found, exit early. There is nothing to delete.
-      return;
-    }
-    nested_value = &entry->value;
-  }
-
+  auto parent = Get(path.PopLast());
   // We can only delete a leaf entry if its parent is a map.
-  if (nested_value->which_value_type ==
-      google_firestore_v1_Value_map_value_tag) {
+  if (IsMap(parent)) {
     std::set<std::string> deletes{path.last_segment()};
-    ApplyChanges(&nested_value->map_value, /*upserts=*/{}, deletes);
+    ApplyChanges(&parent->map_value, /*upserts=*/{}, deletes);
   }
 }
 
@@ -342,10 +329,6 @@ size_t ObjectValue::Hash() const {
   return util::Hash(CanonicalId(*value_));
 }
 
-/**
- * Returns the map that contains the leaf element of `path`. If the parent
- * entry does not yet exist, or if it is not a map, a new map will be created.
- */
 google_firestore_v1_MapValue* ObjectValue::ParentMap(const FieldPath& path) {
   google_firestore_v1_Value* parent = value_.get();
 

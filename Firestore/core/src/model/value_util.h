@@ -134,6 +134,12 @@ inline bool IsArray(const absl::optional<google_firestore_v1_Value>& value) {
          value->which_value_type == google_firestore_v1_Value_array_value_tag;
 }
 
+/** Returns true if `value` is a MAP_VALUE. */
+inline bool IsMap(const absl::optional<google_firestore_v1_Value>& value) {
+  return value &&
+         value->which_value_type == google_firestore_v1_Value_map_value_tag;
+}
+
 }  // namespace model
 
 inline bool operator==(const google_firestore_v1_Value& lhs,

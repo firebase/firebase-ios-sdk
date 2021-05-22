@@ -88,7 +88,7 @@ void SortFields(google_firestore_v1_ArrayValue& value) {
 }
 
 void SortFields(google_firestore_v1_Value& value) {
-  if (value.which_value_type == google_firestore_v1_Value_map_value_tag) {
+  if (IsMap(value)) {
     google_firestore_v1_MapValue& map_value = value.map_value;
     std::sort(map_value.fields, map_value.fields + map_value.fields_count,
               [](const google_firestore_v1_MapValue_FieldsEntry& lhs,
@@ -100,8 +100,7 @@ void SortFields(google_firestore_v1_Value& value) {
     for (pb_size_t i = 0; i < map_value.fields_count; ++i) {
       SortFields(map_value.fields[i].value);
     }
-  } else if (value.which_value_type ==
-             google_firestore_v1_Value_array_value_tag) {
+  } else if (IsArray(value)) {
     SortFields(value.array_value);
   }
 }

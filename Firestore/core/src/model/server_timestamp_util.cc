@@ -64,7 +64,7 @@ google_firestore_v1_Value EncodeServerTimestamp(
 }
 
 bool IsServerTimestamp(const google_firestore_v1_Value& value) {
-  if (value.which_value_type != google_firestore_v1_Value_map_value_tag) {
+  if (!IsMap(value)) {
     return false;
   }
 
