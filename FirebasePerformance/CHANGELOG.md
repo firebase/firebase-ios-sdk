@@ -1,3 +1,6 @@
+# Version 8.0.1
+* Add Firebase console URL logging when debug logging is enabled.
+
 # Version 7.8.0
 * Deprecate Clearcut event transport mechanism.
 * Enable dynamic framework support. (#7569)
