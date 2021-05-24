@@ -12,17 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import SwiftUI
-//import FirebaseStorage
+import WatchKit
 
-class InterfaceController: WKInterfaceController {
-  @IBOutlet var imageView: WKInterfaceImage!
+import FirebaseCore
 
-  override func willActivate() {
-//    let storage = Storage.storage()
-//    let storageRef = storage.reference().child("sparky.png")
-//    storageRef.getData(maxSize: 20 * 1024 * 1024) { (data: Data?, error: Error?) in
-//      self.imageView.setImageData(data)
-//    }
-  }
+/// Entry point of the watch app.
+class ExtensionDelegate: NSObject, WKExtensionDelegate {
+  /// Initialize Firebase service here.
+  func applicationDidFinishLaunching() {
+    FirebaseApp.configure()
+    }
 }

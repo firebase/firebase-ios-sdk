@@ -18,7 +18,10 @@
 		5156949523F4965200E7C350 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5156949423F4965200E7C350 /* Assets.xcassets */; };
 		515694AF23F4A3D200E7C350 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 515694AE23F4A3D200E7C350 /* NotificationService.swift */; };
 		515694B323F4A3D200E7C350 /* ServiceExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 515694AC23F4A3D200E7C350 /* ServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		D0169A15E640EED0AC8224F1 /* Pods_SampleWatchAppWatchKitExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 38107C7847C19C1D3ACF6B99 /* Pods_SampleWatchAppWatchKitExtension.framework */; };
+		ABE300CA2656D4DD00AC9D72 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = ABE300C92656D4DD00AC9D72 /* GoogleService-Info.plist */; };
+		ABE300CE2656D68200AC9D72 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = ABE300C92656D4DD00AC9D72 /* GoogleService-Info.plist */; };
+		ABE300CF2656D6D000AC9D72 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = ABE300C92656D4DD00AC9D72 /* GoogleService-Info.plist */; };
+		ABE300D02656D6D200AC9D72 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = ABE300C92656D4DD00AC9D72 /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -48,14 +51,14 @@
 /* Begin PBXCopyFilesBuildPhase section */
 		5156949D23F4965200E7C350 /* Embed App Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
+			buildActionMask = 8;
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
 				5156948823F4965100E7C350 /* SampleWatchAppWatchKitExtension.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
+			runOnlyForDeploymentPostprocessing = 1;
 		};
 		515694A123F4965200E7C350 /* Embed Watch Content */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -82,8 +85,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		33A9E0B6CEEA316615DE87A4 /* Pods-SampleWatchAppWatchKitExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SampleWatchAppWatchKitExtension.release.xcconfig"; path = "Target Support Files/Pods-SampleWatchAppWatchKitExtension/Pods-SampleWatchAppWatchKitExtension.release.xcconfig"; sourceTree = "<group>"; };
-		38107C7847C19C1D3ACF6B99 /* Pods_SampleWatchAppWatchKitExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SampleWatchAppWatchKitExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		3EBA935736290F9E72DB25FF /* Pods_ServiceExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ServiceExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5156947423F4965000E7C350 /* SampleWatchApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SampleWatchApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5156947823F4965000E7C350 /* SampleWatchAppWatchKitApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SampleWatchAppWatchKitApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5156947E23F4965000E7C350 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Interface.storyboard; sourceTree = "<group>"; };
@@ -101,7 +103,12 @@
 		515694AC23F4A3D200E7C350 /* ServiceExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ServiceExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		515694AE23F4A3D200E7C350 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		515694B023F4A3D200E7C350 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		AA712B682F202F174FCF95E2 /* Pods-SampleWatchAppWatchKitExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SampleWatchAppWatchKitExtension.debug.xcconfig"; path = "Target Support Files/Pods-SampleWatchAppWatchKitExtension/Pods-SampleWatchAppWatchKitExtension.debug.xcconfig"; sourceTree = "<group>"; };
+		7FBA4340635BF194157452B9 /* Pods-SampleWatchAppWatchKitExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SampleWatchAppWatchKitExtension.release.xcconfig"; path = "Target Support Files/Pods-SampleWatchAppWatchKitExtension/Pods-SampleWatchAppWatchKitExtension.release.xcconfig"; sourceTree = "<group>"; };
+		ABE300C92656D4DD00AC9D72 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		C0064A1E379E237E54A9086B /* Pods-ServiceExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ServiceExtension.debug.xcconfig"; path = "Target Support Files/Pods-ServiceExtension/Pods-ServiceExtension.debug.xcconfig"; sourceTree = "<group>"; };
+		CB6479A86CC43D17D90F1E89 /* Pods-ServiceExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ServiceExtension.release.xcconfig"; path = "Target Support Files/Pods-ServiceExtension/Pods-ServiceExtension.release.xcconfig"; sourceTree = "<group>"; };
+		D6A1681F802CB688198BFE1E /* Pods_SampleWatchAppWatchKitExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SampleWatchAppWatchKitExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		DAE14C0BA7504E3EE4267A02 /* Pods-SampleWatchAppWatchKitExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SampleWatchAppWatchKitExtension.debug.xcconfig"; path = "Target Support Files/Pods-SampleWatchAppWatchKitExtension/Pods-SampleWatchAppWatchKitExtension.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -116,7 +123,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D0169A15E640EED0AC8224F1 /* Pods_SampleWatchAppWatchKitExtension.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -137,10 +143,11 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		2FF640AB878CA3B78FCFBC84 /* Frameworks */ = {
+		203C8A236AE31151AAF474A5 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				38107C7847C19C1D3ACF6B99 /* Pods_SampleWatchAppWatchKitExtension.framework */,
+				D6A1681F802CB688198BFE1E /* Pods_SampleWatchAppWatchKitExtension.framework */,
+				3EBA935736290F9E72DB25FF /* Pods_ServiceExtension.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -148,12 +155,13 @@
 		5156946D23F4965000E7C350 = {
 			isa = PBXGroup;
 			children = (
+				ABE300C92656D4DD00AC9D72 /* GoogleService-Info.plist */,
 				5156947C23F4965000E7C350 /* SampleWatchAppWatchKitApp */,
 				5156948B23F4965100E7C350 /* SampleWatchAppWatchKitExtension */,
 				515694AD23F4A3D200E7C350 /* ServiceExtension */,
 				5156947523F4965000E7C350 /* Products */,
 				BD04909E80693ABDC7D720F6 /* Pods */,
-				2FF640AB878CA3B78FCFBC84 /* Frameworks */,
+				203C8A236AE31151AAF474A5 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -205,8 +213,10 @@
 		BD04909E80693ABDC7D720F6 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				AA712B682F202F174FCF95E2 /* Pods-SampleWatchAppWatchKitExtension.debug.xcconfig */,
-				33A9E0B6CEEA316615DE87A4 /* Pods-SampleWatchAppWatchKitExtension.release.xcconfig */,
+				DAE14C0BA7504E3EE4267A02 /* Pods-SampleWatchAppWatchKitExtension.debug.xcconfig */,
+				7FBA4340635BF194157452B9 /* Pods-SampleWatchAppWatchKitExtension.release.xcconfig */,
+				C0064A1E379E237E54A9086B /* Pods-ServiceExtension.debug.xcconfig */,
+				CB6479A86CC43D17D90F1E89 /* Pods-ServiceExtension.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -254,12 +264,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 5156949A23F4965200E7C350 /* Build configuration list for PBXNativeTarget "SampleWatchAppWatchKitExtension" */;
 			buildPhases = (
-				D921D42EDC64C1D10431F6A1 /* [CP] Check Pods Manifest.lock */,
+				E5B1B049432440CF1A70B29A /* [CP] Check Pods Manifest.lock */,
 				5156948323F4965100E7C350 /* Sources */,
 				5156948423F4965100E7C350 /* Frameworks */,
 				5156948523F4965100E7C350 /* Resources */,
 				515694B723F4A3D200E7C350 /* Embed App Extensions */,
-				955D7705F48AA2EF1F60D4A9 /* [CP] Embed Pods Frameworks */,
+				1AC64D8D8CEC350A7BE652AA /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -275,6 +285,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 515694B423F4A3D200E7C350 /* Build configuration list for PBXNativeTarget "ServiceExtension" */;
 			buildPhases = (
+				36BFC0F6A337B1157B6D7C11 /* [CP] Check Pods Manifest.lock */,
 				515694A823F4A3D200E7C350 /* Sources */,
 				515694A923F4A3D200E7C350 /* Frameworks */,
 				515694AA23F4A3D200E7C350 /* Resources */,
@@ -338,6 +349,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ABE300CA2656D4DD00AC9D72 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -347,6 +359,7 @@
 			files = (
 				5156948123F4965100E7C350 /* Assets.xcassets in Resources */,
 				5156947F23F4965000E7C350 /* Interface.storyboard in Resources */,
+				ABE300CE2656D68200AC9D72 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -355,6 +368,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5156949523F4965200E7C350 /* Assets.xcassets in Resources */,
+				ABE300CF2656D6D000AC9D72 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -362,13 +376,14 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ABE300D02656D6D200AC9D72 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		955D7705F48AA2EF1F60D4A9 /* [CP] Embed Pods Frameworks */ = {
+		1AC64D8D8CEC350A7BE652AA /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -385,7 +400,29 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SampleWatchAppWatchKitExtension/Pods-SampleWatchAppWatchKitExtension-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		D921D42EDC64C1D10431F6A1 /* [CP] Check Pods Manifest.lock */ = {
+		36BFC0F6A337B1157B6D7C11 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-ServiceExtension-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		E5B1B049432440CF1A70B29A /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -514,7 +551,6 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = "-ObjC";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -567,7 +603,6 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
-				OTHER_LDFLAGS = "-ObjC";
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
@@ -577,7 +612,7 @@
 		};
 		5156949B23F4965200E7C350 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = AA712B682F202F174FCF95E2 /* Pods-SampleWatchAppWatchKitExtension.debug.xcconfig */;
+			baseConfigurationReference = DAE14C0BA7504E3EE4267A02 /* Pods-SampleWatchAppWatchKitExtension.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
 				CODE_SIGN_ENTITLEMENTS = SampleWatchAppWatchKitExtension/SampleWatchAppWatchKitExtension.entitlements;
@@ -590,7 +625,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev.WatchKitApp.WatchKitExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.watch.crashtest;
 				PRODUCT_NAME = "${TARGET_NAME}";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
@@ -603,7 +638,7 @@
 		};
 		5156949C23F4965200E7C350 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 33A9E0B6CEEA316615DE87A4 /* Pods-SampleWatchAppWatchKitExtension.release.xcconfig */;
+			baseConfigurationReference = 7FBA4340635BF194157452B9 /* Pods-SampleWatchAppWatchKitExtension.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
 				CODE_SIGN_ENTITLEMENTS = SampleWatchAppWatchKitExtension/SampleWatchAppWatchKitExtension.entitlements;
@@ -616,7 +651,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev.WatchKitApp.WatchKitExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.watch.crashtest;
 				PRODUCT_NAME = "${TARGET_NAME}";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
@@ -637,7 +672,7 @@
 				DEVELOPMENT_TEAM = "";
 				IBSC_MODULE = SampleWatchAppWatchKitExtension;
 				INFOPLIST_FILE = SampleWatchAppWatchKitApp/Info.plist;
-				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev.WatchKitApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.watch.crashtest.watchkit;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
@@ -658,7 +693,7 @@
 				DEVELOPMENT_TEAM = "";
 				IBSC_MODULE = SampleWatchAppWatchKitExtension;
 				INFOPLIST_FILE = SampleWatchAppWatchKitApp/Info.plist;
-				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev.WatchKitApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.watch.crashtest.watchkit;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
@@ -677,7 +712,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev;
+				PRODUCT_BUNDLE_IDENTIFIER = com.watch.crashtest;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
@@ -692,7 +727,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev;
+				PRODUCT_BUNDLE_IDENTIFIER = com.watch.crashtest;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
@@ -701,6 +736,7 @@
 		};
 		515694B523F4A3D200E7C350 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = C0064A1E379E237E54A9086B /* Pods-ServiceExtension.debug.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
@@ -712,7 +748,7 @@
 					"@executable_path/../../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev.WatchKitApp.WatchKitExtension.ServiceExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.watch.crashtest;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
@@ -725,6 +761,7 @@
 		};
 		515694B623F4A3D200E7C350 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = CB6479A86CC43D17D90F1E89 /* Pods-ServiceExtension.release.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
@@ -736,7 +773,7 @@
 					"@executable_path/../../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.extensions.dev.WatchKitApp.WatchKitExtension.ServiceExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.watch.crashtest;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;

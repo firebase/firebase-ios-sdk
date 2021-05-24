@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import UserNotifications
-//import FirebaseMessaging
+import FirebaseCrashlytics
 
 class NotificationService: UNNotificationServiceExtension {
   var contentHandler: ((UNNotificationContent) -> Void)?
@@ -30,8 +30,7 @@ class NotificationService: UNNotificationServiceExtension {
       bestAttemptContent.title = "\(bestAttemptContent.title) 👩‍💻"
 
       // Add images
-//      Messaging.serviceExtension()
-//        .populateNotificationContent(bestAttemptContent, withContentHandler: self.contentHandler!)
+      
     }
   }
 

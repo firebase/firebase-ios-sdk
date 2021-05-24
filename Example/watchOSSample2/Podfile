@@ -1,0 +1,8 @@
+use_frameworks!
+platform :watchos, '7.0'
+pod 'Firebase/Crashlytics'
+target 'SampleWatchAppWatchKitExtension' do
+end
+
+target 'ServiceExtension' do
+end
