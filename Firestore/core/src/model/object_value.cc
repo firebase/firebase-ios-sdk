@@ -255,7 +255,7 @@ absl::optional<google_firestore_v1_Value> ObjectValue::Get(
   for (const std::string& segment : path) {
     google_firestore_v1_MapValue_FieldsEntry* entry =
         FindEntry(nested_value, segment);
-    if (!entry) return {};
+    if (!entry) return absl::nullopt;
     nested_value = entry->value;
   }
   return nested_value;
