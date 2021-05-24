@@ -230,6 +230,8 @@
 
       imageURLStr = modalNode[@"imageUrl"];
       actionButtonText = modalNode[@"actionButton"][@"text"][@"text"];
+      btnTxtColor = [UIColor
+          firiam_colorWithHexString:modalNode[@"actionButton"][@"text"][@"hexColor"]];
       btnBgColor =
           [UIColor firiam_colorWithHexString:modalNode[@"actionButton"][@"buttonHexColor"]];
 
