@@ -297,7 +297,7 @@ class Mutation {
      * @return A map of fields to transform results.
      */
     TransformMap ServerTransformResults(
-        const ObjectValue& existing_data,
+        const ObjectValue& previous_data,
         const google_firestore_v1_ArrayValue& server_transform_results) const;
 
     /**
