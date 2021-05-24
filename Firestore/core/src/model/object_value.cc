@@ -313,11 +313,18 @@ void ObjectValue::SetAll(
 void ObjectValue::Delete(const FieldPath& path) {
   HARD_ASSERT(!path.empty(), "Cannot delete field with empty path");
 
-  auto parent = Get(path.PopLast());
+  google_firestore_v1_Value* nested_value = value_.get();
+  for (const std::string& segment : path.PopLast()) {
+    auto* entry = FindEntry(*nested_value, segment);
+    // If the entry is not found, exit early. There is nothing to delete.
+    if (!entry) return;
+    nested_value = &entry->value;
+  }
+
   // We can only delete a leaf entry if its parent is a map.
-  if (IsMap(parent)) {
+  if (IsMap(*nested_value)) {
     std::set<std::string> deletes{path.last_segment()};
-    ApplyChanges(&parent->map_value, /*upserts=*/{}, deletes);
+    ApplyChanges(&nested_value->map_value, /*upserts=*/{}, deletes);
   }
 }
 
