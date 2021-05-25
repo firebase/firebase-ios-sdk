@@ -189,6 +189,7 @@ static NSString *const kAnalyticsTrackConversions = @"google.c.a."
 + (void)logMessage:(NSDictionary *)notification
        toAnalytics:(id<FIRAnalyticsInterop> _Nullable)analytics {
   // iOS only because Analytics doesn't support other platforms.
+
 #if TARGET_OS_IOS
   if (![self canLogNotification:notification]) {
     return;
@@ -201,9 +202,12 @@ static NSString *const kAnalyticsTrackConversions = @"google.c.a."
   UIApplicationState applicationState = application.applicationState;
   switch (applicationState) {
     case UIApplicationStateInactive:
-      // App was either in background(suspended) or inactive and user tapped on a display
-      // notification.
-      [self logOpenNotification:notification toAnalytics:analytics];
+      // App was in background and in transition to open when user tapped
+      // on a display notification.
+      // Needs to check notification is displayed.
+      if ([[self class] isDisplayNotification:notification]) {
+        [self logOpenNotification:notification toAnalytics:analytics];
+      }
       break;
 
     case UIApplicationStateActive:
@@ -212,11 +216,34 @@ static NSString *const kAnalyticsTrackConversions = @"google.c.a."
       break;
 
     default:
-      // Only a silent notification (i.e. 'content-available' is true) can be received while the app
-      // is in the background. These messages aren't loggable anyway.
+      // App was either in background state or in transition from closed
+      // to open.
+      // Needs to check notification is displayed.
+      if ([[self class] isDisplayNotification:notification]) {
+        [self logOpenNotification:notification toAnalytics:analytics];
+      }
       break;
   }
 #endif
+}
+
++ (BOOL)isDisplayNotification:(NSDictionary *)notification {
+  NSDictionary *aps = notification[kApsKey];
+  if (!aps || ![aps isKindOfClass:[NSDictionary class]]) {
+    return NO;
+  }
+  NSDictionary *alert = aps[kApsAlertKey];
+  if (!alert) {
+    return NO;
+  }
+  if ([alert isKindOfClass:[NSDictionary class]]) {
+    return alert.allKeys.count > 0;
+  }
+  // alert can be string sometimes (if only body is specified)
+  if ([alert isKindOfClass:[NSString class]]) {
+    return YES;
+  }
+  return NO;
 }
 
 @end
