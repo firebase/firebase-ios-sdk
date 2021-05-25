@@ -36,15 +36,15 @@
         {
             "name": "AdIdSupport",
             "dependencies": {
-                "FirebaseAnalytics/Base": "8.0.0",
-                "GoogleAppMeasurement": "8.0.0"
+                "FirebaseAnalytics/Base": "8.1.0",
+                "GoogleAppMeasurement": "8.1.0"
             }
         },
         {
             "name": "WithoutAdIdSupport",
             "dependencies": {
-                "FirebaseAnalytics/Base": "8.0.0",
-                "GoogleAppMeasurement/WithoutAdIdSupport": "8.0.0"
+                "FirebaseAnalytics/Base": "8.1.0",
+                "GoogleAppMeasurement/WithoutAdIdSupport": "8.1.0"
             }
         },
         {
@@ -55,5 +55,5 @@
         }
     ],
     "summary": "Firebase Analytics for iOS",
-    "version": "8.0.0"
+    "version": "8.1.0"
 }
