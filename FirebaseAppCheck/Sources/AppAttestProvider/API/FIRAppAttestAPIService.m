@@ -30,7 +30,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-// TODO: Verify the following request fields.
 static NSString *const kRequestFieldArtifact = @"artifact";
 static NSString *const kRequestFieldAssertion = @"assertion";
 static NSString *const kRequestFieldAttestation = @"attestation_statement";
@@ -237,7 +236,6 @@ static NSString *const kHTTPMethodPost = @"POST";
 #pragma mark - Helpers
 
 - (NSString *)base64StringWithData:(NSData *)data {
-  // TODO: Need to encode in base64URL?
   return [data base64EncodedStringWithOptions:0];
 }
 
