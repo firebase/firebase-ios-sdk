@@ -497,5 +497,9 @@
   XCTAssertEqual([index compareNamedNode:node1 toNamedNode:node2], -[index compareNamedNode:node2
                                                                                 toNamedNode:node1]);
 }
+- (void)testDummyFunction {
+  FIRDataSnapshot* snap = [self snapshotFor:@{}];
+  XCTAssertEqualObjects([snap dummyFunction], @"Hello, world.");
+}
 
 @end

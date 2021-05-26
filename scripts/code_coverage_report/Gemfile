@@ -1,0 +1,4 @@
+source "https://rubygems.org"
+
+gem "octokit", "~> 4.19"
+gem "tzinfo", "~> 2.0"
