@@ -60,6 +60,9 @@ struct FirebaseReleaser: ParsableCommand {
   }
 
   func run() throws {
+    let startDate = Date()
+    print("Started at: \(startDate.dateTimeString())")
+
     if logOnly {
       Shell.setLogOnly()
     }
@@ -80,6 +83,10 @@ struct FirebaseReleaser: ParsableCommand {
     } else if publish {
       Push.publishPodsToTrunk(gitRoot: gitRoot)
     }
+
+    let finishDate = Date()
+    print("Finished at: \(finishDate.dateTimeString()). " +
+      "Duration: \(startDate.formattedDurationSince(finishDate))")
   }
 
   private func updateFirebasePod(newVersions: [String: String]) {
