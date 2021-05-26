@@ -34,6 +34,7 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIRDeleteAccountRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRDeleteAccountResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIREmailLinkSignInRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIREmailLinkSignInResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetAccountInfoRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetAccountInfoResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeRequest.h"
@@ -1104,6 +1105,12 @@ static void callInMainThreadWithAuthDataResultAndError(
                        if (error) {
                          callInMainThreadWithAuthDataResultAndError(completion, nil, error);
                        } else {
+                         // Update the new token and refresh user info again.
+                         self->_tokenService = [[FIRSecureTokenService alloc]
+                             initWithRequestConfiguration:requestConfiguration
+                                              accessToken:response.IDToken
+                                accessTokenExpirationDate:response.approximateExpirationDate
+                                             refreshToken:response.refreshToken];
                          [self internalGetTokenWithCallback:^(NSString *_Nullable accessToken,
                                                               NSError *_Nullable error) {
                            if (error) {
