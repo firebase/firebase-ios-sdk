@@ -5,7 +5,7 @@ public struct Shell {
   public init() {}
   @discardableResult
   public static func run(_ command: String, displayCommand: Bool = true,
-           displayFailureResult: Bool = true) -> Int32 {
+                         displayFailureResult: Bool = true) -> Int32 {
     let task = Process()
     let pipe = Pipe()
     task.standardOutput = pipe

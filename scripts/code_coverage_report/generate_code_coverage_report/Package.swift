@@ -43,7 +43,7 @@ let package = Package(
       name: "CoverageReportGenerator",
       dependencies: [
         .product(name: "ArgumentParser", package: "swift-argument-parser"),
-        "Utils"
+        "Utils",
       ]
     ),
     .target(
@@ -54,6 +54,6 @@ let package = Package(
     ),
     .target(
       name: "Utils"
-    )
+    ),
   ]
 )
