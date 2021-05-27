@@ -1744,14 +1744,9 @@ TEST_F(SerializerTest, DecodesVersionWithTargets) {
 
 TEST_F(SerializerTest, GracefullyDecodesBadMapValue) {
   pb_bytes_array_t key{1, {'a'}};
-  google_firestore_v1_MapValue_FieldsEntry fields_entry;
-  fields_entry.key = &key;
   google_firestore_v1_Value bad_value = {};
-  fields_entry.value = bad_value;
-
-  google_firestore_v1_MapValue bad_map;
-  bad_map.fields_count = 1;
-  bad_map.fields = &fields_entry;
+  google_firestore_v1_MapValue_FieldsEntry fields_entry = {&key, bad_value};
+  google_firestore_v1_MapValue bad_map = {1, &fields_entry};
 
   google_firestore_v1_Value bad_map_value = {};
   bad_map_value.which_value_type = google_firestore_v1_Value_map_value_tag;
@@ -1780,9 +1775,7 @@ TEST_F(SerializerTest, GracefullyDecodesBadReference) {
 
 TEST_F(SerializerTest, GracefullyDecodesArrayWithBadElement) {
   google_firestore_v1_Value bad_element = {};
-  google_firestore_v1_ArrayValue bad_array;
-  bad_array.values_count = 1;
-  bad_array.values = &bad_element;
+  google_firestore_v1_ArrayValue bad_array = {1, &bad_element};
 
   google_firestore_v1_Value bad_value = {};
   bad_value.which_value_type = google_firestore_v1_Value_array_value_tag;
