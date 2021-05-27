@@ -1,4 +1,4 @@
-# Version 8.0.1
+# Version 8.1.0
 * Firebase Performance logs now contain URLs to see the performance data on the Firebase console.
 
 # Version 7.8.0
