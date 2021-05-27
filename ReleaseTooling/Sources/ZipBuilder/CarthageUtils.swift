@@ -42,22 +42,14 @@ extension CarthageUtils {
   static func packageCarthageRelease(templateDir: URL,
                                      artifacts: ZipBuilder.ReleaseArtifacts,
                                      options: CarthageBuildOptions) -> URL? {
-    guard let zipLocation = artifacts.carthageDir else { return nil }
+    guard let carthagePath = artifacts.carthageDir else { return nil }
 
     do {
       print("Creating Carthage release...")
-      let carthagePath =
-        zipLocation.deletingLastPathComponent().appendingPathComponent("carthage_build")
-      // Create a copy of the release directory since we'll be modifying it.
-      let fileManager = FileManager.default
-      fileManager.removeIfExists(at: carthagePath)
-      try fileManager.copyItem(at: zipLocation, to: carthagePath)
-
       // Package the Carthage distribution with the current directory structure.
-      let carthageDir = zipLocation.deletingLastPathComponent().appendingPathComponent("carthage")
-      fileManager.removeIfExists(at: carthageDir)
-      let output = carthageDir.appendingPathComponents([artifacts.firebaseVersion, "latest"])
-      try fileManager.createDirectory(at: output, withIntermediateDirectories: true)
+      let carthageDir = carthagePath.deletingLastPathComponent().appendingPathComponent("carthage")
+      let output = carthageDir.appendingPathComponents([artifacts.firebaseVersion])
+      try FileManager.default.createDirectory(at: output, withIntermediateDirectories: true)
       generateCarthageRelease(fromPackagedDir: carthagePath,
                               templateDir: templateDir,
                               jsonDir: options.jsonDir,
@@ -65,8 +57,6 @@ extension CarthageUtils {
                               outputDir: output,
                               versionCheckEnabled: options.isVersionCheckEnabled)
 
-      // Remove the duplicated Carthage build directory.
-      fileManager.removeIfExists(at: carthagePath)
       print("Done creating Carthage release! Files written to \(output)")
 
       // Save the directory for later copying.
@@ -105,19 +95,6 @@ extension CarthageUtils {
       let fullPath = packagedDir.appendingPathComponent(product)
       guard FileManager.default.isDirectory(at: fullPath) else { continue }
 
-      // Abort Carthage generation if there are any xcframeworks.
-      do {
-        let files = try FileManager.default.contentsOfDirectory(at: fullPath,
-                                                                includingPropertiesForKeys: nil)
-        let xcfFiles = files.filter { $0.pathExtension == "xcframework" }
-        if xcfFiles.count > 0 {
-          print("Skipping Carthage generation for \(product) since it includes xcframeworks.")
-          continue
-        }
-      } catch {
-        fatalError("Failed to get contents of \(fullPath).")
-      }
-
       // Parse the JSON file, ensure that we're not trying to overwrite a release.
       var jsonManifest = parseJSONFile(fromDir: jsonDir, product: product)
 
@@ -138,7 +115,8 @@ extension CarthageUtils {
 
         // Copy the NOTICES file from FirebaseCore.
         let noticesName = "NOTICES"
-        let coreNotices = fullPath.appendingPathComponents(["FirebaseCore.framework", noticesName])
+        let coreNotices = fullPath.appendingPathComponents(["FirebaseCore.xcframework",
+                                                            noticesName])
         let noticesPath = packagedDir.appendingPathComponent(noticesName)
         do {
           try FileManager.default.copyItem(at: noticesPath, to: coreNotices)

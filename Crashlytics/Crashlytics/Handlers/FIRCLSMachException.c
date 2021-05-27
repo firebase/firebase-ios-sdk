@@ -223,7 +223,7 @@ static kern_return_t FIRCLSMachExceptionDispatchMessage(FIRCLSMachExceptionReadC
   }
 
   FIRCLSSDKLog("Restoring original signal handlers\n");
-  if (!FIRCLSSignalSafeInstallPreexistingHandlers(&_firclsContext.readonly->signal)) {
+  if (!FIRCLSSignalSafeInstallPreexistingHandlers(& _firclsContext.readonly->signal, -1, NULL, NULL)) {
     FIRCLSSDKLog("Failed to restore signal handlers\n");
     return KERN_FAILURE;
   }

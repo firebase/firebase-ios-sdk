@@ -423,7 +423,7 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDelegateInteraction) {
 
   FIRIAMRenderingEffectSetting *renderSetting6 =
       [FIRIAMRenderingEffectSetting getDefaultRenderingEffectSetting];
-  renderSetting6.viewMode = FIRIAMRenderAsBannerView;
+  renderSetting6.viewMode = FIRIAMRenderAsCardView;
 
   FIRIAMMessageRenderData *renderData6 =
       [[FIRIAMMessageRenderData alloc] initWithMessageID:@"m6"
@@ -1152,5 +1152,42 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
                        landscapeImageData:nil
                               triggerType:FIRInAppMessagingDisplayTriggerTypeOnAppForeground];
   XCTAssertNotNil(displayMessage.campaignInfo.experimentPayload);
+}
+
+- (void)testMessageDisplayTypes {
+  FIRInAppMessagingImageData *imageData =
+      [[FIRInAppMessagingImageData alloc] initWithImageURL:@"https://www.google.com"
+                                                 imageData:[NSData data]];
+  FIRInAppMessagingDisplayTriggerType analyticsTriggerType =
+      FIRInAppMessagingDisplayTriggerTypeOnAnalyticsEvent;
+
+  FIRInAppMessagingDisplayMessage *bannerMessage =
+      [self.displayExecutor displayMessageWithMessageDefinition:self.m1
+                                                      imageData:imageData
+                                             landscapeImageData:nil
+                                                    triggerType:analyticsTriggerType];
+
+  FIRInAppMessagingDisplayMessage *imageOnlyMessage =
+      [self.displayExecutor displayMessageWithMessageDefinition:self.m3
+                                                      imageData:imageData
+                                             landscapeImageData:nil
+                                                    triggerType:analyticsTriggerType];
+
+  FIRInAppMessagingDisplayMessage *modalMessage =
+      [self.displayExecutor displayMessageWithMessageDefinition:self.m2
+                                                      imageData:imageData
+                                             landscapeImageData:nil
+                                                    triggerType:analyticsTriggerType];
+
+  FIRInAppMessagingDisplayMessage *cardMessage =
+      [self.displayExecutor displayMessageWithMessageDefinition:self.m6
+                                                      imageData:imageData
+                                             landscapeImageData:nil
+                                                    triggerType:analyticsTriggerType];
+
+  XCTAssertEqual(bannerMessage.type, FIRInAppMessagingDisplayMessageTypeBanner);
+  XCTAssertEqual(imageOnlyMessage.type, FIRInAppMessagingDisplayMessageTypeImageOnly);
+  XCTAssertEqual(modalMessage.type, FIRInAppMessagingDisplayMessageTypeModal);
+  XCTAssertEqual(cardMessage.type, FIRInAppMessagingDisplayMessageTypeCard);
 }
 @end

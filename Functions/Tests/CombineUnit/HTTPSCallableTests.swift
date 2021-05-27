@@ -13,13 +13,15 @@
 // limitations under the License.
 
 import Foundation
+
 import Combine
-import XCTest
-import FirebaseFunctions
+import FirebaseFunctionsCombineSwift
 @testable import FirebaseFunctionsTestingSupport
+import XCTest
 
 // hardcoded in FIRHTTPSCallable.m
 private let kFunctionsTimeout: TimeInterval = 70.0
+private let expectationTimeout: TimeInterval = 2
 
 class MockFunctions: Functions {
   var mockCallFunction: () throws -> HTTPSCallableResult?

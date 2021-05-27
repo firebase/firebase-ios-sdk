@@ -17,7 +17,7 @@
 
 import PackageDescription
 
-let firebaseVersion = "8.0.0"
+let firebaseVersion = "8.1.0"
 
 let package = Package(
   name: "Firebase",
@@ -409,11 +409,6 @@ let package = Package(
       path: "FirebaseCombineSwift/Sources/Auth"
     ),
     .target(
-      name: "FirebaseFunctionsCombineSwift",
-      dependencies: ["FirebaseFunctions"],
-      path: "FirebaseCombineSwift/Sources/Functions"
-    ),
-    .target(
       name: "FirebaseStorageCombineSwift",
       dependencies: [
         "FirebaseStorage",
@@ -643,6 +638,8 @@ let package = Package(
       ]
     ),
 
+    // MARK: Firebase Functions
+
     .target(
       name: "FirebaseFunctionsTarget",
       dependencies: [.target(name: "FirebaseFunctions",
@@ -660,6 +657,27 @@ let package = Package(
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
+      ]
+    ),
+    .target(
+      name: "FirebaseFunctionsCombineSwift",
+      dependencies: ["FirebaseFunctions"],
+      path: "FirebaseCombineSwift/Sources/Functions"
+    ),
+    .testTarget(
+      name: "FunctionsCombineUnit",
+      dependencies: ["FirebaseFunctionsCombineSwift",
+                     "FirebaseFunctionsTestingSupport",
+                     "SharedTestUtilities"],
+      path: "Functions/Tests/CombineUnit"
+    ),
+    .target(
+      name: "FirebaseFunctionsTestingSupport",
+      dependencies: ["FirebaseFunctions"],
+      path: "FirebaseTestingSupport/Functions/Sources",
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../../.."),
       ]
     ),
 

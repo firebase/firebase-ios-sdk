@@ -15,6 +15,7 @@
  */
 
 import Foundation
+import Utils
 
 // This will contain code coverage result from a xcresult bundle.
 struct CoverageReportSource: Codable {
@@ -101,31 +102,6 @@ extension CoverageReportRequestData {
   }
 }
 
-struct Shell {
-  static let shared = Shell()
-  @discardableResult
-  func run(_ command: String, displayCommand: Bool = true,
-           displayFailureResult: Bool = true) -> Int32 {
-    let task = Process()
-    let pipe = Pipe()
-    task.standardOutput = pipe
-    task.launchPath = "/bin/zsh"
-    task.arguments = ["-c", command]
-    task.launch()
-    if displayCommand {
-      print("[CoverageReportParser] Command:\(command)\n")
-    }
-    task.waitUntilExit()
-    let data = pipe.fileHandleForReading.readDataToEndOfFile()
-    let log = String(data: data, encoding: .utf8)!
-    if displayFailureResult, task.terminationStatus != 0 {
-      print("-----Exit code: \(task.terminationStatus)")
-      print("-----Log:\n \(log)")
-    }
-    return task.terminationStatus
-  }
-}
-
 // Read json file and transfer to CoverageReportSource.
 func readLocalFile(forName name: String) -> CoverageReportSource? {
   do {
@@ -159,7 +135,7 @@ func combineCodeCoverageResultBundles(from xcresultDirPathURL: URL,
       let resultBundleName = xcresultURL.deletingPathExtension().lastPathComponent
       let coverageSourceJSONFile = "\(resultBundleName).json"
       try? fileManager.removeItem(atPath: coverageSourceJSONFile)
-      Shell()
+      Shell
         .run("xcrun xccov view --report --json \(xcresultURL.path) >> \(coverageSourceJSONFile)")
       if let coverageReportSource = readLocalFile(forName: "\(coverageSourceJSONFile)") {
         coverageReportRequestData.addCoverageData(

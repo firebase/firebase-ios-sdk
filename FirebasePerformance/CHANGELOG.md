@@ -1,3 +1,6 @@
+# Version 8.0.1
+* Firebase Performance logs now contain URLs to see the performance data on the Firebase console.
+
 # Version 7.8.0
 * Deprecate Clearcut event transport mechanism.
 * Enable dynamic framework support. (#7569)

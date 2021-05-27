@@ -11,6 +11,7 @@ target 'Sample' do
   pod 'FirebaseMessaging', :path => '../../../'
   pod 'FirebaseCoreDiagnostics', :path => '../../../'
   pod 'FirebaseInstallations', :path => '../../../'
+  pod 'FirebaseAnalytics'
 
 end
 

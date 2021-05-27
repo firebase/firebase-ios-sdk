@@ -15,6 +15,7 @@
 import UIKit
 import FirebaseCore
 import FirebaseMessaging
+import FirebaseAnalytics
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
@@ -23,6 +24,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                      .LaunchOptionsKey: Any]?) -> Bool {
     FirebaseApp.configure()
     application.delegate = self
+    FirebaseAnalytics.Analytics.logEvent("test", parameters: nil)
 
     let center = UNUserNotificationCenter.current()
     center.delegate = self
@@ -45,15 +47,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     completionHandler([.alert, .sound])
   }
 
-  // MARK: UISceneSession Lifecycle
-
-  func application(_ application: UIApplication,
-                   configurationForConnecting connectingSceneSession: UISceneSession,
-                   options: UIScene.ConnectionOptions) -> UISceneConfiguration {
-    // Called when a new scene session is being created.
-    // Use this method to select a configuration to create the new scene with.
-    return UISceneConfiguration(name: "Default Configuration",
-                                sessionRole: connectingSceneSession.role)
+  func userNotificationCenter(_ center: UNUserNotificationCenter,
+                              didReceive response: UNNotificationResponse,
+                              withCompletionHandler completionHandler: @escaping () -> Void) {
+    completionHandler()
   }
 
   func application(_ application: UIApplication,

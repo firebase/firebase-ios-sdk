@@ -42,5 +42,6 @@
   "7.5.0": "https://dl.google.com/dl/firebase/ios/carthage/7.5.0/GoogleSignIn-1636a9ad3669f722.zip",
   "7.6.0": "https://dl.google.com/dl/firebase/ios/carthage/7.6.0/GoogleSignIn-78819bde13bd6479.zip",
   "7.7.0": "https://dl.google.com/dl/firebase/ios/carthage/7.7.0/GoogleSignIn-d5dff491eaf67a7e.zip",
-  "7.8.0": "https://dl.google.com/dl/firebase/ios/carthage/7.8.0/GoogleSignIn-209f7fcaf46ef01c.zip"
+  "7.8.0": "https://dl.google.com/dl/firebase/ios/carthage/7.8.0/GoogleSignIn-209f7fcaf46ef01c.zip",
+  "8.0.0": "https://dl.google.com/dl/firebase/ios/carthage/8.0.0/GoogleSignIn-83c079298ea5200b.zip"
 }
