@@ -16,9 +16,7 @@
 
 import Foundation
 
-public struct Shell {
-  static let shared = Shell()
-  public init() {}
+public enum Shell {
   @discardableResult
   public static func run(_ command: String, displayCommand: Bool = true,
                          displayFailureResult: Bool = true) -> Int32 {
