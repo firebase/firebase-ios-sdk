@@ -38,6 +38,8 @@ diff-lines() {
     while read; do
         esc='\033'
         # Skip lines starting with "---". e.g. "--- a/.github/workflows/database.yml".
+        # $REPLY, containing one line at a time, here and below are the default variable
+        # of `read`.
         if [[ "$REPLY" =~ ---\ (a/)?.* ]]; then
             continue
         # Detect new changed files from `git diff`. e.g. "+++ b/.github/workflows/combine.yml".
