@@ -22,3 +22,5 @@ extern FIRLoggerService kFIRLoggerAppCheck;
 
 // TODO: use specific codes when stabilized.
 extern NSString *const kFIRLoggerAppCheckMessageCodeUnknown;
+
+void FIRAppCheckDebugLog(NSString *message, ...);
