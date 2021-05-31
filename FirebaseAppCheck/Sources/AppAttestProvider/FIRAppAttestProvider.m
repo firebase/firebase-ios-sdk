@@ -229,7 +229,7 @@ NS_ASSUME_NONNULL_BEGIN
   // 1. Attest the device. Retry once on 403 from Firebase backend (attestation rejection error).
   __block NSString *keyIDForAttempt = keyID;
   return [FBLPromise onQueue:self.queue
-             attempts:2
+             attempts:1
              delay:0
              condition:^BOOL(NSInteger attemptCount, NSError *_Nonnull error) {
     // Reset keyID before retrying.
