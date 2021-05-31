@@ -325,7 +325,8 @@ NS_ASSUME_NONNULL_BEGIN
         FIRAppCheckHTTPError *HTTPError = (FIRAppCheckHTTPError *)error;
         if ([HTTPError isKindOfClass:[FIRAppCheckHTTPError class]] &&
             HTTPError.HTTPResponse.statusCode == 403) {
-          FIRAppCheckDebugLog(@"App Attest attestation was rejected by backend. The existing attestation will be reset.");
+          FIRAppCheckDebugLog(@"App Attest attestation was rejected by backend. The existing "
+                              @"attestation will be reset.");
           // Reset the attestation.
           return [self resetAttestation].thenOn(self.queue, ^NSError *(id result) {
             // Throw the rejection error.
