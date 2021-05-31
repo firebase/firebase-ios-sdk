@@ -111,10 +111,13 @@ struct ZipBuilderTool: ParsableCommand {
   @Option(default: "10.0", help: ArgumentHelp("The minimum supported tvOS version."))
   var minimumTVOSVersion: String
 
-  /// The list of platforms to build for.
-  @Option(parsing: .upToNextOption,
+  /// The list of platforms to build for, passed in individually.
+  @Option(name: .customLong("platform"),
+          parsing: .singleValue,
           help: ArgumentHelp("""
-          The list of platforms to build for. The default list is \
+          The list of platforms to build for, passed in individually. eg `--platform ios \
+          --platform tvos`.
+          The default list is \
           \(Platform.allCases.map { $0.name }).
           """))
   var platforms: [Platform]
