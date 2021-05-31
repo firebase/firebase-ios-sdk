@@ -426,7 +426,7 @@ API_AVAILABLE(ios(14.0))
 
 - (void)testGetToken_WhenAttestationIsRejected_ThenAttestationIsResetAndRetriedOnceSuccess {
   // 1. Expect App Attest availability to be requested and stored key ID request to fail.
-  [self expectAppAttestAvailabilityToBeCheckedAndStoredKeyRequested];
+  [self expectAppAttestAvailabilityToBeCheckedAndNotExistingStoredKeyRequested];
 
   // 2. Expect the App Attest key pair to be generated and attested.
   NSString *keyID1 = @"keyID1";
@@ -483,7 +483,7 @@ API_AVAILABLE(ios(14.0))
 
 - (void)testGetToken_WhenAttestationIsRejected_ThenAttestationIsResetAndRetriedOnceError {
   // 1. Expect App Attest availability to be requested and stored key ID request to fail.
-  [self expectAppAttestAvailabilityToBeCheckedAndStoredKeyRequested];
+  [self expectAppAttestAvailabilityToBeCheckedAndNotExistingStoredKeyRequested];
 
   // 2. Expect the App Attest key pair to be generated and attested.
   NSString *keyID1 = @"keyID1";
@@ -923,7 +923,7 @@ API_AVAILABLE(ios(14.0))
   [self verifyAllMocks];
 }
 
-- (void)expectAppAttestAvailabilityToBeCheckedAndStoredKeyRequested {
+- (void)expectAppAttestAvailabilityToBeCheckedAndNotExistingStoredKeyRequested {
   // 1. Expect FIRAppAttestService.isSupported.
   [OCMExpect([self.mockAppAttestService isSupported]) andReturnValue:@(YES)];
 
