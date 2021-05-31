@@ -143,9 +143,10 @@ static NSString *const kDefaultBaseURL = @"https://firebaseappcheck.googleapis.c
   NSInteger statusCode = response.HTTPResponse.statusCode;
   return [FBLPromise do:^id _Nullable {
     if (statusCode < 200 || statusCode >= 300) {
-      FIRLogDebug(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeUnknown,
-                  @"Unexpected API response: %@, body: %@.", response.HTTPResponse,
-                  [[NSString alloc] initWithData:response.HTTPBody encoding:NSUTF8StringEncoding]);
+      FIRAppCheckDebugLog(kFIRLoggerAppCheckMessageCodeUnexpectedHTTPCode,
+                          @"Unexpected API response: %@, body: %@.", response.HTTPResponse,
+                          [[NSString alloc] initWithData:response.HTTPBody
+                                                encoding:NSUTF8StringEncoding]);
       return [FIRAppCheckErrorUtil APIErrorWithHTTPResponse:response.HTTPResponse
                                                        data:response.HTTPBody];
     }

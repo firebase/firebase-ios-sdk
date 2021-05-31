@@ -206,7 +206,8 @@ NS_ASSUME_NONNULL_BEGIN
   return [self attestationState].thenOn(self.queue, ^id(FIRAppAttestProviderState *attestState) {
     switch (attestState.state) {
       case FIRAppAttestAttestationStateUnsupported:
-        FIRAppCheckDebugLog(@"App Attest is not supported.");
+        FIRAppCheckDebugLog(kFIRLoggerAppCheckMessageCodeAppAttestNotSupported,
+                            @"App Attest is not supported.");
         return attestState.appAttestUnsupportedError;
         break;
 
@@ -325,7 +326,8 @@ NS_ASSUME_NONNULL_BEGIN
         FIRAppCheckHTTPError *HTTPError = (FIRAppCheckHTTPError *)error;
         if ([HTTPError isKindOfClass:[FIRAppCheckHTTPError class]] &&
             HTTPError.HTTPResponse.statusCode == 403) {
-          FIRAppCheckDebugLog(@"App Attest attestation was rejected by backend. The existing "
+          FIRAppCheckDebugLog(kFIRLoggerAppCheckMessageCodeAttestationRejected,
+                              @"App Attest attestation was rejected by backend. The existing "
                               @"attestation will be reset.");
           // Reset the attestation.
           return [self resetAttestation].thenOn(self.queue, ^NSError *(id result) {

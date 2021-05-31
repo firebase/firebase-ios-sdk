@@ -103,7 +103,7 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
   id<FIRAppCheckProviderFactory> providerFactory = [FIRAppCheck providerFactory];
 
   if (providerFactory == nil) {
-    FIRLogError(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeUnknown,
+    FIRLogError(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeProviderFactoryIsMissing,
                 @"Cannot instantiate `FIRAppCheck` for app: %@ without a provider factory. "
                 @"Please register a provider factory using "
                 @"`AppCheck.setAppCheckProviderFactory(_ ,forAppName:)` method.",
@@ -113,7 +113,7 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 
   id<FIRAppCheckProvider> appCheckProvider = [providerFactory createProviderWithApp:app];
   if (appCheckProvider == nil) {
-    FIRLogError(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeUnknown,
+    FIRLogError(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeProviderIsMissing,
                 @"Cannot instantiate `FIRAppCheck` for app: %@ without an app check provider. "
                 @"Please make sure the provide factory returns a valid app check provider.",
                 app.name);

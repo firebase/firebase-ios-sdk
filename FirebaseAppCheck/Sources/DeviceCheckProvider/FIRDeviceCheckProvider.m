@@ -65,7 +65,7 @@ NS_ASSUME_NONNULL_BEGIN
   NSArray<NSString *> *missingOptionsFields =
       [FIRAppCheckValidator tokenExchangeMissingFieldsInOptions:app.options];
   if (missingOptionsFields.count > 0) {
-    FIRLogError(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeUnknown,
+    FIRLogError(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageDeviceCheckProviderIncompleteFIROptions,
                 @"Cannot instantiate `FIRDeviceCheckProvider` for app: %@. The following "
                 @"`FirebaseOptions` fields are missing: %@",
                 app.name, [missingOptionsFields componentsJoinedByString:@", "]);
