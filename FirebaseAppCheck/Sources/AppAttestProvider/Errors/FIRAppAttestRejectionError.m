@@ -21,7 +21,9 @@
 @implementation FIRAppAttestRejectionError
 
 - (instancetype)init {
-  return [self initWithDomain:kFIRAppCheckErrorDomain code:FIRAppCheckErrorCodeUnknown userInfo:nil];
+  return [self initWithDomain:kFIRAppCheckErrorDomain
+                         code:FIRAppCheckErrorCodeUnknown
+                     userInfo:nil];
 }
 
 @end

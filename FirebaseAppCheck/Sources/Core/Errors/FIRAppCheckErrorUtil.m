@@ -36,7 +36,7 @@ NSString *const kFIRAppCheckErrorDomain = @"com.firebase.appCheck";
 }
 
 + (FIRAppCheckHTTPError *)APIErrorWithHTTPResponse:(NSHTTPURLResponse *)HTTPResponse
-                                 data:(nullable NSData *)data {
+                                              data:(nullable NSData *)data {
   return [[FIRAppCheckHTTPError alloc] initWithHTTPResponse:HTTPResponse data:data];
 }
 

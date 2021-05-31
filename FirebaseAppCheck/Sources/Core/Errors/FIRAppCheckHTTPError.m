@@ -22,19 +22,16 @@
 
 - (instancetype)initWithHTTPResponse:(NSHTTPURLResponse *)HTTPResponse
                                 data:(nullable NSData *)data {
-  NSDictionary *userInfo = [[self class] userInfoWithHTTPResponse:HTTPResponse
-                                                                          data:data];
-  self = [super
-      initWithDomain:kFIRAppCheckErrorDomain
-                code:FIRAppCheckErrorCodeUnknown
-            userInfo:userInfo];
+  NSDictionary *userInfo = [[self class] userInfoWithHTTPResponse:HTTPResponse data:data];
+  self = [super initWithDomain:kFIRAppCheckErrorDomain
+                          code:FIRAppCheckErrorCodeUnknown
+                      userInfo:userInfo];
   if (self) {
     _HTTPResponse = HTTPResponse;
     _data = data;
   }
   return self;
 }
-
 
 + (NSDictionary *)userInfoWithHTTPResponse:(NSHTTPURLResponse *)HTTPResponse
                                       data:(nullable NSData *)data {

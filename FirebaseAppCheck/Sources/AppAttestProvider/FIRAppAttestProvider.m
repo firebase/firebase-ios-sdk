@@ -34,9 +34,9 @@
 
 #import "FirebaseAppCheck/Sources/Core/Utils/FIRAppCheckCryptoUtils.h"
 
+#import "FirebaseAppCheck/Sources/AppAttestProvider/Errors/FIRAppAttestRejectionError.h"
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckHTTPError.h"
-#import "FirebaseAppCheck/Sources/AppAttestProvider/Errors/FIRAppAttestRejectionError.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
@@ -226,13 +226,16 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Initial handshake sequence (attestation)
 
 - (FBLPromise<FIRAppCheckToken *> *)initialHandshakeWithKeyID:(nullable NSString *)keyID {
-
   // 1. Attest the device. Retry once on 403 from Firebase backend (attestation rejection error).
-  return [FBLPromise onQueue:self.queue attempts:2 delay:0 condition:^BOOL(NSInteger attemptCount, NSError * _Nonnull error) {
-    return [error isKindOfClass:[FIRAppAttestRejectionError class]];
-  } retry:^id _Nullable{
-    return [self attestKeyGenerateIfNeededWithID:keyID];
-  }]
+  return [FBLPromise onQueue:self.queue
+             attempts:2
+             delay:0
+             condition:^BOOL(NSInteger attemptCount, NSError *_Nonnull error) {
+               return [error isKindOfClass:[FIRAppAttestRejectionError class]];
+             }
+             retry:^FBLPromise<NSArray * /*[keyID, attestArtifact]*/> *_Nullable {
+               return [self attestKeyGenerateIfNeededWithID:keyID];
+             }]
       .thenOn(self.queue, ^FBLPromise<FIRAppCheckToken *> *(NSArray *attestationResults) {
         // 4. Save the artifact and return the received FAC token.
 
@@ -279,7 +282,8 @@ NS_ASSUME_NONNULL_BEGIN
       });
 }
 
-- (FBLPromise<NSArray * /*[keyID, attestArtifact]*/> *)attestKeyGenerateIfNeededWithID:(nullable NSString *)keyID {
+- (FBLPromise<NSArray * /*[keyID, attestArtifact]*/> *)attestKeyGenerateIfNeededWithID:
+    (nullable NSString *)keyID {
   // 1. Request a random challenge and get App Attest key ID concurrently.
   return [FBLPromise onQueue:self.queue
                          all:@[
@@ -309,22 +313,23 @@ NS_ASSUME_NONNULL_BEGIN
                 ];
 
                 return [FBLPromise onQueue:self.queue all:attestationResults];
-      })
-  .recoverOn(self.queue, ^id(NSError *error) {
-    // If App Attest attestation was rejected then reset the attestation and throw a specific error.
-    FIRAppCheckHTTPError *HTTPError = (FIRAppCheckHTTPError *)error;
-    if([HTTPError isKindOfClass:[FIRAppCheckHTTPError class]] && HTTPError.HTTPResponse.statusCode == 403) {
-      // Reset the attestation.
-      return [self resetAttestation]
-      .thenOn(self.queue, ^NSError *(id result) {
-        // Throw the rejection error.
-        return [[FIRAppAttestRejectionError alloc] init];
-      });
-    }
+              })
+      .recoverOn(self.queue, ^id(NSError *error) {
+        // If App Attest attestation was rejected then reset the attestation and throw a specific
+        // error.
+        FIRAppCheckHTTPError *HTTPError = (FIRAppCheckHTTPError *)error;
+        if ([HTTPError isKindOfClass:[FIRAppCheckHTTPError class]] &&
+            HTTPError.HTTPResponse.statusCode == 403) {
+          // Reset the attestation.
+          return [self resetAttestation].thenOn(self.queue, ^NSError *(id result) {
+            // Throw the rejection error.
+            return [[FIRAppAttestRejectionError alloc] init];
+          });
+        }
 
-    // Otherwise just re-throw the error.
-    return error;
-  });
+        // Otherwise just re-throw the error.
+        return error;
+      });
 }
 
 /// Resets stored key ID and attestation artifact.

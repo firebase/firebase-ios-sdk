@@ -25,8 +25,8 @@
 #import "FirebaseAppCheck/Sources/AppAttestProvider/API/FIRAppAttestAttestationResponse.h"
 #import "FirebaseAppCheck/Sources/Core/APIService/FIRAppCheckAPIService.h"
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckHTTPError.h"
+#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"
 
 #import "FirebaseAppCheck/Tests/Unit/Utils/FIRFixtureLoader.h"
 #import "SharedTestUtilities/Date/FIRDateTestUtils.h"
@@ -99,8 +99,9 @@
   NSData *responseBody = [responseBodyString dataUsingEncoding:NSUTF8StringEncoding];
   GULURLSessionDataResponse *invalidAPIResponse = [self APIResponseWithCode:300
                                                                responseBody:responseBody];
-  FIRAppCheckHTTPError *APIError = [FIRAppCheckErrorUtil APIErrorWithHTTPResponse:invalidAPIResponse.HTTPResponse
-                                                                data:invalidAPIResponse.HTTPBody];
+  FIRAppCheckHTTPError *APIError =
+      [FIRAppCheckErrorUtil APIErrorWithHTTPResponse:invalidAPIResponse.HTTPResponse
+                                                data:invalidAPIResponse.HTTPBody];
   // 2. Stub API Service Request to return prepared API response.
   [self stubMockAPIServiceRequestForChallengeRequestWithResponse:APIError];
 
