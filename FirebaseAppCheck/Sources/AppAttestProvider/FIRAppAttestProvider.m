@@ -337,7 +337,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Resets stored key ID and attestation artifact.
 - (FBLPromise<NSNull *> *)resetAttestation {
-  return [FBLPromise resolvedWith:nil];
+  return [self.keyIDStorage setAppAttestKeyID:nil]
+  .thenOn(self.queue, ^id(id result) {
+    return [self.artifactStorage setArtifact:nil forKey:@""];
+  });
 }
 
 #pragma mark - Token refresh sequence (assertion)

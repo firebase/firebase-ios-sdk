@@ -445,7 +445,7 @@ API_AVAILABLE(ios(14.0))
   OCMExpect([self.mockStorage setAppAttestKeyID:nil]).andReturn([FBLPromise resolvedWith:nil]);
 
   // 4.2 Expect stored attestation artifact to be reset.
-  OCMExpect([self.mockArtifactStorage setArtifact:nil forKey:keyID1]).andReturn([FBLPromise resolvedWith:nil]);
+  OCMExpect([self.mockArtifactStorage setArtifact:nil forKey:@""]).andReturn([FBLPromise resolvedWith:nil]);
 
   // 5. Expect the App Attest key pair to be generated and attested.
   NSString *keyID2 = @"keyID2";
