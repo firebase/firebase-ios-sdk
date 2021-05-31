@@ -65,4 +65,4 @@ diff-lines() {
 
 diff-lines
 json_output="${json_output}]"
-echo $json_output > "${output_file}"
+echo $json_output
