@@ -13,6 +13,7 @@ end
 
 target 'AdvancedSample' do
   platform :ios, '13.0'
+  pod 'FirebaseAnalytics'
   shared_pods
 end
 
@@ -23,6 +24,7 @@ end
 
 target 'AppClips' do
   platform :ios, '13.0'
+  pod 'FirebaseAnalytics'
   shared_pods
 end
 

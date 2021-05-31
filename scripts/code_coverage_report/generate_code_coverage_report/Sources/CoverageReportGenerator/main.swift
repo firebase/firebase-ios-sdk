@@ -32,7 +32,7 @@ struct CoverageReportGenerator: ParsableCommand {
   @Option(
     help: "presubmit: compare the diff to the base_commit; merge: store coverage data linking to this commit."
   )
-  var commit: String
+  var headCommit: String
 
   @Option(help: "Token to access an account of the Metrics Service")
   var token: String
@@ -61,7 +61,7 @@ struct CoverageReportGenerator: ParsableCommand {
   @Option(
     help: "This is for merge request. Branch here will be linked to the coverage data, with the merged commit, in the database. "
   )
-  var branch: String?
+  var sourceBranch: String?
 
   func run() throws {
     if let coverageRequest = try combineCodeCoverageResultBundles(
@@ -70,11 +70,11 @@ struct CoverageReportGenerator: ParsableCommand {
     ) {
       sendMetricsServiceRequest(
         repo: repo,
-        commits: commit,
+        commits: headCommit,
         jsonContent: coverageRequest.toData(),
         token: token,
         is_presubmit: requestType == RequestType.presubmit,
-        branch: branch,
+        branch: sourceBranch,
         pullRequest: pullRequestNum,
         pullRequestNote: pullRequestNote,
         baseCommit: baseCommit
