@@ -232,8 +232,8 @@ NS_ASSUME_NONNULL_BEGIN
              attempts:1
              delay:0
              condition:^BOOL(NSInteger attemptCount, NSError *_Nonnull error) {
-    // Reset keyID before retrying.
-    keyIDForAttempt = nil;
+               // Reset keyID before retrying.
+               keyIDForAttempt = nil;
                return [error isKindOfClass:[FIRAppAttestRejectionError class]];
              }
              retry:^FBLPromise<NSArray * /*[keyID, attestArtifact]*/> *_Nullable {
@@ -337,8 +337,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Resets stored key ID and attestation artifact.
 - (FBLPromise<NSNull *> *)resetAttestation {
-  return [self.keyIDStorage setAppAttestKeyID:nil]
-  .thenOn(self.queue, ^id(id result) {
+  return [self.keyIDStorage setAppAttestKeyID:nil].thenOn(self.queue, ^id(id result) {
     return [self.artifactStorage setArtifact:nil forKey:@""];
   });
 }
