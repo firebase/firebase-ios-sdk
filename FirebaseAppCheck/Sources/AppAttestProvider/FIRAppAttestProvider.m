@@ -227,14 +227,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FBLPromise<FIRAppCheckToken *> *)initialHandshakeWithKeyID:(nullable NSString *)keyID {
   // 1. Attest the device. Retry once on 403 from Firebase backend (attestation rejection error).
+  __block NSString *keyIDForAttempt = keyID;
   return [FBLPromise onQueue:self.queue
              attempts:2
              delay:0
              condition:^BOOL(NSInteger attemptCount, NSError *_Nonnull error) {
+    // Reset keyID before retrying.
+    keyIDForAttempt = nil;
                return [error isKindOfClass:[FIRAppAttestRejectionError class]];
              }
              retry:^FBLPromise<NSArray * /*[keyID, attestArtifact]*/> *_Nullable {
-               return [self attestKeyGenerateIfNeededWithID:keyID];
+               return [self attestKeyGenerateIfNeededWithID:keyIDForAttempt];
              }]
       .thenOn(self.queue, ^FBLPromise<FIRAppCheckToken *> *(NSArray *attestationResults) {
         // 4. Save the artifact and return the received FAC token.
