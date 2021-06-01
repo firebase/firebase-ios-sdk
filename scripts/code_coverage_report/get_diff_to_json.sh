@@ -14,12 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# USAGE: git diff -U0 [base_commit] HEAD | get_diff_lines.sh [output_file_name]
+# USAGE: git diff -U0 [base_commit] HEAD | get_diff_lines.sh
 #
-# This will generate a JSON file, named ${output_file_name}, of changed
-# files and their newly added lines.
+# This will generate a JSON output of changed files and their newly added
+# lines.
 oIFS=$IFS
-output_file=$1
 
 json_output="["
 # Concatenate files and line indices into a JSON file.
