@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+@class FIRAppCheckHTTPError;
+
 NS_ASSUME_NONNULL_BEGIN
 
 FOUNDATION_EXTERN NSErrorDomain const kFIRAppCheckErrorDomain NS_SWIFT_NAME(AppCheckErrorDomain);
@@ -29,8 +31,8 @@ void FIRAppCheckSetErrorToPointer(NSError *error, NSError **pointer);
 + (NSError *)cachedTokenNotFound;
 + (NSError *)cachedTokenExpired;
 
-+ (NSError *)APIErrorWithHTTPResponse:(NSHTTPURLResponse *)HTTPResponse
-                                 data:(nullable NSData *)data;
++ (FIRAppCheckHTTPError *)APIErrorWithHTTPResponse:(NSHTTPURLResponse *)HTTPResponse
+                                              data:(nullable NSData *)data;
 
 + (NSError *)APIErrorWithNetworkError:(NSError *)networkError;
 

@@ -31,8 +31,13 @@
 #import "FirebaseAppCheck/Sources/AppAttestProvider/Storage/FIRAppAttestArtifactStorage.h"
 #import "FirebaseAppCheck/Sources/AppAttestProvider/Storage/FIRAppAttestKeyIDStorage.h"
 #import "FirebaseAppCheck/Sources/Core/APIService/FIRAppCheckAPIService.h"
-#import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
+#import "FirebaseAppCheck/Sources/Core/FIRAppCheckLogger.h"
+
 #import "FirebaseAppCheck/Sources/Core/Utils/FIRAppCheckCryptoUtils.h"
+
+#import "FirebaseAppCheck/Sources/AppAttestProvider/Errors/FIRAppAttestRejectionError.h"
+#import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
+#import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckHTTPError.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
@@ -201,6 +206,8 @@ NS_ASSUME_NONNULL_BEGIN
   return [self attestationState].thenOn(self.queue, ^id(FIRAppAttestProviderState *attestState) {
     switch (attestState.state) {
       case FIRAppAttestAttestationStateUnsupported:
+        FIRAppCheckDebugLog(kFIRLoggerAppCheckMessageCodeAppAttestNotSupported,
+                            @"App Attest is not supported.");
         return attestState.appAttestUnsupportedError;
         break;
 
@@ -222,37 +229,19 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Initial handshake sequence (attestation)
 
 - (FBLPromise<FIRAppCheckToken *> *)initialHandshakeWithKeyID:(nullable NSString *)keyID {
-  // 1. Request a random challenge and get App Attest key ID concurrently.
+  // 1. Attest the device. Retry once on 403 from Firebase backend (attestation rejection error).
+  __block NSString *keyIDForAttempt = keyID;
   return [FBLPromise onQueue:self.queue
-                         all:@[
-                           // 1.1. Request random challenge.
-                           [self.APIService getRandomChallenge],
-                           // 1.2. Get App Attest key ID.
-                           [self generateAppAttestKeyIDIfNeeded:keyID]
-                         ]]
-      .thenOn(self.queue,
-              ^FBLPromise<FIRAppAttestKeyAttestationResult *> *(NSArray *challengeAndKeyID) {
-                // 2. Attest the key.
-                NSData *challenge = challengeAndKeyID.firstObject;
-                NSString *keyID = challengeAndKeyID.lastObject;
-
-                return [self attestKey:keyID challenge:challenge];
-              })
-      // TODO: Handle a possible key rejection - generate another key.
-      .thenOn(self.queue,
-              ^FBLPromise<NSArray *> *(FIRAppAttestKeyAttestationResult *result) {
-                // 3. Exchange the attestation to FAC token and pass the results to the next step.
-                NSArray *attestationResults = @[
-                  // 3.1. Just pass the attestation result to the next step.
-                  [FBLPromise resolvedWith:result],
-                  // 3.2. Exchange the attestation to FAC token.
-                  [self.APIService attestKeyWithAttestation:result.attestation
-                                                      keyID:result.keyID
-                                                  challenge:result.challenge]
-                ];
-
-                return [FBLPromise onQueue:self.queue all:attestationResults];
-              })
+             attempts:1
+             delay:0
+             condition:^BOOL(NSInteger attemptCount, NSError *_Nonnull error) {
+               // Reset keyID before retrying.
+               keyIDForAttempt = nil;
+               return [error isKindOfClass:[FIRAppAttestRejectionError class]];
+             }
+             retry:^FBLPromise<NSArray * /*[keyID, attestArtifact]*/> *_Nullable {
+               return [self attestKeyGenerateIfNeededWithID:keyIDForAttempt];
+             }]
       .thenOn(self.queue, ^FBLPromise<FIRAppCheckToken *> *(NSArray *attestationResults) {
         // 4. Save the artifact and return the received FAC token.
 
@@ -297,6 +286,66 @@ NS_ASSUME_NONNULL_BEGIN
                                                         attestation:attestation];
         return [FBLPromise resolvedWith:result];
       });
+}
+
+- (FBLPromise<NSArray * /*[keyID, attestArtifact]*/> *)attestKeyGenerateIfNeededWithID:
+    (nullable NSString *)keyID {
+  // 1. Request a random challenge and get App Attest key ID concurrently.
+  return [FBLPromise onQueue:self.queue
+                         all:@[
+                           // 1.1. Request random challenge.
+                           [self.APIService getRandomChallenge],
+                           // 1.2. Get App Attest key ID.
+                           [self generateAppAttestKeyIDIfNeeded:keyID]
+                         ]]
+      .thenOn(self.queue,
+              ^FBLPromise<FIRAppAttestKeyAttestationResult *> *(NSArray *challengeAndKeyID) {
+                // 2. Attest the key.
+                NSData *challenge = challengeAndKeyID.firstObject;
+                NSString *keyID = challengeAndKeyID.lastObject;
+
+                return [self attestKey:keyID challenge:challenge];
+              })
+      .thenOn(self.queue,
+              ^FBLPromise<NSArray *> *(FIRAppAttestKeyAttestationResult *result) {
+                // 3. Exchange the attestation to FAC token and pass the results to the next step.
+                NSArray *attestationResults = @[
+                  // 3.1. Just pass the attestation result to the next step.
+                  [FBLPromise resolvedWith:result],
+                  // 3.2. Exchange the attestation to FAC token.
+                  [self.APIService attestKeyWithAttestation:result.attestation
+                                                      keyID:result.keyID
+                                                  challenge:result.challenge]
+                ];
+
+                return [FBLPromise onQueue:self.queue all:attestationResults];
+              })
+      .recoverOn(self.queue, ^id(NSError *error) {
+        // If App Attest attestation was rejected then reset the attestation and throw a specific
+        // error.
+        FIRAppCheckHTTPError *HTTPError = (FIRAppCheckHTTPError *)error;
+        if ([HTTPError isKindOfClass:[FIRAppCheckHTTPError class]] &&
+            HTTPError.HTTPResponse.statusCode == 403) {
+          FIRAppCheckDebugLog(kFIRLoggerAppCheckMessageCodeAttestationRejected,
+                              @"App Attest attestation was rejected by backend. The existing "
+                              @"attestation will be reset.");
+          // Reset the attestation.
+          return [self resetAttestation].thenOn(self.queue, ^NSError *(id result) {
+            // Throw the rejection error.
+            return [[FIRAppAttestRejectionError alloc] init];
+          });
+        }
+
+        // Otherwise just re-throw the error.
+        return error;
+      });
+}
+
+/// Resets stored key ID and attestation artifact.
+- (FBLPromise<NSNull *> *)resetAttestation {
+  return [self.keyIDStorage setAppAttestKeyID:nil].thenOn(self.queue, ^id(id result) {
+    return [self.artifactStorage setArtifact:nil forKey:@""];
+  });
 }
 
 #pragma mark - Token refresh sequence (assertion)

@@ -15,6 +15,7 @@
  */
 
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
+#import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckHTTPError.h"
 
 NSString *const kFIRAppCheckErrorDomain = @"com.firebase.appCheck";
 
@@ -34,15 +35,9 @@ NSString *const kFIRAppCheckErrorDomain = @"com.firebase.appCheck";
                      underlyingError:nil];
 }
 
-+ (NSError *)APIErrorWithHTTPResponse:(NSHTTPURLResponse *)HTTPResponse
-                                 data:(nullable NSData *)data {
-  NSString *body = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] ?: @"";
-  NSString *failureReason =
-      [NSString stringWithFormat:@"Unexpected API response. HTTP code: %ld, body: \n%@",
-                                 (long)HTTPResponse.statusCode, body];
-  return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnknown
-                       failureReason:failureReason
-                     underlyingError:nil];
++ (FIRAppCheckHTTPError *)APIErrorWithHTTPResponse:(NSHTTPURLResponse *)HTTPResponse
+                                              data:(nullable NSData *)data {
+  return [[FIRAppCheckHTTPError alloc] initWithHTTPResponse:HTTPResponse data:data];
 }
 
 + (NSError *)APIErrorWithNetworkError:(NSError *)networkError {

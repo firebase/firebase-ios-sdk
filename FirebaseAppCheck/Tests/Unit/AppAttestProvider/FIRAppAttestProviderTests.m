@@ -26,9 +26,12 @@
 #import "FirebaseAppCheck/Sources/AppAttestProvider/FIRAppAttestService.h"
 #import "FirebaseAppCheck/Sources/AppAttestProvider/Storage/FIRAppAttestArtifactStorage.h"
 #import "FirebaseAppCheck/Sources/AppAttestProvider/Storage/FIRAppAttestKeyIDStorage.h"
-#import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 #import "FirebaseAppCheck/Sources/Core/Utils/FIRAppCheckCryptoUtils.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"
+
+#import "FirebaseAppCheck/Sources/AppAttestProvider/Errors/FIRAppAttestRejectionError.h"
+#import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
+#import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckHTTPError.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
@@ -419,6 +422,119 @@ API_AVAILABLE(ios(14.0))
   [self verifyAllMocks];
 }
 
+#pragma mark Rejected Attestation
+
+- (void)testGetToken_WhenAttestationIsRejected_ThenAttestationIsResetAndRetriedOnceSuccess {
+  // 1. Expect App Attest availability to be requested and stored key ID request to fail.
+  [self expectAppAttestAvailabilityToBeCheckedAndNotExistingStoredKeyRequested];
+
+  // 2. Expect the App Attest key pair to be generated and attested.
+  NSString *keyID1 = @"keyID1";
+  NSData *attestationData1 = [[NSUUID UUID].UUIDString dataUsingEncoding:NSUTF8StringEncoding];
+  [self expectAppAttestKeyGeneratedAndAttestedWithKeyID:keyID1 attestationData:attestationData1];
+
+  // 3. Expect exchange request to be sent.
+  FIRAppCheckHTTPError *APIError = [self attestationRejectionHTTPError];
+  OCMExpect([self.mockAPIService attestKeyWithAttestation:attestationData1
+                                                    keyID:keyID1
+                                                challenge:self.randomChallenge])
+      .andReturn([self rejectedPromiseWithError:APIError]);
+
+  // 4. Stored attestation to be reset.
+  [self expectAttestationReset];
+
+  // 5. Expect the App Attest key pair to be generated and attested.
+  NSString *keyID2 = @"keyID2";
+  NSData *attestationData2 = [[NSUUID UUID].UUIDString dataUsingEncoding:NSUTF8StringEncoding];
+  [self expectAppAttestKeyGeneratedAndAttestedWithKeyID:keyID2 attestationData:attestationData2];
+
+  // 6. Expect exchange request to be sent.
+  FIRAppCheckToken *FACToken = [[FIRAppCheckToken alloc] initWithToken:@"FAC token"
+                                                        expirationDate:[NSDate date]];
+  NSData *artifactData = [@"attestation artifact" dataUsingEncoding:NSUTF8StringEncoding];
+  __auto_type attestKeyResponse =
+      [[FIRAppAttestAttestationResponse alloc] initWithArtifact:artifactData token:FACToken];
+  OCMExpect([self.mockAPIService attestKeyWithAttestation:attestationData2
+                                                    keyID:keyID2
+                                                challenge:self.randomChallenge])
+      .andReturn([FBLPromise resolvedWith:attestKeyResponse]);
+
+  // 7. Expect the artifact received from Firebase backend to be saved.
+  OCMExpect([self.mockArtifactStorage setArtifact:artifactData forKey:keyID2])
+      .andReturn([FBLPromise resolvedWith:artifactData]);
+
+  // 8. Call get token.
+  XCTestExpectation *completionExpectation =
+      [self expectationWithDescription:@"completionExpectation"];
+  [self.provider
+      getTokenWithCompletion:^(FIRAppCheckToken *_Nullable token, NSError *_Nullable error) {
+        [completionExpectation fulfill];
+
+        XCTAssertEqualObjects(token.token, FACToken.token);
+        XCTAssertEqualObjects(token.expirationDate, FACToken.expirationDate);
+        XCTAssertNil(error);
+      }];
+
+  [self waitForExpectations:@[ completionExpectation ] timeout:0.5];
+
+  // 8. Verify mocks.
+  [self verifyAllMocks];
+}
+
+- (void)testGetToken_WhenAttestationIsRejected_ThenAttestationIsResetAndRetriedOnceError {
+  // 1. Expect App Attest availability to be requested and stored key ID request to fail.
+  [self expectAppAttestAvailabilityToBeCheckedAndNotExistingStoredKeyRequested];
+
+  // 2. Expect the App Attest key pair to be generated and attested.
+  NSString *keyID1 = @"keyID1";
+  NSData *attestationData1 = [[NSUUID UUID].UUIDString dataUsingEncoding:NSUTF8StringEncoding];
+  [self expectAppAttestKeyGeneratedAndAttestedWithKeyID:keyID1 attestationData:attestationData1];
+
+  // 3. Expect exchange request to be sent.
+  FIRAppCheckHTTPError *APIError = [self attestationRejectionHTTPError];
+  OCMExpect([self.mockAPIService attestKeyWithAttestation:attestationData1
+                                                    keyID:keyID1
+                                                challenge:self.randomChallenge])
+      .andReturn([self rejectedPromiseWithError:APIError]);
+
+  // 4. Stored attestation to be reset.
+  [self expectAttestationReset];
+
+  // 5. Expect the App Attest key pair to be generated and attested.
+  NSString *keyID2 = @"keyID2";
+  NSData *attestationData2 = [[NSUUID UUID].UUIDString dataUsingEncoding:NSUTF8StringEncoding];
+  [self expectAppAttestKeyGeneratedAndAttestedWithKeyID:keyID2 attestationData:attestationData2];
+
+  // 6. Expect exchange request to be sent.
+  OCMExpect([self.mockAPIService attestKeyWithAttestation:attestationData2
+                                                    keyID:keyID2
+                                                challenge:self.randomChallenge])
+      .andReturn([self rejectedPromiseWithError:APIError]);
+
+  // 7. Stored attestation to be reset.
+  [self expectAttestationReset];
+
+  // 8. Don't expect the artifact received from Firebase backend to be saved.
+  OCMReject([self.mockArtifactStorage setArtifact:OCMOCK_ANY forKey:OCMOCK_ANY]);
+
+  // 9. Call get token.
+  XCTestExpectation *completionExpectation =
+      [self expectationWithDescription:@"completionExpectation"];
+  [self.provider
+      getTokenWithCompletion:^(FIRAppCheckToken *_Nullable token, NSError *_Nullable error) {
+        [completionExpectation fulfill];
+
+        XCTAssertNil(token);
+        FIRAppAttestRejectionError *expectedError = [[FIRAppAttestRejectionError alloc] init];
+        XCTAssertEqualObjects(error, expectedError);
+      }];
+
+  [self waitForExpectations:@[ completionExpectation ] timeout:0.5];
+
+  // 9. Verify mocks.
+  [self verifyAllMocks];
+}
+
 #pragma mark - FAC token refresh (assertion)
 
 - (void)testGetToken_WhenKeyRegistered_Success {
@@ -745,6 +861,16 @@ API_AVAILABLE(ios(14.0))
   OCMVerifyAll(self.mockArtifactStorage);
 }
 
+- (FIRAppCheckHTTPError *)attestationRejectionHTTPError {
+  NSHTTPURLResponse *response =
+      [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@"http://localhost"]
+                                  statusCode:403
+                                 HTTPVersion:@"HTTP/1.1"
+                                headerFields:nil];
+  NSData *responseBody = [@"Could not verify attestation" dataUsingEncoding:NSUTF8StringEncoding];
+  return [[FIRAppCheckHTTPError alloc] initWithHTTPResponse:response data:responseBody];
+}
+
 - (void)assertGetToken_WhenKeyRegistered_Success {
   // 1. Expect FIRAppAttestService.isSupported.
   [OCMExpect([self.mockAppAttestService isSupported]) andReturnValue:@(YES)];
@@ -795,6 +921,48 @@ API_AVAILABLE(ios(14.0))
 
   // 8. Verify mocks.
   [self verifyAllMocks];
+}
+
+- (void)expectAppAttestAvailabilityToBeCheckedAndNotExistingStoredKeyRequested {
+  // 1. Expect FIRAppAttestService.isSupported.
+  [OCMExpect([self.mockAppAttestService isSupported]) andReturnValue:@(YES)];
+
+  // 2. Expect storage getAppAttestKeyID.
+  FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
+  NSError *error = [NSError errorWithDomain:@"testGetToken_WhenNoExistingKey_Success"
+                                       code:NSNotFound
+                                   userInfo:nil];
+  [rejectedPromise reject:error];
+  OCMExpect([self.mockStorage getAppAttestKeyID]).andReturn(rejectedPromise);
+}
+
+- (void)expectAppAttestKeyGeneratedAndAttestedWithKeyID:(NSString *)keyID
+                                        attestationData:(NSData *)attestationData {
+  // 1. Expect App Attest key to be generated.
+  id completionArg = [OCMArg invokeBlockWithArgs:keyID, [NSNull null], nil];
+  OCMExpect([self.mockAppAttestService generateKeyWithCompletionHandler:completionArg]);
+
+  // 2. Expect the key ID to be stored.
+  OCMExpect([self.mockStorage setAppAttestKeyID:keyID]).andReturn([FBLPromise resolvedWith:keyID]);
+
+  // 3. Expect random challenge to be requested.
+  OCMExpect([self.mockAPIService getRandomChallenge])
+      .andReturn([FBLPromise resolvedWith:self.randomChallenge]);
+
+  // 4. Expect the key to be attested with the challenge.
+  id attestCompletionArg = [OCMArg invokeBlockWithArgs:attestationData, [NSNull null], nil];
+  OCMExpect([self.mockAppAttestService attestKey:keyID
+                                  clientDataHash:self.randomChallengeHash
+                               completionHandler:attestCompletionArg]);
+}
+
+- (void)expectAttestationReset {
+  // 1. Expect stored key ID to be reset.
+  OCMExpect([self.mockStorage setAppAttestKeyID:nil]).andReturn([FBLPromise resolvedWith:nil]);
+
+  // 2. Expect stored attestation artifact to be reset.
+  OCMExpect([self.mockArtifactStorage setArtifact:nil forKey:@""])
+      .andReturn([FBLPromise resolvedWith:nil]);
 }
 
 @end

@@ -342,8 +342,8 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
                                XCTAssertNotNil(result);
                                XCTAssertEqualObjects(result.token, kDummyToken);
 
-                               // TODO: Expect a public domain error to be returned - not the
-                               // internal one.
+                               // TODO: When method is added to public API: expect a public domain
+                               // error to be returned - not the internal one.
                                XCTAssertEqualObjects(result.error, providerError);
                              }];
 
