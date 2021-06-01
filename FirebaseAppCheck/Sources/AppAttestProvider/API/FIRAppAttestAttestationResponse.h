@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,27 @@
  * limitations under the License.
  */
 
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"
+#import <Foundation/Foundation.h>
 
-@class FBLPromise<Result>;
-@class GULURLSessionDataResponse;
+@class FIRAppCheckToken;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRAppCheckToken (APIResponse)
+@interface FIRAppAttestAttestationResponse : NSObject
 
-- (nullable instancetype)initWithTokenExchangeResponse:(NSData *)response
-                                           requestDate:(NSDate *)requestDate
-                                                 error:(NSError **)outError;
+/// App Attest attestation artifact required to refresh Firebase App Check token.
+@property(nonatomic, readonly) NSData *artifact;
 
-- (nullable instancetype)initWithResponseDict:(NSDictionary<NSString *, id> *)responseDict
+/// Firebase App Check token.
+@property(nonatomic, readonly) FIRAppCheckToken *token;
+
+- (instancetype)init NS_UNAVAILABLE;
+
+- (instancetype)initWithArtifact:(NSData *)artifact
+                           token:(FIRAppCheckToken *)token NS_DESIGNATED_INITIALIZER;
+
+/// Init with the server response.
+- (nullable instancetype)initWithResponseData:(NSData *)response
                                   requestDate:(NSDate *)requestDate
                                         error:(NSError **)outError;
 

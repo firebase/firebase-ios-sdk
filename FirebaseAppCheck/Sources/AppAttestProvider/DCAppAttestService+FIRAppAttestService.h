@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
-#import "FIRAppCheck.h"
-#import "FIRAppCheckProvider.h"
-#import "FIRAppCheckProviderFactory.h"
-#import "FIRAppCheckToken.h"
+// Currently DCAppAttestService is available on iOS only.
+#if TARGET_OS_IOS
 
-// Debug provider
-#import "FIRAppCheckDebugProvider.h"
-#import "FIRAppCheckDebugProviderFactory.h"
+#import <DeviceCheck/DeviceCheck.h>
 
-// DeviceCheck provider
-#import "FIRDeviceCheckProvider.h"
-#import "FIRDeviceCheckProviderFactory.h"
+#import "FirebaseAppCheck/Sources/AppAttestProvider/FIRAppAttestService.h"
 
-// App Attest provider.
-#import "FIRAppAttestProvider.h"
+NS_ASSUME_NONNULL_BEGIN
+
+API_AVAILABLE(ios(14.0))
+API_UNAVAILABLE(macos, tvos, watchos)
+@interface DCAppAttestService (FIRAppAttestService) <FIRAppAttestService>
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#endif  // TARGET_OS_IOS

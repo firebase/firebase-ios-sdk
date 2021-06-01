@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-#import "FIRAppCheck.h"
-#import "FIRAppCheckProvider.h"
-#import "FIRAppCheckProviderFactory.h"
-#import "FIRAppCheckToken.h"
+#import "FirebaseAppCheck/Sources/AppAttestProvider/Errors/FIRAppAttestRejectionError.h"
 
-// Debug provider
-#import "FIRAppCheckDebugProvider.h"
-#import "FIRAppCheckDebugProviderFactory.h"
+#import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 
-// DeviceCheck provider
-#import "FIRDeviceCheckProvider.h"
-#import "FIRDeviceCheckProviderFactory.h"
+@implementation FIRAppAttestRejectionError
 
-// App Attest provider.
-#import "FIRAppAttestProvider.h"
+- (instancetype)init {
+  return [self initWithDomain:kFIRAppCheckErrorDomain
+                         code:FIRAppCheckErrorCodeUnknown
+                     userInfo:nil];
+}
+
+@end

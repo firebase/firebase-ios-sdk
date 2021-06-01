@@ -16,9 +16,11 @@
 
 #import <Foundation/Foundation.h>
 
+@class FIRAppCheckHTTPError;
+
 NS_ASSUME_NONNULL_BEGIN
 
-FOUNDATION_EXTERN NSString *const kFIRAppCheckErrorDomain;
+FOUNDATION_EXTERN NSErrorDomain const kFIRAppCheckErrorDomain NS_SWIFT_NAME(AppCheckErrorDomain);
 
 void FIRAppCheckSetErrorToPointer(NSError *error, NSError **pointer);
 
@@ -29,23 +31,39 @@ void FIRAppCheckSetErrorToPointer(NSError *error, NSError **pointer);
 + (NSError *)cachedTokenNotFound;
 + (NSError *)cachedTokenExpired;
 
-+ (NSError *)APIErrorWithHTTPResponse:(NSHTTPURLResponse *)HTTPResponse
-                                 data:(nullable NSData *)data;
++ (FIRAppCheckHTTPError *)APIErrorWithHTTPResponse:(NSHTTPURLResponse *)HTTPResponse
+                                              data:(nullable NSData *)data;
 
 + (NSError *)APIErrorWithNetworkError:(NSError *)networkError;
 
 + (NSError *)appCheckTokenResponseErrorWithMissingField:(NSString *)fieldName;
 
++ (NSError *)appAttestAttestationResponseErrorWithMissingField:(NSString *)fieldName;
+
 + (NSError *)JSONSerializationError:(NSError *)error;
 
 + (NSError *)errorWithFailureReason:(NSString *)failureReason;
 
++ (NSError *)unsupportedAttestationProvider:(NSString *)providerName;
+
++ (NSError *)appAttestKeyIDNotFound;
+
 @end
 
-typedef NS_ENUM(NSInteger, FIRAppCheckErrorCode) {
-  FIRAppCheckErrorCodeUnknown = 0
+typedef NS_ERROR_ENUM(kFIRAppCheckErrorDomain, FIRAppCheckErrorCode){
+    /// An unknown or non-actionable error.
+    FIRAppCheckErrorCodeUnknown = 0,
 
-  // TODO: Add public error codes here.
-};
+    /// A network connection error.
+    FIRAppCheckErrorCodeServerUnreachable = 1,
+
+    /// Invalid configuration error.
+    FIRAppCheckErrorCodeInvalidConfiguration = 2,
+
+    /// System keychain access error.
+    FIRAppCheckErrorCodeKeychain = 3,
+
+    /// Selected app attestation provider is not supported on the current platform or OS version.
+    FIRAppCheckErrorCodeUnsupported = 4} NS_SWIFT_NAME(AppCheckErrorCode);
 
 NS_ASSUME_NONNULL_END

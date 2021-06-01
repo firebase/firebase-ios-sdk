@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (FBLPromise<GULURLSessionDataResponse *> *)
     sendRequestWithURL:(NSURL *)requestURL
             HTTPMethod:(NSString *)HTTPMethod
-                  body:(NSData *)body
+                  body:(nullable NSData *)body
      additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders;
 
 - (FBLPromise<FIRAppCheckToken *> *)appCheckTokenWithAPIResponse:

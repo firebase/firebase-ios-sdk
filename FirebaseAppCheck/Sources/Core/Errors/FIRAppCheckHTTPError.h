@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-#import "FIRAppCheck.h"
-#import "FIRAppCheckProvider.h"
-#import "FIRAppCheckProviderFactory.h"
-#import "FIRAppCheckToken.h"
+#import <Foundation/Foundation.h>
 
-// Debug provider
-#import "FIRAppCheckDebugProvider.h"
-#import "FIRAppCheckDebugProviderFactory.h"
+NS_ASSUME_NONNULL_BEGIN
 
-// DeviceCheck provider
-#import "FIRDeviceCheckProvider.h"
-#import "FIRDeviceCheckProviderFactory.h"
+@interface FIRAppCheckHTTPError : NSError
 
-// App Attest provider.
-#import "FIRAppAttestProvider.h"
+@property(nonatomic, readonly) NSHTTPURLResponse *HTTPResponse;
+@property(nonatomic, readonly, nonnull) NSData *data;
+
+- (instancetype)init NS_UNAVAILABLE;
+
+- (instancetype)initWithHTTPResponse:(NSHTTPURLResponse *)HTTPResponse data:(nullable NSData *)data;
+
+@end
+
+NS_ASSUME_NONNULL_END

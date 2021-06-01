@@ -23,7 +23,6 @@
 #endif
 
 #import <GoogleUtilities/GULURLSessionDataResponse.h>
-#import <GoogleUtilities/NSURLSession+GULPromises.h>
 
 #import "FirebaseAppCheck/Sources/Core/APIService/FIRAppCheckAPIService.h"
 #import "FirebaseAppCheck/Sources/Core/APIService/FIRAppCheckToken+APIResponse.h"

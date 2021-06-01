@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,23 @@
  * limitations under the License.
  */
 
-#import "FIRAppCheck.h"
+#import <Foundation/Foundation.h>
+
 #import "FIRAppCheckProvider.h"
-#import "FIRAppCheckProviderFactory.h"
-#import "FIRAppCheckToken.h"
 
-// Debug provider
-#import "FIRAppCheckDebugProvider.h"
-#import "FIRAppCheckDebugProviderFactory.h"
+@class FIRApp;
 
-// DeviceCheck provider
-#import "FIRDeviceCheckProvider.h"
-#import "FIRDeviceCheckProviderFactory.h"
+NS_ASSUME_NONNULL_BEGIN
 
-// App Attest provider.
-#import "FIRAppAttestProvider.h"
+API_AVAILABLE(ios(14.0))
+API_UNAVAILABLE(macos, tvos, watchos)
+NS_SWIFT_NAME(AppAttestProvider)
+@interface FIRAppAttestProvider : NSObject <FIRAppCheckProvider>
+
+- (instancetype)init NS_UNAVAILABLE;
+
+- (nullable instancetype)initWithApp:(FIRApp *)app;
+
+@end
+
+NS_ASSUME_NONNULL_END

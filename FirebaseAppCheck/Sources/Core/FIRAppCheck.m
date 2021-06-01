@@ -70,6 +70,8 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 
 @property(nonatomic, readonly, nullable) id<FIRAppCheckTokenRefresherProtocol> tokenRefresher;
 
+@property(nonatomic, nullable) FBLPromise<FIRAppCheckToken *> *ongoingRetrieveOrRefreshTokenPromise;
+
 @end
 
 @implementation FIRAppCheck
@@ -101,7 +103,7 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
   id<FIRAppCheckProviderFactory> providerFactory = [FIRAppCheck providerFactory];
 
   if (providerFactory == nil) {
-    FIRLogError(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeUnknown,
+    FIRLogError(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeProviderFactoryIsMissing,
                 @"Cannot instantiate `FIRAppCheck` for app: %@ without a provider factory. "
                 @"Please register a provider factory using "
                 @"`AppCheck.setAppCheckProviderFactory(_ ,forAppName:)` method.",
@@ -111,7 +113,7 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 
   id<FIRAppCheckProvider> appCheckProvider = [providerFactory createProviderWithApp:app];
   if (appCheckProvider == nil) {
-    FIRLogError(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeUnknown,
+    FIRLogError(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeProviderIsMissing,
                 @"Cannot instantiate `FIRAppCheck` for app: %@ without an app check provider. "
                 @"Please make sure the provide factory returns a valid app check provider.",
                 app.name);
@@ -242,6 +244,28 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 #pragma mark - FAA token cache
 
 - (FBLPromise<FIRAppCheckToken *> *)retrieveOrRefreshTokenForcingRefresh:(BOOL)forcingRefresh {
+  return [FBLPromise do:^id _Nullable {
+    if (self.ongoingRetrieveOrRefreshTokenPromise == nil) {
+      // Kick off a new operation only when there is not an ongoing one.
+      self.ongoingRetrieveOrRefreshTokenPromise =
+          [self createRetrieveOrRefreshTokenPromiseForcingRefresh:forcingRefresh]
+
+              // Release the ongoing operation promise on completion.
+              .then(^FIRAppCheckToken *(FIRAppCheckToken *token) {
+                self.ongoingRetrieveOrRefreshTokenPromise = nil;
+                return token;
+              })
+              .recover(^NSError *(NSError *error) {
+                self.ongoingRetrieveOrRefreshTokenPromise = nil;
+                return error;
+              });
+    }
+    return self.ongoingRetrieveOrRefreshTokenPromise;
+  }];
+}
+
+- (FBLPromise<FIRAppCheckToken *> *)createRetrieveOrRefreshTokenPromiseForcingRefresh:
+    (BOOL)forcingRefresh {
   return [self getCachedValidTokenForcingRefresh:forcingRefresh].recover(
       ^id _Nullable(NSError *_Nonnull error) {
         return [self refreshToken];
