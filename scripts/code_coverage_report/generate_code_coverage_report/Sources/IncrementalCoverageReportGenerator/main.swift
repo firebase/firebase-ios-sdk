@@ -35,7 +35,7 @@ extension Constants {
 
 /// A JSON file from git_diff_to_json.sh will be decoded to the following instance.
 struct FileIncrementalChanges: Codable {
-  // File with newly added lines
+  // Name of a file with newly added lines
   let file: String
   // Indices of newly added lines in this file
   let addedLines: [Int]
