@@ -17,24 +17,14 @@
 import Foundation
 
 public enum JSONParser {
-  // Decode an instance from a JSON object.
-  public static func readJSON<T: Codable>(of _: T.Type, from data: Data) -> T? {
-    do {
-      let coverageReportSource = try JSONDecoder().decode(T.self, from: data)
-      return coverageReportSource
-    } catch {
-      print("Data for JSON are not able to be generated: \(error)\n")
-    }
-    return nil
-  }
 
   // Decode an instance from a JSON file.
-  public static func readJSON<T: Codable>(of dataStruct: T.Type, from path: String) -> T? {
+  public static func readJSON<T: Codable>(of dataStruct: T.Type, from path: String) throws -> T? {
     do {
       let fileURL = URL(fileURLWithPath: FileManager().currentDirectoryPath)
         .appendingPathComponent(path)
       let data = try Data(contentsOf: fileURL)
-      return readJSON(of: dataStruct, from: data)
+      return try JSONDecoder().decode(dataStruct, from: data)
     } catch {
       print("\(path) cannot be read: \(error)\n")
     }
