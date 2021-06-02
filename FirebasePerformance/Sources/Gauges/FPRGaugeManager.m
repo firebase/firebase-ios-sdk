@@ -183,7 +183,7 @@ NSInteger const kGaugeDataBatchSize = 25;
       if (dispatchGauges.count > 0 && sessionId != nil) {
         [[FPRClient sharedInstance] logGaugeMetric:dispatchGauges forSessionId:sessionId];
         FPRLogInfo(kFPRGaugeManagerDataCollected, @"Logging %lu gauge metrics.",
-                    (unsigned long)dispatchGauges.count);
+                   (unsigned long)dispatchGauges.count);
       }
     });
   });

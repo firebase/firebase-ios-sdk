@@ -180,20 +180,20 @@
       // Log the trace metric with its console URL.
       if ([trace.name hasPrefix:kFPRPrefixForScreenTraceName]) {
         FPRLogInfo(kFPRClientMetricLogged,
-                    @"Logging trace metric - %@ %.4fms. In a minute, visit the Firebase console to "
-                    @"view your data: %@",
-                    metric.traceMetric.name, metric.traceMetric.durationUs / 1000.0,
-                    [FPRConsoleURLGenerator generateScreenTraceURLWithProjectID:self.projectID
-                                                                       bundleID:self.bundleID
-                                                                      traceName:trace.name]);
+                   @"Logging trace metric - %@ %.4fms. In a minute, visit the Firebase console to "
+                   @"view your data: %@",
+                   metric.traceMetric.name, metric.traceMetric.durationUs / 1000.0,
+                   [FPRConsoleURLGenerator generateScreenTraceURLWithProjectID:self.projectID
+                                                                      bundleID:self.bundleID
+                                                                     traceName:trace.name]);
       } else {
         FPRLogInfo(kFPRClientMetricLogged,
-                    @"Logging trace metric - %@ %.4fms. In a minute, visit the Firebase console to "
-                    @"view your data: %@",
-                    metric.traceMetric.name, metric.traceMetric.durationUs / 1000.0,
-                    [FPRConsoleURLGenerator generateCustomTraceURLWithProjectID:self.projectID
-                                                                       bundleID:self.bundleID
-                                                                      traceName:trace.name]);
+                   @"Logging trace metric - %@ %.4fms. In a minute, visit the Firebase console to "
+                   @"view your data: %@",
+                   metric.traceMetric.name, metric.traceMetric.durationUs / 1000.0,
+                   [FPRConsoleURLGenerator generateCustomTraceURLWithProjectID:self.projectID
+                                                                      bundleID:self.bundleID
+                                                                     traceName:trace.name]);
       }
       [self processAndLogEvent:metric];
     });
@@ -219,8 +219,8 @@
                                    ? [@(networkRequestMetric.HTTPResponseCode) stringValue]
                                    : @"UNKNOWN";
       FPRLogInfo(kFPRClientMetricLogged,
-                  @"Logging network request trace - %@, Response code: %@, %.4fms",
-                  networkRequestMetric.URL, responseCode, duration / 1000.0);
+                 @"Logging network request trace - %@, Response code: %@, %.4fms",
+                 networkRequestMetric.URL, responseCode, duration / 1000.0);
       FPRMSGPerfMetric *metric = FPRGetPerfMetricMessage(self.config.appID);
       metric.networkRequestMetric = networkRequestMetric;
       metric.applicationInfo.applicationProcessState =
@@ -296,8 +296,8 @@
 
       if (directoryError) {
         FPRLogWarning(kFPRClientTempDirectory,
-                    @"Failed to delete the stale log directory at path: %@ with error: %@.",
-                    logDirectoryPath, directoryError);
+                      @"Failed to delete the stale log directory at path: %@ with error: %@.",
+                      logDirectoryPath, directoryError);
       }
     }
   }
