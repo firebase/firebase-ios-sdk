@@ -58,7 +58,6 @@
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::api::Firestore;
-using firebase::firestore::api::ListenerRegistration;
 using firebase::firestore::api::Query;
 using firebase::firestore::api::QueryListenerRegistration;
 using firebase::firestore::api::QuerySnapshot;

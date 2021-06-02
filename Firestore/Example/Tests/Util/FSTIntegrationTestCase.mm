@@ -52,17 +52,14 @@
 #include "Firestore/core/test/unit/testutil/status_testing.h"
 #include "absl/memory/memory.h"
 
-namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
 
 using firebase::firestore::auth::CredentialChangeListener;
-using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::local::LevelDbOpener;
 using firebase::firestore::model::DatabaseId;
-using firebase::firestore::remote::GrpcConnection;
 using firebase::firestore::remote::FirebaseMetadataProviderApple;
 using firebase::firestore::testutil::AppForUnitTesting;
 using firebase::firestore::testutil::AsyncQueueForTesting;
