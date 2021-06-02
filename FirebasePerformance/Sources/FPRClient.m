@@ -295,9 +295,9 @@
       [[NSFileManager defaultManager] removeItemAtPath:logDirectoryPath error:&directoryError];
 
       if (directoryError) {
-        FPRLogWarning(kFPRClientTempDirectory,
-                      @"Failed to delete the stale log directory at path: %@ with error: %@.",
-                      logDirectoryPath, directoryError);
+        FPRLogDebug(kFPRClientTempDirectory,
+                    @"Failed to delete the stale log directory at path: %@ with error: %@.",
+                    logDirectoryPath, directoryError);
       }
     }
   }

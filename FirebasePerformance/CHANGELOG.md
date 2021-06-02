@@ -1,4 +1,4 @@
-# Version 8.1.1
+# Version 8.2.0
 * Update log messages with proper log levels.
 
 # Version 8.1.0
