@@ -65,9 +65,9 @@ struct LineCoverage: Codable {
 }
 
 struct IncrementalCoverageReportGenerator: ParsableCommand {
-  @Option(help: "The root of the firebase-ios-sdk checked out git repo.", 
-          transform: URL.init(fileURLWithPath:)) 
-  var gitRoot: URL 
+  @Option(help: "The root of the firebase-ios-sdk checked out git repo.",
+          transform: URL.init(fileURLWithPath:))
+  var gitRoot: URL
 
   @Option(
     help: "Root path of archived files in a xcresult bundle."
@@ -75,7 +75,7 @@ struct IncrementalCoverageReportGenerator: ParsableCommand {
   var fileArchiveRootPath: String
 
   @Option(help: "A dir of xcresult bundles.",
-          transform: URL.init(fileURLWithPath:)) 
+          transform: URL.init(fileURLWithPath:))
   var xcresultDir: URL
 
   @Option(
@@ -100,24 +100,24 @@ struct IncrementalCoverageReportGenerator: ParsableCommand {
     // Unexecutable lines, e.g. comments, will be nil here.
     var lineExecutionCounts: [Int?] = []
     do {
-        let inString = try String(contentsOf: coverageFileURL)
-        let lineCoverageRegex = try! NSRegularExpression(pattern: Constants
-          .lineExecutionCountPattern)
-        for line in inString.components(separatedBy: "\n") {
-          let range = NSRange(location: 0, length: line.utf16.count)
-          if let match = lineCoverageRegex.firstMatch(in: line, options: [], range: range) {
-            // Get the execution counts and append. Line indices are
-            // consecutive and so the array will have counts for each line
-            // and nil for unexecutable lines, e.g. comments.
-            let nsRange = match.range(at: Constants.lineExecutionCountPatternGroup)
-            if let range = Range(nsRange, in: line) {
-              lineExecutionCounts.append(Int(line[range]))
-            }
+      let inString = try String(contentsOf: coverageFileURL)
+      let lineCoverageRegex = try! NSRegularExpression(pattern: Constants
+        .lineExecutionCountPattern)
+      for line in inString.components(separatedBy: "\n") {
+        let range = NSRange(location: 0, length: line.utf16.count)
+        if let match = lineCoverageRegex.firstMatch(in: line, options: [], range: range) {
+          // Get the execution counts and append. Line indices are
+          // consecutive and so the array will have counts for each line
+          // and nil for unexecutable lines, e.g. comments.
+          let nsRange = match.range(at: Constants.lineExecutionCountPatternGroup)
+          if let range = Range(nsRange, in: line) {
+            lineExecutionCounts.append(Int(line[range]))
           }
         }
+      }
     } catch {
-        fatalError("Failed to open \(coverageFileURL): \(error)")
-    } 
+      fatalError("Failed to open \(coverageFileURL): \(error)")
+    }
     if var coverageData = lineCoverage {
       coverageData
         .append(LineCoverage(fileName: changedFile, coverage: lineExecutionCounts,
@@ -132,8 +132,8 @@ struct IncrementalCoverageReportGenerator: ParsableCommand {
   /// This function is to get union of newly added file lines and lines execution counts, from a xcresult bundle.
   /// Return an array of LineCoverage, which includes uncovered line indices of a file and its xcresult bundle source.
   func getUncoveredFileLines(fromDiff changedFiles: [FileIncrementalChanges],
-                                xcresultPath: String,
-                                archiveRootPath rootPath: String) -> [LineCoverage?] {
+                             xcresultPath: String,
+                             archiveRootPath rootPath: String) -> [LineCoverage?] {
     var uncoveredFiles: [LineCoverage?] = []
     for change in changedFiles {
       let archiveFilePath = URL(string: rootPath)!.appendingPathComponent(change.file)

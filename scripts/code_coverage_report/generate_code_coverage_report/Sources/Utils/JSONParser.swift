@@ -17,7 +17,6 @@
 import Foundation
 
 public enum JSONParser {
-
   // Decode an instance from a JSON file.
   public static func readJSON<T: Codable>(of dataStruct: T.Type, from path: String) throws -> T? {
     do {
