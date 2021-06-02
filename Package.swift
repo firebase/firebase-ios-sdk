@@ -966,6 +966,7 @@ let package = Package(
 
         // Disable Keychain dependent tests as they require a host application on iOS.
         "Integration",
+        "Unit/AppAttestProvider/Storage/FIRAppAttestArtifactStorageTests.m",
         "Unit/Core/FIRAppCheckIntegrationTests.m",
         "Unit/Core/FIRAppCheckStorageTests.m",
       ],
