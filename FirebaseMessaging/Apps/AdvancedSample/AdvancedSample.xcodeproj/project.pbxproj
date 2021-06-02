@@ -38,7 +38,7 @@
 		51A1F3C625883EF60025932B /* Identity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51A1F3C525883EF60025932B /* Identity.swift */; };
 		51A1F3CA25883EFF0025932B /* UserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51A1F3C825883EFF0025932B /* UserSettings.swift */; };
 		51A1F3CB25883EFF0025932B /* TopicView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51A1F3C925883EFF0025932B /* TopicView.swift */; };
-		51AFEE5825D5E7FF0016E225 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 51AFEE5725D5E7FF0016E225 /* GoogleService-Info.plist */; };
+		51C21D212667FBCE0079AEEE /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 51C21D202667FBCE0079AEEE /* GoogleService-Info.plist */; };
 		51C24C622589603800236F25 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 51C24C602589603800236F25 /* LaunchScreen.storyboard */; };
 		51C24C652589606B00236F25 /* logo.png in Resources */ = {isa = PBXBuildFile; fileRef = 51C24C642589606B00236F25 /* logo.png */; };
 /* End PBXBuildFile section */
@@ -157,7 +157,7 @@
 		51A1F3C525883EF60025932B /* Identity.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Identity.swift; path = ../../Shared/Identity.swift; sourceTree = "<group>"; };
 		51A1F3C825883EFF0025932B /* UserSettings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = UserSettings.swift; path = ../../Shared/UserSettings.swift; sourceTree = "<group>"; };
 		51A1F3C925883EFF0025932B /* TopicView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TopicView.swift; path = ../../Shared/TopicView.swift; sourceTree = "<group>"; };
-		51AFEE5725D5E7FF0016E225 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		51C21D202667FBCE0079AEEE /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../Shared/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		51C24C612589603800236F25 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = ../../Shared/Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		51C24C642589606B00236F25 /* logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = logo.png; path = ../../Shared/logo.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -221,7 +221,6 @@
 			isa = PBXGroup;
 			children = (
 				51944B27258B091A00297021 /* GoogleService-Info.plist */,
-				51AFEE5725D5E7FF0016E225 /* GoogleService-Info.plist */,
 				5194490D258AF0B200297021 /* Assets.xcassets */,
 				51944912258AF0B200297021 /* LaunchScreen.storyboard */,
 				51944915258AF0B200297021 /* Info.plist */,
@@ -301,6 +300,7 @@
 		51A1F39A25883DCE0025932B /* AdvancedSample */ = {
 			isa = PBXGroup;
 			children = (
+				51C21D202667FBCE0079AEEE /* GoogleService-Info.plist */,
 				519448DE2589900400297021 /* AdvancedSample.entitlements */,
 				51C24C642589606B00236F25 /* logo.png */,
 				51C24C602589603800236F25 /* LaunchScreen.storyboard */,
@@ -509,7 +509,6 @@
 			files = (
 				51944914258AF0B200297021 /* LaunchScreen.storyboard in Resources */,
 				51944B28258B091A00297021 /* GoogleService-Info.plist in Resources */,
-				51AFEE5825D5E7FF0016E225 /* GoogleService-Info.plist in Resources */,
 				51944911258AF0B200297021 /* Preview Assets.xcassets in Resources */,
 				5194490E258AF0B200297021 /* Assets.xcassets in Resources */,
 			);
@@ -546,6 +545,7 @@
 			files = (
 				51C24C652589606B00236F25 /* logo.png in Resources */,
 				51C24C622589603800236F25 /* LaunchScreen.storyboard in Resources */,
+				51C21D212667FBCE0079AEEE /* GoogleService-Info.plist in Resources */,
 				51A1F3A525883DCF0025932B /* Preview Assets.xcassets in Resources */,
 				51944B9D258B136000297021 /* Assets.xcassets in Resources */,
 			);
