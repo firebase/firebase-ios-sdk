@@ -16,9 +16,9 @@
 
 #import <XCTest/XCTest.h>
 
+#import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"
 #import "FirebaseAppCheck/Sources/Core/Storage/FIRAppCheckStoredToken+FIRAppCheckToken.h"
 #import "FirebaseAppCheck/Sources/Core/Storage/FIRAppCheckStoredToken.h"
-#import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"
 
 #import <GoogleUtilities/GULSecureCoding.h>
 
@@ -53,7 +53,8 @@
 
 - (void)testConvertingToAndFromFIRAppCheckToken {
   FIRAppCheckToken *originalToken = [[FIRAppCheckToken alloc] initWithToken:@"___"
-                                                             expirationDate:[NSDate date]];
+                                                             expirationDate:[NSDate date]
+                                                             receivedAtDate:[NSDate date]];
 
   FIRAppCheckStoredToken *storedToken = [[FIRAppCheckStoredToken alloc] init];
   [storedToken updateWithToken:originalToken];

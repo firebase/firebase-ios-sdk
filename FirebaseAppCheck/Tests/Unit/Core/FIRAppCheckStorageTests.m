@@ -21,7 +21,7 @@
 #import <OCMock/OCMock.h>
 #import "FBLPromise+Testing.h"
 
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"
+#import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"
 
 @interface FIRAppCheckStorageTests : XCTestCase
 @property(nonatomic) NSString *appName;
@@ -47,7 +47,8 @@
 
 - (void)testSetAndGetToken {
   FIRAppCheckToken *tokenToStore = [[FIRAppCheckToken alloc] initWithToken:@"token"
-                                                            expirationDate:[NSDate distantPast]];
+                                                            expirationDate:[NSDate distantPast]
+                                                            receivedAtDate:[NSDate date]];
 
   FBLPromise *setPromise = [self.storage setToken:tokenToStore];
   XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
@@ -58,6 +59,7 @@
   XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
   XCTAssertEqualObjects(getPromise.value.token, tokenToStore.token);
   XCTAssertEqualObjects(getPromise.value.expirationDate, tokenToStore.expirationDate);
+  XCTAssertEqualObjects(getPromise.value.receivedAtDate, tokenToStore.receivedAtDate);
   XCTAssertNil(getPromise.error);
 }
 
@@ -76,7 +78,8 @@
 - (void)testSetTokenPerApp {
   // 1. Set token with a storage.
   FIRAppCheckToken *tokenToStore = [[FIRAppCheckToken alloc] initWithToken:@"token"
-                                                            expirationDate:[NSDate distantPast]];
+                                                            expirationDate:[NSDate distantPast]
+                                                            receivedAtDate:[NSDate date]];
 
   FBLPromise *setPromise = [self.storage setToken:tokenToStore];
   XCTAssert(FBLWaitForPromisesWithTimeout(0.5));

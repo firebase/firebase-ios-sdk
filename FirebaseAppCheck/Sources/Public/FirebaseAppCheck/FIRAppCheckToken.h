@@ -33,8 +33,7 @@ NS_SWIFT_NAME(AppCheckToken)
 /// The default initializer.
 /// @param token A Firebase App Check token.
 /// @param expirationDate A Firebase App Check token expiration date in the device local time.
-- (instancetype)initWithToken:(NSString *)token
-               expirationDate:(NSDate *)expirationDate;
+- (instancetype)initWithToken:(NSString *)token expirationDate:(NSDate *)expirationDate;
 
 @end
 

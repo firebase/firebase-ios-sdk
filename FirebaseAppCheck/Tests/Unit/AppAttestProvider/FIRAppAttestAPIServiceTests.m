@@ -26,7 +26,7 @@
 #import "FirebaseAppCheck/Sources/Core/APIService/FIRAppCheckAPIService.h"
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckHTTPError.h"
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"
+#import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"
 
 #import "FirebaseAppCheck/Tests/Unit/Utils/FIRFixtureLoader.h"
 #import "SharedTestUtilities/Date/FIRDateTestUtils.h"
@@ -224,7 +224,8 @@
                                     error:nil];
   // 2.2. Return token from parsed response.
   FIRAppCheckToken *expectedToken = [[FIRAppCheckToken alloc] initWithToken:@"app_check_token"
-                                                             expirationDate:[NSDate date]];
+                                                             expirationDate:[NSDate date]
+                                                             receivedAtDate:[NSDate date]];
   [self expectTokenWithAPIReponse:validAPIResponse toReturnToken:expectedToken];
 
   // 3. Send request.
@@ -240,6 +241,7 @@
   XCTAssertEqualObjects(promise.value, expectedToken);
   XCTAssertEqualObjects(promise.value.token, expectedToken.token);
   XCTAssertEqualObjects(promise.value.expirationDate, expectedToken.expirationDate);
+  XCTAssertEqualObjects(promise.value.receivedAtDate, expectedToken.receivedAtDate);
 
   OCMVerifyAll(self.mockAPIService);
 }

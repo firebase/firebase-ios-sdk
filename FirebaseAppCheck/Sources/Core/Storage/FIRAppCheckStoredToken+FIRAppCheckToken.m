@@ -27,7 +27,9 @@
 }
 
 - (FIRAppCheckToken *)appCheckToken {
-  return [[FIRAppCheckToken alloc] initWithToken:self.token expirationDate:self.expirationDate receivedAtDate:self.receivedAtDate];
+  return [[FIRAppCheckToken alloc] initWithToken:self.token
+                                  expirationDate:self.expirationDate
+                                  receivedAtDate:self.receivedAtDate];
 }
 
 @end

@@ -19,9 +19,9 @@
 #import <OCMock/OCMock.h>
 #import "FBLPromise+Testing.h"
 
+#import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"
 #import "FirebaseAppCheck/Sources/DebugProvider/API/FIRAppCheckDebugProviderAPIService.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckDebugProvider.h"
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
@@ -130,7 +130,8 @@ typedef void (^FIRAppCheckTokenValidationBlock)(FIRAppCheckToken *_Nullable toke
   // 1. Stub API service.
   NSString *expectedDebugToken = [self.provider currentDebugToken];
   FIRAppCheckToken *validToken = [[FIRAppCheckToken alloc] initWithToken:@"valid_token"
-                                                          expirationDate:[NSDate date]];
+                                                          expirationDate:[NSDate date]
+                                                          receivedAtDate:[NSDate date]];
   OCMExpect([self.fakeAPIService appCheckTokenWithDebugToken:expectedDebugToken])
       .andReturn([FBLPromise resolvedWith:validToken]);
 
@@ -139,6 +140,7 @@ typedef void (^FIRAppCheckTokenValidationBlock)(FIRAppCheckToken *_Nullable toke
     XCTAssertNil(error);
     XCTAssertEqualObjects(token.token, validToken.token);
     XCTAssertEqualObjects(token.expirationDate, validToken.expirationDate);
+    XCTAssertEqualObjects(token.receivedAtDate, validToken.receivedAtDate);
   }];
 
   // 3. Verify fakes.
