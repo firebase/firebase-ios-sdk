@@ -27,7 +27,7 @@ extension Constants {
   // The pattern is to match text "line_index: execution_counts" from the
   // outcome of xcresult bundle, e.g. "305 : 0".
   static let lineExecutionCountPattern = "[0-9]+\\s*:\\s*([0-9*]+)"
-  // Pattern match to the first group, i.e "([0-9*]+)".
+  // Match to the group of the lineExecutionCountPattern, i.e "([0-9*]+)".
   static let lineExecutionCountPatternGroup = 1
   // A file includes all newly added lines without tests covered.
   static let defaultUncoveredLineReportFileName = "uncovered_file_lines.json"
