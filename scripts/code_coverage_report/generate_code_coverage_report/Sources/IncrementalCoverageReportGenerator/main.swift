@@ -133,17 +133,16 @@ struct IncrementalCoverageReportGenerator: ParsableCommand {
   /// Return an array of LineCoverage, which includes uncovered line indices of a file and its xcresult bundle source.
   func getUncoveredFileLines(fromDiff changedFiles: [FileIncrementalChanges],
                              xcresultPath: String,
-                             archiveRootPath rootPath: String) -> [LineCoverage?] {
-    var uncoveredFiles: [LineCoverage?] = []
+                             archiveRootPath rootPath: String) -> [LineCoverage] {
+    var uncoveredFiles: [LineCoverage] = []
     for change in changedFiles {
       let archiveFilePath = URL(string: rootPath)!.appendingPathComponent(change.file)
-      print(archiveFilePath.absoluteString)
       // tempOutputFile is a temp file, with the xcresult bundle name, including line execution counts of a file
       let tempOutputFile = URL(fileURLWithPath: xcresultPath).deletingPathExtension()
       // Fetch line execution report of a file from a xcresult bundle into a temp file, which has the same name as the xcresult bundle.
       Shell.run(
         "\(Constants.xcovCommand) \(archiveFilePath.absoluteString) \(xcresultPath) > \(tempOutputFile.path)",
-        displayCommand: false,
+        displayCommand: true,
         displayFailureResult: false
       )
       for coverageFile in createLineCoverageRecord(
@@ -159,7 +158,6 @@ struct IncrementalCoverageReportGenerator: ParsableCommand {
           if addedLineIndex < coverageFile.coverage.count {
             if let testCoverRun = coverageFile.coverage[addedLineIndex] {
               if testCoverRun == 0 { uncoveredLine.coverage.append(addedLineIndex) }
-              print("\(addedLineIndex) : \(testCoverRun)")
             }
           }
         }
@@ -171,7 +169,7 @@ struct IncrementalCoverageReportGenerator: ParsableCommand {
 
   func run() throws {
     let enumerator = FileManager.default.enumerator(atPath: xcresultDir.path)
-    var uncoveredFiles: [LineCoverage?] = []
+    var uncoveredFiles: [LineCoverage] = []
     // Search xcresult bundles from xcresultDir and get union of `git diff` report and xccov output to generate a list of lineCoverage including files and their uncovered lines.
     while let file = enumerator?.nextObject() as? String {
       var isDir: ObjCBool = false
