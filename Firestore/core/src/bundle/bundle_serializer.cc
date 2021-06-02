@@ -52,9 +52,7 @@ using core::FilterList;
 using core::LimitType;
 using core::OrderBy;
 using core::OrderByList;
-using core::Query;
 using core::Target;
-using immutable::AppendOnlyList;
 using model::Document;
 using model::DocumentKey;
 using model::FieldPath;
@@ -63,9 +61,7 @@ using model::ObjectValue;
 using model::ResourcePath;
 using model::SnapshotVersion;
 using nanopb::ByteString;
-using nanopb::Reader;
 using nlohmann::json;
-using util::ReadContext;
 using util::StatusOr;
 
 template <typename T>

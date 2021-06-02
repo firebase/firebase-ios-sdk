@@ -28,7 +28,6 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-using nanopb::ByteString;
 using nanopb::ByteStringWriter;
 using util::Status;
 

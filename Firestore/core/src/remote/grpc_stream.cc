@@ -82,7 +82,6 @@ absl::optional<BufferedWrite> BufferedWriter::DequeueNextWrite() {
 }  // namespace internal
 
 using internal::BufferedWrite;
-using internal::BufferedWriter;
 
 GrpcStream::GrpcStream(
     std::unique_ptr<grpc::ClientContext> context,
