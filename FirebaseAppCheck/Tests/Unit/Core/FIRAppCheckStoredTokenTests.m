@@ -18,7 +18,7 @@
 
 #import "FirebaseAppCheck/Sources/Core/Storage/FIRAppCheckStoredToken+FIRAppCheckToken.h"
 #import "FirebaseAppCheck/Sources/Core/Storage/FIRAppCheckStoredToken.h"
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"
+#import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"
 
 #import <GoogleUtilities/GULSecureCoding.h>
 
@@ -32,6 +32,7 @@
   FIRAppCheckStoredToken *tokenToArchive = [[FIRAppCheckStoredToken alloc] init];
   tokenToArchive.token = @"some_token";
   tokenToArchive.expirationDate = [NSDate date];
+  tokenToArchive.receivedAtDate = [tokenToArchive.expirationDate dateByAddingTimeInterval:-10];
 
   NSError *error;
   NSData *archivedToken = [GULSecureCoding archivedDataWithRootObject:tokenToArchive error:&error];
@@ -46,6 +47,7 @@
   XCTAssertNil(error);
   XCTAssertEqualObjects(unarchivedToken.token, tokenToArchive.token);
   XCTAssertEqualObjects(unarchivedToken.expirationDate, tokenToArchive.expirationDate);
+  XCTAssertEqualObjects(unarchivedToken.receivedAtDate, tokenToArchive.receivedAtDate);
   XCTAssertEqual(unarchivedToken.storageVersion, tokenToArchive.storageVersion);
 }
 
@@ -57,10 +59,12 @@
   [storedToken updateWithToken:originalToken];
   XCTAssertEqualObjects(originalToken.token, storedToken.token);
   XCTAssertEqualObjects(originalToken.expirationDate, storedToken.expirationDate);
+  XCTAssertEqualObjects(originalToken.receivedAtDate, storedToken.receivedAtDate);
 
   FIRAppCheckToken *recoveredToken = [storedToken appCheckToken];
   XCTAssertEqualObjects(recoveredToken.token, storedToken.token);
   XCTAssertEqualObjects(recoveredToken.expirationDate, storedToken.expirationDate);
+  XCTAssertEqualObjects(recoveredToken.receivedAtDate, storedToken.receivedAtDate);
 }
 
 @end
