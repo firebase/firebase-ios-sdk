@@ -91,7 +91,7 @@ NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
 
   NSString *trimmedURLString = [FPRNetworkTrace stringByTrimmingURLString:URLRequest];
   if (!trimmedURLString || trimmedURLString.length <= 0) {
-    FPRLogInfo(kFPRNetworkTraceURLLengthExceeds, @"URL length outside limits, returning nil.");
+    FPRLogWarning(kFPRNetworkTraceURLLengthExceeds, @"URL length outside limits, returning nil.");
     return nil;
   }
 

@@ -179,7 +179,7 @@
 
       // Log the trace metric with its console URL.
       if ([trace.name hasPrefix:kFPRPrefixForScreenTraceName]) {
-        FPRLogDebug(kFPRClientMetricLogged,
+        FPRLogInfo(kFPRClientMetricLogged,
                     @"Logging trace metric - %@ %.4fms. In a minute, visit the Firebase console to "
                     @"view your data: %@",
                     metric.traceMetric.name, metric.traceMetric.durationUs / 1000.0,
@@ -187,7 +187,7 @@
                                                                        bundleID:self.bundleID
                                                                       traceName:trace.name]);
       } else {
-        FPRLogDebug(kFPRClientMetricLogged,
+        FPRLogInfo(kFPRClientMetricLogged,
                     @"Logging trace metric - %@ %.4fms. In a minute, visit the Firebase console to "
                     @"view your data: %@",
                     metric.traceMetric.name, metric.traceMetric.durationUs / 1000.0,
@@ -218,7 +218,7 @@
       NSString *responseCode = networkRequestMetric.hasHTTPResponseCode
                                    ? [@(networkRequestMetric.HTTPResponseCode) stringValue]
                                    : @"UNKNOWN";
-      FPRLogDebug(kFPRClientMetricLogged,
+      FPRLogInfo(kFPRClientMetricLogged,
                   @"Logging network request trace - %@, Response code: %@, %.4fms",
                   networkRequestMetric.URL, responseCode, duration / 1000.0);
       FPRMSGPerfMetric *metric = FPRGetPerfMetricMessage(self.config.appID);
@@ -295,7 +295,7 @@
       [[NSFileManager defaultManager] removeItemAtPath:logDirectoryPath error:&directoryError];
 
       if (directoryError) {
-        FPRLogDebug(kFPRClientTempDirectory,
+        FPRLogWarning(kFPRClientTempDirectory,
                     @"Failed to delete the stale log directory at path: %@ with error: %@.",
                     logDirectoryPath, directoryError);
       }
