@@ -199,11 +199,12 @@ inline Status::Status(const Status& s)
                                  : State::MakePtr(*s.state_)} {
 }
 
-inline Status::State::State(const State& s)
-    : code(s.code),
-      msg(s.msg),
-      platform_error((s.platform_error == nullptr) ? nullptr
-                                                   : s.platform_error->Copy()) {
+inline Status::State::State(const State& other)
+    : code(other.code),
+      msg(other.msg),
+      platform_error((other.platform_error == nullptr)
+                         ? nullptr
+                         : other.platform_error->Copy()) {
 }
 
 inline Status::State::State(Error code, std::string&& msg)
