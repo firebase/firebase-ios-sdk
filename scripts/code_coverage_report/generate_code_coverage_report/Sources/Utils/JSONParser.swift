@@ -19,13 +19,9 @@ import Foundation
 public enum JSONParser {
   // Decode an instance from a JSON file.
   public static func readJSON<T: Codable>(of dataStruct: T.Type, from path: String) throws -> T {
-    do {
-      let fileURL = URL(fileURLWithPath: FileManager().currentDirectoryPath)
-        .appendingPathComponent(path)
-      let data = try Data(contentsOf: fileURL)
-      return try JSONDecoder().decode(dataStruct, from: data)
-    } catch {
-      fatalError("\(path) cannot be read: \(error)\n")
-    }
+    let fileURL = URL(fileURLWithPath: FileManager().currentDirectoryPath)
+      .appendingPathComponent(path)
+    let data = try Data(contentsOf: fileURL)
+    return try JSONDecoder().decode(dataStruct, from: data)
   }
 }
