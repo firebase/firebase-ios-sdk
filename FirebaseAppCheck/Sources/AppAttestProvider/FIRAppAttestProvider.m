@@ -132,7 +132,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (nullable instancetype)initWithApp:(FIRApp *)app {
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST  // Catalyst should be possible with Xcode 12.5+
   NSURLSession *URLSession = [NSURLSession
       sessionWithConfiguration:[NSURLSessionConfiguration ephemeralSessionConfiguration]];
 
@@ -159,9 +159,9 @@ NS_ASSUME_NONNULL_BEGIN
                              APIService:appAttestAPIService
                            keyIDStorage:keyIDStorage
                         artifactStorage:artifactStorage];
-#else   // TARGET_OS_IOS
+#else   // TARGET_OS_IOS && !TARGET_OS_MACCATALYST
   return nil;
-#endif  // TARGET_OS_IOS
+#endif  // TARGET_OS_IOS && !TARGET_OS_MACCATALYST
 }
 
 #pragma mark - FIRAppCheckProvider

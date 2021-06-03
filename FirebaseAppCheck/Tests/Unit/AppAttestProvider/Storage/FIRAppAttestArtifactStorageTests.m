@@ -46,6 +46,8 @@
   [super tearDown];
 }
 
+#if !TARGET_OS_MACCATALYST  // Catalyst should be possible with Xcode 12.5+
+
 - (void)testSetAndGetArtifact {
   [self assertSetGetForStorage];
 }
@@ -185,5 +187,6 @@
   [storage2 setArtifact:nil forKey:keyID];
   XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 }
+#endif  // !TARGET_OS_MACCATALYST
 
 @end

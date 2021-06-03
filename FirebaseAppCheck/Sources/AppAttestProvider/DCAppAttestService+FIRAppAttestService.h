@@ -15,7 +15,7 @@
  */
 
 // Currently DCAppAttestService is available on iOS only.
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST  // Catalyst should be possible with Xcode 12.5+
 
 #import <DeviceCheck/DeviceCheck.h>
 
@@ -31,4 +31,4 @@ API_UNAVAILABLE(macos, tvos, watchos)
 
 NS_ASSUME_NONNULL_END
 
-#endif  // TARGET_OS_IOS
+#endif  // TARGET_OS_IOS && !TARGET_OS_MACCATALYST
