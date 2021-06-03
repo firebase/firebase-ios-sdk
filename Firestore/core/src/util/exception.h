@@ -68,7 +68,7 @@ using ThrowHandler = void (*)(ExceptionType type,
  * the C++ core as their implementation and would otherwise be expected to throw
  * a platform specific exception.
  *
- * @param callback A function that will handle the exception. This function is
+ * @param handler A function that will handle the exception. This function is
  *     expected not to return. (If it does, std::terminate() will be called
  *     immediately after it does so.)
  * @return A pointer to the previous failure handler.
