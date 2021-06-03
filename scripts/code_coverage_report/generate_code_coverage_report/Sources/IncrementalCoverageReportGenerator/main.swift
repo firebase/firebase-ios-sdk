@@ -71,7 +71,7 @@ struct IncrementalCoverageReportGenerator: ParsableCommand {
     A JSON file with changed files and added line numbers. E.g. JSON file:
     '[{"file": "FirebaseDatabase/Sources/Api/FIRDataSnapshot.m", "added_lines": [105,106,107,108,109]},{"file": "FirebaseDatabase/Sources/Core/Utilities/FPath.m", "added_lines": [304,305,306,307,308,309]}]'
     """,
-    transform: {try JSONParser.readJSON(of: [FileIncrementalChanges].self, from: $0)}
+    transform: { try JSONParser.readJSON(of: [FileIncrementalChanges].self, from: $0) }
   )
   var changedFiles: [FileIncrementalChanges]
 
@@ -146,7 +146,8 @@ struct IncrementalCoverageReportGenerator: ParsableCommand {
           // `xccov` report will not involve unexecutable lines which are at
           // the end of the file. That means if the last couple lines are
           // comments, these lines will not be in the `coverageFile.coverage`.
-          if addedLineIndex < coverageFile.coverage.count, let testCoverRun = coverageFile.coverage[addedLineIndex], testCoverRun == 0 {
+          if addedLineIndex < coverageFile.coverage.count,
+            let testCoverRun = coverageFile.coverage[addedLineIndex], testCoverRun == 0 {
             uncoveredLine.coverage.append(addedLineIndex)
           }
         }
