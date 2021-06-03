@@ -24,6 +24,12 @@
 namespace firebase {
 namespace firestore {
 
+using nanopb::PrintEnumField;
+using nanopb::PrintHeader;
+using nanopb::PrintMessageField;
+using nanopb::PrintPrimitiveField;
+using nanopb::PrintTail;
+
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
 #error Regenerate this file with the current version of nanopb generator.

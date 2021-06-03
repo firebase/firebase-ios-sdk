@@ -55,7 +55,7 @@
 #include "Firestore/core/src/util/statusor.h"
 #include "Firestore/core/src/util/string_apple.h"
 #include "absl/memory/memory.h"
-#include "absl/strings/str_split.h"
+#include "absl/strings/match.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::api::Firestore;

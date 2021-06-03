@@ -24,7 +24,9 @@
 namespace firebase {
 namespace firestore {
 
+using nanopb::PrintEnumField;
 using nanopb::PrintHeader;
+using nanopb::PrintMessageField;
 using nanopb::PrintPrimitiveField;
 using nanopb::PrintTail;
 
