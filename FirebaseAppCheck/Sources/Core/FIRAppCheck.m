@@ -125,7 +125,7 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
                                    userDefault:[NSUserDefaults standardUserDefaults]
                                     mainBundle:[NSBundle mainBundle]];
   FIRAppCheckTokenRefresher *tokenRefresher =
-      [[FIRAppCheckTokenRefresher alloc] initWithTokenExpirationDate:[NSDate date]
+      [[FIRAppCheckTokenRefresher alloc] initWithRefreshResult:[NSDate date]
                                             tokenExpirationThreshold:kTokenExpirationThreshold
                                                             settings:settings];
 
