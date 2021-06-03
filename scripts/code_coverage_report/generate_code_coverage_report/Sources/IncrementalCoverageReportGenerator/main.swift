@@ -45,14 +45,6 @@ struct FileIncrementalChanges: Codable {
   }
 }
 
-extension FileIncrementalChanges {
-  static func dataModel(_ filePath: String) throws -> [FileIncrementalChanges] {
-    guard let data = try JSONParser.readJSON(of: [FileIncrementalChanges].self, from: filePath)
-    else { throw ValidationError("Badly data transform.") }
-    return data
-  }
-}
-
 /// `xccov` outcomes of a file from a xcresult bundle will be transfered
 /// to the following instance.
 struct LineCoverage: Codable {
@@ -61,14 +53,10 @@ struct LineCoverage: Codable {
   // the (line indices - 1) of this  file.
   var coverage: [Int?]
   // The source/xcresult bundle of the coverage
-  var xcresultBundle: String
+  var xcresultBundle: URL
 }
 
 struct IncrementalCoverageReportGenerator: ParsableCommand {
-  @Option(help: "The root of the firebase-ios-sdk checked out git repo.",
-          transform: URL.init(fileURLWithPath:))
-  var gitRoot: URL
-
   @Option(
     help: "Root path of archived files in a xcresult bundle."
   )
@@ -83,7 +71,7 @@ struct IncrementalCoverageReportGenerator: ParsableCommand {
     A JSON file with changed files and added line numbers. E.g. JSON file:
     '[{"file": "FirebaseDatabase/Sources/Api/FIRDataSnapshot.m", "added_lines": [105,106,107,108,109]},{"file": "FirebaseDatabase/Sources/Core/Utilities/FPath.m", "added_lines": [304,305,306,307,308,309]}]'
     """,
-    transform: FileIncrementalChanges.dataModel
+    transform: {try JSONParser.readJSON(of: [FileIncrementalChanges].self, from: $0)}
   )
   var changedFiles: [FileIncrementalChanges]
 
@@ -94,13 +82,13 @@ struct IncrementalCoverageReportGenerator: ParsableCommand {
 
   /// This will transfer line executions report from a xcresult bundle to an array of LineCoverage.
   /// The output will have the file name, line execution counts and the xcresult bundle name.
-  func createLineCoverageRecord(from coverageFileURL: URL, changedFile: String,
+  func createLineCoverageRecord(from coverageFile: URL, changedFile: String,
                                 lineCoverage: [LineCoverage]? = nil) -> [LineCoverage] {
     // The indices of the array represent the (line index - 1), while the value is the execution counts.
     // Unexecutable lines, e.g. comments, will be nil here.
     var lineExecutionCounts: [Int?] = []
     do {
-      let inString = try String(contentsOf: coverageFileURL)
+      let inString = try String(contentsOf: coverageFile)
       let lineCoverageRegex = try! NSRegularExpression(pattern: Constants
         .lineExecutionCountPattern)
       for line in inString.components(separatedBy: "\n") {
@@ -116,32 +104,32 @@ struct IncrementalCoverageReportGenerator: ParsableCommand {
         }
       }
     } catch {
-      fatalError("Failed to open \(coverageFileURL): \(error)")
+      fatalError("Failed to open \(coverageFile): \(error)")
     }
     if var coverageData = lineCoverage {
       coverageData
         .append(LineCoverage(fileName: changedFile, coverage: lineExecutionCounts,
-                             xcresultBundle: coverageFileURL.path))
+                             xcresultBundle: coverageFile))
       return coverageData
     } else {
       return [LineCoverage(fileName: changedFile, coverage: lineExecutionCounts,
-                           xcresultBundle: coverageFileURL.path)]
+                           xcresultBundle: coverageFile)]
     }
   }
 
   /// This function is to get union of newly added file lines and lines execution counts, from a xcresult bundle.
   /// Return an array of LineCoverage, which includes uncovered line indices of a file and its xcresult bundle source.
   func getUncoveredFileLines(fromDiff changedFiles: [FileIncrementalChanges],
-                             xcresultPath: String,
+                             xcresultFile: URL,
                              archiveRootPath rootPath: String) -> [LineCoverage] {
     var uncoveredFiles: [LineCoverage] = []
     for change in changedFiles {
       let archiveFilePath = URL(string: rootPath)!.appendingPathComponent(change.file)
       // tempOutputFile is a temp file, with the xcresult bundle name, including line execution counts of a file
-      let tempOutputFile = URL(fileURLWithPath: xcresultPath).deletingPathExtension()
+      let tempOutputFile = xcresultFile.deletingPathExtension()
       // Fetch line execution report of a file from a xcresult bundle into a temp file, which has the same name as the xcresult bundle.
       Shell.run(
-        "\(Constants.xcovCommand) \(archiveFilePath.absoluteString) \(xcresultPath) > \(tempOutputFile.path)",
+        "\(Constants.xcovCommand) \(archiveFilePath.absoluteString) \(xcresultFile.path) > \(tempOutputFile.path)",
         displayCommand: true,
         displayFailureResult: false
       )
@@ -156,8 +144,8 @@ struct IncrementalCoverageReportGenerator: ParsableCommand {
         )
         for addedLineIndex in change.addedLines {
           if addedLineIndex < coverageFile.coverage.count {
-            if let testCoverRun = coverageFile.coverage[addedLineIndex] {
-              if testCoverRun == 0 { uncoveredLine.coverage.append(addedLineIndex) }
+            if let testCoverRun = coverageFile.coverage[addedLineIndex], testCoverRun == 0 {
+              uncoveredLine.coverage.append(addedLineIndex)
             }
           }
         }
@@ -173,12 +161,12 @@ struct IncrementalCoverageReportGenerator: ParsableCommand {
     // Search xcresult bundles from xcresultDir and get union of `git diff` report and xccov output to generate a list of lineCoverage including files and their uncovered lines.
     while let file = enumerator?.nextObject() as? String {
       var isDir: ObjCBool = false
-      let absoluteFilePath = xcresultDir.appendingPathComponent(file, isDirectory: true).path
-      if FileManager.default.fileExists(atPath: absoluteFilePath, isDirectory: &isDir) {
-        if isDir.boolValue, absoluteFilePath.hasSuffix(Constants.xcresultExtension) {
+      let xcresultURL = xcresultDir.appendingPathComponent(file, isDirectory: true)
+      if FileManager.default.fileExists(atPath: xcresultURL.path, isDirectory: &isDir) {
+        if isDir.boolValue, xcresultURL.path.hasSuffix(Constants.xcresultExtension) {
           let uncoveredXcresult = getUncoveredFileLines(
             fromDiff: changedFiles,
-            xcresultPath: absoluteFilePath,
+            xcresultFile: xcresultURL,
             archiveRootPath: fileArchiveRootPath
           )
           uncoveredFiles.append(contentsOf: uncoveredXcresult)
