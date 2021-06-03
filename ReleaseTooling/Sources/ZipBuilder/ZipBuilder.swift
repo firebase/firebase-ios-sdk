@@ -473,8 +473,7 @@ struct ZipBuilder {
           // Ignore anything that not an xcframework with Resources
           guard fileManager.isDirectory(at: xcPath),
             xcPath.lastPathComponent.hasSuffix("xcframework"),
-            fileManager.directoryExists(at: xcResourceDir)
-          else { continue }
+            fileManager.directoryExists(at: xcResourceDir) else { continue }
 
           if packageKind == "Firebase" {
             // Move all the bundles in the frameworks out to a common "Resources" directory to
@@ -486,8 +485,7 @@ struct ZipBuilder {
             let xcContents = try fileManager.contentsOfDirectory(atPath: xcPath.path)
             for fileOrFolder in xcContents {
               let platformPath = xcPath.appendingPathComponent(fileOrFolder)
-              guard fileManager.isDirectory(at: platformPath)
-              else { continue }
+              guard fileManager.isDirectory(at: platformPath) else { continue }
 
               let platformContents = try fileManager.contentsOfDirectory(atPath: platformPath.path)
               for fileOrFolder in platformContents {
@@ -495,8 +493,7 @@ struct ZipBuilder {
 
                 // Ignore anything that not a framework.
                 guard fileManager.isDirectory(at: frameworkPath),
-                  frameworkPath.lastPathComponent.hasSuffix("framework")
-                else { continue }
+                  frameworkPath.lastPathComponent.hasSuffix("framework") else { continue }
                 let resourcesDir = frameworkPath.appendingPathComponent("Resources")
                 try fileManager.copyItem(at: xcResourceDir, to: resourcesDir)
               }
