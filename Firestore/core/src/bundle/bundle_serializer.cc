@@ -708,6 +708,7 @@ FieldValue BundleSerializer::DecodeArrayValue(JsonReader& reader,
                                               const json& array_json) const {
   const auto& values = reader.RequiredArray("values", array_json);
   std::vector<FieldValue> field_values;
+  field_values.reserve(values.size());
   for (const json& json_value : values) {
     field_values.push_back(DecodeValue(reader, json_value));
   }
