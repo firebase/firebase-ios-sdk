@@ -54,11 +54,11 @@ class ABSL_MUST_USE_RESULT Status {
 
   /// Copy the specified status.
   Status(const Status& s);
-  void operator=(const Status& s);
+  Status& operator=(const Status& s);
 
   /// Move the specified status.
   Status(Status&& s) noexcept;
-  void operator=(Status&& s) noexcept;
+  Status& operator=(Status&& s) noexcept;
 
   static Status OK() {
     return Status();
@@ -211,24 +211,26 @@ inline Status::State::State(Error code, std::string&& msg)
     : code(code), msg(std::move(msg)) {
 }
 
-inline void Status::operator=(const Status& s) {
+inline Status& Status::operator=(const Status& s) {
   // The following condition catches both aliasing (when this == &s),
   // and the common case where both s and *this are ok.
   if (state_ != s.state_) {
     SlowCopyFrom(s.state_.get());
   }
+  return *this;
 }
 
 inline Status::Status(Status&& s) noexcept : state_(std::move(s.state_)) {
   s.SetMovedFrom();
 }
 
-inline void Status::operator=(Status&& s) noexcept {
+inline Status& Status::operator=(Status&& s) noexcept {
   // Moving into self is a no-op.
   if (this != &s) {
     state_ = std::move(s.state_);
     s.SetMovedFrom();
   }
+  return *this;
 }
 
 inline bool Status::operator==(const Status& x) const {
