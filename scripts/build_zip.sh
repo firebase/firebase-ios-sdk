@@ -24,7 +24,7 @@ fi
 
 # The release build won't generage Carthage distro if the curreent
 # PackageManifest version has already been released.
-carthage_version_check="--disable-carthage-version-check"
+carthage_version_check="--enable-carthage-version-check"
 
 # If there is a third option set, add options to build from head instead of
 # staging and/or trunk.
