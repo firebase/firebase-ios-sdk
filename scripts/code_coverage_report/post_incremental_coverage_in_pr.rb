@@ -20,7 +20,7 @@
 require 'octokit'
 require 'json'
 
-COMMENT = "### Incremental code coverage report \nNew code lines here are not covered by tests, please add tests on highlighted lines."
+COMMENT_HEADER = "### Incremental code coverage report"
 REMOVE_PATTERN = /### Incremental code coverage report/
 REPO = ENV['GITHUB_REPOSITORY']
 UNCOVERED_LINE_FILE = ENV["UNCOVERED_LINE_FILE"]
@@ -30,7 +30,7 @@ PULL_REQUEST = ENV["PULL_REQUEST"].to_i
 client = Octokit::Client.new(access_token: ENV["INPUT_ACCESS_TOKEN"])
 uncovered_files = JSON.parse(File.read(UNCOVERED_LINE_FILE))
 
-
+# Clean comments matching REMOVE_PATTERN.
 def clean_coverage_comments(client)
   comment_page = 0
   loop do
@@ -48,9 +48,19 @@ def clean_coverage_comments(client)
   end
 end
 
+def generate_comment(comment_header, xcresult_file)
+  body = "Tests for New code lines are not detected in #{xcresult_file}, please add tests on highlighted lines."
+  return "#{comment_header} \n #{body}"
+end
+
+
 def add_coverage_comments(client, uncovered_files)
   for changed_file in uncovered_files do
+    print (changed_file)
     coverage_line = changed_file['coverage']
+    xcresult_file = changed_file['xcresultBundle'].split('/').last
+    print ("-----")
+    print (xcresult_file)
     start_line = -1
     coverage_line.each_with_index do |line, idx|
       # Init start_line to the first uncovered line of a file.
@@ -60,14 +70,15 @@ def add_coverage_comments(client, uncovered_files)
       if idx < coverage_line.length() && line + 1 == coverage_line[idx+1]
         next
       else
+        comment = generate_comment(COMMENT_HEADER, xcresult_file)
         if start_line == line
           # One line code comment will only rely on the position param, which is
           # 'line' here.
-          client.create_pull_request_comment(REPO,PULL_REQUEST, COMMENT,TESTING_COMMIT,changed_file['file'], line, {:side=>"RIGHT"})
+          client.create_pull_request_comment(REPO,PULL_REQUEST, comment, TESTING_COMMIT,changed_file['fileName'], line, {:side=>"RIGHT"})
         else
           # multiple-line code block comment needs start_line and line options,
           # which will override the position param.
-          client.create_pull_request_comment(REPO,PULL_REQUEST, COMMENT,TESTING_COMMIT,changed_file['file'],0, {:side=>"RIGHT", :start_line=> start_line, :line=> line})
+          client.create_pull_request_comment(REPO,PULL_REQUEST, comment, TESTING_COMMIT,changed_file['fileName'],0, {:side=>"RIGHT", :start_line=> start_line, :line=> line})
         end
         start_line = coverage_line[idx+1]
       end
