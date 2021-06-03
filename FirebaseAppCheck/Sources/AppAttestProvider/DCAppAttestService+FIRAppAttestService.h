@@ -15,7 +15,7 @@
  */
 
 // Currently DCAppAttestService is available on iOS only.
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
 
 #import <DeviceCheck/DeviceCheck.h>
 
