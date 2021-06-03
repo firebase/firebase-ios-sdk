@@ -168,7 +168,8 @@ void SyncEngine::StopListening(const Query& query) {
 
   TargetId target_id = query_view->target_id();
   auto& queries = queries_by_target_[target_id];
-  queries.erase(std::remove(queries.begin(), queries.end(), query));
+  queries.erase(std::remove(queries.begin(), queries.end(), query),
+                queries.end());
 
   if (queries.empty()) {
     local_store_->ReleaseTarget(target_id);
