@@ -212,7 +212,7 @@ class FieldValue {
   static FieldValue FromString(const std::string& value);
   static FieldValue FromString(std::string&& value);
   static FieldValue FromBlob(nanopb::ByteString blob);
-  static FieldValue FromReference(DatabaseId database_id, DocumentKey value);
+  static FieldValue FromReference(DatabaseId database_id, DocumentKey key);
   static FieldValue FromGeoPoint(const GeoPoint& value);
   static FieldValue FromArray(const Array& value);
   static FieldValue FromArray(Array&& value);

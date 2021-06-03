@@ -298,7 +298,7 @@ class LocalStore : public bundle::BundleCallback {
    * Returns the TargetData as seen by the LocalStore, including updates that
    * may have not yet been persisted to the TargetCache.
    */
-  absl::optional<TargetData> GetTargetData(const core::Target& query);
+  absl::optional<TargetData> GetTargetData(const core::Target& target);
 
   /**
    * Creates a new target using the given bundle name, which will be used to

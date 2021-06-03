@@ -73,7 +73,7 @@ using ThrowHandler = void (*)(ExceptionType type,
  *     immediately after it does so.)
  * @return A pointer to the previous failure handler.
  */
-ThrowHandler SetThrowHandler(ThrowHandler callback);
+ThrowHandler SetThrowHandler(ThrowHandler handler);
 
 ABSL_ATTRIBUTE_NORETURN void Throw(ExceptionType type,
                                    const char* file,

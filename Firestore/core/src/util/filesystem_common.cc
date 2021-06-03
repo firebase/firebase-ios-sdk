@@ -69,8 +69,8 @@ Status Filesystem::RecursivelyRemove(const Path& path) {
   }
 }
 
-Status Filesystem::RecursivelyRemoveDir(const Path& parent) {
-  std::unique_ptr<DirectoryIterator> iter = DirectoryIterator::Create(parent);
+Status Filesystem::RecursivelyRemoveDir(const Path& path) {
+  std::unique_ptr<DirectoryIterator> iter = DirectoryIterator::Create(path);
   for (; iter->Valid(); iter->Next()) {
     Status status = RecursivelyRemove(iter->file());
     if (!status.ok()) {
@@ -84,7 +84,7 @@ Status Filesystem::RecursivelyRemoveDir(const Path& parent) {
     }
     return iter->status();
   }
-  return RemoveDir(parent);
+  return RemoveDir(path);
 }
 
 #if !__APPLE__

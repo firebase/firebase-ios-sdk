@@ -76,7 +76,7 @@ class BufferedWriter {
  public:
   // Returns the newly-created write operation if the given `write` became
   // active, null pointer otherwise.
-  absl::optional<BufferedWrite> EnqueueWrite(grpc::ByteBuffer&& write,
+  absl::optional<BufferedWrite> EnqueueWrite(grpc::ByteBuffer&& message,
                                              const grpc::WriteOptions& options);
 
   absl::optional<BufferedWrite> EnqueueWrite(grpc::ByteBuffer&& write) {
@@ -199,8 +199,8 @@ class GrpcStream : public GrpcCall {
   void RemoveCompletion(const std::shared_ptr<GrpcCompletion>& to_remove);
 
   using OnSuccess = std::function<void(const std::shared_ptr<GrpcCompletion>&)>;
-  std::shared_ptr<GrpcCompletion> NewCompletion(GrpcCompletion::Type type,
-                                                const OnSuccess& callback);
+  std::shared_ptr<GrpcCompletion> NewCompletion(GrpcCompletion::Type tag,
+                                                const OnSuccess& on_success);
   // Finishes the underlying gRPC call. Must always be invoked on any call that
   // was started. Presumes that any pending completions will quickly come off
   // the queue and will block until they do, so this must only be invoked when
