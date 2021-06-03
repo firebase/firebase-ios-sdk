@@ -174,9 +174,9 @@ LocalWriteResult LocalStore::WriteLocally(std::vector<Mutation>&& mutations) {
       if (base_value) {
         // NOTE: The base state should only be applied if there's some existing
         // document to override, so use a Precondition of exists=true
-        base_mutations.push_back(PatchMutation(mutation.key(), *base_value,
-                                               base_value->ToFieldMask(),
-                                               Precondition::Exists(true)));
+        base_mutations.push_back(PatchMutation(
+            mutation.key(), std::move(*base_value), base_value->ToFieldMask(),
+            Precondition::Exists(true)));
       }
     }
 

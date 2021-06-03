@@ -1,3 +1,5 @@
+#include <utility>
+
 /*
  * Copyright 2019 Google
  *
@@ -42,7 +44,7 @@ DocumentSnapshot DocumentSnapshot::FromNoDocument(
     std::shared_ptr<Firestore> firestore,
     model::DocumentKey key,
     SnapshotMetadata metadata) {
-  return DocumentSnapshot{std::move(firestore), key, absl::nullopt,
+  return DocumentSnapshot{std::move(firestore), std::move(key), absl::nullopt,
                           std::move(metadata)};
 }
 
@@ -77,15 +79,10 @@ const std::string& DocumentSnapshot::document_id() const {
   return internal_key_.path().last_segment();
 }
 
-absl::optional<ObjectValue> DocumentSnapshot::GetData() const {
-  return internal_document_ ? (*internal_document_)->data()
-                            : absl::optional<ObjectValue>{};
-}
-
 absl::optional<google_firestore_v1_Value> DocumentSnapshot::GetValue(
     const FieldPath& field_path) const {
   return internal_document_ ? (*internal_document_)->field(field_path)
-                            : absl::optional<google_firestore_v1_Value>{};
+                            : absl::nullopt;
 }
 
 bool operator==(const DocumentSnapshot& lhs, const DocumentSnapshot& rhs) {

@@ -163,8 +163,8 @@ class MutableDocument {
     return has_local_mutations() || has_committed_mutations();
   }
 
-  const ObjectValue& data() const {
-    return *value_;
+  google_firestore_v1_Value value() const {
+    return value_->Get();
   }
 
   ObjectValue& data() {

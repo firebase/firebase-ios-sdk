@@ -59,7 +59,6 @@ class DocumentSnapshot {
 
   DocumentReference CreateReference() const;
 
-  absl::optional<model::ObjectValue> GetData() const;
   absl::optional<google_firestore_v1_Value> GetValue(
       const model::FieldPath& field_path) const;
 
