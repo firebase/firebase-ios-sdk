@@ -31,4 +31,4 @@ API_UNAVAILABLE(macos, tvos, watchos)
 
 NS_ASSUME_NONNULL_END
 
-#endif  // TARGET_OS_IOS
+#endif  // TARGET_OS_IOS && !TARGET_OS_MACCATALYST

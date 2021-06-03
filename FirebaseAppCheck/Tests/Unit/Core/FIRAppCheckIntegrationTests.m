@@ -125,6 +125,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
+#if !TARGET_OS_MACCATALYST
 - (void)testSetAppCheckProviderFactoryWithDefaultApp {
   NSString *appName = kFIRDefaultAppName;
 
@@ -168,6 +169,7 @@ NS_ASSUME_NONNULL_BEGIN
   OCMVerifyAll(self.mockProviderFactory);
   OCMVerifyAll(self.mockAppCheckProvider);
 }
+#endif  // !TARGET_OS_MACCATALYST
 
 #pragma mark - Helpers
 

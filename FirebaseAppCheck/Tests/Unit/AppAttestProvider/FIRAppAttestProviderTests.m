@@ -92,6 +92,7 @@ API_AVAILABLE(ios(14.0))
 
 #pragma mark - Init tests
 
+#if !TARGET_OS_MACCATALYST
 - (void)testInitWithValidApp {
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:@"app_id" GCMSenderID:@"sender_id"];
   options.APIKey = @"api_key";
@@ -100,6 +101,7 @@ API_AVAILABLE(ios(14.0))
 
   XCTAssertNotNil([[FIRAppAttestProvider alloc] initWithApp:app]);
 }
+#endif  // !TARGET_OS_MACCATALYST
 
 #pragma mark - Initial handshake (attestation)
 
