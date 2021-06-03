@@ -16,19 +16,12 @@
 
 #import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessagingExtensionHelper.h"
 
-#import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
-#import "FirebaseMessaging/Sources/FIRMessagingCode.h"
-#import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
-#import "FirebaseMessaging/Sources/Protogen/nanopb/me.nanopb.h"
 #import <GoogleDataTransport/GoogleDataTransport.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
-
-
-//#import "GoogleDataTransport/GDTCCTLibrary/Private/GDTCORTransport_Private.h"
-//#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREvent.h"
-//#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORTargets.h"
-//#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORTransport.h"
-//#import "GoogleUtilities/Environment/Public/GoogleUtilities/GULAppEnvironmentUtil.h"
+#import "FirebaseMessaging/Sources/FIRMessagingCode.h"
+#import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
+#import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
+#import "FirebaseMessaging/Sources/Protogen/nanopb/me.nanopb.h"
 
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>
@@ -63,9 +56,6 @@ pb_bytes_array_t *FIRMessagingEncodeString(NSString *string) {
   NSData *stringBytes = [string dataUsingEncoding:NSUTF8StringEncoding];
   return FIRMessagingEncodeData(stringBytes);
 }
-
-
-
 
 @interface FIRMessagingMetricsLog : NSObject <GDTCOREventDataObject>
 
@@ -236,7 +226,7 @@ pb_bytes_array_t *FIRMessagingEncodeString(NSString *string) {
   NSString *bundleID = [NSBundle mainBundle].bundleIdentifier;
   if ([GULAppEnvironmentUtil isAppExtension]) {
     foo.package_name =
-      FIRMessagingEncodeString([[self class] bundleIdentifierByRemovingLastPartFrom:bundleID]);
+        FIRMessagingEncodeString([[self class] bundleIdentifierByRemovingLastPartFrom:bundleID]);
   } else {
     foo.package_name = FIRMessagingEncodeString(bundleID);
   }

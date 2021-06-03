@@ -28,11 +28,11 @@ class NotificationService: UNNotificationServiceExtension {
     if let bestAttemptContent = bestAttemptContent {
       // Modify the notification content here...
       bestAttemptContent.title = "\(bestAttemptContent.title) 👩🏻‍💻"
-        
+
       // Log Delivery signals and export to BigQuery.
       Messaging.serviceExtension()
         .exportDeliveryMetricsToBigQuery(withMessageInfo: request.content.userInfo)
-    
+
       // Add image, call this last to finish with the content handler.
       Messaging.serviceExtension()
         .populateNotificationContent(bestAttemptContent, withContentHandler: contentHandler)
