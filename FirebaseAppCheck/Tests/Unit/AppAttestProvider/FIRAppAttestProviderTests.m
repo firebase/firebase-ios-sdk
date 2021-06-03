@@ -92,7 +92,9 @@ API_AVAILABLE(ios(14.0))
 
 #pragma mark - Init tests
 
-#if !TARGET_OS_MACCATALYST
+#if !TARGET_OS_MACCATALYST  // Catalyst should be possible with Xcode 12.5+
+// Keychain dependent logic require additional configuration on Catalyst (enabling Keychain
+// sharing). For now, keychain dependent tests are disabled for Catalyst.
 - (void)testInitWithValidApp {
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:@"app_id" GCMSenderID:@"sender_id"];
   options.APIKey = @"api_key";

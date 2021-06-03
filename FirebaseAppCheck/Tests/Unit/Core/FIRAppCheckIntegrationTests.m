@@ -125,7 +125,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-#if !TARGET_OS_MACCATALYST
+#if !TARGET_OS_MACCATALYST  // Catalyst should be possible with Xcode 12.5+
 - (void)testSetAppCheckProviderFactoryWithDefaultApp {
   NSString *appName = kFIRDefaultAppName;
 
