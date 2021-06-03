@@ -389,15 +389,16 @@ struct ZipBuilder {
                                      frameworksToAssemble: [String: [URL]],
                                      firebasePod: CocoaPodUtils.PodInfo) throws -> URL {
     // Create the directory that will hold all the contents of the Zip file.
-    let zipDir = FileManager.default.temporaryDirectory(withName: packageKind)
+    let fileManager = FileManager.default
+    let zipDir = fileManager.temporaryDirectory(withName: packageKind)
     do {
-      if FileManager.default.directoryExists(at: zipDir) {
-        try FileManager.default.removeItem(at: zipDir)
+      if fileManager.directoryExists(at: zipDir) {
+        try fileManager.removeItem(at: zipDir)
       }
 
-      try FileManager.default.createDirectory(at: zipDir,
-                                              withIntermediateDirectories: true,
-                                              attributes: nil)
+      try fileManager.createDirectory(at: zipDir,
+                                      withIntermediateDirectories: true,
+                                      attributes: nil)
     }
 
     // Copy all required files from the Firebase pod. This will cause a fatalError if anything
@@ -452,28 +453,76 @@ struct ZipBuilder {
                                        rootZipDir: zipDir,
                                        builtFrameworks: frameworksToAssemble,
                                        podsToIgnore: analyticsPods)
-
         // Update the README.
         readmeDeps += dependencyString(for: pod.key, in: productDir, frameworks: podFrameworks)
+      } catch {
+        fatalError("Could not copy frameworks from \(pod) into the zip file: \(error)")
+      }
+      do {
+        // Update Resources: For the zip distribution, they get pulled from the xcframework to the
+        // top-level product directory. For the Carthage distribution, they propagate to each
+        // individual framework.
+        // TODO: Investigate changing the zip distro to also have Resources in the .frameworks to
+        // enable different platform Resources.
+        let productPath = zipDir.appendingPathComponent(pod.key)
+        let contents = try fileManager.contentsOfDirectory(atPath: productPath.path)
+        for fileOrFolder in contents {
+          let xcPath = productPath.appendingPathComponent(fileOrFolder)
+          let xcResourceDir = xcPath.appendingPathComponent("Resources")
 
-        // Special case for Crashlytics:
-        // Copy additional tools to avoid users from downloading another artifact to upload symbols.
-        let crashlyticsPodName = "FirebaseCrashlytics"
-        if pod.key == crashlyticsPodName {
-          for file in ["upload-symbols", "run"] {
-            let source = pod.value.installedLocation.appendingPathComponent(file)
+          // Ignore anything that not an xcframework with Resources
+          guard fileManager.isDirectory(at: xcPath),
+            xcPath.lastPathComponent.hasSuffix("xcframework"),
+            fileManager.directoryExists(at: xcResourceDir)
+          else { continue }
 
-            let target = zipDir.appendingPathComponent(crashlyticsPodName)
-              .appendingPathComponent(file)
-            do {
-              try FileManager.default.copyItem(at: source, to: target)
-            } catch {
-              fatalError("Error copying Crashlytics tools from \(source) to \(target): \(error)")
+          if packageKind == "Firebase" {
+            // Move all the bundles in the frameworks out to a common "Resources" directory to
+            // match the existing Zip structure.
+            let resourcesDir = productPath.appendingPathComponent("Resources")
+            try fileManager.moveItem(at: xcResourceDir, to: resourcesDir)
+
+          } else {
+            let xcContents = try fileManager.contentsOfDirectory(atPath: xcPath.path)
+            for fileOrFolder in xcContents {
+              let platformPath = xcPath.appendingPathComponent(fileOrFolder)
+              guard fileManager.isDirectory(at: platformPath)
+              else { continue }
+
+              let platformContents = try fileManager.contentsOfDirectory(atPath: platformPath.path)
+              for fileOrFolder in platformContents {
+                let frameworkPath = platformPath.appendingPathComponent(fileOrFolder)
+
+                // Ignore anything that not a framework.
+                guard fileManager.isDirectory(at: frameworkPath),
+                  frameworkPath.lastPathComponent.hasSuffix("framework")
+                else { continue }
+                let resourcesDir = frameworkPath.appendingPathComponent("Resources")
+                try fileManager.copyItem(at: xcResourceDir, to: resourcesDir)
+              }
             }
+            try fileManager.removeItem(at: xcResourceDir)
           }
         }
       } catch {
-        fatalError("Could not copy frameworks from \(pod) into the zip file: \(error)")
+        fatalError("Could not setup Resources for \(pod) for \(packageKind) \(error)")
+      }
+
+      // Special case for Crashlytics:
+      // Copy additional tools to avoid users from downloading another artifact to upload symbols.
+      let crashlyticsPodName = "FirebaseCrashlytics"
+      if pod.key == crashlyticsPodName {
+        for file in ["upload-symbols", "run"] {
+          let source = pod.value.installedLocation.appendingPathComponent(file)
+
+          let target = zipDir.appendingPathComponent(crashlyticsPodName)
+            .appendingPathComponent(file)
+          do {
+            try fileManager.copyItem(at: source, to: target)
+          } catch {
+            fatalError("Error copying Crashlytics tools from \(source) to \(target): \(error)")
+          }
+        }
       }
     }
 
