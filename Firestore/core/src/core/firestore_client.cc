@@ -396,13 +396,12 @@ void FirestoreClient::GetDocumentFromLocalCache(
       Document document(*maybe_document);
       maybe_snapshot = DocumentSnapshot::FromDocument(
           doc.firestore(), document,
-          SnapshotMetadata{
-              /*has_pending_writes=*/document.has_local_mutations(),
-              /*from_cache=*/true});
+          SnapshotMetadata{/*pending_writes=*/document.has_local_mutations(),
+                           /*from_cache=*/true});
     } else if (maybe_document && maybe_document->is_no_document()) {
       maybe_snapshot = DocumentSnapshot::FromNoDocument(
           doc.firestore(), doc.key(),
-          SnapshotMetadata{/*has_pending_writes=*/false,
+          SnapshotMetadata{/*pending_writes=*/false,
                            /*from_cache=*/true});
     } else {
       maybe_snapshot =

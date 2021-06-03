@@ -37,6 +37,7 @@
 #include "Firestore/core/src/util/async_queue.h"
 #include "Firestore/core/src/util/log.h"
 #include "Firestore/core/src/util/status.h"
+#include "absl/strings/match.h"
 
 namespace firebase {
 namespace firestore {
@@ -79,7 +80,7 @@ const ListenSequenceNumber kIrrelevantSequenceNumber = -1;
 bool ErrorIsInteresting(const Status& error) {
   bool missing_index =
       (error.code() == Error::kErrorFailedPrecondition &&
-       error.error_message().find("requires an index") != std::string::npos);
+       absl::StrContains(error.error_message(), "requires an index"));
   bool no_permission = (error.code() == Error::kErrorPermissionDenied);
   return missing_index || no_permission;
 }
