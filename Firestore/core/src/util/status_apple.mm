@@ -106,8 +106,8 @@ Status Status::FromNSError(NSError* error) {
   }
 
   auto description = StringFormat("Unknown error: %s", original->error());
-  return Status{Error::kErrorUnknown, description}
-      .WithPlatformError(std::move(original));
+  return Status{Error::kErrorUnknown, description}.WithPlatformError(
+      std::move(original));
 }
 
 NSError* Status::ToNSError() const {
