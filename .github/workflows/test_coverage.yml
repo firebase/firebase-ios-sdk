@@ -303,7 +303,11 @@ jobs:
           cd scripts/code_coverage_report/generate_code_coverage_report
           swift build
           .build/debug/IncrementalCoverageReportGenerator --changed-files git_diff.json --file-archive-root-path "${GITHUB_WORKSPACE}" --xcresult-dir "scripts/code_coverage_report/test_dir/" --uncovered-line-file-json uncovered_file_lines.json
+          echo "---"
+          ls -a
+          echo "---"
           cat "uncovered_file_lines.json"
+          echo "---"
           pull_number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
           cd ..
           bundle install
