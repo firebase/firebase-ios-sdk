@@ -1,5 +1,8 @@
+# Unreleased
+- [fixed] Fixed a bug in the link with email link flow. (#8196)
+
 # 8.0.0
-- [fixed] Fixed a crash that occurred when assigning auth settings (#7670).
+- [fixed] Fixed a crash that occurred when assigning auth settings. (#7670)
 
 # 7.8.0
 - [fixed] Fixed auth state sharing during first app launch. (#7472)
