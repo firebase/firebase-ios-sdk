@@ -54,7 +54,6 @@
   trace.requestSize = totalBytesWritten;
   if (totalBytesWritten == totalBytesExpectedToWrite) {
     [trace checkpointState:FPRNetworkTraceCheckpointStateRequestCompleted];
-    NSLog(@"*** connection didSendBodyData %ld", (long)totalBytesWritten);
   }
 }
 
