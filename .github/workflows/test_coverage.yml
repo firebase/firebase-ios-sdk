@@ -262,34 +262,34 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - name: Access to Metrics Service
-        if: ${{ env.METRICS_SERVICE_SECRET }} && (github.event.action != 'closed' || github.event.pull_request.merged)
-        run: |
-          # Install gcloud sdk
-          curl https://sdk.cloud.google.com > install.sh
-          bash install.sh --disable-prompts
-          echo "${HOME}/google-cloud-sdk/bin/" >> $GITHUB_PATH
-          export PATH="${HOME}/google-cloud-sdk/bin/:${PATH}"
-
-          # Activate the service account for Metrics Service.
-          scripts/decrypt_gha_secret.sh scripts/gha-encrypted/metrics_service_access.json.gpg \
-          metrics-access.json "${{ env.METRICS_SERVICE_SECRET }}"
-          gcloud auth activate-service-account --key-file metrics-access.json
-      - uses: actions/download-artifact@v2
-        id: download
-        with:
-          path: /Users/runner/test
-      - name: Compare Diff and Post a Report
-        if: github.event.pull_request.merged != true && github.event.action != 'closed' && env.METRICS_SERVICE_SECRET
-        env:
-          base_commit: ${{ needs.check.outputs.base_commit }}
-        run: |
-          # Get Head commit of the branch, instead of a merge commit created by actions/checkout.
-          GITHUB_SHA=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.head.sha)
-          if [ -d "${{steps.download.outputs.download-path}}" ]; then
-          cd scripts/code_coverage_report/generate_code_coverage_report
-          swift run CoverageReportGenerator --presubmit "firebase/firebase-ios-sdk" --head-commit "${GITHUB_SHA}" --token $(gcloud auth print-identity-token) --xcresult-dir "/Users/runner/test/codecoverage" --log-link "https://github.com/firebase/firebase-ios-sdk/actions/runs/${GITHUB_RUN_ID}" --pull-request-num ${{github.event.pull_request.number}} --base-commit "$base_commit"
-          fi
+            #      - name: Access to Metrics Service
+            #        if: ${{ env.METRICS_SERVICE_SECRET }} && (github.event.action != 'closed' || github.event.pull_request.merged)
+            #        run: |
+            #          # Install gcloud sdk
+            #          curl https://sdk.cloud.google.com > install.sh
+            #          bash install.sh --disable-prompts
+            #          echo "${HOME}/google-cloud-sdk/bin/" >> $GITHUB_PATH
+            #          export PATH="${HOME}/google-cloud-sdk/bin/:${PATH}"
+            #
+            #          # Activate the service account for Metrics Service.
+            #          scripts/decrypt_gha_secret.sh scripts/gha-encrypted/metrics_service_access.json.gpg \
+            #          metrics-access.json "${{ env.METRICS_SERVICE_SECRET }}"
+            #          gcloud auth activate-service-account --key-file metrics-access.json
+            #      - uses: actions/download-artifact@v2
+            #        id: download
+            #        with:
+            #          path: /Users/runner/test
+            #      - name: Compare Diff and Post a Report
+            #        if: github.event.pull_request.merged != true && github.event.action != 'closed' && env.METRICS_SERVICE_SECRET
+            #        env:
+            #          base_commit: ${{ needs.check.outputs.base_commit }}
+            #        run: |
+            #          # Get Head commit of the branch, instead of a merge commit created by actions/checkout.
+            #          GITHUB_SHA=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.head.sha)
+            #          if [ -d "${{steps.download.outputs.download-path}}" ]; then
+            #          cd scripts/code_coverage_report/generate_code_coverage_report
+            #          swift run CoverageReportGenerator --presubmit "firebase/firebase-ios-sdk" --head-commit "${GITHUB_SHA}" --token $(gcloud auth print-identity-token) --xcresult-dir "/Users/runner/test/codecoverage" --log-link "https://github.com/firebase/firebase-ios-sdk/actions/runs/${GITHUB_RUN_ID}" --pull-request-num ${{github.event.pull_request.number}} --base-commit "$base_commit"
+            #          fi
       - name: Incremental Code Coverage
         if: github.event.pull_request.merged != true && github.event.action != 'closed' && env.METRICS_SERVICE_SECRET
         env:
