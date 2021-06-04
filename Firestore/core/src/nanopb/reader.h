@@ -117,7 +117,7 @@ class StringReader : public Reader {
    */
   explicit StringReader(const nanopb::ByteString& bytes);
   explicit StringReader(const std::vector<uint8_t>& bytes);
-  StringReader(const uint8_t* bytes, size_t length);
+  StringReader(const uint8_t* bytes, size_t size);
 
   /**
    * Creates an input stream from bytes backing the string_view. Note that

@@ -40,7 +40,6 @@ using firebase::firestore::core::ParsedUpdateData;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DeleteMutation;
 using firebase::firestore::model::DocumentKey;
-using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::ObjectValue;

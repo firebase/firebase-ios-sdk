@@ -26,3 +26,6 @@
 // DeviceCheck provider
 #import "FIRDeviceCheckProvider.h"
 #import "FIRDeviceCheckProviderFactory.h"
+
+// App Attest provider.
+#import "FIRAppAttestProvider.h"

@@ -27,7 +27,7 @@
     [trace didCompleteRequestWithResponse:task.response error:error];
     [FPRNetworkTrace removeNetworkTraceFromObject:task];
   } @catch (NSException *exception) {
-    FPRLogInfo(kFPRNetworkTraceNotTrackable, @"Unable to track network request.");
+    FPRLogWarning(kFPRNetworkTraceNotTrackable, @"Unable to track network request.");
   }
 }
 
@@ -43,7 +43,7 @@
       [trace checkpointState:FPRNetworkTraceCheckpointStateRequestCompleted];
     }
   } @catch (NSException *exception) {
-    FPRLogInfo(kFPRNetworkTraceNotTrackable, @"Unable to track network request.");
+    FPRLogWarning(kFPRNetworkTraceNotTrackable, @"Unable to track network request.");
   }
 }
 

@@ -55,10 +55,10 @@
 #include "Firestore/core/src/util/statusor.h"
 #include "Firestore/core/src/util/string_apple.h"
 #include "absl/memory/memory.h"
+#include "absl/strings/match.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::api::Firestore;
-using firebase::firestore::api::ListenerRegistration;
 using firebase::firestore::api::Query;
 using firebase::firestore::api::QueryListenerRegistration;
 using firebase::firestore::api::QuerySnapshot;
@@ -592,7 +592,7 @@ int32_t SaturatedLimitValue(NSInteger limit) {
         ThrowInvalidArgument("Invalid query. Expected a string for the document ID.");
       }
       const std::string &documentID = fieldValue.string_value();
-      if (!self.query.IsCollectionGroupQuery() && documentID.find('/') != std::string::npos) {
+      if (!self.query.IsCollectionGroupQuery() && absl::StrContains(documentID, "/")) {
         ThrowInvalidArgument("Invalid query. When querying a collection and ordering by document "
                              "ID, you must pass a plain document ID, but '%s' contains a slash.",
                              documentID);

@@ -11,7 +11,5 @@ target 'FIRAppCheckTestApp' do
   pod 'FirebaseAppCheck', :path => '../../../'
 
   pod 'FirebaseCore', :path => '../../../'
-  pod 'GoogleUtilities', :path => '../../../'
   pod 'FirebaseCoreDiagnostics', :path => '../../../'
-  pod 'GoogleDataTransport', :path => '../../../'
 end

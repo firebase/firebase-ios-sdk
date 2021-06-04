@@ -15,6 +15,7 @@
  */
 
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
+#import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckHTTPError.h"
 
 NSString *const kFIRAppCheckErrorDomain = @"com.firebase.appCheck";
 
@@ -34,15 +35,9 @@ NSString *const kFIRAppCheckErrorDomain = @"com.firebase.appCheck";
                      underlyingError:nil];
 }
 
-+ (NSError *)APIErrorWithHTTPResponse:(NSHTTPURLResponse *)HTTPResponse
-                                 data:(nullable NSData *)data {
-  NSString *body = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] ?: @"";
-  NSString *failureReason =
-      [NSString stringWithFormat:@"Unexpected API response. HTTP code: %ld, body: \n%@",
-                                 (long)HTTPResponse.statusCode, body];
-  return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnknown
-                       failureReason:failureReason
-                     underlyingError:nil];
++ (FIRAppCheckHTTPError *)APIErrorWithHTTPResponse:(NSHTTPURLResponse *)HTTPResponse
+                                              data:(nullable NSData *)data {
+  return [[FIRAppCheckHTTPError alloc] initWithHTTPResponse:HTTPResponse data:data];
 }
 
 + (NSError *)APIErrorWithNetworkError:(NSError *)networkError {
@@ -61,11 +56,37 @@ NSString *const kFIRAppCheckErrorDomain = @"com.firebase.appCheck";
                      underlyingError:nil];
 }
 
++ (NSError *)appAttestAttestationResponseErrorWithMissingField:(NSString *)fieldName {
+  NSString *failureReason =
+      [NSString stringWithFormat:@"Unexpected attestation response format. Field `%@` is missing.",
+                                 fieldName];
+  return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnknown
+                       failureReason:failureReason
+                     underlyingError:nil];
+}
+
 + (NSError *)JSONSerializationError:(NSError *)error {
   NSString *failureReason = [NSString stringWithFormat:@"JSON serialization error."];
   return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnknown
                        failureReason:failureReason
                      underlyingError:error];
+}
+
++ (NSError *)unsupportedAttestationProvider:(NSString *)providerName {
+  NSString *failureReason = [NSString
+      stringWithFormat:
+          @"The attestation provider %@ is not supported on current platform and OS version.",
+          providerName];
+  return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnsupported
+                       failureReason:failureReason
+                     underlyingError:nil];
+}
+
++ (NSError *)appAttestKeyIDNotFound {
+  NSString *failureReason = @"App attest key ID not found.";
+  return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnknown
+                       failureReason:failureReason
+                     underlyingError:nil];
 }
 
 + (NSError *)errorWithFailureReason:(NSString *)failureReason {

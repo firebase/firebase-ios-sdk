@@ -430,6 +430,7 @@ static FakeAnalyticsLogEventHandler _userPropertyHandler;
 - (void)testLogMessage {
   NSDictionary *notification = @{
     @"google.c.a.e" : @"1",
+    @"aps" : @{@"alert" : @"to check the reporting format"},
   };
   [FIRMessagingAnalytics logMessage:notification toAnalytics:nil];
   OCMVerify([self.logClassMock logEvent:OCMOCK_ANY withNotification:notification toAnalytics:nil]);
@@ -439,6 +440,7 @@ static FakeAnalyticsLogEventHandler _userPropertyHandler;
 - (void)testLogOpenNotification {
   NSDictionary *notification = @{
     @"google.c.a.e" : @"1",
+    @"aps" : @{@"alert" : @"to check the reporting format"},
   };
   [FIRMessagingAnalytics logOpenNotification:notification toAnalytics:nil];
 
