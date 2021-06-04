@@ -24,7 +24,7 @@
 
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckProvider.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckProviderFactory.h"
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"
+#import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"
 
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckLogger.h"
@@ -32,6 +32,7 @@
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckTokenResult.h"
 #import "FirebaseAppCheck/Sources/Core/Storage/FIRAppCheckStorage.h"
 #import "FirebaseAppCheck/Sources/Core/TokenRefresh/FIRAppCheckTokenRefresher.h"
+#import "FirebaseAppCheck/Sources/Core/TokenRefresh/FIRAppCheckTokenRefreshResult.h"
 
 #import "FirebaseAppCheck/Sources/Interop/FIRAppCheckInterop.h"
 #import "FirebaseAppCheck/Sources/Interop/FIRAppCheckTokenResultInterop.h"
@@ -124,8 +125,9 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
       [[FIRAppCheckSettings alloc] initWithApp:app
                                    userDefault:[NSUserDefaults standardUserDefaults]
                                     mainBundle:[NSBundle mainBundle]];
+  FIRAppCheckTokenRefreshResult *refreshResult = [[FIRAppCheckTokenRefreshResult alloc] initWithStatusNever];
   FIRAppCheckTokenRefresher *tokenRefresher =
-      [[FIRAppCheckTokenRefresher alloc] initWithRefreshResult:[NSDate date]
+      [[FIRAppCheckTokenRefresher alloc] initWithRefreshResult:refreshResult
                                             tokenExpirationThreshold:kTokenExpirationThreshold
                                                             settings:settings];
 
@@ -306,7 +308,8 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
         // TODO: Make sure the self.tokenRefresher is updated only once. Currently the timer will be
         // updated twice in the case when the refresh triggered by self.tokenRefresher, but it
         // should be fine for now as it is a relatively cheap operation.
-        [self.tokenRefresher updateTokenExpirationDate:token.expirationDate];
+        __auto_type refreshResult = [[FIRAppCheckTokenRefreshResult alloc] initWithStatusSuccessAndExpirationDate:token.expirationDate receivedAtDate:token.receivedAtDate];
+        [self.tokenRefresher updateWithRefreshResult:refreshResult];
         [self postTokenUpdateNotificationWithToken:token];
         return token;
       });
@@ -317,11 +320,13 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 - (void)periodicTokenRefreshWithCompletion:(FIRAppCheckTokenRefreshCompletion)completion {
   [self retrieveOrRefreshTokenForcingRefresh:NO]
       .then(^id _Nullable(FIRAppCheckToken *_Nullable token) {
-        completion(YES, token.expirationDate);
+        __auto_type refreshResult = [[FIRAppCheckTokenRefreshResult alloc] initWithStatusSuccessAndExpirationDate:token.expirationDate receivedAtDate:token.receivedAtDate];
+        completion(refreshResult);
         return nil;
       })
       .catch(^(NSError *error) {
-        completion(NO, nil);
+        __auto_type refreshResult = [[FIRAppCheckTokenRefreshResult alloc] initWithStatusFailure];
+        completion(refreshResult);
       });
 }
 

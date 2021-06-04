@@ -204,7 +204,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)disableTokenRefresher {
   self.mockTokenRefresher = OCMClassMock([FIRAppCheckTokenRefresher class]);
   OCMStub([self.mockTokenRefresher alloc]).andReturn(self.mockTokenRefresher);
-  OCMStub([self.mockTokenRefresher initWithTokenExpirationDate:[OCMArg any]
+  OCMStub([self.mockTokenRefresher initWithRefreshResult:[OCMArg any]
                                       tokenExpirationThreshold:5 * 60
                                                       settings:[OCMArg any]])
       .andReturn(self.mockTokenRefresher);
