@@ -1,5 +1,6 @@
 # Version 8.2.0
 * Update log messages with proper log levels.
+* Fix empty values in `network_info.request_completed_time_us` field from the [data schema](https://firebase.google.com/docs/perf-mon/bigquery-export#detailed_data_schema).
 
 # Version 8.1.0
 * Firebase Performance logs now contain URLs to see the performance data on the Firebase console.
