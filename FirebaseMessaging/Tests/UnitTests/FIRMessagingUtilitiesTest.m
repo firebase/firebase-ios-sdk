@@ -69,9 +69,16 @@
 
 - (void)testAppIdentifierReturnsExpectedValue {
   NSString *expectedIdentifier = @"com.me.myapp";
+#if TARGET_OS_WATCH
+  expectedIdentifier = @"com.me.myapp.watchkitapp.watchkitextension";
+#endif
   [[[_mainBundleMock stub] andReturn:expectedIdentifier] bundleIdentifier];
   NSString *appIdentifier = FIRMessagingAppIdentifier();
+#if TARGET_OS_WATCH
+  XCTAssertEqualObjects(appIdentifier, @"com.me.myapp.watchkitapp");
+#else
   XCTAssertEqualObjects(appIdentifier, expectedIdentifier);
+#endif
 }
 
 - (void)testAppIdentifierReturnsEmptyStringWhenNotFound {
