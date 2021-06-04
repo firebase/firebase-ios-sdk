@@ -33,6 +33,12 @@
   return self;
 }
 
+- (FPRSessionDetails *)copyWithZone:(NSZone*) zone {
+  id detailsCopy = [[[self class] allocWithZone:zone] initWithSessionId:_sessionId
+                                                                options:_options];
+  return detailsCopy;
+}
+
 - (NSUInteger)sessionLengthInMinutes {
   NSTimeInterval sessionLengthInSeconds = ABS([self.sessionCreationTime timeIntervalSinceNow]);
   return (sessionLengthInSeconds / 60);
