@@ -162,7 +162,7 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
     }
 
     if (apsDictionary[kFIRMessagingContextManagerSoundKey]) {
-      content.sound = apsDictionary[kFIRMessagingContextManagerSoundKey];
+        content.sound = [UNNotificationSound soundNamed:apsDictionary[kFIRMessagingContextManagerSoundKey]];
     }
 
     if (apsDictionary[kFIRMessagingContextManagerCategoryKey]) {
