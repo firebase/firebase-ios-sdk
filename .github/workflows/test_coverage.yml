@@ -300,18 +300,20 @@ jobs:
           GITHUB_SHA=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.head.sha)
           git diff -U0 ${base_commit} "${GITHUB_SHA}" | scripts/code_coverage_report/git_diff_to_json.sh > scripts/code_coverage_report/generate_code_coverage_report/git_diff.json
           cat "scripts/code_coverage_report/generate_code_coverage_report/git_diff.json"
-          cd scripts/code_coverage_report/generate_code_coverage_report
-          swift build
-          .build/debug/IncrementalCoverageReportGenerator --changed-files git_diff.json --file-archive-root-path "${GITHUB_WORKSPACE}" --xcresult-dir "../test_dir/" --uncovered-line-file-json uncovered_file_lines.json
-          echo "---"
-          ls -a
-          echo "---"
-          cat "uncovered_file_lines.json"
-          echo "---"
-          pull_number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
-          cd ..
-          bundle install
-          INPUT_ACCESS_TOKEN=${{ secrets.GITHUB_TOKEN }} GITHUB_REPOSITORY="${GITHUB_REPOSITORY}"  UNCOVERED_LINE_FILE="generate_code_coverage_report/uncovered_file_lines.json" TESTING_COMMIT="${GITHUB_SHA}" PULL_REQUEST="${pull_number}" bundle exec ruby post_incremental_coverage_in_pr.rb
+          if [ -d "${{steps.download.outputs.download-path}}" ]; then
+            cd scripts/code_coverage_report/generate_code_coverage_report
+            swift build
+            .build/debug/IncrementalCoverageReportGenerator --changed-files git_diff.json --file-archive-root-path "${GITHUB_WORKSPACE}" --xcresult-dir "${{steps.download.outputs.download-path}}" --uncovered-line-file-json uncovered_file_lines.json
+            echo "---"
+            ls -a
+            echo "---"
+            cat "uncovered_file_lines.json"
+            echo "---"
+            pull_number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
+            cd ..
+            bundle install
+            INPUT_ACCESS_TOKEN=${{ secrets.GITHUB_TOKEN }} GITHUB_REPOSITORY="${GITHUB_REPOSITORY}"  UNCOVERED_LINE_FILE="generate_code_coverage_report/uncovered_file_lines.json" TESTING_COMMIT="${GITHUB_SHA}" PULL_REQUEST="${pull_number}" bundle exec ruby post_incremental_coverage_in_pr.rb
+          fi
       - name: Update New Coverage Data
         if: github.event.pull_request.merged && env.METRICS_SERVICE_SECRET
         run: |

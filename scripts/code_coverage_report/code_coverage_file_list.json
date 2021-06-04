@@ -5,7 +5,7 @@
       "FirebaseABTesting.*",
       "Interop/Analytics/Public/[^/]+\\.h",
       "\\.github/workflows/abtesting\\.yml",
-      "Gemfile"
+      "^Gemfile"
     ]
   },
   {
@@ -14,7 +14,7 @@
       "FirebaseAuth.*",
       "Interop/Auth/Public/[^/]+\\.h",
       "\\.github/workflows/auth\\.yml",
-      "Gemfile"
+      "^Gemfile"
     ]
   },
   {
@@ -24,7 +24,7 @@
       "\\.github/workflows/database\\.yml",
       "Example/Database/",
       "Interop/Auth/Public/[^/]+\\.h",
-      "Gemfile"
+      "^Gemfile"
     ]
   },
   {
@@ -33,7 +33,7 @@
       "FirebaseDynamicLinks.*",
       "\\.github/workflows/dynamiclinks\\.yml",
       "Interop/Analytics/Public/[^/]+\\.h",
-      "Gemfile"
+      "^Gemfile"
     ]
   },
   {
@@ -47,7 +47,7 @@
       "CMakeLists\\.txt",
       "cmake/.*",
       "\\.github/workflows/firestore\\.yml",
-      "Gemfile"
+      "^Gemfile"
     ]
   },
   {
@@ -57,7 +57,7 @@
       "\\.github/workflows/functions\\.yml",
       "Interop/Auth/Public/.*\\.h",
       "FirebaseMessaging/Sources/Interop/[^/]+\\.h",
-      "Gemfile"
+      "^Gemfile"
     ]
   },
   {
@@ -66,7 +66,7 @@
       "FirebaseInAppMessaging.*",
       "Interop/Analytics/Public/[^/]+\\.h",
       "\\.github/workflows/inappmessaging\\.yml",
-      "Gemfile"
+      "^Gemfile"
     ]
   },
   {
@@ -76,7 +76,7 @@
       "Interop/Analytics/Public/[^/]+\\.h",
       "FirebaseMessaging\\.podspec",
       "\\.github/workflows/messaging\\.yml",
-      "Gemfile"
+      "^Gemfile"
     ]
   },
   {
@@ -85,7 +85,7 @@
       "FirebasePerformance/.*",
       "FirebasePerformance\\.podspec",
       "\\.github/workflows/performance\\.yml",
-      "Gemfile"
+      "^Gemfile"
     ]
   },
   {
@@ -94,7 +94,7 @@
       "FirebaseRemoteConfig.*",
       "Interop/Analytics/Public/[^/]+\\.h",
       "\\.github/workflows/remoteconfig\\.yml",
-      "Gemfile",
+      "^Gemfile",
       "scripts/generate_access_token\\.sh"
     ]
   },
@@ -104,7 +104,7 @@
       "FirebaseStorage.*",
       "Interop/Auth/Public/[^/]+\\.h",
       "\\.github/workflows/storage\\.yml",
-      "Gemfile"
+      "^Gemfile"
     ]
   }
 ]
