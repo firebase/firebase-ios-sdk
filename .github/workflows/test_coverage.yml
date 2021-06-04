@@ -297,10 +297,8 @@ jobs:
         run: |
           # Get Head commit of the branch, instead of a merge commit created by actions/checkout.
           GITHUB_SHA=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.head.sha)
-          git diff -U0 ${base_commit} "${GITHUB_SHA}" 
-          git diff -U0 ${base_commit} "${GITHUB_SHA}" | scripts/code_coverage_report/git_diff_to_json.sh
           git diff -U0 ${base_commit} "${GITHUB_SHA}" | scripts/code_coverage_report/git_diff_to_json.sh > scripts/code_coverage_report/generate_code_coverage_report/git_diff.json
-          cat "git_diff.json"
+          cat "scripts/code_coverage_report/generate_code_coverage_report/git_diff.json"
           if [ -d "${{steps.download.outputs.download-path}}" ]; then
           cd scripts/code_coverage_report/generate_code_coverage_report
           swift build
