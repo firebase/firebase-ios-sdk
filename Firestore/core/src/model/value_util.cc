@@ -165,8 +165,8 @@ ComparisonResult CompareReferences(const google_firestore_v1_Value& left,
   std::vector<std::string> right_segments = absl::StrSplit(
       nanopb::MakeStringView(right.reference_value), '/', absl::SkipEmpty());
 
-  int min_length = std::min(left_segments.size(), right_segments.size());
-  for (int i = 0; i < min_length; ++i) {
+  size_t min_length = std::min(left_segments.size(), right_segments.size());
+  for (size_t i = 0; i < min_length; ++i) {
     ComparisonResult cmp = util::Compare(left_segments[i], right_segments[i]);
     if (cmp != ComparisonResult::Same) {
       return cmp;
