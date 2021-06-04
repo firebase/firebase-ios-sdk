@@ -56,11 +56,8 @@ end
 
 def add_coverage_comments(client, uncovered_files)
   for changed_file in uncovered_files do
-    print (changed_file)
     coverage_line = changed_file['coverage']
     xcresult_file = changed_file['xcresultBundle'].split('/').last
-    print ("-----")
-    print (xcresult_file)
     start_line = -1
     coverage_line.each_with_index do |line, idx|
       # Init start_line to the first uncovered line of a file.
