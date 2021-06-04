@@ -302,7 +302,7 @@ jobs:
           cat "scripts/code_coverage_report/generate_code_coverage_report/git_diff.json"
           cd scripts/code_coverage_report/generate_code_coverage_report
           swift build
-          .build/debug/IncrementalCoverageReportGenerator --changed-files git_diff.json --file-archive-root-path "${GITHUB_WORKSPACE}" --xcresult-dir "scripts/code_coverage_report/test_dir/" --uncovered-line-file-json uncovered_file_lines.json
+          .build/debug/IncrementalCoverageReportGenerator --changed-files git_diff.json --file-archive-root-path "${GITHUB_WORKSPACE}" --xcresult-dir "test_dir" --uncovered-line-file-json uncovered_file_lines.json
           echo "---"
           ls -a
           echo "---"
