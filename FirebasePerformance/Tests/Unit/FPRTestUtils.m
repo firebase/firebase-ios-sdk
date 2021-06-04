@@ -48,7 +48,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
 }
 
 + (FPRMSGPerfMetric *)createRandomPerfMetric:(NSString *)traceName {
-  FPRMSGPerfMetric *perfMetric = FPRGetPerfMetricMessage(@"RandomAppID");
+F  FPRMSGPerfMetric *perfMetric = FPRGetPerfMetricMessage(@"RandomAppID");
   FIRTrace *trace = [FPRTestUtils createRandomTraceWithName:traceName];
   // Make sure there are no sessions.
   trace.activeSessions = [NSMutableArray array];

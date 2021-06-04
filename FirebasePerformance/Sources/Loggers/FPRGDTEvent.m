@@ -14,12 +14,18 @@
 
 #import "FirebasePerformance/Sources/Loggers/FPRGDTEvent.h"
 
-#import "FirebasePerformance/ProtoSupport/PerfMetric.pbobjc.h"
+#import "FirebasePerformance/Sources/FPRProtoUtils.h"
+
+#import <nanopb/pb.h>
+#import <nanopb/pb_decode.h>
+#import <nanopb/pb_encode.h>
+
+//#import "FirebasePerformance/ProtoSupport/PerfMetric.pbobjc.h"
 
 @interface FPRGDTEvent ()
 
 /** Perf metric that is going to be converted. */
-@property(nonatomic) FPRMSGPerfMetric *metric;
+@property(nonatomic) firebase_perf_v1_PerfMetric metric;
 
 /**
  *  Creates an instance of FPRGDTEvent.
@@ -27,18 +33,18 @@
  *  @param perfMetric Performance Event proto object that needs to be converted to FPRGDTEvent.
  *  @return Instance of FPRGDTEvent.
  */
-- (instancetype)initForPerfMetric:(FPRMSGPerfMetric *)perfMetric;
+- (instancetype)initForPerfMetric:(firebase_perf_v1_PerfMetric)perfMetric;
 
 @end
 
 @implementation FPRGDTEvent
 
-+ (instancetype)gdtEventForPerfMetric:(FPRMSGPerfMetric *)perfMetric {
++ (instancetype)gdtEventForPerfMetric:(firebase_perf_v1_PerfMetric)perfMetric {
   FPRGDTEvent *event = [[FPRGDTEvent alloc] initForPerfMetric:perfMetric];
   return event;
 }
 
-- (instancetype)initForPerfMetric:(FPRMSGPerfMetric *)perfMetric {
+- (instancetype)initForPerfMetric:(firebase_perf_v1_PerfMetric)perfMetric {
   if (self = [super init]) {
     _metric = perfMetric;
   }
@@ -49,7 +55,23 @@
 #pragma mark - GDTCOREventDataObject protocol methods
 
 - (NSData *)transportBytes {
-  return [self.metric data];
+  pb_ostream_t sizestream = PB_OSTREAM_SIZING;
+
+  // Encode 1 time to determine the size.
+  if (!pb_encode(&sizestream, firebase_perf_v1_PerfMetric_fields, &_metric)) {
+//    FIRCLSErrorLog(@"Error in nanopb encoding for size: %s", PB_GET_ERROR(&sizestream));
+  }
+
+  // Encode a 2nd time to actually get the bytes from it.
+  size_t bufferSize = sizestream.bytes_written;
+  CFMutableDataRef dataRef = CFDataCreateMutable(CFAllocatorGetDefault(), bufferSize);
+  CFDataSetLength(dataRef, bufferSize);
+  pb_ostream_t ostream = pb_ostream_from_buffer((void *)CFDataGetBytePtr(dataRef), bufferSize);
+  if (!pb_encode(&ostream, firebase_perf_v1_PerfMetric_fields, &_metric)) {
+//    FIRCLSErrorLog(@"Error in nanopb encoding for bytes: %s", PB_GET_ERROR(&ostream));
+  }
+
+  return CFBridgingRelease(dataRef);
 }
 
 @end

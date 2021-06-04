@@ -25,6 +25,14 @@
 //#import "FirebasePerformance/ProtoSupport/PerfMetric.pbobjc.h"
 #import "FirebasePerformance/Sources/Protogen/nanopb/perf_metric.nanopb.h"
 
+extern pb_bytes_array_t * _Nullable FPREncodeData(NSData * _Nonnull data);
+
+extern pb_bytes_array_t * _Nullable FPREncodeString(NSString * _Nonnull string);
+
+extern NSData * _Nullable FPRDecodeData(pb_bytes_array_t * _Nonnull pbData);
+
+extern NSString * _Nullable FPRDecodeString(pb_bytes_array_t * _Nonnull pbData);
+
 /** Creates a new FPRMSGPerfMetric proto object populated with system metadata.
  *  @param appID The Google app id to put into the message
  *  @return Reference to a FPRMSGPerfMetric object.
