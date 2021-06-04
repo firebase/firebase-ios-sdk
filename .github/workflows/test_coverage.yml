@@ -275,10 +275,10 @@ jobs:
             #          scripts/decrypt_gha_secret.sh scripts/gha-encrypted/metrics_service_access.json.gpg \
             #          metrics-access.json "${{ env.METRICS_SERVICE_SECRET }}"
             #          gcloud auth activate-service-account --key-file metrics-access.json
-            #      - uses: actions/download-artifact@v2
-            #        id: download
-            #        with:
-            #          path: /Users/runner/test
+      - uses: actions/download-artifact@v2
+        id: download
+        with:
+          path: /Users/runner/test
             #      - name: Compare Diff and Post a Report
             #        if: github.event.pull_request.merged != true && github.event.action != 'closed' && env.METRICS_SERVICE_SECRET
             #        env:
