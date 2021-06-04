@@ -23,6 +23,7 @@ require 'json'
 COMMENT_HEADER = "### Incremental code coverage report"
 REMOVE_PATTERN = /### Incremental code coverage report/
 REPO = ENV['GITHUB_REPOSITORY']
+GITHUB_WORKFLOW_URL = "https://github.com/#{REPO}/actions/runs/#{ENV['GITHUB_RUN_ID']}"
 UNCOVERED_LINE_FILE = ENV["UNCOVERED_LINE_FILE"]
 TESTING_COMMIT = ENV["TESTING_COMMIT"]
 PULL_REQUEST = ENV["PULL_REQUEST"].to_i
@@ -49,10 +50,9 @@ def clean_coverage_comments(client)
 end
 
 def generate_comment(comment_header, xcresult_file)
-  body = "Tests for New code lines are not detected in #{xcresult_file}, please add tests on highlighted lines."
+  body = "Tests for New code lines are not detected in [#{xcresult_file}](#{GITHUB_WORKFLOW_URL}), please add tests on highlighted lines."
   return "#{comment_header} \n #{body}"
 end
-
 
 def add_coverage_comments(client, uncovered_files)
   for changed_file in uncovered_files do
