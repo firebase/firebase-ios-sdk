@@ -291,12 +291,14 @@ jobs:
             #          swift run CoverageReportGenerator --presubmit "firebase/firebase-ios-sdk" --head-commit "${GITHUB_SHA}" --token $(gcloud auth print-identity-token) --xcresult-dir "/Users/runner/test/codecoverage" --log-link "https://github.com/firebase/firebase-ios-sdk/actions/runs/${GITHUB_RUN_ID}" --pull-request-num ${{github.event.pull_request.number}} --base-commit "$base_commit"
             #          fi
       - name: Incremental Code Coverage
-        if: github.event.pull_request.merged != true && github.event.action != 'closed' && env.METRICS_SERVICE_SECRET
+        if: github.event.pull_request.merged != true && github.event.action != 'closed'
         env:
           base_commit: ${{ needs.check.outputs.base_commit }}
         run: |
           # Get Head commit of the branch, instead of a merge commit created by actions/checkout.
           GITHUB_SHA=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.head.sha)
+          git diff -U0 ${base_commit} "${GITHUB_SHA}" 
+          git diff -U0 ${base_commit} "${GITHUB_SHA}" | scripts/code_coverage_report/git_diff_to_json.sh
           git diff -U0 ${base_commit} "${GITHUB_SHA}" | scripts/code_coverage_report/git_diff_to_json.sh > scripts/code_coverage_report/generate_code_coverage_report/git_diff.json
           cat "git_diff.json"
           if [ -d "${{steps.download.outputs.download-path}}" ]; then
