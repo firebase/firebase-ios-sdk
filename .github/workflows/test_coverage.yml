@@ -305,6 +305,7 @@ jobs:
           cat "uncovered_file_lines.json"
           pull_number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
           cd ..
+          bundle install
           INPUT_ACCESS_TOKEN=${{ secrets.GITHUB_TOKEN }} GITHUB_REPOSITORY="${GITHUB_REPOSITORY}"  UNCOVERED_LINE_FILE="generate_code_coverage_report/uncovered_file_lines.json" TESTING_COMMIT="${GITHUB_SHA}" PULL_REQUEST="${pull_number}" bundle exec ruby post_incremental_coverage_in_pr.rb
       - name: Update New Coverage Data
         if: github.event.pull_request.merged && env.METRICS_SERVICE_SECRET
