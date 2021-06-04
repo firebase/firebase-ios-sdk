@@ -1,3 +1,6 @@
+# Version 8.2.0
+* Update log messages with proper log levels.
+
 # Version 8.1.0
 * Firebase Performance logs now contain URLs to see the performance data on the Firebase console.
 

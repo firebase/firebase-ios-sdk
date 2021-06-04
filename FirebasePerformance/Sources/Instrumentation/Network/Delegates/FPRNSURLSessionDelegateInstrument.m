@@ -53,7 +53,7 @@ void InstrumentURLSessionTaskDidCompleteWithError(FPRClassInstrumentor *instrume
         [trace didCompleteRequestWithResponse:task.response error:error];
         [FPRNetworkTrace removeNetworkTraceFromObject:task];
       } @catch (NSException *exception) {
-        FPRLogInfo(kFPRNetworkTraceNotTrackable, @"Unable to track network request.");
+        FPRLogWarning(kFPRNetworkTraceNotTrackable, @"Unable to track network request.");
       } @finally {
         typedef void (*OriginalImp)(id, SEL, NSURLSession *, NSURLSessionTask *, NSError *);
         ((OriginalImp)currentIMP)(object, selector, session, task, error);
@@ -90,7 +90,7 @@ void InstrumentURLSessionTaskDidSendBodyDataTotalBytesSentTotalBytesExpectedToSe
               }
             }
           } @catch (NSException *exception) {
-            FPRLogInfo(kFPRNetworkTraceNotTrackable, @"Unable to track network request.");
+            FPRLogWarning(kFPRNetworkTraceNotTrackable, @"Unable to track network request.");
           } @finally {
             typedef void (*OriginalImp)(id, SEL, NSURLSession *, NSURLSessionTask *, int64_t,
                                         int64_t, int64_t);

@@ -14,21 +14,14 @@
  * limitations under the License.
  */
 
-// Currently DCAppAttestService is available on iOS only.
-#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST  // Catalyst should be possible with Xcode 12.5+
+import Foundation
 
-#import <DeviceCheck/DeviceCheck.h>
-
-#import "FirebaseAppCheck/Sources/AppAttestProvider/FIRAppAttestService.h"
-
-NS_ASSUME_NONNULL_BEGIN
-
-API_AVAILABLE(ios(14.0))
-API_UNAVAILABLE(macos, tvos, watchos)
-@interface DCAppAttestService (FIRAppAttestService) <FIRAppAttestService>
-
-@end
-
-NS_ASSUME_NONNULL_END
-
-#endif  // TARGET_OS_IOS && !TARGET_OS_MACCATALYST
+public enum JSONParser {
+  // Decode an instance from a JSON file.
+  public static func readJSON<T: Codable>(of dataStruct: T.Type, from path: String) throws -> T {
+    let fileURL = URL(fileURLWithPath: FileManager().currentDirectoryPath)
+      .appendingPathComponent(path)
+    let data = try Data(contentsOf: fileURL)
+    return try JSONDecoder().decode(dataStruct, from: data)
+  }
+}
