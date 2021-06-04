@@ -129,7 +129,7 @@ class Serializer {
    */
   // TODO(wuandy): all `context` here should be mutable reference instead.
   model::FieldValue DecodeFieldValue(
-      util::ReadContext* context, const google_firestore_v1_Value& proto) const;
+      util::ReadContext* context, const google_firestore_v1_Value& msg) const;
 
   /**
    * Encodes the given document key as a fully qualified name. This includes the
@@ -228,7 +228,7 @@ class Serializer {
       const core::Target& target) const;
   core::Target DecodeQueryTarget(
       util::ReadContext* context,
-      const google_firestore_v1_Target_QueryTarget& proto) const;
+      const google_firestore_v1_Target_QueryTarget& query) const;
   core::Target DecodeStructuredQuery(
       util::ReadContext* context,
       pb_bytes_array_t* parent,

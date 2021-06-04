@@ -53,7 +53,6 @@ namespace bundle = firebase::firestore::bundle;
 namespace core = firebase::firestore::core;
 namespace local = firebase::firestore::local;
 namespace model = firebase::firestore::model;
-namespace nanopb = firebase::firestore::nanopb;
 namespace remote = firebase::firestore::remote;
 namespace util = firebase::firestore::util;
 
