@@ -34,8 +34,8 @@
 }
 
 - (FPRSessionDetails *)copyWithZone:(NSZone*) zone {
-  id detailsCopy = [[[self class] allocWithZone:zone] initWithSessionId:_sessionId
-                                                                options:_options];
+  id detailsCopy =
+    [[[self class] allocWithZone:zone] initWithSessionId:_sessionId options:_options];
   return detailsCopy;
 }
 
