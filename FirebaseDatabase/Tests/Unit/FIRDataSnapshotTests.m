@@ -498,4 +498,9 @@
                                                                                 toNamedNode:node1]);
 }
 
+- (void)testDummyFunction {
+  FIRDataSnapshot* snap = [self snapshotFor:@{}];
+  XCTAssertEqualObjects([snap dummyFunction], @"Hello, world.");
+}
+
 @end
