@@ -60,6 +60,7 @@ NS_SWIFT_NAME(DataSnapshot)
  * @return YES if this snapshot has any children, else NO.
  */
 - (BOOL)hasChildren;
+- (NSString *)dummyFunction;
 
 /**
  * Return YES if the DataSnapshot contains a non-null value.
