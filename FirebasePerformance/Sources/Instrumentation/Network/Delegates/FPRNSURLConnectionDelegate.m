@@ -51,8 +51,11 @@
             totalBytesWritten:(NSInteger)totalBytesWritten
     totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite {
   FPRNetworkTrace *trace = [FPRNetworkTrace networkTraceFromObject:connection];
-  [trace checkpointState:FPRNetworkTraceCheckpointStateResponseReceived];
   trace.requestSize = totalBytesWritten;
+  if (totalBytesWritten == totalBytesExpectedToWrite) {
+    [trace checkpointState:FPRNetworkTraceCheckpointStateRequestCompleted];
+    NSLog(@"*** connection didSendBodyData %ld", (long)totalBytesWritten);
+  }
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {

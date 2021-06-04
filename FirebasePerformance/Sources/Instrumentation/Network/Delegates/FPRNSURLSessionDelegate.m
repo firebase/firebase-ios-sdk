@@ -39,12 +39,8 @@
   @try {
     FPRNetworkTrace *trace = [FPRNetworkTrace networkTraceFromObject:task];
     trace.requestSize = totalBytesSent;
-    if (totalBytesSent >= totalBytesExpectedToSend) {
-      if ([task.response isKindOfClass:[NSHTTPURLResponse class]]) {
-        NSHTTPURLResponse *response = (NSHTTPURLResponse *)task.response;
-        [trace didCompleteRequestWithResponse:response error:task.error];
-        [FPRNetworkTrace removeNetworkTraceFromObject:task];
-      }
+    if (totalBytesSent == totalBytesExpectedToSend) {
+      [trace checkpointState:FPRNetworkTraceCheckpointStateRequestCompleted];
     }
   } @catch (NSException *exception) {
     FPRLogInfo(kFPRNetworkTraceNotTrackable, @"Unable to track network request.");

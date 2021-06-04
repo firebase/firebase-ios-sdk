@@ -364,10 +364,17 @@
   NSURLConnection *connection = [[NSURLConnection alloc] initWithRequest:request delegate:delegate];
   [connection start];
   XCTAssertNotNil([FPRNetworkTrace networkTraceFromObject:connection]);
+  FPRNetworkTrace *networkTrace = [FPRNetworkTrace networkTraceFromObject:connection];
+
   [self waitAndRunBlockAfterResponse:^(id self, GCDWebServerRequest *_Nonnull request,
                                        GCDWebServerResponse *_Nonnull response) {
     XCTAssertTrue(
         delegate.connectionDidSendBodyDataTotalBytesWrittenTotalBytesExpectedToWriteCalled);
+    XCTAssert(networkTrace.requestSize > 0);
+    XCTAssert(
+        [networkTrace
+            timeIntervalBetweenCheckpointState:FPRNetworkTraceCheckpointStateInitiated
+                                      andState:FPRNetworkTraceCheckpointStateRequestCompleted] > 0);
     XCTAssertNil([FPRNetworkTrace networkTraceFromObject:connection]);
   }];
   [instrument deregisterInstrumentors];
