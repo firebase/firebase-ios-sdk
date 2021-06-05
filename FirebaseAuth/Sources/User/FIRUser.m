@@ -719,6 +719,14 @@ static void callInMainThreadWithAuthDataResultAndError(
                                  completion(error);
                                  return;
                                }
+                               FIRAuthRequestConfiguration *requestConfiguration =
+                                   self.auth.requestConfiguration;
+                               // Update the new token and refresh user info again.
+                               self->_tokenService = [[FIRSecureTokenService alloc]
+                                   initWithRequestConfiguration:requestConfiguration
+                                                    accessToken:response.IDToken
+                                      accessTokenExpirationDate:response.approximateExpirationDate
+                                                   refreshToken:response.refreshToken];
                                // Get account info to update cached user info.
                                [self getAccountInfoRefreshingCache:^(
                                          FIRGetAccountInfoResponseUser *_Nullable user,
@@ -1172,6 +1180,12 @@ static void callInMainThreadWithAuthDataResultAndError(
                           if (error) {
                             callInMainThreadWithAuthDataResultAndError(completion, nil, error);
                           } else {
+                            // Update the new token and refresh user info again.
+                            self->_tokenService = [[FIRSecureTokenService alloc]
+                                initWithRequestConfiguration:requestConfiguration
+                                                 accessToken:response.IDToken
+                                   accessTokenExpirationDate:response.approximateExpirationDate
+                                                refreshToken:response.refreshToken];
                             [self internalGetTokenWithCallback:^(NSString *_Nullable accessToken,
                                                                  NSError *_Nullable error) {
                               if (error) {

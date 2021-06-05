@@ -1,5 +1,5 @@
 # Unreleased
-- [fixed] Fixed a bug in the link with email link flow. (#8196)
+- [fixed] Fixed a bug in the link with email link, Game Center, and phone auth flows. (#8196)
 
 # 8.0.0
 - [fixed] Fixed a crash that occurred when assigning auth settings. (#7670)

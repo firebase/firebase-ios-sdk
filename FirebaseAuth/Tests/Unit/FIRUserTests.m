@@ -3126,6 +3126,10 @@ static const NSTimeInterval kExpectationTimeout = 2;
           }
           id mockVerifyPhoneNumberResponse = OCMClassMock([FIRVerifyPhoneNumberResponse class]);
           OCMStub([mockVerifyPhoneNumberResponse phoneNumber]).andReturn(phoneNumber);
+          OCMStub([mockVerifyPhoneNumberResponse IDToken]).andReturn(kAccessToken);
+          OCMStub([mockVerifyPhoneNumberResponse approximateExpirationDate])
+              .andReturn([NSDate dateWithTimeIntervalSinceNow:kAccessTokenTimeToLive]);
+          OCMStub([mockVerifyPhoneNumberResponse refreshToken]).andReturn(kRefreshToken);
           callback(mockVerifyPhoneNumberResponse, nil);
         });
       });
