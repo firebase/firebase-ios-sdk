@@ -147,11 +147,15 @@ struct IncrementalCoverageReportGenerator: ParsableCommand {
           // `xccov` report will not involve unexecutable lines which are at
           // the end of the file. That means if the last couple lines are
           // comments, these lines will not be in the `coverageFile.coverage`.
-          print ("\(coverageFile.coverage.count): \(addedLineIndex) : \(coverageFile.coverage[addedLineIndex] ?? -1 )")
           if addedLineIndex < coverageFile.coverage.count,
-            let testCoverRun = coverageFile.coverage[addedLineIndex], testCoverRun == 0 {
-            print(addedLineIndex)
-            uncoveredLine.coverage.append(addedLineIndex)
+            let testCoverRun = coverageFile.coverage[addedLineIndex] {
+            print(
+              "\(coverageFile.coverage.count): \(addedLineIndex) : \(coverageFile.coverage[addedLineIndex] ?? -1)"
+            )
+            if testCoverRun == 0 {
+              print(addedLineIndex)
+              uncoveredLine.coverage.append(addedLineIndex)
+            }
           }
         }
         if !uncoveredLine.coverage.isEmpty { uncoveredFiles.append(uncoveredLine) }
