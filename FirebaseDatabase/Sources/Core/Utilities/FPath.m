@@ -301,8 +301,4 @@
     return hashCode;
 }
 
-- (NSString *)dummy_function {
-    NSString *hString = @"Hello";
-    return [NSString stringWithFormat:@"%@, world.", hString];
-}
 @end
