@@ -68,7 +68,6 @@ def add_coverage_comments(client, uncovered_files)
         next
       else
         comment = generate_comment(COMMENT_HEADER, xcresult_file)
-        puts comment
         if start_line == line
           # One line code comment will only rely on the position param, which is
           # 'line' here.
