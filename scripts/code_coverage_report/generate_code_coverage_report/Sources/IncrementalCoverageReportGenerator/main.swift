@@ -142,6 +142,7 @@ struct IncrementalCoverageReportGenerator: ParsableCommand {
           coverage: [],
           xcresultBundle: coverageFile.xcresultBundle
         )
+        print ("coverage: \(coverageFile.coverage)")
         print("The following lines shown below, if any, are found not tested in \(xcresultFile)")
         for addedLineIndex in change.addedLines {
           // `xccov` report will not involve unexecutable lines which are at
