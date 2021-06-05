@@ -454,8 +454,8 @@ TEST_F(BundleSerializerTest, DecodesNanDoubleValues) {
   BundleDocument actual =
       bundle_serializer.DecodeDocument(reader, Parse(json_string));
   EXPECT_OK(reader.status());
-  auto actual_value = actual.document().data().Get(
-      model::FieldPath::FromDotSeparatedString("foo"));
+  auto actual_value =
+      actual.document().field(model::FieldPath::FromDotSeparatedString("foo"));
   EXPECT_TRUE(model::IsNaNValue(*actual_value));
 }
 

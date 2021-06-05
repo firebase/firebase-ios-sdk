@@ -195,10 +195,10 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     return std::move(accumulator)
-        .MergeData(updateObject, FieldMask{std::move(validatedFieldPaths)});
+        .MergeData(std::move(updateObject), FieldMask{std::move(validatedFieldPaths)});
 
   } else {
-    return std::move(accumulator).MergeData(updateObject);
+    return std::move(accumulator).MergeData(std::move(updateObject));
   }
 }
 
