@@ -1,5 +1,3 @@
-#include <utility>
-
 /*
  * Copyright 2019 Google
  *
@@ -17,6 +15,8 @@
  */
 
 #include "Firestore/core/src/api/document_snapshot.h"
+
+#include <utility>
 
 #include "Firestore/core/src/api/document_reference.h"
 #include "Firestore/core/src/model/resource_path.h"
