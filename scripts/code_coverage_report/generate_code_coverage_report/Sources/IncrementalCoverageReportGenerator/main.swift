@@ -148,6 +148,7 @@ struct IncrementalCoverageReportGenerator: ParsableCommand {
           // the end of the file. That means if the last couple lines are
           // comments, these lines will not be in the `coverageFile.coverage`.
           if addedLineIndex < coverageFile.coverage.count,
+            print ("\(addedLineIndex) : \(coverageFile.coverage[addedLineIndex])")
             let testCoverRun = coverageFile.coverage[addedLineIndex], testCoverRun == 0 {
             print(addedLineIndex)
             uncoveredLine.coverage.append(addedLineIndex)
