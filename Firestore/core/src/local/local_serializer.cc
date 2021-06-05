@@ -136,7 +136,7 @@ google_firestore_v1_Document LocalSerializer::EncodeDocument(
   result.name = rpc_serializer_.EncodeKey(doc.key());
 
   // Encode Document.fields (unless it's empty)
-  const google_firestore_v1_MapValue& fields_map = doc.value().map_value;
+  google_firestore_v1_MapValue fields_map = doc.value().map_value;
   SetRepeatedField(
       &result.fields, &result.fields_count,
       absl::Span<google_firestore_v1_MapValue_FieldsEntry>(

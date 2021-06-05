@@ -98,7 +98,7 @@ MATCHER_P(HasAtLeastDocs,
 }
 
 MATCHER_P(MatchesValue, expected, "") {
-  const google_firestore_v1_Value& actual_value = arg.value();
+  google_firestore_v1_Value actual_value = arg.value();
   return testing::Value(actual_value, Eq(expected));
 }
 
