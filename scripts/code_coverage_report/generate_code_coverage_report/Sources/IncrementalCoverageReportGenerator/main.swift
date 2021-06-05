@@ -129,7 +129,7 @@ struct IncrementalCoverageReportGenerator: ParsableCommand {
       let tempOutputFile = xcresultFile.deletingPathExtension()
       // Fetch line execution report of a file from a xcresult bundle into a temp file, which has the same name as the xcresult bundle.
       Shell.run(
-        "\(Constants.xcovCommand) \(archiveFilePath.absoluteString) \(xcresultFile.path) | tee \(tempOutputFile.path)",
+        "\(Constants.xcovCommand) \(archiveFilePath.absoluteString) \(xcresultFile.path) > \(tempOutputFile.path)",
         displayCommand: true,
         displayFailureResult: false
       )
@@ -142,19 +142,15 @@ struct IncrementalCoverageReportGenerator: ParsableCommand {
           coverage: [],
           xcresultBundle: coverageFile.xcresultBundle
         )
-        print ("coverage: \(coverageFile.coverage)")
         print("The following lines shown below, if any, are found not tested in \(xcresultFile)")
         for addedLineIndex in change.addedLines {
           // `xccov` report will not involve unexecutable lines which are at
           // the end of the file. That means if the last couple lines are
           // comments, these lines will not be in the `coverageFile.coverage`.
-          if addedLineIndex < coverageFile.coverage.count,
-            let testCoverRun = coverageFile.coverage[addedLineIndex] {
-            print(
-              "\(coverageFile.coverage.count): \(addedLineIndex) : \(coverageFile.coverage[addedLineIndex] ?? -1)"
-            )
-            if testCoverRun == 0 {
-              print(addedLineIndex)
+          // Indices in an array, starting from 0,  correspond to lineIndex,
+          // starting from 0, minus 1.
+          if addedLineIndex <= coverageFile.coverage.count,
+            let testCoverRun = coverageFile.coverage[addedLineIndex - 1], testCoverRun == 0 {
               uncoveredLine.coverage.append(addedLineIndex)
             }
           }
