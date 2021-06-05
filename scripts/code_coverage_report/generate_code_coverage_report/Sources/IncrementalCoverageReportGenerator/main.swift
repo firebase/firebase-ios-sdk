@@ -151,7 +151,7 @@ struct IncrementalCoverageReportGenerator: ParsableCommand {
           // starting from 0, minus 1.
           if addedLineIndex <= coverageFile.coverage.count,
             let testCoverRun = coverageFile.coverage[addedLineIndex - 1], testCoverRun == 0 {
-              uncoveredLine.coverage.append(addedLineIndex)
+            uncoveredLine.coverage.append(addedLineIndex)
           }
         }
         if !uncoveredLine.coverage.isEmpty { uncoveredFiles.append(uncoveredLine) }
