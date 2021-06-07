@@ -228,17 +228,16 @@ NSData *_Nullable FIRDataWithDictionary(NSDictionary *dictionary, NSError **_Nul
     requestBody[@"uniqueMatchLinkToCheck"] = uniqueMatchLinkToCheck.absoluteString;
   }
 
-  FIRDLNetworkingParserBlock responseParserBlock = ^NSDictionary *_Nullable(
-      NSString *requestURLString, NSData *data, NSString **matchMessagePtr, NSError **errorPtr) {
+  FIRDLNetworkingParserBlock responseParserBlock =
+      ^NSDictionary *_Nullable(NSString *requestURLString, NSData *data, NSString **matchMessagePtr,
+                               NSError **_Nonnull errorPtr) {
     NSError *serializationError;
     NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data
                                                            options:0
                                                              error:&serializationError];
 
     if (serializationError) {
-      if (*errorPtr) {
-        *errorPtr = serializationError;
-      }
+      *errorPtr = serializationError;
       return nil;
     }
 
