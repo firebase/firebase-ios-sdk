@@ -32,6 +32,7 @@
     "source": {
         "http": "https://dl.google.com/firebase/ios/analytics/86f6bb645de4aa4b/FirebaseAnalytics-8.0.0.tar.gz"
     },
+    "static_framework": true,
     "subspecs": [
         {
             "name": "AdIdSupport",

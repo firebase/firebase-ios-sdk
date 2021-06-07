@@ -66,17 +66,17 @@ class JsonReader : public util::ReadContext {
   const nlohmann::json& RequiredObject(const char* child_name,
                                        const nlohmann::json& json_object);
 
-  double RequiredDouble(const char* name, const nlohmann::json& value);
+  double RequiredDouble(const char* name, const nlohmann::json& json_object);
   double OptionalDouble(const char* name,
-                        const nlohmann::json& value,
+                        const nlohmann::json& json_object,
                         double default_value = 0);
 
   template <typename IntType>
-  IntType RequiredInt(const char* name, const nlohmann::json& value);
+  IntType RequiredInt(const char* name, const nlohmann::json& json_object);
 
   template <typename IntType>
   IntType OptionalInt(const char* name,
-                      const nlohmann::json& value,
+                      const nlohmann::json& json_object,
                       IntType default_value);
 
   static bool OptionalBool(const char* name,
@@ -93,41 +93,41 @@ class BundleSerializer {
   explicit BundleSerializer(remote::Serializer serializer)
       : rpc_serializer_(std::move(serializer)) {
   }
-  BundleMetadata DecodeBundleMetadata(JsonReader& context,
+  BundleMetadata DecodeBundleMetadata(JsonReader& reader,
                                       const nlohmann::json& metadata) const;
 
-  NamedQuery DecodeNamedQuery(JsonReader& context,
+  NamedQuery DecodeNamedQuery(JsonReader& reader,
                               const nlohmann::json& named_query) const;
 
   BundledDocumentMetadata DecodeDocumentMetadata(
-      JsonReader& context, const nlohmann::json& document_metadata) const;
+      JsonReader& reader, const nlohmann::json& document_metadata) const;
 
-  BundleDocument DecodeDocument(JsonReader& context,
+  BundleDocument DecodeDocument(JsonReader& reader,
                                 const nlohmann::json& document) const;
 
  private:
-  BundledQuery DecodeBundledQuery(JsonReader& context,
+  BundledQuery DecodeBundledQuery(JsonReader& reader,
                                   const nlohmann::json& query) const;
-  core::FilterList DecodeWhere(JsonReader& context,
+  core::FilterList DecodeWhere(JsonReader& reader,
                                const nlohmann::json& query) const;
-  core::Filter DecodeFieldFilter(JsonReader& context,
+  core::Filter DecodeFieldFilter(JsonReader& reader,
                                  const nlohmann::json& filter) const;
-  core::FilterList DecodeCompositeFilter(JsonReader& context,
+  core::FilterList DecodeCompositeFilter(JsonReader& reader,
                                          const nlohmann::json& filter) const;
-  model::FieldValue DecodeValue(JsonReader& context,
+  model::FieldValue DecodeValue(JsonReader& reader,
                                 const nlohmann::json& value) const;
-  core::Bound DecodeBound(JsonReader& context,
+  core::Bound DecodeBound(JsonReader& reader,
                           const nlohmann::json& query,
                           const char* bound_name) const;
-  model::ResourcePath DecodeName(JsonReader& context,
+  model::ResourcePath DecodeName(JsonReader& reader,
                                  const nlohmann::json& name) const;
 
   remote::Serializer rpc_serializer_;
-  model::FieldValue DecodeReferenceValue(JsonReader& context,
-                                         const std::string& value) const;
-  model::FieldValue DecodeArrayValue(JsonReader& context,
+  model::FieldValue DecodeReferenceValue(JsonReader& reader,
+                                         const std::string& ref_string) const;
+  model::FieldValue DecodeArrayValue(JsonReader& reader,
                                      const nlohmann::json& array_json) const;
-  model::FieldValue DecodeMapValue(JsonReader& context,
+  model::FieldValue DecodeMapValue(JsonReader& reader,
                                    const nlohmann::json& map_json) const;
 };
 

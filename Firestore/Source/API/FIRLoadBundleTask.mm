@@ -27,8 +27,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 namespace {
 
-namespace api = firebase::firestore::api;
-namespace util = firebase::firestore::util;
 using firebase::firestore::util::ThrowInvalidArgument;
 
 }  // namespace

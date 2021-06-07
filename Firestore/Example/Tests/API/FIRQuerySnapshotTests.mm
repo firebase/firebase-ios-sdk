@@ -37,7 +37,6 @@
 #include "Firestore/core/src/util/string_apple.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 
-namespace util = firebase::firestore::util;
 namespace testutil = firebase::firestore::testutil;
 
 using firebase::firestore::api::DocumentChange;

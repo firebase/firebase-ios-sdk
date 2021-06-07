@@ -35,15 +35,11 @@ namespace firestore {
 namespace local {
 namespace {
 
-using leveldb::Iterator;
-using leveldb::Slice;
 using leveldb::Status;
-using leveldb::WriteOptions;
 using model::DocumentKey;
 using model::ResourcePath;
 using nanopb::Message;
 using nanopb::StringReader;
-using nanopb::Writer;
 
 /**
  * Schema version for the iOS client.

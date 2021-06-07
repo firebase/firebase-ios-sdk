@@ -29,10 +29,8 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
-using bundle::BundledQuery;
 using bundle::BundleMetadata;
 using bundle::NamedQuery;
-using nanopb::ByteString;
 using nanopb::Message;
 using nanopb::StringReader;
 

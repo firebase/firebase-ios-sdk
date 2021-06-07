@@ -54,8 +54,6 @@ using bundle::NamedQuery;
 using core::Target;
 using model::Document;
 using model::DocumentState;
-using model::FieldTransform;
-using model::FieldValue;
 using model::MaybeDocument;
 using model::Mutation;
 using model::MutationBatch;
@@ -70,8 +68,6 @@ using nanopb::MakeArray;
 using nanopb::Message;
 using nanopb::Reader;
 using nanopb::SafeReadBoolean;
-using nanopb::Writer;
-using util::Status;
 using util::StringFormat;
 
 }  // namespace

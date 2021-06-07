@@ -28,7 +28,6 @@ namespace firestore {
 namespace local {
 
 using model::DocumentKey;
-using model::DocumentKeyHash;
 using model::ListenSequenceNumber;
 
 MemoryEagerReferenceDelegate::MemoryEagerReferenceDelegate(

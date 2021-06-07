@@ -53,7 +53,7 @@ class Transaction {
       const util::StatusOr<std::vector<model::MaybeDocument>>&)>;
 
   Transaction() = default;
-  explicit Transaction(remote::Datastore* transaction);
+  explicit Transaction(remote::Datastore* datastore);
 
   /**
    * Takes a set of keys and asynchronously attempts to fetch all the documents
