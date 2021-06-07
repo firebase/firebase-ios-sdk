@@ -245,7 +245,7 @@ extern NSString *const FIRPhoneMultiFactorID;
     @param error The error that occurred if any.
     @return The reCAPTCHA token if successful.
  */
-- (NSString *)reCAPTCHATokenForURL:(NSURL *)URL error:(NSError **)error {
+- (nullable NSString *)reCAPTCHATokenForURL:(NSURL *)URL error:(NSError **_Nonnull)error {
   NSURLComponents *actualURLComponents = [NSURLComponents componentsWithURL:URL
                                                     resolvingAgainstBaseURL:NO];
   NSArray<NSURLQueryItem *> *queryItems = [actualURLComponents queryItems];

@@ -62,7 +62,7 @@ static NSString *const kFakeErrorDomain = @"fake domain";
 
 - (NSData *)respondWithJSON:(NSDictionary *)JSON error:(NSError *)error {
   NSError *JSONEncodingError;
-  NSData *data;
+  NSData *data = [NSData data];
   if (JSON) {
     data = [NSJSONSerialization dataWithJSONObject:JSON
                                            options:NSJSONWritingPrettyPrinted
