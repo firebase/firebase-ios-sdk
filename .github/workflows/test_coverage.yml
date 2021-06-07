@@ -303,13 +303,17 @@ jobs:
           if [ -d "${{steps.download.outputs.download-path}}" ]; then
             # Create an uncovered_file_lines.json including code lines not covered by tests.
             cd scripts/code_coverage_report/generate_code_coverage_report
-            swift build
-            .build/debug/IncrementalCoverageReportGenerator --changed-files "git_diff.json" --file-archive-root-path "${GITHUB_WORKSPACE}" --xcresult-dir "${{steps.download.outputs.download-path}}" --uncovered-line-file-json "uncovered_file_lines.json"
+            swift run IncrementalCoverageReportGenerator --changed-files "git_diff.json" --file-archive-root-path "${GITHUB_WORKSPACE}" --xcresult-dir "${{steps.download.outputs.download-path}}" --uncovered-line-file-json "uncovered_file_lines.json"
             # Post uncovered lines to PRs.
             pull_number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
             cd ..
             bundle install
-            INPUT_ACCESS_TOKEN=${{ secrets.GITHUB_TOKEN }} GITHUB_REPOSITORY="${GITHUB_REPOSITORY}"  UNCOVERED_LINE_FILE="generate_code_coverage_report/uncovered_file_lines.json" TESTING_COMMIT="${GITHUB_SHA}" PULL_REQUEST="${pull_number}" bundle exec ruby post_incremental_coverage_in_pr.rb
+            INPUT_ACCESS_TOKEN=${{ secrets.GITHUB_TOKEN }} \
+            GITHUB_REPOSITORY="${GITHUB_REPOSITORY}" \
+            UNCOVERED_LINE_FILE="generate_code_coverage_report/uncovered_file_lines.json" \
+            TESTING_COMMIT="${GITHUB_SHA}" \
+            PULL_REQUEST="${pull_number}" \
+            bundle exec ruby post_incremental_coverage_in_pr.rb
           fi
       - name: Update New Coverage Data
         if: github.event.pull_request.merged && env.METRICS_SERVICE_SECRET
