@@ -35,7 +35,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Initialize xcodebuild
-      run: xcodebuild -list
+      run: scripts/setup_spm_tests.sh
     - name: iOS Unit Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh CoreUnit iOS spm
 
@@ -49,7 +49,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Initialize xcodebuild
-      run: xcodebuild -list
+      run: scripts/setup_spm_tests.sh
     - name: Unit Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh CoreUnit ${{ matrix.target }} spm
 

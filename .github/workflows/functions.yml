@@ -43,7 +43,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Initialize xcodebuild
-      run: xcodebuild -list
+      run: scripts/setup_spm_tests.sh
     - name: iOS Unit Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFunctions iOS spmbuildonly
     - name: Combine Unit Tests
@@ -59,7 +59,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Initialize xcodebuild
-      run: xcodebuild -list
+      run: scripts/setup_spm_tests.sh
     - name: Unit Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFunctions ${{ matrix.target }} spmbuildonly
 

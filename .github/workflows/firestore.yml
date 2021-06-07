@@ -200,7 +200,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Initialize xcodebuild
-      run: xcodebuild -list
+      run: scripts/setup_spm_tests.sh
     - name: iOS Build Test
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore iOS spmbuildonly
     - name: Swift Build
@@ -216,7 +216,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Initialize xcodebuild
-      run: xcodebuild -list
+      run: scripts/setup_spm_tests.sh
     - name: Build Test
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
     - name: Swift Build
