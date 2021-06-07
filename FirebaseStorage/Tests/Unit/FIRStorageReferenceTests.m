@@ -193,7 +193,7 @@
   NSString *tempFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"temp.data"];
   FIRStorageReference *ref = [self.storage referenceWithPath:tempFilePath];
 
-  NSURL *dummyFileURL = nil;
+  NSURL *dummyFileURL = [NSURL URLWithString:@"bad-url"];
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"completionExpectation"];
 
