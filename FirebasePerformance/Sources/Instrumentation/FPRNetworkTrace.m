@@ -141,7 +141,7 @@ NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
   if (self.traceStarted && !self.traceCompleted) {
     dispatch_async(self.sessionIdSerialQueue, ^{
       FPRSessionManager *sessionManager = [FPRSessionManager sharedInstance];
-      FPRSessionDetails *sessionDetails = sessionManager.sessionDetails;
+      FPRSessionDetails *sessionDetails = [sessionManager.sessionDetails copy];
       if (sessionDetails) {
         [self.activeSessions addObject:sessionDetails];
       }
