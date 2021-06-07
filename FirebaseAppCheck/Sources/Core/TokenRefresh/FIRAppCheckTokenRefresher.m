@@ -25,6 +25,11 @@ NS_ASSUME_NONNULL_BEGIN
 static const NSTimeInterval kInitialBackoffTimeInterval = 30;
 static const NSTimeInterval kMaximumBackoffTimeInterval = 16 * 60;
 
+static const NSTimeInterval kMinimumAutoRefreshTimeInterval = 60; // 1 min.
+
+/// How much time in advance to auto-refresh token before it's expiration. E.g. 0.5 means that the token will be refreshed half way through it's intended time to live.
+static const double kAutoRefreshFraction = 0.5;
+
 @interface FIRAppCheckTokenRefresher ()
 
 @property(nonatomic, readonly) dispatch_queue_t refreshQueue;
@@ -163,10 +168,31 @@ static const NSTimeInterval kMaximumBackoffTimeInterval = 16 * 60;
 #pragma mark - Backoff
 
 - (NSDate *)nextRefreshDateWithTokenRefreshResult:(FIRAppCheckTokenRefreshResult *)refreshResult {
+
+  switch (refreshResult.status) {
+    case FIRAppCheckTokenRefreshStatusSuccess:
+    {
+      NSTimeInterval timeToLive = [refreshResult.tokenExpirationDate timeIntervalSinceDate:refreshResult.tokenReceivedAtDate];
+      timeToLive = MAX(timeToLive, 0);
+
+      // Refresh in 50% of TTL + 5 min.
+      NSTimeInterval targetRefreshSinceReceivedDate = timeToLive * kAutoRefreshFraction + 5 * 60;
+      NSDate *targetRefreshDate =
+          [refreshResult.tokenReceivedAtDate dateByAddingTimeInterval:targetRefreshSinceReceivedDate];
+    }
+      break;
+
+    default:
+      break;
+  }
+
+
+
   NSDate *targetRefreshDate =
-      [refreshResult.tokenExpirationDate dateByAddingTimeInterval:-self.tokenExpirationThreshold];
+      [refreshResult.tokenReceivedAtDate dateByAddingTimeInterval:targetRefreshSinceReceivedDate];
   NSTimeInterval scheduleIn = [targetRefreshDate timeIntervalSinceNow];
 
+  // Check
   NSTimeInterval backoffTime = [[self class] backoffTimeForRetryCount:self.retryCount];
   if (scheduleIn >= backoffTime) {
     return targetRefreshDate;
@@ -174,6 +200,7 @@ static const NSTimeInterval kMaximumBackoffTimeInterval = 16 * 60;
     return [NSDate dateWithTimeIntervalSinceNow:backoffTime];
   }
 }
+
 
 + (NSTimeInterval)backoffTimeForRetryCount:(NSInteger)retryCount {
   if (retryCount == 0) {
