@@ -61,8 +61,7 @@
   [[[self.mockSettings expect] andReturnValue:@(YES)] isTokenAutoRefreshEnabled];
 
   // 2. Expect timer to be scheduled.
-  NSDate *expectedTimerFireDate =
-      [self.initialTokenRefreshResult.tokenExpirationDate dateByAddingTimeInterval:-self.tokenExpirationThreshold];
+  NSDate *expectedTimerFireDate = [self expectedRefreshDateWithReceivedDate:self.initialTokenRefreshResult.tokenReceivedAtDate expirationDate:self.initialTokenRefreshResult.tokenExpirationDate];
   XCTestExpectation *timerCreateExpectation = [self expectationWithDescription:@"create timer"];
 
   __auto_type weakSelf = self;
@@ -160,7 +159,7 @@
 
   // 3. Expect for new timer to be created.
   NSDate *expectedFireDate =
-      [refreshedTokenExpirationDate dateByAddingTimeInterval:-self.tokenExpirationThreshold];
+  [self expectedRefreshDateWithReceivedDate:refreshResult.tokenReceivedAtDate expirationDate:refreshResult.tokenExpirationDate];
   XCTestExpectation *createTimerExpectation = [self expectationWithDescription:@"create timer"];
   self.fakeTimer.createHandler = ^(NSDate *_Nonnull fireDate) {
     [createTimerExpectation fulfill];
@@ -328,8 +327,7 @@
   [[[self.mockSettings expect] andReturnValue:@(YES)] isTokenAutoRefreshEnabled];
 
   // 2. Expect timer to be scheduled.
-  NSDate *expectedTimerFireDate =
-      [newExpirationDate dateByAddingTimeInterval:-self.tokenExpirationThreshold];
+  NSDate *expectedTimerFireDate = [self expectedRefreshDateWithReceivedDate:newRefreshResult.tokenReceivedAtDate expirationDate:newRefreshResult.tokenExpirationDate];
   XCTestExpectation *timerCreateExpectation = [self expectationWithDescription:@"create timer"];
 
   __auto_type weakSelf = self;
@@ -395,6 +393,22 @@
          tokenExpirationThreshold:self.tokenExpirationThreshold
                     timerProvider:[self.fakeTimer fakeTimerProvider]
                          settings:self.mockSettings];
+}
+
+- (NSDate *)expectedRefreshDateWithReceivedDate:(NSDate *)receivedDate expirationDate:(NSDate *)expirationDate {
+  NSTimeInterval timeToLive = [expirationDate timeIntervalSinceDate:receivedDate];
+  XCTAssertGreaterThanOrEqual(timeToLive, 0);
+
+  NSTimeInterval timeToRefresh = timeToLive / 2 + 5 * 60; // 50% or TTL + 5 min
+
+  NSTimeInterval minimalAutoRefreshInterval = 60; // 1 min
+  timeToRefresh = MAX(timeToRefresh, minimalAutoRefreshInterval);
+
+  NSDate *refreshDate = [receivedDate dateByAddingTimeInterval:timeToRefresh];
+
+  NSDate *now = [NSDate date];
+
+  return [refreshDate laterDate:now];
 }
 
 @end
