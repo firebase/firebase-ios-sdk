@@ -236,7 +236,9 @@ NSData *_Nullable FIRDataWithDictionary(NSDictionary *dictionary, NSError **_Nul
                                                              error:&serializationError];
 
     if (serializationError) {
-      *errorPtr = serializationError;
+      if (*errorPtr) {
+        *errorPtr = serializationError;
+      }
       return nil;
     }
 
