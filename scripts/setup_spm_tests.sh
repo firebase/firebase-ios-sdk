@@ -15,7 +15,7 @@
 # limitations under the License.
 
 # Move schemes into place to run Swift Package Manager tests
-# These cannot be stored in the correct location because they cause 
+# These cannot be stored in the correct location because they cause
 # clutter for SDK clients.
 # Details in https://github.com/firebase/firebase-ios-sdk/issues/8167 and
 # https://forums.swift.org/t/swiftpm-and-library-unit-testing/26255/21
