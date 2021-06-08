@@ -277,7 +277,8 @@ extern NSString *const FIRPhoneMultiFactorID;
     if (!*error) {
       NSString *reason;
       if (errorDict[@"code"] && errorDict[@"message"]) {
-        reason = [NSString stringWithFormat:@"[%@] - %@", errorDict[@"code"], errorDict[@"message"]];
+        reason =
+            [NSString stringWithFormat:@"[%@] - %@", errorDict[@"code"], errorDict[@"message"]];
       } else {
         reason = [NSString stringWithFormat:@"An unknown error occurred with the following "
                                              "response: %@",
