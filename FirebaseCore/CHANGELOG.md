@@ -1,3 +1,6 @@
+# Firebase 8.2.0
+- [fixed] Stop flooding Swift Package Manager projects with Firebase test schemes. (#8167)
+
 # Firebase 8.0.0
 - [removed] The deprecated Firebase InstanceID has been removed. Use Firebase Installations to manage
   app instance and use Firebase Messaging to manage FCM registration token instead. (#7970)
