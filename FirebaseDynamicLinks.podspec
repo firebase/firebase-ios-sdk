@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseDynamicLinks'
-  s.version          = '7.8.0'
+  s.version          = '8.1.0'
   s.summary          = 'Firebase Dynamic Links'
 
   s.description      = <<-DESC
@@ -29,7 +29,7 @@ Firebase Dynamic Links are deep links that enhance user experience and increase 
   s.public_header_files = 'FirebaseDynamicLinks/Sources/Public/FirebaseDynamicLinks/*.h'
   s.frameworks = 'QuartzCore'
   s.weak_framework = 'WebKit'
-  s.dependency 'FirebaseCore', '~> 7.0'
+  s.dependency 'FirebaseCore', '~> 8.0'
 
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
@@ -47,7 +47,7 @@ Firebase Dynamic Links are deep links that enhance user experience and increase 
                            # Supply plist for custom domain testing.
                            'FirebaseDynamicLinks/Tests/Unit/DL-Info.plist'
     unit_tests.dependency 'OCMock'
-    unit_tests.dependency 'GoogleUtilities/MethodSwizzler', '~> 7.0'
-    unit_tests.dependency 'GoogleUtilities/SwizzlerTestHelpers', '~> 7.0'
+    unit_tests.dependency 'GoogleUtilities/MethodSwizzler', '~> 7.4'
+    unit_tests.dependency 'GoogleUtilities/SwizzlerTestHelpers', '~> 7.4'
   end
 end

@@ -34,8 +34,11 @@ NS_ASSUME_NONNULL_BEGIN
 // The Cloud Firestore error domain. Keep in sync with FIRFirestoreErrors.h.
 // Exposed here to make it possible to build in CMake without bringing in the
 // sources under Firestore/Source.
+// clang-format off
+// clang-format12 merges the next two lines.
 FOUNDATION_EXPORT NSString* const FIRFirestoreErrorDomain
     NS_SWIFT_NAME(FirestoreErrorDomain);
+// clang-format on
 
 namespace firebase {
 namespace firestore {

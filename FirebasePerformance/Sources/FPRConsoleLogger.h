@@ -16,6 +16,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+FOUNDATION_EXTERN NSString* const kFIRLoggerPerf;
+
 #define FPRLogDebug(messageCode, ...) FIRLogDebug(kFIRLoggerPerf, messageCode, __VA_ARGS__)
 #define FPRLogError(messageCode, ...) FIRLogError(kFIRLoggerPerf, messageCode, __VA_ARGS__)
 #define FPRLogInfo(messageCode, ...) FIRLogInfo(kFIRLoggerPerf, messageCode, __VA_ARGS__)

@@ -7,13 +7,13 @@ source 'https://cdn.cocoapods.org/'
 def shared_pods
   pod 'FirebaseCore', :path => '../../../'
   pod 'FirebaseMessaging', :path => '../../../'
-  pod 'FirebaseInstanceID', :path => '../../../'
   pod 'FirebaseCoreDiagnostics', :path => '../../../'
   pod 'FirebaseInstallations', :path => '../../../'
 end
 
 target 'AdvancedSample' do
   platform :ios, '13.0'
+  pod 'FirebaseAnalytics'
   shared_pods
 end
 
@@ -24,6 +24,7 @@ end
 
 target 'AppClips' do
   platform :ios, '13.0'
+  pod 'FirebaseAnalytics'
   shared_pods
 end
 

@@ -83,6 +83,9 @@ case "$project-$platform-$method" in
   Crashlytics-*)
     ;;
 
+  CombineSwift-*)
+    ;;
+
   Database-*)
     ;;
 
@@ -152,6 +155,11 @@ case "$project-$platform-$method" in
   SegmentationSample-*)
     install_xcpretty
     bundle exec pod install --project-directory=FirebaseSegmentation/Tests/Sample --repo-update
+    ;;
+
+  WatchOSSample-*)
+    install_xcpretty
+    bundle exec pod install --project-directory=Example/watchOSSample --repo-update
     ;;
 
   GoogleDataTransport-watchOS-xcodebuild)

@@ -115,7 +115,7 @@
   XCTAssertEqualObjects(parts[0], @"Firebase");
   XCTAssertEqualObjects(parts[1], kWebsocketProtocolVersion);   // Wire protocol version
   XCTAssertEqualObjects(parts[2], [FIRDatabase buildVersion]);  // Build version
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE && !TARGET_OS_WATCH
   XCTAssertEqualObjects(parts[3], [[UIDevice currentDevice] systemVersion]);  // iOS Version
   NSString *deviceName = [UIDevice currentDevice].model;
   XCTAssertEqualObjects([parts[4] componentsSeparatedByString:@"_"][0], deviceName);

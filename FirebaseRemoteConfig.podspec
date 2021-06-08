@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseRemoteConfig'
-  s.version          = '7.8.0'
+  s.version          = '8.1.0'
   s.summary          = 'Firebase Remote Config'
 
   s.description      = <<-DESC
@@ -44,11 +44,11 @@ app update.
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
-  s.dependency 'FirebaseABTesting', '~> 7.0'
-  s.dependency 'FirebaseCore', '~> 7.0'
-  s.dependency 'FirebaseInstallations', '~> 7.0'
-  s.dependency 'GoogleUtilities/Environment', '~> 7.0'
-  s.dependency 'GoogleUtilities/NSData+zlib', '~> 7.0'
+  s.dependency 'FirebaseABTesting', '~> 8.0'
+  s.dependency 'FirebaseCore', '~> 8.0'
+  s.dependency 'FirebaseInstallations', '~> 8.0'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.4'
+  s.dependency 'GoogleUtilities/NSData+zlib', '~> 7.4'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }
@@ -82,7 +82,11 @@ app update.
   # Run Swift API tests on a real backend.
   s.test_spec 'swift-api-tests' do |swift_api|
     swift_api.scheme = { :code_coverage => true }
-    swift_api.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
+    swift_api.platforms = {
+      :ios => ios_deployment_target,
+      :osx => osx_deployment_target,
+      :tvos => tvos_deployment_target
+    }
     swift_api.source_files = 'FirebaseRemoteConfig/Tests/SwiftAPI/*.swift',
                              'FirebaseRemoteConfig/Tests/FakeUtils/*.[hm]',
                              'FirebaseRemoteConfig/Tests/FakeUtils/*.swift'
@@ -98,7 +102,11 @@ app update.
   # Run Swift API tests and tests requiring console changes on a Fake Console.
   s.test_spec 'fake-console-tests' do |fake_console|
     fake_console.scheme = { :code_coverage => true }
-    fake_console.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
+    fake_console.platforms = {
+      :ios => ios_deployment_target,
+      :osx => osx_deployment_target,
+      :tvos => tvos_deployment_target
+    }
     fake_console.source_files = 'FirebaseRemoteConfig/Tests/SwiftAPI/*.swift',
                                       'FirebaseRemoteConfig/Tests/FakeUtils/*.[hm]',
                                       'FirebaseRemoteConfig/Tests/FakeUtils/*.swift',

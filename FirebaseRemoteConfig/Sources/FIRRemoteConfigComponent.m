@@ -38,6 +38,8 @@
     errorPropertyName = @"googleAppID";
   } else if (options.GCMSenderID.length == 0) {
     errorPropertyName = @"GCMSenderID";
+  } else if (options.projectID.length == 0) {
+    errorPropertyName = @"projectID";
   }
 
   if (errorPropertyName) {

@@ -45,7 +45,6 @@ using model::DocumentKeySet;
 using model::ListenSequenceNumber;
 using model::SnapshotVersion;
 using model::TargetId;
-using nanopb::ByteString;
 using nanopb::Message;
 using nanopb::StringReader;
 
@@ -125,7 +124,7 @@ void LevelDbTargetCache::UpdateTarget(const TargetData& target_data) {
 void LevelDbTargetCache::RemoveTarget(const TargetData& target_data) {
   TargetId target_id = target_data.target_id();
 
-  RemoveAllDocumentKeysForTarget(target_id);
+  RemoveMatchingKeysForTarget(target_id);
 
   std::string key = LevelDbTargetKey::Key(target_id);
   db_->current_transaction()->Delete(key);
@@ -225,7 +224,7 @@ size_t LevelDbTargetCache::RemoveTargets(
       TargetId target_id = target_proto->target_id;
 
       // Remove the DocumentKey to TargetId mapping
-      RemoveAllDocumentKeysForTarget(target_id);
+      RemoveMatchingKeysForTarget(target_id);
       // Remove the TargetId to Target mapping
       db_->current_transaction()->Delete(it->key());
 
@@ -270,7 +269,7 @@ void LevelDbTargetCache::RemoveMatchingKeys(const DocumentKeySet& keys,
   }
 }
 
-void LevelDbTargetCache::RemoveAllDocumentKeysForTarget(TargetId target_id) {
+void LevelDbTargetCache::RemoveMatchingKeysForTarget(TargetId target_id) {
   std::string index_prefix = LevelDbTargetDocumentKey::KeyPrefix(target_id);
   auto index_iterator = db_->current_transaction()->NewIterator();
   index_iterator->Seek(index_prefix);

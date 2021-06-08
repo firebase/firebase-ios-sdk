@@ -23,7 +23,7 @@
 
 // HACK used by testUnsentTransactionsAreNotCancelledOnDisconnect to return one bad token and then a
 // nil token.
-@interface FIROneBadTokenProvider : NSObject <FAuthTokenProvider> {
+@interface FIROneBadTokenProvider : NSObject <FIRDatabaseConnectionContextProvider> {
   BOOL firstFetch;
 }
 @end
@@ -37,21 +37,28 @@
   return self;
 }
 
-- (void)fetchTokenForcingRefresh:(BOOL)forceRefresh
-                    withCallback:(fbt_void_nsstring_nserror)callback {
+- (void)fetchContextForcingRefresh:(BOOL)forceRefresh
+                      withCallback:(void (^)(FIRDatabaseConnectionContext *_Nullable context,
+                                             NSError *_Nullable error))callback {
   // Simulate delay
   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_MSEC)),
                  [FIRDatabaseQuery sharedQueue], ^{
                    if (self->firstFetch) {
                      self->firstFetch = NO;
-                     callback(@"bad-token", nil);
+                     __auto_type context =
+                         [[FIRDatabaseConnectionContext alloc] initWithAuthToken:@"bad-token"
+                                                                   appCheckToken:nil];
+                     callback(context, nil);
                    } else {
                      callback(nil, nil);
                    }
                  });
 }
 
-- (void)listenForTokenChanges:(fbt_void_nsstring)listener {
+- (void)listenForAuthTokenChanges:(fbt_void_nsstring)listener {
+}
+
+- (void)listenForAppCheckTokenChanges:(nonnull fbt_void_nsstring)listener {
 }
 
 @end
@@ -1514,7 +1521,7 @@ withBlock:^(FIRDataSnapshot *snapshot) { ready = [[snapshot value] boolValue];
   // server, but that's harder to manufacture from a test.
   NSString *configName = @"testUnsentTransactionsAreNotCancelledOnDisconnect";
   FIRDatabaseConfig *config = [FTestHelpers configForName:configName];
-  config.authTokenProvider = [[FIROneBadTokenProvider alloc] init];
+  config.contextProvider = [[FIROneBadTokenProvider alloc] init];
 
   // Queue a transaction offline.
   FIRDatabaseReference *root = [[FTestHelpers databaseForConfig:config] reference];

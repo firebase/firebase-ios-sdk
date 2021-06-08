@@ -478,7 +478,7 @@
     return;
   }
 #endif
-#if TARGET_OS_MACCATALYST || TARGET_OS_OSX
+#if TARGET_OS_MACCATALYST || TARGET_OS_OSX || TARGET_OS_WATCH
   return;
 #endif
 

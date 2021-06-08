@@ -53,16 +53,10 @@ struct ZipBuilderTool: ParsableCommand {
         help: ArgumentHelp("Whether or not to build dependencies of requested pods."))
   var buildDependencies: Bool
 
-  /// Flag to also build Carthage artifacts.
-  @Flag(default: false,
-        inversion: .prefixedEnableDisable,
-        help: ArgumentHelp("A flag specifying to build Carthage artifacts."))
-  var carthageBuild: Bool
-
   /// Flag to enable or disable Carthage version checks. Skipping the check can speed up dev
   /// iterations.
   @Flag(default: true,
-        // Allows `enableCarthageVersionCheck` and `disableCarthageVersionCheck`.
+        // Allows `--enable-carthage-version-check` and `--disable-carthage-version-check`.
         inversion: FlagInversion.prefixedEnableDisable,
         help: ArgumentHelp("A flag for enabling or disabling versions checks for Carthage builds."))
   var carthageVersionCheck: Bool
@@ -230,11 +224,6 @@ struct ZipBuilderTool: ParsableCommand {
       fatalError("Missing template inside of the repo. \(templateDir) does not exist.")
     }
 
-    // Set the platform minimum versions.
-    PlatformMinimum.initialize(ios: minimumIOSVersion,
-                               macos: minimumMacOSVersion,
-                               tvos: minimumTVOSVersion)
-
     // Update iOS target platforms if `--include-catalyst` was specified.
     if !includeCatalyst {
       SkipCatalyst.set()
@@ -272,8 +261,14 @@ struct ZipBuilderTool: ParsableCommand {
     }
 
     if let podsToBuild = podsToBuild {
+      // Set the platform minimum versions.
+      PlatformMinimum.initialize(ios: minimumIOSVersion,
+                                 macos: minimumMacOSVersion,
+                                 tvos: minimumTVOSVersion)
+
       let (installedPods, frameworks, _) =
         builder.buildAndAssembleZip(podsToInstall: podsToBuild,
+                                    includeCarthage: false,
                                     includeDependencies: buildDependencies)
       let staging = FileManager.default.temporaryDirectory(withName: "Binaries")
       try builder.copyFrameworks(fromPods: Array(installedPods.keys), toDirectory: staging,
@@ -300,12 +295,15 @@ struct ZipBuilderTool: ParsableCommand {
       }
     } else {
       // Do a Firebase Zip Release package build.
-      var carthageOptions: CarthageBuildOptions?
-      if carthageBuild {
-        let jsonDir = paths.repoDir.appendingPathComponents(["ReleaseTooling", "CarthageJSON"])
-        carthageOptions = CarthageBuildOptions(jsonDir: jsonDir,
-                                               isVersionCheckEnabled: carthageVersionCheck)
-      }
+
+      // For the Firebase zip distribution, we disable version checking at install time by
+      // setting a high version to install. The minimum versions are controlled by each individual
+      // pod's podspec options.
+      PlatformMinimum.useRecentVersions()
+
+      let jsonDir = paths.repoDir.appendingPathComponents(["ReleaseTooling", "CarthageJSON"])
+      let carthageOptions = CarthageBuildOptions(jsonDir: jsonDir,
+                                                 isVersionCheckEnabled: carthageVersionCheck)
 
       FirebaseBuilder(zipBuilder: builder).build(templateDir: paths.templateDir,
                                                  carthageBuildOptions: carthageOptions)

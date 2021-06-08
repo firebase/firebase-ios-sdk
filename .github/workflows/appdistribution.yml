@@ -5,10 +5,10 @@ on:
     paths:
     - 'FirebaseAppDistribution**'
     - '.github/workflows/appdistribution.yml'
-    - 'Gemfile'
+    - 'Gemfile*'
   schedule:
-    # Run every day at 7pm (PST) - cron uses UTC times
-    - cron:  '0 3 * * *'
+    # Run every day at 1am (PST) - cron uses UTC times
+    - cron: '0 9 * * *'
 
 jobs:
   pod-lib-lint:
@@ -35,10 +35,8 @@ jobs:
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Xcode 12
-      run: sudo xcode-select -s /Applications/Xcode_12.app/Contents/Developer
     - name: Initialize xcodebuild
-      run: xcodebuild -list
+      run: scripts/setup_spm_tests.sh
     - name: iOS Unit Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh AppDistributionUnit iOS spm
 

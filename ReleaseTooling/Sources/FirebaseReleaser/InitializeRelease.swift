@@ -22,7 +22,7 @@ import Utils
 struct InitializeRelease {
   static func setupRepo(gitRoot: URL) -> String {
     let manifest = FirebaseManifest.shared
-    let branch = createReleaseBranch(path: gitRoot, version: manifest.version)
+    let branch = createVersionBranch(path: gitRoot, version: manifest.version)
     updatePodspecs(path: gitRoot, manifest: manifest)
     updatePodfiles(path: gitRoot, version: manifest.version)
     updateSwiftPackageVersion(path: gitRoot, version: manifest.version)
@@ -31,10 +31,10 @@ struct InitializeRelease {
 
   /// The branch is based on the minor version to represent this is the branch for subsequent
   /// patches.
-  private static func createReleaseBranch(path: URL, version: String) -> String {
+  private static func createVersionBranch(path: URL, version: String) -> String {
     let versionParts = version.split(separator: ".")
     let minorVersion = "\(versionParts[0]).\(versionParts[1])"
-    let branch = "release-\(minorVersion)"
+    let branch = "version-\(minorVersion)"
     Shell.executeCommand("git checkout master", workingDir: path)
     Shell.executeCommand("git pull", workingDir: path)
     Shell.executeCommand("git checkout -b \(branch)", workingDir: path)

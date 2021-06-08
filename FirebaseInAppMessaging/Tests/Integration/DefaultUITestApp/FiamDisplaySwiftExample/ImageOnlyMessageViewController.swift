@@ -52,6 +52,11 @@ class ImageOnlyMessageViewController: CommonMessageTestVC {
                                                   isTestMessage: false)
       writableMessageType = FIRInAppMessagingDisplayMessageType.imageOnly
       writableTriggerType = FIRInAppMessagingDisplayTriggerType.onAnalyticsEvent
+      super.init(messageID: "testID",
+                 campaignName: "testCampaign",
+                 renderAsTestMessage: false,
+                 messageType: .imageOnly,
+                 triggerType: .onAnalyticsEvent)
     }
   }
 

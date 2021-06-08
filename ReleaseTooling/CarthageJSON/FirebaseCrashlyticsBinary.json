@@ -19,9 +19,14 @@
   "6.34.0": "https://dl.google.com/dl/firebase/ios/carthage/6.34.0/FirebaseCrashlytics-19e7e23b43d7d056.zip",
   "7.0.0": "https://dl.google.com/dl/firebase/ios/carthage/7.0.0/FirebaseCrashlytics-af008f4a6ecbb3ac.zip",
   "7.1.0": "https://dl.google.com/dl/firebase/ios/carthage/7.1.0/FirebaseCrashlytics-989dd200d9275985.zip",
+  "7.10.0": "https://dl.google.com/dl/firebase/ios/carthage/7.10.0/FirebaseCrashlytics-94299dc9a1557046.zip",
+  "7.11.0": "https://dl.google.com/dl/firebase/ios/carthage/7.11.0/FirebaseCrashlytics-e564182866127c03.zip",
   "7.3.0": "https://dl.google.com/dl/firebase/ios/carthage/7.3.0/FirebaseCrashlytics-082e1a865d934d59.zip",
   "7.4.0": "https://dl.google.com/dl/firebase/ios/carthage/7.4.0/FirebaseCrashlytics-8f6a01cced3bc24f.zip",
   "7.5.0": "https://dl.google.com/dl/firebase/ios/carthage/7.5.0/FirebaseCrashlytics-4e160db3e43c6207.zip",
   "7.6.0": "https://dl.google.com/dl/firebase/ios/carthage/7.6.0/FirebaseCrashlytics-ee0212b959ac53af.zip",
-  "7.7.0": "https://dl.google.com/dl/firebase/ios/carthage/7.7.0/FirebaseCrashlytics-8ffe708337c31adb.zip"
+  "7.7.0": "https://dl.google.com/dl/firebase/ios/carthage/7.7.0/FirebaseCrashlytics-8ffe708337c31adb.zip",
+  "7.8.0": "https://dl.google.com/dl/firebase/ios/carthage/7.8.0/FirebaseCrashlytics-7b78fe4fd5db684c.zip",
+  "8.0.0": "https://dl.google.com/dl/firebase/ios/carthage/8.0.0/FirebaseCrashlytics-0b2006e8c1266f26.zip",
+  "8.1.0": "https://dl.google.com/dl/firebase/ios/carthage/8.1.0/FirebaseCrashlytics-05081a07723d8fdc.zip"
 }

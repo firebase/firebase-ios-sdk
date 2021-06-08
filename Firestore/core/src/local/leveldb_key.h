@@ -89,6 +89,14 @@ namespace local {
 //   - collection: ResourcePath
 //   - read_time: SnapshotVersion
 //   - document_id: string
+//
+// bundles:
+//   - table_name: string = "bundles"
+//   - bundle_id: string
+//
+// named_queries:
+//   - table_name: string = "named_queries"
+//   - name: string
 
 /**
  * Parses the given key and returns a human readable description of its
@@ -633,6 +641,76 @@ class LevelDbRemoteDocumentReadTimeKey {
   std::string document_id_;
   model::ResourcePath collection_path_;
   model::SnapshotVersion read_time_;
+};
+
+/**
+ * A key in the bundles table, storing the bundle Id for each entry.
+ */
+class LevelDbBundleKey {
+ public:
+  /**
+   * Creates a key prefix that points just before the first key of the table.
+   */
+  static std::string KeyPrefix();
+
+  /**
+   * Creates a key that points to the key for the given bundle id.
+   */
+  static std::string Key(absl::string_view bundle_id);
+
+  /**
+   * Decodes the given complete key, storing the decoded values in this
+   * instance.
+   *
+   * @return true if the key successfully decoded, false otherwise. If false is
+   * returned, this instance is in an undefined state until the next call to
+   * `Decode()`.
+   */
+  ABSL_MUST_USE_RESULT
+  bool Decode(absl::string_view key);
+
+  /** The bundle ID for this entry. */
+  const std::string& bundle_id() const {
+    return bundle_id_;
+  }
+
+ private:
+  std::string bundle_id_;
+};
+
+/**
+ * A key in the named_queries table, storing the query name for each entry.
+ */
+class LevelDbNamedQueryKey {
+ public:
+  /**
+   * Creates a key prefix that points just before the first key of the table.
+   */
+  static std::string KeyPrefix();
+
+  /**
+   * Creates a key that points to the key for the given query name.
+   */
+  static std::string Key(absl::string_view query_name);
+
+  /**
+   * Decodes the given complete key, storing the decoded values in this
+   * instance.
+   *
+   * @return true if the key successfully decoded, false otherwise. If false is
+   * returned, this instance is in an undefined state until the next call to
+   * `Decode()`.
+   */
+  ABSL_MUST_USE_RESULT
+  bool Decode(absl::string_view key);
+
+  /** The query name for this entry. */
+  const std::string& name() const {
+    return name_;
+  }
+
+ private:
+  std::string name_;
 };
 
 }  // namespace local

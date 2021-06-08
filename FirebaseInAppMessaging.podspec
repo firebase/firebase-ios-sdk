@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseInAppMessaging'
-  s.version          = '7.8.0-beta'
+  s.version          = '8.1.0-beta'
   s.summary          = 'Firebase In-App Messaging for iOS'
 
   s.description      = <<-DESC
@@ -63,15 +63,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
 
   s.ios.resource_bundles = {
     'InAppMessagingDisplayResources' => [
-       base_dir + 'Resources/FIRInAppMessageDisplayStoryboard.storyboard',
-       base_dir + 'Resources/*.png'
-     ]
-  }
-
-  s.tvos.resource_bundles = {
-    'InAppMessagingDisplayResources' => [
-       base_dir + 'Resources/FIRInAppMessageDisplayStoryboardTV.storyboard',
-       base_dir + 'Resources/*.png'
+       base_dir + 'iOS/Resources/*.{storyboard,png}',
      ]
   }
 
@@ -82,11 +74,11 @@ See more product details at https://firebase.google.com/products/in-app-messagin
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
 
-  s.dependency 'FirebaseCore', '~> 7.0'
-  s.dependency 'FirebaseInstallations', '~> 7.0'
-  s.dependency 'FirebaseABTesting', '~> 7.0'
-  s.dependency 'GoogleUtilities/Environment', '~> 7.0'
-  s.dependency 'nanopb', '~> 2.30907.0'
+  s.dependency 'FirebaseCore', '~> 8.0'
+  s.dependency 'FirebaseInstallations', '~> 8.0'
+  s.dependency 'FirebaseABTesting', '~> 8.0'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.4'
+  s.dependency 'nanopb', '~> 2.30908.0'
 
   s.test_spec 'unit' do |unit_tests|
       unit_tests.scheme = { :code_coverage => true }

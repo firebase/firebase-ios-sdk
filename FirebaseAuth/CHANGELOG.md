@@ -1,3 +1,9 @@
+# 8.2.0
+- [fixed] Fixed analyze issues introduced in Xcode 12.5. (#8210)
+
+# 8.0.0
+- [fixed] Fixed a crash that occurred when assigning auth settings (#7670).
+
 # 7.8.0
 - [fixed] Fixed auth state sharing during first app launch. (#7472)
 

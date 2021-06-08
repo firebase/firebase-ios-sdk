@@ -226,7 +226,7 @@ class SerializerTest : public ::testing::Test {
     StringReader reader(bytes);
 
     auto message = Message<google_firestore_v1_Value>::TryParse(&reader);
-    serializer.DecodeFieldValue(&reader, *message);
+    serializer.DecodeFieldValue(reader.context(), *message);
 
     ASSERT_NOT_OK(reader.status());
     EXPECT_EQ(status.code(), reader.status().code());
@@ -239,7 +239,7 @@ class SerializerTest : public ::testing::Test {
     auto message =
         Message<google_firestore_v1_BatchGetDocumentsResponse>::TryParse(
             &reader);
-    serializer.DecodeMaybeDocument(&reader, *message);
+    serializer.DecodeMaybeDocument(reader.context(), *message);
 
     ASSERT_NOT_OK(reader.status());
     EXPECT_EQ(status.code(), reader.status().code());
@@ -425,7 +425,8 @@ class SerializerTest : public ::testing::Test {
     StringReader reader(bytes);
 
     auto message = Message<google_firestore_v1_Value>::TryParse(&reader);
-    FieldValue actual_model = serializer.DecodeFieldValue(&reader, *message);
+    FieldValue actual_model =
+        serializer.DecodeFieldValue(reader.context(), *message);
 
     EXPECT_OK(reader.status());
     EXPECT_EQ(type, actual_model.type());
@@ -474,7 +475,7 @@ class SerializerTest : public ::testing::Test {
         Message<google_firestore_v1_BatchGetDocumentsResponse>::TryParse(
             &reader);
     MaybeDocument actual_model =
-        serializer.DecodeMaybeDocument(&reader, *message);
+        serializer.DecodeMaybeDocument(reader.context(), *message);
 
     EXPECT_EQ(key, actual_model.key());
     EXPECT_EQ(version, actual_model.version());
@@ -572,7 +573,7 @@ class SerializerTest : public ::testing::Test {
     StringReader reader{bytes};
 
     auto message = Message<T>::TryParse(&reader);
-    auto model = decode_func(serializer, &reader, *message, args...);
+    auto model = decode_func(serializer, reader.context(), *message, args...);
 
     EXPECT_OK(reader.status());
     return model;
@@ -888,7 +889,8 @@ TEST_F(SerializerTest, EncodesFieldValuesWithRepeatedEntries) {
   StringReader reader(bytes);
 
   auto message = Message<google_firestore_v1_Value>::TryParse(&reader);
-  FieldValue actual_model = serializer.DecodeFieldValue(&reader, *message);
+  FieldValue actual_model =
+      serializer.DecodeFieldValue(reader.context(), *message);
   EXPECT_OK(reader.status());
 
   // Ensure the decoded model is as expected.
@@ -916,7 +918,7 @@ TEST_F(SerializerTest, BadBoolValueInterpretedAsTrue) {
 
   StringReader reader(bytes);
   auto message = Message<google_firestore_v1_Value>::TryParse(&reader);
-  FieldValue model = serializer.DecodeFieldValue(&reader, *message);
+  FieldValue model = serializer.DecodeFieldValue(reader.context(), *message);
 
   ASSERT_OK(reader.status());
   EXPECT_TRUE(model.boolean_value());
@@ -1030,7 +1032,8 @@ TEST_F(SerializerTest, BadFieldValueTagWithOtherValidTagsPresent) {
   // Decode the bytes into the model
   StringReader reader(bytes);
   auto message = Message<google_firestore_v1_Value>::TryParse(&reader);
-  FieldValue actual_model = serializer.DecodeFieldValue(&reader, *message);
+  FieldValue actual_model =
+      serializer.DecodeFieldValue(reader.context(), *message);
   EXPECT_OK(reader.status());
 
   // Ensure the decoded model is as expected.
@@ -1074,15 +1077,17 @@ TEST_F(SerializerTest, EncodesKey) {
 
 TEST_F(SerializerTest, DecodesKey) {
   StringReader reader(nullptr, 0);
-  EXPECT_EQ(Key(""),
-            serializer.DecodeKey(&reader, ToBytes(ResourceName("")).get()));
-  EXPECT_EQ(Key("one/two/three/four"),
-            serializer.DecodeKey(
-                &reader, ToBytes(ResourceName("one/two/three/four")).get()));
+  EXPECT_EQ(Key(""), serializer.DecodeKey(reader.context(),
+                                          ToBytes(ResourceName("")).get()));
+  EXPECT_EQ(
+      Key("one/two/three/four"),
+      serializer.DecodeKey(reader.context(),
+                           ToBytes(ResourceName("one/two/three/four")).get()));
   // Same, but with a leading slash
-  EXPECT_EQ(Key("one/two/three/four"),
-            serializer.DecodeKey(
-                &reader, ToBytes(ResourceName("one/two/three/four")).get()));
+  EXPECT_EQ(
+      Key("one/two/three/four"),
+      serializer.DecodeKey(reader.context(),
+                           ToBytes(ResourceName("one/two/three/four")).get()));
   EXPECT_OK(reader.status());
 }
 
@@ -1101,7 +1106,7 @@ TEST_F(SerializerTest, BadKey) {
 
   for (const std::string& bad_key : bad_cases) {
     StringReader reader(nullptr, 0);
-    serializer.DecodeKey(&reader, ToBytes(bad_key).get());
+    serializer.DecodeKey(reader.context(), ToBytes(bad_key).get());
     EXPECT_NOT_OK(reader.status());
   }
 }
@@ -1735,6 +1740,53 @@ TEST_F(SerializerTest, DecodesVersionWithTargets) {
 
   SCOPED_TRACE("DecodesVersionWithTargets");
   ExpectDeserializationRoundTrip(model, proto);
+}
+
+TEST_F(SerializerTest, GracefullyDecodesBadMapValue) {
+  pb_bytes_array_t key{1, {'a'}};
+  google_firestore_v1_Value bad_value = {};
+  google_firestore_v1_MapValue_FieldsEntry fields_entry = {&key, bad_value};
+  google_firestore_v1_MapValue bad_map = {1, &fields_entry};
+
+  google_firestore_v1_Value bad_map_value = {};
+  bad_map_value.which_value_type = google_firestore_v1_Value_map_value_tag;
+  bad_map_value.map_value = bad_map;
+
+  StringReader reader(nullptr, 0);
+  FieldValue decoded_value =
+      serializer.DecodeFieldValue(reader.context(), bad_map_value);
+  EXPECT_FALSE(reader.context()->status().ok());
+  EXPECT_TRUE(decoded_value.is_object());
+  EXPECT_TRUE(decoded_value.object_value().empty());
+}
+
+TEST_F(SerializerTest, GracefullyDecodesBadReference) {
+  pb_bytes_array_t bad_ref{1, {'a'}};
+  google_firestore_v1_Value bad_value = {};
+  bad_value.which_value_type = google_firestore_v1_Value_reference_value_tag;
+  bad_value.reference_value = &bad_ref;
+
+  StringReader reader(nullptr, 0);
+  FieldValue decoded_value =
+      serializer.DecodeFieldValue(reader.context(), bad_value);
+  EXPECT_FALSE(reader.context()->status().ok());
+  EXPECT_TRUE(decoded_value.is_null());
+}
+
+TEST_F(SerializerTest, GracefullyDecodesArrayWithBadElement) {
+  google_firestore_v1_Value bad_element = {};
+  google_firestore_v1_ArrayValue bad_array = {1, &bad_element};
+
+  google_firestore_v1_Value bad_value = {};
+  bad_value.which_value_type = google_firestore_v1_Value_array_value_tag;
+  bad_value.array_value = bad_array;
+
+  StringReader reader(nullptr, 0);
+  FieldValue decoded_value =
+      serializer.DecodeFieldValue(reader.context(), bad_value);
+  EXPECT_FALSE(reader.context()->status().ok());
+  EXPECT_TRUE(decoded_value.is_array());
+  EXPECT_TRUE(decoded_value.array_value().empty());
 }
 
 TEST_F(SerializerTest, EncodesSetMutation) {

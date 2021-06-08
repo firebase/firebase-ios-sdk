@@ -94,6 +94,10 @@ MemoryTargetCache* MemoryPersistence::target_cache() {
   return &target_cache_;
 }
 
+MemoryBundleCache* MemoryPersistence::bundle_cache() {
+  return &bundle_cache_;
+}
+
 MemoryRemoteDocumentCache* MemoryPersistence::remote_document_cache() {
   return &remote_document_cache_;
 }

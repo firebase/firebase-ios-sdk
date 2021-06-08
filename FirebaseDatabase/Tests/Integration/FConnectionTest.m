@@ -59,7 +59,8 @@
   FConnection *conn = [[FConnection alloc] initWith:info
                                    andDispatchQueue:[FIRDatabaseQuery sharedQueue]
                                         googleAppID:@"fake-app-id"
-                                      lastSessionID:nil];
+                                      lastSessionID:nil
+                                      appCheckToken:nil];
   FTestConnectionDelegate *delegate = [[FTestConnectionDelegate alloc] init];
 
   __block BOOL done = NO;

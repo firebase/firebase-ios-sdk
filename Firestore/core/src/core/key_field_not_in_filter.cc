@@ -29,7 +29,6 @@ namespace firestore {
 namespace core {
 
 using model::Document;
-using model::DocumentKey;
 using model::FieldPath;
 using model::FieldValue;
 

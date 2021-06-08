@@ -29,8 +29,10 @@
 #import "Firestore/Example/Tests/SpecTests/FSTMockDatastore.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
+#include "Firestore/core/src/api/load_bundle_task.h"
 #include "Firestore/core/src/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/auth/user.h"
+#include "Firestore/core/src/bundle/bundle_reader.h"
 #include "Firestore/core/src/core/database_info.h"
 #include "Firestore/core/src/core/event_manager.h"
 #include "Firestore/core/src/core/listen_options.h"
@@ -60,10 +62,12 @@
 
 namespace testutil = firebase::firestore::testutil;
 
+using firebase::firestore::api::LoadBundleTask;
 using firebase::firestore::Error;
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
+using firebase::firestore::bundle::BundleReader;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::core::EventListener;
 using firebase::firestore::core::EventManager;
@@ -218,7 +222,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     _events = [NSMutableArray array];
 
-    _databaseInfo = {DatabaseId{"project", "database"}, "persistence", "host", false};
+    _databaseInfo = {DatabaseId{"test-project", "(default)"}, "persistence", "host", false};
 
     // Set up the sync engine and various stores.
     _workerQueue = testutil::AsyncQueueForTesting();
@@ -282,6 +286,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (const User &)currentUser {
   return _currentUser;
+}
+
+- (const DatabaseInfo &)databaseInfo {
+  return _databaseInfo;
 }
 
 - (void)incrementSnapshotsInSyncEvents {
@@ -474,6 +482,12 @@ NS_ASSUME_NONNULL_BEGIN
 
     _workerQueue->EnqueueBlocking([&] { _eventManager->RemoveQueryListener(listener); });
   }
+}
+
+- (void)loadBundleWithReader:(std::shared_ptr<BundleReader>)reader
+                        task:(std::shared_ptr<LoadBundleTask>)task {
+  _workerQueue->EnqueueBlocking(
+      [=] { _syncEngine->LoadBundle(std::move(reader), std::move(task)); });
 }
 
 - (void)writeUserMutation:(Mutation)mutation {

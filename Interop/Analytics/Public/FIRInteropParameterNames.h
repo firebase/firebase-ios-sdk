@@ -52,7 +52,7 @@ static NSString *const kFIRIParameterMedium NS_SWIFT_NAME(AnalyticsParameterMedi
 ///     };
 /// </pre>
 static NSString *const kFIRIParameterCampaign NS_SWIFT_NAME(AnalyticsParameterCampaign) =
-    @"campaign";
+                                                                @"campaign";
 
 /// Message identifier.
 static NSString *const kFIRIParameterMessageIdentifier = @"_nmid";

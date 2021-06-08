@@ -140,6 +140,8 @@
   XCTAssertEqualObjects(@"687787988989", sixth.renderData.messageID);
   XCTAssertEqualObjects(@"Super Bowl LV", sixth.renderData.name);
   XCTAssertEqualObjects(@"Eagles are going to win", sixth.renderData.contentData.titleText);
+  XCTAssertEqualObjects(sixth.renderData.renderingEffectSettings.btnTextColor,
+                        [UIColor firiam_colorWithHexString:@"#1a0dab"]);
   XCTAssertNil(sixth.renderData.contentData.bodyText);
   XCTAssertNil(sixth.appData);
   XCTAssertNotNil(sixth.experimentPayload);
