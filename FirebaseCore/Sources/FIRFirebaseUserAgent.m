@@ -91,8 +91,6 @@
   NSDictionary<NSString *, id> *info = [[NSBundle mainBundle] infoDictionary];
   NSString *xcodeVersion = info[@"DTXcodeBuild"];
   NSString *appleSdkVersion = info[@"DTSDKBuild"];
-
-  NSString *swiftFlagValue = [GULAppEnvironmentUtil hasSwiftRuntime] ? @"true" : @"false";
   NSString *isFromAppstoreFlagValue = [GULAppEnvironmentUtil isFromAppStore] ? @"true" : @"false";
 
   components[@"apple-platform"] = [GULAppEnvironmentUtil applePlatform];
@@ -101,7 +99,6 @@
   components[@"deploy"] = [GULAppEnvironmentUtil deploymentType];
   components[@"device"] = [GULAppEnvironmentUtil deviceModel];
   components[@"os-version"] = [GULAppEnvironmentUtil systemVersion];
-  components[@"swift"] = swiftFlagValue;
   components[@"xcode"] = xcodeVersion;
 
   return [components copy];
