@@ -73,7 +73,8 @@ scripts/code_coverage_report/*/Package.resolved
 scripts/code_coverage_report/*/.build
 
 # Bad sorts get generated if the package .xcscheme is not regenerated.
-.swiftpm/xcode/xcshareddata/xcschemes/Firebase-Package.xcscheme
+# Anything committed to xcshareddata gets propagated to clients. (#8167)
+.swiftpm/xcode/xcshareddata/
 
 # Mint package manager
 Mint

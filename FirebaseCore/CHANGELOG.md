@@ -1,4 +1,5 @@
 # Firebase 8.2.0
+- [fixed] Stop flooding Swift Package Manager projects with Firebase test schemes. (#8167)
 - [fixed] Removed "Invalid Exclude" warnings for Swift Package Manager using Xcode 13 beta 1.
 
 # Firebase 8.0.0
