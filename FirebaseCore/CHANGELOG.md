@@ -1,4 +1,4 @@
-# Unreleased
+# Firebase 8.2.0
 - [fixed] Removed "Invalid Exclude" warnings for Swift Package Manager using Xcode 13 beta 1.
 
 # Firebase 8.0.0
