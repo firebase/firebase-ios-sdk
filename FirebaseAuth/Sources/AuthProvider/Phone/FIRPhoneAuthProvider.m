@@ -263,26 +263,28 @@ extern NSString *const FIRPhoneMultiFactorID;
   } else {
     errorData = nil;
   }
-  NSError *jsonError;
-  NSDictionary *errorDict = [NSJSONSerialization JSONObjectWithData:errorData
-                                                            options:0
-                                                              error:&jsonError];
-  if (jsonError) {
-    *error = [FIRAuthErrorUtils JSONSerializationErrorWithUnderlyingError:jsonError];
-    return nil;
-  }
-  *error = [FIRAuthErrorUtils URLResponseErrorWithCode:errorDict[@"code"]
-                                               message:errorDict[@"message"]];
-  if (!*error) {
-    NSString *reason;
-    if (errorDict[@"code"] && errorDict[@"message"]) {
-      reason = [NSString stringWithFormat:@"[%@] - %@", errorDict[@"code"], errorDict[@"message"]];
-    } else {
-      reason = [NSString stringWithFormat:@"An unknown error occurred with the following "
-                                           "response: %@",
-                                          deepLinkURL];
+  if (error != nil) {
+    NSError *jsonError;
+    NSDictionary *errorDict = [NSJSONSerialization JSONObjectWithData:errorData
+                                                              options:0
+                                                                error:&jsonError];
+    if (jsonError) {
+      *error = [FIRAuthErrorUtils JSONSerializationErrorWithUnderlyingError:jsonError];
+      return nil;
     }
-    *error = [FIRAuthErrorUtils appVerificationUserInteractionFailureWithReason:reason];
+    *error = [FIRAuthErrorUtils URLResponseErrorWithCode:errorDict[@"code"]
+                                                 message:errorDict[@"message"]];
+    if (!*error) {
+      NSString *reason;
+      if (errorDict[@"code"] && errorDict[@"message"]) {
+        reason = [NSString stringWithFormat:@"[%@] - %@", errorDict[@"code"], errorDict[@"message"]];
+      } else {
+        reason = [NSString stringWithFormat:@"An unknown error occurred with the following "
+                                             "response: %@",
+                                            deepLinkURL];
+      }
+      *error = [FIRAuthErrorUtils appVerificationUserInteractionFailureWithReason:reason];
+    }
   }
   return nil;
 }
