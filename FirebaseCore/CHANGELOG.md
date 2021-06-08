@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Removed "Invalid Exclude" warnings for Swift Package Manager using Xcode 13 beta 1.
+
 # Firebase 8.0.0
 - [removed] The deprecated Firebase InstanceID has been removed. Use Firebase Installations to manage
   app instance and use Firebase Messaging to manage FCM registration token instead. (#7970)
