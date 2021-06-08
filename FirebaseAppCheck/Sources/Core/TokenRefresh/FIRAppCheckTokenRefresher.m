@@ -168,36 +168,38 @@ static const double kAutoRefreshFraction = 0.5;
 #pragma mark - Backoff
 
 - (NSDate *)nextRefreshDateWithTokenRefreshResult:(FIRAppCheckTokenRefreshResult *)refreshResult {
-
   switch (refreshResult.status) {
-    case FIRAppCheckTokenRefreshStatusSuccess:
-    {
+    case FIRAppCheckTokenRefreshStatusSuccess: {
       NSTimeInterval timeToLive = [refreshResult.tokenExpirationDate timeIntervalSinceDate:refreshResult.tokenReceivedAtDate];
       timeToLive = MAX(timeToLive, 0);
 
       // Refresh in 50% of TTL + 5 min.
       NSTimeInterval targetRefreshSinceReceivedDate = timeToLive * kAutoRefreshFraction + 5 * 60;
       NSDate *targetRefreshDate =
-          [refreshResult.tokenReceivedAtDate dateByAddingTimeInterval:targetRefreshSinceReceivedDate];
+      [refreshResult.tokenReceivedAtDate dateByAddingTimeInterval:targetRefreshSinceReceivedDate];
+
+      // Don't schedule later than expiration date.
+      NSDate *refreshDate = [targetRefreshDate earlierDate:refreshResult.tokenExpirationDate];
+
+      // Don't schedule an update earlier than in 1 min from now.
+      if ([refreshDate timeIntervalSinceNow] < kMinimumAutoRefreshTimeInterval) {
+        refreshDate = [NSDate dateWithTimeIntervalSinceNow:kMinimumAutoRefreshTimeInterval];
+      }
+      return refreshDate;
     }
       break;
 
-    default:
+    case FIRAppCheckTokenRefreshStatusFailure: {
+      // Refresh after a timeout.
+      NSTimeInterval backoffTime = [[self class] backoffTimeForRetryCount:self.retryCount];
+      return [NSDate dateWithTimeIntervalSinceNow:backoffTime];
+    }
       break;
-  }
 
-
-
-  NSDate *targetRefreshDate =
-      [refreshResult.tokenReceivedAtDate dateByAddingTimeInterval:targetRefreshSinceReceivedDate];
-  NSTimeInterval scheduleIn = [targetRefreshDate timeIntervalSinceNow];
-
-  // Check
-  NSTimeInterval backoffTime = [[self class] backoffTimeForRetryCount:self.retryCount];
-  if (scheduleIn >= backoffTime) {
-    return targetRefreshDate;
-  } else {
-    return [NSDate dateWithTimeIntervalSinceNow:backoffTime];
+    case FIRAppCheckTokenRefreshStatusNever:
+      // Refresh ASAP.
+      return [NSDate date];
+      break;
   }
 }
 
