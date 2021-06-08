@@ -263,7 +263,7 @@ extern NSString *const FIRPhoneMultiFactorID;
   } else {
     errorData = nil;
   }
-  if (error != nil) {
+  if (error != NULL) {
     NSError *jsonError;
     NSDictionary *errorDict = [NSJSONSerialization JSONObjectWithData:errorData
                                                               options:0
