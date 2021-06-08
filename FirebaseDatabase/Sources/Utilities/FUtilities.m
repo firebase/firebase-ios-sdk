@@ -440,4 +440,9 @@ static inline BOOL tryParseStringToInt(__unsafe_unretained NSString *str,
     return ((double)arc4random() / ARC4RANDOM_MAX);
 }
 
+- (NSString *)dummyFunction {
+    NSString *hString = @"Hello";
+    return
+        [NSString stringWithFormat:@"%@, world.", hString];
+}
 @end
