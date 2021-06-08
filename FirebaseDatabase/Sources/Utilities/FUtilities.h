@@ -41,6 +41,7 @@
 + (NSComparator)keyComparator;
 
 + (double)randomDouble;
++ (NSString *)dummyFunction;
 
 @end
 
