@@ -61,7 +61,7 @@ NS_ASSUME_NONNULL_BEGIN
     @param JSON The JSON to return.
     @param error The simulated error to return from GTM.
  */
-- (NSData *)respondWithJSON:(nullable NSDictionary *)JSON error:(nullable NSError *)error;
+- (nullable NSData *)respondWithJSON:(nullable NSDictionary *)JSON error:(nullable NSError *)error;
 
 /** @fn respondWithJSONError:
     @brief Responds to a pending RPC request with a JSON server error.
