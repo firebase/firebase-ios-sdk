@@ -153,13 +153,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable NSDictionary<NSString *, id> *)dataWithServerTimestampBehavior:
     (FIRServerTimestampBehavior)serverTimestampBehavior {
-  absl::optional<ObjectValue> data = _snapshot.GetData();
+  absl::optional<google_firestore_v1_Value> data = _snapshot.GetValue(FieldPath::EmptyPath());
   if (!data) return nil;
 
   FSTUserDataWriter *dataWriter =
       [[FSTUserDataWriter alloc] initWithFirestore:_snapshot.firestore()
                            serverTimestampBehavior:serverTimestampBehavior];
-  return [dataWriter convertedValue:data->Get()];
+  return [dataWriter convertedValue:*data];
 }
 
 - (nullable id)valueForField:(id)field {

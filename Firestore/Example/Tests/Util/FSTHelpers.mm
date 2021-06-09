@@ -45,6 +45,7 @@ using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::GetTypeOrder;
 using firebase::firestore::model::ObjectValue;
+using firebase::firestore::model::Mutation;
 using firebase::firestore::model::PatchMutation;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::SetMutation;
@@ -129,9 +130,9 @@ FSTDocumentKeyReference *FSTTestRef(std::string projectID, std::string database,
 
 SetMutation FSTTestSetMutation(NSString *path, NSDictionary<NSString *, id> *values) {
   FSTUserDataReader *reader = FSTTestUserDataReader();
-  ParsedSetData result = [reader parsedSetData:values];
-  return SetMutation(FSTTestDocKey(path), result.data(), Precondition::None(),
-                     result.field_transforms());
+  Mutation mutation =
+      [reader parsedSetData:values].ToMutation(FSTTestDocKey(path), Precondition::None());
+  return SetMutation(mutation);
 }
 
 PatchMutation FSTTestPatchMutation(NSString *path,
@@ -146,15 +147,14 @@ PatchMutation FSTTestPatchMutation(NSString *path,
     }
   }];
 
-  FSTUserDataReader *reader = FSTTestUserDataReader();
-  ParsedUpdateData parsed = [reader parsedUpdateData:mutableValues];
-
   DocumentKey key = FSTTestDocKey(path);
-
   BOOL merge = !updateMask.empty();
   Precondition precondition = merge ? Precondition::None() : Precondition::Exists(true);
-  return PatchMutation(key, parsed.data(), parsed.fieldMask(), precondition,
-                       parsed.field_transforms());
+
+  FSTUserDataReader *reader = FSTTestUserDataReader();
+  Mutation mutation =
+      [reader parsedUpdateData:mutableValues].ToMutation(FSTTestDocKey(path), precondition);
+  return PatchMutation(mutation);
 }
 
 DeleteMutation FSTTestDeleteMutation(NSString *path) {
