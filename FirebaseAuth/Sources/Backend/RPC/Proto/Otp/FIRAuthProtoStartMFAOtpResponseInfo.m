@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2021 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,21 @@
  * limitations under the License.
  */
 
-#import <TargetConditionals.h>
-#if TARGET_OS_IOS
+#import "FirebaseAuth/Sources/Backend/RPC/Proto/Otp/FIRAuthProtoStartMFAOtpResponseInfo.h"
 
-#import <Foundation/Foundation.h>
+NS_ASSUME_NONNULL_BEGIN
 
-#pragma mark - Multi Factor ID constants
+@implementation FIRAuthProtoStartMFAOtpResponseInfo
 
-NSString *const FIRPhoneMultiFactorID = @"1";
-NSString *const FIROtpMultiFactorID = @"2";
+- (instancetype)initWithDictionary:(NSDictionary *)dictionary {
+  self = [super init];
+  if (self) {
+    _key = [dictionary[@"key"] copy];
+    _sessionInfo = [dictionary[@"sessionInfo"] copy];
+  }
+  return self;
+}
 
-#endif
+@end
+
+NS_ASSUME_NONNULL_END

@@ -26,6 +26,10 @@ NS_ASSUME_NONNULL_BEGIN
     if (dictionary[@"phoneInfo"]) {
       _MFAValue = dictionary[@"phoneInfo"];
     }
+    if (dictionary[@"otpInfo"]) {
+      NSDictionary *OTPInfo = dictionary[@"otpInfo"];
+      _OTPEnabled = [OTPInfo[@"enabled"] boolValue];
+    }
     _MFAEnrollmentID = dictionary[@"mfaEnrollmentId"];
     _displayName = dictionary[@"displayName"];
     if ([dictionary[@"enrolledAt"] isKindOfClass:[NSString class]]) {

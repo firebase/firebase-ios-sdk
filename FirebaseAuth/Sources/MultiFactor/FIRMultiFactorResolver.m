@@ -54,6 +54,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)resolveSignInWithAssertion:(nonnull FIRMultiFactorAssertion *)assertion
                         completion:(nullable FIRAuthDataResultCallback)completion {
 #if TARGET_OS_IOS
+
+  if ([assertion isKindOfClass:[FIRPhoneMultiFactorAssertion class]]) {
+    printf("phone assertion");
+  }
+
   FIRPhoneMultiFactorAssertion *phoneAssertion = (FIRPhoneMultiFactorAssertion *)assertion;
   FIRAuthProtoFinalizeMFAPhoneRequestInfo *finalizeMFAPhoneRequestInfo =
       [[FIRAuthProtoFinalizeMFAPhoneRequestInfo alloc]

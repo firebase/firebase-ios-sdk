@@ -1,11 +1,11 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2021 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,9 +19,19 @@
 
 #import <Foundation/Foundation.h>
 
-#pragma mark - Multi Factor ID constants
+#import "FIRMultiFactorAssertion.h"
 
-NSString *const FIRPhoneMultiFactorID = @"1";
-NSString *const FIROtpMultiFactorID = @"2";
+NS_ASSUME_NONNULL_BEGIN
+
+/** @class FIROtpMultiFactorAssertion
+    @brief The subclass of base class FIRMultiFactorAssertion, used to assert OTP
+        second factor.
+*/
+NS_SWIFT_NAME(OTPMultiFactorAssertion)
+@interface FIROtpMultiFactorAssertion : FIRMultiFactorAssertion
+
+@end
+
+NS_ASSUME_NONNULL_END
 
 #endif

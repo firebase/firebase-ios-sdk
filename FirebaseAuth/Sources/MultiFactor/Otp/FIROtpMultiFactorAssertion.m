@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2021 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,30 @@
  * limitations under the License.
  */
 
-#import "FirebaseAuth/Sources/Backend/FIRAuthRPCResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/Proto/Phone/FIRAuthProtoStartMFAPhoneResponseInfo.h"
-#import "FirebaseAuth/Sources/Backend/RPC/Proto/Otp/FIRAuthProtoStartMFAOtpResponseInfo.h"
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIROtpMultiFactorAssertion.h"
+
+#import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorAssertion+Internal.h"
+#import "FirebaseAuth/Sources/MultiFactor/Otp/FIROtpMultiFactorAssertion+Internal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRStartMFAEnrollmentResponse : NSObject <FIRAuthRPCResponse>
+extern NSString *const _Nonnull FIROtpMultiFactorID;
 
-@property(nonatomic, copy, readonly, nullable)
-    FIRAuthProtoStartMFAPhoneResponseInfo *enrollmentResponse;
+@implementation FIROtpMultiFactorAssertion
 
-@property(nonatomic, copy, readonly, nullable)
-    FIRAuthProtoStartMFAOtpResponseInfo *otpEnrollmentResponse;
+- (instancetype)init {
+  self = [super init];
+  if (self) {
+    _factorID = FIROtpMultiFactorID;
+  }
+  return self;
+}
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif

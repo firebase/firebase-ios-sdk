@@ -18,6 +18,8 @@
 
 #import "FirebaseAuth/Sources/Backend/RPC/Proto/Phone/FIRAuthProtoStartMFAPhoneRequestInfo.h"
 
+#import "FirebaseAuth/Sources/Backend/RPC/Proto/Otp/FIRAuthProtoStartMFAOtpRequestInfo.h"
+
 static NSString *const kStartMFAEnrollmentEndPoint = @"accounts/mfaEnrollment:start";
 
 /** @var kTenantIDKey
@@ -41,6 +43,20 @@ static NSString *const kTenantIDKey = @"tenantId";
   return self;
 }
 
+- (nullable instancetype)initWithIDToken:(NSString *)IDToken
+                          otpEnrollmentInfo:(FIRAuthProtoStartMFAOtpRequestInfo *)enrollmentInfo
+                    requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
+  self = [super initWithEndpoint:kStartMFAEnrollmentEndPoint
+            requestConfiguration:requestConfiguration
+             useIdentityPlatform:YES
+                      useStaging:NO];
+  if (self) {
+    _IDToken = IDToken;
+    _otpEnrollmentInfo = enrollmentInfo;
+  }
+  return self;
+}
+
 - (nullable id)unencodedHTTPRequestBodyWithError:(NSError *__autoreleasing _Nullable *)error {
   NSMutableDictionary *postBody = [NSMutableDictionary dictionary];
   if (_IDToken) {
@@ -49,6 +65,11 @@ static NSString *const kTenantIDKey = @"tenantId";
   if (_enrollmentInfo) {
     if ([_enrollmentInfo isKindOfClass:[FIRAuthProtoStartMFAPhoneRequestInfo class]]) {
       postBody[@"phoneEnrollmentInfo"] = [_enrollmentInfo dictionary];
+    }
+  }
+  if (_otpEnrollmentInfo) {
+    if ([_otpEnrollmentInfo isKindOfClass:[FIRAuthProtoStartMFAOtpRequestInfo class]]) {
+      postBody[@"otpEnrollmentInfo"] = [_otpEnrollmentInfo dictionary];
     }
   }
   if (self.tenantID) {

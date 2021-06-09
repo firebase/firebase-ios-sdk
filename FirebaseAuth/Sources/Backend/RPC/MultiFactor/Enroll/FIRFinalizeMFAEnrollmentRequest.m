@@ -41,6 +41,22 @@ static NSString *const kTenantIDKey = @"tenantId";
   return self;
 }
 
+- (nullable instancetype)initWithIDToken:(NSString *)IDToken
+                             displayName:(NSString *)displayName
+                        otpVerificationInfo:(FIRAuthProtoFinalizeEnrollMFAOtpRequestInfo *)verificationInfo
+                    requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
+  self = [super initWithEndpoint:kFinalizeMFAEnrollmentEndPoint
+            requestConfiguration:requestConfiguration
+             useIdentityPlatform:YES
+                      useStaging:NO];
+  if (self) {
+    _IDToken = IDToken;
+    _displayName = displayName;
+    _otpVerificationInfo = verificationInfo;
+  }
+  return self;
+}
+
 - (nullable id)unencodedHTTPRequestBodyWithError:(NSError *__autoreleasing _Nullable *)error {
   NSMutableDictionary *postBody = [NSMutableDictionary dictionary];
   if (_IDToken) {
@@ -52,6 +68,11 @@ static NSString *const kTenantIDKey = @"tenantId";
   if (_verificationInfo) {
     if ([_verificationInfo isKindOfClass:[FIRAuthProtoFinalizeMFAPhoneRequestInfo class]]) {
       postBody[@"phoneVerificationInfo"] = [_verificationInfo dictionary];
+    }
+  }
+  if (_otpVerificationInfo) {
+    if ([_otpVerificationInfo isKindOfClass:[FIRAuthProtoFinalizeEnrollMFAOtpRequestInfo class]]) {
+      postBody[@"otpVerificationInfo"] = [_otpVerificationInfo dictionary];
     }
   }
   if (self.tenantID) {

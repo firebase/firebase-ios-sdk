@@ -18,6 +18,8 @@
 
 #import "FirebaseAuth/Sources/Backend/RPC/Proto/Phone/FIRAuthProtoStartMFAPhoneResponseInfo.h"
 
+#import "FirebaseAuth/Sources/Backend/RPC/Proto/Otp/FIRAuthProtoStartMFAOtpResponseInfo.h"
+
 @implementation FIRStartMFAEnrollmentResponse
 
 - (BOOL)setWithDictionary:(nonnull NSDictionary *)dictionary
@@ -25,6 +27,9 @@
   if (dictionary[@"phoneSessionInfo"] != nil) {
     NSDictionary *data = dictionary[@"phoneSessionInfo"];
     _enrollmentResponse = [[FIRAuthProtoStartMFAPhoneResponseInfo alloc] initWithDictionary:data];
+  } else if (dictionary[@"otpSessionInfo"] != nil) {
+    NSDictionary *data = dictionary[@"otpSessionInfo"];
+    _otpEnrollmentResponse = [[FIRAuthProtoStartMFAOtpResponseInfo alloc] initWithDictionary:data];
   } else {
     return NO;
   }

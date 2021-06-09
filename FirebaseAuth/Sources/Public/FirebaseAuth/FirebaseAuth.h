@@ -50,4 +50,7 @@
 #import "FIRPhoneMultiFactorAssertion.h"
 #import "FIRPhoneMultiFactorGenerator.h"
 #import "FIRPhoneMultiFactorInfo.h"
+#import "FIROtpMultiFactorAssertion.h"
+#import "FIROtpMultiFactorGenerator.h"
+#import "FIROtpMultiFactorInfo.h"
 #endif

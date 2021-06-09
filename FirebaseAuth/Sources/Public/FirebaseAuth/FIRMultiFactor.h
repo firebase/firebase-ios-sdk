@@ -40,6 +40,8 @@ typedef void (^FIRMultiFactorSessionCallback)(FIRMultiFactorSession *_Nullable s
 */
 extern NSString *const _Nonnull FIRPhoneMultiFactorID NS_SWIFT_NAME(PhoneMultiFactorID);
 
+extern NSString *const _Nonnull FIROtpMultiFactorID NS_SWIFT_NAME(OTPMultiFactorID);
+
 /** @class FIRMultiFactor
     @brief The interface defining the multi factor related properties and operations pertaining to a
    user.

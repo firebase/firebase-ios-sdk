@@ -14,21 +14,32 @@
  * limitations under the License.
  */
 
-#import "FirebaseAuth/Sources/Backend/RPC/Proto/FIRAuthProto.h"
+#import "FirebaseAuth/Sources/Backend/RPC/Proto/Otp/FIRAuthProtoFinalizeEnrollMFAOtpRequestInfo.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRAuthProtoMFAEnrollment : NSObject <FIRAuthProto>
+@implementation FIRAuthProtoFinalizeEnrollMFAOtpRequestInfo
 
-@property(nonatomic, copy, readonly, nullable) NSString *MFAValue;
+- (instancetype)initWithSessionInfo:(NSString *)sessionInfo
+                   verificationCode:(NSString *)verificationCode {
+  self = [super init];
+  if (self) {
+    _sessionInfo = sessionInfo;
+    _code = verificationCode;
+  }
+  return self;
+}
 
-@property(nonatomic, readonly) BOOL OTPEnabled;
-
-@property(nonatomic, copy, readonly, nullable) NSString *MFAEnrollmentID;
-
-@property(nonatomic, copy, readonly, nullable) NSString *displayName;
-
-@property(nonatomic, copy, readonly, nullable) NSDate *enrolledAt;
+- (NSDictionary *)dictionary {
+  NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+  if (_sessionInfo) {
+    dict[@"sessionInfo"] = _sessionInfo;
+  }
+  if (_code) {
+    dict[@"code"] = _code;
+  }
+  return [dict copy];
+}
 
 @end
 
