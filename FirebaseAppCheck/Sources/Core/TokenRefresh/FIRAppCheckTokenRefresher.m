@@ -84,8 +84,7 @@ static const double kAutoRefreshFraction = 0.5;
     _tokenRefreshHandler = tokenRefreshHandler;
 
     // Check if handler is being set for the first time and if yes then schedule first refresh.
-    if (tokenRefreshHandler && self.initialRefreshResult &&
-        self.settings.isTokenAutoRefreshEnabled) {
+    if (tokenRefreshHandler && self.initialRefreshResult) {
       FIRAppCheckTokenRefreshResult *initialTokenRefreshResult = self.initialRefreshResult;
       self.initialRefreshResult = nil;
       [self scheduleWithTokenRefreshResult:initialTokenRefreshResult];
@@ -137,8 +136,11 @@ static const double kAutoRefreshFraction = 0.5;
 }
 
 - (void)scheduleWithTokenRefreshResult:(FIRAppCheckTokenRefreshResult *)refreshResult {
-  NSDate *refreshDate = [self nextRefreshDateWithTokenRefreshResult:refreshResult];
-  [self scheduleRefreshAtDate:refreshDate];
+  // Schedule the refresh only when allowed.
+  if (self.settings.isTokenAutoRefreshEnabled) {
+    NSDate *refreshDate = [self nextRefreshDateWithTokenRefreshResult:refreshResult];
+    [self scheduleRefreshAtDate:refreshDate];
+  }
 }
 
 - (void)scheduleRefreshAtDate:(NSDate *)refreshDate {
@@ -165,8 +167,6 @@ static const double kAutoRefreshFraction = 0.5;
   [self.timer invalidate];
 }
 
-#pragma mark - Backoff
-
 - (NSDate *)nextRefreshDateWithTokenRefreshResult:(FIRAppCheckTokenRefreshResult *)refreshResult {
   switch (refreshResult.status) {
     case FIRAppCheckTokenRefreshStatusSuccess: {
@@ -181,7 +181,7 @@ static const double kAutoRefreshFraction = 0.5;
       // Don't schedule later than expiration date.
       NSDate *refreshDate = [targetRefreshDate earlierDate:refreshResult.tokenExpirationDate];
 
-      // Don't schedule an update earlier than in 1 min from now.
+      // Don't schedule a refresh earlier than in 1 min from now.
       if ([refreshDate timeIntervalSinceNow] < kMinimumAutoRefreshTimeInterval) {
         refreshDate = [NSDate dateWithTimeIntervalSinceNow:kMinimumAutoRefreshTimeInterval];
       }
@@ -203,6 +203,7 @@ static const double kAutoRefreshFraction = 0.5;
   }
 }
 
+#pragma mark - Backoff
 
 + (NSTimeInterval)backoffTimeForRetryCount:(NSInteger)retryCount {
   if (retryCount == 0) {
