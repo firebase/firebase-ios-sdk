@@ -194,7 +194,7 @@ class Serializer {
    */
   core::Target DecodeQueryTarget(
       util::ReadContext* context,
-       google_firestore_v1_Target_QueryTarget& query) const;
+      google_firestore_v1_Target_QueryTarget& query) const;
 
   core::Target DecodeStructuredQuery(
       util::ReadContext* context,
