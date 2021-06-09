@@ -46,8 +46,6 @@
 #include "Firestore/core/src/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
-using firebase::Timestamp;
-using firebase::firestore::GeoPoint;
 using firebase::firestore::google_firestore_v1_Value;
 using firebase::firestore::api::DocumentSnapshot;
 using firebase::firestore::api::Firestore;

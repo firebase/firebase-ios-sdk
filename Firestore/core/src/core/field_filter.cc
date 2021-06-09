@@ -45,7 +45,6 @@ using model::GetTypeOrder;
 using model::IsArray;
 using model::TypeOrder;
 using util::ComparisonResult;
-using util::ThrowInvalidArgument;
 
 namespace {
 

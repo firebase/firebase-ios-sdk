@@ -66,7 +66,6 @@ using core::Direction;
 using core::FieldFilter;
 using core::Filter;
 using core::FilterList;
-using core::LimitType;
 using core::OrderBy;
 using core::OrderByList;
 using core::Query;

@@ -33,7 +33,6 @@ namespace local {
 
 using core::LimitType;
 using core::Query;
-using core::Target;
 using model::Document;
 using model::DocumentKeySet;
 using model::DocumentMap;

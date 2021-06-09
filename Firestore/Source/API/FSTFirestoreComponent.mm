@@ -37,10 +37,8 @@
 #include "absl/memory/memory.h"
 
 namespace util = firebase::firestore::util;
-using firebase::firestore::api::Firestore;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::FirebaseCredentialsProvider;
-using firebase::firestore::remote::FirebaseMetadataProvider;
 using firebase::firestore::remote::FirebaseMetadataProviderApple;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::Executor;

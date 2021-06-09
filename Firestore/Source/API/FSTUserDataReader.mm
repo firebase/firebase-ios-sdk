@@ -61,7 +61,6 @@ namespace util = firebase::firestore::util;
 namespace nanopb = firebase::firestore::nanopb;
 using firebase::Timestamp;
 using firebase::TimestampInternal;
-using firebase::firestore::GeoPoint;
 using firebase::firestore::core::ParseAccumulator;
 using firebase::firestore::core::ParseContext;
 using firebase::firestore::core::ParsedSetData;
@@ -72,12 +71,9 @@ using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
-using firebase::firestore::model::FieldTransform;
-using firebase::firestore::model::NullValue;
+using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::NumericIncrementTransform;
 using firebase::firestore::model::ObjectValue;
-using firebase::firestore::model::ResourcePath;
-using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ServerTimestampTransform;
 using firebase::firestore::model::TransformOperation;
 using firebase::firestore::nanopb::CheckedSize;
@@ -618,7 +614,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     absl::optional<google_firestore_v1_Value> parsedElement =
         [self parseData:element context:context.ChildContext(i)];
-    HARD_ASSERT(parsedElement && accumulator.field_transforms().size() == 0,
+    HARD_ASSERT(parsedElement && accumulator.field_transforms().empty(),
                 "Failed to properly parse array transform element: %s", element);
     array_value.values[i] = *parsedElement;
   }

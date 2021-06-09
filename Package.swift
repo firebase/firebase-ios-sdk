@@ -17,7 +17,7 @@
 
 import PackageDescription
 
-let firebaseVersion = "8.0.0"
+let firebaseVersion = "8.1.0"
 
 let package = Package(
   name: "Firebase",
@@ -144,7 +144,7 @@ let package = Package(
     .package(
       name: "GoogleDataTransport",
       url: "https://github.com/google/GoogleDataTransport.git",
-      "8.4.0" ..< "9.0.0"
+      "9.0.0" ..< "10.0.0"
     ),
     .package(
       name: "GoogleUtilities",
@@ -428,8 +428,6 @@ let package = Package(
         "CHANGELOG.md",
         "LICENSE",
         "README.md",
-        "Data/",
-        "Protos/",
         "ProtoSupport/",
         "UnitTests/",
         "generate_project.sh",
@@ -574,10 +572,8 @@ let package = Package(
         "third_party/",
 
         // Exclude alternate implementations for other platforms
-        "core/src/api/input_validation_std.cc",
         "core/src/remote/connectivity_monitor_noop.cc",
         "core/src/util/filesystem_win.cc",
-        "core/src/util/hard_assert_stdio.cc",
         "core/src/util/log_stdio.cc",
         "core/src/util/secure_random_openssl.cc",
       ],
@@ -966,6 +962,7 @@ let package = Package(
 
         // Disable Keychain dependent tests as they require a host application on iOS.
         "Integration",
+        "Unit/AppAttestProvider/Storage/FIRAppAttestArtifactStorageTests.m",
         "Unit/Core/FIRAppCheckIntegrationTests.m",
         "Unit/Core/FIRAppCheckStorageTests.m",
       ],

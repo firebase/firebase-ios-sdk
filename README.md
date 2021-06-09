@@ -148,6 +148,7 @@ Alternatively disable signing in each target:
 * Add `CODE_SIGNING_REQUIRED` setting with a value of `NO`
 
 ### Swift Package Manager
+* To enable test schemes: `./scripts/setup_spm_tests.sh`
 * `open Package.swift` or double click `Package.swift` in Finder.
 * Xcode will open the project
   * Choose a scheme for a library to build or test suite to run

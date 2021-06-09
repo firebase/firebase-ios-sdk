@@ -36,6 +36,7 @@
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/util/exception.h"
 #include "absl/algorithm/container.h"
+#include "absl/strings/match.h"
 
 namespace firebase {
 namespace firestore {
@@ -410,7 +411,7 @@ google_firestore_v1_Value Query::ParseExpectedReferenceValue(
           "valid document ID, but it was an empty string.");
     }
     if (!query().IsCollectionGroupQuery() &&
-        document_key.find('/') != std::string::npos) {
+        absl::StrContains(document_key, "/")) {
       ThrowInvalidArgument(
           "Invalid query. When querying a collection by document ID you must "
           "provide a plain document ID, but '%s' contains a '/' character.",

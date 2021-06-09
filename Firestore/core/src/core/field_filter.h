@@ -47,7 +47,7 @@ class FieldFilter : public Filter {
                             Operator op,
                             google_firestore_v1_Value value_rhs);
 
-  explicit FieldFilter(const Filter& filter);
+  explicit FieldFilter(const Filter& other);
 
   const model::FieldPath& field() const {
     return field_filter_rep().field_;
@@ -111,7 +111,7 @@ class FieldFilter : public Filter {
         Operator op,
         google_firestore_v1_Value value_rhs);
 
-    bool MatchesComparison(util::ComparisonResult result) const;
+    bool MatchesComparison(util::ComparisonResult comparison) const;
 
    private:
     friend class FieldFilter;

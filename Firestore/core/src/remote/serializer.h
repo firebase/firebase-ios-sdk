@@ -194,12 +194,8 @@ class Serializer {
    */
   core::Target DecodeQueryTarget(
       util::ReadContext* context,
-      google_firestore_v1_Target_QueryTarget& proto) const;
+       google_firestore_v1_Target_QueryTarget& query) const;
 
-  /**
-   * Decodes the structured query. Modifies the provided proto to release
-   * ownership of any Value messages.
-   */
   core::Target DecodeStructuredQuery(
       util::ReadContext* context,
       pb_bytes_array_t* parent,

@@ -27,7 +27,6 @@
 namespace util = firebase::firestore::util;
 using firebase::firestore::core::ParsedSetData;
 using firebase::firestore::core::ParsedUpdateData;
-using firebase::firestore::model::Precondition;
 
 NS_ASSUME_NONNULL_BEGIN
 

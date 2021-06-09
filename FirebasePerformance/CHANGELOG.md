@@ -1,3 +1,10 @@
+# Version 8.2.0
+* Update log messages with proper log levels.
+* Fix a crash on FPRSessionDetails. (#8139)
+
+# Version 8.1.0
+* Firebase Performance logs now contain URLs to see the performance data on the Firebase console.
+
 # Version 7.8.0
 * Deprecate Clearcut event transport mechanism.
 * Enable dynamic framework support. (#7569)
