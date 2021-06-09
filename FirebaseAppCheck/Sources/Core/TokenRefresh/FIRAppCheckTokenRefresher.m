@@ -25,9 +25,10 @@ NS_ASSUME_NONNULL_BEGIN
 static const NSTimeInterval kInitialBackoffTimeInterval = 30;
 static const NSTimeInterval kMaximumBackoffTimeInterval = 16 * 60;
 
-static const NSTimeInterval kMinimumAutoRefreshTimeInterval = 60; // 1 min.
+static const NSTimeInterval kMinimumAutoRefreshTimeInterval = 60;  // 1 min.
 
-/// How much time in advance to auto-refresh token before it's expiration. E.g. 0.5 means that the token will be refreshed half way through it's intended time to live.
+/// How much time in advance to auto-refresh token before it's expiration. E.g. 0.5 means that the
+/// token will be refreshed half way through it's intended time to live.
 static const double kAutoRefreshFraction = 0.5;
 
 @interface FIRAppCheckTokenRefresher ()
@@ -40,7 +41,7 @@ static const double kAutoRefreshFraction = 0.5;
 @property(atomic, nullable) id<FIRAppCheckTimerProtocol> timer;
 @property(atomic) NSUInteger retryCount;
 
-/// Initial refresh result to be used when `tokenRefreshHandler` has been sent. 
+/// Initial refresh result to be used when `tokenRefreshHandler` has been sent.
 @property(nonatomic, nullable) FIRAppCheckTokenRefreshResult *initialRefreshResult;
 @property(nonatomic, readonly) NSTimeInterval tokenExpirationThreshold;
 
@@ -51,9 +52,9 @@ static const double kAutoRefreshFraction = 0.5;
 @synthesize tokenRefreshHandler = _tokenRefreshHandler;
 
 - (instancetype)initWithRefreshResult:(FIRAppCheckTokenRefreshResult *)refreshResult
-                   tokenExpirationThreshold:(NSTimeInterval)tokenExpirationThreshold
-                              timerProvider:(FIRTimerProvider)timerProvider
-                                   settings:(id<FIRAppCheckSettingsProtocol>)settings {
+             tokenExpirationThreshold:(NSTimeInterval)tokenExpirationThreshold
+                        timerProvider:(FIRTimerProvider)timerProvider
+                             settings:(id<FIRAppCheckSettingsProtocol>)settings {
   self = [super init];
   if (self) {
     _refreshQueue =
@@ -67,12 +68,12 @@ static const double kAutoRefreshFraction = 0.5;
 }
 
 - (instancetype)initWithRefreshResult:(FIRAppCheckTokenRefreshResult *)refreshResult
-                   tokenExpirationThreshold:(NSTimeInterval)tokenExpirationThreshold
-                                   settings:(id<FIRAppCheckSettingsProtocol>)settings {
+             tokenExpirationThreshold:(NSTimeInterval)tokenExpirationThreshold
+                             settings:(id<FIRAppCheckSettingsProtocol>)settings {
   return [self initWithRefreshResult:refreshResult
-                  tokenExpirationThreshold:tokenExpirationThreshold
-                             timerProvider:[FIRAppCheckTimer timerProvider]
-                                  settings:settings];
+            tokenExpirationThreshold:tokenExpirationThreshold
+                       timerProvider:[FIRAppCheckTimer timerProvider]
+                            settings:settings];
 }
 
 - (void)dealloc {
@@ -170,13 +171,14 @@ static const double kAutoRefreshFraction = 0.5;
 - (NSDate *)nextRefreshDateWithTokenRefreshResult:(FIRAppCheckTokenRefreshResult *)refreshResult {
   switch (refreshResult.status) {
     case FIRAppCheckTokenRefreshStatusSuccess: {
-      NSTimeInterval timeToLive = [refreshResult.tokenExpirationDate timeIntervalSinceDate:refreshResult.tokenReceivedAtDate];
+      NSTimeInterval timeToLive = [refreshResult.tokenExpirationDate
+          timeIntervalSinceDate:refreshResult.tokenReceivedAtDate];
       timeToLive = MAX(timeToLive, 0);
 
       // Refresh in 50% of TTL + 5 min.
       NSTimeInterval targetRefreshSinceReceivedDate = timeToLive * kAutoRefreshFraction + 5 * 60;
-      NSDate *targetRefreshDate =
-      [refreshResult.tokenReceivedAtDate dateByAddingTimeInterval:targetRefreshSinceReceivedDate];
+      NSDate *targetRefreshDate = [refreshResult.tokenReceivedAtDate
+          dateByAddingTimeInterval:targetRefreshSinceReceivedDate];
 
       // Don't schedule later than expiration date.
       NSDate *refreshDate = [targetRefreshDate earlierDate:refreshResult.tokenExpirationDate];
@@ -186,15 +188,13 @@ static const double kAutoRefreshFraction = 0.5;
         refreshDate = [NSDate dateWithTimeIntervalSinceNow:kMinimumAutoRefreshTimeInterval];
       }
       return refreshDate;
-    }
-      break;
+    } break;
 
     case FIRAppCheckTokenRefreshStatusFailure: {
       // Refresh after a timeout.
       NSTimeInterval backoffTime = [[self class] backoffTimeForRetryCount:self.retryCount];
       return [NSDate dateWithTimeIntervalSinceNow:backoffTime];
-    }
-      break;
+    } break;
 
     case FIRAppCheckTokenRefreshStatusNever:
       // Refresh ASAP.

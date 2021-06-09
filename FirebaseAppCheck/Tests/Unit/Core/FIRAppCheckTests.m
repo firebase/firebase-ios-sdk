@@ -31,8 +31,8 @@
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckSettings.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckTokenResult.h"
 #import "FirebaseAppCheck/Sources/Core/Storage/FIRAppCheckStorage.h"
-#import "FirebaseAppCheck/Sources/Core/TokenRefresh/FIRAppCheckTokenRefresher.h"
 #import "FirebaseAppCheck/Sources/Core/TokenRefresh/FIRAppCheckTokenRefreshResult.h"
+#import "FirebaseAppCheck/Sources/Core/TokenRefresh/FIRAppCheckTokenRefresher.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
@@ -115,12 +115,13 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   id mockTokenRefresher = OCMClassMock([FIRAppCheckTokenRefresher class]);
   OCMExpect([mockTokenRefresher alloc]).andReturn(mockTokenRefresher);
 
-  id refresherDateValidator = [OCMArg checkWithBlock:^BOOL(FIRAppCheckTokenRefreshResult *refreshResult) {
-    XCTAssertEqual(refreshResult.status, FIRAppCheckTokenRefreshStatusNever);
-    XCTAssertEqual(refreshResult.tokenExpirationDate, nil);
-    XCTAssertEqual(refreshResult.tokenReceivedAtDate, nil);
-    return YES;
-  }];
+  id refresherDateValidator =
+      [OCMArg checkWithBlock:^BOOL(FIRAppCheckTokenRefreshResult *refreshResult) {
+        XCTAssertEqual(refreshResult.status, FIRAppCheckTokenRefreshStatusNever);
+        XCTAssertEqual(refreshResult.tokenExpirationDate, nil);
+        XCTAssertEqual(refreshResult.tokenReceivedAtDate, nil);
+        return YES;
+      }];
 
   id settingsValidator = [OCMArg checkWithBlock:^BOOL(id obj) {
     XCTAssert([obj isKindOfClass:[FIRAppCheckSettings class]]);
@@ -128,8 +129,8 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   }];
 
   OCMExpect([mockTokenRefresher initWithRefreshResult:refresherDateValidator
-                                   tokenExpirationThreshold:5 * 60
-                                                   settings:settingsValidator])
+                             tokenExpirationThreshold:5 * 60
+                                             settings:settingsValidator])
       .andReturn(mockTokenRefresher);
   OCMExpect([mockTokenRefresher setTokenRefreshHandler:[OCMArg any]]);
 

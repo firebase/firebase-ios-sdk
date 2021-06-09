@@ -58,15 +58,15 @@ typedef void (^FIRAppCheckTokenRefreshBlock)(FIRAppCheckTokenRefreshCompletion c
 /// seconds before the actual token expiration time.
 /// @param settings An object that handles Firebase app check settings.
 - (instancetype)initWithRefreshResult:(FIRAppCheckTokenRefreshResult *)refreshResult
-                   tokenExpirationThreshold:(NSTimeInterval)tokenExpirationThreshold
-                              timerProvider:(FIRTimerProvider)timerProvider
-                                   settings:(id<FIRAppCheckSettingsProtocol>)settings
+             tokenExpirationThreshold:(NSTimeInterval)tokenExpirationThreshold
+                        timerProvider:(FIRTimerProvider)timerProvider
+                             settings:(id<FIRAppCheckSettingsProtocol>)settings
     NS_DESIGNATED_INITIALIZER;
 
 /// A convenience initializer with a timer provider returning an instance of  `FIRAppCheckTimer`.
 - (instancetype)initWithRefreshResult:(FIRAppCheckTokenRefreshResult *)refreshResult
-                   tokenExpirationThreshold:(NSTimeInterval)tokenExpirationThreshold
-                                   settings:(id<FIRAppCheckSettingsProtocol>)settings;
+             tokenExpirationThreshold:(NSTimeInterval)tokenExpirationThreshold
+                             settings:(id<FIRAppCheckSettingsProtocol>)settings;
 
 @end
 

@@ -18,7 +18,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/// Represents possible results of a Firebase App Check token refresh attempt that matter for `FIRAppCheckTokenRefresher`.
+/// Represents possible results of a Firebase App Check token refresh attempt that matter for
+/// `FIRAppCheckTokenRefresher`.
 typedef NS_ENUM(NSInteger, FIRAppCheckTokenRefreshStatus) {
   // The token has not been refreshed.
   FIRAppCheckTokenRefreshStatusNever,
@@ -26,13 +27,14 @@ typedef NS_ENUM(NSInteger, FIRAppCheckTokenRefreshStatus) {
   // The token was successfully refreshed.
   FIRAppCheckTokenRefreshStatusSuccess,
 
-//  FIRAppCheckTokenRefreshStatusSuccess,
+  //  FIRAppCheckTokenRefreshStatusSuccess,
 
   // The token refresh failed.
   FIRAppCheckTokenRefreshStatusFailure
 };
 
-/// An object to pass the possible results of a Firebase App Check token refresh attempt and supplementary data.
+/// An object to pass the possible results of a Firebase App Check token refresh attempt and
+/// supplementary data.
 @interface FIRAppCheckTokenRefreshResult : NSObject
 
 /// Status of the refresh.
@@ -55,7 +57,8 @@ typedef NS_ENUM(NSInteger, FIRAppCheckTokenRefreshStatus) {
 /// Initializes the instance with `FIRAppCheckTokenRefreshStatusFailure`.
 /// @param tokenExpirationDate See `tokenExpirationDate` property.
 /// @param tokenReceivedAtDate See `tokenReceivedAtDate` property.
-- (instancetype)initWithStatusSuccessAndExpirationDate:(NSDate *)tokenExpirationDate receivedAtDate:(NSDate *)tokenReceivedAtDate;
+- (instancetype)initWithStatusSuccessAndExpirationDate:(NSDate *)tokenExpirationDate
+                                        receivedAtDate:(NSDate *)tokenReceivedAtDate;
 
 @end
 
