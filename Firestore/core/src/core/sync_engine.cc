@@ -59,6 +59,7 @@ using local::TargetData;
 using model::BatchId;
 using model::DocumentKey;
 using model::DocumentKeySet;
+using model::DocumentMap;
 using model::DocumentUpdateMap;
 using model::kBatchIdUnknown;
 using model::ListenSequenceNumber;
