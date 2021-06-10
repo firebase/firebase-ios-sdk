@@ -380,7 +380,7 @@
       initWithStatusSuccessAndExpirationDate:newExpirationDate
                               receivedAtDate:self.initialTokenRefreshResult.tokenExpirationDate];
 
-  // 1. Expect checking if auto-refresh allowed before scheduling initial refresh.
+  // 1. Expect checking if auto-refresh allowed before scheduling refresh.
   [[[self.mockSettings expect] andReturnValue:@(YES)] isTokenAutoRefreshEnabled];
 
   // 2. Expect timer to be scheduled.
@@ -442,7 +442,7 @@
       initWithStatusSuccessAndExpirationDate:newExpirationDate
                               receivedAtDate:[NSDate date]];
 
-  // 1. Expect checking if auto-refresh allowed before scheduling initial refresh.
+  // 1. Expect checking if auto-refresh allowed before scheduling refresh.
   [[[self.mockSettings expect] andReturnValue:@(YES)] isTokenAutoRefreshEnabled];
 
   // 2. Expect timer to be scheduled in at least 1 minute.
