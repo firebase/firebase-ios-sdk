@@ -129,7 +129,6 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   }];
 
   OCMExpect([mockTokenRefresher initWithRefreshResult:refresherDateValidator
-                             tokenExpirationThreshold:5 * 60
                                              settings:settingsValidator])
       .andReturn(mockTokenRefresher);
   OCMExpect([mockTokenRefresher setTokenRefreshHandler:[OCMArg any]]);

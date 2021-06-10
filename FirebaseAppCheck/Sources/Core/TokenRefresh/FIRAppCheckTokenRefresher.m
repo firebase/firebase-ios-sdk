@@ -43,7 +43,6 @@ static const double kAutoRefreshFraction = 0.5;
 
 /// Initial refresh result to be used when `tokenRefreshHandler` has been sent.
 @property(nonatomic, nullable) FIRAppCheckTokenRefreshResult *initialRefreshResult;
-@property(nonatomic, readonly) NSTimeInterval tokenExpirationThreshold;
 
 @end
 
@@ -52,14 +51,12 @@ static const double kAutoRefreshFraction = 0.5;
 @synthesize tokenRefreshHandler = _tokenRefreshHandler;
 
 - (instancetype)initWithRefreshResult:(FIRAppCheckTokenRefreshResult *)refreshResult
-             tokenExpirationThreshold:(NSTimeInterval)tokenExpirationThreshold
                         timerProvider:(FIRTimerProvider)timerProvider
                              settings:(id<FIRAppCheckSettingsProtocol>)settings {
   self = [super init];
   if (self) {
     _refreshQueue =
         dispatch_queue_create("com.firebase.FIRAppCheckTokenRefresher", DISPATCH_QUEUE_SERIAL);
-    _tokenExpirationThreshold = tokenExpirationThreshold;
     _initialRefreshResult = refreshResult;
     _timerProvider = timerProvider;
     _settings = settings;
@@ -68,10 +65,8 @@ static const double kAutoRefreshFraction = 0.5;
 }
 
 - (instancetype)initWithRefreshResult:(FIRAppCheckTokenRefreshResult *)refreshResult
-             tokenExpirationThreshold:(NSTimeInterval)tokenExpirationThreshold
                              settings:(id<FIRAppCheckSettingsProtocol>)settings {
   return [self initWithRefreshResult:refreshResult
-            tokenExpirationThreshold:tokenExpirationThreshold
                        timerProvider:[FIRAppCheckTimer timerProvider]
                             settings:settings];
 }
@@ -100,9 +95,18 @@ static const double kAutoRefreshFraction = 0.5;
 }
 
 - (void)updateWithRefreshResult:(FIRAppCheckTokenRefreshResult *)refreshResult {
-  if (self.settings.isTokenAutoRefreshEnabled) {
-    [self scheduleWithTokenRefreshResult:refreshResult];
+  switch (refreshResult.status) {
+    case FIRAppCheckTokenRefreshStatusNever:
+    case FIRAppCheckTokenRefreshStatusSuccess:
+      self.retryCount = 0;
+      break;
+
+    case FIRAppCheckTokenRefreshStatusFailure:
+      self.retryCount += 1;
+      break;
   }
+
+  [self scheduleWithTokenRefreshResult:refreshResult];
 }
 
 - (void)refresh {
@@ -117,23 +121,8 @@ static const double kAutoRefreshFraction = 0.5;
   __auto_type __weak weakSelf = self;
   self.tokenRefreshHandler(^(FIRAppCheckTokenRefreshResult *refreshResult) {
     __auto_type strongSelf = weakSelf;
-    [strongSelf tokenRefreshedWithResult:refreshResult];
+    [strongSelf updateWithRefreshResult:refreshResult];
   });
-}
-
-- (void)tokenRefreshedWithResult:(FIRAppCheckTokenRefreshResult *)refreshResult {
-  switch (refreshResult.status) {
-    case FIRAppCheckTokenRefreshStatusNever:
-    case FIRAppCheckTokenRefreshStatusSuccess:
-      self.retryCount = 0;
-      break;
-
-    case FIRAppCheckTokenRefreshStatusFailure:
-      self.retryCount += 1;
-      break;
-  }
-
-  [self scheduleWithTokenRefreshResult:refreshResult];
 }
 
 - (void)scheduleWithTokenRefreshResult:(FIRAppCheckTokenRefreshResult *)refreshResult {
