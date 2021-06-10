@@ -128,8 +128,7 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
   FIRAppCheckTokenRefreshResult *refreshResult =
       [[FIRAppCheckTokenRefreshResult alloc] initWithStatusNever];
   FIRAppCheckTokenRefresher *tokenRefresher =
-      [[FIRAppCheckTokenRefresher alloc] initWithRefreshResult:refreshResult
-                                                      settings:settings];
+      [[FIRAppCheckTokenRefresher alloc] initWithRefreshResult:refreshResult settings:settings];
 
   FIRAppCheckStorage *storage = [[FIRAppCheckStorage alloc] initWithAppName:app.name
                                                                       appID:app.options.googleAppID

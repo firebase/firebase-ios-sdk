@@ -41,7 +41,9 @@
   self.fakeTimer = [[FIRFakeTimer alloc] init];
 
   NSDate *receivedAtDate = [NSDate date];
-  self.initialTokenRefreshResult = [[FIRAppCheckTokenRefreshResult alloc] initWithStatusSuccessAndExpirationDate:[receivedAtDate dateByAddingTimeInterval:1000] receivedAtDate:receivedAtDate];
+  self.initialTokenRefreshResult = [[FIRAppCheckTokenRefreshResult alloc]
+      initWithStatusSuccessAndExpirationDate:[receivedAtDate dateByAddingTimeInterval:1000]
+                              receivedAtDate:receivedAtDate];
 }
 
 - (void)tearDown {
@@ -435,8 +437,7 @@
 - (void)testUpdateWithRefreshResult_WhenTokenExpiresLessThanIn1Minute {
   FIRAppCheckTokenRefresher *refresher = [self createRefresher];
 
-  NSDate *newExpirationDate =
-  [NSDate dateWithTimeIntervalSinceNow: 0.5 * 60];
+  NSDate *newExpirationDate = [NSDate dateWithTimeIntervalSinceNow:0.5 * 60];
   __auto_type newRefreshResult = [[FIRAppCheckTokenRefreshResult alloc]
       initWithStatusSuccessAndExpirationDate:newExpirationDate
                               receivedAtDate:[NSDate date]];
@@ -452,7 +453,9 @@
     weakSelf.fakeTimer.createHandler = nil;
 
     // 1 minute is the minimal interval between successful refreshes.
-    XCTAssert([FIRDateTestUtils isDate:fireDate approximatelyEqualCurrentPlusTimeInterval:60 precision:1]);
+    XCTAssert([FIRDateTestUtils isDate:fireDate
+        approximatelyEqualCurrentPlusTimeInterval:60
+                                        precision:1]);
     [timerCreateExpectation fulfill];
   };
 
