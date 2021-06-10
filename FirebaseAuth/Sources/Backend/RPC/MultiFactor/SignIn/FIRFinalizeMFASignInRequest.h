@@ -17,6 +17,7 @@
 #import "FirebaseAuth/Sources/Backend/FIRAuthRPCRequest.h"
 #import "FirebaseAuth/Sources/Backend/FIRIdentityToolkitRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/Proto/Phone/FIRAuthProtoFinalizeMFAPhoneRequestInfo.h"
+#import "FirebaseAuth/Sources/Backend/RPC/Proto/Otp/FIRAuthProtoFinalizeMFAOtpRequestInfo.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -27,9 +28,17 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, copy, readonly, nullable)
     FIRAuthProtoFinalizeMFAPhoneRequestInfo *verificationInfo;
 
+@property(nonatomic, copy, readonly, nullable)
+    FIRAuthProtoFinalizeMFAOtpRequestInfo *otpVerificationInfo;
+
 - (nullable instancetype)
     initWithMFAPendingCredential:(NSString *)MFAPendingCredential
                 verificationInfo:(FIRAuthProtoFinalizeMFAPhoneRequestInfo *)verificationInfo
+            requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration;
+
+- (nullable instancetype)
+    initWithMFAPendingCredential:(NSString *)MFAPendingCredential
+                otpVerificationInfo:(FIRAuthProtoFinalizeMFAOtpRequestInfo *)otpVerificationInfo
             requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration;
 
 @end
