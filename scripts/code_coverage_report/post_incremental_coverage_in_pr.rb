@@ -69,13 +69,15 @@ def add_coverage_comments(client, uncovered_files)
       else
         comment = generate_comment(COMMENT_HEADER, xcresult_file)
         if start_line == line
-          # One line code comment will only rely on the position param, which is
-          # 'line' here.
-          client.create_pull_request_comment(REPO,PULL_REQUEST, comment, TESTING_COMMIT,changed_file['fileName'], line, {:side=>"RIGHT"})
+          # One line code comment will have nil in start_line and override
+          # the position param, which is 0 here. The position param is a
+          # relative number in the `git diff`, instead of a absolute line
+          # index.
+          client.create_pull_request_comment(REPO,PULL_REQUEST, comment, TESTING_COMMIT,changed_file['fileName'], 0, {:side=>"RIGHT", :line=>line})
         else
           # multiple-line code block comment needs start_line and line options,
           # which will override the position param.
-          client.create_pull_request_comment(REPO,PULL_REQUEST, comment, TESTING_COMMIT,changed_file['fileName'],0, {:side=>"RIGHT", :start_line=> start_line, :line=> line})
+          client.create_pull_request_comment(REPO,PULL_REQUEST, comment, TESTING_COMMIT,changed_file['fileName'],0, {:side=>"RIGHT", :start_line=>start_line, :line=>line})
         end
         start_line = coverage_line[idx+1]
       end

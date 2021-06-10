@@ -428,8 +428,6 @@ let package = Package(
         "CHANGELOG.md",
         "LICENSE",
         "README.md",
-        "Data/",
-        "Protos/",
         "ProtoSupport/",
         "UnitTests/",
         "generate_project.sh",
@@ -574,10 +572,8 @@ let package = Package(
         "third_party/",
 
         // Exclude alternate implementations for other platforms
-        "core/src/api/input_validation_std.cc",
         "core/src/remote/connectivity_monitor_noop.cc",
         "core/src/util/filesystem_win.cc",
-        "core/src/util/hard_assert_stdio.cc",
         "core/src/util/log_stdio.cc",
         "core/src/util/secure_random_openssl.cc",
       ],
