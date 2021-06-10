@@ -180,7 +180,7 @@ static const double kAutoRefreshFraction = 0.5;
     } break;
 
     case FIRAppCheckTokenRefreshStatusFailure: {
-      // Refresh after a timeout.
+      // Repeat refresh attempt later.
       NSTimeInterval backoffTime = [[self class] backoffTimeForRetryCount:self.retryCount];
       return [NSDate dateWithTimeIntervalSinceNow:backoffTime];
     } break;

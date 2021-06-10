@@ -27,8 +27,6 @@ typedef NS_ENUM(NSInteger, FIRAppCheckTokenRefreshStatus) {
   // The token was successfully refreshed.
   FIRAppCheckTokenRefreshStatusSuccess,
 
-  //  FIRAppCheckTokenRefreshStatusSuccess,
-
   // The token refresh failed.
   FIRAppCheckTokenRefreshStatusFailure
 };

@@ -54,7 +54,6 @@ typedef void (^FIRAppCheckTokenRefreshBlock)(FIRAppCheckTokenRefreshCompletion c
 
 /// The designated initializer.
 /// @param refreshResult A previous token refresh attempt result.
-/// seconds before the actual token expiration time.
 /// @param settings An object that handles Firebase app check settings.
 - (instancetype)initWithRefreshResult:(FIRAppCheckTokenRefreshResult *)refreshResult
                         timerProvider:(FIRTimerProvider)timerProvider
