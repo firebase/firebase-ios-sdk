@@ -28,7 +28,7 @@
         "ios": "9.0"
     },
     "source": {
-        "http": "https://dl.google.com/firebase/ios/analytics/bbfb73e03d64790f/GoogleAppMeasurement-8.0.0.tar.gz"
+        "http": "https://dl.google.com/firebase/ios/analytics/2962dad7aa0f51fb/GoogleAppMeasurement-8.1.1.tar.gz"
     },
     "subspecs": [
         {
@@ -45,5 +45,5 @@
         }
     ],
     "summary": "Shared measurement methods for Google libraries. Not intended for direct use.",
-    "version": "8.1.0"
+    "version": "8.1.1"
 }
