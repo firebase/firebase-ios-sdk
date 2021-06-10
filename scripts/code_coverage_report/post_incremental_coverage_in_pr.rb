@@ -71,10 +71,12 @@ def add_coverage_comments(client, uncovered_files)
         if start_line == line
           # One line code comment will only rely on the position param, which is
           # 'line' here.
+          puts "Comment on #{line}."
           client.create_pull_request_comment(REPO,PULL_REQUEST, comment, TESTING_COMMIT,changed_file['fileName'], line, {:side=>"RIGHT"})
         else
           # multiple-line code block comment needs start_line and line options,
           # which will override the position param.
+          puts "Comment on block (#{start_line}, #{line})."
           client.create_pull_request_comment(REPO,PULL_REQUEST, comment, TESTING_COMMIT,changed_file['fileName'],0, {:side=>"RIGHT", :start_line=> start_line, :line=> line})
         end
         start_line = coverage_line[idx+1]
