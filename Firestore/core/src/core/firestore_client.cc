@@ -536,9 +536,9 @@ void FirestoreClient::GetNamedQuery(const std::string& name,
                         named_query.value().bundled_query().limit_type(),
                         target.start_at(), target.end_at());
             user_executor_->Execute(
-                [query, callback] { callback(std::move(query)); });
+                [query, callback] { callback(std::move(query), true); });
           } else {
-            user_executor_->Execute([callback] { callback(absl::nullopt); });
+            user_executor_->Execute([callback] { callback(Query(), false); });
           }
         }
       };
