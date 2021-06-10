@@ -43,9 +43,10 @@ class FieldFilter : public Filter {
   /**
    * Creates a Filter instance for the provided path, operator, and value.
    */
-  static FieldFilter Create(const model::FieldPath& path,
-                            Operator op,
-                            google_firestore_v1_Value value_rhs);
+  static FieldFilter Create(
+      const model::FieldPath& path,
+      Operator op,
+      nanopb::SharedMessage<google_firestore_v1_Value> value_rhs);
 
   explicit FieldFilter(const Filter& other);
 
@@ -109,7 +110,7 @@ class FieldFilter : public Filter {
      */
     Rep(model::FieldPath field,
         Operator op,
-        google_firestore_v1_Value value_rhs);
+        nanopb::SharedMessage<google_firestore_v1_Value> value_rhs);
 
     bool MatchesComparison(util::ComparisonResult comparison) const;
 

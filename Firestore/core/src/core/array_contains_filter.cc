@@ -31,12 +31,14 @@ using model::Contains;
 using model::Document;
 using model::FieldPath;
 using model::IsArray;
+using nanopb::SharedMessage;
 using Operator = Filter::Operator;
 
 class ArrayContainsFilter::Rep : public FieldFilter::Rep {
  public:
-  Rep(FieldPath field, google_firestore_v1_Value value)
-      : FieldFilter::Rep(std::move(field), Operator::ArrayContains, value) {
+  Rep(FieldPath field, SharedMessage<google_firestore_v1_Value> value)
+      : FieldFilter::Rep(
+            std::move(field), Operator::ArrayContains, std::move(value)) {
   }
 
   Type type() const override {
@@ -46,9 +48,10 @@ class ArrayContainsFilter::Rep : public FieldFilter::Rep {
   bool Matches(const model::Document& doc) const override;
 };
 
-ArrayContainsFilter::ArrayContainsFilter(const model::FieldPath& field,
-                                         google_firestore_v1_Value value)
-    : FieldFilter(std::make_shared<const Rep>(field, value)) {
+ArrayContainsFilter::ArrayContainsFilter(
+    const model::FieldPath& field,
+    SharedMessage<google_firestore_v1_Value> value)
+    : FieldFilter(std::make_shared<const Rep>(field, std::move(value))) {
 }
 
 bool ArrayContainsFilter::Rep::Matches(const Document& doc) const {

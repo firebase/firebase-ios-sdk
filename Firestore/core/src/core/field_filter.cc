@@ -44,6 +44,7 @@ using model::FieldPath;
 using model::GetTypeOrder;
 using model::IsArray;
 using model::TypeOrder;
+using nanopb::SharedMessage;
 using util::ComparisonResult;
 
 namespace {
@@ -81,30 +82,32 @@ const char* CanonicalName(Filter::Operator op) {
 
 }  // namespace
 
-FieldFilter FieldFilter::Create(const FieldPath& path,
-                                Operator op,
-                                google_firestore_v1_Value value_rhs) {
-  model::SortFields(value_rhs);
+FieldFilter FieldFilter::Create(
+    const FieldPath& path,
+    Operator op,
+    SharedMessage<google_firestore_v1_Value> value_rhs) {
+  google_firestore_v1_Value& value = value_rhs.operator*();
+  model::SortFields(value);
   if (path.IsKeyFieldPath()) {
     if (op == Filter::Operator::In) {
-      return KeyFieldInFilter(path, value_rhs);
+      return KeyFieldInFilter(path, std::move(value_rhs));
     } else if (op == Filter::Operator::NotIn) {
-      return KeyFieldNotInFilter(path, value_rhs);
+      return KeyFieldNotInFilter(path, std::move(value_rhs));
     } else {
       HARD_ASSERT(!IsArrayOperator(op),
                   "%s queries don't make sense on document keys.",
                   CanonicalName(op));
-      return KeyFieldFilter(path, op, value_rhs);
+      return KeyFieldFilter(path, op, std::move(value_rhs));
     }
   } else if (op == Operator::ArrayContains) {
-    return ArrayContainsFilter(path, value_rhs);
+    return ArrayContainsFilter(path, std::move(value_rhs));
 
   } else if (op == Operator::In) {
-    return InFilter(path, value_rhs);
+    return InFilter(path, std::move(value_rhs));
   } else if (op == Operator::ArrayContainsAny) {
-    return ArrayContainsAnyFilter(path, value_rhs);
+    return ArrayContainsAnyFilter(path, std::move(value_rhs));
   } else if (op == Operator::NotIn) {
-    return NotInFilter(path, value_rhs);
+    return NotInFilter(path, std::move(value_rhs));
   } else {
     Rep filter(path, op, value_rhs);
     return FieldFilter(std::make_shared<const Rep>(std::move(filter)));
@@ -121,8 +124,8 @@ FieldFilter::FieldFilter(std::shared_ptr<const Filter::Rep> rep)
 
 FieldFilter::Rep::Rep(FieldPath field,
                       Operator op,
-                      google_firestore_v1_Value value_rhs)
-    : field_(std::move(field)), op_(op), value_rhs_(value_rhs) {
+                      SharedMessage<google_firestore_v1_Value> value_rhs)
+    : field_(std::move(field)), op_(op), value_rhs_(std::move(value_rhs)) {
 }
 
 bool FieldFilter::Rep::IsInequality() const {

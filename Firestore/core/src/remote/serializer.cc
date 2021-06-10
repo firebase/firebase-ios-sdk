@@ -106,6 +106,7 @@ using nanopb::MakeStringView;
 using nanopb::ReleaseFieldOwnership;
 using nanopb::SafeReadBoolean;
 using nanopb::SetRepeatedField;
+using nanopb::SharedMessage;
 using nanopb::Writer;
 using remote::WatchChange;
 using util::ReadContext;
@@ -160,7 +161,8 @@ ResourcePath ExtractLocalPathFromResourceName(
 Filter InvalidFilter() {
   // The exact value doesn't matter. Note that there's no way to create the base
   // class `Filter`, so it has to be one of the derived classes.
-  return FieldFilter::Create({}, {}, {});
+  return FieldFilter::Create({}, {},
+                             SharedMessage<google_firestore_v1_Value>{{}});
 }
 
 FieldPath InvalidFieldPath() {
@@ -885,8 +887,9 @@ Filter Serializer::DecodeFieldFilter(
   FieldPath field_path =
       DecodeFieldPath(context, field_filter.field.field_path);
   Filter::Operator op = DecodeFieldFilterOperator(context, field_filter.op);
-  Filter result =
-      FieldFilter::Create(std::move(field_path), op, field_filter.value);
+  Filter result = FieldFilter::Create(
+      std::move(field_path), op,
+      SharedMessage<google_firestore_v1_Value>(field_filter.value));
   field_filter.value = {};  // Release field ownership
   return result;
 }
@@ -903,20 +906,24 @@ Filter Serializer::DecodeUnaryFilter(
 
   switch (unary.op) {
     case google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NULL:
-      return FieldFilter::Create(std::move(field), Filter::Operator::Equal,
-                                 NullValue());
+      return FieldFilter::Create(
+          std::move(field), Filter::Operator::Equal,
+          SharedMessage<google_firestore_v1_Value>(NullValue()));
 
     case google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NAN:
-      return FieldFilter::Create(std::move(field), Filter::Operator::Equal,
-                                 NaNValue());
+      return FieldFilter::Create(
+          std::move(field), Filter::Operator::Equal,
+          SharedMessage<google_firestore_v1_Value>(NaNValue()));
 
     case google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NOT_NULL:
-      return FieldFilter::Create(std::move(field), Filter::Operator::NotEqual,
-                                 NullValue());
+      return FieldFilter::Create(
+          std::move(field), Filter::Operator::NotEqual,
+          SharedMessage<google_firestore_v1_Value>(NullValue()));
 
     case google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NOT_NAN:
-      return FieldFilter::Create(std::move(field), Filter::Operator::NotEqual,
-                                 NaNValue());
+      return FieldFilter::Create(
+          std::move(field), Filter::Operator::NotEqual,
+          SharedMessage<google_firestore_v1_Value>(NaNValue()));
 
     default:
       context->Fail(StringFormat("Unrecognized UnaryFilter.op %s", unary.op));

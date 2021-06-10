@@ -25,6 +25,7 @@
 #include "Firestore/core/src/core/core_fwd.h"
 #include "Firestore/core/src/core/filter.h"
 #include "Firestore/core/src/core/query.h"
+#include "Firestore/core/src/nanopb/message.h"
 
 namespace firebase {
 namespace firestore {
@@ -91,9 +92,9 @@ class Query {
    *
    * @return The created `Query`.
    */
-  Query Filter(model::FieldPath field_path,
+  Query Filter(const model::FieldPath& field_path,
                core::Filter::Operator op,
-               google_firestore_v1_Value value,
+               nanopb::SharedMessage<google_firestore_v1_Value> value,
                const std::function<std::string()>& type_describer) const;
 
   /**

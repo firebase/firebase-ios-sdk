@@ -41,6 +41,7 @@
 #include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/model/verify_mutation.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
+#include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/statusor.h"
@@ -65,6 +66,7 @@ using model::Precondition;
 using model::TransformOperation;
 using nanopb::ByteString;
 using nanopb::SetRepeatedField;
+using nanopb::SharedMessage;
 using util::StringFormat;
 
 /**
@@ -288,14 +290,17 @@ core::Filter::Operator OperatorFromString(absl::string_view s) {
 core::FieldFilter Filter(absl::string_view key,
                          absl::string_view op,
                          google_firestore_v1_Value value) {
-  return core::FieldFilter::Create(Field(key), OperatorFromString(op), value);
+  return core::FieldFilter::Create(
+      Field(key), OperatorFromString(op),
+      SharedMessage<google_firestore_v1_Value>{value});
 }
 
 core::FieldFilter Filter(absl::string_view key,
                          absl::string_view op,
                          google_firestore_v1_ArrayValue value) {
-  return core::FieldFilter::Create(Field(key), OperatorFromString(op),
-                                   Value(value));
+  return core::FieldFilter::Create(
+      Field(key), OperatorFromString(op),
+      SharedMessage<google_firestore_v1_Value>{Value(value)});
 }
 
 core::FieldFilter Filter(absl::string_view key,

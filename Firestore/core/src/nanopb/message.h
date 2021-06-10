@@ -188,8 +188,8 @@ class Message {
 };
 
 /**
- * A wrapper of const Message objects that facilitates shared ownership of
- * immutable Protobuf data.
+ * A wrapper of Message objects that facilitates shared ownership of Protobuf
+ * data.
  */
 template <typename T>
 class SharedMessage {
@@ -203,11 +203,24 @@ class SharedMessage {
   }
 
   /**
-   * Returns a pointer to the underlying Nanopb proto or null if the `Message`
-   * is moved-from.
+   * Returns a pointer to the underlying Nanopb proto.
+   */
+  T* get() {
+    return message_->get();
+  }
+
+  /**
+   * Returns a pointer to the underlying Nanopb proto.
    */
   const T* get() const {
     return message_->get();
+  }
+
+  /**
+   * Returns a reference to the underlying Nanopb proto.
+   */
+  T& operator*() {
+    return *get();
   }
 
   /**
@@ -217,12 +230,16 @@ class SharedMessage {
     return *get();
   }
 
+  T* operator->() {
+    return get();
+  }
+
   const T* operator->() const {
     return get();
   }
 
  private:
-  std::shared_ptr<const Message<T>> message_;
+  std::shared_ptr<Message<T>> message_;
 };
 
 template <typename T>

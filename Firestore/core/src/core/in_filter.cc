@@ -32,14 +32,15 @@ using model::Contains;
 using model::Document;
 using model::FieldPath;
 using model::IsArray;
+using nanopb::SharedMessage;
 
 using Operator = Filter::Operator;
 
 class InFilter::Rep : public FieldFilter::Rep {
  public:
-  Rep(FieldPath field, google_firestore_v1_Value value)
-      : FieldFilter::Rep(std::move(field), Operator::In, value) {
-    HARD_ASSERT(IsArray(value), "InFilter expects an ArrayValue");
+  Rep(FieldPath field, SharedMessage<google_firestore_v1_Value> value)
+      : FieldFilter::Rep(std::move(field), Operator::In, std::move(value)) {
+    HARD_ASSERT(IsArray(this->value()), "InFilter expects an ArrayValue");
   }
 
   Type type() const override {
@@ -49,8 +50,9 @@ class InFilter::Rep : public FieldFilter::Rep {
   bool Matches(const model::Document& doc) const override;
 };
 
-InFilter::InFilter(const FieldPath& field, google_firestore_v1_Value value)
-    : FieldFilter(std::make_shared<const Rep>(field, value)) {
+InFilter::InFilter(const FieldPath& field,
+                   SharedMessage<google_firestore_v1_Value> value)
+    : FieldFilter(std::make_shared<const Rep>(field, std::move(value))) {
 }
 
 bool InFilter::Rep::Matches(const Document& doc) const {

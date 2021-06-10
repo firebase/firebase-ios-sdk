@@ -31,6 +31,7 @@
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
+#include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/timestamp_internal.h"
 #include "Firestore/core/src/util/statusor.h"
@@ -66,6 +67,7 @@ using model::ResourcePath;
 using model::SnapshotVersion;
 using nanopb::ByteString;
 using nanopb::SetRepeatedField;
+using nanopb::SharedMessage;
 using nlohmann::json;
 using util::StatusOr;
 using util::StringFormat;
@@ -207,7 +209,8 @@ Filter::Operator DecodeFieldFilterOperator(JsonReader& reader,
 Filter InvalidFilter() {
   // The exact value doesn't matter. Note that there's no way to create the base
   // class `Filter`, so it has to be one of the derived classes.
-  return FieldFilter::Create({}, {}, {});
+  return FieldFilter::Create({}, {},
+                             SharedMessage<google_firestore_v1_Value>({}));
 }
 
 Filter DecodeUnaryFilter(JsonReader& reader, const json& filter) {
@@ -222,17 +225,21 @@ Filter DecodeUnaryFilter(JsonReader& reader, const json& filter) {
   }
 
   if (op == "IS_NAN") {
-    return FieldFilter::Create(std::move(path), Filter::Operator::Equal,
-                               NaNValue());
+    return FieldFilter::Create(
+        std::move(path), Filter::Operator::Equal,
+        SharedMessage<google_firestore_v1_Value>(NaNValue()));
   } else if (op == "IS_NULL") {
-    return FieldFilter::Create(std::move(path), Filter::Operator::Equal,
-                               NullValue());
+    return FieldFilter::Create(
+        std::move(path), Filter::Operator::Equal,
+        SharedMessage<google_firestore_v1_Value>(NullValue()));
   } else if (op == "IS_NOT_NAN") {
-    return FieldFilter::Create(std::move(path), Filter::Operator::NotEqual,
-                               NaNValue());
+    return FieldFilter::Create(
+        std::move(path), Filter::Operator::NotEqual,
+        SharedMessage<google_firestore_v1_Value>(NaNValue()));
   } else if (op == "IS_NOT_NULL") {
-    return FieldFilter::Create(std::move(path), Filter::Operator::NotEqual,
-                               NullValue());
+    return FieldFilter::Create(
+        std::move(path), Filter::Operator::NotEqual,
+        SharedMessage<google_firestore_v1_Value>(NullValue()));
   }
 
   reader.Fail("Unexpected unary filter operator: " + op);
@@ -603,7 +610,8 @@ Filter BundleSerializer::DecodeFieldFilter(JsonReader& reader,
     return InvalidFilter();
   }
 
-  return FieldFilter::Create(path, op, value);
+  return FieldFilter::Create(path, op,
+                             SharedMessage<google_firestore_v1_Value>(value));
 }
 
 FilterList BundleSerializer::DecodeCompositeFilter(JsonReader& reader,
