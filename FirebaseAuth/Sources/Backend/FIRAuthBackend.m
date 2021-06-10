@@ -69,6 +69,8 @@
 
 #import "FirebaseAuth/Sources/AuthProvider/Phone/FIRPhoneAuthCredential_Internal.h"
 #import "FirebaseAuth/Sources/MultiFactor/Phone/FIRPhoneMultiFactorInfo+Internal.h"
+
+#import "FirebaseAuth/Sources/MultiFactor/Otp/FIROtpMultiFactorInfo+Internal.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -742,9 +744,14 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 #if TARGET_OS_IOS
                    NSMutableArray<FIRMultiFactorInfo *> *multiFactorInfo = [NSMutableArray array];
                    for (FIRAuthProtoMFAEnrollment *MFAEnrollment in response.MFAInfo) {
-                     FIRPhoneMultiFactorInfo *info =
-                         [[FIRPhoneMultiFactorInfo alloc] initWithProto:MFAEnrollment];
-                     [multiFactorInfo addObject:info];
+                     if (MFAEnrollment.OTPEnabled) {
+                       FIROtpMultiFactorInfo *info = [[FIROtpMultiFactorInfo alloc] initWithProto:MFAEnrollment];
+                       [multiFactorInfo addObject:info];
+                     } else {
+                       FIRPhoneMultiFactorInfo *info =
+                          [[FIRPhoneMultiFactorInfo alloc] initWithProto:MFAEnrollment];
+                       [multiFactorInfo addObject:info];
+                     }
                    }
                    NSError *multiFactorRequiredError = [FIRAuthErrorUtils
                        secondFactorRequiredErrorWithPendingCredential:response.MFAPendingCredential
@@ -786,9 +793,14 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 #if TARGET_OS_IOS
                    NSMutableArray<FIRMultiFactorInfo *> *multiFactorInfo = [NSMutableArray array];
                    for (FIRAuthProtoMFAEnrollment *MFAEnrollment in response.MFAInfo) {
-                     FIRPhoneMultiFactorInfo *info =
-                         [[FIRPhoneMultiFactorInfo alloc] initWithProto:MFAEnrollment];
-                     [multiFactorInfo addObject:info];
+                     if (MFAEnrollment.OTPEnabled) {
+                       FIROtpMultiFactorInfo *info = [[FIROtpMultiFactorInfo alloc] initWithProto:MFAEnrollment];
+                       [multiFactorInfo addObject:info];
+                     } else {
+                       FIRPhoneMultiFactorInfo *info =
+                       [[FIRPhoneMultiFactorInfo alloc] initWithProto:MFAEnrollment];
+                       [multiFactorInfo addObject:info];
+                     }
                    }
                    NSError *multiFactorRequiredError = [FIRAuthErrorUtils
                        secondFactorRequiredErrorWithPendingCredential:response.MFAPendingCredential

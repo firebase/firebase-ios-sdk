@@ -78,7 +78,7 @@ NS_ASSUME_NONNULL_BEGIN
      initWithMFAEnrollmentID:otpAssertion.MFAEnrollmentID verificationCode:otpAssertion.verificationCode];
     request = [[FIRFinalizeMFASignInRequest alloc]
                initWithMFAPendingCredential:self.MFAPendingCredential
-               verificationInfo:finalizeMFAOtpRequestInfo
+               otpVerificationInfo:finalizeMFAOtpRequestInfo
                requestConfiguration:self.auth.requestConfiguration];
   }
 
