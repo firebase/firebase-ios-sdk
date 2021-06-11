@@ -139,7 +139,7 @@ void ApplyChanges(
         FreeFieldsArray(&source_entry.value);
 
         target_entry.key = source_entry.key;
-        target_entry.value = DeepClone(upsert_it->second);
+        target_entry.value = upsert_it->second;
         SortFields(target_entry.value);
 
         ++upsert_it;
@@ -160,7 +160,7 @@ void ApplyChanges(
 
     // Otherwise, insert the next upsert.
     target_entry.key = MakeBytesArray(upsert_it->first);
-    target_entry.value = DeepClone(upsert_it->second);
+    target_entry.value = upsert_it->second;
     SortFields(target_entry.value);
 
     ++upsert_it;
@@ -265,8 +265,7 @@ google_firestore_v1_Value ObjectValue::Get() const {
   return *value_;
 }
 
-void ObjectValue::Set(const FieldPath& path,
-                      const google_firestore_v1_Value& value) {
+void ObjectValue::Set(const FieldPath& path, google_firestore_v1_Value value) {
   HARD_ASSERT(!path.empty(), "Cannot set field for empty path on ObjectValue");
 
   google_firestore_v1_MapValue* parent_map = ParentMap(path.PopLast());

@@ -84,14 +84,18 @@ class ObjectValue {
   /**
    * Sets the field to the provided value.
    *
+   * Takes ownership of value.
+   *
    * @param path The field path to set. The path must not be empty.
    * @param value The value to set.
    */
-  void Set(const FieldPath& path, const google_firestore_v1_Value& value);
+  void Set(const FieldPath& path, google_firestore_v1_Value value);
 
   /**
    * Sets the provided fields to the provided values. Fields set to `nullopt`
    * are deleted.
+   *
+   * Takes ownership of value.
    *
    * @param data A map of fields to values (or nullopt for deletes)
    */
