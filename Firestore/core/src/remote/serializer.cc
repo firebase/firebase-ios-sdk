@@ -1115,21 +1115,21 @@ google_firestore_v1_Cursor Serializer::EncodeBound(const Bound& bound) const {
   result.before = bound.before();
   SetRepeatedField(
       &result.values, &result.values_count,
-      absl::Span<google_firestore_v1_Value>(bound.position().values,
-                                            bound.position().values_count),
+      absl::Span<google_firestore_v1_Value>(bound.position()->values,
+                                            bound.position()->values_count),
       [](const google_firestore_v1_Value& value) { return DeepClone(value); });
   return result;
 }
 
 Bound Serializer::DecodeBound(google_firestore_v1_Cursor& cursor) const {
-  google_firestore_v1_ArrayValue index_components;
-  SetRepeatedField(&index_components.values, &index_components.values_count,
+  SharedMessage<google_firestore_v1_ArrayValue> index_components{{}};
+  SetRepeatedField(&index_components->values, &index_components->values_count,
                    absl::Span<google_firestore_v1_Value>(cursor.values,
                                                          cursor.values_count));
   // Prevent double-freeing of the cursors's fields. The fields are now owned by
   // the bound.
   ReleaseFieldOwnership(cursor.values, cursor.values_count);
-  return Bound::FromValue(index_components, cursor.before);
+  return Bound::FromValue(std::move(index_components), cursor.before);
 }
 
 /* static */

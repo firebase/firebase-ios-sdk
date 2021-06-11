@@ -532,13 +532,13 @@ BundledQuery BundleSerializer::DecodeBundledQuery(
 
   auto start_at_bound = DecodeBound(reader, structured_query, "startAt");
   absl::optional<Bound> start_at;
-  if (start_at_bound.position().values_count > 0) {
+  if (start_at_bound.position()->values_count > 0) {
     start_at = std::move(start_at_bound);
   }
 
   auto end_at_bound = DecodeBound(reader, structured_query, "endAt");
   absl::optional<Bound> end_at;
-  if (end_at_bound.position().values_count > 0) {
+  if (end_at_bound.position()->values_count > 0) {
     end_at = std::move(end_at_bound);
   }
 
@@ -637,7 +637,8 @@ FilterList BundleSerializer::DecodeCompositeFilter(JsonReader& reader,
 Bound BundleSerializer::DecodeBound(JsonReader& reader,
                                     const json& query,
                                     const char* bound_name) const {
-  Bound default_bound = Bound::FromValue({}, false);
+  Bound default_bound = Bound::FromValue(
+      SharedMessage<google_firestore_v1_ArrayValue>({}), false);
   if (!query.contains(bound_name)) {
     return default_bound;
   }
@@ -646,10 +647,10 @@ Bound BundleSerializer::DecodeBound(JsonReader& reader,
   std::vector<json> values = reader.RequiredArray("values", bound_json);
   bool before = reader.OptionalBool("before", bound_json);
 
-  google_firestore_v1_ArrayValue positions{};
-  SetRepeatedField(&positions.values, &positions.values_count, values,
+  SharedMessage<google_firestore_v1_ArrayValue> positions{{}};
+  SetRepeatedField(&positions->values, &positions->values_count, values,
                    [&](const json& j) { return DecodeValue(reader, j); });
-  return Bound::FromValue(positions, before);
+  return Bound::FromValue(std::move(positions), before);
 }
 
 google_firestore_v1_Value BundleSerializer::DecodeValue(

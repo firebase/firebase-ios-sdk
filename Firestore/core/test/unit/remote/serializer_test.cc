@@ -104,6 +104,7 @@ using nanopb::FreeNanopbMessage;
 using nanopb::Message;
 using nanopb::ProtobufParse;
 using nanopb::ProtobufSerialize;
+using nanopb::SharedMessage;
 using nanopb::StringReader;
 using nanopb::Writer;
 using remote::Serializer;
@@ -1316,11 +1317,15 @@ TEST_F(SerializerTest, EncodesSortOrders) {
 }
 
 TEST_F(SerializerTest, EncodesBounds) {
-  core::Query q = Query("docs")
-                      .StartingAt(Bound::FromValue({Array("prop", 42)},
-                                                   /*is_before=*/false))
-                      .EndingAt(Bound::FromValue(Array("author", "dimond"),
-                                                 /*is_before=*/true));
+  core::Query q =
+      Query("docs")
+          .StartingAt(Bound::FromValue(
+              SharedMessage<google_firestore_v1_ArrayValue>{Array("prop", 42)},
+              /*is_before=*/false))
+          .EndingAt(Bound::FromValue(
+              SharedMessage<google_firestore_v1_ArrayValue>{
+                  Array("author", "dimond")},
+              /*is_before=*/true));
   TargetData model = CreateTargetData(std::move(q));
 
   v1::Target proto;

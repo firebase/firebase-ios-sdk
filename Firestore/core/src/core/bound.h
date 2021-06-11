@@ -49,20 +49,21 @@ namespace core {
 class Bound {
  public:
   /**
-   * Creates a new bound. Takes ownership of `position`.
+   * Creates a new bound.
    *
    * @param position The position relative to the sort order.
    * @param is_before Whether this bound is just before or just after the
    *     position.
    */
-  static Bound FromValue(google_firestore_v1_ArrayValue position,
-                         bool is_before);
+  static Bound FromValue(
+      nanopb::SharedMessage<google_firestore_v1_ArrayValue> position,
+      bool is_before);
 
   /**
    * The index position of this bound represented as an array of field values.
    */
-  const google_firestore_v1_ArrayValue& position() const {
-    return *position_;
+  const nanopb::SharedMessage<google_firestore_v1_ArrayValue> position() const {
+    return position_;
   }
 
   /** Whether this bound is just before or just after the provided position */
@@ -84,8 +85,9 @@ class Bound {
   size_t Hash() const;
 
  private:
-  Bound(google_firestore_v1_ArrayValue position, bool is_before)
-      : position_{position}, before_(is_before) {
+  Bound(nanopb::SharedMessage<google_firestore_v1_ArrayValue> position,
+        bool is_before)
+      : position_{std::move(position)}, before_(is_before) {
   }
 
   nanopb::SharedMessage<google_firestore_v1_ArrayValue> position_;
