@@ -487,7 +487,7 @@
   NSTimeInterval timeToLive = [expirationDate timeIntervalSinceDate:receivedDate];
   XCTAssertGreaterThanOrEqual(timeToLive, 0);
 
-  NSTimeInterval timeToRefresh = timeToLive / 2 + 5 * 60;  // 50% or TTL + 5 min
+  NSTimeInterval timeToRefresh = timeToLive / 2 + 5 * 60;  // 50% of TTL + 5 min
 
   NSTimeInterval minimalAutoRefreshInterval = 60;  // 1 min
   timeToRefresh = MAX(timeToRefresh, minimalAutoRefreshInterval);
