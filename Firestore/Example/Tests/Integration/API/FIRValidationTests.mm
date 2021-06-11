@@ -110,10 +110,17 @@ namespace testutil = firebase::firestore::testutil;
   FSTAssertThrows([baseDocRef collectionWithPath:nil], nilError);
 }
 
+- (void)testEmptyCollectionPathsFail {
+  FIRDocumentReference *baseDocRef = [self.db documentWithPath:@"foo/bar"];
+  NSString *emptyError = @"Collection path cannot be empty.";
+  FSTAssertThrows([self.db collectionWithPath:@""], emptyError);
+  FSTAssertThrows([baseDocRef collectionWithPath:@""], emptyError);
+}
+
 - (void)testWrongLengthCollectionPathsFail {
   FIRDocumentReference *baseDocRef = [self.db documentWithPath:@"foo/bar"];
   NSArray *badAbsolutePaths = @[ @"foo/bar", @"foo/bar/baz/quu" ];
-  NSArray *badRelativePaths = @[ @"", @"baz/quu" ];
+  NSArray *badRelativePaths = @[ @"baz/quu", @"baz/quu" ];
   NSArray *badPathLengths = @[ @2, @4 ];
   NSString *errorFormat = @"Invalid collection reference. Collection references must have an odd "
                           @"number of segments, but %@ has %@";
@@ -125,11 +132,32 @@ namespace testutil = firebase::firestore::testutil;
   }
 }
 
+- (void)testNilCollectionGroupPathsFail {
+  FIRDocumentReference *baseDocRef = [self.db documentWithPath:@"foo/bar"];
+  NSString *nilError = @"Collection path cannot be nil.";
+  FSTAssertThrows([self.db collectionWithPath:nil], nilError);
+  FSTAssertThrows([baseDocRef collectionWithPath:nil], nilError);
+}
+
+// - (void)testEmptyCollectionGroupPathsFail {
+//   FIRDocumentReference *baseDocRef = [self.db documentWithPath:@""];
+//   NSString *emptyError = @"Collection path cannot be empty.";
+//   FSTAssertThrows([self.db collectionWithPath:@""], emptyError);
+//   FSTAssertThrows([baseDocRef collectionWithPath:@""], emptyError);
+// }
+
 - (void)testNilDocumentPathsFail {
   FIRCollectionReference *baseCollectionRef = [self.db collectionWithPath:@"foo"];
   NSString *nilError = @"Document path cannot be nil.";
   FSTAssertThrows([self.db documentWithPath:nil], nilError);
   FSTAssertThrows([baseCollectionRef documentWithPath:nil], nilError);
+}
+
+- (void)testEmptyDocumentPathsFail {
+  FIRCollectionReference *baseCollectionRef = [self.db collectionWithPath:@"foo"];
+  NSString *emptyError = @"Document path cannot be empty.";
+  FSTAssertThrows([self.db documentWithPath:@""], emptyError);
+  FSTAssertThrows([baseCollectionRef documentWithPath:@""], emptyError);
 }
 
 - (void)testWrongLengthDocumentPathsFail {
