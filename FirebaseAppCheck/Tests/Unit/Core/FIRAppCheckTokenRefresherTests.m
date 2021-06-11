@@ -282,8 +282,6 @@
   OCMVerifyAll(self.mockSettings);
 }
 
-//- (void)test
-
 #pragma mark - Auto refresh is not allowed
 
 - (void)testNoInitialRefreshWhenAutoRefreshIsNotAllowed {
