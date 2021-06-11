@@ -95,7 +95,7 @@ class ObjectValue {
    * Sets the provided fields to the provided values. Fields set to `nullopt`
    * are deleted.
    *
-   * Takes ownership of value.
+   * Takes ownership of data.
    *
    * @param data A map of fields to values (or nullopt for deletes)
    */
