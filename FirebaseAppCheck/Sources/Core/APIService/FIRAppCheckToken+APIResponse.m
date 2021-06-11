@@ -15,6 +15,7 @@
  */
 
 #import "FirebaseAppCheck/Sources/Core/APIService/FIRAppCheckToken+APIResponse.h"
+#import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"
 
 #if __has_include(<FBLPromises/FBLPromises.h>)
 #import <FBLPromises/FBLPromises.h>
@@ -81,7 +82,7 @@
 
   NSDate *expirationDate = [requestDate dateByAddingTimeInterval:secondsToLive];
 
-  return [self initWithToken:token expirationDate:expirationDate];
+  return [self initWithToken:token expirationDate:expirationDate receivedAtDate:requestDate];
 }
 
 @end

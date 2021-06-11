@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,27 +14,25 @@
  * limitations under the License.
  */
 
-#import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"
+#import <Foundation/Foundation.h>
+
+#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation FIRAppCheckToken
+@interface FIRAppCheckToken ()
 
+/// A date when the Firebase App Check token was received in the device's local time.
+@property(nonatomic) NSDate *receivedAtDate;
+
+/// The designated initializer.
+/// @param token A Firebase App Check token.
+/// @param expirationDate A Firebase App Check token expiration date in the device local time.
+/// @param receivedAtDate A date when the Firebase App Check token was received in the device's
+/// local time.
 - (instancetype)initWithToken:(NSString *)token
                expirationDate:(NSDate *)expirationDate
-               receivedAtDate:(NSDate *)receivedAtDate {
-  self = [super init];
-  if (self) {
-    _token = [token copy];
-    _expirationDate = expirationDate;
-    _receivedAtDate = receivedAtDate;
-  }
-  return self;
-}
-
-- (instancetype)initWithToken:(NSString *)token expirationDate:(NSDate *)expirationDate {
-  return [self initWithToken:token expirationDate:expirationDate receivedAtDate:[NSDate date]];
-}
+               receivedAtDate:(NSDate *)receivedAtDate NS_DESIGNATED_INITIALIZER;
 
 @end
 
