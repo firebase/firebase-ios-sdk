@@ -22,13 +22,13 @@
 #import "FBLPromises.h"
 #endif
 
-#import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckProvider.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckProviderFactory.h"
 
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckLogger.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckSettings.h"
+#import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckTokenResult.h"
 #import "FirebaseAppCheck/Sources/Core/Storage/FIRAppCheckStorage.h"
 #import "FirebaseAppCheck/Sources/Core/TokenRefresh/FIRAppCheckTokenRefreshResult.h"
