@@ -52,7 +52,7 @@ typedef NS_ENUM(NSInteger, FIRAppCheckTokenRefreshStatus) {
 /// Initializes the instance with `FIRAppCheckTokenRefreshStatusFailure`.
 - (instancetype)initWithStatusFailure;
 
-/// Initializes the instance with `FIRAppCheckTokenRefreshStatusFailure`.
+/// Initializes the instance with `FIRAppCheckTokenRefreshStatusSuccess`.
 /// @param tokenExpirationDate See `tokenExpirationDate` property.
 /// @param tokenReceivedAtDate See `tokenReceivedAtDate` property.
 - (instancetype)initWithStatusSuccessAndExpirationDate:(NSDate *)tokenExpirationDate
