@@ -240,6 +240,8 @@ Query Query::Filter(const FieldPath& field_path,
           Describe(op));
     } else if (op == Operator::In || op == Operator::NotIn) {
       ValidateDisjunctiveFilterElements(*value, op);
+      // TODO(mutabledocuments): See if we can remove this copy and modify the
+      // input values directly.
       google_firestore_v1_Value references{};
       references.which_value_type = google_firestore_v1_Value_array_value_tag;
       nanopb::SetRepeatedField(
