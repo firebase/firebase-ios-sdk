@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 
 #include <vector>
 
+#include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/core/core_fwd.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/model/model_fwd.h"
@@ -59,7 +60,7 @@ typedef id _Nullable (^FSTPreConverterBlock)(id _Nullable);
 /**
  * Helper for parsing raw user input (provided via the API) into internal model classes.
  */
-@interface FSTUserDataConverter : NSObject
+@interface FSTUserDataReader : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithDatabaseID:(model::DatabaseId)databaseID
@@ -75,7 +76,7 @@ typedef id _Nullable (^FSTPreConverterBlock)(id _Nullable);
 - (core::ParsedUpdateData)parsedUpdateData:(id)input;
 
 /** Parse a "query value" (e.g. value in a where filter or a value in a cursor bound). */
-- (model::FieldValue)parsedQueryValue:(id)input;
+- (firebase::firestore::google_firestore_v1_Value)parsedQueryValue:(id)input;
 
 /**
  * Parse a "query value" (e.g. value in a where filter or a value in a cursor bound).
@@ -83,7 +84,8 @@ typedef id _Nullable (^FSTPreConverterBlock)(id _Nullable);
  * @param allowArrays Whether the query value is an array that may directly contain additional
  * arrays (e.g.) the operand of an `in` query).
  */
-- (model::FieldValue)parsedQueryValue:(id)input allowArrays:(bool)allowArrays;
+- (firebase::firestore::google_firestore_v1_Value)parsedQueryValue:(id)input
+                                                       allowArrays:(bool)allowArrays;
 
 @end
 

@@ -27,8 +27,9 @@
 #include "Firestore/core/src/bundle/bundle_callback.h"
 #include "Firestore/core/src/bundle/bundle_element.h"
 #include "Firestore/core/src/bundle/bundled_document_metadata.h"
+#include "Firestore/core/src/immutable/sorted_map.h"
 #include "Firestore/core/src/model/document_key.h"
-#include "Firestore/core/src/model/document_map.h"
+#include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/util/statusor.h"
 #include "absl/types/optional.h"
 
@@ -72,7 +73,7 @@ class BundleLoader {
    * Applies the loaded documents and queries to local store. Returns the
    * document view changes. If an error occurred, returns a not `ok()` status.
    */
-  util::StatusOr<model::MaybeDocumentMap> ApplyChanges();
+  util::StatusOr<model::DocumentMap> ApplyChanges();
 
  private:
   /**
@@ -95,7 +96,7 @@ class BundleLoader {
                      BundledDocumentMetadata,
                      model::DocumentKeyHash>
       documents_metadata_;
-  model::MaybeDocumentMap documents_;
+  model::MutableDocumentMap documents_;
 
   uint64_t bytes_loaded_ = 0;
   absl::optional<model::DocumentKey> current_document_;

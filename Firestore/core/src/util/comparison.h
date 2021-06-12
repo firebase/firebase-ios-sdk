@@ -73,6 +73,18 @@ constexpr bool Descending(ComparisonResult result) noexcept {
 }
 
 /**
+ * Creates a ComparisonResult from a typical integer return value, where
+ * 0 means "same", less than zero means "ascending", and greater than zero
+ * means "descending".
+ */
+constexpr ComparisonResult ComparisonResultFromInt(int value) {
+  // TODO(c++14): convert this to an if statement.
+  return value < 0 ? ComparisonResult::Ascending
+                   : (value > 0 ? ComparisonResult::Descending
+                                : ComparisonResult::Same);
+}
+
+/**
  * Returns the reverse order (i.e. Ascending => Descending) etc.
  */
 constexpr ComparisonResult ReverseOrder(ComparisonResult result) {

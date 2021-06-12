@@ -1,3 +1,6 @@
+# Unreleased
+- [changed] Internal refactor to improve serialization performance.
+
 # v7.9.0
 - [feature] Added support for Firestore Bundles via
   `FIRFirestore.loadBundle`, `FIRFirestore.loadBundleStream` and

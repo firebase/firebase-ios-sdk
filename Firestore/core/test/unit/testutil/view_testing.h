@@ -34,8 +34,7 @@ class TargetChange;
 namespace testutil {
 
 /** Converts a list of documents to a sorted map. */
-model::MaybeDocumentMap DocUpdates(
-    const std::vector<model::MaybeDocument>& docs);
+model::DocumentMap DocUpdates(const std::vector<model::Document>& docs);
 
 /**
  * Computes changes to the view with the docs and then applies them and returns
@@ -43,7 +42,7 @@ model::MaybeDocumentMap DocUpdates(
  */
 absl::optional<core::ViewSnapshot> ApplyChanges(
     core::View* view,
-    const std::vector<model::MaybeDocument>& docs,
+    const std::vector<model::Document>& docs,
     const absl::optional<remote::TargetChange>& target_change);
 
 /**

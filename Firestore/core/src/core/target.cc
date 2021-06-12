@@ -96,9 +96,8 @@ bool operator==(const Target& lhs, const Target& rhs) {
   return lhs.path() == rhs.path() &&
          util::Equals(lhs.collection_group(), rhs.collection_group()) &&
          lhs.filters() == rhs.filters() && lhs.order_bys() == rhs.order_bys() &&
-         lhs.limit() == rhs.limit() &&
-         util::Equals(lhs.start_at(), rhs.start_at()) &&
-         util::Equals(lhs.end_at(), rhs.end_at());
+         lhs.limit() == rhs.limit() && lhs.start_at() == rhs.start_at() &&
+         lhs.end_at() == rhs.end_at();
 }
 
 }  // namespace core

@@ -38,7 +38,7 @@ inline absl::optional<Document> none() {
 
 DocumentComparator DocumentComparator::ByKey() {
   return DocumentComparator([](const Document& lhs, const Document& rhs) {
-    return util::Compare(lhs.key(), rhs.key());
+    return util::Compare(lhs->key(), rhs->key());
   });
 }
 
@@ -63,14 +63,13 @@ size_t DocumentSet::Hash() const {
 }
 
 bool DocumentSet::ContainsKey(const DocumentKey& key) const {
-  return index_.underlying_map().find(key) != index_.underlying_map().end();
+  return index_.find(key) != index_.end();
 }
 
 absl::optional<Document> DocumentSet::GetDocument(
     const DocumentKey& key) const {
-  auto found = index_.underlying_map().find(key);
-  return found != index_.underlying_map().end() ? Document(found->second)
-                                                : none();
+  auto found = index_.find(key);
+  return found != index_.end() ? Document(found->second) : none();
 }
 
 absl::optional<Document> DocumentSet::GetFirstDocument() const {
@@ -97,7 +96,7 @@ DocumentSet DocumentSet::insert(
 
   // Remove any prior mapping of the document's key before adding, preventing
   // the sorted_set_ from accumulating values that aren't in the index.
-  const DocumentKey& key = document->key();
+  const DocumentKey& key = (*document)->key();
   DocumentSet removed = erase(key);
 
   DocumentMap index = removed.index_.insert(key, *document);

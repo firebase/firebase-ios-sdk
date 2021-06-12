@@ -70,7 +70,7 @@ class QueryEngine {
  private:
   /** Applies the query filter and sorting to the provided documents. */
   model::DocumentSet ApplyQuery(const core::Query& query,
-                                const model::MaybeDocumentMap& documents) const;
+                                const model::DocumentMap& documents) const;
 
   /**
    * Determines if a limit query needs to be refilled from cache, making it

@@ -42,12 +42,12 @@ using util::Filesystem;
 using util::Path;
 using util::Status;
 
+}  // namespace
+
 LocalSerializer MakeLocalSerializer() {
   Serializer remote_serializer{DatabaseId("p", "d")};
   return LocalSerializer(std::move(remote_serializer));
 }
-
-}  // namespace
 
 Path LevelDbDir() {
   auto* fs = Filesystem::Default();

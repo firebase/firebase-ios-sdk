@@ -23,7 +23,7 @@
 #include "Firestore/core/src/auth/user.h"
 #include "Firestore/core/src/local/reference_set.h"
 #include "Firestore/core/src/local/target_data.h"
-#include "Firestore/core/src/model/field_value.h"
+#include "Firestore/core/src/model/object_value.h"
 #include "Firestore/core/src/model/types.h"
 #include "gtest/gtest.h"
 
@@ -182,7 +182,7 @@ class LruGarbageCollectorTest : public ::testing::TestWithParam<FactoryFunc> {
    *   - added to a target
    *   - now has or previously had a pending mutation
    */
-  model::Document CacheADocumentInTransaction();
+  model::MutableDocument CacheADocumentInTransaction();
 
   /**
    * Returns a new arbitrary, unsaved mutation for the document named by
@@ -194,10 +194,10 @@ class LruGarbageCollectorTest : public ::testing::TestWithParam<FactoryFunc> {
   model::DocumentKey NextTestDocKey();
 
   /** Returns a new, unsaved document with arbitrary contents. */
-  model::Document NextTestDocument();
+  model::MutableDocument NextTestDocument();
 
   /** Returns a new, unsaved document with the given contents. */
-  model::Document NextTestDocumentWithValue(model::ObjectValue value);
+  model::MutableDocument NextTestDocumentWithValue(model::ObjectValue value);
 
   std::unique_ptr<LruGarbageCollectorTestHelper> test_helper_;
 

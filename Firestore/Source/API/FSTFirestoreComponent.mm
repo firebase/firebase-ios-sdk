@@ -28,7 +28,6 @@
 #include "Firestore/core/src/api/firestore.h"
 #include "Firestore/core/src/auth/credentials_provider.h"
 #include "Firestore/core/src/auth/firebase_credentials_provider_apple.h"
-#include "Firestore/core/src/model/maybe_document.h"
 #include "Firestore/core/src/remote/firebase_metadata_provider.h"
 #include "Firestore/core/src/remote/firebase_metadata_provider_apple.h"
 #include "Firestore/core/src/util/async_queue.h"

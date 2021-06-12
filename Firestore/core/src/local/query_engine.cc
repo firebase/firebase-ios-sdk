@@ -23,7 +23,7 @@
 #include "Firestore/core/src/local/local_documents_view.h"
 #include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/document_set.h"
-#include "Firestore/core/src/model/maybe_document.h"
+#include "Firestore/core/src/model/mutable_document.h"
 #include "Firestore/core/src/model/snapshot_version.h"
 #include "Firestore/core/src/util/log.h"
 
@@ -37,8 +37,7 @@ using model::Document;
 using model::DocumentKeySet;
 using model::DocumentMap;
 using model::DocumentSet;
-using model::MaybeDocument;
-using model::MaybeDocumentMap;
+using model::MutableDocument;
 using model::SnapshotVersion;
 
 DocumentMap QueryEngine::GetDocumentsMatchingQuery(
@@ -60,7 +59,7 @@ DocumentMap QueryEngine::GetDocumentsMatchingQuery(
     return ExecuteFullCollectionScan(query);
   }
 
-  MaybeDocumentMap documents = local_documents_view_->GetDocuments(remote_keys);
+  DocumentMap documents = local_documents_view_->GetDocuments(remote_keys);
   DocumentSet previous_results = ApplyQuery(query, documents);
 
   if (query.limit_type() != LimitType::None &&
@@ -82,24 +81,23 @@ DocumentMap QueryEngine::GetDocumentsMatchingQuery(
   // is already a DocumentMap. If a document is contained in both lists, then
   // its contents are the same.
   for (const Document& result : previous_results) {
-    updated_results = updated_results.insert(result.key(), result);
+    updated_results = updated_results.insert(result->key(), result);
   }
 
   return updated_results;
 }
 
 DocumentSet QueryEngine::ApplyQuery(const Query& query,
-                                    const MaybeDocumentMap& documents) const {
+                                    const DocumentMap& documents) const {
   // Sort the documents and re-apply the query filter since previously matching
   // documents do not necessarily still match the query.
   DocumentSet query_results(query.Comparator());
 
   for (const auto& document_entry : documents) {
-    const MaybeDocument& maybe_doc = document_entry.second;
-    if (maybe_doc.is_document()) {
-      Document doc(maybe_doc);
+    const Document& doc = document_entry.second;
+    if (doc->is_found_document()) {
       if (query.Matches(doc)) {
-        query_results = query_results.insert(std::move(doc));
+        query_results = query_results.insert(doc);
       }
     }
   }
@@ -133,8 +131,8 @@ bool QueryEngine::NeedsRefill(
     // We don't need to refill the query if there were already no documents.
     return false;
   }
-  return document_at_limit_edge->has_pending_writes() ||
-         document_at_limit_edge->version() > limbo_free_snapshot_version;
+  return (*document_at_limit_edge)->has_pending_writes() ||
+         (*document_at_limit_edge)->version() > limbo_free_snapshot_version;
 }
 
 DocumentMap QueryEngine::ExecuteFullCollectionScan(const Query& query) {

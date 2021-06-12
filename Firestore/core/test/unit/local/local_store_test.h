@@ -24,7 +24,6 @@
 #include "Firestore/core/src/local/local_store.h"
 #include "Firestore/core/src/local/query_engine.h"
 #include "Firestore/core/src/local/query_result.h"
-#include "Firestore/core/src/model/document_map.h"
 #include "Firestore/core/src/model/mutation_batch.h"
 #include "Firestore/core/test/unit/local/counting_query_engine.h"
 #include "gtest/gtest.h"
@@ -87,15 +86,15 @@ class LocalStoreTest : public ::testing::TestWithParam<FactoryFunc> {
 
   void ApplyRemoteEvent(const remote::RemoteEvent& event);
   void NotifyLocalViewChanges(LocalViewChanges changes);
-  void AcknowledgeMutationWithVersion(
-      int64_t document_version,
-      absl::optional<model::FieldValue> transform_result = absl::nullopt);
+  void AcknowledgeMutationWithVersion(int64_t document_version,
+                                      absl::optional<google_firestore_v1_Value>
+                                          transform_result = absl::nullopt);
   void RejectMutation();
   model::TargetId AllocateQuery(core::Query query);
   local::TargetData GetTargetData(const core::Query& query);
   local::QueryResult ExecuteQuery(const core::Query& query);
   void ApplyBundledDocuments(
-      const std::vector<model::MaybeDocument>& documents);
+      const std::vector<model::MutableDocument>& documents);
 
   /**
    * Applies the `from_cache` state to the given target via a synthesized
@@ -109,7 +108,7 @@ class LocalStoreTest : public ::testing::TestWithParam<FactoryFunc> {
   CountingQueryEngine query_engine_;
   LocalStore local_store_;
   std::vector<model::MutationBatch> batches_;
-  model::MaybeDocumentMap last_changes_;
+  model::DocumentMap last_changes_;
 
   model::TargetId last_target_id_ = 0;
   local::QueryResult last_query_result_;

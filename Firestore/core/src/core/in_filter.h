@@ -19,14 +19,15 @@
 
 #include <string>
 
+#include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/core/field_filter.h"
+#include "Firestore/core/src/nanopb/message.h"
 
 namespace firebase {
 namespace firestore {
 
 namespace model {
 class FieldPath;
-class FieldValue;
 }  // namespace model
 
 namespace core {
@@ -36,7 +37,9 @@ namespace core {
  */
 class InFilter : public FieldFilter {
  public:
-  InFilter(model::FieldPath field, model::FieldValue value);
+  /** Creates a new 'in' filter. Takes ownership of `value`. */
+  InFilter(const model::FieldPath& field,
+           nanopb::SharedMessage<google_firestore_v1_Value> value);
 
  private:
   class Rep;

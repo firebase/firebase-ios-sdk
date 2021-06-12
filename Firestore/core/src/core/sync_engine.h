@@ -144,8 +144,7 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
   void ApplyRemoteEvent(const remote::RemoteEvent& remote_event) override;
   void HandleRejectedListen(model::TargetId target_id,
                             util::Status error) override;
-  void HandleSuccessfulWrite(
-      const model::MutationBatchResult& batch_result) override;
+  void HandleSuccessfulWrite(model::MutationBatchResult batch_result) override;
   void HandleRejectedWrite(model::BatchId batch_id,
                            util::Status error) override;
   void HandleOnlineStateChange(model::OnlineState online_state) override;
@@ -236,7 +235,7 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
   void RemoveLimboTarget(const model::DocumentKey& key);
 
   void EmitNewSnapshotsAndNotifyLocalStore(
-      const model::MaybeDocumentMap& changes,
+      const model::DocumentMap& changes,
       const absl::optional<remote::RemoteEvent>& maybe_remote_event);
 
   /** Updates the limbo document state for the given target_id. */

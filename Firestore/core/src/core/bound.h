@@ -18,13 +18,15 @@
 #define FIRESTORE_CORE_SRC_CORE_BOUND_H_
 
 #include <iosfwd>
+#include <memory>
 #include <string>
 #include <utility>
-#include <vector>
 
+#include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/core/core_fwd.h"
-#include "Firestore/core/src/model/field_value.h"
 #include "Firestore/core/src/model/model_fwd.h"
+#include "Firestore/core/src/model/value_util.h"
+#include "Firestore/core/src/nanopb/message.h"
 
 namespace firebase {
 namespace firestore {
@@ -47,21 +49,20 @@ namespace core {
 class Bound {
  public:
   /**
-   * Creates a new bound.
+   * Creates a new bound. Takes ownership of `position`.
    *
    * @param position The position relative to the sort order.
    * @param is_before Whether this bound is just before or just after the
    *     position.
    */
-  Bound(std::vector<model::FieldValue> position, bool is_before)
-      : position_(std::move(position)), before_(is_before) {
-  }
+  static Bound FromValue(google_firestore_v1_ArrayValue position,
+                         bool is_before);
 
   /**
    * The index position of this bound represented as an array of field values.
    */
-  const std::vector<model::FieldValue>& position() const {
-    return position_;
+  const google_firestore_v1_ArrayValue& position() const {
+    return *position_;
   }
 
   /** Whether this bound is just before or just after the provided position */
@@ -83,7 +84,11 @@ class Bound {
   size_t Hash() const;
 
  private:
-  std::vector<model::FieldValue> position_;
+  Bound(google_firestore_v1_ArrayValue position, bool is_before)
+      : position_{position}, before_(is_before) {
+  }
+
+  nanopb::SharedMessage<google_firestore_v1_ArrayValue> position_;
   bool before_;
 };
 

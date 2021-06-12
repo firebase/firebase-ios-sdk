@@ -52,17 +52,17 @@ TEST_F(DocumentSetTest, Count) {
 TEST_F(DocumentSetTest, HasKey) {
   DocumentSet set = DocSet(comp_, {doc1_, doc2_});
 
-  EXPECT_TRUE(set.ContainsKey(doc1_.key()));
-  EXPECT_TRUE(set.ContainsKey(doc2_.key()));
-  EXPECT_FALSE(set.ContainsKey(doc3_.key()));
+  EXPECT_TRUE(set.ContainsKey(doc1_->key()));
+  EXPECT_TRUE(set.ContainsKey(doc2_->key()));
+  EXPECT_FALSE(set.ContainsKey(doc3_->key()));
 }
 
 TEST_F(DocumentSetTest, DocumentForKey) {
   DocumentSet set = DocSet(comp_, {doc1_, doc2_});
 
-  EXPECT_EQ(set.GetDocument(doc1_.key()), doc1_);
-  EXPECT_EQ(set.GetDocument(doc2_.key()), doc2_);
-  EXPECT_EQ(set.GetDocument(doc3_.key()), absl::nullopt);
+  EXPECT_EQ(set.GetDocument(doc1_->key()), doc1_);
+  EXPECT_EQ(set.GetDocument(doc2_->key()), doc2_);
+  EXPECT_EQ(set.GetDocument(doc3_->key()), absl::nullopt);
 }
 
 TEST_F(DocumentSetTest, FirstAndLastDocument) {
@@ -83,14 +83,14 @@ TEST_F(DocumentSetTest, KeepsDocumentsInTheRightOrder) {
 TEST_F(DocumentSetTest, Deletes) {
   DocumentSet set = DocSet(comp_, {doc1_, doc2_, doc3_});
 
-  DocumentSet set_without_doc1 = set.erase(doc1_.key());
+  DocumentSet set_without_doc1 = set.erase(doc1_->key());
   ASSERT_THAT(set_without_doc1, ElementsAre(doc3_, doc2_));
   EXPECT_EQ(set_without_doc1.size(), 2);
 
   // Original remains unchanged
   ASSERT_THAT(set, ElementsAre(doc3_, doc1_, doc2_));
 
-  DocumentSet set_without_doc3 = set_without_doc1.erase(doc3_.key());
+  DocumentSet set_without_doc3 = set_without_doc1.erase(doc3_->key());
   ASSERT_THAT(set_without_doc3, ElementsAre(doc2_));
   EXPECT_EQ(set_without_doc3.size(), 1);
 }
@@ -102,7 +102,7 @@ TEST_F(DocumentSetTest, Updates) {
 
   set = set.insert(doc2_prime);
   ASSERT_EQ(set.size(), 3);
-  EXPECT_EQ(set.GetDocument(doc2_prime.key()), doc2_prime);
+  EXPECT_EQ(set.GetDocument(doc2_prime->key()), doc2_prime);
   ASSERT_THAT(set, ElementsAre(doc3_, doc1_, doc2_prime));
 }
 

@@ -49,7 +49,6 @@ using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentComparator;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentSet;
-using firebase::firestore::model::DocumentState;
 
 using testutil::Doc;
 using testutil::DocSet;
@@ -88,8 +87,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testIncludeMetadataChanges {
-  Document doc1Old = Doc("foo/bar", 1, Map("a", "b"), DocumentState::kLocalMutations);
-  Document doc1New = Doc("foo/bar", 1, Map("a", "b"), DocumentState::kSynced);
+  Document doc1Old = Doc("foo/bar", 1, Map("a", "b")).SetHasLocalMutations();
+  Document doc1New = Doc("foo/bar", 1, Map("a", "b"));
 
   Document doc2Old = Doc("foo/baz", 1, Map("a", "b"));
   Document doc2New = Doc("foo/baz", 1, Map("a", "c"));

@@ -22,8 +22,11 @@
 #include <vector>
 
 #include "Firestore/Protos/nanopb/firestore/local/mutation.nanopb.h"
+#include "Firestore/core/src/core/field_filter.h"
+#include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/local/leveldb_key.h"
 #include "Firestore/core/src/local/leveldb_target_cache.h"
+#include "Firestore/core/src/local/target_data.h"
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/util/ordered_code.h"
 #include "Firestore/core/src/util/path.h"
@@ -47,7 +50,9 @@ using model::DocumentKey;
 using model::ListenSequenceNumber;
 using model::TargetId;
 using nanopb::Message;
+using testutil::Filter;
 using testutil::Key;
+using testutil::Query;
 using util::OrderedCode;
 using util::Path;
 
@@ -72,7 +77,8 @@ class LevelDbMigrationsTest : public testing::Test {
  protected:
   void SetUp() override;
 
-  std::unique_ptr<DB> db_;
+  std::unique_ptr<DB> db_ = nullptr;
+  std::unique_ptr<LocalSerializer> serializer_ = nullptr;
 };
 
 void LevelDbMigrationsTest::SetUp() {
@@ -86,13 +92,15 @@ void LevelDbMigrationsTest::SetUp() {
   ASSERT_TRUE(status.ok()) << "Failed to create db: "
                            << status.ToString().c_str();
   db_.reset(db);
+
+  serializer_ = absl::make_unique<LocalSerializer>(MakeLocalSerializer());
 }
 
 TEST_F(LevelDbMigrationsTest, AddsTargetGlobal) {
   auto metadata = LevelDbTargetCache::TryReadMetadata(db_.get());
   ASSERT_TRUE(!metadata)
       << "Not expecting metadata yet, we should have an empty db";
-  LevelDbMigrations::RunMigrations(db_.get());
+  LevelDbMigrations::RunMigrations(db_.get(), *serializer_);
 
   metadata = LevelDbTargetCache::TryReadMetadata(db_.get());
   ASSERT_TRUE(metadata) << "Migrations should have added the metadata";
@@ -103,7 +111,7 @@ TEST_F(LevelDbMigrationsTest, SetsVersionNumber) {
   ASSERT_EQ(0, initial) << "No version should be equivalent to 0";
 
   // Pick an arbitrary high migration number and migrate to it.
-  LevelDbMigrations::RunMigrations(db_.get());
+  LevelDbMigrations::RunMigrations(db_.get(), *serializer_);
 
   SchemaVersion actual = LevelDbMigrations::ReadSchemaVersion(db_.get());
   ASSERT_GT(actual, 0) << "Expected to migrate to a schema version > 0";
@@ -145,7 +153,7 @@ TEST_F(LevelDbMigrationsTest, DropsTheTargetCache) {
       LevelDbMutationKey::Key(user_id, batch_id),
   };
 
-  LevelDbMigrations::RunMigrations(db_.get(), 2);
+  LevelDbMigrations::RunMigrations(db_.get(), 2, *serializer_);
   {
     // Setup some targets to be counted in the migration.
     LevelDbTransaction transaction(db_.get(),
@@ -159,7 +167,7 @@ TEST_F(LevelDbMigrationsTest, DropsTheTargetCache) {
     transaction.Commit();
   }
 
-  LevelDbMigrations::RunMigrations(db_.get(), 3);
+  LevelDbMigrations::RunMigrations(db_.get(), 3, *serializer_);
   {
     LevelDbTransaction transaction(db_.get(), "test_drops_the_target_cache");
     for (const std::string& key : target_keys) {
@@ -176,7 +184,7 @@ TEST_F(LevelDbMigrationsTest, DropsTheTargetCache) {
 }
 
 TEST_F(LevelDbMigrationsTest, DropsTheTargetCacheWithThousandsOfEntries) {
-  LevelDbMigrations::RunMigrations(db_.get(), 2);
+  LevelDbMigrations::RunMigrations(db_.get(), 2, *serializer_);
   {
     // Setup some targets to be destroyed.
     LevelDbTransaction transaction(
@@ -188,7 +196,7 @@ TEST_F(LevelDbMigrationsTest, DropsTheTargetCacheWithThousandsOfEntries) {
     transaction.Commit();
   }
 
-  LevelDbMigrations::RunMigrations(db_.get(), 3);
+  LevelDbMigrations::RunMigrations(db_.get(), 3, *serializer_);
   {
     LevelDbTransaction transaction(db_.get(), "Verify");
     std::string prefix = LevelDbTargetKey::KeyPrefix();
@@ -209,7 +217,7 @@ TEST_F(LevelDbMigrationsTest, AddsSentinelRows) {
   ListenSequenceNumber new_sequence_number = 2;
   std::string encoded_old_sequence_number =
       LevelDbDocumentTargetKey::EncodeSentinelValue(old_sequence_number);
-  LevelDbMigrations::RunMigrations(db_.get(), 3);
+  LevelDbMigrations::RunMigrations(db_.get(), 3, *serializer_);
   {
     std::string empty_buffer;
     LevelDbTransaction transaction(db_.get(), "Setup");
@@ -234,7 +242,7 @@ TEST_F(LevelDbMigrationsTest, AddsSentinelRows) {
     transaction.Commit();
   }
 
-  LevelDbMigrations::RunMigrations(db_.get(), 4);
+  LevelDbMigrations::RunMigrations(db_.get(), 4, *serializer_);
   {
     LevelDbTransaction transaction(db_.get(), "Verify");
     auto it = transaction.NewIterator();
@@ -271,7 +279,7 @@ TEST_F(LevelDbMigrationsTest, RemovesMutationBatches) {
   DocumentKey test_write_baz = DocumentKey::FromPathString("docs/baz");
   DocumentKey test_write_pending = DocumentKey::FromPathString("docs/pending");
   // Do everything up until the mutation batch migration.
-  LevelDbMigrations::RunMigrations(db_.get(), 3);
+  LevelDbMigrations::RunMigrations(db_.get(), 3, *serializer_);
   // Set up data
   {
     LevelDbTransaction transaction(db_.get(), "Setup Foo");
@@ -344,7 +352,7 @@ TEST_F(LevelDbMigrationsTest, RemovesMutationBatches) {
     transaction.Commit();
   }
 
-  LevelDbMigrations::RunMigrations(db_.get(), 5);
+  LevelDbMigrations::RunMigrations(db_.get(), 5, *serializer_);
 
   {
     // Verify
@@ -412,7 +420,7 @@ TEST_F(LevelDbMigrationsTest, CreateCollectionParentsIndex) {
       {"cg3", {"blah/x/blah/x", "cg2/x"}}};
 
   std::string empty_buffer;
-  LevelDbMigrations::RunMigrations(db_.get(), 5);
+  LevelDbMigrations::RunMigrations(db_.get(), 5, *serializer_);
   {
     LevelDbTransaction transaction(db_.get(),
                                    "Write Mutations and Remote Documents");
@@ -436,7 +444,7 @@ TEST_F(LevelDbMigrationsTest, CreateCollectionParentsIndex) {
   }
 
   // Migrate to v6 and verify index entries.
-  LevelDbMigrations::RunMigrations(db_.get(), 6);
+  LevelDbMigrations::RunMigrations(db_.get(), 6, *serializer_);
   {
     LevelDbTransaction transaction(db_.get(), "Verify");
 
@@ -459,22 +467,68 @@ TEST_F(LevelDbMigrationsTest, CreateCollectionParentsIndex) {
   }
 }
 
+TEST_F(LevelDbMigrationsTest, RewritesCanonicalIds) {
+  LevelDbMigrations::RunMigrations(db_.get(), 6, *serializer_);
+  auto query = Query("collection").AddingFilter(Filter("foo", "==", "bar"));
+  TargetData initial_target_data(query.ToTarget(),
+                                 /* target_id= */ 2,
+                                 /* sequence_number= */ 1,
+                                 QueryPurpose::Listen);
+  auto invalid_key = LevelDbQueryTargetKey::Key(
+      "invalid_canonical_id", initial_target_data.target_id());
+
+  // Write the target with invalid canonical id into leveldb.
+  {
+    LevelDbTransaction transaction(db_.get(),
+                                   "Write target with invalid canonical ID");
+    auto target_key = LevelDbTargetKey::Key(2);
+    transaction.Put(target_key,
+                    serializer_->EncodeTargetData(initial_target_data));
+
+    std::string empty_buffer;
+    transaction.Put(invalid_key, empty_buffer);
+
+    transaction.Commit();
+  }
+
+  // Run migration and verify canonical id is rewritten with valid string.
+  {
+    LevelDbMigrations::RunMigrations(db_.get(), *serializer_);
+
+    LevelDbTransaction transaction(
+        db_.get(), "Read target to verify canonical ID rewritten");
+
+    auto query_target_key =
+        LevelDbQueryTargetKey::Key(initial_target_data.target().CanonicalId(),
+                                   initial_target_data.target_id());
+    auto it = transaction.NewIterator();
+    // Verify we are able to seek to the key built with proper canonical ID.
+    it->Seek(query_target_key);
+    ASSERT_EQ(it->key(), query_target_key);
+
+    // Verify original invalid key is deleted.
+    it->Seek(invalid_key);
+    ASSERT_NE(it->key(), invalid_key);
+    transaction.Commit();
+  }
+}
+
 TEST_F(LevelDbMigrationsTest, CanDowngrade) {
   // First, run all of the migrations
-  LevelDbMigrations::RunMigrations(db_.get());
+  LevelDbMigrations::RunMigrations(db_.get(), *serializer_);
 
   LevelDbMigrations::SchemaVersion latest_version =
       LevelDbMigrations::ReadSchemaVersion(db_.get());
 
   // Downgrade to an early version.
   LevelDbMigrations::SchemaVersion downgrade_version = 1;
-  LevelDbMigrations::RunMigrations(db_.get(), downgrade_version);
+  LevelDbMigrations::RunMigrations(db_.get(), downgrade_version, *serializer_);
   LevelDbMigrations::SchemaVersion post_downgrade_version =
       LevelDbMigrations::ReadSchemaVersion(db_.get());
   ASSERT_EQ(downgrade_version, post_downgrade_version);
 
   // Verify that we can upgrade again to the latest version.
-  LevelDbMigrations::RunMigrations(db_.get());
+  LevelDbMigrations::RunMigrations(db_.get(), *serializer_);
   LevelDbMigrations::SchemaVersion final_version =
       LevelDbMigrations::ReadSchemaVersion(db_.get());
   ASSERT_EQ(final_version, latest_version);

@@ -14,7 +14,6 @@
 
 firebase_ios_glob(
   sources *.cc *.h
-  EXCLUDE *_benchmark.cc
 )
 
 if(FIREBASE_IOS_BUILD_TESTS)

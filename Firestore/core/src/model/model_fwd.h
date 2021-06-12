@@ -52,30 +52,26 @@ namespace model {
 class DatabaseId;
 class DeleteMutation;
 class Document;
+class MutableDocument;
 class DocumentComparator;
 class DocumentKey;
-class DocumentMap;
 class DocumentSet;
 class FieldMask;
 class FieldPath;
 class FieldTransform;
-class FieldValue;
-class MaybeDocument;
+class MutableDocument;
 class Mutation;
 class MutationBatch;
 class MutationBatchResult;
 class MutationResult;
-class NoDocument;
 class ObjectValue;
 class PatchMutation;
 class Precondition;
 class SetMutation;
 class SnapshotVersion;
 class TransformOperation;
-class UnknownDocument;
 class VerifyMutation;
 
-enum class DocumentState;
 enum class OnlineState;
 
 struct DocumentKeyHash;
@@ -87,20 +83,17 @@ using TargetId = int32_t;
 using DocumentKeySet =
     immutable::SortedSet<DocumentKey, util::Comparator<DocumentKey>>;
 
-using MaybeDocumentMap = immutable::
-    SortedMap<DocumentKey, MaybeDocument, util::Comparator<DocumentKey>>;
+using MutableDocumentMap = immutable::
+    SortedMap<DocumentKey, MutableDocument, util::Comparator<DocumentKey>>;
 
-using OptionalMaybeDocumentMap =
-    immutable::SortedMap<DocumentKey,
-                         absl::optional<MaybeDocument>,
-                         util::Comparator<DocumentKey>>;
+using DocumentMap =
+    immutable::SortedMap<DocumentKey, Document, util::Comparator<DocumentKey>>;
 
 using DocumentVersionMap =
     std::unordered_map<DocumentKey, SnapshotVersion, DocumentKeyHash>;
 
-using DocumentUpdateMap = std::unordered_map<model::DocumentKey,
-                                             model::MaybeDocument,
-                                             model::DocumentKeyHash>;
+using DocumentUpdateMap =
+    std::unordered_map<DocumentKey, MutableDocument, DocumentKeyHash>;
 
 }  // namespace model
 }  // namespace firestore

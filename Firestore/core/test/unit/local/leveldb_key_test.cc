@@ -16,7 +16,6 @@
 
 #include "Firestore/core/src/local/leveldb_key.h"
 
-#include "Firestore/core/src/model/maybe_document.h"
 #include "Firestore/core/src/util/string_util.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 #include "absl/strings/match.h"
