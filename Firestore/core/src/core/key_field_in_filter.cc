@@ -36,13 +36,14 @@ using model::FieldPath;
 using model::GetTypeOrder;
 using model::IsArray;
 using model::TypeOrder;
+using nanopb::SharedMessage;
 
 using Operator = Filter::Operator;
 
 class KeyFieldInFilter::Rep : public FieldFilter::Rep {
  public:
-  Rep(FieldPath field, google_firestore_v1_Value value)
-      : FieldFilter::Rep(std::move(field), Operator::In, value) {
+  Rep(FieldPath field, SharedMessage<google_firestore_v1_Value> value)
+      : FieldFilter::Rep(std::move(field), Operator::In, std::move(value)) {
     keys_ = ExtractDocumentKeysFromValue(this->value());
   }
 
@@ -56,9 +57,9 @@ class KeyFieldInFilter::Rep : public FieldFilter::Rep {
   std::unordered_set<DocumentKey, DocumentKeyHash> keys_;
 };
 
-KeyFieldInFilter::KeyFieldInFilter(const FieldPath& field,
-                                   google_firestore_v1_Value value)
-    : FieldFilter(std::make_shared<const Rep>(field, value)) {
+KeyFieldInFilter::KeyFieldInFilter(
+    const FieldPath& field, SharedMessage<google_firestore_v1_Value> value)
+    : FieldFilter(std::make_shared<const Rep>(field, std::move(value))) {
 }
 
 bool KeyFieldInFilter::Rep::Matches(const Document& doc) const {

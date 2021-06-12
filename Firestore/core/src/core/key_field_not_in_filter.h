@@ -22,6 +22,7 @@
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/core/field_filter.h"
 #include "Firestore/core/src/model/model_fwd.h"
+#include "Firestore/core/src/nanopb/message.h"
 
 namespace firebase {
 namespace firestore {
@@ -34,7 +35,7 @@ class KeyFieldNotInFilter : public FieldFilter {
  public:
   /** Creates a new document keys not-in filter. Takes ownership of `value`. */
   KeyFieldNotInFilter(const model::FieldPath& field,
-                      google_firestore_v1_Value value);
+                      nanopb::SharedMessage<google_firestore_v1_Value> value);
 
  private:
   class Rep;

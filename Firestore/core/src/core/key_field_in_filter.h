@@ -24,6 +24,7 @@
 #include "Firestore/core/src/core/field_filter.h"
 #include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/model_fwd.h"
+#include "Firestore/core/src/nanopb/message.h"
 
 namespace firebase {
 namespace firestore {
@@ -36,7 +37,7 @@ class KeyFieldInFilter : public FieldFilter {
  public:
   /** Creates a new document keys filter. Takes ownership of `value`. */
   KeyFieldInFilter(const model::FieldPath& field,
-                   google_firestore_v1_Value value);
+                   nanopb::SharedMessage<google_firestore_v1_Value> value);
 
  private:
   class Rep;

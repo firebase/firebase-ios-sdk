@@ -32,14 +32,17 @@ using model::Contains;
 using model::Document;
 using model::FieldPath;
 using model::IsArray;
+using nanopb::SharedMessage;
 
 using Operator = Filter::Operator;
 
 class ArrayContainsAnyFilter::Rep : public FieldFilter::Rep {
  public:
-  Rep(FieldPath field, google_firestore_v1_Value value)
-      : FieldFilter::Rep(std::move(field), Operator::ArrayContainsAny, value) {
-    HARD_ASSERT(IsArray(value), "ArrayContainsAnyFilter expects an ArrayValue");
+  Rep(FieldPath field, SharedMessage<google_firestore_v1_Value> value)
+      : FieldFilter::Rep(
+            std::move(field), Operator::ArrayContainsAny, std::move(value)) {
+    HARD_ASSERT(IsArray(this->value()),
+                "ArrayContainsAnyFilter expects an ArrayValue");
   }
 
   Type type() const override {
@@ -49,9 +52,10 @@ class ArrayContainsAnyFilter::Rep : public FieldFilter::Rep {
   bool Matches(const model::Document& doc) const override;
 };
 
-ArrayContainsAnyFilter::ArrayContainsAnyFilter(const model::FieldPath& field,
-                                               google_firestore_v1_Value value)
-    : FieldFilter(std::make_shared<Rep>(field, value)) {
+ArrayContainsAnyFilter::ArrayContainsAnyFilter(
+    const model::FieldPath& field,
+    SharedMessage<google_firestore_v1_Value> value)
+    : FieldFilter(std::make_shared<Rep>(field, std::move(value))) {
 }
 
 bool ArrayContainsAnyFilter::Rep::Matches(const Document& doc) const {

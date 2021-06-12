@@ -22,6 +22,7 @@
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/core/field_filter.h"
 #include "Firestore/core/src/model/model_fwd.h"
+#include "Firestore/core/src/nanopb/message.h"
 
 namespace firebase {
 namespace firestore {
@@ -33,7 +34,8 @@ namespace core {
 class NotInFilter : public FieldFilter {
  public:
   /** Creates a new not-in filter. Takes ownership of `value`. */
-  NotInFilter(const model::FieldPath& field, google_firestore_v1_Value value);
+  NotInFilter(const model::FieldPath& field,
+              nanopb::SharedMessage<google_firestore_v1_Value> value);
 
  private:
   class Rep;

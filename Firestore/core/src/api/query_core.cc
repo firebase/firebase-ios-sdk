@@ -37,6 +37,7 @@
 #include "Firestore/core/src/util/exception.h"
 #include "absl/algorithm/container.h"
 #include "absl/strings/match.h"
+#include "absl/types/span.h"
 
 namespace firebase {
 namespace firestore {
@@ -227,9 +228,9 @@ std::unique_ptr<ListenerRegistration> Query::AddSnapshotListener(
       std::move(query_listener));
 }
 
-Query Query::Filter(FieldPath field_path,
+Query Query::Filter(const FieldPath& field_path,
                     Operator op,
-                    google_firestore_v1_Value value,
+                    nanopb::SharedMessage<google_firestore_v1_Value> value,
                     const std::function<std::string()>& type_describer) const {
   if (field_path.IsKeyFieldPath()) {
     if (IsArrayOperator(op)) {
@@ -238,22 +239,30 @@ Query Query::Filter(FieldPath field_path,
           "ID since document IDs are not arrays.",
           Describe(op));
     } else if (op == Operator::In || op == Operator::NotIn) {
-      ValidateDisjunctiveFilterElements(value, op);
-      google_firestore_v1_ArrayValue& array = value.array_value;
-      for (pb_size_t i = 0; i < array.values_count; ++i) {
-        array.values[i] =
-            ParseExpectedReferenceValue(array.values[i], type_describer);
-      }
+      ValidateDisjunctiveFilterElements(*value, op);
+      // TODO(mutabledocuments): See if we can remove this copy and modify the
+      // input values directly.
+      google_firestore_v1_Value references{};
+      references.which_value_type = google_firestore_v1_Value_array_value_tag;
+      nanopb::SetRepeatedField(
+          &references.array_value.values, &references.array_value.values_count,
+          absl::Span<google_firestore_v1_Value>(
+              value->array_value.values, value->array_value.values_count),
+          [&](const google_firestore_v1_Value& value) {
+            return ParseExpectedReferenceValue(value, type_describer);
+          });
+      value = nanopb::SharedMessage<google_firestore_v1_Value>{references};
     } else {
-      value = ParseExpectedReferenceValue(value, type_describer);
+      value = nanopb::SharedMessage<google_firestore_v1_Value>{
+          ParseExpectedReferenceValue(*value, type_describer)};
     }
   } else {
     if (IsDisjunctiveOperator(op)) {
-      ValidateDisjunctiveFilterElements(value, op);
+      ValidateDisjunctiveFilterElements(*value, op);
     }
   }
 
-  FieldFilter filter = FieldFilter::Create(field_path, op, value);
+  FieldFilter filter = FieldFilter::Create(field_path, op, std::move(value));
   ValidateNewFilter(filter);
 
   return Wrap(query_.AddingFilter(std::move(filter)));
@@ -428,7 +437,7 @@ google_firestore_v1_Value Query::ParseExpectedReferenceValue(
     }
     return RefValue(firestore_->database_id(), DocumentKey{path});
   } else if (GetTypeOrder(value) == TypeOrder::kReference) {
-    return value;
+    return model::DeepClone(value);
   } else {
     ThrowInvalidArgument(
         "Invalid query. When querying by document ID you must provide a "

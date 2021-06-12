@@ -35,16 +35,20 @@ using model::DocumentKey;
 using model::FieldPath;
 using model::GetTypeOrder;
 using model::TypeOrder;
+using nanopb::SharedMessage;
 
 using Operator = Filter::Operator;
 
 class KeyFieldFilter::Rep : public FieldFilter::Rep {
  public:
-  Rep(FieldPath field, Operator op, google_firestore_v1_Value value)
-      : FieldFilter::Rep(std::move(field), op, value) {
-    HARD_ASSERT(GetTypeOrder(value) == TypeOrder::kReference,
+  Rep(FieldPath field,
+      Operator op,
+      SharedMessage<google_firestore_v1_Value> value)
+      : FieldFilter::Rep(std::move(field), op, std::move(value)) {
+    HARD_ASSERT(GetTypeOrder(this->value()) == TypeOrder::kReference,
                 "KeyFieldFilter expects a ReferenceValue");
-    key_ = DocumentKey::FromName(nanopb::MakeString(value.reference_value));
+    key_ = DocumentKey::FromName(
+        nanopb::MakeString(this->value().reference_value));
   }
 
   Type type() const override {
@@ -59,8 +63,8 @@ class KeyFieldFilter::Rep : public FieldFilter::Rep {
 
 KeyFieldFilter::KeyFieldFilter(const FieldPath& field,
                                Operator op,
-                               google_firestore_v1_Value value)
-    : FieldFilter(std::make_shared<const Rep>(field, op, value)) {
+                               SharedMessage<google_firestore_v1_Value> value)
+    : FieldFilter(std::make_shared<const Rep>(field, op, std::move(value))) {
 }
 
 bool KeyFieldFilter::Rep::Matches(const Document& doc) const {
