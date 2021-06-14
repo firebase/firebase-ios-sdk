@@ -1,3 +1,6 @@
+# v8.1.0
+- [fixed] Fixed an issue where factory class methods returned a new instance on every invocation, causing emulator settings to not persist between invocations (#7783).
+
 # v8.0.0
 - [added] Added abuse reduction features. (#7928)
 
