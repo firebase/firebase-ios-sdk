@@ -1,4 +1,4 @@
-# Unreleased
+# 8.2.0
 - [fixed] Fixed a bug in the link with email link, Game Center, and phone auth flows. (#8196)
 
 # 8.0.0
