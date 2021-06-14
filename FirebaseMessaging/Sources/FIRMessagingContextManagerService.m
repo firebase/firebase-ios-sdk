@@ -179,15 +179,14 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
   if ([apsDictionary[kFIRMessagingContextManagerBodyKey] length]) {
     content.body = apsDictionary[kFIRMessagingContextManagerBodyKey];
   }
+
   if ([apsDictionary[kFIRMessagingContextManagerTitleKey] length]) {
     content.title = apsDictionary[kFIRMessagingContextManagerTitleKey];
   }
 
   if (apsDictionary[kFIRMessagingContextManagerSoundKey]) {
-#if !TARGET_OS_WATCH
     content.sound =
         [UNNotificationSound soundNamed:apsDictionary[kFIRMessagingContextManagerSoundKey]];
-#endif  // !TARGET_OS_WATCH
   }
 
   if (apsDictionary[kFIRMessagingContextManagerCategoryKey]) {

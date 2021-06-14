@@ -324,10 +324,7 @@ API_AVAILABLE(macos(10.14))
 #if TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_WATCH
     XCTAssertEqualObjects(content.body, kBody);
     XCTAssertEqualObjects(content.title, kTitle);
-#if !TARGET_OS_WATCH
-
     XCTAssertEqualObjects(content.sound, [UNNotificationSound soundNamed:kSoundName]);
-#endif
     XCTAssertEqualObjects(content.categoryIdentifier, kAction);
     NSDictionary *userInfo = @{
       @"gcm.message_id" : @1623702615599207,
@@ -353,8 +350,7 @@ API_AVAILABLE(macos(10.14))
       @"google.c.sender.id" : @449451107265
     };
     XCTAssertEqualObjects(content.userInfo, userInfo);
-
-#endif
+#endif  // TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_WATCH
   }
 }
 
