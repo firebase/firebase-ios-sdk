@@ -83,7 +83,7 @@ struct InitializeRelease {
         updateVersion(&contents, in: range, to: version)
 
       } else {
-        // Iterate through all the ranges of `pod`'s occurences.
+        // Iterate through all the ranges of `pod`'s occurrences.
         for range in contents.ranges(of: pod) {
           // Replace version in string like ss.dependency 'FirebaseCore', '6.3.0'.
           updateVersion(&contents, in: range, to: version)
