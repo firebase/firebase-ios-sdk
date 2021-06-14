@@ -145,37 +145,8 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
     UNCalendarNotificationTrigger *trigger =
         [UNCalendarNotificationTrigger triggerWithDateMatchingComponents:dateComponents repeats:NO];
 
-    UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
-    NSDictionary *apsDictionary = message;
-
-    // Badge is universal
-    if (apsDictionary[kFIRMessagingContextManagerBadgeKey]) {
-      content.badge = apsDictionary[kFIRMessagingContextManagerBadgeKey];
-    }
-#if TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_WATCH
-    // The following fields are not available on tvOS
-    if ([apsDictionary[kFIRMessagingContextManagerBodyKey] length]) {
-      content.body = apsDictionary[kFIRMessagingContextManagerBodyKey];
-    }
-    if ([apsDictionary[kFIRMessagingContextManagerTitleKey] length]) {
-      content.title = apsDictionary[kFIRMessagingContextManagerTitleKey];
-    }
-
-    if (apsDictionary[kFIRMessagingContextManagerSoundKey]) {
-      content.sound =
-          [UNNotificationSound soundNamed:apsDictionary[kFIRMessagingContextManagerSoundKey]];
-    }
-
-    if (apsDictionary[kFIRMessagingContextManagerCategoryKey]) {
-      content.categoryIdentifier = apsDictionary[kFIRMessagingContextManagerCategoryKey];
-    }
-
-    NSDictionary *userInfo = [self parseDataFromMessage:message];
-    if (userInfo.count) {
-      content.userInfo = userInfo;
-    }
-#endif
-    NSString *identifier = apsDictionary[kFIRMessagingID];
+    UNMutableNotificationContent *content = [self contentFromContextualMessage:message];
+    NSString *identifier = message[kFIRMessagingID];
     if (!identifier) {
       identifier = [NSUUID UUID].UUIDString;
     }
@@ -193,6 +164,42 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
                }
              }];
   }
+}
+
++ (UNMutableNotificationContent *)contentFromContextualMessage:(NSDictionary *)message {
+  UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
+  NSDictionary *apsDictionary = message;
+
+  // Badge is universal
+  if (apsDictionary[kFIRMessagingContextManagerBadgeKey]) {
+    content.badge = apsDictionary[kFIRMessagingContextManagerBadgeKey];
+  }
+#if TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_WATCH
+  // The following fields are not available on tvOS
+  if ([apsDictionary[kFIRMessagingContextManagerBodyKey] length]) {
+    content.body = apsDictionary[kFIRMessagingContextManagerBodyKey];
+  }
+  if ([apsDictionary[kFIRMessagingContextManagerTitleKey] length]) {
+    content.title = apsDictionary[kFIRMessagingContextManagerTitleKey];
+  }
+
+  if (apsDictionary[kFIRMessagingContextManagerSoundKey]) {
+#if !TARGET_OS_WATCH
+    content.sound =
+        [UNNotificationSound soundNamed:apsDictionary[kFIRMessagingContextManagerSoundKey]];
+#endif
+  }
+
+  if (apsDictionary[kFIRMessagingContextManagerCategoryKey]) {
+    content.categoryIdentifier = apsDictionary[kFIRMessagingContextManagerCategoryKey];
+  }
+
+  NSDictionary *userInfo = [self parseDataFromMessage:message];
+  if (userInfo.count) {
+    content.userInfo = userInfo;
+  }
+#endif
+  return content;
 }
 
 + (void)scheduleLocalNotificationForMessage:(NSDictionary *)message atDate:(NSDate *)date {
