@@ -186,8 +186,13 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
   }
 
   if (apsDictionary[kFIRMessagingContextManagerSoundKey]) {
+#if !TARGET_OS_WATCH
+    // UNNotificationSound soundNamded: is not available in watchOS
     content.sound =
         [UNNotificationSound soundNamed:apsDictionary[kFIRMessagingContextManagerSoundKey]];
+#else   // !TARGET_OS_WATCH
+    content.sound = [UNNotificationSound defaultSound];
+#endif  // !TARGET_OS_WATCH
   }
 
   if (apsDictionary[kFIRMessagingContextManagerCategoryKey]) {

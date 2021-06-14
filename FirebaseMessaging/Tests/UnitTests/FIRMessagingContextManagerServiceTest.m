@@ -324,7 +324,11 @@ API_AVAILABLE(macos(10.14))
 #if TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_WATCH
     XCTAssertEqualObjects(content.body, kBody);
     XCTAssertEqualObjects(content.title, kTitle);
+#if !TARGET_OS_WATCH
     XCTAssertEqualObjects(content.sound, [UNNotificationSound soundNamed:kSoundName]);
+#else   // !TARGET_OS_WATCH
+    XCTAssertEqualObjects(content.sound, [UNNotificationSound defaultSound]);
+#endif  // !TARGET_OS_WATCH
     XCTAssertEqualObjects(content.categoryIdentifier, kAction);
     NSDictionary *userInfo = @{
       @"gcm.message_id" : @1623702615599207,
