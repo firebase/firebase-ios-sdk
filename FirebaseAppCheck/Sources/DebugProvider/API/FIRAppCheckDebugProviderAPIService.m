@@ -82,7 +82,7 @@ static NSString *const kDebugTokenField = @"debug_token";
       });
 }
 
-#pragma mark -
+#pragma mark - Helpers
 
 - (FBLPromise<NSData *> *)HTTPBodyWithDebugToken:(NSString *)debugToken {
   if (debugToken.length <= 0) {

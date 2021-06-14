@@ -1,3 +1,11 @@
+# Firebase 8.2.0
+- [fixed] Stop flooding Swift Package Manager projects with Firebase test schemes. (#8167)
+- [fixed] Removed "Invalid Exclude" warnings for Swift Package Manager using Xcode 13 beta 1.
+
+# Firebase 8.1.1
+- [fixed] Fixed an issue where apps were getting rejected for a formerly-public method name
+  removed in iOS 15. Only FirebaseAnalytics is updated for this release. (#8222)
+
 # Firebase 8.0.0
 - [removed] The deprecated Firebase InstanceID has been removed. Use Firebase Installations to manage
   app instance and use Firebase Messaging to manage FCM registration token instead. (#7970)

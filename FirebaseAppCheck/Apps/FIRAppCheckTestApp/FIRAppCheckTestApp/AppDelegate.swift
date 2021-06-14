@@ -26,32 +26,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                      .LaunchOptionsKey: Any]?) -> Bool {
     FirebaseApp.configure()
 
-    guard let firebaseApp = FirebaseApp.app() else {
-      return true
-    }
+    requestDeviceCheckToken()
 
-    FIRDeviceCheckProvider(app: firebaseApp)?.getToken(completion: { token, error in
-      if let token = token {
-        print("DeviceCheck token: \(token.token), expiration date: \(token.expirationDate)")
-      }
+    requestDebugToken()
 
-      if let error = error {
-        print("DeviceCheck error: \((error as NSError).userInfo)")
-      }
-    })
-
-    if let debugProvider = FIRAppCheckDebugProvider(app: firebaseApp) {
-      print("Debug token: \(debugProvider.currentDebugToken())")
-
-      debugProvider.getToken(completion: { token, error in
-        if let token = token {
-          print("Debug FAC token: \(token.token), expiration date: \(token.expirationDate)")
-        }
-
-        if let error = error {
-          print("Debug error: \(error)")
-        }
-      })
+    if #available(iOS 14.0, *) {
+      requestAppAttestToken()
     }
 
     return true
@@ -75,5 +55,65 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // Called when the user discards a scene session.
     // If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
     // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
+  }
+
+  // MARK: App Check providers
+
+  func requestDeviceCheckToken() {
+    guard let firebaseApp = FirebaseApp.app() else {
+      return
+    }
+
+    DeviceCheckProvider(app: firebaseApp)?.getToken { token, error in
+      if let token = token {
+        print("DeviceCheck token: \(token.token), expiration date: \(token.expirationDate)")
+      }
+
+      if let error = error {
+        print("DeviceCheck error: \((error as NSError).userInfo)")
+      }
+    }
+  }
+
+  func requestDebugToken() {
+    guard let firebaseApp = FirebaseApp.app() else {
+      return
+    }
+
+    if let debugProvider = AppCheckDebugProvider(app: firebaseApp) {
+      print("Debug token: \(debugProvider.currentDebugToken())")
+
+      debugProvider.getToken { token, error in
+        if let token = token {
+          print("Debug FAC token: \(token.token), expiration date: \(token.expirationDate)")
+        }
+
+        if let error = error {
+          print("Debug error: \(error)")
+        }
+      }
+    }
+  }
+
+  @available(iOS 14.0, *)
+  func requestAppAttestToken() {
+    guard let firebaseApp = FirebaseApp.app() else {
+      return
+    }
+
+    guard let appAttestProvider = AppAttestProvider(app: firebaseApp) else {
+      print("Failed to instantiate AppAttestProvider")
+      return
+    }
+
+    appAttestProvider.getToken { token, error in
+      if let token = token {
+        print("App Attest FAC token: \(token.token), expiration date: \(token.expirationDate)")
+      }
+
+      if let error = error {
+        print("App Attest error: \(error)")
+      }
+    }
   }
 }

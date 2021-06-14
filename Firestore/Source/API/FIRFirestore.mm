@@ -435,14 +435,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)getQueryNamed:(NSString *)name completion:(void (^)(FIRQuery *_Nullable query))completion {
   auto firestore = _firestore;
-  auto callback = [completion, firestore](absl::optional<core::Query> query) {
+  auto callback = [completion, firestore](core::Query query, bool found) {
     if (!completion) {
       return;
     }
 
-    if (query.has_value()) {
-      FIRQuery *firQuery = [[FIRQuery alloc] initWithQuery:std::move(query.value())
-                                                 firestore:firestore];
+    if (found) {
+      FIRQuery *firQuery = [[FIRQuery alloc] initWithQuery:std::move(query) firestore:firestore];
       completion(firQuery);
     } else {
       completion(nil);

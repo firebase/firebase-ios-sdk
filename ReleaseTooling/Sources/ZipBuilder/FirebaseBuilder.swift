@@ -46,24 +46,6 @@ struct FirebaseBuilder {
         options: carthageBuildOptions
       )
 
-      // Prepare the release directory for zip packaging.
-      do {
-        // Move the Resources out of each directory in order to maintain the existing Zip structure.
-        let fileManager = FileManager.default
-        let contents = try fileManager.contentsOfDirectory(atPath: location.path)
-        for fileOrFolder in contents {
-          let fullPath = location.appendingPathComponent(fileOrFolder)
-
-          // Ignore any files.
-          guard fileManager.isDirectory(at: fullPath) else { continue }
-
-          // Move all the bundles in the frameworks out to a common "Resources" directory to match the
-          // existing Zip structure.
-          let resourcesDir = fullPath.appendingPathComponent("Resources")
-          _ = try ResourcesManager.moveAllBundles(inDirectory: fullPath, to: resourcesDir)
-        }
-      }
-
       print("Attempting to Zip the directory...")
       let candidateName = "Firebase-\(firebaseVersion)-latest.zip"
       let zipped = Zip.zipContents(ofDir: location, name: candidateName)

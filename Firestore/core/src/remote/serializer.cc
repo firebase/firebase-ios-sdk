@@ -65,7 +65,6 @@ using core::Direction;
 using core::FieldFilter;
 using core::Filter;
 using core::FilterList;
-using core::LimitType;
 using core::OrderBy;
 using core::OrderByList;
 using core::Query;
@@ -102,7 +101,6 @@ using nanopb::CheckedSize;
 using nanopb::MakeArray;
 using nanopb::MakeStringView;
 using nanopb::SafeReadBoolean;
-using nanopb::Writer;
 using remote::WatchChange;
 using util::ReadContext;
 using util::Status;
@@ -339,6 +337,9 @@ FieldValue::Map Serializer::DecodeMapValue(
   for (size_t i = 0; i < map_value.fields_count; i++) {
     std::string key = DecodeString(map_value.fields[i].key);
     FieldValue value = DecodeFieldValue(context, map_value.fields[i].value);
+    if (!context->status().ok()) {
+      return FieldValue::Map{};
+    }
 
     result = result.insert(key, value);
   }
@@ -1444,6 +1445,10 @@ FieldValue Serializer::DecodeReference(
   ResourcePath resource_name = DecodeResourceName(context, reference_value);
   ValidateDocumentKeyPath(context, resource_name);
   DatabaseId database_id = DecodeDatabaseId(context, resource_name);
+  if (!context->status().ok()) {
+    return FieldValue::Null();
+  }
+
   DocumentKey key = DecodeKey(context, resource_name);
 
   return FieldValue::FromReference(std::move(database_id), std::move(key));
@@ -1493,7 +1498,11 @@ std::vector<FieldValue> Serializer::DecodeArray(
   result.reserve(array_proto.values_count);
 
   for (size_t i = 0; i < array_proto.values_count; i++) {
-    result.push_back(DecodeFieldValue(context, array_proto.values[i]));
+    FieldValue field_value = DecodeFieldValue(context, array_proto.values[i]);
+    if (!context->status().ok()) {
+      return std::vector<FieldValue>{};
+    }
+    result.push_back(field_value);
   }
 
   return result;

@@ -19,9 +19,9 @@
 #import <OCMock/OCMock.h>
 #import "FBLPromise+Testing.h"
 
+#import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"
 #import "FirebaseAppCheck/Sources/DeviceCheckProvider/API/FIRDeviceCheckAPIService.h"
 #import "FirebaseAppCheck/Sources/DeviceCheckProvider/FIRDeviceCheckTokenGenerator.h"
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRDeviceCheckProvider.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
@@ -90,7 +90,8 @@ API_UNAVAILABLE(watchos)
 
   // 2. Expect FAA token to be requested.
   FIRAppCheckToken *validToken = [[FIRAppCheckToken alloc] initWithToken:@"valid_token"
-                                                          expirationDate:[NSDate distantFuture]];
+                                                          expirationDate:[NSDate distantFuture]
+                                                          receivedAtDate:[NSDate date]];
   OCMExpect([self.fakeAPIService appCheckTokenWithDeviceToken:deviceToken])
       .andReturn([FBLPromise resolvedWith:validToken]);
 
@@ -102,6 +103,7 @@ API_UNAVAILABLE(watchos)
         [completionExpectation fulfill];
         XCTAssertEqualObjects(token.token, validToken.token);
         XCTAssertEqualObjects(token.expirationDate, validToken.expirationDate);
+        XCTAssertEqualObjects(token.receivedAtDate, validToken.receivedAtDate);
         XCTAssertNil(error);
       }];
 

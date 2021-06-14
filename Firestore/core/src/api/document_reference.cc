@@ -52,7 +52,6 @@ using core::ViewSnapshot;
 using model::DeleteMutation;
 using model::Document;
 using model::DocumentKey;
-using model::Mutation;
 using model::Precondition;
 using model::ResourcePath;
 using util::Status;

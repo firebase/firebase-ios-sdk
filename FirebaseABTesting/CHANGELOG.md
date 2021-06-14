@@ -1,3 +1,6 @@
+# v8.2.0
+- [fixed] Fixed analyze issue introduced in Xcode 12.5. (#8209)
+
 # v7.7.0
 - [added] Added community support for watchOS. ABTesting can now build on watchOS, but some functions might not work yet. (#7481)
 

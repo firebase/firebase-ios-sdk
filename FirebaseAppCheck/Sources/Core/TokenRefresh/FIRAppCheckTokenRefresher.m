@@ -18,11 +18,18 @@
 
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckSettings.h"
 #import "FirebaseAppCheck/Sources/Core/TokenRefresh/FIRAppCheckTimer.h"
+#import "FirebaseAppCheck/Sources/Core/TokenRefresh/FIRAppCheckTokenRefreshResult.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 static const NSTimeInterval kInitialBackoffTimeInterval = 30;
 static const NSTimeInterval kMaximumBackoffTimeInterval = 16 * 60;
+
+static const NSTimeInterval kMinimumAutoRefreshTimeInterval = 60;  // 1 min.
+
+/// How much time in advance to auto-refresh token before it's expiration. E.g. 0.5 means that the
+/// token will be refreshed half way through it's intended time to live.
+static const double kAutoRefreshFraction = 0.5;
 
 @interface FIRAppCheckTokenRefresher ()
 
@@ -34,8 +41,8 @@ static const NSTimeInterval kMaximumBackoffTimeInterval = 16 * 60;
 @property(atomic, nullable) id<FIRAppCheckTimerProtocol> timer;
 @property(atomic) NSUInteger retryCount;
 
-@property(nonatomic, nullable) NSDate *initialTokenExpirationDate;
-@property(nonatomic, readonly) NSTimeInterval tokenExpirationThreshold;
+/// Initial refresh result to be used when `tokenRefreshHandler` has been sent.
+@property(nonatomic, nullable) FIRAppCheckTokenRefreshResult *initialRefreshResult;
 
 @end
 
@@ -43,29 +50,25 @@ static const NSTimeInterval kMaximumBackoffTimeInterval = 16 * 60;
 
 @synthesize tokenRefreshHandler = _tokenRefreshHandler;
 
-- (instancetype)initWithTokenExpirationDate:(NSDate *)tokenExpirationDate
-                   tokenExpirationThreshold:(NSTimeInterval)tokenExpirationThreshold
-                              timerProvider:(FIRTimerProvider)timerProvider
-                                   settings:(id<FIRAppCheckSettingsProtocol>)settings {
+- (instancetype)initWithRefreshResult:(FIRAppCheckTokenRefreshResult *)refreshResult
+                        timerProvider:(FIRTimerProvider)timerProvider
+                             settings:(id<FIRAppCheckSettingsProtocol>)settings {
   self = [super init];
   if (self) {
     _refreshQueue =
         dispatch_queue_create("com.firebase.FIRAppCheckTokenRefresher", DISPATCH_QUEUE_SERIAL);
-    _tokenExpirationThreshold = tokenExpirationThreshold;
-    _initialTokenExpirationDate = tokenExpirationDate;
+    _initialRefreshResult = refreshResult;
     _timerProvider = timerProvider;
     _settings = settings;
   }
   return self;
 }
 
-- (instancetype)initWithTokenExpirationDate:(NSDate *)tokenExpirationDate
-                   tokenExpirationThreshold:(NSTimeInterval)tokenExpirationThreshold
-                                   settings:(id<FIRAppCheckSettingsProtocol>)settings {
-  return [self initWithTokenExpirationDate:tokenExpirationDate
-                  tokenExpirationThreshold:tokenExpirationThreshold
-                             timerProvider:[FIRAppCheckTimer timerProvider]
-                                  settings:settings];
+- (instancetype)initWithRefreshResult:(FIRAppCheckTokenRefreshResult *)refreshResult
+                             settings:(id<FIRAppCheckSettingsProtocol>)settings {
+  return [self initWithRefreshResult:refreshResult
+                       timerProvider:[FIRAppCheckTimer timerProvider]
+                            settings:settings];
 }
 
 - (void)dealloc {
@@ -77,11 +80,10 @@ static const NSTimeInterval kMaximumBackoffTimeInterval = 16 * 60;
     _tokenRefreshHandler = tokenRefreshHandler;
 
     // Check if handler is being set for the first time and if yes then schedule first refresh.
-    if (tokenRefreshHandler && self.initialTokenExpirationDate &&
-        self.settings.isTokenAutoRefreshEnabled) {
-      NSDate *initialTokenExpirationDate = self.initialTokenExpirationDate;
-      self.initialTokenExpirationDate = nil;
-      [self scheduleWithTokenExpirationDate:initialTokenExpirationDate];
+    if (tokenRefreshHandler && self.initialRefreshResult) {
+      FIRAppCheckTokenRefreshResult *initialTokenRefreshResult = self.initialRefreshResult;
+      self.initialRefreshResult = nil;
+      [self scheduleWithTokenRefreshResult:initialTokenRefreshResult];
     }
   }
 }
@@ -92,10 +94,19 @@ static const NSTimeInterval kMaximumBackoffTimeInterval = 16 * 60;
   }
 }
 
-- (void)updateTokenExpirationDate:(NSDate *)tokenExpirationDate {
-  if (self.settings.isTokenAutoRefreshEnabled) {
-    [self scheduleWithTokenExpirationDate:tokenExpirationDate];
+- (void)updateWithRefreshResult:(FIRAppCheckTokenRefreshResult *)refreshResult {
+  switch (refreshResult.status) {
+    case FIRAppCheckTokenRefreshStatusNever:
+    case FIRAppCheckTokenRefreshStatusSuccess:
+      self.retryCount = 0;
+      break;
+
+    case FIRAppCheckTokenRefreshStatusFailure:
+      self.retryCount += 1;
+      break;
   }
+
+  [self scheduleWithTokenRefreshResult:refreshResult];
 }
 
 - (void)refresh {
@@ -108,25 +119,18 @@ static const NSTimeInterval kMaximumBackoffTimeInterval = 16 * 60;
   }
 
   __auto_type __weak weakSelf = self;
-  self.tokenRefreshHandler(^(BOOL success, NSDate *_Nullable tokenExpirationDate) {
+  self.tokenRefreshHandler(^(FIRAppCheckTokenRefreshResult *refreshResult) {
     __auto_type strongSelf = weakSelf;
-    [strongSelf tokenRefreshedWithSuccess:success tokenExpirationDate:tokenExpirationDate];
+    [strongSelf updateWithRefreshResult:refreshResult];
   });
 }
 
-- (void)tokenRefreshedWithSuccess:(BOOL)success tokenExpirationDate:(NSDate *)tokenExpirationDate {
-  if (success) {
-    self.retryCount = 0;
-  } else {
-    self.retryCount += 1;
+- (void)scheduleWithTokenRefreshResult:(FIRAppCheckTokenRefreshResult *)refreshResult {
+  // Schedule the refresh only when allowed.
+  if (self.settings.isTokenAutoRefreshEnabled) {
+    NSDate *refreshDate = [self nextRefreshDateWithTokenRefreshResult:refreshResult];
+    [self scheduleRefreshAtDate:refreshDate];
   }
-
-  [self scheduleWithTokenExpirationDate:tokenExpirationDate ?: [NSDate date]];
-}
-
-- (void)scheduleWithTokenExpirationDate:(NSDate *)tokenExpirationDate {
-  NSDate *refreshDate = [self nextRefreshDateWithTokenExpirationDate:tokenExpirationDate];
-  [self scheduleRefreshAtDate:refreshDate];
 }
 
 - (void)scheduleRefreshAtDate:(NSDate *)refreshDate {
@@ -153,20 +157,42 @@ static const NSTimeInterval kMaximumBackoffTimeInterval = 16 * 60;
   [self.timer invalidate];
 }
 
-#pragma mark - Backoff
+- (NSDate *)nextRefreshDateWithTokenRefreshResult:(FIRAppCheckTokenRefreshResult *)refreshResult {
+  switch (refreshResult.status) {
+    case FIRAppCheckTokenRefreshStatusSuccess: {
+      NSTimeInterval timeToLive = [refreshResult.tokenExpirationDate
+          timeIntervalSinceDate:refreshResult.tokenReceivedAtDate];
+      timeToLive = MAX(timeToLive, 0);
 
-- (NSDate *)nextRefreshDateWithTokenExpirationDate:(NSDate *)tokenExpirationDate {
-  NSDate *targetRefreshDate =
-      [tokenExpirationDate dateByAddingTimeInterval:-self.tokenExpirationThreshold];
-  NSTimeInterval scheduleIn = [targetRefreshDate timeIntervalSinceNow];
+      // Refresh in 50% of TTL + 5 min.
+      NSTimeInterval targetRefreshSinceReceivedDate = timeToLive * kAutoRefreshFraction + 5 * 60;
+      NSDate *targetRefreshDate = [refreshResult.tokenReceivedAtDate
+          dateByAddingTimeInterval:targetRefreshSinceReceivedDate];
 
-  NSTimeInterval backoffTime = [[self class] backoffTimeForRetryCount:self.retryCount];
-  if (scheduleIn >= backoffTime) {
-    return targetRefreshDate;
-  } else {
-    return [NSDate dateWithTimeIntervalSinceNow:backoffTime];
+      // Don't schedule later than expiration date.
+      NSDate *refreshDate = [targetRefreshDate earlierDate:refreshResult.tokenExpirationDate];
+
+      // Don't schedule a refresh earlier than in 1 min from now.
+      if ([refreshDate timeIntervalSinceNow] < kMinimumAutoRefreshTimeInterval) {
+        refreshDate = [NSDate dateWithTimeIntervalSinceNow:kMinimumAutoRefreshTimeInterval];
+      }
+      return refreshDate;
+    } break;
+
+    case FIRAppCheckTokenRefreshStatusFailure: {
+      // Repeat refresh attempt later.
+      NSTimeInterval backoffTime = [[self class] backoffTimeForRetryCount:self.retryCount];
+      return [NSDate dateWithTimeIntervalSinceNow:backoffTime];
+    } break;
+
+    case FIRAppCheckTokenRefreshStatusNever:
+      // Refresh ASAP.
+      return [NSDate date];
+      break;
   }
 }
+
+#pragma mark - Backoff
 
 + (NSTimeInterval)backoffTimeForRetryCount:(NSInteger)retryCount {
   if (retryCount == 0) {

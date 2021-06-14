@@ -1,3 +1,6 @@
+# v8.2.0
+- [fixed] Fixed analyze issue introduced in Xcode 12.5. (#8208)
+
 # v8.0.0
 - [fixed] Fixed crashes on simulators targeting below iOS14 on Apple Silicon. (#7989)
 

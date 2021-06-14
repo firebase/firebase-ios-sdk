@@ -15,6 +15,7 @@
  */
 
 #import "FirebaseAppCheck/Sources/Core/APIService/FIRAppCheckToken+APIResponse.h"
+#import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"
 
 #if __has_include(<FBLPromises/FBLPromises.h>)
 #import <FBLPromises/FBLPromises.h>
@@ -47,6 +48,12 @@
     return nil;
   }
 
+  return [self initWithResponseDict:responseDict requestDate:requestDate error:outError];
+}
+
+- (nullable instancetype)initWithResponseDict:(NSDictionary<NSString *, id> *)responseDict
+                                  requestDate:(NSDate *)requestDate
+                                        error:(NSError **)outError {
   NSString *token = responseDict[@"attestationToken"];
   if (![token isKindOfClass:[NSString class]]) {
     FIRAppCheckSetErrorToPointer(
@@ -75,7 +82,7 @@
 
   NSDate *expirationDate = [requestDate dateByAddingTimeInterval:secondsToLive];
 
-  return [self initWithToken:token expirationDate:expirationDate];
+  return [self initWithToken:token expirationDate:expirationDate receivedAtDate:requestDate];
 }
 
 @end

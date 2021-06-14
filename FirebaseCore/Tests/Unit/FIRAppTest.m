@@ -841,10 +841,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"InvalidLibrary`/1.0.0"]);
 }
 
-- (void)testFirebaseUserAgent_SwiftFlagWithNoSwift {
-  XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"swift/false"]);
-}
-
 - (void)testFirebaseUserAgent_ApplePlatformFlag {
   // When a Catalyst app is run on macOS then both `TARGET_OS_MACCATALYST` and `TARGET_OS_IOS` are
   // `true`.

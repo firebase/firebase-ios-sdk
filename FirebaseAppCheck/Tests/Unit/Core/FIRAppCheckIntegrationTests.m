@@ -125,6 +125,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
+#if !TARGET_OS_MACCATALYST  // Catalyst should be possible with Xcode 12.5+
 - (void)testSetAppCheckProviderFactoryWithDefaultApp {
   NSString *appName = kFIRDefaultAppName;
 
@@ -168,6 +169,7 @@ NS_ASSUME_NONNULL_BEGIN
   OCMVerifyAll(self.mockProviderFactory);
   OCMVerifyAll(self.mockAppCheckProvider);
 }
+#endif  // !TARGET_OS_MACCATALYST
 
 #pragma mark - Helpers
 
@@ -202,9 +204,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)disableTokenRefresher {
   self.mockTokenRefresher = OCMClassMock([FIRAppCheckTokenRefresher class]);
   OCMStub([self.mockTokenRefresher alloc]).andReturn(self.mockTokenRefresher);
-  OCMStub([self.mockTokenRefresher initWithTokenExpirationDate:[OCMArg any]
-                                      tokenExpirationThreshold:5 * 60
-                                                      settings:[OCMArg any]])
+  OCMStub([self.mockTokenRefresher initWithRefreshResult:[OCMArg any] settings:[OCMArg any]])
       .andReturn(self.mockTokenRefresher);
 }
 

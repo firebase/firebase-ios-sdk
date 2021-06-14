@@ -1,0 +1,7 @@
+{
+  "artifact" : "dmFsaWQgRmlyZWJhc2UgYXBwIGF0dGVzdCBhcnRpZmFjdA==",
+  "attestationToken" : {
+    "attestationToken": "valid_app_check_token",
+    "ttl": "1800s"
+  }
+}

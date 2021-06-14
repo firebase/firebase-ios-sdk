@@ -1742,6 +1742,53 @@ TEST_F(SerializerTest, DecodesVersionWithTargets) {
   ExpectDeserializationRoundTrip(model, proto);
 }
 
+TEST_F(SerializerTest, GracefullyDecodesBadMapValue) {
+  pb_bytes_array_t key{1, {'a'}};
+  google_firestore_v1_Value bad_value = {};
+  google_firestore_v1_MapValue_FieldsEntry fields_entry = {&key, bad_value};
+  google_firestore_v1_MapValue bad_map = {1, &fields_entry};
+
+  google_firestore_v1_Value bad_map_value = {};
+  bad_map_value.which_value_type = google_firestore_v1_Value_map_value_tag;
+  bad_map_value.map_value = bad_map;
+
+  StringReader reader(nullptr, 0);
+  FieldValue decoded_value =
+      serializer.DecodeFieldValue(reader.context(), bad_map_value);
+  EXPECT_FALSE(reader.context()->status().ok());
+  EXPECT_TRUE(decoded_value.is_object());
+  EXPECT_TRUE(decoded_value.object_value().empty());
+}
+
+TEST_F(SerializerTest, GracefullyDecodesBadReference) {
+  pb_bytes_array_t bad_ref{1, {'a'}};
+  google_firestore_v1_Value bad_value = {};
+  bad_value.which_value_type = google_firestore_v1_Value_reference_value_tag;
+  bad_value.reference_value = &bad_ref;
+
+  StringReader reader(nullptr, 0);
+  FieldValue decoded_value =
+      serializer.DecodeFieldValue(reader.context(), bad_value);
+  EXPECT_FALSE(reader.context()->status().ok());
+  EXPECT_TRUE(decoded_value.is_null());
+}
+
+TEST_F(SerializerTest, GracefullyDecodesArrayWithBadElement) {
+  google_firestore_v1_Value bad_element = {};
+  google_firestore_v1_ArrayValue bad_array = {1, &bad_element};
+
+  google_firestore_v1_Value bad_value = {};
+  bad_value.which_value_type = google_firestore_v1_Value_array_value_tag;
+  bad_value.array_value = bad_array;
+
+  StringReader reader(nullptr, 0);
+  FieldValue decoded_value =
+      serializer.DecodeFieldValue(reader.context(), bad_value);
+  EXPECT_FALSE(reader.context()->status().ok());
+  EXPECT_TRUE(decoded_value.is_array());
+  EXPECT_TRUE(decoded_value.array_value().empty());
+}
+
 TEST_F(SerializerTest, EncodesSetMutation) {
   SetMutation model = testutil::SetMutation("docs/1", Map("a", "b", "num", 1));
 

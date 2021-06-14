@@ -22,6 +22,17 @@ jobs:
     - name: FirebaseAppCheck
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAppCheck.podspec --platforms=${{ matrix.target }}
 
+  catalyst:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Setup project and Build for Catalyst
+      run: scripts/test_catalyst.sh FirebaseAppCheck test FirebaseAppCheck-Unit-unit
+
   diagnostics:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
@@ -32,7 +43,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Initialize xcodebuild
-      run: xcodebuild -list
+      run: scripts/setup_spm_tests.sh
     - name: iOS Unit Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh AppCheckUnit iOS spm ${{ matrix.diagnostic }}
     - name: Upload raw logs if failed
