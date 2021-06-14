@@ -95,9 +95,9 @@ NSString *const kFUNDefaultRegion = @"us-central1";
   return @[ internalProvider ];
 }
 
-// A table mapping FIRApp instances to FIRStorage instances, used to cache FIRStorage instances
+// A table mapping FIRApp instances to FIRFunctions instances, used to cache FIRFunctions instances
 // on a per-app basis. Does not retain either its keys or its values, since FIRApps may be deleted
-// without notifying their respective FIRStorage instances, and FIRStorage instances may be short-
+// without notifying their respective FIRFunctions instances, and FIRFunctions instances may be short-
 // lived.
 + (NSMapTable<FIRApp *, FIRFunctions *> *)instanceCache {
   static NSMapTable *cache;

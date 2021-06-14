@@ -58,7 +58,7 @@ NS_SWIFT_NAME(Functions)
     NS_SWIFT_NAME(functions(customDomain:));
 
 /**
- * Creates a Cloud Functions client with the given app and region. If an instance of Storage
+ * Creates a Cloud Functions client with the given app and region. If an instance of Functions
  * associated with the given app already exists, the region parameter will be ignored.
  * @param app The app for the Firebase project.
  * @param region The region for the http trigger, such as "us-central1".
@@ -67,7 +67,7 @@ NS_SWIFT_NAME(Functions)
                          region:(NSString *)region NS_SWIFT_NAME(functions(app:region:));
 
 /**
- * Creates a Cloud Functions client with the given app and region. If an instance of Storage
+ * Creates a Cloud Functions client with the given app and region. If an instance of Functions
  * associated with the given app already exists, the custom domain will be ignored.
  * @param app The app for the Firebase project.
  * @param customDomain A custom domain for the http trigger, such as "https://mydomain.com".
