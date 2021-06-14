@@ -75,41 +75,18 @@ struct InitializeRelease {
       let pod = firebasePod.name
       let version = firebasePod.isBeta ? firebaseVersion + "-beta" : firebaseVersion
       if pod == "Firebase" {
-        // TODO: This then block is redundant with the updatePodspecs function above and is left
-        // until we decide to go with Swift or sed.
-        // Replace version in string like s.version = '6.9.0'
+        // TODO: This block is redundant with `updatePodspecs`. Decide to go with Swift or sed.
         guard let range = contents.range(of: "s.version") else {
           fatalError("Could not find version of Firebase pod in podspec at \(podspecFile)")
         }
-        var versionStartIndex = contents.index(range.upperBound, offsetBy: 1)
-        while contents[versionStartIndex] != "'" {
-          versionStartIndex = contents.index(versionStartIndex, offsetBy: 1)
-        }
-        var versionEndIndex = contents.index(versionStartIndex, offsetBy: 1)
-        while contents[versionEndIndex] != "'" {
-          versionEndIndex = contents.index(versionEndIndex, offsetBy: 1)
-        }
-        contents.removeSubrange(versionStartIndex ... versionEndIndex)
-        contents.insert(contentsOf: "'" + version + "'", at: versionStartIndex)
-      } else {
-        // Replace version in string like ss.dependency 'FirebaseCore', '6.3.0'
-        // Obtain all the ranges of `pod`'s occurences.
-        guard let ranges = contents.ranges(of: pod) else {
-          // This pod is not a top-level Firebase pod dependency.
-          continue
-        }
+        // Replace version in string like s.version = '6.9.0'
+        updateVersion(&contents, in: range, to: version)
 
-        for range in ranges {
-          var versionStartIndex = contents.index(range.upperBound, offsetBy: 2)
-          while !contents[versionStartIndex].isWholeNumber {
-            versionStartIndex = contents.index(versionStartIndex, offsetBy: 1)
-          }
-          var versionEndIndex = contents.index(versionStartIndex, offsetBy: 1)
-          while contents[versionEndIndex] != "'" {
-            versionEndIndex = contents.index(versionEndIndex, offsetBy: 1)
-          }
-          contents.removeSubrange(versionStartIndex ... versionEndIndex)
-          contents.insert(contentsOf: version + "'", at: versionStartIndex)
+      } else {
+        // Iterate through all the ranges of `pod`'s occurences.
+        for range in contents.ranges(of: pod) {
+          // Replace version in string like ss.dependency 'FirebaseCore', '6.3.0'.
+          updateVersion(&contents, in: range, to: version)
         }
       }
     }
@@ -118,6 +95,24 @@ struct InitializeRelease {
     } catch {
       fatalError("Failed to write \(podspecFile.path). \(error)")
     }
+  }
+
+  /// Update the existing version to the given version by writing to a given string usign the provided range.
+  /// - Parameters:
+  ///   - contents: A reference to a String containing a version that will be updated.
+  ///   - range: The range containing a version substring that will be updated.
+  ///   - version: The version string to update to.
+  private static func updateVersion(_ contents: inout String, in range: Range<String.Index>,
+                                    to version: String) {
+    var versionStartIndex = contents.index(after: range.upperBound)
+    while !contents[versionStartIndex].isWholeNumber {
+      versionStartIndex = contents.index(after: versionStartIndex)
+    }
+    var versionEndIndex = contents.index(after: versionStartIndex)
+    while contents[versionEndIndex] != "'" {
+      versionEndIndex = contents.index(after: versionEndIndex)
+    }
+    contents.replaceSubrange(versionStartIndex ..< versionEndIndex, with: version)
   }
 
   private static func updatePodfiles(path: URL, version: String) {
