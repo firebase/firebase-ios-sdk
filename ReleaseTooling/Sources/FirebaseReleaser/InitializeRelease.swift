@@ -93,20 +93,24 @@ struct InitializeRelease {
         contents.insert(contentsOf: "'" + version + "'", at: versionStartIndex)
       } else {
         // Replace version in string like ss.dependency 'FirebaseCore', '6.3.0'
-        guard let range = contents.range(of: pod) else {
+        // Obtain all the ranges of `pod`'s occurences.
+        guard let ranges = contents.ranges(of: pod) else {
           // This pod is not a top-level Firebase pod dependency.
           continue
         }
-        var versionStartIndex = contents.index(range.upperBound, offsetBy: 2)
-        while !contents[versionStartIndex].isWholeNumber {
-          versionStartIndex = contents.index(versionStartIndex, offsetBy: 1)
+
+        for range in ranges {
+          var versionStartIndex = contents.index(range.upperBound, offsetBy: 2)
+          while !contents[versionStartIndex].isWholeNumber {
+            versionStartIndex = contents.index(versionStartIndex, offsetBy: 1)
+          }
+          var versionEndIndex = contents.index(versionStartIndex, offsetBy: 1)
+          while contents[versionEndIndex] != "'" {
+            versionEndIndex = contents.index(versionEndIndex, offsetBy: 1)
+          }
+          contents.removeSubrange(versionStartIndex ... versionEndIndex)
+          contents.insert(contentsOf: version + "'", at: versionStartIndex)
         }
-        var versionEndIndex = contents.index(versionStartIndex, offsetBy: 1)
-        while contents[versionEndIndex] != "'" {
-          versionEndIndex = contents.index(versionEndIndex, offsetBy: 1)
-        }
-        contents.removeSubrange(versionStartIndex ... versionEndIndex)
-        contents.insert(contentsOf: version + "'", at: versionStartIndex)
       }
     }
     do {
