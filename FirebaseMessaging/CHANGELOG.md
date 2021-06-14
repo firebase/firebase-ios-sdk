@@ -1,4 +1,4 @@
-# unreleased
+# 2021-06 -- v8.2.0
 - [fixed] Fixed an issue that local scheduled notification is not set correctly due to sound type. (#8172)
 
 # 2021-05 -- v8.1.0

@@ -187,7 +187,7 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
 #if !TARGET_OS_WATCH
     content.sound =
         [UNNotificationSound soundNamed:apsDictionary[kFIRMessagingContextManagerSoundKey]];
-#endif
+#endif  // !TARGET_OS_WATCH
   }
 
   if (apsDictionary[kFIRMessagingContextManagerCategoryKey]) {
@@ -198,7 +198,7 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
   if (userInfo.count) {
     content.userInfo = userInfo;
   }
-#endif
+#endif  // TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_WATCH
   return content;
 }
 
