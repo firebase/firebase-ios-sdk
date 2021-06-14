@@ -138,7 +138,6 @@ NSString *const kFUNDefaultRegion = @"us-central1";
 + (instancetype)functionsForApp:(FIRApp *)app
                          region:(NSString *)region
                    customDomain:(nullable NSString *)customDomain {
-  NSAssert(app != nil, @"Could not initialize Functions instance with nil app.");
   FIRFunctions *cached = [[self instanceCache] objectForKey:app];
   if (cached != nil) {
     return cached;
