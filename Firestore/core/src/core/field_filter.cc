@@ -86,7 +86,7 @@ FieldFilter FieldFilter::Create(
     const FieldPath& path,
     Operator op,
     SharedMessage<google_firestore_v1_Value> value_rhs) {
-  google_firestore_v1_Value& value = value_rhs.operator*();
+  google_firestore_v1_Value& value = *value_rhs;
   model::SortFields(value);
   if (path.IsKeyFieldPath()) {
     if (op == Filter::Operator::In) {
