@@ -113,7 +113,12 @@ PatchMutation::Rep::GetPatch() const {
   std::map<FieldPath, absl::optional<google_firestore_v1_Value>> result;
   for (const FieldPath& path : mask_) {
     if (!path.empty()) {
-      result[path] = value_.Get(path);
+      auto value = value_.Get(path);
+      if (value) {
+        result[path] = DeepClone(*value);
+      } else {
+        result[path] = absl::nullopt;
+      }
     }
   }
   return result;
