@@ -24,12 +24,20 @@
 #import "FirebaseMessaging/Sources/FIRMessagingContextManagerService.h"
 
 static NSString *const kBody = @"Save 20% off!";
+static NSString *const kTitle = @"Sparky WFH";
+static NSString *const kSoundName = @"default";
+static NSString *const kAction = @"open";
 static NSString *const kUserInfoKey1 = @"level";
 static NSString *const kUserInfoKey2 = @"isPayUser";
 static NSString *const kUserInfoValue1 = @"5";
 static NSString *const kUserInfoValue2 = @"Yes";
 static NSString *const kMessageIdentifierKey = @"gcm.message_id";
 static NSString *const kMessageIdentifierValue = @"1584748495200141";
+
+@interface FIRMessagingContextManagerService (ExposedForTest)
++ (void)scheduleiOS10LocalNotificationForMessage:(NSDictionary *)message atDate:(NSDate *)date;
++ (UNMutableNotificationContent *)contentFromContextualMessage:(NSDictionary *)message;
+@end
 
 API_AVAILABLE(macos(10.14))
 @interface FIRMessagingContextManagerServiceTest : XCTestCase
@@ -267,6 +275,87 @@ API_AVAILABLE(macos(10.14))
      }]];
 #pragma clang diagnostic pop
 #endif
+}
+
+- (void)testScheduleiOS10LocalNotification {
+  if (@available(macOS 10.14, iOS 10.0, watchOS 3.0, tvOS 10.0, *)) {
+    id mockContextManagerService = OCMClassMock([FIRMessagingContextManagerService class]);
+    NSDictionary *message = @{};
+
+    [FIRMessagingContextManagerService scheduleiOS10LocalNotificationForMessage:message
+                                                                         atDate:[NSDate date]];
+    OCMVerify([mockContextManagerService contentFromContextualMessage:message]);
+    [mockContextManagerService stopMocking];
+  }
+}
+
+- (void)testContentFromConetxtualMessage {
+  if (@available(macOS 10.14, iOS 10.0, watchOS 3.0, tvOS 10.0, *)) {
+    NSDictionary *message = @{
+      @"aps" : @{@"content-available" : @1},
+      @"gcm.message_id" : @1623702615599207,
+      @"gcm.n.e" : @1,
+      @"gcm.notification.badge" : @1,
+      @"gcm.notification.body" : kBody,
+      @"gcm.notification.image" :
+          @"https://firebasestorage.googleapis.com/v0/b/fir-ios-app-extensions.appspot.com/o/"
+          @"sparkyWFH.png?alt=media&token=f4dc1533-4d80-4ed6-9870-8df528593157",
+      @"gcm.notification.mutable_content" : @1,
+      @"gcm.notification.sound" : kSoundName,
+      @"gcm.notification.sound2" : kSoundName,
+      @"gcm.notification.title" : kTitle,
+      // This field is not popped out from console
+      // Manual add here to test unit test
+      @"gcm.notification.click_action" : kAction,
+      @"gcms" : @"gcm.gmsproc.cm",
+      @"google.c.a.c_id" : @2159728303499680621,
+      @"google.c.a.c_l" : @"test local send with sound",
+      @"google.c.a.e" : @1,
+      @"google.c.a.ts" : @1623753000,
+      @"google.c.a.udt" : @1,
+      @"google.c.cm.lt_end" : @"2021-07-13 10:30:00",
+      @"google.c.cm.lt_start" : @"2021-06-15 10:30:00",
+      @"google.c.sender.id" : @449451107265,
+    };
+    UNMutableNotificationContent *content =
+        [FIRMessagingContextManagerService contentFromContextualMessage:message];
+    XCTAssertEqualObjects(content.badge, @1);
+
+#if TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_WATCH
+    XCTAssertEqualObjects(content.body, kBody);
+    XCTAssertEqualObjects(content.title, kTitle);
+#if !TARGET_OS_WATCH
+    XCTAssertEqualObjects(content.sound, [UNNotificationSound soundNamed:kSoundName]);
+#else   // !TARGET_OS_WATCH
+    XCTAssertEqualObjects(content.sound, [UNNotificationSound defaultSound]);
+#endif  // !TARGET_OS_WATCH
+    XCTAssertEqualObjects(content.categoryIdentifier, kAction);
+    NSDictionary *userInfo = @{
+      @"gcm.message_id" : @1623702615599207,
+      @"gcm.n.e" : @1,
+      @"gcm.notification.badge" : @1,
+      @"gcm.notification.body" : kBody,
+      @"gcm.notification.image" :
+          @"https://firebasestorage.googleapis.com/v0/b/fir-ios-app-extensions.appspot.com/o/"
+          @"sparkyWFH.png?alt=media&token=f4dc1533-4d80-4ed6-9870-8df528593157",
+      @"gcm.notification.mutable_content" : @1,
+      @"gcm.notification.sound" : kSoundName,
+      @"gcm.notification.sound2" : kSoundName,
+      @"gcm.notification.title" : kTitle,
+      // This field is not popped out from console
+      // Manual add here to test unit test
+      @"gcm.notification.click_action" : kAction,
+      @"gcms" : @"gcm.gmsproc.cm",
+      @"google.c.a.c_id" : @2159728303499680621,
+      @"google.c.a.c_l" : @"test local send with sound",
+      @"google.c.a.e" : @1,
+      @"google.c.a.ts" : @1623753000,
+      @"google.c.a.udt" : @1,
+      @"google.c.sender.id" : @449451107265
+    };
+    XCTAssertEqualObjects(content.userInfo, userInfo);
+#endif  // TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_WATCH
+  }
 }
 
 @end
