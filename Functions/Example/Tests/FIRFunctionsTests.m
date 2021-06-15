@@ -90,24 +90,27 @@
   [FIRApp configureWithOptions:options];
 
   FIRFunctions *functions1 = [FIRFunctions functions];
-  FIRFunctions *functions2 = [FIRFunctions functionsForRegion:@"us-central"];
+  FIRFunctions *functions2 = [FIRFunctions functionsForApp:[FIRApp defaultApp]];
 
   XCTAssertEqualObjects(functions1, functions2);
 
   [FIRApp configureWithName:@"test" options:options];
   FIRApp *app2 = [FIRApp appNamed:@"test"];
 
-  functions2 = [FIRFunctions functionsForApp:app2 region:@"us-central"];
+  functions2 = [FIRFunctions functionsForApp:app2 region:@"us-central2"];
 
   XCTAssertNotEqualObjects(functions1, functions2);
 
-  functions1 = [FIRFunctions functionsForApp:app2 customDomain:@"test_domain"];
+  functions1 = [FIRFunctions functionsForApp:app2 region:@"us-central2"];
 
   XCTAssertEqualObjects(functions1, functions2);
 
   functions1 = [FIRFunctions functionsForCustomDomain:@"test_domain"];
-  functions2 = [FIRFunctions functionsForApp:[FIRApp defaultApp]];
+  functions2 = [FIRFunctions functionsForRegion:@"us-central1"];
 
+  XCTAssertNotEqualObjects(functions1, functions2);
+
+  functions2 = [FIRFunctions functionsForApp:[FIRApp defaultApp] customDomain:@"test_domain"];
   XCTAssertEqualObjects(functions1, functions2);
 }
 
