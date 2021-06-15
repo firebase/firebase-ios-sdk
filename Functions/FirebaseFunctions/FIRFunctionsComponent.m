@@ -78,7 +78,7 @@
     return;
   }
 
-  [self.instances removeObjectForKey:app.name];
+  [self.instances removeObjectForKey:appName];
 }
 
 #pragma mark - FIRFunctionsProvider Conformance
