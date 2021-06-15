@@ -104,6 +104,11 @@
   functions1 = [FIRFunctions functionsForApp:app2 customDomain:@"test_domain"];
 
   XCTAssertEqualObjects(functions1, functions2);
+
+  functions1 = [FIRFunctions functionsForCustomDomain:@"test_domain"];
+  functions2 = [FIRFunctions functionsForApp:[FIRApp defaultApp]];
+
+  XCTAssertEqualObjects(functions1, functions2);
 }
 
 - (void)testURLWithName {
