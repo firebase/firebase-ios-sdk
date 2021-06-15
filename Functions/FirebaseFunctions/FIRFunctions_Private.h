@@ -18,8 +18,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRFunctions (Private)
 
-@property (nonatomic, readonly) NSString *region;
-@property (nonatomic, readonly, nullable) NSString *customDomain;
+@property(nonatomic, readonly) NSString *region;
+@property(nonatomic, readonly, nullable) NSString *customDomain;
 
 - (instancetype)initWithApp:(FIRApp *)app
                      region:(NSString *)region

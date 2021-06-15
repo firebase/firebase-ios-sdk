@@ -38,12 +38,12 @@
 #pragma mark - Initialization
 
 - (instancetype)initWithApp:(FIRApp *)app {
-    self = [super init];
-    if (self) {
-        _app = app;
-        _instances = [NSMutableDictionary dictionary];
-    }
-    return self;
+  self = [super init];
+  if (self) {
+    _app = app;
+    _instances = [NSMutableDictionary dictionary];
+  }
+  return self;
 }
 
 #pragma mark - Lifecycle
@@ -75,7 +75,7 @@
 - (void)appWillBeDeleted:(FIRApp *)app {
   NSString *appName = app.name;
   if (appName == nil) {
-      return;
+    return;
   }
 
   [self.instances removeObjectForKey:app.name];

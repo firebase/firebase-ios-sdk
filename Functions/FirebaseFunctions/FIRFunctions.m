@@ -14,12 +14,12 @@
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRFunctions.h"
 #import "Functions/FirebaseFunctions/FIRFunctions+Internal.h"
+#import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRFunctions.h"
 
-#import "Functions/FirebaseFunctions/FIRFunctionsComponent.h"
 #import "FirebaseAppCheck/Sources/Interop/FIRAppCheckInterop.h"
 #import "FirebaseMessaging/Sources/Interop/FIRMessagingInterop.h"
+#import "Functions/FirebaseFunctions/FIRFunctionsComponent.h"
 #import "Interop/Auth/Public/FIRAuthInterop.h"
 
 #import "Functions/FirebaseFunctions/FIRHTTPSCallable+Internal.h"
@@ -102,8 +102,7 @@ NSString *const kFUNDefaultRegion = @"us-central1";
 + (instancetype)functionsForApp:(FIRApp *)app
                          region:(NSString *)region
                    customDomain:(nullable NSString *)customDomain {
-  id<FIRFunctionsProvider> provider =
-          FIR_COMPONENT(FIRFunctionsProvider, app.container);
+  id<FIRFunctionsProvider> provider = FIR_COMPONENT(FIRFunctionsProvider, app.container);
   return [provider functionsForApp:app region:region customDomain:customDomain];
 }
 
