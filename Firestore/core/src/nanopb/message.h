@@ -191,6 +191,7 @@ class Message {
  * A wrapper of Message objects that facilitates shared ownership of Protobuf
  * data.
  */
+ // TODO(mrschmidt): Add a template <typename const T> specialization
 template <typename T>
 class SharedMessage {
  public:
