@@ -97,6 +97,7 @@ using firebase::firestore::nanopb::MakeArray;
 using firebase::firestore::nanopb::MakeString;
 using firebase::firestore::nanopb::Message;
 using firebase::firestore::nanopb::SharedMessage;
+using firebase::firestore::nanopb::MakeSharedMessage;
 using firebase::firestore::util::MakeNSError;
 using firebase::firestore::util::MakeString;
 using firebase::firestore::util::StatusOr;
@@ -535,8 +536,7 @@ int32_t SaturatedLimitValue(NSInteger limit) {
                  allowArrays:filterOperator == Filter::Operator::In ||
                              filterOperator == Filter::Operator::NotIn];
   auto describer = [value] { return MakeString(NSStringFromClass([value class])); };
-  return Wrap(_query.Filter(fieldPath, filterOperator,
-                            SharedMessage<google_firestore_v1_Value>{fieldValue}, describer));
+  return Wrap(_query.Filter(fieldPath, filterOperator, MakeSharedMessage(fieldValue), describer));
 }
 
 /**

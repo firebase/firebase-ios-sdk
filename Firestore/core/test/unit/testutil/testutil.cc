@@ -65,6 +65,7 @@ using model::ObjectValue;
 using model::Precondition;
 using model::TransformOperation;
 using nanopb::ByteString;
+using nanopb::MakeSharedMessage;
 using nanopb::SetRepeatedField;
 using nanopb::SharedMessage;
 using util::StringFormat;
@@ -290,17 +291,15 @@ core::Filter::Operator OperatorFromString(absl::string_view s) {
 core::FieldFilter Filter(absl::string_view key,
                          absl::string_view op,
                          google_firestore_v1_Value value) {
-  return core::FieldFilter::Create(
-      Field(key), OperatorFromString(op),
-      SharedMessage<google_firestore_v1_Value>{value});
+  return core::FieldFilter::Create(Field(key), OperatorFromString(op),
+                                   MakeSharedMessage(value));
 }
 
 core::FieldFilter Filter(absl::string_view key,
                          absl::string_view op,
                          google_firestore_v1_ArrayValue value) {
-  return core::FieldFilter::Create(
-      Field(key), OperatorFromString(op),
-      SharedMessage<google_firestore_v1_Value>{Value(value)});
+  return core::FieldFilter::Create(Field(key), OperatorFromString(op),
+                                   MakeSharedMessage(Value(value)));
 }
 
 core::FieldFilter Filter(absl::string_view key,

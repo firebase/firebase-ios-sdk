@@ -62,6 +62,7 @@ using model::IsArray;
 using model::RefValue;
 using model::ResourcePath;
 using model::TypeOrder;
+using nanopb::MakeSharedMessage;
 using util::Status;
 using util::StatusOr;
 using util::ThrowInvalidArgument;
@@ -251,10 +252,10 @@ Query Query::Filter(const FieldPath& field_path,
           [&](const google_firestore_v1_Value& value) {
             return ParseExpectedReferenceValue(value, type_describer);
           });
-      value = nanopb::SharedMessage<google_firestore_v1_Value>{references};
+      value = MakeSharedMessage(references);
     } else {
-      value = nanopb::SharedMessage<google_firestore_v1_Value>{
-          ParseExpectedReferenceValue(*value, type_describer)};
+      value = MakeSharedMessage(
+          ParseExpectedReferenceValue(*value, type_describer));
     }
   } else {
     if (IsDisjunctiveOperator(op)) {

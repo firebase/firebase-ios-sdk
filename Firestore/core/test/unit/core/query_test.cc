@@ -38,7 +38,7 @@ using model::DocumentComparator;
 using model::FieldPath;
 using model::MutableDocument;
 using model::ResourcePath;
-using nanopb::SharedMessage;
+using nanopb::MakeSharedMessage;
 
 using testing::AssertionResult;
 using testing::Not;
@@ -788,12 +788,10 @@ TEST(QueryTest, CanonicalIDs) {
       testutil::Query("airports")
           .AddingOrderBy(OrderBy("name", "asc"))
           .AddingOrderBy(OrderBy("score", "desc"))
-          .StartingAt(Bound::FromValue(
-              SharedMessage<google_firestore_v1_ArrayValue>{Array("OAK", 1000)},
-              /* is_before= */ true))
-          .EndingAt(Bound::FromValue(
-              SharedMessage<google_firestore_v1_ArrayValue>{Array("SFO", 2000)},
-              /* is_before= */ false));
+          .StartingAt(Bound::FromValue(MakeSharedMessage(Array("OAK", 1000)),
+                                       /* is_before= */ true))
+          .EndingAt(Bound::FromValue(MakeSharedMessage(Array("SFO", 2000)),
+                                     /* is_before= */ false));
   EXPECT_THAT(bounds, HasCanonicalId("airports|f:|ob:nameascscoredesc__name__"
                                      "desc|lb:b:OAK1000|ub:a:SFO2000"));
 }
@@ -814,12 +812,12 @@ TEST(QueryTest, MatchesAllDocuments) {
   query = base_query.WithLimitToFirst(1);
   EXPECT_FALSE(query.MatchesAllDocuments());
 
-  query = base_query.StartingAt(Bound::FromValue(
-      SharedMessage<google_firestore_v1_ArrayValue>{Array("SFO")}, true));
+  query = base_query.StartingAt(
+      Bound::FromValue(MakeSharedMessage(Array("SFO")), true));
   EXPECT_FALSE(query.MatchesAllDocuments());
 
-  query = base_query.StartingAt(Bound::FromValue(
-      SharedMessage<google_firestore_v1_ArrayValue>{Array("OAK")}, true));
+  query = base_query.StartingAt(
+      Bound::FromValue(MakeSharedMessage(Array("OAK")), true));
   EXPECT_FALSE(query.MatchesAllDocuments());
 }
 
