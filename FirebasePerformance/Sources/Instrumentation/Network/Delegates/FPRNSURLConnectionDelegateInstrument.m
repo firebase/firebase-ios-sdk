@@ -142,7 +142,7 @@ void InstrumentConnectionAllTheTotals(FPRClassInstrumentor *instrumentor) {
                             NSInteger totalBytesWritten, NSInteger totalBytesExpectedToWrite) {
           FPRNetworkTrace *trace = [FPRNetworkTrace networkTraceFromObject:connection];
           trace.requestSize = totalBytesWritten;
-          if (totalBytesWritten == totalBytesExpectedToWrite) {
+          if (totalBytesWritten >= totalBytesExpectedToWrite) {
             [trace checkpointState:FPRNetworkTraceCheckpointStateRequestCompleted];
           }
           typedef void (*OriginalImp)(id, SEL, NSURLConnection *, NSInteger, NSInteger, NSInteger);

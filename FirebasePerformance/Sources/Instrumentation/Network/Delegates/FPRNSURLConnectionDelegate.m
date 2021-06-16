@@ -52,7 +52,7 @@
     totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite {
   FPRNetworkTrace *trace = [FPRNetworkTrace networkTraceFromObject:connection];
   trace.requestSize = totalBytesWritten;
-  if (totalBytesWritten == totalBytesExpectedToWrite) {
+  if (totalBytesWritten >= totalBytesExpectedToWrite) {
     [trace checkpointState:FPRNetworkTraceCheckpointStateRequestCompleted];
   }
 }

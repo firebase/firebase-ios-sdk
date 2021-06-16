@@ -39,7 +39,7 @@
   @try {
     FPRNetworkTrace *trace = [FPRNetworkTrace networkTraceFromObject:task];
     trace.requestSize = totalBytesSent;
-    if (totalBytesSent == totalBytesExpectedToSend) {
+    if (totalBytesSent >= totalBytesExpectedToSend) {
       [trace checkpointState:FPRNetworkTraceCheckpointStateRequestCompleted];
     }
   } @catch (NSException *exception) {
