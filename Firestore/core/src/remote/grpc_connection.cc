@@ -189,7 +189,7 @@ class ClientLanguageToken {
     value_ = std::move(value);
   }
 
-  const std::string& Get() const {
+  std::string Get() const {
     Guard guard(mutex_);
     return value_;
   }

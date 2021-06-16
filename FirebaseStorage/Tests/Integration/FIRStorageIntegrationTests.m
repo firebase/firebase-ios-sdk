@@ -137,6 +137,24 @@ NSString *const kTestPassword = KPASSWORD;
   [super tearDown];
 }
 
+- (void)testSameInstanceNoBucket {
+  FIRStorage *storage1 = [FIRStorage storageForApp:self.app];
+  FIRStorage *storage2 = [FIRStorage storageForApp:self.app];
+  XCTAssertEqual(storage1, storage2);
+}
+
+- (void)testSameInstanceCustomBucket {
+  FIRStorage *storage1 = [FIRStorage storageForApp:self.app URL:@"gs://foo-bar.appspot.com"];
+  FIRStorage *storage2 = [FIRStorage storageForApp:self.app URL:@"gs://foo-bar.appspot.com"];
+  XCTAssertEqual(storage1, storage2);
+}
+
+- (void)testDiffferentInstance {
+  FIRStorage *storage1 = [FIRStorage storageForApp:self.app];
+  FIRStorage *storage2 = [FIRStorage storageForApp:self.app URL:@"gs://foo-bar.appspot.com"];
+  XCTAssertNotEqual(storage1, storage2);
+}
+
 - (void)testName {
   NSString *aGSURI = [NSString
       stringWithFormat:@"gs://%@.appspot.com/path/to", [[FIRApp defaultApp] options].projectID];

@@ -1,3 +1,6 @@
+# 2021-6 -- v.8.2.0
+- [fixed] Fixed missing constraints warnings in default UI storyboard (#8205).
+
 # 2021-6 -- v.8.1.0
 - [fixed] Fixed bug where image-only messages had the wrong message type in message callbacks (#8081).
 

@@ -198,6 +198,9 @@ NS_ASSUME_NONNULL_BEGIN
   if (!collectionPath) {
     ThrowInvalidArgument("Collection path cannot be nil.");
   }
+  if (!collectionPath.length) {
+    ThrowInvalidArgument("Collection path cannot be empty.");
+  }
   if ([collectionPath containsString:@"//"]) {
     ThrowInvalidArgument("Invalid path (%s). Paths must not contain // in them.", collectionPath);
   }
@@ -210,6 +213,9 @@ NS_ASSUME_NONNULL_BEGIN
   if (!documentPath) {
     ThrowInvalidArgument("Document path cannot be nil.");
   }
+  if (!documentPath.length) {
+    ThrowInvalidArgument("Document path cannot be empty.");
+  }
   if ([documentPath containsString:@"//"]) {
     ThrowInvalidArgument("Invalid path (%s). Paths must not contain // in them.", documentPath);
   }
@@ -221,6 +227,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (FIRQuery *)collectionGroupWithID:(NSString *)collectionID {
   if (!collectionID) {
     ThrowInvalidArgument("Collection ID cannot be nil.");
+  }
+  if (!collectionID.length) {
+    ThrowInvalidArgument("Collection ID cannot be empty.");
   }
   if ([collectionID containsString:@"/"]) {
     ThrowInvalidArgument("Invalid collection ID (%s). Collection IDs must not contain / in them.",
