@@ -15,6 +15,7 @@
 import Foundation
 
 import Combine
+import FirebaseCore
 import FirebaseFunctionsCombineSwift
 @testable import FirebaseFunctionsTestingSupport
 import XCTest
@@ -41,6 +42,17 @@ class MockFunctions: Functions {
 }
 
 class HTTPSCallableTests: XCTestCase {
+
+  override func setup() {
+    super.setup()
+
+    if FirebaseApp.app() == nil {
+      let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000", 
+                                    gcmSenderID: "00000000000000000-00000000000-000000000")
+      FirebaseApp.configure(options: options)
+    }
+  }
+
   func testCallWithoutParametersSuccess() {
     // given
     var cancellables = Set<AnyCancellable>()
