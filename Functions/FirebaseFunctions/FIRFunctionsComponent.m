@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#import <os/lock.h>
+
 #import "Functions/FirebaseFunctions/FIRFunctionsComponent.h"
 
 #import "Functions/FirebaseFunctions/FIRFunctions_Private.h"
@@ -33,7 +35,9 @@
 
 @end
 
-@implementation FIRFunctionsComponent
+@implementation FIRFunctionsComponent {
+  os_unfair_lock _instancesLock;
+}
 
 #pragma mark - Initialization
 
@@ -42,6 +46,7 @@
   if (self) {
     _app = app;
     _instances = [NSMutableDictionary dictionary];
+    _instancesLock = OS_UNFAIR_LOCK_INIT;
   }
   return self;
 }
@@ -78,7 +83,9 @@
     return;
   }
 
+  os_unfair_lock_lock(&_instancesLock);
   [self.instances removeObjectForKey:appName];
+  os_unfair_lock_unlock(&_instancesLock);
 }
 
 #pragma mark - FIRFunctionsProvider Conformance
@@ -86,6 +93,7 @@
 - (FIRFunctions *)functionsForApp:(FIRApp *)app
                            region:(NSString *)region
                      customDomain:(NSString *_Nullable)customDomain {
+  os_unfair_lock_lock(&_instancesLock);
   NSArray<FIRFunctions *> *associatedInstances = [self instances][app.name];
   if (associatedInstances.count > 0) {
     for (FIRFunctions *instance in associatedInstances) {
@@ -97,6 +105,7 @@
         equalDomains = customDomain == nil;
       }
       if ([instance.region isEqualToString:region] && equalDomains) {
+        os_unfair_lock_unlock(&_instancesLock);
         return instance;
       }
     }
@@ -112,7 +121,7 @@
   } else {
     [self.instances[app.name] addObject:newInstance];
   }
-
+  os_unfair_lock_unlock(&_instancesLock);
   return newInstance;
 }
 
