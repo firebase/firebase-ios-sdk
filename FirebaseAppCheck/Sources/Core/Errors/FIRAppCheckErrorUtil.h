@@ -20,15 +20,16 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-FOUNDATION_EXTERN NSErrorDomain const kFIRAppCheckErrorDomain NS_SWIFT_NAME(AppCheckErrorDomain);
-
 void FIRAppCheckSetErrorToPointer(NSError *error, NSError **pointer);
 
 @interface FIRAppCheckErrorUtil : NSObject
 
-// Internal errors.
++ (NSError *)publicDomainErrorWithError:(NSError *)error;
+
+// MARK: - Internal errors
 
 + (NSError *)cachedTokenNotFound;
+
 + (NSError *)cachedTokenExpired;
 
 + (FIRAppCheckHTTPError *)APIErrorWithHTTPResponse:(NSHTTPURLResponse *)HTTPResponse
@@ -49,21 +50,5 @@ void FIRAppCheckSetErrorToPointer(NSError *error, NSError **pointer);
 + (NSError *)appAttestKeyIDNotFound;
 
 @end
-
-typedef NS_ERROR_ENUM(kFIRAppCheckErrorDomain, FIRAppCheckErrorCode){
-    /// An unknown or non-actionable error.
-    FIRAppCheckErrorCodeUnknown = 0,
-
-    /// A network connection error.
-    FIRAppCheckErrorCodeServerUnreachable = 1,
-
-    /// Invalid configuration error.
-    FIRAppCheckErrorCodeInvalidConfiguration = 2,
-
-    /// System keychain access error.
-    FIRAppCheckErrorCodeKeychain = 3,
-
-    /// Selected app attestation provider is not supported on the current platform or OS version.
-    FIRAppCheckErrorCodeUnsupported = 4} NS_SWIFT_NAME(AppCheckErrorCode);
 
 NS_ASSUME_NONNULL_END

@@ -14,12 +14,24 @@
  * limitations under the License.
  */
 
+#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckErrors.h"
+
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckHTTPError.h"
 
-NSString *const kFIRAppCheckErrorDomain = @"com.firebase.appCheck";
-
 @implementation FIRAppCheckErrorUtil
+
++ (NSError *)publicDomainErrorWithError:(NSError *)error {
+  if ([error.domain isEqualToString:FIRAppCheckErrorDomain]) {
+    return error;
+  }
+
+  NSString *failureReason = error.userInfo[NSLocalizedFailureReasonErrorKey];
+
+  return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnknown
+                       failureReason:failureReason
+                     underlyingError:error];
+}
 
 + (NSError *)cachedTokenNotFound {
   NSString *failureReason = [NSString stringWithFormat:@"Cached token not found."];
@@ -42,7 +54,7 @@ NSString *const kFIRAppCheckErrorDomain = @"com.firebase.appCheck";
 
 + (NSError *)APIErrorWithNetworkError:(NSError *)networkError {
   NSString *failureReason = [NSString stringWithFormat:@"API request error."];
-  return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnknown
+  return [self appCheckErrorWithCode:FIRAppCheckErrorCodeServerUnreachable
                        failureReason:failureReason
                      underlyingError:networkError];
 }
@@ -102,7 +114,7 @@ NSString *const kFIRAppCheckErrorDomain = @"com.firebase.appCheck";
   userInfo[NSUnderlyingErrorKey] = underlyingError;
   userInfo[NSLocalizedFailureReasonErrorKey] = failureReason;
 
-  return [NSError errorWithDomain:kFIRAppCheckErrorDomain code:code userInfo:userInfo];
+  return [NSError errorWithDomain:FIRAppCheckErrorDomain code:code userInfo:userInfo];
 }
 
 @end

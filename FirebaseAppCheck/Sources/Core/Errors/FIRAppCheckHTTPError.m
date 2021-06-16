@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-#import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckHTTPError.h"
+#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckErrors.h"
 
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
+#import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckHTTPError.h"
 
 @implementation FIRAppCheckHTTPError
 
 - (instancetype)initWithHTTPResponse:(NSHTTPURLResponse *)HTTPResponse
                                 data:(nullable NSData *)data {
   NSDictionary *userInfo = [[self class] userInfoWithHTTPResponse:HTTPResponse data:data];
-  self = [super initWithDomain:kFIRAppCheckErrorDomain
+  self = [super initWithDomain:FIRAppCheckErrorDomain
                           code:FIRAppCheckErrorCodeUnknown
                       userInfo:userInfo];
   if (self) {
