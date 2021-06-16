@@ -1,4 +1,4 @@
-# Unreleased
+# v8.2.0
 - [changed] Passing in an empty document ID, collection group ID, or collection
   path will now result in a more readable error (#8218).
 

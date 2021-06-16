@@ -1,4 +1,4 @@
-# Unreleased (8.1.0)
+# 8.2.0
 - [changed] Instances are now cached. Repeated invocations of `Storage.storage()`
   return the same instance and retain the same settings.
 
