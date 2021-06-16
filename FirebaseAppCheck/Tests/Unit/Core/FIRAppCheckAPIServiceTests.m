@@ -156,7 +156,7 @@
   XCTAssertTrue(requestPromise.isRejected);
   XCTAssertNotNil(requestPromise.error);
   XCTAssertEqualObjects(requestPromise.error.domain, FIRAppCheckErrorDomain);
-  XCTAssertEqual(requestPromise.error.code, FIRAppCheckErrorCodeUnknown);
+  XCTAssertEqual(requestPromise.error.code, FIRAppCheckErrorCodeServerUnreachable);
   XCTAssertEqualObjects(requestPromise.error.userInfo[NSUnderlyingErrorKey], networkError);
 
   OCMVerifyAll(self.mockURLSession);
