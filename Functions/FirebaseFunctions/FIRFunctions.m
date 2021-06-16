@@ -12,12 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRFunctions.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+
 #import "Functions/FirebaseFunctions/FIRFunctions+Internal.h"
+#import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRFunctions.h"
 
 #import "FirebaseAppCheck/Sources/Interop/FIRAppCheckInterop.h"
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseMessaging/Sources/Interop/FIRMessagingInterop.h"
+#import "Functions/FirebaseFunctions/FIRFunctionsComponent.h"
 #import "Interop/Auth/Public/FIRAuthInterop.h"
 
 #import "Functions/FirebaseFunctions/FIRHTTPSCallable+Internal.h"
@@ -40,11 +42,7 @@ NSString *const kFUNAppCheckTokenHeader = @"X-Firebase-AppCheck";
 NSString *const kFUNFCMTokenHeader = @"Firebase-Instance-ID-Token";
 NSString *const kFUNDefaultRegion = @"us-central1";
 
-/// Empty protocol to register Functions as a component with Core.
-@protocol FIRFunctionsInstanceProvider
-@end
-
-@interface FIRFunctions () <FIRLibrary, FIRFunctionsInstanceProvider> {
+@interface FIRFunctions () {
   // The network client to use for http requests.
   GTMSessionFetcherService *_fetcherService;
   // The projectID to use for all function references.
@@ -75,50 +73,37 @@ NSString *const kFUNDefaultRegion = @"us-central1";
 
 @implementation FIRFunctions
 
-+ (void)load {
-  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self withName:@"fire-fun"];
-}
-
-+ (NSArray<FIRComponent *> *)componentsToRegister {
-  FIRComponentCreationBlock creationBlock =
-      ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
-    *isCacheable = YES;
-    return [self functionsForApp:container.app];
-  };
-  FIRDependency *auth = [FIRDependency dependencyWithProtocol:@protocol(FIRAuthInterop)
-                                                   isRequired:NO];
-  FIRComponent *internalProvider =
-      [FIRComponent componentWithProtocol:@protocol(FIRFunctionsInstanceProvider)
-                      instantiationTiming:FIRInstantiationTimingLazy
-                             dependencies:@[ auth ]
-                            creationBlock:creationBlock];
-  return @[ internalProvider ];
-}
-
 + (instancetype)functions {
-  return [[self alloc] initWithApp:[FIRApp defaultApp] region:kFUNDefaultRegion customDomain:nil];
+  return [self functionsForApp:[FIRApp defaultApp] region:kFUNDefaultRegion customDomain:nil];
 }
 
 + (instancetype)functionsForApp:(FIRApp *)app {
-  return [[self alloc] initWithApp:app region:kFUNDefaultRegion customDomain:nil];
+  return [self functionsForApp:app region:kFUNDefaultRegion customDomain:nil];
 }
 
 + (instancetype)functionsForRegion:(NSString *)region {
-  return [[self alloc] initWithApp:[FIRApp defaultApp] region:region customDomain:nil];
+  return [self functionsForApp:[FIRApp defaultApp] region:region customDomain:nil];
 }
 
 + (instancetype)functionsForCustomDomain:(NSString *)customDomain {
-  return [[self alloc] initWithApp:[FIRApp defaultApp]
-                            region:kFUNDefaultRegion
-                      customDomain:customDomain];
+  return [self functionsForApp:[FIRApp defaultApp]
+                        region:kFUNDefaultRegion
+                  customDomain:customDomain];
 }
 
 + (instancetype)functionsForApp:(FIRApp *)app region:(NSString *)region {
-  return [[self alloc] initWithApp:app region:region customDomain:nil];
+  return [self functionsForApp:app region:region customDomain:nil];
 }
 
 + (instancetype)functionsForApp:(FIRApp *)app customDomain:(NSString *)customDomain {
-  return [[self alloc] initWithApp:app region:kFUNDefaultRegion customDomain:customDomain];
+  return [self functionsForApp:app region:kFUNDefaultRegion customDomain:customDomain];
+}
+
++ (instancetype)functionsForApp:(FIRApp *)app
+                         region:(NSString *)region
+                   customDomain:(nullable NSString *)customDomain {
+  id<FIRFunctionsProvider> provider = FIR_COMPONENT(FIRFunctionsProvider, app.container);
+  return [provider functionsForApp:app region:region customDomain:customDomain];
 }
 
 - (instancetype)initWithApp:(FIRApp *)app
@@ -355,6 +340,14 @@ NSString *const kFUNDefaultRegion = @"us-central1";
 
 - (nullable NSString *)emulatorOrigin {
   return _emulatorOrigin;
+}
+
+- (nullable NSString *)customDomain {
+  return _customDomain;
+}
+
+- (NSString *)region {
+  return _region;
 }
 
 @end
