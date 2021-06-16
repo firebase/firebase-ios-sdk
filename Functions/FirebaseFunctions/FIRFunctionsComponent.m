@@ -112,10 +112,9 @@
     }
   }
 
-  Class klass = [cls isKindOfClass:[FIRFunctions class]] ? cls : [FIRFunctions class];
-  FIRFunctions *newInstance = [[klass alloc] initWithApp:app
-                                                  region:region
-                                            customDomain:customDomain];
+  FIRFunctions *newInstance = [[cls alloc] initWithApp:app
+                                                region:region
+                                          customDomain:customDomain];
 
   if (self.instances[app.name] == nil) {
     NSMutableArray *array = [NSMutableArray arrayWithObject:newInstance];
