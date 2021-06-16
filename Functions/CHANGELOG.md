@@ -1,3 +1,6 @@
+# v8.3.0
+- [fixed] Fixed an issue where subclassing Functions was unusable (#8265).
+
 # v8.2.0
 - [fixed] Fixed an issue where factory class methods returned a new instance on every invocation, causing emulator settings to not persist between invocations (#7783).
 
