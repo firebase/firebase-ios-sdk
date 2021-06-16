@@ -47,7 +47,7 @@ jobs:
     - name: iOS Unit Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFunctions iOS spmbuildonly
     - name: Combine Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FunctionsCombineUnit iOS spm
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FunctionsCombineUnit iOS spm; cat xcodebuild.log
 
   spm-cron:
     # Don't run on private repo.
