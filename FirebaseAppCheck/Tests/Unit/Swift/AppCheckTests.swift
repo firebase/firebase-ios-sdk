@@ -27,11 +27,6 @@ class AppCheckTests: XCTestCase {
     let firebaseOptions = FirebaseOptions(contentsOfFile: "path")!
     FirebaseApp.configure(name: "AppName", options: firebaseOptions)
   }
-
-  func asyncUsageExample() async throws {
-    let token = try await AppCheck.appCheck().appCheckToken(forcingRefresh: true)
-    XCTAssertTrue(token.isKind(of: AppCheckToken.self))
-  }
 }
 
 class DummyAppCheckProvider: NSObject, AppCheckProvider {
