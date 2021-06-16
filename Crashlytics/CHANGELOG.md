@@ -1,4 +1,4 @@
-# Unreleased
+# v8.2.0
 - [changed] Incorporated code quality changes around integer overflow, potential race conditions, and reinstalling signal handlers.
 - [fixed] Fixed an issue where iOS-only apps running on iPads would report iOS as their OS Name.
 - [fixed] Fixed depcrecation warning for projects with minimum deployment version iOS 13 and up.
