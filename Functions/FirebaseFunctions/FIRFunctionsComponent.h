@@ -24,7 +24,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FIRFunctions *)functionsForApp:(FIRApp *)app
                            region:(nullable NSString *)region
-                     customDomain:(nullable NSString *)customDomain;
+                     customDomain:(nullable NSString *)customDomain
+                             type:(Class)cls;
 
 @end
 

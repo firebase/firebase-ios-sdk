@@ -92,7 +92,8 @@
 
 - (FIRFunctions *)functionsForApp:(FIRApp *)app
                            region:(NSString *)region
-                     customDomain:(NSString *_Nullable)customDomain {
+                     customDomain:(NSString *_Nullable)customDomain
+                             type:(Class)cls {
   os_unfair_lock_lock(&_instancesLock);
   NSArray<FIRFunctions *> *associatedInstances = [self instances][app.name];
   if (associatedInstances.count > 0) {
@@ -111,9 +112,10 @@
     }
   }
 
-  FIRFunctions *newInstance = [[FIRFunctions alloc] initWithApp:app
-                                                         region:region
-                                                   customDomain:customDomain];
+  Class klass = [cls isKindOfClass:[FIRFunctions class]] ? cls : [FIRFunctions class];
+  FIRFunctions *newInstance = [[klass alloc] initWithApp:app
+                                                  region:region
+                                            customDomain:customDomain];
 
   if (self.instances[app.name] == nil) {
     NSMutableArray *array = [NSMutableArray arrayWithObject:newInstance];

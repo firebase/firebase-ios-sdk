@@ -103,7 +103,7 @@ NSString *const kFUNDefaultRegion = @"us-central1";
                          region:(NSString *)region
                    customDomain:(nullable NSString *)customDomain {
   id<FIRFunctionsProvider> provider = FIR_COMPONENT(FIRFunctionsProvider, app.container);
-  return [provider functionsForApp:app region:region customDomain:customDomain];
+  return [provider functionsForApp:app region:region customDomain:customDomain type:[self class]];
 }
 
 - (instancetype)initWithApp:(FIRApp *)app
