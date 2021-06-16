@@ -42,12 +42,11 @@ class MockFunctions: Functions {
 }
 
 class HTTPSCallableTests: XCTestCase {
-
-  override func setup() {
-    super.setup()
+  override func setUp() {
+    super.setUp()
 
     if FirebaseApp.app() == nil {
-      let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000", 
+      let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
                                     gcmSenderID: "00000000000000000-00000000000-000000000")
       FirebaseApp.configure(options: options)
     }
