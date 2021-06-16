@@ -187,9 +187,9 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
   return (FIRAppCheck *)appCheck;
 }
 
-- (void)getAppCheckTokenForcingRefresh:(BOOL)forcingRefresh
-                            completion:(void (^)(FIRAppCheckToken *_Nullable token,
-                                                 NSError *_Nullable error))handler {
+- (void)appCheckTokenForcingRefresh:(BOOL)forcingRefresh
+                         completion:(void (^)(FIRAppCheckToken *_Nullable token,
+                                              NSError *_Nullable error))handler {
   [self retrieveOrRefreshTokenForcingRefresh:forcingRefresh]
       .then(^id _Nullable(FIRAppCheckToken *token) {
         handler(token, nil);
