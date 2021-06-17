@@ -64,6 +64,7 @@ DerivedData
 *.ipa
 
 # Swift Package Manager
+Package.resolved
 */.build
 ReleaseTooling/.swiftpm
 ReleaseTooling/Packages
