@@ -63,6 +63,7 @@ using model::RefValue;
 using model::ResourcePath;
 using model::TypeOrder;
 using nanopb::MakeSharedMessage;
+using nanopb::Message;
 using util::Status;
 using util::StatusOr;
 using util::ThrowInvalidArgument;
@@ -250,12 +251,12 @@ Query Query::Filter(const FieldPath& field_path,
           absl::Span<google_firestore_v1_Value>(
               value->array_value.values, value->array_value.values_count),
           [&](const google_firestore_v1_Value& value) {
-            return ParseExpectedReferenceValue(value, type_describer);
+            return *ParseExpectedReferenceValue(value, type_describer)
+                        .release();
           });
       value = MakeSharedMessage(references);
     } else {
-      value = MakeSharedMessage(
-          ParseExpectedReferenceValue(*value, type_describer));
+      value = ParseExpectedReferenceValue(*value, type_describer);
     }
   } else {
     if (IsDisjunctiveOperator(op)) {
@@ -270,7 +271,7 @@ Query Query::Filter(const FieldPath& field_path,
 }
 
 Query Query::OrderBy(FieldPath field_path, bool descending) const {
-  return OrderBy(field_path, Direction::FromDescending(descending));
+  return OrderBy(std::move(field_path), Direction::FromDescending(descending));
 }
 
 Query Query::OrderBy(FieldPath field_path, Direction direction) const {
@@ -410,7 +411,7 @@ void Query::ValidateDisjunctiveFilterElements(
   }
 }
 
-google_firestore_v1_Value Query::ParseExpectedReferenceValue(
+Message<google_firestore_v1_Value> Query::ParseExpectedReferenceValue(
     const google_firestore_v1_Value& value,
     const std::function<std::string()>& type_describer) const {
   if (GetTypeOrder(value) == TypeOrder::kString) {

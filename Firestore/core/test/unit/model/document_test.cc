@@ -66,8 +66,8 @@ TEST(DocumentTest, ExtractsFields) {
               Map("name", "Jonny", "title", "scallywag")));
 
   EXPECT_EQ(doc.field(Field("desc")),
-            Value("Discuss all the project related stuff"));
-  EXPECT_EQ(doc.field(Field("owner.title")), Value("scallywag"));
+            *Value("Discuss all the project related stuff"));
+  EXPECT_EQ(doc.field(Field("owner.title")), *Value("scallywag"));
 }
 
 TEST(DocumentTest, Equality) {

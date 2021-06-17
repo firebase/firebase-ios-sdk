@@ -32,6 +32,7 @@
 #include "Firestore/core/src/model/precondition.h"
 #include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
+#include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "absl/strings/string_view.h"
 
@@ -48,7 +49,8 @@ class ByteString;
 namespace testutil {
 namespace details {
 
-google_firestore_v1_Value BlobValue(std::initializer_list<uint8_t>);
+nanopb::Message<google_firestore_v1_Value> BlobValue(
+    std::initializer_list<uint8_t>);
 
 }  // namespace details
 
@@ -59,7 +61,7 @@ ABSL_CONST_INIT extern const uint64_t kCanonicalNanBits;
 
 nanopb::ByteString Bytes(std::initializer_list<uint8_t>);
 
-google_firestore_v1_Value Value(std::nullptr_t);
+nanopb::Message<google_firestore_v1_Value> Value(std::nullptr_t);
 
 /**
  * A type definition that evaluates to type V only if T is exactly type `bool`.
@@ -85,10 +87,11 @@ using EnableForInts = typename std::enable_if<std::is_integral<T>::value &&
  * @param bool_value A boolean value that disallows implicit conversions.
  */
 template <typename T>
-EnableForExactlyBool<T, google_firestore_v1_Value> Value(T bool_value) {
-  google_firestore_v1_Value result{};
-  result.which_value_type = google_firestore_v1_Value_boolean_value_tag;
-  result.boolean_value = bool_value;
+EnableForExactlyBool<T, nanopb::Message<google_firestore_v1_Value>> Value(
+    T bool_value) {
+  nanopb::Message<google_firestore_v1_Value> result{};
+  result->which_value_type = google_firestore_v1_Value_boolean_value_tag;
+  result->boolean_value = bool_value;
   return result;
 }
 
@@ -104,43 +107,50 @@ EnableForExactlyBool<T, google_firestore_v1_Value> Value(T bool_value) {
  * @param value An integer value.
  */
 template <typename T>
-EnableForInts<T, google_firestore_v1_Value> Value(T value) {
-  google_firestore_v1_Value result{};
-  result.which_value_type = google_firestore_v1_Value_integer_value_tag;
-  result.integer_value = value;
+EnableForInts<T, nanopb::Message<google_firestore_v1_Value>> Value(T value) {
+  nanopb::Message<google_firestore_v1_Value> result{};
+  result->which_value_type = google_firestore_v1_Value_integer_value_tag;
+  result->integer_value = value;
   return result;
 }
 
-google_firestore_v1_Value Value(double value);
+nanopb::Message<google_firestore_v1_Value> Value(double value);
 
-google_firestore_v1_Value Value(Timestamp value);
+nanopb::Message<google_firestore_v1_Value> Value(Timestamp value);
 
-google_firestore_v1_Value Value(const char* value);
+nanopb::Message<google_firestore_v1_Value> Value(const char* value);
 
-google_firestore_v1_Value Value(const std::string& value);
+nanopb::Message<google_firestore_v1_Value> Value(const std::string& value);
 
-google_firestore_v1_Value Value(const nanopb::ByteString& value);
+nanopb::Message<google_firestore_v1_Value> Value(
+    const nanopb::ByteString& value);
 
-google_firestore_v1_Value Value(const GeoPoint& value);
+nanopb::Message<google_firestore_v1_Value> Value(const GeoPoint& value);
 
 template <typename... Ints>
-google_firestore_v1_Value BlobValue(Ints... octets) {
+nanopb::Message<google_firestore_v1_Value> BlobValue(Ints... octets) {
   return details::BlobValue({static_cast<uint8_t>(octets)...});
 }
 
-google_firestore_v1_Value Value(const google_firestore_v1_Value& value);
+nanopb::Message<google_firestore_v1_Value> Value(
+    nanopb::Message<google_firestore_v1_Value> value);
 
-google_firestore_v1_Value Value(const google_firestore_v1_ArrayValue& value);
+nanopb::Message<google_firestore_v1_Value> Value(
+    nanopb::Message<google_firestore_v1_ArrayValue> value);
 
-google_firestore_v1_Value Value(const model::ObjectValue& value);
+nanopb::Message<google_firestore_v1_Value> Value(
+    nanopb::Message<google_firestore_v1_MapValue> value);
+
+nanopb::Message<google_firestore_v1_Value> Value(
+    const model::ObjectValue& value);
 
 namespace details {
 
 /**
  * Recursive base case for AddPairs, below. Returns the map.
  */
-inline google_firestore_v1_Value AddPairs(
-    const google_firestore_v1_Value& prior) {
+inline nanopb::Message<google_firestore_v1_Value> AddPairs(
+    nanopb::Message<google_firestore_v1_Value> prior) {
   return prior;
 }
 
@@ -156,20 +166,22 @@ inline google_firestore_v1_Value AddPairs(
  * @return The resulting map.
  */
 template <typename ValueType, typename... Args>
-google_firestore_v1_Value AddPairs(const google_firestore_v1_Value& prior,
-                                   const std::string& key,
-                                   const ValueType& value,
-                                   Args... rest) {
-  google_firestore_v1_Value result = prior;
-  result.which_value_type = google_firestore_v1_Value_map_value_tag;
-  size_t new_count = result.map_value.fields_count + 1;
-  result.map_value.fields_count = nanopb::CheckedSize(new_count);
-  result.map_value.fields =
+nanopb::Message<google_firestore_v1_Value> AddPairs(
+    nanopb::Message<google_firestore_v1_Value> prior,
+    const std::string& key,
+    ValueType value,
+    Args... rest) {
+  nanopb::Message<google_firestore_v1_Value> result = std::move(prior);
+  result->which_value_type = google_firestore_v1_Value_map_value_tag;
+  size_t new_count = result->map_value.fields_count + 1;
+  result->map_value.fields_count = nanopb::CheckedSize(new_count);
+  result->map_value.fields =
       nanopb::ResizeArray<google_firestore_v1_MapValue_FieldsEntry>(
-          result.map_value.fields, new_count);
-  result.map_value.fields[new_count - 1].key = nanopb::MakeBytesArray(key);
-  result.map_value.fields[new_count - 1].value = Value(value);
-  return AddPairs(result, rest...);
+          result->map_value.fields, new_count);
+  result->map_value.fields[new_count - 1].key = nanopb::MakeBytesArray(key);
+  result->map_value.fields[new_count - 1].value =
+      *Value(std::move(value)).release();
+  return AddPairs(std::move(result), std::forward<Args>(rest)...);
 }
 
 /**
@@ -179,24 +191,62 @@ google_firestore_v1_Value AddPairs(const google_firestore_v1_Value& prior,
  *     be passed to Value().
  */
 template <typename... Args>
-google_firestore_v1_Value MakeMap(Args... key_value_pairs) {
-  google_firestore_v1_Value map_value{};
-  map_value.which_value_type = google_firestore_v1_Value_map_value_tag;
-  return AddPairs(map_value, key_value_pairs...);
+nanopb::Message<google_firestore_v1_Value> MakeMap(Args... key_value_pairs) {
+  nanopb::Message<google_firestore_v1_Value> map_value{{}};
+  map_value->which_value_type = google_firestore_v1_Value_map_value_tag;
+  return AddPairs(std::move(map_value), std::forward<Args>(key_value_pairs)...);
+}
+
+/**
+ * Recursive base case for AddElements, below. Returns the array.
+ */
+inline nanopb::Message<google_firestore_v1_ArrayValue> AddElements(
+    nanopb::Message<google_firestore_v1_ArrayValue> prior) {
+  return prior;
+}
+
+/**
+ * Inserts the given element into the array, and then recursively calls
+ * AddElement to add any remaining arguments.
+ *
+ * @param prior An array into which the values should be inserted.
+ * @param value The element to insert.
+ * @param rest Any remaining arguments
+ *
+ * @return The resulting array.
+ */
+template <typename ValueType, typename... Args>
+nanopb::Message<google_firestore_v1_ArrayValue> AddElements(
+    nanopb::Message<google_firestore_v1_ArrayValue> prior,
+    ValueType value,
+    Args... rest) {
+  nanopb::Message<google_firestore_v1_ArrayValue> result = std::move(prior);
+  size_t new_count = result->values_count + 1;
+  result->values_count = nanopb::CheckedSize(new_count);
+  result->values =
+      nanopb::ResizeArray<google_firestore_v1_Value>(result->values, new_count);
+  result->values[new_count - 1] = *Value(std::move(value)).release();
+  return AddElements(std::move(result), std::forward<Args>(rest)...);
+}
+
+/**
+ * Creates an array from the given elemens.
+ */
+template <typename... Args>
+nanopb::Message<google_firestore_v1_ArrayValue> MakeArray(Args... values) {
+  nanopb::Message<google_firestore_v1_ArrayValue> array_value{};
+  return AddElements(std::move(array_value), std::forward<Args>(values)...);
 }
 
 }  // namespace details
 
 template <typename... Args>
-google_firestore_v1_ArrayValue Array(Args... values) {
-  std::vector<google_firestore_v1_Value> contents{Value(values)...};
-  google_firestore_v1_ArrayValue result{};
-  nanopb::SetRepeatedField(&result.values, &result.values_count, contents);
-  return result;
+nanopb::Message<google_firestore_v1_ArrayValue> Array(Args&&... values) {
+  return details::MakeArray(std::move(values)...);
 }
 
 /** Wraps an immutable sorted map into an ObjectValue. */
-model::ObjectValue WrapObject(const google_firestore_v1_Value& value);
+model::ObjectValue WrapObject(nanopb::Message<google_firestore_v1_Value> value);
 
 /**
  * Creates an ObjectValue from the given key/value pairs.
@@ -206,7 +256,7 @@ model::ObjectValue WrapObject(const google_firestore_v1_Value& value);
  */
 template <typename... Args>
 model::ObjectValue WrapObject(Args... key_value_pairs) {
-  return WrapObject(details::MakeMap(key_value_pairs...));
+  return WrapObject(details::MakeMap(std::move(key_value_pairs)...));
 }
 
 /**
@@ -216,8 +266,8 @@ model::ObjectValue WrapObject(Args... key_value_pairs) {
  *     be passed to Value().
  */
 template <typename... Args>
-google_firestore_v1_Value Map(Args... key_value_pairs) {
-  return details::MakeMap(key_value_pairs...);
+nanopb::Message<google_firestore_v1_Value> Map(Args... key_value_pairs) {
+  return details::MakeMap(std::move(key_value_pairs)...);
 }
 
 model::DocumentKey Key(absl::string_view path);
@@ -226,7 +276,8 @@ model::FieldPath Field(absl::string_view field);
 
 model::DatabaseId DbId(std::string project = "project/(default)");
 
-google_firestore_v1_Value Ref(std::string project, absl::string_view path);
+nanopb::Message<google_firestore_v1_Value> Ref(std::string project,
+                                               absl::string_view path);
 
 model::ResourcePath Resource(absl::string_view field);
 
@@ -241,11 +292,7 @@ model::MutableDocument Doc(absl::string_view key, int64_t version = 0);
 
 model::MutableDocument Doc(absl::string_view key,
                            int64_t version,
-                           const google_firestore_v1_Value& data);
-
-model::MutableDocument Doc(absl::string_view key,
-                           int64_t version,
-                           const google_firestore_v1_Value& data);
+                           nanopb::Message<google_firestore_v1_Value> data);
 
 /** A convenience method for creating deleted docs for tests. */
 model::MutableDocument DeletedDoc(absl::string_view key, int64_t version = 0);
@@ -274,11 +321,11 @@ model::DocumentSet DocSet(model::DocumentComparator comp,
 
 core::FieldFilter Filter(absl::string_view key,
                          absl::string_view op,
-                         google_firestore_v1_Value value);
+                         nanopb::Message<google_firestore_v1_Value> value);
 
 core::FieldFilter Filter(absl::string_view key,
                          absl::string_view op,
-                         google_firestore_v1_ArrayValue value);
+                         nanopb::Message<google_firestore_v1_ArrayValue> value);
 
 core::FieldFilter Filter(absl::string_view key,
                          absl::string_view op,
@@ -316,26 +363,26 @@ core::Query CollectionGroupQuery(absl::string_view collection_id);
 
 model::SetMutation SetMutation(
     absl::string_view path,
-    const google_firestore_v1_Value& values = google_firestore_v1_Value{},
+    nanopb::Message<google_firestore_v1_Value> values,
     std::vector<std::pair<std::string, model::TransformOperation>> transforms =
         {});
 
 model::PatchMutation PatchMutation(
     absl::string_view path,
-    const google_firestore_v1_Value& values = google_firestore_v1_Value{},
+    nanopb::Message<google_firestore_v1_Value> values,
     std::vector<std::pair<std::string, model::TransformOperation>> transforms =
         {});
 
 model::PatchMutation MergeMutation(
     absl::string_view path,
-    const google_firestore_v1_Value& values,
+    nanopb::Message<google_firestore_v1_Value> values,
     const std::vector<model::FieldPath>& update_mask,
     std::vector<std::pair<std::string, model::TransformOperation>> transforms =
         {});
 
 model::PatchMutation PatchMutationHelper(
     absl::string_view path,
-    const google_firestore_v1_Value& values,
+    nanopb::Message<google_firestore_v1_Value> values,
     std::vector<std::pair<std::string, model::TransformOperation>> transforms,
     model::Precondition precondition,
     const absl::optional<std::vector<model::FieldPath>>& update_mask);
@@ -346,7 +393,7 @@ model::PatchMutation PatchMutationHelper(
  * above.
  */
 std::pair<std::string, model::TransformOperation> Increment(
-    std::string field, google_firestore_v1_Value operand);
+    std::string field, nanopb::Message<google_firestore_v1_Value> operand);
 
 /**
  * Creates a pair of field name, TransformOperation that represents an array
@@ -354,7 +401,8 @@ std::pair<std::string, model::TransformOperation> Increment(
  * above.
  */
 std::pair<std::string, model::TransformOperation> ArrayUnion(
-    std::string field, std::vector<google_firestore_v1_Value> operands);
+    std::string field,
+    std::vector<nanopb::Message<google_firestore_v1_Value>> operands);
 
 model::DeleteMutation DeleteMutation(absl::string_view path);
 

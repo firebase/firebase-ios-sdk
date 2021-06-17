@@ -67,6 +67,7 @@ using model::ResourcePath;
 using model::SnapshotVersion;
 using nanopb::ByteString;
 using nanopb::MakeSharedMessage;
+using nanopb::Message;
 using nanopb::SetRepeatedField;
 using nanopb::SharedMessage;
 using nlohmann::json;
@@ -226,17 +227,13 @@ Filter DecodeUnaryFilter(JsonReader& reader, const json& filter) {
   }
 
   if (op == "IS_NAN") {
-    return FieldFilter::Create(std::move(path), Filter::Operator::Equal,
-                               MakeSharedMessage(NaNValue()));
+    return FieldFilter::Create(path, Filter::Operator::Equal, NaNValue());
   } else if (op == "IS_NULL") {
-    return FieldFilter::Create(std::move(path), Filter::Operator::Equal,
-                               MakeSharedMessage(NullValue()));
+    return FieldFilter::Create(path, Filter::Operator::Equal, NullValue());
   } else if (op == "IS_NOT_NAN") {
-    return FieldFilter::Create(std::move(path), Filter::Operator::NotEqual,
-                               MakeSharedMessage(NaNValue()));
+    return FieldFilter::Create(path, Filter::Operator::NotEqual, NaNValue());
   } else if (op == "IS_NOT_NULL") {
-    return FieldFilter::Create(std::move(path), Filter::Operator::NotEqual,
-                               MakeSharedMessage(NullValue()));
+    return FieldFilter::Create(path, Filter::Operator::NotEqual, NullValue());
   }
 
   reader.Fail("Unexpected unary filter operator: " + op);
@@ -598,7 +595,7 @@ Filter BundleSerializer::DecodeFieldFilter(JsonReader& reader,
   const auto& op_string = reader.RequiredString("op", filter);
   auto op = DecodeFieldFilterOperator(reader, op_string);
 
-  google_firestore_v1_Value value =
+  Message<google_firestore_v1_Value> value =
       DecodeValue(reader, reader.RequiredObject("value", filter));
 
   // Return early if !ok(), because `FieldFilter::Create` will abort with
@@ -607,7 +604,7 @@ Filter BundleSerializer::DecodeFieldFilter(JsonReader& reader,
     return InvalidFilter();
   }
 
-  return FieldFilter::Create(path, op, MakeSharedMessage(value));
+  return FieldFilter::Create(path, op, std::move(value));
 }
 
 FilterList BundleSerializer::DecodeCompositeFilter(JsonReader& reader,
@@ -644,62 +641,64 @@ Bound BundleSerializer::DecodeBound(JsonReader& reader,
   bool before = reader.OptionalBool("before", bound_json);
 
   SharedMessage<google_firestore_v1_ArrayValue> positions{{}};
-  SetRepeatedField(&positions->values, &positions->values_count, values,
-                   [&](const json& j) { return DecodeValue(reader, j); });
+  SetRepeatedField(
+      &positions->values, &positions->values_count, values,
+      [&](const json& j) { return *DecodeValue(reader, j).release(); });
   return Bound::FromValue(std::move(positions), before);
 }
 
-google_firestore_v1_Value BundleSerializer::DecodeValue(
+Message<google_firestore_v1_Value> BundleSerializer::DecodeValue(
     JsonReader& reader, const json& value) const {
   if (!value.is_object()) {
     reader.Fail("'value' is not encoded as JSON object");
     return {};
   }
 
-  google_firestore_v1_Value result{};
+  Message<google_firestore_v1_Value> result{};
   if (value.contains("nullValue")) {
-    result.which_value_type = google_firestore_v1_Value_null_value_tag;
+    result->which_value_type = google_firestore_v1_Value_null_value_tag;
   } else if (value.contains("booleanValue")) {
-    result.which_value_type = google_firestore_v1_Value_boolean_value_tag;
+    result->which_value_type = google_firestore_v1_Value_boolean_value_tag;
     auto val = value.at("booleanValue");
     if (!val.is_boolean()) {
       reader.Fail("'booleanValue' is not encoded as a valid boolean");
       return {};
     }
-    result.boolean_value = val.get<bool>();
+    result->boolean_value = val.get<bool>();
   } else if (value.contains("integerValue")) {
-    result.which_value_type = google_firestore_v1_Value_integer_value_tag;
-    result.integer_value = reader.RequiredInt<int64_t>("integerValue", value);
+    result->which_value_type = google_firestore_v1_Value_integer_value_tag;
+    result->integer_value = reader.RequiredInt<int64_t>("integerValue", value);
   } else if (value.contains("doubleValue")) {
-    result.which_value_type = google_firestore_v1_Value_double_value_tag;
-    result.double_value = reader.RequiredDouble("doubleValue", value);
+    result->which_value_type = google_firestore_v1_Value_double_value_tag;
+    result->double_value = reader.RequiredDouble("doubleValue", value);
   } else if (value.contains("timestampValue")) {
     auto val = DecodeTimestamp(reader, value.at("timestampValue"));
-    result.which_value_type = google_firestore_v1_Value_timestamp_value_tag;
-    result.timestamp_value.seconds = val.seconds();
-    result.timestamp_value.nanos = val.nanoseconds();
+    result->which_value_type = google_firestore_v1_Value_timestamp_value_tag;
+    result->timestamp_value.seconds = val.seconds();
+    result->timestamp_value.nanos = val.nanoseconds();
   } else if (value.contains("stringValue")) {
-    result.which_value_type = google_firestore_v1_Value_string_value_tag;
-    result.string_value =
+    result->which_value_type = google_firestore_v1_Value_string_value_tag;
+    result->string_value =
         nanopb::MakeBytesArray(reader.RequiredString("stringValue", value));
   } else if (value.contains("bytesValue")) {
-    result.which_value_type = google_firestore_v1_Value_bytes_value_tag;
-    result.bytes_value =
+    result->which_value_type = google_firestore_v1_Value_bytes_value_tag;
+    result->bytes_value =
         DecodeBytesValue(reader, reader.RequiredString("bytesValue", value));
   } else if (value.contains("referenceValue")) {
-    result.which_value_type = google_firestore_v1_Value_reference_value_tag;
-    result.reference_value = DecodeReferenceValue(
+    result->which_value_type = google_firestore_v1_Value_reference_value_tag;
+    result->reference_value = DecodeReferenceValue(
         reader, reader.RequiredString("referenceValue", value));
   } else if (value.contains("geoPointValue")) {
-    result.which_value_type = google_firestore_v1_Value_geo_point_value_tag;
-    result.geo_point_value =
+    result->which_value_type = google_firestore_v1_Value_geo_point_value_tag;
+    result->geo_point_value =
         DecodeGeoPointValue(reader, value.at("geoPointValue"));
   } else if (value.contains("arrayValue")) {
-    result.which_value_type = google_firestore_v1_Value_array_value_tag;
-    result.array_value = DecodeArrayValue(reader, value.at("arrayValue"));
+    result->which_value_type = google_firestore_v1_Value_array_value_tag;
+    result->array_value =
+        *DecodeArrayValue(reader, value.at("arrayValue")).release();
   } else if (value.contains("mapValue")) {
-    result.which_value_type = google_firestore_v1_Value_map_value_tag;
-    result.map_value = DecodeMapValue(reader, value.at("mapValue"));
+    result->which_value_type = google_firestore_v1_Value_map_value_tag;
+    result->map_value = *DecodeMapValue(reader, value.at("mapValue")).release();
   } else {
     reader.Fail("Failed to decode value, no type is recognized");
     return {};
@@ -707,7 +706,7 @@ google_firestore_v1_Value BundleSerializer::DecodeValue(
   return result;
 }
 
-google_firestore_v1_MapValue BundleSerializer::DecodeMapValue(
+Message<google_firestore_v1_MapValue> BundleSerializer::DecodeMapValue(
     JsonReader& reader, const json& map_json) const {
   if (!map_json.is_object() || !map_json.contains("fields")) {
     reader.Fail("mapValue is not a valid map");
@@ -721,27 +720,28 @@ google_firestore_v1_MapValue BundleSerializer::DecodeMapValue(
 
   // Fill the map array. Note that we can't use SetRepeatedField here since the
   // JSON map doesn't currently work with SetRepeatedField.
-  google_firestore_v1_MapValue map_value{};
-  map_value.fields_count = nanopb::CheckedSize(fields.size());
-  map_value.fields =
+  Message<google_firestore_v1_MapValue> map_value{};
+  map_value->fields_count = nanopb::CheckedSize(fields.size());
+  map_value->fields =
       nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(
-          map_value.fields_count);
+          map_value->fields_count);
   pb_size_t i = 0;
   for (const auto& entry : fields.items()) {
-    map_value.fields[i] = {nanopb::MakeBytesArray(entry.key()),
-                           DecodeValue(reader, entry.value())};
+    map_value->fields[i] = {nanopb::MakeBytesArray(entry.key()),
+                            *DecodeValue(reader, entry.value()).release()};
     ++i;
   }
   return map_value;
 }
 
-google_firestore_v1_ArrayValue BundleSerializer::DecodeArrayValue(
+Message<google_firestore_v1_ArrayValue> BundleSerializer::DecodeArrayValue(
     JsonReader& reader, const json& array_json) const {
   const auto& values = reader.RequiredArray("values", array_json);
 
-  google_firestore_v1_ArrayValue array_value{};
-  SetRepeatedField(&array_value.values, &array_value.values_count, values,
-                   [&](const json& j) { return DecodeValue(reader, j); });
+  Message<google_firestore_v1_ArrayValue> array_value{};
+  SetRepeatedField(
+      &array_value->values, &array_value->values_count, values,
+      [&](const json& j) { return *DecodeValue(reader, j).release(); });
   return array_value;
 }
 
@@ -802,7 +802,8 @@ BundleDocument BundleSerializer::DecodeDocument(JsonReader& reader,
   auto map_value = DecodeMapValue(reader, document);
 
   return BundleDocument(MutableDocument::FoundDocument(
-      std::move(key), update_time, ObjectValue::FromMapValue(map_value)));
+      std::move(key), update_time,
+      ObjectValue::FromMapValue(std::move(map_value))));
 }
 
 }  // namespace bundle

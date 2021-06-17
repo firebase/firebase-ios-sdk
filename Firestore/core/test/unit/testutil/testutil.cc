@@ -52,6 +52,7 @@ namespace firebase {
 namespace firestore {
 namespace testutil {
 
+using model::DeepClone;
 using model::Document;
 using model::DocumentComparator;
 using model::DocumentKey;
@@ -65,7 +66,7 @@ using model::ObjectValue;
 using model::Precondition;
 using model::TransformOperation;
 using nanopb::ByteString;
-using nanopb::MakeSharedMessage;
+using nanopb::Message;
 using nanopb::SetRepeatedField;
 using nanopb::SharedMessage;
 using util::StringFormat;
@@ -91,11 +92,12 @@ const uint64_t kCanonicalNanBits = 0x7ff8000000000000ULL;
 
 namespace details {
 
-google_firestore_v1_Value BlobValue(std::initializer_list<uint8_t> octets) {
+Message<google_firestore_v1_Value> BlobValue(
+    std::initializer_list<uint8_t> octets) {
   nanopb::ByteString contents{octets};
-  google_firestore_v1_Value result{};
-  result.which_value_type = google_firestore_v1_Value_bytes_value_tag;
-  result.bytes_value = nanopb::MakeBytesArray(octets.begin(), octets.size());
+  Message<google_firestore_v1_Value> result{};
+  result->which_value_type = google_firestore_v1_Value_bytes_value_tag;
+  result->bytes_value = nanopb::MakeBytesArray(octets.begin(), octets.size());
   return result;
 }
 
@@ -105,71 +107,81 @@ ByteString Bytes(std::initializer_list<uint8_t> octets) {
   return ByteString(octets);
 }
 
-google_firestore_v1_Value Value(std::nullptr_t) {
+Message<google_firestore_v1_Value> Value(std::nullptr_t) {
   return NullValue();
 }
 
-google_firestore_v1_Value Value(double value) {
-  google_firestore_v1_Value result{};
-  result.which_value_type = google_firestore_v1_Value_double_value_tag;
-  result.double_value = value;
+Message<google_firestore_v1_Value> Value(double value) {
+  Message<google_firestore_v1_Value> result{};
+  result->which_value_type = google_firestore_v1_Value_double_value_tag;
+  result->double_value = value;
   return result;
 }
 
-google_firestore_v1_Value Value(Timestamp value) {
-  google_firestore_v1_Value result{};
-  result.which_value_type = google_firestore_v1_Value_timestamp_value_tag;
-  result.timestamp_value.seconds = value.seconds();
-  result.timestamp_value.nanos = value.nanoseconds();
+Message<google_firestore_v1_Value> Value(Timestamp value) {
+  Message<google_firestore_v1_Value> result{};
+  result->which_value_type = google_firestore_v1_Value_timestamp_value_tag;
+  result->timestamp_value.seconds = value.seconds();
+  result->timestamp_value.nanos = value.nanoseconds();
   return result;
 }
 
-google_firestore_v1_Value Value(const char* value) {
-  google_firestore_v1_Value result{};
-  result.which_value_type = google_firestore_v1_Value_string_value_tag;
-  result.string_value = nanopb::MakeBytesArray(value);
+Message<google_firestore_v1_Value> Value(const char* value) {
+  Message<google_firestore_v1_Value> result{};
+  result->which_value_type = google_firestore_v1_Value_string_value_tag;
+  result->string_value = nanopb::MakeBytesArray(value);
   return result;
 }
 
-google_firestore_v1_Value Value(const std::string& value) {
-  google_firestore_v1_Value result{};
-  result.which_value_type = google_firestore_v1_Value_string_value_tag;
-  result.string_value = nanopb::MakeBytesArray(value);
+Message<google_firestore_v1_Value> Value(const std::string& value) {
+  Message<google_firestore_v1_Value> result{};
+  result->which_value_type = google_firestore_v1_Value_string_value_tag;
+  result->string_value = nanopb::MakeBytesArray(value);
   return result;
 }
 
-google_firestore_v1_Value Value(const nanopb::ByteString& value) {
-  google_firestore_v1_Value result{};
-  result.which_value_type = google_firestore_v1_Value_bytes_value_tag;
-  result.bytes_value = nanopb::MakeBytesArray(value.begin(), value.size());
+Message<google_firestore_v1_Value> Value(const nanopb::ByteString& value) {
+  Message<google_firestore_v1_Value> result{};
+  result->which_value_type = google_firestore_v1_Value_bytes_value_tag;
+  result->bytes_value = nanopb::MakeBytesArray(value.begin(), value.size());
   return result;
 }
 
-google_firestore_v1_Value Value(const GeoPoint& value) {
-  google_firestore_v1_Value result{};
-  result.which_value_type = google_firestore_v1_Value_geo_point_value_tag;
-  result.geo_point_value.latitude = value.latitude();
-  result.geo_point_value.longitude = value.longitude();
+Message<google_firestore_v1_Value> Value(const GeoPoint& value) {
+  Message<google_firestore_v1_Value> result{};
+  result->which_value_type = google_firestore_v1_Value_geo_point_value_tag;
+  result->geo_point_value.latitude = value.latitude();
+  result->geo_point_value.longitude = value.longitude();
   return result;
 }
 
-google_firestore_v1_Value Value(const google_firestore_v1_Value& value) {
+Message<google_firestore_v1_Value> Value(
+    Message<google_firestore_v1_Value> value) {
   return value;
 }
 
-google_firestore_v1_Value Value(const google_firestore_v1_ArrayValue& value) {
-  google_firestore_v1_Value result{};
-  result.which_value_type = google_firestore_v1_Value_array_value_tag;
-  result.array_value = value;
+Message<google_firestore_v1_Value> Value(
+    Message<google_firestore_v1_MapValue> value) {
+  Message<google_firestore_v1_Value> result{};
+  result->which_value_type = google_firestore_v1_Value_map_value_tag;
+  result->map_value = *value.release();
   return result;
 }
 
-google_firestore_v1_Value Value(const model::ObjectValue& value) {
-  return value.Get();
+Message<google_firestore_v1_Value> Value(
+    Message<google_firestore_v1_ArrayValue> value) {
+  Message<google_firestore_v1_Value> result{};
+  result->which_value_type = google_firestore_v1_Value_array_value_tag;
+  result->array_value = *value.release();
+  return result;
 }
 
-ObjectValue WrapObject(const google_firestore_v1_Value& value) {
-  return ObjectValue{value};
+Message<google_firestore_v1_Value> Value(const model::ObjectValue& value) {
+  return DeepClone(value.Get());
+}
+
+ObjectValue WrapObject(Message<google_firestore_v1_Value> value) {
+  return ObjectValue{std::move(value)};
 }
 
 model::DocumentKey Key(absl::string_view path) {
@@ -192,11 +204,12 @@ model::DatabaseId DbId(std::string project) {
   }
 }
 
-google_firestore_v1_Value Ref(std::string project, absl::string_view path) {
+Message<google_firestore_v1_Value> Ref(std::string project,
+                                       absl::string_view path) {
   model::DatabaseId database_id = DbId(std::move(project));
-  google_firestore_v1_Value result{};
-  result.which_value_type = google_firestore_v1_Value_reference_value_tag;
-  result.string_value = nanopb::MakeBytesArray(
+  Message<google_firestore_v1_Value> result{};
+  result->which_value_type = google_firestore_v1_Value_reference_value_tag;
+  result->string_value = nanopb::MakeBytesArray(
       StringFormat("projects/%s/databases/%s/documents/%s",
                    database_id.project_id(), database_id.database_id(), path));
   return result;
@@ -215,21 +228,14 @@ model::SnapshotVersion Version(int64_t version) {
 
 model::MutableDocument Doc(absl::string_view key,
                            int64_t version,
-                           const google_firestore_v1_Value data) {
+                           Message<google_firestore_v1_Value> data) {
   return MutableDocument::FoundDocument(Key(key), Version(version),
-                                        ObjectValue{data});
+                                        ObjectValue{std::move(data)});
 }
 
 model::MutableDocument Doc(absl::string_view key, int64_t version) {
   return MutableDocument::FoundDocument(Key(key), Version(version),
                                         ObjectValue{});
-}
-
-model::MutableDocument Doc(absl::string_view key,
-                           int64_t version,
-                           const google_firestore_v1_Value& data) {
-  return MutableDocument::FoundDocument(Key(key), Version(version),
-                                        ObjectValue{data});
 }
 
 model::MutableDocument DeletedDoc(absl::string_view key, int64_t version) {
@@ -290,16 +296,16 @@ core::Filter::Operator OperatorFromString(absl::string_view s) {
 
 core::FieldFilter Filter(absl::string_view key,
                          absl::string_view op,
-                         google_firestore_v1_Value value) {
+                         Message<google_firestore_v1_Value> value) {
   return core::FieldFilter::Create(Field(key), OperatorFromString(op),
-                                   MakeSharedMessage(value));
+                                   std::move(value));
 }
 
 core::FieldFilter Filter(absl::string_view key,
                          absl::string_view op,
-                         google_firestore_v1_ArrayValue value) {
+                         Message<google_firestore_v1_ArrayValue> value) {
   return core::FieldFilter::Create(Field(key), OperatorFromString(op),
-                                   MakeSharedMessage(Value(value)));
+                                   Value(std::move(value)));
 }
 
 core::FieldFilter Filter(absl::string_view key,
@@ -358,7 +364,7 @@ core::Query CollectionGroupQuery(absl::string_view collection_id) {
 // UserDataWriter changes are ported from Web and Android.
 model::SetMutation SetMutation(
     absl::string_view path,
-    const google_firestore_v1_Value& values,
+    Message<google_firestore_v1_Value> values,
     std::vector<std::pair<std::string, TransformOperation>> transforms) {
   std::vector<FieldTransform> field_transforms;
   for (auto&& pair : transforms) {
@@ -368,7 +374,7 @@ model::SetMutation SetMutation(
     field_transforms.push_back(std::move(transform));
   }
 
-  return model::SetMutation(Key(path), model::ObjectValue{values},
+  return model::SetMutation(Key(path), model::ObjectValue{std::move(values)},
                             model::Precondition::None(),
                             std::move(field_transforms));
 }
@@ -378,10 +384,10 @@ model::SetMutation SetMutation(
 // UserDataWriter changes are ported from Web and Android.
 model::PatchMutation PatchMutation(
     absl::string_view path,
-    const google_firestore_v1_Value& values,
+    Message<google_firestore_v1_Value> values,
     // TODO(rsgowman): Investigate changing update_mask to a set.
     std::vector<std::pair<std::string, TransformOperation>> transforms) {
-  return PatchMutationHelper(path, values, std::move(transforms),
+  return PatchMutationHelper(path, std::move(values), std::move(transforms),
                              Precondition::Exists(true), absl::nullopt);
 }
 
@@ -390,16 +396,16 @@ model::PatchMutation PatchMutation(
 // UserDataWriter changes are ported from Web and Android.
 model::PatchMutation MergeMutation(
     absl::string_view path,
-    const google_firestore_v1_Value& values,
+    Message<google_firestore_v1_Value> values,
     const std::vector<model::FieldPath>& update_mask,
     std::vector<std::pair<std::string, TransformOperation>> transforms) {
-  return PatchMutationHelper(path, values, std::move(transforms),
+  return PatchMutationHelper(path, std::move(values), std::move(transforms),
                              Precondition::None(), update_mask);
 }
 
 model::PatchMutation PatchMutationHelper(
     absl::string_view path,
-    const google_firestore_v1_Value& values,
+    Message<google_firestore_v1_Value> values,
     std::vector<std::pair<std::string, TransformOperation>> transforms,
     Precondition precondition,
     const absl::optional<std::vector<model::FieldPath>>& update_mask) {
@@ -414,14 +420,14 @@ model::PatchMutation PatchMutationHelper(
     field_transforms.push_back(std::move(transform));
   }
 
-  for (pb_size_t i = 0; i < values.map_value.fields_count; ++i) {
+  for (pb_size_t i = 0; i < values->map_value.fields_count; ++i) {
     FieldPath field_path =
-        Field(nanopb::MakeStringView(values.map_value.fields[i].key));
+        Field(nanopb::MakeStringView(values->map_value.fields[i].key));
     field_mask_paths.insert(field_path);
-    const google_firestore_v1_Value& value = values.map_value.fields[i].value;
+    const google_firestore_v1_Value& value = values->map_value.fields[i].value;
     if (value.which_value_type != google_firestore_v1_Value_string_value_tag ||
         nanopb::MakeStringView(value.string_value) != kDeleteSentinel) {
-      object_value.Set(field_path, value);
+      object_value.Set(field_path, DeepClone(value));
     } else if (nanopb::MakeStringView(value.string_value) == kDeleteSentinel) {
       object_value.Delete(field_path);
     }
@@ -438,7 +444,7 @@ model::PatchMutation PatchMutationHelper(
 }
 
 std::pair<std::string, TransformOperation> Increment(
-    std::string field, google_firestore_v1_Value operand) {
+    std::string field, Message<google_firestore_v1_Value> operand) {
   model::NumericIncrementTransform transform(std::move(operand));
 
   return std::pair<std::string, TransformOperation>(std::move(field),
@@ -446,11 +452,16 @@ std::pair<std::string, TransformOperation> Increment(
 }
 
 std::pair<std::string, TransformOperation> ArrayUnion(
-    std::string field, std::vector<google_firestore_v1_Value> operands) {
-  google_firestore_v1_ArrayValue array_value;
-  SetRepeatedField(&array_value.values, &array_value.values_count, operands);
+    std::string field,
+    std::vector<Message<google_firestore_v1_Value>> operands) {
+  Message<google_firestore_v1_ArrayValue> array_value;
+  SetRepeatedField(&array_value->values, &array_value->values_count,
+                   operands.begin(), operands.end(),
+                   [](Message<google_firestore_v1_Value> value) {
+                     return *value.release();
+                   });
   model::ArrayTransform transform(TransformOperation::Type::ArrayUnion,
-                                  array_value);
+                                  std::move(array_value));
   return std::pair<std::string, TransformOperation>(std::move(field),
                                                     std::move(transform));
 }

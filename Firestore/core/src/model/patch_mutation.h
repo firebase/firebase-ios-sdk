@@ -26,6 +26,7 @@
 #include "Firestore/core/src/model/field_mask.h"
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/model/mutation.h"
+#include "Firestore/core/src/nanopb/message.h"
 
 namespace firebase {
 namespace firestore {
@@ -106,8 +107,7 @@ class PatchMutation : public Mutation {
      * Returns this patch mutation as a list of field paths to values (or
      * nullopt for deletes).
      */
-    std::map<FieldPath, absl::optional<google_firestore_v1_Value>> GetPatch()
-        const;
+    TransformMap GetPatch() const;
 
     void ApplyToRemoteDocument(
         MutableDocument& document,

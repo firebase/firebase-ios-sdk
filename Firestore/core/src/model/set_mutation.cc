@@ -75,7 +75,7 @@ void SetMutation::Rep::ApplyToRemoteDocument(
   auto transform_results = ServerTransformResults(
       document.data(), mutation_result.transform_results());
   ObjectValue new_data{DeepClone(value_.Get())};
-  new_data.SetAll(transform_results);
+  new_data.SetAll(std::move(transform_results));
   document
       .ConvertToFoundDocument(mutation_result.version(), std::move(new_data))
       .SetHasCommittedMutations();
@@ -92,7 +92,7 @@ void SetMutation::Rep::ApplyToLocalView(
   auto transform_results =
       LocalTransformResults(document.data(), local_write_time);
   ObjectValue new_data{DeepClone(value_.Get())};
-  new_data.SetAll(transform_results);
+  new_data.SetAll(std::move(transform_results));
   document
       .ConvertToFoundDocument(GetPostMutationVersion(document),
                               std::move(new_data))

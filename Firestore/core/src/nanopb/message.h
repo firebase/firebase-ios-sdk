@@ -187,6 +187,11 @@ class Message {
   T proto_{};
 };
 
+template <typename T>
+Message<T> MakeMessage(const T& proto) {
+  return Message<T>(std::move(proto));
+}
+
 /**
  * A wrapper of Message objects that facilitates shared ownership of Protobuf
  * data.
@@ -195,12 +200,9 @@ class Message {
 template <typename T>
 class SharedMessage {
  public:
-  /**
-   * Creates a `SharedMessage` object that wraps `proto`. Takes ownership of
-   * `proto`.
-   */
-  explicit SharedMessage(const T& proto)
-      : message_{std::make_shared<Message<T>>(proto)} {
+  /** Creates a `SharedMessage` object that wraps `proto`. */
+  SharedMessage(Message<T> message)  // NOLINT
+      : message_{std::make_shared<Message<T>>(*message.release())} {
   }
 
   /**
@@ -245,7 +247,7 @@ class SharedMessage {
 
 template <typename T>
 SharedMessage<T> MakeSharedMessage(const T& proto) {
-  return SharedMessage<T>(proto);
+  return SharedMessage<T>(Message<T>(proto));
 }
 
 template <typename T>

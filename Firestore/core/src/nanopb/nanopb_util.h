@@ -22,6 +22,7 @@
 #include <cstdlib>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "Firestore/core/src/nanopb/byte_string.h"
@@ -126,7 +127,7 @@ void SetRepeatedField(T* _Nonnull* _Nonnull fields_array,
   *fields_array = nanopb::MakeArray<T>(*fields_count);
   auto* current = *fields_array;
   while (first != last) {
-    *current = converter(*first);
+    *current = converter(std::move(*first));
     ++current;
     ++first;
   }

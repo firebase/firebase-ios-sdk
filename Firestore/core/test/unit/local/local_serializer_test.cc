@@ -365,10 +365,10 @@ TEST_F(LocalSerializerTest, SetMutationAndTransformMutationAreSquashed) {
   ASSERT_EQ(1, decoded.mutations().size());
   ASSERT_EQ(Mutation::Type::Set, decoded.mutations()[0].type());
 
-  google_firestore_v1_Write encoded =
-      remote_serializer.EncodeMutation(decoded.mutations()[0]);
-  ExpectSet(encoded);
-  ExpectUpdateTransform(encoded);
+  Message<google_firestore_v1_Write> encoded{
+      remote_serializer.EncodeMutation(decoded.mutations()[0])};
+  ExpectSet(*encoded);
+  ExpectUpdateTransform(*encoded);
 }
 
 // TODO(b/174608374): Remove these tests once we perform a schema migration.
@@ -386,10 +386,10 @@ TEST_F(LocalSerializerTest, PatchMutationAndTransformMutationAreSquashed) {
   ASSERT_EQ(1, decoded.mutations().size());
   ASSERT_EQ(Mutation::Type::Patch, decoded.mutations()[0].type());
 
-  google_firestore_v1_Write encoded =
-      remote_serializer.EncodeMutation(decoded.mutations()[0]);
-  ExpectPatch(encoded);
-  ExpectUpdateTransform(encoded);
+  Message<google_firestore_v1_Write> encoded{
+      remote_serializer.EncodeMutation(decoded.mutations()[0])};
+  ExpectPatch(*encoded);
+  ExpectUpdateTransform(*encoded);
 }
 
 // TODO(b/174608374): Remove these tests once we perform a schema migration.
@@ -438,21 +438,36 @@ TEST_F(LocalSerializerTest, MultipleMutationsAreSquashed) {
   auto message = Message<firestore_client_WriteBatch>::TryParse(&reader);
   MutationBatch decoded = serializer.DecodeMutationBatch(&reader, *message);
   ASSERT_EQ(5, decoded.mutations().size());
-  _google_firestore_v1_Write encoded =
-      remote_serializer.EncodeMutation(decoded.mutations()[0]);
-  ExpectSet(encoded);
-  ExpectNoUpdateTransform(encoded);
-  encoded = remote_serializer.EncodeMutation(decoded.mutations()[1]);
-  ExpectSet(encoded);
-  ExpectUpdateTransform(encoded);
-  encoded = remote_serializer.EncodeMutation(decoded.mutations()[2]);
-  ExpectDelete(encoded);
-  encoded = remote_serializer.EncodeMutation(decoded.mutations()[3]);
-  ExpectPatch(encoded);
-  ExpectUpdateTransform(encoded);
-  encoded = remote_serializer.EncodeMutation(decoded.mutations()[4]);
-  ExpectPatch(encoded);
-  ExpectNoUpdateTransform(encoded);
+
+  {
+    Message<google_firestore_v1_Write> encoded{
+        remote_serializer.EncodeMutation(decoded.mutations()[0])};
+    ExpectSet(*encoded);
+    ExpectNoUpdateTransform(*encoded);
+  }
+  {
+    Message<google_firestore_v1_Write> encoded{
+        remote_serializer.EncodeMutation(decoded.mutations()[1])};
+    ExpectSet(*encoded);
+    ExpectUpdateTransform(*encoded);
+  }
+  {
+    Message<google_firestore_v1_Write> encoded{
+        remote_serializer.EncodeMutation(decoded.mutations()[2])};
+    ExpectDelete(*encoded);
+  }
+  {
+    Message<google_firestore_v1_Write> encoded{
+        remote_serializer.EncodeMutation(decoded.mutations()[3])};
+    ExpectPatch(*encoded);
+    ExpectUpdateTransform(*encoded);
+  }
+  {
+    Message<google_firestore_v1_Write> encoded{
+        remote_serializer.EncodeMutation(decoded.mutations()[4])};
+    ExpectPatch(*encoded);
+    ExpectNoUpdateTransform(*encoded);
+  }
 }
 
 TEST_F(LocalSerializerTest, EncodesMutationBatch) {
