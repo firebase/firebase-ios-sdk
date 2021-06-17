@@ -211,7 +211,7 @@ Filter InvalidFilter() {
   // The exact value doesn't matter. Note that there's no way to create the base
   // class `Filter`, so it has to be one of the derived classes.
   return FieldFilter::Create({}, {},
-                             MakeSharedMessage<google_firestore_v1_Value>({}));
+                             MakeSharedMessage(google_firestore_v1_Value{}));
 }
 
 Filter DecodeUnaryFilter(JsonReader& reader, const json& filter) {

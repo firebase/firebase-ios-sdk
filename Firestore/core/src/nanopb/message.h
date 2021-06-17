@@ -245,7 +245,7 @@ class SharedMessage {
 
 template <typename T>
 SharedMessage<T> MakeSharedMessage(const T& proto) {
-  return SharedMessage<T>(std::move(proto));
+  return SharedMessage<T>(proto);
 }
 
 template <typename T>
