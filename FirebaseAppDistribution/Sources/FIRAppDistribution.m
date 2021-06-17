@@ -253,6 +253,11 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
                            @"to sign in again.");
             [self signOutTester];
           }
+          else if ([error code] == FIRFADApiErrorUnauthorized) {
+            FIRFADErrorLog(@"Tester is not authorized to view releases for this app. Tester will "
+                           @"need to sign in again.");
+            [self signOutTester];
+          }
 
           dispatch_async(dispatch_get_main_queue(), ^{
             completion(nil, [self mapFetchReleasesError:error]);
