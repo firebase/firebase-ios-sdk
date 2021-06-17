@@ -232,6 +232,7 @@ class UserTests: XCTestCase {
         callback(MockGetOOBConfirmationCodeResponse(), nil)
       }
     }
+
     override func secureToken(_ request: FIRSecureTokenRequest,
                               callback: @escaping FIRSecureTokenResponseCallback) {
       callback(MockSecureAccessResponse(), nil)
