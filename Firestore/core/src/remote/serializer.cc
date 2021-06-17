@@ -102,6 +102,7 @@ using model::VerifyMutation;
 using nanopb::ByteString;
 using nanopb::CheckedSize;
 using nanopb::MakeArray;
+using nanopb::MakeSharedMessage;
 using nanopb::MakeStringView;
 using nanopb::ReleaseFieldOwnership;
 using nanopb::SafeReadBoolean;
@@ -162,7 +163,7 @@ Filter InvalidFilter() {
   // The exact value doesn't matter. Note that there's no way to create the base
   // class `Filter`, so it has to be one of the derived classes.
   return FieldFilter::Create({}, {},
-                             SharedMessage<google_firestore_v1_Value>{{}});
+                             MakeSharedMessage(google_firestore_v1_Value{}));
 }
 
 FieldPath InvalidFieldPath() {
@@ -887,9 +888,8 @@ Filter Serializer::DecodeFieldFilter(
   FieldPath field_path =
       DecodeFieldPath(context, field_filter.field.field_path);
   Filter::Operator op = DecodeFieldFilterOperator(context, field_filter.op);
-  Filter result = FieldFilter::Create(
-      std::move(field_path), op,
-      SharedMessage<google_firestore_v1_Value>(field_filter.value));
+  Filter result = FieldFilter::Create(std::move(field_path), op,
+                                      MakeSharedMessage(field_filter.value));
   field_filter.value = {};  // Release field ownership
   return result;
 }
@@ -906,24 +906,20 @@ Filter Serializer::DecodeUnaryFilter(
 
   switch (unary.op) {
     case google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NULL:
-      return FieldFilter::Create(
-          std::move(field), Filter::Operator::Equal,
-          SharedMessage<google_firestore_v1_Value>(NullValue()));
+      return FieldFilter::Create(std::move(field), Filter::Operator::Equal,
+                                 MakeSharedMessage(NullValue()));
 
     case google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NAN:
-      return FieldFilter::Create(
-          std::move(field), Filter::Operator::Equal,
-          SharedMessage<google_firestore_v1_Value>(NaNValue()));
+      return FieldFilter::Create(std::move(field), Filter::Operator::Equal,
+                                 MakeSharedMessage(NaNValue()));
 
     case google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NOT_NULL:
-      return FieldFilter::Create(
-          std::move(field), Filter::Operator::NotEqual,
-          SharedMessage<google_firestore_v1_Value>(NullValue()));
+      return FieldFilter::Create(std::move(field), Filter::Operator::NotEqual,
+                                 MakeSharedMessage(NullValue()));
 
     case google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NOT_NAN:
-      return FieldFilter::Create(
-          std::move(field), Filter::Operator::NotEqual,
-          SharedMessage<google_firestore_v1_Value>(NaNValue()));
+      return FieldFilter::Create(std::move(field), Filter::Operator::NotEqual,
+                                 MakeSharedMessage(NaNValue()));
 
     default:
       context->Fail(StringFormat("Unrecognized UnaryFilter.op %s", unary.op));
@@ -1115,21 +1111,21 @@ google_firestore_v1_Cursor Serializer::EncodeBound(const Bound& bound) const {
   result.before = bound.before();
   SetRepeatedField(
       &result.values, &result.values_count,
-      absl::Span<google_firestore_v1_Value>(bound.position().values,
-                                            bound.position().values_count),
+      absl::Span<google_firestore_v1_Value>(bound.position()->values,
+                                            bound.position()->values_count),
       [](const google_firestore_v1_Value& value) { return DeepClone(value); });
   return result;
 }
 
 Bound Serializer::DecodeBound(google_firestore_v1_Cursor& cursor) const {
-  google_firestore_v1_ArrayValue index_components;
-  SetRepeatedField(&index_components.values, &index_components.values_count,
+  SharedMessage<google_firestore_v1_ArrayValue> index_components{{}};
+  SetRepeatedField(&index_components->values, &index_components->values_count,
                    absl::Span<google_firestore_v1_Value>(cursor.values,
                                                          cursor.values_count));
   // Prevent double-freeing of the cursors's fields. The fields are now owned by
   // the bound.
   ReleaseFieldOwnership(cursor.values, cursor.values_count);
-  return Bound::FromValue(index_components, cursor.before);
+  return Bound::FromValue(std::move(index_components), cursor.before);
 }
 
 /* static */

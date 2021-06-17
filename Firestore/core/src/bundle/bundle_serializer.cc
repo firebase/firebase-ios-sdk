@@ -66,6 +66,7 @@ using model::ObjectValue;
 using model::ResourcePath;
 using model::SnapshotVersion;
 using nanopb::ByteString;
+using nanopb::MakeSharedMessage;
 using nanopb::SetRepeatedField;
 using nanopb::SharedMessage;
 using nlohmann::json;
@@ -210,7 +211,7 @@ Filter InvalidFilter() {
   // The exact value doesn't matter. Note that there's no way to create the base
   // class `Filter`, so it has to be one of the derived classes.
   return FieldFilter::Create({}, {},
-                             SharedMessage<google_firestore_v1_Value>({}));
+                             MakeSharedMessage(google_firestore_v1_Value{}));
 }
 
 Filter DecodeUnaryFilter(JsonReader& reader, const json& filter) {
@@ -225,21 +226,17 @@ Filter DecodeUnaryFilter(JsonReader& reader, const json& filter) {
   }
 
   if (op == "IS_NAN") {
-    return FieldFilter::Create(
-        std::move(path), Filter::Operator::Equal,
-        SharedMessage<google_firestore_v1_Value>(NaNValue()));
+    return FieldFilter::Create(std::move(path), Filter::Operator::Equal,
+                               MakeSharedMessage(NaNValue()));
   } else if (op == "IS_NULL") {
-    return FieldFilter::Create(
-        std::move(path), Filter::Operator::Equal,
-        SharedMessage<google_firestore_v1_Value>(NullValue()));
+    return FieldFilter::Create(std::move(path), Filter::Operator::Equal,
+                               MakeSharedMessage(NullValue()));
   } else if (op == "IS_NOT_NAN") {
-    return FieldFilter::Create(
-        std::move(path), Filter::Operator::NotEqual,
-        SharedMessage<google_firestore_v1_Value>(NaNValue()));
+    return FieldFilter::Create(std::move(path), Filter::Operator::NotEqual,
+                               MakeSharedMessage(NaNValue()));
   } else if (op == "IS_NOT_NULL") {
-    return FieldFilter::Create(
-        std::move(path), Filter::Operator::NotEqual,
-        SharedMessage<google_firestore_v1_Value>(NullValue()));
+    return FieldFilter::Create(std::move(path), Filter::Operator::NotEqual,
+                               MakeSharedMessage(NullValue()));
   }
 
   reader.Fail("Unexpected unary filter operator: " + op);
@@ -532,13 +529,13 @@ BundledQuery BundleSerializer::DecodeBundledQuery(
 
   auto start_at_bound = DecodeBound(reader, structured_query, "startAt");
   absl::optional<Bound> start_at;
-  if (start_at_bound.position().values_count > 0) {
+  if (start_at_bound.position()->values_count > 0) {
     start_at = std::move(start_at_bound);
   }
 
   auto end_at_bound = DecodeBound(reader, structured_query, "endAt");
   absl::optional<Bound> end_at;
-  if (end_at_bound.position().values_count > 0) {
+  if (end_at_bound.position()->values_count > 0) {
     end_at = std::move(end_at_bound);
   }
 
@@ -610,8 +607,7 @@ Filter BundleSerializer::DecodeFieldFilter(JsonReader& reader,
     return InvalidFilter();
   }
 
-  return FieldFilter::Create(path, op,
-                             SharedMessage<google_firestore_v1_Value>(value));
+  return FieldFilter::Create(path, op, MakeSharedMessage(value));
 }
 
 FilterList BundleSerializer::DecodeCompositeFilter(JsonReader& reader,
@@ -637,7 +633,8 @@ FilterList BundleSerializer::DecodeCompositeFilter(JsonReader& reader,
 Bound BundleSerializer::DecodeBound(JsonReader& reader,
                                     const json& query,
                                     const char* bound_name) const {
-  Bound default_bound = Bound::FromValue({}, false);
+  Bound default_bound = Bound::FromValue(
+      MakeSharedMessage<google_firestore_v1_ArrayValue>({}), false);
   if (!query.contains(bound_name)) {
     return default_bound;
   }
@@ -646,10 +643,10 @@ Bound BundleSerializer::DecodeBound(JsonReader& reader,
   std::vector<json> values = reader.RequiredArray("values", bound_json);
   bool before = reader.OptionalBool("before", bound_json);
 
-  google_firestore_v1_ArrayValue positions{};
-  SetRepeatedField(&positions.values, &positions.values_count, values,
+  SharedMessage<google_firestore_v1_ArrayValue> positions{{}};
+  SetRepeatedField(&positions->values, &positions->values_count, values,
                    [&](const json& j) { return DecodeValue(reader, j); });
-  return Bound::FromValue(positions, before);
+  return Bound::FromValue(std::move(positions), before);
 }
 
 google_firestore_v1_Value BundleSerializer::DecodeValue(

@@ -244,6 +244,11 @@ class SharedMessage {
 };
 
 template <typename T>
+SharedMessage<T> MakeSharedMessage(const T& proto) {
+  return SharedMessage<T>(proto);
+}
+
+template <typename T>
 Message<T> Message<T>::TryParse(Reader* reader) {
   Message<T> result;
   reader->Read(result.fields(), result.get());

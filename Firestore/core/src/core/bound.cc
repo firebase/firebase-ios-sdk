@@ -36,12 +36,13 @@ using model::DocumentKey;
 using model::FieldPath;
 using model::GetTypeOrder;
 using model::TypeOrder;
+using nanopb::SharedMessage;
 using util::ComparisonResult;
 
-Bound Bound::FromValue(google_firestore_v1_ArrayValue position,
+Bound Bound::FromValue(SharedMessage<google_firestore_v1_ArrayValue> position,
                        bool is_before) {
-  model::SortFields(position);
-  return Bound(position, is_before);
+  model::SortFields(*position);
+  return Bound(std::move(position), is_before);
 }
 
 bool Bound::SortsBeforeDocument(const OrderByList& order_by,
@@ -103,7 +104,7 @@ std::ostream& operator<<(std::ostream& os, const Bound& bound) {
 }
 
 bool operator==(const Bound& lhs, const Bound& rhs) {
-  return lhs.position() == rhs.position() && lhs.before() == rhs.before();
+  return *lhs.position() == *rhs.position() && lhs.before() == rhs.before();
 }
 
 size_t Bound::Hash() const {

@@ -97,6 +97,7 @@ using firebase::firestore::nanopb::MakeArray;
 using firebase::firestore::nanopb::MakeString;
 using firebase::firestore::nanopb::Message;
 using firebase::firestore::nanopb::SharedMessage;
+using firebase::firestore::nanopb::MakeSharedMessage;
 using firebase::firestore::util::MakeNSError;
 using firebase::firestore::util::MakeString;
 using firebase::firestore::util::StatusOr;
@@ -535,8 +536,7 @@ int32_t SaturatedLimitValue(NSInteger limit) {
                  allowArrays:filterOperator == Filter::Operator::In ||
                              filterOperator == Filter::Operator::NotIn];
   auto describer = [value] { return MakeString(NSStringFromClass([value class])); };
-  return Wrap(_query.Filter(fieldPath, filterOperator,
-                            SharedMessage<google_firestore_v1_Value>{fieldValue}, describer));
+  return Wrap(_query.Filter(fieldPath, filterOperator, MakeSharedMessage(fieldValue), describer));
 }
 
 /**
@@ -558,9 +558,9 @@ int32_t SaturatedLimitValue(NSInteger limit) {
   const DatabaseId &databaseID = self.firestore.databaseID;
   const OrderByList &order_bys = self.query.order_bys();
 
-  google_firestore_v1_ArrayValue components;
-  components.values_count = CheckedSize(order_bys.size());
-  components.values = MakeArray<google_firestore_v1_Value>(components.values_count);
+  SharedMessage<google_firestore_v1_ArrayValue> components{{}};
+  components->values_count = CheckedSize(order_bys.size());
+  components->values = MakeArray<google_firestore_v1_Value>(components->values_count);
 
   // Because people expect to continue/end a query at the exact document provided, we need to
   // use the implicit sort order rather than the explicit sort order, because it's guaranteed to
@@ -569,7 +569,7 @@ int32_t SaturatedLimitValue(NSInteger limit) {
   // orders), multiple documents could match the position, yielding duplicate results.
   for (size_t i = 0; i < order_bys.size(); ++i) {
     if (order_bys[i].field() == FieldPath::KeyFieldPath()) {
-      components.values[i] = RefValue(databaseID, document->key());
+      components->values[i] = RefValue(databaseID, document->key());
     } else {
       absl::optional<google_firestore_v1_Value> value = document->field(order_bys[i].field());
 
@@ -581,7 +581,7 @@ int32_t SaturatedLimitValue(NSInteger limit) {
               "is unknown, you cannot start/end a query with it.)",
               order_bys[i].field().CanonicalString());
         } else {
-          components.values[i] = DeepClone(*value);
+          components->values[i] = DeepClone(*value);
         }
       } else {
         ThrowInvalidArgument(
@@ -591,7 +591,7 @@ int32_t SaturatedLimitValue(NSInteger limit) {
       }
     }
   }
-  return Bound::FromValue(components, isBefore);
+  return Bound::FromValue(std::move(components), isBefore);
 }
 
 /** Converts a list of field values to an Bound. */
@@ -603,9 +603,9 @@ int32_t SaturatedLimitValue(NSInteger limit) {
                          "than were specified in the order by.");
   }
 
-  google_firestore_v1_ArrayValue components;
-  components.values_count = CheckedSize(fieldValues.count);
-  components.values = MakeArray<google_firestore_v1_Value>(components.values_count);
+  SharedMessage<google_firestore_v1_ArrayValue> components{{}};
+  components->values_count = CheckedSize(fieldValues.count);
+  components->values = MakeArray<google_firestore_v1_Value>(components->values_count);
   for (NSUInteger idx = 0, max = fieldValues.count; idx < max; ++idx) {
     id rawValue = fieldValues[idx];
     const OrderBy &sortOrder = explicitSortOrders[idx];
@@ -630,13 +630,13 @@ int32_t SaturatedLimitValue(NSInteger limit) {
                              path.CanonicalString());
       }
       DocumentKey key{path};
-      components.values[idx] = RefValue(self.firestore.databaseID, key);
+      components->values[idx] = RefValue(self.firestore.databaseID, key);
     } else {
-      components.values[idx] = *fieldValue.release();
+      components->values[idx] = *fieldValue.release();
     }
   }
 
-  return Bound::FromValue(components, isBefore);
+  return Bound::FromValue(std::move(components), isBefore);
 }
 
 @end
