@@ -263,7 +263,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Access to Metrics Service
-        if: ${{ env.METRICS_SERVICE_SECRET }} && (github.event.action != 'closed' || github.event.pull_request.merged)
+        if: ${{ env.METRICS_SERVICE_SECRET != '' }} && (github.event.action != 'closed' || github.event.pull_request.merged)
         run: |
           # Install gcloud sdk
           curl https://sdk.cloud.google.com > install.sh
@@ -280,7 +280,7 @@ jobs:
         with:
           path: /Users/runner/test
       - name: Compare Diff and Post a Report
-        if: github.event.pull_request.merged != true && github.event.action != 'closed' && env.METRICS_SERVICE_SECRET
+        if: github.event.pull_request.merged != true && github.event.action != 'closed' && env.METRICS_SERVICE_SECRET != ''
         env:
           base_commit: ${{ needs.check.outputs.base_commit }}
         run: |
@@ -316,7 +316,7 @@ jobs:
             bundle exec ruby post_incremental_coverage_in_pr.rb
           fi
       - name: Update New Coverage Data
-        if: github.event.pull_request.merged && env.METRICS_SERVICE_SECRET
+        if: github.event.pull_request.merged && env.METRICS_SERVICE_SECRET != ''
         run: |
           if [ -d "${{steps.download.outputs.download-path}}" ]; then
           cd scripts/code_coverage_report/generate_code_coverage_report

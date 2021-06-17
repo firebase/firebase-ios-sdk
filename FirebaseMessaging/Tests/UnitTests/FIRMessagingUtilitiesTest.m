@@ -68,10 +68,21 @@
 }
 
 - (void)testAppIdentifierReturnsExpectedValue {
+#if TARGET_OS_WATCH
+  NSString *bundleIdentifier = @"com.me.myapp.watchkit.watchkitextensions";
+  NSString *expectedIdentifier = @"com.me.myapp.watchkit";
+#else
+  NSString *bundleIdentifier = @"com.me.myapp";
   NSString *expectedIdentifier = @"com.me.myapp";
-  [[[_mainBundleMock stub] andReturn:expectedIdentifier] bundleIdentifier];
+#endif
+
+  [[[_mainBundleMock stub] andReturn:bundleIdentifier] bundleIdentifier];
   NSString *appIdentifier = FIRMessagingAppIdentifier();
+#if TARGET_OS_WATCH
   XCTAssertEqualObjects(appIdentifier, expectedIdentifier);
+#else
+  XCTAssertEqualObjects(appIdentifier, expectedIdentifier);
+#endif
 }
 
 - (void)testAppIdentifierReturnsEmptyStringWhenNotFound {

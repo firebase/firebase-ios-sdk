@@ -1,3 +1,7 @@
+# v8.2.0
+- [changed] Passing in an empty document ID, collection group ID, or collection
+  path will now result in a more readable error (#8218).
+
 # v7.9.0
 - [feature] Added support for Firestore Bundles via
   `FIRFirestore.loadBundle`, `FIRFirestore.loadBundleStream` and

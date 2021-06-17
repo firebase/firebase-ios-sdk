@@ -31,6 +31,7 @@
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckSettings.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckTokenResult.h"
 #import "FirebaseAppCheck/Sources/Core/Storage/FIRAppCheckStorage.h"
+#import "FirebaseAppCheck/Sources/Core/TokenRefresh/FIRAppCheckTokenRefreshResult.h"
 #import "FirebaseAppCheck/Sources/Core/TokenRefresh/FIRAppCheckTokenRefresher.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
@@ -114,20 +115,21 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   id mockTokenRefresher = OCMClassMock([FIRAppCheckTokenRefresher class]);
   OCMExpect([mockTokenRefresher alloc]).andReturn(mockTokenRefresher);
 
-  id refresherDateValidator = [OCMArg checkWithBlock:^BOOL(NSDate *tokenExpirationDate) {
-    NSTimeInterval accuracy = 1;
-    XCTAssertLessThanOrEqual(ABS([tokenExpirationDate timeIntervalSinceNow]), accuracy);
-    return YES;
-  }];
+  id refresherDateValidator =
+      [OCMArg checkWithBlock:^BOOL(FIRAppCheckTokenRefreshResult *refreshResult) {
+        XCTAssertEqual(refreshResult.status, FIRAppCheckTokenRefreshStatusNever);
+        XCTAssertEqual(refreshResult.tokenExpirationDate, nil);
+        XCTAssertEqual(refreshResult.tokenReceivedAtDate, nil);
+        return YES;
+      }];
 
   id settingsValidator = [OCMArg checkWithBlock:^BOOL(id obj) {
     XCTAssert([obj isKindOfClass:[FIRAppCheckSettings class]]);
     return YES;
   }];
 
-  OCMExpect([mockTokenRefresher initWithTokenExpirationDate:refresherDateValidator
-                                   tokenExpirationThreshold:5 * 60
-                                                   settings:settingsValidator])
+  OCMExpect([mockTokenRefresher initWithRefreshResult:refresherDateValidator
+                                             settings:settingsValidator])
       .andReturn(mockTokenRefresher);
   OCMExpect([mockTokenRefresher setTokenRefreshHandler:[OCMArg any]]);
 
@@ -381,10 +383,10 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   }
 
   XCTestExpectation *completionExpectation = [self expectationWithDescription:@"completion"];
-  self.tokenRefreshHandler(^(BOOL success, NSDate *_Nullable tokenExpirationDate) {
+  self.tokenRefreshHandler(^(FIRAppCheckTokenRefreshResult *refreshResult) {
     [completionExpectation fulfill];
-    XCTAssertEqual(tokenExpirationDate, expirationDate);
-    XCTAssertTrue(success);
+    XCTAssertEqualObjects(refreshResult.tokenExpirationDate, expirationDate);
+    XCTAssertEqual(refreshResult.status, FIRAppCheckTokenRefreshStatusSuccess);
   });
 
   [self waitForExpectations:@[ notificationExpectation, completionExpectation ] timeout:0.5];
@@ -415,10 +417,11 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   }
 
   XCTestExpectation *completionExpectation = [self expectationWithDescription:@"completion"];
-  self.tokenRefreshHandler(^(BOOL success, NSDate *_Nullable tokenExpirationDate) {
+  self.tokenRefreshHandler(^(FIRAppCheckTokenRefreshResult *refreshResult) {
     [completionExpectation fulfill];
-    XCTAssertNil(tokenExpirationDate);
-    XCTAssertFalse(success);
+    XCTAssertEqual(refreshResult.status, FIRAppCheckTokenRefreshStatusFailure);
+    XCTAssertNil(refreshResult.tokenExpirationDate);
+    XCTAssertNil(refreshResult.tokenReceivedAtDate);
   });
 
   [self waitForExpectations:@[ notificationExpectation, completionExpectation ] timeout:0.5];
