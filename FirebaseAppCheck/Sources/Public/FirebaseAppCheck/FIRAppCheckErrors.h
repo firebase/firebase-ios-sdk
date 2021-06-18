@@ -27,8 +27,7 @@ typedef NS_ERROR_ENUM(FIRAppCheckErrorDomain, FIRAppCheckErrorCode){
     FIRAppCheckErrorCodeServerUnreachable = 1,
 
     /// Invalid configuration error. Currently, an exception is thrown but this error is reserved
-    /// for future implementations of invalid
-    ///  configuration detection.
+    /// for future implementations of invalid configuration detection.
     FIRAppCheckErrorCodeInvalidConfiguration = 2,
 
     /// System keychain access error. Ensure that the app has proper keychain access.
