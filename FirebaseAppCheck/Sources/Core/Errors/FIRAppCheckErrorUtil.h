@@ -32,6 +32,8 @@ void FIRAppCheckSetErrorToPointer(NSError *error, NSError **pointer);
 
 + (NSError *)cachedTokenExpired;
 
++ (NSError *)keychainErrorWithError:(NSError *)error;
+
 + (FIRAppCheckHTTPError *)APIErrorWithHTTPResponse:(NSHTTPURLResponse *)HTTPResponse
                                               data:(nullable NSData *)data;
 

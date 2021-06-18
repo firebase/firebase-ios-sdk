@@ -24,6 +24,7 @@
 
 #import <GoogleUtilities/GULKeychainStorage.h>
 
+#import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 #import "FirebaseAppCheck/Sources/Core/Storage/FIRAppCheckStoredToken+FIRAppCheckToken.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -76,26 +77,39 @@ static NSString *const kKeychainService = @"com.firebase.app_check.token_storage
         } else {
           return nil;
         }
+      })
+      .recover(^NSError *(NSError *error) {
+        return [FIRAppCheckErrorUtil keychainErrorWithError:error];
       });
 }
 
 - (FBLPromise<NSNull *> *)setToken:(nullable FIRAppCheckToken *)token {
   if (token) {
-    FIRAppCheckStoredToken *storedToken = [[FIRAppCheckStoredToken alloc] init];
-    [storedToken updateWithToken:token];
-    return [self.keychainStorage setObject:storedToken
-                                    forKey:[self tokenKey]
-                               accessGroup:self.accessGroup]
+    return [self storeToken:token].recover(^NSError *(NSError *error) {
+      return [FIRAppCheckErrorUtil keychainErrorWithError:error];
+    });
+  } else {
+    return [self.keychainStorage removeObjectForKey:[self tokenKey] accessGroup:self.accessGroup]
         .then(^id _Nullable(NSNull *_Nullable value) {
           return token;
+        })
+        .recover(^NSError *(NSError *error) {
+          return [FIRAppCheckErrorUtil keychainErrorWithError:error];
         });
-  } else {
-    return
-        [self.keychainStorage removeObjectForKey:[self tokenKey] accessGroup:self.accessGroup].then(
-            ^id _Nullable(NSNull *_Nullable value) {
-              return nil;
-            });
   }
+}
+
+#pragma mark - Helpers
+
+- (FBLPromise<NSNull *> *)storeToken:(nullable FIRAppCheckToken *)token {
+  FIRAppCheckStoredToken *storedToken = [[FIRAppCheckStoredToken alloc] init];
+  [storedToken updateWithToken:token];
+  return [self.keychainStorage setObject:storedToken
+                                  forKey:[self tokenKey]
+                             accessGroup:self.accessGroup]
+      .then(^id _Nullable(NSNull *_Nullable value) {
+        return token;
+      });
 }
 
 - (NSString *)tokenKey {

@@ -204,6 +204,14 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   [FIRApp resetApps];
 }
 
+#pragma mark - Public Get Token
+
+//- (void)testGetToken_WhenNoCache_Success {
+//
+//}
+
+#pragma mark - FIRAppCheckInterop Get Token
+
 - (void)testGetToken_WhenNoCache_Success {
   // 1. Expect token to be requested from storage.
   OCMExpect([self.mockStorage getToken]).andReturn([FBLPromise resolvedWith:nil]);

@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
+#import <GoogleUtilities/GULKeychainStorage.h>
+#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FirebaseAppCheck/Sources/Core/Storage/FIRAppCheckStorage.h"
-
-#import <OCMock/OCMock.h>
 #import "FBLPromise+Testing.h"
 
+#import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"
+#import "FirebaseAppCheck/Sources/Core/Storage/FIRAppCheckStorage.h"
 
 @interface FIRAppCheckStorageTests : XCTestCase
 @property(nonatomic) NSString *appName;
+@property(nonatomic) NSString *appID;
 @property(nonatomic) FIRAppCheckStorage *storage;
 @end
 
@@ -34,10 +36,10 @@
   [super setUp];
 
   self.appName = @"FIRAppCheckStorageTestsApp";
-  self.storage =
-      [[FIRAppCheckStorage alloc] initWithAppName:self.appName
-                                            appID:@"1:100000000000:ios:aaaaaaaaaaaaaaaaaaaaaaaa"
-                                      accessGroup:nil];
+  self.appID = @"1:100000000000:ios:aaaaaaaaaaaaaaaaaaaaaaaa";
+  self.storage = [[FIRAppCheckStorage alloc] initWithAppName:self.appName
+                                                       appID:self.appID
+                                                 accessGroup:nil];
 }
 
 - (void)tearDown {
@@ -75,6 +77,91 @@
   XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
   XCTAssertNil(getPromise.value);
   XCTAssertNil(getPromise.error);
+}
+
+- (void)testGetToken_KeychainError {
+  id mockKeychainStorage = OCMClassMock([GULKeychainStorage class]);
+
+  FIRAppCheckStorage *storage = [[FIRAppCheckStorage alloc] initWithAppName:self.appName
+                                                                      appID:self.appID
+                                                            keychainStorage:mockKeychainStorage
+                                                                accessGroup:nil];
+
+  NSError *gulsKeychainError = [NSError errorWithDomain:@"com.guls.keychain" code:-1 userInfo:nil];
+
+  OCMExpect([mockKeychainStorage getObjectForKey:[OCMArg any]
+                                     objectClass:[OCMArg any]
+                                     accessGroup:[OCMArg any]])
+      .andReturn([FBLPromise resolvedWith:gulsKeychainError]);
+
+  __auto_type getPromise = [storage getToken];
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+  XCTAssertNotNil(getPromise.error);
+  XCTAssertEqualObjects(getPromise.error,
+                        [FIRAppCheckErrorUtil keychainErrorWithError:gulsKeychainError]);
+
+  OCMVerifyAll(mockKeychainStorage);
+
+  // Clean-up keychain storage mock.
+  [mockKeychainStorage stopMocking];
+  mockKeychainStorage = nil;
+}
+
+- (void)testSetToken_KeychainError {
+  id mockKeychainStorage = OCMClassMock([GULKeychainStorage class]);
+
+  FIRAppCheckStorage *storage = [[FIRAppCheckStorage alloc] initWithAppName:self.appName
+                                                                      appID:self.appID
+                                                            keychainStorage:mockKeychainStorage
+                                                                accessGroup:nil];
+
+  NSError *gulsKeychainError = [NSError errorWithDomain:@"com.guls.keychain" code:-1 userInfo:nil];
+
+  OCMExpect([mockKeychainStorage setObject:[OCMArg any]
+                                    forKey:[OCMArg any]
+                               accessGroup:[OCMArg any]])
+      .andReturn([FBLPromise resolvedWith:gulsKeychainError]);
+
+  FIRAppCheckToken *tokenToStore = [[FIRAppCheckToken alloc] initWithToken:@"token"
+                                                            expirationDate:[NSDate distantPast]
+                                                            receivedAtDate:[NSDate date]];
+  __auto_type getPromise = [storage setToken:tokenToStore];
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+  XCTAssertNotNil(getPromise.error);
+  XCTAssertEqualObjects(getPromise.error,
+                        [FIRAppCheckErrorUtil keychainErrorWithError:gulsKeychainError]);
+
+  OCMVerifyAll(mockKeychainStorage);
+
+  // Clean-up keychain storage mock.
+  [mockKeychainStorage stopMocking];
+  mockKeychainStorage = nil;
+}
+
+- (void)testRemoveToken_KeychainError {
+  id mockKeychainStorage = OCMClassMock([GULKeychainStorage class]);
+
+  FIRAppCheckStorage *storage = [[FIRAppCheckStorage alloc] initWithAppName:self.appName
+                                                                      appID:self.appID
+                                                            keychainStorage:mockKeychainStorage
+                                                                accessGroup:nil];
+
+  NSError *gulsKeychainError = [NSError errorWithDomain:@"com.guls.keychain" code:-1 userInfo:nil];
+
+  OCMExpect([mockKeychainStorage removeObjectForKey:[OCMArg any] accessGroup:[OCMArg any]])
+      .andReturn([FBLPromise resolvedWith:gulsKeychainError]);
+
+  __auto_type getPromise = [storage setToken:nil];
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+  XCTAssertNotNil(getPromise.error);
+  XCTAssertEqualObjects(getPromise.error,
+                        [FIRAppCheckErrorUtil keychainErrorWithError:gulsKeychainError]);
+
+  OCMVerifyAll(mockKeychainStorage);
+
+  // Clean-up keychain storage mock.
+  [mockKeychainStorage stopMocking];
+  mockKeychainStorage = nil;
 }
 
 - (void)testSetTokenPerApp {

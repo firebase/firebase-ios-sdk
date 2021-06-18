@@ -47,6 +47,13 @@
                      underlyingError:nil];
 }
 
++ (NSError *)keychainErrorWithError:(NSError *)error {
+  NSString *failureReason = [NSString stringWithFormat:@"Keychain access error."];
+  return [self appCheckErrorWithCode:FIRAppCheckErrorCodeKeychain
+                       failureReason:failureReason
+                     underlyingError:error];
+}
+
 + (FIRAppCheckHTTPError *)APIErrorWithHTTPResponse:(NSHTTPURLResponse *)HTTPResponse
                                               data:(nullable NSData *)data {
   return [[FIRAppCheckHTTPError alloc] initWithHTTPResponse:HTTPResponse data:data];
