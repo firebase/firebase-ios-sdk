@@ -1,5 +1,5 @@
 # Unreleased
-- [changed] Sign out the Tester when the call to fetch releases fails with an unauthorized error.
+- [changed] Sign out the Tester when the call to fetch releases fails with an unauthorized error (#8270).
 
 # v7.3.0-beta
 - [changed] Sign out the Tester when the call to fetch releases fails with an unauthenticated error.
