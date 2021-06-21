@@ -30,7 +30,6 @@
     "source": {
         "http": "https://dl.google.com/firebase/ios/analytics/2962dad7aa0f51fb/GoogleAppMeasurement-8.1.1.tar.gz"
     },
-    "static_framework": true,
     "subspecs": [
         {
             "name": "AdIdSupport",
