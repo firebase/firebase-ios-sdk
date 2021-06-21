@@ -256,9 +256,12 @@ static const NSUInteger kExpectedAPIKeyLength = 39;
   return;
 #else
   if (![self isIIDVersionCompatible]) {
-    [NSException raise:kFirebaseInstallationsErrorDomain
-                format:@"FirebaseInstallations will not work correctly with current version of "
-                       @"Firebase Instance ID. Please update your Firebase Instance ID version."];
+    [NSException
+         raise:kFirebaseInstallationsErrorDomain
+        format:@"Firebase Instance ID is not compatible with Firebase 8.x+. Please remove the "
+               @"dependency from the app. See the documentation at "
+               @"https://firebase.google.com/docs/cloud-messaging/ios/"
+               @"client#fetching-the-current-registration-token."];
   }
 #endif
 }
