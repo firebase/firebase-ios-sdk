@@ -334,7 +334,6 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
 
   // 2. Expect token requested from app check provider.
   FIRAppCheckToken *expectedToken = [self validToken];
-
   id completionArg = [OCMArg invokeBlockWithArgs:expectedToken, [NSNull null], nil];
   OCMExpect([self.mockAppCheckProvider getTokenWithCompletion:completionArg]);
 
