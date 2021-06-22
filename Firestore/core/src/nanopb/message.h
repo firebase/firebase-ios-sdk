@@ -173,6 +173,11 @@ class Message {
     return proto_.ToString();
   }
 
+  /** Returns false if and only if Message has been moved from. */
+  constexpr explicit operator bool() const noexcept {
+    return owns_proto_;
+  }
+
  private:
   // Important: this function does *not* modify `owns_proto_`.
   void Free() {
@@ -189,7 +194,7 @@ class Message {
 
 template <typename T>
 Message<T> MakeMessage(const T& proto) {
-  return Message<T>(std::move(proto));
+  return Message<T>(proto);
 }
 
 /**

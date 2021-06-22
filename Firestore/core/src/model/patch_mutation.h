@@ -26,7 +26,6 @@
 #include "Firestore/core/src/model/field_mask.h"
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/model/mutation.h"
-#include "Firestore/core/src/nanopb/message.h"
 
 namespace firebase {
 namespace firestore {

@@ -410,6 +410,7 @@ class SerializerTest : public ::testing::Test {
     ExpectRoundTrip(model, proto);
   }
 
+ private:
   void ExpectSerializationRoundTrip(
       const Message<google_firestore_v1_Value>& model,
       const v1::Value& proto,

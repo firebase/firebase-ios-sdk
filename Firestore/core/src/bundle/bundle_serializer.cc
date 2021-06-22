@@ -640,7 +640,7 @@ Bound BundleSerializer::DecodeBound(JsonReader& reader,
   std::vector<json> values = reader.RequiredArray("values", bound_json);
   bool before = reader.OptionalBool("before", bound_json);
 
-  SharedMessage<google_firestore_v1_ArrayValue> positions{{}};
+  auto positions = MakeSharedMessage<google_firestore_v1_ArrayValue>({});
   SetRepeatedField(
       &positions->values, &positions->values_count, values,
       [&](const json& j) { return *DecodeValue(reader, j).release(); });

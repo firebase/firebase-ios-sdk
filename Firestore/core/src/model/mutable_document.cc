@@ -20,13 +20,10 @@
 #include <sstream>
 
 #include "Firestore/core/src/model/value_util.h"
-#include "Firestore/core/src/nanopb/message.h"
 
 namespace firebase {
 namespace firestore {
 namespace model {
-
-using nanopb::Message;
 
 MutableDocument MutableDocument::InvalidDocument(DocumentKey document_key) {
   return {std::move(document_key), DocumentType::kInvalid,

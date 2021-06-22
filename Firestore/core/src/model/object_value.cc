@@ -183,7 +183,8 @@ ObjectValue::ObjectValue() {
 
 ObjectValue::ObjectValue(Message<google_firestore_v1_Value> value)
     : value_(std::move(value)) {
-  HARD_ASSERT(IsMap(*value_), "ObjectValues should be backed by a MapValue");
+  HARD_ASSERT(value_ && IsMap(*value_),
+              "ObjectValues should be backed by a MapValue");
   SortFields(*value_);
 }
 
