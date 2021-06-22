@@ -198,44 +198,44 @@ nanopb::Message<google_firestore_v1_Value> MakeMap(Args... key_value_pairs) {
 }
 
 /**
- * Recursive base case for AddElements, below. Returns the array.
+ * Recursive base case for AddElements, below.
  */
-inline nanopb::Message<google_firestore_v1_ArrayValue> AddElements(
-    nanopb::Message<google_firestore_v1_ArrayValue> prior) {
-  return prior;
+inline void AddElements(
+    nanopb::Message<google_firestore_v1_ArrayValue>& array_value,
+    pb_size_t pos) {
+  (void)array_value;
+  (void)pos;
 }
 
 /**
  * Inserts the given element into the array, and then recursively calls
  * AddElement to add any remaining arguments.
  *
- * @param prior An array into which the values should be inserted.
+ * @param array_value An array into which the values should be inserted.
+ * @param pos The index of the next element.
  * @param value The element to insert.
  * @param rest Any remaining arguments
- *
- * @return The resulting array.
  */
 template <typename ValueType, typename... Args>
-nanopb::Message<google_firestore_v1_ArrayValue> AddElements(
-    nanopb::Message<google_firestore_v1_ArrayValue> prior,
-    ValueType value,
-    Args... rest) {
-  nanopb::Message<google_firestore_v1_ArrayValue> result = std::move(prior);
-  size_t new_count = result->values_count + 1;
-  result->values_count = nanopb::CheckedSize(new_count);
-  result->values =
-      nanopb::ResizeArray<google_firestore_v1_Value>(result->values, new_count);
-  result->values[new_count - 1] = *Value(std::move(value)).release();
-  return AddElements(std::move(result), std::forward<Args>(rest)...);
+void AddElements(nanopb::Message<google_firestore_v1_ArrayValue>& array_value,
+                 pb_size_t pos,
+                 ValueType value,
+                 Args... rest) {
+  array_value->values[pos] = *Value(std::move(value)).release();
+  AddElements(array_value, ++pos, std::forward<Args>(rest)...);
 }
 
 /**
- * Creates an array from the given elemens.
+ * Inserts the elements into the given array.
  */
 template <typename... Args>
 nanopb::Message<google_firestore_v1_ArrayValue> MakeArray(Args... values) {
   nanopb::Message<google_firestore_v1_ArrayValue> array_value{};
-  return AddElements(std::move(array_value), std::forward<Args>(values)...);
+  array_value->values_count = nanopb::CheckedSize(sizeof...(Args));
+  array_value->values =
+      nanopb::MakeArray<google_firestore_v1_Value>(array_value->values_count);
+  AddElements(array_value, 0, std::forward<Args>(values)...);
+  return array_value;
 }
 
 }  // namespace details
