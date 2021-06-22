@@ -14,13 +14,13 @@
 
 import FirebaseStorage
 
+@available(iOS 15.0, *)
 public extension StorageReference {
-  
   @discardableResult
   func putDataAwait(_ uploadData: Data,
-               metadata: StorageMetadata? = nil) async throws -> StorageMetadata {
-// TODO: Add a parameter to capture StorageUploadTask and to enable Progress tracking.
+                    metadata: StorageMetadata? = nil) async throws -> StorageMetadata {
+    // TODO: Add a parameter to capture StorageUploadTask and to enable Progress tracking.
 //    -> StorageUploadTask {
-   return try await __putDataGlue(uploadData, metadata: metadata)
+    return try await __putDataGlue(uploadData, metadata: metadata)
   }
 }

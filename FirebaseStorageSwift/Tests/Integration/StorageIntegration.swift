@@ -19,7 +19,6 @@ import FirebaseStorageSwift
 import XCTest
 
 class StorageResultTests: StorageIntegrationCommon {
-
   func testGetMetadata() {
     let expectation = self.expectation(description: "testGetMetadata")
     let ref = storage.reference().child("ios/public/1mb")

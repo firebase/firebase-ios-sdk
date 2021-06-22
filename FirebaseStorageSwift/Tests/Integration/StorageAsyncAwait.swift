@@ -47,7 +47,7 @@ class StorageAsyncAwait: StorageIntegrationCommon {
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
     let result = try await ref.putDataAwait(data, metadata: nil)
     XCTAssertNotNil(result)
-    let _ = try await ref.delete()
+    _ = try await ref.delete()
   }
 
   func testDeleteWithNilCompletion() throws {

@@ -130,7 +130,7 @@ NS_SWIFT_NAME(putData(_:metadata:));
                          metadata:(nullable FIRStorageMetadata *)metadata
                        completion:(nullable void (^)(FIRStorageMetadata *_Nullable metadata,
                                                      NSError *_Nullable error))completion
-            NS_SWIFT_NAME(putData(_:metadata:completion:));
+    NS_SWIFT_NAME(putData(_:metadata:completion:));
 
 - (void)__putData:(NSData *)uploadData
          metadata:(nullable FIRStorageMetadata *)metadata
