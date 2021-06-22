@@ -453,12 +453,12 @@ std::pair<std::string, TransformOperation> Increment(
 
 std::pair<std::string, TransformOperation> ArrayUnion(
     std::string field,
-    std::vector<Message<google_firestore_v1_Value>> operands) {
+    const std::vector<Message<google_firestore_v1_Value>>& operands) {
   Message<google_firestore_v1_ArrayValue> array_value;
   SetRepeatedField(&array_value->values, &array_value->values_count,
                    operands.begin(), operands.end(),
-                   [](Message<google_firestore_v1_Value> value) {
-                     return *value.release();
+                   [](const Message<google_firestore_v1_Value>& value) {
+                     return *DeepClone(*value).release();
                    });
   model::ArrayTransform transform(TransformOperation::Type::ArrayUnion,
                                   std::move(array_value));

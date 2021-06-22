@@ -402,7 +402,7 @@ std::pair<std::string, model::TransformOperation> Increment(
  */
 std::pair<std::string, model::TransformOperation> ArrayUnion(
     std::string field,
-    std::vector<nanopb::Message<google_firestore_v1_Value>> operands);
+    const std::vector<nanopb::Message<google_firestore_v1_Value>>& operands);
 
 model::DeleteMutation DeleteMutation(absl::string_view path);
 

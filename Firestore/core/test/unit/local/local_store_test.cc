@@ -1373,7 +1373,7 @@ TEST_P(LocalStoreTest, HoldsBackOnlyNonIdempotentTransforms) {
                               {testutil::Increment("sum", Value(1))}),
       testutil::PatchMutation(
           "foo/bar", Map(),
-          {testutil::ArrayUnion("array_union", std::move(array_union))}),
+          {testutil::ArrayUnion("array_union", array_union)}),
   });
 
   FSTAssertChanged(Doc("foo/bar", 1, Map("sum", 1, "array_union", Array("foo")))

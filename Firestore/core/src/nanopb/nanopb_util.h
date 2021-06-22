@@ -127,7 +127,7 @@ void SetRepeatedField(T* _Nonnull* _Nonnull fields_array,
   *fields_array = nanopb::MakeArray<T>(*fields_count);
   auto* current = *fields_array;
   while (first != last) {
-    *current = converter(std::move(*first));
+    *current = converter(*first);
     ++current;
     ++first;
   }
