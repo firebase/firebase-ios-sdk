@@ -60,10 +60,10 @@ NS_SWIFT_NAME(AppCheck)
 /// error, indicating a revoked token.
 /// @param handler The completion handler. Includes the app check token if the request succeeds,
 /// or an error if the request fails.
-- (void)appCheckTokenForcingRefresh:(BOOL)forcingRefresh
-                         completion:(void (^)(FIRAppCheckToken *_Nullable token,
-                                              NSError *_Nullable error))handler
-    NS_SWIFT_NAME(appCheckToken(forcingRefresh:completion:));
+- (void)tokenForcingRefresh:(BOOL)forcingRefresh
+                 completion:
+                     (void (^)(FIRAppCheckToken *_Nullable token, NSError *_Nullable error))handler
+    NS_SWIFT_NAME(token(forcingRefresh:completion:));
 
 /// Sets the `AppCheckProviderFactory` to use to generate
 /// `AppCheckDebugProvider` objects.
