@@ -16,6 +16,8 @@
 
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckErrors.h"
 
+#import <GoogleUtilities/GULKeychainUtils.h>
+
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckHTTPError.h"
 
@@ -26,12 +28,10 @@
     return error;
   }
 
-  NSString *failureReason = error.userInfo[NSLocalizedFailureReasonErrorKey];
-
-  return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnknown
-                       failureReason:failureReason
-                     underlyingError:error];
+  return [self unknownErrorWithError:error];
 }
+
+#pragma mark - Internal errors
 
 + (NSError *)cachedTokenNotFound {
   NSString *failureReason = [NSString stringWithFormat:@"Cached token not found."];
@@ -48,10 +48,14 @@
 }
 
 + (NSError *)keychainErrorWithError:(NSError *)error {
-  NSString *failureReason = [NSString stringWithFormat:@"Keychain access error."];
-  return [self appCheckErrorWithCode:FIRAppCheckErrorCodeKeychain
-                       failureReason:failureReason
-                     underlyingError:error];
+  if ([error.domain isEqualToString:kGULKeychainUtilsErrorDomain]) {
+    NSString *failureReason = [NSString stringWithFormat:@"Keychain access error."];
+    return [self appCheckErrorWithCode:FIRAppCheckErrorCodeKeychain
+                         failureReason:failureReason
+                       underlyingError:error];
+  }
+
+  return [self unknownErrorWithError:error];
 }
 
 + (FIRAppCheckHTTPError *)APIErrorWithHTTPResponse:(NSHTTPURLResponse *)HTTPResponse
@@ -102,7 +106,7 @@
 }
 
 + (NSError *)appAttestKeyIDNotFound {
-  NSString *failureReason = @"App attest key ID not found.";
+  NSString *failureReason = [NSString stringWithFormat:@"App attest key ID not found."];
   return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnknown
                        failureReason:failureReason
                      underlyingError:nil];
@@ -112,6 +116,15 @@
   return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnknown
                        failureReason:failureReason
                      underlyingError:nil];
+}
+
+#pragma mark - Helpers
+
++ (NSError *)unknownErrorWithError:(NSError *)error {
+  NSString *failureReason = error.userInfo[NSLocalizedFailureReasonErrorKey];
+  return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnknown
+                       failureReason:failureReason
+                     underlyingError:error];
 }
 
 + (NSError *)appCheckErrorWithCode:(FIRAppCheckErrorCode)code
