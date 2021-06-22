@@ -465,6 +465,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 - (nullable instancetype)initWithAPIKey:(NSString *)APIKey appName:(NSString *)appName {
   self = [super init];
   if (self) {
+    _callbackQueue = dispatch_get_main_queue();
     _listenerHandles = [NSMutableArray array];
     _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:APIKey];
     _firebaseAppName = [appName copy];
@@ -581,6 +582,14 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   return result;
 }
 
+- (void)setCallbackQueue:(dispatch_queue_t _Nullable)callbackQueue {
+  if (callbackQueue == nil) {
+    _callbackQueue = dispatch_get_main_queue();
+  } else {
+    _callbackQueue = callbackQueue;
+  }
+}
+
 - (void)signInWithProvider:(id<FIRFederatedAuthProvider>)provider
                 UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
                 completion:(nullable FIRAuthDataResultCallback)completion {
@@ -615,7 +624,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
         createAuthURI:request
              callback:^(FIRCreateAuthURIResponse *_Nullable response, NSError *_Nullable error) {
                if (completion) {
-                 dispatch_async(dispatch_get_main_queue(), ^{
+                 dispatch_async(self.callbackQueue, ^{
                    completion(response.signinMethods, error);
                  });
                }
@@ -1128,7 +1137,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
         resetPassword:request
              callback:^(FIRResetPasswordResponse *_Nullable response, NSError *_Nullable error) {
                if (completion) {
-                 dispatch_async(dispatch_get_main_queue(), ^{
+                 dispatch_async(self.callbackQueue, ^{
                    if (error) {
                      completion(error);
                      return;
@@ -1151,7 +1160,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
              callback:^(FIRResetPasswordResponse *_Nullable response, NSError *_Nullable error) {
                if (completion) {
                  if (error) {
-                   dispatch_async(dispatch_get_main_queue(), ^{
+                   dispatch_async(self.callbackQueue, ^{
                      completion(nil, error);
                    });
                    return;
@@ -1162,7 +1171,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                      [[FIRActionCodeInfo alloc] initWithOperation:operation
                                                             email:response.email
                                                          newEmail:response.verifiedEmail];
-                 dispatch_async(dispatch_get_main_queue(), ^{
+                 dispatch_async(self.callbackQueue, ^{
                    completion(actionCodeInfo, nil);
                  });
                }
@@ -1193,7 +1202,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
         setAccountInfo:request
               callback:^(FIRSetAccountInfoResponse *_Nullable response, NSError *_Nullable error) {
                 if (completion) {
-                  dispatch_async(dispatch_get_main_queue(), ^{
+                  dispatch_async(self.callbackQueue, ^{
                     completion(error);
                   });
                 }
@@ -1242,7 +1251,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                   callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
                                              NSError *_Nullable error) {
                                     if (completion) {
-                                      dispatch_async(dispatch_get_main_queue(), ^{
+                                      dispatch_async(self.callbackQueue, ^{
                                         completion(error);
                                       });
                                     }
@@ -1271,7 +1280,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                   callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
                                              NSError *_Nullable error) {
                                     if (completion) {
-                                      dispatch_async(dispatch_get_main_queue(), ^{
+                                      dispatch_async(self.callbackQueue, ^{
                                         completion(error);
                                       });
                                     }
@@ -1283,7 +1292,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
     if (!user) {
       if (completion) {
-        dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_async(self.callbackQueue, ^{
           completion([FIRAuthErrorUtils nullUserErrorWithMessage:nil]);
         });
       }
@@ -1294,14 +1303,14 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       [self updateCurrentUser:user byForce:YES savingToDisk:YES error:(&error)];
       if (error) {
         if (completion) {
-          dispatch_async(dispatch_get_main_queue(), ^{
+          dispatch_async(self.callbackQueue, ^{
             completion(error);
           });
         }
         return;
       }
       if (completion) {
-        dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_async(self.callbackQueue, ^{
           completion(nil);
         });
       }
@@ -1313,7 +1322,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       [user reloadWithCompletion:^(NSError *_Nullable error) {
         if (error) {
           if (completion) {
-            dispatch_async(dispatch_get_main_queue(), ^{
+            dispatch_async(self.callbackQueue, ^{
               completion(error);
             });
           }
@@ -1408,7 +1417,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   @synchronized(self) {
     [_listenerHandles addObject:handle];
   }
-  dispatch_async(dispatch_get_main_queue(), ^{
+  dispatch_async(self.callbackQueue, ^{
     listener(self, self->_currentUser);
   });
   return handle;
@@ -1712,7 +1721,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   internalNotificationParameters[FIRAuthStateDidChangeInternalNotificationUIDKey] =
       _currentUser.uid;
   NSNotificationCenter *notifications = [NSNotificationCenter defaultCenter];
-  dispatch_async(dispatch_get_main_queue(), ^{
+  dispatch_async(self.callbackQueue, ^{
     [notifications postNotificationName:FIRAuthStateDidChangeInternalNotification
                                  object:self
                                userInfo:internalNotificationParameters];
@@ -1883,7 +1892,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   return ^(FIRUser *_Nullable user, NSError *_Nullable error) {
     if (error) {
       if (callback) {
-        dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_async(self.callbackQueue, ^{
           callback(nil, error);
         });
       }
@@ -1891,14 +1900,14 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     }
     if (![self updateCurrentUser:user byForce:NO savingToDisk:YES error:&error]) {
       if (callback) {
-        dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_async(self.callbackQueue, ^{
           callback(nil, error);
         });
       }
       return;
     }
     if (callback) {
-      dispatch_async(dispatch_get_main_queue(), ^{
+      dispatch_async(self.callbackQueue, ^{
         callback(user, nil);
       });
     }
@@ -1920,7 +1929,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   return ^(FIRAuthDataResult *_Nullable authResult, NSError *_Nullable error) {
     if (error) {
       if (callback) {
-        dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_async(self.callbackQueue, ^{
           callback(nil, error);
         });
       }
@@ -1928,14 +1937,14 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     }
     if (![self updateCurrentUser:authResult.user byForce:NO savingToDisk:YES error:&error]) {
       if (callback) {
-        dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_async(self.callbackQueue, ^{
           callback(nil, error);
         });
       }
       return;
     }
     if (callback) {
-      dispatch_async(dispatch_get_main_queue(), ^{
+      dispatch_async(self.callbackQueue, ^{
         callback(authResult, nil);
       });
     }
@@ -2127,7 +2136,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       NSString *userKey = [NSString stringWithFormat:kUserKey, app.name];
       [keychain removeDataForKey:userKey error:NULL];
     }
-    dispatch_async(dispatch_get_main_queue(), ^{
+    dispatch_async(self.callbackQueue, ^{
       // TODO: Move over to fire an event instead, once ready.
       [[NSNotificationCenter defaultCenter] postNotificationName:FIRAuthStateDidChangeNotification
                                                           object:nil];
@@ -2175,7 +2184,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     }
     // Call back with 'nil' if there is no current user.
     if (!strongSelf || !strongSelf->_currentUser) {
-      dispatch_async(dispatch_get_main_queue(), ^{
+      dispatch_async(self.callbackQueue, ^{
         callback(nil, nil);
       });
       return;
@@ -2184,7 +2193,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     [strongSelf->_currentUser
         internalGetTokenForcingRefresh:forceRefresh
                               callback:^(NSString *_Nullable token, NSError *_Nullable error) {
-                                dispatch_async(dispatch_get_main_queue(), ^{
+                                dispatch_async(self.callbackQueue, ^{
                                   callback(token, error);
                                 });
                               }];

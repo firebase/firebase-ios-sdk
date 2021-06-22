@@ -102,6 +102,7 @@ static const NSTimeInterval kProbingTimeout = 1;
   _hasCheckedNotificationForwarding = YES;
   _pendingCallbacks =
       [[NSMutableArray<FIRAuthNotificationForwardingCallback> alloc] initWithObjects:callback, nil];
+  // Must be dispatched to the main queue since UIApplication isn't thread-safe.
   dispatch_async(dispatch_get_main_queue(), ^{
     NSDictionary *proberNotification = @{
       kNotificationDataKey : @{

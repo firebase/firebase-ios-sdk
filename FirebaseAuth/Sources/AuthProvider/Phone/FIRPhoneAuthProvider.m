@@ -148,11 +148,12 @@ extern NSString *const FIRPhoneMultiFactorID;
                 format:@"Please register custom URL scheme '%@' in the app's Info.plist file.",
                        _callbackScheme];
   }
+  dispatch_queue_t callbackQueue = _auth.callbackQueue ?: dispatch_get_main_queue();
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
-    FIRVerificationResultCallback callBackOnMainThread =
+    FIRVerificationResultCallback invokeCompletion =
         ^(NSString *_Nullable verificationID, NSError *_Nullable error) {
           if (completion) {
-            dispatch_async(dispatch_get_main_queue(), ^{
+            dispatch_async(callbackQueue, ^{
               completion(verificationID, error);
             });
           }
@@ -162,10 +163,10 @@ extern NSString *const FIRPhoneMultiFactorID;
                        UIDelegate:UIDelegate
                        completion:^(NSString *_Nullable verificationID, NSError *_Nullable error) {
                          if (!error) {
-                           callBackOnMainThread(verificationID, nil);
+                           invokeCompletion(verificationID, nil);
                            return;
                          } else {
-                           callBackOnMainThread(nil, error);
+                           invokeCompletion(nil, error);
                            return;
                          }
                        }];
@@ -197,11 +198,12 @@ extern NSString *const FIRPhoneMultiFactorID;
                 format:@"Please register custom URL scheme '%@' in the app's Info.plist file.",
                        _callbackScheme];
   }
+  dispatch_queue_t callbackQueue = _auth.callbackQueue ?: dispatch_get_main_queue();
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
-    FIRVerificationResultCallback callBackOnMainThread =
+    FIRVerificationResultCallback invokeCompletion =
         ^(NSString *_Nullable verificationID, NSError *_Nullable error) {
           if (completion) {
-            dispatch_async(dispatch_get_main_queue(), ^{
+            dispatch_async(callbackQueue, ^{
               completion(verificationID, error);
             });
           }
@@ -212,10 +214,10 @@ extern NSString *const FIRPhoneMultiFactorID;
                multiFactorSession:session
                        completion:^(NSString *_Nullable verificationID, NSError *_Nullable error) {
                          if (!error) {
-                           callBackOnMainThread(verificationID, nil);
+                           invokeCompletion(verificationID, nil);
                            return;
                          } else {
-                           callBackOnMainThread(nil, error);
+                           invokeCompletion(nil, error);
                            return;
                          }
                        }];
