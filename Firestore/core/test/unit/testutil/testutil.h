@@ -220,7 +220,7 @@ template <typename ValueType, typename... Args>
 void AddElements(nanopb::Message<google_firestore_v1_ArrayValue>& array_value,
                  pb_size_t pos,
                  ValueType value,
-                 Args... rest) {
+                 Args&&... rest) {
   array_value->values[pos] = *Value(std::move(value)).release();
   AddElements(array_value, ++pos, std::forward<Args>(rest)...);
 }
@@ -229,7 +229,7 @@ void AddElements(nanopb::Message<google_firestore_v1_ArrayValue>& array_value,
  * Inserts the elements into the given array.
  */
 template <typename... Args>
-nanopb::Message<google_firestore_v1_ArrayValue> MakeArray(Args... values) {
+nanopb::Message<google_firestore_v1_ArrayValue> MakeArray(Args&&... values) {
   nanopb::Message<google_firestore_v1_ArrayValue> array_value{};
   array_value->values_count = nanopb::CheckedSize(sizeof...(Args));
   array_value->values =
