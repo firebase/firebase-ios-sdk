@@ -22,9 +22,10 @@
 
 #import "FBLPromise+Testing.h"
 
+#import "FirebaseAppCheck/Sources/Core/Storage/FIRAppCheckStorage.h"
+
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"
-#import "FirebaseAppCheck/Sources/Core/Storage/FIRAppCheckStorage.h"
 
 @interface FIRAppCheckStorageTests : XCTestCase
 @property(nonatomic) NSString *appName;
