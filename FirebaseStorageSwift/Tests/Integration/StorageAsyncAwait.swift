@@ -1,4 +1,4 @@
-// Copyright 2020 Google LLC
+// Copyright 2021 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,56 +18,36 @@ import FirebaseStorage
 import FirebaseStorageSwift
 import XCTest
 
-class StorageResultTests: StorageIntegrationCommon {
-
-  func testGetMetadata() {
-    let expectation = self.expectation(description: "testGetMetadata")
-    let ref = storage.reference().child("ios/public/1mb")
-    ref.getMetadata { result in
-      self.assertResultSuccess(result)
-      expectation.fulfill()
-    }
-    waitForExpectations()
+@available(iOS 15.0, *)
+class StorageAsyncAwait: StorageIntegrationCommon {
+  func testGetMetadata() async throws {
+    let ref = storage.reference().child("ios/public/1mb2")
+    let result = try await ref.getMetadata()
+    XCTAssertNotNil(result)
   }
 
-  func testUpdateMetadata() {
-    let expectation = self.expectation(description: #function)
-
+  func testUpdateMetadata() async throws {
     let meta = StorageMetadata()
     meta.contentType = "lol/custom"
     meta.customMetadata = ["lol": "custom metadata is neat",
                            "ちかてつ": "🚇",
                            "shinkansen": "新幹線"]
 
-    let ref = storage.reference(withPath: "ios/public/1mb")
-    ref.updateMetadata(meta) { result in
-      switch result {
-      case let .success(metadata):
-        XCTAssertEqual(meta.contentType, metadata.contentType)
-        XCTAssertEqual(meta.customMetadata!["lol"], metadata.customMetadata!["lol"])
-        XCTAssertEqual(meta.customMetadata!["ちかてつ"], metadata.customMetadata!["ちかてつ"])
-        XCTAssertEqual(meta.customMetadata!["shinkansen"],
-                       metadata.customMetadata!["shinkansen"])
-      case let .failure(error):
-        XCTFail("Unexpected error \(error) from updateMetadata")
-      }
-      expectation.fulfill()
-    }
-    waitForExpectations()
+    let ref = storage.reference(withPath: "ios/public/1mb2")
+    let metadata = try await ref.updateMetadata(meta)
+    XCTAssertEqual(meta.contentType, metadata.contentType)
+    XCTAssertEqual(meta.customMetadata!["lol"], metadata.customMetadata!["lol"])
+    XCTAssertEqual(meta.customMetadata!["ちかてつ"], metadata.customMetadata!["ちかてつ"])
+    XCTAssertEqual(meta.customMetadata!["shinkansen"],
+                   metadata.customMetadata!["shinkansen"])
   }
 
-  func testDelete() throws {
-    let expectation = self.expectation(description: #function)
+  func testDelete() async throws {
     let ref = storage.reference(withPath: "ios/public/fileToDelete")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
-    ref.putData(data) { result in
-      self.assertResultSuccess(result)
-      ref.delete { error in
-        XCTAssertNil(error, "Error should be nil")
-      }
-      expectation.fulfill()
-    }
-    waitForExpectations()
+    let result = try await ref.putDataAwait(data, metadata: nil)
+    XCTAssertNotNil(result)
+    let _ = try await ref.delete()
   }
 
   func testDeleteWithNilCompletion() throws {
@@ -230,17 +210,11 @@ class StorageResultTests: StorageIntegrationCommon {
     waitForExpectations()
   }
 
-  func testSimplePutDataNoMetadata() throws {
-    let expectation = self.expectation(description: #function)
-
+  func testSimplePutDataNoMetadata() async throws {
     let ref = storage.reference(withPath: "ios/public/testSimplePutDataNoMetadata")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
-
-    ref.putData(data) { result in
-      self.assertResultSuccess(result)
-      expectation.fulfill()
-    }
-    waitForExpectations()
+    let result = try await ref.putDataAwait(data)
+    XCTAssertNotNil(result)
   }
 
   func testSimplePutFileNoMetadata() throws {
@@ -259,102 +233,49 @@ class StorageResultTests: StorageIntegrationCommon {
     waitForExpectations()
   }
 
-  func testSimpleGetData() {
-    let expectation = self.expectation(description: #function)
-
-    let ref = storage.reference(withPath: "ios/public/1mb")
-    ref.getData(maxSize: 1024 * 1024) { result in
-      self.assertResultSuccess(result)
-      expectation.fulfill()
-    }
-    waitForExpectations()
+  func testSimpleGetData() async throws {
+    let ref = storage.reference(withPath: "ios/public/1mb2")
+    let result = try await ref.data(maxSize: 1024 * 1024)
+    XCTAssertNotNil(result)
   }
 
-  func testSimpleGetDataInBackgroundQueue() {
-    let expectation = self.expectation(description: #function)
-
-    let ref = storage.reference(withPath: "ios/public/1mb")
-    DispatchQueue.global(qos: .background).async {
-      ref.getData(maxSize: 1024 * 1024) { result in
-        self.assertResultSuccess(result)
-        expectation.fulfill()
+  func testSimpleGetDataInBackgroundQueue() async throws {
+    actor MyBackground {
+      func doit(_ ref: StorageReference) async throws -> Data {
+        XCTAssertFalse(Thread.isMainThread)
+        return try await ref.data(maxSize: 1024 * 1024)
       }
     }
-    waitForExpectations()
+    let ref = storage.reference(withPath: "ios/public/1mb2")
+    let result = try await MyBackground().doit(ref)
+    XCTAssertNotNil(result)
   }
 
-  func testSimpleGetDataWithCustomCallbackQueue() {
-    let expectation = self.expectation(description: #function)
-
-    let callbackQueueLabel = "customCallbackQueue"
-    let callbackQueueKey = DispatchSpecificKey<String>()
-    let callbackQueue = DispatchQueue(label: callbackQueueLabel)
-    callbackQueue.setSpecific(key: callbackQueueKey, value: callbackQueueLabel)
-    storage.callbackQueue = callbackQueue
-
-    let ref = storage.reference(withPath: "ios/public/1mb")
-    ref.getData(maxSize: 1024 * 1024) { result in
-      self.assertResultSuccess(result)
-
-      XCTAssertFalse(Thread.isMainThread)
-
-      let currentQueueLabel = DispatchQueue.getSpecific(key: callbackQueueKey)
-      XCTAssertEqual(currentQueueLabel, callbackQueueLabel)
-
-      expectation.fulfill()
-
-      // Reset the callbackQueue to default (main queue).
-      self.storage.callbackQueue = DispatchQueue.main
-      callbackQueue.setSpecific(key: callbackQueueKey, value: nil)
+  func testSimpleGetDataTooSmall() async {
+    let ref = storage.reference(withPath: "ios/public/1mb2")
+    do {
+      _ = try await ref.data(maxSize: 1024)
+      XCTFail("Unexpected success from getData too small")
+    } catch {
+      XCTAssertEqual((error as NSError).code, StorageErrorCode.downloadSizeExceeded.rawValue)
     }
-    waitForExpectations()
   }
 
-  func testSimpleGetDataTooSmall() {
-    let expectation = self.expectation(description: #function)
-
-    let ref = storage.reference(withPath: "ios/public/1mb")
-    ref.getData(maxSize: 1024) { result in
-      switch result {
-      case .success:
-        XCTFail("Unexpected success from getData too small")
-      case let .failure(error as NSError):
-        XCTAssertEqual(error.code, StorageErrorCode.downloadSizeExceeded.rawValue)
-      }
-      expectation.fulfill()
-    }
-    waitForExpectations()
-  }
-
-  func testSimpleGetDownloadURL() {
-    let expectation = self.expectation(description: #function)
-
-    let ref = storage.reference(withPath: "ios/public/1mb")
+  func testSimpleGetDownloadURL() async throws {
+    let ref = storage.reference(withPath: "ios/public/1mb2")
 
     // Download URL format is
     // "https://firebasestorage.googleapis.com:443/v0/b/{bucket}/o/{path}?alt=media&token={token}"
     let downloadURLPattern =
       "^https:\\/\\/firebasestorage.googleapis.com:443\\/v0\\/b\\/[^\\/]*\\/o\\/" +
-      "ios%2Fpublic%2F1mb\\?alt=media&token=[a-z0-9-]*$"
+      "ios%2Fpublic%2F1mb2\\?alt=media&token=[a-z0-9-]*$"
 
-    ref.downloadURL { result in
-      switch result {
-      case let .success(downloadURL):
-        do {
-          let testRegex = try NSRegularExpression(pattern: downloadURLPattern)
-          let urlString = downloadURL.absoluteString
-          XCTAssertEqual(testRegex.numberOfMatches(in: urlString,
-                                                   range: NSRange(location: 0,
-                                                                  length: urlString.count)), 1)
-        } catch {
-          XCTFail("Throw in downloadURL completion block")
-        }
-      case let .failure(error):
-        XCTFail("Unexpected error \(error) from downloadURL")
-      }
-      expectation.fulfill()
-    }
-    waitForExpectations()
+    let downloadURL = try await ref.downloadURL()
+    let testRegex = try NSRegularExpression(pattern: downloadURLPattern)
+    let urlString = downloadURL.absoluteString
+    XCTAssertEqual(testRegex.numberOfMatches(in: urlString,
+                                             range: NSRange(location: 0,
+                                                            length: urlString.count)), 1)
   }
 
   func testSimpleGetFile() throws {
@@ -364,36 +285,32 @@ class StorageResultTests: StorageIntegrationCommon {
     let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
 
-    ref.putData(data) { result in
-      switch result {
-      case .success:
-        let task = ref.write(toFile: fileURL)
+    async {
+      try await ref.putDataAwait(data)
+      let task = ref.write(toFile: fileURL)
 
-        task.observe(StorageTaskStatus.success) { snapshot in
-          do {
-            let stringData = try String(contentsOf: fileURL, encoding: .utf8)
-            XCTAssertEqual(stringData, "Hello Swift World")
-            XCTAssertEqual(snapshot.description, "<State: Success>")
-          } catch {
-            XCTFail("Error processing success snapshot")
-          }
-          expectation.fulfill()
+      // TODO: Update to use Swift Tasks
+      task.observe(StorageTaskStatus.success) { snapshot in
+        do {
+          let stringData = try String(contentsOf: fileURL, encoding: .utf8)
+          XCTAssertEqual(stringData, "Hello Swift World")
+          XCTAssertEqual(snapshot.description, "<State: Success>")
+        } catch {
+          XCTFail("Error processing success snapshot")
         }
-
-        task.observe(StorageTaskStatus.progress) { snapshot in
-          XCTAssertNil(snapshot.error, "Error should be nil")
-          guard let progress = snapshot.progress else {
-            XCTFail("Missing progress")
-            return
-          }
-          print("\(progress.completedUnitCount) of \(progress.totalUnitCount)")
-        }
-        task.observe(StorageTaskStatus.failure) { snapshot in
-          XCTAssertNil(snapshot.error, "Error should be nil")
-        }
-      case let .failure(error):
-        XCTFail("Unexpected error \(error) from putData")
         expectation.fulfill()
+      }
+
+      task.observe(StorageTaskStatus.progress) { snapshot in
+        XCTAssertNil(snapshot.error, "Error should be nil")
+        guard let progress = snapshot.progress else {
+          XCTFail("Missing progress")
+          return
+        }
+        print("\(progress.completedUnitCount) of \(progress.totalUnitCount)")
+      }
+      task.observe(StorageTaskStatus.failure) { snapshot in
+        XCTAssertNil(snapshot.error, "Error should be nil")
       }
     }
     waitForExpectations()
@@ -423,9 +340,8 @@ class StorageResultTests: StorageIntegrationCommon {
     XCTAssertNil(actualMetadata.customMetadata)
   }
 
-  func testUpdateMetadata2() {
-    let expectation = self.expectation(description: #function)
-    let ref = storage.reference(withPath: "ios/public/1mb")
+  func testUpdateMetadata2() async throws {
+    let ref = storage.reference(withPath: "ios/public/1mb2")
 
     let metadata = StorageMetadata()
     metadata.cacheControl = "cache-control"
@@ -435,95 +351,50 @@ class StorageResultTests: StorageIntegrationCommon {
     metadata.contentType = "content-type-a"
     metadata.customMetadata = ["a": "b"]
 
-    ref.updateMetadata(metadata) { updatedMetadata, error in
-      XCTAssertNil(error, "Error should be nil")
-      guard let updatedMetadata = updatedMetadata else {
-        XCTFail("Metadata is nil")
-        expectation.fulfill()
-        return
-      }
-      self.assertMetadata(actualMetadata: updatedMetadata,
-                          expectedContentType: "content-type-a",
-                          expectedCustomMetadata: ["a": "b"])
+    let updatedMetadata = try await ref.updateMetadata(metadata)
+    assertMetadata(actualMetadata: updatedMetadata,
+                   expectedContentType: "content-type-a",
+                   expectedCustomMetadata: ["a": "b"])
 
-      let metadata = updatedMetadata
-      metadata.contentType = "content-type-b"
-      metadata.customMetadata = ["a": "b", "c": "d"]
+    let metadata2 = updatedMetadata
+    metadata2.contentType = "content-type-b"
+    metadata2.customMetadata = ["a": "b", "c": "d"]
 
-      ref.updateMetadata(metadata) { result in
-        switch result {
-        case let .success(updatedMetadata):
-          self.assertMetadata(actualMetadata: updatedMetadata,
-                              expectedContentType: "content-type-b",
-                              expectedCustomMetadata: ["a": "b", "c": "d"])
-          metadata.cacheControl = nil
-          metadata.contentDisposition = nil
-          metadata.contentEncoding = nil
-          metadata.contentLanguage = nil
-          metadata.contentType = nil
-          metadata.customMetadata = nil
-          ref.updateMetadata(metadata) { result in
-            self.assertResultSuccess(result)
-            expectation.fulfill()
-          }
-        case let .failure(error):
-          XCTFail("Unexpected error \(error) from updateMetadata")
-          expectation.fulfill()
-        }
-      }
-    }
-    waitForExpectations()
+    let metadata3 = try await ref.updateMetadata(metadata2)
+    assertMetadata(actualMetadata: metadata3,
+                   expectedContentType: "content-type-b",
+                   expectedCustomMetadata: ["a": "b", "c": "d"])
+    metadata.cacheControl = nil
+    metadata.contentDisposition = nil
+    metadata.contentEncoding = nil
+    metadata.contentLanguage = nil
+    metadata.contentType = nil
+    metadata.customMetadata = nil
+    let metadata4 = try await ref.updateMetadata(metadata)
+    XCTAssertNotNil(metadata4)
   }
 
-  func testPagedListFiles() {
-    let expectation = self.expectation(description: #function)
+  func testPagedListFiles() async throws {
     let ref = storage.reference(withPath: "ios/public/list")
-
-    ref.list(maxResults: 2) { result in
-      switch result {
-      case let .success(listResult):
-        XCTAssertEqual(listResult.items, [ref.child("a"), ref.child("b")])
-        XCTAssertEqual(listResult.prefixes, [])
-        guard let pageToken = listResult.pageToken else {
-          XCTFail("pageToken should not be nil")
-          expectation.fulfill()
-          return
-        }
-        ref.list(maxResults: 2, pageToken: pageToken) { result in
-          switch result {
-          case let .success(listResult):
-            XCTAssertEqual(listResult.items, [])
-            XCTAssertEqual(listResult.prefixes, [ref.child("prefix")])
-            XCTAssertNil(listResult.pageToken, "pageToken should be nil")
-          case let .failure(error):
-            XCTFail("Unexpected error \(error) from list")
-          }
-          expectation.fulfill()
-        }
-      case let .failure(error):
-        XCTFail("Unexpected error \(error) from list")
-        expectation.fulfill()
-      }
+    let listResult = try await ref.list(maxResults: 2)
+    XCTAssertEqual(listResult.items, [ref.child("a"), ref.child("b")])
+    XCTAssertEqual(listResult.prefixes, [])
+    guard let pageToken = listResult.pageToken else {
+      XCTFail("pageToken should not be nil")
+      return
     }
-    waitForExpectations()
+    let listResult2 = try await ref.list(maxResults: 2, pageToken: pageToken)
+    XCTAssertEqual(listResult2.items, [])
+    XCTAssertEqual(listResult2.prefixes, [ref.child("prefix")])
+    XCTAssertNil(listResult2.pageToken, "pageToken should be nil")
   }
 
-  func testListAllFiles() {
-    let expectation = self.expectation(description: #function)
+  func testListAllFiles() async throws {
     let ref = storage.reference(withPath: "ios/public/list")
-
-    ref.listAll { result in
-      switch result {
-      case let .success(listResult):
-        XCTAssertEqual(listResult.items, [ref.child("a"), ref.child("b")])
-        XCTAssertEqual(listResult.prefixes, [ref.child("prefix")])
-        XCTAssertNil(listResult.pageToken, "pageToken should be nil")
-      case let .failure(error):
-        XCTFail("Unexpected error \(error) from list")
-      }
-      expectation.fulfill()
-    }
-    waitForExpectations()
+    let listResult = try await ref.listAll()
+    XCTAssertEqual(listResult.items, [ref.child("a"), ref.child("b")])
+    XCTAssertEqual(listResult.prefixes, [ref.child("prefix")])
+    XCTAssertNil(listResult.pageToken, "pageToken should be nil")
   }
 
   private func waitForExpectations() {

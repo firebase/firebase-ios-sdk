@@ -160,6 +160,12 @@
   return [self putData:uploadData metadata:metadata completion:nil];
 }
 
+- (void)__putData:(NSData *)uploadData
+         metadata:(nullable FIRStorageMetadata *)metadata
+       completion:(nullable FIRStorageVoidMetadataError)completion {
+  [self putData:uploadData metadata:metadata completion:completion];
+}
+
 - (FIRStorageUploadTask *)putData:(NSData *)uploadData
                          metadata:(nullable FIRStorageMetadata *)metadata
                        completion:(nullable FIRStorageVoidMetadataError)completion {
@@ -313,6 +319,10 @@
             }];
   [task enqueue];
   return task;
+}
+
+- (void)__dataWithMaxSize:(int64_t)size completion:(FIRStorageVoidDataError)completion {
+  [self dataWithMaxSize:size completion:completion];
 }
 
 - (FIRStorageDownloadTask *)writeToFile:(NSURL *)fileURL {

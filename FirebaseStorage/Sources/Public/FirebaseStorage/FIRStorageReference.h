@@ -126,14 +126,17 @@ NS_SWIFT_NAME(putData(_:metadata:));
  * or an error on failure.
  * @return An instance of FIRStorageUploadTask, which can be used to monitor or manage the upload.
  */
-// clang-format off
 - (FIRStorageUploadTask *)putData:(NSData *)uploadData
                          metadata:(nullable FIRStorageMetadata *)metadata
                        completion:(nullable void (^)(FIRStorageMetadata *_Nullable metadata,
                                                      NSError *_Nullable error))completion
             NS_SWIFT_NAME(putData(_:metadata:completion:));
-// clang-format on
 
+- (void)__putData:(NSData *)uploadData
+         metadata:(nullable FIRStorageMetadata *)metadata
+       completion:(nullable void (^)(FIRStorageMetadata *_Nullable metadata,
+                                     NSError *_Nullable error))completion
+    NS_SWIFT_NAME(__putDataGlue(_:metadata:completion:));
 /**
  * Asynchronously uploads a file to the currently specified FIRStorageReference,
  * without additional metadata.
@@ -184,12 +187,15 @@ NS_SWIFT_NAME(putData(_:metadata:));
  * or an error on failure.
  * @return An FIRStorageDownloadTask that can be used to monitor or manage the download.
  */
-// clang-format off
+
 - (FIRStorageDownloadTask *)dataWithMaxSize:(int64_t)size
                                  completion:(void (^)(NSData *_Nullable data,
                                                       NSError *_Nullable error))completion
-                     NS_SWIFT_NAME(getData(maxSize:completion:));
-// clang-format on
+    NS_SWIFT_NAME(getData(maxSize:completion:));
+
+- (void)__dataWithMaxSize:(int64_t)size
+               completion:(void (^)(NSData *_Nullable data, NSError *_Nullable error))completion
+    NS_SWIFT_NAME(data(maxSize:completion:));
 
 /**
  * Asynchronously retrieves a long lived download URL with a revokable token.
