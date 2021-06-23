@@ -64,34 +64,22 @@
 
 @implementation FIRInAppMessagingCardDisplay
 
-- (void)setBody:(NSString *_Nullable)body {
-  _body = body;
-}
-
-- (void)setLandscapeImageData:(FIRInAppMessagingImageData *_Nullable)landscapeImageData {
-  _landscapeImageData = landscapeImageData;
-}
-
-- (void)setSecondaryActionButton:(FIRInAppMessagingActionButton *_Nullable)secondaryActionButton {
-  _secondaryActionButton = secondaryActionButton;
-}
-
-- (void)setSecondaryActionURL:(NSURL *_Nullable)secondaryActionURL {
-  _secondaryActionURL = secondaryActionURL;
-}
-
 - (instancetype)initWithMessageID:(NSString *)messageID
                      campaignName:(NSString *)campaignName
-                experimentPayload:(nullable ABTExperimentPayload *)experimentPayload
+                experimentPayload:(ABTExperimentPayload *)experimentPayload
               renderAsTestMessage:(BOOL)renderAsTestMessage
                       triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
                         titleText:(NSString *)title
+                         bodyText:(nullable NSString *)bodyText
                         textColor:(UIColor *)textColor
                 portraitImageData:(FIRInAppMessagingImageData *)portraitImageData
+               landscapeImageData:(nullable FIRInAppMessagingImageData *)landscapeImageData
                   backgroundColor:(UIColor *)backgroundColor
               primaryActionButton:(FIRInAppMessagingActionButton *)primaryActionButton
+            secondaryActionButton:(nullable FIRInAppMessagingActionButton *)secondaryActionButton
                  primaryActionURL:(NSURL *)primaryActionURL
-                          appData:(NSDictionary *)appData {
+               secondaryActionURL:(nullable NSURL *)secondaryActionURL
+                          appData:(nullable NSDictionary *)appData {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
   if (self = [super initWithMessageID:messageID
@@ -103,11 +91,15 @@
                               appData:appData]) {
 #pragma clang diagnostic pop
     _title = title;
+    _body = bodyText;
     _textColor = textColor;
     _portraitImageData = portraitImageData;
+    _landscapeImageData = landscapeImageData;
     _displayBackgroundColor = backgroundColor;
     _primaryActionButton = primaryActionButton;
+    _secondaryActionButton = secondaryActionButton;
     _primaryActionURL = primaryActionURL;
+    _secondaryActionURL = secondaryActionURL;
   }
   return self;
 }
@@ -117,22 +109,30 @@
               renderAsTestMessage:(BOOL)renderAsTestMessage
                       triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
                         titleText:(NSString *)title
+                         bodyText:(nullable NSString *)bodyText
                         textColor:(UIColor *)textColor
                 portraitImageData:(FIRInAppMessagingImageData *)portraitImageData
+               landscapeImageData:(nullable FIRInAppMessagingImageData *)landscapeImageData
                   backgroundColor:(UIColor *)backgroundColor
               primaryActionButton:(FIRInAppMessagingActionButton *)primaryActionButton
-                 primaryActionURL:(NSURL *)primaryActionURL {
+            secondaryActionButton:(nullable FIRInAppMessagingActionButton *)secondaryActionButton
+                 primaryActionURL:(NSURL *)primaryActionURL
+               secondaryActionURL:(nullable NSURL *)secondaryActionURL {
   return [self initWithMessageID:messageID
                     campaignName:campaignName
                experimentPayload:nil
              renderAsTestMessage:renderAsTestMessage
                      triggerType:triggerType
                        titleText:title
+                        bodyText:bodyText
                        textColor:textColor
                portraitImageData:portraitImageData
+              landscapeImageData:landscapeImageData
                  backgroundColor:backgroundColor
              primaryActionButton:primaryActionButton
+           secondaryActionButton:secondaryActionButton
                 primaryActionURL:primaryActionURL
+              secondaryActionURL:secondaryActionURL
                          appData:nil];
 }
 
