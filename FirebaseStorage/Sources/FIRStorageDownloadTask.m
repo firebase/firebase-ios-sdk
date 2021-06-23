@@ -165,13 +165,15 @@
 - (void)pause {
   __weak FIRStorageDownloadTask *weakSelf = self;
   [self dispatchAsync:^() {
-    weakSelf.state = FIRStorageTaskStatePausing;
-    [weakSelf.fetcher stopFetching];
+    __strong FIRStorageDownloadTask *strongSelf = weakSelf;
+    strongSelf.state = FIRStorageTaskStatePausing;
+    [strongSelf.fetcher stopFetching];
     // Give the resume callback a chance to run (if scheduled)
-    [weakSelf.fetcher waitForCompletionWithTimeout:0.001];
-    weakSelf.state = FIRStorageTaskStatePaused;
-    FIRStorageTaskSnapshot *snapshot = weakSelf.snapshot;
-    [weakSelf fireHandlersForStatus:FIRStorageTaskStatusPause snapshot:snapshot];
+    [strongSelf dispatchAsync:^{
+      strongSelf.state = FIRStorageTaskStatePaused;
+      FIRStorageTaskSnapshot *snapshot = weakSelf.snapshot;
+      [strongSelf fireHandlersForStatus:FIRStorageTaskStatusPause snapshot:snapshot];
+    }];
   }];
 }
 
