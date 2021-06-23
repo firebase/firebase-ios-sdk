@@ -128,11 +128,12 @@ static FIRApp *sDefaultApp;
 + (void)configure {
   FIROptions *options = [FIROptions defaultOptions];
   if (!options) {
-    [NSException raise:kFirebaseCoreErrorDomain
-                format:@"`[FIRApp configure];` (`FirebaseApp.configure()` in Swift) could not find "
-                       @"a valid GoogleService-Info.plist in your project. Please download one "
-                       @"from %@.",
-                       kPlistURL];
+    [NSException
+         raise:kFirebaseCoreErrorDomain
+        format:@"`FirebaseApp.configure()` (`[FIRApp configure];` in Objective-C) could not find "
+               @"a valid GoogleService-Info.plist in your project. Please download one "
+               @"from %@.",
+               kPlistURL];
   }
   [FIRApp configureWithOptions:options];
 #if TARGET_OS_OSX || TARGET_OS_TV
@@ -248,10 +249,11 @@ static FIRApp *sDefaultApp;
   if (sDefaultApp) {
     return sDefaultApp;
   }
-  FIRLogError(kFIRLoggerCore, @"I-COR000003",
-              @"The default Firebase app has not yet been "
-              @"configured. Add `[FIRApp configure];` (`FirebaseApp.configure()` in Swift) to your "
-              @"application initialization. Read more: https://goo.gl/ctyzm8.");
+  FIRLogError(
+      kFIRLoggerCore, @"I-COR000003",
+      @"The default Firebase app has not yet been "
+      @"configured. Add `FirebaseApp.configure()` (`[FIRApp configure];` in Objective-C) to your "
+      @"application initialization. Read more: https://goo.gl/ctyzm8.");
   return nil;
 }
 

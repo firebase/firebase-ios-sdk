@@ -433,12 +433,13 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 + (FIRAuth *)auth {
   FIRApp *defaultApp = [FIRApp defaultApp];
   if (!defaultApp) {
-    [NSException raise:NSInternalInconsistencyException
-                format:@"The default FIRApp instance must be configured before the default FIRAuth"
-                       @"instance can be initialized. One way to ensure that is to call "
-                       @"`[FIRApp configure];` (`FirebaseApp.configure()` in Swift) in the App "
-                       @"Delegate's `application:didFinishLaunchingWithOptions:` "
-                       @"(`application(_:didFinishLaunchingWithOptions:)` in Swift)."];
+    [NSException
+         raise:NSInternalInconsistencyException
+        format:@"The default FIRApp instance must be configured before the default FIRAuth"
+               @"instance can be initialized. One way to ensure that is to call "
+               @"`FirebaseApp.configure()` (`[FIRApp configure];` in Objective-C) in the App "
+               @"Delegate's `application(_:didFinishLaunchingWithOptions:)` "
+               @"(`application:didFinishLaunchingWithOptions:` in Objective-C)."];
   }
   return [self authWithApp:defaultApp];
 }
