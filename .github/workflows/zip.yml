@@ -284,7 +284,7 @@ jobs:
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - name: Setup quickstart
-      run: SAMPLE="$SDK" TARGET="${SDK}Example" NON_FIREBASE_SDKS="FirebaseUI/Database" scripts/setup_quickstart_framework.sh \
+      run: SAMPLE="$SDK" TARGET="${SDK}Example" NON_FIREBASE_SDKS="FirebaseDatabaseUI" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseDatabase/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseStorage/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseFirestore/* \
@@ -379,7 +379,7 @@ jobs:
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - name: Setup quickstart
-      run: SAMPLE="$SDK" TARGET="${SDK}Example" NON_FIREBASE_SDKS="SDWebImage FirebaseUI/Auth FirebaseUI/Email FirebaseFirestoreSwift" scripts/setup_quickstart_framework.sh \
+      run: SAMPLE="$SDK" TARGET="${SDK}Example" NON_FIREBASE_SDKS="SDWebImage FirebaseAuthUI FirebaseEmailAuthUI FirebaseFirestoreSwift" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseFirestore/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
