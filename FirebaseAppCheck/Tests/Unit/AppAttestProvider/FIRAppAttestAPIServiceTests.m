@@ -27,6 +27,7 @@
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckHTTPError.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"
+#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckErrors.h"
 
 #import "FirebaseAppCheck/Tests/Unit/Utils/FIRFixtureLoader.h"
 #import "SharedTestUtilities/Date/FIRDateTestUtils.h"
@@ -113,7 +114,7 @@
   XCTAssertNil(promise.value);
 
   // Assert error is as expected.
-  XCTAssertEqualObjects(promise.error.domain, kFIRAppCheckErrorDomain);
+  XCTAssertEqualObjects(promise.error.domain, FIRAppCheckErrorDomain);
   XCTAssertEqual(promise.error.code, FIRAppCheckErrorCodeUnknown);
 
   // Expect response body and HTTP status code to be included in the error.
@@ -191,7 +192,7 @@
   XCTAssertNil(promise.value);
 
   // Assert error is as expected.
-  XCTAssertEqualObjects(promise.error.domain, kFIRAppCheckErrorDomain);
+  XCTAssertEqualObjects(promise.error.domain, FIRAppCheckErrorDomain);
   XCTAssertEqual(promise.error.code, FIRAppCheckErrorCodeUnknown);
 
   // Expect missing field name to be included in the error.

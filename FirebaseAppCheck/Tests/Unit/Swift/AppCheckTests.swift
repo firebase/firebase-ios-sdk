@@ -26,7 +26,17 @@ class AppCheckTests: XCTestCase {
 
     let firebaseOptions = FirebaseOptions(contentsOfFile: "path")!
     FirebaseApp.configure(name: "AppName", options: firebaseOptions)
+
+    AppCheck.appCheck().token(forcingRefresh: true) { token, error in
+      // ...
+    }
   }
+
+  #if swift(>=5.5)
+    func asyncGetTokenUsageExample() async throws {
+      _ = try await AppCheck.appCheck().token(forcingRefresh: true)
+    }
+  #endif // swift(>=5.5)
 }
 
 class DummyAppCheckProvider: NSObject, AppCheckProvider {
