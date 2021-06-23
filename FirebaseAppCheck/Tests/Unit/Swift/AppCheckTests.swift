@@ -32,6 +32,7 @@ class AppCheckTests: XCTestCase {
     }
   }
 
+  @available(iOS 15.0, *)
   func asyncGetTokenUsageExample() async throws {
     _ = try await AppCheck.appCheck().token(forcingRefresh: true)
   }
