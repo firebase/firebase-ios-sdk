@@ -169,11 +169,11 @@
     strongSelf.state = FIRStorageTaskStatePausing;
     [strongSelf.fetcher stopFetching];
     // Give the resume callback a chance to run (if scheduled)
-    [strongSelf dispatchAsync:^{
+    dispatch_after(0.001 * NSEC_PER_SEC, strongSelf.dispatchQueue, ^{
       strongSelf.state = FIRStorageTaskStatePaused;
       FIRStorageTaskSnapshot *snapshot = weakSelf.snapshot;
       [strongSelf fireHandlersForStatus:FIRStorageTaskStatusPause snapshot:snapshot];
-    }];
+    });
   }];
 }
 
