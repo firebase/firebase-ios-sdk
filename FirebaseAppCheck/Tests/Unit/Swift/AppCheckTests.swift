@@ -26,6 +26,14 @@ class AppCheckTests: XCTestCase {
 
     let firebaseOptions = FirebaseOptions(contentsOfFile: "path")!
     FirebaseApp.configure(name: "AppName", options: firebaseOptions)
+
+    AppCheck.appCheck().token(forcingRefresh: true) { token, error in
+      // ...
+    }
+  }
+
+  func asyncGetTokenUsageExample() async throws {
+    _ = try await AppCheck.appCheck().token(forcingRefresh: true)
   }
 }
 
