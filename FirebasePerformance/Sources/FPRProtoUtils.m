@@ -98,7 +98,16 @@ firebase_perf_v1_ApplicationInfo FPRGetApplicationInfoMessage() {
   appInfoMessage.ios_app_info = iosAppInfo;
 
   //TODO(visum) Enable custom attributes
-//  appInfoMessage.custom_attributes = [[FIRPerformance sharedInstance].attributes mutableCopy];
+  NSDictionary<NSString *, NSString *> *attributes = [[FIRPerformance sharedInstance].attributes mutableCopy];
+//  firebase_perf_v1_ApplicationInfo_CustomAttributesEntry customAttributes = firebase_perf_v1_ApplicationInfo_CustomAttributesEntry_init_default;
+  firebase_perf_v1_ApplicationInfo_CustomAttributesEntry *customAttributes = calloc(attributes.count, sizeof(firebase_perf_v1_ApplicationInfo_CustomAttributesEntry));
+  [attributes enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSString *value, BOOL *stop) {
+    firebase_perf_v1_ApplicationInfo_CustomAttributesEntry attributeEntry = firebase_perf_v1_ApplicationInfo_CustomAttributesEntry_init_default;
+    attributeEntry.key = FPREncodeString(key);
+    attributeEntry.value = FPREncodeString(value);
+  }];
+  
+//  appInfoMessage.custom_attributes = customAttributes;
 
   return appInfoMessage;
 }
