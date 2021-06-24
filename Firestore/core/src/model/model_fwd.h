@@ -105,7 +105,7 @@ using DocumentUpdateMap =
     std::unordered_map<DocumentKey, MutableDocument, DocumentKeyHash>;
 
 // A map of FieldPaths to transforms. Sorted so it can be used in
-// ObjectValue::SetAll, which makes it more efficient as  it processes field
+// ObjectValue::SetAll, which makes it more efficient as it processes field
 // maps one layer at a time.
 using TransformMap =
     std::map<FieldPath,

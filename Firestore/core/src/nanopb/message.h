@@ -173,7 +173,10 @@ class Message {
     return proto_.ToString();
   }
 
-  /** Returns false if and only if Message has been moved from. */
+  /**
+   * Returns false if the Message is not associated with a valid proto (for
+   * example, if it has been moved from).
+   */
   constexpr explicit operator bool() const noexcept {
     return owns_proto_;
   }

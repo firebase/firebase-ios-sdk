@@ -79,6 +79,7 @@ using nanopb::ByteStringWriter;
 using nanopb::FreeNanopbMessage;
 using nanopb::MakeArray;
 using nanopb::MakeBytesArray;
+using nanopb::MakeMessage;
 using nanopb::MakeStdString;
 using nanopb::Message;
 using nanopb::ProtobufParse;
@@ -439,35 +440,29 @@ TEST_F(LocalSerializerTest, MultipleMutationsAreSquashed) {
   MutationBatch decoded = serializer.DecodeMutationBatch(&reader, *message);
   ASSERT_EQ(5, decoded.mutations().size());
 
-  {
-    Message<google_firestore_v1_Write> encoded{
-        remote_serializer.EncodeMutation(decoded.mutations()[0])};
-    ExpectSet(*encoded);
-    ExpectNoUpdateTransform(*encoded);
-  }
-  {
-    Message<google_firestore_v1_Write> encoded{
-        remote_serializer.EncodeMutation(decoded.mutations()[1])};
-    ExpectSet(*encoded);
-    ExpectUpdateTransform(*encoded);
-  }
-  {
-    Message<google_firestore_v1_Write> encoded{
-        remote_serializer.EncodeMutation(decoded.mutations()[2])};
-    ExpectDelete(*encoded);
-  }
-  {
-    Message<google_firestore_v1_Write> encoded{
-        remote_serializer.EncodeMutation(decoded.mutations()[3])};
-    ExpectPatch(*encoded);
-    ExpectUpdateTransform(*encoded);
-  }
-  {
-    Message<google_firestore_v1_Write> encoded{
-        remote_serializer.EncodeMutation(decoded.mutations()[4])};
-    ExpectPatch(*encoded);
-    ExpectNoUpdateTransform(*encoded);
-  }
+  Message<google_firestore_v1_Write> encoded{
+      remote_serializer.EncodeMutation(decoded.mutations()[0])};
+  ExpectSet(*encoded);
+  ExpectNoUpdateTransform(*encoded);
+
+  encoded =
+      MakeMessage(remote_serializer.EncodeMutation(decoded.mutations()[1]));
+  ExpectSet(*encoded);
+  ExpectUpdateTransform(*encoded);
+
+  encoded =
+      MakeMessage(remote_serializer.EncodeMutation(decoded.mutations()[2]));
+  ExpectDelete(*encoded);
+
+  encoded =
+      MakeMessage(remote_serializer.EncodeMutation(decoded.mutations()[3]));
+  ExpectPatch(*encoded);
+  ExpectUpdateTransform(*encoded);
+
+  encoded =
+      MakeMessage(remote_serializer.EncodeMutation(decoded.mutations()[4]));
+  ExpectPatch(*encoded);
+  ExpectNoUpdateTransform(*encoded);
 }
 
 TEST_F(LocalSerializerTest, EncodesMutationBatch) {
