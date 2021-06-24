@@ -168,6 +168,13 @@ void ApplyChanges(
     ++target_index;
   }
 
+  // Delete any remaining fields in the original Map. This only includes fields
+  // that were deleted.
+  for (pb_size_t source_index = target_count; source_index < source_count;
+       ++source_index) {
+    FreeFieldsArray(&source_fields[source_index]);
+  }
+
   free(parent->fields);
   parent->fields = target_fields;
   parent->fields_count = CheckedSize(target_count);
