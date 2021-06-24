@@ -166,8 +166,7 @@
   __weak FIRStorageDownloadTask *weakSelf = self;
   [self dispatchAsync:^() {
     __strong FIRStorageDownloadTask *strongSelf = weakSelf;
-    if (!strongSelf ||
-        strongSelf.state == FIRStorageTaskStatePaused ||
+    if (!strongSelf || strongSelf.state == FIRStorageTaskStatePaused ||
         strongSelf.state == FIRStorageTaskStatePausing) {
       return;
     }
