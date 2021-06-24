@@ -172,13 +172,12 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 + (instancetype)appCheck {
   FIRApp *defaultApp = [FIRApp defaultApp];
   if (!defaultApp) {
-    [NSException
-         raise:FIRAppCheckErrorDomain
-        format:@"The default FirebaseApp instance must be configured before the default"
-               @"AppCheck instance can be initialized. One way to ensure that is to "
-               @"call `FirebaseApp.configure()` (`[FIRApp configure];` in Objective-C) in the App"
-               @" Delegate's `application(_:didFinishLaunchingWithOptions:)`"
-               @"(`application:didFinishLaunchingWithOptions:` in Objective-C)."];
+    [NSException raise:FIRAppCheckErrorDomain
+                format:@"The default FirebaseApp instance must be configured before the default"
+                       @"AppCheck instance can be initialized. One way to ensure that is to "
+                       @"call `FirebaseApp.configure()` in the App Delegate's "
+                       @"`application(_:didFinishLaunchingWithOptions:)` (or the `@main` struct's "
+                       @"initializer in SwiftUI)."];
   }
   return [self appCheckWithApp:defaultApp];
 }
