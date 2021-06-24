@@ -166,14 +166,23 @@
   __weak FIRStorageDownloadTask *weakSelf = self;
   [self dispatchAsync:^() {
     __strong FIRStorageDownloadTask *strongSelf = weakSelf;
+    if (!strongSelf ||
+        strongSelf.state == FIRStorageTaskStatePaused ||
+        strongSelf.state == FIRStorageTaskStatePausing) {
+      return;
+    }
     strongSelf.state = FIRStorageTaskStatePausing;
+    // Use the resume callback to confirm pause status since it always runs after the last
+    // NSURLSession update.
+    [strongSelf.fetcher setResumeDataBlock:^(NSData *data) {
+      // Silence compiler warning about retain cycles
+      __strong __typeof(self) strong = weakSelf;
+      strong->_downloadData = data;
+      strong.state = FIRStorageTaskStatePaused;
+      FIRStorageTaskSnapshot *snapshot = strong.snapshot;
+      [strong fireHandlersForStatus:FIRStorageTaskStatusPause snapshot:snapshot];
+    }];
     [strongSelf.fetcher stopFetching];
-    // Give the resume callback a chance to run (if scheduled)
-    dispatch_after(0.015 * NSEC_PER_SEC, strongSelf.dispatchQueue, ^{
-      strongSelf.state = FIRStorageTaskStatePaused;
-      FIRStorageTaskSnapshot *snapshot = weakSelf.snapshot;
-      [strongSelf fireHandlersForStatus:FIRStorageTaskStatusPause snapshot:snapshot];
-    });
   }];
 }
 
