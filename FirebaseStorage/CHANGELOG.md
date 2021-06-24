@@ -1,3 +1,6 @@
+# 8.3.0
+- [changed] Removed usage of a deprecated GTMSessionFetcher method (#8294).
+
 # 8.2.0
 - [changed] Instances are now cached. Repeated invocations of `Storage.storage()`
   return the same instance and retain the same settings.
