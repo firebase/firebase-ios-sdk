@@ -226,7 +226,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   } else if (!kRunBenchmarkTests && [tags containsObject:kBenchmarkTag]) {
     return NO;
   }
-  return YES;
+  return NO;
 }
 
 - (void)setUpForSpecWithConfig:(NSDictionary *)config {

@@ -118,8 +118,8 @@ void ApplyChanges(
   auto upsert_it = upserts.begin();
 
   // Merge the existing data with the deletes and updates
-  for (pb_size_t source_index = 0, target_index = 0;
-       target_index < target_count;) {
+  pb_size_t source_index = 0, target_index = 0;
+  while (target_index < target_count) {
     auto& target_entry = target_fields[target_index];
 
     if (source_index < source_count) {
@@ -168,10 +168,9 @@ void ApplyChanges(
     ++target_index;
   }
 
-  // Delete any remaining fields in the original Map. This only includes fields
+  // Delete any remaining fields in the original map. This only includes fields
   // that were deleted.
-  for (pb_size_t source_index = target_count; source_index < source_count;
-       ++source_index) {
+  for (; source_index < source_count; ++source_index) {
     FreeFieldsArray(&source_fields[source_index]);
   }
 
