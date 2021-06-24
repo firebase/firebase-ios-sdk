@@ -200,11 +200,8 @@ nanopb::Message<google_firestore_v1_Value> MakeMap(Args... key_value_pairs) {
 /**
  * Recursive base case for AddElements, below.
  */
-inline void AddElements(
-    nanopb::Message<google_firestore_v1_ArrayValue>& array_value,
-    pb_size_t pos) {
-  (void)array_value;
-  (void)pos;
+inline void AddElements(nanopb::Message<google_firestore_v1_ArrayValue>&,
+                        pb_size_t) {
 }
 
 /**
