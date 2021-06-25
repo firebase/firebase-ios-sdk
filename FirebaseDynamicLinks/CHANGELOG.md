@@ -1,3 +1,21 @@
+# v8.2.0
+- [fixed] Fixed analyze issue introduced in Xcode 12.5. (#8208)
+
+# v8.0.0
+- [fixed] Fixed crashes on simulators targeting below iOS14 on Apple Silicon. (#7989)
+
+# v7.7.0
+- [added] Added `utmParametersDictionary` property to `DynamicLink`. (#6730)
+
+# v7.6.0
+- [fixed] Fixed build warnings introduced with Xcode 12.5. (#7434)
+
+# v7.3.1
+- [fixed] New callback added in 7.3.0 should be on the main thread. (#7159)
+
+# v7.3.0
+- [added] Manually created dynamic links should be subject to allowed/blocked check (#5853)
+
 # v4.3.1
 - [changed] Client id usage in api call and respective checks in the code.
 - [fixed] Fix attempts to connect to invalid ipv6 domain by updating ipv4 and ipv6 to use a single, valid endpoint (#5032)

@@ -34,6 +34,7 @@
 #include "Firestore/core/src/model/precondition.h"
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/util/error_apple.h"
+#include "Firestore/core/src/util/firestore_exceptions.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/hashing.h"
 #include "Firestore/core/src/util/status.h"
@@ -61,7 +62,7 @@ DocumentReference::DocumentReference(model::ResourcePath path,
                                      std::shared_ptr<Firestore> firestore)
     : firestore_{std::move(firestore)} {
   if (path.size() % 2 != 0) {
-    HARD_FAIL(
+    util::ThrowInvalidArgument(
         "Invalid document reference. Document references must have an even "
         "number of segments, but %s has %s",
         path.CanonicalString(), path.size());
@@ -95,14 +96,14 @@ CollectionReference DocumentReference::GetCollectionReference(
 void DocumentReference::SetData(core::ParsedSetData&& set_data,
                                 util::StatusCallback callback) {
   firestore_->client()->WriteMutations(
-      std::move(set_data).ToMutations(key(), Precondition::None()),
+      {std::move(set_data).ToMutation(key(), Precondition::None())},
       std::move(callback));
 }
 
 void DocumentReference::UpdateData(core::ParsedUpdateData&& update_data,
                                    util::StatusCallback callback) {
   firestore_->client()->WriteMutations(
-      std::move(update_data).ToMutations(key(), Precondition::Exists(true)),
+      {std::move(update_data).ToMutation(key(), Precondition::Exists(true))},
       std::move(callback));
 }
 

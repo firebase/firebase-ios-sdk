@@ -175,6 +175,11 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
   XCTAssertTrue([message isEqualToString:_mockAPINotEnabledMessage]);
 }
 
+- (void)testTryParseGoogleAPIErrorFromNilResponse {
+  NSString *message = [FIRFADApiService tryParseGoogleAPIErrorFromResponse:nil];
+  XCTAssertTrue([message isEqualToString:@"No data in response."]);
+}
+
 - (void)testTryParseGoogleAPIErrorFromResponseParseFailure {
   NSData *data = [@"malformed{json[data" dataUsingEncoding:NSUTF8StringEncoding];
   NSString *message = [FIRFADApiService tryParseGoogleAPIErrorFromResponse:data];

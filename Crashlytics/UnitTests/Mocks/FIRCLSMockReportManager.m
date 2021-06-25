@@ -15,61 +15,12 @@
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockReportManager.h"
 
 #import "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
-#import "Crashlytics/UnitTests/Mocks/FIRCLSMockNetworkClient.h"
+#import "Crashlytics/Crashlytics/Controllers/FIRCLSExistingReportManager.h"
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockReportUploader.h"
 
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 
-@interface FIRCLSMockReportManager () {
-  FIRCLSMockReportUploader *_uploader;
-}
-
-@end
-
 @implementation FIRCLSMockReportManager
-
-// these have to be synthesized, to override the pre-existing method
-@synthesize bundleIdentifier;
-
-- (instancetype)initWithFileManager:(FIRCLSFileManager *)fileManager
-                      installations:(FIRInstallations *)installations
-                          analytics:(id<FIRAnalyticsInterop>)analytics
-                        googleAppID:(NSString *)googleAppID
-                        dataArbiter:(FIRCLSDataCollectionArbiter *)dataArbiter
-                    googleTransport:(GDTCORTransport *)googleTransport
-                         appIDModel:(FIRCLSApplicationIdentifierModel *)appIDModel
-                           settings:(FIRCLSSettings *)settings {
-  self = [super initWithFileManager:fileManager
-                      installations:installations
-                          analytics:analytics
-                        googleAppID:googleAppID
-                        dataArbiter:dataArbiter
-                    googleTransport:googleTransport
-                         appIDModel:appIDModel
-                           settings:settings];
-  if (!self) {
-    return nil;
-  }
-
-  _uploader = [[FIRCLSMockReportUploader alloc] initWithQueue:self.operationQueue
-                                                     delegate:self
-                                                   dataSource:self
-                                                       client:self.networkClient
-                                                  fileManager:fileManager
-                                                    analytics:analytics];
-
-  return self;
-}
-
-- (FIRCLSNetworkClient *)clientWithOperationQueue:(NSOperationQueue *)queue {
-  return [[FIRCLSMockNetworkClient alloc] initWithQueue:queue
-                                            fileManager:self.fileManager
-                                               delegate:(id<FIRCLSNetworkClientDelegate>)self];
-}
-
-- (FIRCLSReportUploader *)uploader {
-  return _uploader;
-}
 
 - (BOOL)startCrashReporterWithProfilingMark:(FIRCLSProfileMark)mark
                                      report:(FIRCLSInternalReport *)report {

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
+#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
-#import "OCMock.h"
 
 #import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
 #import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessagingExtensionHelper.h"
@@ -23,7 +23,7 @@
 API_AVAILABLE(macos(10.14), ios(10.0))
 typedef void (^FIRMessagingContentHandler)(UNNotificationContent *content);
 
-#if TARGET_OS_IOS || TARGET_OS_OSX
+#if TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_WATCH
 static NSString *const kFCMPayloadOptionsName = @"fcm_options";
 static NSString *const kFCMPayloadOptionsImageURLName = @"image";
 static NSString *const kValidImageURL =

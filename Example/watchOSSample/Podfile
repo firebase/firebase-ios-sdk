@@ -1,21 +1,30 @@
+source 'https://github.com/firebase/SpecsDev.git'
+source 'https://github.com/firebase/SpecsStaging.git'
+source 'https://cdn.cocoapods.org/'
+
 use_frameworks!
 
 target 'SampleWatchAppWatchKitExtension' do
-  platform :watchos, '6.0'
+  platform :watchos, '7.0'
 
   pod 'FirebaseCore', :path => '../../'
-  pod 'GoogleUtilities', :path => '../../'
   pod 'FirebaseMessaging', :path => '../../'
-  pod 'FirebaseInstanceID', :path => '../../'
   pod 'FirebaseCoreDiagnostics', :path => '../../'
-  pod 'GoogleDataTransport', :path => '../../'
   pod 'FirebaseInstallations', :path => '../../'
   pod 'FirebaseStorage', :path => '../../'
+  pod 'FirebaseRemoteConfig', :path => '../../'
+  pod 'FirebaseABTesting', :path => '../../'
+  pod 'FirebaseDatabase', :path => '../../'
+
+  pod 'Firebase/Messaging', :path => '../../'
+  pod 'Firebase/Storage', :path => '../../'
+  pod 'Firebase/RemoteConfig', :path => '../../'
+  pod 'Firebase/ABTesting', :path => '../../'
+  pod 'Firebase/Database', :path => '../../'
 
 end
 
 target 'ServiceExtension' do
-  platform :watchos, '6.0'
+  platform :watchos, '7.0'
   pod 'FirebaseMessaging', :path => '../../'
-  pod 'FirebaseInstanceID', :path => '../../'
 end

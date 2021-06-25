@@ -25,8 +25,6 @@ FIRLoggerService kFIRLoggerCore = @"[Firebase/Core]";
 // All the FIRLoggerService definitions should be migrated to clients. Do not add new ones!
 FIRLoggerService kFIRLoggerAnalytics = @"[Firebase/Analytics]";
 FIRLoggerService kFIRLoggerCrash = @"[Firebase/Crash]";
-FIRLoggerService kFIRLoggerMLKit = @"[Firebase/MLKit]";
-FIRLoggerService kFIRLoggerPerf = @"[Firebase/Performance]";
 FIRLoggerService kFIRLoggerRemoteConfig = @"[Firebase/RemoteConfig]";
 
 /// Arguments passed on launch.
@@ -55,7 +53,7 @@ static NSString *const kMessageCodePattern = @"^I-[A-Z]{3}[0-9]{6}$";
 static NSRegularExpression *sMessageCodeRegex;
 #endif
 
-void FIRLoggerInitializeASL() {
+void FIRLoggerInitializeASL(void) {
   dispatch_once(&sFIRLoggerOnceToken, ^{
     // Register Firebase Version with GULLogger.
     GULLoggerRegisterVersion(FIRFirebaseVersion());
@@ -98,7 +96,7 @@ void FIRSetLoggerLevel(FIRLoggerLevel loggerLevel) {
 }
 
 #ifdef DEBUG
-void FIRResetLogger() {
+void FIRResetLogger(void) {
   extern void GULResetLogger(void);
   sFIRLoggerOnceToken = 0;
   [sFIRLoggerUserDefaults removeObjectForKey:kFIRPersistedDebugModeKey];

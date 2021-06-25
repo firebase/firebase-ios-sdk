@@ -1,0 +1,15 @@
+source 'https://github.com/firebase/SpecsStaging.git'
+source 'https://cdn.cocoapods.org/'
+
+platform :ios, '11.0'
+
+target 'FIRAppCheckTestApp' do
+  # Comment the next line if you don't want to use dynamic frameworks
+  use_frameworks!
+
+  # Pods for FIRAppCheckTestApp
+  pod 'FirebaseAppCheck', :path => '../../../'
+
+  pod 'FirebaseCore', :path => '../../../'
+  pod 'FirebaseCoreDiagnostics', :path => '../../../'
+end

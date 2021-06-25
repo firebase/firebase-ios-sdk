@@ -18,6 +18,7 @@
 #import "FirebaseStorage/Sources/FIRStorageDownloadTask_Private.h"
 #import "FirebaseStorage/Sources/FIRStorageObservableTask_Private.h"
 #import "FirebaseStorage/Sources/FIRStorageTask_Private.h"
+#import "FirebaseStorage/Sources/FIRStorage_Private.h"
 
 @implementation FIRStorageDownloadTask
 
@@ -80,7 +81,7 @@
       }
     }];
 
-    fetcher.maxRetryInterval = strongSelf.reference.storage.maxDownloadRetryTime;
+    fetcher.maxRetryInterval = strongSelf.reference.storage.maxDownloadRetryInterval;
 
     if (strongSelf->_fileURL) {
       // Handle file downloads
@@ -108,9 +109,6 @@
     }
 
     strongSelf->_fetcher = fetcher;
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-retain-cycles"
     strongSelf->_fetcherCompletion = ^(NSData *data, NSError *error) {
       // Fire last progress updates
       [self fireHandlersForStatus:FIRStorageTaskStatusProgress snapshot:self.snapshot];
@@ -136,11 +134,13 @@
       [self removeAllObservers];
       self->_fetcherCompletion = nil;
     };
-#pragma clang diagnostic pop
 
     strongSelf.state = FIRStorageTaskStateRunning;
     [strongSelf.fetcher beginFetchWithCompletionHandler:^(NSData *data, NSError *error) {
-      weakSelf.fetcherCompletion(data, error);
+      FIRStorageDownloadTask *strongSelf = weakSelf;
+      if (strongSelf.fetcherCompletion) {
+        strongSelf.fetcherCompletion(data, error);
+      }
     }];
   }];
 }
@@ -165,13 +165,23 @@
 - (void)pause {
   __weak FIRStorageDownloadTask *weakSelf = self;
   [self dispatchAsync:^() {
-    weakSelf.state = FIRStorageTaskStatePausing;
-    [weakSelf.fetcher stopFetching];
-    // Give the resume callback a chance to run (if scheduled)
-    [weakSelf.fetcher waitForCompletionWithTimeout:0.001];
-    weakSelf.state = FIRStorageTaskStatePaused;
-    FIRStorageTaskSnapshot *snapshot = weakSelf.snapshot;
-    [weakSelf fireHandlersForStatus:FIRStorageTaskStatusPause snapshot:snapshot];
+    __strong FIRStorageDownloadTask *strongSelf = weakSelf;
+    if (!strongSelf || strongSelf.state == FIRStorageTaskStatePaused ||
+        strongSelf.state == FIRStorageTaskStatePausing) {
+      return;
+    }
+    strongSelf.state = FIRStorageTaskStatePausing;
+    // Use the resume callback to confirm pause status since it always runs after the last
+    // NSURLSession update.
+    [strongSelf.fetcher setResumeDataBlock:^(NSData *data) {
+      // Silence compiler warning about retain cycles
+      __strong __typeof(self) strong = weakSelf;
+      strong->_downloadData = data;
+      strong.state = FIRStorageTaskStatePaused;
+      FIRStorageTaskSnapshot *snapshot = strong.snapshot;
+      [strong fireHandlersForStatus:FIRStorageTaskStatusPause snapshot:snapshot];
+    }];
+    [strongSelf.fetcher stopFetching];
   }];
 }
 

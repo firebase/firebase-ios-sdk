@@ -81,6 +81,11 @@ class BannerMessageViewController: CommonMessageTestVC {
                                                   isTestMessage: false)
       writableMessageType = FIRInAppMessagingDisplayMessageType.banner
       writableTriggerType = FIRInAppMessagingDisplayTriggerType.onAnalyticsEvent
+      super.init(messageID: "testID",
+                 campaignName: "testCampaign",
+                 renderAsTestMessage: false,
+                 messageType: .imageOnly,
+                 triggerType: .onAnalyticsEvent)
     }
   }
 

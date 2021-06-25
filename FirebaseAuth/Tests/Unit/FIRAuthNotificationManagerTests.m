@@ -17,8 +17,8 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS
 
+#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
-#import "OCMock.h"
 
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredential.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredentialManager.h"
@@ -84,24 +84,6 @@ static NSString *const kSecret = @"FAKE_SECRET";
 
 @end
 
-/** @class FIRAuthLegacyForwardingDelegate
-    @brief A fake UIApplicationDelegate that implements the legacy deegate method to receive
-        notification.
- */
-@interface FIRAuthLegacyForwardingDelegate : FIRAuthFakeForwardingDelegate
-@end
-@implementation FIRAuthLegacyForwardingDelegate
-
-- (void)application:(UIApplication *)application
-    didReceiveRemoteNotification:(NSDictionary *)userInfo {
-  self.notificationReceived = YES;
-  if (self.forwardsNotification) {
-    self.notificationhandled = [self.notificationManager canHandleNotification:userInfo];
-  }
-}
-
-@end
-
 /** @class FIRAuthNotificationManagerTests
     @brief Unit tests for @c FIRAuthNotificationManager .
  */
@@ -127,11 +109,6 @@ static NSString *const kSecret = @"FAKE_SECRET";
       @brief The modern fake UIApplicationDelegate for testing.
    */
   FIRAuthModernForwardingDelegate *_modernDelegate;
-
-  /** @var _legacyDelegate
-      @brief The legacy fake UIApplicationDelegate for testing.
-   */
-  FIRAuthLegacyForwardingDelegate *_legacyDelegate;
 }
 
 - (void)setUp {
@@ -142,8 +119,6 @@ static NSString *const kSecret = @"FAKE_SECRET";
                                          appCredentialManager:_mockAppCredentialManager];
   _modernDelegate = [[FIRAuthModernForwardingDelegate alloc] init];
   _modernDelegate.notificationManager = _notificationManager;
-  _legacyDelegate = [[FIRAuthLegacyForwardingDelegate alloc] init];
-  _legacyDelegate.notificationManager = _notificationManager;
 }
 
 /** @fn testForwardingModernDelegate
@@ -153,25 +128,11 @@ static NSString *const kSecret = @"FAKE_SECRET";
   [self verifyForwarding:YES delegate:_modernDelegate];
 }
 
-/** @fn testForwardingLegacyDelegate
-    @brief Tests checking notification forwarding on legacy fake delegate.
- */
-- (void)testForwardingLegacyDelegate {
-  [self verifyForwarding:YES delegate:_legacyDelegate];
-}
-
 /** @fn testNotForwardingModernDelegate
     @brief Tests checking notification not forwarding on modern fake delegate.
  */
 - (void)testNotForwardingModernDelegate {
   [self verifyForwarding:NO delegate:_modernDelegate];
-}
-
-/** @fn testNotForwardingLegacyDelegate
-    @brief Tests checking notification not forwarding on legacy fake delegate.
- */
-- (void)testNotForwardingLegacyDelegate {
-  [self verifyForwarding:NO delegate:_legacyDelegate];
 }
 
 /** @fn verifyForwarding:delegate:
@@ -210,31 +171,6 @@ static NSString *const kSecret = @"FAKE_SECRET";
       }];
   XCTAssertTrue(calledBack);
   XCTAssertFalse(delegate.notificationReceived);
-}
-
-/** @fn testMultipleCallbacks
-    @brief Test multiple callbacks are handled correctly.
- */
-- (void)testMultipleCallbacks {
-  FIRAuthFakeForwardingDelegate *delegate = _legacyDelegate;
-  delegate.forwardsNotification = YES;
-  OCMStub([_mockApplication delegate]).andReturn(delegate);
-  XCTestExpectation *expectation1 = [self expectationWithDescription:@"callback1"];
-  [_notificationManager
-      checkNotificationForwardingWithCallback:^(BOOL isNotificationBeingForwarded) {
-        XCTAssertTrue(isNotificationBeingForwarded);
-        [expectation1 fulfill];
-      }];
-  XCTestExpectation *expectation2 = [self expectationWithDescription:@"callback2"];
-  [_notificationManager
-      checkNotificationForwardingWithCallback:^(BOOL isNotificationBeingForwarded) {
-        XCTAssertTrue(isNotificationBeingForwarded);
-        [expectation2 fulfill];
-      }];
-  XCTAssertFalse(delegate.notificationReceived);
-  [self waitForExpectationsWithTimeout:_notificationManager.timeout * .5 handler:nil];
-  XCTAssertTrue(delegate.notificationReceived);
-  XCTAssertTrue(delegate.notificationhandled);
 }
 
 /** @fn testPassingToCredentialManager

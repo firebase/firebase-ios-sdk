@@ -23,7 +23,7 @@
 readonly REPO_DIR="$( git rev-parse --show-toplevel )"
 
 # Current release of nanopb being used  to build the CCT protos
-readonly NANOPB_VERSION="0.3.9.6"
+readonly NANOPB_VERSION="0.3.9.8"
 readonly NANOPB_TEMPDIR="$(mktemp -d)"
 
 readonly PROTO_DIR="${REPO_DIR}/FirebaseInAppMessaging/ProtoSupport/Protos"

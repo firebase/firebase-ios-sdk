@@ -29,16 +29,18 @@
 #import "Firestore/Example/Tests/SpecTests/FSTMockDatastore.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
+#include "Firestore/core/src/api/load_bundle_task.h"
 #include "Firestore/core/src/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/auth/user.h"
+#include "Firestore/core/src/bundle/bundle_reader.h"
 #include "Firestore/core/src/core/database_info.h"
 #include "Firestore/core/src/core/event_manager.h"
 #include "Firestore/core/src/core/listen_options.h"
 #include "Firestore/core/src/core/query_listener.h"
 #include "Firestore/core/src/core/sync_engine.h"
-#include "Firestore/core/src/local/index_free_query_engine.h"
 #include "Firestore/core/src/local/local_store.h"
 #include "Firestore/core/src/local/persistence.h"
+#include "Firestore/core/src/local/query_engine.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/remote/firebase_metadata_provider.h"
@@ -60,10 +62,12 @@
 
 namespace testutil = firebase::firestore::testutil;
 
+using firebase::firestore::api::LoadBundleTask;
 using firebase::firestore::Error;
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
+using firebase::firestore::bundle::BundleReader;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::core::EventListener;
 using firebase::firestore::core::EventManager;
@@ -72,7 +76,7 @@ using firebase::firestore::core::Query;
 using firebase::firestore::core::QueryListener;
 using firebase::firestore::core::SyncEngine;
 using firebase::firestore::core::ViewSnapshot;
-using firebase::firestore::local::IndexFreeQueryEngine;
+using firebase::firestore::local::QueryEngine;
 using firebase::firestore::local::LocalStore;
 using firebase::firestore::local::Persistence;
 using firebase::firestore::local::TargetData;
@@ -198,7 +202,7 @@ NS_ASSUME_NONNULL_BEGIN
   std::vector<std::shared_ptr<EventListener<Empty>>> _snapshotsInSyncListeners;
   std::shared_ptr<MockDatastore> _datastore;
 
-  IndexFreeQueryEngine _queryEngine;
+  QueryEngine _queryEngine;
 
   int _snapshotsInSyncEvents;
   int _waitForPendingWritesEvents;
@@ -218,7 +222,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     _events = [NSMutableArray array];
 
-    _databaseInfo = {DatabaseId{"project", "database"}, "persistence", "host", false};
+    _databaseInfo = {DatabaseId{"test-project", "(default)"}, "persistence", "host", false};
 
     // Set up the sync engine and various stores.
     _workerQueue = testutil::AsyncQueueForTesting();
@@ -282,6 +286,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (const User &)currentUser {
   return _currentUser;
+}
+
+- (const DatabaseInfo &)databaseInfo {
+  return _databaseInfo;
 }
 
 - (void)incrementSnapshotsInSyncEvents {
@@ -476,6 +484,12 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
+- (void)loadBundleWithReader:(std::shared_ptr<BundleReader>)reader
+                        task:(std::shared_ptr<LoadBundleTask>)task {
+  _workerQueue->EnqueueBlocking(
+      [=] { _syncEngine->LoadBundle(std::move(reader), std::move(task)); });
+}
+
 - (void)writeUserMutation:(Mutation)mutation {
   FSTOutstandingWrite *write = [[FSTOutstandingWrite alloc] init];
   write.write = mutation;
@@ -518,7 +532,7 @@ NS_ASSUME_NONNULL_BEGIN
   return _syncEngine->GetActiveLimboDocumentResolutions();
 }
 
-- (std::deque<DocumentKey>)enqueuedLimboDocumentResolutions {
+- (std::vector<DocumentKey>)enqueuedLimboDocumentResolutions {
   return _syncEngine->GetEnqueuedLimboDocumentResolutions();
 }
 

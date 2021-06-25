@@ -52,7 +52,6 @@ using auth::CredentialsProvider;
 using auth::Token;
 using core::DatabaseInfo;
 using model::DocumentKey;
-using model::MaybeDocument;
 using model::Mutation;
 using util::AsyncQueue;
 using util::Executor;
@@ -82,8 +81,8 @@ void LogGrpcCallFinished(absl::string_view rpc_name,
             status.error_message());
   if (LogIsDebugEnabled()) {
     auto headers =
-        Datastore::GetWhitelistedHeadersAsString(call->GetResponseHeaders());
-    LOG_DEBUG("RPC %s returned headers (whitelisted): %s", rpc_name, headers);
+        Datastore::GetAllowlistedHeadersAsString(call->GetResponseHeaders());
+    LOG_DEBUG("RPC %s returned headers (allowlisted): %s", rpc_name, headers);
   }
 }
 
@@ -332,15 +331,16 @@ bool Datastore::IsPermanentWriteError(const Status& error) {
   return IsPermanentError(error) && !IsAbortedError(error);
 }
 
-std::string Datastore::GetWhitelistedHeadersAsString(
+std::string Datastore::GetAllowlistedHeadersAsString(
     const GrpcCall::Metadata& headers) {
-  static std::unordered_set<std::string> whitelist = {
+  static auto* allowlist = new std::unordered_set<std::string>{
       "date", "x-google-backends", "x-google-netmon-label", "x-google-service",
       "x-google-gfe-request-trace"};
 
   std::string result;
+  auto end = allowlist->end();
   for (const auto& kv : headers) {
-    if (whitelist.find(MakeString(kv.first)) != whitelist.end()) {
+    if (allowlist->find(MakeString(kv.first)) != end) {
       absl::StrAppend(&result, MakeStringView(kv.first), ": ",
                       MakeStringView(kv.second), "\n");
     }

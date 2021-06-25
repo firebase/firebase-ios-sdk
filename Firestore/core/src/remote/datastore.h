@@ -98,7 +98,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
                        LookupCallback&& callback);
 
   /** Returns true if the given error is a gRPC ABORTED error. */
-  static bool IsAbortedError(const util::Status& status);
+  static bool IsAbortedError(const util::Status& error);
 
   /**
    * Determines whether an error code represents a permanent error when received
@@ -106,7 +106,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
    *
    * See `IsPermanentWriteError` for classifying write errors.
    */
-  static bool IsPermanentError(const util::Status& status);
+  static bool IsPermanentError(const util::Status& error);
 
   /**
    * Determines whether an error code represents a permanent error when received
@@ -121,9 +121,9 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
    * This means a handshake error should be classified with `IsPermanentError`,
    * above.
    */
-  static bool IsPermanentWriteError(const util::Status& status);
+  static bool IsPermanentWriteError(const util::Status& error);
 
-  static std::string GetWhitelistedHeadersAsString(
+  static std::string GetAllowlistedHeadersAsString(
       const GrpcCall::Metadata& headers);
 
   Datastore(const Datastore& other) = delete;
@@ -163,13 +163,13 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
       const LookupCallback& callback);
 
   using OnCredentials = std::function<void(const util::StatusOr<auth::Token>&)>;
-  void ResumeRpcWithCredentials(const OnCredentials& on_token);
+  void ResumeRpcWithCredentials(const OnCredentials& on_credentials);
 
   void HandleCallStatus(const util::Status& status);
 
   void RemoveGrpcCall(GrpcCall* to_remove);
 
-  static GrpcCall::Metadata ExtractWhitelistedHeaders(
+  static GrpcCall::Metadata ExtractAllowlistedHeaders(
       const GrpcCall::Metadata& headers);
 
   // In case Auth tries to invoke a callback after `Datastore` has been shut

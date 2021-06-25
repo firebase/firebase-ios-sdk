@@ -110,11 +110,18 @@ namespace testutil = firebase::firestore::testutil;
   FSTAssertThrows([baseDocRef collectionWithPath:nil], nilError);
 }
 
+- (void)testEmptyCollectionPathsFail {
+  FIRDocumentReference *baseDocRef = [self.db documentWithPath:@"foo/bar"];
+  NSString *emptyError = @"Collection path cannot be empty.";
+  FSTAssertThrows([self.db collectionWithPath:@""], emptyError);
+  FSTAssertThrows([baseDocRef collectionWithPath:@""], emptyError);
+}
+
 - (void)testWrongLengthCollectionPathsFail {
   FIRDocumentReference *baseDocRef = [self.db documentWithPath:@"foo/bar"];
-  NSArray *badAbsolutePaths = @[ @"foo/bar", @"foo/bar/baz/quu" ];
-  NSArray *badRelativePaths = @[ @"", @"baz/quu" ];
-  NSArray *badPathLengths = @[ @2, @4 ];
+  NSArray *badAbsolutePaths = @[ @"foo/bar/baz/quu", @"foo/bar/baz/quu/x/y" ];
+  NSArray *badRelativePaths = @[ @"baz/quu", @"baz/quu/x/y" ];
+  NSArray *badPathLengths = @[ @4, @6 ];
   NSString *errorFormat = @"Invalid collection reference. Collection references must have an odd "
                           @"number of segments, but %@ has %@";
   for (NSUInteger i = 0; i < badAbsolutePaths.count; i++) {
@@ -125,6 +132,16 @@ namespace testutil = firebase::firestore::testutil;
   }
 }
 
+- (void)testNilCollectionGroupPathsFail {
+  NSString *nilError = @"Collection ID cannot be nil.";
+  FSTAssertThrows([self.db collectionGroupWithID:nil], nilError);
+}
+
+- (void)testEmptyCollectionGroupPathsFail {
+  NSString *emptyError = @"Collection ID cannot be empty.";
+  FSTAssertThrows([self.db collectionGroupWithID:@""], emptyError);
+}
+
 - (void)testNilDocumentPathsFail {
   FIRCollectionReference *baseCollectionRef = [self.db collectionWithPath:@"foo"];
   NSString *nilError = @"Document path cannot be nil.";
@@ -132,11 +149,18 @@ namespace testutil = firebase::firestore::testutil;
   FSTAssertThrows([baseCollectionRef documentWithPath:nil], nilError);
 }
 
+- (void)testEmptyDocumentPathsFail {
+  FIRCollectionReference *baseCollectionRef = [self.db collectionWithPath:@"foo"];
+  NSString *emptyError = @"Document path cannot be empty.";
+  FSTAssertThrows([self.db documentWithPath:@""], emptyError);
+  FSTAssertThrows([baseCollectionRef documentWithPath:@""], emptyError);
+}
+
 - (void)testWrongLengthDocumentPathsFail {
   FIRCollectionReference *baseCollectionRef = [self.db collectionWithPath:@"foo"];
-  NSArray *badAbsolutePaths = @[ @"foo", @"foo/bar/baz" ];
-  NSArray *badRelativePaths = @[ @"", @"bar/baz" ];
-  NSArray *badPathLengths = @[ @1, @3 ];
+  NSArray *badAbsolutePaths = @[ @"foo/bar/baz", @"foo/bar/baz/x/y" ];
+  NSArray *badRelativePaths = @[ @"bar/baz", @"bar/baz/x/y" ];
+  NSArray *badPathLengths = @[ @3, @5 ];
   NSString *errorFormat = @"Invalid document reference. Document references must have an even "
                           @"number of segments, but %@ has %@";
   for (NSUInteger i = 0; i < badAbsolutePaths.count; i++) {
@@ -303,7 +327,7 @@ namespace testutil = firebase::firestore::testutil;
   FIRFirestore *db2 = [self firestore];
   XCTAssertNotEqual(db1, db2);
 
-  NSString *reason = @"Provided document reference is from a different Firestore instance.";
+  NSString *reason = @"Provided document reference is from a different Cloud Firestore instance.";
   id data = @{@"foo" : @1};
   FIRDocumentReference *badRef = [db2 documentWithPath:@"foo/bar"];
   FIRWriteBatch *batch = [db1 batch];
@@ -318,7 +342,7 @@ namespace testutil = firebase::firestore::testutil;
   FIRFirestore *db2 = [self firestore];
   XCTAssertNotEqual(db1, db2);
 
-  NSString *reason = @"Provided document reference is from a different Firestore instance.";
+  NSString *reason = @"Provided document reference is from a different Cloud Firestore instance.";
   id data = @{@"foo" : @1};
   FIRDocumentReference *badRef = [db2 documentWithPath:@"foo/bar"];
 
@@ -413,20 +437,6 @@ namespace testutil = firebase::firestore::testutil;
                   @"Invalid Query. Query limit (0) is invalid. Limit must be positive.");
   FSTAssertThrows([[self collectionRef] queryLimitedToLast:-1],
                   @"Invalid Query. Query limit (-1) is invalid. Limit must be positive.");
-}
-
-- (void)testNonEqualityQueriesOnNullOrNaNFail {
-  NSString *expected = @"Invalid Query. Null supports only 'equalTo' and 'notEqualTo' comparisons.";
-  FSTAssertThrows([[self collectionRef] queryWhereField:@"a" isGreaterThan:nil], expected);
-  FSTAssertThrows([[self collectionRef] queryWhereField:@"a" isGreaterThan:[NSNull null]],
-                  expected);
-  FSTAssertThrows([[self collectionRef] queryWhereField:@"a" arrayContains:nil], expected);
-  FSTAssertThrows([[self collectionRef] queryWhereField:@"a" arrayContains:[NSNull null]],
-                  expected);
-
-  expected = @"Invalid Query. NaN supports only 'equalTo' and 'notEqualTo' comparisons.";
-  FSTAssertThrows([[self collectionRef] queryWhereField:@"a" isGreaterThan:@(NAN)], expected);
-  FSTAssertThrows([[self collectionRef] queryWhereField:@"a" arrayContains:@(NAN)], expected);
 }
 
 - (void)testQueryCannotBeCreatedFromDocumentsMissingSortValues {
@@ -787,20 +797,6 @@ namespace testutil = firebase::firestore::testutil;
   FSTAssertThrows(
       [coll queryWhereField:@"foo" notIn:values],
       @"Invalid Query. 'notIn' filters support a maximum of 10 elements in the value array.");
-
-  NSArray *withNullValues = @[ @1, [NSNull null] ];
-  FSTAssertThrows([coll queryWhereField:@"foo" in:withNullValues],
-                  @"Invalid Query. 'in' filters cannot contain 'null' in the value array.");
-  FSTAssertThrows(
-      [coll queryWhereField:@"foo" arrayContainsAny:withNullValues],
-      @"Invalid Query. 'arrayContainsAny' filters cannot contain 'null' in the value array.");
-
-  NSArray *withNaNValues = @[ @2, @(NAN) ];
-  FSTAssertThrows([coll queryWhereField:@"foo" in:withNaNValues],
-                  @"Invalid Query. 'in' filters cannot contain 'NaN' in the value array.");
-  FSTAssertThrows(
-      [coll queryWhereField:@"foo" arrayContainsAny:withNaNValues],
-      @"Invalid Query. 'arrayContainsAny' filters cannot contain 'NaN' in the value array.");
 }
 
 #pragma mark - GeoPoint Validation

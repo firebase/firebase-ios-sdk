@@ -1,3 +1,4 @@
+source 'https://github.com/firebase/SpecsDev.git'
 source 'https://github.com/firebase/SpecsStaging.git'
 source 'https://cdn.cocoapods.org/'
 
@@ -6,8 +7,6 @@ use_frameworks!
 pod 'FirebaseCore', :path => '../../../..'
 pod 'FirebaseInstallations', :path => '../../../..'
 pod 'FirebaseCoreDiagnostics', :path => '../../../..'
-pod 'GoogleDataTransport', :path => '../../../..'
-pod 'GoogleUtilities', :path => '../../../..'
 pod 'FirebaseABTesting', :path => '../../../..'
 
 target 'FiamDisplaySwiftExample' do

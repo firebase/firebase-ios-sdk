@@ -15,7 +15,7 @@
  */
 
 #import <TargetConditionals.h>
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_TV
 
 #import <UIKit/UIKit.h>
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
@@ -53,6 +53,17 @@
 
 @implementation FIRIAMDisplayExecutor {
   FIRIAMMessageDefinition *_currentMsgBeingDisplayed;
+}
+
++ (NSString *)logStringForNilMessageDisplayComponent {
+#if TARGET_OS_IOS
+  return @"Message display component is not present yet. No display should happen.";
+#else  // TARGET_OS_TV
+  return @"There is no default UI for tvOS. You must implement a messageDisplayComponent and set "
+         @"it on the InAppMessaging singleton. See "
+         @"https://firebase.google.com/docs/in-app-messaging/"
+         @"customize-messages#create_your_own_message_display_library.";
+#endif
 }
 
 #pragma mark - FIRInAppMessagingDisplayDelegate methods
@@ -113,6 +124,10 @@
                                       @"Logging analytics event for url following %@",
                                       success ? @"succeeded" : @"failed");
                         }];
+
+      // Also start tracking conversions.
+      [self.analyticsEventLogger
+          logConversionTrackingEventForCampaignID:_currentMsgBeingDisplayed.renderData.messageID];
     }
   }
 
@@ -221,11 +236,23 @@
     // Displayed long enough to be a valid impression.
     [self recordValidImpression:_currentMsgBeingDisplayed.renderData.messageID
                 withMessageName:_currentMsgBeingDisplayed.renderData.name];
+
+    if ([self shouldTrackConversionsOnImpressionForCurrentInAppMessage:_currentMsgBeingDisplayed]) {
+      [self.analyticsEventLogger
+          logConversionTrackingEventForCampaignID:_currentMsgBeingDisplayed.renderData.messageID];
+    }
   } else {
     FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400011",
                 @"A test message. Record the test message impression event.");
     return;
   }
+}
+
+- (BOOL)shouldTrackConversionsOnImpressionForCurrentInAppMessage:
+    (FIRIAMMessageDefinition *)inAppMessage {
+  // If the message has no action URL, an impression is enough to start tracking conversions.
+  id<FIRIAMMessageContentData> contentData = inAppMessage.renderData.contentData;
+  return contentData.actionURL == nil && contentData.secondaryActionURL == nil;
 }
 
 - (void)displayErrorForMessage:(FIRInAppMessagingDisplayMessage *)inAppMessage
@@ -327,7 +354,7 @@
 
   dispatch_async(dispatch_get_main_queue(), ^{
 #if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-    if (@available(iOS 13.0, *)) {
+    if (@available(iOS 13.0, tvOS 13.0, *)) {
       UIWindowScene *foregroundedScene = nil;
       for (UIWindowScene *connectedScene in [UIApplication sharedApplication].connectedScenes) {
         if (connectedScene.activationState == UISceneActivationStateForegroundActive) {
@@ -386,8 +413,8 @@
     }
 
     if (!self.messageDisplayComponent) {
-      FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400026",
-                  @"Message display component is not present yet. No display should happen.");
+      FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400026", @"%@",
+                  [[self class] logStringForNilMessageDisplayComponent]);
       return;
     }
 
@@ -412,7 +439,7 @@
 
 - (FIRInAppMessagingCardDisplay *)
     cardDisplayMessageWithMessageDefinition:(FIRIAMMessageDefinition *)definition
-                          portraitImageData:(nonnull FIRInAppMessagingImageData *)portraitImageData
+                          portraitImageData:(FIRInAppMessagingImageData *)portraitImageData
                          landscapeImageData:
                              (nullable FIRInAppMessagingImageData *)landscapeImageData
                                 triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
@@ -562,9 +589,8 @@
                             triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
   switch (definition.renderData.renderingEffectSettings.viewMode) {
     case FIRIAMRenderAsCardView:
-      // Image data should never nil for a valid card message.
       if (imageData == nil) {
-        NSAssert(NO, @"Image data should never nil for a valid card message.");
+        // Image data should never nil for a valid card message.
         return nil;
       }
       return [self cardDisplayMessageWithMessageDefinition:definition
@@ -628,6 +654,14 @@
           }
         }
 
+        // On slow networks, image loading may take significant time,
+        // in which the value of `suppressMessageDisplay` could change.
+        if (self.suppressMessageDisplay) {
+          FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400042",
+                      @"Message display suppressed by developer at message display time.");
+          return;
+        }
+
         self.impressionRecorded = NO;
         self.isMsgBeingDisplayed = YES;
 
@@ -655,8 +689,8 @@
   // threads.
   @synchronized(self) {
     if (!self.messageDisplayComponent) {
-      FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400028",
-                  @"Message display component is not present yet. No display should happen.");
+      FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400028", @"%@",
+                  [[self class] logStringForNilMessageDisplayComponent]);
       return;
     }
 
@@ -699,8 +733,8 @@
   // triggered message concurrently
   @synchronized(self) {
     if (!self.messageDisplayComponent) {
-      FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400027",
-                  @"Message display component is not present yet. No display should happen.");
+      FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400027", @"%@",
+                  [[self class] logStringForNilMessageDisplayComponent]);
       return;
     }
 
@@ -738,4 +772,4 @@
 }
 @end
 
-#endif  // TARGET_OS_IOS
+#endif  // TARGET_OS_IOS || TARGET_OS_TV

@@ -41,6 +41,9 @@ extern NSString *const kFIRAppNameKey;
 extern NSString *const kFIRGoogleAppIDKey;
 extern NSString *const kFirebaseCoreErrorDomain;
 
+/** The NSUserDefaults suite name for FirebaseCore, for those storage locations that use it. */
+extern NSString *const kFirebaseCoreDefaultsSuiteName;
+
 /**
  * The format string for the User Defaults key used for storing the data collection enabled flag.
  * This includes formatting to append the Firebase App's name.
@@ -51,11 +54,6 @@ extern NSString *const kFIRGlobalAppDataCollectionEnabledDefaultsKeyFormat;
  * The plist key used for storing the data collection enabled flag.
  */
 extern NSString *const kFIRGlobalAppDataCollectionEnabledPlistKey;
-
-/**
- * A notification fired containing diagnostic information when SDK errors occur.
- */
-extern NSString *const kFIRAppDiagnosticsNotification;
 
 /** @var FIRAuthStateDidChangeInternalNotification
  @brief The name of the @c NSNotificationCenter notification which is posted when the auth state

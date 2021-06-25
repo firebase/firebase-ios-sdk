@@ -29,14 +29,11 @@ more details and additional installation methods.
 Firebase components that you want to include in your app. Note that
 **FirebaseAnalyticsBinary** must always be included.
 
-- Starting with the 6.23.0 release, if you're using FirebaseMessaging,
-FirebasePerformance, FirebaserRemoteConfig,
-FirebaseABTesting, FirebaseInAppMessaging, or FirebaseML,
-**FirebaseProtobufBinary** must also be included.
 ```
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseABTestingBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAdMobBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAnalyticsBinary.json"
+binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAppCheckBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAppDistributionBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAuthBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseCrashlyticsBinary.json"
@@ -46,11 +43,9 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseFirestoreBinary.j
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseFunctionsBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseGoogleSignInBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseInAppMessagingBinary.json"
+binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLModelDownloaderBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMessagingBinary.json"
-binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLModelInterpreterBinary.json"
-binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLVisionBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebasePerformanceBinary.json"
-binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseProtobufBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseRemoteConfigBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseStorageBinary.json"
 ```
@@ -91,8 +86,7 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseStorageBinary.jso
 
 ## Versioning
 
-Unlike the CocoaPods distribution, the Carthage distribution is like the
-Firebase zip release in that all the Firebase components share the same version.
+All Firebase components share the same version.
 Mixing and matching components with different versions may cause linker errors.
 
 ## Static Frameworks

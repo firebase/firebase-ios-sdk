@@ -43,9 +43,9 @@
   self = [super init];
   if (self) {
     _reference = reference;
-    _baseRequest = [FIRStorageUtils defaultRequestForPath:reference.path];
+    _baseRequest = [FIRStorageUtils defaultRequestForReference:reference];
     _fetcherService = service;
-    _fetcherService.maxRetryInterval = _reference.storage.maxOperationRetryTime;
+    _fetcherService.maxRetryInterval = _reference.storage.maxOperationRetryInterval;
     _dispatchQueue = queue;
   }
   return self;

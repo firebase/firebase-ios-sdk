@@ -20,6 +20,12 @@
 static NSString *const PUSH_CHARS =
     @"-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz";
 
+static NSString *const MIN_PUSH_CHAR = @"-";
+
+static NSString *const MAX_PUSH_CHAR = @"z";
+
+static NSInteger const MAX_KEY_LEN = 786;
+
 @implementation FNextPushId
 
 + (NSString *)get:(NSTimeInterval)currentTime {
@@ -58,5 +64,81 @@ static NSString *const PUSH_CHARS =
 
     return [NSString stringWithString:id];
 }
+
++ (NSString *)successor:(NSString *_Nonnull)key {
+    NSInteger keyAsInt;
+    if ([FUtilities tryParseString:key asInt:&keyAsInt]) {
+        if (keyAsInt == [FUtilities int32max]) {
+            return MIN_PUSH_CHAR;
+        }
+        return [NSString stringWithFormat:@"%ld", (long)keyAsInt + 1];
+    }
+    NSMutableString *next = [NSMutableString stringWithString:key];
+    if ([next length] < MAX_KEY_LEN) {
+        [next insertString:MIN_PUSH_CHAR atIndex:[key length]];
+        return next;
+    }
+
+    long i = [next length] - 1;
+    while (i >= 0) {
+        if ([next characterAtIndex:i] != [MAX_PUSH_CHAR characterAtIndex:0]) {
+            break;
+        }
+        --i;
+    }
+
+    // `nextAfter` was called on the largest possible key, so return the
+    // maxName, which sorts larger than all keys.
+    if (i == -1) {
+        return [FUtilities maxName];
+    }
+
+    NSString *source =
+        [NSString stringWithFormat:@"%C", [next characterAtIndex:i]];
+    NSInteger sourceIndex = [PUSH_CHARS rangeOfString:source].location;
+    NSString *sourcePlusOne = [NSString
+        stringWithFormat:@"%C", [PUSH_CHARS characterAtIndex:sourceIndex + 1]];
+
+    [next replaceCharactersInRange:NSMakeRange(i, i + 1)
+                        withString:sourcePlusOne];
+    return [next substringWithRange:NSMakeRange(0, i + 1)];
+}
+
+// `key` is assumed to be non-empty.
++ (NSString *)predecessor:(NSString *_Nonnull)key {
+    NSInteger keyAsInt;
+    if ([FUtilities tryParseString:key asInt:&keyAsInt]) {
+        if (keyAsInt == [FUtilities int32min]) {
+            return [FUtilities minName];
+        }
+        return [NSString stringWithFormat:@"%ld", (long)keyAsInt - 1];
+    }
+    NSMutableString *next = [NSMutableString stringWithString:key];
+    if ([next characterAtIndex:(next.length - 1)] ==
+        [MIN_PUSH_CHAR characterAtIndex:0]) {
+        if ([next length] == 1) {
+            return
+                [NSString stringWithFormat:@"%ld", (long)[FUtilities int32max]];
+        }
+        // If the last character is the smallest possible character, then the
+        // next smallest string is the prefix of `key` without it.
+        [next replaceCharactersInRange:NSMakeRange([next length] - 1, 1)
+                            withString:@""];
+        return next;
+    }
+    // Replace the last character with its immedate predecessor, and fill the
+    // suffix of the key with MAX_PUSH_CHAR. This is the lexicographically
+    // largest possible key smaller than `key`.
+    unichar curr = [next characterAtIndex:next.length - 1];
+    NSRange dstRange = NSMakeRange([next length] - 1, 1);
+    NSRange srcRange =
+        [PUSH_CHARS rangeOfString:[NSString stringWithFormat:@"%C", curr]];
+    srcRange.location -= 1;
+    [next replaceCharactersInRange:dstRange
+                        withString:[PUSH_CHARS substringWithRange:srcRange]];
+    return [next stringByPaddingToLength:MAX_KEY_LEN
+                              withString:MAX_PUSH_CHAR
+                         startingAtIndex:0];
+};
 
 @end

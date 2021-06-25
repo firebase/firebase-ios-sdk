@@ -26,6 +26,7 @@ typedef NS_ENUM(NSInteger, RCNUpdateOption) {
 
 /// Column names in metadata table
 static NSString *const RCNKeyBundleIdentifier = @"bundle_identifier";
+static NSString *const RCNKeyNamespace = @"namespace";
 static NSString *const RCNKeyFetchTime = @"fetch_time";
 static NSString *const RCNKeyDigestPerNamespace = @"digest_per_ns";
 static NSString *const RCNKeyDeviceContext = @"device_context";
@@ -63,9 +64,10 @@ typedef void (^RCNDBLoadCompletion)(BOOL success,
 /// Load config content from main table to cached memory during app start.
 - (void)loadMainWithBundleIdentifier:(NSString *)bundleIdentifier
                    completionHandler:(RCNDBLoadCompletion)handler;
-/// Load config settings from metadata table to cached memory during app start. Config settings
-/// include success/failure fetch times, device contenxt, app context, etc.
-- (NSDictionary *)loadMetadataWithBundleIdentifier:(NSString *)bundleIdentifier;
+/// Load config settings for a given namespace from metadata table to cached memory during app
+/// start. Config settings include success/failure fetch times, device contenxt, app context, etc.
+- (NSDictionary *)loadMetadataWithBundleIdentifier:(NSString *)bundleIdentifier
+                                         namespace:(NSString *)namespace;
 /// Load internal metadata from internal metadata table, such as customized HTTP connection/read
 /// timeout, throttling time interval and number limit of throttling, etc.
 /// This call needs to be blocking to ensure throttling works during apps starts.
@@ -73,6 +75,9 @@ typedef void (^RCNDBLoadCompletion)(BOOL success,
 /// Load experiment from experiment table.
 /// @param handler    The callback when reading from DB is complete.
 - (void)loadExperimentWithCompletionHandler:(RCNDBCompletion)handler;
+/// Load Personalization from table.
+/// @param handler    The callback when reading from DB is complete.
+- (void)loadPersonalizationWithCompletionHandler:(RCNDBLoadCompletion)handler;
 
 /// Insert a record in metadata table.
 /// @param columnNameToValue The column name and its value to be inserted in metadata table.
@@ -98,16 +103,22 @@ typedef void (^RCNDBLoadCompletion)(BOOL success,
                    completionHandler:(RCNDBCompletion)handler;
 
 - (void)updateMetadataWithOption:(RCNUpdateOption)option
+                       namespace:(NSString *)namespace
                           values:(NSArray *)values
                completionHandler:(RCNDBCompletion)handler;
+
+/// Insert or update the data in Personalization config.
+- (BOOL)insertOrUpdatePersonalizationConfig:(NSDictionary *)metadata fromSource:(RCNDBSource)source;
+
 /// Clear the record of given namespace and package name
 /// before updating the table.
 - (void)deleteRecordFromMainTableWithNamespace:(NSString *)namespace_p
                               bundleIdentifier:(NSString *)bundleIdentifier
                                     fromSource:(RCNDBSource)source;
-/// Remove all the records of given package name from metadata/internal metadata DB before updating
-/// new values from response.
+/// Remove all the records of given package name and namespace from metadata/internal metadata DB
+/// before updating new values from response.
 - (void)deleteRecordWithBundleIdentifier:(NSString *)bundlerIdentifier
+                               namespace:(NSString *)namespace
                             isInternalDB:(BOOL)isInternalDB;
 /// Remove all the records from a config content table.
 - (void)deleteAllRecordsFromTableWithSource:(RCNDBSource)source;

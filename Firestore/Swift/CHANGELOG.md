@@ -1,4 +1,8 @@
-# Unreleased
+# v7.7.0
+- [feature] Added support for specifying `ServerTimestampBehavior` when
+  decoding a `DocumentSnapshot`.
+
+# v0.4
 - [feature] Added conditional conformance to the `Hashable` protocol for the
   `@DocumentID`, `@ExplicitNull`, and `@ServerTimestamp` property wrappers.
 

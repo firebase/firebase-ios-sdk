@@ -251,7 +251,6 @@ target_include_directories(
   $<BUILD_INTERFACE:${FIREBASE_EXTERNAL_SOURCE_DIR}/nanopb>
 )
 
-
 # XCTest
 if(APPLE)
   find_package(XCTest)
@@ -264,6 +263,5 @@ endif()
 
 add_subdirectory(FirebaseCore)
 add_subdirectory(Firestore)
-add_subdirectory(GoogleUtilities)
 add_subdirectory(Interop/Auth)
 add_subdirectory(Interop/CoreDiagnostics)

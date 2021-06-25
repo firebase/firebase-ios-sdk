@@ -3,8 +3,7 @@ name: release
 on:
   pull_request:
     paths:
-    - '.github/workflows/release.yml'
-    - 'scripts/create_spec_repo/*'
+    - 'scripts/release_testing_setup.sh'
   workflow_dispatch:
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
@@ -13,13 +12,14 @@ on:
 jobs:
   buildup_SpecsTesting_repo:
     # Don't run on private repo unless it is a PR.
-    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     env:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       local_repo: specstesting
-      nightly_version: "6.32.1"
+      # The SDK repo will be cloned to this dir and podspecs from
+      # the latest release branch of this repo will be validated and pushed to
+      # the testing repo.
       local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
-      podspec_repo_branch: master
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
@@ -32,14 +32,14 @@ jobs:
     - name: Update SpecsTesting repo setup
       run: |
          ossbotaccess=`cat oss-bot-access.txt`
-         BOT_TOKEN="${ossbotaccess}" test_version="${nightly_version}" scripts/release_testing_setup.sh nightly_testing
+         BOT_TOKEN="${ossbotaccess}" scripts/release_testing_setup.sh release_testing
     - name: Update SpecsTesting repo
       run: |
         botaccess=`cat bot-access.txt`
         cd scripts/create_spec_repo/
         swift build
         pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/FirebasePrivate/SpecsTesting.git
-        BOT_TOKEN="${botaccess}"  .build/debug/spec-repo-builder --sdk-repo "${local_sdk_repo_dir}" --local-spec-repo-name "${local_repo}"
+        BOT_TOKEN="${botaccess}"  .build/debug/spec-repo-builder --sdk-repo "${local_sdk_repo_dir}" --local-spec-repo-name "${local_repo}" --pod-sources 'https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsTesting' "https://github.com/firebase/SpecsStaging.git" "https://cdn.cocoapods.org/" --exclude-pods "FirebaseSegmentation" "FirebaseFirestoreTestingSupport" "FirebaseAuthTestingSupport" "FirebaseCombineSwift" "FirebaseFunctionsTestingSupport"
     - name: Clean Artifacts
       if: ${{ always() }}
       run: |
@@ -48,7 +48,7 @@ jobs:
 
   abtesting_quickstart:
     # Don't run on private repo unless it is a PR.
-    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     needs: buildup_SpecsTesting_repo
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -82,7 +82,7 @@ jobs:
 
   auth_quickstart:
     # Don't run on private repo unless it is a PR.
-    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     needs: buildup_SpecsTesting_repo
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -116,7 +116,7 @@ jobs:
 
   crashlytics_quickstart:
     # Don't run on private repo unless it is a PR.
-    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     needs: buildup_SpecsTesting_repo
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -159,7 +159,7 @@ jobs:
 
   database_quickstart:
     # Don't run on private repo unless it is a PR.
-    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     needs: buildup_SpecsTesting_repo
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -197,7 +197,7 @@ jobs:
 
   dynamiclinks_quickstart:
     # Don't run on private repo unless it is a PR.
-    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     needs: buildup_SpecsTesting_repo
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -241,7 +241,7 @@ jobs:
 
   firestore_quickstart:
     # Don't run on private repo unless it is a PR.
-    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     needs: buildup_SpecsTesting_repo
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -278,7 +278,7 @@ jobs:
 
   functions_quickstart:
     # Don't run on private repo unless it is a PR.
-    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     needs: buildup_SpecsTesting_repo
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -320,7 +320,7 @@ jobs:
 
   inappmessaging_quickstart:
     # Don't run on private repo unless it is a PR.
-    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     needs: buildup_SpecsTesting_repo
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -360,7 +360,7 @@ jobs:
 
   messaging_quickstart:
     # Don't run on private repo unless it is a PR.
-    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     needs: buildup_SpecsTesting_repo
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -400,7 +400,7 @@ jobs:
 
   remoteconfig_quickstart:
     # Don't run on private repo unless it is a PR.
-    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     needs: buildup_SpecsTesting_repo
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -434,7 +434,7 @@ jobs:
 
   storage_quickstart:
     # Don't run on private repo unless it is a PR.
-    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     needs: buildup_SpecsTesting_repo
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -468,4 +468,43 @@ jobs:
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_storage
+        path: quickstart-ios/
+
+  performance_quickstart:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    needs: buildup_SpecsTesting_repo
+    env:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      testing_repo_dir: "/tmp/test/"
+      testing_repo: "firebase-ios-sdk"
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Get token
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+          bot-access.txt "$bot_token_secret"
+    - name: Setup testing repo and quickstart
+      run: |
+          botaccess=`cat bot-access.txt`
+          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh Performance nightly_release_testing
+    - name: Install Secret GoogleService-Info.plist
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-performance.plist.gpg \
+          quickstart-ios/performance/GoogleService-Info.plist "$plist_secret"
+    - name: Install Secret FIREGSignInInfo.h
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
+          quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
+    - name: Test objc quickstart
+      run: |
+        ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Performance)
+    - name: Test swift quickstart
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Performance swift)
+    - name: Remove data before upload
+      run: scripts/remove_data.sh performance release_testing
+    - uses: actions/upload-artifact@v2
+      if: ${{ failure() }}
+      with:
+        name: quickstart_artifacts_performance
         path: quickstart-ios/

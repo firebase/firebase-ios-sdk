@@ -1,3 +1,24 @@
+# 8.3.0
+- [changed] Removed usage of a deprecated GTMSessionFetcher method (#8294).
+
+# 8.2.0
+- [changed] Instances are now cached. Repeated invocations of `Storage.storage()`
+  return the same instance and retain the same settings.
+
+# 8.0.0
+- [added] Added `FirebaseStorage.useEmulator()`, which allows the Storage SDK to
+  connect to the Cloud Storage for Firebase emulator.
+- [added] Added abuse reduction features. (#7928)
+
+# 7.4.0
+- [fixed] Prevent second `listAll` callback. (#7197)
+
+# 7.3.0
+- [fixed] Verify block is still alive before calling it in task callbacks. (#7051)
+
+# 7.1.0
+- [fixed] Remove explicit MobileCoreServices library linkage from podspec. (#6850)
+
 # 7.0.0
 - [changed] The global variable `FIRStorageVersionString` is deleted.
   `FirebaseVersion()` or `FIRFirebaseVersion()` should be used instead.
@@ -5,6 +26,8 @@
   that contain the "+" sign.
 - [changed] Renamed `list(withMaxResults:)` to `list(maxResults:)` in the Swift
   API.
+- [fixed] Fixed an issue that caused longer than expected timeouts for users
+  that specified custom timeouts.
 
 # 3.8.1
 - [fixed] Fixed typo in doc comments (#6485).

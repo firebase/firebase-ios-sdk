@@ -51,7 +51,6 @@
 #include "Firestore/core/src/model/patch_mutation.h"
 #include "Firestore/core/src/model/set_mutation.h"
 #include "Firestore/core/src/model/snapshot_version.h"
-#include "Firestore/core/src/model/transform_mutation.h"
 #include "Firestore/core/src/model/unknown_document.h"
 #include "Firestore/core/src/model/verify_mutation.h"
 #include "Firestore/core/src/nanopb/message.h"
@@ -59,7 +58,6 @@
 #include "Firestore/core/src/nanopb/writer.h"
 #include "Firestore/core/src/timestamp_internal.h"
 #include "Firestore/core/src/util/status.h"
-#include "Firestore/core/src/util/statusor.h"
 #include "Firestore/core/test/unit/nanopb/nanopb_testing.h"
 #include "Firestore/core/test/unit/testutil/status_testing.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
@@ -98,7 +96,6 @@ using model::Precondition;
 using model::ServerTimestampTransform;
 using model::SetMutation;
 using model::SnapshotVersion;
-using model::TransformMutation;
 using model::TransformOperation;
 using model::VerifyMutation;
 using nanopb::ByteString;
@@ -229,7 +226,7 @@ class SerializerTest : public ::testing::Test {
     StringReader reader(bytes);
 
     auto message = Message<google_firestore_v1_Value>::TryParse(&reader);
-    serializer.DecodeFieldValue(&reader, *message);
+    serializer.DecodeFieldValue(reader.context(), *message);
 
     ASSERT_NOT_OK(reader.status());
     EXPECT_EQ(status.code(), reader.status().code());
@@ -242,7 +239,7 @@ class SerializerTest : public ::testing::Test {
     auto message =
         Message<google_firestore_v1_BatchGetDocumentsResponse>::TryParse(
             &reader);
-    serializer.DecodeMaybeDocument(&reader, *message);
+    serializer.DecodeMaybeDocument(reader.context(), *message);
 
     ASSERT_NOT_OK(reader.status());
     EXPECT_EQ(status.code(), reader.status().code());
@@ -428,7 +425,8 @@ class SerializerTest : public ::testing::Test {
     StringReader reader(bytes);
 
     auto message = Message<google_firestore_v1_Value>::TryParse(&reader);
-    FieldValue actual_model = serializer.DecodeFieldValue(&reader, *message);
+    FieldValue actual_model =
+        serializer.DecodeFieldValue(reader.context(), *message);
 
     EXPECT_OK(reader.status());
     EXPECT_EQ(type, actual_model.type());
@@ -477,7 +475,7 @@ class SerializerTest : public ::testing::Test {
         Message<google_firestore_v1_BatchGetDocumentsResponse>::TryParse(
             &reader);
     MaybeDocument actual_model =
-        serializer.DecodeMaybeDocument(&reader, *message);
+        serializer.DecodeMaybeDocument(reader.context(), *message);
 
     EXPECT_EQ(key, actual_model.key());
     EXPECT_EQ(version, actual_model.version());
@@ -575,7 +573,7 @@ class SerializerTest : public ::testing::Test {
     StringReader reader{bytes};
 
     auto message = Message<T>::TryParse(&reader);
-    auto model = decode_func(serializer, &reader, *message, args...);
+    auto model = decode_func(serializer, reader.context(), *message, args...);
 
     EXPECT_OK(reader.status());
     return model;
@@ -891,7 +889,8 @@ TEST_F(SerializerTest, EncodesFieldValuesWithRepeatedEntries) {
   StringReader reader(bytes);
 
   auto message = Message<google_firestore_v1_Value>::TryParse(&reader);
-  FieldValue actual_model = serializer.DecodeFieldValue(&reader, *message);
+  FieldValue actual_model =
+      serializer.DecodeFieldValue(reader.context(), *message);
   EXPECT_OK(reader.status());
 
   // Ensure the decoded model is as expected.
@@ -919,7 +918,7 @@ TEST_F(SerializerTest, BadBoolValueInterpretedAsTrue) {
 
   StringReader reader(bytes);
   auto message = Message<google_firestore_v1_Value>::TryParse(&reader);
-  FieldValue model = serializer.DecodeFieldValue(&reader, *message);
+  FieldValue model = serializer.DecodeFieldValue(reader.context(), *message);
 
   ASSERT_OK(reader.status());
   EXPECT_TRUE(model.boolean_value());
@@ -1033,7 +1032,8 @@ TEST_F(SerializerTest, BadFieldValueTagWithOtherValidTagsPresent) {
   // Decode the bytes into the model
   StringReader reader(bytes);
   auto message = Message<google_firestore_v1_Value>::TryParse(&reader);
-  FieldValue actual_model = serializer.DecodeFieldValue(&reader, *message);
+  FieldValue actual_model =
+      serializer.DecodeFieldValue(reader.context(), *message);
   EXPECT_OK(reader.status());
 
   // Ensure the decoded model is as expected.
@@ -1077,15 +1077,17 @@ TEST_F(SerializerTest, EncodesKey) {
 
 TEST_F(SerializerTest, DecodesKey) {
   StringReader reader(nullptr, 0);
-  EXPECT_EQ(Key(""),
-            serializer.DecodeKey(&reader, ToBytes(ResourceName("")).get()));
-  EXPECT_EQ(Key("one/two/three/four"),
-            serializer.DecodeKey(
-                &reader, ToBytes(ResourceName("one/two/three/four")).get()));
+  EXPECT_EQ(Key(""), serializer.DecodeKey(reader.context(),
+                                          ToBytes(ResourceName("")).get()));
+  EXPECT_EQ(
+      Key("one/two/three/four"),
+      serializer.DecodeKey(reader.context(),
+                           ToBytes(ResourceName("one/two/three/four")).get()));
   // Same, but with a leading slash
-  EXPECT_EQ(Key("one/two/three/four"),
-            serializer.DecodeKey(
-                &reader, ToBytes(ResourceName("one/two/three/four")).get()));
+  EXPECT_EQ(
+      Key("one/two/three/four"),
+      serializer.DecodeKey(reader.context(),
+                           ToBytes(ResourceName("one/two/three/four")).get()));
   EXPECT_OK(reader.status());
 }
 
@@ -1104,7 +1106,7 @@ TEST_F(SerializerTest, BadKey) {
 
   for (const std::string& bad_key : bad_cases) {
     StringReader reader(nullptr, 0);
-    serializer.DecodeKey(&reader, ToBytes(bad_key).get());
+    serializer.DecodeKey(reader.context(), ToBytes(bad_key).get());
     EXPECT_NOT_OK(reader.status());
   }
 }
@@ -1740,6 +1742,53 @@ TEST_F(SerializerTest, DecodesVersionWithTargets) {
   ExpectDeserializationRoundTrip(model, proto);
 }
 
+TEST_F(SerializerTest, GracefullyDecodesBadMapValue) {
+  pb_bytes_array_t key{1, {'a'}};
+  google_firestore_v1_Value bad_value = {};
+  google_firestore_v1_MapValue_FieldsEntry fields_entry = {&key, bad_value};
+  google_firestore_v1_MapValue bad_map = {1, &fields_entry};
+
+  google_firestore_v1_Value bad_map_value = {};
+  bad_map_value.which_value_type = google_firestore_v1_Value_map_value_tag;
+  bad_map_value.map_value = bad_map;
+
+  StringReader reader(nullptr, 0);
+  FieldValue decoded_value =
+      serializer.DecodeFieldValue(reader.context(), bad_map_value);
+  EXPECT_FALSE(reader.context()->status().ok());
+  EXPECT_TRUE(decoded_value.is_object());
+  EXPECT_TRUE(decoded_value.object_value().empty());
+}
+
+TEST_F(SerializerTest, GracefullyDecodesBadReference) {
+  pb_bytes_array_t bad_ref{1, {'a'}};
+  google_firestore_v1_Value bad_value = {};
+  bad_value.which_value_type = google_firestore_v1_Value_reference_value_tag;
+  bad_value.reference_value = &bad_ref;
+
+  StringReader reader(nullptr, 0);
+  FieldValue decoded_value =
+      serializer.DecodeFieldValue(reader.context(), bad_value);
+  EXPECT_FALSE(reader.context()->status().ok());
+  EXPECT_TRUE(decoded_value.is_null());
+}
+
+TEST_F(SerializerTest, GracefullyDecodesArrayWithBadElement) {
+  google_firestore_v1_Value bad_element = {};
+  google_firestore_v1_ArrayValue bad_array = {1, &bad_element};
+
+  google_firestore_v1_Value bad_value = {};
+  bad_value.which_value_type = google_firestore_v1_Value_array_value_tag;
+  bad_value.array_value = bad_array;
+
+  StringReader reader(nullptr, 0);
+  FieldValue decoded_value =
+      serializer.DecodeFieldValue(reader.context(), bad_value);
+  EXPECT_FALSE(reader.context()->status().ok());
+  EXPECT_TRUE(decoded_value.is_array());
+  EXPECT_TRUE(decoded_value.array_value().empty());
+}
+
 TEST_F(SerializerTest, EncodesSetMutation) {
   SetMutation model = testutil::SetMutation("docs/1", Map("a", "b", "num", 1));
 
@@ -1799,61 +1848,110 @@ TEST_F(SerializerTest, EncodesVerifyMutation) {
   ExpectRoundTrip(model, proto);
 }
 
-TEST_F(SerializerTest, EncodesServerTimestampTransformMutation) {
-  TransformMutation model = testutil::TransformMutation(
-      "docs/1", {{"a", ServerTimestampTransform()},
-                 {"bar.baz", ServerTimestampTransform()}});
+TEST_F(SerializerTest, EncodesServerTimestampTransform) {
+  std::vector<std::pair<std::string, TransformOperation>> transforms = {
+      {"a", ServerTimestampTransform()}, {"bar", ServerTimestampTransform()}};
 
-  v1::Write proto;
+  SetMutation set_model = testutil::SetMutation("docs/1", Map(), transforms);
 
-  v1::DocumentTransform& transform = *proto.mutable_transform();
-  transform.set_document(ResourceName("docs/1"));
+  v1::Write set_proto;
+  v1::Document& doc = *set_proto.mutable_update();
+  doc.set_name(ResourceName("docs/1"));
 
-  v1::DocumentTransform::FieldTransform field_transform1;
-  field_transform1.set_field_path("a");
-  field_transform1.set_set_to_server_value(
+  v1::DocumentTransform::FieldTransform server_proto1;
+  server_proto1.set_field_path("a");
+  server_proto1.set_set_to_server_value(
       v1::DocumentTransform::FieldTransform::REQUEST_TIME);
-  *transform.add_field_transforms() = std::move(field_transform1);
+  *set_proto.add_update_transforms() = std::move(server_proto1);
 
-  v1::DocumentTransform::FieldTransform field_transform2;
-  field_transform2.set_field_path("bar.baz");
-  field_transform2.set_set_to_server_value(
+  v1::DocumentTransform::FieldTransform set_transform2;
+  set_transform2.set_field_path("bar");
+  set_transform2.set_set_to_server_value(
       v1::DocumentTransform::FieldTransform::REQUEST_TIME);
-  *transform.add_field_transforms() = std::move(field_transform2);
+  *set_proto.add_update_transforms() = std::move(set_transform2);
 
-  proto.mutable_current_document()->set_exists(true);
+  ExpectRoundTrip(set_model, set_proto);
 
-  ExpectRoundTrip(model, proto);
+  PatchMutation patch_model =
+      testutil::PatchMutation("docs/1", Map(), transforms);
+
+  v1::Write patch_proto;
+  v1::Document& doc2 = *patch_proto.mutable_update();
+  doc2 = *patch_proto.mutable_update();
+  doc2.set_name(ResourceName("docs/1"));
+
+  v1::DocumentTransform::FieldTransform update_transform1;
+  update_transform1.set_field_path("a");
+  update_transform1.set_set_to_server_value(
+      v1::DocumentTransform::FieldTransform::REQUEST_TIME);
+  *patch_proto.add_update_transforms() = std::move(update_transform1);
+
+  v1::DocumentTransform::FieldTransform update_transform2;
+  update_transform2.set_field_path("bar");
+  update_transform2.set_set_to_server_value(
+      v1::DocumentTransform::FieldTransform::REQUEST_TIME);
+  *patch_proto.add_update_transforms() = std::move(update_transform2);
+
+  v1::DocumentMask mask;
+  patch_proto.set_allocated_update_mask(mask.New());
+  patch_proto.mutable_current_document()->set_exists(true);
+
+  ExpectRoundTrip(patch_model, patch_proto);
 }
 
-TEST_F(SerializerTest, EncodesArrayTransformMutations) {
+TEST_F(SerializerTest, EncodesArrayTransform) {
   ArrayTransform array_union{TransformOperation::Type::ArrayUnion,
                              {Value("a"), Value(2)}};
   ArrayTransform array_remove{TransformOperation::Type::ArrayRemove,
                               {Value(Map("x", 1))}};
-  TransformMutation model = testutil::TransformMutation(
-      "docs/1", {{"a", array_union}, {"bar.baz", array_remove}});
+  SetMutation set_model = testutil::SetMutation(
+      "docs/1", Map(), {{"a", array_union}, {"bar", array_remove}});
 
-  v1::Write proto;
-  v1::DocumentTransform& transform = *proto.mutable_transform();
-  transform.set_document(ResourceName("docs/1"));
+  v1::Write set_proto;
+  v1::Document& doc = *set_proto.mutable_update();
+  doc.set_name(ResourceName("docs/1"));
 
   v1::DocumentTransform::FieldTransform union_proto;
   union_proto.set_field_path("a");
   v1::ArrayValue& append = *union_proto.mutable_append_missing_elements();
   *append.add_values() = ValueProto("a");
   *append.add_values() = ValueProto(2);
-  *transform.add_field_transforms() = std::move(union_proto);
+  *set_proto.add_update_transforms() = std::move(union_proto);
 
   v1::DocumentTransform::FieldTransform remove_proto;
-  remove_proto.set_field_path("bar.baz");
+  remove_proto.set_field_path("bar");
   v1::ArrayValue& remove = *remove_proto.mutable_remove_all_from_array();
   *remove.add_values() = ValueProto(Map("x", 1));
-  *transform.add_field_transforms() = std::move(remove_proto);
+  *set_proto.add_update_transforms() = std::move(remove_proto);
 
-  proto.mutable_current_document()->set_exists(true);
+  ExpectRoundTrip(set_model, set_proto);
 
-  ExpectRoundTrip(model, proto);
+  PatchMutation patch_model = testutil::PatchMutation(
+      "docs/1", Map(), {{"a", array_union}, {"bar", array_remove}});
+
+  v1::Write patch_proto;
+  v1::Document& doc2 = *patch_proto.mutable_update();
+  doc2 = *patch_proto.mutable_update();
+  doc2.set_name(ResourceName("docs/1"));
+
+  v1::DocumentTransform::FieldTransform union_proto2;
+  union_proto2.set_field_path("a");
+  v1::ArrayValue& append2 = *union_proto2.mutable_append_missing_elements();
+  *append2.add_values() = ValueProto("a");
+  *append2.add_values() = ValueProto(2);
+  *patch_proto.add_update_transforms() = std::move(union_proto2);
+
+  v1::DocumentTransform::FieldTransform remove_proto2;
+  remove_proto2.set_field_path("bar");
+  v1::ArrayValue& remove2 = *remove_proto2.mutable_remove_all_from_array();
+  *remove2.add_values() = ValueProto(Map("x", 1));
+  *patch_proto.add_update_transforms() = std::move(remove_proto2);
+
+  v1::DocumentMask mask;
+  patch_proto.set_allocated_update_mask(mask.New());
+  patch_proto.mutable_current_document()->set_exists(true);
+
+  ExpectRoundTrip(patch_model, patch_proto);
 }
 
 TEST_F(SerializerTest, EncodesSetMutationWithPrecondition) {

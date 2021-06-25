@@ -31,7 +31,6 @@ namespace firestore {
 namespace api {
 
 using model::DeleteMutation;
-using model::Mutation;
 using model::Precondition;
 using util::ThrowIllegalState;
 using util::ThrowInvalidArgument;
@@ -41,10 +40,8 @@ void WriteBatch::SetData(const DocumentReference& reference,
   VerifyNotCommitted();
   ValidateReference(reference);
 
-  std::vector<Mutation> append_mutations = std::move(set_data).ToMutations(
-      reference.key(), model::Precondition::None());
-  std::move(append_mutations.begin(), append_mutations.end(),
-            std::back_inserter(mutations_));
+  mutations_.push_back(std::move(set_data).ToMutation(
+      reference.key(), model::Precondition::None()));
 }
 
 void WriteBatch::UpdateData(const DocumentReference& reference,
@@ -52,11 +49,9 @@ void WriteBatch::UpdateData(const DocumentReference& reference,
   VerifyNotCommitted();
   ValidateReference(reference);
 
-  std::vector<Mutation> append_mutations =
+  mutations_.push_back(
       std::move(update_data)
-          .ToMutations(reference.key(), model::Precondition::Exists(true));
-  std::move(append_mutations.begin(), append_mutations.end(),
-            std::back_inserter(mutations_));
+          .ToMutation(reference.key(), model::Precondition::Exists(true)));
 }
 
 void WriteBatch::DeleteData(const DocumentReference& reference) {
@@ -84,8 +79,8 @@ void WriteBatch::VerifyNotCommitted() const {
 void WriteBatch::ValidateReference(const DocumentReference& reference) const {
   if (reference.firestore() != firestore_) {
     ThrowInvalidArgument(
-        "Provided document reference is from a different "
-        "Firestore instance.");
+        "Provided document reference is from a different Cloud Firestore "
+        "instance.");
   }
 }
 

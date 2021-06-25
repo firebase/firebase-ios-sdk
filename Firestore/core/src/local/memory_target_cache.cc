@@ -68,13 +68,14 @@ absl::optional<TargetData> MemoryTargetCache::GetTarget(const Target& target) {
   return iter == targets_.end() ? absl::optional<TargetData>{} : iter->second;
 }
 
-void MemoryTargetCache::EnumerateTargets(const TargetCallback& callback) {
+void MemoryTargetCache::EnumerateSequenceNumbers(
+    const SequenceNumberCallback& callback) {
   for (const auto& kv : targets_) {
-    callback(kv.second);
+    callback(kv.second.sequence_number());
   }
 }
 
-int MemoryTargetCache::RemoveTargets(
+size_t MemoryTargetCache::RemoveTargets(
     model::ListenSequenceNumber upper_bound,
     const std::unordered_map<TargetId, TargetData>& live_targets) {
   std::vector<const Target*> to_remove;
@@ -93,7 +94,7 @@ int MemoryTargetCache::RemoveTargets(
   for (const Target* element : to_remove) {
     targets_.erase(*element);
   }
-  return static_cast<int>(to_remove.size());
+  return to_remove.size();
 }
 
 void MemoryTargetCache::AddMatchingKeys(const DocumentKeySet& keys,
@@ -134,6 +135,10 @@ const SnapshotVersion& MemoryTargetCache::GetLastRemoteSnapshotVersion() const {
 
 void MemoryTargetCache::SetLastRemoteSnapshotVersion(SnapshotVersion version) {
   last_remote_snapshot_version_ = std::move(version);
+}
+
+void MemoryTargetCache::RemoveMatchingKeysForTarget(model::TargetId target_id) {
+  references_.RemoveReferences(target_id);
 }
 
 }  // namespace local

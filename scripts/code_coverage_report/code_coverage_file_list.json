@@ -1,0 +1,99 @@
+[
+  {
+    "sdk": "abtesting",
+    "filePatterns": [
+      "FirebaseABTesting.*",
+      "Interop/Analytics/Public/[^/]+\\.h",
+      "\\.github/workflows/abtesting\\.yml"
+    ]
+  },
+  {
+    "sdk": "auth",
+    "filePatterns": [
+      "FirebaseAuth.*",
+      "Interop/Auth/Public/[^/]+\\.h",
+      "\\.github/workflows/auth\\.yml"
+    ]
+  },
+  {
+    "sdk": "database",
+    "filePatterns": [
+      "FirebaseDatabase.*",
+      "\\.github/workflows/database\\.yml",
+      "Example/Database/",
+      "Interop/Auth/Public/[^/]+\\.h"
+    ]
+  },
+  {
+    "sdk": "dynamiclinks",
+    "filePatterns": [
+      "FirebaseDynamicLinks.*",
+      "\\.github/workflows/dynamiclinks\\.yml",
+      "Interop/Analytics/Public/[^/]+\\.h"
+    ]
+  },
+  {
+    "sdk": "firestore",
+    "filePatterns": [
+      "Firestore/.*",
+      "Interop/Auth/Public/[^/]+\\.h",
+      "FirebaseCore/Sources/Private",
+      "FirebaseCore/Sources/Public",
+      "FirebaseFirestore\\.podspec",
+      "CMakeLists\\.txt",
+      "cmake/.*",
+      "\\.github/workflows/firestore\\.yml"
+    ]
+  },
+  {
+    "sdk": "functions",
+    "filePatterns": [
+      "Functions.*",
+      "\\.github/workflows/functions\\.yml",
+      "Interop/Auth/Public/.*\\.h",
+      "FirebaseMessaging/Sources/Interop/[^/]+\\.h"
+    ]
+  },
+  {
+    "sdk": "inappmessaging",
+    "filePatterns": [
+      "FirebaseInAppMessaging.*",
+      "Interop/Analytics/Public/[^/]+\\.h",
+      "\\.github/workflows/inappmessaging\\.yml"
+    ]
+  },
+  {
+    "sdk": "messaging",
+    "filePatterns": [
+      "FirebaseMessaging/.*",
+      "Interop/Analytics/Public/[^/]+\\.h",
+      "FirebaseMessaging\\.podspec",
+      "\\.github/workflows/messaging\\.yml"
+    ]
+  },
+  {
+    "sdk": "performance",
+    "filePatterns": [
+      "FirebasePerformance/.*",
+      "FirebasePerformance\\.podspec",
+      "\\.github/workflows/performance\\.yml"
+    ]
+  },
+  {
+    "sdk": "remoteconfig",
+    "filePatterns": [
+      "FirebaseRemoteConfig.*",
+      "Interop/Analytics/Public/[^/]+\\.h",
+      "\\.github/workflows/remoteconfig\\.yml",
+      "scripts/generate_access_token\\.sh"
+    ]
+  },
+  {
+    "sdk": "storage",
+    "filePatterns": [
+      "FirebaseStorage.*",
+      "Interop/Auth/Public/[^/]+\\.h",
+      "\\.github/workflows/storage\\.yml"
+    ]
+  }
+]

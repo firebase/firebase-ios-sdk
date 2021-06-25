@@ -25,6 +25,12 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(Functions)
 @interface FIRFunctions : NSObject
 
+/**
+ * The current emulator origin, or nil if it is not set.
+ */
+@property(nonatomic, readonly, nullable) NSString *emulatorOrigin;
+
+/** :nodoc: */
 - (id)init NS_UNAVAILABLE;
 
 /**
@@ -45,15 +51,30 @@ NS_SWIFT_NAME(Functions)
 + (instancetype)functionsForRegion:(NSString *)region NS_SWIFT_NAME(functions(region:));
 
 /**
- * Creates a Cloud Functions client with the given app and region.
+ * Creates a Cloud Functions client with the default app and given custom domain.
+ * @param customDomain A custom domain for the http trigger, such as "https://mydomain.com".
+ */
++ (instancetype)functionsForCustomDomain:(NSString *)customDomain
+    NS_SWIFT_NAME(functions(customDomain:));
+
+/**
+ * Creates a Cloud Functions client with the given app and region, or returns a pre-existing
+ * instance if one already exists.
  * @param app The app for the Firebase project.
  * @param region The region for the http trigger, such as "us-central1".
  */
-// clang-format off
-// because it incorrectly breaks this NS_SWIFT_NAME.
 + (instancetype)functionsForApp:(FIRApp *)app
                          region:(NSString *)region NS_SWIFT_NAME(functions(app:region:));
-// clang-format on
+
+/**
+ * Creates a Cloud Functions client with the given app and region, or returns a pre-existing
+ * instance if one already exists.
+ * @param app The app for the Firebase project.
+ * @param customDomain A custom domain for the http trigger, such as "https://mydomain.com".
+ */
++ (instancetype)functionsForApp:(FIRApp *)app
+                   customDomain:(NSString *)customDomain
+    NS_SWIFT_NAME(functions(app:customDomain:));
 
 /**
  * Creates a reference to the Callable HTTPS trigger with the given name.
@@ -64,9 +85,19 @@ NS_SWIFT_NAME(Functions)
 /**
  * Changes this instance to point to a Cloud Functions emulator running locally.
  * See https://firebase.google.com/docs/functions/local-emulator
- * @param origin The origin of the local emulator, such as "http://localhost:5005".
+ * @param origin The origin of the local emulator, such as "localhost:5005".
  */
-- (void)useFunctionsEmulatorOrigin:(NSString *)origin NS_SWIFT_NAME(useFunctionsEmulator(origin:));
+- (void)useFunctionsEmulatorOrigin:(NSString *)origin
+    NS_SWIFT_NAME(useFunctionsEmulator(origin:))
+        __attribute__((deprecated("Use useEmulator(host:port:) instead.")));
+
+/**
+ * Changes this instance to point to a Cloud Functions emulator running locally.
+ * See https://firebase.google.com/docs/functions/local-emulator
+ * @param host The host of the local emulator, such as "localhost".
+ * @param port The port of the local emulator, for example 5005.
+ */
+- (void)useEmulatorWithHost:(NSString *)host port:(NSInteger)port;
 
 @end
 

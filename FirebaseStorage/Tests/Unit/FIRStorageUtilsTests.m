@@ -14,9 +14,9 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseStorage/Sources/FIRStorageUtils.h"
-
 #import "FirebaseStorage/Sources/FIRStoragePath.h"
+
+#import "FirebaseStorage/Tests/Unit/FIRStorageTestHelpers.h"
 
 @interface FIRStorageUtilsTests : XCTestCase
 
@@ -97,17 +97,18 @@
 }
 
 - (void)testDefaultRequestForFullPath {
-  FIRStoragePath *path = [[FIRStoragePath alloc] initWithBucket:@"bucket" object:@"path/to/object"];
-  NSURLRequest *request = [FIRStorageUtils defaultRequestForPath:path];
-  XCTAssertEqualObjects([request.URL absoluteString],
-                        @"https://firebasestorage.googleapis.com/v0/b/bucket/o/path%2Fto%2Fobject");
+  FIRStorageReference *ref = [[FIRStorageTestHelpers rootReference] child:@"path/to/object"];
+  NSURLRequest *request = [FIRStorageUtils defaultRequestForReference:ref];
+  XCTAssertEqualObjects(
+      [request.URL absoluteString],
+      @"https://firebasestorage.googleapis.com:443/v0/b/bucket/o/path%2Fto%2Fobject");
 }
 
 - (void)testDefaultRequestForNoPath {
-  FIRStoragePath *path = [[FIRStoragePath alloc] initWithBucket:@"bucket" object:nil];
-  NSURLRequest *request = [FIRStorageUtils defaultRequestForPath:path];
+  FIRStorageReference *ref = [FIRStorageTestHelpers rootReference];
+  NSURLRequest *request = [FIRStorageUtils defaultRequestForReference:ref];
   XCTAssertEqualObjects([request.URL absoluteString],
-                        @"https://firebasestorage.googleapis.com/v0/b/bucket/o");
+                        @"https://firebasestorage.googleapis.com:443/v0/b/bucket/o");
 }
 
 - (void)testEncodedURLForFullPath {
@@ -120,6 +121,26 @@
   FIRStoragePath *path = [[FIRStoragePath alloc] initWithBucket:@"bucket" object:nil];
   NSString *encodedURL = [FIRStorageUtils encodedURLForPath:path];
   XCTAssertEqualObjects(encodedURL, @"/v0/b/bucket/o");
+}
+
+- (void)testTranslateRetryTime {
+  // The 1st retry attempt runs after 1 second.
+  // The 2nd retry attempt is delayed by 2 seconds (3s total)
+  // The 3rd retry attempt is delayed by 4 seconds (7s total)
+  // The 4th retry attempt is delayed by 8 seconds (15s total)
+  // The 5th retry attempt is delayed by 16 seconds (31s total)
+  // The 6th retry attempt is delayed by 32 seconds (63s total)
+  // Thus, we should exit just between the 5th and 6th retry attempt and cut off before 32s.
+  XCTAssertEqual(32.0, [FIRStorageUtils computeRetryIntervalFromRetryTime:60.0]);
+
+  XCTAssertEqual(1.0, [FIRStorageUtils computeRetryIntervalFromRetryTime:1.0]);
+  XCTAssertEqual(2.0, [FIRStorageUtils computeRetryIntervalFromRetryTime:2.0]);
+  XCTAssertEqual(4.0, [FIRStorageUtils computeRetryIntervalFromRetryTime:4.0]);
+  XCTAssertEqual(8.0, [FIRStorageUtils computeRetryIntervalFromRetryTime:10.0]);
+  XCTAssertEqual(16.0, [FIRStorageUtils computeRetryIntervalFromRetryTime:20.0]);
+  XCTAssertEqual(16.0, [FIRStorageUtils computeRetryIntervalFromRetryTime:30.0]);
+  XCTAssertEqual(32.0, [FIRStorageUtils computeRetryIntervalFromRetryTime:40.0]);
+  XCTAssertEqual(32.0, [FIRStorageUtils computeRetryIntervalFromRetryTime:50.0]);
 }
 
 @end

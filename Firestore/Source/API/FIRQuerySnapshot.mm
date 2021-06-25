@@ -39,7 +39,6 @@ using firebase::firestore::api::QuerySnapshot;
 using firebase::firestore::api::SnapshotMetadata;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::util::DelayedConstructor;
-using firebase::firestore::util::ThrowInvalidArgument;
 
 NS_ASSUME_NONNULL_BEGIN
 

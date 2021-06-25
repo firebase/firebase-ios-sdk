@@ -1,3 +1,69 @@
+# Firebase 8.2.0
+- [fixed] Stop flooding Swift Package Manager projects with Firebase test schemes. (#8167)
+- [fixed] Removed "Invalid Exclude" warnings for Swift Package Manager using Xcode 13 beta 1.
+
+# Firebase 8.1.1
+- [fixed] Fixed an issue where apps were getting rejected for a formerly-public method name
+  removed in iOS 15. Only FirebaseAnalytics is updated for this release. (#8222)
+
+# Firebase 8.0.0
+- [removed] The deprecated Firebase InstanceID has been removed. Use Firebase Installations to manage
+  app instance and use Firebase Messaging to manage FCM registration token instead. (#7970)
+- [changed] The experimental Carthage distribution is temporarily discontinued pending integration
+  with the upcoming [Carthage 0.38.0 release](https://github.com/Carthage/Carthage/pull/3152) with
+  support for binary xcframeworks. In the meantime, a mix of 7.4.0 and 7.11.0 will be the latest
+  Carthage distribution. Use the [zip distribution](https://firebase.google.com/download/ios) as an
+  alternative way to get the latest 8.x binary distribution.
+- [removed] Build warnings will no longer be generated to warn about missing capabilities resulting
+  from not including FirebaseAnalytics in the app. See the Firebase docs instead. (#7487)
+- [removed] The `Firebase/AdMob` CocoaPods subspec has been removed. Use the `Google-Mobile-Ads-SDK`
+  CocoaPod instead. (#7833)
+- [removed] The `Firebase/MLModelInterpreter` CocoaPods subspec has been removed. Use the
+ `Firebase/MLModelDownloader` subspec instead.
+  CocoaPod instead.
+- [removed] The `Firebase/MLVision` CocoaPods subspec has been removed. Use the
+  `GoogleMLKit` CocoaPod instead.
+- [added] The Swift Package Manager distribution has exited beta and is now generally available for
+  use.
+- [changed] The Swift Package Manager distribution now requires at least iOS 11.0. The CocoaPods
+  distribution continues to support iOS 10.0.
+- [changed] The Swift Package Manager distribution now requires at least watchOS 7.0 for products
+  that support watchOS. The CocoaPods distribution continues to support watchOS 6.0 with the
+  exception of FirebaseDatabase.
+- [changed] Migrate `transform:` callsites and introduce breaking version of
+  GoogleDataTransport (9.0). (#7899)
+
+# Firebase 7.10.0
+- [changed] Update Nanopb to version 0.3.9.8. It fixes a possible security issue. (#7787)
+
+# FirebaseCore 7.7.0
+- [changed] Deprecated FirebaseMLModelInterpreter and FirebaseMLVision.
+- [added] Introduced FirebaseMLModelDownloader.
+- [fixed] Fixed missing doc comment in `FirebaseVersion()`. (#7506)
+- [changed] Minimum required Xcode version for Zip and Carthage distributions changed to 12.2 (was 12.0).
+- [added] The zip distribution now includes Catalyst arm64 simulator slices. (#7007)
+
+# FirebaseCore 7.6.0
+- [fixed] Fixed build warnings introduced with Xcode 12.5. (#7431)
+
+# Firebase 7.5.0
+- [fixed] Fixed potential deadlock with objc_copyImageNames call. (#7310)
+
+# Firebase 7.4.0
+- [changed] Patch update to nanopb 0.3.9.7 that fixes a memory leak and other issues. (#7090)
+- [added] Zip distribution now includes community supported macOS and tvOS libraries. Product
+  support detailed
+  [here](https://github.com/firebase/firebase-ios-sdk#tvos-macos-watchos-and-catalyst).
+
+# Firebase 7.3.0
+- [added] Added FirebaseAppDistribution-Beta product to Swift Package Manager. (#7045)
+
+# Firebase 7.2.0
+- [fixed] Reduced `FirebaseApp.configure()` and `+[FIRApp registerInternalLibrary:withName:]` impact on app launch time. (#6902)
+- [added] Added arm64 simulator support to support new Apple silicon based Macs.
+- [changed] Due to the new arm64 simulator support, Xcode 12 is now required for any binary
+  products (Analytics, Performance, zip file distribution).
+
 # Firebase 7.0.0
 - [changed] Update minimum iOS version to iOS 10 except for Analytics which is now iOS 9. (#4847)
 - [changed] Update minimum macOS version to 10.12.

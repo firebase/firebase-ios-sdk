@@ -1,0 +1,74 @@
+name: google-utilities-components
+
+on:
+  pull_request:
+    paths:
+    - 'GoogleUtilitiesComponents**'
+    - '.github/workflows/google-utilities-components.yml'
+    - 'Gemfile*'
+  schedule:
+    # Run every day at 10pm (PST) - cron uses UTC times
+    - cron:  '0 6 * * *'
+
+jobs:
+  pod-lib-lint:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+
+    runs-on: macOS-latest
+    strategy:
+      matrix:
+        target: [ios, tvos, macos]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Build and test
+      run: |
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb GoogleUtilitiesComponents.podspec \
+          --platforms=${{ matrix.target }}
+
+  catalyst:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Setup project and Build for Catalyst
+      run: scripts/test_catalyst.sh GoogleUtilitiesComponents test GoogleUtilitiesComponents-Unit-unit
+
+  utilities-cron-only:
+    # Don't run on private repo.
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        target: [ios, tvos, macos]
+        flags: [
+          '--use-static-frameworks',
+          '--use-libraries'
+        ]
+    needs: pod-lib-lint
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: PodLibLint GoogleUtilitiesComponents Cron
+      run: |
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb \
+          GoogleUtilitiesComponents.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
+
+  podspec-presubmit:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository == 'Firebase/firebase-ios-sdk' && github.event.pull_request.merged != true && github.event.action != 'closed'
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Build and test
+      run: scripts/third_party/travis/retry.sh pod spec lint GoogleUtilitiesComponents.podspec --skip-tests --sources='https://github.com/firebase/SpecsTesting','https://github.com/firebase/SpecsDev.git','https://github.com/firebase/SpecsStaging.git','https://cdn.cocoapods.org/'

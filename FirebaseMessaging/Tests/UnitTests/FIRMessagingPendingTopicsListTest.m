@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
+#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
-#import "OCMock.h"
 
 #import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
 
@@ -119,8 +119,8 @@
         FIRMessagingTopicOperationCompletion completion) {
         // Simulate that the handler is generally called asynchronously
         dispatch_async(dispatch_get_main_queue(), ^{
-          id self = weakSelf;
           if (action == FIRMessagingTopicActionUnsubscribe) {
+            __unused id self = weakSelf;  // In Xcode 11, XCTAssertEqual references self.
             XCTAssertEqual(pendingTopics.numberOfBatches, 1);
             [batchSizeReductionExpectation fulfill];
           }

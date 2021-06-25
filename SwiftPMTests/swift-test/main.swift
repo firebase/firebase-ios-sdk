@@ -17,12 +17,19 @@ import Firebase
 import FirebaseCore
 import FirebaseAuth
 import FirebaseABTesting
+#if os(iOS) && !targetEnvironment(macCatalyst)
+  import FirebaseAppDistribution
+#endif
 import FirebaseCrashlytics
 import FirebaseDynamicLinks
 import FirebaseFirestore
 import FirebaseFirestoreSwift
 import FirebaseFunctions
-import FirebaseInAppMessaging
+#if (os(iOS) || os(tvOS)) && !targetEnvironment(macCatalyst)
+  import FirebaseInAppMessaging
+  @testable import FirebaseInAppMessagingSwift
+  import SwiftUI
+#endif
 import FirebaseInstallations
 import FirebaseMessaging
 import FirebaseRemoteConfig
@@ -32,7 +39,6 @@ import GoogleDataTransport
 import GoogleUtilities_AppDelegateSwizzler
 import GoogleUtilities_Environment
 import GoogleUtilities_Logger
-import GoogleUtilities_MethodSwizzler
 import GoogleUtilities_Network
 import GoogleUtilities_NSData
 import GoogleUtilities_Reachability
@@ -56,10 +62,56 @@ class importTest: XCTestCase {
 
     let versionParts = FirebaseVersion().split(separator: ".")
     XCTAssert(versionParts.count == 3)
-    XCTAssertEqual(Int(versionParts[0]), 7)
+    XCTAssertEqual(Int(versionParts[0]), 8)
     XCTAssertNotNil(Int(versionParts[1]))
     XCTAssertNotNil(Int(versionParts[2]))
 
-    print("System version? Answer: \(GULAppEnvironmentUtil.systemVersion() ?? "NONE")")
+    print("System version? Answer: \(GULAppEnvironmentUtil.systemVersion())")
   }
+
+  #if (os(iOS) || os(tvOS)) && !targetEnvironment(macCatalyst)
+    func testSwiftUI() {
+      if #available(iOS 13, tvOS 13, *) {
+        _ = ImageOnlyInAppMessageDisplayViewModifier { _, _ in
+          EmptyView()
+        }
+
+        _ = BannerInAppMessageDisplayViewModifier { _, _ in
+          EmptyView()
+        }
+
+        _ = CardInAppMessageDisplayViewModifier { _, _ in
+          EmptyView()
+        }
+
+        _ = ModalInAppMessageDisplayViewModifier { _, _ in
+          EmptyView()
+        }
+
+        XCTAssertNotNil(
+          EmptyView().imageOnlyInAppMessage { _, _ in
+            EmptyView()
+          }
+        )
+
+        XCTAssertNotNil(
+          EmptyView().bannerInAppMessage { _, _ in
+            EmptyView()
+          }
+        )
+
+        XCTAssertNotNil(
+          EmptyView().cardInAppMessage { _, _ in
+            EmptyView()
+          }
+        )
+
+        XCTAssertNotNil(
+          EmptyView().modalInAppMessage { _, _ in
+            EmptyView()
+          }
+        )
+      }
+    }
+  #endif
 }

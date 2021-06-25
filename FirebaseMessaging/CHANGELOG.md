@@ -1,4 +1,25 @@
-# unreleased -- v.7.0.0
+# 2021-06 -- v8.2.0
+- [fixed] Fixed an issue that local scheduled notification is not set correctly due to sound type. (#8172)
+
+# 2021-05 -- v8.1.0
+- [fixed] Fixed an issue that notification open is not logged to Analytics correctly when app is completely shut off. (#7707, #8128).
+
+# 2021-04 -- v8.0.0
+- [changed] Remove the Instance ID dependency from Firebase Cloud Messaging. This is a breaking change for FCM users who use the deprecated Instance ID API to manage registration tokens. Users should migrate to FCM's token APIs by following the migration guide: https://firebase.google.com/docs/projects/manage-installations#fid-iid. (#7836)
+
+# 2021-04 -- v7.11.0
+- [changed] Refactor Messaging to internally not depending on InstanceID, but can co-exist. Will remove InstanceID dependency in the next Firebase breaking change. (#7814)
+
+# 2021-02 -- v7.7.0
+- [fixed] Fixed an issue in which, when checking storage size before writing to disk, the client was checking document folders that were no longer used. (#7480)
+
+# 2021-02 -- v7.6.0
+- [fixed] Fixed build warnings introduced with Xcode 12.5. (#7433)
+
+# 2020-11 -- v7.1.0
+- [fixed] Fixed completion handler issue in `application(_:didReceiveRemoteNotification:fetchCompletionHandler:)` method. (#6863)
+
+# 2020-10 -- v7.0.0
 - [changed] Remove the deprecated FCM direct channel API and Upstream send API. (#6430)
 - [changed] The `messaging:didReceiveRegistrationToken:` should be able to return a null token. Update the API parameter fcmToken to be nullable. (#5339)
 - [fixed] Fixed an issue that downloading an image failed when there's no extension in the file name but MIME type is set. (#6590)

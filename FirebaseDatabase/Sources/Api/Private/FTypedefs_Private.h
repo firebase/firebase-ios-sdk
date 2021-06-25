@@ -38,14 +38,16 @@ typedef NS_ENUM(NSInteger, FTransactionStatus) {
 typedef void (^fbt_void_nserror_bool_datasnapshot)(NSError *error,
                                                    BOOL committed,
                                                    FIRDataSnapshot *snapshot);
-typedef FIRTransactionResult * (^fbt_transactionresult_mutabledata)(
-    FIRMutableData *currentData);
+typedef FIRTransactionResult * (
+    ^fbt_transactionresult_mutabledata)(FIRMutableData *currentData);
 typedef void (^fbt_void_path_node)(FPath *, id<FNode>);
 typedef void (^fbt_void_nsstring)(NSString *);
 typedef BOOL (^fbt_bool_nsstring_node)(NSString *, id<FNode>);
 typedef void (^fbt_void_path_node_marray)(FPath *, id<FNode>, NSMutableArray *);
 typedef BOOL (^fbt_bool_void)(void);
 typedef void (^fbt_void_nsstring_nsstring)(NSString *str1, NSString *str2);
+typedef void (^fbt_void_nsstring_id_nsstring)(NSString *str1, id dict1,
+                                              NSString *str2);
 typedef void (^fbt_void_nsstring_nserror)(NSString *str, NSError *error);
 typedef BOOL (^fbt_bool_path)(FPath *str);
 typedef void (^fbt_void_id)(id data);

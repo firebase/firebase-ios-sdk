@@ -16,6 +16,7 @@
 
 #import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRFunctions.h"
 
+@protocol FIRAppCheckInterop;
 @protocol FIRAuthInterop;
 @protocol FIRMessagingInterop;
 @class FIRHTTPSCallableResult;
@@ -52,13 +53,16 @@ NS_ASSUME_NONNULL_BEGIN
  * Internal initializer for the Cloud Functions client.
  * @param projectID The project ID for the Firebase project.
  * @param region The region for the http trigger, such as "us-central1".
+ * @param customDomain A custom domain for the http trigger, such as "https://mydomain.com".
  * @param auth The auth provider to use (optional).
  * @param messaging The messaging interop to use (optional).
  */
-- (id)initWithProjectID:(NSString *)projectID
-                 region:(NSString *)region
-                   auth:(nullable id<FIRAuthInterop>)auth
-              messaging:(nullable id<FIRMessagingInterop>)messaging;
+- (instancetype)initWithProjectID:(NSString *)projectID
+                           region:(NSString *)region
+                     customDomain:(nullable NSString *)customDomain
+                             auth:(nullable id<FIRAuthInterop>)auth
+                        messaging:(nullable id<FIRMessagingInterop>)messaging
+                         appCheck:(nullable id<FIRAppCheckInterop>)appCheck;
 
 @end
 

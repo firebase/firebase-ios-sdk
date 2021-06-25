@@ -16,14 +16,14 @@
 
 #include "Firestore/core/test/unit/local/local_store_test.h"
 
-#include <string>
 #include <utility>
 #include <vector>
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/auth/user.h"
+#include "Firestore/core/src/bundle/bundle_metadata.h"
+#include "Firestore/core/src/bundle/named_query.h"
 #include "Firestore/core/src/core/field_filter.h"
-#include "Firestore/core/src/local/local_store.h"
 #include "Firestore/core/src/local/local_view_changes.h"
 #include "Firestore/core/src/local/local_write_result.h"
 #include "Firestore/core/src/local/persistence.h"
@@ -31,17 +31,14 @@
 #include "Firestore/core/src/local/target_data.h"
 #include "Firestore/core/src/model/delete_mutation.h"
 #include "Firestore/core/src/model/document_map.h"
-#include "Firestore/core/src/model/document_set.h"
 #include "Firestore/core/src/model/mutation_batch_result.h"
 #include "Firestore/core/src/model/no_document.h"
 #include "Firestore/core/src/model/patch_mutation.h"
 #include "Firestore/core/src/model/set_mutation.h"
-#include "Firestore/core/src/model/transform_mutation.h"
 #include "Firestore/core/src/model/transform_operation.h"
 #include "Firestore/core/src/model/unknown_document.h"
 #include "Firestore/core/src/remote/remote_event.h"
 #include "Firestore/core/src/remote/watch_change.h"
-#include "Firestore/core/src/util/status.h"
 #include "Firestore/core/test/unit/remote/fake_target_metadata_provider.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 #include "absl/memory/memory.h"
@@ -53,6 +50,8 @@ namespace local {
 namespace {
 
 using auth::User;
+using bundle::BundleMetadata;
+using bundle::NamedQuery;
 using local::QueryResult;
 using model::Document;
 using model::DocumentKey;
@@ -90,7 +89,7 @@ using testutil::UnknownDoc;
 using testutil::Value;
 using testutil::Vector;
 
-std::vector<MaybeDocument> DocMapToArray(const MaybeDocumentMap& docs) {
+std::vector<MaybeDocument> DocMapToVector(const MaybeDocumentMap& docs) {
   std::vector<MaybeDocument> result;
   for (const auto& kv : docs) {
     result.push_back(kv.second);
@@ -98,10 +97,18 @@ std::vector<MaybeDocument> DocMapToArray(const MaybeDocumentMap& docs) {
   return result;
 }
 
-std::vector<Document> DocMapToArray(const DocumentMap& docs) {
+std::vector<Document> DocMapToVector(const DocumentMap& docs) {
   std::vector<Document> result;
   for (const auto& kv : docs.underlying_map()) {
     result.push_back(Document(kv.second));
+  }
+  return result;
+}
+
+MaybeDocumentMap DocVectorToMap(const std::vector<MaybeDocument>& docs) {
+  MaybeDocumentMap result;
+  for (const auto& d : docs) {
+    result = result.insert(d.key(), d);
   }
   return result;
 }
@@ -210,7 +217,6 @@ LocalViewChanges TestViewChanges(TargetId target_id,
 LocalStoreTest::LocalStoreTest()
     : test_helper_(GetParam()()),
       persistence_(test_helper_->MakePersistence()),
-      query_engine_(test_helper_->query_engine()),
       local_store_(
           persistence_.get(), &query_engine_, User::Unauthenticated()) {
   local_store_.Start();
@@ -287,6 +293,12 @@ QueryResult LocalStoreTest::ExecuteQuery(const core::Query& query) {
   return last_query_result_;
 }
 
+void LocalStoreTest::ApplyBundledDocuments(
+    const std::vector<MaybeDocument>& documents) {
+  last_changes_ =
+      local_store_.ApplyBundledDocuments(DocVectorToMap(documents), "");
+}
+
 void LocalStoreTest::ResetPersistenceStats() {
   query_engine_.ResetCounts();
 }
@@ -298,13 +310,13 @@ void LocalStoreTest::ResetPersistenceStats() {
   } while (0)
 
 /** Asserts that a the last_changes contain the docs in the given array. */
-#define FSTAssertChanged(...)                              \
-  do {                                                     \
-    std::vector<MaybeDocument> expected = {__VA_ARGS__};   \
-    ASSERT_EQ(last_changes_.size(), expected.size());      \
-    auto last_changes_list = DocMapToArray(last_changes_); \
-    ASSERT_EQ(last_changes_list, expected);                \
-    last_changes_ = MaybeDocumentMap{};                    \
+#define FSTAssertChanged(...)                               \
+  do {                                                      \
+    std::vector<MaybeDocument> expected = {__VA_ARGS__};    \
+    ASSERT_EQ(last_changes_.size(), expected.size());       \
+    auto last_changes_list = DocMapToVector(last_changes_); \
+    ASSERT_EQ(last_changes_list, expected);                 \
+    last_changes_ = MaybeDocumentMap{};                     \
   } while (0)
 
 /**
@@ -381,6 +393,15 @@ void LocalStoreTest::ResetPersistenceStats() {
         << "Mutations read (by key)";                              \
     ASSERT_EQ(query_engine_.mutations_read_by_query(), (by_query)) \
         << "Mutations read (by query)";                            \
+  } while (0)
+
+/**
+ * Asserts the expected document keys mapped to a given target id.
+ */
+#define FSTAssertQueryDocumentMapping(target_id, keys)               \
+  do {                                                               \
+    ASSERT_EQ(local_store_.GetRemoteDocumentKeys(target_id), (keys)) \
+        << "Query Document Mapping";                                 \
   } while (0)
 
 TEST_P(LocalStoreTest, MutationBatchKeys) {
@@ -971,7 +992,7 @@ TEST_P(LocalStoreTest, CanExecuteDocumentQueries) {
        testutil::SetMutation("foo/bar/Foo/Bar", Map("Foo", "Bar"))});
   core::Query query = Query("foo/bar");
   QueryResult query_result = ExecuteQuery(query);
-  ASSERT_EQ(DocMapToArray(query_result.documents()),
+  ASSERT_EQ(DocMapToVector(query_result.documents()),
             Vector(Doc("foo/bar", 0, Map("foo", "bar"),
                        DocumentState::kLocalMutations)));
 }
@@ -985,7 +1006,7 @@ TEST_P(LocalStoreTest, CanExecuteCollectionQueries) {
        testutil::SetMutation("fooo/blah", Map("fooo", "blah"))});
   core::Query query = Query("foo");
   QueryResult query_result = ExecuteQuery(query);
-  ASSERT_EQ(DocMapToArray(query_result.documents()),
+  ASSERT_EQ(DocMapToVector(query_result.documents()),
             Vector(Doc("foo/bar", 0, Map("foo", "bar"),
                        DocumentState::kLocalMutations),
                    Doc("foo/baz", 0, Map("foo", "baz"),
@@ -1006,7 +1027,7 @@ TEST_P(LocalStoreTest, CanExecuteMixedCollectionQueries) {
 
   QueryResult query_result = ExecuteQuery(query);
   ASSERT_EQ(
-      DocMapToArray(query_result.documents()),
+      DocMapToVector(query_result.documents()),
       Vector(
           Doc("foo/bar", 20, Map("a", "b")), Doc("foo/baz", 10, Map("a", "b")),
           Doc("foo/bonk", 0, Map("a", "b"), DocumentState::kLocalMutations)));
@@ -1085,32 +1106,30 @@ TEST_P(LocalStoreTest, RemoteDocumentKeysForTarget) {
 // probably be better implemented as spec tests but currently they don't support
 // transforms.
 
-TEST_P(LocalStoreTest,
-       HandlesSetMutationThenTransformMutationThenTransformMutation) {
+TEST_P(LocalStoreTest, HandlesSetMutationThenTransformThenTransform) {
   WriteMutation(testutil::SetMutation("foo/bar", Map("sum", 0)));
   FSTAssertContains(
       Doc("foo/bar", 0, Map("sum", 0), DocumentState::kLocalMutations));
   FSTAssertChanged(
       Doc("foo/bar", 0, Map("sum", 0), DocumentState::kLocalMutations));
 
-  WriteMutation(testutil::TransformMutation(
-      "foo/bar", {testutil::Increment("sum", Value(1))}));
+  WriteMutation(testutil::PatchMutation(
+      "foo/bar", Map(), {testutil::Increment("sum", Value(1))}));
   FSTAssertContains(
       Doc("foo/bar", 0, Map("sum", 1), DocumentState::kLocalMutations));
   FSTAssertChanged(
       Doc("foo/bar", 0, Map("sum", 1), DocumentState::kLocalMutations));
 
-  WriteMutation(testutil::TransformMutation(
-      "foo/bar", {testutil::Increment("sum", Value(2))}));
+  WriteMutation(testutil::PatchMutation(
+      "foo/bar", Map(), {testutil::Increment("sum", Value(2))}));
   FSTAssertContains(
       Doc("foo/bar", 0, Map("sum", 3), DocumentState::kLocalMutations));
   FSTAssertChanged(
       Doc("foo/bar", 0, Map("sum", 3), DocumentState::kLocalMutations));
 }
 
-TEST_P(
-    LocalStoreTest,
-    HandlesSetMutationThenAckThenTransformMutationThenAckThenTransformMutation) {  // NOLINT
+TEST_P(LocalStoreTest,
+       HandlesSetMutationThenAckThenTransformThenAckThenTransform) {  // NOLINT
   // Since this test doesn't start a listen, Eager GC removes the documents from
   // the cache as soon as the mutation is applied. This creates a lot of special
   // casing in this unit test but does not expand its test coverage.
@@ -1128,8 +1147,8 @@ TEST_P(
   FSTAssertChanged(
       Doc("foo/bar", 1, Map("sum", 0), DocumentState::kCommittedMutations));
 
-  WriteMutation(testutil::TransformMutation(
-      "foo/bar", {testutil::Increment("sum", Value(1))}));
+  WriteMutation(testutil::PatchMutation(
+      "foo/bar", Map(), {testutil::Increment("sum", Value(1))}));
   FSTAssertContains(
       Doc("foo/bar", 1, Map("sum", 1), DocumentState::kLocalMutations));
   FSTAssertChanged(
@@ -1141,8 +1160,8 @@ TEST_P(
   FSTAssertChanged(
       Doc("foo/bar", 2, Map("sum", 1), DocumentState::kCommittedMutations));
 
-  WriteMutation(testutil::TransformMutation(
-      "foo/bar", {testutil::Increment("sum", Value(2))}));
+  WriteMutation(testutil::PatchMutation(
+      "foo/bar", Map(), {testutil::Increment("sum", Value(2))}));
   FSTAssertContains(
       Doc("foo/bar", 2, Map("sum", 3), DocumentState::kLocalMutations));
   FSTAssertChanged(
@@ -1151,7 +1170,6 @@ TEST_P(
 
 TEST_P(LocalStoreTest, UsesTargetMappingToExecuteQueries) {
   if (IsGcEager()) return;
-  if (QueryEngineType() != QueryEngine::Type::IndexFree) return;
 
   // This test verifies that once a target mapping has been written, only
   // documents that match the query are read from the RemoteDocumentCache.
@@ -1320,9 +1338,8 @@ TEST_P(LocalStoreTest, QueriesFilterDocumentsThatNoLongerMatch) {
   FSTAssertQueryReturned("foo/a");
 }
 
-TEST_P(
-    LocalStoreTest,
-    HandlesSetMutationThenTransformMutationThenRemoteEventThenTransformMutation) {  // NOLINT
+TEST_P(LocalStoreTest,
+       HandlesSetMutationThenTransformThenRemoteEventThenTransform) {  // NOLINT
   core::Query query = Query("foo");
   AllocateQuery(query);
   FSTAssertTargetID(2);
@@ -1339,8 +1356,8 @@ TEST_P(
   FSTAssertContains(Doc("foo/bar", 1, Map("sum", 0)));
   FSTAssertChanged(Doc("foo/bar", 1, Map("sum", 0)));
 
-  WriteMutation(testutil::TransformMutation(
-      "foo/bar", {testutil::Increment("sum", Value(1))}));
+  WriteMutation(testutil::PatchMutation(
+      "foo/bar", Map(), {testutil::Increment("sum", Value(1))}));
   FSTAssertContains(
       Doc("foo/bar", 1, Map("sum", 1), DocumentState::kLocalMutations));
   FSTAssertChanged(
@@ -1357,8 +1374,8 @@ TEST_P(
 
   // Add another increment. Note that we still compute the increment based on
   // the local value.
-  WriteMutation(testutil::TransformMutation(
-      "foo/bar", {testutil::Increment("sum", Value(2))}));
+  WriteMutation(testutil::PatchMutation(
+      "foo/bar", Map(), {testutil::Increment("sum", Value(2))}));
   FSTAssertContains(
       Doc("foo/bar", 2, Map("sum", 3), DocumentState::kLocalMutations));
   FSTAssertChanged(
@@ -1396,10 +1413,11 @@ TEST_P(LocalStoreTest, HoldsBackOnlyNonIdempotentTransforms) {
   FSTAssertChanged(Doc("foo/bar", 1, Map("sum", 0, "array_union", Array())));
 
   WriteMutations({
-      testutil::TransformMutation("foo/bar",
-                                  {testutil::Increment("sum", Value(1))}),
-      testutil::TransformMutation(
-          "foo/bar", {testutil::ArrayUnion("array_union", {Value("foo")})}),
+      testutil::PatchMutation("foo/bar", Map(),
+                              {testutil::Increment("sum", Value(1))}),
+      testutil::PatchMutation(
+          "foo/bar", Map(),
+          {testutil::ArrayUnion("array_union", {Value("foo")})}),
   });
 
   FSTAssertChanged(Doc("foo/bar", 1, Map("sum", 1, "array_union", Array("foo")),
@@ -1421,12 +1439,9 @@ TEST_P(LocalStoreTest, HandlesMergeMutationWithTransformThenRemoteEvent) {
   AllocateQuery(query);
   FSTAssertTargetID(2);
 
-  WriteMutations({
-      testutil::PatchMutation("foo/bar", Map(),
-                              {firebase::firestore::testutil::Field("sum")}),
-      testutil::TransformMutation("foo/bar",
-                                  {testutil::Increment("sum", Value(1))}),
-  });
+  WriteMutation(
+      testutil::MergeMutation("foo/bar", Map(), std::vector<model::FieldPath>(),
+                              {testutil::Increment("sum", Value(1))}));
 
   FSTAssertContains(
       Doc("foo/bar", 0, Map("sum", 1), DocumentState::kLocalMutations));
@@ -1446,11 +1461,8 @@ TEST_P(LocalStoreTest, HandlesPatchMutationWithTransformThenRemoteEvent) {
   AllocateQuery(query);
   FSTAssertTargetID(2);
 
-  WriteMutations({
-      testutil::PatchMutation("foo/bar", Map(), {}),
-      testutil::TransformMutation("foo/bar",
-                                  {testutil::Increment("sum", Value(1))}),
-  });
+  WriteMutation(testutil::PatchMutation(
+      "foo/bar", Map(), {testutil::Increment("sum", Value(1))}));
 
   FSTAssertNotContains("foo/bar");
   FSTAssertChanged(DeletedDoc("foo/bar"));
@@ -1463,6 +1475,194 @@ TEST_P(LocalStoreTest, HandlesPatchMutationWithTransformThenRemoteEvent) {
       Doc("foo/bar", 1, Map("sum", 1), DocumentState::kLocalMutations));
   FSTAssertChanged(
       Doc("foo/bar", 1, Map("sum", 1), DocumentState::kLocalMutations));
+}
+
+TEST_P(LocalStoreTest, HandlesSavingBundledDocuments) {
+  ApplyBundledDocuments(
+      {Doc("foo/bar", 1, Map("sum", 1337)), DeletedDoc("foo/bar1", 1)});
+  FSTAssertChanged(Doc("foo/bar", 1, Map("sum", 1337)),
+                   DeletedDoc("foo/bar1", 1));
+  FSTAssertContains(Doc("foo/bar", 1, Map("sum", 1337)));
+  FSTAssertContains(DeletedDoc("foo/bar1", 1));
+
+  DocumentKeySet expected_keys({Key("foo/bar")});
+  FSTAssertQueryDocumentMapping(2, expected_keys);
+}
+
+TEST_P(LocalStoreTest, HandlesSavingBundledDocumentsWithNewerExistingVersion) {
+  core::Query query = Query("foo");
+  AllocateQuery(query);
+  FSTAssertTargetID(2);
+
+  ApplyRemoteEvent(AddedRemoteEvent(Doc("foo/bar", 2, Map("sum", 1337)), {2}));
+  FSTAssertContains(Doc("foo/bar", 2, Map("sum", 1337)));
+
+  ApplyBundledDocuments(
+      {Doc("foo/bar", 1, Map("sum", 1337)), DeletedDoc("foo/bar1", 1)});
+  FSTAssertChanged(DeletedDoc("foo/bar1", 1));
+  FSTAssertContains(Doc("foo/bar", 2, Map("sum", 1337)));
+  FSTAssertContains(DeletedDoc("foo/bar1", 1));
+
+  DocumentKeySet expected_keys({Key("foo/bar")});
+  FSTAssertQueryDocumentMapping(4, expected_keys);
+}
+
+TEST_P(LocalStoreTest, HandlesSavingBundledDocumentsWithOlderExistingVersion) {
+  core::Query query = Query("foo");
+  AllocateQuery(query);
+  FSTAssertTargetID(2);
+
+  ApplyRemoteEvent(
+      AddedRemoteEvent(Doc("foo/bar", 1, Map("val", "to-delete")), {2}));
+  FSTAssertContains(Doc("foo/bar", 1, Map("val", "to-delete")));
+
+  ApplyBundledDocuments(
+      {Doc("foo/new", 1, Map("sum", 1336)), DeletedDoc("foo/bar", 2)});
+  FSTAssertChanged(DeletedDoc("foo/bar", 2),
+                   Doc("foo/new", 1, Map("sum", 1336)));
+  FSTAssertContains(Doc("foo/new", 1, Map("sum", 1336)));
+  FSTAssertContains(DeletedDoc("foo/bar", 2));
+
+  DocumentKeySet expected_keys({Key("foo/new")});
+  FSTAssertQueryDocumentMapping(4, expected_keys);
+}
+
+TEST_P(LocalStoreTest,
+       HandlesSavingBundledDocumentsWithSameExistingVersionShouldNotOverwrite) {
+  core::Query query = Query("foo");
+  AllocateQuery(query);
+  FSTAssertTargetID(2);
+
+  ApplyRemoteEvent(AddedRemoteEvent(Doc("foo/bar", 1, Map("val", "old")), {2}));
+  FSTAssertContains(Doc("foo/bar", 1, Map("val", "old")));
+
+  ApplyBundledDocuments({Doc("foo/bar", 1, Map("val", "new"))});
+  FSTAssertChanged();
+  FSTAssertContains(Doc("foo/bar", 1, Map("val", "old")));
+
+  DocumentKeySet expected_keys({Key("foo/bar")});
+  FSTAssertQueryDocumentMapping(4, expected_keys);
+}
+
+TEST_P(LocalStoreTest,
+       HandlesMergeMutationWithTransformationThenBundledDocuments) {
+  core::Query query = Query("foo");
+  AllocateQuery(query);
+
+  WriteMutation(
+      testutil::MergeMutation("foo/bar", Map(), std::vector<model::FieldPath>(),
+                              {testutil::Increment("sum", Value(1))}));
+
+  FSTAssertContains(
+      Doc("foo/bar", 0, Map("sum", 1), DocumentState::kLocalMutations));
+  FSTAssertChanged(
+      Doc("foo/bar", 0, Map("sum", 1), DocumentState::kLocalMutations));
+
+  ApplyBundledDocuments({Doc("foo/bar", 1, Map("sum", 1337))});
+  FSTAssertChanged(
+      Doc("foo/bar", 1, Map("sum", 1), DocumentState::kLocalMutations));
+  FSTAssertContains(
+      Doc("foo/bar", 1, Map("sum", 1), DocumentState::kLocalMutations));
+
+  DocumentKeySet expected_keys({Key("foo/bar")});
+  FSTAssertQueryDocumentMapping(4, expected_keys);
+}
+
+TEST_P(LocalStoreTest,
+       HandlesPatchMutationWithTransformationThenBundledDocuments) {
+  // Note: see comments in HandlesPatchMutationWithTransformThenRemoteEvent.
+  // The behavior for this and remote event is the same.
+  core::Query query = Query("foo");
+  AllocateQuery(query);
+
+  WriteMutation(testutil::PatchMutation(
+      "foo/bar", Map(), {testutil::Increment("sum", Value(1))}));
+
+  FSTAssertNotContains("foo/bar");
+  FSTAssertChanged(DeletedDoc("foo/bar"));
+
+  ApplyBundledDocuments({Doc("foo/bar", 1, Map("sum", 1337))});
+  FSTAssertChanged(
+      Doc("foo/bar", 1, Map("sum", 1), DocumentState::kLocalMutations));
+  FSTAssertContains(
+      Doc("foo/bar", 1, Map("sum", 1), DocumentState::kLocalMutations));
+
+  DocumentKeySet expected_keys({Key("foo/bar")});
+  FSTAssertQueryDocumentMapping(4, expected_keys);
+}
+
+TEST_P(LocalStoreTest, HandlesSavingAndCheckingBundleMetadata) {
+  BundleMetadata metadata("bundle", 1, SnapshotVersion(Timestamp(3, 0)));
+  EXPECT_FALSE(local_store_.HasNewerBundle(metadata));
+
+  local_store_.SaveBundle(metadata);
+
+  EXPECT_TRUE(local_store_.HasNewerBundle(metadata));
+}
+
+TEST_P(LocalStoreTest, HandlesSavingAndLoadingNamedQueries) {
+  core::Target target = Query("foo").ToTarget();
+
+  NamedQuery named_query(
+      "testQuery",
+      bundle::BundledQuery(std::move(target), core::LimitType::First),
+      SnapshotVersion(Timestamp::Now()));
+  local_store_.SaveNamedQuery(named_query, DocumentKeySet());
+
+  EXPECT_EQ(local_store_.GetNamedQuery("testQuery"), named_query);
+}
+
+TEST_P(LocalStoreTest,
+       SavingNamedQueriesAllocatesTargetsAndUpdatesTargetDocumentMapping) {
+  ApplyBundledDocuments({Doc("foo1/bar", 1, Map("sum", 1337)),
+                         Doc("foo2/bar", 1, Map("sum", 42))});
+  FSTAssertChanged(Doc("foo1/bar", 1, Map("sum", 1337)),
+                   Doc("foo2/bar", 1, Map("sum", 42)));
+  FSTAssertContains(Doc("foo1/bar", 1, Map("sum", 1337)));
+  FSTAssertContains(Doc("foo2/bar", 1, Map("sum", 42)));
+
+  core::Target target1 = Query("foo1").ToTarget();
+
+  NamedQuery named_query1(
+      "query-1",
+      bundle::BundledQuery(std::move(target1), core::LimitType::First),
+      SnapshotVersion(Timestamp::Now()));
+  DocumentKeySet mapped_keys1({Key("foo1/bar")});
+  local_store_.SaveNamedQuery(named_query1, mapped_keys1);
+
+  EXPECT_EQ(local_store_.GetNamedQuery("query-1"), named_query1);
+  FSTAssertQueryDocumentMapping(4, mapped_keys1);
+
+  core::Target target2 = Query("foo2").ToTarget();
+
+  NamedQuery named_query2(
+      "query-2",
+      bundle::BundledQuery(std::move(target2), core::LimitType::First),
+      SnapshotVersion(Timestamp::Now()));
+  DocumentKeySet mapped_keys2({Key("foo2/bar")});
+  local_store_.SaveNamedQuery(named_query2, mapped_keys2);
+
+  EXPECT_EQ(local_store_.GetNamedQuery("query-2"), named_query2);
+  FSTAssertQueryDocumentMapping(6, mapped_keys2);
+}
+
+TEST_P(LocalStoreTest, HandlesSavingAndLoadingLimitToLastQueries) {
+  core::Target target =
+      Query("foo")
+          .AddingOrderBy(testutil::OrderBy(testutil::Field("length"),
+                                           core::Direction::Descending))
+          // Use LimitToFirst here so `ToTarget()` does not flip the order,
+          // simulating how LimitToLast queries are stored in bundles.
+          .WithLimitToFirst(5)
+          .ToTarget();
+
+  NamedQuery named_query(
+      "testQuery",
+      bundle::BundledQuery(std::move(target), core::LimitType::First),
+      SnapshotVersion(Timestamp::Now()));
+  local_store_.SaveNamedQuery(named_query, DocumentKeySet());
+
+  EXPECT_EQ(local_store_.GetNamedQuery("testQuery"), named_query);
 }
 
 TEST_P(LocalStoreTest, GetHighestUnacknowledgeBatchId) {

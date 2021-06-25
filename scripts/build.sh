@@ -20,7 +20,7 @@
 
 function pod_gen() {
   # Call pod gen with a podspec and additional optional arguments.
-  bundle exec pod gen --local-sources=./ --sources=https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ "$@"
+  bundle exec pod gen --local-sources=./ --sources=https://github.com/firebase/SpecsDev.git,https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ "$@"
 }
 
 set -euo pipefail
@@ -32,18 +32,22 @@ USAGE: $0 product [platform] [method]
 product can be one of:
   Firebase
   Firestore
+  CombineSwift
   InAppMessaging
   Messaging
   MessagingSample
+  MLModelDownloaderSample
   RemoteConfig
   RemoteConfigSample
   Storage
   StorageSwift
   SymbolCollision
   GoogleDataTransport
+  Performance
 
 platform can be one of:
   iOS (default)
+  iOS-device
   macOS
   tvOS
   watchOS
@@ -152,6 +156,10 @@ else
   )
 fi
 
+ios_device_flags=(
+  -sdk 'iphoneos'
+)
+
 ipad_flags=(
   -sdk 'iphonesimulator'
   -destination 'platform=iOS Simulator,name=iPad Pro (9.7-inch)'
@@ -178,6 +186,11 @@ catalyst_flags=(
 case "$platform" in
   iOS)
     xcb_flags=("${ios_flags[@]}")
+    gen_platform=ios
+    ;;
+
+  iOS-device)
+    xcb_flags=("${ios_device_flags[@]}")
     gen_platform=ios
     ;;
 
@@ -298,6 +311,16 @@ case "$product-$platform-$method" in
     fi
     ;;
 
+  CombineSwift-*-xcodebuild)
+    pod_gen FirebaseCombineSwift.podspec --platforms=ios
+    RunXcodebuild \
+      -workspace 'gen/FirebaseCombineSwift/FirebaseCombineSwift.xcworkspace' \
+      -scheme "FirebaseCombineSwift-Unit-unit" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+    ;;
+
   InAppMessaging-*-xcodebuild)
     RunXcodebuild \
         -workspace 'FirebaseInAppMessaging/Tests/Integration/DefaultUITestApp/InAppMessagingDisplay-Sample.xcworkspace' \
@@ -314,6 +337,7 @@ case "$product-$platform-$method" in
     RunXcodebuild \
         -workspace 'Firestore/Example/Firestore.xcworkspace' \
         -scheme "Firestore_IntegrationTests_$platform" \
+        -enableCodeCoverage YES \
         "${xcb_flags[@]}" \
         build \
         test
@@ -394,6 +418,32 @@ case "$product-$platform-$method" in
     fi
     ;;
 
+  MLModelDownloaderSample-*-*)
+  if check_secrets; then
+    RunXcodebuild \
+      -workspace 'FirebaseMLModelDownloader/Apps/Sample/MLDownloaderTestApp.xcworkspace' \
+      -scheme "MLDownloaderTestApp" \
+      "${xcb_flags[@]}" \
+      build
+  fi
+  ;;
+
+  SegmentationSample-*-*)
+    RunXcodebuild \
+      -workspace 'FirebaseSegmentation/Tests/Sample/SegmentationSampleApp.xcworkspace' \
+      -scheme "SegmentationSampleApp" \
+      "${xcb_flags[@]}" \
+      build
+    ;;
+
+  WatchOSSample-*-*)
+    RunXcodebuild \
+      -workspace 'Example/watchOSSample/SampleWatchApp.xcworkspace' \
+      -scheme "SampleWatchAppWatchKitApp" \
+      "${xcb_flags[@]}" \
+      build
+    ;;
+
   Database-*-unit)
     pod_gen FirebaseDatabase.podspec --platforms="${gen_platform}"
     RunXcodebuild \
@@ -457,13 +507,11 @@ case "$product-$platform-$method" in
 
   Storage-*-xcodebuild)
     pod_gen FirebaseStorage.podspec --platforms=ios
-    RunXcodebuild \
-      -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
-      -scheme "FirebaseStorage-Unit-unit" \
-      "${ios_flags[@]}" \
-      "${xcb_flags[@]}" \
-      build \
-      test
+
+    # Add GoogleService-Info.plist to generated Test Wrapper App.
+    ruby ./scripts/update_xcode_target.rb gen/FirebaseStorage/Pods/Pods.xcodeproj \
+      AppHost-FirebaseStorage-Unit-Tests \
+      ../../../FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist
 
     if check_secrets; then
       # Integration tests are only run on iOS to minimize flake failures.
@@ -483,33 +531,41 @@ case "$product-$platform-$method" in
         build \
         test
       fi
-
-    pod_gen FirebaseStorage.podspec --platforms=macos --clean
-    RunXcodebuild \
-      -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
-      -scheme "FirebaseStorage-Unit-unit" \
-      "${macos_flags[@]}" \
-      "${xcb_flags[@]}" \
-      build \
-      test
-
-    pod_gen FirebaseStorage.podspec --platforms=tvos --clean
-    RunXcodebuild \
-      -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
-      -scheme "FirebaseStorage-Unit-unit" \
-      "${tvos_flags[@]}" \
-      "${xcb_flags[@]}" \
-      build \
-      test
     ;;
 
   StorageSwift-*-xcodebuild)
     pod_gen FirebaseStorageSwift.podspec --platforms=ios
+
+    # Add GoogleService-Info.plist to generated Test Wrapper App.
+    ruby ./scripts/update_xcode_target.rb gen/FirebaseStorageSwift/Pods/Pods.xcodeproj \
+      AppHost-FirebaseStorageSwift-Unit-Tests \
+      ../../../FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist
+
     if check_secrets; then
       # Integration tests are only run on iOS to minimize flake failures.
       RunXcodebuild \
         -workspace 'gen/FirebaseStorageSwift/FirebaseStorageSwift.xcworkspace' \
         -scheme "FirebaseStorageSwift-Unit-integration" \
+        "${ios_flags[@]}" \
+        "${xcb_flags[@]}" \
+        build \
+        test
+      fi
+    ;;
+
+  StorageCombine-*-xcodebuild)
+    pod_gen FirebaseCombineSwift.podspec --platforms=ios
+
+    # Add GoogleService-Info.plist to generated Test Wrapper App.
+    ruby ./scripts/update_xcode_target.rb gen/FirebaseCombineSwift/Pods/Pods.xcodeproj \
+      AppHost-FirebaseCombineSwift-Unit-Tests \
+      ../../../FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist
+
+    if check_secrets; then
+      # Integration tests are only run on iOS to minimize flake failures.
+      RunXcodebuild \
+        -workspace 'gen/FirebaseCombineSwift/FirebaseCombineSwift.xcworkspace' \
+        -scheme "FirebaseCombineSwift-Unit-integration" \
         "${ios_flags[@]}" \
         "${xcb_flags[@]}" \
         build \
@@ -537,10 +593,65 @@ case "$product-$platform-$method" in
       build
     ;;
 
+  Performance-*-unit)
+    # Run unit tests on prod environment with unswizzle capabilities.
+    export FPR_UNSWIZZLE_AVAILABLE="1"
+    export FPR_AUTOPUSH_ENV="0"
+    pod_gen FirebasePerformance.podspec --platforms="${gen_platform}"
+    RunXcodebuild \
+      -workspace 'gen/FirebasePerformance/FirebasePerformance.xcworkspace' \
+      -scheme "FirebasePerformance-Unit-unit" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+    ;;
+
+  Performance-*-proddev)
+    # Build the prod dev test app.
+    export FPR_UNSWIZZLE_AVAILABLE="0"
+    export FPR_AUTOPUSH_ENV="0"
+    pod_gen FirebasePerformance.podspec --platforms="${gen_platform}"
+    RunXcodebuild \
+      -workspace 'gen/FirebasePerformance/FirebasePerformance.xcworkspace' \
+      -scheme "FirebasePerformance-TestApp" \
+      "${xcb_flags[@]}" \
+      build
+    ;;
+
+  Performance-*-integration)
+    # Generate the workspace for the SDK to generate Protobuf files.
+    export FPR_UNSWIZZLE_AVAILABLE="0"
+    pod_gen FirebasePerformance.podspec --platforms=ios --clean
+
+    # Perform "pod install" to install the relevant dependencies
+    cd FirebasePerformance/Tests/FIRPerfE2E; pod install; cd -
+
+    # Run E2E Integration Tests for Autopush.
+    RunXcodebuild \
+      -workspace 'FirebasePerformance/Tests/FIRPerfE2E/FIRPerfE2E.xcworkspace' \
+      -scheme "FIRPerfE2EAutopush" \
+      FPR_AUTOPUSH_ENV=1 \
+      "${ios_flags[@]}" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+
+    # Run E2E Integration Tests for Prod.
+    RunXcodebuild \
+      -workspace 'FirebasePerformance/Tests/FIRPerfE2E/FIRPerfE2E.xcworkspace' \
+      -scheme "FIRPerfE2EProd" \
+      "${ios_flags[@]}" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+    ;;
+
+  # Note that the combine tests require setting the minimum iOS version to 13.0
   *-*-spm)
     RunXcodebuild \
       -scheme $product \
       "${xcb_flags[@]}" \
+      IPHONEOS_DEPLOYMENT_TARGET=13.0 \
       test
     ;;
 
@@ -552,10 +663,12 @@ case "$product-$platform-$method" in
     ;;
 
   *)
+
     echo "Don't know how to build this product-platform-method combination" 1>&2
     echo "  product=$product" 1>&2
     echo "  platform=$platform" 1>&2
     echo "  method=$method" 1>&2
     exit 1
     ;;
+
 esac

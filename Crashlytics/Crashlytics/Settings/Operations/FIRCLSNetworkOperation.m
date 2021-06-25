@@ -44,7 +44,7 @@
 }
 
 - (void)startWithToken:(FIRCLSDataCollectionToken *)token {
-  // Settings and Onboarding are considered data collection, so we must only
+  // Settings is considered data collection, so we must only
   // call this with a valid token
   if (![token isValid]) {
     FIRCLSErrorLog(@"Skipping network operation with invalid data collection token");
@@ -74,7 +74,7 @@
   [request setValue:FIRCLSDeveloperToken forHTTPHeaderField:FIRCLSNetworkCrashlyticsDeveloperToken];
   [request setValue:FIRCLSApplicationGetSDKBundleID()
       forHTTPHeaderField:FIRCLSNetworkCrashlyticsAPIClientId];
-  [request setValue:FIRCLSVersion
+  [request setValue:FIRCLSSDKVersion()
       forHTTPHeaderField:FIRCLSNetworkCrashlyticsAPIClientDisplayVersion];
   [request setValue:self.googleAppID forHTTPHeaderField:FIRCLSNetworkCrashlyticsGoogleAppId];
 
@@ -82,7 +82,8 @@
 }
 
 - (NSString *)userAgentString {
-  return [NSString stringWithFormat:@"%@/%@", FIRCLSApplicationGetSDKBundleID(), FIRCLSVersion];
+  return
+      [NSString stringWithFormat:@"%@/%@", FIRCLSApplicationGetSDKBundleID(), FIRCLSSDKVersion()];
 }
 
 - (NSString *)localeIdentifier {

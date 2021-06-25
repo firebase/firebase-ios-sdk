@@ -28,6 +28,7 @@
 #import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
 #import "FirebaseRemoteConfig/Sources/RCNDevice.h"
+#import "FirebaseRemoteConfig/Sources/RCNPersonalization.h"
 
 /// Remote Config Error Domain.
 /// TODO: Rename according to obj-c style for constants.
@@ -38,6 +39,9 @@ NSString *const FIRRemoteConfigThrottledEndTimeInSecondsKey = @"error_throttled_
 static NSString *const kRemoteConfigMinimumFetchIntervalKey = @"_rcn_minimum_fetch_interval";
 /// Timeout value for waiting on a fetch response.
 static NSString *const kRemoteConfigFetchTimeoutKey = @"_rcn_fetch_timeout";
+
+/// Listener for the get methods.
+typedef void (^FIRRemoteConfigListener)(NSString *_Nonnull, NSDictionary *_Nonnull);
 
 @implementation FIRRemoteConfigSettings
 
@@ -61,6 +65,7 @@ static NSString *const kRemoteConfigFetchTimeoutKey = @"_rcn_fetch_timeout";
   RCNConfigExperiment *_configExperiment;
   dispatch_queue_t _queue;
   NSString *_appName;
+  NSMutableArray *_listeners;
 }
 
 static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemoteConfig *> *>
@@ -154,6 +159,15 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
                                                    options:options];
 
     [_settings loadConfigFromMetadataTable];
+
+    if (analytics) {
+      _listeners = [[NSMutableArray alloc] init];
+      RCNPersonalization *personalization =
+          [[RCNPersonalization alloc] initWithAnalytics:analytics];
+      [self addListener:^(NSString *key, NSDictionary *config) {
+        [personalization logArmActive:key config:config];
+      }];
+    }
   }
   return self;
 }
@@ -183,6 +197,24 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
     }
     completionHandler(error);
   });
+}
+
+/// Adds a listener that will be called whenever one of the get methods is called.
+/// @param listener Function that takes in the parameter key and the config.
+- (void)addListener:(nonnull FIRRemoteConfigListener)listener {
+  @synchronized(_listeners) {
+    [_listeners addObject:listener];
+  }
+}
+
+- (void)callListeners:(NSString *)key config:(NSDictionary *)config {
+  @synchronized(_listeners) {
+    for (FIRRemoteConfigListener listener in _listeners) {
+      dispatch_async(_queue, ^{
+        listener(key, config);
+      });
+    }
+  }
 }
 
 #pragma mark - fetch
@@ -279,6 +311,7 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
                                       forNamespace:self->_FIRNamespace];
     strongSelf->_settings.lastApplyTimeInterval = [[NSDate date] timeIntervalSince1970];
     FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000069", @"Config activated.");
+    [strongSelf->_configContent activatePersonalization];
     [strongSelf->_configExperiment updateExperimentsWithHandler:^(NSError *_Nullable error) {
       if (completion) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -321,6 +354,8 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
                     @"Key %@ should come from source:%zd instead coming from source: %zd.", key,
                     (long)FIRRemoteConfigSourceRemote, (long)value.source);
       }
+      [self callListeners:key
+                   config:[self->_configContent getConfigAndMetadataForNamespace:FQNamespace]];
       return;
     }
     value = self->_configContent.defaultConfig[FQNamespace][key];

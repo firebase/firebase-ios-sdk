@@ -41,7 +41,6 @@ namespace core {
 using model::FieldPath;
 using model::FieldValue;
 using util::ComparisonResult;
-using util::ThrowInvalidArgument;
 
 namespace {
 
@@ -94,25 +93,6 @@ FieldFilter FieldFilter::Create(FieldPath path,
                   CanonicalName(op));
       return KeyFieldFilter(std::move(path), op, std::move(value_rhs));
     }
-
-  } else if (value_rhs.type() == FieldValue::Type::Null) {
-    if (op != Filter::Operator::Equal && op != Filter::Operator::NotEqual) {
-      ThrowInvalidArgument(
-          "Invalid Query. Null supports only 'equalTo' and 'notEqualTo' "
-          "comparisons.");
-    }
-    Rep filter(std::move(path), op, std::move(value_rhs));
-    return FieldFilter(std::make_shared<const Rep>(std::move(filter)));
-
-  } else if (value_rhs.is_nan()) {
-    if (op != Filter::Operator::Equal && op != Filter::Operator::NotEqual) {
-      ThrowInvalidArgument(
-          "Invalid Query. NaN supports only 'equalTo' and 'notEqualTo' "
-          "comparisons.");
-    }
-    Rep filter(std::move(path), op, std::move(value_rhs));
-    return FieldFilter(std::make_shared<const Rep>(std::move(filter)));
-
   } else if (op == Operator::ArrayContains) {
     return ArrayContainsFilter(std::move(path), std::move(value_rhs));
 

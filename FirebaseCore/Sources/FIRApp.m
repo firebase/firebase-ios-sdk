@@ -73,8 +73,6 @@ NSString *const kFIRGlobalAppDataCollectionEnabledDefaultsKeyFormat =
 NSString *const kFIRGlobalAppDataCollectionEnabledPlistKey =
     @"FirebaseDataCollectionDefaultEnabled";
 
-NSString *const kFIRAppDiagnosticsNotification = @"FIRAppDiagnosticsNotification";
-
 NSString *const kFIRAppDiagnosticsConfigurationTypeKey = @"ConfigType";
 NSString *const kFIRAppDiagnosticsErrorKey = @"Error";
 NSString *const kFIRAppDiagnosticsFIRAppKey = @"FIRApp";
@@ -96,6 +94,9 @@ NSString *const FIRAuthStateDidChangeInternalNotificationUIDKey =
  * Error domain for exceptions and NSError construction.
  */
 NSString *const kFirebaseCoreErrorDomain = @"com.firebase.core";
+
+/** The NSUserDefaults suite name for FirebaseCore, for those storage locations that use it. */
+NSString *const kFirebaseCoreDefaultsSuiteName = @"com.firebase.core";
 
 /**
  * The URL to download plist files.
@@ -128,7 +129,7 @@ static FIRApp *sDefaultApp;
   FIROptions *options = [FIROptions defaultOptions];
   if (!options) {
     [NSException raise:kFirebaseCoreErrorDomain
-                format:@"`[FIRApp configure];` (`FirebaseApp.configure()` in Swift) could not find "
+                format:@"`FirebaseApp.configure()` could not find "
                        @"a valid GoogleService-Info.plist in your project. Please download one "
                        @"from %@.",
                        kPlistURL];
@@ -249,8 +250,11 @@ static FIRApp *sDefaultApp;
   }
   FIRLogError(kFIRLoggerCore, @"I-COR000003",
               @"The default Firebase app has not yet been "
-              @"configured. Add `[FIRApp configure];` (`FirebaseApp.configure()` in Swift) to your "
-              @"application initialization. Read more: https://goo.gl/ctyzm8.");
+              @"configured. Add `FirebaseApp.configure()` to your "
+              @"application initialization. This can be done in "
+              @"in the App Delegate's application(_:didFinishLaunchingWithOptions:)` "
+              @"(or the `@main` struct's initializer in SwiftUI). "
+              @"Read more: https://goo.gl/ctyzm8.");
   return nil;
 }
 
@@ -348,9 +352,6 @@ static FIRApp *sDefaultApp;
     return NO;
   }
 
-  [self logCoreTelemetryIfEnabled];
-
-#if TARGET_OS_IOS
   // Initialize the Analytics once there is a valid options under default app. Analytics should
   // always initialize first by itself before the other SDKs.
   if ([self.name isEqualToString:kFIRDefaultAppName]) {
@@ -371,7 +372,6 @@ static FIRApp *sDefaultApp;
       }
     }
   }
-#endif
 
   [self subscribeForAppDidBecomeActiveNotifications];
 
@@ -853,7 +853,9 @@ static FIRApp *sDefaultApp;
 
 - (void)logCoreTelemetryIfEnabled {
   if ([self isDataCollectionDefaultEnabled]) {
-    [FIRCoreDiagnosticsConnector logCoreTelemetryWithOptions:_options];
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0), ^{
+      [FIRCoreDiagnosticsConnector logCoreTelemetryWithOptions:[self options]];
+    });
   }
 }
 

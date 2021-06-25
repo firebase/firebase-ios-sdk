@@ -128,7 +128,8 @@ static BOOL SEGCreateFilePathIfNotExist(NSString *filePath) {
         SEGAddSkipBackupAttributeToItemAtPath(dbPath);
 
         // Read the database into memory.
-        NSDictionary<NSString *, NSString *> *associations = [self loadMainTable];
+        NSDictionary<NSString *, NSDictionary<NSString *, NSString *> *> *associations =
+            [self loadMainTable];
         completionHandler(YES, associations);
 
       } else {
@@ -137,9 +138,9 @@ static BOOL SEGCreateFilePathIfNotExist(NSString *filePath) {
         FIRLogError(kFIRLoggerSegmentation, @"I-SEG00006", @"Failed to create table.");
         // Create a new database if existing database file is corrupted.
         if (!SEGCreateFilePathIfNotExist(dbPath)) {
-          completionHandler(
-              NO,
-              @{kSEGErrorDescription : @"Could not recreate database file at path: %@", dbpath});
+          NSString *description =
+              [NSString stringWithFormat:@"Could not recreate database file at path: %@", dbPath];
+          completionHandler(NO, @{kSEGErrorDescription : description});
           return;
         }
         // Try to open the database with the new file.
@@ -177,7 +178,7 @@ static BOOL SEGCreateFilePathIfNotExist(NSString *filePath) {
 
 #pragma mark - Private Methods
 
-- (NSDictionary *)loadMainTable {
+- (NSDictionary<NSString *, NSDictionary<NSString *, NSString *> *> *)loadMainTable {
   NSString *SQLQuery = [NSString
       stringWithFormat:@"SELECT %@, %@, %@, %@ FROM %@", kMainTableColumnApplicationIdentifier,
                        kMainTableColumnCustomInstallationIdentifier,
@@ -361,7 +362,7 @@ static BOOL SEGCreateFilePathIfNotExist(NSString *filePath) {
   int index = 1;
   for (NSString *param in array) {
     if (![self bindStringToStatement:statement index:index string:param]) {
-      return [self logErrorWithSQL:sql finalizeStatement:statement returnValue:NO];
+      return [self logErrorWithSQL:nil finalizeStatement:statement returnValue:NO];
     }
     index++;
   }

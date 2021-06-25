@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,10 @@
 
 #include "Firestore/core/src/local/local_store.h"
 
+#include <string>
 #include <utility>
 
+#include "Firestore/core/src/local/bundle_cache.h"
 #include "Firestore/core/src/local/local_documents_view.h"
 #include "Firestore/core/src/local/local_view_changes.h"
 #include "Firestore/core/src/local/local_write_result.h"
@@ -37,7 +39,6 @@
 namespace firebase {
 namespace firestore {
 namespace local {
-
 namespace {
 
 using auth::User;
@@ -48,6 +49,7 @@ using model::BatchId;
 using model::DocumentKey;
 using model::DocumentKeySet;
 using model::DocumentMap;
+using model::DocumentUpdateMap;
 using model::DocumentVersionMap;
 using model::ListenSequenceNumber;
 using model::MaybeDocument;
@@ -59,6 +61,7 @@ using model::ObjectValue;
 using model::OptionalMaybeDocumentMap;
 using model::PatchMutation;
 using model::Precondition;
+using model::ResourcePath;
 using model::SnapshotVersion;
 using model::TargetId;
 using nanopb::ByteString;
@@ -81,6 +84,7 @@ LocalStore::LocalStore(Persistence* persistence,
       mutation_queue_(persistence->GetMutationQueueForUser(initial_user)),
       remote_document_cache_(persistence->remote_document_cache()),
       target_cache_(persistence->target_cache()),
+      bundle_cache_(persistence->bundle_cache()),
       query_engine_(query_engine),
       local_documents_(
           absl::make_unique<LocalDocumentsView>(remote_document_cache_,
@@ -165,7 +169,7 @@ LocalWriteResult LocalStore::WriteLocally(std::vector<Mutation>&& mutations) {
           existing_documents.get(mutation.key());
 
       absl::optional<ObjectValue> base_value =
-          mutation.ExtractBaseValue(base_document);
+          mutation.ExtractTransformBaseValue(base_document);
       if (base_value) {
         // NOTE: The base state should only be applied if there's some existing
         // document to override, so use a Precondition of exists=true
@@ -300,56 +304,18 @@ model::MaybeDocumentMap LocalStore::ApplyRemoteEvent(
       }
     }
 
-    OptionalMaybeDocumentMap changed_docs;
     const DocumentKeySet& limbo_documents =
         remote_event.limbo_document_changes();
-    DocumentKeySet updated_keys;
     for (const auto& kv : remote_event.document_updates()) {
-      updated_keys = updated_keys.insert(kv.first);
-    }
-    // Each loop iteration only affects its "own" doc, so it's safe to get all
-    // the remote documents in advance in a single call.
-    OptionalMaybeDocumentMap existing_docs =
-        remote_document_cache_->GetAll(updated_keys);
-
-    for (const auto& kv : remote_event.document_updates()) {
-      const DocumentKey& key = kv.first;
-      const MaybeDocument& doc = kv.second;
-      absl::optional<MaybeDocument> existing_doc;
-      auto found_existing = existing_docs.get(key);
-      if (found_existing) {
-        existing_doc = *found_existing;
-      }
-
-      // Note: The order of the steps below is important, since we want to
-      // ensure that rejected limbo resolutions (which fabricate NoDocuments
-      // with SnapshotVersion::None) never add documents to cache.
-      if (doc.type() == MaybeDocument::Type::NoDocument &&
-          doc.version() == SnapshotVersion::None()) {
-        // NoDocuments with SnapshotVersion::None are used in manufactured
-        // events. We remove these documents from cache since we lost access.
-        remote_document_cache_->Remove(key);
-        changed_docs = changed_docs.insert(key, doc);
-      } else if (!existing_doc || doc.version() > existing_doc->version() ||
-                 (doc.version() == existing_doc->version() &&
-                  existing_doc->has_pending_writes())) {
-        HARD_ASSERT(remote_event.snapshot_version() != SnapshotVersion::None(),
-                    "Cannot add a document when the remote version is zero");
-        remote_document_cache_->Add(doc, remote_event.snapshot_version());
-        changed_docs = changed_docs.insert(key, doc);
-      } else {
-        LOG_DEBUG(
-            "LocalStore Ignoring outdated watch update for %s. "
-            "Current version: %s  Watch version: %s",
-            key.ToString(), existing_doc->version().ToString(),
-            doc.version().ToString());
-      }
-
       // If this was a limbo resolution, make sure we mark when it was accessed.
-      if (limbo_documents.contains(key)) {
-        persistence_->reference_delegate()->UpdateLimboDocument(key);
+      if (limbo_documents.contains(kv.first)) {
+        persistence_->reference_delegate()->UpdateLimboDocument(kv.first);
       }
     }
+
+    auto changed_docs = PopulateDocumentChanges(
+        remote_event.document_updates(), DocumentVersionMap(),
+        remote_event.snapshot_version());
 
     // HACK: The only reason we allow omitting snapshot version is so we can
     // synthesize remote events when we get permission denied errors while
@@ -540,6 +506,144 @@ LruResults LocalStore::CollectGarbage(LruGarbageCollector* garbage_collector) {
   return persistence_->Run("Collect garbage", [&] {
     return garbage_collector->Collect(target_data_by_target_);
   });
+}
+
+bool LocalStore::HasNewerBundle(const bundle::BundleMetadata& metadata) {
+  return persistence_->Run("Has newer bundle", [&] {
+    absl::optional<bundle::BundleMetadata> cached_metadata =
+        bundle_cache_->GetBundleMetadata(metadata.bundle_id());
+    return cached_metadata.has_value() &&
+           cached_metadata->create_time() >= metadata.create_time();
+  });
+}
+
+void LocalStore::SaveBundle(const bundle::BundleMetadata& metadata) {
+  return persistence_->Run(
+      "Save bundle", [&] { bundle_cache_->SaveBundleMetadata(metadata); });
+}
+
+MaybeDocumentMap LocalStore::ApplyBundledDocuments(
+    const MaybeDocumentMap& bundled_documents, const std::string& bundle_id) {
+  // Allocates a target to hold all document keys from the bundle, such that
+  // they will not get garbage collected right away.
+  TargetData umbrella_target = AllocateTarget(NewUmbrellaTarget(bundle_id));
+  return persistence_->Run("Apply bundle documents", [&] {
+    DocumentKeySet keys;
+    DocumentUpdateMap document_updates;
+    DocumentVersionMap versions;
+
+    for (const auto& kv : bundled_documents) {
+      const DocumentKey& key = kv.first;
+      const auto& doc = kv.second;
+      if (doc.type() == MaybeDocument::Type::Document) {
+        keys = keys.insert(key);
+      }
+      document_updates.emplace(key, doc);
+      versions.emplace(key, doc.version());
+    }
+
+    target_cache_->RemoveMatchingKeysForTarget(umbrella_target.target_id());
+    target_cache_->AddMatchingKeys(keys, umbrella_target.target_id());
+
+    auto changed_docs = PopulateDocumentChanges(document_updates, versions,
+                                                SnapshotVersion::None());
+    return local_documents_->GetLocalViewOfDocuments(changed_docs);
+  });
+}
+
+void LocalStore::SaveNamedQuery(const bundle::NamedQuery& query,
+                                const model::DocumentKeySet& keys) {
+  // Allocate a target for the named query such that it can be resumed from
+  // associated read time if users use it to listen. NOTE: this also means if no
+  // corresponding target exists, the new target will remain active and will not
+  // get collected, unless users happen to unlisten the query.
+  TargetData existing = AllocateTarget(query.bundled_query().target());
+  int target_id = existing.target_id();
+
+  return persistence_->Run("Save named query", [&] {
+    // Only update the matching documents if it is newer than what the SDK
+    // already has.
+    if (query.read_time() > existing.snapshot_version()) {
+      // Update existing target data because the query from the bundle is newer.
+      TargetData new_target_data =
+          existing.WithResumeToken(nanopb::ByteString(), query.read_time());
+
+      target_cache_->UpdateTarget(new_target_data);
+      target_data_by_target_.emplace(target_id, std::move(new_target_data));
+      target_cache_->RemoveMatchingKeysForTarget(target_id);
+      target_cache_->AddMatchingKeys(keys, target_id);
+    }
+
+    bundle_cache_->SaveNamedQuery(query);
+  });
+}
+
+absl::optional<bundle::NamedQuery> LocalStore::GetNamedQuery(
+    const std::string& query) {
+  return persistence_->Run("Get named query",
+                           [&] { return bundle_cache_->GetNamedQuery(query); });
+}
+
+Target LocalStore::NewUmbrellaTarget(const std::string& bundle_id) {
+  // It is OK that the path used for the query is not valid, because this will
+  // not be read and queried.
+  return Query(ResourcePath::FromString("__bundle__/docs/" + bundle_id))
+      .ToTarget();
+}
+
+OptionalMaybeDocumentMap LocalStore::PopulateDocumentChanges(
+    const DocumentUpdateMap& documents,
+    const DocumentVersionMap& document_versions,
+    const SnapshotVersion& global_version) {
+  OptionalMaybeDocumentMap changed_docs;
+
+  DocumentKeySet updated_keys;
+  for (const auto& kv : documents) {
+    updated_keys = updated_keys.insert(kv.first);
+  }
+  // Each loop iteration only affects its "own" doc, so it's safe to get all
+  // the remote documents in advance in a single call.
+  OptionalMaybeDocumentMap existing_docs =
+      remote_document_cache_->GetAll(updated_keys);
+
+  for (const auto& kv : documents) {
+    const DocumentKey& key = kv.first;
+    const MaybeDocument& doc = kv.second;
+    absl::optional<MaybeDocument> existing_doc;
+    auto found_existing = existing_docs.get(key);
+    if (found_existing) {
+      existing_doc = *found_existing;
+    }
+    auto search_version = document_versions.find(key);
+    const SnapshotVersion& read_time = search_version != document_versions.end()
+                                           ? search_version->second
+                                           : global_version;
+
+    // Note: The order of the steps below is important, since we want to
+    // ensure that rejected limbo resolutions (which fabricate NoDocuments
+    // with SnapshotVersion::None) never add documents to cache.
+    if (doc.type() == MaybeDocument::Type::NoDocument &&
+        doc.version() == SnapshotVersion::None()) {
+      // NoDocuments with SnapshotVersion::None are used in manufactured
+      // events. We remove these documents from cache since we lost access.
+      remote_document_cache_->Remove(key);
+      changed_docs = changed_docs.insert(key, doc);
+    } else if (!existing_doc || doc.version() > existing_doc->version() ||
+               (doc.version() == existing_doc->version() &&
+                existing_doc->has_pending_writes())) {
+      HARD_ASSERT(read_time != SnapshotVersion::None(),
+                  "Cannot add a document when the remote version is zero");
+      remote_document_cache_->Add(doc, read_time);
+      changed_docs = changed_docs.insert(key, doc);
+    } else {
+      LOG_DEBUG(
+          "LocalStore Ignoring outdated update for %s. "
+          "Current version: %s  Remote version: %s",
+          key.ToString(), existing_doc->version().ToString(),
+          doc.version().ToString());
+    }
+  }
+  return changed_docs;
 }
 
 }  // namespace local

@@ -1,6 +1,7 @@
 # Uncomment the next line to define a global platform for your project
 # platform :ios, '9.0'
 
+source 'https://github.com/firebase/SpecsDev.git'
 source 'https://github.com/firebase/SpecsStaging.git'
 source 'https://cdn.cocoapods.org/'
 
@@ -13,8 +14,6 @@ target 'RemoteConfigSampleApp' do
   pod 'FirebaseInstallations', :path => '../../../'
   pod 'FirebaseRemoteConfig', :path => '../../../'
   pod 'FirebaseABTesting', :path => '../../..'
-  pod 'GoogleDataTransport', :path => '../../..'
-  pod 'GoogleUtilities', :path => '../../..'
 
   # Pods for RemoteConfigSampleApp
 

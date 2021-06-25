@@ -26,48 +26,13 @@
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
+#include "Firestore/core/src/util/read_context.h"
 #include "Firestore/core/src/util/status.h"
 #include "absl/strings/string_view.h"
 
 namespace firebase {
 namespace firestore {
 namespace nanopb {
-
-/**
- * Maintains whether any errors occurred between single reads within a larger
- * read chain. The pattern is to pass the `ReadContext` as the first argument to
- * any `Read` function that might fail, and for the function to exit early if
- * the given context is failed already.
- */
-class ReadContext {
- public:
-  bool ok() const {
-    return status_.ok();
-  }
-
-  const util::Status& status() const {
-    return status_;
-  }
-
-  void set_status(util::Status status) {
-    status_ = std::move(status);
-  }
-
-  /**
-   * Ensures this `ReadContext`'s status is `!ok()`.
-   *
-   * If this `ReadContext`'s status is already `!ok()`, then this may augment
-   * the description, but will otherwise leave it alone. Otherwise, this
-   * `ReadContext`'s status will be set to `Error::kErrorDataLoss` with the
-   * specified description.
-   */
-  void Fail(std::string description) {
-    status_.Update(util::Status(Error::kErrorDataLoss, std::move(description)));
-  }
-
- private:
-  util::Status status_ = util::Status::OK();
-};
 
 /**
  * An interface that:
@@ -112,11 +77,11 @@ class Reader {
     context_.set_status(std::move(status));
   }
 
-  ReadContext* context() {
+  util::ReadContext* context() {
     return &context_;
   }
 
-  const ReadContext* context() const {
+  const util::ReadContext* context() const {
     return &context_;
   }
 
@@ -125,7 +90,7 @@ class Reader {
   }
 
  private:
-  ReadContext context_;
+  util::ReadContext context_;
 };
 
 /**
@@ -152,7 +117,7 @@ class StringReader : public Reader {
    */
   explicit StringReader(const nanopb::ByteString& bytes);
   explicit StringReader(const std::vector<uint8_t>& bytes);
-  StringReader(const uint8_t* bytes, size_t length);
+  StringReader(const uint8_t* bytes, size_t size);
 
   /**
    * Creates an input stream from bytes backing the string_view. Note that

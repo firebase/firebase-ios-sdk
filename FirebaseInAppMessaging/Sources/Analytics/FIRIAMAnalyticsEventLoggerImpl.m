@@ -15,7 +15,7 @@
  */
 
 #import <TargetConditionals.h>
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_TV
 
 #import "FirebaseInAppMessaging/Sources/Analytics/FIRIAMAnalyticsEventLoggerImpl.h"
 
@@ -121,9 +121,11 @@ static NSString *const kFIAMUserDefaualtsKeyForRemoveUserPropertyTimeInSeconds =
                               name:kFAEventNameForAction
                         parameters:params];
   }
+}
 
-  // set a special user property so that conversion events can be queried based on that
-  // for reporting purpose
+- (void)logConversionTrackingEventForCampaignID:(NSString *)campaignID {
+  // Set a special user property so that conversion events can be queried based on that
+  // for reporting purposes.
   NSString *conversionTrackingUserPropertyValue =
       [NSString stringWithFormat:@"%@%@", kFAUserPropertyPrefixForFIAM, campaignID];
 
@@ -172,4 +174,4 @@ static NSString *const kFIAMUserDefaualtsKeyForRemoveUserPropertyTimeInSeconds =
 }
 @end
 
-#endif  // TARGET_OS_IOS
+#endif  // TARGET_OS_IOS || TARGET_OS_TV

@@ -27,14 +27,18 @@
 #import "FirebaseDatabase/Sources/Core/Utilities/FIRRetryHelper.h"
 #import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
 #import "FirebaseDatabase/Sources/FIndex.h"
-#import "FirebaseDatabase/Sources/Login/FAuthTokenProvider.h"
+#import "FirebaseDatabase/Sources/Login/FIRDatabaseConnectionContextProvider.h"
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseReference.h"
 #import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
 #import "FirebaseDatabase/Sources/Utilities/FAtomicNumber.h"
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 #import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleCallbackStatus.h"
 #import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleOnDisconnect.h"
+#if TARGET_OS_WATCH
+#import <WatchKit/WatchKit.h>
+#else
 #import <SystemConfiguration/SystemConfiguration.h>
+#endif // TARGET_OS_WATCH
 #import <dlfcn.h>
 #import <netinet/in.h>
 
@@ -64,6 +68,18 @@
 
 @end
 
+@interface FOutstandingGet : NSObject
+
+@property(nonatomic, strong) NSDictionary *request;
+@property(nonatomic, copy) fbt_void_nsstring_id_nsstring onCompleteBlock;
+@property(nonatomic) BOOL sent;
+
+@end
+
+@implementation FOutstandingGet
+
+@end
+
 typedef enum {
     ConnectionStateDisconnected,
     ConnectionStateGettingToken,
@@ -78,7 +94,9 @@ typedef enum {
     NSTimeInterval reconnectDelay;
     NSTimeInterval lastConnectionAttemptTime;
     NSTimeInterval lastConnectionEstablishedTime;
+#if !TARGET_OS_WATCH
     SCNetworkReachabilityRef reachability;
+#endif // !TARGET_OS_WATCH
 }
 
 - (int)getNextRequestNumber;
@@ -92,9 +110,11 @@ typedef enum {
 @property(nonatomic, strong) FConnection *realtime;
 @property(nonatomic, strong) NSMutableDictionary *listens;
 @property(nonatomic, strong) NSMutableDictionary *outstandingPuts;
+@property(nonatomic, strong) NSMutableDictionary *outstandingGets;
 @property(nonatomic, strong) NSMutableArray *onDisconnectQueue;
 @property(nonatomic, strong) FRepoInfo *repoInfo;
 @property(nonatomic, strong) FAtomicNumber *putCounter;
+@property(nonatomic, strong) FAtomicNumber *getCounter;
 @property(nonatomic, strong) FAtomicNumber *requestNumber;
 @property(nonatomic, strong) NSMutableDictionary *requestCBHash;
 @property(nonatomic, strong) FIRDatabaseConfig *config;
@@ -104,9 +124,10 @@ typedef enum {
 @property(nonatomic, strong) NSString *lastSessionID;
 @property(nonatomic, strong) NSMutableSet *interruptReasons;
 @property(nonatomic, strong) FIRRetryHelper *retryHelper;
-@property(nonatomic, strong) id<FAuthTokenProvider> authTokenProvider;
+@property(nonatomic, strong) id<FIRDatabaseConnectionContextProvider>
+    contextProvider;
 @property(nonatomic, strong) NSString *authToken;
-@property(nonatomic) BOOL forceAuthTokenRefresh;
+@property(nonatomic) BOOL forceTokenRefreshes;
 @property(nonatomic) NSUInteger currentFetchTokenAttempt;
 
 @end
@@ -121,15 +142,17 @@ typedef enum {
         self->_config = config;
         self->_repoInfo = repoInfo;
         self->_dispatchQueue = dispatchQueue;
-        self->_authTokenProvider = config.authTokenProvider;
-        NSAssert(self->_authTokenProvider != nil,
+        self->_contextProvider = config.contextProvider;
+        NSAssert(self->_contextProvider != nil,
                  @"Expected auth token provider");
         self.interruptReasons = [NSMutableSet set];
 
         self.listens = [[NSMutableDictionary alloc] init];
         self.outstandingPuts = [[NSMutableDictionary alloc] init];
+        self.outstandingGets = [[NSMutableDictionary alloc] init];
         self.onDisconnectQueue = [[NSMutableArray alloc] init];
         self.putCounter = [[FAtomicNumber alloc] init];
+        self.getCounter = [[FAtomicNumber alloc] init];
         self.requestNumber = [[FAtomicNumber alloc] init];
         self.requestCBHash = [[NSMutableDictionary alloc] init];
         self.unackedListensCount = 0;
@@ -158,11 +181,13 @@ typedef enum {
 }
 
 - (void)dealloc {
+#if !TARGET_OS_WATCH
     if (reachability) {
         // Unschedule the notifications
         SCNetworkReachabilitySetDispatchQueue(reachability, NULL);
         CFRelease(reachability);
     }
+#endif // !TARGET_OS_WATCH
 }
 
 #pragma mark -
@@ -309,6 +334,10 @@ typedef enum {
     return self->connectionState == ConnectionStateConnected;
 }
 
+- (BOOL)canSendReads {
+    return self->connectionState == ConnectionStateConnected;
+}
+
 #pragma mark -
 #pragma mark FConnection delegate methods
 
@@ -447,8 +476,8 @@ typedef enum {
     if ([self shouldReconnect]) {
         NSAssert(self->connectionState == ConnectionStateDisconnected,
                  @"Not in disconnected state: %d", self->connectionState);
-        BOOL forceRefresh = self.forceAuthTokenRefresh;
-        self.forceAuthTokenRefresh = NO;
+        BOOL forceRefresh = self.forceTokenRefreshes;
+        self.forceTokenRefreshes = NO;
         FFLog(@"I-RDB034008", @"Scheduling connection attempt");
         [self.retryHelper retry:^{
           FFLog(@"I-RDB034009", @"Trying to fetch auth token");
@@ -457,66 +486,74 @@ typedef enum {
           self->connectionState = ConnectionStateGettingToken;
           self.currentFetchTokenAttempt++;
           NSUInteger thisFetchTokenAttempt = self.currentFetchTokenAttempt;
-          [self.authTokenProvider
-              fetchTokenForcingRefresh:forceRefresh
-                          withCallback:^(NSString *token, NSError *error) {
-                            if (thisFetchTokenAttempt ==
-                                self.currentFetchTokenAttempt) {
-                                if (error != nil) {
-                                    self->connectionState =
-                                        ConnectionStateDisconnected;
-                                    FFLog(@"I-RDB034010",
-                                          @"Error fetching token: %@", error);
-                                    [self tryScheduleReconnect];
-                                } else {
-                                    // Someone could have interrupted us while
-                                    // fetching the token, marking the
-                                    // connection as Disconnected
-                                    if (self->connectionState ==
-                                        ConnectionStateGettingToken) {
-                                        FFLog(@"I-RDB034011",
-                                              @"Successfully fetched token, "
-                                              @"opening connection");
-                                        [self openNetworkConnectionWithToken:
-                                                  token];
-                                    } else {
-                                        NSAssert(
-                                            self->connectionState ==
-                                                ConnectionStateDisconnected,
-                                            @"Expected connection state "
-                                            @"disconnected, but got %d",
-                                            self->connectionState);
-                                        FFLog(@"I-RDB034012",
-                                              @"Not opening connection after "
-                                              @"token refresh, because "
-                                              @"connection was set to "
-                                              @"disconnected.");
-                                    }
-                                }
-                            } else {
-                                FFLog(@"I-RDB034013",
-                                      @"Ignoring fetch token result, because "
-                                      @"this was not the latest attempt.");
-                            }
-                          }];
+          [self.contextProvider
+              fetchContextForcingRefresh:forceRefresh
+                            withCallback:^(
+                                FIRDatabaseConnectionContext *context,
+                                NSError *error) {
+                              if (thisFetchTokenAttempt ==
+                                  self.currentFetchTokenAttempt) {
+                                  if (error != nil) {
+                                      self->connectionState =
+                                          ConnectionStateDisconnected;
+                                      FFLog(@"I-RDB034010",
+                                            @"Error fetching token: %@", error);
+                                      [self tryScheduleReconnect];
+                                  } else {
+                                      // Someone could have interrupted us while
+                                      // fetching the token, marking the
+                                      // connection as Disconnected
+                                      if (self->connectionState ==
+                                          ConnectionStateGettingToken) {
+                                          FFLog(@"I-RDB034011",
+                                                @"Successfully fetched token, "
+                                                @"opening connection");
+                                          [self
+                                              openNetworkConnectionWithContext:
+                                                  context];
+                                      } else {
+                                          NSAssert(
+                                              self->connectionState ==
+                                                  ConnectionStateDisconnected,
+                                              @"Expected connection state "
+                                              @"disconnected, but got %d",
+                                              self->connectionState);
+                                          FFLog(@"I-RDB034012",
+                                                @"Not opening connection after "
+                                                @"token refresh, because "
+                                                @"connection was set to "
+                                                @"disconnected.");
+                                      }
+                                  }
+                              } else {
+                                  FFLog(@"I-RDB034013",
+                                        @"Ignoring fetch token result, because "
+                                        @"this was not the latest attempt.");
+                              }
+                            }];
         }];
     }
 }
 
-- (void)openNetworkConnectionWithToken:(NSString *)token {
+- (void)openNetworkConnectionWithContext:
+    (FIRDatabaseConnectionContext *)context {
     NSAssert(self->connectionState == ConnectionStateGettingToken,
              @"Trying to open network connection while in wrong state: %d",
              self->connectionState);
-    self.authToken = token;
+    // TODO: Save entire context?
+    self.authToken = context.authToken;
+
     self->connectionState = ConnectionStateConnecting;
     self.realtime = [[FConnection alloc] initWith:self.repoInfo
                                  andDispatchQueue:self.dispatchQueue
                                       googleAppID:self.config.googleAppID
-                                    lastSessionID:self.lastSessionID];
+                                    lastSessionID:self.lastSessionID
+                                    appCheckToken:context.appCheckToken];
     self.realtime.delegate = self;
     [self.realtime open];
 }
 
+#if !TARGET_OS_WATCH
 static void reachabilityCallback(SCNetworkReachabilityRef ref,
                                  SCNetworkReachabilityFlags flags, void *info) {
     if (flags & kSCNetworkReachabilityFlagsReachable) {
@@ -532,6 +569,7 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
         FFLog(@"I-RDB034015", @"Network is not reachable");
     }
 }
+#endif // !TARGET_OS_WATCH
 
 - (void)enteringForeground {
     dispatch_async(self.dispatchQueue, ^{
@@ -544,7 +582,18 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
 }
 
 - (void)setupNotifications {
-
+#if TARGET_OS_WATCH
+    if (@available(watchOS 7.0, *)) {
+        __weak FPersistentConnection *weakSelf = self;
+        NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+        [center addObserverForName:WKApplicationWillEnterForegroundNotification
+                            object:nil
+                             queue:nil
+                        usingBlock:^(NSNotification *_Nonnull note) {
+                          [weakSelf enteringForeground];
+                        }];
+    }
+#else
     NSString *const *foregroundConstant = (NSString *const *)dlsym(
         RTLD_DEFAULT, "UIApplicationWillEnterForegroundNotification");
     if (foregroundConstant) {
@@ -572,6 +621,7 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
         CFRelease(reachability);
         reachability = NULL;
     }
+#endif // !TARGET_OS_WATCH
 }
 
 - (void)sendAuthAndRestoreStateAfterComplete:(BOOL)restoreStateAfterComplete {
@@ -600,7 +650,7 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
                   }
               } else {
                   self.authToken = nil;
-                  self.forceAuthTokenRefresh = YES;
+                  self.forceTokenRefreshes = YES;
                   if ([status isEqualToString:@"expired_token"]) {
                       FFLog(@"I-RDB034017", @"Authentication failed: %@ (%@)",
                             status, responseData);
@@ -631,7 +681,7 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
         FFWarn(@"I-RDB034020", @"Auth token revoked: %@ (%@)", status, reason);
     }
     self.authToken = nil;
-    self.forceAuthTokenRefresh = YES;
+    self.forceTokenRefreshes = YES;
     // Try reconnecting on auth revocation
     [self.realtime close];
 }
@@ -707,6 +757,43 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
             }];
 }
 
+- (void)sendGet:(NSNumber *)index {
+    NSAssert([self canSendReads],
+             @"sendGet called when not able to send reads");
+    FOutstandingGet *get = self.outstandingGets[index];
+    NSAssert(get != nil, @"sendGet found no outstanding get at index %@",
+             index);
+    if ([get sent]) {
+        return;
+    }
+    get.sent = YES;
+    [self sendAction:kFWPRequestActionGet
+                body:get.request
+           sensitive:NO
+            callback:^(NSDictionary *data) {
+              FOutstandingGet *currentGet = self.outstandingGets[index];
+              if (currentGet == get) {
+                  [self.outstandingGets removeObjectForKey:index];
+                  NSString *status =
+                      [data objectForKey:kFWPResponseForActionStatus];
+                  id resultData = [data objectForKey:kFWPResponseForActionData];
+                  if (resultData == (id)[NSNull null]) {
+                      resultData = nil;
+                  }
+                  if ([status isEqualToString:kFWPResponseForActionStatusOk]) {
+                      get.onCompleteBlock(status, resultData, nil);
+                      return;
+                  }
+                  get.onCompleteBlock(status, nil, resultData);
+              } else {
+                  FFLog(@"I-RDB034045",
+                        @"Ignoring on complete for get %@ because it was "
+                        @"already removed",
+                        index);
+              }
+            }];
+}
+
 - (void)sendUnlisten:(FPath *)path
          queryParams:(FQueryParams *)queryParams
                tagId:(NSNumber *)tagId {
@@ -756,6 +843,46 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
               @"Wasn't connected or writes paused, so added to outstanding "
               @"puts only. Path: %@",
               pathString);
+    }
+}
+
+- (void)getDataAtPath:(NSString *)pathString
+           withParams:(NSDictionary *)queryWireProtocolParams
+         withCallback:(fbt_void_nsstring_id_nsstring)onComplete {
+    NSMutableDictionary *request = [NSMutableDictionary
+        dictionaryWithObjectsAndKeys:pathString, kFWPRequestPath,
+                                     queryWireProtocolParams,
+                                     kFWPRequestQueries, nil];
+    FOutstandingGet *get = [[FOutstandingGet alloc] init];
+    get.request = request;
+    get.onCompleteBlock = onComplete;
+    get.sent = NO;
+
+    NSNumber *index = [self.getCounter getAndIncrement];
+    self.outstandingGets[index] = get;
+
+    if (![self connected]) {
+        dispatch_after(
+            dispatch_time(DISPATCH_TIME_NOW,
+                          kPersistentConnectionGetConnectTimeout),
+            self.dispatchQueue, ^{
+              FOutstandingGet *currGet = self.outstandingGets[index];
+              if ([currGet sent] || currGet == nil) {
+                  return;
+              }
+              FFLog(@"I-RDB034045",
+                    @"get %@ timed out waiting for a connection", index);
+              currGet.sent = YES;
+              currGet.onCompleteBlock(kFWPResponseForActionStatusFailed, nil,
+                                      kPersistentConnectionOffline);
+              [self.outstandingGets removeObjectForKey:index];
+            });
+        return;
+    }
+
+    if ([self canSendReads]) {
+        FFLog(@"I-RDB034024", @"Sending get: %@", index);
+        [self sendGet:index];
     }
 }
 
@@ -998,14 +1125,27 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
       [self sendListen:outstandingListen];
     }];
 
-    NSArray *keys = [[self.outstandingPuts allKeys]
+    NSArray *putKeys = [[self.outstandingPuts allKeys]
         sortedArrayUsingSelector:@selector(compare:)];
-    for (int i = 0; i < [keys count]; i++) {
-        if ([self.outstandingPuts objectForKey:[keys objectAtIndex:i]] != nil) {
+    for (int i = 0; i < [putKeys count]; i++) {
+        if ([self.outstandingPuts objectForKey:[putKeys objectAtIndex:i]] !=
+            nil) {
             FFLog(@"I-RDB034037", @"Restoring put: %d", i);
-            [self sendPut:[keys objectAtIndex:i]];
+            [self sendPut:[putKeys objectAtIndex:i]];
         } else {
             FFLog(@"I-RDB034038", @"Restoring put: skipped nil: %d", i);
+        }
+    }
+
+    NSArray *getKeys = [[self.outstandingGets allKeys]
+        sortedArrayUsingSelector:@selector(compare:)];
+    for (int i = 0; i < [getKeys count]; i++) {
+        if ([self.outstandingGets objectForKey:[getKeys objectAtIndex:i]] !=
+            nil) {
+            FFLog(@"I-RDB034037", @"Restoring get: %d", i);
+            [self sendGet:[getKeys objectAtIndex:i]];
+        } else {
+            FFLog(@"I-RDB034038", @"Restoring get: skipped nil: %d", i);
         }
     }
 
@@ -1124,6 +1264,10 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
     if (self.config.persistenceEnabled) {
         stats[@"persistence.osx.enabled"] = @1;
     }
+#elif TARGET_OS_WATCH
+    if (self.config.persistenceEnabled) {
+        stats[@"persistence.watchos.enabled"] = @1;
+    }
 #endif
     NSString *sdkVersion =
         [[FIRDatabase sdkVersion] stringByReplacingOccurrencesOfString:@"."
@@ -1137,6 +1281,54 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
 
 - (NSDictionary *)dumpListens {
     return self.listens;
+}
+
+#pragma mark - App Check Token update
+
+// TODO: Add tests!
+- (void)refreshAppCheckToken:(NSString *)token {
+    if (![self connected]) {
+        // A fresh FAC token will be sent as a part of initial handshake.
+        return;
+    }
+
+    if (token.length == 0) {
+        // No token to send.
+        return;
+    }
+
+    // Send updated FAC token to the open connection.
+    [self sendAppCheckToken:token];
+}
+
+- (void)sendAppCheckToken:(NSString *)token {
+    NSDictionary *requestData = @{kFWPRequestAppCheckToken : self.authToken};
+    [self sendAction:kFWPRequestActionAppCheck
+                body:requestData
+           sensitive:YES
+            callback:^(NSDictionary *data) {
+              NSString *status =
+                  [data objectForKey:kFWPResponseForActionStatus];
+              id responseData = [data objectForKey:kFWPResponseForActionData];
+              if (responseData == nil) {
+                  responseData = @"Response data was empty.";
+              }
+
+              BOOL statusOk =
+                  [status isEqualToString:kFWPResponseForActionStatusOk];
+              if (!statusOk) {
+                  self.authToken = nil;
+                  self.forceTokenRefreshes = YES;
+                  if ([status isEqualToString:@"invalid_token"]) {
+                      FFLog(@"I-RDB034045", @"App check failed: %@ (%@)",
+                            status, responseData);
+                  } else {
+                      FFWarn(@"I-RDB034046", @"App check failed: %@ (%@)",
+                             status, responseData);
+                  }
+                  [self.realtime close];
+              }
+            }];
 }
 
 @end

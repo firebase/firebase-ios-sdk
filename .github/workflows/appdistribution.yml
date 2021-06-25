@@ -5,16 +5,15 @@ on:
     paths:
     - 'FirebaseAppDistribution**'
     - '.github/workflows/appdistribution.yml'
-    - 'Gemfile'
+    - 'Gemfile*'
   schedule:
-    # Run every day at 3am (PST) - cron uses UTC times
-    # This is set to 3 hours after zip workflow finishes so zip testing can run after.
-    - cron:  '0 11 * * *'
+    # Run every day at 1am (PST) - cron uses UTC times
+    - cron: '0 9 * * *'
 
 jobs:
   pod-lib-lint:
     # Don't run on private repo unless it is a PR.
-    if: github.repository != 'FirebasePrivate/firebase-ios-sdk' || github.event_name == 'pull_request'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
 
     runs-on: macos-latest
     strategy:
@@ -29,8 +28,32 @@ jobs:
        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAppDistribution.podspec \
          --platforms=${{ matrix.target }}
 
+  spm:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Initialize xcodebuild
+      run: scripts/setup_spm_tests.sh
+    - name: iOS Unit Tests
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh AppDistributionUnit iOS spm
+
+  catalyst:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Setup project and Build for Catalyst
+      run: scripts/test_catalyst.sh FirebaseAppDistribution test FirebaseAppDistribution-Unit-unit
+
   appdistribution-cron-only:
-    if: github.event_name == 'schedule' && github.repository != 'FirebasePrivate/firebase-ios-sdk'
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
 
     runs-on: macos-latest
     strategy:

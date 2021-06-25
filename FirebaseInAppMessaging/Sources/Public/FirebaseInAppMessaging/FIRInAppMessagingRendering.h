@@ -15,7 +15,7 @@
  */
 
 #import <TargetConditionals.h>
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_TV
 
 #import <UIKit/UIKit.h>
 
@@ -163,6 +163,13 @@ NS_SWIFT_NAME(InAppMessagingDisplayMessage)
 
 /// Unavailable.
 - (instancetype)init NS_UNAVAILABLE;
+
+/// Exposed for unit testing only. Don't instantiate this in your app directly.
+- (instancetype)initWithMessageID:(NSString *)messageID
+                     campaignName:(NSString *)campaignName
+              renderAsTestMessage:(BOOL)renderAsTestMessage
+                      messageType:(FIRInAppMessagingDisplayMessageType)messageType
+                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType;
 
 @end
 
@@ -425,4 +432,4 @@ NS_SWIFT_NAME(InAppMessagingDisplay)
 @end
 NS_ASSUME_NONNULL_END
 
-#endif  // TARGET_OS_IOS
+#endif  // TARGET_OS_IOS || TARGET_OS_TV

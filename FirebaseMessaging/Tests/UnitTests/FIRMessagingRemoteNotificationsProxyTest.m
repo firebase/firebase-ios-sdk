@@ -18,8 +18,8 @@
     __TV_OS_VERSION_MAX_ALLOWED >= __TV_10_0 || __MAC_OS_X_VERSION_MAX_ALLOWED >= __MAC_10_14
 #import <UserNotifications/UserNotifications.h>
 #endif
+#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
-#import "OCMock.h"
 
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
@@ -182,7 +182,7 @@
 }
 
 #pragma mark - Method Swizzling Tests
-
+#if !TARGET_OS_WATCH  // TODO(chliangGoogle) Figure out why WKExtension is not recognized here.
 - (void)testSwizzlingNonAppDelegate {
   RandomObject *invalidAppDelegate = [[RandomObject alloc] init];
   [[GULAppDelegateSwizzler sharedApplication]
@@ -194,6 +194,7 @@
   [invalidAppDelegate application:[GULAppDelegateSwizzler sharedApplication]
       didReceiveRemoteNotification:@{}];
 }
+#endif
 
 #if !SWIFT_PACKAGE
 // The next 3 tests depend on a sharedApplication which is not available in the Swift PM test env.

@@ -71,7 +71,6 @@ class PatchMutation;
 class Precondition;
 class SetMutation;
 class SnapshotVersion;
-class TransformMutation;
 class TransformOperation;
 class UnknownDocument;
 class VerifyMutation;
@@ -98,6 +97,10 @@ using OptionalMaybeDocumentMap =
 
 using DocumentVersionMap =
     std::unordered_map<DocumentKey, SnapshotVersion, DocumentKeyHash>;
+
+using DocumentUpdateMap = std::unordered_map<model::DocumentKey,
+                                             model::MaybeDocument,
+                                             model::DocumentKeyHash>;
 
 }  // namespace model
 }  // namespace firestore

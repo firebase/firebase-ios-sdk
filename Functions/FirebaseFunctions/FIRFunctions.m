@@ -12,11 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRFunctions.h"
-#import "Functions/FirebaseFunctions/FIRFunctions+Internal.h"
-
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+
+#import "Functions/FirebaseFunctions/FIRFunctions+Internal.h"
+#import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRFunctions.h"
+
+#import "FirebaseAppCheck/Sources/Interop/FIRAppCheckInterop.h"
 #import "FirebaseMessaging/Sources/Interop/FIRMessagingInterop.h"
+#import "Functions/FirebaseFunctions/FIRFunctionsComponent.h"
 #import "Interop/Auth/Public/FIRAuthInterop.h"
 
 #import "Functions/FirebaseFunctions/FIRHTTPSCallable+Internal.h"
@@ -35,20 +38,19 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+NSString *const kFUNAppCheckTokenHeader = @"X-Firebase-AppCheck";
 NSString *const kFUNFCMTokenHeader = @"Firebase-Instance-ID-Token";
 NSString *const kFUNDefaultRegion = @"us-central1";
 
-/// Empty protocol to register Functions as a component with Core.
-@protocol FIRFunctionsInstanceProvider
-@end
-
-@interface FIRFunctions () <FIRLibrary, FIRFunctionsInstanceProvider> {
+@interface FIRFunctions () {
   // The network client to use for http requests.
   GTMSessionFetcherService *_fetcherService;
   // The projectID to use for all function references.
   NSString *_projectID;
   // The region to use for all function references.
   NSString *_region;
+  // The custom domain to use for all functions references (optional).
+  NSString *_customDomain;
   // A serializer to encode/decode data and return values.
   FUNSerializer *_serializer;
   // A factory for getting the metadata to include with function calls.
@@ -60,78 +62,110 @@ NSString *const kFUNDefaultRegion = @"us-central1";
 // Re-declare this initializer here in order to attribute it as the designated initializer.
 - (instancetype)initWithProjectID:(NSString *)projectID
                            region:(NSString *)region
+                     customDomain:(nullable NSString *)customDomain
                              auth:(nullable id<FIRAuthInterop>)auth
                         messaging:(nullable id<FIRMessagingInterop>)messaging
+                         appCheck:(nullable id<FIRAppCheckInterop>)appCheck
+                   fetcherService:(GTMSessionFetcherService *)fetcherService
     NS_DESIGNATED_INITIALIZER;
 
 @end
 
 @implementation FIRFunctions
 
-+ (void)load {
-  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self withName:@"fire-fun"];
-}
-
-+ (NSArray<FIRComponent *> *)componentsToRegister {
-  FIRComponentCreationBlock creationBlock =
-      ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
-    *isCacheable = YES;
-    return [self functionsForApp:container.app];
-  };
-  FIRDependency *auth = [FIRDependency dependencyWithProtocol:@protocol(FIRAuthInterop)
-                                                   isRequired:NO];
-  FIRComponent *internalProvider =
-      [FIRComponent componentWithProtocol:@protocol(FIRFunctionsInstanceProvider)
-                      instantiationTiming:FIRInstantiationTimingLazy
-                             dependencies:@[ auth ]
-                            creationBlock:creationBlock];
-  return @[ internalProvider ];
-}
-
 + (instancetype)functions {
-  return [[self alloc] initWithApp:[FIRApp defaultApp] region:kFUNDefaultRegion];
+  return [self functionsForApp:[FIRApp defaultApp] region:kFUNDefaultRegion customDomain:nil];
 }
 
 + (instancetype)functionsForApp:(FIRApp *)app {
-  return [[self alloc] initWithApp:app region:kFUNDefaultRegion];
+  return [self functionsForApp:app region:kFUNDefaultRegion customDomain:nil];
 }
 
 + (instancetype)functionsForRegion:(NSString *)region {
-  return [[self alloc] initWithApp:[FIRApp defaultApp] region:region];
+  return [self functionsForApp:[FIRApp defaultApp] region:region customDomain:nil];
+}
+
++ (instancetype)functionsForCustomDomain:(NSString *)customDomain {
+  return [self functionsForApp:[FIRApp defaultApp]
+                        region:kFUNDefaultRegion
+                  customDomain:customDomain];
 }
 
 + (instancetype)functionsForApp:(FIRApp *)app region:(NSString *)region {
-  return [[self alloc] initWithApp:app region:region];
+  return [self functionsForApp:app region:region customDomain:nil];
 }
 
-- (instancetype)initWithApp:(FIRApp *)app region:(NSString *)region {
++ (instancetype)functionsForApp:(FIRApp *)app customDomain:(NSString *)customDomain {
+  return [self functionsForApp:app region:kFUNDefaultRegion customDomain:customDomain];
+}
+
++ (instancetype)functionsForApp:(FIRApp *)app
+                         region:(NSString *)region
+                   customDomain:(nullable NSString *)customDomain {
+  id<FIRFunctionsProvider> provider = FIR_COMPONENT(FIRFunctionsProvider, app.container);
+  return [provider functionsForApp:app region:region customDomain:customDomain type:[self class]];
+}
+
+- (instancetype)initWithApp:(FIRApp *)app
+                     region:(NSString *)region
+               customDomain:(nullable NSString *)customDomain {
   return [self initWithProjectID:app.options.projectID
                           region:region
+                    customDomain:customDomain
                             auth:FIR_COMPONENT(FIRAuthInterop, app.container)
-                       messaging:FIR_COMPONENT(FIRMessagingInterop, app.container)];
+                       messaging:FIR_COMPONENT(FIRMessagingInterop, app.container)
+                        appCheck:FIR_COMPONENT(FIRAppCheckInterop, app.container)];
 }
 
 - (instancetype)initWithProjectID:(NSString *)projectID
                            region:(NSString *)region
+                     customDomain:(nullable NSString *)customDomain
                              auth:(nullable id<FIRAuthInterop>)auth
-                        messaging:(nullable id<FIRMessagingInterop>)messaging {
+                        messaging:(nullable id<FIRMessagingInterop>)messaging
+                         appCheck:(nullable id<FIRAppCheckInterop>)appCheck {
+  return [self initWithProjectID:projectID
+                          region:region
+                    customDomain:customDomain
+                            auth:auth
+                       messaging:messaging
+                        appCheck:appCheck
+                  fetcherService:[[GTMSessionFetcherService alloc] init]];
+}
+
+- (instancetype)initWithProjectID:(NSString *)projectID
+                           region:(NSString *)region
+                     customDomain:(nullable NSString *)customDomain
+                             auth:(nullable id<FIRAuthInterop>)auth
+                        messaging:(nullable id<FIRMessagingInterop>)messaging
+                         appCheck:(nullable id<FIRAppCheckInterop>)appCheck
+                   fetcherService:(GTMSessionFetcherService *)fetcherService {
   self = [super init];
   if (self) {
     if (!region) {
       FUNThrowInvalidArgument(@"FIRFunctions region cannot be nil.");
     }
-    _fetcherService = [[GTMSessionFetcherService alloc] init];
+    _fetcherService = fetcherService;
     _projectID = [projectID copy];
     _region = [region copy];
+    _customDomain = [customDomain copy];
     _serializer = [[FUNSerializer alloc] init];
-    _contextProvider = [[FUNContextProvider alloc] initWithAuth:auth messaging:messaging];
+    _contextProvider = [[FUNContextProvider alloc] initWithAuth:auth
+                                                      messaging:messaging
+                                                       appCheck:appCheck];
     _emulatorOrigin = nil;
   }
   return self;
 }
 
 - (void)useLocalhost {
-  [self useFunctionsEmulatorOrigin:@"http://localhost:5005"];
+  [self useEmulatorWithHost:@"localhost" port:5005];
+}
+
+- (void)useEmulatorWithHost:(NSString *)host port:(NSInteger)port {
+  NSAssert(host.length > 0, @"Cannot connect to nil or empty host");
+  NSString *prefix = [host hasPrefix:@"http"] ? @"" : @"http://";
+  NSString *origin = [NSString stringWithFormat:@"%@%@:%li", prefix, host, (long)port];
+  _emulatorOrigin = origin;
 }
 
 - (void)useFunctionsEmulatorOrigin:(NSString *)origin {
@@ -148,6 +182,9 @@ NSString *const kFUNDefaultRegion = @"us-central1";
   if (_emulatorOrigin) {
     return [NSString stringWithFormat:@"%@/%@/%@/%@", _emulatorOrigin, _projectID, _region, name];
   }
+  if (_customDomain) {
+    return [NSString stringWithFormat:@"%@/%@", _customDomain, name];
+  }
   return
       [NSString stringWithFormat:@"https://%@-%@.cloudfunctions.net/%@", _region, _projectID, name];
 }
@@ -157,7 +194,7 @@ NSString *const kFUNDefaultRegion = @"us-central1";
              timeout:(NSTimeInterval)timeout
           completion:(void (^)(FIRHTTPSCallableResult *_Nullable result,
                                NSError *_Nullable error))completion {
-  [_contextProvider getContext:^(FUNContext *_Nullable context, NSError *_Nullable error) {
+  [_contextProvider getContext:^(FUNContext *context, NSError *_Nullable error) {
     if (error) {
       if (completion) {
         completion(nil, error);
@@ -215,6 +252,9 @@ NSString *const kFUNDefaultRegion = @"us-central1";
   }
   if (context.FCMToken) {
     [fetcher setRequestValue:context.FCMToken forHTTPHeaderField:kFUNFCMTokenHeader];
+  }
+  if (context.appCheckToken) {
+    [fetcher setRequestValue:context.appCheckToken forHTTPHeaderField:kFUNAppCheckTokenHeader];
   }
 
   // Override normal security rules if this is a local test.
@@ -296,6 +336,18 @@ NSString *const kFUNDefaultRegion = @"us-central1";
 
 - (FIRHTTPSCallable *)HTTPSCallableWithName:(NSString *)name {
   return [[FIRHTTPSCallable alloc] initWithFunctions:self name:name];
+}
+
+- (nullable NSString *)emulatorOrigin {
+  return _emulatorOrigin;
+}
+
+- (nullable NSString *)customDomain {
+  return _customDomain;
+}
+
+- (NSString *)region {
+  return _region;
 }
 
 @end

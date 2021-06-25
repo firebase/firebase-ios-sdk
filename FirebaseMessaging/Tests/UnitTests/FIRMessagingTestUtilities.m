@@ -14,44 +14,33 @@
  * limitations under the License.
  */
 
-#import "OCMock.h"
-
-#import "FirebaseMessaging/Tests/UnitTests/XCTestCase+FIRMessagingRmqManagerTests.h"
-
-#import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
+#import <OCMock/OCMock.h>
 
 #import <GoogleUtilities/GULUserDefaults.h>
-#import "Firebase/InstanceID/Public/FirebaseInstanceID.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
-#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
-
 #import "FirebaseMessaging/Sources/FIRMessagingPubSub.h"
 #import "FirebaseMessaging/Sources/FIRMessagingRmqManager.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
+#import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
+#import "FirebaseMessaging/Tests/UnitTests/XCTestCase+FIRMessagingRmqManagerTests.h"
+#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 NS_ASSUME_NONNULL_BEGIN
-static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 
-@interface FIRInstanceID (ExposedForTest)
-
-/// Private initializer to avoid singleton usage.
-- (FIRInstanceID *)initPrivately;
-
-/// Starts fetching and configuration of InstanceID. This is necessary after the `initPrivately`
-/// call.
-- (void)start;
-
-@end
+NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
+static NSString *const kFakeSenderID = @"123456789123";
 
 @interface FIRMessaging (ExposedForTest)
 
 @property(nonatomic, readwrite, strong) FIRMessagingPubSub *pubsub;
 @property(nonatomic, readwrite, strong) FIRMessagingRmqManager *rmq2Manager;
+@property(nonatomic, readwrite, strong) FIRMessagingTokenManager *tokenManager;
 
 /// Surface internal initializer to avoid singleton usage during tests.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (instancetype)initWithAnalytics:(nullable id<FIRAnalyticsInterop>)analytics
-                   withInstanceID:(FIRInstanceID *)instanceID
                  withUserDefaults:(GULUserDefaults *)defaults;
 #pragma clang diagnostic pop
 /// Kicks off required calls for some messaging tests.
@@ -89,7 +78,9 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
 
 @end
 
-@implementation FIRMessagingTestUtilities
+@implementation FIRMessagingTestUtilities {
+  id _mockMessagingClass;
+}
 
 - (instancetype)initWithUserDefaults:(GULUserDefaults *)userDefaults
                       withRMQManager:(BOOL)withRMQManager {
@@ -99,16 +90,9 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
     // `FIRInstallations` default instance. Need to stub it before.
     _mockInstallations = OCMClassMock([FIRInstallations class]);
     OCMStub([self.mockInstallations installations]).andReturn(self.mockInstallations);
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    _instanceID = [[FIRInstanceID alloc] initPrivately];
-#pragma clang diagnostic pop
-    [_instanceID start];
 
     // Create the messaging instance and call `start`.
-    _messaging = [[FIRMessaging alloc] initWithAnalytics:nil
-                                          withInstanceID:_instanceID
-                                        withUserDefaults:userDefaults];
+    _messaging = [[FIRMessaging alloc] initWithAnalytics:nil withUserDefaults:userDefaults];
     if (withRMQManager) {
       [_messaging start];
     }
@@ -117,8 +101,11 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
       OCMStub([_mockMessaging setupRmqManager]).andDo(nil);
       [(FIRMessaging *)_mockMessaging start];
     }
-    _mockInstanceID = OCMPartialMock(_instanceID);
     _mockPubsub = OCMPartialMock(_messaging.pubsub);
+    _mockTokenManager = OCMPartialMock(_messaging.tokenManager);
+    _mockMessagingClass = OCMClassMock([FIRMessaging class]);
+    OCMStub([_mockMessagingClass messaging]).andReturn(_mockMessaging);
+    OCMStub([_mockTokenManager fcmSenderID]).andReturn(kFakeSenderID);
   }
   return self;
 }
@@ -129,7 +116,9 @@ static NSString *const kFIRMessagingDefaultsTestDomain = @"com.messaging.tests";
   [_messaging.messagingUserDefaults removePersistentDomainForName:kFIRMessagingDefaultsTestDomain];
   [_mockPubsub stopMocking];
   [_mockMessaging stopMocking];
-  [_mockInstanceID stopMocking];
+  [_mockMessagingClass stopMocking];
+  [_mockTokenManager stopMocking];
+  [_mockInstallations stopMocking];
 }
 
 @end

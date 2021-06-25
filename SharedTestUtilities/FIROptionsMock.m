@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "OCMock.h"
+#import <OCMock/OCMock.h>
 
 #import "FirebaseCore/Sources/Private/FIROptionsInternal.h"
 #import "SharedTestUtilities/FIROptionsMock.h"

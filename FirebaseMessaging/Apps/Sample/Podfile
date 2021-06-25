@@ -1,5 +1,6 @@
 use_frameworks!
 
+source 'https://github.com/firebase/SpecsDev.git'
 source 'https://github.com/firebase/SpecsStaging.git'
 source 'https://cdn.cocoapods.org/'
 
@@ -7,11 +8,9 @@ target 'Sample' do
   platform :ios, '13.0'
 
   pod 'FirebaseCore', :path => '../../../'
-  pod 'GoogleUtilities', :path => '../../../'
   pod 'FirebaseMessaging', :path => '../../../'
-  pod 'FirebaseInstanceID', :path => '../../../'
   pod 'FirebaseCoreDiagnostics', :path => '../../../'
-  pod 'GoogleDataTransport', :path => '../../../'
   pod 'FirebaseInstallations', :path => '../../../'
+  pod 'FirebaseAnalytics'
 
 end

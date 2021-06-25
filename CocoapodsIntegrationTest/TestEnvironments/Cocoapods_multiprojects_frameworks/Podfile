@@ -1,3 +1,7 @@
+source 'https://github.com/firebase/SpecsDev.git'
+source 'https://github.com/firebase/SpecsStaging.git'
+source 'https://cdn.cocoapods.org/'
+
 # Uncomment the next line to define a global platform for your project
 platform :ios, '10.0'
 
@@ -16,11 +20,9 @@ target 'CocoapodsIntegrationTest' do
   pod 'FirebaseFunctions', :path => '../'
   pod 'FirebaseInAppMessaging', :path => '../'
   pod 'FirebaseInstallations', :path => '../'
-  pod 'FirebaseInstanceID', :path => '../'
   pod 'FirebaseMessaging', :path => '../'
+  pod 'FirebasePerformance', :path => '../'
   pod 'FirebaseStorage', :path => '../'
-  pod 'GoogleDataTransport', :path => '../'
-  pod 'GoogleUtilities', :path => '../'
 end
 
 # Using the new speed-enhancing features available with CocoaPods 1.7+

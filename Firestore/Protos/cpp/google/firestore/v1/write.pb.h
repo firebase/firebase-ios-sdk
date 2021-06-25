@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -260,6 +260,7 @@ class Write :
   // accessors -------------------------------------------------------
 
   enum : int {
+    kUpdateTransformsFieldNumber = 7,
     kUpdateMaskFieldNumber = 3,
     kCurrentDocumentFieldNumber = 4,
     kUpdateFieldNumber = 1,
@@ -267,6 +268,24 @@ class Write :
     kVerifyFieldNumber = 5,
     kTransformFieldNumber = 6,
   };
+  // repeated .google.firestore.v1.DocumentTransform.FieldTransform update_transforms = 7;
+  int update_transforms_size() const;
+  private:
+  int _internal_update_transforms_size() const;
+  public:
+  void clear_update_transforms();
+  ::google::firestore::v1::DocumentTransform_FieldTransform* mutable_update_transforms(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::google::firestore::v1::DocumentTransform_FieldTransform >*
+      mutable_update_transforms();
+  private:
+  const ::google::firestore::v1::DocumentTransform_FieldTransform& _internal_update_transforms(int index) const;
+  ::google::firestore::v1::DocumentTransform_FieldTransform* _internal_add_update_transforms();
+  public:
+  const ::google::firestore::v1::DocumentTransform_FieldTransform& update_transforms(int index) const;
+  ::google::firestore::v1::DocumentTransform_FieldTransform* add_update_transforms();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::google::firestore::v1::DocumentTransform_FieldTransform >&
+      update_transforms() const;
+
   // .google.firestore.v1.DocumentMask update_mask = 3;
   bool has_update_mask() const;
   private:
@@ -379,6 +398,7 @@ class Write :
   inline void clear_has_operation();
 
   ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::google::firestore::v1::DocumentTransform_FieldTransform > update_transforms_;
   ::google::firestore::v1::DocumentMask* update_mask_;
   ::google::firestore::v1::Precondition* current_document_;
   union OperationUnion {
@@ -2024,6 +2044,45 @@ inline void Write::set_allocated_update_mask(::google::firestore::v1::DocumentMa
   }
   update_mask_ = update_mask;
   // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.Write.update_mask)
+}
+
+// repeated .google.firestore.v1.DocumentTransform.FieldTransform update_transforms = 7;
+inline int Write::_internal_update_transforms_size() const {
+  return update_transforms_.size();
+}
+inline int Write::update_transforms_size() const {
+  return _internal_update_transforms_size();
+}
+inline void Write::clear_update_transforms() {
+  update_transforms_.Clear();
+}
+inline ::google::firestore::v1::DocumentTransform_FieldTransform* Write::mutable_update_transforms(int index) {
+  // @@protoc_insertion_point(field_mutable:google.firestore.v1.Write.update_transforms)
+  return update_transforms_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::google::firestore::v1::DocumentTransform_FieldTransform >*
+Write::mutable_update_transforms() {
+  // @@protoc_insertion_point(field_mutable_list:google.firestore.v1.Write.update_transforms)
+  return &update_transforms_;
+}
+inline const ::google::firestore::v1::DocumentTransform_FieldTransform& Write::_internal_update_transforms(int index) const {
+  return update_transforms_.Get(index);
+}
+inline const ::google::firestore::v1::DocumentTransform_FieldTransform& Write::update_transforms(int index) const {
+  // @@protoc_insertion_point(field_get:google.firestore.v1.Write.update_transforms)
+  return _internal_update_transforms(index);
+}
+inline ::google::firestore::v1::DocumentTransform_FieldTransform* Write::_internal_add_update_transforms() {
+  return update_transforms_.Add();
+}
+inline ::google::firestore::v1::DocumentTransform_FieldTransform* Write::add_update_transforms() {
+  // @@protoc_insertion_point(field_add:google.firestore.v1.Write.update_transforms)
+  return _internal_add_update_transforms();
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::google::firestore::v1::DocumentTransform_FieldTransform >&
+Write::update_transforms() const {
+  // @@protoc_insertion_point(field_list:google.firestore.v1.Write.update_transforms)
+  return update_transforms_;
 }
 
 // .google.firestore.v1.Precondition current_document = 4;

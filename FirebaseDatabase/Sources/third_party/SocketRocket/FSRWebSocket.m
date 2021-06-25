@@ -49,6 +49,7 @@
 #define maybe_bridge(x) (x)
 #endif
 
+#if !TARGET_OS_WATCH
 typedef enum  {
     SROpCodeTextFrame = 0x1,
     SROpCodeBinaryFrame = 0x2,
@@ -506,8 +507,8 @@ static __strong NSData *CRLFCRLF;
     }
 
     [self _performDelegateBlock:^{
-        if ([self.delegate respondsToSelector:@selector(webSocketDidOpen:)]) {
-            [self.delegate webSocketDidOpen:self];
+        if ([self.delegate respondsToSelector:@selector(webSocketDidOpen)]) {
+            [self.delegate webSocketDidOpen];
         };
     }];
 }
@@ -1382,9 +1383,12 @@ static const size_t SRFrameHeaderOverhead = 32;
     frame_buffer[0] = SRFinMask | opcode;
 
     BOOL useMask = YES;
+
+#endif  // !TARGET_OS_WATCH
 #ifdef NOMASK
     useMask = NO;
 #endif
+#if !TARGET_OS_WATCH
 
     if (useMask) {
     // set the mask and header
@@ -1559,11 +1563,13 @@ static const size_t SRFrameHeaderOverhead = 32;
 
         case NSStreamEventHasBytesAvailable: {
             SRFastLog(@"NSStreamEventHasBytesAvailable %@", aStream);
-            const NSUInteger bufferSize = 2048;
-            uint8_t buffer[bufferSize];
+
+            #define FSRWEB_SOCKET_BUFFER_SIZE 2048
+            uint8_t buffer[FSRWEB_SOCKET_BUFFER_SIZE];
+
 
             while (_inputStream.hasBytesAvailable) {
-                NSInteger bytes_read = [_inputStream read:buffer maxLength:bufferSize];
+                NSInteger bytes_read = [_inputStream read:buffer maxLength:FSRWEB_SOCKET_BUFFER_SIZE];
 
                 if (bytes_read > 0) {
                     [_readBuffer appendBytes:buffer length:bytes_read];
@@ -1571,7 +1577,7 @@ static const size_t SRFrameHeaderOverhead = 32;
                     [self _failWithError:_inputStream.streamError];
                 }
 
-                if (bytes_read != bufferSize) {
+                if (bytes_read != FSRWEB_SOCKET_BUFFER_SIZE) {
                     break;
                 }
             };
@@ -1865,3 +1871,4 @@ static NSRunLoop *networkRunLoop = nil;
 }
 
 @end
+#endif  // TARGET_OS_WATCH

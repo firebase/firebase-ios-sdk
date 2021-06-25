@@ -51,6 +51,7 @@
 
 - (void)unlisten:(FQuerySpec *)query tagId:(NSNumber *)tagId;
 - (void)refreshAuthToken:(NSString *)token;
+- (void)refreshAppCheckToken:(NSString *)token;
 - (void)onDisconnectPutData:(id)data
                     forPath:(FPath *)path
                withCallback:(fbt_void_nsstring_nsstring)callback;
@@ -60,6 +61,9 @@
 - (void)onDisconnectCancelPath:(FPath *)path
                   withCallback:(fbt_void_nsstring_nsstring)callback;
 - (void)ackPuts;
+- (void)getDataAtPath:(NSString *)pathString
+           withParams:(NSDictionary *)queryWireProtocolParams
+         withCallback:(fbt_void_nsstring_id_nsstring)onComplete;
 - (void)purgeOutstandingWrites;
 
 - (void)interruptForReason:(NSString *)reason;

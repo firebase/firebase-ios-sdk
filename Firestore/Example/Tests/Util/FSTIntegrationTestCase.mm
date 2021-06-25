@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2017 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,17 +52,14 @@
 #include "Firestore/core/test/unit/testutil/status_testing.h"
 #include "absl/memory/memory.h"
 
-namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
 
 using firebase::firestore::auth::CredentialChangeListener;
-using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::local::LevelDbOpener;
 using firebase::firestore::model::DatabaseId;
-using firebase::firestore::remote::GrpcConnection;
 using firebase::firestore::remote::FirebaseMetadataProviderApple;
 using firebase::firestore::testutil::AppForUnitTesting;
 using firebase::firestore::testutil::AsyncQueueForTesting;
@@ -172,8 +169,6 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
  *
  * Several configurations are supported:
  *   * Mobile Harness, running periocally against prod and nightly, using live SSL certs
- *   * Hexa built from google3, running on a companion gLinux machine, using self-signed test SSL
- *     certs
  *   * Firestore emulator, running on localhost, with SSL disabled
  *
  * See Firestore/README.md for detailed setup instructions or comments below for which specific
@@ -192,6 +187,8 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
   if (project && host) {
     defaultProjectId = project;
     defaultSettings.host = host;
+
+    NSLog(@"Integration tests running against %@/%@", defaultSettings.host, defaultProjectId);
     return;
   }
 
@@ -203,40 +200,20 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
       // Allow access to nightly or other hosts via this mechanism too.
       defaultSettings.host = host;
     }
+
+    NSLog(@"Integration tests running against %@/%@", defaultSettings.host, defaultProjectId);
     return;
   }
 
-  // Otherwise fall back on assuming the emulator or Hexa on localhost.
+  // Otherwise fall back on assuming the emulator or localhost.
   defaultProjectId = @"test-db";
 
-  // Hexa uses a self-signed cert: the first bundle location is used by bazel builds. The second is
-  // used for github clones.
-  NSString *certsPath =
-      [[NSBundle mainBundle] pathForResource:@"PlugIns/IntegrationTests.xctest/CAcert"
-                                      ofType:@"pem"];
-  if (certsPath == nil) {
-    certsPath = [[NSBundle bundleForClass:[self class]] pathForResource:@"CAcert" ofType:@"pem"];
-  }
-  unsigned long long fileSize =
-      [[[NSFileManager defaultManager] attributesOfItemAtPath:certsPath error:nil] fileSize];
+  defaultSettings.host = @"localhost:8080";
+  defaultSettings.sslEnabled = false;
+  runningAgainstEmulator = true;
 
-  if (fileSize != 0) {
-    defaultSettings.host = @"localhost:8081";
-
-    GrpcConnection::UseTestCertificate(util::MakeString(defaultSettings.host),
-                                       Path::FromNSString(certsPath), "test_cert_2");
-  } else {
-    // If no cert is set up, configure for the Firestore emulator.
-    defaultSettings.host = @"localhost:8080";
-    defaultSettings.sslEnabled = false;
-    runningAgainstEmulator = true;
-
-    // Also issue a warning because the Firestore emulator doesn't completely work yet.
-    NSLog(@"Please set up a GoogleServices-Info.plist for Firestore in Firestore/Example/App using "
-           "instructions at <https://github.com/firebase/firebase-ios-sdk#running-sample-apps>. "
-           "Alternatively, if you're a Googler with a Hexa preproduction environment, run "
-           "setup_integration_tests.py to properly configure testing SSL certificates.");
-  }
+  NSLog(@"Integration tests running against the emulator at %@/%@", defaultSettings.host,
+        defaultProjectId);
 }
 
 + (NSString *)projectID {
@@ -426,6 +403,9 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
 }
 
 - (FIRQuerySnapshot *)readDocumentSetForRef:(FIRQuery *)query source:(FIRFirestoreSource)source {
+  if (query == nil) {
+    XCTFail("Trying to read data from a nil query");
+  }
   __block FIRQuerySnapshot *result;
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"getData"];

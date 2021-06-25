@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
+#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
-#import "OCMock.h"
 
 #import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
 
@@ -109,6 +109,7 @@
                           _payloads[payloadIndex++][@"experimentId"]);
   }
 
+  XCTAssertEqualObjects(_payloadsData, _configExperiment.experimentPayloads);
   XCTAssertEqualObjects(_metadata, _configExperiment.experimentMetadata);
 }
 

@@ -17,26 +17,213 @@
 #import "Functions/FirebaseFunctions/FIRFunctions+Internal.h"
 #import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRFunctions.h"
 
-@interface FIRFunctionsTests : XCTestCase
+#import "SharedTestUtilities/AppCheckFake/FIRAppCheckFake.h"
+#import "SharedTestUtilities/AppCheckFake/FIRAppCheckTokenResultFake.h"
+
+#import <FirebaseCore/FirebaseCore.h>
+
+#if SWIFT_PACKAGE
+@import GTMSessionFetcherCore;
+#else
+#import <GTMSessionFetcher/GTMSessionFetcherService.h>
+#endif
+
+@interface FIRFunctions (Test)
+
+@property(nonatomic, readonly) NSString *emulatorOrigin;
+
+- (instancetype)initWithProjectID:(NSString *)projectID
+                           region:(NSString *)region
+                     customDomain:(nullable NSString *)customDomain
+                             auth:(nullable id<FIRAuthInterop>)auth
+                        messaging:(nullable id<FIRMessagingInterop>)messaging
+                         appCheck:(nullable id<FIRAppCheckInterop>)appCheck
+                   fetcherService:(GTMSessionFetcherService *)fetcherService;
+
 @end
 
-@implementation FIRFunctionsTests
+@interface FIRFunctionsTests : XCTestCase
+
+@end
+
+@implementation FIRFunctionsTests {
+  FIRFunctions *_functions;
+  FIRFunctions *_functionsCustomDomain;
+
+  GTMSessionFetcherService *_fetcherService;
+  FIRAppCheckFake *_appCheckFake;
+}
 
 - (void)setUp {
   [super setUp];
+  _fetcherService = [[GTMSessionFetcherService alloc] init];
+  _appCheckFake = [[FIRAppCheckFake alloc] init];
+
+  _functions = [[FIRFunctions alloc] initWithProjectID:@"my-project"
+                                                region:@"my-region"
+                                          customDomain:nil
+                                                  auth:nil
+                                             messaging:nil
+                                              appCheck:_appCheckFake
+                                        fetcherService:_fetcherService];
+
+  _functionsCustomDomain = [[FIRFunctions alloc] initWithProjectID:@"my-project"
+                                                            region:@"my-region"
+                                                      customDomain:@"https://mydomain.com"
+                                                              auth:nil
+                                                         messaging:nil
+                                                          appCheck:nil
+                                                    fetcherService:_fetcherService];
 }
 
 - (void)tearDown {
+  _functionsCustomDomain = nil;
+  _functions = nil;
+  _fetcherService = nil;
   [super tearDown];
 }
 
+- (void)testFunctionsInstanceIsStablePerApp {
+  FIROptions *options =
+      [[FIROptions alloc] initWithGoogleAppID:@"0:0000000000000:ios:0000000000000000"
+                                  GCMSenderID:@"00000000000000000-00000000000-000000000"];
+  [FIRApp configureWithOptions:options];
+
+  FIRFunctions *functions1 = [FIRFunctions functions];
+  FIRFunctions *functions2 = [FIRFunctions functionsForApp:[FIRApp defaultApp]];
+
+  XCTAssertEqualObjects(functions1, functions2);
+
+  [FIRApp configureWithName:@"test" options:options];
+  FIRApp *app2 = [FIRApp appNamed:@"test"];
+
+  functions2 = [FIRFunctions functionsForApp:app2 region:@"us-central2"];
+
+  XCTAssertNotEqualObjects(functions1, functions2);
+
+  functions1 = [FIRFunctions functionsForApp:app2 region:@"us-central2"];
+
+  XCTAssertEqualObjects(functions1, functions2);
+
+  functions1 = [FIRFunctions functionsForCustomDomain:@"test_domain"];
+  functions2 = [FIRFunctions functionsForRegion:@"us-central1"];
+
+  XCTAssertNotEqualObjects(functions1, functions2);
+
+  functions2 = [FIRFunctions functionsForApp:[FIRApp defaultApp] customDomain:@"test_domain"];
+  XCTAssertEqualObjects(functions1, functions2);
+}
+
 - (void)testURLWithName {
-  FIRFunctions *functions = [[FIRFunctions alloc] initWithProjectID:@"my-project"
-                                                             region:@"my-region"
-                                                               auth:nil
-                                                          messaging:nil];
-  NSString *url = [functions URLWithName:@"my-endpoint"];
+  NSString *url = [_functions URLWithName:@"my-endpoint"];
   XCTAssertEqualObjects(@"https://my-region-my-project.cloudfunctions.net/my-endpoint", url);
+}
+
+- (void)testRegionWithEmulator {
+  [_functionsCustomDomain useEmulatorWithHost:@"localhost" port:5005];
+  NSLog(@"%@", _functionsCustomDomain.emulatorOrigin);
+  NSString *url = [_functionsCustomDomain URLWithName:@"my-endpoint"];
+  XCTAssertEqualObjects(@"http://localhost:5005/my-project/my-region/my-endpoint", url);
+}
+
+- (void)testRegionWithEmulatorWithScheme {
+  [_functionsCustomDomain useEmulatorWithHost:@"http://localhost" port:5005];
+  NSLog(@"%@", _functionsCustomDomain.emulatorOrigin);
+  NSString *url = [_functionsCustomDomain URLWithName:@"my-endpoint"];
+  XCTAssertEqualObjects(@"http://localhost:5005/my-project/my-region/my-endpoint", url);
+}
+
+- (void)testCustomDomain {
+  NSString *url = [_functionsCustomDomain URLWithName:@"my-endpoint"];
+  XCTAssertEqualObjects(@"https://mydomain.com/my-endpoint", url);
+}
+
+- (void)testCustomDomainWithEmulator {
+  [_functionsCustomDomain useEmulatorWithHost:@"localhost" port:5005];
+  NSString *url = [_functionsCustomDomain URLWithName:@"my-endpoint"];
+  XCTAssertEqualObjects(@"http://localhost:5005/my-project/my-region/my-endpoint", url);
+}
+
+- (void)testSetEmulatorSettings {
+  [_functions useEmulatorWithHost:@"localhost" port:1000];
+  XCTAssertEqualObjects(@"http://localhost:1000", _functions.emulatorOrigin);
+}
+
+#pragma mark - App Check integration
+
+- (void)testCallFunctionWhenAppCheckIsInstalled {
+  _appCheckFake.tokenResult = [[FIRAppCheckTokenResultFake alloc] initWithToken:@"valid_token"
+                                                                          error:nil];
+
+  NSError *networkError = [NSError errorWithDomain:@"testCallFunctionWhenAppCheckIsInstalled"
+                                              code:-1
+                                          userInfo:nil];
+
+  XCTestExpectation *httpRequestExpectation =
+      [self expectationWithDescription:@"HTTPRequestExpectation"];
+  __weak __auto_type weakSelf = self;
+  _fetcherService.testBlock = ^(GTMSessionFetcher *_Nonnull fetcherToTest,
+                                GTMSessionFetcherTestResponse _Nonnull testResponse) {
+    // Fixes retain cycle warning for Xcode 11 and earlier.
+    // __unused to avoid warning in Xcode 12+.
+    __unused __auto_type self = weakSelf;
+    [httpRequestExpectation fulfill];
+
+    NSString *appCheckTokenHeader =
+        [fetcherToTest.request valueForHTTPHeaderField:@"X-Firebase-AppCheck"];
+    XCTAssertEqualObjects(appCheckTokenHeader, @"valid_token");
+
+    testResponse(nil, nil, networkError);
+  };
+
+  XCTestExpectation *completionExpectation =
+      [self expectationWithDescription:@"completionExpectation"];
+  [_functions callFunction:@"fake_func"
+                withObject:nil
+                   timeout:10
+                completion:^(FIRHTTPSCallableResult *_Nullable result, NSError *_Nullable error) {
+                  XCTAssertEqualObjects(error, networkError);
+                  [completionExpectation fulfill];
+                }];
+
+  [self waitForExpectations:@[ httpRequestExpectation, completionExpectation ] timeout:1.5];
+}
+
+- (void)testCallFunctionWhenAppCheckIsNotInstalled {
+  NSError *networkError = [NSError errorWithDomain:@"testCallFunctionWhenAppCheckIsInstalled"
+                                              code:-1
+                                          userInfo:nil];
+
+  XCTestExpectation *httpRequestExpectation =
+      [self expectationWithDescription:@"HTTPRequestExpectation"];
+
+  __weak __auto_type weakSelf = self;
+  _fetcherService.testBlock = ^(GTMSessionFetcher *_Nonnull fetcherToTest,
+                                GTMSessionFetcherTestResponse _Nonnull testResponse) {
+    // Fixes retain cycle warning for Xcode 11 and earlier.
+    // __unused to avoid warning in Xcode 12+.
+    __unused __auto_type self = weakSelf;
+    [httpRequestExpectation fulfill];
+
+    NSString *appCheckTokenHeader =
+        [fetcherToTest.request valueForHTTPHeaderField:@"X-Firebase-AppCheck"];
+    XCTAssertNil(appCheckTokenHeader);
+
+    testResponse(nil, nil, networkError);
+  };
+
+  XCTestExpectation *completionExpectation =
+      [self expectationWithDescription:@"completionExpectation"];
+  [_functionsCustomDomain
+      callFunction:@"fake_func"
+        withObject:nil
+           timeout:10
+        completion:^(FIRHTTPSCallableResult *_Nullable result, NSError *_Nullable error) {
+          XCTAssertEqualObjects(error, networkError);
+          [completionExpectation fulfill];
+        }];
+
+  [self waitForExpectations:@[ httpRequestExpectation, completionExpectation ] timeout:1.5];
 }
 
 @end

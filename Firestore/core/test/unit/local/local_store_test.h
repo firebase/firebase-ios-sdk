@@ -53,9 +53,6 @@ class LocalStoreTestHelper {
   /** Creates a new instance of Persistence. */
   virtual std::unique_ptr<Persistence> MakePersistence() = 0;
 
-  /** Returns the query engine associated with the test helper. */
-  virtual QueryEngine* query_engine() = 0;
-
   /** Returns true if the garbage collector is eager, false if LRU. */
   virtual bool IsGcEager() const = 0;
 };
@@ -80,10 +77,6 @@ class LocalStoreTest : public ::testing::TestWithParam<FactoryFunc> {
     return test_helper_->IsGcEager();
   }
 
-  QueryEngine::Type QueryEngineType() const {
-    return test_helper_->query_engine()->type();
-  }
-
   /**
    * Resets the count of entities read by MutationQueue and the
    * RemoteDocumentCache.
@@ -99,9 +92,10 @@ class LocalStoreTest : public ::testing::TestWithParam<FactoryFunc> {
       absl::optional<model::FieldValue> transform_result = absl::nullopt);
   void RejectMutation();
   model::TargetId AllocateQuery(core::Query query);
-  void ReleaseQuery(core::Query query);
   local::TargetData GetTargetData(const core::Query& query);
   local::QueryResult ExecuteQuery(const core::Query& query);
+  void ApplyBundledDocuments(
+      const std::vector<model::MaybeDocument>& documents);
 
   /**
    * Applies the `from_cache` state to the given target via a synthesized

@@ -4,6 +4,8 @@ on:
   pull_request:
     paths-ignore:
       - 'Firestore/**'
+  push:
+    branches: master
 
 jobs:
   check:

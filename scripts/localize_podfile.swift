@@ -33,8 +33,7 @@ if arg_cnts > 2 {
 // Always add these, since they may not be in the Podfile, but we still want the local
 // versions when they're dependencies of other requested local pods.
 let implicitPods = [
-  "FirebaseCore", "FirebaseInstanceID", "FirebaseInstallations", "Firebase",
-  "GoogleDataTransport", "GoogleUtilities",
+  "FirebaseCore", "FirebaseInstallations", "Firebase",
   "FirebaseAuth", "FirebaseABTesting",
   "FirebaseCoreDiagnostics", "FirebaseRemoteConfig",
 ]
@@ -56,8 +55,9 @@ while url.path != "/", url.lastPathComponent != "firebase-ios-sdk" {
 let repo = url
 let lines = fileContents.components(separatedBy: .newlines)
 var outBuffer =
-  "source 'https://github.com/firebase/SpecsStaging.git'\n"
-    + "source 'https://cdn.cocoapods.org/'\n"
+  "source 'https://github.com/firebase/SpecsDev.git'\n" +
+  "source 'https://github.com/firebase/SpecsStaging.git'\n" +
+  "source 'https://cdn.cocoapods.org/'\n"
 for line in lines {
   var newLine = line.trimmingCharacters(in: .whitespacesAndNewlines)
   let tokens = newLine.components(separatedBy: [" ", ","] as CharacterSet)

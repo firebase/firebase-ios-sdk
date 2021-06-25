@@ -17,6 +17,7 @@
 
 @class FIRApp;
 
+@protocol FIRAppCheckInterop;
 @protocol FIRAuthInterop;
 @protocol FIRMessagingInterop;
 
@@ -29,6 +30,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (id)init NS_UNAVAILABLE;
 @property(nonatomic, copy, nullable, readonly) NSString *authToken;
 @property(nonatomic, copy, nullable, readonly) NSString *FCMToken;
+
+/// Firebase app check (FAC) token if available.
+@property(nonatomic, copy, nullable, readonly) NSString *appCheckToken;
 @end
 
 /**
@@ -39,9 +43,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (id)init NS_UNAVAILABLE;
 
 - (instancetype)initWithAuth:(nullable id<FIRAuthInterop>)auth
-                   messaging:(nullable id<FIRMessagingInterop>)messaging NS_DESIGNATED_INITIALIZER;
+                   messaging:(nullable id<FIRMessagingInterop>)messaging
+                    appCheck:(nullable id<FIRAppCheckInterop>)appCheck NS_DESIGNATED_INITIALIZER;
 
-- (void)getContext:(void (^)(FUNContext *_Nullable context, NSError *_Nullable error))completion;
+- (void)getContext:(void (^)(FUNContext *context, NSError *_Nullable error))completion;
 
 @end
 

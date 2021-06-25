@@ -17,14 +17,14 @@
 #import <TargetConditionals.h>
 #if !TARGET_OS_OSX
 
+#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
-#import "OCMock.h"
 
 #import "FirebaseAuth/Sources/Storage/FIRAuthKeychainServices.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredential.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredentialManager.h"
 
-#define ANY_ERROR_POINTER ((NSError * __autoreleasing * _Nullable)[OCMArg anyPointer])
+#define ANY_ERROR_POINTER ((NSError * __autoreleasing *_Nullable)[OCMArg anyPointer])
 #define SAVE_TO(var)                     \
   [OCMArg checkWithBlock:^BOOL(id arg) { \
     var = arg;                           \

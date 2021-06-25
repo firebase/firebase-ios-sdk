@@ -14,6 +14,9 @@
 
 @import FirebaseAuth;
 @import FirebaseABTesting;
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
+@import FirebaseAppDistribution;
+#endif
 @import Firebase;
 @import FirebaseCrashlytics;
 @import FirebaseCore;
@@ -21,6 +24,9 @@
 @import FirebaseDynamicLinks;
 @import FirebaseFirestore;
 @import FirebaseFunctions;
+#if TARGET_OS_IOS || TARGET_OS_TVOS
+@import FirebaseInAppMessaging;
+#endif
 @import FirebaseInstallations;
 @import FirebaseMessaging;
 @import FirebaseRemoteConfig;

@@ -1,15 +1,17 @@
-# Uncomment the next two lines for pre-release testing on internal repo
-#source 'sso://cpdc-internal/firebase'
-#source 'https://cdn.cocoapods.org/'
+source 'https://github.com/firebase/SpecsDev.git'
+source 'https://github.com/firebase/SpecsStaging.git'
+source 'https://cdn.cocoapods.org/'
 
 target 'SegmentationSampleApp' do
   # Comment the next line if you don't want to use dynamic frameworks
   use_frameworks!
   inherit! :search_paths
-  platform :ios, '8.0'
+  platform :ios, '10.0'
 
   # Pods for SegmentationSampleApp
   pod 'FirebaseCore', :path => '../../../'
+  pod 'FirebaseCoreDiagnostics', :path => '../../../'
+  pod 'FirebaseInstallations', :path => '../../../'
   pod 'FirebaseSegmentation', :path => '../../../'
 
 end

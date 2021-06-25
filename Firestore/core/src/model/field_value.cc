@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,6 @@
 namespace firebase {
 namespace firestore {
 namespace model {
-
 namespace {
 
 using BaseValue = FieldValue::BaseValue;
@@ -262,8 +261,8 @@ class TimestampValue : public BaseValue {
  * Represents a locally-applied Server Timestamp.
  *
  * Notes:
- *   - ServerTimestampValue instances are created as the result of applying an
- *     TransformMutation. They can only exist in the local view of a document.
+ *   - ServerTimestampValue instances are created as the result of applying a
+ *     field transform. They can only exist in the local view of a document.
  *     Therefore they do not need to be parsed or serialized.
  *   - When evaluated locally (e.g. via DocumentSnapshot data), they by default
  *     evaluate to null.
