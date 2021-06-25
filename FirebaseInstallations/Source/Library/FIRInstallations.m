@@ -189,10 +189,10 @@ static const NSUInteger kExpectedAPIKeyLength = 39;
   if (!defaultApp) {
     [NSException raise:kFirebaseInstallationsErrorDomain
                 format:@"The default FirebaseApp instance must be configured before the default"
-                       @"FirebaseApp instance can be initialized. One way to ensure that is to "
-                       @"call `[FIRApp configure];` (`FirebaseApp.configure()` in Swift) in the App"
-                       @" Delegate's `application:didFinishLaunchingWithOptions:` "
-                       @"(`application(_:didFinishLaunchingWithOptions:)` in Swift)."];
+                       @"FirebaseApp instance can be initialized. One way to ensure this is to "
+                       @"call `FirebaseApp.configure()` in the App  Delegate's "
+                       @"`application(_:didFinishLaunchingWithOptions:)` "
+                       @"(or the `@main` struct's initializer in SwiftUI)."];
   }
 
   return [self installationsWithApp:defaultApp];

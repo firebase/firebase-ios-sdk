@@ -32,12 +32,14 @@
 
 + (FIRDatabase *)database {
     if (![FIRApp isDefaultAppConfigured]) {
-        [NSException raise:@"FIRAppNotConfigured"
-                    format:@"Failed to get default Firebase Database instance. "
-                           @"Must call `[FIRApp "
-                           @"configure]` (`FirebaseApp.configure()` in Swift) "
-                           @"before using "
-                           @"Firebase Database."];
+        [NSException
+             raise:@"FIRAppNotConfigured"
+            format:@"The default FirebaseApp instance must be "
+                   @"configured before the default Database instance "
+                   @"can be initialized. One way to ensure this is to "
+                   @"call `FirebaseApp.configure()` in the App Delegate's "
+                   @"`application(_:didFinishLaunchingWithOptions:)` "
+                   @"(or the `@main` struct's initializer in SwiftUI)."];
     }
     return [FIRDatabase databaseForApp:[FIRApp defaultApp]];
 }
