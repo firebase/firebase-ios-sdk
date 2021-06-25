@@ -174,7 +174,7 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
   if (!defaultApp) {
     [NSException raise:FIRAppCheckErrorDomain
                 format:@"The default FirebaseApp instance must be configured before the default"
-                       @"AppCheck instance can be initialized. One way to ensure that is to "
+                       @"AppCheck instance can be initialized. One way to ensure this is to "
                        @"call `FirebaseApp.configure()` in the App Delegate's "
                        @"`application(_:didFinishLaunchingWithOptions:)` (or the `@main` struct's "
                        @"initializer in SwiftUI)."];
