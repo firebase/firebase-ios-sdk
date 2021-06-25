@@ -201,8 +201,8 @@ static const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
         NSError *error;
         valueData = [NSJSONSerialization dataWithJSONObject:value options:0 error:&error];
         if (error) {
-          FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000076",
-                      @"Invalid array value for key '%@'", key);
+          FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000076", @"Invalid array value for key '%@'",
+                      key);
         }
       } else if ([value isKindOfClass:[NSDictionary class]]) {
         NSError *error;
