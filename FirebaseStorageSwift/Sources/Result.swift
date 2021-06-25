@@ -15,7 +15,7 @@
 import FirebaseStorage
 
 private enum DataError: Error {
-  case internalInconsistency  // Thrown when both value and error are nil.
+  case internalInconsistency // Thrown when both value and error are nil.
 }
 
 /// Generates a closure that returns a `Result` type from a closure that returns an optional type

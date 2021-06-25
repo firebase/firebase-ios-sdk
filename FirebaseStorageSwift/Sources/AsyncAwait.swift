@@ -17,12 +17,11 @@ import FirebaseStorage
 #if swift(>=5.5)
   @available(iOS 15, *)
   public extension StorageReference {
-
     func data(maxSize: Int64) async throws -> Data {
       typealias DataContinuation = CheckedContinuation<Data, Error>
-      return try await withCheckedThrowingContinuation({ (continuation: DataContinuation) in
+      return try await withCheckedThrowingContinuation { (continuation: DataContinuation) in
         // TODO: Use task to handle progress and cancellation.
-        let _ = self.getData(maxSize: maxSize) { result in
+        _ = self.getData(maxSize: maxSize) { result in
           switch result {
           case let .success(data):
             continuation.resume(returning: data)
@@ -30,15 +29,15 @@ import FirebaseStorage
             continuation.resume(throwing: error)
           }
         }
-      })
+      }
     }
 
     func putDataAwait(_ uploadData: Data,
-                     metadata: StorageMetadata? = nil) async throws -> StorageMetadata {
+                      metadata: StorageMetadata? = nil) async throws -> StorageMetadata {
       typealias MetadataContinuation = CheckedContinuation<StorageMetadata, Error>
-      return try await withCheckedThrowingContinuation({ (continuation: MetadataContinuation) in
+      return try await withCheckedThrowingContinuation { (continuation: MetadataContinuation) in
         // TODO: Use task to handle progress and cancellation.
-        let _ = self.putData(uploadData, metadata: metadata) { result in
+        _ = self.putData(uploadData, metadata: metadata) { result in
           switch result {
           case let .success(data):
             continuation.resume(returning: data)
@@ -46,7 +45,7 @@ import FirebaseStorage
             continuation.resume(throwing: error)
           }
         }
-      })
+      }
     }
   }
 #endif
