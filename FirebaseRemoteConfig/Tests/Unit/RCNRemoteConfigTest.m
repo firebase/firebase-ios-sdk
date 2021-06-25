@@ -1178,6 +1178,10 @@ static NSString *UTCToLocal(NSString *utcTime) {
     XCTAssertEqualObjects(_configInstances[i][@"FileInfo"].stringValue,
                           @"To setup default config.");
     XCTAssertEqualObjects(_configInstances[i][@"format"].stringValue, @"key to value.");
+    XCTAssertEqualObjects(_configInstances[i][@"arrayValue"].JSONValue,
+                          ((id) @[@"foo", @"bar", @"baz"]));
+    XCTAssertEqualObjects(_configInstances[i][@"dictValue"].JSONValue,
+                          ((id) @{@"foo": @"foo", @"bar": @"bar", @"baz": @"baz"}));
 
     // If given a wrong file name, the default will not be set and kept as previous results.
     [_configInstances[i] setDefaultsFromPlistFileName:@""];
