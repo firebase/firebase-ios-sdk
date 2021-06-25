@@ -19,6 +19,7 @@ import FirebaseStorageSwift
 import XCTest
 
 #if swift(>=5.5)
+  @available(iOS 15, *)
   class StorageAsyncAwait: StorageIntegrationCommon {
     func testGetMetadata() async throws {
       let ref = storage.reference().child("ios/public/1mb2")
@@ -45,7 +46,7 @@ import XCTest
     func testDelete() async throws {
       let ref = storage.reference(withPath: "ios/public/fileToDelete")
       let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
-      let result = try await ref.putDataAwait(data, metadata: nil)
+      let result = try await ref.putDataAwait(data)
       XCTAssertNotNil(result)
       _ = try await ref.delete()
     }

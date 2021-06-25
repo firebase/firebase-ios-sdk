@@ -15,13 +15,38 @@
 import FirebaseStorage
 
 #if swift(>=5.5)
+  @available(iOS 15, *)
   public extension StorageReference {
-    @discardableResult
+
+    func data(maxSize: Int64) async throws -> Data {
+      typealias DataContinuation = CheckedContinuation<Data, Error>
+      return try await withCheckedThrowingContinuation({ (continuation: DataContinuation) in
+        // TODO: Use task to handle progress and cancellation.
+        let _ = self.getData(maxSize: maxSize) { result in
+          switch result {
+          case let .success(data):
+            continuation.resume(returning: data)
+          case let .failure(error):
+            continuation.resume(throwing: error)
+          }
+        }
+      })
+    }
+
     func putDataAwait(_ uploadData: Data,
-                      metadata: StorageMetadata? = nil) async throws -> StorageMetadata {
-      // TODO: Add a parameter to capture StorageUploadTask and to enable Progress tracking.
-//    -> StorageUploadTask {
-      return try await __putDataGlue(uploadData, metadata: metadata)
+                     metadata: StorageMetadata? = nil) async throws -> StorageMetadata {
+      typealias MetadataContinuation = CheckedContinuation<StorageMetadata, Error>
+      return try await withCheckedThrowingContinuation({ (continuation: MetadataContinuation) in
+        // TODO: Use task to handle progress and cancellation.
+        let _ = self.putData(uploadData, metadata: metadata) { result in
+          switch result {
+          case let .success(data):
+            continuation.resume(returning: data)
+          case let .failure(error):
+            continuation.resume(throwing: error)
+          }
+        }
+      })
     }
   }
 #endif
