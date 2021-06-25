@@ -152,6 +152,20 @@ static const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
         [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
         NSString *strValue = [dateFormatter stringFromDate:(NSDate *)value];
         valueData = [(NSString *)strValue dataUsingEncoding:NSUTF8StringEncoding];
+      } else if ([value isKindOfClass:[NSArray class]]) {
+        NSError *error;
+        valueData = [NSJSONSerialization dataWithJSONObject:value options:0 error:&error];
+        if (error) {
+          FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000075",
+                      @"Invalid array value for key '%@'", key);
+        }
+      } else if ([value isKindOfClass:[NSDictionary class]]) {
+        NSError *error;
+        valueData = [NSJSONSerialization dataWithJSONObject:value options:0 error:&error];
+        if (error) {
+          FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000075",
+                      @"Invalid dictionary value for key '%@'", key);
+        }
       } else {
         continue;
       }
