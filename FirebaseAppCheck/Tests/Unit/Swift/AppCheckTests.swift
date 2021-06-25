@@ -32,9 +32,27 @@ class AppCheckTests: XCTestCase {
     }
   }
 
+  @available(iOS 14, *)
+  func appAttestUsageExample() {
+    if let app = FirebaseApp.app(), let provider = AppAttestProvider(app: app) {
+      provider.getToken { token, error in
+        // ...
+      }
+    }
+  }
+
   #if swift(>=5.5)
+    @available(iOS 14, *)
+    func asyncAppAttestUsageExample() {
+      if let app = FirebaseApp.app(), let provider = AppAttestProvider(app: app) {
+        provider.getToken { token, error in
+          // ...
+        }
+      }
+    }
+
     func asyncGetTokenUsageExample() async throws {
-      _ = try await AppCheck.appCheck().token(forcingRefresh: true)
+      try await AppCheck.appCheck().token(forcingRefresh: true)
     }
   #endif // swift(>=5.5)
 }
