@@ -38,7 +38,7 @@
                    @"configured before the default Database instance "
                    @"can be initialized. One way to ensure this is to "
                    @"call `FirebaseApp.configure()` in the App Delegate's "
-                   @"`application:didFinishLaunchingWithOptions:` "
+                   @"`application(_:didFinishLaunchingWithOptions:)` "
                    @"(or the `@main` struct's initializer in SwiftUI)."];
     }
     return [FIRDatabase databaseForApp:[FIRApp defaultApp]];
