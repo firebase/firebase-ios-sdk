@@ -14,7 +14,7 @@
 
 import FirebaseStorage
 
-@available(iOS 15.0, *)
+#if swift(>=5.5)
 public extension StorageReference {
   @discardableResult
   func putDataAwait(_ uploadData: Data,
@@ -24,3 +24,4 @@ public extension StorageReference {
     return try await __putDataGlue(uploadData, metadata: metadata)
   }
 }
+#endif

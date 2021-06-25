@@ -18,7 +18,7 @@ import FirebaseStorage
 import FirebaseStorageSwift
 import XCTest
 
-@available(iOS 15.0, *)
+#if swift(>=5.5)
 class StorageAsyncAwait: StorageIntegrationCommon {
   func testGetMetadata() async throws {
     let ref = storage.reference().child("ios/public/1mb2")
@@ -427,3 +427,4 @@ class StorageAsyncAwait: StorageIntegrationCommon {
     }
   }
 }
+#endif
