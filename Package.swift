@@ -420,6 +420,7 @@ let package = Package(
       name: "FirebaseCrashlytics",
       dependencies: ["FirebaseCore", "FirebaseInstallations",
                      .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
+                     .product(name: "GULEnvironment", package: "GoogleUtilities"),
                      .product(name: "FBLPromises", package: "Promises"),
                      .product(name: "nanopb", package: "nanopb")],
       path: "Crashlytics",

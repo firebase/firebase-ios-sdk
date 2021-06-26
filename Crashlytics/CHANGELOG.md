@@ -1,3 +1,6 @@
+# v8.3.0
+- [fixed] Add missing dependency that could cause missing symbol build failures. (#8137)
+
 # v8.2.0
 - [changed] Incorporated code quality changes around integer overflow, potential race conditions, and reinstalling signal handlers.
 - [fixed] Fixed an issue where iOS-only apps running on iPads would report iOS as their OS Name.
