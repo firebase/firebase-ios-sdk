@@ -39,8 +39,24 @@ import FirebaseStorage
         // TODO: Use task to handle progress and cancellation.
         _ = self.putData(uploadData, metadata: metadata) { result in
           switch result {
-          case let .success(data):
-            continuation.resume(returning: data)
+          case let .success(metadata):
+            continuation.resume(returning: metadata)
+          case let .failure(error):
+            continuation.resume(throwing: error)
+          }
+        }
+      }
+    }
+
+    func putFileAwait(from url: URL,
+                     metadata: StorageMetadata? = nil) async throws -> StorageMetadata {
+      typealias MetadataContinuation = CheckedContinuation<StorageMetadata, Error>
+      return try await withCheckedThrowingContinuation { (continuation: MetadataContinuation) in
+        // TODO: Use task to handle progress and cancellation.
+        _ = self.putFile(from: url, metadata: metadata) { result in
+          switch result {
+          case let .success(metadata):
+            continuation.resume(returning: metadata)
           case let .failure(error):
             continuation.resume(throwing: error)
           }

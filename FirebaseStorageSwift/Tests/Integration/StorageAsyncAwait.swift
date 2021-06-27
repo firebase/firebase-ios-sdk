@@ -51,95 +51,55 @@ import XCTest
       _ = try await ref.delete()
     }
 
-    func testDeleteWithNilCompletion() throws {
-      let expectation = self.expectation(description: #function)
+    func testDeleteWithNilCompletion() async throws {
       let ref = storage.reference(withPath: "ios/public/fileToDelete")
       let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
-      ref.putData(data) { result in
-        self.assertResultSuccess(result)
-        ref.delete(completion: nil)
-        expectation.fulfill()
-      }
-      waitForExpectations()
+      let result = try await ref.putDataAwait(data)
+      XCTAssertNotNil(result)
     }
 
-    func testSimplePutData() throws {
-      let expectation = self.expectation(description: #function)
+    func testSimplePutData() async throws {
       let ref = storage.reference(withPath: "ios/public/testBytesUpload")
       let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
-      ref.putData(data) { result in
-        self.assertResultSuccess(result)
-        expectation.fulfill()
-      }
-      waitForExpectations()
+      let result = try await ref.putDataAwait(data)
+      XCTAssertNotNil(result)
     }
 
-    func testSimplePutSpecialCharacter() throws {
-      let expectation = self.expectation(description: #function)
-      let ref = storage.reference(withPath: "ios/public/-._~!$'()*,=:@&+;")
+    func testSimplePutSpecialCharacter() async throws {      let ref = storage.reference(withPath: "ios/public/-._~!$'()*,=:@&+;")
       let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
-      ref.putData(data) { result in
-        self.assertResultSuccess(result)
-        expectation.fulfill()
-      }
-      waitForExpectations()
+      let result = try await ref.putDataAwait(data)
+      XCTAssertNotNil(result)
     }
 
-    func testSimplePutDataInBackgroundQueue() throws {
-      let expectation = self.expectation(description: #function)
-      let ref = storage.reference(withPath: "ios/public/testBytesUpload")
-      let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
-      DispatchQueue.global(qos: .background).async {
-        ref.putData(data) { result in
-          self.assertResultSuccess(result)
-          expectation.fulfill()
+    func testSimplePutDataInBackgroundQueue() async throws {
+      actor MyBackground {
+        func doit(_ ref: StorageReference) async throws -> StorageMetadata {
+          let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
+          XCTAssertFalse(Thread.isMainThread)
+          return try await ref.putDataAwait(data)
         }
       }
-      waitForExpectations()
+      let ref = storage.reference(withPath: "ios/public/testBytesUpload")
+      let result = try await MyBackground().doit(ref)
+      XCTAssertNotNil(result)
     }
 
-    func testSimplePutEmptyData() {
-      let expectation = self.expectation(description: #function)
+    func testSimplePutEmptyData() async throws {
       let ref = storage.reference(withPath: "ios/public/testSimplePutEmptyData")
       let data = Data()
-      ref.putData(data) { result in
-        self.assertResultSuccess(result)
-        expectation.fulfill()
-      }
-      waitForExpectations()
+      let result = try await ref.putDataAwait(data)
+      XCTAssertNotNil(result)
     }
 
-    func testSimplePutDataUnauthorized() throws {
-      let expectation = self.expectation(description: #function)
+    func testSimplePutDataUnauthorized() async throws {
       let ref = storage.reference(withPath: "ios/private/secretfile.txt")
       let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
-      ref.putData(data) { result in
-        switch result {
-        case .success:
-          XCTFail("Unexpected success from unauthorized putData")
-        case let .failure(error as NSError):
-          XCTAssertEqual(error.code, StorageErrorCode.unauthorized.rawValue)
-          expectation.fulfill()
-        }
-      }
-      waitForExpectations()
-    }
-
-    func testSimplePutDataUnauthorizedThrow() throws {
-      let expectation = self.expectation(description: #function)
-      let ref = storage.reference(withPath: "ios/private/secretfile.txt")
-      let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
-      ref.putData(data) { result in
-        do {
-          try _ = result.get() // .failure will throw
-        } catch {
-          expectation.fulfill()
-          return
-        }
+      do {
+        _ = try await ref.putDataAwait(data)
         XCTFail("Unexpected success from unauthorized putData")
-        expectation.fulfill()
+      } catch {
+        XCTAssertEqual((error as NSError).code, StorageErrorCode.unauthorized.rawValue)
       }
-      waitForExpectations()
     }
 
     func testSimplePutFile() throws {
@@ -175,15 +135,20 @@ import XCTest
       waitForExpectations()
     }
 
-    func testAttemptToUploadDirectoryShouldFail() throws {
+    func testAttemptToUploadDirectoryShouldFail() async throws {
       // This `.numbers` file is actually a directory.
       let fileName = "HomeImprovement.numbers"
       let bundle = Bundle(for: StorageIntegrationCommon.self)
       let fileURL = try XCTUnwrap(bundle.url(forResource: fileName, withExtension: ""),
                                   "Failed to get filePath")
       let ref = storage.reference(withPath: "ios/public/" + fileName)
-      ref.putFile(from: fileURL) { result in
-        self.assertResultFailure(result)
+      do {
+        let _ = try await ref.putFileAwait(from: fileURL)
+        XCTFail("Unexpected success from putFile of a directory")
+      } catch {
+        // TODO: Investigate generating a more descriptive error code than unknown.
+        let e = error as NSError
+        XCTAssertEqual(e.code, StorageErrorCode.unknown.rawValue)
       }
     }
 
@@ -287,7 +252,7 @@ import XCTest
       let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
 
       async {
-        try await ref.putDataAwait(data)
+        _ = try await ref.putDataAwait(data)
         let task = ref.write(toFile: fileURL)
 
         // TODO: Update to use Swift Tasks
