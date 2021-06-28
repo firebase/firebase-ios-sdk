@@ -31,8 +31,8 @@ using util::AsyncQueue;
 using util::Status;
 using util::TimerId;
 
-/** Maximum number of times a transaction can be retried before failing. */
-constexpr int kRetryCount = 5;
+/** Maximum number of times a transaction can be attempted before failing. */
+constexpr int kMaxAttemptsCount = 5;
 
 bool IsRetryableTransactionError(const util::Status& error) {
   // In transactions, the backend will fail outdated reads with
@@ -54,11 +54,12 @@ TransactionRunner::TransactionRunner(const std::shared_ptr<AsyncQueue>& queue,
       update_callback_{std::move(update_callback)},
       result_callback_{std::move(result_callback)},
       backoff_{queue_, TimerId::RetryTransaction},
-      retries_left_{kRetryCount} {
+      attempts_remaining_{kMaxAttemptsCount} {
 }
 
 void TransactionRunner::Run() {
   queue_->VerifyIsCurrentQueue();
+  attempts_remaining_ -= 1;
 
   auto shared_this = this->shared_from_this();
   backoff_.BackoffAndRun([shared_this] {
@@ -96,9 +97,8 @@ void TransactionRunner::DispatchResult(
 
 void TransactionRunner::HandleTransactionError(
     const std::shared_ptr<Transaction>& transaction, Status status) {
-  if (retries_left_ > 0 && IsRetryableTransactionError(status) &&
+  if (attempts_remaining_ > 0 && IsRetryableTransactionError(status) &&
       !transaction->IsPermanentlyFailed()) {
-    retries_left_ -= 1;
     Run();
   } else {
     result_callback_(std::move(status));
