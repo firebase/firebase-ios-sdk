@@ -688,7 +688,6 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   [self awaitExpectations];
 }
 
-
 - (void)testSuccessWithNoTransactionOperations {
   FIRFirestore *firestore = [self firestore];
   XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
