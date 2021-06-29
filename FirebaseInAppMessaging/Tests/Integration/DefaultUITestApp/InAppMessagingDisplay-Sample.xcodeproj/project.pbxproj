@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0EB6E3FCCC0459227B6B82B2 /* Pods_FiamDisplaySwiftExample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9728EBCA30649FE392BE5E0A /* Pods_FiamDisplaySwiftExample.framework */; };
 		2544AF6B2230656D00C5B420 /* CardMessageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2544AF6A2230656D00C5B420 /* CardMessageViewController.swift */; };
 		25574C3322795A4C0083735E /* InAppMessagingDisplayCardViewUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25574C3222795A4C0083735E /* InAppMessagingDisplayCardViewUITests.swift */; };
 		AD7200B52124D19200AFD5F3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD7200B42124D19200AFD5F3 /* AppDelegate.swift */; };
@@ -34,9 +35,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1CC136E923476A29BBECD1D3 /* Pods-FiamDisplaySwiftExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FiamDisplaySwiftExample.debug.xcconfig"; path = "Target Support Files/Pods-FiamDisplaySwiftExample/Pods-FiamDisplaySwiftExample.debug.xcconfig"; sourceTree = "<group>"; };
 		250551B62525125200534F34 /* BridgingHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BridgingHeader.h; sourceTree = "<group>"; };
 		2544AF6A2230656D00C5B420 /* CardMessageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardMessageViewController.swift; sourceTree = "<group>"; };
 		25574C3222795A4C0083735E /* InAppMessagingDisplayCardViewUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppMessagingDisplayCardViewUITests.swift; sourceTree = "<group>"; };
+		9728EBCA30649FE392BE5E0A /* Pods_FiamDisplaySwiftExample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FiamDisplaySwiftExample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		AD7200B22124D19200AFD5F3 /* FiamDisplaySwiftExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FiamDisplaySwiftExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AD7200B42124D19200AFD5F3 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		AD7200B92124D19200AFD5F3 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -53,6 +56,7 @@
 		AD7200DB2126136D00AFD5F3 /* InAppMessagingDisplayUITestsBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppMessagingDisplayUITestsBase.swift; sourceTree = "<group>"; };
 		AD7200DD2126147100AFD5F3 /* InAppMessagingDisplayBannerViewUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppMessagingDisplayBannerViewUITests.swift; sourceTree = "<group>"; };
 		AD7200DF2126150600AFD5F3 /* InAppMessagingDisplayImageOnlyViewUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppMessagingDisplayImageOnlyViewUITests.swift; sourceTree = "<group>"; };
+		C95C69188DD844687730EE9D /* Pods-FiamDisplaySwiftExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FiamDisplaySwiftExample.release.xcconfig"; path = "Target Support Files/Pods-FiamDisplaySwiftExample/Pods-FiamDisplaySwiftExample.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,6 +64,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0EB6E3FCCC0459227B6B82B2 /* Pods_FiamDisplaySwiftExample.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -73,6 +78,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		7C9E7889FED4395C2C399E0C /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				9728EBCA30649FE392BE5E0A /* Pods_FiamDisplaySwiftExample.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		94E18185B7648E3069E0CCDB /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				1CC136E923476A29BBECD1D3 /* Pods-FiamDisplaySwiftExample.debug.xcconfig */,
+				C95C69188DD844687730EE9D /* Pods-FiamDisplaySwiftExample.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		AD7200B32124D19200AFD5F3 /* FiamDisplaySwiftExample */ = {
 			isa = PBXGroup;
 			children = (
@@ -110,6 +132,8 @@
 				AD7200B32124D19200AFD5F3 /* FiamDisplaySwiftExample */,
 				AD7200D22125F92100AFD5F3 /* InAppMessagingDisplay-UITests */,
 				ADA7B5B921223CED00B1C614 /* Products */,
+				94E18185B7648E3069E0CCDB /* Pods */,
+				7C9E7889FED4395C2C399E0C /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -129,9 +153,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = AD7200C32124D19400AFD5F3 /* Build configuration list for PBXNativeTarget "FiamDisplaySwiftExample" */;
 			buildPhases = (
+				768BA1F71700366C280D26C7 /* [CP] Check Pods Manifest.lock */,
 				AD7200AE2124D19200AFD5F3 /* Sources */,
 				AD7200AF2124D19200AFD5F3 /* Frameworks */,
 				AD7200B02124D19200AFD5F3 /* Resources */,
+				5B2AFF6E96DE074D7A3C1B49 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -167,7 +193,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0940;
-				LastUpgradeCheck = 0940;
+				LastUpgradeCheck = 1250;
 				ORGANIZATIONNAME = Google;
 				TargetAttributes = {
 					AD7200B12124D19200AFD5F3 = {
@@ -219,6 +245,48 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		5B2AFF6E96DE074D7A3C1B49 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-FiamDisplaySwiftExample/Pods-FiamDisplaySwiftExample-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-FiamDisplaySwiftExample/Pods-FiamDisplaySwiftExample-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-FiamDisplaySwiftExample/Pods-FiamDisplaySwiftExample-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		768BA1F71700366C280D26C7 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-FiamDisplaySwiftExample-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		AD7200AE2124D19200AFD5F3 /* Sources */ = {
@@ -278,13 +346,13 @@
 /* Begin XCBuildConfiguration section */
 		AD7200C12124D19400AFD5F3 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 86037DF9082A9870585ADB56 /* Pods-FiamDisplaySwiftExample.debug.xcconfig */;
+			baseConfigurationReference = 1CC136E923476A29BBECD1D3 /* Pods-FiamDisplaySwiftExample.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				HEADER_SEARCH_PATHS = (
 					../../../../,
-					$inherited,
+					"$inherited",
 				);
 				INFOPLIST_FILE = FiamDisplaySwiftExample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -303,13 +371,13 @@
 		};
 		AD7200C22124D19400AFD5F3 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 6CCC7B0E5081A2848C82EA49 /* Pods-FiamDisplaySwiftExample.release.xcconfig */;
+			baseConfigurationReference = C95C69188DD844687730EE9D /* Pods-FiamDisplaySwiftExample.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				HEADER_SEARCH_PATHS = (
 					../../../../,
-					$inherited,
+					"$inherited",
 				);
 				INFOPLIST_FILE = FiamDisplaySwiftExample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -392,6 +460,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -417,7 +486,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -450,6 +519,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -469,7 +539,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
