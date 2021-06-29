@@ -408,7 +408,6 @@ let package = Package(
         "FirebaseAuthCombineSwift",
         "FirebaseFirestoreCombineSwift",
         "FirebaseFunctionsCombineSwift",
-        "FirebaseFunctionsCombineSwift",
         "FirebaseStorageCombineSwift",
       ],
       path: "FirebaseCombineSwift/Sources/Core"
