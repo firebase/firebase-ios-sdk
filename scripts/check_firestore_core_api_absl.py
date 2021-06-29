@@ -34,16 +34,16 @@ def diff_with_absl(revision, patterns):
   """Finds diffs containing 'absl' since a revision from specified path
   pattern.
   """
-
   # git command to print all diffs that has 'absl' in it.
-  command = ['git', 'diff', '-z', '-G', 'absl', revision, '--']
+  command = ['git', 'diff', '-G', 'absl', revision, '--']
   command.extend(patterns)
-  command_trace.log(command)
+  _logger.debug(command)
   return six.ensure_text(subprocess.check_output(command))
 
 
 def main():
-  parser = argparse.ArgumentParser(description='Lint source files.')
+  parser = argparse.ArgumentParser(
+      description='Check Absl usaging in firestore/core/api')
   parser.add_argument(
       '--dry-run',
       '-n',
@@ -60,29 +60,25 @@ def main():
   dry_run = False
   if args.dry_run:
     dry_run = True
-    command_trace.enable_tracing()
+    _logger.setLevel(logging.DEBUG)
 
-  revision = 'origin/master' if (not args.rev) else args.rev
-  _logger.debug('Checking Firestore/core/src/api absl usage against %s' %
-                revision)
-  diff = diff_with_absl(revision, ['Firestore/core/src/api/*.h'])
+  revision = 'origin/master' if not args.rev else args.rev
+  patterns = ['Firestore/core/src/api/*.h']
+  _logger.debug('Checking %s absl usage against %s' %
+                (patterns, revision))
+  diff = diff_with_absl(revision, patterns)
 
   # Check for changes adding new absl references only.
-  found = False
-  for line in diff.splitlines():
-    # Additions start with '+'
-    if line.startswith('+') and line.find('absl::') >= 0:
-      # Found a change introducing a reference to absl
+  lines = [line for line in diff.splitlines()
+           if line.startswith('+') and 'absl::' in line]
+  if lines:
       _logger.error(
-          'Found a change introducing reference to absl under'
-          'Firestore/core/api:'
-      )
-      _logger.error('  %s' % line)
-      _logger.error('')
-      found = True
-
-  if found and (not dry_run):
-    exit(-1)
+          'Found a change introducing reference to absl under %s'
+          % patterns)
+      for line in lines:
+          _logger.error(' %s' % line)
+      if not dry_run:
+          exit(-1)
 
 
 if __name__ == '__main__':
