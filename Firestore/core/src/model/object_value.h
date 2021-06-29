@@ -26,6 +26,7 @@
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/model/field_mask.h"
 #include "Firestore/core/src/model/field_path.h"
+#include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/util/hard_assert.h"
@@ -41,8 +42,8 @@ class ObjectValue {
  public:
   ObjectValue();
 
-  /** Creates a new MutableObjectValue and takes ownership of `value`. */
-  explicit ObjectValue(const google_firestore_v1_Value& value);
+  /** Creates a new ObjectValue */
+  explicit ObjectValue(nanopb::Message<google_firestore_v1_Value> value);
 
   ObjectValue(ObjectValue&& other) noexcept = default;
   ObjectValue& operator=(ObjectValue&& other) noexcept = default;
@@ -54,7 +55,8 @@ class ObjectValue {
    * Creates a new ObjectValue that is backed by the given `map_value`.
    * ObjectValue takes on ownership of the data.
    */
-  static ObjectValue FromMapValue(google_firestore_v1_MapValue map_value);
+  static ObjectValue FromMapValue(
+      nanopb::Message<google_firestore_v1_MapValue> map_value);
 
   /**
    * Creates a new ObjectValue that is backed by the provided document fields.
@@ -84,12 +86,11 @@ class ObjectValue {
   /**
    * Sets the field to the provided value.
    *
-   * Takes ownership of value.
-   *
    * @param path The field path to set. The path must not be empty.
    * @param value The value to set.
    */
-  void Set(const FieldPath& path, google_firestore_v1_Value value);
+  void Set(const FieldPath& path,
+           nanopb::Message<google_firestore_v1_Value> value);
 
   /**
    * Sets the provided fields to the provided values. Fields set to `nullopt`
@@ -99,8 +100,7 @@ class ObjectValue {
    *
    * @param data A map of fields to values (or nullopt for deletes)
    */
-  void SetAll(const std::map<FieldPath,
-                             absl::optional<google_firestore_v1_Value>>& data);
+  void SetAll(TransformMap data);
 
   /**
    * Removes the field at the specified path. If there is no field at the

@@ -28,6 +28,8 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
+using nanopb::Message;
+
 static_assert(
     sizeof(Mutation) == sizeof(PatchMutation),
     "PatchMutation may not have additional members (everything goes in Rep)");
@@ -87,7 +89,7 @@ void PatchMutation::Rep::ApplyToRemoteDocument(
   auto transform_results =
       ServerTransformResults(data, mutation_result.transform_results());
   data.SetAll(GetPatch());
-  data.SetAll(transform_results);
+  data.SetAll(std::move(transform_results));
   document.ConvertToFoundDocument(mutation_result.version())
       .SetHasCommittedMutations();
 }
@@ -103,14 +105,13 @@ void PatchMutation::Rep::ApplyToLocalView(
   ObjectValue& data = document.data();
   auto transform_results = LocalTransformResults(data, local_write_time);
   data.SetAll(GetPatch());
-  data.SetAll(transform_results);
+  data.SetAll(std::move(transform_results));
   document.ConvertToFoundDocument(GetPostMutationVersion(document))
       .SetHasLocalMutations();
 }
 
-std::map<FieldPath, absl::optional<google_firestore_v1_Value>>
-PatchMutation::Rep::GetPatch() const {
-  std::map<FieldPath, absl::optional<google_firestore_v1_Value>> result;
+TransformMap PatchMutation::Rep::GetPatch() const {
+  TransformMap result;
   for (const FieldPath& path : mask_) {
     if (!path.empty()) {
       auto value = value_.Get(path);

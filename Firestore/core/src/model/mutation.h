@@ -37,12 +37,6 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-// A map of FieldPaths to transforms. Sorted so it can be used in
-// ObjectValue::SetAll, which is more efficient it the input map is sorted as
-// it processes field maps one layer at a time.
-using TransformMap =
-    std::map<FieldPath, absl::optional<google_firestore_v1_Value>>;
-
 class Document;
 class MutableDocument;
 
@@ -57,9 +51,10 @@ class MutableDocument;
 class MutationResult {
  public:
   /** Takes ownership of `transform_results`. */
-  MutationResult(SnapshotVersion version,
-                 google_firestore_v1_ArrayValue transform_results)
-      : version_(version), transform_results_{transform_results} {
+  MutationResult(
+      SnapshotVersion version,
+      nanopb::Message<google_firestore_v1_ArrayValue> transform_results)
+      : version_(version), transform_results_{std::move(transform_results)} {
   }
 
   MutationResult(MutationResult&& other) noexcept
@@ -88,8 +83,9 @@ class MutationResult {
    *
    * Will be nullopt if the mutation was not a TransformMutation.
    */
-  const google_firestore_v1_ArrayValue& transform_results() const {
-    return *transform_results_;
+  const nanopb::Message<google_firestore_v1_ArrayValue>& transform_results()
+      const {
+    return transform_results_;
   }
 
   std::string ToString() const;
@@ -298,7 +294,8 @@ class Mutation {
      */
     TransformMap ServerTransformResults(
         const ObjectValue& previous_data,
-        const google_firestore_v1_ArrayValue& server_transform_results) const;
+        const nanopb::Message<google_firestore_v1_ArrayValue>&
+            server_transform_results) const;
 
     /**
      * Creates a map of "transform results" (a transform result is a field

@@ -144,7 +144,8 @@ google_firestore_v1_Document LocalSerializer::EncodeDocument(
       [](const google_firestore_v1_MapValue_FieldsEntry& map_entry) {
         // TODO(mrschmidt): Figure out how to remove this copy
         return google_firestore_v1_Document_FieldsEntry{
-            nanopb::CopyBytesArray(map_entry.key), DeepClone(map_entry.value)};
+            nanopb::CopyBytesArray(map_entry.key),
+            *DeepClone(map_entry.value).release()};
       });
 
   result.has_update_time = true;

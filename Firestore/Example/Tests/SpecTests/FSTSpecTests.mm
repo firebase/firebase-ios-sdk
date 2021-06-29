@@ -54,6 +54,7 @@
 #include "Firestore/core/src/model/set_mutation.h"
 #include "Firestore/core/src/model/snapshot_version.h"
 #include "Firestore/core/src/model/types.h"
+#include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/remote/existence_filter.h"
 #include "Firestore/core/src/remote/serializer.h"
@@ -99,6 +100,7 @@ using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::nanopb::ByteString;
 using firebase::firestore::nanopb::MakeByteString;
+using firebase::firestore::nanopb::Message;
 using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::ExistenceFilter;
 using firebase::firestore::remote::ExistenceFilterWatchChange;
@@ -296,8 +298,8 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
       for (NSArray<id> *filter in filters) {
         std::string key = util::MakeString(filter[0]);
         std::string op = util::MakeString(filter[1]);
-        google_firestore_v1_Value value = [_reader parsedQueryValue:filter[2]];
-        query = query.AddingFilter(Filter(key, op, value));
+        Message<google_firestore_v1_Value> value = [_reader parsedQueryValue:filter[2]];
+        query = query.AddingFilter(Filter(key, op, std::move(value)));
       }
     }
 
@@ -325,9 +327,9 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   NSDictionary *options = jsonDoc[@"options"];
 
   XCTAssert([jsonDoc[@"key"] isKindOfClass:[NSString class]]);
-  google_firestore_v1_Value data = [_reader parsedQueryValue:jsonDoc[@"value"]];
+  Message<google_firestore_v1_Value> data = [_reader parsedQueryValue:jsonDoc[@"value"]];
   MutableDocument doc =
-      Doc(util::MakeString((NSString *)jsonDoc[@"key"]), version.longLongValue, data);
+      Doc(util::MakeString((NSString *)jsonDoc[@"key"]), version.longLongValue, std::move(data));
   if ([options[@"hasLocalMutations"] boolValue] == YES) {
     doc.SetHasLocalMutations();
   } else if ([options[@"hasCommittedMutations"] boolValue] == YES) {
@@ -504,8 +506,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
                 @"'keepInQueue=true' is not supported on iOS and should only be set in "
                 @"multi-client tests");
 
-  google_firestore_v1_ArrayValue transforms{};
-  MutationResult mutationResult(version, transforms);
+  MutationResult mutationResult(version, Message<google_firestore_v1_ArrayValue>{});
   std::vector<MutationResult> mutationResults;
   mutationResults.emplace_back(std::move(mutationResult));
   [self.driver receiveWriteAckWithVersion:version mutationResults:std::move(mutationResults)];

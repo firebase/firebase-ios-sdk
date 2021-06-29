@@ -48,9 +48,9 @@ TEST_F(ObjectValueTest, ExtractsFields) {
   ASSERT_EQ(google_firestore_v1_Value_map_value_tag,
             value.Get(Field("foo"))->which_value_type);
 
-  EXPECT_EQ(Value(1), *value.Get(Field("foo.a")));
-  EXPECT_EQ(Value(true), *value.Get(Field("foo.b")));
-  EXPECT_EQ(Value("string"), *value.Get(Field("foo.c")));
+  EXPECT_EQ(*Value(1), *value.Get(Field("foo.a")));
+  EXPECT_EQ(*Value(true), *value.Get(Field("foo.b")));
+  EXPECT_EQ(*Value("string"), *value.Get(Field("foo.c")));
 
   EXPECT_EQ(nullopt, value.Get(Field("foo.a.b")));
   EXPECT_EQ(nullopt, value.Get(Field("bar")));
@@ -127,11 +127,13 @@ TEST_F(ObjectValueTest, AddsMultipleFields) {
   ObjectValue object_value{};
   EXPECT_EQ(ObjectValue{}, object_value);
 
-  object_value.SetAll({{Field("a"), Value(1)},
-                       {Field("b"), Value(2)},
-                       {Field("c.d"), Value(3)},
-                       {Field("c.e"), Value(4)},
-                       {Field("c.f.g"), Value(5)}});
+  TransformMap data;
+  data[Field("a")] = Value(1);
+  data[Field("b")] = Value(2);
+  data[Field("c.d")] = Value(3);
+  data[Field("c.e")] = Value(4);
+  data[Field("c.f.g")] = Value(5);
+  object_value.SetAll(std::move(data));
   EXPECT_EQ(
       WrapObject("a", 1, "b", 2, "c", Map("d", 3, "e", 4, "f", Map("g", 5))),
       object_value);
@@ -241,9 +243,11 @@ TEST_F(ObjectValueTest, DeletesMultipleKeys) {
   ObjectValue object_value =
       WrapObject("a", 1, "b", 2, "c", Map("d", 3, "e", 4));
 
-  object_value.SetAll({{Field("a"), absl::nullopt},
-                       {Field("b"), absl::nullopt},
-                       {Field("c.d"), absl::nullopt}});
+  TransformMap data;
+  data[Field("a")] = absl::nullopt;
+  data[Field("b")] = absl::nullopt;
+  data[Field("c.d")] = absl::nullopt;
+  object_value.SetAll(std::move(data));
 
   EXPECT_EQ(WrapObject("c", Map("e", 4)), object_value);
 }
@@ -262,19 +266,14 @@ TEST_F(ObjectValueTest, DeletesHandleMissingKeys) {
 
 TEST_F(ObjectValueTest, DeletesNestedKeys) {
   auto orig = Map("a", Map("b", 1, "c", Map("d", 2, "e", 3)));
-  ObjectValue object_value = WrapObject(orig);
+  ObjectValue object_value = WrapObject(std::move(orig));
   object_value.Delete(Field("a.c.d"));
-
-  google_firestore_v1_Value second = Map("a", Map("b", 1, "c", Map("e", 3)));
-  EXPECT_EQ(WrapObject(second), object_value);
+  EXPECT_EQ(WrapObject(Map("a", Map("b", 1, "c", Map("e", 3)))), object_value);
 
   object_value.Delete(Field("a.c"));
-
-  google_firestore_v1_Value third = Map("a", Map("b", 1));
-  EXPECT_EQ(WrapObject(third), object_value);
+  EXPECT_EQ(WrapObject(Map("a", Map("b", 1))), object_value);
 
   object_value.Delete(Field("a"));
-
   EXPECT_EQ(ObjectValue(), object_value);
 }
 
@@ -296,7 +295,10 @@ TEST_F(ObjectValueTest, AddsAndDeletesField) {
 
 TEST_F(ObjectValueTest, AddsAndDeletesMultipleFields) {
   ObjectValue object_value = WrapObject("b", 2, "c", 3);
-  object_value.SetAll({{Field("a"), Value(1)}, {Field("b"), absl::nullopt}});
+  TransformMap data;
+  data[Field("a")] = Value(1);
+  data[Field("b")] = absl::nullopt;
+  object_value.SetAll(std::move(data));
   EXPECT_EQ(WrapObject("a", 1, "c", 3), object_value);
 }
 
@@ -322,15 +324,15 @@ TEST_F(ObjectValueTest, MergesExistingObject) {
 
 TEST_F(ObjectValueTest, DoesNotRequireSortedValues) {
   ObjectValue object_value = WrapObject("c", 2, "a", 1);
-  EXPECT_EQ(Value(2), *object_value.Get(Field("c")));
+  EXPECT_EQ(*Value(2), *object_value.Get(Field("c")));
 }
 
 TEST_F(ObjectValueTest, DoesNotRequireSortedInserts) {
   ObjectValue object_value{};
   object_value.Set(Field("nested"),
                    Map("c", 2, "nested", Map("c", 2, "a", 1), "a", 1));
-  EXPECT_EQ(Value(2), *object_value.Get(Field("nested.c")));
-  EXPECT_EQ(Value(2), *object_value.Get(Field("nested.nested.c")));
+  EXPECT_EQ(*Value(2), *object_value.Get(Field("nested.c")));
+  EXPECT_EQ(*Value(2), *object_value.Get(Field("nested.nested.c")));
 }
 
 }  // namespace

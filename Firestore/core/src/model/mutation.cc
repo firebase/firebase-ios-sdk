@@ -25,6 +25,7 @@
 #include "Firestore/core/src/model/field_path.h"
 #include "Firestore/core/src/model/mutable_document.h"
 #include "Firestore/core/src/model/object_value.h"
+#include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/to_string.h"
 #include "absl/strings/str_cat.h"
@@ -32,6 +33,8 @@
 namespace firebase {
 namespace firestore {
 namespace model {
+
+using nanopb::Message;
 
 std::string MutationResult::ToString() const {
   return absl::StrCat(
@@ -45,7 +48,7 @@ std::ostream& operator<<(std::ostream& os, const MutationResult& result) {
 
 bool operator==(const MutationResult& lhs, const MutationResult& rhs) {
   return lhs.version() == rhs.version() &&
-         lhs.transform_results() == rhs.transform_results();
+         *lhs.transform_results_ == *rhs.transform_results_;
 }
 
 void Mutation::ApplyToRemoteDocument(
@@ -70,7 +73,7 @@ absl::optional<ObjectValue> Mutation::Rep::ExtractTransformBaseValue(
       if (!base_object) {
         base_object = ObjectValue{};
       }
-      base_object->Set(transform.path(), *coerced_value);
+      base_object->Set(transform.path(), std::move(*coerced_value));
     }
   }
 
@@ -113,21 +116,23 @@ SnapshotVersion Mutation::Rep::GetPostMutationVersion(
 
 TransformMap Mutation::Rep::ServerTransformResults(
     const ObjectValue& previous_data,
-    const google_firestore_v1_ArrayValue& server_transform_results) const {
+    const Message<google_firestore_v1_ArrayValue>& server_transform_results)
+    const {
   TransformMap transform_results;
-  HARD_ASSERT(field_transforms_.size() == server_transform_results.values_count,
-              "server transform result size (%s) should match field transforms "
-              "size (%s)",
-              server_transform_results.values_count, field_transforms_.size());
+  HARD_ASSERT(
+      field_transforms_.size() == server_transform_results->values_count,
+      "server transform result size (%s) should match field transforms "
+      "size (%s)",
+      server_transform_results->values_count, field_transforms_.size());
 
-  for (size_t i = 0; i < server_transform_results.values_count; ++i) {
+  for (size_t i = 0; i < server_transform_results->values_count; ++i) {
     const FieldTransform& field_transform = field_transforms_[i];
     const TransformOperation& transform = field_transform.transformation();
     const auto& previous_value = previous_data.Get(field_transform.path());
-    google_firestore_v1_Value transformed_value =
-        transform.ApplyToRemoteDocument(previous_value,
-                                        server_transform_results.values[i]);
-    transform_results[field_transform.path()] = transformed_value;
+    Message<google_firestore_v1_Value> transformed_value =
+        transform.ApplyToRemoteDocument(
+            previous_value, DeepClone(server_transform_results->values[i]));
+    transform_results[field_transform.path()] = std::move(transformed_value);
   }
   return transform_results;
 }
@@ -138,9 +143,9 @@ TransformMap Mutation::Rep::LocalTransformResults(
   for (const FieldTransform& field_transform : field_transforms_) {
     const TransformOperation& transform = field_transform.transformation();
     const auto& previous_value = previous_data.Get(field_transform.path());
-    google_firestore_v1_Value transformed_value =
+    Message<google_firestore_v1_Value> transformed_value =
         transform.ApplyToLocalView(previous_value, local_write_time);
-    transform_results[field_transform.path()] = transformed_value;
+    transform_results[field_transform.path()] = std::move(transformed_value);
   }
   return transform_results;
 }

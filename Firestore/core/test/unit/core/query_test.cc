@@ -784,14 +784,13 @@ TEST(QueryTest, CanonicalIDs) {
   auto limit = testutil::Query("coll").WithLimitToFirst(25);
   EXPECT_THAT(limit, HasCanonicalId("coll|f:|ob:__name__asc|l:25|lt:f"));
 
-  auto bounds =
-      testutil::Query("airports")
-          .AddingOrderBy(OrderBy("name", "asc"))
-          .AddingOrderBy(OrderBy("score", "desc"))
-          .StartingAt(Bound::FromValue(MakeSharedMessage(Array("OAK", 1000)),
-                                       /* is_before= */ true))
-          .EndingAt(Bound::FromValue(MakeSharedMessage(Array("SFO", 2000)),
-                                     /* is_before= */ false));
+  auto bounds = testutil::Query("airports")
+                    .AddingOrderBy(OrderBy("name", "asc"))
+                    .AddingOrderBy(OrderBy("score", "desc"))
+                    .StartingAt(Bound::FromValue(Array("OAK", 1000),
+                                                 /* is_before= */ true))
+                    .EndingAt(Bound::FromValue(Array("SFO", 2000),
+                                               /* is_before= */ false));
   EXPECT_THAT(bounds, HasCanonicalId("airports|f:|ob:nameascscoredesc__name__"
                                      "desc|lb:b:OAK1000|ub:a:SFO2000"));
 }
@@ -812,12 +811,10 @@ TEST(QueryTest, MatchesAllDocuments) {
   query = base_query.WithLimitToFirst(1);
   EXPECT_FALSE(query.MatchesAllDocuments());
 
-  query = base_query.StartingAt(
-      Bound::FromValue(MakeSharedMessage(Array("SFO")), true));
+  query = base_query.StartingAt(Bound::FromValue(Array("SFO"), true));
   EXPECT_FALSE(query.MatchesAllDocuments());
 
-  query = base_query.StartingAt(
-      Bound::FromValue(MakeSharedMessage(Array("OAK")), true));
+  query = base_query.StartingAt(Bound::FromValue(Array("OAK"), true));
   EXPECT_FALSE(query.MatchesAllDocuments());
 }
 

@@ -189,7 +189,7 @@ class Query {
    * if the value is anything other than a Reference or String, or if the string
    * is malformed.
    */
-  google_firestore_v1_Value ParseExpectedReferenceValue(
+  nanopb::Message<google_firestore_v1_Value> ParseExpectedReferenceValue(
       const google_firestore_v1_Value& value,
       const std::function<std::string()>& type_describer) const;
 

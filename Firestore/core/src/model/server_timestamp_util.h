@@ -19,6 +19,7 @@
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
+#include "Firestore/core/src/nanopb/message.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
@@ -29,7 +30,7 @@ namespace model {
 // sentinel fields in MapValues.
 
 /** Encodes the backing data for a server timestamp in a Value proto. */
-google_firestore_v1_Value EncodeServerTimestamp(
+nanopb::Message<google_firestore_v1_Value> EncodeServerTimestamp(
     const Timestamp& local_write_time,
     absl::optional<google_firestore_v1_Value> previous_value);
 /**

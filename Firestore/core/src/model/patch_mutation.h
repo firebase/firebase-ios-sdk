@@ -106,8 +106,7 @@ class PatchMutation : public Mutation {
      * Returns this patch mutation as a list of field paths to values (or
      * nullopt for deletes).
      */
-    std::map<FieldPath, absl::optional<google_firestore_v1_Value>> GetPatch()
-        const;
+    TransformMap GetPatch() const;
 
     void ApplyToRemoteDocument(
         MutableDocument& document,

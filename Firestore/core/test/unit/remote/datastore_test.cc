@@ -84,8 +84,9 @@ grpc::ByteBuffer MakeFakeDocument(const std::string& doc_name) {
       MakeArray<google_firestore_v1_Document_FieldsEntry>(doc.fields_count);
   google_firestore_v1_Document_FieldsEntry& entry = doc.fields[0];
 
+  Message<google_firestore_v1_Value> value = Value("bar");
   entry.key = serializer.EncodeString("foo");
-  entry.value = Value("bar");
+  entry.value = *value.release();
 
   return MakeByteBuffer(response);
 }

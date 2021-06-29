@@ -490,11 +490,11 @@ int32_t SaturatedLimitValue(NSInteger limit) {
 
 #pragma mark - Private Methods
 
-- (google_firestore_v1_Value)parsedQueryValue:(id)value {
+- (Message<google_firestore_v1_Value>)parsedQueryValue:(id)value {
   return [self.firestore.dataReader parsedQueryValue:value];
 }
 
-- (google_firestore_v1_Value)parsedQueryValue:(id)value allowArrays:(bool)allowArrays {
+- (Message<google_firestore_v1_Value>)parsedQueryValue:(id)value allowArrays:(bool)allowArrays {
   return [self.firestore.dataReader parsedQueryValue:value allowArrays:allowArrays];
 }
 
@@ -531,12 +531,12 @@ int32_t SaturatedLimitValue(NSInteger limit) {
 - (FIRQuery *)queryWithFilterOperator:(Filter::Operator)filterOperator
                                  path:(const FieldPath &)fieldPath
                                 value:(id)value {
-  google_firestore_v1_Value fieldValue =
+  Message<google_firestore_v1_Value> fieldValue =
       [self parsedQueryValue:value
                  allowArrays:filterOperator == Filter::Operator::In ||
                              filterOperator == Filter::Operator::NotIn];
   auto describer = [value] { return MakeString(NSStringFromClass([value class])); };
-  return Wrap(_query.Filter(fieldPath, filterOperator, MakeSharedMessage(fieldValue), describer));
+  return Wrap(_query.Filter(fieldPath, filterOperator, std::move(fieldValue), describer));
 }
 
 /**
@@ -569,7 +569,7 @@ int32_t SaturatedLimitValue(NSInteger limit) {
   // orders), multiple documents could match the position, yielding duplicate results.
   for (size_t i = 0; i < order_bys.size(); ++i) {
     if (order_bys[i].field() == FieldPath::KeyFieldPath()) {
-      components->values[i] = RefValue(databaseID, document->key());
+      components->values[i] = *RefValue(databaseID, document->key()).release();
     } else {
       absl::optional<google_firestore_v1_Value> value = document->field(order_bys[i].field());
 
@@ -581,7 +581,7 @@ int32_t SaturatedLimitValue(NSInteger limit) {
               "is unknown, you cannot start/end a query with it.)",
               order_bys[i].field().CanonicalString());
         } else {
-          components->values[i] = DeepClone(*value);
+          components->values[i] = *DeepClone(*value).release();
         }
       } else {
         ThrowInvalidArgument(
@@ -630,7 +630,7 @@ int32_t SaturatedLimitValue(NSInteger limit) {
                              path.CanonicalString());
       }
       DocumentKey key{path};
-      components->values[idx] = RefValue(self.firestore.databaseID, key);
+      components->values[idx] = *RefValue(self.firestore.databaseID, key).release();
     } else {
       components->values[idx] = *fieldValue.release();
     }

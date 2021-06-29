@@ -22,11 +22,13 @@
 #include "Firestore/core/src/core/core_fwd.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/model/model_fwd.h"
+#include "Firestore/core/src/nanopb/message.h"
 
 @class FIRTimestamp;
 
 namespace core = firebase::firestore::core;
 namespace model = firebase::firestore::model;
+namespace nanopb = firebase::firestore::nanopb;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -76,7 +78,7 @@ typedef id _Nullable (^FSTPreConverterBlock)(id _Nullable);
 - (core::ParsedUpdateData)parsedUpdateData:(id)input;
 
 /** Parse a "query value" (e.g. value in a where filter or a value in a cursor bound). */
-- (firebase::firestore::google_firestore_v1_Value)parsedQueryValue:(id)input;
+- (nanopb::Message<firebase::firestore::google_firestore_v1_Value>)parsedQueryValue:(id)input;
 
 /**
  * Parse a "query value" (e.g. value in a where filter or a value in a cursor bound).
@@ -84,8 +86,9 @@ typedef id _Nullable (^FSTPreConverterBlock)(id _Nullable);
  * @param allowArrays Whether the query value is an array that may directly contain additional
  * arrays (e.g.) the operand of an `in` query).
  */
-- (firebase::firestore::google_firestore_v1_Value)parsedQueryValue:(id)input
-                                                       allowArrays:(bool)allowArrays;
+- (nanopb::Message<firebase::firestore::google_firestore_v1_Value>)parsedQueryValue:(id)input
+                                                                        allowArrays:
+                                                                            (bool)allowArrays;
 
 @end
 

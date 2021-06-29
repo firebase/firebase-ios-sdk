@@ -27,6 +27,7 @@
 #include "Firestore/core/src/model/document_key_set.h"
 #include "Firestore/core/src/model/object_value.h"
 #include "Firestore/core/src/model/value_util.h"
+#include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/util/string_apple.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 #include "absl/strings/string_view.h"
@@ -46,6 +47,7 @@ using model::MutableDocument;
 using model::MutableDocumentMap;
 using model::ObjectValue;
 using model::SnapshotVersion;
+using nanopb::Message;
 
 using testing::Eq;
 using testing::IsSupersetOf;
@@ -63,7 +65,6 @@ using testutil::Version;
 const char* kDocPath = "a/b";
 const char* kLongDocPath = "a/b/c/d/e/f";
 const int kVersion = 42;
-google_firestore_v1_Value kDocData;
 
 /**
  * Extracts all the actual MaybeDocument instances from the given document map.
@@ -97,18 +98,11 @@ MATCHER_P(HasAtLeastDocs,
   return testing::Value(arg_docs, IsSupersetOf(expected));
 }
 
-MATCHER_P(MatchesValue, expected, "") {
-  google_firestore_v1_Value actual_value = arg.value();
-  return testing::Value(actual_value, Eq(expected));
-}
-
 }  // namespace
 
 RemoteDocumentCacheTest::RemoteDocumentCacheTest()
     : persistence_{GetParam()()},
       cache_{persistence_->remote_document_cache()} {
-  // essentially a constant, but can't be a compile-time one.
-  kDocData = Map("a", 1, "b", 2);
 }
 
 TEST_P(RemoteDocumentCacheTest, ReadDocumentNotInCache) {
@@ -209,8 +203,8 @@ TEST_P(RemoteDocumentCacheTest, DocumentsMatchingQuery) {
     MutableDocumentMap results =
         cache_->GetMatching(query, SnapshotVersion::None());
     std::vector<MutableDocument> docs = {
-        Doc("b/1", kVersion, DeepClone(kDocData)),
-        Doc("b/2", kVersion, DeepClone(kDocData)),
+        Doc("b/1", kVersion, Map("a", 1, "b", 2)),
+        Doc("b/2", kVersion, Map("a", 1, "b", 2)),
     };
     EXPECT_THAT(results, HasExactlyDocs(docs));
   });
@@ -225,7 +219,7 @@ TEST_P(RemoteDocumentCacheTest, DocumentsMatchingQuerySinceReadTime) {
     core::Query query = Query("b");
     MutableDocumentMap results = cache_->GetMatching(query, Version(12));
     std::vector<MutableDocument> docs = {
-        Doc("b/new", 3, DeepClone(kDocData)),
+        Doc("b/new", 3, Map("a", 1, "b", 2)),
     };
     EXPECT_THAT(results, HasExactlyDocs(docs));
   });
@@ -240,7 +234,7 @@ TEST_P(RemoteDocumentCacheTest, DocumentsMatchingUsesReadTimeNotUpdateTime) {
         core::Query query = Query("b");
         MutableDocumentMap results = cache_->GetMatching(query, Version(1));
         std::vector<MutableDocument> docs = {
-            Doc("b/old", 1, DeepClone(kDocData)),
+            Doc("b/old", 1, Map("a", 1, "b", 2)),
         };
         EXPECT_THAT(results, HasExactlyDocs(docs));
       });
@@ -252,36 +246,36 @@ TEST_P(RemoteDocumentCacheTest, DoesNotApplyDocumentModificationsToCache) {
   persistence_->Run("test_does_not_apply_document_modifications_to_cache", [&] {
     MutableDocument document = SetTestDocument("coll/doc", Map("value", "old"));
     document = cache_->Get(Key("coll/doc"));
-    EXPECT_THAT(document, MatchesValue(Map("value", "old")));
+    EXPECT_EQ(document.value(), *Map("value", "old"));
     document.data().Set(Field("value"), Value("new"));
 
     document = cache_->Get(Key("coll/doc"));
-    EXPECT_THAT(document, MatchesValue(Map("value", "old")));
+    EXPECT_EQ(document.value(), *Map("value", "old"));
     document.data().Set(Field("value"), Value("new"));
 
     MutableDocumentMap documents =
         cache_->GetAll(DocumentKeySet{Key("coll/doc")});
     document = documents.find(Key("coll/doc"))->second;
-    EXPECT_THAT(document, MatchesValue(Map("value", "old")));
+    EXPECT_EQ(document.value(), *Map("value", "old"));
     document.data().Set(Field("value"), Value("new"));
 
     documents = cache_->GetMatching(Query("coll"), SnapshotVersion::None());
     document = documents.find(Key("coll/doc"))->second;
-    EXPECT_THAT(document, MatchesValue(Map("value", "old")));
+    EXPECT_EQ(document.value(), *Map("value", "old"));
     document.data().Set(Field("value"), Value("new"));
 
     document = cache_->Get(Key("coll/doc"));
-    EXPECT_THAT(document, MatchesValue(Map("value", "old")));
+    EXPECT_EQ(document.value(), *Map("value", "old"));
   });
 }
 // MARK: - Helpers
 
 MutableDocument RemoteDocumentCacheTest::SetTestDocument(
     absl::string_view path,
-    google_firestore_v1_Value data,
+    Message<google_firestore_v1_Value> data,
     int update_time,
     int read_time) {
-  MutableDocument doc = Doc(path, update_time, data);
+  MutableDocument doc = Doc(path, update_time, std::move(data));
   cache_->Add(doc, Version(read_time));
   return doc;
 }
@@ -289,17 +283,17 @@ MutableDocument RemoteDocumentCacheTest::SetTestDocument(
 MutableDocument RemoteDocumentCacheTest::SetTestDocument(absl::string_view path,
                                                          int update_time,
                                                          int read_time) {
-  return SetTestDocument(path, DeepClone(kDocData), update_time, read_time);
+  return SetTestDocument(path, Map("a", 1, "b", 2), update_time, read_time);
 }
 
 MutableDocument RemoteDocumentCacheTest::SetTestDocument(
-    absl::string_view path, google_firestore_v1_Value data) {
-  return SetTestDocument(path, data, kVersion, kVersion);
+    absl::string_view path, Message<google_firestore_v1_Value> data) {
+  return SetTestDocument(path, std::move(data), kVersion, kVersion);
 }
 
 MutableDocument RemoteDocumentCacheTest::SetTestDocument(
     const absl::string_view path) {
-  return SetTestDocument(path, DeepClone(kDocData), kVersion, kVersion);
+  return SetTestDocument(path, Map("a", 1, "b", 2), kVersion, kVersion);
 }
 
 void RemoteDocumentCacheTest::SetAndReadTestDocument(
