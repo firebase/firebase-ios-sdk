@@ -39,7 +39,7 @@ jobs:
           pr_branch: ${{ github.event.pull_request.head.ref }}
         run: |
           if [ ! -z "${{ env.METRICS_SERVICE_SECRET }}"  ]; then
-          ./scripts/code_coverage_report/get_updated_files.sh
+            ./scripts/code_coverage_report/get_updated_files.sh
           fi
 
   pod-lib-lint-abtesting:
@@ -282,13 +282,12 @@ jobs:
       - name: Compare Diff and Post a Report
         if: github.event.pull_request.merged != true && github.event.action != 'closed' && env.METRICS_SERVICE_SECRET != ''
         env:
-          base_commit: ${{ needs.check.outputs.base_commit }}
+          base_commit: ${{ ${{ github.event.pull_request.base.sha }} }}
         run: |
           # Get Head commit of the branch, instead of a merge commit created by actions/checkout.
-          GITHUB_SHA=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.head.sha)
           if [ -d "${{steps.download.outputs.download-path}}" ]; then
-          cd scripts/code_coverage_report/generate_code_coverage_report
-          swift run CoverageReportGenerator --presubmit "firebase/firebase-ios-sdk" --head-commit "${GITHUB_SHA}" --token $(gcloud auth print-identity-token) --xcresult-dir "/Users/runner/test/codecoverage" --log-link "https://github.com/firebase/firebase-ios-sdk/actions/runs/${GITHUB_RUN_ID}" --pull-request-num ${{github.event.pull_request.number}} --base-commit "$base_commit"
+            cd scripts/code_coverage_report/generate_code_coverage_report
+            swift run CoverageReportGenerator --presubmit "firebase/firebase-ios-sdk" --head-commit "${GITHUB_SHA}" --token $(gcloud auth print-identity-token) --xcresult-dir "/Users/runner/test/codecoverage" --log-link "https://github.com/firebase/firebase-ios-sdk/actions/runs/${GITHUB_RUN_ID}" --pull-request-num ${{github.event.pull_request.number}} --base-commit "$base_commit"
           fi
       - name: Incremental Code Coverage
         if: github.event.pull_request.merged != true && github.event.action != 'closed'
@@ -319,6 +318,6 @@ jobs:
         if: github.event.pull_request.merged && env.METRICS_SERVICE_SECRET != ''
         run: |
           if [ -d "${{steps.download.outputs.download-path}}" ]; then
-          cd scripts/code_coverage_report/generate_code_coverage_report
-          swift run CoverageReportGenerator --merge "firebase/firebase-ios-sdk" --head-commit "${GITHUB_SHA}" --token $(gcloud auth print-identity-token) --xcresult-dir "/Users/runner/test/codecoverage" --log-link "https://github.com/firebase/firebase-ios-sdk/actions/runs/${GITHUB_RUN_ID}" --source-branch "${{ github.base_ref }}"
+            cd scripts/code_coverage_report/generate_code_coverage_report
+            swift run CoverageReportGenerator --merge "firebase/firebase-ios-sdk" --head-commit "${GITHUB_SHA}" --token $(gcloud auth print-identity-token) --xcresult-dir "/Users/runner/test/codecoverage" --log-link "https://github.com/firebase/firebase-ios-sdk/actions/runs/${GITHUB_RUN_ID}" --source-branch "${{ github.base_ref }}"
           fi
