@@ -5,7 +5,7 @@
 
 Pod::Spec.new do |s|
   s.name                    = 'FirebaseFirestoreSwift'
-  s.version                 = '8.2.0-beta'
+  s.version                 = '8.3.0-beta'
   s.summary                 = 'Swift Extensions for Google Cloud Firestore'
 
   s.description      = <<-DESC
