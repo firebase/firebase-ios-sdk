@@ -16,19 +16,25 @@
 
 #import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorage.h"
 
+#import "FirebaseAppCheck/Sources/Interop/FIRAppCheckInterop.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "Interop/Auth/Public/FIRAuthInterop.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
+/** A NSMutableDictionary of FirebaseApp name and bucket names to FIRStorage  instance. */
+typedef NSMutableDictionary<NSString *, FIRStorage *> FIRStorageDictionary;
+
 @interface FIRStorage ()
 // Surface the internal initializer to create instances of FIRStorage.
 - (instancetype)initWithApp:(FIRApp *)app
                      bucket:(NSString *)bucket
-                       auth:(nullable id<FIRAuthInterop>)auth;
+                       auth:(nullable id<FIRAuthInterop>)auth
+                   appCheck:(nullable id<FIRAppCheckInterop>)appCheck;
 @end
 
 @interface FIRStorageComponent () <FIRLibrary>
+@property(nonatomic) FIRStorageDictionary *instances;
 /// Internal initializer.
 - (instancetype)initWithApp:(FIRApp *)app;
 @end
@@ -41,6 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
   self = [super init];
   if (self) {
     _app = app;
+    _instances = [NSMutableDictionary dictionary];
   }
   return self;
 }
@@ -58,6 +65,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                       isRequired:NO];
   FIRComponentCreationBlock creationBlock =
       ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
+    *isCacheable = YES;
     return [[FIRStorageComponent alloc] initWithApp:container.app];
   };
   FIRComponent *storageProvider =
@@ -72,9 +80,21 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - FIRStorageInstanceProvider Conformance
 
 - (FIRStorage *)storageForBucket:(NSString *)bucket {
-  // Create an instance of FIRStorage and return it.
-  id<FIRAuthInterop> auth = FIR_COMPONENT(FIRAuthInterop, self.app.container);
-  return [[FIRStorage alloc] initWithApp:self.app bucket:bucket auth:auth];
+  FIRStorageDictionary *instances = [self instances];
+  @synchronized(instances) {
+    FIRStorage *instance = instances[bucket];
+    if (!instance) {
+      // Create an instance of FIRStorage and return it.
+      id<FIRAuthInterop> auth = FIR_COMPONENT(FIRAuthInterop, self.app.container);
+      id<FIRAppCheckInterop> appCheck = FIR_COMPONENT(FIRAppCheckInterop, self.app.container);
+      instance = [[FIRStorage alloc] initWithApp:self.app
+                                          bucket:bucket
+                                            auth:auth
+                                        appCheck:appCheck];
+      instances[bucket] = instance;
+    }
+    return instance;
+  }
 }
 
 @end

@@ -23,6 +23,15 @@ macro(podspec_version VARIABLE PODSPEC_FILE)
     OUTPUT_VARIABLE ${VARIABLE}
     OUTPUT_STRIP_TRAILING_WHITESPACE
   )
+  if(${VARIABLE} STREQUAL "")
+    message(
+      FATAL_ERROR
+      "Running the sed script ${PROJECT_SOURCE_DIR}/cmake/podspec_version.sed \
+      on file ${PODSPEC_FILE} failed; ensure that the `sed` executable is \
+      installed and that its directory is present in the PATH environment \
+      variable."
+    )
+  endif()
 endmacro()
 
 macro(firebase_version VARIABLE PODSPEC_FILE)
@@ -34,6 +43,15 @@ macro(firebase_version VARIABLE PODSPEC_FILE)
     OUTPUT_VARIABLE ${VARIABLE}
     OUTPUT_STRIP_TRAILING_WHITESPACE
   )
+  if(${VARIABLE} STREQUAL "")
+    message(
+      FATAL_ERROR
+      "Running the sed script ${PROJECT_SOURCE_DIR}/cmake/firebase_version.sed \
+      on file ${PODSPEC_FILE} failed; ensure that the `sed` executable is \
+      installed and that its directory is present in the PATH environment \
+      variable."
+    )
+  endif()
 endmacro()
 
 function(podspec_prep_headers FRAMEWORK_NAME)

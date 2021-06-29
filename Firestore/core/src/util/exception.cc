@@ -52,17 +52,23 @@ ABSL_ATTRIBUTE_NORETURN void DefaultThrowHandler(ExceptionType type,
   }
   absl::StrAppend(&what, message);
 
+  // Always log the error -- it helps if there are any issues with the exception
+  // propagation mechanism and also makes sure the exception makes it into the
+  // log regardless of how it's handled.
+  LOG_ERROR("%s", what);
+
 #if ABSL_HAVE_EXCEPTIONS
   switch (type) {
     case ExceptionType::AssertionFailure:
       throw FirestoreInternalError(what);
     case ExceptionType::IllegalState:
-      throw std::logic_error(what);
+      // Omit descriptive text since the type already encodes the kind of error.
+      throw std::logic_error(message);
     case ExceptionType::InvalidArgument:
-      throw std::invalid_argument(what);
+      // Omit descriptive text since the type already encodes the kind of error.
+      throw std::invalid_argument(message);
   }
 #else
-  LOG_ERROR("%s", what);
   std::terminate();
 #endif
 

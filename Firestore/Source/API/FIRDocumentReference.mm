@@ -59,7 +59,6 @@ using firebase::firestore::core::ParsedSetData;
 using firebase::firestore::core::ParsedUpdateData;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::ResourcePath;
-using firebase::firestore::util::Status;
 using firebase::firestore::util::StatusOr;
 using firebase::firestore::util::StatusOrCallback;
 using firebase::firestore::util::ThrowInvalidArgument;
@@ -129,6 +128,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (FIRCollectionReference *)collectionWithPath:(NSString *)collectionPath {
   if (!collectionPath) {
     ThrowInvalidArgument("Collection path cannot be nil.");
+  }
+  if (!collectionPath.length) {
+    ThrowInvalidArgument("Collection path cannot be empty.");
   }
 
   CollectionReference child =

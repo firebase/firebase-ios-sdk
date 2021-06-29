@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/util/log.h"
 
+#include <atomic>
 #include <cstdio>
 #include <string>
 
@@ -26,7 +27,7 @@ namespace firestore {
 namespace util {
 namespace {
 
-LogLevel g_log_level = kLogLevelNotice;
+std::atomic<LogLevel> g_log_level(kLogLevelNotice);
 
 }  // namespace
 

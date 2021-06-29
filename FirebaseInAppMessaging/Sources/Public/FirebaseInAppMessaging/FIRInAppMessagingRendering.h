@@ -164,6 +164,13 @@ NS_SWIFT_NAME(InAppMessagingDisplayMessage)
 /// Unavailable.
 - (instancetype)init NS_UNAVAILABLE;
 
+/// Exposed for unit testing only. Don't instantiate this in your app directly.
+- (instancetype)initWithMessageID:(NSString *)messageID
+                     campaignName:(NSString *)campaignName
+              renderAsTestMessage:(BOOL)renderAsTestMessage
+                      messageType:(FIRInAppMessagingDisplayMessageType)messageType
+                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType;
+
 @end
 
 NS_SWIFT_NAME(InAppMessagingCardDisplay)

@@ -1,3 +1,15 @@
+# 8.3.0
+- [changed] Removed usage of a deprecated GTMSessionFetcher method (#8294).
+
+# 8.2.0
+- [changed] Instances are now cached. Repeated invocations of `Storage.storage()`
+  return the same instance and retain the same settings.
+
+# 8.0.0
+- [added] Added `FirebaseStorage.useEmulator()`, which allows the Storage SDK to
+  connect to the Cloud Storage for Firebase emulator.
+- [added] Added abuse reduction features. (#7928)
+
 # 7.4.0
 - [fixed] Prevent second `listAll` callback. (#7197)
 

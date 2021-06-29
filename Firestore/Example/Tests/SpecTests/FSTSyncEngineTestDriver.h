@@ -23,7 +23,10 @@
 #include <utility>
 #include <vector>
 
+#include "Firestore/core/src/api/load_bundle_task.h"
 #include "Firestore/core/src/auth/user.h"
+#include "Firestore/core/src/bundle/bundle_reader.h"
+#include "Firestore/core/src/core/database_info.h"
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/core/view_snapshot.h"
 #include "Firestore/core/src/model/model_fwd.h"
@@ -44,20 +47,18 @@ class TargetData;
 }  // namespace firestore
 }  // namespace firebase
 
+namespace api = firebase::firestore::api;
 namespace auth = firebase::firestore::auth;
+namespace bundle = firebase::firestore::bundle;
 namespace core = firebase::firestore::core;
 namespace local = firebase::firestore::local;
 namespace model = firebase::firestore::model;
-namespace nanopb = firebase::firestore::nanopb;
 namespace remote = firebase::firestore::remote;
 namespace util = firebase::firestore::util;
 
 // A map holds expected information about currently active targets. The keys are
-// target ID, and the values are a vector of `TargetData`s mapped to the target and
-// the target's resume token.
-using ActiveTargetMap =
-    std::unordered_map<model::TargetId,
-                       std::pair<std::vector<local::TargetData>, nanopb::ByteString>>;
+// target ID, and the values are a vector of `TargetData`s mapped to the target.
+using ActiveTargetMap = std::unordered_map<model::TargetId, std::vector<local::TargetData>>;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -157,6 +158,17 @@ typedef std::unordered_map<auth::User, NSMutableArray<FSTOutstandingWrite *> *, 
  * @param query An identical query corresponding to one passed to -addUserListenerWithQuery.
  */
 - (void)removeUserListenerWithQuery:(const core::Query &)query;
+
+/**
+ * Loads a Firestore bundle captured in `reader` into the local storage.
+ *
+ * Resulting events are captured and made available via the capturedEventsSinceLastCall method.
+ *
+ * @param reader An object to read from the underlying input stream of the bundle.
+ * @param task An object to report loading progress and result.
+ */
+- (void)loadBundleWithReader:(std::shared_ptr<bundle::BundleReader>)reader
+                        task:(std::shared_ptr<api::LoadBundleTask>)task;
 
 /**
  * Delivers a WatchChange RPC to the FSTSyncEngine as if it were received from the backend watch
@@ -327,6 +339,11 @@ typedef std::unordered_map<auth::User, NSMutableArray<FSTOutstandingWrite *> *, 
  * The number of waitForPendingWrites events that have been received.
  */
 @property(nonatomic, readonly) int waitForPendingWritesEvents;
+
+/**
+ * The DatabaseInfo of the Firestore instance.
+ */
+@property(nonatomic, readonly) const core::DatabaseInfo &databaseInfo;
 
 - (void)incrementWaitForPendingWritesEvents;
 

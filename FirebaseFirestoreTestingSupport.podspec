@@ -39,7 +39,7 @@ Pod::Spec.new do |s|
 
   s.public_header_files = base_dir + '**/*.h'
 
-  s.dependency 'FirebaseFirestore', '~> 7.7'
+  s.dependency 'FirebaseFirestore', '~> 8.0'
 
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',

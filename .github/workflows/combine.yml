@@ -34,29 +34,10 @@ on:
     - cron:  '0 7 * * *'
 
 jobs:
-  check:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-latest
-    steps:
-    - uses: actions/checkout@v2
-
-    - uses: actions/setup-python@v2
-      with:
-        python-version: 3.6
-
-    - name: Setup check
-      run:  scripts/setup_check.sh
-
-    - name: Run check
-      run:  scripts/check.sh --test-only
-
-
   xcodebuild:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     runs-on: macos-latest
-    needs: check
 
     strategy:
       matrix:
@@ -70,3 +51,27 @@ jobs:
 
     - name: Build and test
       run:  scripts/third_party/travis/retry.sh scripts/build.sh CombineSwift ${{ matrix.target }} xcodebuild
+
+  storage-combine-integration:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+    env:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Install Secret GoogleService-Info.plist
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/storage-db-plist.gpg \
+          FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
+    - name: Install Credentials.h
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Storage/Credentials.h.gpg \
+          FirebaseStorage/Tests/Integration/Credentials.h "$plist_secret"
+    - name: Install Credentials.swift
+      run: |
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Storage/Credentials.swift.gpg \
+          FirebaseStorage/Tests/SwiftIntegration/Credentials.swift "$plist_secret"
+        cp FirebaseStorage/Tests/SwiftIntegration/Credentials.swift FirebaseStorageSwift/Tests/Integration/
+    - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/build.sh StorageCombine all)

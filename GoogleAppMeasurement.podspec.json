@@ -1,12 +1,13 @@
 {
     "authors": "Google, Inc.",
     "cocoapods_version": ">= 1.10.0",
+    "default_subspecs": "AdIdSupport",
     "dependencies": {
-        "GoogleUtilities/AppDelegateSwizzler": "~> 7.0",
-        "GoogleUtilities/MethodSwizzler": "~> 7.0",
-        "GoogleUtilities/NSData+zlib": "~> 7.0",
-        "GoogleUtilities/Network": "~> 7.0",
-        "nanopb": "~> 2.30907.0"
+        "GoogleUtilities/AppDelegateSwizzler": "~> 7.4",
+        "GoogleUtilities/MethodSwizzler": "~> 7.4",
+        "GoogleUtilities/NSData+zlib": "~> 7.4",
+        "GoogleUtilities/Network": "~> 7.4",
+        "nanopb": "~> 2.30908.0"
     },
     "description": "Measurement methods that are shared between Google libraries. This pod does not expose any headers and isn't intended for direct use, but rather as a dependency of some Google libraries.",
     "frameworks": [
@@ -27,11 +28,22 @@
         "ios": "9.0"
     },
     "source": {
-        "http": "https://dl.google.com/firebase/ios/analytics/dd73505ba4c0ab88/GoogleAppMeasurement-7.5.0.tar.gz"
+        "http": "https://dl.google.com/firebase/ios/analytics/2962dad7aa0f51fb/GoogleAppMeasurement-8.1.1.tar.gz"
     },
-    "summary": "Shared measurement methods for Google libraries. Not intended for direct use.",
-    "vendored_frameworks": [
-        "Frameworks/GoogleAppMeasurement.xcframework"
+    "subspecs": [
+        {
+            "name": "AdIdSupport",
+            "vendored_frameworks": [
+                "Frameworks/GoogleAppMeasurement.xcframework"
+            ]
+        },
+        {
+            "name": "WithoutAdIdSupport",
+            "vendored_frameworks": [
+                "Frameworks/GoogleAppMeasurementWithoutAdIdSupport.xcframework"
+            ]
+        }
     ],
-    "version": "7.7.0"
+    "summary": "Shared measurement methods for Google libraries. Not intended for direct use.",
+    "version": "8.3.0"
 }

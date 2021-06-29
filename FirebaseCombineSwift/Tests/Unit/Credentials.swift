@@ -21,4 +21,5 @@ enum Credentials {
   static let clientID = "123456.apps.googleusercontent.com"
   static let bundleID = "org.cocoapods-generate.App-iOS"
   static let projectID = "fir-combinesample"
+  static let bucket = "bucket"
 }

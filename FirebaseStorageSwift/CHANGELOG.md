@@ -1,5 +1,3 @@
-# Unreleased
-
 # v0.1
 - Initial public beta release. Extends the Storage Reference API with the Swift
   Result type for all APIs that return an optional value and optional Error.

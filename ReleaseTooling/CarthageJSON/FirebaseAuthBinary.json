@@ -58,9 +58,15 @@
   "6.9.0": "https://dl.google.com/dl/firebase/ios/carthage/6.9.0/Auth-af61df0a74e5c3bd.zip",
   "7.0.0": "https://dl.google.com/dl/firebase/ios/carthage/7.0.0/FirebaseAuth-5e3de37f95a24442.zip",
   "7.1.0": "https://dl.google.com/dl/firebase/ios/carthage/7.1.0/FirebaseAuth-d36520d4c6c4b4f7.zip",
+  "7.10.0": "https://dl.google.com/dl/firebase/ios/carthage/7.10.0/FirebaseAuth-60ef6ae4d943953f.zip",
+  "7.11.0": "https://dl.google.com/dl/firebase/ios/carthage/7.11.0/FirebaseAuth-6cdf5031e31121ae.zip",
   "7.3.0": "https://dl.google.com/dl/firebase/ios/carthage/7.3.0/FirebaseAuth-338fdd0ab2737c5a.zip",
   "7.4.0": "https://dl.google.com/dl/firebase/ios/carthage/7.4.0/FirebaseAuth-6a2bf412add004e4.zip",
   "7.5.0": "https://dl.google.com/dl/firebase/ios/carthage/7.5.0/FirebaseAuth-9c0d43a1be8a09ac.zip",
   "7.6.0": "https://dl.google.com/dl/firebase/ios/carthage/7.6.0/FirebaseAuth-5910ec72c7d625c4.zip",
-  "7.7.0": "https://dl.google.com/dl/firebase/ios/carthage/7.7.0/FirebaseAuth-d73c5a44b4e92631.zip"
+  "7.7.0": "https://dl.google.com/dl/firebase/ios/carthage/7.7.0/FirebaseAuth-d73c5a44b4e92631.zip",
+  "7.8.0": "https://dl.google.com/dl/firebase/ios/carthage/7.8.0/FirebaseAuth-d72f822f48030396.zip",
+  "8.0.0": "https://dl.google.com/dl/firebase/ios/carthage/8.0.0/FirebaseAuth-a7045e1dd08c2918.zip",
+  "8.1.0": "https://dl.google.com/dl/firebase/ios/carthage/8.1.0/FirebaseAuth-400dab18fa5a8237.zip",
+  "8.2.0": "https://dl.google.com/dl/firebase/ios/carthage/8.2.0/FirebaseAuth-6deac3b6aa6f393b.zip"
 }

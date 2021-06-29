@@ -18,6 +18,8 @@
 #define FIRESTORE_CORE_SRC_TIMESTAMP_INTERNAL_H_
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
+#include "Firestore/core/src/util/statusor.h"
+#include "absl/time/time.h"
 
 namespace firebase {
 
@@ -42,6 +44,11 @@ class TimestampInternal {
   static firebase::Timestamp Min() {
     return {-62135596800L, 0};
   }
+
+  static firestore::util::StatusOr<firebase::Timestamp> FromUntrustedTime(
+      absl::Time time);
+  static firestore::util::StatusOr<firebase::Timestamp>
+  FromUntrustedSecondsAndNanos(int64_t seconds, int32_t nanos);
 
   static size_t Hash(const Timestamp& timestamp);
 

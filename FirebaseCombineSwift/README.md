@@ -2,6 +2,8 @@
 
 This module contains Combine support for Firebase APIs.
 
+**Note**: This feature is under development and not yet supported for use in production environments. You can follow development on the [project tracker](https://github.com/firebase/firebase-ios-sdk/projects/3)
+
 ## Installation
 
 <details><summary>CocoaPods</summary>

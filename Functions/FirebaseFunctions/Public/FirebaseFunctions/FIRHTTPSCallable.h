@@ -24,8 +24,6 @@ NS_SWIFT_NAME(HTTPSCallableResult)
 
 - (id)init NS_UNAVAILABLE;
 
-- (instancetype)initWithData:(id)result;
-
 /**
  * The data that was returned from the Callable HTTPS trigger.
  *

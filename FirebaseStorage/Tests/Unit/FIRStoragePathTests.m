@@ -36,6 +36,12 @@
   XCTAssertEqualObjects(path.object, @"path/to/object");
 }
 
+- (void)testEmulatorURL {
+  FIRStoragePath *path = [FIRStoragePath pathFromString:@"http://localhost:8070/v0/b/bucket"];
+  XCTAssertEqualObjects(path.bucket, @"bucket");
+  XCTAssertNil(path.object);
+}
+
 - (void)testGSURINoPath {
   FIRStoragePath *path = [FIRStoragePath pathFromString:@"gs://bucket/"];
   XCTAssertEqualObjects(path.bucket, @"bucket");
@@ -96,12 +102,12 @@
   XCTAssertThrows([FIRStoragePath pathFromString:ftpURL]);
 }
 
-- (void)testHTTPURLNilIncorrectHost {
-  NSString *httpURL = @"http://foo.google.com/v0/b/bucket/o/%3F/%25/%23?token=signed_url_params";
+- (void)testHTTPURLIncorrectSchema {
+  NSString *httpURL = @"http://foo.google.com/v1/b/bucket/o/%3F/%25/%23?token=signed_url_params";
   XCTAssertThrows([FIRStoragePath pathFromString:httpURL]);
 }
 
-- (void)testchildToRoot {
+- (void)testChildToRoot {
   FIRStoragePath *path = [[FIRStoragePath alloc] initWithBucket:@"bucket" object:nil];
   FIRStoragePath *childPath = [path child:@"object"];
   XCTAssertEqualObjects([childPath stringValue], @"gs://bucket/object");

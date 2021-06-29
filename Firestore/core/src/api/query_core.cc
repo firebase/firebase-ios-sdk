@@ -35,6 +35,7 @@
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/util/exception.h"
 #include "absl/algorithm/container.h"
+#include "absl/strings/match.h"
 
 namespace firebase {
 namespace firestore {
@@ -382,7 +383,7 @@ void Query::ValidateDisjunctiveFilterElements(
   HARD_ASSERT(
       field_value.type() == FieldValue::Type::Array,
       "A FieldValue of Array type is required for disjunctive filters.");
-  if (field_value.array_value().size() == 0) {
+  if (field_value.array_value().empty()) {
     ThrowInvalidArgument(
         "Invalid Query. A non-empty array is required for '%s'"
         " filters.",
@@ -407,7 +408,7 @@ FieldValue Query::ParseExpectedReferenceValue(
           "valid document ID, but it was an empty string.");
     }
     if (!query().IsCollectionGroupQuery() &&
-        document_key.find('/') != std::string::npos) {
+        absl::StrContains(document_key, "/")) {
       ThrowInvalidArgument(
           "Invalid query. When querying a collection by document ID you must "
           "provide a plain document ID, but '%s' contains a '/' character.",

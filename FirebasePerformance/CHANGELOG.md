@@ -1,4 +1,12 @@
-# Unreleased
+# Version 8.2.0
+* Update log messages with proper log levels.
+* Fix empty values in `network_info.request_completed_time_us` field from the [data schema](https://firebase.google.com/docs/perf-mon/bigquery-export#detailed_data_schema).
+* Fix a crash on FPRSessionDetails. (#8139)
+
+# Version 8.1.0
+* Firebase Performance logs now contain URLs to see the performance data on the Firebase console.
+
+# Version 7.8.0
 * Deprecate Clearcut event transport mechanism.
 * Enable dynamic framework support. (#7569)
 * Remove the warning to include Firebase Analytics as Perf does not depend on Analytics (#7487)

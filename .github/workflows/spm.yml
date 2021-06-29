@@ -5,7 +5,8 @@ on:
     paths:
     - '.github/workflows/spm.yml'
     - 'Package.swift'
-    - 'Gemfile'
+    - '.swiftpm/*'
+    - 'Gemfile*'
   schedule:
     # Run every day at 12am (PST) - cron uses UTC times
     - cron:  '0 8 * * *'
@@ -20,28 +21,40 @@ jobs:
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Xcode 12
-      run: sudo xcode-select -s /Applications/Xcode_12.app/Contents/Developer
     - name: Initialize xcodebuild
-      run: xcodebuild -list
+      run: scripts/setup_spm_tests.sh
     - name: iOS Unit Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh Firebase-Package iOS spm
 
-  cron-only:
-    # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+  # Test iOS Device build since some Firestore dependencies build different files.
+  iOS-Device:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Initialize xcodebuild
+      run: scripts/setup_spm_tests.sh
+    - name: iOS Unit Tests
+      # TODO (#7785) Change to Firebase-Package when #7785 is resolved.
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestoreSwift-Beta iOS-device spmbuildonly
+
+  platforms:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
 
     runs-on: macOS-latest
     strategy:
       matrix:
         target: [tvOS, macOS, catalyst]
         # Full set of Firebase-Package tests only run on iOS because of Analytics.
-        test: [objc-import-test, swift-test, version-test]
     steps:
     - uses: actions/checkout@v2
-    - name: Xcode 12
-      run: sudo xcode-select -s /Applications/Xcode_12.app/Contents/Developer
     - name: Initialize xcodebuild
-      run: xcodebuild -list
-    - name: Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh ${{ matrix.test }} ${{ matrix.target }} spm
+      run: scripts/setup_spm_tests.sh
+    - name: Objc Import Tests
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh objc-import-test ${{ matrix.target }} spm
+    - name: Swift Tests
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh swift-test ${{ matrix.target }} spm
+    - name: Version Tests
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh version-test ${{ matrix.target }} spm

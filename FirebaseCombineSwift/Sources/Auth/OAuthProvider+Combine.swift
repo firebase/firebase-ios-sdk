@@ -14,29 +14,38 @@
 
 #if canImport(Combine) && swift(>=5.0) && canImport(FirebaseAuth)
 
-  import Combine
-  import FirebaseAuth
+  #if os(iOS) || targetEnvironment(macCatalyst)
 
-  @available(swift 5.0)
-  @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
-  extension OAuthProvider {
-    /// Used to obtain an auth credential via a mobile web flow.
-    ///
-    /// The publisher will emit events on the **main** thread.
-    ///
-    /// - Parameter uiDelegate: An optional UI delegate used to presenet the mobile web flow.
-    /// - Returns: A publisher that emits an `AuthCredential` when the credential is obtained
-    ///   successfully, or an error otherwise. The publisher will emit on the *main* thread.
-    public func getCredentialWith(_ uiDelegate: AuthUIDelegate?) -> Future<AuthCredential, Error> {
-      Future<AuthCredential, Error> { promise in
-        self.getCredentialWith(uiDelegate) { authCredential, error in
-          if let error = error {
-            promise(.failure(error))
-          } else if let authCredential = authCredential {
-            promise(.success(authCredential))
+    import Combine
+    import FirebaseAuth
+
+    @available(swift 5.0)
+    @available(iOS 13.0, macCatalyst 13.0, *)
+    @available(macOS, unavailable)
+    @available(tvOS, unavailable)
+    @available(watchOS, unavailable)
+    extension OAuthProvider {
+      /// Used to obtain an auth credential via a mobile web flow.
+      ///
+      /// The publisher will emit events on the **main** thread.
+      ///
+      /// - Parameter uiDelegate: An optional UI delegate used to presenet the mobile web flow.
+      /// - Returns: A publisher that emits an `AuthCredential` when the credential is obtained
+      ///   successfully, or an error otherwise. The publisher will emit on the *main* thread.
+      public func getCredentialWith(_ uiDelegate: AuthUIDelegate?)
+        -> Future<AuthCredential, Error> {
+        Future<AuthCredential, Error> { promise in
+          self.getCredentialWith(uiDelegate) { authCredential, error in
+            if let error = error {
+              promise(.failure(error))
+            } else if let authCredential = authCredential {
+              promise(.success(authCredential))
+            }
           }
         }
       }
     }
-  }
-#endif
+
+  #endif // os(iOS) || targetEnvironment(macCatalyst)
+
+#endif // canImport(Combine) && swift(>=5.0) && canImport(FirebaseAuth)

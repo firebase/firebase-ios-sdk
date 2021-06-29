@@ -65,6 +65,8 @@ extern NSString *const FIRAuthErrorUserInfoEmailKey NS_SWIFT_NAME(AuthErrorUserI
         NSError object returned. This is the updated auth credential the developer should use for
         recovery if applicable.
  */
+// clang-format off
+// clang-format12 will merge lines and exceed 100 character limit.
 extern NSString *const FIRAuthErrorUserInfoUpdatedCredentialKey
     NS_SWIFT_NAME(AuthErrorUserInfoUpdatedCredentialKey);
 
@@ -74,6 +76,7 @@ extern NSString *const FIRAuthErrorUserInfoUpdatedCredentialKey
  */
 extern NSString *const FIRAuthErrorUserInfoMultiFactorResolverKey
     NS_SWIFT_NAME(AuthErrorUserInfoMultiFactorResolverKey);
+// clang-format on
 
 /**
     @brief Error codes used by Firebase Auth.

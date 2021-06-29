@@ -1,3 +1,15 @@
+# 2021-6 -- v.8.2.0
+- [fixed] Fixed missing constraints warnings in default UI storyboard (#8205).
+
+# 2021-6 -- v.8.1.0
+- [fixed] Fixed bug where image-only messages had the wrong message type in message callbacks (#8081).
+
+# 2021-4 -- v.7.11.0
+- [fixed] Fixed SPM resource inclusion for in-app messages (#7715).
+
+# 2021-3 -- v.7.9.0
+- [added] Added support for building custom in-app messages with SwiftUI (#7496).
+
 # 2021-2 -- v.7.7.0
 - [fixed] Fixed accessibility experience for in-app messages (#7445).
 - [fixed] Fixed conversion tracking for in-app messages with a conversion event but not a button / action URL (#7306).

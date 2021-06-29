@@ -128,7 +128,8 @@ static BOOL SEGCreateFilePathIfNotExist(NSString *filePath) {
         SEGAddSkipBackupAttributeToItemAtPath(dbPath);
 
         // Read the database into memory.
-        NSDictionary<NSString *, NSString *> *associations = [self loadMainTable];
+        NSDictionary<NSString *, NSDictionary<NSString *, NSString *> *> *associations =
+            [self loadMainTable];
         completionHandler(YES, associations);
 
       } else {
@@ -177,7 +178,7 @@ static BOOL SEGCreateFilePathIfNotExist(NSString *filePath) {
 
 #pragma mark - Private Methods
 
-- (NSDictionary *)loadMainTable {
+- (NSDictionary<NSString *, NSDictionary<NSString *, NSString *> *> *)loadMainTable {
   NSString *SQLQuery = [NSString
       stringWithFormat:@"SELECT %@, %@, %@, %@ FROM %@", kMainTableColumnApplicationIdentifier,
                        kMainTableColumnCustomInstallationIdentifier,

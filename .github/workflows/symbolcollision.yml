@@ -7,7 +7,7 @@ on:
     paths:
     - '.github/workflows/symbolcollision.yml'
     - 'SymbolCollisionTest/**'
-    - 'Gemfile'
+    - 'Gemfile*'
   schedule:
     # Run every day at 12am (PST) - cron uses UTC times
     - cron:  '0 8 * * *'

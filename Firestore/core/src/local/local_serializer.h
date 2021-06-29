@@ -29,6 +29,9 @@
 namespace firebase {
 namespace firestore {
 
+typedef struct _firestore_BundleMetadata firestore_BundleMetadata;
+typedef struct _firestore_BundledQuery firestore_BundledQuery;
+typedef struct _firestore_NamedQuery firestore_NamedQuery;
 typedef struct _firestore_client_MaybeDocument firestore_client_MaybeDocument;
 typedef struct _firestore_client_NoDocument firestore_client_NoDocument;
 typedef struct _firestore_client_Target firestore_client_Target;
@@ -43,6 +46,14 @@ class Message;
 class Reader;
 class Writer;
 }  // namespace nanopb
+
+namespace bundle {
+
+class BundleMetadata;
+class BundledQuery;
+class NamedQuery;
+
+}  // namespace bundle
 
 namespace local {
 
@@ -120,6 +131,16 @@ class LocalSerializer {
   model::SnapshotVersion DecodeVersion(
       nanopb::Reader* reader, const google_protobuf_Timestamp& proto) const;
 
+  nanopb::Message<firestore_BundleMetadata> EncodeBundle(
+      const bundle::BundleMetadata& metadata) const;
+  bundle::BundleMetadata DecodeBundle(
+      nanopb::Reader* reader, const firestore_BundleMetadata& proto) const;
+
+  nanopb::Message<firestore_NamedQuery> EncodeNamedQuery(
+      const bundle::NamedQuery& query) const;
+  bundle::NamedQuery DecodeNamedQuery(nanopb::Reader* reader,
+                                      const firestore_NamedQuery& proto) const;
+
  private:
   /**
    * Encodes a Document for local storage. This differs from the v1 RPC
@@ -144,6 +165,11 @@ class LocalSerializer {
   model::UnknownDocument DecodeUnknownDocument(
       nanopb::Reader* reader,
       const firestore_client_UnknownDocument& proto) const;
+
+  firestore_BundledQuery EncodeBundledQuery(
+      const bundle::BundledQuery& query) const;
+  bundle::BundledQuery DecodeBundledQuery(
+      nanopb::Reader* reader, const firestore_BundledQuery& query) const;
 
   remote::Serializer rpc_serializer_;
 };

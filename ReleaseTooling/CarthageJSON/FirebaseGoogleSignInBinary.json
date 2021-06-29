@@ -35,9 +35,15 @@
   "6.9.0": "https://dl.google.com/dl/firebase/ios/carthage/6.9.0/GoogleSignIn-7c21935a192f5c74.zip",
   "7.0.0": "https://dl.google.com/dl/firebase/ios/carthage/7.0.0/GoogleSignIn-e256d1a10681f620.zip",
   "7.1.0": "https://dl.google.com/dl/firebase/ios/carthage/7.1.0/GoogleSignIn-33907db149de6bc0.zip",
+  "7.10.0": "https://dl.google.com/dl/firebase/ios/carthage/7.10.0/GoogleSignIn-5eb2dbc7e6d57f6c.zip",
+  "7.11.0": "https://dl.google.com/dl/firebase/ios/carthage/7.11.0/GoogleSignIn-c17c7b6d4d4df2f2.zip",
   "7.3.0": "https://dl.google.com/dl/firebase/ios/carthage/7.3.0/GoogleSignIn-5add42b469732754.zip",
   "7.4.0": "https://dl.google.com/dl/firebase/ios/carthage/7.4.0/GoogleSignIn-cc01bf0dd89f665e.zip",
   "7.5.0": "https://dl.google.com/dl/firebase/ios/carthage/7.5.0/GoogleSignIn-1636a9ad3669f722.zip",
   "7.6.0": "https://dl.google.com/dl/firebase/ios/carthage/7.6.0/GoogleSignIn-78819bde13bd6479.zip",
-  "7.7.0": "https://dl.google.com/dl/firebase/ios/carthage/7.7.0/GoogleSignIn-d5dff491eaf67a7e.zip"
+  "7.7.0": "https://dl.google.com/dl/firebase/ios/carthage/7.7.0/GoogleSignIn-d5dff491eaf67a7e.zip",
+  "7.8.0": "https://dl.google.com/dl/firebase/ios/carthage/7.8.0/GoogleSignIn-209f7fcaf46ef01c.zip",
+  "8.0.0": "https://dl.google.com/dl/firebase/ios/carthage/8.0.0/GoogleSignIn-83c079298ea5200b.zip",
+  "8.1.0": "https://dl.google.com/dl/firebase/ios/carthage/8.1.0/GoogleSignIn-db590326d9b39da8.zip",
+  "8.2.0": "https://dl.google.com/dl/firebase/ios/carthage/8.2.0/GoogleSignIn-33f2e0d85631f6b9.zip"
 }

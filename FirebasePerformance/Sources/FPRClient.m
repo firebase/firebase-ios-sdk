@@ -16,9 +16,11 @@
 #import "FirebasePerformance/Sources/FPRClient+Private.h"
 
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
+#import "FirebasePerformance/Sources/AppActivity/FPRScreenTraceTracker+Private.h"
 #import "FirebasePerformance/Sources/AppActivity/FPRScreenTraceTracker.h"
 #import "FirebasePerformance/Sources/AppActivity/FPRSessionManager+Private.h"
 #import "FirebasePerformance/Sources/AppActivity/FPRTraceBackgroundActivityTracker.h"
+#import "FirebasePerformance/Sources/Common/FPRConsoleURLGenerator.h"
 #import "FirebasePerformance/Sources/Common/FPRConstants.h"
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
 #import "FirebasePerformance/Sources/Configurations/FPRRemoteConfigFlags.h"
@@ -28,6 +30,8 @@
 #import "FirebasePerformance/Sources/Loggers/FPRGDTLogger.h"
 #import "FirebasePerformance/Sources/Timer/FIRTrace+Internal.h"
 #import "FirebasePerformance/Sources/Timer/FIRTrace+Private.h"
+
+#import "FirebasePerformance/Sources/Public/FIRPerformance.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
@@ -107,6 +111,8 @@
     _eventsQueue = dispatch_queue_create("com.google.perf.FPREventsQueue", DISPATCH_QUEUE_SERIAL);
     _eventsQueueGroup = dispatch_group_create();
     _configuration = [FPRConfigurations sharedInstance];
+    _projectID = [FIROptions defaultOptions].projectID;
+    _bundleID = [FIROptions defaultOptions].bundleID;
   }
   return self;
 }
@@ -135,6 +141,15 @@
 
   self.configured = YES;
 
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    FPRLogInfo(kFPRClientInitialize,
+               @"Firebase Performance Monitoring is successfully initialized! In a minute, visit "
+               @"the Firebase console to view your data: %@",
+               [FPRConsoleURLGenerator generateDashboardURLWithProjectID:self.projectID
+                                                                bundleID:self.bundleID]);
+  });
+
   return YES;
 }
 
@@ -161,8 +176,25 @@
       metric.traceMetric = FPRGetTraceMetric(trace);
       metric.applicationInfo.applicationProcessState =
           FPRApplicationProcessState(trace.backgroundTraceState);
-      FPRLogDebug(kFPRClientMetricLogged, @"Logging trace metric - %@ %.4fms",
-                  metric.traceMetric.name, metric.traceMetric.durationUs / 1000.0);
+
+      // Log the trace metric with its console URL.
+      if ([trace.name hasPrefix:kFPRPrefixForScreenTraceName]) {
+        FPRLogInfo(kFPRClientMetricLogged,
+                   @"Logging trace metric - %@ %.4fms. In a minute, visit the Firebase console to "
+                   @"view your data: %@",
+                   metric.traceMetric.name, metric.traceMetric.durationUs / 1000.0,
+                   [FPRConsoleURLGenerator generateScreenTraceURLWithProjectID:self.projectID
+                                                                      bundleID:self.bundleID
+                                                                     traceName:trace.name]);
+      } else {
+        FPRLogInfo(kFPRClientMetricLogged,
+                   @"Logging trace metric - %@ %.4fms. In a minute, visit the Firebase console to "
+                   @"view your data: %@",
+                   metric.traceMetric.name, metric.traceMetric.durationUs / 1000.0,
+                   [FPRConsoleURLGenerator generateCustomTraceURLWithProjectID:self.projectID
+                                                                      bundleID:self.bundleID
+                                                                     traceName:trace.name]);
+      }
       [self processAndLogEvent:metric];
     });
   } else {
@@ -186,9 +218,9 @@
       NSString *responseCode = networkRequestMetric.hasHTTPResponseCode
                                    ? [@(networkRequestMetric.HTTPResponseCode) stringValue]
                                    : @"UNKNOWN";
-      FPRLogDebug(kFPRClientMetricLogged,
-                  @"Logging network request trace - %@, Response code: %@, %.4fms",
-                  networkRequestMetric.URL, responseCode, duration / 1000.0);
+      FPRLogInfo(kFPRClientMetricLogged,
+                 @"Logging network request trace - %@, Response code: %@, %.4fms",
+                 networkRequestMetric.URL, responseCode, duration / 1000.0);
       FPRMSGPerfMetric *metric = FPRGetPerfMetricMessage(self.config.appID);
       metric.networkRequestMetric = networkRequestMetric;
       metric.applicationInfo.applicationProcessState =
