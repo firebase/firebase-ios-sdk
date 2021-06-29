@@ -12,34 +12,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
- #if canImport(Combine) && swift(>=5.0) && canImport(FirebaseFirestore)
+#if canImport(Combine) && swift(>=5.0) && canImport(FirebaseFirestore)
 
-   import Combine
-   import FirebaseFirestore
+  import Combine
+  import FirebaseFirestore
 
-   @available(swift 5.0)
-   @available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
+  @available(swift 5.0)
+  @available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *)
 
-
-   extension WriteBatch {
-
-     /// Commits all of the writes in this write batch as a single atomic unit.
-     ///
-     /// - Returns: A publisher emitting a `Void` value once all of the writes in the batch
-     ///   have been successfully written to the backend as an atomic unit. This publisher will only
-     ///   emits when the client is online and the commit has completed against the server.
-     ///   The changes will be visible immediately.
+  extension WriteBatch {
+    /// Commits all of the writes in this write batch as a single atomic unit.
+    ///
+    /// - Returns: A publisher emitting a `Void` value once all of the writes in the batch
+    ///   have been successfully written to the backend as an atomic unit. This publisher will only
+    ///   emits when the client is online and the commit has completed against the server.
+    ///   The changes will be visible immediately.
     public func commit() -> Future<Void, Error> {
-       Future { promise in
+      Future { promise in
         self.commit { error in
-            if let error = error {
-                promise(.failure(error))
-            } else {
-                promise(.success(()))
-            }
+          if let error = error {
+            promise(.failure(error))
+          } else {
+            promise(.success(()))
+          }
         }
-       }
-     }
-   }
+      }
+    }
+  }
 
- #endif
+#endif

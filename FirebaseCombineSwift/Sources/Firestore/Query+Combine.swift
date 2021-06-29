@@ -14,52 +14,54 @@
 
 #if canImport(Combine) && swift(>=5.0) && canImport(FirebaseFirestore)
 
-import Combine
-import FirebaseFirestore
+  import Combine
+  import FirebaseFirestore
 
-@available(swift 5.0)
-@available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
-extension Query {
-
+  @available(swift 5.0)
+  @available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *)
+  extension Query {
     // MARK: - Get Documents
 
     /// Reads the documents matching this query.
+    ///
     /// - Parameter source: Indicates whether the results should be fetched from the cache only
-    ///  (`Source.cache`), the server only (`Source.server`), or to attempt the server and fall back
-    ///  to the cache (`Source.default`).
+    ///   (`Source.cache`), the server only (`Source.server`), or to attempt the server and fall back
+    ///   to the cache (`Source.default`).
     /// - Returns: A publisher emitting a `QuerySnapshot` instance.
     public func getDocuments(source: FirestoreSource = .default) -> Future<QuerySnapshot, Error> {
-        Future { promise in
-            self.getDocuments(source: source) { snapshot, error in
-                if let error = error {
-                    promise(.failure(error))
-                } else if let snapshot = snapshot {
-                    promise(.success(snapshot))
-                }
-            }
+      Future { promise in
+        self.getDocuments(source: source) { snapshot, error in
+          if let error = error {
+            promise(.failure(error))
+          } else if let snapshot = snapshot {
+            promise(.success(snapshot))
+          }
         }
+      }
     }
 
     // MARK: - Snapshot Publisher
 
     /// Registers a publisher that publishes query snapshot changes.
+    ///
     /// - Parameter includeMetadataChanges: Whether metadata-only changes (i.e. only
-    /// `QuerySnapshot.metadata` changed) should trigger snapshot events.
+    ///   `QuerySnapshot.metadata` changed) should trigger snapshot events.
     /// - Returns: A publisher emitting `QuerySnapshot` instances.
     public func snapshotPublisher(includeMetadataChanges: Bool = false)
-    -> AnyPublisher<QuerySnapshot, Error> {
-        let subject = PassthroughSubject<QuerySnapshot, Error>()
-        let listenerHandle = addSnapshotListener(includeMetadataChanges: includeMetadataChanges) { snapshot, error in
-            if let error = error {
-                subject.send(completion: .failure(error))
-            } else if let snapshot = snapshot {
-                subject.send(snapshot)
-            }
+      -> AnyPublisher<QuerySnapshot, Error> {
+      let subject = PassthroughSubject<QuerySnapshot, Error>()
+      let listenerHandle =
+        addSnapshotListener(includeMetadataChanges: includeMetadataChanges) { snapshot, error in
+          if let error = error {
+            subject.send(completion: .failure(error))
+          } else if let snapshot = snapshot {
+            subject.send(snapshot)
+          }
         }
-        return subject
-            .handleEvents(receiveCancel: listenerHandle.remove)
-            .eraseToAnyPublisher()
+      return subject
+        .handleEvents(receiveCancel: listenerHandle.remove)
+        .eraseToAnyPublisher()
     }
-}
+  }
 
 #endif

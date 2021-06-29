@@ -13,74 +13,75 @@
 // limitations under the License.
 #if canImport(Combine) && swift(>=5.0) && canImport(FirebaseFirestore)
 
-import Combine
-import FirebaseFirestore
+  import Combine
+  import FirebaseFirestore
 
-#if canImport(FirebaseFirestoreSwift)
+  #if canImport(FirebaseFirestoreSwift)
 
-import FirebaseFirestoreSwift
+    import FirebaseFirestoreSwift
 
-#endif
+  #endif
 
-@available(swift 5.0)
-@available(macOS 10.15, iOS 13, watchOS 6, tvOS 13, *)
-extension CollectionReference {
-
-    // MARK: - Add Document
+  @available(swift 5.0)
+  @available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *)
+  extension CollectionReference {
+    // MARK: - Adding Documents
 
     /// Adds a new document to this collection with the specified data, assigning it a document ID
     /// automatically.
+    ///
     /// - Parameter data: A `Dictionary` containing the data for the new document.
-    /// - Returns: A publisher emitting a `Void` value once the document has been successfully
-    /// written to the server. This publisher will not emit  while the client is offline, though
-    /// local changes will be visible immediately.
+    /// - Returns: A publisher emitting a `DocumentReference` value once the document has been successfully
+    ///   written to the server. This publisher will not emit while the client is offline, though
+    ///   local changes will be visible immediately.
     public func addDocument(data: [String: Any])
-    -> AnyPublisher<DocumentReference, Error> {
-        var reference: DocumentReference!
-        return Future { promise in
-            reference = self.addDocument(data: data) { error in
-                if let error = error {
-                    promise(.failure(error))
-                } else {
-                    promise(.success(()))
-                }
-            }
+      -> Future<DocumentReference, Error> {
+      var reference: DocumentReference?
+      return Future { promise in
+        reference = self.addDocument(data: data) { error in
+          if let error = error {
+            promise(.failure(error))
+          } else if let reference = reference {
+            promise(.success(reference))
+          }
         }
-        .map { reference }
-        .eraseToAnyPublisher()
+      }
     }
 
     #if canImport(FirebaseFirestoreSwift)
 
-    /// Adds a new document to this collection with the specified data, assigning it a document ID
-    /// automatically.
-    /// - Parameters:
-    ///   - value: An instance of Encodable to be encoded to a document.
-    ///   - encoder: An encoder instance to use to run the encoding.
-    /// - Returns: A publisher emitting a `Void` value once the document has been successfully
-    /// written to the server. This publisher will not emit  while the client is offline, though
-    /// local changes will be visible immediately.
-    public func addDocument<T: Encodable>(from value: T, encoder: Firestore.Encoder = Firestore.Encoder()) -> AnyPublisher<DocumentReference, Error> {
-        var reference: DocumentReference!
+      /// Adds a new document to this collection with the specified data, assigning it a document ID
+      /// automatically.
+      ///
+      /// - Parameters:
+      ///   - value: An instance of `Encodable` to be encoded to a document.
+      ///   - encoder: An encoder instance to use to run the encoding.
+      /// - Returns: A publisher emitting a `DocumentReference` value once the document has been successfully
+      /// written to the server. This publisher will not emit while the client is offline, though
+      /// local changes will be visible immediately.
+      public func addDocument<T: Encodable>(from value: T,
+                                            encoder: Firestore.Encoder = Firestore
+                                              .Encoder()) -> Future<
+        DocumentReference,
+        Error
+      > {
+        var reference: DocumentReference?
         return Future { promise in
-            do {
-                try reference = self.addDocument(from: value, encoder: encoder) { error in
-                    if let error = error {
-                        promise(.failure(error))
-                    } else {
-                        promise(.success(()))
-                    }
-                }
-            } catch {
+          do {
+            try reference = self.addDocument(from: value, encoder: encoder) { error in
+              if let error = error {
                 promise(.failure(error))
+              } else if let reference = reference {
+                promise(.success(reference))
+              }
             }
+          } catch {
+            promise(.failure(error))
+          }
         }
-        .map { reference }
-        .eraseToAnyPublisher()
-    }
+      }
 
     #endif
-
-}
+  }
 
 #endif
