@@ -19,125 +19,79 @@ import Combine
 import XCTest
 
 class GetDocumentsTests: XCTestCase {
-
-    class MockQuery: QueryFake {
-
-        var mockGetDocuments: () throws -> QuerySnapshot = {
-            fatalError("You need to implement \(#function) in your mock.")
-        }
-
-        var verifySource: ((_ source: FirestoreSource) -> Void)?
-
-        override func getDocuments(source: FirestoreSource, completion: @escaping FIRQuerySnapshotBlock) {
-            do {
-                verifySource?(source)
-                let snapshot = try mockGetDocuments()
-                completion(snapshot, nil)
-            } catch {
-                completion(nil, error)
-            }
-        }
+  class MockQuery: QueryFake {
+    var mockGetDocuments: () throws -> QuerySnapshot = {
+      fatalError("You need to implement \(#function) in your mock.")
     }
 
-    override class func setUp() {
-        FirebaseApp.configureForTests()
+    var verifySource: ((_ source: FirestoreSource) -> Void)?
+
+    override func getDocuments(source: FirestoreSource,
+                               completion: @escaping FIRQuerySnapshotBlock) {
+      do {
+        verifySource?(source)
+        let snapshot = try mockGetDocuments()
+        completion(snapshot, nil)
+      } catch {
+        completion(nil, error)
+      }
+    }
+  }
+
+  override class func setUp() {
+    FirebaseApp.configureForTests()
+  }
+
+  override class func tearDown() {
+    FirebaseApp.app()?.delete { success in
+      if success {
+        print("Shut down app successfully.")
+      } else {
+        print("💥 There was a problem when shutting down the app..")
+      }
+    }
+  }
+
+  func testGetDocumentsFailure() {
+    // given
+    var cancellables = Set<AnyCancellable>()
+
+    let getDocumentsWasCalledExpectation = expectation(description: "getDocuments was called")
+    let getDocumentsFailureExpectation = expectation(description: "getDocuments failed")
+
+    let query = MockQuery()
+    let source: FirestoreSource = .server
+
+    query.mockGetDocuments = {
+      getDocumentsWasCalledExpectation.fulfill()
+      throw NSError(domain: FirestoreErrorDomain,
+                    code: FirestoreErrorCode.unknown.rawValue,
+                    userInfo: [NSLocalizedDescriptionKey: "Dummy Error"])
     }
 
-    override class func tearDown() {
-        FirebaseApp.app()?.delete { success in
-            if success {
-                print("Shut down app successfully.")
-            } else {
-                print("💥 There was a problem when shutting down the app..")
-            }
-        }
+    query.verifySource = {
+      XCTAssertTrue(source == $0, "💥 Something went wrong: source changed")
     }
 
-    //    override func setUp() {
-    //    }
-
-    //    func testAddDocumentWithDataSuccess() {
-    //        // given
-    //
-    //        var cancellables = Set<AnyCancellable>()
-    //
-    //        let getDocumentsWasCalledExpectation = expectation(description: "getDocuments was called")
-    //        let getDocumentsSuccessExpectation = expectation(description: "getDocuments succeeded")
-    //
-    //        let query = MockQuery()
-    //        let source: FirestoreSource = .cache
-    //
-    //        query.mockGetDocuments = {
-    //            getDocumentsWasCalledExpectation.fulfill()
-    //            return QuerySnapshot() // Need init here too
-    //        }
-    //
-    //        query.verifySource = {
-    //            XCTAssertTrue(source == $0, "💥 Something went wrong: source changed")
-    //        }
-    //
-    //        // when
-    //        query.getDocuments(source: source)
-    //            .sink { completion in
-    //                switch completion {
-    //                case .finished:
-    //                    print("Finished")
-    //                case let .failure(error):
-    //                    XCTFail("💥 Something went wrong: \(error)")
-    //                }
-    //            } receiveValue: { _ in
-    //                getDocumentsSuccessExpectation.fulfill()
-    //            }
-    //            .store(in: &cancellables)
-    //
-    //        // then
-    //        wait(
-    //            for: [getDocumentsWasCalledExpectation, getDocumentsSuccessExpectation],
-    //            timeout: expectationTimeout
-    //        )
-    //    }
-
-    func testGetDocumentsFailure() {
-        // given
-        var cancellables = Set<AnyCancellable>()
-
-        let getDocumentsWasCalledExpectation = expectation(description: "getDocuments was called")
-        let getDocumentsFailureExpectation = expectation(description: "getDocuments failed")
-
-        let query = MockQuery()
-        let source: FirestoreSource = .server
-
-
-        query.mockGetDocuments = {
-            getDocumentsWasCalledExpectation.fulfill()
-            throw NSError(domain: FirestoreErrorDomain,
-                          code: FirestoreErrorCode.unknown.rawValue,
-                          userInfo: [NSLocalizedDescriptionKey: "Dummy Error"])
+    // when
+    query.getDocuments(source: source)
+      .sink { completion in
+        switch completion {
+        case .finished:
+          print("Finished")
+        case let .failure(error as NSError):
+          XCTAssertEqual(error.code, FirestoreErrorCode.unknown.rawValue)
+          getDocumentsFailureExpectation.fulfill()
         }
+      } receiveValue: { _ in
+        XCTFail("💥 Something went wrong")
+      }
+      .store(in: &cancellables)
 
-        query.verifySource = {
-            XCTAssertTrue(source == $0, "💥 Something went wrong: source changed")
-        }
-
-        // when
-        query.getDocuments(source: source)
-            .sink { completion in
-                switch completion {
-                case .finished:
-                    print("Finished")
-                case let .failure(error as NSError):
-                    XCTAssertEqual(error.code, FirestoreErrorCode.unknown.rawValue)
-                    getDocumentsFailureExpectation.fulfill()
-                }
-            } receiveValue: { _ in
-                XCTFail("💥 Something went wrong")
-            }
-            .store(in: &cancellables)
-
-        // then
-        wait(
-            for: [getDocumentsWasCalledExpectation, getDocumentsFailureExpectation],
-            timeout: expectationTimeout
-        )
-    }
+    // then
+    wait(
+      for: [getDocumentsWasCalledExpectation, getDocumentsFailureExpectation],
+      timeout: expectationTimeout
+    )
+  }
 }
