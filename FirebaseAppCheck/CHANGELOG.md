@@ -1,4 +1,4 @@
-# v8.3.0 -- M99 
+# v8.3.0 -- M99
 - [added] Token API for 3P use. (#8266)
 # v8.2.0 -- M98
 - [added] Apple's App Attest attestation provider support. (#8133)
