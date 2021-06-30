@@ -42,8 +42,9 @@ def diff_with_absl(revision, patterns):
 
 
 def main():
+  patterns = ['Firestore/core/src/api/*.h']
   parser = argparse.ArgumentParser(
-      description='Check Absl usaging in firestore/core/api')
+      description='Check Absl usage in %s' % patterns)
   parser.add_argument(
       '--dry-run',
       '-n',
@@ -63,7 +64,6 @@ def main():
     _logger.setLevel(logging.DEBUG)
 
   revision = 'origin/master' if not args.rev else args.rev
-  patterns = ['Firestore/core/src/api/*.h']
   _logger.debug('Checking %s absl usage against %s' %
                 (patterns, revision))
   diff = diff_with_absl(revision, patterns)
