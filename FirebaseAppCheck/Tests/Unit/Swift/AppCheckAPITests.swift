@@ -16,6 +16,24 @@
 
 // MARK: This file is used to evaluate the experience of using Firebase APIs in Swift.
 
+class Async {
+  func foo() async {
+
+  }
+
+  @available(swift 5.5)
+  func bar() async {
+
+  }
+}
+
+@available(swift 5.5)
+class GatedAsync {
+  func foo() async {
+
+  }
+}
+
 import Foundation
 
 import FirebaseCore
