@@ -65,7 +65,8 @@ import XCTest
       XCTAssertNotNil(result)
     }
 
-    func testSimplePutSpecialCharacter() async throws {      let ref = storage.reference(withPath: "ios/public/-._~!$'()*,=:@&+;")
+    func testSimplePutSpecialCharacter() async throws {
+      let ref = storage.reference(withPath: "ios/public/-._~!$'()*,=:@&+;")
       let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
       let result = try await ref.putDataAwait(data)
       XCTAssertNotNil(result)
@@ -74,7 +75,10 @@ import XCTest
     func testSimplePutDataInBackgroundQueue() async throws {
       actor MyBackground {
         func doit(_ ref: StorageReference) async throws -> StorageMetadata {
-          let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
+          let data = try XCTUnwrap(
+            "Hello Swift World".data(using: .utf8),
+            "Data construction failed"
+          )
           XCTAssertFalse(Thread.isMainThread)
           return try await ref.putDataAwait(data)
         }
@@ -143,7 +147,7 @@ import XCTest
                                   "Failed to get filePath")
       let ref = storage.reference(withPath: "ios/public/" + fileName)
       do {
-        let _ = try await ref.putFileAwait(from: fileURL)
+        _ = try await ref.putFileAwait(from: fileURL)
         XCTFail("Unexpected success from putFile of a directory")
       } catch {
         // TODO: Investigate generating a more descriptive error code than unknown.
@@ -152,28 +156,17 @@ import XCTest
       }
     }
 
-    func testPutFileWithSpecialCharacters() throws {
-      let expectation = self.expectation(description: #function)
-
+    func testPutFileWithSpecialCharacters() async throws {
       let fileName = "hello&+@_ .txt"
       let ref = storage.reference(withPath: "ios/public/" + fileName)
       let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
       let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
       let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
       try data.write(to: fileURL, options: .atomicWrite)
-      ref.putFile(from: fileURL) { result in
-        switch result {
-        case let .success(metadata):
-          XCTAssertEqual(fileName, metadata.name)
-          ref.getMetadata { result in
-            self.assertResultSuccess(result)
-          }
-        case let .failure(error):
-          XCTFail("Unexpected error \(error) from putFile")
-        }
-        expectation.fulfill()
-      }
-      waitForExpectations()
+      let metadata = try await ref.putFileAwait(from: fileURL)
+      XCTAssertEqual(fileName, metadata.name)
+      let result = try await ref.getMetadata()
+      XCTAssertNotNil(result)
     }
 
     func testSimplePutDataNoMetadata() async throws {
@@ -183,20 +176,15 @@ import XCTest
       XCTAssertNotNil(result)
     }
 
-    func testSimplePutFileNoMetadata() throws {
-      let expectation = self.expectation(description: #function)
-
+    func testSimplePutFileNoMetadata() async throws {
       let fileName = "hello&+@_ .txt"
       let ref = storage.reference(withPath: "ios/public/" + fileName)
       let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
       let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
       let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
       try data.write(to: fileURL, options: .atomicWrite)
-      ref.putFile(from: fileURL) { result in
-        self.assertResultSuccess(result)
-        expectation.fulfill()
-      }
-      waitForExpectations()
+      let result = try await ref.putFileAwait(from: fileURL)
+      XCTAssertNotNil(result)
     }
 
     func testSimpleGetData() async throws {
@@ -380,16 +368,6 @@ import XCTest
         XCTAssertNotNil(value, file: file, line: line)
       case let .failure(error):
         XCTFail("Unexpected error \(error)")
-      }
-    }
-
-    private func assertResultFailure<T>(_ result: Result<T, Error>,
-                                        file: StaticString = #file, line: UInt = #line) {
-      switch result {
-      case let .success(value):
-        XCTFail("Unexpected success with value: \(value)")
-      case let .failure(error):
-        XCTAssertNotNil(error, file: file, line: line)
       }
     }
   }

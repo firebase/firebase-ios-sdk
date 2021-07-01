@@ -49,7 +49,7 @@ import FirebaseStorage
     }
 
     func putFileAwait(from url: URL,
-                     metadata: StorageMetadata? = nil) async throws -> StorageMetadata {
+                      metadata: StorageMetadata? = nil) async throws -> StorageMetadata {
       typealias MetadataContinuation = CheckedContinuation<StorageMetadata, Error>
       return try await withCheckedThrowingContinuation { (continuation: MetadataContinuation) in
         // TODO: Use task to handle progress and cancellation.
