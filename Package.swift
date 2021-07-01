@@ -423,11 +423,6 @@ let package = Package(
       path: "FirebaseCombineSwift/Sources/Firestore"
     ),
     .target(
-      name: "FirebaseFunctionsCombineSwift",
-      dependencies: ["FirebaseFunctions"],
-      path: "FirebaseCombineSwift/Sources/Functions"
-    ),
-    .target(
       name: "FirebaseStorageCombineSwift",
       dependencies: [
         "FirebaseStorage",
