@@ -16,24 +16,6 @@
 
 // MARK: This file is used to evaluate the experience of using Firebase APIs in Swift.
 
-class Async {
-  func foo() async {
-
-  }
-
-  @available(swift 5.5)
-  func bar() async {
-
-  }
-}
-
-@available(swift 5.5)
-class GatedAsync {
-  func foo() async {
-
-  }
-}
-
 import Foundation
 
 import FirebaseCore
@@ -84,7 +66,7 @@ final class AppCheckAPITests: NSObject {
 
     // Get token (async/await)
     #if swift(>=5.5)
-      if #available(iOS 15.0, *) {
+      if #available(macOS 12, iOS 15, watchOS 8, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         async {
           do {
@@ -118,7 +100,7 @@ final class AppCheckAPITests: NSObject {
 
       // Get token (async/await)
       #if swift(>=5.5)
-        if #available(iOS 15.0, *) {
+        if #available(macOS 12, iOS 15, watchOS 8, *) {
           // async/await is a Swift 5.5+ feature available on iOS 15+
           async {
             do {
@@ -190,7 +172,7 @@ final class AppCheckAPITests: NSObject {
 
       // Get token (async/await)
       #if swift(>=5.5)
-        if #available(iOS 15.0, *) {
+        if #available(macOS 12, iOS 15, watchOS 8, *) {
           // async/await is a Swift 5.5+ feature available on iOS 15+
           async {
             do {
