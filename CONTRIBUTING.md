@@ -342,7 +342,7 @@ git push --set-upstream origin my_feature_or_bug_fix
 git commit -m "implemented suggestion"
 git push
 
-# Once your PR has been reviewed and all feedback addressed, it 
+# Once your PR has been reviewed and all feedback addressed, it
 # will be approved and merged by a project member. 🎉
 ```
 
