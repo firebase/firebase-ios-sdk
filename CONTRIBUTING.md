@@ -3,21 +3,24 @@
 Thank you for your interest in contributing and welcome to the
 Firebase community! 🔥
 
-This guide describes the many ways to contribute to Firebase and outlines the
-preferred workflow for Firebase development.
+This guide describes the many ways to contribute to Firebase and
+outlines the preferred workflow for Firebase development.
 
 ## Contents
+
 * [Reporting a bug](#reporting-a-bug)
 * [Making a feature request](#making-a-feature-request)
 * [Starting a discussion](#starting-a-discussion)
 * [Contributing code](#contributing-code)
-- [Development Guide](#development-guide)
+
+- [Development Guide](#development-guide) <!-- List intentionally starts dash -->
     <!-- * [Touring the codebase](#touring-the-codebase) -->
-    * [Getting started](#getting-started)
-    * [Developing](#developing)
-    * [Debugging](#debugging)
-    * [Testing](#testing)
-    * [Opening a pull request](#opening-a-pull-request)
+  * [Getting started](#getting-started)
+  * [Developing](#developing)
+  * [Debugging](#debugging)
+  * [Testing](#testing)
+  * [Opening a pull request](#opening-a-pull-request)
+
 * [Contributor License Agreement](#contributor-license-agreement)
 * [Code of Conduct](#code-of-conduct)
 * [License](#license)
@@ -26,6 +29,7 @@ preferred workflow for Firebase development.
 <!-- Ways to contribute -->
 
 ## [Reporting a bug][bug]
+
 To report a bug, fill out a new issue [here][bug]. The pre-populated form
 should be filled out accordingly to provide others with useful information
 regarding the discovered bug. In most cases, a [minimal reproducible
@@ -33,6 +37,7 @@ example] is very helpful in allowing us to quickly reproduce the bug and
 work on a fix.
 
 ## [Making a feature request][feature-request]
+
 Feature requests should ideally be clear and concise (i.e. _Add Sign in with
 Apple support_). If the feature request is more specific, describe it by
 providing a use case that is not achievable with existing Firebase APIs and
@@ -48,6 +53,7 @@ cases that require multiple new features, consider instead starting a
 community.
 
 ## [Starting a discussion][new-discussion]
+
 We are using [GitHub discussions][discussions-docs] as a collaborative space
 where developers can discuss questions and proposals regarding Firebase. For
 large proposals, start a [Pitch][pitch-discussions] to discuss
@@ -57,6 +63,7 @@ View the [Firebase discussions][discussions] or start one
 [here][new-discussion].
 
 ## Contributing code
+
 Before starting work on a contribution, it's important to allow the Firebase
 community an opportunity to discuss your proposal. First, check to see if your
 proposal has appeared in an [existing issue]'s discussion. If it has
@@ -67,6 +74,7 @@ implement your proposal.
 > ### Need some inspiration?
 >
 > Check out issues marked as:
+>
 > * [`good first issue`][good-first-issue] <!--TODO: Add label upon approval.-->
 > * [`help wanted`][help-wanted]
 > * [`type: feature request`][feature-requests]
@@ -75,6 +83,7 @@ implement your proposal.
 > longer term goals. There are many opportunities to get involved!
 
 ### API Review
+
 Please note that changes or additions to public APIs require an internal API
 review from the Firebase team. Contributions involving such changes will
 require additional time to allow for an internal API review to be scheduled and
@@ -82,11 +91,13 @@ thoroughly conducted. We appreciate your patience while we review your amazing
 contributions!
 
 ### Breaking Changes
+
 Firebase's release schedule is designed to reduce the amount of breaking
 changes that developers have to deal  with. Ideally, breaking changes should
 be avoided when making a contribution.
 
 ### Using GitHub pull requests
+
 All submissions, including submissions by project members, require review. We
 use GitHub pull requests for this purpose. Refer to [GitHub Help] for
 more information on using pull requests. If you're ready to open a pull request,
@@ -97,6 +108,7 @@ the [Opening a pull request](#opening-a-pull-request) section.
 <!-- Development Guide -->
 
 ## Development Guide
+
 The majority of the remaining portion of this guide is dedicated to detailing
 the preferred workflow for Firebase development.
 
@@ -104,37 +116,51 @@ the preferred workflow for Firebase development.
 <!-- TODO: Provide a graphic of key areas of the codebase. -->
 
 ### Getting started
+
 To develop Firebase software, **install**:
-- [Xcode] (v12.2 or later) (for Googlers, visit [go/xcode](go/xcode)) to
+
+* [Xcode] (v12.2 or later) (for Googlers, visit [go/xcode](go/xcode)) to
   download.
-- <details>
+* <details>
   <summary>Code styling tools: <b>clang-format</b> & <b>mint</b></summary>
 
    <!-- The above line is intentionally left blank. -->
    Firebase use's a style script that requires [clang-format] and [mint].
 
    To install [clang-format] and [mint] using [Homebrew]:
+
     ```console
     brew install clang-format@12
     brew install mint
     ```
+
   </details>
 
-**Next**, clone the Firebase repo:
-- Clone via [HTTPS][github-clone-https]
+<details>
+<summary><b>Next</b>, clone the Firebase repo.</summary>
+
+<!-- The above line is intentionally left blank. -->
+* Clone via [HTTPS][github-clone-https]
+
   ```console
   git clone https://github.com/firebase/firebase-ios-sdk.git
   ```
-- Or via [SSH][github-clone-ssh]
+
+* Or via [SSH][github-clone-ssh]
+
   ```console
   git clone git@github.com:firebase/firebase-ios-sdk.git
   ```
+
+</details>
+<br> <!-- This new line is for styling purposes. -->
 
 Once the necessary tools have been installed and the project has been cloned,
 continue on to the preferred
 [development workflow](#developing).
 
 ### Developing
+
 The workflow for library development is different from application
 development. For Firebase development, we develop using the same tools we
 use to distribute Firebase. Instructions for developing with
@@ -142,11 +168,13 @@ use to distribute Firebase. Instructions for developing with
 are as follows:
 
 #### **[Swift Package Manager]**
+
 [Swift Package Manager] is built into Xcode and makes it simple to develop
 projects with multiple dependencies.
 
-To develop using SwiftPM, simple open the `Package.swift` file in your cloned
-Firebase copy and select a library scheme to build and develop that library.
+To develop using SwiftPM, open the `Package.swift` file in your cloned
+Firebase copy (or `open Package.swift` from the command line) and select a
+library scheme to build and develop that library.
 
 To learn more about running tests with Swift Package Manager, visit the
 [Testing](#testing) section.
@@ -155,6 +183,7 @@ To learn more about running tests with Swift Package Manager, visit the
 <!-- TODO: Common issues and fixes like resolve depencies & reset cache. -->
 
 #### **[CocoaPods]**
+
 [CocoaPods] is another popular dependency manager used in Apple development.
 Firebase supports development with CocoaPods 1.10.0 (or later). If you choose to
 develop using CocoaPods, it's recommend to use
@@ -164,7 +193,8 @@ development workspace using any library's podspec. All of the podspecs for
 Firebase's libraries are located in the repo's root directory.
 
 #### Installation
-- **[CocoaPods]**
+
+* **[CocoaPods]**
   <!-- This line is intentionally left blank. -->
   To check if your machine has CocoaPods installed, run `pod --version` in
   terminal. If the command fails with a `command not found` error, then you'll
@@ -172,11 +202,12 @@ Firebase's libraries are located in the repo's root directory.
 
   To install, please refer to CocoaPods's [Getting Started][cocoapods-install] guide.
 
-- **[cocoapods-generate]**
+* **[cocoapods-generate]**
   <!-- This line is intentionally left blank. -->
   Please see [cocoapods-generate] for instructions on how to install.
 
 #### Developing with CocoaPods
+
 With **CocoaPods** and **cocoapods-generate** installed, the `pod gen` command
 makes it easy to develop specific Firebase libraries.
 
@@ -184,9 +215,9 @@ makes it easy to develop specific Firebase libraries.
 pod gen Firebase{name here}.podspec --local-sources=./ --auto-open --platforms=ios
 ```
 
-- If the CocoaPods cache is out of date, you may need to run
+* If the CocoaPods cache is out of date, you may need to run
   `pod repo update` before the `pod gen` command.
--  Set the `--platforms` option to `macos` or `tvos` to develop on those
+* Set the `--platforms` option to `macos` or `tvos` to develop on those
    platforms. Since 10.2, Xcode does not properly handle multi-platform
    CocoaPods workspaces.
 
@@ -206,26 +237,49 @@ the project.
 7. **Run** it to build and test
 
 **Alternatively**, disable signing in each target:
+
 1. Go to **Build Settings** tab
 2. Click **+**
 3. Select **Add User-Defined Setting**
 4. Add `CODE_SIGNING_REQUIRED` setting with a value of `NO`
+
 </details>
 <br> <!-- This new line is for styling purposes. -->
 
 <!-- #### **Sample Apps** -->
 
 #### **Style Guide**
+
 This code in this repo is styled in accordance to `clang-format` conventions.
 
 #### Styling your code
+
 The [./scripts/style.sh] script makes it easy to style your
-code during development.
+code during development. Running the style script on the folder you worked in is
+the most efficient way to only format your changes changes.
+
+For example, if your changes were done in `FirebaseStorage/Sources/`:
+
+```console
+./scripts/style.sh FirebaseStorage/Sources/
+```
+
+Alternatively, the script can be work on branch names or filenames.
+
+```console
+ ./scripts/style.sh fix-storage-bug
+```
+
+```console
+./scripts/style.sh FirebaseStorage/Sources/FIRStorage.m
+```
+
 <details>
-<summary>Using the <b>style.sh</b> script</summary>
+<summary>More details on using the <b>style.sh</b> script</summary>
 
 <!-- The above line is intentionally left blank. -->
-```
+
+```bash
 # Usage:
 # ./scripts/style.sh [branch-name | filenames]
 #
@@ -236,6 +290,7 @@ code during development.
 # Commonly
 # ./scripts/style.sh your_branch
 ```
+
 </details>
 
 If your PR is failing CI due to style issues please use
@@ -243,18 +298,19 @@ the style script accordingly. If the style script is not working, ensure you
 have installed the necessary code styling tools outlined in the
 [Getting Started](#getting-started) section.
 
-
 #### Apple development style guides and resources
 
 Refer to the following resources when writing Swift or Objective-C code.
+
 * Swift
-    * [Google's Swift Style Guide][google-swift-style]
-    * [Swift's API Design Guidelines][swift-api-design-guide]
+  * [Google's Swift Style Guide][google-swift-style]
+  * [Swift's API Design Guidelines][swift-api-design-guide]
 * Objective-C
-    * [Google's Objective-C Style Guide][google-objc-style]
-    * [Apple's Coding Guidelines for Cocoa][coding-guidelines-for-cocoa]
+  * [Google's Objective-C Style Guide][google-objc-style]
+  * [Apple's Coding Guidelines for Cocoa][coding-guidelines-for-cocoa]
 
 #### **An example Git workflow**
+
 This is a general overview of what the Git workflow may look like, from start to
 finish, when contributing code to Firebase.
 The below snippet is purely for reference purposes and is used to demonstarate
@@ -265,6 +321,7 @@ what the workflow may look like, from start to finish.
 <!-- The above line is intentionally left blank. -->
 For developers without write access, you'll need to create a fork of Firebase
 instead of a branch. Learn more about forking a repo [here][github-forks].
+
 ```console
 # Update your local master
 git checkout master
@@ -285,27 +342,41 @@ git push --set-upstream origin my_feature_or_bug_fix
 git commit -m "implemented suggestion"
 git push
 
-# Your PR can be merged once it has been approved by a project member 🎉
+# Once your PR has been reviewed and all feedback addressed, it 
+# will be approved and merged by a project member. 🎉
 ```
+
 </details>
 <br> <!-- This new line is for styling purposes. -->
 
 ### Debugging
+
 Xcode ships with many debugging tools. Learn more about debugging in
 Xcode by watching [WWDC sessions][wwdc-sessions] about debugging and
 viewing the [documentation][xcode-debugging].
 
 ### Testing
+
 Tests are an essential part to building Firebase. Many of the tests
-for Firebase run as part of our continous intengration (CI) setup with
-[GitHub Actions]. _Fixing a bug?_ Add a test to catch potential regressions in
-the future. _Adding a new feature?_ Add tests to test the new or modified APIs.
+for Firebase run as part of our continous integration (CI) setup with
+[GitHub Actions].
+
+* _Fixing a bug?_ Add a test to catch potential regressions in
+  the future.
+* _Adding a new feature?_ Add tests to test the new or
+  modified APIs. In addition, highlight the new API by providing
+  snippets of how it is used in the API's corresponding issue or
+  PR. These snippets will be linked to the release notes so other
+  developers can see how the API is used. If more context is
+  required to demonstrate the API, reach out to a project member
+  about creating an example project to do so.
 
 Oftentimes, tests can be useful in understanding how a particular API works.
 Keep this in mind while adding tests as they can serve as an additional tool for
 demonstrating how an API should be used.
 
 _Using [Swift Package Manager](#swift-package-manager)?_
+
 1. To enable schemes for [testing](#testing): run `./scripts/setup_spm_tests.sh`
 2. Then in Xcode, choose a scheme to build a library or run a test suite.
 3. Choose a target platform by selecting the run destination along with
@@ -328,6 +399,7 @@ navigation bar or by using the `⌘U` keyboard shortcut.
 <!-- TODO: Provide resources for model Swift API build tests. -->
 
 #### Viewing Code Coverage
+
 When creating tests, it's helpful to verify that certain codepaths are indeed
 getting tested. Xcode has a built-in code coverage tool that makes it easy to
 know what codepaths are run. To enable it, navigate
@@ -341,8 +413,10 @@ The Firebase repo contains a code coverage report tool. To learn more, view
 the [code coverage report documentation][code-cov-report-docs].
 
 ### Opening a pull request
+
 Before opening a pull request (PR), ensure that your contribution meets the
 following criteria:
+
 1. A descriptive PR description has been written that explains the
    purpose of this contribution.
 2. The committed code has been styled in accordance with this repo's style
@@ -350,10 +424,11 @@ following criteria:
 3. A CHANGELOG has been updated to reflect the PR's associated changes.
 4. Unit and/or integration tests have been added or updatd to test and
    validate the contribution's changes.
+5. Refer to the
+   [Contributor License Agreement](#contributor-license-agreement) section below
+   to sign a CLA.
 
 <!-- TODO: Add picture of opening a PR. -->
-
-<!-- #### Signing the CLA -->
 
 <!-- #### Addressing Continuous Integration (CI) failures -->
 
@@ -365,9 +440,8 @@ following criteria:
 
 Contributions to this project must be accompanied by a Contributor License
 Agreement (CLA). You (or your employer) retain the copyright to your
-contribution,
-this simply gives us permission to use and redistribute your contributions as
-part of the project. Head over to the
+contribution, this simply gives us permission to use and redistribute your
+contributions as part of the project. Head over to the
 [Google CLA dashboard][google-cla-dashboard]
 to sign a new one or to see your current agreements on file.
 
@@ -376,11 +450,13 @@ You generally only need to submit a CLA once, so if you've already submitted one
 again.
 
 ## Code of Conduct
+
 We aim to foster a community of learning and kindness at Firebase. By
 participating, you are expected to have reviewed and agreed to
 our [Code of Conduct].
 
 ## License
+
 For more information about the license used for this project, please refer to
 [LICENSE].
 
