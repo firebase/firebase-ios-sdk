@@ -75,7 +75,7 @@ implement your proposal.
 >
 > Check out issues marked as:
 >
-> * [`good first issue`][good-first-issue] <!--TODO: Add label upon approval.-->
+> <!-- > TODO: Add good first issue label & contributing project board. -->
 > * [`help wanted`][help-wanted]
 > * [`type: feature request`][feature-requests]
 >
