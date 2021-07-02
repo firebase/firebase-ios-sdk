@@ -44,14 +44,6 @@ let package = Package(
       targets: ["FirebaseAppCheck"]
     ),
     .library(
-      name: "FirebaseFirestoreCombineSwift-Beta",
-      targets: ["FirebaseFirestoreCombineSwift"]
-    ),
-    .library(
-      name: "FirebaseFunctionsCombineSwift-Beta",
-      targets: ["FirebaseFunctionsCombineSwift"]
-    ),
-    .library(
       name: "FirebaseAppDistribution-Beta",
       targets: ["FirebaseAppDistributionTarget"]
     ),
@@ -63,6 +55,10 @@ let package = Package(
     // .library(
     //   name: "FirebaseAuthCombineSwift-Beta",
     //   targets: ["FirebaseAuthCombineSwift"]
+    // ),
+    // .library(
+    //   name: "FirebaseFirestoreCombineSwift-Beta",
+    //   targets: ["FirebaseFirestoreCombineSwift"]
     // ),
     // .library(
     //   name: "FirebaseFunctionsCombineSwift-Beta",
