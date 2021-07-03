@@ -131,6 +131,8 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
           bot-access.txt "$bot_token_secret"
     - name: Setup testing repo and quickstart
+      env:
+        LEGACY: true
       run: |
           botaccess=`cat bot-access.txt`
           BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh Crashlytics nightly_release_testing
@@ -141,6 +143,8 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test objc quickstart
+      env:
+        LEGACY: true
       run: |
         mkdir -p quickstart-ios/crashlytics/Pods/FirebaseCrashlytics
         # Set the deployed pod location of run and upload-symbols with the development pod version.
@@ -148,6 +152,8 @@ jobs:
         cp Crashlytics/upload-symbols quickstart-ios/crashlytics/Pods/FirebaseCrashlytics/
         ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Crashlytics)
     - name: Test swift quickstart
+      env:
+        LEGACY: true
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Crashlytics swift)
     - name: Remove data before upload
       run: scripts/remove_data.sh crashlytics release_testing
