@@ -149,8 +149,8 @@ jobs:
       run: |
         mkdir -p quickstart-ios/crashlytics/Pods/FirebaseCrashlytics
         # Set the deployed pod location of run and upload-symbols with the development pod version.
-        cp Crashlytics/run quickstart-ios/crashlytics/Pods/FirebaseCrashlytics/
-        cp Crashlytics/upload-symbols quickstart-ios/crashlytics/Pods/FirebaseCrashlytics/
+        cp Crashlytics/run quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics/
+        cp Crashlytics/upload-symbols quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics/
         ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Crashlytics)
     - name: Test swift quickstart
       env:

@@ -237,10 +237,10 @@ jobs:
               SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseCrashlytics/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
-              cp quickstart-ios/crashlytics/Firebase/run quickstart-ios/crashlytics
-              cp quickstart-ios/crashlytics/Firebase/upload-symbols quickstart-ios/crashlytics
-              chmod +x quickstart-ios/crashlytics/run
-              chmod +x quickstart-ios/crashlytics/upload-symbols
+              cp quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Firebase/run quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart
+              cp quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Firebase/upload-symbols quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart
+              chmod +x quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/run
+              chmod +x quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/upload-symbols
     # TODO(#8057): Restore Swift Quickstart
     # - name: Setup swift quickstart
     #   run: |
