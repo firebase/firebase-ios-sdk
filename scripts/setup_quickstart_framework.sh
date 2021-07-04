@@ -19,6 +19,9 @@ if [ ! -d "quickstart-ios" ]; then
   git clone https://github.com/firebase/quickstart-ios.git
 fi
 cd quickstart-ios/"${SAMPLE}"
+if [[ ! -z "$LEGACY" ]]; then
+  cd "/Legacy${SAMPLE}Quickstart"
+fi
 chmod +x ../scripts/info_script.rb
 ruby ../scripts/info_script.rb "${SAMPLE}"
 
