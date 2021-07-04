@@ -20,7 +20,7 @@ if [ ! -d "quickstart-ios" ]; then
 fi
 cd quickstart-ios/"${SAMPLE}"
 if [[ ! -z "$LEGACY" ]]; then
-  cd "/Legacy${SAMPLE}Quickstart"
+  cd "Legacy${SAMPLE}Quickstart"
 fi
 chmod +x ../scripts/info_script.rb
 ruby ../scripts/info_script.rb "${SAMPLE}"
