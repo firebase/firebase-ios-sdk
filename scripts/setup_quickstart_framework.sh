@@ -20,11 +20,13 @@ if [ ! -d "quickstart-ios" ]; then
 fi
 QS_SCRIPTS="${REPO}"/quickstart-ios/scripts
 cd quickstart-ios/"${SAMPLE}"
+
+chmod +x "${QS_SCRIPTS}"/info_script.rb
+ruby "${QS_SCRIPTS}"/info_script.rb "${SAMPLE}" "${LEGACY:-}"
+
 if [[ ! -z "$LEGACY" ]]; then
   cd "Legacy${SAMPLE}Quickstart"
 fi
-chmod +x "${QS_SCRIPTS}"/info_script.rb
-ruby "${QS_SCRIPTS}"/info_script.rb "${SAMPLE}"
 
 mkdir -p Firebase/
 # Create non Firebase Frameworks and move to Firebase/ dir.
@@ -50,8 +52,8 @@ if [[ "${SAMPLE}" == "Authentication" ]]; then
 fi
 
 if [[ "${SAMPLE}" == "Firestore" ]]; then
-  "${QS_SCRIPTS}"/add_framework_script.rb --sdk "${SAMPLE}" --target "${TARGET}" --framework_path Firebase/FirebaseUI.xcframework/Resources/FirebaseAuthUI.bundle
-  "${QS_SCRIPTS}"/add_framework_script.rb --sdk "${SAMPLE}" --target "${TARGET}" --framework_path Firebase/FirebaseUI.xcframework/Resources/FirebaseEmailAuthUI.bundle
+  "${QS_SCRIPTS}"/add_framework_script.rb --sdk "${SAMPLE}" --target "${TARGET}" --framework_path Firebase/FirebaseAuthUI.xcframework/Resources/FirebaseAuthUI.bundle
+  "${QS_SCRIPTS}"/add_framework_script.rb --sdk "${SAMPLE}" --target "${TARGET}" --framework_path Firebase/FirebaseEmailAuthUI.xcframework/Resources/FirebaseEmailAuthUI.bundle
 fi
 
 "${QS_SCRIPTS}"/add_framework_script.rb --sdk "${SAMPLE}" --target "${TARGET}" --framework_path Firebase/
