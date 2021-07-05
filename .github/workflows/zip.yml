@@ -259,6 +259,8 @@ jobs:
     # - name: Test Swift Quickstart
     #   run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}" swift)
     - name: Remove data before upload
+      env:
+        LEGACY: true
       if: ${{ failure() }}
       run: scripts/remove_data.sh crashlytics
     - uses: actions/upload-artifact@v2

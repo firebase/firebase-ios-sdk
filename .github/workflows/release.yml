@@ -147,7 +147,7 @@ jobs:
       env:
         LEGACY: true
       run: |
-        mkdir -p quickstart-ios/crashlytics/Pods/FirebaseCrashlytics
+        mkdir -p quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics
         # Set the deployed pod location of run and upload-symbols with the development pod version.
         cp Crashlytics/run quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics/
         cp Crashlytics/upload-symbols quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics/
