@@ -47,22 +47,22 @@ let package = Package(
       name: "FirebaseAppDistribution-Beta",
       targets: ["FirebaseAppDistributionTarget"]
     ),
-     .library(
-       name: "FirebaseAuthCombine-Community",
-       targets: ["FirebaseAuthCombineSwift"]
-     ),
-     .library(
-       name: "FirebaseFirestoreCombine-Community",
-       targets: ["FirebaseFirestoreCombineSwift"]
-     ),
-     .library(
-       name: "FirebaseFunctionsCombine-Community",
-       targets: ["FirebaseFunctionsCombineSwift"]
-     ),
-     .library(
-       name: "FirebaseStorageCombine-Community",
-       targets: ["FirebaseStorageCombineSwift"]
-     ),
+    .library(
+      name: "FirebaseAuthCombine-Community",
+      targets: ["FirebaseAuthCombineSwift"]
+    ),
+    .library(
+      name: "FirebaseFirestoreCombine-Community",
+      targets: ["FirebaseFirestoreCombineSwift"]
+    ),
+    .library(
+      name: "FirebaseFunctionsCombine-Community",
+      targets: ["FirebaseFunctionsCombineSwift"]
+    ),
+    .library(
+      name: "FirebaseStorageCombine-Community",
+      targets: ["FirebaseStorageCombineSwift"]
+    ),
     .library(
       name: "FirebaseCrashlytics",
       targets: ["FirebaseCrashlytics"]
@@ -402,7 +402,7 @@ let package = Package(
       name: "FirebaseFirestoreCombineSwift",
       dependencies: [
         "FirebaseFirestore",
-        "FirebaseFirestoreSwift"
+        "FirebaseFirestoreSwift",
       ],
       path: "FirebaseCombineSwift/Sources/Firestore"
     ),
