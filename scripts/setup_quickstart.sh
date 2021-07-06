@@ -31,10 +31,13 @@ SAMPLE=$1
 RELEASE_TESTING=${2-}
 
 WORKSPACE_DIR="quickstart-ios/${SAMPLE}"
+PODFILE="quickstart-ios/"$SAMPLE"/Podfile"
 
 if [[ ! -z "${LEGACY:-}" ]]; then
   WORKSPACE_DIR="quickstart-ios/${SAMPLE}/Legacy${SAMPLE}Quickstart"
+  PODFILE="quickstart-ios/"$SAMPLE"/Legacy${SAMPLE}Quickstart/Podfile"
 fi
+
 
 # Installations is the only quickstart that doesn't need a real
 # GoogleService-Info.plist for its tests.
@@ -48,13 +51,13 @@ if check_secrets || [[ ${SAMPLE} == "installations" ]]; then
   $scripts_dir/localize_podfile.swift "$WORKSPACE_DIR"/Podfile "$RELEASE_TESTING"
   if [ "$RELEASE_TESTING" == "nightly_release_testing" ]; then
     set +x
-    sed -i "" '1i\'$'\n'"source 'https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsTesting.git'"$'\n' quickstart-ios/"$SAMPLE"/Podfile
+    sed -i "" '1i\'$'\n'"source 'https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsTesting.git'"$'\n' "$PODFILE"
     set -x
     echo "Source of Podfile for nightly release testing is updated."
   fi
   if [ "$RELEASE_TESTING" == "prerelease_testing" ]; then
     set +x
-    sed -i "" '1i\'$'\n'"source 'https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsReleasing.git'"$'\n' quickstart-ios/"$SAMPLE"/Podfile
+    sed -i "" '1i\'$'\n'"source 'https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsReleasing.git'"$'\n' "$PODFILE"
     set -x
     echo "Source of Podfile for prerelease testing is updated."
   fi
