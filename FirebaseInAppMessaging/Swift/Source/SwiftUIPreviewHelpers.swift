@@ -24,14 +24,11 @@ struct InAppMessagingPreviewHelpers {
                           secondaryButtonBackgroundColor: UIColor? = UIColor
                             .tertiarySystemBackground,
                           secondaryActionURL: URL? = nil,
-                          appData: [String: String]? = nil) -> InAppMessagingCardDisplay? {
-    guard let portraitData = portraitImage.pngData() else {
-      assertionFailure("Card message must have a valid portrait image.")
-      return nil
-    }
-
+                          appData: [String: String]? = nil) -> InAppMessagingCardDisplay {
+    // This may crash the preview if an invalid portrait image is provided, card messages must have
+    // a valid portrait image.
     let portraitImageData = InAppMessagingImageData(imageURL: "http://fakeurl.com",
-                                                    imageData: portraitData)
+                                                    imageData: portraitImage.pngData()!)
     var landscapeImageData: InAppMessagingImageData?
     if let landscapeData = landscapeImage?.pngData() {
       landscapeImageData = InAppMessagingImageData(
@@ -134,13 +131,11 @@ struct InAppMessagingPreviewHelpers {
                                image: UIImage,
                                actionURL: URL? = nil,
                                appData: [String: String]? = nil)
-    -> InAppMessagingImageOnlyDisplay? {
-    guard let data = image.pngData() else {
-      assertionFailure("Image-only message must have a valid image.")
-      return nil
-    }
-    let imageData = InAppMessagingImageData(imageURL: "http://fakeurl.com", imageData: data)
-
+    -> InAppMessagingImageOnlyDisplay {
+    // This may crash the preview if an invalid image is provided, image-only messages must have a
+    // valid portrait image.
+    let imageData = InAppMessagingImageData(imageURL: "http://fakeurl.com",
+                                            imageData: image.pngData()!)
     return InAppMessagingImageOnlyDisplay(
       campaignName: campaignName,
       imageData: imageData,
