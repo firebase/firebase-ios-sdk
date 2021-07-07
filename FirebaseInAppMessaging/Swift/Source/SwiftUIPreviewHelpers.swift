@@ -131,11 +131,11 @@ struct InAppMessagingPreviewHelpers {
   }
 
   static func imageOnlyMessage(campaignName: String = "Image-only message campaign",
-                               image: UIImage? = UIImage(systemName: "message"),
+                               image: UIImage,
                                actionURL: URL? = nil,
                                appData: [String: String]? = nil)
     -> InAppMessagingImageOnlyDisplay? {
-    guard let data = image?.pngData() else {
+    guard let data = image.pngData() else {
       assertionFailure("Image-only message must have a valid image.")
       return nil
     }
