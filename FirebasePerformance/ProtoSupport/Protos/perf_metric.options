@@ -32,8 +32,6 @@ firebase.perf.v1.GaugeMetadata.process_name type:FT_POINTER
 firebase.perf.v1.ApplicationInfo.google_app_id type:FT_POINTER
 firebase.perf.v1.ApplicationInfo.app_instance_id type:FT_POINTER
 firebase.perf.v1.ApplicationInfo.custom_attributes type:FT_POINTER
-firebase.perf.v1.ApplicationInfo.Custom_Attributes.key type:FT_POINTER
-firebase.perf.v1.ApplicationInfo.Custom_Attributes.value type:FT_POINTER
 
 firebase.perf.v1.WebApplicationInfo.sdk_version type:FT_POINTER
 firebase.perf.v1.WebApplicationInfo.page_url type:FT_POINTER
