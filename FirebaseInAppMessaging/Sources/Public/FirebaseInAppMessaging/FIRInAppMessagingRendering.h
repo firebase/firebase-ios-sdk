@@ -298,7 +298,7 @@ NS_SWIFT_NAME(InAppMessagingModalDisplay)
 /// Exposed for unit testing only. Don't instantiate this in your app directly.
 - (instancetype)initWithCampaignName:(NSString *)campaignName
                            titleText:(NSString *)title
-                            bodyText:(NSString *)bodyText
+                            bodyText:(nullable NSString *)bodyText
                            textColor:(UIColor *)textColor
                      backgroundColor:(UIColor *)backgroundColor
                            imageData:(nullable FIRInAppMessagingImageData *)imageData
@@ -349,7 +349,7 @@ NS_SWIFT_NAME(InAppMessagingBannerDisplay)
 /// Exposed for unit testing only. Don't instantiate this in your app directly.
 - (instancetype)initWithCampaignName:(NSString *)campaignName
                            titleText:(NSString *)title
-                            bodyText:(NSString *)bodyText
+                            bodyText:(nullable NSString *)bodyText
                            textColor:(UIColor *)textColor
                      backgroundColor:(UIColor *)backgroundColor
                            imageData:(nullable FIRInAppMessagingImageData *)imageData
@@ -378,7 +378,7 @@ NS_SWIFT_NAME(InAppMessagingImageOnlyDisplay)
 
 /// Exposed for unit testing only. Don't instantiate this in your app directly.
 - (instancetype)initWithCampaignName:(NSString *)campaignName
-                           imageData:(nullable FIRInAppMessagingImageData *)imageData
+                           imageData:(FIRInAppMessagingImageData *)imageData
                            actionURL:(nullable NSURL *)actionURL
                              appData:(nullable NSDictionary *)appData;
 
