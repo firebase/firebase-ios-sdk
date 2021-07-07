@@ -65,9 +65,9 @@ NS_SWIFT_NAME(InAppMessagingActionButton)
 
 /// Unavailable.
 - (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithButtonText:(NSString *)btnText
+- (instancetype)initWithButtonText:(NSString *)buttonText
                    buttonTextColor:(UIColor *)textColor
-                   backgroundColor:(UIColor *)bkgColor;
+                   backgroundColor:(UIColor *)backgroundColor;
 
 @end
 
@@ -237,22 +237,18 @@ NS_SWIFT_NAME(InAppMessagingCardDisplay)
 - (instancetype)init NS_UNAVAILABLE;
 
 /// Exposed for unit testing only. Don't instantiate this in your app directly.
-- (instancetype)initWithMessageID:(NSString *)messageID
-                     campaignName:(NSString *)campaignName
-                experimentPayload:(nullable ABTExperimentPayload *)experimentPayload
-              renderAsTestMessage:(BOOL)renderAsTestMessage
-                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
-                        titleText:(NSString *)title
-                         bodyText:(nullable NSString *)bodyText
-                        textColor:(UIColor *)textColor
-                portraitImageData:(FIRInAppMessagingImageData *)portraitImageData
-               landscapeImageData:(nullable FIRInAppMessagingImageData *)landscapeImageData
-                  backgroundColor:(UIColor *)backgroundColor
-              primaryActionButton:(FIRInAppMessagingActionButton *)primaryActionButton
-            secondaryActionButton:(nullable FIRInAppMessagingActionButton *)secondaryActionButton
-                 primaryActionURL:(nullable NSURL *)primaryActionURL
-               secondaryActionURL:(nullable NSURL *)secondaryActionURL
-                          appData:(nullable NSDictionary *)appData;
+- (instancetype)initWithCampaignName:(NSString *)campaignName
+                           titleText:(NSString *)title
+                            bodyText:(nullable NSString *)bodyText
+                           textColor:(UIColor *)textColor
+                   portraitImageData:(FIRInAppMessagingImageData *)portraitImageData
+                  landscapeImageData:(nullable FIRInAppMessagingImageData *)landscapeImageData
+                     backgroundColor:(UIColor *)backgroundColor
+                 primaryActionButton:(FIRInAppMessagingActionButton *)primaryActionButton
+               secondaryActionButton:(nullable FIRInAppMessagingActionButton *)secondaryActionButton
+                    primaryActionURL:(nullable NSURL *)primaryActionURL
+                  secondaryActionURL:(nullable NSURL *)secondaryActionURL
+                             appData:(nullable NSDictionary *)appData;
 
 @end
 
@@ -300,19 +296,15 @@ NS_SWIFT_NAME(InAppMessagingModalDisplay)
 - (instancetype)init NS_UNAVAILABLE;
 
 /// Exposed for unit testing only. Don't instantiate this in your app directly.
-- (instancetype)initWithMessageID:(NSString *)messageID
-                     campaignName:(NSString *)campaignName
-                experimentPayload:(nullable ABTExperimentPayload *)experimentPayload
-              renderAsTestMessage:(BOOL)renderAsTestMessage
-                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
-                        titleText:(NSString *)title
-                         bodyText:(NSString *)bodyText
-                        textColor:(UIColor *)textColor
-                  backgroundColor:(UIColor *)backgroundColor
-                        imageData:(nullable FIRInAppMessagingImageData *)imageData
-                     actionButton:(nullable FIRInAppMessagingActionButton *)actionButton
-                        actionURL:(nullable NSURL *)actionURL
-                          appData:(nullable NSDictionary *)appData;
+- (instancetype)initWithCampaignName:(NSString *)campaignName
+                           titleText:(NSString *)title
+                            bodyText:(NSString *)bodyText
+                           textColor:(UIColor *)textColor
+                     backgroundColor:(UIColor *)backgroundColor
+                           imageData:(nullable FIRInAppMessagingImageData *)imageData
+                        actionButton:(nullable FIRInAppMessagingActionButton *)actionButton
+                           actionURL:(nullable NSURL *)actionURL
+                             appData:(nullable NSDictionary *)appData;
 
 @end
 
@@ -355,18 +347,14 @@ NS_SWIFT_NAME(InAppMessagingBannerDisplay)
 - (instancetype)init NS_UNAVAILABLE;
 
 /// Exposed for unit testing only. Don't instantiate this in your app directly.
-- (instancetype)initWithMessageID:(NSString *)messageID
-                     campaignName:(NSString *)campaignName
-                experimentPayload:(nullable ABTExperimentPayload *)experimentPayload
-              renderAsTestMessage:(BOOL)renderAsTestMessage
-                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
-                        titleText:(NSString *)title
-                         bodyText:(NSString *)bodyText
-                        textColor:(UIColor *)textColor
-                  backgroundColor:(UIColor *)backgroundColor
-                        imageData:(nullable FIRInAppMessagingImageData *)imageData
-                        actionURL:(nullable NSURL *)actionURL
-                          appData:(nullable NSDictionary *)appData;
+- (instancetype)initWithCampaignName:(NSString *)campaignName
+                           titleText:(NSString *)title
+                            bodyText:(NSString *)bodyText
+                           textColor:(UIColor *)textColor
+                     backgroundColor:(UIColor *)backgroundColor
+                           imageData:(nullable FIRInAppMessagingImageData *)imageData
+                           actionURL:(nullable NSURL *)actionURL
+                             appData:(nullable NSDictionary *)appData;
 
 @end
 
@@ -389,14 +377,10 @@ NS_SWIFT_NAME(InAppMessagingImageOnlyDisplay)
 - (instancetype)init NS_UNAVAILABLE;
 
 /// Exposed for unit testing only. Don't instantiate this in your app directly.
-- (instancetype)initWithMessageID:(NSString *)messageID
-                     campaignName:(NSString *)campaignName
-                experimentPayload:(nullable ABTExperimentPayload *)experimentPayload
-              renderAsTestMessage:(BOOL)renderAsTestMessage
-                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
-                        imageData:(nullable FIRInAppMessagingImageData *)imageData
-                        actionURL:(nullable NSURL *)actionURL
-                          appData:(nullable NSDictionary *)appData;
+- (instancetype)initWithCampaignName:(NSString *)campaignName
+                           imageData:(nullable FIRInAppMessagingImageData *)imageData
+                           actionURL:(nullable NSURL *)actionURL
+                             appData:(nullable NSDictionary *)appData;
 
 @end
 
