@@ -92,13 +92,12 @@ final class CoreAPITests {
       break
     case FirebaseLoggerLevel.debug:
       break
-    case FirebaseLoggerLevel.min:
-      break
-    case FirebaseLoggerLevel.max:
-      break
     default:
       break
     }
+
+    _ = FirebaseLoggerLevel.min
+    _ = FirebaseLoggerLevel.max
 
     // MARK: - FirebaseOptions
 
