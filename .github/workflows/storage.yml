@@ -179,4 +179,4 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      run: scripts/third_party/travis/retry.sh pod spec lint ${{ matrix.spec }} --skip-tests --sources='https://github.com/firebase/SpecsTesting','https://github.com/firebase/SpecsDev.git','https://github.com/firebase/SpecsStaging.git','https://cdn.cocoapods.org/'
+      run: scripts/third_party/travis/retry.sh pod spec lint ${{ matrix.spec }} --sources='https://github.com/firebase/SpecsTesting','https://github.com/firebase/SpecsDev.git','https://github.com/firebase/SpecsStaging.git','https://cdn.cocoapods.org/'
