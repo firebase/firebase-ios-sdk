@@ -18,11 +18,7 @@ import UIKit
 class ImageOnlyMessageViewController: CommonMessageTestVC {
   func testImageOnlyMessage(imageData: InAppMessagingImageData,
                             actionURL: URL?) -> InAppMessagingImageOnlyDisplay {
-    return InAppMessagingImageOnlyDisplay(messageID: "messageID",
-                                          campaignName: "campaignName",
-                                          experimentPayload: nil,
-                                          renderAsTestMessage: false,
-                                          triggerType: .onAnalyticsEvent,
+    return InAppMessagingImageOnlyDisplay(campaignName: "campaignName",
                                           imageData: imageData,
                                           actionURL: actionURL,
                                           appData: nil)

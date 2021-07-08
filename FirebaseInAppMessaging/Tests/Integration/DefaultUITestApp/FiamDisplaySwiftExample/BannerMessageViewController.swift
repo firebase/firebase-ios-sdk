@@ -23,19 +23,16 @@ class BannerMessageViewController: CommonMessageTestVC {
                          backgroundColor: UIColor,
                          imageData: InAppMessagingImageData?,
                          actionURL: URL?) -> InAppMessagingBannerDisplay {
-    return InAppMessagingBannerDisplay(messageID: "messageID",
-                                       campaignName: "campaignName",
-                                       experimentPayload: nil,
-                                       renderAsTestMessage: false,
-                                       messageType: .banner,
-                                       triggerType: .onAnalyticsEvent,
-                                       titleText: title,
-                                       bodyText: bodyText,
-                                       textColor: textColor,
-                                       backgroundColor: backgroundColor,
-                                       imageData: imageData,
-                                       actionURL: actionURL,
-                                       appData: nil)
+    return InAppMessagingBannerDisplay(
+      campaignName: "campaignName",
+      titleText: titleText,
+      bodyText: bodyText,
+      textColor: textColor,
+      backgroundColor: backgroundColor,
+      imageData: imageData,
+      actionURL: actionURL,
+      appData: nil
+    )
   }
 
   let displayImpl = InAppMessagingDefaultDisplayImpl()

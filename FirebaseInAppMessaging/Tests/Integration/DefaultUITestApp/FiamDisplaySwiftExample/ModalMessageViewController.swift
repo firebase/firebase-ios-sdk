@@ -25,11 +25,7 @@ class ModalMessageViewController: CommonMessageTestVC {
                         actionButton: InAppMessagingActionButton?,
                         actionURL: URL?) -> InAppMessagingModalDisplay {
     return InAppMessagingModalDisplay(
-      messageID: "messageID",
       campaignName: "campaignName",
-      experimentPayload: nil,
-      renderAsTestMessage: false,
-      triggerType: .onAnalyticsEvent,
       titleText: titleText,
       bodyText: bodyText,
       textColor: textColor,

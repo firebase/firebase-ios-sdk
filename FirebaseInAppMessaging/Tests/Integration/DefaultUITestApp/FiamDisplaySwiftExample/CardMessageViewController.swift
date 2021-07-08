@@ -24,11 +24,7 @@ class CardMessageViewController: CommonMessageTestVC {
                        secondaryActionButton: InAppMessagingActionButton?,
                        secondaryActionURL: URL?) -> InAppMessagingCardDisplay {
     return InAppMessagingCardDisplay(
-      messageID: "messageID",
       campaignName: "campaignName",
-      experimentPayload: nil,
-      renderAsTestMessage: false,
-      triggerType: .onAnalyticsEvent,
       titleText: titleText,
       bodyText: body,
       textColor: textColor,
@@ -38,7 +34,8 @@ class CardMessageViewController: CommonMessageTestVC {
       primaryActionButton: primaryActionButton,
       secondaryActionButton: secondaryActionButton,
       primaryActionURL: primaryActionURL,
-      secondaryActionURL: secondaryActionURL
+      secondaryActionURL: secondaryActionURL,
+      appData: nil
     )
   }
 
