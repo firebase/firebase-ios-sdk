@@ -60,7 +60,8 @@ Pod::Spec.new do |s|
       :tvos => tvos_deployment_target
     }
     unit_tests.source_files = base_dir + 'Tests/Unit/*.[mh]',
-                              base_dir + 'Tests/Utils/*.[mh]'
+                              base_dir + 'Tests/Utils/*.[mh]',
+                              base_dir + 'Tests/Unit/Swift/*'
     unit_tests.resources = base_dir + 'Tests/Fixture/**/*'
     unit_tests.requires_app_host = true
     unit_tests.dependency 'OCMock'
