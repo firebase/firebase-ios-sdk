@@ -32,12 +32,11 @@ target 'SymbolCollisionTest' do
 #    pod 'FirebaseUI'. - requires use_frameworks!
 
     # Google Pods depending on a Firebase or GDT major version
-#    pod 'GoogleMLKit'
+    pod 'GoogleMLKit'
 
   # Other Google Pods
 #    pod 'ARCore' Conflicts with FirebasePerformance via Clearcut and google-cast-sdk
 #    pod 'Blockly' This is a Swift Pod and requires usage of use_frameworks!
-    pod 'Crashlytics'
     pod 'DigitsMigrationHelper'
     pod 'EarlGrey'
 #    pod 'GeoFire' -- requires Firebase/Database 4.0
