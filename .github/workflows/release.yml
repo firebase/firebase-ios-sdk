@@ -62,6 +62,8 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
           bot-access.txt "$bot_token_secret"
     - name: Setup testing repo and quickstart
+      env:
+        LEGACY: true
       run: |
           botaccess=`cat bot-access.txt`
           BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh abtesting nightly_release_testing
@@ -72,8 +74,12 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test swift quickstart
+      env:
+        LEGACY: true
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh ABTesting)
     - name: Remove data before upload
+      env:
+        LEGACY: true
       run: scripts/remove_data.sh config release_testing
     - uses: actions/upload-artifact@v2
       if: ${{ failure() }}
