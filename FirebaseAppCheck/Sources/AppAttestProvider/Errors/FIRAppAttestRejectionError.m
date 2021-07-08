@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckErrors.h"
+
 #import "FirebaseAppCheck/Sources/AppAttestProvider/Errors/FIRAppAttestRejectionError.h"
 
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
@@ -21,9 +23,7 @@
 @implementation FIRAppAttestRejectionError
 
 - (instancetype)init {
-  return [self initWithDomain:kFIRAppCheckErrorDomain
-                         code:FIRAppCheckErrorCodeUnknown
-                     userInfo:nil];
+  return [self initWithDomain:FIRAppCheckErrorDomain code:FIRAppCheckErrorCodeUnknown userInfo:nil];
 }
 
 @end

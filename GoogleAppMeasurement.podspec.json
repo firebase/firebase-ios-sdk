@@ -28,9 +28,8 @@
         "ios": "9.0"
     },
     "source": {
-        "http": "https://dl.google.com/firebase/ios/analytics/2962dad7aa0f51fb/GoogleAppMeasurement-8.1.1.tar.gz"
+        "http": "https://dl.google.com/firebase/ios/analytics/f50d671bb1bc5e98/GoogleAppMeasurement-8.3.0.tar.gz"
     },
-    "static_framework": true,
     "subspecs": [
         {
             "name": "AdIdSupport",
@@ -46,5 +45,5 @@
         }
     ],
     "summary": "Shared measurement methods for Google libraries. Not intended for direct use.",
-    "version": "8.2.0"
+    "version": "8.3.0"
 }

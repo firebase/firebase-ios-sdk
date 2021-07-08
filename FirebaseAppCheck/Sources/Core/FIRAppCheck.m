@@ -22,6 +22,7 @@
 #import "FBLPromises.h"
 #endif
 
+#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckErrors.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckProvider.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckProviderFactory.h"
 
@@ -171,12 +172,12 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 + (instancetype)appCheck {
   FIRApp *defaultApp = [FIRApp defaultApp];
   if (!defaultApp) {
-    [NSException raise:kFIRAppCheckErrorDomain
+    [NSException raise:FIRAppCheckErrorDomain
                 format:@"The default FirebaseApp instance must be configured before the default"
-                       @"AppCheck instance can be initialized. One way to ensure that is to "
-                       @"call `[FIRApp configure];` (`FirebaseApp.configure()` in Swift) in the App"
-                       @" Delegate's `application:didFinishLaunchingWithOptions:` "
-                       @"(`application(_:didFinishLaunchingWithOptions:)` in Swift)."];
+                       @"AppCheck instance can be initialized. One way to ensure this is to "
+                       @"call `FirebaseApp.configure()` in the App Delegate's "
+                       @"`application(_:didFinishLaunchingWithOptions:)` (or the `@main` struct's "
+                       @"initializer in SwiftUI)."];
   }
   return [self appCheckWithApp:defaultApp];
 }
@@ -184,6 +185,19 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 + (nullable instancetype)appCheckWithApp:(FIRApp *)firebaseApp {
   id<FIRAppCheckInterop> appCheck = FIR_COMPONENT(FIRAppCheckInterop, firebaseApp.container);
   return (FIRAppCheck *)appCheck;
+}
+
+- (void)tokenForcingRefresh:(BOOL)forcingRefresh
+                 completion:(void (^)(FIRAppCheckToken *_Nullable token,
+                                      NSError *_Nullable error))handler {
+  [self retrieveOrRefreshTokenForcingRefresh:forcingRefresh]
+      .then(^id _Nullable(FIRAppCheckToken *token) {
+        handler(token, nil);
+        return token;
+      })
+      .catch(^(NSError *_Nonnull error) {
+        handler(nil, [FIRAppCheckErrorUtil publicDomainErrorWithError:error]);
+      });
 }
 
 + (void)setAppCheckProviderFactory:(nullable id<FIRAppCheckProviderFactory>)factory {

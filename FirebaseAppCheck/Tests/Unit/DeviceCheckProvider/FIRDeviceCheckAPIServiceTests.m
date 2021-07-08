@@ -25,6 +25,7 @@
 #import "FirebaseAppCheck/Sources/Core/APIService/FIRAppCheckAPIService.h"
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 #import "FirebaseAppCheck/Sources/DeviceCheckProvider/API/FIRDeviceCheckAPIService.h"
+#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckErrors.h"
 
 #import "FirebaseAppCheck/Tests/Unit/Utils/FIRFixtureLoader.h"
 #import "SharedTestUtilities/URLSession/FIRURLSessionOCMockStub.h"
@@ -217,7 +218,7 @@ typedef BOOL (^FIRRequestValidationBlock)(NSURLRequest *request);
   XCTAssertNil(tokenPromise.value);
 
   XCTAssertNotNil(tokenPromise.error);
-  XCTAssertEqualObjects(tokenPromise.error.domain, kFIRAppCheckErrorDomain);
+  XCTAssertEqualObjects(tokenPromise.error.domain, FIRAppCheckErrorDomain);
   XCTAssertEqual(tokenPromise.error.code, FIRAppCheckErrorCodeUnknown);
 
   // Expect response body and HTTP status code to be included in the error.
