@@ -21,7 +21,7 @@ import Foundation
 import FirebaseCore
 import FirebaseInstallations
 
-final class AppCheckAPITests {
+final class InstallationsAPITests {
   func usage() {
     // MARK: - Installations
 
