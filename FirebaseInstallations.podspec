@@ -41,7 +41,7 @@ Pod::Spec.new do |s|
 
   s.framework = 'Security'
   s.dependency 'FirebaseCore', '~> 8.0'
-  s.dependency 'PromisesObjC', '~> 1.2'
+  s.dependency 'PromisesObjC', '>= 1.2', '< 3.0'
   s.dependency 'GoogleUtilities/Environment', '~> 7.4'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 7.4'
 
