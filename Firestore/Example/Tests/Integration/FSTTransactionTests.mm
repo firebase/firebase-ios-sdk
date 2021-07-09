@@ -89,6 +89,10 @@ TransactionStage update2 = ^(FIRTransaction *transaction, FIRDocumentReference *
   [transaction updateData:@{@"foo" : @"bar2"} forDocument:doc];
 };
 
+TransactionStage update3 = ^(FIRTransaction *transaction, FIRDocumentReference *doc) {
+  [transaction updateData:@{} forDocument:doc];
+};
+
 TransactionStage set1 = ^(FIRTransaction *transaction, FIRDocumentReference *doc) {
   [transaction setData:@{@"foo" : @"bar1"} forDocument:doc];
 };
@@ -267,7 +271,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   for (TransactionStage stage in self.stages) {
     if (stage == delete1) {
       [seqList addObject:@"delete"];
-    } else if (stage == update1 || stage == update2) {
+    } else if (stage == update1 || stage == update2 || stage == update3) {
       [seqList addObject:@"update"];
     } else if (stage == set1 || stage == set2) {
       [seqList addObject:@"set"];
@@ -292,6 +296,8 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
 
   [[[tt withExistingDoc] runWithStages:@[ get, update1, delete1 ]] expectNoDoc];
   [[[tt withExistingDoc] runWithStages:@[ get, update1, update2 ]] expectDoc:@{@"foo" : @"bar2"}];
+  [[[tt withExistingDoc] runWithStages:@[ get, update1, update2, update3 ]]
+      expectDoc:@{@"foo" : @"bar2"}];
   [[[tt withExistingDoc] runWithStages:@[ get, update1, set2 ]] expectDoc:@{@"foo" : @"bar2"}];
 
   [[[tt withExistingDoc] runWithStages:@[ get, set1, delete1 ]] expectNoDoc];
@@ -331,6 +337,8 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
 
   [[[tt withExistingDoc] runWithStages:@[ update1, delete1 ]] expectNoDoc];
   [[[tt withExistingDoc] runWithStages:@[ update1, update2 ]] expectDoc:@{@"foo" : @"bar2"}];
+  [[[tt withExistingDoc] runWithStages:@[ update1, update2, update3 ]]
+      expectDoc:@{@"foo" : @"bar2"}];
   [[[tt withExistingDoc] runWithStages:@[ update1, set2 ]] expectDoc:@{@"foo" : @"bar2"}];
 
   [[[tt withExistingDoc] runWithStages:@[ set1, delete1 ]] expectNoDoc];

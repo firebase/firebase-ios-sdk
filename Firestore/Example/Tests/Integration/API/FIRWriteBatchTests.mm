@@ -119,6 +119,22 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqualObjects(snapshot.data, (@{@"foo" : @"bar", @"baz" : @42}));
 }
 
+- (void)testUpdateWithEmptyDictionary {
+  FIRDocumentReference *doc = [self documentRef];
+  [self writeDocumentRef:doc data:@{@"foo" : @"bar"}];
+  XCTestExpectation *batchExpectation = [self expectationWithDescription:@"batch written"];
+  FIRWriteBatch *batch = [doc.firestore batch];
+  [batch updateData:@{} forDocument:doc];
+  [batch commitWithCompletion:^(NSError *error) {
+    XCTAssertNil(error);
+    [batchExpectation fulfill];
+  }];
+  [self awaitExpectations];
+  FIRDocumentSnapshot *snapshot = [self readDocumentForRef:doc];
+  XCTAssertTrue(snapshot.exists);
+  XCTAssertEqualObjects(snapshot.data, (@{@"foo" : @"bar"}));
+}
+
 - (void)testCannotUpdateNonexistentDocuments {
   FIRDocumentReference *doc = [self documentRef];
   XCTestExpectation *batchExpectation = [self expectationWithDescription:@"batch written"];
