@@ -294,7 +294,6 @@
 					"$inherited",
 				);
 				INFOPLIST_FILE = FiamDisplaySwiftExample/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -319,7 +318,6 @@
 					"$inherited",
 				);
 				INFOPLIST_FILE = FiamDisplaySwiftExample/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
