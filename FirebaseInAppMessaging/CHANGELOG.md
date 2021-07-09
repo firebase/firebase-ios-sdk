@@ -1,3 +1,7 @@
+# 2021-7 -- v.8.3.0
+- [added] Added support for unit testing with in-app message data objects (#8351).
+- [added] Added support for prototyping custom in-app message views in SwiftUI (#8351).
+
 # 2021-6 -- v.8.2.0
 - [fixed] Fixed missing constraints warnings in default UI storyboard (#8205).
 
