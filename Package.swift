@@ -153,7 +153,7 @@ let package = Package(
     .package(
       name: "GoogleUtilities",
       url: "https://github.com/google/GoogleUtilities.git",
-      "7.5.0" ..< "8.0.0"
+      "7.4.0" ..< "8.0.0"
     ),
     .package(
       name: "GTMSessionFetcher",
