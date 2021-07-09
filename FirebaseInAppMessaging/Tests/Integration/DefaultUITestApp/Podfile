@@ -10,7 +10,7 @@ pod 'FirebaseCoreDiagnostics', :path => '../../../..'
 pod 'FirebaseABTesting', :path => '../../../..'
 
 target 'FiamDisplaySwiftExample' do
-  platform :ios, '12.0'
+  platform :ios, '10.0'
   pod 'FirebaseInAppMessaging', :path => '../../../..'
 end
 
