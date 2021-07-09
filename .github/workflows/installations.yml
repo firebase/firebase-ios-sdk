@@ -101,7 +101,8 @@ jobs:
         target: [ios, tvos, macos]
         flags: [
           '--use-static-frameworks',
-          '--use-libraries'
+          '--use-libraries',
+          '--skip-tests'
         ]
     needs: pod-lib-lint
     steps:
