@@ -108,7 +108,7 @@
                  titleText:@"titleText"
                   bodyText:@"bodyText"
                  textColor:[UIColor clearColor]
-           backgroundColor:[UIColor darkTextColor]
+           backgroundColor:[UIColor blueColor]
                  imageData:[[self class] testImageData]
                  actionURL:[NSURL URLWithString:@"http://banner-test.com"]
                    appData:@{@"emoji" : @"🇲🇽"}];
@@ -122,7 +122,7 @@
   XCTAssertEqualObjects(bannerMessage.bodyText, @"bodyText");
   XCTAssertEqualObjects(bannerMessage.textColor, [UIColor clearColor]);
   XCTAssertNotNil(bannerMessage.imageData);
-  XCTAssertEqualObjects(bannerMessage.displayBackgroundColor, [UIColor darkTextColor]);
+  XCTAssertEqualObjects(bannerMessage.displayBackgroundColor, [UIColor blueColor]);
   XCTAssertEqualObjects(bannerMessage.actionURL, [NSURL URLWithString:@"http://banner-test.com"]);
   XCTAssertEqualObjects(bannerMessage.appData[@"emoji"], @"🇲🇽");
 }
