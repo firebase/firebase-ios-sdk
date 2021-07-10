@@ -193,6 +193,12 @@ import XCTest
       XCTAssertNotNil(result)
     }
 
+    func testSimpleGetDataWithTask() async throws {
+      let ref = storage.reference(withPath: "ios/public/1mb2")
+      let result = try await ref.data(maxSize: 1024 * 1024)
+      XCTAssertNotNil(result)
+    }
+
     func testSimpleGetDataInBackgroundQueue() async throws {
       actor MyBackground {
         func doit(_ ref: StorageReference) async throws -> Data {
@@ -230,6 +236,17 @@ import XCTest
       XCTAssertEqual(testRegex.numberOfMatches(in: urlString,
                                                range: NSRange(location: 0,
                                                               length: urlString.count)), 1)
+    }
+
+    func testAsyncWrite() async throws {
+      let ref = storage.reference(withPath: "ios/public/helloworld")
+      let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
+      let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
+      let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
+
+      _ = try await ref.putDataAwait(data)
+      let url = try await ref.writeAwait(toFile: fileURL)
+      XCTAssertEqual(url.lastPathComponent, "hello.txt")
     }
 
     func testSimpleGetFile() throws {

@@ -63,5 +63,20 @@ import FirebaseStorage
         }
       }
     }
+
+    func writeAwait(toFile fileURL: URL) async throws -> URL {
+      typealias URLContinuation = CheckedContinuation<URL, Error>
+      return try await withCheckedThrowingContinuation { (continuation: URLContinuation) in
+        // TODO: Use task to handle progress and cancellation.
+        _ = self.write(toFile: fileURL) { result in
+          switch result {
+          case let .success(url):
+            continuation.resume(returning: url)
+          case let .failure(error):
+            continuation.resume(throwing: error)
+          }
+        }
+      }
+    }
   }
 #endif
