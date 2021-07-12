@@ -22,12 +22,7 @@ import FirebaseStorage
       return try await withCheckedThrowingContinuation { (continuation: DataContinuation) in
         // TODO: Use task to handle progress and cancellation.
         _ = self.getData(maxSize: maxSize) { result in
-          switch result {
-          case let .success(data):
-            continuation.resume(returning: data)
-          case let .failure(error):
-            continuation.resume(throwing: error)
-          }
+          continuation.resume(with: result)
         }
       }
     }
@@ -38,12 +33,7 @@ import FirebaseStorage
       return try await withCheckedThrowingContinuation { (continuation: MetadataContinuation) in
         // TODO: Use task to handle progress and cancellation.
         _ = self.putData(uploadData, metadata: metadata) { result in
-          switch result {
-          case let .success(metadata):
-            continuation.resume(returning: metadata)
-          case let .failure(error):
-            continuation.resume(throwing: error)
-          }
+          continuation.resume(with: result)
         }
       }
     }
@@ -54,12 +44,7 @@ import FirebaseStorage
       return try await withCheckedThrowingContinuation { (continuation: MetadataContinuation) in
         // TODO: Use task to handle progress and cancellation.
         _ = self.putFile(from: url, metadata: metadata) { result in
-          switch result {
-          case let .success(metadata):
-            continuation.resume(returning: metadata)
-          case let .failure(error):
-            continuation.resume(throwing: error)
-          }
+          continuation.resume(with: result)
         }
       }
     }
@@ -69,12 +54,7 @@ import FirebaseStorage
       return try await withCheckedThrowingContinuation { (continuation: URLContinuation) in
         // TODO: Use task to handle progress and cancellation.
         _ = self.write(toFile: fileURL) { result in
-          switch result {
-          case let .success(url):
-            continuation.resume(returning: url)
-          case let .failure(error):
-            continuation.resume(throwing: error)
-          }
+          continuation.resume(with: result)
         }
       }
     }
