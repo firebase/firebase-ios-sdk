@@ -39,9 +39,9 @@ class ByteStreamCpp : public ByteStream {
  private:
   /**
    * Checks the states of `input_` and returns a `StreamReadResult` based on the
-   * states and the given `read_string` as the read result.
+   * states and the given `result` as the read result.
    */
-  StreamReadResult ToReadResult(const std::string& read_string);
+  StreamReadResult ToReadResult(const std::string& result);
 
   std::unique_ptr<std::istream> input_;
 };

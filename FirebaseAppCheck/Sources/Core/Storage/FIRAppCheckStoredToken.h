@@ -22,10 +22,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRAppCheckStoredToken : NSObject <NSSecureCoding>
 
-/// FAA token.
-@property(nonatomic, copy) NSString *token;
-/// FAA token expiration date in the device local time.
-@property(nonatomic, strong) NSDate *expirationDate;
+/// The Firebase App Check token.
+@property(nonatomic, copy, nullable) NSString *token;
+
+/// The Firebase App Check token expiration date in the device local time.
+@property(nonatomic, strong, nullable) NSDate *expirationDate;
+
+/// The date when the Firebase App Check token was received in the device's local time.
+@property(nonatomic, strong, nullable) NSDate *receivedAtDate;
 
 /// The version of local storage.
 @property(nonatomic, readonly) NSInteger storageVersion;

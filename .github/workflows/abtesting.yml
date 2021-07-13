@@ -36,7 +36,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Initialize xcodebuild
-      run: xcodebuild -list
+      run: scripts/setup_spm_tests.sh
     - name: iOS Unit Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh ABTestingUnit iOS spm
 
@@ -50,7 +50,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Initialize xcodebuild
-      run: xcodebuild -list
+      run: scripts/setup_spm_tests.sh
     - name: Unit Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh ABTestingUnit ${{ matrix.target }} spm
 
@@ -77,6 +77,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Setup quickstart
+      env:
+        LEGACY: true
       run: scripts/setup_quickstart.sh abtesting
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-abtesting.plist.gpg \
@@ -85,6 +87,8 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test swift quickstart
+      env:
+        LEGACY: true
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh ABTesting)
 
   abtesting-cron-only:

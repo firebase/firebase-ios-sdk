@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if canImport(Combine) && swift(>=5.0) && canImport(FirebaseAuth)
+#if canImport(Combine) && swift(>=5.0)
 
   import Combine
   import FirebaseAuth
@@ -553,4 +553,4 @@
     }
   }
 
-#endif // canImport(Combine) && swift(>=5.0) && canImport(FirebaseAuth)
+#endif // canImport(Combine) && swift(>=5.0)

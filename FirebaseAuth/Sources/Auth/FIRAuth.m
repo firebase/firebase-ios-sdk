@@ -433,12 +433,13 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 + (FIRAuth *)auth {
   FIRApp *defaultApp = [FIRApp defaultApp];
   if (!defaultApp) {
-    [NSException raise:NSInternalInconsistencyException
-                format:@"The default FIRApp instance must be configured before the default FIRAuth"
-                       @"instance can be initialized. One way to ensure that is to call "
-                       @"`[FIRApp configure];` (`FirebaseApp.configure()` in Swift) in the App "
-                       @"Delegate's `application:didFinishLaunchingWithOptions:` "
-                       @"(`application(_:didFinishLaunchingWithOptions:)` in Swift)."];
+    [NSException
+         raise:NSInternalInconsistencyException
+        format:@"The default FirebaseApp instance must be configured before the default Auth"
+               @"instance can be initialized. One way to ensure this is to call "
+               @"`FirebaseApp.configure()` in the App Delegate's "
+               @"`application(_:didFinishLaunchingWithOptions:)` (or the `@main` struct's "
+               @"initializer in SwiftUI)."];
   }
   return [self authWithApp:defaultApp];
 }
@@ -1393,7 +1394,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 - (FIRIDTokenDidChangeListenerHandle)addIDTokenDidChangeListener:
     (FIRIDTokenDidChangeListenerBlock)listener {
   if (!listener) {
-    [NSException raise:NSInvalidArgumentException format:@"listener must not be nil."];
+    [NSException raise:NSInvalidArgumentException format:@"Listener must not be nil."];
     return nil;
   }
   FIRAuthStateDidChangeListenerHandle handle;

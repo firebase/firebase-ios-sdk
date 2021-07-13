@@ -61,8 +61,8 @@ class OrderedCode {
   // compatibility.
 
   static void WriteString(std::string* dest, absl::string_view str);
-  static void WriteNumIncreasing(std::string* dest, uint64_t num);
-  static void WriteSignedNumIncreasing(std::string* dest, int64_t num);
+  static void WriteNumIncreasing(std::string* dest, uint64_t val);
+  static void WriteSignedNumIncreasing(std::string* dest, int64_t val);
 
   /**
    * Creates an encoding for the "infinite string", a value considered to

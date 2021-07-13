@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAppCheck'
-  s.version          = '8.1.0-beta'
+  s.version          = '8.3.0-beta'
   s.summary          = 'Firebase App Check SDK.'
 
   s.description      = <<-DESC
@@ -39,7 +39,7 @@ Pod::Spec.new do |s|
   s.framework = 'DeviceCheck'
 
   s.dependency 'FirebaseCore', '~> 8.0'
-  s.dependency 'PromisesObjC', '~> 1.2'
+  s.dependency 'PromisesObjC', '>= 1.2', '< 3.0'
   s.dependency 'GoogleUtilities/Environment', '~> 7.4'
 
   s.pod_target_xcconfig = {

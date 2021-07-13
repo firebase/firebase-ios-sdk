@@ -240,6 +240,16 @@
             "text": "Eagles are going to win",
             "hexColor": "#004953"
           },
+          "actionButton": {
+            "text": {
+              "text": "Open",
+              "hexColor": "#1a0dab"
+            },
+            "buttonHexColor": "#000000"
+          },
+          "action": {
+            "actionUrl": "https://www.google.com"
+          },
           "backgroundHexColor": "#ffffff"
         }
       },

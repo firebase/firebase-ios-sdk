@@ -102,6 +102,8 @@ jobs:
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - name: Setup quickstart
+      env:
+        LEGACY: true
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseRemoteConfig/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/FirebaseCore.xcframework \
@@ -115,8 +117,12 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
         quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test Quickstart
+      env:
+        LEGACY: true
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
     - name: Remove data before upload
+      env:
+        LEGACY: true
       if: ${{ failure() }}
       run: scripts/remove_data.sh abtesting
     - uses: actions/upload-artifact@v2
@@ -146,7 +152,7 @@ jobs:
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - name: Setup Swift Quickstart
-      run: SAMPLE="$SDK" TARGET="${SDK}Example" NON_FIREBASE_SDKS="FBSDKLoginKit FBSDKCoreKit" scripts/setup_quickstart_framework.sh \
+      run: SAMPLE="$SDK" TARGET="${SDK}Example" NON_FIREBASE_SDKS="FBSDKLoginKit FBSDKCoreKit FBSDKCoreKit_Basics" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseDynamicLinks/* \
                                                "${HOME}"/ios_frameworks/Firebase/GoogleSignIn/* \
@@ -231,14 +237,16 @@ jobs:
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - name: Setup quickstart
+      env:
+        LEGACY: true
       run: |
               SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseCrashlytics/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
-              cp quickstart-ios/crashlytics/Firebase/run quickstart-ios/crashlytics
-              cp quickstart-ios/crashlytics/Firebase/upload-symbols quickstart-ios/crashlytics
-              chmod +x quickstart-ios/crashlytics/run
-              chmod +x quickstart-ios/crashlytics/upload-symbols
+              cp quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Firebase/run quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart
+              cp quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Firebase/upload-symbols quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart
+              chmod +x quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/run
+              chmod +x quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/upload-symbols
     # TODO(#8057): Restore Swift Quickstart
     # - name: Setup swift quickstart
     #   run: |
@@ -251,10 +259,14 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
         quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test Quickstart
+      env:
+        LEGACY: true
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
     # - name: Test Swift Quickstart
     #   run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}" swift)
     - name: Remove data before upload
+      env:
+        LEGACY: true
       if: ${{ failure() }}
       run: scripts/remove_data.sh crashlytics
     - uses: actions/upload-artifact@v2
@@ -284,7 +296,7 @@ jobs:
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - name: Setup quickstart
-      run: SAMPLE="$SDK" TARGET="${SDK}Example" NON_FIREBASE_SDKS="FirebaseUI/Database" scripts/setup_quickstart_framework.sh \
+      run: SAMPLE="$SDK" TARGET="${SDK}Example" NON_FIREBASE_SDKS="FirebaseDatabaseUI" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseDatabase/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseStorage/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseFirestore/* \
@@ -379,7 +391,7 @@ jobs:
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - name: Setup quickstart
-      run: SAMPLE="$SDK" TARGET="${SDK}Example" NON_FIREBASE_SDKS="SDWebImage FirebaseUI/Auth FirebaseUI/Email FirebaseFirestoreSwift" scripts/setup_quickstart_framework.sh \
+      run: SAMPLE="$SDK" TARGET="${SDK}Example" NON_FIREBASE_SDKS="SDWebImage FirebaseAuthUI FirebaseEmailAuthUI FirebaseFirestoreSwift" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseFirestore/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \

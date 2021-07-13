@@ -45,7 +45,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Initialize xcodebuild
-      run: xcodebuild -list
+      run: scripts/setup_spm_tests.sh
     - name: iOS Unit Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseInstallations iOS spmbuildonly
 
@@ -59,7 +59,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Initialize xcodebuild
-      run: xcodebuild -list
+      run: scripts/setup_spm_tests.sh
     - name: Unit Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseInstallations ${{ matrix.target }} spmbuildonly
 
@@ -101,7 +101,7 @@ jobs:
         target: [ios, tvos, macos]
         flags: [
           '--use-static-frameworks',
-          '--use-libraries'
+          '--use-libraries --skip-tests'
         ]
     needs: pod-lib-lint
     steps:

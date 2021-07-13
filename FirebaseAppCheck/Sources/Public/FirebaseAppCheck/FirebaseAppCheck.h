@@ -15,6 +15,7 @@
  */
 
 #import "FIRAppCheck.h"
+#import "FIRAppCheckErrors.h"
 #import "FIRAppCheckProvider.h"
 #import "FIRAppCheckProviderFactory.h"
 #import "FIRAppCheckToken.h"

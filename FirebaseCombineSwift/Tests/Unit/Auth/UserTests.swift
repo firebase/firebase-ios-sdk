@@ -87,6 +87,10 @@ class UserTests: XCTestCase {
 
   class MockSetAccountInfoResponse: FIRSetAccountInfoResponse {}
 
+  class MockSecureAccessResponse: FIRSecureTokenResponse {
+    override var accessToken: String { return "ACCESS_TOKEN" }
+  }
+
   class MockVerifyPhoneNumberResponse: FIRVerifyPhoneNumberResponse {
     fileprivate var providerCredentials: ProviderCredentials!
 
@@ -227,6 +231,11 @@ class UserTests: XCTestCase {
       } else {
         callback(MockGetOOBConfirmationCodeResponse(), nil)
       }
+    }
+
+    override func secureToken(_ request: FIRSecureTokenRequest,
+                              callback: @escaping FIRSecureTokenResponseCallback) {
+      callback(MockSecureAccessResponse(), nil)
     }
   }
 

@@ -16,9 +16,17 @@ set -xe
 
 SDK="$1"
 MODE=${2-}
+
+DIR="${SDK}"
+
+if [[ ! -z "$LEGACY" ]]; then
+  DIR="${SDK}/Legacy${SDK}Quickstart"
+fi
+
+
 if [ "$MODE" == "release_testing" ]; then
   echo "Update podfiles release_testing."
-  sed -i "" "s/https:\/\/.*@github.com\/FirebasePrivate\/SpecsTesting.git/https:\/\/github.com\/FirebasePrivate\/SpecsTesting.git/g" quickstart-ios/"${SDK}"/Podfile quickstart-ios/"${SDK}"/Podfile.lock
+  sed -i "" "s/https:\/\/.*@github.com\/FirebasePrivate\/SpecsTesting.git/https:\/\/github.com\/FirebasePrivate\/SpecsTesting.git/g" quickstart-ios/"${DIR}"/Podfile quickstart-ios/"${DIR}"/Podfile.lock
 fi
-rm -f quickstart-ios/"${SDK}"/GoogleService-Info.plist
+rm -f quickstart-ios/"${DIR}"/GoogleService-Info.plist
 rm -f quickstart-ios/TestUtils/FIREGSignInInfo.h

@@ -141,8 +141,10 @@ void InstrumentConnectionAllTheTotals(FPRClassInstrumentor *instrumentor) {
         setReplacingBlock:^(id object, NSURLConnection *connection, NSInteger bytesWritten,
                             NSInteger totalBytesWritten, NSInteger totalBytesExpectedToWrite) {
           FPRNetworkTrace *trace = [FPRNetworkTrace networkTraceFromObject:connection];
-          [trace checkpointState:FPRNetworkTraceCheckpointStateResponseReceived];
           trace.requestSize = totalBytesWritten;
+          if (totalBytesWritten >= totalBytesExpectedToWrite) {
+            [trace checkpointState:FPRNetworkTraceCheckpointStateRequestCompleted];
+          }
           typedef void (*OriginalImp)(id, SEL, NSURLConnection *, NSInteger, NSInteger, NSInteger);
           ((OriginalImp)currentIMP)(object, selector, connection, bytesWritten, totalBytesWritten,
                                     totalBytesExpectedToWrite);

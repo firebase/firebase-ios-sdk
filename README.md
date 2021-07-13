@@ -148,6 +148,7 @@ Alternatively disable signing in each target:
 * Add `CODE_SIGNING_REQUIRED` setting with a value of `NO`
 
 ### Swift Package Manager
+* To enable test schemes: `./scripts/setup_spm_tests.sh`
 * `open Package.swift` or double click `Package.swift` in Finder.
 * Xcode will open the project
   * Choose a scheme for a library to build or test suite to run
@@ -280,11 +281,11 @@ app has communicated with our servers". This relies on Analytics and will not wo
 macOS/tvOS/watchOS/Catalyst.
 **It's safe to ignore the message and continue**, the rest of the SDKs will work as expected.
 
-#### Additional Catalyst Notes
+#### Additional MacOS and Catalyst Notes
 
 * FirebaseAuth and FirebaseMessaging require adding `Keychain Sharing Capability`
 to Build Settings.
-* FirebaseFirestore requires signing the
+* For Catalyst, FirebaseFirestore requires signing the
 [gRPC Resource target](https://github.com/firebase/firebase-ios-sdk/issues/3500#issuecomment-518741681).
 
 #### Additional Crashlytics Notes

@@ -30,30 +30,28 @@
         "ios": "9.0"
     },
     "source": {
-        "http": "https://dl.google.com/firebase/ios/analytics/86f6bb645de4aa4b/FirebaseAnalytics-8.0.0.tar.gz"
+        "http": "https://dl.google.com/firebase/ios/analytics/bd11de21f44e549f/FirebaseAnalytics-8.3.0.tar.gz"
     },
     "subspecs": [
         {
             "name": "AdIdSupport",
             "dependencies": {
-                "FirebaseAnalytics/Base": "8.1.0",
-                "GoogleAppMeasurement": "8.1.0"
-            }
+                "GoogleAppMeasurement": "8.4.0"
+            },
+            "vendored_frameworks": [
+                "Frameworks/FirebaseAnalytics.xcframework"
+            ]
         },
         {
             "name": "WithoutAdIdSupport",
             "dependencies": {
-                "FirebaseAnalytics/Base": "8.1.0",
-                "GoogleAppMeasurement/WithoutAdIdSupport": "8.1.0"
-            }
-        },
-        {
-            "name": "Base",
+                "GoogleAppMeasurement/WithoutAdIdSupport": "8.4.0"
+            },
             "vendored_frameworks": [
                 "Frameworks/FirebaseAnalytics.xcframework"
             ]
         }
     ],
     "summary": "Firebase Analytics for iOS",
-    "version": "8.1.0"
+    "version": "8.4.0"
 }

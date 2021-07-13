@@ -16,9 +16,14 @@
 
 #import <XCTest/XCTest.h>
 
+#import <OCMock/OCMock.h>
+
+#import <GoogleUtilities/GULKeychainStorage.h>
+
 #import "FBLPromise+Testing.h"
 
 #import "FirebaseAppCheck/Sources/AppAttestProvider/Storage/FIRAppAttestArtifactStorage.h"
+#import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 
 @interface FIRAppAttestArtifactStorageTests : XCTestCase
 
@@ -45,6 +50,8 @@
   self.storage = nil;
   [super tearDown];
 }
+
+#if !TARGET_OS_MACCATALYST  // Catalyst should be possible with Xcode 12.5+
 
 - (void)testSetAndGetArtifact {
   [self assertSetGetForStorage];
@@ -112,6 +119,85 @@
   XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
   XCTAssertNil(getPromise.value);
   XCTAssertNil(getPromise.error);
+}
+
+- (void)testGetArtifact_KeychainError {
+  // 1. Set up storage mock.
+  id mockKeychainStorage = OCMClassMock([GULKeychainStorage class]);
+  FIRAppAttestArtifactStorage *artifactStorage =
+      [[FIRAppAttestArtifactStorage alloc] initWithAppName:self.appName
+                                                     appID:self.appID
+                                           keychainStorage:mockKeychainStorage
+                                               accessGroup:nil];
+
+  // 2. Create and expect keychain error.
+  NSError *gulsKeychainError = [NSError errorWithDomain:@"com.guls.keychain" code:-1 userInfo:nil];
+  OCMExpect([mockKeychainStorage getObjectForKey:[OCMArg any]
+                                     objectClass:[OCMArg any]
+                                     accessGroup:[OCMArg any]])
+      .andReturn([FBLPromise resolvedWith:gulsKeychainError]);
+
+  // 3. Get artifact and verify results.
+  __auto_type getPromise = [artifactStorage getArtifactForKey:@"key"];
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+  XCTAssertNotNil(getPromise.error);
+  XCTAssertEqualObjects(getPromise.error,
+                        [FIRAppCheckErrorUtil keychainErrorWithError:gulsKeychainError]);
+
+  // 4. Verify storage mock.
+  OCMVerifyAll(mockKeychainStorage);
+}
+
+- (void)testSetArtifact_KeychainError {
+  // 1. Set up storage mock.
+  id mockKeychainStorage = OCMClassMock([GULKeychainStorage class]);
+  FIRAppAttestArtifactStorage *artifactStorage =
+      [[FIRAppAttestArtifactStorage alloc] initWithAppName:self.appName
+                                                     appID:self.appID
+                                           keychainStorage:mockKeychainStorage
+                                               accessGroup:nil];
+  // 2. Create and expect keychain error.
+  NSError *gulsKeychainError = [NSError errorWithDomain:@"com.guls.keychain" code:-1 userInfo:nil];
+  OCMExpect([mockKeychainStorage setObject:[OCMArg any]
+                                    forKey:[OCMArg any]
+                               accessGroup:[OCMArg any]])
+      .andReturn([FBLPromise resolvedWith:gulsKeychainError]);
+
+  // 3. Set artifact and verify results.
+  NSData *artifact = [@"artifact" dataUsingEncoding:NSUTF8StringEncoding];
+  __auto_type setPromise = [artifactStorage setArtifact:artifact forKey:@"key"];
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+  XCTAssertNotNil(setPromise.error);
+  XCTAssertEqualObjects(setPromise.error,
+                        [FIRAppCheckErrorUtil keychainErrorWithError:gulsKeychainError]);
+
+  // 4. Verify storage mock.
+  OCMVerifyAll(mockKeychainStorage);
+}
+
+- (void)testRemoveArtifact_KeychainError {
+  // 1. Set up storage mock.
+  id mockKeychainStorage = OCMClassMock([GULKeychainStorage class]);
+  FIRAppAttestArtifactStorage *artifactStorage =
+      [[FIRAppAttestArtifactStorage alloc] initWithAppName:self.appName
+                                                     appID:self.appID
+                                           keychainStorage:mockKeychainStorage
+                                               accessGroup:nil];
+
+  // 2. Create and expect keychain error.
+  NSError *gulsKeychainError = [NSError errorWithDomain:@"com.guls.keychain" code:-1 userInfo:nil];
+  OCMExpect([mockKeychainStorage removeObjectForKey:[OCMArg any] accessGroup:[OCMArg any]])
+      .andReturn([FBLPromise resolvedWith:gulsKeychainError]);
+
+  // 3. Remove artifact and verify results.
+  __auto_type setPromise = [artifactStorage setArtifact:nil forKey:@"key"];
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+  XCTAssertNotNil(setPromise.error);
+  XCTAssertEqualObjects(setPromise.error,
+                        [FIRAppCheckErrorUtil keychainErrorWithError:gulsKeychainError]);
+
+  // 4. Verify storage mock.
+  OCMVerifyAll(mockKeychainStorage);
 }
 
 #pragma mark - Helpers
@@ -185,5 +271,6 @@
   [storage2 setArtifact:nil forKey:keyID];
   XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 }
+#endif  // !TARGET_OS_MACCATALYST
 
 @end

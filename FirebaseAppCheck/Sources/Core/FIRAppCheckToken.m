@@ -14,17 +14,28 @@
  * limitations under the License.
  */
 
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"
+#import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"
+
+NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRAppCheckToken
 
-- (instancetype)initWithToken:(NSString *)token expirationDate:(NSDate *)expirationDate {
+- (instancetype)initWithToken:(NSString *)token
+               expirationDate:(NSDate *)expirationDate
+               receivedAtDate:(NSDate *)receivedAtDate {
   self = [super init];
   if (self) {
     _token = [token copy];
     _expirationDate = expirationDate;
+    _receivedAtDate = receivedAtDate;
   }
   return self;
 }
 
+- (instancetype)initWithToken:(NSString *)token expirationDate:(NSDate *)expirationDate {
+  return [self initWithToken:token expirationDate:expirationDate receivedAtDate:[NSDate date]];
+}
+
 @end
+
+NS_ASSUME_NONNULL_END

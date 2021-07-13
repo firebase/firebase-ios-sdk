@@ -17,7 +17,7 @@
 
 import PackageDescription
 
-let firebaseVersion = "8.1.0"
+let firebaseVersion = "8.3.0"
 
 let package = Package(
   name: "Firebase",
@@ -55,6 +55,10 @@ let package = Package(
     // .library(
     //   name: "FirebaseAuthCombineSwift-Beta",
     //   targets: ["FirebaseAuthCombineSwift"]
+    // ),
+    // .library(
+    //   name: "FirebaseFirestoreCombineSwift-Beta",
+    //   targets: ["FirebaseFirestoreCombineSwift"]
     // ),
     // .library(
     //   name: "FirebaseFunctionsCombineSwift-Beta",
@@ -129,7 +133,7 @@ let package = Package(
     .package(
       name: "Promises",
       url: "https://github.com/google/promises.git",
-      "1.2.8" ..< "1.3.0"
+      "1.2.8" ..< "3.0.0"
     ),
     .package(
       name: "SwiftProtobuf",
@@ -139,12 +143,12 @@ let package = Package(
     .package(
       name: "GoogleAppMeasurement",
       url: "https://github.com/google/GoogleAppMeasurement.git",
-      .exact("8.0.0")
+      .exact("8.3.1")
     ),
     .package(
       name: "GoogleDataTransport",
       url: "https://github.com/google/GoogleDataTransport.git",
-      "8.4.0" ..< "9.0.0"
+      "9.0.0" ..< "10.0.0"
     ),
     .package(
       name: "GoogleUtilities",
@@ -287,8 +291,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/8.0.0/FirebaseAnalytics.zip",
-      checksum: "b4820ede2e4ee4001695f372da65f24e262881715be635d87ed87e7568cfda9f"
+      url: "https://dl.google.com/firebase/ios/swiftpm/8.3.0/FirebaseAnalytics.zip",
+      checksum: "3225b785ef2884889b41216150d000ccac3aa9d5e9bebbd993a63725503949e5"
     ),
     .target(
       name: "FirebaseAnalyticsSwiftTarget",
@@ -398,6 +402,7 @@ let package = Package(
       name: "FirebaseCombineSwift",
       dependencies: [
         "FirebaseAuthCombineSwift",
+        "FirebaseFirestoreCombineSwift",
         "FirebaseFunctionsCombineSwift",
         "FirebaseStorageCombineSwift",
       ],
@@ -407,6 +412,11 @@ let package = Package(
       name: "FirebaseAuthCombineSwift",
       dependencies: ["FirebaseAuth"],
       path: "FirebaseCombineSwift/Sources/Auth"
+    ),
+    .target(
+      name: "FirebaseFirestoreCombineSwift",
+      dependencies: ["FirebaseFirestore", "FirebaseFirestoreSwift"],
+      path: "FirebaseCombineSwift/Sources/Firestore"
     ),
     .target(
       name: "FirebaseStorageCombineSwift",
@@ -420,6 +430,7 @@ let package = Package(
       name: "FirebaseCrashlytics",
       dependencies: ["FirebaseCore", "FirebaseInstallations",
                      .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
+                     .product(name: "GULEnvironment", package: "GoogleUtilities"),
                      .product(name: "FBLPromises", package: "Promises"),
                      .product(name: "nanopb", package: "nanopb")],
       path: "Crashlytics",
@@ -428,8 +439,6 @@ let package = Package(
         "CHANGELOG.md",
         "LICENSE",
         "README.md",
-        "Data/",
-        "Protos/",
         "ProtoSupport/",
         "UnitTests/",
         "generate_project.sh",
@@ -574,10 +583,8 @@ let package = Package(
         "third_party/",
 
         // Exclude alternate implementations for other platforms
-        "core/src/api/input_validation_std.cc",
         "core/src/remote/connectivity_monitor_noop.cc",
         "core/src/util/filesystem_win.cc",
-        "core/src/util/hard_assert_stdio.cc",
         "core/src/util/log_stdio.cc",
         "core/src/util/secure_random_openssl.cc",
       ],

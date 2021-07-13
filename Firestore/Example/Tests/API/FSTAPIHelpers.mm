@@ -52,7 +52,6 @@ using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentSet;
 using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::FieldValue;
-using firebase::firestore::model::NoDocument;
 
 using testutil::Doc;
 using testutil::Query;

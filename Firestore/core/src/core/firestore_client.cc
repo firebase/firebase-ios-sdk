@@ -67,7 +67,6 @@ namespace core {
 using api::DocumentReference;
 using api::DocumentSnapshot;
 using api::DocumentSnapshotListener;
-using api::ListenerRegistration;
 using api::QuerySnapshot;
 using api::QuerySnapshotListener;
 using api::Settings;
@@ -76,16 +75,13 @@ using auth::CredentialsProvider;
 using auth::User;
 using firestore::Error;
 using local::LevelDbOpener;
-using local::LocalSerializer;
 using local::LocalStore;
 using local::LruParams;
 using local::MemoryPersistence;
 using local::QueryEngine;
 using local::QueryResult;
-using model::DatabaseId;
 using model::Document;
 using model::DocumentKeySet;
-using model::DocumentMap;
 using model::MaybeDocument;
 using model::Mutation;
 using model::OnlineState;
@@ -95,11 +91,8 @@ using remote::FirebaseMetadataProvider;
 using remote::RemoteStore;
 using remote::Serializer;
 using util::AsyncQueue;
-using util::DelayedConstructor;
-using util::DelayedOperation;
 using util::Empty;
 using util::Executor;
-using util::Path;
 using util::Status;
 using util::StatusCallback;
 using util::StatusOr;
@@ -403,13 +396,12 @@ void FirestoreClient::GetDocumentFromLocalCache(
       Document document(*maybe_document);
       maybe_snapshot = DocumentSnapshot::FromDocument(
           doc.firestore(), document,
-          SnapshotMetadata{
-              /*has_pending_writes=*/document.has_local_mutations(),
-              /*from_cache=*/true});
+          SnapshotMetadata{/*pending_writes=*/document.has_local_mutations(),
+                           /*from_cache=*/true});
     } else if (maybe_document && maybe_document->is_no_document()) {
       maybe_snapshot = DocumentSnapshot::FromNoDocument(
           doc.firestore(), doc.key(),
-          SnapshotMetadata{/*has_pending_writes=*/false,
+          SnapshotMetadata{/*pending_writes=*/false,
                            /*from_cache=*/true});
     } else {
       maybe_snapshot =
@@ -543,10 +535,12 @@ void FirestoreClient::GetNamedQuery(const std::string& name,
                         target.filters(), target.order_bys(), target.limit(),
                         named_query.value().bundled_query().limit_type(),
                         target.start_at(), target.end_at());
-            user_executor_->Execute(
-                [query, callback] { callback(std::move(query)); });
+            user_executor_->Execute([query, callback] {
+              callback(std::move(query), /*found=*/true);
+            });
           } else {
-            user_executor_->Execute([callback] { callback(absl::nullopt); });
+            user_executor_->Execute(
+                [callback] { callback(Query(), /*found=*/false); });
           }
         }
       };

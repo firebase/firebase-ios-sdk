@@ -649,6 +649,45 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   [self awaitExpectations];
 }
 
+- (void)testMakesDefaultMaxAttempts {
+  FIRFirestore *firestore = [self firestore];
+  FIRDocumentReference *doc1 = [[firestore collectionWithPath:@"counters"] documentWithAutoID];
+  auto counter = std::make_shared<std::atomic_int>(0);
+
+  [self writeDocumentRef:doc1 data:@{@"count" : @(15.0)}];
+
+  // Skip backoff delays.
+  [firestore workerQueue]->SkipDelaysForTimerId(TimerId::RetryTransaction);
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
+  [firestore
+      runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {
+        ++(*counter);
+        // Get the first doc.
+        [transaction getDocument:doc1 error:error];
+        XCTAssertNil(*error);
+        // Do a write outside of the transaction to cause the transaction to fail.
+        dispatch_semaphore_t writeSemaphore = dispatch_semaphore_create(0);
+        int newValue = 1234 + counter->load();
+        [doc1 setData:@{
+          @"count" : @(newValue)
+        }
+            completion:^(NSError *) {
+              dispatch_semaphore_signal(writeSemaphore);
+            }];
+        // We can block on it, because transactions run on a background queue.
+        dispatch_semaphore_wait(writeSemaphore, DISPATCH_TIME_FOREVER);
+        return nil;
+      }
+      completion:^(id, NSError *_Nullable error) {
+        [expectation fulfill];
+        XCTAssertNotNil(error);
+        XCTAssertEqual(error.code, FIRFirestoreErrorCodeFailedPrecondition);
+        XCTAssertEqual(counter->load(), 5);
+      }];
+  [self awaitExpectations];
+}
+
 - (void)testSuccessWithNoTransactionOperations {
   FIRFirestore *firestore = [self firestore];
   XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
