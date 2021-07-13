@@ -35,15 +35,22 @@ device, and it is completely free.
 
   base_dir = "FirebaseMessaging/"
   s.source_files = [
-    base_dir + 'Sources/**/*.[mh]',
+    base_dir + 'Sources/**/*',
+    base_dir + 'Sources/Protogen/nanopb/*.h',
     'Interop/Analytics/Public/*.h',
     'FirebaseCore/Sources/Private/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
+    'GoogleDataTransport/Public/*.h',
   ]
   s.public_header_files = base_dir + 'Sources/Public/FirebaseMessaging/*.h'
   s.library = 'sqlite3'
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
+    'GCC_PREPROCESSOR_DEFINITIONS' =>
+      'GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1 ' +
+      'FIRMessaging_LIB_VERSION=' + String(s.version) +
+      # for nanopb:
+      ' PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
     # Unit tests do library imports using repo-root relative paths.
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
  }
@@ -57,6 +64,8 @@ device, and it is completely free.
   s.dependency 'GoogleUtilities/Reachability', '~> 7.4'
   s.dependency 'GoogleUtilities/Environment', '~> 7.4'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 7.4'
+  s.dependency 'GoogleDataTransport', '~> 9.0'
+  s.dependency 'nanopb', '~> 2.30908.0'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }
