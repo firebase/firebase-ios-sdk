@@ -50,484 +50,536 @@
   [performance setDataCollectionEnabled:NO];
 }
 
+pb_bytes_array_t *FPREncodeData(NSData *data) {
+  pb_bytes_array_t *pbBytesArray = calloc(1, PB_BYTES_ARRAY_T_ALLOCSIZE(data.length));
+  if (pbBytesArray != NULL) {
+    [data getBytes:pbBytesArray->bytes length:data.length];
+    pbBytesArray->size = (pb_size_t)data.length;
+//    NSLog(@"before: %lu", (unsigned long)data.length);
+  }
+  return pbBytesArray;
+//  pb_bytes_array_t *pbBytes = malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(data.length));
+//    memcpy(pbBytes->bytes, [data bytes], data.length);
+//    pbBytes->size = (pb_size_t)data.length;
+//  return pbBytes;
+  
+}
+
+NSData *FPRDecodeData(pb_bytes_array_t *pbData) {
+//  NSLog(@"after: %lu", pbData->size);
+
+  NSData *data = [NSData dataWithBytesNoCopy:pbData length:sizeof(pbData) freeWhenDone:YES];
+  return data;
+}
+
+pb_bytes_array_t *FPREncodeString(NSString *string) {
+  NSData *stringBytes = [string dataUsingEncoding:NSUTF8StringEncoding];
+  return FPREncodeData(stringBytes);
+}
+
+NSString *FPRDecodeString(pb_bytes_array_t *pbData) {
+  NSData *data = FPRDecodeData(pbData);
+  return [NSString stringWithCString:[data bytes] encoding:NSUTF8StringEncoding];
+}
+
+NSMutableDictionary<NSString*, NSString*> *FPRDecodeCustomAttributes(struct _firebase_perf_v1_ApplicationInfo_CustomAttributesEntry *customAttributes, NSInteger count) {
+  NSMutableDictionary<NSString*, NSString*> *dict = [NSMutableDictionary dictionary];
+  for (int i = 0; i < count; i++) {
+    NSString *key = FPRDecodeString(customAttributes[i].key);
+    NSString *value = FPRDecodeString(customAttributes[i].value);
+    dict[key] = value;
+  }
+  return dict;
+}
+
 /** Validates that a PerfMetricMessage creation is successful. */
 - (void)testPerfMetricMessageCreation {
-  NSString *appID = @"RandomAppID";
-  FPRMSGPerfMetric *perfMetric = FPRGetPerfMetricMessage(appID);
-  XCTAssertEqualObjects(perfMetric.applicationInfo.googleAppId, appID);
-  XCTAssertNotNil(perfMetric.applicationInfo);
+  NSString *appID = @"RandomApp ID";
+  NSData *data = [appID dataUsingEncoding:NSUTF8StringEncoding];
+  pb_bytes_array_t *pb = FPREncodeData(data);
+  NSData *newData = FPRDecodeData(pb);
+//  NSString *newString = [NSString stringWithCString:[newData bytes] encoding:NSUTF8StringEncoding];
+  NSString *newString = [[NSString alloc] initWithData:newData encoding:NSUTF8StringEncoding];
+  XCTAssertEqualObjects(appID, newString);
+//  XCTAssertEqualObjects(data, newData);
+
+//  NSString *s = FPRDecodeString(FPREncodeString(appID));
+//  XCTAssertEqual(sizeof(appID), sizeof(s));
+
+//  XCTAssertEqualObjects(appID, s);
+//  XCTAssertTrue([appID isEqualToString:s]);
 }
 
 /** Tests if the application information is populated when creating a FPRMSGPerfMetric message. */
 - (void)testApplicationInfoMessage {
-  FPRMSGPerfMetric *event = FPRGetPerfMetricMessage(@"appid");
-  FPRMSGApplicationInfo *appInfo = event.applicationInfo;
-  XCTAssertEqual(appInfo.googleAppId, @"appid");
-  XCTAssertNotNil(appInfo.iosAppInfo.sdkVersion);
-  XCTAssertNotNil(appInfo.iosAppInfo.bundleShortVersion);
-  XCTAssertTrue((appInfo.iosAppInfo.mccMnc.length == 0) || (appInfo.iosAppInfo.mccMnc.length == 6));
-  XCTAssertTrue(appInfo.iosAppInfo.networkConnectionInfo.networkType !=
-                FPRMSGNetworkConnectionInfo_NetworkType_None);
-  if (appInfo.iosAppInfo.networkConnectionInfo.networkType ==
-      FPRMSGNetworkConnectionInfo_NetworkType_Mobile) {
-    XCTAssertTrue(appInfo.iosAppInfo.networkConnectionInfo.mobileSubtype !=
-                  FPRMSGNetworkConnectionInfo_MobileSubtype_UnknownMobileSubtype);
-  }
+  firebase_perf_v1_PerfMetric perfMetric = FPRGetPerfMetricMessage(@"appid");
+  XCTAssertEqualObjects(FPRDecodeString(perfMetric.application_info.google_app_id), @"appid");
+//  NSLog(@"%@",FPRDecodeString(perfMetric.application_info.ios_app_info.sdk_version));
+//  XCTAssertNotNil(FPRDecodeString(perfMetric.application_info.ios_app_info.sdk_version));
+//  XCTAssertNotNil(appInfo.iosAppInfo.bundleShortVersion);
+//  XCTAssertTrue((appInfo.iosAppInfo.mccMnc.length == 0) || (appInfo.iosAppInfo.mccMnc.length == 6));
+//  XCTAssertTrue(appInfo.iosAppInfo.networkConnectionInfo.networkType !=
+//                FPRMSGNetworkConnectionInfo_NetworkType_None);
+//  if (appInfo.iosAppInfo.networkConnectionInfo.networkType ==
+//      FPRMSGNetworkConnectionInfo_NetworkType_Mobile) {
+//    XCTAssertTrue(appInfo.iosAppInfo.networkConnectionInfo.mobileSubtype !=
+//                  FPRMSGNetworkConnectionInfo_MobileSubtype_UnknownMobileSubtype);
+//  }
 }
 
 /** Validates that ApplicationInfoMessage carries global attributes. */
 - (void)testApplicationInfoMessageWithAttributes {
   FIRPerformance *performance = [FIRPerformance sharedInstance];
   [performance setValue:@"bar" forAttribute:@"foo"];
-  FPRMSGPerfMetric *event = FPRGetPerfMetricMessage(@"appid");
-  FPRMSGApplicationInfo *appInfo = event.applicationInfo;
-  XCTAssertNotNil(appInfo.customAttributes);
-  XCTAssertEqual(appInfo.customAttributes.allKeys.count, 1);
-  NSDictionary *attributes = appInfo.customAttributes;
-  XCTAssertEqual(attributes[@"foo"], @"bar");
+  firebase_perf_v1_PerfMetric event = FPRGetPerfMetricMessage(@"appid");
+  firebase_perf_v1_ApplicationInfo appInfo = event.application_info;
+  XCTAssertEqual(appInfo.custom_attributes_count, 1);
+  NSDictionary *attributes = FPRDecodeCustomAttributes(appInfo.custom_attributes, appInfo.custom_attributes_count);
+  NSString* value = attributes[@"foo"];
+  XCTAssertEqual(value, @"bar");
   [performance removeAttribute:@"foo"];
 }
 
-/** Tests if mccMnc validation is catching non numerals. */
-- (void)testMccMncOnlyHasNumbers {
-  NSString *mccMnc = FPRValidatedMccMnc(@"123", @"MKV");
-  XCTAssertNil(mccMnc);
-  mccMnc = FPRValidatedMccMnc(@"ABC", @"123");
-  XCTAssertNil(mccMnc);
-}
-
-/** Tests if mccMnc validation is working. */
-- (void)testMccMnc {
-  NSString *mccMnc = FPRValidatedMccMnc(@"123", @"22");
-  XCTAssertNotNil(mccMnc);
-  mccMnc = FPRValidatedMccMnc(@"123", @"223");
-  XCTAssertNotNil(mccMnc);
-}
-
-/** Tests if mccMnc validation catches improper lengths. */
-- (void)testMccMncLength {
-  NSString *mccMnc = FPRValidatedMccMnc(@"12", @"22");
-  XCTAssertNil(mccMnc);
-  mccMnc = FPRValidatedMccMnc(@"123", @"2");
-  XCTAssertNil(mccMnc);
-}
-
-/** Validates that a valid FIRTrace object to Proto conversion is successful. */
-- (void)testTraceMetricMessageCreation {
-  FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
-  [trace start];
-  [trace startStageNamed:@"1"];
-  [trace startStageNamed:@"2"];
-  [trace incrementMetric:@"c1" byInt:2];
-  [trace setValue:@"bar" forAttribute:@"foo"];
-  [trace stop];
-  FPRMSGTraceMetric *traceMetric = FPRGetTraceMetric(trace);
-  XCTAssertNotNil(traceMetric);
-  XCTAssertEqualObjects(traceMetric.name, @"Random");
-  XCTAssertEqual(traceMetric.subtracesArray.count, 2);
-  XCTAssertEqual(traceMetric.counters.count, 1);
-  XCTAssertEqualObjects(traceMetric.subtracesArray[0].name, @"1");
-  XCTAssertEqualObjects(traceMetric.subtracesArray[1].name, @"2");
-  XCTAssertNotNil(traceMetric.customAttributes);
-  XCTAssertEqual(traceMetric.customAttributes.allKeys.count, 1);
-  NSDictionary *attributes = traceMetric.customAttributes;
-  XCTAssertEqual(attributes[@"foo"], @"bar");
-}
-
-/** Validates that a valid FIRTrace object to Proto conversion has required fields. */
-- (void)testTraceMetricMessageCreationHasRequiredFields {
-  FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
-  [trace start];
-  [trace incrementMetric:@"c1" byInt:2];
-  [trace stop];
-  FPRMSGTraceMetric *traceMetric = FPRGetTraceMetric(trace);
-  XCTAssertNotNil(traceMetric);
-  XCTAssertTrue(traceMetric.hasName);
-  XCTAssertTrue(traceMetric.hasClientStartTimeUs);
-  XCTAssertTrue(traceMetric.hasDurationUs);
-  XCTAssertTrue(traceMetric.hasIsAuto);
-}
-
-/** Validates the session details inside trace metric. */
-- (void)testTraceMetricMessageHasSessionDetails {
-  FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
-  [trace start];
-  [trace incrementMetric:@"c1" byInt:2];
-
-  FPRSessionDetails *session1 = [[FPRSessionDetails alloc] initWithSessionId:@"a"
-                                                                     options:FPRSessionOptionsNone];
-  FPRSessionDetails *session2 =
-      [[FPRSessionDetails alloc] initWithSessionId:@"b" options:FPRSessionOptionsGauges];
-
-  trace.activeSessions = [@[ session1, session2 ] mutableCopy];
-  [trace stop];
-  FPRMSGTraceMetric *traceMetric = FPRGetTraceMetric(trace);
-  XCTAssertNotNil(traceMetric);
-  XCTAssertNotNil(traceMetric.perfSessionsArray);
-  XCTAssertTrue(traceMetric.perfSessionsArray.count >= 2);
-}
-
-/** Validates that an invalid FIRTrace object to Proto conversion is unsuccessful. */
-- (void)testTraceMetricMessageCreationForInvalidTrace {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnonnull"
-  XCTAssertNil(FPRGetTraceMetric(nil));
-#pragma clang diagnostic pop
-}
-
-/** Validates that the FPRNetworkTrace object to Proto conversion is successful. */
-- (void)testNetworkTraceMetricMessage {
-  NSURL *URL = [NSURL URLWithString:@"https://abc.com"];
-  NSURLRequest *URLRequest = [NSURLRequest requestWithURL:URL];
-  FPRNetworkTrace *trace = [[FPRNetworkTrace alloc] initWithURLRequest:URLRequest];
-  [trace start];
-  [trace checkpointState:FPRNetworkTraceCheckpointStateInitiated];
-  [trace checkpointState:FPRNetworkTraceCheckpointStateResponseReceived];
-
-  NSDictionary<NSString *, NSString *> *headerFields = @{@"Content-Type" : @"text/json"};
-  NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:URLRequest.URL
-                                                            statusCode:404
-                                                           HTTPVersion:@"HTTP/1.1"
-                                                          headerFields:headerFields];
-  NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:-200 userInfo:nil];
-
-  [trace didReceiveData:[NSData data]];
-  [trace didCompleteRequestWithResponse:response error:error];
-  FPRMSGNetworkRequestMetric *networkMetric = FPRGetNetworkRequestMetric(trace);
-  XCTAssertEqualObjects(networkMetric.URL, URL.absoluteString);
-  XCTAssertEqual(networkMetric.HTTPMethod, FPRMSGNetworkRequestMetric_HttpMethod_Get);
-  XCTAssertEqual(networkMetric.networkClientErrorReason,
-                 FPRMSGNetworkRequestMetric_NetworkClientErrorReason_GenericClientError);
-  XCTAssertEqual(networkMetric.HTTPResponseCode, 404);
-  XCTAssertEqualObjects(networkMetric.responseContentType, @"text/json");
-}
-
-/** Validates that the FPRNetworkTrace object to Proto conversion has required fields for a valid
- * response.
- */
-- (void)testNetworkTraceMetricMessageHasAllRequiredFields {
-  NSURL *URL = [NSURL URLWithString:@"https://abc.com"];
-  NSURLRequest *URLRequest = [NSURLRequest requestWithURL:URL];
-  FPRNetworkTrace *trace = [[FPRNetworkTrace alloc] initWithURLRequest:URLRequest];
-  [trace start];
-  [trace checkpointState:FPRNetworkTraceCheckpointStateInitiated];
-  [trace checkpointState:FPRNetworkTraceCheckpointStateResponseReceived];
-
-  NSDictionary<NSString *, NSString *> *headerFields = @{@"Content-Type" : @"text/json"};
-  NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:URLRequest.URL
-                                                            statusCode:404
-                                                           HTTPVersion:@"HTTP/1.1"
-                                                          headerFields:headerFields];
-  NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:-200 userInfo:nil];
-  [trace didReceiveData:[NSData data]];
-  [trace didCompleteRequestWithResponse:response error:error];
-  FPRMSGNetworkRequestMetric *networkMetric = FPRGetNetworkRequestMetric(trace);
-  XCTAssertTrue(networkMetric.hasURL);
-  XCTAssertTrue(networkMetric.hasClientStartTimeUs);
-  XCTAssertTrue(networkMetric.hasHTTPMethod);
-  XCTAssertTrue(networkMetric.hasResponsePayloadBytes);
-  XCTAssertTrue(networkMetric.hasNetworkClientErrorReason);
-  XCTAssertTrue(networkMetric.hasHTTPResponseCode);
-  XCTAssertTrue(networkMetric.hasResponseContentType);
-  XCTAssertTrue(networkMetric.hasTimeToResponseCompletedUs);
-}
-
-/** Validates that an invalid FPRNetworkTrace object to Proto conversion is unsuccessful. */
-- (void)testNetworkTraceMetricMessageCreationForInvalidTrace {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnonnull"
-  XCTAssertNil(FPRGetNetworkRequestMetric(nil));
-#pragma clang diagnostic pop
-}
-
-/** Validates that application process state conversion to proto enum type is successful. */
-- (void)testApplicationProcessStateConversion {
-  XCTAssertEqual(FPRMSGApplicationProcessState_Background,
-                 FPRApplicationProcessState(FPRTraceStateBackgroundOnly));
-  XCTAssertEqual(FPRMSGApplicationProcessState_Foreground,
-                 FPRApplicationProcessState(FPRTraceStateForegroundOnly));
-  XCTAssertEqual(FPRMSGApplicationProcessState_ForegroundBackground,
-                 FPRApplicationProcessState(FPRTraceStateBackgroundAndForeground));
-  XCTAssertEqual(FPRMSGApplicationProcessState_ApplicationProcessStateUnknown,
-                 FPRApplicationProcessState(FPRTraceStateUnknown));
-
-  // Try with some random value should say the application state is unknown.
-  XCTAssertEqual(FPRMSGApplicationProcessState_ApplicationProcessStateUnknown,
-                 FPRApplicationProcessState(100));
-}
-
-#ifdef TARGET_HAS_MOBILE_CONNECTIVITY
-/** Validates if network object creation works. */
-- (void)testNetworkInfoObjectCreation {
-  XCTAssertNotNil(FPRNetworkInfo());
-}
-#endif
-
-/** Validates if network events are dropped when there is not valid response code. */
-- (void)testDroppingNetworkEventsWithInvalidStatusCode {
-  NSURL *URL = [NSURL URLWithString:@"https://abc.com"];
-  NSURLRequest *URLRequest = [NSURLRequest requestWithURL:URL];
-  FPRNetworkTrace *trace = [[FPRNetworkTrace alloc] initWithURLRequest:URLRequest];
-  [trace start];
-  [trace checkpointState:FPRNetworkTraceCheckpointStateInitiated];
-  [trace checkpointState:FPRNetworkTraceCheckpointStateResponseReceived];
-  [trace didReceiveData:[NSData data]];
-  [trace didCompleteRequestWithResponse:nil error:nil];
-  XCTAssertNil(FPRGetNetworkRequestMetric(trace));
-}
-
-/** Validates the session details inside trace metric. */
-- (void)testNetworkRequestMetricMessageHasSessionDetails {
-  NSURL *URL = [NSURL URLWithString:@"https://abc.com"];
-  NSURLRequest *URLRequest = [NSURLRequest requestWithURL:URL];
-  FPRNetworkTrace *trace = [[FPRNetworkTrace alloc] initWithURLRequest:URLRequest];
-  [trace start];
-  [trace checkpointState:FPRNetworkTraceCheckpointStateInitiated];
-  [trace checkpointState:FPRNetworkTraceCheckpointStateResponseReceived];
-
-  NSDictionary<NSString *, NSString *> *headerFields = @{@"Content-Type" : @"text/json"};
-  NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:URLRequest.URL
-                                                            statusCode:404
-                                                           HTTPVersion:@"HTTP/1.1"
-                                                          headerFields:headerFields];
-  NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:-200 userInfo:nil];
-
-  FPRSessionDetails *session1 = [[FPRSessionDetails alloc] initWithSessionId:@"a"
-                                                                     options:FPRSessionOptionsNone];
-  FPRSessionDetails *session2 =
-      [[FPRSessionDetails alloc] initWithSessionId:@"b" options:FPRSessionOptionsGauges];
-  trace.activeSessions = [@[ session1, session2 ] mutableCopy];
-
-  [trace didReceiveData:[NSData data]];
-  [trace didCompleteRequestWithResponse:response error:error];
-  FPRMSGNetworkRequestMetric *networkMetric = FPRGetNetworkRequestMetric(trace);
-  XCTAssertNotNil(networkMetric);
-  XCTAssertNotNil(networkMetric.perfSessionsArray);
-  XCTAssertTrue(networkMetric.perfSessionsArray.count >= 2);
-}
-
-/** Validates the gauge metric proto packaging works with proper conversions. */
-- (void)testMemoryMetricProtoConversion {
-  NSMutableArray *gauges = [[NSMutableArray alloc] init];
-  NSDate *date = [NSDate date];
-  FPRMemoryGaugeData *memoryData = [[FPRMemoryGaugeData alloc] initWithCollectionTime:date
-                                                                             heapUsed:5 * 1024
-                                                                        heapAvailable:10 * 1024];
-  [gauges addObject:memoryData];
-
-  FPRMSGGaugeMetric *gaugeMetric = FPRGetGaugeMetric(gauges, @"abc");
-  XCTAssertNotNil(gaugeMetric);
-  XCTAssertEqual(gaugeMetric.cpuMetricReadingsArray_Count, 0);
-  XCTAssertEqual(gaugeMetric.iosMemoryReadingsArray_Count, 1);
-  FPRMSGIosMemoryReading *memoryReading = [gaugeMetric.iosMemoryReadingsArray firstObject];
-  XCTAssertEqual(memoryReading.usedAppHeapMemoryKb, 5);
-  XCTAssertEqual(memoryReading.freeAppHeapMemoryKb, 10);
-}
-
-/** Validates the gauge metric proto packaging works. */
-- (void)testGaugeMetricProtoPacking {
-  NSMutableArray *gauges = [[NSMutableArray alloc] init];
-  for (int i = 0; i < 5; i++) {
-    NSDate *date = [NSDate date];
-    FPRCPUGaugeData *cpuData = [[FPRCPUGaugeData alloc] initWithCollectionTime:date
-                                                                    systemTime:100
-                                                                      userTime:200];
-    FPRMemoryGaugeData *memoryData = [[FPRMemoryGaugeData alloc] initWithCollectionTime:date
-                                                                               heapUsed:100
-                                                                          heapAvailable:200];
-    [gauges addObject:cpuData];
-    [gauges addObject:memoryData];
-  }
-  FPRMSGGaugeMetric *gaugeMetric = FPRGetGaugeMetric(gauges, @"abc");
-  XCTAssertNotNil(gaugeMetric);
-  XCTAssertEqual(gaugeMetric.cpuMetricReadingsArray_Count, 5);
-  XCTAssertEqual(gaugeMetric.iosMemoryReadingsArray_Count, 5);
-}
-
-/** Validates the gauge metric proto packaging does not create an empty package. */
-- (void)testGaugeMetricProtoPackingWithEmptyData {
-  NSMutableArray *gauges = [[NSMutableArray alloc] init];
-  FPRMSGGaugeMetric *gaugeMetric1 = FPRGetGaugeMetric(gauges, @"abc");
-  XCTAssertNil(gaugeMetric1);
-
-  FPRMSGGaugeMetric *gaugeMetric2 = FPRGetGaugeMetric(gauges, @"");
-  XCTAssertNil(gaugeMetric2);
-}
-
-/** Validates if the first session is a verbose session for a trace. */
-- (void)testOrderingOfSessionsForTrace {
-  FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
-  [trace start];
-  FPRSessionDetails *session1 = [[FPRSessionDetails alloc] initWithSessionId:@"a"
-                                                                     options:FPRSessionOptionsNone];
-  FPRSessionDetails *session2 =
-      [[FPRSessionDetails alloc] initWithSessionId:@"b" options:FPRSessionOptionsGauges];
-
-  trace.activeSessions = [@[ session1, session2 ] mutableCopy];
-  [trace stop];
-
-  FPRMSGTraceMetric *traceMetric = FPRGetTraceMetric(trace);
-  XCTAssertNotNil(traceMetric);
-  XCTAssertNotNil(traceMetric.perfSessionsArray);
-  XCTAssertTrue(traceMetric.perfSessionsArray.count >= 2);
-
-  FPRMSGPerfSession *perfSession = [traceMetric.perfSessionsArray firstObject];
-  GPBEnumArray *firstSessionVerbosity = perfSession.sessionVerbosityArray;
-  XCTAssertEqual([firstSessionVerbosity valueAtIndex:0],
-                 FPRMSGSessionVerbosity_GaugesAndSystemEvents);
-  XCTAssertEqualObjects(perfSession.sessionId, @"b");
-}
-
-/** Validates the verbosity ordering when no sessions are verbose. */
-- (void)testOrderingOfNonVerboseSessionsForTrace {
-  FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
-  [trace start];
-  FPRSessionDetails *session1 = [[FPRSessionDetails alloc] initWithSessionId:@"a"
-                                                                     options:FPRSessionOptionsNone];
-  FPRSessionDetails *session2 = [[FPRSessionDetails alloc] initWithSessionId:@"b"
-                                                                     options:FPRSessionOptionsNone];
-
-  trace.activeSessions = [@[ session1, session2 ] mutableCopy];
-  [trace stop];
-
-  FPRMSGTraceMetric *traceMetric = FPRGetTraceMetric(trace);
-  XCTAssertNotNil(traceMetric);
-  XCTAssertNotNil(traceMetric.perfSessionsArray);
-  XCTAssertTrue(traceMetric.perfSessionsArray.count >= 2);
-
-  FPRMSGPerfSession *perfSession = [traceMetric.perfSessionsArray firstObject];
-  XCTAssertEqualObjects(perfSession.sessionId, @"a");
-  XCTAssertEqual(perfSession.sessionVerbosityArray_Count, 0);
-}
-
-/** Validates if a session is not verbose, do not populate the session verbosity array. */
-- (void)testVerbosityArrayEmptyWhenTheSessionIsNotVerbose {
-  FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
-  [trace start];
-  FPRSessionDetails *session1 = [[FPRSessionDetails alloc] initWithSessionId:@"a"
-                                                                     options:FPRSessionOptionsNone];
-
-  trace.activeSessions = [@[ session1 ] mutableCopy];
-  [trace stop];
-
-  FPRMSGTraceMetric *traceMetric = FPRGetTraceMetric(trace);
-  XCTAssertNotNil(traceMetric);
-  XCTAssertNotNil(traceMetric.perfSessionsArray);
-  XCTAssertTrue(traceMetric.perfSessionsArray.count >= 1);
-
-  FPRMSGPerfSession *perfSession = [traceMetric.perfSessionsArray firstObject];
-  XCTAssertEqualObjects(perfSession.sessionId, @"a");
-  XCTAssertEqual(perfSession.sessionVerbosityArray_Count, 0);
-}
-
-/** Validates if the first session is a verbose session for a network trace. */
-- (void)testOrderingOfSessionsForNetworkTrace {
-  NSURL *URL = [NSURL URLWithString:@"https://abc.com"];
-  NSURLRequest *URLRequest = [NSURLRequest requestWithURL:URL];
-  FPRNetworkTrace *trace = [[FPRNetworkTrace alloc] initWithURLRequest:URLRequest];
-  [trace start];
-  [trace checkpointState:FPRNetworkTraceCheckpointStateInitiated];
-  [trace checkpointState:FPRNetworkTraceCheckpointStateResponseReceived];
-
-  NSDictionary<NSString *, NSString *> *headerFields = @{@"Content-Type" : @"text/json"};
-  NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:URLRequest.URL
-                                                            statusCode:404
-                                                           HTTPVersion:@"HTTP/1.1"
-                                                          headerFields:headerFields];
-  NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:-200 userInfo:nil];
-
-  FPRSessionDetails *session1 = [[FPRSessionDetails alloc] initWithSessionId:@"a"
-                                                                     options:FPRSessionOptionsNone];
-  FPRSessionDetails *session2 =
-      [[FPRSessionDetails alloc] initWithSessionId:@"b" options:FPRSessionOptionsGauges];
-
-  trace.activeSessions = [@[ session1, session2 ] mutableCopy];
-
-  [trace didReceiveData:[NSData data]];
-  [trace didCompleteRequestWithResponse:response error:error];
-
-  FPRMSGNetworkRequestMetric *networkMetric = FPRGetNetworkRequestMetric(trace);
-  XCTAssertNotNil(networkMetric);
-  XCTAssertNotNil(networkMetric.perfSessionsArray);
-  XCTAssertTrue(networkMetric.perfSessionsArray.count >= 2);
-
-  FPRMSGPerfSession *perfSession = [networkMetric.perfSessionsArray firstObject];
-  GPBEnumArray *firstSessionVerbosity = perfSession.sessionVerbosityArray;
-  XCTAssertEqual([firstSessionVerbosity valueAtIndex:0],
-                 FPRMSGSessionVerbosity_GaugesAndSystemEvents);
-  XCTAssertEqualObjects(perfSession.sessionId, @"b");
-}
-
-/** Validates the verbosity ordering when no sessions are verbose for a network trace. */
-- (void)testOrderingOfNonVerboseSessionsForNetworkTrace {
-  NSURL *URL = [NSURL URLWithString:@"https://abc.com"];
-  NSURLRequest *URLRequest = [NSURLRequest requestWithURL:URL];
-  FPRNetworkTrace *trace = [[FPRNetworkTrace alloc] initWithURLRequest:URLRequest];
-  [trace start];
-  [trace checkpointState:FPRNetworkTraceCheckpointStateInitiated];
-  [trace checkpointState:FPRNetworkTraceCheckpointStateResponseReceived];
-
-  NSDictionary<NSString *, NSString *> *headerFields = @{@"Content-Type" : @"text/json"};
-  NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:URLRequest.URL
-                                                            statusCode:404
-                                                           HTTPVersion:@"HTTP/1.1"
-                                                          headerFields:headerFields];
-  NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:-200 userInfo:nil];
-
-  FPRSessionDetails *session1 = [[FPRSessionDetails alloc] initWithSessionId:@"a"
-                                                                     options:FPRSessionOptionsNone];
-  FPRSessionDetails *session2 = [[FPRSessionDetails alloc] initWithSessionId:@"b"
-                                                                     options:FPRSessionOptionsNone];
-
-  trace.activeSessions = [@[ session1, session2 ] mutableCopy];
-
-  [trace didReceiveData:[NSData data]];
-  [trace didCompleteRequestWithResponse:response error:error];
-
-  FPRMSGNetworkRequestMetric *networkMetric = FPRGetNetworkRequestMetric(trace);
-  XCTAssertNotNil(networkMetric);
-  XCTAssertNotNil(networkMetric.perfSessionsArray);
-  XCTAssertTrue(networkMetric.perfSessionsArray.count >= 2);
-
-  FPRMSGPerfSession *perfSession = [networkMetric.perfSessionsArray firstObject];
-  XCTAssertEqualObjects(perfSession.sessionId, @"a");
-  XCTAssertEqual(perfSession.sessionVerbosityArray_Count, 0);
-}
-
-/** Validates if a session is not verbose, do not populate the session verbosity array for network
- *  trace.
- */
-- (void)testVerbosityArrayEmptyWhenTheSessionIsNotVerboseForNetworkTrace {
-  NSURL *URL = [NSURL URLWithString:@"https://abc.com"];
-  NSURLRequest *URLRequest = [NSURLRequest requestWithURL:URL];
-  FPRNetworkTrace *trace = [[FPRNetworkTrace alloc] initWithURLRequest:URLRequest];
-  [trace start];
-  [trace checkpointState:FPRNetworkTraceCheckpointStateInitiated];
-  [trace checkpointState:FPRNetworkTraceCheckpointStateResponseReceived];
-
-  NSDictionary<NSString *, NSString *> *headerFields = @{@"Content-Type" : @"text/json"};
-  NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:URLRequest.URL
-                                                            statusCode:404
-                                                           HTTPVersion:@"HTTP/1.1"
-                                                          headerFields:headerFields];
-  NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:-200 userInfo:nil];
-
-  FPRSessionDetails *session1 = [[FPRSessionDetails alloc] initWithSessionId:@"a"
-                                                                     options:FPRSessionOptionsNone];
-
-  trace.activeSessions = [@[ session1 ] mutableCopy];
-
-  [trace didReceiveData:[NSData data]];
-  [trace didCompleteRequestWithResponse:response error:error];
-
-  FPRMSGNetworkRequestMetric *networkMetric = FPRGetNetworkRequestMetric(trace);
-  XCTAssertNotNil(networkMetric);
-  XCTAssertNotNil(networkMetric.perfSessionsArray);
-  XCTAssertTrue(networkMetric.perfSessionsArray.count >= 1);
-
-  FPRMSGPerfSession *perfSession = [networkMetric.perfSessionsArray firstObject];
-  XCTAssertEqualObjects(perfSession.sessionId, @"a");
-  XCTAssertEqual(perfSession.sessionVerbosityArray_Count, 0);
-}
-
+///** Tests if mccMnc validation is catching non numerals. */
+//- (void)testMccMncOnlyHasNumbers {
+//  NSString *mccMnc = FPRValidatedMccMnc(@"123", @"MKV");
+//  XCTAssertNil(mccMnc);
+//  mccMnc = FPRValidatedMccMnc(@"ABC", @"123");
+//  XCTAssertNil(mccMnc);
+//}
+//
+///** Tests if mccMnc validation is working. */
+//- (void)testMccMnc {
+//  NSString *mccMnc = FPRValidatedMccMnc(@"123", @"22");
+//  XCTAssertNotNil(mccMnc);
+//  mccMnc = FPRValidatedMccMnc(@"123", @"223");
+//  XCTAssertNotNil(mccMnc);
+//}
+//
+///** Tests if mccMnc validation catches improper lengths. */
+//- (void)testMccMncLength {
+//  NSString *mccMnc = FPRValidatedMccMnc(@"12", @"22");
+//  XCTAssertNil(mccMnc);
+//  mccMnc = FPRValidatedMccMnc(@"123", @"2");
+//  XCTAssertNil(mccMnc);
+//}
+//
+///** Validates that a valid FIRTrace object to Proto conversion is successful. */
+//- (void)testTraceMetricMessageCreation {
+//  FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
+//  [trace start];
+//  [trace startStageNamed:@"1"];
+//  [trace startStageNamed:@"2"];
+//  [trace incrementMetric:@"c1" byInt:2];
+//  [trace setValue:@"bar" forAttribute:@"foo"];
+//  [trace stop];
+//  FPRMSGTraceMetric *traceMetric = FPRGetTraceMetric(trace);
+//  XCTAssertNotNil(traceMetric);
+//  XCTAssertEqualObjects(traceMetric.name, @"Random");
+//  XCTAssertEqual(traceMetric.subtracesArray.count, 2);
+//  XCTAssertEqual(traceMetric.counters.count, 1);
+//  XCTAssertEqualObjects(traceMetric.subtracesArray[0].name, @"1");
+//  XCTAssertEqualObjects(traceMetric.subtracesArray[1].name, @"2");
+//  XCTAssertNotNil(traceMetric.customAttributes);
+//  XCTAssertEqual(traceMetric.customAttributes.allKeys.count, 1);
+//  NSDictionary *attributes = traceMetric.customAttributes;
+//  XCTAssertEqual(attributes[@"foo"], @"bar");
+//}
+//
+///** Validates that a valid FIRTrace object to Proto conversion has required fields. */
+//- (void)testTraceMetricMessageCreationHasRequiredFields {
+//  FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
+//  [trace start];
+//  [trace incrementMetric:@"c1" byInt:2];
+//  [trace stop];
+//  FPRMSGTraceMetric *traceMetric = FPRGetTraceMetric(trace);
+//  XCTAssertNotNil(traceMetric);
+//  XCTAssertTrue(traceMetric.hasName);
+//  XCTAssertTrue(traceMetric.hasClientStartTimeUs);
+//  XCTAssertTrue(traceMetric.hasDurationUs);
+//  XCTAssertTrue(traceMetric.hasIsAuto);
+//}
+//
+///** Validates the session details inside trace metric. */
+//- (void)testTraceMetricMessageHasSessionDetails {
+//  FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
+//  [trace start];
+//  [trace incrementMetric:@"c1" byInt:2];
+//
+//  FPRSessionDetails *session1 = [[FPRSessionDetails alloc] initWithSessionId:@"a"
+//                                                                     options:FPRSessionOptionsNone];
+//  FPRSessionDetails *session2 =
+//      [[FPRSessionDetails alloc] initWithSessionId:@"b" options:FPRSessionOptionsGauges];
+//
+//  trace.activeSessions = [@[ session1, session2 ] mutableCopy];
+//  [trace stop];
+//  FPRMSGTraceMetric *traceMetric = FPRGetTraceMetric(trace);
+//  XCTAssertNotNil(traceMetric);
+//  XCTAssertNotNil(traceMetric.perfSessionsArray);
+//  XCTAssertTrue(traceMetric.perfSessionsArray.count >= 2);
+//}
+//
+///** Validates that an invalid FIRTrace object to Proto conversion is unsuccessful. */
+//- (void)testTraceMetricMessageCreationForInvalidTrace {
+//#pragma clang diagnostic push
+//#pragma clang diagnostic ignored "-Wnonnull"
+//  XCTAssertNil(FPRGetTraceMetric(nil));
+//#pragma clang diagnostic pop
+//}
+//
+///** Validates that the FPRNetworkTrace object to Proto conversion is successful. */
+//- (void)testNetworkTraceMetricMessage {
+//  NSURL *URL = [NSURL URLWithString:@"https://abc.com"];
+//  NSURLRequest *URLRequest = [NSURLRequest requestWithURL:URL];
+//  FPRNetworkTrace *trace = [[FPRNetworkTrace alloc] initWithURLRequest:URLRequest];
+//  [trace start];
+//  [trace checkpointState:FPRNetworkTraceCheckpointStateInitiated];
+//  [trace checkpointState:FPRNetworkTraceCheckpointStateResponseReceived];
+//
+//  NSDictionary<NSString *, NSString *> *headerFields = @{@"Content-Type" : @"text/json"};
+//  NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:URLRequest.URL
+//                                                            statusCode:404
+//                                                           HTTPVersion:@"HTTP/1.1"
+//                                                          headerFields:headerFields];
+//  NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:-200 userInfo:nil];
+//
+//  [trace didReceiveData:[NSData data]];
+//  [trace didCompleteRequestWithResponse:response error:error];
+//  FPRMSGNetworkRequestMetric *networkMetric = FPRGetNetworkRequestMetric(trace);
+//  XCTAssertEqualObjects(networkMetric.URL, URL.absoluteString);
+//  XCTAssertEqual(networkMetric.HTTPMethod, FPRMSGNetworkRequestMetric_HttpMethod_Get);
+//  XCTAssertEqual(networkMetric.networkClientErrorReason,
+//                 FPRMSGNetworkRequestMetric_NetworkClientErrorReason_GenericClientError);
+//  XCTAssertEqual(networkMetric.HTTPResponseCode, 404);
+//  XCTAssertEqualObjects(networkMetric.responseContentType, @"text/json");
+//}
+//
+///** Validates that the FPRNetworkTrace object to Proto conversion has required fields for a valid
+// * response.
+// */
+//- (void)testNetworkTraceMetricMessageHasAllRequiredFields {
+//  NSURL *URL = [NSURL URLWithString:@"https://abc.com"];
+//  NSURLRequest *URLRequest = [NSURLRequest requestWithURL:URL];
+//  FPRNetworkTrace *trace = [[FPRNetworkTrace alloc] initWithURLRequest:URLRequest];
+//  [trace start];
+//  [trace checkpointState:FPRNetworkTraceCheckpointStateInitiated];
+//  [trace checkpointState:FPRNetworkTraceCheckpointStateResponseReceived];
+//
+//  NSDictionary<NSString *, NSString *> *headerFields = @{@"Content-Type" : @"text/json"};
+//  NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:URLRequest.URL
+//                                                            statusCode:404
+//                                                           HTTPVersion:@"HTTP/1.1"
+//                                                          headerFields:headerFields];
+//  NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:-200 userInfo:nil];
+//  [trace didReceiveData:[NSData data]];
+//  [trace didCompleteRequestWithResponse:response error:error];
+//  FPRMSGNetworkRequestMetric *networkMetric = FPRGetNetworkRequestMetric(trace);
+//  XCTAssertTrue(networkMetric.hasURL);
+//  XCTAssertTrue(networkMetric.hasClientStartTimeUs);
+//  XCTAssertTrue(networkMetric.hasHTTPMethod);
+//  XCTAssertTrue(networkMetric.hasResponsePayloadBytes);
+//  XCTAssertTrue(networkMetric.hasNetworkClientErrorReason);
+//  XCTAssertTrue(networkMetric.hasHTTPResponseCode);
+//  XCTAssertTrue(networkMetric.hasResponseContentType);
+//  XCTAssertTrue(networkMetric.hasTimeToResponseCompletedUs);
+//}
+//
+///** Validates that an invalid FPRNetworkTrace object to Proto conversion is unsuccessful. */
+//- (void)testNetworkTraceMetricMessageCreationForInvalidTrace {
+//#pragma clang diagnostic push
+//#pragma clang diagnostic ignored "-Wnonnull"
+//  XCTAssertNil(FPRGetNetworkRequestMetric(nil));
+//#pragma clang diagnostic pop
+//}
+//
+///** Validates that application process state conversion to proto enum type is successful. */
+//- (void)testApplicationProcessStateConversion {
+//  XCTAssertEqual(FPRMSGApplicationProcessState_Background,
+//                 FPRApplicationProcessState(FPRTraceStateBackgroundOnly));
+//  XCTAssertEqual(FPRMSGApplicationProcessState_Foreground,
+//                 FPRApplicationProcessState(FPRTraceStateForegroundOnly));
+//  XCTAssertEqual(FPRMSGApplicationProcessState_ForegroundBackground,
+//                 FPRApplicationProcessState(FPRTraceStateBackgroundAndForeground));
+//  XCTAssertEqual(FPRMSGApplicationProcessState_ApplicationProcessStateUnknown,
+//                 FPRApplicationProcessState(FPRTraceStateUnknown));
+//
+//  // Try with some random value should say the application state is unknown.
+//  XCTAssertEqual(FPRMSGApplicationProcessState_ApplicationProcessStateUnknown,
+//                 FPRApplicationProcessState(100));
+//}
+//
+//#ifdef TARGET_HAS_MOBILE_CONNECTIVITY
+///** Validates if network object creation works. */
+//- (void)testNetworkInfoObjectCreation {
+//  XCTAssertNotNil(FPRNetworkInfo());
+//}
+//#endif
+//
+///** Validates if network events are dropped when there is not valid response code. */
+//- (void)testDroppingNetworkEventsWithInvalidStatusCode {
+//  NSURL *URL = [NSURL URLWithString:@"https://abc.com"];
+//  NSURLRequest *URLRequest = [NSURLRequest requestWithURL:URL];
+//  FPRNetworkTrace *trace = [[FPRNetworkTrace alloc] initWithURLRequest:URLRequest];
+//  [trace start];
+//  [trace checkpointState:FPRNetworkTraceCheckpointStateInitiated];
+//  [trace checkpointState:FPRNetworkTraceCheckpointStateResponseReceived];
+//  [trace didReceiveData:[NSData data]];
+//  [trace didCompleteRequestWithResponse:nil error:nil];
+//  XCTAssertNil(FPRGetNetworkRequestMetric(trace));
+//}
+//
+///** Validates the session details inside trace metric. */
+//- (void)testNetworkRequestMetricMessageHasSessionDetails {
+//  NSURL *URL = [NSURL URLWithString:@"https://abc.com"];
+//  NSURLRequest *URLRequest = [NSURLRequest requestWithURL:URL];
+//  FPRNetworkTrace *trace = [[FPRNetworkTrace alloc] initWithURLRequest:URLRequest];
+//  [trace start];
+//  [trace checkpointState:FPRNetworkTraceCheckpointStateInitiated];
+//  [trace checkpointState:FPRNetworkTraceCheckpointStateResponseReceived];
+//
+//  NSDictionary<NSString *, NSString *> *headerFields = @{@"Content-Type" : @"text/json"};
+//  NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:URLRequest.URL
+//                                                            statusCode:404
+//                                                           HTTPVersion:@"HTTP/1.1"
+//                                                          headerFields:headerFields];
+//  NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:-200 userInfo:nil];
+//
+//  FPRSessionDetails *session1 = [[FPRSessionDetails alloc] initWithSessionId:@"a"
+//                                                                     options:FPRSessionOptionsNone];
+//  FPRSessionDetails *session2 =
+//      [[FPRSessionDetails alloc] initWithSessionId:@"b" options:FPRSessionOptionsGauges];
+//  trace.activeSessions = [@[ session1, session2 ] mutableCopy];
+//
+//  [trace didReceiveData:[NSData data]];
+//  [trace didCompleteRequestWithResponse:response error:error];
+//  FPRMSGNetworkRequestMetric *networkMetric = FPRGetNetworkRequestMetric(trace);
+//  XCTAssertNotNil(networkMetric);
+//  XCTAssertNotNil(networkMetric.perfSessionsArray);
+//  XCTAssertTrue(networkMetric.perfSessionsArray.count >= 2);
+//}
+//
+///** Validates the gauge metric proto packaging works with proper conversions. */
+//- (void)testMemoryMetricProtoConversion {
+//  NSMutableArray *gauges = [[NSMutableArray alloc] init];
+//  NSDate *date = [NSDate date];
+//  FPRMemoryGaugeData *memoryData = [[FPRMemoryGaugeData alloc] initWithCollectionTime:date
+//                                                                             heapUsed:5 * 1024
+//                                                                        heapAvailable:10 * 1024];
+//  [gauges addObject:memoryData];
+//
+//  FPRMSGGaugeMetric *gaugeMetric = FPRGetGaugeMetric(gauges, @"abc");
+//  XCTAssertNotNil(gaugeMetric);
+//  XCTAssertEqual(gaugeMetric.cpuMetricReadingsArray_Count, 0);
+//  XCTAssertEqual(gaugeMetric.iosMemoryReadingsArray_Count, 1);
+//  FPRMSGIosMemoryReading *memoryReading = [gaugeMetric.iosMemoryReadingsArray firstObject];
+//  XCTAssertEqual(memoryReading.usedAppHeapMemoryKb, 5);
+//  XCTAssertEqual(memoryReading.freeAppHeapMemoryKb, 10);
+//}
+//
+///** Validates the gauge metric proto packaging works. */
+//- (void)testGaugeMetricProtoPacking {
+//  NSMutableArray *gauges = [[NSMutableArray alloc] init];
+//  for (int i = 0; i < 5; i++) {
+//    NSDate *date = [NSDate date];
+//    FPRCPUGaugeData *cpuData = [[FPRCPUGaugeData alloc] initWithCollectionTime:date
+//                                                                    systemTime:100
+//                                                                      userTime:200];
+//    FPRMemoryGaugeData *memoryData = [[FPRMemoryGaugeData alloc] initWithCollectionTime:date
+//                                                                               heapUsed:100
+//                                                                          heapAvailable:200];
+//    [gauges addObject:cpuData];
+//    [gauges addObject:memoryData];
+//  }
+//  FPRMSGGaugeMetric *gaugeMetric = FPRGetGaugeMetric(gauges, @"abc");
+//  XCTAssertNotNil(gaugeMetric);
+//  XCTAssertEqual(gaugeMetric.cpuMetricReadingsArray_Count, 5);
+//  XCTAssertEqual(gaugeMetric.iosMemoryReadingsArray_Count, 5);
+//}
+//
+///** Validates the gauge metric proto packaging does not create an empty package. */
+//- (void)testGaugeMetricProtoPackingWithEmptyData {
+//  NSMutableArray *gauges = [[NSMutableArray alloc] init];
+//  FPRMSGGaugeMetric *gaugeMetric1 = FPRGetGaugeMetric(gauges, @"abc");
+//  XCTAssertNil(gaugeMetric1);
+//
+//  FPRMSGGaugeMetric *gaugeMetric2 = FPRGetGaugeMetric(gauges, @"");
+//  XCTAssertNil(gaugeMetric2);
+//}
+//
+///** Validates if the first session is a verbose session for a trace. */
+//- (void)testOrderingOfSessionsForTrace {
+//  FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
+//  [trace start];
+//  FPRSessionDetails *session1 = [[FPRSessionDetails alloc] initWithSessionId:@"a"
+//                                                                     options:FPRSessionOptionsNone];
+//  FPRSessionDetails *session2 =
+//      [[FPRSessionDetails alloc] initWithSessionId:@"b" options:FPRSessionOptionsGauges];
+//
+//  trace.activeSessions = [@[ session1, session2 ] mutableCopy];
+//  [trace stop];
+//
+//  FPRMSGTraceMetric *traceMetric = FPRGetTraceMetric(trace);
+//  XCTAssertNotNil(traceMetric);
+//  XCTAssertNotNil(traceMetric.perfSessionsArray);
+//  XCTAssertTrue(traceMetric.perfSessionsArray.count >= 2);
+//
+//  FPRMSGPerfSession *perfSession = [traceMetric.perfSessionsArray firstObject];
+//  GPBEnumArray *firstSessionVerbosity = perfSession.sessionVerbosityArray;
+//  XCTAssertEqual([firstSessionVerbosity valueAtIndex:0],
+//                 FPRMSGSessionVerbosity_GaugesAndSystemEvents);
+//  XCTAssertEqualObjects(perfSession.sessionId, @"b");
+//}
+//
+///** Validates the verbosity ordering when no sessions are verbose. */
+//- (void)testOrderingOfNonVerboseSessionsForTrace {
+//  FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
+//  [trace start];
+//  FPRSessionDetails *session1 = [[FPRSessionDetails alloc] initWithSessionId:@"a"
+//                                                                     options:FPRSessionOptionsNone];
+//  FPRSessionDetails *session2 = [[FPRSessionDetails alloc] initWithSessionId:@"b"
+//                                                                     options:FPRSessionOptionsNone];
+//
+//  trace.activeSessions = [@[ session1, session2 ] mutableCopy];
+//  [trace stop];
+//
+//  FPRMSGTraceMetric *traceMetric = FPRGetTraceMetric(trace);
+//  XCTAssertNotNil(traceMetric);
+//  XCTAssertNotNil(traceMetric.perfSessionsArray);
+//  XCTAssertTrue(traceMetric.perfSessionsArray.count >= 2);
+//
+//  FPRMSGPerfSession *perfSession = [traceMetric.perfSessionsArray firstObject];
+//  XCTAssertEqualObjects(perfSession.sessionId, @"a");
+//  XCTAssertEqual(perfSession.sessionVerbosityArray_Count, 0);
+//}
+//
+///** Validates if a session is not verbose, do not populate the session verbosity array. */
+//- (void)testVerbosityArrayEmptyWhenTheSessionIsNotVerbose {
+//  FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
+//  [trace start];
+//  FPRSessionDetails *session1 = [[FPRSessionDetails alloc] initWithSessionId:@"a"
+//                                                                     options:FPRSessionOptionsNone];
+//
+//  trace.activeSessions = [@[ session1 ] mutableCopy];
+//  [trace stop];
+//
+//  FPRMSGTraceMetric *traceMetric = FPRGetTraceMetric(trace);
+//  XCTAssertNotNil(traceMetric);
+//  XCTAssertNotNil(traceMetric.perfSessionsArray);
+//  XCTAssertTrue(traceMetric.perfSessionsArray.count >= 1);
+//
+//  FPRMSGPerfSession *perfSession = [traceMetric.perfSessionsArray firstObject];
+//  XCTAssertEqualObjects(perfSession.sessionId, @"a");
+//  XCTAssertEqual(perfSession.sessionVerbosityArray_Count, 0);
+//}
+//
+///** Validates if the first session is a verbose session for a network trace. */
+//- (void)testOrderingOfSessionsForNetworkTrace {
+//  NSURL *URL = [NSURL URLWithString:@"https://abc.com"];
+//  NSURLRequest *URLRequest = [NSURLRequest requestWithURL:URL];
+//  FPRNetworkTrace *trace = [[FPRNetworkTrace alloc] initWithURLRequest:URLRequest];
+//  [trace start];
+//  [trace checkpointState:FPRNetworkTraceCheckpointStateInitiated];
+//  [trace checkpointState:FPRNetworkTraceCheckpointStateResponseReceived];
+//
+//  NSDictionary<NSString *, NSString *> *headerFields = @{@"Content-Type" : @"text/json"};
+//  NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:URLRequest.URL
+//                                                            statusCode:404
+//                                                           HTTPVersion:@"HTTP/1.1"
+//                                                          headerFields:headerFields];
+//  NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:-200 userInfo:nil];
+//
+//  FPRSessionDetails *session1 = [[FPRSessionDetails alloc] initWithSessionId:@"a"
+//                                                                     options:FPRSessionOptionsNone];
+//  FPRSessionDetails *session2 =
+//      [[FPRSessionDetails alloc] initWithSessionId:@"b" options:FPRSessionOptionsGauges];
+//
+//  trace.activeSessions = [@[ session1, session2 ] mutableCopy];
+//
+//  [trace didReceiveData:[NSData data]];
+//  [trace didCompleteRequestWithResponse:response error:error];
+//
+//  FPRMSGNetworkRequestMetric *networkMetric = FPRGetNetworkRequestMetric(trace);
+//  XCTAssertNotNil(networkMetric);
+//  XCTAssertNotNil(networkMetric.perfSessionsArray);
+//  XCTAssertTrue(networkMetric.perfSessionsArray.count >= 2);
+//
+//  FPRMSGPerfSession *perfSession = [networkMetric.perfSessionsArray firstObject];
+//  GPBEnumArray *firstSessionVerbosity = perfSession.sessionVerbosityArray;
+//  XCTAssertEqual([firstSessionVerbosity valueAtIndex:0],
+//                 FPRMSGSessionVerbosity_GaugesAndSystemEvents);
+//  XCTAssertEqualObjects(perfSession.sessionId, @"b");
+//}
+//
+///** Validates the verbosity ordering when no sessions are verbose for a network trace. */
+//- (void)testOrderingOfNonVerboseSessionsForNetworkTrace {
+//  NSURL *URL = [NSURL URLWithString:@"https://abc.com"];
+//  NSURLRequest *URLRequest = [NSURLRequest requestWithURL:URL];
+//  FPRNetworkTrace *trace = [[FPRNetworkTrace alloc] initWithURLRequest:URLRequest];
+//  [trace start];
+//  [trace checkpointState:FPRNetworkTraceCheckpointStateInitiated];
+//  [trace checkpointState:FPRNetworkTraceCheckpointStateResponseReceived];
+//
+//  NSDictionary<NSString *, NSString *> *headerFields = @{@"Content-Type" : @"text/json"};
+//  NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:URLRequest.URL
+//                                                            statusCode:404
+//                                                           HTTPVersion:@"HTTP/1.1"
+//                                                          headerFields:headerFields];
+//  NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:-200 userInfo:nil];
+//
+//  FPRSessionDetails *session1 = [[FPRSessionDetails alloc] initWithSessionId:@"a"
+//                                                                     options:FPRSessionOptionsNone];
+//  FPRSessionDetails *session2 = [[FPRSessionDetails alloc] initWithSessionId:@"b"
+//                                                                     options:FPRSessionOptionsNone];
+//
+//  trace.activeSessions = [@[ session1, session2 ] mutableCopy];
+//
+//  [trace didReceiveData:[NSData data]];
+//  [trace didCompleteRequestWithResponse:response error:error];
+//
+//  FPRMSGNetworkRequestMetric *networkMetric = FPRGetNetworkRequestMetric(trace);
+//  XCTAssertNotNil(networkMetric);
+//  XCTAssertNotNil(networkMetric.perfSessionsArray);
+//  XCTAssertTrue(networkMetric.perfSessionsArray.count >= 2);
+//
+//  FPRMSGPerfSession *perfSession = [networkMetric.perfSessionsArray firstObject];
+//  XCTAssertEqualObjects(perfSession.sessionId, @"a");
+//  XCTAssertEqual(perfSession.sessionVerbosityArray_Count, 0);
+//}
+//
+///** Validates if a session is not verbose, do not populate the session verbosity array for network
+// *  trace.
+// */
+//- (void)testVerbosityArrayEmptyWhenTheSessionIsNotVerboseForNetworkTrace {
+//  NSURL *URL = [NSURL URLWithString:@"https://abc.com"];
+//  NSURLRequest *URLRequest = [NSURLRequest requestWithURL:URL];
+//  FPRNetworkTrace *trace = [[FPRNetworkTrace alloc] initWithURLRequest:URLRequest];
+//  [trace start];
+//  [trace checkpointState:FPRNetworkTraceCheckpointStateInitiated];
+//  [trace checkpointState:FPRNetworkTraceCheckpointStateResponseReceived];
+//
+//  NSDictionary<NSString *, NSString *> *headerFields = @{@"Content-Type" : @"text/json"};
+//  NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:URLRequest.URL
+//                                                            statusCode:404
+//                                                           HTTPVersion:@"HTTP/1.1"
+//                                                          headerFields:headerFields];
+//  NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:-200 userInfo:nil];
+//
+//  FPRSessionDetails *session1 = [[FPRSessionDetails alloc] initWithSessionId:@"a"
+//                                                                     options:FPRSessionOptionsNone];
+//
+//  trace.activeSessions = [@[ session1 ] mutableCopy];
+//
+//  [trace didReceiveData:[NSData data]];
+//  [trace didCompleteRequestWithResponse:response error:error];
+//
+//  FPRMSGNetworkRequestMetric *networkMetric = FPRGetNetworkRequestMetric(trace);
+//  XCTAssertNotNil(networkMetric);
+//  XCTAssertNotNil(networkMetric.perfSessionsArray);
+//  XCTAssertTrue(networkMetric.perfSessionsArray.count >= 1);
+//
+//  FPRMSGPerfSession *perfSession = [networkMetric.perfSessionsArray firstObject];
+//  XCTAssertEqualObjects(perfSession.sessionId, @"a");
+//  XCTAssertEqual(perfSession.sessionVerbosityArray_Count, 0);
+//}
+//
 @end

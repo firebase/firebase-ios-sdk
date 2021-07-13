@@ -23,22 +23,32 @@
 #import "FirebasePerformance/Sources/Public/FIRTrace.h"
 
 #import "FirebasePerformance/ProtoSupport/PerfMetric.pbobjc.h"
+#import "FirebasePerformance/Sources/Protogen/nanopb/perf_metric.nanopb.h"
+
+//extern pb_bytes_array_t * _Nullable FPREncodeData(NSData * _Nonnull data);
+//
+//extern pb_bytes_array_t * _Nullable FPREncodeString(NSString * _Nonnull string);
+//
+//extern NSData * _Nullable FPRDecodeData(pb_bytes_array_t * _Nonnull pbData);
+//
+//extern NSString * _Nullable FPRDecodeString(pb_bytes_array_t * _Nonnull pbData);
+
 
 /** Creates a new FPRMSGPerfMetric proto object populated with system metadata.
  *  @param appID The Google app id to put into the message
  *  @return Reference to a FPRMSGPerfMetric object.
  */
-extern FPRMSGPerfMetric* _Nullable FPRGetPerfMetricMessage(NSString* _Nonnull appID);
+extern firebase_perf_v1_PerfMetric FPRGetPerfMetricMessage(NSString* _Nonnull appID);
 
 /** Creates a new FPRMSGApplicationInfo proto object populated with system metadata.
  *  @return Reference to a FPRMSGApplicationInfo object.
  */
-extern FPRMSGApplicationInfo* _Nullable FPRGetApplicationInfoMessage(void);
+extern firebase_perf_v1_ApplicationInfo FPRGetApplicationInfoMessage(void);
 
 /** Converts the FIRTrace object to a FPRMSGTraceMetric proto object.
  *  @return Reference to a FPRMSGTraceMetric object.
  */
-extern FPRMSGTraceMetric* _Nullable FPRGetTraceMetric(FIRTrace* _Nonnull trace);
+extern firebase_perf_v1_TraceMetric FPRGetTraceMetric(FIRTrace* _Nonnull trace);
 
 /** Converts the FPRNetworkTrace object to a FPRMSGNetworkRequestMetric proto object.
  *  @return Reference to a FPRMSGNetworkRequestMetric object.
@@ -55,7 +65,7 @@ extern FPRMSGGaugeMetric* _Nullable FPRGetGaugeMetric(NSArray* _Nonnull gaugeDat
 /** Converts the FPRTraceState to a FPRMSGApplicationProcessState proto value.
  *  @return FPRMSGApplicationProcessState value.
  */
-extern FPRMSGApplicationProcessState FPRApplicationProcessState(FPRTraceState state);
+extern firebase_perf_v1_ApplicationProcessState FPRApplicationProcessState(FPRTraceState state);
 
 #ifdef TARGET_HAS_MOBILE_CONNECTIVITY
 /** Obtain a CTTelephonyNetworkInfo object to determine device network attributes.
