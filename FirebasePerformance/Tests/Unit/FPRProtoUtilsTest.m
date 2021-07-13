@@ -66,9 +66,7 @@ pb_bytes_array_t *FPREncodeData(NSData *data) {
 }
 
 NSData *FPRDecodeData(pb_bytes_array_t *pbData) {
-//  NSLog(@"after: %lu", pbData->size);
-
-  NSData *data = [NSData dataWithBytesNoCopy:pbData length:sizeof(pbData) freeWhenDone:YES];
+  NSData *data = [NSData dataWithBytes:&(pbData->bytes) length:pbData->size];
   return data;
 }
 
@@ -92,21 +90,44 @@ NSMutableDictionary<NSString*, NSString*> *FPRDecodeCustomAttributes(struct _fir
   return dict;
 }
 
+- (BOOL)isPBData:(pb_bytes_array_t *)pbString equalToString:(NSString *)str {
+  pb_bytes_array_t *expected = FPREncodeString(str);
+  return [self isPBArray:pbString equalToArray:expected];
+}
+
+- (BOOL)isPBArray:(pb_bytes_array_t *)array equalToArray:(pb_bytes_array_t *)expected {
+  // Treat the empty string as the same as a missing field
+  if ((!array) && expected->size == 0) {
+    return true;
+  }
+
+  if (array->size != expected->size) {
+    return false;
+  }
+
+  for (int i = 0; i < array->size; i++) {
+    if (expected->bytes[i] != array->bytes[i]) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 /** Validates that a PerfMetricMessage creation is successful. */
 - (void)testPerfMetricMessageCreation {
-  NSString *appID = @"RandomApp ID";
+  NSString *appID = @"RandomApp ID sadas d";
   NSData *data = [appID dataUsingEncoding:NSUTF8StringEncoding];
   pb_bytes_array_t *pb = FPREncodeData(data);
-  NSData *newData = FPRDecodeData(pb);
-//  NSString *newString = [NSString stringWithCString:[newData bytes] encoding:NSUTF8StringEncoding];
-  NSString *newString = [[NSString alloc] initWithData:newData encoding:NSUTF8StringEncoding];
+  NSData *newData = [NSData dataWithBytes:&(pb->bytes) length:pb->size];
+  NSString *newString = [NSString stringWithCString:[newData bytes] encoding:NSUTF8StringEncoding];
   XCTAssertEqualObjects(appID, newString);
-//  XCTAssertEqualObjects(data, newData);
+  XCTAssertEqualObjects(data, newData);
 
-//  NSString *s = FPRDecodeString(FPREncodeString(appID));
-//  XCTAssertEqual(sizeof(appID), sizeof(s));
-
-//  XCTAssertEqualObjects(appID, s);
+//    NSString *s = FPRDecodeString(FPREncodeString(appID));
+//
+//
+//    XCTAssertEqualObjects(appID, s);
 //  XCTAssertTrue([appID isEqualToString:s]);
 }
 
