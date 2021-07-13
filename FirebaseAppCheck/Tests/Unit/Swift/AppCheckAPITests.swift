@@ -21,7 +21,7 @@ import Foundation
 import FirebaseCore
 import FirebaseAppCheck
 
-final class AppCheckAPITests: NSObject {
+final class AppCheckAPITests {
   func usage() {
     // MARK: - AppAttestProvider
 
@@ -79,7 +79,7 @@ final class AppCheckAPITests: NSObject {
     #endif // swift(>=5.5)
 
     // Set `AppCheckProviderFactory`
-    AppCheck.setAppCheckProviderFactory(self)
+    AppCheck.setAppCheckProviderFactory(DummyAppCheckProviderFactory())
 
     // Get & Set `isTokenAutoRefreshEnabled`
     _ = AppCheck.appCheck().isTokenAutoRefreshEnabled
@@ -193,7 +193,7 @@ class DummyAppCheckProvider: NSObject, AppCheckProvider {
   }
 }
 
-extension AppCheckAPITests: AppCheckProviderFactory {
+class DummyAppCheckProviderFactory: NSObject, AppCheckProviderFactory {
   func createProvider(with app: FirebaseApp) -> AppCheckProvider? {
     return DummyAppCheckProvider()
   }
