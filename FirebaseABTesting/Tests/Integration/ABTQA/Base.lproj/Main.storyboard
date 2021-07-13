@@ -16,8 +16,8 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="leJ-st-KAV">
-                                <rect key="frame" x="22" y="174" width="370" height="130.5"/>
-                                <string key="text">This will make a call to fetch the latest values from Remote Config. This project has a running A/B test with a parameter `bg_color`. Based on the result, the background color of the screen with either turn red or green based on variant assignment.</string>
+                                <rect key="frame" x="20" y="174" width="374" height="196.5"/>
+                                <string key="text">This will make a call to fetch the latest values from Remote Config. This project has a running A/B test with a parameter `bg_color`. Based on the result, the background color of the screen with either turn red or green based on variant assignment. If there's a parameter called 'text_color', it will set the text labels' color accordingly (either black, white, or gray). If not, the labels will remain black.</string>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -62,6 +62,10 @@
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
+                    <connections>
+                        <outletCollection property="labels" destination="leJ-st-KAV" collectionClass="NSMutableArray" id="ZaT-LW-ugc"/>
+                        <outletCollection property="labels" destination="XJp-Bw-Rfp" collectionClass="NSMutableArray" id="hvD-Bu-cfG"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
