@@ -35,7 +35,8 @@
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#import "FirebasePerformance/ProtoSupport/PerfMetric.pbobjc.h"
+//#import "FirebasePerformance/ProtoSupport/PerfMetric.pbobjc.h"
+#import "FirebasePerformance/Sources/Protogen/nanopb/perf_metric.nanopb.h"
 
 @interface FPRClient ()
 
@@ -172,9 +173,9 @@
   }
   if ([trace isCompleteAndValid]) {
     dispatch_group_async(self.eventsQueueGroup, self.eventsQueue, ^{
-      FPRMSGPerfMetric *metric = FPRGetPerfMetricMessage(self.config.appID);
-      metric.traceMetric = FPRGetTraceMetric(trace);
-      metric.applicationInfo.applicationProcessState =
+      firebase_perf_v1_PerfMetric metric = FPRGetPerfMetricMessage(self.config.appID);
+      metric.trace_metric = FPRGetTraceMetric(trace);
+      metric.application_info.application_process_state =
           FPRApplicationProcessState(trace.backgroundTraceState);
 
       // Log the trace metric with its console URL.
@@ -182,7 +183,7 @@
         FPRLogInfo(kFPRClientMetricLogged,
                    @"Logging trace metric - %@ %.4fms. In a minute, visit the Firebase console to "
                    @"view your data: %@",
-                   metric.traceMetric.name, metric.traceMetric.durationUs / 1000.0,
+                   metric.trace_metric.name, metric.trace_metric.duration_us / 1000.0,
                    [FPRConsoleURLGenerator generateScreenTraceURLWithProjectID:self.projectID
                                                                       bundleID:self.bundleID
                                                                      traceName:trace.name]);
@@ -190,12 +191,12 @@
         FPRLogInfo(kFPRClientMetricLogged,
                    @"Logging trace metric - %@ %.4fms. In a minute, visit the Firebase console to "
                    @"view your data: %@",
-                   metric.traceMetric.name, metric.traceMetric.durationUs / 1000.0,
+                   metric.trace_metric.name, metric.trace_metric.duration_us / 1000.0,
                    [FPRConsoleURLGenerator generateCustomTraceURLWithProjectID:self.projectID
                                                                       bundleID:self.bundleID
                                                                      traceName:trace.name]);
       }
-      [self processAndLogEvent:metric];
+      [self processAndLogEvent:&metric];
     });
   } else {
     FPRLogWarning(kFPRClientInvalidTrace, @"Invalid trace, skipping send.");
@@ -209,23 +210,23 @@
     return;
   }
   dispatch_group_async(self.eventsQueueGroup, self.eventsQueue, ^{
-    FPRMSGNetworkRequestMetric *networkRequestMetric = FPRGetNetworkRequestMetric(trace);
-    if (networkRequestMetric) {
-      int64_t duration = networkRequestMetric.hasTimeToResponseCompletedUs
-                             ? networkRequestMetric.timeToResponseCompletedUs
+    firebase_perf_v1_NetworkRequestMetric networkRequestMetric = FPRGetNetworkRequestMetric(trace);
+    if (networkRequestMetric.url) {
+      int64_t duration = networkRequestMetric.has_time_to_response_completed_us
+                             ? networkRequestMetric.time_to_response_completed_us
                              : 0;
 
-      NSString *responseCode = networkRequestMetric.hasHTTPResponseCode
-                                   ? [@(networkRequestMetric.HTTPResponseCode) stringValue]
+      NSString *responseCode = networkRequestMetric.has_http_response_code
+                                   ? [@(networkRequestMetric.http_response_code) stringValue]
                                    : @"UNKNOWN";
-      FPRLogInfo(kFPRClientMetricLogged,
-                 @"Logging network request trace - %@, Response code: %@, %.4fms",
-                 networkRequestMetric.URL, responseCode, duration / 1000.0);
-      FPRMSGPerfMetric *metric = FPRGetPerfMetricMessage(self.config.appID);
-      metric.networkRequestMetric = networkRequestMetric;
-      metric.applicationInfo.applicationProcessState =
+      FPRLogDebug(kFPRClientMetricLogged,
+                  @"Logging network request trace - %@, Response code: %@, %.4fms",
+                  networkRequestMetric.url, responseCode, duration / 1000.0);
+      firebase_perf_v1_PerfMetric metric = FPRGetPerfMetricMessage(self.config.appID);
+      metric.network_request_metric = networkRequestMetric;
+      metric.application_info.application_process_state =
           FPRApplicationProcessState(trace.backgroundTraceState);
-      [self processAndLogEvent:metric];
+      [self processAndLogEvent:&metric];
     }
   });
 }
@@ -236,17 +237,17 @@
     return;
   }
   dispatch_group_async(self.eventsQueueGroup, self.eventsQueue, ^{
-    FPRMSGPerfMetric *metric = FPRGetPerfMetricMessage(self.config.appID);
-    FPRMSGGaugeMetric *gaugeMetric = FPRGetGaugeMetric(gaugeData, sessionId);
-    metric.gaugeMetric = gaugeMetric;
-    [self processAndLogEvent:metric];
+    firebase_perf_v1_PerfMetric metric = FPRGetPerfMetricMessage(self.config.appID);
+    firebase_perf_v1_GaugeMetric gaugeMetric = FPRGetGaugeMetric(gaugeData, sessionId);
+    metric.gauge_metric = gaugeMetric;
+    [self processAndLogEvent:&metric];
   });
 
   // Check and update the sessionID if the session is running for too long.
   [[FPRSessionManager sharedInstance] renewSessionIdIfRunningTooLong];
 }
 
-- (void)processAndLogEvent:(FPRMSGPerfMetric *)event {
+- (void)processAndLogEvent:(firebase_perf_v1_PerfMetric *)event {
   BOOL tracingEnabled = self.configuration.isDataCollectionEnabled;
   if (!tracingEnabled) {
     FPRLogError(kFPRClientPerfNotConfigured, @"Dropping event since data collection is disabled.");
@@ -275,8 +276,8 @@
                       error.description);
         } else {
           dispatch_group_async(self.eventsQueueGroup, self.eventsQueue, ^{
-            event.applicationInfo.appInstanceId = identifier;
-            [self.gdtLogger logEvent:event];
+            event->application_info.app_instance_id = FPREncodeString(identifier);
+            [self.gdtLogger logEvent:*event];
           });
         }
       }];
