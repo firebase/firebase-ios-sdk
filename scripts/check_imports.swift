@@ -29,6 +29,7 @@ let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseStorage/Tests/Integration"
                        "FirebaseInAppMessaging/Tests/Integration/",
                        "SymbolCollisionTest/", "/gen/",
                        "CocoapodsIntegrationTest/", "FirebasePerformance/Tests/TestApp/",
+                       "cmake-build-debug/", "build/",
                        "FirebasePerformance/Tests/FIRPerfE2E/"] +
   [
     "CoreOnly/Sources", // Skip Firebase.h.
