@@ -27,7 +27,7 @@ import FirebaseStorage
       }
     }
 
-    func putDataAwait(_ uploadData: Data,
+    func putDataAsync(_ uploadData: Data,
                       metadata: StorageMetadata? = nil) async throws -> StorageMetadata {
       typealias MetadataContinuation = CheckedContinuation<StorageMetadata, Error>
       return try await withCheckedThrowingContinuation { (continuation: MetadataContinuation) in
@@ -38,7 +38,7 @@ import FirebaseStorage
       }
     }
 
-    func putFileAwait(from url: URL,
+    func putFileAsync(from url: URL,
                       metadata: StorageMetadata? = nil) async throws -> StorageMetadata {
       typealias MetadataContinuation = CheckedContinuation<StorageMetadata, Error>
       return try await withCheckedThrowingContinuation { (continuation: MetadataContinuation) in
@@ -49,7 +49,7 @@ import FirebaseStorage
       }
     }
 
-    func writeAwait(toFile fileURL: URL) async throws -> URL {
+    func writeAsync(toFile fileURL: URL) async throws -> URL {
       typealias URLContinuation = CheckedContinuation<URL, Error>
       return try await withCheckedThrowingContinuation { (continuation: URLContinuation) in
         // TODO: Use task to handle progress and cancellation.

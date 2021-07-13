@@ -20,7 +20,7 @@ import XCTest
 
 #if swift(>=5.5)
   @available(iOS 15, *)
-  class StorageAsyncAwait: StorageIntegrationCommon {
+  class StorageAsyncAsync: StorageIntegrationCommon {
     func testGetMetadata() async throws {
       let ref = storage.reference().child("ios/public/1mb2")
       let result = try await ref.getMetadata()
@@ -46,7 +46,7 @@ import XCTest
     func testDelete() async throws {
       let ref = storage.reference(withPath: "ios/public/fileToDelete")
       let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
-      let result = try await ref.putDataAwait(data)
+      let result = try await ref.putDataAsync(data)
       XCTAssertNotNil(result)
       _ = try await ref.delete()
     }
@@ -54,21 +54,21 @@ import XCTest
     func testDeleteWithNilCompletion() async throws {
       let ref = storage.reference(withPath: "ios/public/fileToDelete")
       let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
-      let result = try await ref.putDataAwait(data)
+      let result = try await ref.putDataAsync(data)
       XCTAssertNotNil(result)
     }
 
     func testSimplePutData() async throws {
       let ref = storage.reference(withPath: "ios/public/testBytesUpload")
       let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
-      let result = try await ref.putDataAwait(data)
+      let result = try await ref.putDataAsync(data)
       XCTAssertNotNil(result)
     }
 
     func testSimplePutSpecialCharacter() async throws {
       let ref = storage.reference(withPath: "ios/public/-._~!$'()*,=:@&+;")
       let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
-      let result = try await ref.putDataAwait(data)
+      let result = try await ref.putDataAsync(data)
       XCTAssertNotNil(result)
     }
 
@@ -80,7 +80,7 @@ import XCTest
             "Data construction failed"
           )
           XCTAssertFalse(Thread.isMainThread)
-          return try await ref.putDataAwait(data)
+          return try await ref.putDataAsync(data)
         }
       }
       let ref = storage.reference(withPath: "ios/public/testBytesUpload")
@@ -91,7 +91,7 @@ import XCTest
     func testSimplePutEmptyData() async throws {
       let ref = storage.reference(withPath: "ios/public/testSimplePutEmptyData")
       let data = Data()
-      let result = try await ref.putDataAwait(data)
+      let result = try await ref.putDataAsync(data)
       XCTAssertNotNil(result)
     }
 
@@ -99,7 +99,7 @@ import XCTest
       let ref = storage.reference(withPath: "ios/private/secretfile.txt")
       let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
       do {
-        _ = try await ref.putDataAwait(data)
+        _ = try await ref.putDataAsync(data)
         XCTFail("Unexpected success from unauthorized putData")
       } catch {
         XCTAssertEqual((error as NSError).code, StorageErrorCode.unauthorized.rawValue)
@@ -147,7 +147,7 @@ import XCTest
                                   "Failed to get filePath")
       let ref = storage.reference(withPath: "ios/public/" + fileName)
       do {
-        _ = try await ref.putFileAwait(from: fileURL)
+        _ = try await ref.putFileAsync(from: fileURL)
         XCTFail("Unexpected success from putFile of a directory")
       } catch {
         // TODO: Investigate generating a more descriptive error code than unknown.
@@ -163,7 +163,7 @@ import XCTest
       let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
       let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
       try data.write(to: fileURL, options: .atomicWrite)
-      let metadata = try await ref.putFileAwait(from: fileURL)
+      let metadata = try await ref.putFileAsync(from: fileURL)
       XCTAssertEqual(fileName, metadata.name)
       let result = try await ref.getMetadata()
       XCTAssertNotNil(result)
@@ -172,7 +172,7 @@ import XCTest
     func testSimplePutDataNoMetadata() async throws {
       let ref = storage.reference(withPath: "ios/public/testSimplePutDataNoMetadata")
       let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
-      let result = try await ref.putDataAwait(data)
+      let result = try await ref.putDataAsync(data)
       XCTAssertNotNil(result)
     }
 
@@ -183,7 +183,7 @@ import XCTest
       let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
       let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
       try data.write(to: fileURL, options: .atomicWrite)
-      let result = try await ref.putFileAwait(from: fileURL)
+      let result = try await ref.putFileAsync(from: fileURL)
       XCTAssertNotNil(result)
     }
 
@@ -244,8 +244,8 @@ import XCTest
       let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
       let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
 
-      _ = try await ref.putDataAwait(data)
-      let url = try await ref.writeAwait(toFile: fileURL)
+      _ = try await ref.putDataAsync(data)
+      let url = try await ref.writeAsync(toFile: fileURL)
       XCTAssertEqual(url.lastPathComponent, "hello.txt")
     }
 
@@ -257,7 +257,7 @@ import XCTest
       let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
 
       async {
-        _ = try await ref.putDataAwait(data)
+        _ = try await ref.putDataAsync(data)
         let task = ref.write(toFile: fileURL)
 
         // TODO: Update to use Swift Tasks
