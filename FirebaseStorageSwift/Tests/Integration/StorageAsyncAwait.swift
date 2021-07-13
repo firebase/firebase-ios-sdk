@@ -20,7 +20,7 @@ import XCTest
 
 #if swift(>=5.5)
   @available(iOS 15, *)
-  class StorageAsyncAsync: StorageIntegrationCommon {
+  class StorageAsyncAwait: StorageIntegrationCommon {
     func testGetMetadata() async throws {
       let ref = storage.reference().child("ios/public/1mb2")
       let result = try await ref.getMetadata()
