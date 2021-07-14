@@ -60,6 +60,27 @@ using firebase::firestore::util::TimerId;
   XCTAssertEqualObjects(result.data, finalData);
 }
 
+- (void)testCanUpdateAnExistingDocumentWithEmptyDictionary {
+  FIRDocumentReference *doc = [self.db documentWithPath:@"rooms/eros"];
+  NSDictionary<NSString *, id> *initialData =
+      @{@"desc" : @"Description", @"owner" : @{@"name" : @"Jonny", @"email" : @"abc@xyz.com"}};
+  NSDictionary<NSString *, id> *updateData = @{};
+
+  [self writeDocumentRef:doc data:initialData];
+
+  XCTestExpectation *updateCompletion = [self expectationWithDescription:@"updateData"];
+  [doc updateData:updateData
+       completion:^(NSError *_Nullable error) {
+         XCTAssertNil(error);
+         [updateCompletion fulfill];
+       }];
+  [self awaitExpectations];
+
+  FIRDocumentSnapshot *result = [self readDocumentForRef:doc];
+  XCTAssertTrue(result.exists);
+  XCTAssertEqualObjects(result.data, initialData);
+}
+
 - (void)testCanUpdateAnUnknownDocument {
   [self readerAndWriterOnDocumentRef:^(FIRDocumentReference *readerRef,
                                        FIRDocumentReference *writerRef) {
