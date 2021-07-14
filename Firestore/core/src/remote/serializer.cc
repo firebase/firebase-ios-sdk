@@ -1200,7 +1200,7 @@ MutationResult Serializer::DecodeMutationResult(
                        write_result.transform_results,
                        write_result.transform_results_count));
   // Prevent double-freeing of the transform result. The fields are now owned by
-  // the muation result.
+  // the mutation result.
   ReleaseFieldOwnership(write_result.transform_results,
                         write_result.transform_results_count);
   return MutationResult(version, std::move(transform_results));
