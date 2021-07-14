@@ -281,11 +281,11 @@ app has communicated with our servers". This relies on Analytics and will not wo
 macOS/tvOS/watchOS/Catalyst.
 **It's safe to ignore the message and continue**, the rest of the SDKs will work as expected.
 
-#### Additional Catalyst Notes
+#### Additional MacOS and Catalyst Notes
 
 * FirebaseAuth and FirebaseMessaging require adding `Keychain Sharing Capability`
 to Build Settings.
-* FirebaseFirestore requires signing the
+* For Catalyst, FirebaseFirestore requires signing the
 [gRPC Resource target](https://github.com/firebase/firebase-ios-sdk/issues/3500#issuecomment-518741681).
 
 #### Additional Crashlytics Notes

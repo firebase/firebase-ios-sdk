@@ -17,35 +17,23 @@
 
 firebase.perf.v1.TraceMetric.name type:FT_POINTER
 firebase.perf.v1.TraceMetric.counters type:FT_POINTER
-firebase.perf.v1.TraceMetric.CountersEntry.key type:FT_POINTER
-firebase.perf.v1.TraceMetric.subtraces type:FT_POINTER
 firebase.perf.v1.TraceMetric.custom_attributes type:FT_POINTER
-firebase.perf.v1.TraceMetric.CustomAttributesEntry.key type:FT_POINTER
-firebase.perf.v1.TraceMetric.CustomAttributesEntry.value type:FT_POINTER
-firebase.perf.v1.TraceMetric.perf_sessions type:FT_POINTER
 
 firebase.perf.v1.NetworkRequestMetric.url type:FT_POINTER
 firebase.perf.v1.NetworkRequestMetric.response_content_type type:FT_POINTER
 firebase.perf.v1.NetworkRequestMetric.custom_attributes type:FT_POINTER
-firebase.perf.v1.NetworkRequestMetric.CustomAttributesEntry.key type:FT_POINTER
-firebase.perf.v1.NetworkRequestMetric.CustomAttributesEntry.value type:FT_POINTER
-firebase.perf.v1.NetworkRequestMetric.perf_sessions type:FT_POINTER
 
 firebase.perf.v1.PerfSession.session_id type:FT_POINTER
-firebase.perf.v1.PerfSession.session_verbosity type:FT_POINTER
 
 firebase.perf.v1.GaugeMetric.session_id type:FT_POINTER
-firebase.perf.v1.GaugeMetric.cpu_metric_readings type:FT_POINTER
-firebase.perf.v1.GaugeMetric.android_memory_readings type:FT_POINTER
-firebase.perf.v1.GaugeMetric.ios_memory_readings type:FT_POINTER
 
 firebase.perf.v1.GaugeMetadata.process_name type:FT_POINTER
 
 firebase.perf.v1.ApplicationInfo.google_app_id type:FT_POINTER
 firebase.perf.v1.ApplicationInfo.app_instance_id type:FT_POINTER
 firebase.perf.v1.ApplicationInfo.custom_attributes type:FT_POINTER
-firebase.perf.v1.ApplicationInfo.CustomAttributesEntry.key type:FT_POINTER
-firebase.perf.v1.ApplicationInfo.CustomAttributesEntry.value type:FT_POINTER
+firebase.perf.v1.ApplicationInfo.Custom_Attributes.key type:FT_POINTER
+firebase.perf.v1.ApplicationInfo.Custom_Attributes.value type:FT_POINTER
 
 firebase.perf.v1.WebApplicationInfo.sdk_version type:FT_POINTER
 firebase.perf.v1.WebApplicationInfo.page_url type:FT_POINTER
