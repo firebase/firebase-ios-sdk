@@ -43,6 +43,7 @@ Cloud Functions for Firebase.
     unit_tests.scheme = { :code_coverage => true }
     unit_tests.source_files = [
       'Functions/Example/Test*/*.[mh]',
+      'Functions/Tests/Unit/Swift/**/*',
       'SharedTestUtilities/FIRAuthInteropFake*',
       'SharedTestUtilities/FIRMessagingInteropFake*',
       'SharedTestUtilities/AppCheckFake/*.[mh]',

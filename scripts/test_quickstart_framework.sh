@@ -33,5 +33,4 @@ if check_secrets; then
   else
     have_secrets=true SAMPLE="$sample" scripts/framework_test.sh
   fi
-
 fi

@@ -41,7 +41,7 @@ Pod::Spec.new do |s|
 
   s.framework = 'Security'
   s.dependency 'FirebaseCore', '~> 8.0'
-  s.dependency 'PromisesObjC', '~> 1.2'
+  s.dependency 'PromisesObjC', '>= 1.2', '< 3.0'
   s.dependency 'GoogleUtilities/Environment', '~> 7.4'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 7.4'
 
@@ -60,7 +60,8 @@ Pod::Spec.new do |s|
       :tvos => tvos_deployment_target
     }
     unit_tests.source_files = base_dir + 'Tests/Unit/*.[mh]',
-                              base_dir + 'Tests/Utils/*.[mh]'
+                              base_dir + 'Tests/Utils/*.[mh]',
+                              base_dir + 'Tests/Unit/Swift/*'
     unit_tests.resources = base_dir + 'Tests/Fixture/**/*'
     unit_tests.requires_app_host = true
     unit_tests.dependency 'OCMock'

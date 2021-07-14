@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Bump Promises dependency. (#8365)
+
 # v7.0.0 -- M82
 - [changed] The global variable `FIRInstallationsVersionStr` is deleted.
   `FirebaseVersion()` or `FIRFirebaseVersion()` should be used instead.

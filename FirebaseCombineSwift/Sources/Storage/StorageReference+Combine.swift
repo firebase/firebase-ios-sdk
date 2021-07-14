@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if canImport(Combine) && swift(>=5.0) && canImport(FirebaseStorage)
+#if canImport(Combine) && swift(>=5.0)
 
   import Combine
   import FirebaseStorage
@@ -268,4 +268,4 @@
     }
   }
 
-#endif // canImport(Combine) && swift(>=5.0) && canImport(FirebaseStorage)
+#endif // canImport(Combine) && swift(>=5.0)

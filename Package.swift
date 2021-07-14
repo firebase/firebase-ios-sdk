@@ -57,6 +57,10 @@ let package = Package(
     //   targets: ["FirebaseAuthCombineSwift"]
     // ),
     // .library(
+    //   name: "FirebaseFirestoreCombineSwift-Beta",
+    //   targets: ["FirebaseFirestoreCombineSwift"]
+    // ),
+    // .library(
     //   name: "FirebaseFunctionsCombineSwift-Beta",
     //   targets: ["FirebaseFunctionsCombineSwift"]
     // ),
@@ -129,7 +133,7 @@ let package = Package(
     .package(
       name: "Promises",
       url: "https://github.com/google/promises.git",
-      "1.2.8" ..< "1.3.0"
+      "1.2.8" ..< "3.0.0"
     ),
     .package(
       name: "SwiftProtobuf",
@@ -139,7 +143,7 @@ let package = Package(
     .package(
       name: "GoogleAppMeasurement",
       url: "https://github.com/google/GoogleAppMeasurement.git",
-      .exact("8.1.1")
+      .exact("8.3.1")
     ),
     .package(
       name: "GoogleDataTransport",
@@ -287,8 +291,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/8.1.1/FirebaseAnalytics.zip",
-      checksum: "e1327203fc41fafe9d5dc7e49ce078763387046e82a7a50ba1bf3e6329130d21"
+      url: "https://dl.google.com/firebase/ios/swiftpm/8.3.0/FirebaseAnalytics.zip",
+      checksum: "3225b785ef2884889b41216150d000ccac3aa9d5e9bebbd993a63725503949e5"
     ),
     .target(
       name: "FirebaseAnalyticsSwiftTarget",
@@ -398,6 +402,7 @@ let package = Package(
       name: "FirebaseCombineSwift",
       dependencies: [
         "FirebaseAuthCombineSwift",
+        "FirebaseFirestoreCombineSwift",
         "FirebaseFunctionsCombineSwift",
         "FirebaseStorageCombineSwift",
       ],
@@ -407,6 +412,11 @@ let package = Package(
       name: "FirebaseAuthCombineSwift",
       dependencies: ["FirebaseAuth"],
       path: "FirebaseCombineSwift/Sources/Auth"
+    ),
+    .target(
+      name: "FirebaseFirestoreCombineSwift",
+      dependencies: ["FirebaseFirestore", "FirebaseFirestoreSwift"],
+      path: "FirebaseCombineSwift/Sources/Firestore"
     ),
     .target(
       name: "FirebaseStorageCombineSwift",
