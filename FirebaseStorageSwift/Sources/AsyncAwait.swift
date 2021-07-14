@@ -17,6 +17,14 @@ import FirebaseStorage
 #if swift(>=5.5)
   @available(iOS 15, *)
   public extension StorageReference {
+    /// Asynchronously downloads the object at the StorageReference to a Data object in memory.
+    /// A Data object of the provided max size will be allocated, so ensure that the device has enough free
+    /// memory to complete the download. For downloading large files, write may be a better option.
+    ///
+    /// - Parameters:
+    ///   - size: The maximum size in bytes to download. If the download exceeds this size
+    ///           the task will be cancelled and an error will be thrown.
+    /// - Returns: Data object.
     func data(maxSize: Int64) async throws -> Data {
       typealias DataContinuation = CheckedContinuation<Data, Error>
       return try await withCheckedThrowingContinuation { (continuation: DataContinuation) in
@@ -26,7 +34,15 @@ import FirebaseStorage
         }
       }
     }
-
+    /// Asynchronously uploads data to the currently specified StorageReference.
+    /// This is not recommended for large files, and one should instead upload a file from disk.
+    /// in the Firebase Console if desired.
+    ///
+    /// - Parameters:
+    ///   - uploadData: The Data to upload.
+    ///   - metadata: Optional StorageMetadata containing additional information (MIME type, etc.)
+    ///              about the object being uploaded.
+    /// - Returns: StorageMetadata containing additional information about the object being uploaded.
     func putDataAsync(_ uploadData: Data,
                       metadata: StorageMetadata? = nil) async throws -> StorageMetadata {
       typealias MetadataContinuation = CheckedContinuation<StorageMetadata, Error>
@@ -38,6 +54,13 @@ import FirebaseStorage
       }
     }
 
+    /// Asynchronously uploads a file to the currently specified StorageReference.
+    ///
+    /// - Parameters:
+    ///   - url: A URL representing the system file path of the object to be uploaded.
+    ///   - metadata: Optional StorageMetadata containing additional information (MIME type, etc.)
+    ///              about the object being uploaded.
+    /// - Returns: StorageMetadata containing additional information about the object being uploaded.
     func putFileAsync(from url: URL,
                       metadata: StorageMetadata? = nil) async throws -> StorageMetadata {
       typealias MetadataContinuation = CheckedContinuation<StorageMetadata, Error>
@@ -49,6 +72,11 @@ import FirebaseStorage
       }
     }
 
+    /// Asynchronously downloads the object at the current path to a specified system filepath.
+    ///
+    /// - Parameters:
+    ///   - fileUrl: A URL representing the system file path of the object to be uploaded.
+    /// - Returns: URL pointing to the file path of the downloaded file.
     func writeAsync(toFile fileURL: URL) async throws -> URL {
       typealias URLContinuation = CheckedContinuation<URL, Error>
       return try await withCheckedThrowingContinuation { (continuation: URLContinuation) in
