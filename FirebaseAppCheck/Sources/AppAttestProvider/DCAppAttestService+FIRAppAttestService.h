@@ -16,7 +16,7 @@
 
 #import <TargetConditionals.h>
 
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppAttestAvailability.h"
+#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckAvailability.h"
 
 // Currently DCAppAttestService is available on iOS only.
 #if FIR_APP_ATTEST_SUPPORTED_TARGETS

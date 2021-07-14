@@ -18,7 +18,7 @@
 
 #import "FIRAppCheckProvider.h"
 
-#import "FIRAppAttestAvailability.h"
+#import "FIRAppCheckAvailability.h"
 
 @class FIRApp;
 

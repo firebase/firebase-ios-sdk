@@ -14,12 +14,25 @@
  * limitations under the License.
  */
 
+// Availability conditions for different App Check SDK components.
+
 #import <TargetConditionals.h>
 
-// Resolves with targets where `DCAppAttestService` is available to be used in preprocessor
-// conditions.
+#pragma mark - DeviceCheck
+
+// Targets where DeviceCheck framework is available to be used in preprocessor conditions.
+#define FIR_DEVICE_CHECK_SUPPORTED_TARGETS TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_TV
+
+// `DeviceCheckProvider` availability.
+#define FIR_DEVICE_CHECK_PROVIDER_AVAILABILITY API_AVAILABLE(ios(11.0), macos(10.15), tvos(11.0)) API_UNAVAILABLE(watchos)
+
+#pragma mark - App Attest
+
+// Targets where `DCAppAttestService` is available to be used in preprocessor conditions.
 #define FIR_APP_ATTEST_SUPPORTED_TARGETS TARGET_OS_IOS || TARGET_OS_OSX
 
-// FIRAppAttestProvider availability annotations
+// `AppAttestProvider` availability annotations
 #define FIR_APP_ATTEST_PROVIDER_AVAILABILITY \
   API_AVAILABLE(macos(11.0), ios(14.0)) API_UNAVAILABLE(tvos, watchos)
+
+

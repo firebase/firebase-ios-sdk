@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckAvailability.h"
+
+#if FIR_DEVICE_CHECK_SUPPORTED_TARGETS
+
 #import <Foundation/Foundation.h>
 
 #import "FIRAppCheckProviderFactory.h"
@@ -32,3 +36,5 @@ NS_SWIFT_NAME(DeviceCheckProviderFactory)
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif // FIR_DEVICE_CHECK_SUPPORTED_TARGETS
