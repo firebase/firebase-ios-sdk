@@ -17,76 +17,22 @@
 import UIKit
 
 class BannerMessageViewController: CommonMessageTestVC {
-  class TestableBannerMessage: InAppMessagingBannerDisplay {
-    var writableCampaignInfo: InAppMessagingCampaignInfo
-    var writableTitle: String
-    var writableBody: String?
-    var writableTextColor: UIColor
-    var writableImageData: InAppMessagingImageData?
-    var writableBackgroundColor: UIColor
-    var writableActionURL: URL?
-    var writableMessageType: FIRInAppMessagingDisplayMessageType
-    var writableTriggerType: FIRInAppMessagingDisplayTriggerType
-
-    override var campaignInfo: InAppMessagingCampaignInfo {
-      return writableCampaignInfo
-    }
-
-    override var title: String {
-      return writableTitle
-    }
-
-    override var bodyText: String? {
-      return writableBody
-    }
-
-    override var textColor: UIColor {
-      return writableTextColor
-    }
-
-    override var imageData: InAppMessagingImageData? {
-      return writableImageData
-    }
-
-    override var displayBackgroundColor: UIColor {
-      return writableBackgroundColor
-    }
-
-    override var actionURL: URL? {
-      return writableActionURL
-    }
-
-    override var type: FIRInAppMessagingDisplayMessageType {
-      return writableMessageType
-    }
-
-    override var triggerType: FIRInAppMessagingDisplayTriggerType {
-      return writableTriggerType
-    }
-
-    init(titleText: String,
-         bodyText: String?,
-         textColor: UIColor,
-         backgroundColor: UIColor,
-         imageData: InAppMessagingImageData?,
-         actionURL: URL?) {
-      writableTitle = titleText
-      writableBody = bodyText
-      writableTextColor = textColor
-      writableImageData = imageData
-      writableBackgroundColor = backgroundColor
-      writableActionURL = actionURL
-      writableCampaignInfo = TestableCampaignInfo(messageID: "testID",
-                                                  campaignName: "testCampaign",
-                                                  isTestMessage: false)
-      writableMessageType = FIRInAppMessagingDisplayMessageType.banner
-      writableTriggerType = FIRInAppMessagingDisplayTriggerType.onAnalyticsEvent
-      super.init(messageID: "testID",
-                 campaignName: "testCampaign",
-                 renderAsTestMessage: false,
-                 messageType: .imageOnly,
-                 triggerType: .onAnalyticsEvent)
-    }
+  func testBannerMessage(titleText: String,
+                         bodyText: String?,
+                         textColor: UIColor,
+                         backgroundColor: UIColor,
+                         imageData: InAppMessagingImageData?,
+                         actionURL: URL?) -> InAppMessagingBannerDisplay {
+    return InAppMessagingBannerDisplay(
+      campaignName: "campaignName",
+      titleText: titleText,
+      bodyText: bodyText,
+      textColor: textColor,
+      backgroundColor: backgroundColor,
+      imageData: imageData,
+      actionURL: actionURL,
+      appData: nil
+    )
   }
 
   let displayImpl = InAppMessagingDefaultDisplayImpl()
@@ -111,7 +57,7 @@ class BannerMessageViewController: CommonMessageTestVC {
     let fiamImageData = InAppMessagingImageData(imageURL: "url not important",
                                                 imageData: imageRawData!)
 
-    let bannerMessage = TestableBannerMessage(
+    let bannerMessage = testBannerMessage(
       titleText: normalMessageTitle,
       bodyText: normalMessageBody,
       textColor: UIColor.black,
@@ -125,7 +71,7 @@ class BannerMessageViewController: CommonMessageTestVC {
 
   @IBAction func showBannerViewWithoutImageTapped(_ sender: Any) {
     verifyLabel.text = "Verification Label"
-    let bannerMessage = TestableBannerMessage(
+    let bannerMessage = testBannerMessage(
       titleText: normalMessageTitle,
       bodyText: normalMessageBody,
       textColor: UIColor.black,
@@ -143,7 +89,7 @@ class BannerMessageViewController: CommonMessageTestVC {
     let fiamImageData = InAppMessagingImageData(imageURL: "url not important",
                                                 imageData: imageRawData!)
 
-    let bannerMessage = TestableBannerMessage(
+    let bannerMessage = testBannerMessage(
       titleText: normalMessageTitle,
       bodyText: normalMessageBody,
       textColor: UIColor.black,
@@ -161,7 +107,7 @@ class BannerMessageViewController: CommonMessageTestVC {
     let fiamImageData = InAppMessagingImageData(imageURL: "url not important",
                                                 imageData: imageRawData!)
 
-    let bannerMessage = TestableBannerMessage(
+    let bannerMessage = testBannerMessage(
       titleText: normalMessageTitle,
       bodyText: normalMessageBody,
       textColor: UIColor.black,
@@ -179,7 +125,7 @@ class BannerMessageViewController: CommonMessageTestVC {
     let fiamImageData = InAppMessagingImageData(imageURL: "url not important",
                                                 imageData: imageRawData!)
 
-    let bannerMessage = TestableBannerMessage(
+    let bannerMessage = testBannerMessage(
       titleText: normalMessageTitle,
       bodyText: longBodyText,
       textColor: UIColor.black,
@@ -197,7 +143,7 @@ class BannerMessageViewController: CommonMessageTestVC {
     let fiamImageData = InAppMessagingImageData(imageURL: "url not important",
                                                 imageData: imageRawData!)
 
-    let modalMessage = TestableBannerMessage(
+    let modalMessage = testBannerMessage(
       titleText: longTitleText,
       bodyText: normalMessageBody,
       textColor: UIColor.black,
