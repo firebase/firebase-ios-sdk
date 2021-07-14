@@ -34,6 +34,7 @@ import FirebaseStorage
         }
       }
     }
+
     /// Asynchronously uploads data to the currently specified StorageReference.
     /// This is not recommended for large files, and one should instead upload a file from disk.
     /// in the Firebase Console if desired.
