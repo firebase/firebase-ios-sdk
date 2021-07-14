@@ -16,22 +16,10 @@
 
 #import <TargetConditionals.h>
 
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppAttestAvailability.h"
+// Resolves with targets where `DCAppAttestService` is available to be used in preprocessor
+// conditions.
+#define FIR_APP_ATTEST_SUPPORTED_TARGETS TARGET_OS_IOS || TARGET_OS_OSX
 
-// Currently DCAppAttestService is available on iOS only.
-#if FIR_APP_ATTEST_SUPPORTED_TARGETS
-
-#import <DeviceCheck/DeviceCheck.h>
-
-#import "FirebaseAppCheck/Sources/AppAttestProvider/FIRAppAttestService.h"
-
-NS_ASSUME_NONNULL_BEGIN
-
-FIR_APP_ATTEST_PROVIDER_AVAILABILITY
-@interface DCAppAttestService (FIRAppAttestService) <FIRAppAttestService>
-
-@end
-
-NS_ASSUME_NONNULL_END
-
-#endif  // FIR_APP_ATTEST_SUPPORTED_TARGETS
+// FIRAppAttestProvider availability annotations
+#define FIR_APP_ATTEST_PROVIDER_AVAILABILITY \
+  API_AVAILABLE(macos(11.0), ios(14.0)) API_UNAVAILABLE(tvos, watchos)
