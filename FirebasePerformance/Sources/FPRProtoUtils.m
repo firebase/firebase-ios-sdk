@@ -58,7 +58,7 @@ pb_bytes_array_t *FPREncodeString(NSString *string) {
 }
 
 NSData *FPRDecodeData(pb_bytes_array_t *pbData) {
-  NSData *data = [NSData dataWithBytesNoCopy:pbData length:sizeof(pbData) freeWhenDone:YES];
+  NSData *data = [NSData dataWithBytes:&(pbData->bytes) length:pbData->size];
   return data;
 }
 

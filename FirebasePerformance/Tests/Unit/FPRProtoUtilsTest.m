@@ -55,14 +55,8 @@ pb_bytes_array_t *FPREncodeData(NSData *data) {
   if (pbBytesArray != NULL) {
     [data getBytes:pbBytesArray->bytes length:data.length];
     pbBytesArray->size = (pb_size_t)data.length;
-//    NSLog(@"before: %lu", (unsigned long)data.length);
   }
   return pbBytesArray;
-//  pb_bytes_array_t *pbBytes = malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(data.length));
-//    memcpy(pbBytes->bytes, [data bytes], data.length);
-//    pbBytes->size = (pb_size_t)data.length;
-//  return pbBytes;
-  
 }
 
 NSData *FPRDecodeData(pb_bytes_array_t *pbData) {
@@ -90,101 +84,69 @@ NSMutableDictionary<NSString*, NSString*> *FPRDecodeCustomAttributes(struct _fir
   return dict;
 }
 
-- (BOOL)isPBData:(pb_bytes_array_t *)pbString equalToString:(NSString *)str {
-  pb_bytes_array_t *expected = FPREncodeString(str);
-  return [self isPBArray:pbString equalToArray:expected];
-}
-
-- (BOOL)isPBArray:(pb_bytes_array_t *)array equalToArray:(pb_bytes_array_t *)expected {
-  // Treat the empty string as the same as a missing field
-  if ((!array) && expected->size == 0) {
-    return true;
-  }
-
-  if (array->size != expected->size) {
-    return false;
-  }
-
-  for (int i = 0; i < array->size; i++) {
-    if (expected->bytes[i] != array->bytes[i]) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
 /** Validates that a PerfMetricMessage creation is successful. */
 - (void)testPerfMetricMessageCreation {
-  NSString *appID = @"RandomApp ID sadas d";
-  NSData *data = [appID dataUsingEncoding:NSUTF8StringEncoding];
-  pb_bytes_array_t *pb = FPREncodeData(data);
-  NSData *newData = [NSData dataWithBytes:&(pb->bytes) length:pb->size];
-  NSString *newString = [NSString stringWithCString:[newData bytes] encoding:NSUTF8StringEncoding];
-  XCTAssertEqualObjects(appID, newString);
-  XCTAssertEqualObjects(data, newData);
-
-//    NSString *s = FPRDecodeString(FPREncodeString(appID));
-//
-//
-//    XCTAssertEqualObjects(appID, s);
-//  XCTAssertTrue([appID isEqualToString:s]);
+  NSString *appID = @"RandomAppID";
+  firebase_perf_v1_PerfMetric perfMetric = FPRGetPerfMetricMessage(appID);
+  XCTAssertEqualObjects(FPRDecodeString(perfMetric.application_info.google_app_id), appID);
 }
 
 /** Tests if the application information is populated when creating a FPRMSGPerfMetric message. */
 - (void)testApplicationInfoMessage {
-  firebase_perf_v1_PerfMetric perfMetric = FPRGetPerfMetricMessage(@"appid");
-  XCTAssertEqualObjects(FPRDecodeString(perfMetric.application_info.google_app_id), @"appid");
-//  NSLog(@"%@",FPRDecodeString(perfMetric.application_info.ios_app_info.sdk_version));
-//  XCTAssertNotNil(FPRDecodeString(perfMetric.application_info.ios_app_info.sdk_version));
-//  XCTAssertNotNil(appInfo.iosAppInfo.bundleShortVersion);
-//  XCTAssertTrue((appInfo.iosAppInfo.mccMnc.length == 0) || (appInfo.iosAppInfo.mccMnc.length == 6));
-//  XCTAssertTrue(appInfo.iosAppInfo.networkConnectionInfo.networkType !=
-//                FPRMSGNetworkConnectionInfo_NetworkType_None);
-//  if (appInfo.iosAppInfo.networkConnectionInfo.networkType ==
-//      FPRMSGNetworkConnectionInfo_NetworkType_Mobile) {
-//    XCTAssertTrue(appInfo.iosAppInfo.networkConnectionInfo.mobileSubtype !=
-//                  FPRMSGNetworkConnectionInfo_MobileSubtype_UnknownMobileSubtype);
-//  }
+  firebase_perf_v1_PerfMetric event = FPRGetPerfMetricMessage(@"appid");
+  firebase_perf_v1_ApplicationInfo appInfo = event.application_info;
+  XCTAssertEqualObjects(FPRDecodeString(appInfo.google_app_id), @"appid");
+  XCTAssertTrue(appInfo.ios_app_info.sdk_version != NULL);
+  XCTAssertTrue(appInfo.ios_app_info.bundle_short_version != NULL);
+  XCTAssertTrue(appInfo.ios_app_info.mcc_mnc == NULL || appInfo.ios_app_info.mcc_mnc->size == 6);
+  XCTAssertTrue(appInfo.ios_app_info.network_connection_info.network_type !=
+                firebase_perf_v1_NetworkConnectionInfo_NetworkType_NONE);
+  if (appInfo.ios_app_info.network_connection_info.network_type ==
+      firebase_perf_v1_NetworkConnectionInfo_NetworkType_MOBILE) {
+    XCTAssertTrue(appInfo.ios_app_info.network_connection_info.mobile_subtype !=
+                  firebase_perf_v1_NetworkConnectionInfo_MobileSubtype_UNKNOWN_MOBILE_SUBTYPE);
+  }
 }
 
 /** Validates that ApplicationInfoMessage carries global attributes. */
 - (void)testApplicationInfoMessageWithAttributes {
   FIRPerformance *performance = [FIRPerformance sharedInstance];
-  [performance setValue:@"bar" forAttribute:@"foo"];
+  [performance setValue:@"bar1" forAttribute:@"foo1"];
+  [performance setValue:@"bar2" forAttribute:@"foo2"];
   firebase_perf_v1_PerfMetric event = FPRGetPerfMetricMessage(@"appid");
   firebase_perf_v1_ApplicationInfo appInfo = event.application_info;
-  XCTAssertEqual(appInfo.custom_attributes_count, 1);
+  XCTAssertEqual(appInfo.custom_attributes_count, 2);
   NSDictionary *attributes = FPRDecodeCustomAttributes(appInfo.custom_attributes, appInfo.custom_attributes_count);
-  NSString* value = attributes[@"foo"];
-  XCTAssertEqual(value, @"bar");
-  [performance removeAttribute:@"foo"];
+  XCTAssertEqualObjects(attributes[@"foo1"], @"bar1");
+  XCTAssertEqualObjects(attributes[@"foo2"], @"bar2");
+  [performance removeAttribute:@"foo1"];
+  [performance removeAttribute:@"foo2"];
 }
 
-///** Tests if mccMnc validation is catching non numerals. */
-//- (void)testMccMncOnlyHasNumbers {
-//  NSString *mccMnc = FPRValidatedMccMnc(@"123", @"MKV");
-//  XCTAssertNil(mccMnc);
-//  mccMnc = FPRValidatedMccMnc(@"ABC", @"123");
-//  XCTAssertNil(mccMnc);
-//}
-//
-///** Tests if mccMnc validation is working. */
-//- (void)testMccMnc {
-//  NSString *mccMnc = FPRValidatedMccMnc(@"123", @"22");
-//  XCTAssertNotNil(mccMnc);
-//  mccMnc = FPRValidatedMccMnc(@"123", @"223");
-//  XCTAssertNotNil(mccMnc);
-//}
-//
-///** Tests if mccMnc validation catches improper lengths. */
-//- (void)testMccMncLength {
-//  NSString *mccMnc = FPRValidatedMccMnc(@"12", @"22");
-//  XCTAssertNil(mccMnc);
-//  mccMnc = FPRValidatedMccMnc(@"123", @"2");
-//  XCTAssertNil(mccMnc);
-//}
-//
+/** Tests if mccMnc validation is catching non numerals. */
+- (void)testMccMncOnlyHasNumbers {
+  NSString *mccMnc = FPRValidatedMccMnc(@"123", @"MKV");
+  XCTAssertNil(mccMnc);
+  mccMnc = FPRValidatedMccMnc(@"ABC", @"123");
+  XCTAssertNil(mccMnc);
+}
+
+/** Tests if mccMnc validation is working. */
+- (void)testMccMnc {
+  NSString *mccMnc = FPRValidatedMccMnc(@"123", @"22");
+  XCTAssertNotNil(mccMnc);
+  mccMnc = FPRValidatedMccMnc(@"123", @"223");
+  XCTAssertNotNil(mccMnc);
+}
+
+/** Tests if mccMnc validation catches improper lengths. */
+- (void)testMccMncLength {
+  NSString *mccMnc = FPRValidatedMccMnc(@"12", @"22");
+  XCTAssertNil(mccMnc);
+  mccMnc = FPRValidatedMccMnc(@"123", @"2");
+  XCTAssertNil(mccMnc);
+}
+
 ///** Validates that a valid FIRTrace object to Proto conversion is successful. */
 //- (void)testTraceMetricMessageCreation {
 //  FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
