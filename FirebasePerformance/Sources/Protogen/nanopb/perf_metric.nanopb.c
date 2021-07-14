@@ -32,7 +32,7 @@ const pb_field_t firebase_perf_v1_PerfMetric_fields[6] = {
     PB_FIELD(  1, MESSAGE , OPTIONAL, STATIC  , FIRST, firebase_perf_v1_PerfMetric, application_info, application_info, &firebase_perf_v1_ApplicationInfo_fields),
     PB_FIELD(  2, MESSAGE , OPTIONAL, STATIC  , OTHER, firebase_perf_v1_PerfMetric, trace_metric, application_info, &firebase_perf_v1_TraceMetric_fields),
     PB_FIELD(  3, MESSAGE , OPTIONAL, STATIC  , OTHER, firebase_perf_v1_PerfMetric, network_request_metric, trace_metric, &firebase_perf_v1_NetworkRequestMetric_fields),
-    PB_FIELD(  4, MESSAGE , OPTIONAL, STATIC  , OTHER, firebase_perf_v1_PerfMetric, w, network_request_metric, &firebase_perf_v1_GaugeMetric_fields),
+    PB_FIELD(  4, MESSAGE , OPTIONAL, STATIC  , OTHER, firebase_perf_v1_PerfMetric, gauge_metric, network_request_metric, &firebase_perf_v1_GaugeMetric_fields),
     PB_FIELD(  5, MESSAGE , OPTIONAL, STATIC  , OTHER, firebase_perf_v1_PerfMetric, transport_info, gauge_metric, &firebase_perf_v1_TransportInfo_fields),
     PB_LAST_FIELD
 };

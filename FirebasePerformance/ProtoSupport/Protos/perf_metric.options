@@ -45,3 +45,4 @@ firebase.perf.v1.AndroidApplicationInfo.version_name type:FT_POINTER
 firebase.perf.v1.IosApplicationInfo.sdk_version type:FT_POINTER
 firebase.perf.v1.IosApplicationInfo.bundle_short_version type:FT_POINTER
 firebase.perf.v1.IosApplicationInfo.mcc_mnc type:FT_POINTER
+

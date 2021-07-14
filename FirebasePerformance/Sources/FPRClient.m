@@ -209,26 +209,26 @@
                 trace.URLRequest.URL.absoluteString);
     return;
   }
-//  dispatch_group_async(self.eventsQueueGroup, self.eventsQueue, ^{
-//    FPRMSGNetworkRequestMetric *networkRequestMetric = FPRGetNetworkRequestMetric(trace);
-//    if (networkRequestMetric) {
-//      int64_t duration = networkRequestMetric.hasTimeToResponseCompletedUs
-//                             ? networkRequestMetric.timeToResponseCompletedUs
-//                             : 0;
-//
-//      NSString *responseCode = networkRequestMetric.hasHTTPResponseCode
-//                                   ? [@(networkRequestMetric.HTTPResponseCode) stringValue]
-//                                   : @"UNKNOWN";
-//      FPRLogInfo(kFPRClientMetricLogged,
-//                 @"Logging network request trace - %@, Response code: %@, %.4fms",
-//                 networkRequestMetric.URL, responseCode, duration / 1000.0);
-//      FPRMSGPerfMetric *metric = FPRGetPerfMetricMessage(self.config.appID);
-//      metric.networkRequestMetric = networkRequestMetric;
-//      metric.applicationInfo.applicationProcessState =
-//          FPRApplicationProcessState(trace.backgroundTraceState);
-//      [self processAndLogEvent:metric];
-//    }
-//  });
+  //  dispatch_group_async(self.eventsQueueGroup, self.eventsQueue, ^{
+  //    FPRMSGNetworkRequestMetric *networkRequestMetric = FPRGetNetworkRequestMetric(trace);
+  //    if (networkRequestMetric) {
+  //      int64_t duration = networkRequestMetric.hasTimeToResponseCompletedUs
+  //                             ? networkRequestMetric.timeToResponseCompletedUs
+  //                             : 0;
+  //
+  //      NSString *responseCode = networkRequestMetric.hasHTTPResponseCode
+  //                                   ? [@(networkRequestMetric.HTTPResponseCode) stringValue]
+  //                                   : @"UNKNOWN";
+  //      FPRLogInfo(kFPRClientMetricLogged,
+  //                 @"Logging network request trace - %@, Response code: %@, %.4fms",
+  //                 networkRequestMetric.URL, responseCode, duration / 1000.0);
+  //      FPRMSGPerfMetric *metric = FPRGetPerfMetricMessage(self.config.appID);
+  //      metric.networkRequestMetric = networkRequestMetric;
+  //      metric.applicationInfo.applicationProcessState =
+  //          FPRApplicationProcessState(trace.backgroundTraceState);
+  //      [self processAndLogEvent:metric];
+  //    }
+  //  });
 }
 
 - (void)logGaugeMetric:(nonnull NSArray *)gaugeData forSessionId:(nonnull NSString *)sessionId {
@@ -236,12 +236,12 @@
     FPRLogError(kFPRClientPerfNotConfigured, @"Dropping session event. Perf SDK not configured.");
     return;
   }
-//  dispatch_group_async(self.eventsQueueGroup, self.eventsQueue, ^{
-//    FPRMSGPerfMetric *metric = FPRGetPerfMetricMessage(self.config.appID);
-//    FPRMSGGaugeMetric *gaugeMetric = FPRGetGaugeMetric(gaugeData, sessionId);
-//    metric.gaugeMetric = gaugeMetric;
-//    [self processAndLogEvent:metric];
-//  });
+  //  dispatch_group_async(self.eventsQueueGroup, self.eventsQueue, ^{
+  //    FPRMSGPerfMetric *metric = FPRGetPerfMetricMessage(self.config.appID);
+  //    FPRMSGGaugeMetric *gaugeMetric = FPRGetGaugeMetric(gaugeData, sessionId);
+  //    metric.gaugeMetric = gaugeMetric;
+  //    [self processAndLogEvent:metric];
+  //  });
 
   // Check and update the sessionID if the session is running for too long.
   [[FPRSessionManager sharedInstance] renewSessionIdIfRunningTooLong];

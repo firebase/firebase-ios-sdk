@@ -50,40 +50,6 @@
   [performance setDataCollectionEnabled:NO];
 }
 
-pb_bytes_array_t *FPREncodeData(NSData *data) {
-  pb_bytes_array_t *pbBytesArray = calloc(1, PB_BYTES_ARRAY_T_ALLOCSIZE(data.length));
-  if (pbBytesArray != NULL) {
-    [data getBytes:pbBytesArray->bytes length:data.length];
-    pbBytesArray->size = (pb_size_t)data.length;
-  }
-  return pbBytesArray;
-}
-
-NSData *FPRDecodeData(pb_bytes_array_t *pbData) {
-  NSData *data = [NSData dataWithBytes:&(pbData->bytes) length:pbData->size];
-  return data;
-}
-
-pb_bytes_array_t *FPREncodeString(NSString *string) {
-  NSData *stringBytes = [string dataUsingEncoding:NSUTF8StringEncoding];
-  return FPREncodeData(stringBytes);
-}
-
-NSString *FPRDecodeString(pb_bytes_array_t *pbData) {
-  NSData *data = FPRDecodeData(pbData);
-  return [NSString stringWithCString:[data bytes] encoding:NSUTF8StringEncoding];
-}
-
-NSMutableDictionary<NSString*, NSString*> *FPRDecodeCustomAttributes(struct _firebase_perf_v1_ApplicationInfo_CustomAttributesEntry *customAttributes, NSInteger count) {
-  NSMutableDictionary<NSString*, NSString*> *dict = [NSMutableDictionary dictionary];
-  for (int i = 0; i < count; i++) {
-    NSString *key = FPRDecodeString(customAttributes[i].key);
-    NSString *value = FPRDecodeString(customAttributes[i].value);
-    dict[key] = value;
-  }
-  return dict;
-}
-
 /** Validates that a PerfMetricMessage creation is successful. */
 - (void)testPerfMetricMessageCreation {
   NSString *appID = @"RandomAppID";
@@ -116,7 +82,8 @@ NSMutableDictionary<NSString*, NSString*> *FPRDecodeCustomAttributes(struct _fir
   firebase_perf_v1_PerfMetric event = FPRGetPerfMetricMessage(@"appid");
   firebase_perf_v1_ApplicationInfo appInfo = event.application_info;
   XCTAssertEqual(appInfo.custom_attributes_count, 2);
-  NSDictionary *attributes = FPRDecodeCustomAttributes(appInfo.custom_attributes, appInfo.custom_attributes_count);
+  NSDictionary *attributes =
+      FPRDecodeCustomAttributes(appInfo.custom_attributes, appInfo.custom_attributes_count);
   XCTAssertEqualObjects(attributes[@"foo1"], @"bar1");
   XCTAssertEqualObjects(attributes[@"foo2"], @"bar2");
   [performance removeAttribute:@"foo1"];

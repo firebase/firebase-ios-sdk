@@ -48,78 +48,79 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
 }
 
 + (FPRMSGPerfMetric *)createRandomPerfMetric:(NSString *)traceName {
-//  FPRMSGPerfMetric *perfMetric = FPRGetPerfMetricMessage(@"RandomAppID");
-//  FIRTrace *trace = [FPRTestUtils createRandomTraceWithName:traceName];
-//  // Make sure there are no sessions.
-//  trace.activeSessions = [NSMutableArray array];
-//  perfMetric.traceMetric = FPRGetTraceMetric(trace);
-//
-//  return perfMetric;
+  //  FPRMSGPerfMetric *perfMetric = FPRGetPerfMetricMessage(@"RandomAppID");
+  //  FIRTrace *trace = [FPRTestUtils createRandomTraceWithName:traceName];
+  //  // Make sure there are no sessions.
+  //  trace.activeSessions = [NSMutableArray array];
+  //  perfMetric.traceMetric = FPRGetTraceMetric(trace);
+  //
+  //  return perfMetric;
   return nil;
 }
 
 + (FPRMSGPerfMetric *)createVerboseRandomPerfMetric:(NSString *)traceName {
-//  FPRMSGPerfMetric *perfMetric = FPRGetPerfMetricMessage(@"RandomAppID");
-//  FIRTrace *trace = [FPRTestUtils createRandomTraceWithName:traceName];
-//  trace = [FPRTestUtils addVerboseSessionToTrace:trace];
-//  perfMetric.traceMetric = FPRGetTraceMetric(trace);
-//
-//  return perfMetric;
+  //  FPRMSGPerfMetric *perfMetric = FPRGetPerfMetricMessage(@"RandomAppID");
+  //  FIRTrace *trace = [FPRTestUtils createRandomTraceWithName:traceName];
+  //  trace = [FPRTestUtils addVerboseSessionToTrace:trace];
+  //  perfMetric.traceMetric = FPRGetTraceMetric(trace);
+  //
+  //  return perfMetric;
   return nil;
 }
 
 + (FPRMSGPerfMetric *)createRandomInternalPerfMetric:(NSString *)traceName {
-//  FPRMSGPerfMetric *perfMetric = FPRGetPerfMetricMessage(@"RandomAppID");
-//
-//  FIRTrace *trace = [[FIRTrace alloc] initInternalTraceWithName:traceName];
-//  [trace start];
-//  [trace stop];
-//  // Make sure there are no sessions.
-//  trace.activeSessions = [NSMutableArray array];
-//  perfMetric.traceMetric = FPRGetTraceMetric(trace);
-//
-//  return perfMetric;
+  //  FPRMSGPerfMetric *perfMetric = FPRGetPerfMetricMessage(@"RandomAppID");
+  //
+  //  FIRTrace *trace = [[FIRTrace alloc] initInternalTraceWithName:traceName];
+  //  [trace start];
+  //  [trace stop];
+  //  // Make sure there are no sessions.
+  //  trace.activeSessions = [NSMutableArray array];
+  //  perfMetric.traceMetric = FPRGetTraceMetric(trace);
+  //
+  //  return perfMetric;
   return nil;
 }
 
 + (FPRMSGPerfMetric *)createRandomNetworkPerfMetric:(NSString *)url {
-//  FPRMSGPerfMetric *perfMetric = FPRGetPerfMetricMessage(@"RandomAppID");
-//
-//  NSURL *URL = [NSURL URLWithString:url];
-//  NSURLRequest *URLRequest = [NSURLRequest requestWithURL:URL];
-//  FPRNetworkTrace *networkTrace = [[FPRNetworkTrace alloc] initWithURLRequest:URLRequest];
-//  [networkTrace start];
-//  [networkTrace checkpointState:FPRNetworkTraceCheckpointStateInitiated];
-//  [networkTrace checkpointState:FPRNetworkTraceCheckpointStateResponseReceived];
-//
-//  NSDictionary<NSString *, NSString *> *headerFields = @{@"Content-Type" : @"text/json"};
-//  NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:URL
-//                                                            statusCode:200
-//                                                           HTTPVersion:@"HTTP/1.1"
-//                                                          headerFields:headerFields];
-//  [networkTrace didReceiveData:[NSData data]];
-//  [networkTrace didCompleteRequestWithResponse:response error:nil];
-//  networkTrace.activeSessions = [NSMutableArray array];
-//  perfMetric.networkRequestMetric = FPRGetNetworkRequestMetric(networkTrace);
-//
-//  return perfMetric;
+  //  FPRMSGPerfMetric *perfMetric = FPRGetPerfMetricMessage(@"RandomAppID");
+  //
+  //  NSURL *URL = [NSURL URLWithString:url];
+  //  NSURLRequest *URLRequest = [NSURLRequest requestWithURL:URL];
+  //  FPRNetworkTrace *networkTrace = [[FPRNetworkTrace alloc] initWithURLRequest:URLRequest];
+  //  [networkTrace start];
+  //  [networkTrace checkpointState:FPRNetworkTraceCheckpointStateInitiated];
+  //  [networkTrace checkpointState:FPRNetworkTraceCheckpointStateResponseReceived];
+  //
+  //  NSDictionary<NSString *, NSString *> *headerFields = @{@"Content-Type" : @"text/json"};
+  //  NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:URL
+  //                                                            statusCode:200
+  //                                                           HTTPVersion:@"HTTP/1.1"
+  //                                                          headerFields:headerFields];
+  //  [networkTrace didReceiveData:[NSData data]];
+  //  [networkTrace didCompleteRequestWithResponse:response error:nil];
+  //  networkTrace.activeSessions = [NSMutableArray array];
+  //  perfMetric.networkRequestMetric = FPRGetNetworkRequestMetric(networkTrace);
+  //
+  //  return perfMetric;
   return nil;
 }
 
 + (FPRMSGPerfMetric *)createRandomGaugePerfMetric {
-//  FPRMSGPerfMetric *perfMetric = FPRGetPerfMetricMessage(@"RandomAppID");
-//
-//  NSMutableArray<NSObject *> *gauges = [[NSMutableArray alloc] init];
-//  NSDate *date = [NSDate date];
-//  FPRMemoryGaugeData *memoryData = [[FPRMemoryGaugeData alloc] initWithCollectionTime:date
-//                                                                             heapUsed:5 * 1024
-//                                                                        heapAvailable:10 * 1024];
-//  [gauges addObject:memoryData];
-//
-//  FPRMSGGaugeMetric *gaugeMetric = FPRGetGaugeMetric(gauges, @"123");
-//  perfMetric.gaugeMetric = gaugeMetric;
-//
-//  return perfMetric;
+  //  FPRMSGPerfMetric *perfMetric = FPRGetPerfMetricMessage(@"RandomAppID");
+  //
+  //  NSMutableArray<NSObject *> *gauges = [[NSMutableArray alloc] init];
+  //  NSDate *date = [NSDate date];
+  //  FPRMemoryGaugeData *memoryData = [[FPRMemoryGaugeData alloc] initWithCollectionTime:date
+  //                                                                             heapUsed:5 * 1024
+  //                                                                        heapAvailable:10 *
+  //                                                                        1024];
+  //  [gauges addObject:memoryData];
+  //
+  //  FPRMSGGaugeMetric *gaugeMetric = FPRGetGaugeMetric(gauges, @"123");
+  //  perfMetric.gaugeMetric = gaugeMetric;
+  //
+  //  return perfMetric;
   return nil;
 }
 

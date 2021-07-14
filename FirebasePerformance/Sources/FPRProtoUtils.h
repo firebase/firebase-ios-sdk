@@ -25,27 +25,30 @@
 #import "FirebasePerformance/ProtoSupport/PerfMetric.pbobjc.h"
 #import "FirebasePerformance/Sources/Protogen/nanopb/perf_metric.nanopb.h"
 
-//extern pb_bytes_array_t * _Nullable FPREncodeData(NSData * _Nonnull data);
-//
-//extern pb_bytes_array_t * _Nullable FPREncodeString(NSString * _Nonnull string);
-//
-//extern NSData * _Nullable FPRDecodeData(pb_bytes_array_t * _Nonnull pbData);
-//
-//extern NSString * _Nullable FPRDecodeString(pb_bytes_array_t * _Nonnull pbData);
+extern pb_bytes_array_t* _Nullable FPREncodeData(NSData* _Nonnull data);
 
+extern pb_bytes_array_t* _Nullable FPREncodeString(NSString* _Nonnull string);
 
-/** Creates a new FPRMSGPerfMetric proto object populated with system metadata.
+extern NSData* _Nullable FPRDecodeData(pb_bytes_array_t* _Nonnull pbData);
+
+extern NSString* _Nullable FPRDecodeString(pb_bytes_array_t* _Nonnull pbData);
+
+extern NSMutableDictionary<NSString*, NSString*>* _Nullable FPRDecodeCustomAttributes(
+    struct _firebase_perf_v1_ApplicationInfo_CustomAttributesEntry* _Nullable customAttributes,
+    NSInteger count);
+
+/** Creates a new firebase_perf_v1_PerfMetric proto object populated with system metadata.
  *  @param appID The Google app id to put into the message
  *  @return Reference to a FPRMSGPerfMetric object.
  */
 extern firebase_perf_v1_PerfMetric FPRGetPerfMetricMessage(NSString* _Nonnull appID);
 
-/** Creates a new FPRMSGApplicationInfo proto object populated with system metadata.
+/** Creates a new firebase_perf_v1_ApplicationInfo proto object populated with system metadata.
  *  @return Reference to a FPRMSGApplicationInfo object.
  */
 extern firebase_perf_v1_ApplicationInfo FPRGetApplicationInfoMessage(void);
 
-/** Converts the FIRTrace object to a FPRMSGTraceMetric proto object.
+/** Converts the FIRTrace object to a firebase_perf_v1_TraceMetric proto object.
  *  @return Reference to a FPRMSGTraceMetric object.
  */
 extern firebase_perf_v1_TraceMetric FPRGetTraceMetric(FIRTrace* _Nonnull trace);

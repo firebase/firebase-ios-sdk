@@ -32,9 +32,8 @@
 
 #define BYTES_TO_KB(x) (x / 1024)
 
-//static GPBStringInt64Dictionary *FPRGetProtoCounterForDictionary(
-//    NSDictionary<NSString *, NSNumber *> *dictionary);
-static firebase_perf_v1_NetworkRequestMetric_HttpMethod FPRHTTPMethodForString(NSString *methodString);
+static firebase_perf_v1_NetworkRequestMetric_HttpMethod FPRHTTPMethodForString(
+    NSString *methodString);
 static firebase_perf_v1_NetworkConnectionInfo_NetworkType FPRNetworkConnectionInfoNetworkType(void);
 #ifdef TARGET_HAS_MOBILE_CONNECTIVITY
 static firebase_perf_v1_NetworkConnectionInfo_MobileSubtype FPRCellularNetworkType(void);
@@ -67,8 +66,10 @@ NSString *FPRDecodeString(pb_bytes_array_t *pbData) {
   return [NSString stringWithCString:[data bytes] encoding:NSUTF8StringEncoding];
 }
 
-NSMutableDictionary<NSString*, NSString*> *FPRDecodeCustomAttributes(struct _firebase_perf_v1_ApplicationInfo_CustomAttributesEntry *customAttributes, NSInteger count) {
-  NSMutableDictionary<NSString*, NSString*> *dict = [NSMutableDictionary dictionary];
+NSMutableDictionary<NSString *, NSString *> *FPRDecodeCustomAttributes(
+    struct _firebase_perf_v1_ApplicationInfo_CustomAttributesEntry *customAttributes,
+    NSInteger count) {
+  NSMutableDictionary<NSString *, NSString *> *dict = [NSMutableDictionary dictionary];
   for (int i = 0; i < count; i++) {
     NSString *key = FPRDecodeString(customAttributes[i].key);
     NSString *value = FPRDecodeString(customAttributes[i].value);
@@ -91,7 +92,8 @@ firebase_perf_v1_ApplicationInfo FPRGetApplicationInfoMessage() {
   firebase_perf_v1_ApplicationInfo appInfoMessage = firebase_perf_v1_ApplicationInfo_init_default;
   firebase_perf_v1_IosApplicationInfo iosAppInfo = firebase_perf_v1_IosApplicationInfo_init_default;
   NSBundle *mainBundle = [NSBundle mainBundle];
-  iosAppInfo.bundle_short_version = FPREncodeString([mainBundle infoDictionary][@"CFBundleShortVersionString"]);
+  iosAppInfo.bundle_short_version =
+      FPREncodeString([mainBundle infoDictionary][@"CFBundleShortVersionString"]);
   iosAppInfo.sdk_version = FPREncodeString([NSString stringWithUTF8String:kFPRSDKVersion]);
   iosAppInfo.network_connection_info.network_type = FPRNetworkConnectionInfoNetworkType();
 #ifdef TARGET_HAS_MOBILE_CONNECTIVITY
@@ -108,8 +110,10 @@ firebase_perf_v1_ApplicationInfo FPRGetApplicationInfoMessage() {
 #endif
   appInfoMessage.ios_app_info = iosAppInfo;
 
-  NSDictionary<NSString *, NSString *> *attributes = [[FIRPerformance sharedInstance].attributes mutableCopy];
-  struct _firebase_perf_v1_ApplicationInfo_CustomAttributesEntry *custom_attributes = calloc(attributes.count, sizeof(firebase_perf_v1_ApplicationInfo_CustomAttributesEntry));
+  NSDictionary<NSString *, NSString *> *attributes =
+      [[FIRPerformance sharedInstance].attributes mutableCopy];
+  struct _firebase_perf_v1_ApplicationInfo_CustomAttributesEntry *custom_attributes =
+      calloc(attributes.count, sizeof(firebase_perf_v1_ApplicationInfo_CustomAttributesEntry));
   appInfoMessage.custom_attributes_count = attributes.count;
   __block NSUInteger index = 0;
   [attributes enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSString *value, BOOL *stop) {
@@ -118,7 +122,7 @@ firebase_perf_v1_ApplicationInfo FPRGetApplicationInfoMessage() {
     index++;
   }];
   appInfoMessage.custom_attributes = custom_attributes;
-  
+
   return appInfoMessage;
 }
 
@@ -135,34 +139,35 @@ firebase_perf_v1_TraceMetric FPRGetTraceMetric(FIRTrace *trace) {
   // Convert the start time from seconds to microseconds.
   traceMetric.client_start_time_us = trace.startTimeSinceEpoch * USEC_PER_SEC;
 
-  //TODO(visum) Enable counters
- //  traceMetric.counters = FPRGetProtoCounterForDictionary(trace.counters);
+  // TODO(visum) Enable counters
+  //  traceMetric.counters = FPRGetProtoCounterForDictionary(trace.counters);
 
-  //TODO(visum) Enable subtraces
-//  NSMutableArray<FPRMSGTraceMetric *> *subtraces = [[NSMutableArray alloc] init];
-//  [trace.stages
-//      enumerateObjectsUsingBlock:^(FIRTrace *_Nonnull stage, NSUInteger idx, BOOL *_Nonnull stop) {
-//        [subtraces addObject:FPRGetTraceMetric(stage)];
-//      }];
-//  traceMetric.subtracesArray = subtraces;
+  // TODO(visum) Enable subtraces
+  //  NSMutableArray<FPRMSGTraceMetric *> *subtraces = [[NSMutableArray alloc] init];
+  //  [trace.stages
+  //      enumerateObjectsUsingBlock:^(FIRTrace *_Nonnull stage, NSUInteger idx, BOOL *_Nonnull
+  //      stop) {
+  //        [subtraces addObject:FPRGetTraceMetric(stage)];
+  //      }];
+  //  traceMetric.subtracesArray = subtraces;
 
-  //TODO(visum) Enable custom attributes
-//  traceMetric.customAttributes = [trace.attributes mutableCopy];
+  // TODO(visum) Enable custom attributes
+  //  traceMetric.customAttributes = [trace.attributes mutableCopy];
 
   // Fillin session details
-//  traceMetric.perfSessionsArray = [[NSMutableArray<FPRMSGPerfSession *> alloc] init];
-//  NSArray<FPRSessionDetails *> *orderedSessions = FPRMakeFirstSessionVerbose(trace.sessions);
-//  [orderedSessions enumerateObjectsUsingBlock:^(FPRSessionDetails *_Nonnull session,
-//                                                NSUInteger index, BOOL *_Nonnull stop) {
-//    FPRMSGPerfSession *perfSession = [FPRMSGPerfSession message];
-//    perfSession.sessionId = session.sessionId;
-//    perfSession.sessionVerbosityArray = [GPBEnumArray array];
-//    if ((session.options & FPRSessionOptionsEvents) ||
-//        (session.options & FPRSessionOptionsGauges)) {
-//      [perfSession.sessionVerbosityArray addValue:FPRMSGSessionVerbosity_GaugesAndSystemEvents];
-//    }
-//    [traceMetric.perfSessionsArray addObject:perfSession];
-//  }];
+  //  traceMetric.perfSessionsArray = [[NSMutableArray<FPRMSGPerfSession *> alloc] init];
+  //  NSArray<FPRSessionDetails *> *orderedSessions = FPRMakeFirstSessionVerbose(trace.sessions);
+  //  [orderedSessions enumerateObjectsUsingBlock:^(FPRSessionDetails *_Nonnull session,
+  //                                                NSUInteger index, BOOL *_Nonnull stop) {
+  //    FPRMSGPerfSession *perfSession = [FPRMSGPerfSession message];
+  //    perfSession.sessionId = session.sessionId;
+  //    perfSession.sessionVerbosityArray = [GPBEnumArray array];
+  //    if ((session.options & FPRSessionOptionsEvents) ||
+  //        (session.options & FPRSessionOptionsGauges)) {
+  //      [perfSession.sessionVerbosityArray addValue:FPRMSGSessionVerbosity_GaugesAndSystemEvents];
+  //    }
+  //    [traceMetric.perfSessionsArray addObject:perfSession];
+  //  }];
 
   return traceMetric;
 }
@@ -333,7 +338,8 @@ static GPBStringInt64Dictionary *FPRGetProtoCounterForDictionary(
  *  @return Enum value of the method string. If there is no mapping value defined for the method
  *      string FPRMSGNetworkRequestMetric_HttpMethod_HTTPMethodUnknown is returned.
  */
-static firebase_perf_v1_NetworkRequestMetric_HttpMethod FPRHTTPMethodForString(NSString *methodString) {
+static firebase_perf_v1_NetworkRequestMetric_HttpMethod FPRHTTPMethodForString(
+    NSString *methodString) {
   static NSDictionary<NSString *, NSNumber *> *HTTPToFPRNetworkTraceMethod;
   static dispatch_once_t onceToken = 0;
   dispatch_once(&onceToken, ^{
