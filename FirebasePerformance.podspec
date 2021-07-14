@@ -28,7 +28,7 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
 
   base_dir = "FirebasePerformance/"
   s.source_files = [
-    base_dir + 'Sources/**/*.[mh]',
+    base_dir + 'Sources/**/*.[cmh]',
     base_dir + 'ProtoSupport/**/*.[mh]',
     'FirebaseCore/Sources/Private/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
