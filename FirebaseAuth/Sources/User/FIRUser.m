@@ -162,31 +162,35 @@ typedef void (^CallbackWithAuthDataResultAndError)(FIRAuthDataResult *_Nullable,
  */
 static NSString *const kMissingPasswordReason = @"Missing Password";
 
-/** @fn callInMainThreadWithError
+/** @fn callInThreadWithError
     @brief Calls a callback in main thread with error.
     @param callback The callback to be called in main thread.
+    @param thread The thread to execute the callback on.
     @param error The error to pass to callback.
  */
-static void callInMainThreadWithError(_Nullable CallbackWithError callback,
-                                      NSError *_Nullable error) {
+static void callInThreadWithError(_Nullable CallbackWithError callback,
+                                  dispatch_queue_t thread,
+                                  NSError *_Nullable error) {
   if (callback) {
-    dispatch_async(dispatch_get_main_queue(), ^{
+    dispatch_async(thread, ^{
       callback(error);
     });
   }
 }
 
-/** @fn callInMainThreadWithUserAndError
+/** @fn callInThreadWithUserAndError
     @brief Calls a callback in main thread with user and error.
     @param callback The callback to be called in main thread.
+    @param thread The thread to execute the callback on.
     @param user The user to pass to callback if there is no error.
     @param error The error to pass to callback.
  */
-static void callInMainThreadWithUserAndError(_Nullable CallbackWithUserAndError callback,
-                                             FIRUser *_Nonnull user,
-                                             NSError *_Nullable error) {
+static void callInThreadWithUserAndError(_Nullable CallbackWithUserAndError callback,
+                                         dispatch_queue_t thread,
+                                         FIRUser *_Nonnull user,
+                                         NSError *_Nullable error) {
   if (callback) {
-    dispatch_async(dispatch_get_main_queue(), ^{
+    dispatch_async(thread, ^{
       callback(error ? nil : user, error);
     });
   }
@@ -195,15 +199,17 @@ static void callInMainThreadWithUserAndError(_Nullable CallbackWithUserAndError 
 /** @fn callInMainThreadWithUserAndError
     @brief Calls a callback in main thread with user and error.
     @param callback The callback to be called in main thread.
+    @param thread The thread to execute the callback on.
     @param result The result to pass to callback if there is no error.
     @param error The error to pass to callback.
  */
-static void callInMainThreadWithAuthDataResultAndError(
+static void callInThreadWithAuthDataResultAndError(
     _Nullable CallbackWithAuthDataResultAndError callback,
+    dispatch_queue_t thread,
     FIRAuthDataResult *_Nullable result,
     NSError *_Nullable error) {
   if (callback) {
-    dispatch_async(dispatch_get_main_queue(), ^{
+    dispatch_async(thread, ^{
       callback(result, error);
     });
   }
@@ -663,22 +669,24 @@ static void callInMainThreadWithAuthDataResultAndError(
 }
 
 - (void)updateEmail:(NSString *)email completion:(nullable FIRUserProfileChangeCallback)completion {
+  dispatch_queue_t callbackQueue = _auth.callbackQueue ?: dispatch_get_main_queue();
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
     [self updateEmail:email
              password:nil
              callback:^(NSError *_Nullable error) {
-               callInMainThreadWithError(completion, error);
+               callInThreadWithError(completion, callbackQueue, error);
              }];
   });
 }
 
 - (void)updatePassword:(NSString *)password
             completion:(nullable FIRUserProfileChangeCallback)completion {
+  dispatch_queue_t callbackQueue = _auth.callbackQueue ?: dispatch_get_main_queue();
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
     [self updateEmail:nil
              password:password
              callback:^(NSError *_Nullable error) {
-               callInMainThreadWithError(completion, error);
+               callInThreadWithError(completion, callbackQueue, error);
              }];
   });
 }
@@ -749,11 +757,12 @@ static void callInMainThreadWithAuthDataResultAndError(
 
 - (void)updatePhoneNumberCredential:(FIRPhoneAuthCredential *)phoneAuthCredential
                          completion:(nullable FIRUserProfileChangeCallback)completion {
+  dispatch_queue_t callbackQueue = _auth.callbackQueue ?: dispatch_get_main_queue();
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
     [self internalUpdateOrLinkPhoneNumberCredential:phoneAuthCredential
                                     isLinkOperation:NO
                                          completion:^(NSError *_Nullable error) {
-                                           callInMainThreadWithError(completion, error);
+                                           callInThreadWithError(completion, callbackQueue, error);
                                          }];
   });
 }
@@ -786,10 +795,11 @@ static void callInMainThreadWithAuthDataResultAndError(
 #pragma mark -
 
 - (void)reloadWithCompletion:(nullable FIRUserProfileChangeCallback)completion {
+  dispatch_queue_t callbackQueue = _auth.callbackQueue ?: dispatch_get_main_queue();
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
     [self getAccountInfoRefreshingCache:^(FIRGetAccountInfoResponseUser *_Nullable user,
                                           NSError *_Nullable error) {
-      callInMainThreadWithError(completion, error);
+      callInThreadWithError(completion, callbackQueue, error);
     }];
   });
 }
@@ -798,6 +808,7 @@ static void callInMainThreadWithAuthDataResultAndError(
 
 - (void)reauthenticateWithCredential:(FIRAuthCredential *)credential
                           completion:(nullable FIRAuthDataResultCallback)completion {
+  dispatch_queue_t callbackQueue = _auth.callbackQueue ?: dispatch_get_main_queue();
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
     [self->_auth
         internalSignInAndRetrieveDataWithCredential:credential
@@ -811,24 +822,24 @@ static void callInMainThreadWithAuthDataResultAndError(
                                                if (error.code == FIRAuthErrorCodeUserNotFound) {
                                                  error = [FIRAuthErrorUtils userMismatchError];
                                                }
-                                               callInMainThreadWithAuthDataResultAndError(
-                                                   completion, authResult, error);
+                                               callInThreadWithAuthDataResultAndError(
+                                                   completion, callbackQueue, authResult, error);
                                                return;
                                              }
                                              if (![authResult.user.uid
                                                      isEqual:[self->_auth getUserID]]) {
-                                               callInMainThreadWithAuthDataResultAndError(
-                                                   completion, authResult,
+                                               callInThreadWithAuthDataResultAndError(
+                                                   completion, callbackQueue, authResult,
                                                    [FIRAuthErrorUtils userMismatchError]);
                                                return;
                                              }
                                              // Successful reauthenticate
-                                             [self
-                                                 setTokenService:authResult.user->_tokenService
-                                                        callback:^(NSError *_Nullable error) {
-                                                          callInMainThreadWithAuthDataResultAndError(
-                                                              completion, authResult, error);
-                                                        }];
+                                             [self setTokenService:authResult.user->_tokenService
+                                                          callback:^(NSError *_Nullable error) {
+                                                            callInThreadWithAuthDataResultAndError(
+                                                                completion, callbackQueue,
+                                                                authResult, error);
+                                                          }];
                                            }];
   });
 }
@@ -868,7 +879,7 @@ static void callInMainThreadWithAuthDataResultAndError(
                             completion:^(FIRAuthTokenResult *_Nullable tokenResult,
                                          NSError *_Nullable error) {
                               if (completion) {
-                                dispatch_async(dispatch_get_main_queue(), ^{
+                                dispatch_async(self.auth.callbackQueue, ^{
                                   completion(tokenResult.token, error);
                                 });
                               }
@@ -880,7 +891,7 @@ static void callInMainThreadWithAuthDataResultAndError(
                             completion:^(FIRAuthTokenResult *_Nullable tokenResult,
                                          NSError *_Nullable error) {
                               if (completion) {
-                                dispatch_async(dispatch_get_main_queue(), ^{
+                                dispatch_async(self.auth.callbackQueue, ^{
                                   completion(tokenResult, error);
                                 });
                               }
@@ -901,7 +912,7 @@ static void callInMainThreadWithAuthDataResultAndError(
                                               tokenResult.expirationDate, [NSDate date]);
                                 }
                                 if (completion) {
-                                  dispatch_async(dispatch_get_main_queue(), ^{
+                                  dispatch_async(self.auth.callbackQueue, ^{
                                     completion(tokenResult, error);
                                   });
                                 }
@@ -1037,11 +1048,12 @@ static void callInMainThreadWithAuthDataResultAndError(
                                  actionCodeSettings:
                                      (nullable FIRActionCodeSettings *)actionCodeSettings
                                          completion:(FIRVerifyBeforeUpdateEmailCallback)completion {
+  dispatch_queue_t callbackQueue = _auth.callbackQueue ?: dispatch_get_main_queue();
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
     [self
         internalGetTokenWithCallback:^(NSString *_Nullable accessToken, NSError *_Nullable error) {
           if (error) {
-            callInMainThreadWithError(completion, error);
+            callInThreadWithError(completion, callbackQueue, error);
             return;
           }
           FIRAuthRequestConfiguration *configuration = self->_auth.requestConfiguration;
@@ -1055,7 +1067,7 @@ static void callInMainThreadWithAuthDataResultAndError(
               getOOBConfirmationCode:request
                             callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
                                        NSError *_Nullable error) {
-                              callInMainThreadWithError(completion, error);
+                              callInThreadWithError(completion, callbackQueue, error);
                             }];
         }];
   });
@@ -1063,18 +1075,19 @@ static void callInMainThreadWithAuthDataResultAndError(
 
 - (void)linkWithCredential:(FIRAuthCredential *)credential
                 completion:(nullable FIRAuthDataResultCallback)completion {
+  dispatch_queue_t callbackQueue = _auth.callbackQueue ?: dispatch_get_main_queue();
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
     if (self->_providerData[credential.provider]) {
-      callInMainThreadWithAuthDataResultAndError(completion, nil,
-                                                 [FIRAuthErrorUtils providerAlreadyLinkedError]);
+      callInThreadWithAuthDataResultAndError(completion, callbackQueue, nil,
+                                             [FIRAuthErrorUtils providerAlreadyLinkedError]);
       return;
     }
     FIRAuthDataResult *result = [[FIRAuthDataResult alloc] initWithUser:self
                                                      additionalUserInfo:nil];
     if ([credential isKindOfClass:[FIREmailPasswordAuthCredential class]]) {
       if (self->_hasEmailPasswordCredential) {
-        callInMainThreadWithAuthDataResultAndError(completion, nil,
-                                                   [FIRAuthErrorUtils providerAlreadyLinkedError]);
+        callInThreadWithAuthDataResultAndError(completion, callbackQueue, nil,
+                                               [FIRAuthErrorUtils providerAlreadyLinkedError]);
         return;
       }
       FIREmailPasswordAuthCredential *emailPasswordCredential =
@@ -1084,9 +1097,9 @@ static void callInMainThreadWithAuthDataResultAndError(
                  password:emailPasswordCredential.password
                  callback:^(NSError *error) {
                    if (error) {
-                     callInMainThreadWithAuthDataResultAndError(completion, nil, error);
+                     callInThreadWithAuthDataResultAndError(completion, callbackQueue, nil, error);
                    } else {
-                     callInMainThreadWithAuthDataResultAndError(completion, result, nil);
+                     callInThreadWithAuthDataResultAndError(completion, callbackQueue, result, nil);
                    }
                  }];
       } else {
@@ -1111,7 +1124,8 @@ static void callInMainThreadWithAuthDataResultAndError(
                      callback:^(FIREmailLinkSignInResponse *_Nullable response,
                                 NSError *_Nullable error) {
                        if (error) {
-                         callInMainThreadWithAuthDataResultAndError(completion, nil, error);
+                         callInThreadWithAuthDataResultAndError(completion, callbackQueue, nil,
+                                                                error);
                        } else {
                          // Update the new token and refresh user info again.
                          self->_tokenService = [[FIRSecureTokenService alloc]
@@ -1122,7 +1136,8 @@ static void callInMainThreadWithAuthDataResultAndError(
                          [self internalGetTokenWithCallback:^(NSString *_Nullable accessToken,
                                                               NSError *_Nullable error) {
                            if (error) {
-                             callInMainThreadWithAuthDataResultAndError(completion, nil, error);
+                             callInThreadWithAuthDataResultAndError(completion, callbackQueue, nil,
+                                                                    error);
                              return;
                            }
 
@@ -1136,19 +1151,19 @@ static void callInMainThreadWithAuthDataResultAndError(
                                                 NSError *_Nullable error) {
                                        if (error) {
                                          [self signOutIfTokenIsInvalidWithError:error];
-                                         callInMainThreadWithAuthDataResultAndError(completion, nil,
-                                                                                    error);
+                                         callInThreadWithAuthDataResultAndError(
+                                             completion, callbackQueue, nil, error);
                                          return;
                                        }
                                        self.anonymous = NO;
                                        [self updateWithGetAccountInfoResponse:response];
                                        if (![self updateKeychain:&error]) {
-                                         callInMainThreadWithAuthDataResultAndError(completion, nil,
-                                                                                    error);
+                                         callInThreadWithAuthDataResultAndError(
+                                             completion, callbackQueue, nil, error);
                                          return;
                                        }
-                                       callInMainThreadWithAuthDataResultAndError(completion,
-                                                                                  result, nil);
+                                       callInThreadWithAuthDataResultAndError(
+                                           completion, callbackQueue, result, nil);
                                      }];
                          }];
                        }
@@ -1178,7 +1193,8 @@ static void callInMainThreadWithAuthDataResultAndError(
                         callback:^(FIRSignInWithGameCenterResponse *_Nullable response,
                                    NSError *_Nullable error) {
                           if (error) {
-                            callInMainThreadWithAuthDataResultAndError(completion, nil, error);
+                            callInThreadWithAuthDataResultAndError(completion, callbackQueue, nil,
+                                                                   error);
                           } else {
                             // Update the new token and refresh user info again.
                             self->_tokenService = [[FIRSecureTokenService alloc]
@@ -1189,7 +1205,8 @@ static void callInMainThreadWithAuthDataResultAndError(
                             [self internalGetTokenWithCallback:^(NSString *_Nullable accessToken,
                                                                  NSError *_Nullable error) {
                               if (error) {
-                                callInMainThreadWithAuthDataResultAndError(completion, nil, error);
+                                callInThreadWithAuthDataResultAndError(completion, callbackQueue,
+                                                                       nil, error);
                                 return;
                               }
 
@@ -1203,19 +1220,19 @@ static void callInMainThreadWithAuthDataResultAndError(
                                                    NSError *_Nullable error) {
                                           if (error) {
                                             [self signOutIfTokenIsInvalidWithError:error];
-                                            callInMainThreadWithAuthDataResultAndError(completion,
-                                                                                       nil, error);
+                                            callInThreadWithAuthDataResultAndError(
+                                                completion, callbackQueue, nil, error);
                                             return;
                                           }
                                           self.anonymous = NO;
                                           [self updateWithGetAccountInfoResponse:response];
                                           if (![self updateKeychain:&error]) {
-                                            callInMainThreadWithAuthDataResultAndError(completion,
-                                                                                       nil, error);
+                                            callInThreadWithAuthDataResultAndError(
+                                                completion, callbackQueue, nil, error);
                                             return;
                                           }
-                                          callInMainThreadWithAuthDataResultAndError(completion,
-                                                                                     result, nil);
+                                          callInThreadWithAuthDataResultAndError(
+                                              completion, callbackQueue, result, nil);
                                         }];
                             }];
                           }
@@ -1231,11 +1248,11 @@ static void callInMainThreadWithAuthDataResultAndError(
                                       isLinkOperation:YES
                                            completion:^(NSError *_Nullable error) {
                                              if (error) {
-                                               callInMainThreadWithAuthDataResultAndError(
-                                                   completion, nil, error);
+                                               callInThreadWithAuthDataResultAndError(
+                                                   completion, callbackQueue, nil, error);
                                              } else {
-                                               callInMainThreadWithAuthDataResultAndError(
-                                                   completion, result, nil);
+                                               callInThreadWithAuthDataResultAndError(
+                                                   completion, callbackQueue, result, nil);
                                              }
                                            }];
       return;
@@ -1246,7 +1263,7 @@ static void callInMainThreadWithAuthDataResultAndError(
       CallbackWithAuthDataResultAndError completeWithError =
           ^(FIRAuthDataResult *result, NSError *error) {
             complete();
-            callInMainThreadWithAuthDataResultAndError(completion, result, error);
+            callInThreadWithAuthDataResultAndError(completion, callbackQueue, result, error);
           };
       [self internalGetTokenWithCallback:^(NSString *_Nullable accessToken,
                                            NSError *_Nullable error) {
@@ -1335,7 +1352,7 @@ static void callInMainThreadWithAuthDataResultAndError(
   [_taskQueue enqueueTask:^(FIRAuthSerialTaskCompletionBlock _Nonnull complete) {
     CallbackWithError completeAndCallbackWithError = ^(NSError *error) {
       complete();
-      callInMainThreadWithUserAndError(completion, self, error);
+      callInThreadWithUserAndError(completion, self.auth.callbackQueue, self, error);
     };
     [self
         internalGetTokenWithCallback:^(NSString *_Nullable accessToken, NSError *_Nullable error) {
@@ -1430,7 +1447,7 @@ static void callInMainThreadWithAuthDataResultAndError(
     [self
         internalGetTokenWithCallback:^(NSString *_Nullable accessToken, NSError *_Nullable error) {
           if (error) {
-            callInMainThreadWithError(completion, error);
+            callInThreadWithError(completion, self.auth.callbackQueue, error);
             return;
           }
           FIRAuthRequestConfiguration *configuration = self->_auth.requestConfiguration;
@@ -1443,18 +1460,19 @@ static void callInMainThreadWithAuthDataResultAndError(
                             callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
                                        NSError *_Nullable error) {
                               [self signOutIfTokenIsInvalidWithError:error];
-                              callInMainThreadWithError(completion, error);
+                              callInThreadWithError(completion, self.auth.callbackQueue, error);
                             }];
         }];
   });
 }
 
 - (void)deleteWithCompletion:(nullable FIRUserProfileChangeCallback)completion {
+  dispatch_queue_t callbackQueue = _auth.callbackQueue ?: dispatch_get_main_queue();
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
     [self
         internalGetTokenWithCallback:^(NSString *_Nullable accessToken, NSError *_Nullable error) {
           if (error) {
-            callInMainThreadWithError(completion, error);
+            callInThreadWithError(completion, callbackQueue, error);
             return;
           }
           FIRDeleteAccountRequest *deleteUserRequest =
@@ -1464,15 +1482,15 @@ static void callInMainThreadWithAuthDataResultAndError(
           [FIRAuthBackend deleteAccount:deleteUserRequest
                                callback:^(NSError *_Nullable error) {
                                  if (error) {
-                                   callInMainThreadWithError(completion, error);
+                                   callInThreadWithError(completion, callbackQueue, error);
                                    return;
                                  }
                                  if (![self->_auth signOutByForceWithUserID:self->_userID
                                                                       error:&error]) {
-                                   callInMainThreadWithError(completion, error);
+                                   callInThreadWithError(completion, callbackQueue, error);
                                    return;
                                  }
-                                 callInMainThreadWithError(completion, error);
+                                 callInThreadWithError(completion, callbackQueue, error);
                                }];
         }];
   });
@@ -1576,6 +1594,7 @@ static void callInMainThreadWithAuthDataResultAndError(
 }
 
 - (void)commitChangesWithCompletion:(nullable FIRUserProfileChangeCallback)completion {
+  dispatch_queue_t callbackQueue = _user.auth.callbackQueue ?: dispatch_get_main_queue();
   dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
     if (self->_consumed) {
       [NSException raise:NSInternalInconsistencyException
@@ -1585,7 +1604,7 @@ static void callInMainThreadWithAuthDataResultAndError(
     self->_consumed = YES;
     // Return fast if there is nothing to update:
     if (![self hasUpdates]) {
-      callInMainThreadWithError(completion, nil);
+      callInThreadWithError(completion, callbackQueue, nil);
       return;
     }
     NSString *displayName = [self->_displayName copy];
@@ -1604,7 +1623,7 @@ static void callInMainThreadWithAuthDataResultAndError(
         }
         callback:^(NSError *_Nullable error) {
           if (error) {
-            callInMainThreadWithError(completion, error);
+            callInThreadWithError(completion, callbackQueue, error);
             return;
           }
           if (displayNameWasSet) {
@@ -1614,10 +1633,10 @@ static void callInMainThreadWithAuthDataResultAndError(
             [self->_user setPhotoURL:photoURL];
           }
           if (![self->_user updateKeychain:&error]) {
-            callInMainThreadWithError(completion, error);
+            callInThreadWithError(completion, callbackQueue, error);
             return;
           }
-          callInMainThreadWithError(completion, nil);
+          callInThreadWithError(completion, callbackQueue, nil);
         }];
   });
 }

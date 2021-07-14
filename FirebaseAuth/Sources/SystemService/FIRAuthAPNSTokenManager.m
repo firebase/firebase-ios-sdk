@@ -73,6 +73,7 @@ static const NSTimeInterval kLegacyRegistrationTimeout = 30;
   }
   _pendingCallbacks =
       [[NSMutableArray<FIRAuthAPNSTokenCallback> alloc] initWithObjects:callback, nil];
+  // Must be called on the main queue since UIApplication is not thread-safe.
   dispatch_async(dispatch_get_main_queue(), ^{
     if ([self->_application respondsToSelector:@selector(registerForRemoteNotifications)]) {
       [self->_application registerForRemoteNotifications];

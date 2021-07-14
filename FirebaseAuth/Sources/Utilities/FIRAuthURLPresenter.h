@@ -48,7 +48,9 @@ typedef BOOL (^FIRAuthURLCallbackMatcher)(NSURL *_Nullable callbackURL);
     @param URL The URL to present.
     @param UIDelegate The UI delegate to present view controller.
     @param completion A block to be called either synchronously if the presentation fails to start,
-        or asynchronously in future on an unspecified thread once the presentation finishes.
+        or asynchronously in future on an unspecified thread once the presentation finishes. This
+   completion block always executes on the main thread regardless of the callbackQueue set in
+   FIRAuth.
  */
 - (void)presentURL:(NSURL *)URL
          UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate

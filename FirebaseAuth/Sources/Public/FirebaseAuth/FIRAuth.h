@@ -372,6 +372,12 @@ NS_SWIFT_NAME(Auth)
 @property(nonatomic, strong, nullable) NSData *APNSToken;
 #endif
 
+/** @property callbackQueue
+    @brief The queue that Auth callbacks should execute on. By default, this is the main queue. Only set this value before calling any other Auth methods.
+    @remarks The provided queue must be a serial queue. Changing this value will also affect the queue that Auth notifications are delivered on.
+ */
+@property(nonatomic, strong, null_resettable) dispatch_queue_t callbackQueue;
+
 /** @fn init
     @brief Please access auth instances using `FIRAuth.auth` and `FIRAuth.authForApp:`.
  */

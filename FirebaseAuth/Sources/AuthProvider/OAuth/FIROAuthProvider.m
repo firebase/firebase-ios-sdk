@@ -143,11 +143,12 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
   __weak __typeof__(self) weakSelf = self;
   __weak FIRAuth *weakAuth = _auth;
   __weak NSString *weakProviderID = _providerID;
+  dispatch_queue_t callbackQueue = _auth.callbackQueue ?: dispatch_get_main_queue();
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
-    FIRAuthCredentialCallback callbackOnMainThread =
+    FIRAuthCredentialCallback invokeCompletion =
         ^(FIRAuthCredential *_Nullable credential, NSError *_Nullable error) {
           if (completion) {
-            dispatch_async(dispatch_get_main_queue(), ^{
+            dispatch_async(callbackQueue, ^{
               completion(credential, error);
             });
           }
@@ -160,7 +161,7 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
                            sessionID:sessionID
                           completion:^(NSURL *_Nullable headfulLiteURL, NSError *_Nullable error) {
                             if (error) {
-                              callbackOnMainThread(nil, error);
+                              invokeCompletion(nil, error);
                               return;
                             }
                             FIRAuthURLCallbackMatcher callbackMatcher =
@@ -179,14 +180,14 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
                                      completion:^(NSURL *_Nullable callbackURL,
                                                   NSError *_Nullable error) {
                                        if (error) {
-                                         callbackOnMainThread(nil, error);
+                                         invokeCompletion(nil, error);
                                          return;
                                        }
                                        NSString *OAuthResponseURLString =
                                            [strongSelf OAuthResponseForURL:callbackURL
                                                                      error:&error];
                                        if (error) {
-                                         callbackOnMainThread(nil, error);
+                                         invokeCompletion(nil, error);
                                          return;
                                        }
                                        __strong NSString *strongProviderID = weakProviderID;
@@ -194,7 +195,7 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
                                                initWithProviderID:strongProviderID
                                                         sessionID:sessionID
                                            OAuthResponseURLString:OAuthResponseURLString];
-                                       callbackOnMainThread(credential, nil);
+                                       invokeCompletion(credential, nil);
                                      }];
                           }];
   });
