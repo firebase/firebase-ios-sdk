@@ -1,4 +1,4 @@
-# Unreleased
+# v8.4.0 -- M100
 - [fixed] Bump Promises dependency. (#8365)
 
 # v7.0.0 -- M82

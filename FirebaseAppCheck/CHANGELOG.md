@@ -1,4 +1,4 @@
-# Unreleased
+# v8.4.0 -- M100
 - [fixed] Bump Promises dependency. (#8365)
 # v8.3.0 -- M99
 - [added] Token API for 3P use. (#8266)
