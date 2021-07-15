@@ -37,6 +37,7 @@
 #include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/document_set.h"
 #include "Firestore/core/src/model/mutable_document.h"
+#include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/remote/firebase_metadata_provider.h"
 #include "Firestore/core/src/util/string_apple.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
@@ -53,6 +54,7 @@ using firebase::firestore::model::DocumentComparator;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentSet;
 using firebase::firestore::model::MutableDocument;
+using firebase::firestore::nanopb::Message;
 
 using testutil::Doc;
 using testutil::Query;
@@ -86,9 +88,9 @@ FIRDocumentSnapshot *FSTTestDocSnapshot(const char *path,
   absl::optional<MutableDocument> doc;
   if (data) {
     FSTUserDataReader *reader = FSTTestUserDataReader();
-    google_firestore_v1_Value parsed = [reader parsedQueryValue:data];
+    Message<google_firestore_v1_Value> parsed = [reader parsedQueryValue:data];
 
-    doc = Doc(path, version, parsed);
+    doc = Doc(path, version, std::move(parsed));
     if (hasMutations) doc->SetHasLocalMutations();
   }
   return [[FIRDocumentSnapshot alloc] initWithFirestore:FSTTestFirestore()
@@ -121,9 +123,9 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
   DocumentSet oldDocuments(DocumentComparator::ByKey());
   DocumentKeySet mutatedKeys;
   for (NSString *key in oldDocs) {
-    google_firestore_v1_Value value = [reader parsedQueryValue:oldDocs[key]];
+    Message<google_firestore_v1_Value> value = [reader parsedQueryValue:oldDocs[key]];
     std::string documentKey = util::StringFormat("%s/%s", path, key);
-    MutableDocument doc = Doc(documentKey, 1, value);
+    MutableDocument doc = Doc(documentKey, 1, std::move(value));
     if (hasPendingWrites) {
       mutatedKeys = mutatedKeys.insert(testutil::Key(documentKey));
       doc.SetHasLocalMutations();
@@ -134,9 +136,9 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
   DocumentSet newDocuments = oldDocuments;
   std::vector<DocumentViewChange> documentChanges;
   for (NSString *key in docsToAdd) {
-    google_firestore_v1_Value value = [reader parsedQueryValue:docsToAdd[key]];
+    Message<google_firestore_v1_Value> value = [reader parsedQueryValue:docsToAdd[key]];
     std::string documentKey = util::StringFormat("%s/%s", path, key);
-    MutableDocument doc = Doc(documentKey, 1, value);
+    MutableDocument doc = Doc(documentKey, 1, std::move(value));
     documentChanges.emplace_back(doc, DocumentViewChange::Type::Added);
     if (hasPendingWrites) {
       mutatedKeys = mutatedKeys.insert(testutil::Key(documentKey));

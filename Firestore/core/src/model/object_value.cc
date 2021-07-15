@@ -40,6 +40,7 @@ using nanopb::MakeArray;
 using nanopb::MakeBytesArray;
 using nanopb::MakeString;
 using nanopb::MakeStringView;
+using nanopb::Message;
 using nanopb::ReleaseFieldOwnership;
 using nanopb::SetRepeatedField;
 
@@ -79,7 +80,7 @@ google_firestore_v1_MapValue_FieldsEntry* FindEntry(
 
 size_t CalculateSizeOfUnion(
     const google_firestore_v1_MapValue& map_value,
-    const std::map<std::string, google_firestore_v1_Value>& upserts,
+    const std::map<std::string, Message<google_firestore_v1_Value>>& upserts,
     const std::set<std::string>& deletes) {
   // Compute the size of the map after applying all mutations. The final size is
   // the number of existing entries, plus the number of new entries
@@ -102,8 +103,8 @@ size_t CalculateSizeOfUnion(
  */
 void ApplyChanges(
     google_firestore_v1_MapValue* parent,
-    const std::map<std::string, google_firestore_v1_Value>& upserts,
-    const std::set<std::string>& deletes) {
+    std::map<std::string, Message<google_firestore_v1_Value>> upserts,
+    std::set<std::string> deletes) {
   // TODO(mrschmidt): Consider using `absl::btree_map` and `absl::btree_set` for
   // potentially better performance.
   auto source_count = parent->fields_count;
@@ -117,8 +118,8 @@ void ApplyChanges(
   auto upsert_it = upserts.begin();
 
   // Merge the existing data with the deletes and updates
-  for (pb_size_t source_index = 0, target_index = 0;
-       target_index < target_count;) {
+  pb_size_t source_index = 0, target_index = 0;
+  while (target_index < target_count) {
     auto& target_entry = target_fields[target_index];
 
     if (source_index < source_count) {
@@ -139,7 +140,7 @@ void ApplyChanges(
         FreeFieldsArray(&source_entry.value);
 
         target_entry.key = source_entry.key;
-        target_entry.value = upsert_it->second;
+        target_entry.value = *(upsert_it->second.release());
         SortFields(target_entry.value);
 
         ++upsert_it;
@@ -160,11 +161,17 @@ void ApplyChanges(
 
     // Otherwise, insert the next upsert.
     target_entry.key = MakeBytesArray(upsert_it->first);
-    target_entry.value = upsert_it->second;
+    target_entry.value = *(upsert_it->second.release());
     SortFields(target_entry.value);
 
     ++upsert_it;
     ++target_index;
+  }
+
+  // Delete any remaining fields in the original map. This only includes fields
+  // that were deleted.
+  for (; source_index < source_count; ++source_index) {
+    FreeFieldsArray(&source_fields[source_index]);
   }
 
   free(parent->fields);
@@ -180,9 +187,10 @@ ObjectValue::ObjectValue() {
   value_->map_value.fields = nullptr;
 }
 
-ObjectValue::ObjectValue(const google_firestore_v1_Value& value)
-    : value_(value) {
-  HARD_ASSERT(IsMap(value), "ObjectValues should be backed by a MapValue");
+ObjectValue::ObjectValue(Message<google_firestore_v1_Value> value)
+    : value_(std::move(value)) {
+  HARD_ASSERT(value_ && IsMap(*value_),
+              "ObjectValues should be backed by a MapValue");
   SortFields(*value_);
 }
 
@@ -190,19 +198,20 @@ ObjectValue::ObjectValue(const ObjectValue& other)
     : value_(DeepClone(*other.value_)) {
 }
 
-ObjectValue ObjectValue::FromMapValue(google_firestore_v1_MapValue map_value) {
-  google_firestore_v1_Value value{};
-  value.which_value_type = google_firestore_v1_Value_map_value_tag;
-  value.map_value = map_value;
-  return ObjectValue{value};
+ObjectValue ObjectValue::FromMapValue(
+    Message<google_firestore_v1_MapValue> map_value) {
+  Message<google_firestore_v1_Value> value;
+  value->which_value_type = google_firestore_v1_Value_map_value_tag;
+  value->map_value = *map_value.release();
+  return ObjectValue{std::move(value)};
 }
 
 ObjectValue ObjectValue::FromFieldsEntry(
     google_firestore_v1_Document_FieldsEntry* fields_entry, pb_size_t count) {
-  google_firestore_v1_Value value{};
-  value.which_value_type = google_firestore_v1_Value_map_value_tag;
+  Message<google_firestore_v1_Value> value;
+  value->which_value_type = google_firestore_v1_Value_map_value_tag;
   SetRepeatedField(
-      &value.map_value.fields, &value.map_value.fields_count,
+      &value->map_value.fields, &value->map_value.fields_count,
       absl::Span<google_firestore_v1_Document_FieldsEntry>(fields_entry, count),
       [](const google_firestore_v1_Document_FieldsEntry& entry) {
         return google_firestore_v1_MapValue_FieldsEntry{entry.key, entry.value};
@@ -210,7 +219,7 @@ ObjectValue ObjectValue::FromFieldsEntry(
   // Prevent double-freeing of the document's fields. The fields are now owned
   // by ObjectValue.
   ReleaseFieldOwnership(fields_entry, count);
-  return ObjectValue{value};
+  return ObjectValue{std::move(value)};
 }
 
 FieldMask ObjectValue::ToFieldMask() const {
@@ -265,48 +274,47 @@ google_firestore_v1_Value ObjectValue::Get() const {
   return *value_;
 }
 
-void ObjectValue::Set(const FieldPath& path, google_firestore_v1_Value value) {
+void ObjectValue::Set(const FieldPath& path,
+                      Message<google_firestore_v1_Value> value) {
   HARD_ASSERT(!path.empty(), "Cannot set field for empty path on ObjectValue");
 
   google_firestore_v1_MapValue* parent_map = ParentMap(path.PopLast());
 
-  std::string last_segment = path.last_segment();
-  std::map<std::string, google_firestore_v1_Value> upserts{
-      {std::move(last_segment), value}};
+  std::map<std::string, Message<google_firestore_v1_Value>> upserts;
+  upserts[path.last_segment()] = std::move(value);
 
-  ApplyChanges(parent_map, upserts, /*deletes=*/{});
+  ApplyChanges(parent_map, std::move(upserts), /*deletes=*/{});
 }
 
-void ObjectValue::SetAll(
-    const std::map<FieldPath, absl::optional<google_firestore_v1_Value>>&
-        data) {
+void ObjectValue::SetAll(TransformMap data) {
   FieldPath parent;
 
-  std::map<std::string, google_firestore_v1_Value> upserts;
+  std::map<std::string, Message<google_firestore_v1_Value>> upserts;
   std::set<std::string> deletes;
 
-  for (const auto& it : data) {
+  for (auto& it : data) {
     const FieldPath& path = it.first;
-    const auto& value = it.second;
+    absl::optional<Message<google_firestore_v1_Value>> value =
+        std::move(it.second);
 
     if (!parent.IsImmediateParentOf(path)) {
       // Insert the accumulated changes at this parent location
       google_firestore_v1_MapValue* parent_map = ParentMap(parent);
-      ApplyChanges(parent_map, upserts, deletes);
+      ApplyChanges(parent_map, std::move(upserts), std::move(deletes));
       upserts.clear();
       deletes.clear();
       parent = path.PopLast();
     }
 
     if (value) {
-      upserts.emplace(path.last_segment(), *value);
+      upserts[path.last_segment()] = std::move(*value);
     } else {
       deletes.insert(path.last_segment());
     }
   }
 
   google_firestore_v1_MapValue* parent_map = ParentMap(parent);
-  ApplyChanges(parent_map, upserts, deletes);
+  ApplyChanges(parent_map, std::move(upserts), std::move(deletes));
 }
 
 void ObjectValue::Delete(const FieldPath& path) {
@@ -350,17 +358,21 @@ google_firestore_v1_MapValue* ObjectValue::ParentMap(const FieldPath& path) {
         // change it to a map type.
         FreeFieldsArray(&entry->value);
         entry->value.which_value_type = google_firestore_v1_Value_map_value_tag;
+        entry->value.map_value.fields_count = 0;
+        entry->value.map_value.fields = nil;
       }
 
       parent = &entry->value;
     } else {
       // Create a new map value for the current segment.
-      google_firestore_v1_Value new_entry{};
-      new_entry.which_value_type = google_firestore_v1_Value_map_value_tag;
+      Message<google_firestore_v1_Value> new_entry;
+      new_entry->which_value_type = google_firestore_v1_Value_map_value_tag;
+      new_entry->map_value.fields_count = 0;
+      new_entry->map_value.fields = nil;
 
-      std::map<std::string, google_firestore_v1_Value> upserts{
-          {segment, new_entry}};
-      ApplyChanges(&parent->map_value, upserts, /*deletes=*/{});
+      std::map<std::string, Message<google_firestore_v1_Value>> upserts;
+      upserts[segment] = std::move(new_entry);
+      ApplyChanges(&parent->map_value, std::move(upserts), /*deletes=*/{});
 
       parent = &(FindEntry(*parent, segment)->value);
     }

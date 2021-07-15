@@ -24,6 +24,7 @@
 #include "Firestore/core/src/model/server_timestamp_util.h"
 #include "Firestore/core/src/model/set_mutation.h"
 #include "Firestore/core/src/model/transform_operation.h"
+#include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 #include "gtest/gtest.h"
 
@@ -32,6 +33,7 @@ namespace firestore {
 namespace model {
 namespace {
 
+using nanopb::Message;
 using testutil::Array;
 using testutil::DeletedDoc;
 using testutil::DeleteMutation;
@@ -172,10 +174,10 @@ using TransformPairs = std::vector<std::pair<std::string, TransformOperation>>;
  * transformation is used as the input to the next. The result of applying all
  * transformations is then compared to the given `expected_data`.
  */
-void TransformBaseDoc(const google_firestore_v1_Value base_data,
+void TransformBaseDoc(Message<google_firestore_v1_Value> base_data,
                       const TransformPairs& transforms,
-                      const google_firestore_v1_Value& expected_data) {
-  MutableDocument current_doc = Doc("collection/key", 0, base_data);
+                      Message<google_firestore_v1_Value> expected_data) {
+  MutableDocument current_doc = Doc("collection/key", 0, std::move(base_data));
 
   for (const auto& transform : transforms) {
     Mutation mutation = PatchMutation("collection/key", Map(), {transform});
@@ -184,7 +186,7 @@ void TransformBaseDoc(const google_firestore_v1_Value base_data,
   }
 
   MutableDocument expected_doc =
-      Doc("collection/key", 0, expected_data).SetHasLocalMutations();
+      Doc("collection/key", 0, std::move(expected_data)).SetHasLocalMutations();
 
   EXPECT_EQ(current_doc, expected_doc);
 }
@@ -204,12 +206,14 @@ auto Increment(T value) -> decltype(NumericIncrementTransform(Value(value))) {
 
 template <typename... Args>
 TransformOperation ArrayUnion(Args... args) {
-  return ArrayTransform(TransformOperation::Type::ArrayUnion, Array(args...));
+  return ArrayTransform(TransformOperation::Type::ArrayUnion,
+                        Array(std::move(args)...));
 }
 
 template <typename... Args>
 TransformOperation ArrayRemove(Args... args) {
-  return ArrayTransform(TransformOperation::Type::ArrayRemove, Array(args...));
+  return ArrayTransform(TransformOperation::Type::ArrayRemove,
+                        Array(std::move(args)...));
 }
 
 }  // namespace
@@ -233,7 +237,7 @@ TEST(MutationTest, AppliesIncrementTransformToDocument) {
       "long_plus_long", 2L, "long_plus_double", 4.2, "double_plus_long", 6.3,
       "double_plus_double", 8.4, "long_plus_nan", NAN, "double_plus_nan", NAN,
       "long_plus_infinity", INFINITY, "double_plus_infinity", INFINITY);
-  TransformBaseDoc(base_data, transforms, expected);
+  TransformBaseDoc(std::move(base_data), transforms, std::move(expected));
 }
 
 TEST(MutationTest, AppliesIncrementTransformToUnexpectedType) {
@@ -242,7 +246,7 @@ TEST(MutationTest, AppliesIncrementTransformToUnexpectedType) {
       {"string", Increment(1)},
   };
   auto expected = Map("string", 1);
-  TransformBaseDoc(base_data, transforms, expected);
+  TransformBaseDoc(std::move(base_data), transforms, std::move(expected));
 }
 
 TEST(MutationTest, AppliesIncrementTransformToMissingField) {
@@ -251,7 +255,7 @@ TEST(MutationTest, AppliesIncrementTransformToMissingField) {
       {"missing", Increment(1)},
   };
   auto expected = Map("missing", 1);
-  TransformBaseDoc(base_data, transforms, expected);
+  TransformBaseDoc(std::move(base_data), transforms, std::move(expected));
 }
 
 TEST(MutationTest, AppliesIncrementTransformsConsecutively) {
@@ -262,7 +266,7 @@ TEST(MutationTest, AppliesIncrementTransformsConsecutively) {
       {"number", Increment(4)},
   };
   auto expected = Map("number", 10);
-  TransformBaseDoc(base_data, transforms, expected);
+  TransformBaseDoc(std::move(base_data), transforms, std::move(expected));
 }
 
 TEST(MutationTest, AppliesIncrementWithoutOverflow) {
@@ -276,7 +280,7 @@ TEST(MutationTest, AppliesIncrementWithoutOverflow) {
   };
   auto expected =
       Map("a", LONG_MAX, "b", LONG_MAX, "c", LONG_MAX, "d", LONG_MAX);
-  TransformBaseDoc(base_data, transforms, expected);
+  TransformBaseDoc(std::move(base_data), transforms, std::move(expected));
 }
 
 TEST(MutationTest, AppliesIncrementWithoutUnderflow) {
@@ -290,35 +294,35 @@ TEST(MutationTest, AppliesIncrementWithoutUnderflow) {
   };
   auto expected =
       Map("a", LONG_MIN, "b", LONG_MIN, "c", LONG_MIN, "d", LONG_MIN);
-  TransformBaseDoc(base_data, transforms, expected);
+  TransformBaseDoc(std::move(base_data), transforms, std::move(expected));
 }
 
 TEST(MutationTest, AppliesLocalArrayUnionTransformToMissingField) {
   auto base_data = Map();
   TransformPairs transforms = {{"missing", ArrayUnion(1, 2)}};
   auto expected = Map("missing", Array(1, 2));
-  TransformBaseDoc(base_data, transforms, expected);
+  TransformBaseDoc(std::move(base_data), transforms, std::move(expected));
 }
 
 TEST(MutationTest, AppliesLocalArrayUnionTransformToNonArrayField) {
   auto base_data = Map("non-array", 42);
   TransformPairs transforms = {{"non-array", ArrayUnion(1, 2)}};
   auto expected = Map("non-array", Array(1, 2));
-  TransformBaseDoc(base_data, transforms, expected);
+  TransformBaseDoc(std::move(base_data), transforms, std::move(expected));
 }
 
 TEST(MutationTest, AppliesLocalArrayUnionTransformWithNonExistingElements) {
   auto base_data = Map("array", Array(1, 3));
   TransformPairs transforms = {{"array", ArrayUnion(2, 4)}};
   auto expected = Map("array", Array(1, 3, 2, 4));
-  TransformBaseDoc(base_data, transforms, expected);
+  TransformBaseDoc(std::move(base_data), transforms, std::move(expected));
 }
 
 TEST(MutationTest, AppliesLocalArrayUnionTransformWithExistingElements) {
   auto base_data = Map("array", Array(1, 3));
   TransformPairs transforms = {{"array", ArrayUnion(1, 3)}};
   auto expected = Map("array", Array(1, 3));
-  TransformBaseDoc(base_data, transforms, expected);
+  TransformBaseDoc(std::move(base_data), transforms, std::move(expected));
 }
 
 TEST(MutationTest,
@@ -327,7 +331,7 @@ TEST(MutationTest,
   auto base_data = Map("array", Array(1, 2, 2, 3));
   TransformPairs transforms = {{"array", ArrayUnion(2)}};
   auto expected = Map("array", Array(1, 2, 2, 3));
-  TransformBaseDoc(base_data, transforms, expected);
+  TransformBaseDoc(std::move(base_data), transforms, std::move(expected));
 }
 
 TEST(MutationTest, AppliesLocalArrayUnionTransformWithExistingElementsInOrder) {
@@ -335,7 +339,7 @@ TEST(MutationTest, AppliesLocalArrayUnionTransformWithExistingElementsInOrder) {
   auto base_data = Map("array", Array(1, 3));
   TransformPairs transforms = {{"array", ArrayUnion(1, 2, 3, 4, 5)}};
   auto expected = Map("array", Array(1, 3, 2, 4, 5));
-  TransformBaseDoc(base_data, transforms, expected);
+  TransformBaseDoc(std::move(base_data), transforms, std::move(expected));
 }
 
 TEST(MutationTest, AppliesLocalArrayUnionTransformWithDuplicateUnionElements) {
@@ -343,7 +347,7 @@ TEST(MutationTest, AppliesLocalArrayUnionTransformWithDuplicateUnionElements) {
   auto base_data = Map("array", Array(1, 3));
   TransformPairs transforms = {{"array", ArrayUnion(2, 2)}};
   auto expected = Map("array", Array(1, 3, 2));
-  TransformBaseDoc(base_data, transforms, expected);
+  TransformBaseDoc(std::move(base_data), transforms, std::move(expected));
 }
 
 TEST(MutationTest, AppliesLocalArrayUnionTransformWithNonPrimitiveElements) {
@@ -352,7 +356,7 @@ TEST(MutationTest, AppliesLocalArrayUnionTransformWithNonPrimitiveElements) {
   TransformPairs transforms = {
       {"array", ArrayUnion(Map("a", "b"), Map("c", "d"))}};
   auto expected = Map("array", Array(1, Map("a", "b"), Map("c", "d")));
-  TransformBaseDoc(base_data, transforms, expected);
+  TransformBaseDoc(std::move(base_data), transforms, std::move(expected));
 }
 
 TEST(MutationTest,
@@ -363,35 +367,35 @@ TEST(MutationTest,
       {"array", ArrayUnion(Map("a", "b"), Map("c", "d"))}};
   auto expected = Map(
       "array", Array(1, Map("a", "b", "c", "d"), Map("a", "b"), Map("c", "d")));
-  TransformBaseDoc(base_data, transforms, expected);
+  TransformBaseDoc(std::move(base_data), transforms, std::move(expected));
 }
 
 TEST(MutationTest, AppliesLocalArrayRemoveTransformToMissingField) {
   auto base_data = Map();
   TransformPairs transforms = {{"missing", ArrayRemove(1, 2)}};
   auto expected = Map("missing", Array());
-  TransformBaseDoc(base_data, transforms, expected);
+  TransformBaseDoc(std::move(base_data), transforms, std::move(expected));
 }
 
 TEST(MutationTest, AppliesLocalArrayRemoveTransformToNonArrayField) {
   auto base_data = Map("non-array", 42);
   TransformPairs transforms = {{"non-array", ArrayRemove(1, 2)}};
   auto expected = Map("non-array", Array());
-  TransformBaseDoc(base_data, transforms, expected);
+  TransformBaseDoc(std::move(base_data), transforms, std::move(expected));
 }
 
 TEST(MutationTest, AppliesLocalArrayRemoveTransformWithNonExistingElements) {
   auto base_data = Map("array", Array(1, 3));
   TransformPairs transforms = {{"array", ArrayRemove(2, 4)}};
   auto expected = Map("array", Array(1, 3));
-  TransformBaseDoc(base_data, transforms, expected);
+  TransformBaseDoc(std::move(base_data), transforms, std::move(expected));
 }
 
 TEST(MutationTest, AppliesLocalArrayRemoveTransformWithExistingElements) {
   auto base_data = Map("array", Array(1, 2, 3, 4));
   TransformPairs transforms = {{"array", ArrayRemove(1, 3)}};
   auto expected = Map("array", Array(2, 4));
-  TransformBaseDoc(base_data, transforms, expected);
+  TransformBaseDoc(std::move(base_data), transforms, std::move(expected));
 }
 
 TEST(MutationTest, AppliesLocalArrayRemoveTransformWithNonPrimitiveElements) {
@@ -400,7 +404,7 @@ TEST(MutationTest, AppliesLocalArrayRemoveTransformWithNonPrimitiveElements) {
   TransformPairs transforms = {
       {"array", ArrayRemove(Map("a", "b"), Map("c", "d"))}};
   auto expected = Map("array", Array(1));
-  TransformBaseDoc(base_data, transforms, expected);
+  TransformBaseDoc(std::move(base_data), transforms, std::move(expected));
 }
 
 TEST(MutationTest, AppliesServerAckedIncrementTransformToDocuments) {
@@ -411,7 +415,7 @@ TEST(MutationTest, AppliesServerAckedIncrementTransformToDocuments) {
 
   model::MutationResult mutation_result(Version(1), Array(3));
 
-  transform.ApplyToRemoteDocument(doc, mutation_result);
+  transform.ApplyToRemoteDocument(doc, std::move(mutation_result));
 
   EXPECT_EQ(doc,
             Doc("collection/key", 1, Map("sum", 3)).SetHasCommittedMutations());
@@ -427,7 +431,7 @@ TEST(MutationTest, AppliesServerAckedServerTimestampTransformToDocuments) {
 
   model::MutationResult mutation_result(Version(1), Array(now));
 
-  transform.ApplyToRemoteDocument(doc, mutation_result);
+  transform.ApplyToRemoteDocument(doc, std::move(mutation_result));
 
   MutableDocument expected_doc =
       Doc("collection/key", 1, Map("foo", Map("bar", now), "baz", "baz-value"))
@@ -450,7 +454,7 @@ TEST(MutationTest, AppliesServerAckedArrayTransformsToDocuments) {
   // Server just sends null transform results for array operations.
   model::MutationResult mutation_result(Version(1), Array(nullptr, nullptr));
 
-  transform.ApplyToRemoteDocument(doc, mutation_result);
+  transform.ApplyToRemoteDocument(doc, std::move(mutation_result));
 
   EXPECT_EQ(doc, Doc("collection/key", 1,
                      Map("array_1", Array(1, 2, 3), "array_2", Array("b")))

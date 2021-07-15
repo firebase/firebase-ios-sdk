@@ -22,6 +22,7 @@
 #include <cstdlib>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "Firestore/core/src/nanopb/byte_string.h"

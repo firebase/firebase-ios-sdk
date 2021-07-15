@@ -37,6 +37,7 @@ namespace {
 
 using model::EncodeServerTimestamp;
 using model::RefValue;
+using nanopb::Message;
 using testutil::Array;
 using testutil::BlobValue;
 using testutil::DbId;
@@ -73,61 +74,61 @@ const Timestamp kTimestamp2{1477063920, 0};
 class ValueUtilTest : public ::testing::Test {
  public:
   template <typename... Args>
-  void Add(std::vector<std::vector<google_firestore_v1_Value>>& groups,
+  void Add(std::vector<Message<google_firestore_v1_ArrayValue>>& groups,
            Args... values) {
-    std::vector<google_firestore_v1_Value> group{
-        Value(std::forward<Args>(values))...};
-    groups.emplace_back(group);
+    groups.emplace_back(Array(std::forward<Args>(values)...));
   }
 
-  void VerifyEquality(std::vector<google_firestore_v1_Value>& left,
-                      std::vector<google_firestore_v1_Value>& right,
+  void VerifyEquality(Message<google_firestore_v1_ArrayValue>& left,
+                      Message<google_firestore_v1_ArrayValue>& right,
                       bool expected_equals) {
-    for (const auto& val1 : left) {
-      for (const auto& val2 : right) {
+    for (pb_size_t i = 0; i < left->values_count; ++i) {
+      for (pb_size_t j = 0; j < right->values_count; ++j) {
         if (expected_equals) {
-          EXPECT_EQ(val1, val2);
+          EXPECT_EQ(left->values[i], right->values[j]);
         } else {
-          EXPECT_NE(val1, val2);
+          EXPECT_NE(left->values[i], right->values[j]);
         }
       }
     }
   }
 
-  void VerifyOrdering(std::vector<google_firestore_v1_Value>& left,
-                      std::vector<google_firestore_v1_Value>& right,
+  void VerifyOrdering(Message<google_firestore_v1_ArrayValue>& left,
+                      Message<google_firestore_v1_ArrayValue>& right,
                       ComparisonResult expected_result) {
-    for (const auto& val1 : left) {
-      for (const auto& val2 : right) {
-        EXPECT_EQ(expected_result, Compare(val1, val2))
-            << "Order check failed for '" << CanonicalId(val1) << "' and '"
-            << CanonicalId(val2) << "' (expected "
+    for (pb_size_t i = 0; i < left->values_count; ++i) {
+      for (pb_size_t j = 0; j < right->values_count; ++j) {
+        EXPECT_EQ(expected_result, Compare(left->values[i], right->values[j]))
+            << "Order check failed for '" << CanonicalId(left->values[i])
+            << "' and '" << CanonicalId(right->values[j]) << "' (expected "
             << static_cast<int>(expected_result) << ")";
-        EXPECT_EQ(util::ReverseOrder(expected_result), Compare(val2, val1))
-            << "Reverse order check failed for '" << CanonicalId(val1)
-            << "' and '" << CanonicalId(val2) << "' (expected "
+        EXPECT_EQ(util::ReverseOrder(expected_result),
+                  Compare(right->values[j], left->values[i]))
+            << "Reverse order check failed for '"
+            << CanonicalId(left->values[i]) << "' and '"
+            << CanonicalId(right->values[j]) << "' (expected "
             << static_cast<int>(util::ReverseOrder(expected_result)) << ")";
       }
     }
   }
 
-  void VerifyCanonicalId(const google_firestore_v1_Value& value,
+  void VerifyCanonicalId(nanopb::Message<google_firestore_v1_Value> value,
                          const std::string& expected_canonical_id) {
-    std::string actual_canonical_id = CanonicalId(value);
+    std::string actual_canonical_id = CanonicalId(*value);
     EXPECT_EQ(expected_canonical_id, actual_canonical_id);
   }
 
-  void VerifyDeepClone(const google_firestore_v1_Value& value) {
+  void VerifyDeepClone(nanopb::Message<google_firestore_v1_Value> value) {
     nanopb::Message<google_firestore_v1_Value> clone1;
 
     [&] {
-      nanopb::Message<google_firestore_v1_Value> clone2{DeepClone(value)};
-      EXPECT_EQ(value, *clone2);
-      clone1 = nanopb::Message<google_firestore_v1_Value>{DeepClone(*clone2)};
+      nanopb::Message<google_firestore_v1_Value> clone2 = DeepClone(*value);
+      EXPECT_EQ(*value, *clone2);
+      clone1 = DeepClone(*clone2);
     }();
 
     // `clone2` is destroyed at this point, but `clone1` should be still valid.
-    EXPECT_EQ(value, *clone1);
+    EXPECT_EQ(*value, *clone1);
   }
 
  private:
@@ -136,27 +137,26 @@ class ValueUtilTest : public ::testing::Test {
 
 TEST(FieldValueTest, ValueHelpers) {
   // Validates that the Value helpers in testutil produce the right types
-  google_firestore_v1_Value bool_value = Value(true);
-  ASSERT_EQ(GetTypeOrder(bool_value), TypeOrder::kBoolean);
-  EXPECT_EQ(bool_value.boolean_value, true);
+  auto bool_value = Value(true);
+  ASSERT_EQ(GetTypeOrder(*bool_value), TypeOrder::kBoolean);
+  EXPECT_EQ(bool_value->boolean_value, true);
 
-  google_firestore_v1_Value int_value = Value(5);
-  ASSERT_EQ(GetTypeOrder(int_value), TypeOrder::kNumber);
-  EXPECT_EQ(int_value.integer_value, 5);
+  auto int_value = Value(5);
+  ASSERT_EQ(GetTypeOrder(*int_value), TypeOrder::kNumber);
+  EXPECT_EQ(int_value->integer_value, 5);
 
-  google_firestore_v1_Value long_value =
-      Value(std::numeric_limits<int32_t>::max());
-  ASSERT_EQ(GetTypeOrder(long_value), TypeOrder::kNumber);
-  EXPECT_EQ(long_value.integer_value, std::numeric_limits<int32_t>::max());
+  auto long_value = Value(std::numeric_limits<int32_t>::max());
+  ASSERT_EQ(GetTypeOrder(*long_value), TypeOrder::kNumber);
+  EXPECT_EQ(long_value->integer_value, std::numeric_limits<int32_t>::max());
 
-  google_firestore_v1_Value long_long_value =
-      Value(std::numeric_limits<int64_t>::max());
-  ASSERT_EQ(GetTypeOrder(long_long_value), TypeOrder::kNumber);
-  EXPECT_EQ(long_long_value.integer_value, std::numeric_limits<int64_t>::max());
+  auto long_long_value = Value(std::numeric_limits<int64_t>::max());
+  ASSERT_EQ(GetTypeOrder(*long_long_value), TypeOrder::kNumber);
+  EXPECT_EQ(long_long_value->integer_value,
+            std::numeric_limits<int64_t>::max());
 
-  google_firestore_v1_Value double_value = Value(2.0);
-  ASSERT_EQ(GetTypeOrder(double_value), TypeOrder::kNumber);
-  EXPECT_EQ(double_value.double_value, 2.0);
+  auto double_value = Value(2.0);
+  ASSERT_EQ(GetTypeOrder(*double_value), TypeOrder::kNumber);
+  EXPECT_EQ(double_value->double_value, 2.0);
 }
 
 #if __APPLE__
@@ -180,40 +180,38 @@ TEST_F(ValueUtilTest, Equality) {
   // multiple rows and each row can have an arbitrary number of entries.
   // The elements within a row must equal each other, but not be equal
   // to all elements of other rows.
-  std::vector<std::vector<google_firestore_v1_Value>> equals_group;
+  std::vector<Message<google_firestore_v1_ArrayValue>> equals_group;
 
-  Add(equals_group, Value(nullptr), Value(nullptr));
-  Add(equals_group, Value(false), Value(false));
-  Add(equals_group, Value(true), Value(true));
-  Add(equals_group, Value(std::numeric_limits<double>::quiet_NaN()),
-      Value(ToDouble(kCanonicalNanBits)), Value(ToDouble(kAlternateNanBits)),
-      Value(std::nan("1")), Value(std::nan("2")));
+  Add(equals_group, nullptr, nullptr);
+  Add(equals_group, false, false);
+  Add(equals_group, true, true);
+  Add(equals_group, std::numeric_limits<double>::quiet_NaN(),
+      ToDouble(kCanonicalNanBits), ToDouble(kAlternateNanBits), std::nan("1"),
+      std::nan("2"));
   // -0.0 and 0.0 compare the same but are not equal.
-  Add(equals_group, Value(-0.0));
-  Add(equals_group, Value(0.0));
-  Add(equals_group, Value(1), Value(1LL));
+  Add(equals_group, -0.0);
+  Add(equals_group, 0.0);
+  Add(equals_group, 1, 1LL);
   // Doubles and Longs aren't equal (even though they compare same).
-  Add(equals_group, Value(1.0), Value(1.0));
-  Add(equals_group, Value(1.1), Value(1.1));
-  Add(equals_group, Value(BlobValue(0, 1, 1)));
-  Add(equals_group, Value(BlobValue(0, 1)));
-  Add(equals_group, Value("string"), Value("string"));
-  Add(equals_group, Value("strin"));
-  Add(equals_group, Value(std::string("strin\0", 6)));
+  Add(equals_group, 1.0, 1.0);
+  Add(equals_group, 1.1, 1.1);
+  Add(equals_group, BlobValue(0, 1, 1));
+  Add(equals_group, BlobValue(0, 1));
+  Add(equals_group, "string", "string");
+  Add(equals_group, "strin");
+  Add(equals_group, std::string("strin\0", 6));
   // latin small letter e + combining acute accent
-  Add(equals_group, Value("e\u0301b"));
+  Add(equals_group, "e\u0301b");
   // latin small letter e with acute accent
-  Add(equals_group, Value("\u00e9a"));
-  Add(equals_group, Value(Timestamp::FromTimePoint(kDate1)),
-      Value(kTimestamp1));
-  Add(equals_group, Value(Timestamp::FromTimePoint(kDate2)),
-      Value(kTimestamp2));
-  // NOTE: ServerTimestampValues can't be parsed via Value().
+  Add(equals_group, "\u00e9a");
+  Add(equals_group, Timestamp::FromTimePoint(kDate1), kTimestamp1);
+  Add(equals_group, Timestamp::FromTimePoint(kDate2), kTimestamp2);
+  // NOTE: ServerTimestampValues can't be parsed via .
   Add(equals_group, EncodeServerTimestamp(kTimestamp1, absl::nullopt),
       EncodeServerTimestamp(kTimestamp1, absl::nullopt));
   Add(equals_group, EncodeServerTimestamp(kTimestamp2, absl::nullopt));
-  Add(equals_group, Value(GeoPoint(0, 1)), Value(GeoPoint(0, 1)));
-  Add(equals_group, Value(GeoPoint(1, 0)));
+  Add(equals_group, GeoPoint(0, 1), GeoPoint(0, 1));
+  Add(equals_group, GeoPoint(1, 0));
   Add(equals_group, RefValue(DbId(), Key("coll/doc1")),
       RefValue(DbId(), Key("coll/doc1")));
   Add(equals_group, RefValue(DbId(), Key("coll/doc2")));
@@ -239,55 +237,55 @@ TEST_F(ValueUtilTest, Ordering) {
   // multiple rows and each row can have an arbitrary number of entries.
   // The elements within a row must compare equal to each other, but order after
   // all elements in previous groups and before all elements in later groups.
-  std::vector<std::vector<google_firestore_v1_Value>> comparison_groups;
+  std::vector<Message<google_firestore_v1_ArrayValue>> comparison_groups;
 
   // null first
-  Add(comparison_groups, Value(nullptr));
+  Add(comparison_groups, nullptr);
 
   // booleans
-  Add(comparison_groups, Value(false));
-  Add(comparison_groups, Value(true));
+  Add(comparison_groups, false);
+  Add(comparison_groups, true);
 
   // numbers
-  Add(comparison_groups, Value(-1e20));
-  Add(comparison_groups, Value(std::numeric_limits<int64_t>::min()));
-  Add(comparison_groups, Value(-0.1));
+  Add(comparison_groups, -1e20);
+  Add(comparison_groups, std::numeric_limits<int64_t>::min());
+  Add(comparison_groups, -0.1);
   // Zeros all compare the same.
-  Add(comparison_groups, Value(-0.0), Value(0.0), Value(0L));
-  Add(comparison_groups, Value(0.1));
+  Add(comparison_groups, -0.0, 0.0, 0L);
+  Add(comparison_groups, 0.1);
   // Doubles and longs Compare() the same.
-  Add(comparison_groups, Value(1.0), Value(1L));
-  Add(comparison_groups, Value(std::numeric_limits<int64_t>::max()));
-  Add(comparison_groups, Value(1e20));
+  Add(comparison_groups, 1.0, 1L);
+  Add(comparison_groups, std::numeric_limits<int64_t>::max());
+  Add(comparison_groups, 1e20);
 
   // dates
-  Add(comparison_groups, Value(kTimestamp1));
-  Add(comparison_groups, Value(kTimestamp2));
+  Add(comparison_groups, kTimestamp1);
+  Add(comparison_groups, kTimestamp2);
 
   // server timestamps come after all concrete timestamps.
-  // NOTE: server timestamps can't be parsed with Value().
+  // NOTE: server timestamps can't be parsed with .
   Add(comparison_groups, EncodeServerTimestamp(kTimestamp1, absl::nullopt));
   Add(comparison_groups, EncodeServerTimestamp(kTimestamp2, absl::nullopt));
 
   // strings
-  Add(comparison_groups, Value(""));
-  Add(comparison_groups, Value("\001\ud7ff\ue000\uffff"));
-  Add(comparison_groups, Value("(╯°□°）╯︵ ┻━┻"));
-  Add(comparison_groups, Value("a"));
-  Add(comparison_groups, Value(std::string("abc\0 def", 8)));
-  Add(comparison_groups, Value("abc def"));
+  Add(comparison_groups, "");
+  Add(comparison_groups, "\001\ud7ff\ue000\uffff");
+  Add(comparison_groups, "(╯°□°）╯︵ ┻━┻");
+  Add(comparison_groups, "a");
+  Add(comparison_groups, std::string("abc\0 def", 8));
+  Add(comparison_groups, "abc def");
   // latin small letter e + combining acute accent + latin small letter b
-  Add(comparison_groups, Value("e\u0301b"));
-  Add(comparison_groups, Value("æ"));
+  Add(comparison_groups, "e\u0301b");
+  Add(comparison_groups, "æ");
   // latin small letter e with acute accent + latin small letter a
-  Add(comparison_groups, Value("\u00e9a"));
+  Add(comparison_groups, "\u00e9a");
 
   // blobs
-  Add(comparison_groups, Value(BlobValue()));
-  Add(comparison_groups, Value(BlobValue(0)));
-  Add(comparison_groups, Value(BlobValue(0, 1, 2, 3, 4)));
-  Add(comparison_groups, Value(BlobValue(0, 1, 2, 4, 3)));
-  Add(comparison_groups, Value(BlobValue(255)));
+  Add(comparison_groups, BlobValue());
+  Add(comparison_groups, BlobValue(0));
+  Add(comparison_groups, BlobValue(0, 1, 2, 3, 4));
+  Add(comparison_groups, BlobValue(0, 1, 2, 4, 3));
+  Add(comparison_groups, BlobValue(255));
 
   // resource names
   Add(comparison_groups, RefValue(DbId("p1/d1"), Key("c1/doc1")));
@@ -298,18 +296,18 @@ TEST_F(ValueUtilTest, Ordering) {
   Add(comparison_groups, RefValue(DbId("p2/d1"), Key("c1/doc1")));
 
   // geo points
-  Add(comparison_groups, Value(GeoPoint(-90, -180)));
-  Add(comparison_groups, Value(GeoPoint(-90, 0)));
-  Add(comparison_groups, Value(GeoPoint(-90, 180)));
-  Add(comparison_groups, Value(GeoPoint(0, -180)));
-  Add(comparison_groups, Value(GeoPoint(0, 0)));
-  Add(comparison_groups, Value(GeoPoint(0, 180)));
-  Add(comparison_groups, Value(GeoPoint(1, -180)));
-  Add(comparison_groups, Value(GeoPoint(1, 0)));
-  Add(comparison_groups, Value(GeoPoint(1, 180)));
-  Add(comparison_groups, Value(GeoPoint(90, -180)));
-  Add(comparison_groups, Value(GeoPoint(90, 0)));
-  Add(comparison_groups, Value(GeoPoint(90, 180)));
+  Add(comparison_groups, GeoPoint(-90, -180));
+  Add(comparison_groups, GeoPoint(-90, 0));
+  Add(comparison_groups, GeoPoint(-90, 180));
+  Add(comparison_groups, GeoPoint(0, -180));
+  Add(comparison_groups, GeoPoint(0, 0));
+  Add(comparison_groups, GeoPoint(0, 180));
+  Add(comparison_groups, GeoPoint(1, -180));
+  Add(comparison_groups, GeoPoint(1, 0));
+  Add(comparison_groups, GeoPoint(1, 180));
+  Add(comparison_groups, GeoPoint(90, -180));
+  Add(comparison_groups, GeoPoint(90, 0));
+  Add(comparison_groups, GeoPoint(90, 180));
 
   // arrays
   Add(comparison_groups, Array("bar"));

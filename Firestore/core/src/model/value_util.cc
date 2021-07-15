@@ -37,6 +37,7 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
+using nanopb::Message;
 using util::ComparisonResult;
 
 TypeOrder GetTypeOrder(const google_firestore_v1_Value& value) {
@@ -495,9 +496,10 @@ bool Contains(google_firestore_v1_ArrayValue haystack,
   return false;
 }
 
-google_firestore_v1_Value NullValue() {
-  google_firestore_v1_Value null_value{};
-  null_value.which_value_type = google_firestore_v1_Value_null_value_tag;
+Message<google_firestore_v1_Value> NullValue() {
+  Message<google_firestore_v1_Value> null_value;
+  null_value->which_value_type = google_firestore_v1_Value_null_value_tag;
+  null_value->null_value = {};
   return null_value;
 }
 
@@ -505,10 +507,10 @@ bool IsNullValue(const google_firestore_v1_Value& value) {
   return value.which_value_type == google_firestore_v1_Value_null_value_tag;
 }
 
-google_firestore_v1_Value NaNValue() {
-  google_firestore_v1_Value nan_value{};
-  nan_value.which_value_type = google_firestore_v1_Value_double_value_tag;
-  nan_value.double_value = std::numeric_limits<double>::quiet_NaN();
+Message<google_firestore_v1_Value> NaNValue() {
+  Message<google_firestore_v1_Value> nan_value;
+  nan_value->which_value_type = google_firestore_v1_Value_double_value_tag;
+  nan_value->double_value = std::numeric_limits<double>::quiet_NaN();
   return nan_value;
 }
 
@@ -517,21 +519,23 @@ bool IsNaNValue(const google_firestore_v1_Value& value) {
          std::isnan(value.double_value);
 }
 
-google_firestore_v1_Value RefValue(const model::DatabaseId& database_id,
-                                   const model::DocumentKey& document_key) {
-  google_firestore_v1_Value result{};
-  result.which_value_type = google_firestore_v1_Value_reference_value_tag;
-  result.string_value = nanopb::MakeBytesArray(util::StringFormat(
+Message<google_firestore_v1_Value> RefValue(
+    const model::DatabaseId& database_id,
+    const model::DocumentKey& document_key) {
+  Message<google_firestore_v1_Value> result;
+  result->which_value_type = google_firestore_v1_Value_reference_value_tag;
+  result->string_value = nanopb::MakeBytesArray(util::StringFormat(
       "projects/%s/databases/%s/documents/%s", database_id.project_id(),
       database_id.database_id(), document_key.ToString()));
   return result;
 }
 
-google_firestore_v1_Value DeepClone(const google_firestore_v1_Value& source) {
-  google_firestore_v1_Value target = source;
+Message<google_firestore_v1_Value> DeepClone(
+    const google_firestore_v1_Value& source) {
+  Message<google_firestore_v1_Value> target{source};
   switch (source.which_value_type) {
     case google_firestore_v1_Value_string_value_tag:
-      target.string_value =
+      target->string_value =
           source.string_value
               ? nanopb::MakeBytesArray(source.string_value->bytes,
                                        source.string_value->size)
@@ -539,51 +543,52 @@ google_firestore_v1_Value DeepClone(const google_firestore_v1_Value& source) {
       break;
 
     case google_firestore_v1_Value_reference_value_tag:
-      target.reference_value = nanopb::MakeBytesArray(
+      target->reference_value = nanopb::MakeBytesArray(
           source.reference_value->bytes, source.reference_value->size);
       break;
 
     case google_firestore_v1_Value_bytes_value_tag:
-      target.bytes_value =
+      target->bytes_value =
           source.bytes_value ? nanopb::MakeBytesArray(source.bytes_value->bytes,
                                                       source.bytes_value->size)
                              : nullptr;
       break;
 
     case google_firestore_v1_Value_array_value_tag:
-      target.array_value.values_count = source.array_value.values_count;
-      target.array_value.values = nanopb::MakeArray<google_firestore_v1_Value>(
+      target->array_value.values_count = source.array_value.values_count;
+      target->array_value.values = nanopb::MakeArray<google_firestore_v1_Value>(
           source.array_value.values_count);
       for (pb_size_t i = 0; i < source.array_value.values_count; ++i) {
-        target.array_value.values[i] = DeepClone(source.array_value.values[i]);
+        target->array_value.values[i] =
+            *DeepClone(source.array_value.values[i]).release();
       }
       break;
 
     case google_firestore_v1_Value_map_value_tag:
-      target.map_value.fields_count = source.map_value.fields_count;
-      target.map_value.fields =
+      target->map_value.fields_count = source.map_value.fields_count;
+      target->map_value.fields =
           nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(
               source.map_value.fields_count);
       for (pb_size_t i = 0; i < source.map_value.fields_count; ++i) {
-        target.map_value.fields[i].key =
+        target->map_value.fields[i].key =
             nanopb::MakeBytesArray(source.map_value.fields[i].key->bytes,
                                    source.map_value.fields[i].key->size);
-        target.map_value.fields[i].value =
-            DeepClone(source.map_value.fields[i].value);
+        target->map_value.fields[i].value =
+            *DeepClone(source.map_value.fields[i].value).release();
       }
       break;
   }
   return target;
 }
 
-google_firestore_v1_ArrayValue DeepClone(
+Message<google_firestore_v1_ArrayValue> DeepClone(
     const google_firestore_v1_ArrayValue& source) {
-  google_firestore_v1_ArrayValue target = source;
-  target.values_count = source.values_count;
-  target.values =
+  Message<google_firestore_v1_ArrayValue> target{source};
+  target->values_count = source.values_count;
+  target->values =
       nanopb::MakeArray<google_firestore_v1_Value>(source.values_count);
   for (pb_size_t i = 0; i < source.values_count; ++i) {
-    target.values[i] = DeepClone(source.values[i]);
+    target->values[i] = *DeepClone(source.values[i]).release();
   }
   return target;
 }

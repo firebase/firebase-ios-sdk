@@ -68,6 +68,7 @@ using model::ResourcePath;
 using model::SnapshotVersion;
 using model::TargetId;
 using nanopb::ByteString;
+using nanopb::Message;
 using remote::DocumentWatchChange;
 using remote::FakeTargetMetadataProvider;
 using remote::RemoteEvent;
@@ -239,7 +240,7 @@ void LocalStoreTest::UpdateViews(int target_id, bool from_cache) {
 
 void LocalStoreTest::AcknowledgeMutationWithVersion(
     int64_t document_version,
-    absl::optional<google_firestore_v1_Value> transform_result) {
+    absl::optional<Message<google_firestore_v1_Value>> transform_result) {
   ASSERT_GT(batches_.size(), 0) << "Missing batch to acknowledge.";
   MutationBatch batch = batches_.front();
   batches_.erase(batches_.begin());
@@ -248,12 +249,12 @@ void LocalStoreTest::AcknowledgeMutationWithVersion(
       << "Acknowledging more than one mutation not supported.";
   SnapshotVersion version = testutil::Version(document_version);
 
-  google_firestore_v1_ArrayValue mutation_transform_result{};
+  Message<google_firestore_v1_ArrayValue> mutation_transform_result{};
   if (transform_result) {
-    mutation_transform_result = Array(*transform_result);
+    mutation_transform_result = Array(std::move(*transform_result));
   }
 
-  MutationResult mutation_result(version, mutation_transform_result);
+  MutationResult mutation_result(version, std::move(mutation_transform_result));
   std::vector<MutationResult> mutation_results;
   mutation_results.emplace_back(std::move(mutation_result));
   MutationBatchResult result(batch, version, std::move(mutation_results), {});
@@ -1365,12 +1366,13 @@ TEST_P(LocalStoreTest, HoldsBackOnlyNonIdempotentTransforms) {
       Doc("foo/bar", 1, Map("sum", 0, "array_union", Array())), {2}));
   FSTAssertChanged(Doc("foo/bar", 1, Map("sum", 0, "array_union", Array())));
 
+  std::vector<Message<google_firestore_v1_Value>> array_union;
+  array_union.push_back(Value("foo"));
   WriteMutations({
       testutil::PatchMutation("foo/bar", Map(),
                               {testutil::Increment("sum", Value(1))}),
       testutil::PatchMutation(
-          "foo/bar", Map(),
-          {testutil::ArrayUnion("array_union", {Value("foo")})}),
+          "foo/bar", Map(), {testutil::ArrayUnion("array_union", array_union)}),
   });
 
   FSTAssertChanged(Doc("foo/bar", 1, Map("sum", 1, "array_union", Array("foo")))

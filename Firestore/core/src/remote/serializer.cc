@@ -102,8 +102,10 @@ using model::VerifyMutation;
 using nanopb::ByteString;
 using nanopb::CheckedSize;
 using nanopb::MakeArray;
+using nanopb::MakeMessage;
 using nanopb::MakeSharedMessage;
 using nanopb::MakeStringView;
+using nanopb::Message;
 using nanopb::ReleaseFieldOwnership;
 using nanopb::SafeReadBoolean;
 using nanopb::SetRepeatedField;
@@ -282,7 +284,7 @@ google_firestore_v1_Document Serializer::EncodeDocument(
         // TODO(mrschmidt): Figure out how to remove this copy
         return google_firestore_v1_Document_FieldsEntry{
             nanopb::MakeBytesArray(entry.key->bytes, entry.key->size),
-            DeepClone(entry.value)};
+            *DeepClone(entry.value).release()};
       });
 
   // Skip Document.create_time and Document.update_time, since they're
@@ -539,16 +541,20 @@ Serializer::EncodeFieldTransform(const FieldTransform& field_transform) const {
       proto.which_transform_type =
           google_firestore_v1_DocumentTransform_FieldTransform_append_missing_elements_tag;  // NOLINT
       // TODO(mrschmidt): Figure out how to remove this copy
-      proto.append_missing_elements = DeepClone(
-          ArrayTransform(field_transform.transformation()).elements());
+      proto.append_missing_elements =
+          *DeepClone(
+               ArrayTransform(field_transform.transformation()).elements())
+               .release();
       return proto;
 
     case Type::ArrayRemove:
       proto.which_transform_type =
           google_firestore_v1_DocumentTransform_FieldTransform_remove_all_from_array_tag;  // NOLINT
       // TODO(mrschmidt): Figure out how to remove this copy
-      proto.remove_all_from_array = DeepClone(
-          ArrayTransform(field_transform.transformation()).elements());
+      proto.remove_all_from_array =
+          *DeepClone(
+               ArrayTransform(field_transform.transformation()).elements())
+               .release();
       return proto;
 
     case Type::Increment: {
@@ -581,8 +587,9 @@ FieldTransform Serializer::DecodeFieldTransform(
 
     case google_firestore_v1_DocumentTransform_FieldTransform_append_missing_elements_tag: {  // NOLINT
       FieldTransform field_transform(
-          std::move(field), ArrayTransform(TransformOperation::Type::ArrayUnion,
-                                           proto.append_missing_elements));
+          std::move(field),
+          ArrayTransform(TransformOperation::Type::ArrayUnion,
+                         MakeMessage(proto.append_missing_elements)));
       // Release field ownership to prevent double-freeing. The values are now
       // owned by the FieldTransform.
       proto.append_missing_elements = {};
@@ -593,7 +600,7 @@ FieldTransform Serializer::DecodeFieldTransform(
       FieldTransform field_transform(
           std::move(field),
           ArrayTransform(TransformOperation::Type::ArrayRemove,
-                         proto.remove_all_from_array));
+                         MakeMessage(proto.remove_all_from_array)));
       // Release field ownership to prevent double-freeing. The values are now
       // owned by the FieldTransform.
       proto.append_missing_elements = {};
@@ -601,8 +608,9 @@ FieldTransform Serializer::DecodeFieldTransform(
     }
 
     case google_firestore_v1_DocumentTransform_FieldTransform_increment_tag: {
-      return FieldTransform(std::move(field),
-                            NumericIncrementTransform(proto.increment));
+      return FieldTransform(
+          std::move(field),
+          NumericIncrementTransform(MakeMessage(proto.increment)));
     }
   }
 
@@ -877,7 +885,7 @@ google_firestore_v1_StructuredQuery_Filter Serializer::EncodeSingularFilter(
   result.field_filter.field.field_path = EncodeFieldPath(filter.field());
   result.field_filter.op = EncodeFieldFilterOperator(filter.op());
   // TODO(mrschmidt): Figure out how to remove this copy
-  result.field_filter.value = DeepClone(filter.value());
+  result.field_filter.value = *DeepClone(filter.value()).release();
 
   return result;
 }
@@ -906,20 +914,17 @@ Filter Serializer::DecodeUnaryFilter(
 
   switch (unary.op) {
     case google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NULL:
-      return FieldFilter::Create(std::move(field), Filter::Operator::Equal,
-                                 MakeSharedMessage(NullValue()));
+      return FieldFilter::Create(field, Filter::Operator::Equal, NullValue());
 
     case google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NAN:
-      return FieldFilter::Create(std::move(field), Filter::Operator::Equal,
-                                 MakeSharedMessage(NaNValue()));
+      return FieldFilter::Create(field, Filter::Operator::Equal, NaNValue());
 
     case google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NOT_NULL:
-      return FieldFilter::Create(std::move(field), Filter::Operator::NotEqual,
-                                 MakeSharedMessage(NullValue()));
+      return FieldFilter::Create(field, Filter::Operator::NotEqual,
+                                 NullValue());
 
     case google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NOT_NAN:
-      return FieldFilter::Create(std::move(field), Filter::Operator::NotEqual,
-                                 MakeSharedMessage(NaNValue()));
+      return FieldFilter::Create(field, Filter::Operator::NotEqual, NaNValue());
 
     default:
       context->Fail(StringFormat("Unrecognized UnaryFilter.op %s", unary.op));
@@ -1113,7 +1118,9 @@ google_firestore_v1_Cursor Serializer::EncodeBound(const Bound& bound) const {
       &result.values, &result.values_count,
       absl::Span<google_firestore_v1_Value>(bound.position()->values,
                                             bound.position()->values_count),
-      [](const google_firestore_v1_Value& value) { return DeepClone(value); });
+      [](const google_firestore_v1_Value& value) {
+        return *DeepClone(value).release();
+      });
   return result;
 }
 
@@ -1187,16 +1194,16 @@ MutationResult Serializer::DecodeMutationResult(
           ? DecodeVersion(context, write_result.update_time)
           : commit_version;
 
-  google_firestore_v1_ArrayValue transform_results{};
-  SetRepeatedField(&transform_results.values, &transform_results.values_count,
+  Message<google_firestore_v1_ArrayValue> transform_results;
+  SetRepeatedField(&transform_results->values, &transform_results->values_count,
                    absl::Span<google_firestore_v1_Value>(
                        write_result.transform_results,
                        write_result.transform_results_count));
   // Prevent double-freeing of the transform result. The fields are now owned by
-  // the muation result.
+  // the mutation result.
   ReleaseFieldOwnership(write_result.transform_results,
                         write_result.transform_results_count);
-  return MutationResult(version, transform_results);
+  return MutationResult(version, std::move(transform_results));
 }
 
 std::vector<google_firestore_v1_ListenRequest_LabelsEntry>

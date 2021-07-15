@@ -52,8 +52,7 @@ void MutationBatch::ApplyToRemoteDocument(
   for (size_t i = 0; i < mutations_.size(); i++) {
     const Mutation& mutation = mutations_[i];
     if (mutation.key() == document.key()) {
-      const MutationResult& mutation_result = mutation_results[i];
-      mutation.ApplyToRemoteDocument(document, mutation_result);
+      mutation.ApplyToRemoteDocument(document, mutation_results[i]);
     }
   }
 }

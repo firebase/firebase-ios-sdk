@@ -43,7 +43,7 @@ void DeleteMutation::Rep::ApplyToRemoteDocument(
     MutableDocument& document, const MutationResult& mutation_result) const {
   VerifyKeyMatches(document);
 
-  HARD_ASSERT(mutation_result.transform_results().values_count == 0,
+  HARD_ASSERT(mutation_result.transform_results()->values_count == 0,
               "Transform results received by DeleteMutation.");
 
   // Unlike ApplyToLocalView, if we're applying a mutation to a remote document
