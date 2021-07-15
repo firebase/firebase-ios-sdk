@@ -29,7 +29,7 @@
 
 #pragma mark - App Attest
 
-// App Attest availability was extended to macOS and maccatalyst in Xcode 12.5.
+// App Attest availability was extended to macOS and Mac Catalyst in Xcode 12.5.
 #if (defined(__IPHONE_14_5) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_14_5) || \
     (defined(__MAC_11_3) && __MAC_OS_X_VERSION_MAX_ALLOWED >= __MAC_11_3) ||        \
     (defined(__TVOS_14_5) && __TV_OS_VERSION_MAX_ALLOWED >= __TVOS_14_5)
