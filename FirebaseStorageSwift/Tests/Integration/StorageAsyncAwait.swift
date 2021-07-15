@@ -256,7 +256,7 @@ import XCTest
       let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
       let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
 
-      Task.init {
+      Task {
         _ = try await ref.putDataAsync(data)
         let task = ref.write(toFile: fileURL)
 
