@@ -194,8 +194,7 @@ template <typename... Args>
 nanopb::Message<google_firestore_v1_Value> MakeMap(Args... key_value_pairs) {
   nanopb::Message<google_firestore_v1_Value> map_value;
   map_value->which_value_type = google_firestore_v1_Value_map_value_tag;
-  map_value->map_value.fields_count = 0;
-  map_value->map_value.fields = nil;
+  map_value->map_value = {};
   return AddPairs(std::move(map_value), std::forward<Args>(key_value_pairs)...);
 }
 

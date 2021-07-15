@@ -183,8 +183,7 @@ void ApplyChanges(
 
 ObjectValue::ObjectValue() {
   value_->which_value_type = google_firestore_v1_Value_map_value_tag;
-  value_->map_value.fields_count = 0;
-  value_->map_value.fields = nullptr;
+  value_->map_value = {};
 }
 
 ObjectValue::ObjectValue(Message<google_firestore_v1_Value> value)
@@ -358,8 +357,7 @@ google_firestore_v1_MapValue* ObjectValue::ParentMap(const FieldPath& path) {
         // change it to a map type.
         FreeFieldsArray(&entry->value);
         entry->value.which_value_type = google_firestore_v1_Value_map_value_tag;
-        entry->value.map_value.fields_count = 0;
-        entry->value.map_value.fields = nil;
+        entry->value.map_value = {};
       }
 
       parent = &entry->value;
@@ -367,8 +365,7 @@ google_firestore_v1_MapValue* ObjectValue::ParentMap(const FieldPath& path) {
       // Create a new map value for the current segment.
       Message<google_firestore_v1_Value> new_entry;
       new_entry->which_value_type = google_firestore_v1_Value_map_value_tag;
-      new_entry->map_value.fields_count = 0;
-      new_entry->map_value.fields = nil;
+      new_entry->map_value = {};
 
       std::map<std::string, Message<google_firestore_v1_Value>> upserts;
       upserts[segment] = std::move(new_entry);
