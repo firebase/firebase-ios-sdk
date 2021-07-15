@@ -534,10 +534,12 @@ void FirestoreClient::GetNamedQuery(const std::string& name,
                         target.filters(), target.order_bys(), target.limit(),
                         named_query.value().bundled_query().limit_type(),
                         target.start_at(), target.end_at());
-            user_executor_->Execute(
-                [query, callback] { callback(std::move(query)); });
+            user_executor_->Execute([query, callback] {
+              callback(std::move(query), /*found=*/true);
+            });
           } else {
-            user_executor_->Execute([callback] { callback(absl::nullopt); });
+            user_executor_->Execute(
+                [callback] { callback(Query(), /*found=*/false); });
           }
         }
       };

@@ -1,6 +1,13 @@
 # Unreleased
 - [changed] Internal refactor to improve serialization performance.
 
+# v8.4.0
+- [fixed] Fixed handling of Unicode characters in log and assertion messages
+
+# v8.2.0
+- [changed] Passing in an empty document ID, collection group ID, or collection
+  path will now result in a more readable error (#8218).
+
 # v7.9.0
 - [feature] Added support for Firestore Bundles via
   `FIRFirestore.loadBundle`, `FIRFirestore.loadBundleStream` and

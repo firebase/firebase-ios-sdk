@@ -18,9 +18,10 @@
 
 static NSString *const kTokenKey = @"token";
 static NSString *const kExpirationDateKey = @"expirationDate";
+static NSString *const kReceivedAtDateKey = @"receivedAtDate";
 static NSString *const kStorageVersionKey = @"storageVersion";
 
-static const NSInteger kStorageVersion = 1;
+static const NSInteger kStorageVersion = 2;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -37,19 +38,21 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)encodeWithCoder:(NSCoder *)coder {
   [coder encodeObject:self.token forKey:kTokenKey];
   [coder encodeObject:self.expirationDate forKey:kExpirationDateKey];
+  [coder encodeObject:self.receivedAtDate forKey:kReceivedAtDateKey];
   [coder encodeInteger:self.storageVersion forKey:kStorageVersionKey];
 }
 
 - (nullable instancetype)initWithCoder:(NSCoder *)coder {
   self = [super init];
   if (self) {
-    NSInteger storageVersion = [coder decodeIntegerForKey:kStorageVersionKey];
-    if (storageVersion > kStorageVersion) {
+    NSInteger decodedStorageVersion = [coder decodeIntegerForKey:kStorageVersionKey];
+    if (decodedStorageVersion > kStorageVersion) {
       // TODO: Log a message.
     }
 
     _token = [coder decodeObjectOfClass:[NSString class] forKey:kTokenKey];
     _expirationDate = [coder decodeObjectOfClass:[NSDate class] forKey:kExpirationDateKey];
+    _receivedAtDate = [coder decodeObjectOfClass:[NSDate class] forKey:kReceivedAtDateKey];
   }
   return self;
 }

@@ -166,6 +166,7 @@ static GTMSessionFetcherRetryBlock _retryWhenOffline;
     _scheme = kFIRStorageScheme;
     _port = @(kFIRStoragePort);
     _fetcherServiceForApp = nil;  // Configured in `ensureConfigured()`
+    // Must be a serial queue.
     _dispatchQueue = dispatch_queue_create("com.google.firebase.storage", DISPATCH_QUEUE_SERIAL);
     _maxDownloadRetryTime = 600.0;
     _maxDownloadRetryInterval =

@@ -26,7 +26,8 @@
 #import "FirebaseAppCheck/Sources/Core/APIService/FIRAppCheckAPIService.h"
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckHTTPError.h"
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"
+#import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"
+#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckErrors.h"
 
 #import "FirebaseAppCheck/Tests/Unit/Utils/FIRFixtureLoader.h"
 #import "SharedTestUtilities/Date/FIRDateTestUtils.h"
@@ -113,7 +114,7 @@
   XCTAssertNil(promise.value);
 
   // Assert error is as expected.
-  XCTAssertEqualObjects(promise.error.domain, kFIRAppCheckErrorDomain);
+  XCTAssertEqualObjects(promise.error.domain, FIRAppCheckErrorDomain);
   XCTAssertEqual(promise.error.code, FIRAppCheckErrorCodeUnknown);
 
   // Expect response body and HTTP status code to be included in the error.
@@ -191,7 +192,7 @@
   XCTAssertNil(promise.value);
 
   // Assert error is as expected.
-  XCTAssertEqualObjects(promise.error.domain, kFIRAppCheckErrorDomain);
+  XCTAssertEqualObjects(promise.error.domain, FIRAppCheckErrorDomain);
   XCTAssertEqual(promise.error.code, FIRAppCheckErrorCodeUnknown);
 
   // Expect missing field name to be included in the error.
@@ -224,7 +225,8 @@
                                     error:nil];
   // 2.2. Return token from parsed response.
   FIRAppCheckToken *expectedToken = [[FIRAppCheckToken alloc] initWithToken:@"app_check_token"
-                                                             expirationDate:[NSDate date]];
+                                                             expirationDate:[NSDate date]
+                                                             receivedAtDate:[NSDate date]];
   [self expectTokenWithAPIReponse:validAPIResponse toReturnToken:expectedToken];
 
   // 3. Send request.
@@ -240,6 +242,7 @@
   XCTAssertEqualObjects(promise.value, expectedToken);
   XCTAssertEqualObjects(promise.value.token, expectedToken.token);
   XCTAssertEqualObjects(promise.value.expirationDate, expectedToken.expirationDate);
+  XCTAssertEqualObjects(promise.value.receivedAtDate, expectedToken.receivedAtDate);
 
   OCMVerifyAll(self.mockAPIService);
 }

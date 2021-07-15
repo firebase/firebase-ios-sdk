@@ -22,9 +22,10 @@
 #import "FBLPromises.h"
 #endif
 
-#import "FirebaseAppCheck/Sources/AppAttestProvider/Storage/FIRAppAttestStoredArtifact.h"
-
 #import <GoogleUtilities/GULKeychainStorage.h>
+
+#import "FirebaseAppCheck/Sources/AppAttestProvider/Storage/FIRAppAttestStoredArtifact.h"
+#import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -78,25 +79,40 @@ static NSString *const kKeychainService = @"com.firebase.app_check.app_attest_ar
         } else {
           return nil;
         }
+      })
+      .recover(^NSError *(NSError *error) {
+        return [FIRAppCheckErrorUtil keychainErrorWithError:error];
       });
 }
 
 - (FBLPromise<NSData *> *)setArtifact:(nullable NSData *)artifact forKey:(nonnull NSString *)keyID {
   if (artifact) {
-    FIRAppAttestStoredArtifact *storedArtifact =
-        [[FIRAppAttestStoredArtifact alloc] initWithKeyID:keyID artifact:artifact];
-    return [self.keychainStorage setObject:storedArtifact
-                                    forKey:[self artifactKey]
-                               accessGroup:self.accessGroup]
-        .then(^id _Nullable(NSNull *_Nullable value) {
-          return artifact;
-        });
+    return [self storeArtifact:artifact forKey:keyID].recover(^NSError *(NSError *error) {
+      return [FIRAppCheckErrorUtil keychainErrorWithError:error];
+    });
   } else {
     return [self.keychainStorage removeObjectForKey:[self artifactKey] accessGroup:self.accessGroup]
         .then(^id _Nullable(NSNull *_Nullable value) {
           return nil;
+        })
+        .recover(^NSError *(NSError *error) {
+          return [FIRAppCheckErrorUtil keychainErrorWithError:error];
         });
   }
+}
+
+#pragma mark - Helpers
+
+- (FBLPromise<NSData *> *)storeArtifact:(nullable NSData *)artifact
+                                 forKey:(nonnull NSString *)keyID {
+  FIRAppAttestStoredArtifact *storedArtifact =
+      [[FIRAppAttestStoredArtifact alloc] initWithKeyID:keyID artifact:artifact];
+  return [self.keychainStorage setObject:storedArtifact
+                                  forKey:[self artifactKey]
+                             accessGroup:self.accessGroup]
+      .then(^id _Nullable(NSNull *_Nullable value) {
+        return artifact;
+      });
 }
 
 - (NSString *)artifactKey {

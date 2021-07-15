@@ -30,7 +30,6 @@ NS_SWIFT_NAME(AppCheckProvider)
 /// or an error.
 - (void)getTokenWithCompletion:
     (void (^)(FIRAppCheckToken *_Nullable token, NSError *_Nullable error))handler
-
     NS_SWIFT_NAME(getToken(completion:));
 
 @end

@@ -104,6 +104,9 @@ NS_ASSUME_NONNULL_BEGIN
   if (!documentPath) {
     ThrowInvalidArgument("Document path cannot be nil.");
   }
+  if (!documentPath.length) {
+    ThrowInvalidArgument("Document path cannot be empty.");
+  }
   DocumentReference child = self.reference.Document(util::MakeString(documentPath));
   return [[FIRDocumentReference alloc] initWithReference:std::move(child)];
 }

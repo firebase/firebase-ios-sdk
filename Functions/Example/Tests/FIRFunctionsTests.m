@@ -20,6 +20,8 @@
 #import "SharedTestUtilities/AppCheckFake/FIRAppCheckFake.h"
 #import "SharedTestUtilities/AppCheckFake/FIRAppCheckTokenResultFake.h"
 
+#import <FirebaseCore/FirebaseCore.h>
+
 #if SWIFT_PACKAGE
 @import GTMSessionFetcherCore;
 #else
@@ -79,6 +81,37 @@
   _functions = nil;
   _fetcherService = nil;
   [super tearDown];
+}
+
+- (void)testFunctionsInstanceIsStablePerApp {
+  FIROptions *options =
+      [[FIROptions alloc] initWithGoogleAppID:@"0:0000000000000:ios:0000000000000000"
+                                  GCMSenderID:@"00000000000000000-00000000000-000000000"];
+  [FIRApp configureWithOptions:options];
+
+  FIRFunctions *functions1 = [FIRFunctions functions];
+  FIRFunctions *functions2 = [FIRFunctions functionsForApp:[FIRApp defaultApp]];
+
+  XCTAssertEqualObjects(functions1, functions2);
+
+  [FIRApp configureWithName:@"test" options:options];
+  FIRApp *app2 = [FIRApp appNamed:@"test"];
+
+  functions2 = [FIRFunctions functionsForApp:app2 region:@"us-central2"];
+
+  XCTAssertNotEqualObjects(functions1, functions2);
+
+  functions1 = [FIRFunctions functionsForApp:app2 region:@"us-central2"];
+
+  XCTAssertEqualObjects(functions1, functions2);
+
+  functions1 = [FIRFunctions functionsForCustomDomain:@"test_domain"];
+  functions2 = [FIRFunctions functionsForRegion:@"us-central1"];
+
+  XCTAssertNotEqualObjects(functions1, functions2);
+
+  functions2 = [FIRFunctions functionsForApp:[FIRApp defaultApp] customDomain:@"test_domain"];
+  XCTAssertEqualObjects(functions1, functions2);
 }
 
 - (void)testURLWithName {

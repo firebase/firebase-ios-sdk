@@ -129,6 +129,9 @@ NS_ASSUME_NONNULL_BEGIN
   if (!collectionPath) {
     ThrowInvalidArgument("Collection path cannot be nil.");
   }
+  if (!collectionPath.length) {
+    ThrowInvalidArgument("Collection path cannot be empty.");
+  }
 
   CollectionReference child =
       _documentReference.GetCollectionReference(util::MakeString(collectionPath));

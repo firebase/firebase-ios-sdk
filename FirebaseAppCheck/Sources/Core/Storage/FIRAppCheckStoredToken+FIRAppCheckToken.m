@@ -16,17 +16,20 @@
 
 #import "FirebaseAppCheck/Sources/Core/Storage/FIRAppCheckStoredToken+FIRAppCheckToken.h"
 
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"
+#import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"
 
 @implementation FIRAppCheckStoredToken (FIRAppCheckToken)
 
 - (void)updateWithToken:(FIRAppCheckToken *)token {
   self.token = token.token;
   self.expirationDate = token.expirationDate;
+  self.receivedAtDate = token.receivedAtDate;
 }
 
 - (FIRAppCheckToken *)appCheckToken {
-  return [[FIRAppCheckToken alloc] initWithToken:self.token expirationDate:self.expirationDate];
+  return [[FIRAppCheckToken alloc] initWithToken:self.token
+                                  expirationDate:self.expirationDate
+                                  receivedAtDate:self.receivedAtDate];
 }
 
 @end

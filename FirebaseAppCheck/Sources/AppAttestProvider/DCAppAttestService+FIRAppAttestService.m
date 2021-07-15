@@ -17,7 +17,7 @@
 #import "FirebaseAppCheck/Sources/AppAttestProvider/DCAppAttestService+FIRAppAttestService.h"
 
 // Currently DCAppAttestService is available on iOS only.
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST  // Catalyst should be possible with Xcode 12.5+
 
 @implementation DCAppAttestService (FIRAppAttestService)
 
