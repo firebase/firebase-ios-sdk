@@ -25,20 +25,24 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
+using nanopb::Message;
+
 const char kTypeKey[] = "__type__";
 const char kLocalWriteTimeKey[] = "__local_write_time__";
 const char kPreviousValueKey[] = "__previous_value__";
 const char kServerTimestampSentinel[] = "server_timestamp";
 
-google_firestore_v1_Value EncodeServerTimestamp(
+Message<google_firestore_v1_Value> EncodeServerTimestamp(
     const Timestamp& local_write_time,
     absl::optional<google_firestore_v1_Value> previous_value) {
-  google_firestore_v1_Value result{};
-  result.which_value_type = google_firestore_v1_Value_map_value_tag;
+  Message<google_firestore_v1_Value> result;
+  result->which_value_type = google_firestore_v1_Value_map_value_tag;
+  result->map_value.fields_count = 0;
+  result->map_value.fields = nil;
 
   pb_size_t count = previous_value ? 3 : 2;
 
-  auto& map_value = result.map_value;
+  auto& map_value = result->map_value;
   map_value.fields_count = count;
   map_value.fields =
       nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(count);
@@ -57,7 +61,7 @@ google_firestore_v1_Value EncodeServerTimestamp(
   if (previous_value) {
     ++field;
     field->key = nanopb::MakeBytesArray(kPreviousValueKey);
-    field->value = DeepClone(*previous_value);
+    field->value = *DeepClone(*previous_value).release();
   }
 
   return result;

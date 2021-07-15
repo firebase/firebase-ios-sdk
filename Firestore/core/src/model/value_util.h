@@ -22,6 +22,7 @@
 #include <vector>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
+#include "Firestore/core/src/nanopb/message.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
@@ -89,26 +90,27 @@ bool Contains(google_firestore_v1_ArrayValue haystack,
               google_firestore_v1_Value needle);
 
 /** Returns a null Protobuf value. */
-google_firestore_v1_Value NullValue();
+nanopb::Message<google_firestore_v1_Value> NullValue();
 
 /** Returns `true` if `value` is null in its Protobuf representation. */
 bool IsNullValue(const google_firestore_v1_Value& value);
 
 /** Returns `NaN` in its Protobuf representation. */
-google_firestore_v1_Value NaNValue();
+nanopb::Message<google_firestore_v1_Value> NaNValue();
 
 /** Returns `true` if `value` is `NaN` in its Protobuf representation. */
 bool IsNaNValue(const google_firestore_v1_Value& value);
 
 /** Returns a Protobuf reference value representing the given location. */
-google_firestore_v1_Value RefValue(const DatabaseId& database_id,
-                                   const DocumentKey& document_key);
+nanopb::Message<google_firestore_v1_Value> RefValue(
+    const DatabaseId& database_id, const DocumentKey& document_key);
 
 /** Creates a copy of the contents of the Value proto. */
-google_firestore_v1_Value DeepClone(const google_firestore_v1_Value& source);
+nanopb::Message<google_firestore_v1_Value> DeepClone(
+    const google_firestore_v1_Value& source);
 
 /** Creates a copy of the contents of the ArrayValue proto. */
-google_firestore_v1_ArrayValue DeepClone(
+nanopb::Message<google_firestore_v1_ArrayValue> DeepClone(
     const google_firestore_v1_ArrayValue& source);
 
 /** Returns true if `value` is a INTEGER_VALUE. */

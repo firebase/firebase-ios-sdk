@@ -80,6 +80,7 @@ using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::ServerTimestampTransform;
 using firebase::firestore::model::TransformOperation;
 using firebase::firestore::nanopb::CheckedSize;
+using firebase::firestore::nanopb::Message;
 using firebase::firestore::remote::Serializer;
 using firebase::firestore::util::ThrowInvalidArgument;
 using firebase::firestore::util::ReadContext;
@@ -148,11 +149,10 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   ParseAccumulator accumulator{UserDataSource::Set};
-  absl::optional<google_firestore_v1_Value> updateData = [self parseData:input
-                                                                 context:accumulator.RootContext()];
+  auto updateData = [self parseData:input context:accumulator.RootContext()];
   HARD_ASSERT(updateData.has_value(), "Parsed data should not be nil.");
 
-  return std::move(accumulator).SetData(ObjectValue{*updateData});
+  return std::move(accumulator).SetData(ObjectValue{std::move(*updateData)});
 }
 
 - (ParsedSetData)parsedMergeData:(id)input fieldMask:(nullable NSArray<id> *)fieldMask {
@@ -164,11 +164,10 @@ NS_ASSUME_NONNULL_BEGIN
 
   ParseAccumulator accumulator{UserDataSource::MergeSet};
 
-  absl::optional<google_firestore_v1_Value> updateData = [self parseData:input
-                                                                 context:accumulator.RootContext()];
+  auto updateData = [self parseData:input context:accumulator.RootContext()];
   HARD_ASSERT(updateData.has_value(), "Parsed data should not be nil.");
 
-  ObjectValue updateObject{*updateData};
+  ObjectValue updateObject{std::move(*updateData)};
 
   if (fieldMask) {
     std::set<FieldPath> validatedFieldPaths;
@@ -230,11 +229,10 @@ NS_ASSUME_NONNULL_BEGIN
       // Add it to the field mask, but don't add anything to updateData.
       context.AddToFieldMask(std::move(path));
     } else {
-      absl::optional<google_firestore_v1_Value> parsedValue =
-          [self parseData:value context:context.ChildContext(path)];
+      auto parsedValue = [self parseData:value context:context.ChildContext(path)];
       if (parsedValue) {
         context.AddToFieldMask(path);
-        updateData.Set(path, *parsedValue);
+        updateData.Set(path, std::move(*parsedValue));
       }
     }
   }];
@@ -242,20 +240,19 @@ NS_ASSUME_NONNULL_BEGIN
   return std::move(accumulator).UpdateData(std::move(updateData));
 }
 
-- (google_firestore_v1_Value)parsedQueryValue:(id)input {
+- (Message<google_firestore_v1_Value>)parsedQueryValue:(id)input {
   return [self parsedQueryValue:input allowArrays:false];
 }
 
-- (google_firestore_v1_Value)parsedQueryValue:(id)input allowArrays:(bool)allowArrays {
+- (Message<google_firestore_v1_Value>)parsedQueryValue:(id)input allowArrays:(bool)allowArrays {
   ParseAccumulator accumulator{allowArrays ? UserDataSource::ArrayArgument
                                            : UserDataSource::Argument};
 
-  absl::optional<google_firestore_v1_Value> parsed = [self parseData:input
-                                                             context:accumulator.RootContext()];
+  auto parsed = [self parseData:input context:accumulator.RootContext()];
   HARD_ASSERT(parsed, "Parsed data should not be nil.");
   HARD_ASSERT(accumulator.field_transforms().empty(),
               "Field transforms should have been disallowed.");
-  return *parsed;
+  return std::move(*parsed);
 }
 
 /**
@@ -268,7 +265,8 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The parsed value, or nil if the value was a FieldValue sentinel that should not be
  *   included in the resulting parsed data.
  */
-- (absl::optional<google_firestore_v1_Value>)parseData:(id)input context:(ParseContext &&)context {
+- (absl::optional<Message<google_firestore_v1_Value>>)parseData:(id)input
+                                                        context:(ParseContext &&)context {
   input = self.preConverter(input);
   if ([input isKindOfClass:[NSDictionary class]]) {
     return [self parseDictionary:(NSDictionary *)input context:std::move(context)];
@@ -303,10 +301,12 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (google_firestore_v1_Value)parseDictionary:(NSDictionary<NSString *, id> *)dict
-                                     context:(ParseContext &&)context {
-  __block google_firestore_v1_Value result{};
-  result.which_value_type = google_firestore_v1_Value_map_value_tag;
+- (Message<google_firestore_v1_Value>)parseDictionary:(NSDictionary<NSString *, id> *)dict
+                                              context:(ParseContext &&)context {
+  __block Message<google_firestore_v1_Value> result;
+  result->which_value_type = google_firestore_v1_Value_map_value_tag;
+  result->map_value.fields_count = 0;
+  result->map_value.fields = nil;
 
   if (dict.count == 0) {
     const FieldPath *path = context.path();
@@ -323,42 +323,41 @@ NS_ASSUME_NONNULL_BEGIN
       }
     }];
 
-    result.map_value.fields_count = count;
-    result.map_value.fields = nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(count);
+    result->map_value.fields_count = count;
+    result->map_value.fields = nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(count);
 
     __block pb_size_t index = 0;
     [dict enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *) {
-      absl::optional<google_firestore_v1_Value> parsedValue =
-          [self parseData:value context:context.ChildContext(util::MakeString(key))];
+      auto parsedValue = [self parseData:value context:context.ChildContext(util::MakeString(key))];
       if (parsedValue) {
-        result.map_value.fields[index].key = nanopb::MakeBytesArray(util::MakeString(key));
-        result.map_value.fields[index].value = *parsedValue;
+        result->map_value.fields[index].key = nanopb::MakeBytesArray(util::MakeString(key));
+        result->map_value.fields[index].value = *parsedValue->release();
         ++index;
       }
     }];
   }
 
-  return result;
+  return std::move(result);
 }
 
-- (google_firestore_v1_Value)parseArray:(NSArray<id> *)array context:(ParseContext &&)context {
-  __block google_firestore_v1_Value result{};
-  result.which_value_type = google_firestore_v1_Value_array_value_tag;
-  result.array_value.values_count = CheckedSize([array count]);
-  result.array_value.values =
-      nanopb::MakeArray<google_firestore_v1_Value>(result.array_value.values_count);
+- (Message<google_firestore_v1_Value>)parseArray:(NSArray<id> *)array
+                                         context:(ParseContext &&)context {
+  __block Message<google_firestore_v1_Value> result;
+  result->which_value_type = google_firestore_v1_Value_array_value_tag;
+  result->array_value.values_count = CheckedSize([array count]);
+  result->array_value.values =
+      nanopb::MakeArray<google_firestore_v1_Value>(result->array_value.values_count);
 
   [array enumerateObjectsUsingBlock:^(id entry, NSUInteger idx, BOOL *) {
-    absl::optional<google_firestore_v1_Value> parsedEntry =
-        [self parseData:entry context:context.ChildContext(idx)];
+    auto parsedEntry = [self parseData:entry context:context.ChildContext(idx)];
     if (!parsedEntry) {
       // Just include nulls in the array for fields being replaced with a sentinel.
       parsedEntry = NullValue();
     }
-    result.array_value.values[idx] = *parsedEntry;
+    result->array_value.values[idx] = *parsedEntry->release();
   }];
 
-  return result;
+  return std::move(result);
 }
 
 /**
@@ -398,21 +397,21 @@ NS_ASSUME_NONNULL_BEGIN
     context.AddToFieldTransforms(*context.path(), ServerTimestampTransform());
 
   } else if ([fieldValue isKindOfClass:[FSTArrayUnionFieldValue class]]) {
-    google_firestore_v1_ArrayValue parsedElements =
+    auto parsedElements =
         [self parseArrayTransformElements:((FSTArrayUnionFieldValue *)fieldValue).elements];
-    ArrayTransform arrayUnion(TransformOperation::Type::ArrayUnion, parsedElements);
+    ArrayTransform arrayUnion(TransformOperation::Type::ArrayUnion, std::move(parsedElements));
     context.AddToFieldTransforms(*context.path(), std::move(arrayUnion));
 
   } else if ([fieldValue isKindOfClass:[FSTArrayRemoveFieldValue class]]) {
-    google_firestore_v1_ArrayValue parsedElements =
+    auto parsedElements =
         [self parseArrayTransformElements:((FSTArrayRemoveFieldValue *)fieldValue).elements];
-    ArrayTransform arrayRemove(TransformOperation::Type::ArrayRemove, parsedElements);
+    ArrayTransform arrayRemove(TransformOperation::Type::ArrayRemove, std::move(parsedElements));
     context.AddToFieldTransforms(*context.path(), std::move(arrayRemove));
 
   } else if ([fieldValue isKindOfClass:[FSTNumericIncrementFieldValue class]]) {
     auto *numericIncrementFieldValue = (FSTNumericIncrementFieldValue *)fieldValue;
-    google_firestore_v1_Value operand = [self parsedQueryValue:numericIncrementFieldValue.operand];
-    NumericIncrementTransform numeric_increment(operand);
+    auto operand = [self parsedQueryValue:numericIncrementFieldValue.operand];
+    NumericIncrementTransform numeric_increment(std::move(operand));
 
     context.AddToFieldTransforms(*context.path(), std::move(numeric_increment));
 
@@ -431,7 +430,8 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @return The parsed value.
  */
-- (google_firestore_v1_Value)parseScalarValue:(nullable id)input context:(ParseContext &&)context {
+- (Message<google_firestore_v1_Value>)parseScalarValue:(nullable id)input
+                                               context:(ParseContext &&)context {
   if (!input || [input isMemberOfClass:[NSNull class]]) {
     return NullValue();
 
@@ -535,79 +535,79 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (google_firestore_v1_Value)encodeBoolean:(bool)value {
-  google_firestore_v1_Value result{};
-  result.which_value_type = google_firestore_v1_Value_boolean_value_tag;
-  result.boolean_value = value;
+- (Message<google_firestore_v1_Value>)encodeBoolean:(bool)value {
+  Message<google_firestore_v1_Value> result;
+  result->which_value_type = google_firestore_v1_Value_boolean_value_tag;
+  result->boolean_value = value;
   return result;
 }
 
-- (google_firestore_v1_Value)encodeInteger:(int64_t)value {
-  google_firestore_v1_Value result{};
-  result.which_value_type = google_firestore_v1_Value_integer_value_tag;
-  result.integer_value = value;
+- (Message<google_firestore_v1_Value>)encodeInteger:(int64_t)value {
+  Message<google_firestore_v1_Value> result;
+  result->which_value_type = google_firestore_v1_Value_integer_value_tag;
+  result->integer_value = value;
   return result;
 }
 
-- (google_firestore_v1_Value)encodeDouble:(double)value {
-  google_firestore_v1_Value result{};
-  result.which_value_type = google_firestore_v1_Value_double_value_tag;
-  result.double_value = value;
+- (Message<google_firestore_v1_Value>)encodeDouble:(double)value {
+  Message<google_firestore_v1_Value> result;
+  result->which_value_type = google_firestore_v1_Value_double_value_tag;
+  result->double_value = value;
   return result;
 }
 
-- (google_firestore_v1_Value)encodeTimestampValue:(Timestamp)value {
-  google_firestore_v1_Value result{};
-  result.which_value_type = google_firestore_v1_Value_timestamp_value_tag;
-  result.timestamp_value.seconds = value.seconds();
-  result.timestamp_value.nanos = value.nanoseconds();
+- (Message<google_firestore_v1_Value>)encodeTimestampValue:(Timestamp)value {
+  Message<google_firestore_v1_Value> result;
+  result->which_value_type = google_firestore_v1_Value_timestamp_value_tag;
+  result->timestamp_value.seconds = value.seconds();
+  result->timestamp_value.nanos = value.nanoseconds();
   return result;
 }
 
-- (google_firestore_v1_Value)encodeStringValue:(const std::string &)value {
-  google_firestore_v1_Value result{};
-  result.which_value_type = google_firestore_v1_Value_string_value_tag;
-  result.string_value = nanopb::MakeBytesArray(value);
+- (Message<google_firestore_v1_Value>)encodeStringValue:(const std::string &)value {
+  Message<google_firestore_v1_Value> result;
+  result->which_value_type = google_firestore_v1_Value_string_value_tag;
+  result->string_value = nanopb::MakeBytesArray(value);
   return result;
 }
 
-- (google_firestore_v1_Value)encodeBlob:(const nanopb::ByteString &)value {
-  google_firestore_v1_Value result{};
-  result.which_value_type = google_firestore_v1_Value_bytes_value_tag;
+- (Message<google_firestore_v1_Value>)encodeBlob:(const nanopb::ByteString &)value {
+  Message<google_firestore_v1_Value> result;
+  result->which_value_type = google_firestore_v1_Value_bytes_value_tag;
   // Copy the blob so that pb_release can do the right thing.
-  result.bytes_value = nanopb::CopyBytesArray(value.get());
+  result->bytes_value = nanopb::CopyBytesArray(value.get());
   return result;
 }
 
-- (google_firestore_v1_Value)encodeReference:(const DatabaseId &)databaseId
-                                         key:(const DocumentKey &)key {
+- (Message<google_firestore_v1_Value>)encodeReference:(const DatabaseId &)databaseId
+                                                  key:(const DocumentKey &)key {
   HARD_ASSERT(_databaseID == databaseId, "Database %s cannot encode reference from %s",
               _databaseID.ToString(), databaseId.ToString());
-
-  google_firestore_v1_Value result{};
-  result.which_value_type = google_firestore_v1_Value_reference_value_tag;
 
   std::string referenceName = ResourcePath({"projects", databaseId.project_id(), "databases",
                                             databaseId.database_id(), "documents", key.ToString()})
                                   .CanonicalString();
-  result.reference_value = nanopb::MakeBytesArray(referenceName);
+
+  Message<google_firestore_v1_Value> result;
+  result->which_value_type = google_firestore_v1_Value_reference_value_tag;
+  result->reference_value = nanopb::MakeBytesArray(referenceName);
   return result;
 }
 
-- (google_firestore_v1_Value)encodeGeoPoint:(const GeoPoint &)value {
-  google_firestore_v1_Value result{};
-  result.which_value_type = google_firestore_v1_Value_geo_point_value_tag;
-  result.geo_point_value.latitude = value.latitude();
-  result.geo_point_value.longitude = value.longitude();
+- (Message<google_firestore_v1_Value>)encodeGeoPoint:(const GeoPoint &)value {
+  Message<google_firestore_v1_Value> result;
+  result->which_value_type = google_firestore_v1_Value_geo_point_value_tag;
+  result->geo_point_value.latitude = value.latitude();
+  result->geo_point_value.longitude = value.longitude();
   return result;
 }
 
-- (google_firestore_v1_ArrayValue)parseArrayTransformElements:(NSArray<id> *)elements {
+- (Message<google_firestore_v1_ArrayValue>)parseArrayTransformElements:(NSArray<id> *)elements {
   ParseAccumulator accumulator{UserDataSource::Argument};
 
-  google_firestore_v1_ArrayValue array_value{};
-  array_value.values_count = CheckedSize(elements.count);
-  array_value.values = nanopb::MakeArray<google_firestore_v1_Value>(array_value.values_count);
+  Message<google_firestore_v1_ArrayValue> array_value;
+  array_value->values_count = CheckedSize(elements.count);
+  array_value->values = nanopb::MakeArray<google_firestore_v1_Value>(array_value->values_count);
 
   for (NSUInteger i = 0; i < elements.count; i++) {
     id element = elements[i];
@@ -615,11 +615,10 @@ NS_ASSUME_NONNULL_BEGIN
     // are not considered writes since they cannot contain any FieldValue sentinels, etc.
     ParseContext context = accumulator.RootContext();
 
-    absl::optional<google_firestore_v1_Value> parsedElement =
-        [self parseData:element context:context.ChildContext(i)];
+    auto parsedElement = [self parseData:element context:context.ChildContext(i)];
     HARD_ASSERT(parsedElement && accumulator.field_transforms().empty(),
                 "Failed to properly parse array transform element: %s", element);
-    array_value.values[i] = *parsedElement;
+    array_value->values[i] = *parsedElement->release();
   }
   return array_value;
 }

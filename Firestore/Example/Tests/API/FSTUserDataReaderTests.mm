@@ -29,6 +29,7 @@
 #include "Firestore/core/src/model/patch_mutation.h"
 #include "Firestore/core/src/model/set_mutation.h"
 #include "Firestore/core/src/model/transform_operation.h"
+#include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 
@@ -55,6 +56,7 @@ using firebase::firestore::model::SetMutation;
 using firebase::firestore::model::TransformOperation;
 using firebase::firestore::model::TypeOrder;
 using firebase::firestore::nanopb::MakeNSData;
+using firebase::firestore::nanopb::Message;
 using firebase::firestore::testutil::Array;
 using firebase::firestore::testutil::Field;
 using firebase::firestore::testutil::Map;
@@ -72,9 +74,9 @@ using firebase::firestore::testutil::WrapObject;
     @(LONG_MIN), @(LONG_MAX), @(LLONG_MIN), @(LLONG_MAX)      // Larger values
   ];
   for (NSNumber *value in values) {
-    google_firestore_v1_Value wrapped = FSTTestFieldValue(value);
-    XCTAssertTrue(IsNumber(wrapped));
-    XCTAssertEqual(wrapped.integer_value, [value longLongValue]);
+    Message<google_firestore_v1_Value> wrapped = FSTTestFieldValue(value);
+    XCTAssertTrue(IsNumber(*wrapped));
+    XCTAssertEqual(wrapped->integer_value, [value longLongValue]);
   }
 }
 
@@ -86,25 +88,25 @@ using firebase::firestore::testutil::WrapObject;
     @(0x1.0p-1074), @(DBL_MIN), @(1.1), @(LLONG_MAX * 1.0), @(DBL_MAX), @(INFINITY)
   ];
   for (NSNumber *value in values) {
-    google_firestore_v1_Value wrapped = FSTTestFieldValue(value);
-    XCTAssertTrue(IsNumber(wrapped));
-    XCTAssertEqual(wrapped.double_value, [value doubleValue]);
+    Message<google_firestore_v1_Value> wrapped = FSTTestFieldValue(value);
+    XCTAssertTrue(IsNumber(*wrapped));
+    XCTAssertEqual(wrapped->double_value, [value doubleValue]);
   }
 }
 
 - (void)testConvertsNilAndNSNull {
-  google_firestore_v1_Value nullValue = Value(nullptr);
-  XCTAssertTrue(IsNullValue(nullValue));
-  XCTAssertEqual(FSTTestFieldValue(nil), nullValue);
-  XCTAssertEqual(FSTTestFieldValue([NSNull null]), nullValue);
+  Message<google_firestore_v1_Value> nullValue = Value(nullptr);
+  XCTAssertTrue(IsNullValue(*nullValue));
+  XCTAssertEqual(*FSTTestFieldValue(nil), *nullValue);
+  XCTAssertEqual(*FSTTestFieldValue([NSNull null]), *nullValue);
 }
 
 - (void)testConvertsBooleans {
   NSArray<NSNumber *> *values = @[ @YES, @NO ];
   for (NSNumber *value in values) {
-    google_firestore_v1_Value wrapped = FSTTestFieldValue(value);
-    XCTAssertEqual(GetTypeOrder(wrapped), TypeOrder::kBoolean);
-    XCTAssertEqual(wrapped.boolean_value, [value boolValue]);
+    Message<google_firestore_v1_Value> wrapped = FSTTestFieldValue(value);
+    XCTAssertEqual(GetTypeOrder(*wrapped), TypeOrder::kBoolean);
+    XCTAssertEqual(wrapped->boolean_value, [value boolValue]);
   }
 }
 
@@ -114,8 +116,9 @@ using firebase::firestore::testutil::WrapObject;
   // with signed chars but on arm64 these end up being stored as signed shorts. This forces us to
   // choose, and it's more useful to support shorts as Integers than it is to treat unsigned char as
   // Boolean.
-  google_firestore_v1_Value wrapped = FSTTestFieldValue([NSNumber numberWithUnsignedChar:1]);
-  XCTAssertEqual(wrapped, Value(1));
+  Message<google_firestore_v1_Value> wrapped =
+      FSTTestFieldValue([NSNumber numberWithUnsignedChar:1]);
+  XCTAssertEqual(*wrapped, *Value(1));
 }
 
 union DoubleBits {
@@ -126,9 +129,9 @@ union DoubleBits {
 - (void)testConvertsStrings {
   NSArray<NSString *> *values = @[ @"", @"abc" ];
   for (id value in values) {
-    google_firestore_v1_Value wrapped = FSTTestFieldValue(value);
-    XCTAssertEqual(GetTypeOrder(wrapped), TypeOrder::kString);
-    XCTAssertEqual(nanopb::MakeString(wrapped.string_value), util::MakeString(value));
+    Message<google_firestore_v1_Value> wrapped = FSTTestFieldValue(value);
+    XCTAssertEqual(GetTypeOrder(*wrapped), TypeOrder::kString);
+    XCTAssertEqual(nanopb::MakeString(wrapped->string_value), util::MakeString(value));
   }
 }
 
@@ -136,11 +139,11 @@ union DoubleBits {
   NSArray<NSDate *> *values =
       @[ FSTTestDate(1900, 12, 1, 1, 20, 30), FSTTestDate(2017, 4, 24, 13, 20, 30) ];
   for (NSDate *value in values) {
-    google_firestore_v1_Value wrapped = FSTTestFieldValue(value);
-    XCTAssertEqual(GetTypeOrder(wrapped), TypeOrder::kTimestamp);
+    Message<google_firestore_v1_Value> wrapped = FSTTestFieldValue(value);
+    XCTAssertEqual(GetTypeOrder(*wrapped), TypeOrder::kTimestamp);
     Timestamp timestamp = MakeTimestamp(value);
-    XCTAssertEqual(wrapped.timestamp_value.nanos, timestamp.nanoseconds());
-    XCTAssertEqual(wrapped.timestamp_value.seconds, timestamp.seconds());
+    XCTAssertEqual(wrapped->timestamp_value.nanos, timestamp.nanoseconds());
+    XCTAssertEqual(wrapped->timestamp_value.seconds, timestamp.seconds());
   }
 }
 
@@ -148,20 +151,20 @@ union DoubleBits {
   NSArray<FIRGeoPoint *> *values = @[ FSTTestGeoPoint(1.24, 4.56), FSTTestGeoPoint(-20, 100) ];
 
   for (FIRGeoPoint *value in values) {
-    google_firestore_v1_Value wrapped = FSTTestFieldValue(value);
-    XCTAssertEqual(GetTypeOrder(wrapped), TypeOrder::kGeoPoint);
+    Message<google_firestore_v1_Value> wrapped = FSTTestFieldValue(value);
+    XCTAssertEqual(GetTypeOrder(*wrapped), TypeOrder::kGeoPoint);
     GeoPoint geo_point = MakeGeoPoint(value);
-    XCTAssertEqual(wrapped.geo_point_value.longitude, geo_point.longitude());
-    XCTAssertEqual(wrapped.geo_point_value.latitude, geo_point.latitude());
+    XCTAssertEqual(wrapped->geo_point_value.longitude, geo_point.longitude());
+    XCTAssertEqual(wrapped->geo_point_value.latitude, geo_point.latitude());
   }
 }
 
 - (void)testConvertsBlobs {
   NSArray<NSData *> *values = @[ FSTTestData(1, 2, 3, -1), FSTTestData(1, 2, -1) ];
   for (NSData *value in values) {
-    google_firestore_v1_Value wrapped = FSTTestFieldValue(value);
-    XCTAssertEqual(GetTypeOrder(wrapped), TypeOrder::kBlob);
-    XCTAssertEqualObjects(MakeNSData(wrapped.bytes_value), value);
+    Message<google_firestore_v1_Value> wrapped = FSTTestFieldValue(value);
+    XCTAssertEqual(GetTypeOrder(*wrapped), TypeOrder::kBlob);
+    XCTAssertEqualObjects(MakeNSData(wrapped->bytes_value), value);
   }
 }
 
@@ -171,15 +174,16 @@ union DoubleBits {
     FSTTestRef("project", DatabaseId::kDefault, @"foo/baz")
   ];
   for (FSTDocumentKeyReference *value in values) {
-    google_firestore_v1_Value wrapped = FSTTestFieldValue(value);
-    XCTAssertEqual(GetTypeOrder(wrapped), TypeOrder::kReference);
-    XCTAssertEqual(wrapped, RefValue(value.databaseID, value.key));
+    Message<google_firestore_v1_Value> wrapped = FSTTestFieldValue(value);
+    XCTAssertEqual(GetTypeOrder(*wrapped), TypeOrder::kReference);
+    Message<google_firestore_v1_Value> expected = RefValue(value.databaseID, value.key);
+    XCTAssertEqual(*wrapped, *expected);
   }
 }
 
 - (void)testConvertsEmptyObjects {
   XCTAssertTrue(ObjectValue(FSTTestFieldValue(@{})) == ObjectValue{});
-  XCTAssertEqual(GetTypeOrder(FSTTestFieldValue(@{})), TypeOrder::kMap);
+  XCTAssertEqual(GetTypeOrder(*FSTTestFieldValue(@{})), TypeOrder::kMap);
 }
 
 - (void)testConvertsSimpleObjects {
@@ -196,11 +200,11 @@ union DoubleBits {
 }
 
 - (void)testConvertsArrays {
-  google_firestore_v1_Value expected = Value(Array("value", true));
+  Message<google_firestore_v1_Value> expected = Value(Array("value", true));
 
-  google_firestore_v1_Value actual = FSTTestFieldValue(@[ @"value", @YES ]);
-  XCTAssertEqual(actual, expected);
-  XCTAssertTrue(IsArray(actual));
+  Message<google_firestore_v1_Value> actual = FSTTestFieldValue(@[ @"value", @YES ]);
+  XCTAssertEqual(*actual, *expected);
+  XCTAssertTrue(IsArray(*actual));
 }
 
 - (void)testNSDatesAreConvertedToTimestamps {
@@ -247,8 +251,8 @@ union DoubleBits {
   const FieldTransform &setFirst = setMutation.field_transforms()[0];
   XCTAssertEqual(setFirst.path(), FieldPath({"foo"}));
   {
-    google_firestore_v1_ArrayValue expectedElements = Array(FSTTestFieldValue(@"tag"));
-    ArrayTransform expected(TransformOperation::Type::ArrayUnion, expectedElements);
+    Message<google_firestore_v1_ArrayValue> expectedElements = Array(FSTTestFieldValue(@"tag"));
+    ArrayTransform expected(TransformOperation::Type::ArrayUnion, std::move(expectedElements));
     XCTAssertEqual(static_cast<const ArrayTransform &>(patchFirst.transformation()), expected);
     XCTAssertEqual(static_cast<const ArrayTransform &>(setFirst.transformation()), expected);
   }
@@ -258,10 +262,10 @@ union DoubleBits {
   const FieldTransform &setSecond = setMutation.field_transforms()[1];
   XCTAssertEqual(setSecond.path(), FieldPath({"bar"}));
   {
-    google_firestore_v1_ArrayValue expectedElements =
+    Message<google_firestore_v1_ArrayValue> expectedElements =
         Array(FSTTestFieldValue(@YES), FSTTestFieldValue(
                                            @{@"nested" : @{@"a" : @[ @1, @2 ]}}));
-    ArrayTransform expected(TransformOperation::Type::ArrayUnion, expectedElements);
+    ArrayTransform expected(TransformOperation::Type::ArrayUnion, std::move(expectedElements));
     XCTAssertEqual(static_cast<const ArrayTransform &>(patchSecond.transformation()), expected);
     XCTAssertEqual(static_cast<const ArrayTransform &>(setSecond.transformation()), expected);
   }
@@ -284,8 +288,9 @@ union DoubleBits {
   const FieldTransform &setFirst = setMutation.field_transforms()[0];
   XCTAssertEqual(setFirst.path(), FieldPath({"foo"}));
   {
-    google_firestore_v1_ArrayValue expectedElements = Array(FSTTestFieldValue(@"tag"));
-    const ArrayTransform expected(TransformOperation::Type::ArrayRemove, expectedElements);
+    Message<google_firestore_v1_ArrayValue> expectedElements = Array(FSTTestFieldValue(@"tag"));
+    const ArrayTransform expected(TransformOperation::Type::ArrayRemove,
+                                  std::move(expectedElements));
     XCTAssertEqual(static_cast<const ArrayTransform &>(patchFirst.transformation()), expected);
     XCTAssertEqual(static_cast<const ArrayTransform &>(setFirst.transformation()), expected);
   }

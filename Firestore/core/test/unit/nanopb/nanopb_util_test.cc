@@ -15,6 +15,7 @@
 
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
+#include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 
 #include "gmock/gmock.h"
@@ -30,7 +31,8 @@ using testutil::Value;
 
 TEST(NanopbUtilTest, SetsRepeatedField) {
   Message<google_firestore_v1_ArrayValue> m;
-  std::vector<google_firestore_v1_Value> values{Value(1), Value(2), Value(3)};
+  std::vector<google_firestore_v1_Value> values{
+      *Value(1).release(), *Value(2).release(), *Value(3).release()};
   SetRepeatedField(&m->values, &m->values_count, values);
   EXPECT_EQ(values, std::vector<google_firestore_v1_Value>(
                         m->values, m->values + m->values_count));
@@ -40,10 +42,11 @@ TEST(NanopbUtilTest, SetsRepeatedFieldWithConverter) {
   Message<google_firestore_v1_ArrayValue> m;
   std::vector<int> values{1, 2, 3};
   SetRepeatedField(&m->values, &m->values_count, values,
-                   [](const int& v) { return Value(v); });
+                   [](const int& v) { return *Value(v).release(); });
   EXPECT_THAT(std::vector<google_firestore_v1_Value>(
                   m->values, m->values + m->values_count),
-              ElementsAre(Value(1), Value(2), Value(3)));
+              ElementsAre(*Value(1).release(), *Value(2).release(),
+                          *Value(3).release()));
 }
 
 }  //  namespace

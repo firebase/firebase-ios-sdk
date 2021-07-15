@@ -18,8 +18,10 @@
 #define FIRESTORE_CORE_SRC_MODEL_MODEL_FWD_H_
 
 #include <cstdint>
+#include <map>
 #include <unordered_map>
 
+#include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
@@ -46,6 +48,13 @@ template <typename K, typename C>
 class SortedSet;
 
 }  // namespace immutable
+
+namespace nanopb {
+
+template <typename T>
+class Message;
+
+}  // namespace nanopb
 
 namespace model {
 
@@ -94,6 +103,13 @@ using DocumentVersionMap =
 
 using DocumentUpdateMap =
     std::unordered_map<DocumentKey, MutableDocument, DocumentKeyHash>;
+
+// A map of FieldPaths to transforms. Sorted so it can be used in
+// ObjectValue::SetAll, which makes it more efficient as it processes field
+// maps one layer at a time.
+using TransformMap =
+    std::map<FieldPath,
+             absl::optional<nanopb::Message<google_firestore_v1_Value>>>;
 
 }  // namespace model
 }  // namespace firestore
