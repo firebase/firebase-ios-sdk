@@ -61,6 +61,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
     unit_tests.scheme = { :code_coverage => true }
     unit_tests.source_files = [
       'FirebaseDatabase/Tests/Unit/*.[mh]',
+      'FirebaseDatabase/Tests/Unit/Swift/*',
       'FirebaseDatabase/Tests/Helpers/*.[mh]',
       'FirebaseDatabase/Tests/third_party/*.[mh]',
       'SharedTestUtilities/AppCheckFake/*.[mh]',
