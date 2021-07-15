@@ -22,7 +22,9 @@
 #import "FirebaseInAppMessaging/Sources/Public/FirebaseInAppMessaging/FIRInAppMessagingRendering.h"
 #import "FirebaseInAppMessaging/Sources/RenderingObjects/FIRInAppMessagingRenderingPrivate.h"
 
-NSString *const kTestMessageID = @"test_message_id";
+@class ABTExperimentPayload;
+
+NSString *const FIRIAMTestMessageID = @"test_message_id";
 
 @implementation FIRInAppMessagingDisplayMessage
 
@@ -68,7 +70,7 @@ NSString *const kTestMessageID = @"test_message_id";
 
 - (instancetype)initWithMessageID:(NSString *)messageID
                      campaignName:(NSString *)campaignName
-                experimentPayload:(ABTExperimentPayload *)experimentPayload
+                experimentPayload:(nullable ABTExperimentPayload *)experimentPayload
               renderAsTestMessage:(BOOL)renderAsTestMessage
                       triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
                         titleText:(NSString *)title
@@ -118,7 +120,7 @@ NSString *const kTestMessageID = @"test_message_id";
                     primaryActionURL:(NSURL *)primaryActionURL
                   secondaryActionURL:(NSURL *)secondaryActionURL
                              appData:(NSDictionary *)appData {
-  return [self initWithMessageID:kTestMessageID
+  return [self initWithMessageID:FIRIAMTestMessageID
                     campaignName:campaignName
                experimentPayload:nil
              renderAsTestMessage:YES
@@ -146,7 +148,7 @@ NSString *const kTestMessageID = @"test_message_id";
               renderAsTestMessage:(BOOL)renderAsTestMessage
                       triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
                         titleText:(NSString *)title
-                         bodyText:(NSString *)bodyText
+                         bodyText:(nullable NSString *)bodyText
                         textColor:(UIColor *)textColor
                   backgroundColor:(UIColor *)backgroundColor
                         imageData:(nullable FIRInAppMessagingImageData *)imageData
@@ -180,7 +182,7 @@ NSString *const kTestMessageID = @"test_message_id";
                         actionButton:(FIRInAppMessagingActionButton *)actionButton
                            actionURL:(NSURL *)actionURL
                              appData:(NSDictionary *)appData {
-  return [self initWithMessageID:kTestMessageID
+  return [self initWithMessageID:FIRIAMTestMessageID
                     campaignName:campaignName
                experimentPayload:nil
              renderAsTestMessage:YES
@@ -204,7 +206,7 @@ NSString *const kTestMessageID = @"test_message_id";
               renderAsTestMessage:(BOOL)renderAsTestMessage
                       triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
                         titleText:(NSString *)title
-                         bodyText:(NSString *)bodyText
+                         bodyText:(nullable NSString *)bodyText
                         textColor:(UIColor *)textColor
                   backgroundColor:(UIColor *)backgroundColor
                         imageData:(nullable FIRInAppMessagingImageData *)imageData
@@ -235,7 +237,7 @@ NSString *const kTestMessageID = @"test_message_id";
                            imageData:(FIRInAppMessagingImageData *)imageData
                            actionURL:(NSURL *)actionURL
                              appData:(NSDictionary *)appData {
-  return [self initWithMessageID:kTestMessageID
+  return [self initWithMessageID:FIRIAMTestMessageID
                     campaignName:campaignName
                experimentPayload:nil
              renderAsTestMessage:YES
@@ -278,7 +280,7 @@ NSString *const kTestMessageID = @"test_message_id";
                            imageData:(FIRInAppMessagingImageData *)imageData
                            actionURL:(NSURL *)actionURL
                              appData:(NSDictionary *)appData {
-  return [self initWithMessageID:kTestMessageID
+  return [self initWithMessageID:FIRIAMTestMessageID
                     campaignName:campaignName
                experimentPayload:nil
              renderAsTestMessage:YES

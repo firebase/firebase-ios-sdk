@@ -20,8 +20,8 @@ public struct InAppMessagingPreviewHelpers {
                                  body: String? = "Body for modal message",
                                  textColor: UIColor = UIColor.label,
                                  backgroundColor: UIColor = UIColor.systemBackground,
-                                 portraitImage: UIImage = UIImage(systemName: "message")!,
-                                 landscapeImage: UIImage? = UIImage(systemName: "message.fill"),
+                                 portraitImage: UIImage = UIImage(systemName: "rectangle")!,
+                                 landscapeImage: UIImage? = UIImage(systemName: "square"),
                                  primaryButtonText: String = "Click me!",
                                  primaryButtonTextColor: UIColor = UIColor.systemBlue,
                                  primaryButtonBackgroundColor: UIColor = UIColor
@@ -35,7 +35,7 @@ public struct InAppMessagingPreviewHelpers {
                                  appData: [String: String]? = nil) -> InAppMessagingCardDisplay {
     // This may crash the preview if an invalid portrait image is provided, card messages must have
     // a valid portrait image.
-    let portraitImageData = InAppMessagingImageData(imageURL: "http://fakeurl.com",
+    let portraitImageData = InAppMessagingImageData(imageURL: "https://firebase.google.com/",
                                                     imageData: portraitImage.pngData()!)
     var landscapeImageData: InAppMessagingImageData?
     if let landscapeData = landscapeImage?.pngData() {
@@ -78,7 +78,7 @@ public struct InAppMessagingPreviewHelpers {
                                   body: String? = "Body for modal message",
                                   textColor: UIColor = UIColor.black,
                                   backgroundColor: UIColor = UIColor.white,
-                                  image: UIImage? = UIImage(systemName: "message"),
+                                  image: UIImage? = UIImage(systemName: "rectangle"),
                                   buttonText: String? = "Click me!",
                                   buttonTextColor: UIColor? = UIColor.systemBlue,
                                   buttonBackgroundColor: UIColor? = UIColor
@@ -87,7 +87,7 @@ public struct InAppMessagingPreviewHelpers {
                                   appData: [String: String]? = nil) -> InAppMessagingModalDisplay {
     var imageData: InAppMessagingImageData?
     if let data = image?.pngData() {
-      imageData = InAppMessagingImageData(imageURL: "http://fakeurl.com", imageData: data)
+      imageData = InAppMessagingImageData(imageURL: "https://firebase.google.com/", imageData: data)
     }
 
     var actionButton: InAppMessagingActionButton?
@@ -116,13 +116,13 @@ public struct InAppMessagingPreviewHelpers {
                                    body: String? = "Body for banner message",
                                    textColor: UIColor = UIColor.black,
                                    backgroundColor: UIColor = UIColor.white,
-                                   image: UIImage? = UIImage(systemName: "message"),
+                                   image: UIImage? = UIImage(systemName: "square"),
                                    actionURL: URL? = nil,
                                    appData: [String: String]? = nil)
     -> InAppMessagingBannerDisplay {
     var imageData: InAppMessagingImageData?
     if let data = image?.pngData() {
-      imageData = InAppMessagingImageData(imageURL: "http://fakeurl.com", imageData: data)
+      imageData = InAppMessagingImageData(imageURL: "https://firebase.google.com/", imageData: data)
     }
     return InAppMessagingBannerDisplay(
       campaignName: campaignName,
@@ -143,7 +143,7 @@ public struct InAppMessagingPreviewHelpers {
     -> InAppMessagingImageOnlyDisplay {
     // This may crash the preview if an invalid image is provided, image-only messages must have a
     // valid portrait image.
-    let imageData = InAppMessagingImageData(imageURL: "http://fakeurl.com",
+    let imageData = InAppMessagingImageData(imageURL: "https://firebase.google.com/",
                                             imageData: image.pngData()!)
     return InAppMessagingImageOnlyDisplay(
       campaignName: campaignName,

@@ -19,8 +19,6 @@
 
 #import <UIKit/UIKit.h>
 
-@class ABTExperimentPayload;
-
 NS_ASSUME_NONNULL_BEGIN
 
 /// The type and UI style of an in-app message.
@@ -65,6 +63,9 @@ NS_SWIFT_NAME(InAppMessagingActionButton)
 
 /// Unavailable.
 - (instancetype)init NS_UNAVAILABLE;
+
+/// Exposed for unit testing only, or for use in SwiftUI previews. Don't instantiate this in your
+/// app directly.
 - (instancetype)initWithButtonText:(NSString *)buttonText
                    buttonTextColor:(UIColor *)textColor
                    backgroundColor:(UIColor *)backgroundColor;
@@ -88,6 +89,9 @@ NS_SWIFT_NAME(InAppMessagingImageData)
 
 /// Unavailable.
 - (instancetype)init NS_UNAVAILABLE;
+
+/// Exposed for unit testing only, or for use in SwiftUI previews. Don't instantiate this in your
+/// app directly.
 - (instancetype)initWithImageURL:(NSString *)imageURL imageData:(NSData *)imageData;
 
 @end
@@ -236,7 +240,8 @@ NS_SWIFT_NAME(InAppMessagingCardDisplay)
 /// Unavailable.
 - (instancetype)init NS_UNAVAILABLE;
 
-/// Exposed for unit testing only. Don't instantiate this in your app directly.
+/// Exposed for unit testing only, or for use in SwiftUI previews. Don't instantiate this in your
+/// app directly.
 - (instancetype)initWithCampaignName:(NSString *)campaignName
                            titleText:(NSString *)title
                             bodyText:(nullable NSString *)bodyText
@@ -295,7 +300,8 @@ NS_SWIFT_NAME(InAppMessagingModalDisplay)
 /// Unavailable.
 - (instancetype)init NS_UNAVAILABLE;
 
-/// Exposed for unit testing only. Don't instantiate this in your app directly.
+/// Exposed for unit testing only, or for use in SwiftUI previews. Don't instantiate this in your
+/// app directly.
 - (instancetype)initWithCampaignName:(NSString *)campaignName
                            titleText:(NSString *)title
                             bodyText:(nullable NSString *)bodyText
@@ -346,7 +352,8 @@ NS_SWIFT_NAME(InAppMessagingBannerDisplay)
 /// Unavailable.
 - (instancetype)init NS_UNAVAILABLE;
 
-/// Exposed for unit testing only. Don't instantiate this in your app directly.
+/// Exposed for unit testing only, or for use in SwiftUI previews. Don't instantiate this in your
+/// app directly.
 - (instancetype)initWithCampaignName:(NSString *)campaignName
                            titleText:(NSString *)title
                             bodyText:(nullable NSString *)bodyText
@@ -376,7 +383,8 @@ NS_SWIFT_NAME(InAppMessagingImageOnlyDisplay)
 /// Unavailable.
 - (instancetype)init NS_UNAVAILABLE;
 
-/// Exposed for unit testing only. Don't instantiate this in your app directly.
+/// Exposed for unit testing only, or for use in SwiftUI previews. Don't instantiate this in your
+/// app directly.
 - (instancetype)initWithCampaignName:(NSString *)campaignName
                            imageData:(FIRInAppMessagingImageData *)imageData
                            actionURL:(nullable NSURL *)actionURL

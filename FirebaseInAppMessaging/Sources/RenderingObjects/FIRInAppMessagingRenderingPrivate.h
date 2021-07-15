@@ -16,6 +16,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class ABTExperimentPayload;
+
 @interface FIRInAppMessagingCampaignInfo (Private)
 
 - (nullable ABTExperimentPayload *)experimentPayload;
