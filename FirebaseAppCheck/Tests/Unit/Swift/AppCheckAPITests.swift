@@ -160,7 +160,7 @@ final class AppCheckAPITests {
     // MARK: - DeviceCheckProvider
 
     // `DeviceCheckProvider` initializer
-    if #available(iOS 11.0, macOS 10.15, macCatalyst 11.0, tvOS 11.0, *) {
+    if #available(iOS 11.0, macOS 10.15, macCatalyst 13.0, tvOS 11.0, *) {
       if let app = FirebaseApp.app(), let deviceCheckProvider = DeviceCheckProvider(app: app) {
         // Get token
         deviceCheckProvider.getToken { token, error in
