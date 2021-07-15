@@ -89,7 +89,7 @@ using EnableForInts = typename std::enable_if<std::is_integral<T>::value &&
 template <typename T>
 EnableForExactlyBool<T, nanopb::Message<google_firestore_v1_Value>> Value(
     T bool_value) {
-  nanopb::Message<google_firestore_v1_Value> result{};
+  nanopb::Message<google_firestore_v1_Value> result;
   result->which_value_type = google_firestore_v1_Value_boolean_value_tag;
   result->boolean_value = bool_value;
   return result;
@@ -108,7 +108,7 @@ EnableForExactlyBool<T, nanopb::Message<google_firestore_v1_Value>> Value(
  */
 template <typename T>
 EnableForInts<T, nanopb::Message<google_firestore_v1_Value>> Value(T value) {
-  nanopb::Message<google_firestore_v1_Value> result{};
+  nanopb::Message<google_firestore_v1_Value> result;
   result->which_value_type = google_firestore_v1_Value_integer_value_tag;
   result->integer_value = value;
   return result;
@@ -192,8 +192,10 @@ nanopb::Message<google_firestore_v1_Value> AddPairs(
  */
 template <typename... Args>
 nanopb::Message<google_firestore_v1_Value> MakeMap(Args... key_value_pairs) {
-  nanopb::Message<google_firestore_v1_Value> map_value{{}};
+  nanopb::Message<google_firestore_v1_Value> map_value;
   map_value->which_value_type = google_firestore_v1_Value_map_value_tag;
+  map_value->map_value.fields_count = 0;
+  map_value->map_value.fields = nil;
   return AddPairs(std::move(map_value), std::forward<Args>(key_value_pairs)...);
 }
 
@@ -227,7 +229,7 @@ void AddElements(nanopb::Message<google_firestore_v1_ArrayValue>& array_value,
  */
 template <typename... Args>
 nanopb::Message<google_firestore_v1_ArrayValue> MakeArray(Args&&... values) {
-  nanopb::Message<google_firestore_v1_ArrayValue> array_value{};
+  nanopb::Message<google_firestore_v1_ArrayValue> array_value;
   array_value->values_count = nanopb::CheckedSize(sizeof...(Args));
   array_value->values =
       nanopb::MakeArray<google_firestore_v1_Value>(array_value->values_count);

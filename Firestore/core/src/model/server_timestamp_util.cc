@@ -35,8 +35,10 @@ const char kServerTimestampSentinel[] = "server_timestamp";
 Message<google_firestore_v1_Value> EncodeServerTimestamp(
     const Timestamp& local_write_time,
     absl::optional<google_firestore_v1_Value> previous_value) {
-  Message<google_firestore_v1_Value> result{};
+  Message<google_firestore_v1_Value> result;
   result->which_value_type = google_firestore_v1_Value_map_value_tag;
+  result->map_value.fields_count = 0;
+  result->map_value.fields = nil;
 
   pb_size_t count = previous_value ? 3 : 2;
 

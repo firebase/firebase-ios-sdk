@@ -303,8 +303,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (Message<google_firestore_v1_Value>)parseDictionary:(NSDictionary<NSString *, id> *)dict
                                               context:(ParseContext &&)context {
-  __block Message<google_firestore_v1_Value> result{};
+  __block Message<google_firestore_v1_Value> result;
   result->which_value_type = google_firestore_v1_Value_map_value_tag;
+  result->map_value.fields_count = 0;
+  result->map_value.fields = nil;
 
   if (dict.count == 0) {
     const FieldPath *path = context.path();
@@ -340,7 +342,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (Message<google_firestore_v1_Value>)parseArray:(NSArray<id> *)array
                                          context:(ParseContext &&)context {
-  __block Message<google_firestore_v1_Value> result{};
+  __block Message<google_firestore_v1_Value> result;
   result->which_value_type = google_firestore_v1_Value_array_value_tag;
   result->array_value.values_count = CheckedSize([array count]);
   result->array_value.values =
@@ -534,28 +536,28 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (Message<google_firestore_v1_Value>)encodeBoolean:(bool)value {
-  Message<google_firestore_v1_Value> result{};
+  Message<google_firestore_v1_Value> result;
   result->which_value_type = google_firestore_v1_Value_boolean_value_tag;
   result->boolean_value = value;
   return result;
 }
 
 - (Message<google_firestore_v1_Value>)encodeInteger:(int64_t)value {
-  Message<google_firestore_v1_Value> result{};
+  Message<google_firestore_v1_Value> result;
   result->which_value_type = google_firestore_v1_Value_integer_value_tag;
   result->integer_value = value;
   return result;
 }
 
 - (Message<google_firestore_v1_Value>)encodeDouble:(double)value {
-  Message<google_firestore_v1_Value> result{};
+  Message<google_firestore_v1_Value> result;
   result->which_value_type = google_firestore_v1_Value_double_value_tag;
   result->double_value = value;
   return result;
 }
 
 - (Message<google_firestore_v1_Value>)encodeTimestampValue:(Timestamp)value {
-  Message<google_firestore_v1_Value> result{};
+  Message<google_firestore_v1_Value> result;
   result->which_value_type = google_firestore_v1_Value_timestamp_value_tag;
   result->timestamp_value.seconds = value.seconds();
   result->timestamp_value.nanos = value.nanoseconds();
@@ -563,14 +565,14 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (Message<google_firestore_v1_Value>)encodeStringValue:(const std::string &)value {
-  Message<google_firestore_v1_Value> result{};
+  Message<google_firestore_v1_Value> result;
   result->which_value_type = google_firestore_v1_Value_string_value_tag;
   result->string_value = nanopb::MakeBytesArray(value);
   return result;
 }
 
 - (Message<google_firestore_v1_Value>)encodeBlob:(const nanopb::ByteString &)value {
-  Message<google_firestore_v1_Value> result{};
+  Message<google_firestore_v1_Value> result;
   result->which_value_type = google_firestore_v1_Value_bytes_value_tag;
   // Copy the blob so that pb_release can do the right thing.
   result->bytes_value = nanopb::CopyBytesArray(value.get());
@@ -582,18 +584,18 @@ NS_ASSUME_NONNULL_BEGIN
   HARD_ASSERT(_databaseID == databaseId, "Database %s cannot encode reference from %s",
               _databaseID.ToString(), databaseId.ToString());
 
-  Message<google_firestore_v1_Value> result{};
-  result->which_value_type = google_firestore_v1_Value_reference_value_tag;
-
   std::string referenceName = ResourcePath({"projects", databaseId.project_id(), "databases",
                                             databaseId.database_id(), "documents", key.ToString()})
                                   .CanonicalString();
+
+  Message<google_firestore_v1_Value> result;
+  result->which_value_type = google_firestore_v1_Value_reference_value_tag;
   result->reference_value = nanopb::MakeBytesArray(referenceName);
   return result;
 }
 
 - (Message<google_firestore_v1_Value>)encodeGeoPoint:(const GeoPoint &)value {
-  Message<google_firestore_v1_Value> result{};
+  Message<google_firestore_v1_Value> result;
   result->which_value_type = google_firestore_v1_Value_geo_point_value_tag;
   result->geo_point_value.latitude = value.latitude();
   result->geo_point_value.longitude = value.longitude();
@@ -603,7 +605,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (Message<google_firestore_v1_ArrayValue>)parseArrayTransformElements:(NSArray<id> *)elements {
   ParseAccumulator accumulator{UserDataSource::Argument};
 
-  Message<google_firestore_v1_ArrayValue> array_value{};
+  Message<google_firestore_v1_ArrayValue> array_value;
   array_value->values_count = CheckedSize(elements.count);
   array_value->values = nanopb::MakeArray<google_firestore_v1_Value>(array_value->values_count);
 

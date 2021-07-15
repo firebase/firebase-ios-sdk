@@ -118,8 +118,8 @@ void ApplyChanges(
   auto upsert_it = upserts.begin();
 
   // Merge the existing data with the deletes and updates
-  for (pb_size_t source_index = 0, target_index = 0;
-       target_index < target_count;) {
+  pb_size_t source_index = 0, target_index = 0;
+  while (target_index < target_count) {
     auto& target_entry = target_fields[target_index];
 
     if (source_index < source_count) {
@@ -168,6 +168,12 @@ void ApplyChanges(
     ++target_index;
   }
 
+  // Delete any remaining fields in the original map. This only includes fields
+  // that were deleted.
+  for (; source_index < source_count; ++source_index) {
+    FreeFieldsArray(&source_fields[source_index]);
+  }
+
   free(parent->fields);
   parent->fields = target_fields;
   parent->fields_count = CheckedSize(target_count);
@@ -194,7 +200,7 @@ ObjectValue::ObjectValue(const ObjectValue& other)
 
 ObjectValue ObjectValue::FromMapValue(
     Message<google_firestore_v1_MapValue> map_value) {
-  Message<google_firestore_v1_Value> value{};
+  Message<google_firestore_v1_Value> value;
   value->which_value_type = google_firestore_v1_Value_map_value_tag;
   value->map_value = *map_value.release();
   return ObjectValue{std::move(value)};
@@ -202,7 +208,7 @@ ObjectValue ObjectValue::FromMapValue(
 
 ObjectValue ObjectValue::FromFieldsEntry(
     google_firestore_v1_Document_FieldsEntry* fields_entry, pb_size_t count) {
-  Message<google_firestore_v1_Value> value{};
+  Message<google_firestore_v1_Value> value;
   value->which_value_type = google_firestore_v1_Value_map_value_tag;
   SetRepeatedField(
       &value->map_value.fields, &value->map_value.fields_count,
@@ -352,13 +358,17 @@ google_firestore_v1_MapValue* ObjectValue::ParentMap(const FieldPath& path) {
         // change it to a map type.
         FreeFieldsArray(&entry->value);
         entry->value.which_value_type = google_firestore_v1_Value_map_value_tag;
+        entry->value.map_value.fields_count = 0;
+        entry->value.map_value.fields = nil;
       }
 
       parent = &entry->value;
     } else {
       // Create a new map value for the current segment.
-      Message<google_firestore_v1_Value> new_entry{};
+      Message<google_firestore_v1_Value> new_entry;
       new_entry->which_value_type = google_firestore_v1_Value_map_value_tag;
+      new_entry->map_value.fields_count = 0;
+      new_entry->map_value.fields = nil;
 
       std::map<std::string, Message<google_firestore_v1_Value>> upserts;
       upserts[segment] = std::move(new_entry);

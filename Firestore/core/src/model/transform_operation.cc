@@ -284,7 +284,7 @@ Message<google_firestore_v1_Value> ArrayTransform::Rep::Apply(
     array_value->values_count = new_index;
   }
 
-  Message<google_firestore_v1_Value> result{};
+  Message<google_firestore_v1_Value> result;
   result->which_value_type = google_firestore_v1_Value_array_value_tag;
   result->array_value = *array_value.release();
   return result;
@@ -390,7 +390,7 @@ NumericIncrementTransform::Rep::ApplyToLocalView(
     const absl::optional<google_firestore_v1_Value>& previous_value,
     const Timestamp& /* local_write_time */) const {
   auto base_value = ComputeBaseValue(previous_value);
-  Message<google_firestore_v1_Value> result{};
+  Message<google_firestore_v1_Value> result;
 
   // Return an integer value only if the previous value and the operand is an
   // integer.
@@ -417,8 +417,9 @@ NumericIncrementTransform::Rep::ComputeBaseValue(
     return DeepClone(*previous_value);
   }
 
-  Message<google_firestore_v1_Value> zero_value{};
+  Message<google_firestore_v1_Value> zero_value;
   zero_value->which_value_type = google_firestore_v1_Value_integer_value_tag;
+  zero_value->integer_value = 0;
   return zero_value;
 }
 
