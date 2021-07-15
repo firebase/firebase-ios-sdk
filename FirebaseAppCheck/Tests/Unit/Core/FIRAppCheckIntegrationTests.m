@@ -78,8 +78,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)tearDown {
   [FIRApp resetApps];
-  // Recover default provider factory.
-  [FIRAppCheck setAppCheckProviderFactory:[[FIRDeviceCheckProviderFactory alloc] init]];
+
+  if (@available(iOS 11.0, macOS 10.15, macCatalyst 13.0, tvOS 11.0, *)) {
+    // Recover default provider factory.
+    [FIRAppCheck setAppCheckProviderFactory:[[FIRDeviceCheckProviderFactory alloc] init]];
+  }
 
   [self.mockTokenRefresher stopMocking];
   self.mockTokenRefresher = nil;
