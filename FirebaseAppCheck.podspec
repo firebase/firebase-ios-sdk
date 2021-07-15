@@ -38,9 +38,7 @@ Pod::Spec.new do |s|
   ]
   s.public_header_files = base_dir + 'Sources/Public/FirebaseAppCheck/*.h'
 
-  s.ios.framework = 'DeviceCheck'
-  s.osx.framework = 'DeviceCheck'
-  s.tvos.framework = 'DeviceCheck'
+  s.weak_framework = 'DeviceCheck'
 
   s.dependency 'FirebaseCore', '~> 8.0'
   s.dependency 'PromisesObjC', '>= 1.2', '< 3.0'
