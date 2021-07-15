@@ -1194,7 +1194,7 @@ MutationResult Serializer::DecodeMutationResult(
           ? DecodeVersion(context, write_result.update_time)
           : commit_version;
 
-  Message<google_firestore_v1_ArrayValue> transform_results{};
+  Message<google_firestore_v1_ArrayValue> transform_results;
   SetRepeatedField(&transform_results->values, &transform_results->values_count,
                    absl::Span<google_firestore_v1_Value>(
                        write_result.transform_results,

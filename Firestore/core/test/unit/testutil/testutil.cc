@@ -95,7 +95,7 @@ namespace details {
 Message<google_firestore_v1_Value> BlobValue(
     std::initializer_list<uint8_t> octets) {
   nanopb::ByteString contents{octets};
-  Message<google_firestore_v1_Value> result{};
+  Message<google_firestore_v1_Value> result;
   result->which_value_type = google_firestore_v1_Value_bytes_value_tag;
   result->bytes_value = nanopb::MakeBytesArray(octets.begin(), octets.size());
   return result;
@@ -112,14 +112,14 @@ Message<google_firestore_v1_Value> Value(std::nullptr_t) {
 }
 
 Message<google_firestore_v1_Value> Value(double value) {
-  Message<google_firestore_v1_Value> result{};
+  Message<google_firestore_v1_Value> result;
   result->which_value_type = google_firestore_v1_Value_double_value_tag;
   result->double_value = value;
   return result;
 }
 
 Message<google_firestore_v1_Value> Value(Timestamp value) {
-  Message<google_firestore_v1_Value> result{};
+  Message<google_firestore_v1_Value> result;
   result->which_value_type = google_firestore_v1_Value_timestamp_value_tag;
   result->timestamp_value.seconds = value.seconds();
   result->timestamp_value.nanos = value.nanoseconds();
@@ -127,28 +127,28 @@ Message<google_firestore_v1_Value> Value(Timestamp value) {
 }
 
 Message<google_firestore_v1_Value> Value(const char* value) {
-  Message<google_firestore_v1_Value> result{};
+  Message<google_firestore_v1_Value> result;
   result->which_value_type = google_firestore_v1_Value_string_value_tag;
   result->string_value = nanopb::MakeBytesArray(value);
   return result;
 }
 
 Message<google_firestore_v1_Value> Value(const std::string& value) {
-  Message<google_firestore_v1_Value> result{};
+  Message<google_firestore_v1_Value> result;
   result->which_value_type = google_firestore_v1_Value_string_value_tag;
   result->string_value = nanopb::MakeBytesArray(value);
   return result;
 }
 
 Message<google_firestore_v1_Value> Value(const nanopb::ByteString& value) {
-  Message<google_firestore_v1_Value> result{};
+  Message<google_firestore_v1_Value> result;
   result->which_value_type = google_firestore_v1_Value_bytes_value_tag;
   result->bytes_value = nanopb::MakeBytesArray(value.begin(), value.size());
   return result;
 }
 
 Message<google_firestore_v1_Value> Value(const GeoPoint& value) {
-  Message<google_firestore_v1_Value> result{};
+  Message<google_firestore_v1_Value> result;
   result->which_value_type = google_firestore_v1_Value_geo_point_value_tag;
   result->geo_point_value.latitude = value.latitude();
   result->geo_point_value.longitude = value.longitude();
@@ -162,7 +162,7 @@ Message<google_firestore_v1_Value> Value(
 
 Message<google_firestore_v1_Value> Value(
     Message<google_firestore_v1_MapValue> value) {
-  Message<google_firestore_v1_Value> result{};
+  Message<google_firestore_v1_Value> result;
   result->which_value_type = google_firestore_v1_Value_map_value_tag;
   result->map_value = *value.release();
   return result;
@@ -170,7 +170,7 @@ Message<google_firestore_v1_Value> Value(
 
 Message<google_firestore_v1_Value> Value(
     Message<google_firestore_v1_ArrayValue> value) {
-  Message<google_firestore_v1_Value> result{};
+  Message<google_firestore_v1_Value> result;
   result->which_value_type = google_firestore_v1_Value_array_value_tag;
   result->array_value = *value.release();
   return result;
@@ -207,7 +207,7 @@ model::DatabaseId DbId(std::string project) {
 Message<google_firestore_v1_Value> Ref(std::string project,
                                        absl::string_view path) {
   model::DatabaseId database_id = DbId(std::move(project));
-  Message<google_firestore_v1_Value> result{};
+  Message<google_firestore_v1_Value> result;
   result->which_value_type = google_firestore_v1_Value_reference_value_tag;
   result->string_value = nanopb::MakeBytesArray(
       StringFormat("projects/%s/databases/%s/documents/%s",

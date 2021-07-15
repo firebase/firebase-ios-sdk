@@ -654,9 +654,10 @@ Message<google_firestore_v1_Value> BundleSerializer::DecodeValue(
     return {};
   }
 
-  Message<google_firestore_v1_Value> result{};
+  Message<google_firestore_v1_Value> result;
   if (value.contains("nullValue")) {
     result->which_value_type = google_firestore_v1_Value_null_value_tag;
+    result->null_value = {};
   } else if (value.contains("booleanValue")) {
     result->which_value_type = google_firestore_v1_Value_boolean_value_tag;
     auto val = value.at("booleanValue");
@@ -720,7 +721,7 @@ Message<google_firestore_v1_MapValue> BundleSerializer::DecodeMapValue(
 
   // Fill the map array. Note that we can't use SetRepeatedField here since the
   // JSON map doesn't currently work with SetRepeatedField.
-  Message<google_firestore_v1_MapValue> map_value{};
+  Message<google_firestore_v1_MapValue> map_value;
   map_value->fields_count = nanopb::CheckedSize(fields.size());
   map_value->fields =
       nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(
@@ -738,7 +739,7 @@ Message<google_firestore_v1_ArrayValue> BundleSerializer::DecodeArrayValue(
     JsonReader& reader, const json& array_json) const {
   const auto& values = reader.RequiredArray("values", array_json);
 
-  Message<google_firestore_v1_ArrayValue> array_value{};
+  Message<google_firestore_v1_ArrayValue> array_value;
   SetRepeatedField(
       &array_value->values, &array_value->values_count, values,
       [&](const json& j) { return *DecodeValue(reader, j).release(); });

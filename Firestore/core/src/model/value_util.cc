@@ -497,8 +497,9 @@ bool Contains(google_firestore_v1_ArrayValue haystack,
 }
 
 Message<google_firestore_v1_Value> NullValue() {
-  Message<google_firestore_v1_Value> null_value{};
+  Message<google_firestore_v1_Value> null_value;
   null_value->which_value_type = google_firestore_v1_Value_null_value_tag;
+  null_value->null_value = {};
   return null_value;
 }
 
@@ -507,7 +508,7 @@ bool IsNullValue(const google_firestore_v1_Value& value) {
 }
 
 Message<google_firestore_v1_Value> NaNValue() {
-  Message<google_firestore_v1_Value> nan_value{};
+  Message<google_firestore_v1_Value> nan_value;
   nan_value->which_value_type = google_firestore_v1_Value_double_value_tag;
   nan_value->double_value = std::numeric_limits<double>::quiet_NaN();
   return nan_value;
@@ -521,7 +522,7 @@ bool IsNaNValue(const google_firestore_v1_Value& value) {
 Message<google_firestore_v1_Value> RefValue(
     const model::DatabaseId& database_id,
     const model::DocumentKey& document_key) {
-  Message<google_firestore_v1_Value> result{};
+  Message<google_firestore_v1_Value> result;
   result->which_value_type = google_firestore_v1_Value_reference_value_tag;
   result->string_value = nanopb::MakeBytesArray(util::StringFormat(
       "projects/%s/databases/%s/documents/%s", database_id.project_id(),
