@@ -536,7 +536,9 @@ final class DatabaseAPITests {
     _ = databaseReference.key as String?
     _ = databaseReference.url as String
     _ = databaseReference.database as Database
+
     // MARK: - DataEventType
+
     let dataEventType = DataEventType.value
     switch dataEventType {
     case .childAdded:
@@ -550,5 +552,20 @@ final class DatabaseAPITests {
     case .value:
       break
     }
+
+    // MARK: - DataSnapshot
+
+    let dataSnapshot = DataSnapshot()
+    _ = dataSnapshot.childSnapshot(forPath: "path" as String) as DataSnapshot
+    _ = dataSnapshot.hasChild("path" as String) as Bool
+    _ = dataSnapshot.hasChildren() as Bool
+    _ = dataSnapshot.exists() as Bool
+    _ = dataSnapshot.valueInExportFormat() as Any?
+    _ = dataSnapshot.value as Any?
+    _ = dataSnapshot.childrenCount as UInt
+    _ = dataSnapshot.ref as DatabaseReference
+    _ = dataSnapshot.key as String
+    _ = dataSnapshot.children as NSEnumerator
+    _ = dataSnapshot.priority as Any?
   }
 }
