@@ -556,16 +556,33 @@ final class DatabaseAPITests {
     // MARK: - DataSnapshot
 
     let dataSnapshot = DataSnapshot()
+    // Navigating and inspecting a snapshot
     _ = dataSnapshot.childSnapshot(forPath: "path" as String) as DataSnapshot
     _ = dataSnapshot.hasChild("path" as String) as Bool
     _ = dataSnapshot.hasChildren() as Bool
     _ = dataSnapshot.exists() as Bool
+    // Data export
     _ = dataSnapshot.valueInExportFormat() as Any?
+    // Properties
     _ = dataSnapshot.value as Any?
     _ = dataSnapshot.childrenCount as UInt
     _ = dataSnapshot.ref as DatabaseReference
     _ = dataSnapshot.key as String
     _ = dataSnapshot.children as NSEnumerator
     _ = dataSnapshot.priority as Any?
+
+    // MARK: - MutableData
+
+    let mutableData = MutableData()
+    // Inspecting and navigating the data
+    _ = mutableData.hasChildren() as Bool
+    _ = mutableData.hasChild(atPath: "path" as String) as Bool
+    _ = mutableData.childData(byAppendingPath: "path" as String) as MutableData
+    // Properties
+    _ = mutableData.value as Any?
+    _ = mutableData.priority as Any?
+    _ = mutableData.childrenCount as UInt
+    _ = mutableData.children as NSEnumerator
+    _ = mutableData.key as String?
   }
 }
