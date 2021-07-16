@@ -539,7 +539,7 @@ final class DatabaseAPITests {
 
     // MARK: - DataEventType
 
-    let dataEventType = DataEventType.value
+    let dataEventType = DataEventType(rawValue: 0)
     switch dataEventType {
     case .childAdded:
       break
@@ -550,6 +550,10 @@ final class DatabaseAPITests {
     case .childMoved:
       break
     case .value:
+      break
+    case .none:
+      break
+    case .some(_):
       break
     }
 
