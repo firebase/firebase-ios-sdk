@@ -135,13 +135,13 @@ final class DatabaseAPITests {
         // ...
       }
     // Remove Observers
-    databaseQuery.removeObserver(withHandle: 0 as UInt)
+    databaseQuery.removeObserver(withHandle: 0 as DatabaseHandle)
     databaseQuery.removeAllObservers()
     // Keep Synced
     databaseQuery.keepSynced(false as Bool)
     // Limited Views of Data
-    _ = databaseQuery.queryLimited(toFirst: 1 as UInt) as DatabaseQuery
-    _ = databaseQuery.queryLimited(toLast: 2 as UInt) as DatabaseQuery
+    _ = databaseQuery.queryLimited(toFirst: 1 as DatabaseHandle) as DatabaseQuery
+    _ = databaseQuery.queryLimited(toLast: 2 as DatabaseHandle) as DatabaseQuery
     _ = databaseQuery.queryOrdered(byChild: "child") as DatabaseQuery
     _ = databaseQuery.queryOrderedByKey() as DatabaseQuery
     _ = databaseQuery.queryOrderedByValue() as DatabaseQuery
@@ -169,5 +169,372 @@ final class DatabaseAPITests {
     ) as DatabaseQuery
     // Retrieve DatabaseReference Instance
     _ = databaseQuery.ref as DatabaseReference
+
+    // MARK: - DatabaseReference
+
+    let databaseReference = DatabaseReference() as DatabaseReference
+    // Retreive Child DatabaseReference
+    _ = databaseReference.child("path" as String) as DatabaseReference
+    _ = databaseReference.childByAutoId() as DatabaseReference
+    // Set value
+    databaseReference.setValue("value" as Any?)
+    databaseReference
+      .setValue("value" as Any?) { (optionalError: Error?, databaseReference: DatabaseReference) in
+        // ...
+      }
+    #if swift(>=5.5)
+      if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
+        // async/await is a Swift 5.5+ feature available on iOS 15+
+        async {
+          do {
+            _ = try await databaseReference.setValue("value" as Any?) as DatabaseReference
+          } catch {
+            // ...
+          }
+        }
+      }
+    #endif // swift(>=5.5)
+    databaseReference.setValue("value" as Any?, andPriority: "priority" as Any?)
+    databaseReference
+      .setValue("value" as Any?,
+                andPriority: "priority" as Any?) { (
+        optionalError: Error?,
+        databaseReference: DatabaseReference
+      ) in
+      // ...
+      }
+    #if swift(>=5.5)
+      if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
+        // async/await is a Swift 5.5+ feature available on iOS 15+
+        async {
+          do {
+            _ = try await databaseReference.setValue(
+              "value" as Any?,
+              andPriority: "priority" as Any?
+            ) as DatabaseReference
+          } catch {
+            // ...
+          }
+        }
+      }
+    #endif // swift(>=5.5)
+    // Remove value
+    databaseReference.removeValue()
+    databaseReference.removeValue { (optionalError: Error?, databaseReference: DatabaseReference) in
+      // ...
+    }
+    #if swift(>=5.5)
+      if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
+        // async/await is a Swift 5.5+ feature available on iOS 15+
+        async {
+          do {
+            _ = try await databaseReference.removeValue() as DatabaseReference
+          } catch {
+            // ...
+          }
+        }
+      }
+    #endif // swift(>=5.5)
+    // Set priority
+    databaseReference.setPriority("priority" as Any?)
+    databaseReference
+      .setPriority("priority" as Any?) { (
+        optionalError: Error?,
+        databaseReference: DatabaseReference
+      ) in
+      // ...
+      }
+    #if swift(>=5.5)
+      if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
+        // async/await is a Swift 5.5+ feature available on iOS 15+
+        async {
+          do {
+            _ = try await databaseReference.setPriority("priority" as Any?) as DatabaseReference
+          } catch {
+            // ...
+          }
+        }
+      }
+    #endif // swift(>=5.5)
+    // Update child values
+    databaseReference.updateChildValues([AnyHashable: Any]())
+    databaseReference
+      .updateChildValues([AnyHashable: Any]()) { (
+        optionalError: Error?,
+        databaseReference: DatabaseReference
+      ) in
+      // ...
+      }
+    #if swift(>=5.5)
+      if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
+        // async/await is a Swift 5.5+ feature available on iOS 15+
+        async {
+          do {
+            _ = try await databaseReference
+              .updateChildValues([AnyHashable: Any]()) as DatabaseReference
+          } catch {
+            // ...
+          }
+        }
+      }
+    #endif // swift(>=5.5)
+    // Observe for data
+    _ = databaseReference.observe(DataEventType.value) { (dataSnaphot: DataSnapshot) in
+      // ...
+    } as DatabaseHandle
+    _ = databaseReference
+      .observe(DataEventType.childChanged) { (dataSnaphot: DataSnapshot, optionalString: String?) in
+        // ...
+      } as DatabaseHandle
+    _ = databaseReference.observe(
+      DataEventType.childRemoved,
+      with: { (dataSnapshot: DataSnapshot) in
+        // ...
+      },
+      withCancel: { (error: Error) in
+        // ...
+      }
+    ) as DatabaseHandle
+    _ = databaseReference.observe(
+      DataEventType.childChanged,
+      andPreviousSiblingKeyWith: { (dataSnapshot: DataSnapshot, optionalString: String?) in
+        // ...
+      },
+      withCancel: { (error: Error) in
+        // ...
+      }
+    ) as DatabaseHandle
+    // Observe Single Event
+    databaseReference
+      .observeSingleEvent(of: DataEventType.childAdded) { (dataSnapshot: DataSnapshot) in
+        // ...
+      }
+    databaseReference
+      .observeSingleEvent(of: DataEventType
+        .childMoved) { (dataSnapshot: DataSnapshot, optionalString: String?) in
+        // ...
+      }
+    #if swift(>=5.5)
+      if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
+        // async/await is a Swift 5.5+ feature available on iOS 15+
+        async {
+          do {
+            _ = try await databaseReference
+              .observeSingleEventAndPreviousSiblingKey(of: DataEventType.value) as (DataSnapshot,
+                                                                                    String?)
+          } catch {
+            // ...
+          }
+        }
+      }
+    #endif // swift(>=5.5)
+    databaseReference
+      .observeSingleEvent(of: DataEventType.childChanged) { (dataSnapshot: DataSnapshot) in
+        // ...
+      } withCancel: { (error: Error) in
+        // ...
+      }
+    databaseReference
+      .observeSingleEvent(of: DataEventType
+        .childMoved) { (dataSnapshot: DataSnapshot, optionalString: String?) in
+        // ...
+      } withCancel: { (error: Error) in
+        // ...
+      }
+    // Get data
+    databaseReference.getData { (optionalError: Error?, dataSnapshot: DataSnapshot) in
+      // ...
+    }
+    #if swift(>=5.5)
+      if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
+        // async/await is a Swift 5.5+ feature available on iOS 15+
+        async {
+          do {
+            _ = try await databaseReference.getData() as DataSnapshot
+          } catch {
+            // ...
+          }
+        }
+      }
+    #endif // swift(>=5.5)
+    // Remove Observers
+    databaseReference.removeObserver(withHandle: 0 as DatabaseHandle)
+    databaseReference.removeAllObservers()
+    // Keep Synced
+    databaseReference.keepSynced(true as Bool)
+    // Limited Views of Data
+    _ = databaseReference.queryLimited(toFirst: 0 as DatabaseHandle) as DatabaseQuery
+    _ = databaseReference.queryLimited(toLast: 1 as DatabaseHandle) as DatabaseQuery
+    _ = databaseReference.queryOrdered(byChild: "key" as String) as DatabaseQuery
+    _ = databaseReference.queryOrderedByKey() as DatabaseQuery
+    _ = databaseReference.queryOrderedByPriority() as DatabaseQuery
+    _ = databaseReference.queryStarting(atValue: "value" as Any?) as DatabaseQuery
+    _ = databaseReference.queryStarting(
+      atValue: "value" as Any?,
+      childKey: "key" as String?
+    ) as DatabaseQuery
+    _ = databaseReference.queryStarting(afterValue: "value" as Any?) as DatabaseQuery
+    _ = databaseReference.queryStarting(
+      afterValue: "value" as Any?,
+      childKey: "key" as String?
+    ) as DatabaseQuery
+    _ = databaseReference.queryEnding(atValue: "value" as Any?) as DatabaseQuery
+    _ = databaseReference.queryEnding(
+      atValue: "value" as Any?,
+      childKey: "key" as String?
+    ) as DatabaseQuery
+    _ = databaseReference.queryEqual(toValue: "value" as Any?) as DatabaseQuery
+    _ = databaseReference.queryEqual(
+      toValue: "value" as Any?,
+      childKey: "key" as String?
+    ) as DatabaseQuery
+    // onDisconnectSetValue
+    databaseReference.onDisconnectSetValue("value" as Any?)
+    databaseReference
+      .onDisconnectSetValue("value" as Any?) { (
+        optionalError: Error?,
+        databaseReference: DatabaseReference
+      ) in
+      // ...
+      }
+    #if swift(>=5.5)
+      if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
+        // async/await is a Swift 5.5+ feature available on iOS 15+
+        async {
+          do {
+            _ = try await databaseReference
+              .onDisconnectSetValue("value" as Any?) as DatabaseReference
+          } catch {
+            // ...
+          }
+        }
+      }
+    #endif // swift(>=5.5)
+    databaseReference.onDisconnectSetValue("value" as Any?, andPriority: "priority" as Any)
+    databaseReference
+      .onDisconnectSetValue("value" as Any?,
+                            andPriority: "priority" as Any?) { (
+        optionalError: Error?,
+        databaseReference: DatabaseReference
+      ) in
+      // ...
+      }
+    #if swift(>=5.5)
+      if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
+        // async/await is a Swift 5.5+ feature available on iOS 15+
+        async {
+          do {
+            _ = try await databaseReference.onDisconnectSetValue(
+              "value" as Any?,
+              andPriority: "priority" as Any?
+            ) as DatabaseReference
+          } catch {
+            // ...
+          }
+        }
+      }
+    #endif // swift(>=5.5)
+    // onDisconnectRemoveValue
+    databaseReference.onDisconnectRemoveValue()
+    databaseReference
+      .onDisconnectRemoveValue { (optionalError: Error?, databaseReference: DatabaseReference) in
+        // ...
+      }
+    #if swift(>=5.5)
+      if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
+        // async/await is a Swift 5.5+ feature available on iOS 15+
+        async {
+          do {
+            _ = try await databaseReference.onDisconnectRemoveValue() as DatabaseReference
+          } catch {
+            // ...
+          }
+        }
+      }
+    #endif // swift(>=5.5)
+    // onDisconnectUpdateChildValues
+    databaseReference.onDisconnectUpdateChildValues([AnyHashable: Any]())
+    databaseReference
+      .onDisconnectUpdateChildValues([AnyHashable: Any]()) { (
+        optionalError: Error?,
+        databaseReference: DatabaseReference
+      ) in
+      // ...
+      }
+    #if swift(>=5.5)
+      if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
+        // async/await is a Swift 5.5+ feature available on iOS 15+
+        async {
+          do {
+            _ = try await databaseReference
+              .onDisconnectUpdateChildValues([AnyHashable: Any]()) as DatabaseReference
+          } catch {
+            // ...
+          }
+        }
+      }
+    #endif // swift(>=5.5)
+    // cancelDisconnectOperations
+    databaseReference.cancelDisconnectOperations()
+    databaseReference
+      .cancelDisconnectOperations { (optionalError: Error?, databaseReference: DatabaseReference) in
+        // ...
+      }
+    #if swift(>=5.5)
+      if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
+        // async/await is a Swift 5.5+ feature available on iOS 15+
+        async {
+          do {
+            _ = try await databaseReference.cancelDisconnectOperations() as DatabaseReference
+          } catch {
+            // ...
+          }
+        }
+      }
+    #endif // swift(>=5.5)
+    // runTransactionBlock
+    databaseReference.runTransactionBlock { (mutableData: MutableData) in
+      TransactionResult()
+    }
+    databaseReference.runTransactionBlock { (mutableData: MutableData) in
+      TransactionResult()
+    } andCompletionBlock: { (optionalError: Error?, bool: Bool, optinalDataSnapshot: DataSnapshot?) in
+      // ...
+    }
+    #if swift(>=5.5)
+      if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
+        // async/await is a Swift 5.5+ feature available on iOS 15+
+        async {
+          do {
+            _ = try await databaseReference.runTransactionBlock { (mutableData: MutableData) in
+              TransactionResult()
+            } as (Bool, DataSnapshot)
+          } catch {
+            // ...
+          }
+        }
+      }
+    #endif // swift(>=5.5)
+    databaseReference.runTransactionBlock({ (mutableData: MutableData) in
+                                            TransactionResult()
+                                          },
+                                          andCompletionBlock: { (
+                                            optionalError: Error?,
+                                            bool: Bool,
+                                            optionalDataSnapshot: DataSnapshot?
+                                          ) in
+                                          // ...
+                                          }, withLocalEvents: true as Bool)
+    // description
+    _ = databaseReference.description() as String
+    // Class methods
+    DatabaseReference.goOffline()
+    DatabaseReference.goOnline()
+    // Instance properties
+    _ = databaseReference.parent as DatabaseReference?
+    _ = databaseReference.root as DatabaseReference
+    _ = databaseReference.key as String?
+    _ = databaseReference.url as String
+    _ = databaseReference.database as Database
   }
 }
