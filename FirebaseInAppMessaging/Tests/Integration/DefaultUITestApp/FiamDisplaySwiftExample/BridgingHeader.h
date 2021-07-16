@@ -15,4 +15,5 @@
  */
 
 #import "FirebaseInAppMessaging/Sources/DefaultUI/FIRIAMDefaultDisplayImpl.h"
+#import "FirebaseInAppMessaging/Sources/Public/FirebaseInAppMessaging/FIRInAppMessagingRendering.h"
 #import "FirebaseInAppMessaging/Sources/RenderingObjects/FIRInAppMessagingRenderingPrivate.h"
