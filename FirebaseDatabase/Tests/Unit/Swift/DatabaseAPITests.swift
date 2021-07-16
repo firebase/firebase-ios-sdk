@@ -536,5 +536,19 @@ final class DatabaseAPITests {
     _ = databaseReference.key as String?
     _ = databaseReference.url as String
     _ = databaseReference.database as Database
+    // MARK: - DataEventType
+    let dataEventType = DataEventType.value
+    switch dataEventType {
+    case .childAdded:
+      break
+    case .childRemoved:
+      break
+    case .childChanged:
+      break
+    case .childMoved:
+      break
+    case .value:
+      break
+    }
   }
 }
