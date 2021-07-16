@@ -589,5 +589,10 @@ final class DatabaseAPITests {
 
     _ = ServerValue.timestamp() as [AnyHashable: Any]
     _ = ServerValue.increment(0 as NSNumber) as [AnyHashable: Any]
+
+    // MARK: - TransactionResult
+
+    _ = TransactionResult.success(withValue: MutableData()) as TransactionResult
+    _ = TransactionResult.abort() as TransactionResult
   }
 }
