@@ -584,5 +584,10 @@ final class DatabaseAPITests {
     _ = mutableData.childrenCount as UInt
     _ = mutableData.children as NSEnumerator
     _ = mutableData.key as String?
+
+    // MARK: - ServerValue
+
+    _ = ServerValue.timestamp() as [AnyHashable: Any]
+    _ = ServerValue.increment(0 as NSNumber) as [AnyHashable: Any]
   }
 }
