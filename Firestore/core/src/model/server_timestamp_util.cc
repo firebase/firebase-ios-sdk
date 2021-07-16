@@ -38,9 +38,8 @@ Message<google_firestore_v1_Value> EncodeServerTimestamp(
   pb_size_t count = previous_value ? 3 : 2;
 
   Message<google_firestore_v1_Value> result;
-  result->which_value_type =
-      google_firestore_v1_Value_map_value_tag result->map_value.fields_count =
-          count;
+  result->which_value_type = google_firestore_v1_Value_map_value_tag;
+  result->map_value.fields_count = count;
   result->map_value.fields =
       nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(count);
 
