@@ -404,7 +404,7 @@
   if ([self isTraceActive]) {
     dispatch_async(self.sessionIdSerialQueue, ^{
       FPRSessionManager *sessionManager = [FPRSessionManager sharedInstance];
-      FPRSessionDetails *sessionDetails = sessionManager.sessionDetails;
+      FPRSessionDetails *sessionDetails = [sessionManager.sessionDetails copy];
       if (sessionDetails) {
         [self.activeSessions addObject:sessionDetails];
       }

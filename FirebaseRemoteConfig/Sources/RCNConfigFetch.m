@@ -387,6 +387,7 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
               statusCode == kRCNFetchResponseHTTPStatusCodeInternalError ||
               statusCode == kRCNFetchResponseHTTPStatusCodeServiceUnavailable ||
               statusCode == kRCNFetchResponseHTTPStatusCodeGatewayTimeout) {
+            [strongSelf->_settings updateExponentialBackoffTime];
             if ([strongSelf->_settings shouldThrottle]) {
               // Must set lastFetchStatus before FailReason.
               strongSelf->_settings.lastFetchStatus = FIRRemoteConfigFetchStatusThrottled;
@@ -404,8 +405,8 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
                                                 withStatus:strongSelf->_settings.lastFetchStatus
                                                  withError:error];
             }
-          }  // Response error code 429, 500, 503
-        }    // StatusCode != kRCNFetchResponseHTTPStatusCodeOK
+          }
+        }
         // Return back the received error.
         // Must set lastFetchStatus before setting Fetch Error.
         strongSelf->_settings.lastFetchStatus = FIRRemoteConfigFetchStatusFailure;
@@ -480,9 +481,13 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
         // Update config content to cache and DB.
         [strongSelf->_content updateConfigContentWithResponse:fetchedConfig
                                                  forNamespace:strongSelf->_FIRNamespace];
-        // Update experiments.
-        [strongSelf->_experiment
-            updateExperimentsWithResponse:fetchedConfig[RCNFetchResponseKeyExperimentDescriptions]];
+        // Update experiments only for 3p namespace
+        NSString *namespace = [strongSelf->_FIRNamespace
+            substringToIndex:[strongSelf->_FIRNamespace rangeOfString:@":"].location];
+        if ([namespace isEqualToString:FIRNamespaceGoogleMobilePlatform]) {
+          [strongSelf->_experiment updateExperimentsWithResponse:
+                                       fetchedConfig[RCNFetchResponseKeyExperimentDescriptions]];
+        }
       } else {
         FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000063",
                     @"Empty response with no fetched config.");
@@ -512,16 +517,8 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
 - (NSString *)constructServerURL {
   NSString *serverURLStr = [[NSString alloc] initWithString:kServerURLDomain];
   serverURLStr = [serverURLStr stringByAppendingString:kServerURLVersion];
-
-  if (_options.projectID) {
-    serverURLStr = [serverURLStr stringByAppendingString:kServerURLProjects];
-    serverURLStr = [serverURLStr stringByAppendingString:_options.projectID];
-  } else {
-    FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000070",
-                @"Missing `projectID` from `FirebaseOptions`, please ensure the configured "
-                @"`FirebaseApp` is configured with `FirebaseOptions` that contains a `projectID`.");
-  }
-
+  serverURLStr = [serverURLStr stringByAppendingString:kServerURLProjects];
+  serverURLStr = [serverURLStr stringByAppendingString:_options.projectID];
   serverURLStr = [serverURLStr stringByAppendingString:kServerURLNamespaces];
 
   // Get the namespace from the fully qualified namespace string of "namespace:FIRAppName".

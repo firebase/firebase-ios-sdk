@@ -1,3 +1,18 @@
+# v8.4.0
+- [fixed] Fixed handling of Unicode characters in log and assertion messages
+  (#8372).
+
+# v8.2.0
+- [changed] Passing in an empty document ID, collection group ID, or collection
+  path will now result in a more readable error (#8218).
+
+# v7.9.0
+- [feature] Added support for Firestore Bundles via
+  `FIRFirestore.loadBundle`, `FIRFirestore.loadBundleStream` and
+  `FIRFirestore.getQueryNamed`. Bundles contain pre-packaged data produced
+  with the Server SDKs and can be used to populate Firestore's cache
+  without reading documents from the backend.
+
 # v7.7.0
 - [fixed] Fixed a crash that could happen when the App is being deleted and
   there's an active listener (#6909).

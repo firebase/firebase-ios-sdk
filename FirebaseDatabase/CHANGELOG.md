@@ -1,8 +1,19 @@
+# v8.5.0
+- [fixed] FirebaseDatabase `getData()` callbacks are now called on the main thread. (#8247)
+
+# v8.0.0
+- [added] Added abuse reduction features. (#7928, #7943)
+
+# v7.9.0
+- [added] Added community support for watchOS. (#4556)
+
 # v7.7.0
 - [fixed] Fix variable length array diagnostics warning (#7460).
-# v7.5.1
+
+# v7.6.0
 - [changed] Optimize `FIRDatabaseQuery#getDataWithCompletionBlock` when in-memory active listener cache exists (#7312).
-- [fixed] Fixed an issue with `FIRDatabaseQuery#{queryStartingAfterValue,queryEndingBeforeValue} when used in `queryOrderedByKey` queries (#7403).
+- [fixed] Fixed an issue with `FIRDatabaseQuery#{queryStartingAfterValue,queryEndingBeforeValue}`
+  when used in `queryOrderedByKey` queries (#7403).
 
 # v7.5.0
 - [added] Implmement `queryStartingAfterValue` and `queryEndingBeforeValue` for FirebaseDatabase query pagination.

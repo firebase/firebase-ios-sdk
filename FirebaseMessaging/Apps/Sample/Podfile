@@ -9,8 +9,8 @@ target 'Sample' do
 
   pod 'FirebaseCore', :path => '../../../'
   pod 'FirebaseMessaging', :path => '../../../'
-  pod 'FirebaseInstanceID', :path => '../../../'
   pod 'FirebaseCoreDiagnostics', :path => '../../../'
   pod 'FirebaseInstallations', :path => '../../../'
+  pod 'FirebaseAnalytics'
 
 end

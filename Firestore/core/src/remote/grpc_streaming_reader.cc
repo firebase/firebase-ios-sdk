@@ -30,7 +30,6 @@ namespace remote {
 
 using util::AsyncQueue;
 using util::Status;
-using util::StatusOr;
 
 GrpcStreamingReader::GrpcStreamingReader(
     std::unique_ptr<grpc::ClientContext> context,

@@ -1,3 +1,30 @@
+# v8.4.0
+- [fixed] Bump Promises dependency. (#8365)
+
+# v8.3.0
+- [fixed] Add missing dependency that could cause missing symbol build failures. (#8137)
+
+# v8.2.0
+- [changed] Incorporated code quality changes around integer overflow, potential race conditions, and reinstalling signal handlers.
+- [fixed] Fixed an issue where iOS-only apps running on iPads would report iOS as their OS Name.
+- [fixed] Fixed depcrecation warning for projects with minimum deployment version iOS 13 and up.
+
+# v8.0.0
+- [changed] Added a warning to upload-symbols when it detects a dSYM with hidden symbols.
+
+# v7.10.0
+- [changed] Added a warning to upload-symbols when it detects a dSYM without any symbols.
+
+# v7.9.0
+- [changed] Updated Firebase pod to allow iOS 9 installation via `pod 'Firebase/Crashlytics'`
+
+# v7.8.0
+- [added] Added a new API checkAndUpdateUnsentReportsWithCompletion for updating the crash report from the previous run of the app if, for example, the developer wants to implement a feedback dialog to ask end-users for more information. Unsent Crashlytics Reports have familiar methods like setting custom keys and logs (#7503).
+- [changed] Added a limit to the number of unsent reports on disk to prevent disk filling up when automatic data collection is off. Developers can ensure this limit is never reached by calling send/deleteUnsentReports every run (#7619).
+
+# v7.7.0
+- [added] Added a new API to allow for bulk logging of custom keys and values (#7302).
+
 # v7.6.0
 - [fixed] Fixed an issue where some developers experienced a race condition involving binary image operations (#7459).
 

@@ -30,10 +30,10 @@ NSString *const kUnauthorizedResponseString =
 NSString *const kNotFoundResponseString = @"<html><body><p>Object not found.</p></body></html>";
 NSString *const kInvalidJSONResponseString = @"This is not a JSON object";
 NSString *const kFIRStorageObjectURL =
-    @"https://firebasestorage.googleapis.com/v0/b/bucket/o/object";
-NSString *const kFIRStorageBucketURL = @"https://firebasestorage.googleapis.com/v0/b/bucket/o";
+    @"https://firebasestorage.googleapis.com:443/v0/b/bucket/o/object";
+NSString *const kFIRStorageBucketURL = @"https://firebasestorage.googleapis.com:443/v0/b/bucket/o";
 NSString *const kFIRStorageNotFoundURL =
-    @"https://firebasestorage.googleapis.com/v0/b/bucket/o/i/dont/exist";
+    @"https://firebasestorage.googleapis.com:443/v0/b/bucket/o/i/dont/exist";
 NSString *const kFIRStorageTestAuthToken = @"1234-5678-9012-3456-7890";
 NSString *const kFIRStorageAppName = @"app";
 
@@ -49,6 +49,13 @@ NSString *const kFIRStorageAppName = @"app";
                                                                     registrants:registrants];
   OCMStub([app container]).andReturn(container);
   return app;
+}
+
++ (FIRStorageReference *)rootReference {
+  FIRStorage *storage = [FIRStorage storageForApp:[FIRStorageTestHelpers mockedApp]
+                                              URL:@"gs://bucket.firebase.com"];
+  FIRStoragePath *path = [[FIRStoragePath alloc] initWithBucket:@"bucket" object:nil];
+  return [[FIRStorageReference alloc] initWithStorage:storage path:path];
 }
 
 + (NSURL *)objectURL {
@@ -84,34 +91,44 @@ NSString *const kFIRStorageAppName = @"app";
   if (metadata) {
     data = [NSData frs_dataFromJSONDictionary:[metadata dictionaryRepresentation]];
   }
-  return [FIRStorageTestHelpers blockForData:data statusCode:200];
+  return [FIRStorageTestHelpers blockForData:data URL:nil statusCode:200];
+}
+
++ (GTMSessionFetcherTestBlock)successBlockWithURL:(NSString *)url {
+  NSData *data = [@"{}" dataUsingEncoding:NSUTF8StringEncoding];
+  return [FIRStorageTestHelpers blockForData:data URL:url statusCode:200];
 }
 
 + (GTMSessionFetcherTestBlock)unauthenticatedBlock {
   NSData *data = [kUnauthenticatedResponseString dataUsingEncoding:NSUTF8StringEncoding];
-  return [FIRStorageTestHelpers blockForData:data statusCode:401];
+  return [FIRStorageTestHelpers blockForData:data URL:nil statusCode:401];
 }
 
 + (GTMSessionFetcherTestBlock)unauthorizedBlock {
   NSData *data = [kUnauthorizedResponseString dataUsingEncoding:NSUTF8StringEncoding];
-  return [FIRStorageTestHelpers blockForData:data statusCode:403];
+  return [FIRStorageTestHelpers blockForData:data URL:nil statusCode:403];
 }
 
 + (GTMSessionFetcherTestBlock)notFoundBlock {
   NSData *data = [kNotFoundResponseString dataUsingEncoding:NSUTF8StringEncoding];
-  return [FIRStorageTestHelpers blockForData:data statusCode:404];
+  return [FIRStorageTestHelpers blockForData:data URL:nil statusCode:404];
 }
 
 + (GTMSessionFetcherTestBlock)invalidJSONBlock {
   NSData *data = [kInvalidJSONResponseString dataUsingEncoding:NSUTF8StringEncoding];
-  return [FIRStorageTestHelpers blockForData:data statusCode:200];
+  return [FIRStorageTestHelpers blockForData:data URL:nil statusCode:200];
 }
 
 #pragma mark - Private methods
 
-+ (GTMSessionFetcherTestBlock)blockForData:(nullable NSData *)data statusCode:(NSInteger)code {
++ (GTMSessionFetcherTestBlock)blockForData:(nullable NSData *)data
+                                       URL:(nullable NSString *)url
+                                statusCode:(NSInteger)code {
   GTMSessionFetcherTestBlock block =
       ^(GTMSessionFetcher *fetcher, GTMSessionFetcherTestResponse response) {
+        if (url) {
+          XCTAssertEqualObjects(url, [fetcher.request.URL absoluteString]);
+        }
         NSHTTPURLResponse *httpResponse = [[NSHTTPURLResponse alloc] initWithURL:fetcher.request.URL
                                                                       statusCode:code
                                                                      HTTPVersion:kHTTPVersion

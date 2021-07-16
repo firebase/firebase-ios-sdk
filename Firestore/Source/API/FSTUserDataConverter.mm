@@ -53,7 +53,6 @@
 namespace util = firebase::firestore::util;
 using firebase::Timestamp;
 using firebase::TimestampInternal;
-using firebase::firestore::GeoPoint;
 using firebase::firestore::core::ParseAccumulator;
 using firebase::firestore::core::ParseContext;
 using firebase::firestore::core::ParsedSetData;
@@ -64,11 +63,9 @@ using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
-using firebase::firestore::model::FieldTransform;
 using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::NumericIncrementTransform;
 using firebase::firestore::model::ObjectValue;
-using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ServerTimestampTransform;
 using firebase::firestore::model::TransformOperation;
 using firebase::firestore::nanopb::MakeByteString;
@@ -345,7 +342,7 @@ NS_ASSUME_NONNULL_BEGIN
       context.AddToFieldMask(*context.path());
 
     } else if (context.data_source() == UserDataSource::Update) {
-      HARD_ASSERT(context.path()->size() > 0,
+      HARD_ASSERT(!context.path()->empty(),
                   "FieldValue.delete() at the top level should have already been handled.");
       ThrowInvalidArgument("FieldValue.delete() can only appear at the top level of your "
                            "update data%s",
@@ -511,7 +508,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     absl::optional<FieldValue> parsedElement = [self parseData:element
                                                        context:context.ChildContext(i)];
-    HARD_ASSERT(parsedElement && accumulator.field_transforms().size() == 0,
+    HARD_ASSERT(parsedElement && accumulator.field_transforms().empty(),
                 "Failed to properly parse array transform element: %s", element);
     values.push_back(*parsedElement);
   }

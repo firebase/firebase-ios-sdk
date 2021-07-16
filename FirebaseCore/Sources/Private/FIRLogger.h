@@ -28,8 +28,6 @@ typedef NSString *const FIRLoggerService;
 extern FIRLoggerService kFIRLoggerAnalytics;
 extern FIRLoggerService kFIRLoggerCrash;
 extern FIRLoggerService kFIRLoggerCore;
-extern FIRLoggerService kFIRLoggerMLKit;
-extern FIRLoggerService kFIRLoggerPerf;
 extern FIRLoggerService kFIRLoggerRemoteConfig;
 
 /**

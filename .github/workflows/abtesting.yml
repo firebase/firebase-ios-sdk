@@ -6,10 +6,10 @@ on:
     - 'FirebaseABTesting**'
     - 'Interop/Analytics/Public/*.h'
     - '.github/workflows/abtesting.yml'
-    - 'Gemfile'
+    - 'Gemfile*'
   schedule:
-    # Run every day at 11pm (PST) - cron uses UTC times
-    - cron:  '0 7 * * *'
+    # Run every day at 1am(PST) - cron uses UTC times
+    - cron: '0 9 * * *'
 
 jobs:
   pod-lib-lint:
@@ -35,10 +35,8 @@ jobs:
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Xcode 12
-      run: sudo xcode-select -s /Applications/Xcode_12.app/Contents/Developer
     - name: Initialize xcodebuild
-      run: xcodebuild -list
+      run: scripts/setup_spm_tests.sh
     - name: iOS Unit Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh ABTestingUnit iOS spm
 
@@ -51,10 +49,8 @@ jobs:
         target: [tvOS, macOS, catalyst]
     steps:
     - uses: actions/checkout@v2
-    - name: Xcode 12
-      run: sudo xcode-select -s /Applications/Xcode_12.app/Contents/Developer
     - name: Initialize xcodebuild
-      run: xcodebuild -list
+      run: scripts/setup_spm_tests.sh
     - name: Unit Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh ABTestingUnit ${{ matrix.target }} spm
 
@@ -81,6 +77,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Setup quickstart
+      env:
+        LEGACY: true
       run: scripts/setup_quickstart.sh abtesting
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-abtesting.plist.gpg \
@@ -89,6 +87,8 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test swift quickstart
+      env:
+        LEGACY: true
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh ABTesting)
 
   abtesting-cron-only:
@@ -112,3 +112,14 @@ jobs:
       run: |
         scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb \
           FirebaseABTesting.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
+
+  podspec-presubmit:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository == 'Firebase/firebase-ios-sdk' && github.event.pull_request.merged != true && github.event.action != 'closed'
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Build and test
+      run: scripts/third_party/travis/retry.sh pod spec lint FirebaseABTesting.podspec --skip-tests --sources='https://github.com/firebase/SpecsTesting','https://github.com/firebase/SpecsDev.git','https://github.com/firebase/SpecsStaging.git','https://cdn.cocoapods.org/'

@@ -27,7 +27,7 @@ import Foundation
 let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseStorage/Tests/Integration",
                        "FirebaseDynamicLinks/Tests/Integration",
                        "FirebaseInAppMessaging/Tests/Integration/",
-                       "Example/InstanceID/App", "SymbolCollisionTest/", "/gen/",
+                       "SymbolCollisionTest/", "/gen/",
                        "CocoapodsIntegrationTest/", "FirebasePerformance/Tests/TestApp/",
                        "FirebasePerformance/Tests/FIRPerfE2E/"] +
   [
@@ -87,6 +87,7 @@ private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL)
   // Treat all files with names finishing on "Test" or "Tests" as files with tests.
   let isTestFile = file.contains("Test.m") || file.contains("Tests.m") ||
     file.contains("Test.swift") || file.contains("Tests.swift")
+  let isBridgingHeader = file.contains("Bridging-Header.h")
   var inSwiftPackage = false
   var inSwiftPackageElse = false
   let lines = fileContents.components(separatedBy: .newlines)
@@ -102,6 +103,9 @@ private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL)
     } else if inSwiftPackageElse, line.starts(with: "#endif") {
       inSwiftPackageElse = false
     } else if inSwiftPackage {
+      continue
+    } else if file.contains("FirebaseTestingSupport") {
+      // Module imports ok in SPM only test infrastructure.
       continue
     } else if line.starts(with: "@import") {
       // "@import" is only allowed for Swift Package Manager.
@@ -141,7 +145,7 @@ private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL)
             logger.importLog("Import \(importFileRaw) does not exist.", file, lineNum)
           }
         }
-      } else if importFile.first == "<", !isPrivate, !isTestFile {
+      } else if importFile.first == "<", !isPrivate, !isTestFile, !isBridgingHeader, !isPublic {
         // Verify that double quotes are always used for intra-module imports.
         if importFileRaw.starts(with: "Firebase") {
           logger

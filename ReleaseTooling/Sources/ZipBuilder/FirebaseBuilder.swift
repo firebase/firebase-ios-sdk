@@ -31,43 +31,20 @@ struct FirebaseBuilder {
   /// Wrapper around a generic zip builder that adds in Firebase specific steps including a
   /// multi-level zip file, a README, and optionally Carthage artifacts.
   func build(templateDir: URL,
-             carthageBuildOptions: CarthageBuildOptions?) {
+             carthageBuildOptions: CarthageBuildOptions) {
     // Build the zip file and get the path.
     do {
-      let artifacts = try zipBuilder.buildAndAssembleFirebaseRelease(templateDir: templateDir,
-                                                                     includeCarthage: carthageBuildOptions !=
-                                                                       nil)
+      let artifacts = try zipBuilder.buildAndAssembleFirebaseRelease(templateDir: templateDir)
       let firebaseVersion = artifacts.firebaseVersion
       let location = artifacts.zipDir
       print("Firebase \(firebaseVersion) directory is ready to be packaged: \(location)")
 
       // Package carthage if it's enabled.
-      var carthageRoot: URL?
-      if let carthageBuildOptions = carthageBuildOptions {
-        carthageRoot = CarthageUtils.packageCarthageRelease(
-          templateDir: zipBuilder.paths.templateDir,
-          artifacts: artifacts,
-          options: carthageBuildOptions
-        )
-      }
-
-      // Prepare the release directory for zip packaging.
-      do {
-        // Move the Resources out of each directory in order to maintain the existing Zip structure.
-        let fileManager = FileManager.default
-        let contents = try fileManager.contentsOfDirectory(atPath: location.path)
-        for fileOrFolder in contents {
-          let fullPath = location.appendingPathComponent(fileOrFolder)
-
-          // Ignore any files.
-          guard fileManager.isDirectory(at: fullPath) else { continue }
-
-          // Move all the bundles in the frameworks out to a common "Resources" directory to match the
-          // existing Zip structure.
-          let resourcesDir = fullPath.appendingPathComponent("Resources")
-          _ = try ResourcesManager.moveAllBundles(inDirectory: fullPath, to: resourcesDir)
-        }
-      }
+      let carthageRoot = CarthageUtils.packageCarthageRelease(
+        templateDir: zipBuilder.paths.templateDir,
+        artifacts: artifacts,
+        options: carthageBuildOptions
+      )
 
       print("Attempting to Zip the directory...")
       let candidateName = "Firebase-\(firebaseVersion)-latest.zip"

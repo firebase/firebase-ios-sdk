@@ -1,3 +1,13 @@
+# 8.2.0
+- [fixed] Fixed analyze issues introduced in Xcode 12.5. (#8210)
+- [fixed] Fixed a bug in the link with email link, Game Center, and phone auth flows. (#8196)
+
+# 8.0.0
+- [fixed] Fixed a crash that occurred when assigning auth settings. (#7670)
+
+# 7.8.0
+- [fixed] Fixed auth state sharing during first app launch. (#7472)
+
 # 7.6.0
 - [fixed] Auth emulator now works across the local network. (#7350)
 - [fixed] Fixed incorrect import for watchOS (#7425)

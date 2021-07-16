@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
+#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
-#import "OCMock.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
@@ -56,7 +56,7 @@
   XCTAssertNotNil(storage);
 }
 
-/// Tests that the component container does not cache instances of FIRStorageComponent.
+/// Tests that the component container caches instances of FIRStorageComponent.
 - (void)testMultipleComponentInstancesCreated {
   // App isn't used in any of this, so a simple class mock works for simplicity.
   id app = OCMClassMock([FIRApp class]);
@@ -71,8 +71,8 @@
       FIR_COMPONENT(FIRStorageMultiBucketProvider, container);
   XCTAssertNotNil(provider2);
 
-  // Ensure they're different instances.
-  XCTAssertNotEqual(provider1, provider2);
+  // Ensure they're the same instance.
+  XCTAssertEqual(provider1, provider2);
 }
 
 /// Tests that instances of FIRStorage created are different.
@@ -92,8 +92,8 @@
   FIRStorage *storage2 = [provider storageForBucket:@"randomBucket"];
   XCTAssertNotNil(storage2);
 
-  // Ensure that they're different instances but equal objects since everything else matches.
-  XCTAssertNotEqual(storage1, storage2);
+  // Ensure that they're the same instance
+  XCTAssertEqual(storage1, storage2);
   XCTAssertEqualObjects(storage1, storage2);
 
   // Create another bucket with a different provider from above.

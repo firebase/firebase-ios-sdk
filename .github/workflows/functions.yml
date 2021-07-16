@@ -7,10 +7,13 @@ on:
     - '.github/workflows/functions.yml'
     - 'Interop/Auth/Public/*.h'
     - 'FirebaseMessaging/Sources/Interop/*.h'
-    - 'Gemfile'
+    - 'FirebaseTestingSupport/Functions/**'
+    - 'FirebaseCombineSwift/Sources/Functions/**'
+    - 'Gemfile*'
+
   schedule:
-    # Run every day at 11pm (PST) - cron uses UTC times
-    - cron:  '0 7 * * *'
+    # Run every day at 3am (PST) - cron uses UTC times
+    - cron:  '0 11 * * *'
 
 jobs:
 
@@ -40,9 +43,11 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Initialize xcodebuild
-      run: xcodebuild -list
+      run: scripts/setup_spm_tests.sh
     - name: iOS Unit Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFunctions iOS spmbuildonly
+    - name: Combine Unit Tests
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FunctionsCombineUnit iOS spm
 
   spm-cron:
     # Don't run on private repo.
@@ -54,7 +59,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Initialize xcodebuild
-      run: xcodebuild -list
+      run: scripts/setup_spm_tests.sh
     - name: Unit Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFunctions ${{ matrix.target }} spmbuildonly
 
@@ -108,7 +113,7 @@ jobs:
         target: [ios, tvos, macos]
         flags: [
           '--use-static-frameworks',
-          '--use-libraries'
+          '--use-libraries --skip-tests'
         ]
     needs: pod-lib-lint
     steps:
@@ -121,3 +126,14 @@ jobs:
       run: |
         scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb \
           FirebaseFunctions.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
+
+  podspec-presubmit:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository == 'Firebase/firebase-ios-sdk' && github.event.pull_request.merged != true && github.event.action != 'closed'
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Build and test
+      run: scripts/third_party/travis/retry.sh pod spec lint FirebaseFunctions.podspec --skip-tests --sources='https://github.com/firebase/SpecsTesting','https://github.com/firebase/SpecsDev.git','https://github.com/firebase/SpecsStaging.git','https://cdn.cocoapods.org/'

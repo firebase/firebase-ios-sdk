@@ -122,6 +122,11 @@ NS_SWIFT_NAME(Storage)
  */
 - (FIRStorageReference *)referenceWithPath:(NSString *)string;
 
+/**
+ * Configures the Storage SDK to use an emulated backend instead of the default remote backend.
+ */
+- (void)useEmulatorWithHost:(NSString *)host port:(NSInteger)port;
+
 @end
 
 NS_ASSUME_NONNULL_END

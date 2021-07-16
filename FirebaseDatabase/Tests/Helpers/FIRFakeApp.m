@@ -47,23 +47,6 @@
 @property(nonatomic, strong) NSMutableDictionary<NSString *, FIRComponentCreationBlock> *components;
 @end
 
-@interface FIRComponentContainer (TestInternalImplementations)
-- (instancetype)initWithApp:(FIRApp *)app
-                 components:(NSDictionary<NSString *, FIRComponentCreationBlock> *)components;
-@end
-
-@implementation FIRComponentContainer (TestInternalImplementations)
-
-- (instancetype)initWithApp:(FIRApp *)app
-                 components:(NSDictionary<NSString *, FIRComponentCreationBlock> *)components {
-  self = [self initWithApp:app registrants:[[NSMutableSet alloc] init]];
-  if (self) {
-    self.components = [components mutableCopy];
-  }
-  return self;
-}
-@end
-
 @implementation FIRFakeApp
 
 - (instancetype)initWithName:(NSString *)name URL:(NSString *_Nullable)url {

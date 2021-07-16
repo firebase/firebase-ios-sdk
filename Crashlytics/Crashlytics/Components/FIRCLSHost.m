@@ -158,6 +158,8 @@ static void FIRCLSHostWriteOSVersionInfo(FIRCLSFile* file) {
   FIRCLSFileWriteHashEntryString(file, "os_display_version",
                                  [FIRCLSHostOSDisplayVersion() UTF8String]);
   FIRCLSFileWriteHashEntryString(file, "platform", [FIRCLSApplicationGetPlatform() UTF8String]);
+  FIRCLSFileWriteHashEntryString(file, "firebase_platform",
+                                 [FIRCLSApplicationGetFirebasePlatform() UTF8String]);
 }
 
 bool FIRCLSHostRecord(FIRCLSFile* file) {

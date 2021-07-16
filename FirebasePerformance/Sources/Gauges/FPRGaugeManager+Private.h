@@ -42,7 +42,9 @@
 
 /**
  * Prepares for dispatching the current set of gauge data to Google Data Transport.
+ *
+ * @param sessionId SessionId that will be used for dispatching the gauge data
  */
-- (void)prepareAndDispatchGaugeData;
+- (void)prepareAndDispatchCollectedGaugeDataWithSessionId:(nullable NSString *)sessionId;
 
 @end

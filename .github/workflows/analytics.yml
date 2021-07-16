@@ -4,11 +4,13 @@ on:
   pull_request:
     paths:
     - 'FirebaseAnalytics.podspec.json'
+    - 'FirebaseAnalyticsSwift**'
     - 'GoogleAppMeasurement.podspec.json'
-    - 'Gemfile'
+    - '.github/workflows/analytics.yml'
+    - 'Gemfile*'
   schedule:
-    # Run every day at 11pm (PST) - cron uses UTC times
-    - cron:  '0 7 * * *'
+    # Run every day at 1am (PST) - cron uses UTC times
+    - cron: '0 9 * * *'
 
 jobs:
   pod-lib-lint:
@@ -21,7 +23,20 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: GoogleAppMeasurement
-      run: scripts/third_party/travis/retry.sh pod spec lint GoogleAppMeasurement.podspec.json
+      run: scripts/third_party/travis/retry.sh pod spec lint GoogleAppMeasurement.podspec.json --sources=https://github.com/firebase/SpecsDev.git,https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/
+    - name: FirebaseAnalyticsSwift
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAnalyticsSwift.podspec --platforms=ios
 
 # TODO: Consider pushing GoogleAppMeasurement.podspec.json to SpecsDev to enable similar test
 # for FirebaseAnalytics.podspec.json
+
+  podspec-presubmit:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository == 'Firebase/firebase-ios-sdk' && github.event.pull_request.merged != true && github.event.action != 'closed'
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Build and test
+      run: scripts/third_party/travis/retry.sh pod spec lint FirebaseAnalyticsSwift.podspec --skip-tests --sources='https://github.com/firebase/SpecsTesting','https://github.com/firebase/SpecsDev.git','https://github.com/firebase/SpecsStaging.git','https://cdn.cocoapods.org/'

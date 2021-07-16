@@ -227,13 +227,13 @@
 - (void)testProxyWrappedSessionWithConfiguration {
   Method method = class_getClassMethod([NSURLSession class], @selector(sessionWithConfiguration:));
   IMP originalImp = method_getImplementation(method);
-  IMP swizzledImp =
-      imp_implementationWithBlock(^(id session, NSURLSessionConfiguration *configuration) {
-        typedef NSURLSession *(*OriginalImp)(id, SEL, NSURLSessionConfiguration *);
-        NSURLSession *originalSession = ((OriginalImp)originalImp)(
-            session, @selector(sessionWithConfiguration:), configuration);
-        return [[FPRNSURLSessionProxy alloc] initWithSession:originalSession];
-      });
+  IMP swizzledImp = imp_implementationWithBlock(^(id session,
+                                                  NSURLSessionConfiguration *configuration) {
+    typedef NSURLSession *(*OriginalImp)(id, SEL, NSURLSessionConfiguration *);
+    NSURLSession *originalSession =
+        ((OriginalImp)originalImp)(session, @selector(sessionWithConfiguration:), configuration);
+    return [[FPRNSURLSessionProxy alloc] initWithSession:originalSession];
+  });
   method_setImplementation(method, swizzledImp);
   NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
   XCTAssertEqual([[NSURLSession sessionWithConfiguration:config] class],
@@ -387,9 +387,16 @@
   [uploadTask resume];
 
   XCTAssertNotNil([FPRNetworkTrace networkTraceFromObject:uploadTask]);
+  FPRNetworkTrace *networkTrace = [FPRNetworkTrace networkTraceFromObject:uploadTask];
+
   [self waitAndRunBlockAfterResponse:^(id self, GCDWebServerRequest *_Nonnull request,
                                        GCDWebServerResponse *_Nonnull response) {
     XCTAssertTrue(delegate.URLSessionTaskDidSendBodyDataTotalBytesSentTotalBytesExpectedCalled);
+    XCTAssert(networkTrace.requestSize > 0);
+    XCTAssert(
+        [networkTrace
+            timeIntervalBetweenCheckpointState:FPRNetworkTraceCheckpointStateInitiated
+                                      andState:FPRNetworkTraceCheckpointStateRequestCompleted] > 0);
     XCTAssertNil([FPRNetworkTrace networkTraceFromObject:uploadTask]);
   }];
   [instrument deregisterInstrumentors];

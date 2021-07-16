@@ -20,7 +20,8 @@
 #include <utility>
 #include <vector>
 
-#include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/exception.h"
+#include "absl/strings/match.h"
 #include "absl/strings/str_join.h"
 #include "absl/strings/str_split.h"
 
@@ -37,8 +38,10 @@ ResourcePath ResourcePath::FromStringView(absl::string_view path) {
   // sequences (e.g. __id123__) and just passes them through raw (they exist
   // for legacy reasons and should not be used frequently).
 
-  HARD_ASSERT(path.find("//") == std::string::npos,
-              "Invalid path (%s). Paths must not contain // in them.", path);
+  if (absl::StrContains(path, "//")) {
+    util::ThrowInvalidArgument(
+        "Invalid path (%s). Paths must not contain // in them.", path);
+  }
 
   // SkipEmpty because we may still have an empty segment at the beginning or
   // end if they had a leading or trailing slash (which we allow).

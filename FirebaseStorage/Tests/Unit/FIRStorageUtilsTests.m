@@ -14,9 +14,9 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseStorage/Sources/FIRStorageUtils.h"
-
 #import "FirebaseStorage/Sources/FIRStoragePath.h"
+
+#import "FirebaseStorage/Tests/Unit/FIRStorageTestHelpers.h"
 
 @interface FIRStorageUtilsTests : XCTestCase
 
@@ -97,17 +97,18 @@
 }
 
 - (void)testDefaultRequestForFullPath {
-  FIRStoragePath *path = [[FIRStoragePath alloc] initWithBucket:@"bucket" object:@"path/to/object"];
-  NSURLRequest *request = [FIRStorageUtils defaultRequestForPath:path];
-  XCTAssertEqualObjects([request.URL absoluteString],
-                        @"https://firebasestorage.googleapis.com/v0/b/bucket/o/path%2Fto%2Fobject");
+  FIRStorageReference *ref = [[FIRStorageTestHelpers rootReference] child:@"path/to/object"];
+  NSURLRequest *request = [FIRStorageUtils defaultRequestForReference:ref];
+  XCTAssertEqualObjects(
+      [request.URL absoluteString],
+      @"https://firebasestorage.googleapis.com:443/v0/b/bucket/o/path%2Fto%2Fobject");
 }
 
 - (void)testDefaultRequestForNoPath {
-  FIRStoragePath *path = [[FIRStoragePath alloc] initWithBucket:@"bucket" object:nil];
-  NSURLRequest *request = [FIRStorageUtils defaultRequestForPath:path];
+  FIRStorageReference *ref = [FIRStorageTestHelpers rootReference];
+  NSURLRequest *request = [FIRStorageUtils defaultRequestForReference:ref];
   XCTAssertEqualObjects([request.URL absoluteString],
-                        @"https://firebasestorage.googleapis.com/v0/b/bucket/o");
+                        @"https://firebasestorage.googleapis.com:443/v0/b/bucket/o");
 }
 
 - (void)testEncodedURLForFullPath {

@@ -1,0 +1,19 @@
+name: "Swift stdlib"
+description:
+  "This is the RTDBEncoder and RTDBDecoder, which are heavily "
+  "modified derivatives of the JSONEncoder and JSONDecoder from the Swift "
+  "stdlib's Foundation framework."
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://swift.org/"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/apple/swift"
+  }
+  version: "swift-5.2-branch"
+  last_upgrade_date { year: 2020 month: 9 day: 11 }
+  license_type: NOTICE
+}

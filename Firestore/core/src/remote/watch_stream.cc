@@ -34,7 +34,6 @@ using auth::CredentialsProvider;
 using auth::Token;
 using local::TargetData;
 using model::TargetId;
-using nanopb::Message;
 using remote::ByteBufferReader;
 using util::AsyncQueue;
 using util::Status;

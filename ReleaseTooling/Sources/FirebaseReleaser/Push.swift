@@ -53,7 +53,7 @@ enum Push {
         case .trunk:
           return "pod trunk push --skip-tests --synchronous \(warningsOK) " +
             pod
-            .skipImportValidation() + " ~/.cocoapods/repos/\(stagingLocation)/Specs/\(pod.name)/" +
+            .skipImportValidation() + " ~/.cocoapods/repos/\(stagingLocation)/\(pod.name)/" +
             "\(manifest.versionString(pod))/\(pod.name).podspec.json"
         }
       }()

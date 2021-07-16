@@ -12,10 +12,10 @@ on:
     # This file
     - '.github/workflows/messaging.yml'
     # Rebuild on Ruby infrastructure changes
-    - 'Gemfile'
+    - 'Gemfile*'
   schedule:
-    # Run every day at 11pm (PST) - cron uses UTC times
-    - cron:  '0 7 * * *'
+    # Run every day at 10pm (PST) - cron uses UTC times
+    - cron:  '0 6 * * *'
 
 jobs:
 
@@ -62,10 +62,8 @@ jobs:
         target: [iOS, watchOS]
     steps:
     - uses: actions/checkout@v2
-    - name: Xcode 12
-      run: sudo xcode-select -s /Applications/Xcode_12.app/Contents/Developer
     - name: Initialize xcodebuild
-      run: xcodebuild -list
+      run: scripts/setup_spm_tests.sh
     - name: Unit Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh MessagingUnit ${{ matrix.target }} spm
 
@@ -78,10 +76,8 @@ jobs:
         target: [tvOS, macOS, catalyst]
     steps:
     - uses: actions/checkout@v2
-    - name: Xcode 12
-      run: sudo xcode-select -s /Applications/Xcode_12.app/Contents/Developer
     - name: Initialize xcodebuild
-      run: xcodebuild -list
+      run: scripts/setup_spm_tests.sh
     - name: Unit Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh MessagingUnit ${{ matrix.target }} spm
 
@@ -188,3 +184,14 @@ jobs:
       run: scripts/install_prereqs.sh MessagingSample iOS
     - name: Build
       run: ([ -z $plist_secret ] || scripts/build.sh MessagingSample iOS)
+
+  podspec-presubmit:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository == 'Firebase/firebase-ios-sdk' && github.event.pull_request.merged != true && github.event.action != 'closed'
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Build and test
+      run: scripts/third_party/travis/retry.sh pod spec lint FirebaseMessaging.podspec --skip-tests --sources='https://github.com/firebase/SpecsTesting','https://github.com/firebase/SpecsDev.git','https://github.com/firebase/SpecsStaging.git','https://cdn.cocoapods.org/'
