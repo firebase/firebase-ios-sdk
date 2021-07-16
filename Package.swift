@@ -153,7 +153,7 @@ let package = Package(
     .package(
       name: "GoogleUtilities",
       url: "https://github.com/google/GoogleUtilities.git",
-      "7.4.0" ..< "8.0.0"
+      .branch("mm/app-delegate-sample")
     ),
     .package(
       name: "GTMSessionFetcher",
@@ -372,6 +372,7 @@ let package = Package(
       dependencies: [
         "FirebaseCore",
         .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
+        .product(name: "GULMulticastAppDelegate", package: "GoogleUtilities"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),
       ],
