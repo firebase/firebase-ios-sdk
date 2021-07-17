@@ -14,25 +14,24 @@
 
 import FirebaseInAppMessaging
 
-@available(iOS 13, tvOS 13, *)
-@available(iOSApplicationExtension, unavailable)
+@available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, *)
 public struct InAppMessagingPreviewHelpers {
   public static func cardMessage(campaignName: String = "Card message campaign",
                                  title: String = "Title for modal message",
                                  body: String? = "Body for modal message",
                                  textColor: UIColor = UIColor.label,
-                                 backgroundColor: UIColor = UIColor.systemBackground,
+                                 backgroundColor: UIColor = defaultBackgroundColor(),
                                  portraitImage: UIImage = UIImage(systemName: "rectangle")!,
                                  landscapeImage: UIImage? = UIImage(systemName: "square"),
                                  primaryButtonText: String = "Click me!",
                                  primaryButtonTextColor: UIColor = UIColor.systemBlue,
-                                 primaryButtonBackgroundColor: UIColor = UIColor
-                                   .secondarySystemBackground,
+                                 primaryButtonBackgroundColor: UIColor =
+                                   defaultPrimaryBackgroundColor(),
                                  primaryActionURL: URL? = nil,
                                  secondaryButtonText: String? = "Dismiss",
                                  secondaryButtonTextColor: UIColor? = UIColor.secondaryLabel,
-                                 secondaryButtonBackgroundColor: UIColor? = UIColor
-                                   .tertiarySystemBackground,
+                                 secondaryButtonBackgroundColor: UIColor? =
+                                   defaultSecondaryBackgroundColor(),
                                  secondaryActionURL: URL? = nil,
                                  appData: [String: String]? = nil) -> InAppMessagingCardDisplay {
     // This may crash the preview if an invalid portrait image is provided, card messages must have
@@ -73,6 +72,30 @@ public struct InAppMessagingPreviewHelpers {
       secondaryActionURL: secondaryActionURL,
       appData: appData
     )
+  }
+
+  public static func defaultBackgroundColor() -> UIColor {
+#if os(tvOS)
+    return UIColor.white
+#else
+    return UIColor.systemBackground
+#endif
+  }
+
+  public static func defaultPrimaryBackgroundColor() -> UIColor {
+#if os(tvOS)
+    return UIColor.gray
+#else
+    return UIColor.secondarySystemBackground
+#endif
+  }
+
+  public static func defaultSecondaryBackgroundColor() -> UIColor {
+#if os(tvOS)
+    return UIColor.gray
+#else
+    return UIColor.tertiarySystemBackground
+#endif
   }
 
   public static func modalMessage(campaignName: String = "Modal message campaign",
