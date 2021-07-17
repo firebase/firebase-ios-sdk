@@ -75,27 +75,27 @@ public struct InAppMessagingPreviewHelpers {
   }
 
   public static func defaultBackgroundColor() -> UIColor {
-#if os(tvOS)
-    return UIColor.white
-#else
-    return UIColor.systemBackground
-#endif
+    #if os(tvOS)
+      return UIColor.white
+    #else
+      return UIColor.systemBackground
+    #endif
   }
 
   public static func defaultPrimaryBackgroundColor() -> UIColor {
-#if os(tvOS)
-    return UIColor.gray
-#else
-    return UIColor.secondarySystemBackground
-#endif
+    #if os(tvOS)
+      return UIColor.gray
+    #else
+      return UIColor.secondarySystemBackground
+    #endif
   }
 
   public static func defaultSecondaryBackgroundColor() -> UIColor {
-#if os(tvOS)
-    return UIColor.gray
-#else
-    return UIColor.tertiarySystemBackground
-#endif
+    #if os(tvOS)
+      return UIColor.gray
+    #else
+      return UIColor.tertiarySystemBackground
+    #endif
   }
 
   public static func modalMessage(campaignName: String = "Modal message campaign",
