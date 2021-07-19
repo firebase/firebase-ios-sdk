@@ -18,22 +18,21 @@ import FirebaseInAppMessaging
 @available(iOSApplicationExtension, unavailable)
 @available(tvOSApplicationExtension, unavailable)
 public struct InAppMessagingPreviewHelpers {
+  public static let foo = UIColor.black
   public static func cardMessage(campaignName: String = "Card message campaign",
                                  title: String = "Title for modal message",
                                  body: String? = "Body for modal message",
                                  textColor: UIColor = UIColor.label,
-                                 backgroundColor: UIColor = defaultBackgroundColor(),
+                                 backgroundColor: UIColor = UIColor.systemBlack,
                                  portraitImage: UIImage = UIImage(systemName: "rectangle")!,
                                  landscapeImage: UIImage? = UIImage(systemName: "square"),
                                  primaryButtonText: String = "Click me!",
                                  primaryButtonTextColor: UIColor = UIColor.systemBlue,
-                                 primaryButtonBackgroundColor: UIColor =
-                                   defaultPrimaryBackgroundColor(),
+                                 primaryButtonBackgroundColor: UIColor = UIColor.systemGray,
                                  primaryActionURL: URL? = nil,
                                  secondaryButtonText: String? = "Dismiss",
                                  secondaryButtonTextColor: UIColor? = UIColor.secondaryLabel,
-                                 secondaryButtonBackgroundColor: UIColor? =
-                                   defaultSecondaryBackgroundColor(),
+                                 secondaryButtonBackgroundColor: UIColor? = UIColor.systemYellow,
                                  secondaryActionURL: URL? = nil,
                                  appData: [String: String]? = nil) -> InAppMessagingCardDisplay {
     // This may crash the preview if an invalid portrait image is provided, card messages must have
@@ -74,30 +73,6 @@ public struct InAppMessagingPreviewHelpers {
       secondaryActionURL: secondaryActionURL,
       appData: appData
     )
-  }
-
-  public static func defaultBackgroundColor() -> UIColor {
-    #if os(tvOS)
-      return UIColor.black
-    #else
-      return UIColor.systemBackground
-    #endif
-  }
-
-  public static func defaultPrimaryBackgroundColor() -> UIColor {
-    #if os(tvOS)
-      return UIColor.systemGray
-    #else
-      return UIColor.secondarySystemBackground
-    #endif
-  }
-
-  public static func defaultSecondaryBackgroundColor() -> UIColor {
-    #if os(tvOS)
-      return UIColor.systemGray
-    #else
-      return UIColor.tertiarySystemBackground
-    #endif
   }
 
   public static func modalMessage(campaignName: String = "Modal message campaign",
