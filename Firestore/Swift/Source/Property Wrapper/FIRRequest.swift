@@ -119,6 +119,8 @@ public class FIRRequest<T: Decodable> {
                     self.wrappedValue = snapshot.documents.compactMap { document in
                         try? document.data(as: T.self)
                     }
+                    
+                    print(self.wrappedValue)
                 }
         }
     }
