@@ -48,7 +48,7 @@ if [ "$TESTINGMODE" = "release_testing" ]; then
   # Latest release branch with prefix CocoaPods, e.g. CocoaPods-7.11
   latest_branch_version=$(git branch -l -r --sort=-v:refname origin/release-* | head -n 1 | sed -n 's/^[ \t]*origin\/release/CocoaPods/p' )
   # Latest tag of release branch on the repo, e.g. Cocoapods-7.9.0
-  latest_release_branch_tag=$(git tag -l --sort=-version:refname "$latest_branch_version"*[0-9] | head -n 1)
+  latest_release_branch_tag=$(git tag -l --sort=-version:refname "CocoaPods-*" | grep ".*-beta$\|.*[0-9]$" | head -n 1)
   echo "Podspecs tags of Nightly release testing will be updated to ${latest_release_branch_tag}."
   # Update source and tag, e.g.  ":tag => 'CocoaPods-' + s.version.to_s" to
   # ":tag => 'CocoaPods-7.9.0'"
