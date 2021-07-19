@@ -43,7 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
  *   3. Global Firebase data collection setting.
  **/
 
-NS_EXTENSION_UNAVAILABLE_IOS("Firebase In App Messaging is not supported for iOS extensions.")
+NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS extensions.")
 NS_SWIFT_NAME(InAppMessaging)
 @interface FIRInAppMessaging : NSObject
 /** @fn inAppMessaging

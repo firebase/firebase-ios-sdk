@@ -15,6 +15,8 @@
 import FirebaseInAppMessaging
 
 @available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, *)
+@available(iOSApplicationExtension, unavailable)
+@available(tvOSApplicationExtension, unavailable)
 public struct InAppMessagingPreviewHelpers {
   public static func cardMessage(campaignName: String = "Card message campaign",
                                  title: String = "Title for modal message",
@@ -76,7 +78,7 @@ public struct InAppMessagingPreviewHelpers {
 
   public static func defaultBackgroundColor() -> UIColor {
     #if os(tvOS)
-      return UIColor.white
+      return UIColor.black
     #else
       return UIColor.systemBackground
     #endif
@@ -84,7 +86,7 @@ public struct InAppMessagingPreviewHelpers {
 
   public static func defaultPrimaryBackgroundColor() -> UIColor {
     #if os(tvOS)
-      return UIColor.gray
+      return UIColor.systemGray
     #else
       return UIColor.secondarySystemBackground
     #endif
@@ -92,7 +94,7 @@ public struct InAppMessagingPreviewHelpers {
 
   public static func defaultSecondaryBackgroundColor() -> UIColor {
     #if os(tvOS)
-      return UIColor.gray
+      return UIColor.systemGray
     #else
       return UIColor.tertiarySystemBackground
     #endif
