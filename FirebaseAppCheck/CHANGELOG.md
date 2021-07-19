@@ -2,6 +2,7 @@
 - [changed] App Check SDK available for all supported platforms/OS versions, but App Attest and
 DeviceCheck providers availability changed to match underlying platfrom API availability. (#8388)
 # v8.4.0 -- M100
+- [fixed] Fixed build issues introduced in Xcode 13 beta 3. (#8401)
 - [fixed] Bump Promises dependency. (#8365)
 # v8.3.0 -- M99
 - [added] Token API for 3P use. (#8266)
