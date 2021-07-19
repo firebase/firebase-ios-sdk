@@ -9,43 +9,41 @@ import SwiftUI
 
 public enum FIRPredicate {
     case isEqualTo(_ lhs: String, _ rhs: Any)
-    
+
     case isIn(_ lhs: String, rhs: [Any])
     case isNotIn(_ lhs: String, _ rhs: [Any])
-    
+
     case arrayContains(_ lhs: String, _ rhs: Any)
     case arrayContainsAny(_ lhs: String, _ rhs: [Any])
-    
+
     case isLessThan(_ lhs: String, _ rhs: Any)
     case isGreaterThan(_ lhs: String, _ rhs: Any)
-    
+
     case isLessThanOrEqualTo(_ lhs: String, _ rhs: Any)
     case isGreaterThanOrEqualTo(_ lhs: String, _ rhs: Any)
 }
 
 @available(iOS 13.0, *)
-
-@propertyWrapper
-public class FIRRequest<T: Decodable> {
-    @Published public var wrappedValue: [T] = []
+public class FirebaseStore<T: Decodable>: ObservableObject {
+    @Published var items: [T] = []
     
     private let store = Firestore.firestore()
     
-    public init(_ collection: String, _ predicates: [FIRPredicate] = []) {
+    init(_ collection: String, _ predicates: [FIRPredicate]) {
         load(from: collection, withPredicates: predicates)
     }
     
-    private func load(from collection: String, withPredicates predicates: [FIRPredicate] = []) {
+    private func load(from collection: String, withPredicates predicates: [FIRPredicate]) {
         let reference = store.collection(collection)
-        
+
         if predicates.isEmpty {
             reference
                 .getDocuments { snapshot, error in
                     guard error == nil, let snapshot = snapshot else {
                         return
                     }
-                    
-                    self.wrappedValue = snapshot.documents.compactMap { document in
+
+                    self.items = snapshot.documents.compactMap { document in
                         try? document.data(as: T.self)
                     }
                 }
@@ -109,17 +107,36 @@ public class FIRRequest<T: Decodable> {
                         }
                 }
             }
-            
+
             query?
                 .getDocuments { snapshot, error in
                     guard error == nil, let snapshot = snapshot else {
                         return
                     }
-                    
-                    self.wrappedValue = snapshot.documents.compactMap { document in
+
+                    self.items = snapshot.documents.compactMap { document in
                         try? document.data(as: T.self)
                     }
                 }
         }
+    }
+}
+
+@available(iOS 14.0, *)
+@propertyWrapper
+public struct FIRRequest<T: Decodable>: DynamicProperty {
+    @StateObject public var store: FirebaseStore<T>
+    
+    public var wrappedValue: [T] {
+        get {
+            store.items
+        }
+        nonmutating set {
+            store.items = newValue
+        }
+    }
+    
+    public init(_ collection: String, predicates: [FIRPredicate]) {
+        self._store = StateObject(wrappedValue: FirebaseStore<T>(collection, predicates))
     }
 }
