@@ -33,6 +33,8 @@ NS_ASSUME_NONNULL_BEGIN
  * @class FIRDynamicLinks
  * @abstract A class that checks for pending Dynamic Links and parses URLs.
  */
+
+NS_EXTENSION_UNAVAILABLE_IOS("Firebase Dynamic Links is not supported for iOS extensions.")
 NS_SWIFT_NAME(DynamicLinks)
 @interface FIRDynamicLinks : NSObject
 

@@ -68,6 +68,7 @@ NS_SWIFT_NAME(InAppMessagingActionButton)
 
 /** Contain display data for an image for a fiam message.
  */
+NS_EXTENSION_UNAVAILABLE_IOS("Firebase In App Messaging is not supported for iOS extensions.")
 NS_SWIFT_NAME(InAppMessagingImageData)
 @interface FIRInAppMessagingImageData : NSObject
 
@@ -88,6 +89,7 @@ NS_SWIFT_NAME(InAppMessagingImageData)
 
 /** Defines the metadata for the campaign to which a FIAM message belongs.
  */
+NS_EXTENSION_UNAVAILABLE_IOS("Firebase In App Messaging is not supported for iOS extensions.")
 NS_SWIFT_NAME(InAppMessagingCampaignInfo)
 @interface FIRInAppMessagingCampaignInfo : NSObject
 
@@ -113,6 +115,7 @@ NS_SWIFT_NAME(InAppMessagingCampaignInfo)
 
 /** Defines the metadata for a FIAM action.
  */
+NS_EXTENSION_UNAVAILABLE_IOS("Firebase In App Messaging is not supported for iOS extensions.")
 NS_SWIFT_NAME(InAppMessagingAction)
 @interface FIRInAppMessagingAction : NSObject
 
@@ -138,6 +141,7 @@ NS_SWIFT_NAME(InAppMessagingAction)
  * Base class representing a FIAM message to be displayed. Don't create instance
  * of this class directly. Instantiate one of its subclasses instead.
  */
+NS_EXTENSION_UNAVAILABLE_IOS("Firebase In App Messaging is not supported for iOS extensions.")
 NS_SWIFT_NAME(InAppMessagingDisplayMessage)
 @interface FIRInAppMessagingDisplayMessage : NSObject
 
@@ -173,6 +177,7 @@ NS_SWIFT_NAME(InAppMessagingDisplayMessage)
 
 @end
 
+NS_EXTENSION_UNAVAILABLE_IOS("Firebase In App Messaging is not supported for iOS extensions.")
 NS_SWIFT_NAME(InAppMessagingCardDisplay)
 @interface FIRInAppMessagingCardDisplay : FIRInAppMessagingDisplayMessage
 
@@ -233,6 +238,7 @@ NS_SWIFT_NAME(InAppMessagingCardDisplay)
 
 /** Class for defining a modal message for display.
  */
+NS_EXTENSION_UNAVAILABLE_IOS("Firebase In App Messaging is not supported for iOS extensions.")
 NS_SWIFT_NAME(InAppMessagingModalDisplay)
 @interface FIRInAppMessagingModalDisplay : FIRInAppMessagingDisplayMessage
 
@@ -278,6 +284,7 @@ NS_SWIFT_NAME(InAppMessagingModalDisplay)
 
 /** Class for defining a banner message for display.
  */
+NS_EXTENSION_UNAVAILABLE_IOS("Firebase In App Messaging is not supported for iOS extensions.")
 NS_SWIFT_NAME(InAppMessagingBannerDisplay)
 @interface FIRInAppMessagingBannerDisplay : FIRInAppMessagingDisplayMessage
 
@@ -318,6 +325,7 @@ NS_SWIFT_NAME(InAppMessagingBannerDisplay)
 
 /** Class for defining a image-only message for display.
  */
+NS_EXTENSION_UNAVAILABLE_IOS("Firebase In App Messaging is not supported for iOS extensions.")
 NS_SWIFT_NAME(InAppMessagingImageOnlyDisplay)
 @interface FIRInAppMessagingImageOnlyDisplay : FIRInAppMessagingDisplayMessage
 
@@ -360,6 +368,7 @@ typedef NS_ENUM(NSInteger, FIAMDisplayRenderErrorType) {
  * A protocol defining those callbacks to be triggered by the message display component
  * under appropriate conditions.
  */
+NS_EXTENSION_UNAVAILABLE_IOS("Firebase In App Messaging is not supported for iOS extensions.")
 NS_SWIFT_NAME(InAppMessagingDisplayDelegate)
 @protocol FIRInAppMessagingDisplayDelegate <NSObject>
 
@@ -417,6 +426,7 @@ NS_SWIFT_NAME(InAppMessagingDisplayDelegate)
 /**
  * The protocol that a FIAM display component must implement.
  */
+NS_EXTENSION_UNAVAILABLE_IOS("Firebase In App Messaging is not supported for iOS extensions.")
 NS_SWIFT_NAME(InAppMessagingDisplay)
 @protocol FIRInAppMessagingDisplay
 

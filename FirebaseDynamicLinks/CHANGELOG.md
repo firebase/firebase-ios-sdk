@@ -1,3 +1,7 @@
+# v8.4.0
+- [fixed] Fixed build issues introduced in Xcode 13 beta 3. (#8401)
+- [fixed] Fixed build failures for extension targets. (#6548)
+
 # v8.2.0
 - [fixed] Fixed analyze issue introduced in Xcode 12.5. (#8208)
 
