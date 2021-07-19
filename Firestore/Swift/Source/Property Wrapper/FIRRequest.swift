@@ -4,23 +4,26 @@
 //  Created by Florian Schweizer on 12.07.21.
 //
 
+import FirebaseFirestore
 import SwiftUI
 
 public enum FIRPredicate {
-    case isEqualTo(_ lhs: String, rhs: Any)
+    case isEqualTo(_ lhs: String, _ rhs: Any)
     
     case isIn(_ lhs: String, rhs: [Any])
-    case isNotIn(_ lhs: String, rhs: [Any])
+    case isNotIn(_ lhs: String, _ rhs: [Any])
     
-    case arrayContains(_ lhs: String, rhs: Any)
-    case arrayContainsAny(_ lhs: String, rhs: [Any])
+    case arrayContains(_ lhs: String, _ rhs: Any)
+    case arrayContainsAny(_ lhs: String, _ rhs: [Any])
     
-    case isLessThan(_ lhs: String, rhs: Any)
-    case isGreaterThan(_ lhs: String, rhs: Any)
+    case isLessThan(_ lhs: String, _ rhs: Any)
+    case isGreaterThan(_ lhs: String, _ rhs: Any)
     
-    case isLessThanOrEqualTo(_ lhs: String, rhs: Any)
-    case isGreaterThanOrEqualTo(_ lhs: String, rhs: Any)
+    case isLessThanOrEqualTo(_ lhs: String, _ rhs: Any)
+    case isGreaterThanOrEqualTo(_ lhs: String, _ rhs: Any)
 }
+
+@available(iOS 13.0, *)
 
 @propertyWrapper
 public class FIRRequest<T: Decodable> {
