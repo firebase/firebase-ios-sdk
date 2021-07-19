@@ -1,3 +1,6 @@
+# 2021-7 --- v8.4.0
+- [fixed] Fixed build issues introduced in Xcode 13 beta 3. (#8401)
+
 # 2021-6 -- v.8.2.0
 - [fixed] Fixed missing constraints warnings in default UI storyboard (#8205).
 
