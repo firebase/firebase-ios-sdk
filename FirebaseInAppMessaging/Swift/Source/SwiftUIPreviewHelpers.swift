@@ -14,6 +14,8 @@
 
 import FirebaseInAppMessaging
 
+@available(iOS 13, tvOS 13, *)
+@available(iOSApplicationExtension, unavailable)
 public struct InAppMessagingPreviewHelpers {
   public static func cardMessage(campaignName: String = "Card message campaign",
                                  title: String = "Title for modal message",

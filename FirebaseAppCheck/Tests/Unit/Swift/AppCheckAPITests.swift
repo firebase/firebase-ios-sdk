@@ -68,7 +68,7 @@ final class AppCheckAPITests {
     #if swift(>=5.5)
       if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
-        async {
+        Task {
           do {
             try await AppCheck.appCheck().token(forcingRefresh: false)
           } catch {
@@ -102,7 +102,7 @@ final class AppCheckAPITests {
       #if swift(>=5.5)
         if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *) {
           // async/await is a Swift 5.5+ feature available on iOS 15+
-          async {
+          Task {
             do {
               _ = try await debugProvider.getToken()
             } catch {
@@ -170,20 +170,20 @@ final class AppCheckAPITests {
             // ...
           }
         }
-      }
-      // Get token (async/await)
-      #if swift(>=5.5)
-        if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *) {
-          // async/await is a Swift 5.5+ feature available on iOS 15+
-          async {
-            do {
-              _ = try await deviceCheckProvider.getToken()
-            } catch {
-              // ...
+        // Get token (async/await)
+        #if swift(>=5.5)
+          if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *) {
+            // async/await is a Swift 5.5+ feature available on iOS 15+
+            Task {
+              do {
+                _ = try await deviceCheckProvider.getToken()
+              } catch {
+                // ...
+              }
             }
           }
-        }
-      #endif // swift(>=5.5)
+        #endif // swift(>=5.5)
+      }
     }
   }
 }
