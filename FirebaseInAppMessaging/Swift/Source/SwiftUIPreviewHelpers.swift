@@ -23,7 +23,7 @@ public struct InAppMessagingPreviewHelpers {
                                  title: String = "Title for modal message",
                                  body: String? = "Body for modal message",
                                  textColor: UIColor = UIColor.label,
-                                 backgroundColor: UIColor = UIColor.systemBlack,
+                                 backgroundColor: UIColor = UIColor.black,
                                  portraitImage: UIImage = UIImage(systemName: "rectangle")!,
                                  landscapeImage: UIImage? = UIImage(systemName: "square"),
                                  primaryButtonText: String = "Click me!",
