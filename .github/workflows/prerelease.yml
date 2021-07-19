@@ -32,18 +32,22 @@ jobs:
       run: |
          ossbotaccess=`cat oss-bot-access.txt`
          BOT_TOKEN="${ossbotaccess}" test_version="${nightly_version}" sdk_version_config="${GITHUB_WORKSPACE}/scripts/create_spec_repo/RC_firebase_sdk.textproto" local_sdk_repo_dir="${local_sdk_repo_dir}" podspec_repo_branch="${podspec_repo_branch}" scripts/release_testing_setup.sh prerelease_testing
-    - name: Update SpecsTesting repo
-      run: |
-        botaccess=`cat bot-access.txt`
-        cd scripts/create_spec_repo/
-        swift build
-        pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/Firebase/SpecsTesting.git
-        BOT_TOKEN="${botaccess}" .build/debug/spec-repo-builder --sdk-repo "${local_sdk_repo_dir}" --local-spec-repo-name "${local_repo}" --sdk-repo-name SpecsTesting --github-account Firebase --pod-sources 'https://${BOT_TOKEN}@github.com/Firebase/SpecsTesting' "https://github.com/firebase/SpecsDev.git" "https://github.com/firebase/SpecsStaging.git" "https://cdn.cocoapods.org/" --exclude-pods "FirebaseSegmentation" "FirebaseFirestoreTestingSupport" "FirebaseAuthTestingSupport" "FirebaseCombineSwift" "FirebaseFunctionsTestingSupport"
+ #   - name: Update SpecsTesting repo
+ #     run: |
+ #       botaccess=`cat bot-access.txt`
+ #       cd scripts/create_spec_repo/
+ #       swift build
+ #       pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/Firebase/SpecsTesting.git
+ #       BOT_TOKEN="${botaccess}" .build/debug/spec-repo-builder --sdk-repo "${local_sdk_repo_dir}" --local-spec-repo-name "${local_repo}" --sdk-repo-name SpecsTesting --github-account Firebase --pod-sources 'https://${BOT_TOKEN}@github.com/Firebase/SpecsTesting' "https://github.com/firebase/SpecsDev.git" "https://github.com/firebase/SpecsStaging.git" "https://cdn.cocoapods.org/" --exclude-pods "FirebaseSegmentation" "FirebaseFirestoreTestingSupport" "FirebaseAuthTestingSupport" "FirebaseCombineSwift" "FirebaseFunctionsTestingSupport"
     - name: Clean Artifacts
       if: ${{ always() }}
       run: |
         pod repo remove "${local_repo}"
         rm -rf bot-access.txt
+    - uses: actions/upload-artifact@v2
+      with:
+        name: prerelease_sdk_repo
+        path: /tmp/test/firebase-ios-sdk
 
   update_SpecsTesting_repo:
     # Don't run on private repo unless it is a PR.
