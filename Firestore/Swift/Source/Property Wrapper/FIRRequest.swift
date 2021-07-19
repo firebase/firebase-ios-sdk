@@ -6,7 +6,7 @@
 
 import SwiftUI
 
-enum FIRPredicate {
+public enum FIRPredicate {
     case isEqualTo(_ lhs: String, rhs: Any)
     
     case isIn(_ lhs: String, rhs: [Any])
