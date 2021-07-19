@@ -177,8 +177,8 @@ NS_SWIFT_NAME(InAppMessagingDisplayMessage)
 
 @end
 
-NS_SWIFT_NAME(InAppMessagingCardDisplay)
 NS_EXTENSION_UNAVAILABLE_IOS("Firebase In App Messaging is not supported for iOS extensions.")
+NS_SWIFT_NAME(InAppMessagingCardDisplay)
 @interface FIRInAppMessagingCardDisplay : FIRInAppMessagingDisplayMessage
 
 /**
