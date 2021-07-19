@@ -136,7 +136,7 @@ public struct FIRRequest<T: Decodable>: DynamicProperty {
         }
     }
     
-    public init(_ collection: String, predicates: [FIRPredicate]) {
+    public init(_ collection: String, predicates: [FIRPredicate] = []) {
         self._store = StateObject(wrappedValue: FirebaseStore<T>(collection, predicates))
     }
 }
