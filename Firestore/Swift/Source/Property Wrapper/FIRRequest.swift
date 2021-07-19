@@ -45,10 +45,8 @@ public class FIRRequest<T: Decodable> {
                         return
                     }
                     
-                    DispatchQueue.main.async {
-                        self.wrappedValue = snapshot.documents.compactMap { document in
-                            try? document.data(as: T.self)
-                        }
+                    self.wrappedValue = snapshot.documents.compactMap { document in
+                        try? document.data(as: T.self)
                     }
                 }
         } else {
@@ -118,10 +116,8 @@ public class FIRRequest<T: Decodable> {
                         return
                     }
                     
-                    DispatchQueue.main.async {
-                        self.wrappedValue = snapshot.documents.compactMap { document in
-                            try? document.data(as: T.self)
-                        }
+                    self.wrappedValue = snapshot.documents.compactMap { document in
+                        try? document.data(as: T.self)
                     }
                 }
         }
