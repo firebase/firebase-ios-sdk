@@ -28,7 +28,7 @@ public class FIRRequest<T: Decodable> {
     
     private let store = Firestore.firestore()
     
-    init(_ collection: String, _ predicates: [FIRPredicate] = []) {
+    public init(_ collection: String, _ predicates: [FIRPredicate] = []) {
         load(from: collection, withPredicates: predicates)
     }
     
