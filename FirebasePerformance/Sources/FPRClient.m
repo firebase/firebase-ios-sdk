@@ -209,8 +209,8 @@
     return;
   }
   dispatch_group_async(self.eventsQueueGroup, self.eventsQueue, ^{
-    FPRMSGNetworkRequestMetric *networkRequestMetric = FPRGetNetworkRequestMetric(trace);
-    if (networkRequestMetric) {
+    if (trace.hasValidResponseCode) {
+      FPRMSGNetworkRequestMetric *networkRequestMetric = FPRGetNetworkRequestMetric(trace);
       int64_t duration = networkRequestMetric.hasTimeToResponseCompletedUs
                              ? networkRequestMetric.timeToResponseCompletedUs
                              : 0;
@@ -237,7 +237,10 @@
   }
   dispatch_group_async(self.eventsQueueGroup, self.eventsQueue, ^{
     FPRMSGPerfMetric *metric = FPRGetPerfMetricMessage(self.config.appID);
-    FPRMSGGaugeMetric *gaugeMetric = FPRGetGaugeMetric(gaugeData, sessionId);
+    FPRMSGGaugeMetric *gaugeMetric = nil;
+    if ((gaugeData != nil && gaugeData.count != 0) && (sessionId != nil && sessionId.length != 0)) {
+      gaugeMetric = FPRGetGaugeMetric(gaugeData, sessionId);
+    }
     metric.gaugeMetric = gaugeMetric;
     [self processAndLogEvent:metric];
   });
