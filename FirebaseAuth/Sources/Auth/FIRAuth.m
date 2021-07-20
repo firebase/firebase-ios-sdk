@@ -78,10 +78,13 @@
 #import "FirebaseAuth/Sources/SystemService/FIRAuthNotificationManager.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
 
-//#import <GoogleUtilities/GULMulticastAppDelegate-Swift.h>
-
+#if SWIFT_PACKAGE
 @import GoogleUtilities_MulticastAppDelegate;
-#endif
+#else // SWIFT_PACKAGE
+#import <GoogleMulticastAppDelegate/GoogleMulticastAppDelegate-Swift.h>
+#endif // SWIFT_PACKAGE
+
+#endif // TARGET_OS_IOS
 
 NS_ASSUME_NONNULL_BEGIN
 
