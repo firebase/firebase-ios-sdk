@@ -483,13 +483,13 @@ NSArray<FPRSessionDetails *> *MakeFirstSessionVerbose(NSArray<FPRSessionDetails 
   NSMutableArray<FPRSessionDetails *> *orderedSessions =
       [[NSMutableArray<FPRSessionDetails *> alloc] initWithArray:sessions];
 
-  __block NSInteger firstVerboseSessionIndex = -1;
-  [sessions enumerateObjectsUsingBlock:^(FPRSessionDetails *session, NSUInteger idx, BOOL *stop) {
-    if ([session isVerbose]) {
-      firstVerboseSessionIndex = idx;
-      *stop = YES;
+  NSInteger firstVerboseSessionIndex = -1;
+  for (int i = 0; i < [sessions count]; i++) {
+    if ([sessions[i] isVerbose]) {
+      firstVerboseSessionIndex = i;
+      break;
     }
-  }];
+  }
 
   if (firstVerboseSessionIndex > 0) {
     FPRSessionDetails *verboseSession = orderedSessions[firstVerboseSessionIndex];
