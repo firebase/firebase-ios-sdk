@@ -35,7 +35,7 @@
   {
     "sdk": "firestore",
     "filePatterns": [
-      "Firestore/.*",
+      "^Firestore/.*",
       "Interop/Auth/Public/[^/]+\\.h",
       "FirebaseCore/Sources/Private",
       "FirebaseCore/Sources/Public",
