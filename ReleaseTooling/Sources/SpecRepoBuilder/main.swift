@@ -307,10 +307,7 @@ struct SpecRepoBuilder: ParsableCommand {
 
   // Create `pod repo push` flags based on the manifest.
   func createSpecPushFlags(of sdk: String, from manifest: [Pod]) -> [String] {
-    if sdk == "Firebase" {
-      return Constants.umbrellaPodFlags
-    }
-    var flags = Constants.flags
+    var flags = sdk == "Firebase" ? Constants.umbrellaPodFlags : Constants.flags
     for podConfig in manifest {
       if sdk == podConfig.name {
         if podConfig.allowWarnings {
