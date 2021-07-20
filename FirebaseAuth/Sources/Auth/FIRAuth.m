@@ -78,7 +78,9 @@
 #import "FirebaseAuth/Sources/SystemService/FIRAuthNotificationManager.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
 
-#import <GoogleMulticastAppDelegate/GoogleMulticastAppDelegate-Swift.h>
+//#import <GoogleUtilities/GULMulticastAppDelegate-Swift.h>
+
+@import GoogleUtilities_MulticastAppDelegate;
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -484,9 +486,11 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     }
     UIApplication *application = [applicationClass sharedApplication];
 
+    // Use Multicast App Delegate when available but fallback to App Delegate Swizzler for backward compatibility.
     id<GULMulticastAppDelegateProtocol> multicastDelegate =
         [GULMulticastAppDelegate installedMulticastDelegate];
     if (multicastDelegate == nil) {
+      FIRLogInfo(kFIRLoggerAuth, @"I-AUT000018", @"Multicast App delegate was not detected. Make sure app events forwarding is configured manually for you app. <Add link to docs>");
       [GULAppDelegateSwizzler proxyOriginalDelegateIncludingAPNSMethods];
     }
 
