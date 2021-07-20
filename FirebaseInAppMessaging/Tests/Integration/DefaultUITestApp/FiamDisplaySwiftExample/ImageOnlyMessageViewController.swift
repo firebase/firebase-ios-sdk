@@ -16,48 +16,12 @@
 import UIKit
 
 class ImageOnlyMessageViewController: CommonMessageTestVC {
-  class TestableImageOnlyMessage: InAppMessagingImageOnlyDisplay {
-    var writableCampaignInfo: InAppMessagingCampaignInfo
-    var writableImageData: InAppMessagingImageData
-    var writableActionURL: URL?
-    var writableMessageType: FIRInAppMessagingDisplayMessageType
-    var writableTriggerType: FIRInAppMessagingDisplayTriggerType
-
-    override var campaignInfo: InAppMessagingCampaignInfo {
-      return writableCampaignInfo
-    }
-
-    override var imageData: InAppMessagingImageData {
-      return writableImageData
-    }
-
-    override var actionURL: URL? {
-      return writableActionURL
-    }
-
-    override var type: FIRInAppMessagingDisplayMessageType {
-      return writableMessageType
-    }
-
-    override var triggerType: FIRInAppMessagingDisplayTriggerType {
-      return writableTriggerType
-    }
-
-    init(imageData: InAppMessagingImageData,
-         actionURL: URL?) {
-      writableImageData = imageData
-      writableActionURL = actionURL
-      writableCampaignInfo = TestableCampaignInfo(messageID: "testID",
-                                                  campaignName: "testCampaign",
-                                                  isTestMessage: false)
-      writableMessageType = FIRInAppMessagingDisplayMessageType.imageOnly
-      writableTriggerType = FIRInAppMessagingDisplayTriggerType.onAnalyticsEvent
-      super.init(messageID: "testID",
-                 campaignName: "testCampaign",
-                 renderAsTestMessage: false,
-                 messageType: .imageOnly,
-                 triggerType: .onAnalyticsEvent)
-    }
+  func testImageOnlyMessage(imageData: InAppMessagingImageData,
+                            actionURL: URL?) -> InAppMessagingImageOnlyDisplay {
+    return InAppMessagingImageOnlyDisplay(campaignName: "campaignName",
+                                          imageData: imageData,
+                                          actionURL: actionURL,
+                                          appData: nil)
   }
 
   let displayImpl = InAppMessagingDefaultDisplayImpl()
@@ -82,7 +46,7 @@ class ImageOnlyMessageViewController: CommonMessageTestVC {
     let fiamImageData = InAppMessagingImageData(imageURL: "url not important",
                                                 imageData: imageRawData!)
 
-    let imageMessage = TestableImageOnlyMessage(
+    let imageMessage = testImageOnlyMessage(
       imageData: fiamImageData,
       actionURL: URL(string: "http://firebase.com")
     )
@@ -95,7 +59,7 @@ class ImageOnlyMessageViewController: CommonMessageTestVC {
     let fiamImageData = InAppMessagingImageData(imageURL: "url not important",
                                                 imageData: imageRawData!)
 
-    let imageMessage = TestableImageOnlyMessage(
+    let imageMessage = testImageOnlyMessage(
       imageData: fiamImageData,
       actionURL: URL(string: "http://firebase.com")
     )
@@ -108,7 +72,7 @@ class ImageOnlyMessageViewController: CommonMessageTestVC {
     let fiamImageData = InAppMessagingImageData(imageURL: "url not important",
                                                 imageData: imageRawData!)
 
-    let imageMessage = TestableImageOnlyMessage(
+    let imageMessage = testImageOnlyMessage(
       imageData: fiamImageData,
       actionURL: URL(string: "http://firebase.com")
     )
@@ -121,7 +85,7 @@ class ImageOnlyMessageViewController: CommonMessageTestVC {
     let fiamImageData = InAppMessagingImageData(imageURL: "url not important",
                                                 imageData: imageRawData!)
 
-    let imageMessage = TestableImageOnlyMessage(
+    let imageMessage = testImageOnlyMessage(
       imageData: fiamImageData,
       actionURL: URL(string: "http://firebase.com")
     )
@@ -133,7 +97,7 @@ class ImageOnlyMessageViewController: CommonMessageTestVC {
     let fiamImageData = InAppMessagingImageData(imageURL: "url not important",
                                                 imageData: imageRawData!)
 
-    let imageMessage = TestableImageOnlyMessage(
+    let imageMessage = testImageOnlyMessage(
       imageData: fiamImageData,
       actionURL: URL(string: "http://firebase.com")
     )

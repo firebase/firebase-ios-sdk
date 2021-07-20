@@ -15,8 +15,10 @@
 		25122B2125D3482F009EE4BE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 25122B0B25D3482F009EE4BE /* Assets.xcassets */; };
 		25122B2D25D34F10009EE4BE /* Podfile in Resources */ = {isa = PBXBuildFile; fileRef = 25122B2C25D34F10009EE4BE /* Podfile */; };
 		25122B2E25D34F10009EE4BE /* Podfile in Resources */ = {isa = PBXBuildFile; fileRef = 25122B2C25D34F10009EE4BE /* Podfile */; };
-		2578F0A825EC13C200081E42 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2578F0A725EC13C200081E42 /* GoogleService-Info.plist */; };
-		2578F0A925EC13C200081E42 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2578F0A725EC13C200081E42 /* GoogleService-Info.plist */; };
+		25AA028926964A5D00CB744F /* ModalInAppMessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25AA028826964A5D00CB744F /* ModalInAppMessageView.swift */; };
+		25AA028A26964A5D00CB744F /* ModalInAppMessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25AA028826964A5D00CB744F /* ModalInAppMessageView.swift */; };
+		25AA029726A1FBE400CB744F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 25AA029626A1FBE400CB744F /* GoogleService-Info.plist */; };
+		25AA029826A1FBE400CB744F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 25AA029626A1FBE400CB744F /* GoogleService-Info.plist */; };
 		D3879463309C5EF475DAD161 /* Pods_FIAMSwiftUI__iOS_.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 947FA46289A89F5788211889 /* Pods_FIAMSwiftUI__iOS_.framework */; };
 /* End PBXBuildFile section */
 
@@ -31,7 +33,8 @@
 		25122B1A25D3482F009EE4BE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		25122B1B25D3482F009EE4BE /* macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = macOS.entitlements; sourceTree = "<group>"; };
 		25122B2C25D34F10009EE4BE /* Podfile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Podfile; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
-		2578F0A725EC13C200081E42 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		25AA028826964A5D00CB744F /* ModalInAppMessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModalInAppMessageView.swift; sourceTree = "<group>"; };
+		25AA029626A1FBE400CB744F /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		3870F7D4AC793F66B002526B /* Pods-FIAMSwiftUI (iOS).debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FIAMSwiftUI (iOS).debug.xcconfig"; path = "Target Support Files/Pods-FIAMSwiftUI (iOS)/Pods-FIAMSwiftUI (iOS).debug.xcconfig"; sourceTree = "<group>"; };
 		947FA46289A89F5788211889 /* Pods_FIAMSwiftUI__iOS_.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FIAMSwiftUI__iOS_.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -70,9 +73,10 @@
 		25122B0825D3482E009EE4BE /* Shared */ = {
 			isa = PBXGroup;
 			children = (
-				2578F0A725EC13C200081E42 /* GoogleService-Info.plist */,
+				25AA029626A1FBE400CB744F /* GoogleService-Info.plist */,
 				25122B2C25D34F10009EE4BE /* Podfile */,
 				25122B0925D3482E009EE4BE /* FIAMSwiftUIApp.swift */,
+				25AA028826964A5D00CB744F /* ModalInAppMessageView.swift */,
 				25122B0A25D3482E009EE4BE /* ContentView.swift */,
 				25122B0B25D3482F009EE4BE /* Assets.xcassets */,
 			);
@@ -204,7 +208,7 @@
 			files = (
 				25122B2D25D34F10009EE4BE /* Podfile in Resources */,
 				25122B2025D3482F009EE4BE /* Assets.xcassets in Resources */,
-				2578F0A825EC13C200081E42 /* GoogleService-Info.plist in Resources */,
+				25AA029726A1FBE400CB744F /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -214,7 +218,7 @@
 			files = (
 				25122B2E25D34F10009EE4BE /* Podfile in Resources */,
 				25122B2125D3482F009EE4BE /* Assets.xcassets in Resources */,
-				2578F0A925EC13C200081E42 /* GoogleService-Info.plist in Resources */,
+				25AA029826A1FBE400CB744F /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -267,6 +271,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				25AA028926964A5D00CB744F /* ModalInAppMessageView.swift in Sources */,
 				25122B1E25D3482F009EE4BE /* ContentView.swift in Sources */,
 				25122B1C25D3482F009EE4BE /* FIAMSwiftUIApp.swift in Sources */,
 			);
@@ -276,6 +281,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				25AA028A26964A5D00CB744F /* ModalInAppMessageView.swift in Sources */,
 				25122B1F25D3482F009EE4BE /* ContentView.swift in Sources */,
 				25122B1D25D3482F009EE4BE /* FIAMSwiftUIApp.swift in Sources */,
 			);

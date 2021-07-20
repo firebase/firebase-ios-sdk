@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAppCheck'
-  s.version          = '8.4.0-beta'
+  s.version          = '8.5.0-beta'
   s.summary          = 'Firebase App Check SDK.'
 
   s.description      = <<-DESC
@@ -38,7 +38,9 @@ Pod::Spec.new do |s|
   ]
   s.public_header_files = base_dir + 'Sources/Public/FirebaseAppCheck/*.h'
 
-  s.weak_framework = 'DeviceCheck'
+  s.ios.weak_framework = 'DeviceCheck'
+  s.osx.weak_framework = 'DeviceCheck'
+  s.tvos.weak_framework = 'DeviceCheck'
 
   s.dependency 'FirebaseCore', '~> 8.0'
   s.dependency 'PromisesObjC', '>= 1.2', '< 3.0'

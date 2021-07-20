@@ -18,6 +18,7 @@ import SwiftUI
 // MARK: Image-only messages.
 
 @available(iOS 13, tvOS 13, *)
+@available(iOSApplicationExtension, unavailable)
 struct ImageOnlyInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModifier {
   var closure: (InAppMessagingImageOnlyDisplay, InAppMessagingDisplayDelegate) -> DisplayMessage
   @ObservedObject var delegateBridge = DelegateBridge.shared
@@ -39,6 +40,7 @@ struct ImageOnlyInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModif
 }
 
 @available(iOS 13, tvOS 13, *)
+@available(iOSApplicationExtension, unavailable)
 public extension View {
   /// Overrides the default display of an image only in-app message as defined on the Firebase console.
   func imageOnlyInAppMessage<Content: View>(closure: @escaping (InAppMessagingImageOnlyDisplay,
@@ -52,6 +54,7 @@ public extension View {
 // MARK: Banner messages.
 
 @available(iOS 13, tvOS 13, *)
+@available(iOSApplicationExtension, unavailable)
 struct BannerInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModifier {
   var closure: (InAppMessagingBannerDisplay, InAppMessagingDisplayDelegate) -> DisplayMessage
   @ObservedObject var delegateBridge = DelegateBridge.shared
@@ -72,6 +75,7 @@ struct BannerInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModifier
 }
 
 @available(iOS 13, tvOS 13, *)
+@available(iOSApplicationExtension, unavailable)
 public extension View {
   /// Overrides the default display of a banner in-app message as defined on the Firebase console.
   func bannerInAppMessage<Content: View>(closure: @escaping (InAppMessagingBannerDisplay,
@@ -85,6 +89,7 @@ public extension View {
 // MARK: Modal messages.
 
 @available(iOS 13, tvOS 13, *)
+@available(iOSApplicationExtension, unavailable)
 struct ModalInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModifier {
   var closure: (InAppMessagingModalDisplay, InAppMessagingDisplayDelegate) -> DisplayMessage
   @ObservedObject var delegateBridge = DelegateBridge.shared
@@ -105,6 +110,7 @@ struct ModalInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModifier 
 }
 
 @available(iOS 13, tvOS 13, *)
+@available(iOSApplicationExtension, unavailable)
 public extension View {
   /// Overrides the default display of a modal in-app message as defined on the Firebase console.
   func modalInAppMessage<Content: View>(closure: @escaping (InAppMessagingModalDisplay,
@@ -118,6 +124,7 @@ public extension View {
 // MARK: Card messages.
 
 @available(iOS 13, tvOS 13, *)
+@available(iOSApplicationExtension, unavailable)
 struct CardInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModifier {
   var closure: (InAppMessagingCardDisplay, InAppMessagingDisplayDelegate) -> DisplayMessage
   @ObservedObject var delegateBridge = DelegateBridge.shared
@@ -138,6 +145,7 @@ struct CardInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModifier {
 }
 
 @available(iOS 13, tvOS 13, *)
+@available(iOSApplicationExtension, unavailable)
 public extension View {
   /// Overrides the default display of a card in-app message as defined on the Firebase console.
   func cardInAppMessage<Content: View>(closure: @escaping (InAppMessagingCardDisplay,
@@ -155,6 +163,7 @@ public extension View {
  * in-app message fetch/display/interaction flow.
  */
 @available(iOS 13, tvOS 13, *)
+@available(iOSApplicationExtension, unavailable)
 class DelegateBridge: NSObject, InAppMessagingDisplay, InAppMessagingDisplayDelegate,
   ObservableObject {
   @Published var inAppMessageData: (InAppMessagingDisplayMessage,

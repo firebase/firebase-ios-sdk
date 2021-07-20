@@ -14,45 +14,9 @@
  * limitations under the License.
  */
 
-@class ABTExperimentPayload;
-
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRInAppMessagingCardDisplay (Private)
-
-- (void)setBody:(NSString *_Nullable)body;
-- (void)setLandscapeImageData:(FIRInAppMessagingImageData *_Nullable)landscapeImageData;
-- (void)setSecondaryActionButton:(FIRInAppMessagingActionButton *_Nullable)secondaryActionButton;
-- (void)setSecondaryActionURL:(NSURL *_Nullable)secondaryActionURL;
-
-- (instancetype)initWithMessageID:(NSString *)messageID
-                     campaignName:(NSString *)campaignName
-                experimentPayload:(nullable ABTExperimentPayload *)experimentPayload
-              renderAsTestMessage:(BOOL)renderAsTestMessage
-                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
-                        titleText:(NSString *)title
-                        textColor:(UIColor *)textColor
-                portraitImageData:(FIRInAppMessagingImageData *)portraitImageData
-                  backgroundColor:(UIColor *)backgroundColor
-              primaryActionButton:(FIRInAppMessagingActionButton *)primaryActionButton
-                 primaryActionURL:(nullable NSURL *)primaryActionURL
-                          appData:(nullable NSDictionary *)appData;
-
-@end
-
-@interface FIRInAppMessagingActionButton (Private)
-
-- (instancetype)initWithButtonText:(NSString *)btnText
-                   buttonTextColor:(UIColor *)textColor
-                   backgroundColor:(UIColor *)bkgColor;
-
-@end
-
-@interface FIRInAppMessagingImageData (Private)
-
-- (instancetype)initWithImageURL:(NSString *)imageURL imageData:(NSData *)imageData;
-
-@end
+@class ABTExperimentPayload;
 
 @interface FIRInAppMessagingCampaignInfo (Private)
 
@@ -62,12 +26,6 @@ NS_ASSUME_NONNULL_BEGIN
                      campaignName:(NSString *)campaignName
                 experimentPayload:(nullable ABTExperimentPayload *)experimentPayload
               renderAsTestMessage:(BOOL)renderAsTestMessage;
-
-@end
-
-@interface FIRInAppMessagingAction (Private)
-
-- (instancetype)initWithActionText:(nullable NSString *)actionText actionURL:(NSURL *)actionURL;
 
 @end
 
@@ -83,6 +41,27 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+@interface FIRInAppMessagingCardDisplay (Private)
+
+- (instancetype)initWithMessageID:(NSString *)messageID
+                     campaignName:(NSString *)campaignName
+                experimentPayload:(nullable ABTExperimentPayload *)experimentPayload
+              renderAsTestMessage:(BOOL)renderAsTestMessage
+                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
+                        titleText:(NSString *)title
+                         bodyText:(nullable NSString *)bodyText
+                        textColor:(UIColor *)textColor
+                portraitImageData:(FIRInAppMessagingImageData *)portraitImageData
+               landscapeImageData:(nullable FIRInAppMessagingImageData *)landscapeImageData
+                  backgroundColor:(UIColor *)backgroundColor
+              primaryActionButton:(FIRInAppMessagingActionButton *)primaryActionButton
+            secondaryActionButton:(nullable FIRInAppMessagingActionButton *)secondaryActionButton
+                 primaryActionURL:(nullable NSURL *)primaryActionURL
+               secondaryActionURL:(nullable NSURL *)secondaryActionURL
+                          appData:(nullable NSDictionary *)appData;
+
+@end
+
 @interface FIRInAppMessagingModalDisplay (Private)
 
 - (instancetype)initWithMessageID:(NSString *)messageID
@@ -91,7 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
               renderAsTestMessage:(BOOL)renderAsTestMessage
                       triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
                         titleText:(NSString *)title
-                         bodyText:(NSString *)bodyText
+                         bodyText:(nullable NSString *)bodyText
                         textColor:(UIColor *)textColor
                   backgroundColor:(UIColor *)backgroundColor
                         imageData:(nullable FIRInAppMessagingImageData *)imageData
@@ -109,7 +88,7 @@ NS_ASSUME_NONNULL_BEGIN
               renderAsTestMessage:(BOOL)renderAsTestMessage
                       triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
                         titleText:(NSString *)title
-                         bodyText:(NSString *)bodyText
+                         bodyText:(nullable NSString *)bodyText
                         textColor:(UIColor *)textColor
                   backgroundColor:(UIColor *)backgroundColor
                         imageData:(nullable FIRInAppMessagingImageData *)imageData
