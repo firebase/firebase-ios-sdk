@@ -117,7 +117,7 @@ struct ZipBuilderTool: ParsableCommand {
           The list of platforms to build for. The default list is \
           \(Platform.allCases.map { $0.name }).
           """))
-  var platforms: [Platform]
+  var platforms: [Platform] = Platform.allCases
 
   // MARK: - Specify Pods
 
@@ -236,11 +236,8 @@ struct ZipBuilderTool: ParsableCommand {
                                            logsOutputDir: outputDir?
                                              .appendingPathComponent("build_logs"))
 
-    // Populate the platforms list if it's empty. This isn't a great spot, but the argument parser
-    // can't specify a default for arrays.
-    let platformsToBuild = !platforms.isEmpty ? platforms : Platform.allCases
     let builder = ZipBuilder(paths: paths,
-                             platforms: platformsToBuild,
+                             platforms: platforms,
                              dynamicFrameworks: dynamic,
                              customSpecRepos: customSpecRepos)
 
