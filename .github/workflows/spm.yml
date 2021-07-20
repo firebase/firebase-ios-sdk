@@ -6,6 +6,7 @@ on:
     - '.github/workflows/spm.yml'
     - 'Package.swift'
     - '.swiftpm/*'
+    - 'scripts/build.sh'
     - 'Gemfile*'
   schedule:
     # Run every day at 12am (PST) - cron uses UTC times
