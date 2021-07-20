@@ -24,9 +24,10 @@ let package = Package(
   products: [
     .executable(name: "firebase-releaser", targets: ["FirebaseReleaser"]),
     .executable(name: "zip-builder", targets: ["ZipBuilder"]),
+    .executable(name: "spec-repo-builder", targets: ["SpecRepoBuilder"]),
   ],
   dependencies: [
-    .package(url: "https://github.com/apple/swift-argument-parser", .exact("0.1.0")),
+    .package(url: "https://github.com/apple/swift-argument-parser", .exact("0.3.0")),
   ],
   targets: [
     .target(
@@ -39,6 +40,10 @@ let package = Package(
     .target(
       name: "FirebaseReleaser",
       dependencies: ["ArgumentParser", "FirebaseManifest", "Utils"]
+    ),
+    .target(
+      name: "SpecRepoBuilder",
+      dependencies: ["ArgumentParser", "FirebaseManifest"]
     ),
     .target(
       name: "Utils"
