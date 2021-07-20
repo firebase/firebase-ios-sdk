@@ -123,7 +123,7 @@ struct ZipBuilderTool: ParsableCommand {
 
   @Option(parsing: .upToNextOption,
           help: ArgumentHelp("List of pods to build."))
-  var pods: [String]
+  var pods: [String] = []
 
   @Option(help: ArgumentHelp("""
   The path to a JSON file of the pods (with optional version) to package into a zip.
