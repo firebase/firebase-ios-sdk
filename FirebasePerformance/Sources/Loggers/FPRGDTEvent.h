@@ -15,10 +15,9 @@
 #import <Foundation/Foundation.h>
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
+#import "FirebasePerformance/Sources/Protogen/nanopb/perf_metric.nanopb.h"
 
 NS_ASSUME_NONNULL_BEGIN
-
-@class FPRMSGPerfMetric;
 
 /**
  * Google Data Transport event wrapper used for converting Fireperf Proto object to
@@ -27,12 +26,12 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FPRGDTEvent : NSObject <GDTCOREventDataObject>
 
 /** Perf metric that is going to be converted. */
-@property(nonatomic, readonly) FPRMSGPerfMetric *metric;
+@property(nonatomic, readonly) firebase_perf_v1_PerfMetric metric;
 
 - (instancetype)init NS_UNAVAILABLE;
 
 /** Converts a PerfMetric event to a GDTEvent. */
-+ (instancetype)gdtEventForPerfMetric:(FPRMSGPerfMetric *)perfMetric;
++ (instancetype)gdtEventForPerfMetric:(firebase_perf_v1_PerfMetric)perfMetric;
 
 @end
 
