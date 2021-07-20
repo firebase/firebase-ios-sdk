@@ -66,4 +66,9 @@ elif [ "$TESTINGMODE" = "prerelease_testing" ]; then
   # Update source and tag, e.g.  ":tag => 'CocoaPods-' + s.version.to_s" to
   # ":tag => ${test_version}.nightly"
   sed  -i "" "s/\s*:tag.*/:tag => '${tag_version}'/" *.podspec
+  # Cocoapods is throwing warnings version not tagged to the repo. This warning
+  # will not affect test but still fail the workflow. To avoid this warning,
+  # the version will be updated to be the same as tag.
+  sed  -i "" "s/s.version\s*=.*/s.version = '${tag_version}'/" *.podspec
+
 fi
