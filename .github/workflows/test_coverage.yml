@@ -42,6 +42,23 @@ jobs:
             ./scripts/code_coverage_report/get_updated_files.sh
           fi
 
+  binary_size_metrics:
+    needs: check
+    if: always() && github.repository == 'Firebase/firebase-ios-sdk' && (github.event.action == 'opened' || github.event.action == 'synchronize' || github.event.pull_request.merged)
+    runs-on: macOS-latest
+    strategy:
+      matrix:
+        target: [iOS]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build and test
+      run: |
+        cd scripts/code_coverage_report/generate_code_coverage_report/
+        git clone https://github.com/google/cocoapods-size
+        swift build
+        .build/debug/BinarySizeReportGenerator --binary-size-tool-dir cocoapods-size/  --sdk-repo-dir "${GITHUB_WORKSPACE}" --sdk FirebaseDatabase FirebaseABTesting
+        
+
   pod-lib-lint-abtesting:
     needs: check
     # Don't run on private repo unless it is a PR.
