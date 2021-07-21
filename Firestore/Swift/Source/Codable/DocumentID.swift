@@ -77,16 +77,17 @@ import FirebaseFirestore
   /// Firestore.Encoder leads to an error.
   @propertyWrapper
   public struct DocumentID<Value: DocumentIDWrappable & Codable>:
-    DocumentIDProtocol, Codable {
+    DocumentIDProtocol, Codable, Sendable {
     var value: Value?
+    private let lockQueue = DispatchQueue(label: "DocumentID.lockQueue")
 
     public init(wrappedValue value: Value?) {
       self.value = value
     }
 
     public var wrappedValue: Value? {
-      get { value }
-      set { value = newValue }
+        get {  return lockQueue.sync { return value } }
+        set { return lockQueue.sync { value = newValue } }
     }
 
     // MARK: - `DocumentIDProtocol` conformance
