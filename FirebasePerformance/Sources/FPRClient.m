@@ -35,8 +35,6 @@
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#import "FirebasePerformance/ProtoSupport/PerfMetric.pbobjc.h"
-
 @interface FPRClient ()
 
 /** The original configuration object used to initialize the client. */

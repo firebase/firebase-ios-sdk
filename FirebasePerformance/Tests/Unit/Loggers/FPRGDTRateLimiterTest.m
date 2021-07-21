@@ -30,8 +30,6 @@
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
 
-#import "FirebasePerformance/ProtoSupport/PerfMetric.pbobjc.h"
-
 @interface FPRGDTRateLimiterTest : FPRTestCase
 
 @end
