@@ -16,12 +16,12 @@
 
 #import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessagingExtensionHelper.h"
 
-#import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
-#import "FirebaseMessaging/Sources/FIRMessagingCode.h"
-#import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
-#import "FirebaseMessaging/Sources/Protogen/nanopb/me.nanopb.h"
 #import <GoogleDataTransport/GoogleDataTransport.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#import "FirebaseMessaging/Sources/FIRMessagingCode.h"
+#import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
+#import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
+#import "FirebaseMessaging/Sources/Protogen/nanopb/me.nanopb.h"
 
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>
