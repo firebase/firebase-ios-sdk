@@ -34,7 +34,7 @@ public class FirebaseStore<T: Decodable>: ObservableObject {
     }
     
     private func load(from collection: String, withPredicates predicates: [FIRPredicate]) {
-        let query: Query = store.collection(collection)
+        var query: Query = store.collection(collection)
         
         for predicate in predicates {
             switch predicate {
