@@ -24,33 +24,83 @@
 
 #import "FirebasePerformance/Sources/Protogen/nanopb/perf_metric.nanopb.h"
 
+/**nanopb struct of encoded NSDictionary<NSString *, NSString *>.*/
 typedef struct {
   pb_bytes_array_t* _Nonnull key;
   pb_bytes_array_t* _Nonnull value;
 } StringToStringMap;
 
+/**nanopb struct of encoded NSDictionary<NSString *, NSNumber *>.*/
 typedef struct {
   pb_bytes_array_t* _Nonnull key;
   bool has_value;
   int64_t value;
 } StringToNumberMap;
 
+/** Callocs a pb_bytes_array and copies the given NSData bytes into the bytes array.
+ *
+ * @note Memory needs to be free manually, through pb_free or pb_release.
+ * @param data The data to copy into the new bytes array.
+ * @return pb_byte array
+ */
 extern pb_bytes_array_t* _Nullable FPREncodeData(NSData* _Nonnull data);
 
+/** Callocs a pb_bytes_array and copies the given NSString's bytes into the bytes array.
+ *
+ * @note Memory needs to be free manually, through pb_free or pb_release.
+ * @param string The string to encode as pb_bytes.
+ * @return pb_byte array
+ */
 extern pb_bytes_array_t* _Nullable FPREncodeString(NSString* _Nonnull string);
 
+/** Creates a NSData object by copying the given bytes array and returns the reference.
+ *
+ * @param pbData The pbData to dedoded as NSData
+ * @return A reference to NSData
+ */
 extern NSData* _Nullable FPRDecodeData(pb_bytes_array_t* _Nonnull pbData);
 
+/** Creates a NSString object by copying the given bytes array and returns the reference.
+ *
+ * @param pbData The pbData to dedoded as NSString
+ * @return A reference to the NSString
+ */
 extern NSString* _Nullable FPRDecodeString(pb_bytes_array_t* _Nonnull pbData);
 
+/** Creates a NSDictionary by copying the given bytes from the StringToStringMap object and returns
+ * the reference.
+ *
+ * @param map The reference to a StringToStringMap object to be decoded.
+ * @param count The number of entries in the dictionary.
+ * @return A reference to the dictionary
+ */
 extern NSDictionary<NSString*, NSString*>* _Nullable FPRDecodeStringToStringMap(
     StringToStringMap* _Nullable map, NSInteger count);
 
+/** Callocs a nanopb StringToStringMap and copies the given NSDictionary bytes into the
+ * StringToStringMap.
+ *
+ * @param dict The dict to copy into the new StringToStringMap.
+ * @return A reference to StringToStringMap
+ */
 extern StringToStringMap* _Nullable FPREncodeStringToStringMap(NSDictionary* _Nullable dict);
 
+/** Creates a NSDictionary by copying the given bytes from the StringToNumberMap object and returns
+ * the reference.
+ *
+ * @param map The reference to a StringToNumberMap object to be decoded.
+ * @param count The number of entries in the dictionary.
+ * @return A reference to the dictionary
+ */
 extern NSDictionary<NSString*, NSNumber*>* _Nullable FPRDecodeStringToNumberMap(
     StringToNumberMap* _Nullable map, NSInteger count);
 
+/** Callocs a nanopb StringToNumberMap and copies the given NSDictionary bytes into the
+ * StringToStringMap.
+ *
+ * @param dict The dict to copy into the new StringToNumberMap.
+ * @return A reference to StringToNumberMap
+ */
 extern StringToNumberMap* _Nullable FPREncodeStringToNumberMap(NSDictionary* _Nullable dict);
 
 /** Creates a new firebase_perf_v1_PerfMetric struct populated with system metadata.

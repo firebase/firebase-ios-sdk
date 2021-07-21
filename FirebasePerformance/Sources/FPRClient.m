@@ -209,7 +209,7 @@
     return;
   }
   dispatch_group_async(self.eventsQueueGroup, self.eventsQueue, ^{
-    if (trace.hasValidResponseCode) {
+    if ([trace isValid]) {
       FPRMSGNetworkRequestMetric *networkRequestMetric = FPRGetNetworkRequestMetric(trace);
       int64_t duration = networkRequestMetric.hasTimeToResponseCompletedUs
                              ? networkRequestMetric.timeToResponseCompletedUs
