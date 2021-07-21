@@ -53,6 +53,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   // Make sure there are no sessions.
   trace.activeSessions = [NSMutableArray array];
   perfMetric.trace_metric = GetTraceMetric(trace);
+  perfMetric.has_trace_metric = true;
 
   return perfMetric;
 }
@@ -62,6 +63,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   FIRTrace *trace = [FPRTestUtils createRandomTraceWithName:traceName];
   trace = [FPRTestUtils addVerboseSessionToTrace:trace];
   perfMetric.trace_metric = GetTraceMetric(trace);
+  perfMetric.has_trace_metric = true;
 
   return perfMetric;
 }
@@ -75,7 +77,8 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   // Make sure there are no sessions.
   trace.activeSessions = [NSMutableArray array];
   perfMetric.trace_metric = GetTraceMetric(trace);
-
+  perfMetric.has_trace_metric = true;
+  
   return perfMetric;
 }
 
@@ -98,6 +101,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   [networkTrace didCompleteRequestWithResponse:response error:nil];
   networkTrace.activeSessions = [NSMutableArray array];
   perfMetric.network_request_metric = GetNetworkRequestMetric(networkTrace);
+  perfMetric.has_network_request_metric = true;
 
   return perfMetric;
 }
@@ -114,6 +118,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
 
   firebase_perf_v1_GaugeMetric gaugeMetric = GetGaugeMetric(gauges, @"123");
   perfMetric.gauge_metric = gaugeMetric;
+  perfMetric.has_gauge_metric = true;
 
   return perfMetric;
 }
