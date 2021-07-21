@@ -142,6 +142,7 @@ struct _firebase_perf_v1_PerfSession *FPREncodePerfSessions(NSArray<FPRSessionDe
 firebase_perf_v1_PerfMetric GetPerfMetricMessage(NSString *appID) {
   firebase_perf_v1_PerfMetric perfMetricMessage = firebase_perf_v1_PerfMetric_init_default;
   perfMetricMessage.application_info = GetApplicationInfoMessage();
+  perfMetricMessage.has_application_info = true;
   perfMetricMessage.application_info.google_app_id = FPREncodeString(appID);
 
   return perfMetricMessage;
