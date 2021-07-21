@@ -53,7 +53,6 @@ static void FIRCLSContextAllocate(FIRCLSContext* context);
 
 FIRCLSContextInitData FIRCLSContextBuildInitData(FIRCLSInternalReport* report,
                                                  FIRCLSSettings* settings,
-                                                 FIRCLSInstallIdentifierModel* installIDModel,
                                                  FIRCLSFileManager* fileManager) {
   // Because we need to start the crash reporter right away,
   // it starts up either with default settings, or cached settings
@@ -64,7 +63,6 @@ FIRCLSContextInitData FIRCLSContextBuildInitData(FIRCLSInternalReport* report,
   memset(&initData, 0, sizeof(FIRCLSContextInitData));
 
   initData.customBundleId = nil;
-  initData.installId = [installIDModel.installID UTF8String];
   initData.sessionId = [[report identifier] UTF8String];
   initData.rootPath = [[report path] UTF8String];
   initData.previouslyCrashedFileRootPath = [[fileManager rootPath] UTF8String];
@@ -101,10 +99,8 @@ FIRCLSContextInitData FIRCLSContextBuildInitData(FIRCLSInternalReport* report,
 
 bool FIRCLSContextInitialize(FIRCLSInternalReport* report,
                              FIRCLSSettings* settings,
-                             FIRCLSInstallIdentifierModel* installIDModel,
                              FIRCLSFileManager* fileManager) {
-  FIRCLSContextInitData initDataObj =
-      FIRCLSContextBuildInitData(report, settings, installIDModel, fileManager);
+  FIRCLSContextInitData initDataObj = FIRCLSContextBuildInitData(report, settings, fileManager);
   FIRCLSContextInitData* initData = &initDataObj;
 
   if (!initData) {
@@ -197,6 +193,9 @@ bool FIRCLSContextInitialize(FIRCLSInternalReport* report,
         FIRCLSContextAppendToRoot(rootPath, fileName);
   });
 
+  // To initialize Crashlytics handlers even if the Xcode debugger is attached, replace this check
+  // with YES. Note that this is only possible to do on an actual device as it will cause the
+  // simulator to crash.
   if (!_firclsContext.readonly->debuggerAttached) {
 #if CLS_SIGNAL_SUPPORTED
     dispatch_group_async(group, queue, ^{
@@ -258,24 +257,6 @@ bool FIRCLSContextInitialize(FIRCLSInternalReport* report,
   }
 
   return true;
-}
-
-void FIRCLSContextUpdateMetadata(FIRCLSInternalReport* report,
-                                 FIRCLSSettings* settings,
-                                 FIRCLSInstallIdentifierModel* installIDModel,
-                                 FIRCLSFileManager* fileManager) {
-  FIRCLSContextInitData initDataObj =
-      FIRCLSContextBuildInitData(report, settings, installIDModel, fileManager);
-  FIRCLSContextInitData* initData = &initDataObj;
-
-  NSString* rootPath = [NSString stringWithUTF8String:initData->rootPath];
-
-  const char* metaDataPath =
-      [[rootPath stringByAppendingPathComponent:FIRCLSReportMetadataFile] fileSystemRepresentation];
-
-  if (!FIRCLSContextRecordMetadata(metaDataPath, initData)) {
-    FIRCLSErrorLog(@"Unable to update context metadata");
-  }
 }
 
 void FIRCLSContextBaseInit(void) {
@@ -408,7 +389,9 @@ static bool FIRCLSContextRecordIdentity(FIRCLSFile* file, const FIRCLSContextIni
   FIRCLSFileWriteHashEntryUint64(file, "started_at", time(NULL));
 
   FIRCLSFileWriteHashEntryString(file, "session_id", initData->sessionId);
-  FIRCLSFileWriteHashEntryString(file, "install_id", initData->installId);
+  // install_id is written into the proto directly. This is only left here to
+  // support Apple Report Converter.
+  FIRCLSFileWriteHashEntryString(file, "install_id", "");
   FIRCLSFileWriteHashEntryString(file, "beta_token", initData->betaToken);
   FIRCLSFileWriteHashEntryBoolean(file, "absolute_log_timestamps", true);
 

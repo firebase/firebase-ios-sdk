@@ -1,5 +1,10 @@
 name: generate_issues
+
 on:
+  pull_request:
+    paths:
+    - '.github/workflows/generate_issues.yml'
+    - '.github/actions/testing_report_generation**'
   schedule:
     # Run every day at 5am (PST) - cron uses UTC times
     - cron:  '0 13 * * *'
@@ -17,3 +22,19 @@ jobs:
         access-token: '${{ secrets.GITHUB_TOKEN }}'
         # This is to exclude workflows that will be searched in the nightly report.
         exclude-workflow-files: 'performance-integration-tests.yml'
+
+  test_generate_an_issue:
+    # Don't run on private repo.
+    if: github.repository == 'Firebase/firebase-ios-sdk' && github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    name: Test nightly report generations
+    steps:
+    - uses: actions/checkout@v2
+    - name: Create a nightly report
+      uses: ./.github/actions/testing_report_generation/
+      with:
+        access-token: '${{ secrets.GITHUB_TOKEN }}'
+        # This is to exclude workflows that will be searched in the nightly report.
+        exclude-workflow-files: 'performance-integration-tests.yml'
+        issue-labels: 'nightly-testing-report-generation-test'
+        issue-title: 'Nightly Testing Report For Presubmit Testing'

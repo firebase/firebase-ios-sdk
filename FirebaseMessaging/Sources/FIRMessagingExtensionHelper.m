@@ -16,19 +16,12 @@
 
 #import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessagingExtensionHelper.h"
 
-#import "FirebaseMessaging/Sources/FIRMMessageCode.h"
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
+#import "FirebaseMessaging/Sources/FIRMessagingCode.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 #import "FirebaseMessaging/Sources/Protogen/nanopb/me.nanopb.h"
 #import <GoogleDataTransport/GoogleDataTransport.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
-
-
-//#import "GoogleDataTransport/GDTCCTLibrary/Private/GDTCORTransport_Private.h"
-//#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCOREvent.h"
-//#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORTargets.h"
-//#import "GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/GDTCORTransport.h"
-//#import "GoogleUtilities/Environment/Public/GoogleUtilities/GULAppEnvironmentUtil.h"
 
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>

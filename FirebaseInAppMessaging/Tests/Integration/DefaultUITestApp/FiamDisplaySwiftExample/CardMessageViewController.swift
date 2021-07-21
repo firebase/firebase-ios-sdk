@@ -17,99 +17,26 @@
 import UIKit
 
 class CardMessageViewController: CommonMessageTestVC {
-  class TestableCardMessage: InAppMessagingCardDisplay {
-    var writableCampaignInfo: InAppMessagingCampaignInfo
-    var writableTitle: String
-    var writableBody: String?
-    var writableTextColor: UIColor
-    var writablePortraitImageData: InAppMessagingImageData
-    var writableLandscapeImageData: InAppMessagingImageData?
-    var writableBackgroundColor: UIColor
-    var writablePrimaryActionButton: InAppMessagingActionButton
-    var writablePrimaryActionURL: URL
-    var writableSecondaryActionButton: InAppMessagingActionButton?
-    var writableSecondaryActionURL: URL?
-    var writableMessageType: FIRInAppMessagingDisplayMessageType
-    var writableTriggerType: FIRInAppMessagingDisplayTriggerType
-
-    override var campaignInfo: InAppMessagingCampaignInfo {
-      return writableCampaignInfo
-    }
-
-    override var title: String {
-      return writableTitle
-    }
-
-    override var body: String? {
-      return writableBody
-    }
-
-    override var textColor: UIColor {
-      return writableTextColor
-    }
-
-    override var portraitImageData: InAppMessagingImageData {
-      return writablePortraitImageData
-    }
-
-    override var landscapeImageData: InAppMessagingImageData? {
-      return writableLandscapeImageData
-    }
-
-    override var displayBackgroundColor: UIColor {
-      return writableBackgroundColor
-    }
-
-    override var primaryActionButton: InAppMessagingActionButton {
-      return writablePrimaryActionButton
-    }
-
-    override var primaryActionURL: URL {
-      return writablePrimaryActionURL
-    }
-
-    override var secondaryActionButton: InAppMessagingActionButton? {
-      return writableSecondaryActionButton
-    }
-
-    override var secondaryActionURL: URL? {
-      return writableSecondaryActionURL
-    }
-
-    override var type: FIRInAppMessagingDisplayMessageType {
-      return writableMessageType
-    }
-
-    override var triggerType: FIRInAppMessagingDisplayTriggerType {
-      return writableTriggerType
-    }
-
-    init(titleText: String,
-         body: String?,
-         textColor: UIColor,
-         portraitImageData: InAppMessagingImageData,
-         landscapeImageData: InAppMessagingImageData?,
-         backgroundColor: UIColor,
-         primaryActionButton: InAppMessagingActionButton,
-         primaryActionURL: URL,
-         secondaryActionButton: InAppMessagingActionButton?,
-         secondaryActionURL: URL?) {
-      writableTitle = titleText
-      writableBody = body
-      writableTextColor = textColor
-      writablePortraitImageData = portraitImageData
-      writableLandscapeImageData = landscapeImageData
-      writableBackgroundColor = backgroundColor
-      writablePrimaryActionButton = primaryActionButton
-      writablePrimaryActionURL = primaryActionURL
-      writableSecondaryActionButton = secondaryActionButton
-      writableSecondaryActionURL = secondaryActionURL
-      writableCampaignInfo = TestableCampaignInfo(messageID: "testID",
-                                                  campaignName: "testCampaign",
-                                                  isTestMessage: false)
-      writableMessageType = FIRInAppMessagingDisplayMessageType.card
-      writableTriggerType = FIRInAppMessagingDisplayTriggerType.onAnalyticsEvent
-    }
+  func testCardMessage(titleText: String, body: String?, textColor: UIColor,
+                       portraitImageData: InAppMessagingImageData,
+                       landscapeImageData: InAppMessagingImageData?, backgroundColor: UIColor,
+                       primaryActionButton: InAppMessagingActionButton, primaryActionURL: URL?,
+                       secondaryActionButton: InAppMessagingActionButton?,
+                       secondaryActionURL: URL?) -> InAppMessagingCardDisplay {
+    return InAppMessagingCardDisplay(
+      campaignName: "campaignName",
+      titleText: titleText,
+      bodyText: body,
+      textColor: textColor,
+      portraitImageData: portraitImageData,
+      landscapeImageData: landscapeImageData,
+      backgroundColor: backgroundColor,
+      primaryActionButton: primaryActionButton,
+      secondaryActionButton: secondaryActionButton,
+      primaryActionURL: primaryActionURL,
+      secondaryActionURL: secondaryActionURL,
+      appData: nil
+    )
   }
 
   let displayImpl = InAppMessagingDefaultDisplayImpl()
@@ -137,7 +64,7 @@ class CardMessageViewController: CommonMessageTestVC {
     let landscapeImageData = InAppMessagingImageData(imageURL: "url not important",
                                                      imageData: landscapeImageRawData!)
 
-    let cardMessage = TestableCardMessage(
+    let cardMessage = testCardMessage(
       titleText: normalMessageTitle,
       body: normalMessageBody,
       textColor: UIColor.black,
@@ -158,7 +85,7 @@ class CardMessageViewController: CommonMessageTestVC {
     let portraitImageData = InAppMessagingImageData(imageURL: "url not important",
                                                     imageData: portraitImageRawData!)
 
-    let cardMessage = TestableCardMessage(
+    let cardMessage = testCardMessage(
       titleText: normalMessageTitle,
       body: nil,
       textColor: UIColor.black,
@@ -183,7 +110,7 @@ class CardMessageViewController: CommonMessageTestVC {
     let landscapeImageData = InAppMessagingImageData(imageURL: "url not important",
                                                      imageData: landscapeImageRawData!)
 
-    let cardMessage = TestableCardMessage(
+    let cardMessage = testCardMessage(
       titleText: normalMessageTitle,
       body: normalMessageBody,
       textColor: UIColor.black,
@@ -204,7 +131,7 @@ class CardMessageViewController: CommonMessageTestVC {
     let portraitImageData = InAppMessagingImageData(imageURL: "url not important",
                                                     imageData: portraitImageRawData!)
 
-    let cardMessage = TestableCardMessage(
+    let cardMessage = testCardMessage(
       titleText: longTitleText,
       body: normalMessageBody,
       textColor: UIColor.black,
@@ -225,7 +152,7 @@ class CardMessageViewController: CommonMessageTestVC {
     let portraitImageData = InAppMessagingImageData(imageURL: "url not important",
                                                     imageData: portraitImageRawData!)
 
-    let cardMessage = TestableCardMessage(
+    let cardMessage = testCardMessage(
       titleText: normalMessageTitle,
       body: longBodyText,
       textColor: UIColor.black,
@@ -246,7 +173,7 @@ class CardMessageViewController: CommonMessageTestVC {
     let portraitImageData = InAppMessagingImageData(imageURL: "url not important",
                                                     imageData: portraitImageRawData!)
 
-    let cardMessage = TestableCardMessage(
+    let cardMessage = testCardMessage(
       titleText: longTitleText,
       body: nil,
       textColor: UIColor.black,
@@ -267,7 +194,7 @@ class CardMessageViewController: CommonMessageTestVC {
     let portraitImageData = InAppMessagingImageData(imageURL: "url not important",
                                                     imageData: portraitImageRawData!)
 
-    let cardMessage = TestableCardMessage(
+    let cardMessage = testCardMessage(
       titleText: longTitleText,
       body: normalMessageBody,
       textColor: UIColor.black,
@@ -288,7 +215,7 @@ class CardMessageViewController: CommonMessageTestVC {
     let portraitImageData = InAppMessagingImageData(imageURL: "url not important",
                                                     imageData: portraitImageRawData!)
 
-    let cardMessage = TestableCardMessage(
+    let cardMessage = testCardMessage(
       titleText: longTitleText,
       body: normalMessageBody,
       textColor: UIColor.black,
@@ -309,7 +236,7 @@ class CardMessageViewController: CommonMessageTestVC {
     let portraitImageData = InAppMessagingImageData(imageURL: "url not important",
                                                     imageData: portraitImageRawData!)
 
-    let cardMessage = TestableCardMessage(
+    let cardMessage = testCardMessage(
       titleText: normalMessageTitle,
       body: normalMessageBody,
       textColor: UIColor.black,
@@ -330,7 +257,7 @@ class CardMessageViewController: CommonMessageTestVC {
     let portraitImageData = InAppMessagingImageData(imageURL: "url not important",
                                                     imageData: portraitImageRawData!)
 
-    let cardMessage = TestableCardMessage(
+    let cardMessage = testCardMessage(
       titleText: normalMessageTitle,
       body: normalMessageBody,
       textColor: UIColor.black,

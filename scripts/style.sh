@@ -42,7 +42,7 @@ version="${version/ (*)/}"
 version="${version/.*/}"
 
 case "$version" in
-  11)
+  12)
     ;;
   google3-trunk)
     echo "Please use a publicly released clang-format; a recent LLVM release"
@@ -51,7 +51,7 @@ case "$version" in
     exit 1
     ;;
   *)
-    echo "Please upgrade to clang-format version 11."
+    echo "Please upgrade to clang-format version 12."
     echo "If it's installed via homebrew you can run:"
     echo "brew upgrade clang-format"
     exit 1

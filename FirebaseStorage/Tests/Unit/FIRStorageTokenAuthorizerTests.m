@@ -16,11 +16,18 @@
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
+#import "SharedTestUtilities/AppCheckFake/FIRAppCheckFake.h"
+#import "SharedTestUtilities/AppCheckFake/FIRAppCheckTokenResultFake.h"
 #import "SharedTestUtilities/FIRAuthInteropFake.h"
 
 @interface FIRStorageTokenAuthorizerTests : XCTestCase
 
 @property(strong, nonatomic) GTMSessionFetcher *fetcher;
+@property(strong, nonatomic) GTMSessionFetcherService *fetcherService;
+@property(strong, nonatomic) FIRAuthInteropFake *auth;
+@property(strong, nonatomic) FIRAppCheckFake *appCheck;
+@property(strong, nonatomic) FIRAppCheckTokenResultFake *appCheckTokenSuccess;
+@property(strong, nonatomic) FIRAppCheckTokenResultFake *appCheckTokenError;
 
 @end
 
@@ -28,45 +35,48 @@
 
 - (void)setUp {
   [super setUp];
+
+  self.appCheckTokenSuccess = [[FIRAppCheckTokenResultFake alloc] initWithToken:@"token" error:nil];
+  self.appCheckTokenError = [[FIRAppCheckTokenResultFake alloc]
+      initWithToken:@"dummy token"
+              error:[NSError errorWithDomain:@"testAppCheckError" code:-1 userInfo:nil]];
+
   NSURLRequest *fetchRequest = [NSURLRequest requestWithURL:[FIRStorageTestHelpers objectURL]];
   self.fetcher = [GTMSessionFetcher fetcherWithRequest:fetchRequest];
 
-  GTMSessionFetcherService *fetcherService = [[GTMSessionFetcherService alloc] init];
-  FIRAuthInteropFake *auth = [[FIRAuthInteropFake alloc] initWithToken:kFIRStorageTestAuthToken
-                                                                userID:nil
-                                                                 error:nil];
-  self.fetcher.authorizer = [[FIRStorageTokenAuthorizer alloc] initWithGoogleAppID:@"dummyAppID"
-                                                                    fetcherService:fetcherService
-                                                                      authProvider:auth];
+  self.fetcherService = [[GTMSessionFetcherService alloc] init];
+  self.auth = [[FIRAuthInteropFake alloc] initWithToken:kFIRStorageTestAuthToken
+                                                 userID:nil
+                                                  error:nil];
+  self.appCheck = [[FIRAppCheckFake alloc] init];
+  self.fetcher.authorizer =
+      [[FIRStorageTokenAuthorizer alloc] initWithGoogleAppID:@"dummyAppID"
+                                              fetcherService:self.fetcherService
+                                                authProvider:self.auth
+                                                    appCheck:self.appCheck];
 }
 
 - (void)tearDown {
   self.fetcher = nil;
+  self.fetcherService = nil;
+  self.auth = nil;
+  self.appCheck = nil;
+  self.appCheckTokenSuccess = nil;
   [super tearDown];
 }
 
 - (void)testSuccessfulAuth {
   XCTestExpectation *expectation = [self expectationWithDescription:@"testSuccessfulAuth"];
 
-  self.fetcher.testBlock = ^(GTMSessionFetcher *fetcher, GTMSessionFetcherTestResponse response) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-retain-cycles"
-    XCTAssertTrue([self.fetcher.authorizer isAuthorizedRequest:fetcher.request]);
-#pragma clang diagnostic pop
-    NSHTTPURLResponse *httpResponse = [[NSHTTPURLResponse alloc] initWithURL:fetcher.request.URL
-                                                                  statusCode:200
-                                                                 HTTPVersion:kHTTPVersion
-                                                                headerFields:nil];
-    response(httpResponse, nil, nil);
-  };
+  [self setFetcherTestBlockWithStatusCode:200
+                          validationBlock:^(GTMSessionFetcher *fetcher) {
+                            XCTAssertTrue([fetcher.authorizer isAuthorizedRequest:fetcher.request]);
+                          }];
 
   [self.fetcher
       beginFetchWithCompletionHandler:^(NSData *_Nullable data, NSError *_Nullable error) {
         NSDictionary<NSString *, NSString *> *headers = self.fetcher.request.allHTTPHeaderFields;
-        NSString *authHeader = [headers objectForKey:@"Authorization"];
-        NSString *firebaseToken =
-            [NSString stringWithFormat:kFIRStorageAuthTokenFormat, kFIRStorageTestAuthToken];
-        XCTAssertEqualObjects(authHeader, firebaseToken);
+        XCTAssertEqualObjects(headers[@"Authorization"], [self validAuthToken]);
         [expectation fulfill];
       }];
 
@@ -82,22 +92,17 @@
   FIRAuthInteropFake *failedAuth = [[FIRAuthInteropFake alloc] initWithToken:nil
                                                                       userID:nil
                                                                        error:authError];
-  GTMSessionFetcherService *fetcherService = [[GTMSessionFetcherService alloc] init];
-  self.fetcher.authorizer = [[FIRStorageTokenAuthorizer alloc] initWithGoogleAppID:@"dummyAppID"
-                                                                    fetcherService:fetcherService
-                                                                      authProvider:failedAuth];
+  self.fetcher.authorizer =
+      [[FIRStorageTokenAuthorizer alloc] initWithGoogleAppID:@"dummyAppID"
+                                              fetcherService:self.fetcherService
+                                                authProvider:failedAuth
+                                                    appCheck:nil];
 
-  self.fetcher.testBlock = ^(GTMSessionFetcher *fetcher, GTMSessionFetcherTestResponse response) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-retain-cycles"
-    XCTAssertEqual([self.fetcher.authorizer isAuthorizedRequest:fetcher.request], NO);
-#pragma cland diagnostic pop
-    NSHTTPURLResponse *httpResponse = [[NSHTTPURLResponse alloc] initWithURL:fetcher.request.URL
-                                                                  statusCode:401
-                                                                 HTTPVersion:kHTTPVersion
-                                                                headerFields:nil];
-    response(httpResponse, nil, authError);
-  };
+  [self
+      setFetcherTestBlockWithStatusCode:401
+                        validationBlock:^(GTMSessionFetcher *fetcher) {
+                          XCTAssertFalse([fetcher.authorizer isAuthorizedRequest:fetcher.request]);
+                        }];
 
   [self.fetcher
       beginFetchWithCompletionHandler:^(NSData *_Nullable data, NSError *_Nullable error) {
@@ -117,22 +122,17 @@
       [self expectationWithDescription:@"testSuccessfulUnauthenticatedAuth"];
 
   // Simulate Auth not being included at all.
-  GTMSessionFetcherService *fetcherService = [[GTMSessionFetcherService alloc] init];
-  self.fetcher.authorizer = [[FIRStorageTokenAuthorizer alloc] initWithGoogleAppID:@"dummyAppID"
-                                                                    fetcherService:fetcherService
-                                                                      authProvider:nil];
+  self.fetcher.authorizer =
+      [[FIRStorageTokenAuthorizer alloc] initWithGoogleAppID:@"dummyAppID"
+                                              fetcherService:self.fetcherService
+                                                authProvider:nil
+                                                    appCheck:nil];
 
-  self.fetcher.testBlock = ^(GTMSessionFetcher *fetcher, GTMSessionFetcherTestResponse response) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-retain-cycles"
-    XCTAssertFalse([self.fetcher.authorizer isAuthorizedRequest:fetcher.request]);
-#pragma cland diagnostic pop
-    NSHTTPURLResponse *httpResponse = [[NSHTTPURLResponse alloc] initWithURL:fetcher.request.URL
-                                                                  statusCode:200
-                                                                 HTTPVersion:kHTTPVersion
-                                                                headerFields:nil];
-    response(httpResponse, nil, nil);
-  };
+  [self
+      setFetcherTestBlockWithStatusCode:200
+                        validationBlock:^(GTMSessionFetcher *fetcher) {
+                          XCTAssertFalse([fetcher.authorizer isAuthorizedRequest:fetcher.request]);
+                        }];
 
   [self.fetcher
       beginFetchWithCompletionHandler:^(NSData *_Nullable data, NSError *_Nullable error) {
@@ -146,17 +146,82 @@
   [FIRStorageTestHelpers waitForExpectation:self];
 }
 
+- (void)testSuccessfulAppCheckNoAuth {
+  self.appCheck.tokenResult = self.appCheckTokenSuccess;
+  self.fetcher.authorizer =
+      [[FIRStorageTokenAuthorizer alloc] initWithGoogleAppID:@"dummyAppID"
+                                              fetcherService:self.fetcherService
+                                                authProvider:nil
+                                                    appCheck:self.appCheck];
+
+  [self
+      setFetcherTestBlockWithStatusCode:200
+                        validationBlock:^(GTMSessionFetcher *fetcher) {
+                          XCTAssertFalse([fetcher.authorizer isAuthorizedRequest:fetcher.request]);
+                        }];
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"fetchCompletion"];
+
+  [self.fetcher
+      beginFetchWithCompletionHandler:^(NSData *_Nullable data, NSError *_Nullable error) {
+        NSDictionary<NSString *, NSString *> *headers = self.fetcher.request.allHTTPHeaderFields;
+        XCTAssertEqualObjects(headers[@"X-Firebase-AppCheck"], self.appCheckTokenSuccess.token);
+        [expectation fulfill];
+      }];
+
+  [FIRStorageTestHelpers waitForExpectation:self];
+}
+
+- (void)testSuccessfulAppCheckAndAuth {
+  self.appCheck.tokenResult = self.appCheckTokenSuccess;
+
+  [self setFetcherTestBlockWithStatusCode:200
+                          validationBlock:^(GTMSessionFetcher *fetcher) {
+                            XCTAssertTrue([fetcher.authorizer isAuthorizedRequest:fetcher.request]);
+                          }];
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"fetchCompletion"];
+
+  [self.fetcher
+      beginFetchWithCompletionHandler:^(NSData *_Nullable data, NSError *_Nullable error) {
+        NSDictionary<NSString *, NSString *> *headers = self.fetcher.request.allHTTPHeaderFields;
+        XCTAssertEqualObjects(headers[@"Authorization"], [self validAuthToken]);
+        XCTAssertEqualObjects(headers[@"X-Firebase-AppCheck"], self.appCheckTokenSuccess.token);
+        [expectation fulfill];
+      }];
+
+  [FIRStorageTestHelpers waitForExpectation:self];
+}
+
+- (void)testAppCheckError {
+  self.appCheck.tokenResult = self.appCheckTokenError;
+
+  [self setFetcherTestBlockWithStatusCode:200
+                          validationBlock:^(GTMSessionFetcher *fetcher) {
+                            XCTAssertTrue([fetcher.authorizer isAuthorizedRequest:fetcher.request]);
+                          }];
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"fetchCompletion"];
+
+  [self.fetcher
+      beginFetchWithCompletionHandler:^(NSData *_Nullable data, NSError *_Nullable error) {
+        NSDictionary<NSString *, NSString *> *headers = self.fetcher.request.allHTTPHeaderFields;
+        XCTAssertEqualObjects(headers[@"Authorization"], [self validAuthToken]);
+        XCTAssertEqualObjects(headers[@"X-Firebase-AppCheck"], self.appCheckTokenError.token);
+        [expectation fulfill];
+      }];
+
+  [FIRStorageTestHelpers waitForExpectation:self];
+}
+
 - (void)testIsAuthorizing {
   XCTestExpectation *expectation = [self expectationWithDescription:@"testIsAuthorizing"];
 
-  self.fetcher.testBlock = ^(GTMSessionFetcher *fetcher, GTMSessionFetcherTestResponse response) {
-    XCTAssertFalse([fetcher.authorizer isAuthorizingRequest:fetcher.request]);
-    NSHTTPURLResponse *httpResponse = [[NSHTTPURLResponse alloc] initWithURL:fetcher.request.URL
-                                                                  statusCode:200
-                                                                 HTTPVersion:kHTTPVersion
-                                                                headerFields:nil];
-    response(httpResponse, nil, nil);
-  };
+  [self
+      setFetcherTestBlockWithStatusCode:200
+                        validationBlock:^(GTMSessionFetcher *fetcher) {
+                          XCTAssertFalse([fetcher.authorizer isAuthorizingRequest:fetcher.request]);
+                        }];
 
   [self.fetcher
       beginFetchWithCompletionHandler:^(NSData *_Nullable data, NSError *_Nullable error) {
@@ -169,17 +234,13 @@
 - (void)testStopAuthorizingNoop {
   XCTestExpectation *expectation = [self expectationWithDescription:@"testStopAuthorizingNoop"];
 
-  self.fetcher.testBlock = ^(GTMSessionFetcher *fetcher, GTMSessionFetcherTestResponse response) {
-    // Since both of these are noops, we expect that invoking them
-    // will still result in successful authentication
-    [fetcher.authorizer stopAuthorization];
-    [fetcher.authorizer stopAuthorizationForRequest:fetcher.request];
-    NSHTTPURLResponse *httpResponse = [[NSHTTPURLResponse alloc] initWithURL:fetcher.request.URL
-                                                                  statusCode:200
-                                                                 HTTPVersion:kHTTPVersion
-                                                                headerFields:nil];
-    response(httpResponse, nil, nil);
-  };
+  [self setFetcherTestBlockWithStatusCode:200
+                          validationBlock:^(GTMSessionFetcher *fetcher) {
+                            // Since both of these are noops, we expect that invoking them
+                            // will still result in successful authentication
+                            [fetcher.authorizer stopAuthorization];
+                            [fetcher.authorizer stopAuthorizationForRequest:fetcher.request];
+                          }];
 
   [self.fetcher
       beginFetchWithCompletionHandler:^(NSData *_Nullable data, NSError *_Nullable error) {
@@ -197,14 +258,10 @@
 - (void)testEmail {
   XCTestExpectation *expectation = [self expectationWithDescription:@"testEmail"];
 
-  self.fetcher.testBlock = ^(GTMSessionFetcher *fetcher, GTMSessionFetcherTestResponse response) {
-    XCTAssertNil([fetcher.authorizer userEmail]);
-    NSHTTPURLResponse *httpResponse = [[NSHTTPURLResponse alloc] initWithURL:fetcher.request.URL
-                                                                  statusCode:200
-                                                                 HTTPVersion:kHTTPVersion
-                                                                headerFields:nil];
-    response(httpResponse, nil, nil);
-  };
+  [self setFetcherTestBlockWithStatusCode:200
+                          validationBlock:^(GTMSessionFetcher *fetcher) {
+                            XCTAssertNil([fetcher.authorizer userEmail]);
+                          }];
 
   [self.fetcher
       beginFetchWithCompletionHandler:^(NSData *_Nullable data, NSError *_Nullable error) {
@@ -212,6 +269,25 @@
       }];
 
   [FIRStorageTestHelpers waitForExpectation:self];
+}
+
+#pragma mark - Helpers
+
+- (void)setFetcherTestBlockWithStatusCode:(NSUInteger)httpStatusCode
+                          validationBlock:(void (^)(GTMSessionFetcher *fetcher))validationBlock {
+  self.fetcher.testBlock = ^(GTMSessionFetcher *fetcher, GTMSessionFetcherTestResponse response) {
+    validationBlock(fetcher);
+
+    NSHTTPURLResponse *httpResponse = [[NSHTTPURLResponse alloc] initWithURL:fetcher.request.URL
+                                                                  statusCode:httpStatusCode
+                                                                 HTTPVersion:kHTTPVersion
+                                                                headerFields:nil];
+    response(httpResponse, nil, nil);
+  };
+}
+
+- (NSString *)validAuthToken {
+  return [NSString stringWithFormat:kFIRStorageAuthTokenFormat, kFIRStorageTestAuthToken];
 }
 
 @end

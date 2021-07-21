@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
+#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
-#import "OCMock.h"
 
 #import "Interop/Analytics/Public/FIRInteropEventNames.h"
 #import "Interop/Analytics/Public/FIRInteropParameterNames.h"
@@ -140,6 +140,7 @@ static FakeAnalyticsLogEventHandler _userPropertyHandler;
     withNotification:(NSDictionary *)notification
          toAnalytics:(id<FIRAnalyticsInterop> _Nullable)analytics;
 ;
++ (BOOL)isDisplayNotification:(NSDictionary *)notification;
 
 @end
 
@@ -429,6 +430,7 @@ static FakeAnalyticsLogEventHandler _userPropertyHandler;
 - (void)testLogMessage {
   NSDictionary *notification = @{
     @"google.c.a.e" : @"1",
+    @"aps" : @{@"alert" : @"to check the reporting format"},
   };
   [FIRMessagingAnalytics logMessage:notification toAnalytics:nil];
   OCMVerify([self.logClassMock logEvent:OCMOCK_ANY withNotification:notification toAnalytics:nil]);
@@ -438,6 +440,7 @@ static FakeAnalyticsLogEventHandler _userPropertyHandler;
 - (void)testLogOpenNotification {
   NSDictionary *notification = @{
     @"google.c.a.e" : @"1",
+    @"aps" : @{@"alert" : @"to check the reporting format"},
   };
   [FIRMessagingAnalytics logOpenNotification:notification toAnalytics:nil];
 
@@ -447,6 +450,42 @@ static FakeAnalyticsLogEventHandler _userPropertyHandler;
                             toAnalytics:nil]);
 }
 
+- (void)testDisplayNotification {
+  NSDictionary *notification = @{
+    @"google.c.a.e" : @"1",
+  };
+  XCTAssertFalse([FIRMessagingAnalytics isDisplayNotification:notification]);
+
+  notification = @{
+    @"aps" : @{@"alert" : @"to check the reporting format"},
+  };
+  XCTAssertTrue([FIRMessagingAnalytics isDisplayNotification:notification]);
+
+  notification = @{
+    @"google.c.a.e" : @"1",
+    @"aps" : @{@"alert" : @{@"title" : @"Hello World"}},
+  };
+  XCTAssertTrue([FIRMessagingAnalytics isDisplayNotification:notification]);
+
+  notification = @{
+    @"google.c.a.e" : @"1",
+    @"aps" : @{@"alert" : @{@"body" : @"This is the body of notification."}},
+  };
+  XCTAssertTrue([FIRMessagingAnalytics isDisplayNotification:notification]);
+
+  notification = @{
+    @"google.c.a.e" : @"1",
+    @"aps" :
+        @{@"alert" : @{@"title" : @"Hello World", @"body" : @"This is the body of notification."}},
+  };
+  XCTAssertTrue([FIRMessagingAnalytics isDisplayNotification:notification]);
+
+  notification = @{
+    @"google.c.a.e" : @"1",
+    @"aps" : @{@"alert" : @{@"subtitle" : @"Hello World"}},
+  };
+  XCTAssertTrue([FIRMessagingAnalytics isDisplayNotification:notification]);
+}
 @end
 
 #endif

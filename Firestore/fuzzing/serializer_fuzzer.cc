@@ -22,12 +22,14 @@
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/nanopb/reader.h"
 #include "Firestore/core/src/remote/serializer.h"
+#include "Firestore/core/src/util/read_context.h"
 
 using firebase::firestore::google_firestore_v1_Value;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::nanopb::Message;
 using firebase::firestore::nanopb::StringReader;
 using firebase::firestore::remote::Serializer;
+using firebase::firestore::util::ReadContext;
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
   Serializer serializer{DatabaseId{"project", DatabaseId::kDefault}};
@@ -35,7 +37,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     // Try to decode the received data using the serializer.
     StringReader reader{data, size};
     auto message = Message<google_firestore_v1_Value>::TryParse(&reader);
-    serializer.DecodeFieldValue(&reader, *message);
+    ReadContext context;
+    serializer.DecodeFieldValue(&context, *message);
   } catch (...) {
     // Ignore caught errors and assertions because fuzz testing is looking for
     // crashes and memory errors.

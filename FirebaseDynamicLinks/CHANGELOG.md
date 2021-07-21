@@ -1,3 +1,16 @@
+# v8.4.0
+- [fixed] Fixed build issues introduced in Xcode 13 beta 3. (#8401)
+- [fixed] Fixed build failures for extension targets. (#6548)
+
+# v8.2.0
+- [fixed] Fixed analyze issue introduced in Xcode 12.5. (#8208)
+
+# v8.0.0
+- [fixed] Fixed crashes on simulators targeting below iOS14 on Apple Silicon. (#7989)
+
+# v7.7.0
+- [added] Added `utmParametersDictionary` property to `DynamicLink`. (#6730)
+
 # v7.6.0
 - [fixed] Fixed build warnings introduced with Xcode 12.5. (#7434)
 

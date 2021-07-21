@@ -37,7 +37,7 @@ NSInteger const kGaugeDataBatchSize = 25;
 @property(nonatomic) NSMutableArray *gaugeData;
 
 /** @brief Currently active sessionID. */
-@property(nonatomic, readwrite) NSString *currentSessionId;
+@property(nonatomic, readwrite, copy) NSString *currentSessionId;
 
 @end
 
@@ -117,7 +117,8 @@ NSInteger const kGaugeDataBatchSize = 25;
 }
 
 - (void)startCollectingGauges:(FPRGauges)gauges forSessionId:(NSString *)sessionId {
-  [self prepareAndDispatchGaugeData];
+  // Dispatch the already available gauge data with old sessionId.
+  [self prepareAndDispatchCollectedGaugeDataWithSessionId:self.currentSessionId];
 
   self.currentSessionId = sessionId;
   if (self.gaugeCollectionEnabled) {
@@ -143,7 +144,8 @@ NSInteger const kGaugeDataBatchSize = 25;
 
   self.activeGauges = self.activeGauges & ~(gauges);
 
-  [self prepareAndDispatchGaugeData];
+  // Flush out all the already collected gauge metrics
+  [self prepareAndDispatchCollectedGaugeDataWithSessionId:self.currentSessionId];
 }
 
 - (void)collectAllGauges {
@@ -172,31 +174,33 @@ NSInteger const kGaugeDataBatchSize = 25;
 
 #pragma mark - Utils
 
-- (void)prepareAndDispatchGaugeData {
-  NSArray *currentBatch = self.gaugeData;
-  NSString *currentSessionId = self.currentSessionId;
-  self.gaugeData = [[NSMutableArray alloc] init];
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    if (currentBatch.count > 0) {
-      [[FPRClient sharedInstance] logGaugeMetric:currentBatch forSessionId:currentSessionId];
-      FPRLogDebug(kFPRGaugeManagerDataCollected, @"Logging %lu gauge metrics.",
-                  (unsigned long)currentBatch.count);
-    }
+- (void)prepareAndDispatchCollectedGaugeDataWithSessionId:(nullable NSString *)sessionId {
+  dispatch_async(self.gaugeDataProtectionQueue, ^{
+    NSArray *dispatchGauges = [self.gaugeData copy];
+    self.gaugeData = [[NSMutableArray alloc] init];
+
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+      if (dispatchGauges.count > 0 && sessionId != nil) {
+        [[FPRClient sharedInstance] logGaugeMetric:dispatchGauges forSessionId:sessionId];
+        FPRLogInfo(kFPRGaugeManagerDataCollected, @"Logging %lu gauge metrics.",
+                   (unsigned long)dispatchGauges.count);
+      }
+    });
   });
 }
 
 /**
  * Adds the gauge to the batch and decide on when to dispatch the events to Google Data Transport.
  *
- * @param gaugeData Gauge data received from the collectors.
+ * @param gauge Gauge data received from the collectors.
  */
-- (void)addGaugeData:(id)gaugeData {
+- (void)addGaugeData:(id)gauge {
   dispatch_async(self.gaugeDataProtectionQueue, ^{
-    if (gaugeData) {
-      [self.gaugeData addObject:gaugeData];
+    if (gauge) {
+      [self.gaugeData addObject:gauge];
 
       if (self.gaugeData.count >= kGaugeDataBatchSize) {
-        [self prepareAndDispatchGaugeData];
+        [self prepareAndDispatchCollectedGaugeDataWithSessionId:self.currentSessionId];
       }
     }
   });

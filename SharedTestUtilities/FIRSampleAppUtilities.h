@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-#if __has_include(<UIKit/UIKit.h>)
+#import <TargetConditionals.h>
+#if __has_include(<UIKit/UIKit.h>) && !TARGET_OS_WATCH
 #import <UIKit/UIKit.h>
 
+NS_EXTENSION_UNAVAILABLE_IOS("SampleAppUtilities is not supported for iOS extensions.")
 NS_SWIFT_NAME(SampleAppUtilities)
 @interface FIRSampleAppUtilities : NSObject
 
@@ -25,4 +27,4 @@ NS_SWIFT_NAME(SampleAppUtilities)
     NS_SWIFT_NAME(presentAlertForInvalidServiceInfoPlistFrom(_:));
 
 @end
-#endif
+#endif  // __has_include(<UIKit/UIKit.h>) && !TARGET_OS_WATCH

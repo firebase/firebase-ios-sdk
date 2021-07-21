@@ -14,6 +14,11 @@
 
 import UIKit
 import Firebase
+// Verify that the following Firebase Swift APIs can be found.
+import FirebaseAnalyticsSwift
+import FirebaseFirestoreSwift
+import FirebaseInAppMessagingSwift
+import FirebaseStorageSwift
 
 class CoreExists: FirebaseApp {}
 class AnalyticsExists: Analytics {}

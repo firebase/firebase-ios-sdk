@@ -52,7 +52,6 @@ using auth::CredentialsProvider;
 using auth::Token;
 using core::DatabaseInfo;
 using model::DocumentKey;
-using model::MaybeDocument;
 using model::Mutation;
 using util::AsyncQueue;
 using util::Executor;

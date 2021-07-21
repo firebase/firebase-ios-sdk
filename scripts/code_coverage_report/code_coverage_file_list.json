@@ -2,129 +2,98 @@
   {
     "sdk": "abtesting",
     "filePatterns": [
-      "FirebaseABTesting.*",
+      "^FirebaseABTesting.*",
       "Interop/Analytics/Public/[^/]+\\.h",
-      "\\.github/workflows/abtesting\\.yml",
-      "Gemfile"
+      "\\.github/workflows/abtesting\\.yml"
     ]
   },
   {
     "sdk": "auth",
     "filePatterns": [
-      "FirebaseAuth.*",
+      "^FirebaseAuth.*",
       "Interop/Auth/Public/[^/]+\\.h",
-      "\\.github/workflows/auth\\.yml",
-      "Gemfile"
+      "\\.github/workflows/auth\\.yml"
     ]
   },
   {
     "sdk": "database",
     "filePatterns": [
-      "FirebaseDatabase.*",
+      "^FirebaseDatabase.*",
       "\\.github/workflows/database\\.yml",
       "Example/Database/",
-      "Interop/Auth/Public/[^/]+\\.h",
-      "Gemfile"
+      "Interop/Auth/Public/[^/]+\\.h"
     ]
   },
   {
     "sdk": "dynamiclinks",
     "filePatterns": [
-      "FirebaseDynamicLinks.*",
+      "^FirebaseDynamicLinks.*",
       "\\.github/workflows/dynamiclinks\\.yml",
-      "Interop/Analytics/Public/[^/]+\\.h",
-      "Gemfile"
+      "Interop/Analytics/Public/[^/]+\\.h"
     ]
   },
   {
     "sdk": "firestore",
     "filePatterns": [
-      "Firestore/.*",
+      "^Firestore/.*",
       "Interop/Auth/Public/[^/]+\\.h",
       "FirebaseCore/Sources/Private",
       "FirebaseCore/Sources/Public",
       "FirebaseFirestore\\.podspec",
       "CMakeLists\\.txt",
       "cmake/.*",
-      "scripts/binary_to_array\\.py",
-      "scripts/build\\.sh",
-      "scripts/install_prereqs\\.sh",
-      "scripts/localize_podfile\\.swift",
-      "scripts/pod_lib_lint\\.rb",
-      "scripts/run_firestore_emulator\\.sh",
-      "scripts/setup_[^/]+",
-      "scripts/sync_project\\.rb",
-      "scripts/test_quickstart\\.sh",
-      "scripts/xcresult_logs\\.py",
-      "\\.github/workflows/firestore\\.yml",
-      "Gemfile"
+      "\\.github/workflows/firestore\\.yml"
     ]
   },
   {
     "sdk": "functions",
     "filePatterns": [
-      "Functions.*",
+      "^Functions.*",
       "\\.github/workflows/functions\\.yml",
       "Interop/Auth/Public/.*\\.h",
-      "FirebaseMessaging/Sources/Interop/[^/]+\\.h",
-      "Gemfile"
+      "FirebaseMessaging/Sources/Interop/[^/]+\\.h"
     ]
   },
   {
     "sdk": "inappmessaging",
     "filePatterns": [
-      "FirebaseInAppMessaging.*",
+      "^FirebaseInAppMessaging.*",
       "Interop/Analytics/Public/[^/]+\\.h",
-      "\\.github/workflows/inappmessaging\\.yml",
-      "Gemfile"
-    ]
-  },
-  {
-    "sdk": "instanceid",
-    "filePatterns": [
-      "FirebaseInstanceID.*",
-      "Firebase/InstanceID/.*",
-      "Example/InstanceID/.*",
-      "\\.github/workflows/instanceid\\.yml",
-      "Gemfile"
+      "\\.github/workflows/inappmessaging\\.yml"
     ]
   },
   {
     "sdk": "messaging",
     "filePatterns": [
-      "FirebaseMessaging/.*",
+      "^FirebaseMessaging/.*",
       "Interop/Analytics/Public/[^/]+\\.h",
       "FirebaseMessaging\\.podspec",
-      "\\.github/workflows/messaging\\.yml",
-      "Gemfile"
+      "\\.github/workflows/messaging\\.yml"
     ]
   },
   {
     "sdk": "performance",
     "filePatterns": [
-      "FirebasePerformance/.*",
+      "^FirebasePerformance/.*",
       "FirebasePerformance\\.podspec",
-      "\\.github/workflows/performance\\.yml",
-      "Gemfile"
+      "\\.github/workflows/performance\\.yml"
     ]
   },
   {
     "sdk": "remoteconfig",
     "filePatterns": [
-      "FirebaseRemoteConfig.*",
+      "^FirebaseRemoteConfig.*",
       "Interop/Analytics/Public/[^/]+\\.h",
       "\\.github/workflows/remoteconfig\\.yml",
-      "Gemfile",
       "scripts/generate_access_token\\.sh"
     ]
   },
   {
     "sdk": "storage",
     "filePatterns": [
-      "FirebaseStorage.*",
+      "^FirebaseStorage.*",
       "Interop/Auth/Public/[^/]+\\.h",
-      "\\.github/workflows/storage\\.yml",
-      "Gemfile"
+      "\\.github/workflows/storage\\.yml"
     ]
   }
 ]

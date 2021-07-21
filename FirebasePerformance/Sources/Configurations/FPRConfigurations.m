@@ -474,36 +474,4 @@ static dispatch_once_t gSharedInstanceToken;
   return samplingFrequency;
 }
 
-#pragma mark - Google Data Transport related configurations.
-
-- (float_t)fllTransportPercentage {
-  // Order of precedence is:
-  //
-  // Any RC config flags exists?
-  //   -> Yes
-  //     -> If Transport flag exists, honor the value (active rollout scenario)
-  //     -> Otherwise, send to Fll (deprecation scenario)
-  //   -> No
-  //     -> Send to clearcut (onboarding scenario)
-  //
-  // If a PList override also exists than that takes the priority
-
-  // By default send to Clearcut
-  float transportPercentage = 0.0f;  // Range [0 - 100]
-
-  if (self.remoteConfigFlags && [self.remoteConfigFlags containsRemoteConfigFlags]) {
-    // If Transport flag exists, honor the value (active rollout scenario)
-    // Otherwise, send to Fll (deprecation scenario)
-    transportPercentage = [self.remoteConfigFlags fllTransportPercentageWithDefaultValue:100.0f];
-  }
-
-  // If a PList override also exists than that takes the priority
-  id plistObject = [self objectForInfoDictionaryKey:@"fllTransportPercentage"];
-  if (plistObject) {
-    transportPercentage = [plistObject floatValue];
-  }
-
-  return transportPercentage;
-}
-
 @end

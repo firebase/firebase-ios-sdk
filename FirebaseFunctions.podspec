@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFunctions'
-  s.version          = '7.6.0'
+  s.version          = '8.4.0'
   s.summary          = 'Cloud Functions for Firebase'
 
   s.description      = <<-DESC
@@ -25,13 +25,14 @@ Cloud Functions for Firebase.
   s.source_files = [
     'Functions/FirebaseFunctions/**/*',
     'Interop/Auth/Public/*.h',
+    'FirebaseAppCheck/Sources/Interop/*.h',
     'FirebaseCore/Sources/Private/*.h',
     'FirebaseMessaging/Sources/Interop/FIRMessagingInterop.h',
   ]
   s.public_header_files = 'Functions/FirebaseFunctions/Public/FirebaseFunctions/*.h'
 
-  s.dependency 'FirebaseCore', '~> 7.0'
-  s.dependency 'GTMSessionFetcher/Core', '~> 1.4'
+  s.dependency 'FirebaseCore', '~> 8.0'
+  s.dependency 'GTMSessionFetcher/Core', '~> 1.5'
 
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
@@ -42,8 +43,10 @@ Cloud Functions for Firebase.
     unit_tests.scheme = { :code_coverage => true }
     unit_tests.source_files = [
       'Functions/Example/Test*/*.[mh]',
+      'Functions/Tests/Unit/Swift/**/*',
       'SharedTestUtilities/FIRAuthInteropFake*',
       'SharedTestUtilities/FIRMessagingInteropFake*',
+      'SharedTestUtilities/AppCheckFake/*.[mh]',
   ]
   end
 

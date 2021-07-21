@@ -31,10 +31,6 @@ class FirebaseAppTests: XCTestCase {
     FirebaseApp.resetApps()
   }
 
-  func testSwiftFlagWithSwift() {
-    XCTAssertTrue(FirebaseApp.firebaseUserAgent().contains("swift"))
-  }
-
   func testConfigure() throws {
     expectAppConfigurationNotification(appName: Constants.App.defaultName, isDefaultApp: true)
 
@@ -331,8 +327,15 @@ class FirebaseAppTests: XCTestCase {
 
   // MARK: - Firebase User Agent
 
-  func testFirebaseUserAgent_SwiftRuntime() {
-    XCTAssertTrue(FirebaseApp.firebaseUserAgent().contains("swift/true"))
+  func testUserAgent() {
+    let agent = FirebaseApp.firebaseUserAgent()
+    XCTAssertTrue(agent.contains("apple-platform"))
+    XCTAssertTrue(agent.contains("apple-sdk"))
+    XCTAssertTrue(agent.contains("appstore"))
+    XCTAssertTrue(agent.contains("deploy"))
+    XCTAssertTrue(agent.contains("device"))
+    XCTAssertTrue(agent.contains("os-version"))
+    XCTAssertTrue(agent.contains("xcode"))
   }
 
   // MARK: - Helpers

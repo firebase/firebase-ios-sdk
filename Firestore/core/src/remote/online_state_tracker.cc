@@ -33,7 +33,6 @@ namespace chr = std::chrono;
 
 using model::OnlineState;
 using util::AsyncQueue;
-using util::DelayedOperation;
 using util::Status;
 using util::StringFormat;
 using util::TimerId;

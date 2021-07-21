@@ -19,19 +19,20 @@
 NS_ASSUME_NONNULL_BEGIN
 /**
  * To avoid the risk of hijacking the app's existing view transition flow, we render in-app message
- * views in a top level UI Window instead of presenting from app's existing UIWindow. The caller is
- * supposed to set the rootViewController to be the appropriate view controller for the in-app
- * message and call setHidden:NO to make it really visible.
+ * views in a new top-level UIWindow instead of presenting them from app's existing UIWindow.
+ * The caller is supposed to set the rootViewController to be the appropriate view controller
+ * for the in-app message and call setHidden:NO to make it really visible.
  */
+NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS extensions.")
 @interface FIRIAMRenderingWindowHelper : NSObject
 
-// Return the singleton UIWindow that can be used for rendering modal IAM views
-+ (UIWindow *)UIWindowForModalView;
+/// Returns the singleton `UIWindow` object used for rendering IAM views that block
+/// user interactions with underlying content.
++ (UIWindow *)windowForBlockingView;
 
-// Return the singleton UIWindow that can be used for rendering banner IAM views
-+ (UIWindow *)UIWindowForBannerView;
+/// Returns the singleton `UIWindow` object used for rendering IAM views that don't block
+/// user interactions with underlying content.
++ (UIWindow *)windowForNonBlockingView;
 
-// Return the singleton UIWindow that can be used for rendering banner IAM views
-+ (UIWindow *)UIWindowForImageOnlyView;
 @end
 NS_ASSUME_NONNULL_END

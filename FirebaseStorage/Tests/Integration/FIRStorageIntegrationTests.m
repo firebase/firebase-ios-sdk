@@ -137,6 +137,24 @@ NSString *const kTestPassword = KPASSWORD;
   [super tearDown];
 }
 
+- (void)testSameInstanceNoBucket {
+  FIRStorage *storage1 = [FIRStorage storageForApp:self.app];
+  FIRStorage *storage2 = [FIRStorage storageForApp:self.app];
+  XCTAssertEqual(storage1, storage2);
+}
+
+- (void)testSameInstanceCustomBucket {
+  FIRStorage *storage1 = [FIRStorage storageForApp:self.app URL:@"gs://foo-bar.appspot.com"];
+  FIRStorage *storage2 = [FIRStorage storageForApp:self.app URL:@"gs://foo-bar.appspot.com"];
+  XCTAssertEqual(storage1, storage2);
+}
+
+- (void)testDiffferentInstance {
+  FIRStorage *storage1 = [FIRStorage storageForApp:self.app];
+  FIRStorage *storage2 = [FIRStorage storageForApp:self.app URL:@"gs://foo-bar.appspot.com"];
+  XCTAssertNotEqual(storage1, storage2);
+}
+
 - (void)testName {
   NSString *aGSURI = [NSString
       stringWithFormat:@"gs://%@.appspot.com/path/to", [[FIRApp defaultApp] options].projectID];
@@ -471,9 +489,9 @@ NSString *const kTestPassword = KPASSWORD;
   FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/1mb"];
 
   // Download URL format is
-  // "https://firebasestorage.googleapis.com/v0/b/{bucket}/o/{path}?alt=media&token={token}"
+  // "https://firebasestorage.googleapis.com:443/v0/b/{bucket}/o/{path}?alt=media&token={token}"
   NSString *downloadURLPattern =
-      @"^https:\\/\\/firebasestorage.googleapis.com\\/v0\\/b\\/[^\\/]*\\/o\\/"
+      @"^https:\\/\\/firebasestorage.googleapis.com:443\\/v0\\/b\\/[^\\/]*\\/o\\/"
       @"ios%2Fpublic%2F1mb\\?alt=media&token=[a-z0-9-]*$";
 
   [ref downloadURLWithCompletion:^(NSURL *downloadURL, NSError *error) {
@@ -499,21 +517,20 @@ NSString *const kTestPassword = KPASSWORD;
   NSURL *tmpDirURL = [NSURL fileURLWithPath:NSTemporaryDirectory()];
   NSURL *fileURL =
       [[tmpDirURL URLByAppendingPathComponent:@"hello"] URLByAppendingPathExtension:@"txt"];
+  NSData *fileData = [@"Hello World" dataUsingEncoding:NSUTF8StringEncoding];
 
-  [ref putData:[@"Hello World" dataUsingEncoding:NSUTF8StringEncoding]
+  [ref putData:fileData
         metadata:nil
       completion:^(FIRStorageMetadata *metadata, NSError *error) {
         FIRStorageDownloadTask *task = [ref writeToFile:fileURL];
 
         [task observeStatus:FIRStorageTaskStatusSuccess
                     handler:^(FIRStorageTaskSnapshot *snapshot) {
-                      NSString *data = [NSString stringWithContentsOfURL:fileURL
-                                                                encoding:NSUTF8StringEncoding
-                                                                   error:NULL];
-                      NSString *expectedData = @"Hello World";
-                      XCTAssertEqualObjects(data, expectedData);
-                      XCTAssertEqualObjects([snapshot description], @"<State: Success>");
-                      [expectation fulfill];
+                      [ref dataWithMaxSize:fileData.length
+                                completion:^(NSData *_Nullable data, NSError *_Nullable error) {
+                                  XCTAssertEqualObjects(data, fileData);
+                                  [expectation fulfill];
+                                }];
                     }];
 
         [task observeStatus:FIRStorageTaskStatusProgress

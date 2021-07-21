@@ -22,18 +22,19 @@ import Utils
 struct InitializeRelease {
   static func setupRepo(gitRoot: URL) -> String {
     let manifest = FirebaseManifest.shared
-    let branch = createReleaseBranch(path: gitRoot, version: manifest.version)
+    let branch = createVersionBranch(path: gitRoot, version: manifest.version)
     updatePodspecs(path: gitRoot, manifest: manifest)
     updatePodfiles(path: gitRoot, version: manifest.version)
+    updateSwiftPackageVersion(path: gitRoot, version: manifest.version)
     return branch
   }
 
   /// The branch is based on the minor version to represent this is the branch for subsequent
   /// patches.
-  private static func createReleaseBranch(path: URL, version: String) -> String {
+  private static func createVersionBranch(path: URL, version: String) -> String {
     let versionParts = version.split(separator: ".")
     let minorVersion = "\(versionParts[0]).\(versionParts[1])"
-    let branch = "release-\(minorVersion)"
+    let branch = "version-\(minorVersion)"
     Shell.executeCommand("git checkout master", workingDir: path)
     Shell.executeCommand("git pull", workingDir: path)
     Shell.executeCommand("git checkout -b \(branch)", workingDir: path)
@@ -74,38 +75,19 @@ struct InitializeRelease {
       let pod = firebasePod.name
       let version = firebasePod.isBeta ? firebaseVersion + "-beta" : firebaseVersion
       if pod == "Firebase" {
-        // TODO: This then block is redundant with the updatePodspecs function above and is left
-        // until we decide to go with Swift or sed.
-        // Replace version in string like s.version = '6.9.0'
+        // TODO: This block is redundant with `updatePodspecs`. Decide to go with Swift or sed.
         guard let range = contents.range(of: "s.version") else {
           fatalError("Could not find version of Firebase pod in podspec at \(podspecFile)")
         }
-        var versionStartIndex = contents.index(range.upperBound, offsetBy: 1)
-        while contents[versionStartIndex] != "'" {
-          versionStartIndex = contents.index(versionStartIndex, offsetBy: 1)
-        }
-        var versionEndIndex = contents.index(versionStartIndex, offsetBy: 1)
-        while contents[versionEndIndex] != "'" {
-          versionEndIndex = contents.index(versionEndIndex, offsetBy: 1)
-        }
-        contents.removeSubrange(versionStartIndex ... versionEndIndex)
-        contents.insert(contentsOf: "'" + version + "'", at: versionStartIndex)
+        // Replace version in string like s.version = '6.9.0'
+        updateVersion(&contents, in: range, to: version)
+
       } else {
-        // Replace version in string like ss.dependency 'FirebaseCore', '6.3.0'
-        guard let range = contents.range(of: pod) else {
-          // This pod is not a top-level Firebase pod dependency.
-          continue
+        // Iterate through all the ranges of `pod`'s occurrences.
+        for range in contents.ranges(of: pod) {
+          // Replace version in string like ss.dependency 'FirebaseCore', '6.3.0'.
+          updateVersion(&contents, in: range, to: version)
         }
-        var versionStartIndex = contents.index(range.upperBound, offsetBy: 2)
-        while !contents[versionStartIndex].isWholeNumber {
-          versionStartIndex = contents.index(versionStartIndex, offsetBy: 1)
-        }
-        var versionEndIndex = contents.index(versionStartIndex, offsetBy: 1)
-        while contents[versionEndIndex] != "'" {
-          versionEndIndex = contents.index(versionEndIndex, offsetBy: 1)
-        }
-        contents.removeSubrange(versionStartIndex ... versionEndIndex)
-        contents.insert(contentsOf: version + "'", at: versionStartIndex)
       }
     }
     do {
@@ -113,6 +95,24 @@ struct InitializeRelease {
     } catch {
       fatalError("Failed to write \(podspecFile.path). \(error)")
     }
+  }
+
+  /// Update the existing version to the given version by writing to a given string using the provided range.
+  /// - Parameters:
+  ///   - contents: A reference to a String containing a version that will be updated.
+  ///   - range: The range containing a version substring that will be updated.
+  ///   - version: The version string to update to.
+  private static func updateVersion(_ contents: inout String, in range: Range<String.Index>,
+                                    to version: String) {
+    var versionStartIndex = contents.index(after: range.upperBound)
+    while !contents[versionStartIndex].isWholeNumber {
+      versionStartIndex = contents.index(after: versionStartIndex)
+    }
+    var versionEndIndex = contents.index(after: versionStartIndex)
+    while contents[versionEndIndex] != "'" {
+      versionEndIndex = contents.index(after: versionEndIndex)
+    }
+    contents.replaceSubrange(versionStartIndex ..< versionEndIndex, with: version)
   }
 
   private static func updatePodfiles(path: URL, version: String) {
@@ -127,5 +127,11 @@ struct InitializeRelease {
     let sedCommand2 = "sed -i.bak -e \"s#\\(pod " +
       "'Firebase',[[:space:]]*'\\).*'#\\1\(version)'#\" Podfile"
     Shell.executeCommand(sedCommand2, workingDir: collisionPodfile)
+  }
+
+  private static func updateSwiftPackageVersion(path: URL, version: String) {
+    // Match strings like `let firebaseVersion = "7.7.0"` and update the version.
+    Shell.executeCommand("sed -i.bak -e \"s/\\(let firebaseVersion.*=[[:space:]]*\\).*/\\1" +
+      "\\\"\(version)\\\"/\" Package.swift", workingDir: path)
   }
 }

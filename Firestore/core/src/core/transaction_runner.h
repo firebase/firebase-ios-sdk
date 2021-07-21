@@ -54,7 +54,7 @@ class TransactionRunner
 
  private:
   void ContinueCommit(const std::shared_ptr<Transaction>& transaction,
-                      util::Status maybe_result);
+                      util::Status status);
 
   void DispatchResult(const std::shared_ptr<Transaction>& transaction,
                       util::Status status);
@@ -67,7 +67,7 @@ class TransactionRunner
   core::TransactionUpdateCallback update_callback_;
   core::TransactionResultCallback result_callback_;
   remote::ExponentialBackoff backoff_;
-  int retries_left_;
+  int attempts_remaining_;
 };
 
 }  // namespace core

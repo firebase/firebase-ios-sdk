@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseMessaging'
-  s.version          = '7.6.0'
+  s.version          = '8.4.0'
   s.summary          = 'Firebase Messaging'
 
   s.description      = <<-DESC
@@ -19,10 +19,16 @@ device, and it is completely free.
     :tag => 'CocoaPods-' + s.version.to_s
   }
   s.social_media_url = 'https://twitter.com/Firebase'
-  s.ios.deployment_target = '10.0'
-  s.osx.deployment_target = '10.12'
-  s.tvos.deployment_target = '10.0'
-  s.watchos.deployment_target = '6.0'
+
+  ios_deployment_target = '10.0'
+  osx_deployment_target = '10.12'
+  tvos_deployment_target = '10.0'
+  watchos_deployment_target = '6.0'
+
+  s.ios.deployment_target = ios_deployment_target
+  s.osx.deployment_target = osx_deployment_target
+  s.tvos.deployment_target = tvos_deployment_target
+  s.watchos.deployment_target = watchos_deployment_target
 
   s.cocoapods_version = '>= 1.4.0'
   s.prefix_header_file = false
@@ -33,13 +39,10 @@ device, and it is completely free.
     base_dir + 'Sources/Protogen/nanopb/*.h',
     'Interop/Analytics/Public/*.h',
     'FirebaseCore/Sources/Private/*.h',
-    'Firebase/InstanceID/Private/*.h',
-    'Firebase/InstanceID/Public/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
     'GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/*.h',
     'GoogleDataTransport/GDTCCTLibrary/Private/*.h',
   ]
-  s.requires_arc = base_dir + 'Sources/*.m'
   s.public_header_files = base_dir + 'Sources/Public/FirebaseMessaging/*.h'
   s.library = 'sqlite3'
   s.pod_target_xcconfig = {
@@ -54,18 +57,26 @@ device, and it is completely free.
   s.osx.framework = 'SystemConfiguration'
   s.weak_framework = 'UserNotifications'
   s.dependency 'FirebaseCore', '~> 7.0'
-  s.dependency 'FirebaseInstanceID', '~> 7.0'
-  s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.0'
-  s.dependency 'GoogleUtilities/Reachability', '~> 7.0'
-  s.dependency 'GoogleUtilities/Environment', '~> 7.0'
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 7.0'
-  s.dependency 'GoogleDataTransport', '~> 8.0'
-  s.dependency 'nanopb', '~> 2.30907.0'
+  s.dependency 'FirebaseInstallations', '~> 8.0'
+  s.dependency 'FirebaseCore', '~> 8.0'
+  s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.4'
+  s.dependency 'GoogleUtilities/Reachability', '~> 7.4'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.4'
+  s.dependency 'GoogleUtilities/UserDefaults', '~> 7.4'
+  s.dependency 'GoogleDataTransport', '~> 9.0'
+  s.dependency 'nanopb', '~> 2.30908.0'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }
-    unit_tests.platforms = {:ios => '10.0', :osx => '10.12', :tvos => '10.0'}
-    unit_tests.source_files = 'FirebaseMessaging/Tests/UnitTests*/*.{m,h,swift}'
+    unit_tests.platforms = {
+      :ios => ios_deployment_target,
+      :osx => osx_deployment_target,
+      :tvos => tvos_deployment_target
+    }
+    unit_tests.source_files = [
+      'FirebaseMessaging/Tests/UnitTests*/*.{m,h,swift}',
+      'SharedTestUtilities/URLSession/*.[mh]',
+    ]
     unit_tests.requires_app_host = true
     unit_tests.pod_target_xcconfig = {
      'CLANG_ENABLE_OBJC_WEAK' => 'YES'
@@ -75,7 +86,11 @@ device, and it is completely free.
 
   s.test_spec 'integration' do |int_tests|
     int_tests.scheme = { :code_coverage => true }
-    int_tests.platforms = {:ios => '10.0', :osx => '10.12', :tvos => '10.0'}
+    int_tests.platforms = {
+      :ios => ios_deployment_target,
+      :osx => osx_deployment_target,
+      :tvos => tvos_deployment_target
+    }
     int_tests.source_files = 'FirebaseMessaging/Tests/IntegrationTests/*.swift'
     int_tests.requires_app_host = true
     int_tests.resources = 'FirebaseMessaging/Tests/IntegrationTests/Resources/GoogleService-Info.plist'

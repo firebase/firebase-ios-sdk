@@ -13,8 +13,8 @@
 // limitations under the License.
 
 #import <Foundation/Foundation.h>
+#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
-#import "OCMock.h"
 
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import <GoogleUtilities/GULUserDefaults.h>
@@ -359,6 +359,33 @@
   NSError *mockError =
       [NSError errorWithDomain:kFIRFADApiErrorDomain
                           code:FIRFADApiErrorUnauthenticated
+                      userInfo:@{NSLocalizedDescriptionKey : @"This is unfortunate."}];
+  [self mockFetchReleasesCompletion:nil error:mockError];
+  OCMStub([_mockMachO codeHash]).andReturn(@"this-is-old");
+  [[GULUserDefaults standardUserDefaults] setBool:YES forKey:@"FIRFADSignInState"];
+  XCTAssertTrue([[self appDistribution] isTesterSignedIn]);
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"Fetch latest release fails."];
+
+  [[self appDistribution] fetchNewLatestRelease:^(FIRAppDistributionRelease *_Nullable release,
+                                                  NSError *_Nullable error) {
+    XCTAssertNil(release);
+    XCTAssertNotNil(error);
+    XCTAssertEqual([error code], FIRAppDistributionErrorAuthenticationFailure);
+    XCTAssertEqual([error domain], FIRAppDistributionErrorDomain);
+    XCTAssertFalse([[self appDistribution] isTesterSignedIn]);
+    [expectation fulfill];
+  }];
+
+  [self waitForExpectations:@[ expectation ] timeout:5.0];
+  [self verifyFetchReleasesCompletion];
+  OCMReject([_mockMachO codeHash]);
+}
+
+- (void)testFetchNewLatestReleaseUnauthorizedFailure {
+  NSError *mockError =
+      [NSError errorWithDomain:kFIRFADApiErrorDomain
+                          code:FIRFADApiErrorUnauthorized
                       userInfo:@{NSLocalizedDescriptionKey : @"This is unfortunate."}];
   [self mockFetchReleasesCompletion:nil error:mockError];
   OCMStub([_mockMachO codeHash]).andReturn(@"this-is-old");

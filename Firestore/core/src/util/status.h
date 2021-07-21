@@ -54,18 +54,18 @@ class ABSL_MUST_USE_RESULT Status {
 
   /// Copy the specified status.
   Status(const Status& s);
-  void operator=(const Status& s);
+  Status& operator=(const Status& s);
 
   /// Move the specified status.
   Status(Status&& s) noexcept;
-  void operator=(Status&& s) noexcept;
+  Status& operator=(Status&& s) noexcept;
 
   static Status OK() {
     return Status();
   }
 
   /// Creates a status object from the given errno error code and message.
-  static Status FromErrno(int errno_code, absl::string_view message);
+  static Status FromErrno(int errno_code, absl::string_view msg);
 
 #if defined(_WIN32)
   static Status FromLastError(DWORD error, absl::string_view message);
@@ -199,35 +199,38 @@ inline Status::Status(const Status& s)
                                  : State::MakePtr(*s.state_)} {
 }
 
-inline Status::State::State(const State& s)
-    : code(s.code),
-      msg(s.msg),
-      platform_error((s.platform_error == nullptr) ? nullptr
-                                                   : s.platform_error->Copy()) {
+inline Status::State::State(const State& other)
+    : code(other.code),
+      msg(other.msg),
+      platform_error((other.platform_error == nullptr)
+                         ? nullptr
+                         : other.platform_error->Copy()) {
 }
 
 inline Status::State::State(Error code, std::string&& msg)
     : code(code), msg(std::move(msg)) {
 }
 
-inline void Status::operator=(const Status& s) {
+inline Status& Status::operator=(const Status& s) {
   // The following condition catches both aliasing (when this == &s),
   // and the common case where both s and *this are ok.
   if (state_ != s.state_) {
     SlowCopyFrom(s.state_.get());
   }
+  return *this;
 }
 
 inline Status::Status(Status&& s) noexcept : state_(std::move(s.state_)) {
   s.SetMovedFrom();
 }
 
-inline void Status::operator=(Status&& s) noexcept {
+inline Status& Status::operator=(Status&& s) noexcept {
   // Moving into self is a no-op.
   if (this != &s) {
     state_ = std::move(s.state_);
     s.SetMovedFrom();
   }
+  return *this;
 }
 
 inline bool Status::operator==(const Status& x) const {

@@ -44,11 +44,6 @@
   self.mockSettings = [[FIRCLSMockSettings alloc] initWithFileManager:self.fileManager
                                                            appIDModel:appIDModel];
 
-  FIRMockInstallations *iid = [[FIRMockInstallations alloc] initWithFID:@"test_instance_id"];
-
-  FIRCLSInstallIdentifierModel *installIDModel =
-      [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:iid];
-
   NSString *name = @"exception_model_report";
   self.reportPath = [self.fileManager.rootPath stringByAppendingPathComponent:name];
   [self.fileManager createDirectoryAtPath:self.reportPath];
@@ -57,7 +52,7 @@
       [[FIRCLSInternalReport alloc] initWithPath:self.reportPath
                              executionIdentifier:@"TEST_EXECUTION_IDENTIFIER"];
 
-  FIRCLSContextInitialize(report, self.mockSettings, installIDModel, self.fileManager);
+  FIRCLSContextInitialize(report, self.mockSettings, self.fileManager);
 }
 
 - (void)tearDown {

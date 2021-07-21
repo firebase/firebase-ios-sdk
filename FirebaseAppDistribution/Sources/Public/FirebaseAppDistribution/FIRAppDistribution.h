@@ -26,6 +26,8 @@ NS_ASSUME_NONNULL_BEGIN
  * Note: The App Distribution class cannot be subclassed. If this makes testing difficult,
  * we suggest using a wrapper class or a protocol extension.
  */
+
+NS_EXTENSION_UNAVAILABLE_IOS("Firebase App Distribution is not supported for iOS extensions.")
 NS_SWIFT_NAME(AppDistribution)
 @interface FIRAppDistribution : NSObject
 
@@ -63,12 +65,15 @@ NS_SWIFT_NAME(AppDistribution)
 @end
 
 /// The error domain for codes in the `FIRAppDistributionError` enum.
+// clang-format off
+// clang-format12 will merge lines and exceed 100 character limit.
 FOUNDATION_EXPORT NSString *const FIRAppDistributionErrorDomain
     NS_SWIFT_NAME(AppDistributionErrorDomain);
 
 /// The key for finding error details in the `NSError`'s `userInfo`.
 FOUNDATION_EXPORT NSString *const FIRAppDistributionErrorDetailsKey
     NS_SWIFT_NAME(FunctionsErrorDetailsKey);
+// clang-format on
 
 /**
  * Error codes representing sign in or version check failure reasons.

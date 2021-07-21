@@ -17,78 +17,24 @@
 import UIKit
 
 class ModalMessageViewController: CommonMessageTestVC {
-  class TestableModalMessage: InAppMessagingModalDisplay {
-    var writableCampaignInfo: InAppMessagingCampaignInfo
-    var writableTitle: String
-    var writableBody: String?
-    var writableTextColor: UIColor
-    var writableImageData: InAppMessagingImageData?
-    var writableBackgroundColor: UIColor
-    var writableActionButton: InAppMessagingActionButton?
-    var writableActionURL: URL?
-    var writableMessageType: FIRInAppMessagingDisplayMessageType
-    var writableTriggerType: FIRInAppMessagingDisplayTriggerType
-
-    override var campaignInfo: InAppMessagingCampaignInfo {
-      return writableCampaignInfo
-    }
-
-    override var title: String {
-      return writableTitle
-    }
-
-    override var bodyText: String? {
-      return writableBody
-    }
-
-    override var textColor: UIColor {
-      return writableTextColor
-    }
-
-    override var imageData: InAppMessagingImageData? {
-      return writableImageData
-    }
-
-    override var displayBackgroundColor: UIColor {
-      return writableBackgroundColor
-    }
-
-    override var actionButton: InAppMessagingActionButton? {
-      return writableActionButton
-    }
-
-    override var actionURL: URL? {
-      return writableActionURL
-    }
-
-    override var type: FIRInAppMessagingDisplayMessageType {
-      return writableMessageType
-    }
-
-    override var triggerType: FIRInAppMessagingDisplayTriggerType {
-      return writableTriggerType
-    }
-
-    init(titleText: String,
-         bodyText: String?,
-         textColor: UIColor,
-         backgroundColor: UIColor,
-         imageData: InAppMessagingImageData?,
-         actionButton: InAppMessagingActionButton?,
-         actionURL: URL?) {
-      writableTitle = titleText
-      writableBody = bodyText
-      writableTextColor = textColor
-      writableImageData = imageData
-      writableBackgroundColor = backgroundColor
-      writableActionButton = actionButton
-      writableActionURL = actionURL
-      writableCampaignInfo = TestableCampaignInfo(messageID: "testID",
-                                                  campaignName: "testCampaign",
-                                                  isTestMessage: false)
-      writableMessageType = FIRInAppMessagingDisplayMessageType.card
-      writableTriggerType = FIRInAppMessagingDisplayTriggerType.onAnalyticsEvent
-    }
+  func testModalMessage(titleText: String,
+                        bodyText: String?,
+                        textColor: UIColor,
+                        backgroundColor: UIColor,
+                        imageData: InAppMessagingImageData?,
+                        actionButton: InAppMessagingActionButton?,
+                        actionURL: URL?) -> InAppMessagingModalDisplay {
+    return InAppMessagingModalDisplay(
+      campaignName: "campaignName",
+      titleText: titleText,
+      bodyText: bodyText,
+      textColor: textColor,
+      backgroundColor: backgroundColor,
+      imageData: imageData,
+      actionButton: actionButton,
+      actionURL: actionURL,
+      appData: nil
+    )
   }
 
   let displayImpl = InAppMessagingDefaultDisplayImpl()
@@ -113,7 +59,7 @@ class ModalMessageViewController: CommonMessageTestVC {
     let fiamImageData = InAppMessagingImageData(imageURL: "url not important",
                                                 imageData: imageRawData!)
 
-    let modalMessage = TestableModalMessage(
+    let modalMessage = testModalMessage(
       titleText: normalMessageTitle,
       bodyText: normalMessageBody,
       textColor: UIColor.black,
@@ -128,7 +74,7 @@ class ModalMessageViewController: CommonMessageTestVC {
 
   @IBAction func showWithoutImage(_ sender: Any) {
     verifyLabel.text = "Verification Label"
-    let modalMessage = TestableModalMessage(
+    let modalMessage = testModalMessage(
       titleText: normalMessageTitle,
       bodyText: normalMessageBody,
       textColor: UIColor.black,
@@ -147,7 +93,7 @@ class ModalMessageViewController: CommonMessageTestVC {
     let fiamImageData = InAppMessagingImageData(imageURL: "url not important",
                                                 imageData: imageRawData!)
 
-    let modalMessage = TestableModalMessage(
+    let modalMessage = testModalMessage(
       titleText: normalMessageTitle,
       bodyText: normalMessageBody,
       textColor: UIColor.black,
@@ -162,7 +108,7 @@ class ModalMessageViewController: CommonMessageTestVC {
 
   @IBAction func showWithoutImageAndButton(_ sender: Any) {
     verifyLabel.text = "Verification Label"
-    let modalMessage = TestableModalMessage(
+    let modalMessage = testModalMessage(
       titleText: normalMessageTitle,
       bodyText: normalMessageBody,
       textColor: UIColor.black,
@@ -177,7 +123,7 @@ class ModalMessageViewController: CommonMessageTestVC {
 
   @IBAction func showWithLargeBody(_ sender: Any) {
     verifyLabel.text = "Verification Label"
-    let modalMessage = TestableModalMessage(
+    let modalMessage = testModalMessage(
       titleText: normalMessageTitle,
       bodyText: longBodyText,
       textColor: UIColor.black,
@@ -196,7 +142,7 @@ class ModalMessageViewController: CommonMessageTestVC {
     let fiamImageData = InAppMessagingImageData(imageURL: "url not important",
                                                 imageData: imageRawData!)
 
-    let modalMessage = TestableModalMessage(
+    let modalMessage = testModalMessage(
       titleText: longTitleText,
       bodyText: longBodyText,
       textColor: UIColor.black,
@@ -211,7 +157,7 @@ class ModalMessageViewController: CommonMessageTestVC {
 
   @IBAction func showWithLargeTitle(_ sender: Any) {
     verifyLabel.text = "Verification Label"
-    let modalMessage = TestableModalMessage(
+    let modalMessage = testModalMessage(
       titleText: longBodyText,
       bodyText: normalMessageBody,
       textColor: UIColor.black,
@@ -226,7 +172,7 @@ class ModalMessageViewController: CommonMessageTestVC {
 
   @IBAction func showWithLargeTitleAndBodyWithoutImage(_ sender: Any) {
     verifyLabel.text = "Verification Label"
-    let modalMessage = TestableModalMessage(
+    let modalMessage = testModalMessage(
       titleText: longTitleText,
       bodyText: longBodyText,
       textColor: UIColor.black,
@@ -241,7 +187,7 @@ class ModalMessageViewController: CommonMessageTestVC {
 
   @IBAction func showWithLargeTitleWithoutBodyWithoutImageWithoutButton(_ sender: Any) {
     verifyLabel.text = "Verification Label"
-    let modalMessage = TestableModalMessage(
+    let modalMessage = testModalMessage(
       titleText: longBodyText,
       bodyText: "",
       textColor: UIColor.black,
@@ -260,7 +206,7 @@ class ModalMessageViewController: CommonMessageTestVC {
     let fiamImageData = InAppMessagingImageData(imageURL: "url not important",
                                                 imageData: imageRawData!)
 
-    let modalMessage = TestableModalMessage(
+    let modalMessage = testModalMessage(
       titleText: normalMessageTitle,
       bodyText: normalMessageBody,
       textColor: UIColor.black,
@@ -279,7 +225,7 @@ class ModalMessageViewController: CommonMessageTestVC {
     let fiamImageData = InAppMessagingImageData(imageURL: "url not important",
                                                 imageData: imageRawData!)
 
-    let modalMessage = TestableModalMessage(
+    let modalMessage = testModalMessage(
       titleText: normalMessageTitle,
       bodyText: normalMessageBody,
       textColor: UIColor.black,

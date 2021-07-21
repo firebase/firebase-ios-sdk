@@ -1,3 +1,15 @@
+# v8.3.0
+- [fixed] Fixed an issue where subclassing Functions was unusable (#8265).
+
+# v8.2.0
+- [fixed] Fixed an issue where factory class methods returned a new instance on every invocation, causing emulator settings to not persist between invocations (#7783).
+
+# v8.0.0
+- [added] Added abuse reduction features. (#7928)
+
+# v7.7.0
+- [fixed] Fixed missing "http://" prefix when using Functions with the emulator. (#7537, #7538)
+
 # v7.2.0
 - [added] Made emulator connection API consistent between Auth, Database, Firestore, and Functions (#5916).
 

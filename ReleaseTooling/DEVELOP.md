@@ -16,25 +16,23 @@ If the `--zip-pods` option is not specified, the tool will build a Firebase zip 
 
 For release engineers (Googlers packaging an upcoming Firebase release) these commands should also
 be used:
--  `--custom-spec-repos sso://cpdc-internal/firebase`
+-  `--custom-spec-repos https://github.com/firebase/SpecsStaging.git`
   - This pulls the latest podspecs from the CocoaPods staging area.
-- `--enable-carthage-build` Turns on generation of Carthage zips and json file updates.
 - `--keep-build-artifacts` Useful for debugging and verifying the zip build contents.
 
 Putting them all together, here's a common command to build a releaseable Zip file:
 
 ```
 swift run zip-builder --update-pod-repo \
---custom-spec-repos sso://cpdc-internal/firebase \
---enable-carthage-build \
+--custom-spec-repos https://github.com/firebase/SpecsStaging.git \
 --keep-build-artifacts
 ```
 
 #### Carthage
 
-Carthage binaries can also be built at the same time as the zip file by passing in `--enable-carthage-build`
-as a command line argument. This directory should contain JSON files describing versions and download
-locations for each product. This will result in a folder called "carthage" at the root where the zip directory exists
+Carthage binaries can also be built at the same time as the zip file. This directory should contain
+JSON files describing versions and download locations for each product. This will result in a folder
+called "carthage" at the root where the zip directory exists
 containing all the zip files and JSON files necessary for distribution.
 
 ## Firebase Releaser

@@ -61,6 +61,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       XCTFail("Default app was not configured.")
       return
     }
+    testApp.isDataCollectionDefaultEnabled = false
 
     let testName = String(#function.dropLast(2))
     let testModelName = "pose-detection"
@@ -152,6 +153,8 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       XCTFail("Default app was not configured.")
       return
     }
+    testApp.isDataCollectionDefaultEnabled = false
+
     let testName = String(#function.dropLast(2))
     let testModelName = "\(testName)-test-model"
     let urlString =
@@ -208,6 +211,8 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       XCTFail("Default app was not configured.")
       return
     }
+    testApp.isDataCollectionDefaultEnabled = false
+
     let testName = String(#function.dropLast(2))
     let testModelName = "image-classification"
 
@@ -226,10 +231,14 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       downloadType: downloadType,
       conditions: conditions,
       progressHandler: { progress in
+        XCTAssertTrue(Thread.isMainThread, "Completion must be called on the main thread.")
+
         XCTAssertLessThanOrEqual(progress, 1)
         XCTAssertGreaterThanOrEqual(progress, 0)
       }
     ) { result in
+      XCTAssertTrue(Thread.isMainThread, "Completion must be called on the main thread.")
+
       switch result {
       case let .success(model):
         XCTAssertNotNil(model.path)
@@ -299,12 +308,57 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     wait(for: [localModelExpectation], timeout: 5)
   }
 
+  func testGetModelWhenNameIsEmpty() {
+    guard let testApp = FirebaseApp.app() else {
+      XCTFail("Default app was not configured.")
+      return
+    }
+    testApp.isDataCollectionDefaultEnabled = false
+
+    let testName = String(#function.dropLast(2))
+    let emptyModelName = ""
+
+    let conditions = ModelDownloadConditions()
+    let modelDownloader = ModelDownloader.modelDownloaderWithDefaults(
+      .createTestInstance(testName: testName),
+      app: testApp
+    )
+
+    let completionExpectation = expectation(description: "getModel")
+    let progressExpectation = expectation(description: "progressHandler")
+    progressExpectation.isInverted = true
+
+    modelDownloader.getModel(
+      name: emptyModelName,
+      downloadType: .latestModel,
+      conditions: conditions,
+      progressHandler: { progress in
+        progressExpectation.fulfill()
+      }
+    ) { result in
+      XCTAssertTrue(Thread.isMainThread, "Completion must be called on the main thread.")
+
+      switch result {
+      case .failure(.emptyModelName):
+        // The expected error.
+        break
+
+      default:
+        XCTFail("Unexpected result: \(result)")
+      }
+      completionExpectation.fulfill()
+    }
+
+    wait(for: [completionExpectation, progressExpectation], timeout: 5)
+  }
+
   /// Delete previously downloaded model.
   func testDeleteModel() {
     guard let testApp = FirebaseApp.app() else {
       XCTFail("Default app was not configured.")
       return
     }
+    testApp.isDataCollectionDefaultEnabled = false
 
     let testName = String(#function.dropLast(2))
     let testModelName = "pose-detection"
@@ -323,10 +377,13 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       downloadType: downloadType,
       conditions: conditions,
       progressHandler: { progress in
+        XCTAssertTrue(Thread.isMainThread, "Completion must be called on the main thread.")
         XCTAssertLessThanOrEqual(progress, 1)
         XCTAssertGreaterThanOrEqual(progress, 0)
       }
     ) { result in
+      XCTAssertTrue(Thread.isMainThread, "Completion must be called on the main thread.")
+
       switch result {
       case let .success(model):
         XCTAssertNotNil(model.path)
@@ -343,6 +400,8 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     let deleteExpectation = expectation(description: "Wait for model deletion.")
     modelDownloader.deleteDownloadedModel(name: testModelName) { result in
       deleteExpectation.fulfill()
+      XCTAssertTrue(Thread.isMainThread, "Completion must be called on the main thread.")
+
       switch result {
       case .success: break
       case let .failure(error):
@@ -359,6 +418,8 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       XCTFail("Default app was not configured.")
       return
     }
+    testApp.isDataCollectionDefaultEnabled = false
+
     let testName = String(#function.dropLast(2))
     let testModelName = "pose-detection"
 
@@ -413,8 +474,10 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       XCTFail("Default app was not configured.")
       return
     }
+    // Flip this to `true` to test logging.
+    testApp.isDataCollectionDefaultEnabled = false
 
-    let testModelName = "image-classification"
+    let testModelName = "digit-classification"
     let testName = String(#function.dropLast(2))
 
     let conditions = ModelDownloadConditions()
@@ -431,18 +494,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       conditions: conditions
     ) { result in
       switch result {
-      case let .success(model):
-        guard let telemetryLogger = TelemetryLogger(app: testApp) else {
-          XCTFail("Could not initialize logger.")
-          return
-        }
-        // TODO: Remove actual logging and stub out with mocks.
-        telemetryLogger.logModelDownloadEvent(
-          eventName: .modelDownload,
-          status: .succeeded,
-          model: model,
-          downloadErrorCode: .noError
-        )
+      case .success: break
       case let .failure(error):
         XCTFail("Failed to download model - \(error)")
       }
@@ -453,14 +505,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     let deleteModelExpectation = expectation(description: "Test delete model telemetry.")
     modelDownloader.deleteDownloadedModel(name: testModelName) { result in
       switch result {
-      case .success(()):
-        guard let telemetryLogger = TelemetryLogger(app: testApp) else {
-          XCTFail("Could not initialize logger.")
-          return
-        }
-        // TODO: Remove actual logging and stub out with mocks.
-        telemetryLogger.logModelDeletedEvent(eventName: .remoteModelDeleteOnDevice,
-                                             isSuccessful: true)
+      case .success(()): break
       case let .failure(error):
         XCTFail("Failed to delete model - \(error)")
       }
@@ -468,6 +513,24 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     }
 
     wait(for: [deleteModelExpectation], timeout: 5)
+
+    let notFoundModelName = "fakeModelName"
+    let notFoundModelExpectation =
+      expectation(description: "Test get model telemetry with unknown model.")
+
+    modelDownloader.getModel(
+      name: notFoundModelName,
+      downloadType: .latestModel,
+      conditions: conditions
+    ) { result in
+      switch result {
+      case .success: XCTFail("Unexpected model success.")
+      case let .failure(error):
+        XCTAssertEqual(error, .notFound)
+      }
+      notFoundModelExpectation.fulfill()
+    }
+    wait(for: [notFoundModelExpectation], timeout: 5)
   }
 
   func testGetModelWithConditions() {
@@ -475,11 +538,11 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       XCTFail("Default app was not configured.")
       return
     }
+    testApp.isDataCollectionDefaultEnabled = false
 
     let testModelName = "pose-detection"
     let testName = String(#function.dropLast(2))
 
-    // TODO: Figure out a better way to test this.
     let conditions = ModelDownloadConditions(allowsCellularAccess: false)
 
     let modelDownloader = ModelDownloader.modelDownloaderWithDefaults(
@@ -494,10 +557,13 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
       downloadType: .latestModel,
       conditions: conditions,
       progressHandler: { progress in
+        XCTAssertTrue(Thread.isMainThread, "Completion must be called on the main thread.")
         XCTAssertLessThanOrEqual(progress, 1)
         XCTAssertGreaterThanOrEqual(progress, 0)
       }
     ) { result in
+      XCTAssertTrue(Thread.isMainThread, "Completion must be called on the main thread.")
+
       switch result {
       case let .success(model):
         XCTAssertNotNil(model.path)
