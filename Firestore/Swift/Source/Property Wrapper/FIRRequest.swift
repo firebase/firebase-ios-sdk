@@ -28,9 +28,14 @@ public class FirebaseStore<T: Decodable>: ObservableObject {
     @Published var items: [T] = []
     
     private let store = Firestore.firestore()
+    private var listener: ListenerRegistration? = nil
     
     init(_ collection: String, _ predicates: [FIRPredicate]) {
         load(from: collection, withPredicates: predicates)
+    }
+    
+    deinit {
+        self.listener?.remove()
     }
     
     private func load(from collection: String, withPredicates predicates: [FIRPredicate]) {
@@ -59,17 +64,16 @@ public class FirebaseStore<T: Decodable>: ObservableObject {
             }
         }
         
-        query
-            .getDocuments { snapshot, error in
-                guard error == nil, let snapshot = snapshot else {
-                    self.items = []
-                    return
-                }
-                
-                self.items = snapshot.documents.compactMap { document in
-                    try? document.data(as: T.self)
-                }
+        listener = query.addSnapshotListener { snapshot, error in
+            guard error == nil, let snapshot = snapshot else {
+                self.items = []
+                return
             }
+            
+            self.items = snapshot.documents.compactMap { document in
+                try? document.data(as: T.self)
+            }
+        }
     }
 }
 
