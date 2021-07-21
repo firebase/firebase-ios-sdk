@@ -82,7 +82,8 @@
         (GDTCORTransportFake *)self.client.gdtLogger.gdtfllTransport;
     XCTAssertEqual(fakeGdtTransport.logEvents.count, 1);
     GDTCOREvent *event = fakeGdtTransport.logEvents.firstObject;
-    XCTAssertEqualObjects([event.dataObject transportBytes], [[FPRGDTEvent gdtEventForPerfMetric:perfMetric] transportBytes]);
+    XCTAssertEqualObjects([event.dataObject transportBytes],
+                          [[FPRGDTEvent gdtEventForPerfMetric:perfMetric] transportBytes]);
   });
 }
 
@@ -104,7 +105,8 @@
         (GDTCORTransportFake *)self.client.gdtLogger.gdtfllTransport;
     XCTAssertEqual(fakeGdtTransport.logEvents.count, 1);
     GDTCOREvent *event = fakeGdtTransport.logEvents.firstObject;
-    XCTAssertEqualObjects([event.dataObject transportBytes], [[FPRGDTEvent gdtEventForPerfMetric:perfMetric] transportBytes]);
+    XCTAssertEqualObjects([event.dataObject transportBytes],
+                          [[FPRGDTEvent gdtEventForPerfMetric:perfMetric] transportBytes]);
   });
 }
 
@@ -125,7 +127,8 @@
         (GDTCORTransportFake *)self.client.gdtLogger.gdtfllTransport;
     XCTAssertEqual(fakeGdtTransport.logEvents.count, 1);
     GDTCOREvent *event = fakeGdtTransport.logEvents.firstObject;
-    XCTAssertEqualObjects([event.dataObject transportBytes], [[FPRGDTEvent gdtEventForPerfMetric:perfMetric] transportBytes]);
+    XCTAssertEqualObjects([event.dataObject transportBytes],
+                          [[FPRGDTEvent gdtEventForPerfMetric:perfMetric] transportBytes]);
   });
 }
 
