@@ -130,41 +130,12 @@ struct ContentView: View {
         self.log = "Failed getting iid and token: \(String(describing: error))"
         return
       }
-<<<<<<< HEAD
-      self.identity.token = result.token
-      self.identity.instanceID = result.instanceID
-      print("Token:\n" + self.identity.token!)
-      self.log = "Successfully got iid and token."
-    }
-  }
-
-  func getToken() {
-    guard let app = FirebaseApp.app() else {
-      return
-    }
-    let senderID = app.options.gcmSenderID
-    var options: [String: Any] = [:]
-    if Messaging.messaging().apnsToken == nil {
-      log = "There's no APNS token available at the moment."
-      return
-    }
-    options = ["apns_token": Messaging.messaging().apnsToken as Any]
-    InstanceID.instanceID()
-      .token(withAuthorizedEntity: senderID, scope: "*", options: options) { token, error in
-        guard let token = token, error == nil else {
-          self.log = "Failed getting token: \(String(describing: error))"
-          return
-        }
-        self.identity.token = token
-        self.log = "Successfully got token."
-=======
       self.identity.token = token
       self.log = "Successfully got token."
       print("Token: ", self.identity.token ?? "")
       Installations.installations().installationID { fid, error in
         self.identity.installationsID = fid
         self.log = "Successfully got iid and token."
->>>>>>> 04ab074265633049d5518866515e3bd7fc0de246
       }
     }
   }

@@ -14,10 +14,3 @@ target 'Sample' do
   pod 'FirebaseAnalytics'
 
 end
-
-target 'NotificationService' do
-  platform :ios, '10.0'
-  pod 'FirebaseMessaging', :path => '../../../'
-  pod 'GoogleDataTransport', :path => '../../../'
-
-end

@@ -76,13 +76,9 @@
   NSString *expectedIdentifier = @"com.me.myapp";
 #endif
 
-  [[[_mainBundleMock stub] andReturn:bundleIdentifier] bundleIdentifier];
+  [[[_mainBundleMock stub] andReturn:expectedIdentifier] bundleIdentifier];
   NSString *appIdentifier = FIRMessagingAppIdentifier();
-#if TARGET_OS_WATCH
   XCTAssertEqualObjects(appIdentifier, expectedIdentifier);
-#else
-  XCTAssertEqualObjects(appIdentifier, expectedIdentifier);
-#endif
 }
 
 - (void)testAppIdentifierReturnsEmptyStringWhenNotFound {

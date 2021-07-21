@@ -40,8 +40,7 @@ device, and it is completely free.
     'Interop/Analytics/Public/*.h',
     'FirebaseCore/Sources/Private/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
-    'GoogleDataTransport/GDTCORLibrary/Public/GoogleDataTransport/*.h',
-    'GoogleDataTransport/GDTCCTLibrary/Private/*.h',
+    'GoogleDataTransport/Public/*.h',
   ]
   s.public_header_files = base_dir + 'Sources/Public/FirebaseMessaging/*.h'
   s.library = 'sqlite3'
@@ -56,7 +55,6 @@ device, and it is completely free.
   s.tvos.framework = 'SystemConfiguration'
   s.osx.framework = 'SystemConfiguration'
   s.weak_framework = 'UserNotifications'
-  s.dependency 'FirebaseCore', '~> 7.0'
   s.dependency 'FirebaseInstallations', '~> 8.0'
   s.dependency 'FirebaseCore', '~> 8.0'
   s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.4'

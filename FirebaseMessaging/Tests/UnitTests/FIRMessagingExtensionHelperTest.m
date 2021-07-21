@@ -17,10 +17,11 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
+
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
 #import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
 #import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessagingExtensionHelper.h"
-#import "GoogleUtilities/Environment/Public/GoogleUtilities/GULAppEnvironmentUtil.h"
 
 API_AVAILABLE(macos(10.14), ios(10.0), watchos(3.0))
 typedef void (^FIRMessagingContentHandler)(UNNotificationContent *content);

@@ -57,9 +57,6 @@ pb_bytes_array_t *FIRMessagingEncodeString(NSString *string) {
   return FIRMessagingEncodeData(stringBytes);
 }
 
-
-
-
 @interface FIRMessagingMetricsLog : NSObject <GDTCOREventDataObject>
 
 @property(nonatomic) fm_MessagingClientEventExtension eventExtension;
@@ -213,32 +210,32 @@ pb_bytes_array_t *FIRMessagingEncodeString(NSString *string) {
 
   fm_MessagingClientEventExtension eventExtension = fm_MessagingClientEventExtension_init_default;
 
-  fm_MessagingClientEvent foo = fm_MessagingClientEvent_init_default;
-  foo.project_number = (int64_t)[info[kFIRMessagingSenderID] longLongValue];
-  foo.message_id = FIRMessagingEncodeString(info[kFIRMessagingMessageIDKey]);
-  foo.instance_id = FIRMessagingEncodeString(info[kFIRMessagingFID]);
+  fm_MessagingClientEvent clientEvent = fm_MessagingClientEvent_init_default;
+  clientEvent.project_number = (int64_t)[info[kFIRMessagingSenderID] longLongValue];
+  clientEvent.message_id = FIRMessagingEncodeString(info[kFIRMessagingMessageIDKey]);
+  clientEvent.instance_id = FIRMessagingEncodeString(info[kFIRMessagingFID]);
 
   if ([info[@"aps"][kFIRMessagingMessageAPNSContentAvailableKey] intValue] == 1 &&
       ![GULAppEnvironmentUtil isAppExtension]) {
-    foo.message_type = fm_MessagingClientEvent_MessageType_DATA_MESSAGE;
+    clientEvent.message_type = fm_MessagingClientEvent_MessageType_DATA_MESSAGE;
   } else {
-    foo.message_type = fm_MessagingClientEvent_MessageType_DISPLAY_NOTIFICATION;
+    clientEvent.message_type = fm_MessagingClientEvent_MessageType_DISPLAY_NOTIFICATION;
   }
-  foo.sdk_platform = fm_MessagingClientEvent_SDKPlatform_IOS;
+  clientEvent.sdk_platform = fm_MessagingClientEvent_SDKPlatform_IOS;
 
   NSString *bundleID = [NSBundle mainBundle].bundleIdentifier;
   if ([GULAppEnvironmentUtil isAppExtension]) {
-    foo.package_name =
-      FIRMessagingEncodeString([[self class] bundleIdentifierByRemovingLastPartFrom:bundleID]);
+    clientEvent.package_name =
+        FIRMessagingEncodeString([[self class] bundleIdentifierByRemovingLastPartFrom:bundleID]);
   } else {
-    foo.package_name = FIRMessagingEncodeString(bundleID);
+    clientEvent.package_name = FIRMessagingEncodeString(bundleID);
   }
-  foo.event = fm_MessagingClientEvent_Event_MESSAGE_DELIVERED;
-  foo.analytics_label = FIRMessagingEncodeString(info[kFIRMessagingAnalyticsMessageLabel]);
-  foo.campaign_id = (int64_t)[info[kFIRMessagingAnalyticsComposerIdentifier] longLongValue];
-  foo.composer_label = FIRMessagingEncodeString(info[kFIRMessagingAnalyticsComposerLabel]);
+  clientEvent.event = fm_MessagingClientEvent_Event_MESSAGE_DELIVERED;
+  clientEvent.analytics_label = FIRMessagingEncodeString(info[kFIRMessagingAnalyticsMessageLabel]);
+  clientEvent.campaign_id = (int64_t)[info[kFIRMessagingAnalyticsComposerIdentifier] longLongValue];
+  clientEvent.composer_label = FIRMessagingEncodeString(info[kFIRMessagingAnalyticsComposerLabel]);
 
-  eventExtension.messaging_client_event = &foo;
+  eventExtension.messaging_client_event = &clientEvent;
   FIRMessagingMetricsLog *log =
       [[FIRMessagingMetricsLog alloc] initWithEventExtension:eventExtension];
 
