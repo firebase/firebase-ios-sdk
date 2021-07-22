@@ -623,9 +623,7 @@ final class DatabaseAPITests {
       break
     case .value:
       break
-    case .none:
-      break
-    case .some:
+    case .none, .some:
       break
     }
 
