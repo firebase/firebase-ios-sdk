@@ -79,21 +79,26 @@ final class DatabaseAPITests {
     var databaseQuery: DatabaseQuery = DatabaseQuery()
 
     // Observe for data
+
+    // observe(_ eventType:with block:)
     databaseHandle = databaseQuery.observe(dataEventType) { dataSnapshot in
       let /* dataSnapshot */ _: DataSnapshot = dataSnapshot
     }
 
+    // observe(_ eventType:andPreviousSiblingKeyWith block:)
     databaseHandle = databaseQuery.observe(dataEventType) { dataSnapshot, optionalString in
       let /* dataSnapshot */ _: DataSnapshot = dataSnapshot
       let /* optionalString */ _: String? = optionalString
     }
 
+    // observe(_ eventType:with block:withCancel cancelBlock:)
     databaseHandle = databaseQuery.observe(dataEventType) { dataSnapshot in
       let /* dataSnapshot */ _: DataSnapshot = dataSnapshot
     } withCancel: { error in
       let /* error */ _: Error = error
     }
 
+    // observe(_ eventType:andPreviousSiblingKeyWith block:withCancel cancelBlock:)
     databaseHandle = databaseQuery.observe(dataEventType) { dataSnapshot, optionalString in
       let /* dataSnapshot */ _: DataSnapshot = dataSnapshot
       let /* optionalString */ _: String? = optionalString
@@ -102,6 +107,8 @@ final class DatabaseAPITests {
     }
 
     // Get data
+
+    // getData(completion block:)
     databaseQuery.getData { optionalError, dataSnapshot in
       let /* optionalError */ _: Error? = optionalError
       let /* dataSnapshot */ _: DataSnapshot = dataSnapshot
@@ -121,10 +128,13 @@ final class DatabaseAPITests {
     #endif // swift(>=5.5)
 
     // Observe Single Event
+
+    // observeSingleEvent(of eventType:with block:)
     databaseQuery.observeSingleEvent(of: dataEventType) { dataSnapshot in
       let /* dataSnapshot */ _: DataSnapshot = dataSnapshot
     }
 
+    // observeSingleEvent(of eventType:andPreviousSiblingKeyWith block:)
     databaseQuery.observeSingleEvent(of: dataEventType) { dataSnapshot, optionalString in
       let /* dataSnapshot */ _: DataSnapshot = dataSnapshot
       let /* optionalString */ _: String? = optionalString
@@ -135,8 +145,8 @@ final class DatabaseAPITests {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         async {
           do {
-            let /* (dataSnapshot, optionalString) */ _: (DataSnapshot,
-                                                         String?) = try await databaseQuery
+            // observeSingleEvent(of eventType:)
+            let _: (DataSnapshot, String?) = try await databaseQuery
               .observeSingleEventAndPreviousSiblingKey(of: dataEventType)
           } catch {
             // ...
@@ -145,12 +155,14 @@ final class DatabaseAPITests {
       }
     #endif // swift(>=5.5)
 
+    // observeSingleEvent(of eventType:with block:withCancel cancelBlock:)
     databaseQuery.observeSingleEvent(of: dataEventType) { dataSnapshot in
       let /* dataSnapshot */ _: DataSnapshot = dataSnapshot
     } withCancel: { error in
       let /* error */ _: Error = error
     }
 
+    // observeSingleEvent(of eventType:andPreviousSiblingKeyWith block:withCancel cancelBlock:)
     databaseQuery.observeSingleEvent(of: dataEventType) { dataSnapshot, optionalString in
       let /* dataSnapshot */ _: DataSnapshot = dataSnapshot
       let /* optionalString */ _: String? = optionalString
@@ -187,6 +199,7 @@ final class DatabaseAPITests {
 
     // MARK: - DatabaseReference
 
+    let priorityAny: Any = "priority"
     var values = [AnyHashable: Any]()
     var transactionResult = TransactionResult()
 
@@ -196,6 +209,8 @@ final class DatabaseAPITests {
 
     // Set value
     databaseReference.setValue(value)
+
+    // setValue(_ value:withCompletionBlock block:)
     databaseReference.setValue(value) { optionalError, databaseReference in
       let /* optionalError */ _: Error? = optionalError
       let /* databaseReference */ _: DatabaseReference = databaseReference
@@ -206,6 +221,7 @@ final class DatabaseAPITests {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         async {
           do {
+            // setValue(_ value:)
             databaseReference = try await databaseReference.setValue(value)
           } catch {
             // ...
@@ -215,6 +231,8 @@ final class DatabaseAPITests {
     #endif // swift(>=5.5)
 
     databaseReference.setValue(value, andPriority: priority)
+
+    // setValue(_ value:andPriority priority:withCompletionBlock block:)
     databaseReference.setValue(value, andPriority: priority) { optionalError, databaseReference in
       let /* optionalError */ _: Error? = optionalError
       let /* databaseReference */ _: DatabaseReference = databaseReference
@@ -225,6 +243,7 @@ final class DatabaseAPITests {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         async {
           do {
+            // setValue(_ value:andPriority priority:)
             databaseReference = try await databaseReference.setValue(value, andPriority: priority)
           } catch {
             // ...
@@ -235,6 +254,8 @@ final class DatabaseAPITests {
 
     // Remove value
     databaseReference.removeValue()
+
+    // removeValue(completionBlock block:)
     databaseReference.removeValue { optionalError, databaseReference in
       let /* optionalError */ _: Error? = optionalError
       let /* databaseReference */ _: DatabaseReference = databaseReference
@@ -255,6 +276,8 @@ final class DatabaseAPITests {
 
     // Set priority
     databaseReference.setPriority(priority)
+
+    // setPriority(_ priority:withCompletionBlock block:)
     databaseReference.setPriority(priority) { optionalError, databaseReference in
       let /* optionalError */ _: Error? = optionalError
       let /* databaseReference */ _: DatabaseReference = databaseReference
@@ -265,6 +288,7 @@ final class DatabaseAPITests {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         async {
           do {
+            // setPriority(_ priority:)
             databaseReference = try await databaseReference.setPriority(priority)
           } catch {
             // ...
@@ -275,6 +299,8 @@ final class DatabaseAPITests {
 
     // Update child values
     databaseReference.updateChildValues(values)
+
+    // updateChildValues(_ values:withCompletionBlock block:)
     databaseReference.updateChildValues(values) { optionalError, databaseReference in
       let /* optionalError */ _: Error? = optionalError
       let /* databaseReference */ _: DatabaseReference = databaseReference
@@ -285,6 +311,7 @@ final class DatabaseAPITests {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         async {
           do {
+            // updateChildValues(_ values:)
             databaseReference = try await databaseReference.updateChildValues(values)
           } catch {
             // ...
@@ -294,21 +321,26 @@ final class DatabaseAPITests {
     #endif // swift(>=5.5)
 
     // Observe for data
+
+    // observe(_ eventType:with block:)
     databaseHandle = databaseReference.observe(dataEventType) { dataSnapshot in
       let /* dataSnapshot */ _: DataSnapshot = dataSnapshot
     }
 
+    // observe(_ eventType:andPreviousSiblingKeyWith block:)
     databaseHandle = databaseReference.observe(dataEventType) { dataSnapshot, optionalString in
       let /* dataSnapshot */ _: DataSnapshot = dataSnapshot
       let /* optionalString */ _: String? = optionalString
     }
 
+    // observe(_ eventType:with block:withCancel cancelBlock:)
     databaseHandle = databaseReference.observe(dataEventType) { dataSnapshot in
       let /* dataSnapshot */ _: DataSnapshot = dataSnapshot
     } withCancel: { error in
       let /* error */ _: Error = error
     }
 
+    // observe(_ eventType:andPreviousSiblingKeyWith block:withCancel cancelBlock:)
     databaseHandle = databaseReference.observe(dataEventType) { dataSnapshot, optionalString in
       let /* dataSnapshot */ _: DataSnapshot = dataSnapshot
       let /* optionalString */ _: String? = optionalString
@@ -317,10 +349,13 @@ final class DatabaseAPITests {
     }
 
     // Observe Single Event
+
+    // observeSingleEvent(of eventType:with block:)
     databaseReference.observeSingleEvent(of: dataEventType) { dataSnapshot in
       let /* dataSnapshot */ _: DataSnapshot = dataSnapshot
     }
 
+    // observeSingleEvent(of eventType:andPreviousSiblingKeyWith block:)
     databaseReference.observeSingleEvent(of: dataEventType) { dataSnapshot, optionalString in
       let /* dataSnapshot */ _: DataSnapshot = dataSnapshot
       let /* optionalString */ _: String? = optionalString
@@ -331,8 +366,8 @@ final class DatabaseAPITests {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         async {
           do {
-            let /* (dataSnapshot,optionalString) */ _: (DataSnapshot,
-                                                        String?) = try await databaseReference
+            // observeSingleEvent(of eventType:)
+            let _: (DataSnapshot, String?) = try await databaseReference
               .observeSingleEventAndPreviousSiblingKey(of: dataEventType)
           } catch {
             // ...
@@ -341,12 +376,14 @@ final class DatabaseAPITests {
       }
     #endif // swift(>=5.5)
 
+    // observeSingleEvent(of eventType:with block:withCancel cancelBlock:)
     databaseReference.observeSingleEvent(of: dataEventType) { dataSnapshot in
       let /* dataSnapshot */ _: DataSnapshot = dataSnapshot
     } withCancel: { error in
       let /* error */ _: Error = error
     }
 
+    // observeSingleEvent(of eventType:andPreviousSiblingKeyWith block:withCancel cancelBlock:)
     databaseReference.observeSingleEvent(of: dataEventType) { dataSnapshot, optionalString in
       let /* dataSnapshot */ _: DataSnapshot = dataSnapshot
       let /* optionalString */ _: String? = optionalString
@@ -355,6 +392,8 @@ final class DatabaseAPITests {
     }
 
     // Get data
+
+    // getData(completion block:)
     databaseReference.getData { optionalError, dataSnapshot in
       let /* optionalError */ _: Error? = optionalError
       let /* dataSnapshot */ _: DataSnapshot = dataSnapshot
@@ -397,6 +436,8 @@ final class DatabaseAPITests {
 
     // onDisconnectSetValue
     databaseReference.onDisconnectSetValue(value)
+
+    // onDisconnectSetValue(_ value:withCompletionBlock block:)
     databaseReference.onDisconnectSetValue(value) { optionalError, databaseReference in
       let /* optionalError */ _: Error? = optionalError
       let /* databaseReference */ _: DatabaseReference = databaseReference
@@ -407,6 +448,7 @@ final class DatabaseAPITests {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         async {
           do {
+            // onDisconnectSetValue(_ value:)
             databaseReference = try await databaseReference.onDisconnectSetValue(value)
           } catch {
             // ...
@@ -415,7 +457,9 @@ final class DatabaseAPITests {
       }
     #endif // swift(>=5.5)
 
-    databaseReference.onDisconnectSetValue(value, andPriority: priority)
+    databaseReference.onDisconnectSetValue(value, andPriority: priorityAny)
+
+    // onDisconnectSetValue(_ value:andPriority priority:withCompletionBlock block:)
     databaseReference
       .onDisconnectSetValue(value, andPriority: priority) { optionalError, databaseReference in
         let /* optionalError */ _: Error? = optionalError
@@ -427,6 +471,7 @@ final class DatabaseAPITests {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         async {
           do {
+            // onDisconnectSetValue(_ value:andPriority priority:)
             databaseReference = try await databaseReference.onDisconnectSetValue(
               value,
               andPriority: priority
@@ -440,6 +485,8 @@ final class DatabaseAPITests {
 
     // onDisconnectRemoveValue
     databaseReference.onDisconnectRemoveValue()
+
+    // onDisconnectRemoveValue(completionBlock block:)
     databaseReference.onDisconnectRemoveValue { optionalError, databaseReference in
       let /* optionalError */ _: Error? = optionalError
       let /* databaseReference */ _: DatabaseReference = databaseReference
@@ -460,6 +507,8 @@ final class DatabaseAPITests {
 
     // onDisconnectUpdateChildValues
     databaseReference.onDisconnectUpdateChildValues(values)
+
+    // onDisconnectUpdateChildValues(_ values:withCompletionBlock block:)
     databaseReference.onDisconnectUpdateChildValues(values) { optionalError, databaseReference in
       let /* optionalError */ _: Error? = optionalError
       let /* databaseReference */ _: DatabaseReference = databaseReference
@@ -470,6 +519,7 @@ final class DatabaseAPITests {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         async {
           do {
+            // onDisconnectUpdateChildValues(_ values:)
             databaseReference = try await databaseReference.onDisconnectUpdateChildValues(values)
           } catch {
             // ...
@@ -480,6 +530,8 @@ final class DatabaseAPITests {
 
     // cancelDisconnectOperations
     databaseReference.cancelDisconnectOperations()
+
+    // cancelDisconnectOperations(completionBlock block:)
     databaseReference.cancelDisconnectOperations { optionalError, databaseReference in
       let /* optionalError */ _: Error? = optionalError
       let /* databaseReference */ _: DatabaseReference = databaseReference
@@ -499,11 +551,14 @@ final class DatabaseAPITests {
     #endif // swift(>=5.5)
 
     // runTransactionBlock
+
+    // runTransactionBlock(_ block:)
     databaseReference.runTransactionBlock { mutableData in
       let /* mutableData */ _: MutableData = mutableData
       return transactionResult
     }
 
+    // runTransactionBlock(_ block:andCompletionBlock completionBlock:)
     databaseReference.runTransactionBlock { mutableData in
       let /* mutableData */ _: MutableData = mutableData
       return transactionResult
@@ -518,7 +573,8 @@ final class DatabaseAPITests {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         async {
           do {
-            let /* (bool, dataSnapshot) */ _: (Bool, DataSnapshot) = try await databaseReference
+            // runTransactionBlock(_ block:)
+            let _: (Bool, DataSnapshot) = try await databaseReference
               .runTransactionBlock { mutableData in
                 let /* mutableData */ _: MutableData = mutableData
                 return transactionResult
@@ -530,6 +586,7 @@ final class DatabaseAPITests {
       }
     #endif // swift(>=5.5)
 
+    // runTransactionBlock(_ block:andCompletionBlock completionBlock:withLocalEvents localEvents:)
     databaseReference.runTransactionBlock({ mutableData in
       let /* mutableData */ _: MutableData = mutableData
       return transactionResult
