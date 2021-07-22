@@ -97,7 +97,7 @@ jobs:
         git clone https://github.com/google/cocoapods-size
         swift build
         if [ -n "$BINARY_SIZE_SDK" ]; then
-          .build/debug/BinarySizeReportGenerator --binary-size-tool-dir cocoapods-size/  --sdk-repo-dir "${GITHUB_WORKSPACE}" --sdk BINARY_SIZE_SDK[@]
+          .build/debug/BinarySizeReportGenerator --binary-size-tool-dir cocoapods-size/  --sdk-repo-dir "${GITHUB_WORKSPACE}" --sdk $BINARY_SIZE_SDK[@]
         fi
         
 
