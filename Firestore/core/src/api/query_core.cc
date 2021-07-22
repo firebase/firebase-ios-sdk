@@ -244,17 +244,18 @@ Query Query::Filter(const FieldPath& field_path,
       ValidateDisjunctiveFilterElements(*value, op);
       // TODO(mutabledocuments): See if we can remove this copy and modify the
       // input values directly.
-      google_firestore_v1_Value references{};
-      references.which_value_type = google_firestore_v1_Value_array_value_tag;
+      auto references = MakeSharedMessage<google_firestore_v1_Value>({});
+      references->which_value_type = google_firestore_v1_Value_array_value_tag;
       nanopb::SetRepeatedField(
-          &references.array_value.values, &references.array_value.values_count,
+          &references->array_value.values,
+          &references->array_value.values_count,
           absl::Span<google_firestore_v1_Value>(
               value->array_value.values, value->array_value.values_count),
           [&](const google_firestore_v1_Value& value) {
             return *ParseExpectedReferenceValue(value, type_describer)
                         .release();
           });
-      value = MakeSharedMessage(references);
+      value = references;
     } else {
       value = ParseExpectedReferenceValue(*value, type_describer);
     }
