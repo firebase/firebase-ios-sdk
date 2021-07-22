@@ -498,9 +498,19 @@ let package = Package(
       dependencies: ["FirebaseDatabase", "OCMock", "SharedTestUtilities"],
       path: "FirebaseDatabase/Tests/",
       exclude: [
+        // Disable Swift tests as mixed targets are not supported (Xcode 12.4).
+        "Unit/Swift",
         "Integration/",
       ],
       resources: [.process("Resources")],
+      cSettings: [
+        .headerSearchPath("../.."),
+      ]
+    ),
+    .testTarget(
+      name: "DatabaseUnitSwift",
+      dependencies: ["FirebaseDatabase"],
+      path: "FirebaseDatabase/Tests/Unit/Swift",
       cSettings: [
         .headerSearchPath("../.."),
       ]
