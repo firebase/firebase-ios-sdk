@@ -64,10 +64,17 @@ NS_SWIFT_NAME(InAppMessagingActionButton)
 /// Unavailable.
 - (instancetype)init NS_UNAVAILABLE;
 
+/// Exposed for unit testing only, or for use in SwiftUI previews. Don't instantiate this in your
+/// app directly.
+- (instancetype)initWithButtonText:(NSString *)buttonText
+                   buttonTextColor:(UIColor *)textColor
+                   backgroundColor:(UIColor *)backgroundColor;
+
 @end
 
 /** Contain display data for an image for a fiam message.
  */
+NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS extensions.")
 NS_SWIFT_NAME(InAppMessagingImageData)
 @interface FIRInAppMessagingImageData : NSObject
 
@@ -84,10 +91,15 @@ NS_SWIFT_NAME(InAppMessagingImageData)
 /// Unavailable.
 - (instancetype)init NS_UNAVAILABLE;
 
+/// Exposed for unit testing only, or for use in SwiftUI previews. Don't instantiate this in your
+/// app directly.
+- (instancetype)initWithImageURL:(NSString *)imageURL imageData:(NSData *)imageData;
+
 @end
 
 /** Defines the metadata for the campaign to which a FIAM message belongs.
  */
+NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS extensions.")
 NS_SWIFT_NAME(InAppMessagingCampaignInfo)
 @interface FIRInAppMessagingCampaignInfo : NSObject
 
@@ -113,6 +125,7 @@ NS_SWIFT_NAME(InAppMessagingCampaignInfo)
 
 /** Defines the metadata for a FIAM action.
  */
+NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS extensions.")
 NS_SWIFT_NAME(InAppMessagingAction)
 @interface FIRInAppMessagingAction : NSObject
 
@@ -128,7 +141,8 @@ NS_SWIFT_NAME(InAppMessagingAction)
 /// Unavailable.
 - (instancetype)init NS_UNAVAILABLE;
 
-/// This class should only be initialized from a custom in-app message UI component implementation.
+/// This class should only be initialized from a custom in-app message UI component implementation
+/// or in unit testing.
 - (instancetype)initWithActionText:(nullable NSString *)actionText
                          actionURL:(nullable NSURL *)actionURL;
 
@@ -138,6 +152,7 @@ NS_SWIFT_NAME(InAppMessagingAction)
  * Base class representing a FIAM message to be displayed. Don't create instance
  * of this class directly. Instantiate one of its subclasses instead.
  */
+NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS extensions.")
 NS_SWIFT_NAME(InAppMessagingDisplayMessage)
 @interface FIRInAppMessagingDisplayMessage : NSObject
 
@@ -173,6 +188,7 @@ NS_SWIFT_NAME(InAppMessagingDisplayMessage)
 
 @end
 
+NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS extensions.")
 NS_SWIFT_NAME(InAppMessagingCardDisplay)
 @interface FIRInAppMessagingCardDisplay : FIRInAppMessagingDisplayMessage
 
@@ -229,10 +245,26 @@ NS_SWIFT_NAME(InAppMessagingCardDisplay)
 /// Unavailable.
 - (instancetype)init NS_UNAVAILABLE;
 
+/// Exposed for unit testing only, or for use in SwiftUI previews. Don't instantiate this in your
+/// app directly.
+- (instancetype)initWithCampaignName:(NSString *)campaignName
+                           titleText:(NSString *)title
+                            bodyText:(nullable NSString *)bodyText
+                           textColor:(UIColor *)textColor
+                   portraitImageData:(FIRInAppMessagingImageData *)portraitImageData
+                  landscapeImageData:(nullable FIRInAppMessagingImageData *)landscapeImageData
+                     backgroundColor:(UIColor *)backgroundColor
+                 primaryActionButton:(FIRInAppMessagingActionButton *)primaryActionButton
+               secondaryActionButton:(nullable FIRInAppMessagingActionButton *)secondaryActionButton
+                    primaryActionURL:(nullable NSURL *)primaryActionURL
+                  secondaryActionURL:(nullable NSURL *)secondaryActionURL
+                             appData:(nullable NSDictionary *)appData;
+
 @end
 
 /** Class for defining a modal message for display.
  */
+NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS extensions.")
 NS_SWIFT_NAME(InAppMessagingModalDisplay)
 @interface FIRInAppMessagingModalDisplay : FIRInAppMessagingDisplayMessage
 
@@ -274,10 +306,23 @@ NS_SWIFT_NAME(InAppMessagingModalDisplay)
 /// Unavailable.
 - (instancetype)init NS_UNAVAILABLE;
 
+/// Exposed for unit testing only, or for use in SwiftUI previews. Don't instantiate this in your
+/// app directly.
+- (instancetype)initWithCampaignName:(NSString *)campaignName
+                           titleText:(NSString *)title
+                            bodyText:(nullable NSString *)bodyText
+                           textColor:(UIColor *)textColor
+                     backgroundColor:(UIColor *)backgroundColor
+                           imageData:(nullable FIRInAppMessagingImageData *)imageData
+                        actionButton:(nullable FIRInAppMessagingActionButton *)actionButton
+                           actionURL:(nullable NSURL *)actionURL
+                             appData:(nullable NSDictionary *)appData;
+
 @end
 
 /** Class for defining a banner message for display.
  */
+NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS extensions.")
 NS_SWIFT_NAME(InAppMessagingBannerDisplay)
 @interface FIRInAppMessagingBannerDisplay : FIRInAppMessagingDisplayMessage
 
@@ -314,10 +359,22 @@ NS_SWIFT_NAME(InAppMessagingBannerDisplay)
 /// Unavailable.
 - (instancetype)init NS_UNAVAILABLE;
 
+/// Exposed for unit testing only, or for use in SwiftUI previews. Don't instantiate this in your
+/// app directly.
+- (instancetype)initWithCampaignName:(NSString *)campaignName
+                           titleText:(NSString *)title
+                            bodyText:(nullable NSString *)bodyText
+                           textColor:(UIColor *)textColor
+                     backgroundColor:(UIColor *)backgroundColor
+                           imageData:(nullable FIRInAppMessagingImageData *)imageData
+                           actionURL:(nullable NSURL *)actionURL
+                             appData:(nullable NSDictionary *)appData;
+
 @end
 
 /** Class for defining a image-only message for display.
  */
+NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS extensions.")
 NS_SWIFT_NAME(InAppMessagingImageOnlyDisplay)
 @interface FIRInAppMessagingImageOnlyDisplay : FIRInAppMessagingDisplayMessage
 
@@ -333,6 +390,13 @@ NS_SWIFT_NAME(InAppMessagingImageOnlyDisplay)
 
 /// Unavailable.
 - (instancetype)init NS_UNAVAILABLE;
+
+/// Exposed for unit testing only, or for use in SwiftUI previews. Don't instantiate this in your
+/// app directly.
+- (instancetype)initWithCampaignName:(NSString *)campaignName
+                           imageData:(FIRInAppMessagingImageData *)imageData
+                           actionURL:(nullable NSURL *)actionURL
+                             appData:(nullable NSDictionary *)appData;
 
 @end
 
@@ -360,6 +424,7 @@ typedef NS_ENUM(NSInteger, FIAMDisplayRenderErrorType) {
  * A protocol defining those callbacks to be triggered by the message display component
  * under appropriate conditions.
  */
+NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS extensions.")
 NS_SWIFT_NAME(InAppMessagingDisplayDelegate)
 @protocol FIRInAppMessagingDisplayDelegate <NSObject>
 
@@ -417,6 +482,7 @@ NS_SWIFT_NAME(InAppMessagingDisplayDelegate)
 /**
  * The protocol that a FIAM display component must implement.
  */
+NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS extensions.")
 NS_SWIFT_NAME(InAppMessagingDisplay)
 @protocol FIRInAppMessagingDisplay
 

@@ -47,6 +47,8 @@ import nanopb
 
 import XCTest
 
+@available(iOSApplicationExtension, unavailable)
+@available(tvOSApplicationExtension, unavailable)
 class importTest: XCTestCase {
   func testImports() throws {
     XCTAssertFalse(GULAppEnvironmentUtil.isAppStoreReceiptSandbox())

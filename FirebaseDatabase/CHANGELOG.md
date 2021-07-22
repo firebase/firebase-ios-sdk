@@ -1,3 +1,6 @@
+# v8.5.0
+- [fixed] FirebaseDatabase `getData()` callbacks are now called on the main thread. (#8247)
+
 # v8.0.0
 - [added] Added abuse reduction features. (#7928, #7943)
 

@@ -30,6 +30,8 @@ typedef void (^FIRFADUIActionCompletion)(BOOL continued)
 
 /// An instance of this class provides UI elements required for the App Distribution tester
 /// authentication flow as an AppDelegate interceptor.
+
+NS_EXTENSION_UNAVAILABLE_IOS("Firebase App Distribution is not supported for iOS extensions.")
 @interface FIRAppDistributionUIService : NSObject <UIApplicationDelegate,
                                                    ASWebAuthenticationPresentationContextProviding,
                                                    SFSafariViewControllerDelegate>
