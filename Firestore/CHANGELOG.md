@@ -1,4 +1,4 @@
-# Unreleased
+# v8.5.0
 - [changed] Internal refactor to improve serialization performance.
 
 # v8.4.0
