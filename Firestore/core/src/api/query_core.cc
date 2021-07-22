@@ -255,7 +255,7 @@ Query Query::Filter(const FieldPath& field_path,
             return *ParseExpectedReferenceValue(value, type_describer)
                         .release();
           });
-      value = references;
+      value = std::move(references);
     } else {
       value = ParseExpectedReferenceValue(*value, type_describer);
     }
