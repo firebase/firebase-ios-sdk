@@ -21,6 +21,7 @@ import FirebaseABTesting
   import FirebaseAppDistribution
 #endif
 import FirebaseCrashlytics
+import FirebaseDatabase
 import FirebaseDynamicLinks
 import FirebaseFirestore
 import FirebaseFirestoreSwift
