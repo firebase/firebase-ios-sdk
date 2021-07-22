@@ -32,8 +32,7 @@ final class DatabaseAPITests {
     let yes = true
 
     // Retrieve Database Instance
-    var database = Database.database()
-    _ = database as Database
+    var database: Database = Database.database()
 
     database = Database.database(url: url)
 
@@ -46,8 +45,7 @@ final class DatabaseAPITests {
     let /* app */ _: FirebaseApp? = database.app
 
     // Retrieve DatabaseReference
-    var databaseReference = database.reference()
-    _ = databaseReference as DatabaseReference
+    var databaseReference: DatabaseReference = database.reference()
     databaseReference = database.reference(withPath: path)
     databaseReference = database.reference(fromURL: url)
 
