@@ -78,16 +78,24 @@ import FirebaseFirestore
   @propertyWrapper
   public struct DocumentID<Value: DocumentIDWrappable & Codable>:
     DocumentIDProtocol, Codable, Sendable {
-    var value: Value?
-    private let lockQueue = DispatchQueue(label: "DocumentID.lockQueue")
+    private var value: Value?
+    private let lock = NSLock()
 
     public init(wrappedValue value: Value?) {
       self.value = value
     }
 
     public var wrappedValue: Value? {
-        get {  return lockQueue.sync { return value } }
-        set { return lockQueue.sync { value = newValue } }
+        get {
+            lock.lock()
+            defer { lock.unlock() }
+            return value
+        }
+        set {
+            lock.lock()
+            defer { lock.unlock() }
+            value = newValue
+        }
     }
 
     // MARK: - `DocumentIDProtocol` conformance
