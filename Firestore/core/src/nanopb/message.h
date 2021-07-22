@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_NANOPB_MESSAGE_H_
 #define FIRESTORE_CORE_SRC_NANOPB_MESSAGE_H_
 
+#include <memory>
 #include <string>
 #include <utility>
 
@@ -64,6 +65,12 @@ class Message {
    * pointer-like access.
    */
   Message() = default;
+
+  /**
+   * Creates a `Message` object that wraps `proto`. Takes ownership of `proto`.
+   */
+  explicit Message(const T& proto) : owns_proto_(true), proto_(proto) {
+  }
 
   /**
    * Attempts to parse a Nanopb message from the given `reader`. If the reader
@@ -166,6 +173,14 @@ class Message {
     return proto_.ToString();
   }
 
+  /**
+   * Returns false if the Message is not associated with a valid proto (for
+   * example, if it has been moved from).
+   */
+  constexpr explicit operator bool() const noexcept {
+    return owns_proto_;
+  }
+
  private:
   // Important: this function does *not* modify `owns_proto_`.
   void Free() {
@@ -179,6 +194,69 @@ class Message {
   // member variables that aren't written to are in a valid state.
   T proto_{};
 };
+
+template <typename T>
+Message<T> MakeMessage(const T& proto) {
+  return Message<T>(proto);
+}
+
+/**
+ * A wrapper of Message objects that facilitates shared ownership of Protobuf
+ * data.
+ */
+// TODO(mrschmidt): Add a template <typename const T> specialization
+template <typename T>
+class SharedMessage {
+ public:
+  /** Creates a `SharedMessage` object that wraps `proto`. */
+  SharedMessage(Message<T> message)  // NOLINT
+      : message_{std::make_shared<Message<T>>(*message.release())} {
+  }
+
+  /**
+   * Returns a pointer to the underlying Nanopb proto.
+   */
+  T* get() {
+    return message_->get();
+  }
+
+  /**
+   * Returns a pointer to the underlying Nanopb proto.
+   */
+  const T* get() const {
+    return message_->get();
+  }
+
+  /**
+   * Returns a reference to the underlying Nanopb proto.
+   */
+  T& operator*() {
+    return *get();
+  }
+
+  /**
+   * Returns a reference to the underlying Nanopb proto.
+   */
+  const T& operator*() const {
+    return *get();
+  }
+
+  T* operator->() {
+    return get();
+  }
+
+  const T* operator->() const {
+    return get();
+  }
+
+ private:
+  std::shared_ptr<Message<T>> message_;
+};
+
+template <typename T>
+SharedMessage<T> MakeSharedMessage(const T& proto) {
+  return SharedMessage<T>(Message<T>(proto));
+}
 
 template <typename T>
 Message<T> Message<T>::TryParse(Reader* reader) {
@@ -219,6 +297,12 @@ std::string MakeStdString(const Message<T>& message) {
   StringWriter writer;
   writer.Write(message.fields(), message.get());
   return writer.Release();
+}
+
+/** Free the dynamically-allocated memory for the fields array of type T. */
+template <typename T>
+void FreeFieldsArray(T* message) {
+  FreeNanopbMessage(FieldsArray<T>(), message);
 }
 
 }  // namespace nanopb

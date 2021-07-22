@@ -21,7 +21,7 @@
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRQuery+Internal.h"
-#import "Firestore/Source/API/FSTUserDataConverter.h"
+#import "Firestore/Source/API/FSTUserDataReader.h"
 
 #include "Firestore/core/src/api/collection_reference.h"
 #include "Firestore/core/src/api/document_reference.h"
@@ -118,7 +118,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (FIRDocumentReference *)addDocumentWithData:(NSDictionary<NSString *, id> *)data
                                    completion:
                                        (nullable void (^)(NSError *_Nullable error))completion {
-  ParsedSetData parsed = [self.firestore.dataConverter parsedSetData:data];
+  ParsedSetData parsed = [self.firestore.dataReader parsedSetData:data];
   DocumentReference docRef =
       self.reference.AddDocument(std::move(parsed), util::MakeCallback(completion));
   return [[FIRDocumentReference alloc] initWithReference:std::move(docRef)];

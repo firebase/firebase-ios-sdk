@@ -50,11 +50,20 @@ DocumentKey::DocumentKey(ResourcePath&& path)
 }
 
 DocumentKey DocumentKey::FromPathString(const std::string& path) {
-  return DocumentKey{ResourcePath::FromStringView(path)};
+  return DocumentKey{ResourcePath::FromString(path)};
 }
 
 DocumentKey DocumentKey::FromSegments(std::initializer_list<std::string> list) {
   return DocumentKey{ResourcePath{list}};
+}
+
+DocumentKey DocumentKey::FromName(const std::string& name) {
+  auto resource_name = ResourcePath::FromString(name);
+  HARD_ASSERT(resource_name.size() > 4 && resource_name[0] == "projects" &&
+                  resource_name[2] == "databases" &&
+                  resource_name[4] == "documents",
+              "Tried to parse an invalid key: %s", name);
+  return DocumentKey{resource_name.PopFirst(5)};
 }
 
 const DocumentKey& DocumentKey::Empty() {
