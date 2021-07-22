@@ -143,7 +143,7 @@ let package = Package(
     .package(
       name: "GoogleAppMeasurement",
       url: "https://github.com/google/GoogleAppMeasurement.git",
-      .exact("8.3.1")
+      .branch("main")
     ),
     .package(
       name: "GoogleDataTransport",
