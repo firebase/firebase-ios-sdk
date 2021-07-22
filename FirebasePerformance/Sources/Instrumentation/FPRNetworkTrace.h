@@ -184,5 +184,11 @@ typedef NS_ENUM(NSInteger, FPRNetworkTraceCheckpointState) {
  */
 - (NSTimeInterval)timeIntervalBetweenCheckpointState:(FPRNetworkTraceCheckpointState)startState
                                             andState:(FPRNetworkTraceCheckpointState)endState;
+/**
+ * Checks if the network trace is valid.
+ *
+ * @return true if the network trace is valid.
+ */
+- (BOOL)isValid;
 
 @end
