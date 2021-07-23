@@ -21,16 +21,8 @@ import Utils
 private enum Constants {}
 
 extension Constants {
+  // Binary Size Metrics flag for the Metrics Service.
   static let metric = "BinarySize"
-  // Command to get line execution counts of a file in a xcresult bundle.
-  static let xcovCommand = "xcrun xccov view --archive --file "
-  // The pattern is to match text "line_index: execution_counts" from the
-  // outcome of xcresult bundle, e.g. "305 : 0".
-  static let lineExecutionCountPattern = "[0-9]+\\s*:\\s*([0-9*]+)"
-  // Match to the group of the lineExecutionCountPattern, i.e "([0-9*]+)".
-  static let lineExecutionCountPatternGroup = 1
-  // A file includes all newly added lines without tests covered.
-  static let defaultUncoveredLineReportFileName = "uncovered_file_lines.json"
 }
 
 /// Pod Config
@@ -77,6 +69,9 @@ struct BinarySizeReportGenerator: ParsableCommand {
   @Option(parsing: .upToNextOption, help: "SDKs to be measured.")
   var SDK: [String]
 
+  @Option(help: "SDKs to be measured.")
+  var logPath: String
+
   func CreatePodConfigJSON(of sdks: [String], from sdk_dir: URL) throws {
     var pods: [Pod] = []
     for sdk in sdks {
@@ -114,7 +109,7 @@ struct BinarySizeReportGenerator: ParsableCommand {
     let data = try CreateMetricsRequestData(
       of: SDK,
       type: "firebase-ios-sdk-testing",
-      log: "testing.log"
+      log: logPath
     )
     print(String(decoding: data, as: UTF8.self))
   }
