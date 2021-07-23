@@ -38,12 +38,9 @@ jobs:
         env:
           pr_branch: ${{ github.event.pull_request.head.ref }}
         run: |
-          echo "::set-output name=auth_run_job::true"
-          echo "::set-output name=abtesting_run_job::true"
-
-          #          if [ ! -z "${{ env.METRICS_SERVICE_SECRET }}"  ]; then
-          #            ./scripts/code_coverage_report/get_updated_files.sh
-          #          fi
+          if [ ! -z "${{ env.METRICS_SERVICE_SECRET }}"  ]; then
+            ./scripts/code_coverage_report/get_updated_files.sh
+          fi
 
   binary_size_metrics:
     needs: check
