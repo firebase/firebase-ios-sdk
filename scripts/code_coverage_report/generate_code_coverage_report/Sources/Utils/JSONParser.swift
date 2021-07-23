@@ -24,6 +24,7 @@ public enum JSONParser {
     let data = try Data(contentsOf: fileURL)
     return try JSONDecoder().decode(dataStruct, from: data)
   }
+
   public static func writeJSON<T: Codable>(of data: T, to path: String) throws {
     let fileURL = URL(fileURLWithPath: FileManager().currentDirectoryPath)
       .appendingPathComponent(path)
