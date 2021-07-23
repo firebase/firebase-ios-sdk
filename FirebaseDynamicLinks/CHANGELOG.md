@@ -1,5 +1,5 @@
 # v8.2.1
-- [added] Refactoring and adding helper class. (#8431)
+- [added] Refactoring and adding helper class. (#8432)
 
 # v8.2.0
 - [fixed] Fixed analyze issue introduced in Xcode 12.5. (#8208)
