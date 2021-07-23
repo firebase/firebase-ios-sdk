@@ -578,14 +578,14 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                            senderID);
   }
   [self.tokenManager
-    tokenWithAuthorizedEntity:senderID
-                        scope:kFIRMessagingDefaultTokenScope
-                      options:options
-                      handler:^(NSString *_Nullable FCMToken, NSError *_Nullable error) {
-                        if (completion) {
-                          completion(FCMToken, error);
-                        }
-                      }];
+      tokenWithAuthorizedEntity:senderID
+                          scope:kFIRMessagingDefaultTokenScope
+                        options:options
+                        handler:^(NSString *_Nullable FCMToken, NSError *_Nullable error) {
+                          if (completion) {
+                            completion(FCMToken, error);
+                          }
+                        }];
 }
 
 - (void)deleteFCMTokenForSenderID:(nonnull NSString *)senderID

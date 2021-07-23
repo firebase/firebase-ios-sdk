@@ -31,17 +31,17 @@
   }
 
   [super
-    snapWaiter:node
-     withBlock:^(FIRDataSnapshot *snapshot) {
-       int expected = 0;
-       for (FIRDataSnapshot *child in snapshot.children) {
-         XCTAssertEqualObjects([NSNumber numberWithInt:expected], [child value],
-                               @"Expects values match.");
-         expected = expected + 1;
-       }
-       XCTAssertTrue(expected == 10, @"Should get all of the children");
-       XCTAssertTrue(expected == snapshot.childrenCount, @"Snapshot should report correct count");
-     }];
+      snapWaiter:node
+       withBlock:^(FIRDataSnapshot *snapshot) {
+         int expected = 0;
+         for (FIRDataSnapshot *child in snapshot.children) {
+           XCTAssertEqualObjects([NSNumber numberWithInt:expected], [child value],
+                                 @"Expects values match.");
+           expected = expected + 1;
+         }
+         XCTAssertTrue(expected == 10, @"Should get all of the children");
+         XCTAssertTrue(expected == snapshot.childrenCount, @"Snapshot should report correct count");
+       }];
 }
 
 - (void)testPushEnumerateManyPathsWriteAndCheckOrder {
