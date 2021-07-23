@@ -17,18 +17,18 @@
 import Foundation
 
 public enum ProcessCom {
-    case pipe
-    case stdout
+  case pipe
+  case stdout
 }
 
 public enum Shell {
   @discardableResult
   public static func run(_ command: String, displayCommand: Bool = true,
-                         displayFailureResult: Bool = true, 
+                         displayFailureResult: Bool = true,
                          stdout: ProcessCom = .pipe) -> Int32 {
     let task = Process()
     let pipe = Pipe()
-    if stdout == ProcessCom.pipe{
+    if stdout == ProcessCom.pipe {
       task.standardOutput = pipe
     }
     task.launchPath = "/bin/zsh"
@@ -38,7 +38,7 @@ public enum Shell {
       print("[CoverageReportParser] Command:\(command)\n")
     }
     task.waitUntilExit()
-    if stdout == ProcessCom.pipe{
+    if stdout == ProcessCom.pipe {
       let data = pipe.fileHandleForReading.readDataToEndOfFile()
       let log = String(data: data, encoding: .utf8)!
       if displayFailureResult, task.terminationStatus != 0 {

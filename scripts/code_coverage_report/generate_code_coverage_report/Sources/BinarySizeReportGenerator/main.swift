@@ -35,39 +35,40 @@ extension Constants {
 
 /// Pod Config
 struct PodConfigs: Codable {
-    let pods: [Pod]
+  let pods: [Pod]
 }
 
 struct Pod: Codable {
-    let sdk: String
-    let path: String
+  let sdk: String
+  let path: String
 }
 
 /// Cocoapods-size tool report
 struct SDKBinaryReport: Codable {
-    let combinedPodsExtraSize: Int
+  let combinedPodsExtraSize: Int
 
-    enum CodingKeys: String, CodingKey {
-        case combinedPodsExtraSize = "combined_pods_extra_size"
-    }
+  enum CodingKeys: String, CodingKey {
+    case combinedPodsExtraSize = "combined_pods_extra_size"
+  }
 }
 
 /// Metrics Service API request data
 struct BinaryMetricsReport: Codable {
-    let metric: String
-    let results: [Result]
-    let log: String
+  let metric: String
+  let results: [Result]
+  let log: String
 }
 
 struct Result: Codable {
-    let sdk, type: String
-    let value: Int
+  let sdk, type: String
+  let value: Int
 }
 
 struct BinarySizeReportGenerator: ParsableCommand {
   @Option(
     help: "Cocoapods-size tool directory from https://github.com/google/cocoapods-size.",
-          transform: URL.init(fileURLWithPath:))
+    transform: URL.init(fileURLWithPath:)
+  )
   var binarySizeToolDir: URL
 
   @Option(help: "Local SDK repo.", transform: URL.init(fileURLWithPath:))
@@ -77,31 +78,45 @@ struct BinarySizeReportGenerator: ParsableCommand {
   var SDK: [String]
 
   func CreatePodConfigJSON(of sdks: [String], from sdk_dir: URL) throws {
-    var pods:[Pod] = []
-    for sdk in sdks{
-      let pod:Pod = Pod(sdk: sdk, path: sdk_dir.path)
+    var pods: [Pod] = []
+    for sdk in sdks {
+      let pod: Pod = Pod(sdk: sdk, path: sdk_dir.path)
       pods.append(pod)
     }
-    let podConfigs:PodConfigs = PodConfigs(pods: pods)
+    let podConfigs: PodConfigs = PodConfigs(pods: pods)
     try JSONParser.writeJSON(of: podConfigs, to: "./cocoapods_source_config.json")
   }
 
-  func CreateMetricsRequestData(of sdks:[String], type: String, log: String) throws -> Data {
-    var reports:[Result] = []
-    for sdk in sdks{
-      Shell.run("cd cocoapods-size && python3 measure_cocoapod_size.py --cocoapods \(sdk) --cocoapods_source_config ../cocoapods_source_config.json --json binary_report.json", stdout: .stdout)
-      let SDKBinarySize = try JSONParser.readJSON(of: SDKBinaryReport.self, from: "cocoapods-size/binary_report.json")
+  func CreateMetricsRequestData(of sdks: [String], type: String, log: String) throws -> Data {
+    var reports: [Result] = []
+    for sdk in sdks {
+      Shell.run(
+        "cd cocoapods-size && python3 measure_cocoapod_size.py --cocoapods \(sdk) --cocoapods_source_config ../cocoapods_source_config.json --json binary_report.json",
+        stdout: .stdout
+      )
+      let SDKBinarySize = try JSONParser.readJSON(
+        of: SDKBinaryReport.self,
+        from: "cocoapods-size/binary_report.json"
+      )
       reports.append(Result(sdk: sdk, type: type, value: SDKBinarySize.combinedPodsExtraSize))
     }
-    let metricsRequestReport = BinaryMetricsReport(metric: Constants.metric, results: reports, log: log)
+    let metricsRequestReport = BinaryMetricsReport(
+      metric: Constants.metric,
+      results: reports,
+      log: log
+    )
     let data = try JSONEncoder().encode(metricsRequestReport)
     return data
   }
 
   func run() throws {
-      try CreatePodConfigJSON(of: SDK, from: SDKRepoDir)
-      let data = try CreateMetricsRequestData(of: SDK, type: "firebase-ios-sdk-testing", log: "testing.log") 
-      print (String(decoding: data, as: UTF8.self))
+    try CreatePodConfigJSON(of: SDK, from: SDKRepoDir)
+    let data = try CreateMetricsRequestData(
+      of: SDK,
+      type: "firebase-ios-sdk-testing",
+      log: "testing.log"
+    )
+    print(String(decoding: data, as: UTF8.self))
   }
 }
 
