@@ -92,7 +92,8 @@ struct BinarySizeReportGenerator: ParsableCommand {
       // since `pipe` could cause the tool to hang. That is probably caused by cocopod-size
       // is using pipe and a pipe is shared by multiple parent/child process and cause
       // deadlock. `.stdout` is a quick way to resolve at the moment. The difference is
-      // `.stdout` will print out logs in the console while pipe can guide logs a variable.
+      // that `.stdout` will print out logs in the console while pipe can assign logs a
+      // variable.
       Shell.run(
         "cd cocoapods-size && python3 measure_cocoapod_size.py --cocoapods \(sdk) --cocoapods_source_config ../cocoapods_source_config.json --json \(Constants.cocoapodSizeReportFile)",
         stdout: .stdout
@@ -120,7 +121,8 @@ struct BinarySizeReportGenerator: ParsableCommand {
       type: "firebase-ios-sdk-testing",
       log: logPath
     )
-    // TODO: Apply the data to API request sent to the Metrics Service.
+    // TODO: Simply print out the report for debug purpose, and will apply the
+    // data to API request sent to the Metrics Service.
     print(String(decoding: data, as: UTF8.self))
   }
 }
