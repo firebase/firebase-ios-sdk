@@ -58,6 +58,8 @@ jobs:
       run: |
         FirebaseABTesting=${{ needs.check.outputs.abtesting_run_job }} \
         FirebaseAuth=${{ needs.check.outputs.auth_run_job }} \
+        FirebaseDatabase=${{ needs.check.outputs.database_run_job }} \
+        FirebaseDynamicLinks=${{ needs.check.outputs.dynamiclinks_run_job }} \
         FirebaseFirestore=${{ needs.check.outputs.firestore_run_job }} \
         FirebaseFunctions=${{ needs.check.outputs.functions_run_job}} \
         FirebaseInAppMessaging=${{ needs.check.outputs.inappmessaging_run_job }} \
