@@ -55,36 +55,36 @@ NS_ASSUME_NONNULL_BEGIN
     return;
   }
 
-  [localPlayer generateIdentityVerificationSignatureWithCompletionHandler:^(
-                   NSURL *publicKeyURL, NSData *signature, NSData *salt, uint64_t timestamp,
-                   NSError *error) {
-    if (error) {
-      if (completion) {
-        completion(nil, error);
-      }
-    } else {
-      if (completion) {
-        /**
-         @c `localPlayer.alias` is actually the displayname needed, instead of
-         `localPlayer.displayname`. For more information, check
-         https://developer.apple.com/documentation/gamekit/gkplayer
-         **/
-        NSString *displayName = localPlayer.alias;
+  [localPlayer
+    generateIdentityVerificationSignatureWithCompletionHandler:^(
+        NSURL *publicKeyURL, NSData *signature, NSData *salt, uint64_t timestamp, NSError *error) {
+      if (error) {
+        if (completion) {
+          completion(nil, error);
+        }
+      } else {
+        if (completion) {
+          /**
+           @c `localPlayer.alias` is actually the displayname needed, instead of
+           `localPlayer.displayname`. For more information, check
+           https://developer.apple.com/documentation/gamekit/gkplayer
+           **/
+          NSString *displayName = localPlayer.alias;
 // iOS 13 deprecation
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        FIRGameCenterAuthCredential *credential =
-            [[FIRGameCenterAuthCredential alloc] initWithPlayerID:localPlayer.playerID
-                                                     publicKeyURL:publicKeyURL
-                                                        signature:signature
-                                                             salt:salt
-                                                        timestamp:timestamp
-                                                      displayName:displayName];
+          FIRGameCenterAuthCredential *credential =
+              [[FIRGameCenterAuthCredential alloc] initWithPlayerID:localPlayer.playerID
+                                                       publicKeyURL:publicKeyURL
+                                                          signature:signature
+                                                               salt:salt
+                                                          timestamp:timestamp
+                                                        displayName:displayName];
 #pragma clang diagnostic pop
-        completion(credential, nil);
+          completion(credential, nil);
+        }
       }
-    }
-  }];
+    }];
 }
 
 @end
