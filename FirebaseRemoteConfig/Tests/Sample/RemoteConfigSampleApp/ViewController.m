@@ -126,8 +126,8 @@ static NSString *const FIRSecondFIRAppName = @"secondFIRApp";
       return;
     }
     [[FRCLog sharedInstance]
-      logToConsole:[NSString stringWithFormat:@"Fetch completed. Status=%@",
-                                              [strongSelf statusString:status]]];
+        logToConsole:[NSString stringWithFormat:@"Fetch completed. Status=%@",
+                                                [strongSelf statusString:status]]];
     if (error) {
       [[FRCLog sharedInstance] logToConsole:[NSString stringWithFormat:@"Fetch Error=%@", error]];
     }
@@ -281,8 +281,8 @@ static NSString *const FIRSecondFIRAppName = @"secondFIRApp";
       showText = @"config defaults";
     }
     [[FRCLog sharedInstance]
-      logToConsole:[NSString stringWithFormat:@"New %@ added %@ : %@\n", showText,
-                                              self.keyLabel.text, self.valueLabel.text]];
+        logToConsole:[NSString stringWithFormat:@"New %@ added %@ : %@\n", showText,
+                                                self.keyLabel.text, self.valueLabel.text]];
 
     self.keyLabel.text = @"";
     self.valueLabel.text = @"";

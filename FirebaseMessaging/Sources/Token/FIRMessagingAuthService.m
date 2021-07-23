@@ -181,70 +181,71 @@ static const int64_t kMaxCheckinRetryIntervalInSeconds = 1 << 5;
     _isCheckinInProgress = YES;
   }
   [self.checkinService
-    checkinWithExistingCheckin:self.checkinPreferences
-                    completion:^(FIRMessagingCheckinPreferences *checkinPreferences,
-                                 NSError *error) {
-                      @synchronized(self) {
-                        self->_isCheckinInProgress = NO;
-                      }
-                      if (error) {
-                        FIRMessagingLoggerDebug(kFIRMessagingMessageCodeAuthService003,
-                                                @"Failed to checkin device %@", error);
-                        [self notifyCheckinHandlersWithCheckin:nil error:error];
-                        return;
-                      }
+      checkinWithExistingCheckin:self.checkinPreferences
+                      completion:^(FIRMessagingCheckinPreferences *checkinPreferences,
+                                   NSError *error) {
+                        @synchronized(self) {
+                          self->_isCheckinInProgress = NO;
+                        }
+                        if (error) {
+                          FIRMessagingLoggerDebug(kFIRMessagingMessageCodeAuthService003,
+                                                  @"Failed to checkin device %@", error);
+                          [self notifyCheckinHandlersWithCheckin:nil error:error];
+                          return;
+                        }
 
-                      FIRMessagingLoggerDebug(kFIRMessagingMessageCodeAuthService004,
-                                              @"Successfully got checkin credentials");
-                      BOOL hasSameCachedPreferences =
-                          [self cachedCheckinMatchesCheckin:checkinPreferences];
-                      checkinPreferences.hasPreCachedAuthCredentials = hasSameCachedPreferences;
+                        FIRMessagingLoggerDebug(kFIRMessagingMessageCodeAuthService004,
+                                                @"Successfully got checkin credentials");
+                        BOOL hasSameCachedPreferences =
+                            [self cachedCheckinMatchesCheckin:checkinPreferences];
+                        checkinPreferences.hasPreCachedAuthCredentials = hasSameCachedPreferences;
 
-                      // Update to the most recent checkin preferences
-                      self.checkinPreferences = checkinPreferences;
+                        // Update to the most recent checkin preferences
+                        self.checkinPreferences = checkinPreferences;
 
-                      // Save the checkin info to disk
-                      // Keychain might not be accessible, so confirm that checkin preferences can
-                      // be saved
-                      [self->_checkinStore
-                          saveCheckinPreferences:checkinPreferences
-                                         handler:^(NSError *checkinSaveError) {
-                                           if (checkinSaveError && !hasSameCachedPreferences) {
-                                             // The checkin info was new, but it couldn't be
-                                             // written to the Keychain. Delete any stuff that was
-                                             // cached in memory. This doesn't delete any
-                                             // previously persisted preferences.
-                                             FIRMessagingLoggerError(
-                                                 kFIRMessagingMessageCodeService004,
-                                                 @"Unable to save checkin info, resetting "
-                                                 @"checkin preferences "
-                                                  "in memory.");
-                                             [checkinPreferences reset];
-                                             [self
-                                                 notifyCheckinHandlersWithCheckin:nil
-                                                                            error:checkinSaveError];
-                                           } else {
-                                             // The checkin is either new, or it was the same (and
-                                             // it couldn't be saved). Either way, report that the
-                                             // checkin preferences were received successfully.
-                                             [self
-                                                 notifyCheckinHandlersWithCheckin:checkinPreferences
-                                                                            error:nil];
-                                             if (!hasSameCachedPreferences) {
-                                               // Checkin is new.
-                                               // Notify any listeners that might be waiting for
-                                               // checkin to be fetched, such as Firebase
-                                               // Messaging (for its MCS connection).
-                                               dispatch_async(dispatch_get_main_queue(), ^{
-                                                 [[NSNotificationCenter defaultCenter]
-                                                     postNotificationName:
-                                                         kFIRMessagingCheckinFetchedNotification
-                                                                   object:nil];
-                                               });
+                        // Save the checkin info to disk
+                        // Keychain might not be accessible, so confirm that checkin preferences can
+                        // be saved
+                        [self->_checkinStore
+                            saveCheckinPreferences:checkinPreferences
+                                           handler:^(NSError *checkinSaveError) {
+                                             if (checkinSaveError && !hasSameCachedPreferences) {
+                                               // The checkin info was new, but it couldn't be
+                                               // written to the Keychain. Delete any stuff that was
+                                               // cached in memory. This doesn't delete any
+                                               // previously persisted preferences.
+                                               FIRMessagingLoggerError(
+                                                   kFIRMessagingMessageCodeService004,
+                                                   @"Unable to save checkin info, resetting "
+                                                   @"checkin preferences "
+                                                    "in memory.");
+                                               [checkinPreferences reset];
+                                               [self
+                                                   notifyCheckinHandlersWithCheckin:nil
+                                                                              error:
+                                                                                  checkinSaveError];
+                                             } else {
+                                               // The checkin is either new, or it was the same (and
+                                               // it couldn't be saved). Either way, report that the
+                                               // checkin preferences were received successfully.
+                                               [self notifyCheckinHandlersWithCheckin:
+                                                         checkinPreferences
+                                                                                error:nil];
+                                               if (!hasSameCachedPreferences) {
+                                                 // Checkin is new.
+                                                 // Notify any listeners that might be waiting for
+                                                 // checkin to be fetched, such as Firebase
+                                                 // Messaging (for its MCS connection).
+                                                 dispatch_async(dispatch_get_main_queue(), ^{
+                                                   [[NSNotificationCenter defaultCenter]
+                                                       postNotificationName:
+                                                           kFIRMessagingCheckinFetchedNotification
+                                                                     object:nil];
+                                                 });
+                                               }
                                              }
-                                           }
-                                         }];
-                    }];
+                                           }];
+                      }];
 }
 
 - (FIRMessagingCheckinPreferences *)checkinPreferences {

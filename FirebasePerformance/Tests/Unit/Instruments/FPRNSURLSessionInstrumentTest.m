@@ -232,13 +232,13 @@
 - (void)testProxyWrappedSessionWithConfiguration {
   Method method = class_getClassMethod([NSURLSession class], @selector(sessionWithConfiguration:));
   IMP originalImp = method_getImplementation(method);
-  IMP swizzledImp =
-      imp_implementationWithBlock(^(id session, NSURLSessionConfiguration *configuration) {
-        typedef NSURLSession *(*OriginalImp)(id, SEL, NSURLSessionConfiguration *);
-        NSURLSession *originalSession = ((OriginalImp)originalImp)(
-            session, @selector(sessionWithConfiguration:), configuration);
-        return [[FPRNSURLSessionProxy alloc] initWithSession:originalSession];
-      });
+  IMP swizzledImp = imp_implementationWithBlock(^(id session,
+                                                  NSURLSessionConfiguration *configuration) {
+    typedef NSURLSession *(*OriginalImp)(id, SEL, NSURLSessionConfiguration *);
+    NSURLSession *originalSession =
+        ((OriginalImp)originalImp)(session, @selector(sessionWithConfiguration:), configuration);
+    return [[FPRNSURLSessionProxy alloc] initWithSession:originalSession];
+  });
   method_setImplementation(method, swizzledImp);
   NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
   XCTAssertEqual([[NSURLSession sessionWithConfiguration:config] class],
