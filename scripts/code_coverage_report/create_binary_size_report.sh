@@ -20,7 +20,7 @@
 # lines.
 
 BINARY_SIZE_SDK=()
-if $FirebaseABTesting == 'true': then
+if $FirebaseABTesting == 'true'; then
   BINARY_SIZE_SDK+=('FirebaseABTesting')
 fi
 if $FirebaseAuth == 'true'; then
