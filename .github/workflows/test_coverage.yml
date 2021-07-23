@@ -56,50 +56,16 @@ jobs:
     - uses: actions/checkout@v2
     - name: Build and test
       run: |
-        BINARY_SIZE_SDK=()
-        if ${{ needs.check.outputs.abtesting_run_job }} == 'true'
-        then
-        BINARY_SIZE_SDK+=('FirebaseABTesting')
-        fi
-        if ${{ needs.check.outputs.abtesting_run_job }} == 'true'
-        then
-        BINARY_SIZE_SDK+=('FirebaseABTesting')
-        fi
-        if ${{ needs.check.outputs.firestore_run_job }} == 'true'
-        then
-        BINARY_SIZE_SDK+=('FirebaseFirestore')
-        fi
-        if ${{ needs.check.outputs.functions_run_job}} == 'true'
-        then
-        BINARY_SIZE_SDK+=('FirebaseFunctions')
-        fi
-        if ${{ needs.check.outputs.inappmessaging_run_job }} == 'true'
-        then
-        BINARY_SIZE_SDK+=('FirebaseInAppMessaging')
-        fi
-        if ${{ needs.check.outputs.messaging_run_job}} == 'true'
-        then
-        BINARY_SIZE_SDK+=('FirebaseMessaging')
-        fi
-        if ${{ needs.check.outputs.performance_run_job }} == 'true'
-        then
-        BINARY_SIZE_SDK+=('FirebasePerformance')
-        fi
-        if ${{ needs.check.outputs.remoteconfig_run_job }} == 'true'
-        then
-        BINARY_SIZE_SDK+=('FirebaseRemoteConfig')
-        fi
-        if ${{ needs.check.outputs.storage_run_job }} == 'true'
-        then
-        BINARY_SIZE_SDK+=('FirebaseStorage')
-        fi
-        cd scripts/code_coverage_report/generate_code_coverage_report/
-        git clone https://github.com/google/cocoapods-size
-        swift build
-        if [ -n "$BINARY_SIZE_SDK" ]; then
-          .build/debug/BinarySizeReportGenerator --binary-size-tool-dir cocoapods-size/  --sdk-repo-dir "${GITHUB_WORKSPACE}" --sdk ${BINARY_SIZE_SDK[@]}
-        fi
-        
+        FirebaseABTesting = ${{ needs.check.outputs.abtesting_run_job }} \
+        FirebaseAuth = ${{ needs.check.outputs.auth_run_job }} \
+        FirebaseFirestore = ${{ needs.check.outputs.firestore_run_job }} \
+        FirebaseFunctions = ${{ needs.check.outputs.functions_run_job}} \
+        FirebaseInAppMessaging = ${{ needs.check.outputs.inappmessaging_run_job }} \
+        FirebaseMessaging = ${{ needs.check.outputs.messaging_run_job}} \
+        FirebasePerformance = ${{ needs.check.outputs.performance_run_job }} \
+        FirebaseRemoteConfig = ${{ needs.check.outputs.remoteconfig_run_job }} \
+        FirebaseStorage = ${{ needs.check.outputs.storage_run_job }} \
+        ./scripts/code_coverage_report/create_binary_size_report.sh
 
   pod-lib-lint-abtesting:
     needs: check
