@@ -43,7 +43,7 @@ private func getResultCallback<T>(completion: @escaping (Result<T, Error>) -> Vo
 public extension StorageReference {
   /// Asynchronously retrieves a long lived download URL with a revokable token.
   /// This can be used to share the file with others, but can be revoked by a developer
-  /// in the Firebase Console if desired.
+  /// in the Firebase Console.
   ///
   /// - Parameters:
   ///   - completion: A completion block returning a `Result` enum with either a URL or an `Error`.
@@ -53,7 +53,7 @@ public extension StorageReference {
 
   /// Asynchronously downloads the object at the `StorageReference` to a `Data` object.
   /// A `Data` of the provided max size will be allocated, so ensure that the device has enough
-  /// memory to complete. For downloading large files, writeToFile may be a better option.
+  /// memory to complete. For downloading large files, the `write` API may be a better option.
 
   /// - Parameters:
   ///   - maxSize: The maximum size in bytes to download.
