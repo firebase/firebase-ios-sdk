@@ -143,6 +143,8 @@ let package = Package(
     .package(
       name: "GoogleAppMeasurement",
       url: "https://github.com/google/GoogleAppMeasurement.git",
+      // Please keep the version specification aligned with
+      // scripts/setup_spm_test_app_measurement.sh.
       .exact("8.3.1")
     ),
     .package(
