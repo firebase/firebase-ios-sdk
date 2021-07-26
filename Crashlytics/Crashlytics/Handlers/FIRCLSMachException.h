@@ -60,6 +60,7 @@ typedef struct {
   mach_port_t port;
   pthread_t thread;
   const char* path;
+  const char* metricKitFatalPath;
 
   exception_mask_t mask;
   FIRCLSMachExceptionOriginalPorts originalPorts;

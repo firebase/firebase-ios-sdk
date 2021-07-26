@@ -489,6 +489,12 @@ static bool FIRCLSMachExceptionRecord(FIRCLSMachExceptionReadContext* context,
     return false;
   }
 
+  FIRCLSFile metricKitFile;
+
+  if (!FIRCLSFileInitWithPath(&metricKitFile, context->metricKitFatalPath, false)) {
+    FIRCLSSDKLog("Unable to open MetricKit file\n");
+  }
+
   FIRCLSFileWriteSectionStart(&file, "mach_exception");
 
   FIRCLSFileWriteHashStart(&file);
@@ -519,9 +525,10 @@ static bool FIRCLSMachExceptionRecord(FIRCLSMachExceptionReadContext* context,
 
   FIRCLSFileWriteSectionEnd(&file);
 
-  FIRCLSHandler(&file, message->thread.name, NULL);
+  FIRCLSHandler(&file, &metricKitFile, message->thread.name, NULL);
 
   FIRCLSFileClose(&file);
+  FIRCLSFileClose(&metricKitFile);
 
   return true;
 }

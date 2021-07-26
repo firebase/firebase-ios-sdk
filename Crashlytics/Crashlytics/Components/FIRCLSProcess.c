@@ -20,6 +20,7 @@
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSThreadState.h"
 #include "Crashlytics/Crashlytics/Unwind/FIRCLSUnwind.h"
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
+//#include "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
 
 #include <dispatch/dispatch.h>
 #include <objc/message.h>
@@ -504,13 +505,16 @@ bool FIRCLSProcessRecordAllThreads(FIRCLSProcess *process, FIRCLSFile *file) {
   return true;
 }
 
-void FIRCLSProcessRecordThreadNames(FIRCLSProcess *process, FIRCLSFile *file) {
+void FIRCLSProcessRecordThreadNames(FIRCLSProcess *process, FIRCLSFile *file, FIRCLSFile *metricKitFile) {
   uint32_t threadCount;
   uint32_t i;
 
   FIRCLSFileWriteSectionStart(file, "thread_names");
-
   FIRCLSFileWriteArrayStart(file);
+
+  // Duplicate all file writing steps for the MetricKit file.
+  FIRCLSFileWriteSectionStart(metricKitFile, "thread_names");
+  FIRCLSFileWriteArrayStart(metricKitFile);
 
   threadCount = FIRCLSProcessGetThreadCount(process);
   for (i = 0; i < threadCount; ++i) {
@@ -524,19 +528,24 @@ void FIRCLSProcessRecordThreadNames(FIRCLSProcess *process, FIRCLSFile *file) {
     FIRCLSProcessGetThreadName(process, thread, name, THREAD_NAME_BUFFER_SIZE);
 
     FIRCLSFileWriteArrayEntryString(file, name);
+    FIRCLSFileWriteArrayEntryString(metricKitFile, name);
   }
 
   FIRCLSFileWriteArrayEnd(file);
   FIRCLSFileWriteSectionEnd(file);
+  FIRCLSFileWriteArrayEnd(metricKitFile);
+  FIRCLSFileWriteSectionEnd(metricKitFile);
 }
 
-void FIRCLSProcessRecordDispatchQueueNames(FIRCLSProcess *process, FIRCLSFile *file) {
+void FIRCLSProcessRecordDispatchQueueNames(FIRCLSProcess *process, FIRCLSFile *file, FIRCLSFile *metricKitFile) {
   uint32_t threadCount;
   uint32_t i;
 
   FIRCLSFileWriteSectionStart(file, "dispatch_queue_names");
+  FIRCLSFileWriteSectionStart(metricKitFile, "dispatch_queue_names");
 
   FIRCLSFileWriteArrayStart(file);
+  FIRCLSFileWriteArrayStart(metricKitFile);
 
   threadCount = FIRCLSProcessGetThreadCount(process);
   for (i = 0; i < threadCount; ++i) {
@@ -553,10 +562,14 @@ void FIRCLSProcessRecordDispatchQueueNames(FIRCLSProcess *process, FIRCLSFile *f
       name = "";
     }
     FIRCLSFileWriteArrayEntryString(file, name);
+    FIRCLSFileWriteArrayEntryString(metricKitFile, name);
+
   }
 
   FIRCLSFileWriteArrayEnd(file);
   FIRCLSFileWriteSectionEnd(file);
+  FIRCLSFileWriteArrayEnd(metricKitFile);
+  FIRCLSFileWriteSectionEnd(metricKitFile);
 }
 
 #pragma mark - Othe Process Info
