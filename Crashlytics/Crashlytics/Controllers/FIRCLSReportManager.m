@@ -220,8 +220,7 @@ typedef NSNumber FIRCLSWrappedReportAction;
  * MetricKit diagnostic reports have been received by `metricKitManager`.
  */
 - (FBLPromise *)waitForMetricKitData {
-  FBLPromise *metricKitDataAvailable =
-      [self.metricKitManager waitForMetricKitDataAvailable];
+  FBLPromise *metricKitDataAvailable = [self.metricKitManager waitForMetricKitDataAvailable];
   return metricKitDataAvailable;
 }
 
@@ -292,7 +291,7 @@ typedef NSNumber FIRCLSWrappedReportAction;
     // Wait for MetricKit data to be available, then continue to send reports and resolve promise.
     promise = [[self waitForMetricKitData]
         onQueue:_dispatchQueue
-           then:^(id  _Nullable (^ _Nonnull)(id  _Nullable __strong)) {
+           then:^id _Nullable(id _Nullable metricKitValue) {
              [self beginReportUploadsWithToken:dataCollectionToken blockingSend:launchFailure];
 
              // If data collection is enabled, the SDK will not notify the user
