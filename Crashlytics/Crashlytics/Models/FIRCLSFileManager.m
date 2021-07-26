@@ -15,6 +15,7 @@
 #import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
 
 #import "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
+#import "Crashlytics/Crashlytics/Components/FIRCLSCrashedMarkerFile.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
 
@@ -122,6 +123,13 @@ NSString *const FIRCLSCacheVersion = @"v5";
   }
 
   return YES;
+}
+
+- (BOOL)didCrashOnPreviousExecution {
+  NSString *crashedMarkerFileName = [NSString stringWithUTF8String:FIRCLSCrashedMarkerFileName];
+  NSString *crashedMarkerFileFullPath =
+      [[self rootPath] stringByAppendingPathComponent:crashedMarkerFileName];
+  return [self fileExistsAtPath:crashedMarkerFileFullPath];
 }
 
 - (void)enumerateFilesInDirectory:(NSString *)directory

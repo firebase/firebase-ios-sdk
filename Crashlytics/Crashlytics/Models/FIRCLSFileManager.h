@@ -55,6 +55,7 @@
 - (BOOL)removeItemAtPath:(NSString *)path;
 - (BOOL)removeContentsOfDirectoryAtPath:(NSString *)path;
 - (BOOL)moveItemAtPath:(NSString *)path toDirectory:(NSString *)destDir;
+- (BOOL)didCrashOnPreviousExecution;
 - (void)enumerateFilesInDirectory:(NSString *)directory
                        usingBlock:(void (^)(NSString *filePath, NSString *extension))block;
 - (NSNumber *)fileSizeAtPath:(NSString *)path;

@@ -14,7 +14,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Crashlytics/Crashlytics/Components/FIRCLSCrashedMarkerFile.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSMetricKitManager.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
@@ -22,7 +21,7 @@
 #import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
 #import "Crashlytics/Crashlytics/Public/FirebaseCrashlytics/FIRCrashlyticsReport.h"
 
-@interface FIRCLSMetricKitManager() 
+@interface FIRCLSMetricKitManager ()
 
 //@property NSLock *mutex;
 @property FBLPromise *metricKitDataAvailable;
@@ -56,16 +55,14 @@
 
   // If there was no crash on the last run of the app, then we aren't expecting a MetricKit
   // diagnostic report and should resolve the promise immediately.
-  NSString *crashedMarkerFileName = [NSString stringWithUTF8String:FIRCLSCrashedMarkerFileName];
-  NSString *crashedMarkerFileFullPath =
-      [[self.fileManager rootPath] stringByAppendingPathComponent:crashedMarkerFileName];
-  if (![self.fileManager fileExistsAtPath:crashedMarkerFileFullPath]) {
-//    [self.mutex lock];
-    @synchronized (self) {
+
+  if (![self.fileManager didCrashOnPreviousExecution]) {
+    //    [self.mutex lock];
+    @synchronized(self) {
       [self.metricKitDataAvailable fulfill:nil];
     }
 
-//    [self.mutex unlock];
+    //    [self.mutex unlock];
   }
 }
 
@@ -224,12 +221,12 @@
   // If this method was called because of a fatal event, fulfill the MetricKit promise so that
   // uploading of the Crashlytics report continues. If not, the promise has already been fulfillled.
   if (fatal) {
-//    [_mutex lock];
-    @synchronized (self) {
+    //    [_mutex lock];
+    @synchronized(self) {
       [self.metricKitDataAvailable fulfill:nil];
     }
-//    [_metricKitDataAvailable fulfill:nil];
-//    [_mutex unlock];
+    //    [_metricKitDataAvailable fulfill:nil];
+    //    [_mutex unlock];
   }
 }
 
@@ -243,12 +240,12 @@
 
 - (FBLPromise *)waitForMetricKitDataAvailable {
   FBLPromise *result = nil;
-//  [_mutex lock];
-  @synchronized (self) {
+  //  [_mutex lock];
+  @synchronized(self) {
     result = self.metricKitDataAvailable;
   }
 
-//  [_mutex unlock];
+  //  [_mutex unlock];
   return result;
 }
 
