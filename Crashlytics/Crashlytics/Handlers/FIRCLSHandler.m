@@ -22,7 +22,10 @@
 
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSReportManager_Private.h"
 
-void FIRCLSHandler(FIRCLSFile* file, thread_t crashedThread, void* uapVoid) {
+void FIRCLSHandler(FIRCLSFile* file,
+                   FIRCLSFile* metricKitFile,
+                   thread_t crashedThread,
+                   void* uapVoid) {
   FIRCLSProcess process;
 
   FIRCLSProcessInit(&process, crashedThread, uapVoid);
@@ -34,8 +37,8 @@ void FIRCLSHandler(FIRCLSFile* file, thread_t crashedThread, void* uapVoid) {
   FIRCLSProcessRecordRuntimeInfo(&process, file);
   // Get dispatch queue and thread names. Note that getting the thread names
   // can hang, so let's do that last
-  FIRCLSProcessRecordDispatchQueueNames(&process, file);
-  FIRCLSProcessRecordThreadNames(&process, file);
+  FIRCLSProcessRecordDispatchQueueNames(&process, file, metricKitFile);
+  FIRCLSProcessRecordThreadNames(&process, file, metricKitFile);
 
   // this stuff isn't super important, but we can try
   FIRCLSProcessRecordStats(&process, file);

@@ -209,13 +209,19 @@ void FIRCLSExceptionRecord(FIRCLSExceptionType type,
         FIRCLSSDKLog("Unable to open exception file\n");
         return;
       }
+      FIRCLSFile metricKitFile;
+
+      if (!FIRCLSFileInitWithPath(&metricKitFile, _firclsContext.readonly->metricKitPath, false)) {
+        FIRCLSSDKLog("Unable to open MetricKit file\n");
+      }
 
       FIRCLSExceptionWrite(&file, type, name, reason, frames);
 
       // We only want to do this work if we have the expectation that we'll actually crash
-      FIRCLSHandler(&file, mach_thread_self(), NULL);
+      FIRCLSHandler(&file, &metricKitFile, mach_thread_self(), NULL);
 
       FIRCLSFileClose(&file);
+      FIRCLSFileClose(&metricKitFile);
 
       // disallow immediate delivery for non-native exceptions
       if (attemptDelivery) {

@@ -210,6 +210,11 @@ static void FIRCLSFileWriteToFileDescriptorOrBuffer(FIRCLSFile* file,
   }
 }
 
+void FIRCLSFileWriteStringUnquoted(FIRCLSFile* file, const char* string) {
+  size_t length = strlen(string);
+  FIRCLSFileWriteToFileDescriptorOrBuffer(file, string, length);
+}
+
 static void FIRCLSFileWriteToFileDescriptor(FIRCLSFile* file, const char* string, size_t length) {
   if (!FIRCLSFileWriteWithRetries(file->fd, string, length)) {
     return;
