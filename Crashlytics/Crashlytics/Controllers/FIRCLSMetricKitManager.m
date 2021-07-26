@@ -99,11 +99,9 @@
 
   // If newestReportID is nil or the file no longer exists, then this callback function was
   // triggered for nonfatal MetricKit events.
-  NSString *newestUnsentReportID =
-      [self.existingReportManager.newestUnsentReport.reportID stringByAppendingString:@"/"];
   NSString *metricKitReportFile;
-  BOOL fatal =
-      (newestUnsentReportID != nil) && ([_fileManager fileExistsAtPath:metricKitReportFile]);
+  BOOL fatal = (self.existingReportManager.newestUnsentReport != nil) &&
+               ([_fileManager fileExistsAtPath:metricKitReportFile]);
 
   // Set the metrickit path appropriately depending on whether the diagnostic report came from
   // a fatal or nonfatal event. If fatal, use the report from the last run of the app. Otherwise,
@@ -116,6 +114,8 @@
     metricKitReportFile = [[activePath stringByAppendingString:currentReportID]
         stringByAppendingString:FIRCLSMetricKitNonfatalReportFile];
   } else {
+    NSString *newestUnsentReportID =
+        [self.existingReportManager.newestUnsentReport.reportID stringByAppendingString:@"/"];
     metricKitReportFile = [[activePath stringByAppendingString:newestUnsentReportID]
         stringByAppendingString:FIRCLSMetricKitFatalReportFile];
   }
