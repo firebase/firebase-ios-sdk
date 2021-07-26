@@ -220,11 +220,8 @@ typedef NSNumber FIRCLSWrappedReportAction;
  * MetricKit diagnostic reports have been received by `metricKitManager`.
  */
 - (FBLPromise *)waitForMetricKitData {
-  FBLPromise<FIRCLSCallStackTree *> *metricKitDataAvailable =
-      [[self.metricKitManager waitForMetricKitDataAvailable]
-          then:^id _Nonnull(FIRCLSCallStackTree *_Nonnull value) {
-            return value;
-          }];
+  FBLPromise *metricKitDataAvailable =
+      [self.metricKitManager waitForMetricKitDataAvailable];
   return metricKitDataAvailable;
 }
 
@@ -295,7 +292,7 @@ typedef NSNumber FIRCLSWrappedReportAction;
     // Wait for MetricKit data to be available, then continue to send reports and resolve promise.
     promise = [[self waitForMetricKitData]
         onQueue:_dispatchQueue
-           then:^id _Nullable(FIRCLSCallStackTree *_Nullable value) {
+           then:^(id  _Nullable (^ _Nonnull)(id  _Nullable __strong)) {
              [self beginReportUploadsWithToken:dataCollectionToken blockingSend:launchFailure];
 
              // If data collection is enabled, the SDK will not notify the user
@@ -316,7 +313,6 @@ typedef NSNumber FIRCLSWrappedReportAction;
            then:^id _Nullable(NSArray *_Nullable wrappedActionAndData) {
              // Process the actions for the reports on disk.
              FIRCLSReportAction action = [[wrappedActionAndData firstObject] reportActionValue];
-             FIRCLSCallStackTree *callStackTree = [wrappedActionAndData lastObject];
 
              if (action == FIRCLSReportActionSend) {
                FIRCLSDebugLog(@"Sending unsent reports.");
