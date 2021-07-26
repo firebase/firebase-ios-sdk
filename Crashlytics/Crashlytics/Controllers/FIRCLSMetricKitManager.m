@@ -24,7 +24,7 @@
 
 @interface FIRCLSMetricKitManager() 
 
-@property NSLock *mutex;
+//@property NSLock *mutex;
 @property FBLPromise *metricKitDataAvailable;
 @property FIRCLSExistingReportManager *existingReportManager;
 @property FIRCLSFileManager *fileManager;
@@ -60,9 +60,12 @@
   NSString *crashedMarkerFileFullPath =
       [[self.fileManager rootPath] stringByAppendingPathComponent:crashedMarkerFileName];
   if (![self.fileManager fileExistsAtPath:crashedMarkerFileFullPath]) {
+//    [self.mutex lock];
     @synchronized (self) {
       [self.metricKitDataAvailable fulfill:nil];
     }
+
+//    [self.mutex unlock];
   }
 }
 
@@ -221,9 +224,12 @@
   // If this method was called because of a fatal event, fulfill the MetricKit promise so that
   // uploading of the Crashlytics report continues. If not, the promise has already been fulfillled.
   if (fatal) {
+//    [_mutex lock];
     @synchronized (self) {
-    [_metricKitDataAvailable fulfill:nil];
+      [self.metricKitDataAvailable fulfill:nil];
     }
+//    [_metricKitDataAvailable fulfill:nil];
+//    [_mutex unlock];
   }
 }
 
@@ -237,9 +243,12 @@
 
 - (FBLPromise *)waitForMetricKitDataAvailable {
   FBLPromise *result = nil;
-  [_mutex lock];
-  result = _metricKitDataAvailable;
-  [_mutex unlock];
+//  [_mutex lock];
+  @synchronized (self) {
+    result = self.metricKitDataAvailable;
+  }
+
+//  [_mutex unlock];
   return result;
 }
 
