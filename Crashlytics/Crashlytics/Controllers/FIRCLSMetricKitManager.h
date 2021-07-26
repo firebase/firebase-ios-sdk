@@ -15,7 +15,7 @@
 #import <Foundation/Foundation.h>
 
 #if TARGET_OS_IPHONE
-@import MetricKit;
+#import <MetricKit/MetricKit.h>
 
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSExistingReportManager.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"

@@ -261,10 +261,6 @@ static void FIRCLSSignalRecordSignal(int savedErrno, siginfo_t *info, void *uapV
 
   FIRCLSFile metricKitFile;
 
-  if (!FIRCLSFileInitWithPath(&metricKitFile, _firclsContext.readonly->metricKitPath, false)) {
-    FIRCLSSDKLog("Unable to open MetricKit file\n");
-  }
-
   FIRCLSFileWriteSectionStart(&file, "signal");
 
   FIRCLSFileWriteHashStart(&file);

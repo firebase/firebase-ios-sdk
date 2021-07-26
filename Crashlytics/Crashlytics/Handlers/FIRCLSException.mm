@@ -211,10 +211,6 @@ void FIRCLSExceptionRecord(FIRCLSExceptionType type,
       }
       FIRCLSFile metricKitFile;
 
-      if (!FIRCLSFileInitWithPath(&metricKitFile, _firclsContext.readonly->metricKitPath, false)) {
-        FIRCLSSDKLog("Unable to open MetricKit file\n");
-      }
-
       FIRCLSExceptionWrite(&file, type, name, reason, frames);
 
       // We only want to do this work if we have the expectation that we'll actually crash

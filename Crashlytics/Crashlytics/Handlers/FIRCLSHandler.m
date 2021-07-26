@@ -37,8 +37,8 @@ void FIRCLSHandler(FIRCLSFile* file,
   FIRCLSProcessRecordRuntimeInfo(&process, file);
   // Get dispatch queue and thread names. Note that getting the thread names
   // can hang, so let's do that last
-  FIRCLSProcessRecordDispatchQueueNames(&process, file, metricKitFile);
-  FIRCLSProcessRecordThreadNames(&process, file, metricKitFile);
+  FIRCLSProcessRecordDispatchQueueNames(&process, file);
+  FIRCLSProcessRecordThreadNames(&process, file);
 
   // this stuff isn't super important, but we can try
   FIRCLSProcessRecordStats(&process, file);

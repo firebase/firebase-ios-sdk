@@ -22,13 +22,13 @@
 #import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
 #import "Crashlytics/Crashlytics/Public/FirebaseCrashlytics/FIRCrashlyticsReport.h"
 
-@interface FIRCLSMetricKitManager () {
-  NSLock *_mutex;
-  FBLPromise *_metricKitDataAvailable;
-  FIRCLSExistingReportManager *_existingReportManager;
-  FIRCLSFileManager *_fileManager;
-  FIRCLSManagerData *_managerData;
-}
+@interface FIRCLSMetricKitManager() 
+
+@property NSLock *mutex;
+@property FBLPromise *metricKitDataAvailable;
+@property FIRCLSExistingReportManager *existingReportManager;
+@property FIRCLSFileManager *fileManager;
+@property FIRCLSManagerData *managerData;
 
 @end
 
@@ -52,17 +52,17 @@
  */
 - (void)registerMetricKitManager {
   [[MXMetricManager sharedManager] addSubscriber:self];
-  _metricKitDataAvailable = [FBLPromise pendingPromise];
+  self.metricKitDataAvailable = [FBLPromise pendingPromise];
 
   // If there was no crash on the last run of the app, then we aren't expecting a MetricKit
   // diagnostic report and should resolve the promise immediately.
   NSString *crashedMarkerFileName = [NSString stringWithUTF8String:FIRCLSCrashedMarkerFileName];
   NSString *crashedMarkerFileFullPath =
-      [[_fileManager rootPath] stringByAppendingPathComponent:crashedMarkerFileName];
-  if (![_fileManager fileExistsAtPath:crashedMarkerFileFullPath]) {
-    [_mutex lock];
-    [_metricKitDataAvailable fulfill:nil];
-    [_mutex unlock];
+      [[self.fileManager rootPath] stringByAppendingPathComponent:crashedMarkerFileName];
+  if (![self.fileManager fileExistsAtPath:crashedMarkerFileFullPath]) {
+    @synchronized (self) {
+      [self.metricKitDataAvailable fulfill:nil];
+    }
   }
 }
 
@@ -95,12 +95,12 @@
   NSTimeInterval endSecondsSince1970 = [diagnosticPayload.timeStampEnd timeIntervalSince1970];
 
   // Get file path for the active reports directory.
-  NSString *activePath = [[_fileManager activePath] stringByAppendingString:@"/"];
+  NSString *activePath = [[self.fileManager activePath] stringByAppendingString:@"/"];
 
   // If newestReportID is nil or the file no longer exists, then this callback function was
   // triggered for nonfatal MetricKit events.
   NSString *newestUnsentReportID =
-      [_existingReportManager.newestUnsentReport.reportID stringByAppendingString:@"/"];
+      [self.existingReportManager.newestUnsentReport.reportID stringByAppendingString:@"/"];
   NSString *metricKitReportFile;
   BOOL fatal =
       (newestUnsentReportID != nil) && ([_fileManager fileExistsAtPath:metricKitReportFile]);
@@ -120,7 +120,7 @@
         stringByAppendingString:FIRCLSMetricKitFatalReportFile];
   }
 
-  // Need to copy the string passed to the log method or it causes a crash (GUI logging issue).
+  // Need to copy the string passed to the log method or it causes a crash (GUL logging issue).
   FIRCLSDebugLog(@"file path %@ for MetricKit", [metricKitReportFile copy]);
   FIRCLSFile metricKitFile;
   if (!FIRCLSFileInitWithPath(&metricKitFile, [metricKitReportFile UTF8String], false)) {
@@ -221,9 +221,9 @@
   // If this method was called because of a fatal event, fulfill the MetricKit promise so that
   // uploading of the Crashlytics report continues. If not, the promise has already been fulfillled.
   if (fatal) {
-    [_mutex lock];
+    @synchronized (self) {
     [_metricKitDataAvailable fulfill:nil];
-    [_mutex unlock];
+    }
   }
 }
 
