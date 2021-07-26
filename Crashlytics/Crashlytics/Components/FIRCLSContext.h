@@ -45,7 +45,6 @@ typedef struct {
   volatile bool debuggerAttached;
   const char* previouslyCrashedFileFullPath;
   const char* logPath;
-  const char* metricKitPath;
 #if CLS_USE_SIGALTSTACK
   void* signalStack;
 #endif

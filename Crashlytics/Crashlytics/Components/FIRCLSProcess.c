@@ -504,16 +504,12 @@ bool FIRCLSProcessRecordAllThreads(FIRCLSProcess *process, FIRCLSFile *file) {
   return true;
 }
 
-void FIRCLSProcessRecordThreadNames(FIRCLSProcess *process, FIRCLSFile *file, FIRCLSFile *metricKitFile) {
+void FIRCLSProcessRecordThreadNames(FIRCLSProcess *process, FIRCLSFile *file) {
   uint32_t threadCount;
   uint32_t i;
 
   FIRCLSFileWriteSectionStart(file, "thread_names");
   FIRCLSFileWriteArrayStart(file);
-
-  // Duplicate all file writing steps for the MetricKit file.
-  FIRCLSFileWriteSectionStart(metricKitFile, "thread_names");
-  FIRCLSFileWriteArrayStart(metricKitFile);
 
   threadCount = FIRCLSProcessGetThreadCount(process);
   for (i = 0; i < threadCount; ++i) {
@@ -527,24 +523,19 @@ void FIRCLSProcessRecordThreadNames(FIRCLSProcess *process, FIRCLSFile *file, FI
     FIRCLSProcessGetThreadName(process, thread, name, THREAD_NAME_BUFFER_SIZE);
 
     FIRCLSFileWriteArrayEntryString(file, name);
-    FIRCLSFileWriteArrayEntryString(metricKitFile, name);
   }
 
   FIRCLSFileWriteArrayEnd(file);
   FIRCLSFileWriteSectionEnd(file);
-  FIRCLSFileWriteArrayEnd(metricKitFile);
-  FIRCLSFileWriteSectionEnd(metricKitFile);
 }
 
-void FIRCLSProcessRecordDispatchQueueNames(FIRCLSProcess *process, FIRCLSFile *file, FIRCLSFile *metricKitFile) {
+void FIRCLSProcessRecordDispatchQueueNames(FIRCLSProcess *process, FIRCLSFile *file) {
   uint32_t threadCount;
   uint32_t i;
 
   FIRCLSFileWriteSectionStart(file, "dispatch_queue_names");
-  FIRCLSFileWriteSectionStart(metricKitFile, "dispatch_queue_names");
 
   FIRCLSFileWriteArrayStart(file);
-  FIRCLSFileWriteArrayStart(metricKitFile);
 
   threadCount = FIRCLSProcessGetThreadCount(process);
   for (i = 0; i < threadCount; ++i) {
@@ -561,14 +552,11 @@ void FIRCLSProcessRecordDispatchQueueNames(FIRCLSProcess *process, FIRCLSFile *f
       name = "";
     }
     FIRCLSFileWriteArrayEntryString(file, name);
-    FIRCLSFileWriteArrayEntryString(metricKitFile, name);
 
   }
 
   FIRCLSFileWriteArrayEnd(file);
   FIRCLSFileWriteSectionEnd(file);
-  FIRCLSFileWriteArrayEnd(metricKitFile);
-  FIRCLSFileWriteSectionEnd(metricKitFile);
 }
 
 #pragma mark - Othe Process Info

@@ -118,8 +118,6 @@ bool FIRCLSContextInitialize(FIRCLSInternalReport* report,
 
   NSString* rootPath = [NSString stringWithUTF8String:initData->rootPath];
 
-  _firclsContext.readonly->metricKitPath =
-      FIRCLSContextAppendToRoot(rootPath, FIRCLSMetricKitFatalReportFile);
   // setup our SDK log file synchronously, because other calls may depend on it
   _firclsContext.readonly->logPath = FIRCLSContextAppendToRoot(rootPath, @"sdk.log");
   if (!FIRCLSUnlinkIfExists(_firclsContext.readonly->logPath)) {
@@ -212,8 +210,6 @@ bool FIRCLSContextInitialize(FIRCLSInternalReport* report,
     dispatch_group_async(group, queue, ^{
       _firclsContext.readonly->machException.path =
           FIRCLSContextAppendToRoot(rootPath, FIRCLSReportMachExceptionFile);
-      _firclsContext.readonly->machException.metricKitFatalPath =
-          FIRCLSContextAppendToRoot(rootPath, FIRCLSMetricKitFatalReportFile);
 
       FIRCLSMachExceptionInit(&_firclsContext.readonly->machException, initData->machExceptionMask);
     });

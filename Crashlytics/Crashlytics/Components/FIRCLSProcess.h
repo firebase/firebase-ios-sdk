@@ -38,11 +38,9 @@ bool FIRCLSProcessSuspendAllOtherThreads(FIRCLSProcess *process);
 bool FIRCLSProcessResumeAllOtherThreads(FIRCLSProcess *process);
 
 void FIRCLSProcessRecordThreadNames(FIRCLSProcess *process,
-                                    FIRCLSFile *file,
-                                    FIRCLSFile *metricKitFile);
+                                    FIRCLSFile *file);
 void FIRCLSProcessRecordDispatchQueueNames(FIRCLSProcess *process,
-                                           FIRCLSFile *file,
-                                           FIRCLSFile *metricKitFile);
+                                           FIRCLSFile *file);
 bool FIRCLSProcessRecordAllThreads(FIRCLSProcess *process, FIRCLSFile *file);
 void FIRCLSProcessRecordStats(FIRCLSProcess *process, FIRCLSFile *file);
 void FIRCLSProcessRecordRuntimeInfo(FIRCLSProcess *process, FIRCLSFile *file);
