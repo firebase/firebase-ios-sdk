@@ -305,8 +305,7 @@ NS_ASSUME_NONNULL_BEGIN
                                               context:(ParseContext &&)context {
   __block Message<google_firestore_v1_Value> result;
   result->which_value_type = google_firestore_v1_Value_map_value_tag;
-  result->map_value.fields_count = 0;
-  result->map_value.fields = nil;
+  result->map_value = {};
 
   if (dict.count == 0) {
     const FieldPath *path = context.path();
