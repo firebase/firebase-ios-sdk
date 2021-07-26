@@ -17,7 +17,6 @@
 #import "Crashlytics/Crashlytics/Components/FIRCLSCrashedMarkerFile.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSMetricKitManager.h"
-#import "Crashlytics/Crashlytics/Helpers/FIRCLSCallStackTree.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSExecutionIdentifierModel.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
@@ -236,7 +235,7 @@
   FIRCLSDebugLog(@"[Crashlytics:Crash] received %d MetricKit metric payloads\n", payloads.count);
 }
 
-- (FBLPromise<FIRCLSCallStackTree *> *)waitForMetricKitDataAvailable {
+- (FBLPromise *)waitForMetricKitDataAvailable {
   FBLPromise *result = nil;
   [_mutex lock];
   result = _metricKitDataAvailable;

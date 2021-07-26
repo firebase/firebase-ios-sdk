@@ -16,7 +16,6 @@
 
 #if TARGET_OS_IPHONE
 @import MetricKit;
-#include "Crashlytics/Crashlytics/Helpers/FIRCLSCallStackTree.h"
 
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSExistingReportManager.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
@@ -31,7 +30,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(14.0))
 @interface FIRCLSMetricKitManager : NSObject <MXMetricManagerSubscriber>
-@property FIRCLSCallStackTree *callStackTree;
 
 - (instancetype)initWithManagerData:(FIRCLSManagerData *)managerData
               existingReportManager:(FIRCLSExistingReportManager *)existingReportManager
@@ -39,7 +37,7 @@ API_AVAILABLE(ios(14.0))
 
 - (instancetype)init NS_UNAVAILABLE;
 - (void)registerMetricKitManager;
-- (FBLPromise<FIRCLSCallStackTree *> *)waitForMetricKitDataAvailable;
+- (FBLPromise *)waitForMetricKitDataAvailable;
 
 @end
 
