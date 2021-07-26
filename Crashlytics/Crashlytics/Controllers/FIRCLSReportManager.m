@@ -43,6 +43,7 @@
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSAnalyticsManager.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSExistingReportManager.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
+#import "Crashlytics/Crashlytics/Controllers/FIRCLSMetricKitManager.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSNotificationManager.h"
 #import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionArbiter.h"
 #import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
@@ -107,6 +108,9 @@ typedef NSNumber FIRCLSWrappedReportAction;
   // for all the unsent reports.
   FBLPromise<FIRCLSWrappedReportAction *> *_reportActionProvided;
 
+  // A promise that will be resolved when we've received diagnostic reports from MetricKit.
+  FBLPromise *_metricKitDiagnosticsAvailable;
+
   // A promise that will be resolved when all unsent reports have been "handled". They won't
   // necessarily have been uploaded, but we will know whether they should be sent or deleted, and
   // the initial work to make that happen will have been processed on the work queue.
@@ -137,6 +141,7 @@ typedef NSNumber FIRCLSWrappedReportAction;
 // Internal Managers
 @property(nonatomic, strong) FIRCLSSettingsManager *settingsManager;
 @property(nonatomic, strong) FIRCLSNotificationManager *notificationManager;
+@property(nonatomic, strong) FIRCLSMetricKitManager *metricKitManager;
 
 @end
 
@@ -178,6 +183,9 @@ typedef NSNumber FIRCLSWrappedReportAction;
                                                            googleAppID:self.googleAppID];
 
   _notificationManager = [[FIRCLSNotificationManager alloc] init];
+  _metricKitManager = [[FIRCLSMetricKitManager alloc] initWithManagerData:managerData
+                                                    existingReportManager:existingReportManager
+                                                              fileManager:_fileManager];
 
   _launchMarker = [[FIRCLSLaunchMarkerModel alloc] initWithFileManager:_fileManager];
 
@@ -205,6 +213,19 @@ typedef NSNumber FIRCLSWrappedReportAction;
 
   // Wait for either the processReports callback to be called, or data collection to be enabled.
   return [FBLPromise race:@[ collectionEnabled, _reportActionProvided ]];
+}
+
+/*
+ * This method returns a promise that is resolved once
+ * MetricKit diagnostic reports have been received by `metricKitManager`.
+ */
+- (FBLPromise *)waitForMetricKitData {
+  FBLPromise<FIRCLSCallStackTree *> *metricKitDataAvailable =
+      [[self.metricKitManager waitForMetricKitDataAvailable]
+          then:^id _Nonnull(FIRCLSCallStackTree *_Nonnull value) {
+            return value;
+          }];
+  return metricKitDataAvailable;
 }
 
 - (FBLPromise<FIRCrashlyticsReport *> *)checkForUnsentReports {
@@ -271,24 +292,32 @@ typedef NSNumber FIRCLSWrappedReportAction;
 
     [self beginSettingsWithToken:dataCollectionToken];
 
-    [self beginReportUploadsWithToken:dataCollectionToken blockingSend:launchFailure];
+    // Wait for MetricKit data to be available, then continue to send reports and resolve promise.
+    promise = [[self waitForMetricKitData]
+        onQueue:_dispatchQueue
+           then:^id _Nullable(FIRCLSCallStackTree *_Nullable value) {
+             [self beginReportUploadsWithToken:dataCollectionToken blockingSend:launchFailure];
 
-    // If data collection is enabled, the SDK will not notify the user
-    // when unsent reports are available, or respect Send / DeleteUnsentReports
-    [_unsentReportsAvailable fulfill:nil];
-
+             // If data collection is enabled, the SDK will not notify the user
+             // when unsent reports are available, or respect Send / DeleteUnsentReports
+             [_unsentReportsAvailable fulfill:nil];
+             return @(report != nil);
+           }];
   } else {
     FIRCLSDebugLog(@"Automatic data collection is disabled.");
     FIRCLSDebugLog(@"[Crashlytics:Crash] %d unsent reports are available. Waiting for "
                    @"send/deleteUnsentReports to be called.",
                    self.existingReportManager.unsentReportsCount);
 
-    // Wait for an action to get sent, either from processReports: or automatic data collection.
-    promise = [[self waitForReportAction]
+    // Wait for an action to get sent, either from processReports: or automatic data collection,
+    // and for MetricKit data to be available.
+    promise = [[FBLPromise all:@[ [self waitForReportAction], [self waitForMetricKitData] ]]
         onQueue:_dispatchQueue
-           then:^id _Nullable(FIRCLSWrappedReportAction *_Nullable wrappedAction) {
+           then:^id _Nullable(NSArray *_Nullable wrappedActionAndData) {
              // Process the actions for the reports on disk.
-             FIRCLSReportAction action = [wrappedAction reportActionValue];
+             FIRCLSReportAction action = [[wrappedActionAndData firstObject] reportActionValue];
+             FIRCLSCallStackTree *callStackTree = [wrappedActionAndData lastObject];
+
              if (action == FIRCLSReportActionSend) {
                FIRCLSDebugLog(@"Sending unsent reports.");
                FIRCLSDataCollectionToken *dataCollectionToken =
@@ -373,6 +402,8 @@ typedef NSNumber FIRCLSWrappedReportAction;
   }
 
   [self.notificationManager registerNotificationListener];
+
+  [self.metricKitManager registerMetricKitManager];
 
   [self.analyticsManager registerAnalyticsListener];
 
