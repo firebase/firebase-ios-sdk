@@ -55,8 +55,7 @@
 
   // If there was no crash on the last run of the app, then we aren't expecting a MetricKit
   // diagnostic report and should resolve the promise immediately.
-
-  if (![self.fileManager didCrashOnPreviousExecution]) {
+  if (![self.fileManager didCrashOnPreviousExecution] && ![self.fileManager didCrashPreviously]) {
     @synchronized(self) {
       [self.metricKitDataAvailable fulfill:nil];
     }
@@ -95,10 +94,13 @@
   NSString *activePath = [[self.fileManager activePath] stringByAppendingString:@"/"];
 
   // If there is a crash diagnostic in the payload, then this method was called for a fatal event.
+  // Also ensure that there is a report from the last run of the app that we can write to.
   NSString *metricKitReportFile;
   NSString *newestUnsentReportID =
       [self.existingReportManager.newestUnsentReport.reportID stringByAppendingString:@"/"];
-  BOOL fatal = ([diagnosticPayload.crashDiagnostics count] > 0) && (newestUnsentReportID != nil);
+  BOOL fatal = ([diagnosticPayload.crashDiagnostics count] > 0) && (newestUnsentReportID != nil) &&
+               ([self.fileManager
+                   fileExistsAtPath:[activePath stringByAppendingString:newestUnsentReportID]]);
 
   // Set the metrickit path appropriately depending on whether the diagnostic report came from
   // a fatal or nonfatal event. If fatal, use the report from the last run of the app. Otherwise,
@@ -118,8 +120,7 @@
     return;
   }
 
-  // Need to copy the string passed to the log method or it causes a crash (GUL logging issue)?
-  FIRCLSDebugLog(@"[Crashlytics:Crash] file path %@ for MetricKit", [metricKitReportFile copy]);
+  FIRCLSDebugLog(@"[Crashlytics:Crash] file path for MetricKit:  %@", [metricKitReportFile copy]);
   FIRCLSFile metricKitFile;
   if (!FIRCLSFileInitWithPath(&metricKitFile, [metricKitReportFile UTF8String], false)) {
     FIRCLSDebugLog(@"[Crashlytics:Crash] unable to open MetricKit file");
