@@ -265,7 +265,7 @@ firebase_perf_v1_ApplicationInfo GetApplicationInfoMessage() {
 
   NSDictionary<NSString *, NSString *> *attributes =
       [[FIRPerformance sharedInstance].attributes mutableCopy];
-  appInfoMessage.custom_attributes_count = attributes.count;
+  appInfoMessage.custom_attributes_count = (pb_size_t)attributes.count;
   appInfoMessage.custom_attributes =
       (struct _firebase_perf_v1_ApplicationInfo_CustomAttributesEntry *)FPREncodeStringToStringMap(
           attributes);
@@ -291,12 +291,12 @@ firebase_perf_v1_TraceMetric GetTraceMetric(FIRTrace *trace) {
 
   // Filling counters
   NSDictionary<NSString *, NSNumber *> *counters = trace.counters;
-  traceMetric.counters_count = counters.count;
+  traceMetric.counters_count = (pb_size_t)counters.count;
   traceMetric.counters =
       (struct _firebase_perf_v1_TraceMetric_CountersEntry *)FPREncodeStringToNumberMap(counters);
 
   // Filling subtraces
-  traceMetric.subtraces_count = [trace.stages count];
+  traceMetric.subtraces_count = (pb_size_t)[trace.stages count];
   struct _firebase_perf_v1_TraceMetric *subtraces =
       calloc(traceMetric.subtraces_count, sizeof(firebase_perf_v1_TraceMetric));
   __block NSUInteger subtraceIndex = 0;
@@ -309,14 +309,14 @@ firebase_perf_v1_TraceMetric GetTraceMetric(FIRTrace *trace) {
 
   // Filling custom attributes
   NSDictionary<NSString *, NSString *> *attributes = [trace.attributes mutableCopy];
-  traceMetric.custom_attributes_count = attributes.count;
+  traceMetric.custom_attributes_count = (pb_size_t)attributes.count;
   traceMetric.custom_attributes =
       (struct _firebase_perf_v1_TraceMetric_CustomAttributesEntry *)FPREncodeStringToStringMap(
           attributes);
 
   // Filling session details
   NSArray<FPRSessionDetails *> *orderedSessions = FPRMakeFirstSessionVerbose(trace.sessions);
-  traceMetric.perf_sessions_count = [orderedSessions count];
+  traceMetric.perf_sessions_count = (pb_size_t)[orderedSessions count];
   traceMetric.perf_sessions =
       FPREncodePerfSessions(orderedSessions, traceMetric.perf_sessions_count);
 
@@ -378,14 +378,14 @@ firebase_perf_v1_NetworkRequestMetric GetNetworkRequestMetric(FPRNetworkTrace *t
 
   // Filling custom attributes
   NSDictionary<NSString *, NSString *> *attributes = [trace.attributes mutableCopy];
-  networkMetric.custom_attributes_count = attributes.count;
+  networkMetric.custom_attributes_count = (pb_size_t)attributes.count;
   networkMetric.custom_attributes =
       (struct _firebase_perf_v1_NetworkRequestMetric_CustomAttributesEntry *)
           FPREncodeStringToStringMap(attributes);
 
   // Filling session details
   NSArray<FPRSessionDetails *> *orderedSessions = FPRMakeFirstSessionVerbose(trace.sessions);
-  networkMetric.perf_sessions_count = [orderedSessions count];
+  networkMetric.perf_sessions_count = (pb_size_t)[orderedSessions count];
   networkMetric.perf_sessions =
       FPREncodePerfSessions(orderedSessions, networkMetric.perf_sessions_count);
 
@@ -435,9 +435,9 @@ firebase_perf_v1_GaugeMetric GetGaugeMetric(NSArray *gaugeData, NSString *sessio
       realloc(memoryReadings, memoryReadingsCount * sizeof(firebase_perf_v1_IosMemoryReading));
 
   gaugeMetric.cpu_metric_readings = cpuReadings;
-  gaugeMetric.cpu_metric_readings_count = cpuReadingsCount;
+  gaugeMetric.cpu_metric_readings_count = (pb_size_t)cpuReadingsCount;
   gaugeMetric.ios_memory_readings = memoryReadings;
-  gaugeMetric.ios_memory_readings_count = memoryReadingsCount;
+  gaugeMetric.ios_memory_readings_count = (pb_size_t)memoryReadingsCount;
   return gaugeMetric;
 }
 
