@@ -40,6 +40,100 @@ static firebase_perf_v1_NetworkConnectionInfo_MobileSubtype FPRCellularNetworkTy
 #endif
 NSArray<FPRSessionDetails *> *FPRMakeFirstSessionVerbose(NSArray<FPRSessionDetails *> *sessions);
 
+#pragma mark - Nanopb creation utilities
+
+/** Converts the network method string to a value defined in the enum
+ *  firebase_perf_v1_NetworkRequestMetric_HttpMethod.
+ *  @return Enum value of the method string. If there is no mapping value defined for the method
+ * firebase_perf_v1_NetworkRequestMetric_HttpMethod_HTTP_METHOD_UNKNOWN is returned.
+ */
+static firebase_perf_v1_NetworkRequestMetric_HttpMethod FPRHTTPMethodForString(
+    NSString *methodString) {
+  static NSDictionary<NSString *, NSNumber *> *HTTPToFPRNetworkTraceMethod;
+  static dispatch_once_t onceToken = 0;
+  dispatch_once(&onceToken, ^{
+    HTTPToFPRNetworkTraceMethod = @{
+      @"GET" : @(firebase_perf_v1_NetworkRequestMetric_HttpMethod_GET),
+      @"POST" : @(firebase_perf_v1_NetworkRequestMetric_HttpMethod_POST),
+      @"PUT" : @(firebase_perf_v1_NetworkRequestMetric_HttpMethod_PUT),
+      @"DELETE" : @(firebase_perf_v1_NetworkRequestMetric_HttpMethod_DELETE),
+      @"HEAD" : @(firebase_perf_v1_NetworkRequestMetric_HttpMethod_HEAD),
+      @"PATCH" : @(firebase_perf_v1_NetworkRequestMetric_HttpMethod_PATCH),
+      @"OPTIONS" : @(firebase_perf_v1_NetworkRequestMetric_HttpMethod_OPTIONS),
+      @"TRACE" : @(firebase_perf_v1_NetworkRequestMetric_HttpMethod_TRACE),
+      @"CONNECT" : @(firebase_perf_v1_NetworkRequestMetric_HttpMethod_CONNECT),
+    };
+  });
+
+  NSNumber *HTTPMethod = HTTPToFPRNetworkTraceMethod[methodString];
+  if (HTTPMethod == nil) {
+    return firebase_perf_v1_NetworkRequestMetric_HttpMethod_HTTP_METHOD_UNKNOWN;
+  }
+  return HTTPMethod.intValue;
+}
+
+/** Get the current network connection type in firebase_perf_v1_NetworkConnectionInfo_NetworkType
+ * format.
+ *  @return Current network connection type.
+ */
+static firebase_perf_v1_NetworkConnectionInfo_NetworkType FPRNetworkConnectionInfoNetworkType() {
+  firebase_perf_v1_NetworkConnectionInfo_NetworkType networkType =
+      firebase_perf_v1_NetworkConnectionInfo_NetworkType_NONE;
+
+  static SCNetworkReachabilityRef reachabilityRef = 0;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    reachabilityRef = SCNetworkReachabilityCreateWithName(kCFAllocatorSystemDefault, "google.com");
+  });
+
+  SCNetworkReachabilityFlags reachabilityFlags = 0;
+  SCNetworkReachabilityGetFlags(reachabilityRef, &reachabilityFlags);
+
+  // Parse the network flags to set the network type.
+  if (reachabilityFlags & kSCNetworkReachabilityFlagsReachable) {
+    if (reachabilityFlags & kSCNetworkReachabilityFlagsIsWWAN) {
+      networkType = firebase_perf_v1_NetworkConnectionInfo_NetworkType_MOBILE;
+    } else {
+      networkType = firebase_perf_v1_NetworkConnectionInfo_NetworkType_WIFI;
+    }
+  }
+
+  return networkType;
+}
+
+#ifdef TARGET_HAS_MOBILE_CONNECTIVITY
+/** Get the current cellular network connection type in
+ * firebase_perf_v1_NetworkConnectionInfo_MobileSubtype format.
+ *  @return Current cellular network connection type.
+ */
+static firebase_perf_v1_NetworkConnectionInfo_MobileSubtype FPRCellularNetworkType() {
+  static NSDictionary<NSString *, NSNumber *> *cellularNetworkToMobileSubtype;
+  static dispatch_once_t onceToken = 0;
+  dispatch_once(&onceToken, ^{
+    cellularNetworkToMobileSubtype = @{
+      CTRadioAccessTechnologyGPRS : @(firebase_perf_v1_NetworkConnectionInfo_MobileSubtype_GPRS),
+      CTRadioAccessTechnologyEdge : @(firebase_perf_v1_NetworkConnectionInfo_MobileSubtype_EDGE),
+      CTRadioAccessTechnologyWCDMA : @(firebase_perf_v1_NetworkConnectionInfo_MobileSubtype_CDMA),
+      CTRadioAccessTechnologyHSDPA : @(firebase_perf_v1_NetworkConnectionInfo_MobileSubtype_HSDPA),
+      CTRadioAccessTechnologyHSUPA : @(firebase_perf_v1_NetworkConnectionInfo_MobileSubtype_HSUPA),
+      CTRadioAccessTechnologyCDMA1x : @(firebase_perf_v1_NetworkConnectionInfo_MobileSubtype_CDMA),
+      CTRadioAccessTechnologyCDMAEVDORev0 :
+          @(firebase_perf_v1_NetworkConnectionInfo_MobileSubtype_EVDO_0),
+      CTRadioAccessTechnologyCDMAEVDORevA :
+          @(firebase_perf_v1_NetworkConnectionInfo_MobileSubtype_EVDO_A),
+      CTRadioAccessTechnologyCDMAEVDORevB :
+          @(firebase_perf_v1_NetworkConnectionInfo_MobileSubtype_EVDO_B),
+      CTRadioAccessTechnologyeHRPD : @(firebase_perf_v1_NetworkConnectionInfo_MobileSubtype_EHRPD),
+      CTRadioAccessTechnologyLTE : @(firebase_perf_v1_NetworkConnectionInfo_MobileSubtype_LTE)
+    };
+  });
+
+  NSString *networkString = NetworkInfo().currentRadioAccessTechnology;
+  NSNumber *cellularNetworkType = cellularNetworkToMobileSubtype[networkString];
+  return cellularNetworkType.intValue;
+}
+#endif
+
 #pragma mark - Nanopb decode and encode helper methods
 
 pb_bytes_array_t *FPREncodeData(NSData *data) {
@@ -79,7 +173,7 @@ StringToStringMap *_Nullable FPREncodeStringToStringMap(NSDictionary *_Nullable 
 
 NSDictionary<NSString *, NSString *> *FPRDecodeStringToStringMap(StringToStringMap *map,
                                                                  NSInteger count) {
-  NSMutableDictionary<NSString *, NSString *> *dict = [NSMutableDictionary dictionary];
+  NSMutableDictionary<NSString *, NSString *> *dict = [[NSMutableDictionary alloc] init];
   for (int i = 0; i < count; i++) {
     NSString *key = FPRDecodeString(map[i].key);
     NSString *value = FPRDecodeString(map[i].value);
@@ -102,7 +196,7 @@ StringToNumberMap *_Nullable FPREncodeStringToNumberMap(NSDictionary *_Nullable 
 
 NSDictionary<NSString *, NSNumber *> *_Nullable FPRDecodeStringToNumberMap(
     StringToNumberMap *_Nullable map, NSInteger count) {
-  NSMutableDictionary<NSString *, NSNumber *> *dict = [NSMutableDictionary dictionary];
+  NSMutableDictionary<NSString *, NSNumber *> *dict = [[NSMutableDictionary alloc] init];
   for (int i = 0; i < count; i++) {
     if (map[i].has_value) {
       NSString *key = FPRDecodeString(map[i].key);
@@ -379,100 +473,6 @@ CTTelephonyNetworkInfo *NetworkInfo() {
     networkInfo = [[CTTelephonyNetworkInfo alloc] init];
   });
   return networkInfo;
-}
-#endif
-
-#pragma mark - Nanopb creation utilities
-
-/** Converts the network method string to a value defined in the enum
- *  firebase_perf_v1_NetworkRequestMetric_HttpMethod.
- *  @return Enum value of the method string. If there is no mapping value defined for the method
- * firebase_perf_v1_NetworkRequestMetric_HttpMethod_HTTP_METHOD_UNKNOWN is returned.
- */
-static firebase_perf_v1_NetworkRequestMetric_HttpMethod FPRHTTPMethodForString(
-    NSString *methodString) {
-  static NSDictionary<NSString *, NSNumber *> *HTTPToFPRNetworkTraceMethod;
-  static dispatch_once_t onceToken = 0;
-  dispatch_once(&onceToken, ^{
-    HTTPToFPRNetworkTraceMethod = @{
-      @"GET" : @(firebase_perf_v1_NetworkRequestMetric_HttpMethod_GET),
-      @"POST" : @(firebase_perf_v1_NetworkRequestMetric_HttpMethod_POST),
-      @"PUT" : @(firebase_perf_v1_NetworkRequestMetric_HttpMethod_PUT),
-      @"DELETE" : @(firebase_perf_v1_NetworkRequestMetric_HttpMethod_DELETE),
-      @"HEAD" : @(firebase_perf_v1_NetworkRequestMetric_HttpMethod_HEAD),
-      @"PATCH" : @(firebase_perf_v1_NetworkRequestMetric_HttpMethod_PATCH),
-      @"OPTIONS" : @(firebase_perf_v1_NetworkRequestMetric_HttpMethod_OPTIONS),
-      @"TRACE" : @(firebase_perf_v1_NetworkRequestMetric_HttpMethod_TRACE),
-      @"CONNECT" : @(firebase_perf_v1_NetworkRequestMetric_HttpMethod_CONNECT),
-    };
-  });
-
-  NSNumber *HTTPMethod = HTTPToFPRNetworkTraceMethod[methodString];
-  if (HTTPMethod == nil) {
-    return firebase_perf_v1_NetworkRequestMetric_HttpMethod_HTTP_METHOD_UNKNOWN;
-  }
-  return HTTPMethod.intValue;
-}
-
-/** Get the current network connection type in firebase_perf_v1_NetworkConnectionInfo_NetworkType
- * format.
- *  @return Current network connection type.
- */
-static firebase_perf_v1_NetworkConnectionInfo_NetworkType FPRNetworkConnectionInfoNetworkType() {
-  firebase_perf_v1_NetworkConnectionInfo_NetworkType networkType =
-      firebase_perf_v1_NetworkConnectionInfo_NetworkType_NONE;
-
-  static SCNetworkReachabilityRef reachabilityRef = 0;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    reachabilityRef = SCNetworkReachabilityCreateWithName(kCFAllocatorSystemDefault, "google.com");
-  });
-
-  SCNetworkReachabilityFlags reachabilityFlags = 0;
-  SCNetworkReachabilityGetFlags(reachabilityRef, &reachabilityFlags);
-
-  // Parse the network flags to set the network type.
-  if (reachabilityFlags & kSCNetworkReachabilityFlagsReachable) {
-    if (reachabilityFlags & kSCNetworkReachabilityFlagsIsWWAN) {
-      networkType = firebase_perf_v1_NetworkConnectionInfo_NetworkType_MOBILE;
-    } else {
-      networkType = firebase_perf_v1_NetworkConnectionInfo_NetworkType_WIFI;
-    }
-  }
-
-  return networkType;
-}
-
-#ifdef TARGET_HAS_MOBILE_CONNECTIVITY
-/** Get the current cellular network connection type in
- * firebase_perf_v1_NetworkConnectionInfo_MobileSubtype format.
- *  @return Current cellular network connection type.
- */
-static firebase_perf_v1_NetworkConnectionInfo_MobileSubtype FPRCellularNetworkType() {
-  static NSDictionary<NSString *, NSNumber *> *cellularNetworkToMobileSubtype;
-  static dispatch_once_t onceToken = 0;
-  dispatch_once(&onceToken, ^{
-    cellularNetworkToMobileSubtype = @{
-      CTRadioAccessTechnologyGPRS : @(firebase_perf_v1_NetworkConnectionInfo_MobileSubtype_GPRS),
-      CTRadioAccessTechnologyEdge : @(firebase_perf_v1_NetworkConnectionInfo_MobileSubtype_EDGE),
-      CTRadioAccessTechnologyWCDMA : @(firebase_perf_v1_NetworkConnectionInfo_MobileSubtype_CDMA),
-      CTRadioAccessTechnologyHSDPA : @(firebase_perf_v1_NetworkConnectionInfo_MobileSubtype_HSDPA),
-      CTRadioAccessTechnologyHSUPA : @(firebase_perf_v1_NetworkConnectionInfo_MobileSubtype_HSUPA),
-      CTRadioAccessTechnologyCDMA1x : @(firebase_perf_v1_NetworkConnectionInfo_MobileSubtype_CDMA),
-      CTRadioAccessTechnologyCDMAEVDORev0 :
-          @(firebase_perf_v1_NetworkConnectionInfo_MobileSubtype_EVDO_0),
-      CTRadioAccessTechnologyCDMAEVDORevA :
-          @(firebase_perf_v1_NetworkConnectionInfo_MobileSubtype_EVDO_A),
-      CTRadioAccessTechnologyCDMAEVDORevB :
-          @(firebase_perf_v1_NetworkConnectionInfo_MobileSubtype_EVDO_B),
-      CTRadioAccessTechnologyeHRPD : @(firebase_perf_v1_NetworkConnectionInfo_MobileSubtype_EHRPD),
-      CTRadioAccessTechnologyLTE : @(firebase_perf_v1_NetworkConnectionInfo_MobileSubtype_LTE)
-    };
-  });
-
-  NSString *networkString = NetworkInfo().currentRadioAccessTechnology;
-  NSNumber *cellularNetworkType = cellularNetworkToMobileSubtype[networkString];
-  return cellularNetworkType.intValue;
 }
 #endif
 
