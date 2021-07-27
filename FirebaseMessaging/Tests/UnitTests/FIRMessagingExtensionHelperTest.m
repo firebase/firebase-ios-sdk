@@ -163,6 +163,34 @@ static NSString *const kValidImageURL =
   [_mockExtensionHelper exportDeliveryMetricsToBigQueryWithMessageInfo:fakeMessageInfo];
   OCMReject([_mockExtensionHelper bundleIdentifierByRemovingLastPartFrom:[OCMArg any]]);
 }
+
+- (void)testDeliveryMetricsLoggingWithDisplayPayload {
+  OCMStub([_mockUtilClass isAppExtension]).andReturn(YES);
+  NSDictionary *fakeMessageInfo = @{
+    @"aps" : @{@"badge" : @9, @"mutable-content" : @1},
+    @"fcm_options" : @{@"image" : @"https://google.com"},
+    @"gcm.message_id" : @"1627428480762269",
+    @"google.c.fid" : @"fakeFIDForTest",
+    @"google.c.sender.id" : @123456789
+  };
+
+  [_mockExtensionHelper exportDeliveryMetricsToBigQueryWithMessageInfo:fakeMessageInfo];
+  OCMExpect([_mockExtensionHelper bundleIdentifierByRemovingLastPartFrom:[OCMArg any]]);
+}
+
+- (void)testDeliveryMetricsLoggingWithDataPayload {
+  OCMStub([_mockUtilClass isAppExtension]).andReturn(NO);
+  NSDictionary *fakeMessageInfo = @{
+    @"aps" : @{@"badge" : @9, @"content-available" : @1},
+    @"fcm_options" : @{@"image" : @"https://google.com"},
+    @"gcm.message_id" : @"1627428480762269",
+    @"google.c.fid" : @"fakeFIDForTest",
+    @"google.c.sender.id" : @123456789
+  };
+  [_mockExtensionHelper exportDeliveryMetricsToBigQueryWithMessageInfo:fakeMessageInfo];
+  OCMReject([_mockExtensionHelper bundleIdentifierByRemovingLastPartFrom:[OCMArg any]]);
+}
+
 @end
 
 #endif  // TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_WATCH
