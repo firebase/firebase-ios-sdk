@@ -78,7 +78,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   trace.activeSessions = [NSMutableArray array];
   perfMetric.trace_metric = GetTraceMetric(trace);
   perfMetric.has_trace_metric = true;
-  
+
   return perfMetric;
 }
 
