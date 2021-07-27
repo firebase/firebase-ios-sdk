@@ -794,6 +794,7 @@ let package = Package(
         .product(name: "GULReachability", package: "GoogleUtilities"),
         .product(name: "GULUserDefaults", package: "GoogleUtilities"),
         .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
+        .product(name: "nanopb", package: "nanopb"),
       ],
       path: "FirebaseMessaging/Sources",
       publicHeadersPath: "Public",
