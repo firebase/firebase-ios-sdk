@@ -211,8 +211,25 @@ pb_bytes_array_t *FIRMessagingEncodeString(NSString *string) {
   fm_MessagingClientEventExtension eventExtension = fm_MessagingClientEventExtension_init_default;
 
   fm_MessagingClientEvent clientEvent = fm_MessagingClientEvent_init_default;
+  if (!info[kFIRMessagingSenderID]) {
+    FIRMessagingLoggerError(kFIRMessagingServiceExtensionInvalidProjectID,
+                            @"Delivery logging failed: Invalid project ID");
+    return;
+  }
   clientEvent.project_number = (int64_t)[info[kFIRMessagingSenderID] longLongValue];
+
+  if (!info[kFIRMessagingMessageIDKey]) {
+    FIRMessagingLoggerWarn(kFIRMessagingServiceExtensionInvalidMessageID,
+                           @"Delivery logging failed: Invalid Message ID");
+    return;
+  }
   clientEvent.message_id = FIRMessagingEncodeString(info[kFIRMessagingMessageIDKey]);
+
+  if (!info[kFIRMessagingFID]) {
+    FIRMessagingLoggerWarn(kFIRMessagingServiceExtensionInvalidInstanceID,
+                           @"Delivery logging failed: Invalid Instance ID");
+    return;
+  }
   clientEvent.instance_id = FIRMessagingEncodeString(info[kFIRMessagingFID]);
 
   if ([info[@"aps"][kFIRMessagingMessageAPNSContentAvailableKey] intValue] == 1 &&

@@ -156,12 +156,12 @@ static NSString *const kValidImageURL =
   }
 }
 
-- (void)testDeliveryMetricsLogging {
+- (void)testDeliveryMetricsLoggingWithEmptyPayload {
   OCMStub([_mockUtilClass isAppExtension]).andReturn(YES);
   NSDictionary *fakeMessageInfo = @{@"aps" : @{}};
 
   [_mockExtensionHelper exportDeliveryMetricsToBigQueryWithMessageInfo:fakeMessageInfo];
-  OCMVerify([_mockExtensionHelper bundleIdentifierByRemovingLastPartFrom:[OCMArg any]]);
+  OCMReject([_mockExtensionHelper bundleIdentifierByRemovingLastPartFrom:[OCMArg any]]);
 }
 @end
 
