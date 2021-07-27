@@ -17,6 +17,7 @@
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSMetricKitManager.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSExecutionIdentifierModel.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
 #import "Crashlytics/Crashlytics/Public/FirebaseCrashlytics/FIRCrashlyticsReport.h"
@@ -56,12 +57,9 @@
   // diagnostic report and should resolve the promise immediately.
 
   if (![self.fileManager didCrashOnPreviousExecution]) {
-    //    [self.mutex lock];
     @synchronized(self) {
       [self.metricKitDataAvailable fulfill:nil];
     }
-
-    //    [self.mutex unlock];
   }
 }
 
@@ -116,15 +114,15 @@
   }
 
   if (!metricKitReportFile) {
-    FIRCLSDebugLog("[Crashlytics:Crash] error finding MetricKit file");
+    FIRCLSDebugLog(@"[Crashlytics:Crash] error finding MetricKit file");
     return;
   }
 
   // Need to copy the string passed to the log method or it causes a crash (GUL logging issue)?
-  // FIRCLSDebugLog(@"[Crashlytics:Crash] file path %@ for MetricKit", [metricKitReportFile copy]);
+  FIRCLSDebugLog(@"[Crashlytics:Crash] file path %@ for MetricKit", [metricKitReportFile copy]);
   FIRCLSFile metricKitFile;
   if (!FIRCLSFileInitWithPath(&metricKitFile, [metricKitReportFile UTF8String], false)) {
-    FIRCLSDebugLog("[Crashlytics:Crash] unable to open MetricKit file");
+    FIRCLSDebugLog(@"[Crashlytics:Crash] unable to open MetricKit file");
     return;
   }
 
@@ -152,7 +150,7 @@
     [self writeMetadataToFile:&metricKitFile metadata:metadata];
 
     NSString *nilString = @"";
-    NSMutableDictionary *crashDict = @{
+    NSDictionary *crashDict = @{
       @"termination reason" :
               (crashDiagnostic.terminationReason) ? crashDiagnostic.terminationReason : nilString,
       @"virtual memory region info" : (crashDiagnostic.virtualMemoryRegionInfo)
@@ -221,12 +219,9 @@
   // If this method was called because of a fatal event, fulfill the MetricKit promise so that
   // uploading of the Crashlytics report continues. If not, the promise has already been fulfillled.
   if (fatal) {
-    //    [_mutex lock];
     @synchronized(self) {
       [self.metricKitDataAvailable fulfill:nil];
     }
-    //    [_metricKitDataAvailable fulfill:nil];
-    //    [_mutex unlock];
   }
 }
 
@@ -240,12 +235,9 @@
 
 - (FBLPromise *)waitForMetricKitDataAvailable {
   FBLPromise *result = nil;
-  //  [_mutex lock];
   @synchronized(self) {
     result = self.metricKitDataAvailable;
   }
-
-  //  [_mutex unlock];
   return result;
 }
 
@@ -303,7 +295,6 @@
       const char *stringValue = [(NSString *)value UTF8String];
       FIRCLSFileWriteHashEntryString(metricKitFile, [key UTF8String], stringValue);
     } else if ([value isKindOfClass:[NSNumber class]]) {
-      int intValue = (int)value;
       FIRCLSFileWriteHashEntryUint64(metricKitFile, [key UTF8String],
                                      [[data objectForKey:key] integerValue]);
     }
