@@ -130,7 +130,8 @@ NSString *const FIRCLSCacheVersion = @"v5";
   NSString *crashedMarkerFileName = [NSString stringWithUTF8String:FIRCLSCrashedMarkerFileName];
   NSString *crashedMarkerFileFullPath =
       [[self rootPath] stringByAppendingPathComponent:crashedMarkerFileName];
-  self.didCrashPreviously = [self fileExistsAtPath:crashedMarkerFileFullPath];
+  self.didCrashPreviously =
+      self.didCrashPreviously || [self fileExistsAtPath:crashedMarkerFileFullPath];
   return self.didCrashPreviously;
 }
 

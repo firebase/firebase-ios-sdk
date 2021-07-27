@@ -183,11 +183,13 @@ typedef NSNumber FIRCLSWrappedReportAction;
                                                            googleAppID:self.googleAppID];
 
   _notificationManager = [[FIRCLSNotificationManager alloc] init];
+#if TARGET_OS_IOS
   if (@available(iOS 15, *)) {
     _metricKitManager = [[FIRCLSMetricKitManager alloc] initWithManagerData:managerData
                                                       existingReportManager:existingReportManager
                                                                 fileManager:_fileManager];
   }
+#endif
 
   _launchMarker = [[FIRCLSLaunchMarkerModel alloc] initWithFileManager:_fileManager];
 
@@ -224,13 +226,15 @@ typedef NSNumber FIRCLSWrappedReportAction;
 - (FBLPromise *)waitForMetricKitData {
   // If the platform is not iOS or the iOS version is less than 15, immediately resolve the promise
   // since no MetricKit diagnostics will be available.
-
+#if TARGET_OS_IOS
   if (@available(iOS 15, *)) {
     FBLPromise *metricKitDataAvailable = [self.metricKitManager waitForMetricKitDataAvailable];
     return metricKitDataAvailable;
   } else {
     return [FBLPromise resolvedWith:nil];
   }
+#endif
+  return [FBLPromise resolvedWith:nil];
 }
 
 - (FBLPromise<FIRCrashlyticsReport *> *)checkForUnsentReports {
@@ -407,9 +411,11 @@ typedef NSNumber FIRCLSWrappedReportAction;
 
   [self.notificationManager registerNotificationListener];
 
+#if TARGET_OS_IOS
   if (@available(iOS 15, *)) {
     [self.metricKitManager registerMetricKitManager];
   }
+#endif
 
   [self.analyticsManager registerAnalyticsListener];
 
