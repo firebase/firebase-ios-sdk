@@ -20,7 +20,6 @@
 #include "Firestore/Protos/cpp/firestore/local/maybe_document.pb.h"
 #include "Firestore/Protos/cpp/firestore/local/mutation.pb.h"
 #include "Firestore/Protos/cpp/firestore/local/target.pb.h"
-#include "Firestore/Protos/cpp/google/firestore/v1/firestore.pb.h"
 #include "Firestore/core/src/bundle/bundled_query.h"
 #include "Firestore/core/src/bundle/named_query.h"
 #include "Firestore/core/src/core/field_filter.h"
@@ -28,19 +27,16 @@
 #include "Firestore/core/src/core/target.h"
 #include "Firestore/core/src/local/target_data.h"
 #include "Firestore/core/src/model/delete_mutation.h"
-#include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/field_mask.h"
-#include "Firestore/core/src/model/field_value.h"
-#include "Firestore/core/src/model/maybe_document.h"
+#include "Firestore/core/src/model/mutable_document.h"
 #include "Firestore/core/src/model/mutation.h"
 #include "Firestore/core/src/model/mutation_batch.h"
-#include "Firestore/core/src/model/no_document.h"
 #include "Firestore/core/src/model/patch_mutation.h"
 #include "Firestore/core/src/model/precondition.h"
 #include "Firestore/core/src/model/set_mutation.h"
 #include "Firestore/core/src/model/snapshot_version.h"
 #include "Firestore/core/src/model/types.h"
-#include "Firestore/core/src/model/unknown_document.h"
+#include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/nanopb/reader.h"
@@ -65,30 +61,30 @@ using core::Query;
 using core::Target;
 using ::google::protobuf::util::MessageDifferencer;
 using model::DatabaseId;
-using model::Document;
 using model::DocumentKey;
-using model::DocumentState;
 using model::FieldMask;
 using model::FieldPath;
-using model::FieldValue;
 using model::ListenSequenceNumber;
-using model::MaybeDocument;
+using model::MutableDocument;
 using model::Mutation;
 using model::MutationBatch;
-using model::NoDocument;
 using model::ObjectValue;
 using model::PatchMutation;
 using model::Precondition;
 using model::SetMutation;
 using model::SnapshotVersion;
 using model::TargetId;
-using model::UnknownDocument;
 using nanopb::ByteString;
 using nanopb::ByteStringWriter;
 using nanopb::FreeNanopbMessage;
+using nanopb::MakeArray;
+using nanopb::MakeBytesArray;
+using nanopb::MakeMessage;
+using nanopb::MakeStdString;
 using nanopb::Message;
 using nanopb::ProtobufParse;
 using nanopb::ProtobufSerialize;
+using nanopb::SetRepeatedField;
 using nanopb::StringReader;
 using nanopb::Writer;
 using testutil::DeletedDoc;
@@ -100,6 +96,7 @@ using testutil::Map;
 using testutil::OrderBy;
 using testutil::Query;
 using testutil::UnknownDoc;
+using testutil::Value;
 using testutil::WrapObject;
 using util::Status;
 
@@ -197,7 +194,7 @@ class LocalSerializerTest : public ::testing::Test {
     return write_time_proto;
   }
 
-  static void ExpectSet(_google_firestore_v1_Write encoded) {
+  static void ExpectSet(google_firestore_v1_Write encoded) {
     EXPECT_EQ(google_firestore_v1_Write_update_tag, encoded.which_operation);
     EXPECT_EQ(2, encoded.update.fields_count);
     EXPECT_EQ("a", nanopb::MakeString(encoded.update.fields[0].key));
@@ -209,7 +206,7 @@ class LocalSerializerTest : public ::testing::Test {
     EXPECT_FALSE(encoded.has_current_document);
   }
 
-  static void ExpectPatch(_google_firestore_v1_Write encoded) {
+  static void ExpectPatch(google_firestore_v1_Write encoded) {
     EXPECT_EQ(google_firestore_v1_Write_update_tag, encoded.which_operation);
     EXPECT_EQ(2, encoded.update.fields_count);
     EXPECT_EQ("a", nanopb::MakeString(encoded.update.fields[0].key));
@@ -223,11 +220,11 @@ class LocalSerializerTest : public ::testing::Test {
     EXPECT_TRUE(encoded.current_document.exists);
   }
 
-  static void ExpectDelete(_google_firestore_v1_Write encoded) {
+  static void ExpectDelete(google_firestore_v1_Write encoded) {
     EXPECT_EQ(google_firestore_v1_Write_delete_tag, encoded.which_operation);
   }
 
-  static void ExpectUpdateTransform(_google_firestore_v1_Write encoded) {
+  static void ExpectUpdateTransform(google_firestore_v1_Write encoded) {
     EXPECT_EQ(2, encoded.update_transforms_count);
     EXPECT_EQ(
         google_firestore_v1_DocumentTransform_FieldTransform_increment_tag,
@@ -243,37 +240,33 @@ class LocalSerializerTest : public ::testing::Test {
     EXPECT_EQ(13.37, encoded.update_transforms[1].increment.double_value);
   }
 
-  static void ExpectNoUpdateTransform(_google_firestore_v1_Write encoded) {
+  static void ExpectNoUpdateTransform(google_firestore_v1_Write encoded) {
     EXPECT_EQ(0, encoded.update_transforms_count);
   }
 
  private:
   void ExpectSerializationRoundTrip(
-      const MaybeDocument& model,
-      const ::firestore::client::MaybeDocument& proto,
-      MaybeDocument::Type type) {
-    EXPECT_EQ(type, model.type());
+      const MutableDocument& model,
+      const ::firestore::client::MaybeDocument& proto) {
     ByteString bytes = EncodeMaybeDocument(&serializer, model);
     auto actual = ProtobufParse<::firestore::client::MaybeDocument>(bytes);
     EXPECT_TRUE(msg_diff.Compare(proto, actual)) << message_differences;
   }
 
   void ExpectDeserializationRoundTrip(
-      const MaybeDocument& model,
-      const ::firestore::client::MaybeDocument& proto,
-      MaybeDocument::Type type) {
+      const MutableDocument& model,
+      const ::firestore::client::MaybeDocument& proto) {
     ByteString bytes = ProtobufSerialize(proto);
     StringReader reader(bytes);
     auto message = Message<firestore_client_MaybeDocument>::TryParse(&reader);
     auto actual_model = serializer.DecodeMaybeDocument(&reader, *message);
     EXPECT_OK(reader.status());
-    EXPECT_EQ(type, actual_model.type());
     EXPECT_EQ(model, actual_model);
   }
 
   ByteString EncodeMaybeDocument(local::LocalSerializer* localSerializer,
-                                 const MaybeDocument& maybe_doc) {
-    return MakeByteString(localSerializer->EncodeMaybeDocument(maybe_doc));
+                                 const MutableDocument& document) {
+    return MakeByteString(localSerializer->EncodeMaybeDocument(document));
   }
 
   void ExpectSerializationRoundTrip(const TargetData& target_data,
@@ -373,10 +366,10 @@ TEST_F(LocalSerializerTest, SetMutationAndTransformMutationAreSquashed) {
   ASSERT_EQ(1, decoded.mutations().size());
   ASSERT_EQ(Mutation::Type::Set, decoded.mutations()[0].type());
 
-  google_firestore_v1_Write encoded =
-      remote_serializer.EncodeMutation(decoded.mutations()[0]);
-  ExpectSet(encoded);
-  ExpectUpdateTransform(encoded);
+  Message<google_firestore_v1_Write> encoded{
+      remote_serializer.EncodeMutation(decoded.mutations()[0])};
+  ExpectSet(*encoded);
+  ExpectUpdateTransform(*encoded);
 }
 
 // TODO(b/174608374): Remove these tests once we perform a schema migration.
@@ -394,10 +387,10 @@ TEST_F(LocalSerializerTest, PatchMutationAndTransformMutationAreSquashed) {
   ASSERT_EQ(1, decoded.mutations().size());
   ASSERT_EQ(Mutation::Type::Patch, decoded.mutations()[0].type());
 
-  google_firestore_v1_Write encoded =
-      remote_serializer.EncodeMutation(decoded.mutations()[0]);
-  ExpectPatch(encoded);
-  ExpectUpdateTransform(encoded);
+  Message<google_firestore_v1_Write> encoded{
+      remote_serializer.EncodeMutation(decoded.mutations()[0])};
+  ExpectPatch(*encoded);
+  ExpectUpdateTransform(*encoded);
 }
 
 // TODO(b/174608374): Remove these tests once we perform a schema migration.
@@ -446,21 +439,30 @@ TEST_F(LocalSerializerTest, MultipleMutationsAreSquashed) {
   auto message = Message<firestore_client_WriteBatch>::TryParse(&reader);
   MutationBatch decoded = serializer.DecodeMutationBatch(&reader, *message);
   ASSERT_EQ(5, decoded.mutations().size());
-  _google_firestore_v1_Write encoded =
-      remote_serializer.EncodeMutation(decoded.mutations()[0]);
-  ExpectSet(encoded);
-  ExpectNoUpdateTransform(encoded);
-  encoded = remote_serializer.EncodeMutation(decoded.mutations()[1]);
-  ExpectSet(encoded);
-  ExpectUpdateTransform(encoded);
-  encoded = remote_serializer.EncodeMutation(decoded.mutations()[2]);
-  ExpectDelete(encoded);
-  encoded = remote_serializer.EncodeMutation(decoded.mutations()[3]);
-  ExpectPatch(encoded);
-  ExpectUpdateTransform(encoded);
-  encoded = remote_serializer.EncodeMutation(decoded.mutations()[4]);
-  ExpectPatch(encoded);
-  ExpectNoUpdateTransform(encoded);
+
+  Message<google_firestore_v1_Write> encoded{
+      remote_serializer.EncodeMutation(decoded.mutations()[0])};
+  ExpectSet(*encoded);
+  ExpectNoUpdateTransform(*encoded);
+
+  encoded =
+      MakeMessage(remote_serializer.EncodeMutation(decoded.mutations()[1]));
+  ExpectSet(*encoded);
+  ExpectUpdateTransform(*encoded);
+
+  encoded =
+      MakeMessage(remote_serializer.EncodeMutation(decoded.mutations()[2]));
+  ExpectDelete(*encoded);
+
+  encoded =
+      MakeMessage(remote_serializer.EncodeMutation(decoded.mutations()[3]));
+  ExpectPatch(*encoded);
+  ExpectUpdateTransform(*encoded);
+
+  encoded =
+      MakeMessage(remote_serializer.EncodeMutation(decoded.mutations()[4]));
+  ExpectPatch(*encoded);
+  ExpectNoUpdateTransform(*encoded);
 }
 
 TEST_F(LocalSerializerTest, EncodesMutationBatch) {
@@ -498,7 +500,7 @@ TEST_F(LocalSerializerTest, EncodesMutationBatch) {
 }
 
 TEST_F(LocalSerializerTest, EncodesDocumentAsMaybeDocument) {
-  Document doc = Doc("some/path", /*version=*/42, Map("foo", "bar"));
+  MutableDocument doc = Doc("some/path", /*version=*/42, Map("foo", "bar"));
 
   ::firestore::client::MaybeDocument maybe_doc_proto;
   maybe_doc_proto.mutable_document()->set_name(
@@ -510,18 +512,18 @@ TEST_F(LocalSerializerTest, EncodesDocumentAsMaybeDocument) {
   maybe_doc_proto.mutable_document()->mutable_update_time()->set_seconds(0);
   maybe_doc_proto.mutable_document()->mutable_update_time()->set_nanos(42000);
 
-  ExpectRoundTrip(doc, maybe_doc_proto, doc.type());
+  ExpectRoundTrip(doc, maybe_doc_proto);
 
   // Verify has_committed_mutations
-  doc = Doc("some/path", /*version=*/42, Map("foo", "bar"),
-            DocumentState::kCommittedMutations);
+  doc = Doc("some/path", /*version=*/42, Map("foo", "bar"))
+            .SetHasCommittedMutations();
   maybe_doc_proto.set_has_committed_mutations(true);
 
-  ExpectRoundTrip(doc, maybe_doc_proto, doc.type());
+  ExpectRoundTrip(doc, maybe_doc_proto);
 }
 
 TEST_F(LocalSerializerTest, EncodesNoDocumentAsMaybeDocument) {
-  NoDocument no_doc = DeletedDoc("some/path", /*version=*/42);
+  MutableDocument no_doc = DeletedDoc("some/path", /*version=*/42);
 
   ::firestore::client::MaybeDocument maybe_doc_proto;
   maybe_doc_proto.mutable_no_document()->set_name(
@@ -529,18 +531,17 @@ TEST_F(LocalSerializerTest, EncodesNoDocumentAsMaybeDocument) {
   maybe_doc_proto.mutable_no_document()->mutable_read_time()->set_seconds(0);
   maybe_doc_proto.mutable_no_document()->mutable_read_time()->set_nanos(42000);
 
-  ExpectRoundTrip(no_doc, maybe_doc_proto, no_doc.type());
+  ExpectRoundTrip(no_doc, maybe_doc_proto);
 
   // Verify has_committed_mutations
-  no_doc =
-      DeletedDoc("some/path", /*version=*/42, /*has_committed_mutations=*/true);
+  no_doc = DeletedDoc("some/path", /*version=*/42).SetHasCommittedMutations();
   maybe_doc_proto.set_has_committed_mutations(true);
 
-  ExpectRoundTrip(no_doc, maybe_doc_proto, no_doc.type());
+  ExpectRoundTrip(no_doc, maybe_doc_proto);
 }
 
 TEST_F(LocalSerializerTest, EncodesUnknownDocumentAsMaybeDocument) {
-  UnknownDocument unknown_doc = UnknownDoc("some/path", /*version=*/42);
+  MutableDocument unknown_doc = UnknownDoc("some/path", /*version=*/42);
 
   ::firestore::client::MaybeDocument maybe_doc_proto;
   maybe_doc_proto.mutable_unknown_document()->set_name(
@@ -550,7 +551,7 @@ TEST_F(LocalSerializerTest, EncodesUnknownDocumentAsMaybeDocument) {
       42000);
   maybe_doc_proto.set_has_committed_mutations(true);
 
-  ExpectRoundTrip(unknown_doc, maybe_doc_proto, unknown_doc.type());
+  ExpectRoundTrip(unknown_doc, maybe_doc_proto);
 }
 
 TEST_F(LocalSerializerTest, EncodesTargetData) {

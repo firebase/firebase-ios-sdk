@@ -14,25 +14,25 @@
 
 import FirebaseInAppMessaging
 
-@available(iOS 13, tvOS 13, *)
+@available(iOS 13.0, tvOS 13.0, *)
 @available(iOSApplicationExtension, unavailable)
+@available(tvOSApplicationExtension, unavailable)
 public struct InAppMessagingPreviewHelpers {
+  public static let foo = UIColor.black
   public static func cardMessage(campaignName: String = "Card message campaign",
                                  title: String = "Title for modal message",
                                  body: String? = "Body for modal message",
                                  textColor: UIColor = UIColor.label,
-                                 backgroundColor: UIColor = UIColor.systemBackground,
+                                 backgroundColor: UIColor = UIColor.black,
                                  portraitImage: UIImage = UIImage(systemName: "rectangle")!,
                                  landscapeImage: UIImage? = UIImage(systemName: "square"),
                                  primaryButtonText: String = "Click me!",
                                  primaryButtonTextColor: UIColor = UIColor.systemBlue,
-                                 primaryButtonBackgroundColor: UIColor = UIColor
-                                   .secondarySystemBackground,
+                                 primaryButtonBackgroundColor: UIColor = UIColor.systemGray,
                                  primaryActionURL: URL? = nil,
                                  secondaryButtonText: String? = "Dismiss",
                                  secondaryButtonTextColor: UIColor? = UIColor.secondaryLabel,
-                                 secondaryButtonBackgroundColor: UIColor? = UIColor
-                                   .tertiarySystemBackground,
+                                 secondaryButtonBackgroundColor: UIColor? = UIColor.systemYellow,
                                  secondaryActionURL: URL? = nil,
                                  appData: [String: String]? = nil) -> InAppMessagingCardDisplay {
     // This may crash the preview if an invalid portrait image is provided, card messages must have

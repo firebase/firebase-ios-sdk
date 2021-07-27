@@ -18,8 +18,10 @@
 #define FIRESTORE_CORE_SRC_MODEL_MODEL_FWD_H_
 
 #include <cstdint>
+#include <map>
 #include <unordered_map>
 
+#include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
@@ -47,35 +49,38 @@ class SortedSet;
 
 }  // namespace immutable
 
+namespace nanopb {
+
+template <typename T>
+class Message;
+
+}  // namespace nanopb
+
 namespace model {
 
 class DatabaseId;
 class DeleteMutation;
 class Document;
+class MutableDocument;
 class DocumentComparator;
 class DocumentKey;
-class DocumentMap;
 class DocumentSet;
 class FieldMask;
 class FieldPath;
 class FieldTransform;
-class FieldValue;
-class MaybeDocument;
+class MutableDocument;
 class Mutation;
 class MutationBatch;
 class MutationBatchResult;
 class MutationResult;
-class NoDocument;
 class ObjectValue;
 class PatchMutation;
 class Precondition;
 class SetMutation;
 class SnapshotVersion;
 class TransformOperation;
-class UnknownDocument;
 class VerifyMutation;
 
-enum class DocumentState;
 enum class OnlineState;
 
 struct DocumentKeyHash;
@@ -87,20 +92,24 @@ using TargetId = int32_t;
 using DocumentKeySet =
     immutable::SortedSet<DocumentKey, util::Comparator<DocumentKey>>;
 
-using MaybeDocumentMap = immutable::
-    SortedMap<DocumentKey, MaybeDocument, util::Comparator<DocumentKey>>;
+using MutableDocumentMap = immutable::
+    SortedMap<DocumentKey, MutableDocument, util::Comparator<DocumentKey>>;
 
-using OptionalMaybeDocumentMap =
-    immutable::SortedMap<DocumentKey,
-                         absl::optional<MaybeDocument>,
-                         util::Comparator<DocumentKey>>;
+using DocumentMap =
+    immutable::SortedMap<DocumentKey, Document, util::Comparator<DocumentKey>>;
 
 using DocumentVersionMap =
     std::unordered_map<DocumentKey, SnapshotVersion, DocumentKeyHash>;
 
-using DocumentUpdateMap = std::unordered_map<model::DocumentKey,
-                                             model::MaybeDocument,
-                                             model::DocumentKeyHash>;
+using DocumentUpdateMap =
+    std::unordered_map<DocumentKey, MutableDocument, DocumentKeyHash>;
+
+// A map of FieldPaths to transforms. Sorted so it can be used in
+// ObjectValue::SetAll, which makes it more efficient as it processes field
+// maps one layer at a time.
+using TransformMap =
+    std::map<FieldPath,
+             absl::optional<nanopb::Message<google_firestore_v1_Value>>>;
 
 }  // namespace model
 }  // namespace firestore

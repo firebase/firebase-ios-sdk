@@ -143,6 +143,8 @@ let package = Package(
     .package(
       name: "GoogleAppMeasurement",
       url: "https://github.com/google/GoogleAppMeasurement.git",
+      // Please keep the version specification aligned with
+      // scripts/setup_spm_test_app_measurement.sh.
       .exact("8.3.1")
     ),
     .package(
@@ -498,9 +500,19 @@ let package = Package(
       dependencies: ["FirebaseDatabase", "OCMock", "SharedTestUtilities"],
       path: "FirebaseDatabase/Tests/",
       exclude: [
+        // Disable Swift tests as mixed targets are not supported (Xcode 12.4).
+        "Unit/Swift",
         "Integration/",
       ],
       resources: [.process("Resources")],
+      cSettings: [
+        .headerSearchPath("../.."),
+      ]
+    ),
+    .testTarget(
+      name: "DatabaseUnitSwift",
+      dependencies: ["FirebaseDatabase"],
+      path: "FirebaseDatabase/Tests/Unit/Swift",
       cSettings: [
         .headerSearchPath("../.."),
       ]
@@ -781,6 +793,7 @@ let package = Package(
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "GULReachability", package: "GoogleUtilities"),
         .product(name: "GULUserDefaults", package: "GoogleUtilities"),
+        .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
       ],
       path: "FirebaseMessaging/Sources",
       publicHeadersPath: "Public",

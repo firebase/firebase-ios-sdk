@@ -18,7 +18,8 @@
 
 #include <utility>
 
-#include "Firestore/core/src/model/maybe_document.h"
+#include "Firestore/core/src/model/document.h"
+#include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/mutation.h"
 #include "Firestore/core/src/model/patch_mutation.h"
 #include "Firestore/core/src/model/set_mutation.h"
@@ -72,6 +73,7 @@ void ParseAccumulator::AddToFieldMask(FieldPath field_path) {
 
 void ParseAccumulator::AddToFieldTransforms(
     FieldPath field_path, TransformOperation transform_operation) {
+  // TODO(mrschmidt): Validate that the paths are unique
   field_transforms_.emplace_back(std::move(field_path),
                                  std::move(transform_operation));
 }

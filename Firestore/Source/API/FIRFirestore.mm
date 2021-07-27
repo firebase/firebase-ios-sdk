@@ -31,7 +31,7 @@
 #import "Firestore/Source/API/FIRTransaction+Internal.h"
 #import "Firestore/Source/API/FIRWriteBatch+Internal.h"
 #import "Firestore/Source/API/FSTFirestoreComponent.h"
-#import "Firestore/Source/API/FSTUserDataConverter.h"
+#import "Firestore/Source/API/FSTUserDataReader.h"
 
 #include "Firestore/core/src/api/collection_reference.h"
 #include "Firestore/core/src/api/document_reference.h"
@@ -89,7 +89,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRFirestore ()
 
-@property(nonatomic, strong, readonly) FSTUserDataConverter *dataConverter;
+@property(nonatomic, strong, readonly) FSTUserDataReader *dataReader;
 
 @end
 
@@ -162,8 +162,8 @@ NS_ASSUME_NONNULL_BEGIN
       }
     };
 
-    _dataConverter = [[FSTUserDataConverter alloc] initWithDatabaseID:_firestore->database_id()
-                                                         preConverter:block];
+    _dataReader = [[FSTUserDataReader alloc] initWithDatabaseID:_firestore->database_id()
+                                                   preConverter:block];
     // Use the property setter so the default settings get plumbed into _firestoreClient.
     self.settings = [[FIRFirestoreSettings alloc] init];
   }
@@ -241,8 +241,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FIRWriteBatch *)batch {
-  return [FIRWriteBatch writeBatchWithDataConverter:self.dataConverter
-                                         writeBatch:_firestore->GetBatch()];
+  return [FIRWriteBatch writeBatchWithDataReader:self.dataReader writeBatch:_firestore->GetBatch()];
 }
 
 - (void)runTransactionWithBlock:(UserUpdateBlock)updateBlock

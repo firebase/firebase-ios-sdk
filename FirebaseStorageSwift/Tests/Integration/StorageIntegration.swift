@@ -18,70 +18,7 @@ import FirebaseStorage
 import FirebaseStorageSwift
 import XCTest
 
-class StorageIntegration: XCTestCase {
-  var app: FirebaseApp!
-  var auth: Auth!
-  var storage: Storage!
-  static var once = false
-  static var signedIn = false
-
-  override class func setUp() {
-    FirebaseApp.configure()
-  }
-
-  override func setUp() {
-    super.setUp()
-    app = FirebaseApp.app()
-    auth = Auth.auth(app: app)
-    storage = Storage.storage(app: app!)
-
-    if !StorageIntegration.signedIn {
-      signInAndWait()
-    }
-
-    if !StorageIntegration.once {
-      StorageIntegration.once = true
-      let setupExpectation = expectation(description: "setUp")
-
-      let largeFiles = ["ios/public/1mb"]
-      let emptyFiles =
-        ["ios/public/empty", "ios/public/list/a", "ios/public/list/b", "ios/public/list/prefix/c"]
-      setupExpectation.expectedFulfillmentCount = largeFiles.count + emptyFiles.count
-
-      do {
-        let bundle = Bundle(for: StorageIntegration.self)
-        let filePath = try XCTUnwrap(bundle.path(forResource: "1mb", ofType: "dat"),
-                                     "Failed to get filePath")
-        let data = try XCTUnwrap(try Data(contentsOf: URL(fileURLWithPath: filePath)),
-                                 "Failed to load file")
-
-        for largeFile in largeFiles {
-          let ref = storage.reference().child(largeFile)
-          ref.putData(data) { result in
-            self.assertResultSuccess(result)
-            setupExpectation.fulfill()
-          }
-        }
-        for emptyFile in emptyFiles {
-          let ref = storage.reference().child(emptyFile)
-          ref.putData(data) { result in
-            self.assertResultSuccess(result)
-            setupExpectation.fulfill()
-          }
-        }
-        waitForExpectations()
-      } catch {
-        XCTFail("Error thrown setting up files in setUp")
-      }
-    }
-  }
-
-  override func tearDown() {
-    app = nil
-    storage = nil
-    super.tearDown()
-  }
-
+class StorageResultTests: StorageIntegrationCommon {
   func testGetMetadata() {
     let expectation = self.expectation(description: "testGetMetadata")
     let ref = storage.reference().child("ios/public/1mb")
@@ -259,7 +196,7 @@ class StorageIntegration: XCTestCase {
   func testAttemptToUploadDirectoryShouldFail() throws {
     // This `.numbers` file is actually a directory.
     let fileName = "HomeImprovement.numbers"
-    let bundle = Bundle(for: StorageIntegration.self)
+    let bundle = Bundle(for: StorageIntegrationCommon.self)
     let fileURL = try XCTUnwrap(bundle.url(forResource: fileName, withExtension: ""),
                                 "Failed to get filePath")
     let ref = storage.reference(withPath: "ios/public/" + fileName)
@@ -583,18 +520,6 @@ class StorageIntegration: XCTestCase {
       case let .failure(error):
         XCTFail("Unexpected error \(error) from list")
       }
-      expectation.fulfill()
-    }
-    waitForExpectations()
-  }
-
-  private func signInAndWait() {
-    let expectation = self.expectation(description: #function)
-    auth.signIn(withEmail: Credentials.kUserName,
-                password: Credentials.kPassword) { result, error in
-      XCTAssertNil(error)
-      StorageIntegration.signedIn = true
-      print("Successfully signed in")
       expectation.fulfill()
     }
     waitForExpectations()

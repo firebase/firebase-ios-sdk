@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/API/FSTUserDataConverter.h"
+#import "Firestore/Source/API/FSTUserDataReader.h"
 
 #include <memory>
 #include <set>
@@ -31,6 +31,7 @@
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRGeoPoint+Internal.h"
 #import "Firestore/Source/API/converters.h"
+#import "Firestore/core/include/firebase/firestore/geo_point.h"
 
 #include "Firestore/core/src/core/user_data.h"
 #include "Firestore/core/src/model/database_id.h"
@@ -38,21 +39,29 @@
 #include "Firestore/core/src/model/field_mask.h"
 #include "Firestore/core/src/model/field_path.h"
 #include "Firestore/core/src/model/field_transform.h"
-#include "Firestore/core/src/model/field_value.h"
+#include "Firestore/core/src/model/object_value.h"
 #include "Firestore/core/src/model/precondition.h"
+#include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/model/transform_operation.h"
+#include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
+#include "Firestore/core/src/nanopb/reader.h"
+#include "Firestore/core/src/remote/serializer.h"
 #include "Firestore/core/src/timestamp_internal.h"
 #include "Firestore/core/src/util/exception.h"
 #include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/read_context.h"
 #include "Firestore/core/src/util/string_apple.h"
+
 #include "absl/memory/memory.h"
 #include "absl/strings/match.h"
 #include "absl/types/optional.h"
 
 namespace util = firebase::firestore::util;
+namespace nanopb = firebase::firestore::nanopb;
 using firebase::Timestamp;
 using firebase::TimestampInternal;
+using firebase::firestore::GeoPoint;
 using firebase::firestore::core::ParseAccumulator;
 using firebase::firestore::core::ParseContext;
 using firebase::firestore::core::ParsedSetData;
@@ -63,13 +72,26 @@ using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
-using firebase::firestore::model::FieldValue;
+using firebase::firestore::model::FieldTransform;
+using firebase::firestore::model::NullValue;
 using firebase::firestore::model::NumericIncrementTransform;
 using firebase::firestore::model::ObjectValue;
+using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::ServerTimestampTransform;
 using firebase::firestore::model::TransformOperation;
-using firebase::firestore::nanopb::MakeByteString;
+using firebase::firestore::nanopb::CheckedSize;
+using firebase::firestore::nanopb::Message;
+using firebase::firestore::remote::Serializer;
 using firebase::firestore::util::ThrowInvalidArgument;
+using firebase::firestore::util::ReadContext;
+using firebase::firestore::google_firestore_v1_Value;
+using firebase::firestore::google_firestore_v1_MapValue;
+using firebase::firestore::google_firestore_v1_ArrayValue;
+using firebase::firestore::google_protobuf_NullValue_NULL_VALUE;
+using firebase::firestore::google_firestore_v1_MapValue_FieldsEntry;
+using firebase::firestore::google_type_LatLng;
+using firebase::firestore::google_protobuf_Timestamp;
+using nanopb::StringReader;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -99,15 +121,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-#pragma mark - Conversion helpers
+#pragma mark - FSTUserDataReader
 
-#pragma mark - FSTUserDataConverter
-
-@interface FSTUserDataConverter ()
+@interface FSTUserDataReader ()
 @property(strong, nonatomic, readonly) FSTPreConverterBlock preConverter;
 @end
 
-@implementation FSTUserDataConverter {
+@implementation FSTUserDataReader {
   DatabaseId _databaseID;
 }
 
@@ -129,10 +149,10 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   ParseAccumulator accumulator{UserDataSource::Set};
-  absl::optional<FieldValue> updateData = [self parseData:input context:accumulator.RootContext()];
+  auto updateData = [self parseData:input context:accumulator.RootContext()];
   HARD_ASSERT(updateData.has_value(), "Parsed data should not be nil.");
 
-  return std::move(accumulator).SetData(ObjectValue(std::move(*updateData)));
+  return std::move(accumulator).SetData(ObjectValue{std::move(*updateData)});
 }
 
 - (ParsedSetData)parsedMergeData:(id)input fieldMask:(nullable NSArray<id> *)fieldMask {
@@ -144,10 +164,10 @@ NS_ASSUME_NONNULL_BEGIN
 
   ParseAccumulator accumulator{UserDataSource::MergeSet};
 
-  absl::optional<FieldValue> updateData = [self parseData:input context:accumulator.RootContext()];
+  auto updateData = [self parseData:input context:accumulator.RootContext()];
   HARD_ASSERT(updateData.has_value(), "Parsed data should not be nil.");
 
-  ObjectValue updateObject = ObjectValue(std::move(*updateData));
+  ObjectValue updateObject{std::move(*updateData)};
 
   if (fieldMask) {
     std::set<FieldPath> validatedFieldPaths;
@@ -173,10 +193,10 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     return std::move(accumulator)
-        .MergeData(updateObject, FieldMask{std::move(validatedFieldPaths)});
+        .MergeData(std::move(updateObject), FieldMask{std::move(validatedFieldPaths)});
 
   } else {
-    return std::move(accumulator).MergeData(updateObject);
+    return std::move(accumulator).MergeData(std::move(updateObject));
   }
 }
 
@@ -191,7 +211,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   ParseAccumulator accumulator{UserDataSource::Update};
   __block ParseContext context = accumulator.RootContext();
-  __block ObjectValue updateData = ObjectValue::Empty();
+  __block ObjectValue updateData;
 
   [dict enumerateKeysAndObjectsUsingBlock:^(id key, id value, BOOL *) {
     FieldPath path;
@@ -209,31 +229,30 @@ NS_ASSUME_NONNULL_BEGIN
       // Add it to the field mask, but don't add anything to updateData.
       context.AddToFieldMask(std::move(path));
     } else {
-      absl::optional<FieldValue> parsedValue = [self parseData:value
-                                                       context:context.ChildContext(path)];
+      auto parsedValue = [self parseData:value context:context.ChildContext(path)];
       if (parsedValue) {
         context.AddToFieldMask(path);
-        updateData = updateData.Set(path, *parsedValue);
+        updateData.Set(path, std::move(*parsedValue));
       }
     }
   }];
 
-  return std::move(accumulator).UpdateData(updateData);
+  return std::move(accumulator).UpdateData(std::move(updateData));
 }
 
-- (FieldValue)parsedQueryValue:(id)input {
+- (Message<google_firestore_v1_Value>)parsedQueryValue:(id)input {
   return [self parsedQueryValue:input allowArrays:false];
 }
 
-- (FieldValue)parsedQueryValue:(id)input allowArrays:(bool)allowArrays {
+- (Message<google_firestore_v1_Value>)parsedQueryValue:(id)input allowArrays:(bool)allowArrays {
   ParseAccumulator accumulator{allowArrays ? UserDataSource::ArrayArgument
                                            : UserDataSource::Argument};
 
-  absl::optional<FieldValue> parsed = [self parseData:input context:accumulator.RootContext()];
+  auto parsed = [self parseData:input context:accumulator.RootContext()];
   HARD_ASSERT(parsed, "Parsed data should not be nil.");
   HARD_ASSERT(accumulator.field_transforms().empty(),
               "Field transforms should have been disallowed.");
-  return *parsed;
+  return std::move(*parsed);
 }
 
 /**
@@ -246,7 +265,8 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The parsed value, or nil if the value was a FieldValue sentinel that should not be
  *   included in the resulting parsed data.
  */
-- (absl::optional<FieldValue>)parseData:(id)input context:(ParseContext &&)context {
+- (absl::optional<Message<google_firestore_v1_Value>>)parseData:(id)input
+                                                        context:(ParseContext &&)context {
   input = self.preConverter(input);
   if ([input isKindOfClass:[NSDictionary class]]) {
     return [self parseDictionary:(NSDictionary *)input context:std::move(context)];
@@ -281,44 +301,63 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (FieldValue)parseDictionary:(NSDictionary<NSString *, id> *)dict
-                      context:(ParseContext &&)context {
+- (Message<google_firestore_v1_Value>)parseDictionary:(NSDictionary<NSString *, id> *)dict
+                                              context:(ParseContext &&)context {
+  __block Message<google_firestore_v1_Value> result;
+  result->which_value_type = google_firestore_v1_Value_map_value_tag;
+  result->map_value.fields_count = 0;
+  result->map_value.fields = nil;
+
   if (dict.count == 0) {
     const FieldPath *path = context.path();
     if (path && !path->empty()) {
       context.AddToFieldMask(*path);
     }
-    return ObjectValue::Empty().AsFieldValue();
   } else {
-    __block ObjectValue result = ObjectValue::Empty();
-
-    [dict enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *) {
-      absl::optional<FieldValue> parsedValue =
-          [self parseData:value context:context.ChildContext(util::MakeString(key))];
-      if (parsedValue) {
-        FieldPath path = FieldPath{util::MakeString(key)};
-        result = result.Set(path, *parsedValue);
+    // Compute the final size of the fields array, which contains an entry for
+    // all fields that are not FieldValue sentinels
+    __block pb_size_t count = 0;
+    [dict enumerateKeysAndObjectsUsingBlock:^(NSString *, id value, BOOL *) {
+      if (![value isKindOfClass:[FIRFieldValue class]]) {
+        ++count;
       }
     }];
 
-    return result;
+    result->map_value.fields_count = count;
+    result->map_value.fields = nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(count);
+
+    __block pb_size_t index = 0;
+    [dict enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *) {
+      auto parsedValue = [self parseData:value context:context.ChildContext(util::MakeString(key))];
+      if (parsedValue) {
+        result->map_value.fields[index].key = nanopb::MakeBytesArray(util::MakeString(key));
+        result->map_value.fields[index].value = *parsedValue->release();
+        ++index;
+      }
+    }];
   }
+
+  return std::move(result);
 }
 
-- (FieldValue)parseArray:(NSArray<id> *)array context:(ParseContext &&)context {
-  __block FieldValue::Array result;
-  result.reserve(array.count);
+- (Message<google_firestore_v1_Value>)parseArray:(NSArray<id> *)array
+                                         context:(ParseContext &&)context {
+  __block Message<google_firestore_v1_Value> result;
+  result->which_value_type = google_firestore_v1_Value_array_value_tag;
+  result->array_value.values_count = CheckedSize([array count]);
+  result->array_value.values =
+      nanopb::MakeArray<google_firestore_v1_Value>(result->array_value.values_count);
 
   [array enumerateObjectsUsingBlock:^(id entry, NSUInteger idx, BOOL *) {
-    absl::optional<FieldValue> parsedEntry = [self parseData:entry
-                                                     context:context.ChildContext(idx)];
+    auto parsedEntry = [self parseData:entry context:context.ChildContext(idx)];
     if (!parsedEntry) {
       // Just include nulls in the array for fields being replaced with a sentinel.
-      parsedEntry = FieldValue::Null();
+      parsedEntry = NullValue();
     }
-    result.push_back(*parsedEntry);
+    result->array_value.values[idx] = *parsedEntry->release();
   }];
-  return FieldValue::FromArray(std::move(result));
+
+  return std::move(result);
 }
 
 /**
@@ -358,21 +397,20 @@ NS_ASSUME_NONNULL_BEGIN
     context.AddToFieldTransforms(*context.path(), ServerTimestampTransform());
 
   } else if ([fieldValue isKindOfClass:[FSTArrayUnionFieldValue class]]) {
-    std::vector<FieldValue> parsedElements =
+    auto parsedElements =
         [self parseArrayTransformElements:((FSTArrayUnionFieldValue *)fieldValue).elements];
-    ArrayTransform array_union(TransformOperation::Type::ArrayUnion, std::move(parsedElements));
-    context.AddToFieldTransforms(*context.path(), std::move(array_union));
+    ArrayTransform arrayUnion(TransformOperation::Type::ArrayUnion, std::move(parsedElements));
+    context.AddToFieldTransforms(*context.path(), std::move(arrayUnion));
 
   } else if ([fieldValue isKindOfClass:[FSTArrayRemoveFieldValue class]]) {
-    std::vector<FieldValue> parsedElements =
+    auto parsedElements =
         [self parseArrayTransformElements:((FSTArrayRemoveFieldValue *)fieldValue).elements];
-    ArrayTransform array_remove(TransformOperation::Type::ArrayRemove, std::move(parsedElements));
-    context.AddToFieldTransforms(*context.path(), std::move(array_remove));
+    ArrayTransform arrayRemove(TransformOperation::Type::ArrayRemove, std::move(parsedElements));
+    context.AddToFieldTransforms(*context.path(), std::move(arrayRemove));
 
   } else if ([fieldValue isKindOfClass:[FSTNumericIncrementFieldValue class]]) {
-    FSTNumericIncrementFieldValue *numericIncrementFieldValue =
-        (FSTNumericIncrementFieldValue *)fieldValue;
-    FieldValue operand = [self parsedQueryValue:numericIncrementFieldValue.operand];
+    auto *numericIncrementFieldValue = (FSTNumericIncrementFieldValue *)fieldValue;
+    auto operand = [self parsedQueryValue:numericIncrementFieldValue.operand];
     NumericIncrementTransform numeric_increment(std::move(operand));
 
     context.AddToFieldTransforms(*context.path(), std::move(numeric_increment));
@@ -392,9 +430,10 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @return The parsed value.
  */
-- (absl::optional<FieldValue>)parseScalarValue:(nullable id)input context:(ParseContext &&)context {
+- (Message<google_firestore_v1_Value>)parseScalarValue:(nullable id)input
+                                               context:(ParseContext &&)context {
   if (!input || [input isMemberOfClass:[NSNull class]]) {
-    return FieldValue::Null();
+    return NullValue();
 
   } else if ([input isKindOfClass:[NSNumber class]]) {
     // Recover the underlying type of the number, using the method described here:
@@ -406,7 +445,7 @@ NS_ASSUME_NONNULL_BEGIN
     // Articles/ocrtTypeEncodings.html
     switch (cType[0]) {
       case 'q':
-        return FieldValue::FromInteger([input longLongValue]);
+        return [self encodeInteger:[input longLongValue]];
 
       case 'i':  // Falls through.
       case 's':  // Falls through.
@@ -415,7 +454,7 @@ NS_ASSUME_NONNULL_BEGIN
       case 'S':
         // Coerce integer values that aren't long long. Allow unsigned integer types that are
         // guaranteed small enough to skip a length check.
-        return FieldValue::FromInteger([input longLongValue]);
+        return [self encodeInteger:[input longLongValue]];
 
       case 'L':  // Falls through.
       case 'Q':
@@ -429,19 +468,19 @@ NS_ASSUME_NONNULL_BEGIN
                                  context.FieldDescription());
 
           } else {
-            return FieldValue::FromInteger(static_cast<int64_t>(extended));
+            return [self encodeInteger:static_cast<int64_t>(extended)];
           }
         }
 
       case 'f':
-        return FieldValue::FromDouble([input doubleValue]);
+        return [self encodeDouble:[input doubleValue]];
 
       case 'd':
         // Double values are already the right type, so just reuse the existing boxed double.
         //
         // Note that NSNumber already performs NaN normalization to a single shared instance
         // so there's no need to treat NaN specially here.
-        return FieldValue::FromDouble([input doubleValue]);
+        return [self encodeDouble:[input doubleValue]];
 
       case 'B':  // Falls through.
       case 'c':  // Falls through.
@@ -453,7 +492,7 @@ NS_ASSUME_NONNULL_BEGIN
         // legitimate usage of signed chars is impossible, but this should be rare.
         //
         // Additionally, for consistency, map unsigned chars to bools in the same way.
-        return FieldValue::FromBoolean([input boolValue]);
+        return [self encodeBoolean:[input boolValue]];
 
       default:
         // All documented codes should be handled above, so this shouldn't happen.
@@ -461,23 +500,23 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
   } else if ([input isKindOfClass:[NSString class]]) {
-    return FieldValue::FromString(util::MakeString(input));
+    std::string inputString = util::MakeString(input);
+    return [self encodeStringValue:inputString];
 
   } else if ([input isKindOfClass:[NSDate class]]) {
     NSDate *inputDate = input;
-    return FieldValue::FromTimestamp(api::MakeTimestamp(inputDate));
+    return [self encodeTimestampValue:api::MakeTimestamp(inputDate)];
 
   } else if ([input isKindOfClass:[FIRTimestamp class]]) {
     FIRTimestamp *inputTimestamp = input;
     Timestamp timestamp = TimestampInternal::Truncate(api::MakeTimestamp(inputTimestamp));
-    return FieldValue::FromTimestamp(timestamp);
+    return [self encodeTimestampValue:timestamp];
 
   } else if ([input isKindOfClass:[FIRGeoPoint class]]) {
-    return FieldValue::FromGeoPoint(api::MakeGeoPoint(input));
-
+    return [self encodeGeoPoint:api::MakeGeoPoint(input)];
   } else if ([input isKindOfClass:[NSData class]]) {
     NSData *inputData = input;
-    return FieldValue::FromBlob(MakeByteString(inputData));
+    return [self encodeBlob:(nanopb::MakeByteString(inputData))];
 
   } else if ([input isKindOfClass:[FSTDocumentKeyReference class]]) {
     FSTDocumentKeyReference *reference = input;
@@ -488,7 +527,7 @@ NS_ASSUME_NONNULL_BEGIN
           other.project_id(), other.database_id(), _databaseID.project_id(),
           _databaseID.database_id(), context.FieldDescription());
     }
-    return FieldValue::FromReference(_databaseID, reference.key);
+    return [self encodeReference:_databaseID key:reference.key];
 
   } else {
     ThrowInvalidArgument("Unsupported type: %s%s", NSStringFromClass([input class]),
@@ -496,23 +535,92 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (std::vector<FieldValue>)parseArrayTransformElements:(NSArray<id> *)elements {
+- (Message<google_firestore_v1_Value>)encodeBoolean:(bool)value {
+  Message<google_firestore_v1_Value> result;
+  result->which_value_type = google_firestore_v1_Value_boolean_value_tag;
+  result->boolean_value = value;
+  return result;
+}
+
+- (Message<google_firestore_v1_Value>)encodeInteger:(int64_t)value {
+  Message<google_firestore_v1_Value> result;
+  result->which_value_type = google_firestore_v1_Value_integer_value_tag;
+  result->integer_value = value;
+  return result;
+}
+
+- (Message<google_firestore_v1_Value>)encodeDouble:(double)value {
+  Message<google_firestore_v1_Value> result;
+  result->which_value_type = google_firestore_v1_Value_double_value_tag;
+  result->double_value = value;
+  return result;
+}
+
+- (Message<google_firestore_v1_Value>)encodeTimestampValue:(Timestamp)value {
+  Message<google_firestore_v1_Value> result;
+  result->which_value_type = google_firestore_v1_Value_timestamp_value_tag;
+  result->timestamp_value.seconds = value.seconds();
+  result->timestamp_value.nanos = value.nanoseconds();
+  return result;
+}
+
+- (Message<google_firestore_v1_Value>)encodeStringValue:(const std::string &)value {
+  Message<google_firestore_v1_Value> result;
+  result->which_value_type = google_firestore_v1_Value_string_value_tag;
+  result->string_value = nanopb::MakeBytesArray(value);
+  return result;
+}
+
+- (Message<google_firestore_v1_Value>)encodeBlob:(const nanopb::ByteString &)value {
+  Message<google_firestore_v1_Value> result;
+  result->which_value_type = google_firestore_v1_Value_bytes_value_tag;
+  // Copy the blob so that pb_release can do the right thing.
+  result->bytes_value = nanopb::CopyBytesArray(value.get());
+  return result;
+}
+
+- (Message<google_firestore_v1_Value>)encodeReference:(const DatabaseId &)databaseId
+                                                  key:(const DocumentKey &)key {
+  HARD_ASSERT(_databaseID == databaseId, "Database %s cannot encode reference from %s",
+              _databaseID.ToString(), databaseId.ToString());
+
+  std::string referenceName = ResourcePath({"projects", databaseId.project_id(), "databases",
+                                            databaseId.database_id(), "documents", key.ToString()})
+                                  .CanonicalString();
+
+  Message<google_firestore_v1_Value> result;
+  result->which_value_type = google_firestore_v1_Value_reference_value_tag;
+  result->reference_value = nanopb::MakeBytesArray(referenceName);
+  return result;
+}
+
+- (Message<google_firestore_v1_Value>)encodeGeoPoint:(const GeoPoint &)value {
+  Message<google_firestore_v1_Value> result;
+  result->which_value_type = google_firestore_v1_Value_geo_point_value_tag;
+  result->geo_point_value.latitude = value.latitude();
+  result->geo_point_value.longitude = value.longitude();
+  return result;
+}
+
+- (Message<google_firestore_v1_ArrayValue>)parseArrayTransformElements:(NSArray<id> *)elements {
   ParseAccumulator accumulator{UserDataSource::Argument};
 
-  std::vector<FieldValue> values;
+  Message<google_firestore_v1_ArrayValue> array_value;
+  array_value->values_count = CheckedSize(elements.count);
+  array_value->values = nanopb::MakeArray<google_firestore_v1_Value>(array_value->values_count);
+
   for (NSUInteger i = 0; i < elements.count; i++) {
     id element = elements[i];
     // Although array transforms are used with writes, the actual elements being unioned or removed
     // are not considered writes since they cannot contain any FieldValue sentinels, etc.
     ParseContext context = accumulator.RootContext();
 
-    absl::optional<FieldValue> parsedElement = [self parseData:element
-                                                       context:context.ChildContext(i)];
+    auto parsedElement = [self parseData:element context:context.ChildContext(i)];
     HARD_ASSERT(parsedElement && accumulator.field_transforms().empty(),
                 "Failed to properly parse array transform element: %s", element);
-    values.push_back(*parsedElement);
+    array_value->values[i] = *parsedElement->release();
   }
-  return values;
+  return array_value;
 }
 
 @end
