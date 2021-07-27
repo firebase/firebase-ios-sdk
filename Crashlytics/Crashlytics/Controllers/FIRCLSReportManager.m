@@ -183,9 +183,11 @@ typedef NSNumber FIRCLSWrappedReportAction;
                                                            googleAppID:self.googleAppID];
 
   _notificationManager = [[FIRCLSNotificationManager alloc] init];
-  _metricKitManager = [[FIRCLSMetricKitManager alloc] initWithManagerData:managerData
-                                                    existingReportManager:existingReportManager
-                                                              fileManager:_fileManager];
+  if (@available(iOS 15, *)) {
+    _metricKitManager = [[FIRCLSMetricKitManager alloc] initWithManagerData:managerData
+                                                      existingReportManager:existingReportManager
+                                                                fileManager:_fileManager];
+  }
 
   _launchMarker = [[FIRCLSLaunchMarkerModel alloc] initWithFileManager:_fileManager];
 
@@ -220,8 +222,15 @@ typedef NSNumber FIRCLSWrappedReportAction;
  * MetricKit diagnostic reports have been received by `metricKitManager`.
  */
 - (FBLPromise *)waitForMetricKitData {
-  FBLPromise *metricKitDataAvailable = [self.metricKitManager waitForMetricKitDataAvailable];
-  return metricKitDataAvailable;
+  // If the platform is not iOS or the iOS version is less than 15, immediately resolve the promise
+  // since no MetricKit diagnostics will be available.
+
+  if (@available(iOS 15, *)) {
+    FBLPromise *metricKitDataAvailable = [self.metricKitManager waitForMetricKitDataAvailable];
+    return metricKitDataAvailable;
+  } else {
+    return [FBLPromise resolvedWith:nil];
+  }
 }
 
 - (FBLPromise<FIRCrashlyticsReport *> *)checkForUnsentReports {
@@ -398,7 +407,9 @@ typedef NSNumber FIRCLSWrappedReportAction;
 
   [self.notificationManager registerNotificationListener];
 
-  [self.metricKitManager registerMetricKitManager];
+  if (@available(iOS 15, *)) {
+    [self.metricKitManager registerMetricKitManager];
+  }
 
   [self.analyticsManager registerAnalyticsListener];
 

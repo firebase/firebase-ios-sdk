@@ -28,7 +28,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(14.0))
+API_AVAILABLE(ios(15.0))
 @interface FIRCLSMetricKitManager : NSObject <MXMetricManagerSubscriber>
 
 - (instancetype)initWithManagerData:(FIRCLSManagerData *)managerData
