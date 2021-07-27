@@ -99,6 +99,7 @@
   // Make sure there are no sessions as they will not be sampled.
   networkTrace.activeSessions = [NSMutableArray array];
   networkTraceMetric.network_request_metric = GetNetworkRequestMetric(networkTrace);
+  networkTraceMetric.has_network_request_metric = true;
 
   self.transportNetworkEvent = [self.gdtfllTransport eventForTransport];
   self.transportNetworkEvent.qosTier = GDTCOREventQosDefault;
@@ -262,6 +263,7 @@
   // Make sure the session information is empty.
   networkTrace.activeSessions = [NSMutableArray array];
   networkMetric.network_request_metric = GetNetworkRequestMetric(networkTrace);
+  networkMetric.has_network_request_metric = true;
 
   GDTCOREvent *networkEvent = [self.gdtfllTransport eventForTransport];
   networkEvent.qosTier = GDTCOREventQosDefault;
