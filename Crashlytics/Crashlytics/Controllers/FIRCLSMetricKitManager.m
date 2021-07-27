@@ -23,7 +23,6 @@
 
 @interface FIRCLSMetricKitManager ()
 
-//@property NSLock *mutex;
 @property FBLPromise *metricKitDataAvailable;
 @property FIRCLSExistingReportManager *existingReportManager;
 @property FIRCLSFileManager *fileManager;
@@ -77,8 +76,8 @@
  */
 - (void)didReceiveDiagnosticPayloads:(NSArray<MXDiagnosticPayload *> *)payloads {
   NSUInteger payloadCount = [payloads count];
-  FIRCLSDebugLog(@"[Crashlytics:Crash] received %lu diagnostic payloads from MetricKit",
-                 payloadCount);
+  FIRCLSInfoLog(@"[Crashlytics:Crash] received %lu diagnostic payloads from MetricKit",
+                payloadCount);
 
   if ([payloads count] == 0) {
     return;
@@ -97,34 +96,35 @@
   // Get file path for the active reports directory.
   NSString *activePath = [[self.fileManager activePath] stringByAppendingString:@"/"];
 
-  // If newestReportID is nil or the file no longer exists, then this callback function was
-  // triggered for nonfatal MetricKit events.
+  // If there is a crash diagnostic in the payload, then this method was called for a fatal event.
   NSString *metricKitReportFile;
-  BOOL fatal = (self.existingReportManager.newestUnsentReport != nil) &&
-               ([_fileManager fileExistsAtPath:metricKitReportFile]);
+  NSString *newestUnsentReportID =
+      [self.existingReportManager.newestUnsentReport.reportID stringByAppendingString:@"/"];
+  BOOL fatal = ([diagnosticPayload.crashDiagnostics count] > 0) && (newestUnsentReportID != nil);
 
   // Set the metrickit path appropriately depending on whether the diagnostic report came from
   // a fatal or nonfatal event. If fatal, use the report from the last run of the app. Otherwise,
   // use the report for the current run.
-  if (!fatal) {
-    // TODO: write out thread names? We don't do this for nonfatals currently,
-    // so it's okay to leave for now.
+  if (fatal) {
+    metricKitReportFile = [[activePath stringByAppendingString:newestUnsentReportID]
+        stringByAppendingString:FIRCLSMetricKitFatalReportFile];
+  } else {
     NSString *currentReportID =
         [_managerData.executionIDModel.executionID stringByAppendingString:@"/"];
     metricKitReportFile = [[activePath stringByAppendingString:currentReportID]
         stringByAppendingString:FIRCLSMetricKitNonfatalReportFile];
-  } else {
-    NSString *newestUnsentReportID =
-        [self.existingReportManager.newestUnsentReport.reportID stringByAppendingString:@"/"];
-    metricKitReportFile = [[activePath stringByAppendingString:newestUnsentReportID]
-        stringByAppendingString:FIRCLSMetricKitFatalReportFile];
   }
 
-  // Need to copy the string passed to the log method or it causes a crash (GUL logging issue).
-  FIRCLSDebugLog(@"file path %@ for MetricKit", [metricKitReportFile copy]);
+  if (!metricKitReportFile) {
+    FIRCLSDebugLog("[Crashlytics:Crash] error finding MetricKit file");
+    return;
+  }
+
+  // Need to copy the string passed to the log method or it causes a crash (GUL logging issue)?
+  // FIRCLSDebugLog(@"[Crashlytics:Crash] file path %@ for MetricKit", [metricKitReportFile copy]);
   FIRCLSFile metricKitFile;
   if (!FIRCLSFileInitWithPath(&metricKitFile, [metricKitReportFile UTF8String], false)) {
-    FIRCLSDebugLog("Unable to open MetricKit file");
+    FIRCLSDebugLog("[Crashlytics:Crash] unable to open MetricKit file");
     return;
   }
 
