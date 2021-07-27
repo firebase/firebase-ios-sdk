@@ -180,7 +180,8 @@
         FPRLogInfo(kFPRClientMetricLogged,
                    @"Logging trace metric - %@ %.4fms. In a minute, visit the Firebase console to "
                    @"view your data: %@",
-                   metric.trace_metric.name, metric.trace_metric.duration_us / 1000.0,
+                   FPRDecodeString(metric.trace_metric.name),
+                   metric.trace_metric.duration_us / 1000.0,
                    [FPRConsoleURLGenerator generateScreenTraceURLWithProjectID:self.projectID
                                                                       bundleID:self.bundleID
                                                                      traceName:trace.name]);
@@ -188,7 +189,8 @@
         FPRLogInfo(kFPRClientMetricLogged,
                    @"Logging trace metric - %@ %.4fms. In a minute, visit the Firebase console to "
                    @"view your data: %@",
-                   metric.trace_metric.name, metric.trace_metric.duration_us / 1000.0,
+                   FPRDecodeString(metric.trace_metric.name),
+                   metric.trace_metric.duration_us / 1000.0,
                    [FPRConsoleURLGenerator generateCustomTraceURLWithProjectID:self.projectID
                                                                       bundleID:self.bundleID
                                                                      traceName:trace.name]);
@@ -218,7 +220,7 @@
                                    : @"UNKNOWN";
       FPRLogInfo(kFPRClientMetricLogged,
                  @"Logging network request trace - %@, Response code: %@, %.4fms",
-                 networkRequestMetric.url, responseCode, duration / 1000.0);
+                 FPRDecodeString(networkRequestMetric.url), responseCode, duration / 1000.0);
       firebase_perf_v1_PerfMetric metric = GetPerfMetricMessage(self.config.appID);
       metric = setNetworkRequestMetric(metric, networkRequestMetric);
       metric.application_info.application_process_state =
