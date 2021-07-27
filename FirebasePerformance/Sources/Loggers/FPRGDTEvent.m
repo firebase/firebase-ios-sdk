@@ -76,4 +76,8 @@
   return CFBridgingRelease(dataRef);
 }
 
+- (void)dealloc {
+  pb_release(firebase_perf_v1_PerfMetric_fields, &_metric);
+}
+
 @end
