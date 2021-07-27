@@ -22,10 +22,7 @@
 
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSReportManager_Private.h"
 
-void FIRCLSHandler(FIRCLSFile* file,
-                   FIRCLSFile* metricKitFile,
-                   thread_t crashedThread,
-                   void* uapVoid) {
+void FIRCLSHandler(FIRCLSFile* file, thread_t crashedThread, void* uapVoid) {
   FIRCLSProcess process;
 
   FIRCLSProcessInit(&process, crashedThread, uapVoid);

@@ -259,8 +259,6 @@ static void FIRCLSSignalRecordSignal(int savedErrno, siginfo_t *info, void *uapV
     return;
   }
 
-  FIRCLSFile metricKitFile;
-
   FIRCLSFileWriteSectionStart(&file, "signal");
 
   FIRCLSFileWriteHashStart(&file);
@@ -286,10 +284,9 @@ static void FIRCLSSignalRecordSignal(int savedErrno, siginfo_t *info, void *uapV
 
   FIRCLSFileWriteSectionEnd(&file);
 
-  FIRCLSHandler(&file, &metricKitFile, mach_thread_self(), uapVoid);
+  FIRCLSHandler(&file, mach_thread_self(), uapVoid);
 
   FIRCLSFileClose(&file);
-  FIRCLSFileClose(&metricKitFile);
 }
 
 static void FIRCLSSignalHandler(int signal, siginfo_t *info, void *uapVoid) {

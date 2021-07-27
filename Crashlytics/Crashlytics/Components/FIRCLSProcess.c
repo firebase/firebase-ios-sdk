@@ -509,6 +509,7 @@ void FIRCLSProcessRecordThreadNames(FIRCLSProcess *process, FIRCLSFile *file) {
   uint32_t i;
 
   FIRCLSFileWriteSectionStart(file, "thread_names");
+
   FIRCLSFileWriteArrayStart(file);
 
   threadCount = FIRCLSProcessGetThreadCount(process);
@@ -552,7 +553,6 @@ void FIRCLSProcessRecordDispatchQueueNames(FIRCLSProcess *process, FIRCLSFile *f
       name = "";
     }
     FIRCLSFileWriteArrayEntryString(file, name);
-
   }
 
   FIRCLSFileWriteArrayEnd(file);
