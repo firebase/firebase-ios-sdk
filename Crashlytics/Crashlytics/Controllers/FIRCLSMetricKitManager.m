@@ -14,6 +14,8 @@
 
 #import <Foundation/Foundation.h>
 
+#if TARGET_OS_IPHONE
+
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSMetricKitManager.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
@@ -22,6 +24,7 @@
 #import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
 #import "Crashlytics/Crashlytics/Public/FirebaseCrashlytics/FIRCrashlyticsReport.h"
 
+API_AVAILABLE(ios(15.0))
 @interface FIRCLSMetricKitManager ()
 
 @property FBLPromise *metricKitDataAvailable;
@@ -306,3 +309,5 @@
 }
 
 @end
+
+#endif
