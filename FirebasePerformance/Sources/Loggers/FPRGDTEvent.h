@@ -20,17 +20,17 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * Google Data Transport event wrapper used for converting Fireperf Proto object to
+ * Google Data Transport event wrapper used for converting Fireperf nanopb object to
  * GDTEvent object.
  */
 @interface FPRGDTEvent : NSObject <GDTCOREventDataObject>
 
-/** Perf metric that is going to be converted. */
+/** firebase_perf_v1_PerfMetric that is going to be converted. */
 @property(nonatomic, readonly) firebase_perf_v1_PerfMetric metric;
 
 - (instancetype)init NS_UNAVAILABLE;
 
-/** Converts a PerfMetric event to a GDTEvent. */
+/** Converts a firebase_perf_v1_PerfMetric object to a GDTEvent. */
 + (instancetype)gdtEventForPerfMetric:(firebase_perf_v1_PerfMetric)perfMetric;
 
 @end

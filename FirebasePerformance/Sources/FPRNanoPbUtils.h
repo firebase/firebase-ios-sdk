@@ -136,6 +136,47 @@ extern firebase_perf_v1_GaugeMetric GetGaugeMetric(NSArray* _Nonnull gaugeData,
  */
 extern firebase_perf_v1_ApplicationProcessState ApplicationProcessState(FPRTraceState state);
 
+/** Populate a firebase_perf_v1_PerfMetric object with the given firebase_perf_v1_ApplicationInfo.
+ *
+ *  @param perfMetric The firebase_perf_v1_PerfMetric to be populated.
+ *  @param appInfo The firebase_perf_v1_ApplicationInfo object that will be added to
+ * firebase_perf_v1_PerfMetric.
+ *  @return A firebase_perf_v1_PerfMetric object.
+ */
+extern firebase_perf_v1_PerfMetric setApplicationInfo(firebase_perf_v1_PerfMetric perfMetric,
+                                                      firebase_perf_v1_ApplicationInfo appInfo);
+
+/** Populate a firebase_perf_v1_PerfMetric object with the given firebase_perf_v1_TraceMetric.
+ *
+ *  @param perfMetric The firebase_perf_v1_PerfMetric to be populated.
+ *  @param traceMetric The firebase_perf_v1_TraceMetric object that will be added to
+ * firebase_perf_v1_PerfMetric.
+ *  @return A firebase_perf_v1_PerfMetric object.
+ */
+extern firebase_perf_v1_PerfMetric setTraceMetric(firebase_perf_v1_PerfMetric perfMetric,
+                                                  firebase_perf_v1_TraceMetric traceMetric);
+
+/** Populate a firebase_perf_v1_PerfMetric object with the given
+ * firebase_perf_v1_NetworkRequestMetric.
+ *
+ *  @param perfMetric The firebase_perf_v1_PerfMetric to be populated.
+ *  @param networkMetric The firebase_perf_v1_NetworkRequestMetric object that will be added to
+ * firebase_perf_v1_PerfMetric.
+ *  @return A firebase_perf_v1_PerfMetric object.
+ */
+extern firebase_perf_v1_PerfMetric setNetworkRequestMetric(
+    firebase_perf_v1_PerfMetric perfMetric, firebase_perf_v1_NetworkRequestMetric networkMetric);
+
+/** Populate a firebase_perf_v1_PerfMetric object with the given firebase_perf_v1_GaugeMetric.
+ *
+ *  @param perfMetric The firebase_perf_v1_PerfMetric to be populated.
+ *  @param gaugeMetric The firebase_perf_v1_GaugeMetric object that will be added to
+ * firebase_perf_v1_PerfMetric.
+ *  @return A firebase_perf_v1_PerfMetric object.
+ */
+extern firebase_perf_v1_PerfMetric setGaugeMetric(firebase_perf_v1_PerfMetric perfMetric,
+                                                  firebase_perf_v1_GaugeMetric gaugeMetric);
+
 #ifdef TARGET_HAS_MOBILE_CONNECTIVITY
 /** Obtain a CTTelephonyNetworkInfo object to determine device network attributes.
  *  @return CTTelephonyNetworkInfo object.

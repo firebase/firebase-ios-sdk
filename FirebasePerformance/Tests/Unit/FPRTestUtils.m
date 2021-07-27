@@ -52,8 +52,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   FIRTrace *trace = [FPRTestUtils createRandomTraceWithName:traceName];
   // Make sure there are no sessions.
   trace.activeSessions = [NSMutableArray array];
-  perfMetric.trace_metric = GetTraceMetric(trace);
-  perfMetric.has_trace_metric = true;
+  perfMetric = setTraceMetric(perfMetric, GetTraceMetric(trace));
 
   return perfMetric;
 }
@@ -62,8 +61,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   firebase_perf_v1_PerfMetric perfMetric = GetPerfMetricMessage(@"RandomAppID");
   FIRTrace *trace = [FPRTestUtils createRandomTraceWithName:traceName];
   trace = [FPRTestUtils addVerboseSessionToTrace:trace];
-  perfMetric.trace_metric = GetTraceMetric(trace);
-  perfMetric.has_trace_metric = true;
+  perfMetric = setTraceMetric(perfMetric, GetTraceMetric(trace));
 
   return perfMetric;
 }
@@ -76,8 +74,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   [trace stop];
   // Make sure there are no sessions.
   trace.activeSessions = [NSMutableArray array];
-  perfMetric.trace_metric = GetTraceMetric(trace);
-  perfMetric.has_trace_metric = true;
+  perfMetric = setTraceMetric(perfMetric, GetTraceMetric(trace));
 
   return perfMetric;
 }
@@ -100,8 +97,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   [networkTrace didReceiveData:[NSData data]];
   [networkTrace didCompleteRequestWithResponse:response error:nil];
   networkTrace.activeSessions = [NSMutableArray array];
-  perfMetric.network_request_metric = GetNetworkRequestMetric(networkTrace);
-  perfMetric.has_network_request_metric = true;
+  perfMetric = setNetworkRequestMetric(perfMetric, GetNetworkRequestMetric(networkTrace));
 
   return perfMetric;
 }
@@ -117,8 +113,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   [gauges addObject:memoryData];
 
   firebase_perf_v1_GaugeMetric gaugeMetric = GetGaugeMetric(gauges, @"123");
-  perfMetric.gauge_metric = gaugeMetric;
-  perfMetric.has_gauge_metric = true;
+  perfMetric = setGaugeMetric(perfMetric, gaugeMetric);
 
   return perfMetric;
 }

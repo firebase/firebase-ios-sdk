@@ -62,8 +62,8 @@
  */
 + (void)cleanupClearcutCacheDirectory;
 
-/** Performs post processing and logs a FPRMSGPerfMetric object to Google Data Transport.
- *  @param event Reference to a FPRMSGPerfMetric proto object.
+/** Performs post processing and logs a firebase_perf_v1_PerfMetric object to Google Data Transport.
+ *  @param event Reference to a firebase_perf_v1_PerfMetric proto object.
  */
 - (void)processAndLogEvent:(firebase_perf_v1_PerfMetric)event;
 

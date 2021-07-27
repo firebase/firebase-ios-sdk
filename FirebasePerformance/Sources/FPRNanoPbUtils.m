@@ -235,8 +235,7 @@ struct _firebase_perf_v1_PerfSession *FPREncodePerfSessions(NSArray<FPRSessionDe
 
 firebase_perf_v1_PerfMetric GetPerfMetricMessage(NSString *appID) {
   firebase_perf_v1_PerfMetric perfMetricMessage = firebase_perf_v1_PerfMetric_init_default;
-  perfMetricMessage.application_info = GetApplicationInfoMessage();
-  perfMetricMessage.has_application_info = true;
+  perfMetricMessage = setApplicationInfo(perfMetricMessage, GetApplicationInfoMessage());
   perfMetricMessage.application_info.google_app_id = FPREncodeString(appID);
 
   return perfMetricMessage;
@@ -499,4 +498,34 @@ NSArray<FPRSessionDetails *> *MakeFirstSessionVerbose(NSArray<FPRSessionDetails 
   }
 
   return [orderedSessions copy];
+}
+
+#pragma mark - Nanopb struct fields populating helper methods
+
+firebase_perf_v1_PerfMetric setApplicationInfo(firebase_perf_v1_PerfMetric perfMetric,
+                                               firebase_perf_v1_ApplicationInfo appInfo) {
+  perfMetric.application_info = appInfo;
+  perfMetric.has_application_info = true;
+  return perfMetric;
+}
+
+firebase_perf_v1_PerfMetric setTraceMetric(firebase_perf_v1_PerfMetric perfMetric,
+                                           firebase_perf_v1_TraceMetric traceMetric) {
+  perfMetric.trace_metric = traceMetric;
+  perfMetric.has_trace_metric = true;
+  return perfMetric;
+}
+
+firebase_perf_v1_PerfMetric setNetworkRequestMetric(
+    firebase_perf_v1_PerfMetric perfMetric, firebase_perf_v1_NetworkRequestMetric networkMetric) {
+  perfMetric.network_request_metric = networkMetric;
+  perfMetric.has_network_request_metric = true;
+  return perfMetric;
+}
+
+firebase_perf_v1_PerfMetric setGaugeMetric(firebase_perf_v1_PerfMetric perfMetric,
+                                           firebase_perf_v1_GaugeMetric gaugeMetric) {
+  perfMetric.gauge_metric = gaugeMetric;
+  perfMetric.has_gauge_metric = true;
+  return perfMetric;
 }
