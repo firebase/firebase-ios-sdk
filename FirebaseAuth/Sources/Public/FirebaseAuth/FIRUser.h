@@ -287,8 +287,7 @@ NS_SWIFT_NAME(User)
                         UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
                         completion:(nullable void (^)(FIRAuthDataResult *_Nullable authResult,
                                                       NSError *_Nullable error))completion
-    NS_SWIFT_NAME(reauthenticate(with:uiDelegate:completion:))
-        API_UNAVAILABLE(macos, tvos, watchos);
+    NS_SWIFT_NAME(reauthenticate(with:uiDelegate:completion:))API_UNAVAILABLE(macosx, watchos);
 
 /** @fn getIDTokenResultWithCompletion:
     @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
@@ -390,7 +389,7 @@ NS_SWIFT_NAME(User)
               UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
               completion:(nullable void (^)(FIRAuthDataResult *_Nullable authResult,
                                             NSError *_Nullable error))completion
-    NS_SWIFT_NAME(link(with:uiDelegate:completion:))API_UNAVAILABLE(macos, tvos, watchos);
+    NS_SWIFT_NAME(link(with:uiDelegate:completion:))API_UNAVAILABLE(macosx, watchos);
 
 /** @fn unlinkFromProvider:completion:
     @brief Disassociates a user account from a third-party identity provider with this user.
