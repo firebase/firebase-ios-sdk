@@ -204,6 +204,7 @@ pb_bytes_array_t *FIRMessagingEncodeString(NSString *string) {
 }
 
 - (void)exportDeliveryMetricsToBigQueryWithMessageInfo:(NSDictionary *)info {
+  NSDictionary *messageInfo = [info copy];
   GDTCORTransport *transport = [[GDTCORTransport alloc] initWithMappingID:@"1249"
                                                              transformers:nil
                                                                    target:kGDTCORTargetFLL];
@@ -211,29 +212,30 @@ pb_bytes_array_t *FIRMessagingEncodeString(NSString *string) {
   fm_MessagingClientEventExtension eventExtension = fm_MessagingClientEventExtension_init_default;
 
   fm_MessagingClientEvent clientEvent = fm_MessagingClientEvent_init_default;
-  if (!info[kFIRMessagingSenderID]) {
+  if (!messageInfo[kFIRMessagingSenderID]) {
     FIRMessagingLoggerError(kFIRMessagingServiceExtensionInvalidProjectID,
                             @"Delivery logging failed: Invalid project ID");
     return;
   }
-  clientEvent.project_number = (int64_t)[info[kFIRMessagingSenderID] longLongValue];
+  clientEvent.project_number = (int64_t)[messageInfo[kFIRMessagingSenderID] longLongValue];
 
-  if (!info[kFIRMessagingMessageIDKey] ||
-      ![info[kFIRMessagingMessageIDKey] isKindOfClass:NSString.class]) {
+  if (!messageInfo[kFIRMessagingMessageIDKey] ||
+      ![messageInfo[kFIRMessagingMessageIDKey] isKindOfClass:NSString.class]) {
     FIRMessagingLoggerWarn(kFIRMessagingServiceExtensionInvalidMessageID,
                            @"Delivery logging failed: Invalid Message ID");
     return;
   }
-  clientEvent.message_id = FIRMessagingEncodeString(info[kFIRMessagingMessageIDKey]);
+  clientEvent.message_id = FIRMessagingEncodeString(messageInfo[kFIRMessagingMessageIDKey]);
 
-  if (!info[kFIRMessagingFID] || ![info[kFIRMessagingFID] isKindOfClass:NSString.class]) {
+  if (!messageInfo[kFIRMessagingFID] ||
+      ![messageInfo[kFIRMessagingFID] isKindOfClass:NSString.class]) {
     FIRMessagingLoggerWarn(kFIRMessagingServiceExtensionInvalidInstanceID,
                            @"Delivery logging failed: Invalid Instance ID");
     return;
   }
-  clientEvent.instance_id = FIRMessagingEncodeString(info[kFIRMessagingFID]);
+  clientEvent.instance_id = FIRMessagingEncodeString(messageInfo[kFIRMessagingFID]);
 
-  if ([info[@"aps"][kFIRMessagingMessageAPNSContentAvailableKey] intValue] == 1 &&
+  if ([messageInfo[@"aps"][kFIRMessagingMessageAPNSContentAvailableKey] intValue] == 1 &&
       ![GULAppEnvironmentUtil isAppExtension]) {
     clientEvent.message_type = fm_MessagingClientEvent_MessageType_DATA_MESSAGE;
   } else {
@@ -250,17 +252,17 @@ pb_bytes_array_t *FIRMessagingEncodeString(NSString *string) {
   }
   clientEvent.event = fm_MessagingClientEvent_Event_MESSAGE_DELIVERED;
 
-  if (info[kFIRMessagingAnalyticsMessageLabel]) {
+  if (messageInfo[kFIRMessagingAnalyticsMessageLabel]) {
     clientEvent.analytics_label =
-        FIRMessagingEncodeString(info[kFIRMessagingAnalyticsMessageLabel]);
+        FIRMessagingEncodeString(messageInfo[kFIRMessagingAnalyticsMessageLabel]);
   }
-  if (info[kFIRMessagingAnalyticsComposerIdentifier]) {
+  if (messageInfo[kFIRMessagingAnalyticsComposerIdentifier]) {
     clientEvent.campaign_id =
-        (int64_t)[info[kFIRMessagingAnalyticsComposerIdentifier] longLongValue];
+        (int64_t)[messageInfo[kFIRMessagingAnalyticsComposerIdentifier] longLongValue];
   }
-  if (info[kFIRMessagingAnalyticsComposerLabel]) {
+  if (messageInfo[kFIRMessagingAnalyticsComposerLabel]) {
     clientEvent.composer_label =
-        FIRMessagingEncodeString(info[kFIRMessagingAnalyticsComposerLabel]);
+        FIRMessagingEncodeString(messageInfo[kFIRMessagingAnalyticsComposerLabel]);
   }
 
   eventExtension.messaging_client_event = &clientEvent;
