@@ -177,6 +177,17 @@ extern firebase_perf_v1_PerfMetric setNetworkRequestMetric(
 extern firebase_perf_v1_PerfMetric setGaugeMetric(firebase_perf_v1_PerfMetric perfMetric,
                                                   firebase_perf_v1_GaugeMetric gaugeMetric);
 
+/** Populate a firebase_perf_v1_PerfMetric object with the given
+ * firebase_perf_v1_ApplicationProcessState.
+ *
+ *  @param perfMetric The firebase_perf_v1_PerfMetric to be populated.
+ *  @param state The firebase_perf_v1_ApplicationProcessState object that will be added to
+ * firebase_perf_v1_PerfMetric.
+ *  @return A firebase_perf_v1_PerfMetric object.
+ */
+extern firebase_perf_v1_PerfMetric setApplicationProcessState(
+    firebase_perf_v1_PerfMetric perfMetric, firebase_perf_v1_ApplicationProcessState state);
+
 #ifdef TARGET_HAS_MOBILE_CONNECTIVITY
 /** Obtain a CTTelephonyNetworkInfo object to determine device network attributes.
  *  @return CTTelephonyNetworkInfo object.

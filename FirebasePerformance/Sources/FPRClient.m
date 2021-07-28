@@ -172,8 +172,8 @@
     dispatch_group_async(self.eventsQueueGroup, self.eventsQueue, ^{
       firebase_perf_v1_PerfMetric metric = GetPerfMetricMessage(self.config.appID);
       metric = setTraceMetric(metric, GetTraceMetric(trace));
-      metric.application_info.application_process_state =
-          ApplicationProcessState(trace.backgroundTraceState);
+      metric =
+          setApplicationProcessState(metric, ApplicationProcessState(trace.backgroundTraceState));
 
       // Log the trace metric with its console URL.
       if ([trace.name hasPrefix:kFPRPrefixForScreenTraceName]) {
@@ -223,8 +223,9 @@
                  FPRDecodeString(networkRequestMetric.url), responseCode, duration / 1000.0);
       firebase_perf_v1_PerfMetric metric = GetPerfMetricMessage(self.config.appID);
       metric = setNetworkRequestMetric(metric, networkRequestMetric);
-      metric.application_info.application_process_state =
-          ApplicationProcessState(trace.backgroundTraceState);
+      metric =
+          setApplicationProcessState(metric, ApplicationProcessState(trace.backgroundTraceState));
+
       [self processAndLogEvent:metric];
     }
   });
@@ -241,7 +242,7 @@
     if ((gaugeData != nil && gaugeData.count != 0) && (sessionId != nil && sessionId.length != 0)) {
       gaugeMetric = GetGaugeMetric(gaugeData, sessionId);
     }
-    setGaugeMetric(metric, gaugeMetric);
+    metric = setGaugeMetric(metric, gaugeMetric);
     [self processAndLogEvent:metric];
   });
 

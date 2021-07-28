@@ -249,6 +249,8 @@ firebase_perf_v1_ApplicationInfo GetApplicationInfoMessage() {
       FPREncodeString([mainBundle infoDictionary][@"CFBundleShortVersionString"]);
   iosAppInfo.sdk_version = FPREncodeString([NSString stringWithUTF8String:kFPRSDKVersion]);
   iosAppInfo.network_connection_info.network_type = FPRNetworkConnectionInfoNetworkType();
+  iosAppInfo.has_network_connection_info = true;
+  iosAppInfo.network_connection_info.has_network_type = true;
 #ifdef TARGET_HAS_MOBILE_CONNECTIVITY
   CTTelephonyNetworkInfo *networkInfo = NetworkInfo();
   CTCarrier *provider = networkInfo.subscriberCellularProvider;
@@ -259,9 +261,11 @@ firebase_perf_v1_ApplicationInfo GetApplicationInfoMessage() {
   if (iosAppInfo.network_connection_info.network_type ==
       firebase_perf_v1_NetworkConnectionInfo_NetworkType_MOBILE) {
     iosAppInfo.network_connection_info.mobile_subtype = FPRCellularNetworkType();
+    iosAppInfo.network_connection_info.has_mobile_subtype = true;
   }
 #endif
   appInfoMessage.ios_app_info = iosAppInfo;
+  appInfoMessage.has_ios_app_info = true;
 
   NSDictionary<NSString *, NSString *> *attributes =
       [[FIRPerformance sharedInstance].attributes mutableCopy];
@@ -527,5 +531,12 @@ firebase_perf_v1_PerfMetric setGaugeMetric(firebase_perf_v1_PerfMetric perfMetri
                                            firebase_perf_v1_GaugeMetric gaugeMetric) {
   perfMetric.gauge_metric = gaugeMetric;
   perfMetric.has_gauge_metric = true;
+  return perfMetric;
+}
+
+firebase_perf_v1_PerfMetric setApplicationProcessState(
+    firebase_perf_v1_PerfMetric perfMetric, firebase_perf_v1_ApplicationProcessState state) {
+  perfMetric.application_info.application_process_state = state;
+  perfMetric.application_info.has_application_process_state = true;
   return perfMetric;
 }

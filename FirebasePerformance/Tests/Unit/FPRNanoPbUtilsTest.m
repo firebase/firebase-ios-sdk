@@ -64,8 +64,11 @@
   firebase_perf_v1_ApplicationInfo appInfo = event.application_info;
   XCTAssertEqualObjects(FPRDecodeString(appInfo.google_app_id), @"appid");
   XCTAssertTrue(appInfo.ios_app_info.sdk_version != NULL);
+  XCTAssertTrue(appInfo.has_ios_app_info);
   XCTAssertTrue(appInfo.ios_app_info.bundle_short_version != NULL);
   XCTAssertTrue(appInfo.ios_app_info.mcc_mnc == NULL || appInfo.ios_app_info.mcc_mnc->size == 6);
+  XCTAssertTrue(appInfo.ios_app_info.has_network_connection_info);
+  XCTAssertTrue(appInfo.ios_app_info.network_connection_info.has_network_type);
   XCTAssertTrue(appInfo.ios_app_info.network_connection_info.network_type !=
                 firebase_perf_v1_NetworkConnectionInfo_NetworkType_NONE);
   if (appInfo.ios_app_info.network_connection_info.network_type ==
