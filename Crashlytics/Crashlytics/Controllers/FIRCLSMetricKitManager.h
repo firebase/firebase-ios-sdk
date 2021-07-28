@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(15.0))
 API_UNAVAILABLE(macos, tvos, watchos)
-@interface FIRCLSMetricKitManager : NSObject<MXMetricManagerSubscriber>
+@interface FIRCLSMetricKitManager : NSObject <MXMetricManagerSubscriber>
 
 - (instancetype)initWithManagerData:(FIRCLSManagerData *)managerData
               existingReportManager:(FIRCLSExistingReportManager *)existingReportManager
