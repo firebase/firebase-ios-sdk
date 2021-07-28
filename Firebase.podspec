@@ -169,6 +169,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
   s.subspec 'Performance' do |ss|
     ss.dependency 'Firebase/CoreOnly'
     ss.ios.dependency 'FirebasePerformance', '~> 8.5.0'
+    ss.tvos.dependency 'FirebasePerformance', '~> 8.5.0'
   end
 
   s.subspec 'RemoteConfig' do |ss|
