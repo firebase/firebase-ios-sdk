@@ -164,6 +164,29 @@ static NSString *const kValidImageURL =
   OCMReject([_mockExtensionHelper bundleIdentifierByRemovingLastPartFrom:[OCMArg any]]);
 }
 
+- (void)testDeliveryMetricsLoggingWithInvalidMessageID {
+  OCMStub([_mockUtilClass isAppExtension]).andReturn(YES);
+  NSDictionary *fakeMessageInfo = @{
+    @"aps" : @{@"badge" : @9, @"mutable-content" : @1},
+    @"fcm_options" : @{@"image" : @"https://google.com"},
+    @"google.c.fid" : @"fakeFIDForTest",
+    @"google.c.sender.id" : @123456789
+  };
+  [_mockExtensionHelper exportDeliveryMetricsToBigQueryWithMessageInfo:fakeMessageInfo];
+  OCMReject([_mockExtensionHelper bundleIdentifierByRemovingLastPartFrom:[OCMArg any]]);
+}
+
+- (void)testDeliveryMetricsLoggingWithInvalidFID {
+  OCMStub([_mockUtilClass isAppExtension]).andReturn(YES);
+  NSDictionary *fakeMessageInfo = @{
+    @"aps" : @{@"badge" : @9, @"mutable-content" : @1},
+    @"fcm_options" : @{@"image" : @"https://google.com"},
+    @"google.c.sender.id" : @123456789
+  };
+  [_mockExtensionHelper exportDeliveryMetricsToBigQueryWithMessageInfo:fakeMessageInfo];
+  OCMReject([_mockExtensionHelper bundleIdentifierByRemovingLastPartFrom:[OCMArg any]]);
+}
+
 - (void)testDeliveryMetricsLoggingWithDisplayPayload {
   OCMStub([_mockUtilClass isAppExtension]).andReturn(YES);
   NSDictionary *fakeMessageInfo = @{

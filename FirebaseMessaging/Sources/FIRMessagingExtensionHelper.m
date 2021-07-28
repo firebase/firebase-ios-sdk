@@ -243,9 +243,9 @@ pb_bytes_array_t *FIRMessagingEncodeString(NSString *string) {
 
   NSString *bundleID = [NSBundle mainBundle].bundleIdentifier;
   if ([GULAppEnvironmentUtil isAppExtension]) {
-    clientEvent.package_name =
-        FIRMessagingEncodeString([[self class] bundleIdentifierByRemovingLastPartFrom:bundleID]);
-  } else {
+    bundleID = [[self class] bundleIdentifierByRemovingLastPartFrom:bundleID];
+  }
+  if (bundleID) {
     clientEvent.package_name = FIRMessagingEncodeString(bundleID);
   }
   clientEvent.event = fm_MessagingClientEvent_Event_MESSAGE_DELIVERED;
