@@ -86,29 +86,12 @@ typedef void (^FIRIDTokenDidChangeListenerBlock)(FIRAuth *auth, FIRUser *_Nullab
 typedef void (^FIRAuthDataResultCallback)(FIRAuthDataResult *_Nullable authResult,
                                           NSError *_Nullable error)
     NS_SWIFT_NAME(AuthDataResultCallback);
-
-#if (defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0) || \
-    (defined(__MAC_10_12) && __MAC_OS_X_VERSION_MAX_ALLOWED >= __MAC_10_12) ||      \
-    (defined(__TVOS_10_0) && __TV_OS_VERSION_MAX_ALLOWED >= __TVOS_10_0) ||         \
-    (defined(__WATCHOS_3_0) && __WATCH_OS_VERSION_MAX_ALLOWED >= __WATCH_OS_3_0)
 /**
     @brief The name of the `NSNotificationCenter` notification which is posted when the auth state
         changes (for example, a new token has been produced, a user signs in or signs out). The
         object parameter of the notification is the sender `FIRAuth` instance.
  */
 extern const NSNotificationName FIRAuthStateDidChangeNotification NS_SWIFT_NAME(AuthStateDidChange);
-#else
-/**
-    @brief The name of the `NSNotificationCenter` notification which is posted when the auth state
-        changes (for example, a new token has been produced, a user signs in or signs out). The
-        object parameter of the notification is the sender `FIRAuth` instance.
- */
-// clang-format off
-// clang-format12 merges the next two lines.
-extern NSString *const FIRAuthStateDidChangeNotification
-    NS_SWIFT_NAME(AuthStateDidChangeNotification);
-// clang-format off
-#endif  // defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 
 /** @typedef FIRAuthResultCallback
     @brief The type of block invoked when sign-in related events complete.
