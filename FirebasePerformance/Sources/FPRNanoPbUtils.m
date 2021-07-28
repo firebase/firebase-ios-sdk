@@ -128,7 +128,7 @@ static firebase_perf_v1_NetworkConnectionInfo_MobileSubtype FPRCellularNetworkTy
     };
   });
 
-  NSString *networkString = NetworkInfo().currentRadioAccessTechnology;
+  NSString *networkString = FPRNetworkInfo().currentRadioAccessTechnology;
   NSNumber *cellularNetworkType = cellularNetworkToMobileSubtype[networkString];
   return cellularNetworkType.intValue;
 }
@@ -233,15 +233,15 @@ struct _firebase_perf_v1_PerfSession *FPREncodePerfSessions(NSArray<FPRSessionDe
 
 #pragma mark - Public methods
 
-firebase_perf_v1_PerfMetric GetPerfMetricMessage(NSString *appID) {
+firebase_perf_v1_PerfMetric FPRGetPerfMetricMessage(NSString *appID) {
   firebase_perf_v1_PerfMetric perfMetricMessage = firebase_perf_v1_PerfMetric_init_default;
-  perfMetricMessage = setApplicationInfo(perfMetricMessage, GetApplicationInfoMessage());
+  perfMetricMessage = FPRSetApplicationInfo(perfMetricMessage, FPRGetApplicationInfoMessage());
   perfMetricMessage.application_info.google_app_id = FPREncodeString(appID);
 
   return perfMetricMessage;
 }
 
-firebase_perf_v1_ApplicationInfo GetApplicationInfoMessage() {
+firebase_perf_v1_ApplicationInfo FPRGetApplicationInfoMessage() {
   firebase_perf_v1_ApplicationInfo appInfoMessage = firebase_perf_v1_ApplicationInfo_init_default;
   firebase_perf_v1_IosApplicationInfo iosAppInfo = firebase_perf_v1_IosApplicationInfo_init_default;
   NSBundle *mainBundle = [NSBundle mainBundle];
@@ -252,7 +252,7 @@ firebase_perf_v1_ApplicationInfo GetApplicationInfoMessage() {
   iosAppInfo.has_network_connection_info = true;
   iosAppInfo.network_connection_info.has_network_type = true;
 #ifdef TARGET_HAS_MOBILE_CONNECTIVITY
-  CTTelephonyNetworkInfo *networkInfo = NetworkInfo();
+  CTTelephonyNetworkInfo *networkInfo = FPRNetworkInfo();
   CTCarrier *provider = networkInfo.subscriberCellularProvider;
   NSString *mccMnc = FPRValidatedMccMnc(provider.mobileCountryCode, provider.mobileNetworkCode);
   if (mccMnc) {
@@ -277,7 +277,7 @@ firebase_perf_v1_ApplicationInfo GetApplicationInfoMessage() {
   return appInfoMessage;
 }
 
-firebase_perf_v1_TraceMetric GetTraceMetric(FIRTrace *trace) {
+firebase_perf_v1_TraceMetric FPRGetTraceMetric(FIRTrace *trace) {
   firebase_perf_v1_TraceMetric traceMetric = firebase_perf_v1_TraceMetric_init_default;
   traceMetric.name = FPREncodeString(trace.name);
 
@@ -306,7 +306,7 @@ firebase_perf_v1_TraceMetric GetTraceMetric(FIRTrace *trace) {
   __block NSUInteger subtraceIndex = 0;
   [trace.stages
       enumerateObjectsUsingBlock:^(FIRTrace *_Nonnull stage, NSUInteger idx, BOOL *_Nonnull stop) {
-        subtraces[subtraceIndex] = GetTraceMetric(stage);
+        subtraces[subtraceIndex] = FPRGetTraceMetric(stage);
         subtraceIndex++;
       }];
   traceMetric.subtraces = subtraces;
@@ -327,7 +327,7 @@ firebase_perf_v1_TraceMetric GetTraceMetric(FIRTrace *trace) {
   return traceMetric;
 }
 
-firebase_perf_v1_NetworkRequestMetric GetNetworkRequestMetric(FPRNetworkTrace *trace) {
+firebase_perf_v1_NetworkRequestMetric FPRGetNetworkRequestMetric(FPRNetworkTrace *trace) {
   firebase_perf_v1_NetworkRequestMetric networkMetric =
       firebase_perf_v1_NetworkRequestMetric_init_default;
   networkMetric.url = FPREncodeString(trace.trimmedURLString);
@@ -396,7 +396,7 @@ firebase_perf_v1_NetworkRequestMetric GetNetworkRequestMetric(FPRNetworkTrace *t
   return networkMetric;
 }
 
-firebase_perf_v1_GaugeMetric GetGaugeMetric(NSArray *gaugeData, NSString *sessionId) {
+firebase_perf_v1_GaugeMetric FPRGetGaugeMetric(NSArray *gaugeData, NSString *sessionId) {
   firebase_perf_v1_GaugeMetric gaugeMetric = firebase_perf_v1_GaugeMetric_init_default;
   gaugeMetric.session_id = FPREncodeString(sessionId);
 
@@ -445,7 +445,7 @@ firebase_perf_v1_GaugeMetric GetGaugeMetric(NSArray *gaugeData, NSString *sessio
   return gaugeMetric;
 }
 
-firebase_perf_v1_ApplicationProcessState ApplicationProcessState(FPRTraceState state) {
+firebase_perf_v1_ApplicationProcessState FPRApplicationProcessState(FPRTraceState state) {
   firebase_perf_v1_ApplicationProcessState processState =
       firebase_perf_v1_ApplicationProcessState_APPLICATION_PROCESS_STATE_UNKNOWN;
   switch (state) {
@@ -469,7 +469,7 @@ firebase_perf_v1_ApplicationProcessState ApplicationProcessState(FPRTraceState s
 }
 
 #ifdef TARGET_HAS_MOBILE_CONNECTIVITY
-CTTelephonyNetworkInfo *NetworkInfo() {
+CTTelephonyNetworkInfo *FPRNetworkInfo() {
   static CTTelephonyNetworkInfo *networkInfo;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
@@ -483,7 +483,7 @@ CTTelephonyNetworkInfo *NetworkInfo() {
  *  in the list is verbose.
  *  @return Ordered list of sessions.
  */
-NSArray<FPRSessionDetails *> *MakeFirstSessionVerbose(NSArray<FPRSessionDetails *> *sessions) {
+NSArray<FPRSessionDetails *> *FPRMakeFirstSessionVerbose(NSArray<FPRSessionDetails *> *sessions) {
   NSMutableArray<FPRSessionDetails *> *orderedSessions =
       [[NSMutableArray<FPRSessionDetails *> alloc] initWithArray:sessions];
 
@@ -506,35 +506,35 @@ NSArray<FPRSessionDetails *> *MakeFirstSessionVerbose(NSArray<FPRSessionDetails 
 
 #pragma mark - Nanopb struct fields populating helper methods
 
-firebase_perf_v1_PerfMetric setApplicationInfo(firebase_perf_v1_PerfMetric perfMetric,
-                                               firebase_perf_v1_ApplicationInfo appInfo) {
+firebase_perf_v1_PerfMetric FPRSetApplicationInfo(firebase_perf_v1_PerfMetric perfMetric,
+                                                  firebase_perf_v1_ApplicationInfo appInfo) {
   perfMetric.application_info = appInfo;
   perfMetric.has_application_info = true;
   return perfMetric;
 }
 
-firebase_perf_v1_PerfMetric setTraceMetric(firebase_perf_v1_PerfMetric perfMetric,
-                                           firebase_perf_v1_TraceMetric traceMetric) {
+firebase_perf_v1_PerfMetric FPRSetTraceMetric(firebase_perf_v1_PerfMetric perfMetric,
+                                              firebase_perf_v1_TraceMetric traceMetric) {
   perfMetric.trace_metric = traceMetric;
   perfMetric.has_trace_metric = true;
   return perfMetric;
 }
 
-firebase_perf_v1_PerfMetric setNetworkRequestMetric(
+firebase_perf_v1_PerfMetric FPRSetNetworkRequestMetric(
     firebase_perf_v1_PerfMetric perfMetric, firebase_perf_v1_NetworkRequestMetric networkMetric) {
   perfMetric.network_request_metric = networkMetric;
   perfMetric.has_network_request_metric = true;
   return perfMetric;
 }
 
-firebase_perf_v1_PerfMetric setGaugeMetric(firebase_perf_v1_PerfMetric perfMetric,
-                                           firebase_perf_v1_GaugeMetric gaugeMetric) {
+firebase_perf_v1_PerfMetric FPRSetGaugeMetric(firebase_perf_v1_PerfMetric perfMetric,
+                                              firebase_perf_v1_GaugeMetric gaugeMetric) {
   perfMetric.gauge_metric = gaugeMetric;
   perfMetric.has_gauge_metric = true;
   return perfMetric;
 }
 
-firebase_perf_v1_PerfMetric setApplicationProcessState(
+firebase_perf_v1_PerfMetric FPRSetApplicationProcessState(
     firebase_perf_v1_PerfMetric perfMetric, firebase_perf_v1_ApplicationProcessState state) {
   perfMetric.application_info.application_process_state = state;
   perfMetric.application_info.has_application_process_state = true;

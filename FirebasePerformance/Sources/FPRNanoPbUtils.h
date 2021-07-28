@@ -107,34 +107,34 @@ extern StringToNumberMap* _Nullable FPREncodeStringToNumberMap(NSDictionary* _Nu
  *  @param appID The Google app id to put into the message
  *  @return A firebase_perf_v1_PerfMetric struct.
  */
-extern firebase_perf_v1_PerfMetric GetPerfMetricMessage(NSString* _Nonnull appID);
+extern firebase_perf_v1_PerfMetric FPRGetPerfMetricMessage(NSString* _Nonnull appID);
 
 /** Creates a new firebase_perf_v1_ApplicationInfo struct populated with system metadata.
  *  @return A firebase_perf_v1_ApplicationInfo struct.
  */
-extern firebase_perf_v1_ApplicationInfo GetApplicationInfoMessage(void);
+extern firebase_perf_v1_ApplicationInfo FPRGetApplicationInfoMessage(void);
 
 /** Converts the FIRTrace object to a firebase_perf_v1_TraceMetric struct.
  *  @return A firebase_perf_v1_TraceMetric struct.
  */
-extern firebase_perf_v1_TraceMetric GetTraceMetric(FIRTrace* _Nonnull trace);
+extern firebase_perf_v1_TraceMetric FPRGetTraceMetric(FIRTrace* _Nonnull trace);
 
 /** Converts the FPRNetworkTrace object to a firebase_perf_v1_NetworkRequestMetric struct.
  *  @return A firebase_perf_v1_NetworkRequestMetric struct.
  */
-extern firebase_perf_v1_NetworkRequestMetric GetNetworkRequestMetric(
+extern firebase_perf_v1_NetworkRequestMetric FPRGetNetworkRequestMetric(
     FPRNetworkTrace* _Nonnull trace);
 
 /** Converts the gaugeData array object to a firebase_perf_v1_GaugeMetric struct.
  *  @return A firebase_perf_v1_GaugeMetric struct.
  */
-extern firebase_perf_v1_GaugeMetric GetGaugeMetric(NSArray* _Nonnull gaugeData,
-                                                   NSString* _Nonnull sessionId);
+extern firebase_perf_v1_GaugeMetric FPRGetGaugeMetric(NSArray* _Nonnull gaugeData,
+                                                      NSString* _Nonnull sessionId);
 
 /** Converts the FPRTraceState to a firebase_perf_v1_ApplicationProcessState struct.
  *  @return A firebase_perf_v1_ApplicationProcessState struct.
  */
-extern firebase_perf_v1_ApplicationProcessState ApplicationProcessState(FPRTraceState state);
+extern firebase_perf_v1_ApplicationProcessState FPRApplicationProcessState(FPRTraceState state);
 
 /** Populate a firebase_perf_v1_PerfMetric object with the given firebase_perf_v1_ApplicationInfo.
  *
@@ -143,8 +143,8 @@ extern firebase_perf_v1_ApplicationProcessState ApplicationProcessState(FPRTrace
  * firebase_perf_v1_PerfMetric.
  *  @return A firebase_perf_v1_PerfMetric object.
  */
-extern firebase_perf_v1_PerfMetric setApplicationInfo(firebase_perf_v1_PerfMetric perfMetric,
-                                                      firebase_perf_v1_ApplicationInfo appInfo);
+extern firebase_perf_v1_PerfMetric FPRSetApplicationInfo(firebase_perf_v1_PerfMetric perfMetric,
+                                                         firebase_perf_v1_ApplicationInfo appInfo);
 
 /** Populate a firebase_perf_v1_PerfMetric object with the given firebase_perf_v1_TraceMetric.
  *
@@ -153,8 +153,8 @@ extern firebase_perf_v1_PerfMetric setApplicationInfo(firebase_perf_v1_PerfMetri
  * firebase_perf_v1_PerfMetric.
  *  @return A firebase_perf_v1_PerfMetric object.
  */
-extern firebase_perf_v1_PerfMetric setTraceMetric(firebase_perf_v1_PerfMetric perfMetric,
-                                                  firebase_perf_v1_TraceMetric traceMetric);
+extern firebase_perf_v1_PerfMetric FPRSetTraceMetric(firebase_perf_v1_PerfMetric perfMetric,
+                                                     firebase_perf_v1_TraceMetric traceMetric);
 
 /** Populate a firebase_perf_v1_PerfMetric object with the given
  * firebase_perf_v1_NetworkRequestMetric.
@@ -164,7 +164,7 @@ extern firebase_perf_v1_PerfMetric setTraceMetric(firebase_perf_v1_PerfMetric pe
  * firebase_perf_v1_PerfMetric.
  *  @return A firebase_perf_v1_PerfMetric object.
  */
-extern firebase_perf_v1_PerfMetric setNetworkRequestMetric(
+extern firebase_perf_v1_PerfMetric FPRSetNetworkRequestMetric(
     firebase_perf_v1_PerfMetric perfMetric, firebase_perf_v1_NetworkRequestMetric networkMetric);
 
 /** Populate a firebase_perf_v1_PerfMetric object with the given firebase_perf_v1_GaugeMetric.
@@ -174,8 +174,8 @@ extern firebase_perf_v1_PerfMetric setNetworkRequestMetric(
  * firebase_perf_v1_PerfMetric.
  *  @return A firebase_perf_v1_PerfMetric object.
  */
-extern firebase_perf_v1_PerfMetric setGaugeMetric(firebase_perf_v1_PerfMetric perfMetric,
-                                                  firebase_perf_v1_GaugeMetric gaugeMetric);
+extern firebase_perf_v1_PerfMetric FPRSetGaugeMetric(firebase_perf_v1_PerfMetric perfMetric,
+                                                     firebase_perf_v1_GaugeMetric gaugeMetric);
 
 /** Populate a firebase_perf_v1_PerfMetric object with the given
  * firebase_perf_v1_ApplicationProcessState.
@@ -185,12 +185,12 @@ extern firebase_perf_v1_PerfMetric setGaugeMetric(firebase_perf_v1_PerfMetric pe
  * firebase_perf_v1_PerfMetric.
  *  @return A firebase_perf_v1_PerfMetric object.
  */
-extern firebase_perf_v1_PerfMetric setApplicationProcessState(
+extern firebase_perf_v1_PerfMetric FPRSetApplicationProcessState(
     firebase_perf_v1_PerfMetric perfMetric, firebase_perf_v1_ApplicationProcessState state);
 
 #ifdef TARGET_HAS_MOBILE_CONNECTIVITY
 /** Obtain a CTTelephonyNetworkInfo object to determine device network attributes.
  *  @return CTTelephonyNetworkInfo object.
  */
-extern CTTelephonyNetworkInfo* _Nullable NetworkInfo(void);
+extern CTTelephonyNetworkInfo* _Nullable FPRNetworkInfo(void);
 #endif

@@ -53,14 +53,14 @@
 /** Validates that a firebase_perf_v1_PerfMetric creation is successful. */
 - (void)testPerfMetricMessageCreation {
   NSString *appID = @"RandomAppID";
-  firebase_perf_v1_PerfMetric perfMetric = GetPerfMetricMessage(appID);
+  firebase_perf_v1_PerfMetric perfMetric = FPRGetPerfMetricMessage(appID);
   XCTAssertEqualObjects(FPRDecodeString(perfMetric.application_info.google_app_id), appID);
 }
 
 /** Tests if the application information is populated when creating a firebase_perf_v1_PerfMetric.
  */
 - (void)testApplicationInfoMessage {
-  firebase_perf_v1_PerfMetric event = GetPerfMetricMessage(@"appid");
+  firebase_perf_v1_PerfMetric event = FPRGetPerfMetricMessage(@"appid");
   firebase_perf_v1_ApplicationInfo appInfo = event.application_info;
   XCTAssertEqualObjects(FPRDecodeString(appInfo.google_app_id), @"appid");
   XCTAssertTrue(appInfo.ios_app_info.sdk_version != NULL);
@@ -83,7 +83,7 @@
   FIRPerformance *performance = [FIRPerformance sharedInstance];
   [performance setValue:@"bar1" forAttribute:@"foo1"];
   [performance setValue:@"bar2" forAttribute:@"foo2"];
-  firebase_perf_v1_PerfMetric event = GetPerfMetricMessage(@"appid");
+  firebase_perf_v1_PerfMetric event = FPRGetPerfMetricMessage(@"appid");
   firebase_perf_v1_ApplicationInfo appInfo = event.application_info;
   XCTAssertEqual(appInfo.custom_attributes_count, 2);
   NSDictionary *attributes = FPRDecodeStringToStringMap(
@@ -128,7 +128,7 @@
   [trace incrementMetric:@"c1" byInt:2];
   [trace setValue:@"bar" forAttribute:@"foo"];
   [trace stop];
-  firebase_perf_v1_TraceMetric traceMetric = GetTraceMetric(trace);
+  firebase_perf_v1_TraceMetric traceMetric = FPRGetTraceMetric(trace);
   XCTAssertEqualObjects(FPRDecodeString(traceMetric.name), @"Random");
   XCTAssertEqual(traceMetric.subtraces_count, 2);
   XCTAssertEqual(traceMetric.counters_count, 1);
@@ -151,7 +151,7 @@
   [trace start];
   [trace incrementMetric:@"c1" byInt:2];
   [trace stop];
-  firebase_perf_v1_TraceMetric traceMetric = GetTraceMetric(trace);
+  firebase_perf_v1_TraceMetric traceMetric = FPRGetTraceMetric(trace);
   XCTAssertTrue(traceMetric.name != NULL);
   XCTAssertTrue(traceMetric.has_client_start_time_us);
   XCTAssertTrue(traceMetric.has_duration_us);
@@ -171,7 +171,7 @@
 
   trace.activeSessions = [@[ session1, session2 ] mutableCopy];
   [trace stop];
-  firebase_perf_v1_TraceMetric traceMetric = GetTraceMetric(trace);
+  firebase_perf_v1_TraceMetric traceMetric = FPRGetTraceMetric(trace);
   XCTAssertTrue(traceMetric.perf_sessions != NULL);
   XCTAssertTrue(traceMetric.perf_sessions_count >= 2);
 }
@@ -195,7 +195,7 @@
 
   [trace didReceiveData:[NSData data]];
   [trace didCompleteRequestWithResponse:response error:error];
-  firebase_perf_v1_NetworkRequestMetric networkMetric = GetNetworkRequestMetric(trace);
+  firebase_perf_v1_NetworkRequestMetric networkMetric = FPRGetNetworkRequestMetric(trace);
   XCTAssertEqualObjects(FPRDecodeString(networkMetric.url), URL.absoluteString);
   XCTAssertEqual(networkMetric.http_method, firebase_perf_v1_NetworkRequestMetric_HttpMethod_GET);
   XCTAssertEqual(
@@ -224,7 +224,7 @@
   NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:-200 userInfo:nil];
   [trace didReceiveData:[NSData data]];
   [trace didCompleteRequestWithResponse:response error:error];
-  firebase_perf_v1_NetworkRequestMetric networkMetric = GetNetworkRequestMetric(trace);
+  firebase_perf_v1_NetworkRequestMetric networkMetric = FPRGetNetworkRequestMetric(trace);
   XCTAssertTrue(networkMetric.url != NULL);
   XCTAssertTrue(networkMetric.has_client_start_time_us);
   XCTAssertTrue(networkMetric.has_http_method);
@@ -239,23 +239,23 @@
  * enum type is successful. */
 - (void)testApplicationProcessStateConversion {
   XCTAssertEqual(firebase_perf_v1_ApplicationProcessState_BACKGROUND,
-                 ApplicationProcessState(FPRTraceStateBackgroundOnly));
+                 FPRApplicationProcessState(FPRTraceStateBackgroundOnly));
   XCTAssertEqual(firebase_perf_v1_ApplicationProcessState_FOREGROUND,
-                 ApplicationProcessState(FPRTraceStateForegroundOnly));
+                 FPRApplicationProcessState(FPRTraceStateForegroundOnly));
   XCTAssertEqual(firebase_perf_v1_ApplicationProcessState_FOREGROUND_BACKGROUND,
-                 ApplicationProcessState(FPRTraceStateBackgroundAndForeground));
+                 FPRApplicationProcessState(FPRTraceStateBackgroundAndForeground));
   XCTAssertEqual(firebase_perf_v1_ApplicationProcessState_APPLICATION_PROCESS_STATE_UNKNOWN,
-                 ApplicationProcessState(FPRTraceStateUnknown));
+                 FPRApplicationProcessState(FPRTraceStateUnknown));
 
   // Try with some random value should say the application state is unknown.
   XCTAssertEqual(firebase_perf_v1_ApplicationProcessState_APPLICATION_PROCESS_STATE_UNKNOWN,
-                 ApplicationProcessState(100));
+                 FPRApplicationProcessState(100));
 }
 
 #ifdef TARGET_HAS_MOBILE_CONNECTIVITY
 /** Validates if network object creation works. */
 - (void)testNetworkInfoObjectCreation {
-  XCTAssertNotNil(NetworkInfo());
+  XCTAssertNotNil(FPRNetworkInfo());
 }
 #endif
 
@@ -283,7 +283,7 @@
 
   [trace didReceiveData:[NSData data]];
   [trace didCompleteRequestWithResponse:response error:error];
-  firebase_perf_v1_NetworkRequestMetric networkMetric = GetNetworkRequestMetric(trace);
+  firebase_perf_v1_NetworkRequestMetric networkMetric = FPRGetNetworkRequestMetric(trace);
   XCTAssertTrue(networkMetric.perf_sessions != NULL);
   XCTAssertTrue(networkMetric.perf_sessions_count >= 2);
 }
@@ -297,7 +297,7 @@
                                                                         heapAvailable:10 * 1024];
   [gauges addObject:memoryData];
 
-  firebase_perf_v1_GaugeMetric gaugeMetric = GetGaugeMetric(gauges, @"abc");
+  firebase_perf_v1_GaugeMetric gaugeMetric = FPRGetGaugeMetric(gauges, @"abc");
   XCTAssertEqual(gaugeMetric.cpu_metric_readings_count, 0);
   XCTAssertEqual(gaugeMetric.ios_memory_readings_count, 1);
   XCTAssertEqual(gaugeMetric.ios_memory_readings[0].used_app_heap_memory_kb, 5);
@@ -318,7 +318,7 @@
     [gauges addObject:cpuData];
     [gauges addObject:memoryData];
   }
-  firebase_perf_v1_GaugeMetric gaugeMetric = GetGaugeMetric(gauges, @"abc");
+  firebase_perf_v1_GaugeMetric gaugeMetric = FPRGetGaugeMetric(gauges, @"abc");
   XCTAssertEqual(gaugeMetric.cpu_metric_readings_count, 5);
   XCTAssertEqual(gaugeMetric.ios_memory_readings_count, 5);
 }
@@ -335,7 +335,7 @@
   trace.activeSessions = [@[ session1, session2 ] mutableCopy];
   [trace stop];
 
-  firebase_perf_v1_TraceMetric traceMetric = GetTraceMetric(trace);
+  firebase_perf_v1_TraceMetric traceMetric = FPRGetTraceMetric(trace);
   XCTAssertTrue(traceMetric.perf_sessions != NULL);
   XCTAssertTrue(traceMetric.perf_sessions_count >= 2);
 
@@ -357,7 +357,7 @@
   trace.activeSessions = [@[ session1, session2 ] mutableCopy];
   [trace stop];
 
-  firebase_perf_v1_TraceMetric traceMetric = GetTraceMetric(trace);
+  firebase_perf_v1_TraceMetric traceMetric = FPRGetTraceMetric(trace);
   XCTAssertTrue(traceMetric.perf_sessions != NULL);
   XCTAssertTrue(traceMetric.perf_sessions_count >= 2);
 
@@ -376,7 +376,7 @@
   trace.activeSessions = [@[ session1 ] mutableCopy];
   [trace stop];
 
-  firebase_perf_v1_TraceMetric traceMetric = GetTraceMetric(trace);
+  firebase_perf_v1_TraceMetric traceMetric = FPRGetTraceMetric(trace);
   XCTAssertTrue(traceMetric.perf_sessions != NULL);
   XCTAssertTrue(traceMetric.perf_sessions_count >= 1);
 
@@ -411,7 +411,7 @@
   [trace didReceiveData:[NSData data]];
   [trace didCompleteRequestWithResponse:response error:error];
 
-  firebase_perf_v1_NetworkRequestMetric networkMetric = GetNetworkRequestMetric(trace);
+  firebase_perf_v1_NetworkRequestMetric networkMetric = FPRGetNetworkRequestMetric(trace);
   XCTAssertTrue(networkMetric.perf_sessions != NULL);
   XCTAssertTrue(networkMetric.perf_sessions_count >= 2);
 
@@ -447,7 +447,7 @@
   [trace didReceiveData:[NSData data]];
   [trace didCompleteRequestWithResponse:response error:error];
 
-  firebase_perf_v1_NetworkRequestMetric networkMetric = GetNetworkRequestMetric(trace);
+  firebase_perf_v1_NetworkRequestMetric networkMetric = FPRGetNetworkRequestMetric(trace);
   XCTAssertTrue(networkMetric.perf_sessions != NULL);
   XCTAssertTrue(networkMetric.perf_sessions_count >= 2);
 
@@ -482,7 +482,7 @@
   [trace didReceiveData:[NSData data]];
   [trace didCompleteRequestWithResponse:response error:error];
 
-  firebase_perf_v1_NetworkRequestMetric networkMetric = GetNetworkRequestMetric(trace);
+  firebase_perf_v1_NetworkRequestMetric networkMetric = FPRGetNetworkRequestMetric(trace);
   XCTAssertTrue(networkMetric.perf_sessions != NULL);
   XCTAssertTrue(networkMetric.perf_sessions_count >= 1);
 

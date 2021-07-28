@@ -23,7 +23,6 @@
 #import "FirebasePerformance/Sources/Public/FIRHTTPMetric.h"
 #import "FirebasePerformance/Sources/Public/FIRPerformance.h"
 
-#import "FirebasePerformance/Sources/FPRProtoUtils.h"
 #import "FirebasePerformance/Sources/Instrumentation/FIRHTTPMetric+Private.h"
 
 #import "FirebasePerformance/Tests/Unit/Configurations/FPRFakeRemoteConfig.h"
@@ -166,7 +165,6 @@
   [metric markResponseStart];
   [metric stop];
   FPRNetworkTrace *networkTrace = metric.networkTrace;
-  XCTAssertNotNil(FPRGetNetworkRequestMetric(networkTrace));
   XCTAssertEqualObjects(networkTrace.URLRequest.URL, self.sampleURL);
   XCTAssertEqual(networkTrace.requestSize, 100);
   XCTAssertEqual(networkTrace.responseSize, 300);
@@ -187,7 +185,6 @@
   [metric markResponseStart];
   [metric stop];
   FPRNetworkTrace *networkTrace = metric.networkTrace;
-  XCTAssertNil(FPRGetNetworkRequestMetric(networkTrace));
 }
 
 /** Validates that starting and stopping logs an event. */

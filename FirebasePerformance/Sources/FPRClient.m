@@ -125,7 +125,7 @@
 
 #ifdef TARGET_HAS_MOBILE_CONNECTIVITY
     // Create telephony network information object ahead of time to avoid runtime delays.
-    NetworkInfo();
+    FPRNetworkInfo();
 #endif
 
     // Update the configuration flags.
@@ -170,10 +170,10 @@
   }
   if ([trace isCompleteAndValid]) {
     dispatch_group_async(self.eventsQueueGroup, self.eventsQueue, ^{
-      firebase_perf_v1_PerfMetric metric = GetPerfMetricMessage(self.config.appID);
-      metric = setTraceMetric(metric, GetTraceMetric(trace));
-      metric =
-          setApplicationProcessState(metric, ApplicationProcessState(trace.backgroundTraceState));
+      firebase_perf_v1_PerfMetric metric = FPRGetPerfMetricMessage(self.config.appID);
+      metric = FPRSetTraceMetric(metric, FPRGetTraceMetric(trace));
+      metric = FPRSetApplicationProcessState(
+          metric, FPRApplicationProcessState(trace.backgroundTraceState));
 
       // Log the trace metric with its console URL.
       if ([trace.name hasPrefix:kFPRPrefixForScreenTraceName]) {
@@ -210,7 +210,8 @@
   }
   dispatch_group_async(self.eventsQueueGroup, self.eventsQueue, ^{
     if ([trace isValid]) {
-      firebase_perf_v1_NetworkRequestMetric networkRequestMetric = GetNetworkRequestMetric(trace);
+      firebase_perf_v1_NetworkRequestMetric networkRequestMetric =
+          FPRGetNetworkRequestMetric(trace);
       int64_t duration = networkRequestMetric.has_time_to_response_completed_us
                              ? networkRequestMetric.time_to_response_completed_us
                              : 0;
@@ -221,10 +222,10 @@
       FPRLogInfo(kFPRClientMetricLogged,
                  @"Logging network request trace - %@, Response code: %@, %.4fms",
                  FPRDecodeString(networkRequestMetric.url), responseCode, duration / 1000.0);
-      firebase_perf_v1_PerfMetric metric = GetPerfMetricMessage(self.config.appID);
-      metric = setNetworkRequestMetric(metric, networkRequestMetric);
-      metric =
-          setApplicationProcessState(metric, ApplicationProcessState(trace.backgroundTraceState));
+      firebase_perf_v1_PerfMetric metric = FPRGetPerfMetricMessage(self.config.appID);
+      metric = FPRSetNetworkRequestMetric(metric, networkRequestMetric);
+      metric = FPRSetApplicationProcessState(
+          metric, FPRApplicationProcessState(trace.backgroundTraceState));
 
       [self processAndLogEvent:metric];
     }
@@ -237,12 +238,12 @@
     return;
   }
   dispatch_group_async(self.eventsQueueGroup, self.eventsQueue, ^{
-    firebase_perf_v1_PerfMetric metric = GetPerfMetricMessage(self.config.appID);
+    firebase_perf_v1_PerfMetric metric = FPRGetPerfMetricMessage(self.config.appID);
     firebase_perf_v1_GaugeMetric gaugeMetric = firebase_perf_v1_GaugeMetric_init_default;
     if ((gaugeData != nil && gaugeData.count != 0) && (sessionId != nil && sessionId.length != 0)) {
-      gaugeMetric = GetGaugeMetric(gaugeData, sessionId);
+      gaugeMetric = FPRGetGaugeMetric(gaugeData, sessionId);
     }
-    metric = setGaugeMetric(metric, gaugeMetric);
+    metric = FPRSetGaugeMetric(metric, gaugeMetric);
     [self processAndLogEvent:metric];
   });
 

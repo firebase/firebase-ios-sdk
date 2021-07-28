@@ -48,39 +48,39 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
 }
 
 + (firebase_perf_v1_PerfMetric)createRandomPerfMetric:(NSString *)traceName {
-  firebase_perf_v1_PerfMetric perfMetric = GetPerfMetricMessage(@"RandomAppID");
+  firebase_perf_v1_PerfMetric perfMetric = FPRGetPerfMetricMessage(@"RandomAppID");
   FIRTrace *trace = [FPRTestUtils createRandomTraceWithName:traceName];
   // Make sure there are no sessions.
   trace.activeSessions = [NSMutableArray array];
-  perfMetric = setTraceMetric(perfMetric, GetTraceMetric(trace));
+  perfMetric = FPRSetTraceMetric(perfMetric, FPRGetTraceMetric(trace));
 
   return perfMetric;
 }
 
 + (firebase_perf_v1_PerfMetric)createVerboseRandomPerfMetric:(NSString *)traceName {
-  firebase_perf_v1_PerfMetric perfMetric = GetPerfMetricMessage(@"RandomAppID");
+  firebase_perf_v1_PerfMetric perfMetric = FPRGetPerfMetricMessage(@"RandomAppID");
   FIRTrace *trace = [FPRTestUtils createRandomTraceWithName:traceName];
   trace = [FPRTestUtils addVerboseSessionToTrace:trace];
-  perfMetric = setTraceMetric(perfMetric, GetTraceMetric(trace));
+  perfMetric = FPRSetTraceMetric(perfMetric, FPRGetTraceMetric(trace));
 
   return perfMetric;
 }
 
 + (firebase_perf_v1_PerfMetric)createRandomInternalPerfMetric:(NSString *)traceName {
-  firebase_perf_v1_PerfMetric perfMetric = GetPerfMetricMessage(@"RandomAppID");
+  firebase_perf_v1_PerfMetric perfMetric = FPRGetPerfMetricMessage(@"RandomAppID");
 
   FIRTrace *trace = [[FIRTrace alloc] initInternalTraceWithName:traceName];
   [trace start];
   [trace stop];
   // Make sure there are no sessions.
   trace.activeSessions = [NSMutableArray array];
-  perfMetric = setTraceMetric(perfMetric, GetTraceMetric(trace));
+  perfMetric = FPRSetTraceMetric(perfMetric, FPRGetTraceMetric(trace));
 
   return perfMetric;
 }
 
 + (firebase_perf_v1_PerfMetric)createRandomNetworkPerfMetric:(NSString *)url {
-  firebase_perf_v1_PerfMetric perfMetric = GetPerfMetricMessage(@"RandomAppID");
+  firebase_perf_v1_PerfMetric perfMetric = FPRGetPerfMetricMessage(@"RandomAppID");
 
   NSURL *URL = [NSURL URLWithString:url];
   NSURLRequest *URLRequest = [NSURLRequest requestWithURL:URL];
@@ -97,13 +97,13 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   [networkTrace didReceiveData:[NSData data]];
   [networkTrace didCompleteRequestWithResponse:response error:nil];
   networkTrace.activeSessions = [NSMutableArray array];
-  perfMetric = setNetworkRequestMetric(perfMetric, GetNetworkRequestMetric(networkTrace));
+  perfMetric = FPRSetNetworkRequestMetric(perfMetric, FPRGetNetworkRequestMetric(networkTrace));
 
   return perfMetric;
 }
 
 + (firebase_perf_v1_PerfMetric)createRandomGaugePerfMetric {
-  firebase_perf_v1_PerfMetric perfMetric = GetPerfMetricMessage(@"RandomAppID");
+  firebase_perf_v1_PerfMetric perfMetric = FPRGetPerfMetricMessage(@"RandomAppID");
 
   NSMutableArray<NSObject *> *gauges = [[NSMutableArray alloc] init];
   NSDate *date = [NSDate date];
@@ -112,8 +112,8 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
                                                                         heapAvailable:10 * 1024];
   [gauges addObject:memoryData];
 
-  firebase_perf_v1_GaugeMetric gaugeMetric = GetGaugeMetric(gauges, @"123");
-  perfMetric = setGaugeMetric(perfMetric, gaugeMetric);
+  firebase_perf_v1_GaugeMetric gaugeMetric = FPRGetGaugeMetric(gauges, @"123");
+  perfMetric = FPRSetGaugeMetric(perfMetric, gaugeMetric);
 
   return perfMetric;
 }

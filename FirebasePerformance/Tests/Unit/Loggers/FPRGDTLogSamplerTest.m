@@ -81,7 +81,7 @@
 
   // Generates sample network trace metric.
   NSString *randomAppID = @"RandomID";
-  firebase_perf_v1_PerfMetric networkTraceMetric = GetPerfMetricMessage(randomAppID);
+  firebase_perf_v1_PerfMetric networkTraceMetric = FPRGetPerfMetricMessage(randomAppID);
   NSURL *URL = [NSURL URLWithString:@"https://abc.xyz"];
   NSURLRequest *URLRequest = [NSURLRequest requestWithURL:URL];
   FPRNetworkTrace *networkTrace = [[FPRNetworkTrace alloc] initWithURLRequest:URLRequest];
@@ -99,7 +99,7 @@
   // Make sure there are no sessions as they will not be sampled.
   networkTrace.activeSessions = [NSMutableArray array];
   networkTraceMetric =
-      setNetworkRequestMetric(networkTraceMetric, GetNetworkRequestMetric(networkTrace));
+      FPRSetNetworkRequestMetric(networkTraceMetric, FPRGetNetworkRequestMetric(networkTrace));
 
   self.transportNetworkEvent = [self.gdtfllTransport eventForTransport];
   self.transportNetworkEvent.qosTier = GDTCOREventQosDefault;
@@ -222,7 +222,7 @@
   [self.fakeConfigs setNetworkSamplingRate:0.0];
 
   // Network request is verbose.
-  firebase_perf_v1_PerfMetric networkMetric = GetPerfMetricMessage(@"RandomID");
+  firebase_perf_v1_PerfMetric networkMetric = FPRGetPerfMetricMessage(@"RandomID");
   NSURL *URL = [NSURL URLWithString:@"https://abc.com"];
   NSURLRequest *testURLRequest = [NSURLRequest requestWithURL:URL];
   FPRNetworkTrace *networkTrace = [[FPRNetworkTrace alloc] initWithURLRequest:testURLRequest];
@@ -235,7 +235,8 @@
   FPRSessionDetails *details =
       [[FPRSessionDetails alloc] initWithSessionId:@"random" options:FPRSessionOptionsGauges];
   networkTrace.activeSessions = [[NSMutableArray alloc] initWithObjects:details, nil];
-  networkMetric = setNetworkRequestMetric(networkMetric, GetNetworkRequestMetric(networkTrace));
+  networkMetric =
+      FPRSetNetworkRequestMetric(networkMetric, FPRGetNetworkRequestMetric(networkTrace));
 
   GDTCOREvent *networkEvent = [self.gdtfllTransport eventForTransport];
   networkEvent.qosTier = GDTCOREventQosDefault;
@@ -250,7 +251,7 @@
   [self.fakeConfigs setNetworkSamplingRate:0.0];
 
   // Network request is not verbose.
-  firebase_perf_v1_PerfMetric networkMetric = GetPerfMetricMessage(@"RandomID");
+  firebase_perf_v1_PerfMetric networkMetric = FPRGetPerfMetricMessage(@"RandomID");
   NSURL *URL = [NSURL URLWithString:@"https://abc.com"];
   NSURLRequest *testURLRequest = [NSURLRequest requestWithURL:URL];
   FPRNetworkTrace *networkTrace = [[FPRNetworkTrace alloc] initWithURLRequest:testURLRequest];
@@ -262,7 +263,8 @@
   [networkTrace didCompleteRequestWithResponse:response error:nil];
   // Make sure the session information is empty.
   networkTrace.activeSessions = [NSMutableArray array];
-  networkMetric = setNetworkRequestMetric(networkMetric, GetNetworkRequestMetric(networkTrace));
+  networkMetric =
+      FPRSetNetworkRequestMetric(networkMetric, FPRGetNetworkRequestMetric(networkTrace));
 
   GDTCOREvent *networkEvent = [self.gdtfllTransport eventForTransport];
   networkEvent.qosTier = GDTCOREventQosDefault;
