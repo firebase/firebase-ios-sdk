@@ -14,7 +14,9 @@
 
 #import <Foundation/Foundation.h>
 
-#if TARGET_OS_IPHONE
+#define CLS_METRICKIT_SUPPORTED (__has_include(<MetricKit/MetricKit.h>) && TARGET_OS_IOS)
+
+#if CLS_METRICKIT_SUPPORTED
 #import <MetricKit/MetricKit.h>
 
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSExistingReportManager.h"
@@ -28,7 +30,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(15.0))
 @interface FIRCLSMetricKitManager : NSObject <MXMetricManagerSubscriber>
 
 - (instancetype)initWithManagerData:(FIRCLSManagerData *)managerData
@@ -41,6 +42,5 @@ API_AVAILABLE(ios(15.0))
 
 @end
 
-#endif
-
 NS_ASSUME_NONNULL_END
+#endif  // CLS_METRICKIT_SUPPORTED

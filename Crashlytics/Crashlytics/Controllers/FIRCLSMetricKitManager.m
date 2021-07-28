@@ -14,17 +14,17 @@
 
 #import <Foundation/Foundation.h>
 
-#if TARGET_OS_IPHONE
+#import "Crashlytics/Crashlytics/Controllers/FIRCLSMetricKitManager.h"
+
+#if CLS_METRICKIT_SUPPORTED
 
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
-#import "Crashlytics/Crashlytics/Controllers/FIRCLSMetricKitManager.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSExecutionIdentifierModel.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
 #import "Crashlytics/Crashlytics/Public/FirebaseCrashlytics/FIRCrashlyticsReport.h"
 
-API_AVAILABLE(ios(15.0))
 @interface FIRCLSMetricKitManager ()
 
 @property FBLPromise *metricKitDataAvailable;
@@ -132,8 +132,8 @@ API_AVAILABLE(ios(15.0))
 
   // Write out time information to the MetricKit report file.
   FIRCLSFileWriteSectionStart(&metricKitFile, "time");
-  FIRCLSFileWriteHashEntryUint64(&metricKitFile, "beginTime", beginSecondsSince1970);
-  FIRCLSFileWriteHashEntryUint64(&metricKitFile, "endTime", endSecondsSince1970);
+  FIRCLSFileWriteHashEntryUint64(&metricKitFile, "begin_time", beginSecondsSince1970);
+  FIRCLSFileWriteHashEntryUint64(&metricKitFile, "end_time", endSecondsSince1970);
   FIRCLSFileWriteSectionEnd(&metricKitFile);
 
   // Write out each type of diagnostic if it exists in the report
@@ -145,7 +145,7 @@ API_AVAILABLE(ios(15.0))
   // For each diagnostic type, write out a section in the MetricKit report file. This section will
   // have subsections for threads, metadata, and event specific metadata.
   if (hasCrash) {
-    FIRCLSFileWriteSectionStart(&metricKitFile, "crash event");
+    FIRCLSFileWriteSectionStart(&metricKitFile, "crash_event");
     MXCrashDiagnostic *crashDiagnostic = [diagnosticPayload.crashDiagnostics objectAtIndex:0];
 
     NSData *threads = [crashDiagnostic.callStackTree JSONRepresentation];
@@ -155,13 +155,13 @@ API_AVAILABLE(ios(15.0))
 
     NSString *nilString = @"";
     NSDictionary *crashDict = @{
-      @"termination reason" :
+      @"termination_reason" :
               (crashDiagnostic.terminationReason) ? crashDiagnostic.terminationReason : nilString,
-      @"virtual memory region info" : (crashDiagnostic.virtualMemoryRegionInfo)
+      @"virtual_memory_region_info" : (crashDiagnostic.virtualMemoryRegionInfo)
           ? crashDiagnostic.virtualMemoryRegionInfo
           : nilString,
-      @"exception type" : crashDiagnostic.exceptionType,
-      @"exception code" : crashDiagnostic.exceptionCode,
+      @"exception_type" : crashDiagnostic.exceptionType,
+      @"exception_code" : crashDiagnostic.exceptionCode,
       @"signal" : crashDiagnostic.signal
     };
     [self writeEventSpecificDataToFile:&metricKitFile event:@"crash" data:crashDict];
@@ -170,7 +170,7 @@ API_AVAILABLE(ios(15.0))
   }
 
   if (hasHang) {
-    FIRCLSFileWriteSectionStart(&metricKitFile, "hang event");
+    FIRCLSFileWriteSectionStart(&metricKitFile, "hang_event");
     MXHangDiagnostic *hangDiagnostic = [diagnosticPayload.hangDiagnostics objectAtIndex:0];
 
     NSData *threads = [hangDiagnostic.callStackTree JSONRepresentation];
@@ -178,14 +178,14 @@ API_AVAILABLE(ios(15.0))
     [self writeThreadsToFile:&metricKitFile threads:threads];
     [self writeMetadataToFile:&metricKitFile metadata:metadata];
 
-    NSDictionary *hangDict = @{@"hang duration" : hangDiagnostic.hangDuration};
+    NSDictionary *hangDict = @{@"hang_duration" : hangDiagnostic.hangDuration};
     [self writeEventSpecificDataToFile:&metricKitFile event:@"hang" data:hangDict];
 
     FIRCLSFileWriteSectionEnd(&metricKitFile);
   }
 
   if (hasCPUException) {
-    FIRCLSFileWriteSectionStart(&metricKitFile, "CPU exception event");
+    FIRCLSFileWriteSectionStart(&metricKitFile, "cpu_exception_event");
     MXCPUExceptionDiagnostic *cpuExceptionDiagnostic =
         [diagnosticPayload.cpuExceptionDiagnostics objectAtIndex:0];
 
@@ -195,16 +195,16 @@ API_AVAILABLE(ios(15.0))
     [self writeMetadataToFile:&metricKitFile metadata:metadata];
 
     NSDictionary *cpuDict = @{
-      @"total CPU time" : cpuExceptionDiagnostic.totalCPUTime,
-      @"total sampled time" : cpuExceptionDiagnostic.totalSampledTime
+      @"total_cpu_time" : cpuExceptionDiagnostic.totalCPUTime,
+      @"total_sampled_time" : cpuExceptionDiagnostic.totalSampledTime
     };
-    [self writeEventSpecificDataToFile:&metricKitFile event:@"CPU exception" data:cpuDict];
+    [self writeEventSpecificDataToFile:&metricKitFile event:@"cpu_exception" data:cpuDict];
 
     FIRCLSFileWriteSectionEnd(&metricKitFile);
   }
 
   if (hasDiskWriteException) {
-    FIRCLSFileWriteSectionStart(&metricKitFile, "disk write exception event");
+    FIRCLSFileWriteSectionStart(&metricKitFile, "disk_write_exception_event");
     MXDiskWriteExceptionDiagnostic *diskWriteExceptionDiagnostic =
         [diagnosticPayload.diskWriteExceptionDiagnostics objectAtIndex:0];
 
@@ -214,8 +214,8 @@ API_AVAILABLE(ios(15.0))
     [self writeMetadataToFile:&metricKitFile metadata:metadata];
 
     NSDictionary *diskDict =
-        @{@"total writes caused" : diskWriteExceptionDiagnostic.totalWritesCaused};
-    [self writeEventSpecificDataToFile:&metricKitFile event:@"disk write exception" data:diskDict];
+        @{@"total_writes_caused" : diskWriteExceptionDiagnostic.totalWritesCaused};
+    [self writeEventSpecificDataToFile:&metricKitFile event:@"disk_write_exception" data:diskDict];
 
     FIRCLSFileWriteSectionEnd(&metricKitFile);
   }
@@ -289,7 +289,7 @@ API_AVAILABLE(ios(15.0))
 - (void)writeEventSpecificDataToFile:(FIRCLSFile *)metricKitFile
                                event:(NSString *)event
                                 data:(NSDictionary *)data {
-  NSString *eventName = [event stringByAppendingString:@" information"];
+  NSString *eventName = [event stringByAppendingString:@"_information"];
   FIRCLSFileWriteSectionStart(metricKitFile, [eventName UTF8String]);
   FIRCLSFileWriteHashStart(metricKitFile);
 
@@ -310,4 +310,4 @@ API_AVAILABLE(ios(15.0))
 
 @end
 
-#endif
+#endif  // CLS_METRICKIT_SUPPORTED
