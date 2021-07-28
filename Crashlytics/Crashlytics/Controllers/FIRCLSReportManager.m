@@ -311,7 +311,7 @@ typedef NSNumber FIRCLSWrappedReportAction;
 
              // If data collection is enabled, the SDK will not notify the user
              // when unsent reports are available, or respect Send / DeleteUnsentReports
-             [_unsentReportsAvailable fulfill:nil];
+             [self->_unsentReportsAvailable fulfill:nil];
              return @(report != nil);
            }];
   } else {
