@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <Foundation/Foundation.h>
 #include <AvailabilityMacros.h>
+#import <Foundation/Foundation.h>
 
 #define CLS_METRICKIT_SUPPORTED (__has_include(<MetricKit/MetricKit.h>) && TARGET_OS_IOS && defined(IOS_VERSION_15_0))
 
