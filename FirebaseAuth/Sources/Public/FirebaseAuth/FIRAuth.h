@@ -488,7 +488,7 @@ NS_SWIFT_NAME(Auth)
                 UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
                 completion:(nullable void (^)(FIRAuthDataResult *_Nullable authResult,
                                               NSError *_Nullable error))completion
-    API_UNAVAILABLE(watchos);
+    API_UNAVAILABLE(macos, tvos, watchos);
 
 /** @fn signInWithCredential:completion:
     @brief Asynchronously signs in to Firebase with the given 3rd-party credentials (e.g. a Facebook
