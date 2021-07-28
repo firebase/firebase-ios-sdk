@@ -211,8 +211,26 @@ pb_bytes_array_t *FIRMessagingEncodeString(NSString *string) {
   fm_MessagingClientEventExtension eventExtension = fm_MessagingClientEventExtension_init_default;
 
   fm_MessagingClientEvent clientEvent = fm_MessagingClientEvent_init_default;
+  if (!info[kFIRMessagingSenderID]) {
+    FIRMessagingLoggerError(kFIRMessagingServiceExtensionInvalidProjectID,
+                            @"Delivery logging failed: Invalid project ID");
+    return;
+  }
   clientEvent.project_number = (int64_t)[info[kFIRMessagingSenderID] longLongValue];
+
+  if (!info[kFIRMessagingMessageIDKey] ||
+      ![info[kFIRMessagingMessageIDKey] isKindOfClass:NSString.class]) {
+    FIRMessagingLoggerWarn(kFIRMessagingServiceExtensionInvalidMessageID,
+                           @"Delivery logging failed: Invalid Message ID");
+    return;
+  }
   clientEvent.message_id = FIRMessagingEncodeString(info[kFIRMessagingMessageIDKey]);
+
+  if (!info[kFIRMessagingFID] || ![info[kFIRMessagingFID] isKindOfClass:NSString.class]) {
+    FIRMessagingLoggerWarn(kFIRMessagingServiceExtensionInvalidInstanceID,
+                           @"Delivery logging failed: Invalid Instance ID");
+    return;
+  }
   clientEvent.instance_id = FIRMessagingEncodeString(info[kFIRMessagingFID]);
 
   if ([info[@"aps"][kFIRMessagingMessageAPNSContentAvailableKey] intValue] == 1 &&
@@ -225,15 +243,25 @@ pb_bytes_array_t *FIRMessagingEncodeString(NSString *string) {
 
   NSString *bundleID = [NSBundle mainBundle].bundleIdentifier;
   if ([GULAppEnvironmentUtil isAppExtension]) {
-    clientEvent.package_name =
-        FIRMessagingEncodeString([[self class] bundleIdentifierByRemovingLastPartFrom:bundleID]);
-  } else {
+    bundleID = [[self class] bundleIdentifierByRemovingLastPartFrom:bundleID];
+  }
+  if (bundleID) {
     clientEvent.package_name = FIRMessagingEncodeString(bundleID);
   }
   clientEvent.event = fm_MessagingClientEvent_Event_MESSAGE_DELIVERED;
-  clientEvent.analytics_label = FIRMessagingEncodeString(info[kFIRMessagingAnalyticsMessageLabel]);
-  clientEvent.campaign_id = (int64_t)[info[kFIRMessagingAnalyticsComposerIdentifier] longLongValue];
-  clientEvent.composer_label = FIRMessagingEncodeString(info[kFIRMessagingAnalyticsComposerLabel]);
+
+  if (info[kFIRMessagingAnalyticsMessageLabel]) {
+    clientEvent.analytics_label =
+        FIRMessagingEncodeString(info[kFIRMessagingAnalyticsMessageLabel]);
+  }
+  if (info[kFIRMessagingAnalyticsComposerIdentifier]) {
+    clientEvent.campaign_id =
+        (int64_t)[info[kFIRMessagingAnalyticsComposerIdentifier] longLongValue];
+  }
+  if (info[kFIRMessagingAnalyticsComposerLabel]) {
+    clientEvent.composer_label =
+        FIRMessagingEncodeString(info[kFIRMessagingAnalyticsComposerLabel]);
+  }
 
   eventExtension.messaging_client_event = &clientEvent;
   FIRMessagingMetricsLog *log =
