@@ -294,7 +294,7 @@ typedef NSNumber FIRCLSWrappedReportAction;
     report = nil;
   }
 
-  FBLPromise<NSNumber *> *promise = [FBLPromise resolvedWith:@(report != nil)];
+  FBLPromise<NSNumber *> *promise;
 
   if ([self.dataArbiter isCrashlyticsCollectionEnabled]) {
     FIRCLSDebugLog(@"Automatic data collection is enabled.");
