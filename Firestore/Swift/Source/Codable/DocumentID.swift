@@ -76,8 +76,13 @@ import FirebaseFirestore
   /// NOTE: Trying to encode/decode this type using encoders/decoders other than
   /// Firestore.Encoder leads to an error.
   @propertyWrapper
+#if compiler(>=5.5)
   public struct DocumentID<Value: DocumentIDWrappable & Codable>:
-    DocumentIDProtocol, Codable, Sendable {
+    DocumentIDProtocol, Codable, @unchecked Sendable {
+#else
+  public struct DocumentID<Value: DocumentIDWrappable & Codable>:
+    DocumentIDProtocol, Codable {
+#endif // compiler(>=5.5)
     private var value: Value?
     private let lock = NSLock()
 
