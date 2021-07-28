@@ -12,10 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <AvailabilityMacros.h>
+#include <Availability.h>
 #import <Foundation/Foundation.h>
 
-#define CLS_METRICKIT_SUPPORTED (__has_include(<MetricKit/MetricKit.h>) && TARGET_OS_IOS)
+#if defined(__IOS_15_0) && __IOS_VERSION_MAX_ALLOWED >= __IOS_15_0
+#define CLS_METRICKIT_SUPPORTED (__has_include(<MetricKit/MetricKit.h>) && TARGET_OS_IOS
+#else
+#define CLS_METRICKIT_SUPPORTED 0
+#endif
 
 #if CLS_METRICKIT_SUPPORTED
 #import <MetricKit/MetricKit.h>
@@ -31,8 +35,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(15.0))
-API_UNAVAILABLE(macos, tvos, watchos)
 @interface FIRCLSMetricKitManager : NSObject <MXMetricManagerSubscriber>
 
 - (instancetype)initWithManagerData:(FIRCLSManagerData *)managerData
