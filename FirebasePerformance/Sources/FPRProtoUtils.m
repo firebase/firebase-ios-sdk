@@ -345,7 +345,7 @@
 //
 //#ifdef TARGET_HAS_MOBILE_CONNECTIVITY
 ///** Get the current cellular network connection type in NetworkConnectionInfo_MobileSubtype
-///format.
+/// format.
 // *  @return Current cellular network connection type.
 // */
 // static FPRMSGNetworkConnectionInfo_MobileSubtype FPRCellularNetworkType() {
@@ -374,7 +374,7 @@
 //#endif
 //
 ///** Reorders the list of sessions to make sure the first session is verbose if at least one
-///session
+/// session
 // *  in the list is verbose.
 // *  @return Ordered list of sessions.
 // */
