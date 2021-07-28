@@ -828,7 +828,8 @@ NS_SWIFT_NAME(Auth)
     @remarks If swizzling is disabled, the APNs Token must be set for phone number auth to work,
         by either setting calling this method or by setting the `APNSToken` property.
  */
-- (void)setAPNSToken:(NSData *)token type:(FIRAuthAPNSTokenType)type API_UNAVAILABLE(macos, tvos, watchos);
+- (void)setAPNSToken:(NSData *)token
+                type:(FIRAuthAPNSTokenType)type API_UNAVAILABLE(macos, tvos, watchos);
 
 /** @fn canHandleNotification:
     @brief Whether the specific remote notification is handled by `FIRAuth` .
