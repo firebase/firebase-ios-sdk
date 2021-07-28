@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 
-#import <TargetConditionals.h>
-#if TARGET_OS_IOS
-
 #import <Foundation/Foundation.h>
 
 #import "FIRAuthCredential.h"
@@ -26,8 +23,8 @@ NS_ASSUME_NONNULL_BEGIN
 /** @class FIRPhoneAuthCredential
     @brief Implementation of FIRAuthCredential for Phone Auth credentials.
  */
-NS_SWIFT_NAME(PhoneAuthCredential)
-@interface FIRPhoneAuthCredential : FIRAuthCredential <NSSecureCoding>
+NS_SWIFT_NAME(PhoneAuthCredential) API_UNAVAILABLE(macos, tvos, watchos)
+    @interface FIRPhoneAuthCredential : FIRAuthCredential<NSSecureCoding>
 
 /** @fn init
     @brief This class is not supposed to be instantiated directly.
@@ -37,5 +34,3 @@ NS_SWIFT_NAME(PhoneAuthCredential)
 @end
 
 NS_ASSUME_NONNULL_END
-
-#endif

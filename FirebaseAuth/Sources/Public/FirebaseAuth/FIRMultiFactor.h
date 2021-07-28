@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 
-#import <TargetConditionals.h>
-#if TARGET_OS_IOS
-
 #import <Foundation/Foundation.h>
 
 #import "FIRAuth.h"
@@ -33,19 +30,20 @@ NS_ASSUME_NONNULL_BEGIN
 */
 typedef void (^FIRMultiFactorSessionCallback)(FIRMultiFactorSession *_Nullable session,
                                               NSError *_Nullable error)
-    NS_SWIFT_NAME(MultiFactorSessionCallback);
+    NS_SWIFT_NAME(MultiFactorSessionCallback) API_UNAVAILABLE(macos, tvos, watchos);
 
 /**
    @brief The string identifier for second factors. e.g. "phone".
 */
-extern NSString *const _Nonnull FIRPhoneMultiFactorID NS_SWIFT_NAME(PhoneMultiFactorID);
+extern NSString *const _Nonnull FIRPhoneMultiFactorID NS_SWIFT_NAME(PhoneMultiFactorID)
+    API_UNAVAILABLE(macos, tvos, watchos);
 
 /** @class FIRMultiFactor
     @brief The interface defining the multi factor related properties and operations pertaining to a
    user.
 */
-NS_SWIFT_NAME(MultiFactor)
-@interface FIRMultiFactor : NSObject
+NS_SWIFT_NAME(MultiFactor) API_UNAVAILABLE(macos, tvos, watchos) @interface FIRMultiFactor
+    : NSObject
 
 @property(nonatomic, readonly) NSArray<FIRMultiFactorInfo *> *enrolledFactors;
 
@@ -86,5 +84,3 @@ NS_SWIFT_NAME(MultiFactor)
 @end
 
 NS_ASSUME_NONNULL_END
-
-#endif

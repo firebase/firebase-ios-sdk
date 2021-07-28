@@ -16,9 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#if TARGET_OS_IOS
 #import "FIRAuthUIDelegate.h"
-#endif  // TARGET_OS_IOS
 
 @class FIRAuthCredential;
 
@@ -39,7 +37,6 @@ typedef void (^FIRAuthCredentialCallback)(FIRAuthCredential *_Nullable credentia
                                           NSError *_Nullable error)
     NS_SWIFT_NAME(AuthCredentialCallback);
 
-#if TARGET_OS_IOS
 /** @fn getCredentialWithUIDelegate:completion:
     @brief Used to obtain an auth credential via a mobile web flow.
     @param UIDelegate An optional UI delegate used to presenet the mobile web flow.
@@ -48,8 +45,8 @@ typedef void (^FIRAuthCredentialCallback)(FIRAuthCredential *_Nullable credentia
  */
 - (void)getCredentialWithUIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
                          completion:(nullable void (^)(FIRAuthCredential *_Nullable credential,
-                                                       NSError *_Nullable error))completion;
-#endif  // TARGET_OS_IOS
+                                                       NSError *_Nullable error))completion
+    API_UNAVAILABLE(macos, tvos, watchos);
 
 @end
 

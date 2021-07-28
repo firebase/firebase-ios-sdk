@@ -16,12 +16,11 @@
 
 #import <AvailabilityMacros.h>
 #import <Foundation/Foundation.h>
+#import <TargetConditionals.h>
 
 #import "FIRAuthErrors.h"
 
-#if TARGET_OS_IOS
 #import "FIRAuthAPNSTokenType.h"
-#endif
 
 @class FIRActionCodeSettings;
 @class FIRApp;
@@ -88,7 +87,10 @@ typedef void (^FIRAuthDataResultCallback)(FIRAuthDataResult *_Nullable authResul
                                           NSError *_Nullable error)
     NS_SWIFT_NAME(AuthDataResultCallback);
 
-#if defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
+#if (defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0) || \
+    (defined(__MAC_10_12) && __MAC_OS_X_VERSION_MAX_ALLOWED >= __MAC_10_12) ||      \
+    (defined(__TVOS_10_0) && __TV_OS_VERSION_MAX_ALLOWED >= __TVOS_10_0) ||         \
+    (defined(__WATCHOS_3_0) && __WATCH_OS_VERSION_MAX_ALLOWED >= __WATCH_OS_3_0)
 /**
     @brief The name of the `NSNotificationCenter` notification which is posted when the auth state
         changes (for example, a new token has been produced, a user signs in or signs out). The
@@ -362,15 +364,13 @@ NS_SWIFT_NAME(Auth)
  */
 @property(nonatomic, copy, nullable) NSString *tenantID;
 
-#if TARGET_OS_IOS
 /** @property APNSToken
     @brief The APNs token used for phone number authentication. The type of the token (production
         or sandbox) will be attempted to be automatcially detected.
     @remarks If swizzling is disabled, the APNs Token must be set for phone number auth to work,
         by either setting this property or by calling `setAPNSToken:type:`
  */
-@property(nonatomic, strong, nullable) NSData *APNSToken;
-#endif
+@property(nonatomic, strong, nullable) NSData *APNSToken API_UNAVAILABLE(macos, tvos, watchos);
 
 /** @fn init
     @brief Please access auth instances using `FIRAuth.auth` and `FIRAuth.authForApp:`.
@@ -828,8 +828,6 @@ NS_SWIFT_NAME(Auth)
  */
 - (void)useEmulatorWithHost:(NSString *)host port:(NSInteger)port;
 
-#if TARGET_OS_IOS
-
 /** @fn canHandleURL:
     @brief Whether the specific URL is handled by `FIRAuth` .
     @param URL The URL received by the application delegate from any of the openURL method.
@@ -840,14 +838,14 @@ NS_SWIFT_NAME(Auth)
     @remarks If swizzling is disabled, URLs received by the application delegate must be forwarded
         to this method for phone number auth to work.
  */
-- (BOOL)canHandleURL:(nonnull NSURL *)URL;
+- (BOOL)canHandleURL:(nonnull NSURL *)URL API_UNAVAILABLE(macos, tvos, watchos);
 
 /** @fn setAPNSToken:type:
     @brief Sets the APNs token along with its type.
     @remarks If swizzling is disabled, the APNs Token must be set for phone number auth to work,
         by either setting calling this method or by setting the `APNSToken` property.
  */
-- (void)setAPNSToken:(NSData *)token type:(FIRAuthAPNSTokenType)type;
+- (void)setAPNSToken:(NSData *)token type:(FIRAuthAPNSTokenType)type API_UNAVAILABLE(macos, tvos, watchos);
 
 /** @fn canHandleNotification:
     @brief Whether the specific remote notification is handled by `FIRAuth` .
@@ -860,9 +858,7 @@ NS_SWIFT_NAME(Auth)
     @remarks If swizzling is disabled, related remote notifications must be forwarded to this method
         for phone number auth to work.
  */
-- (BOOL)canHandleNotification:(NSDictionary *)userInfo;
-
-#endif  // TARGET_OS_IOS
+- (BOOL)canHandleNotification:(NSDictionary *)userInfo API_UNAVAILABLE(macos, tvos, watchos);
 
 #pragma mark - User sharing
 

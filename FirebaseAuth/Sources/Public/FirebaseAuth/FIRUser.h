@@ -116,12 +116,11 @@ NS_SWIFT_NAME(User)
  */
 @property(nonatomic, readonly, nullable) NSString *tenantID;
 
-#if TARGET_OS_IOS
 /** @property multiFactor
     @brief Multi factor object associated with the user.
 */
-@property(nonatomic, readonly, nonnull) FIRMultiFactor *multiFactor;
-#endif
+@property(nonatomic, readonly, nonnull)
+    FIRMultiFactor *multiFactor API_UNAVAILABLE(macos, tvos, watchos);
 
 /** @fn init
     @brief This class should not be instantiated.
@@ -187,7 +186,6 @@ NS_SWIFT_NAME(User)
             completion:(nullable void (^)(NSError *_Nullable error))completion
     NS_SWIFT_NAME(updatePassword(to:completion:));
 
-#if TARGET_OS_IOS
 /** @fn updatePhoneNumberCredential:completion:
     @brief Updates the phone number for the user. On success, the cached user profile data is
         updated.
@@ -208,8 +206,8 @@ NS_SWIFT_NAME(User)
     @remarks See `FIRAuthErrors` for a list of error codes that are common to all FIRUser methods.
  */
 - (void)updatePhoneNumberCredential:(FIRPhoneAuthCredential *)phoneNumberCredential
-                         completion:(nullable void (^)(NSError *_Nullable error))completion;
-#endif
+                         completion:(nullable void (^)(NSError *_Nullable error))completion
+    API_UNAVAILABLE(macos, tvos, watchos);
 
 /** @fn profileChangeRequest
     @brief Creates an object which may be used to change the user's profile data.

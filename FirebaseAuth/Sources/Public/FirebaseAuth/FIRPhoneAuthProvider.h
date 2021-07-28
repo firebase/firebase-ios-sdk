@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 
-#import <TargetConditionals.h>
-#if TARGET_OS_IOS
-
 #import <Foundation/Foundation.h>
 
 @class FIRAuth;
@@ -30,12 +27,14 @@ NS_ASSUME_NONNULL_BEGIN
 /** @var FIRPhoneAuthProviderID
     @brief A string constant identifying the phone identity provider.
  */
-extern NSString *const FIRPhoneAuthProviderID NS_SWIFT_NAME(PhoneAuthProviderID);
+extern NSString *const FIRPhoneAuthProviderID NS_SWIFT_NAME(PhoneAuthProviderID)
+    API_UNAVAILABLE(macos, tvos, watchos);
 
 /** @var FIRPhoneAuthProviderID
     @brief A string constant identifying the phone sign-in method.
  */
-extern NSString *const _Nonnull FIRPhoneAuthSignInMethod NS_SWIFT_NAME(PhoneAuthSignInMethod);
+extern NSString *const _Nonnull FIRPhoneAuthSignInMethod NS_SWIFT_NAME(PhoneAuthSignInMethod)
+    API_UNAVAILABLE(macos, tvos, watchos);
 
 /** @typedef FIRVerificationResultCallback
     @brief The type of block invoked when a request to send a verification code has finished.
@@ -45,13 +44,13 @@ extern NSString *const _Nonnull FIRPhoneAuthSignInMethod NS_SWIFT_NAME(PhoneAuth
  */
 typedef void (^FIRVerificationResultCallback)(NSString *_Nullable verificationID,
                                               NSError *_Nullable error)
-    NS_SWIFT_NAME(VerificationResultCallback);
+    NS_SWIFT_NAME(VerificationResultCallback) API_UNAVAILABLE(macos, tvos, watchos);
 
 /** @class FIRPhoneAuthProvider
     @brief A concrete implementation of `FIRAuthProvider` for phone auth providers.
  */
-NS_SWIFT_NAME(PhoneAuthProvider)
-@interface FIRPhoneAuthProvider : NSObject
+NS_SWIFT_NAME(PhoneAuthProvider) API_UNAVAILABLE(macos, tvos, watchos)
+    @interface FIRPhoneAuthProvider : NSObject
 
 /** @fn provider
     @brief Returns an instance of `FIRPhoneAuthProvider` for the default `FIRAuth` object.
@@ -139,5 +138,3 @@ NS_SWIFT_NAME(PhoneAuthProvider)
 @end
 
 NS_ASSUME_NONNULL_END
-
-#endif

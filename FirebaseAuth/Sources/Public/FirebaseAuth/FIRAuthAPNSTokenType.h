@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 
-#import <TargetConditionals.h>
-#if !TARGET_OS_OSX
-
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -38,8 +35,6 @@ typedef NS_ENUM(NSInteger, FIRAuthAPNSTokenType) {
   /** Production token type.
    */
   FIRAuthAPNSTokenTypeProd,
-} NS_SWIFT_NAME(AuthAPNSTokenType);
+} NS_SWIFT_NAME(AuthAPNSTokenType) API_UNAVAILABLE(macosx);
 
 NS_ASSUME_NONNULL_END
-
-#endif

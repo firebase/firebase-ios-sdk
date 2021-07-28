@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 
-#import <TargetConditionals.h>
-#if !TARGET_OS_OSX
-
 #import <Foundation/Foundation.h>
 
 @class UIViewController;
@@ -26,8 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** @protocol FIRAuthUIDelegate
     @brief A protocol to handle user interface interactions for Firebase Auth.
  */
-NS_SWIFT_NAME(AuthUIDelegate)
-@protocol FIRAuthUIDelegate <NSObject>
+NS_SWIFT_NAME(AuthUIDelegate) API_UNAVAILABLE(macos) @protocol FIRAuthUIDelegate<NSObject>
 
 /** @fn presentViewController:animated:completion:
     @brief If implemented, this method will be invoked when Firebase Auth needs to display a view
@@ -55,5 +51,3 @@ NS_SWIFT_NAME(AuthUIDelegate)
 @end
 
 NS_ASSUME_NONNULL_END
-
-#endif
