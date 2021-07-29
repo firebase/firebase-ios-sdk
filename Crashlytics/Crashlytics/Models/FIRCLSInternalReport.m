@@ -26,8 +26,7 @@ NSString *const FIRCLSReportExceptionFile = @"exception.clsrecord";
 NSString *const FIRCLSReportCustomExceptionAFile = @"custom_exception_a.clsrecord";
 NSString *const FIRCLSReportCustomExceptionBFile = @"custom_exception_b.clsrecord";
 NSString *const FIRCLSReportSignalFile = @"signal.clsrecord";
-NSString *const FIRCLSMetricKitFatalReportFile = @"metrickit_fatal.clsrecord";
-NSString *const FIRCLSMetricKitNonfatalReportFile = @"metrickit_nonfatal.clsrecord";
+NSString *const FIRCLSMetricKitReportFile = @"metric_kit.clsrecord";
 #if CLS_MACH_EXCEPTION_SUPPORTED
 NSString *const FIRCLSReportMachExceptionFile = @"mach_exception.clsrecord";
 #endif
@@ -110,8 +109,7 @@ NSString *const FIRCLSReportUserCompactedKVFile = @"user_compacted_kv.clsrecord"
 - (BOOL)hasAnyEvents {
   NSArray *reportFiles = @[
     FIRCLSReportExceptionFile, FIRCLSReportSignalFile, FIRCLSReportCustomExceptionAFile,
-    FIRCLSReportCustomExceptionBFile, FIRCLSMetricKitFatalReportFile,
-    FIRCLSMetricKitNonfatalReportFile,
+    FIRCLSReportCustomExceptionBFile, FIRCLSMetricKitReportFile,
 #if CLS_MACH_EXCEPTION_SUPPORTED
     FIRCLSReportMachExceptionFile,
 #endif
@@ -135,7 +133,7 @@ NSString *const FIRCLSReportUserCompactedKVFile = @"user_compacted_kv.clsrecord"
 #if CLS_MACH_EXCEPTION_SUPPORTED
       FIRCLSReportMachExceptionFile,
 #endif
-      FIRCLSReportSignalFile, FIRCLSMetricKitFatalReportFile
+      FIRCLSReportSignalFile, FIRCLSMetricKitReportFile
     ];
   });
   return files;

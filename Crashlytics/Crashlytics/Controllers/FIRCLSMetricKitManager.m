@@ -111,12 +111,12 @@
     // use the report for the current run.
     if (fatal) {
       metricKitReportFile = [[activePath stringByAppendingString:newestUnsentReportID]
-          stringByAppendingString:FIRCLSMetricKitFatalReportFile];
+          stringByAppendingString:FIRCLSMetricKitReportFile];
     } else {
       NSString *currentReportID =
           [_managerData.executionIDModel.executionID stringByAppendingString:@"/"];
       metricKitReportFile = [[activePath stringByAppendingString:currentReportID]
-          stringByAppendingString:FIRCLSMetricKitNonfatalReportFile];
+          stringByAppendingString:FIRCLSMetricKitReportFile];
     }
 
     if (!metricKitReportFile) {
