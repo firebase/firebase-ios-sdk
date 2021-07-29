@@ -69,9 +69,8 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
 + (BOOL)isContextManagerMessage:(NSDictionary *)message {
   // For now we only support local time in ContextManager.
   if (![message[kFIRMessagingContextManagerLocalTimeStart] length]) {
-    FIRMessagingLoggerDebug(
-        kFIRMessagingMessageCodeContextManagerService000,
-        @"Received message missing local start time, not a contextual message.");
+    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeContextManagerService000,
+                            @"Received message missing local start time, dropped.");
     return NO;
   }
 

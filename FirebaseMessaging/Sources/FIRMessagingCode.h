@@ -136,7 +136,6 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingServiceExtensionImageNotDownloaded = 20001,
   kFIRMessagingServiceExtensionLocalFileNotCreated = 20002,
   kFIRMessagingServiceExtensionImageNotAttached = 20003,
-  kFIRMessagingServiceExtensionTransportBytesError = 20004,
 
   kFIRMessagingMessageCodeFIRApp002 = 22002,
   kFIRMessagingMessageCodeInternal001 = 22001,

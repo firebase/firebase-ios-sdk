@@ -793,7 +793,6 @@ let package = Package(
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "GULReachability", package: "GoogleUtilities"),
         .product(name: "GULUserDefaults", package: "GoogleUtilities"),
-        .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
       ],
       path: "FirebaseMessaging/Sources",
       publicHeadersPath: "Public",
