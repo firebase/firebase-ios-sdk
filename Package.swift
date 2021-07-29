@@ -894,11 +894,12 @@ let package = Package(
     .testTarget(
       name: "swift-test",
       dependencies: [
+        "Firebase",
         "FirebaseAuth",
+        "FirebaseAppCheck",
         "FirebaseABTesting",
         .target(name: "FirebaseAppDistribution",
                 condition: .when(platforms: [.iOS])),
-        "Firebase",
         "FirebaseCombineSwift",
         "FirebaseCrashlytics",
         "FirebaseCore",
@@ -931,11 +932,12 @@ let package = Package(
     .testTarget(
       name: "objc-import-test",
       dependencies: [
+        "Firebase",
         "FirebaseAuth",
         "FirebaseABTesting",
+        "FirebaseAppCheck",
         .target(name: "FirebaseAppDistribution",
                 condition: .when(platforms: [.iOS])),
-        "Firebase",
         "FirebaseCrashlytics",
         "FirebaseCore",
         "FirebaseDatabase",

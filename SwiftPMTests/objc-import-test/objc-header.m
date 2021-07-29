@@ -14,6 +14,7 @@
 
 #import "Firebase.h"
 #import "FirebaseABTesting/FirebaseABTesting.h"
+#import "FirebaseAppCheck/FirebaseAppCheck.h"
 #if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
 #import "FirebaseAppDistribution/FirebaseAppDistribution.h"
 #endif
