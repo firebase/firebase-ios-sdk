@@ -180,7 +180,7 @@
         FPRLogInfo(kFPRClientMetricLogged,
                    @"Logging trace metric - %@ %.4fms. In a minute, visit the Firebase console to "
                    @"view your data: %@",
-                   FPRDecodeString(metric.trace_metric.name),
+                   trace.name,
                    metric.trace_metric.duration_us / 1000.0,
                    [FPRConsoleURLGenerator generateScreenTraceURLWithProjectID:self.projectID
                                                                       bundleID:self.bundleID
@@ -189,7 +189,7 @@
         FPRLogInfo(kFPRClientMetricLogged,
                    @"Logging trace metric - %@ %.4fms. In a minute, visit the Firebase console to "
                    @"view your data: %@",
-                   FPRDecodeString(metric.trace_metric.name),
+                   trace.name,
                    metric.trace_metric.duration_us / 1000.0,
                    [FPRConsoleURLGenerator generateCustomTraceURLWithProjectID:self.projectID
                                                                       bundleID:self.bundleID
