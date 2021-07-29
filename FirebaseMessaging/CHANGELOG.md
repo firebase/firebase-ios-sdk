@@ -1,6 +1,3 @@
-# 2021-07 -- v8.5.0
-- [added] Added new API `FIRMessagingExtensionHelper exportDeliveryMetricsToBigQuery` that allows developers to enable notification delivery metrics that exports to BigQuery. (#6181)
-
 # 2021-06 -- v8.2.0
 - [fixed] Fixed an issue that local scheduled notification is not set correctly due to sound type. (#8172)
 
