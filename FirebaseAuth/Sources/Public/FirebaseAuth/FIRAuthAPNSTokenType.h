@@ -20,6 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  *  @brief The APNs token type for the app.
+ *      This enum is available on iOS, macOS Catalyst, tvOS, and watchOS only.
  */
 typedef NS_ENUM(NSInteger, FIRAuthAPNSTokenType) {
 

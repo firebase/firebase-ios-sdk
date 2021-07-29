@@ -21,6 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** @class FIRMultiFactorSession
     @brief Opaque object that identifies the current session to enroll a second factor or to
         complete sign in when previously enrolled.
+        This class is available on iOS only.
  */
 NS_SWIFT_NAME(MultiFactorSession) API_UNAVAILABLE(macos, tvos, watchos)
     @interface FIRMultiFactorSession : NSObject

@@ -22,6 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** @class FIRPhoneAuthCredential
     @brief Implementation of FIRAuthCredential for Phone Auth credentials.
+        This class is available on iOS only.
  */
 NS_SWIFT_NAME(PhoneAuthCredential) API_UNAVAILABLE(macos, tvos, watchos)
     @interface FIRPhoneAuthCredential : FIRAuthCredential<NSSecureCoding>

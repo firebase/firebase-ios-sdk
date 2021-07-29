@@ -16,11 +16,9 @@
 
 #import <AvailabilityMacros.h>
 #import <Foundation/Foundation.h>
-#import <TargetConditionals.h>
-
-#import "FIRAuthErrors.h"
 
 #import "FIRAuthAPNSTokenType.h"
+#import "FIRAuthErrors.h"
 
 @class FIRActionCodeSettings;
 @class FIRApp;
@@ -350,8 +348,9 @@ NS_SWIFT_NAME(Auth)
 /** @property APNSToken
     @brief The APNs token used for phone number authentication. The type of the token (production
         or sandbox) will be attempted to be automatcially detected.
+        This property is available on iOS only.
     @remarks If swizzling is disabled, the APNs Token must be set for phone number auth to work,
-        by either setting this property or by calling `setAPNSToken:type:`
+        by either setting this property or by calling `setAPNSToken:type:`.
  */
 @property(nonatomic, strong, nullable) NSData *APNSToken API_UNAVAILABLE(macos, tvos, watchos);
 
@@ -362,7 +361,7 @@ NS_SWIFT_NAME(Auth)
 
 /** @fn updateCurrentUser:completion:
     @brief Sets the currentUser on the calling Auth instance to the provided user object.
-    @param  user The user object to be set as the current user of the calling Auth instance.
+    @param user The user object to be set as the current user of the calling Auth instance.
     @param completion Optionally; a block invoked after the user of the calling Auth instance has
         been updated or an error was encountered.
  */
@@ -442,6 +441,7 @@ NS_SWIFT_NAME(Auth)
 
 /** @fn signInWithProvider:UIDelegate:completion:
     @brief Signs in using the provided auth provider instance.
+        This method is available on iOS, macOS Catalyst, and tvOS only.
 
     @param provider An instance of an auth provider used to initiate the sign-in flow.
     @param UIDelegate Optionally an instance of a class conforming to the FIRAuthUIDelegate
@@ -813,6 +813,7 @@ NS_SWIFT_NAME(Auth)
 
 /** @fn canHandleURL:
     @brief Whether the specific URL is handled by `FIRAuth` .
+        This method is available on iOS only.
     @param URL The URL received by the application delegate from any of the openURL method.
     @return Whether or the URL is handled. YES means the URL is for Firebase Auth
         so the caller should ignore the URL from further processing, and NO means the
@@ -825,6 +826,7 @@ NS_SWIFT_NAME(Auth)
 
 /** @fn setAPNSToken:type:
     @brief Sets the APNs token along with its type.
+        This method is available on iOS only.
     @remarks If swizzling is disabled, the APNs Token must be set for phone number auth to work,
         by either setting calling this method or by setting the `APNSToken` property.
  */
@@ -833,6 +835,7 @@ NS_SWIFT_NAME(Auth)
 
 /** @fn canHandleNotification:
     @brief Whether the specific remote notification is handled by `FIRAuth` .
+        This method is available on iOS only.
     @param userInfo A dictionary that contains information related to the
         notification in question.
     @return Whether or the notification is handled. YES means the notification is for Firebase Auth

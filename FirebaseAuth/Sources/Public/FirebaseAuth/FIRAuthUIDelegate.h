@@ -22,6 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** @protocol FIRAuthUIDelegate
     @brief A protocol to handle user interface interactions for Firebase Auth.
+        This protocol is available on iOS, macOS Catalyst, and tvOS only.
  */
 NS_SWIFT_NAME(AuthUIDelegate) API_UNAVAILABLE(macosx, watchos) @protocol FIRAuthUIDelegate<NSObject>
 

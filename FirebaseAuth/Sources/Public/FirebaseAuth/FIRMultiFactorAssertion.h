@@ -20,7 +20,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** @class FIRMultiFactorAssertion
     @brief The base class for asserting ownership of a second factor. This is equivalent to the
-   AuthCredential class.
+        AuthCredential class.
+        This class is available on iOS only.
 */
 NS_SWIFT_NAME(MultiFactorAssertion) API_UNAVAILABLE(macos, tvos, watchos)
     @interface FIRMultiFactorAssertion : NSObject

@@ -25,6 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
     @brief The data structure used to help initialize an assertion for a second factor entity to the
         Firebase Auth/CICP server. Depending on the type of second factor, this will help generate
         the assertion.
+        This class is available on iOS only.
 */
 NS_SWIFT_NAME(PhoneMultiFactorGenerator) API_UNAVAILABLE(macos, tvos, watchos)
     @interface FIRPhoneMultiFactorGenerator : NSObject
