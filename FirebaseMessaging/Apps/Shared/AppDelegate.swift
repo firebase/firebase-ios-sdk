@@ -14,6 +14,7 @@
 
 import UIKit
 import FirebaseCore
+import FirebaseMessaging
 import FirebaseAnalytics
 
 @UIApplicationMain
@@ -22,6 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                    didFinishLaunchingWithOptions launchOptions: [UIApplication
                      .LaunchOptionsKey: Any]?) -> Bool {
     FirebaseApp.configure()
+    application.delegate = self
     FirebaseAnalytics.Analytics.logEvent("test", parameters: nil)
 
     let center = UNUserNotificationCenter.current()
@@ -33,6 +35,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
       }
     }
     application.registerForRemoteNotifications()
+
     return true
   }
 
@@ -48,5 +51,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                               didReceive response: UNNotificationResponse,
                               withCompletionHandler completionHandler: @escaping () -> Void) {
     completionHandler()
+  }
+
+  func application(_ application: UIApplication,
+                   didReceiveRemoteNotification userInfo: [AnyHashable: Any],
+                   fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult)
+                     -> Void) {
+    print("Hidden message arrived:\n" + userInfo.debugDescription)
+    // Log delivery signal for data/hidden/background messages
+    Messaging.serviceExtension().exportDeliveryMetricsToBigQuery(withMessageInfo: userInfo)
+    completionHandler(.newData)
   }
 }

@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 50;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -15,7 +15,6 @@
 		51A1F3DB2588405A0025932B /* TopicView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51A1F3D72588405A0025932B /* TopicView.swift */; };
 		51A1F3DC2588405A0025932B /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51A1F3D82588405A0025932B /* SceneDelegate.swift */; };
 		51A1F3E12588406A0025932B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51A1F3DE2588406A0025932B /* AppDelegate.swift */; };
-		51A1F3E22588406A0025932B /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 51A1F3DF2588406A0025932B /* GoogleService-Info.plist */; };
 		51A1F3E32588406A0025932B /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51A1F3E02588406A0025932B /* ContentView.swift */; };
 		51C24C5225894EDB00236F25 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 51C24C5025894EDB00236F25 /* LaunchScreen.storyboard */; };
 		51C24C742589614800236F25 /* logo.png in Resources */ = {isa = PBXBuildFile; fileRef = 51C24C732589614800236F25 /* logo.png */; };
@@ -33,7 +32,6 @@
 		51A1F3D72588405A0025932B /* TopicView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TopicView.swift; path = ../../Shared/TopicView.swift; sourceTree = "<group>"; };
 		51A1F3D82588405A0025932B /* SceneDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SceneDelegate.swift; path = ../../Shared/SceneDelegate.swift; sourceTree = "<group>"; };
 		51A1F3DE2588406A0025932B /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = ../../Shared/AppDelegate.swift; sourceTree = "<group>"; };
-		51A1F3DF2588406A0025932B /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../Shared/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		51A1F3E02588406A0025932B /* ContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ContentView.swift; path = ../../Shared/ContentView.swift; sourceTree = "<group>"; };
 		51C24C5125894EDB00236F25 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = ../../Shared/Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		51C24C732589614800236F25 /* logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = logo.png; path = ../../Shared/logo.png; sourceTree = "<group>"; };
@@ -81,7 +79,6 @@
 				51C24C5025894EDB00236F25 /* LaunchScreen.storyboard */,
 				51A1F3DE2588406A0025932B /* AppDelegate.swift */,
 				51A1F3E02588406A0025932B /* ContentView.swift */,
-				51A1F3DF2588406A0025932B /* GoogleService-Info.plist */,
 				51A1F3D52588405A0025932B /* Identity.swift */,
 				51A1F3D82588405A0025932B /* SceneDelegate.swift */,
 				51A1F3D72588405A0025932B /* TopicView.swift */,
@@ -162,7 +159,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				51A1F3E22588406A0025932B /* GoogleService-Info.plist in Resources */,
 				51C24C742589614800236F25 /* logo.png in Resources */,
 				5125CCA92437F472006CA5D0 /* Preview Assets.xcassets in Resources */,
 				51C24C5225894EDB00236F25 /* LaunchScreen.storyboard in Resources */,
