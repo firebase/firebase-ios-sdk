@@ -19,4 +19,3 @@ fm.MessagingClientEvent.instance_id type:FT_POINTER
 fm.MessagingClientEvent.package_name type:FT_POINTER
 fm.MessagingClientEvent.analytics_label type:FT_POINTER
 fm.MessagingClientEvent.composer_label type:FT_POINTER
-fm.MessagingClientEventExtension.messaging_client_event type:FT_POINTER

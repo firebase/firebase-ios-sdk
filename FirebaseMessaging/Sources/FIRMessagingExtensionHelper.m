@@ -263,7 +263,7 @@ pb_bytes_array_t *FIRMessagingEncodeString(NSString *string) {
         FIRMessagingEncodeString(info[kFIRMessagingAnalyticsComposerLabel]);
   }
 
-  eventExtension.messaging_client_event = &clientEvent;
+  eventExtension.messaging_client_event = clientEvent;
   FIRMessagingMetricsLog *log =
       [[FIRMessagingMetricsLog alloc] initWithEventExtension:eventExtension];
 

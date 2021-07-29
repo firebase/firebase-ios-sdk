@@ -41,12 +41,36 @@ const pb_field_t fm_MessagingClientEvent_fields[11] = {
 };
 
 const pb_field_t fm_MessagingClientEventExtension_fields[2] = {
-    PB_FIELD(  1, MESSAGE , SINGULAR, POINTER , FIRST, fm_MessagingClientEventExtension, messaging_client_event, messaging_client_event, &fm_MessagingClientEvent_fields),
+    PB_FIELD(  1, MESSAGE , SINGULAR, STATIC  , FIRST, fm_MessagingClientEventExtension, messaging_client_event, messaging_client_event, &fm_MessagingClientEvent_fields),
     PB_LAST_FIELD
 };
 
 
 
+
+
+/* Check that field information fits in pb_field_t */
+#if !defined(PB_FIELD_32BIT)
+/* If you get an error here, it means that you need to define PB_FIELD_32BIT
+ * compile-time option. You can do that in pb.h or on compiler command line.
+ *
+ * The reason you need to do this is that some of your messages contain tag
+ * numbers or field sizes that are larger than what can fit in 8 or 16 bit
+ * field descriptors.
+ */
+PB_STATIC_ASSERT((pb_membersize(fm_MessagingClientEventExtension, messaging_client_event) < 65536), YOU_MUST_DEFINE_PB_FIELD_32BIT_FOR_MESSAGES_fm_MessagingClientEvent_fm_MessagingClientEventExtension)
+#endif
+
+#if !defined(PB_FIELD_16BIT) && !defined(PB_FIELD_32BIT)
+/* If you get an error here, it means that you need to define PB_FIELD_16BIT
+ * compile-time option. You can do that in pb.h or on compiler command line.
+ *
+ * The reason you need to do this is that some of your messages contain tag
+ * numbers or field sizes that are larger than what can fit in the default
+ * 8 bit descriptors.
+ */
+PB_STATIC_ASSERT((pb_membersize(fm_MessagingClientEventExtension, messaging_client_event) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_fm_MessagingClientEvent_fm_MessagingClientEventExtension)
+#endif
 
 
 /* @@protoc_insertion_point(eof) */
