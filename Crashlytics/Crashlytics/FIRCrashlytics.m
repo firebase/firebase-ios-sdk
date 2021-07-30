@@ -146,8 +146,9 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
                                                 existingReportManager:_existingReportManager
                                                      analyticsManager:_analyticsManager];
 
+    _didPreviouslyCrash = [_fileManager didCrashOnPreviousExecution];
     // Process did crash during previous execution
-    if ([_fileManager didCrashOnPreviousExecution]) {
+    if (_didPreviouslyCrash) {
       // Delete the crash file marker in the background ensure start up is as fast as possible
       dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
         NSString *crashedMarkerFileFullPath = [[self.fileManager rootPath]

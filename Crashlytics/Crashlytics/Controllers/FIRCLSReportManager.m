@@ -108,9 +108,6 @@ typedef NSNumber FIRCLSWrappedReportAction;
   // for all the unsent reports.
   FBLPromise<FIRCLSWrappedReportAction *> *_reportActionProvided;
 
-  // A promise that will be resolved when we've received diagnostic reports from MetricKit.
-  FBLPromise *_metricKitDiagnosticsAvailable;
-
   // A promise that will be resolved when all unsent reports have been "handled". They won't
   // necessarily have been uploaded, but we will know whether they should be sent or deleted, and
   // the initial work to make that happen will have been processed on the work queue.
@@ -230,8 +227,7 @@ typedef NSNumber FIRCLSWrappedReportAction;
   // since no MetricKit diagnostics will be available.
 #if CLS_METRICKIT_SUPPORTED
   if (@available(iOS 15, *)) {
-    FBLPromise *metricKitDataAvailable = [self.metricKitManager waitForMetricKitDataAvailable];
-    return metricKitDataAvailable;
+    return [self.metricKitManager waitForMetricKitDataAvailable];
   } else {
     return [FBLPromise resolvedWith:nil];
   }

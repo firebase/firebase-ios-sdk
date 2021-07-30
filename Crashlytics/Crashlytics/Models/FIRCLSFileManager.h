@@ -46,7 +46,7 @@
 @property(nonatomic, readonly) NSArray *activePathContents;
 @property(nonatomic, readonly) NSArray *preparedPathContents;
 @property(nonatomic, readonly) NSArray *processingPathContents;
-@property(nonatomic) BOOL didCrashPreviously;
+@property(nonatomic) BOOL crashFileMarkerExists;
 
 - (BOOL)fileExistsAtPath:(NSString *)path;
 - (BOOL)createFileAtPath:(NSString *)path

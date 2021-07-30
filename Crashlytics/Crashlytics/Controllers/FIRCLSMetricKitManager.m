@@ -57,8 +57,10 @@
   self.metricKitDataAvailable = [FBLPromise pendingPromise];
 
   // If there was no crash on the last run of the app, then we aren't expecting a MetricKit
-  // diagnostic report and should resolve the promise immediately.
-  if (![self.fileManager didCrashOnPreviousExecution] && ![self.fileManager didCrashPreviously]) {
+  // diagnostic report and should resolve the promise immediately. If MetricKit captured a fatal
+  // event and Crashlytics did not, then we'll still process the MetricKit crash but won't upload
+  // it until the app restarts again.
+  if (![self.fileManager didCrashOnPreviousExecution]) {
     @synchronized(self) {
       [self.metricKitDataAvailable fulfill:nil];
     }
@@ -75,167 +77,170 @@
  * write out the information but won't need to resolve the promise.
  */
 - (void)didReceiveDiagnosticPayloads:(NSArray<MXDiagnosticPayload *> *)payloads {
-  NSUInteger payloadCount = [payloads count];
-  FIRCLSInfoLog(@"[Crashlytics:Crash] received %lu diagnostic payloads from MetricKit",
-                payloadCount);
-
-  if ([payloads count] == 0) {
-    return;
-  }
-
   for (MXDiagnosticPayload *diagnosticPayload in payloads) {
     if (!diagnosticPayload) {
-      return;
+      continue;
     }
 
-    // TODO: Time stamp information is only available in begin and end time periods. Hopefully this
-    // is updated with iOS 15.
-    NSTimeInterval beginSecondsSince1970 = [diagnosticPayload.timeStampBegin timeIntervalSince1970];
-    NSTimeInterval endSecondsSince1970 = [diagnosticPayload.timeStampEnd timeIntervalSince1970];
-
-    // Get file path for the active reports directory.
-    NSString *activePath = [[self.fileManager activePath] stringByAppendingString:@"/"];
-
-    // If there is a crash diagnostic in the payload, then this method was called for a fatal event.
-    // Also ensure that there is a report from the last run of the app that we can write to.
-    NSString *metricKitReportFile;
-    NSString *newestUnsentReportID =
-        [self.existingReportManager.newestUnsentReport.reportID stringByAppendingString:@"/"];
-    BOOL fatal = ([diagnosticPayload.crashDiagnostics count] > 0) &&
-                 (newestUnsentReportID != nil) &&
-                 ([self.fileManager
-                     fileExistsAtPath:[activePath stringByAppendingString:newestUnsentReportID]]);
-
-    // Set the metrickit path appropriately depending on whether the diagnostic report came from
-    // a fatal or nonfatal event. If fatal, use the report from the last run of the app. Otherwise,
-    // use the report for the current run.
+    BOOL processedPayload = [self processMetricKitPayload:diagnosticPayload];
+    BOOL fatal = processedPayload && ([diagnosticPayload.crashDiagnostics count] > 0);
     if (fatal) {
-      metricKitReportFile = [[activePath stringByAppendingString:newestUnsentReportID]
-          stringByAppendingString:FIRCLSMetricKitReportFile];
-    } else {
-      NSString *currentReportID =
-          [_managerData.executionIDModel.executionID stringByAppendingString:@"/"];
-      metricKitReportFile = [[activePath stringByAppendingString:currentReportID]
-          stringByAppendingString:FIRCLSMetricKitReportFile];
+      // Since we only want to handle one crash per report, if this was a fatal event
+      // don't process any additional payloads.
+      break;
     }
-
-    if (!metricKitReportFile) {
-      FIRCLSDebugLog(@"[Crashlytics:Crash] error finding MetricKit file");
-      return;
-    }
-
-    FIRCLSDebugLog(@"[Crashlytics:Crash] file path for MetricKit:  %@", [metricKitReportFile copy]);
-    FIRCLSFile metricKitFile;
-    if (!FIRCLSFileInitWithPath(&metricKitFile, [metricKitReportFile UTF8String], false)) {
-      FIRCLSDebugLog(@"[Crashlytics:Crash] unable to open MetricKit file");
-      return;
-    }
-
-    // Write out time information to the MetricKit report file.
-    FIRCLSFileWriteSectionStart(&metricKitFile, "time");
-    FIRCLSFileWriteHashEntryUint64(&metricKitFile, "begin_time", beginSecondsSince1970);
-    FIRCLSFileWriteHashEntryUint64(&metricKitFile, "end_time", endSecondsSince1970);
-    FIRCLSFileWriteSectionEnd(&metricKitFile);
-
-    // Write out each type of diagnostic if it exists in the report
-    BOOL hasCrash = [diagnosticPayload.crashDiagnostics count] > 0;
-    BOOL hasHang = [diagnosticPayload.hangDiagnostics count] > 0;
-    BOOL hasCPUException = [diagnosticPayload.cpuExceptionDiagnostics count] > 0;
-    BOOL hasDiskWriteException = [diagnosticPayload.diskWriteExceptionDiagnostics count] > 0;
-
-    // For each diagnostic type, write out a section in the MetricKit report file. This section will
-    // have subsections for threads, metadata, and event specific metadata.
-    if (hasCrash) {
-      FIRCLSFileWriteSectionStart(&metricKitFile, "crash_event");
-      MXCrashDiagnostic *crashDiagnostic = [diagnosticPayload.crashDiagnostics objectAtIndex:0];
-
-      NSData *threads = [crashDiagnostic.callStackTree JSONRepresentation];
-      NSData *metadata = [crashDiagnostic.metaData JSONRepresentation];
-      [self writeThreadsToFile:&metricKitFile threads:threads];
-      [self writeMetadataToFile:&metricKitFile metadata:metadata];
-
-      NSString *nilString = @"";
-      NSDictionary *crashDict = @{
-        @"termination_reason" :
-                (crashDiagnostic.terminationReason) ? crashDiagnostic.terminationReason : nilString,
-        @"virtual_memory_region_info" : (crashDiagnostic.virtualMemoryRegionInfo)
-            ? crashDiagnostic.virtualMemoryRegionInfo
-            : nilString,
-        @"exception_type" : crashDiagnostic.exceptionType,
-        @"exception_code" : crashDiagnostic.exceptionCode,
-        @"signal" : crashDiagnostic.signal
-      };
-      [self writeEventSpecificDataToFile:&metricKitFile event:@"crash" data:crashDict];
-
-      FIRCLSFileWriteSectionEnd(&metricKitFile);
-    }
-
-    if (hasHang) {
-      FIRCLSFileWriteSectionStart(&metricKitFile, "hang_event");
-      MXHangDiagnostic *hangDiagnostic = [diagnosticPayload.hangDiagnostics objectAtIndex:0];
-
-      NSData *threads = [hangDiagnostic.callStackTree JSONRepresentation];
-      NSData *metadata = [hangDiagnostic.metaData JSONRepresentation];
-      [self writeThreadsToFile:&metricKitFile threads:threads];
-      [self writeMetadataToFile:&metricKitFile metadata:metadata];
-
-      NSDictionary *hangDict = @{@"hang_duration" : hangDiagnostic.hangDuration};
-      [self writeEventSpecificDataToFile:&metricKitFile event:@"hang" data:hangDict];
-
-      FIRCLSFileWriteSectionEnd(&metricKitFile);
-    }
-
-    if (hasCPUException) {
-      FIRCLSFileWriteSectionStart(&metricKitFile, "cpu_exception_event");
-      MXCPUExceptionDiagnostic *cpuExceptionDiagnostic =
-          [diagnosticPayload.cpuExceptionDiagnostics objectAtIndex:0];
-
-      NSData *threads = [cpuExceptionDiagnostic.callStackTree JSONRepresentation];
-      NSData *metadata = [cpuExceptionDiagnostic.metaData JSONRepresentation];
-      [self writeThreadsToFile:&metricKitFile threads:threads];
-      [self writeMetadataToFile:&metricKitFile metadata:metadata];
-
-      NSDictionary *cpuDict = @{
-        @"total_cpu_time" : cpuExceptionDiagnostic.totalCPUTime,
-        @"total_sampled_time" : cpuExceptionDiagnostic.totalSampledTime
-      };
-      [self writeEventSpecificDataToFile:&metricKitFile event:@"cpu_exception" data:cpuDict];
-
-      FIRCLSFileWriteSectionEnd(&metricKitFile);
-    }
-
-    if (hasDiskWriteException) {
-      FIRCLSFileWriteSectionStart(&metricKitFile, "disk_write_exception_event");
-      MXDiskWriteExceptionDiagnostic *diskWriteExceptionDiagnostic =
-          [diagnosticPayload.diskWriteExceptionDiagnostics objectAtIndex:0];
-
-      NSData *threads = [diskWriteExceptionDiagnostic.callStackTree JSONRepresentation];
-      NSData *metadata = [diskWriteExceptionDiagnostic.metaData JSONRepresentation];
-      [self writeThreadsToFile:&metricKitFile threads:threads];
-      [self writeMetadataToFile:&metricKitFile metadata:metadata];
-
-      NSDictionary *diskDict =
-          @{@"total_writes_caused" : diskWriteExceptionDiagnostic.totalWritesCaused};
-      [self writeEventSpecificDataToFile:&metricKitFile
-                                   event:@"disk_write_exception"
-                                    data:diskDict];
-
-      FIRCLSFileWriteSectionEnd(&metricKitFile);
-    }
-
-    // If this method was called because of a fatal event, fulfill the MetricKit promise so that
-    // uploading of the Crashlytics report continues. If not, the promise has already been
-    // fulfillled. Since we only want to handle one crash per report, if this was a fatal event
-    // return from the method.
-    if (fatal) {
-      @synchronized(self) {
-        [self.metricKitDataAvailable fulfill:nil];
-      }
-      return;
-    }
+  }
+  // Once we've processed all the payloads, resolve the promise so that reporting uploading
+  // continues. If there was not a crash on the previous run of the app, the promise wil already
+  // have been resolved.
+  @synchronized(self) {
+    [self.metricKitDataAvailable fulfill:nil];
   }
 }
 
+// Helper method to write a MetricKit payload's data to file.
+- (BOOL)processMetricKitPayload:(MXDiagnosticPayload *)diagnosticPayload {
+  // TODO: Time stamp information is only available in begin and end time periods. Hopefully this
+  // is updated with iOS 15.
+  NSTimeInterval beginSecondsSince1970 = [diagnosticPayload.timeStampBegin timeIntervalSince1970];
+  NSTimeInterval endSecondsSince1970 = [diagnosticPayload.timeStampEnd timeIntervalSince1970];
+
+  // Get file path for the active reports directory.
+  NSString *activePath = [[self.fileManager activePath] stringByAppendingString:@"/"];
+
+  // If there is a crash diagnostic in the payload, then this method was called for a fatal event.
+  // Also ensure that there is a report from the last run of the app that we can write to.
+  NSString *metricKitReportFile;
+  NSString *newestUnsentReportID =
+      [self.existingReportManager.newestUnsentReport.reportID stringByAppendingString:@"/"];
+  BOOL fatal = ([diagnosticPayload.crashDiagnostics count] > 0) && (newestUnsentReportID != nil) &&
+               ([self.fileManager
+                   fileExistsAtPath:[activePath stringByAppendingString:newestUnsentReportID]]);
+
+  // Set the metrickit path appropriately depending on whether the diagnostic report came from
+  // a fatal or nonfatal event. If fatal, use the report from the last run of the app. Otherwise,
+  // use the report for the current run.
+  if (fatal) {
+    metricKitReportFile = [[activePath stringByAppendingString:newestUnsentReportID]
+        stringByAppendingString:FIRCLSMetricKitReportFile];
+  } else {
+    NSString *currentReportID =
+        [_managerData.executionIDModel.executionID stringByAppendingString:@"/"];
+    metricKitReportFile = [[activePath stringByAppendingString:currentReportID]
+        stringByAppendingString:FIRCLSMetricKitReportFile];
+  }
+
+  if (!metricKitReportFile) {
+    FIRCLSDebugLog(@"[Crashlytics:Crash] error finding MetricKit file");
+    return NO;
+  }
+
+  FIRCLSDebugLog(@"[Crashlytics:Crash] file path for MetricKit:  %@", [metricKitReportFile copy]);
+  FIRCLSFile metricKitFile;
+  if (!FIRCLSFileInitWithPath(&metricKitFile, [metricKitReportFile UTF8String], false)) {
+    FIRCLSDebugLog(@"[Crashlytics:Crash] unable to open MetricKit file");
+    return NO;
+  }
+
+  // Write out time information to the MetricKit report file. Time needs to be a value for
+  // backend serialization, so we'll write out two sections to capture all the information.
+  FIRCLSFileWriteHashStart(&metricKitFile);
+  FIRCLSFileWriteHashEntryUint64(&metricKitFile, "time", beginSecondsSince1970);
+  FIRCLSFileWriteSectionEnd(&metricKitFile);
+
+  FIRCLSFileWriteSectionStart(&metricKitFile, "time_details");
+  FIRCLSFileWriteHashStart(&metricKitFile);
+  FIRCLSFileWriteHashEntryUint64(&metricKitFile, "begin_time", beginSecondsSince1970);
+  FIRCLSFileWriteHashEntryUint64(&metricKitFile, "end_time", endSecondsSince1970);
+  FIRCLSFileWriteHashEnd(&metricKitFile);
+  FIRCLSFileWriteSectionEnd(&metricKitFile);
+
+  // Write out each type of diagnostic if it exists in the report
+  BOOL hasCrash = [diagnosticPayload.crashDiagnostics count] > 0;
+  BOOL hasHang = [diagnosticPayload.hangDiagnostics count] > 0;
+  BOOL hasCPUException = [diagnosticPayload.cpuExceptionDiagnostics count] > 0;
+  BOOL hasDiskWriteException = [diagnosticPayload.diskWriteExceptionDiagnostics count] > 0;
+
+  // For each diagnostic type, write out a section in the MetricKit report file. This section will
+  // have subsections for threads, metadata, and event specific metadata.
+  if (hasCrash) {
+    FIRCLSFileWriteSectionStart(&metricKitFile, "crash_event");
+    MXCrashDiagnostic *crashDiagnostic = [diagnosticPayload.crashDiagnostics objectAtIndex:0];
+
+    NSData *threads = [crashDiagnostic.callStackTree JSONRepresentation];
+    NSData *metadata = [crashDiagnostic.metaData JSONRepresentation];
+    [self writeThreadsToFile:&metricKitFile threads:threads];
+    [self writeMetadataToFile:&metricKitFile metadata:metadata];
+
+    NSString *nilString = @"";
+    NSDictionary *crashDict = @{
+      @"termination_reason" :
+              (crashDiagnostic.terminationReason) ? crashDiagnostic.terminationReason : nilString,
+      @"virtual_memory_region_info" : (crashDiagnostic.virtualMemoryRegionInfo)
+          ? crashDiagnostic.virtualMemoryRegionInfo
+          : nilString,
+      @"exception_type" : crashDiagnostic.exceptionType,
+      @"exception_code" : crashDiagnostic.exceptionCode,
+      @"signal" : crashDiagnostic.signal
+    };
+    [self writeEventSpecificDataToFile:&metricKitFile event:@"crash" data:crashDict];
+    FIRCLSFileWriteHashEnd(&metricKitFile);
+    FIRCLSFileWriteSectionEnd(&metricKitFile);
+  }
+
+  if (hasHang) {
+    FIRCLSFileWriteSectionStart(&metricKitFile, "hang_event");
+    MXHangDiagnostic *hangDiagnostic = [diagnosticPayload.hangDiagnostics objectAtIndex:0];
+
+    NSData *threads = [hangDiagnostic.callStackTree JSONRepresentation];
+    NSData *metadata = [hangDiagnostic.metaData JSONRepresentation];
+    [self writeThreadsToFile:&metricKitFile threads:threads];
+    [self writeMetadataToFile:&metricKitFile metadata:metadata];
+
+    NSDictionary *hangDict = @{@"hang_duration" : hangDiagnostic.hangDuration};
+    [self writeEventSpecificDataToFile:&metricKitFile event:@"hang" data:hangDict];
+    FIRCLSFileWriteHashEnd(&metricKitFile);
+    FIRCLSFileWriteSectionEnd(&metricKitFile);
+  }
+
+  if (hasCPUException) {
+    FIRCLSFileWriteSectionStart(&metricKitFile, "cpu_exception_event");
+    MXCPUExceptionDiagnostic *cpuExceptionDiagnostic =
+        [diagnosticPayload.cpuExceptionDiagnostics objectAtIndex:0];
+
+    NSData *threads = [cpuExceptionDiagnostic.callStackTree JSONRepresentation];
+    NSData *metadata = [cpuExceptionDiagnostic.metaData JSONRepresentation];
+    [self writeThreadsToFile:&metricKitFile threads:threads];
+    [self writeMetadataToFile:&metricKitFile metadata:metadata];
+
+    NSDictionary *cpuDict = @{
+      @"total_cpu_time" : cpuExceptionDiagnostic.totalCPUTime,
+      @"total_sampled_time" : cpuExceptionDiagnostic.totalSampledTime
+    };
+    [self writeEventSpecificDataToFile:&metricKitFile event:@"cpu_exception" data:cpuDict];
+    FIRCLSFileWriteHashEnd(&metricKitFile);
+    FIRCLSFileWriteSectionEnd(&metricKitFile);
+  }
+
+  if (hasDiskWriteException) {
+    FIRCLSFileWriteSectionStart(&metricKitFile, "disk_write_exception_event");
+    MXDiskWriteExceptionDiagnostic *diskWriteExceptionDiagnostic =
+        [diagnosticPayload.diskWriteExceptionDiagnostics objectAtIndex:0];
+
+    NSData *threads = [diskWriteExceptionDiagnostic.callStackTree JSONRepresentation];
+    NSData *metadata = [diskWriteExceptionDiagnostic.metaData JSONRepresentation];
+    [self writeThreadsToFile:&metricKitFile threads:threads];
+    [self writeMetadataToFile:&metricKitFile metadata:metadata];
+
+    NSDictionary *diskDict =
+        @{@"total_writes_caused" : diskWriteExceptionDiagnostic.totalWritesCaused};
+    [self writeEventSpecificDataToFile:&metricKitFile event:@"disk_write_exception" data:diskDict];
+    FIRCLSFileWriteHashEnd(&metricKitFile);
+    FIRCLSFileWriteSectionEnd(&metricKitFile);
+  }
+
+  return YES;
+}
 /*
  * Required for MXMetricManager subscribers. Since we aren't currently collecting any MetricKit
  * metrics, this method is left empty.
@@ -256,38 +261,43 @@
  * Helper method to write threads for a MetricKit diagnostic event to file.
  */
 - (void)writeThreadsToFile:(FIRCLSFile *)metricKitFile threads:(NSData *)threads {
-  FIRCLSFileWriteSectionStart(metricKitFile, "threads");
+  //  FIRCLSFileWriteSectionStart(metricKitFile, "threads");
+  FIRCLSFileWriteStringUnquoted(metricKitFile, "{\"threads\":");
   NSMutableString *threadsString = [[NSMutableString alloc] initWithData:threads
                                                                 encoding:NSUTF8StringEncoding];
   [threadsString replaceOccurrencesOfString:@"\n"
                                  withString:@""
                                     options:NSCaseInsensitiveSearch
                                       range:NSMakeRange(0, [threadsString length])];
-  [threadsString replaceOccurrencesOfString:@" "
+  [threadsString replaceOccurrencesOfString:@"        "
                                  withString:@""
                                     options:NSCaseInsensitiveSearch
                                       range:NSMakeRange(0, [threadsString length])];
+  metricKitFile->needComma = YES;
   FIRCLSFileWriteStringUnquoted(metricKitFile, [threadsString UTF8String]);
-  FIRCLSFileWriteSectionEnd(metricKitFile);
+
+  //  FIRCLSFileWriteHashEnd(metricKitFile);
 }
 
 /*
  * Helper method to write metadata for a MetricKit diagnostic event to file.
  */
 - (void)writeMetadataToFile:(FIRCLSFile *)metricKitFile metadata:(NSData *)metadata {
-  FIRCLSFileWriteSectionStart(metricKitFile, "metadata");
+  //  FIRCLSFileWriteSectionStart(metricKitFile, "metadata");
+  FIRCLSFileWriteStringUnquoted(metricKitFile, ",\"metadata\":");
   NSMutableString *metadataString = [[NSMutableString alloc] initWithData:metadata
                                                                  encoding:NSUTF8StringEncoding];
   [metadataString replaceOccurrencesOfString:@"\n"
                                   withString:@""
                                      options:NSCaseInsensitiveSearch
                                        range:NSMakeRange(0, [metadataString length])];
-  [metadataString replaceOccurrencesOfString:@"\t"
+  [metadataString replaceOccurrencesOfString:@"        "
                                   withString:@""
                                      options:NSCaseInsensitiveSearch
                                        range:NSMakeRange(0, [metadataString length])];
+  metricKitFile->needComma = YES;
   FIRCLSFileWriteStringUnquoted(metricKitFile, [metadataString UTF8String]);
-  FIRCLSFileWriteSectionEnd(metricKitFile);
+  //  FIRCLSFileWriteHashEnd(metricKitFile);
 }
 
 /*
@@ -296,10 +306,6 @@
 - (void)writeEventSpecificDataToFile:(FIRCLSFile *)metricKitFile
                                event:(NSString *)event
                                 data:(NSDictionary *)data {
-  NSString *eventName = [event stringByAppendingString:@"_information"];
-  FIRCLSFileWriteSectionStart(metricKitFile, [eventName UTF8String]);
-  FIRCLSFileWriteHashStart(metricKitFile);
-
   for (NSString *key in data) {
     id value = [data objectForKey:key];
     if ([value isKindOfClass:[NSString class]]) {
@@ -310,9 +316,6 @@
                                      [[data objectForKey:key] integerValue]);
     }
   };
-
-  FIRCLSFileWriteHashEnd(metricKitFile);
-  FIRCLSFileWriteSectionEnd(metricKitFile);
 }
 
 @end

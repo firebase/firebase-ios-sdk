@@ -44,7 +44,7 @@ NSString *const FIRCLSCacheVersion = @"v5";
   path = [path stringByAppendingPathComponent:[self pathNamespace]];
   _rootPath = [path copy];
 
-  _didCrashPreviously = NO;
+  _crashFileMarkerExists = NO;
   return self;
 }
 
@@ -130,9 +130,11 @@ NSString *const FIRCLSCacheVersion = @"v5";
   NSString *crashedMarkerFileName = [NSString stringWithUTF8String:FIRCLSCrashedMarkerFileName];
   NSString *crashedMarkerFileFullPath =
       [[self rootPath] stringByAppendingPathComponent:crashedMarkerFileName];
-  self.didCrashPreviously =
-      self.didCrashPreviously || [self fileExistsAtPath:crashedMarkerFileFullPath];
-  return self.didCrashPreviously;
+  static dispatch_once_t checkCrashFileMarketExistsOnceToken;
+  dispatch_once(&checkCrashFileMarketExistsOnceToken, ^{
+    self.crashFileMarkerExists = [self fileExistsAtPath:crashedMarkerFileFullPath];
+  });
+  return self.crashFileMarkerExists;
 }
 
 - (void)enumerateFilesInDirectory:(NSString *)directory
