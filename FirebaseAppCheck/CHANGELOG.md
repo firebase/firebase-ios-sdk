@@ -1,6 +1,6 @@
-# v8.5.0 -- Unreleased
+# v8.5.0 -- M101
 - [changed] App Check SDK available for all supported platforms/OS versions, but App Attest and
-DeviceCheck providers availability changed to match underlying platfrom API availability. (#8388)
+  DeviceCheck providers availability changed to match underlying platfrom API availability. (#8388)
 # v8.4.0 -- M100
 - [fixed] Fixed build issues introduced in Xcode 13 beta 3. (#8401)
 - [fixed] Bump Promises dependency. (#8365)
