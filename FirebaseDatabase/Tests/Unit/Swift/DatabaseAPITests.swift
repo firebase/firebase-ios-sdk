@@ -210,19 +210,19 @@ final class DatabaseAPITests {
       let /* databaseReference */ _: DatabaseReference = databaseReference
     }
 
-//    #if swift(>=5.5)
-    if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
-      // async/await is a Swift 5.5+ feature available on iOS 15+
-      Task {
-        do {
-          // setValue(_ value:)
-          let /* ref */ _: DatabaseReference = try await DatabaseReference().setValue(value)
-        } catch {
-          // ...
+    #if swift(>=5.5)
+      if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
+        // async/await is a Swift 5.5+ feature available on iOS 15+
+        Task {
+          do {
+            // setValue(_ value:)
+            let /* ref */ _: DatabaseReference = try await DatabaseReference().setValue(value)
+          } catch {
+            // ...
+          }
         }
       }
-    }
-//    #endif // swift(>=5.5)
+    #endif // swift(>=5.5)
 
     databaseReference.setValue(value, andPriority: priority)
 
@@ -301,20 +301,20 @@ final class DatabaseAPITests {
       let /* databaseReference */ _: DatabaseReference = databaseReference
     }
 
-//    #if swift(>=5.5)
-    if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
-      // async/await is a Swift 5.5+ feature available on iOS 15+
-      Task {
-        do {
-          // updateChildValues(_ values:)
-          let /* ref */ _: DatabaseReference = try await DatabaseReference()
-            .updateChildValues(values)
-        } catch {
-          // ...
+    #if swift(>=5.5)
+      if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
+        // async/await is a Swift 5.5+ feature available on iOS 15+
+        Task {
+          do {
+            // updateChildValues(_ values:)
+            let /* ref */ _: DatabaseReference = try await DatabaseReference()
+              .updateChildValues(values)
+          } catch {
+            // ...
+          }
         }
       }
-    }
-//    #endif // swift(>=5.5)
+    #endif // swift(>=5.5)
 
     // Observe for data
 
