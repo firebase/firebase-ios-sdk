@@ -80,9 +80,9 @@ jobs:
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: iOS Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseAppCheckUnit iOS spm
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh AppCheckUnit iOS spm
     - name: iOS Swift Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseAppCheckSwift iOS spm
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh AppCheckSwift iOS spm
 
   spm-cron:
     # Don't run on private repo.
@@ -96,6 +96,6 @@ jobs:
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseAppCheckUnit ${{ matrix.target }} spm
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh AppCheckUnit ${{ matrix.target }} spm
     - name: Swift Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseAppCheckSwift ${{ matrix.target }} spm
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh AppCheckSwift ${{ matrix.target }} spm
