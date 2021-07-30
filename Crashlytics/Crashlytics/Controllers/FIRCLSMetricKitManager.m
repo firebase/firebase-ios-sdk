@@ -31,6 +31,7 @@
 @property FIRCLSExistingReportManager *existingReportManager;
 @property FIRCLSFileManager *fileManager;
 @property FIRCLSManagerData *managerData;
+@property BOOL metricKitPromiseFulfilled;
 
 @end
 
@@ -42,6 +43,7 @@
   _existingReportManager = existingReportManager;
   _fileManager = fileManager;
   _managerData = managerData;
+  _metricKitPromiseFulfilled = NO;
   return self;
 }
 
@@ -63,9 +65,21 @@
   if (![self.fileManager didCrashOnPreviousExecution] ||
       ![self.fileManager metricKitDiagnosticFileExists]) {
     @synchronized(self) {
-      [self.metricKitDataAvailable fulfill:nil];
+      [self fulfillMetricKitPromise];
     }
   }
+
+  // If we haven't resolved this promise within three seconds, resolve it now so that we're not
+  // waiting indefinitely for MetricKit payloads that won't arrive.
+  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 3 * NSEC_PER_SEC), self.managerData.dispatchQueue,
+                 ^{
+                   @synchronized(self) {
+                     if (!self.metricKitPromiseFulfilled) {
+                       FIRCLSDebugLog(@"Resolving MetricKit promise after three seconds");
+                       [self fulfillMetricKitPromise];
+                     }
+                   }
+                 });
 }
 
 /*
@@ -91,10 +105,10 @@
     }
   }
   // Once we've processed all the payloads, resolve the promise so that reporting uploading
-  // continues. If there was not a crash on the previous run of the app, the promise wil already
+  // continues. If there was not a crash on the previous run of the app, the promise will already
   // have been resolved.
   @synchronized(self) {
-    [self.metricKitDataAvailable fulfill:nil];
+    [self fulfillMetricKitPromise];
   }
 }
 
@@ -132,14 +146,14 @@
   }
 
   if (!metricKitReportFile) {
-    FIRCLSDebugLog(@"[Crashlytics:Crash] error finding MetricKit file");
+    FIRCLSDebugLog(@"Error finding MetricKit file");
     return NO;
   }
 
-  FIRCLSDebugLog(@"[Crashlytics:Crash] file path for MetricKit:  %@", [metricKitReportFile copy]);
+  FIRCLSDebugLog(@"File path for MetricKit:  %@", [metricKitReportFile copy]);
   FIRCLSFile metricKitFile;
   if (!FIRCLSFileInitWithPath(&metricKitFile, [metricKitReportFile UTF8String], false)) {
-    FIRCLSDebugLog(@"[Crashlytics:Crash] unable to open MetricKit file");
+    FIRCLSDebugLog(@"Unable to open MetricKit file");
     return NO;
   }
 
@@ -316,6 +330,12 @@
                                      [[data objectForKey:key] integerValue]);
     }
   };
+}
+
+// Helper method to fulfill the metricKitDataAvailable promise and track that it has been fulfilled.
+- (void)fulfillMetricKitPromise {
+  [self.metricKitDataAvailable fulfill:nil];
+  self.metricKitPromiseFulfilled = YES;
 }
 
 @end

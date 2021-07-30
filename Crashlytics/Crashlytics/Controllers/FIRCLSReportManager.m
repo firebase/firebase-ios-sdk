@@ -343,12 +343,6 @@ typedef NSNumber FIRCLSWrappedReportAction;
            }];
   }
 
-  // If we haven't resolved this promise within three seconds, resolve it now so that we're not
-  // waiting indefinitely for MetricKit payloads that won't arrive.
-  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 3 * NSEC_PER_SEC), _dispatchQueue, ^{
-    [promise fulfill:nil];
-  });
-
   if (report != nil) {
     // capture the start-up time here, but record it asynchronously
     double endMark = FIRCLSProfileEnd(mark);
