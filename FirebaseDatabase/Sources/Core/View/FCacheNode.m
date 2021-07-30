@@ -30,6 +30,9 @@
 - (id)initWithIndexedNode:(FIndexedNode *)indexedNode
        isFullyInitialized:(BOOL)fullyInitialized
                isFiltered:(BOOL)filtered {
+    NSAssert([indexedNode isKindOfClass:[FIndexedNode class]],
+             @"Expected node with type FIndexNode, but instead got %@",
+             indexedNode);
     self = [super init];
     if (self) {
         self.indexedNode = indexedNode;
