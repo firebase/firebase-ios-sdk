@@ -115,6 +115,7 @@
 // Helper method to write a MetricKit payload's data to file.
 - (BOOL)processMetricKitPayload:(MXDiagnosticPayload *)diagnosticPayload
                  skipCrashEvent:(BOOL)skipCrashEvent {
+  BOOL writeFailed = NO;
   // TODO: Time stamp information is only available in begin and end time periods. Hopefully this
   // is updated with iOS 15.
   NSTimeInterval beginSecondsSince1970 = [diagnosticPayload.timeStampBegin timeIntervalSince1970];
@@ -151,24 +152,25 @@
   }
 
   FIRCLSDebugLog(@"File path for MetricKit:  %@", [metricKitReportFile copy]);
-  FIRCLSFile metricKitFile;
-  if (!FIRCLSFileInitWithPath(&metricKitFile, [metricKitReportFile UTF8String], false)) {
-    FIRCLSDebugLog(@"Unable to open MetricKit file");
-    return NO;
+
+  if (![_fileManager fileExistsAtPath:metricKitReportFile]) {
+    [_fileManager createFileAtPath:metricKitReportFile contents:nil attributes:nil];
+  }
+  NSFileHandle *file = [NSFileHandle fileHandleForUpdatingAtPath:metricKitReportFile];
+  if (file == nil) {
+    FIRCLSDebugLog(@"Unable to create or open MetricKit file.");
+    return false;
   }
 
   // Write out time information to the MetricKit report file. Time needs to be a value for
-  // backend serialization, so we'll write out two sections to capture all the information.
-  FIRCLSFileWriteHashStart(&metricKitFile);
-  FIRCLSFileWriteHashEntryUint64(&metricKitFile, "time", beginSecondsSince1970);
-  FIRCLSFileWriteSectionEnd(&metricKitFile);
+  // backend serialization, so we write out end_time separately.
+  NSDictionary *timeDictionary = @{
+    @"time" : [NSNumber numberWithDouble:beginSecondsSince1970],
+    @"end_time" : [NSNumber numberWithDouble:endSecondsSince1970]
+  };
+  writeFailed = ![self writeDictionaryToFile:timeDictionary file:file newLineData:nil];
 
-  FIRCLSFileWriteSectionStart(&metricKitFile, "time_details");
-  FIRCLSFileWriteHashStart(&metricKitFile);
-  FIRCLSFileWriteHashEntryUint64(&metricKitFile, "begin_time", beginSecondsSince1970);
-  FIRCLSFileWriteHashEntryUint64(&metricKitFile, "end_time", endSecondsSince1970);
-  FIRCLSFileWriteHashEnd(&metricKitFile);
-  FIRCLSFileWriteSectionEnd(&metricKitFile);
+  NSData *newLineData = [@"\n" dataUsingEncoding:NSUTF8StringEncoding];
 
   // Write out each type of diagnostic if it exists in the report
   BOOL hasCrash = [diagnosticPayload.crashDiagnostics count] > 0;
@@ -179,82 +181,94 @@
   // For each diagnostic type, write out a section in the MetricKit report file. This section will
   // have subsections for threads, metadata, and event specific metadata.
   if (hasCrash && !skipCrashEvent) {
-    FIRCLSFileWriteSectionStart(&metricKitFile, "crash_event");
     MXCrashDiagnostic *crashDiagnostic = [diagnosticPayload.crashDiagnostics objectAtIndex:0];
 
-    NSData *threads = [crashDiagnostic.callStackTree JSONRepresentation];
-    NSData *metadata = [crashDiagnostic.metaData JSONRepresentation];
-    [self writeThreadsToFile:&metricKitFile threads:threads];
-    [self writeMetadataToFile:&metricKitFile metadata:metadata];
+    NSDictionary *threadDict =
+        [self convertThreadsToDictionary:[crashDiagnostic.callStackTree JSONRepresentation]];
+    NSDictionary *metadataDict =
+        [self convertMetadataToDictionary:[crashDiagnostic.metaData JSONRepresentation]];
 
     NSString *nilString = @"";
-    NSDictionary *crashDict = @{
-      @"termination_reason" :
-              (crashDiagnostic.terminationReason) ? crashDiagnostic.terminationReason : nilString,
-      @"virtual_memory_region_info" : (crashDiagnostic.virtualMemoryRegionInfo)
-          ? crashDiagnostic.virtualMemoryRegionInfo
-          : nilString,
-      @"exception_type" : crashDiagnostic.exceptionType,
-      @"exception_code" : crashDiagnostic.exceptionCode,
-      @"signal" : crashDiagnostic.signal
+    NSDictionary *crashDictionary = @{
+      @"crash_event" : @{
+        @"threads_data" : threadDict,
+        @"metadata" : metadataDict,
+        @"termination_reason" :
+                (crashDiagnostic.terminationReason) ? crashDiagnostic.terminationReason : nilString,
+        @"virtual_memory_region_info" : (crashDiagnostic.virtualMemoryRegionInfo)
+            ? crashDiagnostic.virtualMemoryRegionInfo
+            : nilString,
+        @"exception_type" : crashDiagnostic.exceptionType,
+        @"exception_code" : crashDiagnostic.exceptionCode,
+        @"signal" : crashDiagnostic.signal
+      }
     };
-    [self writeEventSpecificDataToFile:&metricKitFile event:@"crash" data:crashDict];
-    FIRCLSFileWriteHashEnd(&metricKitFile);
-    FIRCLSFileWriteSectionEnd(&metricKitFile);
+    writeFailed = ![self writeDictionaryToFile:crashDictionary file:file newLineData:newLineData];
   }
 
   if (hasHang) {
-    FIRCLSFileWriteSectionStart(&metricKitFile, "hang_event");
     MXHangDiagnostic *hangDiagnostic = [diagnosticPayload.hangDiagnostics objectAtIndex:0];
 
-    NSData *threads = [hangDiagnostic.callStackTree JSONRepresentation];
-    NSData *metadata = [hangDiagnostic.metaData JSONRepresentation];
-    [self writeThreadsToFile:&metricKitFile threads:threads];
-    [self writeMetadataToFile:&metricKitFile metadata:metadata];
+    NSDictionary *threadDict =
+        [self convertThreadsToDictionary:[hangDiagnostic.callStackTree JSONRepresentation]];
+    NSDictionary *metadataDict =
+        [self convertMetadataToDictionary:[hangDiagnostic.metaData JSONRepresentation]];
 
-    NSDictionary *hangDict = @{@"hang_duration" : hangDiagnostic.hangDuration};
-    [self writeEventSpecificDataToFile:&metricKitFile event:@"hang" data:hangDict];
-    FIRCLSFileWriteHashEnd(&metricKitFile);
-    FIRCLSFileWriteSectionEnd(&metricKitFile);
+    NSDictionary *hangDictionary = @{
+      @"hang_event" : @{
+        @"threads_data" : threadDict,
+        @"metadata" : metadataDict,
+        @"hang_duration" : [NSNumber numberWithDouble:[hangDiagnostic.hangDuration doubleValue]]
+      }
+    };
+    writeFailed = ![self writeDictionaryToFile:hangDictionary file:file newLineData:newLineData];
   }
 
   if (hasCPUException) {
-    FIRCLSFileWriteSectionStart(&metricKitFile, "cpu_exception_event");
     MXCPUExceptionDiagnostic *cpuExceptionDiagnostic =
         [diagnosticPayload.cpuExceptionDiagnostics objectAtIndex:0];
 
-    NSData *threads = [cpuExceptionDiagnostic.callStackTree JSONRepresentation];
-    NSData *metadata = [cpuExceptionDiagnostic.metaData JSONRepresentation];
-    [self writeThreadsToFile:&metricKitFile threads:threads];
-    [self writeMetadataToFile:&metricKitFile metadata:metadata];
+    NSDictionary *threadDict =
+        [self convertThreadsToDictionary:[cpuExceptionDiagnostic.callStackTree JSONRepresentation]];
+    NSDictionary *metadataDict =
+        [self convertMetadataToDictionary:[cpuExceptionDiagnostic.metaData JSONRepresentation]];
 
-    NSDictionary *cpuDict = @{
-      @"total_cpu_time" : cpuExceptionDiagnostic.totalCPUTime,
-      @"total_sampled_time" : cpuExceptionDiagnostic.totalSampledTime
+    NSDictionary *cpuDictionary = @{
+      @"cpu_exception_event" : @{
+        @"threads_data" : threadDict,
+        @"metadata" : metadataDict,
+        @"total_cpu_time" :
+            [NSNumber numberWithDouble:[cpuExceptionDiagnostic.totalCPUTime doubleValue]],
+        @"total_sampled_time" :
+            [NSNumber numberWithDouble:[cpuExceptionDiagnostic.totalSampledTime doubleValue]]
+      }
     };
-    [self writeEventSpecificDataToFile:&metricKitFile event:@"cpu_exception" data:cpuDict];
-    FIRCLSFileWriteHashEnd(&metricKitFile);
-    FIRCLSFileWriteSectionEnd(&metricKitFile);
+    writeFailed = ![self writeDictionaryToFile:cpuDictionary file:file newLineData:newLineData];
   }
 
   if (hasDiskWriteException) {
-    FIRCLSFileWriteSectionStart(&metricKitFile, "disk_write_exception_event");
     MXDiskWriteExceptionDiagnostic *diskWriteExceptionDiagnostic =
         [diagnosticPayload.diskWriteExceptionDiagnostics objectAtIndex:0];
 
-    NSData *threads = [diskWriteExceptionDiagnostic.callStackTree JSONRepresentation];
-    NSData *metadata = [diskWriteExceptionDiagnostic.metaData JSONRepresentation];
-    [self writeThreadsToFile:&metricKitFile threads:threads];
-    [self writeMetadataToFile:&metricKitFile metadata:metadata];
+    NSDictionary *threadDict = [self
+        convertThreadsToDictionary:[diskWriteExceptionDiagnostic.callStackTree JSONRepresentation]];
+    NSDictionary *metadataDict = [self
+        convertMetadataToDictionary:[diskWriteExceptionDiagnostic.metaData JSONRepresentation]];
 
-    NSDictionary *diskDict =
-        @{@"total_writes_caused" : diskWriteExceptionDiagnostic.totalWritesCaused};
-    [self writeEventSpecificDataToFile:&metricKitFile event:@"disk_write_exception" data:diskDict];
-    FIRCLSFileWriteHashEnd(&metricKitFile);
-    FIRCLSFileWriteSectionEnd(&metricKitFile);
+    NSDictionary *diskWriteDictionary = @{
+      @"disk_write_exception_event" : @{
+        @"threads_data" : threadDict,
+        @"metadata" : metadataDict,
+        @"total_writes_caused" :
+            [NSNumber numberWithDouble:[diskWriteExceptionDiagnostic.totalWritesCaused doubleValue]]
+      }
+    };
+    writeFailed = ![self writeDictionaryToFile:diskWriteDictionary
+                                          file:file
+                                   newLineData:newLineData];
   }
 
-  return YES;
+  return !writeFailed;
 }
 /*
  * Required for MXMetricManager subscribers. Since we aren't currently collecting any MetricKit
@@ -272,70 +286,73 @@
 }
 
 /*
- * Helper method to write threads for a MetricKit diagnostic event to file.
+ * Helper method to convert threads for a MetricKit diagnostic event to a dictionary.
  */
-- (void)writeThreadsToFile:(FIRCLSFile *)metricKitFile threads:(NSData *)threads {
-  //  FIRCLSFileWriteSectionStart(metricKitFile, "threads");
-  FIRCLSFileWriteStringUnquoted(metricKitFile, "{\"threads\":");
+- (NSDictionary *)convertThreadsToDictionary:(NSData *)threads {
   NSMutableString *threadsString = [[NSMutableString alloc] initWithData:threads
                                                                 encoding:NSUTF8StringEncoding];
   [threadsString replaceOccurrencesOfString:@"\n"
                                  withString:@""
                                     options:NSCaseInsensitiveSearch
                                       range:NSMakeRange(0, [threadsString length])];
-  [threadsString replaceOccurrencesOfString:@"        "
+  [threadsString replaceOccurrencesOfString:@"\t"
                                  withString:@""
                                     options:NSCaseInsensitiveSearch
                                       range:NSMakeRange(0, [threadsString length])];
-  metricKitFile->needComma = YES;
-  FIRCLSFileWriteStringUnquoted(metricKitFile, [threadsString UTF8String]);
-
-  //  FIRCLSFileWriteHashEnd(metricKitFile);
+  NSError *error = nil;
+  NSDictionary *threadDictionary = [NSJSONSerialization JSONObjectWithData:threads
+                                                                   options:0
+                                                                     error:&error];
+  return threadDictionary;
 }
 
 /*
- * Helper method to write metadata for a MetricKit diagnostic event to file.
+ * Helper method to convert metadata for a MetricKit diagnostic event to a dictionary.
  */
-- (void)writeMetadataToFile:(FIRCLSFile *)metricKitFile metadata:(NSData *)metadata {
-  //  FIRCLSFileWriteSectionStart(metricKitFile, "metadata");
-  FIRCLSFileWriteStringUnquoted(metricKitFile, ",\"metadata\":");
+- (NSDictionary *)convertMetadataToDictionary:(NSData *)metadata {
   NSMutableString *metadataString = [[NSMutableString alloc] initWithData:metadata
                                                                  encoding:NSUTF8StringEncoding];
   [metadataString replaceOccurrencesOfString:@"\n"
                                   withString:@""
                                      options:NSCaseInsensitiveSearch
                                        range:NSMakeRange(0, [metadataString length])];
-  [metadataString replaceOccurrencesOfString:@"        "
+  [metadataString replaceOccurrencesOfString:@"\t"
                                   withString:@""
                                      options:NSCaseInsensitiveSearch
                                        range:NSMakeRange(0, [metadataString length])];
-  metricKitFile->needComma = YES;
-  FIRCLSFileWriteStringUnquoted(metricKitFile, [metadataString UTF8String]);
-  //  FIRCLSFileWriteHashEnd(metricKitFile);
+  NSError *error = nil;
+  NSDictionary *metadataDictionary = [NSJSONSerialization JSONObjectWithData:metadata
+                                                                     options:0
+                                                                       error:&error];
+  return metadataDictionary;
 }
 
 /*
- * Helper method to write event-specific metadata for a MetricKit diagnostic event to file.
+ * Helper method to fulfill the metricKitDataAvailable promise and track that it has been fulfilled.
  */
-- (void)writeEventSpecificDataToFile:(FIRCLSFile *)metricKitFile
-                               event:(NSString *)event
-                                data:(NSDictionary *)data {
-  for (NSString *key in data) {
-    id value = [data objectForKey:key];
-    if ([value isKindOfClass:[NSString class]]) {
-      const char *stringValue = [(NSString *)value UTF8String];
-      FIRCLSFileWriteHashEntryString(metricKitFile, [key UTF8String], stringValue);
-    } else if ([value isKindOfClass:[NSNumber class]]) {
-      FIRCLSFileWriteHashEntryUint64(metricKitFile, [key UTF8String],
-                                     [[data objectForKey:key] integerValue]);
-    }
-  };
-}
-
-// Helper method to fulfill the metricKitDataAvailable promise and track that it has been fulfilled.
 - (void)fulfillMetricKitPromise {
+  if (self.metricKitPromiseFulfilled) return;
+
   [self.metricKitDataAvailable fulfill:nil];
   self.metricKitPromiseFulfilled = YES;
+}
+
+/*
+ * Helper method to write a dictionary of event information to file. Returns whether it succeeded.
+ */
+- (BOOL)writeDictionaryToFile:(NSDictionary *)dictionary
+                         file:(NSFileHandle *)file
+                  newLineData:(NSData *)newLineData {
+  NSError *dataError = nil;
+  NSData *data = [NSJSONSerialization dataWithJSONObject:dictionary options:0 error:&dataError];
+  if (dataError) {
+    FIRCLSDebugLog(@"Unable to write out dictionary.");
+    return NO;
+  }
+
+  [file seekToEndOfFile];
+  [file writeData:newLineData];
+  [file writeData:data];
 }
 
 @end
