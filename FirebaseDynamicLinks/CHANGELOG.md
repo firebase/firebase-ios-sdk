@@ -1,3 +1,6 @@
+# v8.6.0
+- [changed] Replaced conditionally-compiled APIs with `API_UNAVAILABLE` annotations on unsupported platforms (#8467).
+
 # v8.4.0
 - [fixed] Fixed build issues introduced in Xcode 13 beta 3. (#8401)
 - [fixed] Fixed build failures for extension targets. (#6548)
