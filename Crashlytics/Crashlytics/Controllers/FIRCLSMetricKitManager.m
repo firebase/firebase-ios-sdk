@@ -246,7 +246,6 @@
  * metrics, this method is left empty.
  */
 - (void)didReceiveMetricPayloads:(NSArray<MXMetricPayload *> *)payloads {
-  FIRCLSDebugLog(@"[Crashlytics:Crash] received %d MetricKit metric payloads\n", payloads.count);
 }
 
 - (FBLPromise *)waitForMetricKitDataAvailable {
