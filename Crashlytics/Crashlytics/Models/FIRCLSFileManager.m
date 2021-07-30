@@ -25,6 +25,7 @@ NSString *const FIRCLSCacheVersion = @"v5";
 @interface FIRCLSFileManager () {
   NSString *_rootPath;
 }
+@property(nonatomic) BOOL crashFileMarkerExists;
 
 @end
 
@@ -127,11 +128,11 @@ NSString *const FIRCLSCacheVersion = @"v5";
 }
 
 - (BOOL)didCrashOnPreviousExecution {
-  NSString *crashedMarkerFileName = [NSString stringWithUTF8String:FIRCLSCrashedMarkerFileName];
-  NSString *crashedMarkerFileFullPath =
-      [[self rootPath] stringByAppendingPathComponent:crashedMarkerFileName];
   static dispatch_once_t checkCrashFileMarketExistsOnceToken;
   dispatch_once(&checkCrashFileMarketExistsOnceToken, ^{
+    NSString *crashedMarkerFileName = [NSString stringWithUTF8String:FIRCLSCrashedMarkerFileName];
+    NSString *crashedMarkerFileFullPath =
+        [[self rootPath] stringByAppendingPathComponent:crashedMarkerFileName];
     self.crashFileMarkerExists = [self fileExistsAtPath:crashedMarkerFileFullPath];
   });
   return self.crashFileMarkerExists;
