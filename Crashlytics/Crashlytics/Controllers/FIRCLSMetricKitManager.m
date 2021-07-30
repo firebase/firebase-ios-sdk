@@ -56,11 +56,12 @@
   [[MXMetricManager sharedManager] addSubscriber:self];
   self.metricKitDataAvailable = [FBLPromise pendingPromise];
 
-  // If there was no crash on the last run of the app, then we aren't expecting a MetricKit
-  // diagnostic report and should resolve the promise immediately. If MetricKit captured a fatal
-  // event and Crashlytics did not, then we'll still process the MetricKit crash but won't upload
-  // it until the app restarts again.
-  if (![self.fileManager didCrashOnPreviousExecution]) {
+  // If there was no crash on the last run of the app or there's no diagnostic report in the
+  // MetricKit directory, then we aren't expecting a MetricKit diagnostic report and should resolve
+  // the promise immediately. If MetricKit captured a fatal event and Crashlytics did not, then
+  // we'll still process the MetricKit crash but won't upload it until the app restarts again.
+  if (![self.fileManager didCrashOnPreviousExecution] ||
+      ![self.fileManager metricKitDiagnosticFileExists]) {
     @synchronized(self) {
       [self.metricKitDataAvailable fulfill:nil];
     }
@@ -77,17 +78,16 @@
  * write out the information but won't need to resolve the promise.
  */
 - (void)didReceiveDiagnosticPayloads:(NSArray<MXDiagnosticPayload *> *)payloads {
+  BOOL processedFatalPayload = NO;
   for (MXDiagnosticPayload *diagnosticPayload in payloads) {
     if (!diagnosticPayload) {
       continue;
     }
 
-    BOOL processedPayload = [self processMetricKitPayload:diagnosticPayload];
-    BOOL fatal = processedPayload && ([diagnosticPayload.crashDiagnostics count] > 0);
-    if (fatal) {
-      // Since we only want to handle one crash per report, if this was a fatal event
-      // don't process any additional payloads.
-      break;
+    BOOL processedPayload = [self processMetricKitPayload:diagnosticPayload
+                                           skipCrashEvent:processedFatalPayload];
+    if (processedPayload && ([diagnosticPayload.crashDiagnostics count] > 0)) {
+      processedFatalPayload = YES;
     }
   }
   // Once we've processed all the payloads, resolve the promise so that reporting uploading
@@ -99,7 +99,8 @@
 }
 
 // Helper method to write a MetricKit payload's data to file.
-- (BOOL)processMetricKitPayload:(MXDiagnosticPayload *)diagnosticPayload {
+- (BOOL)processMetricKitPayload:(MXDiagnosticPayload *)diagnosticPayload
+                 skipCrashEvent:(BOOL)skipCrashEvent {
   // TODO: Time stamp information is only available in begin and end time periods. Hopefully this
   // is updated with iOS 15.
   NSTimeInterval beginSecondsSince1970 = [diagnosticPayload.timeStampBegin timeIntervalSince1970];
@@ -163,7 +164,7 @@
 
   // For each diagnostic type, write out a section in the MetricKit report file. This section will
   // have subsections for threads, metadata, and event specific metadata.
-  if (hasCrash) {
+  if (hasCrash && !skipCrashEvent) {
     FIRCLSFileWriteSectionStart(&metricKitFile, "crash_event");
     MXCrashDiagnostic *crashDiagnostic = [diagnosticPayload.crashDiagnostics objectAtIndex:0];
 

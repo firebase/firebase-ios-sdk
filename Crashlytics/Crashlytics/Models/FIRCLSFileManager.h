@@ -56,6 +56,7 @@
 - (BOOL)removeContentsOfDirectoryAtPath:(NSString *)path;
 - (BOOL)moveItemAtPath:(NSString *)path toDirectory:(NSString *)destDir;
 - (BOOL)didCrashOnPreviousExecution;
+- (BOOL)metricKitDiagnosticFileExists;
 - (void)enumerateFilesInDirectory:(NSString *)directory
                        usingBlock:(void (^)(NSString *filePath, NSString *extension))block;
 - (NSNumber *)fileSizeAtPath:(NSString *)path;
