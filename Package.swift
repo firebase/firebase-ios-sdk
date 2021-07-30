@@ -793,11 +793,16 @@ let package = Package(
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "GULReachability", package: "GoogleUtilities"),
         .product(name: "GULUserDefaults", package: "GoogleUtilities"),
+        .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
+        .product(name: "nanopb", package: "nanopb"),
       ],
       path: "FirebaseMessaging/Sources",
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
+        .define("PB_FIELD_32BIT", to: "1"),
+        .define("PB_NO_PACKED_STRUCTS", to: "1"),
+        .define("PB_ENABLE_MALLOC", to: "1"),
       ],
       linkerSettings: [
         .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),

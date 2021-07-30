@@ -21,6 +21,7 @@
 #import "Interop/Analytics/Public/FIRInteropEventNames.h"
 #import "Interop/Analytics/Public/FIRInteropParameterNames.h"
 
+#import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 
 static NSString *const kLogTag = @"FIRMessagingAnalytics";
@@ -35,29 +36,16 @@ static NSString *const kApsContentAvailableKey = @"badge";
 // Data Key
 static NSString *const kDataKey = @"data";
 
-// Messaging From Key
-static NSString *const kFIRMessagingFromKey = @"from";
-
 static NSString *const kFIRParameterLabel = @"label";
 
 static NSString *const kReengagementSource = @"Firebase";
 static NSString *const kReengagementMedium = @"notification";
 
 // Analytics
-static NSString *const kAnalyticsEnabled = @"google.c.a."
-                                           @"e";
-static NSString *const kAnalyticsComposerIdentifier = @"google.c.a."
-                                                      @"c_id";
-static NSString *const kAnalyticsComposerLabel = @"google.c.a."
-                                                 @"c_l";
-static NSString *const kAnalyticsMessageLabel = @"google.c.a."
-                                                @"m_l";
-static NSString *const kAnalyticsMessageTimestamp = @"google.c.a."
-                                                    @"ts";
-static NSString *const kAnalyticsMessageUseDeviceTime = @"google.c.a."
-                                                        @"udt";
-static NSString *const kAnalyticsTrackConversions = @"google.c.a."
-                                                    @"tc";
+static NSString *const kAnalyticsEnabled = @"google.c.a.e";
+static NSString *const kAnalyticsMessageTimestamp = @"google.c.a.ts";
+static NSString *const kAnalyticsMessageUseDeviceTime = @"google.c.a.udt";
+static NSString *const kAnalyticsTrackConversions = @"google.c.a.tc";
 
 @implementation FIRMessagingAnalytics
 
@@ -119,17 +107,17 @@ static NSString *const kAnalyticsTrackConversions = @"google.c.a."
   }
 
   NSMutableDictionary *params = [NSMutableDictionary dictionary];
-  NSString *composerIdentifier = analyticsDataMap[kAnalyticsComposerIdentifier];
+  NSString *composerIdentifier = analyticsDataMap[kFIRMessagingAnalyticsComposerIdentifier];
   if ([composerIdentifier isKindOfClass:[NSString class]] && composerIdentifier.length) {
     params[kFIRIParameterMessageIdentifier] = [composerIdentifier copy];
   }
 
-  NSString *composerLabel = analyticsDataMap[kAnalyticsComposerLabel];
+  NSString *composerLabel = analyticsDataMap[kFIRMessagingAnalyticsComposerLabel];
   if ([composerLabel isKindOfClass:[NSString class]] && composerLabel.length) {
     params[kFIRIParameterMessageName] = [composerLabel copy];
   }
 
-  NSString *messageLabel = analyticsDataMap[kAnalyticsMessageLabel];
+  NSString *messageLabel = analyticsDataMap[kFIRMessagingAnalyticsMessageLabel];
   if ([messageLabel isKindOfClass:[NSString class]] && messageLabel.length) {
     params[kFIRParameterLabel] = [messageLabel copy];
   }
@@ -161,7 +149,7 @@ static NSString *const kAnalyticsTrackConversions = @"google.c.a."
     return;
   }
 
-  NSString *composerIdentifier = notification[kAnalyticsComposerIdentifier];
+  NSString *composerIdentifier = notification[kFIRMessagingAnalyticsComposerIdentifier];
   if ([composerIdentifier isKindOfClass:[NSString class]] && composerIdentifier.length) {
     // Set user property for event.
     [analytics setUserPropertyWithOrigin:@"fcm"
