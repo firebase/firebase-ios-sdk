@@ -191,7 +191,7 @@
     NSString *nilString = @"";
     NSDictionary *crashDictionary = @{
       @"crash_event" : @{
-        @"threads_data" : threadDict,
+        @"threads" : threadDict,
         @"metadata" : metadataDict,
         @"termination_reason" :
                 (crashDiagnostic.terminationReason) ? crashDiagnostic.terminationReason : nilString,
@@ -216,7 +216,7 @@
 
     NSDictionary *hangDictionary = @{
       @"hang_event" : @{
-        @"threads_data" : threadDict,
+        @"threads" : threadDict,
         @"metadata" : metadataDict,
         @"hang_duration" : [NSNumber numberWithDouble:[hangDiagnostic.hangDuration doubleValue]]
       }
@@ -235,7 +235,7 @@
 
     NSDictionary *cpuDictionary = @{
       @"cpu_exception_event" : @{
-        @"threads_data" : threadDict,
+        @"threads" : threadDict,
         @"metadata" : metadataDict,
         @"total_cpu_time" :
             [NSNumber numberWithDouble:[cpuExceptionDiagnostic.totalCPUTime doubleValue]],
@@ -257,7 +257,7 @@
 
     NSDictionary *diskWriteDictionary = @{
       @"disk_write_exception_event" : @{
-        @"threads_data" : threadDict,
+        @"threads" : threadDict,
         @"metadata" : metadataDict,
         @"total_writes_caused" :
             [NSNumber numberWithDouble:[diskWriteExceptionDiagnostic.totalWritesCaused doubleValue]]
