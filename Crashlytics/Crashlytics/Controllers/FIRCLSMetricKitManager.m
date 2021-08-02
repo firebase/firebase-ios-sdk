@@ -71,7 +71,7 @@
 
   // If we haven't resolved this promise within three seconds, resolve it now so that we're not
   // waiting indefinitely for MetricKit payloads that won't arrive.
-  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 3 * NSEC_PER_SEC), self.managerData.dispatchQueue,
+  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC), self.managerData.dispatchQueue,
                  ^{
                    @synchronized(self) {
                      if (!self.metricKitPromiseFulfilled) {
@@ -200,7 +200,8 @@
             : nilString,
         @"exception_type" : crashDiagnostic.exceptionType,
         @"exception_code" : crashDiagnostic.exceptionCode,
-        @"signal" : crashDiagnostic.signal
+        @"signal" : crashDiagnostic.signal,
+        @"app_version": crashDiagnostic.applicationVersion
       }
     };
     writeFailed = ![self writeDictionaryToFile:crashDictionary file:file newLineData:newLineData];
@@ -218,7 +219,8 @@
       @"hang_event" : @{
         @"threads" : threadDict,
         @"metadata" : metadataDict,
-        @"hang_duration" : [NSNumber numberWithDouble:[hangDiagnostic.hangDuration doubleValue]]
+        @"hang_duration" : [NSNumber numberWithDouble:[hangDiagnostic.hangDuration doubleValue]],
+        @"app_version": hangDiagnostic.applicationVersion
       }
     };
     writeFailed = ![self writeDictionaryToFile:hangDictionary file:file newLineData:newLineData];
@@ -240,7 +242,8 @@
         @"total_cpu_time" :
             [NSNumber numberWithDouble:[cpuExceptionDiagnostic.totalCPUTime doubleValue]],
         @"total_sampled_time" :
-            [NSNumber numberWithDouble:[cpuExceptionDiagnostic.totalSampledTime doubleValue]]
+            [NSNumber numberWithDouble:[cpuExceptionDiagnostic.totalSampledTime doubleValue]],
+        @"app_version": cpuExceptionDiagnostic.applicationVersion
       }
     };
     writeFailed = ![self writeDictionaryToFile:cpuDictionary file:file newLineData:newLineData];
@@ -259,6 +262,7 @@
       @"disk_write_exception_event" : @{
         @"threads" : threadDict,
         @"metadata" : metadataDict,
+        @"app_version": diskWriteExceptionDiagnostic.applicationVersion,
         @"total_writes_caused" :
             [NSNumber numberWithDouble:[diskWriteExceptionDiagnostic.totalWritesCaused doubleValue]]
       }
@@ -353,6 +357,8 @@
   [file seekToEndOfFile];
   [file writeData:newLineData];
   [file writeData:data];
+
+  return YES;
 }
 
 @end
