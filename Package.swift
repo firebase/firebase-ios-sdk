@@ -113,6 +113,10 @@ let package = Package(
       targets: ["FirebaseMessaging"]
     ),
     .library(
+      name: "FirebasePerformance",
+      targets: ["FirebasePerformance"]
+    ),
+    .library(
       name: "FirebaseMLModelDownloader",
       targets: ["FirebaseMLModelDownloader"]
     ),
@@ -817,6 +821,46 @@ let package = Package(
     ),
 
     .target(
+      name: "FirebasePerformance",
+      dependencies: [
+        "FirebaseCore",
+        "FirebaseInstallations",
+        "FirebaseRemoteConfig",
+        .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
+        .product(name: "GULEnvironment", package: "GoogleUtilities"),
+        .product(name: "GULSwizzledObject", package: "GoogleUtilities"),
+        .product(name: "GULSwizzler", package: "GoogleUtilities"),
+        .product(name: "GULUserDefaults", package: "GoogleUtilities"), 
+        .product(name: "nanopb", package: "nanopb"),
+      ],
+      path: "FirebasePerformance/Sources",
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../../"),
+        .define("PB_FIELD_32BIT", to: "1"),
+        .define("PB_NO_PACKED_STRUCTS", to: "1"),
+        .define("PB_ENABLE_MALLOC", to: "1"),
+      ],
+      linkerSettings: [
+        .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
+      ]
+    ),
+    .testTarget(
+      name: "PerformanceUnit",
+      dependencies: [
+        "FirebasePerformance", 
+        "SharedTestUtilities", 
+        "OCMock",
+        "GCDWebServer",
+        .product(name: "GULSwizzler+Unswizzle", package: "GoogleUtilities"),
+      ],
+      path: "FirebaseMessaging/Tests/Unit",
+      cSettings: [
+        .headerSearchPath("../../.."),
+      ]
+    ),
+
+    .target(
       name: "SharedTestUtilities",
       dependencies: ["FirebaseCore", "OCMock"],
       path: "SharedTestUtilities",
@@ -911,6 +955,7 @@ let package = Package(
                 condition: .when(platforms: [.iOS, .tvOS])),
         "FirebaseInstallations",
         "FirebaseMessaging",
+        "FirebasePerformance",
         "FirebaseRemoteConfig",
         "FirebaseStorage",
         "FirebaseStorageSwift",
@@ -944,6 +989,7 @@ let package = Package(
         "FirebaseInAppMessaging",
         "FirebaseInstallations",
         "FirebaseMessaging",
+        "FirebasePerformance",
         "FirebaseRemoteConfig",
         "FirebaseStorage",
       ],
