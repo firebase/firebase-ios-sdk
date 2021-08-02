@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 
-#import <TargetConditionals.h>
-#if TARGET_OS_IOS || TARGET_OS_TV
-
 #import <Foundation/Foundation.h>
 
 @class FIRApp;
@@ -44,6 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
  **/
 
 NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS extensions.")
+API_UNAVAILABLE(macos, watchos)
 NS_SWIFT_NAME(InAppMessaging)
 @interface FIRInAppMessaging : NSObject
 /** @fn inAppMessaging
@@ -94,5 +92,3 @@ NS_SWIFT_NAME(InAppMessaging)
 
 @end
 NS_ASSUME_NONNULL_END
-
-#endif  // TARGET_OS_IOS || TARGET_OS_TV
