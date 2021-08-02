@@ -842,7 +842,7 @@ let package = Package(
         .define("PB_ENABLE_MALLOC", to: "1"),
       ],
       linkerSettings: [
-        .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
+        .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .tvOS])),
       ]
     ),
     .testTarget(
@@ -854,7 +854,7 @@ let package = Package(
         "GCDWebServer",
         .product(name: "GULSwizzler+Unswizzle", package: "GoogleUtilities"),
       ],
-      path: "FirebaseMessaging/Tests/Unit",
+      path: "FirebasePerformance/Tests/Unit",
       cSettings: [
         .headerSearchPath("../../.."),
       ]
