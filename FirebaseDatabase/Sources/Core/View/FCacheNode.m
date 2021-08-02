@@ -30,9 +30,15 @@
 - (id)initWithIndexedNode:(FIndexedNode *)indexedNode
        isFullyInitialized:(BOOL)fullyInitialized
                isFiltered:(BOOL)filtered {
-    NSAssert([indexedNode isKindOfClass:[FIndexedNode class]],
-             @"Expected node with type FIndexNode, but instead got %@",
-             indexedNode);
+    if (![indexedNode respondsToSelector:@selector(node)]) {
+        NSString *reason =
+            [NSString stringWithFormat:
+                          @"Expected node of type FIndexedNode, got %@ instead",
+                          indexedNode];
+        @throw [[NSException alloc] initWithName:@"InvalidIndexedNode"
+                                          reason:reason
+                                        userInfo:nil];
+    }
     self = [super init];
     if (self) {
         self.indexedNode = indexedNode;
