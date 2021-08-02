@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import Foundation
+import UIKit
 
 class CommonMessageTestVC: UIViewController, InAppMessagingDisplayDelegate {
   var messageClosedWithClick = false
