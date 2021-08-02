@@ -191,6 +191,11 @@ let package = Package(
       url: "https://github.com/firebase/leveldb.git",
       "1.22.2" ..< "1.23.0"
     ),
+    .package(
+      name: "GCDWebServer",
+      url: "https://github.com/SlaunchaMan/GCDWebServer.git",
+      .revision("935e2736044e71e5341663c3cc9a335ba6867a2b")
+    ),
     // Branches need a force update with a run with the revision set like below.
     //   .package(url: "https://github.com/paulb777/nanopb.git", .revision("564392bd87bd093c308a3aaed3997466efb95f74"))
   ],
@@ -828,9 +833,9 @@ let package = Package(
         "FirebaseRemoteConfig",
         .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
-        .product(name: "GULSwizzledObject", package: "GoogleUtilities"),
-        .product(name: "GULSwizzler", package: "GoogleUtilities"),
-        .product(name: "GULUserDefaults", package: "GoogleUtilities"), 
+        .product(name: "GULISASwizzler", package: "GoogleUtilities"),
+        .product(name: "GULMethodSwizzler", package: "GoogleUtilities"),
+        .product(name: "GULUserDefaults", package: "GoogleUtilities"),
         .product(name: "nanopb", package: "nanopb"),
       ],
       path: "FirebasePerformance/Sources",
@@ -848,11 +853,10 @@ let package = Package(
     .testTarget(
       name: "PerformanceUnit",
       dependencies: [
-        "FirebasePerformance", 
-        "SharedTestUtilities", 
+        "FirebasePerformance",
         "OCMock",
         "GCDWebServer",
-        .product(name: "GULSwizzler+Unswizzle", package: "GoogleUtilities"),
+        .product(name: "GULSwizzlerTestHelpers", package: "GoogleUtilities"),
       ],
       path: "FirebasePerformance/Tests/Unit",
       cSettings: [
