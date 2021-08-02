@@ -38,6 +38,8 @@ NS_ASSUME_NONNULL_BEGIN
  *      Swift or YES/NO (objective-c).
  *   2. Set `FirebaseInAppMessagingAutomaticDataCollectionEnabled` to false in the app's plist file.
  *   3. Global Firebase data collection setting.
+ *
+ * This class is unavailable on macOS, macOS Catalyst, and watchOS.
  **/
 
 NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS extensions.")
