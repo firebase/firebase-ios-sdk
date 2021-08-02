@@ -1,5 +1,5 @@
 # 2021-8 -- v8.6.0
-- [changed] Replaced conditionally-compiled APIs with `API_UNAVAILABLE` annotations on unsupported platforms.
+- [changed] Replaced conditionally-compiled APIs with `API_UNAVAILABLE` annotations on unsupported platforms (#8480).
 
 # 2021-8 -- v.8.5.0
 - [added] Added support for unit testing with in-app message data objects (#8351).
