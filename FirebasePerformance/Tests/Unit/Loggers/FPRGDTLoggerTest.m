@@ -24,7 +24,7 @@
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
 #import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORTransport_Private.h"
-#import "GoogleDataTransport/GDTCORTests/Common/Fakes/GDTCORTransportFake.h"
+#import "SharedTestUtilities/GDTCORTransportFake.h"
 
 @interface FPRGDTLoggerTest : XCTestCase
 

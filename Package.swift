@@ -121,6 +121,10 @@ let package = Package(
       targets: ["FirebaseMLModelDownloader"]
     ),
     .library(
+      name: "FirebasePerformance",
+      targets: ["FirebasePerformance"]
+    ),
+    .library(
       name: "FirebaseRemoteConfig",
       targets: ["FirebaseRemoteConfig"]
     ),
@@ -848,6 +852,7 @@ let package = Package(
       ],
       linkerSettings: [
         .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .tvOS])),
+        .linkedFramework("MobileCoreServices", .when(platforms: [.iOS, .tvOS])),
       ]
     ),
     .testTarget(
@@ -855,7 +860,8 @@ let package = Package(
       dependencies: [
         "FirebasePerformance",
         "OCMock",
-        "GCDWebServer",
+        "SharedTestUtilities",
+        .product(name: "GCDWebServer", package: "GCDWebServer"),
         .product(name: "GULSwizzlerTestHelpers", package: "GoogleUtilities"),
       ],
       path: "FirebasePerformance/Tests/Unit",
