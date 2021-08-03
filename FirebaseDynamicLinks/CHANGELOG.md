@@ -1,3 +1,6 @@
+# v8.6.1
+- [added] Refactoring and adding helper class. (#8432)
+
 # v8.6.0
 - [changed] Replaced conditionally-compiled APIs with `API_UNAVAILABLE` annotations on unsupported platforms (#8467).
 
