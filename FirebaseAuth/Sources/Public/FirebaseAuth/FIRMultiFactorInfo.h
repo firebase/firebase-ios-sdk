@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-#import <TargetConditionals.h>
-#if TARGET_OS_IOS
-
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 /** @class FIRMultiFactorInfo
     @brief Safe public structure used to represent a second factor entity from a client perspective.
+        This class is available on iOS only.
 */
-NS_SWIFT_NAME(MultiFactorInfo)
-@interface FIRMultiFactorInfo : NSObject
+NS_SWIFT_NAME(MultiFactorInfo) API_UNAVAILABLE(macos, tvos, watchos) @interface FIRMultiFactorInfo
+    : NSObject
 
 /**
    @brief The multi-factor enrollment ID.
@@ -50,5 +48,3 @@ NS_SWIFT_NAME(MultiFactorInfo)
 @end
 
 NS_ASSUME_NONNULL_END
-
-#endif

@@ -66,8 +66,8 @@ class Query {
         OrderByList explicit_order_bys,
         int32_t limit,
         LimitType limit_type,
-        std::shared_ptr<Bound> start_at,
-        std::shared_ptr<Bound> end_at)
+        absl::optional<Bound> start_at,
+        absl::optional<Bound> end_at)
       : path_(std::move(path)),
         collection_group_(std::move(collection_group)),
         filters_(std::move(filters)),
@@ -158,11 +158,11 @@ class Query {
 
   int32_t limit() const;
 
-  const std::shared_ptr<Bound>& start_at() const {
+  const absl::optional<Bound>& start_at() const {
     return start_at_;
   }
 
-  const std::shared_ptr<Bound>& end_at() const {
+  const absl::optional<Bound>& end_at() const {
     return end_at_;
   }
 
@@ -270,8 +270,8 @@ class Query {
   int32_t limit_ = Target::kNoLimit;
   LimitType limit_type_ = LimitType::None;
 
-  std::shared_ptr<Bound> start_at_;
-  std::shared_ptr<Bound> end_at_;
+  absl::optional<Bound> start_at_;
+  absl::optional<Bound> end_at_;
 
   // The corresponding Target of this Query instance.
   mutable std::shared_ptr<const Target> memoized_target;

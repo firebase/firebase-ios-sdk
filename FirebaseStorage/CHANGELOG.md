@@ -1,3 +1,7 @@
+# 8.5.0
+- [fixed] Fixed an issue where Storage could not connect to local emulators using
+  http (#8389).
+
 # 8.3.0
 - [changed] Removed usage of a deprecated GTMSessionFetcher method (#8294).
 

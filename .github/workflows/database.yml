@@ -51,6 +51,8 @@ jobs:
       run: scripts/setup_spm_tests.sh
     - name: iOS Unit Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh DatabaseUnit iOS spm
+    - name: iOS Swift Unit Tests
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh DatabaseUnitSwift iOS spm
 
   spm-cron:
     # Don't run on private repo.
@@ -65,6 +67,8 @@ jobs:
       run: scripts/setup_spm_tests.sh
     - name: Unit Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh DatabaseUnit ${{ matrix.target }} spm
+    - name: iOS Swift Unit Tests
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh DatabaseUnitSwift ${{ matrix.target }} spm
 
   catalyst:
     # Don't run on private repo unless it is a PR.

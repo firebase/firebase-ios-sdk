@@ -16,9 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import <TargetConditionals.h>
-#if TARGET_OS_IOS
-
 #import "FIRDynamicLink.h"
 #import "FIRDynamicLinksCommon.h"
 
@@ -32,7 +29,11 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @class FIRDynamicLinks
  * @abstract A class that checks for pending Dynamic Links and parses URLs.
+ *     This class is available on iOS only.
  */
+
+NS_EXTENSION_UNAVAILABLE_IOS("Firebase Dynamic Links is not supported for iOS extensions.")
+API_UNAVAILABLE(macos, tvos, watchos)
 NS_SWIFT_NAME(DynamicLinks)
 @interface FIRDynamicLinks : NSObject
 
@@ -139,5 +140,3 @@ NS_SWIFT_NAME(DynamicLinks)
 @end
 
 NS_ASSUME_NONNULL_END
-
-#endif

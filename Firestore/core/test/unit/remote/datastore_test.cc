@@ -22,6 +22,7 @@
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/Protos/nanopb/google/firestore/v1/firestore.nanopb.h"
+#include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/mutation.h"
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
@@ -54,7 +55,6 @@ using auth::CredentialsProvider;
 using core::DatabaseInfo;
 using model::DatabaseId;
 using model::Document;
-using model::MaybeDocument;
 using nanopb::MakeArray;
 using nanopb::Message;
 using testing::Not;
@@ -84,8 +84,9 @@ grpc::ByteBuffer MakeFakeDocument(const std::string& doc_name) {
       MakeArray<google_firestore_v1_Document_FieldsEntry>(doc.fields_count);
   google_firestore_v1_Document_FieldsEntry& entry = doc.fields[0];
 
+  Message<google_firestore_v1_Value> value = Value("bar");
   entry.key = serializer.EncodeString("foo");
-  entry.value = serializer.EncodeFieldValue(Value("bar"));
+  entry.value = *value.release();
 
   return MakeByteBuffer(response);
 }
@@ -216,15 +217,15 @@ TEST_F(DatastoreTest, CommitMutationsSuccess) {
 
 TEST_F(DatastoreTest, LookupDocumentsOneSuccessfulRead) {
   bool done = false;
-  std::vector<MaybeDocument> resulting_docs;
+  std::vector<Document> resulting_docs;
   Status resulting_status;
   datastore->LookupDocuments(
-      {}, [&](const StatusOr<std::vector<MaybeDocument>>& maybe_documents) {
+      {}, [&](const StatusOr<std::vector<Document>>& documents) {
         done = true;
-        if (maybe_documents.ok()) {
-          resulting_docs = maybe_documents.ValueOrDie();
+        if (documents.ok()) {
+          resulting_docs = documents.ValueOrDie();
         }
-        resulting_status = maybe_documents.status();
+        resulting_status = documents.status();
       });
   // Make sure Auth has a chance to run.
   worker_queue->EnqueueBlocking([] {});
@@ -237,21 +238,21 @@ TEST_F(DatastoreTest, LookupDocumentsOneSuccessfulRead) {
 
   EXPECT_TRUE(done);
   EXPECT_EQ(resulting_docs.size(), 1);
-  EXPECT_EQ(resulting_docs[0].key().ToString(), "foo/1");
+  EXPECT_EQ(resulting_docs[0]->key().ToString(), "foo/1");
   EXPECT_TRUE(resulting_status.ok());
 }
 
 TEST_F(DatastoreTest, LookupDocumentsTwoSuccessfulReads) {
   bool done = false;
-  std::vector<MaybeDocument> resulting_docs;
+  std::vector<Document> resulting_docs;
   Status resulting_status;
   datastore->LookupDocuments(
-      {}, [&](const StatusOr<std::vector<MaybeDocument>>& maybe_documents) {
+      {}, [&](const StatusOr<std::vector<Document>>& documents) {
         done = true;
-        if (maybe_documents.ok()) {
-          resulting_docs = maybe_documents.ValueOrDie();
+        if (documents.ok()) {
+          resulting_docs = documents.ValueOrDie();
         }
-        resulting_status = maybe_documents.status();
+        resulting_status = documents.status();
       });
   // Make sure Auth has a chance to run.
   worker_queue->EnqueueBlocking([] {});
@@ -265,8 +266,8 @@ TEST_F(DatastoreTest, LookupDocumentsTwoSuccessfulReads) {
 
   EXPECT_TRUE(done);
   EXPECT_EQ(resulting_docs.size(), 2);
-  EXPECT_EQ(resulting_docs[0].key().ToString(), "foo/1");
-  EXPECT_EQ(resulting_docs[1].key().ToString(), "foo/2");
+  EXPECT_EQ(resulting_docs[0]->key().ToString(), "foo/1");
+  EXPECT_EQ(resulting_docs[1]->key().ToString(), "foo/2");
   EXPECT_TRUE(resulting_status.ok());
 }
 
@@ -293,9 +294,9 @@ TEST_F(DatastoreTest, LookupDocumentsErrorBeforeFirstRead) {
   bool done = false;
   Status resulting_status;
   datastore->LookupDocuments(
-      {}, [&](const StatusOr<std::vector<MaybeDocument>>& maybe_documents) {
+      {}, [&](const StatusOr<std::vector<Document>>& documents) {
         done = true;
-        resulting_status = maybe_documents.status();
+        resulting_status = documents.status();
       });
   // Make sure Auth has a chance to run.
   worker_queue->EnqueueBlocking([] {});
@@ -311,12 +312,12 @@ TEST_F(DatastoreTest, LookupDocumentsErrorBeforeFirstRead) {
 
 TEST_F(DatastoreTest, LookupDocumentsErrorAfterFirstRead) {
   bool done = false;
-  std::vector<MaybeDocument> resulting_docs;
+  std::vector<Document> resulting_docs;
   Status resulting_status;
   datastore->LookupDocuments(
-      {}, [&](const StatusOr<std::vector<MaybeDocument>>& maybe_documents) {
+      {}, [&](const StatusOr<std::vector<Document>>& documents) {
         done = true;
-        resulting_status = maybe_documents.status();
+        resulting_status = documents.status();
       });
   // Make sure Auth has a chance to run.
   worker_queue->EnqueueBlocking([] {});
@@ -349,8 +350,8 @@ TEST_F(DatastoreTest, LookupDocumentsAuthFailure) {
 
   Status resulting_status;
   datastore->LookupDocuments(
-      {}, [&](const StatusOr<std::vector<MaybeDocument>>& maybe_documents) {
-        resulting_status = maybe_documents.status();
+      {}, [&](const StatusOr<std::vector<Document>>& documents) {
+        resulting_status = documents.status();
       });
   worker_queue->EnqueueBlocking([] {});
   EXPECT_FALSE(resulting_status.ok());

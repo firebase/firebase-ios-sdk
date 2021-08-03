@@ -73,6 +73,13 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		94E18185B7648E3069E0CCDB /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		AD7200B32124D19200AFD5F3 /* FiamDisplaySwiftExample */ = {
 			isa = PBXGroup;
 			children = (
@@ -110,6 +117,7 @@
 				AD7200B32124D19200AFD5F3 /* FiamDisplaySwiftExample */,
 				AD7200D22125F92100AFD5F3 /* InAppMessagingDisplay-UITests */,
 				ADA7B5B921223CED00B1C614 /* Products */,
+				94E18185B7648E3069E0CCDB /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -167,7 +175,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0940;
-				LastUpgradeCheck = 0940;
+				LastUpgradeCheck = 1250;
 				ORGANIZATIONNAME = Google;
 				TargetAttributes = {
 					AD7200B12124D19200AFD5F3 = {
@@ -278,13 +286,12 @@
 /* Begin XCBuildConfiguration section */
 		AD7200C12124D19400AFD5F3 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 86037DF9082A9870585ADB56 /* Pods-FiamDisplaySwiftExample.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				HEADER_SEARCH_PATHS = (
 					../../../../,
-					$inherited,
+					"$inherited",
 				);
 				INFOPLIST_FILE = FiamDisplaySwiftExample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -303,13 +310,12 @@
 		};
 		AD7200C22124D19400AFD5F3 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 6CCC7B0E5081A2848C82EA49 /* Pods-FiamDisplaySwiftExample.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				HEADER_SEARCH_PATHS = (
 					../../../../,
-					$inherited,
+					"$inherited",
 				);
 				INFOPLIST_FILE = FiamDisplaySwiftExample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -392,6 +398,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -450,6 +457,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;

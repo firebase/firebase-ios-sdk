@@ -18,6 +18,10 @@
 
 #import "FIRAppCheckProvider.h"
 
+#import "FIRAppCheckAvailability.h"
+
+#if FIR_DEVICE_CHECK_SUPPORTED_TARGETS
+
 @class FIRApp;
 @protocol FIRDeviceCheckAPIServiceProtocol;
 @protocol FIRDeviceCheckTokenGenerator;
@@ -26,8 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Firebase App Check provider that verifies app integrity using the
 /// [DeviceCheck](https://developer.apple.com/documentation/devicecheck) API.
-API_AVAILABLE(ios(11.0), macos(10.15), tvos(11.0))
-API_UNAVAILABLE(watchos)
+FIR_DEVICE_CHECK_PROVIDER_AVAILABILITY
 NS_SWIFT_NAME(DeviceCheckProvider)
 @interface FIRDeviceCheckProvider : NSObject <FIRAppCheckProvider>
 
@@ -42,3 +45,5 @@ NS_SWIFT_NAME(DeviceCheckProvider)
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif  // FIR_DEVICE_CHECK_SUPPORTED_TARGETS

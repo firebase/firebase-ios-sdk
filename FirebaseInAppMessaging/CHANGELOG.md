@@ -1,3 +1,13 @@
+# 2021-8 -- v8.6.0
+- [changed] Replaced conditionally-compiled APIs with `API_UNAVAILABLE` annotations on unsupported platforms (#8480).
+
+# 2021-8 -- v.8.5.0
+- [added] Added support for unit testing with in-app message data objects (#8351).
+- [added] Added support for prototyping custom in-app message views in SwiftUI (#8351).
+
+# 2021-7 --- v8.4.0
+- [fixed] Fixed build issues introduced in Xcode 13 beta 3. (#8401)
+
 # 2021-6 -- v.8.2.0
 - [fixed] Fixed missing constraints warnings in default UI storyboard (#8205).
 

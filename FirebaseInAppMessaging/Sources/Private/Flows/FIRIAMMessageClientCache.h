@@ -49,6 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 //
 // This class exists so that we can do message match more efficiently (in-memory search vs search
 // in local persistent storage) by using appropriate in-memory data structure.
+NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS extensions.")
 @interface FIRIAMMessageClientCache : NSObject
 
 // used to inform the analytics event display check flow about whether it should start/stop

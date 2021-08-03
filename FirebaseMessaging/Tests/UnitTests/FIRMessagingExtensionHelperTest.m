@@ -17,10 +17,13 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
+
+#import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
 #import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
 #import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessagingExtensionHelper.h"
 
-API_AVAILABLE(macos(10.14), ios(10.0))
+API_AVAILABLE(macos(10.14), ios(10.0), watchos(3.0))
 typedef void (^FIRMessagingContentHandler)(UNNotificationContent *content);
 
 #if TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_WATCH
@@ -34,11 +37,13 @@ static NSString *const kValidImageURL =
 
 - (void)loadAttachmentForURL:(NSURL *)attachmentURL
            completionHandler:(void (^)(UNNotificationAttachment *))completionHandler;
++ (NSString *)bundleIdentifierByRemovingLastPartFrom:(NSString *)bundleIdentifier;
 - (NSString *)fileExtensionForResponse:(NSURLResponse *)response;
 @end
 
 @interface FIRMessagingExtensionHelperTest : XCTestCase {
   id _mockExtensionHelper;
+  id _mockUtilClass;
   id _mockURLResponse;
 }
 @end
@@ -47,9 +52,10 @@ static NSString *const kValidImageURL =
 
 - (void)setUp {
   [super setUp];
-  if (@available(macOS 10.14, iOS 10.0, *)) {
+  if (@available(macOS 10.14, iOS 10.0, watchos 3.0, *)) {
     FIRMessagingExtensionHelper *extensionHelper = [FIRMessaging extensionHelper];
     _mockExtensionHelper = OCMPartialMock(extensionHelper);
+    _mockUtilClass = OCMClassMock([GULAppEnvironmentUtil class]);
     _mockURLResponse = OCMClassMock([NSURLResponse class]);
   } else {
     // Fallback on earlier versions
@@ -58,13 +64,14 @@ static NSString *const kValidImageURL =
 
 - (void)tearDown {
   [_mockExtensionHelper stopMocking];
+  [_mockUtilClass stopMocking];
   [_mockURLResponse stopMocking];
 }
 
 #ifdef COCOAPODS
 // This test requires internet access.
 - (void)testModifyNotificationWithValidPayloadData {
-  if (@available(macOS 10.14, iOS 10.0, *)) {
+  if (@available(macOS 10.14, iOS 10.0, watchos 3.0, *)) {
     XCTestExpectation *validPayloadExpectation =
         [self expectationWithDescription:@"Test payload is valid."];
     UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
@@ -79,10 +86,10 @@ static NSString *const kValidImageURL =
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
   }
 }
-#endif
+#endif  // COCOAPODS
 
 - (void)testModifyNotificationWithInvalidPayloadData {
-  if (@available(macOS 10.14, iOS 10.0, *)) {
+  if (@available(macOS 10.14, iOS 10.0, watchos 3.0, *)) {
     XCTestExpectation *validPayloadExpectation =
         [self expectationWithDescription:@"Test payload is valid."];
     UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
@@ -100,7 +107,7 @@ static NSString *const kValidImageURL =
 }
 
 - (void)testModifyNotificationWithEmptyPayloadData {
-  if (@available(macOS 10.14, iOS 10.0, *)) {
+  if (@available(macOS 10.14, iOS 10.0, watchos 3.0, *)) {
     XCTestExpectation *validPayloadExpectation =
         [self expectationWithDescription:@"Test payload is valid."];
     UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
@@ -148,5 +155,65 @@ static NSString *const kValidImageURL =
     XCTAssertTrue([extension isEqualToString:kValidMIMETypeTestExtension]);
   }
 }
+
+- (void)testDeliveryMetricsLoggingWithEmptyPayload {
+  OCMStub([_mockUtilClass isAppExtension]).andReturn(YES);
+  NSDictionary *fakeMessageInfo = @{@"aps" : @{}};
+
+  [_mockExtensionHelper exportDeliveryMetricsToBigQueryWithMessageInfo:fakeMessageInfo];
+  OCMReject([_mockExtensionHelper bundleIdentifierByRemovingLastPartFrom:[OCMArg any]]);
+}
+
+- (void)testDeliveryMetricsLoggingWithInvalidMessageID {
+  OCMStub([_mockUtilClass isAppExtension]).andReturn(YES);
+  NSDictionary *fakeMessageInfo = @{
+    @"aps" : @{@"badge" : @9, @"mutable-content" : @1},
+    @"fcm_options" : @{@"image" : @"https://google.com"},
+    @"google.c.fid" : @"fakeFIDForTest",
+    @"google.c.sender.id" : @123456789
+  };
+  [_mockExtensionHelper exportDeliveryMetricsToBigQueryWithMessageInfo:fakeMessageInfo];
+  OCMReject([_mockExtensionHelper bundleIdentifierByRemovingLastPartFrom:[OCMArg any]]);
+}
+
+- (void)testDeliveryMetricsLoggingWithInvalidFID {
+  OCMStub([_mockUtilClass isAppExtension]).andReturn(YES);
+  NSDictionary *fakeMessageInfo = @{
+    @"aps" : @{@"badge" : @9, @"mutable-content" : @1},
+    @"fcm_options" : @{@"image" : @"https://google.com"},
+    @"google.c.sender.id" : @123456789
+  };
+  [_mockExtensionHelper exportDeliveryMetricsToBigQueryWithMessageInfo:fakeMessageInfo];
+  OCMReject([_mockExtensionHelper bundleIdentifierByRemovingLastPartFrom:[OCMArg any]]);
+}
+
+- (void)testDeliveryMetricsLoggingWithDisplayPayload {
+  OCMStub([_mockUtilClass isAppExtension]).andReturn(YES);
+  NSDictionary *fakeMessageInfo = @{
+    @"aps" : @{@"badge" : @9, @"mutable-content" : @1},
+    @"fcm_options" : @{@"image" : @"https://google.com"},
+    @"gcm.message_id" : @"1627428480762269",
+    @"google.c.fid" : @"fakeFIDForTest",
+    @"google.c.sender.id" : @123456789
+  };
+
+  [_mockExtensionHelper exportDeliveryMetricsToBigQueryWithMessageInfo:fakeMessageInfo];
+  OCMExpect([_mockExtensionHelper bundleIdentifierByRemovingLastPartFrom:[OCMArg any]]);
+}
+
+- (void)testDeliveryMetricsLoggingWithDataPayload {
+  OCMStub([_mockUtilClass isAppExtension]).andReturn(NO);
+  NSDictionary *fakeMessageInfo = @{
+    @"aps" : @{@"badge" : @9, @"content-available" : @1},
+    @"fcm_options" : @{@"image" : @"https://google.com"},
+    @"gcm.message_id" : @"1627428480762269",
+    @"google.c.fid" : @"fakeFIDForTest",
+    @"google.c.sender.id" : @123456789
+  };
+  [_mockExtensionHelper exportDeliveryMetricsToBigQueryWithMessageInfo:fakeMessageInfo];
+  OCMReject([_mockExtensionHelper bundleIdentifierByRemovingLastPartFrom:[OCMArg any]]);
+}
+
 @end
-#endif
+
+#endif  // TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_WATCH

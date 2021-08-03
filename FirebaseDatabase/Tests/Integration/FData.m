@@ -3199,10 +3199,10 @@ XCTAssertTrue([target isEqualTo:recvd], @"Expected %@ to match %@", target, recv
               }];
   }
   [self
-      waitUntil:^BOOL {
-        return done;
-      }
-        timeout:300];
+    waitUntil:^BOOL {
+      return done;
+    }
+      timeout:300];
   NSTimeInterval elapsed = [finished timeIntervalSinceDate:start];
   NSLog(@"Elapsed: %f", elapsed);
 }
@@ -3232,10 +3232,10 @@ XCTAssertTrue([target isEqualTo:recvd], @"Expected %@ to match %@", target, recv
                    }];
   }
   [self
-      waitUntil:^BOOL {
-        return done;
-      }
-        timeout:300];
+    waitUntil:^BOOL {
+      return done;
+    }
+      timeout:300];
 
   NSTimeInterval elapsed = [finished timeIntervalSinceDate:start];
   NSLog(@"Elapsed: %f", elapsed);
@@ -3269,10 +3269,10 @@ XCTAssertTrue([target isEqualTo:recvd], @"Expected %@ to match %@", target, recv
             }];
   }
   [self
-      waitUntil:^BOOL {
-        return done;
-      }
-        timeout:300];
+    waitUntil:^BOOL {
+      return done;
+    }
+      timeout:300];
 
   NSTimeInterval elapsed = [finished timeIntervalSinceDate:start];
   NSLog(@"Elapsed: %f", elapsed);

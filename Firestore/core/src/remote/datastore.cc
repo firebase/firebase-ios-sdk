@@ -24,6 +24,7 @@
 #include "Firestore/core/src/auth/token.h"
 #include "Firestore/core/src/core/database_info.h"
 #include "Firestore/core/src/model/database_id.h"
+#include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/mutation.h"
 #include "Firestore/core/src/remote/connectivity_monitor.h"
