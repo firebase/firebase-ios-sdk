@@ -38,7 +38,7 @@ jobs:
           FirebaseMessaging/Tests/IntegrationTests/Resources/GoogleService-Info.plist "$plist_secret"
     - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
         # TODO: revert
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/build.sh Messaging macos)
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/build.sh Messaging macOS)
 
   # TODO: revert.
   # pod-lib-lint:
