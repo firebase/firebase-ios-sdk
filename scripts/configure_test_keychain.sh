@@ -30,14 +30,14 @@ security default-keychain
 if security delete-keychain "$TEST_KEYCHAIN_NAME"; then
   echo "Old test keychain was removed."
 else
-  echo ""
+  echo "All good, no old test keychain found."
 fi
 
 # Create a test keychain.
-security create-keychain -p "$TEST_KEYCHIN_PASSWORD" "$TEST_KEYCHAIN_NAME"
+# security create-keychain -p "$TEST_KEYCHIN_PASSWORD" "$TEST_KEYCHAIN_NAME"
 
-# Set the test keychain as default to be used during macOS tests.
-security default-keychain -s "$TEST_KEYCHAIN_NAME"
+# # Set the test keychain as default to be used during macOS tests.
+# security default-keychain -s "$TEST_KEYCHAIN_NAME"
 
 # Unlock the test keychain.
-security unlock-keychain -p "$TEST_KEYCHIN_PASSWORD" "$TEST_KEYCHAIN_NAME"
+# security unlock-keychain -p "$TEST_KEYCHIN_PASSWORD" "$TEST_KEYCHAIN_NAME"
