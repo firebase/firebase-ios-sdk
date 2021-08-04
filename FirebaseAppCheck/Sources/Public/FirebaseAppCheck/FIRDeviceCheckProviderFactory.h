@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-#import "FIRAppCheckAvailability.h"
-
-#if FIR_DEVICE_CHECK_SUPPORTED_TARGETS
-
 #import <Foundation/Foundation.h>
 
+#import "FIRAppCheckAvailability.h"
 #import "FIRAppCheckProviderFactory.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -28,6 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// `DeviceCheckProvider` for the specified `FirebaseApp` on request. Currently
 /// `DeviceCheckProviderFactory` is the default that will be used by Firebase App Check if no other
 /// provider is specified. See `AppCheck` class for more details.
+/// This class is available on iOS, macOS Catalyst, and macOS only.
 FIR_DEVICE_CHECK_PROVIDER_AVAILABILITY
 NS_SWIFT_NAME(DeviceCheckProviderFactory)
 @interface FIRDeviceCheckProviderFactory : NSObject <FIRAppCheckProviderFactory>
@@ -35,5 +33,3 @@ NS_SWIFT_NAME(DeviceCheckProviderFactory)
 @end
 
 NS_ASSUME_NONNULL_END
-
-#endif  // FIR_DEVICE_CHECK_SUPPORTED_TARGETS
