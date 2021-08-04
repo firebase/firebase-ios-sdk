@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Firebase App Check provider that verifies app integrity using the
 /// [DeviceCheck](https://developer.apple.com/documentation/devicecheck) API.
-/// This class is available on iOS, macOS Catalyst, and macOS only.
+/// This class is available on iOS, macOS Catalyst, macOS, and tvOS only.
 FIR_DEVICE_CHECK_PROVIDER_AVAILABILITY
 NS_SWIFT_NAME(DeviceCheckProvider)
 @interface FIRDeviceCheckProvider : NSObject <FIRAppCheckProvider>
