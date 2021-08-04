@@ -72,6 +72,7 @@ NS_ASSUME_NONNULL_BEGIN
                  reason:@"Unreachable code segment. Please file a bug at "
                         @"https://github.com/firebase/firebase-ios-sdk/issues/new/choose."
                userInfo:nil];
+  @throw exception;
 #endif
 }
 
