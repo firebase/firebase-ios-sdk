@@ -1,5 +1,5 @@
 # v8.6.0 -- M102
-- [changed] Replaced conditionally-compiled APIs with `API_UNAVAILABLE` annotations on unsupported platforms (#8493).
+- [changed] Documented unsupported platforms (#8493).
 
 # v8.5.0 -- M101
 - [changed] App Check SDK available for all supported platforms/OS versions, but App Attest and
