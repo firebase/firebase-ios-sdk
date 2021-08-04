@@ -1,4 +1,5 @@
-# 2021-07 -- v8.5.0
+# 2021-08 -- v8.6.0
+- [changed] Removed iOS version check from `FIRMessagingExtensionHelper.h` (#8492).
 - [added] Added new API `FIRMessagingExtensionHelper exportDeliveryMetricsToBigQuery` that allows developers to enable notification delivery metrics that exports to BigQuery. (#6181)
 
 # 2021-06 -- v8.2.0

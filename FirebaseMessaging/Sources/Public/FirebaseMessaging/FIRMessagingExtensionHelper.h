@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0 || \
-    __MAC_OS_X_VERSION_MAX_ALLOWED >= __MAC_10_14
+#import <Foundation/Foundation.h>
+
+@class UNMutableNotificationContent, UNNotificationContent;
+
+#if __has_include(<UserNotifications/UserNotifications.h>)
 #import <UserNotifications/UserNotifications.h>
 #endif
 
