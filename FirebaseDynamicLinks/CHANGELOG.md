@@ -1,4 +1,4 @@
-# v8.6.1
+# v8.7.0
 - [added] Refactoring and adding helper class. (#8432)
 
 # v8.6.0
