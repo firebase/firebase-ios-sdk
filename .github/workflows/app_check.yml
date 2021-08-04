@@ -14,7 +14,9 @@ jobs:
     runs-on: macOS-latest
     strategy:
       matrix:
-        target: [ios, tvos, macos]
+      # TODO: revert
+        # target: [ios, tvos, macos]
+        target: [macos]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -22,80 +24,80 @@ jobs:
     - name: FirebaseAppCheck
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAppCheck.podspec --platforms=${{ matrix.target }}
 
-  catalyst:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macOS-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Setup project and Build for Catalyst
-      run: scripts/test_catalyst.sh FirebaseAppCheck test FirebaseAppCheck-Unit-unit
+  # catalyst:
+  #   # Don't run on private repo unless it is a PR.
+  #   if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+  #   runs-on: macOS-latest
+  #   steps:
+  #   - uses: actions/checkout@v2
+  #   - name: Setup Bundler
+  #     run: scripts/setup_bundler.sh
+  #   - name: Setup project and Build for Catalyst
+  #     run: scripts/test_catalyst.sh FirebaseAppCheck test FirebaseAppCheck-Unit-unit
 
-  diagnostics:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macOS-latest
-    strategy:
-      matrix:
-        diagnostic: [tsan, asan, ubsan]
-    steps:
-    - uses: actions/checkout@v2
-    - name: Initialize xcodebuild
-      run: scripts/setup_spm_tests.sh
-    - name: iOS Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh AppCheckUnit iOS spm ${{ matrix.diagnostic }}
-    - name: Upload raw logs if failed
-      if: ${{ failure() }}
-      uses: actions/upload-artifact@v2
-      with:
-        name: failure-xcodebuild-raw-logs
-        path: xcodebuild.log
+  # diagnostics:
+  #   # Don't run on private repo unless it is a PR.
+  #   if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+  #   runs-on: macOS-latest
+  #   strategy:
+  #     matrix:
+  #       diagnostic: [tsan, asan, ubsan]
+  #   steps:
+  #   - uses: actions/checkout@v2
+  #   - name: Initialize xcodebuild
+  #     run: scripts/setup_spm_tests.sh
+  #   - name: iOS Unit Tests
+  #     run: scripts/third_party/travis/retry.sh ./scripts/build.sh AppCheckUnit iOS spm ${{ matrix.diagnostic }}
+  #   - name: Upload raw logs if failed
+  #     if: ${{ failure() }}
+  #     uses: actions/upload-artifact@v2
+  #     with:
+  #       name: failure-xcodebuild-raw-logs
+  #       path: xcodebuild.log
 
-  app_check-cron-only:
-    runs-on: macos-latest
-    if: github.event_name == 'schedule'
-    strategy:
-      matrix:
-        flags: [
-          '--skip-tests --use-modular-headers',
-          '--skip-tests --use-libraries'
-        ]
-    needs: pod_lib_lint
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: PodLibLint FirebaseAppCheck Cron
-      # TODO: Remove --allow-warnings when stabilized.
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAppCheck.podspec --platforms=ios ${{ matrix.flags }}
+  # app_check-cron-only:
+  #   runs-on: macos-latest
+  #   if: github.event_name == 'schedule'
+  #   strategy:
+  #     matrix:
+  #       flags: [
+  #         '--skip-tests --use-modular-headers',
+  #         '--skip-tests --use-libraries'
+  #       ]
+  #   needs: pod_lib_lint
+  #   steps:
+  #   - uses: actions/checkout@v2
+  #   - name: Setup Bundler
+  #     run: scripts/setup_bundler.sh
+  #   - name: PodLibLint FirebaseAppCheck Cron
+  #     # TODO: Remove --allow-warnings when stabilized.
+  #     run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAppCheck.podspec --platforms=ios ${{ matrix.flags }}
 
-  spm:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macOS-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: Initialize xcodebuild
-      run: scripts/setup_spm_tests.sh
-    - name: iOS Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh AppCheckUnit iOS spm
-    - name: iOS Swift Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh AppCheckUnitSwift iOS spm
+  # spm:
+  #   # Don't run on private repo unless it is a PR.
+  #   if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+  #   runs-on: macOS-latest
+  #   steps:
+  #   - uses: actions/checkout@v2
+  #   - name: Initialize xcodebuild
+  #     run: scripts/setup_spm_tests.sh
+  #   - name: iOS Unit Tests
+  #     run: scripts/third_party/travis/retry.sh ./scripts/build.sh AppCheckUnit iOS spm
+  #   - name: iOS Swift Unit Tests
+  #     run: scripts/third_party/travis/retry.sh ./scripts/build.sh AppCheckUnitSwift iOS spm
 
-  spm-cron:
-    # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macOS-latest
-    strategy:
-      matrix:
-        target: [tvOS, macOS, catalyst]
-    steps:
-    - uses: actions/checkout@v2
-    - name: Initialize xcodebuild
-      run: scripts/setup_spm_tests.sh
-    - name: Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh AppCheckUnit ${{ matrix.target }} spm
-    - name: Swift Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh AppCheckUnitSwift ${{ matrix.target }} spm
+  # spm-cron:
+  #   # Don't run on private repo.
+  #   if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+  #   runs-on: macOS-latest
+  #   strategy:
+  #     matrix:
+  #       target: [tvOS, macOS, catalyst]
+  #   steps:
+  #   - uses: actions/checkout@v2
+  #   - name: Initialize xcodebuild
+  #     run: scripts/setup_spm_tests.sh
+  #   - name: Unit Tests
+  #     run: scripts/third_party/travis/retry.sh ./scripts/build.sh AppCheckUnit ${{ matrix.target }} spm
+  #   - name: Swift Unit Tests
+  #     run: scripts/third_party/travis/retry.sh ./scripts/build.sh AppCheckUnitSwift ${{ matrix.target }} spm
