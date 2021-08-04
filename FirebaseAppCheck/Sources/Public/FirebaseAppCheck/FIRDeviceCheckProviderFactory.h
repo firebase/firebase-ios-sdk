@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
+#import "FIRAppCheckAvailability.h"
+
+#if FIR_DEVICE_CHECK_SUPPORTED_TARGETS
+
 #import <Foundation/Foundation.h>
 
-#import "FIRAppCheckAvailability.h"
 #import "FIRAppCheckProviderFactory.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -33,3 +36,5 @@ NS_SWIFT_NAME(DeviceCheckProviderFactory)
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif  // FIR_DEVICE_CHECK_SUPPORTED_TARGETS

@@ -16,7 +16,8 @@
 
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckAvailability.h"
 
-#if __has_include(<DeviceCheck/DeviceCheck.h>)
+#if FIR_DEVICE_CHECK_SUPPORTED_TARGETS
+
 #import <DeviceCheck/DeviceCheck.h>
 
 #import "FirebaseAppCheck/Sources/DeviceCheckProvider/FIRDeviceCheckTokenGenerator.h"
@@ -29,4 +30,4 @@ NS_ASSUME_NONNULL_BEGIN
 
 NS_ASSUME_NONNULL_END
 
-#endif  // __has_include(<DeviceCheck/DeviceCheck.h>)
+#endif  // FIR_DEVICE_CHECK_SUPPORTED_TARGETS

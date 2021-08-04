@@ -16,11 +16,9 @@
 
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckAvailability.h"
 
-#import <Foundation/Foundation.h>
+#if FIR_DEVICE_CHECK_SUPPORTED_TARGETS
 
-#if __has_include(<DeviceCheck/DeviceCheck.h>)
-#import <DeviceCheck/DeviceCheck.h>
-#endif
+#import <Foundation/Foundation.h>
 
 #if __has_include(<FBLPromises/FBLPromises.h>)
 #import <FBLPromises/FBLPromises.h>
@@ -64,16 +62,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (instancetype)initWithAPIService:(id<FIRDeviceCheckAPIServiceProtocol>)APIService {
-#if __has_include(<DeviceCheck/DeviceCheck.h>)
   return [self initWithAPIService:APIService deviceTokenGenerator:[DCDevice currentDevice]];
-#else
-  NSException *exception = [NSException
-      exceptionWithName:NSInternalInconsistencyException
-                 reason:@"Unreachable code segment. Please file a bug at "
-                        @"https://github.com/firebase/firebase-ios-sdk/issues/new/choose."
-               userInfo:nil];
-  @throw exception;
-#endif
 }
 
 - (nullable instancetype)initWithApp:(FIRApp *)app {
@@ -134,3 +123,5 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif  // FIR_DEVICE_CHECK_SUPPORTED_TARGETS
