@@ -1,4 +1,7 @@
-# v8.5.0 -- Unreleased
+# v8.6.0 -- M102
+- [changed] Documented unsupported platforms (#8493).
+
+# v8.5.0 -- M101
 - [changed] App Check SDK available for all supported platforms/OS versions, but App Attest and
 DeviceCheck providers availability changed to match underlying platfrom API availability. (#8388)
 # v8.4.0 -- M100
