@@ -207,10 +207,9 @@ NSDictionary<NSString *, NSNumber *> *_Nullable FPRDecodeStringToNumberMap(
   return [dict copy];
 }
 
-struct _firebase_perf_v1_PerfSession *FPREncodePerfSessions(NSArray<FPRSessionDetails *> *sessions,
-                                                            NSInteger count) {
-  struct _firebase_perf_v1_PerfSession *perfSessions =
-      calloc(count, sizeof(firebase_perf_v1_PerfSession));
+firebase_perf_v1_PerfSession *FPREncodePerfSessions(NSArray<FPRSessionDetails *> *sessions,
+                                                    NSInteger count) {
+  firebase_perf_v1_PerfSession *perfSessions = calloc(count, sizeof(firebase_perf_v1_PerfSession));
   __block NSUInteger perfSessionIndex = 0;
 
   [sessions enumerateObjectsUsingBlock:^(FPRSessionDetails *_Nonnull session, NSUInteger index,
@@ -235,7 +234,7 @@ struct _firebase_perf_v1_PerfSession *FPREncodePerfSessions(NSArray<FPRSessionDe
 
 firebase_perf_v1_PerfMetric FPRGetPerfMetricMessage(NSString *appID) {
   firebase_perf_v1_PerfMetric perfMetricMessage = firebase_perf_v1_PerfMetric_init_default;
-  perfMetricMessage = FPRSetApplicationInfo(perfMetricMessage, FPRGetApplicationInfoMessage());
+  FPRSetApplicationInfo(&perfMetricMessage, FPRGetApplicationInfoMessage());
   perfMetricMessage.application_info.google_app_id = FPREncodeString(appID);
 
   return perfMetricMessage;
@@ -271,7 +270,7 @@ firebase_perf_v1_ApplicationInfo FPRGetApplicationInfoMessage() {
       [[FIRPerformance sharedInstance].attributes mutableCopy];
   appInfoMessage.custom_attributes_count = (pb_size_t)attributes.count;
   appInfoMessage.custom_attributes =
-      (struct _firebase_perf_v1_ApplicationInfo_CustomAttributesEntry *)FPREncodeStringToStringMap(
+      (firebase_perf_v1_ApplicationInfo_CustomAttributesEntry *)FPREncodeStringToStringMap(
           attributes);
 
   return appInfoMessage;
@@ -297,11 +296,11 @@ firebase_perf_v1_TraceMetric FPRGetTraceMetric(FIRTrace *trace) {
   NSDictionary<NSString *, NSNumber *> *counters = trace.counters;
   traceMetric.counters_count = (pb_size_t)counters.count;
   traceMetric.counters =
-      (struct _firebase_perf_v1_TraceMetric_CountersEntry *)FPREncodeStringToNumberMap(counters);
+      (firebase_perf_v1_TraceMetric_CountersEntry *)FPREncodeStringToNumberMap(counters);
 
   // Filling subtraces
   traceMetric.subtraces_count = (pb_size_t)[trace.stages count];
-  struct _firebase_perf_v1_TraceMetric *subtraces =
+  firebase_perf_v1_TraceMetric *subtraces =
       calloc(traceMetric.subtraces_count, sizeof(firebase_perf_v1_TraceMetric));
   __block NSUInteger subtraceIndex = 0;
   [trace.stages
@@ -315,8 +314,7 @@ firebase_perf_v1_TraceMetric FPRGetTraceMetric(FIRTrace *trace) {
   NSDictionary<NSString *, NSString *> *attributes = [trace.attributes mutableCopy];
   traceMetric.custom_attributes_count = (pb_size_t)attributes.count;
   traceMetric.custom_attributes =
-      (struct _firebase_perf_v1_TraceMetric_CustomAttributesEntry *)FPREncodeStringToStringMap(
-          attributes);
+      (firebase_perf_v1_TraceMetric_CustomAttributesEntry *)FPREncodeStringToStringMap(attributes);
 
   // Filling session details
   NSArray<FPRSessionDetails *> *orderedSessions = FPRMakeFirstSessionVerbose(trace.sessions);
@@ -384,8 +382,8 @@ firebase_perf_v1_NetworkRequestMetric FPRGetNetworkRequestMetric(FPRNetworkTrace
   NSDictionary<NSString *, NSString *> *attributes = [trace.attributes mutableCopy];
   networkMetric.custom_attributes_count = (pb_size_t)attributes.count;
   networkMetric.custom_attributes =
-      (struct _firebase_perf_v1_NetworkRequestMetric_CustomAttributesEntry *)
-          FPREncodeStringToStringMap(attributes);
+      (firebase_perf_v1_NetworkRequestMetric_CustomAttributesEntry *)FPREncodeStringToStringMap(
+          attributes);
 
   // Filling session details
   NSArray<FPRSessionDetails *> *orderedSessions = FPRMakeFirstSessionVerbose(trace.sessions);
@@ -403,9 +401,9 @@ firebase_perf_v1_GaugeMetric FPRGetGaugeMetric(NSArray *gaugeData, NSString *ses
   __block NSInteger cpuReadingsCount = 0;
   __block NSInteger memoryReadingsCount = 0;
 
-  struct _firebase_perf_v1_CpuMetricReading *cpuReadings =
+  firebase_perf_v1_CpuMetricReading *cpuReadings =
       calloc([gaugeData count], sizeof(firebase_perf_v1_CpuMetricReading));
-  struct _firebase_perf_v1_IosMemoryReading *memoryReadings =
+  firebase_perf_v1_IosMemoryReading *memoryReadings =
       calloc([gaugeData count], sizeof(firebase_perf_v1_IosMemoryReading));
   [gaugeData enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
     if ([obj isKindOfClass:[FPRCPUGaugeData class]]) {
@@ -506,37 +504,32 @@ NSArray<FPRSessionDetails *> *FPRMakeFirstSessionVerbose(NSArray<FPRSessionDetai
 
 #pragma mark - Nanopb struct fields populating helper methods
 
-firebase_perf_v1_PerfMetric FPRSetApplicationInfo(firebase_perf_v1_PerfMetric perfMetric,
-                                                  firebase_perf_v1_ApplicationInfo appInfo) {
-  perfMetric.application_info = appInfo;
-  perfMetric.has_application_info = true;
-  return perfMetric;
+void FPRSetApplicationInfo(firebase_perf_v1_PerfMetric *perfMetric,
+                           firebase_perf_v1_ApplicationInfo appInfo) {
+  perfMetric->application_info = appInfo;
+  perfMetric->has_application_info = true;
 }
 
-firebase_perf_v1_PerfMetric FPRSetTraceMetric(firebase_perf_v1_PerfMetric perfMetric,
-                                              firebase_perf_v1_TraceMetric traceMetric) {
-  perfMetric.trace_metric = traceMetric;
-  perfMetric.has_trace_metric = true;
-  return perfMetric;
+void FPRSetTraceMetric(firebase_perf_v1_PerfMetric *perfMetric,
+                       firebase_perf_v1_TraceMetric traceMetric) {
+  perfMetric->trace_metric = traceMetric;
+  perfMetric->has_trace_metric = true;
 }
 
-firebase_perf_v1_PerfMetric FPRSetNetworkRequestMetric(
-    firebase_perf_v1_PerfMetric perfMetric, firebase_perf_v1_NetworkRequestMetric networkMetric) {
-  perfMetric.network_request_metric = networkMetric;
-  perfMetric.has_network_request_metric = true;
-  return perfMetric;
+void FPRSetNetworkRequestMetric(firebase_perf_v1_PerfMetric *perfMetric,
+                                firebase_perf_v1_NetworkRequestMetric networkMetric) {
+  perfMetric->network_request_metric = networkMetric;
+  perfMetric->has_network_request_metric = true;
 }
 
-firebase_perf_v1_PerfMetric FPRSetGaugeMetric(firebase_perf_v1_PerfMetric perfMetric,
-                                              firebase_perf_v1_GaugeMetric gaugeMetric) {
-  perfMetric.gauge_metric = gaugeMetric;
-  perfMetric.has_gauge_metric = true;
-  return perfMetric;
+void FPRSetGaugeMetric(firebase_perf_v1_PerfMetric *perfMetric,
+                       firebase_perf_v1_GaugeMetric gaugeMetric) {
+  perfMetric->gauge_metric = gaugeMetric;
+  perfMetric->has_gauge_metric = true;
 }
 
-firebase_perf_v1_PerfMetric FPRSetApplicationProcessState(
-    firebase_perf_v1_PerfMetric perfMetric, firebase_perf_v1_ApplicationProcessState state) {
-  perfMetric.application_info.application_process_state = state;
-  perfMetric.application_info.has_application_process_state = true;
-  return perfMetric;
+void FPRSetApplicationProcessState(firebase_perf_v1_PerfMetric *perfMetric,
+                                   firebase_perf_v1_ApplicationProcessState state) {
+  perfMetric->application_info.application_process_state = state;
+  perfMetric->application_info.has_application_process_state = true;
 }

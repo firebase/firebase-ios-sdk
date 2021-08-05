@@ -40,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @remark Events are logged/dispatched asynchrounously using a serial dispatch queue.
  * @param event The event to log.
  */
-- (void)logEvent:(struct _firebase_perf_v1_PerfMetric)event;
+- (void)logEvent:(firebase_perf_v1_PerfMetric)event;
 
 @end
 

@@ -54,7 +54,7 @@
   return self;
 }
 
-- (void)logEvent:(struct _firebase_perf_v1_PerfMetric)event {
+- (void)logEvent:(firebase_perf_v1_PerfMetric)event {
   GDTCORTransport *eventTransporter = self.gdtfllTransport;
 
   dispatch_async(self.queue, ^{

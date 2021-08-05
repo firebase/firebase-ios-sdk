@@ -339,7 +339,7 @@
   XCTAssertTrue(traceMetric.perf_sessions != NULL);
   XCTAssertTrue(traceMetric.perf_sessions_count >= 2);
 
-  struct _firebase_perf_v1_PerfSession perfSession = traceMetric.perf_sessions[0];
+  firebase_perf_v1_PerfSession perfSession = traceMetric.perf_sessions[0];
   XCTAssertEqual(perfSession.session_verbosity[0],
                  firebase_perf_v1_SessionVerbosity_GAUGES_AND_SYSTEM_EVENTS);
   XCTAssertEqualObjects(FPRDecodeString(perfSession.session_id), @"b");
@@ -361,7 +361,7 @@
   XCTAssertTrue(traceMetric.perf_sessions != NULL);
   XCTAssertTrue(traceMetric.perf_sessions_count >= 2);
 
-  struct _firebase_perf_v1_PerfSession perfSession = traceMetric.perf_sessions[0];
+  firebase_perf_v1_PerfSession perfSession = traceMetric.perf_sessions[0];
   XCTAssertEqualObjects(FPRDecodeString(perfSession.session_id), @"a");
   XCTAssertEqual(perfSession.session_verbosity_count, 0);
 }
@@ -380,7 +380,7 @@
   XCTAssertTrue(traceMetric.perf_sessions != NULL);
   XCTAssertTrue(traceMetric.perf_sessions_count >= 1);
 
-  struct _firebase_perf_v1_PerfSession perfSession = traceMetric.perf_sessions[0];
+  firebase_perf_v1_PerfSession perfSession = traceMetric.perf_sessions[0];
   XCTAssertEqualObjects(FPRDecodeString(perfSession.session_id), @"a");
   XCTAssertEqual(perfSession.session_verbosity_count, 0);
 }
@@ -415,7 +415,7 @@
   XCTAssertTrue(networkMetric.perf_sessions != NULL);
   XCTAssertTrue(networkMetric.perf_sessions_count >= 2);
 
-  struct _firebase_perf_v1_PerfSession perfSession = networkMetric.perf_sessions[0];
+  firebase_perf_v1_PerfSession perfSession = networkMetric.perf_sessions[0];
   XCTAssertEqual(perfSession.session_verbosity[0],
                  firebase_perf_v1_SessionVerbosity_GAUGES_AND_SYSTEM_EVENTS);
   XCTAssertEqualObjects(FPRDecodeString(perfSession.session_id), @"b");
@@ -451,7 +451,7 @@
   XCTAssertTrue(networkMetric.perf_sessions != NULL);
   XCTAssertTrue(networkMetric.perf_sessions_count >= 2);
 
-  struct _firebase_perf_v1_PerfSession perfSession = networkMetric.perf_sessions[0];
+  firebase_perf_v1_PerfSession perfSession = networkMetric.perf_sessions[0];
   XCTAssertEqualObjects(FPRDecodeString(perfSession.session_id), @"a");
   XCTAssertEqual(perfSession.session_verbosity_count, 0);
 }
@@ -486,7 +486,7 @@
   XCTAssertTrue(networkMetric.perf_sessions != NULL);
   XCTAssertTrue(networkMetric.perf_sessions_count >= 1);
 
-  struct _firebase_perf_v1_PerfSession perfSession = networkMetric.perf_sessions[0];
+  firebase_perf_v1_PerfSession perfSession = networkMetric.perf_sessions[0];
   XCTAssertEqualObjects(FPRDecodeString(perfSession.session_id), @"a");
   XCTAssertEqual(perfSession.session_verbosity_count, 0);
 }

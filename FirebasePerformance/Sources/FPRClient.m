@@ -171,9 +171,9 @@
   if ([trace isCompleteAndValid]) {
     dispatch_group_async(self.eventsQueueGroup, self.eventsQueue, ^{
       firebase_perf_v1_PerfMetric metric = FPRGetPerfMetricMessage(self.config.appID);
-      metric = FPRSetTraceMetric(metric, FPRGetTraceMetric(trace));
-      metric = FPRSetApplicationProcessState(
-          metric, FPRApplicationProcessState(trace.backgroundTraceState));
+      FPRSetTraceMetric(&metric, FPRGetTraceMetric(trace));
+      FPRSetApplicationProcessState(&metric,
+                                    FPRApplicationProcessState(trace.backgroundTraceState));
 
       // Log the trace metric with its console URL.
       if ([trace.name hasPrefix:kFPRPrefixForScreenTraceName]) {
@@ -221,9 +221,9 @@
                  @"Logging network request trace - %@, Response code: %@, %.4fms",
                  FPRDecodeString(networkRequestMetric.url), responseCode, duration / 1000.0);
       firebase_perf_v1_PerfMetric metric = FPRGetPerfMetricMessage(self.config.appID);
-      metric = FPRSetNetworkRequestMetric(metric, networkRequestMetric);
-      metric = FPRSetApplicationProcessState(
-          metric, FPRApplicationProcessState(trace.backgroundTraceState));
+      FPRSetNetworkRequestMetric(&metric, networkRequestMetric);
+      FPRSetApplicationProcessState(&metric,
+                                    FPRApplicationProcessState(trace.backgroundTraceState));
 
       [self processAndLogEvent:metric];
     }
@@ -241,7 +241,7 @@
     if ((gaugeData != nil && gaugeData.count != 0) && (sessionId != nil && sessionId.length != 0)) {
       gaugeMetric = FPRGetGaugeMetric(gaugeData, sessionId);
     }
-    metric = FPRSetGaugeMetric(metric, gaugeMetric);
+    FPRSetGaugeMetric(&metric, gaugeMetric);
     [self processAndLogEvent:metric];
   });
 
