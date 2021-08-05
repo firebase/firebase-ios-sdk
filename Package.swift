@@ -842,7 +842,6 @@ let package = Package(
         .product(name: "GULUserDefaults", package: "GoogleUtilities"),
         .product(name: "GULSwizzlerTestHelpers", package: "GoogleUtilities"),
         .product(name: "nanopb", package: "nanopb"),
-        .product(name: "GULSwizzlerTestHelpers", package: "GoogleUtilities"),
       ],
       path: "FirebasePerformance/Sources",
       publicHeadersPath: "Public",

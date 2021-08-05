@@ -25,6 +25,7 @@
 #import "FirebasePerformance/Sources/Public/FIRPerformance.h"
 
 #import "FirebasePerformance/Tests/Unit/FPRTestCase.h"
+#import "FirebasePerformance/Tests/Unit/FPRTestUtils.h"
 #import "FirebasePerformance/Tests/Unit/Server/FPRHermeticTestServer.h"
 
 /** This class is used to wrap an NSURLSession object during testing. */
@@ -381,11 +382,8 @@
   NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testUpload"];
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
   request.HTTPMethod = @"POST";
-#if SWIFT_PACKAGE
-  NSBundle *bundle = Firebase_PerformanceUnit_SWIFTPM_MODULE_BUNDLE();
-#else
-  NSBundle *bundle = [NSBundle bundleForClass:[self class]];
-#endif
+
+  NSBundle *bundle = [FPRTestUtils getBundle];
   NSURL *fileURL = [bundle URLForResource:@"smallDownloadFile" withExtension:@""];
   NSURLSessionUploadTask *uploadTask = [session uploadTaskWithRequest:request fromFile:fileURL];
   [uploadTask resume];
@@ -611,11 +609,8 @@
   NSURLSession *session = [NSURLSession sharedSession];
   NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testUpload"];
   NSURLRequest *request = [NSURLRequest requestWithURL:URL];
-#if SWIFT_PACKAGE
-  NSBundle *bundle = Firebase_PerformanceUnit_SWIFTPM_MODULE_BUNDLE();
-#else
-  NSBundle *bundle = [NSBundle bundleForClass:[self class]];
-#endif
+
+  NSBundle *bundle = [FPRTestUtils getBundle];
   NSURL *fileURL = [bundle URLForResource:@"smallDownloadFile" withExtension:@""];
   NSURLSessionUploadTask *uploadTask = [session uploadTaskWithRequest:request fromFile:fileURL];
   XCTAssertNotNil([FPRNetworkTrace networkTraceFromObject:uploadTask]);
@@ -631,11 +626,8 @@
   NSURLSession *session = [NSURLSession sharedSession];
   NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testUpload"];
   NSURLRequest *request = [NSURLRequest requestWithURL:URL];
-#if SWIFT_PACKAGE
-  NSBundle *bundle = Firebase_PerformanceUnit_SWIFTPM_MODULE_BUNDLE();
-#else
-  NSBundle *bundle = [NSBundle bundleForClass:[self class]];
-#endif
+
+  NSBundle *bundle = [FPRTestUtils getBundle];
   NSURL *fileURL = [bundle URLForResource:@"smallDownloadFile" withExtension:@""];
   XCTestExpectation *expectation = [self expectationWithDescription:@"completionHandler called"];
   void (^completionHandler)(NSData *_Nullable, NSURLResponse *_Nullable, NSError *_Nullable) =
@@ -800,11 +792,7 @@
     XCTAssertNil([FPRNetworkTrace networkTraceFromObject:uploadTask]);
   }];
 
-#if SWIFT_PACKAGE
-  NSBundle *bundle = Firebase_PerformanceUnit_SWIFTPM_MODULE_BUNDLE();
-#else
-  NSBundle *bundle = [NSBundle bundleForClass:[self class]];
-#endif
+  NSBundle *bundle = [FPRTestUtils getBundle];
   NSURL *fileURL = [bundle URLForResource:@"smallDownloadFile" withExtension:@""];
   uploadTask = [session uploadTaskWithRequest:URLRequest fromFile:fileURL];
   [uploadTask resume];

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #import "FirebasePerformance/Tests/Unit/Server/FPRHermeticTestServer.h"
+#import "FirebasePerformance/Tests/Unit/FPRTestUtils.h"
 
 @interface FPRHermeticTestServer ()
 
@@ -131,11 +132,7 @@
 
 /** Registers the "/testDownload" path, which responds with a small amount of data. */
 - (void)registerPathTestDownload {
-#if SWIFT_PACKAGE
-  NSBundle *bundle = Firebase_PerformanceUnit_SWIFTPM_MODULE_BUNDLE();
-#else
-  NSBundle *bundle = [NSBundle bundleForClass:[self class]];
-#endif
+  NSBundle *bundle = [FPRTestUtils getBundle];
   NSString *filePath = [bundle pathForResource:@"smallDownloadFile" ofType:@""];
   id processBlock = ^GCDWebServerResponse *(__kindof GCDWebServerRequest *request) {
     GCDWebServerFileResponse *response = [[GCDWebServerFileResponse alloc] initWithFile:filePath];
@@ -155,11 +152,7 @@
 
 /** Registers the "/testBigDownload" path, which responds with a larger amount of data. */
 - (void)registerPathTestBigDownload {
-#if SWIFT_PACKAGE
-  NSBundle *bundle = Firebase_PerformanceUnit_SWIFTPM_MODULE_BUNDLE();
-#else
-  NSBundle *bundle = [NSBundle bundleForClass:[self class]];
-#endif
+  NSBundle *bundle = [FPRTestUtils getBundle];
   NSString *filePath = [bundle pathForResource:@"bigDownloadFile" ofType:@""];
   id processBlock = ^GCDWebServerResponse *(__kindof GCDWebServerRequest *request) {
     GCDWebServerFileResponse *response = [[GCDWebServerFileResponse alloc] initWithFile:filePath];

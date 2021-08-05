@@ -23,6 +23,7 @@
 #import "FirebasePerformance/Sources/Public/FIRPerformance.h"
 
 #import "FirebasePerformance/Tests/Unit/FPRTestCase.h"
+#import "FirebasePerformance/Tests/Unit/FPRTestUtils.h"
 #import "FirebasePerformance/Tests/Unit/Server/FPRHermeticTestServer.h"
 
 @interface FPRNSURLConnectionInstrumentTest : FPRTestCase
@@ -356,11 +357,8 @@
   NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testUpload"];
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
   request.HTTPMethod = @"POST";
-#if SWIFT_PACKAGE
-  NSBundle *bundle = Firebase_PerformanceUnit_SWIFTPM_MODULE_BUNDLE();
-#else
-  NSBundle *bundle = [NSBundle bundleForClass:[self class]];
-#endif
+
+  NSBundle *bundle = [FPRTestUtils getBundle];
   NSURL *fileURL = [bundle URLForResource:@"smallDownloadFile" withExtension:@""];
   request.HTTPBody = [NSData dataWithContentsOfURL:fileURL];
   FPRNSURLConnectionCompleteTestDelegate *delegate =

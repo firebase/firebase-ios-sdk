@@ -28,6 +28,9 @@ NS_ASSUME_NONNULL_BEGIN
 /** Default initializer. */
 - (instancetype)init NS_UNAVAILABLE;
 
+/** Get the bundle. */
++ (NSBundle *)getBundle;
+
 /** Creates a Performance Trace object. */
 + (FIRTrace *)createRandomTraceWithName:(NSString *)name;
 

@@ -17,6 +17,7 @@
 #import "FirebasePerformance/Sources/FPRURLFilter.h"
 #import "FirebasePerformance/Sources/FPRURLFilter_Private.h"
 
+#import "FirebasePerformance/Tests/Unit/FPRTestUtils.h"
 #import "FirebasePerformance/Tests/Unit/Fakes/NSBundleFake.h"
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
@@ -63,11 +64,7 @@
 
 /** Tests shouldInstrument when the plist file is being used. */
 - (void)testShouldInstrumentUsingPlist {
-#if SWIFT_PACKAGE
-  NSBundle *bundle = Firebase_PerformanceUnit_SWIFTPM_MODULE_BUNDLE();
-#else
-  NSBundle *bundle = [NSBundle bundleForClass:[self class]];
-#endif
+  NSBundle *bundle = [FPRTestUtils getBundle];
   NSString *plistPath = [bundle pathForResource:@"FPRURLFilterTests-Info" ofType:@"plist"];
 
   NSDictionary *plistContent = [NSDictionary dictionaryWithContentsOfFile:plistPath];
