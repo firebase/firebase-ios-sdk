@@ -19,10 +19,12 @@
 #if CLS_METRICKIT_SUPPORTED
 
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSCallStackTree.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSExecutionIdentifierModel.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
+#import "Crashlytics/Crashlytics/Public/FirebaseCrashlytics/FIRCrashlytics.h"
 #import "Crashlytics/Crashlytics/Public/FirebaseCrashlytics/FIRCrashlyticsReport.h"
 
 @interface FIRCLSMetricKitManager ()
@@ -69,9 +71,11 @@
     }
   }
 
+  NSArray *pastpayloads = [[MXMetricManager sharedManager] pastPayloads];
+
   // If we haven't resolved this promise within three seconds, resolve it now so that we're not
   // waiting indefinitely for MetricKit payloads that won't arrive.
-  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC), self.managerData.dispatchQueue,
+  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 3 * NSEC_PER_SEC), self.managerData.dispatchQueue,
                  ^{
                    @synchronized(self) {
                      if (!self.metricKitPromiseFulfilled) {
@@ -80,6 +84,8 @@
                      }
                    }
                  });
+
+  FIRCLSDebugLog(@"Finished registering metrickit manager");
 }
 
 /*
@@ -126,24 +132,27 @@
 
   // If there is a crash diagnostic in the payload, then this method was called for a fatal event.
   // Also ensure that there is a report from the last run of the app that we can write to.
+  NSString *metricKitFatalReportFile;
+  NSString *metricKitNonfatalReportFile;
   NSString *metricKitReportFile;
   NSString *newestUnsentReportID =
       [self.existingReportManager.newestUnsentReport.reportID stringByAppendingString:@"/"];
+  NSString *currentReportID =
+      [_managerData.executionIDModel.executionID stringByAppendingString:@"/"];
   BOOL fatal = ([diagnosticPayload.crashDiagnostics count] > 0) && (newestUnsentReportID != nil) &&
                ([self.fileManager
                    fileExistsAtPath:[activePath stringByAppendingString:newestUnsentReportID]]);
 
-  // Set the metrickit path appropriately depending on whether the diagnostic report came from
-  // a fatal or nonfatal event. If fatal, use the report from the last run of the app. Otherwise,
-  // use the report for the current run.
+  // Set the MetricKit paths appropriately depending on whether the diagnostic report came from
+  // a fatal or nonfatal event. If fatal, use the report from the last run of the app and write data
+  // to the fatal MetricKit file. Otherwise, use the report for the current run for nonfatal events
+  // and write data to the nonfatal MetricKit file.
   if (fatal) {
     metricKitReportFile = [[activePath stringByAppendingString:newestUnsentReportID]
-        stringByAppendingString:FIRCLSMetricKitReportFile];
+        stringByAppendingString:FIRCLSMetricKitFatalReportFile];
   } else {
-    NSString *currentReportID =
-        [_managerData.executionIDModel.executionID stringByAppendingString:@"/"];
     metricKitReportFile = [[activePath stringByAppendingString:currentReportID]
-        stringByAppendingString:FIRCLSMetricKitReportFile];
+        stringByAppendingString:FIRCLSMetricKitNonfatalReportFile];
   }
 
   if (!metricKitReportFile) {
@@ -151,14 +160,13 @@
     return NO;
   }
 
-  FIRCLSDebugLog(@"File path for MetricKit:  %@", [metricKitReportFile copy]);
-
+  FIRCLSDebugLog(@"File path for MetricKit report:  %@", metricKitReportFile);
   if (![_fileManager fileExistsAtPath:metricKitReportFile]) {
     [_fileManager createFileAtPath:metricKitReportFile contents:nil attributes:nil];
   }
   NSFileHandle *file = [NSFileHandle fileHandleForUpdatingAtPath:metricKitReportFile];
   if (file == nil) {
-    FIRCLSDebugLog(@"Unable to create or open MetricKit file.");
+    FIRCLSDebugLog(@"Unable to create or open nonfatal MetricKit file.");
     return false;
   }
 
@@ -183,15 +191,13 @@
   if (hasCrash && !skipCrashEvent) {
     MXCrashDiagnostic *crashDiagnostic = [diagnosticPayload.crashDiagnostics objectAtIndex:0];
 
-    NSDictionary *threadDict =
-        [self convertThreadsToDictionary:[crashDiagnostic.callStackTree JSONRepresentation]];
-    NSDictionary *metadataDict =
-        [self convertMetadataToDictionary:[crashDiagnostic.metaData JSONRepresentation]];
+    NSArray *threadArray = [self convertThreadsToArray:crashDiagnostic.callStackTree];
+    NSDictionary *metadataDict = [self convertMetadataToDictionary:crashDiagnostic.metaData];
 
     NSString *nilString = @"";
     NSDictionary *crashDictionary = @{
       @"crash_event" : @{
-        @"threads" : threadDict,
+        @"threads" : threadArray,
         @"metadata" : metadataDict,
         @"termination_reason" :
                 (crashDiagnostic.terminationReason) ? crashDiagnostic.terminationReason : nilString,
@@ -201,7 +207,7 @@
         @"exception_type" : crashDiagnostic.exceptionType,
         @"exception_code" : crashDiagnostic.exceptionCode,
         @"signal" : crashDiagnostic.signal,
-        @"app_version": crashDiagnostic.applicationVersion
+        @"app_version" : crashDiagnostic.applicationVersion
       }
     };
     writeFailed = ![self writeDictionaryToFile:crashDictionary file:file newLineData:newLineData];
@@ -210,19 +216,18 @@
   if (hasHang) {
     MXHangDiagnostic *hangDiagnostic = [diagnosticPayload.hangDiagnostics objectAtIndex:0];
 
-    NSDictionary *threadDict =
-        [self convertThreadsToDictionary:[hangDiagnostic.callStackTree JSONRepresentation]];
-    NSDictionary *metadataDict =
-        [self convertMetadataToDictionary:[hangDiagnostic.metaData JSONRepresentation]];
+    NSArray *threadArray = [self convertThreadsToArray:hangDiagnostic.callStackTree];
+    NSDictionary *metadataDict = [self convertMetadataToDictionary:hangDiagnostic.metaData];
 
     NSDictionary *hangDictionary = @{
       @"hang_event" : @{
-        @"threads" : threadDict,
+        @"threads" : threadArray,
         @"metadata" : metadataDict,
         @"hang_duration" : [NSNumber numberWithDouble:[hangDiagnostic.hangDuration doubleValue]],
-        @"app_version": hangDiagnostic.applicationVersion
+        @"app_version" : hangDiagnostic.applicationVersion
       }
     };
+
     writeFailed = ![self writeDictionaryToFile:hangDictionary file:file newLineData:newLineData];
   }
 
@@ -230,20 +235,18 @@
     MXCPUExceptionDiagnostic *cpuExceptionDiagnostic =
         [diagnosticPayload.cpuExceptionDiagnostics objectAtIndex:0];
 
-    NSDictionary *threadDict =
-        [self convertThreadsToDictionary:[cpuExceptionDiagnostic.callStackTree JSONRepresentation]];
-    NSDictionary *metadataDict =
-        [self convertMetadataToDictionary:[cpuExceptionDiagnostic.metaData JSONRepresentation]];
+    NSArray *threadArray = [self convertThreadsToArray:cpuExceptionDiagnostic.callStackTree];
+    NSDictionary *metadataDict = [self convertMetadataToDictionary:cpuExceptionDiagnostic.metaData];
 
     NSDictionary *cpuDictionary = @{
       @"cpu_exception_event" : @{
-        @"threads" : threadDict,
+        @"threads" : threadArray,
         @"metadata" : metadataDict,
         @"total_cpu_time" :
             [NSNumber numberWithDouble:[cpuExceptionDiagnostic.totalCPUTime doubleValue]],
         @"total_sampled_time" :
             [NSNumber numberWithDouble:[cpuExceptionDiagnostic.totalSampledTime doubleValue]],
-        @"app_version": cpuExceptionDiagnostic.applicationVersion
+        @"app_version" : cpuExceptionDiagnostic.applicationVersion
       }
     };
     writeFailed = ![self writeDictionaryToFile:cpuDictionary file:file newLineData:newLineData];
@@ -253,16 +256,15 @@
     MXDiskWriteExceptionDiagnostic *diskWriteExceptionDiagnostic =
         [diagnosticPayload.diskWriteExceptionDiagnostics objectAtIndex:0];
 
-    NSDictionary *threadDict = [self
-        convertThreadsToDictionary:[diskWriteExceptionDiagnostic.callStackTree JSONRepresentation]];
-    NSDictionary *metadataDict = [self
-        convertMetadataToDictionary:[diskWriteExceptionDiagnostic.metaData JSONRepresentation]];
+    NSArray *threadArray = [self convertThreadsToArray:diskWriteExceptionDiagnostic.callStackTree];
+    NSDictionary *metadataDict =
+        [self convertMetadataToDictionary:diskWriteExceptionDiagnostic.metaData];
 
     NSDictionary *diskWriteDictionary = @{
       @"disk_write_exception_event" : @{
-        @"threads" : threadDict,
+        @"threads" : threadArray,
         @"metadata" : metadataDict,
-        @"app_version": diskWriteExceptionDiagnostic.applicationVersion,
+        @"app_version" : diskWriteExceptionDiagnostic.applicationVersion,
         @"total_writes_caused" :
             [NSNumber numberWithDouble:[diskWriteExceptionDiagnostic.totalWritesCaused doubleValue]]
       }
@@ -292,42 +294,18 @@
 /*
  * Helper method to convert threads for a MetricKit diagnostic event to a dictionary.
  */
-- (NSDictionary *)convertThreadsToDictionary:(NSData *)threads {
-  NSMutableString *threadsString = [[NSMutableString alloc] initWithData:threads
-                                                                encoding:NSUTF8StringEncoding];
-  [threadsString replaceOccurrencesOfString:@"\n"
-                                 withString:@""
-                                    options:NSCaseInsensitiveSearch
-                                      range:NSMakeRange(0, [threadsString length])];
-  [threadsString replaceOccurrencesOfString:@"\t"
-                                 withString:@""
-                                    options:NSCaseInsensitiveSearch
-                                      range:NSMakeRange(0, [threadsString length])];
-  NSError *error = nil;
-  NSDictionary *threadDictionary = [NSJSONSerialization JSONObjectWithData:threads
-                                                                   options:0
-                                                                     error:&error];
-  return threadDictionary;
+- (NSArray *)convertThreadsToArray:(MXCallStackTree *)mxCallStackTree {
+  FIRCLSCallStackTree *tree = [[FIRCLSCallStackTree alloc] initWithMXCallStackTree:mxCallStackTree];
+  return [tree getArrayRepresentation];
 }
 
 /*
  * Helper method to convert metadata for a MetricKit diagnostic event to a dictionary.
  */
-- (NSDictionary *)convertMetadataToDictionary:(NSData *)metadata {
-  NSMutableString *metadataString = [[NSMutableString alloc] initWithData:metadata
-                                                                 encoding:NSUTF8StringEncoding];
-  [metadataString replaceOccurrencesOfString:@"\n"
-                                  withString:@""
-                                     options:NSCaseInsensitiveSearch
-                                       range:NSMakeRange(0, [metadataString length])];
-  [metadataString replaceOccurrencesOfString:@"\t"
-                                  withString:@""
-                                     options:NSCaseInsensitiveSearch
-                                       range:NSMakeRange(0, [metadataString length])];
+- (NSDictionary *)convertMetadataToDictionary:(MXMetaData *)metadata {
   NSError *error = nil;
-  NSDictionary *metadataDictionary = [NSJSONSerialization JSONObjectWithData:metadata
-                                                                     options:0
-                                                                       error:&error];
+  NSDictionary *metadataDictionary =
+      [NSJSONSerialization JSONObjectWithData:[metadata JSONRepresentation] options:0 error:&error];
   return metadataDictionary;
 }
 
