@@ -29,5 +29,6 @@
 #endif
 @import FirebaseInstallations;
 @import FirebaseMessaging;
+@import FirebasePerformance
 @import FirebaseRemoteConfig;
 @import FirebaseStorage;
