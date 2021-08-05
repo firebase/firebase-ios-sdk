@@ -1,4 +1,4 @@
-// Copyright 2020 Google LLC
+// Copyright 2021 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,12 +13,14 @@
 // limitations under the License.
 
 #import <UIKit/UIKit.h>
-#import "FirebasePerformance/Sources/Instrumentation/FPRInstrument.h"
+
+#import "FirebasePerformance/Sources/Instrumentation/UIKit/FPRUIViewControllerInstrument.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** This class instruments the UIViewController class. */
-@interface FPRUIViewControllerInstrument : FPRInstrument
+UIWindow *keyWindow;
+
+@interface FPRUIViewControllerInstrument ()
 
 @end
 

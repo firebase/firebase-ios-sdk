@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #import "FirebasePerformance/Sources/Instrumentation/UIKit/FPRUIViewControllerInstrument.h"
+#import "FirebasePerformance/Sources/Instrumentation/UIKit/FPRUIViewControllerInstrument_Private.h"
 
 #import <UIKit/UIKit.h>
 
@@ -44,10 +45,10 @@ static UIWindow *FPRSharedApplicationWindow() {
   if ([GULAppEnvironmentUtil isAppExtension]) {
     return nil;
   }
-  if (fpr_keyWindow == nil) {
+  if (keyWindow == nil) {
     return [UIApplication sharedApplication].keyWindow;
   }
-  return fpr_keyWindow;
+  return keyWindow;
 }
 
 @implementation FPRUIViewControllerInstrument

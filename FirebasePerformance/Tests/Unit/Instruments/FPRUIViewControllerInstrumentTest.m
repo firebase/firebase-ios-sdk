@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #import "FirebasePerformance/Sources/Instrumentation/UIKit/FPRUIViewControllerInstrument.h"
+#import "FirebasePerformance/Sources/Instrumentation/UIKit/FPRUIViewControllerInstrument_Private.h"
 
 #import <XCTest/XCTest.h>
 
@@ -59,7 +60,7 @@ static BOOL originalViewDidDisappearInvoked = NO;
   [mockWindow addSubview:[testViewController view]];
 
   FPRUIViewControllerInstrument *instrument = [[FPRUIViewControllerInstrument alloc] init];
-  fpr_keyWindow = mockWindow;  // TODO: fix the name.
+  keyWindow = mockWindow;
   [instrument registerInstrumentors];
 
   // Partial mock isa swizzles the object and we can listen to whether it received certain messages.
