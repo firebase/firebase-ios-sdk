@@ -33,5 +33,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
       unit_tests.requires_app_host = true
    end
 
+  s.framework = 'UIKit'
+
   s.dependency 'FirebaseInAppMessaging', '~> 8.0-beta'
 end

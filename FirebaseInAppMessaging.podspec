@@ -74,6 +74,8 @@ See more product details at https://firebase.google.com/products/in-app-messagin
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
 
+  s.framework = 'UIKit'
+
   s.dependency 'FirebaseCore', '~> 8.0'
   s.dependency 'FirebaseInstallations', '~> 8.0'
   s.dependency 'FirebaseABTesting', '~> 8.0'
