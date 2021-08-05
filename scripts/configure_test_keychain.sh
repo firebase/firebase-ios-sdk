@@ -34,11 +34,11 @@ else
 fi
 
 # Create a test keychain.
-security create-keychain -p "$TEST_KEYCHIN_PASSWORD" "$TEST_KEYCHAIN_NAME"
+security create-keychain -p "$TEST_KEYCHAIN_PASSWORD" "$TEST_KEYCHAIN_NAME"
 
 # Set the test keychain as default and login to be used during macOS tests.
 security default-keychain -s "$TEST_KEYCHAIN_NAME"
 security login-keychain -s "$TEST_KEYCHAIN_NAME"
 
 # Unlock the test keychain.
-security unlock-keychain -p "$TEST_KEYCHIN_PASSWORD" "$TEST_KEYCHAIN_NAME"
+security unlock-keychain -p "$TEST_KEYCHAIN_PASSWORD" "$TEST_KEYCHAIN_NAME"
