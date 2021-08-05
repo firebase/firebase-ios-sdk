@@ -53,7 +53,7 @@ jobs:
       run: scripts/test_catalyst.sh FirebaseAppDistribution test FirebaseAppDistribution-Unit-unit
 
   appdistribution-cron-only:
-    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+    # if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
 
     runs-on: macos-11
     strategy:

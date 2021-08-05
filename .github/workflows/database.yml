@@ -56,8 +56,8 @@ jobs:
 
   spm-cron:
     # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macos-11
+    # if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+    runs-on: macOS-latest
     strategy:
       matrix:
         target: [tvOS, macOS, catalyst]
@@ -121,8 +121,8 @@ jobs:
 
   database-cron-only:
     # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macos-11
+    # if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+    runs-on: macos-latest
     strategy:
       matrix:
         target: [ios, tvos, macos]

@@ -37,7 +37,7 @@ jobs:
 
   dynamiclinks-cron-only:
     # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+    # if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
 
     runs-on: macos-11
     strategy:
