@@ -13,10 +13,9 @@
 // limitations under the License.
 
 #import <Foundation/Foundation.h>
+#import "FirebasePerformance/Sources/Protogen/nanopb/perf_metric.nanopb.h"
 
 NS_ASSUME_NONNULL_BEGIN
-
-@class FPRMSGPerfMetric;
 
 /** Logger used to dispatch events to Google Data Transport layer. */
 @interface FPRGDTLogger : NSObject
@@ -41,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @remark Events are logged/dispatched asynchrounously using a serial dispatch queue.
  * @param event The event to log.
  */
-- (void)logEvent:(FPRMSGPerfMetric *)event;
+- (void)logEvent:(firebase_perf_v1_PerfMetric)event;
 
 @end
 

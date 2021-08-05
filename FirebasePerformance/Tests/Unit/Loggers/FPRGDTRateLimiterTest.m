@@ -19,7 +19,6 @@
 #import "FirebasePerformance/Sources/Loggers/FPRGDTRateLimiter.h"
 
 #import "FirebasePerformance/Sources/AppActivity/FPRAppActivityTracker.h"
-#import "FirebasePerformance/Sources/FPRProtoUtils.h"
 #import "FirebasePerformance/Sources/Instrumentation/FPRNetworkTrace.h"
 #import "FirebasePerformance/Sources/Public/FIRPerformance.h"
 #import "FirebasePerformance/Sources/Public/FIRTrace.h"
@@ -29,8 +28,6 @@
 #import "FirebasePerformance/Tests/Unit/FPRTestUtils.h"
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
-
-#import "FirebasePerformance/ProtoSupport/PerfMetric.pbobjc.h"
 
 @interface FPRGDTRateLimiterTest : FPRTestCase
 
