@@ -14,9 +14,9 @@
 
 #import <Foundation/Foundation.h>
 
-#import <GCDWebServer.h>
-#import <GCDWebServerDataResponse.h>
-#import <GCDWebServerFileResponse.h>
+#import "GCDWebServer.h"
+#import "GCDWebServerDataResponse.h"
+#import "GCDWebServerFileResponse.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

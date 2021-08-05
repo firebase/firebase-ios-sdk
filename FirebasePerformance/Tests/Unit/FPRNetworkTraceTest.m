@@ -469,6 +469,10 @@
   [trace checkpointState:FPRNetworkTraceCheckpointStateResponseReceived];
 
   NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
+  [defaultCenter postNotificationName:UIWindowDidBecomeVisibleNotification
+                               object:[UIApplication sharedApplication]];
+  [defaultCenter postNotificationName:UIApplicationDidBecomeActiveNotification
+                               object:[UIApplication sharedApplication]];
   [defaultCenter postNotificationName:UIApplicationWillEnterForegroundNotification
                                object:[UIApplication sharedApplication]];
   [defaultCenter postNotificationName:UIApplicationWillEnterForegroundNotification

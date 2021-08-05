@@ -381,8 +381,12 @@
   NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testUpload"];
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
   request.HTTPMethod = @"POST";
-  NSURL *fileURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"smallDownloadFile"
-                                                            withExtension:@""];
+#if SWIFT_PACKAGE
+  NSBundle *bundle = Firebase_PerformanceUnit_SWIFTPM_MODULE_BUNDLE();
+#else
+  NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+#endif
+  NSURL *fileURL = [bundle URLForResource:@"smallDownloadFile" withExtension:@""];
   NSURLSessionUploadTask *uploadTask = [session uploadTaskWithRequest:request fromFile:fileURL];
   [uploadTask resume];
 
@@ -490,7 +494,7 @@
   NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testBigDownload"];
   NSURLSessionDownloadTask *downloadTask = [session downloadTaskWithURL:URL];
   [downloadTask resume];
-  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
+  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:5.0]];
   XCTAssertNil([FPRNetworkTrace networkTraceFromObject:downloadTask]);
   XCTAssertTrue(delegate.URLSessionDownloadTaskDidResumeAtOffsetExpectedTotalBytesCalled);
   [instrument deregisterInstrumentors];
@@ -607,8 +611,12 @@
   NSURLSession *session = [NSURLSession sharedSession];
   NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testUpload"];
   NSURLRequest *request = [NSURLRequest requestWithURL:URL];
-  NSURL *fileURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"smallDownloadFile"
-                                                            withExtension:@""];
+#if SWIFT_PACKAGE
+  NSBundle *bundle = Firebase_PerformanceUnit_SWIFTPM_MODULE_BUNDLE();
+#else
+  NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+#endif
+  NSURL *fileURL = [bundle URLForResource:@"smallDownloadFile" withExtension:@""];
   NSURLSessionUploadTask *uploadTask = [session uploadTaskWithRequest:request fromFile:fileURL];
   XCTAssertNotNil([FPRNetworkTrace networkTraceFromObject:uploadTask]);
   XCTAssertNotNil(uploadTask);
@@ -623,8 +631,12 @@
   NSURLSession *session = [NSURLSession sharedSession];
   NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testUpload"];
   NSURLRequest *request = [NSURLRequest requestWithURL:URL];
-  NSURL *fileURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"smallDownloadFile"
-                                                            withExtension:@""];
+#if SWIFT_PACKAGE
+  NSBundle *bundle = Firebase_PerformanceUnit_SWIFTPM_MODULE_BUNDLE();
+#else
+  NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+#endif
+  NSURL *fileURL = [bundle URLForResource:@"smallDownloadFile" withExtension:@""];
   XCTestExpectation *expectation = [self expectationWithDescription:@"completionHandler called"];
   void (^completionHandler)(NSData *_Nullable, NSURLResponse *_Nullable, NSError *_Nullable) =
       ^(NSData *_Nullable data, NSURLResponse *_Nullable response, NSError *_Nullable error) {
@@ -788,8 +800,12 @@
     XCTAssertNil([FPRNetworkTrace networkTraceFromObject:uploadTask]);
   }];
 
-  NSURL *fileURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"smallDownloadFile"
-                                                            withExtension:@""];
+#if SWIFT_PACKAGE
+  NSBundle *bundle = Firebase_PerformanceUnit_SWIFTPM_MODULE_BUNDLE();
+#else
+  NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+#endif
+  NSURL *fileURL = [bundle URLForResource:@"smallDownloadFile" withExtension:@""];
   uploadTask = [session uploadTaskWithRequest:URLRequest fromFile:fileURL];
   [uploadTask resume];
   XCTAssertNotNil([FPRNetworkTrace networkTraceFromObject:uploadTask]);

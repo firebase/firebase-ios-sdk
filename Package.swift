@@ -840,7 +840,9 @@ let package = Package(
         .product(name: "GULISASwizzler", package: "GoogleUtilities"),
         .product(name: "GULMethodSwizzler", package: "GoogleUtilities"),
         .product(name: "GULUserDefaults", package: "GoogleUtilities"),
+        .product(name: "GULSwizzlerTestHelpers", package: "GoogleUtilities"),
         .product(name: "nanopb", package: "nanopb"),
+        .product(name: "GULSwizzlerTestHelpers", package: "GoogleUtilities"),
       ],
       path: "FirebasePerformance/Sources",
       publicHeadersPath: "Public",
@@ -849,10 +851,13 @@ let package = Package(
         .define("PB_FIELD_32BIT", to: "1"),
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
         .define("PB_ENABLE_MALLOC", to: "1"),
+        .define("FIRPerformance_LIB_VERSION", to: firebaseVersion),
+        .define("UNSWIZZLE_AVAILABLE"),
       ],
       linkerSettings: [
         .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .tvOS])),
         .linkedFramework("MobileCoreServices", .when(platforms: [.iOS, .tvOS])),
+        .linkedFramework("QuartzCore", .when(platforms: [.iOS, .tvOS])),
       ]
     ),
     .testTarget(
@@ -861,12 +866,18 @@ let package = Package(
         "FirebasePerformance",
         "OCMock",
         "SharedTestUtilities",
-        .product(name: "GCDWebServer", package: "GCDWebServer"),
+        "GCDWebServer",
         .product(name: "GULSwizzlerTestHelpers", package: "GoogleUtilities"),
       ],
       path: "FirebasePerformance/Tests/Unit",
+      resources: [
+        .process("FPRURLFilterTests-Info.plist"),
+        .process("Server/smallDownloadFile"),
+        .process("Server/bigDownloadFile"),
+      ],
       cSettings: [
         .headerSearchPath("../../.."),
+        .define("UNSWIZZLE_AVAILABLE"),
       ]
     ),
 

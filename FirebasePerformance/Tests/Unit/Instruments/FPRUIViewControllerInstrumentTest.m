@@ -55,9 +55,11 @@ static BOOL originalViewDidDisappearInvoked = NO;
  */
 - (void)testViewDidAppearInvokesViewControllerDidAppearOnScreenTraceTracker {
   UIViewController *testViewController = [[UIViewController alloc] init];
-  [[UIApplication sharedApplication].keyWindow addSubview:[testViewController view]];
+  UIWindow *mockWindow = [[UIWindow alloc] init];
+  [mockWindow addSubview:[testViewController view]];
 
   FPRUIViewControllerInstrument *instrument = [[FPRUIViewControllerInstrument alloc] init];
+  fpr_keyWindow = mockWindow;  // TODO: fix the name.
   [instrument registerInstrumentors];
 
   // Partial mock isa swizzles the object and we can listen to whether it received certain messages.

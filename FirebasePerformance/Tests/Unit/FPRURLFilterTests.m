@@ -63,9 +63,13 @@
 
 /** Tests shouldInstrument when the plist file is being used. */
 - (void)testShouldInstrumentUsingPlist {
-  NSString *plistPath =
-      [[NSBundle bundleForClass:self.class] pathForResource:@"FPRURLFilterTests-Info"
-                                                     ofType:@"plist"];
+#if SWIFT_PACKAGE
+  NSBundle *bundle = Firebase_PerformanceUnit_SWIFTPM_MODULE_BUNDLE();
+#else
+  NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+#endif
+  NSString *plistPath = [bundle pathForResource:@"FPRURLFilterTests-Info" ofType:@"plist"];
+
   NSDictionary *plistContent = [NSDictionary dictionaryWithContentsOfFile:plistPath];
 
   NSBundleFake *mainBundle = [[NSBundleFake alloc] init];

@@ -40,11 +40,14 @@ static dispatch_queue_t GetInstrumentationQueue() {
 
 // Returns the singleton UIApplication of the application this is currently running in or nil if
 // it's in an app extension.
-static UIApplication *FPRSharedApplication() {
+static UIWindow *FPRSharedApplicationWindow() {
   if ([GULAppEnvironmentUtil isAppExtension]) {
     return nil;
   }
-  return [UIApplication sharedApplication];
+  if (fpr_keyWindow == nil) {
+    return [UIApplication sharedApplication].keyWindow;
+  }
+  return fpr_keyWindow;
 }
 
 @implementation FPRUIViewControllerInstrument
@@ -67,7 +70,7 @@ void InstrumentViewDidAppear(FPRUIViewControllerInstrument *instrument,
 
     // This has to be called on the main thread and so it's done here instead of in
     // FPRScreenTraceTracker.
-    if ([((UIViewController *)_self).view isDescendantOfView:FPRSharedApplication().keyWindow]) {
+    if ([((UIViewController *)_self).view isDescendantOfView:FPRSharedApplicationWindow()]) {
       [[FPRScreenTraceTracker sharedInstance] viewControllerDidAppear:_self];
     }
   }];

@@ -137,7 +137,7 @@
   XCTAssertNotNil(connection);
   [connection start];
   // Only let it check for a connection for a half second.
-  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
+  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
   XCTAssertTrue(delegate.connectionDidFailWithErrorCalled);
   [self.testServer start];
   [instrument deregisterInstrumentors];
@@ -157,7 +157,7 @@
   XCTAssertNotNil(connection);
   [connection start];
   // Only let it check for a connection for a half second.
-  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
+  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
   XCTAssertTrue(delegate.connectionDidFailWithErrorCalled);
   [self.testServer start];
   [instrument deregisterInstrumentors];
@@ -196,7 +196,7 @@
   XCTAssertNotNil(connection);
   [connection start];
   XCTAssertNotNil([FPRNetworkTrace networkTraceFromObject:connection]);
-  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
+  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
   XCTAssertTrue(delegate.connectionDidFailWithErrorCalled);
   XCTAssertNil([FPRNetworkTrace networkTraceFromObject:connection]);
   [self.testServer start];
@@ -356,8 +356,12 @@
   NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testUpload"];
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
   request.HTTPMethod = @"POST";
-  NSURL *fileURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"smallDownloadFile"
-                                                            withExtension:@""];
+#if SWIFT_PACKAGE
+  NSBundle *bundle = Firebase_PerformanceUnit_SWIFTPM_MODULE_BUNDLE();
+#else
+  NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+#endif
+  NSURL *fileURL = [bundle URLForResource:@"smallDownloadFile" withExtension:@""];
   request.HTTPBody = [NSData dataWithContentsOfURL:fileURL];
   FPRNSURLConnectionCompleteTestDelegate *delegate =
       [[FPRNSURLConnectionCompleteTestDelegate alloc] init];
