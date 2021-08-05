@@ -172,7 +172,7 @@
   XCTAssertEqualObjects(networkTrace.responseContentType, @"text/json");
 }
 
-/** Validate if the metric creation fails if the response code is not set. */
+/** Validate if the network trace is invalid if the response code is not set. */
 - (void)testMetricCreationFailsWhenResponseCodeNotSet {
   id mock = [OCMockObject partialMockForObject:[FPRClient sharedInstance]];
   OCMStub([mock logNetworkTrace:[OCMArg any]]).andDo(nil);
@@ -185,6 +185,7 @@
   [metric markResponseStart];
   [metric stop];
   FPRNetworkTrace *networkTrace = metric.networkTrace;
+  XCTAssertFalse([networkTrace isValid]);
 }
 
 /** Validates that starting and stopping logs an event. */

@@ -60,7 +60,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   FIRTrace *trace = [FPRTestUtils createRandomTraceWithName:traceName];
   // Make sure there are no sessions.
   trace.activeSessions = [NSMutableArray array];
-  perfMetric = FPRSetTraceMetric(perfMetric, FPRGetTraceMetric(trace));
+  FPRSetTraceMetric(&perfMetric, FPRGetTraceMetric(trace));
 
   return perfMetric;
 }
@@ -69,7 +69,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   firebase_perf_v1_PerfMetric perfMetric = FPRGetPerfMetricMessage(@"RandomAppID");
   FIRTrace *trace = [FPRTestUtils createRandomTraceWithName:traceName];
   trace = [FPRTestUtils addVerboseSessionToTrace:trace];
-  perfMetric = FPRSetTraceMetric(perfMetric, FPRGetTraceMetric(trace));
+  FPRSetTraceMetric(&perfMetric, FPRGetTraceMetric(trace));
 
   return perfMetric;
 }
@@ -82,7 +82,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   [trace stop];
   // Make sure there are no sessions.
   trace.activeSessions = [NSMutableArray array];
-  perfMetric = FPRSetTraceMetric(perfMetric, FPRGetTraceMetric(trace));
+  FPRSetTraceMetric(&perfMetric, FPRGetTraceMetric(trace));
 
   return perfMetric;
 }
@@ -105,7 +105,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   [networkTrace didReceiveData:[NSData data]];
   [networkTrace didCompleteRequestWithResponse:response error:nil];
   networkTrace.activeSessions = [NSMutableArray array];
-  perfMetric = FPRSetNetworkRequestMetric(perfMetric, FPRGetNetworkRequestMetric(networkTrace));
+  FPRSetNetworkRequestMetric(&perfMetric, FPRGetNetworkRequestMetric(networkTrace));
 
   return perfMetric;
 }
@@ -121,7 +121,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   [gauges addObject:memoryData];
 
   firebase_perf_v1_GaugeMetric gaugeMetric = FPRGetGaugeMetric(gauges, @"123");
-  perfMetric = FPRSetGaugeMetric(perfMetric, gaugeMetric);
+  FPRSetGaugeMetric(&perfMetric, gaugeMetric);
 
   return perfMetric;
 }

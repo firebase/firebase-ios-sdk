@@ -138,55 +138,50 @@ extern firebase_perf_v1_ApplicationProcessState FPRApplicationProcessState(FPRTr
 
 /** Populate a firebase_perf_v1_PerfMetric object with the given firebase_perf_v1_ApplicationInfo.
  *
- *  @param perfMetric The firebase_perf_v1_PerfMetric to be populated.
+ *  @param perfMetric The reference to a firebase_perf_v1_PerfMetric object to be populated.
  *  @param appInfo The firebase_perf_v1_ApplicationInfo object that will be added to
  * firebase_perf_v1_PerfMetric.
- *  @return A firebase_perf_v1_PerfMetric object.
  */
-extern firebase_perf_v1_PerfMetric FPRSetApplicationInfo(firebase_perf_v1_PerfMetric perfMetric,
-                                                         firebase_perf_v1_ApplicationInfo appInfo);
+extern void FPRSetApplicationInfo(firebase_perf_v1_PerfMetric* _Nonnull perfMetric,
+                                  firebase_perf_v1_ApplicationInfo appInfo);
 
 /** Populate a firebase_perf_v1_PerfMetric object with the given firebase_perf_v1_TraceMetric.
  *
- *  @param perfMetric The firebase_perf_v1_PerfMetric to be populated.
+ *  @param perfMetric The reference to firebase_perf_v1_PerfMetric to be populated.
  *  @param traceMetric The firebase_perf_v1_TraceMetric object that will be added to
  * firebase_perf_v1_PerfMetric.
- *  @return A firebase_perf_v1_PerfMetric object.
  */
-extern firebase_perf_v1_PerfMetric FPRSetTraceMetric(firebase_perf_v1_PerfMetric perfMetric,
-                                                     firebase_perf_v1_TraceMetric traceMetric);
+extern void FPRSetTraceMetric(firebase_perf_v1_PerfMetric* _Nonnull perfMetric,
+                              firebase_perf_v1_TraceMetric traceMetric);
 
 /** Populate a firebase_perf_v1_PerfMetric object with the given
  * firebase_perf_v1_NetworkRequestMetric.
  *
- *  @param perfMetric The firebase_perf_v1_PerfMetric to be populated.
+ *  @param perfMetric The reference to a firebase_perf_v1_PerfMetric object to be populated.
  *  @param networkMetric The firebase_perf_v1_NetworkRequestMetric object that will be added to
  * firebase_perf_v1_PerfMetric.
- *  @return A firebase_perf_v1_PerfMetric object.
  */
-extern firebase_perf_v1_PerfMetric FPRSetNetworkRequestMetric(
-    firebase_perf_v1_PerfMetric perfMetric, firebase_perf_v1_NetworkRequestMetric networkMetric);
+extern void FPRSetNetworkRequestMetric(firebase_perf_v1_PerfMetric* _Nonnull perfMetric,
+                                       firebase_perf_v1_NetworkRequestMetric networkMetric);
 
 /** Populate a firebase_perf_v1_PerfMetric object with the given firebase_perf_v1_GaugeMetric.
  *
- *  @param perfMetric The firebase_perf_v1_PerfMetric to be populated.
+ *  @param perfMetric The reference to a firebase_perf_v1_PerfMetric object to be populated.
  *  @param gaugeMetric The firebase_perf_v1_GaugeMetric object that will be added to
  * firebase_perf_v1_PerfMetric.
- *  @return A firebase_perf_v1_PerfMetric object.
  */
-extern firebase_perf_v1_PerfMetric FPRSetGaugeMetric(firebase_perf_v1_PerfMetric perfMetric,
-                                                     firebase_perf_v1_GaugeMetric gaugeMetric);
+extern void FPRSetGaugeMetric(firebase_perf_v1_PerfMetric* _Nonnull perfMetric,
+                              firebase_perf_v1_GaugeMetric gaugeMetric);
 
 /** Populate a firebase_perf_v1_PerfMetric object with the given
  * firebase_perf_v1_ApplicationProcessState.
  *
- *  @param perfMetric The firebase_perf_v1_PerfMetric to be populated.
+ *  @param perfMetric The reference to a firebase_perf_v1_PerfMetric object to be populated.
  *  @param state The firebase_perf_v1_ApplicationProcessState object that will be added to
  * firebase_perf_v1_PerfMetric.
- *  @return A firebase_perf_v1_PerfMetric object.
  */
-extern firebase_perf_v1_PerfMetric FPRSetApplicationProcessState(
-    firebase_perf_v1_PerfMetric perfMetric, firebase_perf_v1_ApplicationProcessState state);
+extern void FPRSetApplicationProcessState(firebase_perf_v1_PerfMetric* _Nonnull perfMetric,
+                                          firebase_perf_v1_ApplicationProcessState state);
 
 #ifdef TARGET_HAS_MOBILE_CONNECTIVITY
 /** Obtain a CTTelephonyNetworkInfo object to determine device network attributes.

@@ -98,8 +98,7 @@
   [networkTrace didCompleteRequestWithResponse:response error:nil];
   // Make sure there are no sessions as they will not be sampled.
   networkTrace.activeSessions = [NSMutableArray array];
-  networkTraceMetric =
-      FPRSetNetworkRequestMetric(networkTraceMetric, FPRGetNetworkRequestMetric(networkTrace));
+  FPRSetNetworkRequestMetric(&networkTraceMetric, FPRGetNetworkRequestMetric(networkTrace));
 
   self.transportNetworkEvent = [self.gdtfllTransport eventForTransport];
   self.transportNetworkEvent.qosTier = GDTCOREventQosDefault;
@@ -235,8 +234,7 @@
   FPRSessionDetails *details =
       [[FPRSessionDetails alloc] initWithSessionId:@"random" options:FPRSessionOptionsGauges];
   networkTrace.activeSessions = [[NSMutableArray alloc] initWithObjects:details, nil];
-  networkMetric =
-      FPRSetNetworkRequestMetric(networkMetric, FPRGetNetworkRequestMetric(networkTrace));
+  FPRSetNetworkRequestMetric(&networkMetric, FPRGetNetworkRequestMetric(networkTrace));
 
   GDTCOREvent *networkEvent = [self.gdtfllTransport eventForTransport];
   networkEvent.qosTier = GDTCOREventQosDefault;
@@ -263,8 +261,7 @@
   [networkTrace didCompleteRequestWithResponse:response error:nil];
   // Make sure the session information is empty.
   networkTrace.activeSessions = [NSMutableArray array];
-  networkMetric =
-      FPRSetNetworkRequestMetric(networkMetric, FPRGetNetworkRequestMetric(networkTrace));
+  FPRSetNetworkRequestMetric(&networkMetric, FPRGetNetworkRequestMetric(networkTrace));
 
   GDTCOREvent *networkEvent = [self.gdtfllTransport eventForTransport];
   networkEvent.qosTier = GDTCOREventQosDefault;
