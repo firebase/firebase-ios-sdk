@@ -113,16 +113,12 @@ let package = Package(
       targets: ["FirebaseMessaging"]
     ),
     .library(
-      name: "FirebasePerformance",
-      targets: ["FirebasePerformance"]
-    ),
-    .library(
       name: "FirebaseMLModelDownloader",
       targets: ["FirebaseMLModelDownloader"]
     ),
     .library(
       name: "FirebasePerformance",
-      targets: ["FirebasePerformance"]
+      targets: ["FirebasePerformanceTarget"]
     ),
     .library(
       name: "FirebaseRemoteConfig",
@@ -830,6 +826,12 @@ let package = Package(
     ),
 
     .target(
+      name: "FirebasePerformanceTarget",
+      dependencies: [.target(name: "FirebasePerformance",
+                             condition: .when(platforms: [.iOS, .tvOS]))],
+      path: "SwiftPM-PlatformExclude/FirebasePerformanceWrap"
+    ),
+    .target(
       name: "FirebasePerformance",
       dependencies: [
         "FirebaseCore",
@@ -860,7 +862,7 @@ let package = Package(
     .testTarget(
       name: "PerformanceUnit",
       dependencies: [
-        "FirebasePerformance",
+        "FirebasePerformanceTarget",
         "OCMock",
         "SharedTestUtilities",
         "GCDWebServer",
