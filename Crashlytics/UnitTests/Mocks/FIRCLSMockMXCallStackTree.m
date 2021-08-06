@@ -14,6 +14,8 @@
 
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockMXCallStackTree.h"
 
+#if CLS_METRICKIT_SUPPORTED
+
 @interface FIRCLSMockMXCallStackTree ()
 @property(readwrite, strong, nonnull) NSData *jsonData;
 @end
@@ -31,3 +33,5 @@
 }
 
 @end
+
+#endif

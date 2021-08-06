@@ -14,6 +14,8 @@
 
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockMXHangDiagnostic.h"
 
+#if CLS_METRICKIT_SUPPORTED
+
 @interface FIRCLSMockMXHangDiagnostic ()
 @property(readwrite, strong, nonnull) FIRCLSMockMXCallStackTree *callStackTree;
 @property(readwrite, strong, nonnull) NSMeasurement<NSUnitDuration *> *hangDuration;
@@ -41,3 +43,5 @@
 }
 
 @end
+
+#endif

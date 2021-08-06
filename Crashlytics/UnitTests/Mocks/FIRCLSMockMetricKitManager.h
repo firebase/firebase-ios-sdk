@@ -14,6 +14,8 @@
 
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSMetricKitManager.h"
 
+#if CLS_METRICKIT_SUPPORTED
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRCLSMockMetricKitManager : FIRCLSMetricKitManager
@@ -21,3 +23,5 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif

@@ -14,6 +14,8 @@
 
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockMXMetadata.h"
 
+#if CLS_METRICKIT_SUPPORTED
+
 @interface FIRCLSMockMXMetadata ()
 @property(readwrite, strong, nonnull) NSString *regionFormat;
 @property(readwrite, strong, nonnull) NSString *osVersion;
@@ -45,3 +47,5 @@
 }
 
 @end
+
+#endif

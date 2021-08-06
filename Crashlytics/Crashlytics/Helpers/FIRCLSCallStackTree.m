@@ -16,6 +16,8 @@
 
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSCallStackTree.h"
 
+#if CLS_METRICKIT_SUPPORTED
+
 @interface FIRCLSFrame : NSObject
 @property long address;
 @property long sampleCount;
@@ -114,3 +116,5 @@
 }
 
 @end
+
+#endif

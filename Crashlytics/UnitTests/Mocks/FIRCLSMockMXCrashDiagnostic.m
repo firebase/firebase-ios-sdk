@@ -14,6 +14,8 @@
 
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockMXCrashDiagnostic.h"
 
+#if CLS_METRICKIT_SUPPORTED
+
 @interface FIRCLSMockMXCrashDiagnostic ()
 @property(readwrite, strong, nonnull) FIRCLSMockMXCallStackTree *callStackTree;
 @property(readwrite, strong, nonnull) NSString *terminationReason;
@@ -57,3 +59,5 @@
 }
 
 @end
+
+#endif

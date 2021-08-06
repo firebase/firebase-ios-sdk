@@ -14,6 +14,8 @@
 
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockMXDiagnosticPayload.h"
 
+#if CLS_METRICKIT_SUPPORTED
+
 @interface FIRCLSMockMXDiagnosticPayload ()
 @property(readwrite, strong, nullable) NSArray<MXCPUExceptionDiagnostic *> *cpuExceptionDiagnostics;
 @property(readwrite, strong, nullable)
@@ -48,3 +50,5 @@
 }
 
 @end
+
+#endif

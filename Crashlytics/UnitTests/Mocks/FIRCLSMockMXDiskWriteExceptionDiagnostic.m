@@ -14,6 +14,8 @@
 
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockMXDiskWriteExceptionDiagnostic.h"
 
+#if CLS_METRICKIT_SUPPORTED
+
 @interface FIRCLSMockMXDiskWriteExceptionDiagnostic ()
 @property(readwrite, strong, nonnull) FIRCLSMockMXCallStackTree *callStackTree;
 @property(readwrite, strong, nonnull) NSMeasurement<NSUnitInformationStorage *> *totalWritesCaused;
@@ -41,3 +43,5 @@
 }
 
 @end
+
+#endif

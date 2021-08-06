@@ -14,6 +14,8 @@
 
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockMXCPUExceptionDiagnostic.h"
 
+#if CLS_METRICKIT_SUPPORTED
+
 @interface FIRCLSMockMXCPUExceptionDiagnostic ()
 @property(readwrite, strong, nonnull) FIRCLSMockMXCallStackTree *callStackTree;
 @property(readwrite, strong, nonnull) NSMeasurement<NSUnitDuration *> *totalCPUTime;
@@ -45,3 +47,5 @@
 }
 
 @end
+
+#endif
