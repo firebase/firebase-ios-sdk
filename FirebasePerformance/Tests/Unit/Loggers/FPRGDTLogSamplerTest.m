@@ -22,7 +22,7 @@
 #import "FirebasePerformance/Sources/Instrumentation/FPRNetworkTrace+Private.h"
 #import "FirebasePerformance/Sources/Instrumentation/FPRNetworkTrace.h"
 #import "FirebasePerformance/Sources/Loggers/FPRGDTEvent.h"
-#import "FirebasePerformance/Sources/Public/FIRTrace.h"
+#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRTrace.h"
 #import "FirebasePerformance/Sources/Timer/FIRTrace+Internal.h"
 #import "FirebasePerformance/Sources/Timer/FIRTrace+Private.h"
 #import "FirebasePerformance/Tests/Unit/FPRTestCase.h"

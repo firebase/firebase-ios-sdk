@@ -21,7 +21,7 @@
 #import "FirebasePerformance/Sources/Configurations/FPRRemoteConfigFlags.h"
 #import "FirebasePerformance/Sources/Instrumentation/FPRNetworkTrace+Private.h"
 #import "FirebasePerformance/Sources/Instrumentation/FPRNetworkTrace.h"
-#import "FirebasePerformance/Sources/Public/FIRPerformance.h"
+#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRPerformance.h"
 
 #import "FirebasePerformance/Tests/Unit/Configurations/FPRFakeRemoteConfig.h"
 #import "FirebasePerformance/Tests/Unit/FPRTestCase.h"

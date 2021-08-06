@@ -20,7 +20,7 @@
 
 #import "FirebasePerformance/Sources/AppActivity/FPRTraceBackgroundActivityTracker.h"
 #import "FirebasePerformance/Sources/Instrumentation/FPRNetworkTrace.h"
-#import "FirebasePerformance/Sources/Public/FIRTrace.h"
+#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRTrace.h"
 
 #import "FirebasePerformance/Sources/Protogen/nanopb/perf_metric.nanopb.h"
 

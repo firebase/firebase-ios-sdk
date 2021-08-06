@@ -26,7 +26,7 @@
 #import "FirebasePerformance/Sources/Instrumentation/FPRNetworkTrace.h"
 #import "FirebasePerformance/Sources/Instrumentation/Network/FPRNSURLSessionInstrument.h"
 #import "FirebasePerformance/Sources/Instrumentation/Network/FPRNSURLSessionInstrument_Private.h"
-#import "FirebasePerformance/Sources/Public/FIRPerformance.h"
+#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRPerformance.h"
 
 #import "FirebasePerformance/Tests/Unit/FPRTestCase.h"
 #import "FirebasePerformance/Tests/Unit/FPRTestUtils.h"

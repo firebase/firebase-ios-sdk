@@ -21,8 +21,8 @@
 #import "FirebasePerformance/Sources/Configurations/FPRRemoteConfigFlags+Private.h"
 #import "FirebasePerformance/Sources/Configurations/FPRRemoteConfigFlags.h"
 #import "FirebasePerformance/Sources/FPRClient.h"
-#import "FirebasePerformance/Sources/Public/FIRPerformance.h"
-#import "FirebasePerformance/Sources/Public/FIRTrace.h"
+#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRPerformance.h"
+#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRTrace.h"
 #import "FirebasePerformance/Sources/Timer/FIRTrace+Internal.h"
 #import "FirebasePerformance/Sources/Timer/FIRTrace+Private.h"
 

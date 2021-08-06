@@ -23,7 +23,7 @@
 #import <OCMock/OCMock.h>
 #import "FirebasePerformance/Sources/AppActivity/FPRScreenTraceTracker+Private.h"
 #import "FirebasePerformance/Sources/AppActivity/FPRScreenTraceTracker.h"
-#import "FirebasePerformance/Sources/Public/FIRPerformance.h"
+#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRPerformance.h"
 
 #import <GoogleUtilities/GULSwizzler.h>
 
