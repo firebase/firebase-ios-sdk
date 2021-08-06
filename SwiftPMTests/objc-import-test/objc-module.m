@@ -29,6 +29,8 @@
 #endif
 @import FirebaseInstallations;
 @import FirebaseMessaging;
-@import FirebasePerformance 
+#if TARGET_OS_IOS || TARGET_OS_TVOS
+@import FirebasePerformance;
+#endif
 @import FirebaseRemoteConfig;
 @import FirebaseStorage;
