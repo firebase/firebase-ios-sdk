@@ -304,7 +304,8 @@
 }
 
 /*
- * Helper method to convert metadata for a MetricKit diagnostic event to a dictionary.
+ * Helper method to convert metadata for a MetricKit diagnostic event to a dictionary. MXMetadata
+ * has a dictionaryRepresentation method but it is deprecated.
  */
 - (NSDictionary *)convertMetadataToDictionary:(MXMetaData *)metadata {
   NSError *error = nil;

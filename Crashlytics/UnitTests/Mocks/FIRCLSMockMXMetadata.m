@@ -46,6 +46,17 @@
   return self;
 }
 
+- (NSData *)JSONRepresentation {
+  NSDictionary *metadata = @{
+    @"appBuildVersion" : self.applicationBuildVersion,
+    @"osVersion" : self.osVersion,
+    @"regionFormat" : self.regionFormat,
+    @"platformArchitecture" : self.platformArchitecture,
+    @"deviceType" : self.deviceType
+  };
+  return [NSJSONSerialization dataWithJSONObject:metadata options:0 error:nil];
+}
+
 @end
 
 #endif

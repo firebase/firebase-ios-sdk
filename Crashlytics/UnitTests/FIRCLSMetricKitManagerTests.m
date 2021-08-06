@@ -261,6 +261,22 @@
                                                  applicationVersion:@"1"];
 }
 
+- (void)checkMetadata:(NSDictionary *)metadata andThreads:(NSDictionary *)threads {
+  XCTAssertNotNil(metadata, "MetricKit event should write metadata to file.");
+  XCTAssertNotNil(threads, "MetricKit event should write threads to file.");
+
+  XCTAssertTrue([[metadata objectForKey:@"appBuildVersion"] isEqualToString:@"1"]);
+  XCTAssertTrue(
+      [[metadata objectForKey:@"osVersion"] isEqualToString:@"iPhone OS 15.0 (19A5281j)"]);
+  XCTAssertTrue([[metadata objectForKey:@"regionFormat"] isEqualToString:@"US"]);
+  XCTAssertTrue([[metadata objectForKey:@"platformArchitecture"] isEqualToString:@"arm64"]);
+  XCTAssertTrue([[metadata objectForKey:@"deviceType"] isEqualToString:@"iPhone9,1"]);
+
+  XCTAssertTrue([threads objectForKey:@"crashed"]);                // YES
+  XCTAssertEqual([[threads objectForKey:@"registers"] count], 0);  //{}
+  XCTAssertEqual([[[threads objectForKey:@"stacktrace"] objectAtIndex:0] intValue], 74565);
+}
+
 #pragma mark - Path Helpers
 - (NSArray *)contentsOfActivePath {
   return [[NSFileManager defaultManager] contentsOfDirectoryAtPath:self.fileManager.activePath
@@ -355,7 +371,6 @@
 }
 
 - (void)testCrashDiagnosticHandling {
-  // TODO: test threads and metadata
   [self createUnsentFatalReport];
   FIRCLSMockMXDiagnosticPayload *crashPayload = [self createCrashDiagnosticPayload];
   [self.metricKitManager didReceiveDiagnosticPayloads:@[ crashPayload ]];
@@ -388,10 +403,14 @@
           @"r-x\\/r-x SM=COW  ...pp\\/Test"]);
   XCTAssertEqual([[crashDictionary objectForKey:@"exception_code"] integerValue], 0);
   XCTAssertEqual([[crashDictionary objectForKey:@"exception_type"] integerValue], 1);
+
+  NSDictionary *metadata = [crashDictionary objectForKey:@"metadata"];
+  NSDictionary *threads = [[crashDictionary objectForKey:@"threads"] objectAtIndex:0];
+
+  [self checkMetadata:metadata andThreads:threads];
 }
 
 - (void)testHangDiagnosticHandling {
-  // TODO: test contents of file
   FIRCLSMockMXDiagnosticPayload *hangPayload = [self createHangDiagnosticPayload];
   [self.metricKitManager didReceiveDiagnosticPayloads:@[ hangPayload ]];
   XCTAssertTrue([self metricKitFileExistsInCurrentReport:YES fatalReport:NO],
@@ -405,15 +424,21 @@
   NSDictionary *timeDictionary = [fileDictionary objectForKey:@"time"];
 
   XCTAssertNotNil(hangDictionary, "MetricKit event should include a hang diagnostic");
+  XCTAssertEqual([[hangDictionary objectForKey:@"hang_duration"] integerValue], 4);
+  XCTAssertTrue([[hangDictionary objectForKey:@"app_version"] isEqualToString:@"1"]);
   XCTAssertNotNil(timeDictionary, "MetricKit event should include time");
   XCTAssertEqual([[timeDictionary objectForKey:@"time"] doubleValue],
                  [self.beginTime timeIntervalSince1970]);
   XCTAssertEqual([[timeDictionary objectForKey:@"end_time"] doubleValue],
                  [self.endTime timeIntervalSince1970]);
+
+  NSDictionary *metadata = [hangDictionary objectForKey:@"metadata"];
+  NSDictionary *threads = [[hangDictionary objectForKey:@"threads"] objectAtIndex:0];
+
+  [self checkMetadata:metadata andThreads:threads];
 }
 
 - (void)testCPUExceptionDiagnosticHandling {
-  // TODO: test contents of file
   FIRCLSMockMXDiagnosticPayload *cpuPayload = [self createCPUExceptionDiagnosticPayload];
   [self.metricKitManager didReceiveDiagnosticPayloads:@[ cpuPayload ]];
   XCTAssertTrue([self metricKitFileExistsInCurrentReport:YES fatalReport:NO],
@@ -427,15 +452,22 @@
   NSDictionary *timeDictionary = [fileDictionary objectForKey:@"time"];
 
   XCTAssertNotNil(cpuDictionary, "MetricKit event should include a CPU exception diagnostic");
+  XCTAssertEqual([[cpuDictionary objectForKey:@"total_cpu_time"] integerValue], 1);
+  XCTAssertEqual([[cpuDictionary objectForKey:@"total_sampled_time"] integerValue], 2);
+  XCTAssertTrue([[cpuDictionary objectForKey:@"app_version"] isEqualToString:@"1"]);
   XCTAssertNotNil(timeDictionary, "MetricKit event should include time");
   XCTAssertEqual([[timeDictionary objectForKey:@"time"] doubleValue],
                  [self.beginTime timeIntervalSince1970]);
   XCTAssertEqual([[timeDictionary objectForKey:@"end_time"] doubleValue],
                  [self.endTime timeIntervalSince1970]);
+
+  NSDictionary *metadata = [cpuDictionary objectForKey:@"metadata"];
+  NSDictionary *threads = [[cpuDictionary objectForKey:@"threads"] objectAtIndex:0];
+
+  [self checkMetadata:metadata andThreads:threads];
 }
 
 - (void)testDiskWriteExceptionDiagnosticHandling {
-  // TODO: test contents of file
   FIRCLSMockMXDiagnosticPayload *diskWritePayload =
       [self createDiskWriteExceptionDiagnosticPayload];
   [self.metricKitManager didReceiveDiagnosticPayloads:@[ diskWritePayload ]];
@@ -451,15 +483,21 @@
 
   XCTAssertNotNil(diskWriteDictionary,
                   "MetricKit event should include a disk write exception diagnostic");
+  XCTAssertEqual([[diskWriteDictionary objectForKey:@"total_writes_caused"] longValue], 24);
+  XCTAssertTrue([[diskWriteDictionary objectForKey:@"app_version"] isEqualToString:@"1"]);
   XCTAssertNotNil(timeDictionary, "MetricKit event should include time");
   XCTAssertEqual([[timeDictionary objectForKey:@"time"] doubleValue],
                  [self.beginTime timeIntervalSince1970]);
   XCTAssertEqual([[timeDictionary objectForKey:@"end_time"] doubleValue],
                  [self.endTime timeIntervalSince1970]);
+
+  NSDictionary *metadata = [diskWriteDictionary objectForKey:@"metadata"];
+  NSDictionary *threads = [[diskWriteDictionary objectForKey:@"threads"] objectAtIndex:0];
+
+  [self checkMetadata:metadata andThreads:threads];
 }
 
 - (void)testFullDiagnosticHandling {
-  // TODO: test file contents
   [self createUnsentFatalReport];
   FIRCLSMockMXDiagnosticPayload *fullPayload = [self createFullDiagnosticPayload];
   [self.metricKitManager didReceiveDiagnosticPayloads:@[ fullPayload ]];
@@ -492,7 +530,6 @@
 }
 
 - (void)testPayloadWithMultipleCrashesHandling {
-  // TODO: test file contents
   [self createUnsentFatalReport];
   FIRCLSMockMXDiagnosticPayload *payloadWithMultipleCrashes =
       [self createDiagnosticPayloadWithMultipleCrashes];
@@ -515,7 +552,6 @@
 }
 
 - (void)testMultiplePayloadsWithCrashesHandling {
-  // TODO: test file contents
   [self createUnsentFatalReport];
   FIRCLSMockMXDiagnosticPayload *crashPayload = [self createCrashDiagnosticPayload];
   FIRCLSMockMXDiagnosticPayload *hangPayload = [self createHangDiagnosticPayload];

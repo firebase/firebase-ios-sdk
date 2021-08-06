@@ -44,6 +44,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(readonly, strong, nonnull) NSString *platformArchitecture;
 
+- (NSData *)JSONRepresentation;
+
 @end
 
 NS_ASSUME_NONNULL_END
