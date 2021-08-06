@@ -38,6 +38,7 @@
 @property(nonatomic, readonly) NSString *settingsCacheKeyPath;
 
 @property(nonatomic, readonly) NSString *rootPath;
+@property(nonatomic, readonly) NSString *cachesPath;
 @property(nonatomic, readonly) NSString *structurePath;
 @property(nonatomic, readonly) NSString *activePath;
 @property(nonatomic, readonly) NSString *processingPath;

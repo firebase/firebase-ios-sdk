@@ -35,17 +35,18 @@ NS_ASSUME_NONNULL_BEGIN
                        timeStampEnd:(NSDate *)timeStampEnd
                  applicationVersion:(NSString *)applicationVersion;
 
-@property NSArray<MXCPUExceptionDiagnostic *> *cpuExceptionDiagnostics;
+@property(readonly, strong, nullable) NSArray<MXCPUExceptionDiagnostic *> *cpuExceptionDiagnostics;
 
-@property NSArray<MXDiskWriteExceptionDiagnostic *> *diskWriteExceptionDiagnostics;
+@property(readonly, strong, nullable)
+    NSArray<MXDiskWriteExceptionDiagnostic *> *diskWriteExceptionDiagnostics;
 
-@property NSArray<MXHangDiagnostic *> *hangDiagnostics;
+@property(readonly, strong, nullable) NSArray<MXHangDiagnostic *> *hangDiagnostics;
 
-@property NSArray<MXCrashDiagnostic *> *crashDiagnostics;
+@property(readonly, strong, nullable) NSArray<MXCrashDiagnostic *> *crashDiagnostics;
 
-@property NSDate *timeStampBegin;
+@property(readonly, strong, nonnull) NSDate *timeStampBegin;
 
-@property NSDate *timeStampEnd;
+@property(readonly, strong, nonnull) NSDate *timeStampEnd;
 
 @end
 

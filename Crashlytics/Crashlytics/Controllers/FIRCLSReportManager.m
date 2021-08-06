@@ -290,6 +290,12 @@ typedef NSNumber FIRCLSWrappedReportAction;
     report = nil;
   }
 
+#if CLS_METRICKIT_SUPPORTED
+  if (@available(iOS 15, *)) {
+    [self.metricKitManager registerMetricKitManager];
+  }
+#endif
+
   FBLPromise<NSNumber *> *promise;
 
   if ([self.dataArbiter isCrashlyticsCollectionEnabled]) {
@@ -408,12 +414,6 @@ typedef NSNumber FIRCLSWrappedReportAction;
   }
 
   [self.notificationManager registerNotificationListener];
-
-#if CLS_METRICKIT_SUPPORTED
-  if (@available(iOS 15, *)) {
-    [self.metricKitManager registerMetricKitManager];
-  }
-#endif
 
   [self.analyticsManager registerAnalyticsListener];
 

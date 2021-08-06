@@ -14,7 +14,27 @@
 
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockMXCrashDiagnostic.h"
 
+@interface FIRCLSMockMXCrashDiagnostic ()
+@property(readwrite, strong, nonnull) FIRCLSMockMXCallStackTree *callStackTree;
+@property(readwrite, strong, nonnull) NSString *terminationReason;
+@property(readwrite, strong, nonnull) NSString *virtualMemoryRegionInfo;
+@property(readwrite, strong, nonnull) NSNumber *exceptionType;
+@property(readwrite, strong, nonnull) NSNumber *exceptionCode;
+@property(readwrite, strong, nonnull) NSNumber *signal;
+@property(readwrite, strong, nonnull) FIRCLSMockMXMetadata *metaData;
+@property(readwrite, strong, nonnull) NSString *applicationVersion;
+@end
+
 @implementation FIRCLSMockMXCrashDiagnostic
+
+@synthesize callStackTree = _callStackTree;
+@synthesize terminationReason = _terminationReason;
+@synthesize virtualMemoryRegionInfo = _virtualMemoryRegionInfo;
+@synthesize exceptionType = _exceptionType;
+@synthesize exceptionCode = _exceptionCode;
+@synthesize signal = _signal;
+@synthesize metaData = _metaData;
+@synthesize applicationVersion = _applicationVersion;
 
 - (instancetype)initWithCallStackTree:(FIRCLSMockMXCallStackTree *)callStackTree
                     terminationReason:(NSString *)terminationReason
@@ -22,16 +42,17 @@
                         exceptionType:(NSNumber *)exceptionType
                         exceptionCode:(NSNumber *)exceptionCode
                                signal:(NSNumber *)signal
-                             metadata:(FIRCLSMockMXMetadata *)metadata
+                             metaData:(FIRCLSMockMXMetadata *)metaData
                    applicationVersion:(NSString *)applicationVersion {
-  self.callStackTree = callStackTree;
-  self.terminationReason = terminationReason;
-  self.virtualMemoryRegionInfo = virtualMemoryRegionInfo;
-  self.exceptionCode = exceptionCode;
-  self.exceptionType = exceptionType;
-  self.signal = signal;
-  self.applicationVersion = applicationVersion;
-  self.metadata = metadata;
+  self = [super init];
+  _callStackTree = callStackTree;
+  _terminationReason = terminationReason;
+  _virtualMemoryRegionInfo = virtualMemoryRegionInfo;
+  _exceptionCode = exceptionCode;
+  _exceptionType = exceptionType;
+  _signal = signal;
+  _applicationVersion = applicationVersion;
+  _metaData = metaData;
   return self;
 }
 

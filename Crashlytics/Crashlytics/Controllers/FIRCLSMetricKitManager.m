@@ -71,8 +71,6 @@
     }
   }
 
-  NSArray *pastpayloads = [[MXMetricManager sharedManager] pastPayloads];
-
   // If we haven't resolved this promise within three seconds, resolve it now so that we're not
   // waiting indefinitely for MetricKit payloads that won't arrive.
   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 3 * NSEC_PER_SEC), self.managerData.dispatchQueue,
@@ -122,6 +120,18 @@
 - (BOOL)processMetricKitPayload:(MXDiagnosticPayload *)diagnosticPayload
                  skipCrashEvent:(BOOL)skipCrashEvent {
   BOOL writeFailed = NO;
+
+  // Write out each type of diagnostic if it exists in the report
+  BOOL hasCrash = [diagnosticPayload.crashDiagnostics count] > 0;
+  BOOL hasHang = [diagnosticPayload.hangDiagnostics count] > 0;
+  BOOL hasCPUException = [diagnosticPayload.cpuExceptionDiagnostics count] > 0;
+  BOOL hasDiskWriteException = [diagnosticPayload.diskWriteExceptionDiagnostics count] > 0;
+
+  // If there are no diagnostics in the report, return before writing out any files.
+  if (!hasCrash && !hasHang && !hasCPUException && !hasDiskWriteException) {
+    return false;
+  }
+
   // TODO: Time stamp information is only available in begin and end time periods. Hopefully this
   // is updated with iOS 15.
   NSTimeInterval beginSecondsSince1970 = [diagnosticPayload.timeStampBegin timeIntervalSince1970];
@@ -172,19 +182,13 @@
 
   // Write out time information to the MetricKit report file. Time needs to be a value for
   // backend serialization, so we write out end_time separately.
+  // TODO: should we write out multiple time dictionaries if there are multiple diagnostics?
+  NSData *newLineData = [@"\n" dataUsingEncoding:NSUTF8StringEncoding];
   NSDictionary *timeDictionary = @{
     @"time" : [NSNumber numberWithDouble:beginSecondsSince1970],
     @"end_time" : [NSNumber numberWithDouble:endSecondsSince1970]
   };
-  writeFailed = ![self writeDictionaryToFile:timeDictionary file:file newLineData:nil];
-
-  NSData *newLineData = [@"\n" dataUsingEncoding:NSUTF8StringEncoding];
-
-  // Write out each type of diagnostic if it exists in the report
-  BOOL hasCrash = [diagnosticPayload.crashDiagnostics count] > 0;
-  BOOL hasHang = [diagnosticPayload.hangDiagnostics count] > 0;
-  BOOL hasCPUException = [diagnosticPayload.cpuExceptionDiagnostics count] > 0;
-  BOOL hasDiskWriteException = [diagnosticPayload.diskWriteExceptionDiagnostics count] > 0;
+  writeFailed = ![self writeDictionaryToFile:timeDictionary file:file newLineData:newLineData];
 
   // For each diagnostic type, write out a section in the MetricKit report file. This section will
   // have subsections for threads, metadata, and event specific metadata.
@@ -333,8 +337,8 @@
   }
 
   [file seekToEndOfFile];
-  [file writeData:newLineData];
   [file writeData:data];
+  [file writeData:newLineData];
 
   return YES;
 }

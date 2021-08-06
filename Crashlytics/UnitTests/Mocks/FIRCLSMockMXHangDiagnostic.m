@@ -14,16 +14,29 @@
 
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockMXHangDiagnostic.h"
 
+@interface FIRCLSMockMXHangDiagnostic ()
+@property(readwrite, strong, nonnull) FIRCLSMockMXCallStackTree *callStackTree;
+@property(readwrite, strong, nonnull) NSMeasurement<NSUnitDuration *> *hangDuration;
+@property(readwrite, strong, nonnull) FIRCLSMockMXMetadata *metaData;
+@property(readwrite, strong, nonnull) NSString *applicationVersion;
+@end
+
 @implementation FIRCLSMockMXHangDiagnostic
+
+@synthesize callStackTree = _callStackTree;
+@synthesize hangDuration = _hangDuration;
+@synthesize applicationVersion = _applicationVersion;
+@synthesize metaData = _metaData;
 
 - (instancetype)initWithCallStackTree:(FIRCLSMockMXCallStackTree *)callStackTree
                          hangDuration:(NSMeasurement<NSUnitDuration *> *)hangDuration
-                             metadata:(FIRCLSMockMXMetadata *)metadata
+                             metaData:(FIRCLSMockMXMetadata *)metaData
                    applicationVersion:(NSString *)applicationVersion {
-  self.callStackTree = callStackTree;
-  self.hangDuration = hangDuration;
-  self.applicationVersion = applicationVersion;
-  self.metadata = metadata;
+  self = [super init];
+  _callStackTree = callStackTree;
+  _hangDuration = hangDuration;
+  _applicationVersion = applicationVersion;
+  _metaData = metaData;
   return self;
 }
 

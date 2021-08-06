@@ -14,16 +14,29 @@
 
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockMXDiskWriteExceptionDiagnostic.h"
 
+@interface FIRCLSMockMXDiskWriteExceptionDiagnostic ()
+@property(readwrite, strong, nonnull) FIRCLSMockMXCallStackTree *callStackTree;
+@property(readwrite, strong, nonnull) NSMeasurement<NSUnitInformationStorage *> *totalWritesCaused;
+@property(readwrite, strong, nonnull) FIRCLSMockMXMetadata *metaData;
+@property(readwrite, strong, nonnull) NSString *applicationVersion;
+@end
+
 @implementation FIRCLSMockMXDiskWriteExceptionDiagnostic
+
+@synthesize callStackTree = _callStackTree;
+@synthesize totalWritesCaused = _totalWritesCaused;
+@synthesize metaData = _metaData;
+@synthesize applicationVersion = _applicationVersion;
 
 - (instancetype)initWithCallStackTree:(FIRCLSMockMXCallStackTree *)callStackTree
                     totalWritesCaused:(NSMeasurement<NSUnitDuration *> *)totalWritesCaused
-                             metadata:(FIRCLSMockMXMetadata *)metadata
+                             metaData:(FIRCLSMockMXMetadata *)metaData
                    applicationVersion:(NSString *)applicationVersion {
-  self.callStackTree = callStackTree;
-  self.totalWritesCaused = totalWritesCaused;
-  self.applicationVersion = applicationVersion;
-  self.metadata = metadata;
+  self = [super init];
+  _callStackTree = callStackTree;
+  _totalWritesCaused = totalWritesCaused;
+  _applicationVersion = applicationVersion;
+  _metaData = metaData;
   return self;
 }
 

@@ -14,18 +14,33 @@
 
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockMXMetadata.h"
 
+@interface FIRCLSMockMXMetadata ()
+@property(readwrite, strong, nonnull) NSString *regionFormat;
+@property(readwrite, strong, nonnull) NSString *osVersion;
+@property(readwrite, strong, nonnull) NSString *deviceType;
+@property(readwrite, strong, nonnull) NSString *applicationBuildVersion;
+@property(readwrite, strong, nonnull) NSString *platformArchitecture;
+@end
+
 @implementation FIRCLSMockMXMetadata
+
+@synthesize regionFormat = _regionFormat;
+@synthesize osVersion = _osVersion;
+@synthesize deviceType = _deviceType;
+@synthesize applicationBuildVersion = _applicationBuildVersion;
+@synthesize platformArchitecture = _platformArchitecture;
 
 - (instancetype)initWithRegionFormat:(NSString *)regionFormat
                            osVersion:(NSString *)osVersion
                           deviceType:(NSString *)deviceType
              applicationBuildVersion:(NSString *)applicationBuildVersion
                 platformArchitecture:(NSString *)platformArchitecture {
-  self.regionFormat = regionFormat;
-  self.osVersion = osVersion;
-  self.deviceType = deviceType;
-  self.applicationBuildVersion = applicationBuildVersion;
-  self.platformArchitecture = platformArchitecture;
+  self = [super init];
+  _regionFormat = regionFormat;
+  _osVersion = osVersion;
+  _deviceType = deviceType;
+  _applicationBuildVersion = applicationBuildVersion;
+  _platformArchitecture = platformArchitecture;
   return self;
 }
 

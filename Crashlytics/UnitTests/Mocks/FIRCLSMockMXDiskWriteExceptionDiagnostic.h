@@ -33,16 +33,16 @@ API_AVAILABLE(ios(14.0))
 
 - (instancetype)initWithCallStackTree:(FIRCLSMockMXCallStackTree *)callStackTree
                     totalWritesCaused:(NSMeasurement<NSUnitDuration *> *)totalWritesCaused
-                             metadata:(FIRCLSMockMXMetadata *)metadata
+                             metaData:(FIRCLSMockMXMetadata *)metaData
                    applicationVersion:(NSString *)applicationVersion;
 
-@property FIRCLSMockMXCallStackTree *callStackTree;
+@property(readonly, strong, nonnull) FIRCLSMockMXCallStackTree *callStackTree;
 
-@property NSMeasurement<NSUnitInformationStorage *> *totalWritesCaused;
+@property(readonly, strong, nonnull) NSMeasurement<NSUnitInformationStorage *> *totalWritesCaused;
 
-@property FIRCLSMockMXMetadata *metadata;
+@property(readonly, strong, nonnull) FIRCLSMockMXMetadata *metaData;
 
-@property NSString *applicationVersion;
+@property(readonly, strong, nonnull) NSString *applicationVersion;
 
 @end
 

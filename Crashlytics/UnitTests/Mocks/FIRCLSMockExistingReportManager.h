@@ -1,4 +1,4 @@
-// Copyright 2021 Google
+// Copyright 2019 Google
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,22 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Crashlytics/UnitTests/Mocks/FIRCLSMockMXCallStackTree.h"
+#import "Crashlytics/Crashlytics/Controllers/FIRCLSExistingReportManager.h"
 
-@interface FIRCLSMockMXCallStackTree ()
-@property(readwrite, strong, nonnull) NSData *jsonData;
-@end
+NS_ASSUME_NONNULL_BEGIN
 
-@implementation FIRCLSMockMXCallStackTree
+@interface FIRCLSMockExistingReportManager : FIRCLSExistingReportManager
 
-- (instancetype)initWithStringData:(NSString *)stringData {
-  self = [super init];
-  _jsonData = [stringData dataUsingEncoding:NSUTF8StringEncoding];
-  return self;
-}
-
-- (NSData *)JSONRepresentation {
-  return self.jsonData;
-}
+- (void)setShouldHaveExistingReport;
 
 @end
+
+NS_ASSUME_NONNULL_END

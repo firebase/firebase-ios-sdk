@@ -14,18 +14,33 @@
 
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockMXCPUExceptionDiagnostic.h"
 
+@interface FIRCLSMockMXCPUExceptionDiagnostic ()
+@property(readwrite, strong, nonnull) FIRCLSMockMXCallStackTree *callStackTree;
+@property(readwrite, strong, nonnull) NSMeasurement<NSUnitDuration *> *totalCPUTime;
+@property(readwrite, strong, nonnull) NSMeasurement<NSUnitDuration *> *totalSampledTime;
+@property(readwrite, strong, nonnull) FIRCLSMockMXMetadata *metaData;
+@property(readwrite, strong, nonnull) NSString *applicationVersion;
+@end
+
 @implementation FIRCLSMockMXCPUExceptionDiagnostic
+
+@synthesize callStackTree = _callStackTree;
+@synthesize totalCPUTime = _totalCPUTime;
+@synthesize totalSampledTime = _totalSampledTime;
+@synthesize metaData = _metaData;
+@synthesize applicationVersion = _applicationVersion;
 
 - (instancetype)initWithCallStackTree:(FIRCLSMockMXCallStackTree *)callStackTree
                          totalCPUTime:(NSMeasurement<NSUnitDuration *> *)totalCPUTime
                      totalSampledTime:(NSMeasurement<NSUnitDuration *> *)totalSampledTime
-                             metadata:(FIRCLSMockMXMetadata *)metadata
+                             metaData:(FIRCLSMockMXMetadata *)metaData
                    applicationVersion:(NSString *)applicationVersion {
-  self.totalSampledTime = totalSampledTime;
-  self.totalCPUTime = totalCPUTime;
-  self.callStackTree = callStackTree;
-  self.applicationVersion = applicationVersion;
-  self.metadata = metadata;
+  self = [super init];
+  _totalSampledTime = totalSampledTime;
+  _totalCPUTime = totalCPUTime;
+  _callStackTree = callStackTree;
+  _applicationVersion = applicationVersion;
+  _metaData = metaData;
   return self;
 }
 

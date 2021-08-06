@@ -14,18 +14,36 @@
 
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockMXDiagnosticPayload.h"
 
+@interface FIRCLSMockMXDiagnosticPayload ()
+@property(readwrite, strong, nullable) NSArray<MXCPUExceptionDiagnostic *> *cpuExceptionDiagnostics;
+@property(readwrite, strong, nullable)
+    NSArray<MXDiskWriteExceptionDiagnostic *> *diskWriteExceptionDiagnostics;
+@property(readwrite, strong, nullable) NSArray<MXHangDiagnostic *> *hangDiagnostics;
+@property(readwrite, strong, nullable) NSArray<MXCrashDiagnostic *> *crashDiagnostics;
+@property(readwrite, strong, nonnull) NSDate *timeStampBegin;
+@property(readwrite, strong, nonnull) NSDate *timeStampEnd;
+@end
+
 @implementation FIRCLSMockMXDiagnosticPayload
+
+@synthesize cpuExceptionDiagnostics = _cpuExceptionDiagnostics;
+@synthesize diskWriteExceptionDiagnostics = _diskWriteExceptionDiagnostics;
+@synthesize hangDiagnostics = _hangDiagnostics;
+@synthesize crashDiagnostics = _crashDiagnostics;
+@synthesize timeStampEnd = _timeStampEnd;
+@synthesize timeStampBegin = _timeStampBegin;
 
 - (instancetype)initWithDiagnostics:(NSDictionary *)diagnostics
                      timeStampBegin:(NSDate *)timeStampBegin
                        timeStampEnd:(NSDate *)timeStampEnd
                  applicationVersion:(NSString *)applicationVersion {
-  self.timeStampBegin = timeStampBegin;
-  self.timeStampEnd = timeStampEnd;
-  self.crashDiagnostics = [diagnostics objectForKey:@"crashes"];
-  self.hangDiagnostics = [diagnostics objectForKey:@"hangs"];
-  self.cpuExceptionDiagnostics = [diagnostics objectForKey:@"cpuExceptionDiagnostics"];
-  self.diskWriteExceptionDiagnostics = [diagnostics objectForKey:@"diskWriteExceptionDiagnostics"];
+  self = [super init];
+  _timeStampBegin = timeStampBegin;
+  _timeStampEnd = timeStampEnd;
+  _crashDiagnostics = [diagnostics objectForKey:@"crashes"];
+  _hangDiagnostics = [diagnostics objectForKey:@"hangs"];
+  _cpuExceptionDiagnostics = [diagnostics objectForKey:@"cpuExceptionDiagnostics"];
+  _diskWriteExceptionDiagnostics = [diagnostics objectForKey:@"diskWriteExceptionDiagnostics"];
   return self;
 }
 

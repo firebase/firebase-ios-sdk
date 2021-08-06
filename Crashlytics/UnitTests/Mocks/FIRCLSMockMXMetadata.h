@@ -34,15 +34,17 @@ NS_ASSUME_NONNULL_BEGIN
              applicationBuildVersion:(NSString *)applicationBuildVersion
                 platformArchitecture:(NSString *)platformArchitecture;
 
-@property NSString *regionFormat;
+@property(readonly, strong, nonnull) NSString *regionFormat;
 
-@property NSString *osVersion;
+@property(readonly, strong, nonnull) NSString *osVersion;
 
-@property NSString *deviceType;
+@property(readonly, strong, nonnull) NSString *deviceType;
 
-@property NSString *applicationBuildVersion;
+@property(readonly, strong, nonnull) NSString *applicationBuildVersion;
 
-@property NSString *platformArchitecture;
+@property(readonly, strong, nonnull) NSString *platformArchitecture;
+
+- (NSData *)JSONRepresentation;
 
 @end
 

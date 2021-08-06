@@ -36,24 +36,24 @@ NS_ASSUME_NONNULL_BEGIN
                         exceptionType:(NSNumber *)exceptionType
                         exceptionCode:(NSNumber *)exceptionCode
                                signal:(NSNumber *)signal
-                             metadata:(FIRCLSMockMXMetadata *)metadata
+                             metaData:(FIRCLSMockMXMetadata *)metaData
                    applicationVersion:(NSString *)applicationVersion;
 
-@property FIRCLSMockMXCallStackTree *callStackTree;
+@property(readonly, strong, nonnull) FIRCLSMockMXCallStackTree *callStackTree;
 
-@property NSString *terminationReason;
+@property(readonly, strong, nonnull) NSString *terminationReason;
 
-@property NSString *virtualMemoryRegionInfo;
+@property(readonly, strong, nonnull) NSString *virtualMemoryRegionInfo;
 
-@property NSNumber *exceptionType;
+@property(readonly, strong, nonnull) NSNumber *exceptionType;
 
-@property NSNumber *exceptionCode;
+@property(readonly, strong, nonnull) NSNumber *exceptionCode;
 
-@property NSNumber *signal;
+@property(readonly, strong, nonnull) NSNumber *signal;
 
-@property FIRCLSMockMXMetadata *metadata;
+@property(readonly, strong, nonnull) FIRCLSMockMXMetadata *metaData;
 
-@property NSString *applicationVersion;
+@property(readonly, strong, nonnull) NSString *applicationVersion;
 
 @end
 

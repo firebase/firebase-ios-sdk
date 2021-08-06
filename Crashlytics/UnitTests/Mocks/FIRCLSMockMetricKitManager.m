@@ -13,12 +13,55 @@
 // limitations under the License.
 
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockMetricKitManager.h"
+#import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
+#import "Crashlytics/UnitTests/Mocks/FIRCLSMockExistingReportManager.h"
+
+#if CLS_METRICKIT_SUPPORTED
+
+@interface FIRCLSMockMetricKitManager ()
+
+@property FBLPromise *metricKitDataAvailable;
+@property FIRCLSExistingReportManager *existingReportManager;
+@property FIRCLSFileManager *fileManager;
+@property FIRCLSManagerData *managerData;
+@property BOOL metricKitPromiseFulfilled;
+
+@end
 
 @implementation FIRCLSMockMetricKitManager
 
+- (instancetype)initWithManagerData:(FIRCLSManagerData *)managerData
+              existingReportManager:(FIRCLSExistingReportManager *)existingReportManager
+                        fileManager:(FIRCLSFileManager *)fileManager {
+  self = [super initWithManagerData:managerData
+              existingReportManager:existingReportManager
+                        fileManager:fileManager];
+  _existingReportManager = existingReportManager;
+  _fileManager = fileManager;
+  _managerData = managerData;
+  _metricKitPromiseFulfilled = NO;
+  return self;
+}
+
+// This mock skips the normal flow of resolving the metricKitDataAvailable promise if there are no
+// fatal reports available on the device but otherwise registers as normal.
 - (void)registerMetricKitManager {
-  // This registers with MXMetricManager to receive MetricKit reports, this is
-  // unneccesary during testing.
+  [[MXMetricManager sharedManager] addSubscriber:self];
+  self.metricKitDataAvailable = [FBLPromise pendingPromise];
+
+  // If we haven't resolved this promise within three seconds, resolve it now so that we're not
+  // waiting indefinitely for MetricKit payloads that won't arrive.
+  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 3 * NSEC_PER_SEC), self.managerData.dispatchQueue,
+                 ^{
+                   @synchronized(self) {
+                     if (!self.metricKitPromiseFulfilled) {
+                       [self.metricKitDataAvailable fulfill:nil];
+                       self.metricKitPromiseFulfilled = YES;
+                     }
+                   }
+                 });
 }
 
 @end
+#endif

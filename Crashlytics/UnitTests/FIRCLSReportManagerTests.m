@@ -24,13 +24,14 @@
 #endif
 
 #include "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSCrashedMarkerFile.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSAnalyticsManager.h"
-#import "Crashlytics/Crashlytics/Controllers/FIRCLSExistingReportManager.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
 #import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionArbiter.h"
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
+#import "Crashlytics/UnitTests/Mocks/FIRCLSMockExistingReportManager.h"
 
 #import "Crashlytics/Crashlytics/Settings/Models/FIRCLSApplicationIdentifierModel.h"
 #import "Crashlytics/UnitTests/Mocks/FABMockApplicationIdentifierModel.h"
@@ -53,6 +54,7 @@
 @interface FIRCLSReportManagerTests : XCTestCase
 
 @property(nonatomic, strong) FIRCLSMockReportManager *reportManager;
+@property(nonatomic, strong) FIRCLSMockExistingReportManager *existingReportManager;
 @property(nonatomic, strong) FIRCLSMockSettings *mockSettings;
 @property(nonatomic, strong) FIRCLSMockReportUploader *mockReportUploader;
 @property(nonatomic, strong) FIRCLSTempMockFileManager *fileManager;
@@ -98,14 +100,15 @@
 
   self.mockReportUploader = [[FIRCLSMockReportUploader alloc] initWithManagerData:managerData];
 
-  FIRCLSExistingReportManager *existingReportManager =
-      [[FIRCLSExistingReportManager alloc] initWithManagerData:managerData
-                                                reportUploader:self.mockReportUploader];
+  self.existingReportManager =
+      [[FIRCLSMockExistingReportManager alloc] initWithManagerData:managerData
+                                                    reportUploader:self.mockReportUploader];
   FIRCLSAnalyticsManager *analyticsManager = [[FIRCLSAnalyticsManager alloc] initWithAnalytics:nil];
 
-  self.reportManager = [[FIRCLSMockReportManager alloc] initWithManagerData:managerData
-                                                      existingReportManager:existingReportManager
-                                                           analyticsManager:analyticsManager];
+  self.reportManager =
+      [[FIRCLSMockReportManager alloc] initWithManagerData:managerData
+                                     existingReportManager:self.existingReportManager
+                                          analyticsManager:analyticsManager];
 }
 
 - (void)tearDown {
@@ -156,7 +159,6 @@
                   forReport:report]) {
     return nil;
   }
-
   return report;
 }
 
@@ -197,6 +199,10 @@
 }
 
 - (void)waitForPromise:(FBLPromise<NSNumber *> *)promise {
+  [self waitForPromise:promise withTimeout:1.0];
+}
+
+- (void)waitForPromise:(FBLPromise<NSNumber *> *)promise withTimeout:(double)timeout {
   __block NSNumber *value = nil;
   __block NSError *error = nil;
 
@@ -211,7 +217,7 @@
     [expectation fulfill];
   }];
 
-  [self waitForExpectations:@[ expectation ] timeout:1.0];
+  [self waitForExpectations:@[ expectation ] timeout:timeout];
   XCTAssertNil(error);
   XCTAssertTrue([value boolValue]);
 }
@@ -267,6 +273,27 @@
 
   XCTAssertEqual([self.prepareAndSubmitReportArray count], 0);
   XCTAssertEqual([self.uploadReportArray count], 0);
+}
+
+- (void)testMetricKitResolvesPromiseIfNoDiagnostics {
+  // Create a report representing the last run and put it in place, then create a crashed file
+  // marker and MetricKit diagnostic file so that MetricKit manager doesn't resolve the promise
+  // immediately.
+  [self createActiveReport];
+  [self.existingReportManager setShouldHaveExistingReport];
+  NSString *metricKitPath =
+      [self.fileManager.cachesPath stringByAppendingString:@"/MetricKit/Diagnostics/"];
+  [self.fileManager createFileAtPath:[[self.fileManager rootPath]
+                                         stringByAppendingPathComponent:@"previously-crashed"]
+                            contents:nil
+                          attributes:nil];
+  [self.fileManager createDirectoryAtPath:metricKitPath];
+  [self.fileManager createFileAtPath:[metricKitPath stringByAppendingString:@"Diagnostics.txt"]
+                            contents:nil
+                          attributes:nil];
+
+  // MetricKit manager should resolve its promise after 3 seconds.
+  [self waitForPromise:[self startReportManagerWithDataCollectionEnabled:YES] withTimeout:4];
 }
 
 - (void)testExistingUnimportantReportOnStartWithDataCollectionDisabled {

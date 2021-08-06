@@ -30,9 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithStringData:(NSString *)stringData;
 
-@property NSData *jsonData;
-
-- (NSData *)JSONRepresentation;
+@property(readonly, strong, nonnull) NSData *jsonData;
 
 @end
 

@@ -33,18 +33,18 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithCallStackTree:(FIRCLSMockMXCallStackTree *)callStackTree
                          totalCPUTime:(NSMeasurement<NSUnitDuration *> *)totalCPUTime
                      totalSampledTime:(NSMeasurement<NSUnitDuration *> *)totalSampledTime
-                             metadata:(FIRCLSMockMXMetadata *)metadata
+                             metaData:(FIRCLSMockMXMetadata *)metaData
                    applicationVersion:(NSString *)applicationVersion;
 
-@property FIRCLSMockMXCallStackTree *callStackTree;
+@property(readonly, strong, nonnull) FIRCLSMockMXCallStackTree *callStackTree;
 
-@property NSMeasurement<NSUnitDuration *> *totalCPUTime;
+@property(readonly, strong, nonnull) NSMeasurement<NSUnitDuration *> *totalCPUTime;
 
-@property NSMeasurement<NSUnitDuration *> *totalSampledTime;
+@property(readonly, strong, nonnull) NSMeasurement<NSUnitDuration *> *totalSampledTime;
 
-@property FIRCLSMockMXMetadata *metadata;
+@property(readonly, strong, nonnull) FIRCLSMockMXMetadata *metaData;
 
-@property NSString *applicationVersion;
+@property(readonly, strong, nonnull) NSString *applicationVersion;
 
 @end
 

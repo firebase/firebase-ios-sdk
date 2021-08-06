@@ -1,4 +1,4 @@
-// Copyright 2019 Google
+// Copyright 2021 Google
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,10 +25,10 @@
 
 #include "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSAnalyticsManager.h"
-#import "Crashlytics/Crashlytics/Controllers/FIRCLSExistingReportManager.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
 #import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionArbiter.h"
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSExecutionIdentifierModel.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
 
@@ -42,6 +42,7 @@
 #import "Crashlytics/UnitTests/Mocks/FIRMockGDTCoreTransport.h"
 #import "Crashlytics/UnitTests/Mocks/FIRMockInstallations.h"
 
+#import "Crashlytics/UnitTests/Mocks/FIRCLSMockExistingReportManager.h"
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockMXCPUExceptionDiagnostic.h"
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockMXCallStackTree.h"
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockMXCrashDiagnostic.h"
@@ -55,14 +56,17 @@
 @interface FIRCLSMetricKitManagerTests : XCTestCase
 
 @property(nonatomic, strong) FIRCLSMockReportManager *reportManager;
-@property(nonatomic, strong) FIRCLSMockMetricKitManager *metricKitManager;
+@property(nonatomic, strong) FIRCLSMetricKitManager *metricKitManager;
 @property(nonatomic, strong) FIRCLSMockSettings *mockSettings;
+@property(nonatomic, strong) FIRCLSManagerData *managerData;
 @property(nonatomic, strong) FIRCLSMockReportUploader *mockReportUploader;
 @property(nonatomic, strong) FIRCLSTempMockFileManager *fileManager;
-@property(nonatomic, strong) FIRCLSExistingReportManager *existingReportManager;
+@property(nonatomic, strong) FIRCLSMockExistingReportManager *existingReportManager;
 
 @property(nonatomic, strong) FIRCLSDataCollectionArbiter *dataArbiter;
 @property(nonatomic, strong) FIRCLSApplicationIdentifierModel *appIDModel;
+@property(nonatomic, strong) NSDate *beginTime;
+@property(nonatomic, strong) NSDate *endTime;
 
 @end
 
@@ -91,25 +95,28 @@
   FIRCLSMockSettings *mockSettings =
       [[FIRCLSMockSettings alloc] initWithFileManager:self.fileManager appIDModel:appIDModel];
 
-  FIRCLSManagerData *managerData =
-      [[FIRCLSManagerData alloc] initWithGoogleAppID:TEST_GOOGLE_APP_ID
-                                     googleTransport:mockGoogleTransport
-                                       installations:iid
-                                           analytics:nil
-                                         fileManager:self.fileManager
-                                         dataArbiter:self.dataArbiter
-                                            settings:mockSettings];
+  _managerData = [[FIRCLSManagerData alloc] initWithGoogleAppID:TEST_GOOGLE_APP_ID
+                                                googleTransport:mockGoogleTransport
+                                                  installations:iid
+                                                      analytics:nil
+                                                    fileManager:self.fileManager
+                                                    dataArbiter:self.dataArbiter
+                                                       settings:mockSettings];
 
-  self.mockReportUploader = [[FIRCLSMockReportUploader alloc] initWithManagerData:managerData];
+  self.mockReportUploader = [[FIRCLSMockReportUploader alloc] initWithManagerData:self.managerData];
 
   self.existingReportManager =
-      [[FIRCLSExistingReportManager alloc] initWithManagerData:managerData
-                                                reportUploader:self.mockReportUploader];
-
+      [[FIRCLSMockExistingReportManager alloc] initWithManagerData:self.managerData
+                                                    reportUploader:self.mockReportUploader];
+  [self.fileManager createReportDirectories];
+  [self.fileManager
+      setupNewPathForExecutionIdentifier:self.managerData.executionIDModel.executionID];
   self.metricKitManager =
-      [[FIRCLSMockMetricKitManager alloc] initWithManagerData:managerData
-                                        existingReportManager:self.existingReportManager
-                                                  fileManager:self.fileManager];
+      [[FIRCLSMetricKitManager alloc] initWithManagerData:self.managerData
+                                    existingReportManager:self.existingReportManager
+                                              fileManager:self.fileManager];
+  self.beginTime = [NSDate date];
+  self.endTime = [NSDate dateWithTimeIntervalSinceNow:1];
 }
 
 - (void)tearDown {
@@ -127,10 +134,12 @@
 #pragma mark - Diagnostic Creation Helpers
 - (FIRCLSMockMXCallStackTree *)createMockCallStackTree {
   NSString *callStackTreeString =
-      @" @{\"callStacks\":[{\"threadAttributed\":true,\"callStackRootFrames\":[{"
-      @"\"offsetIntoBinaryTextSegment\":123,\"address\":74565,\"sampleCount\":20,\"binaryName\":"
-      @"\"testBinaryName\",\"binaryUUID\":\"3C73DFD1-900D-4BDB-BBFA-11DFF7FC9B7C\"}]}],"
-      @"\"callStackPerThread\":true}\"";
+      @"{\n  \"callStacks\" : [\n    {\n      \"threadAttributed\" : true,\n      "
+      @"\"callStackRootFrames\" : [\n        {\n          \"binaryUUID\" : "
+      @"\"6387F46B-BE42-4575-8BFA-782CAAE676AA\",\n          \"offsetIntoBinaryTextSegment\" : "
+      @"123,\n          \"sampleCount\" : 20,\n          \"binaryName\" : \"testBinaryName\",\n    "
+      @"      \"address\" : 74565\n        }\n      ]\n    }\n  ],\n  \"callStackPerThread\" : "
+      @"true\n}";
   return [[FIRCLSMockMXCallStackTree alloc] initWithStringData:callStackTreeString];
 }
 
@@ -154,7 +163,7 @@
                 exceptionType:@1
                 exceptionCode:@0
                        signal:@11
-                     metadata:[self createMockMetadata]
+                     metaData:[self createMockMetadata]
            applicationVersion:@"1"];
 }
 
@@ -163,7 +172,7 @@
       initWithCallStackTree:[self createMockCallStackTree]
                hangDuration:[[NSMeasurement alloc] initWithDoubleValue:4.0
                                                                   unit:NSUnitDuration.seconds]
-                   metadata:[self createMockMetadata]
+                   metaData:[self createMockMetadata]
          applicationVersion:@"1"];
 }
 
@@ -174,7 +183,7 @@
                                                                   unit:NSUnitDuration.seconds]
            totalSampledTime:[[NSMeasurement alloc] initWithDoubleValue:2.0
                                                                   unit:NSUnitDuration.seconds]
-                   metadata:[self createMockMetadata]
+                   metaData:[self createMockMetadata]
          applicationVersion:@"1"];
 }
 
@@ -183,48 +192,41 @@
       initWithCallStackTree:[self createMockCallStackTree]
           totalWritesCaused:[[NSMeasurement alloc] initWithDoubleValue:24.0
                                                                   unit:NSUnitDuration.seconds]
-                   metadata:[self createMockMetadata]
+                   metaData:[self createMockMetadata]
          applicationVersion:@"1"];
 }
 
 - (FIRCLSMockMXDiagnosticPayload *)createCrashDiagnosticPayload {
   NSDictionary *diagnostics = @{@"crashes" : @[ [self createCrashDiagnostic] ]};
-  NSDate *startTime = [NSDate init];
-  NSDate *endTime = [NSDate init];
   return [[FIRCLSMockMXDiagnosticPayload alloc] initWithDiagnostics:diagnostics
-                                                     timeStampBegin:startTime
-                                                       timeStampEnd:endTime
+                                                     timeStampBegin:self.beginTime
+                                                       timeStampEnd:self.endTime
                                                  applicationVersion:@"1"];
 }
 
 - (FIRCLSMockMXDiagnosticPayload *)createHangDiagnosticPayload {
   NSDictionary *diagnostics = @{@"hangs" : @[ [self createHangDiagnostic] ]};
-  NSDate *startTime = [NSDate init];
-  NSDate *endTime = [NSDate init];
   return [[FIRCLSMockMXDiagnosticPayload alloc] initWithDiagnostics:diagnostics
-                                                     timeStampBegin:startTime
-                                                       timeStampEnd:endTime
+                                                     timeStampBegin:self.beginTime
+                                                       timeStampEnd:self.endTime
                                                  applicationVersion:@"1"];
 }
 
 - (FIRCLSMockMXDiagnosticPayload *)createCPUExceptionDiagnosticPayload {
-  NSDictionary *diagnostics = @{@"cpuExceptions" : @[ [self createCPUExceptionDiagnostic] ]};
-  NSDate *startTime = [NSDate init];
-  NSDate *endTime = [NSDate init];
+  NSDictionary *diagnostics =
+      @{@"cpuExceptionDiagnostics" : @[ [self createCPUExceptionDiagnostic] ]};
   return [[FIRCLSMockMXDiagnosticPayload alloc] initWithDiagnostics:diagnostics
-                                                     timeStampBegin:startTime
-                                                       timeStampEnd:endTime
+                                                     timeStampBegin:self.beginTime
+                                                       timeStampEnd:self.endTime
                                                  applicationVersion:@"1"];
 }
 
 - (FIRCLSMockMXDiagnosticPayload *)createDiskWriteExceptionDiagnosticPayload {
   NSDictionary *diagnostics =
-      @{@"diskWriteExceptions" : @[ [self createDiskWriteExcptionDiagnostic] ]};
-  NSDate *startTime = [NSDate init];
-  NSDate *endTime = [NSDate init];
+      @{@"diskWriteExceptionDiagnostics" : @[ [self createDiskWriteExcptionDiagnostic] ]};
   return [[FIRCLSMockMXDiagnosticPayload alloc] initWithDiagnostics:diagnostics
-                                                     timeStampBegin:startTime
-                                                       timeStampEnd:endTime
+                                                     timeStampBegin:self.beginTime
+                                                       timeStampEnd:self.endTime
                                                  applicationVersion:@"1"];
 }
 
@@ -232,24 +234,20 @@
   NSDictionary *diagnostics = @{
     @"crashes" : @[ [self createCrashDiagnostic] ],
     @"hangs" : @[ [self createHangDiagnostic] ],
-    @"cpuExceptions" : @[ [self createCPUExceptionDiagnostic] ],
-    @"diskWriteExceptions" : @[ [self createDiskWriteExcptionDiagnostic] ]
+    @"cpuExceptionDiagnostics" : @[ [self createCPUExceptionDiagnostic] ],
+    @"diskWriteExceptionDiagnostics" : @[ [self createDiskWriteExcptionDiagnostic] ]
   };
-  NSDate *startTime = [NSDate init];
-  NSDate *endTime = [NSDate init];
   return [[FIRCLSMockMXDiagnosticPayload alloc] initWithDiagnostics:diagnostics
-                                                     timeStampBegin:startTime
-                                                       timeStampEnd:endTime
+                                                     timeStampBegin:self.beginTime
+                                                       timeStampEnd:self.endTime
                                                  applicationVersion:@"1"];
 }
 
 - (FIRCLSMockMXDiagnosticPayload *)createEmptyDiagnosticPayload {
-  NSDictionary *diagnostics = [[NSDictionary alloc] init];
-  NSDate *startTime = [NSDate init];
-  NSDate *endTime = [NSDate init];
+  NSDictionary *diagnostics = @{@"should" : @"be empty"};
   return [[FIRCLSMockMXDiagnosticPayload alloc] initWithDiagnostics:diagnostics
-                                                     timeStampBegin:startTime
-                                                       timeStampEnd:endTime
+                                                     timeStampBegin:self.beginTime
+                                                       timeStampEnd:self.endTime
                                                  applicationVersion:@"1"];
 }
 
@@ -259,11 +257,9 @@
       [self createCrashDiagnostic], [self createCrashDiagnostic], [self createCrashDiagnostic]
     ]
   };
-  NSDate *startTime = [NSDate init];
-  NSDate *endTime = [NSDate init];
   return [[FIRCLSMockMXDiagnosticPayload alloc] initWithDiagnostics:diagnostics
-                                                     timeStampBegin:startTime
-                                                       timeStampEnd:endTime
+                                                     timeStampBegin:self.beginTime
+                                                       timeStampEnd:self.endTime
                                                  applicationVersion:@"1"];
 }
 
@@ -273,29 +269,82 @@
                                                              error:nil];
 }
 
-- (BOOL)metricKitFileExists {
+- (BOOL)metricKitFileExistsInCurrentReport:(BOOL)currentReport fatalReport:(BOOL)fatalReport {
+  NSString *newestUnsentReportID =
+      [self.existingReportManager.newestUnsentReport.reportID stringByAppendingString:@"/"];
+  NSString *currentReportID =
+      [_managerData.executionIDModel.executionID stringByAppendingString:@"/"];
+  NSString *reportID = (currentReport ? currentReportID : newestUnsentReportID);
+  NSString *metricKitName =
+      fatalReport ? @"metric_kit_fatal.clsrecord" : @"metric_kit_nonfatal.clsrecord";
+  NSString *temp =
+      [[self.fileManager.activePath stringByAppendingString:@"/"] stringByAppendingString:reportID];
+  // Need to determine which report the file should be in
   return [[NSFileManager defaultManager]
-      fileExistsAtPath:[self.fileManager.activePath
-                           stringByAppendingString:@"metric_kit.clsrecord"]];
+      fileExistsAtPath:[temp stringByAppendingString:metricKitName]];
 }
 
-- (NSString *)contentsOfMetricKitFile {
-  if (![self metricKitFileExists]) return nil;
-  NSString *fileContents =
-      [[NSString alloc] initWithContentsOfFile:[self.fileManager.activePath
-                                                   stringByAppendingString:@"metric_kit.clsrecord"]
-                                      encoding:NSUTF8StringEncoding
-                                         error:nil];
+- (NSString *)contentsOfMetricKitFile:(BOOL)currentReport fatalReport:(BOOL)fatalReport {
+  if (![self metricKitFileExistsInCurrentReport:currentReport fatalReport:fatalReport]) return nil;
+  NSString *newestUnsentReportID =
+      [self.existingReportManager.newestUnsentReport.reportID stringByAppendingString:@"/"];
+  NSString *currentReportID =
+      [_managerData.executionIDModel.executionID stringByAppendingString:@"/"];
+  NSString *reportID = (currentReport ? currentReportID : newestUnsentReportID);
+  NSString *metricKitName =
+      fatalReport ? @"metric_kit_fatal.clsrecord" : @"metric_kit_nonfatal.clsrecord";
+  NSString *filePath = [[[self.fileManager.activePath stringByAppendingString:@"/"]
+      stringByAppendingString:reportID] stringByAppendingString:metricKitName];
+  NSString *fileContents = [[NSString alloc] initWithContentsOfFile:filePath
+                                                           encoding:NSUTF8StringEncoding
+                                                              error:nil];
   return fileContents;
 }
 
-- (NSDictionary *)contentsOfMetricKitFileAsDictionary {
-  NSString *metricKitFileContents = [self contentsOfMetricKitFile];
-  NSData *fileData = [metricKitFileContents dataUsingEncoding:NSUTF8StringEncoding];
-  NSDictionary *fileDictionary = [NSJSONSerialization JSONObjectWithData:fileData
-                                                                 options:0
-                                                                   error:nil];
+- (NSDictionary *)contentsOfMetricKitFileAsDictionary:(BOOL)currentReport
+                                          fatalReport:(BOOL)fatalReport {
+  NSString *metricKitFileContents = [self contentsOfMetricKitFile:currentReport
+                                                      fatalReport:fatalReport];
+  NSArray *metricKitFileArray = [metricKitFileContents componentsSeparatedByString:@"\n"];
+  NSMutableDictionary *fileDictionary = [[NSMutableDictionary alloc] init];
+  BOOL hasCrash = NO;
+  for (NSString *json in metricKitFileArray) {
+    NSString *itemKey = nil;
+    if ([json containsString:@"crash_event"])
+      itemKey = @"crash_event";
+    else if ([json containsString:@"hang_event"])
+      itemKey = @"hang_event";
+    else if ([json containsString:@"cpu_exception_event"])
+      itemKey = @"cpu_exception_event";
+    else if ([json containsString:@"disk_write_exception_event"])
+      itemKey = @"disk_write_exception_event";
+    else if ([json containsString:@"end_time"])
+      itemKey = @"time";
+    NSData *itemData = [json dataUsingEncoding:NSUTF8StringEncoding];
+    if (itemData == nil || itemKey == nil) continue;
+    NSError *error = nil;
+    NSDictionary *itemDictionary = [NSJSONSerialization JSONObjectWithData:itemData
+                                                                   options:0
+                                                                     error:&error];
+    [fileDictionary setObject:itemDictionary forKey:itemKey];
+    if ([itemKey isEqualToString:@"crash_event"]) {
+      XCTAssertTrue(hasCrash == NO, "MetricKit reports should only have one crash event");
+      hasCrash = YES;
+    }
+  }
+
   return fileDictionary;
+}
+
+- (void)createUnsentFatalReport {
+  // create a report and put it in place
+  NSString *reportPath =
+      [self.fileManager.activePath stringByAppendingPathComponent:@"my_session_id"];
+  FIRCLSInternalReport *report = [[FIRCLSInternalReport alloc] initWithPath:reportPath
+                                                        executionIdentifier:@"my_session_id"];
+
+  [self.fileManager createDirectoryAtPath:report.path];
+  [self.existingReportManager setShouldHaveExistingReport];
 }
 
 #pragma mark - Diagnostic Handling
@@ -303,75 +352,229 @@
 - (void)testEmptyDiagnosticHandling {
   FIRCLSMockMXDiagnosticPayload *emptyPayload = [self createEmptyDiagnosticPayload];
   [self.metricKitManager didReceiveDiagnosticPayloads:@[ emptyPayload ]];
-  XCTAssertFalse([self metricKitFileExists], "metric kit report should not exist");
+  XCTAssertFalse([self metricKitFileExistsInCurrentReport:YES fatalReport:NO],
+                 "MetricKit report should not exist");
 }
 
 - (void)testCrashDiagnosticHandling {
+  // TODO: create files so that this is in the right report and the right file
+  // TODO: test threads and metadata
+  [self createUnsentFatalReport];
   FIRCLSMockMXDiagnosticPayload *crashPayload = [self createCrashDiagnosticPayload];
   [self.metricKitManager didReceiveDiagnosticPayloads:@[ crashPayload ]];
-  XCTAssertTrue([self metricKitFileExists], "metric kit report should exist");
+  XCTAssertTrue([self metricKitFileExistsInCurrentReport:NO fatalReport:YES],
+                "MetricKit report should exist");
 
-  NSDictionary *fileDictionary = [self contentsOfMetricKitFileAsDictionary];
-  XCTAssertNotNil(fileDictionary, "metric kit file should not be empty");
+  NSDictionary *fileDictionary = [self contentsOfMetricKitFileAsDictionary:NO fatalReport:YES];
+  XCTAssertNotNil(fileDictionary, "MetricKit file should not be empty");
+
+  NSDictionary *crashDictionary =
+      [[fileDictionary objectForKey:@"crash_event"] objectForKey:@"crash_event"];
+  NSDictionary *timeDictionary = [fileDictionary objectForKey:@"time"];
+
+  XCTAssertNotNil(crashDictionary, "MetricKit event should include a crash diagnostic");
+  XCTAssertNotNil(timeDictionary, "MetricKit event should include time");
+  XCTAssertEqual([[timeDictionary objectForKey:@"time"] doubleValue],
+                 [self.beginTime timeIntervalSince1970]);
+  XCTAssertEqual([[timeDictionary objectForKey:@"end_time"] doubleValue],
+                 [self.endTime timeIntervalSince1970]);
+
+  XCTAssertEqual([[crashDictionary objectForKey:@"signal"] integerValue], 11);
+  XCTAssertTrue([[crashDictionary objectForKey:@"app_version"] isEqualToString:@"1"]);
+  XCTAssertTrue([[crashDictionary objectForKey:@"termination_reason"]
+      isEqualToString:@"Namespace SIGNAL, Code 0xb"]);
+  XCTAssertTrue([[crashDictionary objectForKey:@"virtual_memory_region_info"]
+      isEqualToString:
+          @"0 is not in any region.  Bytes before following region: 4000000000 REGION TYPE         "
+          @"             START - END             [ VSIZE] PRT\\/MAX SHRMOD  REGION DETAIL UNUSED "
+          @"SPACE AT START ---> __TEXT                 0000000000000000-0000000000000000 [   32K] "
+          @"r-x\\/r-x SM=COW  ...pp\\/Test"]);
+  XCTAssertEqual([[crashDictionary objectForKey:@"exception_code"] integerValue], 0);
+  XCTAssertEqual([[crashDictionary objectForKey:@"exception_type"] integerValue], 1);
 }
 
 - (void)testHangDiagnosticHandling {
+  // TODO: test contents of file
   FIRCLSMockMXDiagnosticPayload *hangPayload = [self createHangDiagnosticPayload];
   [self.metricKitManager didReceiveDiagnosticPayloads:@[ hangPayload ]];
-  XCTAssertTrue([self metricKitFileExists], "metric kit report should exist");
+  XCTAssertTrue([self metricKitFileExistsInCurrentReport:YES fatalReport:NO],
+                "MetricKit report should exist");
 
-  NSDictionary *fileDictionary = [self contentsOfMetricKitFileAsDictionary];
-  XCTAssertNotNil(fileDictionary, "metric kit file should not be empty");
+  NSDictionary *fileDictionary = [self contentsOfMetricKitFileAsDictionary:YES fatalReport:NO];
+  XCTAssertNotNil(fileDictionary, "MetricKit file should not be empty");
+
+  NSDictionary *hangDictionary =
+      [[fileDictionary objectForKey:@"hang_event"] objectForKey:@"hang_event"];
+  NSDictionary *timeDictionary = [fileDictionary objectForKey:@"time"];
+
+  XCTAssertNotNil(hangDictionary, "MetricKit event should include a hang diagnostic");
+  XCTAssertNotNil(timeDictionary, "MetricKit event should include time");
+  XCTAssertEqual([[timeDictionary objectForKey:@"time"] doubleValue],
+                 [self.beginTime timeIntervalSince1970]);
+  XCTAssertEqual([[timeDictionary objectForKey:@"end_time"] doubleValue],
+                 [self.endTime timeIntervalSince1970]);
 }
 
 - (void)testCPUExceptionDiagnosticHandling {
+  // TODO: test contents of file
   FIRCLSMockMXDiagnosticPayload *cpuPayload = [self createCPUExceptionDiagnosticPayload];
   [self.metricKitManager didReceiveDiagnosticPayloads:@[ cpuPayload ]];
-  XCTAssertTrue([self metricKitFileExists], "metric kit report should exist");
+  XCTAssertTrue([self metricKitFileExistsInCurrentReport:YES fatalReport:NO],
+                "MetricKit report should exist");
 
-  NSDictionary *fileDictionary = [self contentsOfMetricKitFileAsDictionary];
-  XCTAssertNotNil(fileDictionary, "metric kit file should not be empty");
+  NSDictionary *fileDictionary = [self contentsOfMetricKitFileAsDictionary:YES fatalReport:NO];
+  XCTAssertNotNil(fileDictionary, "MetricKit file should not be empty");
+
+  NSDictionary *cpuDictionary =
+      [[fileDictionary objectForKey:@"cpu_exception_event"] objectForKey:@"cpu_exception_event"];
+  NSDictionary *timeDictionary = [fileDictionary objectForKey:@"time"];
+
+  XCTAssertNotNil(cpuDictionary, "MetricKit event should include a CPU exception diagnostic");
+  XCTAssertNotNil(timeDictionary, "MetricKit event should include time");
+  XCTAssertEqual([[timeDictionary objectForKey:@"time"] doubleValue],
+                 [self.beginTime timeIntervalSince1970]);
+  XCTAssertEqual([[timeDictionary objectForKey:@"end_time"] doubleValue],
+                 [self.endTime timeIntervalSince1970]);
 }
 
 - (void)testDiskWriteExceptionDiagnosticHandling {
+  // TODO: test contents of file
+  // TODO: test file contents
   FIRCLSMockMXDiagnosticPayload *diskWritePayload =
       [self createDiskWriteExceptionDiagnosticPayload];
   [self.metricKitManager didReceiveDiagnosticPayloads:@[ diskWritePayload ]];
-  XCTAssertTrue([self metricKitFileExists], "metric kit report should exist");
+  XCTAssertTrue([self metricKitFileExistsInCurrentReport:YES fatalReport:NO],
+                "MetricKit report should exist");
 
-  NSDictionary *fileDictionary = [self contentsOfMetricKitFileAsDictionary];
-  XCTAssertNotNil(fileDictionary, "metric kit file should not be empty");
+  NSDictionary *fileDictionary = [self contentsOfMetricKitFileAsDictionary:YES fatalReport:NO];
+  XCTAssertNotNil(fileDictionary, "MetricKit file should not be empty");
+
+  NSDictionary *diskWriteDictionary = [[fileDictionary objectForKey:@"disk_write_exception_event"]
+      objectForKey:@"disk_write_exception_event"];
+  NSDictionary *timeDictionary = [fileDictionary objectForKey:@"time"];
+
+  XCTAssertNotNil(diskWriteDictionary,
+                  "MetricKit event should include a disk write exception diagnostic");
+  XCTAssertNotNil(timeDictionary, "MetricKit event should include time");
+  XCTAssertEqual([[timeDictionary objectForKey:@"time"] doubleValue],
+                 [self.beginTime timeIntervalSince1970]);
+  XCTAssertEqual([[timeDictionary objectForKey:@"end_time"] doubleValue],
+                 [self.endTime timeIntervalSince1970]);
 }
 
 - (void)testFullDiagnosticHandling {
+  // TODO: create files so that this is written to the right place and file
+  // TODO: test file contents
+  [self createUnsentFatalReport];
   FIRCLSMockMXDiagnosticPayload *fullPayload = [self createFullDiagnosticPayload];
   [self.metricKitManager didReceiveDiagnosticPayloads:@[ fullPayload ]];
-  XCTAssertTrue([self metricKitFileExists], "metric kit report should exist");
+  XCTAssertTrue([self metricKitFileExistsInCurrentReport:NO fatalReport:YES],
+                "MetricKit report should exist");
 
-  NSDictionary *fileDictionary = [self contentsOfMetricKitFileAsDictionary];
-  XCTAssertNotNil(fileDictionary, "metric kit file should not be empty");
+  NSDictionary *fileDictionary = [self contentsOfMetricKitFileAsDictionary:NO fatalReport:YES];
+  XCTAssertNotNil(fileDictionary, "MetricKit file should not be empty");
+
+  NSDictionary *hangDictionary =
+      [[fileDictionary objectForKey:@"hang_event"] objectForKey:@"hang_event"];
+  NSDictionary *cpuDictionary =
+      [[fileDictionary objectForKey:@"cpu_exception_event"] objectForKey:@"cpu_exception_event"];
+  NSDictionary *diskDictionary = [[fileDictionary objectForKey:@"disk_write_exception_event"]
+      objectForKey:@"disk_write_exception_event"];
+  NSDictionary *crashDictionary =
+      [[fileDictionary objectForKey:@"crash_event"] objectForKey:@"crash_event"];
+  NSDictionary *timeDictionary = [fileDictionary objectForKey:@"time"];
+
+  XCTAssertNotNil(hangDictionary, "MetricKit event should include a hang diagnostic");
+  XCTAssertNotNil(cpuDictionary, "MetricKit event should include a CPU exception diagnostic");
+  XCTAssertNotNil(diskDictionary,
+                  "MetricKit event should include a disk write exception diagnostic");
+  XCTAssertNotNil(crashDictionary, "MetricKit event should include a crash diagnostic");
+  XCTAssertNotNil(timeDictionary, "MetricKit event should include time");
+  XCTAssertEqual([[timeDictionary objectForKey:@"time"] doubleValue],
+                 [self.beginTime timeIntervalSince1970]);
+  XCTAssertEqual([[timeDictionary objectForKey:@"end_time"] doubleValue],
+                 [self.endTime timeIntervalSince1970]);
 }
 
 - (void)testPayloadWithMultipleCrashesHandling {
+  // TODO: create files so that this is written to the right place and file
+  // TODO: test file contents
+  [self createUnsentFatalReport];
   FIRCLSMockMXDiagnosticPayload *payloadWithMultipleCrashes =
       [self createDiagnosticPayloadWithMultipleCrashes];
   [self.metricKitManager didReceiveDiagnosticPayloads:@[ payloadWithMultipleCrashes ]];
-  XCTAssertTrue([self metricKitFileExists], "metric kit report should exist");
+  XCTAssertTrue([self metricKitFileExistsInCurrentReport:NO fatalReport:YES],
+                "MetricKit report should exist");
 
-  NSDictionary *fileDictionary = [self contentsOfMetricKitFileAsDictionary];
-  XCTAssertNotNil(fileDictionary, "metric kit file should not be empty");
+  NSDictionary *fileDictionary = [self contentsOfMetricKitFileAsDictionary:NO fatalReport:YES];
+  XCTAssertNotNil(fileDictionary, "MetricKit file should not be empty");
+
+  NSDictionary *crashDictionary =
+      [[fileDictionary objectForKey:@"crash_event"] objectForKey:@"crash_event"];
+  NSDictionary *timeDictionary = [fileDictionary objectForKey:@"time"];
+  XCTAssertNotNil(crashDictionary, "MetricKit event should include a crash diagnostic");
+  XCTAssertNotNil(timeDictionary, "MetricKit event should include time");
+  XCTAssertEqual([[timeDictionary objectForKey:@"time"] doubleValue],
+                 [self.beginTime timeIntervalSince1970]);
+  XCTAssertEqual([[timeDictionary objectForKey:@"end_time"] doubleValue],
+                 [self.endTime timeIntervalSince1970]);
 }
 
 - (void)testMultiplePayloadsWithCrashesHandling {
+  // TODO: create files so that this is written to the right place and file
+  // TODO: test file contents
+  // TODO: find way to ensure there aren't muliple crashes in the file
+  [self createUnsentFatalReport];
   FIRCLSMockMXDiagnosticPayload *crashPayload = [self createCrashDiagnosticPayload];
   FIRCLSMockMXDiagnosticPayload *hangPayload = [self createHangDiagnosticPayload];
   FIRCLSMockMXDiagnosticPayload *cpuPayload = [self createCPUExceptionDiagnosticPayload];
   [self.metricKitManager
       didReceiveDiagnosticPayloads:@[ crashPayload, hangPayload, crashPayload, cpuPayload ]];
-  XCTAssertTrue([self metricKitFileExists], "metric kit report should exist");
+  XCTAssertTrue([self metricKitFileExistsInCurrentReport:NO fatalReport:YES],
+                "Fatal MetricKit report should exist");
 
-  NSDictionary *fileDictionary = [self contentsOfMetricKitFileAsDictionary];
-  XCTAssertNotNil(fileDictionary, "metric kit file should not be empty");
+  NSDictionary *fileDictionary = [self contentsOfMetricKitFileAsDictionary:NO fatalReport:YES];
+  XCTAssertNotNil(fileDictionary, "Fatal MetricKit file should not be empty");
+
+  NSDictionary *hangDictionary =
+      [[fileDictionary objectForKey:@"hang_event"] objectForKey:@"hang_event"];
+  NSDictionary *cpuDictionary =
+      [[fileDictionary objectForKey:@"cpu_exception_event"] objectForKey:@"cpu_exception_event"];
+  NSDictionary *crashDictionary =
+      [[fileDictionary objectForKey:@"crash_event"] objectForKey:@"crash_event"];
+  NSDictionary *timeDictionary = [fileDictionary objectForKey:@"time"];
+
+  XCTAssertNil(hangDictionary, "Fatal MetricKit event should not include a hang diagnostic");
+  XCTAssertNil(cpuDictionary,
+               "Fatal MetricKit event should not include a CPU exception diagnostic");
+  XCTAssertNotNil(crashDictionary, "Fatal MetricKit event should include a crash diagnostic");
+  XCTAssertNotNil(timeDictionary, "Fatal MetricKit event should include time");
+  XCTAssertEqual([[timeDictionary objectForKey:@"time"] doubleValue],
+                 [self.beginTime timeIntervalSince1970]);
+  XCTAssertEqual([[timeDictionary objectForKey:@"end_time"] doubleValue],
+                 [self.endTime timeIntervalSince1970]);
+
+  XCTAssertTrue([self metricKitFileExistsInCurrentReport:YES fatalReport:NO],
+                "Nonfatal MetricKit report should exist");
+
+  fileDictionary = [self contentsOfMetricKitFileAsDictionary:YES fatalReport:NO];
+  XCTAssertNotNil(fileDictionary, "Nonfatal MetricKit file should not be empty");
+
+  hangDictionary = [[fileDictionary objectForKey:@"hang_event"] objectForKey:@"hang_event"];
+  cpuDictionary =
+      [[fileDictionary objectForKey:@"cpu_exception_event"] objectForKey:@"cpu_exception_event"];
+  crashDictionary = [[fileDictionary objectForKey:@"crash_event"] objectForKey:@"crash_event"];
+  timeDictionary = [fileDictionary objectForKey:@"time"];
+
+  XCTAssertNotNil(hangDictionary, "Nonfatal MetricKit event should include a hang diagnostic");
+  XCTAssertNotNil(cpuDictionary,
+                  "Nonfatal MetricKit event should include a CPU exception diagnostic");
+  XCTAssertNil(crashDictionary, "Nonfatal MetricKit event should not include a crash diagnostic");
+  XCTAssertNotNil(timeDictionary, "Fatal MetricKit event should include time");
+  XCTAssertEqual([[timeDictionary objectForKey:@"time"] doubleValue],
+                 [self.beginTime timeIntervalSince1970]);
+  XCTAssertEqual([[timeDictionary objectForKey:@"end_time"] doubleValue],
+                 [self.endTime timeIntervalSince1970]);
 }
 
 @end

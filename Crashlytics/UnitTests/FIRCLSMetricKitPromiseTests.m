@@ -12,22 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Crashlytics/UnitTests/Mocks/FIRCLSMockMXCallStackTree.h"
-
-@interface FIRCLSMockMXCallStackTree ()
-@property(readwrite, strong, nonnull) NSData *jsonData;
-@end
-
-@implementation FIRCLSMockMXCallStackTree
-
-- (instancetype)initWithStringData:(NSString *)stringData {
-  self = [super init];
-  _jsonData = [stringData dataUsingEncoding:NSUTF8StringEncoding];
-  return self;
-}
-
-- (NSData *)JSONRepresentation {
-  return self.jsonData;
-}
-
-@end
+#import <Foundation/Foundation.h>
