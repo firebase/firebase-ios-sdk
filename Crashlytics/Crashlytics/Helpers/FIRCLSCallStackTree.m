@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "FIRCLSCallStackTree.h"
 #import <Foundation/Foundation.h>
-//#import "Crashlytics/Crashlytics/Private/FIRStackFrame_Private.h"
+
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSCallStackTree.h"
 
 @interface FIRCLSFrame : NSObject
 @property long address;

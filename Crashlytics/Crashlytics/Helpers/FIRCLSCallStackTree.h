@@ -14,8 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
-#if TARGET_OS_IPHONE
-@import MetricKit;
+#import <MetricKit/MetricKit.h>
 
 /*
  * Helper class for parsing the MXCallStackTree that we receive from MetricKit. Flattens the
@@ -28,5 +27,3 @@
 - (instancetype)init NS_UNAVAILABLE;
 
 @end
-
-#endif
