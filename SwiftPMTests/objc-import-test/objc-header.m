@@ -54,7 +54,7 @@
 #import <FirebaseInstallations/FirebaseInstallations.h>
 #import <FirebaseMessaging/FirebaseMessaging.h>
 #if TARGET_OS_IOS || TARGET_OS_TVOS
-#import "FirebasePerformance/FirebasePerformance.h"
+#import <FirebasePerformance/FirebasePerformance.h>
 #endif
 #import <FirebaseRemoteConfig/FirebaseRemoteConfig.h>
 #import <FirebaseStorage/FirebaseStorage.h>
