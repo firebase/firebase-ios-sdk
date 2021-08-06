@@ -840,7 +840,6 @@ let package = Package(
         .product(name: "GULISASwizzler", package: "GoogleUtilities"),
         .product(name: "GULMethodSwizzler", package: "GoogleUtilities"),
         .product(name: "GULUserDefaults", package: "GoogleUtilities"),
-        .product(name: "GULSwizzlerTestHelpers", package: "GoogleUtilities"),
         .product(name: "nanopb", package: "nanopb"),
       ],
       path: "FirebasePerformance/Sources",
@@ -851,7 +850,6 @@ let package = Package(
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
         .define("PB_ENABLE_MALLOC", to: "1"),
         .define("FIRPerformance_LIB_VERSION", to: firebaseVersion),
-        .define("UNSWIZZLE_AVAILABLE"),
       ],
       linkerSettings: [
         .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .tvOS])),
@@ -866,7 +864,6 @@ let package = Package(
         "OCMock",
         "SharedTestUtilities",
         "GCDWebServer",
-        .product(name: "GULSwizzlerTestHelpers", package: "GoogleUtilities"),
       ],
       path: "FirebasePerformance/Tests/Unit",
       resources: [
@@ -876,7 +873,6 @@ let package = Package(
       ],
       cSettings: [
         .headerSearchPath("../../.."),
-        .define("UNSWIZZLE_AVAILABLE"),
       ]
     ),
 

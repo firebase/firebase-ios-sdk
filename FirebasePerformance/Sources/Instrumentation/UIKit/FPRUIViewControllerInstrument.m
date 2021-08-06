@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #import "FirebasePerformance/Sources/Instrumentation/UIKit/FPRUIViewControllerInstrument.h"
-#import "FirebasePerformance/Sources/Instrumentation/UIKit/FPRUIViewControllerInstrument_Private.h"
 
 #import <UIKit/UIKit.h>
 
@@ -41,14 +40,11 @@ static dispatch_queue_t GetInstrumentationQueue() {
 
 // Returns the singleton UIApplication of the application this is currently running in or nil if
 // it's in an app extension.
-static UIWindow *FPRSharedApplicationWindow() {
+static UIApplication *FPRSharedApplication() {
   if ([GULAppEnvironmentUtil isAppExtension]) {
     return nil;
   }
-  if (keyWindow == nil) {
-    return [UIApplication sharedApplication].keyWindow;
-  }
-  return keyWindow;
+  return [UIApplication sharedApplication];
 }
 
 @implementation FPRUIViewControllerInstrument
@@ -71,7 +67,7 @@ void InstrumentViewDidAppear(FPRUIViewControllerInstrument *instrument,
 
     // This has to be called on the main thread and so it's done here instead of in
     // FPRScreenTraceTracker.
-    if ([((UIViewController *)_self).view isDescendantOfView:FPRSharedApplicationWindow()]) {
+    if ([((UIViewController *)_self).view isDescendantOfView:FPRSharedApplication().keyWindow]) {
       [[FPRScreenTraceTracker sharedInstance] viewControllerDidAppear:_self];
     }
   }];

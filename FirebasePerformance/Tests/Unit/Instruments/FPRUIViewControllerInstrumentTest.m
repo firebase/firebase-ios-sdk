@@ -12,8 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#pragma mark - Unswizzle based tests
+
+#ifndef SWIFT_PACKAGE
+
 #import "FirebasePerformance/Sources/Instrumentation/UIKit/FPRUIViewControllerInstrument.h"
-#import "FirebasePerformance/Sources/Instrumentation/UIKit/FPRUIViewControllerInstrument_Private.h"
 
 #import <XCTest/XCTest.h>
 
@@ -56,11 +59,9 @@ static BOOL originalViewDidDisappearInvoked = NO;
  */
 - (void)testViewDidAppearInvokesViewControllerDidAppearOnScreenTraceTracker {
   UIViewController *testViewController = [[UIViewController alloc] init];
-  UIWindow *mockWindow = [[UIWindow alloc] init];
-  [mockWindow addSubview:[testViewController view]];
+  [[UIApplication sharedApplication].keyWindow addSubview:[testViewController view]];
 
   FPRUIViewControllerInstrument *instrument = [[FPRUIViewControllerInstrument alloc] init];
-  keyWindow = mockWindow;
   [instrument registerInstrumentors];
 
   // Partial mock isa swizzles the object and we can listen to whether it received certain messages.
@@ -171,3 +172,5 @@ static BOOL originalViewDidDisappearInvoked = NO;
 }
 
 @end
+
+#endif  // SWIFT_PACKAGE

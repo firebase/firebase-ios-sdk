@@ -80,7 +80,7 @@ jobs:
     runs-on: macOS-latest
     strategy:
       matrix:
-        target: [iOS, watchOS]
+        target: [iOS, tvOS]
     steps:
     - uses: actions/checkout@v2
     - name: Initialize xcodebuild
@@ -90,11 +90,12 @@ jobs:
 
   spm-cron:
     # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+    # if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     runs-on: macOS-latest
     strategy:
       matrix:
-        target: [tvOS, macOS, catalyst]
+        target: [catalyst]
     steps:
     - uses: actions/checkout@v2
     - name: Initialize xcodebuild
@@ -122,3 +123,25 @@ jobs:
       run: scripts/setup_bundler.sh
     - name: Build and test
       run: scripts/third_party/travis/retry.sh pod spec lint FirebasePerformance.podspec --skip-tests --sources='https://github.com/firebase/SpecsTesting','https://github.com/firebase/SpecsDev.git','https://github.com/firebase/SpecsStaging.git','https://cdn.cocoapods.org/'
+
+  performance-cron-only:
+    # Don't run on private repo.
+    # if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        target: [ios, tvos]
+        flags: [
+          '--skip-tests --use-static-frameworks',
+          '--skip-tests --use-libraries'
+        ]
+    needs: pod-lib-lint
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: PodLibLint Performance Cron
+      run: |
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebasePerformance.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
+ 

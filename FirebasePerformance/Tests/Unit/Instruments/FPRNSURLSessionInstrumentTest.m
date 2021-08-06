@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#pragma mark - Unswizzle based tests
+
+#ifndef SWIFT_PACKAGE
+
 #import "FirebasePerformance/Tests/Unit/Instruments/FPRNSURLSessionInstrumentTestDelegates.h"
 
 #import <XCTest/XCTest.h>
@@ -806,3 +810,5 @@
 }
 
 @end
+
+#endif  // SWIFT_PACKAGE
