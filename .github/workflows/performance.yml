@@ -80,7 +80,7 @@ jobs:
     runs-on: macOS-latest
     strategy:
       matrix:
-        target: [iOS, tvOS]
+        target: [iOS]
     steps:
     - uses: actions/checkout@v2
     - name: Initialize xcodebuild
