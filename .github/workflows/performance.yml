@@ -90,12 +90,11 @@ jobs:
 
   spm-cron:
     # Don't run on private repo.
-    # if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
     runs-on: macOS-latest
     strategy:
       matrix:
-        target: [catalyst]
+        target: [tvOS]
     steps:
     - uses: actions/checkout@v2
     - name: Initialize xcodebuild
@@ -126,8 +125,7 @@ jobs:
 
   performance-cron-only:
     # Don't run on private repo.
-    # if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
     runs-on: macos-latest
     strategy:
       matrix:
