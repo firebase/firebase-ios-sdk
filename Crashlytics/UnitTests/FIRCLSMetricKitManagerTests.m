@@ -27,16 +27,12 @@
 #endif
 
 #include "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
-#import "Crashlytics/Crashlytics/Controllers/FIRCLSAnalyticsManager.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
 #import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionArbiter.h"
-#include "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSExecutionIdentifierModel.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
 
 #import "Crashlytics/Crashlytics/Settings/Models/FIRCLSApplicationIdentifierModel.h"
-#import "Crashlytics/UnitTests/Mocks/FABMockApplicationIdentifierModel.h"
 #import "Crashlytics/UnitTests/Mocks/FIRAppFake.h"
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockReportManager.h"
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockReportUploader.h"
@@ -359,7 +355,6 @@
 }
 
 - (void)testCrashDiagnosticHandling {
-  // TODO: create files so that this is in the right report and the right file
   // TODO: test threads and metadata
   [self createUnsentFatalReport];
   FIRCLSMockMXDiagnosticPayload *crashPayload = [self createCrashDiagnosticPayload];
@@ -441,7 +436,6 @@
 
 - (void)testDiskWriteExceptionDiagnosticHandling {
   // TODO: test contents of file
-  // TODO: test file contents
   FIRCLSMockMXDiagnosticPayload *diskWritePayload =
       [self createDiskWriteExceptionDiagnosticPayload];
   [self.metricKitManager didReceiveDiagnosticPayloads:@[ diskWritePayload ]];
@@ -465,7 +459,6 @@
 }
 
 - (void)testFullDiagnosticHandling {
-  // TODO: create files so that this is written to the right place and file
   // TODO: test file contents
   [self createUnsentFatalReport];
   FIRCLSMockMXDiagnosticPayload *fullPayload = [self createFullDiagnosticPayload];
@@ -499,7 +492,6 @@
 }
 
 - (void)testPayloadWithMultipleCrashesHandling {
-  // TODO: create files so that this is written to the right place and file
   // TODO: test file contents
   [self createUnsentFatalReport];
   FIRCLSMockMXDiagnosticPayload *payloadWithMultipleCrashes =
@@ -523,9 +515,7 @@
 }
 
 - (void)testMultiplePayloadsWithCrashesHandling {
-  // TODO: create files so that this is written to the right place and file
   // TODO: test file contents
-  // TODO: find way to ensure there aren't muliple crashes in the file
   [self createUnsentFatalReport];
   FIRCLSMockMXDiagnosticPayload *crashPayload = [self createCrashDiagnosticPayload];
   FIRCLSMockMXDiagnosticPayload *hangPayload = [self createHangDiagnosticPayload];
