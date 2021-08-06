@@ -17,7 +17,7 @@
 
 import PackageDescription
 
-let firebaseVersion = "8.5.0"
+let firebaseVersion = "8.6.0"
 
 let package = Package(
   name: "Firebase",
