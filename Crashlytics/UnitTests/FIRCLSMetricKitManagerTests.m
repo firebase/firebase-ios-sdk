@@ -18,6 +18,8 @@
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSMetricKitManager.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
+#if CLS_METRICKIT_SUPPORTED
+
 #if __has_include(<FBLPromises/FBLPromises.h>)
 #import <FBLPromises/FBLPromises.h>
 #else
@@ -568,3 +570,4 @@
 }
 
 @end
+#endif
