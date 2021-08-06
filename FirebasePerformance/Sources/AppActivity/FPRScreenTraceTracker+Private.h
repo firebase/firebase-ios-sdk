@@ -16,7 +16,6 @@
 
 #import <Foundation/Foundation.h>
 #import <QuartzCore/QuartzCore.h>
-#import <UIKit/UIKit.h>
 #import <stdatomic.h>
 
 #import "FirebasePerformance/Sources/Common/FPRConstants.h"
@@ -81,8 +80,6 @@ FOUNDATION_EXTERN CFTimeInterval const kFPRFrozenFrameThreshold;
 
 /** The slow frames counter. */
 @property(atomic) int_fast64_t slowFramesCount;
-
-@property(nonatomic) UIWindow *keyWindow;
 
 /** Handles the appDidBecomeActive notification. Restores the screen traces that were active before
  *  the app was backgrounded.

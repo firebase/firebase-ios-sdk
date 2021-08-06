@@ -57,7 +57,7 @@
 
 #pragma mark - Unswizzle based tests
 
-#ifndef SWIFT_PACKAGE
+#if !SWIFT_PACKAGE
 
 /** Tests swizzling an instance selector. */
 - (void)testSwizzleInstanceSelector {

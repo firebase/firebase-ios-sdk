@@ -14,7 +14,7 @@
 
 #pragma mark - Unswizzle based tests
 
-#ifndef SWIFT_PACKAGE
+#if !SWIFT_PACKAGE
 
 #import "FirebasePerformance/Tests/Unit/Instruments/FPRNSURLConnectionInstrumentTestDelegates.h"
 

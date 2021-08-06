@@ -65,7 +65,7 @@
 
 #pragma mark - Unswizzle based tests
 
-#ifndef SWIFT_PACKAGE
+#if !SWIFT_PACKAGE
 
 - (void)testDeregisterInstrumentors {
   FPRInstrument *instrument = [[FPRInstrument alloc] init];

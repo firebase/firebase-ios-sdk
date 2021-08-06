@@ -14,7 +14,7 @@
 
 #pragma mark - Unswizzle based tests
 
-#ifndef SWIFT_PACKAGE
+#if !SWIFT_PACKAGE
 
 #import "FirebasePerformance/Sources/Instrumentation/UIKit/FPRUIViewControllerInstrument.h"
 
