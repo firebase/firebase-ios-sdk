@@ -23,7 +23,9 @@
 #include <utility>
 #include <vector>
 
-#include "Firestore/core/src/model/field_value.h"
+#include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
+#include "Firestore/core/src/nanopb/message.h"
+#include "Firestore/core/src/util/hard_assert.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
@@ -75,8 +77,9 @@ class TransformOperation {
    * Computes the local transform result against the provided `previous_value`,
    * optionally using the provided local_write_time.
    */
-  FieldValue ApplyToLocalView(const absl::optional<FieldValue>& previous_value,
-                              const Timestamp& local_write_time) const {
+  nanopb::Message<google_firestore_v1_Value> ApplyToLocalView(
+      const absl::optional<google_firestore_v1_Value>& previous_value,
+      const Timestamp& local_write_time) const {
     return rep().ApplyToLocalView(previous_value, local_write_time);
   }
 
@@ -84,10 +87,11 @@ class TransformOperation {
    * Computes a final transform result after the transform has been acknowledged
    * by the server, potentially using the server-provided transform_result.
    */
-  FieldValue ApplyToRemoteDocument(
-      const absl::optional<FieldValue>& previous_value,
-      const FieldValue& transform_result) const {
-    return rep().ApplyToRemoteDocument(previous_value, transform_result);
+  nanopb::Message<google_firestore_v1_Value> ApplyToRemoteDocument(
+      const absl::optional<google_firestore_v1_Value>& previous_value,
+      nanopb::Message<google_firestore_v1_Value> transform_result) const {
+    return rep().ApplyToRemoteDocument(previous_value,
+                                       std::move(transform_result));
   }
 
   /**
@@ -105,8 +109,8 @@ class TransformOperation {
    * @return a base value to store along with the mutation, or empty for
    *     idempotent transforms.
    */
-  absl::optional<FieldValue> ComputeBaseValue(
-      const absl::optional<FieldValue>& previous_value) const {
+  absl::optional<nanopb::Message<google_firestore_v1_Value>> ComputeBaseValue(
+      const absl::optional<google_firestore_v1_Value>& previous_value) const {
     return rep().ComputeBaseValue(previous_value);
   }
 
@@ -133,16 +137,17 @@ class TransformOperation {
 
     virtual Type type() const = 0;
 
-    virtual FieldValue ApplyToLocalView(
-        const absl::optional<FieldValue>& previous_value,
+    virtual nanopb::Message<google_firestore_v1_Value> ApplyToLocalView(
+        const absl::optional<google_firestore_v1_Value>& previous_value,
         const Timestamp& local_write_time) const = 0;
 
-    virtual FieldValue ApplyToRemoteDocument(
-        const absl::optional<FieldValue>& previous_value,
-        const FieldValue& transform_result) const = 0;
+    virtual nanopb::Message<google_firestore_v1_Value> ApplyToRemoteDocument(
+        const absl::optional<google_firestore_v1_Value>& previous_value,
+        nanopb::Message<google_firestore_v1_Value> transform_result) const = 0;
 
-    virtual absl::optional<FieldValue> ComputeBaseValue(
-        const absl::optional<FieldValue>& previous_value) const = 0;
+    virtual absl::optional<nanopb::Message<google_firestore_v1_Value>>
+    ComputeBaseValue(const absl::optional<google_firestore_v1_Value>&
+                         previous_value) const = 0;
 
     virtual bool Equals(const TransformOperation::Rep& other) const = 0;
 
@@ -176,7 +181,8 @@ class ServerTimestampTransform : public TransformOperation {
  */
 class ArrayTransform : public TransformOperation {
  public:
-  ArrayTransform(Type type, std::vector<FieldValue> elements);
+  ArrayTransform(Type type,
+                 nanopb::Message<google_firestore_v1_ArrayValue> array_value);
 
   /**
    * Casts a TransformOperation to an ArrayTransform. This is a checked
@@ -185,9 +191,7 @@ class ArrayTransform : public TransformOperation {
    */
   explicit ArrayTransform(const TransformOperation& op);
 
-  ArrayTransform() = default;
-
-  const std::vector<model::FieldValue>& elements() const;
+  google_firestore_v1_ArrayValue elements() const;
 
  private:
   class Rep;
@@ -202,7 +206,8 @@ class ArrayTransform : public TransformOperation {
  */
 class NumericIncrementTransform : public TransformOperation {
  public:
-  explicit NumericIncrementTransform(FieldValue operand);
+  explicit NumericIncrementTransform(
+      nanopb::Message<google_firestore_v1_Value> operand);
 
   /**
    * Casts a TransformOperation to a NumericIncrementTransform. This is a
@@ -211,7 +216,7 @@ class NumericIncrementTransform : public TransformOperation {
    */
   explicit NumericIncrementTransform(const TransformOperation& op);
 
-  const FieldValue& operand() const;
+  const google_firestore_v1_Value& operand() const;
 
  private:
   class Rep;

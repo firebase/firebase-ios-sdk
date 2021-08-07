@@ -20,7 +20,7 @@
 
 #include "Firestore/Protos/nanopb/firestore/local/maybe_document.nanopb.h"
 #include "Firestore/core/src/model/document_key.h"
-#include "Firestore/core/src/model/maybe_document.h"
+#include "Firestore/core/src/model/mutable_document.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
 #include "Firestore/core/src/nanopb/message.h"
 
@@ -28,13 +28,13 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
-using model::MaybeDocument;
+using model::MutableDocument;
 
 ProtoSizer::ProtoSizer(LocalSerializer serializer)
     : serializer_(std::move(serializer)) {
 }
 
-int64_t ProtoSizer::CalculateByteSize(const MaybeDocument& maybe_doc) const {
+int64_t ProtoSizer::CalculateByteSize(const MutableDocument& maybe_doc) const {
   // TODO(varconst): implement a version of `nanopb::Writer` that only
   // calculates sizes without actually doing the encoding (to the extent
   // possible). This isn't high priority as long as `ProtoSizer` is only used in

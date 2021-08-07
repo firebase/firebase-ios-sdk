@@ -1,5 +1,5 @@
 os: osx
-osx_image: xcode11
+osx_image: xcode12.5
 language: objective-c
 cache:
   bundler: true
@@ -101,31 +101,6 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=InAppMessaging PLATFORM=iOS METHOD=xcodebuild
-      before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
-      script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
-
-    - stage: test
-      if: type = cron
-      env:
-        - PROJECT=InAppMessaging PLATFORM=iPad METHOD=xcodebuild
-      before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
-      script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
-
-    - stage: test
-      env:
-        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild
-      before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
-      script:
-        - travis_retry ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
-
-    - stage: test
-      env:
         - PROJECT=GoogleUtilitiesComponents METHOD=pod-lib-lint
       script:
         - travis_retry ./scripts/if_changed.sh ./scripts/pod_lib_lint.rb GoogleUtilitiesComponents.podspec
@@ -169,18 +144,6 @@ jobs:
         - POD_CONFIG_DIR=Cocoapods_multiprojects_staticLibs
       script:
         - travis_retry ./CocoapodsIntegrationTest/scripts/build_with_environment.sh --gemfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Gemfile --podfile=./CocoapodsIntegrationTest/TestEnvironments/${POD_CONFIG_DIR}/Podfile
-
-  allow_failures:
-    # Run fuzz tests only on cron jobs.
-    - stage: test
-#      if: type = cron
-      env:
-        - PROJECT=Firestore PLATFORM=iOS METHOD=fuzz
-      before_install:
-        - ./scripts/install_prereqs.sh
-      script:
-        # The travis_wait is necessary because fuzzing runs for 40 minutes.
-        - travis_wait 45 ./scripts/fuzzing_ci.sh
 
 branches:
   only:

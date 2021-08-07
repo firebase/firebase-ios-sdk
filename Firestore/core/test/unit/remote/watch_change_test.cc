@@ -16,7 +16,7 @@
 
 #include "Firestore/core/src/remote/watch_change.h"
 
-#include "Firestore/core/src/model/document.h"
+#include "Firestore/core/src/model/mutable_document.h"
 #include "Firestore/core/src/remote/existence_filter.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 #include "gtest/gtest.h"
@@ -25,14 +25,13 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-using model::DocumentState;
-using model::MaybeDocument;
+using model::MutableDocument;
 
 using testutil::Doc;
 using testutil::Map;
 
 TEST(WatchChangeTest, CanCreateDocumentWatchChange) {
-  MaybeDocument doc = Doc("a/b", 1, Map());
+  MutableDocument doc = Doc("a/b", 1, Map());
   DocumentWatchChange change{{1, 2, 3}, {4, 5}, doc.key(), doc};
 
   EXPECT_EQ(change.updated_target_ids().size(), 3);

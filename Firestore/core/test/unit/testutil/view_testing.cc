@@ -20,6 +20,7 @@
 
 #include "Firestore/core/src/core/view.h"
 #include "Firestore/core/src/core/view_snapshot.h"
+#include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/remote/remote_event.h"
 
 namespace firebase {
@@ -31,23 +32,21 @@ using core::ViewChange;
 using core::ViewSnapshot;
 using model::Document;
 using model::DocumentKeySet;
-using model::MaybeDocument;
-using model::MaybeDocumentMap;
+using model::DocumentMap;
 using nanopb::ByteString;
 using remote::TargetChange;
 
-model::MaybeDocumentMap DocUpdates(
-    const std::vector<model::MaybeDocument>& docs) {
-  MaybeDocumentMap updates;
-  for (const MaybeDocument& doc : docs) {
-    updates = updates.insert(doc.key(), doc);
+model::DocumentMap DocUpdates(const std::vector<model::Document>& docs) {
+  DocumentMap updates;
+  for (const Document& doc : docs) {
+    updates = updates.insert(doc->key(), doc);
   }
   return updates;
 }
 
 absl::optional<ViewSnapshot> ApplyChanges(
     View* view,
-    const std::vector<MaybeDocument>& docs,
+    const std::vector<Document>& docs,
     const absl::optional<TargetChange>& target_change) {
   ViewChange change = view->ApplyChanges(
       view->ComputeDocumentChanges(DocUpdates(docs)), target_change);
@@ -65,7 +64,7 @@ TargetChange AckTarget(DocumentKeySet docs) {
 TargetChange AckTarget(std::initializer_list<Document> docs) {
   DocumentKeySet keys;
   for (const auto& doc : docs) {
-    keys = keys.insert(doc.key());
+    keys = keys.insert(doc->key());
   }
   return AckTarget(keys);
 }

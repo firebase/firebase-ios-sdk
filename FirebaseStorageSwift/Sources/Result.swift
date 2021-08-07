@@ -14,6 +14,10 @@
 
 import FirebaseStorage
 
+private enum DataError: Error {
+  case internalInconsistency // Thrown when both value and error are nil.
+}
+
 /// Generates a closure that returns a `Result` type from a closure that returns an optional type
 /// and `Error`.
 ///
@@ -31,11 +35,7 @@ private func getResultCallback<T>(completion: @escaping (Result<T, Error>) -> Vo
     } else if let error = error {
       completion(.failure(error))
     } else {
-      completion(.failure(NSError(domain: "FirebaseStorageSwift",
-                                  code: -1,
-                                  userInfo: [NSLocalizedDescriptionKey:
-                                    "InternalError - Return type and Error code both nil in " +
-                                    "Storage Result generator"])))
+      completion(.failure(DataError.internalInconsistency))
     }
   }
 }
@@ -43,7 +43,7 @@ private func getResultCallback<T>(completion: @escaping (Result<T, Error>) -> Vo
 public extension StorageReference {
   /// Asynchronously retrieves a long lived download URL with a revokable token.
   /// This can be used to share the file with others, but can be revoked by a developer
-  /// in the Firebase Console if desired.
+  /// in the Firebase Console.
   ///
   /// - Parameters:
   ///   - completion: A completion block returning a `Result` enum with either a URL or an `Error`.
@@ -53,7 +53,7 @@ public extension StorageReference {
 
   /// Asynchronously downloads the object at the `StorageReference` to a `Data` object.
   /// A `Data` of the provided max size will be allocated, so ensure that the device has enough
-  /// memory to complete. For downloading large files, writeToFile may be a better option.
+  /// memory to complete. For downloading large files, the `write` API may be a better option.
 
   /// - Parameters:
   ///   - maxSize: The maximum size in bytes to download.

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAppCheck'
-  s.version          = '8.4.0-beta'
+  s.version          = '8.6.0-beta'
   s.summary          = 'Firebase App Check SDK.'
 
   s.description      = <<-DESC
@@ -17,13 +17,15 @@ Pod::Spec.new do |s|
   }
   s.social_media_url = 'https://twitter.com/Firebase'
 
-  ios_deployment_target = '11.0'
-  osx_deployment_target = '10.15'
-  tvos_deployment_target = '11.0'
+  ios_deployment_target = '9.0'
+  osx_deployment_target = '10.12'
+  tvos_deployment_target = '10.0'
+  watchos_deployment_target = '6.0'
 
   s.ios.deployment_target = ios_deployment_target
   s.osx.deployment_target = osx_deployment_target
   s.tvos.deployment_target = tvos_deployment_target
+  s.watchos.deployment_target = watchos_deployment_target
 
   s.cocoapods_version = '>= 1.4.0'
   s.prefix_header_file = false
@@ -36,7 +38,9 @@ Pod::Spec.new do |s|
   ]
   s.public_header_files = base_dir + 'Sources/Public/FirebaseAppCheck/*.h'
 
-  s.framework = 'DeviceCheck'
+  s.ios.weak_framework = 'DeviceCheck'
+  s.osx.weak_framework = 'DeviceCheck'
+  s.tvos.weak_framework = 'DeviceCheck'
 
   s.dependency 'FirebaseCore', '~> 8.0'
   s.dependency 'PromisesObjC', '>= 1.2', '< 3.0'

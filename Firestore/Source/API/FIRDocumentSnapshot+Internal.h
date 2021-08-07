@@ -21,6 +21,8 @@
 #include "Firestore/core/src/api/api_fwd.h"
 #include "Firestore/core/src/model/model_fwd.h"
 
+@class FIRFirestore;
+
 namespace api = firebase::firestore::api;
 namespace model = firebase::firestore::model;
 
@@ -30,12 +32,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithSnapshot:(api::DocumentSnapshot &&)snapshot NS_DESIGNATED_INITIALIZER;
 
-- (instancetype)initWithFirestore:(std::shared_ptr<api::Firestore>)firestore
+- (instancetype)initWithFirestore:(FIRFirestore *)firestore
                       documentKey:(model::DocumentKey)documentKey
                          document:(const absl::optional<model::Document> &)document
                          metadata:(api::SnapshotMetadata)metadata;
 
-- (instancetype)initWithFirestore:(std::shared_ptr<api::Firestore>)firestore
+- (instancetype)initWithFirestore:(FIRFirestore *)firestore
                       documentKey:(model::DocumentKey)documentKey
                          document:(const absl::optional<model::Document> &)document
                         fromCache:(bool)fromCache

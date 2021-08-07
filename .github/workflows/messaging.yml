@@ -27,6 +27,8 @@ jobs:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
+    - name: Configure test keychain
+      run: scripts/configure_test_keychain.sh
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Install Secret GoogleService-Info.plist
