@@ -32,6 +32,10 @@ public enum FIRPredicate {
     case isLessThanOrEqualTo(_ lhs: String, _ rhs: Any)
     case isGreaterThanOrEqualTo(_ lhs: String, _ rhs: Any)
     
+    case orderBy(_ lhs: String, _ rhs: Bool)
+    
+    case limitTo(_ lhs: Int)
+    
     /*
      Factory methods to expose the underlying enum cases with a nicer development experience and improved semantics.
      */
@@ -69,6 +73,14 @@ public enum FIRPredicate {
     
     public static func whereField(_ lhs: String, isGreaterThanOrEqualTo rhs: Any) -> FIRPredicate {
         .isGreaterThanOrEqualTo(lhs, rhs)
+    }
+    
+    public static func order(by lhs: String, descending rhs: Bool = false) -> FIRPredicate {
+        .orderBy(lhs, rhs)
+    }
+    
+    public static func limit(to lhs: Int) -> FIRPredicate {
+        .limitTo(lhs)
     }
 }
 
@@ -110,6 +122,10 @@ internal class QueryStore<T: Decodable>: ObservableObject {
                     query = query.whereField(lhs, isLessThanOrEqualTo: rhs)
                 case .isGreaterThanOrEqualTo(let lhs, let rhs):
                     query = query.whereField(lhs, isGreaterThanOrEqualTo: rhs)
+                case .orderBy(let lhs, let rhs):
+                    query = query.order(by: lhs, descending: rhs)
+                case .limitTo(let lhs):
+                    query = query.limit(to: lhs)
             }
         }
         
