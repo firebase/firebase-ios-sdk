@@ -33,7 +33,9 @@ import FirebaseFunctions
 #endif
 import FirebaseInstallations
 import FirebaseMessaging
-import FirebasePerformance
+#if os(iOS) || os(tvOS)
+  import FirebasePerformance
+#endif
 import FirebaseRemoteConfig
 import FirebaseStorage
 import FirebaseStorageSwift
