@@ -31,10 +31,49 @@ public enum FIRPredicate {
     
     case isLessThanOrEqualTo(_ lhs: String, _ rhs: Any)
     case isGreaterThanOrEqualTo(_ lhs: String, _ rhs: Any)
+    
+    /*
+     Factory methods to expose the underlying enum cases with a nicer development experience and improved semantics.
+     */
+    public static func whereField(_ lhs: String, isEqualTo rhs: Any) -> FIRPredicate {
+        .isEqualTo(lhs, rhs)
+    }
+    
+    public static func whereField(_ lhs: String, isIn rhs: [Any]) -> FIRPredicate {
+        .isIn(lhs, rhs)
+    }
+    
+    public static func whereField(_ lhs: String, isNotIn rhs: [Any]) -> FIRPredicate {
+        .isNotIn(lhs, rhs)
+    }
+    
+    public static func whereField(_ lhs: String, arrayContains rhs: Any) -> FIRPredicate {
+        .arrayContains(lhs, rhs)
+    }
+    
+    public static func whereField(_ lhs: String, arrayContainsAny rhs: [Any]) -> FIRPredicate {
+        .arrayContainsAny(lhs, rhs)
+    }
+    
+    public static func whereField(_ lhs: String, isLessThan rhs: Any) -> FIRPredicate {
+        .isLessThan(lhs, rhs)
+    }
+    
+    public static func whereField(_ lhs: String, isGreaterThan rhs: Any) -> FIRPredicate {
+        .isGreaterThan(lhs, rhs)
+    }
+    
+    public static func whereField(_ lhs: String, isLessThanOrEqualTo rhs: Any) -> FIRPredicate {
+        .isLessThanOrEqualTo(lhs, rhs)
+    }
+    
+    public static func whereField(_ lhs: String, isGreaterThanOrEqualTo rhs: Any) -> FIRPredicate {
+        .isGreaterThanOrEqualTo(lhs, rhs)
+    }
 }
 
 @available(iOS 13.0, *)
-public class QueryStore<T: Decodable>: ObservableObject {
+internal class QueryStore<T: Decodable>: ObservableObject {
     @Published var items: [T] = []
     
     private let firestore = Firestore.firestore()
@@ -101,7 +140,7 @@ public class QueryStore<T: Decodable>: ObservableObject {
 @available(iOS 14.0, *)
 @propertyWrapper
 public struct FirestoreQuery<T: Decodable>: DynamicProperty {
-    @StateObject public var store: QueryStore<T>
+    @StateObject private var store: QueryStore<T>
     
     private(set) public var wrappedValue: [T] {
         get {
@@ -112,7 +151,8 @@ public struct FirestoreQuery<T: Decodable>: DynamicProperty {
         }
     }
     
-    public init(_ collection: String, predicates: [FIRPredicate] = []) {
-        self._store = StateObject(wrappedValue: QueryStore<T>(collectionPath: collection, predicates: predicates))
+    public init(collectionPath: String, predicates: [FIRPredicate] = []) {
+        self._store = StateObject(wrappedValue: QueryStore<T>(collectionPath: collectionPath, predicates: predicates))
     }
 }
+
