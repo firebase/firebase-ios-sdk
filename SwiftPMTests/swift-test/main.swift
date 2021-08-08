@@ -33,7 +33,7 @@ import FirebaseFunctions
 #endif
 import FirebaseInstallations
 import FirebaseMessaging
-#if os(iOS) || os(tvOS)
+#if (os(iOS) && !targetEnvironment(macCatalyst)) || os(tvOS) 
   import FirebasePerformance
 #endif
 import FirebaseRemoteConfig
