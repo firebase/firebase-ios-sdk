@@ -29,7 +29,7 @@
 #endif
 @import FirebaseInstallations;
 @import FirebaseMessaging;
-#if TARGET_OS_IOS || TARGET_OS_TVOS
+#if (TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_TVOS
 @import FirebasePerformance;
 #endif
 @import FirebaseRemoteConfig;

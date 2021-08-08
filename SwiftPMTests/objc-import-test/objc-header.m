@@ -29,7 +29,7 @@
 #endif
 #import "FirebaseInstallations/FirebaseInstallations.h"
 #import "FirebaseMessaging/FirebaseMessaging.h"
-#if TARGET_OS_IOS || TARGET_OS_TVOS
+#if (TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_TVOS
 #import "FirebasePerformance/FirebasePerformance.h"
 #endif
 #import "FirebaseRemoteConfig/FirebaseRemoteConfig.h"
@@ -53,7 +53,7 @@
 #endif
 #import <FirebaseInstallations/FirebaseInstallations.h>
 #import <FirebaseMessaging/FirebaseMessaging.h>
-#if TARGET_OS_IOS || TARGET_OS_TVOS
+#if (TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_TVOS
 #import <FirebasePerformance/FirebasePerformance.h>
 #endif
 #import <FirebaseRemoteConfig/FirebaseRemoteConfig.h>
