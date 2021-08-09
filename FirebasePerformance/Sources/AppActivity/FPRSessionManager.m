@@ -105,10 +105,12 @@ NSString *const kFPRSessionIdNotificationKey = @"kFPRSessionIdNotificationKey";
   FPRSessionDetails *sessionInfo = [[FPRSessionDetails alloc] initWithSessionId:sessionIdString
                                                                         options:sessionOptions];
   self.sessionDetails = sessionInfo;
-  NSMutableDictionary<NSString *, FPRSessionDetails *> *userInfo = [[NSMutableDictionary alloc] init];
+  NSMutableDictionary<NSString *, FPRSessionDetails *> *userInfo =
+      [[NSMutableDictionary alloc] init];
   [userInfo setObject:sessionInfo forKey:kFPRSessionIdNotificationKey];
   [self.sessionNotificationCenter postNotificationName:kFPRSessionIdUpdatedNotification
-                                                object:self userInfo:[userInfo copy]];
+                                                object:self
+                                              userInfo:[userInfo copy]];
 }
 
 /**
