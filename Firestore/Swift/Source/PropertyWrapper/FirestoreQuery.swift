@@ -160,16 +160,16 @@ internal class FirestoreQueryObservable<T: Decodable>: ObservableObject {
 @available(iOS 14.0, *)
 @propertyWrapper
 public struct FirestoreQuery<T: Decodable>: DynamicProperty {
-  @StateObject private var store: FirestoreQueryObservable<T>
+  @StateObject private var firestoreQueryObservable: FirestoreQueryObservable<T>
 
   public var wrappedValue: [T] {
     get {
-      store.items
+        firestoreQueryObservable.items
     }
   }
 
   public init(collectionPath: String, predicates: [QueryPredicate] = []) {
-    _store =
+    _firestoreQueryObservable =
       StateObject(wrappedValue: FirestoreQueryObservable<T>(collectionPath: collectionPath,
                                                             predicates: predicates))
   }
