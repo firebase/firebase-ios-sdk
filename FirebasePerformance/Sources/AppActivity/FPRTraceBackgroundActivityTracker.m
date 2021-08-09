@@ -15,6 +15,7 @@
 #import "FirebasePerformance/Sources/AppActivity/FPRTraceBackgroundActivityTracker.h"
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 #import "FirebasePerformance/Sources/AppActivity/FPRAppActivityTracker.h"
 
