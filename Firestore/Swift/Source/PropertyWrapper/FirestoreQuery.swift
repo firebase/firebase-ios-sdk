@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,81 +17,84 @@
 import FirebaseFirestore
 import SwiftUI
 
-public enum FIRPredicate {
-  case isEqualTo(_ lhs: String, _ rhs: Any)
+public enum QueryPredicate {
+  case isEqualTo(_ field: String, _ value: Any)
 
-  case isIn(_ lhs: String, _ rhs: [Any])
-  case isNotIn(_ lhs: String, _ rhs: [Any])
+  case isIn(_ field: String, _ values: [Any])
+  case isNotIn(_ field: String, _ values: [Any])
 
-  case arrayContains(_ lhs: String, _ rhs: Any)
-  case arrayContainsAny(_ lhs: String, _ rhs: [Any])
+  case arrayContains(_ field: String, _ value: Any)
+  case arrayContainsAny(_ field: String, _ values: [Any])
 
-  case isLessThan(_ lhs: String, _ rhs: Any)
-  case isGreaterThan(_ lhs: String, _ rhs: Any)
+  case isLessThan(_ field: String, _ value: Any)
+  case isGreaterThan(_ field: String, _ value: Any)
 
-  case isLessThanOrEqualTo(_ lhs: String, _ rhs: Any)
-  case isGreaterThanOrEqualTo(_ lhs: String, _ rhs: Any)
+  case isLessThanOrEqualTo(_ field: String, _ value: Any)
+  case isGreaterThanOrEqualTo(_ field: String, _ value: Any)
 
-  case orderBy(_ lhs: String, _ rhs: Bool)
+  case orderBy(_ field: String, _ value: Bool)
 
-  case limitTo(_ lhs: Int)
+  case limitTo(_ field: Int)
 
   /*
    Factory methods to expose the underlying enum cases with a nicer development experience and improved semantics.
    */
-  public static func whereField(_ lhs: String, isEqualTo rhs: Any) -> FIRPredicate {
-    .isEqualTo(lhs, rhs)
+  public static func whereField(_ field: String, isEqualTo value: Any) -> QueryPredicate {
+    .isEqualTo(field, value)
   }
 
-  public static func whereField(_ lhs: String, isIn rhs: [Any]) -> FIRPredicate {
-    .isIn(lhs, rhs)
+  public static func whereField(_ field: String, isIn values: [Any]) -> QueryPredicate {
+    .isIn(field, values)
   }
 
-  public static func whereField(_ lhs: String, isNotIn rhs: [Any]) -> FIRPredicate {
-    .isNotIn(lhs, rhs)
+  public static func whereField(_ field: String, isNotIn values: [Any]) -> QueryPredicate {
+    .isNotIn(field, values)
   }
 
-  public static func whereField(_ lhs: String, arrayContains rhs: Any) -> FIRPredicate {
-    .arrayContains(lhs, rhs)
+  public static func whereField(_ field: String, arrayContains value: Any) -> QueryPredicate {
+    .arrayContains(field, value)
   }
 
-  public static func whereField(_ lhs: String, arrayContainsAny rhs: [Any]) -> FIRPredicate {
-    .arrayContainsAny(lhs, rhs)
+  public static func whereField(_ field: String,
+                                arrayContainsAny values: [Any]) -> QueryPredicate {
+    .arrayContainsAny(field, values)
   }
 
-  public static func whereField(_ lhs: String, isLessThan rhs: Any) -> FIRPredicate {
-    .isLessThan(lhs, rhs)
+  public static func whereField(_ field: String, isLessThan value: Any) -> QueryPredicate {
+    .isLessThan(field, value)
   }
 
-  public static func whereField(_ lhs: String, isGreaterThan rhs: Any) -> FIRPredicate {
-    .isGreaterThan(lhs, rhs)
+  public static func whereField(_ field: String, isGreaterThan value: Any) -> QueryPredicate {
+    .isGreaterThan(field, value)
   }
 
-  public static func whereField(_ lhs: String, isLessThanOrEqualTo rhs: Any) -> FIRPredicate {
-    .isLessThanOrEqualTo(lhs, rhs)
+  public static func whereField(_ field: String,
+                                isLessThanOrEqualTo value: Any) -> QueryPredicate {
+    .isLessThanOrEqualTo(field, value)
   }
 
-  public static func whereField(_ lhs: String, isGreaterThanOrEqualTo rhs: Any) -> FIRPredicate {
-    .isGreaterThanOrEqualTo(lhs, rhs)
+  public static func whereField(_ field: String,
+                                isGreaterThanOrEqualTo value: Any) -> QueryPredicate {
+    .isGreaterThanOrEqualTo(field, value)
   }
 
-  public static func order(by lhs: String, descending rhs: Bool = false) -> FIRPredicate {
-    .orderBy(lhs, rhs)
+  public static func order(by field: String, descending value: Bool = false) -> QueryPredicate {
+    .orderBy(field, value)
   }
 
-  public static func limit(to lhs: Int) -> FIRPredicate {
-    .limitTo(lhs)
+  public static func limit(to field: Int) -> QueryPredicate {
+    .limitTo(field)
   }
 }
 
 @available(iOS 13.0, *)
-internal class QueryStore<T: Decodable>: ObservableObject {
+internal class FirestoreQueryObservable<T: Decodable>: ObservableObject {
   @Published var items: [T] = []
 
   private let firestore = Firestore.firestore()
   private var listener: ListenerRegistration? = nil
 
-  init(collectionPath: String, predicates: [FIRPredicate]) {
+  init(collectionPath: String, predicates: [QueryPredicate]) {
     setupListener(from: collectionPath, withPredicates: predicates)
   }
 
@@ -100,33 +103,33 @@ internal class QueryStore<T: Decodable>: ObservableObject {
   }
 
   private func setupListener(from collectionPath: String,
-                             withPredicates predicates: [FIRPredicate]) {
+                             withPredicates predicates: [QueryPredicate]) {
     var query: Query = firestore.collection(collectionPath)
 
     for predicate in predicates {
       switch predicate {
-      case let .isEqualTo(lhs, rhs):
-        query = query.whereField(lhs, isEqualTo: rhs)
-      case let .isIn(lhs, rhs):
-        query = query.whereField(lhs, in: rhs)
-      case let .isNotIn(lhs, rhs):
-        query = query.whereField(lhs, notIn: rhs)
-      case let .arrayContains(lhs, rhs):
-        query = query.whereField(lhs, arrayContains: rhs)
-      case let .arrayContainsAny(lhs, rhs):
-        query = query.whereField(lhs, arrayContainsAny: rhs)
-      case let .isLessThan(lhs, rhs):
-        query = query.whereField(lhs, isLessThan: rhs)
-      case let .isGreaterThan(lhs, rhs):
-        query = query.whereField(lhs, isGreaterThan: rhs)
-      case let .isLessThanOrEqualTo(lhs, rhs):
-        query = query.whereField(lhs, isLessThanOrEqualTo: rhs)
-      case let .isGreaterThanOrEqualTo(lhs, rhs):
-        query = query.whereField(lhs, isGreaterThanOrEqualTo: rhs)
-      case let .orderBy(lhs, rhs):
-        query = query.order(by: lhs, descending: rhs)
-      case let .limitTo(lhs):
-        query = query.limit(to: lhs)
+      case let .isEqualTo(field, value):
+        query = query.whereField(field, isEqualTo: value)
+      case let .isIn(field, values):
+        query = query.whereField(field, in: values)
+      case let .isNotIn(field, values):
+        query = query.whereField(field, notIn: values)
+      case let .arrayContains(field, value):
+        query = query.whereField(field, arrayContains: value)
+      case let .arrayContainsAny(field, values):
+        query = query.whereField(field, arrayContainsAny: values)
+      case let .isLessThan(field, value):
+        query = query.whereField(field, isLessThan: value)
+      case let .isGreaterThan(field, value):
+        query = query.whereField(field, isGreaterThan: value)
+      case let .isLessThanOrEqualTo(field, value):
+        query = query.whereField(field, isLessThanOrEqualTo: value)
+      case let .isGreaterThanOrEqualTo(field, value):
+        query = query.whereField(field, isGreaterThanOrEqualTo: value)
+      case let .orderBy(field, value):
+        query = query.order(by: field, descending: value)
+      case let .limitTo(field):
+        query = query.limit(to: field)
       }
     }
 
@@ -157,20 +160,17 @@ internal class QueryStore<T: Decodable>: ObservableObject {
 @available(iOS 14.0, *)
 @propertyWrapper
 public struct FirestoreQuery<T: Decodable>: DynamicProperty {
-  @StateObject private var store: QueryStore<T>
+  @StateObject private var store: FirestoreQueryObservable<T>
 
-  public private(set) var wrappedValue: [T] {
+  public var wrappedValue: [T] {
     get {
       store.items
     }
-    nonmutating set {
-      store.items = newValue
-    }
   }
 
-  public init(collectionPath: String, predicates: [FIRPredicate] = []) {
+  public init(collectionPath: String, predicates: [QueryPredicate] = []) {
     _store =
-      StateObject(wrappedValue: QueryStore<T>(collectionPath: collectionPath,
-                                              predicates: predicates))
+      StateObject(wrappedValue: FirestoreQueryObservable<T>(collectionPath: collectionPath,
+                                                            predicates: predicates))
   }
 }
