@@ -3,4 +3,4 @@ To build the protos:
 - Verify version in generate_protos.sh
 - `./generate_protos.sh`
 
-Make sure to [re-generate the project](https://github.com/firebase/firebase-ios-sdk/tree/perfNpScript/FirebasePerformance#to-develop-on-firebase-performance) after protos are built.
+Make sure to [re-generate the project](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebasePerformance#to-develop-on-firebase-performance) after protos are built.

@@ -13,11 +13,6 @@
 // limitations under the License.
 
 #import "FirebasePerformance/Sources/Instrumentation/UIKit/FPRUIViewControllerInstrument.h"
-
-#if !TARGET_OS_OSX
-#import <UIKit/UIKit.h>
-#endif
-
 #import "FirebasePerformance/Sources/AppActivity/FPRScreenTraceTracker+Private.h"
 #import "FirebasePerformance/Sources/Common/FPRDiagnostics.h"
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
