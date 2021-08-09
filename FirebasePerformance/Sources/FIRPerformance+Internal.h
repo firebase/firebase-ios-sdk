@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Public/FIRPerformance.h"
-#import "FirebasePerformance/Sources/Public/FIRPerformanceAttributable.h"
+#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRPerformance.h"
+#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRPerformanceAttributable.h"
 
 /**
  * Extension that is added on top of the class FIRPerformance to make certain methods used

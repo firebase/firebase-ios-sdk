@@ -21,10 +21,11 @@
 #import "FirebasePerformance/Sources/Configurations/FPRRemoteConfigFlags.h"
 #import "FirebasePerformance/Sources/Instrumentation/FPRNetworkTrace+Private.h"
 #import "FirebasePerformance/Sources/Instrumentation/FPRNetworkTrace.h"
-#import "FirebasePerformance/Sources/Public/FIRPerformance.h"
+#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRPerformance.h"
 
 #import "FirebasePerformance/Tests/Unit/Configurations/FPRFakeRemoteConfig.h"
 #import "FirebasePerformance/Tests/Unit/FPRTestCase.h"
+#import "FirebasePerformance/Tests/Unit/FPRTestUtils.h"
 
 #import <OCMock/OCMock.h>
 
@@ -311,18 +312,16 @@
  * Validates that the uploaded file size correctly reflect in the NetworkTrace.
  */
 - (void)testDidUploadFile {
-  NSString *fileName = [NSString stringWithFormat:@"%@", @"unittest_tmpfile"];
-  NSURL *fileURL =
-      [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:fileName]];
-  NSData *data = [@"Some random text" dataUsingEncoding:NSUTF8StringEncoding];
-  [data writeToURL:fileURL options:NSDataWritingAtomic error:nil];
+  NSBundle *bundle = [FPRTestUtils getBundle];
+  NSURL *fileURL = [bundle URLForResource:@"smallDownloadFile" withExtension:@""];
 
   FPRNetworkTrace *trace = [[FPRNetworkTrace alloc] initWithURLRequest:self.testURLRequest];
+
   [trace start];
   [trace checkpointState:FPRNetworkTraceCheckpointStateInitiated];
   [trace checkpointState:FPRNetworkTraceCheckpointStateResponseReceived];
   [trace didUploadFileWithURL:fileURL];
-  XCTAssertEqual(trace.requestSize, 16);
+  XCTAssertEqual(trace.requestSize, 26);
   XCTAssertEqual(trace.responseSize, 0);
 
   [[NSFileManager defaultManager] removeItemAtURL:fileURL error:nil];
@@ -469,6 +468,10 @@
   [trace checkpointState:FPRNetworkTraceCheckpointStateResponseReceived];
 
   NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
+  [defaultCenter postNotificationName:UIWindowDidBecomeVisibleNotification
+                               object:[UIApplication sharedApplication]];
+  [defaultCenter postNotificationName:UIApplicationDidBecomeActiveNotification
+                               object:[UIApplication sharedApplication]];
   [defaultCenter postNotificationName:UIApplicationWillEnterForegroundNotification
                                object:[UIApplication sharedApplication]];
   [defaultCenter postNotificationName:UIApplicationWillEnterForegroundNotification

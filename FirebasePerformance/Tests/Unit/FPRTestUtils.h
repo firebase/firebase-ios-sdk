@@ -28,6 +28,10 @@ NS_ASSUME_NONNULL_BEGIN
 /** Default initializer. */
 - (instancetype)init NS_UNAVAILABLE;
 
+/** Provide the NSBundle instance that can to be used for testing. SPM tests will have a different
+ * bundle when compared to the default unit test bundle. */
++ (NSBundle *)getBundle;
+
 /** Creates a Performance Trace object. */
 + (FIRTrace *)createRandomTraceWithName:(NSString *)name;
 

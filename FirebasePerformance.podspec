@@ -40,7 +40,7 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
     base_dir + 'Public/**/*.h',
   ]
 
-  s.public_header_files = base_dir + 'Sources/Public/*.h'
+  s.public_header_files = base_dir + 'Sources/Public/FirebasePerformance/*.h'
 
   preprocessor_definitions = 'GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1 ' + 'FIRPerformance_LIB_VERSION=' + String(s.version)
   preprocessor_definitions += ' PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1'
@@ -73,7 +73,7 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
     unit_tests.scheme = { :code_coverage => true }
     unit_tests.source_files = [
       'FirebasePerformance/Tests/Unit/**/*.{m,h,plist}',
-      'GoogleDataTransport/GDTCORTests/Common/**/*.[hm]',
+      'SharedTestUtilities/*.[hm]',
     ]
     unit_tests.resources = ['FirebasePerformance/Tests/Unit/Server/*File']
     unit_tests.requires_arc = true

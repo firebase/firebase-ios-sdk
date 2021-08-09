@@ -29,6 +29,14 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
 
 #pragma mark - Test utility methods
 
++ (NSBundle *)getBundle {
+#if SWIFT_PACKAGE
+  return Firebase_PerformanceUnit_SWIFTPM_MODULE_BUNDLE();
+#else
+  return [NSBundle bundleForClass:[FPRTestUtils class]];
+#endif
+}
+
 + (FIRTrace *)createRandomTraceWithName:(NSString *)traceName {
   FIRTrace *trace = [[FIRTrace alloc] initWithName:traceName];
   [trace start];

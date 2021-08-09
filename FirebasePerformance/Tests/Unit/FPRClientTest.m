@@ -27,7 +27,7 @@
 #import "FirebasePerformance/Tests/Unit/Fakes/FPRFakeInstallations.h"
 
 #import <OCMock/OCMock.h>
-#import "GoogleDataTransport/GDTCORTests/Common/Fakes/GDTCORTransportFake.h"
+#import "SharedTestUtilities/GDTCORTransportFake.h"
 
 @interface FPRClientTest : FPRTestCase
 
