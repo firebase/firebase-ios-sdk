@@ -19,6 +19,9 @@
 /* Notification name when the session Id gets updated. */
 FOUNDATION_EXTERN NSString *_Nonnull const kFPRSessionIdUpdatedNotification;
 
+/* Notification name when the session Id gets updated. */
+FOUNDATION_EXTERN NSString *_Nonnull const kFPRSessionIdNotificationKey;
+
 /** This class manages the current active sessionId of the application and provides mechanism for
  *  propagating the session Id.
  */
