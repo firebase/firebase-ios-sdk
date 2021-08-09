@@ -29,7 +29,6 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
   base_dir = "FirebasePerformance/"
   s.source_files = [
     base_dir + 'Sources/**/*.[cmh]',
-    base_dir + 'ProtoSupport/**/*.[mh]',
     'FirebaseCore/Sources/Private/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
     'FirebaseRemoteConfig/Sources/Private/*.h',
@@ -42,7 +41,7 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
 
   s.public_header_files = base_dir + 'Sources/Public/FirebasePerformance/*.h'
 
-  preprocessor_definitions = 'GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1 ' + 'FIRPerformance_LIB_VERSION=' + String(s.version)
+  preprocessor_definitions = 'FIRPerformance_LIB_VERSION=' + String(s.version)
   preprocessor_definitions += ' PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1'
   if ENV['FPR_UNSWIZZLE_AVAILABLE'] && ENV['FPR_UNSWIZZLE_AVAILABLE'] == '1' then
     preprocessor_definitions += ' UNSWIZZLE_AVAILABLE=1'
@@ -65,7 +64,6 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
   s.dependency 'GoogleUtilities/Environment', '~> 7.4'
   s.dependency 'GoogleUtilities/ISASwizzler', '~> 7.4'
   s.dependency 'GoogleUtilities/MethodSwizzler', '~> 7.4'
-  s.dependency 'Protobuf', '~> 3.15'
   s.dependency 'nanopb', '~> 2.30908.0'
 
   s.test_spec 'unit' do |unit_tests|
