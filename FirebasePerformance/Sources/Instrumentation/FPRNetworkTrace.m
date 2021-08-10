@@ -200,7 +200,7 @@ NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
     [self checkpointState:FPRNetworkTraceCheckpointStateInitiated];
 
     FPRSessionManager *sessionManager = [FPRSessionManager sharedInstance];
-    [self updateTraceWithCurrentSession:[[sessionManager sessionDetails] copy]];
+    [self updateTraceWithCurrentSession:[sessionManager.sessionDetails copy]];
     [sessionManager.sessionNotificationCenter addObserver:self
                                                  selector:@selector(sessionChanged:)
                                                      name:kFPRSessionIdUpdatedNotification

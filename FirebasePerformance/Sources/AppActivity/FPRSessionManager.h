@@ -28,7 +28,7 @@ FOUNDATION_EXTERN NSString *_Nonnull const kFPRSessionIdNotificationKey;
 @interface FPRSessionManager : NSObject
 
 /** The current active session managed by the session manager. */
-@property(nonatomic, readonly, nonnull) FPRSessionDetails *sessionDetails;
+@property(atomic, readonly, nonnull) FPRSessionDetails *sessionDetails;
 
 /**
  * The notification center managed by the session manager. All the notifications by the session
