@@ -23,6 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class FPRCPUGaugeCollector;
 
 /** Delegate method for the CPU Gauge collector to report back the CPU gauge data. */
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 @protocol FPRCPUGaugeCollectorDelegate
 
 /**
@@ -38,6 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** CPU Gauge collector implementation. This class collects the CPU utilitization and reports back
  *  to the delegate.
  */
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 @interface FPRCPUGaugeCollector : NSObject <FPRGaugeCollector>
 
 /** Reference to the delegate object. */

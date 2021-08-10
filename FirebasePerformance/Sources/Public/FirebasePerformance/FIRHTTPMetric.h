@@ -45,6 +45,7 @@ typedef NS_ENUM(NSInteger, FIRHTTPMethod) {
  * FIRHTTPMetric object can be used to make the SDK record information about a HTTP network request.
  */
 NS_SWIFT_NAME(HTTPMetric)
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 @interface FIRHTTPMetric : NSObject <FIRPerformanceAttributable>
 
 /**

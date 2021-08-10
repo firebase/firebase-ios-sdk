@@ -22,6 +22,7 @@ FOUNDATION_EXTERN NSString *_Nonnull const kFPRSessionIdUpdatedNotification;
 /** This class manages the current active sessionId of the application and provides mechanism for
  *  propagating the session Id.
  */
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 @interface FPRSessionManager : NSObject
 
 /** The current active session managed by the session manager. */

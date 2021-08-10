@@ -107,21 +107,25 @@ extern StringToNumberMap* _Nullable FPREncodeStringToNumberMap(NSDictionary* _Nu
  *  @param appID The Google app id to put into the message
  *  @return A firebase_perf_v1_PerfMetric struct.
  */
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 extern firebase_perf_v1_PerfMetric FPRGetPerfMetricMessage(NSString* _Nonnull appID);
 
 /** Creates a new firebase_perf_v1_ApplicationInfo struct populated with system metadata.
  *  @return A firebase_perf_v1_ApplicationInfo struct.
  */
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 extern firebase_perf_v1_ApplicationInfo FPRGetApplicationInfoMessage(void);
 
 /** Converts the FIRTrace object to a firebase_perf_v1_TraceMetric struct.
  *  @return A firebase_perf_v1_TraceMetric struct.
  */
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 extern firebase_perf_v1_TraceMetric FPRGetTraceMetric(FIRTrace* _Nonnull trace);
 
 /** Converts the FPRNetworkTrace object to a firebase_perf_v1_NetworkRequestMetric struct.
  *  @return A firebase_perf_v1_NetworkRequestMetric struct.
  */
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 extern firebase_perf_v1_NetworkRequestMetric FPRGetNetworkRequestMetric(
     FPRNetworkTrace* _Nonnull trace);
 

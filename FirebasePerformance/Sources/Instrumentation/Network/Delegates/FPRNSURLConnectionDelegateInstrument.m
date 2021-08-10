@@ -39,6 +39,7 @@ static dispatch_queue_t GetInstrumentationQueue() {
  *  @param instrumentor The FPRClassInstrumentor to add the selector instrumentor to.
  */
 FOUNDATION_STATIC_INLINE
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 void InstrumentConnectionDidFailWithError(FPRClassInstrumentor *instrumentor) {
   SEL selector = @selector(connection:didFailWithError:);
   FPRSelectorInstrumentor *selectorInstrumentor =
@@ -63,6 +64,7 @@ void InstrumentConnectionDidFailWithError(FPRClassInstrumentor *instrumentor) {
  *  @param instrumentor The FPRClassInstrumentor to add the selector instrumentor to.
  */
 FOUNDATION_STATIC_INLINE
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 void InstrumentConnectionWillSendRequestRedirectResponse(FPRClassInstrumentor *instrumentor) {
   SEL selector = @selector(connection:willSendRequest:redirectResponse:);
   FPRSelectorInstrumentor *selectorInstrumentor =
@@ -85,6 +87,7 @@ void InstrumentConnectionWillSendRequestRedirectResponse(FPRClassInstrumentor *i
  *  @param instrumentor The FPRClassInstrumentor to add the selector instrumentor to.
  */
 FOUNDATION_STATIC_INLINE
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 void InstrumentConnectionDidReceiveResponse(FPRClassInstrumentor *instrumentor) {
   SEL selector = @selector(connection:didReceiveResponse:);
   FPRSelectorInstrumentor *selectorInstrumentor =
@@ -109,6 +112,7 @@ void InstrumentConnectionDidReceiveResponse(FPRClassInstrumentor *instrumentor) 
  *  @param instrumentor The FPRClassInstrumentor to add the selector instrumentor to.
  */
 FOUNDATION_STATIC_INLINE
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 void InstrumentConnectionDidReceiveData(FPRClassInstrumentor *instrumentor) {
   SEL selector = @selector(connection:didReceiveData:);
   FPRSelectorInstrumentor *selectorInstrumentor =
@@ -131,6 +135,7 @@ void InstrumentConnectionDidReceiveData(FPRClassInstrumentor *instrumentor) {
  *  @param instrumentor The FPRClassInstrumentor to add the selector instrumentor to.
  */
 FOUNDATION_STATIC_INLINE
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 void InstrumentConnectionAllTheTotals(FPRClassInstrumentor *instrumentor) {
   SEL selector = @selector(connection:didSendBodyData:totalBytesWritten:totalBytesExpectedToWrite:);
   FPRSelectorInstrumentor *selectorInstrumentor =
@@ -157,6 +162,7 @@ void InstrumentConnectionAllTheTotals(FPRClassInstrumentor *instrumentor) {
  *  @param instrumentor The FPRClassInstrumentor to add the selector instrumentor to.
  */
 FOUNDATION_STATIC_INLINE
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 void InstrumentConnectionDidFinishLoading(FPRClassInstrumentor *instrumentor) {
   SEL selector = @selector(connectionDidFinishLoading:);
   FPRSelectorInstrumentor *selectorInstrumentor =
@@ -178,6 +184,7 @@ void InstrumentConnectionDidFinishLoading(FPRClassInstrumentor *instrumentor) {
  *  @param instrumentor The FPRClassInstrumentor to add the selector instrumentor to.
  */
 FOUNDATION_STATIC_INLINE
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 void InstrumentConnectionDidWriteDataTotalBytesWrittenExpectedTotalBytes(
     FPRClassInstrumentor *instrumentor) {
   SEL selector = @selector(connection:didWriteData:totalBytesWritten:expectedTotalBytes:);
@@ -202,6 +209,7 @@ void InstrumentConnectionDidWriteDataTotalBytesWrittenExpectedTotalBytes(
  *  @param instrumentor The FPRClassInstrumentor to add the selector instrumentor to.
  */
 FOUNDATION_STATIC_INLINE
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 void InstrumentConnectionDidFinishDownloadingDestinationURL(FPRClassInstrumentor *instrumentor) {
   SEL selector = @selector(connectionDidFinishDownloading:destinationURL:);
   FPRSelectorInstrumentor *selectorInstrumentor =
@@ -222,6 +230,7 @@ void InstrumentConnectionDidFinishDownloadingDestinationURL(FPRClassInstrumentor
 
 #pragma mark - Helper functions
 FOUNDATION_STATIC_INLINE
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 void CopySelector(SEL selector, FPRObjectInstrumentor *instrumentor) {
   static Class fromClass = Nil;
   static dispatch_once_t onceToken;
