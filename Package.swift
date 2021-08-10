@@ -17,7 +17,7 @@
 
 import PackageDescription
 
-let firebaseVersion = "8.4.0"
+let firebaseVersion = "8.6.0"
 
 let package = Package(
   name: "Firebase",
@@ -803,11 +803,15 @@ let package = Package(
         .product(name: "GULReachability", package: "GoogleUtilities"),
         .product(name: "GULUserDefaults", package: "GoogleUtilities"),
         .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
+        .product(name: "nanopb", package: "nanopb"),
       ],
       path: "FirebaseMessaging/Sources",
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
+        .define("PB_FIELD_32BIT", to: "1"),
+        .define("PB_NO_PACKED_STRUCTS", to: "1"),
+        .define("PB_ENABLE_MALLOC", to: "1"),
       ],
       linkerSettings: [
         .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
@@ -955,11 +959,12 @@ let package = Package(
     .testTarget(
       name: "swift-test",
       dependencies: [
+        "Firebase",
         "FirebaseAuth",
+        "FirebaseAppCheck",
         "FirebaseABTesting",
         .target(name: "FirebaseAppDistribution",
                 condition: .when(platforms: [.iOS])),
-        "Firebase",
         "FirebaseCombineSwift",
         "FirebaseCrashlytics",
         "FirebaseCore",
@@ -994,11 +999,12 @@ let package = Package(
     .testTarget(
       name: "objc-import-test",
       dependencies: [
+        "Firebase",
         "FirebaseAuth",
         "FirebaseABTesting",
+        "FirebaseAppCheck",
         .target(name: "FirebaseAppDistribution",
                 condition: .when(platforms: [.iOS])),
-        "Firebase",
         "FirebaseCrashlytics",
         "FirebaseCore",
         "FirebaseDatabase",

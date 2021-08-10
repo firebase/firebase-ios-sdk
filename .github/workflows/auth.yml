@@ -26,6 +26,8 @@ jobs:
     - uses: actions/checkout@v2
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
+    - name: Configure test keychain
+      run: scripts/configure_test_keychain.sh
     - name: Build and test
       run: |
         scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=${{ matrix.target }}
@@ -129,6 +131,8 @@ jobs:
     - uses: actions/checkout@v2
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
+    - name: Configure test keychain
+      run: scripts/configure_test_keychain.sh
     - name: PodLibLint Auth Cron
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
 

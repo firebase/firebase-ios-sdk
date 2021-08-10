@@ -66,12 +66,12 @@ final class DatabaseAPITests {
 
     // MARK: - DatabaseQuery
 
-    var uint: UInt = 0
+    let uint: UInt = 0
     let dataEventType: DataEventType = .value
-    var child = "child"
-    var childKey: String? = "key"
-    var value: Any? = "value"
-    var priority: Any? = "priority"
+    let child = "child"
+    let childKey: String? = "key"
+    let value: Any? = "value"
+    let priority: Any? = "priority"
 
     var databaseHandle: DatabaseHandle = uint
     var databaseQuery: DatabaseQuery = DatabaseQuery()
@@ -115,9 +115,9 @@ final class DatabaseAPITests {
     #if swift(>=5.5)
       if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
-        async {
+        Task {
           do {
-            let /* dataSnapshot */ _: DataSnapshot = try await databaseQuery.getData()
+            let /* dataSnapshot */ _: DataSnapshot = try await DatabaseQuery().getData()
           } catch {
             // ...
           }
@@ -141,14 +141,10 @@ final class DatabaseAPITests {
     #if swift(>=5.5)
       if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
-        async {
-          do {
-            // observeSingleEvent(of eventType:)
-            let _: (DataSnapshot, String?) = try await databaseQuery
-              .observeSingleEventAndPreviousSiblingKey(of: dataEventType)
-          } catch {
-            // ...
-          }
+        Task {
+          // observeSingleEvent(of eventType:)
+          let _: (DataSnapshot, String?) = await DatabaseQuery()
+            .observeSingleEventAndPreviousSiblingKey(of: dataEventType)
         }
       }
     #endif // swift(>=5.5)
@@ -198,7 +194,7 @@ final class DatabaseAPITests {
     // MARK: - DatabaseReference
 
     let priorityAny: Any = "priority"
-    var values = [AnyHashable: Any]()
+    let values = [AnyHashable: Any]()
     var transactionResult = TransactionResult()
 
     // Retreive Child DatabaseReference
@@ -217,10 +213,10 @@ final class DatabaseAPITests {
     #if swift(>=5.5)
       if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
-        async {
+        Task {
           do {
             // setValue(_ value:)
-            databaseReference = try await databaseReference.setValue(value)
+            let /* ref */ _: DatabaseReference = try await DatabaseReference().setValue(value)
           } catch {
             // ...
           }
@@ -239,10 +235,11 @@ final class DatabaseAPITests {
     #if swift(>=5.5)
       if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
-        async {
+        Task {
           do {
             // setValue(_ value:andPriority priority:)
-            databaseReference = try await databaseReference.setValue(value, andPriority: priority)
+            let /* ref */ _: DatabaseReference = try await DatabaseReference()
+              .setValue(value, andPriority: priority)
           } catch {
             // ...
           }
@@ -262,9 +259,9 @@ final class DatabaseAPITests {
     #if swift(>=5.5)
       if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
-        async {
+        Task {
           do {
-            databaseReference = try await databaseReference.removeValue()
+            let /* ref */ _: DatabaseReference = try await DatabaseReference().removeValue()
           } catch {
             // ...
           }
@@ -284,10 +281,10 @@ final class DatabaseAPITests {
     #if swift(>=5.5)
       if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
-        async {
+        Task {
           do {
             // setPriority(_ priority:)
-            databaseReference = try await databaseReference.setPriority(priority)
+            let /* ref */ _: DatabaseReference = try await DatabaseReference().setPriority(priority)
           } catch {
             // ...
           }
@@ -307,10 +304,11 @@ final class DatabaseAPITests {
     #if swift(>=5.5)
       if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
-        async {
+        Task {
           do {
             // updateChildValues(_ values:)
-            databaseReference = try await databaseReference.updateChildValues(values)
+            let /* ref */ _: DatabaseReference = try await DatabaseReference()
+              .updateChildValues(values)
           } catch {
             // ...
           }
@@ -362,14 +360,10 @@ final class DatabaseAPITests {
     #if swift(>=5.5)
       if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
-        async {
-          do {
-            // observeSingleEvent(of eventType:)
-            let _: (DataSnapshot, String?) = try await databaseReference
-              .observeSingleEventAndPreviousSiblingKey(of: dataEventType)
-          } catch {
-            // ...
-          }
+        Task {
+          // observeSingleEvent(of eventType:)
+          let _: (DataSnapshot, String?) = await DatabaseReference()
+            .observeSingleEventAndPreviousSiblingKey(of: dataEventType)
         }
       }
     #endif // swift(>=5.5)
@@ -400,9 +394,9 @@ final class DatabaseAPITests {
     #if swift(>=5.5)
       if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
-        async {
+        Task {
           do {
-            let /* dataSnapshot */ _: DataSnapshot = try await databaseReference.getData()
+            let /* dataSnapshot */ _: DataSnapshot = try await DatabaseReference().getData()
           } catch {
             // ...
           }
@@ -444,10 +438,11 @@ final class DatabaseAPITests {
     #if swift(>=5.5)
       if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
-        async {
+        Task {
           do {
             // onDisconnectSetValue(_ value:)
-            databaseReference = try await databaseReference.onDisconnectSetValue(value)
+            let /* ref */ _: DatabaseReference = try await DatabaseReference()
+              .onDisconnectSetValue(value)
           } catch {
             // ...
           }
@@ -467,10 +462,10 @@ final class DatabaseAPITests {
     #if swift(>=5.5)
       if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
-        async {
+        Task {
           do {
             // onDisconnectSetValue(_ value:andPriority priority:)
-            databaseReference = try await databaseReference.onDisconnectSetValue(
+            let /* ref */ _: DatabaseReference = try await DatabaseReference().onDisconnectSetValue(
               value,
               andPriority: priority
             )
@@ -493,9 +488,10 @@ final class DatabaseAPITests {
     #if swift(>=5.5)
       if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
-        async {
+        Task {
           do {
-            databaseReference = try await databaseReference.onDisconnectRemoveValue()
+            let /* ref */ _: DatabaseReference = try await DatabaseReference()
+              .onDisconnectRemoveValue()
           } catch {
             // ...
           }
@@ -515,10 +511,11 @@ final class DatabaseAPITests {
     #if swift(>=5.5)
       if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
-        async {
+        Task {
           do {
             // onDisconnectUpdateChildValues(_ values:)
-            databaseReference = try await databaseReference.onDisconnectUpdateChildValues(values)
+            let /* ref */ _: DatabaseReference = try await DatabaseReference()
+              .onDisconnectUpdateChildValues(values)
           } catch {
             // ...
           }
@@ -538,9 +535,10 @@ final class DatabaseAPITests {
     #if swift(>=5.5)
       if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
-        async {
+        Task {
           do {
-            databaseReference = try await databaseReference.cancelDisconnectOperations()
+            let /* ref */ _: DatabaseReference = try await DatabaseReference()
+              .cancelDisconnectOperations()
           } catch {
             // ...
           }
@@ -569,13 +567,13 @@ final class DatabaseAPITests {
     #if swift(>=5.5)
       if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
-        async {
+        Task {
           do {
             // runTransactionBlock(_ block:)
-            let _: (Bool, DataSnapshot) = try await databaseReference
+            let _: (Bool, DataSnapshot) = try await DatabaseReference()
               .runTransactionBlock { mutableData in
                 let /* mutableData */ _: MutableData = mutableData
-                return transactionResult
+                return TransactionResult()
               }
           } catch {
             // ...
@@ -603,8 +601,8 @@ final class DatabaseAPITests {
 
     // Instance properties
     let /* parent */ _: DatabaseReference? = databaseReference.parent
+    let /* childKey */ _: String? = databaseReference.key
     databaseReference = databaseReference.root
-    childKey = databaseReference.key
     url = databaseReference.url
     database = databaseReference.database
 
@@ -638,15 +636,15 @@ final class DatabaseAPITests {
     let /* exists */ _: Bool = dataSnapshot.exists()
 
     // Data export
-    value = dataSnapshot.valueInExportFormat()
+    let /* value */ _: Any? = dataSnapshot.valueInExportFormat()
 
     // Properties
-    value = dataSnapshot.value
-    uint = dataSnapshot.childrenCount
     databaseReference = dataSnapshot.ref
-    child = dataSnapshot.key
+    let /* value */ _: Any? = dataSnapshot.value
+    let /* uint */ _: UInt = dataSnapshot.childrenCount
+    let /* child */ _: String? = dataSnapshot.key
     let /* children */ _: NSEnumerator = dataSnapshot.children
-    priority = dataSnapshot.priority
+    let /* priority */ _: Any? = dataSnapshot.priority
 
     // MARK: - MutableData
 
@@ -658,18 +656,19 @@ final class DatabaseAPITests {
     mutableData = mutableData.childData(byAppendingPath: path)
 
     // Properties
-    value = mutableData.value
-    priority = mutableData.priority
-    uint = mutableData.childrenCount
+    let /* value */ _: Any? = mutableData.value
+    let /* priority */ _: Any? = mutableData.priority
+
+    let /* uint */ _: UInt = mutableData.childrenCount
     let /* children */ _: NSEnumerator = mutableData.children
-    childKey = mutableData.key
+    let /* childKey */ _: String? = mutableData.key
 
     // MARK: - ServerValue
 
     let nsNumber: NSNumber = 0
 
-    values = ServerValue.timestamp()
-    values = ServerValue.increment(nsNumber)
+    let /* values */ _: [AnyHashable: Any] = ServerValue.timestamp()
+    let /* values */ _: [AnyHashable: Any] = ServerValue.increment(nsNumber)
 
     // MARK: - TransactionResult
 
