@@ -142,7 +142,7 @@
     self.backgroundActivityTracker = [[FPRTraceBackgroundActivityTracker alloc] init];
     FPRSessionManager *sessionManager = [FPRSessionManager sharedInstance];
     if (!self.isStage) {
-      [self updateTraceWithSessionId:[sessionManager sessionDetails]];
+      [self updateTraceWithSessionId:[[sessionManager sessionDetails] copy]];
       [sessionManager.sessionNotificationCenter addObserver:self
                                                    selector:@selector(sessionChanged:)
                                                        name:kFPRSessionIdUpdatedNotification
