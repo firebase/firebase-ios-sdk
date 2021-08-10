@@ -1,4 +1,4 @@
-# Unreleased
+# 8.6.0 
 - [fixed] Annotated platform-level availability using `API_UNAVAILABLE` instead of conditionally compiling certain methods with `#if` directives (#8451).
 
 # 8.5.0
