@@ -37,6 +37,7 @@ static NSString *const kVersionInfo = @"1.0";
 @property(nonatomic, readonly, strong)
     NSMutableArray<FIRMessagingDeviceCheckinCompletion> *checkinHandlers;
 @property(nonatomic, readwrite, strong) FIRMessagingCheckinService *checkinService;
+@property(nonatomic, readwrite, strong) FIRMessagingCheckinStore *checkinStore;
 @end
 
 @interface FIRMessagingAuthServiceTest : XCTestCase
@@ -53,8 +54,9 @@ static NSString *const kVersionInfo = @"1.0";
 
 - (void)setUp {
   [super setUp];
-  _mockStore = OCMClassMock([FIRMessagingCheckinStore class]);
-  _authService = [[FIRMessagingAuthService alloc] initWithCheckinStore:_mockStore];
+  _authService = [[FIRMessagingAuthService alloc] init];
+  _mockStore = OCMPartialMock(_authService.checkinStore);
+
   _mockCheckinService = OCMPartialMock(_authService.checkinService);
   // The tests here are to focus on checkin interval not locale change, so always set locale as
   // non-changed.

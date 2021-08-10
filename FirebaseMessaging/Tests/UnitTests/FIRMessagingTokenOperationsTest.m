@@ -99,8 +99,7 @@ static NSString *kRegistrationToken = @"token-12345";
   _checkinService = [[FIRMessagingCheckinService alloc] init];
   _mockCheckinService = OCMPartialMock(_checkinService);
 
-  _authService = [[FIRMessagingAuthService alloc]
-      initWithCheckinStore:[[FIRMessagingCheckinStore alloc] init]];
+  _authService = [[FIRMessagingAuthService alloc] init];
   _instanceID = @"instanceID";
 
   // `FIRMessagingTokenOperation` uses `FIRInstallations` under the hood to get FIS auth token.
