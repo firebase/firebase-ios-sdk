@@ -146,8 +146,7 @@
                                                    secretToken:@"test-secret"];
   // Expect checkin is removed if it's a fresh install.
   id completionArg = [OCMArg invokeBlockWithArgs:[NSNull null], nil];
-  OCMExpect([_mockCheckinStore
-      removeCheckinPreferencesWithHandler:completionArg]);
+  OCMExpect([_mockCheckinStore removeCheckinPreferencesWithHandler:completionArg]);
   // Always setting up stub after expect.
   OCMStub([_mockAuthService checkinPreferences]).andReturn(checkinPreferences);
   // Plist file doesn't exist, meaning this is a fresh install.
