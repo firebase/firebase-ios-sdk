@@ -1,5 +1,6 @@
 # Version 8.6.0
 * Add Firebase Performance support for Swift Package Manager. (#6528)
+* Fix a crash due to a race condition. (#8485)
 
 # Version 8.2.0
 * Update log messages with proper log levels.
