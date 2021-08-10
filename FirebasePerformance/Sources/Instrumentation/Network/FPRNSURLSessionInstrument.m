@@ -78,7 +78,7 @@ typedef void (^FPRDownloadTaskCompletionHandler)(NSURL *_Nullable location,
  *  @param instrumentor The FPRClassInstrumentor to add the selector instrumentor to.
  */
 FOUNDATION_STATIC_INLINE
-NS_EXTENSION_UNAVAILABLE_IOS("Firebase Performance is not supported for iOS extensions.")
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 void InstrumentSharedSession(FPRNSURLSessionInstrument *instrument,
                              FPRClassInstrumentor *instrumentor) {
   SEL selector = @selector(sharedSession);
@@ -108,7 +108,7 @@ void InstrumentSharedSession(FPRNSURLSessionInstrument *instrument,
  *  @param instrumentor The FPRClassInstrumentor to add the selector instrumentor to.
  */
 FOUNDATION_STATIC_INLINE
-NS_EXTENSION_UNAVAILABLE_IOS("Firebase Performance is not supported for iOS extensions.")
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 void InstrumentSessionWithConfiguration(FPRNSURLSessionInstrument *instrument,
                                         FPRClassInstrumentor *instrumentor) {
   SEL selector = @selector(sessionWithConfiguration:);
@@ -140,7 +140,7 @@ void InstrumentSessionWithConfiguration(FPRNSURLSessionInstrument *instrument,
  *      selectors.
  */
 FOUNDATION_STATIC_INLINE
-NS_EXTENSION_UNAVAILABLE_IOS("Firebase Performance is not supported for iOS extensions.")
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 void InstrumentSessionWithConfigurationDelegateDelegateQueue(
     FPRNSURLSessionInstrument *instrument,
     FPRClassInstrumentor *instrumentor,
@@ -184,7 +184,7 @@ void InstrumentSessionWithConfigurationDelegateDelegateQueue(
  */
 
 FOUNDATION_STATIC_INLINE
-NS_EXTENSION_UNAVAILABLE_IOS("Firebase Performance is not supported for iOS extensions.")
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 void InstrumentDataTaskWithURL(FPRNSURLSessionInstrument *instrument,
                                FPRClassInstrumentor *instrumentor) {
   SEL selector = @selector(dataTaskWithURL:);
@@ -216,7 +216,7 @@ void InstrumentDataTaskWithURL(FPRNSURLSessionInstrument *instrument,
  *  @param instrumentor The FPRClassInstrumentor to add the selector instrumentor to.
  */
 FOUNDATION_STATIC_INLINE
-NS_EXTENSION_UNAVAILABLE_IOS("Firebase Performance is not supported for iOS extensions.")
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 void InstrumentDataTaskWithURLCompletionHandler(FPRNSURLSessionInstrument *instrument,
                                                 FPRClassInstrumentor *instrumentor) {
   SEL selector = @selector(dataTaskWithURL:completionHandler:);
@@ -256,7 +256,7 @@ void InstrumentDataTaskWithURLCompletionHandler(FPRNSURLSessionInstrument *instr
  */
 
 FOUNDATION_STATIC_INLINE
-NS_EXTENSION_UNAVAILABLE_IOS("Firebase Performance is not supported for iOS extensions.")
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 void InstrumentDataTaskWithRequest(FPRNSURLSessionInstrument *instrument,
                                    FPRClassInstrumentor *instrumentor) {
   SEL selector = @selector(dataTaskWithRequest:);
@@ -288,7 +288,7 @@ void InstrumentDataTaskWithRequest(FPRNSURLSessionInstrument *instrument,
  *  @param instrumentor The FPRClassInstrumentor to add the selector instrumentor to.
  */
 FOUNDATION_STATIC_INLINE
-NS_EXTENSION_UNAVAILABLE_IOS("Firebase Performance is not supported for iOS extensions.")
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 void InstrumentDataTaskWithRequestCompletionHandler(FPRNSURLSessionInstrument *instrument,
                                                     FPRClassInstrumentor *instrumentor) {
   SEL selector = @selector(dataTaskWithRequest:completionHandler:);
@@ -328,7 +328,7 @@ void InstrumentDataTaskWithRequestCompletionHandler(FPRNSURLSessionInstrument *i
  *  @param instrumentor The FPRClassInstrumentor to add the selector instrumentor to.
  */
 FOUNDATION_STATIC_INLINE
-NS_EXTENSION_UNAVAILABLE_IOS("Firebase Performance is not supported for iOS extensions.")
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 void InstrumentUploadTaskWithRequestFromFile(FPRNSURLSessionInstrument *instrument,
                                              FPRClassInstrumentor *instrumentor) {
   SEL selector = @selector(uploadTaskWithRequest:fromFile:);
@@ -360,7 +360,7 @@ void InstrumentUploadTaskWithRequestFromFile(FPRNSURLSessionInstrument *instrume
  *  @param instrumentor The FPRClassInstrumentor to add the selector instrumentor to.
  */
 FOUNDATION_STATIC_INLINE
-NS_EXTENSION_UNAVAILABLE_IOS("Firebase Performance is not supported for iOS extensions.")
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 void InstrumentUploadTaskWithRequestFromFileCompletionHandler(FPRNSURLSessionInstrument *instrument,
                                                               FPRClassInstrumentor *instrumentor) {
   SEL selector = @selector(uploadTaskWithRequest:fromFile:completionHandler:);
@@ -392,7 +392,7 @@ void InstrumentUploadTaskWithRequestFromFileCompletionHandler(FPRNSURLSessionIns
  *  @param instrumentor The FPRClassInstrumentor to add the selector instrumentor to.
  */
 FOUNDATION_STATIC_INLINE
-NS_EXTENSION_UNAVAILABLE_IOS("Firebase Performance is not supported for iOS extensions.")
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 void InstrumentUploadTaskWithRequestFromData(FPRNSURLSessionInstrument *instrument,
                                              FPRClassInstrumentor *instrumentor) {
   SEL selector = @selector(uploadTaskWithRequest:fromData:);
@@ -425,7 +425,7 @@ void InstrumentUploadTaskWithRequestFromData(FPRNSURLSessionInstrument *instrume
  *  @param instrumentor The FPRClassInstrumentor to add the selector instrumentor to.
  */
 FOUNDATION_STATIC_INLINE
-NS_EXTENSION_UNAVAILABLE_IOS("Firebase Performance is not supported for iOS extensions.")
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 void InstrumentUploadTaskWithRequestFromDataCompletionHandler(FPRNSURLSessionInstrument *instrument,
                                                               FPRClassInstrumentor *instrumentor) {
   SEL selector = @selector(uploadTaskWithRequest:fromData:completionHandler:);
@@ -458,7 +458,7 @@ void InstrumentUploadTaskWithRequestFromDataCompletionHandler(FPRNSURLSessionIns
  *  @param instrumentor The FPRClassInstrumentor to add the selector instrumentor to.
  */
 FOUNDATION_STATIC_INLINE
-NS_EXTENSION_UNAVAILABLE_IOS("Firebase Performance is not supported for iOS extensions.")
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 void InstrumentUploadTaskWithStreamedRequest(FPRNSURLSessionInstrument *instrument,
                                              FPRClassInstrumentor *instrumentor) {
   SEL selector = @selector(uploadTaskWithStreamedRequest:);
@@ -489,7 +489,7 @@ void InstrumentUploadTaskWithStreamedRequest(FPRNSURLSessionInstrument *instrume
  *  @param instrumentor The FPRClassInstrumentor to add the selector instrumentor to.
  */
 FOUNDATION_STATIC_INLINE
-NS_EXTENSION_UNAVAILABLE_IOS("Firebase Performance is not supported for iOS extensions.")
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 void InstrumentDownloadTaskWithURL(FPRNSURLSessionInstrument *instrument,
                                    FPRClassInstrumentor *instrumentor) {
   SEL selector = @selector(downloadTaskWithURL:);
@@ -520,7 +520,7 @@ void InstrumentDownloadTaskWithURL(FPRNSURLSessionInstrument *instrument,
  *  @param instrumentor The FPRClassInstrumentor to add the selector instrumentor to.
  */
 FOUNDATION_STATIC_INLINE
-NS_EXTENSION_UNAVAILABLE_IOS("Firebase Performance is not supported for iOS extensions.")
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 void InstrumentDownloadTaskWithURLCompletionHandler(FPRNSURLSessionInstrument *instrument,
                                                     FPRClassInstrumentor *instrumentor) {
   SEL selector = @selector(downloadTaskWithURL:completionHandler:);
@@ -560,7 +560,7 @@ void InstrumentDownloadTaskWithURLCompletionHandler(FPRNSURLSessionInstrument *i
  *  @param instrumentor The FPRClassInstrumentor to add the selector instrumentor to.
  */
 FOUNDATION_STATIC_INLINE
-NS_EXTENSION_UNAVAILABLE_IOS("Firebase Performance is not supported for iOS extensions.")
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 void InstrumentDownloadTaskWithRequest(FPRNSURLSessionInstrument *instrument,
                                        FPRClassInstrumentor *instrumentor) {
   SEL selector = @selector(downloadTaskWithRequest:);
@@ -591,7 +591,7 @@ void InstrumentDownloadTaskWithRequest(FPRNSURLSessionInstrument *instrument,
  *  @param instrumentor The FPRClassInstrumentor to add the selector instrumentor to.
  */
 FOUNDATION_STATIC_INLINE
-NS_EXTENSION_UNAVAILABLE_IOS("Firebase Performance is not supported for iOS extensions.")
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 void InstrumentDownloadTaskWithRequestCompletionHandler(FPRNSURLSessionInstrument *instrument,
                                                         FPRClassInstrumentor *instrumentor) {
   SEL selector = @selector(downloadTaskWithRequest:completionHandler:);

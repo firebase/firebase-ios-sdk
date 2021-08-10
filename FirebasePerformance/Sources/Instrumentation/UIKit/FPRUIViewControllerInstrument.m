@@ -39,7 +39,7 @@ static dispatch_queue_t GetInstrumentationQueue() {
 
 // Returns the singleton UIApplication of the application this is currently running in or nil if
 // it's in an app extension.
-NS_EXTENSION_UNAVAILABLE_IOS("Firebase Performance is not supported for iOS extensions.")
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 static UIApplication *FPRSharedApplication() {
   if ([GULAppEnvironmentUtil isAppExtension]) {
     return nil;
@@ -55,7 +55,7 @@ static UIApplication *FPRSharedApplication() {
  *  @param instrumentor The FPRClassInstrumentor to add the selector instrumentor to.
  */
 FOUNDATION_STATIC_INLINE
-NS_EXTENSION_UNAVAILABLE_IOS("Firebase Performance is not supported for iOS extensions.")
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 void InstrumentViewDidAppear(FPRUIViewControllerInstrument *instrument,
                              FPRClassInstrumentor *instrumentor) {
   SEL selector = @selector(viewDidAppear:);
@@ -80,7 +80,7 @@ void InstrumentViewDidAppear(FPRUIViewControllerInstrument *instrument,
  *  @param instrumentor The FPRClassInstrumentor to add the selector instrumentor to.
  */
 FOUNDATION_STATIC_INLINE
-NS_EXTENSION_UNAVAILABLE_IOS("Firebase Performance is not supported for iOS extensions.")
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 void InstrumentViewDidDisappear(FPRUIViewControllerInstrument *instrument,
                                 FPRClassInstrumentor *instrumentor) {
   SEL selector = @selector(viewDidDisappear:);
