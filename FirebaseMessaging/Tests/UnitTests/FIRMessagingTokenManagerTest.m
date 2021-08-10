@@ -119,15 +119,14 @@
 }
 
 - (void)testResetCredentialsWithNoCachedCheckin {
-  id niceMockCheckinStore = [OCMockObject niceMockForClass:[FIRMessagingCheckinStore class]];
-  [[niceMockCheckinStore reject]
-      removeCheckinPreferencesWithHandler:[OCMArg invokeBlockWithArgs:[NSNull null], nil]];
+  id completionArg = [OCMArg invokeBlockWithArgs:[NSNull null], nil];
+  OCMReject([_mockCheckinStore removeCheckinPreferencesWithHandler:completionArg]);
   // Always setting up stub after expect.
   OCMStub([_mockAuthService checkinPreferences]).andReturn(nil);
 
   [_messaging.tokenManager resetCredentialsIfNeeded];
 
-  OCMVerifyAll(niceMockCheckinStore);
+  OCMVerifyAll(_mockCheckinStore);
 }
 
 - (void)testResetCredentialsWithFreshInstall {
