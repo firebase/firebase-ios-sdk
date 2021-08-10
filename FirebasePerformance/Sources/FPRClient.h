@@ -30,6 +30,7 @@ typedef NS_ENUM(NSInteger, FPRClientErrorCode) {
 /** This class is not exposed to the public and internally provides the primary entry point into
  *  the Firebase Performance module's functionality.
  */
+NS_EXTENSION_UNAVAILABLE_IOS("Firebase Performance is not supported for iOS extensions.")
 @interface FPRClient : NSObject
 
 /** YES if SDK is configured, otherwise NO. */

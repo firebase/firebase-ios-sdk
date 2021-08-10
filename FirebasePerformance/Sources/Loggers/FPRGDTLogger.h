@@ -18,6 +18,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** Logger used to dispatch events to Google Data Transport layer. */
+NS_EXTENSION_UNAVAILABLE_IOS("Firebase Performance is not supported for iOS extensions.")
 @interface FPRGDTLogger : NSObject
 
 /** Log source initialized against. */

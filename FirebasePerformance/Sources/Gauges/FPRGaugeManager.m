@@ -26,6 +26,7 @@
 // Number of gauge data information after which that gets flushed to Google Data Transport.
 NSInteger const kGaugeDataBatchSize = 25;
 
+NS_EXTENSION_UNAVAILABLE_IOS("Firebase Performance is not supported for iOS extensions.")
 @interface FPRGaugeManager () <FPRCPUGaugeCollectorDelegate, FPRMemoryGaugeCollectorDelegate>
 
 /** @brief List of gauges that are currently being actively captured. */

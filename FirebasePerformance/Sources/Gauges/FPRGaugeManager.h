@@ -27,6 +27,7 @@ typedef NS_OPTIONS(NSUInteger, FPRGauges) {
 
 /** This class controls different gauge collection in the system. List of the gauges this class
  manages are listed above. */
+NS_EXTENSION_UNAVAILABLE_IOS("Firebase Performance is not supported for iOS extensions.")
 @interface FPRGaugeManager : NSObject
 
 /** @brief List of gauges that are currently being actively captured. */

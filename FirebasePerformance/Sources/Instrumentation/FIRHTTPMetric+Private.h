@@ -18,6 +18,7 @@
  * Extension that is added on top of the class FIRHTTPMetric to make the private properties visible
  * between the implementation file and the unit tests.
  */
+NS_EXTENSION_UNAVAILABLE_IOS("Firebase Performance is not supported for iOS extensions.")
 @interface FIRHTTPMetric ()
 
 /* Network trace to capture the HTTPMetric information. */

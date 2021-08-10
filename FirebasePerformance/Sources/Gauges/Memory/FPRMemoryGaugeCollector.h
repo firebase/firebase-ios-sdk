@@ -22,6 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class FPRMemoryGaugeCollector;
 
 /** Delegate method for the memory Gauge collector to report back the memory gauge data. */
+NS_EXTENSION_UNAVAILABLE_IOS("Firebase Performance is not supported for iOS extensions.")
 @protocol FPRMemoryGaugeCollectorDelegate
 
 /**
@@ -35,6 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+NS_EXTENSION_UNAVAILABLE_IOS("Firebase Performance is not supported for iOS extensions.")
 @interface FPRMemoryGaugeCollector : NSObject <FPRGaugeCollector>
 
 /** Reference to the delegate object. */
