@@ -465,6 +465,9 @@
   // Keychain can still exist even if app is uninstalled.
   FIRMessagingCheckinPreferences *oldCheckinPreferences = _authService.checkinPreferences;
 
+  if (!oldCheckinPreferences) {
+    return;
+  }
   [_authService resetCheckinWithHandler:^(NSError *_Nonnull error) {
     if (!error) {
       FIRMessagingLoggerDebug(
