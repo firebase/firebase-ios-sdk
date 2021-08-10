@@ -462,6 +462,8 @@
   if (checkinPlistExists) {
     return;
   }
+  // Keychain can still exist even if app is uninstalled.
+  FIRMessagingCheckinPreferences *oldCheckinPreferences = _authService.checkinPreferences;
 
   [_authService resetCheckinWithHandler:^(NSError *_Nonnull error) {
     if (!error) {
@@ -473,7 +475,45 @@
           kFIRMessagingMessageCodeStore003,
           @"Couldn't remove cached checkin preferences for a fresh install. Error: %@", error);
     }
+
+    if (oldCheckinPreferences.deviceID.length && oldCheckinPreferences.secretToken.length) {
+      FIRMessagingLoggerDebug(kFIRMessagingMessageCodeStore006,
+                              @"Resetting old checkin and deleting server registrations.");
+      // We don't really need to delete old FCM tokens created via IID auth tokens since
+      // those tokens are already hashed by APNS token as the has so creating a new
+      // token should automatically delete the old-token.
+      [self didDeleteFCMScopedTokensForCheckin:oldCheckinPreferences];
+    }
   }];
+}
+
+- (void)didDeleteFCMScopedTokensForCheckin:(FIRMessagingCheckinPreferences *)checkin {
+  // Make a best effort try to delete the old client related state on the FCM server. This is
+  // required to delete old pubusb registrations which weren't cleared when the app was deleted.
+  //
+  // This is only a one time effort. If this call fails the client would still receive duplicate
+  // pubsub notifications if he is again subscribed to the same topic.
+  //
+  // The client state should be cleared on the server for the provided checkin preferences.
+  FIRMessagingTokenDeleteOperation *operation =
+      [self createDeleteOperationWithAuthorizedEntity:nil
+                                                scope:nil
+                                   checkinPreferences:checkin
+                                           instanceID:nil
+                                               action:FIRMessagingTokenActionDeleteToken];
+  [operation addCompletionHandler:^(FIRMessagingTokenOperationResult result,
+                                    NSString *_Nullable token, NSError *_Nullable error) {
+    if (error) {
+      FIRMessagingMessageCode code =
+          kFIRMessagingMessageCodeTokenManagerErrorDeletingFCMTokensOnAppReset;
+      FIRMessagingLoggerDebug(code, @"Failed to delete GCM server registrations on app reset.");
+    } else {
+      FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenManagerDeletedFCMTokensOnAppReset,
+                              @"Successfully deleted GCM server registrations on app reset");
+    }
+  }];
+
+  [self.tokenOperations addOperation:operation];
 }
 
 #pragma mark - Unit Testing Stub Helpers
