@@ -466,6 +466,9 @@
   FIRMessagingCheckinPreferences *oldCheckinPreferences = _authService.checkinPreferences;
 
   if (!oldCheckinPreferences) {
+    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeStore009,
+                            @"App reset detected but no valid checkin auth preferences found."
+                            @" Will not delete server token registrations.");
     return;
   }
   [_authService resetCheckinWithHandler:^(NSError *_Nonnull error) {
@@ -481,7 +484,7 @@
 
     if (oldCheckinPreferences.deviceID.length && oldCheckinPreferences.secretToken.length) {
       FIRMessagingLoggerDebug(kFIRMessagingMessageCodeStore006,
-                              @"Resetting old checkin and deleting server registrations.");
+                              @"Resetting old checkin and deleting server token registrations.");
       // We don't really need to delete old FCM tokens created via IID auth tokens since
       // those tokens are already hashed by APNS token as the has so creating a new
       // token should automatically delete the old-token.
