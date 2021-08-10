@@ -20,7 +20,7 @@
 #import "FirebasePerformance/Sources/Configurations/FPRRemoteConfigFlags.h"
 #import "FirebasePerformance/Sources/Gauges/FPRGaugeManager+Private.h"
 #import "FirebasePerformance/Sources/Gauges/FPRGaugeManager.h"
-#import "FirebasePerformance/Sources/Public/FIRPerformance.h"
+#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRPerformance.h"
 
 #import "FirebasePerformance/Sources/Gauges/CPU/FPRCPUGaugeCollector+Private.h"
 

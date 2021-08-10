@@ -18,8 +18,6 @@
 
 #import "FirebasePerformance/Tests/Unit/FPRTestUtils.h"
 
-#import "FirebasePerformance/ProtoSupport/PerfMetric.pbobjc.h"
-
 @interface FPRGDTEventTest : XCTestCase
 
 @end
@@ -28,7 +26,7 @@
 
 /** Tests the designated initializer. */
 - (void)testInstanceCreation {
-  FPRMSGPerfMetric *metric = [FPRMSGPerfMetric message];
+  firebase_perf_v1_PerfMetric metric = firebase_perf_v1_PerfMetric_init_default;
   FPRGDTEvent *event = [FPRGDTEvent gdtEventForPerfMetric:metric];
 
   XCTAssertNotNil(event);
@@ -36,7 +34,7 @@
 
 /** Validate that the instance has transportBytes for default Perf Metric. */
 - (void)testInstanceHasTransportBytesForDefaultPerfMetric {
-  FPRMSGPerfMetric *metric = [FPRMSGPerfMetric message];
+  firebase_perf_v1_PerfMetric metric = firebase_perf_v1_PerfMetric_init_default;
   FPRGDTEvent *event = [FPRGDTEvent gdtEventForPerfMetric:metric];
 
   XCTAssertTrue([event transportBytes] > 0);
@@ -44,7 +42,7 @@
 
 /** Validate that the instance has transportBytes for valid Perf Metric. */
 - (void)testInstanceHasTransportBytesForValidPerfMetric {
-  FPRMSGPerfMetric *metric = [FPRTestUtils createRandomPerfMetric:@"t1"];
+  firebase_perf_v1_PerfMetric metric = [FPRTestUtils createRandomPerfMetric:@"t1"];
   FPRGDTEvent *event = [FPRGDTEvent gdtEventForPerfMetric:metric];
 
   XCTAssertTrue([event transportBytes] > 0);

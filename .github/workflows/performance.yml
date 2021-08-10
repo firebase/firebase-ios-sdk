@@ -74,6 +74,34 @@ jobs:
     - name: Test objc quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Performance)
 
+  spm:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+    runs-on: macOS-latest
+    strategy:
+      matrix:
+        target: [iOS]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Initialize xcodebuild
+      run: scripts/setup_spm_tests.sh
+    - name: Unit Tests
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh PerformanceUnit ${{ matrix.target }} spm
+
+  spm-cron:
+    # Don't run on private repo.
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+    runs-on: macOS-latest
+    strategy:
+      matrix:
+        target: [tvOS]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Initialize xcodebuild
+      run: scripts/setup_spm_tests.sh
+    - name: Unit Tests
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh PerformanceUnit ${{ matrix.target }} spm
+
   catalyst:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     runs-on: macOS-latest
@@ -94,3 +122,23 @@ jobs:
       run: scripts/setup_bundler.sh
     - name: Build and test
       run: scripts/third_party/travis/retry.sh pod spec lint FirebasePerformance.podspec --skip-tests --sources='https://github.com/firebase/SpecsTesting','https://github.com/firebase/SpecsDev.git','https://github.com/firebase/SpecsStaging.git','https://cdn.cocoapods.org/'
+
+  performance-cron-only:
+    # Don't run on private repo.
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        target: [ios, tvos]
+        flags: [
+          '--skip-tests --use-static-frameworks',
+          '--skip-tests --use-libraries'
+        ]
+    needs: pod-lib-lint
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: PodLibLint Performance Cron
+      run: |
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebasePerformance.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}

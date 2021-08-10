@@ -20,7 +20,7 @@
 #import "FirebasePerformance/Sources/FIRPerformance_Private.h"
 #import "FirebasePerformance/Sources/FPRClient+Private.h"
 #import "FirebasePerformance/Sources/FPRClient.h"
-#import "FirebasePerformance/Sources/Public/FIRPerformance.h"
+#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRPerformance.h"
 #import "FirebasePerformance/Sources/Timer/FIRTrace+Internal.h"
 #import "FirebasePerformance/Tests/Unit/Fakes/FPRFakeClient.h"
 

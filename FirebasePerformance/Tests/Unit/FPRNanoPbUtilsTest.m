@@ -1,4 +1,4 @@
-// Copyright 2020 Google LLC
+// Copyright 2021 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 #import "FirebasePerformance/Sources/FIRPerformance+Internal.h"
 #import "FirebasePerformance/Sources/FPRDataUtils.h"
-#import "FirebasePerformance/Sources/FPRProtoUtils.h"
-#import "FirebasePerformance/Sources/Public/FIRPerformance.h"
+#import "FirebasePerformance/Sources/FPRNanoPbUtils.h"
+#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRPerformance.h"
 
 #import "FirebasePerformance/Sources/Common/FPRConstants.h"
 #import "FirebasePerformance/Sources/Instrumentation/FPRNetworkTrace+Private.h"
@@ -32,11 +32,11 @@
 
 #import <OCMock/OCMock.h>
 
-@interface FPRProtoUtilsTest : FPRTestCase
+@interface FPRNanoPbUtilsTest : FPRTestCase
 
 @end
 
-@implementation FPRProtoUtilsTest
+@implementation FPRNanoPbUtilsTest
 
 - (void)setUp {
   [super setUp];
@@ -50,42 +50,48 @@
   [performance setDataCollectionEnabled:NO];
 }
 
-/** Validates that a PerfMetricMessage creation is successful. */
+/** Validates that a firebase_perf_v1_PerfMetric creation is successful. */
 - (void)testPerfMetricMessageCreation {
   NSString *appID = @"RandomAppID";
-  FPRMSGPerfMetric *perfMetric = FPRGetPerfMetricMessage(appID);
-  XCTAssertEqualObjects(perfMetric.applicationInfo.googleAppId, appID);
-  XCTAssertNotNil(perfMetric.applicationInfo);
+  firebase_perf_v1_PerfMetric perfMetric = FPRGetPerfMetricMessage(appID);
+  XCTAssertEqualObjects(FPRDecodeString(perfMetric.application_info.google_app_id), appID);
 }
 
-/** Tests if the application information is populated when creating a FPRMSGPerfMetric message. */
+/** Tests if the application information is populated when creating a firebase_perf_v1_PerfMetric.
+ */
 - (void)testApplicationInfoMessage {
-  FPRMSGPerfMetric *event = FPRGetPerfMetricMessage(@"appid");
-  FPRMSGApplicationInfo *appInfo = event.applicationInfo;
-  XCTAssertEqual(appInfo.googleAppId, @"appid");
-  XCTAssertNotNil(appInfo.iosAppInfo.sdkVersion);
-  XCTAssertNotNil(appInfo.iosAppInfo.bundleShortVersion);
-  XCTAssertTrue((appInfo.iosAppInfo.mccMnc.length == 0) || (appInfo.iosAppInfo.mccMnc.length == 6));
-  XCTAssertTrue(appInfo.iosAppInfo.networkConnectionInfo.networkType !=
-                FPRMSGNetworkConnectionInfo_NetworkType_None);
-  if (appInfo.iosAppInfo.networkConnectionInfo.networkType ==
-      FPRMSGNetworkConnectionInfo_NetworkType_Mobile) {
-    XCTAssertTrue(appInfo.iosAppInfo.networkConnectionInfo.mobileSubtype !=
-                  FPRMSGNetworkConnectionInfo_MobileSubtype_UnknownMobileSubtype);
+  firebase_perf_v1_PerfMetric event = FPRGetPerfMetricMessage(@"appid");
+  firebase_perf_v1_ApplicationInfo appInfo = event.application_info;
+  XCTAssertEqualObjects(FPRDecodeString(appInfo.google_app_id), @"appid");
+  XCTAssertTrue(appInfo.ios_app_info.sdk_version != NULL);
+  XCTAssertTrue(appInfo.has_ios_app_info);
+  XCTAssertTrue(appInfo.ios_app_info.bundle_short_version != NULL);
+  XCTAssertTrue(appInfo.ios_app_info.mcc_mnc == NULL || appInfo.ios_app_info.mcc_mnc->size == 6);
+  XCTAssertTrue(appInfo.ios_app_info.has_network_connection_info);
+  XCTAssertTrue(appInfo.ios_app_info.network_connection_info.has_network_type);
+  XCTAssertTrue(appInfo.ios_app_info.network_connection_info.network_type !=
+                firebase_perf_v1_NetworkConnectionInfo_NetworkType_NONE);
+  if (appInfo.ios_app_info.network_connection_info.network_type ==
+      firebase_perf_v1_NetworkConnectionInfo_NetworkType_MOBILE) {
+    XCTAssertTrue(appInfo.ios_app_info.network_connection_info.mobile_subtype !=
+                  firebase_perf_v1_NetworkConnectionInfo_MobileSubtype_UNKNOWN_MOBILE_SUBTYPE);
   }
 }
 
 /** Validates that ApplicationInfoMessage carries global attributes. */
 - (void)testApplicationInfoMessageWithAttributes {
   FIRPerformance *performance = [FIRPerformance sharedInstance];
-  [performance setValue:@"bar" forAttribute:@"foo"];
-  FPRMSGPerfMetric *event = FPRGetPerfMetricMessage(@"appid");
-  FPRMSGApplicationInfo *appInfo = event.applicationInfo;
-  XCTAssertNotNil(appInfo.customAttributes);
-  XCTAssertEqual(appInfo.customAttributes.allKeys.count, 1);
-  NSDictionary *attributes = appInfo.customAttributes;
-  XCTAssertEqual(attributes[@"foo"], @"bar");
-  [performance removeAttribute:@"foo"];
+  [performance setValue:@"bar1" forAttribute:@"foo1"];
+  [performance setValue:@"bar2" forAttribute:@"foo2"];
+  firebase_perf_v1_PerfMetric event = FPRGetPerfMetricMessage(@"appid");
+  firebase_perf_v1_ApplicationInfo appInfo = event.application_info;
+  XCTAssertEqual(appInfo.custom_attributes_count, 2);
+  NSDictionary *attributes = FPRDecodeStringToStringMap(
+      (StringToStringMap *)appInfo.custom_attributes, appInfo.custom_attributes_count);
+  XCTAssertEqualObjects(attributes[@"foo1"], @"bar1");
+  XCTAssertEqualObjects(attributes[@"foo2"], @"bar2");
+  [performance removeAttribute:@"foo1"];
+  [performance removeAttribute:@"foo2"];
 }
 
 /** Tests if mccMnc validation is catching non numerals. */
@@ -112,7 +118,8 @@
   XCTAssertNil(mccMnc);
 }
 
-/** Validates that a valid FIRTrace object to Proto conversion is successful. */
+/** Validates that a valid FIRTrace object to firebase_perf_v1_TraceMetric conversion is successful.
+ */
 - (void)testTraceMetricMessageCreation {
   FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
   [trace start];
@@ -121,31 +128,34 @@
   [trace incrementMetric:@"c1" byInt:2];
   [trace setValue:@"bar" forAttribute:@"foo"];
   [trace stop];
-  FPRMSGTraceMetric *traceMetric = FPRGetTraceMetric(trace);
-  XCTAssertNotNil(traceMetric);
-  XCTAssertEqualObjects(traceMetric.name, @"Random");
-  XCTAssertEqual(traceMetric.subtracesArray.count, 2);
-  XCTAssertEqual(traceMetric.counters.count, 1);
-  XCTAssertEqualObjects(traceMetric.subtracesArray[0].name, @"1");
-  XCTAssertEqualObjects(traceMetric.subtracesArray[1].name, @"2");
-  XCTAssertNotNil(traceMetric.customAttributes);
-  XCTAssertEqual(traceMetric.customAttributes.allKeys.count, 1);
-  NSDictionary *attributes = traceMetric.customAttributes;
-  XCTAssertEqual(attributes[@"foo"], @"bar");
+  firebase_perf_v1_TraceMetric traceMetric = FPRGetTraceMetric(trace);
+  XCTAssertEqualObjects(FPRDecodeString(traceMetric.name), @"Random");
+  XCTAssertEqual(traceMetric.subtraces_count, 2);
+  XCTAssertEqual(traceMetric.counters_count, 1);
+  NSDictionary *counters = FPRDecodeStringToNumberMap((StringToNumberMap *)traceMetric.counters,
+                                                      traceMetric.counters_count);
+  XCTAssertEqual([counters[@"c1"] intValue], 2);
+  XCTAssertEqualObjects(FPRDecodeString(traceMetric.subtraces[0].name), @"1");
+  XCTAssertEqualObjects(FPRDecodeString(traceMetric.subtraces[1].name), @"2");
+  XCTAssertTrue(traceMetric.custom_attributes != NULL);
+  XCTAssertEqual(traceMetric.custom_attributes_count, 1);
+  NSDictionary *attributes = FPRDecodeStringToStringMap(
+      (StringToStringMap *)traceMetric.custom_attributes, traceMetric.custom_attributes_count);
+  XCTAssertEqualObjects(attributes[@"foo"], @"bar");
 }
 
-/** Validates that a valid FIRTrace object to Proto conversion has required fields. */
+/** Validates that a valid FIRTrace object to firebase_perf_v1_TraceMetric conversion has required
+ * fields. */
 - (void)testTraceMetricMessageCreationHasRequiredFields {
   FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
   [trace start];
   [trace incrementMetric:@"c1" byInt:2];
   [trace stop];
-  FPRMSGTraceMetric *traceMetric = FPRGetTraceMetric(trace);
-  XCTAssertNotNil(traceMetric);
-  XCTAssertTrue(traceMetric.hasName);
-  XCTAssertTrue(traceMetric.hasClientStartTimeUs);
-  XCTAssertTrue(traceMetric.hasDurationUs);
-  XCTAssertTrue(traceMetric.hasIsAuto);
+  firebase_perf_v1_TraceMetric traceMetric = FPRGetTraceMetric(trace);
+  XCTAssertTrue(traceMetric.name != NULL);
+  XCTAssertTrue(traceMetric.has_client_start_time_us);
+  XCTAssertTrue(traceMetric.has_duration_us);
+  XCTAssertTrue(traceMetric.has_is_auto);
 }
 
 /** Validates the session details inside trace metric. */
@@ -161,21 +171,13 @@
 
   trace.activeSessions = [@[ session1, session2 ] mutableCopy];
   [trace stop];
-  FPRMSGTraceMetric *traceMetric = FPRGetTraceMetric(trace);
-  XCTAssertNotNil(traceMetric);
-  XCTAssertNotNil(traceMetric.perfSessionsArray);
-  XCTAssertTrue(traceMetric.perfSessionsArray.count >= 2);
+  firebase_perf_v1_TraceMetric traceMetric = FPRGetTraceMetric(trace);
+  XCTAssertTrue(traceMetric.perf_sessions != NULL);
+  XCTAssertTrue(traceMetric.perf_sessions_count >= 2);
 }
 
-/** Validates that an invalid FIRTrace object to Proto conversion is unsuccessful. */
-- (void)testTraceMetricMessageCreationForInvalidTrace {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnonnull"
-  XCTAssertNil(FPRGetTraceMetric(nil));
-#pragma clang diagnostic pop
-}
-
-/** Validates that the FPRNetworkTrace object to Proto conversion is successful. */
+/** Validates that the FPRNetworkTrace object to firebase_perf_v1_NetworkRequestMetric conversion is
+ * successful. */
 - (void)testNetworkTraceMetricMessage {
   NSURL *URL = [NSURL URLWithString:@"https://abc.com"];
   NSURLRequest *URLRequest = [NSURLRequest requestWithURL:URL];
@@ -193,13 +195,14 @@
 
   [trace didReceiveData:[NSData data]];
   [trace didCompleteRequestWithResponse:response error:error];
-  FPRMSGNetworkRequestMetric *networkMetric = FPRGetNetworkRequestMetric(trace);
-  XCTAssertEqualObjects(networkMetric.URL, URL.absoluteString);
-  XCTAssertEqual(networkMetric.HTTPMethod, FPRMSGNetworkRequestMetric_HttpMethod_Get);
-  XCTAssertEqual(networkMetric.networkClientErrorReason,
-                 FPRMSGNetworkRequestMetric_NetworkClientErrorReason_GenericClientError);
-  XCTAssertEqual(networkMetric.HTTPResponseCode, 404);
-  XCTAssertEqualObjects(networkMetric.responseContentType, @"text/json");
+  firebase_perf_v1_NetworkRequestMetric networkMetric = FPRGetNetworkRequestMetric(trace);
+  XCTAssertEqualObjects(FPRDecodeString(networkMetric.url), URL.absoluteString);
+  XCTAssertEqual(networkMetric.http_method, firebase_perf_v1_NetworkRequestMetric_HttpMethod_GET);
+  XCTAssertEqual(
+      networkMetric.network_client_error_reason,
+      firebase_perf_v1_NetworkRequestMetric_NetworkClientErrorReason_GENERIC_CLIENT_ERROR);
+  XCTAssertEqual(networkMetric.http_response_code, 404);
+  XCTAssertEqualObjects(FPRDecodeString(networkMetric.response_content_type), @"text/json");
 }
 
 /** Validates that the FPRNetworkTrace object to Proto conversion has required fields for a valid
@@ -221,38 +224,31 @@
   NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:-200 userInfo:nil];
   [trace didReceiveData:[NSData data]];
   [trace didCompleteRequestWithResponse:response error:error];
-  FPRMSGNetworkRequestMetric *networkMetric = FPRGetNetworkRequestMetric(trace);
-  XCTAssertTrue(networkMetric.hasURL);
-  XCTAssertTrue(networkMetric.hasClientStartTimeUs);
-  XCTAssertTrue(networkMetric.hasHTTPMethod);
-  XCTAssertTrue(networkMetric.hasResponsePayloadBytes);
-  XCTAssertTrue(networkMetric.hasNetworkClientErrorReason);
-  XCTAssertTrue(networkMetric.hasHTTPResponseCode);
-  XCTAssertTrue(networkMetric.hasResponseContentType);
-  XCTAssertTrue(networkMetric.hasTimeToResponseCompletedUs);
+  firebase_perf_v1_NetworkRequestMetric networkMetric = FPRGetNetworkRequestMetric(trace);
+  XCTAssertTrue(networkMetric.url != NULL);
+  XCTAssertTrue(networkMetric.has_client_start_time_us);
+  XCTAssertTrue(networkMetric.has_http_method);
+  XCTAssertTrue(networkMetric.has_response_payload_bytes);
+  XCTAssertTrue(networkMetric.has_network_client_error_reason);
+  XCTAssertTrue(networkMetric.has_http_response_code);
+  XCTAssertTrue(networkMetric.response_content_type != NULL);
+  XCTAssertTrue(networkMetric.has_time_to_response_completed_us);
 }
 
-/** Validates that an invalid FPRNetworkTrace object to Proto conversion is unsuccessful. */
-- (void)testNetworkTraceMetricMessageCreationForInvalidTrace {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnonnull"
-  XCTAssertNil(FPRGetNetworkRequestMetric(nil));
-#pragma clang diagnostic pop
-}
-
-/** Validates that application process state conversion to proto enum type is successful. */
+/** Validates that application process state conversion to firebase_perf_v1_ApplicationProcessState
+ * enum type is successful. */
 - (void)testApplicationProcessStateConversion {
-  XCTAssertEqual(FPRMSGApplicationProcessState_Background,
+  XCTAssertEqual(firebase_perf_v1_ApplicationProcessState_BACKGROUND,
                  FPRApplicationProcessState(FPRTraceStateBackgroundOnly));
-  XCTAssertEqual(FPRMSGApplicationProcessState_Foreground,
+  XCTAssertEqual(firebase_perf_v1_ApplicationProcessState_FOREGROUND,
                  FPRApplicationProcessState(FPRTraceStateForegroundOnly));
-  XCTAssertEqual(FPRMSGApplicationProcessState_ForegroundBackground,
+  XCTAssertEqual(firebase_perf_v1_ApplicationProcessState_FOREGROUND_BACKGROUND,
                  FPRApplicationProcessState(FPRTraceStateBackgroundAndForeground));
-  XCTAssertEqual(FPRMSGApplicationProcessState_ApplicationProcessStateUnknown,
+  XCTAssertEqual(firebase_perf_v1_ApplicationProcessState_APPLICATION_PROCESS_STATE_UNKNOWN,
                  FPRApplicationProcessState(FPRTraceStateUnknown));
 
   // Try with some random value should say the application state is unknown.
-  XCTAssertEqual(FPRMSGApplicationProcessState_ApplicationProcessStateUnknown,
+  XCTAssertEqual(firebase_perf_v1_ApplicationProcessState_APPLICATION_PROCESS_STATE_UNKNOWN,
                  FPRApplicationProcessState(100));
 }
 
@@ -262,19 +258,6 @@
   XCTAssertNotNil(FPRNetworkInfo());
 }
 #endif
-
-/** Validates if network events are dropped when there is not valid response code. */
-- (void)testDroppingNetworkEventsWithInvalidStatusCode {
-  NSURL *URL = [NSURL URLWithString:@"https://abc.com"];
-  NSURLRequest *URLRequest = [NSURLRequest requestWithURL:URL];
-  FPRNetworkTrace *trace = [[FPRNetworkTrace alloc] initWithURLRequest:URLRequest];
-  [trace start];
-  [trace checkpointState:FPRNetworkTraceCheckpointStateInitiated];
-  [trace checkpointState:FPRNetworkTraceCheckpointStateResponseReceived];
-  [trace didReceiveData:[NSData data]];
-  [trace didCompleteRequestWithResponse:nil error:nil];
-  XCTAssertNil(FPRGetNetworkRequestMetric(trace));
-}
 
 /** Validates the session details inside trace metric. */
 - (void)testNetworkRequestMetricMessageHasSessionDetails {
@@ -300,10 +283,9 @@
 
   [trace didReceiveData:[NSData data]];
   [trace didCompleteRequestWithResponse:response error:error];
-  FPRMSGNetworkRequestMetric *networkMetric = FPRGetNetworkRequestMetric(trace);
-  XCTAssertNotNil(networkMetric);
-  XCTAssertNotNil(networkMetric.perfSessionsArray);
-  XCTAssertTrue(networkMetric.perfSessionsArray.count >= 2);
+  firebase_perf_v1_NetworkRequestMetric networkMetric = FPRGetNetworkRequestMetric(trace);
+  XCTAssertTrue(networkMetric.perf_sessions != NULL);
+  XCTAssertTrue(networkMetric.perf_sessions_count >= 2);
 }
 
 /** Validates the gauge metric proto packaging works with proper conversions. */
@@ -315,13 +297,11 @@
                                                                         heapAvailable:10 * 1024];
   [gauges addObject:memoryData];
 
-  FPRMSGGaugeMetric *gaugeMetric = FPRGetGaugeMetric(gauges, @"abc");
-  XCTAssertNotNil(gaugeMetric);
-  XCTAssertEqual(gaugeMetric.cpuMetricReadingsArray_Count, 0);
-  XCTAssertEqual(gaugeMetric.iosMemoryReadingsArray_Count, 1);
-  FPRMSGIosMemoryReading *memoryReading = [gaugeMetric.iosMemoryReadingsArray firstObject];
-  XCTAssertEqual(memoryReading.usedAppHeapMemoryKb, 5);
-  XCTAssertEqual(memoryReading.freeAppHeapMemoryKb, 10);
+  firebase_perf_v1_GaugeMetric gaugeMetric = FPRGetGaugeMetric(gauges, @"abc");
+  XCTAssertEqual(gaugeMetric.cpu_metric_readings_count, 0);
+  XCTAssertEqual(gaugeMetric.ios_memory_readings_count, 1);
+  XCTAssertEqual(gaugeMetric.ios_memory_readings[0].used_app_heap_memory_kb, 5);
+  XCTAssertEqual(gaugeMetric.ios_memory_readings[0].free_app_heap_memory_kb, 10);
 }
 
 /** Validates the gauge metric proto packaging works. */
@@ -338,20 +318,9 @@
     [gauges addObject:cpuData];
     [gauges addObject:memoryData];
   }
-  FPRMSGGaugeMetric *gaugeMetric = FPRGetGaugeMetric(gauges, @"abc");
-  XCTAssertNotNil(gaugeMetric);
-  XCTAssertEqual(gaugeMetric.cpuMetricReadingsArray_Count, 5);
-  XCTAssertEqual(gaugeMetric.iosMemoryReadingsArray_Count, 5);
-}
-
-/** Validates the gauge metric proto packaging does not create an empty package. */
-- (void)testGaugeMetricProtoPackingWithEmptyData {
-  NSMutableArray *gauges = [[NSMutableArray alloc] init];
-  FPRMSGGaugeMetric *gaugeMetric1 = FPRGetGaugeMetric(gauges, @"abc");
-  XCTAssertNil(gaugeMetric1);
-
-  FPRMSGGaugeMetric *gaugeMetric2 = FPRGetGaugeMetric(gauges, @"");
-  XCTAssertNil(gaugeMetric2);
+  firebase_perf_v1_GaugeMetric gaugeMetric = FPRGetGaugeMetric(gauges, @"abc");
+  XCTAssertEqual(gaugeMetric.cpu_metric_readings_count, 5);
+  XCTAssertEqual(gaugeMetric.ios_memory_readings_count, 5);
 }
 
 /** Validates if the first session is a verbose session for a trace. */
@@ -366,16 +335,14 @@
   trace.activeSessions = [@[ session1, session2 ] mutableCopy];
   [trace stop];
 
-  FPRMSGTraceMetric *traceMetric = FPRGetTraceMetric(trace);
-  XCTAssertNotNil(traceMetric);
-  XCTAssertNotNil(traceMetric.perfSessionsArray);
-  XCTAssertTrue(traceMetric.perfSessionsArray.count >= 2);
+  firebase_perf_v1_TraceMetric traceMetric = FPRGetTraceMetric(trace);
+  XCTAssertTrue(traceMetric.perf_sessions != NULL);
+  XCTAssertTrue(traceMetric.perf_sessions_count >= 2);
 
-  FPRMSGPerfSession *perfSession = [traceMetric.perfSessionsArray firstObject];
-  GPBEnumArray *firstSessionVerbosity = perfSession.sessionVerbosityArray;
-  XCTAssertEqual([firstSessionVerbosity valueAtIndex:0],
-                 FPRMSGSessionVerbosity_GaugesAndSystemEvents);
-  XCTAssertEqualObjects(perfSession.sessionId, @"b");
+  firebase_perf_v1_PerfSession perfSession = traceMetric.perf_sessions[0];
+  XCTAssertEqual(perfSession.session_verbosity[0],
+                 firebase_perf_v1_SessionVerbosity_GAUGES_AND_SYSTEM_EVENTS);
+  XCTAssertEqualObjects(FPRDecodeString(perfSession.session_id), @"b");
 }
 
 /** Validates the verbosity ordering when no sessions are verbose. */
@@ -390,14 +357,13 @@
   trace.activeSessions = [@[ session1, session2 ] mutableCopy];
   [trace stop];
 
-  FPRMSGTraceMetric *traceMetric = FPRGetTraceMetric(trace);
-  XCTAssertNotNil(traceMetric);
-  XCTAssertNotNil(traceMetric.perfSessionsArray);
-  XCTAssertTrue(traceMetric.perfSessionsArray.count >= 2);
+  firebase_perf_v1_TraceMetric traceMetric = FPRGetTraceMetric(trace);
+  XCTAssertTrue(traceMetric.perf_sessions != NULL);
+  XCTAssertTrue(traceMetric.perf_sessions_count >= 2);
 
-  FPRMSGPerfSession *perfSession = [traceMetric.perfSessionsArray firstObject];
-  XCTAssertEqualObjects(perfSession.sessionId, @"a");
-  XCTAssertEqual(perfSession.sessionVerbosityArray_Count, 0);
+  firebase_perf_v1_PerfSession perfSession = traceMetric.perf_sessions[0];
+  XCTAssertEqualObjects(FPRDecodeString(perfSession.session_id), @"a");
+  XCTAssertEqual(perfSession.session_verbosity_count, 0);
 }
 
 /** Validates if a session is not verbose, do not populate the session verbosity array. */
@@ -410,14 +376,13 @@
   trace.activeSessions = [@[ session1 ] mutableCopy];
   [trace stop];
 
-  FPRMSGTraceMetric *traceMetric = FPRGetTraceMetric(trace);
-  XCTAssertNotNil(traceMetric);
-  XCTAssertNotNil(traceMetric.perfSessionsArray);
-  XCTAssertTrue(traceMetric.perfSessionsArray.count >= 1);
+  firebase_perf_v1_TraceMetric traceMetric = FPRGetTraceMetric(trace);
+  XCTAssertTrue(traceMetric.perf_sessions != NULL);
+  XCTAssertTrue(traceMetric.perf_sessions_count >= 1);
 
-  FPRMSGPerfSession *perfSession = [traceMetric.perfSessionsArray firstObject];
-  XCTAssertEqualObjects(perfSession.sessionId, @"a");
-  XCTAssertEqual(perfSession.sessionVerbosityArray_Count, 0);
+  firebase_perf_v1_PerfSession perfSession = traceMetric.perf_sessions[0];
+  XCTAssertEqualObjects(FPRDecodeString(perfSession.session_id), @"a");
+  XCTAssertEqual(perfSession.session_verbosity_count, 0);
 }
 
 /** Validates if the first session is a verbose session for a network trace. */
@@ -446,16 +411,14 @@
   [trace didReceiveData:[NSData data]];
   [trace didCompleteRequestWithResponse:response error:error];
 
-  FPRMSGNetworkRequestMetric *networkMetric = FPRGetNetworkRequestMetric(trace);
-  XCTAssertNotNil(networkMetric);
-  XCTAssertNotNil(networkMetric.perfSessionsArray);
-  XCTAssertTrue(networkMetric.perfSessionsArray.count >= 2);
+  firebase_perf_v1_NetworkRequestMetric networkMetric = FPRGetNetworkRequestMetric(trace);
+  XCTAssertTrue(networkMetric.perf_sessions != NULL);
+  XCTAssertTrue(networkMetric.perf_sessions_count >= 2);
 
-  FPRMSGPerfSession *perfSession = [networkMetric.perfSessionsArray firstObject];
-  GPBEnumArray *firstSessionVerbosity = perfSession.sessionVerbosityArray;
-  XCTAssertEqual([firstSessionVerbosity valueAtIndex:0],
-                 FPRMSGSessionVerbosity_GaugesAndSystemEvents);
-  XCTAssertEqualObjects(perfSession.sessionId, @"b");
+  firebase_perf_v1_PerfSession perfSession = networkMetric.perf_sessions[0];
+  XCTAssertEqual(perfSession.session_verbosity[0],
+                 firebase_perf_v1_SessionVerbosity_GAUGES_AND_SYSTEM_EVENTS);
+  XCTAssertEqualObjects(FPRDecodeString(perfSession.session_id), @"b");
 }
 
 /** Validates the verbosity ordering when no sessions are verbose for a network trace. */
@@ -484,14 +447,13 @@
   [trace didReceiveData:[NSData data]];
   [trace didCompleteRequestWithResponse:response error:error];
 
-  FPRMSGNetworkRequestMetric *networkMetric = FPRGetNetworkRequestMetric(trace);
-  XCTAssertNotNil(networkMetric);
-  XCTAssertNotNil(networkMetric.perfSessionsArray);
-  XCTAssertTrue(networkMetric.perfSessionsArray.count >= 2);
+  firebase_perf_v1_NetworkRequestMetric networkMetric = FPRGetNetworkRequestMetric(trace);
+  XCTAssertTrue(networkMetric.perf_sessions != NULL);
+  XCTAssertTrue(networkMetric.perf_sessions_count >= 2);
 
-  FPRMSGPerfSession *perfSession = [networkMetric.perfSessionsArray firstObject];
-  XCTAssertEqualObjects(perfSession.sessionId, @"a");
-  XCTAssertEqual(perfSession.sessionVerbosityArray_Count, 0);
+  firebase_perf_v1_PerfSession perfSession = networkMetric.perf_sessions[0];
+  XCTAssertEqualObjects(FPRDecodeString(perfSession.session_id), @"a");
+  XCTAssertEqual(perfSession.session_verbosity_count, 0);
 }
 
 /** Validates if a session is not verbose, do not populate the session verbosity array for network
@@ -520,14 +482,13 @@
   [trace didReceiveData:[NSData data]];
   [trace didCompleteRequestWithResponse:response error:error];
 
-  FPRMSGNetworkRequestMetric *networkMetric = FPRGetNetworkRequestMetric(trace);
-  XCTAssertNotNil(networkMetric);
-  XCTAssertNotNil(networkMetric.perfSessionsArray);
-  XCTAssertTrue(networkMetric.perfSessionsArray.count >= 1);
+  firebase_perf_v1_NetworkRequestMetric networkMetric = FPRGetNetworkRequestMetric(trace);
+  XCTAssertTrue(networkMetric.perf_sessions != NULL);
+  XCTAssertTrue(networkMetric.perf_sessions_count >= 1);
 
-  FPRMSGPerfSession *perfSession = [networkMetric.perfSessionsArray firstObject];
-  XCTAssertEqualObjects(perfSession.sessionId, @"a");
-  XCTAssertEqual(perfSession.sessionVerbosityArray_Count, 0);
+  firebase_perf_v1_PerfSession perfSession = networkMetric.perf_sessions[0];
+  XCTAssertEqualObjects(FPRDecodeString(perfSession.session_id), @"a");
+  XCTAssertEqual(perfSession.session_verbosity_count, 0);
 }
 
 @end

@@ -15,7 +15,7 @@
 #import <XCTest/XCTest.h>
 
 #import "FirebasePerformance/Sources/AppActivity/FPRAppActivityTracker.h"
-#import "FirebasePerformance/Sources/Public/FIRPerformance.h"
+#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRPerformance.h"
 
 #import "FirebasePerformance/Tests/Unit/FPRTestCase.h"
 
@@ -51,6 +51,8 @@
 /** Validates if an active trace is available when the app is active. */
 - (void)testActiveTrace {
   NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
+  [defaultCenter postNotificationName:UIWindowDidBecomeVisibleNotification
+                               object:[UIApplication sharedApplication]];
   [defaultCenter postNotificationName:UIApplicationWillResignActiveNotification
                                object:[UIApplication sharedApplication]];
   XCTAssertNotNil([FPRAppActivityTracker sharedInstance].activeTrace);
@@ -61,6 +63,8 @@
   BOOL dataCollectionEnabled = [FIRPerformance sharedInstance].dataCollectionEnabled;
   [[FIRPerformance sharedInstance] setDataCollectionEnabled:NO];
   NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
+  [defaultCenter postNotificationName:UIWindowDidBecomeVisibleNotification
+                               object:[UIApplication sharedApplication]];
   [defaultCenter postNotificationName:UIApplicationWillResignActiveNotification
                                object:[UIApplication sharedApplication]];
   XCTAssertNil([FPRAppActivityTracker sharedInstance].activeTrace);
@@ -74,6 +78,8 @@
   FIRTrace *activeTrace = [FPRAppActivityTracker sharedInstance].activeTrace;
 
   NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
+  [defaultCenter postNotificationName:UIWindowDidBecomeVisibleNotification
+                               object:[UIApplication sharedApplication]];
   [defaultCenter postNotificationName:UIApplicationWillResignActiveNotification
                                object:[UIApplication sharedApplication]];
 
@@ -91,6 +97,8 @@
   NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
 
   FIRTrace *activeTrace = nil;
+  [defaultCenter postNotificationName:UIWindowDidBecomeVisibleNotification
+                               object:[UIApplication sharedApplication]];
   [defaultCenter postNotificationName:UIApplicationWillResignActiveNotification
                                object:[UIApplication sharedApplication]];
   activeTrace = [FPRAppActivityTracker sharedInstance].activeTrace;
@@ -110,6 +118,8 @@
   NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
 
   FIRTrace *activeTrace = nil;
+  [defaultCenter postNotificationName:UIWindowDidBecomeVisibleNotification
+                               object:[UIApplication sharedApplication]];
   [defaultCenter postNotificationName:UIApplicationWillResignActiveNotification
                                object:[UIApplication sharedApplication]];
   activeTrace = [FPRAppActivityTracker sharedInstance].activeTrace;
@@ -140,6 +150,8 @@
   NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
 
   FIRTrace *activeTrace = nil;
+  [defaultCenter postNotificationName:UIWindowDidBecomeVisibleNotification
+                               object:[UIApplication sharedApplication]];
   [defaultCenter postNotificationName:UIApplicationWillResignActiveNotification
                                object:[UIApplication sharedApplication]];
   activeTrace = [FPRAppActivityTracker sharedInstance].activeTrace;
@@ -166,6 +178,8 @@
   FPRAppActivityTracker *appTracker = [FPRAppActivityTracker sharedInstance];
   NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
 
+  [defaultCenter postNotificationName:UIWindowDidBecomeVisibleNotification
+                               object:[UIApplication sharedApplication]];
   [defaultCenter postNotificationName:UIApplicationWillResignActiveNotification
                                object:[UIApplication sharedApplication]];
   XCTAssertEqual(appTracker.applicationState, FPRApplicationStateBackground);

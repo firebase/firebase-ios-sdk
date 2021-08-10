@@ -117,6 +117,10 @@ let package = Package(
       targets: ["FirebaseMLModelDownloader"]
     ),
     .library(
+      name: "FirebasePerformance",
+      targets: ["FirebasePerformanceTarget"]
+    ),
+    .library(
       name: "FirebaseRemoteConfig",
       targets: ["FirebaseRemoteConfig"]
     ),
@@ -186,6 +190,11 @@ let package = Package(
       name: "leveldb",
       url: "https://github.com/firebase/leveldb.git",
       "1.22.2" ..< "1.23.0"
+    ),
+    .package(
+      name: "GCDWebServer",
+      url: "https://github.com/SlaunchaMan/GCDWebServer.git",
+      .revision("935e2736044e71e5341663c3cc9a335ba6867a2b")
     ),
     // Branches need a force update with a run with the revision set like below.
     //   .package(url: "https://github.com/paulb777/nanopb.git", .revision("564392bd87bd093c308a3aaed3997466efb95f74"))
@@ -821,6 +830,59 @@ let package = Package(
     ),
 
     .target(
+      name: "FirebasePerformanceTarget",
+      dependencies: [.target(name: "FirebasePerformance",
+                             condition: .when(platforms: [.iOS, .tvOS]))],
+      path: "SwiftPM-PlatformExclude/FirebasePerformanceWrap"
+    ),
+    .target(
+      name: "FirebasePerformance",
+      dependencies: [
+        "FirebaseCore",
+        "FirebaseInstallations",
+        "FirebaseRemoteConfig",
+        .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
+        .product(name: "GULEnvironment", package: "GoogleUtilities"),
+        .product(name: "GULISASwizzler", package: "GoogleUtilities"),
+        .product(name: "GULMethodSwizzler", package: "GoogleUtilities"),
+        .product(name: "GULUserDefaults", package: "GoogleUtilities"),
+        .product(name: "nanopb", package: "nanopb"),
+      ],
+      path: "FirebasePerformance/Sources",
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../../"),
+        .define("PB_FIELD_32BIT", to: "1"),
+        .define("PB_NO_PACKED_STRUCTS", to: "1"),
+        .define("PB_ENABLE_MALLOC", to: "1"),
+        .define("FIRPerformance_LIB_VERSION", to: firebaseVersion),
+      ],
+      linkerSettings: [
+        .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .tvOS])),
+        .linkedFramework("MobileCoreServices", .when(platforms: [.iOS, .tvOS])),
+        .linkedFramework("QuartzCore", .when(platforms: [.iOS, .tvOS])),
+      ]
+    ),
+    .testTarget(
+      name: "PerformanceUnit",
+      dependencies: [
+        "FirebasePerformanceTarget",
+        "OCMock",
+        "SharedTestUtilities",
+        "GCDWebServer",
+      ],
+      path: "FirebasePerformance/Tests/Unit",
+      resources: [
+        .process("FPRURLFilterTests-Info.plist"),
+        .process("Server/smallDownloadFile"),
+        .process("Server/bigDownloadFile"),
+      ],
+      cSettings: [
+        .headerSearchPath("../../.."),
+      ]
+    ),
+
+    .target(
       name: "SharedTestUtilities",
       dependencies: ["FirebaseCore", "OCMock"],
       path: "SharedTestUtilities",
@@ -916,6 +978,8 @@ let package = Package(
                 condition: .when(platforms: [.iOS, .tvOS])),
         "FirebaseInstallations",
         "FirebaseMessaging",
+        .target(name: "FirebasePerformance",
+                condition: .when(platforms: [.iOS, .tvOS])),
         "FirebaseRemoteConfig",
         "FirebaseStorage",
         "FirebaseStorageSwift",
@@ -950,6 +1014,8 @@ let package = Package(
         "FirebaseInAppMessaging",
         "FirebaseInstallations",
         "FirebaseMessaging",
+        .target(name: "FirebasePerformance",
+                condition: .when(platforms: [.iOS, .tvOS])),
         "FirebaseRemoteConfig",
         "FirebaseStorage",
       ],

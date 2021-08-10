@@ -452,4 +452,8 @@ NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
   }
 }
 
+- (BOOL)isValid {
+  return _hasValidResponseCode;
+}
+
 @end
