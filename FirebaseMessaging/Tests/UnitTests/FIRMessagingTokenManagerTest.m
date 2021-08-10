@@ -70,8 +70,8 @@
 }
 
 - (void)tearDown {
-  [_mockAuthService stopMocking];
   [_mockCheckinStore stopMocking];
+  [_mockAuthService stopMocking];
   [_testUtil cleanupAfterTest:self];
   _messaging = nil;
   [[[NSUserDefaults alloc] initWithSuiteName:kFIRMessagingDefaultsTestDomain]
@@ -129,13 +129,25 @@
   OCMVerifyAll(_mockCheckinStore);
 }
 
+- (void)testResetCredentialsWithoutFreshInstall {
+  id completionArg = [OCMArg invokeBlockWithArgs:[NSNull null], nil];
+  OCMReject([_mockCheckinStore removeCheckinPreferencesWithHandler:completionArg]);
+  // Always setting up stub after expect.
+  OCMStub([_mockAuthService hasCheckinPlist]).andReturn(YES);
+
+  [_messaging.tokenManager resetCredentialsIfNeeded];
+
+  OCMVerifyAll(_mockCheckinStore);
+}
+
 - (void)testResetCredentialsWithFreshInstall {
   FIRMessagingCheckinPreferences *checkinPreferences =
       [[FIRMessagingCheckinPreferences alloc] initWithDeviceID:@"test-auth-id"
                                                    secretToken:@"test-secret"];
   // Expect checkin is removed if it's a fresh install.
-  [[_mockCheckinStore expect]
-      removeCheckinPreferencesWithHandler:[OCMArg invokeBlockWithArgs:[NSNull null], nil]];
+  id completionArg = [OCMArg invokeBlockWithArgs:[NSNull null], nil];
+  OCMExpect([_mockCheckinStore
+      removeCheckinPreferencesWithHandler:completionArg]);
   // Always setting up stub after expect.
   OCMStub([_mockAuthService checkinPreferences]).andReturn(checkinPreferences);
   // Plist file doesn't exist, meaning this is a fresh install.
@@ -144,4 +156,5 @@
   [_messaging.tokenManager resetCredentialsIfNeeded];
   OCMVerifyAll(_mockCheckinStore);
 }
+
 @end
