@@ -44,10 +44,12 @@ FOUNDATION_EXTERN void __FPRAssert(id object, BOOL condition, const char *func);
 // information when NSAsserts are stripped. A __builtin_expect is utilized to keep running speed
 // as fast as possible.
 #define FPRAssert(condition, ...)               \
+{                                               \
   do {                                          \
     __FPRAssert(self, !!(condition), __func__); \
     NSAssert(condition, __VA_ARGS__);           \
-  } while (0);
+  } while (0);                                  \
+}
 
 /** This class handles the control of diagnostics in the SDK. */
 @interface FPRDiagnostics : NSObject
