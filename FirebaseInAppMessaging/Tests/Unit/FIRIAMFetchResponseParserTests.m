@@ -72,7 +72,7 @@
   XCTAssertEqualWithAccuracy([fetchWaitTime doubleValue],
                              nextFetchEpochTimeInResponse / 1000 - currentMoment, 0.1);
 
-  XCTAssertEqual(6, [results count]);
+  XCTAssertEqual(7, [results count]);
   XCTAssertEqual(0, discardCount);
 
   FIRIAMMessageDefinition *first = results[0];
@@ -147,6 +147,14 @@
   XCTAssertNotNil(sixth.experimentPayload);
   XCTAssertEqual(FIRIAMRenderAsModalView, sixth.renderData.renderingEffectSettings.viewMode);
   XCTAssertEqual(1, sixth.renderTriggers.count);
+
+  FIRIAMMessageDefinition *seventh = results[6];
+  XCTAssertEqualObjects(@"https://example.com/recoverable_image_url",
+                        seventh.renderData.contentData.imageURL.absoluteString);
+  XCTAssertEqualObjects(nil, seventh.renderData.contentData.landscapeImageURL.absoluteString);
+  XCTAssertEqualObjects(@"http://example.com/recoverable_action_url_without_https",
+                        seventh.renderData.contentData.actionURL.absoluteString);
+  XCTAssertEqualObjects(nil, seventh.renderData.contentData.secondaryActionURL.absoluteString);
 }
 
 - (void)testParsingTestMessage {
