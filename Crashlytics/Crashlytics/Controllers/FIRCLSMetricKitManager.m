@@ -185,8 +185,8 @@
   // TODO: should we write out multiple time dictionaries if there are multiple diagnostics?
   NSData *newLineData = [@"\n" dataUsingEncoding:NSUTF8StringEncoding];
   NSDictionary *timeDictionary = @{
-    @"time" : [NSNumber numberWithDouble:beginSecondsSince1970],
-    @"end_time" : [NSNumber numberWithDouble:endSecondsSince1970]
+    @"time" : [NSNumber numberWithLong:beginSecondsSince1970],
+    @"end_time" : [NSNumber numberWithLong:endSecondsSince1970]
   };
   writeFailed = ![self writeDictionaryToFile:timeDictionary file:file newLineData:newLineData];
 
