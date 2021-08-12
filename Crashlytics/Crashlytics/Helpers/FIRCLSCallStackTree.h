@@ -30,6 +30,7 @@
 
 - (instancetype)initWithMXCallStackTree:(MXCallStackTree *)callStackTree API_AVAILABLE(ios(14.0));
 - (NSArray *)getArrayRepresentation;
+- (NSArray *)getFramesOfBlamedThread;
 - (instancetype)init NS_UNAVAILABLE;
 
 @end

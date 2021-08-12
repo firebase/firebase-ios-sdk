@@ -115,6 +115,30 @@
   return dictionary;
 }
 
+- (NSArray *)getFramesOfBlamedThread {
+  for (FIRCLSThread *thread in self.threads) {
+    if (thread.threadBlamed) {
+      return [self convertFramesFor:thread];
+    }
+  }
+  if ([self.threads count] > 0) {
+    return [self convertFramesFor:self.threads.firstObject];
+  }
+  return [NSArray array];
+}
+
+- (NSArray *)convertFramesFor:(FIRCLSThread *)thread {
+  NSMutableArray *frames = [[NSMutableArray alloc] init];
+  for (FIRCLSFrame *frame in thread.frames) {
+    [frames addObject:@{
+      @"pc" : [NSNumber numberWithLong:frame.address],
+      @"offset" : [NSNumber numberWithLong:frame.offsetIntoBinaryTextSegment],
+      @"line" : @0
+    }];
+  }
+  return frames;
+}
+
 @end
 
 #endif

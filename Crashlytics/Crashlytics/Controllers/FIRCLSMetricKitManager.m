@@ -220,12 +220,17 @@
   if (hasHang) {
     MXHangDiagnostic *hangDiagnostic = [diagnosticPayload.hangDiagnostics objectAtIndex:0];
 
-    NSArray *threadArray = [self convertThreadsToArray:hangDiagnostic.callStackTree];
+    NSArray *threadArray = [self convertThreadsToArrayForNonfatal:hangDiagnostic.callStackTree];
     NSDictionary *metadataDict = [self convertMetadataToDictionary:hangDiagnostic.metaData];
 
     NSDictionary *hangDictionary = @{
-      @"hang_event" : @{
-        @"threads" : threadArray,
+      @"exception" : @{
+        @"type" : @"metrickit",
+        @"name" : @"MetricKit Hang Event",
+        @"reason" : @"",
+        @"time" : [NSNumber numberWithLong:beginSecondsSince1970],
+        @"end_time" : [NSNumber numberWithLong:endSecondsSince1970],
+        @"frames" : threadArray,
         @"metadata" : metadataDict,
         @"hang_duration" : [NSNumber numberWithDouble:[hangDiagnostic.hangDuration doubleValue]],
         @"app_version" : hangDiagnostic.applicationVersion
@@ -239,12 +244,18 @@
     MXCPUExceptionDiagnostic *cpuExceptionDiagnostic =
         [diagnosticPayload.cpuExceptionDiagnostics objectAtIndex:0];
 
-    NSArray *threadArray = [self convertThreadsToArray:cpuExceptionDiagnostic.callStackTree];
+    NSArray *threadArray =
+        [self convertThreadsToArrayForNonfatal:cpuExceptionDiagnostic.callStackTree];
     NSDictionary *metadataDict = [self convertMetadataToDictionary:cpuExceptionDiagnostic.metaData];
 
     NSDictionary *cpuDictionary = @{
-      @"cpu_exception_event" : @{
-        @"threads" : threadArray,
+      @"exception" : @{
+        @"type" : @"metrickit",
+        @"name" : @"MetricKit CPU Exception Event",
+        @"reason" : @"",
+        @"time" : [NSNumber numberWithLong:beginSecondsSince1970],
+        @"end_time" : [NSNumber numberWithLong:endSecondsSince1970],
+        @"frames" : threadArray,
         @"metadata" : metadataDict,
         @"total_cpu_time" :
             [NSNumber numberWithDouble:[cpuExceptionDiagnostic.totalCPUTime doubleValue]],
@@ -260,13 +271,19 @@
     MXDiskWriteExceptionDiagnostic *diskWriteExceptionDiagnostic =
         [diagnosticPayload.diskWriteExceptionDiagnostics objectAtIndex:0];
 
-    NSArray *threadArray = [self convertThreadsToArray:diskWriteExceptionDiagnostic.callStackTree];
+    NSArray *threadArray =
+        [self convertThreadsToArrayForNonfatal:diskWriteExceptionDiagnostic.callStackTree];
     NSDictionary *metadataDict =
         [self convertMetadataToDictionary:diskWriteExceptionDiagnostic.metaData];
 
     NSDictionary *diskWriteDictionary = @{
-      @"disk_write_exception_event" : @{
-        @"threads" : threadArray,
+      @"exception" : @{
+        @"type" : @"metrickit",
+        @"name" : @"MetricKit Disk Write Exception Event",
+        @"reason" : @"",
+        @"time" : [NSNumber numberWithLong:beginSecondsSince1970],
+        @"end_time" : [NSNumber numberWithLong:endSecondsSince1970],
+        @"frames" : threadArray,
         @"metadata" : metadataDict,
         @"app_version" : diskWriteExceptionDiagnostic.applicationVersion,
         @"total_writes_caused" :
@@ -296,11 +313,19 @@
 }
 
 /*
- * Helper method to convert threads for a MetricKit diagnostic event to a dictionary.
+ * Helper method to convert threads for a MetricKit fatal diagnostic event to an array of threads.
  */
 - (NSArray *)convertThreadsToArray:(MXCallStackTree *)mxCallStackTree {
   FIRCLSCallStackTree *tree = [[FIRCLSCallStackTree alloc] initWithMXCallStackTree:mxCallStackTree];
   return [tree getArrayRepresentation];
+}
+
+/*
+ * Helper method to convert threads for a MetricKit nonfatal diagnostic event to an array of frames.
+ */
+- (NSArray *)convertThreadsToArrayForNonfatal:(MXCallStackTree *)mxCallStackTree {
+  FIRCLSCallStackTree *tree = [[FIRCLSCallStackTree alloc] initWithMXCallStackTree:mxCallStackTree];
+  return [tree getFramesOfBlamedThread];
 }
 
 /*
