@@ -153,47 +153,60 @@
                ([self.fileManager
                    fileExistsAtPath:[activePath stringByAppendingString:newestUnsentReportID]]);
 
-  // Set the MetricKit paths appropriately depending on whether the diagnostic report came from
-  // a fatal or nonfatal event. If fatal, use the report from the last run of the app and write data
-  // to the fatal MetricKit file. Otherwise, use the report for the current run for nonfatal events
-  // and write data to the nonfatal MetricKit file.
+  // Set the MetricKit fatal path appropriately depending on whether we also captured a Crashlytics
+  // fatal event and whether the diagnostic report came from a fatal or nonfatal event.
   if (fatal) {
-    metricKitReportFile = [[activePath stringByAppendingString:newestUnsentReportID]
+    metricKitFatalReportFile = [[activePath stringByAppendingString:newestUnsentReportID]
         stringByAppendingString:FIRCLSMetricKitFatalReportFile];
   } else {
-    metricKitReportFile = [[activePath stringByAppendingString:currentReportID]
-        stringByAppendingString:FIRCLSMetricKitNonfatalReportFile];
+    metricKitFatalReportFile = [[activePath stringByAppendingString:currentReportID]
+        stringByAppendingString:FIRCLSMetricKitFatalReportFile];
   }
+  metricKitNonfatalReportFile = [[activePath stringByAppendingString:currentReportID]
+      stringByAppendingString:FIRCLSMetricKitNonfatalReportFile];
 
-  if (!metricKitReportFile) {
-    FIRCLSDebugLog(@"Error finding MetricKit file");
+  if (!metricKitFatalReportFile || !metricKitNonfatalReportFile) {
+    FIRCLSDebugLog(@"Error finding MetricKit files");
     return NO;
   }
 
-  FIRCLSDebugLog(@"File path for MetricKit report:  %@", metricKitReportFile);
-  if (![_fileManager fileExistsAtPath:metricKitReportFile]) {
-    [_fileManager createFileAtPath:metricKitReportFile contents:nil attributes:nil];
+  FIRCLSDebugLog(@"File paths for MetricKit report:  %@, %@", metricKitFatalReportFile,
+                 metricKitNonfatalReportFile);
+  if (hasCrash && ![_fileManager fileExistsAtPath:metricKitFatalReportFile]) {
+    [_fileManager createFileAtPath:metricKitFatalReportFile contents:nil attributes:nil];
   }
-  NSFileHandle *file = [NSFileHandle fileHandleForUpdatingAtPath:metricKitReportFile];
-  if (file == nil) {
+  if ((hasHang | hasCPUException | hasDiskWriteException) &&
+      ![_fileManager fileExistsAtPath:metricKitNonfatalReportFile]) {
+    [_fileManager createFileAtPath:metricKitNonfatalReportFile contents:nil attributes:nil];
+  }
+  NSFileHandle *nonfatalFile =
+      [NSFileHandle fileHandleForUpdatingAtPath:metricKitNonfatalReportFile];
+  if ((hasHang | hasCPUException | hasDiskWriteException) && nonfatalFile == nil) {
     FIRCLSDebugLog(@"Unable to create or open nonfatal MetricKit file.");
     return false;
   }
+  NSFileHandle *fatalFile = [NSFileHandle fileHandleForUpdatingAtPath:metricKitFatalReportFile];
+  if (hasCrash && fatalFile == nil) {
+    FIRCLSDebugLog(@"Unable to create or open fatal MetricKit file.");
+    return false;
+  }
 
-  // Write out time information to the MetricKit report file. Time needs to be a value for
-  // backend serialization, so we write out end_time separately.
-  // TODO: should we write out multiple time dictionaries if there are multiple diagnostics?
   NSData *newLineData = [@"\n" dataUsingEncoding:NSUTF8StringEncoding];
-  NSDictionary *timeDictionary = @{
-    @"time" : [NSNumber numberWithLong:beginSecondsSince1970],
-    @"end_time" : [NSNumber numberWithLong:endSecondsSince1970]
-  };
-  writeFailed = ![self writeDictionaryToFile:timeDictionary file:file newLineData:newLineData];
 
   // For each diagnostic type, write out a section in the MetricKit report file. This section will
   // have subsections for threads, metadata, and event specific metadata.
   if (hasCrash && !skipCrashEvent) {
+    // Write out time information to the MetricKit report file. Time needs to be a value for
+    // backend serialization, so we write out end_time separately.
+
     MXCrashDiagnostic *crashDiagnostic = [diagnosticPayload.crashDiagnostics objectAtIndex:0];
+    NSDictionary *timeDictionary = @{
+      @"time" : [NSNumber numberWithLong:beginSecondsSince1970],
+      @"end_time" : [NSNumber numberWithLong:endSecondsSince1970]
+    };
+    writeFailed = ![self writeDictionaryToFile:timeDictionary
+                                          file:fatalFile
+                                   newLineData:newLineData];
 
     NSArray *threadArray = [self convertThreadsToArray:crashDiagnostic.callStackTree];
     NSDictionary *metadataDict = [self convertMetadataToDictionary:crashDiagnostic.metaData];
@@ -214,48 +227,49 @@
         @"app_version" : crashDiagnostic.applicationVersion
       }
     };
-    writeFailed = ![self writeDictionaryToFile:crashDictionary file:file newLineData:newLineData];
+    writeFailed = ![self writeDictionaryToFile:crashDictionary
+                                          file:fatalFile
+                                   newLineData:newLineData];
   }
 
   if (hasHang) {
     MXHangDiagnostic *hangDiagnostic = [diagnosticPayload.hangDiagnostics objectAtIndex:0];
 
-    NSArray *threadArray = [self convertThreadsToArrayForNonfatal:hangDiagnostic.callStackTree];
+    NSArray *threadArray = [self convertThreadsToArray:hangDiagnostic.callStackTree];
     NSDictionary *metadataDict = [self convertMetadataToDictionary:hangDiagnostic.metaData];
 
     NSDictionary *hangDictionary = @{
       @"exception" : @{
-        @"type" : @"metrickit",
-        @"name" : @"MetricKit Hang Event",
-        @"reason" : @"",
+        @"type" : @"metrickit_nonfatal",
+        @"name" : @"hang_event",
         @"time" : [NSNumber numberWithLong:beginSecondsSince1970],
         @"end_time" : [NSNumber numberWithLong:endSecondsSince1970],
-        @"frames" : threadArray,
+        @"threads" : threadArray,
         @"metadata" : metadataDict,
         @"hang_duration" : [NSNumber numberWithDouble:[hangDiagnostic.hangDuration doubleValue]],
         @"app_version" : hangDiagnostic.applicationVersion
       }
     };
 
-    writeFailed = ![self writeDictionaryToFile:hangDictionary file:file newLineData:newLineData];
+    writeFailed = ![self writeDictionaryToFile:hangDictionary
+                                          file:nonfatalFile
+                                   newLineData:newLineData];
   }
 
   if (hasCPUException) {
     MXCPUExceptionDiagnostic *cpuExceptionDiagnostic =
         [diagnosticPayload.cpuExceptionDiagnostics objectAtIndex:0];
 
-    NSArray *threadArray =
-        [self convertThreadsToArrayForNonfatal:cpuExceptionDiagnostic.callStackTree];
+    NSArray *threadArray = [self convertThreadsToArray:cpuExceptionDiagnostic.callStackTree];
     NSDictionary *metadataDict = [self convertMetadataToDictionary:cpuExceptionDiagnostic.metaData];
 
     NSDictionary *cpuDictionary = @{
       @"exception" : @{
-        @"type" : @"metrickit",
-        @"name" : @"MetricKit CPU Exception Event",
-        @"reason" : @"",
+        @"type" : @"metrickit_nonfatal",
+        @"name" : @"cpu_exception_event",
         @"time" : [NSNumber numberWithLong:beginSecondsSince1970],
         @"end_time" : [NSNumber numberWithLong:endSecondsSince1970],
-        @"frames" : threadArray,
+        @"threads" : threadArray,
         @"metadata" : metadataDict,
         @"total_cpu_time" :
             [NSNumber numberWithDouble:[cpuExceptionDiagnostic.totalCPUTime doubleValue]],
@@ -264,26 +278,26 @@
         @"app_version" : cpuExceptionDiagnostic.applicationVersion
       }
     };
-    writeFailed = ![self writeDictionaryToFile:cpuDictionary file:file newLineData:newLineData];
+    writeFailed = ![self writeDictionaryToFile:cpuDictionary
+                                          file:nonfatalFile
+                                   newLineData:newLineData];
   }
 
   if (hasDiskWriteException) {
     MXDiskWriteExceptionDiagnostic *diskWriteExceptionDiagnostic =
         [diagnosticPayload.diskWriteExceptionDiagnostics objectAtIndex:0];
 
-    NSArray *threadArray =
-        [self convertThreadsToArrayForNonfatal:diskWriteExceptionDiagnostic.callStackTree];
+    NSArray *threadArray = [self convertThreadsToArray:diskWriteExceptionDiagnostic.callStackTree];
     NSDictionary *metadataDict =
         [self convertMetadataToDictionary:diskWriteExceptionDiagnostic.metaData];
 
     NSDictionary *diskWriteDictionary = @{
       @"exception" : @{
-        @"type" : @"metrickit",
-        @"name" : @"MetricKit Disk Write Exception Event",
-        @"reason" : @"",
+        @"type" : @"metrickit_nonfatal",
+        @"name" : @"disk_write_exception_event",
         @"time" : [NSNumber numberWithLong:beginSecondsSince1970],
         @"end_time" : [NSNumber numberWithLong:endSecondsSince1970],
-        @"frames" : threadArray,
+        @"threads" : threadArray,
         @"metadata" : metadataDict,
         @"app_version" : diskWriteExceptionDiagnostic.applicationVersion,
         @"total_writes_caused" :
@@ -291,7 +305,7 @@
       }
     };
     writeFailed = ![self writeDictionaryToFile:diskWriteDictionary
-                                          file:file
+                                          file:nonfatalFile
                                    newLineData:newLineData];
   }
 

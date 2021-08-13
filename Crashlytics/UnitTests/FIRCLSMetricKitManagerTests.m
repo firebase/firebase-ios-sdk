@@ -277,25 +277,6 @@
   XCTAssertEqual([[[threads objectForKey:@"stacktrace"] objectAtIndex:0] intValue], 74565);
 }
 
-- (void)checkMetadata:(NSDictionary *)metadata andFrames:(NSArray *)frames {
-  XCTAssertNotNil(metadata, "MetricKit event should write metadata to file.");
-  XCTAssertNotNil(frames, "MetricKit event should write frames to file.");
-
-  XCTAssertTrue([[metadata objectForKey:@"appBuildVersion"] isEqualToString:@"1"]);
-  XCTAssertTrue(
-      [[metadata objectForKey:@"osVersion"] isEqualToString:@"iPhone OS 15.0 (19A5281j)"]);
-  XCTAssertTrue([[metadata objectForKey:@"regionFormat"] isEqualToString:@"US"]);
-  XCTAssertTrue([[metadata objectForKey:@"platformArchitecture"] isEqualToString:@"arm64"]);
-  XCTAssertTrue([[metadata objectForKey:@"deviceType"] isEqualToString:@"iPhone9,1"]);
-
-  XCTAssertTrue([frames count] > 0);
-  NSDictionary *frame = [frames firstObject];
-
-  XCTAssertEqual([[frame objectForKey:@"pc"] longValue], 74565);
-  XCTAssertEqual([[frame objectForKey:@"offset"] longValue], 123);
-  XCTAssertEqual([[frame objectForKey:@"line"] longValue], 0);
-}
-
 #pragma mark - Path Helpers
 - (NSArray *)contentsOfActivePath {
   return [[NSFileManager defaultManager] contentsOfDirectoryAtPath:self.fileManager.activePath
@@ -345,13 +326,12 @@
     NSString *itemKey = nil;
     if ([json containsString:@"crash_event"])
       itemKey = @"crash_event";
-    else if ([json containsString:@"exception"] && [json containsString:@"MetricKit Hang Event"])
+    else if ([json containsString:@"exception"] && [json containsString:@"hang_event"])
       itemKey = @"hang_event";
-    else if ([json containsString:@"exception"] &&
-             [json containsString:@"MetricKit CPU Exception Event"])
+    else if ([json containsString:@"exception"] && [json containsString:@"cpu_exception_event"])
       itemKey = @"cpu_exception_event";
     else if ([json containsString:@"exception"] &&
-             [json containsString:@"MetricKit Disk Write Exception Event"])
+             [json containsString:@"disk_write_exception_event"])
       itemKey = @"disk_write_exception_event";
     else if ([json containsString:@"end_time"])
       itemKey = @"time";
@@ -407,10 +387,10 @@
 
   XCTAssertNotNil(crashDictionary, "MetricKit event should include a crash diagnostic");
   XCTAssertNotNil(timeDictionary, "MetricKit event should include time");
-  XCTAssertEqual([[timeDictionary objectForKey:@"time"] doubleValue],
-                 [self.beginTime timeIntervalSince1970]);
-  XCTAssertEqual([[timeDictionary objectForKey:@"end_time"] doubleValue],
-                 [self.endTime timeIntervalSince1970]);
+  XCTAssertEqual([[timeDictionary objectForKey:@"time"] longValue],
+                 [[NSNumber numberWithDouble:[self.beginTime timeIntervalSince1970]] longValue]);
+  XCTAssertEqual([[timeDictionary objectForKey:@"end_time"] longValue],
+                 [[NSNumber numberWithDouble:[self.endTime timeIntervalSince1970]] longValue]);
 
   XCTAssertEqual([[crashDictionary objectForKey:@"signal"] integerValue], 11);
   XCTAssertTrue([[crashDictionary objectForKey:@"app_version"] isEqualToString:@"1"]);
@@ -442,7 +422,6 @@
 
   NSDictionary *hangDictionary =
       [[fileDictionary objectForKey:@"hang_event"] objectForKey:@"exception"];
-  NSDictionary *timeDictionary = [fileDictionary objectForKey:@"time"];
 
   XCTAssertNotNil(hangDictionary, "MetricKit event should include a hang diagnostic");
   XCTAssertEqual([[hangDictionary objectForKey:@"hang_duration"] integerValue], 4);
@@ -451,16 +430,11 @@
   XCTAssertEqual([[hangDictionary objectForKey:@"end_time"] longValue],
                  [[NSNumber numberWithDouble:[self.endTime timeIntervalSince1970]] longValue]);
   XCTAssertTrue([[hangDictionary objectForKey:@"app_version"] isEqualToString:@"1"]);
-  XCTAssertNotNil(timeDictionary, "MetricKit event should include time");
-  XCTAssertEqual([[timeDictionary objectForKey:@"time"] doubleValue],
-                 [self.beginTime timeIntervalSince1970]);
-  XCTAssertEqual([[timeDictionary objectForKey:@"end_time"] doubleValue],
-                 [self.endTime timeIntervalSince1970]);
 
   NSDictionary *metadata = [hangDictionary objectForKey:@"metadata"];
-  NSArray *frames = [hangDictionary objectForKey:@"frames"];
+  NSDictionary *threads = [[hangDictionary objectForKey:@"threads"] objectAtIndex:0];
 
-  [self checkMetadata:metadata andFrames:frames];
+  [self checkMetadata:metadata andThreads:threads];
 }
 
 - (void)testCPUExceptionDiagnosticHandling {
@@ -474,7 +448,6 @@
 
   NSDictionary *cpuDictionary =
       [[fileDictionary objectForKey:@"cpu_exception_event"] objectForKey:@"exception"];
-  NSDictionary *timeDictionary = [fileDictionary objectForKey:@"time"];
 
   XCTAssertNotNil(cpuDictionary, "MetricKit event should include a CPU exception diagnostic");
   XCTAssertEqual([[cpuDictionary objectForKey:@"total_cpu_time"] integerValue], 1);
@@ -484,16 +457,11 @@
                  [[NSNumber numberWithDouble:[self.beginTime timeIntervalSince1970]] longValue]);
   XCTAssertEqual([[cpuDictionary objectForKey:@"end_time"] longValue],
                  [[NSNumber numberWithDouble:[self.endTime timeIntervalSince1970]] longValue]);
-  XCTAssertNotNil(timeDictionary, "MetricKit event should include time");
-  XCTAssertEqual([[timeDictionary objectForKey:@"time"] doubleValue],
-                 [self.beginTime timeIntervalSince1970]);
-  XCTAssertEqual([[timeDictionary objectForKey:@"end_time"] doubleValue],
-                 [self.endTime timeIntervalSince1970]);
 
   NSDictionary *metadata = [cpuDictionary objectForKey:@"metadata"];
-  NSArray *frames = [cpuDictionary objectForKey:@"frames"];
+  NSDictionary *threads = [[cpuDictionary objectForKey:@"threads"] objectAtIndex:0];
 
-  [self checkMetadata:metadata andFrames:frames];
+  [self checkMetadata:metadata andThreads:threads];
 }
 
 - (void)testDiskWriteExceptionDiagnosticHandling {
@@ -508,7 +476,6 @@
 
   NSDictionary *diskWriteDictionary =
       [[fileDictionary objectForKey:@"disk_write_exception_event"] objectForKey:@"exception"];
-  NSDictionary *timeDictionary = [fileDictionary objectForKey:@"time"];
 
   XCTAssertNotNil(diskWriteDictionary,
                   "MetricKit event should include a disk write exception diagnostic");
@@ -518,16 +485,11 @@
                  [[NSNumber numberWithDouble:[self.beginTime timeIntervalSince1970]] longValue]);
   XCTAssertEqual([[diskWriteDictionary objectForKey:@"end_time"] longValue],
                  [[NSNumber numberWithDouble:[self.endTime timeIntervalSince1970]] longValue]);
-  XCTAssertNotNil(timeDictionary, "MetricKit event should include time");
-  XCTAssertEqual([[timeDictionary objectForKey:@"time"] doubleValue],
-                 [self.beginTime timeIntervalSince1970]);
-  XCTAssertEqual([[timeDictionary objectForKey:@"end_time"] doubleValue],
-                 [self.endTime timeIntervalSince1970]);
 
   NSDictionary *metadata = [diskWriteDictionary objectForKey:@"metadata"];
-  NSArray *frames = [diskWriteDictionary objectForKey:@"frames"];
+  NSDictionary *threads = [[diskWriteDictionary objectForKey:@"threads"] objectAtIndex:0];
 
-  [self checkMetadata:metadata andFrames:frames];
+  [self checkMetadata:metadata andThreads:threads];
 }
 
 - (void)testFullDiagnosticHandling {
@@ -535,10 +497,21 @@
   FIRCLSMockMXDiagnosticPayload *fullPayload = [self createFullDiagnosticPayload];
   [self.metricKitManager didReceiveDiagnosticPayloads:@[ fullPayload ]];
   XCTAssertTrue([self metricKitFileExistsInCurrentReport:NO fatalReport:YES],
-                "MetricKit report should exist");
+                "MetricKit fatal report should exist");
+  XCTAssertTrue([self metricKitFileExistsInCurrentReport:YES fatalReport:NO],
+                "MetricKit nonfatal report should exist");
 
-  NSDictionary *fileDictionary = [self contentsOfMetricKitFileAsDictionary:NO fatalReport:YES];
-  XCTAssertNotNil(fileDictionary, "MetricKit file should not be empty");
+  NSDictionary *fatalFileDictionary = [self contentsOfMetricKitFileAsDictionary:NO fatalReport:YES];
+  NSDictionary *fileDictionary = [self contentsOfMetricKitFileAsDictionary:YES fatalReport:NO];
+
+  XCTAssertNotNil(fileDictionary, "MetricKit nonfatal file should not be empty");
+  XCTAssertNotNil(fatalFileDictionary, "MetricKit fatal file should not be empty");
+
+  XCTAssertNil([fatalFileDictionary objectForKey:@"hang_event"]);
+  XCTAssertNil([fatalFileDictionary objectForKey:@"cpu_exception_event"]);
+  XCTAssertNil([fatalFileDictionary objectForKey:@"disk_write_exception_event"]);
+  XCTAssertNil([fileDictionary objectForKey:@"crash_event"]);
+  XCTAssertNil([fileDictionary objectForKey:@"time"]);
 
   NSDictionary *hangDictionary =
       [[fileDictionary objectForKey:@"hang_event"] objectForKey:@"exception"];
@@ -547,8 +520,8 @@
   NSDictionary *diskDictionary =
       [[fileDictionary objectForKey:@"disk_write_exception_event"] objectForKey:@"exception"];
   NSDictionary *crashDictionary =
-      [[fileDictionary objectForKey:@"crash_event"] objectForKey:@"crash_event"];
-  NSDictionary *timeDictionary = [fileDictionary objectForKey:@"time"];
+      [[fatalFileDictionary objectForKey:@"crash_event"] objectForKey:@"crash_event"];
+  NSDictionary *timeDictionary = [fatalFileDictionary objectForKey:@"time"];
 
   XCTAssertNotNil(hangDictionary, "MetricKit event should include a hang diagnostic");
   XCTAssertNotNil(cpuDictionary, "MetricKit event should include a CPU exception diagnostic");
@@ -556,10 +529,10 @@
                   "MetricKit event should include a disk write exception diagnostic");
   XCTAssertNotNil(crashDictionary, "MetricKit event should include a crash diagnostic");
   XCTAssertNotNil(timeDictionary, "MetricKit event should include time");
-  XCTAssertEqual([[timeDictionary objectForKey:@"time"] doubleValue],
-                 [self.beginTime timeIntervalSince1970]);
-  XCTAssertEqual([[timeDictionary objectForKey:@"end_time"] doubleValue],
-                 [self.endTime timeIntervalSince1970]);
+  XCTAssertEqual([[timeDictionary objectForKey:@"time"] longValue],
+                 [[NSNumber numberWithDouble:[self.beginTime timeIntervalSince1970]] longValue]);
+  XCTAssertEqual([[timeDictionary objectForKey:@"end_time"] longValue],
+                 [[NSNumber numberWithDouble:[self.endTime timeIntervalSince1970]] longValue]);
 }
 
 - (void)testPayloadWithMultipleCrashesHandling {
@@ -578,10 +551,10 @@
   NSDictionary *timeDictionary = [fileDictionary objectForKey:@"time"];
   XCTAssertNotNil(crashDictionary, "MetricKit event should include a crash diagnostic");
   XCTAssertNotNil(timeDictionary, "MetricKit event should include time");
-  XCTAssertEqual([[timeDictionary objectForKey:@"time"] doubleValue],
-                 [self.beginTime timeIntervalSince1970]);
-  XCTAssertEqual([[timeDictionary objectForKey:@"end_time"] doubleValue],
-                 [self.endTime timeIntervalSince1970]);
+  XCTAssertEqual([[timeDictionary objectForKey:@"time"] longValue],
+                 [[NSNumber numberWithDouble:[self.beginTime timeIntervalSince1970]] longValue]);
+  XCTAssertEqual([[timeDictionary objectForKey:@"end_time"] longValue],
+                 [[NSNumber numberWithDouble:[self.endTime timeIntervalSince1970]] longValue]);
 }
 
 - (void)testMultiplePayloadsWithCrashesHandling {
@@ -592,49 +565,38 @@
   [self.metricKitManager
       didReceiveDiagnosticPayloads:@[ crashPayload, hangPayload, crashPayload, cpuPayload ]];
   XCTAssertTrue([self metricKitFileExistsInCurrentReport:NO fatalReport:YES],
-                "Fatal MetricKit report should exist");
+                "MetricKit fatal report should exist");
+  XCTAssertTrue([self metricKitFileExistsInCurrentReport:YES fatalReport:NO],
+                "MetricKit nonfatal report should exist");
 
-  NSDictionary *fileDictionary = [self contentsOfMetricKitFileAsDictionary:NO fatalReport:YES];
-  XCTAssertNotNil(fileDictionary, "Fatal MetricKit file should not be empty");
+  NSDictionary *fatalFileDictionary = [self contentsOfMetricKitFileAsDictionary:NO fatalReport:YES];
+  NSDictionary *fileDictionary = [self contentsOfMetricKitFileAsDictionary:YES fatalReport:NO];
+
+  XCTAssertNotNil(fileDictionary, "MetricKit nonfatal file should not be empty");
+  XCTAssertNotNil(fatalFileDictionary, "MetricKit fatal file should not be empty");
+
+  XCTAssertNil([fatalFileDictionary objectForKey:@"hang_event"]);
+  XCTAssertNil([fatalFileDictionary objectForKey:@"cpu_exception_event"]);
+  XCTAssertNil([fatalFileDictionary objectForKey:@"disk_write_exception_event"]);
+  XCTAssertNil([fileDictionary objectForKey:@"crash_event"]);
+  XCTAssertNil([fileDictionary objectForKey:@"time"]);
 
   NSDictionary *hangDictionary =
-      [[fileDictionary objectForKey:@"hang_event"] objectForKey:@"hang_event"];
+      [[fileDictionary objectForKey:@"hang_event"] objectForKey:@"exception"];
   NSDictionary *cpuDictionary =
-      [[fileDictionary objectForKey:@"cpu_exception_event"] objectForKey:@"cpu_exception_event"];
+      [[fileDictionary objectForKey:@"cpu_exception_event"] objectForKey:@"exception"];
   NSDictionary *crashDictionary =
-      [[fileDictionary objectForKey:@"crash_event"] objectForKey:@"crash_event"];
-  NSDictionary *timeDictionary = [fileDictionary objectForKey:@"time"];
+      [[fatalFileDictionary objectForKey:@"crash_event"] objectForKey:@"crash_event"];
+  NSDictionary *timeDictionary = [fatalFileDictionary objectForKey:@"time"];
 
-  XCTAssertNil(hangDictionary, "Fatal MetricKit event should not include a hang diagnostic");
-  XCTAssertNil(cpuDictionary,
-               "Fatal MetricKit event should not include a CPU exception diagnostic");
-  XCTAssertNotNil(crashDictionary, "Fatal MetricKit event should include a crash diagnostic");
-  XCTAssertNotNil(timeDictionary, "Fatal MetricKit event should include time");
-  XCTAssertEqual([[timeDictionary objectForKey:@"time"] doubleValue],
-                 [self.beginTime timeIntervalSince1970]);
-  XCTAssertEqual([[timeDictionary objectForKey:@"end_time"] doubleValue],
-                 [self.endTime timeIntervalSince1970]);
-
-  XCTAssertTrue([self metricKitFileExistsInCurrentReport:YES fatalReport:NO],
-                "Nonfatal MetricKit report should exist");
-
-  fileDictionary = [self contentsOfMetricKitFileAsDictionary:YES fatalReport:NO];
-  XCTAssertNotNil(fileDictionary, "Nonfatal MetricKit file should not be empty");
-
-  hangDictionary = [[fileDictionary objectForKey:@"hang_event"] objectForKey:@"exception"];
-  cpuDictionary = [[fileDictionary objectForKey:@"cpu_exception_event"] objectForKey:@"exception"];
-  crashDictionary = [[fileDictionary objectForKey:@"crash_event"] objectForKey:@"crash_event"];
-  timeDictionary = [fileDictionary objectForKey:@"time"];
-
-  XCTAssertNotNil(hangDictionary, "Nonfatal MetricKit event should include a hang diagnostic");
-  XCTAssertNotNil(cpuDictionary,
-                  "Nonfatal MetricKit event should include a CPU exception diagnostic");
-  XCTAssertNil(crashDictionary, "Nonfatal MetricKit event should not include a crash diagnostic");
-  XCTAssertNotNil(timeDictionary, "Fatal MetricKit event should include time");
-  XCTAssertEqual([[timeDictionary objectForKey:@"time"] doubleValue],
-                 [self.beginTime timeIntervalSince1970]);
-  XCTAssertEqual([[timeDictionary objectForKey:@"end_time"] doubleValue],
-                 [self.endTime timeIntervalSince1970]);
+  XCTAssertNotNil(hangDictionary, "MetricKit event should include a hang diagnostic");
+  XCTAssertNotNil(cpuDictionary, "MetricKit event should include a CPU exception diagnostic");
+  XCTAssertNotNil(crashDictionary, "MetricKit event should include a crash diagnostic");
+  XCTAssertNotNil(timeDictionary, "MetricKit event should include time");
+  XCTAssertEqual([[timeDictionary objectForKey:@"time"] longValue],
+                 [[NSNumber numberWithDouble:[self.beginTime timeIntervalSince1970]] longValue]);
+  XCTAssertEqual([[timeDictionary objectForKey:@"end_time"] longValue],
+                 [[NSNumber numberWithDouble:[self.endTime timeIntervalSince1970]] longValue]);
 }
 
 @end
