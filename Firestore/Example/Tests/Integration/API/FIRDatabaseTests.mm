@@ -29,6 +29,7 @@
 
 namespace testutil = firebase::firestore::testutil;
 
+using firebase::firestore::util::MakeString;
 using firebase::firestore::util::TimerId;
 
 @interface FIRDatabaseTests : FSTIntegrationTestCase
@@ -1404,7 +1405,7 @@ using firebase::firestore::util::TimerId;
 }
 
 - (void)testRestartFirestoreLeadsToNewInstance {
-  FIRApp *app = testutil::AppForUnitTesting(util::MakeString([FSTIntegrationTestCase projectID]));
+  FIRApp *app = testutil::AppForUnitTesting(MakeString([FSTIntegrationTestCase projectID]));
   FIRFirestore *firestore = [FIRFirestore firestoreForApp:app];
   FIRFirestore *sameInstance = [FIRFirestore firestoreForApp:app];
   firestore.settings = [FSTIntegrationTestCase settings];
@@ -1429,7 +1430,7 @@ using firebase::firestore::util::TimerId;
 }
 
 - (void)testAppDeleteLeadsToFirestoreTermination {
-  FIRApp *app = testutil::AppForUnitTesting(util::MakeString([FSTIntegrationTestCase projectID]));
+  FIRApp *app = testutil::AppForUnitTesting(MakeString([FSTIntegrationTestCase projectID]));
   FIRFirestore *firestore = [FIRFirestore firestoreForApp:app];
   firestore.settings = [FSTIntegrationTestCase settings];
   NSDictionary<NSString *, id> *data =
@@ -1443,7 +1444,7 @@ using firebase::firestore::util::TimerId;
 
 // Ensures b/172958106 doesn't regress.
 - (void)testDeleteAppWorksWhenLastReferenceToFirestoreIsInListener {
-  FIRApp *app = testutil::AppForUnitTesting(util::MakeString([FSTIntegrationTestCase projectID]));
+  FIRApp *app = testutil::AppForUnitTesting(MakeString([FSTIntegrationTestCase projectID]));
   FIRFirestore *firestore = [FIRFirestore firestoreForApp:app];
 
   FIRDocumentReference *doc = [firestore documentWithPath:@"abc/123"];
@@ -1462,7 +1463,7 @@ using firebase::firestore::util::TimerId;
 }
 
 - (void)testTerminateCanBeCalledMultipleTimes {
-  FIRApp *app = testutil::AppForUnitTesting(util::MakeString([FSTIntegrationTestCase projectID]));
+  FIRApp *app = testutil::AppForUnitTesting(MakeString([FSTIntegrationTestCase projectID]));
   FIRFirestore *firestore = [FIRFirestore firestoreForApp:app];
 
   [firestore terminateWithCompletion:[self completionForExpectationWithName:@"Terminate1"]];
@@ -1485,7 +1486,7 @@ using firebase::firestore::util::TimerId;
 }
 
 - (void)testCanRemoveListenerAfterTermination {
-  FIRApp *app = testutil::AppForUnitTesting(util::MakeString([FSTIntegrationTestCase projectID]));
+  FIRApp *app = testutil::AppForUnitTesting(MakeString([FSTIntegrationTestCase projectID]));
   FIRFirestore *firestore = [FIRFirestore firestoreForApp:app];
   firestore.settings = [FSTIntegrationTestCase settings];
 

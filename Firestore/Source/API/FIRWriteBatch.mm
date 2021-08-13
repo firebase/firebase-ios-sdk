@@ -26,8 +26,8 @@
 
 using firebase::firestore::core::ParsedSetData;
 using firebase::firestore::core::ParsedUpdateData;
-using firebase::firestore::core::DelayedConstructor;
-using firebase::firestore::core::MakeCallback;
+using firebase::firestore::util::DelayedConstructor;
+using firebase::firestore::util::MakeCallback;
 
 NS_ASSUME_NONNULL_BEGIN
 

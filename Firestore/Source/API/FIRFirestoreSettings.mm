@@ -26,8 +26,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 namespace api = firebase::firestore::api;
 using api::Settings;
-using util::MakeString;
-using util::ThrowInvalidArgument;
+using firebase::firestore::util::MakeString;
+using firebase::firestore::util::ThrowInvalidArgument;
 
 // Public constant
 ABSL_CONST_INIT extern "C" const int64_t kFIRFirestoreCacheSizeUnlimited =
