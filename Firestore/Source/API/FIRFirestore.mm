@@ -58,7 +58,6 @@
 #include "Firestore/core/src/util/string_apple.h"
 #include "absl/memory/memory.h"
 
-namespace util = firebase::firestore::util;
 using firebase::firestore::api::DocumentReference;
 using firebase::firestore::api::Firestore;
 using firebase::firestore::api::ListenerRegistration;
@@ -69,6 +68,9 @@ using firebase::firestore::remote::FirebaseMetadataProvider;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::ByteStreamApple;
 using firebase::firestore::util::Empty;
+using firebase::firestore::util::Executor;
+using firebase::firestore::util::ExecutorLibdispatch;
+using firebase::firestore::util::LogSetLevel;
 using firebase::firestore::util::MakeCallback;
 using firebase::firestore::util::MakeNSError;
 using firebase::firestore::util::MakeNSString;
@@ -79,6 +81,8 @@ using firebase::firestore::util::Status;
 using firebase::firestore::util::StatusOr;
 using firebase::firestore::util::ThrowIllegalState;
 using firebase::firestore::util::ThrowInvalidArgument;
+using firebase::firestore::util::kLogLevelDebug;
+using firebase::firestore::util::kLogLevelNotice;
 
 using UserUpdateBlock = id _Nullable (^)(FIRTransaction *, NSError **);
 using UserTransactionCompletion = void (^)(id _Nullable, NSError *_Nullable);
@@ -181,13 +185,13 @@ NS_ASSUME_NONNULL_BEGIN
     _firestore->set_settings([settings internalSettings]);
 
 #if HAVE_LIBDISPATCH
-    std::unique_ptr<util::Executor> user_executor =
-        absl::make_unique<util::ExecutorLibdispatch>(settings.dispatchQueue);
+    std::unique_ptr<Executor> user_executor =
+        absl::make_unique<ExecutorLibdispatch>(settings.dispatchQueue);
 #else
     // It's possible to build without libdispatch on macOS for testing purposes.
     // In this case, avoid breaking the build.
-    std::unique_ptr<util::Executor> user_executor =
-        util::Executor::CreateSerial("com.google.firebase.firestore.user");
+    std::unique_ptr<Executor> user_executor =
+        Executor::CreateSerial("com.google.firebase.firestore.user");
 #endif  // HAVE_LIBDISPATCH
 
     _firestore->set_user_executor(std::move(user_executor));
@@ -343,7 +347,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (void)enableLogging:(BOOL)logging {
-  util::LogSetLevel(logging ? util::kLogLevelDebug : util::kLogLevelNotice);
+  LogSetLevel(logging ? kLogLevelDebug : kLogLevelNotice);
 }
 
 - (void)useEmulatorWithHost:(NSString *)host port:(NSInteger)port {
@@ -428,10 +432,10 @@ NS_ASSUME_NONNULL_BEGIN
       NSError *error = nil;
       if (!progress.error_status().ok()) {
         LOG_WARN("Progress set to Error, but error_status() is ok()");
-        error = util::MakeNSError(firebase::firestore::Error::kErrorUnknown,
+        error = MakeNSError(firebase::firestore::Error::kErrorUnknown,
                                   "Loading bundle failed with unknown error");
       } else {
-        error = util::MakeNSError(progress.error_status());
+        error = MakeNSError(progress.error_status());
       }
       completion([[FIRLoadBundleTaskProgress alloc] initWithInternal:progress], error);
     }
@@ -466,7 +470,7 @@ NS_ASSUME_NONNULL_BEGIN
   return _firestore;
 }
 
-- (const std::shared_ptr<util::AsyncQueue> &)workerQueue {
+- (const std::shared_ptr<AsyncQueue> &)workerQueue {
   return _firestore->worker_queue();
 }
 

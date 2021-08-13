@@ -36,12 +36,12 @@
 #include "Firestore/core/src/util/hard_assert.h"
 #include "absl/memory/memory.h"
 
-namespace util = firebase::firestore::util;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::FirebaseCredentialsProvider;
 using firebase::firestore::remote::FirebaseMetadataProviderApple;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::Executor;
+using firebase::firestore::util::MakeString;
 using firebase::firestore::util::ThrowInvalidArgument;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -91,7 +91,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (!firestore) {
       std::string queue_name{"com.google.firebase.firestore"};
       if (!self.app.isDefaultApp) {
-        absl::StrAppend(&queue_name, ".", util::MakeString(self.app.name));
+        absl::StrAppend(&queue_name, ".", MakeString(self.app.name));
       }
 
       auto executor = Executor::CreateSerial(queue_name.c_str());
@@ -102,8 +102,8 @@ NS_ASSUME_NONNULL_BEGIN
 
       auto firebaseMetadataProvider = absl::make_unique<FirebaseMetadataProviderApple>(self.app);
 
-      model::DatabaseId databaseID{util::MakeString(projectID), util::MakeString(database)};
-      std::string persistenceKey = util::MakeString(self.app.name);
+      model::DatabaseId databaseID{MakeString(projectID), MakeString(database)};
+      std::string persistenceKey = MakeString(self.app.name);
       firestore = [[FIRFirestore alloc] initWithDatabaseID:std::move(databaseID)
                                             persistenceKey:std::move(persistenceKey)
                                        credentialsProvider:std::move(credentialsProvider)

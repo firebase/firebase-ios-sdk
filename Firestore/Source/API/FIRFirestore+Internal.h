@@ -39,7 +39,6 @@ namespace api = firebase::firestore::api;
 namespace auth = firebase::firestore::auth;
 namespace model = firebase::firestore::model;
 namespace remote = firebase::firestore::remote;
-namespace util = firebase::firestore::util;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -60,7 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithDatabaseID:(model::DatabaseId)databaseID
                     persistenceKey:(std::string)persistenceKey
                credentialsProvider:(std::shared_ptr<auth::CredentialsProvider>)credentialsProvider
-                       workerQueue:(std::shared_ptr<util::AsyncQueue>)workerQueue
+                       workerQueue:(std::shared_ptr<firebase::firestore::util::AsyncQueue>)workerQueue
           firebaseMetadataProvider:
               (std::unique_ptr<remote::FirebaseMetadataProvider>)firebaseMetadataProvider
                        firebaseApp:(FIRApp *)app
@@ -74,7 +73,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)terminateInternalWithCompletion:(nullable void (^)(NSError *_Nullable error))completion;
 
-- (const std::shared_ptr<util::AsyncQueue> &)workerQueue;
+- (const std::shared_ptr<firebase::firestore::util::AsyncQueue> &)workerQueue;
 
 @property(nonatomic, assign, readonly) std::shared_ptr<api::Firestore> wrapped;
 
