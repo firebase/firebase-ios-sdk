@@ -136,8 +136,7 @@ NS_ASSUME_NONNULL_BEGIN
     ThrowInvalidArgument("Collection path cannot be empty.");
   }
 
-  CollectionReference child =
-      _documentReference.GetCollectionReference(MakeString(collectionPath));
+  CollectionReference child = _documentReference.GetCollectionReference(MakeString(collectionPath));
   return [[FIRCollectionReference alloc] initWithReference:std::move(child)];
 }
 

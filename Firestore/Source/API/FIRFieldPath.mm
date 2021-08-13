@@ -70,8 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (instancetype)pathWithDotSeparatedString:(NSString *)path {
-  return
-      [[FIRFieldPath alloc] initPrivate:FieldPath::FromDotSeparatedString(MakeString(path))];
+  return [[FIRFieldPath alloc] initPrivate:FieldPath::FromDotSeparatedString(MakeString(path))];
 }
 
 - (id)copyWithZone:(__unused NSZone *_Nullable)zone {

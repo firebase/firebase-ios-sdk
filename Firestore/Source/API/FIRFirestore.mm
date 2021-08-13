@@ -433,7 +433,7 @@ NS_ASSUME_NONNULL_BEGIN
       if (!progress.error_status().ok()) {
         LOG_WARN("Progress set to Error, but error_status() is ok()");
         error = MakeNSError(firebase::firestore::Error::kErrorUnknown,
-                                  "Loading bundle failed with unknown error");
+                            "Loading bundle failed with unknown error");
       } else {
         error = MakeNSError(progress.error_status());
       }
