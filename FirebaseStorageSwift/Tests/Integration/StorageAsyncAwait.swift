@@ -155,15 +155,51 @@ import XCTest
       XCTAssertNotNil(result)
     }
 
-    func testSimplePutFileNoMetadata() async throws {
-      let fileName = "hello&+@_ .txt"
-      let ref = storage.reference(withPath: "ios/public/" + fileName)
+    private func setupFile(_ fileName: String) throws -> URL {
       let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
       let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
       let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
       try data.write(to: fileURL, options: .atomicWrite)
+      return fileURL
+    }
+
+    func testSimplePutFileNoMetadata() async throws {
+      let fileName = "hello&+@_ .txt"
+      let ref = storage.reference(withPath: "ios/public/" + fileName)
+      let fileURL = try setupFile(fileName)
       let result = try await ref.putFileAsync(from: fileURL)
       XCTAssertNotNil(result)
+    }
+
+    func testSimplePutFileFromTask() async throws {
+      let fileName = "hello&+@_ .txt"
+      let ref = storage.reference(withPath: "ios/public/" + fileName)
+      let fileURL = try setupFile(fileName)
+
+      let task = Task { () -> StorageMetadata in
+        let metadata = try await ref.putFileAsync(from: fileURL)
+        return metadata
+      }
+
+      let result = try await task.value
+      XCTAssertNotNil(result)
+    }
+
+    func testSimplePutFileCancel() async throws {
+      let fileName = "hello&+@_ .txt"
+      let ref = storage.reference(withPath: "ios/public/" + fileName)
+      let fileURL = try setupFile(fileName)
+
+      let task = Task { () -> StorageMetadata in
+        try await ref.putFileAsync(from: fileURL)
+      }
+      task.cancel()
+      do {
+        _ = try await task.value
+        XCTFail("Unexpected success from putFileCancel")
+      } catch {
+        XCTAssertEqual(error as! StorageError, StorageError.cancelled)
+      }
     }
 
     func testSimpleGetData() async throws {

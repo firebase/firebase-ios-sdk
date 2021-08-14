@@ -193,6 +193,26 @@ class StorageResultTests: StorageIntegrationCommon {
     waitForExpectations()
   }
 
+  func testSimplePutFileCancel() throws {
+    let expectation = self.expectation(description: #function)
+    let ref = storage.reference(withPath: "ios/public/testSimplePutFile")
+    let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
+    let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
+    let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
+    try data.write(to: fileURL, options: .atomicWrite)
+    let task = ref.putFile(from: fileURL) { result in
+      switch result {
+      case .success:
+        XCTFail("Unexpected success from putFileCancel")
+      case let .failure(error as NSError):
+        XCTAssertEqual(error.code, StorageErrorCode.cancelled.rawValue)
+        expectation.fulfill()
+      }
+    }
+    task.cancel()
+    waitForExpectations()
+  }
+
   func testAttemptToUploadDirectoryShouldFail() throws {
     // This `.numbers` file is actually a directory.
     let fileName = "HomeImprovement.numbers"

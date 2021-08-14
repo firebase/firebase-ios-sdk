@@ -14,6 +14,10 @@
 
 import FirebaseStorage
 
+public enum StorageError: Error {
+  case cancelled
+}
+
 #if swift(>=5.5)
   @available(iOS 15, tvOS 15, macOS 12, *)
   public extension StorageReference {
@@ -66,12 +70,33 @@ import FirebaseStorage
     func putFileAsync(from url: URL,
                       metadata: StorageMetadata? = nil) async throws -> StorageMetadata {
       typealias MetadataContinuation = CheckedContinuation<StorageMetadata, Error>
-      return try await withCheckedThrowingContinuation { (continuation: MetadataContinuation) in
-        // TODO: Use task to handle progress and cancellation.
-        _ = self.putFile(from: url, metadata: metadata) { result in
-          continuation.resume(with: result)
+
+      let metadata =
+        try await withCheckedThrowingContinuation { (continuation: MetadataContinuation) in
+
+          if Task.isCancelled {
+            print("xxxxxxxxx")
+            continuation.resume(throwing: StorageError.cancelled)
+            return
+          }
+          let storageTask = self.putFile(from: url, metadata: metadata) { result in
+            print("yyyyy")
+            continuation.resume(with: result)
+          }
+
+          storageTask.observe(StorageTaskStatus.progress) { snapshot in
+            guard let progress = snapshot.progress else {
+              fatalError("Missing progress")
+            }
+            print("\(progress.completedUnitCount) of \(progress.totalUnitCount)")
+            if Task.isCancelled {
+              print("zzzzzzzzzzzzz")
+              storageTask.cancel()
+              continuation.resume(throwing: StorageError.cancelled)
+            }
+          }
         }
-      }
+      return metadata
     }
 
     /// Asynchronously downloads the object at the current path to a specified system filepath.
