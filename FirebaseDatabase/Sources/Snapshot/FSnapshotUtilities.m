@@ -391,4 +391,24 @@
     }
 }
 
++ (NSUInteger)testEstimateSerializedNodeSize:(id<FNode>)node {
+    if ([node isEmpty]) {
+        return 4; // null keyword
+    } else if ([node isLeafNode]) {
+        return [FSnapshotUtilities estimateLeafNodeSize:node];
+    } else {
+        NSAssert([node isKindOfClass:[FChildrenNode class]],
+                 @"Unexpected node type: %@", [node class]);
+        __block NSUInteger sum = 1; // opening brackets
+        [((FChildrenNode *)node) enumerateChildrenAndPriorityUsingBlock:^(
+                                     NSString *key, id<FNode> child,
+                                     BOOL *stop) {
+          sum += key.length;
+          sum +=
+              4; // quotes around key and colon and (comma or closing bracket)
+          sum += [FSnapshotUtilities estimateSerializedNodeSize:child];
+        }];
+        return sum;
+    }
+}
 @end
