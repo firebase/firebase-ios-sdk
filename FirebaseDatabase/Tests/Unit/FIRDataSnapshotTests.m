@@ -55,56 +55,6 @@
   return snapshot;
 }
 
-- (void)testCreationLeafNodesVariousTypes {
-  id<FNode> fortyTwo = [FSnapshotUtilities nodeFrom:@42];
-  FLeafNode* x = [[FLeafNode alloc] initWithValue:@5 withPriority:fortyTwo];
-
-  XCTAssertEqualObjects(x.val, @5, @"Values are the same");
-  XCTAssertEqualObjects(x.getPriority, [FSnapshotUtilities nodeFrom:@42], @"Priority is the same");
-  XCTAssertTrue([x isLeafNode], @"Node is a leaf");
-
-  x = [[FLeafNode alloc] initWithValue:@"test"];
-  XCTAssertEqualObjects(x.value, @"test", @"Check if leaf node is holding onto a string value");
-
-  x = [[FLeafNode alloc] initWithValue:[NSNumber numberWithBool:YES]];
-  XCTAssertTrue([x.value boolValue], @"Check if leaf node is holding onto a YES boolean");
-
-  x = [[FLeafNode alloc] initWithValue:[NSNumber numberWithBool:NO]];
-  XCTAssertFalse([x.value boolValue], @"Check if leaf node is holding onto a NO boolean");
-}
-
-- (void)testUpdatingPriorityWithoutChangingOld {
-  FLeafNode* x =
-      [[FLeafNode alloc] initWithValue:@"test"
-                          withPriority:[FSnapshotUtilities nodeFrom:[NSNumber numberWithInt:42]]];
-  FLeafNode* y = [x updatePriority:[FSnapshotUtilities nodeFrom:[NSNumber numberWithInt:187]]];
-
-  // old node is the same
-  XCTAssertEqualObjects(x.value, @"test", @"Values of old node are the same");
-  XCTAssertEqualObjects(x.getPriority, [FSnapshotUtilities nodeFrom:[NSNumber numberWithInt:42]],
-                        @"Priority of old node is the same.");
-
-  // new node has the new priority but the old value
-  XCTAssertEqualObjects(y.value, @"test", @"Values of old node are the same");
-  XCTAssertEqualObjects(y.getPriority, [FSnapshotUtilities nodeFrom:[NSNumber numberWithInt:187]],
-                        @"Priority of new node is update");
-}
-
-- (void)testUpdateImmediateChildReturnsANewChildrenNode {
-  FLeafNode* x =
-      [[FLeafNode alloc] initWithValue:@"test"
-                          withPriority:[FSnapshotUtilities nodeFrom:[NSNumber numberWithInt:42]]];
-  FChildrenNode* y = [x updateImmediateChild:@"test"
-                                withNewChild:[[FLeafNode alloc] initWithValue:@"foo"]];
-
-  XCTAssertFalse([y isLeafNode], @"New node is no longer a leaf");
-  XCTAssertEqualObjects(y.getPriority, [FSnapshotUtilities nodeFrom:[NSNumber numberWithInt:42]],
-                        @"Priority of new node is update");
-
-  XCTAssertEqualObjects([[y getImmediateChild:@"test"] val], @"foo",
-                        @"Child node has the correct value");
-}
-
 - (void)testGetImmediateChildOnLeafNode {
   FLeafNode* x = [[FLeafNode alloc] initWithValue:@"test"];
   XCTAssertEqualObjects([x getImmediateChild:@"foo"], [FEmptyNode emptyNode],

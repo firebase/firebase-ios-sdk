@@ -57,6 +57,7 @@ def generate_comment(comment_header, xcresult_file)
 end
 
 def add_coverage_comments(client, uncovered_files)
+  puts("-----------------")
   puts(uncovered_files)
   for changed_file in uncovered_files do
     coverage_line = changed_file['coverage']
