@@ -5,7 +5,11 @@
       "^FirebaseABTesting.*",
       "Interop/Analytics/Public/[^/]+\\.h",
       "\\.github/workflows/abtesting\\.yml"
-    ]
+    ],
+    "codeCoverageDisplayedFilePattern": {
+      "include": ["^FirebaseABTesting.*"],
+      "exclude": []
+    }
   },
   {
     "sdk": "auth",
@@ -13,7 +17,11 @@
       "^FirebaseAuth.*",
       "Interop/Auth/Public/[^/]+\\.h",
       "\\.github/workflows/auth\\.yml"
-    ]
+    ],
+    "codeCoverageDisplayedFilePattern": {
+      "include": [],
+      "exclude": []
+    }
   },
   {
     "sdk": "database",
@@ -22,7 +30,11 @@
       "\\.github/workflows/database\\.yml",
       "Example/Database/",
       "Interop/Auth/Public/[^/]+\\.h"
-    ]
+    ],
+    "codeCoverageDisplayedFilePattern": {
+      "include": [],
+      "exclude": []
+    }
   },
   {
     "sdk": "dynamiclinks",
@@ -30,7 +42,11 @@
       "^FirebaseDynamicLinks.*",
       "\\.github/workflows/dynamiclinks\\.yml",
       "Interop/Analytics/Public/[^/]+\\.h"
-    ]
+    ],
+    "codeCoverageDisplayedFilePattern": {
+      "include": [],
+      "exclude": []
+    }
   },
   {
     "sdk": "firestore",
@@ -43,7 +59,11 @@
       "CMakeLists\\.txt",
       "cmake/.*",
       "\\.github/workflows/firestore\\.yml"
-    ]
+    ],
+    "codeCoverageDisplayedFilePattern": {
+      "include": [],
+      "exclude": []
+    }
   },
   {
     "sdk": "functions",
@@ -52,7 +72,11 @@
       "\\.github/workflows/functions\\.yml",
       "Interop/Auth/Public/.*\\.h",
       "FirebaseMessaging/Sources/Interop/[^/]+\\.h"
-    ]
+    ],
+    "codeCoverageDisplayedFilePattern": {
+      "include": [],
+      "exclude": []
+    }
   },
   {
     "sdk": "inappmessaging",
@@ -60,7 +84,11 @@
       "^FirebaseInAppMessaging.*",
       "Interop/Analytics/Public/[^/]+\\.h",
       "\\.github/workflows/inappmessaging\\.yml"
-    ]
+    ],
+    "codeCoverageDisplayedFilePattern": {
+      "include": [],
+      "exclude": []
+    }
   },
   {
     "sdk": "messaging",
@@ -69,7 +97,11 @@
       "Interop/Analytics/Public/[^/]+\\.h",
       "FirebaseMessaging\\.podspec",
       "\\.github/workflows/messaging\\.yml"
-    ]
+    ],
+    "codeCoverageDisplayedFilePattern": {
+      "include": [],
+      "exclude": []
+    }
   },
   {
     "sdk": "performance",
@@ -77,7 +109,11 @@
       "^FirebasePerformance/.*",
       "FirebasePerformance\\.podspec",
       "\\.github/workflows/performance\\.yml"
-    ]
+    ],
+    "codeCoverageDisplayedFilePattern": {
+      "include": [],
+      "exclude": []
+    }
   },
   {
     "sdk": "remoteconfig",
@@ -86,7 +122,11 @@
       "Interop/Analytics/Public/[^/]+\\.h",
       "\\.github/workflows/remoteconfig\\.yml",
       "scripts/generate_access_token\\.sh"
-    ]
+    ],
+    "codeCoverageDisplayedFilePattern": {
+      "include": [],
+      "exclude": []
+    }
   },
   {
     "sdk": "storage",
@@ -94,6 +134,10 @@
       "^FirebaseStorage.*",
       "Interop/Auth/Public/[^/]+\\.h",
       "\\.github/workflows/storage\\.yml"
-    ]
+    ],
+    "codeCoverageDisplayedFilePattern": {
+      "include": [],
+      "exclude": []
+    }
   }
 ]

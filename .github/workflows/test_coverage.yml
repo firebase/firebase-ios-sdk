@@ -310,6 +310,7 @@ jobs:
             INPUT_ACCESS_TOKEN=${{ secrets.GITHUB_TOKEN }} \
             GITHUB_REPOSITORY="${GITHUB_REPOSITORY}" \
             UNCOVERED_LINE_FILE="generate_code_coverage_report/uncovered_file_lines.json" \
+            CODE_COVERAGE_FILE_LIST="${GITHUB_WORKSPACE}/scripts/code_coverage_report/code_coverage_file_list.json" \
             TESTING_COMMIT="${GITHUB_SHA}" \
             PULL_REQUEST="${pull_number}" \
             bundle exec ruby post_incremental_coverage_in_pr.rb

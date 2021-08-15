@@ -25,11 +25,13 @@ REMOVE_PATTERN = /### Incremental code coverage report/
 REPO = ENV['GITHUB_REPOSITORY']
 GITHUB_WORKFLOW_URL = "https://github.com/#{REPO}/actions/runs/#{ENV['GITHUB_RUN_ID']}"
 UNCOVERED_LINE_FILE = ENV["UNCOVERED_LINE_FILE"]
+CODE_COVERAGE_FILE_LIST = ENV["CODE_COVERAGE_FILE_LIST"]
 TESTING_COMMIT = ENV["TESTING_COMMIT"]
 PULL_REQUEST = ENV["PULL_REQUEST"].to_i
 
 client = Octokit::Client.new(access_token: ENV["INPUT_ACCESS_TOKEN"])
 uncovered_files = JSON.parse(File.read(UNCOVERED_LINE_FILE))
+code_coverage_file_list = JSON.parse(File.read(CODE_COVERAGE_FILE_LIST))
 
 # Clean comments matching REMOVE_PATTERN.
 def clean_coverage_comments(client)
@@ -55,6 +57,7 @@ def generate_comment(comment_header, xcresult_file)
 end
 
 def add_coverage_comments(client, uncovered_files)
+  puts(uncovered_files)
   for changed_file in uncovered_files do
     coverage_line = changed_file['coverage']
     xcresult_file = changed_file['xcresultBundle'].split('/').last
@@ -85,5 +88,7 @@ def add_coverage_comments(client, uncovered_files)
   end
 end
 
-clean_coverage_comments(client)
-add_coverage_comments(client, uncovered_files)
+# clean_coverage_comments(client)
+# add_coverage_comments(client, uncovered_files)
+puts(uncovered_files) 
+puts(code_coverage_file_list)
