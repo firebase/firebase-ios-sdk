@@ -352,4 +352,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
   FIRCLSExceptionRecordModel(exceptionModel);
 }
 
+- (void)testRecordExceptionModel:(FIRExceptionModel *)exceptionModel {
+  FIRCLSExceptionRecordModel(exceptionModel);
+}
 @end
