@@ -695,10 +695,6 @@ let package = Package(
       dependencies: ["FirebaseFunctions",
                      "SharedTestUtilities"],
       path: "Functions/Example/Tests/",
-      exclude: [
-        "en.lproj",
-        "Tests-Info.plist",
-      ],
       cSettings: [
         .headerSearchPath("../../../"),
       ]
