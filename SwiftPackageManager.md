@@ -16,7 +16,6 @@ Prior to version 8.0.0 (starting with version 6.31.0) support was in Beta.
 ## Limitations
 
 - Analytics is only supported for iOS and cannot be used in apps that support other platforms.
-- Performance is not yet available.
 - watchOS support is available for Auth, Crashlytics, Messaging, Realtime Database, RemoteConfig,
   and Storage.
 
