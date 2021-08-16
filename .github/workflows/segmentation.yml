@@ -58,9 +58,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: PodLibLint Auth Cron
-      run: |
-        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseSegmentation.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
-        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseSegmentation.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseSegmentation.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
 
   segmentation-sample-build-test:
     # Don't run on private repo unless it is a PR.

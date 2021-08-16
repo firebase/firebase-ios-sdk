@@ -134,20 +134,18 @@ const NSUInteger FIRCLSNetworkMaximumRetryCount = 10;
                                   }
 
                                   [self
-                                      runAfterRetryValueFromResponse:response
-                                                            attempts:tries
-                                                               block:^{
-                                                                 [self
-                                                                     startDataTaskWithRequest:
-                                                                         request
-                                                                                   retryLimit:
-                                                                                       retryLimit
-                                                                                        tries:
-                                                                                            (tries +
+                                    runAfterRetryValueFromResponse:response
+                                                          attempts:tries
+                                                             block:^{
+                                                               [self
+                                                                   startDataTaskWithRequest:request
+                                                                                 retryLimit:
+                                                                                     retryLimit
+                                                                                      tries:(tries +
                                                                                              1)
-                                                                            completionHandler:
-                                                                                completionHandler];
-                                                               }];
+                                                                          completionHandler:
+                                                                              completionHandler];
+                                                             }];
                                 }];
         }];
 
@@ -211,20 +209,20 @@ const NSUInteger FIRCLSNetworkMaximumRetryCount = 10;
                                       }
 
                                       [self
-                                          runAfterRetryValueFromResponse:response
-                                                                attempts:tries
-                                                                   block:^{
-                                                                     [self
-                                                                         startDownloadTaskWithRequest:
-                                                                             request
-                                                                                           retryLimit:
-                                                                                               retryLimit
-                                                                                                tries:
-                                                                                                    (tries +
-                                                                                                     1)
-                                                                                    completionHandler:
-                                                                                        completionHandler];
-                                                                   }];
+                                        runAfterRetryValueFromResponse:response
+                                                              attempts:tries
+                                                                 block:^{
+                                                                   [self
+                                                                       startDownloadTaskWithRequest:
+                                                                           request
+                                                                                         retryLimit:
+                                                                                             retryLimit
+                                                                                              tries:
+                                                                                                  (tries +
+                                                                                                   1)
+                                                                                  completionHandler:
+                                                                                      completionHandler];
+                                                                 }];
                                     }];
             }];
 

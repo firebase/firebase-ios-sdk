@@ -18,12 +18,13 @@
 
 #import "FIRAppCheckProvider.h"
 
+#import "FIRAppCheckAvailability.h"
+
 @class FIRApp;
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(14.0))
-API_UNAVAILABLE(macos, tvos, watchos)
+FIR_APP_ATTEST_PROVIDER_AVAILABILITY
 NS_SWIFT_NAME(AppAttestProvider)
 @interface FIRAppAttestProvider : NSObject <FIRAppCheckProvider>
 

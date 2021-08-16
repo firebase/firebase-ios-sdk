@@ -1,3 +1,6 @@
+# v8.4.0
+- [fixed] Bump Promises dependency. (#8365)
+
 # v8.3.0
 - [fixed] Add missing dependency that could cause missing symbol build failures. (#8137)
 

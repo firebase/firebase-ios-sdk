@@ -17,7 +17,7 @@
 
 import PackageDescription
 
-let firebaseVersion = "8.3.0"
+let firebaseVersion = "8.4.0"
 
 let package = Package(
   name: "Firebase",
@@ -133,7 +133,7 @@ let package = Package(
     .package(
       name: "Promises",
       url: "https://github.com/google/promises.git",
-      "1.2.8" ..< "1.3.0"
+      "1.2.8" ..< "3.0.0"
     ),
     .package(
       name: "SwiftProtobuf",
@@ -143,7 +143,7 @@ let package = Package(
     .package(
       name: "GoogleAppMeasurement",
       url: "https://github.com/google/GoogleAppMeasurement.git",
-      .exact("8.3.0")
+      .exact("8.3.1")
     ),
     .package(
       name: "GoogleDataTransport",
