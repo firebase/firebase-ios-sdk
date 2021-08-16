@@ -3,6 +3,7 @@
     "sdk": "abtesting",
     "filePatterns": [
       "FirebaseABTesting.*",
+
       "Interop/Analytics/Public/[^/]+\\.h",
       "\\.github/workflows/abtesting\\.yml"
     ]
