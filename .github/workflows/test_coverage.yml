@@ -39,8 +39,32 @@ jobs:
           pr_branch: ${{ github.event.pull_request.head.ref }}
         run: |
           if [ ! -z "${{ env.METRICS_SERVICE_SECRET }}"  ]; then
-            ./scripts/code_coverage_report/get_updated_files.sh
+            ./scripts/health_metrics/get_updated_files.sh
           fi
+
+  binary_size_metrics:
+    needs: check
+    if: always() && github.repository == 'Firebase/firebase-ios-sdk' && (github.event.action == 'opened' || github.event.action == 'synchronize' || github.event.pull_request.merged)
+    runs-on: macOS-latest
+    strategy:
+      matrix:
+        target: [iOS]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build and test
+      run: |
+        FirebaseABTesting=${{ needs.check.outputs.abtesting_run_job }} \
+        FirebaseAuth=${{ needs.check.outputs.auth_run_job }} \
+        FirebaseDatabase=${{ needs.check.outputs.database_run_job }} \
+        FirebaseDynamicLinks=${{ needs.check.outputs.dynamiclinks_run_job }} \
+        FirebaseFirestore=${{ needs.check.outputs.firestore_run_job }} \
+        FirebaseFunctions=${{ needs.check.outputs.functions_run_job}} \
+        FirebaseInAppMessaging=${{ needs.check.outputs.inappmessaging_run_job }} \
+        FirebaseMessaging=${{ needs.check.outputs.messaging_run_job}} \
+        FirebasePerformance=${{ needs.check.outputs.performance_run_job }} \
+        FirebaseRemoteConfig=${{ needs.check.outputs.remoteconfig_run_job }} \
+        FirebaseStorage=${{ needs.check.outputs.storage_run_job }} \
+        ./scripts/health_metrics/create_binary_size_report.sh
 
   pod-lib-lint-abtesting:
     needs: check
@@ -56,7 +80,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh --sdk=FirebaseABTesting --platform=${{ matrix.target }}
+      run: ./scripts/health_metrics/pod_test_code_coverage_report.sh --sdk=FirebaseABTesting --platform=${{ matrix.target }}
     - uses: actions/upload-artifact@v2
       with:
         name: codecoverage
@@ -75,7 +99,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh --sdk=FirebaseAuth --platform=${{ matrix.target }}
+      run: ./scripts/health_metrics/pod_test_code_coverage_report.sh --sdk=FirebaseAuth --platform=${{ matrix.target }}
     - uses: actions/upload-artifact@v2
       with:
         name: codecoverage
@@ -94,7 +118,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh --sdk=FirebaseDatabase --platform=${{ matrix.target }}
+      run: ./scripts/health_metrics/pod_test_code_coverage_report.sh --sdk=FirebaseDatabase --platform=${{ matrix.target }}
     - uses: actions/upload-artifact@v2
       with:
         name: codecoverage
@@ -113,7 +137,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh --sdk=FirebaseDynamicLinks --platform=${{ matrix.target }}
+      run: ./scripts/health_metrics/pod_test_code_coverage_report.sh --sdk=FirebaseDynamicLinks --platform=${{ matrix.target }}
     - uses: actions/upload-artifact@v2
       with:
         name: codecoverage
@@ -133,7 +157,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh --sdk=FirebaseFirestore --platform=${{ matrix.target }}
+      run: ./scripts/health_metrics/pod_test_code_coverage_report.sh --sdk=FirebaseFirestore --platform=${{ matrix.target }}
     - uses: actions/upload-artifact@v2
       with:
         name: codecoverage
@@ -152,7 +176,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh --sdk=FirebaseFunctions --platform=${{ matrix.target }}
+      run: ./scripts/health_metrics/pod_test_code_coverage_report.sh --sdk=FirebaseFunctions --platform=${{ matrix.target }}
     - uses: actions/upload-artifact@v2
       with:
         name: codecoverage
@@ -171,7 +195,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh --sdk=FirebaseInAppMessaging --platform=${{ matrix.target }}
+      run: ./scripts/health_metrics/pod_test_code_coverage_report.sh --sdk=FirebaseInAppMessaging --platform=${{ matrix.target }}
     - uses: actions/upload-artifact@v2
       with:
         name: codecoverage
@@ -190,7 +214,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh --sdk=FirebaseMessaging --platform=${{ matrix.target }}
+      run: ./scripts/health_metrics/pod_test_code_coverage_report.sh --sdk=FirebaseMessaging --platform=${{ matrix.target }}
     - uses: actions/upload-artifact@v2
       with:
         name: codecoverage
@@ -209,7 +233,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh --sdk=FirebasePerformance --platform=${{ matrix.target }}
+      run: ./scripts/health_metrics/pod_test_code_coverage_report.sh --sdk=FirebasePerformance --platform=${{ matrix.target }}
     - uses: actions/upload-artifact@v2
       with:
         name: codecoverage
@@ -228,7 +252,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh --sdk=FirebaseRemoteConfig --platform=${{ matrix.target }}
+      run: ./scripts/health_metrics/pod_test_code_coverage_report.sh --sdk=FirebaseRemoteConfig --platform=${{ matrix.target }}
     - uses: actions/upload-artifact@v2
       with:
         name: codecoverage
@@ -247,7 +271,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      run: ./scripts/code_coverage_report/pod_test_code_coverage_report.sh --sdk=FirebaseStorage --platform=${{ matrix.target }}
+      run: ./scripts/health_metrics/pod_test_code_coverage_report.sh --sdk=FirebaseStorage --platform=${{ matrix.target }}
     - uses: actions/upload-artifact@v2
       with:
         name: codecoverage
@@ -286,7 +310,7 @@ jobs:
         run: |
           # Get Head commit of the branch, instead of a merge commit created by actions/checkout.
           if [ -d "${{steps.download.outputs.download-path}}" ]; then
-            cd scripts/code_coverage_report/generate_code_coverage_report
+            cd scripts/health_metrics/generate_code_coverage_report
             swift run CoverageReportGenerator --presubmit "firebase/firebase-ios-sdk" --head-commit "${GITHUB_SHA}" --token $(gcloud auth print-identity-token) --xcresult-dir "/Users/runner/test/codecoverage" --log-link "https://github.com/firebase/firebase-ios-sdk/actions/runs/${GITHUB_RUN_ID}" --pull-request-num ${{github.event.pull_request.number}} --base-commit "$base_commit"
           fi
       - name: Incremental Code Coverage
@@ -297,11 +321,11 @@ jobs:
           # Get Head commit of the branch, instead of a merge commit created by actions/checkout.
           GITHUB_SHA=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.head.sha)
           # Get a JSON of `git diff` from the base commit.
-          git diff -U0 ${base_commit} "${GITHUB_SHA}" | scripts/code_coverage_report/git_diff_to_json.sh > scripts/code_coverage_report/generate_code_coverage_report/git_diff.json
-          cat "scripts/code_coverage_report/generate_code_coverage_report/git_diff.json"
+          git diff -U0 ${base_commit} "${GITHUB_SHA}" | scripts/health_metrics/git_diff_to_json.sh > scripts/health_metrics/generate_code_coverage_report/git_diff.json
+          cat "scripts/health_metrics/generate_code_coverage_report/git_diff.json"
           if [ -d "${{steps.download.outputs.download-path}}" ]; then
             # Create an uncovered_file_lines.json including code lines not covered by tests.
-            cd scripts/code_coverage_report/generate_code_coverage_report
+            cd scripts/health_metrics/generate_code_coverage_report
             swift run IncrementalCoverageReportGenerator --changed-files "git_diff.json" --file-archive-root-path "${GITHUB_WORKSPACE}" --xcresult-dir "${{steps.download.outputs.download-path}}" --uncovered-line-file-json "uncovered_file_lines.json"
             # Post uncovered lines to PRs.
             pull_number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
@@ -318,6 +342,6 @@ jobs:
         if: github.event.pull_request.merged && github.event.pull_request.head.repo.full_name == github.repository
         run: |
           if [ -d "${{steps.download.outputs.download-path}}" ]; then
-            cd scripts/code_coverage_report/generate_code_coverage_report
+            cd scripts/health_metrics/generate_code_coverage_report
             swift run CoverageReportGenerator --merge "firebase/firebase-ios-sdk" --head-commit "${GITHUB_SHA}" --token $(gcloud auth print-identity-token) --xcresult-dir "/Users/runner/test/codecoverage" --log-link "https://github.com/firebase/firebase-ios-sdk/actions/runs/${GITHUB_RUN_ID}" --source-branch "${{ github.base_ref }}"
           fi
