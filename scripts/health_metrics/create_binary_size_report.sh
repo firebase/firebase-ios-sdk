@@ -48,7 +48,7 @@ if $FirebaseStorage == 'true'; then
   BINARY_SIZE_SDK+=('FirebaseStorage')
 fi
 if [ -n "$BINARY_SIZE_SDK" ]; then
-  cd scripts/code_coverage_report/generate_code_coverage_report/
+  cd scripts/health_metrics/generate_code_coverage_report/
   git clone https://github.com/google/cocoapods-size
   swift build
   .build/debug/BinarySizeReportGenerator --binary-size-tool-dir cocoapods-size/  --sdk-repo-dir "${GITHUB_WORKSPACE}" --sdk ${BINARY_SIZE_SDK[@]} --log-path "https://github.com/firebase/firebase-ios-sdk/actions/runs/${GITHUB_RUN_ID}"
