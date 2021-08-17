@@ -699,6 +699,20 @@ let package = Package(
                      "SharedTestUtilities"],
       path: "Functions/Tests/CombineUnit"
     ),
+    .testTarget(
+      name: "FunctionsUnit",
+      dependencies: ["FirebaseFunctions",
+                     "SharedTestUtilities"],
+      path: "Functions/Example/Tests/",
+      cSettings: [
+        .headerSearchPath("../../../"),
+      ]
+    ),
+    .testTarget(
+      name: "FunctionsUnitSwift",
+      dependencies: ["FirebaseFunctions"],
+      path: "Functions/Tests/Unit/Swift"
+    ),
     .target(
       name: "FirebaseFunctionsTestingSupport",
       dependencies: ["FirebaseFunctions"],

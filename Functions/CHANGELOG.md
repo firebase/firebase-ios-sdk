@@ -1,3 +1,6 @@
+# v8.7.0
+- [fixed] Add watchOS support (#8499).
+
 # v8.3.0
 - [fixed] Fixed an issue where subclassing Functions was unusable (#8265).
 
