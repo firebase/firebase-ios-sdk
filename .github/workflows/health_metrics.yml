@@ -1,4 +1,4 @@
-name: test_coverage
+name: health_metrics
 
 on:
   pull_request:
