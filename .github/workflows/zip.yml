@@ -24,7 +24,7 @@ jobs:
   package-release:
     # Don't run on private repo.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-    runs-on: macos-11
+    runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
     - name: Xcode 12.2
@@ -47,7 +47,7 @@ jobs:
   build:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-    runs-on: macos-11
+    runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
     - name: Xcode 12.2
@@ -61,7 +61,7 @@ jobs:
     # Don't run on private repo.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     needs: build
-    runs-on: macos-11
+    runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
     - name: Xcode 12.2
@@ -90,7 +90,7 @@ jobs:
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       FRAMEWORK_DIR: "Firebase-actions-dir"
       SDK: "ABTesting"
-    runs-on: macos-11
+    runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
     - name: Get framework dir
@@ -140,7 +140,7 @@ jobs:
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       FRAMEWORK_DIR: "Firebase-actions-dir"
       SDK:  "Authentication"
-    runs-on: macos-11
+    runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
     - name: Get framework dir
@@ -184,7 +184,7 @@ jobs:
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       FRAMEWORK_DIR: "Firebase-actions-dir"
       SDK: "Config"
-    runs-on: macos-11
+    runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
     - name: Get framework dir
@@ -225,7 +225,7 @@ jobs:
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       FRAMEWORK_DIR: "Firebase-actions-dir"
       SDK: "Crashlytics"
-    runs-on: macos-11
+    runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
     - name: Get framework dir
@@ -284,7 +284,7 @@ jobs:
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       FRAMEWORK_DIR: "Firebase-actions-dir"
       SDK: "Database"
-    runs-on: macos-11
+    runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
     - name: Get framework dir
@@ -329,7 +329,7 @@ jobs:
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       FRAMEWORK_DIR: "Firebase-actions-dir"
       SDK: "DynamicLinks"
-    runs-on: macos-11
+    runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
     - name: Get framework dir
@@ -379,7 +379,7 @@ jobs:
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       FRAMEWORK_DIR: "Firebase-actions-dir"
       SDK: "Firestore"
-    runs-on: macos-11
+    runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
     - name: Get framework dir
@@ -422,7 +422,7 @@ jobs:
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       FRAMEWORK_DIR: "Firebase-actions-dir"
       SDK: "InAppMessaging"
-    runs-on: macos-11
+    runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
     - name: Get framework dir
@@ -468,7 +468,7 @@ jobs:
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       FRAMEWORK_DIR: "Firebase-actions-dir"
       SDK: "Messaging"
-    runs-on: macos-11
+    runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
     - name: Get framework dir
@@ -513,7 +513,7 @@ jobs:
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       FRAMEWORK_DIR: "Firebase-actions-dir"
       SDK: "Storage"
-    runs-on: macos-11
+    runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v2
     - name: Get framework dir
