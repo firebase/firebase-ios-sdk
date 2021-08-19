@@ -78,6 +78,8 @@ jobs:
         FirebaseRemoteConfig=${{ needs.check.outputs.remoteconfig_run_job }} \
         FirebaseStorage=${{ needs.check.outputs.storage_run_job }} \
         ./scripts/health_metrics/create_binary_size_report.sh
+      env:
+        PULL_REQUEST_NUM: ${{ github.event.pull_request.number }}
 
   pod-lib-lint-abtesting:
     needs: check
