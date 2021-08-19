@@ -193,12 +193,17 @@ import XCTest
       let task = Task { () -> StorageMetadata in
         try await ref.putFileAsync(from: fileURL)
       }
-      task.cancel()
+
+      // Cancel the task after a while.
+      DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+        task.cancel()
+      }
+
       do {
         _ = try await task.value
         XCTFail("Unexpected success from putFileCancel")
       } catch {
-        XCTAssertEqual(error as! StorageError, StorageError.cancelled)
+        XCTAssert(error is CancellationError)
       }
     }
 
