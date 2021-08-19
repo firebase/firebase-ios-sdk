@@ -57,7 +57,7 @@ public struct Result: Codable {
   let value: Int
 }
 
-extension BinaryMetricsReport{
+extension BinaryMetricsReport {
   func toData() -> Data {
     let jsonData = try! JSONEncoder().encode(self)
     return jsonData
@@ -75,7 +75,8 @@ func CreatePodConfigJSON(of sdks: [String], from sdk_dir: URL) throws {
 }
 
 // Create a JSON format data prepared to send to the Metrics Service.
-func CreateMetricsRequestData(of sdks: [String], type: String, log: String) throws -> BinaryMetricsReport {
+func CreateMetricsRequestData(of sdks: [String], type: String,
+                              log: String) throws -> BinaryMetricsReport {
   var reports: [Result] = []
   // Create a report for each individual SDK and collect all of them into reports.
   for sdk in sdks {
@@ -104,7 +105,8 @@ func CreateMetricsRequestData(of sdks: [String], type: String, log: String) thro
   return metricsRequestReport
 }
 
-public func CreateMetricsRequestData(SDK: [String], SDKRepoDir: URL, logPath: String) throws -> BinaryMetricsReport {
+public func CreateMetricsRequestData(SDK: [String], SDKRepoDir: URL,
+                                     logPath: String) throws -> BinaryMetricsReport {
   try CreatePodConfigJSON(of: SDK, from: SDKRepoDir)
   let data = try CreateMetricsRequestData(
     of: SDK,
@@ -113,4 +115,3 @@ public func CreateMetricsRequestData(SDK: [String], SDKRepoDir: URL, logPath: St
   )
   return data
 }
-

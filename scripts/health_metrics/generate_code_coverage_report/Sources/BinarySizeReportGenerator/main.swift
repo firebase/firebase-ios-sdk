@@ -39,7 +39,7 @@ struct BinarySizeReportGenerator: ParsableCommand {
   @Option(help: "Link to the log, leave \"\" if none.")
   var logLink: String
 
-// Send to the Metrics Service
+  // Send to the Metrics Service
   @Flag(help: "Determine if the request to Metrics Service is for pull_requests or merge.")
   var requestType: RequestType
 
@@ -73,15 +73,16 @@ struct BinarySizeReportGenerator: ParsableCommand {
   var sourceBranch: String?
 
   func run() throws {
-      print("----")
-      print(SDK)
-      print(SDKRepoDir)
-      print(logLink)
+    print("----")
+    print(SDK)
+    print(SDKRepoDir)
+    print(logLink)
 
     if let binarySizeRequest = try CreateMetricsRequestData(
-        SDK: SDK,
-        SDKRepoDir: SDKRepoDir,
-        logPath: logLink) {
+      SDK: SDK,
+      SDKRepoDir: SDKRepoDir,
+      logPath: logLink
+    ) {
       sendMetricsServiceRequest(
         repo: repo,
         commits: headCommit,
