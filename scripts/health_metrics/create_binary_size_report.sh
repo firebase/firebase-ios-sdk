@@ -19,6 +19,8 @@
 # This will generate a JSON output of changed files and their newly added
 # lines.
 
+set -ex
+
 BINARY_SIZE_SDK=()
 BINARY_SIZE_SDK+=('FirebaseABTesting')
 if [ -n "$BINARY_SIZE_SDK" ]; then
