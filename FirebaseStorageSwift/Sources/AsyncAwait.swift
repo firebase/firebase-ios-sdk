@@ -86,7 +86,7 @@ public enum StorageError: Error {
         }
       }, onCancel: { [storageTask] in
         // A possible race condition here. `onCancel` and `operation` are performed concurrently,
-        // so it's possible for `storageTask` still be `nil` but `Task.isCancelled` still be `false`, 
+        // so it's possible for `storageTask` still be `nil` but `Task.isCancelled` still be `false`,
         // so `storageTask` can be initialized and started after `onCancel` block has been
         // performed.
         storageTask?.cancel()
