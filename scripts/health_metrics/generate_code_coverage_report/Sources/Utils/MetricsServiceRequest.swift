@@ -19,7 +19,7 @@ import Foundation
   import FoundationNetworking
 #endif
 
-func sendMetricsServiceRequest(repo: String, commits: String, jsonContent: Data, token: String,
+public func sendMetricsServiceRequest(repo: String, commits: String, jsonContent: Data, token: String,
                                is_presubmit: Bool, branch: String?, pullRequest: Int?,
                                pullRequestNote: String?, baseCommit: String?) {
   var request: URLRequest
