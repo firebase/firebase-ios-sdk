@@ -78,11 +78,25 @@ struct BinarySizeReportGenerator: ParsableCommand {
     print(SDKRepoDir)
     print(logLink)
 
-    try CreateMetricsRequestData(
+    if let binarySizeRequest = try CreateMetricsRequestData(
       SDK: SDK,
       SDKRepoDir: SDKRepoDir,
       logPath: logLink
-    )  
+    ) {
+      sendMetricsServiceRequest(
+        repo: repo,
+        commits: headCommit,
+        jsonContent: coverageRequest.toData(),
+        token: token,
+        is_presubmit: requestType == RequestType.presubmit,
+        branch: sourceBranch,
+        pullRequest: pullRequestNum,
+        pullRequestNote: pullRequestNote,
+        baseCommit: baseCommit
+      )
+    } else {
+      print("coverageRequest is nil.")
+    }
   }
 }
 
