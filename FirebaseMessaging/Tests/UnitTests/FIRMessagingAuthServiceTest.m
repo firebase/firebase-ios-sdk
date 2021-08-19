@@ -47,7 +47,6 @@ static NSString *const kVersionInfo = @"1.0";
 @property(nonatomic, readwrite, strong) FIRMessagingCheckinService *checkinService;
 @property(nonatomic, readwrite, strong) id mockCheckinService;
 @property(nonatomic, readwrite, strong) id mockStore;
-
 @property(nonatomic, readwrite, copy) FIRMessagingDeviceCheckinCompletion checkinCompletion;
 
 @end
