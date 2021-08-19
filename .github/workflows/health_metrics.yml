@@ -51,6 +51,19 @@ jobs:
         target: [iOS]
     steps:
     - uses: actions/checkout@v2
+    - name: Access to Metrics Service
+      if: github.event.pull_request.head.repo.full_name == github.repository && (github.event.action != 'closed' || github.event.pull_request.merged)
+      run: |
+        # Install gcloud sdk
+        curl https://sdk.cloud.google.com > install.sh
+        bash install.sh --disable-prompts
+        echo "${HOME}/google-cloud-sdk/bin/" >> $GITHUB_PATH
+        export PATH="${HOME}/google-cloud-sdk/bin/:${PATH}"
+
+        # Activate the service account for Metrics Service.
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/metrics_service_access.json.gpg \
+        metrics-access.json "${{ env.METRICS_SERVICE_SECRET }}"
+        gcloud auth activate-service-account --key-file metrics-access.json
     - name: Build and test
       run: |
         FirebaseABTesting=${{ needs.check.outputs.abtesting_run_job }} \
