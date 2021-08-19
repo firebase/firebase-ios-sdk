@@ -71,32 +71,26 @@ public enum StorageError: Error {
                       metadata: StorageMetadata? = nil) async throws -> StorageMetadata {
       typealias MetadataContinuation = CheckedContinuation<StorageMetadata, Error>
 
-      let metadata =
+      var storageTask: StorageUploadTask?
+
+      return try await withTaskCancellationHandler(operation: {
         try await withCheckedThrowingContinuation { (continuation: MetadataContinuation) in
 
           if Task.isCancelled {
-            print("xxxxxxxxx")
-            continuation.resume(throwing: StorageError.cancelled)
+            continuation.resume(throwing: CancellationError())
             return
           }
-          let storageTask = self.putFile(from: url, metadata: metadata) { result in
-            print("yyyyy")
+          storageTask = self.putFile(from: url, metadata: metadata) { result in
             continuation.resume(with: result)
           }
-
-          storageTask.observe(StorageTaskStatus.progress) { snapshot in
-            guard let progress = snapshot.progress else {
-              fatalError("Missing progress")
-            }
-            print("\(progress.completedUnitCount) of \(progress.totalUnitCount)")
-            if Task.isCancelled {
-              print("zzzzzzzzzzzzz")
-              storageTask.cancel()
-              continuation.resume(throwing: StorageError.cancelled)
-            }
-          }
         }
-      return metadata
+      }, onCancel: { [storageTask] in
+        // A possible race condition here. `onCancel` and `operation` are performed concurrently,
+        // so it's possible for `storageTask` still be `nil` but `Task.isCancelled` still be `false`, 
+        // so `storageTask` can be initialized and started after `onCancel` block has been
+        // performed.
+        storageTask?.cancel()
+      })
     }
 
     /// Asynchronously downloads the object at the current path to a specified system filepath.
