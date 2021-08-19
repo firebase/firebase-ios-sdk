@@ -106,7 +106,7 @@ func CreateMetricsRequestData(of sdks: [String], type: String,
 }
 
 public func CreateMetricsRequestData(SDK: [String], SDKRepoDir: URL,
-                                     logPath: String) throws -> BinaryMetricsReport {
+                                     logPath: String) throws -> BinaryMetricsReport? {
   try CreatePodConfigJSON(of: SDK, from: SDKRepoDir)
   let data = try CreateMetricsRequestData(
     of: SDK,

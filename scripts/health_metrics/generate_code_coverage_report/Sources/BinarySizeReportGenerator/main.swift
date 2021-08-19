@@ -86,7 +86,7 @@ struct BinarySizeReportGenerator: ParsableCommand {
       sendMetricsServiceRequest(
         repo: repo,
         commits: headCommit,
-        jsonContent: coverageRequest.toData(),
+        jsonContent: binarySizeRequest.toData(),
         token: token,
         is_presubmit: requestType == RequestType.presubmit,
         branch: sourceBranch,
