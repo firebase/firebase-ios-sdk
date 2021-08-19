@@ -36,20 +36,66 @@ struct BinarySizeReportGenerator: ParsableCommand {
   @Option(parsing: .upToNextOption, help: "SDKs to be measured.")
   var SDK: [String]
 
-  @Option(help: "SDKs to be measured.")
-  var logPath: String
+  @Option(help: "Link to the log, leave \"\" if none.")
+  var logLink: String
+
+// Send to the Metrics Service
+  @Flag(help: "Determine if the request to Metrics Service is for pull_requests or merge.")
+  var requestType: RequestType
+
+  @Argument(help: "A repo coverage data will be related to.")
+  var repo: String
+
+  @Option(
+    help: "presubmit: compare the diff to the base_commit; merge: store coverage data linking to this commit."
+  )
+  var headCommit: String
+
+  @Option(help: "Token to access an account of the Metrics Service")
+  var token: String
+
+  @Option(
+    help: "This is for presubmit request. Number of a pull request that a coverage report will be posted on."
+  )
+  var pullRequestNum: Int?
+
+  @Option(help: "This is for presubmit request. Additional note for the report.")
+  var pullRequestNote: String?
+
+  @Option(
+    help: "This is for presubmit request. Coverage of commit will be compared to the coverage of this base_commit."
+  )
+  var baseCommit: String?
+
+  @Option(
+    help: "This is for merge request. Branch here will be linked to the coverage data, with the merged commit, in the database. "
+  )
+  var sourceBranch: String?
 
   func run() throws {
       print("----")
       print(SDK)
       print(SDKRepoDir)
-      print(logPath)
+      print(logLink)
 
-     let binarySizeRequest = try CreateMetricsRequestData(
+    if let binarySizeRequest = try CreateMetricsRequestData(
         SDK: SDK,
         SDKRepoDir: SDKRepoDir,
-        logPath: logPath)
-     print (binarySizeRequest.toData())
+        logPath: logLink) {
+      sendMetricsServiceRequest(
+        repo: repo,
+        commits: headCommit,
+        jsonContent: coverageRequest.toData(),
+        token: token,
+        is_presubmit: requestType == RequestType.presubmit,
+        branch: sourceBranch,
+        pullRequest: pullRequestNum,
+        pullRequestNote: pullRequestNote,
+        baseCommit: baseCommit
+      )
+    } else {
+      print("coverageRequest is nil.")
+    }
   }
 }
 
