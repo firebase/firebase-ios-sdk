@@ -80,6 +80,7 @@ jobs:
         ./scripts/health_metrics/create_binary_size_report.sh
       env:
         PULL_REQUEST_NUM: ${{ github.event.pull_request.number }}
+        base_commit: ${{ github.event.pull_request.base.sha }}
 
   pod-lib-lint-abtesting:
     needs: check
