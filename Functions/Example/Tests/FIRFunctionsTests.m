@@ -161,12 +161,8 @@
 
   XCTestExpectation *httpRequestExpectation =
       [self expectationWithDescription:@"HTTPRequestExpectation"];
-  __weak __auto_type weakSelf = self;
   _fetcherService.testBlock = ^(GTMSessionFetcher *_Nonnull fetcherToTest,
                                 GTMSessionFetcherTestResponse _Nonnull testResponse) {
-    // Fixes retain cycle warning for Xcode 11 and earlier.
-    // __unused to avoid warning in Xcode 12+.
-    __unused __auto_type self = weakSelf;
     [httpRequestExpectation fulfill];
 
     NSString *appCheckTokenHeader =
@@ -198,12 +194,8 @@
 
   XCTestExpectation *httpRequestExpectation =
       [self expectationWithDescription:@"HTTPRequestExpectation"];
-  __weak __auto_type weakSelf = self;
   _fetcherService.testBlock = ^(GTMSessionFetcher *_Nonnull fetcherToTest,
                                 GTMSessionFetcherTestResponse _Nonnull testResponse) {
-    // Fixes retain cycle warning for Xcode 11 and earlier.
-    // __unused to avoid warning in Xcode 12+.
-    __unused __auto_type self = weakSelf;
     [httpRequestExpectation fulfill];
 
     NSString *appCheckTokenHeader =
@@ -234,12 +226,8 @@
   XCTestExpectation *httpRequestExpectation =
       [self expectationWithDescription:@"HTTPRequestExpectation"];
 
-  __weak __auto_type weakSelf = self;
   _fetcherService.testBlock = ^(GTMSessionFetcher *_Nonnull fetcherToTest,
                                 GTMSessionFetcherTestResponse _Nonnull testResponse) {
-    // Fixes retain cycle warning for Xcode 11 and earlier.
-    // __unused to avoid warning in Xcode 12+.
-    __unused __auto_type self = weakSelf;
     [httpRequestExpectation fulfill];
 
     NSString *appCheckTokenHeader =
