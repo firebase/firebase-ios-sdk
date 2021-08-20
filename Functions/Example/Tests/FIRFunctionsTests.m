@@ -194,9 +194,7 @@
   _appCheckFake.tokenResult = [[FIRAppCheckTokenResultFake alloc] initWithToken:@"dummy_token"
                                                                           error:appCheckError];
 
-  NSError *networkError = [NSError errorWithDomain:self.name
-                                              code:-2
-                                          userInfo:nil];
+  NSError *networkError = [NSError errorWithDomain:self.name code:-2 userInfo:nil];
 
   XCTestExpectation *httpRequestExpectation =
       [self expectationWithDescription:@"HTTPRequestExpectation"];
