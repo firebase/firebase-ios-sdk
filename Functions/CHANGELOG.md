@@ -1,3 +1,5 @@
+# v8.7.1
+- [changed] Don't set the App Check header in the case of App Check error. (#8558)
 # v8.7.0
 - [fixed] Add watchOS support (#8499).
 
