@@ -34,7 +34,8 @@ public enum QueryPredicate {
 
   case orderBy(_ field: String, _ value: Bool)
 
-  case limitTo(_ field: Int)
+  case limitTo(_ value: Int)
+  case limitToLast(_ value: Int)
 
   /*
    Factory methods to expose the underlying enum cases with a nicer development experience and improved semantics.
@@ -82,8 +83,12 @@ public enum QueryPredicate {
     .orderBy(field, value)
   }
 
-  public static func limit(to field: Int) -> QueryPredicate {
-    .limitTo(field)
+  public static func limit(to value: Int) -> QueryPredicate {
+    .limitTo(value)
+  }
+    
+  public static func limit(toLast value: Int) -> QueryPredicate {
+    .limitToLast(value)
   }
 }
 
@@ -130,6 +135,8 @@ internal class FirestoreQueryObservable<T: Decodable>: ObservableObject {
         query = query.order(by: field, descending: value)
       case let .limitTo(field):
         query = query.limit(to: field)
+      case let .limitToLast(field):
+        query = query.limit(toLast: field)
       }
     }
 
