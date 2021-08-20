@@ -282,34 +282,35 @@ static void callInMainThreadWithAuthDataResultAndError(
   user.auth = auth;
   user.tenantID = auth.tenantID;
   user.requestConfiguration = auth.requestConfiguration;
-    if (refreshToken.length) {
-      [user internalGetTokenWithCallback:^(NSString *_Nullable accessToken, NSError *_Nullable error) {
-        if (error) {
-          callback(nil, error);
-          return;
-        }
-        FIRGetAccountInfoRequest *getAccountInfoRequest =
-            [[FIRGetAccountInfoRequest alloc] initWithAccessToken:accessToken
-                                             requestConfiguration:auth.requestConfiguration];
-        [FIRAuthBackend
-            getAccountInfo:getAccountInfoRequest
-                  callback:^(FIRGetAccountInfoResponse *_Nullable response, NSError *_Nullable error) {
-                    if (error) {
-                      // No need to sign out user here for errors because the user hasn't been signed in
-                      // yet.
-                      callback(nil, error);
-                      return;
-                    }
-                    user.anonymous = anonymous;
-                    [user updateWithGetAccountInfoResponse:response];
-                    callback(user, nil);
-                  }];
-      }];
-    } else {
-        [user updateWithIDToken:accessToken];
-        callback(user, nil);
-    }
+  if (refreshToken.length) {
+    [user
+        internalGetTokenWithCallback:^(NSString *_Nullable accessToken, NSError *_Nullable error) {
+          if (error) {
+            callback(nil, error);
+            return;
+          }
+          FIRGetAccountInfoRequest *getAccountInfoRequest =
+              [[FIRGetAccountInfoRequest alloc] initWithAccessToken:accessToken
+                                               requestConfiguration:auth.requestConfiguration];
+          [FIRAuthBackend getAccountInfo:getAccountInfoRequest
+                                callback:^(FIRGetAccountInfoResponse *_Nullable response,
+                                           NSError *_Nullable error) {
+                                  if (error) {
+                                    // No need to sign out user here for errors because the user
+                                    // hasn't been signed in yet.
+                                    callback(nil, error);
+                                    return;
+                                  }
+                                  user.anonymous = anonymous;
+                                  [user updateWithGetAccountInfoResponse:response];
+                                  callback(user, nil);
+                                }];
+        }];
+  } else {
+    [user updateWithIDToken:accessToken];
+    callback(user, nil);
   }
+}
 
 - (instancetype)initWithTokenService:(FIRSecureTokenService *)tokenService {
   self = [super init];
@@ -499,47 +500,47 @@ static void callInMainThreadWithAuthDataResultAndError(
         callback(error);
         return;
       }
-      [self
-        internalGetTokenWithCallback:^(NSString *_Nullable accessToken, NSError *_Nullable error) {
-          if (error) {
-            complete();
-            callback(error);
-            return;
-          }
-          FIRAuthRequestConfiguration *configuration = self->_auth.requestConfiguration;
-          // Mutate setAccountInfoRequest in block:
-          FIRSetAccountInfoRequest *setAccountInfoRequest =
-              [[FIRSetAccountInfoRequest alloc] initWithRequestConfiguration:configuration];
-          setAccountInfoRequest.accessToken = accessToken;
-          changeBlock(user, setAccountInfoRequest);
-          // Execute request:
-          [FIRAuthBackend
-              setAccountInfo:setAccountInfoRequest
-                    callback:^(FIRSetAccountInfoResponse *_Nullable response,
-                               NSError *_Nullable error) {
-                      if (error) {
-                        [self signOutIfTokenIsInvalidWithError:error];
-                        complete();
-                        callback(error);
-                        return;
-                      }
-                      if (response.IDToken && response.refreshToken) {
-                        FIRSecureTokenService *tokenService = [[FIRSecureTokenService alloc]
-                            initWithRequestConfiguration:configuration
-                                             accessToken:response.IDToken
-                               accessTokenExpirationDate:response.approximateExpirationDate
-                                            refreshToken:response.refreshToken];
-                        [self setTokenService:tokenService
-                                     callback:^(NSError *_Nullable error) {
-                                       complete();
-                                       callback(error);
-                                     }];
-                        return;
-                      }
+      [self internalGetTokenWithCallback:^(NSString *_Nullable accessToken,
+                                           NSError *_Nullable error) {
+        if (error) {
+          complete();
+          callback(error);
+          return;
+        }
+        FIRAuthRequestConfiguration *configuration = self->_auth.requestConfiguration;
+        // Mutate setAccountInfoRequest in block:
+        FIRSetAccountInfoRequest *setAccountInfoRequest =
+            [[FIRSetAccountInfoRequest alloc] initWithRequestConfiguration:configuration];
+        setAccountInfoRequest.accessToken = accessToken;
+        changeBlock(user, setAccountInfoRequest);
+        // Execute request:
+        [FIRAuthBackend
+            setAccountInfo:setAccountInfoRequest
+                  callback:^(FIRSetAccountInfoResponse *_Nullable response,
+                             NSError *_Nullable error) {
+                    if (error) {
+                      [self signOutIfTokenIsInvalidWithError:error];
                       complete();
-                      callback(nil);
-                    }];
-        }];
+                      callback(error);
+                      return;
+                    }
+                    if (response.IDToken && response.refreshToken) {
+                      FIRSecureTokenService *tokenService = [[FIRSecureTokenService alloc]
+                          initWithRequestConfiguration:configuration
+                                           accessToken:response.IDToken
+                             accessTokenExpirationDate:response.approximateExpirationDate
+                                          refreshToken:response.refreshToken];
+                      [self setTokenService:tokenService
+                                   callback:^(NSError *_Nullable error) {
+                                     complete();
+                                     callback(error);
+                                   }];
+                      return;
+                    }
+                    complete();
+                    callback(nil);
+                  }];
+      }];
     }];
   }];
 }
@@ -835,11 +836,11 @@ static void callInMainThreadWithAuthDataResultAndError(
                                              }
                                              // Successful reauthenticate
                                              [self
-                                               setTokenService:authResult.user->_tokenService
-                                                      callback:^(NSError *_Nullable error) {
-                                                        callInMainThreadWithAuthDataResultAndError(
-                                                            completion, authResult, error);
-                                                      }];
+                                                 setTokenService:authResult.user->_tokenService
+                                                        callback:^(NSError *_Nullable error) {
+                                                          callInMainThreadWithAuthDataResultAndError(
+                                                              completion, authResult, error);
+                                                        }];
                                            }];
   });
 }

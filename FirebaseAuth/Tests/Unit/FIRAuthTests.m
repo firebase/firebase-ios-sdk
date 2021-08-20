@@ -88,7 +88,10 @@ static NSString *const kAccessToken = @"ACCESS_TOKEN";
 /** @var kEncodedAccessToken
     @brief A fake access token containing user_id as payload
  */
-static NSString *const kEncodedAccessToken = @"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0IiwidXNlcl9pZCI6InRlc3RfcGFzc3Rocm91Z2giLCJpYXQiOjE1MTYyMzkwMjJ9.4uNq61PQNjbtaEB7Kv28B0krzvF6F6JxyaWFC_cS57A";
+static NSString *const kEncodedAccessToken =
+    @"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."
+    @"eyJzdWIiOiJ0ZXN0IiwidXNlcl9pZCI6InRlc3RfcGFzc3Rocm91Z2giLCJpYXQiOjE1MTYyMzkwMjJ9."
+    @"4uNq61PQNjbtaEB7Kv28B0krzvF6F6JxyaWFC_cS57A";
 
 /** @var kNewAccessToken
     @brief Another fake access token used to simulate token refreshed via automatic token refresh.
@@ -1519,7 +1522,8 @@ static const NSTimeInterval kWaitInterval = .5;
 }
 
 /** @fn testSignInWithCustomTokenSuccessNoRefreshToken
-    @brief Tests the flow of a successful @c signInWithCustomToken:completion: call without a refresh token.
+    @brief Tests the flow of a successful @c signInWithCustomToken:completion: call without a
+   refresh token.
  */
 - (void)testSignInWithCustomTokenWithoutRefreshTokenSuccess {
   OCMExpect([_mockBackend verifyCustomToken:[OCMArg any] callback:[OCMArg any]])
