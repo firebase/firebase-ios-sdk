@@ -24,6 +24,7 @@
 #import "FirebaseAuth/Sources/Backend/FIRAuthRequestConfiguration.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSecureTokenRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSecureTokenResponse.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
@@ -96,7 +97,7 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
 - (instancetype)initWithRequestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
                                  accessToken:(nullable NSString *)accessToken
                    accessTokenExpirationDate:(nullable NSDate *)accessTokenExpirationDate
-                                refreshToken:(NSString *)refreshToken {
+                                refreshToken:(nullable NSString *)refreshToken {
   self = [self init];
   if (self) {
     _requestConfiguration = requestConfiguration;
@@ -180,9 +181,14 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
   if (_refreshToken.length) {
     request = [FIRSecureTokenRequest refreshRequestWithRefreshToken:_refreshToken
                                                requestConfiguration:_requestConfiguration];
-  } else {
+  } else if (_authorizationCode.length){
     request = [FIRSecureTokenRequest authCodeRequestWithCode:_authorizationCode
                                         requestConfiguration:_requestConfiguration];
+  } else {
+      NSError *error = [FIRAuthErrorUtils errorWithCode:FIRAuthInternalErrorCodeInternalError
+                                                message:@"Refresh token not present."];
+      callback(nil, error, NO);
+      return;
   }
   [FIRAuthBackend
     secureToken:request

@@ -282,29 +282,34 @@ static void callInMainThreadWithAuthDataResultAndError(
   user.auth = auth;
   user.tenantID = auth.tenantID;
   user.requestConfiguration = auth.requestConfiguration;
-  [user internalGetTokenWithCallback:^(NSString *_Nullable accessToken, NSError *_Nullable error) {
-    if (error) {
-      callback(nil, error);
-      return;
+    if (refreshToken.length) {
+      [user internalGetTokenWithCallback:^(NSString *_Nullable accessToken, NSError *_Nullable error) {
+        if (error) {
+          callback(nil, error);
+          return;
+        }
+        FIRGetAccountInfoRequest *getAccountInfoRequest =
+            [[FIRGetAccountInfoRequest alloc] initWithAccessToken:accessToken
+                                             requestConfiguration:auth.requestConfiguration];
+        [FIRAuthBackend
+            getAccountInfo:getAccountInfoRequest
+                  callback:^(FIRGetAccountInfoResponse *_Nullable response, NSError *_Nullable error) {
+                    if (error) {
+                      // No need to sign out user here for errors because the user hasn't been signed in
+                      // yet.
+                      callback(nil, error);
+                      return;
+                    }
+                    user.anonymous = anonymous;
+                    [user updateWithGetAccountInfoResponse:response];
+                    callback(user, nil);
+                  }];
+      }];
+    } else {
+        [user updateWithIDToken:accessToken];
+        callback(user, nil);
     }
-    FIRGetAccountInfoRequest *getAccountInfoRequest =
-        [[FIRGetAccountInfoRequest alloc] initWithAccessToken:accessToken
-                                         requestConfiguration:auth.requestConfiguration];
-    [FIRAuthBackend
-        getAccountInfo:getAccountInfoRequest
-              callback:^(FIRGetAccountInfoResponse *_Nullable response, NSError *_Nullable error) {
-                if (error) {
-                  // No need to sign out user here for errors because the user hasn't been signed in
-                  // yet.
-                  callback(nil, error);
-                  return;
-                }
-                user.anonymous = anonymous;
-                [user updateWithGetAccountInfoResponse:response];
-                callback(user, nil);
-              }];
-  }];
-}
+  }
 
 - (instancetype)initWithTokenService:(FIRSecureTokenService *)tokenService {
   self = [super init];
@@ -468,6 +473,12 @@ static void callInMainThreadWithAuthDataResultAndError(
   _multiFactor = [[FIRMultiFactor alloc] initWithMFAEnrollments:user.MFAEnrollments];
   _multiFactor.user = self;
 #endif
+}
+
+- (void)updateWithIDToken:(NSString *)token {
+  FIRAuthTokenResult *tokenResult = [FIRAuthTokenResult tokenResultWithToken:token];
+  NSDictionary *tokenClaims = tokenResult.claims;
+  _userID = tokenClaims[@"user_id"];
 }
 
 /** @fn executeUserUpdateWithChanges:callback:
