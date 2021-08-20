@@ -26,9 +26,20 @@ public struct FirestoreQuery<T: Decodable>: DynamicProperty {
     firestoreQueryObservable.items
   }
 
+  public var projectedValue: FirestoreQueryConfiguration {
+    get {
+      firestoreQueryObservable.configuration
+    }
+    nonmutating set {
+      firestoreQueryObservable.objectWillChange.send()
+      firestoreQueryObservable.configuration = newValue
+    }
+  }
+
   public init(collectionPath: String, predicates: [QueryPredicate] = []) {
+    let configuration = FirestoreQueryConfiguration(path: collectionPath, predicates: predicates)
+
     _firestoreQueryObservable =
-      StateObject(wrappedValue: FirestoreQueryObservable<T>(collectionPath: collectionPath,
-                                                            predicates: predicates))
+      StateObject(wrappedValue: FirestoreQueryObservable<T>(configuration: configuration))
   }
 }

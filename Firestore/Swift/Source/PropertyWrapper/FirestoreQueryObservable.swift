@@ -24,19 +24,26 @@ internal class FirestoreQueryObservable<T: Decodable>: ObservableObject {
   private let firestore = Firestore.firestore()
   private var listener: ListenerRegistration? = nil
 
-  init(collectionPath: String, predicates: [QueryPredicate]) {
-    setupListener(from: collectionPath, withPredicates: predicates)
+  internal var configuration: FirestoreQueryConfiguration {
+    didSet {
+      removeListener()
+      setupListener()
+    }
+  }
+
+  init(configuration: FirestoreQueryConfiguration) {
+    self.configuration = configuration
+    setupListener()
   }
 
   deinit {
     removeListener()
   }
 
-  private func setupListener(from collectionPath: String,
-                             withPredicates predicates: [QueryPredicate]) {
-    var query: Query = firestore.collection(collectionPath)
+  private func setupListener() {
+    var query: Query = firestore.collection(configuration.path)
 
-    for predicate in predicates {
+    for predicate in configuration.predicates {
       switch predicate {
       case let .isEqualTo(field, value):
         query = query.whereField(field, isEqualTo: value)
@@ -86,5 +93,6 @@ internal class FirestoreQueryObservable<T: Decodable>: ObservableObject {
 
   private func removeListener() {
     listener?.remove()
+    listener = nil
   }
 }
