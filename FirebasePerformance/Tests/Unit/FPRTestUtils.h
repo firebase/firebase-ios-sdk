@@ -21,14 +21,16 @@
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
 
-#import "FirebasePerformance/ProtoSupport/PerfMetric.pbobjc.h"
-
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FPRTestUtils : NSObject
 
 /** Default initializer. */
 - (instancetype)init NS_UNAVAILABLE;
+
+/** Provide the NSBundle instance that can to be used for testing. SPM tests will have a different
+ * bundle when compared to the default unit test bundle. */
++ (NSBundle *)getBundle;
 
 /** Creates a Performance Trace object. */
 + (FIRTrace *)createRandomTraceWithName:(NSString *)name;
@@ -37,22 +39,22 @@ NS_ASSUME_NONNULL_BEGIN
 + (FIRTrace *)addVerboseSessionToTrace:(FIRTrace *)trace;
 
 /** Creates a random Performance Metric Proto object. */
-+ (FPRMSGPerfMetric *)createRandomPerfMetric:(NSString *)traceName;
++ (firebase_perf_v1_PerfMetric)createRandomPerfMetric:(NSString *)traceName;
 
 /**
  * Creates a random Performance Metric Proto object, with verbose
  * session ID if it is set as verbose.
  */
-+ (FPRMSGPerfMetric *)createVerboseRandomPerfMetric:(NSString *)traceName;
++ (firebase_perf_v1_PerfMetric)createVerboseRandomPerfMetric:(NSString *)traceName;
 
 /** Creates a random internal Performance Metric Proto object. */
-+ (FPRMSGPerfMetric *)createRandomInternalPerfMetric:(NSString *)traceName;
++ (firebase_perf_v1_PerfMetric)createRandomInternalPerfMetric:(NSString *)traceName;
 
 /** Creates a random network request Performance Metric Proto object. */
-+ (FPRMSGPerfMetric *)createRandomNetworkPerfMetric:(NSString *)url;
++ (firebase_perf_v1_PerfMetric)createRandomNetworkPerfMetric:(NSString *)url;
 
 /** Creates a random gauge Performance Metric Proto object. */
-+ (FPRMSGPerfMetric *)createRandomGaugePerfMetric;
++ (firebase_perf_v1_PerfMetric)createRandomGaugePerfMetric;
 
 /** Creates a random GDTCOREvent object. */
 + (GDTCOREvent *)createRandomTraceGDTEvent:(NSString *)traceName;

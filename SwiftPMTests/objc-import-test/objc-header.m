@@ -14,6 +14,7 @@
 
 #import "Firebase.h"
 #import "FirebaseABTesting/FirebaseABTesting.h"
+#import "FirebaseAppCheck/FirebaseAppCheck.h"
 #if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
 #import "FirebaseAppDistribution/FirebaseAppDistribution.h"
 #endif
@@ -29,6 +30,9 @@
 #endif
 #import "FirebaseInstallations/FirebaseInstallations.h"
 #import "FirebaseMessaging/FirebaseMessaging.h"
+#if (TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_TVOS
+#import "FirebasePerformance/FirebasePerformance.h"
+#endif
 #import "FirebaseRemoteConfig/FirebaseRemoteConfig.h"
 #import "FirebaseStorage/FirebaseStorage.h"
 
@@ -50,5 +54,8 @@
 #endif
 #import <FirebaseInstallations/FirebaseInstallations.h>
 #import <FirebaseMessaging/FirebaseMessaging.h>
+#if (TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_TVOS
+#import <FirebasePerformance/FirebasePerformance.h>
+#endif
 #import <FirebaseRemoteConfig/FirebaseRemoteConfig.h>
 #import <FirebaseStorage/FirebaseStorage.h>

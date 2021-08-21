@@ -20,10 +20,9 @@
 #import "FirebasePerformance/Sources/Configurations/FPRRemoteConfigFlags+Private.h"
 #import "FirebasePerformance/Sources/Configurations/FPRRemoteConfigFlags.h"
 #import "FirebasePerformance/Sources/FPRClient.h"
-#import "FirebasePerformance/Sources/Public/FIRHTTPMetric.h"
-#import "FirebasePerformance/Sources/Public/FIRPerformance.h"
+#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRHTTPMetric.h"
+#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRPerformance.h"
 
-#import "FirebasePerformance/Sources/FPRProtoUtils.h"
 #import "FirebasePerformance/Sources/Instrumentation/FIRHTTPMetric+Private.h"
 
 #import "FirebasePerformance/Tests/Unit/Configurations/FPRFakeRemoteConfig.h"
@@ -166,7 +165,6 @@
   [metric markResponseStart];
   [metric stop];
   FPRNetworkTrace *networkTrace = metric.networkTrace;
-  XCTAssertNotNil(FPRGetNetworkRequestMetric(networkTrace));
   XCTAssertEqualObjects(networkTrace.URLRequest.URL, self.sampleURL);
   XCTAssertEqual(networkTrace.requestSize, 100);
   XCTAssertEqual(networkTrace.responseSize, 300);
@@ -174,7 +172,7 @@
   XCTAssertEqualObjects(networkTrace.responseContentType, @"text/json");
 }
 
-/** Validate if the metric creation fails if the response code is not set. */
+/** Validate if the network trace is invalid if the response code is not set. */
 - (void)testMetricCreationFailsWhenResponseCodeNotSet {
   id mock = [OCMockObject partialMockForObject:[FPRClient sharedInstance]];
   OCMStub([mock logNetworkTrace:[OCMArg any]]).andDo(nil);
@@ -187,7 +185,7 @@
   [metric markResponseStart];
   [metric stop];
   FPRNetworkTrace *networkTrace = metric.networkTrace;
-  XCTAssertNil(FPRGetNetworkRequestMetric(networkTrace));
+  XCTAssertFalse([networkTrace isValid]);
 }
 
 /** Validates that starting and stopping logs an event. */

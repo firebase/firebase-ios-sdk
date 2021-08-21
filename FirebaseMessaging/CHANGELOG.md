@@ -1,3 +1,8 @@
+# 2021-08 -- v8.6.0
+- [changed] Removed iOS version check from `FIRMessagingExtensionHelper.h` (#8492).
+- [added] Added new API `FIRMessagingExtensionHelper exportDeliveryMetricsToBigQuery` that allows developers to enable notification delivery metrics that exports to BigQuery. (#6181)
+- [fixed] Fixed an issue that delete token no longer works. (#8491)
+
 # 2021-06 -- v8.2.0
 - [fixed] Fixed an issue that local scheduled notification is not set correctly due to sound type. (#8172)
 

@@ -19,6 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** This class instruments the NSURLSession class cluster. As new classes are discovered, they will
  *  be swizzled on a shared queue. Completion blocks and delegate methods are also wrapped.
  */
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 @interface FPRNSURLSessionInstrument : FPRInstrument
 
 @end

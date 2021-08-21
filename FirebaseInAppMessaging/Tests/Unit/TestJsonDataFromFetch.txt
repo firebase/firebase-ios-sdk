@@ -258,6 +258,53 @@
           "fiamTrigger": "ON_FOREGROUND"
         }
       ]
+    },
+    {
+      "vanillaPayload": {
+        "campaignId": "1234567890",
+        "campaignStartTimeMillis": "1519934650000",
+        "campaignEndTimeMillis": "9223372036854775807",
+        "campaignName": "URL Validation"
+      },
+      "content": {
+        "card": {
+          "title": {
+            "text": "Let’s check some weird URLs!",
+            "hexColor": "#004953"
+          },
+          "portraitImageUrl": " https:// example.com/ recoverable_image_url ",
+          "landscapeImageUrl": "http://example.com/image_url_without_https.jpg",
+          "primaryActionButton": {
+            "text": {
+              "text": "Malformatted but Recoverable URL",
+              "hexColor": "#000000"
+            },
+            "buttonHexColor": "#ffffff"
+          },
+          "secondaryActionButton": {
+            "text": {
+              "text": "Invalid URL",
+              "hexColor": "#000000"
+            },
+            "buttonHexColor": "#ffffff"
+          },
+          "primaryAction": {
+            "actionUrl": "http:// example.com / recoverable_action_url_without_https "
+          },
+          "secondaryAction": {
+            "actionUrl": "NOT ^ A ^ URL"
+          },
+          "backgroundHexColor": "#ffffff"
+        }
+      },
+      "priority": {
+        "value": 1
+      },
+      "triggeringConditions": [
+        {
+          "fiamTrigger": "ON_FOREGROUND"
+        }
+      ]
     }
   ],
   "expirationEpochTimestampMillis": "1537896430193"

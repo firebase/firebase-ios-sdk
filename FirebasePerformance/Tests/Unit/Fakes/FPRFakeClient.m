@@ -38,7 +38,7 @@
   self.logGaugeMetricCalledTimes++;
 }
 
-- (void)processAndLogEvent:(FPRMSGPerfMetric *)event {
+- (void)processAndLogEvent:(firebase_perf_v1_PerfMetric)event {
   self.processAndLogEventCalledTimes++;
 }
 

@@ -668,6 +668,14 @@
                                             imageData:imageData
                                    landscapeImageData:landscapeImageData
                                           triggerType:triggerType];
+
+        // A final `nil`-check, performed to avoid crashing the client app.
+        if (!displayMessage) {
+          FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400043",
+                      @"Failed to construct a non-nil display message.");
+          return;
+        }
+
         [self.messageDisplayComponent displayMessage:displayMessage displayDelegate:self];
       }];
 }

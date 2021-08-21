@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Public/FIRTrace.h"
+#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRTrace.h"
 
 #import "FirebasePerformance/Sources/FPRConfiguration.h"
 #import "FirebasePerformance/Sources/Gauges/FPRGaugeManager.h"
@@ -30,6 +30,7 @@ typedef NS_ENUM(NSInteger, FPRClientErrorCode) {
 /** This class is not exposed to the public and internally provides the primary entry point into
  *  the Firebase Performance module's functionality.
  */
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 @interface FPRClient : NSObject
 
 /** YES if SDK is configured, otherwise NO. */
