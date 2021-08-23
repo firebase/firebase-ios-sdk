@@ -50,7 +50,7 @@ in the `Build Settings` tab.
 <img src="docs/resources/SPMObjC.png">
 
 If you're using FirebaseCrashlytics, you can use
-`${BUILD_DIR%Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run`
+`${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run`
 as the run script that allows Xcode to upload your project's dSYM files.
 
 Another option is to use the
