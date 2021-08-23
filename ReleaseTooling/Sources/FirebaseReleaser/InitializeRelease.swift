@@ -44,16 +44,35 @@ struct InitializeRelease {
   /// Update the podspec versions.
   private static func updatePodspecs(path: URL, manifest: FirebaseManifest.Manifest) {
     for pod in manifest.pods {
+      let version = manifest.versionString(pod)
       if !pod.isClosedSource {
         if pod.name == "Firebase" {
           updateFirebasePodspec(path: path, manifest: manifest)
         } else {
-          let version = manifest.versionString(pod)
-
           // Patch the new version to the podspec's version attribute.
           Shell.executeCommand("sed -i.bak -e \"s/\\(\\.version.*=[[:space:]]*'\\).*'/\\1" +
             "\(version)'/\" \(pod.name).podspec", workingDir: path)
         }
+      } else {
+        let fileName = "\(pod.name).podspec.json"
+
+        // These are the keys in the `*.podspec.json` files that map to a
+        // semantic version that needs to be bumped.
+        let versionedKeys = [
+          "GoogleAppMeasurement",
+          "GoogleAppMeasurement/WithoutAdIdSupport",
+          "version",
+        ]
+
+        let scripts: [String] = versionedKeys.map { key in
+          let pattern = #""\#(key)": ".*""#
+          let replace = #""\#(key)": "\#(version)""#
+          let script = "-e 's|\(pattern)|\(replace)|'"
+          return script
+        }
+
+        let command = "sed -i.bak \(scripts.joined(separator: " ")) \(fileName)"
+        Shell.executeCommand(command, workingDir: path)
       }
     }
   }
