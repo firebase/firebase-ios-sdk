@@ -17,7 +17,15 @@
 import FirebaseFirestore
 import SwiftUI
 
+/// An ObservableObject, which the FirestoreQuery exposes to Views.
+///
+/// The FirestoreQueryObservable receives a FirestoreQueryConfiguration, based on which it dynamically builds a query based on the configuration's collectionPath and predicates.
+/// The query is then used to attach a SnapshotListener, which decodes the received documents to a generic type T and exposes them back to the FirestoreQuery via the items array.
+/// The FirestoreQueryObservable also handles removing the SnapshotListener on deinit.
+///
+/// - Warning: The SnapshotListener gets removed and recreated everytime that the FirestoreQueryConfiguration changes. This can lead to additional costs and document reads.
 @available(iOS 13.0, *)
+@available(tvOS, unavailable)
 internal class FirestoreQueryObservable<T: Decodable>: ObservableObject {
   @Published var items: [T] = []
 

@@ -16,6 +16,13 @@
 
 import FirebaseFirestore
 
+/// An enumeration used to construct queries inside FirestoreQueryObservable based on a surrounding FirestoreQueryConfiguration.
+///
+/// Use factory methods to create cases.
+///
+/// ```
+/// let predicate: QueryPredicate = .whereField("firstName", isEqualTo: "Flo")
+/// ```
 public enum QueryPredicate {
   case isEqualTo(_ field: String, _ value: Any)
 

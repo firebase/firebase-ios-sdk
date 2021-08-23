@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+/// A configuration used in FirestoreQueries and the underlying FirestoreQueryObservables.
+///
+/// The configuration of a FirestoreQuery can be accessed and dynamically changed using the projectedValue of the Property Wrapper.
+/// See FirestoreQuery.projectedValue for more details.
 public struct FirestoreQueryConfiguration {
   public var path: String
   public var predicates: [QueryPredicate]

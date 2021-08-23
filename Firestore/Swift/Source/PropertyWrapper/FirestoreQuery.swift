@@ -17,7 +17,36 @@
 import FirebaseFirestore
 import SwiftUI
 
+/// A Property Wrapper to fetch data from Firestore and keep an active SnapshotListener to listen to changes.
+///
+/// Consider the following Example:
+///
+///     struct ContentView: View {
+///         @FirestoreQuery(collectionPath: "developers",
+///                      predicates: [
+///                         .whereField("firstName", isEqualTo: "Flo")
+///                      ]
+///         ) var developers: [Developer]
+///
+///         var body: some View {
+///             List(developers) { developer in
+///                Text(developer.name)
+///            }
+///         }
+///     }
+///
+/// The FirestoreQuery automatically fetches all developers with the firstName "Flo" from Firestore, adds them to the developers array and keeps a SnapshotListener alive.
+/// A FirestoreQueryConfiguration is generated based on the specified collectionPath and predicates, which can be accessed and updated with the projectedValue:
+///
+///     Button("Change Name to Peter") {
+///         $developers.predicates = [.whereField("firstName", isEqualTo: "Peter"]
+///     }
+///
+/// This automatically removes the old SnapshotListener and installs a new one based on the updated configuration.
+///
+/// The Property Wrapper does not support updating the wrappedValue, i.e. creating a new document needs to be done through the basic Firestore APIs.
 @available(iOS 14.0, *)
+@available(tvOS, unavailable)
 @propertyWrapper
 public struct FirestoreQuery<T: Decodable>: DynamicProperty {
   @StateObject private var firestoreQueryObservable: FirestoreQueryObservable<T>
