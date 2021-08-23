@@ -1521,7 +1521,7 @@ static const NSTimeInterval kWaitInterval = .5;
   OCMVerifyAll(_mockBackend);
 }
 
-/** @fn testSignInWithCustomTokenSuccessNoRefreshToken
+/** @fn testSignInWithCustomTokenWithoutRefreshTokenSuccess
     @brief Tests the flow of a successful @c signInWithCustomToken:completion: call without a
    refresh token.
  */
@@ -2517,6 +2517,10 @@ static const NSTimeInterval kWaitInterval = .5;
   OCMStub([mockResponse refreshToken]).andReturn(kRefreshToken);
 }
 
+/** @fn stubTokensWithMockResponseNoRefreshToken
+    @brief Creates stubs on the mock response object with only access token, no refresh token.
+    @param mockResponse The mock response object.
+ */
 - (void)stubTokensWithMockResponseNoRefreshToken:(id)mockResponse {
   OCMStub([mockResponse IDToken]).andReturn(kEncodedAccessToken);
   OCMStub([mockResponse approximateExpirationDate])
