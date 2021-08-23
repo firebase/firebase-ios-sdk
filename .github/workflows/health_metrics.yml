@@ -313,7 +313,7 @@ jobs:
             cd scripts/health_metrics/generate_code_coverage_report
             swift run CoverageReportGenerator --presubmit "firebase/firebase-ios-sdk" --head-commit "${GITHUB_SHA}" --token $(gcloud auth print-identity-token) --xcresult-dir "/Users/runner/test/codecoverage" --log-link "https://github.com/firebase/firebase-ios-sdk/actions/runs/${GITHUB_RUN_ID}" --pull-request-num ${{github.event.pull_request.number}} --base-commit "$base_commit"
           fi
-      # Will reactivate the job after the issue #8305 is resovled.    
+      # Will reactivate the job after the issue #8305 is resovled.
       # - name: Incremental Code Coverage
       #   if: github.event.pull_request.merged != true && github.event.action != 'closed'
       #   env:
