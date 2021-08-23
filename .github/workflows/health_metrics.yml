@@ -313,6 +313,32 @@ jobs:
             cd scripts/health_metrics/generate_code_coverage_report
             swift run CoverageReportGenerator --presubmit "firebase/firebase-ios-sdk" --head-commit "${GITHUB_SHA}" --token $(gcloud auth print-identity-token) --xcresult-dir "/Users/runner/test/codecoverage" --log-link "https://github.com/firebase/firebase-ios-sdk/actions/runs/${GITHUB_RUN_ID}" --pull-request-num ${{github.event.pull_request.number}} --base-commit "$base_commit"
           fi
+      # Will reactivate the job after the issue #8305 is resovled.    
+      # - name: Incremental Code Coverage
+      #   if: github.event.pull_request.merged != true && github.event.action != 'closed'
+      #   env:
+      #     base_commit: ${{ needs.check.outputs.base_commit }}
+      #   run: |
+      #     # Get Head commit of the branch, instead of a merge commit created by actions/checkout.
+      #     GITHUB_SHA=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.head.sha)
+      #     # Get a JSON of `git diff` from the base commit.
+      #     git diff -U0 ${base_commit} "${GITHUB_SHA}" | scripts/health_metrics/git_diff_to_json.sh > scripts/health_metrics/generate_code_coverage_report/git_diff.json
+      #     cat "scripts/health_metrics/generate_code_coverage_report/git_diff.json"
+      #     if [ -d "${{steps.download.outputs.download-path}}" ]; then
+      #       # Create an uncovered_file_lines.json including code lines not covered by tests.
+      #       cd scripts/health_metrics/generate_code_coverage_report
+      #       swift run IncrementalCoverageReportGenerator --changed-files "git_diff.json" --file-archive-root-path "${GITHUB_WORKSPACE}" --xcresult-dir "${{steps.download.outputs.download-path}}" --uncovered-line-file-json "uncovered_file_lines.json"
+      #       # Post uncovered lines to PRs.
+      #       pull_number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
+      #       cd ..
+      #       bundle install
+      #       INPUT_ACCESS_TOKEN=${{ secrets.GITHUB_TOKEN }} \
+      #       GITHUB_REPOSITORY="${GITHUB_REPOSITORY}" \
+      #       UNCOVERED_LINE_FILE="generate_code_coverage_report/uncovered_file_lines.json" \
+      #       TESTING_COMMIT="${GITHUB_SHA}" \
+      #       PULL_REQUEST="${pull_number}" \
+      #       bundle exec ruby post_incremental_coverage_in_pr.rb
+      #     fi
       - name: Update New Coverage Data
         if: github.event.pull_request.merged && github.event.pull_request.head.repo.full_name == github.repository
         run: |
