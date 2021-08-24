@@ -97,10 +97,10 @@ jobs:
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test objc quickstart
       run: ([ -z $plist_secret ] ||
-            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh InAppMessaging)
+            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh InAppMessaging true)
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] ||
-            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh InAppMessaging swift)
+            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh InAppMessaging true swift)
 
   podspec-presubmit:
     # Don't run on private repo unless it is a PR.
