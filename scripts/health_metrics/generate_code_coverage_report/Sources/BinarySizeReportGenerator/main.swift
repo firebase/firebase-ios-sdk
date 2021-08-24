@@ -63,7 +63,7 @@ struct BinarySizeReportGenerator: ParsableCommand {
   var pullRequestNote: String?
 
   @Option(
-    help: "This is for presubmit request. Coverage of commit will be compared to the coverage of this base_commit."
+    help: "This is for presubmit request. Coverage of commit will be compared to the coverage of this base commit."
   )
   var baseCommit: String?
 
@@ -73,11 +73,6 @@ struct BinarySizeReportGenerator: ParsableCommand {
   var sourceBranch: String?
 
   func run() throws {
-    print("----")
-    print(SDK)
-    print(SDKRepoDir)
-    print(logLink)
-
     if let binarySizeRequest = try CreateMetricsRequestData(
       SDK: SDK,
       SDKRepoDir: SDKRepoDir,
