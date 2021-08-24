@@ -22,37 +22,37 @@
 set -ex
 
 BINARY_SIZE_SDK=()
-if $FirebaseABTesting == 'true'; then
+if [[ "${POSTSUBMIT}" == true || "${FirebaseABTesting}" == 'true' ]]; then
   BINARY_SIZE_SDK+=('FirebaseABTesting')
 fi
-if $FirebaseAuth == 'true'; then
+if [[ "${POSTSUBMIT}" == true || "${FirebaseAuth}" == 'true' ]]; then
   BINARY_SIZE_SDK+=('FirebaseAuth')
 fi
-if $FirebaseDatabase == 'true'; then
+if [[ "${POSTSUBMIT}" == true || "${FirebaseDatabase}" == 'true' ]]; then
   BINARY_SIZE_SDK+=('FirebaseDatabase')
 fi
-if $FirebaseDynamicLinks == 'true'; then
+if [[ "${POSTSUBMIT}" == true || "${FirebaseDynamicLinks}" == 'true' ]]; then
   BINARY_SIZE_SDK+=('FirebaseDynamicLinks')
 fi
-if $FirebaseFirestore == 'true'; then
+if [[ "${POSTSUBMIT}" == true || "${FirebaseFirestore}" == 'true' ]]; then
   BINARY_SIZE_SDK+=('FirebaseFirestore')
 fi
-if $FirebaseFunctions == 'true'; then
+if [[ "${POSTSUBMIT}" == true || "${FirebaseFunctions}" == 'true' ]]; then
   BINARY_SIZE_SDK+=('FirebaseFunctions')
 fi
-if $FirebaseInAppMessaging == 'true'; then
+if [[ "${POSTSUBMIT}" == true || "${FirebaseInAppMessaging}" == 'true' ]]; then
   BINARY_SIZE_SDK+=('FirebaseInAppMessaging')
 fi
-if $FirebaseMessaging == 'true'; then
+if [[ "${POSTSUBMIT}" == true || "${FirebaseMessaging}" == 'true' ]]; then
   BINARY_SIZE_SDK+=('FirebaseMessaging')
 fi
-if $FirebasePerformance == 'true'; then
+if [[ "${POSTSUBMIT}" == true || "${FirebasePerformance}" == 'true' ]]; then
   BINARY_SIZE_SDK+=('FirebasePerformance');
 fi
-if $FirebaseRemoteConfig == 'true'; then
+if [[ "${POSTSUBMIT}" == true || "${FirebaseRemoteConfig}" == 'true' ]]; then
   BINARY_SIZE_SDK+=('FirebaseRemoteConfig')
 fi
-if $FirebaseStorage == 'true'; then
+if [[ "${POSTSUBMIT}" == true || "${FirebaseStorage}" == 'true' ]]; then
   BINARY_SIZE_SDK+=('FirebaseStorage')
 fi
 if [ -n "$BINARY_SIZE_SDK" ]; then
