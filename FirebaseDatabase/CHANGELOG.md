@@ -1,3 +1,6 @@
+# v8.7.0
+- [fixed] Fixed Firebase App Check token periodic refresh. (#8544)
+
 # v8.5.0
 - [fixed] FirebaseDatabase `getData()` callbacks are now called on the main thread. (#8247)
 

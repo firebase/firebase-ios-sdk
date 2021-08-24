@@ -24,7 +24,7 @@ jobs:
   performance:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-latest
+    runs-on: macos-11
     strategy:
       matrix:
         target: [iOS, tvOS]
@@ -41,7 +41,7 @@ jobs:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
 
-    runs-on: macOS-latest
+    runs-on: macos-11
     strategy:
       matrix:
         target: [ios, tvos]
@@ -58,7 +58,7 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macOS-latest
+    runs-on: macos-11
     steps:
     - uses: actions/checkout@v2
     - name: Setup quickstart
@@ -77,7 +77,7 @@ jobs:
   spm:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macOS-latest
+    runs-on: macos-11
     strategy:
       matrix:
         target: [iOS]
@@ -91,7 +91,7 @@ jobs:
   spm-cron:
     # Don't run on private repo.
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macOS-latest
+    runs-on: macos-11
     strategy:
       matrix:
         target: [tvOS]
@@ -104,7 +104,7 @@ jobs:
 
   catalyst:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macOS-latest
+    runs-on: macos-11
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -115,7 +115,7 @@ jobs:
   podspec-presubmit:
     # Don't run on private repo unless it is a PR.
     if: github.repository == 'Firebase/firebase-ios-sdk' && github.event.pull_request.merged != true && github.event.action != 'closed'
-    runs-on: macOS-latest
+    runs-on: macos-11
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -126,7 +126,7 @@ jobs:
   performance-cron-only:
     # Don't run on private repo.
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macos-latest
+    runs-on: macos-11
     strategy:
       matrix:
         target: [ios, tvos]

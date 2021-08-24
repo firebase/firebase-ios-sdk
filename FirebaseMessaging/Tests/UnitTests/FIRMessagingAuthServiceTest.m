@@ -38,6 +38,7 @@ static NSString *const kVersionInfo = @"1.0";
     NSMutableArray<FIRMessagingDeviceCheckinCompletion> *checkinHandlers;
 @property(nonatomic, readwrite, strong) FIRMessagingCheckinService *checkinService;
 @property(nonatomic, readwrite, strong) FIRMessagingCheckinStore *checkinStore;
+@property(nonatomic, readwrite, strong) FIRMessagingCheckinPreferences *checkinPreferences;
 @end
 
 @interface FIRMessagingAuthServiceTest : XCTestCase
@@ -56,8 +57,12 @@ static NSString *const kVersionInfo = @"1.0";
   [super setUp];
   _authService = [[FIRMessagingAuthService alloc] init];
   _mockStore = OCMPartialMock(_authService.checkinStore);
-
   _mockCheckinService = OCMPartialMock(_authService.checkinService);
+  // Ensure cached checkin is reset when testing initial checkin call.
+  FIRMessagingCheckinPreferences *preferences =
+      [[FIRMessagingCheckinPreferences alloc] initWithDeviceID:@"" secretToken:@""];
+  _authService.checkinPreferences = preferences;
+
   // The tests here are to focus on checkin interval not locale change, so always set locale as
   // non-changed.
   [[NSUserDefaults standardUserDefaults] setObject:FIRMessagingCurrentLocale()
@@ -81,7 +86,7 @@ static NSString *const kVersionInfo = @"1.0";
   FIRMessagingCheckinPreferences *checkinPreferences = [self validCheckinPreferences];
 
   OCMStub([self.mockCheckinService
-              checkinWithExistingCheckin:self.checkinService.checkinPreferences
+              checkinWithExistingCheckin:[OCMArg any]
                               completion:([OCMArg checkWithBlock:^BOOL(id obj) {
                                 [checkinExpectation fulfill];
                                 self.checkinCompletion = obj;
@@ -110,7 +115,7 @@ static NSString *const kVersionInfo = @"1.0";
       [self expectationWithDescription:@"Did receive error after checkin"];
 
   FIRMessagingCheckinPreferences *checkinPreferences = [self validCheckinPreferences];
-  OCMStub([self.mockCheckinService checkinWithExistingCheckin:self.checkinService.checkinPreferences
+  OCMStub([self.mockCheckinService checkinWithExistingCheckin:[OCMArg any]
                                                    completion:[OCMArg checkWithBlock:^BOOL(id obj) {
                                                      [checkinFailureExpectation fulfill];
                                                      self.checkinCompletion = obj;
@@ -140,7 +145,7 @@ static NSString *const kVersionInfo = @"1.0";
   __block int checkinHandlerInvocationCount = 0;
 
   FIRMessagingCheckinPreferences *checkinPreferences = [self validCheckinPreferences];
-  OCMStub([self.mockCheckinService checkinWithExistingCheckin:self.checkinService.checkinPreferences
+  OCMStub([self.mockCheckinService checkinWithExistingCheckin:[OCMArg any]
                                                    completion:[OCMArg checkWithBlock:^BOOL(id obj) {
                                                      self.checkinCompletion = obj;
                                                      return obj != nil;
@@ -184,7 +189,7 @@ static NSString *const kVersionInfo = @"1.0";
       [self expectationWithDescription:@"Did call checkin service"];
 
   FIRMessagingCheckinPreferences *checkinPreferences = [self validCheckinPreferences];
-  OCMStub([self.mockCheckinService checkinWithExistingCheckin:self.checkinService.checkinPreferences
+  OCMStub([self.mockCheckinService checkinWithExistingCheckin:[OCMArg any]
                                                    completion:[OCMArg checkWithBlock:^BOOL(id obj) {
                                                      self.checkinCompletion = obj;
                                                      return obj != nil;
