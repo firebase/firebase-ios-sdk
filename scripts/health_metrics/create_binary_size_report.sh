@@ -22,7 +22,39 @@
 set -ex
 
 BINARY_SIZE_SDK=()
-BINARY_SIZE_SDK+=('FirebaseABTesting')
+if $FirebaseABTesting == 'true'; then
+  BINARY_SIZE_SDK+=('FirebaseABTesting')
+fi
+if $FirebaseAuth == 'true'; then
+  BINARY_SIZE_SDK+=('FirebaseAuth')
+fi
+if $FirebaseDatabase == 'true'; then
+  BINARY_SIZE_SDK+=('FirebaseDatabase')
+fi
+if $FirebaseDynamicLinks == 'true'; then
+  BINARY_SIZE_SDK+=('FirebaseDynamicLinks')
+fi
+if $FirebaseFirestore == 'true'; then
+  BINARY_SIZE_SDK+=('FirebaseFirestore')
+fi
+if $FirebaseFunctions == 'true'; then
+  BINARY_SIZE_SDK+=('FirebaseFunctions')
+fi
+if $FirebaseInAppMessaging == 'true'; then
+  BINARY_SIZE_SDK+=('FirebaseInAppMessaging')
+fi
+if $FirebaseMessaging == 'true'; then
+  BINARY_SIZE_SDK+=('FirebaseMessaging')
+fi
+if $FirebasePerformance == 'true'; then
+  BINARY_SIZE_SDK+=('FirebasePerformance');
+fi
+if $FirebaseRemoteConfig == 'true'; then
+  BINARY_SIZE_SDK+=('FirebaseRemoteConfig')
+fi
+if $FirebaseStorage == 'true'; then
+  BINARY_SIZE_SDK+=('FirebaseStorage')
+fi
 if [ -n "$BINARY_SIZE_SDK" ]; then
   cd scripts/health_metrics/generate_code_coverage_report/
   git clone https://github.com/google/cocoapods-size
