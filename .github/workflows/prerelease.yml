@@ -123,7 +123,7 @@ jobs:
     - name: Test swift quickstart
       env:
         LEGACY: true
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh ABTesting)
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh true ABTesting)
     - name: Remove data before upload
       env:
         LEGACY: true
@@ -159,7 +159,7 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test swift quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Authentication)
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh false Authentication)
     - name: Remove data before upload
       run: scripts/remove_data.sh authentication release_testing
     - uses: actions/upload-artifact@v2
@@ -204,11 +204,11 @@ jobs:
         # Set the deployed pod location of run and upload-symbols with the development pod version.
         cp Crashlytics/run quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics/
         cp Crashlytics/upload-symbols quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics/
-        ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Crashlytics)
+        ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh true Crashlytics)
     - name: Test swift quickstart
       env:
         LEGACY: true
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Crashlytics swift)
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh true Crashlytics swift)
     - name: Remove data before upload
       env:
         LEGACY: true
@@ -246,9 +246,9 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test objc quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Database)
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh false Database)
     - name: Test swift quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Database swift)
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh false Database swift)
     - name: Remove data before upload
       run: scripts/remove_data.sh database release_testing
     - uses: actions/upload-artifact@v2
@@ -289,10 +289,10 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test objc quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh DynamicLinks)
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh true DynamicLinks)
     - name: Test swift quickstart
       if: ${{ always() }}
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh DynamicLinks swift)
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh true DynamicLinks swift)
     - name: Remove data before upload
       run: scripts/remove_data.sh dynamiclinks release_testing
     - uses: actions/upload-artifact@v2
@@ -329,7 +329,7 @@ jobs:
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] ||
-            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Firestore)
+            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh false Firestore)
     - name: Remove data before upload
       run: scripts/remove_data.sh firestore release_testing
     - uses: actions/upload-artifact@v2
@@ -368,10 +368,10 @@ jobs:
       run: sed -i '' 's/REVERSED_CLIENT_ID/com.googleusercontent.apps.1025801074639-6p6ebi8amuklcjrto20gvpe295smm8u6/' quickstart-ios/functions/FunctionsExample/Info.plist
     - name: Test objc quickstart
       run: ([ -z $plist_secret ] ||
-            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Functions)
+            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh true Functions)
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] ||
-            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Functions swift)
+            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh true Functions swift)
     - name: Remove data before upload
       run: scripts/remove_data.sh functions release_testing
     - uses: actions/upload-artifact@v2
@@ -408,10 +408,10 @@ jobs:
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test objc quickstart
       run: ([ -z $plist_secret ] ||
-            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh InAppMessaging)
+            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh true InAppMessaging)
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] ||
-            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh InAppMessaging swift)
+            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh true InAppMessaging swift)
     - name: Remove data before upload
       run: scripts/remove_data.sh inappmessaging release_testing
     - uses: actions/upload-artifact@v2
@@ -448,10 +448,10 @@ jobs:
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test objc quickstart
       run: ([ -z $plist_secret ] ||
-            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Messaging)
+            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh false Messaging)
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] ||
-            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Messaging swift)
+            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh false Messaging swift)
     - name: Remove data before upload
       run: scripts/remove_data.sh messaging release_testing
     - uses: actions/upload-artifact@v2
@@ -485,7 +485,7 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test Swift Quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Config)
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh true Config)
     - name: Remove data before upload
       run: scripts/remove_data.sh config release_testing
     - uses: actions/upload-artifact@v2
@@ -521,9 +521,9 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test objc quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Storage)
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh true Storage)
     - name: Test swift quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Storage swift)
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh true Storage swift)
     - name: Remove data before upload
       run: scripts/remove_data.sh storage release_testing
     - uses: actions/upload-artifact@v2
@@ -560,9 +560,9 @@ jobs:
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test objc quickstart
       run: |
-        ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Performance)
+        ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh true Performance)
     - name: Test swift quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Performance swift)
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh true Performance swift)
     - name: Remove data before upload
       run: scripts/remove_data.sh performance release_testing
     - uses: actions/upload-artifact@v2

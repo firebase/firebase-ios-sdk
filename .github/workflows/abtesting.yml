@@ -89,7 +89,7 @@ jobs:
     - name: Test swift quickstart
       env:
         LEGACY: true
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh ABTesting)
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh true ABTesting)
 
   abtesting-cron-only:
     # Don't run on private repo.

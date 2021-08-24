@@ -87,9 +87,9 @@ jobs:
     - name: Copy mock plist
       run: cp quickstart-ios/mock-GoogleService-Info.plist quickstart-ios/installations/GoogleService-Info.plist
     - name: Test objc quickstart
-      run: scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Installations
+      run: scripts/third_party/travis/retry.sh scripts/test_quickstart.sh true Installations
     - name: Test swift quickstart
-      run: scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Installations swift
+      run: scripts/third_party/travis/retry.sh scripts/test_quickstart.sh true Installations swift
 
   installations-cron-only:
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
