@@ -44,7 +44,7 @@ jobs:
 
   binary_size_metrics:
     needs: check
-    if: always() && github.repository == 'Firebase/firebase-ios-sdk' && (github.event.action == 'opened' || github.event.action == 'synchronize' || github.event.pull_request.merged)
+    if: always() && github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.merged
     runs-on: macOS-latest
     strategy:
       matrix:
@@ -52,7 +52,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Access to Metrics Service
-      if: github.event.pull_request.head.repo.full_name == github.repository && (github.event.action != 'closed' || github.event.pull_request.merged)
       run: |
         # Install gcloud sdk
         curl https://sdk.cloud.google.com > install.sh
@@ -81,7 +80,7 @@ jobs:
       env:
         PULL_REQUEST_NUM: ${{ github.event.pull_request.number }}
         BASE_COMMIT: ${{ github.event.pull_request.base.sha }}
-        PRESUBMIT: ${{ github.event.pull_request.merged }}
+        POSTSUBMIT: ${{ github.event.pull_request.merged }}
         SOURCE_BRANCH: ${{ github.base_ref }}
 
   pod-lib-lint-abtesting:
