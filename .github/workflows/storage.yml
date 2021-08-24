@@ -60,7 +60,7 @@ jobs:
     runs-on: macos-11
     strategy:
       matrix:
-        target: [tvOS, macOS, catalyst, watchos]
+        target: [tvOS, macOS, catalyst, watchOS]
     steps:
     - uses: actions/checkout@v2
     - name: Initialize xcodebuild
@@ -125,7 +125,7 @@ jobs:
 
   storage-cron-only:
     # Don't run on private repo.
-    #if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
     runs-on: macos-11
     strategy:
       matrix:
@@ -145,7 +145,7 @@ jobs:
 
   storageswift-cron-only:
     # Don't run on private repo.
-    #if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
     runs-on: macos-11
     strategy:
       matrix:
