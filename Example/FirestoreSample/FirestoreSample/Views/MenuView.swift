@@ -18,7 +18,7 @@ struct MenuView: View {
   var body: some View {
     List {
       Section(header: Text("Demos")) {
-        NavigationLink(destination: NamesListView()) {
+        NavigationLink(destination: FavouriteFruitsView()) {
           Label("Property Wrappers", systemImage: "shippingbox")
         }
       }
