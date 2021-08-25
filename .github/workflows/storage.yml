@@ -60,7 +60,7 @@ jobs:
     runs-on: macos-11
     strategy:
       matrix:
-        target: [tvOS, macOS, catalyst]
+        target: [tvOS, macOS, catalyst, watchOS]
     steps:
     - uses: actions/checkout@v2
     - name: Initialize xcodebuild
@@ -110,9 +110,7 @@ jobs:
 
     strategy:
       matrix:
-        # watchos is disabled since pod lib lint cannot handle test Auth dep even if the dep is only
-        # specified for the other three platforms.
-        target: [ios, tvos, macos]
+        target: [ios, tvos, macos, watchos]
         spec: [
           'FirebaseStorage.podspec --test-specs=unit', # The integration tests need more set up.
           'FirebaseStorageSwift.podspec --skip-tests' # No current unit tests.
@@ -131,7 +129,7 @@ jobs:
     runs-on: macos-11
     strategy:
       matrix:
-        target: [ios, tvos, macos]
+        target: [ios, tvos, macos, watchos]
         flags: [
           '--use-static-frameworks --skip-tests ',
           '--use-libraries --skip-tests '
@@ -151,7 +149,7 @@ jobs:
     runs-on: macos-11
     strategy:
       matrix:
-        target: [ios, tvos, macos]
+        target: [ios, tvos, macos, watchos]
         flags: [
           '--use-static-frameworks --skip-tests', # Swift pods do not support --use-libraries
         ]
