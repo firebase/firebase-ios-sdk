@@ -78,10 +78,8 @@ def main(args)
   # Run the lib lint command in a thread.
   pod_lint_status = 1
   t = Thread.new do
-    with_removed_social_media_url(podspec_file) do
-      system(*command)
-      pod_lint_status = $?.exitstatus
-    end
+    system(*command)
+    pod_lint_status = $?.exitstatus
   end
 
   # Print every minute since linting can run for >10m without output.
@@ -172,21 +170,6 @@ def trace(*args)
   return if not $DEBUG
 
   STDERR.puts(args.join(' '))
-end
-
-# Edits the given podspec file to remove the social_media_url, yields, then
-# restores the file to its original condition.  Validating of the social URL
-# can be very flaky (see #3416). Remove it from spec to let the actual tests
-# pass.
-def with_removed_social_media_url(spec)
-  podspec_content = File.read(spec)
-  updated_podspec_content =
-      podspec_content.gsub("s.social_media_url = ", "# s.social_media_url = ")
-  write_file(spec, updated_podspec_content)
-  yield
-
-ensure
-  write_file(spec, podspec_content)
 end
 
 # Writes the text in +contents+ to the file named by +filename+.

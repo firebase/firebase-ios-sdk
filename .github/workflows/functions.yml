@@ -98,10 +98,10 @@ jobs:
       run: sed -i '' 's/REVERSED_CLIENT_ID/com.googleusercontent.apps.1025801074639-6p6ebi8amuklcjrto20gvpe295smm8u6/' quickstart-ios/functions/FunctionsExample/Info.plist
     - name: Test objc quickstart
       run: ([ -z $plist_secret ] ||
-            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Functions)
+            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Functions true)
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] ||
-            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Functions swift)
+            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Functions true swift)
 
   functions-cron-only:
     # Don't run on private repo.
