@@ -1,7 +1,7 @@
 {
-  "version": "9.11.0",
+  "version": "9.16.5",
   "firestore": {
-    "version": "1.11.15",
+    "version": "1.13.1",
     "path": "firestore_export",
     "metadata_file": "firestore_export/firestore_export.overall_export_metadata"
   }

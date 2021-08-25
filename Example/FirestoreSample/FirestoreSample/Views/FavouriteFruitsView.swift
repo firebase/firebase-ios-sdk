@@ -50,7 +50,6 @@ struct FavouriteFruitsView: View {
     showOnlyFavourites.toggle()
     if showOnlyFavourites {
       $fruits.predicates = [
-        .whereField("isFavourite", isEqualTo: true),
         .where(field: "isFavourite", isEqualTo: true),
       ]
     } else {
