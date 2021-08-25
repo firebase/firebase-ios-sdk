@@ -1,3 +1,7 @@
+# v8.7.0
+- [fixed] Add watchOS support (#8499).
+- [changed] Don't set the App Check header in the case of App Check error (#8558).
+
 # v8.3.0
 - [fixed] Fixed an issue where subclassing Functions was unusable (#8265).
 

@@ -16,7 +16,7 @@ jobs:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
 
-    runs-on: macOS-latest
+    runs-on: macos-11
 
     strategy:
       matrix:
@@ -31,7 +31,7 @@ jobs:
   spm:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macOS-latest
+    runs-on: macos-11
     steps:
     - uses: actions/checkout@v2
     - name: Initialize xcodebuild
@@ -42,7 +42,7 @@ jobs:
   spm-cron:
     # Don't run on private repo.
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macOS-latest
+    runs-on: macos-11
     strategy:
       matrix:
         target: [tvOS, macOS, catalyst]
@@ -57,7 +57,7 @@ jobs:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
 
-    runs-on: macOS-latest
+    runs-on: macos-11
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -69,7 +69,7 @@ jobs:
     # Don't run on private repo.
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
 
-    runs-on: macos-latest
+    runs-on: macos-11
     strategy:
       matrix:
         target: [ios, tvos, macos]
@@ -89,7 +89,7 @@ jobs:
   podspec-presubmit:
     # Don't run on private repo unless it is a PR.
     if: github.repository == 'Firebase/firebase-ios-sdk' && github.event.pull_request.merged != true && github.event.action != 'closed'
-    runs-on: macOS-latest
+    runs-on: macos-11
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler

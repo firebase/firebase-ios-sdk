@@ -35,6 +35,10 @@
   XCTAssertNotNil(instrumentation);
 }
 
+#pragma mark - Unswizzle based tests
+
+#ifndef SWIFT_PACKAGE
+
 - (void)testRegisterInstrumentGroup {
   FPRInstrumentation *instrumentation = [[FPRInstrumentation alloc] init];
   NSUInteger numberOfInstrumentsInGroup =
@@ -48,5 +52,7 @@
   [instrumentation registerInstrumentGroup:kFPRInstrumentationGroupNetworkKey];
   XCTAssertTrue([instrumentation deregisterInstrumentGroup:kFPRInstrumentationGroupNetworkKey]);
 }
+
+#endif  // SWIFT_PACKAGE
 
 @end

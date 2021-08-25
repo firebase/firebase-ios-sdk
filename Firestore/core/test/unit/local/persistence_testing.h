@@ -19,6 +19,8 @@
 
 #include <memory>
 
+#include "Firestore/core/src/local/local_serializer.h"
+
 namespace firebase {
 namespace firestore {
 namespace util {
@@ -32,6 +34,12 @@ namespace local {
 class LevelDbPersistence;
 struct LruParams;
 class MemoryPersistence;
+
+/**
+ * Returns a new instance of local serializer using the default testing
+ * database.
+ */
+local::LocalSerializer MakeLocalSerializer();
 
 /**
  * Returns the directory where a LevelDB instance can store data files during

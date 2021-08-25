@@ -14,6 +14,7 @@
 
 #import <XCTest/XCTest.h>
 
+#import "FirebasePerformance/Sources/FPRNanoPbUtils.h"
 #import "FirebasePerformance/Sources/Loggers/FPRGDTLogSampler.h"
 #import "FirebasePerformance/Sources/Loggers/FPRGDTLogger.h"
 #import "FirebasePerformance/Sources/Loggers/FPRGDTLogger_Private.h"
@@ -23,9 +24,7 @@
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
 #import "GoogleDataTransport/GDTCORLibrary/Private/GDTCORTransport_Private.h"
-#import "GoogleDataTransport/GDTCORTests/Common/Fakes/GDTCORTransportFake.h"
-
-#import "FirebasePerformance/ProtoSupport/PerfMetric.pbobjc.h"
+#import "SharedTestUtilities/GDTCORTransportFake.h"
 
 @interface FPRGDTLoggerTest : XCTestCase
 
@@ -97,8 +96,8 @@
 /** Validate all the required fields are set when logging an Event. */
 - (void)testValidateEventFieldsToBeLogged {
   // Log the event.
-  FPRMSGPerfMetric *event = [FPRTestUtils createRandomPerfMetric:@"t1"];
-  event.applicationInfo.appInstanceId = @"abc";
+  firebase_perf_v1_PerfMetric event = [FPRTestUtils createRandomPerfMetric:@"t1"];
+  event.application_info.app_instance_id = FPREncodeString(@"abc");
   [self.logger logEvent:event];
 
   // Note: Refer "dispatch_async issue" in "testLogMultipleEvents".
@@ -126,8 +125,8 @@
   int logCount = 3;
   for (int i = 1; i <= logCount; i++) {
     NSString *traceName = [NSString stringWithFormat:@"t%d", i];
-    FPRMSGPerfMetric *event = [FPRTestUtils createRandomPerfMetric:traceName];
-    event.applicationInfo.appInstanceId = @"abc";
+    firebase_perf_v1_PerfMetric event = [FPRTestUtils createRandomPerfMetric:traceName];
+    event.application_info.app_instance_id = FPREncodeString(@"abc");
     [self.logger logEvent:event];
   }
 
@@ -155,8 +154,8 @@
   self.logger.isSimulator = YES;
 
   // Log the event.
-  FPRMSGPerfMetric *event = [FPRTestUtils createRandomPerfMetric:@"t1"];
-  event.applicationInfo.appInstanceId = @"abc";
+  firebase_perf_v1_PerfMetric event = [FPRTestUtils createRandomPerfMetric:@"t1"];
+  event.application_info.app_instance_id = FPREncodeString(@"abc");
   [self.logger logEvent:event];
 
   // Note: Refer "dispatch_async issue" in "testLogMultipleEvents".
@@ -175,8 +174,8 @@
   self.logger.isSimulator = NO;
 
   // Log the event.
-  FPRMSGPerfMetric *event = [FPRTestUtils createRandomPerfMetric:@"t1"];
-  event.applicationInfo.appInstanceId = @"abc";
+  firebase_perf_v1_PerfMetric event = [FPRTestUtils createRandomPerfMetric:@"t1"];
+  event.application_info.app_instance_id = FPREncodeString(@"abc");
   [self.logger logEvent:event];
 
   // Note: Refer "dispatch_async issue" in "testLogMultipleEvents".

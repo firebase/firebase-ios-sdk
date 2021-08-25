@@ -19,7 +19,7 @@ jobs:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macos-latest
+    runs-on: macos-11
     strategy:
       matrix:
         target: [iOS, tvOS, macOS]
@@ -45,7 +45,7 @@ jobs:
   pod-lib-lint:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macOS-latest
+    runs-on: macos-11
 
     strategy:
       matrix:
@@ -61,7 +61,7 @@ jobs:
   spm:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macOS-latest
+    runs-on: macos-11
     steps:
     - uses: actions/checkout@v2
     - name: Initialize xcodebuild
@@ -72,7 +72,7 @@ jobs:
   spm-cron:
     # Don't run on private repo.
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macOS-latest
+    runs-on: macos-11
     strategy:
       matrix:
         target: [tvOS, macOS, catalyst]
@@ -86,7 +86,7 @@ jobs:
   catalyst:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macOS-latest
+    runs-on: macos-11
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -100,7 +100,7 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macOS-latest
+    runs-on: macos-11
     steps:
     - uses: actions/checkout@v2
     - name: Setup quickstart
@@ -112,12 +112,12 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test Swift Quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Config)
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Config true)
 
   sample-build-test:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-latest
+    runs-on: macos-11
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -130,7 +130,7 @@ jobs:
   remoteconfig-cron-only:
     # Don't run on private repo.
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macos-latest
+    runs-on: macos-11
     strategy:
       matrix:
         target: [ios, tvos, macos]
@@ -150,7 +150,7 @@ jobs:
   podspec-presubmit:
     # Don't run on private repo unless it is a PR.
     if: github.repository == 'Firebase/firebase-ios-sdk' && github.event.pull_request.merged != true && github.event.action != 'closed'
-    runs-on: macOS-latest
+    runs-on: macos-11
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler

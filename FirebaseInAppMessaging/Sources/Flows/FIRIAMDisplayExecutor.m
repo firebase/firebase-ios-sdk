@@ -471,24 +471,22 @@
   }
 
   FIRInAppMessagingCardDisplay *cardMessage = [[FIRInAppMessagingCardDisplay alloc]
-        initWithMessageID:renderData.messageID
-             campaignName:renderData.name
-        experimentPayload:definition.experimentPayload
-      renderAsTestMessage:definition.isTestMessage
-              triggerType:triggerType
-                titleText:title
-                textColor:renderData.renderingEffectSettings.textColor
-        portraitImageData:portraitImageData
-          backgroundColor:renderData.renderingEffectSettings.displayBGColor
-      primaryActionButton:primaryActionButton
-         primaryActionURL:definition.renderData.contentData.actionURL
-                  appData:definition.appData];
-
-  cardMessage.body = body;
-  cardMessage.landscapeImageData = landscapeImageData;
-  cardMessage.secondaryActionButton = secondaryActionButton;
-  cardMessage.secondaryActionURL = definition.renderData.contentData.secondaryActionURL;
-
+          initWithMessageID:renderData.messageID
+               campaignName:renderData.name
+          experimentPayload:definition.experimentPayload
+        renderAsTestMessage:definition.isTestMessage
+                triggerType:triggerType
+                  titleText:title
+                   bodyText:body
+                  textColor:renderData.renderingEffectSettings.textColor
+          portraitImageData:portraitImageData
+         landscapeImageData:landscapeImageData
+            backgroundColor:renderData.renderingEffectSettings.displayBGColor
+        primaryActionButton:primaryActionButton
+      secondaryActionButton:secondaryActionButton
+           primaryActionURL:definition.renderData.contentData.actionURL
+         secondaryActionURL:definition.renderData.contentData.secondaryActionURL
+                    appData:definition.appData];
   return cardMessage;
 }
 
@@ -670,6 +668,14 @@
                                             imageData:imageData
                                    landscapeImageData:landscapeImageData
                                           triggerType:triggerType];
+
+        // A final `nil`-check, performed to avoid crashing the client app.
+        if (!displayMessage) {
+          FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400043",
+                      @"Failed to construct a non-nil display message.");
+          return;
+        }
+
         [self.messageDisplayComponent displayMessage:displayMessage displayDelegate:self];
       }];
 }

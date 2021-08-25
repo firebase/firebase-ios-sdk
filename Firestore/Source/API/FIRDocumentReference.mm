@@ -26,7 +26,7 @@
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRFirestoreSource+Internal.h"
 #import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
-#import "Firestore/Source/API/FSTUserDataConverter.h"
+#import "Firestore/Source/API/FSTUserDataReader.h"
 
 #include "Firestore/core/src/api/collection_reference.h"
 #include "Firestore/core/src/api/document_reference.h"
@@ -159,17 +159,17 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setData:(NSDictionary<NSString *, id> *)documentData
           merge:(BOOL)merge
      completion:(nullable void (^)(NSError *_Nullable error))completion {
-  auto dataConverter = self.firestore.dataConverter;
-  ParsedSetData parsed = merge ? [dataConverter parsedMergeData:documentData fieldMask:nil]
-                               : [dataConverter parsedSetData:documentData];
+  auto dataReader = self.firestore.dataReader;
+  ParsedSetData parsed = merge ? [dataReader parsedMergeData:documentData fieldMask:nil]
+                               : [dataReader parsedSetData:documentData];
   _documentReference.SetData(std::move(parsed), util::MakeCallback(completion));
 }
 
 - (void)setData:(NSDictionary<NSString *, id> *)documentData
     mergeFields:(NSArray<id> *)mergeFields
      completion:(nullable void (^)(NSError *_Nullable error))completion {
-  ParsedSetData parsed = [self.firestore.dataConverter parsedMergeData:documentData
-                                                             fieldMask:mergeFields];
+  ParsedSetData parsed = [self.firestore.dataReader parsedMergeData:documentData
+                                                          fieldMask:mergeFields];
   _documentReference.SetData(std::move(parsed), util::MakeCallback(completion));
 }
 
@@ -179,7 +179,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)updateData:(NSDictionary<id, id> *)fields
         completion:(nullable void (^)(NSError *_Nullable error))completion {
-  ParsedUpdateData parsed = [self.firestore.dataConverter parsedUpdateData:fields];
+  ParsedUpdateData parsed = [self.firestore.dataReader parsedUpdateData:fields];
   _documentReference.UpdateData(std::move(parsed), util::MakeCallback(completion));
 }
 

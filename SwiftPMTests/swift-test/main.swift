@@ -17,10 +17,12 @@ import Firebase
 import FirebaseCore
 import FirebaseAuth
 import FirebaseABTesting
+import FirebaseAppCheck
 #if os(iOS) && !targetEnvironment(macCatalyst)
   import FirebaseAppDistribution
 #endif
 import FirebaseCrashlytics
+import FirebaseDatabase
 import FirebaseDynamicLinks
 import FirebaseFirestore
 import FirebaseFirestoreSwift
@@ -32,6 +34,9 @@ import FirebaseFunctions
 #endif
 import FirebaseInstallations
 import FirebaseMessaging
+#if (os(iOS) && !targetEnvironment(macCatalyst)) || os(tvOS)
+  import FirebasePerformance
+#endif
 import FirebaseRemoteConfig
 import FirebaseStorage
 import FirebaseStorageSwift
@@ -47,6 +52,8 @@ import nanopb
 
 import XCTest
 
+@available(iOSApplicationExtension, unavailable)
+@available(tvOSApplicationExtension, unavailable)
 class importTest: XCTestCase {
   func testImports() throws {
     XCTAssertFalse(GULAppEnvironmentUtil.isAppStoreReceiptSandbox())

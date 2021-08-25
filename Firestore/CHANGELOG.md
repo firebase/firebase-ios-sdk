@@ -1,3 +1,6 @@
+# v8.6.0
+- [changed] Internal refactor to improve serialization performance.
+
 # v8.4.0
 - [fixed] Fixed handling of Unicode characters in log and assertion messages
   (#8372).

@@ -9,13 +9,13 @@
 /* Begin PBXBuildFile section */
 		5125CCA22437F471006CA5D0 /* Sample.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 5125CCA02437F471006CA5D0 /* Sample.xcdatamodeld */; };
 		5125CCA92437F472006CA5D0 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5125CCA82437F472006CA5D0 /* Preview Assets.xcassets */; };
+		515617FB26C20330006AEA6E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 515617FA26C20330006AEA6E /* GoogleService-Info.plist */; };
 		51944B6E258B12E300297021 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 51944B6D258B12E300297021 /* Assets.xcassets */; };
 		51A1F3D92588405A0025932B /* Identity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51A1F3D52588405A0025932B /* Identity.swift */; };
 		51A1F3DA2588405A0025932B /* UserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51A1F3D62588405A0025932B /* UserSettings.swift */; };
 		51A1F3DB2588405A0025932B /* TopicView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51A1F3D72588405A0025932B /* TopicView.swift */; };
 		51A1F3DC2588405A0025932B /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51A1F3D82588405A0025932B /* SceneDelegate.swift */; };
 		51A1F3E12588406A0025932B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51A1F3DE2588406A0025932B /* AppDelegate.swift */; };
-		51A1F3E22588406A0025932B /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 51A1F3DF2588406A0025932B /* GoogleService-Info.plist */; };
 		51A1F3E32588406A0025932B /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51A1F3E02588406A0025932B /* ContentView.swift */; };
 		51C24C5225894EDB00236F25 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 51C24C5025894EDB00236F25 /* LaunchScreen.storyboard */; };
 		51C24C742589614800236F25 /* logo.png in Resources */ = {isa = PBXBuildFile; fileRef = 51C24C732589614800236F25 /* logo.png */; };
@@ -27,13 +27,13 @@
 		5125CCA82437F472006CA5D0 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		5125CCAD2437F472006CA5D0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5125CCB32437F9A9006CA5D0 /* Sample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Sample.entitlements; sourceTree = "<group>"; };
+		515617FA26C20330006AEA6E /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../Shared/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		51944B6D258B12E300297021 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = ../../Shared/Assets.xcassets; sourceTree = "<group>"; };
 		51A1F3D52588405A0025932B /* Identity.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Identity.swift; path = ../../Shared/Identity.swift; sourceTree = "<group>"; };
 		51A1F3D62588405A0025932B /* UserSettings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = UserSettings.swift; path = ../../Shared/UserSettings.swift; sourceTree = "<group>"; };
 		51A1F3D72588405A0025932B /* TopicView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TopicView.swift; path = ../../Shared/TopicView.swift; sourceTree = "<group>"; };
 		51A1F3D82588405A0025932B /* SceneDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SceneDelegate.swift; path = ../../Shared/SceneDelegate.swift; sourceTree = "<group>"; };
 		51A1F3DE2588406A0025932B /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = ../../Shared/AppDelegate.swift; sourceTree = "<group>"; };
-		51A1F3DF2588406A0025932B /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../Shared/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		51A1F3E02588406A0025932B /* ContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ContentView.swift; path = ../../Shared/ContentView.swift; sourceTree = "<group>"; };
 		51C24C5125894EDB00236F25 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = ../../Shared/Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		51C24C732589614800236F25 /* logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = logo.png; path = ../../Shared/logo.png; sourceTree = "<group>"; };
@@ -77,11 +77,11 @@
 		5125CC9B2437F471006CA5D0 /* Sample */ = {
 			isa = PBXGroup;
 			children = (
+				515617FA26C20330006AEA6E /* GoogleService-Info.plist */,
 				51C24C732589614800236F25 /* logo.png */,
 				51C24C5025894EDB00236F25 /* LaunchScreen.storyboard */,
 				51A1F3DE2588406A0025932B /* AppDelegate.swift */,
 				51A1F3E02588406A0025932B /* ContentView.swift */,
-				51A1F3DF2588406A0025932B /* GoogleService-Info.plist */,
 				51A1F3D52588405A0025932B /* Identity.swift */,
 				51A1F3D82588405A0025932B /* SceneDelegate.swift */,
 				51A1F3D72588405A0025932B /* TopicView.swift */,
@@ -162,9 +162,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				51A1F3E22588406A0025932B /* GoogleService-Info.plist in Resources */,
 				51C24C742589614800236F25 /* logo.png in Resources */,
 				5125CCA92437F472006CA5D0 /* Preview Assets.xcassets in Resources */,
+				515617FB26C20330006AEA6E /* GoogleService-Info.plist in Resources */,
 				51C24C5225894EDB00236F25 /* LaunchScreen.storyboard in Resources */,
 				51944B6E258B12E300297021 /* Assets.xcassets in Resources */,
 			);

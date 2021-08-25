@@ -21,7 +21,7 @@
 #include <vector>
 
 #include "Firestore/core/src/model/document_key.h"
-#include "Firestore/core/src/model/maybe_document.h"
+#include "Firestore/core/src/model/mutable_document.h"
 #include "Firestore/core/src/model/types.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
 #include "Firestore/core/src/remote/existence_filter.h"
@@ -65,7 +65,7 @@ class DocumentWatchChange : public WatchChange {
   DocumentWatchChange(std::vector<model::TargetId> updated_target_ids,
                       std::vector<model::TargetId> removed_target_ids,
                       model::DocumentKey document_key,
-                      absl::optional<model::MaybeDocument> new_document)
+                      absl::optional<model::MutableDocument> new_document)
       : updated_target_ids_{std::move(updated_target_ids)},
         removed_target_ids_{std::move(removed_target_ids)},
         document_key_{std::move(document_key)},
@@ -90,7 +90,7 @@ class DocumentWatchChange : public WatchChange {
    * The new document, or `DeletedDocument` if it was deleted. Is null if the
    * document went out of view without the server sending a new document.
    */
-  const absl::optional<model::MaybeDocument>& new_document() const {
+  const absl::optional<model::MutableDocument>& new_document() const {
     return new_document_;
   }
 
@@ -103,7 +103,7 @@ class DocumentWatchChange : public WatchChange {
   std::vector<model::TargetId> updated_target_ids_;
   std::vector<model::TargetId> removed_target_ids_;
   model::DocumentKey document_key_;
-  absl::optional<model::MaybeDocument> new_document_;
+  absl::optional<model::MutableDocument> new_document_;
 };
 
 bool operator==(const DocumentWatchChange& lhs, const DocumentWatchChange& rhs);

@@ -31,7 +31,7 @@
 #include <utility>
 #include <vector>
 
-#import "Firestore/Source/API/FSTUserDataConverter.h"
+#import "Firestore/Source/API/FSTUserDataReader.h"
 
 #import "Firestore/Example/Tests/SpecTests/FSTSyncEngineTestDriver.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
@@ -48,14 +48,13 @@
 #include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/document_key_set.h"
-#include "Firestore/core/src/model/field_value.h"
-#include "Firestore/core/src/model/maybe_document.h"
-#include "Firestore/core/src/model/no_document.h"
+#include "Firestore/core/src/model/mutable_document.h"
 #include "Firestore/core/src/model/patch_mutation.h"
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/model/set_mutation.h"
 #include "Firestore/core/src/model/snapshot_version.h"
 #include "Firestore/core/src/model/types.h"
+#include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/remote/existence_filter.h"
 #include "Firestore/core/src/remote/serializer.h"
@@ -77,32 +76,33 @@
 namespace objc = firebase::firestore::objc;
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
-using firebase::firestore::api::LoadBundleTask;
 using firebase::firestore::Error;
+using firebase::firestore::api::LoadBundleTask;
 using firebase::firestore::auth::User;
 using firebase::firestore::bundle::BundleReader;
 using firebase::firestore::bundle::BundleSerializer;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::Query;
+using firebase::firestore::google_firestore_v1_ArrayValue;
+using firebase::firestore::google_firestore_v1_Value;
 using firebase::firestore::local::Persistence;
-using firebase::firestore::local::TargetData;
 using firebase::firestore::local::QueryPurpose;
+using firebase::firestore::local::TargetData;
+using firebase::firestore::model::Document;
 using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
-using firebase::firestore::model::DocumentState;
-using firebase::firestore::model::FieldValue;
-using firebase::firestore::model::MaybeDocument;
+using firebase::firestore::model::MutableDocument;
 using firebase::firestore::model::MutationResult;
-using firebase::firestore::model::NoDocument;
 using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::nanopb::ByteString;
 using firebase::firestore::nanopb::MakeByteString;
-using firebase::firestore::remote::ExistenceFilter;
+using firebase::firestore::nanopb::Message;
 using firebase::firestore::remote::DocumentWatchChange;
+using firebase::firestore::remote::ExistenceFilter;
 using firebase::firestore::remote::ExistenceFilterWatchChange;
 using firebase::firestore::remote::WatchTargetChange;
 using firebase::firestore::remote::WatchTargetChangeState;
@@ -204,7 +204,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   BOOL _gcEnabled;
   size_t _maxConcurrentLimboResolutions;
   BOOL _networkEnabled;
-  FSTUserDataConverter *_converter;
+  FSTUserDataReader *_reader;
   std::shared_ptr<util::Executor> user_executor_;
 }
 
@@ -230,7 +230,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
 }
 
 - (void)setUpForSpecWithConfig:(NSDictionary *)config {
-  _converter = FSTTestUserDataConverter();
+  _reader = FSTTestUserDataReader();
   std::unique_ptr<util::Executor> user_executor = util::Executor::CreateSerial("user executor");
   user_executor_ = absl::ShareUniquePtr(std::move(user_executor));
 
@@ -298,8 +298,8 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
       for (NSArray<id> *filter in filters) {
         std::string key = util::MakeString(filter[0]);
         std::string op = util::MakeString(filter[1]);
-        FieldValue value = [_converter parsedQueryValue:filter[2]];
-        query = query.AddingFilter(Filter(key, op, value));
+        Message<google_firestore_v1_Value> value = [_reader parsedQueryValue:filter[2]];
+        query = query.AddingFilter(Filter(key, op, std::move(value)));
       }
     }
 
@@ -325,17 +325,17 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
 - (DocumentViewChange)parseChange:(NSDictionary *)jsonDoc ofType:(DocumentViewChange::Type)type {
   NSNumber *version = jsonDoc[@"version"];
   NSDictionary *options = jsonDoc[@"options"];
-  DocumentState documentState = [options[@"hasLocalMutations"] isEqualToNumber:@YES]
-                                    ? DocumentState::kLocalMutations
-                                    : ([options[@"hasCommittedMutations"] isEqualToNumber:@YES]
-                                           ? DocumentState::kCommittedMutations
-                                           : DocumentState::kSynced);
 
   XCTAssert([jsonDoc[@"key"] isKindOfClass:[NSString class]]);
-  FieldValue data = [_converter parsedQueryValue:jsonDoc[@"value"]];
-  Document doc = Doc(util::MakeString((NSString *)jsonDoc[@"key"]), version.longLongValue, data,
-                     documentState);
-  return DocumentViewChange{doc, type};
+  Message<google_firestore_v1_Value> data = [_reader parsedQueryValue:jsonDoc[@"value"]];
+  MutableDocument doc =
+      Doc(util::MakeString((NSString *)jsonDoc[@"key"]), version.longLongValue, std::move(data));
+  if ([options[@"hasLocalMutations"] boolValue] == YES) {
+    doc.SetHasLocalMutations();
+  } else if ([options[@"hasCommittedMutations"] boolValue] == YES) {
+    doc.SetHasCommittedMutations();
+  }
+  return DocumentViewChange{std::move(doc), type};
 }
 
 #pragma mark - Methods for doing the steps of the spec test.
@@ -440,11 +440,11 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
                                             ? absl::optional<ObjectValue>{}
                                             : FSTTestObjectValue(docSpec[@"value"]);
     SnapshotVersion version = [self parseVersion:docSpec[@"version"]];
-    MaybeDocument doc;
+    MutableDocument doc;
     if (value) {
-      doc = Document(*std::move(value), key, version, DocumentState::kSynced);
+      doc = MutableDocument::FoundDocument(key, version, *std::move(value));
     } else {
-      doc = NoDocument(key, version, /* has_committed_mutations= */ false);
+      doc = MutableDocument::NoDocument(key, version);
     }
     DocumentWatchChange change{ConvertTargetsArray(watchEntity[@"targets"]),
                                ConvertTargetsArray(watchEntity[@"removedTargets"]), std::move(key),
@@ -506,8 +506,10 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
                 @"'keepInQueue=true' is not supported on iOS and should only be set in "
                 @"multi-client tests");
 
-  MutationResult mutationResult(version, absl::nullopt);
-  [self.driver receiveWriteAckWithVersion:version mutationResults:{mutationResult}];
+  MutationResult mutationResult(version, Message<google_firestore_v1_ArrayValue>{});
+  std::vector<MutationResult> mutationResults;
+  mutationResults.emplace_back(std::move(mutationResult));
+  [self.driver receiveWriteAckWithVersion:version mutationResults:std::move(mutationResults)];
 }
 
 - (void)doFailWrite:(NSDictionary *)spec {

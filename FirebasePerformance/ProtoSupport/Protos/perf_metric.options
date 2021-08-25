@@ -1,0 +1,59 @@
+# Copyright 2021 Google
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# Options for perf_metric.proto
+
+firebase.perf.v1.TraceMetric.name type:FT_POINTER
+firebase.perf.v1.TraceMetric.counters type:FT_POINTER
+firebase.perf.v1.TraceMetric.CountersEntry.key type:FT_POINTER
+firebase.perf.v1.TraceMetric.subtraces type:FT_POINTER
+firebase.perf.v1.TraceMetric.custom_attributes type:FT_POINTER
+firebase.perf.v1.TraceMetric.CustomAttributesEntry.key type:FT_POINTER
+firebase.perf.v1.TraceMetric.CustomAttributesEntry.value type:FT_POINTER
+firebase.perf.v1.TraceMetric.perf_sessions type:FT_POINTER
+
+firebase.perf.v1.NetworkRequestMetric.url type:FT_POINTER
+firebase.perf.v1.NetworkRequestMetric.response_content_type type:FT_POINTER
+firebase.perf.v1.NetworkRequestMetric.custom_attributes type:FT_POINTER
+firebase.perf.v1.NetworkRequestMetric.CustomAttributesEntry.key type:FT_POINTER
+firebase.perf.v1.NetworkRequestMetric.CustomAttributesEntry.value type:FT_POINTER
+firebase.perf.v1.NetworkRequestMetric.perf_sessions type:FT_POINTER
+
+firebase.perf.v1.PerfSession.session_id type:FT_POINTER
+firebase.perf.v1.PerfSession.session_verbosity type:FT_POINTER
+
+firebase.perf.v1.GaugeMetric.session_id type:FT_POINTER
+firebase.perf.v1.GaugeMetric.cpu_metric_readings type:FT_POINTER
+firebase.perf.v1.GaugeMetric.android_memory_readings type:FT_POINTER
+firebase.perf.v1.GaugeMetric.ios_memory_readings type:FT_POINTER
+
+firebase.perf.v1.GaugeMetadata.process_name type:FT_POINTER
+
+firebase.perf.v1.ApplicationInfo.google_app_id type:FT_POINTER
+firebase.perf.v1.ApplicationInfo.app_instance_id type:FT_POINTER
+firebase.perf.v1.ApplicationInfo.custom_attributes type:FT_POINTER
+firebase.perf.v1.ApplicationInfo.CustomAttributesEntry.key type:FT_POINTER
+firebase.perf.v1.ApplicationInfo.CustomAttributesEntry.value type:FT_POINTER
+
+firebase.perf.v1.WebApplicationInfo.sdk_version type:FT_POINTER
+firebase.perf.v1.WebApplicationInfo.page_url type:FT_POINTER
+
+firebase.perf.v1.AndroidApplicationInfo.package_name type:FT_POINTER
+firebase.perf.v1.AndroidApplicationInfo.sdk_version type:FT_POINTER
+firebase.perf.v1.AndroidApplicationInfo.version_name type:FT_POINTER
+
+firebase.perf.v1.IosApplicationInfo.sdk_version type:FT_POINTER
+firebase.perf.v1.IosApplicationInfo.bundle_short_version type:FT_POINTER
+firebase.perf.v1.IosApplicationInfo.mcc_mnc type:FT_POINTER

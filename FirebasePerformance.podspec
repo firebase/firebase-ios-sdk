@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebasePerformance'
-  s.version          = '8.4.0'
+  s.version          = '8.6.0'
   s.summary          = 'Firebase Performance'
 
   s.description      = <<-DESC
@@ -28,8 +28,7 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
 
   base_dir = "FirebasePerformance/"
   s.source_files = [
-    base_dir + 'Sources/**/*.[mh]',
-    base_dir + 'ProtoSupport/**/*.[mh]',
+    base_dir + 'Sources/**/*.[cmh]',
     'FirebaseCore/Sources/Private/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
     'FirebaseRemoteConfig/Sources/Private/*.h',
@@ -40,9 +39,10 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
     base_dir + 'Public/**/*.h',
   ]
 
-  s.public_header_files = base_dir + 'Sources/Public/*.h'
+  s.public_header_files = base_dir + 'Sources/Public/FirebasePerformance/*.h'
 
-  preprocessor_definitions = 'GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1 ' + 'FIRPerformance_LIB_VERSION=' + String(s.version)
+  preprocessor_definitions = 'FIRPerformance_LIB_VERSION=' + String(s.version)
+  preprocessor_definitions += ' PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1'
   if ENV['FPR_UNSWIZZLE_AVAILABLE'] && ENV['FPR_UNSWIZZLE_AVAILABLE'] == '1' then
     preprocessor_definitions += ' UNSWIZZLE_AVAILABLE=1'
   end
@@ -64,14 +64,14 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
   s.dependency 'GoogleUtilities/Environment', '~> 7.4'
   s.dependency 'GoogleUtilities/ISASwizzler', '~> 7.4'
   s.dependency 'GoogleUtilities/MethodSwizzler', '~> 7.4'
-  s.dependency 'Protobuf', '~> 3.15'
+  s.dependency 'nanopb', '~> 2.30908.0'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.platforms = {:ios => ios_deployment_target, :tvos => tvos_deployment_target}
     unit_tests.scheme = { :code_coverage => true }
     unit_tests.source_files = [
       'FirebasePerformance/Tests/Unit/**/*.{m,h,plist}',
-      'GoogleDataTransport/GDTCORTests/Common/**/*.[hm]',
+      'SharedTestUtilities/*.[hm]',
     ]
     unit_tests.resources = ['FirebasePerformance/Tests/Unit/Server/*File']
     unit_tests.requires_arc = true
