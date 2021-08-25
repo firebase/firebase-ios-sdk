@@ -379,7 +379,7 @@ using firebase::firestore::util::TimerId;
   FIRDocumentReference *doc = [[self.db collectionWithPath:@"rooms"] documentWithAutoID];
 
   XCTAssertThrowsSpecific(
-      { [doc setData:@{} mergeFields:@[ @"foo" ]]; }, NSException,
+      [doc setData:@{} mergeFields:@[ @"foo" ]], NSException,
       @"Field 'foo' is specified in your field mask but missing from your input data.");
 }
 
@@ -1280,12 +1280,9 @@ using firebase::firestore::util::TimerId;
   [firestore terminateWithCompletion:[self completionForExpectationWithName:@"Terminate"]];
   [self awaitExpectations];
 
-  XCTAssertThrowsSpecific(
-      {
-        [firestore disableNetworkWithCompletion:^(NSError *){
-        }];
-      },
-      NSException, @"The client has already been terminated.");
+  XCTAssertThrowsSpecific([firestore disableNetworkWithCompletion:^(NSError *){
+                          }],
+                          NSException, @"The client has already been terminated.");
 }
 
 - (void)testMaintainsPersistenceAfterRestarting {
@@ -1467,21 +1464,15 @@ using firebase::firestore::util::TimerId;
 
   [firestore terminateWithCompletion:[self completionForExpectationWithName:@"Terminate1"]];
   [self awaitExpectations];
-  XCTAssertThrowsSpecific(
-      {
-        [firestore disableNetworkWithCompletion:^(NSError *){
-        }];
-      },
-      NSException, @"The client has already been terminated.");
+  XCTAssertThrowsSpecific([firestore disableNetworkWithCompletion:^(NSError *){
+                          }],
+                          NSException, @"The client has already been terminated.");
 
   [firestore terminateWithCompletion:[self completionForExpectationWithName:@"Terminate2"]];
   [self awaitExpectations];
-  XCTAssertThrowsSpecific(
-      {
-        [firestore enableNetworkWithCompletion:^(NSError *){
-        }];
-      },
-      NSException, @"The client has already been terminated.");
+  XCTAssertThrowsSpecific([firestore enableNetworkWithCompletion:^(NSError *){
+                          }],
+                          NSException, @"The client has already been terminated.");
 }
 
 - (void)testCanRemoveListenerAfterTermination {
