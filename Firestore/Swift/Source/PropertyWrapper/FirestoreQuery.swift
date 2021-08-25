@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,171 +17,58 @@
 import FirebaseFirestore
 import SwiftUI
 
-public enum QueryPredicate {
-  case isEqualTo(field: String, value: Any)
-
-  case isIn(field: String, values: [Any])
-  case isNotIn(field: String, values: [Any])
-
-  case arrayContains(field: String, value: Any)
-  case arrayContainsAny(field: String, values: [Any])
-
-  case isLessThan(field: String, value: Any)
-  case isGreaterThan(field: String, value: Any)
-
-  case isLessThanOrEqualTo(field: String, value: Any)
-  case isGreaterThanOrEqualTo(field: String, value: Any)
-
-  // -- alternative naming 2
-
-  public static func whereField(_ name: String, isEqualTo value: Any) -> QueryPredicate {
-    return .isEqualTo(field: name, value: value)
-  }
-
-  public static func whereField(_ name: String, isIn values: [Any]) -> QueryPredicate {
-    return .isIn(field: name, values: values)
-  }
-
-  public static func whereField(_ name: String, isNotIn values: [Any]) -> QueryPredicate {
-    return .isNotIn(field: name, values: values)
-  }
-
-  public static func whereField(_ name: String, arrayContains value: Any) -> QueryPredicate {
-    return .arrayContains(field: name, value: value)
-  }
-
-  public static func whereField(_ name: String, arrayContainsAny values: [Any]) -> QueryPredicate {
-    return .arrayContainsAny(field: name, values: values)
-  }
-
-  public static func whereField(_ name: String, isLessThan value: Any) -> QueryPredicate {
-    return .isLessThan(field: name, value: value)
-  }
-
-  public static func whereField(_ name: String, isGreaterThan value: Any) -> QueryPredicate {
-    return .isGreaterThan(field: name, value: value)
-  }
-
-  public static func whereField(_ name: String, isLessThanOrEqualTo value: Any) -> QueryPredicate {
-    return .isLessThanOrEqualTo(field: name, value: value)
-  }
-
-  public static func whereField(_ name: String,
-                                isGreaterThanOrEqualTo value: Any) -> QueryPredicate {
-    return .isGreaterThanOrEqualTo(field: name, value: value)
-  }
-
-  // -- alternative naming 3
-
-  public static func `where`(field name: String, isEqualTo value: Any) -> QueryPredicate {
-    return .isEqualTo(field: name, value: value)
-  }
-
-  public static func `where`(field name: String, isIn values: [Any]) -> QueryPredicate {
-    return .isIn(field: name, values: values)
-  }
-
-  public static func `where`(field name: String, isNotIn values: [Any]) -> QueryPredicate {
-    return .isNotIn(field: name, values: values)
-  }
-
-  public static func `where`(field name: String, arrayContains value: Any) -> QueryPredicate {
-    return .arrayContains(field: name, value: value)
-  }
-
-  public static func `where`(field name: String, arrayContainsAny values: [Any]) -> QueryPredicate {
-    return .arrayContainsAny(field: name, values: values)
-  }
-
-  public static func `where`(field name: String, isLessThan value: Any) -> QueryPredicate {
-    return .isLessThan(field: name, value: value)
-  }
-
-  public static func `where`(field name: String, isGreaterThan value: Any) -> QueryPredicate {
-    return .isGreaterThan(field: name, value: value)
-  }
-
-  public static func `where`(field name: String, isLessThanOrEqualTo value: Any) -> QueryPredicate {
-    return .isLessThanOrEqualTo(field: name, value: value)
-  }
-
-  public static func `where`(field name: String,
-                             isGreaterThanOrEqualTo value: Any) -> QueryPredicate {
-    return .isGreaterThanOrEqualTo(field: name, value: value)
-  }
-}
-
-@available(iOS 13.0, *)
-private class FirestoreQueryObservable<T: Decodable>: ObservableObject {
-  @Published var items: [T] = []
-
-  private let firestore = Firestore.firestore()
-  private var listener: ListenerRegistration? = nil
-
-  init(collectionPath: String, predicates: [QueryPredicate]) {
-    setupListener(for: collectionPath, withPredicates: predicates)
-  }
-
-  deinit {
-    removeListener()
-  }
-
-  private func removeListener() {
-    listener?.remove()
-  }
-
-  private func setupListener(for collectionPath: String,
-                             withPredicates predicates: [QueryPredicate]) {
-    var query: Query = firestore.collection(collectionPath)
-
-    for predicate in predicates {
-      switch predicate {
-      case let .isEqualTo(field, value):
-        query = query.whereField(field, isEqualTo: value)
-      case let .isIn(field, values):
-        query = query.whereField(field, in: values)
-      case let .isNotIn(field, values):
-        query = query.whereField(field, notIn: values)
-      case let .arrayContains(field, value):
-        query = query.whereField(field, arrayContains: value)
-      case let .arrayContainsAny(field, values):
-        query = query.whereField(field, arrayContainsAny: values)
-      case let .isLessThan(field, value):
-        query = query.whereField(field, isLessThan: value)
-      case let .isGreaterThan(field, value):
-        query = query.whereField(field, isGreaterThan: value)
-      case let .isLessThanOrEqualTo(field, value):
-        query = query.whereField(field, isLessThanOrEqualTo: value)
-      case let .isGreaterThanOrEqualTo(field, value):
-        query = query.whereField(field, isGreaterThanOrEqualTo: value)
-      }
-    }
-
-    listener = query.addSnapshotListener { snapshot, error in
-      guard error == nil, let snapshot = snapshot else {
-        self.items = []
-        return
-      }
-
-      self.items = snapshot.documents.compactMap { document in
-        try? document.data(as: T.self)
-      }
-    }
-  }
-}
-
+/// A Property Wrapper to fetch data from Firestore and keep an active SnapshotListener to listen to changes.
+///
+/// Consider the following Example:
+///
+///     struct ContentView: View {
+///         @FirestoreQuery(collectionPath: "developers",
+///                      predicates: [
+///                         .whereField("firstName", isEqualTo: "Flo")
+///                      ]
+///         ) var developers: [Developer]
+///
+///         var body: some View {
+///             List(developers) { developer in
+///                Text(developer.name)
+///            }
+///         }
+///     }
+///
+/// The FirestoreQuery automatically fetches all developers with the firstName "Flo" from Firestore, adds them to the developers array and keeps a SnapshotListener alive.
+/// A FirestoreQueryConfiguration is generated based on the specified collectionPath and predicates, which can be accessed and updated with the projectedValue:
+///
+///     Button("Change Name to Peter") {
+///         $developers.predicates = [.whereField("firstName", isEqualTo: "Peter"]
+///     }
+///
+/// This automatically removes the old SnapshotListener and installs a new one based on the updated configuration.
+///
+/// The Property Wrapper does not support updating the wrappedValue, i.e. creating a new document needs to be done through the basic Firestore APIs.
 @available(iOS 14.0, *)
+@available(tvOS, unavailable)
 @propertyWrapper
 public struct FirestoreQuery<T: Decodable>: DynamicProperty {
-  @StateObject private var queryObservable: FirestoreQueryObservable<T>
+  @StateObject private var firestoreQueryObservable: FirestoreQueryObservable<T>
 
   public var wrappedValue: [T] {
-    queryObservable.items
+    firestoreQueryObservable.items
+  }
+
+  public var projectedValue: FirestoreQueryConfiguration {
+    get {
+      firestoreQueryObservable.configuration
+    }
+    nonmutating set {
+      firestoreQueryObservable.objectWillChange.send()
+      firestoreQueryObservable.configuration = newValue
+    }
   }
 
   public init(collectionPath: String, predicates: [QueryPredicate] = []) {
-    _queryObservable =
-      StateObject(wrappedValue: FirestoreQueryObservable<T>(collectionPath: collectionPath,
-                                                            predicates: predicates))
+    let configuration = FirestoreQueryConfiguration(path: collectionPath, predicates: predicates)
+
+    _firestoreQueryObservable =
+      StateObject(wrappedValue: FirestoreQueryObservable<T>(configuration: configuration))
   }
 }
