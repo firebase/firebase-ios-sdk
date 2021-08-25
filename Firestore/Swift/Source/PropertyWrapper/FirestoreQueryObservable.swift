@@ -14,17 +14,10 @@
  * limitations under the License.
  */
 
-import FirebaseFirestore
 import SwiftUI
+import FirebaseFirestore
 
-/// An ObservableObject, which the FirestoreQuery exposes to Views.
-///
-/// The FirestoreQueryObservable receives a FirestoreQueryConfiguration, based on which it dynamically builds a query based on the configuration's collectionPath and predicates.
-/// The query is then used to attach a SnapshotListener, which decodes the received documents to a generic type T and exposes them back to the FirestoreQuery via the items array.
-/// The FirestoreQueryObservable also handles removing the SnapshotListener on deinit.
-///
-/// - Warning: The SnapshotListener gets removed and recreated everytime that the FirestoreQueryConfiguration changes. This can lead to additional costs and document reads.
-@available(iOS 13.0, *)
+@available(iOS 14.0, *)
 @available(tvOS, unavailable)
 internal class FirestoreQueryObservable<T: Decodable>: ObservableObject {
   @Published var items: [T] = []
@@ -32,14 +25,14 @@ internal class FirestoreQueryObservable<T: Decodable>: ObservableObject {
   private let firestore = Firestore.firestore()
   private var listener: ListenerRegistration? = nil
 
-  internal var configuration: FirestoreQueryConfiguration {
+  internal var configuration: FirestoreQuery<T>.Configuration {
     didSet {
       removeListener()
       setupListener()
     }
   }
 
-  init(configuration: FirestoreQueryConfiguration) {
+  init(configuration: FirestoreQuery<T>.Configuration) {
     self.configuration = configuration
     setupListener()
   }
@@ -80,20 +73,20 @@ internal class FirestoreQueryObservable<T: Decodable>: ObservableObject {
       }
     }
 
-    listener = query.addSnapshotListener { [weak self] snapshot, error in
-      if let error = error {
-        print(error)
+    listener = query.addSnapshotListener { [weak self] querySnapshot, error in
+      if let error = error as NSError? {
+        print("Error fetching documents: \(error.localizedDescription)")
         self?.items = []
         return
       }
-
-      guard let snapshot = snapshot else {
-        print("FirestoreQuery: Registering the SnapshotListener returned a bad snapshot.")
+      
+      guard let documents = querySnapshot?.documents else {
+        print("No documents in collection at path \(self?.configuration.path ?? "(no path provided)")")
         self?.items = []
         return
       }
-
-      self?.items = snapshot.documents.compactMap { document in
+      
+      self?.items = documents.compactMap { document in
         try? document.data(as: T.self)
       }
     }

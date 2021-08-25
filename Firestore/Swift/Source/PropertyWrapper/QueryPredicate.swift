@@ -16,13 +16,13 @@
 
 import FirebaseFirestore
 
-/// An enumeration used to construct queries inside FirestoreQueryObservable based on a surrounding FirestoreQueryConfiguration.
+/// Query predicates that can be used to filter results fetched by `FirestoreQuery`.
 ///
-/// Use factory methods to create cases.
+/// Construct predicates using one of the following ways:
 ///
-/// ```
-/// let predicate: QueryPredicate = .whereField("firstName", isEqualTo: "Flo")
-/// ```
+///     let onlyFavourites: QueryPredicate = .whereField("isFavourite", isEqualTo: true)
+///     let onlyFavourites2: QueryPredicate = .isEqualTo("isFavourite", true)
+///     let onlyFavourites3: QueryPredicate = .where(field: "isFavourite", isEqualTo: true)
 public enum QueryPredicate {
   case isEqualTo(_ field: String, _ value: Any)
 
@@ -44,7 +44,7 @@ public enum QueryPredicate {
   case limitToLast(_ value: Int)
 
   /*
-   Factory methods to expose the underlying enum cases with a nicer development experience and improved semantics.
+   Factory methods
    */
   public static func whereField(_ field: String, isEqualTo value: Any) -> QueryPredicate {
     .isEqualTo(field, value)
@@ -96,4 +96,44 @@ public enum QueryPredicate {
   public static func limit(toLast value: Int) -> QueryPredicate {
     .limitToLast(value)
   }
+  
+  // Alternate naming
+  
+  public static func `where`(field name: String, isEqualTo value: Any) -> QueryPredicate {
+    .isEqualTo(name, value)
+  }
+  
+  public static func `where`(field name: String, isIn values: [Any]) -> QueryPredicate {
+    .isIn(name, values)
+  }
+  
+  public static func `where`(field name: String, isNotIn values: [Any]) -> QueryPredicate {
+    .isNotIn(name, values)
+  }
+  
+  public static func `where`(field name: String, arrayContains value: Any) -> QueryPredicate {
+    .arrayContains(name, value)
+  }
+  
+  public static func `where`(field name: String, arrayContainsAny values: [Any]) -> QueryPredicate {
+    .arrayContainsAny(name, values)
+  }
+  
+  public static func `where`(field name: String, isLessThan value: Any) -> QueryPredicate {
+    .isLessThan(name, value)
+  }
+  
+  public static func `where`(field name: String, isGreaterThan value: Any) -> QueryPredicate {
+    .isGreaterThan(name, value)
+  }
+  
+  public static func `where`(field name: String, isLessThanOrEqualTo value: Any) -> QueryPredicate {
+    .isLessThanOrEqualTo(name, value)
+  }
+  
+  public static func `where`(field name: String,
+                             isGreaterThanOrEqualTo value: Any) -> QueryPredicate {
+    .isGreaterThanOrEqualTo(name, value)
+  }
+  
 }
