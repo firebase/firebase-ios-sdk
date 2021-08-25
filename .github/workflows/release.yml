@@ -21,7 +21,7 @@ jobs:
       # the latest release branch of this repo will be validated and pushed to
       # the testing repo.
       local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
-    runs-on: macOS-latest
+    runs-on: macos-11
     steps:
     - uses: actions/checkout@v2
     - name: Get token
@@ -55,7 +55,7 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macOS-latest
+    runs-on: macos-11
     steps:
     - uses: actions/checkout@v2
     - name: Get token
@@ -76,7 +76,7 @@ jobs:
     - name: Test swift quickstart
       env:
         LEGACY: true
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh ABTesting)
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh ABTesting true)
     - name: Remove data before upload
       env:
         LEGACY: true
@@ -95,7 +95,7 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macOS-latest
+    runs-on: macos-11
     steps:
     - uses: actions/checkout@v2
     - name: Get token
@@ -112,7 +112,7 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test swift quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Authentication)
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Authentication false)
     - name: Remove data before upload
       run: scripts/remove_data.sh authentication release_testing
     - uses: actions/upload-artifact@v2
@@ -131,7 +131,7 @@ jobs:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
-    runs-on: macOS-latest
+    runs-on: macos-11
     steps:
     - uses: actions/checkout@v2
     - name: Get token
@@ -157,11 +157,11 @@ jobs:
         # Set the deployed pod location of run and upload-symbols with the development pod version.
         cp Crashlytics/run quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics/
         cp Crashlytics/upload-symbols quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics/
-        ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Crashlytics)
+        ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Crashlytics true)
     - name: Test swift quickstart
       env:
         LEGACY: true
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Crashlytics swift)
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Crashlytics true swift)
     - name: Remove data before upload
       env:
         LEGACY: true
@@ -182,7 +182,7 @@ jobs:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
-    runs-on: macOS-latest
+    runs-on: macos-11
     steps:
     - uses: actions/checkout@v2
     - name: Get token
@@ -199,9 +199,9 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test objc quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Database)
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Database false)
     - name: Test swift quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Database swift)
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Database false swift)
     - name: Remove data before upload
       run: scripts/remove_data.sh database release_testing
     - uses: actions/upload-artifact@v2
@@ -220,7 +220,7 @@ jobs:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
-    runs-on: macOS-latest
+    runs-on: macos-11
     steps:
     - uses: actions/checkout@v2
     - name: Get token
@@ -242,10 +242,10 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test objc quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh DynamicLinks)
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh DynamicLinks true)
     - name: Test swift quickstart
       if: ${{ always() }}
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh DynamicLinks swift)
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh DynamicLinks true swift)
     - name: Remove data before upload
       run: scripts/remove_data.sh dynamiclinks release_testing
     - uses: actions/upload-artifact@v2
@@ -264,7 +264,7 @@ jobs:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
-    runs-on: macOS-latest
+    runs-on: macos-11
     steps:
     - uses: actions/checkout@v2
     - name: Get token
@@ -282,7 +282,7 @@ jobs:
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] ||
-            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Firestore)
+            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Firestore false)
     - name: Remove data before upload
       run: scripts/remove_data.sh firestore release_testing
     - uses: actions/upload-artifact@v2
@@ -301,7 +301,7 @@ jobs:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
-    runs-on: macOS-latest
+    runs-on: macos-11
     steps:
     - uses: actions/checkout@v2
     - name: Get token
@@ -321,10 +321,10 @@ jobs:
       run: sed -i '' 's/REVERSED_CLIENT_ID/com.googleusercontent.apps.1025801074639-6p6ebi8amuklcjrto20gvpe295smm8u6/' quickstart-ios/functions/FunctionsExample/Info.plist
     - name: Test objc quickstart
       run: ([ -z $plist_secret ] ||
-            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Functions)
+            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Functions true)
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] ||
-            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Functions swift)
+            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Functions true swift)
     - name: Remove data before upload
       run: scripts/remove_data.sh functions release_testing
     - uses: actions/upload-artifact@v2
@@ -343,7 +343,7 @@ jobs:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
-    runs-on: macOS-latest
+    runs-on: macos-11
     steps:
     - uses: actions/checkout@v2
     - name: Get token
@@ -361,10 +361,10 @@ jobs:
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test objc quickstart
       run: ([ -z $plist_secret ] ||
-            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh InAppMessaging)
+            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh InAppMessaging true)
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] ||
-            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh InAppMessaging swift)
+            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh InAppMessaging true swift)
     - name: Remove data before upload
       run: scripts/remove_data.sh inappmessaging release_testing
     - uses: actions/upload-artifact@v2
@@ -383,7 +383,7 @@ jobs:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
-    runs-on: macOS-latest
+    runs-on: macos-11
     steps:
     - uses: actions/checkout@v2
     - name: Get token
@@ -401,10 +401,10 @@ jobs:
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test objc quickstart
       run: ([ -z $plist_secret ] ||
-            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Messaging)
+            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Messaging false)
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] ||
-            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Messaging swift)
+            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Messaging false swift)
     - name: Remove data before upload
       run: scripts/remove_data.sh messaging release_testing
     - uses: actions/upload-artifact@v2
@@ -421,7 +421,7 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macOS-latest
+    runs-on: macos-11
     steps:
     - uses: actions/checkout@v2
     - name: Get token
@@ -438,7 +438,7 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test Swift Quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Config)
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Config true)
     - name: Remove data before upload
       run: scripts/remove_data.sh config release_testing
     - uses: actions/upload-artifact@v2
@@ -457,7 +457,7 @@ jobs:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
-    runs-on: macOS-latest
+    runs-on: macos-11
     steps:
     - uses: actions/checkout@v2
     - name: Get token
@@ -474,9 +474,9 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FIREGSignInInfo.h.gpg \
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test objc quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Storage)
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Storage true)
     - name: Test swift quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Storage swift)
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Storage true swift)
     - name: Remove data before upload
       run: scripts/remove_data.sh storage release_testing
     - uses: actions/upload-artifact@v2
@@ -495,7 +495,7 @@ jobs:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
-    runs-on: macOS-latest
+    runs-on: macos-11
     steps:
     - uses: actions/checkout@v2
     - name: Get token
@@ -513,9 +513,9 @@ jobs:
           quickstart-ios/TestUtils/FIREGSignInInfo.h "$signin_secret"
     - name: Test objc quickstart
       run: |
-        ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Performance)
+        ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Performance true)
     - name: Test swift quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Performance swift)
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Performance true swift)
     - name: Remove data before upload
       run: scripts/remove_data.sh performance release_testing
     - uses: actions/upload-artifact@v2

@@ -50,8 +50,11 @@ NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
 /** @brief Serial queue to manage the updation of session Ids. */
 @property(nonatomic, readwrite) dispatch_queue_t sessionIdSerialQueue;
 
-/** Updates the current trace with the current session details. */
-- (void)updateTraceWithCurrentSession;
+/**
+ * Updates the current trace with the current session details.
+ * @param sessionDetails Updated session details of the currently active session.
+ */
+- (void)updateTraceWithCurrentSession:(FPRSessionDetails *)sessionDetails;
 
 @end
 
@@ -137,14 +140,20 @@ NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
   return [NSString stringWithFormat:@"Request: %@", _URLRequest];
 }
 
-- (void)updateTraceWithCurrentSession {
+- (void)sessionChanged:(NSNotification *)notification {
   if (self.traceStarted && !self.traceCompleted) {
-    dispatch_async(self.sessionIdSerialQueue, ^{
-      FPRSessionManager *sessionManager = [FPRSessionManager sharedInstance];
-      FPRSessionDetails *sessionDetails = [sessionManager.sessionDetails copy];
-      if (sessionDetails) {
-        [self.activeSessions addObject:sessionDetails];
-      }
+    NSDictionary<NSString *, FPRSessionDetails *> *userInfo = notification.userInfo;
+    FPRSessionDetails *sessionDetails = [userInfo valueForKey:kFPRSessionIdNotificationKey];
+    if (sessionDetails) {
+      [self updateTraceWithCurrentSession:sessionDetails];
+    }
+  }
+}
+
+- (void)updateTraceWithCurrentSession:(FPRSessionDetails *)sessionDetails {
+  if (sessionDetails != nil) {
+    dispatch_sync(self.sessionIdSerialQueue, ^{
+      [self.activeSessions addObject:sessionDetails];
     });
   }
 }
@@ -191,9 +200,9 @@ NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
     [self checkpointState:FPRNetworkTraceCheckpointStateInitiated];
 
     FPRSessionManager *sessionManager = [FPRSessionManager sharedInstance];
-    [self updateTraceWithCurrentSession];
+    [self updateTraceWithCurrentSession:[sessionManager.sessionDetails copy]];
     [sessionManager.sessionNotificationCenter addObserver:self
-                                                 selector:@selector(updateTraceWithCurrentSession)
+                                                 selector:@selector(sessionChanged:)
                                                      name:kFPRSessionIdUpdatedNotification
                                                    object:sessionManager];
   }
@@ -441,6 +450,10 @@ NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
                                      value:nil
                                association:GUL_ASSOCIATION_RETAIN_NONATOMIC];
   }
+}
+
+- (BOOL)isValid {
+  return _hasValidResponseCode;
 }
 
 @end

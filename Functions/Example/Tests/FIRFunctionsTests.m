@@ -151,7 +151,7 @@
 
 #pragma mark - App Check integration
 
-- (void)testCallFunctionWhenAppCheckIsInstalled {
+- (void)testCallFunctionWhenAppCheckIsInstalledAndFACTokenSuccess {
   _appCheckFake.tokenResult = [[FIRAppCheckTokenResultFake alloc] initWithToken:@"valid_token"
                                                                           error:nil];
 
@@ -161,17 +161,46 @@
 
   XCTestExpectation *httpRequestExpectation =
       [self expectationWithDescription:@"HTTPRequestExpectation"];
-  __weak __auto_type weakSelf = self;
   _fetcherService.testBlock = ^(GTMSessionFetcher *_Nonnull fetcherToTest,
                                 GTMSessionFetcherTestResponse _Nonnull testResponse) {
-    // Fixes retain cycle warning for Xcode 11 and earlier.
-    // __unused to avoid warning in Xcode 12+.
-    __unused __auto_type self = weakSelf;
     [httpRequestExpectation fulfill];
 
     NSString *appCheckTokenHeader =
         [fetcherToTest.request valueForHTTPHeaderField:@"X-Firebase-AppCheck"];
     XCTAssertEqualObjects(appCheckTokenHeader, @"valid_token");
+
+    testResponse(nil, nil, networkError);
+  };
+
+  XCTestExpectation *completionExpectation =
+      [self expectationWithDescription:@"completionExpectation"];
+  [_functions callFunction:@"fake_func"
+                withObject:nil
+                   timeout:10
+                completion:^(FIRHTTPSCallableResult *_Nullable result, NSError *_Nullable error) {
+                  XCTAssertEqualObjects(error, networkError);
+                  [completionExpectation fulfill];
+                }];
+
+  [self waitForExpectations:@[ httpRequestExpectation, completionExpectation ] timeout:1.5];
+}
+
+- (void)testCallFunctionWhenAppCheckIsInstalledAndFACTokenError {
+  NSError *appCheckError = [NSError errorWithDomain:self.name code:-1 userInfo:nil];
+  _appCheckFake.tokenResult = [[FIRAppCheckTokenResultFake alloc] initWithToken:@"dummy_token"
+                                                                          error:appCheckError];
+
+  NSError *networkError = [NSError errorWithDomain:self.name code:-2 userInfo:nil];
+
+  XCTestExpectation *httpRequestExpectation =
+      [self expectationWithDescription:@"HTTPRequestExpectation"];
+  _fetcherService.testBlock = ^(GTMSessionFetcher *_Nonnull fetcherToTest,
+                                GTMSessionFetcherTestResponse _Nonnull testResponse) {
+    [httpRequestExpectation fulfill];
+
+    NSString *appCheckTokenHeader =
+        [fetcherToTest.request valueForHTTPHeaderField:@"X-Firebase-AppCheck"];
+    XCTAssertNil(appCheckTokenHeader);
 
     testResponse(nil, nil, networkError);
   };
@@ -197,12 +226,8 @@
   XCTestExpectation *httpRequestExpectation =
       [self expectationWithDescription:@"HTTPRequestExpectation"];
 
-  __weak __auto_type weakSelf = self;
   _fetcherService.testBlock = ^(GTMSessionFetcher *_Nonnull fetcherToTest,
                                 GTMSessionFetcherTestResponse _Nonnull testResponse) {
-    // Fixes retain cycle warning for Xcode 11 and earlier.
-    // __unused to avoid warning in Xcode 12+.
-    __unused __auto_type self = weakSelf;
     [httpRequestExpectation fulfill];
 
     NSString *appCheckTokenHeader =

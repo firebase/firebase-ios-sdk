@@ -160,8 +160,9 @@ static NSString *const kValidImageURL =
   OCMStub([_mockUtilClass isAppExtension]).andReturn(YES);
   NSDictionary *fakeMessageInfo = @{@"aps" : @{}};
 
-  [_mockExtensionHelper exportDeliveryMetricsToBigQueryWithMessageInfo:fakeMessageInfo];
   OCMReject([_mockExtensionHelper bundleIdentifierByRemovingLastPartFrom:[OCMArg any]]);
+  [_mockExtensionHelper exportDeliveryMetricsToBigQueryWithMessageInfo:fakeMessageInfo];
+  OCMVerifyAll(_mockExtensionHelper);
 }
 
 - (void)testDeliveryMetricsLoggingWithInvalidMessageID {
@@ -172,8 +173,9 @@ static NSString *const kValidImageURL =
     @"google.c.fid" : @"fakeFIDForTest",
     @"google.c.sender.id" : @123456789
   };
-  [_mockExtensionHelper exportDeliveryMetricsToBigQueryWithMessageInfo:fakeMessageInfo];
   OCMReject([_mockExtensionHelper bundleIdentifierByRemovingLastPartFrom:[OCMArg any]]);
+  [_mockExtensionHelper exportDeliveryMetricsToBigQueryWithMessageInfo:fakeMessageInfo];
+  OCMVerifyAll(_mockExtensionHelper);
 }
 
 - (void)testDeliveryMetricsLoggingWithInvalidFID {
@@ -183,8 +185,9 @@ static NSString *const kValidImageURL =
     @"fcm_options" : @{@"image" : @"https://google.com"},
     @"google.c.sender.id" : @123456789
   };
-  [_mockExtensionHelper exportDeliveryMetricsToBigQueryWithMessageInfo:fakeMessageInfo];
   OCMReject([_mockExtensionHelper bundleIdentifierByRemovingLastPartFrom:[OCMArg any]]);
+  [_mockExtensionHelper exportDeliveryMetricsToBigQueryWithMessageInfo:fakeMessageInfo];
+  OCMVerifyAll(_mockExtensionHelper);
 }
 
 - (void)testDeliveryMetricsLoggingWithDisplayPayload {
@@ -196,9 +199,9 @@ static NSString *const kValidImageURL =
     @"google.c.fid" : @"fakeFIDForTest",
     @"google.c.sender.id" : @123456789
   };
-
-  [_mockExtensionHelper exportDeliveryMetricsToBigQueryWithMessageInfo:fakeMessageInfo];
   OCMExpect([_mockExtensionHelper bundleIdentifierByRemovingLastPartFrom:[OCMArg any]]);
+  [_mockExtensionHelper exportDeliveryMetricsToBigQueryWithMessageInfo:fakeMessageInfo];
+  OCMVerifyAll(_mockExtensionHelper);
 }
 
 - (void)testDeliveryMetricsLoggingWithDataPayload {
@@ -210,8 +213,9 @@ static NSString *const kValidImageURL =
     @"google.c.fid" : @"fakeFIDForTest",
     @"google.c.sender.id" : @123456789
   };
-  [_mockExtensionHelper exportDeliveryMetricsToBigQueryWithMessageInfo:fakeMessageInfo];
   OCMReject([_mockExtensionHelper bundleIdentifierByRemovingLastPartFrom:[OCMArg any]]);
+  [_mockExtensionHelper exportDeliveryMetricsToBigQueryWithMessageInfo:fakeMessageInfo];
+  OCMVerifyAll(_mockExtensionHelper);
 }
 
 @end

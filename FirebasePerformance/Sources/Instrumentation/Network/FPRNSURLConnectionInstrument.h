@@ -17,6 +17,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** This class instruments the NSURLConnection class. */
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 @interface FPRNSURLConnectionInstrument : FPRInstrument
 
 @end

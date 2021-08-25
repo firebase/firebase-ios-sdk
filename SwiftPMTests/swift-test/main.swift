@@ -34,6 +34,9 @@ import FirebaseFunctions
 #endif
 import FirebaseInstallations
 import FirebaseMessaging
+#if (os(iOS) && !targetEnvironment(macCatalyst)) || os(tvOS)
+  import FirebasePerformance
+#endif
 import FirebaseRemoteConfig
 import FirebaseStorage
 import FirebaseStorageSwift

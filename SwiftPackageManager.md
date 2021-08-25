@@ -16,7 +16,6 @@ Prior to version 8.0.0 (starting with version 6.31.0) support was in Beta.
 ## Limitations
 
 - Analytics is only supported for iOS and cannot be used in apps that support other platforms.
-- Performance is not yet available.
 - watchOS support is available for Auth, Crashlytics, Messaging, Realtime Database, RemoteConfig,
   and Storage.
 
@@ -51,7 +50,7 @@ in the `Build Settings` tab.
 <img src="docs/resources/SPMObjC.png">
 
 If you're using FirebaseCrashlytics, you can use
-`${BUILD_DIR%Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run`
+`${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run`
 as the run script that allows Xcode to upload your project's dSYM files.
 
 Another option is to use the

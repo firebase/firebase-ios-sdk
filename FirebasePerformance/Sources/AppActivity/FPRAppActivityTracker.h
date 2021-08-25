@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Public/FIRTrace.h"
+#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRTrace.h"
 
 FOUNDATION_EXTERN NSString *__nonnull const kFPRAppStartTraceName;
 FOUNDATION_EXTERN NSString *__nonnull const kFPRAppStartStageNameTimeToUI;
@@ -38,6 +38,7 @@ typedef NS_ENUM(NSInteger, FPRApplicationState) {
 /** This class is used to track the app activity and create internal traces to capture the
  *  performance metrics.
  */
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 @interface FPRAppActivityTracker : NSObject
 
 /** The trace that tracks the currently active session of the app. *Do not stop this trace*. This is

@@ -21,8 +21,8 @@
 #import "FirebasePerformance/Sources/Configurations/FPRRemoteConfigFlags+Private.h"
 #import "FirebasePerformance/Sources/Configurations/FPRRemoteConfigFlags.h"
 #import "FirebasePerformance/Sources/FPRClient.h"
-#import "FirebasePerformance/Sources/Public/FIRPerformance.h"
-#import "FirebasePerformance/Sources/Public/FIRTrace.h"
+#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRPerformance.h"
+#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRTrace.h"
 #import "FirebasePerformance/Sources/Timer/FIRTrace+Internal.h"
 #import "FirebasePerformance/Sources/Timer/FIRTrace+Private.h"
 
@@ -494,6 +494,8 @@
 /** Validates if the metric is incremented if a trace is started but not stopped. */
 - (void)testTraceStartedNotStoppedIncrementsAMetric {
   NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
+  [defaultCenter postNotificationName:UIWindowDidBecomeVisibleNotification
+                               object:[UIApplication sharedApplication]];
   [defaultCenter postNotificationName:UIApplicationDidBecomeActiveNotification
                                object:[UIApplication sharedApplication]];
   FIRTrace *activeTrace = [FPRAppActivityTracker sharedInstance].activeTrace;
@@ -735,6 +737,10 @@
   FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
   [trace start];
   NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
+  [defaultCenter postNotificationName:UIWindowDidBecomeVisibleNotification
+                               object:[UIApplication sharedApplication]];
+  [defaultCenter postNotificationName:UIApplicationDidBecomeActiveNotification
+                               object:[UIApplication sharedApplication]];
   [defaultCenter postNotificationName:UIApplicationWillEnterForegroundNotification
                                object:[UIApplication sharedApplication]];
 

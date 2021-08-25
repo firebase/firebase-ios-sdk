@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Instrumentation/UIKit/FPRUIViewControllerInstrument.h"
-
 #import <UIKit/UIKit.h>
 
 #import "FirebasePerformance/Sources/AppActivity/FPRScreenTraceTracker+Private.h"
@@ -23,6 +21,7 @@
 #import "FirebasePerformance/Sources/Instrumentation/FPRInstrument_Private.h"
 #import "FirebasePerformance/Sources/Instrumentation/FPRSelectorInstrumentor.h"
 #import "FirebasePerformance/Sources/Instrumentation/Network/FPRNetworkInstrumentHelpers.h"
+#import "FirebasePerformance/Sources/Instrumentation/UIKit/FPRUIViewControllerInstrument.h"
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULOriginalIMPConvenienceMacros.h>
@@ -40,6 +39,7 @@ static dispatch_queue_t GetInstrumentationQueue() {
 
 // Returns the singleton UIApplication of the application this is currently running in or nil if
 // it's in an app extension.
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 static UIApplication *FPRSharedApplication() {
   if ([GULAppEnvironmentUtil isAppExtension]) {
     return nil;
@@ -55,6 +55,7 @@ static UIApplication *FPRSharedApplication() {
  *  @param instrumentor The FPRClassInstrumentor to add the selector instrumentor to.
  */
 FOUNDATION_STATIC_INLINE
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 void InstrumentViewDidAppear(FPRUIViewControllerInstrument *instrument,
                              FPRClassInstrumentor *instrumentor) {
   SEL selector = @selector(viewDidAppear:);
@@ -79,6 +80,7 @@ void InstrumentViewDidAppear(FPRUIViewControllerInstrument *instrument,
  *  @param instrumentor The FPRClassInstrumentor to add the selector instrumentor to.
  */
 FOUNDATION_STATIC_INLINE
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 void InstrumentViewDidDisappear(FPRUIViewControllerInstrument *instrument,
                                 FPRClassInstrumentor *instrumentor) {
   SEL selector = @selector(viewDidDisappear:);

@@ -20,6 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  frames and slow frames, and if it has been registered as a delegate of FIRAScreenViewReporter,
  *  it also automatically creates screen traces for each UIViewController.
  */
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 @interface FPRScreenTraceTracker : NSObject
 
 /** Singleton instance of FPRScreenTraceTracker.

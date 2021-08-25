@@ -21,6 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** This class instruments the delegate methods needed to start/stop traces correctly. This class is
  *  not intended to be used standalone--it should only be used by FPRNSURLSessionInstrument.
  */
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 @interface FPRNSURLSessionDelegateInstrument : FPRInstrument <FPRObjectInstrumentorProtocol>
 
 /** Registers an instrumentor for a delegate class if it hasn't yet been instrumented.
