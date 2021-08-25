@@ -14,6 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
+# To test another version of Xcode for all of CI:
+# - Add any edit, like a blank line, to Gemfile.
+# - Uncomment the following line and choose the alternative Xcode version.
+#sudo xcode-select -s /Applications/Xcode_13.0.app/Contents/Developer
+
 bundle update --bundler # ensure bundler version is high enough for Gemfile.lock
 bundle install
 bundle --version
