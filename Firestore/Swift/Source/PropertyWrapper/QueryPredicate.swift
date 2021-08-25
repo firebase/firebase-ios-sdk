@@ -43,9 +43,9 @@ public enum QueryPredicate {
   case limitTo(_ value: Int)
   case limitToLast(_ value: Int)
 
-  /*
-   Factory methods
-   */
+
+  // Factory methods
+
   public static func whereField(_ field: String, isEqualTo value: Any) -> QueryPredicate {
     .isEqualTo(field, value)
   }
@@ -135,5 +135,4 @@ public enum QueryPredicate {
                              isGreaterThanOrEqualTo value: Any) -> QueryPredicate {
     .isGreaterThanOrEqualTo(name, value)
   }
-  
 }
