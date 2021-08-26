@@ -14,14 +14,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# USAGE: git diff -U0 [base_commit] HEAD | get_diff_lines.sh
-#
-# This will generate a JSON output of changed files and their newly added
-# lines.
+# This is to generate pod size report and send to the Metrics Service.
+# The Metrics Service will either 
+# 1. save binary size data into the databasae when POSTSUBMIT is true.
+# 2. post a report in a PR when 
 
 set -ex
 
 BINARY_SIZE_SDK=()
+
+# In presubmits, `check` job in the health_metrics.yml workflow will turn on SDK flags if a corresponding
+# file path, in `scripts/health_metrics/code_coverage_file_list.json` is updated.
+# In postsubmits, all SDKs should be measured, so binary size data of all SDKs should be uploaded to a
+# merged commit. Next time a new PR can compare the head of the PR to a commit on the base branch.
 if [[ "${POSTSUBMIT}" == true || "${FirebaseABTesting}" == 'true' ]]; then
   BINARY_SIZE_SDK+=('FirebaseABTesting')
 fi
