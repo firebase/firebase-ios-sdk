@@ -16,8 +16,8 @@
 
 # This is to generate pod size report and send to the Metrics Service.
 # The Metrics Service will either 
-# 1. save binary size data into the databasae when POSTSUBMIT is true.
-# 2. post a report in a PR when 
+# 1. save binary size data into the databasae when POSTSUBMIT is true, or
+# 2. post a report in a PR when POSTSUBMIT is not true.
 
 set -ex
 
