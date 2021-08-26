@@ -16,6 +16,7 @@
 
 import ArgumentParser
 import Foundation
+import Utils
 
 enum RequestType: EnumerableFlag {
   case presubmit

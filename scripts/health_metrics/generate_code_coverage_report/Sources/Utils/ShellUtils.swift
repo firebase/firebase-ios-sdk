@@ -35,7 +35,7 @@ public enum Shell {
     task.arguments = ["-c", command]
     task.launch()
     if displayCommand {
-      print("[CoverageReportParser] Command:\(command)\n")
+      print("[Health Metrics] Command:\(command)\n")
     }
     task.waitUntilExit()
     if stdout == ProcessCom.pipe {

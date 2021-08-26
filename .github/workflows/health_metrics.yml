@@ -11,6 +11,8 @@ env:
   METRICS_SERVICE_SECRET: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
 jobs:
+  # Check all the modified SDKs, the flags will be true if changed files match patterns in the file
+  # scripts/health_metrics/code_coverage_file_list.json
   check:
     if: github.repository == 'Firebase/firebase-ios-sdk' && (github.event.action == 'opened' || github.event.action == 'synchronize')
     name: Check changed files
@@ -44,13 +46,26 @@ jobs:
 
   binary_size_metrics:
     needs: check
-    if: always() && github.repository == 'Firebase/firebase-ios-sdk' && (github.event.action == 'opened' || github.event.action == 'synchronize' || github.event.pull_request.merged)
+    # Prevent the job from being triggered in fork.
+    if: always() && github.repository == 'Firebase/firebase-ios-sdk' && github.event.pull_request.merged
     runs-on: macos-11
     strategy:
       matrix:
         target: [iOS]
     steps:
     - uses: actions/checkout@v2
+    - name: Access to Metrics Service
+      run: |
+        # Install gcloud sdk
+        curl https://sdk.cloud.google.com > install.sh
+        bash install.sh --disable-prompts
+        echo "${HOME}/google-cloud-sdk/bin/" >> $GITHUB_PATH
+        export PATH="${HOME}/google-cloud-sdk/bin/:${PATH}"
+
+        # Activate the service account for Metrics Service.
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/metrics_service_access.json.gpg \
+        metrics-access.json "${{ env.METRICS_SERVICE_SECRET }}"
+        gcloud auth activate-service-account --key-file metrics-access.json
     - name: Build and test
       run: |
         FirebaseABTesting=${{ needs.check.outputs.abtesting_run_job }} \
@@ -65,6 +80,11 @@ jobs:
         FirebaseRemoteConfig=${{ needs.check.outputs.remoteconfig_run_job }} \
         FirebaseStorage=${{ needs.check.outputs.storage_run_job }} \
         ./scripts/health_metrics/create_binary_size_report.sh
+      env:
+        PULL_REQUEST_NUM: ${{ github.event.pull_request.number }}
+        BASE_COMMIT: ${{ github.event.pull_request.base.sha }}
+        POSTSUBMIT: ${{ github.event.pull_request.merged }}
+        SOURCE_BRANCH: ${{ github.base_ref }}
 
   pod-lib-lint-abtesting:
     needs: check

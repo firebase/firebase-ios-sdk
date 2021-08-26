@@ -19,9 +19,10 @@ import Foundation
   import FoundationNetworking
 #endif
 
-func sendMetricsServiceRequest(repo: String, commits: String, jsonContent: Data, token: String,
-                               is_presubmit: Bool, branch: String?, pullRequest: Int?,
-                               pullRequestNote: String?, baseCommit: String?) {
+public func sendMetricsServiceRequest(repo: String, commits: String, jsonContent: Data,
+                                      token: String,
+                                      is_presubmit: Bool, branch: String?, pullRequest: Int?,
+                                      pullRequestNote: String?, baseCommit: String?) {
   var request: URLRequest
   var semaphore = DispatchSemaphore(value: 0)
   let endpoint =
