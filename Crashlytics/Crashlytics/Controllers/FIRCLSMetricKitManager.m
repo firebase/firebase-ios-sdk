@@ -200,21 +200,17 @@
     // backend serialization, so we write out end_time separately.
 
     MXCrashDiagnostic *crashDiagnostic = [diagnosticPayload.crashDiagnostics objectAtIndex:0];
-    NSDictionary *timeDictionary = @{
-      @"time" : [NSNumber numberWithLong:beginSecondsSince1970],
-      @"end_time" : [NSNumber numberWithLong:endSecondsSince1970]
-    };
-    writeFailed = ![self writeDictionaryToFile:timeDictionary
-                                          file:fatalFile
-                                   newLineData:newLineData];
 
     NSArray *threadArray = [self convertThreadsToArray:crashDiagnostic.callStackTree];
     NSDictionary *metadataDict = [self convertMetadataToDictionary:crashDiagnostic.metaData];
 
     NSString *nilString = @"";
+    NSString *name = [self getExceptionName:crashDiagnostic.exceptionType];
+    NSString *codeName = [crashDiagnostic.exceptionType intValue] == SIGABRT ? @"ABORT" : @"";
     NSDictionary *crashDictionary = @{
-      @"crash_event" : @{
-        @"threads" : threadArray,
+      @"metric_kit_fatal" : @{
+        @"time" : [NSNumber numberWithLong:beginSecondsSince1970],
+        @"end_time" : [NSNumber numberWithLong:endSecondsSince1970],
         @"metadata" : metadataDict,
         @"termination_reason" :
                 (crashDiagnostic.terminationReason) ? crashDiagnostic.terminationReason : nilString,
@@ -224,12 +220,17 @@
         @"exception_type" : crashDiagnostic.exceptionType,
         @"exception_code" : crashDiagnostic.exceptionCode,
         @"signal" : crashDiagnostic.signal,
-        @"app_version" : crashDiagnostic.applicationVersion
+        @"app_version" : crashDiagnostic.applicationVersion,
+        @"code_name" : codeName,
+        @"name" : name
       }
     };
     writeFailed = ![self writeDictionaryToFile:crashDictionary
                                           file:fatalFile
                                    newLineData:newLineData];
+    writeFailed = writeFailed | ![self writeDictionaryToFile:@{@"threads" : threadArray}
+                                                        file:fatalFile
+                                                 newLineData:newLineData];
   }
 
   if (hasHang) {
@@ -381,6 +382,29 @@
   [file writeData:newLineData];
 
   return YES;
+}
+
+- (NSString *)getExceptionName:(NSNumber *)exceptionType {
+  int exception = [exceptionType intValue];
+  switch (exception) {
+    case SIGABRT:
+      return @"SIGABRT";
+    case SIGBUS:
+      return @"SIGBUS";
+    case SIGFPE:
+      return @"SIGFPE";
+    case SIGILL:
+      return @"SIGILL";
+    case SIGSEGV:
+      return @"SIGSEGV";
+    case SIGSYS:
+      return @"SIGSYS";
+    case SIGTRAP:
+      return @"SIGTRAP";
+    default:
+      return @"UNKNOWN";
+  }
+  return @"UNKNOWN";
 }
 
 @end
