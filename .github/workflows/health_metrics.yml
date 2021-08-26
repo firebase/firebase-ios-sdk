@@ -11,6 +11,8 @@ env:
   METRICS_SERVICE_SECRET: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
 jobs:
+  # Check all the modified SDKs, the flags will be true if changed files match patterns in the file
+  # scripts/health_metrics/code_coverage_file_list.json
   check:
     if: github.repository == 'Firebase/firebase-ios-sdk' && (github.event.action == 'opened' || github.event.action == 'synchronize')
     name: Check changed files
@@ -44,7 +46,8 @@ jobs:
 
   binary_size_metrics:
     needs: check
-    if: always() && github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.merged
+    # Prevent the job from being triggered in fork.
+    if: always() && github.repository == 'Firebase/firebase-ios-sdk' && github.event.pull_request.merged
     runs-on: macos-11
     strategy:
       matrix:
