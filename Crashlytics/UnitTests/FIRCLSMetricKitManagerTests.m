@@ -408,7 +408,8 @@
   XCTAssertTrue([[crashDictionary objectForKey:@"code_name"] isEqualToString:@"ABORT"]);
 
   NSDictionary *metadata = [crashDictionary objectForKey:@"metadata"];
-  NSDictionary *threads = [[[fileDictionary objectForKey:@"threads"] objectForKey:@"threads"] objectAtIndex:0];
+  NSDictionary *threads =
+      [[[fileDictionary objectForKey:@"threads"] objectForKey:@"threads"] objectAtIndex:0];
 
   [self checkMetadata:metadata andThreads:threads];
 }
