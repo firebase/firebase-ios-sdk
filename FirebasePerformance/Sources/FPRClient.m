@@ -280,7 +280,7 @@
         } else {
           dispatch_group_async(self.eventsQueueGroup, self.eventsQueue, ^{
             curEvent.application_info.app_instance_id = FPREncodeString(identifier);
-            [self.gdtLogger logEvent:event];
+            [self.gdtLogger logEvent:curEvent];
           });
         }
       }];
