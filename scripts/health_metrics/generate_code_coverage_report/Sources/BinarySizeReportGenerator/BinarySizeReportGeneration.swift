@@ -110,7 +110,7 @@ public func CreateMetricsRequestData(SDK: [String], SDKRepoDir: URL,
   try CreatePodConfigJSON(of: SDK, from: SDKRepoDir)
   let data = try CreateMetricsRequestData(
     of: SDK,
-    type: "firebase-ios-sdk-testing",
+    type: "firebase-ios-sdk",
     log: logPath
   )
   return data
