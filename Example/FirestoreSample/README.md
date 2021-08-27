@@ -1,6 +1,6 @@
 # Firestore Sample
 
-This sample demonstrates how to use Firestore. At the moment, it only contains 
+This sample demonstrates how to use Firestore. At the moment, it only contains
 code that shows how to use the `@FirestoreQuery` property wrapper.
 
 ## How to use
