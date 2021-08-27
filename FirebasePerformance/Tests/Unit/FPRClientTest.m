@@ -77,8 +77,6 @@
   // Wait for async job to execute event logging.
   dispatch_group_wait(self.client.eventsQueueGroup, DISPATCH_TIME_FOREVER);
 
-  XCTAssertNotNil(FPRDecodeString(perfMetric.application_info.app_instance_id));
-
   // Validate the event is received by gdtTransport logger.
   dispatch_sync(self.client.gdtLogger.queue, ^{
     GDTCORTransportFake *fakeGdtTransport =
