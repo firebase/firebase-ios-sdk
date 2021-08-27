@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'Firebase'
-  s.version          = '8.6.0'
+  s.version          = '8.6.1'
   s.summary          = 'Firebase'
 
   s.description      = <<-DESC
@@ -39,7 +39,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
   end
 
   s.subspec 'CoreOnly' do |ss|
-    ss.dependency 'FirebaseCore', '8.6.0'
+    ss.dependency 'FirebaseCore', '8.6.1'
     ss.source_files = 'CoreOnly/Sources/Firebase.h'
     ss.preserve_paths = 'CoreOnly/Sources/module.modulemap'
     if ENV['FIREBASE_POD_REPO_FOR_DEV_POD'] then
@@ -168,8 +168,8 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'Performance' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebasePerformance', '~> 8.6.0'
-    ss.tvos.dependency 'FirebasePerformance', '~> 8.6.0'
+    ss.ios.dependency 'FirebasePerformance', '~> 8.6.1'
+    ss.tvos.dependency 'FirebasePerformance', '~> 8.6.1'
   end
 
   s.subspec 'RemoteConfig' do |ss|
