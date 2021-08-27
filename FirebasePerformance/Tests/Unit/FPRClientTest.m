@@ -17,6 +17,7 @@
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations+Private.h"
 #import "FirebasePerformance/Sources/FPRClient+Private.h"
 #import "FirebasePerformance/Sources/FPRClient.h"
+#import "FirebasePerformance/Sources/FPRNanoPbUtils.h"
 #import "FirebasePerformance/Sources/Loggers/FPRGDTLogger.h"
 #import "FirebasePerformance/Sources/Loggers/FPRGDTLogger_Private.h"
 
@@ -28,6 +29,8 @@
 
 #import <OCMock/OCMock.h>
 #import "SharedTestUtilities/GDTCORTransportFake.h"
+
+NSString *const kFPRMockInstallationId = @"mockId";
 
 @interface FPRClientTest : FPRTestCase
 
@@ -47,7 +50,7 @@
   // Arrange installations object.
   FPRFakeInstallations *installations = [FPRFakeInstallations installations];
   self.client = [[FPRClient alloc] init];
-  installations.identifier = @"mockId";
+  installations.identifier = kFPRMockInstallationId;
   self.client.installations = (FIRInstallations *)installations;
 
   // Arrange remote config object.
@@ -73,6 +76,9 @@
   // Act on event logging call.
   [self.client processAndLogEvent:perfMetric];
 
+  firebase_perf_v1_PerfMetric expectedMetric = perfMetric;
+  expectedMetric.application_info.app_instance_id = FPREncodeString(kFPRMockInstallationId);
+
   // Wait for async job to execute event logging.
   dispatch_group_wait(self.client.eventsQueueGroup, DISPATCH_TIME_FOREVER);
 
@@ -82,8 +88,10 @@
         (GDTCORTransportFake *)self.client.gdtLogger.gdtfllTransport;
     XCTAssertEqual(fakeGdtTransport.logEvents.count, 1);
     GDTCOREvent *event = fakeGdtTransport.logEvents.firstObject;
+    XCTAssertNotNil(
+        FPRDecodeString([(FPRGDTEvent *)event.dataObject metric].application_info.app_instance_id));
     XCTAssertEqualObjects([event.dataObject transportBytes],
-                          [[FPRGDTEvent gdtEventForPerfMetric:perfMetric] transportBytes]);
+                          [[FPRGDTEvent gdtEventForPerfMetric:expectedMetric] transportBytes]);
   });
 }
 
@@ -96,6 +104,9 @@
   // Act on event logging call.
   [self.client processAndLogEvent:perfMetric];
 
+  firebase_perf_v1_PerfMetric expectedMetric = perfMetric;
+  expectedMetric.application_info.app_instance_id = FPREncodeString(kFPRMockInstallationId);
+
   // Wait for async job to execute event logging.
   dispatch_group_wait(self.client.eventsQueueGroup, DISPATCH_TIME_FOREVER);
 
@@ -105,8 +116,10 @@
         (GDTCORTransportFake *)self.client.gdtLogger.gdtfllTransport;
     XCTAssertEqual(fakeGdtTransport.logEvents.count, 1);
     GDTCOREvent *event = fakeGdtTransport.logEvents.firstObject;
+    XCTAssertNotNil(
+        FPRDecodeString([(FPRGDTEvent *)event.dataObject metric].application_info.app_instance_id));
     XCTAssertEqualObjects([event.dataObject transportBytes],
-                          [[FPRGDTEvent gdtEventForPerfMetric:perfMetric] transportBytes]);
+                          [[FPRGDTEvent gdtEventForPerfMetric:expectedMetric] transportBytes]);
   });
 }
 
@@ -118,6 +131,9 @@
   // Act on event logging call.
   [self.client processAndLogEvent:perfMetric];
 
+  firebase_perf_v1_PerfMetric expectedMetric = perfMetric;
+  expectedMetric.application_info.app_instance_id = FPREncodeString(kFPRMockInstallationId);
+
   // Wait for async job to execute event logging.
   dispatch_group_wait(self.client.eventsQueueGroup, DISPATCH_TIME_FOREVER);
 
@@ -127,8 +143,10 @@
         (GDTCORTransportFake *)self.client.gdtLogger.gdtfllTransport;
     XCTAssertEqual(fakeGdtTransport.logEvents.count, 1);
     GDTCOREvent *event = fakeGdtTransport.logEvents.firstObject;
+    XCTAssertNotNil(
+        FPRDecodeString([(FPRGDTEvent *)event.dataObject metric].application_info.app_instance_id));
     XCTAssertEqualObjects([event.dataObject transportBytes],
-                          [[FPRGDTEvent gdtEventForPerfMetric:perfMetric] transportBytes]);
+                          [[FPRGDTEvent gdtEventForPerfMetric:expectedMetric] transportBytes]);
   });
 }
 
