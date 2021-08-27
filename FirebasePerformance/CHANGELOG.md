@@ -1,3 +1,6 @@
+# Version 8.6.1
+* Fix the case where the event were dropped for missing a critical field in the event.
+
 # Version 8.6.0
 * Add Firebase Performance support for Swift Package Manager. (#6528)
 * Fix a crash due to a race condition. (#8485)
