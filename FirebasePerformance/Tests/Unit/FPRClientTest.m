@@ -30,6 +30,8 @@
 #import <OCMock/OCMock.h>
 #import "SharedTestUtilities/GDTCORTransportFake.h"
 
+NSString *const kFPRMockInstallationId = @"mockId";
+
 @interface FPRClientTest : FPRTestCase
 
 /** Configuration which can be assigned as a fake object for event dispatch control. */
@@ -48,7 +50,7 @@
   // Arrange installations object.
   FPRFakeInstallations *installations = [FPRFakeInstallations installations];
   self.client = [[FPRClient alloc] init];
-  installations.identifier = @"mockId";
+  installations.identifier = kFPRMockInstallationId;
   self.client.installations = (FIRInstallations *)installations;
 
   // Arrange remote config object.
@@ -72,7 +74,10 @@
   firebase_perf_v1_PerfMetric perfMetric = [FPRTestUtils createRandomPerfMetric:@"RandomTrace"];
 
   // Act on event logging call.
-  [self.client processAndLogEvent:&perfMetric];
+  [self.client processAndLogEvent:perfMetric];
+
+  firebase_perf_v1_PerfMetric expectedMetric = perfMetric;
+  expectedMetric.application_info.app_instance_id = FPREncodeString(kFPRMockInstallationId);
 
   // Wait for async job to execute event logging.
   dispatch_group_wait(self.client.eventsQueueGroup, DISPATCH_TIME_FOREVER);
@@ -86,7 +91,7 @@
     XCTAssertNotNil(
         FPRDecodeString([(FPRGDTEvent *)event.dataObject metric].application_info.app_instance_id));
     XCTAssertEqualObjects([event.dataObject transportBytes],
-                          [[FPRGDTEvent gdtEventForPerfMetric:perfMetric] transportBytes]);
+                          [[FPRGDTEvent gdtEventForPerfMetric:expectedMetric] transportBytes]);
   });
 }
 
@@ -97,7 +102,10 @@
       [FPRTestUtils createRandomNetworkPerfMetric:@"https://abc.xyz"];
 
   // Act on event logging call.
-  [self.client processAndLogEvent:&perfMetric];
+  [self.client processAndLogEvent:perfMetric];
+
+  firebase_perf_v1_PerfMetric expectedMetric = perfMetric;
+  expectedMetric.application_info.app_instance_id = FPREncodeString(kFPRMockInstallationId);
 
   // Wait for async job to execute event logging.
   dispatch_group_wait(self.client.eventsQueueGroup, DISPATCH_TIME_FOREVER);
@@ -111,7 +119,7 @@
     XCTAssertNotNil(
         FPRDecodeString([(FPRGDTEvent *)event.dataObject metric].application_info.app_instance_id));
     XCTAssertEqualObjects([event.dataObject transportBytes],
-                          [[FPRGDTEvent gdtEventForPerfMetric:perfMetric] transportBytes]);
+                          [[FPRGDTEvent gdtEventForPerfMetric:expectedMetric] transportBytes]);
   });
 }
 
@@ -121,7 +129,10 @@
   firebase_perf_v1_PerfMetric perfMetric = [FPRTestUtils createRandomGaugePerfMetric];
 
   // Act on event logging call.
-  [self.client processAndLogEvent:&perfMetric];
+  [self.client processAndLogEvent:perfMetric];
+
+  firebase_perf_v1_PerfMetric expectedMetric = perfMetric;
+  expectedMetric.application_info.app_instance_id = FPREncodeString(kFPRMockInstallationId);
 
   // Wait for async job to execute event logging.
   dispatch_group_wait(self.client.eventsQueueGroup, DISPATCH_TIME_FOREVER);
@@ -135,7 +146,7 @@
     XCTAssertNotNil(
         FPRDecodeString([(FPRGDTEvent *)event.dataObject metric].application_info.app_instance_id));
     XCTAssertEqualObjects([event.dataObject transportBytes],
-                          [[FPRGDTEvent gdtEventForPerfMetric:perfMetric] transportBytes]);
+                          [[FPRGDTEvent gdtEventForPerfMetric:expectedMetric] transportBytes]);
   });
 }
 
@@ -146,7 +157,7 @@
 
   // Act on event logging call when data collection is disabled.
   self.configurations.dataCollectionEnabled = NO;
-  [self.client processAndLogEvent:&perfMetric];
+  [self.client processAndLogEvent:perfMetric];
 
   // Wait for async job to execute event logging.
   dispatch_group_wait(self.client.eventsQueueGroup, DISPATCH_TIME_FOREVER);
@@ -167,7 +178,7 @@
 
   // Act on event logging call when data collection is disabled.
   self.configurations.dataCollectionEnabled = NO;
-  [self.client processAndLogEvent:&perfMetric];
+  [self.client processAndLogEvent:perfMetric];
 
   // Wait for async job to execute event logging.
   dispatch_group_wait(self.client.eventsQueueGroup, DISPATCH_TIME_FOREVER);
@@ -181,7 +192,7 @@
 
   // Act on event logging call after re-enable data collection.
   self.configurations.dataCollectionEnabled = YES;
-  [self.client processAndLogEvent:&perfMetric];
+  [self.client processAndLogEvent:perfMetric];
 
   // Wait for async job to execute event logging.
   dispatch_group_wait(self.client.eventsQueueGroup, DISPATCH_TIME_FOREVER);
