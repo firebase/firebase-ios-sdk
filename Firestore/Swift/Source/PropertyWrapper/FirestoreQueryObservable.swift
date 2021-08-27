@@ -79,13 +79,15 @@ internal class FirestoreQueryObservable<T: Decodable>: ObservableObject {
         self?.items = []
         return
       }
-      
+
       guard let documents = querySnapshot?.documents else {
-        print("No documents in collection at path \(self?.configuration.path ?? "(no path provided)")")
+        print(
+          "No documents in collection at path \(self?.configuration.path ?? "(no path provided)")"
+        )
         self?.items = []
         return
       }
-      
+
       self?.items = documents.compactMap { document in
         try? document.data(as: T.self)
       }

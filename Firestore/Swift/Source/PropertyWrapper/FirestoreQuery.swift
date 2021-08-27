@@ -59,13 +59,12 @@ import FirebaseFirestore
 @propertyWrapper
 public struct FirestoreQuery<T: Decodable>: DynamicProperty {
   @StateObject private var firestoreQueryObservable: FirestoreQueryObservable<T>
-  
+
   /// The query's configurable properties.
   public struct Configuration {
-    
     /// The query's collectin path.
     public var path: String
-    
+
     /// The query's predicates.
     public var predicates: [QueryPredicate]
   }
@@ -87,7 +86,7 @@ public struct FirestoreQuery<T: Decodable>: DynamicProperty {
       firestoreQueryObservable.configuration = newValue
     }
   }
-  
+
   /// Creates an instance by defining a query based on the parameters.
   /// - Parameters:
   ///   - collectionPath: The path to the Firestore collection to query.
