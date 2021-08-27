@@ -193,7 +193,7 @@
                                                                       bundleID:self.bundleID
                                                                      traceName:trace.name]);
       }
-      [self processAndLogEvent:metric];
+      [self processAndLogEvent:&metric];
     });
   } else {
     FPRLogWarning(kFPRClientInvalidTrace, @"Invalid trace, skipping send.");
@@ -225,7 +225,7 @@
       FPRSetApplicationProcessState(&metric,
                                     FPRApplicationProcessState(trace.backgroundTraceState));
 
-      [self processAndLogEvent:metric];
+      [self processAndLogEvent:&metric];
     }
   });
 }
@@ -242,14 +242,14 @@
       gaugeMetric = FPRGetGaugeMetric(gaugeData, sessionId);
     }
     FPRSetGaugeMetric(&metric, gaugeMetric);
-    [self processAndLogEvent:metric];
+    [self processAndLogEvent:&metric];
   });
 
   // Check and update the sessionID if the session is running for too long.
   [[FPRSessionManager sharedInstance] renewSessionIdIfRunningTooLong];
 }
 
-- (void)processAndLogEvent:(firebase_perf_v1_PerfMetric)event {
+- (void)processAndLogEvent:(firebase_perf_v1_PerfMetric *)event {
   BOOL tracingEnabled = self.configuration.isDataCollectionEnabled;
   if (!tracingEnabled) {
     FPRLogError(kFPRClientPerfNotConfigured, @"Dropping event since data collection is disabled.");
@@ -271,7 +271,6 @@
   });
 
   // Attempts to dispatch events if successfully retrieve installation ID.
-  __block firebase_perf_v1_PerfMetric curEvent = event;
   [self.installations
       installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
         if (error) {
@@ -279,8 +278,8 @@
                       error.description);
         } else {
           dispatch_group_async(self.eventsQueueGroup, self.eventsQueue, ^{
-            curEvent.application_info.app_instance_id = FPREncodeString(identifier);
-            [self.gdtLogger logEvent:curEvent];
+            event->application_info.app_instance_id = FPREncodeString(identifier);
+            [self.gdtLogger logEvent:*event];
           });
         }
       }];
