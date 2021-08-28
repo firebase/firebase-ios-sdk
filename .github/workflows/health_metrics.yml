@@ -47,7 +47,7 @@ jobs:
   binary_size_metrics:
     needs: check
     # Prevent the job from being triggered in fork.
-    if: always() && github.repository == 'Firebase/firebase-ios-sdk' && github.event.pull_request.merged
+    if: always() && github.repository == 'Firebase/firebase-ios-sdk'
     runs-on: macos-11
     strategy:
       matrix:
