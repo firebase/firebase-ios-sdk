@@ -113,6 +113,32 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   XCTAssertNotNil(configFlags.lastFetchedTime);
 }
 
+/** Validate the configuration update happens. */
+- (void)testConfigFetchAfterDelayDuringAppStart {
+  FPRFakeRemoteConfig *remoteConfig = [[FPRFakeRemoteConfig alloc] init];
+  remoteConfig.lastFetchStatus = FIRRemoteConfigFetchStatusNoFetchYet;
+  remoteConfig.lastFetchTime = nil;
+
+  NSTimeInterval appStartConfigFetchDdelay = 3.0;
+  FPRRemoteConfigFlags *configFlags =
+      [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
+  configFlags.appStartConfigFetchDelayInSeconds = appStartConfigFetchDdelay;
+  [configFlags update];
+  XCTAssertNil(configFlags.lastFetchedTime);
+
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"Dummy expectation to wait for the fetch delay."];
+  dispatch_after(
+      dispatch_time(DISPATCH_TIME_NOW, (int64_t)((appStartConfigFetchDdelay + 1) * NSEC_PER_SEC)),
+      dispatch_get_main_queue(), ^{
+        remoteConfig.fetchStatus = FIRRemoteConfigFetchStatusSuccess;
+        [configFlags update];
+        [expectation fulfill];
+        XCTAssertNotNil(configFlags.lastFetchedTime);
+      });
+  [self waitForExpectationsWithTimeout:(appStartConfigFetchDdelay + 3) handler:nil];
+}
+
 /** Validate the configuration update does not happen immediately after fetching. */
 - (void)testConfigUpdateDoesNotHappenImmediately {
   FPRFakeRemoteConfig *remoteConfig = [[FPRFakeRemoteConfig alloc] init];
@@ -183,14 +209,15 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   remoteConfig.fetchStatus = FIRRemoteConfigFetchStatusSuccess;
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Dummy expectation to wait for the fetch delay."];
-  dispatch_after(dispatch_time(DISPATCH_TIME_NOW,
-                               (int64_t)((kFPRConfigAppStartDelayInSeconds + 5) * NSEC_PER_SEC)),
-                 dispatch_get_main_queue(), ^{
-                   [expectation fulfill];
-                   XCTAssertNotNil(configFlags.lastFetchedTime);
-                   XCTAssertNotNil(remoteConfig.lastFetchTime);
-                 });
-  [self waitForExpectationsWithTimeout:(kFPRConfigAppStartDelayInSeconds + 6) handler:nil];
+  dispatch_after(
+      dispatch_time(DISPATCH_TIME_NOW,
+                    (int64_t)((kFPRMinAppStartConfigFetchDelayInSeconds + 5) * NSEC_PER_SEC)),
+      dispatch_get_main_queue(), ^{
+        [expectation fulfill];
+        XCTAssertNotNil(configFlags.lastFetchedTime);
+        XCTAssertNotNil(remoteConfig.lastFetchTime);
+      });
+  [self waitForExpectationsWithTimeout:(kFPRMinAppStartConfigFetchDelayInSeconds + 6) handler:nil];
 }
 
 #pragma mark - App config related tests
