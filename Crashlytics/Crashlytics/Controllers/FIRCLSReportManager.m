@@ -183,7 +183,7 @@ typedef NSNumber FIRCLSWrappedReportAction;
 
   _notificationManager = [[FIRCLSNotificationManager alloc] init];
 #if CLS_METRICKIT_SUPPORTED
-  if (@available(iOS 15, *)) {
+  if (@available(iOS 15, *) && _settings.metricKitCollectionEnabled) {
     _metricKitManager = [[FIRCLSMetricKitManager alloc] initWithManagerData:managerData
                                                       existingReportManager:existingReportManager
                                                                 fileManager:_fileManager];
@@ -226,7 +226,7 @@ typedef NSNumber FIRCLSWrappedReportAction;
   // If the platform is not iOS or the iOS version is less than 15, immediately resolve the promise
   // since no MetricKit diagnostics will be available.
 #if CLS_METRICKIT_SUPPORTED
-  if (@available(iOS 15, *)) {
+  if (@available(iOS 15, *) && _settings.metricKitCollectionEnabled) {
     return [self.metricKitManager waitForMetricKitDataAvailable];
   } else {
     return [FBLPromise resolvedWith:nil];
@@ -291,7 +291,7 @@ typedef NSNumber FIRCLSWrappedReportAction;
   }
 
 #if CLS_METRICKIT_SUPPORTED
-  if (@available(iOS 15, *)) {
+  if (@available(iOS 15, *) && _settings.metricKitCollectionEnabled) {
     [self.metricKitManager registerMetricKitManager];
   }
 #endif
