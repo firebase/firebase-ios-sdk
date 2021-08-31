@@ -48,7 +48,7 @@ static NSString *const kAccessTokenKey = @"accessToken";
 /** @var kRefreshTokenError
     @brief Missing refresh token error message.
  */
-static NSString *const kRefreshTokenError = @"Refresh token not present.";
+static NSString *const kRefreshTokenError = @"No refresh token is available.";
 
 /** @var kAccessTokenExpirationDateKey
     @brief The key used to encode the access token expiration date for NSSecureCoding.

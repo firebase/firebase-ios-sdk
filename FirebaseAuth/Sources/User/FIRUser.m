@@ -282,7 +282,11 @@ static void callInMainThreadWithAuthDataResultAndError(
   user.auth = auth;
   user.tenantID = auth.tenantID;
   user.requestConfiguration = auth.requestConfiguration;
-  if (refreshToken.length) {
+  if (!refreshToken.length) {
+    [user updateWithIDToken:accessToken];
+    callback(user, nil);
+    return;
+  }
     [user
         internalGetTokenWithCallback:^(NSString *_Nullable accessToken, NSError *_Nullable error) {
           if (error) {
@@ -306,10 +310,6 @@ static void callInMainThreadWithAuthDataResultAndError(
                                   callback(user, nil);
                                 }];
         }];
-  } else {
-    [user updateWithIDToken:accessToken];
-    callback(user, nil);
-  }
 }
 
 - (instancetype)initWithTokenService:(FIRSecureTokenService *)tokenService {
