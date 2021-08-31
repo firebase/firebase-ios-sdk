@@ -75,7 +75,7 @@ typedef NS_ENUM(NSInteger, FPRConfigValueType) {
     _fprRemoteConfig = config;
     _userDefaults = [FPRConfigurations sharedInstance].userDefaults;
     self.fetchInProgress = NO;
-    
+
     // Set the overall delay to 5+random(25) making the config fetch delay at a max of 30 seconds
     self.appStartConfigFetchDelayInSeconds =
         kFPRMinAppStartConfigFetchDelayInSeconds + arc4random_uniform(25);
