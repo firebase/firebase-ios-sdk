@@ -23,7 +23,7 @@
 
 #define ONE_DAY_SECONDS 24 * 60 * 60
 
-static NSDate *kFPRAppStartTime = nil;
+static NSDate *FPRAppStartTime = nil;
 
 typedef NS_ENUM(NSInteger, FPRConfigValueType) {
   // Config value type String.
@@ -55,7 +55,7 @@ typedef NS_ENUM(NSInteger, FPRConfigValueType) {
 @implementation FPRRemoteConfigFlags
 
 + (void)load {
-  kFPRAppStartTime = [NSDate date];
+  FPRAppStartTime = [NSDate date];
 }
 
 + (nullable instancetype)sharedInstance {
@@ -75,8 +75,10 @@ typedef NS_ENUM(NSInteger, FPRConfigValueType) {
     _fprRemoteConfig = config;
     _userDefaults = [FPRConfigurations sharedInstance].userDefaults;
     self.fetchInProgress = NO;
+    
+    // Set the overall delay to 5+random(25) making the config fetch delay at a max of 30 seconds
     self.appStartConfigFetchDelayInSeconds =
-        kFPRMinAppStartConfigFetchDelayInSeconds + arc4random_uniform(30);
+        kFPRMinAppStartConfigFetchDelayInSeconds + arc4random_uniform(25);
 
     NSMutableDictionary<NSString *, NSNumber *> *keysToCache =
         [[NSMutableDictionary<NSString *, NSNumber *> alloc] init];
@@ -118,7 +120,7 @@ typedef NS_ENUM(NSInteger, FPRConfigValueType) {
 
   NSTimeInterval timeIntervalSinceLastFetch =
       [self.fprRemoteConfig.lastFetchTime timeIntervalSinceNow];
-  NSTimeInterval timeSinceAppStart = [kFPRAppStartTime timeIntervalSinceNow];
+  NSTimeInterval timeSinceAppStart = [FPRAppStartTime timeIntervalSinceNow];
   if ((ABS(timeSinceAppStart) > self.appStartConfigFetchDelayInSeconds) &&
       (!self.fprRemoteConfig.lastFetchTime ||
        ABS(timeIntervalSinceLastFetch) > kFPRConfigFetchIntervalInSeconds)) {

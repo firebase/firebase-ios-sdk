@@ -24,7 +24,7 @@ static NSString *const kFPRConfigPrefix = @"com.fireperf";
 static NSInteger const kFPRConfigFetchIntervalInSeconds = 12 * 60 * 60;
 
 /** Interval after which the configurations can be fetched. Specified in seconds. */
-static NSInteger const kFPRMinAppStartConfigFetchDelayInSeconds = 1 * 30;
+static NSInteger const kFPRMinAppStartConfigFetchDelayInSeconds = 5;
 
 /** This extension should only be used for testing. */
 @interface FPRRemoteConfigFlags ()
