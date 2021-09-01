@@ -1371,10 +1371,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
                                            NSError *_Nullable error) {
                                 XCTAssertTrue([NSThread isMainThread]);
                                 XCTAssertNil(tokenResult);
-                                XCTAssertEqual(error.code, FIRAuthInternalErrorCodeInternalError);
-                                XCTAssertEqual(error.userInfo[NSLocalizedDescriptionKey],
-                                               @"No refresh token is available.");
-                                XCTAssertNil([FIRAuth auth].currentUser);
+                                XCTAssertEqual(error.code, FIRAuthErrorCodeInternalError);
+                                XCTAssertEqualObjects(error.userInfo[NSLocalizedDescriptionKey],
+                                                      @"No refresh token is available.");
                                 [expectation fulfill];
                               }];
   }];
@@ -3016,8 +3015,6 @@ static const NSTimeInterval kExpectationTimeout = 2;
           callback(mockVerifyCustomTokenResponse, nil);
         });
       });
-  // If refreshToken is not present, GetAccountInfo is not invoked.
-  OCMReject([_mockBackend getAccountInfo:[OCMArg any] callback:[OCMArg any]]);
   [[FIRAuth auth] signOut:NULL];
   [[FIRAuth auth]
       signInWithCustomToken:kCustomToken
