@@ -33,13 +33,19 @@ static NSInteger const kFPRMinAppStartConfigFetchDelayInSeconds = 5;
 @property(nonatomic) FIRRemoteConfig *fprRemoteConfig;
 
 /** @brief Last activated time of the configurations. */
-@property(atomic) NSDate *lastFetchedTime;
+@property(atomic, nullable) NSDate *lastFetchedTime;
 
 /** @brief User defaults used for caching. */
 @property(nonatomic) NSUserDefaults *userDefaults;
 
+/** @brief Last activated time of the configurations. */
+@property(nonatomic) NSDate *applicationStartTime;
+
 /** @brief Number of seconds delayed until the first config is made during app start. */
 @property(nonatomic) NSTimeInterval appStartConfigFetchDelayInSeconds;
+
+/** @brief Status of the last remote config fetch. */
+@property(nonatomic) FIRRemoteConfigFetchStatus lastFetchStatus;
 
 /**
  * Creates an instance of FPRRemoteConfigFlags.
