@@ -1509,19 +1509,19 @@ static const NSTimeInterval kExpectationTimeout = 2;
  The failure reason is no refresh token is available.
  */
 - (void)testGetIDTokenResultForcingRefreshFailureNoRefreshToken {
-    XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
-    [self signInWithMockVerifyCustomTokenNoRefreshTokenResponse:^(FIRUser *user) {
-        [user getIDTokenResultForcingRefresh:YES
-                                    completion:^(FIRAuthTokenResult *_Nullable tokenResult,
-                                                 NSError *_Nullable error) {
-            XCTAssertTrue([NSThread isMainThread]);
-            XCTAssertNil(tokenResult);
-            XCTAssertNil([FIRAuth auth].currentUser);
-          }];
-        [expectation fulfill];
-    }];
-    [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
-    OCMVerifyAll(_mockBackend);
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [self signInWithMockVerifyCustomTokenNoRefreshTokenResponse:^(FIRUser *user) {
+    [user getIDTokenResultForcingRefresh:YES
+                              completion:^(FIRAuthTokenResult *_Nullable tokenResult,
+                                           NSError *_Nullable error) {
+                                XCTAssertTrue([NSThread isMainThread]);
+                                XCTAssertNil(tokenResult);
+                                XCTAssertNil([FIRAuth auth].currentUser);
+                              }];
+    [expectation fulfill];
+  }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  OCMVerifyAll(_mockBackend);
 }
 
 /** @fn testReloadFailure
@@ -3002,31 +3002,30 @@ static const NSTimeInterval kExpectationTimeout = 2;
         parameter.
  */
 - (void)signInWithMockVerifyCustomTokenNoRefreshTokenResponse:(void (^)(FIRUser *user))completion {
-    OCMExpect([_mockBackend verifyCustomToken:[OCMArg any] callback:[OCMArg any]])
-        .andCallBlock2(^(FIRVerifyCustomTokenRequest *_Nullable request,
-                         FIRVerifyCustomTokenResponseCallback callback) {
-          XCTAssertEqualObjects(request.APIKey, kAPIKey);
-          XCTAssertEqualObjects(request.token, kCustomToken);
-          XCTAssertTrue(request.returnSecureToken);
-          dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
-            id mockVerifyCustomTokenResponse = OCMClassMock([FIRVerifyCustomTokenResponse class]);
-            [self stubTokensWithMockResponseNoRefreshToken:mockVerifyCustomTokenResponse];
-            callback(mockVerifyCustomTokenResponse, nil);
-          });
+  OCMExpect([_mockBackend verifyCustomToken:[OCMArg any] callback:[OCMArg any]])
+      .andCallBlock2(^(FIRVerifyCustomTokenRequest *_Nullable request,
+                       FIRVerifyCustomTokenResponseCallback callback) {
+        XCTAssertEqualObjects(request.APIKey, kAPIKey);
+        XCTAssertEqualObjects(request.token, kCustomToken);
+        XCTAssertTrue(request.returnSecureToken);
+        dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+          id mockVerifyCustomTokenResponse = OCMClassMock([FIRVerifyCustomTokenResponse class]);
+          [self stubTokensWithMockResponseNoRefreshToken:mockVerifyCustomTokenResponse];
+          callback(mockVerifyCustomTokenResponse, nil);
         });
-    // If refreshToken is not present, GetAccountInfo is not invoked.
-    OCMReject([_mockBackend getAccountInfo:[OCMArg any] callback:[OCMArg any]]);
-    [[FIRAuth auth] signOut:NULL];
-    [[FIRAuth auth]
-        signInWithCustomToken:kCustomToken
-                   completion:^(FIRAuthDataResult *_Nullable result, NSError *_Nullable error) {
-                     XCTAssertTrue([NSThread isMainThread]);
-                     [self assertUserFromIDToken:result.user];
-                     XCTAssertNil(error);
-                     completion(result.user);
-                   }];
+      });
+  // If refreshToken is not present, GetAccountInfo is not invoked.
+  OCMReject([_mockBackend getAccountInfo:[OCMArg any] callback:[OCMArg any]]);
+  [[FIRAuth auth] signOut:NULL];
+  [[FIRAuth auth]
+      signInWithCustomToken:kCustomToken
+                 completion:^(FIRAuthDataResult *_Nullable result, NSError *_Nullable error) {
+                   XCTAssertTrue([NSThread isMainThread]);
+                   [self assertUserFromIDToken:result.user];
+                   XCTAssertNil(error);
+                   completion(result.user);
+                 }];
 }
-
 
 /** @fn dictionaryWithUserInfoArray:
     @brief Converts an array of @c FIRUserInfo into a dictionary that indexed by provider IDs.
@@ -3066,7 +3065,6 @@ static const NSTimeInterval kExpectationTimeout = 2;
       .andReturn([NSDate dateWithTimeIntervalSinceNow:kAccessTokenTimeToLive]);
   OCMStub([mockResponse refreshToken]).andReturn(nil);
 }
-
 
 /** @fn assertUserGoogle
     @brief Asserts the given FIRUser matching the fake data returned by

@@ -287,29 +287,28 @@ static void callInMainThreadWithAuthDataResultAndError(
     callback(user, nil);
     return;
   }
-    [user
-        internalGetTokenWithCallback:^(NSString *_Nullable accessToken, NSError *_Nullable error) {
-          if (error) {
-            callback(nil, error);
-            return;
-          }
-          FIRGetAccountInfoRequest *getAccountInfoRequest =
-              [[FIRGetAccountInfoRequest alloc] initWithAccessToken:accessToken
-                                               requestConfiguration:auth.requestConfiguration];
-          [FIRAuthBackend getAccountInfo:getAccountInfoRequest
-                                callback:^(FIRGetAccountInfoResponse *_Nullable response,
-                                           NSError *_Nullable error) {
-                                  if (error) {
-                                    // No need to sign out user here for errors because the user
-                                    // hasn't been signed in yet.
-                                    callback(nil, error);
-                                    return;
-                                  }
-                                  user.anonymous = anonymous;
-                                  [user updateWithGetAccountInfoResponse:response];
-                                  callback(user, nil);
-                                }];
-        }];
+  [user internalGetTokenWithCallback:^(NSString *_Nullable accessToken, NSError *_Nullable error) {
+    if (error) {
+      callback(nil, error);
+      return;
+    }
+    FIRGetAccountInfoRequest *getAccountInfoRequest =
+        [[FIRGetAccountInfoRequest alloc] initWithAccessToken:accessToken
+                                         requestConfiguration:auth.requestConfiguration];
+    [FIRAuthBackend
+        getAccountInfo:getAccountInfoRequest
+              callback:^(FIRGetAccountInfoResponse *_Nullable response, NSError *_Nullable error) {
+                if (error) {
+                  // No need to sign out user here for errors because the user
+                  // hasn't been signed in yet.
+                  callback(nil, error);
+                  return;
+                }
+                user.anonymous = anonymous;
+                [user updateWithGetAccountInfoResponse:response];
+                callback(user, nil);
+              }];
+  }];
 }
 
 - (instancetype)initWithTokenService:(FIRSecureTokenService *)tokenService {
