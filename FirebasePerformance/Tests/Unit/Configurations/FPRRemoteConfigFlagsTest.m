@@ -136,7 +136,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
       dispatch_get_main_queue(), ^{
         [configFlags update];
         [expectation fulfill];
-        XCTAssertFalse(configFlags.lastFetchStatus == FIRRemoteConfigFetchStatusSuccess);
+        XCTAssertTrue(configFlags.lastFetchStatus == FIRRemoteConfigFetchStatusNoFetchYet);
       });
   [self waitForExpectationsWithTimeout:(appStartConfigFetchDelay) handler:nil];
 }
