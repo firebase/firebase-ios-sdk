@@ -1506,7 +1506,6 @@ static const NSTimeInterval kExpectationTimeout = 2;
 
 /** @fn testGetIDTokenResultForcingRefreshNoRefreshTokenFailure
     @brief Tests the flow of a failed @c getIDTokenResultForcingRefresh:completion: call.
- The failure reason is no refresh token is available.
  */
 - (void)testGetIDTokenResultForcingRefreshFailureNoRefreshToken {
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
@@ -1516,6 +1515,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
                                            NSError *_Nullable error) {
                                 XCTAssertTrue([NSThread isMainThread]);
                                 XCTAssertNil(tokenResult);
+                                XCTAssertEqual(error.code, FIRAuthInternalErrorCodeInternalError);
+                                XCTAssertEqual(error.userInfo[NSLocalizedDescriptionKey],
+                                               @"No refresh token is available.");
                                 XCTAssertNil([FIRAuth auth].currentUser);
                               }];
     [expectation fulfill];
