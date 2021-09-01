@@ -1533,12 +1533,13 @@ static const NSTimeInterval kWaitInterval = .5;
         XCTAssertEqualObjects(request.token, kCustomToken);
         XCTAssertTrue(request.returnSecureToken);
         dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
-          id mockVeriyCustomTokenResponse = OCMClassMock([FIRVerifyCustomTokenResponse class]);
-          [self stubTokensWithMockResponseNoRefreshToken:mockVeriyCustomTokenResponse];
-          callback(mockVeriyCustomTokenResponse, nil);
+          id mockVerifyCustomTokenResponse = OCMClassMock([FIRVerifyCustomTokenResponse class]);
+          [self stubTokensWithMockResponseNoRefreshToken:mockVerifyCustomTokenResponse];
+          callback(mockVerifyCustomTokenResponse, nil);
         });
       });
   // If refreshToken is not present, GetAccountInfo is not invoked.
+  OCMReject([_mockBackend getAccountInfo:[OCMArg any] callback:[OCMArg any]]);
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
   [[FIRAuth auth] signOut:NULL];
   [[FIRAuth auth]

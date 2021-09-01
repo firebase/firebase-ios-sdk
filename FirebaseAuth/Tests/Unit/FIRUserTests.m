@@ -39,6 +39,8 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSignUpNewUserResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyCustomTokenRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyCustomTokenResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPasswordRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPasswordResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberRequest.h"
@@ -347,6 +349,11 @@ static NSString *const kVerificationID = @"55432";
     @brief The key used to archive and unarchive the user object for test NSSecureCoding.
  */
 static NSString *const kUserArchiverKey = @"userArchiverKey";
+
+/** @var kCustomToken
+    @brief The fake custom token to sign in.
+ */
+static NSString *const kCustomToken = @"CUSTOM_TOKEN";
 
 /** @var kCreationDateInSeconds
     @brief The fake creation date.
@@ -1495,6 +1502,26 @@ static const NSTimeInterval kExpectationTimeout = 2;
                                            }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(_mockBackend);
+}
+
+/** @fn testGetIDTokenResultForcingRefreshNoRefreshTokenFailure
+    @brief Tests the flow of a failed @c getIDTokenResultForcingRefresh:completion: call.
+ The failure reason is no refresh token is available.
+ */
+- (void)testGetIDTokenResultForcingRefreshFailureNoRefreshToken {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+    [self signInWithMockVerifyCustomTokenNoRefreshTokenResponse:^(FIRUser *user) {
+        [user getIDTokenResultForcingRefresh:YES
+                                    completion:^(FIRAuthTokenResult *_Nullable tokenResult,
+                                                 NSError *_Nullable error) {
+            XCTAssertTrue([NSThread isMainThread]);
+            XCTAssertNil(tokenResult);
+            XCTAssertNil([FIRAuth auth].currentUser);
+          }];
+        [expectation fulfill];
+    }];
+    [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+    OCMVerifyAll(_mockBackend);
 }
 
 /** @fn testReloadFailure
@@ -2969,6 +2996,38 @@ static const NSTimeInterval kExpectationTimeout = 2;
       });
 }
 
+/** @fn signInWithMockVerifyCustomTokenResponse
+    @brief Signs in with a custom token with mocked backend end calls.
+    @param completion The completion block that takes the newly signed-in user as the only
+        parameter.
+ */
+- (void)signInWithMockVerifyCustomTokenNoRefreshTokenResponse:(void (^)(FIRUser *user))completion {
+    OCMExpect([_mockBackend verifyCustomToken:[OCMArg any] callback:[OCMArg any]])
+        .andCallBlock2(^(FIRVerifyCustomTokenRequest *_Nullable request,
+                         FIRVerifyCustomTokenResponseCallback callback) {
+          XCTAssertEqualObjects(request.APIKey, kAPIKey);
+          XCTAssertEqualObjects(request.token, kCustomToken);
+          XCTAssertTrue(request.returnSecureToken);
+          dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+            id mockVerifyCustomTokenResponse = OCMClassMock([FIRVerifyCustomTokenResponse class]);
+            [self stubTokensWithMockResponseNoRefreshToken:mockVerifyCustomTokenResponse];
+            callback(mockVerifyCustomTokenResponse, nil);
+          });
+        });
+    // If refreshToken is not present, GetAccountInfo is not invoked.
+    OCMReject([_mockBackend getAccountInfo:[OCMArg any] callback:[OCMArg any]]);
+    [[FIRAuth auth] signOut:NULL];
+    [[FIRAuth auth]
+        signInWithCustomToken:kCustomToken
+                   completion:^(FIRAuthDataResult *_Nullable result, NSError *_Nullable error) {
+                     XCTAssertTrue([NSThread isMainThread]);
+                     [self assertUserFromIDToken:result.user];
+                     XCTAssertNil(error);
+                     completion(result.user);
+                   }];
+}
+
+
 /** @fn dictionaryWithUserInfoArray:
     @brief Converts an array of @c FIRUserInfo into a dictionary that indexed by provider IDs.
     @param userInfoArray An array of @c FIRUserInfo objects.
@@ -2996,6 +3055,18 @@ static const NSTimeInterval kExpectationTimeout = 2;
       .andReturn([NSDate dateWithTimeIntervalSinceNow:kAccessTokenTimeToLive]);
   OCMStub([mockResponse refreshToken]).andReturn(kRefreshToken);
 }
+
+/** @fn stubTokensWithMockResponseNoRefreshToken
+    @brief Creates stubs on the mock response object with only access token, no refresh token.
+    @param mockResponse The mock response object.
+ */
+- (void)stubTokensWithMockResponseNoRefreshToken:(id)mockResponse {
+  OCMStub([mockResponse IDToken]).andReturn(kAccessToken);
+  OCMStub([mockResponse approximateExpirationDate])
+      .andReturn([NSDate dateWithTimeIntervalSinceNow:kAccessTokenTimeToLive]);
+  OCMStub([mockResponse refreshToken]).andReturn(nil);
+}
+
 
 /** @fn assertUserGoogle
     @brief Asserts the given FIRUser matching the fake data returned by
@@ -3029,6 +3100,17 @@ static const NSTimeInterval kExpectationTimeout = 2;
   XCTAssertEqualObjects(googleUserInfo.uid, kFacebookID);
   XCTAssertEqualObjects(googleUserInfo.displayName, kFacebookDisplayName);
   XCTAssertEqualObjects(googleUserInfo.email, kGoogleEmail);
+}
+
+/** @fn assertUserFromIDToken
+    @brief Asserts the given FIRUser matching the fake data returned by a IDToken.
+    @param user The user object to be verified.
+ */
+- (void)assertUserFromIDToken:(FIRUser *)user {
+  XCTAssertNotNil(user);
+  XCTAssertEqualObjects(user.uid, @"test_user_id");
+  XCTAssertFalse(user.anonymous);
+  XCTAssertEqual(user.providerData.count, 0u);
 }
 
 /** @fn expectGetAccountInfo:federatedID:displayName:
