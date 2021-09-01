@@ -172,15 +172,16 @@ MutableDocumentMap LevelDbRemoteDocumentCache::GetAll(
 MutableDocumentMap LevelDbRemoteDocumentCache::GetAllExisting(
     const DocumentKeySet& keys) {
   MutableDocumentMap docs = LevelDbRemoteDocumentCache::GetAll(keys);
+  MutableDocumentMap result;
   for (const auto& kv : docs) {
     const DocumentKey& key = kv.first;
     auto& document = kv.second;
-    if (!document.is_found_document()) {
-      docs = docs.erase(key);
+    if (document.is_found_document()) {
+      result = result.insert(key, document);
     }
   }
 
-  return docs;
+  return result;
 }
 
 MutableDocumentMap LevelDbRemoteDocumentCache::GetMatching(
