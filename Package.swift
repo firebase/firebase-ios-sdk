@@ -147,8 +147,8 @@ let package = Package(
     .package(
       name: "GoogleAppMeasurement",
       url: "https://github.com/google/GoogleAppMeasurement.git",
-      // Please keep the version specification aligned with
-      // scripts/setup_spm_test_app_measurement.sh.
+      // Note that CI changes the version to the head of main for CI.
+      // See scripts/setup_spm_tests.sh.
       .exact("8.7.0")
     ),
     .package(
