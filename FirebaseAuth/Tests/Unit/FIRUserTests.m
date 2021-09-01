@@ -1387,10 +1387,10 @@ static const NSTimeInterval kExpectationTimeout = 2;
  */
 - (void)testGetIDTokenResultForcingRefreshSuccess {
   [self getIDTokenResultForcingRefreshSuccessWithIDToken:kAccessToken];
-  //[self getIDTokenResultForcingRefreshSuccessWithIDToken:kAccessTokenLength415];
-  //[self getIDTokenResultForcingRefreshSuccessWithIDToken:kAccessTokenLength416];
-  //[self getIDTokenResultForcingRefreshSuccessWithIDToken:kAccessTokenLength523];
-  //[self getIDTokenResultForcingRefreshSuccessWithIDToken:kAccessTokenWithBase64URLCharacter];
+  [self getIDTokenResultForcingRefreshSuccessWithIDToken:kAccessTokenLength415];
+  [self getIDTokenResultForcingRefreshSuccessWithIDToken:kAccessTokenLength416];
+  [self getIDTokenResultForcingRefreshSuccessWithIDToken:kAccessTokenLength523];
+  [self getIDTokenResultForcingRefreshSuccessWithIDToken:kAccessTokenWithBase64URLCharacter];
 }
 
 /** @fn testGetIDTokenResultSuccessWithBase64EncodedURL
