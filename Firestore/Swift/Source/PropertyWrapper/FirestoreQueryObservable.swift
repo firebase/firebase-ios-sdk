@@ -49,8 +49,13 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
         return
       }
 
-      self?.items = documents.compactMap { document in
-        try? document.data(as: U.self)
+      do {
+        self?.items = try documents.compactMap { queryDocumentSnapshot in
+          try queryDocumentSnapshot.data(as: U.self)
+        }
+      } catch {
+        // in this scenario, we actively ignore the error
+        self?.items = []
       }
     }
 
