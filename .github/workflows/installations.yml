@@ -53,8 +53,8 @@ jobs:
 
   spm-cron:
     # Don't run on private repo.
-    # if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macOS-latest
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+    runs-on: macos-11
     strategy:
       matrix:
         target: [tvOS, macOS, catalyst]
@@ -92,7 +92,7 @@ jobs:
       run: scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Installations true swift
 
   installations-cron-only:
-    # if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
 
     runs-on: macos-11
     env:
