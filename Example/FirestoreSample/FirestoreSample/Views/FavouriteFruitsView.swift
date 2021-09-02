@@ -15,7 +15,7 @@
 import SwiftUI
 import FirebaseFirestoreSwift
 
-struct Fruit: Codable, Identifiable, Equatable {
+private struct Fruit: Codable, Identifiable, Equatable {
   @DocumentID var id: String?
   var name: String
   var isFavourite: Bool
@@ -24,36 +24,49 @@ struct Fruit: Codable, Identifiable, Equatable {
 struct FavouriteFruitsView: View {
   @FirestoreQuery(
     collectionPath: "fruits",
-    predicates: [.whereField("isFavourite", isEqualTo: true)]
-  ) var fruits: [Fruit]
+    predicates: [
+      .whereField("isFavourite", isEqualTo: true),
+    ]
+  ) fileprivate var fruitResults: Result<[Fruit], Error>
+  
+//  @FirestoreQuery(
+//    collectionPath: "fruits",
+//    predicates: [.whereField("isFavourite", isEqualTo: true)]
+//  ) var fruits: [Fruit]
 
   @State var showOnlyFavourites = true
 
   var body: some View {
-    List(fruits) { fruit in
-      Text(fruit.name)
-    }
-    .animation(.default, value: fruits)
-    .navigationTitle("Fruits")
-    .toolbar {
-      ToolbarItem(placement: .navigationBarTrailing) {
-        Button(action: toggleFilter) {
-          Image(systemName: showOnlyFavourites
-            ? "line.3.horizontal.decrease.circle.fill"
-            : "line.3.horizontal.decrease.circle")
+    if case let .success(fruits) = fruitResults {
+      List(fruits) { fruit in
+        Text(fruit.name)
+      }
+      .animation(.default, value: fruits)
+      .navigationTitle("Fruits")
+      .toolbar {
+        ToolbarItem(placement: .navigationBarTrailing) {
+          Button(action: toggleFilter) {
+            Image(systemName: showOnlyFavourites
+                  ? "line.3.horizontal.decrease.circle.fill"
+                  : "line.3.horizontal.decrease.circle")
+          }
         }
       }
+    }
+    else if case let .failure(error as NSError) = fruitResults {
+      // Handle error
+      Text("Couldn't map data: \(error)")
     }
   }
 
   func toggleFilter() {
     showOnlyFavourites.toggle()
     if showOnlyFavourites {
-      $fruits.predicates = [
+      $fruitResults.predicates = [
         .where(field: "isFavourite", isEqualTo: true),
       ]
     } else {
-      $fruits.predicates = []
+      $fruitResults.predicates = []
     }
   }
 }
