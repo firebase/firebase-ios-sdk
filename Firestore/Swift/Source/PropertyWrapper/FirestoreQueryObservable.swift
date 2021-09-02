@@ -19,11 +19,13 @@ import FirebaseFirestore
 
 @available(iOS 14.0, *)
 @available(tvOS, unavailable)
-internal class FirestoreQueryObservable<T: Decodable>: ObservableObject {
-  @Published var items: [T] = []
+internal class FirestoreQueryObservable<T>: ObservableObject {
+  @Published var items: T
 
   private let firestore = Firestore.firestore()
   private var listener: ListenerRegistration? = nil
+
+  private var setupListener: (() -> Void)!
 
   internal var configuration: FirestoreQuery<T>.Configuration {
     didSet {
@@ -32,8 +34,82 @@ internal class FirestoreQueryObservable<T: Decodable>: ObservableObject {
     }
   }
 
-  init(configuration: FirestoreQuery<T>.Configuration) {
+  init<U: Decodable>(configuration: FirestoreQuery<T>.Configuration) where T == [U] {
+    self.items = []
     self.configuration = configuration
+    self.setupListener = createListener { [weak self] querySnapshot, error in
+      if let _ = error {
+        // in this scenario, we actively ignore the error
+        self?.items = []
+        return
+      }
+
+      guard let documents = querySnapshot?.documents else {
+        self?.items = []
+        return
+      }
+
+      self?.items = documents.compactMap { document in
+        try? document.data(as: U.self)
+      }
+    }
+
+    setupListener()
+  }
+
+  init<U: Decodable>(configuration: FirestoreQuery<T>.Configuration) where T == [Result<U, Error>] {
+    self.items = []
+    self.configuration = configuration
+    self.setupListener = createListener { [weak self] querySnapshot, error in
+      if let error = error {
+        self?.items = [.failure(error)]
+        return
+      }
+
+      guard let documents = querySnapshot?.documents else {
+        self?.items = []
+        return
+      }
+      
+      self?.items = documents.compactMap { queryDocumentSnapshot in
+        Result {
+          // NOTE: The `try` handles the parse failure
+          // The `Optional` signature for the result is a
+          // workaround for when a document may not exist.
+          // - which they always do when looping over
+          // them in the `documents` property of a snapshot
+          try queryDocumentSnapshot.data(as: U.self)!
+        }
+      }
+    }
+
+    setupListener()
+  }
+
+  init<U: Decodable>(configuration: FirestoreQuery<T>.Configuration) where T == Result<[U], Error> {
+    self.items = .success([])
+    self.configuration = configuration
+    self.setupListener = createListener { [weak self] querySnapshot, error in
+      if let error = error {
+        self?.items = .failure(error)
+        return
+      }
+      
+      guard let documents = querySnapshot?.documents else {
+        self?.items = .success([])
+        return
+      }
+      
+      do {
+        let items = try documents.compactMap { queryDocumentSnapshot in
+          try queryDocumentSnapshot.data(as: U.self)
+        }
+        self?.items = .success(items)
+      } catch {
+        self?.items = .failure(error)
+      }
+    }
+    
     setupListener()
   }
 
@@ -41,54 +117,40 @@ internal class FirestoreQueryObservable<T: Decodable>: ObservableObject {
     removeListener()
   }
 
-  private func setupListener() {
-    var query: Query = firestore.collection(configuration.path)
+private func createListener(with handler: @escaping (QuerySnapshot?, Error?) -> Void) -> () -> Void {
+    return {
+      var query: Query = self.firestore.collection(self.configuration.path)
 
-    for predicate in configuration.predicates {
-      switch predicate {
-      case let .isEqualTo(field, value):
-        query = query.whereField(field, isEqualTo: value)
-      case let .isIn(field, values):
-        query = query.whereField(field, in: values)
-      case let .isNotIn(field, values):
-        query = query.whereField(field, notIn: values)
-      case let .arrayContains(field, value):
-        query = query.whereField(field, arrayContains: value)
-      case let .arrayContainsAny(field, values):
-        query = query.whereField(field, arrayContainsAny: values)
-      case let .isLessThan(field, value):
-        query = query.whereField(field, isLessThan: value)
-      case let .isGreaterThan(field, value):
-        query = query.whereField(field, isGreaterThan: value)
-      case let .isLessThanOrEqualTo(field, value):
-        query = query.whereField(field, isLessThanOrEqualTo: value)
-      case let .isGreaterThanOrEqualTo(field, value):
-        query = query.whereField(field, isGreaterThanOrEqualTo: value)
-      case let .orderBy(field, value):
-        query = query.order(by: field, descending: value)
-      case let .limitTo(field):
-        query = query.limit(to: field)
-      case let .limitToLast(field):
-        query = query.limit(toLast: field)
+      for predicate in self.configuration.predicates {
+        switch predicate {
+        case let .isEqualTo(field, value):
+          query = query.whereField(field, isEqualTo: value)
+        case let .isIn(field, values):
+          query = query.whereField(field, in: values)
+        case let .isNotIn(field, values):
+          query = query.whereField(field, notIn: values)
+        case let .arrayContains(field, value):
+          query = query.whereField(field, arrayContains: value)
+        case let .arrayContainsAny(field, values):
+          query = query.whereField(field, arrayContainsAny: values)
+        case let .isLessThan(field, value):
+          query = query.whereField(field, isLessThan: value)
+        case let .isGreaterThan(field, value):
+          query = query.whereField(field, isGreaterThan: value)
+        case let .isLessThanOrEqualTo(field, value):
+          query = query.whereField(field, isLessThanOrEqualTo: value)
+        case let .isGreaterThanOrEqualTo(field, value):
+          query = query.whereField(field, isGreaterThanOrEqualTo: value)
+        case let .orderBy(field, value):
+          query = query.order(by: field, descending: value)
+        case let .limitTo(field):
+          query = query.limit(to: field)
+        case let .limitToLast(field):
+          query = query.limit(toLast: field)
+        }
       }
-    }
 
-    listener = query.addSnapshotListener { [weak self] querySnapshot, error in
-      if let error = error as NSError? {
-        print("Error fetching documents: \(error.localizedDescription)")
-        self?.items = []
-        return
-      }
-      
-      guard let documents = querySnapshot?.documents else {
-        print("No documents in collection at path \(self?.configuration.path ?? "(no path provided)")")
-        self?.items = []
-        return
-      }
-      
-      self?.items = documents.compactMap { document in
-        try? document.data(as: T.self)
-      }
+      self.listener = query.addSnapshotListener(handler)
     }
   }
 
