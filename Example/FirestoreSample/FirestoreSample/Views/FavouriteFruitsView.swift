@@ -28,7 +28,7 @@ struct FavouriteFruitsView: View {
       .whereField("isFavourite", isEqualTo: true),
     ]
   ) fileprivate var fruitResults: Result<[Fruit], Error>
-  
+
 //  @FirestoreQuery(
 //    collectionPath: "fruits",
 //    predicates: [.whereField("isFavourite", isEqualTo: true)]
@@ -47,13 +47,12 @@ struct FavouriteFruitsView: View {
         ToolbarItem(placement: .navigationBarTrailing) {
           Button(action: toggleFilter) {
             Image(systemName: showOnlyFavourites
-                  ? "line.3.horizontal.decrease.circle.fill"
-                  : "line.3.horizontal.decrease.circle")
+              ? "line.3.horizontal.decrease.circle.fill"
+              : "line.3.horizontal.decrease.circle")
           }
         }
       }
-    }
-    else if case let .failure(error as NSError) = fruitResults {
+    } else if case let .failure(error as NSError) = fruitResults {
       // Handle error
       Text("Couldn't map data: \(error)")
     }

@@ -58,13 +58,12 @@ import FirebaseFirestore
 @propertyWrapper
 public struct FirestoreQuery<T>: DynamicProperty {
   @StateObject private var firestoreQueryObservable: FirestoreQueryObservable<T>
-  
+
   /// The query's configurable properties.
   public struct Configuration {
-    
     /// The query's collectin path.
     public var path: String
-    
+
     /// The query's predicates.
     public var predicates: [QueryPredicate]
   }
@@ -86,13 +85,14 @@ public struct FirestoreQuery<T>: DynamicProperty {
       firestoreQueryObservable.configuration = newValue
     }
   }
-  
+
   /// Creates an instance by defining a query based on the parameters.
   /// - Parameters:
   ///   - collectionPath: The path to the Firestore collection to query.
   ///   - predicates: An optionsl array of `QueryPredicate`s that defines a
   ///     filter for the fetched results.
-  public init<U: Decodable>(collectionPath: String, predicates: [QueryPredicate] = []) where T == [U] {
+  public init<U: Decodable>(collectionPath: String, predicates: [QueryPredicate] = [])
+    where T == [U] {
     let configuration = Configuration(path: collectionPath, predicates: predicates)
 
     _firestoreQueryObservable =
@@ -104,7 +104,8 @@ public struct FirestoreQuery<T>: DynamicProperty {
   ///   - collectionPath: The path to the Firestore collection to query.
   ///   - predicates: An optionsl array of `QueryPredicate`s that defines a
   ///     filter for the fetched results.
-  public init<U: Decodable>(collectionPath: String, predicates: [QueryPredicate] = []) where T == [Result<U, Error>] {
+  public init<U: Decodable>(collectionPath: String, predicates: [QueryPredicate] = [])
+    where T == [Result<U, Error>] {
     let configuration = Configuration(path: collectionPath, predicates: predicates)
 
     _firestoreQueryObservable =
@@ -116,10 +117,11 @@ public struct FirestoreQuery<T>: DynamicProperty {
   ///   - collectionPath: The path to the Firestore collection to query.
   ///   - predicates: An optionsl array of `QueryPredicate`s that defines a
   ///     filter for the fetched results.
-  public init<U: Decodable>(collectionPath: String, predicates: [QueryPredicate] = []) where T == Result<[U], Error> {
+  public init<U: Decodable>(collectionPath: String, predicates: [QueryPredicate] = [])
+    where T == Result<[U], Error> {
     let configuration = Configuration(path: collectionPath, predicates: predicates)
 
     _firestoreQueryObservable =
       StateObject(wrappedValue: FirestoreQueryObservable<T>(configuration: configuration))
-  }  
+  }
 }

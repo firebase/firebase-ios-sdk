@@ -24,7 +24,6 @@ struct MenuView: View {
         NavigationLink(destination: FavouriteFruitsMappingErrorView()) {
           Label("Mapping failure", systemImage: "shippingbox")
         }
-
       }
     }
     .listStyle(InsetGroupedListStyle())
