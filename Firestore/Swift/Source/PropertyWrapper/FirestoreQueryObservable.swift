@@ -17,8 +17,7 @@
 import SwiftUI
 import FirebaseFirestore
 
-@available(iOS 14.0, *)
-@available(tvOS, unavailable)
+@available(iOS 14.0, tvOS 14.0, *)
 internal class FirestoreQueryObservable<T>: ObservableObject {
   @Published var items: T
 
