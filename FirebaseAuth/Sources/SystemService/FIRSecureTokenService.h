@@ -82,7 +82,7 @@ typedef void (^FIRFetchAccessTokenCallback)(NSString *_Nullable token,
 - (instancetype)initWithRequestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
                                  accessToken:(nullable NSString *)accessToken
                    accessTokenExpirationDate:(nullable NSDate *)accessTokenExpirationDate
-                                refreshToken:(NSString *)refreshToken;
+                                refreshToken:(nullable NSString *)refreshToken;
 
 /** @fn fetchAccessTokenForcingRefresh:callback:
     @brief Fetch a fresh ephemeral access token for the ID associated with this instance. The token

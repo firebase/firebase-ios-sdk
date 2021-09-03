@@ -282,6 +282,11 @@ static void callInMainThreadWithAuthDataResultAndError(
   user.auth = auth;
   user.tenantID = auth.tenantID;
   user.requestConfiguration = auth.requestConfiguration;
+  if (!refreshToken.length) {
+    [user updateWithIDToken:accessToken];
+    callback(user, nil);
+    return;
+  }
   [user internalGetTokenWithCallback:^(NSString *_Nullable accessToken, NSError *_Nullable error) {
     if (error) {
       callback(nil, error);
@@ -294,8 +299,8 @@ static void callInMainThreadWithAuthDataResultAndError(
         getAccountInfo:getAccountInfoRequest
               callback:^(FIRGetAccountInfoResponse *_Nullable response, NSError *_Nullable error) {
                 if (error) {
-                  // No need to sign out user here for errors because the user hasn't been signed in
-                  // yet.
+                  // No need to sign out user here for errors because the user
+                  // hasn't been signed in yet.
                   callback(nil, error);
                   return;
                 }
@@ -468,6 +473,12 @@ static void callInMainThreadWithAuthDataResultAndError(
   _multiFactor = [[FIRMultiFactor alloc] initWithMFAEnrollments:user.MFAEnrollments];
   _multiFactor.user = self;
 #endif
+}
+
+- (void)updateWithIDToken:(NSString *)token {
+  FIRAuthTokenResult *tokenResult = [FIRAuthTokenResult tokenResultWithToken:token];
+  NSDictionary *tokenClaims = tokenResult.claims;
+  _userID = tokenClaims[@"user_id"];
 }
 
 /** @fn executeUserUpdateWithChanges:callback:
