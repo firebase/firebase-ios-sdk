@@ -15,7 +15,7 @@
  */
 
 #import "FirebaseDatabase/Tests/Integration/FIRDatabaseQueryTests.h"
-#import "FirebaseCore/Sources/Public/FirebaseCore/FIROptions.h"
+//#import "FirebaseCore/Sources/Public/FirebaseCore/FIROptions.h" doesn't work with swift?
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
 #import "FirebaseDatabase/Sources/Constants/FConstants.h"
 #import "FirebaseDatabase/Sources/Core/FQuerySpec.h"
@@ -4466,6 +4466,69 @@
   }];
 
   WAIT_FOR(done);
+}
+
+- (void)testGetTriggersListener {
+  FIRDatabase* db = [self databaseForURL:self.databaseURL name:@"fir-multi-shards"];
+
+  FIRDatabaseReference* ref = [db referenceWithPath:@"james"];
+  FIRDatabaseReference* children = [ref child:@"children"];
+
+  __block BOOL done = NO;
+
+  [children removeValueWithCompletionBlock:^(NSError* _Nullable error,
+                                             FIRDatabaseReference* _Nonnull ref) {
+    XCTAssertNil(error);
+    done = YES;
+  }];
+
+  WAIT_FOR(done);
+  done = NO;
+
+  [[children childByAutoId] setValue:@{@"name" : @1}
+                 withCompletionBlock:^(NSError* error, FIRDatabaseReference* ref) {
+                   XCTAssertNil(error);
+                   done = YES;
+                 }];
+
+  WAIT_FOR(done);
+  done = NO;
+
+  [[children childByAutoId] setValue:@{@"name" : @2}
+                 withCompletionBlock:^(NSError* error, FIRDatabaseReference* ref) {
+                   XCTAssertNil(error);
+                   done = YES;
+                 }];
+
+  WAIT_FOR(done);
+  done = NO;
+
+  __block BOOL nextDone = NO;
+
+  [children observeEventType:FIRDataEventTypeValue
+                   withBlock:^(FIRDataSnapshot* snapshot) {
+                     if (done == YES) {
+                       XCTAssertTrue(snapshot.childrenCount == 2U);
+                       nextDone = YES;
+                       return;
+                     }
+                     XCTAssertTrue(snapshot.childrenCount == 2U);
+                     done = YES;
+                   }];
+
+  WAIT_FOR(done);
+
+  __block BOOL getDone = NO;
+
+  [[[children queryOrderedByChild:@"name"] queryEqualToValue:@2]
+      getDataWithCompletionBlock:^(NSError* _Nullable error, FIRDataSnapshot* _Nonnull snapshot) {
+        XCTAssertNil(error);
+        XCTAssertTrue([snapshot exists]);
+        getDone = YES;
+      }];
+
+  WAIT_FOR(getDone);
+  //    WAIT_FOR(nextDone); // when uncommented, test times out.
 }
 
 @end
