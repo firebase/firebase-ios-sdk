@@ -29,8 +29,6 @@ FIRLoggerService kFIRLoggerABTesting = @"[Firebase/ABTesting]";
 const ABTExperimentPayloadExperimentOverflowPolicy FIRDefaultExperimentOverflowPolicy =
     ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest;
 
-
-
 /// Deserialize the experiment payloads.
 ABTExperimentPayload *ABTDeserializeExperimentPayload(NSData *payload) {
   // Verify that we have a JSON object.
