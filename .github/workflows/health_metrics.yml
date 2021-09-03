@@ -326,7 +326,7 @@ jobs:
       - name: Compare Diff and Post a Report
         if: github.event.pull_request.merged != true && github.event.action != 'closed' && github.event.pull_request.head.repo.full_name == github.repository
         env:
-          base_commit: ${{ github.event.pull_request.base.sha }}
+          base_commit: ${{ needs.check.outputs.target_branch_head }}
         run: |
           # Get Head commit of the branch, instead of a merge commit created by actions/checkout.
           if [ -d "${{steps.download.outputs.download-path}}" ]; then
