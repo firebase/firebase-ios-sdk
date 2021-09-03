@@ -28,7 +28,7 @@ jobs:
       performance_run_job: ${{ steps.check_files.outputs.performance_run_job }}
       remoteconfig_run_job: ${{ steps.check_files.outputs.remoteconfig_run_job }}
       storage_run_job: ${{ steps.check_files.outputs.storage_run_job }}
-      base_commit: ${{ steps.check_files.outputs.base_commit }}
+      target_branch_head: ${{ steps.check_files.outputs.target_branch_head }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -82,7 +82,7 @@ jobs:
         ./scripts/health_metrics/create_binary_size_report.sh
       env:
         PULL_REQUEST_NUM: ${{ github.event.pull_request.number }}
-        BASE_COMMIT: ${{ github.event.pull_request.base.sha }}
+        BASE_COMMIT: ${{ needs.check.outputs.target_branch_head }}
         POSTSUBMIT: ${{ github.event.pull_request.merged }}
         SOURCE_BRANCH: ${{ github.base_ref }}
 
