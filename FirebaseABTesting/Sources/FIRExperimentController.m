@@ -25,7 +25,6 @@
 /// Logger Service String.
 FIRLoggerService kFIRLoggerABTesting = @"[Firebase/ABTesting]";
 
-
 /// Default experiment overflow policy.
 const ABTExperimentPayloadExperimentOverflowPolicy FIRDefaultExperimentOverflowPolicy =
     ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest;
