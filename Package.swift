@@ -149,7 +149,7 @@ let package = Package(
       url: "https://github.com/google/GoogleAppMeasurement.git",
       // Note that CI changes the version to the head of main for CI.
       // See scripts/setup_spm_tests.sh.
-      .exact("8.7.0")
+      .exact("8.5.0")
     ),
     .package(
       name: "GoogleDataTransport",
@@ -485,6 +485,7 @@ let package = Package(
       dependencies: [
         "FirebaseCore",
         "leveldb",
+        "FirebaseDatabaseSwiftCore"
       ],
       path: "FirebaseDatabase/Sources",
       exclude: [
@@ -525,6 +526,15 @@ let package = Package(
       cSettings: [
         .headerSearchPath("../.."),
       ]
+    ),
+    .target(
+      name: "FirebaseDatabaseSwiftCore",
+//      dependencies: ["FirebaseDatabase"],
+      path: "FirebaseDatabaseSwiftCore/Sources"
+//      exclude: [
+//        "third_party/RTDBEncoder/LICENSE",
+//        "third_party/RTDBEncoder/METADATA",
+//      ]
     ),
     .target(
       name: "FirebaseDatabaseSwift",

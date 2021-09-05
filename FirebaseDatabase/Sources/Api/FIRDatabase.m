@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+@import FirebaseDatabaseSwiftCore;
+
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "Interop/Auth/Public/FIRAuthInterop.h"
 
@@ -41,6 +43,7 @@
                    @"`application(_:didFinishLaunchingWithOptions:)` "
                    @"(or the `@main` struct's initializer in SwiftUI)."];
     }
+    MBDTest *a = [[MBDTest alloc] initWithA: 1];
     return [FIRDatabase databaseForApp:[FIRApp defaultApp]];
 }
 
