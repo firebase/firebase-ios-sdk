@@ -18,6 +18,7 @@
 
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIRConfiguration.h>
+#import <FBSDKCoreKit/FBSDKCoreKit.h>
 
 #import "AuthProviders.h"
 #import <FirebaseAuth/FirebaseAuth.h>
@@ -46,6 +47,9 @@ static __weak id<OpenURLDelegate> gOpenURLDelegate;
   // Configure the default Firebase application:
   [FIRApp configure];
 
+  [[FBSDKApplicationDelegate sharedInstance] application:application
+                           didFinishLaunchingWithOptions:launchOptions];
+
   // Load and present the UI:
   UIWindow *window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
   _sampleAppMainViewController =
@@ -63,6 +67,10 @@ static __weak id<OpenURLDelegate> gOpenURLDelegate;
 - (BOOL)application:(nonnull UIApplication *)application
             openURL:(nonnull NSURL *)url
             options:(nonnull NSDictionary<NSString *, id> *)options {
+  [[FBSDKApplicationDelegate sharedInstance] application:application
+                                                 openURL:url
+                                                 options:options];
+
   return [self application:application
                    openURL:url
          sourceApplication:options[UIApplicationOpenURLOptionsSourceApplicationKey]
