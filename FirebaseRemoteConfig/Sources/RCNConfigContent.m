@@ -52,7 +52,7 @@
 }
 
 /// Default timeout when waiting to read data from database.
-static const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
+const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
 
 /// Singleton instance of RCNConfigContent.
 + (instancetype)sharedInstance {
@@ -365,8 +365,9 @@ static const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
 - (BOOL)checkAndWaitForInitialDatabaseLoad {
   /// Wait until load is done. This should be a no-op for subsequent calls.
   if (!_isConfigLoadFromDBCompleted) {
-    intptr_t isErrorOrTimeout =
-        dispatch_group_wait(_dispatch_group, kDatabaseLoadTimeoutSecs * NSEC_PER_SEC);
+    intptr_t isErrorOrTimeout = dispatch_group_wait(
+        _dispatch_group,
+        dispatch_time(DISPATCH_TIME_NOW, (int64_t)(kDatabaseLoadTimeoutSecs * NSEC_PER_SEC)));
     if (isErrorOrTimeout) {
       FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000048",
                   @"Timed out waiting for fetched config to be loaded from DB");
