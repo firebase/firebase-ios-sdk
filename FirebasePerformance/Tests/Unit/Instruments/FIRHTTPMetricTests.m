@@ -93,6 +93,7 @@
 
   FPRRemoteConfigFlags *configFlags =
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
+  configFlags.appStartConfigFetchDelayInSeconds = 0.0;
   configurations.remoteConfigFlags = configFlags;
 
   NSData *valueData = [@"false" dataUsingEncoding:NSUTF8StringEncoding];

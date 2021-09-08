@@ -28,7 +28,7 @@ jobs:
       performance_run_job: ${{ steps.check_files.outputs.performance_run_job }}
       remoteconfig_run_job: ${{ steps.check_files.outputs.remoteconfig_run_job }}
       storage_run_job: ${{ steps.check_files.outputs.storage_run_job }}
-      base_commit: ${{ steps.check_files.outputs.base_commit }}
+      target_branch_head: ${{ steps.check_files.outputs.target_branch_head }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -47,7 +47,7 @@ jobs:
   binary_size_metrics:
     needs: check
     # Prevent the job from being triggered in fork.
-    if: always() && github.repository == 'Firebase/firebase-ios-sdk' && github.event.pull_request.merged
+    if: github.event.pull_request.head.repo.full_name == github.repository && (github.event.action != 'closed' || github.event.pull_request.merged)
     runs-on: macos-11
     strategy:
       matrix:
@@ -82,7 +82,7 @@ jobs:
         ./scripts/health_metrics/create_binary_size_report.sh
       env:
         PULL_REQUEST_NUM: ${{ github.event.pull_request.number }}
-        BASE_COMMIT: ${{ github.event.pull_request.base.sha }}
+        BASE_COMMIT: ${{ needs.check.outputs.target_branch_head }}
         POSTSUBMIT: ${{ github.event.pull_request.merged }}
         SOURCE_BRANCH: ${{ github.base_ref }}
 
@@ -326,7 +326,7 @@ jobs:
       - name: Compare Diff and Post a Report
         if: github.event.pull_request.merged != true && github.event.action != 'closed' && github.event.pull_request.head.repo.full_name == github.repository
         env:
-          base_commit: ${{ github.event.pull_request.base.sha }}
+          base_commit: ${{ needs.check.outputs.target_branch_head }}
         run: |
           # Get Head commit of the branch, instead of a merge commit created by actions/checkout.
           if [ -d "${{steps.download.outputs.download-path}}" ]; then

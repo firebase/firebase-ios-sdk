@@ -648,7 +648,6 @@ case "$product-$platform-$method" in
 
   # Note that the combine tests require setting the minimum iOS and tvOS version to 13.0
   *-*-spm)
-    "${scripts_dir}/setup_spm_test_app_measurement.sh"
     RunXcodebuild \
       -scheme $product \
       "${xcb_flags[@]}" \
@@ -658,7 +657,6 @@ case "$product-$platform-$method" in
     ;;
 
   *-*-spmbuildonly)
-    "${scripts_dir}/setup_spm_test_app_measurement.sh"
     RunXcodebuild \
       -scheme $product \
       "${xcb_flags[@]}" \

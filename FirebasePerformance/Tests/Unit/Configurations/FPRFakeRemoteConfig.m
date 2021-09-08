@@ -32,6 +32,7 @@
     (FIRRemoteConfigFetchAndActivateCompletion)completionHandler {
   if (self.fetchStatus != FIRRemoteConfigFetchAndActivateStatusError) {
     self.lastFetchTime = [NSDate date];
+    self.lastFetchStatus = FIRRemoteConfigFetchStatusSuccess;
   }
   completionHandler(self.fetchStatus, nil);
 }

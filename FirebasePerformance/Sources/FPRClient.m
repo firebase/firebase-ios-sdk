@@ -252,7 +252,7 @@
 - (void)processAndLogEvent:(firebase_perf_v1_PerfMetric)event {
   BOOL tracingEnabled = self.configuration.isDataCollectionEnabled;
   if (!tracingEnabled) {
-    FPRLogError(kFPRClientPerfNotConfigured, @"Dropping event since data collection is disabled.");
+    FPRLogDebug(kFPRClientPerfNotConfigured, @"Dropping event since data collection is disabled.");
     return;
   }
 
