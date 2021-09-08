@@ -1,6 +1,7 @@
 # Pending
 * Create a random number of delay for remote config fetch during app starts.
 * Fix log spamming when Firebase Performance is disabled. (#8423)
+* Fix heap-heap-buffer overflow when decoding strings. (#8628)
 
 # Version 8.6.1
 * Fix the case where the event were dropped for missing a critical field in the event.
