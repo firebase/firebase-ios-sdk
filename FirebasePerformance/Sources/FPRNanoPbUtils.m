@@ -150,16 +150,6 @@ pb_bytes_array_t *FPREncodeString(NSString *string) {
   return FPREncodeData(stringBytes);
 }
 
-NSData *FPRDecodeData(pb_bytes_array_t *pbData) {
-  NSData *data = [NSData dataWithBytes:&(pbData->bytes) length:pbData->size];
-  return data;
-}
-
-NSString *FPRDecodeString(pb_bytes_array_t *pbData) {
-  NSData *data = FPRDecodeData(pbData);
-  return [NSString stringWithCString:[data bytes] encoding:NSUTF8StringEncoding];
-}
-
 StringToStringMap *_Nullable FPREncodeStringToStringMap(NSDictionary *_Nullable dict) {
   StringToStringMap *map = calloc(dict.count, sizeof(StringToStringMap));
   __block NSUInteger index = 0;
@@ -169,17 +159,6 @@ StringToStringMap *_Nullable FPREncodeStringToStringMap(NSDictionary *_Nullable 
     index++;
   }];
   return map;
-}
-
-NSDictionary<NSString *, NSString *> *FPRDecodeStringToStringMap(StringToStringMap *map,
-                                                                 NSInteger count) {
-  NSMutableDictionary<NSString *, NSString *> *dict = [[NSMutableDictionary alloc] init];
-  for (int i = 0; i < count; i++) {
-    NSString *key = FPRDecodeString(map[i].key);
-    NSString *value = FPRDecodeString(map[i].value);
-    dict[key] = value;
-  }
-  return [dict copy];
 }
 
 StringToNumberMap *_Nullable FPREncodeStringToNumberMap(NSDictionary *_Nullable dict) {
@@ -192,19 +171,6 @@ StringToNumberMap *_Nullable FPREncodeStringToNumberMap(NSDictionary *_Nullable 
     index++;
   }];
   return map;
-}
-
-NSDictionary<NSString *, NSNumber *> *_Nullable FPRDecodeStringToNumberMap(
-    StringToNumberMap *_Nullable map, NSInteger count) {
-  NSMutableDictionary<NSString *, NSNumber *> *dict = [[NSMutableDictionary alloc] init];
-  for (int i = 0; i < count; i++) {
-    if (map[i].has_value) {
-      NSString *key = FPRDecodeString(map[i].key);
-      NSNumber *value = [NSNumber numberWithLongLong:map[i].value];
-      dict[key] = value;
-    }
-  }
-  return [dict copy];
 }
 
 firebase_perf_v1_PerfSession *FPREncodePerfSessions(NSArray<FPRSessionDetails *> *sessions,

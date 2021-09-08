@@ -53,30 +53,6 @@ extern pb_bytes_array_t* _Nullable FPREncodeData(NSData* _Nonnull data);
  */
 extern pb_bytes_array_t* _Nullable FPREncodeString(NSString* _Nonnull string);
 
-/** Creates a NSData object by copying the given bytes array and returns the reference.
- *
- * @param pbData The pbData to dedoded as NSData
- * @return A reference to NSData
- */
-extern NSData* _Nullable FPRDecodeData(pb_bytes_array_t* _Nonnull pbData);
-
-/** Creates a NSString object by copying the given bytes array and returns the reference.
- *
- * @param pbData The pbData to dedoded as NSString
- * @return A reference to the NSString
- */
-extern NSString* _Nullable FPRDecodeString(pb_bytes_array_t* _Nonnull pbData);
-
-/** Creates a NSDictionary by copying the given bytes from the StringToStringMap object and returns
- * the reference.
- *
- * @param map The reference to a StringToStringMap object to be decoded.
- * @param count The number of entries in the dictionary.
- * @return A reference to the dictionary
- */
-extern NSDictionary<NSString*, NSString*>* _Nullable FPRDecodeStringToStringMap(
-    StringToStringMap* _Nullable map, NSInteger count);
-
 /** Callocs a nanopb StringToStringMap and copies the given NSDictionary bytes into the
  * StringToStringMap.
  *
@@ -84,16 +60,6 @@ extern NSDictionary<NSString*, NSString*>* _Nullable FPRDecodeStringToStringMap(
  * @return A reference to StringToStringMap
  */
 extern StringToStringMap* _Nullable FPREncodeStringToStringMap(NSDictionary* _Nullable dict);
-
-/** Creates a NSDictionary by copying the given bytes from the StringToNumberMap object and returns
- * the reference.
- *
- * @param map The reference to a StringToNumberMap object to be decoded.
- * @param count The number of entries in the dictionary.
- * @return A reference to the dictionary
- */
-extern NSDictionary<NSString*, NSNumber*>* _Nullable FPRDecodeStringToNumberMap(
-    StringToNumberMap* _Nullable map, NSInteger count);
 
 /** Callocs a nanopb StringToNumberMap and copies the given NSDictionary bytes into the
  * StringToStringMap.
