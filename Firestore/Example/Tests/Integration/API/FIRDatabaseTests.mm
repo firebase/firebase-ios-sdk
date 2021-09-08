@@ -60,6 +60,43 @@ using firebase::firestore::util::TimerId;
   XCTAssertEqualObjects(result.data, finalData);
 }
 
+- (void)testEqualityComparison {
+  FIRDocumentReference *doc = [self.db documentWithPath:@"rooms/eros"];
+  NSDictionary<NSString *, id> *initialData =
+      @{@"desc" : @"Description", @"owner" : @{@"name" : @"Jonny", @"email" : @"abc@xyz.com"}};
+
+  [self writeDocumentRef:doc data:initialData];
+
+  FIRDocumentSnapshot *snap1 = [self readDocumentForRef:doc];
+  FIRDocumentSnapshot *snap2 = [self readDocumentForRef:doc];
+  FIRDocumentSnapshot *snap3 = [self readDocumentForRef:doc];
+
+  XCTAssertTrue([snap1.metadata isEqual:snap2.metadata]);
+  XCTAssertTrue([snap2.metadata isEqual:snap3.metadata]);
+
+  XCTAssertFalse(snap1.metadata.pendingWrites);
+  XCTAssertFalse(snap1.metadata.fromCache);
+  XCTAssertFalse(snap2.metadata.pendingWrites);
+  XCTAssertFalse(snap2.metadata.fromCache);
+  XCTAssertFalse(snap3.metadata.pendingWrites);
+  XCTAssertFalse(snap3.metadata.fromCache);
+
+  XCTAssertTrue([snap1.documentID isEqual:snap2.documentID]);
+  XCTAssertTrue([snap2.documentID isEqual:snap3.documentID]);
+
+  XCTAssertTrue(snap1.exists == snap2.exists);
+  XCTAssertTrue(snap2.exists == snap3.exists);
+
+  XCTAssertTrue([snap1.reference isEqual:snap2.reference]);
+  XCTAssertTrue([snap2.reference isEqual:snap3.reference]);
+
+  XCTAssertTrue([[snap1 data] isEqual:[snap2 data]]);
+  XCTAssertTrue([[snap2 data] isEqual:[snap3 data]]);
+
+  XCTAssertFalse([snap1 isEqual:snap2]); // PASSED (but should have failed)
+  XCTAssertTrue([snap2 isEqual:snap3]);  // PASSED
+}
+
 - (void)testCanUpdateAnUnknownDocument {
   [self readerAndWriterOnDocumentRef:^(FIRDocumentReference *readerRef,
                                        FIRDocumentReference *writerRef) {
