@@ -102,7 +102,7 @@ MutableDocument MutableDocument::Clone() const {
 }
 
 size_t MutableDocument::Hash() const {
-  return key_.Hash();
+  return util::Hash(document_type_, key_, version_, *value_, document_state_);
 }
 
 std::string MutableDocument::ToString() const {

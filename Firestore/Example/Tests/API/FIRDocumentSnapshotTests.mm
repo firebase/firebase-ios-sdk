@@ -30,6 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testEquals {
   FIRDocumentSnapshot *base = FSTTestDocSnapshot("rooms/foo", 1, @{@"a" : @1}, NO, NO);
   FIRDocumentSnapshot *baseDup = FSTTestDocSnapshot("rooms/foo", 1, @{@"a" : @1}, NO, NO);
+  FIRDocumentSnapshot *baseChangedData = FSTTestDocSnapshot("rooms/foo", 1, @{@"b" : @1}, NO, NO);
   FIRDocumentSnapshot *nilData = FSTTestDocSnapshot("rooms/foo", 1, nil, NO, NO);
   FIRDocumentSnapshot *nilDataDup = FSTTestDocSnapshot("rooms/foo", 1, nil, NO, NO);
   FIRDocumentSnapshot *differentPath = FSTTestDocSnapshot("rooms/bar", 1, @{@"a" : @1}, NO, NO);
@@ -46,6 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertNotEqualObjects(base, fromCache);
 
   XCTAssertEqual([base hash], [baseDup hash]);
+  XCTAssertNotEqual([base hash], [baseChangedData hash]);
   XCTAssertEqual([nilData hash], [nilDataDup hash]);
   XCTAssertNotEqual([base hash], [nilData hash]);
   XCTAssertNotEqual([base hash], [differentPath hash]);
