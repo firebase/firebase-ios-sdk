@@ -18,7 +18,7 @@
 #import "FirebaseDatabase/Sources/Utilities/FTypedefs.h"
 #import <Foundation/Foundation.h>
 
-@protocol FConnectionDelegate;
+@import FirebaseDatabaseSwiftCore;
 
 @interface FConnection : NSObject <FWebSocketDelegate>
 
@@ -42,20 +42,3 @@
 
 @end
 
-typedef enum {
-    DISCONNECT_REASON_SERVER_RESET = 0,
-    DISCONNECT_REASON_OTHER = 1
-} FDisconnectReason;
-
-@protocol FConnectionDelegate <NSObject>
-
-- (void)onReady:(FConnection *)fconnection
-         atTime:(NSNumber *)timestamp
-      sessionID:(NSString *)sessionID;
-- (void)onDataMessage:(FConnection *)fconnection
-          withMessage:(NSDictionary *)message;
-- (void)onDisconnect:(FConnection *)fconnection
-          withReason:(FDisconnectReason)reason;
-- (void)onKill:(FConnection *)fconnection withReason:(NSString *)reason;
-
-@end

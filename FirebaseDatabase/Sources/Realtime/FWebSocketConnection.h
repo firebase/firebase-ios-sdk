@@ -20,12 +20,12 @@
 #endif // !TARGET_OS_WATCH
 #import <Foundation/Foundation.h>
 
-@protocol FWebSocketDelegate;
+@import FirebaseDatabaseSwiftCore;
 
 #if !TARGET_OS_WATCH
-@interface FWebSocketConnection : NSObject <FSRWebSocketDelegate>
+@interface FWebSocketConnection2 : NSObject <FSRWebSocketDelegate>
 #else
-@interface FWebSocketConnection : NSObject <NSURLSessionWebSocketDelegate>
+@interface FWebSocketConnection2 : NSObject <NSURLSessionWebSocketDelegate>
 #endif // else !TARGET_OS_WATCH
 
 @property(nonatomic, weak) id<FWebSocketDelegate> delegate;
@@ -54,14 +54,5 @@
               reason:(NSString *)reason
             wasClean:(BOOL)wasClean;
 #endif // !TARGET_OS_WATCH
-
-@end
-
-@protocol FWebSocketDelegate <NSObject>
-
-- (void)onMessage:(FWebSocketConnection *)fwebSocket
-      withMessage:(NSDictionary *)message;
-- (void)onDisconnect:(FWebSocketConnection *)fwebSocket
-    wasEverConnected:(BOOL)everConnected;
 
 @end

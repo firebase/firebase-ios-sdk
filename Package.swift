@@ -47,6 +47,11 @@ let package = Package(
       name: "FirebaseAppDistribution-Beta",
       targets: ["FirebaseAppDistributionTarget"]
     ),
+    .library(
+      name: "FirebaseDatabaseSwiftCore",
+      targets: ["FirebaseDatabaseSwiftCore"]
+    ),
+
     // TODO: Re-enable after API review passes.
     // .library(
     //   name: "FirebaseCombineSwift-Beta",
@@ -196,6 +201,15 @@ let package = Package(
       url: "https://github.com/SlaunchaMan/GCDWebServer.git",
       .revision("935e2736044e71e5341663c3cc9a335ba6867a2b")
     ),
+    .package(
+        url: "https://github.com/apple/swift-nio.git",
+        from: "2.0.0"
+    ),
+    .package(
+        url: "https://github.com/apple/swift-nio-ssl.git",
+        from: "2.14.0"
+    )
+
     // Branches need a force update with a run with the revision set like below.
     //   .package(url: "https://github.com/paulb777/nanopb.git", .revision("564392bd87bd093c308a3aaed3997466efb95f74"))
   ],
@@ -529,7 +543,7 @@ let package = Package(
     ),
     .target(
       name: "FirebaseDatabaseSwiftCore",
-//      dependencies: ["FirebaseDatabase"],
+      dependencies: [.product(name: "NIOWebSocket", package: "swift-nio"), .product(name: "NIOSSL", package: "swift-nio-ssl")],
       path: "FirebaseDatabaseSwiftCore/Sources"
 //      exclude: [
 //        "third_party/RTDBEncoder/LICENSE",

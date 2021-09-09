@@ -17,6 +17,12 @@
 #import "FirebaseDatabase/Sources/Realtime/FConnection.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseDatabase/Sources/Constants/FConstants.h"
+#import "FirebaseDatabase/Sources/Utilities/FStringUtilities.h"
+#import "FirebaseDatabase/Sources/Api/Private/FIRDatabase_Private.h"
+
+#if TARGET_OS_IOS || TARGET_OS_TV
+#import <UIKit/UIKit.h>
+#endif // TARGET_OS_IOS || TARGET_OS_TV
 
 typedef enum {
     REALTIME_STATE_CONNECTING = 0,
@@ -45,6 +51,47 @@ typedef enum {
 #pragma mark -
 #pragma mark Initializers
 
+- (NSString *)userAgent {
+    NSString *systemVersion;
+    NSString *deviceName;
+    BOOL hasUiDeviceClass = NO;
+
+// Targetted compilation is ONLY for testing. UIKit is weak-linked in actual
+// release build.
+#if TARGET_OS_IOS || TARGET_OS_TV
+    Class uiDeviceClass = NSClassFromString(@"UIDevice");
+    if (uiDeviceClass) {
+        systemVersion = [uiDeviceClass currentDevice].systemVersion;
+        deviceName = [uiDeviceClass currentDevice].model;
+        hasUiDeviceClass = YES;
+    }
+#endif // TARGET_OS_IOS || TARGET_OS_TV
+
+    if (!hasUiDeviceClass) {
+        NSDictionary *systemVersionDictionary = [NSDictionary
+            dictionaryWithContentsOfFile:
+                @"/System/Library/CoreServices/SystemVersion.plist"];
+        systemVersion =
+            [systemVersionDictionary objectForKey:@"ProductVersion"];
+        deviceName = [systemVersionDictionary objectForKey:@"ProductName"];
+    }
+
+    NSString *bundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
+
+    // Sanitize '/'s in deviceName and bundleIdentifier for stats
+    deviceName = [FStringUtilities sanitizedForUserAgent:deviceName];
+    bundleIdentifier =
+        [FStringUtilities sanitizedForUserAgent:bundleIdentifier];
+
+    // Firebase/5/<semver>_<build date>_<git hash>/<os version>/{device model /
+    // os (Mac OS X, iPhone, etc.}_<bundle id>
+    NSString *ua = [NSString
+        stringWithFormat:@"Firebase/%@/%@/%@/%@_%@", kWebsocketProtocolVersion,
+                         [FIRDatabase buildVersion], systemVersion, deviceName,
+                         bundleIdentifier];
+    return ua;
+}
+
 - (instancetype)initWith:(FRepoInfo *)aRepoInfo
         andDispatchQueue:(dispatch_queue_t)queue
              googleAppID:(NSString *)googleAppID
@@ -54,11 +101,14 @@ typedef enum {
     if (self) {
         state = REALTIME_STATE_CONNECTING;
         self.repoInfo = aRepoInfo;
-        self.conn = [[FWebSocketConnection alloc] initWith:self.repoInfo
+        NSString *connectionURL =
+            [aRepoInfo connectionURLWithLastSessionID:lastSessionID];
+
+        self.conn = [[FWebSocketConnection alloc] initWith:connectionURL
                                                   andQueue:queue
                                                googleAppID:googleAppID
-                                             lastSessionID:lastSessionID
-                                             appCheckToken:appCheckToken];
+                                             appCheckToken:appCheckToken
+                                                 userAgent: [self userAgent]];
         self.conn.delegate = self;
     }
     return self;
@@ -88,7 +138,7 @@ typedef enum {
 }
 
 - (void)close {
-    [self closeWithReason:DISCONNECT_REASON_OTHER];
+    [self closeWithReason: FDisconnectReasonDISCONNECT_REASON_OTHER];
 }
 
 - (void)sendRequest:(NSDictionary *)dataMsg sensitive:(BOOL)sensitive {
@@ -232,7 +282,7 @@ typedef enum {
 
     // Explicitly close the connection with SERVER_RESET so calling code knows
     // to reconnect immediately.
-    [self closeWithReason:DISCONNECT_REASON_SERVER_RESET];
+    [self closeWithReason: FDisconnectReasonDISCONNECT_REASON_SERVER_RESET];
 }
 
 @end

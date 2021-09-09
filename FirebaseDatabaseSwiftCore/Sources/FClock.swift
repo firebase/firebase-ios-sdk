@@ -1,18 +1,11 @@
 //
-//  File.swift
-//  File
+//  FClock.swift
+//  FClock
 //
-//  Created by Morten Bek Ditlevsen on 04/09/2021.
+//  Created by Morten Bek Ditlevsen on 09/09/2021.
 //
 
 import Foundation
-@objc public class MBDTest: NSObject {
-    public var a: Int = 1
-    @objc public init(a: Int) {
-        self.a = a
-    }
-}
-
 
 @objc public protocol FClock: NSObjectProtocol {
     @objc var currentTime: TimeInterval { get }

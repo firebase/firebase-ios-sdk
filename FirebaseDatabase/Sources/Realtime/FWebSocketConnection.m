@@ -39,7 +39,7 @@ static NSString *const kAppCheckTokenHeader = @"X-Firebase-AppCheck";
 static NSString *const kUserAgentHeader = @"User-Agent";
 static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
 
-@interface FWebSocketConnection () {
+@interface FWebSocketConnection2 () {
     NSMutableString *frame;
     BOOL everConnected;
     BOOL isClosed;
@@ -65,7 +65,7 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
 
 @end
 
-@implementation FWebSocketConnection
+@implementation FWebSocketConnection2
 
 @synthesize delegate;
 #if !TARGET_OS_WATCH
@@ -186,6 +186,7 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
 #pragma mark Public FWebSocketConnection methods
 
 - (void)open {
+    NSLog(@"OPEN");
     FFLog(@"I-RDB083002", @"(wsc:%@) FWebSocketConnection open.",
           self.connectionId);
     assert(delegate);
@@ -365,6 +366,8 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
 #pragma mark SRWebSocketDelegate implementation
 
 - (void)webSocket:(FSRWebSocket *)webSocket didReceiveMessage:(id)message {
+    NSLog(@"RECEIVED");
+    NSLog(message);
     [self handleIncomingFrame:message];
 }
 
@@ -390,6 +393,8 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
 - (void)webSocketDidOpen {
     FFLog(@"I-RDB083008", @"(wsc:%@) webSocketDidOpen", self.connectionId);
 
+    NSLog(@"DID OPEN");
+
     everConnected = YES;
 
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -409,6 +414,8 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
 
 /** Sends a string through the open web socket. */
 - (void)sendStringToWebSocket:(NSString *)string {
+    NSLog(@"Send");
+    NSLog(string);
 #if TARGET_OS_WATCH
     // Use built-in URLSessionWebSocket functionality.
     [self.webSocketTask sendMessage:[[NSURLSessionWebSocketMessage alloc]

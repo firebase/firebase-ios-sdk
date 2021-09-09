@@ -43,7 +43,6 @@
                    @"`application(_:didFinishLaunchingWithOptions:)` "
                    @"(or the `@main` struct's initializer in SwiftUI)."];
     }
-    MBDTest *a = [[MBDTest alloc] initWithA: 1];
     return [FIRDatabase databaseForApp:[FIRApp defaultApp]];
 }
 

@@ -393,7 +393,7 @@ typedef enum {
 - (void)onDisconnect:(FConnection *)fconnection
           withReason:(FDisconnectReason)reason {
     FFLog(@"I-RDB034004", @"Got on disconnect due to %s",
-          (reason == DISCONNECT_REASON_SERVER_RESET) ? "server_reset"
+          (reason == FDisconnectReasonDISCONNECT_REASON_SERVER_RESET) ? "server_reset"
                                                      : "other");
     connectionState = ConnectionStateDisconnected;
     // Drop the realtime connection
@@ -414,7 +414,7 @@ typedef enum {
             lastConnectionWasSuccessful = NO;
         }
 
-        if (reason == DISCONNECT_REASON_SERVER_RESET ||
+        if (reason == FDisconnectReasonDISCONNECT_REASON_SERVER_RESET ||
             lastConnectionWasSuccessful) {
             [self.retryHelper signalSuccess];
         }
