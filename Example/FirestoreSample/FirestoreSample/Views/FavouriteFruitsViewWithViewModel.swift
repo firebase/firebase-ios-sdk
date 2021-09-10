@@ -31,11 +31,10 @@ private class ViewModel: ObservableObject {
 }
 
 struct FavouriteFruitsViewWithViewModel: View {
-  
   @StateObject fileprivate var viewModel = ViewModel()
-  
+
   @State var showOnlyFavourites = true
-  
+
   var body: some View {
     if case let .success(fruits) = viewModel.fruitResults {
       List(fruits) { fruit in
@@ -47,8 +46,8 @@ struct FavouriteFruitsViewWithViewModel: View {
         ToolbarItem(placement: .navigationBarTrailing) {
           Button(action: toggleFilter) {
             Image(systemName: showOnlyFavourites
-                  ? "line.3.horizontal.decrease.circle.fill"
-                  : "line.3.horizontal.decrease.circle")
+              ? "line.3.horizontal.decrease.circle.fill"
+              : "line.3.horizontal.decrease.circle")
           }
         }
       }
@@ -57,7 +56,7 @@ struct FavouriteFruitsViewWithViewModel: View {
       Text("Couldn't map data: \(error)")
     }
   }
-  
+
   func toggleFilter() {
     showOnlyFavourites.toggle()
     if showOnlyFavourites {
