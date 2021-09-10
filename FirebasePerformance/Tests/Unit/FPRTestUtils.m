@@ -155,6 +155,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
 }
 
 #pragma mark - Decode nanoPb pbData
+
 NSData *FPRDecodeData(pb_bytes_array_t *pbData) {
   NSData *data = [NSData dataWithBytes:&(pbData->bytes) length:pbData->size];
   return data;
