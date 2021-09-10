@@ -18,6 +18,7 @@
 # $2 is the passphrase
 
 # Encrypt the file
+# See https://docs.github.com/en/actions/reference/encrypted-secrets for more details.
 # --batch to prevent interactive command
 
 file="$1"
