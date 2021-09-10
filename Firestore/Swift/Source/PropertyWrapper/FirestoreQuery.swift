@@ -60,7 +60,7 @@ public struct FirestoreQuery<T>: DynamicProperty {
 
   /// The query's configurable properties.
   public struct Configuration {
-    /// The query's collectin path.
+    /// The query's collection path.
     public var path: String
 
     /// The query's predicates.
@@ -88,7 +88,7 @@ public struct FirestoreQuery<T>: DynamicProperty {
   /// Creates an instance by defining a query based on the parameters.
   /// - Parameters:
   ///   - collectionPath: The path to the Firestore collection to query.
-  ///   - predicates: An optionsl array of `QueryPredicate`s that defines a
+  ///   - predicates: An optional array of `QueryPredicate`s that defines a
   ///     filter for the fetched results.
   public init<U: Decodable>(collectionPath: String, predicates: [QueryPredicate] = [])
     where T == [U] {
@@ -101,7 +101,7 @@ public struct FirestoreQuery<T>: DynamicProperty {
   /// Creates an instance by defining a query based on the parameters.
   /// - Parameters:
   ///   - collectionPath: The path to the Firestore collection to query.
-  ///   - predicates: An optionsl array of `QueryPredicate`s that defines a
+  ///   - predicates: An optional array of `QueryPredicate`s that defines a
   ///     filter for the fetched results.
   public init<U: Decodable>(collectionPath: String, predicates: [QueryPredicate] = [])
     where T == [Result<U, Error>] {
@@ -114,7 +114,7 @@ public struct FirestoreQuery<T>: DynamicProperty {
   /// Creates an instance by defining a query based on the parameters.
   /// - Parameters:
   ///   - collectionPath: The path to the Firestore collection to query.
-  ///   - predicates: An optionsl array of `QueryPredicate`s that defines a
+  ///   - predicates: An optional array of `QueryPredicate`s that defines a
   ///     filter for the fetched results.
   public init<U: Decodable>(collectionPath: String, predicates: [QueryPredicate] = [])
     where T == Result<[U], Error> {
