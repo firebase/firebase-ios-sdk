@@ -113,6 +113,11 @@ std::string MutableDocument::ToString() const {
   return stream.str();
 }
 
+bool MutableDocument::CompareIgnoringState(const MutableDocument& other) const {
+  return key_ == other.key_ && document_type_ == other.document_type_ &&
+         version_ == other.version_ && *value_ == *other.value_;
+}
+
 bool operator==(const MutableDocument& lhs, const MutableDocument& rhs) {
   return lhs.key_ == rhs.key_ && lhs.document_type_ == rhs.document_type_ &&
          lhs.version_ == rhs.version_ &&

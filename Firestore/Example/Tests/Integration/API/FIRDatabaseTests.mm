@@ -74,13 +74,6 @@ using firebase::firestore::util::TimerId;
   XCTAssertTrue([snap1.metadata isEqual:snap2.metadata]);
   XCTAssertTrue([snap2.metadata isEqual:snap3.metadata]);
 
-  XCTAssertFalse(snap1.metadata.pendingWrites);
-  XCTAssertFalse(snap1.metadata.fromCache);
-  XCTAssertFalse(snap2.metadata.pendingWrites);
-  XCTAssertFalse(snap2.metadata.fromCache);
-  XCTAssertFalse(snap3.metadata.pendingWrites);
-  XCTAssertFalse(snap3.metadata.fromCache);
-
   XCTAssertTrue([snap1.documentID isEqual:snap2.documentID]);
   XCTAssertTrue([snap2.documentID isEqual:snap3.documentID]);
 
@@ -93,8 +86,8 @@ using firebase::firestore::util::TimerId;
   XCTAssertTrue([[snap1 data] isEqual:[snap2 data]]);
   XCTAssertTrue([[snap2 data] isEqual:[snap3 data]]);
 
-  XCTAssertFalse([snap1 isEqual:snap2]); // PASSED (but should have failed)
-  XCTAssertTrue([snap2 isEqual:snap3]);  // PASSED
+  XCTAssertTrue([snap1 isEqual:snap2]);
+  XCTAssertTrue([snap2 isEqual:snap3]);
 }
 
 - (void)testCanUpdateAnUnknownDocument {

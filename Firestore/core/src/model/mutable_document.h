@@ -203,6 +203,8 @@ class MutableDocument {
 
   std::string ToString() const;
 
+  bool CompareIgnoringState(const MutableDocument& other) const;
+
   friend bool operator==(const MutableDocument& lhs,
                          const MutableDocument& rhs);
 
