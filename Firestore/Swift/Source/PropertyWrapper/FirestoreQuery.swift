@@ -53,7 +53,7 @@ import FirebaseFirestore
 ///
 /// This property wrapper does not support updating the `wrappedValue`, i.e.
 /// you need to use Firestore's other APIs to add, delete, or modify documents.
-@available(iOS 14.0, tvOS 14.0, *)
+@available(iOS 14.0, macOS 11.0, macCatalyst 14.0, tvOS 14.0, watchOS 7.0, *)
 @propertyWrapper
 public struct FirestoreQuery<T>: DynamicProperty {
   @StateObject private var firestoreQueryObservable: FirestoreQueryObservable<T>
