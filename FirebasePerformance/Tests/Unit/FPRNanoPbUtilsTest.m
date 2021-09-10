@@ -29,6 +29,7 @@
 #import "FirebasePerformance/Sources/Gauges/Memory/FPRMemoryGaugeData.h"
 
 #import "FirebasePerformance/Tests/Unit/FPRTestCase.h"
+#import "FirebasePerformance/Tests/Unit/FPRTestUtils.h"
 
 #import <OCMock/OCMock.h>
 

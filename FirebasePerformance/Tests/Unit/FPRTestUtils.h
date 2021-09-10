@@ -14,6 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FirebasePerformance/Sources/FPRNanoPbUtils.h"
 #import "FirebasePerformance/Sources/Timer/FIRTrace+Internal.h"
 #import "FirebasePerformance/Sources/Timer/FIRTrace+Private.h"
 
@@ -64,6 +65,41 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Creates a random GDTCOREvent object with network event. */
 + (GDTCOREvent *)createRandomNetworkGDTEvent:(NSString *)url;
+
+/** Creates a NSData object by copying the given bytes array and returns the reference.
+ *
+ * @param pbData The pbData to dedoded as NSData
+ * @return A reference to NSData
+ */
+extern NSData *_Nullable FPRDecodeData(pb_bytes_array_t *_Nonnull pbData);
+
+/** Creates a NSString object by copying the given bytes array and returns the reference.
+ *
+ * @param pbData The pbData to dedoded as NSString
+ * @return A reference to the NSString
+ * @note This method may cause heap-buffer overflow
+ */
+extern NSString *_Nullable FPRDecodeString(pb_bytes_array_t *_Nonnull pbData);
+
+/** Creates a NSDictionary by copying the given bytes from the StringToStringMap object and returns
+ * the reference.
+ *
+ * @param map The reference to a StringToStringMap object to be decoded.
+ * @param count The number of entries in the dictionary.
+ * @return A reference to the dictionary
+ */
+extern NSDictionary<NSString *, NSString *> *_Nullable FPRDecodeStringToStringMap(
+    StringToStringMap *_Nullable map, NSInteger count);
+
+/** Creates a NSDictionary by copying the given bytes from the StringToNumberMap object and returns
+ * the reference.
+ *
+ * @param map The reference to a StringToNumberMap object to be decoded.
+ * @param count The number of entries in the dictionary.
+ * @return A reference to the dictionary
+ */
+extern NSDictionary<NSString *, NSNumber *> *_Nullable FPRDecodeStringToNumberMap(
+    StringToNumberMap *_Nullable map, NSInteger count);
 
 @end
 

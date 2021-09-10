@@ -27,7 +27,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
 
 @implementation FPRTestUtils
 
-#pragma mark - Test utility methods
+#pragma mark - Retrieve bundle
 
 + (NSBundle *)getBundle {
 #if SWIFT_PACKAGE
@@ -37,6 +37,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
 #endif
 }
 
+#pragma mark - Create events and PerfMetrics
 + (FIRTrace *)createRandomTraceWithName:(NSString *)traceName {
   FIRTrace *trace = [[FIRTrace alloc] initWithName:traceName];
   [trace start];
@@ -151,6 +152,42 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   GDTCOREvent *gdtEvent = [[GDTCOREvent alloc] initWithMappingID:mappingID target:kGDTCORTargetFLL];
   gdtEvent.dataObject = [FPRGDTEvent gdtEventForPerfMetric:perfMetric];
   return gdtEvent;
+}
+
+#pragma mark - Decode nanoPb pbData
+
+NSData *FPRDecodeData(pb_bytes_array_t *pbData) {
+  NSData *data = [NSData dataWithBytes:&(pbData->bytes) length:pbData->size];
+  return data;
+}
+
+NSString *FPRDecodeString(pb_bytes_array_t *pbData) {
+  NSData *data = FPRDecodeData(pbData);
+  return [NSString stringWithCString:[data bytes] encoding:NSUTF8StringEncoding];
+}
+
+NSDictionary<NSString *, NSString *> *FPRDecodeStringToStringMap(StringToStringMap *map,
+                                                                 NSInteger count) {
+  NSMutableDictionary<NSString *, NSString *> *dict = [[NSMutableDictionary alloc] init];
+  for (int i = 0; i < count; i++) {
+    NSString *key = FPRDecodeString(map[i].key);
+    NSString *value = FPRDecodeString(map[i].value);
+    dict[key] = value;
+  }
+  return [dict copy];
+}
+
+NSDictionary<NSString *, NSNumber *> *_Nullable FPRDecodeStringToNumberMap(
+    StringToNumberMap *_Nullable map, NSInteger count) {
+  NSMutableDictionary<NSString *, NSNumber *> *dict = [[NSMutableDictionary alloc] init];
+  for (int i = 0; i < count; i++) {
+    if (map[i].has_value) {
+      NSString *key = FPRDecodeString(map[i].key);
+      NSNumber *value = [NSNumber numberWithLongLong:map[i].value];
+      dict[key] = value;
+    }
+  }
+  return [dict copy];
 }
 
 @end
