@@ -21,6 +21,9 @@ struct MenuView: View {
         NavigationLink(destination: FavouriteFruitsView()) {
           Label("Property Wrappers", systemImage: "shippingbox")
         }
+        NavigationLink(destination: FavouriteFruitsViewWithViewModel()) {
+          Label("Inside a view model", systemImage: "doc.text.fill.viewfinder")
+        }
         NavigationLink(destination: FavouriteFruitsMappingErrorView()) {
           Label("Mapping failure", systemImage: "shippingbox")
         }
