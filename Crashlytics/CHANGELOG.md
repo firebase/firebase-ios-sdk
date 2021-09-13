@@ -1,3 +1,6 @@
+# Unreleased
+- [added] Internal SDK updates to test potential future MetricKit support.
+
 # v8.4.0
 - [fixed] Bump Promises dependency. (#8365)
 

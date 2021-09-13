@@ -80,6 +80,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly) BOOL customExceptionsEnabled;
 
 /**
+ * When this is true, Crashlytics will collect data from MetricKit
+ */
+@property(nonatomic, readonly) BOOL metricKitCollectionEnabled;
+
+/**
  * Returns the maximum number of custom exception events that will be
  * recorded in a session.
  */
