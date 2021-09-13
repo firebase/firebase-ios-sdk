@@ -184,6 +184,7 @@ typedef NSNumber FIRCLSWrappedReportAction;
   _notificationManager = [[FIRCLSNotificationManager alloc] init];
 #if CLS_METRICKIT_SUPPORTED
   if (@available(iOS 15, *) && self.settings.metricKitCollectionEnabled) {
+    FIRCLSDebugLog(@"MetricKit data collection enabled.");
     _metricKitManager = [[FIRCLSMetricKitManager alloc] initWithManagerData:managerData
                                                       existingReportManager:existingReportManager
                                                                 fileManager:_fileManager];
