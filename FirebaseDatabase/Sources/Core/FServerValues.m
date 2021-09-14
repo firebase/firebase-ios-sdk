@@ -74,7 +74,7 @@ BOOL canBeRepresentedAsLong(NSNumber *num) {
 }
 
 - (id<ValueProvider>)getChild:(NSString *)pathSegment {
-    FPath *child = [self.path childFromString:pathSegment];
+    FPath *child = [self.path childFrom:pathSegment];
     return [[DeferredValueProvider alloc] initWithSyncTree:self.tree
                                                     atPath:child];
 }

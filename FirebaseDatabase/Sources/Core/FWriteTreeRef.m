@@ -24,6 +24,8 @@
 #import "FirebaseDatabase/Sources/Snapshot/FChildrenNode.h"
 #import "FirebaseDatabase/Sources/Snapshot/FNode.h"
 
+@import FirebaseDatabaseSwiftCore;
+
 @interface FWriteTreeRef ()
 /**
  * The path to this particular FWriteTreeRef. Used for calling methods on
@@ -152,7 +154,7 @@
  */
 - (FWriteTreeRef *)childWriteTreeRef:(NSString *)childKey {
     return
-        [[FWriteTreeRef alloc] initWithPath:[self.path childFromString:childKey]
+        [[FWriteTreeRef alloc] initWithPath:[self.path childFrom:childKey]
                                   writeTree:self.writeTree];
 }
 

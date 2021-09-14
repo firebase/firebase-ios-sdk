@@ -19,6 +19,8 @@
 #import "FirebaseDatabase/Sources/Core/Utilities/FImmutableTree.h"
 #import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
 
+@import FirebaseDatabaseSwiftCore;
+
 @implementation FAckUserWrite
 
 - (id)initWithPath:(FPath *)operationPath

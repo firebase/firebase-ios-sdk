@@ -187,7 +187,7 @@ static NSString *trackedQueryKeysKey(NSUInteger trackedQueryId, NSString *key) {
                   // translate.
                   FPendingPutPriority *putPriority = pendingPut;
                   FPath *priorityPath =
-                      [putPriority.path childFromString:@".priority"];
+                      [putPriority.path childFrom:@".priority"];
                   id<FNode> newNode =
                       [FSnapshotUtilities nodeFrom:putPriority.priority
                                           priority:nil];
@@ -444,7 +444,7 @@ static NSString *trackedQueryKeysKey(NSUInteger trackedQueryId, NSString *key) {
     NSDate *start = [NSDate date];
     __block id<FNode> node = [FEmptyNode emptyNode];
     [keys enumerateObjectsUsingBlock:^(NSString *key, BOOL *stop) {
-      id data = [self internalNestedDataForPath:[path childFromString:key]];
+      id data = [self internalNestedDataForPath:[path childFrom:key]];
       node = [node updateImmediateChild:key
                            withNewChild:[FSnapshotUtilities nodeFrom:data]];
     }];
@@ -467,7 +467,7 @@ static NSString *trackedQueryKeysKey(NSUInteger trackedQueryId, NSString *key) {
         // remove any children that exist
         [node enumerateChildrenUsingBlock:^(NSString *childKey,
                                             id<FNode> childNode, BOOL *stop) {
-          FPath *childPath = [path childFromString:childKey];
+          FPath *childPath = [path childFrom:childKey];
           [self removeAllWithPrefix:serverCacheKey(childPath)
                               batch:batch
                            database:self.serverCacheDB];

@@ -37,6 +37,8 @@
 #import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
 #import "FirebaseDatabase/Sources/Snapshot/FNode.h"
 
+@import FirebaseDatabaseSwiftCore;
+
 /**
  * An implementation of FCompleteChildSource that never returns any additional
  * children

@@ -20,6 +20,8 @@
 #import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
 #import "FirebaseDatabase/Sources/Utilities/FStringUtilities.h"
 
+@import FirebaseDatabaseSwiftCore;
+
 @interface FCompoundHashBuilder ()
 
 @property(nonatomic, strong) FCompoundHashSplitStrategy splitStrategy;

@@ -23,6 +23,8 @@
 #import "FirebaseDatabase/Sources/Snapshot/FIndexedNode.h"
 #import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
 
+@import FirebaseDatabaseSwiftCore;
+
 @interface FIRMutableData ()
 
 - (id)initWithPrefixPath:(FPath *)path
@@ -56,7 +58,7 @@
 }
 
 - (FIRMutableData *)childDataByAppendingPath:(NSString *)path {
-    FPath *wholePath = [self.prefixPath childFromString:path];
+    FPath *wholePath = [self.prefixPath childFrom: path];
     return [[FIRMutableData alloc] initWithPrefixPath:wholePath
                                     andSnapshotHolder:self.data];
 }
@@ -121,7 +123,7 @@
     return [[FTransformedEnumerator alloc]
         initWithEnumerator:[indexedNode childEnumerator]
               andTransform:^id(FNamedNode *node) {
-                FPath *childPath = [self.prefixPath childFromString:node.name];
+                FPath *childPath = [self.prefixPath childFrom:node.name];
                 FIRMutableData *childData =
                     [[FIRMutableData alloc] initWithPrefixPath:childPath
                                              andSnapshotHolder:self.data];

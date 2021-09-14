@@ -19,6 +19,8 @@
 #import "FirebaseDatabase/Sources/Snapshot/FCompoundWrite.h"
 #import "FirebaseDatabase/Sources/Snapshot/FNode.h"
 
+@import FirebaseDatabaseSwiftCore;
+
 @interface FWriteRecord ()
 @property(nonatomic, readwrite) NSInteger writeId;
 @property(nonatomic, strong, readwrite) FPath *path;

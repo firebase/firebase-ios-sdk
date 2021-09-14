@@ -20,6 +20,8 @@
 #import "FirebaseDatabase/Sources/Snapshot/FIndexedNode.h"
 #import "FirebaseDatabase/Sources/Snapshot/FNode.h"
 
+@import FirebaseDatabaseSwiftCore;
+
 @interface FCacheNode ()
 @property(nonatomic, readwrite) BOOL isFullyInitialized;
 @property(nonatomic, readwrite) BOOL isFiltered;

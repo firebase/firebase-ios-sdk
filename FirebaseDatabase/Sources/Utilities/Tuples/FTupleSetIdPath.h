@@ -17,6 +17,8 @@
 #import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
 #import <Foundation/Foundation.h>
 
+@import FirebaseDatabaseSwiftCore;
+
 @interface FTupleSetIdPath : NSObject
 
 - (id)initWithSetId:(NSNumber *)aSetId andPath:(FPath *)aPath;

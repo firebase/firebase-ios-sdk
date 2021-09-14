@@ -18,6 +18,8 @@
 #import "FirebaseDatabase/Sources/Core/Utilities/FTreeNode.h"
 #import <Foundation/Foundation.h>
 
+@import FirebaseDatabaseSwiftCore;
+
 @interface FTree : NSObject
 
 - (id)init;

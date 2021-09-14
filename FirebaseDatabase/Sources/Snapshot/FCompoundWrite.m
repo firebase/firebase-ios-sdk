@@ -21,6 +21,8 @@
 #import "FirebaseDatabase/Sources/Snapshot/FNode.h"
 #import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
 
+@import FirebaseDatabaseSwiftCore;
+
 @interface FCompoundWrite ()
 @property(nonatomic, strong) FImmutableTree *writeTree;
 @end
@@ -225,7 +227,7 @@
               } else {
                   blockNode = [self
                       applySubtreeWrite:childTree
-                                 atPath:[relativePath childFromString:childKey]
+                                 atPath:[relativePath childFrom:childKey]
                                  toNode:blockNode];
               }
             }];
@@ -234,7 +236,7 @@
         if (![blockNode getChild:relativePath].isEmpty &&
             priorityWrite != nil) {
             blockNode = [blockNode
-                 updateChild:[relativePath childFromString:@".priority"]
+                 updateChild:[relativePath childFrom:@".priority"]
                 withNewChild:priorityWrite];
         }
         return blockNode;

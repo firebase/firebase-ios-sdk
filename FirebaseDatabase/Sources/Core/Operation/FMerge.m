@@ -21,6 +21,8 @@
 #import "FirebaseDatabase/Sources/Snapshot/FCompoundWrite.h"
 #import "FirebaseDatabase/Sources/Snapshot/FNode.h"
 
+@import FirebaseDatabaseSwiftCore;
+
 @interface FMerge ()
 @property(nonatomic, strong, readwrite) FOperationSource *source;
 @property(nonatomic, readwrite) FOperationType type;

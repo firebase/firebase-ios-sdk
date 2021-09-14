@@ -18,6 +18,8 @@
 #import "FirebaseDatabase/Sources/FIndex.h"
 #import <Foundation/Foundation.h>
 
+@import FirebaseDatabaseSwiftCore;
+
 @interface FPathIndex : NSObject <FIndex>
 - (id)initWithPath:(FPath *)path;
 @end

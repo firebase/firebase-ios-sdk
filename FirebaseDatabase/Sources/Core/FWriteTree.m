@@ -27,6 +27,8 @@
 #import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
 #import "FirebaseDatabase/Sources/Snapshot/FNode.h"
 
+@import FirebaseDatabaseSwiftCore;
+
 @interface FWriteTree ()
 /**
  * A tree tracking the results of applying all visible writes. This does not
@@ -382,7 +384,7 @@
 - (id<FNode>)calculateCompleteChildAtPath:(FPath *)treePath
                                  childKey:(NSString *)childKey
                                     cache:(FCacheNode *)existingServerCache {
-    FPath *path = [treePath childFromString:childKey];
+    FPath *path = [treePath childFrom:childKey];
     id<FNode> shadowingNode = [self.visibleWrites completeNodeAtPath:path];
     if (shadowingNode != nil) {
         return shadowingNode;

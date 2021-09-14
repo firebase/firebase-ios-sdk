@@ -17,6 +17,8 @@
 #import "FirebaseDatabase/Sources/Core/FSparseSnapshotTree.h"
 #import "FirebaseDatabase/Sources/Snapshot/FChildrenNode.h"
 
+@import FirebaseDatabaseSwiftCore;
+
 @interface FSparseSnapshotTree () {
     id<FNode> value;
     NSMutableDictionary *children;
@@ -126,7 +128,7 @@
         func(prefixPath, value);
     } else {
         [self forEachChild:^(NSString *key, FSparseSnapshotTree *tree) {
-          FPath *path = [prefixPath childFromString:key];
+          FPath *path = [prefixPath childFrom:key];
           [tree forEachTreeAtPath:path do:func];
         }];
     }

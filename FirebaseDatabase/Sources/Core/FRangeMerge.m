@@ -18,6 +18,8 @@
 
 #import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
 
+@import FirebaseDatabaseSwiftCore;
+
 @interface FRangeMerge ()
 
 @property(nonatomic, strong) FPath *optExclusiveStart;
@@ -97,7 +99,7 @@
         void (^action)(id, BOOL *) = ^void(NSString *key, BOOL *stop) {
           id<FNode> currentChild = [node getImmediateChild:key];
           id<FNode> updatedChild =
-              [self updateRangeInNode:[currentPath childFromString:key]
+              [self updateRangeInNode:[currentPath childFrom:key]
                                  node:currentChild
                               updates:[updates getImmediateChild:key]];
           // Only need to update if the node changed

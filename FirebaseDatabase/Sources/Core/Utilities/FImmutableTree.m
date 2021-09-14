@@ -317,7 +317,7 @@
         enumerateKeysAndObjectsUsingBlock:^(
             NSString *childKey, FImmutableTree *childTree, BOOL *stop) {
           accum[childKey] =
-              [childTree foldWithPathSoFar:[pathSoFar childFromString:childKey]
+              [childTree foldWithPathSoFar:[pathSoFar childFrom:childKey]
                                  withBlock:block];
         }];
     return block(pathSoFar, self.value, accum);
@@ -346,7 +346,7 @@
             FImmutableTree *nextChild = [self.children get:front];
             if (nextChild != nil) {
                 return [nextChild findOnPath:[pathToFollow popFront]
-                                   pathSoFar:[pathSoFar childFromString:front]
+                                   pathSoFar:[pathSoFar childFrom:front]
                                andApplyBlock:block];
             } else {
                 return nil;
@@ -382,7 +382,7 @@
             if (nextChild) {
                 return
                     [nextChild forEachOnPath:[pathToFollow popFront]
-                                   pathSoFar:[pathSoFar childFromString:front]
+                                   pathSoFar:[pathSoFar childFrom:front]
                                   whileBlock:block];
             } else {
                 return pathSoFar;
@@ -411,7 +411,7 @@
         FImmutableTree *nextChild = [self.children get:front];
         if (nextChild) {
             return [nextChild forEachOnPath:[pathToFollow popFront]
-                                  pathSoFar:[pathSoFar childFromString:front]
+                                  pathSoFar:[pathSoFar childFrom:front]
                                performBlock:block];
         } else {
             return [FImmutableTree empty];
@@ -431,7 +431,7 @@
     [self.children
         enumerateKeysAndObjectsUsingBlock:^(
             NSString *childKey, FImmutableTree *childTree, BOOL *stop) {
-          [childTree forEachPathSoFar:[pathSoFar childFromString:childKey]
+          [childTree forEachPathSoFar:[pathSoFar childFrom:childKey]
                             withBlock:block];
         }];
     if (self.value) {

@@ -56,7 +56,7 @@
 - (FDataEvent *)createEventFrom:(FChange *)change query:(FQuerySpec *)query {
     FIRDatabaseReference *ref = [[FIRDatabaseReference alloc]
         initWithRepo:self.repo
-                path:[query.path childFromString:change.childKey]];
+                path:[query.path childFrom:change.childKey]];
     FIRDataSnapshot *snapshot =
         [[FIRDataSnapshot alloc] initWithRef:ref
                                  indexedNode:change.indexedNode];

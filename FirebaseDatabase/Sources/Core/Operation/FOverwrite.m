@@ -18,6 +18,8 @@
 #import "FirebaseDatabase/Sources/Core/Operation/FOperationSource.h"
 #import "FirebaseDatabase/Sources/Snapshot/FNode.h"
 
+@import FirebaseDatabaseSwiftCore;
+
 @interface FOverwrite ()
 @property(nonatomic, strong, readwrite) FOperationSource *source;
 @property(nonatomic, readwrite) FOperationType type;
