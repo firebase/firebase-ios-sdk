@@ -22,7 +22,8 @@ private struct Fruit: Codable, Identifiable, Equatable {
 
 struct FavouriteFruitsMappingErrorView2: View {
   @FirestoreQuery(
-    collectionPath: "mappingFailure"
+    collectionPath: "mappingFailure",
+    decodingFailureStrategy: .ignore
   ) private var fruits: [Fruit]
   
   var body: some View {
@@ -30,15 +31,15 @@ struct FavouriteFruitsMappingErrorView2: View {
       List(fruits) { fruit in
         Text(fruit.name)
       }
-//      if $fruits.error != nil {
-//        HStack {
-//          Text("There was an error")
-//            .foregroundColor(Color(UIColor.systemBackground))
-//          Spacer()
-//        }
-//        .padding(30)
-//        .background(Color.red)
-//      }
+      if $fruits.error != nil {
+        HStack {
+          Text("There was an error")
+            .foregroundColor(Color(UIColor.systemBackground))
+          Spacer()
+        }
+        .padding(30)
+        .background(Color.red)
+      }
     }
     .animation(.default, value: fruits)
     .navigationTitle("Mapping failure")
@@ -51,20 +52,3 @@ struct FavouriteFruitsMappingErrorView2_Previews: PreviewProvider {
     FavouriteFruitsMappingErrorView2()
   }
 }
-
-//var body: some View {
-//  if $fruits.error == nil {
-//    List(fruits) { fruit in
-//      Text(fruit.name)
-//    }
-//    .animation(.default, value: fruits)
-//    .navigationTitle("Mapping failure")
-//  } else {
-//    // Handle error
-//    VStack {
-//      if let error = $fruits.error, let projectedError = error as NSError {
-//        Text("Projected error: \(projectedError)")
-//      }
-//    }
-//  }
-//  }

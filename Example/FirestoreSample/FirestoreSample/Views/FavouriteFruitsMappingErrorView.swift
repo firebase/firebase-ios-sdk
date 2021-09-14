@@ -23,10 +23,7 @@ private struct Fruit: Codable, Identifiable, Equatable {
 struct FavouriteFruitsMappingErrorView: View {
   @FirestoreQuery(
     collectionPath: "mappingFailure",
-    decodingFailureStrategy: .ignore
-    
-    
-    // DecodingFailureStrategy [.ignore, .raise] // raise is default. // see https://developer.apple.com/documentation/foundation/jsondecoder/keydecodingstrategy/convertfromsnakecase
+    decodingFailureStrategy: .raise
   ) private var fruitResults: Result<[Fruit], Error>
 
   var body: some View {
