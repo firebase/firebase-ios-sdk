@@ -1,4 +1,4 @@
-name: update-cpp-sdk-on-ios-sdk-release
+name: cpp-sdk-update-on-cocoapods-tag
 on:
   push:
     tags:
