@@ -32,7 +32,7 @@ struct FavouriteFruitsView: View {
   @State var showOnlyFavourites = true
 
   var body: some View {
-    if case .success(let fruits) = fruitResults {
+    if case let .success(fruits) = fruitResults {
       List(fruits) { fruit in
         Text(fruit.name)
       }
@@ -47,7 +47,7 @@ struct FavouriteFruitsView: View {
           }
         }
       }
-    } else if case .failure(let error) = fruitResults {
+    } else if case let .failure(error) = fruitResults {
       // Handle error
       Text("Couldn't map data: \(error.localizedDescription)")
     }

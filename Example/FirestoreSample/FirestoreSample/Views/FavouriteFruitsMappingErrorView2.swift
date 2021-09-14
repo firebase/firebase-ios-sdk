@@ -25,7 +25,7 @@ struct FavouriteFruitsMappingErrorView2: View {
     collectionPath: "mappingFailure",
     decodingFailureStrategy: .ignore
   ) private var fruits: [Fruit]
-  
+
   var body: some View {
     VStack(alignment: .leading) {
       List(fruits) { fruit in

@@ -28,14 +28,14 @@ struct FavouriteFruitsMappingErrorView: View {
 
   var body: some View {
     switch fruitResults {
-    case .success(let fruits):
+    case let .success(fruits):
       List(fruits) { fruit in
         Text(fruit.name)
       }
       .animation(.default, value: fruits)
       .navigationTitle("Mapping failure")
 
-    case .failure(let error):
+    case let .failure(error):
       // Handle error
       VStack {
         Text("Couldn't map data: \(error.localizedDescription)")
