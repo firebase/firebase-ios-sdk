@@ -1,0 +1,38 @@
+name: Update C++ SDK on iOS SDK release
+
+on:
+  push:
+    tags: [CocoaPods-*.*.*]
+    tags-ignore: [*-nightly], *-beta]
+  workflow_dispatch:
+    # Temporarily included for testing purposes.
+
+jobs:
+  trigger-cpp-sdk-update:
+    # Only when a new tag was pushed to the repo.
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.ref, 'refs/tags/')) }}
+    # Fetch an authentication token for firebase-workflow-trigger, then use that
+    # token to trigger the update-dependencies workflow in firebase-cpp-sdk.
+    name: Trigger C++ SDK update
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get firebase-workflow-trigger token
+        uses: tibdex/github-app-token@v1
+        id: generate-token
+        with:
+          app_id: ${{ secrets.CPP_WORKFLOW_TRIGGER_APP_ID }}
+          private_key: ${{ secrets.CPP_WORKFLOW_TRIGGER_APP_PRIVATE_KEY }}
+
+      - name: Setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+
+      - name: Check out firebase-cpp-sdk
+        uses: actions/checkout@v2.3.1
+        with:
+          repo: firebase-cpp-sdk
+
+      - name: Trigger firebase-cpp-sdk update
+        run: |
+          python scripts/gha/trigger_workflow.py -t ${{ steps.generate-token.outputs.token }} -w update_dependencies.yml -p updateAndroid 0 -p updateiOS 1 -s 10 -A ${verbose_flag}
