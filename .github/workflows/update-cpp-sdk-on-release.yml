@@ -2,10 +2,7 @@ name: update-cpp-sdk-on-ios-sdk-release
 on:
   push:
     tags:
-      - CocoaPods-*.*.*
-    tags-ignore:
-      - CocoaPods-*.*.*-nightly
-      - CocoaPods-*.*.*-beta
+      - CocoaPods-[0-9]+.[0-9]+.[0-9]+
   workflow_dispatch:
     # Temporarily included for testing purposes.
     inputs:
