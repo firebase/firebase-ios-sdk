@@ -3,14 +3,13 @@ on:
   push:
     tags:
       - CocoaPods-[0-9]+.[0-9]+.[0-9]+
-  workflow_dispatch:
-    # Temporarily included for testing purposes.
-    inputs:
+  pull_request:
+    types: [ edited ]
 
 jobs:
   trigger-cpp-sdk-update:
     # Only when a new tag was pushed to the repo.
-    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.ref, 'refs/tags/')) }}
+    # if: ${{ (github.event_name == 'push' && contains(github.ref, 'refs/tags/')) }}
     # Fetch an authentication token for firebase-workflow-trigger, then use that
     # token to trigger the update-dependencies workflow in firebase-cpp-sdk.
     name: Trigger C++ SDK update
