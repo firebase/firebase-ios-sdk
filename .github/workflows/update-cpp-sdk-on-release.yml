@@ -32,6 +32,7 @@ jobs:
         with:
           app_id: ${{ secrets.CPP_WORKFLOW_TRIGGER_APP_ID }}
           private_key: ${{ secrets.CPP_WORKFLOW_TRIGGER_APP_PRIVATE_KEY }}
+          repository: firebase/firebase-cpp-sdk
 
       - name: Trigger firebase-cpp-sdk update
         run: |
