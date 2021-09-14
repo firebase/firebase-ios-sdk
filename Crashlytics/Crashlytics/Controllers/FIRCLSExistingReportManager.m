@@ -163,7 +163,7 @@ NSInteger compareNewer(FIRCLSInternalReport *reportA,
     }
   }];
 
-  // Because this could happen quite a bit after the inital set of files was
+  // Because this could happen quite a bit after the initial set of files was
   // captured, some could be completed (deleted). So, just double-check to make sure
   // the file still exists.
   [self.operationQueue addOperationWithBlock:^{
