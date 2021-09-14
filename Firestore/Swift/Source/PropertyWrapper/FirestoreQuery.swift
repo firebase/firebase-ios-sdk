@@ -116,19 +116,6 @@ public struct FirestoreQuery<T>: DynamicProperty {
       StateObject(wrappedValue: FirestoreQueryObservable<T>(configuration: configuration))
   }
 
-//  /// Creates an instance by defining a query based on the parameters.
-//  /// - Parameters:
-//  ///   - collectionPath: The path to the Firestore collection to query.
-//  ///   - predicates: An optional array of `QueryPredicate`s that defines a
-//  ///     filter for the fetched results.
-//  public init<U: Decodable>(collectionPath: String, predicates: [QueryPredicate] = [])
-//    where T == [Result<U, Error>] {
-//    let configuration = Configuration(path: collectionPath, predicates: predicates)
-//
-//    _firestoreQueryObservable =
-//      StateObject(wrappedValue: FirestoreQueryObservable<T>(configuration: configuration))
-//  }
-//
   /// Creates an instance by defining a query based on the parameters.
   /// - Parameters:
   ///   - collectionPath: The path to the Firestore collection to query.
