@@ -9,14 +9,14 @@ import Foundation
 import NIOHTTP1
 
 @objc public protocol FWebSocketDelegate: NSObjectProtocol {
-    @objc func onMessage(_ fwebSocket: AnyObject, withMessage message: NSDictionary)
+    @objc func onMessage(_ fwebSocket: AnyObject, withMessage message: [String: Any])
     @objc func onDisconnect(_ fwebSocket: AnyObject, wasEverConnected: Bool)
 }
 
 private let kAppCheckTokenHeader = "X-Firebase-AppCheck"
 private let kUserAgentHeader = "User-Agent"
 private let kGoogleAppIDHeader = "X-Firebase-GMPID"
-private let kWebsocketProtocolVersion = "5"
+internal let kWebsocketProtocolVersion = "5"
 
 extension String {
     func split(by length: Int) -> [Substring] {
@@ -33,15 +33,11 @@ extension String {
     }
 }
 
-private let kWebsocketMaxFrameSize = 16384
-private let kWebsocketKeepaliveInterval: TimeInterval = 45
-private let kWebsocketConnectTimeout: Double = 30
-
-fileprivate func FFLog(_ id: String, _ log: String) {
+internal func FFLog(_ id: String, _ log: String) {
     print(id, log)
 }
 
-@objc public class FWebSocketConnection: NSObject {
+public class FWebSocketConnection {
     var connectionId: NSNumber
     var totalFrames: Int
     var buffering: Bool {
@@ -54,8 +50,8 @@ fileprivate func FFLog(_ id: String, _ log: String) {
     var keepAlive: Timer?
     var client: WebSocketClient?
 
-    @objc public weak var delegate: FWebSocketDelegate?
-    @objc public func open() {
+    public weak var delegate: FWebSocketDelegate?
+    public func open() {
         FFLog("I-RDB083002", "(wsc:\(self.connectionId)) FWebSocketConnection open)")
         assert(delegate != nil)
         everConnected = false
@@ -73,14 +69,13 @@ fileprivate func FFLog(_ id: String, _ log: String) {
         }
     }
 
-    @objc public func close() {
-        print("CLOSE")
+    public func close() {
         FFLog("I-RDB083003", "(wsc:\(connectionId)) FWebSocketConnection is being closed.")
         isClosed = true
         client?.close()
     }
 
-    @objc public func start() {
+    public func start() {
         print("START")
     }
 
@@ -98,7 +93,7 @@ fileprivate func FFLog(_ id: String, _ log: String) {
         }
     }
 
-    @objc public func send(_ dictionary: NSDictionary) {
+    public func send(_ dictionary: [String: Any]) {
         resetKeepAlive()
 
         guard let data = try? JSONSerialization.data(withJSONObject: dictionary, options: []) else {
@@ -117,7 +112,7 @@ fileprivate func FFLog(_ id: String, _ log: String) {
         }
     }
 
-    @objc public init(with connectionURL: String,
+    public init(with connectionURL: String,
                       andQueue queue: DispatchQueue,
                       googleAppID: String,
                       appCheckToken: String,
@@ -137,8 +132,6 @@ fileprivate func FFLog(_ id: String, _ log: String) {
                                     userAgent: userAgent,
                                     googleAppID: googleAppID,
                                     appCheckToken: appCheckToken)
-
-        super.init()
 
         self.client = WebSocketClient(url: url,
                                       headers: headers,
@@ -197,9 +190,9 @@ fileprivate func FFLog(_ id: String, _ log: String) {
         if totalFrames == 0 {
             // Call delegate and pass an immutable version of the frame
             let data = Data(combined.utf8)
-            if let json = try? JSONSerialization.jsonObject(with: data, options: []) as? Dictionary<String, Any> {
+            if let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
                 print("Websocket: Received \(json)")
-                self.delegate?.onMessage(self, withMessage: json as NSDictionary)
+                self.delegate?.onMessage(self, withMessage: json)
             }
 
             frame = nil
