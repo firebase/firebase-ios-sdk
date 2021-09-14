@@ -31,7 +31,8 @@ jobs:
       - name: Check out firebase-cpp-sdk
         uses: actions/checkout@v2.3.1
         with:
-          repo: firebase-cpp-sdk
+          repository: firebase/firebase-cpp-sdk
+          ref: main
 
       - name: Trigger firebase-cpp-sdk update
         run: |
