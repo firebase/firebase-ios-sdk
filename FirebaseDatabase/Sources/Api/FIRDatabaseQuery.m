@@ -30,6 +30,7 @@
 #import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
 #import "FirebaseDatabase/Sources/Utilities/FNextPushId.h"
 #import "FirebaseDatabase/Sources/Utilities/FValidation.h"
+#import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 
 @implementation FIRDatabaseQuery
 

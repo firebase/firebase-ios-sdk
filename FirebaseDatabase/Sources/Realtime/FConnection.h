@@ -16,6 +16,7 @@
 
 #import "FirebaseDatabase/Sources/Realtime/FWebSocketConnection.h"
 #import "FirebaseDatabase/Sources/Utilities/FTypedefs.h"
+#import "FirebaseDatabase/Sources/Core/FRepoInfo.h"
 #import <Foundation/Foundation.h>
 
 @import FirebaseDatabaseSwiftCore;

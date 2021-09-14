@@ -12,7 +12,6 @@ import NIOHTTP1
 import NIOWebSocket
 import NIOSSL
 
-
 final class WebSocketClient {
     private let webSocketHandler: WebSocketHandler
     private let openClosure: () throws -> Void
@@ -30,11 +29,24 @@ final class WebSocketClient {
         webSocketHandler.send(data: data)
     }
 
+    func send(string: Substring) {
+        webSocketHandler.send(string: string)
+    }
+
+    func send(string: String) {
+        webSocketHandler.send(string: string)
+    }
+
     init(url: URL,
          headers: HTTPHeaders,
-         onMessage: @escaping (Dictionary<String, Any>) -> Void,
+         onOpen: @escaping () -> Void,
+         onMessage: @escaping (String) -> Void,
          onClose: @escaping () -> Void) {
-        self.webSocketHandler = WebSocketHandler(onMessage: onMessage, onClose: onClose)
+        self.webSocketHandler = WebSocketHandler(
+            onOpen: onOpen,
+            onMessage: onMessage,
+            onClose: onClose
+        )
 
         let httpHandler = HTTPInitialRequestHandler(url: url, headers: headers)
 
@@ -150,10 +162,13 @@ private final class WebSocketHandler: ChannelInboundHandler {
 
     var context: ChannelHandlerContext?
     private let onClose: () -> Void
-    private let onMessage: (Dictionary<String, Any>) -> Void
+    private let onMessage: (String) -> Void
+    private let onOpen: () -> Void
 
-    public init(onMessage: @escaping (Dictionary<String, Any>) -> Void,
+    public init(onOpen: @escaping () -> Void,
+                onMessage: @escaping (String) -> Void,
                 onClose: @escaping () -> Void) {
+        self.onOpen = onOpen
         self.onClose = onClose
         self.onMessage = onMessage
     }
@@ -162,16 +177,28 @@ private final class WebSocketHandler: ChannelInboundHandler {
     public func handlerAdded(context: ChannelHandlerContext) {
         self.context = context
         print("WebSocket handler added.")
+        onOpen()
     }
 
     func send(data: Data) {
-        guard let context = context else {
-            return
-        }
-        let stringData = String(data: data, encoding: .utf8) ?? ""
-        print("SENDING", stringData)
+        guard let stringData = String(data: data, encoding: .utf8) else { return }
+        self.send(string: stringData[...])
+    }
+
+    func send(string: Substring) {
+        print("SENDING", string)
+        self.send(stringData: string, x: { $0.channel.allocator.buffer(substring: $1) })
+    }
+
+    func send(string: String) {
+        print("SENDING", string)
+        self.send(stringData: string, x: { $0.channel.allocator.buffer(string: $1) })
+    }
+
+    func send<T: StringProtocol>(stringData: T, x: @escaping (ChannelHandlerContext, T) -> ByteBuffer) {
+        guard let context = context else { return }
         let send = {
-            let buffer = context.channel.allocator.buffer(string: stringData)
+            let buffer = x(context, stringData)
             let frame = WebSocketFrame(fin: true, opcode: .text, maskKey: .random(), data: buffer)
             context.write(self.wrapOutboundOut(frame), promise: nil)
         }
@@ -188,13 +215,11 @@ private final class WebSocketHandler: ChannelInboundHandler {
         switch frame.opcode {
         case .text:
             var byteBuffer = frame.unmaskedData
-            let bytes = byteBuffer.readBytes(length: byteBuffer.readableBytes) ?? []
-            let data = Data(bytes)
-            if let json = try? JSONSerialization.jsonObject(with: data, options: []) as? Dictionary<String, Any> {
-                print("Websocket: Received \(json)")
-                onMessage(json)
-//                delegate?.onMessage(self, withMessage: json as NSDictionary)
-            }
+            let string = byteBuffer.readString(length: byteBuffer.readableBytes) ?? ""
+
+            print("Websocket: Received \(string)")
+            onMessage(string)
+
         case .connectionClose:
             self.receivedClose(context: context, frame: frame)
         case .binary, .continuation, .ping, .pong:

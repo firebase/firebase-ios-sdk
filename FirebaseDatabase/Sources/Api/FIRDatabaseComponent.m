@@ -23,6 +23,7 @@
 #import "FirebaseAppCheck/Sources/Interop/FIRAppCheckInterop.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "Interop/Auth/Public/FIRAuthInterop.h"
+#import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -22,6 +22,7 @@
 #import "FirebaseDatabase/Sources/Core/FQuerySpec.h"
 #import "FirebaseDatabase/Sources/Core/View/FCancelEvent.h"
 #import "FirebaseDatabase/Sources/Core/View/FDataEvent.h"
+#import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 
 @interface FChildEventRegistration ()
 @property(nonatomic, strong) FRepo *repo;

@@ -49,6 +49,7 @@
 #import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleNodePath.h"
 #import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleSetIdPath.h"
 #import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleTransaction.h"
+#import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 #import <dlfcn.h>
 
 #if TARGET_OS_IOS || TARGET_OS_TV
