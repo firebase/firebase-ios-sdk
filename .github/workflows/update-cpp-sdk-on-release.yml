@@ -1,4 +1,4 @@
-name: Update C++ SDK on iOS SDK release
+name: Update CPP SDK on iOS SDK release
 
 on:
   push:
