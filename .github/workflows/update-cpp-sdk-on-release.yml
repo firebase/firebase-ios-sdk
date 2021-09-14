@@ -36,4 +36,4 @@ jobs:
 
       - name: Trigger firebase-cpp-sdk update
         run: |
-          python scripts/gha/trigger_workflow.py -t ${{ steps.generate-token.outputs.token }} -w update_dependencies.yml -p updateAndroid 0 -p updateiOS 1 -s 10 -A ${verbose_flag}
+          python scripts/gha/trigger_workflow.py -t ${{ steps.generate-token.outputs.token }} -w update_dependencies.yml -p updateAndroid 0 -p updateiOS 1 -s 10 -A
