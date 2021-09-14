@@ -13,6 +13,7 @@
 		88327B8826D62908002AA6D9 /* FavouriteFruitsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88327B8726D62908002AA6D9 /* FavouriteFruitsView.swift */; };
 		8844BA6126E0DD3F000786F0 /* FavouriteFruitsMappingErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8844BA6026E0DD3F000786F0 /* FavouriteFruitsMappingErrorView.swift */; };
 		88D5E37626EB90C900808AFF /* FavouriteFruitsViewWithViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88D5E37526EB90C900808AFF /* FavouriteFruitsViewWithViewModel.swift */; };
+		88D5E37826EBD2F200808AFF /* FavouriteFruitsMappingErrorView2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88D5E37726EBD2F200808AFF /* FavouriteFruitsMappingErrorView2.swift */; };
 		88FBD98826B9485F00982BF2 /* FirestoreSampleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88FBD98726B9485F00982BF2 /* FirestoreSampleApp.swift */; };
 		88FBD98C26B9486100982BF2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 88FBD98B26B9486100982BF2 /* Assets.xcassets */; };
 		88FBD98F26B9486100982BF2 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 88FBD98E26B9486100982BF2 /* Preview Assets.xcassets */; };
@@ -25,6 +26,7 @@
 		88327B8726D62908002AA6D9 /* FavouriteFruitsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouriteFruitsView.swift; sourceTree = "<group>"; };
 		8844BA6026E0DD3F000786F0 /* FavouriteFruitsMappingErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouriteFruitsMappingErrorView.swift; sourceTree = "<group>"; };
 		88D5E37526EB90C900808AFF /* FavouriteFruitsViewWithViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouriteFruitsViewWithViewModel.swift; sourceTree = "<group>"; };
+		88D5E37726EBD2F200808AFF /* FavouriteFruitsMappingErrorView2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouriteFruitsMappingErrorView2.swift; sourceTree = "<group>"; };
 		88FBD98426B9485F00982BF2 /* FirestoreSample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FirestoreSample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		88FBD98726B9485F00982BF2 /* FirestoreSampleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreSampleApp.swift; sourceTree = "<group>"; };
 		88FBD98B26B9486100982BF2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -112,6 +114,7 @@
 				88FBD99726B948E200982BF2 /* MenuView.swift */,
 				88327B8726D62908002AA6D9 /* FavouriteFruitsView.swift */,
 				8844BA6026E0DD3F000786F0 /* FavouriteFruitsMappingErrorView.swift */,
+				88D5E37726EBD2F200808AFF /* FavouriteFruitsMappingErrorView2.swift */,
 				88D5E37526EB90C900808AFF /* FavouriteFruitsViewWithViewModel.swift */,
 			);
 			path = Views;
@@ -196,6 +199,7 @@
 				88D5E37626EB90C900808AFF /* FavouriteFruitsViewWithViewModel.swift in Sources */,
 				88327B8826D62908002AA6D9 /* FavouriteFruitsView.swift in Sources */,
 				88FBD98826B9485F00982BF2 /* FirestoreSampleApp.swift in Sources */,
+				88D5E37826EBD2F200808AFF /* FavouriteFruitsMappingErrorView2.swift in Sources */,
 				8844BA6126E0DD3F000786F0 /* FavouriteFruitsMappingErrorView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

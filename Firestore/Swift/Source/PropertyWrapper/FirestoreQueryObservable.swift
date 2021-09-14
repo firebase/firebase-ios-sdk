@@ -37,9 +37,9 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
     items = []
     self.configuration = configuration
     setupListener = createListener { [weak self] querySnapshot, error in
-      if let _ = error {
-        // in this scenario, we actively ignore the error
+      if let error = error {
         self?.items = []
+        self?.configuration.error = error
         return
       }
 
@@ -52,8 +52,10 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
         self?.items = try documents.compactMap { queryDocumentSnapshot in
           try queryDocumentSnapshot.data(as: U.self)
         }
+        print("Mapped ")
       } catch {
-        // in this scenario, we actively ignore the error
+        print("There was an error")
+        self?.configuration.error = error
         self?.items = []
       }
     }
@@ -61,41 +63,44 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
     setupListener()
   }
 
-  init<U: Decodable>(configuration: FirestoreQuery<T>.Configuration) where T == [Result<U, Error>] {
-    items = []
-    self.configuration = configuration
-    setupListener = createListener { [weak self] querySnapshot, error in
-      if let error = error {
-        self?.items = [.failure(error)]
-        return
-      }
-
-      guard let documents = querySnapshot?.documents else {
-        self?.items = []
-        return
-      }
-
-      self?.items = documents.compactMap { queryDocumentSnapshot in
-        Result {
-          // NOTE: The `try` handles the parse failure
-          // The `Optional` signature for the result is a
-          // workaround for when a document may not exist.
-          // - which they always do when looping over
-          // them in the `documents` property of a snapshot
-          try queryDocumentSnapshot.data(as: U.self)!
-        }
-      }
-    }
-
-    setupListener()
-  }
-
+//  // this might be usefull if we encounter errors during decoding
+//  init<U: Decodable>(configuration: FirestoreQuery<T>.Configuration) where T == [Result<U, Error>] {
+//    items = []
+//    self.configuration = configuration
+//    setupListener = createListener { [weak self] querySnapshot, error in
+//      if let error = error {
+//        self?.items = [.failure(error)]
+//        self?.configuration.error = error
+//        return
+//      }
+//
+//      guard let documents = querySnapshot?.documents else {
+//        self?.items = []
+//        return
+//      }
+//
+//      self?.items = documents.compactMap { queryDocumentSnapshot in
+//        Result {
+//          // NOTE: The `try` handles the parse failure
+//          // The `Optional` signature for the result is a
+//          // workaround for when a document may not exist.
+//          // - which they always do when looping over
+//          // them in the `documents` property of a snapshot
+//          try queryDocumentSnapshot.data(as: U.self)!
+//        }
+//      }
+//    }
+//
+//    setupListener()
+//  }
+//
   init<U: Decodable>(configuration: FirestoreQuery<T>.Configuration) where T == Result<[U], Error> {
     items = .success([])
     self.configuration = configuration
     setupListener = createListener { [weak self] querySnapshot, error in
       if let error = error {
         self?.items = .failure(error)
+        self?.configuration.error = error
         return
       }
 
@@ -103,7 +108,34 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
         self?.items = .success([])
         return
       }
-
+      
+//      self?.configuration.error = nil
+//
+//      let decodedDocuments: [U] = documents.compactMap { queryDocumentSnapshot in
+//        let result = Result { try queryDocumentSnapshot.data(as: U.self) }
+//        switch result {
+//        case .success(let decodedDocument):
+//          return decodedDocument
+//        case .failure(let error):
+//          self?.configuration.error = error
+//          return nil
+//        }
+//      }
+//
+//      if configuration.decodingFailureStrategy == .raise {
+//        if let error = configuration.error {
+//          self?.items = .failure(error)
+//        } else {
+//          self?.items = .success(decodedDocuments)
+//        }
+//      }
+//      else {
+//        self?.items = .success(decodedDocuments)
+//      }
+//
+//
+//      self?.items = .success(decodedDocuments)
+      
       do {
         let items = try documents.compactMap { queryDocumentSnapshot in
           try queryDocumentSnapshot.data(as: U.self)
@@ -111,6 +143,7 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
         self?.items = .success(items)
       } catch {
         self?.items = .failure(error)
+        self?.configuration.error = error
       }
     }
 

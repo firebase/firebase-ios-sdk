@@ -17,6 +17,11 @@
 import SwiftUI
 import FirebaseFirestore
 
+public enum DecodingFailureStrategy {
+  case ignore
+  case raise // make this the default behaviour
+}
+
 /// A property wrapper that listens to a Firestore collection.
 ///
 /// Consider the following example:
@@ -65,6 +70,12 @@ public struct FirestoreQuery<T>: DynamicProperty {
 
     /// The query's predicates.
     public var predicates: [QueryPredicate]
+    
+    // The strategy to use in case there was a problem during the decoding phase.
+    public var decodingFailureStrategy: DecodingFailureStrategy = .raise
+    
+    /// If any errors occurred, they will be exposed here as well.
+    public var error: Error?
   }
 
   /// The results of the query.
@@ -90,35 +101,39 @@ public struct FirestoreQuery<T>: DynamicProperty {
   ///   - collectionPath: The path to the Firestore collection to query.
   ///   - predicates: An optional array of `QueryPredicate`s that defines a
   ///     filter for the fetched results.
-  public init<U: Decodable>(collectionPath: String, predicates: [QueryPredicate] = [])
+  ///   - decodingFailureStrategy: The strategy to use when there is a failure
+  ///     during the decoding phase. Defaults to `DecodingFailureStrategy.raise`.
+  public init<U: Decodable>(collectionPath: String, predicates: [QueryPredicate] = [], decodingFailureStrategy: DecodingFailureStrategy = .raise)
     where T == [U] {
-    let configuration = Configuration(path: collectionPath, predicates: predicates)
+    let configuration = Configuration(path: collectionPath, predicates: predicates, decodingFailureStrategy: decodingFailureStrategy)
 
     _firestoreQueryObservable =
       StateObject(wrappedValue: FirestoreQueryObservable<T>(configuration: configuration))
   }
 
+//  /// Creates an instance by defining a query based on the parameters.
+//  /// - Parameters:
+//  ///   - collectionPath: The path to the Firestore collection to query.
+//  ///   - predicates: An optional array of `QueryPredicate`s that defines a
+//  ///     filter for the fetched results.
+//  public init<U: Decodable>(collectionPath: String, predicates: [QueryPredicate] = [])
+//    where T == [Result<U, Error>] {
+//    let configuration = Configuration(path: collectionPath, predicates: predicates)
+//
+//    _firestoreQueryObservable =
+//      StateObject(wrappedValue: FirestoreQueryObservable<T>(configuration: configuration))
+//  }
+//
   /// Creates an instance by defining a query based on the parameters.
   /// - Parameters:
   ///   - collectionPath: The path to the Firestore collection to query.
   ///   - predicates: An optional array of `QueryPredicate`s that defines a
   ///     filter for the fetched results.
-  public init<U: Decodable>(collectionPath: String, predicates: [QueryPredicate] = [])
-    where T == [Result<U, Error>] {
-    let configuration = Configuration(path: collectionPath, predicates: predicates)
-
-    _firestoreQueryObservable =
-      StateObject(wrappedValue: FirestoreQueryObservable<T>(configuration: configuration))
-  }
-
-  /// Creates an instance by defining a query based on the parameters.
-  /// - Parameters:
-  ///   - collectionPath: The path to the Firestore collection to query.
-  ///   - predicates: An optional array of `QueryPredicate`s that defines a
-  ///     filter for the fetched results.
-  public init<U: Decodable>(collectionPath: String, predicates: [QueryPredicate] = [])
+  ///   - decodingFailureStrategy: The strategy to use when there is a failure
+  ///     during the decoding phase. Defaults to `DecodingFailureStrategy.raise`.
+  public init<U: Decodable>(collectionPath: String, predicates: [QueryPredicate] = [], decodingFailureStrategy: DecodingFailureStrategy = .raise)
     where T == Result<[U], Error> {
-    let configuration = Configuration(path: collectionPath, predicates: predicates)
+    let configuration = Configuration(path: collectionPath, predicates: predicates, decodingFailureStrategy: decodingFailureStrategy)
 
     _firestoreQueryObservable =
       StateObject(wrappedValue: FirestoreQueryObservable<T>(configuration: configuration))

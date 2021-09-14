@@ -22,19 +22,27 @@ private struct Fruit: Codable, Identifiable, Equatable {
 
 struct FavouriteFruitsMappingErrorView: View {
   @FirestoreQuery(
-    collectionPath: "mappingFailure"
+    collectionPath: "mappingFailure",
+    decodingFailureStrategy: .ignore
+    
+    
+    // DecodingFailureStrategy [.ignore, .raise] // raise is default. // see https://developer.apple.com/documentation/foundation/jsondecoder/keydecodingstrategy/convertfromsnakecase
   ) private var fruitResults: Result<[Fruit], Error>
 
   var body: some View {
-    if case let .success(fruits) = fruitResults {
+    switch fruitResults {
+    case .success(let fruits):
       List(fruits) { fruit in
         Text(fruit.name)
       }
       .animation(.default, value: fruits)
       .navigationTitle("Mapping failure")
-    } else if case let .failure(error as NSError) = fruitResults {
+
+    case .failure(let error):
       // Handle error
-      Text("Couldn't map data: \(error)")
+      VStack {
+        Text("Couldn't map data: \(error.localizedDescription)")
+      }
     }
   }
 }

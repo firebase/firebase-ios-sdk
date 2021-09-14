@@ -29,15 +29,10 @@ struct FavouriteFruitsView: View {
     ]
   ) fileprivate var fruitResults: Result<[Fruit], Error>
 
-//  @FirestoreQuery(
-//    collectionPath: "fruits",
-//    predicates: [.whereField("isFavourite", isEqualTo: true)]
-//  ) var fruits: [Fruit]
-
   @State var showOnlyFavourites = true
 
   var body: some View {
-    if case let .success(fruits) = fruitResults {
+    if case .success(let fruits) = fruitResults {
       List(fruits) { fruit in
         Text(fruit.name)
       }
@@ -52,9 +47,9 @@ struct FavouriteFruitsView: View {
           }
         }
       }
-    } else if case let .failure(error as NSError) = fruitResults {
+    } else if case .failure(let error) = fruitResults {
       // Handle error
-      Text("Couldn't map data: \(error)")
+      Text("Couldn't map data: \(error.localizedDescription)")
     }
   }
 
