@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Fall back to reCAPTCHA for phone auth app verification if the push notification is not received before the timeout. (#8653)
+
 # 8.6.0
 - [fixed] Annotated platform-level availability using `API_UNAVAILABLE` instead of conditionally compiling certain methods with `#if` directives (#8451).
 
