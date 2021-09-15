@@ -1,0 +1,40 @@
+# Whenever a new Firebase iOS SDK is released, this workflow triggers *another*
+# workflow on the Firebase C++ SDK, which will check for the iOS version update
+# and create a PR updating its iOS dependencies if the version number has
+# changed.
+name: update-cpp-sdk-on-release
+on:
+  release:
+    types: [ published ]
+
+jobs:
+  trigger_cpp_sdk_update:
+    # Only when a new release (not just the CocoaPods-* tag) is published.
+    if: ${{ (github.event_name == 'release' && !contains(github.ref, 'CocoaPods')) }}
+    # Fetch an authentication token for firebase-workflow-trigger, then use that
+    # token to trigger the update-dependencies workflow in firebase-cpp-sdk.
+    name: Trigger C++ SDK update
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+
+      - name: Check out firebase-cpp-sdk
+        uses: actions/checkout@v2.3.1
+        with:
+          repository: firebase/firebase-cpp-sdk
+          ref: main
+
+      - name: Get firebase-workflow-trigger token
+        uses: tibdex/github-app-token@v1
+        id: generate-token
+        with:
+          app_id: ${{ secrets.CPP_WORKFLOW_TRIGGER_APP_ID }}
+          private_key: ${{ secrets.CPP_WORKFLOW_TRIGGER_APP_PRIVATE_KEY }}
+          repository: firebase/firebase-cpp-sdk
+
+      - name: Trigger firebase-cpp-sdk update
+        run: |
+          python scripts/gha/trigger_workflow.py -t ${{ steps.generate-token.outputs.token }} -w update-dependencies.yml -p updateAndroid 0 -p updateiOS 1 -p comment "[Triggered]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID) by [firebase-ios-sdk $GITHUB_REF release]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/tag/$GITHUB_REF)." -s 10 -A
