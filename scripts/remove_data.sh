@@ -29,4 +29,3 @@ if [ "$MODE" == "release_testing" ]; then
   sed -i "" "s/https:\/\/.*@github.com\/FirebasePrivate\/SpecsTesting.git/https:\/\/github.com\/FirebasePrivate\/SpecsTesting.git/g" quickstart-ios/"${DIR}"/Podfile quickstart-ios/"${DIR}"/Podfile.lock
 fi
 rm -f quickstart-ios/"${DIR}"/GoogleService-Info.plist
-rm -f quickstart-ios/TestUtils/FIREGSignInInfo.h
