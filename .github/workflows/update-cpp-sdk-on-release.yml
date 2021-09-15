@@ -2,14 +2,11 @@ name: update-cpp-sdk-on-release
 on:
   release:
     types: [ published ]
-  # Temporary trigger just for testing.
-  pull_request:
-    types: [ edited ]
 
 jobs:
   trigger-cpp-sdk-update:
     # Only when a new release (not just the CocoaPods-* tag) is published.
-    # if: ${{ (github.event_name == 'release' && !contains(github.ref, 'CocoaPods')) }}
+    if: ${{ (github.event_name == 'release' && !contains(github.ref, 'CocoaPods')) }}
     # Fetch an authentication token for firebase-workflow-trigger, then use that
     # token to trigger the update-dependencies workflow in firebase-cpp-sdk.
     name: Trigger C++ SDK update
@@ -36,4 +33,4 @@ jobs:
 
       - name: Trigger firebase-cpp-sdk update
         run: |
-          python scripts/gha/trigger_workflow.py -t ${{ steps.generate-token.outputs.token }} -w update-dependencies.yml -p updateAndroid 0 -p updateiOS 1 -s 10 -A
+          python scripts/gha/trigger_workflow.py -t ${{ steps.generate-token.outputs.token }} -w update-dependencies.yml -p updateAndroid 0 -p updateiOS -p comment 'Updated by firebase-ios-sdk ${{ github.ref }} release.' 1 -s 10 -A
