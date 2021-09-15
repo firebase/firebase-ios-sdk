@@ -33,4 +33,4 @@ jobs:
 
       - name: Trigger firebase-cpp-sdk update
         run: |
-          python scripts/gha/trigger_workflow.py -t ${{ steps.generate-token.outputs.token }} -w update-dependencies.yml -p updateAndroid 0 -p updateiOS -p comment 'Updated by firebase-ios-sdk ${{ github.ref }} release.' 1 -s 10 -A
+          python scripts/gha/trigger_workflow.py -t ${{ steps.generate-token.outputs.token }} -w update-dependencies.yml -p updateAndroid 0 -p updateiOS 1 -p comment "Triggered by [firebase-ios-sdk $GITHUB_REF release]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)." -s 10 -A
