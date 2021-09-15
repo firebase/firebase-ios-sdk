@@ -1,10 +1,14 @@
+# Whenever a new Firebase iOS SDK is released, this workflow triggers *another*
+# workflow on the Firebase C++ SDK, which will check for the iOS version update
+# and create a PR updating its iOS dependencies if the version number has
+# changed.
 name: update-cpp-sdk-on-release
 on:
   release:
     types: [ published ]
 
 jobs:
-  trigger-cpp-sdk-update:
+  trigger_cpp_sdk_update:
     # Only when a new release (not just the CocoaPods-* tag) is published.
     if: ${{ (github.event_name == 'release' && !contains(github.ref, 'CocoaPods')) }}
     # Fetch an authentication token for firebase-workflow-trigger, then use that
