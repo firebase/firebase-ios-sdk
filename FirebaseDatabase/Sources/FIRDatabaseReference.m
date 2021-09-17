@@ -154,6 +154,7 @@
              andPriority:(id)priority
      withCompletionBlock:(fbt_void_nserror_ref)block
                     from:(NSString *)fn {
+    FFLog(@"I-RDB038028", @"Running local firebase ios sdk implementation!");
     [FValidation validateFrom:fn writablePath:self.path];
 
     fbt_void_nserror_ref userCallback = [block copy];
