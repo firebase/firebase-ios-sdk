@@ -16,7 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-@class FImmutableSortedDictionary;
 @class FNamedNode;
 @protocol FNode;
 

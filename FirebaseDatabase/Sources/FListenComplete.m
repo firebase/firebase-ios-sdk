@@ -16,7 +16,7 @@
 
 #import "FirebaseDatabase/Sources/FListenComplete.h"
 #import "FirebaseDatabase/Sources/Core/Operation/FOperationSource.h"
-#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
+
 
 @import FirebaseDatabaseSwiftCore;
 

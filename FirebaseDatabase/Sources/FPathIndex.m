@@ -15,7 +15,7 @@
  */
 
 #import "FirebaseDatabase/Sources/FPathIndex.h"
-#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
+
 #import "FirebaseDatabase/Sources/FMaxNode.h"
 #import "FirebaseDatabase/Sources/FNamedNode.h"
 #import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"

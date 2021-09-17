@@ -20,7 +20,7 @@
 #import "FirebaseDatabase/Sources/FNamedNode.h"
 #import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
 #import "FirebaseDatabase/Sources/Snapshot/FLeafNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FNode.h"
+
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 
 // TODO: Abstract into some common base class?
