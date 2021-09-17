@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
+
 
 @import FirebaseDatabaseSwiftCore;
 

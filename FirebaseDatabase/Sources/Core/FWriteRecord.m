@@ -15,9 +15,8 @@
  */
 
 #import "FirebaseDatabase/Sources/Core/FWriteRecord.h"
-#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
+
 #import "FirebaseDatabase/Sources/Snapshot/FCompoundWrite.h"
-#import "FirebaseDatabase/Sources/Snapshot/FNode.h"
 
 @import FirebaseDatabaseSwiftCore;
 

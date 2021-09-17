@@ -18,7 +18,8 @@
 
 #import "FirebaseDatabase/Sources/FIndex.h"
 #import "FirebaseDatabase/Sources/FNamedNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FNode.h"
+
+@import FirebaseDatabaseSwiftCore;
 
 /**
  * Represents a node together with an index. The index and node are updated in

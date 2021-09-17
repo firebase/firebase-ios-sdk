@@ -22,7 +22,7 @@
 #import "FirebaseDatabase/Sources/FIndex.h"
 #import "FirebaseDatabase/Sources/FPriorityIndex.h"
 #import "FirebaseDatabase/Sources/FRangedFilter.h"
-#import "FirebaseDatabase/Sources/Snapshot/FNode.h"
+
 #import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 #import "FirebaseDatabase/Sources/Utilities/FValidation.h"

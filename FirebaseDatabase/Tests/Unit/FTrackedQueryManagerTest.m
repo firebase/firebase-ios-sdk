@@ -17,7 +17,7 @@
 #import <XCTest/XCTest.h>
 
 #import "FirebaseDatabase/Sources/Core/FQuerySpec.h"
-#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
+
 #import "FirebaseDatabase/Sources/FClock.h"
 #import "FirebaseDatabase/Sources/FPathIndex.h"
 #import "FirebaseDatabase/Sources/Persistence/FPruneForest.h"

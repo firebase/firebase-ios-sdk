@@ -18,7 +18,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
+
 #import "FirebaseDatabase/Sources/Persistence/FPruneForest.h"
 
 @interface FPruneForestTest : XCTestCase

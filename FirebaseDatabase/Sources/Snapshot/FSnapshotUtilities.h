@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Snapshot/FNode.h"
 #import <Foundation/Foundation.h>
+
+@import FirebaseDatabaseSwiftCore;
 
 @class FImmutableSortedDictionary;
 @class FCompoundWrite;

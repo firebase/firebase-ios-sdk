@@ -17,9 +17,9 @@
 #import "FirebaseDatabase/Sources/Core/Operation/FMerge.h"
 #import "FirebaseDatabase/Sources/Core/Operation/FOperationSource.h"
 #import "FirebaseDatabase/Sources/Core/Operation/FOverwrite.h"
-#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
+
 #import "FirebaseDatabase/Sources/Snapshot/FCompoundWrite.h"
-#import "FirebaseDatabase/Sources/Snapshot/FNode.h"
+
 
 @import FirebaseDatabaseSwiftCore;
 

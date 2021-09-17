@@ -15,7 +15,7 @@
  */
 
 #import "FirebaseDatabase/Tests/Unit/FPathTests.h"
-#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
+
 
 @implementation FPathTests
 

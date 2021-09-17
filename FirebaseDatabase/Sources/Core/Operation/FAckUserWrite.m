@@ -17,7 +17,7 @@
 #import "FirebaseDatabase/Sources/Core/Operation/FAckUserWrite.h"
 #import "FirebaseDatabase/Sources/Core/Operation/FOperationSource.h"
 #import "FirebaseDatabase/Sources/Core/Utilities/FImmutableTree.h"
-#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
+
 
 @import FirebaseDatabaseSwiftCore;
 

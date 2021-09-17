@@ -15,10 +15,9 @@
  */
 
 #import "FirebaseDatabase/Sources/Core/View/FCacheNode.h"
-#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
+
 #import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
 #import "FirebaseDatabase/Sources/Snapshot/FIndexedNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FNode.h"
 
 @import FirebaseDatabaseSwiftCore;
 

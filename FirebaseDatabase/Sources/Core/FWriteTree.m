@@ -18,14 +18,13 @@
 #import "FirebaseDatabase/Sources/Core/FWriteRecord.h"
 #import "FirebaseDatabase/Sources/Core/FWriteTreeRef.h"
 #import "FirebaseDatabase/Sources/Core/Utilities/FImmutableTree.h"
-#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
+
 #import "FirebaseDatabase/Sources/Core/View/FCacheNode.h"
 #import "FirebaseDatabase/Sources/FIndex.h"
 #import "FirebaseDatabase/Sources/FNamedNode.h"
 #import "FirebaseDatabase/Sources/Snapshot/FChildrenNode.h"
 #import "FirebaseDatabase/Sources/Snapshot/FCompoundWrite.h"
 #import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FNode.h"
 
 @import FirebaseDatabaseSwiftCore;
 

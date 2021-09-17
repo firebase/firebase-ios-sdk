@@ -7,30 +7,30 @@
 
 import Foundation
 
-protocol FNode: NSObjectProtocol {
-    func isLeafNode() -> Bool
-    func getPriority() -> FNode?
-    func updatePriority(_ priority: FNode?) -> FNode?
-    func getImmediateChild(_ childKey: String?) -> FNode?
-    func getChild(_ path: FPath?) -> FNode?
-    func predecessorChildKey(_ childKey: String?) -> String?
-    func updateImmediateChild(
+@objc public protocol FNode: NSObjectProtocol {
+    @objc func isLeafNode() -> Bool
+    @objc func getPriority() -> FNode?
+    @objc func updatePriority(_ priority: FNode?) -> FNode?
+    @objc func getImmediateChild(_ childKey: String?) -> FNode?
+    @objc func getChild(_ path: FPath?) -> FNode?
+    @objc func predecessorChildKey(_ childKey: String?) -> String?
+    @objc func updateImmediateChild(
             _ childKey: String?,
             withNewChild newChildNode: FNode?
         ) -> FNode?
-    func updateChild(_ path: FPath?, withNewChild newChildNode: FNode?) -> FNode?
-    func hasChild(_ childKey: String?) -> Bool
-    var isEmpty: Bool { get }
-    func numChildren() -> Int
-    func val() -> Any?
-    func val(forExport exp: Bool) -> Any?
-    func dataHash() -> String?
-    func compare(_ other: FNode?) -> ComparisonResult
-    func isEqual(_ other: Any?) -> Bool
-    func enumerateChildren(usingBlock block: @escaping (_ key: String?, _ node: FNode?, _ stop: UnsafeMutablePointer<ObjCBool>?) -> Void)
-    func enumerateChildrenReverse(
+    @objc func updateChild(_ path: FPath?, withNewChild newChildNode: FNode?) -> FNode?
+    @objc func hasChild(_ childKey: String?) -> Bool
+    @objc var isEmpty: Bool { get }
+    @objc func numChildren() -> Int32
+    @objc func val() -> Any?
+    @objc func val(forExport exp: Bool) -> Any?
+    @objc func dataHash() -> String?
+    @objc func compare(_ other: FNode?) -> ComparisonResult
+    @objc func isEqual(_ other: Any?) -> Bool
+    @objc func enumerateChildren(usingBlock block: @escaping (_ key: String?, _ node: FNode?, _ stop: UnsafeMutablePointer<ObjCBool>?) -> Void)
+    @objc func enumerateChildrenReverse(
             _ reverse: Bool,
             usingBlock block: @escaping (_ key: String?, _ node: FNode?, _ stop: UnsafeMutablePointer<ObjCBool>?) -> Void
         )
-    func childEnumerator() -> NSEnumerator?
+    @objc func childEnumerator() -> NSEnumerator?
 }

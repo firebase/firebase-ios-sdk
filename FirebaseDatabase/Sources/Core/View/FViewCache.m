@@ -17,7 +17,8 @@
 #import "FirebaseDatabase/Sources/Core/View/FViewCache.h"
 #import "FirebaseDatabase/Sources/Core/View/FCacheNode.h"
 #import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FNode.h"
+
+@import FirebaseDatabaseSwiftCore;
 
 @interface FViewCache ()
 @property(nonatomic, strong, readwrite) FCacheNode *cachedEventSnap;

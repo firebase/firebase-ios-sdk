@@ -21,7 +21,10 @@
 #import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
 #import "FirebaseDatabase/Sources/Utilities/FStringUtilities.h"
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
+#import "FirebaseDatabase/Sources/FIndex.h"
 #import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FImmutableSortedDictionary.h"
+
+@import FirebaseDatabaseSwiftCore;
 
 @interface FLeafNode ()
 @property(nonatomic, strong) id<FNode> priorityNode;

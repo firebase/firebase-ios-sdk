@@ -15,7 +15,7 @@
  */
 
 #import "FirebaseDatabase/Sources/Core/View/FCancelEvent.h"
-#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
+
 #import "FirebaseDatabase/Sources/Core/View/FEventRegistration.h"
 
 @interface FCancelEvent ()

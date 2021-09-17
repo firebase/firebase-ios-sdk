@@ -15,7 +15,8 @@
  */
 
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRMutableData.h"
-#import "FirebaseDatabase/Sources/Snapshot/FNode.h"
+
+@import FirebaseDatabaseSwiftCore;
 
 @interface FIRMutableData ()
 
