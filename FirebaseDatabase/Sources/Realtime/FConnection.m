@@ -165,7 +165,7 @@ typedef enum {
 
 - (void)onDataMessage:(NSDictionary *)message {
     // we don't do anything with data messages, just kick them up a level
-    FFLog(@"I-RDB082010", @"Got data message: %@", message);
+    FFLog(@"I-RDB082010", @"Got data message: %@!!!!!!!!!!!!!!!!!!!!!!!!!!", message);
     [self.delegate onDataMessage:self withMessage:message];
 }
 
