@@ -21,7 +21,8 @@
 #import "FirebaseDatabase/Sources/Persistence/FCachePolicy.h"
 #import "FirebaseDatabase/Sources/Persistence/FStorageEngine.h"
 #import "FirebaseDatabase/Sources/Snapshot/FCompoundWrite.h"
-#import "FirebaseDatabase/Sources/Snapshot/FNode.h"
+
+@import FirebaseDatabaseSwiftCore;
 
 @interface FPersistenceManager : NSObject
 
