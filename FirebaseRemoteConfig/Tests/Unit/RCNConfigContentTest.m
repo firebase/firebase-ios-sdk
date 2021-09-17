@@ -301,20 +301,21 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
       [self expectationWithDescription:
                 @"1st `checkAndWaitForInitialDatabaseLoad` return without timeout"];
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    [configContent checkAndWaitForInitialDatabaseLoad];
+    XCTAssertTrue([configContent checkAndWaitForInitialDatabaseLoad]);
     [expectation1 fulfill];
   });
   XCTestExpectation *expectation2 =
       [self expectationWithDescription:
                 @"2nd `checkAndWaitForInitialDatabaseLoad` return without timeout"];
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    [configContent checkAndWaitForInitialDatabaseLoad];
+    XCTAssertTrue([configContent checkAndWaitForInitialDatabaseLoad]);
     [expectation2 fulfill];
   });
 
   XCTAssertTrue([configContent checkAndWaitForInitialDatabaseLoad]);
   // Check that both `-load...` methods already completed after 1st wait.
-  // This make us more that both `-load...` methods synched with
+  // This make us sure that both `-loadMainWithBundleIdentifier` and
+  // `-loadPersonalizationWithCompletionHandler` methods synched with
   // `-checkAndWaitForInitialDatabaseLoad`.
   XCTAssertTrue(mockDBManager.isLoadMainCompleted);
   XCTAssertTrue(mockDBManager.isLoadPersonalizationCompleted);
