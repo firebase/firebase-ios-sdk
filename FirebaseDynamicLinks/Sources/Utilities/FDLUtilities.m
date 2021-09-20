@@ -211,15 +211,16 @@ BOOL FIRDLIsURLForAllowedCustomDomain(NSURL *_Nullable URL) {
 
       // Next, do a string compare to check if entire domainURIPrefix matches as well.
       if (([urlStr rangeOfString:domainURIPrefixStr
-                                     options:NSCaseInsensitiveSearch | NSAnchoredSearch]
+                         options:NSCaseInsensitiveSearch | NSAnchoredSearch]
                .location) == 0) {
-
-        NSString *urlWithoutDomainURIPrefix =
-            [urlStr substringFromIndex:domainURIPrefixStr.length];
+        NSString *urlWithoutDomainURIPrefix = [urlStr substringFromIndex:domainURIPrefixStr.length];
         BOOL matchesRegularExpression =
-            ([urlWithoutDomainURIPrefix rangeOfString:@"((\\/[A-Za-z0-9]+)|((\\?|\\/\\?)link=https?.*))" options:NSRegularExpressionSearch].location != NSNotFound);
+            ([urlWithoutDomainURIPrefix
+                 rangeOfString:@"((\\/[A-Za-z0-9]+)|((\\?|\\/\\?)link=https?.*))"
+                       options:NSRegularExpressionSearch]
+                 .location != NSNotFound);
 
-        if(matchesRegularExpression){
+        if (matchesRegularExpression) {
           customDomainMatchFound = true;
           break;
         }
@@ -235,20 +236,26 @@ BOOL FIRDLIsURLForAllowedCustomDomain(NSURL *_Nullable URL) {
  *.page.link/i/
  *.app.goo.gl/i/
  */
-BOOL FIRDLIsAValidDLWithFDLDomain(NSURL *_Nullable URL){
+BOOL FIRDLIsAValidDLWithFDLDomain(NSURL *_Nullable URL) {
   BOOL matchesRegularExpression = false;
   NSString *urlStr = URL.absoluteString;
 
-  if([URL.host containsString:@".page.link"] || [URL.host containsString:@".app.goo.gl"]){
-  //Matches the *.page.link and *.app.goo.gl domains.
-  matchesRegularExpression =
-      ([urlStr rangeOfString:@"^https?://[a-zA-Z0-9]+((\\.app\\.goo\\.gl)|(\\.page\\.link))((\\/?\\?link=https?.*)|(\\/[a-zA-Z0-9]+)((\\/?\\?.*=.*)?$|$))" options:NSRegularExpressionSearch].location != NSNotFound);
-
-  if(!matchesRegularExpression){
-    //Matches the *.page.link/i/ and *.app.goo.gl/i/ domains.
+  if ([URL.host containsString:@".page.link"] || [URL.host containsString:@".app.goo.gl"]) {
+    // Matches the *.page.link and *.app.goo.gl domains.
     matchesRegularExpression =
-        ([urlStr rangeOfString:@"^https?:\\/\\/[a-zA-Z0-9]+((\\.app\\.goo\\.gl)|(\\.page\\.link))\\/i\\/.*$" options:NSRegularExpressionSearch].location != NSNotFound);
-  }
+        ([urlStr rangeOfString:@"^https?://[a-zA-Z0-9]+((\\.app\\.goo\\.gl)|(\\.page\\.link))((\\/"
+                               @"?\\?link=https?.*)|(\\/[a-zA-Z0-9]+)((\\/?\\?.*=.*)?$|$))"
+                       options:NSRegularExpressionSearch]
+             .location != NSNotFound);
+
+    if (!matchesRegularExpression) {
+      // Matches the *.page.link/i/ and *.app.goo.gl/i/ domains.
+      matchesRegularExpression =
+          ([urlStr rangeOfString:
+                       @"^https?:\\/\\/[a-zA-Z0-9]+((\\.app\\.goo\\.gl)|(\\.page\\.link))\\/i\\/.*$"
+                         options:NSRegularExpressionSearch]
+               .location != NSNotFound);
+    }
   }
 
   return matchesRegularExpression;
@@ -257,7 +264,8 @@ BOOL FIRDLIsAValidDLWithFDLDomain(NSURL *_Nullable URL){
 /*
  DL can be parsed if it :
  1. Has http(s)://goo.gl/app* or http(s)://page.link/app* format
- 2. OR http(s)://$DomainPrefix.page.link or http(s)://$DomainPrefix.app.goo.gl domain with specific format
+ 2. OR http(s)://$DomainPrefix.page.link or http(s)://$DomainPrefix.app.goo.gl domain with specific
+ format
  3. OR the domain is a listed custom domain
  */
 BOOL FIRDLCanParseUniversalLinkURL(NSURL *_Nullable URL) {
@@ -266,14 +274,16 @@ BOOL FIRDLCanParseUniversalLinkURL(NSURL *_Nullable URL) {
   BOOL isDDLWithAppcodeInPath = ([URL.host isEqual:@"goo.gl"] || [URL.host isEqual:@"page.link"]) &&
                                 [URL.path hasPrefix:@"/app"];
 
-  return isDDLWithAppcodeInPath || FIRDLIsAValidDLWithFDLDomain(URL) || FIRDLIsURLForAllowedCustomDomain(URL);
+  return isDDLWithAppcodeInPath || FIRDLIsAValidDLWithFDLDomain(URL) ||
+         FIRDLIsURLForAllowedCustomDomain(URL);
 }
 
 BOOL FIRDLMatchesShortLinkFormat(NSURL *URL) {
   // Short Durable Link URLs always have a path or it should be a custom domain.
   BOOL hasPathOrCustomDomain = URL.path.length > 0 || FIRDLIsURLForAllowedCustomDomain(URL);
 
-  // Must be able to parse (also checks if the URL conforms to *.app.goo.gl/* or goo.gl/app/* or *.page.link or custom domain with valid suffix)
+  // Must be able to parse (also checks if the URL conforms to *.app.goo.gl/* or goo.gl/app/* or
+  // *.page.link or custom domain with valid suffix)
   BOOL canParse = FIRDLCanParseUniversalLinkURL(URL);
 
   // Path cannot be prefixed with /link/dismiss

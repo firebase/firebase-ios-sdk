@@ -1100,26 +1100,22 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
 }
 
 - (void)testPassMatchesShortLinkFormatForDDLDomains {
-  NSArray<NSString *> *urlStrings =
-      @[ @"https://someapp.app.goo.gl/somepath",
-         @"https://someapp.app.goo.gl/link",
-         @"https://someapp.app.goo.gl/somepath?link=https://somedomain",
-         @"https://someapp.app.goo.gl/somepath?somekey=somevalue",
-         @"https://someapp.app.goo.gl/somepath/?link=https://somedomain",
-         @"https://someapp.app.goo.gl/somepath/?somekey=somevalue",
-         @"https://someapp.page.link/somepath",
-         @"https://someapp.page.link/link",
-         @"https://someapp.page.link/somepath?link=https://somedomain",
-         @"https://someapp.page.link/somepath?somekey=somevalue",
-         @"https://someapp.page.link/somepath/?link=https://somedomain",
-         @"https://someapp.page.link/somepath/?somekey=somevalue",
-         @"http://someapp.page.link/somepath",
-         @"http://someapp.page.link/link",
-         @"http://someapp.page.link/somepath?link=https://somedomain",
-         @"http://someapp.page.link/somepath?somekey=somevalue",
-         @"http://someapp.page.link/somepath/?link=http://somedomain",
-         @"http://someapp.page.link/somepath/?somekey=somevalue"
-      ];
+  NSArray<NSString *> *urlStrings = @[
+    @"https://someapp.app.goo.gl/somepath", @"https://someapp.app.goo.gl/link",
+    @"https://someapp.app.goo.gl/somepath?link=https://somedomain",
+    @"https://someapp.app.goo.gl/somepath?somekey=somevalue",
+    @"https://someapp.app.goo.gl/somepath/?link=https://somedomain",
+    @"https://someapp.app.goo.gl/somepath/?somekey=somevalue",
+    @"https://someapp.page.link/somepath", @"https://someapp.page.link/link",
+    @"https://someapp.page.link/somepath?link=https://somedomain",
+    @"https://someapp.page.link/somepath?somekey=somevalue",
+    @"https://someapp.page.link/somepath/?link=https://somedomain",
+    @"https://someapp.page.link/somepath/?somekey=somevalue", @"http://someapp.page.link/somepath",
+    @"http://someapp.page.link/link", @"http://someapp.page.link/somepath?link=https://somedomain",
+    @"http://someapp.page.link/somepath?somekey=somevalue",
+    @"http://someapp.page.link/somepath/?link=http://somedomain",
+    @"http://someapp.page.link/somepath/?somekey=somevalue"
+  ];
 
   for (NSString *urlString in urlStrings) {
     NSURL *url = [NSURL URLWithString:urlString];
@@ -1201,20 +1197,15 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
 //  https://a.firebase.com/mypath
 - (void)testPassMatchesShortLinkFormatForCustomDomains {
   NSArray<NSString *> *urlStrings = @[
-    @"https://google.com/xyz",
-    @"https://google.com/xyz/?link=https://somedomain",
-    @"https://google.com?link=https://somedomain",
-    @"https://google.com/?link=https://somedomain",
+    @"https://google.com/xyz", @"https://google.com/xyz/?link=https://somedomain",
+    @"https://google.com?link=https://somedomain", @"https://google.com/?link=https://somedomain",
     @"https://google.com/xyz?link=https://somedomain",
-    @"https://google.com/xyz/?link=https://somedomain",
-    @"https://google.com/one/xyz",
+    @"https://google.com/xyz/?link=https://somedomain", @"https://google.com/one/xyz",
     @"https://google.com/one/xyz?link=https://somedomain",
     @"https://google.com/one/xyz/?link=https://somedomain",
     @"https://google.com/one?utm_campaignlink=https://somedomain",
-    @"https://google.com/one/?utm_campaignlink=https://somedomain",
-    @"https://google.com/mylink",
-    @"https://google.com/one/mylink",
-    @"https://a.firebase.com/mypath/mylink"
+    @"https://google.com/one/?utm_campaignlink=https://somedomain", @"https://google.com/mylink",
+    @"https://google.com/one/mylink", @"https://a.firebase.com/mypath/mylink"
   ];
 
   for (NSString *urlString in urlStrings) {
@@ -1567,7 +1558,7 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
 
   NSArray<NSString *> *longFDLURLStrings = @[
     @"https://a.firebase.com/mypath/?link=https://abcd&test=1",  // Long FDL starting with
-                                                         // https://a.firebase.com/mypath
+                                                                 // https://a.firebase.com/mypath
     @"https://google.com/?link=http://abcd",  // Long FDL starting with  'https://google.com'
   ];
   for (NSString *urlString in urlStrings) {
@@ -1591,15 +1582,15 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
   //  https://a.firebase.com/mypath
 
   NSArray<NSString *> *urlStrings = @[
-    @"google.com",                         // Valid domain. No scheme.
-    @"https://google.com",                 // Valid domain. No path after domainURIPrefix.
-    @"https://google.com/",                // Valid domain. No path after domainURIPrefix.
-    @"https://google.co.in/mylink",        // No matching domainURIPrefix.
-    @"https://firebase.com/mypath",        // No matching domainURIPrefix: Invalid (sub)domain.
-    @"https://b.firebase.com/mypath",      // No matching domainURIPrefix: Invalid subdomain.
-    @"https://a.firebase.com/mypathabc",   // No matching domainURIPrefix: Invalid subdomain.
-    @"mydomain.com",                       // https scheme not specified for domainURIPrefix.
-    @"http://mydomain",                    // Domain not in plist. No path after domainURIPrefix.
+    @"google.com",                        // Valid domain. No scheme.
+    @"https://google.com",                // Valid domain. No path after domainURIPrefix.
+    @"https://google.com/",               // Valid domain. No path after domainURIPrefix.
+    @"https://google.co.in/mylink",       // No matching domainURIPrefix.
+    @"https://firebase.com/mypath",       // No matching domainURIPrefix: Invalid (sub)domain.
+    @"https://b.firebase.com/mypath",     // No matching domainURIPrefix: Invalid subdomain.
+    @"https://a.firebase.com/mypathabc",  // No matching domainURIPrefix: Invalid subdomain.
+    @"mydomain.com",                      // https scheme not specified for domainURIPrefix.
+    @"http://mydomain",                   // Domain not in plist. No path after domainURIPrefix.
   ];
 
   for (NSString *urlString in urlStrings) {
