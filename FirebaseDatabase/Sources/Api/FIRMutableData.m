@@ -58,7 +58,7 @@
 }
 
 - (FIRMutableData *)childDataByAppendingPath:(NSString *)path {
-    FPath *wholePath = [self.prefixPath childFrom: path];
+    FPath *wholePath = [self.prefixPath childFromString: path];
     return [[FIRMutableData alloc] initWithPrefixPath:wholePath
                                     andSnapshotHolder:self.data];
 }
@@ -123,7 +123,7 @@
     return [[FTransformedEnumerator alloc]
         initWithEnumerator:[indexedNode childEnumerator]
               andTransform:^id(FNamedNode *node) {
-                FPath *childPath = [self.prefixPath childFrom:node.name];
+                FPath *childPath = [self.prefixPath childFromString:node.name];
                 FIRMutableData *childData =
                     [[FIRMutableData alloc] initWithPrefixPath:childPath
                                              andSnapshotHolder:self.data];

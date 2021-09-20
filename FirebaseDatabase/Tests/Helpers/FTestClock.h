@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseDatabase/Sources/FClock.h"
+@import FirebaseDatabaseSwiftCore;
 
 @interface FTestClock : NSObject <FClock>
 

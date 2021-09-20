@@ -27,7 +27,8 @@
 #import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
 #import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
-#import "FirebaseDatabase/Sources/third_party/Wrap-leveldb/APLevelDB.h"
+
+@import FirebaseDatabaseSwiftCore;
 
 @interface FLevelDBStorageEngine ()
 
@@ -187,7 +188,7 @@ static NSString *trackedQueryKeysKey(NSUInteger trackedQueryId, NSString *key) {
                   // translate.
                   FPendingPutPriority *putPriority = pendingPut;
                   FPath *priorityPath =
-                      [putPriority.path childFrom:@".priority"];
+                      [putPriority.path childFromString:@".priority"];
                   id<FNode> newNode =
                       [FSnapshotUtilities nodeFrom:putPriority.priority
                                           priority:nil];
@@ -444,7 +445,7 @@ static NSString *trackedQueryKeysKey(NSUInteger trackedQueryId, NSString *key) {
     NSDate *start = [NSDate date];
     __block id<FNode> node = [FEmptyNode emptyNode];
     [keys enumerateObjectsUsingBlock:^(NSString *key, BOOL *stop) {
-      id data = [self internalNestedDataForPath:[path childFrom:key]];
+      id data = [self internalNestedDataForPath:[path childFromString:key]];
       node = [node updateImmediateChild:key
                            withNewChild:[FSnapshotUtilities nodeFrom:data]];
     }];
@@ -467,7 +468,7 @@ static NSString *trackedQueryKeysKey(NSUInteger trackedQueryId, NSString *key) {
         // remove any children that exist
         [node enumerateChildrenUsingBlock:^(NSString *childKey,
                                             id<FNode> childNode, BOOL *stop) {
-          FPath *childPath = [path childFrom:childKey];
+          FPath *childPath = [path childFromString:childKey];
           [self removeAllWithPrefix:serverCacheKey(childPath)
                               batch:batch
                            database:self.serverCacheDB];
@@ -764,7 +765,9 @@ static NSString *trackedQueryKeysKey(NSUInteger trackedQueryId, NSString *key) {
         enumerateKeysWithPrefix:trackedQueryKeysKeyPrefix(queryId)
                       asStrings:^(NSString *dbKey, NSString *actualKey,
                                   BOOL *stop) {
-                        [set addObject:actualKey];
+        // XXX TODO: The [NSString stringWithUTF8String: ...] is just added in order to fix
+        // tests since apparently a set of bridged strings compared unequal to a set of unbridged strings
+                        [set addObject: [NSString stringWithUTF8String: [actualKey UTF8String]]];
                       }];
     FFDebug(@"I-RDB076033", @"Loaded %lu tracked keys for query %lu in %fms",
             (unsigned long)set.count, (unsigned long)queryId,

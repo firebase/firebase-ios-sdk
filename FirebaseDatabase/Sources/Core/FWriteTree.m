@@ -383,7 +383,7 @@
 - (id<FNode>)calculateCompleteChildAtPath:(FPath *)treePath
                                  childKey:(NSString *)childKey
                                     cache:(FCacheNode *)existingServerCache {
-    FPath *path = [treePath childFrom:childKey];
+    FPath *path = [treePath childFromString:childKey];
     id<FNode> shadowingNode = [self.visibleWrites completeNodeAtPath:path];
     if (shadowingNode != nil) {
         return shadowingNode;

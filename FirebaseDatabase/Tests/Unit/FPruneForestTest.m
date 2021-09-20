@@ -21,6 +21,8 @@
 
 #import "FirebaseDatabase/Sources/Persistence/FPruneForest.h"
 
+@import FirebaseDatabaseSwiftCore;
+
 @interface FPruneForestTest : XCTestCase
 
 @end

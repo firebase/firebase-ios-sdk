@@ -104,7 +104,7 @@
     } else {
         [FValidation validateFrom:@"child:" validPathString:pathString];
     }
-    FPath *path = [self.path childFrom:pathString];
+    FPath *path = [self.path childFromString:pathString];
     FIRDatabaseReference *firebaseRef =
         [[FIRDatabaseReference alloc] initWithRepo:self.repo path:path];
     return firebaseRef;
@@ -201,7 +201,7 @@
 
     fbt_void_nserror_ref userCallback = [block copy];
     dispatch_async([FIRDatabaseQuery sharedQueue], ^{
-      [self.repo set:[self.path childFrom:@".priority"]
+      [self.repo set:[self.path childFromString:@".priority"]
               withNode:[FSnapshotUtilities nodeFrom:priority]
           withCallback:userCallback];
     });

@@ -226,7 +226,7 @@
               } else {
                   blockNode = [self
                       applySubtreeWrite:childTree
-                                 atPath:[relativePath childFrom:childKey]
+                                 atPath:[relativePath childFromString:childKey]
                                  toNode:blockNode];
               }
             }];
@@ -235,7 +235,7 @@
         if (![blockNode getChild:relativePath].isEmpty &&
             priorityWrite != nil) {
             blockNode = [blockNode
-                 updateChild:[relativePath childFrom:@".priority"]
+                 updateChild:[relativePath childFromString:@".priority"]
                 withNewChild:priorityWrite];
         }
         return blockNode;

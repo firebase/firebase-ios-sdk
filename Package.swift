@@ -541,7 +541,7 @@ let package = Package(
     ),
     .target(
       name: "FirebaseDatabaseSwiftCore",
-      dependencies: [.product(name: "NIOWebSocket", package: "swift-nio"), .product(name: "NIOSSL", package: "swift-nio-ssl")],
+      dependencies: [ "leveldb", .product(name: "NIOWebSocket", package: "swift-nio"), .product(name: "NIOSSL", package: "swift-nio-ssl")],
       path: "FirebaseDatabaseSwiftCore/Sources"
 //      exclude: [
 //        "third_party/RTDBEncoder/LICENSE",

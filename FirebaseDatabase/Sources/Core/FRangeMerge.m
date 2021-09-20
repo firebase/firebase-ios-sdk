@@ -99,7 +99,7 @@
         void (^action)(id, BOOL *) = ^void(NSString *key, BOOL *stop) {
           id<FNode> currentChild = [node getImmediateChild:key];
           id<FNode> updatedChild =
-              [self updateRangeInNode:[currentPath childFrom:key]
+              [self updateRangeInNode:[currentPath childFromString:key]
                                  node:currentChild
                               updates:[updates getImmediateChild:key]];
           // Only need to update if the node changed

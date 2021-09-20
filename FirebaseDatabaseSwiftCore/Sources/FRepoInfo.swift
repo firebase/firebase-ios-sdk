@@ -24,7 +24,7 @@ import Foundation
             }
         }
     }
-    public var secure: Bool
+    @objc public var secure: Bool
     public let domain: String
 
     @objc public init(host: String, isSecure: Bool, withNamespace namespace: String) {

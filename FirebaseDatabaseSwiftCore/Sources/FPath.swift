@@ -93,6 +93,10 @@ private let emptyPath = FPath(with: "")
         toString(withTrailingSlash: false)
     }
 
+    @objc public override var description: String {
+        toString()
+    }
+
     @objc public func toStringWithTrailingSlash() -> String {
         toString(withTrailingSlash: true)
     }
@@ -131,7 +135,7 @@ private let emptyPath = FPath(with: "")
         return FPath(pieces: newPieces, andPieceNum: 0)
     }
 
-    @objc public func child(from childPath: String) -> FPath {
+    @objc public func child(fromString childPath: String) -> FPath {
         var newPieces = Array(pieces[pieceNum...])
 
         let pathPieces = childPath.components(separatedBy: "/")

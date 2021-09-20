@@ -128,7 +128,7 @@
         func(prefixPath, value);
     } else {
         [self forEachChild:^(NSString *key, FSparseSnapshotTree *tree) {
-          FPath *path = [prefixPath childFrom:key];
+          FPath *path = [prefixPath childFromString:key];
           [tree forEachTreeAtPath:path do:func];
         }];
     }

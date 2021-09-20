@@ -153,7 +153,7 @@
  */
 - (FWriteTreeRef *)childWriteTreeRef:(NSString *)childKey {
     return
-        [[FWriteTreeRef alloc] initWithPath:[self.path childFrom:childKey]
+        [[FWriteTreeRef alloc] initWithPath:[self.path childFromString:childKey]
                                   writeTree:self.writeTree];
 }
 

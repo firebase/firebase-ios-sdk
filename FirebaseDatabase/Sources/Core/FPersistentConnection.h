@@ -36,6 +36,8 @@
 
 - (void)open;
 
+- (NSString*) userAgent;
+
 - (void)putData:(id)data
          forPath:(NSString *)pathString
         withHash:(NSString *)hash
