@@ -5,7 +5,7 @@ on:
     paths:
     - 'FirebaseStorage**'
     - 'Interop/Auth/Public/*.h'
-    - '.github/workflows/storage.yml'
+    # - '.github/workflows/storage.yml'
     # - 'scripts/**'
     # Rebuild on Ruby infrastructure changes.
     - 'Gemfile*'
