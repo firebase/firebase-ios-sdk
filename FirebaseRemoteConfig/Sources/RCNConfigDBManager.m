@@ -868,6 +868,9 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
   dispatch_async(_databaseOperationQueue, ^{
     RCNConfigDBManager *strongSelf = weakSelf;
     if (!strongSelf) {
+      dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        handler(NO, [NSMutableDictionary new], [NSMutableDictionary new], nil);
+      });
       return;
     }
 
@@ -898,7 +901,7 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
     }
 
     if (handler) {
-      dispatch_async(dispatch_get_main_queue(), ^{
+      dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         handler(YES, fetchedPersonalization, activePersonalization, nil);
       });
     }
@@ -972,6 +975,9 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
   dispatch_async(_databaseOperationQueue, ^{
     RCNConfigDBManager *strongSelf = weakSelf;
     if (!strongSelf) {
+      dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        handler(NO, [NSDictionary new], [NSDictionary new], [NSDictionary new]);
+      });
       return;
     }
     __block NSDictionary *fetchedConfig =
