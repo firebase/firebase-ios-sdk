@@ -503,7 +503,6 @@ let package = Package(
       ],
       path: "FirebaseDatabase/Sources",
       exclude: [
-        "third_party/Wrap-leveldb/LICENSE",
         "third_party/FImmutableSortedDictionary/LICENSE",
       ],
       publicHeadersPath: "Public",
@@ -541,12 +540,13 @@ let package = Package(
     ),
     .target(
       name: "FirebaseDatabaseSwiftCore",
-      dependencies: [ "leveldb", .product(name: "NIOWebSocket", package: "swift-nio"), .product(name: "NIOSSL", package: "swift-nio-ssl")],
-      path: "FirebaseDatabaseSwiftCore/Sources"
-//      exclude: [
-//        "third_party/RTDBEncoder/LICENSE",
-//        "third_party/RTDBEncoder/METADATA",
-//      ]
+      dependencies: [ "leveldb",
+                      .product(name: "NIOWebSocket", package: "swift-nio"),
+                      .product(name: "NIOSSL", package: "swift-nio-ssl")],
+      path: "FirebaseDatabaseSwiftCore/Sources",
+      exclude: [
+        "LevelDB/LICENSE",
+      ]
     ),
     .target(
       name: "FirebaseDatabaseSwift",

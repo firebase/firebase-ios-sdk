@@ -1,7 +1,6 @@
 /*
  * Copyright © 2014, codesplice pty ltd (sam@codesplice.com.au)
  *
- * Licensed under the terms of the ISC License http://opensource.org/licenses/ISC
  */
 
 import leveldb
