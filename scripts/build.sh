@@ -653,6 +653,7 @@ case "$product-$platform-$method" in
       "${xcb_flags[@]}" \
       -test-iterations 10000 \
       -retry-tests-on-failure \
+      -test-repetition-relaunch-enabled YES \
       IPHONEOS_DEPLOYMENT_TARGET=13.0 \
       TVOS_DEPLOYMENT_TARGET=13.0 \
       test
