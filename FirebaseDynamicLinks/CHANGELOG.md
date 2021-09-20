@@ -1,3 +1,6 @@
+# v8.7.1
+- [fixed] Firebase dynamic links with custom domain will only work if the custom domai has a trailing '/'. (#7087)
+
 # v8.7.0
 - [added] Refactoring and adding helper class. (#8432)
 
