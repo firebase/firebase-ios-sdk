@@ -6,7 +6,7 @@ on:
     - 'FirebaseStorage**'
     - 'Interop/Auth/Public/*.h'
     - '.github/workflows/storage.yml'
-    - 'scripts/**'
+    # - 'scripts/**'
     # Rebuild on Ruby infrastructure changes.
     - 'Gemfile*'
   schedule:

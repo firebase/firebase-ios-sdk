@@ -4,9 +4,9 @@ on:
   pull_request:
     paths:
     - '.github/workflows/spm.yml'
-    - 'Package.swift'
+    # - 'Package.swift'
     - '.swiftpm/*'
-    - 'scripts/build.sh'
+    # - 'scripts/build.sh'
     - 'SwiftPMTests/*'
     - 'Gemfile*'
   schedule:
