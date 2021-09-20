@@ -88,12 +88,12 @@ absl::optional<google_firestore_v1_Value> DocumentSnapshot::GetValue(
 bool operator==(const DocumentSnapshot& lhs, const DocumentSnapshot& rhs) {
   return lhs.firestore_ == rhs.firestore_ &&
          lhs.internal_key_ == rhs.internal_key_ &&
-         lhs.internal_document_.has_value() ==
-             rhs.internal_document_.has_value() &&
-         (lhs.internal_document_.has_value()
-              ? lhs.internal_document_->get().CompareIgnoringState(
-                    rhs.internal_document_->get())
-              : true) &&
+         lhs.exists() == rhs.exists() &&
+         (lhs.exists() ? lhs.internal_document_->get().key() ==
+                                 rhs.internal_document_->get().key() &&
+                             lhs.internal_document_->get().data() ==
+                                 rhs.internal_document_->get().data()
+                       : true) &&
          lhs.metadata_ == rhs.metadata_;
 }
 

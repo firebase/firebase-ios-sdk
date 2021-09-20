@@ -167,7 +167,7 @@ class MutableDocument {
     return value_->Get();
   }
 
-  ObjectValue& data() {
+  ObjectValue& data() const {
     return *value_;
   }
 
@@ -202,8 +202,6 @@ class MutableDocument {
   size_t Hash() const;
 
   std::string ToString() const;
-
-  bool CompareIgnoringState(const MutableDocument& other) const;
 
   friend bool operator==(const MutableDocument& lhs,
                          const MutableDocument& rhs);
