@@ -14,7 +14,7 @@
 
 import FirebaseStorage
 
-#if swift(>=5.5)
+#if compiler(>=5.5) && canImport(_Concurrency)
   @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
   public extension StorageReference {
     /// Asynchronously downloads the object at the StorageReference to a Data object in memory.
