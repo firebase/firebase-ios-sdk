@@ -214,6 +214,10 @@ BOOL FIRDLIsURLForAllowedCustomDomain(NSURL *_Nullable URL) {
                          options:NSCaseInsensitiveSearch | NSAnchoredSearch]
                .location) == 0) {
         NSString *urlWithoutDomainURIPrefix = [urlStr substringFromIndex:domainURIPrefixStr.length];
+
+        //For a valid custom domain DL Suffix:
+        //1. At least one path exists OR
+        //2. Should have a link query param with an http/https link
         BOOL matchesRegularExpression =
             ([urlWithoutDomainURIPrefix
                  rangeOfString:@"((\\/[A-Za-z0-9]+)|((\\?|\\/\\?)link=https?.*))"
@@ -230,7 +234,7 @@ BOOL FIRDLIsURLForAllowedCustomDomain(NSURL *_Nullable URL) {
   return customDomainMatchFound;
 }
 
-/*We are validating following domains in proper format.
+/* We are validating following domains in proper format.
  *.page.link
  *.app.goo.gl
  *.page.link/i/

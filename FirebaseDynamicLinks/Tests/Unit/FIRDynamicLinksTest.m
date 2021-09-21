@@ -1552,8 +1552,17 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
   NSArray<NSString *> *urlStrings = @[
     @"https://google.com/mylink",             // Short FDL starting with 'https://google.com'
     @"https://google.com/one",                // Short FDL starting with 'https://google.com'
+    @"https://google.com/one/",               // Short FDL starting with 'https://google.com'
+    @"https://google.com/one?",               // Short FDL starting with 'https://google.com'
     @"https://google.com/one/mylink",         // Short FDL starting with  'https://google.com/one'
     @"https://a.firebase.com/mypath/mylink",  // Short FDL starting https://a.firebase.com/mypath
+    @"https://google.com?link=https://somedomain",
+    @"https://google.com/?link=https://somedomain",
+    @"https://google.com/somepath?link=https://somedomain",
+    @"https://google.com/somepath/?link=https://somedomain",
+    @"https://google.com/somepath/somepath2?link=https://somedomain",
+    @"https://google.com/somepath/somepath2/?link=https://somedomain",
+    @"https://google.com/somepath?utm_campgilink=someval"
   ];
 
   NSArray<NSString *> *longFDLURLStrings = @[
@@ -1591,6 +1600,9 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
     @"https://a.firebase.com/mypathabc",  // No matching domainURIPrefix: Invalid subdomain.
     @"mydomain.com",                      // https scheme not specified for domainURIPrefix.
     @"http://mydomain",                   // Domain not in plist. No path after domainURIPrefix.
+    @"https://somecustom.com?",
+    @"https://somecustom.com/?",
+    @"https://somecustom.com?somekey=someval"
   ];
 
   for (NSString *urlString in urlStrings) {
