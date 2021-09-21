@@ -17,8 +17,10 @@
 #import <Foundation/Foundation.h>
 
 #import "FirebaseDatabase/Sources/Core/FQueryParams.h"
-#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
+
 #import "FirebaseDatabase/Sources/FIndex.h"
+
+@import FirebaseDatabaseSwiftCore;
 
 @interface FQuerySpec : NSObject <NSCopying>
 

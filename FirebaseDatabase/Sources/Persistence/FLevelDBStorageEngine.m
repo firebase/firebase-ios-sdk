@@ -27,7 +27,8 @@
 #import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
 #import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
-#import "FirebaseDatabase/Sources/third_party/Wrap-leveldb/APLevelDB.h"
+
+@import FirebaseDatabaseSwiftCore;
 
 @interface FLevelDBStorageEngine ()
 
@@ -764,7 +765,9 @@ static NSString *trackedQueryKeysKey(NSUInteger trackedQueryId, NSString *key) {
         enumerateKeysWithPrefix:trackedQueryKeysKeyPrefix(queryId)
                       asStrings:^(NSString *dbKey, NSString *actualKey,
                                   BOOL *stop) {
-                        [set addObject:actualKey];
+        // XXX TODO: The [NSString stringWithUTF8String: ...] is just added in order to fix
+        // tests since apparently a set of bridged strings compared unequal to a set of unbridged strings
+                        [set addObject: [NSString stringWithUTF8String: [actualKey UTF8String]]];
                       }];
     FFDebug(@"I-RDB076033", @"Loaded %lu tracked keys for query %lu in %fms",
             (unsigned long)set.count, (unsigned long)queryId,

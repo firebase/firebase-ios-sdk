@@ -17,8 +17,7 @@
 #import <XCTest/XCTest.h>
 
 #import "FirebaseDatabase/Sources/Core/FQuerySpec.h"
-#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
-#import "FirebaseDatabase/Sources/FClock.h"
+
 #import "FirebaseDatabase/Sources/FPathIndex.h"
 #import "FirebaseDatabase/Sources/Persistence/FPruneForest.h"
 #import "FirebaseDatabase/Sources/Persistence/FTrackedQuery.h"
@@ -28,6 +27,8 @@
 #import "FirebaseDatabase/Tests/Helpers/FTestCachePolicy.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestClock.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
+
+@import FirebaseDatabaseSwiftCore;
 
 @interface FPruneForest (Test)
 

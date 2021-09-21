@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseDatabase/Sources/Snapshot/FNode.h"
+@import FirebaseDatabaseSwiftCore;
 
 /**
  * Applies a merge of a snap for a given interval of paths.

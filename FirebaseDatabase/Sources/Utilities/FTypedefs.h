@@ -19,13 +19,14 @@
 #ifndef Firebase_FTypedefs_h
 #define Firebase_FTypedefs_h
 
+@import FirebaseDatabaseSwiftCore;
+
 /**
  * Stub...
  */
 @class FIRDataSnapshot;
 @class FIRDatabaseReference;
 @class FAuthData;
-@protocol FNode;
 
 // fbt = Firebase Block Typedef
 

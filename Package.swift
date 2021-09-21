@@ -47,6 +47,11 @@ let package = Package(
       name: "FirebaseAppDistribution-Beta",
       targets: ["FirebaseAppDistributionTarget"]
     ),
+    .library(
+      name: "FirebaseDatabaseSwiftCore",
+      targets: ["FirebaseDatabaseSwiftCore"]
+    ),
+
     // TODO: Re-enable after API review passes.
     // .library(
     //   name: "FirebaseCombineSwift-Beta",
@@ -149,7 +154,7 @@ let package = Package(
       url: "https://github.com/google/GoogleAppMeasurement.git",
       // Note that CI changes the version to the head of main for CI.
       // See scripts/setup_spm_tests.sh.
-      .exact("8.7.0")
+      .exact("8.5.0")
     ),
     .package(
       name: "GoogleDataTransport",
@@ -188,14 +193,28 @@ let package = Package(
     ),
     .package(
       name: "leveldb",
-      url: "https://github.com/firebase/leveldb.git",
-      "1.22.2" ..< "1.23.0"
+      url: "https://github.com/mortenbekditlevsen/leveldb.git",
+      .revision("c38963739c2048a84db6823228df1eb9bd16a5ca")
+//      "1.22.2" ..< "1.23.0"
+    ),
+    .package(
+      url: "https://github.com/apple/swift-collections.git",
+      .upToNextMajor(from: "1.0.0") // or `.upToNextMinor
     ),
     .package(
       name: "GCDWebServer",
       url: "https://github.com/SlaunchaMan/GCDWebServer.git",
       .revision("935e2736044e71e5341663c3cc9a335ba6867a2b")
     ),
+    .package(
+        url: "https://github.com/apple/swift-nio.git",
+        from: "2.0.0"
+    ),
+    .package(
+        url: "https://github.com/apple/swift-nio-ssl.git",
+        from: "2.14.0"
+    )
+
     // Branches need a force update with a run with the revision set like below.
     //   .package(url: "https://github.com/paulb777/nanopb.git", .revision("564392bd87bd093c308a3aaed3997466efb95f74"))
   ],
@@ -485,13 +504,11 @@ let package = Package(
       dependencies: [
         "FirebaseCore",
         "leveldb",
+        "FirebaseDatabaseSwiftCore"
       ],
       path: "FirebaseDatabase/Sources",
       exclude: [
-        "third_party/Wrap-leveldb/LICENSE",
-        "third_party/SocketRocket/LICENSE",
         "third_party/FImmutableSortedDictionary/LICENSE",
-        "third_party/SocketRocket/aa2297808c225710e267afece4439c256f6efdb3",
       ],
       publicHeadersPath: "Public",
       cSettings: [
@@ -524,6 +541,17 @@ let package = Package(
       path: "FirebaseDatabase/Tests/Unit/Swift",
       cSettings: [
         .headerSearchPath("../.."),
+      ]
+    ),
+    .target(
+      name: "FirebaseDatabaseSwiftCore",
+      dependencies: [ "leveldb",
+                      .product(name: "Collections", package: "swift-collections"),
+                      .product(name: "NIOWebSocket", package: "swift-nio"),
+                      .product(name: "NIOSSL", package: "swift-nio-ssl")],
+      path: "FirebaseDatabaseSwiftCore/Sources",
+      exclude: [
+        "LevelDB/LICENSE",
       ]
     ),
     .target(

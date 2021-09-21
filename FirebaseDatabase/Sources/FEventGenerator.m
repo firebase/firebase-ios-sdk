@@ -23,7 +23,8 @@
 #import "FirebaseDatabase/Sources/Core/View/FEvent.h"
 #import "FirebaseDatabase/Sources/Core/View/FEventRegistration.h"
 #import "FirebaseDatabase/Sources/FNamedNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FNode.h"
+
+@import FirebaseDatabaseSwiftCore;
 
 @interface FEventGenerator ()
 @property(nonatomic, strong) FQuerySpec *query;

@@ -41,6 +41,14 @@
 #endif // TARGET_OS_WATCH
 #import <dlfcn.h>
 #import <netinet/in.h>
+#import "FirebaseDatabase/Sources/Api/Private/FIRDatabase_Private.h"
+#import "FirebaseDatabase/Sources/Utilities/FStringUtilities.h"
+
+#if TARGET_OS_IOS || TARGET_OS_TV
+#import <UIKit/UIKit.h>
+#endif // TARGET_OS_IOS || TARGET_OS_TV
+
+@import FirebaseDatabaseSwiftCore;
 
 @interface FOutstandingQuery : NSObject
 
@@ -132,7 +140,49 @@ typedef enum {
 
 @end
 
+
 @implementation FPersistentConnection
+
+- (NSString *)userAgent {
+    NSString *systemVersion;
+    NSString *deviceName;
+    BOOL hasUiDeviceClass = NO;
+
+// Targetted compilation is ONLY for testing. UIKit is weak-linked in actual
+// release build.
+#if TARGET_OS_IOS || TARGET_OS_TV
+    Class uiDeviceClass = NSClassFromString(@"UIDevice");
+    if (uiDeviceClass) {
+        systemVersion = [uiDeviceClass currentDevice].systemVersion;
+        deviceName = [uiDeviceClass currentDevice].model;
+        hasUiDeviceClass = YES;
+    }
+#endif // TARGET_OS_IOS || TARGET_OS_TV
+
+    if (!hasUiDeviceClass) {
+        NSDictionary *systemVersionDictionary = [NSDictionary
+            dictionaryWithContentsOfFile:
+                @"/System/Library/CoreServices/SystemVersion.plist"];
+        systemVersion =
+            [systemVersionDictionary objectForKey:@"ProductVersion"];
+        deviceName = [systemVersionDictionary objectForKey:@"ProductName"];
+    }
+
+    NSString *bundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
+
+    // Sanitize '/'s in deviceName and bundleIdentifier for stats
+    deviceName = [FStringUtilities sanitizedForUserAgent:deviceName];
+    bundleIdentifier =
+        [FStringUtilities sanitizedForUserAgent:bundleIdentifier];
+
+    // Firebase/5/<semver>_<build date>_<git hash>/<os version>/{device model /
+    // os (Mac OS X, iPhone, etc.}_<bundle id>
+    NSString *ua = [NSString
+        stringWithFormat:@"Firebase/%@/%@/%@/%@_%@", kWebsocketProtocolVersion,
+                         [FIRDatabase buildVersion], systemVersion, deviceName,
+                         bundleIdentifier];
+    return ua;
+}
 
 - (id)initWithRepoInfo:(FRepoInfo *)repoInfo
          dispatchQueue:(dispatch_queue_t)dispatchQueue
@@ -393,7 +443,7 @@ typedef enum {
 - (void)onDisconnect:(FConnection *)fconnection
           withReason:(FDisconnectReason)reason {
     FFLog(@"I-RDB034004", @"Got on disconnect due to %s",
-          (reason == DISCONNECT_REASON_SERVER_RESET) ? "server_reset"
+          (reason == FDisconnectReasonDISCONNECT_REASON_SERVER_RESET) ? "server_reset"
                                                      : "other");
     connectionState = ConnectionStateDisconnected;
     // Drop the realtime connection
@@ -414,7 +464,7 @@ typedef enum {
             lastConnectionWasSuccessful = NO;
         }
 
-        if (reason == DISCONNECT_REASON_SERVER_RESET ||
+        if (reason == FDisconnectReasonDISCONNECT_REASON_SERVER_RESET ||
             lastConnectionWasSuccessful) {
             [self.retryHelper signalSuccess];
         }
@@ -548,7 +598,8 @@ typedef enum {
                                  andDispatchQueue:self.dispatchQueue
                                       googleAppID:self.config.googleAppID
                                     lastSessionID:self.lastSessionID
-                                    appCheckToken:context.appCheckToken];
+                                    appCheckToken:context.appCheckToken
+                                        userAgent:[self userAgent]];
     self.realtime.delegate = self;
     [self.realtime open];
 }
@@ -988,7 +1039,10 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
                                      kFWPRequestAction, message,
                                      kFWPRequestPayloadBody, nil];
 
-    [self.realtime sendRequest:msg sensitive:sensitive];
+    NSError *error = nil;
+    [self.realtime sendRequest:msg sensitive:sensitive error: &error];
+
+    // XXX TODO, error handling
 
     if (onMessage) {
         // Debug message without a callback; bump the rn, but don't hold onto

@@ -18,6 +18,8 @@
 
 #import "FirebaseDatabase/Sources/Core/Utilities/FImmutableTree.h"
 
+@import FirebaseDatabaseSwiftCore;
+
 @interface FPruneForest ()
 
 @property(nonatomic, strong) FImmutableTree *pruneForest;

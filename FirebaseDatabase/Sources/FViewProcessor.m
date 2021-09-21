@@ -22,7 +22,7 @@
 #import "FirebaseDatabase/Sources/Core/Operation/FOperationSource.h"
 #import "FirebaseDatabase/Sources/Core/Operation/FOverwrite.h"
 #import "FirebaseDatabase/Sources/Core/Utilities/FImmutableTree.h"
-#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
+
 #import "FirebaseDatabase/Sources/Core/View/FCacheNode.h"
 #import "FirebaseDatabase/Sources/Core/View/FChange.h"
 #import "FirebaseDatabase/Sources/Core/View/FViewCache.h"
@@ -35,7 +35,9 @@
 #import "FirebaseDatabase/Sources/Snapshot/FChildrenNode.h"
 #import "FirebaseDatabase/Sources/Snapshot/FCompoundWrite.h"
 #import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FNode.h"
+
+
+@import FirebaseDatabaseSwiftCore;
 
 /**
  * An implementation of FCompleteChildSource that never returns any additional

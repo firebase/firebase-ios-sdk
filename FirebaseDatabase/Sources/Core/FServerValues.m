@@ -20,6 +20,8 @@
 #import "FirebaseDatabase/Sources/Snapshot/FLeafNode.h"
 #import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
 
+@import FirebaseDatabaseSwiftCore;
+
 const NSString *kTimestamp = @"timestamp";
 const NSString *kIncrement = @"increment";
 

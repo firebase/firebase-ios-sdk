@@ -16,7 +16,7 @@
 
 #import "FirebaseDatabase/Sources/Core/Operation/FOperationSource.h"
 #import "FirebaseDatabase/Sources/Core/FQueryParams.h"
-#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
+
 
 @interface FOperationSource ()
 @property(nonatomic, readwrite) BOOL fromUser;

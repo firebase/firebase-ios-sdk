@@ -18,6 +18,8 @@
 
 #import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
 
+@import FirebaseDatabaseSwiftCore;
+
 @interface FRangeMerge ()
 
 @property(nonatomic, strong) FPath *optExclusiveStart;

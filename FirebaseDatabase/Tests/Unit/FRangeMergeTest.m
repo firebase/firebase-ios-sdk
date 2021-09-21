@@ -20,7 +20,7 @@
 
 #import "FirebaseDatabase/Sources/Core/FRangeMerge.h"
 #import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FNode.h"
+
 #import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
 
 @interface FRangeMergeTest : XCTestCase

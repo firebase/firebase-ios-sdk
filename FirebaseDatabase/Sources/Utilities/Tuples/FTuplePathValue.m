@@ -15,7 +15,7 @@
  */
 
 #import "FirebaseDatabase/Sources/Utilities/Tuples/FTuplePathValue.h"
-#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
+
 
 @interface FTuplePathValue ()
 @property(nonatomic, strong, readwrite) id value;

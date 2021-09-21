@@ -15,12 +15,13 @@
  */
 
 #import "FirebaseDatabase/Sources/Api/Private/FTypedefs_Private.h"
-#import "FirebaseDatabase/Sources/Snapshot/FNode.h"
 #import "FirebaseDatabase/Sources/Utilities/FTypedefs.h"
 #import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FImmutableSortedDictionary.h"
 #import <Foundation/Foundation.h>
 
 @class FNamedNode;
+
+@import FirebaseDatabaseSwiftCore;
 
 @interface FChildrenNode : NSObject <FNode>
 

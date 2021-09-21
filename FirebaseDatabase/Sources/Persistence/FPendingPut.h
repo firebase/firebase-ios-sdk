@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
+
 #import <Foundation/Foundation.h>
+
+@import FirebaseDatabaseSwiftCore;
 
 // These are all legacy classes and are used to migrate older persistence data
 // base to newer ones These classes should not be used in newer code

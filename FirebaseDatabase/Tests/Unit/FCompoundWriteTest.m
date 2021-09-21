@@ -19,7 +19,7 @@
 #import "FirebaseDatabase/Sources/Snapshot/FCompoundWrite.h"
 #import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
 #import "FirebaseDatabase/Sources/Snapshot/FLeafNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FNode.h"
+
 #import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
 
 @interface FCompoundWriteTest : XCTestCase

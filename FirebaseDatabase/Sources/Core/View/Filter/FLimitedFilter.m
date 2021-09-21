@@ -24,7 +24,6 @@
 #import "FirebaseDatabase/Sources/FRangedFilter.h"
 #import "FirebaseDatabase/Sources/Snapshot/FChildrenNode.h"
 #import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
-#import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FTreeSortedDictionary.h"
 
 @interface FLimitedFilter ()
 @property(nonatomic, strong) FRangedFilter *rangedFilter;

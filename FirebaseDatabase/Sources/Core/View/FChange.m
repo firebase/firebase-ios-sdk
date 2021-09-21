@@ -16,6 +16,8 @@
 
 #import "FirebaseDatabase/Sources/Core/View/FChange.h"
 
+@import FirebaseDatabaseSwiftCore;
+
 @interface FChange ()
 
 @property(nonatomic, strong, readwrite) NSString *prevKey;

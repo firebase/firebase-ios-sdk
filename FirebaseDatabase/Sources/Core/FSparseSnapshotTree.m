@@ -17,6 +17,8 @@
 #import "FirebaseDatabase/Sources/Core/FSparseSnapshotTree.h"
 #import "FirebaseDatabase/Sources/Snapshot/FChildrenNode.h"
 
+@import FirebaseDatabaseSwiftCore;
+
 @interface FSparseSnapshotTree () {
     id<FNode> value;
     NSMutableDictionary *children;

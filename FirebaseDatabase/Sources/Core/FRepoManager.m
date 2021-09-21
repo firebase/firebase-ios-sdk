@@ -21,6 +21,7 @@
 #import "FirebaseDatabase/Sources/Core/FRepo.h"
 #import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
 #import "FirebaseDatabase/Sources/Utilities/FAtomicNumber.h"
+#import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 
 @implementation FRepoManager
 

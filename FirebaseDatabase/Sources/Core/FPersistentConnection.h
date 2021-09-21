@@ -15,10 +15,10 @@
  */
 
 #import "FirebaseDatabase/Sources/Api/Private/FTypedefs_Private.h"
-#import "FirebaseDatabase/Sources/Core/FRepoInfo.h"
-#import "FirebaseDatabase/Sources/Realtime/FConnection.h"
 #import "FirebaseDatabase/Sources/Utilities/FTypedefs.h"
 #import <Foundation/Foundation.h>
+
+@import FirebaseDatabaseSwiftCore;
 
 @protocol FPersistentConnectionDelegate;
 @protocol FSyncTreeHash;
@@ -35,6 +35,8 @@
                 config:(FIRDatabaseConfig *)config;
 
 - (void)open;
+
+- (NSString*) userAgent;
 
 - (void)putData:(id)data
          forPath:(NSString *)pathString

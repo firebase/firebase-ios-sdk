@@ -36,7 +36,6 @@
 #import "FirebaseDatabase/Sources/Core/View/FEventRaiser.h"
 #import "FirebaseDatabase/Sources/Core/View/FEventRegistration.h"
 #import "FirebaseDatabase/Sources/Core/View/FValueEventRegistration.h"
-#import "FirebaseDatabase/Sources/FClock.h"
 #import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
 #import "FirebaseDatabase/Sources/Persistence/FCachePolicy.h"
 #import "FirebaseDatabase/Sources/Persistence/FLevelDBStorageEngine.h"
@@ -50,11 +49,14 @@
 #import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleNodePath.h"
 #import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleSetIdPath.h"
 #import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleTransaction.h"
+#import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 #import <dlfcn.h>
 
 #if TARGET_OS_IOS || TARGET_OS_TV
 #import <UIKit/UIKit.h>
 #endif
+
+@import FirebaseDatabaseSwiftCore;
 
 @interface FRepo ()
 

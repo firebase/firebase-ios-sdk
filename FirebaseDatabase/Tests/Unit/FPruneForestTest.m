@@ -18,8 +18,10 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseDatabase/Sources/Core/Utilities/FPath.h"
+
 #import "FirebaseDatabase/Sources/Persistence/FPruneForest.h"
+
+@import FirebaseDatabaseSwiftCore;
 
 @interface FPruneForestTest : XCTestCase
 

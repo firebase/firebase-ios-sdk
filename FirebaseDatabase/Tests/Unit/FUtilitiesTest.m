@@ -18,15 +18,16 @@
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseReference_Private.h"
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabase_Private.h"
 #import "FirebaseDatabase/Sources/Constants/FConstants.h"
-#import "FirebaseDatabase/Sources/FClock.h"
 #import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
-#import "FirebaseDatabase/Sources/Realtime/FWebSocketConnection.h"
+//#import "FirebaseDatabase/Sources/Realtime/FWebSocketConnection.h"
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
 
-@interface FWebSocketConnection (Tests)
-- (NSString *)userAgent;
-@end
+@import FirebaseDatabaseSwiftCore;
+
+//@interface FWebSocketConnection (Tests)
+//- (NSString *)userAgent;
+//@end
 
 @interface FUtilitiesTest : XCTestCase
 
@@ -106,9 +107,9 @@
 
 // This test is here for a lack of a better place to put it
 - (void)testUserAgentString {
-  FWebSocketConnection *conn = [[FWebSocketConnection alloc] init];
+  FPersistentConnection *conn = [[FPersistentConnection alloc] init];
 
-  NSString *agent = [conn performSelector:@selector(userAgent) withObject:nil];
+  NSString *agent = [conn userAgent];
 
   NSArray *parts = [agent componentsSeparatedByString:@"/"];
   XCTAssertEqual(parts.count, (NSUInteger)5);
