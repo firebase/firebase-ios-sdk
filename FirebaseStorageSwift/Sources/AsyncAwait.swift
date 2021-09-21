@@ -14,8 +14,7 @@
 
 import FirebaseStorage
 
-// macOS and Catalyst is disabled since Swift 5.5 is used for earlier versions with the Xcode 13 RC
-#if swift(>=5.5) && !os(macOS) && !targetEnvironment(macCatalyst)
+#if compiler(>=5.5) && canImport(_Concurrency)
   @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
   public extension StorageReference {
     /// Asynchronously downloads the object at the StorageReference to a Data object in memory.
