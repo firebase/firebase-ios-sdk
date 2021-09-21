@@ -167,7 +167,7 @@ class MutableDocument {
     return value_->Get();
   }
 
-  ObjectValue& data() {
+  ObjectValue& data() const {
     return *value_;
   }
 

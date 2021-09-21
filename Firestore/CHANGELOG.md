@@ -1,5 +1,7 @@
 # v8.6.0
 - [changed] Internal refactor to improve serialization performance.
+- [changed] `DocumentSnapshot` objects consider the document's key and data for
+  equality comparison, but ignore the internal state and internal version.
 
 # v8.4.0
 - [fixed] Fixed handling of Unicode characters in log and assertion messages
