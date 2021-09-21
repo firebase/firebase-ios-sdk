@@ -89,10 +89,8 @@ bool operator==(const DocumentSnapshot& lhs, const DocumentSnapshot& rhs) {
   return lhs.firestore_ == rhs.firestore_ &&
          lhs.internal_key_ == rhs.internal_key_ &&
          lhs.exists() == rhs.exists() &&
-         (lhs.exists() ? lhs.internal_document_->get().key() ==
-                                 rhs.internal_document_->get().key() &&
-                             lhs.internal_document_->get().data() ==
-                                 rhs.internal_document_->get().data()
+         (lhs.exists() ? lhs.internal_document_->get().data() ==
+                             rhs.internal_document_->get().data()
                        : true) &&
          lhs.metadata_ == rhs.metadata_;
 }
