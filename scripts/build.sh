@@ -652,7 +652,6 @@ case "$product-$platform-$method" in
       -scheme $product \
       "${xcb_flags[@]}" \
       -test-iterations 10000 \
-      -retry-tests-on-failure \
       IPHONEOS_DEPLOYMENT_TARGET=13.0 \
       TVOS_DEPLOYMENT_TARGET=13.0 \
       test
