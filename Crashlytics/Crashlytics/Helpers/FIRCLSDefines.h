@@ -42,7 +42,7 @@
 #endif
 
 // Whether MetricKit should be supported
-#if defined(__IPHONE_15_0) && (__IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_15_0)
+#if defined(__IPHONE_15_0)
 #define CLS_METRICKIT_SUPPORTED (__has_include(<MetricKit/MetricKit.h>) && TARGET_OS_IOS)
 #else
 #define CLS_METRICKIT_SUPPORTED 0

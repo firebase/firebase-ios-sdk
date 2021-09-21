@@ -183,11 +183,13 @@ typedef NSNumber FIRCLSWrappedReportAction;
 
   _notificationManager = [[FIRCLSNotificationManager alloc] init];
 #if CLS_METRICKIT_SUPPORTED
-  if (@available(iOS 15, *) && self.settings.metricKitCollectionEnabled) {
-    FIRCLSDebugLog(@"MetricKit data collection enabled.");
-    _metricKitManager = [[FIRCLSMetricKitManager alloc] initWithManagerData:managerData
-                                                      existingReportManager:existingReportManager
-                                                                fileManager:_fileManager];
+  if (@available(iOS 15, *)) {
+    if (self.settings.metricKitCollectionEnabled) {
+      FIRCLSDebugLog(@"MetricKit data collection enabled.");
+      _metricKitManager = [[FIRCLSMetricKitManager alloc] initWithManagerData:managerData
+                                                        existingReportManager:existingReportManager
+                                                                  fileManager:_fileManager];
+    }
   }
 #endif
 
@@ -226,14 +228,16 @@ typedef NSNumber FIRCLSWrappedReportAction;
 - (FBLPromise *)waitForMetricKitData {
   // If the platform is not iOS or the iOS version is less than 15, immediately resolve the promise
   // since no MetricKit diagnostics will be available.
+  FBLPromise *promise = [FBLPromise resolvedWith:nil];
 #if CLS_METRICKIT_SUPPORTED
-  if (@available(iOS 15, *) && self.settings.metricKitCollectionEnabled) {
-    return [self.metricKitManager waitForMetricKitDataAvailable];
-  } else {
-    return [FBLPromise resolvedWith:nil];
+  if (@available(iOS 15, *)) {
+    if (self.settings.metricKitCollectionEnabled) {
+      promise = [self.metricKitManager waitForMetricKitDataAvailable];
+    }
   }
+  return promise;
 #endif
-  return [FBLPromise resolvedWith:nil];
+  return promise;
 }
 
 - (FBLPromise<FIRCrashlyticsReport *> *)checkForUnsentReports {
@@ -292,8 +296,10 @@ typedef NSNumber FIRCLSWrappedReportAction;
   }
 
 #if CLS_METRICKIT_SUPPORTED
-  if (@available(iOS 15, *) && self.settings.metricKitCollectionEnabled) {
-    [self.metricKitManager registerMetricKitManager];
+  if (@available(iOS 15, *)) {
+    if (self.settings.metricKitCollectionEnabled) {
+      [self.metricKitManager registerMetricKitManager];
+    }
   }
 #endif
 

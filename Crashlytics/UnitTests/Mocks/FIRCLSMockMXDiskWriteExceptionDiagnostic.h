@@ -24,7 +24,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(14.0))
+API_AVAILABLE(ios(14))
 @interface FIRCLSMockMXDiskWriteExceptionDiagnostic : MXDiskWriteExceptionDiagnostic
 
 - (instancetype)initWithCallStackTree:(FIRCLSMockMXCallStackTree *)callStackTree

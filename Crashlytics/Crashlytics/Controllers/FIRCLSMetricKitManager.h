@@ -40,7 +40,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init NS_UNAVAILABLE;
 - (void)registerMetricKitManager;
 - (FBLPromise *)waitForMetricKitDataAvailable;
-- (void)processDiagnosticPayloads:(NSArray<MXDiagnosticPayload *> *)payloads;
 
 @end
 
