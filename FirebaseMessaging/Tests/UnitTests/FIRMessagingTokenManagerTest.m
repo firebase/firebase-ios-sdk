@@ -72,10 +72,15 @@
 }
 
 - (void)tearDown {
-  [_messaging.tokenManager.tokenOperations addBarrierBlock:^{
-      // Drain queue.
-  }];
-  //  [_messaging.tokenManager stopAllTokenOperations];
+//  XCTestExpectation *expectation = [self expectationWithDescription:@"drainQueue"];
+//  [_messaging.tokenManager.tokenOperations addBarrierBlock:^{
+    // Drain queue.
+//    [expectation fulfill];
+//  }];
+
+//  [self waitForExpectations:@[expectation] timeout:10.0];
+
+  [_messaging.tokenManager stopAllTokenOperations];
   [_mockCheckinStore stopMocking];
   [_mockAuthService stopMocking];
   [_testUtil cleanupAfterTest:self];
