@@ -1,3 +1,6 @@
+# v8.8.0 -- M105
+- [added] Add support for bundle ID-based API Key Restrictions (#8678)
+
 # v8.6.0 -- M102
 - [changed] Documented unsupported platforms (#8493).
 
