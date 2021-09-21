@@ -140,9 +140,9 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
                 format:@"Please register custom URL scheme '%@' in the app's Info.plist file.",
                        self->_callbackScheme];
   }
-  __weak __typeof__(self) weakSelf = self;
-  __weak FIRAuth *weakAuth = _auth;
-  __weak NSString *weakProviderID = _providerID;
+//  __weak __typeof__(self) weakSelf = self;
+//  __weak FIRAuth *weakAuth = _auth;
+//  __weak NSString *weakProviderID = _providerID;
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
     FIRAuthCredentialCallback callbackOnMainThread =
         ^(FIRAuthCredential *_Nullable credential, NSError *_Nullable error) {
@@ -154,8 +154,8 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
         };
     NSString *eventID = [FIRAuthWebUtils randomStringWithLength:10];
     NSString *sessionID = [FIRAuthWebUtils randomStringWithLength:10];
-    __strong __typeof__(self) strongSelf = weakSelf;
-    [strongSelf
+//    __strong __typeof__(self) strongSelf = weakSelf;
+    [self
         getHeadFulLiteURLWithEventID:eventID
                            sessionID:sessionID
                           completion:^(NSURL *_Nullable headfulLiteURL, NSError *_Nullable error) {
@@ -169,9 +169,9 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
                                       isExpectedCallbackURL:callbackURL
                                                     eventID:eventID
                                                    authType:kAuthTypeSignInWithRedirect
-                                             callbackScheme:strongSelf->_callbackScheme];
+                                             callbackScheme:self->_callbackScheme];
                                 };
-                            __strong FIRAuth *strongAuth = weakAuth;
+        __strong FIRAuth *strongAuth = self->_auth;
                             [strongAuth.authURLPresenter
                                      presentURL:headfulLiteURL
                                      UIDelegate:UIDelegate
@@ -183,13 +183,13 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
                                          return;
                                        }
                                        NSString *OAuthResponseURLString =
-                                           [strongSelf OAuthResponseForURL:callbackURL
+                                           [self OAuthResponseForURL:callbackURL
                                                                      error:&error];
                                        if (error) {
                                          callbackOnMainThread(nil, error);
                                          return;
                                        }
-                                       __strong NSString *strongProviderID = weakProviderID;
+                                __strong NSString *strongProviderID = self->_providerID;
                                        FIROAuthCredential *credential = [[FIROAuthCredential alloc]
                                                initWithProviderID:strongProviderID
                                                         sessionID:sessionID
