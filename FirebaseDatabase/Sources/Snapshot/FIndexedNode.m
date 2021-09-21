@@ -22,7 +22,6 @@
 #import "FirebaseDatabase/Sources/Snapshot/FChildrenNode.h"
 #import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FImmutableSortedSet.h"
 
-static FImmutableSortedSet *FALLBACK_INDEX;
 
 @interface FIndexedNode ()
 

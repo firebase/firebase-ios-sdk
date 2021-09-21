@@ -193,8 +193,13 @@ let package = Package(
     ),
     .package(
       name: "leveldb",
-      url: "https://github.com/firebase/leveldb.git",
-      "1.22.2" ..< "1.23.0"
+      url: "https://github.com/mortenbekditlevsen/leveldb.git",
+      .revision("c38963739c2048a84db6823228df1eb9bd16a5ca")
+//      "1.22.2" ..< "1.23.0"
+    ),
+    .package(
+      url: "https://github.com/apple/swift-collections.git",
+      .upToNextMajor(from: "1.0.0") // or `.upToNextMinor
     ),
     .package(
       name: "GCDWebServer",
@@ -541,6 +546,7 @@ let package = Package(
     .target(
       name: "FirebaseDatabaseSwiftCore",
       dependencies: [ "leveldb",
+                      .product(name: "Collections", package: "swift-collections"),
                       .product(name: "NIOWebSocket", package: "swift-nio"),
                       .product(name: "NIOSSL", package: "swift-nio-ssl")],
       path: "FirebaseDatabaseSwiftCore/Sources",
