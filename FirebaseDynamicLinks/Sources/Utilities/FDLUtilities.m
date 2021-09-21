@@ -204,7 +204,7 @@ NSString *FIRDLDeviceTimezone() {
 BOOL FIRDLIsURLForAllowedCustomDomain(NSURL *_Nullable URL) {
   BOOL customDomainMatchFound = false;
   for (NSURL *allowedCustomDomain in FIRDLCustomDomains) {
-    // Atleast one custom domain host name should match at a minimum.
+    // At least one custom domain host name should match at a minimum.
     if ([allowedCustomDomain.host isEqualToString:URL.host]) {
       NSString *urlStr = URL.absoluteString;
       NSString *domainURIPrefixStr = allowedCustomDomain.absoluteString;
