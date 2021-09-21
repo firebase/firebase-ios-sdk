@@ -70,6 +70,7 @@
 }
 
 - (void)tearDown {
+  [_messaging.tokenManager stopAllTokenOperations];
   [_mockCheckinStore stopMocking];
   [_mockAuthService stopMocking];
   [_testUtil cleanupAfterTest:self];
