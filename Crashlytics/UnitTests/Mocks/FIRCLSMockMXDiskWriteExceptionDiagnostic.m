@@ -31,7 +31,7 @@
 @synthesize applicationVersion = _applicationVersion;
 
 - (instancetype)initWithCallStackTree:(FIRCLSMockMXCallStackTree *)callStackTree
-                    totalWritesCaused:(NSMeasurement<NSUnitDuration *> *)totalWritesCaused
+                    totalWritesCaused:(NSMeasurement<NSUnitInformationStorage *> *)totalWritesCaused
                              metaData:(FIRCLSMockMXMetadata *)metaData
                    applicationVersion:(NSString *)applicationVersion {
   self = [super init];

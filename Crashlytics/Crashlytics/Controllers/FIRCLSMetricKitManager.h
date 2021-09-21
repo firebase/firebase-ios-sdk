@@ -15,11 +15,7 @@
 #include <Availability.h>
 #import <Foundation/Foundation.h>
 
-#if defined(__IPHONE_15_0)
-#define CLS_METRICKIT_SUPPORTED (__has_include(<MetricKit/MetricKit.h>) && TARGET_OS_IOS)
-#else
-#define CLS_METRICKIT_SUPPORTED 0
-#endif
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
 
 #if CLS_METRICKIT_SUPPORTED
 #import <MetricKit/MetricKit.h>
@@ -44,7 +40,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init NS_UNAVAILABLE;
 - (void)registerMetricKitManager;
 - (FBLPromise *)waitForMetricKitDataAvailable;
-- (void)processDiagnosticPayloads:(NSArray<MXDiagnosticPayload *> *)payloads;
 
 @end
 

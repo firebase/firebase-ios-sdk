@@ -58,7 +58,10 @@
     NSLog(@"Crashlytics: error creating json");
     return nil;
   }
-
+  self = [super init];
+  if (!self) {
+    return nil;
+  }
   _callStackPerThread = [[jsonDictionary objectForKey:@"callStackPerThread"] boolValue];
 
   // Recurse through the frames in the callStackTree and add them all to an array
