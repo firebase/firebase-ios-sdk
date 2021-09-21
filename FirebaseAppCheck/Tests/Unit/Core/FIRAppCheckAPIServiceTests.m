@@ -96,6 +96,9 @@
 
     XCTAssertEqualObjects(request.allHTTPHeaderFields[@"X-Goog-Api-Key"], self.APIKey);
 
+    XCTAssertEqualObjects(request.allHTTPHeaderFields[@"X-Ios-Bundle-Identifier"],
+                          [[NSBundle mainBundle] bundleIdentifier]);
+
     XCTAssertEqualObjects(request.allHTTPHeaderFields[@"header1"], @"value1");
 
     XCTAssertEqualObjects(request.HTTPMethod, @"POST");
