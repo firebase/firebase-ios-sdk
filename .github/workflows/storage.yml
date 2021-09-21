@@ -60,9 +60,7 @@ jobs:
     runs-on: macos-11
     strategy:
       matrix:
-        # Disabling macos tests since macos is broken on Xcode13 RC and missing Swift Concurrency.
-#        target: [ios, tvos, macos, watchos]
-        target: [ios, tvos, watchos]
+        target: [tvOS, macOS, catalyst, watchOS]
     steps:
     - uses: actions/checkout@v2
     - name: Initialize xcodebuild
@@ -109,8 +107,7 @@ jobs:
 
     strategy:
       matrix:
-#        target: [ios, tvos, macos, watchos]
-        target: [ios, tvos, watchos]
+        target: [ios, tvos, macos, watchos]
         spec: [
           'FirebaseStorage.podspec --test-specs=unit', # The integration tests need more set up.
           'FirebaseStorageSwift.podspec --skip-tests' # No current unit tests.
@@ -149,8 +146,7 @@ jobs:
     runs-on: macos-11
     strategy:
       matrix:
-#        target: [ios, tvos, macos, watchos]
-        target: [ios, tvos, watchos]
+        target: [ios, tvos, macos, watchos]
         flags: [
           '--use-static-frameworks --skip-tests', # Swift pods do not support --use-libraries
         ]
