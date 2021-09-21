@@ -31,6 +31,8 @@
 
 @interface FIRMessagingTokenManager (ExposedForTest)
 
+@property(nonatomic, readonly, strong) NSOperationQueue *tokenOperations;
+
 - (void)resetCredentialsIfNeeded;
 
 @end
@@ -70,7 +72,10 @@
 }
 
 - (void)tearDown {
-  [_messaging.tokenManager stopAllTokenOperations];
+  [_messaging.tokenManager.tokenOperations addBarrierBlock:^{
+      // Drain queue.
+  }];
+  //  [_messaging.tokenManager stopAllTokenOperations];
   [_mockCheckinStore stopMocking];
   [_mockAuthService stopMocking];
   [_testUtil cleanupAfterTest:self];
