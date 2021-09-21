@@ -651,7 +651,7 @@ case "$product-$platform-$method" in
     RunXcodebuild \
       -scheme $product \
       "${xcb_flags[@]}" \
-      -test-iterations 10000 \
+      -test-iterations 100 \
       IPHONEOS_DEPLOYMENT_TARGET=13.0 \
       TVOS_DEPLOYMENT_TARGET=13.0 \
       test
