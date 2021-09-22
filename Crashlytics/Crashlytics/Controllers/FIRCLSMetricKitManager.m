@@ -78,7 +78,7 @@
                    @synchronized(self) {
                      if (!self.metricKitPromiseFulfilled) {
                        FIRCLSDebugLog(@"Resolving MetricKit promise after three seconds");
-                       //                       [self fulfillMetricKitPromise];
+                                              [self fulfillMetricKitPromise];
                      }
                    }
                  });
@@ -135,7 +135,7 @@
 
   // TODO: Time stamp information is only available in begin and end time periods. Hopefully this
   // is updated with iOS 15.
-  NSTimeInterval beginSecondsSince1970 = [diagnosticPayload.timeStampBegin timeIntervalSince1970];
+  NSTimeInterval beginSecondsSince1970 = [[NSDate date] timeIntervalSince1970];
   NSTimeInterval endSecondsSince1970 = [diagnosticPayload.timeStampEnd timeIntervalSince1970];
 
   // Get file path for the active reports directory.
