@@ -31,8 +31,6 @@
 
 @interface FIRMessagingTokenManager (ExposedForTest)
 
-@property(nonatomic, readonly, strong) NSOperationQueue *tokenOperations;
-
 - (void)didDeleteFCMScopedTokensForCheckin:(FIRMessagingCheckinPreferences *)checkin;
 
 - (void)resetCredentialsIfNeeded;
