@@ -254,6 +254,8 @@ BOOL FIRDLIsAValidDLWithFDLDomain(NSURL *_Nullable URL) {
 
     if (!matchesRegularExpression) {
       // Matches the *.page.link/i/ and *.app.goo.gl/i/ domains.
+      // Checks whether the URL is of the format :
+      // http(s)://$DOMAIN(.page.link or .app.goo.gl)/i/$ANYTHING
       matchesRegularExpression =
           ([urlStr rangeOfString:
                        @"^https?:\\/\\/[a-zA-Z0-9]+((\\.app\\.goo\\.gl)|(\\.page\\.link))\\/i\\/.*$"
