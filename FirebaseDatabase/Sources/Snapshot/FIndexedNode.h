@@ -17,7 +17,7 @@
 #import <Foundation/Foundation.h>
 
 #import "FirebaseDatabase/Sources/FIndex.h"
-#import "FirebaseDatabase/Sources/FNamedNode.h"
+
 
 @import FirebaseDatabaseSwiftCore;
 

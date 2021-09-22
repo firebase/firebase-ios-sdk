@@ -47,6 +47,13 @@ func tryParseStringToInt(_ str: String, integer: inout Int) -> Bool {
 enum FUtilitiesSwift {
     static let maxName = "[MAX_NAME]"
     static let minName = "[MIN_NAME]"
+    static func intForString(_ string: String) -> Int? {
+        var intVal = 0
+        if tryParseStringToInt(string, integer: &intVal) {
+            return intVal
+        }
+        return nil
+    }
     static func compareKey(_ a: String, _ b: String) -> ComparisonResult {
         if a == b { return .orderedSame }
         else if a == FUtilitiesSwift.minName || b == FUtilitiesSwift.maxName { return .orderedAscending }

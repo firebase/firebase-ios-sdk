@@ -20,7 +20,6 @@
 #import "FirebaseDatabase/Sources/Core/View/FDataEvent.h"
 #import "FirebaseDatabase/Sources/Utilities/FTypedefs.h"
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
-#import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleUserCallback.h"
 
 @interface FEventRaiser ()
 

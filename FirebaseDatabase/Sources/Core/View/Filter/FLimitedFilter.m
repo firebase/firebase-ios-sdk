@@ -20,10 +20,10 @@
 #import "FirebaseDatabase/Sources/Core/View/Filter/FChildChangeAccumulator.h"
 #import "FirebaseDatabase/Sources/Core/View/Filter/FCompleteChildSource.h"
 #import "FirebaseDatabase/Sources/FIndex.h"
-#import "FirebaseDatabase/Sources/FNamedNode.h"
+
 #import "FirebaseDatabase/Sources/FRangedFilter.h"
-#import "FirebaseDatabase/Sources/Snapshot/FChildrenNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
+
+
 
 @interface FLimitedFilter ()
 @property(nonatomic, strong) FRangedFilter *rangedFilter;

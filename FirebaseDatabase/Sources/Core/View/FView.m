@@ -31,7 +31,7 @@
 #import "FirebaseDatabase/Sources/FViewProcessor.h"
 #import "FirebaseDatabase/Sources/FViewProcessorResult.h"
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseQuery.h"
-#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
+
 #import "FirebaseDatabase/Sources/Snapshot/FIndexedNode.h"
 
 @import FirebaseDatabaseSwiftCore;

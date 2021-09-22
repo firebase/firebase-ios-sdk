@@ -13,31 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#import "FirebaseDatabase/Sources/Api/Private/FTypedefs_Private.h"
-#import "FirebaseDatabase/Sources/Utilities/FTypedefs.h"
-#import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FImmutableSortedDictionary.h"
-#import <Foundation/Foundation.h>
-
-@class FNamedNode;
-
-@import FirebaseDatabaseSwiftCore;
-
-@interface FChildrenNode : NSObject <FNode>
-
-- (id)initWithChildren:(FImmutableSortedDictionary *)someChildren;
-- (id)initWithPriority:(id<FNode>)aPriority
-              children:(FImmutableSortedDictionary *)someChildren;
-
-// FChildrenNode specific methods
-
-- (void)enumerateChildrenAndPriorityUsingBlock:(void (^)(NSString *, id<FNode>,
-                                                         BOOL *))block;
-
-- (FNamedNode *)firstChild;
-- (FNamedNode *)lastChild;
-
-@property(nonatomic, strong) FImmutableSortedDictionary *children;
-@property(nonatomic, strong) id<FNode> priorityNode;
-
-@end
+//
+//#import "FirebaseDatabase/Sources/Api/Private/FTypedefs_Private.h"
+//#import "FirebaseDatabase/Sources/Utilities/FTypedefs.h"
+//#import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FImmutableSortedDictionary.h"
+//#import <Foundation/Foundation.h>
+//
+//@class FNamedNode;
+//
+//@import FirebaseDatabaseSwiftCore;
+//
+//@interface FChildrenNode : NSObject <FNode>
+//
+//- (id)initWithChildren:(FImmutableSortedDictionary *)someChildren;
+//- (id)initWithPriority:(id<FNode>)aPriority
+//              children:(FImmutableSortedDictionary *)someChildren;
+//
+//// FChildrenNode specific methods
+//
+//- (void)enumerateChildrenAndPriorityUsingBlock:(void (^)(NSString *, id<FNode>,
+//                                                         BOOL *))block;
+//
+//- (FNamedNode *)firstChild;
+//- (FNamedNode *)lastChild;
+//
+//@property(nonatomic, strong) FImmutableSortedDictionary *children;
+//@property(nonatomic, strong) id<FNode> priorityNode;
+//
+//@end

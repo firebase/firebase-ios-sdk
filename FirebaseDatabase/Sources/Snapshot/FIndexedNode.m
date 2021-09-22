@@ -19,9 +19,10 @@
 #import "FirebaseDatabase/Sources/FIndex.h"
 #import "FirebaseDatabase/Sources/FKeyIndex.h"
 #import "FirebaseDatabase/Sources/FPriorityIndex.h"
-#import "FirebaseDatabase/Sources/Snapshot/FChildrenNode.h"
-#import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FImmutableSortedSet.h"
 
+//#import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FImmutableSortedSet.h"
+
+@import FirebaseDatabaseSwiftCore;
 
 @interface FIndexedNode ()
 

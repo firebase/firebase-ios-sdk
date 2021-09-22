@@ -32,7 +32,7 @@
 #import "FirebaseDatabase/Sources/Core/Operation/FOperation.h"
 #import "FirebaseDatabase/Sources/Core/Operation/FOperationSource.h"
 #import "FirebaseDatabase/Sources/Core/Operation/FOverwrite.h"
-#import "FirebaseDatabase/Sources/Core/Utilities/FImmutableTree.h"
+
 
 #import "FirebaseDatabase/Sources/Core/View/FCacheNode.h"
 #import "FirebaseDatabase/Sources/Core/View/FEventRaiser.h"
@@ -41,9 +41,9 @@
 #import "FirebaseDatabase/Sources/Core/View/FView.h"
 #import "FirebaseDatabase/Sources/FListenComplete.h"
 #import "FirebaseDatabase/Sources/Persistence/FPersistenceManager.h"
-#import "FirebaseDatabase/Sources/Snapshot/FChildrenNode.h"
+
 #import "FirebaseDatabase/Sources/Snapshot/FCompoundWrite.h"
-#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
+
 
 #import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
 #import "FirebaseDatabase/Sources/Utilities/FAtomicNumber.h"
@@ -1017,7 +1017,7 @@ result.
         NSMutableArray *events = [[NSMutableArray alloc] init];
         NSString *childKey = [operation.path getFront];
         id<FOperation> childOperation = [operation operationForChild:childKey];
-        FImmutableTree *childTree = [syncPointTree.children get:childKey];
+        FImmutableTree *childTree = [syncPointTree getChildWithKey:childKey];
         if (childTree != nil && childOperation != nil) {
             id<FNode> childServerCache =
                 serverCache ? [serverCache getImmediateChild:childKey] : nil;
@@ -1061,23 +1061,21 @@ result.
     }
 
     NSMutableArray *events = [[NSMutableArray alloc] init];
-    [syncPointTree.children enumerateKeysAndObjectsUsingBlock:^(
-                                NSString *childKey, FImmutableTree *childTree,
-                                BOOL *stop) {
-      id<FNode> childServerCache = nil;
-      if (resolvedServerCache != nil) {
-          childServerCache = [resolvedServerCache getImmediateChild:childKey];
-      }
-      FWriteTreeRef *childWritesCache =
-          [writesCache childWriteTreeRef:childKey];
-      id<FOperation> childOperation = [operation operationForChild:childKey];
-      if (childOperation != nil) {
-          [events addObjectsFromArray:
-                      [self applyOperationDescendantsHelper:childOperation
-                                              syncPointTree:childTree
-                                                serverCache:childServerCache
-                                                writesCache:childWritesCache]];
-      }
+    [syncPointTree forEachChildTree:^(NSString * _Nonnull childKey, FImmutableTree * _Nonnull childTree) {
+        id<FNode> childServerCache = nil;
+        if (resolvedServerCache != nil) {
+            childServerCache = [resolvedServerCache getImmediateChild:childKey];
+        }
+        FWriteTreeRef *childWritesCache =
+            [writesCache childWriteTreeRef:childKey];
+        id<FOperation> childOperation = [operation operationForChild:childKey];
+        if (childOperation != nil) {
+            [events addObjectsFromArray:
+                        [self applyOperationDescendantsHelper:childOperation
+                                                syncPointTree:childTree
+                                                  serverCache:childServerCache
+                                                  writesCache:childWritesCache]];
+        }
     }];
 
     if (syncPoint) {

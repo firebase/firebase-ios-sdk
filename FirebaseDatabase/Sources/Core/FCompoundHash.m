@@ -15,7 +15,7 @@
  */
 
 #import "FirebaseDatabase/Sources/Core/FCompoundHash.h"
-#import "FirebaseDatabase/Sources/Snapshot/FChildrenNode.h"
+
 #import "FirebaseDatabase/Sources/Snapshot/FLeafNode.h"
 #import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
 #import "FirebaseDatabase/Sources/Utilities/FStringUtilities.h"

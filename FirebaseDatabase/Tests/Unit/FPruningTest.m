@@ -17,8 +17,8 @@
 #import <XCTest/XCTest.h>
 
 #import "FirebaseDatabase/Sources/Persistence/FLevelDBStorageEngine.h"
-#import "FirebaseDatabase/Sources/Persistence/FPruneForest.h"
-#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
+
+
 #import "FirebaseDatabase/Tests/Helpers/FMockStorageEngine.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
 

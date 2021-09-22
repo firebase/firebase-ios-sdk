@@ -16,7 +16,7 @@
 
 #import "FirebaseDatabase/Sources/Core/FRangeMerge.h"
 
-#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
+
 
 @import FirebaseDatabaseSwiftCore;
 

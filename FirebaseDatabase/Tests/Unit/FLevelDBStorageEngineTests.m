@@ -21,7 +21,7 @@
 #import "FirebaseDatabase/Sources/FPathIndex.h"
 #import "FirebaseDatabase/Sources/Persistence/FLevelDBStorageEngine.h"
 #import "FirebaseDatabase/Sources/Persistence/FTrackedQuery.h"
-#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
+
 #import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
 

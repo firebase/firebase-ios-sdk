@@ -43,11 +43,9 @@
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDataSnapshot.h"
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRMutableData.h"
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRTransactionResult.h"
-#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
+
 #import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
 #import "FirebaseDatabase/Sources/Utilities/FAtomicNumber.h"
-#import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleNodePath.h"
-#import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleSetIdPath.h"
 #import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleTransaction.h"
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 #import <dlfcn.h>

@@ -22,9 +22,9 @@
 #import "FirebaseDatabase/Sources/Core/FQueryParams.h"
 #import "FirebaseDatabase/Sources/Core/FWriteRecord.h"
 #import "FirebaseDatabase/Sources/Persistence/FPendingPut.h"
-#import "FirebaseDatabase/Sources/Persistence/FPruneForest.h"
+
 #import "FirebaseDatabase/Sources/Persistence/FTrackedQuery.h"
-#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
+
 #import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 
@@ -436,7 +436,7 @@ static NSString *trackedQueryKeysKey(NSUInteger trackedQueryId, NSString *key) {
     NSDate *start = [NSDate date];
     id data = [self internalNestedDataForPath:path];
     id<FNode> node = [FSnapshotUtilities nodeFrom:data];
-    FFDebug(@"I-RDB076015", @"Loaded node with %d children at %@ in %fms",
+    FFDebug(@"I-RDB076015", @"Loaded node with %lu children at %@ in %fms",
             [node numChildren], path, [start timeIntervalSinceNow] * -1000);
     return node;
 }
@@ -450,7 +450,7 @@ static NSString *trackedQueryKeysKey(NSUInteger trackedQueryId, NSString *key) {
                            withNewChild:[FSnapshotUtilities nodeFrom:data]];
     }];
     FFDebug(@"I-RDB076016",
-            @"Loaded node with %d children for %lu keys at %@ in %fms",
+            @"Loaded node with %lu children for %lu keys at %@ in %fms",
             [node numChildren], (unsigned long)keys.count, path,
             [start timeIntervalSinceNow] * -1000);
     return node;

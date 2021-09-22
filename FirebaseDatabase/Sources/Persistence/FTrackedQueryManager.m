@@ -16,10 +16,10 @@
 
 #import "FirebaseDatabase/Sources/Persistence/FTrackedQueryManager.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
-#import "FirebaseDatabase/Sources/Core/Utilities/FImmutableTree.h"
+
 #import "FirebaseDatabase/Sources/Persistence/FCachePolicy.h"
 #import "FirebaseDatabase/Sources/Persistence/FLevelDBStorageEngine.h"
-#import "FirebaseDatabase/Sources/Persistence/FPruneForest.h"
+
 #import "FirebaseDatabase/Sources/Persistence/FTrackedQuery.h"
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 
@@ -334,13 +334,11 @@
     }];
 
     // Second, get any complete default queries immediately below us.
-    [[[self.trackedQueryTree subtreeAtPath:path] children]
-        enumerateKeysAndObjectsUsingBlock:^(
-            NSString *childKey, FImmutableTree *childTree, BOOL *stop) {
-          if ([childTree.value[[FQueryParams defaultInstance]] isComplete]) {
-              [completeChildren addObject:childKey];
-          }
-        }];
+    [[self.trackedQueryTree subtreeAtPath:path] forEachChildTree:^(NSString * _Nonnull childKey, FImmutableTree * _Nonnull childTree) {
+        if ([childTree.value[[FQueryParams defaultInstance]] isComplete]) {
+            [completeChildren addObject:childKey];
+        }
+    }];
 
     return completeChildren;
 }

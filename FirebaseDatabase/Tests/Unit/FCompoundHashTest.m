@@ -17,7 +17,7 @@
 #import <Foundation/Foundation.h>
 
 #import "FirebaseDatabase/Sources/Core/FCompoundHash.h"
-#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
+
 #import "FirebaseDatabase/Sources/Utilities/FStringUtilities.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
 

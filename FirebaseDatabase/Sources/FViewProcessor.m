@@ -21,7 +21,7 @@
 #import "FirebaseDatabase/Sources/Core/Operation/FOperation.h"
 #import "FirebaseDatabase/Sources/Core/Operation/FOperationSource.h"
 #import "FirebaseDatabase/Sources/Core/Operation/FOverwrite.h"
-#import "FirebaseDatabase/Sources/Core/Utilities/FImmutableTree.h"
+
 
 #import "FirebaseDatabase/Sources/Core/View/FCacheNode.h"
 #import "FirebaseDatabase/Sources/Core/View/FChange.h"
@@ -32,9 +32,9 @@
 #import "FirebaseDatabase/Sources/FKeyIndex.h"
 #import "FirebaseDatabase/Sources/FViewProcessorResult.h"
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDataEventType.h"
-#import "FirebaseDatabase/Sources/Snapshot/FChildrenNode.h"
+
 #import "FirebaseDatabase/Sources/Snapshot/FCompoundWrite.h"
-#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
+
 
 
 @import FirebaseDatabaseSwiftCore;

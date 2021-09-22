@@ -18,7 +18,7 @@
 #import "FirebaseDatabase/Sources/Core/FQuerySpec.h"
 #import "FirebaseDatabase/Sources/FPathIndex.h"
 #import "FirebaseDatabase/Sources/Persistence/FPersistenceManager.h"
-#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
+
 #import "FirebaseDatabase/Sources/Snapshot/FIndexedNode.h"
 #import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
 #import "FirebaseDatabase/Tests/Helpers/FMockStorageEngine.h"

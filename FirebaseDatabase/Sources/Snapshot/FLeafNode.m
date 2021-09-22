@@ -16,13 +16,12 @@
 
 #import "FirebaseDatabase/Sources/Snapshot/FLeafNode.h"
 #import "FirebaseDatabase/Sources/Constants/FConstants.h"
-#import "FirebaseDatabase/Sources/Snapshot/FChildrenNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
+
+
 #import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
 #import "FirebaseDatabase/Sources/Utilities/FStringUtilities.h"
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 #import "FirebaseDatabase/Sources/FIndex.h"
-#import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FImmutableSortedDictionary.h"
 
 @import FirebaseDatabaseSwiftCore;
 
@@ -176,7 +175,7 @@
     return NO;
 }
 
-- (int)numChildren {
+- (NSInteger)numChildren {
     return 0;
 }
 
@@ -261,9 +260,9 @@
     return [[self valForExport:YES] description];
 }
 
-- (void)forEachChildDo:(fbt_bool_nsstring_node)action {
-    // There are no children, so there is nothing to do.
-    return;
-}
+//- (void)forEachChildDo:(fbt_bool_nsstring_node)action {
+//    // There are no children, so there is nothing to do.
+//    return;
+//}
 
 @end

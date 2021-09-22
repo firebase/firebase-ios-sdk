@@ -34,7 +34,7 @@
 #import "FirebaseDatabase/Sources/FPathIndex.h"
 #import "FirebaseDatabase/Sources/FPriorityIndex.h"
 #import "FirebaseDatabase/Sources/Snapshot/FCompoundWrite.h"
-#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
+
 #import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestClock.h"
 #import "FirebaseDatabase/Tests/Unit/FSyncPointTests.h"

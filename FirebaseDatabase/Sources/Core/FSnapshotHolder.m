@@ -15,7 +15,7 @@
  */
 
 #import "FirebaseDatabase/Sources/Core/FSnapshotHolder.h"
-#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
+
 
 @import FirebaseDatabaseSwiftCore;
 

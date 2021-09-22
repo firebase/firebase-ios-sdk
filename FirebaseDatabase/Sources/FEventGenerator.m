@@ -22,7 +22,7 @@
 #import "FirebaseDatabase/Sources/Core/View/FDataEvent.h"
 #import "FirebaseDatabase/Sources/Core/View/FEvent.h"
 #import "FirebaseDatabase/Sources/Core/View/FEventRegistration.h"
-#import "FirebaseDatabase/Sources/FNamedNode.h"
+
 
 @import FirebaseDatabaseSwiftCore;
 

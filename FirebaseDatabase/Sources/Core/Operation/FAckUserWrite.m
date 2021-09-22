@@ -16,8 +16,6 @@
 
 #import "FirebaseDatabase/Sources/Core/Operation/FAckUserWrite.h"
 #import "FirebaseDatabase/Sources/Core/Operation/FOperationSource.h"
-#import "FirebaseDatabase/Sources/Core/Utilities/FImmutableTree.h"
-
 
 @import FirebaseDatabaseSwiftCore;
 
@@ -45,7 +43,7 @@
                                       affectedTree:self.affectedTree
                                             revert:self.revert];
     } else if (self.affectedTree.value != nil) {
-        NSAssert(self.affectedTree.children.isEmpty,
+        NSAssert(self.affectedTree.childrenIsEmpty,
                  @"affectedTree should not have overlapping affected paths.");
         // All child locations are affected as well; just return same operation.
         return self;

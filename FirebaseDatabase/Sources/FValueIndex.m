@@ -15,10 +15,12 @@
  */
 
 #import "FirebaseDatabase/Sources/FValueIndex.h"
-#import "FirebaseDatabase/Sources/FMaxNode.h"
-#import "FirebaseDatabase/Sources/FNamedNode.h"
+
+
 #import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
+
+@import FirebaseDatabaseSwiftCore;
 
 @implementation FValueIndex
 

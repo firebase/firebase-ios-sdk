@@ -18,9 +18,9 @@
 #import "FirebaseDatabase/Sources/Core/FQueryParams.h"
 #import "FirebaseDatabase/Sources/Core/View/Filter/FChildChangeAccumulator.h"
 #import "FirebaseDatabase/Sources/Core/View/Filter/FIndexedFilter.h"
-#import "FirebaseDatabase/Sources/FNamedNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FChildrenNode.h"
-#import "FirebaseDatabase/Sources/Snapshot/FEmptyNode.h"
+
+
+
 #import "FirebaseDatabase/Sources/Snapshot/FIndexedNode.h"
 
 @interface FRangedFilter ()

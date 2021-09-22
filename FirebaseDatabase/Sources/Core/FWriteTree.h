@@ -16,12 +16,14 @@
 
 #import <Foundation/Foundation.h>
 
-@class FPath;
-@protocol FNode;
+@import FirebaseDatabaseSwiftCore;
+
+//@class FPath;
+//@protocol FNode;
 @class FCompoundWrite;
 @class FWriteTreeRef;
-@class FChildrenNode;
-@class FNamedNode;
+//@class FChildrenNode;
+//@class FNamedNode;
 @class FWriteRecord;
 @protocol FIndex;
 @class FCacheNode;

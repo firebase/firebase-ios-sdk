@@ -15,9 +15,9 @@
  */
 
 #import "FirebaseDatabase/Sources/Snapshot/FCompoundWrite.h"
-#import "FirebaseDatabase/Sources/Core/Utilities/FImmutableTree.h"
 
-#import "FirebaseDatabase/Sources/FNamedNode.h"
+
+
 #import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
 
 @import FirebaseDatabaseSwiftCore;
@@ -164,15 +164,13 @@
                                                        andNode:node]];
         }];
     } else {
-        [self.writeTree.children
-            enumerateKeysAndObjectsUsingBlock:^(
-                NSString *childKey, FImmutableTree *childTree, BOOL *stop) {
-              if (childTree.value != nil) {
-                  [children addObject:[[FNamedNode alloc]
-                                          initWithName:childKey
-                                               andNode:childTree.value]];
-              }
-            }];
+        [self.writeTree forEachChild:^(NSString * _Nonnull childKey, id _Nullable childValue) {
+            if (childValue != nil) {
+                [children addObject:[[FNamedNode alloc]
+                                        initWithName:childKey
+                                             andNode:childValue]];
+            }
+        }];
     }
     return children;
 }
@@ -180,11 +178,9 @@
 // TODO: change into enumarate method
 - (NSDictionary *)childCompoundWrites {
     NSMutableDictionary *dict = [NSMutableDictionary dictionary];
-    [self.writeTree.children
-        enumerateKeysAndObjectsUsingBlock:^(
-            NSString *key, FImmutableTree *childWrite, BOOL *stop) {
-          dict[key] = [[FCompoundWrite alloc] initWithWriteTree:childWrite];
-        }];
+    [self.writeTree forEachChildTree:^(NSString * _Nonnull key, FImmutableTree * _Nonnull childWrite) {
+        dict[key] = [[FCompoundWrite alloc] initWithWriteTree:childWrite];
+    }];
     return dict;
 }
 
@@ -213,23 +209,21 @@
     } else {
         __block id<FNode> priorityWrite = nil;
         __block id<FNode> blockNode = node;
-        [subtreeWrite.children
-            enumerateKeysAndObjectsUsingBlock:^(
-                NSString *childKey, FImmutableTree *childTree, BOOL *stop) {
-              if ([childKey isEqualToString:@".priority"]) {
-                  // Apply priorities at the end so we don't update priorities
-                  // for either empty nodes or forget to apply priorities to
-                  // empty nodes that are later filled.
-                  NSAssert(childTree.value != nil,
-                           @"Priority writes must always be leaf nodes");
-                  priorityWrite = childTree.value;
-              } else {
-                  blockNode = [self
-                      applySubtreeWrite:childTree
-                                 atPath:[relativePath childFromString:childKey]
-                                 toNode:blockNode];
-              }
-            }];
+        [subtreeWrite forEachChildTree:^(NSString * _Nonnull childKey, FImmutableTree * _Nonnull childTree) {
+            if ([childKey isEqualToString:@".priority"]) {
+                   // Apply priorities at the end so we don't update priorities
+                   // for either empty nodes or forget to apply priorities to
+                   // empty nodes that are later filled.
+                   NSAssert(childTree.value != nil,
+                            @"Priority writes must always be leaf nodes");
+                   priorityWrite = childTree.value;
+               } else {
+                   blockNode = [self
+                       applySubtreeWrite:childTree
+                                  atPath:[relativePath childFromString:childKey]
+                                  toNode:blockNode];
+               }
+        }];
         // If there was a priority write, we only apply it if the node is not
         // empty
         if (![blockNode getChild:relativePath].isEmpty &&

@@ -16,7 +16,7 @@
 
 #import "FirebaseDatabase/Sources/Core/FServerValues.h"
 #import "FirebaseDatabase/Sources/Constants/FConstants.h"
-#import "FirebaseDatabase/Sources/Snapshot/FChildrenNode.h"
+
 #import "FirebaseDatabase/Sources/Snapshot/FLeafNode.h"
 #import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
 
