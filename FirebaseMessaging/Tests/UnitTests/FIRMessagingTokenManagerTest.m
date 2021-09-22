@@ -31,6 +31,10 @@
 
 @interface FIRMessagingTokenManager (ExposedForTest)
 
+@property(nonatomic, readonly, strong) NSOperationQueue *tokenOperations;
+
+- (void)didDeleteFCMScopedTokensForCheckin:(FIRMessagingCheckinPreferences *)checkin;
+
 - (void)resetCredentialsIfNeeded;
 
 @end
@@ -70,7 +74,6 @@
 }
 
 - (void)tearDown {
-  [_messaging.tokenManager stopAllTokenOperations];
   [_mockCheckinStore stopMocking];
   [_mockAuthService stopMocking];
   [_testUtil cleanupAfterTest:self];
@@ -152,6 +155,10 @@
   OCMStub([_mockAuthService checkinPreferences]).andReturn(checkinPreferences);
   // Plist file doesn't exist, meaning this is a fresh install.
   OCMStub([_mockCheckinStore hasCheckinPlist]).andReturn(NO);
+  // Expect reset operation but do nothing to avoid flakes due to delayed operation queue.
+  OCMExpect(
+      [_mockTokenManager didDeleteFCMScopedTokensForCheckin:[OCMArg isEqual:checkinPreferences]])
+      .andDo(nil);
 
   [_messaging.tokenManager resetCredentialsIfNeeded];
   OCMVerifyAll(_mockCheckinStore);
