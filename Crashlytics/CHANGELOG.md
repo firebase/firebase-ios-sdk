@@ -1,4 +1,4 @@
-# Unreleased
+# v8.8.0
 - [added] Internal SDK updates to test potential future MetricKit support.
 
 # v8.4.0
