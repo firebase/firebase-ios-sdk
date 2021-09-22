@@ -30,9 +30,9 @@
 #import "FirebaseDatabase/Sources/Core/View/FDataEvent.h"
 #import "FirebaseDatabase/Sources/Core/View/FEventRegistration.h"
 #import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
-#import "FirebaseDatabase/Sources/FKeyIndex.h"
-#import "FirebaseDatabase/Sources/FPathIndex.h"
-#import "FirebaseDatabase/Sources/FPriorityIndex.h"
+
+
+
 #import "FirebaseDatabase/Sources/Snapshot/FCompoundWrite.h"
 
 #import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"

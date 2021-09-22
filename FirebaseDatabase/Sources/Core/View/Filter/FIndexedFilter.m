@@ -18,7 +18,7 @@
 #import "FirebaseDatabase/Sources/Core/View/FChange.h"
 #import "FirebaseDatabase/Sources/Core/View/Filter/FChildChangeAccumulator.h"
 #import "FirebaseDatabase/Sources/FIndex.h"
-#import "FirebaseDatabase/Sources/FKeyIndex.h"
+
 
 
 #import "FirebaseDatabase/Sources/Snapshot/FIndexedNode.h"

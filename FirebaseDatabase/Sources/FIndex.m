@@ -16,10 +16,7 @@
 
 #import "FirebaseDatabase/Sources/FIndex.h"
 
-#import "FirebaseDatabase/Sources/FKeyIndex.h"
-#import "FirebaseDatabase/Sources/FPathIndex.h"
-#import "FirebaseDatabase/Sources/FPriorityIndex.h"
-#import "FirebaseDatabase/Sources/FValueIndex.h"
+@import FirebaseDatabaseSwiftCore;
 
 @implementation FIndex
 

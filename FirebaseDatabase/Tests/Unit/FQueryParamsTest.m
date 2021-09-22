@@ -19,10 +19,10 @@
 
 #import "FirebaseDatabase/Sources/Core/FQueryParams.h"
 #import "FirebaseDatabase/Sources/FIndex.h"
-#import "FirebaseDatabase/Sources/FKeyIndex.h"
-#import "FirebaseDatabase/Sources/FPathIndex.h"
-#import "FirebaseDatabase/Sources/FPriorityIndex.h"
-#import "FirebaseDatabase/Sources/FValueIndex.h"
+
+
+
+
 
 #import "FirebaseDatabase/Sources/Snapshot/FLeafNode.h"
 #import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"

@@ -17,8 +17,8 @@
 #import "FirebaseDatabase/Tests/Unit/FIRDataSnapshotTests.h"
 #import "FirebaseDatabase/Sources/Api/Private/FIRDataSnapshot_Private.h"
 #import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
-#import "FirebaseDatabase/Sources/FPathIndex.h"
-#import "FirebaseDatabase/Sources/FValueIndex.h"
+
+
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseReference.h"
 
 

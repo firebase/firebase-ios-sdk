@@ -22,10 +22,10 @@
 
 #import "FirebaseDatabase/Sources/Core/View/FChildEventRegistration.h"
 #import "FirebaseDatabase/Sources/Core/View/FValueEventRegistration.h"
-#import "FirebaseDatabase/Sources/FKeyIndex.h"
-#import "FirebaseDatabase/Sources/FPathIndex.h"
-#import "FirebaseDatabase/Sources/FPriorityIndex.h"
-#import "FirebaseDatabase/Sources/FValueIndex.h"
+
+
+
+
 #import "FirebaseDatabase/Sources/Snapshot/FLeafNode.h"
 #import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
 #import "FirebaseDatabase/Sources/Utilities/FNextPushId.h"

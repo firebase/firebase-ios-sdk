@@ -18,7 +18,7 @@
 
 #import "FirebaseDatabase/Sources/Core/FQuerySpec.h"
 
-#import "FirebaseDatabase/Sources/FPathIndex.h"
+
 
 #import "FirebaseDatabase/Sources/Persistence/FTrackedQuery.h"
 #import "FirebaseDatabase/Sources/Persistence/FTrackedQueryManager.h"
