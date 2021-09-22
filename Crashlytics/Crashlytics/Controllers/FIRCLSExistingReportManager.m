@@ -91,16 +91,28 @@ NSInteger compareNewer(FIRCLSInternalReport *reportA,
  */
 - (NSArray<NSString *> *)getUnsentActiveReportsAndDeleteEmptyOrOld:(NSArray *)reportPaths {
   NSMutableArray<FIRCLSInternalReport *> *validReports = [NSMutableArray array];
+  NSMutableArray<FIRCLSInternalReport *> *reports = [NSMutableArray array];
   for (NSString *path in reportPaths) {
     FIRCLSInternalReport *_Nullable report = [FIRCLSInternalReport reportWithPath:path];
     if (!report) {
       continue;
     }
 
+    [reports addObject:report];
+  }
+
+  [reports sortUsingFunction:compareNewer context:nil];
+  NSString *newestReportPath = [reports firstObject].path;
+
+  if ([self.fileManager metricKitDiagnosticFileExists]) {
+    [self.fileManager createEmptyMetricKitFile:newestReportPath];
+  }
+
+  for (FIRCLSInternalReport *report in reports) {
     // Delete reports without any crashes or non-fatals
     if (![report hasAnyEvents]) {
       [self.operationQueue addOperationWithBlock:^{
-        [self.fileManager removeItemAtPath:path];
+        [self.fileManager removeItemAtPath:report.path];
       }];
       continue;
     }

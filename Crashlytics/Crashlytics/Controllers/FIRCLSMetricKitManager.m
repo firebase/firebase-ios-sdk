@@ -78,7 +78,7 @@
                    @synchronized(self) {
                      if (!self.metricKitPromiseFulfilled) {
                        FIRCLSDebugLog(@"Resolving MetricKit promise after three seconds");
-                       [self fulfillMetricKitPromise];
+                       //                       [self fulfillMetricKitPromise];
                      }
                    }
                  });
