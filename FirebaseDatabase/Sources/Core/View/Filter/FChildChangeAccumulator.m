@@ -16,7 +16,7 @@
 
 #import "FirebaseDatabase/Sources/Core/View/Filter/FChildChangeAccumulator.h"
 #import "FirebaseDatabase/Sources/Core/View/FChange.h"
-#import "FirebaseDatabase/Sources/FIndex.h"
+
 
 @interface FChildChangeAccumulator ()
 @property(nonatomic, strong) NSMutableDictionary *changeMap;

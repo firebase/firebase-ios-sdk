@@ -18,7 +18,7 @@
 
 #import "FirebaseDatabase/Sources/Core/FQueryParams.h"
 
-#import "FirebaseDatabase/Sources/FIndex.h"
+
 
 @import FirebaseDatabaseSwiftCore;
 

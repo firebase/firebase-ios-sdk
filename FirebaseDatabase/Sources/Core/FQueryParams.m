@@ -19,10 +19,7 @@
 #import "FirebaseDatabase/Sources/Core/View/Filter/FIndexedFilter.h"
 #import "FirebaseDatabase/Sources/Core/View/Filter/FLimitedFilter.h"
 #import "FirebaseDatabase/Sources/Core/View/Filter/FNodeFilter.h"
-#import "FirebaseDatabase/Sources/FIndex.h"
-
 #import "FirebaseDatabase/Sources/FRangedFilter.h"
-
 #import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 #import "FirebaseDatabase/Sources/Utilities/FValidation.h"
@@ -302,7 +299,7 @@
 
     NSString *index = dict[kFQPIndex];
     if (index != nil) {
-        params->_index = [FIndex indexFromQueryDefinition:index];
+        params->_index = [FIndexFactory indexFromQueryDefinition:index];
     }
 
     return params;

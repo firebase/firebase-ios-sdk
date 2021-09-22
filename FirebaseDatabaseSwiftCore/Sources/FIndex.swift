@@ -314,3 +314,18 @@ import Foundation
     }
     let path: FPath
 }
+
+@objc public class FIndexFactory: NSObject {
+    @objc public class func indexFromQueryDefinition(_ definition: String) -> FIndex {
+        switch definition {
+        case ".key":
+            return FKeyIndex.keyIndex
+        case ".value":
+            return FValueIndex.valueIndex
+        case ".priority":
+            return FPriorityIndex.priorityIndex
+        default:
+            return FPathIndex(path: FPath(with: definition))
+        }
+    }
+}

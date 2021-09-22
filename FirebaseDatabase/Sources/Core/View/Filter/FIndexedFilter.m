@@ -17,7 +17,7 @@
 #import "FirebaseDatabase/Sources/Core/View/Filter/FIndexedFilter.h"
 #import "FirebaseDatabase/Sources/Core/View/FChange.h"
 #import "FirebaseDatabase/Sources/Core/View/Filter/FChildChangeAccumulator.h"
-#import "FirebaseDatabase/Sources/FIndex.h"
+
 
 
 
