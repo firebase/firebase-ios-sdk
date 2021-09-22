@@ -30,212 +30,152 @@
 #include <google/protobuf/wire_format.h>
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
-extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fdocument_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_ArrayValue_google_2ffirestore_2fv1_2fdocument_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fquery_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_Cursor_google_2ffirestore_2fv1_2fquery_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fquery_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_StructuredQuery_CollectionSelector_google_2ffirestore_2fv1_2fquery_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fquery_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_StructuredQuery_CompositeFilter_google_2ffirestore_2fv1_2fquery_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fquery_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_StructuredQuery_FieldFilter_google_2ffirestore_2fv1_2fquery_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fquery_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_StructuredQuery_FieldReference_google_2ffirestore_2fv1_2fquery_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fquery_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_StructuredQuery_Order_google_2ffirestore_2fv1_2fquery_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fquery_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_StructuredQuery_Projection_google_2ffirestore_2fv1_2fquery_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fquery_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_StructuredQuery_UnaryFilter_google_2ffirestore_2fv1_2fquery_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_google_2fprotobuf_2fwrappers_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Int32Value_google_2fprotobuf_2fwrappers_2eproto;
+
+PROTOBUF_PRAGMA_INIT_SEG
 namespace google {
 namespace firestore {
 namespace v1 {
-class StructuredQuery_CollectionSelectorDefaultTypeInternal {
- public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<StructuredQuery_CollectionSelector> _instance;
-} _StructuredQuery_CollectionSelector_default_instance_;
-class StructuredQuery_FilterDefaultTypeInternal {
- public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<StructuredQuery_Filter> _instance;
-  const ::google::firestore::v1::StructuredQuery_CompositeFilter* composite_filter_;
-  const ::google::firestore::v1::StructuredQuery_FieldFilter* field_filter_;
-  const ::google::firestore::v1::StructuredQuery_UnaryFilter* unary_filter_;
-} _StructuredQuery_Filter_default_instance_;
-class StructuredQuery_CompositeFilterDefaultTypeInternal {
- public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<StructuredQuery_CompositeFilter> _instance;
-} _StructuredQuery_CompositeFilter_default_instance_;
-class StructuredQuery_FieldFilterDefaultTypeInternal {
- public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<StructuredQuery_FieldFilter> _instance;
-} _StructuredQuery_FieldFilter_default_instance_;
-class StructuredQuery_UnaryFilterDefaultTypeInternal {
- public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<StructuredQuery_UnaryFilter> _instance;
-  const ::google::firestore::v1::StructuredQuery_FieldReference* field_;
-} _StructuredQuery_UnaryFilter_default_instance_;
-class StructuredQuery_OrderDefaultTypeInternal {
- public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<StructuredQuery_Order> _instance;
-} _StructuredQuery_Order_default_instance_;
-class StructuredQuery_FieldReferenceDefaultTypeInternal {
- public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<StructuredQuery_FieldReference> _instance;
-} _StructuredQuery_FieldReference_default_instance_;
-class StructuredQuery_ProjectionDefaultTypeInternal {
- public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<StructuredQuery_Projection> _instance;
-} _StructuredQuery_Projection_default_instance_;
-class StructuredQueryDefaultTypeInternal {
- public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<StructuredQuery> _instance;
-} _StructuredQuery_default_instance_;
-class CursorDefaultTypeInternal {
- public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<Cursor> _instance;
-} _Cursor_default_instance_;
+constexpr StructuredQuery_CollectionSelector::StructuredQuery_CollectionSelector(
+  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+  : collection_id_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
+  , all_descendants_(false){}
+struct StructuredQuery_CollectionSelectorDefaultTypeInternal {
+  constexpr StructuredQuery_CollectionSelectorDefaultTypeInternal()
+    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  ~StructuredQuery_CollectionSelectorDefaultTypeInternal() {}
+  union {
+    StructuredQuery_CollectionSelector _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT StructuredQuery_CollectionSelectorDefaultTypeInternal _StructuredQuery_CollectionSelector_default_instance_;
+constexpr StructuredQuery_Filter::StructuredQuery_Filter(
+  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+  : _oneof_case_{}{}
+struct StructuredQuery_FilterDefaultTypeInternal {
+  constexpr StructuredQuery_FilterDefaultTypeInternal()
+    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  ~StructuredQuery_FilterDefaultTypeInternal() {}
+  union {
+    StructuredQuery_Filter _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT StructuredQuery_FilterDefaultTypeInternal _StructuredQuery_Filter_default_instance_;
+constexpr StructuredQuery_CompositeFilter::StructuredQuery_CompositeFilter(
+  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+  : filters_()
+  , op_(0)
+{}
+struct StructuredQuery_CompositeFilterDefaultTypeInternal {
+  constexpr StructuredQuery_CompositeFilterDefaultTypeInternal()
+    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  ~StructuredQuery_CompositeFilterDefaultTypeInternal() {}
+  union {
+    StructuredQuery_CompositeFilter _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT StructuredQuery_CompositeFilterDefaultTypeInternal _StructuredQuery_CompositeFilter_default_instance_;
+constexpr StructuredQuery_FieldFilter::StructuredQuery_FieldFilter(
+  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+  : field_(nullptr)
+  , value_(nullptr)
+  , op_(0)
+{}
+struct StructuredQuery_FieldFilterDefaultTypeInternal {
+  constexpr StructuredQuery_FieldFilterDefaultTypeInternal()
+    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  ~StructuredQuery_FieldFilterDefaultTypeInternal() {}
+  union {
+    StructuredQuery_FieldFilter _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT StructuredQuery_FieldFilterDefaultTypeInternal _StructuredQuery_FieldFilter_default_instance_;
+constexpr StructuredQuery_UnaryFilter::StructuredQuery_UnaryFilter(
+  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+  : op_(0)
+
+  , _oneof_case_{}{}
+struct StructuredQuery_UnaryFilterDefaultTypeInternal {
+  constexpr StructuredQuery_UnaryFilterDefaultTypeInternal()
+    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  ~StructuredQuery_UnaryFilterDefaultTypeInternal() {}
+  union {
+    StructuredQuery_UnaryFilter _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT StructuredQuery_UnaryFilterDefaultTypeInternal _StructuredQuery_UnaryFilter_default_instance_;
+constexpr StructuredQuery_Order::StructuredQuery_Order(
+  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+  : field_(nullptr)
+  , direction_(0)
+{}
+struct StructuredQuery_OrderDefaultTypeInternal {
+  constexpr StructuredQuery_OrderDefaultTypeInternal()
+    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  ~StructuredQuery_OrderDefaultTypeInternal() {}
+  union {
+    StructuredQuery_Order _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT StructuredQuery_OrderDefaultTypeInternal _StructuredQuery_Order_default_instance_;
+constexpr StructuredQuery_FieldReference::StructuredQuery_FieldReference(
+  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+  : field_path_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string){}
+struct StructuredQuery_FieldReferenceDefaultTypeInternal {
+  constexpr StructuredQuery_FieldReferenceDefaultTypeInternal()
+    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  ~StructuredQuery_FieldReferenceDefaultTypeInternal() {}
+  union {
+    StructuredQuery_FieldReference _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT StructuredQuery_FieldReferenceDefaultTypeInternal _StructuredQuery_FieldReference_default_instance_;
+constexpr StructuredQuery_Projection::StructuredQuery_Projection(
+  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+  : fields_(){}
+struct StructuredQuery_ProjectionDefaultTypeInternal {
+  constexpr StructuredQuery_ProjectionDefaultTypeInternal()
+    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  ~StructuredQuery_ProjectionDefaultTypeInternal() {}
+  union {
+    StructuredQuery_Projection _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT StructuredQuery_ProjectionDefaultTypeInternal _StructuredQuery_Projection_default_instance_;
+constexpr StructuredQuery::StructuredQuery(
+  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+  : from_()
+  , order_by_()
+  , select_(nullptr)
+  , where_(nullptr)
+  , limit_(nullptr)
+  , start_at_(nullptr)
+  , end_at_(nullptr)
+  , offset_(0){}
+struct StructuredQueryDefaultTypeInternal {
+  constexpr StructuredQueryDefaultTypeInternal()
+    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  ~StructuredQueryDefaultTypeInternal() {}
+  union {
+    StructuredQuery _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT StructuredQueryDefaultTypeInternal _StructuredQuery_default_instance_;
+constexpr Cursor::Cursor(
+  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+  : values_()
+  , before_(false){}
+struct CursorDefaultTypeInternal {
+  constexpr CursorDefaultTypeInternal()
+    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  ~CursorDefaultTypeInternal() {}
+  union {
+    Cursor _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT CursorDefaultTypeInternal _Cursor_default_instance_;
 }  // namespace v1
 }  // namespace firestore
 }  // namespace google
-static void InitDefaultsscc_info_Cursor_google_2ffirestore_2fv1_2fquery_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::google::firestore::v1::_Cursor_default_instance_;
-    new (ptr) ::google::firestore::v1::Cursor();
-    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::google::firestore::v1::Cursor::InitAsDefaultInstance();
-}
-
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_Cursor_google_2ffirestore_2fv1_2fquery_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_Cursor_google_2ffirestore_2fv1_2fquery_2eproto}, {
-      &scc_info_ArrayValue_google_2ffirestore_2fv1_2fdocument_2eproto.base,}};
-
-static void InitDefaultsscc_info_StructuredQuery_google_2ffirestore_2fv1_2fquery_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::google::firestore::v1::_StructuredQuery_default_instance_;
-    new (ptr) ::google::firestore::v1::StructuredQuery();
-    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::google::firestore::v1::StructuredQuery::InitAsDefaultInstance();
-}
-
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<6> scc_info_StructuredQuery_google_2ffirestore_2fv1_2fquery_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 6, 0, InitDefaultsscc_info_StructuredQuery_google_2ffirestore_2fv1_2fquery_2eproto}, {
-      &scc_info_StructuredQuery_Projection_google_2ffirestore_2fv1_2fquery_2eproto.base,
-      &scc_info_StructuredQuery_CollectionSelector_google_2ffirestore_2fv1_2fquery_2eproto.base,
-      &scc_info_StructuredQuery_CompositeFilter_google_2ffirestore_2fv1_2fquery_2eproto.base,
-      &scc_info_StructuredQuery_Order_google_2ffirestore_2fv1_2fquery_2eproto.base,
-      &scc_info_Cursor_google_2ffirestore_2fv1_2fquery_2eproto.base,
-      &scc_info_Int32Value_google_2fprotobuf_2fwrappers_2eproto.base,}};
-
-static void InitDefaultsscc_info_StructuredQuery_CollectionSelector_google_2ffirestore_2fv1_2fquery_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::google::firestore::v1::_StructuredQuery_CollectionSelector_default_instance_;
-    new (ptr) ::google::firestore::v1::StructuredQuery_CollectionSelector();
-    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::google::firestore::v1::StructuredQuery_CollectionSelector::InitAsDefaultInstance();
-}
-
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_StructuredQuery_CollectionSelector_google_2ffirestore_2fv1_2fquery_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_StructuredQuery_CollectionSelector_google_2ffirestore_2fv1_2fquery_2eproto}, {}};
-
-static void InitDefaultsscc_info_StructuredQuery_CompositeFilter_google_2ffirestore_2fv1_2fquery_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::google::firestore::v1::_StructuredQuery_Filter_default_instance_;
-    new (ptr) ::google::firestore::v1::StructuredQuery_Filter();
-    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
-  }
-  {
-    void* ptr = &::google::firestore::v1::_StructuredQuery_CompositeFilter_default_instance_;
-    new (ptr) ::google::firestore::v1::StructuredQuery_CompositeFilter();
-    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::google::firestore::v1::StructuredQuery_Filter::InitAsDefaultInstance();
-  ::google::firestore::v1::StructuredQuery_CompositeFilter::InitAsDefaultInstance();
-}
-
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_StructuredQuery_CompositeFilter_google_2ffirestore_2fv1_2fquery_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 2, 0, InitDefaultsscc_info_StructuredQuery_CompositeFilter_google_2ffirestore_2fv1_2fquery_2eproto}, {
-      &scc_info_StructuredQuery_FieldFilter_google_2ffirestore_2fv1_2fquery_2eproto.base,
-      &scc_info_StructuredQuery_UnaryFilter_google_2ffirestore_2fv1_2fquery_2eproto.base,}};
-
-static void InitDefaultsscc_info_StructuredQuery_FieldFilter_google_2ffirestore_2fv1_2fquery_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::google::firestore::v1::_StructuredQuery_FieldFilter_default_instance_;
-    new (ptr) ::google::firestore::v1::StructuredQuery_FieldFilter();
-    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::google::firestore::v1::StructuredQuery_FieldFilter::InitAsDefaultInstance();
-}
-
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_StructuredQuery_FieldFilter_google_2ffirestore_2fv1_2fquery_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 2, 0, InitDefaultsscc_info_StructuredQuery_FieldFilter_google_2ffirestore_2fv1_2fquery_2eproto}, {
-      &scc_info_StructuredQuery_FieldReference_google_2ffirestore_2fv1_2fquery_2eproto.base,
-      &scc_info_ArrayValue_google_2ffirestore_2fv1_2fdocument_2eproto.base,}};
-
-static void InitDefaultsscc_info_StructuredQuery_FieldReference_google_2ffirestore_2fv1_2fquery_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::google::firestore::v1::_StructuredQuery_FieldReference_default_instance_;
-    new (ptr) ::google::firestore::v1::StructuredQuery_FieldReference();
-    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::google::firestore::v1::StructuredQuery_FieldReference::InitAsDefaultInstance();
-}
-
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_StructuredQuery_FieldReference_google_2ffirestore_2fv1_2fquery_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_StructuredQuery_FieldReference_google_2ffirestore_2fv1_2fquery_2eproto}, {}};
-
-static void InitDefaultsscc_info_StructuredQuery_Order_google_2ffirestore_2fv1_2fquery_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::google::firestore::v1::_StructuredQuery_Order_default_instance_;
-    new (ptr) ::google::firestore::v1::StructuredQuery_Order();
-    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::google::firestore::v1::StructuredQuery_Order::InitAsDefaultInstance();
-}
-
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_StructuredQuery_Order_google_2ffirestore_2fv1_2fquery_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_StructuredQuery_Order_google_2ffirestore_2fv1_2fquery_2eproto}, {
-      &scc_info_StructuredQuery_FieldReference_google_2ffirestore_2fv1_2fquery_2eproto.base,}};
-
-static void InitDefaultsscc_info_StructuredQuery_Projection_google_2ffirestore_2fv1_2fquery_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::google::firestore::v1::_StructuredQuery_Projection_default_instance_;
-    new (ptr) ::google::firestore::v1::StructuredQuery_Projection();
-    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::google::firestore::v1::StructuredQuery_Projection::InitAsDefaultInstance();
-}
-
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_StructuredQuery_Projection_google_2ffirestore_2fv1_2fquery_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_StructuredQuery_Projection_google_2ffirestore_2fv1_2fquery_2eproto}, {
-      &scc_info_StructuredQuery_FieldReference_google_2ffirestore_2fv1_2fquery_2eproto.base,}};
-
-static void InitDefaultsscc_info_StructuredQuery_UnaryFilter_google_2ffirestore_2fv1_2fquery_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::google::firestore::v1::_StructuredQuery_UnaryFilter_default_instance_;
-    new (ptr) ::google::firestore::v1::StructuredQuery_UnaryFilter();
-    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::google::firestore::v1::StructuredQuery_UnaryFilter::InitAsDefaultInstance();
-}
-
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_StructuredQuery_UnaryFilter_google_2ffirestore_2fv1_2fquery_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_StructuredQuery_UnaryFilter_google_2ffirestore_2fv1_2fquery_2eproto}, {
-      &scc_info_StructuredQuery_FieldReference_google_2ffirestore_2fv1_2fquery_2eproto.base,}};
-
 static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_google_2ffirestore_2fv1_2fquery_2eproto[10];
 static const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* file_level_enum_descriptors_google_2ffirestore_2fv1_2fquery_2eproto[4];
 static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_google_2ffirestore_2fv1_2fquery_2eproto = nullptr;
@@ -253,9 +193,9 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_google_2ffirestore_2fv1_2fquer
   ~0u,  // no _extensions_
   PROTOBUF_FIELD_OFFSET(::google::firestore::v1::StructuredQuery_Filter, _oneof_case_[0]),
   ~0u,  // no _weak_field_map_
-  offsetof(::google::firestore::v1::StructuredQuery_FilterDefaultTypeInternal, composite_filter_),
-  offsetof(::google::firestore::v1::StructuredQuery_FilterDefaultTypeInternal, field_filter_),
-  offsetof(::google::firestore::v1::StructuredQuery_FilterDefaultTypeInternal, unary_filter_),
+  ::PROTOBUF_NAMESPACE_ID::internal::kInvalidFieldOffsetTag,
+  ::PROTOBUF_NAMESPACE_ID::internal::kInvalidFieldOffsetTag,
+  ::PROTOBUF_NAMESPACE_ID::internal::kInvalidFieldOffsetTag,
   PROTOBUF_FIELD_OFFSET(::google::firestore::v1::StructuredQuery_Filter, filter_type_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::google::firestore::v1::StructuredQuery_CompositeFilter, _internal_metadata_),
@@ -278,7 +218,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_google_2ffirestore_2fv1_2fquer
   PROTOBUF_FIELD_OFFSET(::google::firestore::v1::StructuredQuery_UnaryFilter, _oneof_case_[0]),
   ~0u,  // no _weak_field_map_
   PROTOBUF_FIELD_OFFSET(::google::firestore::v1::StructuredQuery_UnaryFilter, op_),
-  offsetof(::google::firestore::v1::StructuredQuery_UnaryFilterDefaultTypeInternal, field_),
+  ::PROTOBUF_NAMESPACE_ID::internal::kInvalidFieldOffsetTag,
   PROTOBUF_FIELD_OFFSET(::google::firestore::v1::StructuredQuery_UnaryFilter, operand_type_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::google::firestore::v1::StructuredQuery_Order, _internal_metadata_),
@@ -413,28 +353,21 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor
   &::descriptor_table_google_2ffirestore_2fv1_2fdocument_2eproto,
   &::descriptor_table_google_2fprotobuf_2fwrappers_2eproto,
 };
-static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_google_2ffirestore_2fv1_2fquery_2eproto_sccs[9] = {
-  &scc_info_Cursor_google_2ffirestore_2fv1_2fquery_2eproto.base,
-  &scc_info_StructuredQuery_google_2ffirestore_2fv1_2fquery_2eproto.base,
-  &scc_info_StructuredQuery_CollectionSelector_google_2ffirestore_2fv1_2fquery_2eproto.base,
-  &scc_info_StructuredQuery_CompositeFilter_google_2ffirestore_2fv1_2fquery_2eproto.base,
-  &scc_info_StructuredQuery_FieldFilter_google_2ffirestore_2fv1_2fquery_2eproto.base,
-  &scc_info_StructuredQuery_FieldReference_google_2ffirestore_2fv1_2fquery_2eproto.base,
-  &scc_info_StructuredQuery_Order_google_2ffirestore_2fv1_2fquery_2eproto.base,
-  &scc_info_StructuredQuery_Projection_google_2ffirestore_2fv1_2fquery_2eproto.base,
-  &scc_info_StructuredQuery_UnaryFilter_google_2ffirestore_2fv1_2fquery_2eproto.base,
-};
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_google_2ffirestore_2fv1_2fquery_2eproto_once;
-static bool descriptor_table_google_2ffirestore_2fv1_2fquery_2eproto_initialized = false;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_google_2ffirestore_2fv1_2fquery_2eproto = {
-  &descriptor_table_google_2ffirestore_2fv1_2fquery_2eproto_initialized, descriptor_table_protodef_google_2ffirestore_2fv1_2fquery_2eproto, "google/firestore/v1/query.proto", 2384,
-  &descriptor_table_google_2ffirestore_2fv1_2fquery_2eproto_once, descriptor_table_google_2ffirestore_2fv1_2fquery_2eproto_sccs, descriptor_table_google_2ffirestore_2fv1_2fquery_2eproto_deps, 9, 3,
+  false, false, 2384, descriptor_table_protodef_google_2ffirestore_2fv1_2fquery_2eproto, "google/firestore/v1/query.proto", 
+  &descriptor_table_google_2ffirestore_2fv1_2fquery_2eproto_once, descriptor_table_google_2ffirestore_2fv1_2fquery_2eproto_deps, 3, 10,
   schemas, file_default_instances, TableStruct_google_2ffirestore_2fv1_2fquery_2eproto::offsets,
-  file_level_metadata_google_2ffirestore_2fv1_2fquery_2eproto, 10, file_level_enum_descriptors_google_2ffirestore_2fv1_2fquery_2eproto, file_level_service_descriptors_google_2ffirestore_2fv1_2fquery_2eproto,
+  file_level_metadata_google_2ffirestore_2fv1_2fquery_2eproto, file_level_enum_descriptors_google_2ffirestore_2fv1_2fquery_2eproto, file_level_service_descriptors_google_2ffirestore_2fv1_2fquery_2eproto,
 };
+PROTOBUF_ATTRIBUTE_WEAK ::PROTOBUF_NAMESPACE_ID::Metadata
+descriptor_table_google_2ffirestore_2fv1_2fquery_2eproto_metadata_getter(int index) {
+  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2ffirestore_2fv1_2fquery_2eproto);
+  return descriptor_table_google_2ffirestore_2fv1_2fquery_2eproto.file_level_metadata[index];
+}
 
 // Force running AddDescriptors() at dynamic initialization time.
-static bool dynamic_init_dummy_google_2ffirestore_2fv1_2fquery_2eproto = (  ::PROTOBUF_NAMESPACE_ID::internal::AddDescriptors(&descriptor_table_google_2ffirestore_2fv1_2fquery_2eproto), true);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY static ::PROTOBUF_NAMESPACE_ID::internal::AddDescriptorsRunner dynamic_init_dummy_google_2ffirestore_2fv1_2fquery_2eproto(&descriptor_table_google_2ffirestore_2fv1_2fquery_2eproto);
 namespace google {
 namespace firestore {
 namespace v1 {
@@ -551,52 +484,53 @@ constexpr int StructuredQuery::Direction_ARRAYSIZE;
 
 // ===================================================================
 
-void StructuredQuery_CollectionSelector::InitAsDefaultInstance() {
-}
 class StructuredQuery_CollectionSelector::_Internal {
  public:
 };
 
-StructuredQuery_CollectionSelector::StructuredQuery_CollectionSelector()
-  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
+StructuredQuery_CollectionSelector::StructuredQuery_CollectionSelector(::PROTOBUF_NAMESPACE_ID::Arena* arena)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena) {
   SharedCtor();
-  // @@protoc_insertion_point(constructor:google.firestore.v1.StructuredQuery.CollectionSelector)
+  RegisterArenaDtor(arena);
+  // @@protoc_insertion_point(arena_constructor:google.firestore.v1.StructuredQuery.CollectionSelector)
 }
 StructuredQuery_CollectionSelector::StructuredQuery_CollectionSelector(const StructuredQuery_CollectionSelector& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message(),
-      _internal_metadata_(nullptr) {
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   collection_id_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (!from._internal_collection_id().empty()) {
-    collection_id_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.collection_id_);
+    collection_id_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_collection_id(), 
+      GetArena());
   }
   all_descendants_ = from.all_descendants_;
   // @@protoc_insertion_point(copy_constructor:google.firestore.v1.StructuredQuery.CollectionSelector)
 }
 
 void StructuredQuery_CollectionSelector::SharedCtor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_StructuredQuery_CollectionSelector_google_2ffirestore_2fv1_2fquery_2eproto.base);
-  collection_id_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  all_descendants_ = false;
+collection_id_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+all_descendants_ = false;
 }
 
 StructuredQuery_CollectionSelector::~StructuredQuery_CollectionSelector() {
   // @@protoc_insertion_point(destructor:google.firestore.v1.StructuredQuery.CollectionSelector)
   SharedDtor();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 void StructuredQuery_CollectionSelector::SharedDtor() {
+  GOOGLE_DCHECK(GetArena() == nullptr);
   collection_id_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
+void StructuredQuery_CollectionSelector::ArenaDtor(void* object) {
+  StructuredQuery_CollectionSelector* _this = reinterpret_cast< StructuredQuery_CollectionSelector* >(object);
+  (void)_this;
+}
+void StructuredQuery_CollectionSelector::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
+}
 void StructuredQuery_CollectionSelector::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
-const StructuredQuery_CollectionSelector& StructuredQuery_CollectionSelector::default_instance() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_StructuredQuery_CollectionSelector_google_2ffirestore_2fv1_2fquery_2eproto.base);
-  return *internal_default_instance();
-}
-
 
 void StructuredQuery_CollectionSelector::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.StructuredQuery.CollectionSelector)
@@ -604,9 +538,9 @@ void StructuredQuery_CollectionSelector::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  collection_id_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  collection_id_.ClearToEmpty();
   all_descendants_ = false;
-  _internal_metadata_.Clear();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 const char* StructuredQuery_CollectionSelector::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
@@ -628,7 +562,7 @@ const char* StructuredQuery_CollectionSelector::_InternalParse(const char* ptr, 
       // bool all_descendants = 3;
       case 3:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24)) {
-          all_descendants_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
+          all_descendants_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -638,7 +572,9 @@ const char* StructuredQuery_CollectionSelector::_InternalParse(const char* ptr, 
           ctx->SetLastTag(tag);
           goto success;
         }
-        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        ptr = UnknownFieldParse(tag,
+            _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+            ptr, ctx);
         CHK_(ptr != nullptr);
         continue;
       }
@@ -676,7 +612,7 @@ failure:
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target, stream);
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.StructuredQuery.CollectionSelector)
   return target;
@@ -729,13 +665,12 @@ void StructuredQuery_CollectionSelector::MergeFrom(const ::PROTOBUF_NAMESPACE_ID
 void StructuredQuery_CollectionSelector::MergeFrom(const StructuredQuery_CollectionSelector& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.StructuredQuery.CollectionSelector)
   GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   if (from.collection_id().size() > 0) {
-
-    collection_id_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.collection_id_);
+    _internal_set_collection_id(from._internal_collection_id());
   }
   if (from.all_descendants() != 0) {
     _internal_set_all_descendants(from._internal_all_descendants());
@@ -762,9 +697,8 @@ bool StructuredQuery_CollectionSelector::IsInitialized() const {
 
 void StructuredQuery_CollectionSelector::InternalSwap(StructuredQuery_CollectionSelector* other) {
   using std::swap;
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-  collection_id_.Swap(&other->collection_id_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-    GetArenaNoVirtual());
+  _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
+  collection_id_.Swap(&other->collection_id_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
   swap(all_descendants_, other->all_descendants_);
 }
 
@@ -775,14 +709,6 @@ void StructuredQuery_CollectionSelector::InternalSwap(StructuredQuery_Collection
 
 // ===================================================================
 
-void StructuredQuery_Filter::InitAsDefaultInstance() {
-  ::google::firestore::v1::_StructuredQuery_Filter_default_instance_.composite_filter_ = const_cast< ::google::firestore::v1::StructuredQuery_CompositeFilter*>(
-      ::google::firestore::v1::StructuredQuery_CompositeFilter::internal_default_instance());
-  ::google::firestore::v1::_StructuredQuery_Filter_default_instance_.field_filter_ = const_cast< ::google::firestore::v1::StructuredQuery_FieldFilter*>(
-      ::google::firestore::v1::StructuredQuery_FieldFilter::internal_default_instance());
-  ::google::firestore::v1::_StructuredQuery_Filter_default_instance_.unary_filter_ = const_cast< ::google::firestore::v1::StructuredQuery_UnaryFilter*>(
-      ::google::firestore::v1::StructuredQuery_UnaryFilter::internal_default_instance());
-}
 class StructuredQuery_Filter::_Internal {
  public:
   static const ::google::firestore::v1::StructuredQuery_CompositeFilter& composite_filter(const StructuredQuery_Filter* msg);
@@ -803,10 +729,11 @@ StructuredQuery_Filter::_Internal::unary_filter(const StructuredQuery_Filter* ms
   return *msg->filter_type_.unary_filter_;
 }
 void StructuredQuery_Filter::set_allocated_composite_filter(::google::firestore::v1::StructuredQuery_CompositeFilter* composite_filter) {
-  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArena();
   clear_filter_type();
   if (composite_filter) {
-    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+      ::PROTOBUF_NAMESPACE_ID::Arena::GetArena(composite_filter);
     if (message_arena != submessage_arena) {
       composite_filter = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
           message_arena, composite_filter, submessage_arena);
@@ -817,10 +744,11 @@ void StructuredQuery_Filter::set_allocated_composite_filter(::google::firestore:
   // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.StructuredQuery.Filter.composite_filter)
 }
 void StructuredQuery_Filter::set_allocated_field_filter(::google::firestore::v1::StructuredQuery_FieldFilter* field_filter) {
-  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArena();
   clear_filter_type();
   if (field_filter) {
-    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+      ::PROTOBUF_NAMESPACE_ID::Arena::GetArena(field_filter);
     if (message_arena != submessage_arena) {
       field_filter = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
           message_arena, field_filter, submessage_arena);
@@ -831,10 +759,11 @@ void StructuredQuery_Filter::set_allocated_field_filter(::google::firestore::v1:
   // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.StructuredQuery.Filter.field_filter)
 }
 void StructuredQuery_Filter::set_allocated_unary_filter(::google::firestore::v1::StructuredQuery_UnaryFilter* unary_filter) {
-  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArena();
   clear_filter_type();
   if (unary_filter) {
-    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+      ::PROTOBUF_NAMESPACE_ID::Arena::GetArena(unary_filter);
     if (message_arena != submessage_arena) {
       unary_filter = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
           message_arena, unary_filter, submessage_arena);
@@ -844,15 +773,15 @@ void StructuredQuery_Filter::set_allocated_unary_filter(::google::firestore::v1:
   }
   // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.StructuredQuery.Filter.unary_filter)
 }
-StructuredQuery_Filter::StructuredQuery_Filter()
-  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
+StructuredQuery_Filter::StructuredQuery_Filter(::PROTOBUF_NAMESPACE_ID::Arena* arena)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena) {
   SharedCtor();
-  // @@protoc_insertion_point(constructor:google.firestore.v1.StructuredQuery.Filter)
+  RegisterArenaDtor(arena);
+  // @@protoc_insertion_point(arena_constructor:google.firestore.v1.StructuredQuery.Filter)
 }
 StructuredQuery_Filter::StructuredQuery_Filter(const StructuredQuery_Filter& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message(),
-      _internal_metadata_(nullptr) {
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   clear_has_filter_type();
   switch (from.filter_type_case()) {
     case kCompositeFilter: {
@@ -875,43 +804,51 @@ StructuredQuery_Filter::StructuredQuery_Filter(const StructuredQuery_Filter& fro
 }
 
 void StructuredQuery_Filter::SharedCtor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_StructuredQuery_CompositeFilter_google_2ffirestore_2fv1_2fquery_2eproto.base);
-  clear_has_filter_type();
+clear_has_filter_type();
 }
 
 StructuredQuery_Filter::~StructuredQuery_Filter() {
   // @@protoc_insertion_point(destructor:google.firestore.v1.StructuredQuery.Filter)
   SharedDtor();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 void StructuredQuery_Filter::SharedDtor() {
+  GOOGLE_DCHECK(GetArena() == nullptr);
   if (has_filter_type()) {
     clear_filter_type();
   }
 }
 
+void StructuredQuery_Filter::ArenaDtor(void* object) {
+  StructuredQuery_Filter* _this = reinterpret_cast< StructuredQuery_Filter* >(object);
+  (void)_this;
+}
+void StructuredQuery_Filter::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
+}
 void StructuredQuery_Filter::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
-const StructuredQuery_Filter& StructuredQuery_Filter::default_instance() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_StructuredQuery_CompositeFilter_google_2ffirestore_2fv1_2fquery_2eproto.base);
-  return *internal_default_instance();
-}
-
 
 void StructuredQuery_Filter::clear_filter_type() {
 // @@protoc_insertion_point(one_of_clear_start:google.firestore.v1.StructuredQuery.Filter)
   switch (filter_type_case()) {
     case kCompositeFilter: {
-      delete filter_type_.composite_filter_;
+      if (GetArena() == nullptr) {
+        delete filter_type_.composite_filter_;
+      }
       break;
     }
     case kFieldFilter: {
-      delete filter_type_.field_filter_;
+      if (GetArena() == nullptr) {
+        delete filter_type_.field_filter_;
+      }
       break;
     }
     case kUnaryFilter: {
-      delete filter_type_.unary_filter_;
+      if (GetArena() == nullptr) {
+        delete filter_type_.unary_filter_;
+      }
       break;
     }
     case FILTER_TYPE_NOT_SET: {
@@ -929,7 +866,7 @@ void StructuredQuery_Filter::Clear() {
   (void) cached_has_bits;
 
   clear_filter_type();
-  _internal_metadata_.Clear();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 const char* StructuredQuery_Filter::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
@@ -966,7 +903,9 @@ const char* StructuredQuery_Filter::_InternalParse(const char* ptr, ::PROTOBUF_N
           ctx->SetLastTag(tag);
           goto success;
         }
-        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        ptr = UnknownFieldParse(tag,
+            _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+            ptr, ctx);
         CHK_(ptr != nullptr);
         continue;
       }
@@ -1012,7 +951,7 @@ failure:
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target, stream);
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.StructuredQuery.Filter)
   return target;
@@ -1079,7 +1018,7 @@ void StructuredQuery_Filter::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& f
 void StructuredQuery_Filter::MergeFrom(const StructuredQuery_Filter& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.StructuredQuery.Filter)
   GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -1122,7 +1061,7 @@ bool StructuredQuery_Filter::IsInitialized() const {
 
 void StructuredQuery_Filter::InternalSwap(StructuredQuery_Filter* other) {
   using std::swap;
-  _internal_metadata_.Swap(&other->_internal_metadata_);
+  _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
   swap(filter_type_, other->filter_type_);
   swap(_oneof_case_[0], other->_oneof_case_[0]);
 }
@@ -1134,47 +1073,48 @@ void StructuredQuery_Filter::InternalSwap(StructuredQuery_Filter* other) {
 
 // ===================================================================
 
-void StructuredQuery_CompositeFilter::InitAsDefaultInstance() {
-}
 class StructuredQuery_CompositeFilter::_Internal {
  public:
 };
 
-StructuredQuery_CompositeFilter::StructuredQuery_CompositeFilter()
-  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
+StructuredQuery_CompositeFilter::StructuredQuery_CompositeFilter(::PROTOBUF_NAMESPACE_ID::Arena* arena)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena),
+  filters_(arena) {
   SharedCtor();
-  // @@protoc_insertion_point(constructor:google.firestore.v1.StructuredQuery.CompositeFilter)
+  RegisterArenaDtor(arena);
+  // @@protoc_insertion_point(arena_constructor:google.firestore.v1.StructuredQuery.CompositeFilter)
 }
 StructuredQuery_CompositeFilter::StructuredQuery_CompositeFilter(const StructuredQuery_CompositeFilter& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
-      _internal_metadata_(nullptr),
       filters_(from.filters_) {
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   op_ = from.op_;
   // @@protoc_insertion_point(copy_constructor:google.firestore.v1.StructuredQuery.CompositeFilter)
 }
 
 void StructuredQuery_CompositeFilter::SharedCtor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_StructuredQuery_CompositeFilter_google_2ffirestore_2fv1_2fquery_2eproto.base);
-  op_ = 0;
+op_ = 0;
 }
 
 StructuredQuery_CompositeFilter::~StructuredQuery_CompositeFilter() {
   // @@protoc_insertion_point(destructor:google.firestore.v1.StructuredQuery.CompositeFilter)
   SharedDtor();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 void StructuredQuery_CompositeFilter::SharedDtor() {
+  GOOGLE_DCHECK(GetArena() == nullptr);
 }
 
+void StructuredQuery_CompositeFilter::ArenaDtor(void* object) {
+  StructuredQuery_CompositeFilter* _this = reinterpret_cast< StructuredQuery_CompositeFilter* >(object);
+  (void)_this;
+}
+void StructuredQuery_CompositeFilter::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
+}
 void StructuredQuery_CompositeFilter::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
-const StructuredQuery_CompositeFilter& StructuredQuery_CompositeFilter::default_instance() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_StructuredQuery_CompositeFilter_google_2ffirestore_2fv1_2fquery_2eproto.base);
-  return *internal_default_instance();
-}
-
 
 void StructuredQuery_CompositeFilter::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.StructuredQuery.CompositeFilter)
@@ -1184,7 +1124,7 @@ void StructuredQuery_CompositeFilter::Clear() {
 
   filters_.Clear();
   op_ = 0;
-  _internal_metadata_.Clear();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 const char* StructuredQuery_CompositeFilter::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
@@ -1197,7 +1137,7 @@ const char* StructuredQuery_CompositeFilter::_InternalParse(const char* ptr, ::P
       // .google.firestore.v1.StructuredQuery.CompositeFilter.Operator op = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
-          ::PROTOBUF_NAMESPACE_ID::uint64 val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
+          ::PROTOBUF_NAMESPACE_ID::uint64 val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
           _internal_set_op(static_cast<::google::firestore::v1::StructuredQuery_CompositeFilter_Operator>(val));
         } else goto handle_unusual;
@@ -1220,7 +1160,9 @@ const char* StructuredQuery_CompositeFilter::_InternalParse(const char* ptr, ::P
           ctx->SetLastTag(tag);
           goto success;
         }
-        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        ptr = UnknownFieldParse(tag,
+            _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+            ptr, ctx);
         CHK_(ptr != nullptr);
         continue;
       }
@@ -1257,7 +1199,7 @@ failure:
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target, stream);
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.StructuredQuery.CompositeFilter)
   return target;
@@ -1311,7 +1253,7 @@ void StructuredQuery_CompositeFilter::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::M
 void StructuredQuery_CompositeFilter::MergeFrom(const StructuredQuery_CompositeFilter& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.StructuredQuery.CompositeFilter)
   GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -1341,7 +1283,7 @@ bool StructuredQuery_CompositeFilter::IsInitialized() const {
 
 void StructuredQuery_CompositeFilter::InternalSwap(StructuredQuery_CompositeFilter* other) {
   using std::swap;
-  _internal_metadata_.Swap(&other->_internal_metadata_);
+  _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
   filters_.InternalSwap(&other->filters_);
   swap(op_, other->op_);
 }
@@ -1353,12 +1295,6 @@ void StructuredQuery_CompositeFilter::InternalSwap(StructuredQuery_CompositeFilt
 
 // ===================================================================
 
-void StructuredQuery_FieldFilter::InitAsDefaultInstance() {
-  ::google::firestore::v1::_StructuredQuery_FieldFilter_default_instance_._instance.get_mutable()->field_ = const_cast< ::google::firestore::v1::StructuredQuery_FieldReference*>(
-      ::google::firestore::v1::StructuredQuery_FieldReference::internal_default_instance());
-  ::google::firestore::v1::_StructuredQuery_FieldFilter_default_instance_._instance.get_mutable()->value_ = const_cast< ::google::firestore::v1::Value*>(
-      ::google::firestore::v1::Value::internal_default_instance());
-}
 class StructuredQuery_FieldFilter::_Internal {
  public:
   static const ::google::firestore::v1::StructuredQuery_FieldReference& field(const StructuredQuery_FieldFilter* msg);
@@ -1374,20 +1310,20 @@ StructuredQuery_FieldFilter::_Internal::value(const StructuredQuery_FieldFilter*
   return *msg->value_;
 }
 void StructuredQuery_FieldFilter::clear_value() {
-  if (GetArenaNoVirtual() == nullptr && value_ != nullptr) {
+  if (GetArena() == nullptr && value_ != nullptr) {
     delete value_;
   }
   value_ = nullptr;
 }
-StructuredQuery_FieldFilter::StructuredQuery_FieldFilter()
-  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
+StructuredQuery_FieldFilter::StructuredQuery_FieldFilter(::PROTOBUF_NAMESPACE_ID::Arena* arena)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena) {
   SharedCtor();
-  // @@protoc_insertion_point(constructor:google.firestore.v1.StructuredQuery.FieldFilter)
+  RegisterArenaDtor(arena);
+  // @@protoc_insertion_point(arena_constructor:google.firestore.v1.StructuredQuery.FieldFilter)
 }
 StructuredQuery_FieldFilter::StructuredQuery_FieldFilter(const StructuredQuery_FieldFilter& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message(),
-      _internal_metadata_(nullptr) {
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   if (from._internal_has_field()) {
     field_ = new ::google::firestore::v1::StructuredQuery_FieldReference(*from.field_);
   } else {
@@ -1403,30 +1339,33 @@ StructuredQuery_FieldFilter::StructuredQuery_FieldFilter(const StructuredQuery_F
 }
 
 void StructuredQuery_FieldFilter::SharedCtor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_StructuredQuery_FieldFilter_google_2ffirestore_2fv1_2fquery_2eproto.base);
-  ::memset(&field_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&op_) -
-      reinterpret_cast<char*>(&field_)) + sizeof(op_));
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
+    reinterpret_cast<char*>(&field_) - reinterpret_cast<char*>(this)),
+    0, static_cast<size_t>(reinterpret_cast<char*>(&op_) -
+    reinterpret_cast<char*>(&field_)) + sizeof(op_));
 }
 
 StructuredQuery_FieldFilter::~StructuredQuery_FieldFilter() {
   // @@protoc_insertion_point(destructor:google.firestore.v1.StructuredQuery.FieldFilter)
   SharedDtor();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 void StructuredQuery_FieldFilter::SharedDtor() {
+  GOOGLE_DCHECK(GetArena() == nullptr);
   if (this != internal_default_instance()) delete field_;
   if (this != internal_default_instance()) delete value_;
 }
 
+void StructuredQuery_FieldFilter::ArenaDtor(void* object) {
+  StructuredQuery_FieldFilter* _this = reinterpret_cast< StructuredQuery_FieldFilter* >(object);
+  (void)_this;
+}
+void StructuredQuery_FieldFilter::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
+}
 void StructuredQuery_FieldFilter::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
-const StructuredQuery_FieldFilter& StructuredQuery_FieldFilter::default_instance() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_StructuredQuery_FieldFilter_google_2ffirestore_2fv1_2fquery_2eproto.base);
-  return *internal_default_instance();
-}
-
 
 void StructuredQuery_FieldFilter::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.StructuredQuery.FieldFilter)
@@ -1434,16 +1373,16 @@ void StructuredQuery_FieldFilter::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  if (GetArenaNoVirtual() == nullptr && field_ != nullptr) {
+  if (GetArena() == nullptr && field_ != nullptr) {
     delete field_;
   }
   field_ = nullptr;
-  if (GetArenaNoVirtual() == nullptr && value_ != nullptr) {
+  if (GetArena() == nullptr && value_ != nullptr) {
     delete value_;
   }
   value_ = nullptr;
   op_ = 0;
-  _internal_metadata_.Clear();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 const char* StructuredQuery_FieldFilter::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
@@ -1463,7 +1402,7 @@ const char* StructuredQuery_FieldFilter::_InternalParse(const char* ptr, ::PROTO
       // .google.firestore.v1.StructuredQuery.FieldFilter.Operator op = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
-          ::PROTOBUF_NAMESPACE_ID::uint64 val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
+          ::PROTOBUF_NAMESPACE_ID::uint64 val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
           _internal_set_op(static_cast<::google::firestore::v1::StructuredQuery_FieldFilter_Operator>(val));
         } else goto handle_unusual;
@@ -1481,7 +1420,9 @@ const char* StructuredQuery_FieldFilter::_InternalParse(const char* ptr, ::PROTO
           ctx->SetLastTag(tag);
           goto success;
         }
-        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        ptr = UnknownFieldParse(tag,
+            _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+            ptr, ctx);
         CHK_(ptr != nullptr);
         continue;
       }
@@ -1526,7 +1467,7 @@ failure:
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target, stream);
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.StructuredQuery.FieldFilter)
   return target;
@@ -1587,7 +1528,7 @@ void StructuredQuery_FieldFilter::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Messa
 void StructuredQuery_FieldFilter::MergeFrom(const StructuredQuery_FieldFilter& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.StructuredQuery.FieldFilter)
   GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -1622,10 +1563,13 @@ bool StructuredQuery_FieldFilter::IsInitialized() const {
 
 void StructuredQuery_FieldFilter::InternalSwap(StructuredQuery_FieldFilter* other) {
   using std::swap;
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-  swap(field_, other->field_);
-  swap(value_, other->value_);
-  swap(op_, other->op_);
+  _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(StructuredQuery_FieldFilter, op_)
+      + sizeof(StructuredQuery_FieldFilter::op_)
+      - PROTOBUF_FIELD_OFFSET(StructuredQuery_FieldFilter, field_)>(
+          reinterpret_cast<char*>(&field_),
+          reinterpret_cast<char*>(&other->field_));
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata StructuredQuery_FieldFilter::GetMetadata() const {
@@ -1635,10 +1579,6 @@ void StructuredQuery_FieldFilter::InternalSwap(StructuredQuery_FieldFilter* othe
 
 // ===================================================================
 
-void StructuredQuery_UnaryFilter::InitAsDefaultInstance() {
-  ::google::firestore::v1::_StructuredQuery_UnaryFilter_default_instance_.field_ = const_cast< ::google::firestore::v1::StructuredQuery_FieldReference*>(
-      ::google::firestore::v1::StructuredQuery_FieldReference::internal_default_instance());
-}
 class StructuredQuery_UnaryFilter::_Internal {
  public:
   static const ::google::firestore::v1::StructuredQuery_FieldReference& field(const StructuredQuery_UnaryFilter* msg);
@@ -1649,10 +1589,11 @@ StructuredQuery_UnaryFilter::_Internal::field(const StructuredQuery_UnaryFilter*
   return *msg->operand_type_.field_;
 }
 void StructuredQuery_UnaryFilter::set_allocated_field(::google::firestore::v1::StructuredQuery_FieldReference* field) {
-  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArena();
   clear_operand_type();
   if (field) {
-    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+      ::PROTOBUF_NAMESPACE_ID::Arena::GetArena(field);
     if (message_arena != submessage_arena) {
       field = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
           message_arena, field, submessage_arena);
@@ -1662,15 +1603,15 @@ void StructuredQuery_UnaryFilter::set_allocated_field(::google::firestore::v1::S
   }
   // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.StructuredQuery.UnaryFilter.field)
 }
-StructuredQuery_UnaryFilter::StructuredQuery_UnaryFilter()
-  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
+StructuredQuery_UnaryFilter::StructuredQuery_UnaryFilter(::PROTOBUF_NAMESPACE_ID::Arena* arena)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena) {
   SharedCtor();
-  // @@protoc_insertion_point(constructor:google.firestore.v1.StructuredQuery.UnaryFilter)
+  RegisterArenaDtor(arena);
+  // @@protoc_insertion_point(arena_constructor:google.firestore.v1.StructuredQuery.UnaryFilter)
 }
 StructuredQuery_UnaryFilter::StructuredQuery_UnaryFilter(const StructuredQuery_UnaryFilter& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message(),
-      _internal_metadata_(nullptr) {
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   op_ = from.op_;
   clear_has_operand_type();
   switch (from.operand_type_case()) {
@@ -1686,36 +1627,40 @@ StructuredQuery_UnaryFilter::StructuredQuery_UnaryFilter(const StructuredQuery_U
 }
 
 void StructuredQuery_UnaryFilter::SharedCtor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_StructuredQuery_UnaryFilter_google_2ffirestore_2fv1_2fquery_2eproto.base);
-  op_ = 0;
-  clear_has_operand_type();
+op_ = 0;
+clear_has_operand_type();
 }
 
 StructuredQuery_UnaryFilter::~StructuredQuery_UnaryFilter() {
   // @@protoc_insertion_point(destructor:google.firestore.v1.StructuredQuery.UnaryFilter)
   SharedDtor();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 void StructuredQuery_UnaryFilter::SharedDtor() {
+  GOOGLE_DCHECK(GetArena() == nullptr);
   if (has_operand_type()) {
     clear_operand_type();
   }
 }
 
+void StructuredQuery_UnaryFilter::ArenaDtor(void* object) {
+  StructuredQuery_UnaryFilter* _this = reinterpret_cast< StructuredQuery_UnaryFilter* >(object);
+  (void)_this;
+}
+void StructuredQuery_UnaryFilter::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
+}
 void StructuredQuery_UnaryFilter::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
-const StructuredQuery_UnaryFilter& StructuredQuery_UnaryFilter::default_instance() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_StructuredQuery_UnaryFilter_google_2ffirestore_2fv1_2fquery_2eproto.base);
-  return *internal_default_instance();
-}
-
 
 void StructuredQuery_UnaryFilter::clear_operand_type() {
 // @@protoc_insertion_point(one_of_clear_start:google.firestore.v1.StructuredQuery.UnaryFilter)
   switch (operand_type_case()) {
     case kField: {
-      delete operand_type_.field_;
+      if (GetArena() == nullptr) {
+        delete operand_type_.field_;
+      }
       break;
     }
     case OPERAND_TYPE_NOT_SET: {
@@ -1734,7 +1679,7 @@ void StructuredQuery_UnaryFilter::Clear() {
 
   op_ = 0;
   clear_operand_type();
-  _internal_metadata_.Clear();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 const char* StructuredQuery_UnaryFilter::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
@@ -1747,7 +1692,7 @@ const char* StructuredQuery_UnaryFilter::_InternalParse(const char* ptr, ::PROTO
       // .google.firestore.v1.StructuredQuery.UnaryFilter.Operator op = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
-          ::PROTOBUF_NAMESPACE_ID::uint64 val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
+          ::PROTOBUF_NAMESPACE_ID::uint64 val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
           _internal_set_op(static_cast<::google::firestore::v1::StructuredQuery_UnaryFilter_Operator>(val));
         } else goto handle_unusual;
@@ -1765,7 +1710,9 @@ const char* StructuredQuery_UnaryFilter::_InternalParse(const char* ptr, ::PROTO
           ctx->SetLastTag(tag);
           goto success;
         }
-        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        ptr = UnknownFieldParse(tag,
+            _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+            ptr, ctx);
         CHK_(ptr != nullptr);
         continue;
       }
@@ -1802,7 +1749,7 @@ failure:
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target, stream);
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.StructuredQuery.UnaryFilter)
   return target;
@@ -1861,7 +1808,7 @@ void StructuredQuery_UnaryFilter::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Messa
 void StructuredQuery_UnaryFilter::MergeFrom(const StructuredQuery_UnaryFilter& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.StructuredQuery.UnaryFilter)
   GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -1899,7 +1846,7 @@ bool StructuredQuery_UnaryFilter::IsInitialized() const {
 
 void StructuredQuery_UnaryFilter::InternalSwap(StructuredQuery_UnaryFilter* other) {
   using std::swap;
-  _internal_metadata_.Swap(&other->_internal_metadata_);
+  _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
   swap(op_, other->op_);
   swap(operand_type_, other->operand_type_);
   swap(_oneof_case_[0], other->_oneof_case_[0]);
@@ -1912,10 +1859,6 @@ void StructuredQuery_UnaryFilter::InternalSwap(StructuredQuery_UnaryFilter* othe
 
 // ===================================================================
 
-void StructuredQuery_Order::InitAsDefaultInstance() {
-  ::google::firestore::v1::_StructuredQuery_Order_default_instance_._instance.get_mutable()->field_ = const_cast< ::google::firestore::v1::StructuredQuery_FieldReference*>(
-      ::google::firestore::v1::StructuredQuery_FieldReference::internal_default_instance());
-}
 class StructuredQuery_Order::_Internal {
  public:
   static const ::google::firestore::v1::StructuredQuery_FieldReference& field(const StructuredQuery_Order* msg);
@@ -1925,15 +1868,15 @@ const ::google::firestore::v1::StructuredQuery_FieldReference&
 StructuredQuery_Order::_Internal::field(const StructuredQuery_Order* msg) {
   return *msg->field_;
 }
-StructuredQuery_Order::StructuredQuery_Order()
-  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
+StructuredQuery_Order::StructuredQuery_Order(::PROTOBUF_NAMESPACE_ID::Arena* arena)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena) {
   SharedCtor();
-  // @@protoc_insertion_point(constructor:google.firestore.v1.StructuredQuery.Order)
+  RegisterArenaDtor(arena);
+  // @@protoc_insertion_point(arena_constructor:google.firestore.v1.StructuredQuery.Order)
 }
 StructuredQuery_Order::StructuredQuery_Order(const StructuredQuery_Order& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message(),
-      _internal_metadata_(nullptr) {
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   if (from._internal_has_field()) {
     field_ = new ::google::firestore::v1::StructuredQuery_FieldReference(*from.field_);
   } else {
@@ -1944,29 +1887,32 @@ StructuredQuery_Order::StructuredQuery_Order(const StructuredQuery_Order& from)
 }
 
 void StructuredQuery_Order::SharedCtor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_StructuredQuery_Order_google_2ffirestore_2fv1_2fquery_2eproto.base);
-  ::memset(&field_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&direction_) -
-      reinterpret_cast<char*>(&field_)) + sizeof(direction_));
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
+    reinterpret_cast<char*>(&field_) - reinterpret_cast<char*>(this)),
+    0, static_cast<size_t>(reinterpret_cast<char*>(&direction_) -
+    reinterpret_cast<char*>(&field_)) + sizeof(direction_));
 }
 
 StructuredQuery_Order::~StructuredQuery_Order() {
   // @@protoc_insertion_point(destructor:google.firestore.v1.StructuredQuery.Order)
   SharedDtor();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 void StructuredQuery_Order::SharedDtor() {
+  GOOGLE_DCHECK(GetArena() == nullptr);
   if (this != internal_default_instance()) delete field_;
 }
 
+void StructuredQuery_Order::ArenaDtor(void* object) {
+  StructuredQuery_Order* _this = reinterpret_cast< StructuredQuery_Order* >(object);
+  (void)_this;
+}
+void StructuredQuery_Order::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
+}
 void StructuredQuery_Order::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
-const StructuredQuery_Order& StructuredQuery_Order::default_instance() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_StructuredQuery_Order_google_2ffirestore_2fv1_2fquery_2eproto.base);
-  return *internal_default_instance();
-}
-
 
 void StructuredQuery_Order::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.StructuredQuery.Order)
@@ -1974,12 +1920,12 @@ void StructuredQuery_Order::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  if (GetArenaNoVirtual() == nullptr && field_ != nullptr) {
+  if (GetArena() == nullptr && field_ != nullptr) {
     delete field_;
   }
   field_ = nullptr;
   direction_ = 0;
-  _internal_metadata_.Clear();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 const char* StructuredQuery_Order::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
@@ -1999,7 +1945,7 @@ const char* StructuredQuery_Order::_InternalParse(const char* ptr, ::PROTOBUF_NA
       // .google.firestore.v1.StructuredQuery.Direction direction = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
-          ::PROTOBUF_NAMESPACE_ID::uint64 val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
+          ::PROTOBUF_NAMESPACE_ID::uint64 val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
           _internal_set_direction(static_cast<::google::firestore::v1::StructuredQuery_Direction>(val));
         } else goto handle_unusual;
@@ -2010,7 +1956,9 @@ const char* StructuredQuery_Order::_InternalParse(const char* ptr, ::PROTOBUF_NA
           ctx->SetLastTag(tag);
           goto success;
         }
-        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        ptr = UnknownFieldParse(tag,
+            _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+            ptr, ctx);
         CHK_(ptr != nullptr);
         continue;
       }
@@ -2047,7 +1995,7 @@ failure:
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target, stream);
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.StructuredQuery.Order)
   return target;
@@ -2101,7 +2049,7 @@ void StructuredQuery_Order::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& fr
 void StructuredQuery_Order::MergeFrom(const StructuredQuery_Order& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.StructuredQuery.Order)
   GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -2133,9 +2081,13 @@ bool StructuredQuery_Order::IsInitialized() const {
 
 void StructuredQuery_Order::InternalSwap(StructuredQuery_Order* other) {
   using std::swap;
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-  swap(field_, other->field_);
-  swap(direction_, other->direction_);
+  _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(StructuredQuery_Order, direction_)
+      + sizeof(StructuredQuery_Order::direction_)
+      - PROTOBUF_FIELD_OFFSET(StructuredQuery_Order, field_)>(
+          reinterpret_cast<char*>(&field_),
+          reinterpret_cast<char*>(&other->field_));
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata StructuredQuery_Order::GetMetadata() const {
@@ -2145,50 +2097,51 @@ void StructuredQuery_Order::InternalSwap(StructuredQuery_Order* other) {
 
 // ===================================================================
 
-void StructuredQuery_FieldReference::InitAsDefaultInstance() {
-}
 class StructuredQuery_FieldReference::_Internal {
  public:
 };
 
-StructuredQuery_FieldReference::StructuredQuery_FieldReference()
-  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
+StructuredQuery_FieldReference::StructuredQuery_FieldReference(::PROTOBUF_NAMESPACE_ID::Arena* arena)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena) {
   SharedCtor();
-  // @@protoc_insertion_point(constructor:google.firestore.v1.StructuredQuery.FieldReference)
+  RegisterArenaDtor(arena);
+  // @@protoc_insertion_point(arena_constructor:google.firestore.v1.StructuredQuery.FieldReference)
 }
 StructuredQuery_FieldReference::StructuredQuery_FieldReference(const StructuredQuery_FieldReference& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message(),
-      _internal_metadata_(nullptr) {
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   field_path_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (!from._internal_field_path().empty()) {
-    field_path_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.field_path_);
+    field_path_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_field_path(), 
+      GetArena());
   }
   // @@protoc_insertion_point(copy_constructor:google.firestore.v1.StructuredQuery.FieldReference)
 }
 
 void StructuredQuery_FieldReference::SharedCtor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_StructuredQuery_FieldReference_google_2ffirestore_2fv1_2fquery_2eproto.base);
-  field_path_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+field_path_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
 StructuredQuery_FieldReference::~StructuredQuery_FieldReference() {
   // @@protoc_insertion_point(destructor:google.firestore.v1.StructuredQuery.FieldReference)
   SharedDtor();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 void StructuredQuery_FieldReference::SharedDtor() {
+  GOOGLE_DCHECK(GetArena() == nullptr);
   field_path_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
+void StructuredQuery_FieldReference::ArenaDtor(void* object) {
+  StructuredQuery_FieldReference* _this = reinterpret_cast< StructuredQuery_FieldReference* >(object);
+  (void)_this;
+}
+void StructuredQuery_FieldReference::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
+}
 void StructuredQuery_FieldReference::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
-const StructuredQuery_FieldReference& StructuredQuery_FieldReference::default_instance() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_StructuredQuery_FieldReference_google_2ffirestore_2fv1_2fquery_2eproto.base);
-  return *internal_default_instance();
-}
-
 
 void StructuredQuery_FieldReference::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.StructuredQuery.FieldReference)
@@ -2196,8 +2149,8 @@ void StructuredQuery_FieldReference::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  field_path_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  _internal_metadata_.Clear();
+  field_path_.ClearToEmpty();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 const char* StructuredQuery_FieldReference::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
@@ -2222,7 +2175,9 @@ const char* StructuredQuery_FieldReference::_InternalParse(const char* ptr, ::PR
           ctx->SetLastTag(tag);
           goto success;
         }
-        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        ptr = UnknownFieldParse(tag,
+            _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+            ptr, ctx);
         CHK_(ptr != nullptr);
         continue;
       }
@@ -2254,7 +2209,7 @@ failure:
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target, stream);
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.StructuredQuery.FieldReference)
   return target;
@@ -2302,13 +2257,12 @@ void StructuredQuery_FieldReference::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Me
 void StructuredQuery_FieldReference::MergeFrom(const StructuredQuery_FieldReference& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.StructuredQuery.FieldReference)
   GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   if (from.field_path().size() > 0) {
-
-    field_path_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.field_path_);
+    _internal_set_field_path(from._internal_field_path());
   }
 }
 
@@ -2332,9 +2286,8 @@ bool StructuredQuery_FieldReference::IsInitialized() const {
 
 void StructuredQuery_FieldReference::InternalSwap(StructuredQuery_FieldReference* other) {
   using std::swap;
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-  field_path_.Swap(&other->field_path_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-    GetArenaNoVirtual());
+  _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
+  field_path_.Swap(&other->field_path_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata StructuredQuery_FieldReference::GetMetadata() const {
@@ -2344,45 +2297,46 @@ void StructuredQuery_FieldReference::InternalSwap(StructuredQuery_FieldReference
 
 // ===================================================================
 
-void StructuredQuery_Projection::InitAsDefaultInstance() {
-}
 class StructuredQuery_Projection::_Internal {
  public:
 };
 
-StructuredQuery_Projection::StructuredQuery_Projection()
-  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
+StructuredQuery_Projection::StructuredQuery_Projection(::PROTOBUF_NAMESPACE_ID::Arena* arena)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena),
+  fields_(arena) {
   SharedCtor();
-  // @@protoc_insertion_point(constructor:google.firestore.v1.StructuredQuery.Projection)
+  RegisterArenaDtor(arena);
+  // @@protoc_insertion_point(arena_constructor:google.firestore.v1.StructuredQuery.Projection)
 }
 StructuredQuery_Projection::StructuredQuery_Projection(const StructuredQuery_Projection& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
-      _internal_metadata_(nullptr),
       fields_(from.fields_) {
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   // @@protoc_insertion_point(copy_constructor:google.firestore.v1.StructuredQuery.Projection)
 }
 
 void StructuredQuery_Projection::SharedCtor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_StructuredQuery_Projection_google_2ffirestore_2fv1_2fquery_2eproto.base);
 }
 
 StructuredQuery_Projection::~StructuredQuery_Projection() {
   // @@protoc_insertion_point(destructor:google.firestore.v1.StructuredQuery.Projection)
   SharedDtor();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 void StructuredQuery_Projection::SharedDtor() {
+  GOOGLE_DCHECK(GetArena() == nullptr);
 }
 
+void StructuredQuery_Projection::ArenaDtor(void* object) {
+  StructuredQuery_Projection* _this = reinterpret_cast< StructuredQuery_Projection* >(object);
+  (void)_this;
+}
+void StructuredQuery_Projection::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
+}
 void StructuredQuery_Projection::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
-const StructuredQuery_Projection& StructuredQuery_Projection::default_instance() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_StructuredQuery_Projection_google_2ffirestore_2fv1_2fquery_2eproto.base);
-  return *internal_default_instance();
-}
-
 
 void StructuredQuery_Projection::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.StructuredQuery.Projection)
@@ -2391,7 +2345,7 @@ void StructuredQuery_Projection::Clear() {
   (void) cached_has_bits;
 
   fields_.Clear();
-  _internal_metadata_.Clear();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 const char* StructuredQuery_Projection::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
@@ -2419,7 +2373,9 @@ const char* StructuredQuery_Projection::_InternalParse(const char* ptr, ::PROTOB
           ctx->SetLastTag(tag);
           goto success;
         }
-        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        ptr = UnknownFieldParse(tag,
+            _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+            ptr, ctx);
         CHK_(ptr != nullptr);
         continue;
       }
@@ -2449,7 +2405,7 @@ failure:
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target, stream);
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.StructuredQuery.Projection)
   return target;
@@ -2497,7 +2453,7 @@ void StructuredQuery_Projection::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Messag
 void StructuredQuery_Projection::MergeFrom(const StructuredQuery_Projection& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.StructuredQuery.Projection)
   GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -2524,7 +2480,7 @@ bool StructuredQuery_Projection::IsInitialized() const {
 
 void StructuredQuery_Projection::InternalSwap(StructuredQuery_Projection* other) {
   using std::swap;
-  _internal_metadata_.Swap(&other->_internal_metadata_);
+  _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
   fields_.InternalSwap(&other->fields_);
 }
 
@@ -2535,18 +2491,6 @@ void StructuredQuery_Projection::InternalSwap(StructuredQuery_Projection* other)
 
 // ===================================================================
 
-void StructuredQuery::InitAsDefaultInstance() {
-  ::google::firestore::v1::_StructuredQuery_default_instance_._instance.get_mutable()->select_ = const_cast< ::google::firestore::v1::StructuredQuery_Projection*>(
-      ::google::firestore::v1::StructuredQuery_Projection::internal_default_instance());
-  ::google::firestore::v1::_StructuredQuery_default_instance_._instance.get_mutable()->where_ = const_cast< ::google::firestore::v1::StructuredQuery_Filter*>(
-      ::google::firestore::v1::StructuredQuery_Filter::internal_default_instance());
-  ::google::firestore::v1::_StructuredQuery_default_instance_._instance.get_mutable()->start_at_ = const_cast< ::google::firestore::v1::Cursor*>(
-      ::google::firestore::v1::Cursor::internal_default_instance());
-  ::google::firestore::v1::_StructuredQuery_default_instance_._instance.get_mutable()->end_at_ = const_cast< ::google::firestore::v1::Cursor*>(
-      ::google::firestore::v1::Cursor::internal_default_instance());
-  ::google::firestore::v1::_StructuredQuery_default_instance_._instance.get_mutable()->limit_ = const_cast< PROTOBUF_NAMESPACE_ID::Int32Value*>(
-      PROTOBUF_NAMESPACE_ID::Int32Value::internal_default_instance());
-}
 class StructuredQuery::_Internal {
  public:
   static const ::google::firestore::v1::StructuredQuery_Projection& select(const StructuredQuery* msg);
@@ -2577,22 +2521,24 @@ StructuredQuery::_Internal::limit(const StructuredQuery* msg) {
   return *msg->limit_;
 }
 void StructuredQuery::clear_limit() {
-  if (GetArenaNoVirtual() == nullptr && limit_ != nullptr) {
+  if (GetArena() == nullptr && limit_ != nullptr) {
     delete limit_;
   }
   limit_ = nullptr;
 }
-StructuredQuery::StructuredQuery()
-  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
+StructuredQuery::StructuredQuery(::PROTOBUF_NAMESPACE_ID::Arena* arena)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena),
+  from_(arena),
+  order_by_(arena) {
   SharedCtor();
-  // @@protoc_insertion_point(constructor:google.firestore.v1.StructuredQuery)
+  RegisterArenaDtor(arena);
+  // @@protoc_insertion_point(arena_constructor:google.firestore.v1.StructuredQuery)
 }
 StructuredQuery::StructuredQuery(const StructuredQuery& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
-      _internal_metadata_(nullptr),
       from_(from.from_),
       order_by_(from.order_by_) {
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   if (from._internal_has_select()) {
     select_ = new ::google::firestore::v1::StructuredQuery_Projection(*from.select_);
   } else {
@@ -2623,18 +2569,20 @@ StructuredQuery::StructuredQuery(const StructuredQuery& from)
 }
 
 void StructuredQuery::SharedCtor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_StructuredQuery_google_2ffirestore_2fv1_2fquery_2eproto.base);
-  ::memset(&select_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&offset_) -
-      reinterpret_cast<char*>(&select_)) + sizeof(offset_));
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
+    reinterpret_cast<char*>(&select_) - reinterpret_cast<char*>(this)),
+    0, static_cast<size_t>(reinterpret_cast<char*>(&offset_) -
+    reinterpret_cast<char*>(&select_)) + sizeof(offset_));
 }
 
 StructuredQuery::~StructuredQuery() {
   // @@protoc_insertion_point(destructor:google.firestore.v1.StructuredQuery)
   SharedDtor();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 void StructuredQuery::SharedDtor() {
+  GOOGLE_DCHECK(GetArena() == nullptr);
   if (this != internal_default_instance()) delete select_;
   if (this != internal_default_instance()) delete where_;
   if (this != internal_default_instance()) delete limit_;
@@ -2642,14 +2590,15 @@ void StructuredQuery::SharedDtor() {
   if (this != internal_default_instance()) delete end_at_;
 }
 
+void StructuredQuery::ArenaDtor(void* object) {
+  StructuredQuery* _this = reinterpret_cast< StructuredQuery* >(object);
+  (void)_this;
+}
+void StructuredQuery::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
+}
 void StructuredQuery::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
-const StructuredQuery& StructuredQuery::default_instance() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_StructuredQuery_google_2ffirestore_2fv1_2fquery_2eproto.base);
-  return *internal_default_instance();
-}
-
 
 void StructuredQuery::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.StructuredQuery)
@@ -2659,28 +2608,28 @@ void StructuredQuery::Clear() {
 
   from_.Clear();
   order_by_.Clear();
-  if (GetArenaNoVirtual() == nullptr && select_ != nullptr) {
+  if (GetArena() == nullptr && select_ != nullptr) {
     delete select_;
   }
   select_ = nullptr;
-  if (GetArenaNoVirtual() == nullptr && where_ != nullptr) {
+  if (GetArena() == nullptr && where_ != nullptr) {
     delete where_;
   }
   where_ = nullptr;
-  if (GetArenaNoVirtual() == nullptr && limit_ != nullptr) {
+  if (GetArena() == nullptr && limit_ != nullptr) {
     delete limit_;
   }
   limit_ = nullptr;
-  if (GetArenaNoVirtual() == nullptr && start_at_ != nullptr) {
+  if (GetArena() == nullptr && start_at_ != nullptr) {
     delete start_at_;
   }
   start_at_ = nullptr;
-  if (GetArenaNoVirtual() == nullptr && end_at_ != nullptr) {
+  if (GetArena() == nullptr && end_at_ != nullptr) {
     delete end_at_;
   }
   end_at_ = nullptr;
   offset_ = 0;
-  _internal_metadata_.Clear();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 const char* StructuredQuery::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
@@ -2738,7 +2687,7 @@ const char* StructuredQuery::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
       // int32 offset = 6;
       case 6:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 48)) {
-          offset_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
+          offset_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -2762,7 +2711,9 @@ const char* StructuredQuery::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
           ctx->SetLastTag(tag);
           goto success;
         }
-        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        ptr = UnknownFieldParse(tag,
+            _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+            ptr, ctx);
         CHK_(ptr != nullptr);
         continue;
       }
@@ -2846,7 +2797,7 @@ failure:
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target, stream);
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.StructuredQuery)
   return target;
@@ -2943,7 +2894,7 @@ void StructuredQuery::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 void StructuredQuery::MergeFrom(const StructuredQuery& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.StructuredQuery)
   GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -2989,15 +2940,15 @@ bool StructuredQuery::IsInitialized() const {
 
 void StructuredQuery::InternalSwap(StructuredQuery* other) {
   using std::swap;
-  _internal_metadata_.Swap(&other->_internal_metadata_);
+  _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
   from_.InternalSwap(&other->from_);
   order_by_.InternalSwap(&other->order_by_);
-  swap(select_, other->select_);
-  swap(where_, other->where_);
-  swap(limit_, other->limit_);
-  swap(start_at_, other->start_at_);
-  swap(end_at_, other->end_at_);
-  swap(offset_, other->offset_);
+  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(StructuredQuery, offset_)
+      + sizeof(StructuredQuery::offset_)
+      - PROTOBUF_FIELD_OFFSET(StructuredQuery, select_)>(
+          reinterpret_cast<char*>(&select_),
+          reinterpret_cast<char*>(&other->select_));
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata StructuredQuery::GetMetadata() const {
@@ -3007,8 +2958,6 @@ void StructuredQuery::InternalSwap(StructuredQuery* other) {
 
 // ===================================================================
 
-void Cursor::InitAsDefaultInstance() {
-}
 class Cursor::_Internal {
  public:
 };
@@ -3016,41 +2965,44 @@ class Cursor::_Internal {
 void Cursor::clear_values() {
   values_.Clear();
 }
-Cursor::Cursor()
-  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
+Cursor::Cursor(::PROTOBUF_NAMESPACE_ID::Arena* arena)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena),
+  values_(arena) {
   SharedCtor();
-  // @@protoc_insertion_point(constructor:google.firestore.v1.Cursor)
+  RegisterArenaDtor(arena);
+  // @@protoc_insertion_point(arena_constructor:google.firestore.v1.Cursor)
 }
 Cursor::Cursor(const Cursor& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
-      _internal_metadata_(nullptr),
       values_(from.values_) {
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   before_ = from.before_;
   // @@protoc_insertion_point(copy_constructor:google.firestore.v1.Cursor)
 }
 
 void Cursor::SharedCtor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_Cursor_google_2ffirestore_2fv1_2fquery_2eproto.base);
-  before_ = false;
+before_ = false;
 }
 
 Cursor::~Cursor() {
   // @@protoc_insertion_point(destructor:google.firestore.v1.Cursor)
   SharedDtor();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 void Cursor::SharedDtor() {
+  GOOGLE_DCHECK(GetArena() == nullptr);
 }
 
+void Cursor::ArenaDtor(void* object) {
+  Cursor* _this = reinterpret_cast< Cursor* >(object);
+  (void)_this;
+}
+void Cursor::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
+}
 void Cursor::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
-const Cursor& Cursor::default_instance() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_Cursor_google_2ffirestore_2fv1_2fquery_2eproto.base);
-  return *internal_default_instance();
-}
-
 
 void Cursor::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.Cursor)
@@ -3060,7 +3012,7 @@ void Cursor::Clear() {
 
   values_.Clear();
   before_ = false;
-  _internal_metadata_.Clear();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 const char* Cursor::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
@@ -3085,7 +3037,7 @@ const char* Cursor::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::int
       // bool before = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
-          before_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
+          before_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -3095,7 +3047,9 @@ const char* Cursor::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::int
           ctx->SetLastTag(tag);
           goto success;
         }
-        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        ptr = UnknownFieldParse(tag,
+            _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+            ptr, ctx);
         CHK_(ptr != nullptr);
         continue;
       }
@@ -3131,7 +3085,7 @@ failure:
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target, stream);
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.Cursor)
   return target;
@@ -3184,7 +3138,7 @@ void Cursor::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 void Cursor::MergeFrom(const Cursor& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.Cursor)
   GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -3214,7 +3168,7 @@ bool Cursor::IsInitialized() const {
 
 void Cursor::InternalSwap(Cursor* other) {
   using std::swap;
-  _internal_metadata_.Swap(&other->_internal_metadata_);
+  _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
   values_.InternalSwap(&other->values_);
   swap(before_, other->before_);
 }
@@ -3230,34 +3184,34 @@ void Cursor::InternalSwap(Cursor* other) {
 }  // namespace google
 PROTOBUF_NAMESPACE_OPEN
 template<> PROTOBUF_NOINLINE ::google::firestore::v1::StructuredQuery_CollectionSelector* Arena::CreateMaybeMessage< ::google::firestore::v1::StructuredQuery_CollectionSelector >(Arena* arena) {
-  return Arena::CreateInternal< ::google::firestore::v1::StructuredQuery_CollectionSelector >(arena);
+  return Arena::CreateMessageInternal< ::google::firestore::v1::StructuredQuery_CollectionSelector >(arena);
 }
 template<> PROTOBUF_NOINLINE ::google::firestore::v1::StructuredQuery_Filter* Arena::CreateMaybeMessage< ::google::firestore::v1::StructuredQuery_Filter >(Arena* arena) {
-  return Arena::CreateInternal< ::google::firestore::v1::StructuredQuery_Filter >(arena);
+  return Arena::CreateMessageInternal< ::google::firestore::v1::StructuredQuery_Filter >(arena);
 }
 template<> PROTOBUF_NOINLINE ::google::firestore::v1::StructuredQuery_CompositeFilter* Arena::CreateMaybeMessage< ::google::firestore::v1::StructuredQuery_CompositeFilter >(Arena* arena) {
-  return Arena::CreateInternal< ::google::firestore::v1::StructuredQuery_CompositeFilter >(arena);
+  return Arena::CreateMessageInternal< ::google::firestore::v1::StructuredQuery_CompositeFilter >(arena);
 }
 template<> PROTOBUF_NOINLINE ::google::firestore::v1::StructuredQuery_FieldFilter* Arena::CreateMaybeMessage< ::google::firestore::v1::StructuredQuery_FieldFilter >(Arena* arena) {
-  return Arena::CreateInternal< ::google::firestore::v1::StructuredQuery_FieldFilter >(arena);
+  return Arena::CreateMessageInternal< ::google::firestore::v1::StructuredQuery_FieldFilter >(arena);
 }
 template<> PROTOBUF_NOINLINE ::google::firestore::v1::StructuredQuery_UnaryFilter* Arena::CreateMaybeMessage< ::google::firestore::v1::StructuredQuery_UnaryFilter >(Arena* arena) {
-  return Arena::CreateInternal< ::google::firestore::v1::StructuredQuery_UnaryFilter >(arena);
+  return Arena::CreateMessageInternal< ::google::firestore::v1::StructuredQuery_UnaryFilter >(arena);
 }
 template<> PROTOBUF_NOINLINE ::google::firestore::v1::StructuredQuery_Order* Arena::CreateMaybeMessage< ::google::firestore::v1::StructuredQuery_Order >(Arena* arena) {
-  return Arena::CreateInternal< ::google::firestore::v1::StructuredQuery_Order >(arena);
+  return Arena::CreateMessageInternal< ::google::firestore::v1::StructuredQuery_Order >(arena);
 }
 template<> PROTOBUF_NOINLINE ::google::firestore::v1::StructuredQuery_FieldReference* Arena::CreateMaybeMessage< ::google::firestore::v1::StructuredQuery_FieldReference >(Arena* arena) {
-  return Arena::CreateInternal< ::google::firestore::v1::StructuredQuery_FieldReference >(arena);
+  return Arena::CreateMessageInternal< ::google::firestore::v1::StructuredQuery_FieldReference >(arena);
 }
 template<> PROTOBUF_NOINLINE ::google::firestore::v1::StructuredQuery_Projection* Arena::CreateMaybeMessage< ::google::firestore::v1::StructuredQuery_Projection >(Arena* arena) {
-  return Arena::CreateInternal< ::google::firestore::v1::StructuredQuery_Projection >(arena);
+  return Arena::CreateMessageInternal< ::google::firestore::v1::StructuredQuery_Projection >(arena);
 }
 template<> PROTOBUF_NOINLINE ::google::firestore::v1::StructuredQuery* Arena::CreateMaybeMessage< ::google::firestore::v1::StructuredQuery >(Arena* arena) {
-  return Arena::CreateInternal< ::google::firestore::v1::StructuredQuery >(arena);
+  return Arena::CreateMessageInternal< ::google::firestore::v1::StructuredQuery >(arena);
 }
 template<> PROTOBUF_NOINLINE ::google::firestore::v1::Cursor* Arena::CreateMaybeMessage< ::google::firestore::v1::Cursor >(Arena* arena) {
-  return Arena::CreateInternal< ::google::firestore::v1::Cursor >(arena);
+  return Arena::CreateMessageInternal< ::google::firestore::v1::Cursor >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 
