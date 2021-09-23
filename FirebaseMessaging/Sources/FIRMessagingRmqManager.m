@@ -455,9 +455,9 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
     } else {
       sqlError = @"(null)";
     }
-    NSString *errorMessage = [NSString
-        stringWithFormat:@"Couldn't create table: %@ with command: %@ error: %@",
-                         kCreateTableOutgoingRmqMessages, createDatabase, sqlError];
+    NSString *errorMessage =
+        [NSString stringWithFormat:@"Couldn't create table: %@ with command: %@ error: %@",
+                                   kCreateTableOutgoingRmqMessages, createDatabase, sqlError];
     FIRMessagingLoggerError(kFIRMessagingMessageCodeRmq2PersistentStoreErrorCreatingTable, @"%@",
                             errorMessage);
     NSAssert(NO, errorMessage);
