@@ -1,3 +1,6 @@
+# v8.9.0
+- [fixed] Fix device-only build warning for unused `processIsTranslated` function. (#8694)
+
 # v8.8.0
 - [fixed] Firebase dynamic links with custom domain will only work if the custom domain has a trailing '/'. (#7087)
 
