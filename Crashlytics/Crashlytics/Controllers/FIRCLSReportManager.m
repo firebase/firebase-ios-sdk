@@ -182,6 +182,11 @@ typedef NSNumber FIRCLSWrappedReportAction;
                                                            googleAppID:self.googleAppID];
 
   _notificationManager = [[FIRCLSNotificationManager alloc] init];
+
+  // This needs to be called before any values are read from settings
+  NSTimeInterval currentTimestamp = [NSDate timeIntervalSinceReferenceDate];
+  [self.settings reloadFromCacheWithGoogleAppID:self.googleAppID currentTimestamp:currentTimestamp];
+
 #if CLS_METRICKIT_SUPPORTED
   if (@available(iOS 15, *)) {
     if (self.settings.metricKitCollectionEnabled) {
@@ -262,10 +267,6 @@ typedef NSNumber FIRCLSWrappedReportAction;
 
 - (FBLPromise<NSNumber *> *)startWithProfilingMark:(FIRCLSProfileMark)mark {
   NSString *executionIdentifier = self.executionIDModel.executionID;
-
-  // This needs to be called before any values are read from settings
-  NSTimeInterval currentTimestamp = [NSDate timeIntervalSinceReferenceDate];
-  [self.settings reloadFromCacheWithGoogleAppID:self.googleAppID currentTimestamp:currentTimestamp];
 
   // This needs to be called before the new report is created for
   // this run of the app.
