@@ -19,7 +19,6 @@
 #if CLS_METRICKIT_SUPPORTED
 
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
-#import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionArbiter.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSCallStackTree.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
@@ -98,9 +97,6 @@
  */
 - (void)didReceiveDiagnosticPayloads:(NSArray<MXDiagnosticPayload *> *)payloads
     API_AVAILABLE(ios(14)) {
-  if (![self.managerData.dataArbiter isCrashlyticsCollectionEnabled]) {
-    return;
-  }
   BOOL processedFatalPayload = NO;
   for (MXDiagnosticPayload *diagnosticPayload in payloads) {
     if (!diagnosticPayload) {
