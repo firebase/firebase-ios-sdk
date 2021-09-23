@@ -61,7 +61,7 @@ struct FavouriteFruitsViewWithViewModel: View {
     showOnlyFavourites.toggle()
     if showOnlyFavourites {
       viewModel.$fruitResults.predicates = [
-        .where(field: "isFavourite", isEqualTo: true),
+        .whereField("isFavourite", isEqualTo: true),
       ]
     } else {
       viewModel.$fruitResults.predicates = []

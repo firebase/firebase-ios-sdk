@@ -22,7 +22,6 @@ import FirebaseFirestore
 ///
 ///     let onlyFavourites: QueryPredicate = .whereField("isFavourite", isEqualTo: true)
 ///     let onlyFavourites2: QueryPredicate = .isEqualTo("isFavourite", true)
-///     let onlyFavourites3: QueryPredicate = .where(field: "isFavourite", isEqualTo: true)
 public enum QueryPredicate {
   case isEqualTo(_ field: String, _ value: Any)
 
@@ -95,44 +94,5 @@ public enum QueryPredicate {
 
   public static func limit(toLast value: Int) -> QueryPredicate {
     .limitToLast(value)
-  }
-
-  // Alternate naming
-
-  public static func `where`(field name: String, isEqualTo value: Any) -> QueryPredicate {
-    .isEqualTo(name, value)
-  }
-
-  public static func `where`(field name: String, isIn values: [Any]) -> QueryPredicate {
-    .isIn(name, values)
-  }
-
-  public static func `where`(field name: String, isNotIn values: [Any]) -> QueryPredicate {
-    .isNotIn(name, values)
-  }
-
-  public static func `where`(field name: String, arrayContains value: Any) -> QueryPredicate {
-    .arrayContains(name, value)
-  }
-
-  public static func `where`(field name: String, arrayContainsAny values: [Any]) -> QueryPredicate {
-    .arrayContainsAny(name, values)
-  }
-
-  public static func `where`(field name: String, isLessThan value: Any) -> QueryPredicate {
-    .isLessThan(name, value)
-  }
-
-  public static func `where`(field name: String, isGreaterThan value: Any) -> QueryPredicate {
-    .isGreaterThan(name, value)
-  }
-
-  public static func `where`(field name: String, isLessThanOrEqualTo value: Any) -> QueryPredicate {
-    .isLessThanOrEqualTo(name, value)
-  }
-
-  public static func `where`(field name: String,
-                             isGreaterThanOrEqualTo value: Any) -> QueryPredicate {
-    .isGreaterThanOrEqualTo(name, value)
   }
 }
