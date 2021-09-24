@@ -25,7 +25,7 @@ struct FavouriteFruitsView: View {
   @FirestoreQuery(
     collectionPath: "fruits",
     predicates: [
-      .whereField("isFavourite", isEqualTo: true),
+      .where("isFavourite", isEqualTo: true),
     ]
   ) fileprivate var fruitResults: Result<[Fruit], Error>
 
