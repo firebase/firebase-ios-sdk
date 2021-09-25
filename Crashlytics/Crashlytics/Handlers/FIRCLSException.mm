@@ -80,7 +80,7 @@ void FIRCLSExceptionInitialize(FIRCLSExceptionReadOnlyContext *roContext,
 
 void FIRCLSExceptionRecordModel(FIRExceptionModel *exceptionModel) {
   const char *name = [[exceptionModel.name copy] UTF8String];
-  const char *reason = [[exceptionModel.reason copy] UTF8String];
+  const char *reason = [[exceptionModel.reason copy] UTF8String] ?: "";
 
   FIRCLSExceptionRecord(FIRCLSExceptionTypeCustom, name, reason, [exceptionModel.stackTrace copy],
                         NO);
@@ -92,7 +92,7 @@ void FIRCLSExceptionRecordNSException(NSException *exception) {
   NSArray *returnAddresses = [exception callStackReturnAddresses];
 
   NSString *name = [exception name];
-  NSString *reason = [exception reason];
+  NSString *reason = [exception reason] ?: @"";
 
   // It's tempting to try to make use of callStackSymbols here.  But, the output
   // of that function is not intended to be machine-readible.  We could parse it,

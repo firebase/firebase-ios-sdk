@@ -24,9 +24,10 @@
 #include "Firestore/core/src/util/delayed_constructor.h"
 #include "Firestore/core/src/util/error_apple.h"
 
-namespace util = firebase::firestore::util;
 using firebase::firestore::core::ParsedSetData;
 using firebase::firestore::core::ParsedUpdateData;
+using firebase::firestore::util::DelayedConstructor;
+using firebase::firestore::util::MakeCallback;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -51,7 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation FIRWriteBatch {
-  util::DelayedConstructor<api::WriteBatch> _writeBatch;
+  DelayedConstructor<api::WriteBatch> _writeBatch;
 }
 
 - (instancetype)initWithDataReader:(FSTUserDataReader *)dataReader
@@ -107,7 +108,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)commitWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
-  _writeBatch->Commit(util::MakeCallback(completion));
+  _writeBatch->Commit(MakeCallback(completion));
 }
 
 @end

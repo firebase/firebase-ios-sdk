@@ -286,7 +286,7 @@ NSString *const AppVersion = @"app_version";
     return value.boolValue;
   }
 
-  return YES;
+  return NO;
 }
 
 #pragma mark - Optional Limit Overrides
