@@ -62,11 +62,13 @@ static FCompoundHashSplitStrategy NEVER_SPLIT_STRATEGY = ^BOOL(FCompoundHashBuil
   NSString *firstHash = [FStringUtilities
       base64EncodedSha1:
           @"(\"foo\":(\"!beforePriority\":(string:\"before\"),\".priority\":(string:\"prio\")))"];
-  NSString *secondHash = [FStringUtilities
-      base64EncodedSha1:
-          @"(\"foo\":(\"afterPriority\":(string:\"after\")),\"qux\":(string:\"qux\"))"];
-  XCTAssertEqualObjects(hash.posts, (@[ PATH(@"foo/.priority"), PATH(@"qux") ]));
-  XCTAssertEqualObjects(hash.hashes, (@[ firstHash, secondHash, @"" ]));
+    NSString *comp = [Foo base64EncodedSha1:@"(\"foo\":(\"!beforePriority\":(string:\"before\"),\".priority\":(string:\"prio\")))"];
+    XCTAssertEqualObjects(firstHash, comp);
+    NSString *secondHash = [FStringUtilities
+                            base64EncodedSha1:
+                                @"(\"foo\":(\"afterPriority\":(string:\"after\")),\"qux\":(string:\"qux\"))"];
+    XCTAssertEqualObjects(hash.posts, (@[ PATH(@"foo/.priority"), PATH(@"qux") ]));
+    XCTAssertEqualObjects(hash.hashes, (@[ firstHash, secondHash, @"" ]));
 }
 
 - (void)testHashesPriorityLeafNodes {

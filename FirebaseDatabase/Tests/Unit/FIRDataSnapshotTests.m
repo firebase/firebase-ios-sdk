@@ -22,11 +22,13 @@
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseReference.h"
 
 
-#import "FirebaseDatabase/Sources/Snapshot/FLeafNode.h"
+
 #import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
-#import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FImmutableSortedDictionary.h"
+//#import "FirebaseDatabase/Sources/third_party/FImmutableSortedDictionary/FImmutableSortedDictionary/FImmutableSortedDictionary.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
+
+@import FirebaseDatabaseSwiftCore;
 
 @implementation FIRDataSnapshotTests
 
@@ -67,10 +69,10 @@
   XCTAssertEqualObjects(x.value, @"test", @"Check if leaf node is holding onto a string value");
 
   x = [[FLeafNode alloc] initWithValue:[NSNumber numberWithBool:YES]];
-  XCTAssertTrue([x.value boolValue], @"Check if leaf node is holding onto a YES boolean");
+  XCTAssertTrue([(NSNumber *)(x.value) boolValue], @"Check if leaf node is holding onto a YES boolean");
 
   x = [[FLeafNode alloc] initWithValue:[NSNumber numberWithBool:NO]];
-  XCTAssertFalse([x.value boolValue], @"Check if leaf node is holding onto a NO boolean");
+  XCTAssertFalse([(NSNumber *)(x.value) boolValue], @"Check if leaf node is holding onto a NO boolean");
 }
 
 - (void)testUpdatingPriorityWithoutChangingOld {
@@ -134,32 +136,32 @@
   };
 }
 
-- (void)testUpdateImmediateChildWithNewNode {
-  FImmutableSortedDictionary* children =
-      [FImmutableSortedDictionary dictionaryWithComparator:[self defaultComparator]];
-  FChildrenNode* x = [[FChildrenNode alloc] initWithChildren:children];
-  FLeafNode* newValue = [[FLeafNode alloc] initWithValue:@"new value"];
-  FChildrenNode* y = [x updateImmediateChild:@"test" withNewChild:newValue];
-
-  XCTAssertEqualObjects(x.children, children, @"Original object stays the same");
-  XCTAssertEqualObjects([y.children objectForKey:@"test"], newValue,
-                        @"New internal node with the proper new value");
-  XCTAssertEqualObjects([[y.children objectForKey:@"test"] val], @"new value",
-                        @"Check the payload");
-}
-
-- (void)testUpdatechildWithNewNode {
-  FImmutableSortedDictionary* children =
-      [FImmutableSortedDictionary dictionaryWithComparator:[self defaultComparator]];
-  FChildrenNode* x = [[FChildrenNode alloc] initWithChildren:children];
-  FLeafNode* newValue = [[FLeafNode alloc] initWithValue:@"new value"];
-  FChildrenNode* y = [x updateChild:[[FPath alloc] initWith:@"test/foo"] withNewChild:newValue];
-  XCTAssertEqualObjects(x.children, children, @"Original object stays the same");
-  XCTAssertEqualObjects([y getChild:[[FPath alloc] initWith:@"test/foo"]], newValue,
-                        @"Check if the updateChild held");
-  XCTAssertEqualObjects([[y getChild:[[FPath alloc] initWith:@"test/foo"]] val], @"new value",
-                        @"Check the payload");
-}
+//- (void)testUpdateImmediateChildWithNewNode {
+//  FImmutableSortedDictionary* children =
+//      [FImmutableSortedDictionary dictionaryWithComparator:[self defaultComparator]];
+//  FChildrenNode* x = [[FChildrenNode alloc] initWithChildren:children];
+//  FLeafNode* newValue = [[FLeafNode alloc] initWithValue:@"new value"];
+//  FChildrenNode* y = [x updateImmediateChild:@"test" withNewChild:newValue];
+//
+//  XCTAssertEqualObjects(x.children, children, @"Original object stays the same");
+//  XCTAssertEqualObjects([y.children objectForKey:@"test"], newValue,
+//                        @"New internal node with the proper new value");
+//  XCTAssertEqualObjects([[y.children objectForKey:@"test"] val], @"new value",
+//                        @"Check the payload");
+//}
+//
+//- (void)testUpdatechildWithNewNode {
+//  FImmutableSortedDictionary* children =
+//      [FImmutableSortedDictionary dictionaryWithComparator:[self defaultComparator]];
+//  FChildrenNode* x = [[FChildrenNode alloc] initWithChildren:children];
+//  FLeafNode* newValue = [[FLeafNode alloc] initWithValue:@"new value"];
+//  FChildrenNode* y = [x updateChild:[[FPath alloc] initWith:@"test/foo"] withNewChild:newValue];
+//  XCTAssertEqualObjects(x.children, children, @"Original object stays the same");
+//  XCTAssertEqualObjects([y getChild:[[FPath alloc] initWith:@"test/foo"]], newValue,
+//                        @"Check if the updateChild held");
+//  XCTAssertEqualObjects([[y getChild:[[FPath alloc] initWith:@"test/foo"]] val], @"new value",
+//                        @"Check the payload");
+//}
 
 - (void)testObjectTypes {
   XCTAssertEqualObjects(@"string", [FUtilities getJavascriptType:@""], @"Check string type");

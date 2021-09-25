@@ -16,6 +16,21 @@ import Foundation
 private let kMinName = "[MIN_NAME]"
 private let kMaxName = "[MAX_NAME]"
 
+@objc class NodeEnumerator: NSEnumerator {
+    var iterator: OrderedDictionary<String, FNode>.Iterator
+    let node: FChildrenNode
+    init(iterator: OrderedDictionary<String, FNode>.Iterator, node: FChildrenNode) {
+        self.iterator = iterator
+        self.node = node
+    }
+    override func nextObject() -> Any? {
+        guard let (key, _) = iterator.next() else {
+            return nil
+        }
+        return FNamedNode(name: key, andNode: node.getImmediateChild(key))
+    }
+}
+
 @objc public class FNamedNode: NSObject, NSCopying {
     @objc public var name: String
     @objc public var node: FNode
@@ -49,7 +64,12 @@ private let kMaxName = "[MAX_NAME]"
     }
 
     @objc public override var hash: Int {
-        31 * name.hash + node.hash
+        var hasher = Hasher()
+        name.hash(into: &hasher)
+        // Obj-C protocol can't conform to hashable, so we convert
+        // by calling hash(into:) on the hash value...
+        node.hash.hash(into: &hasher)
+        return hasher.finalize()
     }
 }
 
@@ -104,7 +124,6 @@ private let kMaxName = "[MAX_NAME]"
         } else {
             newChildren[childKey] = newChildNode
         }
-        // XXX SORT USING KEY SORT
         newChildren.sort { a, b in
             FUtilitiesSwift.compareKey(a.key, b.key) == .orderedAscending
         }
@@ -121,7 +140,7 @@ private let kMaxName = "[MAX_NAME]"
             return newChildNode
         }
 
-        assert(front != ".priority", ".priority must be the last token in a path.")
+        assert(front != ".priority" || path.length() == 1, ".priority must be the last token in a path.")
         let newImmediateChild = getImmediateChild(front).updateChild(path.popFront(), withNewChild: newChildNode)
         return updateImmediateChild(front, withNewChild: newImmediateChild)
     }
@@ -191,8 +210,47 @@ private let kMaxName = "[MAX_NAME]"
         if let hash = lazyHash {
             return hash
         }
-        // STUB: requires FPriorityIndex and FSnapshotUtilities
-        let calculatedHash = ""
+        var toHash = ""
+
+        if !getPriority().isEmpty {
+            toHash += "priority:"
+            FUtilitiesSwift
+                .appendHashRepresentation(for: self.getPriority(),
+                                             to: &toHash,
+                                             hashVersion: .v1)
+            toHash += ":"
+        }
+        var sawPriority = false
+        for node in children.values {
+            sawPriority = sawPriority || node.getPriority().isEmpty
+            if sawPriority { break }
+        }
+        if sawPriority {
+            var array: [FNamedNode] = []
+            for (key, node) in children {
+                array.append(FNamedNode(name: key, andNode: node))
+            }
+            array.sort { a, b in
+                FPriorityIndex
+                    .priorityIndex
+                    .compareNamedNode(a, toNamedNode: b) == .orderedAscending
+            }
+            for namedNode in array {
+                let childHash = namedNode.node.dataHash()
+                if !children.isEmpty {
+                    toHash += ":\(namedNode.name):\(childHash)"
+                }
+            }
+        } else {
+            for (key, node) in children {
+                let childHash = node.dataHash()
+                if !childHash.isEmpty {
+                    toHash += ":\(key):\(childHash)"
+                }
+            }
+        }
+
+        let calculatedHash = toHash.isEmpty ? "" : FUtilitiesSwift.base64EncodedSha1(toHash)
         lazyHash = calculatedHash
         return calculatedHash
     }
@@ -202,15 +260,30 @@ private let kMaxName = "[MAX_NAME]"
     }
 
     @objc public func enumerateChildren(usingBlock block: @escaping (String, FNode, UnsafeMutablePointer<ObjCBool>) -> Void) {
-
+        var stop = ObjCBool(booleanLiteral: false)
+        for (key, value) in children {
+            block(key, value, &stop)
+            if stop.boolValue { break }
+        }
     }
 
     @objc public func enumerateChildrenReverse(_ reverse: Bool, usingBlock block: @escaping (String, FNode, UnsafeMutablePointer<ObjCBool>) -> Void) {
-
+        var stop = ObjCBool(booleanLiteral: false)
+        if reverse {
+            for (key, value) in children.reversed() {
+                block(key, value, &stop)
+                if stop.boolValue { break }
+            }
+        } else {
+            for (key, value) in children {
+                block(key, value, &stop)
+                if stop.boolValue { break }
+            }
+        }
     }
 
-    @objc public func childEnumerator() -> NSEnumerator? {
-        nil
+    @objc public func childEnumerator() -> NSEnumerator {
+        NodeEnumerator(iterator: children.makeIterator(), node: self)
     }
 
     var children: OrderedDictionary<String, FNode>
@@ -220,6 +293,44 @@ private let kMaxName = "[MAX_NAME]"
     init(children: OrderedDictionary<String, FNode>) {
         self.children = children
     }
+
+    public override var description: String {
+        "FChildrenNode: \(children)"
+    }
+
+    public override var hash: Int {
+        var hasher = Hasher()
+        for (key, node) in children {
+            key.hash(into: &hasher)
+            node.hash.hash(into: &hasher)
+        }
+        priorityNode?.hash.hash(into: &hasher)
+        return hasher.finalize()
+    }
+
+    public override func isEqual(_ object: Any?) -> Bool {
+        guard let other = object as? FNode else { return false }
+        if other === self { return true }
+        if other.isLeafNode() { return false }
+        if self.isEmpty && other.isEmpty {
+            // Empty nodes do not have priority
+            return true
+        }
+        guard self.getPriority().isEqual(other.getPriority()) else {
+            return false
+        }
+        guard let otherChildNode = other as? FChildrenNode else { return false }
+
+        guard self.children.count == otherChildNode.children.count else { return false }
+        for (key, node) in children {
+            let child = otherChildNode.getImmediateChild(key)
+            guard child.isEqual(node) else {
+                return false
+            }
+        }
+        return true
+    }
+
 
     init(
         priority: FNode,
@@ -243,6 +354,29 @@ private let kMaxName = "[MAX_NAME]"
     }
 
     @objc public func enumerateChildrenAndPriority(usingBlock block: @escaping (String, FNode, UnsafeMutablePointer<ObjCBool>) -> Void) {
+        if getPriority().isEmpty {
+            enumerateChildren(usingBlock: block)
+        } else {
+            var passedPriorityKey = false
+            enumerateChildren { key, node, stop in
+                if !passedPriorityKey {
+                    if FUtilitiesSwift.compareKey(key, ".priority") == .orderedDescending {
+                        passedPriorityKey = true
+                    }
+                    if passedPriorityKey {
+                        var stopAfterPriority = ObjCBool(booleanLiteral: false)
+                        block(".priority", self.getPriority(), &stopAfterPriority)
+                        if stopAfterPriority.boolValue {
+                            // MBD: Is this correct? Shouldn't we in fact stop the
+                            // whole thing here instead of returning, which basically just
+                            // skips the next call to the block?
+                            return
+                        }
+                    }
+                }
+                block(key, node, stop)
+            }
+        }
     }
 
     @objc public func firstChild() -> FNamedNode? {

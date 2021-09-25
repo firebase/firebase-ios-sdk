@@ -201,10 +201,8 @@ import Foundation
     }
 
     public func makePost(_ indexValue: FNode, name: String) -> FNamedNode {
-        fatalError("XXX TODO")
-//        id<FNode> node = [[FLeafNode alloc] initWithValue:@"[PRIORITY-POST]"
-//                                             withPriority:indexValue];
-//        return [[FNamedNode alloc] initWithName:name andNode:node];
+        let node = FLeafNode(value: "[PRIORITY-POST]" as NSString, withPriority: indexValue)
+        return FNamedNode(name: name, andNode: node)
     }
 
     public var queryDefinition: String = ".priority"

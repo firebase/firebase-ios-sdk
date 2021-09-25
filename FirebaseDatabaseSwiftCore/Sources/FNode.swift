@@ -32,5 +32,5 @@ import Foundation
             _ reverse: Bool,
             usingBlock block: @escaping (_ key: String, _ node: FNode, _ stop: UnsafeMutablePointer<ObjCBool>) -> Void
         )
-    @objc func childEnumerator() -> NSEnumerator?
+    @objc func childEnumerator() -> NSEnumerator
 }

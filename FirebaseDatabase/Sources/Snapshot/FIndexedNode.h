@@ -16,9 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-
-
-
 @import FirebaseDatabaseSwiftCore;
 
 /**
