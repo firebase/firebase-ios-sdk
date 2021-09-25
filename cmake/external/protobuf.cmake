@@ -19,6 +19,7 @@ if(TARGET protobuf)
 endif()
 
 # Based on https://github.com/grpc/grpc/blob/v1.40.0/bazel/grpc_deps.bzl
+# v3.15.8 master@{2021-04-07}
 set(commit 436bd7880e458532901c58f4d9d1ea23fa7edd52)
 
 ExternalProject_Add(

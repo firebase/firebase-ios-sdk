@@ -19,6 +19,7 @@ if(TARGET boringssl)
 endif()
 
 # Based on https://github.com/grpc/grpc/blob/v1.40.0/bazel/grpc_deps.bzl
+# master-with-bazel@{2021-06-21}
 set(commit bcc01b6c66b1c6fa2816b108e50a544b757fbd7b)
 
 ExternalProject_Add(

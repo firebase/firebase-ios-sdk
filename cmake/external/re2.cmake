@@ -19,6 +19,7 @@ if(TARGET RE2)
 endif()
 
 # Based on https://github.com/grpc/grpc/blob/v1.40.0/bazel/grpc_deps.bzl
+# master@{2020-05-27}
 set(commit aecba11114cf1fac5497aeb844b6966106de3eb6)
 
 ExternalProject_Add(

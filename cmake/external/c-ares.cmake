@@ -19,6 +19,7 @@ if(TARGET c-ares)
 endif()
 
 # Based on https://github.com/grpc/grpc/blob/v1.40.0/bazel/grpc_deps.bzl
+# v1.15.0, master@{2018-10-23}
 set(commit e982924acee7f7313b4baa4ee5ec000c5e373c30)
 
 ExternalProject_Add(
