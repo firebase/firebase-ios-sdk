@@ -17,14 +17,23 @@
 import SwiftUI
 import FirebaseFirestore
 
+/// The strategy to use when an error occurs during mapping Firestore documents
+/// to the target type of `FirestoreQuery`.
+///
 public enum DecodingFailureStrategy {
+  /// Ignore any errors that occur when mapping Firestore documents.
   case ignore
-  case raise // make this the default behaviour
+
+  /// Raise an error when mapping a Firestore document fails.
+  case raise
 }
 
 /// A property wrapper that listens to a Firestore collection.
 ///
-/// Consider the following example:
+/// In the following example, `FirestoreQuery` will fetch all documents from the
+/// `fruits` collection, filtering only documents whose `isFavourite` attribute
+/// is equal to `true`, map members of result set to the `Fruit` type, and make
+/// them available via the wrapped value `fruits`.
 ///
 ///     struct ContentView: View {
 ///       @FirestoreQuery(
@@ -39,10 +48,54 @@ public enum DecodingFailureStrategy {
 ///       }
 ///     }
 ///
-/// In this example, `FirestoreQuery` will fetch all documents from the `fruits`
-/// collection, filtering only documents whose `isFavourite` attribute is equal
-/// to `true`, map members of result set to the `Fruit` type, and make them
-/// available via the wrapped value `fruits`.
+/// `FirestoreQuery` also supports returning a `Result` type. The `.success` case
+/// returns an array of elements, whereas the `.failiure` case returns an error
+/// in case mapping the Firestore docments wasn't successful:
+///
+///     struct ContentView: View {
+///       @FirestoreQuery(
+///         collectionPath: "fruits",
+///         predicates: [.whereField("isFavourite", isEqualTo: true)]
+///       ) var fruitResults: Result<[Fruit], Error>
+///
+///     var body: some View {
+///       if case let .success(fruits) = fruitResults {
+///         List(fruits) { fruit in
+///           Text(fruit.name)
+///         }
+///       } else if case let .failure(error) = fruitResults {
+///         Text("Couldn't map data: \(error.localizedDescription)")
+///       }
+///     }
+///
+/// Alternatively, the _projected value_ of the property wrapper provides access to
+/// the `error` as well. This allows you to display a list of all successfully mapped
+/// documents, as well as an error mesage with details about the documents that couldn't
+/// be mapped successfully (e.g. because of a field name mismatch).
+///
+///     struct ContentView: View {
+///       @FirestoreQuery(
+///         collectionPath: "mappingFailure",
+///         decodingFailureStrategy: .ignore
+///       ) private var fruits: [Fruit]
+///
+///       var body: some View {
+///         VStack(alignment: .leading) {
+///           List(fruits) { fruit in
+///             Text(fruit.name)
+///           }
+///           if $fruits.error != nil {
+///             HStack {
+///               Text("There was an error")
+///                 .foregroundColor(Color(UIColor.systemBackground))
+///               Spacer()
+///             }
+///             .padding(30)
+///             .background(Color.red)
+///           }
+///         }
+///       }
+///     }`
 ///
 /// Internally, `@FirestoreQuery` sets up a snapshot listener and publishes
 /// any incoming changes via an `@StateObject`.

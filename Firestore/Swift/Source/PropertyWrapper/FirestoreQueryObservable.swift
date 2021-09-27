@@ -26,13 +26,14 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
 
   private var setupListener: (() -> Void)!
 
-  internal var preventUpdates = false
+  internal var shouldUpdateListener = true
   internal var configuration: FirestoreQuery<T>.Configuration {
     didSet {
-      if !preventUpdates {
-        removeListener()
-        setupListener()
-      }
+      // prevent never-ending update cycle when updating the error field
+      guard shouldUpdateListener else { return }
+
+      removeListener()
+      setupListener()
     }
   }
 
@@ -44,14 +45,14 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
         self?.items = []
         self?.projectError(error)
         return
+      } else {
+        self?.projectError(nil)
       }
 
       guard let documents = querySnapshot?.documents else {
         self?.items = []
         return
       }
-
-      self?.projectError(nil)
 
       let decodedDocuments: [U] = documents.compactMap { queryDocumentSnapshot in
         let result = Result { try queryDocumentSnapshot.data(as: U.self) }
@@ -86,14 +87,14 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
         self?.items = .failure(error)
         self?.projectError(error)
         return
+      } else {
+        self?.projectError(nil)
       }
 
       guard let documents = querySnapshot?.documents else {
         self?.items = .success([])
         return
       }
-
-      self?.projectError(nil)
 
       let decodedDocuments: [U] = documents.compactMap { queryDocumentSnapshot in
         let result = Result { try queryDocumentSnapshot.data(as: U.self) }
@@ -163,9 +164,9 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
   }
 
   private func projectError(_ error: Error?) {
-    preventUpdates = true
+    shouldUpdateListener = false
     configuration.error = error
-    preventUpdates = false
+    shouldUpdateListener = true
   }
 
   private func removeListener() {
