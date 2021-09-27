@@ -95,7 +95,7 @@ public enum DecodingFailureStrategy {
 ///           }
 ///         }
 ///       }
-///     }`
+///     }
 ///
 /// Internally, `@FirestoreQuery` sets up a snapshot listener and publishes
 /// any incoming changes via an `@StateObject`.
