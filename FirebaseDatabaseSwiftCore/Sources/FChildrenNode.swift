@@ -9,7 +9,6 @@ import Collections
 import Foundation
 
 @objc public class FEmptyNode: NSObject {
-    @objc public static var empty: FNode = FChildrenNode(children: [:])
     @objc public static var emptyNode: FNode = FChildrenNode(children: [:])
 }
 
@@ -41,8 +40,8 @@ private let kMaxName = "[MAX_NAME]"
     @objc public class func nodeWithName(_ name: String, node: FNode) -> FNamedNode {
         FNamedNode(name: name, andNode: node)
     }
-    @objc public static var min: FNamedNode = FNamedNode(name: kMinName, andNode: FEmptyNode.empty)
-    @objc public static var max: FNamedNode = FNamedNode(name: kMaxName, andNode: FEmptyNode.empty)
+    @objc public static var min: FNamedNode = FNamedNode(name: kMinName, andNode: FEmptyNode.emptyNode)
+    @objc public static var max: FNamedNode = FNamedNode(name: kMaxName, andNode: FEmptyNode.emptyNode)
 
     @objc public override func copy() -> Any {
         self
@@ -80,12 +79,12 @@ private let kMaxName = "[MAX_NAME]"
     }
     
     @objc public func getPriority() -> FNode {
-        priorityNode ?? FEmptyNode.empty
+        priorityNode ?? FEmptyNode.emptyNode
     }
 
     @objc public func updatePriority(_ priority: FNode) -> FNode {
         if children.isEmpty {
-            return FEmptyNode.empty
+            return FEmptyNode.emptyNode
         } else {
             return FChildrenNode(priority: priority, children: self.children)
         }
@@ -95,7 +94,7 @@ private let kMaxName = "[MAX_NAME]"
         if childKey == ".priority" {
             return getPriority()
         } else {
-            return children[childKey] ?? FEmptyNode.empty
+            return children[childKey] ?? FEmptyNode.emptyNode
         }
     }
 
@@ -129,7 +128,7 @@ private let kMaxName = "[MAX_NAME]"
         }
 
         if newChildren.isEmpty {
-            return FEmptyNode.empty
+            return FEmptyNode.emptyNode
         } else {
             return FChildrenNode(priority: getPriority(), children: newChildren)
         }
@@ -158,7 +157,8 @@ private let kMaxName = "[MAX_NAME]"
     }
 
     @objc public func val() -> Any {
-        val(forExport: false)
+        print("CHILDREN", children)
+        return val(forExport: false)
     }
 
     @objc public func val(forExport exp: Bool) -> Any {
@@ -255,8 +255,24 @@ private let kMaxName = "[MAX_NAME]"
         return calculatedHash
     }
 
-    @objc public func compare(_ other: FNode?) -> ComparisonResult {
-        .orderedSame
+    @objc public func compare(_ other: FNode) -> ComparisonResult {
+        
+        // children nodes come last, unless this is actually an empty node, then we
+        // come first.
+        if isEmpty {
+            if other.isEmpty {
+                return .orderedSame
+            } else {
+                return .orderedAscending
+            }
+        } else if (other.isLeafNode() || other.isEmpty) {
+            return .orderedDescending
+        } else if (other === FMaxNode.maxNode) {
+            return .orderedAscending
+        } else {
+            // Must be another node with children.
+            return .orderedSame
+        }
     }
 
     @objc public func enumerateChildren(usingBlock block: @escaping (String, FNode, UnsafeMutablePointer<ObjCBool>) -> Void) {
@@ -396,7 +412,7 @@ private let kMaxName = "[MAX_NAME]"
 
 @objc public class FMaxNode: FChildrenNode {
     @objc public static var maxNode = FMaxNode()
-    public override func compare(_ other: FNode?) -> ComparisonResult {
+    public override func compare(_ other: FNode) -> ComparisonResult {
         if other === self { return .orderedSame }
         else { return .orderedDescending }
     }
@@ -407,7 +423,7 @@ private let kMaxName = "[MAX_NAME]"
     }
 
     public override func getImmediateChild(_ childKey: String) -> FNode {
-        FEmptyNode.empty
+        FEmptyNode.emptyNode
     }
 
     // Hmm, is this correct?

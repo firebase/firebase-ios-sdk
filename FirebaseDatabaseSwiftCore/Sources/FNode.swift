@@ -25,7 +25,7 @@ import Foundation
     @objc func val() -> Any
     @objc func val(forExport exp: Bool) -> Any
     @objc func dataHash() -> String
-    @objc func compare(_ other: FNode?) -> ComparisonResult
+    @objc func compare(_ other: FNode) -> ComparisonResult
     @objc func isEqual(_ other: Any?) -> Bool
     @objc func enumerateChildren(usingBlock block: @escaping (_ key: String, _ node: FNode, _ stop: UnsafeMutablePointer<ObjCBool>) -> Void)
     @objc func enumerateChildrenReverse(

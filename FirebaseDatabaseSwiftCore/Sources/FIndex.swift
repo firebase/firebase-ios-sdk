@@ -116,7 +116,7 @@ import Foundation
     }
 
     public func compareNamedNode(_ namedNode1: FNamedNode, toNamedNode namedNode2: FNamedNode) -> ComparisonResult {
-        FUtilitiesSwift.compareKey(namedNode1.name, namedNode2.name)
+        compareKey(namedNode1.name, andNode: namedNode1.node, toOtherKey: namedNode2.name, andNode: namedNode2.node)
     }
 
     public func isDefined(on node: FNode) -> Bool {
@@ -182,7 +182,7 @@ import Foundation
     }
 
     public func compareNamedNode(_ namedNode1: FNamedNode, toNamedNode namedNode2: FNamedNode) -> ComparisonResult {
-        FUtilitiesSwift.compareKey(namedNode1.name, namedNode2.name)
+        compareKey(namedNode1.name, andNode: namedNode1.node, toOtherKey: namedNode2.name, andNode: namedNode2.node)
     }
 
     public func isDefined(on node: FNode) -> Bool {
@@ -258,7 +258,7 @@ import Foundation
     }
 
     public func compareNamedNode(_ namedNode1: FNamedNode, toNamedNode namedNode2: FNamedNode) -> ComparisonResult {
-        FUtilitiesSwift.compareKey(namedNode1.name, namedNode2.name)
+        compareKey(namedNode1.name, andNode: namedNode1.node, toOtherKey: namedNode2.name, andNode: namedNode2.node)
     }
 
     public func isDefined(on node: FNode) -> Bool {
