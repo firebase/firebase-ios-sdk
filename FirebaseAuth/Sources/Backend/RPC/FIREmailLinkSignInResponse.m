@@ -30,17 +30,17 @@ NS_ASSUME_NONNULL_BEGIN
       [dictionary[@"expiresIn"] isKindOfClass:[NSString class]]
           ? [NSDate dateWithTimeIntervalSinceNow:[dictionary[@"expiresIn"] doubleValue]]
           : nil;
-    if (dictionary[@"mfaInfo"] != nil) {
-      NSMutableArray<FIRAuthProtoMFAEnrollment *> *MFAInfo = [NSMutableArray array];
-      NSArray *MFAInfoDataArray = dictionary[@"mfaInfo"];
-      for (NSDictionary *MFAInfoData in MFAInfoDataArray) {
-        FIRAuthProtoMFAEnrollment *MFAEnrollment =
-            [[FIRAuthProtoMFAEnrollment alloc] initWithDictionary:MFAInfoData];
-        [MFAInfo addObject:MFAEnrollment];
-      }
-      _MFAInfo = MFAInfo;
+  if (dictionary[@"mfaInfo"] != nil) {
+    NSMutableArray<FIRAuthProtoMFAEnrollment *> *MFAInfo = [NSMutableArray array];
+    NSArray *MFAInfoDataArray = dictionary[@"mfaInfo"];
+    for (NSDictionary *MFAInfoData in MFAInfoDataArray) {
+      FIRAuthProtoMFAEnrollment *MFAEnrollment =
+          [[FIRAuthProtoMFAEnrollment alloc] initWithDictionary:MFAInfoData];
+      [MFAInfo addObject:MFAEnrollment];
     }
-    _MFAPendingCredential = [dictionary[@"mfaPendingCredential"] copy];
+    _MFAInfo = MFAInfo;
+  }
+  _MFAPendingCredential = [dictionary[@"mfaPendingCredential"] copy];
 
   return YES;
 }
