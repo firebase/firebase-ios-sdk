@@ -1,8 +1,11 @@
+# Unreleased
+- [changed] Improved error logging. (#8704)
+
 # 8.8.0
 - [fixed] Fall back to reCAPTCHA for phone auth app verification if the push notification is not received before the timeout. (#8653)
 
 # 8.6.0
-- [fixed] Annotated platform-level availability using `API_UNAVAILABLE` instead of conditionally compiling certain methods with `#if` directives (#8451).
+- [fixed] Annotated platform-level availability using `API_UNAVAILABLE` instead of conditionally compiling certain methods with `#if` directives. (#8451)
 
 # 8.5.0
 - [fixed] Fixed an analyze issue introduced in Xcode 12.5. (#8411)

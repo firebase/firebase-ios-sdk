@@ -1013,6 +1013,19 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
   return [self errorWithCode:FIRAuthInternalErrorCodeUnexpectedErrorResponse userInfo:userInfo];
 }
 
++ (NSError *)unexpectedErrorResponseWithDeserializedResponse:(id)deserializedResponse
+                                             underlyingError:(NSError *)underlyingError {
+  NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
+  if (deserializedResponse) {
+    userInfo[FIRAuthErrorUserInfoDeserializedResponseKey] = deserializedResponse;
+  }
+  if (underlyingError) {
+    userInfo[NSUnderlyingErrorKey] = underlyingError;
+  }
+  return [self errorWithCode:FIRAuthInternalErrorCodeUnexpectedErrorResponse
+                    userInfo:[userInfo copy]];
+}
+
 + (NSError *)malformedJWTErrorWithToken:(NSString *)token
                         underlyingError:(NSError *_Nullable)underlyingError {
   NSMutableDictionary *userInfo =

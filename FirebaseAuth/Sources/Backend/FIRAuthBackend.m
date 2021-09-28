@@ -1041,7 +1041,8 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                            if (![dictionary isKindOfClass:[NSDictionary class]]) {
                              if (error) {
                                callback([FIRAuthErrorUtils
-                                   unexpectedErrorResponseWithDeserializedResponse:dictionary]);
+                                   unexpectedErrorResponseWithDeserializedResponse:dictionary
+                                                                   underlyingError:error]);
                              } else {
                                callback([FIRAuthErrorUtils
                                    unexpectedResponseWithDeserializedResponse:dictionary]);
@@ -1074,15 +1075,16 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                                // Not a message we know, return the message directly.
                                if (errorMessage) {
                                  NSError *unexpecterErrorResponse = [FIRAuthErrorUtils
-                                     unexpectedErrorResponseWithDeserializedResponse:
-                                         errorDictionary];
+                                     unexpectedErrorResponseWithDeserializedResponse:errorDictionary
+                                                                     underlyingError:error];
                                  callback(unexpecterErrorResponse);
                                  return;
                                }
                              }
                              // No error message at all, return the decoded response.
                              callback([FIRAuthErrorUtils
-                                 unexpectedErrorResponseWithDeserializedResponse:dictionary]);
+                                 unexpectedErrorResponseWithDeserializedResponse:dictionary
+                                                                 underlyingError:error]);
                              return;
                            }
 
