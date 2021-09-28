@@ -32,7 +32,7 @@
 #import "FirebaseDatabase/Sources/FViewProcessorResult.h"
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseQuery.h"
 
-#import "FirebaseDatabase/Sources/Snapshot/FIndexedNode.h"
+
 
 @import FirebaseDatabaseSwiftCore;
 

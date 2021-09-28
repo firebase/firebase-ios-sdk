@@ -21,7 +21,7 @@
 
 
 
-#import "FirebaseDatabase/Sources/Snapshot/FIndexedNode.h"
+
 
 @import FirebaseDatabaseSwiftCore;
 
