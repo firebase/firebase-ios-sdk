@@ -805,15 +805,31 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 - (void)emailLinkSignin:(FIREmailLinkSignInRequest *)request
                callback:(FIREmailLinkSigninResponseCallback)callback {
   FIREmailLinkSignInResponse *response = [[FIREmailLinkSignInResponse alloc] init];
-  [self postWithRequest:request
-               response:response
-               callback:^(NSError *error) {
-                 if (error) {
-                   callback(nil, error);
+  [self
+      postWithRequest:request
+             response:response
+             callback:^(NSError *error) {
+               if (error) {
+                 callback(nil, error);
+               } else {
+                 if (!response.IDToken && response.MFAInfo) {
+#if TARGET_OS_IOS
+                   NSMutableArray<FIRMultiFactorInfo *> *multiFactorInfo = [NSMutableArray array];
+                   for (FIRAuthProtoMFAEnrollment *MFAEnrollment in response.MFAInfo) {
+                     FIRPhoneMultiFactorInfo *info =
+                         [[FIRPhoneMultiFactorInfo alloc] initWithProto:MFAEnrollment];
+                     [multiFactorInfo addObject:info];
+                   }
+                   NSError *multiFactorRequiredError = [FIRAuthErrorUtils
+                       secondFactorRequiredErrorWithPendingCredential:response.MFAPendingCredential
+                                                                hints:multiFactorInfo];
+                   callback(nil, multiFactorRequiredError);
+#endif
                  } else {
                    callback(response, nil);
                  }
-               }];
+               }
+             }];
 }
 
 - (void)secureToken:(FIRSecureTokenRequest *)request
