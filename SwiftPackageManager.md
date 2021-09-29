@@ -34,6 +34,7 @@ Add a package by selecting `File` → `Add Packages…` in Xcode’s menu bar.
 Search for the Firebase Apple SDK using the repo's URL:
 ```console
 https://github.com/firebase/firebase-ios-sdk.git
+
 ```
 
 Next, set the **Dependency Rule** to be `Up to Next Major Version` and specify `8.0.0` as the lower bound.
