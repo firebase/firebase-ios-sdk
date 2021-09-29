@@ -81,7 +81,7 @@ dependencies: [
   .package(
     name: "Firebase",
     url: "https://github.com/firebase/firebase-ios-sdk.git",
-    .upToNextMajor(from: "8.0.0)
+    .upToNextMajor(from: "8.0.0")
   ),
 
   // Any other dependencies you have...
