@@ -25,7 +25,7 @@ Prior to version 8.0.0 (starting with version 6.31.0) support was in Beta.
 
 ### Installing from Xcode
 
-Add a package by selecting `File` → `Add Packages…` in Xcode’s menu bar. 
+Add a package by selecting `File` → `Add Packages…` in Xcode’s menu bar.
 
 <img src="docs/resources/swiftpm_step1.png">
 
