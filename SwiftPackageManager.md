@@ -25,14 +25,16 @@ Prior to version 8.0.0 (starting with version 6.31.0) support was in Beta.
 
 ### Installing from Xcode
 
-Add a package by selecting `File` → `Add packages…` in Xcode’s menu bar. 
+Add a package by selecting `File` → `Add Packages…` in Xcode’s menu bar. 
 
 <img src="docs/resources/swiftpm_step1.png">
 
 ---
 
 Search for the Firebase Apple SDK using the repo's URL:
-> `https://github.com/firebase/firebase-ios-sdk.git`
+```console
+https://github.com/firebase/firebase-ios-sdk.git
+```
 
 Next, set the **Dependency Rule** to be `Up to Next Major Version` and specify `8.0.0` as the lower bound.
 
@@ -48,7 +50,7 @@ Choose the Firebase products that you want installed in your app.
 
 ---
 
-If you've installed FirebaseAnalytics, Add the `-ObjC` option to `Other Linker Flags`
+If you've installed **FirebaseAnalytics**, add the `-ObjC` option to `Other Linker Flags`
 in the `Build Settings` tab.
 
 <img src="docs/resources/swiftpm_step4.png">
