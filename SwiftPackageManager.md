@@ -9,15 +9,15 @@ Prior to version 8.0.0 (starting with version 6.31.0) support was in Beta.
 
 ## Requirements
 
-- Requires Xcode 12.5
+- Requires Xcode 12.5 or above
 - Analytics requires clients to add `-ObjC` linker option.
 - See [Package.swift](Package.swift) for supported platform versions.
 
 ## Limitations
 
 - Analytics is only supported for iOS and cannot be used in apps that support other platforms.
-- watchOS support is available for Auth, Crashlytics, Messaging, Realtime Database, RemoteConfig,
-  and Storage.
+- watchOS support is available for ABTesting, Auth, Crashlytics, Messaging, Realtime Database,
+  RemoteConfig, and Storage.
 
 ## Installation
 
