@@ -1,5 +1,6 @@
 # Unreleased
 - [changed] Improved error logging. (#8704)
+- [added] Added MFA support for email link sign-in. (#8705)
 
 # 8.8.0
 - [fixed] Fall back to reCAPTCHA for phone auth app verification if the push notification is not received before the timeout. (#8653)
