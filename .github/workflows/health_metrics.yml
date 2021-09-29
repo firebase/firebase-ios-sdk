@@ -47,7 +47,8 @@ jobs:
   binary_size_metrics:
     needs: check
     # Prevent the job from being triggered in fork.
-    if: github.event.pull_request.head.repo.full_name == github.repository && (github.event.action != 'closed' || github.event.pull_request.merged)
+    # always() will trigger this job when `needs` are skipped in a `merge` pull_request event.
+    if: always() && github.event.pull_request.head.repo.full_name == github.repository && (github.event.action != 'closed' || github.event.pull_request.merged)
     runs-on: macos-11
     strategy:
       matrix:
@@ -89,7 +90,6 @@ jobs:
   pod-lib-lint-abtesting:
     needs: check
     # Don't run on private repo unless it is a PR.
-    # always() will trigger this job when `needs` are skipped in a `merge` pull_request event.
     if: always() && github.repository == 'Firebase/firebase-ios-sdk' && (needs.check.outputs.abtesting_run_job == 'true'|| github.event.pull_request.merged)
     runs-on: macos-11
     strategy:
