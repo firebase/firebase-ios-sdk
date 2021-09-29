@@ -95,8 +95,8 @@ array of that target:
 .target(
   name: "MyTargetName",
   dependencies: [
-  // The product(s) you want (e.g. FirebaseAuth).
-  .product(name: "FirebaseAuth", package: "Firebase"),
+    // The product(s) you want (e.g. FirebaseAuth).
+    .product(name: "FirebaseAuth", package: "Firebase"),
   ]
 ),
 ```
