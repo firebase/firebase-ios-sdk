@@ -631,6 +631,9 @@ MutableDocumentMap LocalStore::PopulateDocumentChanges(
           "Current version: %s  Remote version: %s",
           key.ToString(), existing_doc.version().ToString(),
           doc.version().ToString());
+      if (existing_doc.is_valid_document()) {
+        LOG_DEBUG("Existing doc: %s", existing_doc.ToString());
+      }
     }
   }
   return changed_docs;
