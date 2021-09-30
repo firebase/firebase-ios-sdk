@@ -22,13 +22,14 @@
 #include <set>
 #include <utility>
 
-#import "Firestore/Source/API/FSTUserDataConverter.h"
+#import "Firestore/Source/API/FSTUserDataReader.h"
 
 #include "Firestore/core/src/core/user_data.h"
 #include "Firestore/core/src/model/delete_mutation.h"
 #include "Firestore/core/src/model/patch_mutation.h"
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/model/set_mutation.h"
+#include "Firestore/core/src/model/value_util.h"
 
 #import "Firestore/core/test/unit/testutil/testutil.h"
 
@@ -37,15 +38,19 @@ namespace util = firebase::firestore::util;
 
 using firebase::firestore::core::ParsedSetData;
 using firebase::firestore::core::ParsedUpdateData;
+using firebase::firestore::google_firestore_v1_Value;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DeleteMutation;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldPath;
-using firebase::firestore::model::FieldValue;
+using firebase::firestore::model::GetTypeOrder;
 using firebase::firestore::model::ObjectValue;
+using firebase::firestore::model::Mutation;
 using firebase::firestore::model::PatchMutation;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::SetMutation;
+using firebase::firestore::model::TypeOrder;
+using firebase::firestore::nanopb::Message;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -93,25 +98,25 @@ NSDateComponents *FSTTestDateComponents(
   return comps;
 }
 
-FSTUserDataConverter *FSTTestUserDataConverter() {
-  FSTUserDataConverter *converter =
-      [[FSTUserDataConverter alloc] initWithDatabaseID:DatabaseId("project")
-                                          preConverter:^id _Nullable(id _Nullable input) {
-                                            return input;
-                                          }];
-  return converter;
+FSTUserDataReader *FSTTestUserDataReader() {
+  FSTUserDataReader *reader =
+      [[FSTUserDataReader alloc] initWithDatabaseID:DatabaseId("project")
+                                       preConverter:^id _Nullable(id _Nullable input) {
+                                         return input;
+                                       }];
+  return reader;
 }
 
-FieldValue FSTTestFieldValue(id _Nullable value) {
-  FSTUserDataConverter *converter = FSTTestUserDataConverter();
+Message<google_firestore_v1_Value> FSTTestFieldValue(id _Nullable value) {
+  FSTUserDataReader *reader = FSTTestUserDataReader();
   // HACK: We use parsedQueryValue: since it accepts scalars as well as arrays / objects, and
   // our tests currently use FSTTestFieldValue() pretty generically so we don't know the intent.
-  return [converter parsedQueryValue:value];
+  return [reader parsedQueryValue:value];
 }
 
 ObjectValue FSTTestObjectValue(NSDictionary<NSString *, id> *data) {
-  FieldValue wrapped = FSTTestFieldValue(data);
-  HARD_ASSERT(wrapped.type() == FieldValue::Type::Object, "Unsupported value: %s", data);
+  Message<google_firestore_v1_Value> wrapped = FSTTestFieldValue(data);
+  HARD_ASSERT(GetTypeOrder(*wrapped) == TypeOrder::kMap, "Unsupported value: %s", data);
   return ObjectValue(std::move(wrapped));
 }
 
@@ -125,10 +130,10 @@ FSTDocumentKeyReference *FSTTestRef(std::string projectID, std::string database,
 }
 
 SetMutation FSTTestSetMutation(NSString *path, NSDictionary<NSString *, id> *values) {
-  FSTUserDataConverter *converter = FSTTestUserDataConverter();
-  ParsedSetData result = [converter parsedSetData:values];
-  return SetMutation(FSTTestDocKey(path), result.data(), Precondition::None(),
-                     result.field_transforms());
+  FSTUserDataReader *reader = FSTTestUserDataReader();
+  Mutation mutation =
+      [reader parsedSetData:values].ToMutation(FSTTestDocKey(path), Precondition::None());
+  return SetMutation(mutation);
 }
 
 PatchMutation FSTTestPatchMutation(NSString *path,
@@ -143,15 +148,14 @@ PatchMutation FSTTestPatchMutation(NSString *path,
     }
   }];
 
-  FSTUserDataConverter *converter = FSTTestUserDataConverter();
-  ParsedUpdateData parsed = [converter parsedUpdateData:mutableValues];
-
   DocumentKey key = FSTTestDocKey(path);
-
   BOOL merge = !updateMask.empty();
   Precondition precondition = merge ? Precondition::None() : Precondition::Exists(true);
-  return PatchMutation(key, parsed.data(), parsed.fieldMask(), precondition,
-                       parsed.field_transforms());
+
+  FSTUserDataReader *reader = FSTTestUserDataReader();
+  Mutation mutation =
+      [reader parsedUpdateData:mutableValues].ToMutation(FSTTestDocKey(path), precondition);
+  return PatchMutation(mutation);
 }
 
 DeleteMutation FSTTestDeleteMutation(NSString *path) {

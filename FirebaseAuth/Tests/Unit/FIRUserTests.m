@@ -1575,21 +1575,21 @@ static const NSTimeInterval kExpectationTimeout = 2;
                                                      FIRVerifyPasswordRequest *_Nullable request,
                                                      FIRVerifyPasswordResponseCallback callback) {
                                                    dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
-                                                     id mockVeriyPasswordResponse = OCMClassMock(
+                                                     id mockVerifyPasswordResponse = OCMClassMock(
                                                          [FIRVerifyPasswordResponse class]);
                                                      // New authentication comes back with new
                                                      // access token.
-                                                     OCMStub([mockVeriyPasswordResponse IDToken])
+                                                     OCMStub([mockVerifyPasswordResponse IDToken])
                                                          .andReturn(kNewAccessToken);
-                                                     OCMStub([mockVeriyPasswordResponse
+                                                     OCMStub([mockVerifyPasswordResponse
                                                                  approximateExpirationDate])
                                                          .andReturn(
                                                              [NSDate dateWithTimeIntervalSinceNow:
                                                                          kAccessTokenTimeToLive]);
                                                      OCMStub(
-                                                         [mockVeriyPasswordResponse refreshToken])
+                                                         [mockVerifyPasswordResponse refreshToken])
                                                          .andReturn(kRefreshToken);
-                                                     callback(mockVeriyPasswordResponse, nil);
+                                                     callback(mockVerifyPasswordResponse, nil);
                                                    });
                                                  });
                                              OCMExpect([self->_mockBackend
@@ -1733,19 +1733,19 @@ static const NSTimeInterval kExpectationTimeout = 2;
                                                      FIRVerifyPasswordRequest *_Nullable request,
                                                      FIRVerifyPasswordResponseCallback callback) {
                                                    dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
-                                                     id mockVeriyPasswordResponse = OCMClassMock(
+                                                     id mockVerifyPasswordResponse = OCMClassMock(
                                                          [FIRVerifyPasswordResponse class]);
-                                                     OCMStub([mockVeriyPasswordResponse IDToken])
+                                                     OCMStub([mockVerifyPasswordResponse IDToken])
                                                          .andReturn(kNewAccessToken);
-                                                     OCMStub([mockVeriyPasswordResponse
+                                                     OCMStub([mockVerifyPasswordResponse
                                                                  approximateExpirationDate])
                                                          .andReturn(
                                                              [NSDate dateWithTimeIntervalSinceNow:
                                                                          kAccessTokenTimeToLive]);
                                                      OCMStub(
-                                                         [mockVeriyPasswordResponse refreshToken])
+                                                         [mockVerifyPasswordResponse refreshToken])
                                                          .andReturn(kRefreshToken);
-                                                     callback(mockVeriyPasswordResponse, nil);
+                                                     callback(mockVerifyPasswordResponse, nil);
                                                    });
                                                  });
                                              OCMExpect([self->_mockBackend
@@ -2902,12 +2902,12 @@ static const NSTimeInterval kExpectationTimeout = 2;
       .andCallBlock2(^(FIRVerifyPasswordRequest *_Nullable request,
                        FIRVerifyPasswordResponseCallback callback) {
         dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
-          id mockVeriyPasswordResponse = OCMClassMock([FIRVerifyPasswordResponse class]);
-          OCMStub([mockVeriyPasswordResponse IDToken]).andReturn(kAccessToken);
-          OCMStub([mockVeriyPasswordResponse approximateExpirationDate])
+          id mockVerifyPasswordResponse = OCMClassMock([FIRVerifyPasswordResponse class]);
+          OCMStub([mockVerifyPasswordResponse IDToken]).andReturn(kAccessToken);
+          OCMStub([mockVerifyPasswordResponse approximateExpirationDate])
               .andReturn([NSDate dateWithTimeIntervalSinceNow:kAccessTokenTimeToLive]);
-          OCMStub([mockVeriyPasswordResponse refreshToken]).andReturn(kRefreshToken);
-          callback(mockVeriyPasswordResponse, nil);
+          OCMStub([mockVerifyPasswordResponse refreshToken]).andReturn(kRefreshToken);
+          callback(mockVerifyPasswordResponse, nil);
         });
       });
   [self expectGetAccountInfoWithMockUserInfoResponse:mockUserInfoResponse];
@@ -3082,15 +3082,15 @@ static const NSTimeInterval kExpectationTimeout = 2;
         XCTAssertEqualObjects(request.providerAccessToken, providerAccessToken);
         XCTAssertTrue(request.returnSecureToken);
         dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
-          id mockVeriyAssertionResponse = OCMClassMock([FIRVerifyAssertionResponse class]);
-          OCMStub([mockVeriyAssertionResponse federatedID]).andReturn(federatedID);
-          OCMStub([mockVeriyAssertionResponse providerID]).andReturn(providerId);
-          OCMStub([mockVeriyAssertionResponse localID]).andReturn(kLocalID);
-          OCMStub([mockVeriyAssertionResponse displayName]).andReturn(displayName);
-          OCMStub([mockVeriyAssertionResponse profile]).andReturn(profile);
-          OCMStub([mockVeriyAssertionResponse username]).andReturn(kUserName);
-          [self stubTokensWithMockResponse:mockVeriyAssertionResponse];
-          callback(mockVeriyAssertionResponse, nil);
+          id mockVerifyAssertionResponse = OCMClassMock([FIRVerifyAssertionResponse class]);
+          OCMStub([mockVerifyAssertionResponse federatedID]).andReturn(federatedID);
+          OCMStub([mockVerifyAssertionResponse providerID]).andReturn(providerId);
+          OCMStub([mockVerifyAssertionResponse localID]).andReturn(kLocalID);
+          OCMStub([mockVerifyAssertionResponse displayName]).andReturn(displayName);
+          OCMStub([mockVerifyAssertionResponse profile]).andReturn(profile);
+          OCMStub([mockVerifyAssertionResponse username]).andReturn(kUserName);
+          [self stubTokensWithMockResponse:mockVerifyAssertionResponse];
+          callback(mockVerifyAssertionResponse, nil);
         });
       });
   [self expectGetAccountInfo:providerId federatedID:federatedID displayName:displayName];

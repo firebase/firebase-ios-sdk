@@ -33,6 +33,7 @@ typedef NS_ENUM(NSInteger, FPRTraceState) {
  * object. This object will be used by a trace to determine its application state if the lifecycle
  * of the trace is backgrounded, foregrounded or both.
  */
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 @interface FPRTraceBackgroundActivityTracker : NSObject
 
 /** Background state of the tracker. */

@@ -19,7 +19,7 @@
 #include <utility>
 
 #include "Firestore/core/src/bundle/bundle_element.h"
-#include "Firestore/core/src/model/document.h"
+#include "Firestore/core/src/model/mutable_document.h"
 
 namespace firebase {
 namespace firestore {
@@ -30,7 +30,7 @@ class BundleDocument : public BundleElement {
  public:
   BundleDocument() = default;
 
-  explicit BundleDocument(model::Document document)
+  explicit BundleDocument(model::MutableDocument document)
       : document_(std::move(document)) {
   }
 
@@ -44,12 +44,12 @@ class BundleDocument : public BundleElement {
   }
 
   /** Returns the document. */
-  const model::Document& document() const {
+  const model::MutableDocument& document() const {
     return document_;
   }
 
  private:
-  model::Document document_;
+  model::MutableDocument document_;
 };
 
 inline bool operator==(const BundleDocument& lhs, const BundleDocument& rhs) {

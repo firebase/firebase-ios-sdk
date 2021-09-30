@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 
-#import <TargetConditionals.h>
-#if TARGET_OS_IOS
-
 #import <Foundation/Foundation.h>
 
 #import "FIRMultiFactorAssertion.h"
@@ -26,12 +23,11 @@ NS_ASSUME_NONNULL_BEGIN
 /** @class FIRPhoneMultiFactorAssertion
     @brief The subclass of base class FIRMultiFactorAssertion, used to assert ownership of a phone
         second factor.
+        This class is available on iOS only.
 */
-NS_SWIFT_NAME(PhoneMultiFactorAssertion)
-@interface FIRPhoneMultiFactorAssertion : FIRMultiFactorAssertion
+NS_SWIFT_NAME(PhoneMultiFactorAssertion) API_UNAVAILABLE(macos, tvos, watchos)
+    @interface FIRPhoneMultiFactorAssertion : FIRMultiFactorAssertion
 
 @end
 
 NS_ASSUME_NONNULL_END
-
-#endif

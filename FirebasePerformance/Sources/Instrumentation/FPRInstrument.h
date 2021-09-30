@@ -25,6 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  actually implement the instrument. Subclasses should provide their own implementations of
  *  registerInstrumentor
  */
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 @interface FPRInstrument : NSObject
 
 /** The list of class instrumentors. count should == 1 in most cases, and be > 1 for class clusters.

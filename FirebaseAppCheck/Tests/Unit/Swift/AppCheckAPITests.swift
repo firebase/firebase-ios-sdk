@@ -21,7 +21,7 @@ import Foundation
 import FirebaseCore
 import FirebaseAppCheck
 
-final class AppCheckAPITests: NSObject {
+final class AppCheckAPITests {
   func usage() {
     // MARK: - AppAttestProvider
 
@@ -68,7 +68,7 @@ final class AppCheckAPITests: NSObject {
     #if swift(>=5.5)
       if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
-        async {
+        Task {
           do {
             try await AppCheck.appCheck().token(forcingRefresh: false)
           } catch {
@@ -79,7 +79,7 @@ final class AppCheckAPITests: NSObject {
     #endif // swift(>=5.5)
 
     // Set `AppCheckProviderFactory`
-    AppCheck.setAppCheckProviderFactory(self)
+    AppCheck.setAppCheckProviderFactory(DummyAppCheckProviderFactory())
 
     // Get & Set `isTokenAutoRefreshEnabled`
     _ = AppCheck.appCheck().isTokenAutoRefreshEnabled
@@ -102,7 +102,7 @@ final class AppCheckAPITests: NSObject {
       #if swift(>=5.5)
         if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *) {
           // async/await is a Swift 5.5+ feature available on iOS 15+
-          async {
+          Task {
             do {
               _ = try await debugProvider.getToken()
             } catch {
@@ -160,29 +160,30 @@ final class AppCheckAPITests: NSObject {
     // MARK: - DeviceCheckProvider
 
     // `DeviceCheckProvider` initializer
-    if let app = FirebaseApp.app(), let deviceCheckProvider = DeviceCheckProvider(app: app) {
-      // Get token
-      deviceCheckProvider.getToken { token, error in
-        if let _ /* error */ = error {
-          // ...
-        } else if let _ /* token */ = token {
-          // ...
-        }
-      }
-
-      // Get token (async/await)
-      #if swift(>=5.5)
-        if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *) {
-          // async/await is a Swift 5.5+ feature available on iOS 15+
-          async {
-            do {
-              _ = try await deviceCheckProvider.getToken()
-            } catch {
-              // ...
-            }
+    if #available(iOS 11.0, macOS 10.15, macCatalyst 13.0, tvOS 11.0, *) {
+      if let app = FirebaseApp.app(), let deviceCheckProvider = DeviceCheckProvider(app: app) {
+        // Get token
+        deviceCheckProvider.getToken { token, error in
+          if let _ /* error */ = error {
+            // ...
+          } else if let _ /* token */ = token {
+            // ...
           }
         }
-      #endif // swift(>=5.5)
+        // Get token (async/await)
+        #if swift(>=5.5)
+          if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *) {
+            // async/await is a Swift 5.5+ feature available on iOS 15+
+            Task {
+              do {
+                _ = try await deviceCheckProvider.getToken()
+              } catch {
+                // ...
+              }
+            }
+          }
+        #endif // swift(>=5.5)
+      }
     }
   }
 }
@@ -193,7 +194,7 @@ class DummyAppCheckProvider: NSObject, AppCheckProvider {
   }
 }
 
-extension AppCheckAPITests: AppCheckProviderFactory {
+class DummyAppCheckProviderFactory: NSObject, AppCheckProviderFactory {
   func createProvider(with app: FirebaseApp) -> AppCheckProvider? {
     return DummyAppCheckProvider()
   }

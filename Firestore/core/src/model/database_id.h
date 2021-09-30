@@ -23,6 +23,7 @@
 #include <utility>
 
 #include "Firestore/core/src/util/comparison.h"
+#include "absl/strings/string_view.h"
 
 namespace firebase {
 namespace firestore {
@@ -45,6 +46,9 @@ class DatabaseId : public util::Comparable<DatabaseId> {
    */
   explicit DatabaseId(std::string project_id,
                       std::string database_id = kDefault);
+
+  /** Returns a DatabaseId from a fully qualified resource name. */
+  static DatabaseId FromName(const std::string& name);
 
   const std::string& project_id() const {
     return rep_->project_id;

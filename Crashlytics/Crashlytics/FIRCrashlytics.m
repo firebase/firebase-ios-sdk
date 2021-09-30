@@ -146,15 +146,14 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
                                                 existingReportManager:_existingReportManager
                                                      analyticsManager:_analyticsManager];
 
+    _didPreviouslyCrash = [_fileManager didCrashOnPreviousExecution];
     // Process did crash during previous execution
-    NSString *crashedMarkerFileName = [NSString stringWithUTF8String:FIRCLSCrashedMarkerFileName];
-    NSString *crashedMarkerFileFullPath =
-        [[_fileManager rootPath] stringByAppendingPathComponent:crashedMarkerFileName];
-    _didPreviouslyCrash = [_fileManager fileExistsAtPath:crashedMarkerFileFullPath];
-
     if (_didPreviouslyCrash) {
       // Delete the crash file marker in the background ensure start up is as fast as possible
       dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+        NSString *crashedMarkerFileFullPath = [[self.fileManager rootPath]
+            stringByAppendingPathComponent:[NSString
+                                               stringWithUTF8String:FIRCLSCrashedMarkerFileName]];
         [self.fileManager removeItemAtPath:crashedMarkerFileFullPath];
       });
     }

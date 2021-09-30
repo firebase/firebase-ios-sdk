@@ -16,7 +16,6 @@
 
 #include "Firestore/core/src/model/transform_operation.h"
 
-#include "Firestore/core/src/model/field_value.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 #include "gtest/gtest.h"
 

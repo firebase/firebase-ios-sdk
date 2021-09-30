@@ -39,6 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  with a dynamically generated subclass of the object's original class and installing methods
  *  onto this new class.
  */
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 @interface FPRObjectInstrumentor : FPRInstrument
 
 /** The instrumented object. */

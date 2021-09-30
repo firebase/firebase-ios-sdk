@@ -91,4 +91,35 @@
   XCTAssertNotEqual(sessionId, instance.sessionDetails.sessionId);
 }
 
+/** Validate that sessionId changes sends notifications with the session details. */
+- (void)testSessionIdUpdationSendsNotificationWithSessionDetails {
+  FPRSessionManager *instance = [FPRSessionManager sharedInstance];
+  [instance startTrackingAppStateChanges];
+  NSString *sessionId = instance.sessionDetails.sessionId;
+
+  __block BOOL containsSessionDetails = NO;
+  __block FPRSessionDetails *updatedSessionDetails = nil;
+  [instance.sessionNotificationCenter
+      addObserverForName:kFPRSessionIdUpdatedNotification
+                  object:instance
+                   queue:[NSOperationQueue mainQueue]
+              usingBlock:^(NSNotification *note) {
+                NSDictionary<NSString *, FPRSessionDetails *> *userInfo = note.userInfo;
+                FPRSessionDetails *sessionDetails =
+                    [userInfo valueForKey:kFPRSessionIdNotificationKey];
+                if (sessionDetails != nil) {
+                  containsSessionDetails = YES;
+                  updatedSessionDetails = sessionDetails;
+                }
+              }];
+
+  NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
+  [notificationCenter postNotificationName:UIApplicationWillEnterForegroundNotification
+                                    object:[UIApplication sharedApplication]];
+
+  XCTAssertTrue(containsSessionDetails);
+  XCTAssertNotEqual(sessionId, instance.sessionDetails.sessionId);
+  XCTAssertEqual(updatedSessionDetails.sessionId, instance.sessionDetails.sessionId);
+}
+
 @end

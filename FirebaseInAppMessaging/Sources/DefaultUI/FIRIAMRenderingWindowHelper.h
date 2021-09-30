@@ -23,6 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
  * The caller is supposed to set the rootViewController to be the appropriate view controller
  * for the in-app message and call setHidden:NO to make it really visible.
  */
+NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS extensions.")
 @interface FIRIAMRenderingWindowHelper : NSObject
 
 /// Returns the singleton `UIWindow` object used for rendering IAM views that block

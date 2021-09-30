@@ -21,6 +21,9 @@
 #include "Firestore/core/src/core/order_by.h"
 #include "Firestore/core/src/immutable/append_only_list.h"
 #include "Firestore/core/src/model/document.h"
+#include "Firestore/core/src/model/document_key.h"
+#include "Firestore/core/src/model/value_util.h"
+#include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/util/hashing.h"
 #include "Firestore/core/src/util/to_string.h"
 
@@ -28,36 +31,47 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
+using model::Compare;
+using model::DocumentKey;
 using model::FieldPath;
-using model::FieldValue;
+using model::GetTypeOrder;
+using model::TypeOrder;
+using nanopb::SharedMessage;
 using util::ComparisonResult;
+
+Bound Bound::FromValue(SharedMessage<google_firestore_v1_ArrayValue> position,
+                       bool is_before) {
+  model::SortFields(*position);
+  return Bound(std::move(position), is_before);
+}
 
 bool Bound::SortsBeforeDocument(const OrderByList& order_by,
                                 const model::Document& document) const {
-  HARD_ASSERT(position_.size() <= order_by.size(),
+  HARD_ASSERT(position_->values_count <= order_by.size(),
               "Bound has more components than the provided order by.");
 
   ComparisonResult result = ComparisonResult::Same;
-  for (size_t idx = 0; idx < position_.size(); ++idx) {
-    const FieldValue& field_value = position_[idx];
+  for (size_t idx = 0; idx < position_->values_count; ++idx) {
+    const google_firestore_v1_Value& field_value = position_->values[idx];
     const OrderBy& ordering_component = order_by[idx];
 
     ComparisonResult comparison;
     if (ordering_component.field() == FieldPath::KeyFieldPath()) {
       HARD_ASSERT(
-          field_value.type() == FieldValue::Type::Reference,
+          GetTypeOrder(field_value) == TypeOrder ::kReference,
           "Bound has a non-key value where the key path is being used %s",
           field_value.ToString());
-      const auto& ref = field_value.reference_value();
-      comparison = ref.key().CompareTo(document.key());
+      auto key = DocumentKey::FromName(
+          nanopb::MakeString(field_value.reference_value));
+      comparison = key.CompareTo(document->key());
 
     } else {
-      absl::optional<FieldValue> doc_value =
-          document.field(ordering_component.field());
+      absl::optional<google_firestore_v1_Value> doc_value =
+          document->field(ordering_component.field());
       HARD_ASSERT(
           doc_value.has_value(),
           "Field should exist since document matched the orderBy already.");
-      comparison = field_value.CompareTo(*doc_value);
+      comparison = Compare(field_value, *doc_value);
     }
 
     comparison = ordering_component.direction().ApplyTo(comparison);
@@ -73,15 +87,16 @@ bool Bound::SortsBeforeDocument(const OrderByList& order_by,
 
 std::string Bound::CanonicalId() const {
   std::string result = before_ ? "b:" : "a:";
-  for (const FieldValue& component : position_) {
-    result.append(component.ToString());
+  for (pb_size_t i = 0; i < position_->values_count; ++i) {
+    result.append(model::CanonicalId(position_->values[i]));
   }
   return result;
 }
 
 std::string Bound::ToString() const {
   return util::StringFormat("Bound(position=%s, before=%s)",
-                            util::ToString(position_), util::ToString(before_));
+                            model::CanonicalId(*position_),
+                            util::ToString(before_));
 }
 
 std::ostream& operator<<(std::ostream& os, const Bound& bound) {
@@ -89,11 +104,11 @@ std::ostream& operator<<(std::ostream& os, const Bound& bound) {
 }
 
 bool operator==(const Bound& lhs, const Bound& rhs) {
-  return lhs.position() == rhs.position() && lhs.before() == rhs.before();
+  return *lhs.position() == *rhs.position() && lhs.before() == rhs.before();
 }
 
 size_t Bound::Hash() const {
-  return util::Hash(position_, before_);
+  return util::Hash(model::CanonicalId(*position_), before_);
 }
 
 }  // namespace core

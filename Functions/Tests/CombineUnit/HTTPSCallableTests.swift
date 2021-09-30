@@ -41,6 +41,7 @@ class MockFunctions: Functions {
   }
 }
 
+@available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *)
 class HTTPSCallableTests: XCTestCase {
   override func setUp() {
     super.setUp()

@@ -27,7 +27,6 @@
 [![Actions Status][gh-storage-badge]][gh-actions]
 [![Actions Status][gh-symbolcollision-badge]][gh-actions]
 [![Actions Status][gh-zip-badge]][gh-actions]
-[![Travis](https://travis-ci.org/firebase/firebase-ios-sdk.svg?branch=master)](https://travis-ci.org/firebase/firebase-ios-sdk)
 
 # Firebase Apple Open Source Development
 
@@ -35,11 +34,8 @@ This repository contains all Apple platform Firebase SDK source except FirebaseA
 and FirebaseML.
 
 Firebase is an app development platform with tools to help you build, grow and
-monetize your app. More information about Firebase can be found at
-[https://firebase.google.com](https://firebase.google.com).
-
-The repository also includes GoogleUtilities and GoogleDataTransport source
-which are utilities used by Firebase and other Google products.
+monetize your app. More information about Firebase can be found on the
+[official Firebase website](https://firebase.google.com).
 
 **Note** _FirebaseCombineSwift_ contains support for Apple's Combine framework. This module is currently under development, and not yet supported for use in production environments. Fore more details, please refer to the [docs](FirebaseCombineSwift/README.md).
 
@@ -93,8 +89,7 @@ pod 'FirebaseMessaging', :path => '/path/to/firebase-ios-sdk'
 ### Carthage (iOS only)
 
 Instructions for the experimental Carthage distribution are at
-[Carthage](Carthage.md). If you have a new Mac with an Apple silicon chip, please see
-[these instructions](AppleSilicon.md).
+[Carthage](Carthage.md).
 
 ### Using Firebase from a Framework or a library
 
@@ -304,7 +299,7 @@ iOS SDK.
 
 ## License
 
-The contents of this repository is licensed under the
+The contents of this repository are licensed under the
 [Apache License, version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 
 Your use of Firebase is governed by the

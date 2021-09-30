@@ -38,6 +38,7 @@
 @property(nonatomic, readonly) NSString *settingsCacheKeyPath;
 
 @property(nonatomic, readonly) NSString *rootPath;
+@property(nonatomic, readonly) NSString *cachesPath;
 @property(nonatomic, readonly) NSString *structurePath;
 @property(nonatomic, readonly) NSString *activePath;
 @property(nonatomic, readonly) NSString *processingPath;
@@ -55,6 +56,9 @@
 - (BOOL)removeItemAtPath:(NSString *)path;
 - (BOOL)removeContentsOfDirectoryAtPath:(NSString *)path;
 - (BOOL)moveItemAtPath:(NSString *)path toDirectory:(NSString *)destDir;
+- (BOOL)didCrashOnPreviousExecution;
+- (BOOL)metricKitDiagnosticFileExists;
+- (void)createEmptyMetricKitFile:(NSString *)reportPath;
 - (void)enumerateFilesInDirectory:(NSString *)directory
                        usingBlock:(void (^)(NSString *filePath, NSString *extension))block;
 - (NSNumber *)fileSizeAtPath:(NSString *)path;

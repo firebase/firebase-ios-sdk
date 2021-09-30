@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Public/FIRPerformance.h"
+#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRPerformance.h"
 #import "FirebasePerformance/Sources/FIRPerformance+Internal.h"
 #import "FirebasePerformance/Sources/FIRPerformance_Private.h"
 

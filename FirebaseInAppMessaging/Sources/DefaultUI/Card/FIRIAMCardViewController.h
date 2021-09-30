@@ -20,6 +20,7 @@
 @protocol FIRInAppMessagingDisplayDelegate;
 
 NS_ASSUME_NONNULL_BEGIN
+NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS extensions.")
 @interface FIRIAMCardViewController : FIRIAMBaseRenderingViewController
 
 + (FIRIAMCardViewController *)

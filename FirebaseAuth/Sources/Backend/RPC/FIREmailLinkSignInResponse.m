@@ -21,6 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIREmailLinkSignInResponse
 
 - (BOOL)setWithDictionary:(NSDictionary *)dictionary error:(NSError *_Nullable *_Nullable)error {
+  _localID = [dictionary[@"localId"] copy];
   _email = [dictionary[@"email"] copy];
   _IDToken = [dictionary[@"idToken"] copy];
   _isNewUser = [dictionary[@"isNewUser"] boolValue];
@@ -29,6 +30,18 @@ NS_ASSUME_NONNULL_BEGIN
       [dictionary[@"expiresIn"] isKindOfClass:[NSString class]]
           ? [NSDate dateWithTimeIntervalSinceNow:[dictionary[@"expiresIn"] doubleValue]]
           : nil;
+  if (dictionary[@"mfaInfo"] != nil) {
+    NSMutableArray<FIRAuthProtoMFAEnrollment *> *MFAInfo = [NSMutableArray array];
+    NSArray *MFAInfoDataArray = dictionary[@"mfaInfo"];
+    for (NSDictionary *MFAInfoData in MFAInfoDataArray) {
+      FIRAuthProtoMFAEnrollment *MFAEnrollment =
+          [[FIRAuthProtoMFAEnrollment alloc] initWithDictionary:MFAInfoData];
+      [MFAInfo addObject:MFAEnrollment];
+    }
+    _MFAInfo = MFAInfo;
+  }
+  _MFAPendingCredential = [dictionary[@"mfaPendingCredential"] copy];
+
   return YES;
 }
 

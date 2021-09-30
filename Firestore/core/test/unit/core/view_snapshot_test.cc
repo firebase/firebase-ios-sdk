@@ -26,11 +26,10 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
-using model::Document;
 using model::DocumentComparator;
 using model::DocumentKeySet;
 using model::DocumentSet;
-using model::DocumentState;
+using model::MutableDocument;
 
 using testutil::Doc;
 using testutil::Map;
@@ -38,7 +37,7 @@ using testutil::Map;
 using Type = DocumentViewChange::Type;
 
 TEST(ViewSnapshotTest, DocumentChangeConstructor) {
-  Document doc = Doc("a/b", 0, Map());
+  MutableDocument doc = Doc("a/b", 0, Map());
   Type type = Type::Modified;
   DocumentViewChange change{doc, type};
   ASSERT_EQ(change.document(), doc);
@@ -48,15 +47,15 @@ TEST(ViewSnapshotTest, DocumentChangeConstructor) {
 TEST(ViewSnapshotTest, Track) {
   DocumentViewChangeSet set;
 
-  Document doc_added = Doc("a/1", 0, Map());
-  Document doc_removed = Doc("a/2", 0, Map());
-  Document doc_modified = Doc("a/3", 0, Map());
+  MutableDocument doc_added = Doc("a/1", 0, Map());
+  MutableDocument doc_removed = Doc("a/2", 0, Map());
+  MutableDocument doc_modified = Doc("a/3", 0, Map());
 
-  Document doc_added_then_modified = Doc("b/1", 0, Map());
-  Document doc_added_then_removed = Doc("b/2", 0, Map());
-  Document doc_removed_then_added = Doc("b/3", 0, Map());
-  Document doc_modified_then_removed = Doc("b/4", 0, Map());
-  Document doc_modified_then_modified = Doc("b/5", 0, Map());
+  MutableDocument doc_added_then_modified = Doc("b/1", 0, Map());
+  MutableDocument doc_added_then_removed = Doc("b/2", 0, Map());
+  MutableDocument doc_removed_then_added = Doc("b/3", 0, Map());
+  MutableDocument doc_modified_then_removed = Doc("b/4", 0, Map());
+  MutableDocument doc_modified_then_modified = Doc("b/5", 0, Map());
 
   set.AddChange(DocumentViewChange{doc_added, Type::Added});
   set.AddChange(DocumentViewChange{doc_removed, Type::Removed});

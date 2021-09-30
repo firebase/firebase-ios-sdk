@@ -14,9 +14,15 @@
 
 #import <Foundation/Foundation.h>
 
+#if SWIFT_PACKAGE
+#import "GCDWebServer.h"
+#import "GCDWebServerDataResponse.h"
+#import "GCDWebServerFileResponse.h"
+#else
 #import <GCDWebServer/GCDWebServer.h>
 #import <GCDWebServer/GCDWebServerDataResponse.h>
 #import <GCDWebServer/GCDWebServerFileResponse.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

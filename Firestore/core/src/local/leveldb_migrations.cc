@@ -23,11 +23,14 @@
 #include "Firestore/Protos/nanopb/firestore/local/target.nanopb.h"
 #include "Firestore/core/src/local/leveldb_key.h"
 #include "Firestore/core/src/local/memory_index_manager.h"
+#include "Firestore/core/src/local/target_data.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/types.h"
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/nanopb/reader.h"
 #include "Firestore/core/src/nanopb/writer.h"
+#include "Firestore/core/src/util/log.h"
+#include "Firestore/core/src/util/statusor.h"
 #include "absl/strings/match.h"
 
 namespace firebase {
@@ -61,8 +64,9 @@ using nanopb::StringReader;
  *     has a sentinel row with a sequence number.
  *   * Migration 5 drops held write acks.
  *   * Migration 6 populates the collection_parents index.
+ *   * Migration 7 rewrites query_targets canonical ids in new format.
  */
-const LevelDbMigrations::SchemaVersion kSchemaVersion = 6;
+const LevelDbMigrations::SchemaVersion kSchemaVersion = 7;
 
 /**
  * Save the given version number as the current version of the schema of the
@@ -299,6 +303,81 @@ void EnsureCollectionParentsIndex(leveldb::DB* db) {
   transaction.Commit();
 }
 
+/**
+ * Returns a `TargetData` by reading the `targets` table, using the given key
+ * for `query_targets` as a foreign key.
+ */
+util::StatusOr<TargetData> ReadTargetData(
+    const LevelDbQueryTargetKey& query_target_key,
+    const LocalSerializer& serializer,
+    LevelDbTransaction& transaction) {
+  auto target_it = transaction.NewIterator();
+  const auto& target_key = LevelDbTargetKey::Key(query_target_key.target_id());
+  target_it->Seek(target_key);
+  if (!target_it->Valid()) {
+    return util::Status(
+        kErrorNotFound,
+        util::StringFormat(
+            "Dangling query-target reference found: seeking %s found %s",
+            DescribeKey(target_key), DescribeKey(target_it)));
+  }
+
+  StringReader reader{target_it->value()};
+  auto message = Message<firestore_client_Target>::TryParse(&reader);
+  if (!reader.ok()) {
+    return util::Status(kErrorDataLoss,
+                        util::StringFormat("Target proto failed to parse: %s",
+                                           reader.status().ToString()));
+  }
+  auto target_data = serializer.DecodeTargetData(&reader, *message);
+  if (!reader.ok()) {
+    return util::Status(
+        kErrorDataLoss,
+        util::StringFormat("Target failed to parse: %s, message: %s",
+                           reader.status().ToString(), message.ToString()));
+  }
+
+  return target_data;
+}
+
+/**
+ * Migration 7.
+ *
+ * Rewrites targets canonical IDs with new format.
+ */
+void RewriteTargetsCanonicalIds(leveldb::DB* db,
+                                const LocalSerializer& serializer) {
+  LevelDbTransaction transaction(db, "Rewrite Targets Canonical Ids");
+
+  std::string query_targets_prefix = LevelDbQueryTargetKey::KeyPrefix();
+  auto it = transaction.NewIterator();
+  it->Seek(query_targets_prefix);
+  LevelDbQueryTargetKey query_target_key;
+  for (; it->Valid() && absl::StartsWith(it->key(), query_targets_prefix);
+       it->Next()) {
+    HARD_ASSERT(query_target_key.Decode(it->key()),
+                "Failed to decode query_targets key");
+
+    util::StatusOr<TargetData> target_data =
+        ReadTargetData(query_target_key, serializer, transaction);
+    if (!target_data.ok()) {
+      LOG_WARN("Reading target data failed: %s",
+               target_data.status().error_message());
+      continue;
+    }
+
+    auto new_key = LevelDbQueryTargetKey::Key(
+        target_data.ValueOrDie().target().CanonicalId(),
+        target_data.ValueOrDie().target_id());
+
+    transaction.Delete(it->key());
+    std::string empty_buffer;
+    transaction.Put(new_key, empty_buffer);
+  }
+
+  transaction.Commit();
+}
+
 }  // namespace
 
 LevelDbMigrations::SchemaVersion LevelDbMigrations::ReadSchemaVersion(
@@ -317,12 +396,14 @@ LevelDbMigrations::SchemaVersion LevelDbMigrations::ReadSchemaVersion(
   }
 }
 
-void LevelDbMigrations::RunMigrations(leveldb::DB* db) {
-  RunMigrations(db, kSchemaVersion);
+void LevelDbMigrations::RunMigrations(leveldb::DB* db,
+                                      const LocalSerializer& serializer) {
+  RunMigrations(db, kSchemaVersion, serializer);
 }
 
 void LevelDbMigrations::RunMigrations(leveldb::DB* db,
-                                      SchemaVersion to_version) {
+                                      SchemaVersion to_version,
+                                      const LocalSerializer& serializer) {
   SchemaVersion from_version = ReadSchemaVersion(db);
   // If this is a downgrade, just save the downgrade version so we can
   // detect it when we go to upgrade again, allowing us to rerun the
@@ -351,6 +432,10 @@ void LevelDbMigrations::RunMigrations(leveldb::DB* db,
 
   if (from_version < 6 && to_version >= 6) {
     EnsureCollectionParentsIndex(db);
+  }
+
+  if (from_version < 7 && to_version >= 7) {
+    RewriteTargetsCanonicalIds(db, serializer);
   }
 }
 

@@ -51,8 +51,7 @@
   self = [super init];
   if (self) {
     _tokenStore = [[FIRMessagingTokenStore alloc] init];
-    _checkinStore = [[FIRMessagingCheckinStore alloc] init];
-    _authService = [[FIRMessagingAuthService alloc] initWithCheckinStore:_checkinStore];
+    _authService = [[FIRMessagingAuthService alloc] init];
     [self resetCredentialsIfNeeded];
     [self configureTokenOperations];
     _installations = [FIRInstallations installations];
@@ -458,41 +457,40 @@
  *  since the Keychain items are marked with `*BackupThisDeviceOnly`.
  */
 - (void)resetCredentialsIfNeeded {
-  BOOL checkinPlistExists = [_checkinStore hasCheckinPlist];
+  BOOL checkinPlistExists = [_authService hasCheckinPlist];
   // Checkin info existed in backup excluded plist. Should not be a fresh install.
   if (checkinPlistExists) {
     return;
   }
-
-  // Resets checkin in keychain if a fresh install.
   // Keychain can still exist even if app is uninstalled.
-  FIRMessagingCheckinPreferences *oldCheckinPreferences = [_checkinStore cachedCheckinPreferences];
+  FIRMessagingCheckinPreferences *oldCheckinPreferences = _authService.checkinPreferences;
 
-  if (oldCheckinPreferences) {
-    [_checkinStore removeCheckinPreferencesWithHandler:^(NSError *error) {
-      if (!error) {
-        FIRMessagingLoggerDebug(
-            kFIRMessagingMessageCodeStore002,
-            @"Removed cached checkin preferences from Keychain because this is a fresh install.");
-      } else {
-        FIRMessagingLoggerError(
-            kFIRMessagingMessageCodeStore003,
-            @"Couldn't remove cached checkin preferences for a fresh install. Error: %@", error);
-      }
-      if (oldCheckinPreferences.deviceID.length && oldCheckinPreferences.secretToken.length) {
-        FIRMessagingLoggerDebug(kFIRMessagingMessageCodeStore006,
-                                @"App reset detected. Will delete server registrations.");
-        // We don't really need to delete old FCM tokens created via IID auth tokens since
-        // those tokens are already hashed by APNS token as the has so creating a new
-        // token should automatically delete the old-token.
-        [self didDeleteFCMScopedTokensForCheckin:oldCheckinPreferences];
-      } else {
-        FIRMessagingLoggerDebug(kFIRMessagingMessageCodeStore009,
-                                @"App reset detected but no valid checkin auth preferences found."
-                                @" Will not delete server registrations.");
-      }
-    }];
+  if (!oldCheckinPreferences) {
+    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeStore009,
+                            @"App reset detected but no valid checkin auth preferences found."
+                            @" Will not delete server token registrations.");
+    return;
   }
+  [_authService resetCheckinWithHandler:^(NSError *_Nonnull error) {
+    if (!error) {
+      FIRMessagingLoggerDebug(
+          kFIRMessagingMessageCodeStore002,
+          @"Removed cached checkin preferences from Keychain because this is a fresh install.");
+    } else {
+      FIRMessagingLoggerError(
+          kFIRMessagingMessageCodeStore003,
+          @"Couldn't remove cached checkin preferences for a fresh install. Error: %@", error);
+    }
+
+    if (oldCheckinPreferences.deviceID.length && oldCheckinPreferences.secretToken.length) {
+      FIRMessagingLoggerDebug(kFIRMessagingMessageCodeStore006,
+                              @"Resetting old checkin and deleting server token registrations.");
+      // We don't really need to delete old FCM tokens created via IID auth tokens since
+      // those tokens are already hashed by APNS token as the has so creating a new
+      // token should automatically delete the old-token.
+      [self didDeleteFCMScopedTokensForCheckin:oldCheckinPreferences];
+    }
+  }];
 }
 
 - (void)didDeleteFCMScopedTokensForCheckin:(FIRMessagingCheckinPreferences *)checkin {

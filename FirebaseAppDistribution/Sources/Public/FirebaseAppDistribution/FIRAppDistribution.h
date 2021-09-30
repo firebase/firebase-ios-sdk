@@ -26,6 +26,8 @@ NS_ASSUME_NONNULL_BEGIN
  * Note: The App Distribution class cannot be subclassed. If this makes testing difficult,
  * we suggest using a wrapper class or a protocol extension.
  */
+
+NS_EXTENSION_UNAVAILABLE_IOS("Firebase App Distribution is not supported for iOS extensions.")
 NS_SWIFT_NAME(AppDistribution)
 @interface FIRAppDistribution : NSObject
 

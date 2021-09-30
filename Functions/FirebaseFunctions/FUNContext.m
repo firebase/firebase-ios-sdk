@@ -101,7 +101,10 @@ NS_ASSUME_NONNULL_BEGIN
 
     [_appCheck getTokenForcingRefresh:NO
                            completion:^(id<FIRAppCheckTokenResultInterop> _Nonnull tokenResult) {
-                             appCheckToken = tokenResult.token;
+                             // Send only valid token to functions.
+                             if (tokenResult.error == nil) {
+                               appCheckToken = tokenResult.token;
+                             }
 
                              dispatch_group_leave(dispatchGroup);
                            }];

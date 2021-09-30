@@ -40,6 +40,11 @@
 
 namespace firebase {
 namespace firestore {
+
+namespace model {
+class Document;
+};  // namespace model
+
 namespace remote {
 
 class ConnectivityMonitor;
@@ -62,8 +67,8 @@ class FirebaseMetadataProvider;
  */
 class Datastore : public std::enable_shared_from_this<Datastore> {
  public:
-  using LookupCallback = std::function<void(
-      const util::StatusOr<std::vector<model::MaybeDocument>>&)>;
+  using LookupCallback =
+      std::function<void(const util::StatusOr<std::vector<model::Document>>&)>;
   using CommitCallback = std::function<void(const util::Status&)>;
 
   Datastore(const core::DatabaseInfo& database_info,
@@ -168,9 +173,6 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   void HandleCallStatus(const util::Status& status);
 
   void RemoveGrpcCall(GrpcCall* to_remove);
-
-  static GrpcCall::Metadata ExtractAllowlistedHeaders(
-      const GrpcCall::Metadata& headers);
 
   // In case Auth tries to invoke a callback after `Datastore` has been shut
   // down.

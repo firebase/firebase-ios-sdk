@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 
-#import <TargetConditionals.h>
-#if TARGET_OS_IOS
-
 #import <Foundation/Foundation.h>
 
 #import "FIRMultiFactorInfo.h"
@@ -26,9 +23,10 @@ NS_ASSUME_NONNULL_BEGIN
 /** @class FIRPhoneMultiFactorInfo
     @brief Extends the FIRMultiFactorInfo class for phone number second factors.
         The identifier of this second factor is "phone".
+        This class is available on iOS only.
 */
-NS_SWIFT_NAME(PhoneMultiFactorInfo)
-@interface FIRPhoneMultiFactorInfo : FIRMultiFactorInfo
+NS_SWIFT_NAME(PhoneMultiFactorInfo) API_UNAVAILABLE(macos, tvos, watchos)
+    @interface FIRPhoneMultiFactorInfo : FIRMultiFactorInfo
 
 /**
    @brief This is the phone number associated with the current second factor.
@@ -38,5 +36,3 @@ NS_SWIFT_NAME(PhoneMultiFactorInfo)
 @end
 
 NS_ASSUME_NONNULL_END
-
-#endif

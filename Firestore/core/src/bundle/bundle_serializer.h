@@ -28,6 +28,7 @@
 #include "Firestore/core/src/core/core_fwd.h"
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/model/snapshot_version.h"
+#include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/remote/serializer.h"
 #include "Firestore/core/src/util/read_context.h"
 #include "Firestore/third_party/nlohmann_json/json.hpp"
@@ -114,21 +115,21 @@ class BundleSerializer {
                                  const nlohmann::json& filter) const;
   core::FilterList DecodeCompositeFilter(JsonReader& reader,
                                          const nlohmann::json& filter) const;
-  model::FieldValue DecodeValue(JsonReader& reader,
-                                const nlohmann::json& value) const;
+  nanopb::Message<google_firestore_v1_Value> DecodeValue(
+      JsonReader& reader, const nlohmann::json& value) const;
   core::Bound DecodeBound(JsonReader& reader,
                           const nlohmann::json& query,
                           const char* bound_name) const;
   model::ResourcePath DecodeName(JsonReader& reader,
                                  const nlohmann::json& name) const;
+  nanopb::Message<google_firestore_v1_ArrayValue> DecodeArrayValue(
+      JsonReader& reader, const nlohmann::json& array_json) const;
+  nanopb::Message<google_firestore_v1_MapValue> DecodeMapValue(
+      JsonReader& reader, const nlohmann::json& map_json) const;
+  pb_bytes_array_t* DecodeReferenceValue(JsonReader& reader,
+                                         const std::string& ref_string) const;
 
   remote::Serializer rpc_serializer_;
-  model::FieldValue DecodeReferenceValue(JsonReader& reader,
-                                         const std::string& ref_string) const;
-  model::FieldValue DecodeArrayValue(JsonReader& reader,
-                                     const nlohmann::json& array_json) const;
-  model::FieldValue DecodeMapValue(JsonReader& reader,
-                                   const nlohmann::json& map_json) const;
 };
 
 }  // namespace bundle

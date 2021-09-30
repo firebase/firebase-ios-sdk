@@ -9,6 +9,7 @@ def shared_pods
   pod 'FirebaseMessaging', :path => '../../../'
   pod 'FirebaseCoreDiagnostics', :path => '../../../'
   pod 'FirebaseInstallations', :path => '../../../'
+  pod 'GoogleDataTransport'
 end
 
 target 'AdvancedSample' do

@@ -24,7 +24,6 @@
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/model/document_key.h"
-#include "Firestore/core/src/model/maybe_document.h"
 #include "Firestore/core/src/model/mutation.h"
 #include "Firestore/core/src/model/precondition.h"
 #include "Firestore/core/src/model/snapshot_version.h"
@@ -33,6 +32,8 @@
 namespace firebase {
 namespace firestore {
 namespace model {
+
+class MutableDocument;
 
 /**
  * A mutation that verifies the existence of the document at the given key
@@ -63,13 +64,12 @@ class VerifyMutation : public Mutation {
       return Type::Verify;
     }
 
-    MaybeDocument ApplyToRemoteDocument(
-        const absl::optional<MaybeDocument>& maybe_doc,
+    void ApplyToRemoteDocument(
+        MutableDocument& document,
         const MutationResult& mutation_result) const override;
 
-    absl::optional<MaybeDocument> ApplyToLocalView(
-        const absl::optional<MaybeDocument>& maybe_doc,
-        const Timestamp&) const override;
+    void ApplyToLocalView(MutableDocument& document,
+                          const Timestamp&) const override;
 
     // Does not override Equals or Hash; Mutation's versions are sufficient.
 

@@ -50,6 +50,7 @@ static dispatch_queue_t GetInstrumentationQueue() {
  *  @param instrumentor The FPRClassInstrumentor to add the selector instrumentor to.
  */
 FOUNDATION_STATIC_INLINE
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 void InstrumentSendAsynchronousRequestQueueCompletionHandler(FPRClassInstrumentor *instrumentor) {
   SEL selector = @selector(sendAsynchronousRequest:queue:completionHandler:);
   FPRSelectorInstrumentor *selectorInstrumentor = SelectorInstrumentor(selector, instrumentor, YES);
@@ -85,6 +86,7 @@ void InstrumentSendAsynchronousRequestQueueCompletionHandler(FPRClassInstrumento
  *      class to.
  */
 FOUNDATION_STATIC_INLINE
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 void InstrumentInitWithRequestDelegate(FPRClassInstrumentor *instrumentor,
                                        FPRNSURLConnectionDelegateInstrument *delegateInstrument) {
   SEL selector = @selector(initWithRequest:delegate:);
@@ -118,6 +120,7 @@ void InstrumentInitWithRequestDelegate(FPRClassInstrumentor *instrumentor,
  *      class to.
  */
 FOUNDATION_STATIC_INLINE
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 void InstrumentInitWithRequestDelegateStartImmediately(
     FPRClassInstrumentor *instrumentor, FPRNSURLConnectionDelegateInstrument *delegateInstrument) {
   SEL selector = @selector(initWithRequest:delegate:startImmediately:);
@@ -150,6 +153,7 @@ void InstrumentInitWithRequestDelegateStartImmediately(
  *  @param instrumentor The FPRClassInstrumentor to add the selector instrumentor to.
  */
 FOUNDATION_STATIC_INLINE
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 void InstrumentConnectionStart(FPRClassInstrumentor *instrumentor) {
   SEL selector = @selector(start);
   FPRSelectorInstrumentor *selectorInstrumentor = SelectorInstrumentor(selector, instrumentor, NO);
@@ -173,6 +177,7 @@ void InstrumentConnectionStart(FPRClassInstrumentor *instrumentor) {
  *  @param instrumentor The FPRClassInstrumentor to add the selector instrumentor to.
  */
 FOUNDATION_STATIC_INLINE
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 void InstrumentConnectionCancel(FPRClassInstrumentor *instrumentor) {
   SEL selector = @selector(cancel);
   FPRSelectorInstrumentor *selectorInstrumentor = SelectorInstrumentor(selector, instrumentor, NO);

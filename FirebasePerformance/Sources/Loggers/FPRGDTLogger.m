@@ -23,7 +23,7 @@
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
 
-#import "FirebasePerformance/ProtoSupport/PerfMetric.pbobjc.h"
+#import "FirebasePerformance/Sources/Protogen/nanopb/perf_metric.nanopb.h"
 
 @implementation FPRGDTLogger
 
@@ -54,7 +54,7 @@
   return self;
 }
 
-- (void)logEvent:(FPRMSGPerfMetric *)event {
+- (void)logEvent:(firebase_perf_v1_PerfMetric)event {
   GDTCORTransport *eventTransporter = self.gdtfllTransport;
 
   dispatch_async(self.queue, ^{

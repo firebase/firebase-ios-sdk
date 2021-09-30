@@ -31,11 +31,13 @@
 #include "Firestore/core/src/core/firestore_client.h"
 #include "Firestore/core/src/core/listen_options.h"
 #include "Firestore/core/src/core/operator.h"
-#include "Firestore/core/src/model/field_value.h"
 #include "Firestore/core/src/model/resource_path.h"
+#include "Firestore/core/src/model/value_util.h"
+#include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/util/exception.h"
 #include "absl/algorithm/container.h"
 #include "absl/strings/match.h"
+#include "absl/types/span.h"
 
 namespace firebase {
 namespace firestore {
@@ -55,8 +57,13 @@ using core::QueryListener;
 using core::ViewSnapshot;
 using model::DocumentKey;
 using model::FieldPath;
-using model::FieldValue;
+using model::GetTypeOrder;
+using model::IsArray;
+using model::RefValue;
 using model::ResourcePath;
+using model::TypeOrder;
+using nanopb::MakeSharedMessage;
+using nanopb::Message;
 using util::Status;
 using util::StatusOr;
 using util::ThrowInvalidArgument;
@@ -223,9 +230,9 @@ std::unique_ptr<ListenerRegistration> Query::AddSnapshotListener(
       std::move(query_listener));
 }
 
-Query Query::Filter(FieldPath field_path,
+Query Query::Filter(const FieldPath& field_path,
                     Operator op,
-                    FieldValue field_value,
+                    nanopb::SharedMessage<google_firestore_v1_Value> value,
                     const std::function<std::string()>& type_describer) const {
   if (field_path.IsKeyFieldPath()) {
     if (IsArrayOperator(op)) {
@@ -234,30 +241,38 @@ Query Query::Filter(FieldPath field_path,
           "ID since document IDs are not arrays.",
           Describe(op));
     } else if (op == Operator::In || op == Operator::NotIn) {
-      ValidateDisjunctiveFilterElements(field_value, op);
-      std::vector<FieldValue> references;
-      for (const auto& array_value : field_value.array_value()) {
-        references.push_back(
-            ParseExpectedReferenceValue(array_value, type_describer));
-      }
-      field_value = FieldValue::FromArray(references);
+      ValidateDisjunctiveFilterElements(*value, op);
+      // TODO(mutabledocuments): See if we can remove this copy and modify the
+      // input values directly.
+      auto references = MakeSharedMessage<google_firestore_v1_Value>({});
+      references->which_value_type = google_firestore_v1_Value_array_value_tag;
+      nanopb::SetRepeatedField(
+          &references->array_value.values,
+          &references->array_value.values_count,
+          absl::Span<google_firestore_v1_Value>(
+              value->array_value.values, value->array_value.values_count),
+          [&](const google_firestore_v1_Value& value) {
+            return *ParseExpectedReferenceValue(value, type_describer)
+                        .release();
+          });
+      value = std::move(references);
     } else {
-      field_value = ParseExpectedReferenceValue(field_value, type_describer);
+      value = ParseExpectedReferenceValue(*value, type_describer);
     }
   } else {
     if (IsDisjunctiveOperator(op)) {
-      ValidateDisjunctiveFilterElements(field_value, op);
+      ValidateDisjunctiveFilterElements(*value, op);
     }
   }
 
-  FieldFilter filter = FieldFilter::Create(field_path, op, field_value);
+  FieldFilter filter = FieldFilter::Create(field_path, op, std::move(value));
   ValidateNewFilter(filter);
 
   return Wrap(query_.AddingFilter(std::move(filter)));
 }
 
 Query Query::OrderBy(FieldPath field_path, bool descending) const {
-  return OrderBy(field_path, Direction::FromDescending(descending));
+  return OrderBy(std::move(field_path), Direction::FromDescending(descending));
 }
 
 Query Query::OrderBy(FieldPath field_path, Direction direction) const {
@@ -379,17 +394,17 @@ void Query::ValidateHasExplicitOrderByForLimitToLast() const {
 }
 
 void Query::ValidateDisjunctiveFilterElements(
-    const model::FieldValue& field_value, Operator op) const {
+    const google_firestore_v1_Value& value, Operator op) const {
   HARD_ASSERT(
-      field_value.type() == FieldValue::Type::Array,
+      IsArray(value),
       "A FieldValue of Array type is required for disjunctive filters.");
-  if (field_value.array_value().empty()) {
+  if (value.array_value.values_count == 0) {
     ThrowInvalidArgument(
         "Invalid Query. A non-empty array is required for '%s'"
         " filters.",
         Describe(op));
   }
-  if (field_value.array_value().size() > 10) {
+  if (value.array_value.values_count > 10) {
     ThrowInvalidArgument(
         "Invalid Query. '%s' filters support a maximum of 10"
         " elements in the value array.",
@@ -397,11 +412,11 @@ void Query::ValidateDisjunctiveFilterElements(
   }
 }
 
-FieldValue Query::ParseExpectedReferenceValue(
-    const model::FieldValue& field_value,
+Message<google_firestore_v1_Value> Query::ParseExpectedReferenceValue(
+    const google_firestore_v1_Value& value,
     const std::function<std::string()>& type_describer) const {
-  if (field_value.type() == FieldValue::Type::String) {
-    const std::string& document_key = field_value.string_value();
+  if (GetTypeOrder(value) == TypeOrder::kString) {
+    std::string document_key = nanopb::MakeString(value.string_value);
     if (document_key.empty()) {
       ThrowInvalidArgument(
           "Invalid query. When querying by document ID you must provide a "
@@ -423,10 +438,9 @@ FieldValue Query::ParseExpectedReferenceValue(
           "is not because it has an odd number of segments.",
           path.CanonicalString());
     }
-    return FieldValue::FromReference(firestore_->database_id(),
-                                     DocumentKey{path});
-  } else if (field_value.type() == FieldValue::Type::Reference) {
-    return field_value;
+    return RefValue(firestore_->database_id(), DocumentKey{path});
+  } else if (GetTypeOrder(value) == TypeOrder::kReference) {
+    return model::DeepClone(value);
   } else {
     ThrowInvalidArgument(
         "Invalid query. When querying by document ID you must provide a "

@@ -22,8 +22,6 @@
 #import "FirebasePerformance/Sources/FPRConsoleLogger.h"
 #import "FirebasePerformance/Sources/Loggers/FPRGDTEvent.h"
 
-#import "FirebasePerformance/ProtoSupport/PerfMetric.pbobjc.h"
-
 @class FPRGDTEvent;
 
 @interface FPRGDTLogSampler ()
@@ -73,23 +71,22 @@
   }
 
   FPRGDTEvent *gdtEvent = (FPRGDTEvent *)event.dataObject;
-  FPRMSGPerfMetric *perfMetric = gdtEvent.metric;
+  firebase_perf_v1_PerfMetric perfMetric = gdtEvent.metric;
 
   // If it is a gaugeEvent, do not sample.
-  if (perfMetric.hasGaugeMetric) {
+  if (perfMetric.has_gauge_metric) {
     return event;
   }
 
   // If the traceMetric contains a verbose session, do not sample.
-  if (perfMetric.hasTraceMetric) {
-    FPRMSGTraceMetric *traceMetric = perfMetric.traceMetric;
+  if (perfMetric.has_trace_metric) {
+    firebase_perf_v1_TraceMetric traceMetric = perfMetric.trace_metric;
     // Sessions are ordered so that the first session is the most verbose one.
-    if (traceMetric.perfSessionsArray.count > 0) {
-      FPRMSGPerfSession *firstSession = traceMetric.perfSessionsArray[0];
-      if (firstSession.sessionVerbosityArray.count > 0) {
-        FPRMSGSessionVerbosity firstVerbosity =
-            (FPRMSGSessionVerbosity)[firstSession.sessionVerbosityArray valueAtIndex:0];
-        if (firstVerbosity == FPRMSGSessionVerbosity_GaugesAndSystemEvents) {
+    if (traceMetric.perf_sessions_count > 0) {
+      firebase_perf_v1_PerfSession firstSession = traceMetric.perf_sessions[0];
+      if (firstSession.session_verbosity_count > 0) {
+        firebase_perf_v1_SessionVerbosity firstVerbosity = firstSession.session_verbosity[0];
+        if (firstVerbosity == firebase_perf_v1_SessionVerbosity_GAUGES_AND_SYSTEM_EVENTS) {
           return event;
         }
       }
@@ -97,15 +94,14 @@
   }
 
   // If the networkMetric contains a verbose session, do not sample.
-  if (perfMetric.hasNetworkRequestMetric) {
-    FPRMSGNetworkRequestMetric *networkMetric = perfMetric.networkRequestMetric;
+  if (perfMetric.has_network_request_metric) {
+    firebase_perf_v1_NetworkRequestMetric networkMetric = perfMetric.network_request_metric;
     // Sessions are ordered so that the first session is the most verbose one.
-    if (networkMetric.perfSessionsArray.count > 0) {
-      FPRMSGPerfSession *firstSession = networkMetric.perfSessionsArray[0];
-      if (firstSession.sessionVerbosityArray.count > 0) {
-        FPRMSGSessionVerbosity firstVerbosity =
-            (FPRMSGSessionVerbosity)[firstSession.sessionVerbosityArray valueAtIndex:0];
-        if (firstVerbosity == FPRMSGSessionVerbosity_GaugesAndSystemEvents) {
+    if (networkMetric.perf_sessions_count > 0) {
+      firebase_perf_v1_PerfSession firstSession = networkMetric.perf_sessions[0];
+      if (firstSession.session_verbosity_count > 0) {
+        firebase_perf_v1_SessionVerbosity firstVerbosity = firstSession.session_verbosity[0];
+        if (firstVerbosity == firebase_perf_v1_SessionVerbosity_GAUGES_AND_SYSTEM_EVENTS) {
           return event;
         }
       }
@@ -126,10 +122,10 @@
  * @param event The event on which the decision would be made.
  * @return Boolean value of YES if the log should be dropped/sampled out. Otherwise, NO.
  */
-- (BOOL)shouldDropEvent:(FPRMSGPerfMetric *)event {
+- (BOOL)shouldDropEvent:(firebase_perf_v1_PerfMetric)event {
   // Find the correct sampling rate and make the decision to drop or log the event.
   float samplingRate = [self.flags logTraceSamplingRate];
-  if (event.hasNetworkRequestMetric) {
+  if (event.has_network_request_metric) {
     samplingRate = [self.flags logNetworkSamplingRate];
   }
 

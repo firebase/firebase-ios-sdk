@@ -23,7 +23,7 @@
 #include <vector>
 
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
-#import "Firestore/Source/API/FSTUserDataConverter.h"
+#import "Firestore/Source/API/FSTUserDataReader.h"
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
@@ -61,6 +61,7 @@ using firebase::Timestamp;
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::google_firestore_v1_Value;
 using firebase::firestore::local::LocalStore;
 using firebase::firestore::local::MemoryPersistence;
 using firebase::firestore::local::Persistence;
@@ -139,8 +140,8 @@ NS_ASSUME_NONNULL_BEGIN
                                                                     description]]];
 }
 
-- (void)applySuccessfulWriteWithResult:(const MutationBatchResult &)batchResult {
-  _writeEvents.push_back(batchResult);
+- (void)applySuccessfulWriteWithResult:(MutationBatchResult)batchResult {
+  _writeEvents.push_back(std::move(batchResult));
   XCTestExpectation *expectation = [self.writeEventExpectations objectAtIndex:0];
   [self.writeEventExpectations removeObjectAtIndex:0];
   [expectation fulfill];
@@ -189,8 +190,8 @@ class RemoteStoreEventCapture : public RemoteStoreCallback {
     [underlying_capture_ rejectListenWithTargetID:target_id error:error.ToNSError()];
   }
 
-  void HandleSuccessfulWrite(const MutationBatchResult &batch_result) override {
-    [underlying_capture_ applySuccessfulWriteWithResult:batch_result];
+  void HandleSuccessfulWrite(MutationBatchResult batch_result) override {
+    [underlying_capture_ applySuccessfulWriteWithResult:std::move(batch_result)];
   }
 
   void HandleRejectedWrite(BatchId batch_id, Status error) override {

@@ -409,8 +409,8 @@ static FIRApp *sDefaultApp;
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [[FIRAnalyticsConfiguration sharedInstance]
-      setAnalyticsCollectionEnabled:dataCollectionDefaultEnabled
-                     persistSetting:NO];
+    setAnalyticsCollectionEnabled:dataCollectionDefaultEnabled
+                   persistSetting:NO];
 #pragma clang diagnostic pop
 }
 

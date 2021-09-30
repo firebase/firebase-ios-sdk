@@ -28,8 +28,9 @@
 #include "Firestore/core/src/util/hashing.h"
 #include "Firestore/core/src/util/string_apple.h"
 
-namespace util = firebase::firestore::util;
 using firebase::firestore::model::FieldPath;
+using firebase::firestore::util::Hash;
+using firebase::firestore::util::MakeString;
 using firebase::firestore::util::ThrowInvalidArgument;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -51,7 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
   std::vector<std::string> converted;
   converted.reserve(fieldNames.count);
   for (NSString *fieldName in fieldNames) {
-    converted.emplace_back(util::MakeString(fieldName));
+    converted.emplace_back(MakeString(fieldName));
   }
 
   return [self initPrivate:FieldPath::FromSegments(std::move(converted))];
@@ -69,8 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (instancetype)pathWithDotSeparatedString:(NSString *)path {
-  return
-      [[FIRFieldPath alloc] initPrivate:FieldPath::FromDotSeparatedString(util::MakeString(path))];
+  return [[FIRFieldPath alloc] initPrivate:FieldPath::FromDotSeparatedString(MakeString(path))];
 }
 
 - (id)copyWithZone:(__unused NSZone *_Nullable)zone {
@@ -90,7 +90,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSUInteger)hash {
-  return util::Hash(_internalValue);
+  return Hash(_internalValue);
 }
 
 - (const firebase::firestore::model::FieldPath &)internalValue {

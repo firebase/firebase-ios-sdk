@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #import "FirebasePerformance/Sources/FPRClient.h"
-#import "FirebasePerformance/Sources/Public/FIRPerformance.h"
+#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRPerformance.h"
 
 /**
  * Extension that is added on top of the class FIRPerformances to make the private properties

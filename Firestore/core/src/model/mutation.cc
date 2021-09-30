@@ -23,8 +23,9 @@
 
 #include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/field_path.h"
-#include "Firestore/core/src/model/field_value.h"
-#include "Firestore/core/src/model/no_document.h"
+#include "Firestore/core/src/model/mutable_document.h"
+#include "Firestore/core/src/model/object_value.h"
+#include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/to_string.h"
 #include "absl/strings/str_cat.h"
@@ -32,6 +33,8 @@
 namespace firebase {
 namespace firestore {
 namespace model {
+
+using nanopb::Message;
 
 std::string MutationResult::ToString() const {
   return absl::StrCat(
@@ -45,42 +48,32 @@ std::ostream& operator<<(std::ostream& os, const MutationResult& result) {
 
 bool operator==(const MutationResult& lhs, const MutationResult& rhs) {
   return lhs.version() == rhs.version() &&
-         lhs.transform_results() == rhs.transform_results();
+         *lhs.transform_results_ == *rhs.transform_results_;
 }
 
-MaybeDocument Mutation::ApplyToRemoteDocument(
-    const absl::optional<MaybeDocument>& maybe_doc,
-    const MutationResult& mutation_result) const {
-  return rep().ApplyToRemoteDocument(maybe_doc, mutation_result);
+void Mutation::ApplyToRemoteDocument(
+    MutableDocument& document, const MutationResult& mutation_result) const {
+  return rep().ApplyToRemoteDocument(document, mutation_result);
 }
 
-absl::optional<MaybeDocument> Mutation::ApplyToLocalView(
-    const absl::optional<MaybeDocument>& maybe_doc,
-    const Timestamp& local_write_time) const {
-  return rep().ApplyToLocalView(maybe_doc, local_write_time);
+void Mutation::ApplyToLocalView(MutableDocument& document,
+                                const Timestamp& local_write_time) const {
+  return rep().ApplyToLocalView(document, local_write_time);
 }
 
 absl::optional<ObjectValue> Mutation::Rep::ExtractTransformBaseValue(
-    const absl::optional<MaybeDocument>& maybe_doc) const {
+    const Document& document) const {
   absl::optional<ObjectValue> base_object;
-  absl::optional<Document> document;
-  if (maybe_doc && maybe_doc->is_document()) {
-    document = Document(*maybe_doc);
-  }
 
   for (const FieldTransform& transform : field_transforms_) {
-    absl::optional<FieldValue> existing_value;
-    if (document) {
-      existing_value = document->field(transform.path());
-    }
-
-    absl::optional<FieldValue> coerced_value =
+    auto existing_value = document->field(transform.path());
+    auto coerced_value =
         transform.transformation().ComputeBaseValue(existing_value);
     if (coerced_value) {
       if (!base_object) {
-        base_object = ObjectValue::Empty();
+        base_object = ObjectValue{};
       }
-      base_object = base_object->Set(transform.path(), *coerced_value);
+      base_object->Set(transform.path(), std::move(*coerced_value));
     }
   }
 
@@ -107,77 +100,54 @@ bool Mutation::Rep::Equals(const Mutation::Rep& other) const {
          field_transforms_ == other.field_transforms_;
 }
 
-void Mutation::Rep::VerifyKeyMatches(
-    const absl::optional<MaybeDocument>& maybe_doc) const {
-  if (maybe_doc) {
-    HARD_ASSERT(maybe_doc->key() == key(),
-                "Can only apply a mutation to a document with the same key");
-  }
+void Mutation::Rep::VerifyKeyMatches(const MutableDocument& document) const {
+  HARD_ASSERT(document.key() == key(),
+              "Can only apply a mutation to a document with the same key");
 }
 
 SnapshotVersion Mutation::Rep::GetPostMutationVersion(
-    const absl::optional<MaybeDocument>& maybe_doc) {
-  if (maybe_doc && maybe_doc->type() == MaybeDocument::Type::Document) {
-    return maybe_doc->version();
+    const MutableDocument& document) {
+  if (document.is_found_document()) {
+    return document.version();
   } else {
     return SnapshotVersion::None();
   }
 }
 
-std::vector<FieldValue> Mutation::Rep::ServerTransformResults(
-    const absl::optional<MaybeDocument>& maybe_doc,
-    const std::vector<FieldValue>& server_transform_results) const {
-  HARD_ASSERT(field_transforms_.size() == server_transform_results.size(),
-              "server transform result size (%s) should match field transforms "
-              "size (%s)",
-              server_transform_results.size(), field_transforms_.size());
+TransformMap Mutation::Rep::ServerTransformResults(
+    const ObjectValue& previous_data,
+    const Message<google_firestore_v1_ArrayValue>& server_transform_results)
+    const {
+  TransformMap transform_results;
+  HARD_ASSERT(
+      field_transforms_.size() == server_transform_results->values_count,
+      "server transform result size (%s) should match field transforms "
+      "size (%s)",
+      server_transform_results->values_count, field_transforms_.size());
 
-  std::vector<FieldValue> transform_results;
-  for (size_t i = 0; i < server_transform_results.size(); i++) {
+  for (size_t i = 0; i < server_transform_results->values_count; ++i) {
     const FieldTransform& field_transform = field_transforms_[i];
     const TransformOperation& transform = field_transform.transformation();
-
-    absl::optional<model::FieldValue> previous_value;
-    if (maybe_doc && maybe_doc->is_document()) {
-      previous_value = Document(*maybe_doc).field(field_transform.path());
-    }
-
-    transform_results.push_back(transform.ApplyToRemoteDocument(
-        previous_value, server_transform_results[i]));
+    const auto& previous_value = previous_data.Get(field_transform.path());
+    Message<google_firestore_v1_Value> transformed_value =
+        transform.ApplyToRemoteDocument(
+            previous_value, DeepClone(server_transform_results->values[i]));
+    transform_results[field_transform.path()] = std::move(transformed_value);
   }
   return transform_results;
 }
 
-std::vector<FieldValue> Mutation::Rep::LocalTransformResults(
-    const absl::optional<MaybeDocument>& maybe_doc,
-    const Timestamp& local_write_time) const {
-  std::vector<FieldValue> transform_results;
+TransformMap Mutation::Rep::LocalTransformResults(
+    const ObjectValue& previous_data, const Timestamp& local_write_time) const {
+  TransformMap transform_results;
   for (const FieldTransform& field_transform : field_transforms_) {
     const TransformOperation& transform = field_transform.transformation();
-
-    absl::optional<FieldValue> previous_value;
-    if (maybe_doc && maybe_doc->is_document()) {
-      previous_value = Document(*maybe_doc).field(field_transform.path());
-    }
-
-    transform_results.push_back(
-        transform.ApplyToLocalView(previous_value, local_write_time));
+    const auto& previous_value = previous_data.Get(field_transform.path());
+    Message<google_firestore_v1_Value> transformed_value =
+        transform.ApplyToLocalView(previous_value, local_write_time);
+    transform_results[field_transform.path()] = std::move(transformed_value);
   }
   return transform_results;
-}
-
-ObjectValue Mutation::Rep::TransformObject(
-    ObjectValue object_value,
-    const std::vector<FieldValue>& transform_results) const {
-  HARD_ASSERT(transform_results.size() == field_transforms_.size(),
-              "Transform results size mismatch.");
-
-  for (size_t i = 0; i < field_transforms_.size(); i++) {
-    const FieldTransform& field_transform = field_transforms_[i];
-    const FieldPath& field_path = field_transform.path();
-    object_value = object_value.Set(field_path, transform_results[i]);
-  }
-  return object_value;
 }
 
 bool operator==(const Mutation& lhs, const Mutation& rhs) {

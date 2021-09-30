@@ -20,7 +20,7 @@
 #import "FirebasePerformance/Sources/Configurations/FPRRemoteConfigFlags.h"
 #import "FirebasePerformance/Sources/Gauges/FPRGaugeManager+Private.h"
 #import "FirebasePerformance/Sources/Gauges/FPRGaugeManager.h"
-#import "FirebasePerformance/Sources/Public/FIRPerformance.h"
+#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRPerformance.h"
 
 #import "FirebasePerformance/Sources/Gauges/CPU/FPRCPUGaugeCollector+Private.h"
 
@@ -65,6 +65,7 @@
 
   FPRRemoteConfigFlags *configFlags =
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
+  configFlags.appStartConfigFetchDelayInSeconds = 0.0;
   configurations.remoteConfigFlags = configFlags;
 
   NSData *valueData = [@"false" dataUsingEncoding:NSUTF8StringEncoding];

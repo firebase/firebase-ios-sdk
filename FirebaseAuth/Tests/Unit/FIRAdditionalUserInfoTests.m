@@ -78,19 +78,19 @@ static NSString *const kProviderID = @"PROVIDER_ID";
         @c userInfoWithVerifyAssertionResponse call.
  */
 - (void)testAditionalUserInfoCreationWithStaticInitializer {
-  id mockVeriyAssertionResponse = OCMClassMock([FIRVerifyAssertionResponse class]);
-  OCMExpect([mockVeriyAssertionResponse providerID]).andReturn(kProviderID);
-  OCMExpect([mockVeriyAssertionResponse profile]).andReturn([[self class] profile]);
-  OCMExpect([mockVeriyAssertionResponse username]).andReturn(kUserName);
-  OCMExpect([mockVeriyAssertionResponse isNewUser]).andReturn(kIsNewUser);
+  id mockVerifyAssertionResponse = OCMClassMock([FIRVerifyAssertionResponse class]);
+  OCMExpect([mockVerifyAssertionResponse providerID]).andReturn(kProviderID);
+  OCMExpect([mockVerifyAssertionResponse profile]).andReturn([[self class] profile]);
+  OCMExpect([mockVerifyAssertionResponse username]).andReturn(kUserName);
+  OCMExpect([mockVerifyAssertionResponse isNewUser]).andReturn(kIsNewUser);
 
   FIRAdditionalUserInfo *userInfo =
-      [FIRAdditionalUserInfo userInfoWithVerifyAssertionResponse:mockVeriyAssertionResponse];
+      [FIRAdditionalUserInfo userInfoWithVerifyAssertionResponse:mockVerifyAssertionResponse];
   XCTAssertEqualObjects(userInfo.providerID, kProviderID);
   XCTAssertEqualObjects(userInfo.profile, [[self class] profile]);
   XCTAssertEqualObjects(userInfo.username, kUserName);
   XCTAssertEqual(userInfo.isNewUser, kIsNewUser);
-  OCMVerifyAll(mockVeriyAssertionResponse);
+  OCMVerifyAll(mockVerifyAssertionResponse);
 }
 
 /** @fn testAdditionalUserInfoCoding

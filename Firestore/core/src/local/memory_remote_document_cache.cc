@@ -20,7 +20,7 @@
 #include "Firestore/core/src/local/memory_lru_reference_delegate.h"
 #include "Firestore/core/src/local/memory_persistence.h"
 #include "Firestore/core/src/local/sizer.h"
-#include "Firestore/core/src/model/document_map.h"
+#include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/util/hard_assert.h"
 
 namespace firebase {
@@ -31,11 +31,9 @@ using core::Query;
 using model::Document;
 using model::DocumentKey;
 using model::DocumentKeySet;
-using model::DocumentMap;
 using model::ListenSequenceNumber;
-using model::MaybeDocument;
-using model::MaybeDocumentMap;
-using model::OptionalMaybeDocumentMap;
+using model::MutableDocument;
+using model::MutableDocumentMap;
 using model::SnapshotVersion;
 
 MemoryRemoteDocumentCache::MemoryRemoteDocumentCache(
@@ -43,8 +41,9 @@ MemoryRemoteDocumentCache::MemoryRemoteDocumentCache(
   persistence_ = persistence;
 }
 
-void MemoryRemoteDocumentCache::Add(const MaybeDocument& document,
+void MemoryRemoteDocumentCache::Add(const MutableDocument& document,
                                     const model::SnapshotVersion& read_time) {
+  // Note: We create an explicit copy to prevent further modifications.
   docs_ = docs_.insert(document.key(), std::make_pair(document, read_time));
 
   persistence_->index_manager()->AddToCollectionParentIndex(
@@ -55,15 +54,16 @@ void MemoryRemoteDocumentCache::Remove(const DocumentKey& key) {
   docs_ = docs_.erase(key);
 }
 
-absl::optional<MaybeDocument> MemoryRemoteDocumentCache::Get(
-    const DocumentKey& key) {
+MutableDocument MemoryRemoteDocumentCache::Get(const DocumentKey& key) {
   const auto& entry = docs_.get(key);
-  return entry ? entry->first : absl::optional<MaybeDocument>();
+  // Note: We create an explicit copy to prevent modifications of the backing
+  // data.
+  return entry ? entry->first.Clone() : MutableDocument::InvalidDocument(key);
 }
 
-OptionalMaybeDocumentMap MemoryRemoteDocumentCache::GetAll(
+MutableDocumentMap MemoryRemoteDocumentCache::GetAll(
     const DocumentKeySet& keys) {
-  OptionalMaybeDocumentMap results;
+  MutableDocumentMap results;
   for (const DocumentKey& key : keys) {
     // Make sure each key has a corresponding entry, which is nullopt in case
     // the document is not found.
@@ -73,13 +73,13 @@ OptionalMaybeDocumentMap MemoryRemoteDocumentCache::GetAll(
   return results;
 }
 
-DocumentMap MemoryRemoteDocumentCache::GetMatching(
+MutableDocumentMap MemoryRemoteDocumentCache::GetMatching(
     const Query& query, const SnapshotVersion& since_read_time) {
   HARD_ASSERT(
       !query.IsCollectionGroupQuery(),
       "CollectionGroup queries should be handled in LocalDocumentsView");
 
-  DocumentMap results;
+  MutableDocumentMap results;
 
   // Documents are ordered by key, so we can use a prefix scan to narrow down
   // the documents we need to match the query against.
@@ -89,8 +89,8 @@ DocumentMap MemoryRemoteDocumentCache::GetMatching(
     if (!query.path().IsPrefixOf(key.path())) {
       break;
     }
-    const MaybeDocument& maybe_doc = it->second.first;
-    if (!maybe_doc.is_document()) {
+    const MutableDocument& document = it->second.first;
+    if (!document.is_found_document()) {
       continue;
     }
 
@@ -99,10 +99,13 @@ DocumentMap MemoryRemoteDocumentCache::GetMatching(
       continue;
     }
 
-    Document doc(maybe_doc);
-    if (query.Matches(doc)) {
-      results = results.insert(key, std::move(doc));
+    if (!query.Matches(document)) {
+      continue;
     }
+
+    // Note: We create an explicit copy to prevent modifications or the backing
+    // data.
+    results = results.insert(key, document.Clone());
   }
   return results;
 }
@@ -126,8 +129,8 @@ std::vector<DocumentKey> MemoryRemoteDocumentCache::RemoveOrphanedDocuments(
 int64_t MemoryRemoteDocumentCache::CalculateByteSize(const Sizer& sizer) {
   int64_t count = 0;
   for (const auto& kv : docs_) {
-    const MaybeDocument& maybe_doc = kv.second.first;
-    count += sizer.CalculateByteSize(maybe_doc);
+    const MutableDocument& document = kv.second.first;
+    count += sizer.CalculateByteSize(document);
   }
   return count;
 }

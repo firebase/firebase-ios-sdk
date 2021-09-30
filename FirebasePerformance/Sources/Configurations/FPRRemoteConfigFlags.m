@@ -23,6 +23,8 @@
 
 #define ONE_DAY_SECONDS 24 * 60 * 60
 
+static NSDate *FPRAppStartTime = nil;
+
 typedef NS_ENUM(NSInteger, FPRConfigValueType) {
   // Config value type String.
   FPRConfigValueTypeString,
@@ -45,12 +47,13 @@ typedef NS_ENUM(NSInteger, FPRConfigValueType) {
 /** @brief Last time the configs were cached. */
 @property(nonatomic) NSDate *lastCachedTime;
 
-/** @brief Status of the last remote config fetch. */
-@property(nonatomic) FIRRemoteConfigFetchStatus lastFetchStatus;
-
 @end
 
 @implementation FPRRemoteConfigFlags
+
++ (void)load {
+  FPRAppStartTime = [NSDate date];
+}
 
 + (nullable instancetype)sharedInstance {
   static FPRRemoteConfigFlags *instance = nil;
@@ -69,6 +72,11 @@ typedef NS_ENUM(NSInteger, FPRConfigValueType) {
     _fprRemoteConfig = config;
     _userDefaults = [FPRConfigurations sharedInstance].userDefaults;
     self.fetchInProgress = NO;
+
+    // Set the overall delay to 5+random(25) making the config fetch delay at a max of 30 seconds
+    self.applicationStartTime = FPRAppStartTime;
+    self.appStartConfigFetchDelayInSeconds =
+        kFPRMinAppStartConfigFetchDelayInSeconds + arc4random_uniform(25);
 
     NSMutableDictionary<NSString *, NSNumber *> *keysToCache =
         [[NSMutableDictionary<NSString *, NSNumber *> alloc] init];
@@ -110,8 +118,10 @@ typedef NS_ENUM(NSInteger, FPRConfigValueType) {
 
   NSTimeInterval timeIntervalSinceLastFetch =
       [self.fprRemoteConfig.lastFetchTime timeIntervalSinceNow];
-  if (!self.fprRemoteConfig.lastFetchTime ||
-      ABS(timeIntervalSinceLastFetch) > kFPRConfigFetchIntervalInSeconds) {
+  NSTimeInterval timeSinceAppStart = [self.applicationStartTime timeIntervalSinceNow];
+  if ((ABS(timeSinceAppStart) > self.appStartConfigFetchDelayInSeconds) &&
+      (!self.fprRemoteConfig.lastFetchTime ||
+       ABS(timeIntervalSinceLastFetch) > kFPRConfigFetchIntervalInSeconds)) {
     self.fetchInProgress = YES;
     [self.fprRemoteConfig
         fetchAndActivateWithCompletionHandler:^(FIRRemoteConfigFetchAndActivateStatus status,

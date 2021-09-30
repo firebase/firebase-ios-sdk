@@ -155,6 +155,7 @@ NSString *GINFingerprintJSMethodString(void) {
 // and -1 when an error occurs.
 // From:
 // https://developer.apple.com/documentation/apple-silicon/about-the-rosetta-translation-environment
+#if TARGET_OS_SIMULATOR
 static int processIsTranslated() {
   int ret = 0;
   size_t size = sizeof(ret);
@@ -164,6 +165,7 @@ static int processIsTranslated() {
   }
   return ret;
 }
+#endif
 
 @end
 

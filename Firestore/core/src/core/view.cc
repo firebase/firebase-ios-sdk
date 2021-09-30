@@ -20,7 +20,6 @@
 
 #include "Firestore/core/src/core/target.h"
 #include "Firestore/core/src/model/document_set.h"
-#include "Firestore/core/src/model/field_value.h"
 
 namespace firebase {
 namespace firestore {
@@ -29,9 +28,8 @@ namespace core {
 using model::Document;
 using model::DocumentKey;
 using model::DocumentKeySet;
+using model::DocumentMap;
 using model::DocumentSet;
-using model::MaybeDocument;
-using model::MaybeDocumentMap;
 using model::OnlineState;
 using remote::TargetChange;
 using util::ComparisonResult;
@@ -95,7 +93,7 @@ ComparisonResult View::Compare(const Document& lhs, const Document& rhs) const {
 }
 
 ViewDocumentChanges View::ComputeDocumentChanges(
-    const MaybeDocumentMap& doc_changes,
+    const DocumentMap& doc_changes,
     const absl::optional<ViewDocumentChanges>& previous_changes) const {
   DocumentViewChangeSet change_set;
   if (previous_changes) {
@@ -132,21 +130,11 @@ ViewDocumentChanges View::ComputeDocumentChanges(
 
   for (const auto& kv : doc_changes) {
     const DocumentKey& key = kv.first;
-    const MaybeDocument& maybe_new_doc = kv.second;
 
     absl::optional<Document> old_doc = old_document_set.GetDocument(key);
-    absl::optional<Document> new_doc;
-    if (maybe_new_doc.is_document()) {
-      new_doc = Document(maybe_new_doc);
-    }
-    if (new_doc) {
-      HARD_ASSERT(key == new_doc->key(),
-                  "Mismatching key in document changes: %s != %s",
-                  key.ToString(), new_doc->key().ToString());
-      if (!query_.Matches(*new_doc)) {
-        new_doc = absl::nullopt;
-      }
-    }
+    absl::optional<Document> new_doc = query_.Matches(kv.second)
+                                           ? absl::optional<Document>{kv.second}
+                                           : absl::nullopt;
 
     bool old_doc_had_pending_mutations =
         old_doc && old_mutated_keys.contains(key);
@@ -154,14 +142,14 @@ ViewDocumentChanges View::ComputeDocumentChanges(
     // We only consider committed mutations for documents that were mutated
     // during the lifetime of the view.
     bool new_doc_has_pending_mutations =
-        new_doc && (new_doc->has_local_mutations() ||
+        new_doc && ((*new_doc)->has_local_mutations() ||
                     (old_mutated_keys.contains(key) &&
-                     new_doc->has_committed_mutations()));
+                     (*new_doc)->has_committed_mutations()));
 
     bool change_applied = false;
     // Calculate change
     if (old_doc && new_doc) {
-      bool docs_equal = old_doc->data() == new_doc->data();
+      bool docs_equal = (*old_doc)->value() == (*new_doc)->value();
       if (!docs_equal) {
         if (!ShouldWaitForSyncedDocument(*new_doc, *old_doc)) {
           change_set.AddChange(
@@ -208,7 +196,7 @@ ViewDocumentChanges View::ComputeDocumentChanges(
     if (change_applied) {
       if (new_doc) {
         new_document_set = new_document_set.insert(new_doc);
-        if (new_doc->has_local_mutations()) {
+        if ((*new_doc)->has_local_mutations()) {
           new_mutated_keys = new_mutated_keys.insert(key);
         } else {
           new_mutated_keys = new_mutated_keys.erase(key);
@@ -229,8 +217,8 @@ ViewDocumentChanges View::ComputeDocumentChanges(
             query_.has_limit_to_first() ? new_document_set.GetLastDocument()
                                         : new_document_set.GetFirstDocument();
         const Document& old_doc = *found;
-        new_document_set = new_document_set.erase(old_doc.key());
-        new_mutated_keys = new_mutated_keys.erase(old_doc.key());
+        new_document_set = new_document_set.erase(old_doc->key());
+        new_mutated_keys = new_mutated_keys.erase(old_doc->key());
         change_set.AddChange(
             DocumentViewChange{old_doc, DocumentViewChange::Type::Removed});
       }
@@ -253,8 +241,9 @@ bool View::ShouldWaitForSyncedDocument(const Document& new_doc,
   // `has_pending_writes` and the final state of the document) instead of three
   // (one with `has_pending_writes`, the modified document with
   // `has_pending_writes` and the final state of the document).
-  return (old_doc.has_local_mutations() && new_doc.has_committed_mutations() &&
-          !new_doc.has_local_mutations());
+  return (old_doc->has_local_mutations() &&
+          new_doc->has_committed_mutations() &&
+          !new_doc->has_local_mutations());
 }
 
 ViewChange View::ApplyChanges(const ViewDocumentChanges& doc_changes) {
@@ -341,7 +330,7 @@ bool View::ShouldBeInLimbo(const DocumentKey& key) const {
   // doesn't know that it's part of the query. So don't put it in limbo.
   // TODO(klimt): Ideally, we would only consider changes that might actually
   // affect this specific query.
-  if (document_set_.GetDocument(key)->has_local_mutations()) {
+  if ((*document_set_.GetDocument(key))->has_local_mutations()) {
     return false;
   }
   // Everything else is in limbo.
@@ -383,8 +372,8 @@ std::vector<LimboDocumentChange> View::UpdateLimboDocuments() {
   DocumentKeySet old_limbo_documents = std::move(limbo_documents_);
   limbo_documents_ = DocumentKeySet{};
   for (const Document& doc : document_set_) {
-    if (ShouldBeInLimbo(doc.key())) {
-      limbo_documents_ = limbo_documents_.insert(doc.key());
+    if (ShouldBeInLimbo(doc->key())) {
+      limbo_documents_ = limbo_documents_.insert(doc->key());
     }
   }
 

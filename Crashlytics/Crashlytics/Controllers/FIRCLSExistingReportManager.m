@@ -16,10 +16,12 @@
 
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSReportUploader.h"
+#import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionArbiter.h"
 #import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
 #import "Crashlytics/Crashlytics/Private/FIRCrashlyticsReport_Private.h"
 #import "Crashlytics/Crashlytics/Public/FirebaseCrashlytics/FIRCrashlyticsReport.h"
 
@@ -31,6 +33,8 @@ NSUInteger const FIRCLSMaxUnsentReports = 4;
 @property(nonatomic, strong) FIRCLSFileManager *fileManager;
 @property(nonatomic, strong) FIRCLSReportUploader *reportUploader;
 @property(nonatomic, strong) NSOperationQueue *operationQueue;
+@property(nonatomic, strong) FIRCLSSettings *settings;
+@property(nonatomic, strong) FIRCLSDataCollectionArbiter *dataArbiter;
 
 // This list of active reports excludes the brand new active report that will be created this run of
 // the app.
@@ -52,7 +56,9 @@ NSUInteger const FIRCLSMaxUnsentReports = 4;
   }
 
   _fileManager = managerData.fileManager;
+  _settings = managerData.settings;
   _operationQueue = managerData.operationQueue;
+  _dataArbiter = managerData.dataArbiter;
   _reportUploader = reportUploader;
 
   return self;
@@ -91,16 +97,36 @@ NSInteger compareNewer(FIRCLSInternalReport *reportA,
  */
 - (NSArray<NSString *> *)getUnsentActiveReportsAndDeleteEmptyOrOld:(NSArray *)reportPaths {
   NSMutableArray<FIRCLSInternalReport *> *validReports = [NSMutableArray array];
+  NSMutableArray<FIRCLSInternalReport *> *reports = [NSMutableArray array];
+
   for (NSString *path in reportPaths) {
     FIRCLSInternalReport *_Nullable report = [FIRCLSInternalReport reportWithPath:path];
     if (!report) {
       continue;
     }
 
+    [reports addObject:report];
+  }
+
+  if (reports.count == 0) {
+    return @[];
+  }
+
+  [reports sortUsingFunction:compareNewer context:nil];
+  NSString *newestReportPath = [reports firstObject].path;
+
+  // If there was a MetricKit event recorded on the last run of the app, add it to the newest
+  // report.
+  if (self.settings.metricKitCollectionEnabled &&
+      [self.fileManager metricKitDiagnosticFileExists]) {
+    [self.fileManager createEmptyMetricKitFile:newestReportPath];
+  }
+
+  for (FIRCLSInternalReport *report in reports) {
     // Delete reports without any crashes or non-fatals
     if (![report hasAnyEvents]) {
       [self.operationQueue addOperationWithBlock:^{
-        [self.fileManager removeItemAtPath:path];
+        [self.fileManager removeItemAtPath:report.path];
       }];
       continue;
     }
@@ -163,7 +189,7 @@ NSInteger compareNewer(FIRCLSInternalReport *reportA,
     }
   }];
 
-  // Because this could happen quite a bit after the inital set of files was
+  // Because this could happen quite a bit after the initial set of files was
   // captured, some could be completed (deleted). So, just double-check to make sure
   // the file still exists.
   [self.operationQueue addOperationWithBlock:^{

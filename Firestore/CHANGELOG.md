@@ -1,3 +1,12 @@
+# v8.6.0
+- [changed] Internal refactor to improve serialization performance.
+- [changed] `DocumentSnapshot` objects consider the document's key and data for
+  equality comparison, but ignore the internal state and internal version.
+
+# v8.4.0
+- [fixed] Fixed handling of Unicode characters in log and assertion messages
+  (#8372).
+
 # v8.2.0
 - [changed] Passing in an empty document ID, collection group ID, or collection
   path will now result in a more readable error (#8218).

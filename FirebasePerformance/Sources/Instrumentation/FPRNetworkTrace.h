@@ -76,6 +76,7 @@ typedef NS_ENUM(NSInteger, FPRNetworkTraceCheckpointState) {
  * FPRNetworkTrace object contains information about an NSURLRequest. Every object contains
  * information about the URL, type of request, and details of the response.
  */
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 @interface FPRNetworkTrace : NSObject <FPRNetworkResponseHandler, FIRPerformanceAttributable>
 
 /** @brief Start time of the trace since epoch. */
@@ -184,5 +185,11 @@ typedef NS_ENUM(NSInteger, FPRNetworkTraceCheckpointState) {
  */
 - (NSTimeInterval)timeIntervalBetweenCheckpointState:(FPRNetworkTraceCheckpointState)startState
                                             andState:(FPRNetworkTraceCheckpointState)endState;
+/**
+ * Checks if the network trace is valid.
+ *
+ * @return true if the network trace is valid.
+ */
+- (BOOL)isValid;
 
 @end

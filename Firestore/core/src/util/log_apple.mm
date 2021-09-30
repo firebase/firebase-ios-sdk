@@ -85,7 +85,7 @@ bool LogIsLoggable(LogLevel level) {
 }
 
 void LogMessage(LogLevel level, const std::string& message) {
-  LogMessageV(level, @"%s", message.c_str());
+  LogMessageV(level, @"%@", MakeNSString(message));
 }
 
 }  // namespace util

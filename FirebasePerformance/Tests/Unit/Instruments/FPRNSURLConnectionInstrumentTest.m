@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#pragma mark - Unswizzle based tests
+
+#if !SWIFT_PACKAGE
+
 #import "FirebasePerformance/Tests/Unit/Instruments/FPRNSURLConnectionInstrumentTestDelegates.h"
 
 #import <XCTest/XCTest.h>
@@ -20,9 +24,10 @@
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
 #import "FirebasePerformance/Sources/FPRClient.h"
 #import "FirebasePerformance/Sources/Instrumentation/Network/FPRNSURLConnectionInstrument.h"
-#import "FirebasePerformance/Sources/Public/FIRPerformance.h"
+#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRPerformance.h"
 
 #import "FirebasePerformance/Tests/Unit/FPRTestCase.h"
+#import "FirebasePerformance/Tests/Unit/FPRTestUtils.h"
 #import "FirebasePerformance/Tests/Unit/Server/FPRHermeticTestServer.h"
 
 @interface FPRNSURLConnectionInstrumentTest : FPRTestCase
@@ -137,7 +142,7 @@
   XCTAssertNotNil(connection);
   [connection start];
   // Only let it check for a connection for a half second.
-  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
+  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
   XCTAssertTrue(delegate.connectionDidFailWithErrorCalled);
   [self.testServer start];
   [instrument deregisterInstrumentors];
@@ -157,7 +162,7 @@
   XCTAssertNotNil(connection);
   [connection start];
   // Only let it check for a connection for a half second.
-  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
+  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
   XCTAssertTrue(delegate.connectionDidFailWithErrorCalled);
   [self.testServer start];
   [instrument deregisterInstrumentors];
@@ -196,7 +201,7 @@
   XCTAssertNotNil(connection);
   [connection start];
   XCTAssertNotNil([FPRNetworkTrace networkTraceFromObject:connection]);
-  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
+  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
   XCTAssertTrue(delegate.connectionDidFailWithErrorCalled);
   XCTAssertNil([FPRNetworkTrace networkTraceFromObject:connection]);
   [self.testServer start];
@@ -356,8 +361,9 @@
   NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testUpload"];
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
   request.HTTPMethod = @"POST";
-  NSURL *fileURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"smallDownloadFile"
-                                                            withExtension:@""];
+
+  NSBundle *bundle = [FPRTestUtils getBundle];
+  NSURL *fileURL = [bundle URLForResource:@"smallDownloadFile" withExtension:@""];
   request.HTTPBody = [NSData dataWithContentsOfURL:fileURL];
   FPRNSURLConnectionCompleteTestDelegate *delegate =
       [[FPRNSURLConnectionCompleteTestDelegate alloc] init];
@@ -513,3 +519,5 @@
 }
 
 @end
+
+#endif  // SWIFT_PACKAGE

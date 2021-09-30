@@ -22,6 +22,7 @@
 #import <UIKit/UIKit.h>
 
 NSString *const kFPRSessionIdUpdatedNotification = @"kFPRSessionIdUpdatedNotification";
+NSString *const kFPRSessionIdNotificationKey = @"kFPRSessionIdNotificationKey";
 
 @interface FPRSessionManager ()
 
@@ -104,8 +105,12 @@ NSString *const kFPRSessionIdUpdatedNotification = @"kFPRSessionIdUpdatedNotific
   FPRSessionDetails *sessionInfo = [[FPRSessionDetails alloc] initWithSessionId:sessionIdString
                                                                         options:sessionOptions];
   self.sessionDetails = sessionInfo;
+  NSMutableDictionary<NSString *, FPRSessionDetails *> *userInfo =
+      [[NSMutableDictionary alloc] init];
+  [userInfo setObject:sessionInfo forKey:kFPRSessionIdNotificationKey];
   [self.sessionNotificationCenter postNotificationName:kFPRSessionIdUpdatedNotification
-                                                object:self];
+                                                object:self
+                                              userInfo:[userInfo copy]];
 }
 
 /**

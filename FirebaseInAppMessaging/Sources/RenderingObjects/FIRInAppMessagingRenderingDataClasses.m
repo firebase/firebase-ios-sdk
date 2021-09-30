@@ -22,6 +22,10 @@
 #import "FirebaseInAppMessaging/Sources/Public/FirebaseInAppMessaging/FIRInAppMessagingRendering.h"
 #import "FirebaseInAppMessaging/Sources/RenderingObjects/FIRInAppMessagingRenderingPrivate.h"
 
+@class ABTExperimentPayload;
+
+NSString *const FIRIAMTestMessageID = @"test_message_id";
+
 @implementation FIRInAppMessagingDisplayMessage
 
 - (instancetype)initWithMessageID:(NSString *)messageID
@@ -64,34 +68,22 @@
 
 @implementation FIRInAppMessagingCardDisplay
 
-- (void)setBody:(NSString *_Nullable)body {
-  _body = body;
-}
-
-- (void)setLandscapeImageData:(FIRInAppMessagingImageData *_Nullable)landscapeImageData {
-  _landscapeImageData = landscapeImageData;
-}
-
-- (void)setSecondaryActionButton:(FIRInAppMessagingActionButton *_Nullable)secondaryActionButton {
-  _secondaryActionButton = secondaryActionButton;
-}
-
-- (void)setSecondaryActionURL:(NSURL *_Nullable)secondaryActionURL {
-  _secondaryActionURL = secondaryActionURL;
-}
-
 - (instancetype)initWithMessageID:(NSString *)messageID
                      campaignName:(NSString *)campaignName
                 experimentPayload:(nullable ABTExperimentPayload *)experimentPayload
               renderAsTestMessage:(BOOL)renderAsTestMessage
                       triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
                         titleText:(NSString *)title
+                         bodyText:(nullable NSString *)bodyText
                         textColor:(UIColor *)textColor
                 portraitImageData:(FIRInAppMessagingImageData *)portraitImageData
+               landscapeImageData:(nullable FIRInAppMessagingImageData *)landscapeImageData
                   backgroundColor:(UIColor *)backgroundColor
               primaryActionButton:(FIRInAppMessagingActionButton *)primaryActionButton
+            secondaryActionButton:(nullable FIRInAppMessagingActionButton *)secondaryActionButton
                  primaryActionURL:(NSURL *)primaryActionURL
-                          appData:(NSDictionary *)appData {
+               secondaryActionURL:(nullable NSURL *)secondaryActionURL
+                          appData:(nullable NSDictionary *)appData {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
   if (self = [super initWithMessageID:messageID
@@ -103,93 +95,47 @@
                               appData:appData]) {
 #pragma clang diagnostic pop
     _title = title;
+    _body = bodyText;
     _textColor = textColor;
     _portraitImageData = portraitImageData;
+    _landscapeImageData = landscapeImageData;
     _displayBackgroundColor = backgroundColor;
     _primaryActionButton = primaryActionButton;
+    _secondaryActionButton = secondaryActionButton;
     _primaryActionURL = primaryActionURL;
+    _secondaryActionURL = secondaryActionURL;
   }
   return self;
 }
 
-- (instancetype)initWithMessageID:(NSString *)messageID
-                     campaignName:(NSString *)campaignName
-              renderAsTestMessage:(BOOL)renderAsTestMessage
-                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
-                        titleText:(NSString *)title
-                        textColor:(UIColor *)textColor
-                portraitImageData:(FIRInAppMessagingImageData *)portraitImageData
-                  backgroundColor:(UIColor *)backgroundColor
-              primaryActionButton:(FIRInAppMessagingActionButton *)primaryActionButton
-                 primaryActionURL:(NSURL *)primaryActionURL {
-  return [self initWithMessageID:messageID
+- (instancetype)initWithCampaignName:(NSString *)campaignName
+                           titleText:(NSString *)title
+                            bodyText:(NSString *)bodyText
+                           textColor:(UIColor *)textColor
+                   portraitImageData:(FIRInAppMessagingImageData *)portraitImageData
+                  landscapeImageData:(FIRInAppMessagingImageData *)landscapeImageData
+                     backgroundColor:(UIColor *)backgroundColor
+                 primaryActionButton:(FIRInAppMessagingActionButton *)primaryActionButton
+               secondaryActionButton:(FIRInAppMessagingActionButton *)secondaryActionButton
+                    primaryActionURL:(NSURL *)primaryActionURL
+                  secondaryActionURL:(NSURL *)secondaryActionURL
+                             appData:(NSDictionary *)appData {
+  return [self initWithMessageID:FIRIAMTestMessageID
                     campaignName:campaignName
                experimentPayload:nil
-             renderAsTestMessage:renderAsTestMessage
-                     triggerType:triggerType
-                       titleText:title
-                       textColor:textColor
-               portraitImageData:portraitImageData
-                 backgroundColor:backgroundColor
-             primaryActionButton:primaryActionButton
-                primaryActionURL:primaryActionURL
-                         appData:nil];
-}
-
-@end
-
-@implementation FIRInAppMessagingBannerDisplay
-- (instancetype)initWithMessageID:(NSString *)messageID
-                     campaignName:(NSString *)campaignName
-                experimentPayload:(nullable ABTExperimentPayload *)experimentPayload
-              renderAsTestMessage:(BOOL)renderAsTestMessage
-                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
-                        titleText:(NSString *)title
-                         bodyText:(NSString *)bodyText
-                        textColor:(UIColor *)textColor
-                  backgroundColor:(UIColor *)backgroundColor
-                        imageData:(nullable FIRInAppMessagingImageData *)imageData
-                        actionURL:(nullable NSURL *)actionURL
-                          appData:(NSDictionary *)appData {
-  if (self = [super initWithMessageID:messageID
-                         campaignName:campaignName
-                    experimentPayload:experimentPayload
-                  renderAsTestMessage:renderAsTestMessage
-                          messageType:FIRInAppMessagingDisplayMessageTypeBanner
-                          triggerType:triggerType
-                              appData:appData]) {
-    _title = title;
-    _bodyText = bodyText;
-    _textColor = textColor;
-    _displayBackgroundColor = backgroundColor;
-    _imageData = imageData;
-    _actionURL = actionURL;
-  }
-  return self;
-}
-
-- (instancetype)initWithMessageID:(NSString *)messageID
-                     campaignName:(NSString *)campaignName
-              renderAsTestMessage:(BOOL)renderAsTestMessage
-                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
-                        titleText:(NSString *)title
-                         bodyText:(NSString *)bodyText
-                        textColor:(UIColor *)textColor
-                  backgroundColor:(UIColor *)backgroundColor
-                        imageData:(nullable FIRInAppMessagingImageData *)imageData
-                        actionURL:(nullable NSURL *)actionURL {
-  return [self initWithMessageID:messageID
-                    campaignName:campaignName
-               experimentPayload:nil
-             renderAsTestMessage:renderAsTestMessage
-                     triggerType:triggerType
+             renderAsTestMessage:YES
+                     triggerType:FIRInAppMessagingDisplayTriggerTypeOnAnalyticsEvent
                        titleText:title
                         bodyText:bodyText
                        textColor:textColor
+               portraitImageData:portraitImageData
+              landscapeImageData:landscapeImageData
                  backgroundColor:backgroundColor
-                       imageData:imageData
-                       actionURL:actionURL
-                         appData:nil];
+             primaryActionButton:primaryActionButton
+           secondaryActionButton:secondaryActionButton
+                primaryActionURL:primaryActionURL
+              secondaryActionURL:secondaryActionURL
+                         appData:appData];
 }
 
 @end
@@ -202,7 +148,7 @@
               renderAsTestMessage:(BOOL)renderAsTestMessage
                       triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
                         titleText:(NSString *)title
-                         bodyText:(NSString *)bodyText
+                         bodyText:(nullable NSString *)bodyText
                         textColor:(UIColor *)textColor
                   backgroundColor:(UIColor *)backgroundColor
                         imageData:(nullable FIRInAppMessagingImageData *)imageData
@@ -227,22 +173,20 @@
   return self;
 }
 
-- (instancetype)initWithMessageID:(NSString *)messageID
-                     campaignName:(NSString *)campaignName
-              renderAsTestMessage:(BOOL)renderAsTestMessage
-                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
-                        titleText:(NSString *)title
-                         bodyText:(NSString *)bodyText
-                        textColor:(UIColor *)textColor
-                  backgroundColor:(UIColor *)backgroundColor
-                        imageData:(nullable FIRInAppMessagingImageData *)imageData
-                     actionButton:(nullable FIRInAppMessagingActionButton *)actionButton
-                        actionURL:(nullable NSURL *)actionURL {
-  return [self initWithMessageID:messageID
+- (instancetype)initWithCampaignName:(NSString *)campaignName
+                           titleText:(NSString *)title
+                            bodyText:(NSString *)bodyText
+                           textColor:(UIColor *)textColor
+                     backgroundColor:(UIColor *)backgroundColor
+                           imageData:(FIRInAppMessagingImageData *)imageData
+                        actionButton:(FIRInAppMessagingActionButton *)actionButton
+                           actionURL:(NSURL *)actionURL
+                             appData:(NSDictionary *)appData {
+  return [self initWithMessageID:FIRIAMTestMessageID
                     campaignName:campaignName
                experimentPayload:nil
-             renderAsTestMessage:renderAsTestMessage
-                     triggerType:triggerType
+             renderAsTestMessage:YES
+                     triggerType:FIRInAppMessagingDisplayTriggerTypeOnAnalyticsEvent
                        titleText:title
                         bodyText:bodyText
                        textColor:textColor
@@ -250,7 +194,61 @@
                        imageData:imageData
                     actionButton:actionButton
                        actionURL:actionURL
-                         appData:nil];
+                         appData:appData];
+}
+
+@end
+
+@implementation FIRInAppMessagingBannerDisplay
+- (instancetype)initWithMessageID:(NSString *)messageID
+                     campaignName:(NSString *)campaignName
+                experimentPayload:(nullable ABTExperimentPayload *)experimentPayload
+              renderAsTestMessage:(BOOL)renderAsTestMessage
+                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
+                        titleText:(NSString *)title
+                         bodyText:(nullable NSString *)bodyText
+                        textColor:(UIColor *)textColor
+                  backgroundColor:(UIColor *)backgroundColor
+                        imageData:(nullable FIRInAppMessagingImageData *)imageData
+                        actionURL:(nullable NSURL *)actionURL
+                          appData:(NSDictionary *)appData {
+  if (self = [super initWithMessageID:messageID
+                         campaignName:campaignName
+                    experimentPayload:experimentPayload
+                  renderAsTestMessage:renderAsTestMessage
+                          messageType:FIRInAppMessagingDisplayMessageTypeBanner
+                          triggerType:triggerType
+                              appData:appData]) {
+    _title = title;
+    _bodyText = bodyText;
+    _textColor = textColor;
+    _displayBackgroundColor = backgroundColor;
+    _imageData = imageData;
+    _actionURL = actionURL;
+  }
+  return self;
+}
+
+- (instancetype)initWithCampaignName:(NSString *)campaignName
+                           titleText:(NSString *)title
+                            bodyText:(NSString *)bodyText
+                           textColor:(UIColor *)textColor
+                     backgroundColor:(UIColor *)backgroundColor
+                           imageData:(FIRInAppMessagingImageData *)imageData
+                           actionURL:(NSURL *)actionURL
+                             appData:(NSDictionary *)appData {
+  return [self initWithMessageID:FIRIAMTestMessageID
+                    campaignName:campaignName
+               experimentPayload:nil
+             renderAsTestMessage:YES
+                     triggerType:FIRInAppMessagingDisplayTriggerTypeOnAnalyticsEvent
+                       titleText:title
+                        bodyText:bodyText
+                       textColor:textColor
+                 backgroundColor:backgroundColor
+                       imageData:imageData
+                       actionURL:actionURL
+                         appData:appData];
 }
 
 @end
@@ -278,33 +276,31 @@
   return self;
 }
 
-- (instancetype)initWithMessageID:(NSString *)messageID
-                     campaignName:(NSString *)campaignName
-              renderAsTestMessage:(BOOL)renderAsTestMessage
-                      triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType
-                        imageData:(nullable FIRInAppMessagingImageData *)imageData
-                        actionURL:(nullable NSURL *)actionURL {
-  return [self initWithMessageID:messageID
+- (instancetype)initWithCampaignName:(NSString *)campaignName
+                           imageData:(FIRInAppMessagingImageData *)imageData
+                           actionURL:(NSURL *)actionURL
+                             appData:(NSDictionary *)appData {
+  return [self initWithMessageID:FIRIAMTestMessageID
                     campaignName:campaignName
                experimentPayload:nil
-             renderAsTestMessage:renderAsTestMessage
-                     triggerType:triggerType
+             renderAsTestMessage:YES
+                     triggerType:FIRInAppMessagingDisplayTriggerTypeOnAnalyticsEvent
                        imageData:imageData
                        actionURL:actionURL
-                         appData:nil];
+                         appData:appData];
 }
 
 @end
 
 @implementation FIRInAppMessagingActionButton
 
-- (instancetype)initWithButtonText:(NSString *)btnText
+- (instancetype)initWithButtonText:(NSString *)buttonText
                    buttonTextColor:(UIColor *)textColor
-                   backgroundColor:(UIColor *)bkgColor {
+                   backgroundColor:(UIColor *)backgroundColor {
   if (self = [super init]) {
-    _buttonText = btnText;
+    _buttonText = buttonText;
     _buttonTextColor = textColor;
-    _buttonBackgroundColor = bkgColor;
+    _buttonBackgroundColor = backgroundColor;
   }
   return self;
 }

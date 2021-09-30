@@ -43,10 +43,9 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
-using model::Document;
 using model::DocumentKeySet;
 using model::DocumentSet;
-using model::DocumentState;
+using model::MutableDocument;
 using model::OnlineState;
 using remote::TargetChange;
 using util::DelayedConstructor;
@@ -103,9 +102,9 @@ TEST_F(QueryListenerTest, RaisesCollectionEvents) {
   std::vector<ViewSnapshot> other_accum;
 
   Query query = testutil::Query("rooms");
-  Document doc1 = Doc("rooms/Eros", 1, Map("name", "Eros"));
-  Document doc2 = Doc("rooms/Hades", 2, Map("name", "Hades"));
-  Document doc2prime =
+  MutableDocument doc1 = Doc("rooms/Eros", 1, Map("name", "Eros"));
+  MutableDocument doc2 = Doc("rooms/Hades", 2, Map("name", "Hades"));
+  MutableDocument doc2prime =
       Doc("rooms/Hades", 3, Map("name", "Hades", "owner", "Jonny"));
 
   auto listener = QueryListener::Create(query, include_metadata_changes_,
@@ -180,8 +179,8 @@ TEST_F(QueryListenerTest, MutingAsyncListenerPreventsAllSubsequentEvents) {
   std::vector<ViewSnapshot> accum;
 
   Query query = testutil::Query("rooms/Eros");
-  Document doc1 = Doc("rooms/Eros", 3, Map("name", "Eros"));
-  Document doc2 = Doc("rooms/Eros", 4, Map("name", "Eros2"));
+  MutableDocument doc1 = Doc("rooms/Eros", 3, Map("name", "Eros"));
+  MutableDocument doc2 = Doc("rooms/Eros", 4, Map("name", "Eros2"));
 
   std::shared_ptr<AsyncEventListener<ViewSnapshot>> listener =
       AsyncEventListener<ViewSnapshot>::Create(
@@ -215,8 +214,8 @@ TEST_F(QueryListenerTest, DoesNotRaiseEventsForMetadataChangesUnlessSpecified) {
   std::vector<ViewSnapshot> full_accum;
 
   Query query = testutil::Query("rooms");
-  Document doc1 = Doc("rooms/Eros", 1, Map("name", "Eros"));
-  Document doc2 = Doc("rooms/Hades", 2, Map("name", "Hades"));
+  MutableDocument doc1 = Doc("rooms/Eros", 1, Map("name", "Eros"));
+  MutableDocument doc2 = Doc("rooms/Hades", 2, Map("name", "Hades"));
 
   auto filtered_listener =
       QueryListener::Create(query, Accumulating(&filtered_accum));
@@ -248,11 +247,11 @@ TEST_F(QueryListenerTest, RaisesDocumentMetadataEventsOnlyWhenSpecified) {
   std::vector<ViewSnapshot> full_accum;
 
   Query query = testutil::Query("rooms");
-  Document doc1 =
-      Doc("rooms/Eros", 1, Map("name", "Eros"), DocumentState::kLocalMutations);
-  Document doc2 = Doc("rooms/Hades", 2, Map("name", "Hades"));
-  Document doc1_prime = Doc("rooms/Eros", 1, Map("name", "Eros"));
-  Document doc3 = Doc("rooms/Other", 3, Map("name", "Other"));
+  MutableDocument doc1 =
+      Doc("rooms/Eros", 1, Map("name", "Eros")).SetHasLocalMutations();
+  MutableDocument doc2 = Doc("rooms/Hades", 2, Map("name", "Hades"));
+  MutableDocument doc1_prime = Doc("rooms/Eros", 1, Map("name", "Eros"));
+  MutableDocument doc3 = Doc("rooms/Other", 3, Map("name", "Other"));
 
   ListenOptions options(
       /*include_query_metadata_changes=*/false,
@@ -298,13 +297,13 @@ TEST_F(QueryListenerTest,
   std::vector<ViewSnapshot> full_accum;
 
   Query query = testutil::Query("rooms");
-  Document doc1 =
-      Doc("rooms/Eros", 1, Map("name", "Eros"), DocumentState::kLocalMutations);
-  Document doc2 = Doc("rooms/Hades", 2, Map("name", "Hades"),
-                      DocumentState::kLocalMutations);
-  Document doc1_prime = Doc("rooms/Eros", 1, Map("name", "Eros"));
-  Document doc2_prime = Doc("rooms/Hades", 2, Map("name", "Hades"));
-  Document doc3 = Doc("rooms/Other", 3, Map("name", "Other"));
+  MutableDocument doc1 =
+      Doc("rooms/Eros", 1, Map("name", "Eros")).SetHasLocalMutations();
+  MutableDocument doc2 =
+      Doc("rooms/Hades", 2, Map("name", "Hades")).SetHasLocalMutations();
+  MutableDocument doc1_prime = Doc("rooms/Eros", 1, Map("name", "Eros"));
+  MutableDocument doc2_prime = Doc("rooms/Hades", 2, Map("name", "Hades"));
+  MutableDocument doc3 = Doc("rooms/Other", 3, Map("name", "Other"));
 
   ListenOptions options(
       /*include_query_metadata_changes=*/true,
@@ -346,11 +345,11 @@ TEST_F(QueryListenerTest,
   std::vector<ViewSnapshot> filtered_accum;
 
   Query query = testutil::Query("rooms");
-  Document doc1 =
-      Doc("rooms/Eros", 1, Map("name", "Eros"), DocumentState::kLocalMutations);
-  Document doc2 = Doc("rooms/Hades", 2, Map("name", "Hades"));
-  Document doc1_prime = Doc("rooms/Eros", 1, Map("name", "Eros"));
-  Document doc3 = Doc("rooms/Other", 3, Map("name", "Other"));
+  MutableDocument doc1 =
+      Doc("rooms/Eros", 1, Map("name", "Eros")).SetHasLocalMutations();
+  MutableDocument doc2 = Doc("rooms/Hades", 2, Map("name", "Hades"));
+  MutableDocument doc1_prime = Doc("rooms/Eros", 1, Map("name", "Eros"));
+  MutableDocument doc3 = Doc("rooms/Other", 3, Map("name", "Other"));
 
   auto filtered_listener =
       QueryListener::Create(query, Accumulating(&filtered_accum));
@@ -381,8 +380,8 @@ TEST_F(QueryListenerTest, WillWaitForSyncIfOnline) {
   std::vector<ViewSnapshot> events;
 
   Query query = testutil::Query("rooms");
-  Document doc1 = Doc("rooms/Eros", 1, Map("name", "Eros"));
-  Document doc2 = Doc("rooms/Hades", 2, Map("name", "Hades"));
+  MutableDocument doc1 = Doc("rooms/Eros", 1, Map("name", "Eros"));
+  MutableDocument doc2 = Doc("rooms/Hades", 2, Map("name", "Hades"));
 
   ListenOptions options(
       /*include_query_metadata_changes=*/false,
@@ -420,8 +419,8 @@ TEST_F(QueryListenerTest, WillRaiseInitialEventWhenGoingOffline) {
   std::vector<ViewSnapshot> events;
 
   Query query = testutil::Query("rooms");
-  Document doc1 = Doc("rooms/Eros", 1, Map("name", "Eros"));
-  Document doc2 = Doc("rooms/Hades", 2, Map("name", "Hades"));
+  MutableDocument doc1 = Doc("rooms/Eros", 1, Map("name", "Eros"));
+  MutableDocument doc2 = Doc("rooms/Hades", 2, Map("name", "Hades"));
 
   ListenOptions options(
       /*include_query_metadata_changes=*/false,

@@ -18,23 +18,27 @@
 #define FIRESTORE_CORE_SRC_MODEL_MUTATION_H_
 
 #include <iosfwd>
+#include <map>
 #include <memory>
 #include <string>
 #include <utility>
 #include <vector>
 
+#include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/field_transform.h"
-#include "Firestore/core/src/model/field_value.h"
+#include "Firestore/core/src/model/object_value.h"
 #include "Firestore/core/src/model/precondition.h"
 #include "Firestore/core/src/model/snapshot_version.h"
+#include "Firestore/core/src/nanopb/message.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
 namespace model {
 
-class MaybeDocument;
+class Document;
+class MutableDocument;
 
 /**
  * The result of applying a mutation to the server. This is a model of the
@@ -46,10 +50,16 @@ class MaybeDocument;
  */
 class MutationResult {
  public:
+  /** Takes ownership of `transform_results`. */
   MutationResult(
       SnapshotVersion version,
-      absl::optional<const std::vector<FieldValue>> transform_results)
-      : version_(version), transform_results_(std::move(transform_results)) {
+      nanopb::Message<google_firestore_v1_ArrayValue> transform_results)
+      : version_(version), transform_results_{std::move(transform_results)} {
+  }
+
+  MutationResult(MutationResult&& other) noexcept
+      : version_{other.version_},
+        transform_results_{std::move(other.transform_results_)} {
   }
 
   /**
@@ -73,7 +83,7 @@ class MutationResult {
    *
    * Will be nullopt if the mutation was not a TransformMutation.
    */
-  const absl::optional<const std::vector<FieldValue>>& transform_results()
+  const nanopb::Message<google_firestore_v1_ArrayValue>& transform_results()
       const {
     return transform_results_;
   }
@@ -87,7 +97,7 @@ class MutationResult {
 
  private:
   SnapshotVersion version_;
-  absl::optional<const std::vector<FieldValue>> transform_results_;
+  nanopb::Message<google_firestore_v1_ArrayValue> transform_results_;
 };
 
 /**
@@ -175,26 +185,19 @@ class Mutation {
   }
 
   /**
-   * Applies this mutation to the given MaybeDocument for the purposes of
-   * computing the committed state of the document after the server has
-   * acknowledged that this mutation has been successfully committed.  This
-   * means that if the input document doesn't match the expected state (e.g. it
-   * is `nullopt` or outdated), the local cache must have been incorrect so an
-   * `UnknownDocument` is returned.
+   * Applies this mutation to the given Document for the purposes of computing
+   * the committed state of the document after the server has acknowledged that
+   * this mutation has been successfully committed.
    *
-   * @param maybe_doc The document to mutate. The input document can be
-   *     `nullopt` if the client has no knowledge of the pre-mutation state of
-   *     the document.
+   * If the input document doesn't match the expected state (e.g. it is invalid
+   * or outdated), the document state may transition to unknown.
+   *
+   * @param document The document to mutate.
    * @param mutation_result The backend's response of successfully applying the
    *     mutation.
-   * @return The mutated document. The returned document is not optional
-   *     because the server successfully committed this mutation. If the local
-   *     cache might have caused a `nullopt` result, this method will return an
-   *     `UnknownDocument` instead.
    */
-  MaybeDocument ApplyToRemoteDocument(
-      const absl::optional<MaybeDocument>& maybe_doc,
-      const MutationResult& mutation_result) const;
+  void ApplyToRemoteDocument(MutableDocument& document,
+                             const MutationResult& mutation_result) const;
 
   /**
    * Estimates the latency compensated view of this mutation applied to the
@@ -204,33 +207,12 @@ class Mutation {
    * been committed and so it's possible that the mutation is operating on a
    * locally non-existent document and may produce a non-existent document.
    *
-   * Note: `maybe_doc` and `base_doc` are similar but not the same:
-   *
-   *   - `base_doc` is the pristine version of the document as it was _before_
-   *     applying any of the mutations in the batch. This means that for each
-   *     mutation in the batch, `base_doc` stays unchanged;
-   *   - `maybe_doc` is the state of the document _after_ applying all the
-   *     preceding mutations from the batch. In other words, `maybe_doc` is
-   *     passed on from one mutation in the batch to the next, accumulating
-   *     changes.
-   *
-   * The only time `maybe_doc` and `base_doc` are guaranteed to be the same is
-   * for the very first mutation in the batch. The distinction between
-   * `maybe_doc` and `base_doc` helps ServerTimestampTransform determine the
-   * "previous" value in a way that makes sense to users.
-   *
-   * @param maybe_doc The document to mutate. The input document can be
-   *     `nullopt` if the client has no knowledge of the pre-mutation state of
-   *     the document.
+   * @param document The document to mutate.
    * @param local_write_time A timestamp indicating the local write time of the
    *     batch this mutation is a part of.
-   * @return The mutated document. The returned document may be nullopt, but
-   *     only if maybe_doc was nullopt and the mutation would not create a new
-   *     document.
    */
-  absl::optional<MaybeDocument> ApplyToLocalView(
-      const absl::optional<MaybeDocument>& maybe_doc,
-      const Timestamp& local_write_time) const;
+  void ApplyToLocalView(MutableDocument& document,
+                        const Timestamp& local_write_time) const;
 
   /**
    * If this mutation is not idempotent, returns the base value to persist with
@@ -249,8 +231,8 @@ class Mutation {
    *     idempotent mutations.
    */
   absl::optional<ObjectValue> ExtractTransformBaseValue(
-      const absl::optional<MaybeDocument>& maybe_doc) const {
-    return rep_->ExtractTransformBaseValue(maybe_doc);
+      const Document& document) const {
+    return rep_->ExtractTransformBaseValue(document);
   }
 
   friend bool operator==(const Mutation& lhs, const Mutation& rhs);
@@ -290,50 +272,43 @@ class Mutation {
       return field_transforms_;
     }
 
-    virtual MaybeDocument ApplyToRemoteDocument(
-        const absl::optional<MaybeDocument>& maybe_doc,
+    virtual void ApplyToRemoteDocument(
+        MutableDocument& document,
         const MutationResult& mutation_result) const = 0;
 
-    virtual absl::optional<MaybeDocument> ApplyToLocalView(
-        const absl::optional<MaybeDocument>& maybe_doc,
-        const Timestamp& local_write_time) const = 0;
+    virtual void ApplyToLocalView(MutableDocument& document,
+                                  const Timestamp& local_write_time) const = 0;
 
     virtual absl::optional<ObjectValue> ExtractTransformBaseValue(
-        const absl::optional<MaybeDocument>&) const;
+        const Document& document) const;
 
     /**
-     * Creates an array of "transform results" (a transform result is a field
+     * Creates a map of "transform results" (a transform result is a field
      * value representing the result of applying a transform) for use after a
      * mutation containing transforms has been acknowledged by the server.
      *
-     * @param maybe_doc The current state of the document after applying all
-     *     previous mutations.
+     * @param previous_data The state of the data before applying this mutation.
      * @param server_transform_results The transform results received by the
-     *     server.
-     * @return The transform results array.
+     * server.
+     * @return A map of fields to transform results.
      */
-    virtual std::vector<FieldValue> ServerTransformResults(
-        const absl::optional<MaybeDocument>& maybe_doc,
-        const std::vector<FieldValue>& server_transform_results) const;
+    TransformMap ServerTransformResults(
+        const ObjectValue& previous_data,
+        const nanopb::Message<google_firestore_v1_ArrayValue>&
+            server_transform_results) const;
 
     /**
-     * Creates an array of "transform results" (a transform result is a field
+     * Creates a map of "transform results" (a transform result is a field
      * value representing the result of applying a transform) for use when
      * applying a transform locally.
      *
-     * @param maybe_doc The current state of the document after applying all
-     *     previous mutations.
-     * @param local_write_time The local time of the transform (used to
-     *     generate ServerTimestampValues).
-     * @return The transform results array.
+     * @param previous_data The state of the data before applying this mutation.
+     * @param local_write_time The local time of the mutation (used to generate
+     * ServerTimestampValues).
+     * @return A map of fields to transform results.
      */
-    virtual std::vector<FieldValue> LocalTransformResults(
-        const absl::optional<MaybeDocument>& maybe_doc,
-        const Timestamp& local_write_time) const;
-
-    virtual ObjectValue TransformObject(
-        ObjectValue object_value,
-        const std::vector<FieldValue>& transform_results) const;
+    TransformMap LocalTransformResults(const ObjectValue& previous_data,
+                                       const Timestamp& local_write_time) const;
 
     virtual bool Equals(const Rep& other) const;
 
@@ -342,10 +317,10 @@ class Mutation {
     virtual std::string ToString() const = 0;
 
    protected:
-    void VerifyKeyMatches(const absl::optional<MaybeDocument>& maybe_doc) const;
+    void VerifyKeyMatches(const MutableDocument& document) const;
 
     static SnapshotVersion GetPostMutationVersion(
-        const absl::optional<MaybeDocument>& maybe_doc);
+        const MutableDocument& document);
 
    private:
     DocumentKey key_;

@@ -25,7 +25,6 @@
 #include "Firestore/core/src/core/view_snapshot.h"
 #include "Firestore/core/src/model/document_key_set.h"
 #include "Firestore/core/src/model/document_set.h"
-#include "Firestore/core/src/model/no_document.h"
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 #include "Firestore/core/test/unit/testutil/view_testing.h"
@@ -40,8 +39,6 @@ namespace core {
 using model::Document;
 using model::DocumentKeySet;
 using model::DocumentSet;
-using model::DocumentState;
-using model::FieldValue;
 using model::ResourcePath;
 
 using testing::ElementsAre;
@@ -65,7 +62,7 @@ MATCHER_P(ContainsDocs, expected, "") {
     return false;
   }
   for (const Document& doc : expected) {
-    if (!arg.ContainsKey(doc.key())) {
+    if (!arg.ContainsKey(doc->key())) {
       return false;
     }
   }
@@ -319,12 +316,12 @@ TEST(ViewTest, KeepsTrackOfLimboDocuments) {
   change = view.ApplyChanges(view.ComputeDocumentChanges(DocUpdates({})),
                              MarkCurrent());
   ASSERT_THAT(change.limbo_changes(),
-              ElementsAre(LimboDocumentChange::Added(doc1.key())));
+              ElementsAre(LimboDocumentChange::Added(doc1->key())));
 
   change = view.ApplyChanges(view.ComputeDocumentChanges(DocUpdates({})),
                              AckTarget({doc1}));
   ASSERT_THAT(change.limbo_changes(),
-              ElementsAre(LimboDocumentChange::Removed(doc1.key())));
+              ElementsAre(LimboDocumentChange::Removed(doc1->key())));
 
   change = view.ApplyChanges(view.ComputeDocumentChanges(DocUpdates({doc2})),
                              AckTarget({doc2}));
@@ -332,12 +329,12 @@ TEST(ViewTest, KeepsTrackOfLimboDocuments) {
 
   change = view.ApplyChanges(view.ComputeDocumentChanges(DocUpdates({doc3})));
   ASSERT_THAT(change.limbo_changes(),
-              ElementsAre(LimboDocumentChange::Added(doc3.key())));
+              ElementsAre(LimboDocumentChange::Added(doc3->key())));
 
   change = view.ApplyChanges(view.ComputeDocumentChanges(
       DocUpdates({DeletedDoc("rooms/eros/messages/2")})));  // remove
   ASSERT_THAT(change.limbo_changes(),
-              ElementsAre(LimboDocumentChange::Removed(doc3.key())));
+              ElementsAre(LimboDocumentChange::Removed(doc3->key())));
 }
 
 TEST(ViewTest, ResumingQueryCreatesNoLimbos) {
@@ -349,7 +346,7 @@ TEST(ViewTest, ResumingQueryCreatesNoLimbos) {
   // Unlike other cases, here the view is initialized with a set of previously
   // synced documents which happens when listening to a previously listened-to
   // query.
-  View view(query, DocumentKeySet{doc1.key(), doc2.key()});
+  View view(query, DocumentKeySet{doc1->key(), doc2->key()});
 
   ViewDocumentChanges changes = view.ComputeDocumentChanges(DocUpdates({}));
   ViewChange change = view.ApplyChanges(changes, MarkCurrent());
@@ -549,24 +546,22 @@ TEST(ViewTest, ComputesMutatedKeys) {
   view.ApplyChanges(changes);
   ASSERT_EQ(changes.mutated_keys(), DocumentKeySet{});
 
-  Document doc3 =
-      Doc("rooms/eros/messages/2", 0, Map(), DocumentState::kLocalMutations);
+  Document doc3 = Doc("rooms/eros/messages/2", 0, Map()).SetHasLocalMutations();
   changes = view.ComputeDocumentChanges(DocUpdates({doc3}));
-  ASSERT_EQ(changes.mutated_keys(), DocumentKeySet{doc3.key()});
+  ASSERT_EQ(changes.mutated_keys(), DocumentKeySet{doc3->key()});
 }
 
 TEST(ViewTest, RemovesKeysFromMutatedKeysWhenNewDocHasNoLocalChanges) {
   Query query = QueryForMessages();
   Document doc1 = Doc("rooms/eros/messages/0", 0, Map());
-  Document doc2 =
-      Doc("rooms/eros/messages/1", 0, Map(), DocumentState::kLocalMutations);
+  Document doc2 = Doc("rooms/eros/messages/1", 0, Map()).SetHasLocalMutations();
   View view(query, DocumentKeySet{});
 
   // Start with a full view.
   ViewDocumentChanges changes =
       view.ComputeDocumentChanges(DocUpdates({doc1, doc2}));
   view.ApplyChanges(changes);
-  ASSERT_EQ(changes.mutated_keys(), (DocumentKeySet{doc2.key()}));
+  ASSERT_EQ(changes.mutated_keys(), (DocumentKeySet{doc2->key()}));
 
   Document doc2_prime = Doc("rooms/eros/messages/1", 0, Map());
   changes = view.ComputeDocumentChanges(DocUpdates({doc2_prime}));
@@ -577,44 +572,41 @@ TEST(ViewTest, RemovesKeysFromMutatedKeysWhenNewDocHasNoLocalChanges) {
 TEST(ViewTest, RemembersLocalMutationsFromPreviousSnapshot) {
   Query query = QueryForMessages();
   Document doc1 = Doc("rooms/eros/messages/0", 0, Map());
-  Document doc2 =
-      Doc("rooms/eros/messages/1", 0, Map(), DocumentState::kLocalMutations);
+  Document doc2 = Doc("rooms/eros/messages/1", 0, Map()).SetHasLocalMutations();
   View view(query, DocumentKeySet{});
 
   // Start with a full view.
   ViewDocumentChanges changes =
       view.ComputeDocumentChanges(DocUpdates({doc1, doc2}));
   view.ApplyChanges(changes);
-  ASSERT_EQ(changes.mutated_keys(), (DocumentKeySet{doc2.key()}));
+  ASSERT_EQ(changes.mutated_keys(), (DocumentKeySet{doc2->key()}));
 
   Document doc3 = Doc("rooms/eros/messages/2", 0, Map());
   changes = view.ComputeDocumentChanges(DocUpdates({doc3}));
   view.ApplyChanges(changes);
-  ASSERT_EQ(changes.mutated_keys(), (DocumentKeySet{doc2.key()}));
+  ASSERT_EQ(changes.mutated_keys(), (DocumentKeySet{doc2->key()}));
 }
 
 TEST(ViewTest,
      RemembersLocalMutationsFromPreviousCallToComputeDocumentChanges) {
   Query query = QueryForMessages();
   Document doc1 = Doc("rooms/eros/messages/0", 0, Map());
-  Document doc2 =
-      Doc("rooms/eros/messages/1", 0, Map(), DocumentState::kLocalMutations);
+  Document doc2 = Doc("rooms/eros/messages/1", 0, Map()).SetHasLocalMutations();
   View view(query, DocumentKeySet{});
 
   // Start with a full view.
   ViewDocumentChanges changes =
       view.ComputeDocumentChanges(DocUpdates({doc1, doc2}));
-  ASSERT_EQ(changes.mutated_keys(), (DocumentKeySet{doc2.key()}));
+  ASSERT_EQ(changes.mutated_keys(), (DocumentKeySet{doc2->key()}));
 
   Document doc3 = Doc("rooms/eros/messages/2", 0, Map());
   changes = view.ComputeDocumentChanges(DocUpdates({doc3}), changes);
-  ASSERT_EQ(changes.mutated_keys(), (DocumentKeySet{doc2.key()}));
+  ASSERT_EQ(changes.mutated_keys(), (DocumentKeySet{doc2->key()}));
 }
 
 TEST(ViewTest, RaisesHasPendingWritesForPendingMutationsInInitialSnapshot) {
   Query query = QueryForMessages();
-  Document doc1 =
-      Doc("rooms/eros/messages/1", 0, Map(), DocumentState::kLocalMutations);
+  Document doc1 = Doc("rooms/eros/messages/1", 0, Map()).SetHasLocalMutations();
   View view(query, DocumentKeySet{});
   ViewDocumentChanges changes = view.ComputeDocumentChanges(DocUpdates({doc1}));
   ViewChange view_change = view.ApplyChanges(changes);
@@ -624,8 +616,8 @@ TEST(ViewTest, RaisesHasPendingWritesForPendingMutationsInInitialSnapshot) {
 TEST(ViewTest,
      DoesntRaiseHasPendingWritesForCommittedMutationsInInitialSnapshot) {
   Query query = QueryForMessages();
-  Document doc1 = Doc("rooms/eros/messages/1", 0, Map(),
-                      DocumentState::kCommittedMutations);
+  Document doc1 =
+      Doc("rooms/eros/messages/1", 0, Map()).SetHasCommittedMutations();
   View view(query, DocumentKeySet{});
   ViewDocumentChanges changes = view.ComputeDocumentChanges(DocUpdates({doc1}));
   ViewChange view_change = view.ApplyChanges(changes);
@@ -638,15 +630,15 @@ TEST(ViewTest, SuppressesWriteAcknowledgementIfWatchHasNotCaughtUp) {
   // instead wait for Watch to catch up.
 
   Query query = QueryForMessages();
-  Document doc1 = Doc("rooms/eros/messages/1", 1, Map("time", 1),
-                      DocumentState::kLocalMutations);
-  Document doc1_committed = Doc("rooms/eros/messages/1", 2, Map("time", 2),
-                                DocumentState::kCommittedMutations);
+  Document doc1 =
+      Doc("rooms/eros/messages/1", 1, Map("time", 1)).SetHasLocalMutations();
+  Document doc1_committed = Doc("rooms/eros/messages/1", 2, Map("time", 2))
+                                .SetHasCommittedMutations();
   Document doc1_acknowledged = Doc("rooms/eros/messages/1", 2, Map("time", 2));
-  Document doc2 = Doc("rooms/eros/messages/2", 1, Map("time", 1),
-                      DocumentState::kLocalMutations);
-  Document doc2_modified = Doc("rooms/eros/messages/2", 2, Map("time", 3),
-                               DocumentState::kLocalMutations);
+  Document doc2 =
+      Doc("rooms/eros/messages/2", 1, Map("time", 1)).SetHasLocalMutations();
+  Document doc2_modified =
+      Doc("rooms/eros/messages/2", 2, Map("time", 3)).SetHasLocalMutations();
   Document doc2_acknowledged = Doc("rooms/eros/messages/2", 2, Map("time", 3));
   View view(query, DocumentKeySet{});
   ViewDocumentChanges changes =

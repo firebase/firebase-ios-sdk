@@ -43,6 +43,7 @@
 #include "Firestore/core/src/local/query_engine.h"
 #include "Firestore/core/src/local/query_result.h"
 #include "Firestore/core/src/model/database_id.h"
+#include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/document_set.h"
 #include "Firestore/core/src/model/mutation.h"
 #include "Firestore/core/src/remote/connectivity_monitor.h"
@@ -82,7 +83,7 @@ using local::QueryEngine;
 using local::QueryResult;
 using model::Document;
 using model::DocumentKeySet;
-using model::MaybeDocument;
+using model::DocumentMap;
 using model::Mutation;
 using model::OnlineState;
 using remote::ConnectivityMonitor;
@@ -388,17 +389,15 @@ void FirestoreClient::GetDocumentFromLocalCache(
   // TODO(c++14): move `callback` into lambda.
   auto shared_callback = absl::ShareUniquePtr(std::move(callback));
   worker_queue_->Enqueue([this, doc, shared_callback] {
-    absl::optional<MaybeDocument> maybe_document =
-        local_store_->ReadDocument(doc.key());
+    Document document = local_store_->ReadDocument(doc.key());
     StatusOr<DocumentSnapshot> maybe_snapshot;
 
-    if (maybe_document && maybe_document->is_document()) {
-      Document document(*maybe_document);
+    if (document->is_found_document()) {
       maybe_snapshot = DocumentSnapshot::FromDocument(
           doc.firestore(), document,
-          SnapshotMetadata{/*pending_writes=*/document.has_local_mutations(),
+          SnapshotMetadata{document->has_local_mutations(),
                            /*from_cache=*/true});
-    } else if (maybe_document && maybe_document->is_no_document()) {
+    } else if (document->is_no_document()) {
       maybe_snapshot = DocumentSnapshot::FromNoDocument(
           doc.firestore(), doc.key(),
           SnapshotMetadata{/*pending_writes=*/false,
@@ -430,7 +429,7 @@ void FirestoreClient::GetDocumentsFromLocalCache(
 
     View view(query.query(), query_result.remote_keys());
     ViewDocumentChanges view_doc_changes =
-        view.ComputeDocumentChanges(query_result.documents().underlying_map());
+        view.ComputeDocumentChanges(query_result.documents());
     ViewChange view_change = view.ApplyChanges(view_doc_changes);
     HARD_ASSERT(
         view_change.limbo_changes().empty(),

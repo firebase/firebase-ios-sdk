@@ -20,23 +20,29 @@
 #include <utility>
 
 #include "Firestore/core/src/model/document.h"
+#include "Firestore/core/src/model/value_util.h"
+#include "Firestore/core/src/util/hard_assert.h"
 #include "absl/algorithm/container.h"
 
 namespace firebase {
 namespace firestore {
 namespace core {
 
+using model::Contains;
 using model::Document;
 using model::FieldPath;
-using model::FieldValue;
+using model::IsArray;
+using nanopb::SharedMessage;
 
 using Operator = Filter::Operator;
 
 class ArrayContainsAnyFilter::Rep : public FieldFilter::Rep {
  public:
-  Rep(FieldPath field, FieldValue value)
+  Rep(FieldPath field, SharedMessage<google_firestore_v1_Value> value)
       : FieldFilter::Rep(
             std::move(field), Operator::ArrayContainsAny, std::move(value)) {
+    HARD_ASSERT(IsArray(this->value()),
+                "ArrayContainsAnyFilter expects an ArrayValue");
   }
 
   Type type() const override {
@@ -46,21 +52,22 @@ class ArrayContainsAnyFilter::Rep : public FieldFilter::Rep {
   bool Matches(const model::Document& doc) const override;
 };
 
-ArrayContainsAnyFilter::ArrayContainsAnyFilter(FieldPath field,
-                                               FieldValue value)
-    : FieldFilter(std::make_shared<Rep>(std::move(field), std::move(value))) {
+ArrayContainsAnyFilter::ArrayContainsAnyFilter(
+    const model::FieldPath& field,
+    SharedMessage<google_firestore_v1_Value> value)
+    : FieldFilter(std::make_shared<Rep>(field, std::move(value))) {
 }
 
 bool ArrayContainsAnyFilter::Rep::Matches(const Document& doc) const {
-  const FieldValue::Array& array_value = value().array_value();
-  absl::optional<FieldValue> maybe_lhs = doc.field(field());
+  const google_firestore_v1_ArrayValue& array_value = value().array_value;
+  absl::optional<google_firestore_v1_Value> maybe_lhs = doc->field(field());
   if (!maybe_lhs) return false;
 
-  const FieldValue& lhs = *maybe_lhs;
-  if (lhs.type() != FieldValue::Type::Array) return false;
+  const google_firestore_v1_Value& lhs = *maybe_lhs;
+  if (!IsArray(lhs)) return false;
 
-  for (const auto& val : lhs.array_value()) {
-    if (absl::c_linear_search(array_value, val)) {
+  for (pb_size_t i = 0; i < lhs.array_value.values_count; ++i) {
+    if (Contains(array_value, lhs.array_value.values[i])) {
       return true;
     }
   }

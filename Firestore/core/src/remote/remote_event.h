@@ -26,7 +26,7 @@
 #include "Firestore/core/src/core/view_snapshot.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/document_key_set.h"
-#include "Firestore/core/src/model/maybe_document.h"
+#include "Firestore/core/src/model/mutable_document.h"
 #include "Firestore/core/src/model/snapshot_version.h"
 #include "Firestore/core/src/model/types.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
@@ -353,7 +353,7 @@ class WatchChangeAggregator {
    * document key to the given target's mapping.
    */
   void AddDocumentToTarget(model::TargetId target_id,
-                           const model::MaybeDocument& document);
+                           const model::MutableDocument& document);
 
   /**
    * Removes the provided document from the target mapping. If the document no
@@ -365,7 +365,7 @@ class WatchChangeAggregator {
   void RemoveDocumentFromTarget(
       model::TargetId target_id,
       const model::DocumentKey& key,
-      const absl::optional<model::MaybeDocument>& updated_document);
+      const absl::optional<model::MutableDocument>& updated_document);
 
   /**
    * Returns the current count of documents in the target. This includes both

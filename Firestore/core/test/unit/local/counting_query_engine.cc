@@ -16,8 +16,10 @@
 
 #include "Firestore/core/test/unit/local/counting_query_engine.h"
 
+#include "Firestore/core/src/immutable/sorted_map.h"
 #include "Firestore/core/src/local/local_documents_view.h"
-#include "Firestore/core/src/model/document_map.h"
+#include "Firestore/core/src/model/model_fwd.h"
+#include "Firestore/core/src/model/mutable_document.h"
 #include "Firestore/core/src/model/mutation_batch.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
 
@@ -141,7 +143,7 @@ void WrappedMutationQueue::SetLastStreamToken(nanopb::ByteString stream_token) {
 
 // MARK: - WrappedRemoteDocumentCache
 
-void WrappedRemoteDocumentCache::Add(const model::MaybeDocument& document,
+void WrappedRemoteDocumentCache::Add(const model::MutableDocument& document,
                                      const model::SnapshotVersion& read_time) {
   subject_->Add(document, read_time);
 }
@@ -150,21 +152,21 @@ void WrappedRemoteDocumentCache::Remove(const model::DocumentKey& key) {
   subject_->Remove(key);
 }
 
-absl::optional<model::MaybeDocument> WrappedRemoteDocumentCache::Get(
+model::MutableDocument WrappedRemoteDocumentCache::Get(
     const model::DocumentKey& key) {
   auto result = subject_->Get(key);
-  query_engine_->documents_read_by_key_ += result ? 1 : 0;
+  query_engine_->documents_read_by_key_ += result.is_found_document() ? 1 : 0;
   return result;
 }
 
-model::OptionalMaybeDocumentMap WrappedRemoteDocumentCache::GetAll(
+model::MutableDocumentMap WrappedRemoteDocumentCache::GetAll(
     const model::DocumentKeySet& keys) {
   auto result = subject_->GetAll(keys);
   query_engine_->documents_read_by_key_ += result.size();
   return result;
 }
 
-DocumentMap WrappedRemoteDocumentCache::GetMatching(
+model::MutableDocumentMap WrappedRemoteDocumentCache::GetMatching(
     const core::Query& query, const model::SnapshotVersion& since_read_time) {
   auto result = subject_->GetMatching(query, since_read_time);
   query_engine_->documents_read_by_query_ += result.size();

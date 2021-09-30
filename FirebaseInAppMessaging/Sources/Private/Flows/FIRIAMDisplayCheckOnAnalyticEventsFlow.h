@@ -18,5 +18,7 @@
 
 // An implementation of FIRIAMDisplayCheckTriggerFlow by triggering the display check when
 // a Firebase Analytics event is fired.
+
+NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS extensions.")
 @interface FIRIAMDisplayCheckOnAnalyticEventsFlow : FIRIAMDisplayCheckTriggerFlow
 @end

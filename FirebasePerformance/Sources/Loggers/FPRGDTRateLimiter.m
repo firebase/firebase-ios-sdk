@@ -24,8 +24,6 @@
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
 
-#import "FirebasePerformance/ProtoSupport/PerfMetric.pbobjc.h"
-
 @interface FPRGDTRateLimiter ()
 
 /**
@@ -78,12 +76,12 @@
 - (GDTCOREvent *)transformGDTEvent:(nonnull GDTCOREvent *)logEvent {
   if ([logEvent.dataObject isKindOfClass:[FPRGDTEvent class]]) {
     FPRGDTEvent *gdtEvent = (FPRGDTEvent *)logEvent.dataObject;
-    FPRMSGPerfMetric *perfMetric = gdtEvent.metric;
+    firebase_perf_v1_PerfMetric perfMetric = gdtEvent.metric;
 
-    if (perfMetric.hasTraceMetric) {
-      FPRMSGTraceMetric *traceMetric = perfMetric.traceMetric;
+    if (perfMetric.has_trace_metric) {
+      firebase_perf_v1_TraceMetric traceMetric = perfMetric.trace_metric;
       // If it is an internal trace event, skip rate limiting.
-      if (traceMetric.isAuto) {
+      if (traceMetric.is_auto) {
         return logEvent;
       }
     }
@@ -210,8 +208,8 @@
 - (BOOL)isNetworkEvent:(GDTCOREvent *)logEvent {
   if ([logEvent.dataObject isKindOfClass:[FPRGDTEvent class]]) {
     FPRGDTEvent *gdtEvent = (FPRGDTEvent *)logEvent.dataObject;
-    FPRMSGPerfMetric *perfMetric = gdtEvent.metric;
-    if (perfMetric.hasNetworkRequestMetric) {
+    firebase_perf_v1_PerfMetric perfMetric = gdtEvent.metric;
+    if (perfMetric.has_network_request_metric) {
       return YES;
     }
   }

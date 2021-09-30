@@ -110,7 +110,7 @@ static NSString *const kFDLURLCustomDomain = @"https://foo.com/path";
   XCTAssertTrue([returnValue isKindOfClass:[FIRDynamicLinkGoogleAnalyticsParameters class]]);
 }
 
-- (void)testAnalyticsParamsFactoryWithParamsReturnsInstanceWithCorrectInitalPropertyValues {
+- (void)testAnalyticsParamsFactoryWithParamsReturnsInstanceWithCorrectInitialPropertyValues {
   FIRDynamicLinkGoogleAnalyticsParameters *params =
       [FIRDynamicLinkGoogleAnalyticsParameters parametersWithSource:@"s" medium:@"m" campaign:@"c"];
 

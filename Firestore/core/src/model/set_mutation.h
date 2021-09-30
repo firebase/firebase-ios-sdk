@@ -22,8 +22,8 @@
 #include <utility>
 #include <vector>
 
-#include "Firestore/core/src/model/field_value.h"
 #include "Firestore/core/src/model/mutation.h"
+#include "Firestore/core/src/model/object_value.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
@@ -73,13 +73,12 @@ class SetMutation : public Mutation {
       return value_;
     }
 
-    MaybeDocument ApplyToRemoteDocument(
-        const absl::optional<MaybeDocument>& maybe_doc,
+    void ApplyToRemoteDocument(
+        MutableDocument& document,
         const MutationResult& mutation_result) const override;
 
-    absl::optional<MaybeDocument> ApplyToLocalView(
-        const absl::optional<MaybeDocument>& maybe_doc,
-        const Timestamp& local_write_time) const override;
+    void ApplyToLocalView(MutableDocument& document,
+                          const Timestamp& local_write_time) const override;
 
     bool Equals(const Mutation::Rep& other) const override;
 

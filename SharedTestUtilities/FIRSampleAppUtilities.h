@@ -18,6 +18,7 @@
 #if __has_include(<UIKit/UIKit.h>) && !TARGET_OS_WATCH
 #import <UIKit/UIKit.h>
 
+NS_EXTENSION_UNAVAILABLE_IOS("SampleAppUtilities is not supported for iOS extensions.")
 NS_SWIFT_NAME(SampleAppUtilities)
 @interface FIRSampleAppUtilities : NSObject
 

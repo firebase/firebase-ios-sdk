@@ -157,7 +157,7 @@ class View {
    * @return a new set of docs, changes, and refill flag.
    */
   core::ViewDocumentChanges ComputeDocumentChanges(
-      const model::MaybeDocumentMap& doc_changes,
+      const model::DocumentMap& doc_changes,
       const absl::optional<core::ViewDocumentChanges>& previous_changes =
           absl::nullopt) const;
 

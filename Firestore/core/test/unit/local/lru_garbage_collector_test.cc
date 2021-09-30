@@ -31,8 +31,8 @@
 #include "Firestore/core/src/local/remote_document_cache.h"
 #include "Firestore/core/src/local/target_cache.h"
 #include "Firestore/core/src/local/target_data.h"
-#include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/document_key_set.h"
+#include "Firestore/core/src/model/mutable_document.h"
 #include "Firestore/core/src/model/mutation.h"
 #include "Firestore/core/src/model/mutation_batch.h"
 #include "Firestore/core/src/model/precondition.h"
@@ -49,12 +49,11 @@ namespace firestore {
 namespace local {
 
 using auth::User;
-using model::Document;
 using model::DocumentKey;
 using model::DocumentKeyHash;
 using model::DocumentKeySet;
-using model::DocumentState;
 using model::ListenSequenceNumber;
+using model::MutableDocument;
 using model::Mutation;
 using model::ObjectValue;
 using model::Precondition;
@@ -199,8 +198,8 @@ void LruGarbageCollectorTest::RemoveDocument(const DocumentKey& doc_key,
   target_cache_->RemoveMatchingKeys(DocumentKeySet{doc_key}, target_id);
 }
 
-Document LruGarbageCollectorTest::CacheADocumentInTransaction() {
-  Document doc = NextTestDocument();
+MutableDocument LruGarbageCollectorTest::CacheADocumentInTransaction() {
+  MutableDocument doc = NextTestDocument();
   document_cache_->Add(doc, doc.version());
   return doc;
 }
@@ -214,13 +213,13 @@ DocumentKey LruGarbageCollectorTest::NextTestDocKey() {
   return Key("docs/doc_" + std::to_string(++previous_doc_num_));
 }
 
-Document LruGarbageCollectorTest::NextTestDocumentWithValue(ObjectValue value) {
+MutableDocument LruGarbageCollectorTest::NextTestDocumentWithValue(
+    ObjectValue value) {
   DocumentKey key = NextTestDocKey();
-  return Document(std::move(value), std::move(key), Version(2),
-                  DocumentState::kSynced);
+  return MutableDocument::FoundDocument(key, Version(2), std::move(value));
 }
 
-Document LruGarbageCollectorTest::NextTestDocument() {
+MutableDocument LruGarbageCollectorTest::NextTestDocument() {
   return NextTestDocumentWithValue(test_value_);
 }
 
@@ -331,7 +330,7 @@ TEST_P(LruGarbageCollectorTest, SequenceNumbersWithMutationsInQueries) {
   // GC'd. Expect 3 past the initial value: the mutations not part of a query,
   // and two queries.
   NewTestResources();
-  Document doc_in_query = NextTestDocument();
+  MutableDocument doc_in_query = NextTestDocument();
   persistence_->Run("mark mutations", [&] {
     // Adding 9 doc keys in a transaction. If we remove one of them, we'll have
     // room for two actual queries.
@@ -413,11 +412,11 @@ TEST_P(LruGarbageCollectorTest, RemoveOrphanedDocuments) {
     // Add two documents to first target, queue a mutation on the second
     // document.
     TargetData target_data = AddNextQueryInTransaction();
-    Document doc1 = CacheADocumentInTransaction();
+    MutableDocument doc1 = CacheADocumentInTransaction();
     AddDocument(doc1.key(), target_data.target_id());
     expected_retained.insert(doc1.key());
 
-    Document doc2 = CacheADocumentInTransaction();
+    MutableDocument doc2 = CacheADocumentInTransaction();
     AddDocument(doc2.key(), target_data.target_id());
     expected_retained.insert(doc2.key());
     mutations.push_back(MutationForDocument(doc2.key()));
@@ -426,14 +425,14 @@ TEST_P(LruGarbageCollectorTest, RemoveOrphanedDocuments) {
   // Add a second query and register a third document on it.
   persistence_->Run("second query", [&] {
     TargetData target_data = AddNextQueryInTransaction();
-    Document doc3 = CacheADocumentInTransaction();
+    MutableDocument doc3 = CacheADocumentInTransaction();
     expected_retained.insert(doc3.key());
     AddDocument(doc3.key(), target_data.target_id());
   });
 
   // Cache another document and prepare a mutation on it.
   persistence_->Run("queue a mutation", [&] {
-    Document doc4 = CacheADocumentInTransaction();
+    MutableDocument doc4 = CacheADocumentInTransaction();
     mutations.push_back(MutationForDocument(doc4.key()));
     expected_retained.insert(doc4.key());
   });
@@ -452,7 +451,7 @@ TEST_P(LruGarbageCollectorTest, RemoveOrphanedDocuments) {
   std::unordered_set<DocumentKey, DocumentKeyHash> to_be_removed;
   persistence_->Run("add orphaned docs (previously mutated, then ack'd)", [&] {
     for (int i = 0; i < 5; i++) {
-      Document doc = CacheADocumentInTransaction();
+      MutableDocument doc = CacheADocumentInTransaction();
       to_be_removed.insert(doc.key());
       MarkDocumentEligibleForGcInTransaction(doc.key());
     }
@@ -464,11 +463,11 @@ TEST_P(LruGarbageCollectorTest, RemoveOrphanedDocuments) {
   ASSERT_EQ(to_be_removed.size(), removed);
   persistence_->Run("verify", [&] {
     for (const DocumentKey& key : to_be_removed) {
-      ASSERT_EQ(document_cache_->Get(key), absl::nullopt);
+      ASSERT_FALSE(document_cache_->Get(key).is_valid_document());
       ASSERT_FALSE(target_cache_->Contains(key));
     }
     for (const DocumentKey& key : expected_retained) {
-      ASSERT_NE(document_cache_->Get(key), absl::nullopt)
+      ASSERT_TRUE(document_cache_->Get(key).is_valid_document())
           << "Missing document " << key.ToString().c_str();
     }
   });
@@ -513,7 +512,7 @@ TEST_P(LruGarbageCollectorTest, RemoveTargetsThenGC) {
       persistence_->Run("Add oldest target and docs", [&] {
         TargetData target_data = AddNextQueryInTransaction();
         for (int i = 0; i < 5; i++) {
-          Document doc = CacheADocumentInTransaction();
+          MutableDocument doc = CacheADocumentInTransaction();
           expected_retained.insert(doc.key());
           AddDocument(doc.key(), target_data.target_id());
         }
@@ -534,7 +533,7 @@ TEST_P(LruGarbageCollectorTest, RemoveTargetsThenGC) {
         // to their sequence numbers. Since they will not be a part of the
         // target, we expect them to be removed.
         for (int i = 0; i < 2; i++) {
-          Document doc = CacheADocumentInTransaction();
+          MutableDocument doc = CacheADocumentInTransaction();
           expected_removed.insert(doc.key());
           AddDocument(doc.key(), middle_target.target_id());
           middle_docs_to_remove = middle_docs_to_remove.insert(doc.key());
@@ -544,14 +543,14 @@ TEST_P(LruGarbageCollectorTest, RemoveTargetsThenGC) {
         // in this target prevents them from being GC'd, so they are also
         // expected to be retained.
         for (int i = 2; i < 4; i++) {
-          Document doc = CacheADocumentInTransaction();
+          MutableDocument doc = CacheADocumentInTransaction();
           expected_retained.insert(doc.key());
           AddDocument(doc.key(), middle_target.target_id());
         }
 
         // This doc stays in this target, but gets updated.
         {
-          Document doc = CacheADocumentInTransaction();
+          MutableDocument doc = CacheADocumentInTransaction();
           expected_retained.insert(doc.key());
           AddDocument(doc.key(), middle_target.target_id());
           middle_doc_to_update = doc.key();
@@ -570,7 +569,7 @@ TEST_P(LruGarbageCollectorTest, RemoveTargetsThenGC) {
     // These documents are only in this target. They are expected to be removed
     // because this target will also be removed.
     for (int i = 0; i < 3; i++) {
-      Document doc = CacheADocumentInTransaction();
+      MutableDocument doc = CacheADocumentInTransaction();
       expected_removed.insert(doc.key());
       AddDocument(doc.key(), newest_target.target_id());
     }
@@ -578,7 +577,7 @@ TEST_P(LruGarbageCollectorTest, RemoveTargetsThenGC) {
     // Docs to add to the oldest target in addition to this target. They will be
     // retained.
     for (int i = 3; i < 5; i++) {
-      Document doc = CacheADocumentInTransaction();
+      MutableDocument doc = CacheADocumentInTransaction();
       expected_retained.insert(doc.key());
       AddDocument(doc.key(), newest_target.target_id());
       newest_docs_to_add_to_oldest =
@@ -591,14 +590,14 @@ TEST_P(LruGarbageCollectorTest, RemoveTargetsThenGC) {
     // Write two docs and have them ack'd by the server. Can skip mutation queue
     // and set them in document cache. Add potentially orphaned first, also add
     // one doc to a target.
-    Document doc1 = CacheADocumentInTransaction();
+    MutableDocument doc1 = CacheADocumentInTransaction();
     MarkDocumentEligibleForGcInTransaction(doc1.key());
     UpdateTargetInTransaction(oldest_target);
     AddDocument(doc1.key(), oldest_target.target_id());
     // doc1 should be retained by being added to oldest_target.
     expected_retained.insert(doc1.key());
 
-    Document doc2 = CacheADocumentInTransaction();
+    MutableDocument doc2 = CacheADocumentInTransaction();
     MarkDocumentEligibleForGcInTransaction(doc2.key());
     // Nothing is keeping doc2 around, it should be removed.
     expected_removed.insert(doc2.key());
@@ -627,8 +626,8 @@ TEST_P(LruGarbageCollectorTest, RemoveTargetsThenGC) {
   // Update a doc in the middle target
   persistence_->Run("Update a doc in the middle target", [&] {
     int64_t version = 3;
-    Document doc(ObjectValue(test_value_), middle_doc_to_update,
-                 Version(version), DocumentState::kSynced);
+    MutableDocument doc = MutableDocument::FoundDocument(
+        middle_doc_to_update, Version(version), ObjectValue(test_value_));
     document_cache_->Add(doc, doc.version());
     UpdateTargetInTransaction(middle_target);
   });
@@ -637,7 +636,7 @@ TEST_P(LruGarbageCollectorTest, RemoveTargetsThenGC) {
 
   // Write a doc and get an ack, not part of a target.
   persistence_->Run("Write a doc and get an ack, not part of a target", [&] {
-    Document doc = CacheADocumentInTransaction();
+    MutableDocument doc = CacheADocumentInTransaction();
     // Mark it as eligible for GC, but this is after our upper bound for what we
     // will collect.
     MarkDocumentEligibleForGcInTransaction(doc.key());
@@ -656,7 +655,7 @@ TEST_P(LruGarbageCollectorTest, RemoveTargetsThenGC) {
   ASSERT_EQ(expected_removed.size(), docs_removed);
   persistence_->Run("verify results", [&] {
     for (const DocumentKey& key : expected_removed) {
-      ASSERT_EQ(document_cache_->Get(key), absl::nullopt)
+      ASSERT_FALSE(document_cache_->Get(key).is_valid_document())
           << "Did not expect to find " << key.ToString().c_str()
           << "in document cache";
       ASSERT_FALSE(target_cache_->Contains(key))
@@ -665,7 +664,7 @@ TEST_P(LruGarbageCollectorTest, RemoveTargetsThenGC) {
       ExpectSentinelRemoved(key);
     }
     for (const DocumentKey& key : expected_retained) {
-      ASSERT_NE(document_cache_->Get(key), absl::nullopt)
+      ASSERT_TRUE(document_cache_->Get(key).is_valid_document())
           << "Expected to find " << key.ToString().c_str()
           << " in document cache";
     }
@@ -682,7 +681,7 @@ TEST_P(LruGarbageCollectorTest, GetsSize) {
   persistence_->Run("fill cache", [&] {
     // Simulate a bunch of ack'd mutations.
     for (int i = 0; i < 50; i++) {
-      Document doc = CacheADocumentInTransaction();
+      MutableDocument doc = CacheADocumentInTransaction();
       MarkDocumentEligibleForGcInTransaction(doc.key());
     }
   });
@@ -700,7 +699,7 @@ TEST_P(LruGarbageCollectorTest, Disabled) {
   persistence_->Run("fill cache", [&] {
     // Simulate a bunch of ack'd mutations.
     for (int i = 0; i < 500; i++) {
-      Document doc = CacheADocumentInTransaction();
+      MutableDocument doc = CacheADocumentInTransaction();
       MarkDocumentEligibleForGcInTransaction(doc.key());
     }
   });
@@ -717,7 +716,7 @@ TEST_P(LruGarbageCollectorTest, CacheTooSmall) {
   persistence_->Run("fill cache", [&] {
     // Simulate a bunch of ack'd mutations.
     for (int i = 0; i < 50; i++) {
-      Document doc = CacheADocumentInTransaction();
+      MutableDocument doc = CacheADocumentInTransaction();
       MarkDocumentEligibleForGcInTransaction(doc.key());
     }
   });
@@ -747,7 +746,7 @@ TEST_P(LruGarbageCollectorTest, GCRan) {
     persistence_->Run("Add a target and some documents", [&] {
       TargetData target_data = AddNextQueryInTransaction();
       for (int j = 0; j < 10; j++) {
-        Document doc = CacheADocumentInTransaction();
+        MutableDocument doc = CacheADocumentInTransaction();
         AddDocument(doc.key(), target_data.target_id());
       }
     });

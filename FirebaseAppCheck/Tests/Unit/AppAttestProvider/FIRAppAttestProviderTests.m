@@ -35,10 +35,9 @@
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-// Currently FIRAppAttestProvider is available only on iOS.
-#if TARGET_OS_IOS
+#if FIR_APP_ATTEST_SUPPORTED_TARGETS
 
-API_AVAILABLE(ios(14.0))
+FIR_APP_ATTEST_PROVIDER_AVAILABILITY
 @interface FIRAppAttestProvider (Tests)
 - (instancetype)initWithAppAttestService:(id<FIRAppAttestService>)appAttestService
                               APIService:(id<FIRAppAttestAPIServiceProtocol>)APIService
@@ -46,7 +45,7 @@ API_AVAILABLE(ios(14.0))
                          artifactStorage:(id<FIRAppAttestArtifactStorageProtocol>)artifactStorage;
 @end
 
-API_AVAILABLE(ios(14.0))
+FIR_APP_ATTEST_PROVIDER_AVAILABILITY
 @interface FIRAppAttestProviderTests : XCTestCase
 
 @property(nonatomic) FIRAppAttestProvider *provider;
@@ -92,7 +91,7 @@ API_AVAILABLE(ios(14.0))
 
 #pragma mark - Init tests
 
-#if !TARGET_OS_MACCATALYST  // Catalyst should be possible with Xcode 12.5+
+#if !TARGET_OS_MACCATALYST
 // Keychain dependent logic require additional configuration on Catalyst (enabling Keychain
 // sharing). For now, keychain dependent tests are disabled for Catalyst.
 - (void)testInitWithValidApp {
@@ -971,4 +970,4 @@ API_AVAILABLE(ios(14.0))
 
 @end
 
-#endif  // TARGET_OS_IOS
+#endif  // FIR_APP_ATTEST_SUPPORTED_TARGETS

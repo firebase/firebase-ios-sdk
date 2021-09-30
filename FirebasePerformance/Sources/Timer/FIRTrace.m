@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Public/FIRTrace.h"
+#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRTrace.h"
 
 #import "FirebasePerformance/Sources/AppActivity/FPRAppActivityTracker.h"
 #import "FirebasePerformance/Sources/AppActivity/FPRSessionManager.h"
@@ -49,8 +49,11 @@
 /** Stops an active stage that is currently active. */
 - (void)stopActiveStage;
 
-/** Updates the current trace with the session id. */
-- (void)updateTraceWithSessionId;
+/**
+ * Updates the current trace with the session id.
+ * @param sessionDetails Updated session details of the currently active session.
+ */
+- (void)updateTraceWithSessionId:(FPRSessionDetails *)sessionDetails;
 
 @end
 
@@ -139,9 +142,9 @@
     self.backgroundActivityTracker = [[FPRTraceBackgroundActivityTracker alloc] init];
     FPRSessionManager *sessionManager = [FPRSessionManager sharedInstance];
     if (!self.isStage) {
-      [self updateTraceWithSessionId];
+      [self updateTraceWithSessionId:[sessionManager.sessionDetails copy]];
       [sessionManager.sessionNotificationCenter addObserver:self
-                                                   selector:@selector(updateTraceWithSessionId)
+                                                   selector:@selector(sessionChanged:)
                                                        name:kFPRSessionIdUpdatedNotification
                                                      object:sessionManager];
     }
@@ -400,16 +403,20 @@
 
 #pragma mark - Utility methods
 
-- (void)updateTraceWithSessionId {
+- (void)sessionChanged:(NSNotification *)notification {
   if ([self isTraceActive]) {
-    dispatch_async(self.sessionIdSerialQueue, ^{
-      FPRSessionManager *sessionManager = [FPRSessionManager sharedInstance];
-      FPRSessionDetails *sessionDetails = [sessionManager.sessionDetails copy];
-      if (sessionDetails) {
-        [self.activeSessions addObject:sessionDetails];
-      }
-    });
+    NSDictionary<NSString *, FPRSessionDetails *> *userInfo = notification.userInfo;
+    FPRSessionDetails *sessionDetails = [userInfo valueForKey:kFPRSessionIdNotificationKey];
+    if (sessionDetails) {
+      [self updateTraceWithSessionId:sessionDetails];
+    }
   }
+}
+
+- (void)updateTraceWithSessionId:(FPRSessionDetails *)sessionDetails {
+  dispatch_sync(self.sessionIdSerialQueue, ^{
+    [self.activeSessions addObject:sessionDetails];
+  });
 }
 
 - (BOOL)isTraceStarted {

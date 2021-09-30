@@ -19,9 +19,8 @@
 #include <cstdlib>
 #include <utility>
 
-#include "Firestore/core/src/model/document.h"
-#include "Firestore/core/src/model/field_value.h"
-#include "Firestore/core/src/model/no_document.h"
+#include "Firestore/core/src/model/mutable_document.h"
+#include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/hashing.h"
 #include "Firestore/core/src/util/to_string.h"
@@ -67,40 +66,37 @@ SetMutation::Rep::Rep(DocumentKey&& key,
       value_(std::move(value)) {
 }
 
-MaybeDocument SetMutation::Rep::ApplyToRemoteDocument(
-    const absl::optional<MaybeDocument>& maybe_doc,
-    const MutationResult& mutation_result) const {
-  VerifyKeyMatches(maybe_doc);
+void SetMutation::Rep::ApplyToRemoteDocument(
+    MutableDocument& document, const MutationResult& mutation_result) const {
+  VerifyKeyMatches(document);
 
   // Unlike ApplyToLocalView, if we're applying a mutation to a remote document
   // the server has accepted the mutation so the precondition must have held.
-
-  ObjectValue new_data = value_;
-  if (mutation_result.transform_results() != absl::nullopt) {
-    std::vector<FieldValue> transform_results =
-        ServerTransformResults(maybe_doc, *mutation_result.transform_results());
-    new_data = TransformObject(new_data, transform_results);
-  }
-
-  const SnapshotVersion& version = mutation_result.version();
-  return Document(new_data, key(), version, DocumentState::kCommittedMutations);
+  auto transform_results = ServerTransformResults(
+      document.data(), mutation_result.transform_results());
+  ObjectValue new_data{DeepClone(value_.Get())};
+  new_data.SetAll(std::move(transform_results));
+  document
+      .ConvertToFoundDocument(mutation_result.version(), std::move(new_data))
+      .SetHasCommittedMutations();
 }
 
-absl::optional<MaybeDocument> SetMutation::Rep::ApplyToLocalView(
-    const absl::optional<MaybeDocument>& maybe_doc,
-    const Timestamp& local_write_time) const {
-  VerifyKeyMatches(maybe_doc);
+void SetMutation::Rep::ApplyToLocalView(
+    MutableDocument& document, const Timestamp& local_write_time) const {
+  VerifyKeyMatches(document);
 
-  if (!precondition().IsValidFor(maybe_doc)) {
-    return maybe_doc;
+  if (!precondition().IsValidFor(document)) {
+    return;
   }
 
-  std::vector<FieldValue> transforms_results =
-      LocalTransformResults(maybe_doc, local_write_time);
-  ObjectValue new_data = TransformObject(value_, transforms_results);
-
-  SnapshotVersion version = GetPostMutationVersion(maybe_doc);
-  return Document(new_data, key(), version, DocumentState::kLocalMutations);
+  auto transform_results =
+      LocalTransformResults(document.data(), local_write_time);
+  ObjectValue new_data{DeepClone(value_.Get())};
+  new_data.SetAll(std::move(transform_results));
+  document
+      .ConvertToFoundDocument(GetPostMutationVersion(document),
+                              std::move(new_data))
+      .SetHasLocalMutations();
 }
 
 bool SetMutation::Rep::Equals(const Mutation::Rep& other) const {

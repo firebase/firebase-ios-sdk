@@ -19,8 +19,9 @@
 #include <ostream>
 #include <utility>
 
+#include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/document_key_set.h"
-#include "Firestore/core/src/model/maybe_document.h"
+#include "Firestore/core/src/model/mutable_document.h"
 #include "Firestore/core/src/model/mutation_batch_result.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/to_string.h"
@@ -40,14 +41,9 @@ MutationBatch::MutationBatch(int batch_id,
   HARD_ASSERT(!mutations_.empty(), "Cannot create an empty mutation batch");
 }
 
-absl::optional<MaybeDocument> MutationBatch::ApplyToRemoteDocument(
-    absl::optional<MaybeDocument> maybe_doc,
-    const DocumentKey& document_key,
+void MutationBatch::ApplyToRemoteDocument(
+    MutableDocument& document,
     const MutationBatchResult& mutation_batch_result) const {
-  HARD_ASSERT(!maybe_doc || maybe_doc->key() == document_key,
-              "ApplyTo: key %s doesn't match maybe_doc key %s",
-              document_key.ToString(), maybe_doc->key().ToString());
-
   const auto& mutation_results = mutation_batch_result.mutation_results();
   HARD_ASSERT(mutation_results.size() == mutations_.size(),
               "Mismatch between mutations length (%s) and results length (%s)",
@@ -55,59 +51,48 @@ absl::optional<MaybeDocument> MutationBatch::ApplyToRemoteDocument(
 
   for (size_t i = 0; i < mutations_.size(); i++) {
     const Mutation& mutation = mutations_[i];
-    const MutationResult& mutation_result = mutation_results[i];
-    if (mutation.key() == document_key) {
-      maybe_doc = mutation.ApplyToRemoteDocument(maybe_doc, mutation_result);
+    if (mutation.key() == document.key()) {
+      mutation.ApplyToRemoteDocument(document, mutation_results[i]);
     }
   }
-  return maybe_doc;
 }
 
-absl::optional<MaybeDocument> MutationBatch::ApplyToLocalDocument(
-    absl::optional<MaybeDocument> maybe_doc,
-    const DocumentKey& document_key) const {
-  HARD_ASSERT(!maybe_doc || maybe_doc->key() == document_key,
-              "key %s doesn't match maybe_doc key %s", document_key.ToString(),
-              maybe_doc->key().ToString());
-
+void MutationBatch::ApplyToLocalDocument(MutableDocument& document) const {
   // First, apply the base state. This allows us to apply non-idempotent
   // transform against a consistent set of values.
   for (const Mutation& mutation : base_mutations_) {
-    if (mutation.key() == document_key) {
-      maybe_doc = mutation.ApplyToLocalView(maybe_doc, local_write_time_);
+    if (mutation.key() == document.key()) {
+      mutation.ApplyToLocalView(document, local_write_time_);
     }
   }
-
-  absl::optional<MaybeDocument> base_doc = maybe_doc;
 
   // Second, apply all user-provided mutations.
   for (const Mutation& mutation : mutations_) {
-    if (mutation.key() == document_key) {
-      maybe_doc = mutation.ApplyToLocalView(maybe_doc, local_write_time_);
+    if (mutation.key() == document.key()) {
+      mutation.ApplyToLocalView(document, local_write_time_);
     }
   }
-  return maybe_doc;
 }
 
-MaybeDocumentMap MutationBatch::ApplyToLocalDocumentSet(
-    const MaybeDocumentMap& document_set) const {
+void MutationBatch::ApplyToLocalDocumentSet(DocumentMap& document_map) const {
   // TODO(mrschmidt): This implementation is O(n^2). If we iterate through the
   // mutations first (as done in `applyToLocalDocument:documentKey:`), we can
   // reduce the complexity to O(n).
 
-  MaybeDocumentMap mutated_documents = document_set;
   for (const Mutation& mutation : mutations_) {
     const DocumentKey& key = mutation.key();
 
-    absl::optional<MaybeDocument> previous_document =
-        mutated_documents.get(key);
-    absl::optional<MaybeDocument> mutated_document =
-        ApplyToLocalDocument(std::move(previous_document), key);
-    if (mutated_document) {
-      mutated_documents = mutated_documents.insert(key, *mutated_document);
+    auto it = document_map.find(key);
+    HARD_ASSERT(it != document_map.end(), "document for key %s not found",
+                key.ToString());
+    // TODO(mutabledocuments): This method should take a map of MutableDocuments
+    // and we should remove this cast.
+    auto& document = const_cast<MutableDocument&>(it->second.get());
+    ApplyToLocalDocument(document);
+    if (!document.is_valid_document()) {
+      document.ConvertToNoDocument(SnapshotVersion::None());
     }
   }
-  return mutated_documents;
 }
 
 DocumentKeySet MutationBatch::keys() const {

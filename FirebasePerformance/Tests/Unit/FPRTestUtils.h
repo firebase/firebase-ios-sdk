@@ -14,14 +14,13 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FirebasePerformance/Sources/FPRNanoPbUtils.h"
 #import "FirebasePerformance/Sources/Timer/FIRTrace+Internal.h"
 #import "FirebasePerformance/Sources/Timer/FIRTrace+Private.h"
 
 #import "FirebasePerformance/Sources/Loggers/FPRGDTEvent.h"
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
-
-#import "FirebasePerformance/ProtoSupport/PerfMetric.pbobjc.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -30,6 +29,10 @@ NS_ASSUME_NONNULL_BEGIN
 /** Default initializer. */
 - (instancetype)init NS_UNAVAILABLE;
 
+/** Provide the NSBundle instance that can to be used for testing. SPM tests will have a different
+ * bundle when compared to the default unit test bundle. */
++ (NSBundle *)getBundle;
+
 /** Creates a Performance Trace object. */
 + (FIRTrace *)createRandomTraceWithName:(NSString *)name;
 
@@ -37,22 +40,22 @@ NS_ASSUME_NONNULL_BEGIN
 + (FIRTrace *)addVerboseSessionToTrace:(FIRTrace *)trace;
 
 /** Creates a random Performance Metric Proto object. */
-+ (FPRMSGPerfMetric *)createRandomPerfMetric:(NSString *)traceName;
++ (firebase_perf_v1_PerfMetric)createRandomPerfMetric:(NSString *)traceName;
 
 /**
  * Creates a random Performance Metric Proto object, with verbose
  * session ID if it is set as verbose.
  */
-+ (FPRMSGPerfMetric *)createVerboseRandomPerfMetric:(NSString *)traceName;
++ (firebase_perf_v1_PerfMetric)createVerboseRandomPerfMetric:(NSString *)traceName;
 
 /** Creates a random internal Performance Metric Proto object. */
-+ (FPRMSGPerfMetric *)createRandomInternalPerfMetric:(NSString *)traceName;
++ (firebase_perf_v1_PerfMetric)createRandomInternalPerfMetric:(NSString *)traceName;
 
 /** Creates a random network request Performance Metric Proto object. */
-+ (FPRMSGPerfMetric *)createRandomNetworkPerfMetric:(NSString *)url;
++ (firebase_perf_v1_PerfMetric)createRandomNetworkPerfMetric:(NSString *)url;
 
 /** Creates a random gauge Performance Metric Proto object. */
-+ (FPRMSGPerfMetric *)createRandomGaugePerfMetric;
++ (firebase_perf_v1_PerfMetric)createRandomGaugePerfMetric;
 
 /** Creates a random GDTCOREvent object. */
 + (GDTCOREvent *)createRandomTraceGDTEvent:(NSString *)traceName;
@@ -62,6 +65,41 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Creates a random GDTCOREvent object with network event. */
 + (GDTCOREvent *)createRandomNetworkGDTEvent:(NSString *)url;
+
+/** Creates a NSData object by copying the given bytes array and returns the reference.
+ *
+ * @param pbData The pbData to dedoded as NSData
+ * @return A reference to NSData
+ */
+extern NSData *_Nullable FPRDecodeData(pb_bytes_array_t *_Nonnull pbData);
+
+/** Creates a NSString object by copying the given bytes array and returns the reference.
+ *
+ * @param pbData The pbData to dedoded as NSString
+ * @return A reference to the NSString
+ * @note This method may cause heap-buffer overflow
+ */
+extern NSString *_Nullable FPRDecodeString(pb_bytes_array_t *_Nonnull pbData);
+
+/** Creates a NSDictionary by copying the given bytes from the StringToStringMap object and returns
+ * the reference.
+ *
+ * @param map The reference to a StringToStringMap object to be decoded.
+ * @param count The number of entries in the dictionary.
+ * @return A reference to the dictionary
+ */
+extern NSDictionary<NSString *, NSString *> *_Nullable FPRDecodeStringToStringMap(
+    StringToStringMap *_Nullable map, NSInteger count);
+
+/** Creates a NSDictionary by copying the given bytes from the StringToNumberMap object and returns
+ * the reference.
+ *
+ * @param map The reference to a StringToNumberMap object to be decoded.
+ * @param count The number of entries in the dictionary.
+ * @return A reference to the dictionary
+ */
+extern NSDictionary<NSString *, NSNumber *> *_Nullable FPRDecodeStringToNumberMap(
+    StringToNumberMap *_Nullable map, NSInteger count);
 
 @end
 

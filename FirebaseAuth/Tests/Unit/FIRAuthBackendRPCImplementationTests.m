@@ -575,10 +575,10 @@ static NSString *const kTestValue = @"TestValue";
 /** @fn testNonDictionaryErrorResponse
     @brief This test checks the behaviour of @c postWithRequest:response:callback: when the
         response deserialized by @c NSJSONSerialization is not a dictionary, and an error was
-        expected. We are expecting to receive an @c NSError with the code
-        @c FIRAuthErrorCodeUnexpectedErrorServerResponse with the decoded response in the
-        @c NSError.userInfo dictionary associated with the key
-        @c FIRAuthErrorUserInfoDecodedResponseKey.
+        expected. We are expecting to receive the original network error wrapped in an @c NSError
+        with the code @c FIRAuthInternalErrorCodeUnexpectedErrorResponse with the decoded response
+        in the @c NSError.userInfo dictionary associated with the key
+        @c FIRAuthErrorUserInfoDeserializedResponseKey.
  */
 - (void)testNonDictionaryErrorResponse {
   FIRFakeRequest *request = [FIRFakeRequest fakeRequest];
@@ -613,7 +613,9 @@ static NSString *const kTestValue = @"TestValue";
   XCTAssertEqual(underlyingError.code, FIRAuthInternalErrorCodeUnexpectedErrorResponse);
 
   NSError *underlyingUnderlyingError = underlyingError.userInfo[NSUnderlyingErrorKey];
-  XCTAssertNil(underlyingUnderlyingError);
+  XCTAssertNotNil(underlyingUnderlyingError);
+  XCTAssertEqualObjects(underlyingUnderlyingError.domain, kFakeErrorDomain);
+  XCTAssertEqual(underlyingUnderlyingError.code, kFakeErrorCode);
 
   id deserializedResponse = underlyingError.userInfo[FIRAuthErrorUserInfoDeserializedResponseKey];
   XCTAssertNotNil(deserializedResponse);
@@ -677,9 +679,9 @@ static NSString *const kTestValue = @"TestValue";
     @brief This test checks the behaviour of @c postWithRequest:response:callback: when the
         we get an error message indicating captcha is required. The backend should not be returning
         this error to mobile clients. If it does, we should wrap it in an @c NSError with the code
-        @c FIRAuthErrorCodeUnexpectedServerResponse with the decoded error message in the
+        @c FIRAuthInternalErrorCodeUnexpectedErrorResponse with the decoded error message in the
         @c NSError.userInfo dictionary associated with the key
-        @c FIRAuthErrorUserInfoDecodedErrorResponseKey.
+        @c FIRAuthErrorUserInfoDeserializedResponseKey.
  */
 - (void)testCaptchaRequiredResponse {
   FIRFakeRequest *request = [FIRFakeRequest fakeRequest];
@@ -709,7 +711,9 @@ static NSString *const kTestValue = @"TestValue";
   XCTAssertEqual(underlyingError.code, FIRAuthInternalErrorCodeUnexpectedErrorResponse);
 
   NSError *underlyingUnderlyingError = underlyingError.userInfo[NSUnderlyingErrorKey];
-  XCTAssertNil(underlyingUnderlyingError);
+  XCTAssertNotNil(underlyingUnderlyingError);
+  XCTAssertEqualObjects(underlyingUnderlyingError.domain, kFakeErrorDomain);
+  XCTAssertEqual(underlyingUnderlyingError.code, kFakeErrorCode);
 
   id deserializedResponse = underlyingError.userInfo[FIRAuthErrorUserInfoDeserializedResponseKey];
   XCTAssertNotNil(deserializedResponse);
@@ -756,9 +760,9 @@ static NSString *const kTestValue = @"TestValue";
         we get an error message indicating captcha is required and an invalid password was entered.
         The backend should not be returning this error to mobile clients. If it does, we should wrap
         it in an @c NSError with the code
-        @c FIRAuthErrorCodeUnexpectedServerResponse with the decoded error message in the
+        @c FIRAuthInternalErrorCodeUnexpectedErrorResponse with the decoded error message in the
         @c NSError.userInfo dictionary associated with the key
-        @c FIRAuthErrorUserInfoDecodedErrorResponseKey.
+        @c FIRAuthErrorUserInfoDeserializedResponseKey.
  */
 - (void)testCaptchaRequiredInvalidPasswordResponse {
   FIRFakeRequest *request = [FIRFakeRequest fakeRequest];
@@ -789,7 +793,9 @@ static NSString *const kTestValue = @"TestValue";
   XCTAssertEqual(underlyingError.code, FIRAuthInternalErrorCodeUnexpectedErrorResponse);
 
   NSError *underlyingUnderlyingError = underlyingError.userInfo[NSUnderlyingErrorKey];
-  XCTAssertNil(underlyingUnderlyingError);
+  XCTAssertNotNil(underlyingUnderlyingError);
+  XCTAssertEqualObjects(underlyingUnderlyingError.domain, kFakeErrorDomain);
+  XCTAssertEqual(underlyingUnderlyingError.code, kFakeErrorCode);
 
   id deserializedResponse = underlyingError.userInfo[FIRAuthErrorUserInfoDeserializedResponseKey];
   XCTAssertNotNil(deserializedResponse);
@@ -804,9 +810,10 @@ static NSString *const kTestValue = @"TestValue";
     @brief This test checks the behaviour of @c postWithRequest:response:callback: when the
         response deserialized by @c NSJSONSerialization represents a valid error response (and an
         error was indicated) but we didn't receive an error message we know about. We are expecting
-        an @c NSError with the code @c FIRAuthErrorCodeUnexpectedServerResponse with the decoded
+        to receive the original network error wrapped in an @c NSError with the code
+        @c FIRAuthInternalErrorCodeUnexpectedErrorResponse with the decoded
         error message in the @c NSError.userInfo dictionary associated with the key
-        @c FIRAuthErrorUserInfoDecodedErrorResponseKey.
+        @c FIRAuthErrorUserInfoDeserializedResponseKey.
  */
 - (void)testDecodableErrorResponseWithUnknownMessage {
   FIRFakeRequest *request = [FIRFakeRequest fakeRequest];
@@ -838,7 +845,9 @@ static NSString *const kTestValue = @"TestValue";
   XCTAssertEqual(underlyingError.code, FIRAuthInternalErrorCodeUnexpectedErrorResponse);
 
   NSError *underlyingUnderlyingError = underlyingError.userInfo[NSUnderlyingErrorKey];
-  XCTAssertNil(underlyingUnderlyingError);
+  XCTAssertNotNil(underlyingUnderlyingError);
+  XCTAssertEqualObjects(underlyingUnderlyingError.domain, kFakeErrorDomain);
+  XCTAssertEqual(underlyingUnderlyingError.code, kFakeErrorCode);
 
   id deserializedResponse = underlyingError.userInfo[FIRAuthErrorUserInfoDeserializedResponseKey];
   XCTAssertNotNil(deserializedResponse);
@@ -852,10 +861,11 @@ static NSString *const kTestValue = @"TestValue";
 /** @fn testErrorResponseWithNoErrorMessage
     @brief This test checks the behaviour of @c postWithRequest:response:callback: when the
         response deserialized by @c NSJSONSerialization is a dictionary, and an error was indicated,
-        but no error information was present in the decoded response. We are expecting an @c NSError
-        with the code @c FIRAuthErrorCodeUnexpectedServerResponse with the decoded
+        but no error information was present in the decoded response. We are expecting to receive
+        the original network error wrapped in an @c NSError with the code
+        @c FIRAuthErrorCodeUnexpectedServerResponse with the decoded
         response message in the @c NSError.userInfo dictionary associated with the key
-        @c FIRAuthErrorUserInfoDecodedResponseKey.
+        @c FIRAuthErrorUserInfoDeserializedResponseKey.
  */
 - (void)testErrorResponseWithNoErrorMessage {
   FIRFakeRequest *request = [FIRFakeRequest fakeRequest];
@@ -885,7 +895,9 @@ static NSString *const kTestValue = @"TestValue";
   XCTAssertEqual(underlyingError.code, FIRAuthInternalErrorCodeUnexpectedErrorResponse);
 
   NSError *underlyingUnderlyingError = underlyingError.userInfo[NSUnderlyingErrorKey];
-  XCTAssertNil(underlyingUnderlyingError);
+  XCTAssertNotNil(underlyingUnderlyingError);
+  XCTAssertEqualObjects(underlyingUnderlyingError.domain, kFakeErrorDomain);
+  XCTAssertEqual(underlyingUnderlyingError.code, kFakeErrorCode);
 
   id deserializedResponse = underlyingError.userInfo[FIRAuthErrorUserInfoDeserializedResponseKey];
   XCTAssertNotNil(deserializedResponse);

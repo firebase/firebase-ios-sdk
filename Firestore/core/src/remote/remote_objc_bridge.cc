@@ -19,8 +19,8 @@
 #include <map>
 
 #include "Firestore/core/src/core/database_info.h"
+#include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/document_key.h"
-#include "Firestore/core/src/model/maybe_document.h"
 #include "Firestore/core/src/model/mutation.h"
 #include "Firestore/core/src/model/snapshot_version.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
@@ -40,8 +40,8 @@ namespace remote {
 
 using core::DatabaseInfo;
 using local::TargetData;
+using model::Document;
 using model::DocumentKey;
-using model::MaybeDocument;
 using model::Mutation;
 using model::MutationResult;
 using model::SnapshotVersion;
@@ -104,7 +104,7 @@ WatchStreamSerializer::ParseResponse(Reader* reader) const {
 
 std::unique_ptr<WatchChange> WatchStreamSerializer::DecodeWatchChange(
     nanopb::Reader* reader,
-    const google_firestore_v1_ListenResponse& response) const {
+    google_firestore_v1_ListenResponse& response) const {
   return serializer_.DecodeWatchChange(reader->context(), response);
 }
 
@@ -170,14 +170,13 @@ SnapshotVersion WriteStreamSerializer::DecodeCommitVersion(
 }
 
 std::vector<MutationResult> WriteStreamSerializer::DecodeMutationResults(
-    nanopb::Reader* reader,
-    const google_firestore_v1_WriteResponse& proto) const {
+    nanopb::Reader* reader, google_firestore_v1_WriteResponse& proto) const {
   SnapshotVersion commit_version = DecodeCommitVersion(reader, proto);
   if (!reader->ok()) {
     return {};
   }
 
-  const google_firestore_v1_WriteResult* writes = proto.write_results;
+  google_firestore_v1_WriteResult* writes = proto.write_results;
   pb_size_t count = proto.write_results_count;
   std::vector<MutationResult> results;
   results.reserve(count);
@@ -235,11 +234,11 @@ DatastoreSerializer::EncodeLookupRequest(
   return result;
 }
 
-StatusOr<std::vector<model::MaybeDocument>>
+StatusOr<std::vector<model::Document>>
 DatastoreSerializer::MergeLookupResponses(
     const std::vector<grpc::ByteBuffer>& responses) const {
   // Sort by key.
-  std::map<DocumentKey, MaybeDocument> results;
+  std::map<DocumentKey, Document> results;
 
   for (const auto& response : responses) {
     ByteBufferReader reader{response};
@@ -247,22 +246,21 @@ DatastoreSerializer::MergeLookupResponses(
         Message<google_firestore_v1_BatchGetDocumentsResponse>::TryParse(
             &reader);
 
-    MaybeDocument doc =
-        serializer_.DecodeMaybeDocument(reader.context(), *message);
+    Document doc = serializer_.DecodeMaybeDocument(reader.context(), *message);
     if (!reader.ok()) {
       return reader.status();
     }
 
-    results[doc.key()] = std::move(doc);
+    results[doc->key()] = std::move(doc);
   }
 
-  std::vector<MaybeDocument> docs;
+  std::vector<Document> docs;
   docs.reserve(results.size());
   for (const auto& kv : results) {
     docs.push_back(kv.second);
   }
 
-  StatusOr<std::vector<model::MaybeDocument>> result{std::move(docs)};
+  StatusOr<std::vector<Document>> result{std::move(docs)};
   return result;
 }
 

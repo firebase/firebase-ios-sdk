@@ -59,7 +59,7 @@ bool operator==(const DocumentViewChange& lhs, const DocumentViewChange& rhs) {
 // DocumentViewChangeSet
 
 void DocumentViewChangeSet::AddChange(DocumentViewChange&& change) {
-  const DocumentKey& key = change.document().key();
+  const DocumentKey& key = change.document()->key();
   auto old_change_iter = change_map_.find(key);
   if (old_change_iter == change_map_.end()) {
     change_map_ = change_map_.insert(key, change);

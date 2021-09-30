@@ -204,12 +204,12 @@
     handlersCopy = [handlers copy];
   }  // @synchronized(self)
   [handlersCopy
-      enumerateKeysAndObjectsUsingBlock:^(
-          NSString *_Nonnull key, FIRStorageVoidSnapshot _Nonnull handler, BOOL *_Nonnull stop) {
-        dispatch_async(callbackQueue, ^{
-          handler(snapshot);
-        });
-      }];
+    enumerateKeysAndObjectsUsingBlock:^(
+        NSString *_Nonnull key, FIRStorageVoidSnapshot _Nonnull handler, BOOL *_Nonnull stop) {
+      dispatch_async(callbackQueue, ^{
+        handler(snapshot);
+      });
+    }];
 }
 
 @end

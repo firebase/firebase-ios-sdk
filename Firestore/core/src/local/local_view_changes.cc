@@ -35,11 +35,11 @@ LocalViewChanges LocalViewChanges::FromViewSnapshot(
   for (const DocumentViewChange& doc_change : snapshot.document_changes()) {
     switch (doc_change.type()) {
       case DocumentViewChange::Type::Added:
-        added_keys = added_keys.insert(doc_change.document().key());
+        added_keys = added_keys.insert(doc_change.document()->key());
         break;
 
       case DocumentViewChange::Type::Removed:
-        removed_keys = removed_keys.insert(doc_change.document().key());
+        removed_keys = removed_keys.insert(doc_change.document()->key());
         break;
 
       default:

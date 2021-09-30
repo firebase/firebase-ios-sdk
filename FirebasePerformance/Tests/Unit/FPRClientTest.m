@@ -17,6 +17,7 @@
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations+Private.h"
 #import "FirebasePerformance/Sources/FPRClient+Private.h"
 #import "FirebasePerformance/Sources/FPRClient.h"
+#import "FirebasePerformance/Sources/FPRNanoPbUtils.h"
 #import "FirebasePerformance/Sources/Loggers/FPRGDTLogger.h"
 #import "FirebasePerformance/Sources/Loggers/FPRGDTLogger_Private.h"
 
@@ -27,7 +28,9 @@
 #import "FirebasePerformance/Tests/Unit/Fakes/FPRFakeInstallations.h"
 
 #import <OCMock/OCMock.h>
-#import "GoogleDataTransport/GDTCORTests/Common/Fakes/GDTCORTransportFake.h"
+#import "SharedTestUtilities/GDTCORTransportFake.h"
+
+NSString *const kFPRMockInstallationId = @"mockId";
 
 @interface FPRClientTest : FPRTestCase
 
@@ -47,7 +50,7 @@
   // Arrange installations object.
   FPRFakeInstallations *installations = [FPRFakeInstallations installations];
   self.client = [[FPRClient alloc] init];
-  installations.identifier = @"mockId";
+  installations.identifier = kFPRMockInstallationId;
   self.client.installations = (FIRInstallations *)installations;
 
   // Arrange remote config object.
@@ -68,10 +71,13 @@
 /** Validates if the gdtTransport logger has received trace perfMetric. */
 - (void)testLogAndProcessEventsForTrace {
   // Trace type PerfMetric for event dispatch.
-  FPRMSGPerfMetric *perfMetric = [FPRTestUtils createRandomPerfMetric:@"RandomTrace"];
+  firebase_perf_v1_PerfMetric perfMetric = [FPRTestUtils createRandomPerfMetric:@"RandomTrace"];
 
   // Act on event logging call.
   [self.client processAndLogEvent:perfMetric];
+
+  firebase_perf_v1_PerfMetric expectedMetric = perfMetric;
+  expectedMetric.application_info.app_instance_id = FPREncodeString(kFPRMockInstallationId);
 
   // Wait for async job to execute event logging.
   dispatch_group_wait(self.client.eventsQueueGroup, DISPATCH_TIME_FOREVER);
@@ -82,17 +88,24 @@
         (GDTCORTransportFake *)self.client.gdtLogger.gdtfllTransport;
     XCTAssertEqual(fakeGdtTransport.logEvents.count, 1);
     GDTCOREvent *event = fakeGdtTransport.logEvents.firstObject;
-    XCTAssertEqualObjects([event.dataObject transportBytes], perfMetric.data);
+    XCTAssertNotNil(
+        FPRDecodeString([(FPRGDTEvent *)event.dataObject metric].application_info.app_instance_id));
+    XCTAssertEqualObjects([event.dataObject transportBytes],
+                          [[FPRGDTEvent gdtEventForPerfMetric:expectedMetric] transportBytes]);
   });
 }
 
 /** Validates if the gdtTransport logger has received network trace perfMetric. */
 - (void)testLogAndProcessEventsForNetworkTrace {
   // Network type PerfMetric for event dispatch.
-  FPRMSGPerfMetric *perfMetric = [FPRTestUtils createRandomNetworkPerfMetric:@"https://abc.xyz"];
+  firebase_perf_v1_PerfMetric perfMetric =
+      [FPRTestUtils createRandomNetworkPerfMetric:@"https://abc.xyz"];
 
   // Act on event logging call.
   [self.client processAndLogEvent:perfMetric];
+
+  firebase_perf_v1_PerfMetric expectedMetric = perfMetric;
+  expectedMetric.application_info.app_instance_id = FPREncodeString(kFPRMockInstallationId);
 
   // Wait for async job to execute event logging.
   dispatch_group_wait(self.client.eventsQueueGroup, DISPATCH_TIME_FOREVER);
@@ -103,17 +116,23 @@
         (GDTCORTransportFake *)self.client.gdtLogger.gdtfllTransport;
     XCTAssertEqual(fakeGdtTransport.logEvents.count, 1);
     GDTCOREvent *event = fakeGdtTransport.logEvents.firstObject;
-    XCTAssertEqualObjects([event.dataObject transportBytes], perfMetric.data);
+    XCTAssertNotNil(
+        FPRDecodeString([(FPRGDTEvent *)event.dataObject metric].application_info.app_instance_id));
+    XCTAssertEqualObjects([event.dataObject transportBytes],
+                          [[FPRGDTEvent gdtEventForPerfMetric:expectedMetric] transportBytes]);
   });
 }
 
 /** Validates if the gdtTransport logger has received session gauge perfMetric. */
 - (void)testLogAndProcessEventsForGauge {
   // Gauge type PerfMetric for event dispatch.
-  FPRMSGPerfMetric *perfMetric = [FPRTestUtils createRandomGaugePerfMetric];
+  firebase_perf_v1_PerfMetric perfMetric = [FPRTestUtils createRandomGaugePerfMetric];
 
   // Act on event logging call.
   [self.client processAndLogEvent:perfMetric];
+
+  firebase_perf_v1_PerfMetric expectedMetric = perfMetric;
+  expectedMetric.application_info.app_instance_id = FPREncodeString(kFPRMockInstallationId);
 
   // Wait for async job to execute event logging.
   dispatch_group_wait(self.client.eventsQueueGroup, DISPATCH_TIME_FOREVER);
@@ -124,14 +143,17 @@
         (GDTCORTransportFake *)self.client.gdtLogger.gdtfllTransport;
     XCTAssertEqual(fakeGdtTransport.logEvents.count, 1);
     GDTCOREvent *event = fakeGdtTransport.logEvents.firstObject;
-    XCTAssertEqualObjects([event.dataObject transportBytes], perfMetric.data);
+    XCTAssertNotNil(
+        FPRDecodeString([(FPRGDTEvent *)event.dataObject metric].application_info.app_instance_id));
+    XCTAssertEqualObjects([event.dataObject transportBytes],
+                          [[FPRGDTEvent gdtEventForPerfMetric:expectedMetric] transportBytes]);
   });
 }
 
 /** Validates if the gdtTransport logger will not receive event when data collection is disabled. */
 - (void)testLogAndProcessEventsNotDispatchWhenDisabled {
   // Trace type PerfMetric for event dispatch.
-  FPRMSGPerfMetric *perfMetric = [FPRTestUtils createRandomPerfMetric:@"RandomTrace"];
+  firebase_perf_v1_PerfMetric perfMetric = [FPRTestUtils createRandomPerfMetric:@"RandomTrace"];
 
   // Act on event logging call when data collection is disabled.
   self.configurations.dataCollectionEnabled = NO;
@@ -152,7 +174,7 @@
  * re-enabled. */
 - (void)testLogAndProcessEventsAfterReenabled {
   // Trace type PerfMetric for event dispatch.
-  FPRMSGPerfMetric *perfMetric = [FPRTestUtils createRandomPerfMetric:@"RandomTrace"];
+  firebase_perf_v1_PerfMetric perfMetric = [FPRTestUtils createRandomPerfMetric:@"RandomTrace"];
 
   // Act on event logging call when data collection is disabled.
   self.configurations.dataCollectionEnabled = NO;

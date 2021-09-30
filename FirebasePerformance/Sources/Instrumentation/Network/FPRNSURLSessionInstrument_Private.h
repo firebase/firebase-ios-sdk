@@ -17,7 +17,7 @@
 #import "FirebasePerformance/Sources/Instrumentation/Network/Delegates/FPRNSURLSessionDelegateInstrument.h"
 
 NS_ASSUME_NONNULL_BEGIN
-
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 @interface FPRNSURLSessionInstrument ()
 
 /** The delegate instrument. */

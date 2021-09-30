@@ -55,6 +55,10 @@
   XCTAssertNotNil(instrumentor);
 }
 
+#pragma mark - Unswizzle based tests
+
+#ifndef SWIFT_PACKAGE
+
 - (void)testInstanceMethodSwizzle {
   NSString *expectedDescription = @"Not the description you expected!";
   FPRSelectorInstrumentor *instrumentor =
@@ -324,6 +328,8 @@
     [subclassInstrumentor unswizzle];
   }
 }
+
+#endif  // SWIFT_PACKAGE
 
 /** Tests attempting to swizzle non-existent/unimplemented method (like @dynamic) returns nil. */
 - (void)testNonexistentMethodReturnsNil {

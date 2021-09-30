@@ -15,7 +15,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-#import "FirebasePerformance/Sources/Public/FIRTrace.h"
+#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRTrace.h"
 
 @class PerfTraceView;
 

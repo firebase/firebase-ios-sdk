@@ -1,3 +1,12 @@
+# Unreleased
+- [fixed] Fixed an issue where exceptions with `nil` reasons weren't properly recorded (#8671).
+
+# v8.8.0
+- [added] Internal SDK updates to test potential future MetricKit support.
+
+# v8.4.0
+- [fixed] Bump Promises dependency. (#8365)
+
 # v8.3.0
 - [fixed] Add missing dependency that could cause missing symbol build failures. (#8137)
 

@@ -81,3 +81,6 @@ NSString* const kFPRMemoryCollection = @"I-PRF900004";
 
 // FPRSDKConfiguration message codes.
 NSString* const kFPRSDKFeaturesBlock = @"I-PRF910001";
+
+// FPRGDTEvent message codes.
+NSString* const kFPRTransportBytesError = @"I-PRF920001";

@@ -25,6 +25,7 @@
 #include "Firestore/core/src/core/core_fwd.h"
 #include "Firestore/core/src/core/filter.h"
 #include "Firestore/core/src/core/query.h"
+#include "Firestore/core/src/nanopb/message.h"
 
 namespace firebase {
 namespace firestore {
@@ -85,15 +86,15 @@ class Query {
    *
    * @param field_path The name of the field to compare.
    * @param op The operator to apply.
-   * @param field_value The value against which to compare the field.
+   * @param value The value against which to compare the field.
    * @param type_describer A function that will produce a description of the
    *     type of field_value.
    *
    * @return The created `Query`.
    */
-  Query Filter(model::FieldPath field_path,
+  Query Filter(const model::FieldPath& field_path,
                core::Filter::Operator op,
-               model::FieldValue field_value,
+               nanopb::SharedMessage<google_firestore_v1_Value> value,
                const std::function<std::string()>& type_describer) const;
 
   /**
@@ -180,7 +181,7 @@ class Query {
    * Validates that the value passed into a disjunctive filter satisfies all
    * array requirements.
    */
-  void ValidateDisjunctiveFilterElements(const model::FieldValue& field_value,
+  void ValidateDisjunctiveFilterElements(const google_firestore_v1_Value& value,
                                          core::Filter::Operator op) const;
 
   /**
@@ -188,8 +189,8 @@ class Query {
    * if the value is anything other than a Reference or String, or if the string
    * is malformed.
    */
-  model::FieldValue ParseExpectedReferenceValue(
-      const model::FieldValue& field_value,
+  nanopb::Message<google_firestore_v1_Value> ParseExpectedReferenceValue(
+      const google_firestore_v1_Value& value,
       const std::function<std::string()>& type_describer) const;
 
   std::string Describe(core::Filter::Operator op) const;

@@ -41,7 +41,6 @@
 #import "FIRUserInfo.h"
 #import "FIRUserMetadata.h"
 
-#if TARGET_OS_IOS
 #import "FIRAuthAPNSTokenType.h"
 #import "FIRAuthSettings.h"
 #import "FIRAuthUIDelegate.h"
@@ -50,4 +49,3 @@
 #import "FIRPhoneMultiFactorAssertion.h"
 #import "FIRPhoneMultiFactorGenerator.h"
 #import "FIRPhoneMultiFactorInfo.h"
-#endif

@@ -78,6 +78,7 @@ void FIRCLSFileWriteHashKey(FIRCLSFile* file, const char* key);
 void FIRCLSFileWriteHashEntryUint64(FIRCLSFile* file, const char* key, uint64_t value);
 void FIRCLSFileWriteHashEntryInt64(FIRCLSFile* file, const char* key, int64_t value);
 void FIRCLSFileWriteHashEntryString(FIRCLSFile* file, const char* key, const char* value);
+void FIRCLSFileWriteStringUnquoted(FIRCLSFile* file, const char* string);
 #if defined(__OBJC__)
 void FIRCLSFileWriteHashEntryNSString(FIRCLSFile* file, const char* key, NSString* string);
 void FIRCLSFileWriteHashEntryNSStringUnlessNilOrEmpty(FIRCLSFile* file,

@@ -80,7 +80,7 @@ static BOOL classEmitDiagnosticsCalled = NO;
 
 /** Tests that FPRAssert actually asserts (when NS_BLOCK_ASSERTIONS=0|undefined). */
 - (void)testFPRAssert {
-  XCTAssertThrows({FPRAssert(NO, @"This is a failed assert!")});
+  XCTAssertThrows(FPRAssert(NO, @"This is a failed assert!"));
 }
 
 /** Tests emit diagnostics methods. */

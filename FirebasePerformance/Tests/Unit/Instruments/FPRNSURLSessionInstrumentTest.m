@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#pragma mark - Unswizzle based tests
+
+#ifndef SWIFT_PACKAGE
+
 #import "FirebasePerformance/Tests/Unit/Instruments/FPRNSURLSessionInstrumentTestDelegates.h"
 
 #import <XCTest/XCTest.h>
@@ -22,9 +26,10 @@
 #import "FirebasePerformance/Sources/Instrumentation/FPRNetworkTrace.h"
 #import "FirebasePerformance/Sources/Instrumentation/Network/FPRNSURLSessionInstrument.h"
 #import "FirebasePerformance/Sources/Instrumentation/Network/FPRNSURLSessionInstrument_Private.h"
-#import "FirebasePerformance/Sources/Public/FIRPerformance.h"
+#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRPerformance.h"
 
 #import "FirebasePerformance/Tests/Unit/FPRTestCase.h"
+#import "FirebasePerformance/Tests/Unit/FPRTestUtils.h"
 #import "FirebasePerformance/Tests/Unit/Server/FPRHermeticTestServer.h"
 
 /** This class is used to wrap an NSURLSession object during testing. */
@@ -227,13 +232,13 @@
 - (void)testProxyWrappedSessionWithConfiguration {
   Method method = class_getClassMethod([NSURLSession class], @selector(sessionWithConfiguration:));
   IMP originalImp = method_getImplementation(method);
-  IMP swizzledImp = imp_implementationWithBlock(^(id session,
-                                                  NSURLSessionConfiguration *configuration) {
-    typedef NSURLSession *(*OriginalImp)(id, SEL, NSURLSessionConfiguration *);
-    NSURLSession *originalSession =
-        ((OriginalImp)originalImp)(session, @selector(sessionWithConfiguration:), configuration);
-    return [[FPRNSURLSessionProxy alloc] initWithSession:originalSession];
-  });
+  IMP swizzledImp =
+      imp_implementationWithBlock(^(id session, NSURLSessionConfiguration *configuration) {
+        typedef NSURLSession *(*OriginalImp)(id, SEL, NSURLSessionConfiguration *);
+        NSURLSession *originalSession = ((OriginalImp)originalImp)(
+            session, @selector(sessionWithConfiguration:), configuration);
+        return [[FPRNSURLSessionProxy alloc] initWithSession:originalSession];
+      });
   method_setImplementation(method, swizzledImp);
   NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
   XCTAssertEqual([[NSURLSession sessionWithConfiguration:config] class],
@@ -381,8 +386,9 @@
   NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testUpload"];
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
   request.HTTPMethod = @"POST";
-  NSURL *fileURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"smallDownloadFile"
-                                                            withExtension:@""];
+
+  NSBundle *bundle = [FPRTestUtils getBundle];
+  NSURL *fileURL = [bundle URLForResource:@"smallDownloadFile" withExtension:@""];
   NSURLSessionUploadTask *uploadTask = [session uploadTaskWithRequest:request fromFile:fileURL];
   [uploadTask resume];
 
@@ -490,7 +496,7 @@
   NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testBigDownload"];
   NSURLSessionDownloadTask *downloadTask = [session downloadTaskWithURL:URL];
   [downloadTask resume];
-  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
+  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:5.0]];
   XCTAssertNil([FPRNetworkTrace networkTraceFromObject:downloadTask]);
   XCTAssertTrue(delegate.URLSessionDownloadTaskDidResumeAtOffsetExpectedTotalBytesCalled);
   [instrument deregisterInstrumentors];
@@ -607,8 +613,9 @@
   NSURLSession *session = [NSURLSession sharedSession];
   NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testUpload"];
   NSURLRequest *request = [NSURLRequest requestWithURL:URL];
-  NSURL *fileURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"smallDownloadFile"
-                                                            withExtension:@""];
+
+  NSBundle *bundle = [FPRTestUtils getBundle];
+  NSURL *fileURL = [bundle URLForResource:@"smallDownloadFile" withExtension:@""];
   NSURLSessionUploadTask *uploadTask = [session uploadTaskWithRequest:request fromFile:fileURL];
   XCTAssertNotNil([FPRNetworkTrace networkTraceFromObject:uploadTask]);
   XCTAssertNotNil(uploadTask);
@@ -623,8 +630,9 @@
   NSURLSession *session = [NSURLSession sharedSession];
   NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testUpload"];
   NSURLRequest *request = [NSURLRequest requestWithURL:URL];
-  NSURL *fileURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"smallDownloadFile"
-                                                            withExtension:@""];
+
+  NSBundle *bundle = [FPRTestUtils getBundle];
+  NSURL *fileURL = [bundle URLForResource:@"smallDownloadFile" withExtension:@""];
   XCTestExpectation *expectation = [self expectationWithDescription:@"completionHandler called"];
   void (^completionHandler)(NSData *_Nullable, NSURLResponse *_Nullable, NSError *_Nullable) =
       ^(NSData *_Nullable data, NSURLResponse *_Nullable response, NSError *_Nullable error) {
@@ -788,8 +796,8 @@
     XCTAssertNil([FPRNetworkTrace networkTraceFromObject:uploadTask]);
   }];
 
-  NSURL *fileURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"smallDownloadFile"
-                                                            withExtension:@""];
+  NSBundle *bundle = [FPRTestUtils getBundle];
+  NSURL *fileURL = [bundle URLForResource:@"smallDownloadFile" withExtension:@""];
   uploadTask = [session uploadTaskWithRequest:URLRequest fromFile:fileURL];
   [uploadTask resume];
   XCTAssertNotNil([FPRNetworkTrace networkTraceFromObject:uploadTask]);
@@ -802,3 +810,5 @@
 }
 
 @end
+
+#endif  // SWIFT_PACKAGE

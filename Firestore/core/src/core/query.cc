@@ -204,13 +204,12 @@ Query Query::WithLimitToLast(int32_t limit) const {
 
 Query Query::StartingAt(Bound bound) const {
   return Query(path_, collection_group_, filters_, explicit_order_bys_, limit_,
-               limit_type_, std::make_shared<Bound>(std::move(bound)), end_at_);
+               limit_type_, std::move(bound), end_at_);
 }
 
 Query Query::EndingAt(Bound bound) const {
   return Query(path_, collection_group_, filters_, explicit_order_bys_, limit_,
-               limit_type_, start_at_,
-               std::make_shared<Bound>(std::move(bound)));
+               limit_type_, start_at_, std::move(bound));
 }
 
 Query Query::AsCollectionQueryAtPath(ResourcePath path) const {
@@ -221,16 +220,16 @@ Query Query::AsCollectionQueryAtPath(ResourcePath path) const {
 // MARK: - Matching
 
 bool Query::Matches(const Document& doc) const {
-  return MatchesPathAndCollectionGroup(doc) && MatchesOrderBy(doc) &&
-         MatchesFilters(doc) && MatchesBounds(doc);
+  return doc->is_found_document() && MatchesPathAndCollectionGroup(doc) &&
+         MatchesOrderBy(doc) && MatchesFilters(doc) && MatchesBounds(doc);
 }
 
 bool Query::MatchesPathAndCollectionGroup(const Document& doc) const {
-  const ResourcePath& doc_path = doc.key().path();
+  const ResourcePath& doc_path = doc->key().path();
   if (collection_group_) {
     // NOTE: path_ is currently always empty since we don't expose Collection
     // Group queries rooted at a document path yet.
-    return doc.key().HasCollectionId(*collection_group_) &&
+    return doc->key().HasCollectionId(*collection_group_) &&
            path_.IsPrefixOf(doc_path);
   } else if (DocumentKey::IsDocumentKey(path_)) {
     // Exact match for document queries.
@@ -253,7 +252,7 @@ bool Query::MatchesOrderBy(const Document& doc) const {
     const FieldPath& field_path = order_by.field();
     // order by key always matches
     if (field_path != FieldPath::KeyFieldPath() &&
-        doc.field(field_path) == absl::nullopt) {
+        doc->field(field_path) == absl::nullopt) {
       return false;
     }
   }
@@ -323,14 +322,14 @@ const Target& Query::ToTarget() const& {
       }
 
       // We need to swap the cursors to match the now-flipped query ordering.
-      auto new_start_at =
-          (end_at_ != nullptr)
-              ? std::make_shared<Bound>(end_at_->position(), !end_at_->before())
-              : nullptr;
-      auto new_end_at = (start_at_ != nullptr)
-                            ? std::make_shared<Bound>(start_at_->position(),
-                                                      !start_at_->before())
-                            : nullptr;
+      auto new_start_at = end_at_
+                              ? absl::optional<Bound>{Bound::FromValue(
+                                    end_at_->position(), !end_at_->before())}
+                              : absl::nullopt;
+      auto new_end_at = start_at_
+                            ? absl::optional<Bound>{Bound::FromValue(
+                                  start_at_->position(), !start_at_->before())}
+                            : absl::nullopt;
 
       Target target(path(), collection_group(), filters(), new_order_bys,
                     limit_, new_start_at, new_end_at);

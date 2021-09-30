@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #import "FirebasePerformance/Tests/Unit/Server/FPRHermeticTestServer.h"
+#import "FirebasePerformance/Tests/Unit/FPRTestUtils.h"
 
 @interface FPRHermeticTestServer ()
 
@@ -131,8 +132,8 @@
 
 /** Registers the "/testDownload" path, which responds with a small amount of data. */
 - (void)registerPathTestDownload {
-  NSString *filePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"smallDownloadFile"
-                                                                        ofType:@""];
+  NSBundle *bundle = [FPRTestUtils getBundle];
+  NSString *filePath = [bundle pathForResource:@"smallDownloadFile" ofType:@""];
   id processBlock = ^GCDWebServerResponse *(__kindof GCDWebServerRequest *request) {
     GCDWebServerFileResponse *response = [[GCDWebServerFileResponse alloc] initWithFile:filePath];
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC),
@@ -151,8 +152,8 @@
 
 /** Registers the "/testBigDownload" path, which responds with a larger amount of data. */
 - (void)registerPathTestBigDownload {
-  NSString *filePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"bigDownloadFile"
-                                                                        ofType:@""];
+  NSBundle *bundle = [FPRTestUtils getBundle];
+  NSString *filePath = [bundle pathForResource:@"bigDownloadFile" ofType:@""];
   id processBlock = ^GCDWebServerResponse *(__kindof GCDWebServerRequest *request) {
     GCDWebServerFileResponse *response = [[GCDWebServerFileResponse alloc] initWithFile:filePath];
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC),

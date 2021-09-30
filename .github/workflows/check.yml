@@ -9,7 +9,7 @@ on:
 
 jobs:
   check:
-    runs-on: macos-latest
+    runs-on: macos-11
     env:
       MINT_PATH: ${{ github.workspace }}/mint
     steps:

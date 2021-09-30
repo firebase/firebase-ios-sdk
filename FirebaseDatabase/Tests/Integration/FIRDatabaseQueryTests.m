@@ -4121,6 +4121,19 @@
   WAIT_FOR(done);
 }
 
+- (void)testGetInvokesCallbacksOnMainThread {
+  FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
+
+  __block BOOL done = NO;
+
+  [ref getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
+    XCTAssert([[NSThread currentThread] isMainThread]);
+    done = YES;
+  }];
+
+  WAIT_FOR(done);
+}
+
 - (void)testGetForNodeReturnsCorrectValue {
   FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
 

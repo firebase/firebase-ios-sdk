@@ -20,7 +20,6 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class FIRMessagingCheckinPreferences;
-@class FIRMessagingCheckinStore;
 /**
  *  @related FIRInstanceIDCheckinService
  *
@@ -42,13 +41,9 @@ typedef void (^FIRMessagingDeviceCheckinCompletion)(
  */
 @interface FIRMessagingAuthService : NSObject
 
-/**
- *  Initializes the auth service given a store (which provides the local caching of checkin info).
- *  This initializer will create its own instance of FIRMessagingCheckinService.
- */
-- (instancetype)initWithCheckinStore:(FIRMessagingCheckinStore *)store;
-
 #pragma mark - Checkin Service
+
+- (BOOL)hasCheckinPlist;
 
 /**
  *  Checks if the current deviceID and secret are valid or not.

@@ -185,25 +185,25 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
                                         requestConfiguration:_requestConfiguration];
   }
   [FIRAuthBackend
-      secureToken:request
-         callback:^(FIRSecureTokenResponse *_Nullable response, NSError *_Nullable error) {
-           BOOL tokenUpdated = NO;
-           NSString *newAccessToken = response.accessToken;
-           if (newAccessToken.length && ![newAccessToken isEqualToString:self->_accessToken]) {
-             self->_accessToken = [newAccessToken copy];
-             self->_accessTokenExpirationDate = response.approximateExpirationDate;
-             tokenUpdated = YES;
-             FIRLogDebug(kFIRLoggerAuth, @"I-AUT000017",
-                         @"Updated access token. Estimated expiration date: %@, current date: %@",
-                         self->_accessTokenExpirationDate, [NSDate date]);
-           }
-           NSString *newRefreshToken = response.refreshToken;
-           if (newRefreshToken.length && ![newRefreshToken isEqualToString:self->_refreshToken]) {
-             self->_refreshToken = [newRefreshToken copy];
-             tokenUpdated = YES;
-           }
-           callback(newAccessToken, error, tokenUpdated);
-         }];
+    secureToken:request
+       callback:^(FIRSecureTokenResponse *_Nullable response, NSError *_Nullable error) {
+         BOOL tokenUpdated = NO;
+         NSString *newAccessToken = response.accessToken;
+         if (newAccessToken.length && ![newAccessToken isEqualToString:self->_accessToken]) {
+           self->_accessToken = [newAccessToken copy];
+           self->_accessTokenExpirationDate = response.approximateExpirationDate;
+           tokenUpdated = YES;
+           FIRLogDebug(kFIRLoggerAuth, @"I-AUT000017",
+                       @"Updated access token. Estimated expiration date: %@, current date: %@",
+                       self->_accessTokenExpirationDate, [NSDate date]);
+         }
+         NSString *newRefreshToken = response.refreshToken;
+         if (newRefreshToken.length && ![newRefreshToken isEqualToString:self->_refreshToken]) {
+           self->_refreshToken = [newRefreshToken copy];
+           tokenUpdated = YES;
+         }
+         callback(newAccessToken, error, tokenUpdated);
+       }];
 }
 
 - (BOOL)hasValidAccessToken {

@@ -15,15 +15,19 @@
 #import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
 
 #import "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
+#import "Crashlytics/Crashlytics/Components/FIRCLSCrashedMarkerFile.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
 
 NSString *const FIRCLSCacheDirectoryName = @"com.crashlytics.data";
 NSString *const FIRCLSCacheVersion = @"v5";
+NSString *const FIRCLSMetricKitDiagnosticPath = @"/MetricKit/Diagnostics/";
 
 @interface FIRCLSFileManager () {
   NSString *_rootPath;
+  NSString *_cachesPath;
 }
+@property(nonatomic) BOOL crashFileMarkerExists;
 
 @end
 
@@ -39,10 +43,12 @@ NSString *const FIRCLSCacheVersion = @"v5";
 
   NSString *path =
       [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject];
+  _cachesPath = [path copy];
   path = [path stringByAppendingPathComponent:FIRCLSCacheDirectoryName];
   path = [path stringByAppendingPathComponent:[self pathNamespace]];
   _rootPath = [path copy];
 
+  _crashFileMarkerExists = NO;
   return self;
 }
 
@@ -122,6 +128,29 @@ NSString *const FIRCLSCacheVersion = @"v5";
   }
 
   return YES;
+}
+
+- (BOOL)didCrashOnPreviousExecution {
+  static dispatch_once_t checkCrashFileMarketExistsOnceToken;
+  dispatch_once(&checkCrashFileMarketExistsOnceToken, ^{
+    NSString *crashedMarkerFileName = [NSString stringWithUTF8String:FIRCLSCrashedMarkerFileName];
+    NSString *crashedMarkerFileFullPath =
+        [[self rootPath] stringByAppendingPathComponent:crashedMarkerFileName];
+    self.crashFileMarkerExists = [self fileExistsAtPath:crashedMarkerFileFullPath];
+  });
+  return self.crashFileMarkerExists;
+}
+
+- (BOOL)metricKitDiagnosticFileExists {
+  NSArray *contentsOfMetricKitDirectory = [self
+      contentsOfDirectory:[_cachesPath stringByAppendingString:FIRCLSMetricKitDiagnosticPath]];
+  return ([contentsOfMetricKitDirectory count] > 0);
+}
+
+- (void)createEmptyMetricKitFile:(NSString *)reportPath {
+  NSString *metricKitFile =
+      [reportPath stringByAppendingPathComponent:FIRCLSMetricKitFatalReportFile];
+  [self createFileAtPath:metricKitFile contents:nil attributes:nil];
 }
 
 - (void)enumerateFilesInDirectory:(NSString *)directory

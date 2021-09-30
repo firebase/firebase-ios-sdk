@@ -15,7 +15,7 @@
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
-
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 @interface FPRNSURLConnectionDelegate : NSObject <NSURLConnectionDelegate,
                                                   NSURLConnectionDataDelegate,
                                                   NSURLConnectionDownloadDelegate>

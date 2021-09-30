@@ -82,7 +82,7 @@
     /// The publisher will emit events on the **main** thread.
     ///
     /// - Parameters:
-    ///   - size: The maximum size in bytes to download. If the download exceeds this size
+    ///   - size: The maximum size in bytes to download. If the download exceeds this size,
     ///     the task will be cancelled and an error will be returned.
     ///
     /// - Returns: A publisher emitting a `Data` instance. The publisher will emit on the *main* thread.

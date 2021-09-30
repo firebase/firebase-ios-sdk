@@ -132,8 +132,8 @@
     XCTAssertNil(error);
     XCTAssertNil(context.authToken);
     XCTAssertNil(context.FCMToken);
-    // Expect a dummy token to be passed even in the case of app check error.
-    XCTAssertEqualObjects(context.appCheckToken, self.appCheckTokenError.token);
+    // Don't expect any token in the case of App Check error.
+    XCTAssertNil(context.appCheckToken);
     [expectation fulfill];
   }];
 
@@ -181,8 +181,8 @@
 
     XCTAssertNil(context.authToken);
     XCTAssert([context.FCMToken isEqualToString:self.messagingFake.FCMToken]);
-    // Expect a dummy token to be passed even in the case of app check error.
-    XCTAssertEqualObjects(context.appCheckToken, self.appCheckTokenError.token);
+    // Don't expect any token in the case of App Check error.
+    XCTAssertNil(context.appCheckToken);
     [expectation fulfill];
   }];
 
