@@ -2,7 +2,7 @@
 
 This module contains Combine support for Firebase APIs.
 
-**Note**: This feature is under development and is supported only on a community basis. You can follow 
+**Note**: This feature is under development and is supported only on a community basis. You can follow
 development on the [project tracker](https://github.com/firebase/firebase-ios-sdk/projects/3)
 
 ## Installation
