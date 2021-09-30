@@ -27,9 +27,17 @@ end
 <details><summary>Swift Package Manager</summary>
 
 * Follow the instructions in [Swift Package Manager for Firebase Beta
-](../SwiftPackageManager.md)
-* Make sure to import the package `FirebaseCombineSwift-Beta`
-
+](../SwiftPackageManager.md) to add Firebase to your project
+* Make sure to import all of the following packages you intend to use:
+  * FirebaseAuthCombine-Community
+  * FirebaseFirestoreCombine-Community
+  * FirebaseFunctionsCombine-Community
+  * FirebaseStorageCombine-Community
+* In your code, import the respective module:
+  * FirebaseAuthCombineSwift
+  * FirebaseFirestoreCombineSwift
+  * FirebaseFunctionsCombineSwift
+  * FirebaseStorageCombineSwift
 </details>
 
 ## Usage
