@@ -256,8 +256,8 @@ very grateful!  We'd like to empower as many developers as we can to be able to 
 participate in the Firebase community.
 
 #### Combine
-Thanks to contributions from the community, _FirebaseCombineSwift_ contains support for Apple's Combine 
-framework. This module is currently under development, and not yet supported for use in production 
+Thanks to contributions from the community, _FirebaseCombineSwift_ contains support for Apple's Combine
+framework. This module is currently under development, and not yet supported for use in production
 environments. Fore more details, please refer to the [docs](FirebaseCombineSwift/README.md).
 
 #### tvOS, macOS, watchOS and Catalyst
