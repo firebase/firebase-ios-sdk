@@ -1,3 +1,7 @@
+# Firebase 8.8.1
+- [fixed] Swift Package Manager only release to force GoogleUtilities and GoogleDataTransport
+  to be updated to latest current bug-fix versions. (#8728)
+
 # Firebase 8.3.1
 - [fixed] Swift Package Manager only release to fix an 8.3.0 tagging issue impacting some users. (#8367)
 
