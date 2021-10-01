@@ -1,3 +1,7 @@
+# Firebase 8.9.0
+- [fixed] Force GoogleUtilities and GoogleDataTransport CocoaPods dependencies
+  to be updated to latest minor versions. (#8733)
+
 # Firebase 8.8.1
 - [fixed] Swift Package Manager only release to force GoogleUtilities and GoogleDataTransport
   to be updated to latest current bug-fix versions. (#8728)
