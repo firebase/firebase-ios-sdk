@@ -13,13 +13,16 @@
 		885F5FB82653BE0D00848BCF /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 885F5FB72653BE0D00848BCF /* Preview Assets.xcassets */; };
 		88B12B5B265547FF008CFF38 /* AuthenticationMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88B12B5A265547FF008CFF38 /* AuthenticationMenuView.swift */; };
 		88B12B5D26554829008CFF38 /* MenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88B12B5C26554829008CFF38 /* MenuView.swift */; };
+		88DA0515270662B300A3DDCE /* FirebaseAuthCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = 88DA0514270662B300A3DDCE /* FirebaseAuthCombine-Community */; };
 		88DCE7432655419C003BCB65 /* UserInfoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88DCE7422655419C003BCB65 /* UserInfoViewModel.swift */; };
 		88DCE746265541FB003BCB65 /* UserInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88DCE745265541FB003BCB65 /* UserInfoView.swift */; };
 		88DCE7482655429F003BCB65 /* AnonymousSignInViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88DCE7472655429F003BCB65 /* AnonymousSignInViewModel.swift */; };
 		88DF7E412653CE6E009794F3 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 88DF7E402653CE6E009794F3 /* FirebaseAuth */; };
 		88DF7E472653D092009794F3 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 88DF7E462653D092009794F3 /* GoogleService-Info.plist */; };
-		88DF7E4B2653D673009794F3 /* FirebaseCombineSwift-Beta in Frameworks */ = {isa = PBXBuildFile; productRef = 88DF7E4A2653D673009794F3 /* FirebaseCombineSwift-Beta */; };
 		88DF7E512654057F009794F3 /* LabelTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88DF7E502654057F009794F3 /* LabelTextView.swift */; };
+		88E32CFB2694859700511B1B /* FirebaseFirestoreCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = 88E32CFA2694859700511B1B /* FirebaseFirestoreCombine-Community */; };
+		88E32CFD2694859700511B1B /* FirebaseFunctionsCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = 88E32CFC2694859700511B1B /* FirebaseFunctionsCombine-Community */; };
+		88E32CFF2694859700511B1B /* FirebaseStorageCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = 88E32CFE2694859700511B1B /* FirebaseStorageCombine-Community */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -43,8 +46,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				88E32CFB2694859700511B1B /* FirebaseFirestoreCombine-Community in Frameworks */,
 				88DF7E412653CE6E009794F3 /* FirebaseAuth in Frameworks */,
-				88DF7E4B2653D673009794F3 /* FirebaseCombineSwift-Beta in Frameworks */,
+				88E32CFF2694859700511B1B /* FirebaseStorageCombine-Community in Frameworks */,
+				88E32CFD2694859700511B1B /* FirebaseFunctionsCombine-Community in Frameworks */,
+				88DA0515270662B300A3DDCE /* FirebaseAuthCombine-Community in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -160,7 +166,10 @@
 			name = CombineSample;
 			packageProductDependencies = (
 				88DF7E402653CE6E009794F3 /* FirebaseAuth */,
-				88DF7E4A2653D673009794F3 /* FirebaseCombineSwift-Beta */,
+				88E32CFA2694859700511B1B /* FirebaseFirestoreCombine-Community */,
+				88E32CFC2694859700511B1B /* FirebaseFunctionsCombine-Community */,
+				88E32CFE2694859700511B1B /* FirebaseStorageCombine-Community */,
+				88DA0514270662B300A3DDCE /* FirebaseAuthCombine-Community */,
 			);
 			productName = CombineSample;
 			productReference = 885F5FAD2653BE0D00848BCF /* CombineSample.app */;
@@ -414,13 +423,25 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		88DA0514270662B300A3DDCE /* FirebaseAuthCombine-Community */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = "FirebaseAuthCombine-Community";
+		};
 		88DF7E402653CE6E009794F3 /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = FirebaseAuth;
 		};
-		88DF7E4A2653D673009794F3 /* FirebaseCombineSwift-Beta */ = {
+		88E32CFA2694859700511B1B /* FirebaseFirestoreCombine-Community */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = "FirebaseCombineSwift-Beta";
+			productName = "FirebaseFirestoreCombine-Community";
+		};
+		88E32CFC2694859700511B1B /* FirebaseFunctionsCombine-Community */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = "FirebaseFunctionsCombine-Community";
+		};
+		88E32CFE2694859700511B1B /* FirebaseStorageCombine-Community */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = "FirebaseStorageCombine-Community";
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

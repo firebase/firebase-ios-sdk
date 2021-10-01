@@ -37,8 +37,6 @@ Firebase is an app development platform with tools to help you build, grow and
 monetize your app. More information about Firebase can be found on the
 [official Firebase website](https://firebase.google.com).
 
-**Note** _FirebaseCombineSwift_ contains support for Apple's Combine framework. This module is currently under development, and not yet supported for use in production environments. Fore more details, please refer to the [docs](FirebaseCombineSwift/README.md).
-
 ## Installation
 
 See the subsections below for details about the different installation methods.
@@ -256,6 +254,11 @@ in Firebase's documentation.
 We've seen an amazing amount of interest and contributions to improve the Firebase SDKs, and we are
 very grateful!  We'd like to empower as many developers as we can to be able to use Firebase and
 participate in the Firebase community.
+
+#### Combine
+Thanks to contributions from the community, _FirebaseCombineSwift_ contains support for Apple's Combine
+framework. This module is currently under development, and not yet supported for use in production
+environments. Fore more details, please refer to the [docs](FirebaseCombineSwift/README.md).
 
 #### tvOS, macOS, watchOS and Catalyst
 Thanks to contributions from the community, many of Firebase SDKs now compile, run unit tests, and

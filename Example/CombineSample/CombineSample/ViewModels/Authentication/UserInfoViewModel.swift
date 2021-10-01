@@ -13,7 +13,8 @@
 // limitations under the License.
 
 import Firebase
-import FirebaseCombineSwift
+import FirebaseAuth
+import FirebaseAuthCombineSwift
 import Combine
 
 class UserInfoViewModel: ObservableObject {
