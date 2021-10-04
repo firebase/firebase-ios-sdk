@@ -2,9 +2,6 @@ name: check
 
 on:
   pull_request:
-    paths:
-    - '.github/workflows/check.yml'
-    - 'scripts/style.sh'
     paths-ignore:
     - 'Firestore/**'
   push:
