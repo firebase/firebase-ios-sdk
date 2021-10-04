@@ -47,20 +47,20 @@ NSString *const kResponseReleasesKey = @"releases";
       return;
     }
 
-    [installations
-      installationIDWithCompletion:^(NSString *__nullable identifier, NSError *__nullable error) {
-        if ([self handleError:&error
-                  description:@"Failed to fetch Firebase Installation ID."
-                         code:FIRFADApiInstallationIdentifierError]) {
-          FIRFADErrorLog(@"Error getting installation id. Error: %@", [error localizedDescription]);
+    [installations installationIDWithCompletion:^(NSString *__nullable identifier,
+                                                  NSError *__nullable error) {
+      if ([self handleError:&error
+                description:@"Failed to fetch Firebase Installation ID."
+                       code:FIRFADApiInstallationIdentifierError]) {
+        FIRFADErrorLog(@"Error getting installation id. Error: %@", [error localizedDescription]);
 
-          completion(nil, nil, error);
+        completion(nil, nil, error);
 
-          return;
-        }
+        return;
+      }
 
-        completion(identifier, authTokenResult, nil);
-      }];
+      completion(identifier, authTokenResult, nil);
+    }];
   }];
 }
 
