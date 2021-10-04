@@ -3,7 +3,7 @@ name: check
 on:
   pull_request:
     paths-ignore:
-      - 'Firestore/**'
+    - 'Firestore/**'
   push:
     branches: master
 

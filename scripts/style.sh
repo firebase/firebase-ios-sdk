@@ -42,7 +42,7 @@ version="${version/ (*)/}"
 version="${version/.*/}"
 
 case "$version" in
-  12)
+  13)
     ;;
   google3-trunk)
     echo "Please use a publicly released clang-format; a recent LLVM release"
