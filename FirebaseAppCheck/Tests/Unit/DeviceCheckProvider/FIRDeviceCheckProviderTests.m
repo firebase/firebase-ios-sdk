@@ -19,11 +19,11 @@
 #import <OCMock/OCMock.h>
 #import "FBLPromise+Testing.h"
 
+#import "FirebaseAppCheck/Sources/Core/Backoff/FIRAppCheckBackoffWrapper.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"
 #import "FirebaseAppCheck/Sources/DeviceCheckProvider/API/FIRDeviceCheckAPIService.h"
 #import "FirebaseAppCheck/Sources/DeviceCheckProvider/FIRDeviceCheckTokenGenerator.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRDeviceCheckProvider.h"
-#import "FirebaseAppCheck/Sources/Core/Backoff/FIRAppCheckBackoffWrapper.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
@@ -36,7 +36,7 @@ API_UNAVAILABLE(watchos)
 @property(nonatomic) id fakeTokenGenerator;
 @property(nonatomic) id fakeBackoffWrapper;
 
-    @end
+@end
 
 @interface FIRDeviceCheckProvider (Tests)
 
@@ -54,9 +54,9 @@ API_UNAVAILABLE(watchos)
   self.fakeAPIService = OCMProtocolMock(@protocol(FIRDeviceCheckAPIServiceProtocol));
   self.fakeTokenGenerator = OCMProtocolMock(@protocol(FIRDeviceCheckTokenGenerator));
 
-  //TODO: replace with a mock.
+  // TODO: replace with a mock.
   self.fakeBackoffWrapper = [[FIRAppCheckBackoffWrapper alloc] init];
-  //OCMProtocolMock(@protocol(FIRAppCheckBackoffWrapperProtocol));
+  // OCMProtocolMock(@protocol(FIRAppCheckBackoffWrapperProtocol));
 
   self.provider = [[FIRDeviceCheckProvider alloc] initWithAPIService:self.fakeAPIService
                                                 deviceTokenGenerator:self.fakeTokenGenerator
