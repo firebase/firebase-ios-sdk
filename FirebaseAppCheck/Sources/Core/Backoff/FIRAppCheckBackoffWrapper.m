@@ -26,6 +26,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+static NSTimeInterval const k24Hours = 24 * 60 * 60;
+
 /// A class representing an operation result with data required for the backoff calculation.
 @interface FIRAppCheckBackoffOperationFailure : NSObject
 
@@ -180,11 +182,24 @@ NS_ASSUME_NONNULL_BEGIN
         return YES;
         break;
 
+      case FIRAppCheckBackoffType1Day:
+        return [self hasTimeIntervalPassedSinceLastFailure:k24Hours];
+        break;
+
         // TODO: Implement other cases.
       default:
         return YES;
     }
   }
+}
+
+- (BOOL)hasTimeIntervalPassedSinceLastFailure:(NSTimeInterval)timeInterval {
+  NSDate *failureDate = self.lastFailure.finishDate;
+  // Return YES if there has not been a failure yet.
+  if (failureDate == nil) return YES;
+
+  NSTimeInterval timeSinceFailure = [self.dateProvider() timeIntervalSinceDate:failureDate];
+  return timeSinceFailure >= timeInterval;
 }
 
 - (FBLPromise *)retryDisallowedPromiseWithError:(NSError *)error {

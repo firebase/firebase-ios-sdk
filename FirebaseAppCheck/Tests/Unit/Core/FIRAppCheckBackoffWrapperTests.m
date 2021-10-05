@@ -61,6 +61,7 @@
 
 - (void)tearDown {
   self.backoffWrapper = nil;
+  self.operation = nil;
 
   [super tearDown];
 }
@@ -168,7 +169,7 @@
   [self setUpErrorHandlerWithBackoffType:FIRAppCheckBackoffType1Day];
 
   // 4.2. Move current date.
-  self.currentDate = [self.currentDate dateByAddingTimeInterval:11 * 60 * 60 + 59 * 60];
+  self.currentDate = [self.currentDate dateByAddingTimeInterval:12 * 60 * 60 + 1 * 60];
 
   // 4.3. Compose operation with backoff.
   operationWithBackoff = [self.backoffWrapper
