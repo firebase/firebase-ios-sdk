@@ -35,7 +35,7 @@
 /// for a failure.
 @property(nonatomic) id operationResult;
 /// Operation to apply backoff to. It configure with the helper methods during tests.
-@property(nonatomic) FBLPromise *operation;
+@property(nonatomic) FIRAppCheckBackoffOperationProvider operationProvider;
 /// Expectation to fulfill when operation is completed. It is configured with the `self.operation`
 /// in setup helpers.
 @property(nonatomic) XCTestExpectation *operationFinishExpectation;
@@ -61,7 +61,7 @@
 
 - (void)tearDown {
   self.backoffWrapper = nil;
-  self.operation = nil;
+  self.operationProvider = nil;
 
   [super tearDown];
 }
@@ -73,11 +73,8 @@
   self.errorHandlerExpectation.inverted = YES;
 
   // 3. Compose operation with backoff.
-  __auto_type operationWithBackoff = [self.backoffWrapper
-           backoff:^FBLPromise *() {
-             return self.operation;
-           }
-      errorHandler:self.errorHandler];
+  __auto_type operationWithBackoff = [self.backoffWrapper backoff:self.operationProvider
+                                                     errorHandler:self.errorHandler];
 
   // 4. Wait for operation to complete and check.
   [self waitForExpectationsWithTimeout:0.5 handler:NULL];
@@ -96,11 +93,8 @@
   [self setUpErrorHandlerWithBackoffType:FIRAppCheckBackoffType1Day];
 
   // 1.3. Compose operation with backoff.
-  __auto_type operationWithBackoff = [self.backoffWrapper
-           backoff:^FBLPromise *() {
-             return self.operation;
-           }
-      errorHandler:self.errorHandler];
+  __auto_type operationWithBackoff = [self.backoffWrapper backoff:self.operationProvider
+                                                     errorHandler:self.errorHandler];
 
   // 1.4. Wait for operation to complete.
   [self waitForExpectationsWithTimeout:0.5 handler:NULL];
@@ -116,16 +110,15 @@
 
   // Don't expect operation to be called.
   self.operationFinishExpectation.inverted = YES;
+  // Don't expect error handler to be called.
+  self.errorHandlerExpectation.inverted = YES;
 
   // 2.2. Move current date.
   self.currentDate = [self.currentDate dateByAddingTimeInterval:12 * 60 * 60];
 
   // 2.3. Compose operation with backoff.
-  operationWithBackoff = [self.backoffWrapper
-           backoff:^FBLPromise *() {
-             return self.operation;
-           }
-      errorHandler:self.errorHandler];
+  operationWithBackoff = [self.backoffWrapper backoff:self.operationProvider
+                                         errorHandler:self.errorHandler];
 
   // 2.4. Wait for operation to complete.
   [self waitForExpectationsWithTimeout:0.5 handler:NULL];
@@ -133,8 +126,7 @@
 
   // 2.5. Expect the promise to be rejected with a backoff error.
   XCTAssertTrue(operationWithBackoff.isRejected);
-  XCTAssert([operationWithBackoff.error.localizedDescription
-      hasPrefix:@"To many attempts. Underlying error:"]);
+  XCTAssertTrue([self isBackoffError:operationWithBackoff.error]);
 
   // 3. Check backoff one minute before allowing retry.
   // 3.1. Set up another operation.
@@ -143,16 +135,15 @@
 
   // Don't expect operation to be called.
   self.operationFinishExpectation.inverted = YES;
+  // Don't expect error handler to be called.
+  self.errorHandlerExpectation.inverted = YES;
 
   // 3.2. Move current date.
   self.currentDate = [self.currentDate dateByAddingTimeInterval:11 * 60 * 60 + 59 * 60];
 
   // 3.3. Compose operation with backoff.
-  operationWithBackoff = [self.backoffWrapper
-           backoff:^FBLPromise *() {
-             return self.operation;
-           }
-      errorHandler:self.errorHandler];
+  operationWithBackoff = [self.backoffWrapper backoff:self.operationProvider
+                                         errorHandler:self.errorHandler];
 
   // 3.4. Wait for operation to complete.
   [self waitForExpectationsWithTimeout:0.5 handler:NULL];
@@ -160,8 +151,7 @@
 
   // 3.5. Expect the promise to be rejected with a backoff error.
   XCTAssertTrue(operationWithBackoff.isRejected);
-  XCTAssert([operationWithBackoff.error.localizedDescription
-      hasPrefix:@"To many attempts. Underlying error:"]);
+  XCTAssertTrue([self isBackoffError:operationWithBackoff.error]);
 
   // 4. Check backoff one minute after allowing retry.
   // 4.1. Set up another operation.
@@ -172,11 +162,8 @@
   self.currentDate = [self.currentDate dateByAddingTimeInterval:12 * 60 * 60 + 1 * 60];
 
   // 4.3. Compose operation with backoff.
-  operationWithBackoff = [self.backoffWrapper
-           backoff:^FBLPromise *() {
-             return self.operation;
-           }
-      errorHandler:self.errorHandler];
+  operationWithBackoff = [self.backoffWrapper backoff:self.operationProvider
+                                         errorHandler:self.errorHandler];
 
   // 4.4. Wait for operation to complete and check failure.
   [self waitForExpectationsWithTimeout:0.5 handler:NULL];
@@ -201,20 +188,28 @@
   self.operationFinishExpectation = [self expectationWithDescription:@"Operation performed"];
   self.operationResult = [[NSObject alloc] init];
   __auto_type __weak weakSelf = self;
-  self.operation = [FBLPromise do:^id(void) {
-    [weakSelf.operationFinishExpectation fulfill];
-    return weakSelf.operationResult;
-  }];
+  self.operationProvider = ^FBLPromise *() {
+    return [FBLPromise do:^id(void) {
+      [weakSelf.operationFinishExpectation fulfill];
+      return weakSelf.operationResult;
+    }];
+  };
 }
 
 - (void)setUpOperationError {
   self.operationFinishExpectation = [self expectationWithDescription:@"Operation performed"];
   self.operationResult = [NSError errorWithDomain:self.name code:-1 userInfo:nil];
   __auto_type __weak weakSelf = self;
-  self.operation = [FBLPromise do:^id(void) {
-    [weakSelf.operationFinishExpectation fulfill];
-    return weakSelf.operationResult;
-  }];
+  self.operationProvider = ^FBLPromise *() {
+    return [FBLPromise do:^id(void) {
+      [weakSelf.operationFinishExpectation fulfill];
+      return weakSelf.operationResult;
+    }];
+  };
+}
+
+- (BOOL)isBackoffError:(NSError *)error {
+  return [error.localizedDescription containsString:@"To many attempts. Underlying error:"];
 }
 
 @end
