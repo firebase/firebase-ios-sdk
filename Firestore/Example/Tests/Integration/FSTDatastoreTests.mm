@@ -27,8 +27,8 @@
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
-#include "Firestore/core/src/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/core/database_info.h"
+#include "Firestore/core/src/credentials/empty_credentials_provider.h"
 #include "Firestore/core/src/local/local_documents_view.h"
 #include "Firestore/core/src/local/local_store.h"
 #include "Firestore/core/src/local/memory_persistence.h"
@@ -58,9 +58,9 @@ namespace util = firebase::firestore::util;
 namespace testutil = firebase::firestore::testutil;
 
 using firebase::Timestamp;
-using firebase::firestore::auth::EmptyCredentialsProvider;
-using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::credentials::EmptyCredentialsProvider;
+using firebase::firestore::credentials::User;
 using firebase::firestore::google_firestore_v1_Value;
 using firebase::firestore::local::LocalStore;
 using firebase::firestore::local::MemoryPersistence;

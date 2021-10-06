@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/auth/empty_credentials_provider.h"
+#include "Firestore/core/src/credentials/empty_credentials_provider.h"
 
 #include "Firestore/core/src/util/statusor.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
 namespace firestore {
-namespace auth {
+namespace credentials {
 
 TEST(EmptyCredentialsProvider, GetToken) {
   EmptyCredentialsProvider credentials_provider;
-  credentials_provider.GetToken([](util::StatusOr<Token> result) {
+  credentials_provider.GetToken([](util::StatusOr<AuthToken> result) {
     EXPECT_TRUE(result.ok());
-    const Token& token = result.ValueOrDie();
+    const AuthToken& token = result.ValueOrDie();
     EXPECT_ANY_THROW(token.token());
     const User& user = token.user();
     EXPECT_EQ("", user.uid());
@@ -49,9 +49,9 @@ TEST(EmptyCredentialsProvider, InvalidateToken) {
   EmptyCredentialsProvider credentials_provider;
   credentials_provider.InvalidateToken();
   credentials_provider.GetToken(
-      [](util::StatusOr<Token> result) { EXPECT_TRUE(result.ok()); });
+      [](util::StatusOr<AuthToken> result) { EXPECT_TRUE(result.ok()); });
 }
 
-}  // namespace auth
+}  // namespace credentials
 }  // namespace firestore
 }  // namespace firebase

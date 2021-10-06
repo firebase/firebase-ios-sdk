@@ -30,8 +30,8 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-using auth::CredentialsProvider;
-using auth::Token;
+using credentials::AuthToken;
+using credentials::CredentialsProvider;
 using model::Mutation;
 using nanopb::ByteString;
 using nanopb::Message;
@@ -87,7 +87,7 @@ void WriteStream::WriteMutations(const std::vector<Mutation>& mutations) {
 }
 
 std::unique_ptr<GrpcStream> WriteStream::CreateGrpcStream(
-    GrpcConnection* grpc_connection, const Token& token) {
+    GrpcConnection* grpc_connection, const AuthToken& token) {
   return grpc_connection->CreateStream("/google.firestore.v1.Firestore/Write",
                                        token, this);
 }

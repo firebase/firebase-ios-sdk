@@ -25,7 +25,7 @@
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/include/firebase/firestore/firestore_version.h"
-#include "Firestore/core/src/auth/token.h"
+#include "Firestore/core/src/credentials/auth_token.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/remote/firebase_metadata_provider.h"
 #include "Firestore/core/src/remote/grpc_root_certificate_finder.h"
@@ -48,8 +48,8 @@ namespace firestore {
 namespace remote {
 namespace {
 
-using auth::Token;
 using core::DatabaseInfo;
+using credentials::AuthToken;
 using model::DatabaseId;
 using util::Filesystem;
 using util::Path;
@@ -252,7 +252,7 @@ void GrpcConnection::Shutdown() {
 }
 
 std::unique_ptr<grpc::ClientContext> GrpcConnection::CreateContext(
-    const Token& credential) const {
+    const AuthToken& credential) const {
   absl::string_view token = credential.user().is_authenticated()
                                 ? credential.token()
                                 : absl::string_view{};
@@ -323,7 +323,7 @@ std::shared_ptr<grpc::Channel> GrpcConnection::CreateChannel() const {
 
 std::unique_ptr<GrpcStream> GrpcConnection::CreateStream(
     absl::string_view rpc_name,
-    const Token& token,
+    const AuthToken& token,
     GrpcStreamObserver* observer) {
   EnsureActiveStub();
 
@@ -336,7 +336,7 @@ std::unique_ptr<GrpcStream> GrpcConnection::CreateStream(
 
 std::unique_ptr<GrpcUnaryCall> GrpcConnection::CreateUnaryCall(
     absl::string_view rpc_name,
-    const Token& token,
+    const AuthToken& token,
     const grpc::ByteBuffer& message) {
   EnsureActiveStub();
 
@@ -349,7 +349,7 @@ std::unique_ptr<GrpcUnaryCall> GrpcConnection::CreateUnaryCall(
 
 std::unique_ptr<GrpcStreamingReader> GrpcConnection::CreateStreamingReader(
     absl::string_view rpc_name,
-    const Token& token,
+    const AuthToken& token,
     const grpc::ByteBuffer& message) {
   EnsureActiveStub();
 

@@ -21,9 +21,9 @@
 #include <queue>
 #include <utility>
 
-#include "Firestore/core/src/auth/credentials_provider.h"
-#include "Firestore/core/src/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/core/database_info.h"
+#include "Firestore/core/src/credentials/credentials_provider.h"
+#include "Firestore/core/src/credentials/empty_credentials_provider.h"
 #include "Firestore/core/src/local/target_data.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/model/mutation.h"
@@ -42,9 +42,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-using firebase::firestore::auth::CredentialsProvider;
-using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::credentials::CredentialsProvider;
+using firebase::firestore::credentials::EmptyCredentialsProvider;
 using firebase::firestore::local::TargetData;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::Mutation;
@@ -244,7 +244,7 @@ class MockWriteStream : public WriteStream {
 
 MockDatastore::MockDatastore(const core::DatabaseInfo& database_info,
                              const std::shared_ptr<util::AsyncQueue>& worker_queue,
-                             std::shared_ptr<auth::CredentialsProvider> credentials,
+                             std::shared_ptr<credentials::CredentialsProvider> credentials,
                              ConnectivityMonitor* connectivity_monitor,
                              FirebaseMetadataProvider* firebase_metadata_provider)
     : Datastore{database_info, worker_queue, credentials, connectivity_monitor,

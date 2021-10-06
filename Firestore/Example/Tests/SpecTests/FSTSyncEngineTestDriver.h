@@ -24,11 +24,11 @@
 #include <vector>
 
 #include "Firestore/core/src/api/load_bundle_task.h"
-#include "Firestore/core/src/auth/user.h"
 #include "Firestore/core/src/bundle/bundle_reader.h"
 #include "Firestore/core/src/core/database_info.h"
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/core/view_snapshot.h"
+#include "Firestore/core/src/credentials/user.h"
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
@@ -48,9 +48,9 @@ class TargetData;
 }  // namespace firebase
 
 namespace api = firebase::firestore::api;
-namespace auth = firebase::firestore::auth;
 namespace bundle = firebase::firestore::bundle;
 namespace core = firebase::firestore::core;
+namespace credentials = firebase::firestore::credentials;
 namespace local = firebase::firestore::local;
 namespace model = firebase::firestore::model;
 namespace remote = firebase::firestore::remote;
@@ -91,8 +91,9 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 /** Mapping of user => array of FSTMutations for that user. */
-typedef std::unordered_map<auth::User, NSMutableArray<FSTOutstandingWrite *> *, auth::HashUser>
-    FSTOutstandingWriteQueues;
+typedef std::
+    unordered_map<credentials::User, NSMutableArray<FSTOutstandingWrite *> *, credentials::HashUser>
+        FSTOutstandingWriteQueues;
 
 /**
  * A test driver for FSTSyncEngine that allows simulated event delivery and capture. As much as
@@ -123,7 +124,7 @@ typedef std::unordered_map<auth::User, NSMutableArray<FSTOutstandingWrite *> *, 
  * mutation queues).
  */
 - (instancetype)initWithPersistence:(std::unique_ptr<local::Persistence>)persistence
-                        initialUser:(const auth::User &)initialUser
+                        initialUser:(const credentials::User &)initialUser
                   outstandingWrites:(const FSTOutstandingWriteQueues &)outstandingWrites
       maxConcurrentLimboResolutions:(size_t)maxConcurrentLimboResolutions NS_DESIGNATED_INITIALIZER;
 
@@ -271,7 +272,7 @@ typedef std::unordered_map<auth::User, NSMutableArray<FSTOutstandingWrite *> *, 
  * each user, so future receiveWriteAck/Error operations will validate the write sent to the mock
  * datastore matches the next outstanding write for that user.
  */
-- (void)changeUser:(const auth::User &)user;
+- (void)changeUser:(const credentials::User &)user;
 
 /**
  * Drains the client's dispatch queue.
@@ -333,7 +334,7 @@ typedef std::unordered_map<auth::User, NSMutableArray<FSTOutstandingWrite *> *, 
 @property(nonatomic, assign, readonly) const FSTOutstandingWriteQueues &outstandingWrites;
 
 /** The current user for the FSTSyncEngine; determines which mutation queue is active. */
-@property(nonatomic, assign, readonly) const auth::User &currentUser;
+@property(nonatomic, assign, readonly) const credentials::User &currentUser;
 
 /**
  * The number of waitForPendingWrites events that have been received.

@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/auth/credentials_provider.h"
+#include "Firestore/core/src/credentials/credentials_provider.h"
 
 #include "Firestore/core/src/util/statusor.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
 namespace firestore {
-namespace auth {
+namespace credentials {
 
 #define UNUSED(x) (void)(x)
 
 TEST(CredentialsProvider, Typedef) {
-  TokenListener token_listener = [](util::StatusOr<Token> token) {
+  TokenListener token_listener = [](util::StatusOr<AuthToken> token) {
     UNUSED(token);
   };
   EXPECT_NE(nullptr, token_listener);
@@ -47,6 +47,6 @@ TEST(CredentialsProvider, Typedef) {
   EXPECT_FALSE(user_change_listener);
 }
 
-}  // namespace auth
+}  // namespace credentials
 }  // namespace firestore
 }  // namespace firebase

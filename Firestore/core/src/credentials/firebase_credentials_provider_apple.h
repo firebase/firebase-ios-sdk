@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_AUTH_FIREBASE_CREDENTIALS_PROVIDER_APPLE_H_
-#define FIRESTORE_CORE_SRC_AUTH_FIREBASE_CREDENTIALS_PROVIDER_APPLE_H_
+#ifndef FIRESTORE_CORE_SRC_CREDENTIALS_FIREBASE_CREDENTIALS_PROVIDER_APPLE_H_
+#define FIRESTORE_CORE_SRC_CREDENTIALS_FIREBASE_CREDENTIALS_PROVIDER_APPLE_H_
 
 #if !defined(__OBJC__)
 #error "This header only supports Objective-C++."
@@ -27,8 +27,8 @@
 #include <mutex>  // NOLINT(build/c++11)
 #include <utility>
 
-#include "Firestore/core/src/auth/credentials_provider.h"
-#include "Firestore/core/src/auth/user.h"
+#include "Firestore/core/src/credentials/credentials_provider.h"
+#include "Firestore/core/src/credentials/user.h"
 #include "absl/strings/string_view.h"
 
 @class FIRApp;
@@ -36,7 +36,7 @@
 
 namespace firebase {
 namespace firestore {
-namespace auth {
+namespace credentials {
 
 /**
  * `FirebaseCredentialsProvider` uses Firebase Auth via `FIRApp` to get an auth
@@ -115,8 +115,8 @@ class FirebaseCredentialsProvider : public CredentialsProvider {
   std::shared_ptr<Contents> contents_;
 };
 
-}  // namespace auth
+}  // namespace credentials
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_AUTH_FIREBASE_CREDENTIALS_PROVIDER_APPLE_H_
+#endif  // FIRESTORE_CORE_SRC_CREDENTIALS_FIREBASE_CREDENTIALS_PROVIDER_APPLE_H_

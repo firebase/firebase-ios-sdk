@@ -20,15 +20,15 @@
 #include <string>
 #include <vector>
 
-#include "Firestore/core/src/auth/empty_credentials_provider.h"
+#include "Firestore/core/src/credentials/empty_credentials_provider.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
 
-class FakeCredentialsProvider : public auth::EmptyCredentialsProvider {
+class FakeCredentialsProvider : public credentials::EmptyCredentialsProvider {
  public:
-  void GetToken(auth::TokenListener completion) override;
+  void GetToken(credentials::TokenListener completion) override;
   void InvalidateToken() override;
 
   // `GetToken` will not invoke the completion immediately -- invoke it manually
@@ -47,7 +47,7 @@ class FakeCredentialsProvider : public auth::EmptyCredentialsProvider {
   std::vector<std::string> observed_states_;
   bool fail_get_token_ = false;
   bool delay_get_token_ = false;
-  auth::TokenListener delayed_token_listener_;
+  credentials::TokenListener delayed_token_listener_;
 };
 
 }  // namespace remote

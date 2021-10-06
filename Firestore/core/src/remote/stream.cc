@@ -32,8 +32,8 @@ namespace firestore {
 namespace remote {
 namespace {
 
-using auth::CredentialsProvider;
-using auth::Token;
+using credentials::AuthToken;
+using credentials::CredentialsProvider;
 using util::AsyncQueue;
 using util::LogIsDebugEnabled;
 using util::Status;
@@ -104,7 +104,7 @@ void Stream::RequestCredentials() {
   std::weak_ptr<Stream> weak_this{shared_from_this()};
   int initial_close_count = close_count_;
   credentials_provider_->GetToken([weak_this, initial_close_count](
-                                      const StatusOr<Token>& maybe_token) {
+                                      const StatusOr<AuthToken>& maybe_token) {
     auto strong_this = weak_this.lock();
     if (!strong_this) {
       return;
@@ -123,7 +123,8 @@ void Stream::RequestCredentials() {
   });
 }
 
-void Stream::ResumeStartWithCredentials(const StatusOr<Token>& maybe_token) {
+void Stream::ResumeStartWithCredentials(
+    const StatusOr<AuthToken>& maybe_token) {
   EnsureOnQueue();
 
   HARD_ASSERT(state_ == State::Starting,

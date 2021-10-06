@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/auth/firebase_credentials_provider_apple.h"
+#include "Firestore/core/src/credentials/firebase_credentials_provider_apple.h"
 
 #include <chrono>  // NOLINT(build/c++11)
 #include <future>  // NOLINT(build/c++11)
@@ -68,26 +68,27 @@
 
 namespace firebase {
 namespace firestore {
-namespace auth {
+namespace credentials {
 
 // Simulates the case where Firebase/Firestore is installed in the project but
 // Firebase/Auth is not available.
 TEST(FirebaseCredentialsProviderTest, GetTokenNoProvider) {
-  auto token_promise = std::make_shared<std::promise<Token>>();
+  auto token_promise = std::make_shared<std::promise<AuthToken>>();
 
   FIRApp* app = testutil::AppForUnitTesting();
   FirebaseCredentialsProvider credentials_provider(app, nil);
-  credentials_provider.GetToken([token_promise](util::StatusOr<Token> result) {
-    EXPECT_TRUE(result.ok());
-    const Token& token = result.ValueOrDie();
-    EXPECT_ANY_THROW(token.token());
-    const User& user = token.user();
-    EXPECT_EQ("", user.uid());
-    EXPECT_FALSE(user.is_authenticated());
+  credentials_provider.GetToken(
+      [token_promise](util::StatusOr<AuthToken> result) {
+        EXPECT_TRUE(result.ok());
+        const AuthToken& token = result.ValueOrDie();
+        EXPECT_ANY_THROW(token.token());
+        const User& user = token.user();
+        EXPECT_EQ("", user.uid());
+        EXPECT_FALSE(user.is_authenticated());
 
-    // TODO(wilhuff): convert between !result.ok() and a failed promise.
-    token_promise->set_value(token);
-  });
+        // TODO(wilhuff): convert between !result.ok() and a failed promise.
+        token_promise->set_value(token);
+      });
 
   // TODO(wilhuff): generalize this pattern or make util::Await for non-void
   // futures.
@@ -100,9 +101,9 @@ TEST(FirebaseCredentialsProviderTest, GetTokenUnauthenticated) {
   FIRApp* app = testutil::AppForUnitTesting();
   FSTAuthFake* auth = [[FSTAuthFake alloc] initWithToken:nil uid:nil];
   FirebaseCredentialsProvider credentials_provider(app, auth);
-  credentials_provider.GetToken([](util::StatusOr<Token> result) {
+  credentials_provider.GetToken([](util::StatusOr<AuthToken> result) {
     EXPECT_TRUE(result.ok());
-    const Token& token = result.ValueOrDie();
+    const AuthToken& token = result.ValueOrDie();
     EXPECT_ANY_THROW(token.token());
     const User& user = token.user();
     EXPECT_EQ("", user.uid());
@@ -115,9 +116,9 @@ TEST(FirebaseCredentialsProviderTest, GetToken) {
   FSTAuthFake* auth = [[FSTAuthFake alloc] initWithToken:@"token for fake uid"
                                                      uid:@"fake uid"];
   FirebaseCredentialsProvider credentials_provider(app, auth);
-  credentials_provider.GetToken([](util::StatusOr<Token> result) {
+  credentials_provider.GetToken([](util::StatusOr<AuthToken> result) {
     EXPECT_TRUE(result.ok());
-    const Token& token = result.ValueOrDie();
+    const AuthToken& token = result.ValueOrDie();
     EXPECT_EQ("token for fake uid", token.token());
     const User& user = token.user();
     EXPECT_EQ("fake uid", user.uid());
@@ -144,15 +145,15 @@ TEST(FirebaseCredentialsProviderTest, InvalidateToken) {
                                                      uid:@"fake uid"];
   FirebaseCredentialsProvider credentials_provider(app, auth);
   credentials_provider.InvalidateToken();
-  credentials_provider.GetToken([&auth](util::StatusOr<Token> result) {
+  credentials_provider.GetToken([&auth](util::StatusOr<AuthToken> result) {
     EXPECT_TRUE(result.ok());
     EXPECT_TRUE(auth.forceRefreshTriggered);
-    const Token& token = result.ValueOrDie();
+    const AuthToken& token = result.ValueOrDie();
     EXPECT_EQ("token for fake uid", token.token());
     EXPECT_EQ("fake uid", token.user().uid());
   });
 }
 
-}  // namespace auth
+}  // namespace credentials
 }  // namespace firestore
 }  // namespace firebase

@@ -45,8 +45,8 @@ namespace firestore {
 namespace remote {
 namespace {
 
-using auth::CredentialsProvider;
-using auth::Token;
+using credentials::AuthToken;
+using credentials::CredentialsProvider;
 using util::AsyncQueue;
 using util::StringFormat;
 using util::TimerId;
@@ -84,7 +84,7 @@ class TestStream : public Stream {
 
  private:
   std::unique_ptr<GrpcStream> CreateGrpcStream(GrpcConnection*,
-                                               const Token&) override {
+                                               const AuthToken&) override {
     auto result = tester_->CreateStream(this);
     context_ = result->context();
     return result;

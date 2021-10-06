@@ -32,9 +32,9 @@
 namespace firebase {
 namespace firestore {
 
-namespace auth {
+namespace credentials {
 class CredentialsProvider;
-}  // namespace auth
+}  // namespace credentials
 
 namespace remote {
 class FirebaseMetadataProvider;
@@ -53,13 +53,14 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
  public:
   Firestore() = default;
 
-  Firestore(model::DatabaseId database_id,
-            std::string persistence_key,
-            std::shared_ptr<auth::CredentialsProvider> credentials_provider,
-            std::shared_ptr<util::AsyncQueue> worker_queue,
-            std::unique_ptr<remote::FirebaseMetadataProvider>
-                firebase_metadata_provider,
-            void* extension);
+  Firestore(
+      model::DatabaseId database_id,
+      std::string persistence_key,
+      std::shared_ptr<credentials::CredentialsProvider> credentials_provider,
+      std::shared_ptr<util::AsyncQueue> worker_queue,
+      std::unique_ptr<remote::FirebaseMetadataProvider>
+          firebase_metadata_provider,
+      void* extension);
 
   ~Firestore();
 
@@ -118,7 +119,7 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
   core::DatabaseInfo MakeDatabaseInfo() const;
 
   model::DatabaseId database_id_;
-  std::shared_ptr<auth::CredentialsProvider> credentials_provider_;
+  std::shared_ptr<credentials::CredentialsProvider> credentials_provider_;
   std::string persistence_key_;
 
   std::shared_ptr<util::Executor> user_executor_;

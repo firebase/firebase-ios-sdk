@@ -17,21 +17,21 @@ if(NOT FIREBASE_IOS_BUILD_TESTS)
 endif()
 
 file(GLOB sources *.cc *.h)
-firebase_ios_add_test(firestore_auth_test ${sources})
+firebase_ios_add_test(firestore_credentials_test ${sources})
 
 target_link_libraries(
-  firestore_auth_test PRIVATE
+  firestore_credentials_test PRIVATE
   firestore_core
 )
 
 if(APPLE)
   target_sources(
-    firestore_auth_test PRIVATE
+    firestore_credentials_test PRIVATE
     firebase_credentials_provider_test.mm
   )
 
   target_link_libraries(
-    firestore_auth_test PRIVATE
+    firestore_credentials_test PRIVATE
     firestore_testutil
   )
 endif()

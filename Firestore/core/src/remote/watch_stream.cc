@@ -30,8 +30,8 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-using auth::CredentialsProvider;
-using auth::Token;
+using credentials::AuthToken;
+using credentials::CredentialsProvider;
 using local::TargetData;
 using model::TargetId;
 using remote::ByteBufferReader;
@@ -69,7 +69,7 @@ void WatchStream::UnwatchTargetId(TargetId target_id) {
 }
 
 std::unique_ptr<GrpcStream> WatchStream::CreateGrpcStream(
-    GrpcConnection* grpc_connection, const Token& token) {
+    GrpcConnection* grpc_connection, const AuthToken& token) {
   return grpc_connection->CreateStream("/google.firestore.v1.Firestore/Listen",
                                        token, this);
 }

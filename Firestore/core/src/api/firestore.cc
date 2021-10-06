@@ -43,10 +43,10 @@ namespace firebase {
 namespace firestore {
 namespace api {
 
-using auth::CredentialsProvider;
 using core::AsyncEventListener;
 using core::DatabaseInfo;
 using core::FirestoreClient;
+using credentials::CredentialsProvider;
 using local::LevelDbPersistence;
 using model::ResourcePath;
 using remote::FirebaseMetadataProvider;
