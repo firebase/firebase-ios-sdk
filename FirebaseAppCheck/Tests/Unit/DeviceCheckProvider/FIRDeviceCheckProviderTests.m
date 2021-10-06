@@ -164,6 +164,8 @@ API_UNAVAILABLE(watchos)
   // 4. Verify fakes.
   OCMVerifyAll(self.fakeAPIService);
   OCMVerifyAll(self.fakeTokenGenerator);
+
+  // TODO: Test backoff.
 }
 
 - (void)testGetTokenWhenAPIServiceFails {
@@ -196,11 +198,14 @@ API_UNAVAILABLE(watchos)
   // 4. Verify fakes.
   OCMVerifyAll(self.fakeAPIService);
   OCMVerifyAll(self.fakeTokenGenerator);
+
+  // TODO: Test backoff.
 }
 
 #pragma mark - Backoff tests
 
-- (void)testGetTokenBackoffSuccess {
+// TODO: Implement.
+- (void)testGetTokenBackoff {
   // 1. Configure backoff.
   self.fakeBackoffWrapper.isNextOperationAllowed = NO;
   //  self.fakeBackoffWrapper.
