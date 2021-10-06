@@ -19,13 +19,14 @@
 #import <OCMock/OCMock.h>
 #import "FBLPromise+Testing.h"
 
-#import "FirebaseAppCheck/Sources/Core/Backoff/FIRAppCheckBackoffWrapper.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"
 #import "FirebaseAppCheck/Sources/DeviceCheckProvider/API/FIRDeviceCheckAPIService.h"
 #import "FirebaseAppCheck/Sources/DeviceCheckProvider/FIRDeviceCheckTokenGenerator.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRDeviceCheckProvider.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+
+#import "SharedTestUtilities/AppCheckFake/FIRAppCheckBackoffWrapperFake.h"
 
 API_AVAILABLE(ios(11.0), macos(10.15), tvos(11.0))
 API_UNAVAILABLE(watchos)
@@ -34,7 +35,7 @@ API_UNAVAILABLE(watchos)
 @property(nonatomic) FIRDeviceCheckProvider *provider;
 @property(nonatomic) id fakeAPIService;
 @property(nonatomic) id fakeTokenGenerator;
-@property(nonatomic) id fakeBackoffWrapper;
+@property(nonatomic) FIRAppCheckBackoffWrapperFake *fakeBackoffWrapper;
 
 @end
 
@@ -54,9 +55,9 @@ API_UNAVAILABLE(watchos)
   self.fakeAPIService = OCMProtocolMock(@protocol(FIRDeviceCheckAPIServiceProtocol));
   self.fakeTokenGenerator = OCMProtocolMock(@protocol(FIRDeviceCheckTokenGenerator));
 
-  // TODO: replace with a mock.
-  self.fakeBackoffWrapper = [[FIRAppCheckBackoffWrapper alloc] init];
-  // OCMProtocolMock(@protocol(FIRAppCheckBackoffWrapperProtocol));
+  self.fakeBackoffWrapper = [[FIRAppCheckBackoffWrapperFake alloc] init];
+  // Don't backoff by default.
+  self.fakeBackoffWrapper.isNextOperationAllowed = YES;
 
   self.provider = [[FIRDeviceCheckProvider alloc] initWithAPIService:self.fakeAPIService
                                                 deviceTokenGenerator:self.fakeTokenGenerator
@@ -106,7 +107,10 @@ API_UNAVAILABLE(watchos)
   OCMExpect([self.fakeAPIService appCheckTokenWithDeviceToken:deviceToken])
       .andReturn([FBLPromise resolvedWith:validToken]);
 
-  // 3. Call getToken and validate the result.
+  // 3. Expect backoff wrapper to be used.
+  self.fakeBackoffWrapper.backoffExpectation = [self expectationWithDescription:@"Backoff"];
+
+  // 4. Call getToken and validate the result.
   XCTestExpectation *completionExpectation =
       [self expectationWithDescription:@"completionExpectation"];
   [self.provider
@@ -118,9 +122,18 @@ API_UNAVAILABLE(watchos)
         XCTAssertNil(error);
       }];
 
-  [self waitForExpectations:@[ completionExpectation ] timeout:0.5];
+  [self waitForExpectations:@[ self.fakeBackoffWrapper.backoffExpectation, completionExpectation ]
+                    timeout:0.5
+               enforceOrder:YES];
 
-  // 4. Verify fakes.
+  // 5. Verify.
+  XCTAssertNil(self.fakeBackoffWrapper.operationError);
+  FIRAppCheckToken *wrapperResult =
+      [self.fakeBackoffWrapper.operationResult isKindOfClass:[FIRAppCheckToken class]]
+          ? self.fakeBackoffWrapper.operationResult
+          : nil;
+  XCTAssertEqualObjects(wrapperResult.token, validToken.token);
+
   OCMVerifyAll(self.fakeAPIService);
   OCMVerifyAll(self.fakeTokenGenerator);
 }
@@ -183,6 +196,14 @@ API_UNAVAILABLE(watchos)
   // 4. Verify fakes.
   OCMVerifyAll(self.fakeAPIService);
   OCMVerifyAll(self.fakeTokenGenerator);
+}
+
+#pragma mark - Backoff tests
+
+- (void)testGetTokenBackoffSuccess {
+  // 1. Configure backoff.
+  self.fakeBackoffWrapper.isNextOperationAllowed = NO;
+  //  self.fakeBackoffWrapper.
 }
 
 @end

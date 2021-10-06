@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 #import "SharedTestUtilities/AppCheckFake/FIRAppCheckBackoffWrapperFake.h"
 
 #if __has_include(<FBLPromises/FBLPromises.h>)
@@ -27,24 +26,27 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRAppCheckBackoffWrapperFake
 
-- (FBLPromise *)backoff:(FIRAppCheckBackoffOperationProvider)operationProvider errorHandler:(FIRAppCheckBackoffErrorHandler)errorHandler {
+- (FBLPromise *)backoff:(FIRAppCheckBackoffOperationProvider)operationProvider
+           errorHandler:(FIRAppCheckBackoffErrorHandler)errorHandler {
   [self.backoffExpectation fulfill];
 
   if (self.isNextOperationAllowed) {
     return operationProvider()
-      .then(^id(id value) {
-        self->_operationResult = value;
-        self->_operationError = nil;
-        return value;
-      })
-      .recover(^id(NSError *error) {
-        self->_operationError = error;
-        self->_operationResult = nil;
-        return error;
-      });
+        .then(^id(id value) {
+          self->_operationResult = value;
+          self->_operationError = nil;
+          return value;
+        })
+        .recover(^id(NSError *error) {
+          self->_operationError = error;
+          self->_operationResult = nil;
+          return error;
+        });
   } else {
     FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
-    NSError *error = [NSError errorWithDomain:@"FIRAppCheckBackoffWrapperFake.backoff" code:-1 userInfo:nil];
+    NSError *error = [NSError errorWithDomain:@"FIRAppCheckBackoffWrapperFake.backoff"
+                                         code:-1
+                                     userInfo:nil];
     [rejectedPromise reject:error];
     return rejectedPromise;
   }

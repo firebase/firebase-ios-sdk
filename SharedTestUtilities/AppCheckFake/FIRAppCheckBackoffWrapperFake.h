@@ -20,12 +20,12 @@
 
 #import "FirebaseAppCheck/Sources/Core/Backoff/FIRAppCheckBackoffWrapper.h"
 
-
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRAppCheckBackoffWrapperFake : NSObject<FIRAppCheckBackoffWrapperProtocol>
+@interface FIRAppCheckBackoffWrapperFake : NSObject <FIRAppCheckBackoffWrapperProtocol>
 
-/// If `YES` then the next operation passed to `[backoff:errorHandler:]` method will be performed. If `NO` then it will fail with a backoff error.
+/// If `YES` then the next operation passed to `[backoff:errorHandler:]` method will be performed.
+/// If `NO` then it will fail with a backoff error.
 @property(nonatomic) BOOL isNextOperationAllowed;
 
 /// Result of the last performed operation if it succeeded.

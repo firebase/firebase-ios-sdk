@@ -108,18 +108,25 @@ NS_ASSUME_NONNULL_BEGIN
                                          NSError *_Nullable error))handler {
   [self.backoffWrapper
            backoff:^FBLPromise *_Nonnull {
-             return [self deviceToken];
+             return [self getTokenPromise];
            }
       errorHandler:[self.backoffWrapper defaultErrorHandler]]
-      .then(^FBLPromise<FIRAppCheckToken *> *(NSData *deviceToken) {
-        return [self.APIService appCheckTokenWithDeviceToken:deviceToken];
-      })
+      // Call the handler with either token or error.
       .then(^id(FIRAppCheckToken *appCheckToken) {
         handler(appCheckToken, nil);
         return nil;
       })
       .catch(^void(NSError *error) {
         handler(nil, error);
+      });
+}
+
+- (FBLPromise<FIRAppCheckToken *> *)getTokenPromise {
+  // Get DeviceCheck token
+  return [self deviceToken]
+      // Exchange DeviceCheck token for FAC token.
+      .then(^FBLPromise<FIRAppCheckToken *> *(NSData *deviceToken) {
+        return [self.APIService appCheckTokenWithDeviceToken:deviceToken];
       });
 }
 
