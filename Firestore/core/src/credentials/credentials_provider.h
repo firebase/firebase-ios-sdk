@@ -37,8 +37,7 @@ using TokenListener = std::function<void(util::StatusOr<AuthToken>)>;
 using CredentialChangeListener = std::function<void(User user)>;
 
 /**
- * Provides methods for getting the uid and token for the current user and
- * listen for changes.
+ * Provides methods for getting and listening to authentication credentials.
  */
 class CredentialsProvider {
  public:
@@ -46,7 +45,7 @@ class CredentialsProvider {
 
   virtual ~CredentialsProvider();
 
-  /** Requests token for the current user. */
+  /** Requests the current token. */
   virtual void GetToken(TokenListener completion) = 0;
 
   /**
@@ -58,7 +57,7 @@ class CredentialsProvider {
   /**
    * Sets the listener to be notified of credential changes (sign-in /
    * sign-out, token changes). It is immediately called once with the initial
-   * user.
+   * credential.
    *
    * Call with nullptr to remove previous listener.
    */
@@ -68,7 +67,7 @@ class CredentialsProvider {
  protected:
   /**
    * A listener to be notified of credential changes (sign-in / sign-out, token
-   * changes). It is immediately called once with the initial user.
+   * changes). It is immediately called once with the initial credential.
    *
    * Note that this block will be called back on an arbitrary thread that is not
    * the normal Firestore worker thread.
