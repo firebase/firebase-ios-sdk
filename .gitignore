@@ -151,3 +151,8 @@ FirebaseInAppMessaging/Tests/Integration/FunctionalTestApp/App/InAppMessaging-Ex
 # FIRAppCheckTestApp
 FirebaseAppCheck/Apps/FIRAppCheckTestApp/FIRAppCheckTestApp/GoogleService-Info.plist
 FirebaseAppCheck/Apps/AppCheckCustomProvideApp/AppCheckCustomProvideApp/GoogleService-Info.plist
+
+# FirestoreSample
+/Example/FirestoreSample/FirestoreSample/GoogleService-Info.plist
+/Example/FirestoreSample/ui-debug.log
+/Example/FirestoreSample/firestore-debug.log
