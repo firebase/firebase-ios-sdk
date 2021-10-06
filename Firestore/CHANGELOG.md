@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Fix a crash if `[FIRTransaction getDocument]` was called after
+  `[FIRFirestore terminateWithCompletion]`.
+
 # v8.6.0
 - [changed] Internal refactor to improve serialization performance.
 - [changed] `DocumentSnapshot` objects consider the document's key and data for
