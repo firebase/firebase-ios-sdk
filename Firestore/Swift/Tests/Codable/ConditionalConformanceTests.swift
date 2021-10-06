@@ -30,7 +30,6 @@ class ConditionalConformanceTests: XCTestCase {
     XCTAssertEqual("foo", dict[Model(x: 42)])
   }
 
-  #if compiler(>=5.1)
     func testDocumentIDOfString() {
       struct Model: Codable, Equatable, Hashable {
         @DocumentID var x: String?
@@ -107,5 +106,4 @@ class ConditionalConformanceTests: XCTestCase {
       let dict: [Model: String] = [Model(x: ts1): "foo"]
       XCTAssertEqual("foo", dict[Model(x: ts2)])
     }
-  #endif // compiler(>=5.1)
 }

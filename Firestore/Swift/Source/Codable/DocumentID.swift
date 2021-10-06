@@ -16,7 +16,6 @@
 
 import FirebaseFirestore
 
-#if compiler(>=5.1)
   /// A type that can initialize itself from a Firestore `DocumentReference`,
   /// which makes it suitable for use with the `@DocumentID` property wrapper.
   ///
@@ -117,4 +116,3 @@ import FirebaseFirestore
   extension DocumentID: Equatable where Value: Equatable {}
 
   extension DocumentID: Hashable where Value: Hashable {}
-#endif // compiler(>=5.1)
