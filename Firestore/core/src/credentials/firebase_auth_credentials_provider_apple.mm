@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/credentials/firebase_credentials_provider_apple.h"
+#include "Firestore/core/src/credentials/firebase_auth_credentials_provider_apple.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "Interop/Auth/Public/FIRAuthInterop.h"
@@ -28,7 +28,7 @@ namespace firebase {
 namespace firestore {
 namespace credentials {
 
-FirebaseCredentialsProvider::FirebaseCredentialsProvider(
+FirebaseAuthCredentialsProvider::FirebaseAuthCredentialsProvider(
     FIRApp* app, id<FIRAuthInterop> auth) {
   contents_ =
       std::make_shared<Contents>(app, auth, User::FromUid([auth getUserID]));
@@ -58,14 +58,14 @@ FirebaseCredentialsProvider::FirebaseCredentialsProvider(
                     user_info[FIRAuthStateDidChangeInternalNotificationUIDKey];
                 contents->current_user = User::FromUid(user_id);
                 contents->token_counter++;
-                CredentialChangeListener listener = change_listener_;
+                CredentialChangeListener<User> listener = change_listener_;
                 if (listener) {
                   listener(contents->current_user);
                 }
               }];
 }
 
-FirebaseCredentialsProvider::~FirebaseCredentialsProvider() {
+FirebaseAuthCredentialsProvider::~FirebaseAuthCredentialsProvider() {
   if (auth_listener_handle_) {
     // Even though iOS 9 (and later) and macOS 10.11 (and later) keep a weak
     // reference to the observer so we could avoid this removeObserver call, we
@@ -74,7 +74,8 @@ FirebaseCredentialsProvider::~FirebaseCredentialsProvider() {
   }
 }
 
-void FirebaseCredentialsProvider::GetToken(TokenListener completion) {
+void FirebaseAuthCredentialsProvider::GetToken(
+    TokenListener<AuthToken> completion) {
   HARD_ASSERT(auth_listener_handle_,
               "GetToken cannot be called after listener removed.");
 
@@ -128,12 +129,12 @@ void FirebaseCredentialsProvider::GetToken(TokenListener completion) {
   contents_->force_refresh = false;
 }
 
-void FirebaseCredentialsProvider::InvalidateToken() {
+void FirebaseAuthCredentialsProvider::InvalidateToken() {
   contents_->force_refresh = true;
 }
 
-void FirebaseCredentialsProvider::SetCredentialChangeListener(
-    CredentialChangeListener change_listener) {
+void FirebaseAuthCredentialsProvider::SetCredentialChangeListener(
+    CredentialChangeListener<User> change_listener) {
   std::unique_lock<std::mutex> lock(contents_->mutex);
   if (change_listener) {
     HARD_ASSERT(!change_listener_, "set change_listener twice!");

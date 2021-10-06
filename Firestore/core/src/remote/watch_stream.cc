@@ -30,8 +30,8 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+using credentials::AuthCredentialsProvider;
 using credentials::AuthToken;
-using credentials::CredentialsProvider;
 using local::TargetData;
 using model::TargetId;
 using remote::ByteBufferReader;
@@ -41,7 +41,7 @@ using util::TimerId;
 
 WatchStream::WatchStream(
     const std::shared_ptr<AsyncQueue>& async_queue,
-    std::shared_ptr<CredentialsProvider> credentials_provider,
+    std::shared_ptr<AuthCredentialsProvider> credentials_provider,
     Serializer serializer,
     GrpcConnection* grpc_connection,
     WatchStreamCallback* callback)

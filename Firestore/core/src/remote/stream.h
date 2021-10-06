@@ -21,6 +21,7 @@
 #include <string>
 
 #include "Firestore/core/src/credentials/auth_token.h"
+#include "Firestore/core/src/credentials/credentials_fwd.h"
 #include "Firestore/core/src/credentials/credentials_provider.h"
 #include "Firestore/core/src/remote/exponential_backoff.h"
 #include "Firestore/core/src/remote/grpc_completion.h"
@@ -119,7 +120,8 @@ class Stream : public GrpcStreamObserver,
   };
 
   Stream(const std::shared_ptr<util::AsyncQueue>& worker_queue,
-         std::shared_ptr<credentials::CredentialsProvider> credentials_provider,
+         std::shared_ptr<credentials::AuthCredentialsProvider>
+             credentials_provider,
          GrpcConnection* grpc_connection,
          util::TimerId backoff_timer_id,
          util::TimerId idle_timer_id);
@@ -226,7 +228,7 @@ class Stream : public GrpcStreamObserver,
 
   std::unique_ptr<GrpcStream> grpc_stream_;
 
-  std::shared_ptr<credentials::CredentialsProvider> credentials_provider_;
+  std::shared_ptr<credentials::AuthCredentialsProvider> credentials_provider_;
   std::shared_ptr<util::AsyncQueue> worker_queue_;
   GrpcConnection* grpc_connection_ = nullptr;
 

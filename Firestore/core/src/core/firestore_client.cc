@@ -72,7 +72,7 @@ using api::QuerySnapshot;
 using api::QuerySnapshotListener;
 using api::Settings;
 using api::SnapshotMetadata;
-using credentials::CredentialsProvider;
+using credentials::AuthCredentialsProvider;
 using credentials::User;
 using firestore::Error;
 using local::LevelDbOpener;
@@ -106,7 +106,7 @@ static const size_t kMaxConcurrentLimboResolutions = 100;
 std::shared_ptr<FirestoreClient> FirestoreClient::Create(
     const DatabaseInfo& database_info,
     const api::Settings& settings,
-    std::shared_ptr<CredentialsProvider> credentials_provider,
+    std::shared_ptr<AuthCredentialsProvider> credentials_provider,
     std::shared_ptr<Executor> user_executor,
     std::shared_ptr<AsyncQueue> worker_queue,
     std::unique_ptr<FirebaseMetadataProvider> firebase_metadata_provider) {
@@ -152,7 +152,7 @@ std::shared_ptr<FirestoreClient> FirestoreClient::Create(
 
 FirestoreClient::FirestoreClient(
     const DatabaseInfo& database_info,
-    std::shared_ptr<CredentialsProvider> credentials_provider,
+    std::shared_ptr<AuthCredentialsProvider> credentials_provider,
     std::shared_ptr<Executor> user_executor,
     std::shared_ptr<AsyncQueue> worker_queue,
     std::unique_ptr<FirebaseMetadataProvider> firebase_metadata_provider)

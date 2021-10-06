@@ -28,7 +28,7 @@
 #include "Firestore/core/src/remote/grpc_stream.h"
 #include "Firestore/core/src/util/async_queue.h"
 #include "Firestore/core/test/unit/remote/create_noop_connectivity_monitor.h"
-#include "Firestore/core/test/unit/remote/fake_credentials_provider.h"
+#include "Firestore/core/test/unit/remote/fake_auth_credentials_provider.h"
 #include "Firestore/core/test/unit/remote/grpc_stream_tester.h"
 #include "Firestore/core/test/unit/testutil/async_testing.h"
 #include "absl/memory/memory.h"
@@ -45,8 +45,8 @@ namespace firestore {
 namespace remote {
 namespace {
 
+using credentials::AuthCredentialsProvider;
 using credentials::AuthToken;
-using credentials::CredentialsProvider;
 using util::AsyncQueue;
 using util::StringFormat;
 using util::TimerId;
@@ -60,7 +60,7 @@ class TestStream : public Stream {
  public:
   TestStream(const std::shared_ptr<AsyncQueue>& worker_queue,
              GrpcStreamTester* tester,
-             std::shared_ptr<CredentialsProvider> credentials_provider)
+             std::shared_ptr<AuthCredentialsProvider> credentials_provider)
       : Stream{worker_queue, credentials_provider,
                /*GrpcConnection=*/nullptr, kBackoffTimerId, kIdleTimerId},
         tester_{tester} {
@@ -140,7 +140,7 @@ class StreamTest : public testing::Test {
       : worker_queue{testutil::AsyncQueueForTesting()},
         connectivity_monitor{CreateNoOpConnectivityMonitor()},
         tester{worker_queue, connectivity_monitor.get()},
-        credentials{std::make_shared<FakeCredentialsProvider>()},
+        credentials{std::make_shared<FakeAuthCredentialsProvider>()},
         firestore_stream{
             std::make_shared<TestStream>(worker_queue, &tester, credentials)} {
   }
@@ -186,7 +186,7 @@ class StreamTest : public testing::Test {
   std::unique_ptr<ConnectivityMonitor> connectivity_monitor;
   GrpcStreamTester tester;
 
-  std::shared_ptr<FakeCredentialsProvider> credentials;
+  std::shared_ptr<FakeAuthCredentialsProvider> credentials;
   std::shared_ptr<TestStream> firestore_stream;
 };
 

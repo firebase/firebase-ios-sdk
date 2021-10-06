@@ -92,12 +92,12 @@ class WriteStreamCallback {
  */
 class WriteStream : public Stream {
  public:
-  WriteStream(
-      const std::shared_ptr<util::AsyncQueue>& async_queue,
-      std::shared_ptr<credentials::CredentialsProvider> credentials_provider,
-      Serializer serializer,
-      GrpcConnection* grpc_connection,
-      WriteStreamCallback* callback);
+  WriteStream(const std::shared_ptr<util::AsyncQueue>& async_queue,
+              std::shared_ptr<credentials::AuthCredentialsProvider>
+                  credentials_provider,
+              Serializer serializer,
+              GrpcConnection* grpc_connection,
+              WriteStreamCallback* callback);
 
   void set_last_stream_token(nanopb::ByteString token);
   /**

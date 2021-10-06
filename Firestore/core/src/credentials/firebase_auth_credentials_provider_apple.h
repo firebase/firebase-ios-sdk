@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_CREDENTIALS_FIREBASE_CREDENTIALS_PROVIDER_APPLE_H_
-#define FIRESTORE_CORE_SRC_CREDENTIALS_FIREBASE_CREDENTIALS_PROVIDER_APPLE_H_
+#ifndef FIRESTORE_CORE_SRC_CREDENTIALS_FIREBASE_AUTH_CREDENTIALS_PROVIDER_APPLE_H_
+#define FIRESTORE_CORE_SRC_CREDENTIALS_FIREBASE_AUTH_CREDENTIALS_PROVIDER_APPLE_H_
 
 #if !defined(__OBJC__)
 #error "This header only supports Objective-C++."
@@ -52,7 +52,8 @@ namespace credentials {
  *
  * For non-Apple desktop build, this is right now just a stub.
  */
-class FirebaseCredentialsProvider : public CredentialsProvider {
+class FirebaseAuthCredentialsProvider
+    : public CredentialsProvider<AuthToken, User> {
  public:
   // TODO(zxu123): Provide a ctor to accept the C++ Firebase Games App, which
   // deals all platforms. Right now, only works for FIRApp*.
@@ -63,14 +64,15 @@ class FirebaseCredentialsProvider : public CredentialsProvider {
    *            received.
    * @param auth The auth instance from which to get credentials.
    */
-  explicit FirebaseCredentialsProvider(FIRApp* app, id<FIRAuthInterop> auth);
+  explicit FirebaseAuthCredentialsProvider(FIRApp* app,
+                                           id<FIRAuthInterop> auth);
 
-  ~FirebaseCredentialsProvider() override;
+  ~FirebaseAuthCredentialsProvider() override;
 
-  void GetToken(TokenListener completion) override;
+  void GetToken(TokenListener<AuthToken> completion) override;
 
   void SetCredentialChangeListener(
-      CredentialChangeListener change_listener) override;
+      CredentialChangeListener<User> change_listener) override;
 
   void InvalidateToken() override;
 
@@ -119,4 +121,4 @@ class FirebaseCredentialsProvider : public CredentialsProvider {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_CREDENTIALS_FIREBASE_CREDENTIALS_PROVIDER_APPLE_H_
+#endif  // FIRESTORE_CORE_SRC_CREDENTIALS_FIREBASE_AUTH_CREDENTIALS_PROVIDER_APPLE_H_

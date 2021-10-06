@@ -26,9 +26,8 @@ namespace credentials {
 #define UNUSED(x) (void)(x)
 
 TEST(CredentialsProvider, Typedef) {
-  TokenListener token_listener = [](util::StatusOr<AuthToken> token) {
-    UNUSED(token);
-  };
+  TokenListener<AuthToken> token_listener =
+      [](util::StatusOr<AuthToken> token) { UNUSED(token); };
   EXPECT_NE(nullptr, token_listener);
   EXPECT_TRUE(token_listener);
 
@@ -36,7 +35,7 @@ TEST(CredentialsProvider, Typedef) {
   EXPECT_EQ(nullptr, token_listener);
   EXPECT_FALSE(token_listener);
 
-  CredentialChangeListener user_change_listener = [](User user) {
+  CredentialChangeListener<User> user_change_listener = [](User user) {
     UNUSED(user);
   };
   EXPECT_NE(nullptr, user_change_listener);

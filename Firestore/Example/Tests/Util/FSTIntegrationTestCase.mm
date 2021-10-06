@@ -55,6 +55,7 @@
 namespace util = firebase::firestore::util;
 
 using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::credentials::AuthToken;
 using firebase::firestore::credentials::CredentialChangeListener;
 using firebase::firestore::credentials::EmptyCredentialsProvider;
 using firebase::firestore::credentials::User;
@@ -85,9 +86,9 @@ static bool runningAgainstEmulator = false;
 
 // Behaves the same as `EmptyCredentialsProvider` except it can also trigger a user
 // change.
-class FakeCredentialsProvider : public EmptyCredentialsProvider {
+class FakeCredentialsProvider : public EmptyCredentialsProvider<AuthToken, User> {
  public:
-  void SetCredentialChangeListener(CredentialChangeListener changeListener) override {
+  void SetCredentialChangeListener(CredentialChangeListener<User> changeListener) override {
     if (changeListener) {
       listener_ = std::move(changeListener);
       listener_(User::Unauthenticated());
@@ -101,7 +102,7 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
   }
 
  private:
-  CredentialChangeListener listener_;
+  CredentialChangeListener<User> listener_;
 };
 
 @implementation FSTIntegrationTestCase {

@@ -212,7 +212,8 @@ firebase_ios_glob(
 if(APPLE)
   firebase_ios_glob(
     core_sources APPEND
-    src/credentials/firebase_credentials_provider_apple.*
+    src/credentials/firebase_app_check_credentials_provider_apple.*
+    src/credentials/firebase_auth_credentials_provider_apple.*
     src/remote/connectivity_monitor_apple.mm
     src/remote/firebase_metadata_provider_apple.mm
   )

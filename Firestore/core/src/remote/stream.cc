@@ -34,12 +34,15 @@ namespace {
 
 using credentials::AuthToken;
 using credentials::CredentialsProvider;
+using credentials::User;
 using util::AsyncQueue;
 using util::LogIsDebugEnabled;
 using util::Status;
 using util::StatusOr;
 using util::StringFormat;
 using util::TimerId;
+
+using AuthCredentialsProvider = CredentialsProvider<AuthToken, User>;
 
 /**
  * Initial backoff time after an error.
@@ -54,7 +57,7 @@ const AsyncQueue::Milliseconds kIdleTimeout{std::chrono::seconds(60)};
 }  // namespace
 
 Stream::Stream(const std::shared_ptr<AsyncQueue>& worker_queue,
-               std::shared_ptr<CredentialsProvider> credentials_provider,
+               std::shared_ptr<AuthCredentialsProvider> credentials_provider,
                GrpcConnection* grpc_connection,
                TimerId backoff_timer_id,
                TimerId idle_timer_id)

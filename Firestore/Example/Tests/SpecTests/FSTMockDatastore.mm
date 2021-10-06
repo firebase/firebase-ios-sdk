@@ -43,7 +43,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 using firebase::firestore::core::DatabaseInfo;
-using firebase::firestore::credentials::CredentialsProvider;
+using firebase::firestore::credentials::AuthCredentialsProvider;
 using firebase::firestore::credentials::EmptyCredentialsProvider;
 using firebase::firestore::local::TargetData;
 using firebase::firestore::model::DatabaseId;
@@ -68,7 +68,7 @@ namespace remote {
 class MockWatchStream : public WatchStream {
  public:
   MockWatchStream(const std::shared_ptr<AsyncQueue>& worker_queue,
-                  std::shared_ptr<CredentialsProvider> credentials_provider,
+                  std::shared_ptr<AuthCredentialsProvider> credentials_provider,
                   Serializer serializer,
                   GrpcConnection* grpc_connection,
                   WatchStreamCallback* callback,
@@ -160,7 +160,7 @@ class MockWatchStream : public WatchStream {
 class MockWriteStream : public WriteStream {
  public:
   MockWriteStream(const std::shared_ptr<AsyncQueue>& worker_queue,
-                  std::shared_ptr<CredentialsProvider> credentials_provider,
+                  std::shared_ptr<AuthCredentialsProvider> credentials_provider,
                   Serializer serializer,
                   GrpcConnection* grpc_connection,
                   WriteStreamCallback* callback,
@@ -244,7 +244,7 @@ class MockWriteStream : public WriteStream {
 
 MockDatastore::MockDatastore(const core::DatabaseInfo& database_info,
                              const std::shared_ptr<util::AsyncQueue>& worker_queue,
-                             std::shared_ptr<credentials::CredentialsProvider> credentials,
+                             std::shared_ptr<credentials::AuthCredentialsProvider> credentials,
                              ConnectivityMonitor* connectivity_monitor,
                              FirebaseMetadataProvider* firebase_metadata_provider)
     : Datastore{database_info, worker_queue, credentials, connectivity_monitor,

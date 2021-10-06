@@ -50,8 +50,8 @@ namespace remote {
 namespace {
 
 using core::DatabaseInfo;
+using credentials::AuthCredentialsProvider;
 using credentials::AuthToken;
-using credentials::CredentialsProvider;
 using model::DocumentKey;
 using model::Mutation;
 using util::AsyncQueue;
@@ -91,7 +91,7 @@ void LogGrpcCallFinished(absl::string_view rpc_name,
 
 Datastore::Datastore(const DatabaseInfo& database_info,
                      const std::shared_ptr<AsyncQueue>& worker_queue,
-                     std::shared_ptr<CredentialsProvider> credentials,
+                     std::shared_ptr<AuthCredentialsProvider> credentials,
                      ConnectivityMonitor* connectivity_monitor,
                      FirebaseMetadataProvider* firebase_metadata_provider)
     : worker_queue_{NOT_NULL(worker_queue)},

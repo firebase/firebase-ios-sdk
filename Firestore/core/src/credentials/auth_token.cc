@@ -24,6 +24,9 @@ namespace firebase {
 namespace firestore {
 namespace credentials {
 
+AuthToken::AuthToken() : token_{}, user_{User::Unauthenticated()} {
+}
+
 AuthToken::AuthToken(std::string token, User user)
     : token_{std::move(token)}, user_{std::move(user)} {
 }
@@ -34,8 +37,7 @@ const std::string& AuthToken::token() const {
 }
 
 const AuthToken& AuthToken::Unauthenticated() {
-  static const AuthToken kUnauthenticatedToken(std::string{},
-                                               User::Unauthenticated());
+  static const AuthToken kUnauthenticatedToken{};
   return kUnauthenticatedToken;
 }
 
