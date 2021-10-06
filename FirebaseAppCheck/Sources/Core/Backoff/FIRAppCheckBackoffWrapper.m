@@ -126,7 +126,7 @@ static NSTimeInterval const k24Hours = 24 * 60 * 60;
            errorHandler:(FIRAppCheckBackoffErrorHandler)errorHandler {
   if (![self isNextOperationAllowed]) {
     // Backing off - skip the operation and return an error straight away.
-    return [self retryDisallowedPromiseWithError:self.lastFailure.error];
+    return [self promiseWithRetryDisallowedError:self.lastFailure.error];
   }
 
   __auto_type operationPromise = operationProvider();
@@ -202,7 +202,7 @@ static NSTimeInterval const k24Hours = 24 * 60 * 60;
   return timeSinceFailure >= timeInterval;
 }
 
-- (FBLPromise *)retryDisallowedPromiseWithError:(NSError *)error {
+- (FBLPromise *)promiseWithRetryDisallowedError:(NSError *)error {
   NSString *reason =
       [NSString stringWithFormat:@"To many attempts. Underlying error: %@",
                                  error.localizedDescription ?: error.localizedFailureReason];
