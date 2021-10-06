@@ -34,14 +34,14 @@ NS_ASSUME_NONNULL_BEGIN
 /// Error of the last performed operation if it failed.
 @property(nonatomic, nullable, readonly) NSError *operationError;
 
+/// Default error handler.
+@property(nonatomic, copy) FIRAppCheckBackoffErrorHandler defaultErrorHandler;
+
 /// Assign expectation to fulfill on  `[backoff:errorHandler:]` method call to this property.
 @property(nonatomic, nullable) XCTestExpectation *backoffExpectation;
 
 /// Assign expectation to fulfill on  `[resetBackoff]` method call to this property.
 @property(nonatomic, nullable) XCTestExpectation *resetBackoffExpectation;
-
-/// Assign expectation to fulfill on  `[defaultErrorHandler]` method call to this property.
-@property(nonatomic, nullable) XCTestExpectation *defaultErrorHandlerExpectation;
 
 @end
 

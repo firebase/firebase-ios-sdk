@@ -31,7 +31,17 @@ NS_ASSUME_NONNULL_BEGIN
   [self.backoffExpectation fulfill];
 
   if (self.isNextOperationAllowed) {
-    return operationProvider();
+    return operationProvider()
+      .then(^id(id value) {
+        self->_operationResult = value;
+        self->_operationError = nil;
+        return value;
+      })
+      .recover(^id(NSError *error) {
+        self->_operationError = error;
+        self->_operationResult = nil;
+        return error;
+      });
   } else {
     FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
     NSError *error = [NSError errorWithDomain:@"FIRAppCheckBackoffWrapperFake.backoff" code:-1 userInfo:nil];
@@ -41,11 +51,17 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FIRAppCheckBackoffErrorHandler)defaultErrorHandler {
-  <#code#>
+  if (_defaultErrorHandler) {
+    return _defaultErrorHandler;
+  }
+
+  return ^FIRAppCheckBackoffType(NSError *error) {
+    return FIRAppCheckBackoffTypeNone;
+  };
 }
 
 - (void)resetBackoff {
-  <#code#>
+  [self.resetBackoffExpectation fulfill];
 }
 
 @end
