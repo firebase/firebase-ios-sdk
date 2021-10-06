@@ -193,8 +193,7 @@ jobs:
 
   # `pod lib lint` takes a long time so only run the other platforms and static frameworks build in the cron.
   pod-lib-lint-cron:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
     runs-on: macos-11
     needs: check
     strategy:
