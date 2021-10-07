@@ -92,7 +92,7 @@ end
 
 if is_platform(:ios)
   target 'Firestore_Example_iOS' do
-    platform :ios, '10.0'
+    platform :ios, '11.0'
 
     configure_local_pods()
 
@@ -125,7 +125,7 @@ if is_platform(:ios)
 
     target 'Firestore_FuzzTests_iOS' do
       inherit! :search_paths
-      platform :ios, '10.0'
+      platform :ios, '11.0'
 
       pod 'LibFuzzer', :podspec => 'LibFuzzer.podspec', :inhibit_warnings => true
     end
@@ -163,7 +163,7 @@ end
 
 if is_platform(:tvos)
   target 'Firestore_Example_tvOS' do
-    platform :tvos, '10.0'
+    platform :tvos, '11.0'
 
     configure_local_pods()
 
