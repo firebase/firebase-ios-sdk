@@ -1338,7 +1338,7 @@ using firebase::firestore::util::TimerId;
         [expectation3 fulfill];
         return @"I should have failed since the transaction was terminated";
       }
-                   completion:^(id, NSError *error){
+                   completion:^(id, NSError *){
                    }];
 
   // Wait for the transaction callback to start.
