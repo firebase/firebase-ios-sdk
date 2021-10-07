@@ -1,6 +1,6 @@
 # Unreleased
 - [fixed] Fix a crash if `[FIRTransaction getDocument]` was called after
-  `[FIRFirestore terminateWithCompletion]`.
+  `[FIRFirestore terminateWithCompletion]` (#8760).
 
 # v8.6.0
 - [changed] Internal refactor to improve serialization performance.
