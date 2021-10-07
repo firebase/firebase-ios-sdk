@@ -48,11 +48,6 @@ void FakeAuthCredentialsProvider::GetToken(
   }
 }
 
-void FakeAuthCredentialsProvider::InvalidateToken() {
-  observed_states_.push_back("InvalidateToken");
-  EmptyAuthCredentialsProvider::InvalidateToken();
-}
-
 void FakeAuthCredentialsProvider::DelayGetToken() {
   delay_get_token_ = true;
 }

@@ -119,18 +119,12 @@ void FirebaseAuthCredentialsProvider::GetToken(
 
   // TODO(wilhuff): Need a better abstraction over a missing auth provider.
   if (contents_->auth) {
-    [contents_->auth getTokenForcingRefresh:contents_->force_refresh
-                               withCallback:get_token_callback];
+    [contents_->auth getTokenWithCallback:get_token_callback];
   } else {
     // If there's no Auth provider, call back immediately with a nil
     // (unauthenticated) token.
     get_token_callback(nil, nil);
   }
-  contents_->force_refresh = false;
-}
-
-void FirebaseAuthCredentialsProvider::InvalidateToken() {
-  contents_->force_refresh = true;
 }
 
 void FirebaseAuthCredentialsProvider::SetCredentialChangeListener(

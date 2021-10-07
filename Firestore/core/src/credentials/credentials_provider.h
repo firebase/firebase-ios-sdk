@@ -54,12 +54,6 @@ class CredentialsProvider {
   virtual void GetToken(TokenListener<TokenType> completion) = 0;
 
   /**
-   * Marks the last retrieved token as invalid, making the next `GetToken`
-   * request force refresh the token.
-   */
-  virtual void InvalidateToken() = 0;
-
-  /**
    * Sets the listener to be notified of credential changes (sign-in /
    * sign-out, token changes). It is immediately called once with the initial
    * user.

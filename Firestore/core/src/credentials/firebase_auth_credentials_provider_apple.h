@@ -74,8 +74,6 @@ class FirebaseAuthCredentialsProvider
   void SetCredentialChangeListener(
       CredentialChangeListener<User> change_listener) override;
 
-  void InvalidateToken() override;
-
  private:
   /**
    * Most contents of the FirebaseCredentialProvider are kept in this
@@ -104,8 +102,6 @@ class FirebaseAuthCredentialsProvider
     int token_counter = 0;
 
     std::mutex mutex;
-
-    bool force_refresh = false;
   };
 
   /**

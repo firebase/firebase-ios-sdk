@@ -46,13 +46,6 @@ TEST(EmptyAuthCredentialsProvider, SetListener) {
   credentials_provider.SetCredentialChangeListener(nullptr);
 }
 
-TEST(EmptyCredentialsProvider, InvalidateToken) {
-  EmptyAuthCredentialsProvider credentials_provider;
-  credentials_provider.InvalidateToken();
-  credentials_provider.GetToken(
-      [](util::StatusOr<AuthToken> result) { EXPECT_TRUE(result.ok()); });
-}
-
 }  // namespace credentials
 }  // namespace firestore
 }  // namespace firebase

@@ -288,10 +288,6 @@ void Stream::HandleErrorStatus(const Status& status) {
         "%s Using maximum backoff delay to prevent overloading the backend.",
         GetDebugDescription());
     backoff_.ResetToMax();
-  } else if (status.code() == Error::kErrorUnauthenticated) {
-    // "unauthenticated" error means the token was rejected. Try force
-    // refreshing it in case it just expired.
-    credentials_provider_->InvalidateToken();
   }
 }
 

@@ -29,9 +29,6 @@ FirebaseAppCheckCredentialsProvider::~FirebaseAppCheckCredentialsProvider() {
 void FirebaseAppCheckCredentialsProvider::GetToken(TokenListener<std::string>) {
 }
 
-void FirebaseAppCheckCredentialsProvider::InvalidateToken() {
-}
-
 void FirebaseAppCheckCredentialsProvider::SetCredentialChangeListener(
     CredentialChangeListener<std::string>) {
 }

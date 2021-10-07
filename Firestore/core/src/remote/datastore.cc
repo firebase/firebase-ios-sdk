@@ -189,11 +189,8 @@ void Datastore::CommitMutationsWithCredentials(
       // TODO(c++14): move into lambda.
       [this, call, callback](const StatusOr<grpc::ByteBuffer>& result) {
         LogGrpcCallFinished("CommitRequest", call, result.status());
-        HandleCallStatus(result.status());
-
         // Response is deliberately ignored
         callback(result.status());
-
         RemoveGrpcCall(call);
       });
 }
@@ -230,10 +227,7 @@ void Datastore::LookupDocumentsWithCredentials(
   call->Start([this, call, callback](
                   const StatusOr<std::vector<grpc::ByteBuffer>>& result) {
     LogGrpcCallFinished("BatchGetDocuments", call, result.status());
-    HandleCallStatus(result.status());
-
     OnLookupDocumentsResponse(result, callback);
-
     RemoveGrpcCall(call);
   });
 }
@@ -276,12 +270,6 @@ void Datastore::ResumeRpcWithCredentials(const OnCredentials& on_credentials) {
               on_credentials(result);
             });
       });
-}
-
-void Datastore::HandleCallStatus(const Status& status) {
-  if (status.code() == Error::kErrorUnauthenticated) {
-    credentials_->InvalidateToken();
-  }
 }
 
 void Datastore::RemoveGrpcCall(GrpcCall* to_remove) {

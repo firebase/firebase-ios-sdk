@@ -33,7 +33,6 @@
 @interface FSTAuthFake : NSObject <FIRAuthInterop>
 @property(nonatomic, nullable, strong, readonly) NSString* token;
 @property(nonatomic, nullable, strong, readonly) NSString* uid;
-@property(nonatomic, readonly) BOOL forceRefreshTriggered;
 - (instancetype)initWithToken:(nullable NSString*)token
                           uid:(nullable NSString*)uid NS_DESIGNATED_INITIALIZER;
 - (instancetype)init NS_UNAVAILABLE;
@@ -47,7 +46,6 @@
   if (self) {
     _token = [token copy];
     _uid = [uid copy];
-    _forceRefreshTriggered = NO;
   }
   return self;
 }
@@ -58,9 +56,7 @@
   return self.uid;
 }
 
-- (void)getTokenForcingRefresh:(BOOL)forceRefresh
-                  withCallback:(nonnull FIRTokenCallback)callback {
-  _forceRefreshTriggered = forceRefresh;
+- (void)getTokenWithCallback:(nonnull FIRTokenCallback)callback {
   callback(self.token, nil);
 }
 
@@ -137,21 +133,6 @@ TEST(FirebaseCredentialsProviderTest, SetListener) {
   });
 
   credentials_provider.SetCredentialChangeListener(nullptr);
-}
-
-TEST(FirebaseCredentialsProviderTest, InvalidateToken) {
-  FIRApp* app = testutil::AppForUnitTesting();
-  FSTAuthFake* auth = [[FSTAuthFake alloc] initWithToken:@"token for fake uid"
-                                                     uid:@"fake uid"];
-  FirebaseAuthCredentialsProvider credentials_provider(app, auth);
-  credentials_provider.InvalidateToken();
-  credentials_provider.GetToken([&auth](util::StatusOr<AuthToken> result) {
-    EXPECT_TRUE(result.ok());
-    EXPECT_TRUE(auth.forceRefreshTriggered);
-    const AuthToken& token = result.ValueOrDie();
-    EXPECT_EQ("token for fake uid", token.token());
-    EXPECT_EQ("fake uid", token.user().uid());
-  });
 }
 
 }  // namespace credentials

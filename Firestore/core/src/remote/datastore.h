@@ -171,8 +171,6 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
       std::function<void(const util::StatusOr<credentials::AuthToken>&)>;
   void ResumeRpcWithCredentials(const OnCredentials& on_credentials);
 
-  void HandleCallStatus(const util::Status& status);
-
   void RemoveGrpcCall(GrpcCall* to_remove);
 
   // In case Auth tries to invoke a callback after `Datastore` has been shut

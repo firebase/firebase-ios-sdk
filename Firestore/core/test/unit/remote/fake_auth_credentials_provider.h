@@ -33,7 +33,6 @@ class FakeAuthCredentialsProvider
  public:
   void GetToken(
       credentials::TokenListener<credentials::AuthToken> completion) override;
-  void InvalidateToken() override;
 
   // `GetToken` will not invoke the completion immediately -- invoke it manually
   // using `InvokeGetToken`.

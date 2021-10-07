@@ -45,8 +45,6 @@ class FirebaseAppCheckCredentialsProvider
 
   void SetCredentialChangeListener(
       CredentialChangeListener<std::string> change_listener) override;
-
-  void InvalidateToken() override;
 };
 
 }  // namespace credentials
