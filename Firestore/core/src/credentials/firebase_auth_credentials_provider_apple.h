@@ -14,13 +14,8 @@
  * limitations under the License.
  */
 
-<<<<<<<< HEAD:Firestore/core/src/credentials/firebase_auth_credentials_provider_apple.h
 #ifndef FIRESTORE_CORE_SRC_CREDENTIALS_FIREBASE_AUTH_CREDENTIALS_PROVIDER_APPLE_H_
 #define FIRESTORE_CORE_SRC_CREDENTIALS_FIREBASE_AUTH_CREDENTIALS_PROVIDER_APPLE_H_
-========
-#ifndef FIRESTORE_CORE_SRC_CREDENTIALS_FIREBASE_CREDENTIALS_PROVIDER_APPLE_H_
-#define FIRESTORE_CORE_SRC_CREDENTIALS_FIREBASE_CREDENTIALS_PROVIDER_APPLE_H_
->>>>>>>> master:Firestore/core/src/credentials/firebase_credentials_provider_apple.h
 
 #if !defined(__OBJC__)
 #error "This header only supports Objective-C++."
@@ -126,8 +121,4 @@ class FirebaseAuthCredentialsProvider
 }  // namespace firestore
 }  // namespace firebase
 
-<<<<<<<< HEAD:Firestore/core/src/credentials/firebase_auth_credentials_provider_apple.h
 #endif  // FIRESTORE_CORE_SRC_CREDENTIALS_FIREBASE_AUTH_CREDENTIALS_PROVIDER_APPLE_H_
-========
-#endif  // FIRESTORE_CORE_SRC_CREDENTIALS_FIREBASE_CREDENTIALS_PROVIDER_APPLE_H_
->>>>>>>> master:Firestore/core/src/credentials/firebase_credentials_provider_apple.h
