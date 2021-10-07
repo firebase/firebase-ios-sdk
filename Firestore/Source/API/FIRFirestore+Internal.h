@@ -58,8 +58,10 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (instancetype)initWithDatabaseID:(model::DatabaseId)databaseID
                     persistenceKey:(std::string)persistenceKey
-               credentialsProvider:
-                   (std::shared_ptr<credentials::AuthCredentialsProvider>)credentialsProvider
+           authCredentialsProvider:
+               (std::shared_ptr<credentials::AuthCredentialsProvider>)authCredentialsProvider
+       appCheckCredentialsProvider:
+           (std::shared_ptr<credentials::AppCheckCredentialsProvider>)appCheckCredentialsProvider
                        workerQueue:
                            (std::shared_ptr<firebase::firestore::util::AsyncQueue>)workerQueue
           firebaseMetadataProvider:

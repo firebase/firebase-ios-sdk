@@ -25,6 +25,7 @@
 #include "Firestore/core/src/core/core_fwd.h"
 #include "Firestore/core/src/credentials/auth_token.h"
 #include "Firestore/core/src/credentials/credentials_provider.h"
+#include "Firestore/core/src/credentials/credentials_fwd.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/remote/grpc_call.h"
 #include "Firestore/core/src/remote/grpc_connection.h"
@@ -71,11 +72,14 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
       std::function<void(const util::StatusOr<std::vector<model::Document>>&)>;
   using CommitCallback = std::function<void(const util::Status&)>;
 
-  Datastore(const core::DatabaseInfo& database_info,
-            const std::shared_ptr<util::AsyncQueue>& worker_queue,
-            std::shared_ptr<credentials::AuthCredentialsProvider> credentials,
-            ConnectivityMonitor* connectivity_monitor,
-            FirebaseMetadataProvider* firebase_metadata_provider);
+  Datastore(
+      const core::DatabaseInfo& database_info,
+      const std::shared_ptr<util::AsyncQueue>& worker_queue,
+      std::shared_ptr<credentials::AuthCredentialsProvider> auth_credentials,
+      std::shared_ptr<credentials::AppCheckCredentialsProvider>
+          app_check_credentials,
+      ConnectivityMonitor* connectivity_monitor,
+      FirebaseMetadataProvider* firebase_metadata_provider);
 
   virtual ~Datastore() = default;
 
@@ -180,7 +184,9 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   bool is_shut_down_ = false;
 
   std::shared_ptr<util::AsyncQueue> worker_queue_;
-  std::shared_ptr<credentials::AuthCredentialsProvider> credentials_;
+  std::shared_ptr<credentials::AppCheckCredentialsProvider>
+      app_check_credentials_;
+  std::shared_ptr<credentials::AuthCredentialsProvider> auth_credentials_;
 
   // A separate executor dedicated to polling gRPC completion queue (which is
   // shared for all spawned gRPC streams and calls).

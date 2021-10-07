@@ -23,6 +23,9 @@ namespace credentials {
 FirebaseAppCheckCredentialsProvider::FirebaseAppCheckCredentialsProvider() {
 }
 
+FirebaseAppCheckCredentialsProvider::~FirebaseAppCheckCredentialsProvider() {
+}
+
 void FirebaseAppCheckCredentialsProvider::GetToken(TokenListener<std::string>) {
 }
 

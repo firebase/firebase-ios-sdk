@@ -27,6 +27,7 @@
 #include "Firestore/core/include/firebase/firestore/firestore_version.h"
 #include "Firestore/core/src/api/firestore.h"
 #include "Firestore/core/src/credentials/credentials_provider.h"
+#include "Firestore/core/src/credentials/firebase_app_check_credentials_provider_apple.h"
 #include "Firestore/core/src/credentials/firebase_auth_credentials_provider_apple.h"
 #include "Firestore/core/src/remote/firebase_metadata_provider.h"
 #include "Firestore/core/src/remote/firebase_metadata_provider_apple.h"
@@ -37,6 +38,7 @@
 #include "absl/memory/memory.h"
 
 using firebase::firestore::credentials::CredentialsProvider;
+using firebase::firestore::credentials::FirebaseAppCheckCredentialsProvider;
 using firebase::firestore::credentials::FirebaseAuthCredentialsProvider;
 using firebase::firestore::remote::FirebaseMetadataProviderApple;
 using firebase::firestore::util::AsyncQueue;
@@ -98,7 +100,9 @@ NS_ASSUME_NONNULL_BEGIN
       auto workerQueue = AsyncQueue::Create(std::move(executor));
 
       id<FIRAuthInterop> auth = FIR_COMPONENT(FIRAuthInterop, self.app.container);
-      auto credentialsProvider = std::make_shared<FirebaseAuthCredentialsProvider>(self.app, auth);
+      auto authCredentialsProvider =
+          std::make_shared<FirebaseAuthCredentialsProvider>(self.app, auth);
+      auto appCheckCredentialsProvider = std::make_shared<FirebaseAppCheckCredentialsProvider>();
 
       auto firebaseMetadataProvider = absl::make_unique<FirebaseMetadataProviderApple>(self.app);
 
@@ -106,7 +110,8 @@ NS_ASSUME_NONNULL_BEGIN
       std::string persistenceKey = MakeString(self.app.name);
       firestore = [[FIRFirestore alloc] initWithDatabaseID:std::move(databaseID)
                                             persistenceKey:std::move(persistenceKey)
-                                       credentialsProvider:std::move(credentialsProvider)
+                                   authCredentialsProvider:std::move(authCredentialsProvider)
+                               appCheckCredentialsProvider:std::move(appCheckCredentialsProvider)
                                                workerQueue:std::move(workerQueue)
                                   firebaseMetadataProvider:std::move(firebaseMetadataProvider)
                                                firebaseApp:self.app

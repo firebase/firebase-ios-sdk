@@ -42,12 +42,19 @@ using util::TimerId;
 
 WriteStream::WriteStream(
     const std::shared_ptr<AsyncQueue>& async_queue,
-    std::shared_ptr<AuthCredentialsProvider> credentials_provider,
+    std::shared_ptr<credentials::AuthCredentialsProvider>
+        auth_credentials_provider,
+    std::shared_ptr<credentials::AppCheckCredentialsProvider>
+        app_check_credentials_provider,
     Serializer serializer,
     GrpcConnection* grpc_connection,
     WriteStreamCallback* callback)
-    : Stream{async_queue, std::move(credentials_provider), grpc_connection,
-             TimerId::WriteStreamConnectionBackoff, TimerId::WriteStreamIdle},
+    : Stream{async_queue,
+             std::move(auth_credentials_provider),
+             std::move(app_check_credentials_provider),
+             grpc_connection,
+             TimerId::WriteStreamConnectionBackoff,
+             TimerId::WriteStreamIdle},
       write_serializer_{std::move(serializer)},
       callback_{NOT_NULL(callback)} {
 }

@@ -70,7 +70,8 @@ FIRFirestore *FSTTestFirestore() {
   dispatch_once(&onceToken, ^{
     sharedInstance = [[FIRFirestore alloc] initWithDatabaseID:DatabaseId("abc", "abc")
                                                persistenceKey:"db123"
-                                          credentialsProvider:nullptr
+                                      authCredentialsProvider:nullptr
+                                  appCheckCredentialsProvider:nullptr
                                                   workerQueue:nullptr
                                      firebaseMetadataProvider:nullptr
                                                   firebaseApp:nil
