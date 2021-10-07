@@ -30,9 +30,6 @@
 
 #include "Firestore/core/src/credentials/credentials_provider.h"
 
-@class FIRApp;
-@protocol FIRAppCheckInterop;
-
 namespace firebase {
 namespace firestore {
 namespace credentials {
