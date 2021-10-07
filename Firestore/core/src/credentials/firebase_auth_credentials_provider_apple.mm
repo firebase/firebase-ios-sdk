@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
+<<<<<<<< HEAD:Firestore/core/src/credentials/firebase_auth_credentials_provider_apple.mm
 #include "Firestore/core/src/credentials/firebase_auth_credentials_provider_apple.h"
+========
+#include "Firestore/core/src/credentials/firebase_credentials_provider_apple.h"
+>>>>>>>> master:Firestore/core/src/credentials/firebase_credentials_provider_apple.mm
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "Interop/Auth/Public/FIRAuthInterop.h"

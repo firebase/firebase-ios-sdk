@@ -460,171 +460,131 @@ class FirestoreEncoderTests: XCTestCase {
     assertThat(ts).failsEncodingAtTopLevel()
   }
 
-  #if swift(>=5.1)
-    func testServerTimestamp() throws {
-      struct Model: Codable, Equatable {
-        @ServerTimestamp var timestamp: Timestamp? = nil
-      }
-
-      // Encoding a pending server timestamp
-      assertThat(Model())
-        .encodes(to: ["timestamp": FieldValue.serverTimestamp()])
-
-      // Encoding a resolved server timestamp yields a timestamp; decoding
-      // yields it back.
-      let timestamp = Timestamp(seconds: 123_456_789, nanoseconds: 4321)
-      assertThat(Model(timestamp: timestamp))
-        .roundTrips(to: ["timestamp": timestamp])
-
-      // Decoding a NSNull() leads to nil.
-      assertThat(["timestamp": NSNull()])
-        .decodes(to: Model(timestamp: nil))
-    }
-
-    func testServerTimestampOfDate() throws {
-      struct Model: Codable, Equatable {
-        @ServerTimestamp var date: Date? = nil
-      }
-
-      // Encoding a pending server timestamp
-      assertThat(Model())
-        .encodes(to: ["date": FieldValue.serverTimestamp()])
-
-      // Encoding a resolved server timestamp yields a timestamp; decoding
-      // yields it back.
-      let timestamp = Timestamp(seconds: 123_456_789, nanoseconds: 0)
-      let date: Date = timestamp.dateValue()
-      assertThat(Model(date: date))
-        .roundTrips(to: ["date": timestamp])
-
-      // Decoding a NSNull() leads to nil.
-      assertThat(["date": NSNull()])
-        .decodes(to: Model(date: nil))
-    }
-
-    func testServerTimestampUserType() throws {
-      struct Model: Codable, Equatable {
-        @ServerTimestamp var timestamp: String? = nil
-      }
-
-      // Encoding a pending server timestamp
-      assertThat(Model())
-        .encodes(to: ["timestamp": FieldValue.serverTimestamp()])
-
-      // Encoding a resolved server timestamp yields a timestamp; decoding
-      // yields it back.
-      let timestamp = Timestamp(seconds: 1_570_484_031, nanoseconds: 122_999_906)
-      assertThat(Model(timestamp: "2019-10-07T21:33:51.123Z"))
-        .roundTrips(to: ["timestamp": timestamp])
-
-      assertThat(Model(timestamp: "Invalid date"))
-        .failsToEncode()
-    }
-  #endif // swift(>=5.1)
-
-  @available(swift, deprecated: 5.1)
-  func testSwift4ServerTimestamp() throws {
+  func testServerTimestamp() throws {
     struct Model: Codable, Equatable {
-      var timestamp: Swift4ServerTimestamp
+      @ServerTimestamp var timestamp: Timestamp? = nil
     }
 
     // Encoding a pending server timestamp
-    assertThat(Model(timestamp: .pending))
+    assertThat(Model())
       .encodes(to: ["timestamp": FieldValue.serverTimestamp()])
 
-    // Encoding a resolved server timestamp yields a timestamp; decoding yields
-    // it back.
+    // Encoding a resolved server timestamp yields a timestamp; decoding
+    // yields it back.
     let timestamp = Timestamp(seconds: 123_456_789, nanoseconds: 4321)
-    assertThat(Model(timestamp: .resolved(timestamp)))
+    assertThat(Model(timestamp: timestamp))
       .roundTrips(to: ["timestamp": timestamp])
 
     // Decoding a NSNull() leads to nil.
     assertThat(["timestamp": NSNull()])
-      .decodes(to: Model(timestamp: .pending))
+      .decodes(to: Model(timestamp: nil))
   }
 
-  #if swift(>=5.1)
-    func testExplicitNull() throws {
-      struct Model: Codable, Equatable {
-        @ExplicitNull var name: String?
-      }
-
-      assertThat(Model(name: nil))
-        .roundTrips(to: ["name": NSNull()])
-
-      assertThat(Model(name: "good name"))
-        .roundTrips(to: ["name": "good name"])
-    }
-  #endif // swift(>=5.1)
-
-  @available(swift, deprecated: 5.1)
-  func testSwift4ExplicitNull() throws {
+  func testServerTimestampOfDate() throws {
     struct Model: Codable, Equatable {
-      var name: Swift4ExplicitNull<String>
+      @ServerTimestamp var date: Date? = nil
     }
 
-    assertThat(Model(name: .none))
+    // Encoding a pending server timestamp
+    assertThat(Model())
+      .encodes(to: ["date": FieldValue.serverTimestamp()])
+
+    // Encoding a resolved server timestamp yields a timestamp; decoding
+    // yields it back.
+    let timestamp = Timestamp(seconds: 123_456_789, nanoseconds: 0)
+    let date: Date = timestamp.dateValue()
+    assertThat(Model(date: date))
+      .roundTrips(to: ["date": timestamp])
+
+    // Decoding a NSNull() leads to nil.
+    assertThat(["date": NSNull()])
+      .decodes(to: Model(date: nil))
+  }
+
+  func testServerTimestampUserType() throws {
+    struct Model: Codable, Equatable {
+      @ServerTimestamp var timestamp: String? = nil
+    }
+
+    // Encoding a pending server timestamp
+    assertThat(Model())
+      .encodes(to: ["timestamp": FieldValue.serverTimestamp()])
+
+    // Encoding a resolved server timestamp yields a timestamp; decoding
+    // yields it back.
+    let timestamp = Timestamp(seconds: 1_570_484_031, nanoseconds: 122_999_906)
+    assertThat(Model(timestamp: "2019-10-07T21:33:51.123Z"))
+      .roundTrips(to: ["timestamp": timestamp])
+
+    assertThat(Model(timestamp: "Invalid date"))
+      .failsToEncode()
+  }
+
+  func testExplicitNull() throws {
+    struct Model: Codable, Equatable {
+      @ExplicitNull var name: String?
+    }
+
+    assertThat(Model(name: nil))
       .roundTrips(to: ["name": NSNull()])
 
-    assertThat(Model(name: .some("good name")))
+    assertThat(Model(name: "good name"))
       .roundTrips(to: ["name": "good name"])
   }
 
-  #if swift(>=5.1)
-    func testAutomaticallyPopulatesDocumentIDOnDocumentReference() throws {
-      struct Model: Codable, Equatable {
-        var name: String
-        @DocumentID var docId: DocumentReference?
-      }
-      assertThat(["name": "abc"], in: "abc/123")
-        .decodes(to: Model(name: "abc", docId: FSTTestDocRef("abc/123")))
+  func testAutomaticallyPopulatesDocumentIDOnDocumentReference() throws {
+    struct Model: Codable, Equatable {
+      var name: String
+      @DocumentID var docId: DocumentReference?
+    }
+    assertThat(["name": "abc"], in: "abc/123")
+      .decodes(to: Model(name: "abc", docId: FSTTestDocRef("abc/123")))
+  }
+
+  func testAutomaticallyPopulatesDocumentIDOnString() throws {
+    struct Model: Codable, Equatable {
+      var name: String
+      @DocumentID var docId: String?
+    }
+    assertThat(["name": "abc"], in: "abc/123")
+      .decodes(to: Model(name: "abc", docId: "123"))
+  }
+
+  func testDocumentIDIgnoredInEncoding() throws {
+    struct Model: Codable, Equatable {
+      var name: String
+      @DocumentID var docId: DocumentReference?
+    }
+    assertThat(Model(name: "abc", docId: FSTTestDocRef("abc/123")))
+      .encodes(to: ["name": "abc"])
+  }
+
+  func testDocumentIDWithJsonEncoderThrows() {
+    assertThat(DocumentID(wrappedValue: FSTTestDocRef("abc/xyz")))
+      .failsEncodingWithJSONEncoder()
+  }
+
+  func testDecodingDocumentIDWithConfictingFieldsThrows() throws {
+    struct Model: Codable, Equatable {
+      var name: String
+      @DocumentID var docId: DocumentReference?
     }
 
-    func testAutomaticallyPopulatesDocumentIDOnString() throws {
-      struct Model: Codable, Equatable {
-        var name: String
-        @DocumentID var docId: String?
-      }
-      assertThat(["name": "abc"], in: "abc/123")
-        .decodes(to: Model(name: "abc", docId: "123"))
+    do {
+      _ = try Firestore.Decoder().decode(
+        Model.self,
+        from: ["name": "abc", "docId": "Causing conflict"],
+        in: FSTTestDocRef("abc/123")
+      )
+      XCTFail("Failed to throw")
+    } catch let FirestoreDecodingError.fieldNameConflict(msg) {
+      XCTAssertEqual(msg, "Field name [\"docId\"] was found from document \"abc/123\", "
+        + "cannot assign the document reference to this field.")
+      return
+    } catch {
+      XCTFail("Unrecognized error: \(error)")
     }
-
-    func testDocumentIDIgnoredInEncoding() throws {
-      struct Model: Codable, Equatable {
-        var name: String
-        @DocumentID var docId: DocumentReference?
-      }
-      assertThat(Model(name: "abc", docId: FSTTestDocRef("abc/123")))
-        .encodes(to: ["name": "abc"])
-    }
-
-    func testDocumentIDWithJsonEncoderThrows() {
-      assertThat(DocumentID(wrappedValue: FSTTestDocRef("abc/xyz")))
-        .failsEncodingWithJSONEncoder()
-    }
-
-    func testDecodingDocumentIDWithConfictingFieldsThrows() throws {
-      struct Model: Codable, Equatable {
-        var name: String
-        @DocumentID var docId: DocumentReference?
-      }
-
-      do {
-        _ = try Firestore.Decoder().decode(
-          Model.self,
-          from: ["name": "abc", "docId": "Causing conflict"],
-          in: FSTTestDocRef("abc/123")
-        )
-        XCTFail("Failed to throw")
-      } catch let FirestoreDecodingError.fieldNameConflict(msg) {
-        XCTAssertEqual(msg, "Field name [\"docId\"] was found from document \"abc/123\", "
-          + "cannot assign the document reference to this field.")
-        return
-      } catch {
-        XCTFail("Unrecognized error: \(error)")
-      }
-    }
-  #endif // swift(>=5.1)
+  }
 }
 
 private func assertThat(_ dictionary: [String: Any],
@@ -741,37 +701,35 @@ private class DictionarySubject {
   }
 }
 
-#if swift(>=5.1)
-  enum DateError: Error {
-    case invalidDate(String)
+enum DateError: Error {
+  case invalidDate(String)
+}
+
+// Extends Strings to allow them to be wrapped with @ServerTimestamp. Resolved
+// server timestamps will be stored in an ISO 8601 date format.
+//
+// This example exists outside the main implementation to show that users can
+// extend @ServerTimestamp with arbitrary types.
+extension String: ServerTimestampWrappable {
+  static let formatter: DateFormatter = {
+    let formatter = DateFormatter()
+    formatter.calendar = Calendar(identifier: .iso8601)
+    formatter.locale = Locale(identifier: "en_US_POSIX")
+    formatter.timeZone = TimeZone(secondsFromGMT: 0)
+    formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSXXXXX"
+    return formatter
+  }()
+
+  public static func wrap(_ timestamp: Timestamp) throws -> Self {
+    return formatter.string(from: timestamp.dateValue())
   }
 
-  // Extends Strings to allow them to be wrapped with @ServerTimestamp. Resolved
-  // server timestamps will be stored in an ISO 8601 date format.
-  //
-  // This example exists outside the main implementation to show that users can
-  // extend @ServerTimestamp with arbitrary types.
-  extension String: ServerTimestampWrappable {
-    static let formatter: DateFormatter = {
-      let formatter = DateFormatter()
-      formatter.calendar = Calendar(identifier: .iso8601)
-      formatter.locale = Locale(identifier: "en_US_POSIX")
-      formatter.timeZone = TimeZone(secondsFromGMT: 0)
-      formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSXXXXX"
-      return formatter
-    }()
-
-    public static func wrap(_ timestamp: Timestamp) throws -> Self {
-      return formatter.string(from: timestamp.dateValue())
-    }
-
-    public static func unwrap(_ value: Self) throws -> Timestamp {
-      let date = formatter.date(from: value)
-      if let date = date {
-        return Timestamp(date: date)
-      } else {
-        throw DateError.invalidDate(value)
-      }
+  public static func unwrap(_ value: Self) throws -> Timestamp {
+    let date = formatter.date(from: value)
+    if let date = date {
+      return Timestamp(date: date)
+    } else {
+      throw DateError.invalidDate(value)
     }
   }
-#endif // swift(>=5.1)
+}
