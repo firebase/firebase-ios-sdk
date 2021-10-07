@@ -14,26 +14,17 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_AUTH_EMPTY_CREDENTIALS_PROVIDER_H_
-#define FIRESTORE_CORE_SRC_AUTH_EMPTY_CREDENTIALS_PROVIDER_H_
-
-#include "Firestore/core/src/auth/credentials_provider.h"
+#include "Firestore/core/src/credentials/credentials_provider.h"
 
 namespace firebase {
 namespace firestore {
-namespace auth {
+namespace credentials {
 
-/** `EmptyCredentialsProvider` always yields an empty token. */
-class EmptyCredentialsProvider : public CredentialsProvider {
- public:
-  void GetToken(TokenListener completion) override;
-  void InvalidateToken() override;
-  void SetCredentialChangeListener(
-      CredentialChangeListener change_listener) override;
-};
+CredentialsProvider::CredentialsProvider() : change_listener_(nullptr) {
+}
 
-}  // namespace auth
+CredentialsProvider::~CredentialsProvider() = default;
+
+}  // namespace credentials
 }  // namespace firestore
 }  // namespace firebase
-
-#endif  // FIRESTORE_CORE_SRC_AUTH_EMPTY_CREDENTIALS_PROVIDER_H_

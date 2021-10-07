@@ -14,31 +14,26 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/auth/token.h"
+#ifndef FIRESTORE_CORE_SRC_CREDENTIALS_EMPTY_CREDENTIALS_PROVIDER_H_
+#define FIRESTORE_CORE_SRC_CREDENTIALS_EMPTY_CREDENTIALS_PROVIDER_H_
 
-#include <utility>
-
-#include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/credentials/credentials_provider.h"
 
 namespace firebase {
 namespace firestore {
-namespace auth {
+namespace credentials {
 
-Token::Token(std::string token, User user)
-    : token_{std::move(token)}, user_{std::move(user)} {
-}
+/** `EmptyCredentialsProvider` always yields an empty token. */
+class EmptyCredentialsProvider : public CredentialsProvider {
+ public:
+  void GetToken(TokenListener completion) override;
+  void InvalidateToken() override;
+  void SetCredentialChangeListener(
+      CredentialChangeListener change_listener) override;
+};
 
-const std::string& Token::token() const {
-  HARD_ASSERT(user_.is_authenticated());
-  return token_;
-}
-
-const Token& Token::Unauthenticated() {
-  static const Token kUnauthenticatedToken(std::string{},
-                                           User::Unauthenticated());
-  return kUnauthenticatedToken;
-}
-
-}  // namespace auth
+}  // namespace credentials
 }  // namespace firestore
 }  // namespace firebase
+
+#endif  // FIRESTORE_CORE_SRC_CREDENTIALS_EMPTY_CREDENTIALS_PROVIDER_H_

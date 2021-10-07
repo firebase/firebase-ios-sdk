@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/auth/firebase_credentials_provider_apple.h"
+#include "Firestore/core/src/credentials/firebase_credentials_provider_apple.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "Interop/Auth/Public/FIRAuthInterop.h"
@@ -26,7 +26,7 @@
 
 namespace firebase {
 namespace firestore {
-namespace auth {
+namespace credentials {
 
 FirebaseCredentialsProvider::FirebaseCredentialsProvider(
     FIRApp* app, id<FIRAuthInterop> auth) {
@@ -83,37 +83,38 @@ void FirebaseCredentialsProvider::GetToken(TokenListener completion) {
   int initial_token_counter = contents_->token_counter;
 
   std::weak_ptr<Contents> weak_contents = contents_;
-  void (^get_token_callback)(NSString*, NSError*) = ^(
-      NSString* _Nullable token, NSError* _Nullable error) {
-    std::shared_ptr<Contents> contents = weak_contents.lock();
-    if (!contents) {
-      return;
-    }
+  void (^get_token_callback)(NSString*, NSError*) =
+      ^(NSString* _Nullable token, NSError* _Nullable error) {
+        std::shared_ptr<Contents> contents = weak_contents.lock();
+        if (!contents) {
+          return;
+        }
 
-    std::unique_lock<std::mutex> lock(contents->mutex);
-    if (initial_token_counter != contents->token_counter) {
-      // Cancel the request since the user changed while the request was
-      // outstanding so the response is likely for a previous user (which
-      // user, we can't be sure).
-      LOG_DEBUG("GetToken aborted due to token change.");
-      return GetToken(completion);
-    } else {
-      if (error == nil) {
-        if (token != nil) {
-          completion(Token{util::MakeString(token), contents->current_user});
+        std::unique_lock<std::mutex> lock(contents->mutex);
+        if (initial_token_counter != contents->token_counter) {
+          // Cancel the request since the user changed while the request was
+          // outstanding so the response is likely for a previous user (which
+          // user, we can't be sure).
+          LOG_DEBUG("GetToken aborted due to token change.");
+          return GetToken(completion);
         } else {
-          completion(Token::Unauthenticated());
+          if (error == nil) {
+            if (token != nil) {
+              completion(
+                  AuthToken{util::MakeString(token), contents->current_user});
+            } else {
+              completion(AuthToken::Unauthenticated());
+            }
+          } else {
+            Error error_code = Error::kErrorUnknown;
+            if (error.domain == FIRFirestoreErrorDomain) {
+              error_code = static_cast<Error>(error.code);
+            }
+            completion(util::Status(
+                error_code, util::MakeString(error.localizedDescription)));
+          }
         }
-      } else {
-        Error error_code = Error::kErrorUnknown;
-        if (error.domain == FIRFirestoreErrorDomain) {
-          error_code = static_cast<Error>(error.code);
-        }
-        completion(util::Status(error_code,
-                                util::MakeString(error.localizedDescription)));
-      }
-    }
-  };
+      };
 
   // TODO(wilhuff): Need a better abstraction over a missing auth provider.
   if (contents_->auth) {
@@ -147,6 +148,6 @@ void FirebaseCredentialsProvider::SetCredentialChangeListener(
   change_listener_ = change_listener;
 }
 
-}  // namespace auth
+}  // namespace credentials
 }  // namespace firestore
 }  // namespace firebase

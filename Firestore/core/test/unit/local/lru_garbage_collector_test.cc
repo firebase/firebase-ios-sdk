@@ -22,8 +22,8 @@
 #include <vector>
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
-#include "Firestore/core/src/auth/user.h"
 #include "Firestore/core/src/core/query.h"
+#include "Firestore/core/src/credentials/user.h"
 #include "Firestore/core/src/local/lru_garbage_collector.h"
 #include "Firestore/core/src/local/mutation_queue.h"
 #include "Firestore/core/src/local/persistence.h"
@@ -48,7 +48,7 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
-using auth::User;
+using credentials::User;
 using model::DocumentKey;
 using model::DocumentKeyHash;
 using model::DocumentKeySet;

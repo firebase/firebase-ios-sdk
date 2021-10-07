@@ -18,16 +18,16 @@
 
 #include <utility>
 
-#include "Firestore/core/src/auth/empty_credentials_provider.h"
-#include "Firestore/core/src/auth/token.h"
+#include "Firestore/core/src/credentials/auth_token.h"
+#include "Firestore/core/src/credentials/empty_credentials_provider.h"
 #include "Firestore/core/src/util/status.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
 
-using auth::EmptyCredentialsProvider;
-using auth::TokenListener;
+using credentials::EmptyCredentialsProvider;
+using credentials::TokenListener;
 
 void FakeCredentialsProvider::GetToken(TokenListener completion) {
   observed_states_.push_back("GetToken");

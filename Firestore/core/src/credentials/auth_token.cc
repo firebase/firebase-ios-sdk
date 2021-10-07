@@ -14,17 +14,31 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/auth/credentials_provider.h"
+#include "Firestore/core/src/credentials/auth_token.h"
+
+#include <utility>
+
+#include "Firestore/core/src/util/hard_assert.h"
 
 namespace firebase {
 namespace firestore {
-namespace auth {
+namespace credentials {
 
-CredentialsProvider::CredentialsProvider() : change_listener_(nullptr) {
+AuthToken::AuthToken(std::string token, User user)
+    : token_{std::move(token)}, user_{std::move(user)} {
 }
 
-CredentialsProvider::~CredentialsProvider() = default;
+const std::string& AuthToken::token() const {
+  HARD_ASSERT(user_.is_authenticated());
+  return token_;
+}
 
-}  // namespace auth
+const AuthToken& AuthToken::Unauthenticated() {
+  static const AuthToken kUnauthenticatedToken(std::string{},
+                                               User::Unauthenticated());
+  return kUnauthenticatedToken;
+}
+
+}  // namespace credentials
 }  // namespace firestore
 }  // namespace firebase

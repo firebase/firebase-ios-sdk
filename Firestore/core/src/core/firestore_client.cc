@@ -27,13 +27,13 @@
 #include "Firestore/core/src/api/query_core.h"
 #include "Firestore/core/src/api/query_snapshot.h"
 #include "Firestore/core/src/api/settings.h"
-#include "Firestore/core/src/auth/credentials_provider.h"
 #include "Firestore/core/src/bundle/bundle_reader.h"
 #include "Firestore/core/src/core/database_info.h"
 #include "Firestore/core/src/core/event_manager.h"
 #include "Firestore/core/src/core/query_listener.h"
 #include "Firestore/core/src/core/sync_engine.h"
 #include "Firestore/core/src/core/view.h"
+#include "Firestore/core/src/credentials/credentials_provider.h"
 #include "Firestore/core/src/local/leveldb_opener.h"
 #include "Firestore/core/src/local/leveldb_persistence.h"
 #include "Firestore/core/src/local/local_documents_view.h"
@@ -72,8 +72,8 @@ using api::QuerySnapshot;
 using api::QuerySnapshotListener;
 using api::Settings;
 using api::SnapshotMetadata;
-using auth::CredentialsProvider;
-using auth::User;
+using credentials::CredentialsProvider;
+using credentials::User;
 using firestore::Error;
 using local::LevelDbOpener;
 using local::LocalStore;

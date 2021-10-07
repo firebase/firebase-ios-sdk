@@ -19,8 +19,8 @@
 #include <limits>
 #include <utility>
 
-#include "Firestore/core/src/auth/user.h"
 #include "Firestore/core/src/core/database_info.h"
+#include "Firestore/core/src/credentials/user.h"
 #include "Firestore/core/src/local/leveldb_key.h"
 #include "Firestore/core/src/local/leveldb_lru_reference_delegate.h"
 #include "Firestore/core/src/local/leveldb_migrations.h"
@@ -42,7 +42,7 @@ namespace firestore {
 namespace local {
 namespace {
 
-using auth::User;
+using credentials::User;
 using leveldb::DB;
 using model::ListenSequenceNumber;
 using util::Filesystem;
@@ -226,7 +226,7 @@ void LevelDbPersistence::Shutdown() {
 }
 
 LevelDbMutationQueue* LevelDbPersistence::GetMutationQueueForUser(
-    const auth::User& user) {
+    const credentials::User& user) {
   users_.insert(user.uid());
   current_mutation_queue_ =
       absl::make_unique<LevelDbMutationQueue>(user, this, &serializer_);

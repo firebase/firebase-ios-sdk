@@ -83,11 +83,12 @@ class WatchStreamCallback {
  */
 class WatchStream : public Stream {
  public:
-  WatchStream(const std::shared_ptr<util::AsyncQueue>& async_queue,
-              std::shared_ptr<auth::CredentialsProvider> credentials_provider,
-              Serializer serializer,
-              GrpcConnection* grpc_connection,
-              WatchStreamCallback* callback);
+  WatchStream(
+      const std::shared_ptr<util::AsyncQueue>& async_queue,
+      std::shared_ptr<credentials::CredentialsProvider> credentials_provider,
+      Serializer serializer,
+      GrpcConnection* grpc_connection,
+      WatchStreamCallback* callback);
 
   /**
    * Registers interest in the results of the given query. If the query includes
@@ -107,7 +108,8 @@ class WatchStream : public Stream {
 
  private:
   std::unique_ptr<GrpcStream> CreateGrpcStream(
-      GrpcConnection* grpc_connection, const auth::Token& token) override;
+      GrpcConnection* grpc_connection,
+      const credentials::AuthToken& token) override;
   void TearDown(GrpcStream* grpc_stream) override;
 
   void NotifyStreamOpen() override;

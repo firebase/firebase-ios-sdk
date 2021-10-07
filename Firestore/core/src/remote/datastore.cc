@@ -20,9 +20,9 @@
 #include <utility>
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
-#include "Firestore/core/src/auth/credentials_provider.h"
-#include "Firestore/core/src/auth/token.h"
 #include "Firestore/core/src/core/database_info.h"
+#include "Firestore/core/src/credentials/auth_token.h"
+#include "Firestore/core/src/credentials/credentials_provider.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/document_key.h"
@@ -49,9 +49,9 @@ namespace firestore {
 namespace remote {
 namespace {
 
-using auth::CredentialsProvider;
-using auth::Token;
 using core::DatabaseInfo;
+using credentials::AuthToken;
+using credentials::CredentialsProvider;
 using model::DocumentKey;
 using model::Mutation;
 using util::AsyncQueue;
@@ -163,7 +163,7 @@ void Datastore::CommitMutations(const std::vector<Mutation>& mutations,
   ResumeRpcWithCredentials(
       // TODO(c++14): move into lambda.
       [this, mutations,
-       callback](const StatusOr<Token>& maybe_credentials) mutable {
+       callback](const StatusOr<AuthToken>& maybe_credentials) mutable {
         if (!maybe_credentials.ok()) {
           callback(maybe_credentials.status());
           return;
@@ -174,7 +174,7 @@ void Datastore::CommitMutations(const std::vector<Mutation>& mutations,
 }
 
 void Datastore::CommitMutationsWithCredentials(
-    const Token& token,
+    const AuthToken& token,
     const std::vector<Mutation>& mutations,
     CommitCallback&& callback) {
   grpc::ByteBuffer message =
@@ -202,7 +202,8 @@ void Datastore::LookupDocuments(const std::vector<DocumentKey>& keys,
                                 LookupCallback&& callback) {
   ResumeRpcWithCredentials(
       // TODO(c++14): move into lambda.
-      [this, keys, callback](const StatusOr<Token>& maybe_credentials) mutable {
+      [this, keys,
+       callback](const StatusOr<AuthToken>& maybe_credentials) mutable {
         if (!maybe_credentials.ok()) {
           callback(maybe_credentials.status());
           return;
@@ -213,7 +214,7 @@ void Datastore::LookupDocuments(const std::vector<DocumentKey>& keys,
 }
 
 void Datastore::LookupDocumentsWithCredentials(
-    const Token& token,
+    const AuthToken& token,
     const std::vector<DocumentKey>& keys,
     LookupCallback&& callback) {
   grpc::ByteBuffer message =
@@ -254,7 +255,7 @@ void Datastore::ResumeRpcWithCredentials(const OnCredentials& on_credentials) {
   std::weak_ptr<Datastore> weak_this{shared_from_this()};
 
   credentials_->GetToken(
-      [weak_this, on_credentials](const StatusOr<Token>& result) {
+      [weak_this, on_credentials](const StatusOr<AuthToken>& result) {
         auto strong_this = weak_this.lock();
         if (!strong_this) {
           return;

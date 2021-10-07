@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_AUTH_USER_H_
-#define FIRESTORE_CORE_SRC_AUTH_USER_H_
+#ifndef FIRESTORE_CORE_SRC_CREDENTIALS_USER_H_
+#define FIRESTORE_CORE_SRC_CREDENTIALS_USER_H_
 
 #if defined(__OBJC__)
 #import <Foundation/Foundation.h>
@@ -28,7 +28,7 @@
 
 namespace firebase {
 namespace firestore {
-namespace auth {
+namespace credentials {
 
 /**
  * Simple wrapper around a nullable UID. Mostly exists to make code more
@@ -96,8 +96,8 @@ struct HashUser {
   }
 };
 
-}  // namespace auth
+}  // namespace credentials
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_AUTH_USER_H_
+#endif  // FIRESTORE_CORE_SRC_CREDENTIALS_USER_H_

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/auth/user.h"
+#include "Firestore/core/src/credentials/user.h"
 
 #include <utility>
 
@@ -22,7 +22,7 @@
 
 namespace firebase {
 namespace firestore {
-namespace auth {
+namespace credentials {
 
 User::User() : is_authenticated_{false} {
 }
@@ -36,6 +36,6 @@ const User& User::Unauthenticated() {
   return *kUnauthenticated;
 }
 
-}  // namespace auth
+}  // namespace credentials
 }  // namespace firestore
 }  // namespace firebase

@@ -20,8 +20,8 @@
 #include <utility>
 #include <vector>
 
-#include "Firestore/core/src/auth/user.h"
 #include "Firestore/core/src/core/query.h"
+#include "Firestore/core/src/credentials/user.h"
 #include "Firestore/core/src/local/persistence.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/document_key_set.h"
@@ -37,7 +37,7 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
-using auth::User;
+using credentials::User;
 using model::DocumentKey;
 using model::DocumentKeySet;
 using model::kBatchIdUnknown;

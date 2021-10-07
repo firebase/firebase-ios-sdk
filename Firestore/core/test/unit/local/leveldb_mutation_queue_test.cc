@@ -21,7 +21,7 @@
 
 #include "Firestore/Protos/nanopb/firestore/local/mutation.nanopb.h"
 #include "Firestore/Protos/nanopb/google/protobuf/empty.nanopb.h"
-#include "Firestore/core/src/auth/user.h"
+#include "Firestore/core/src/credentials/user.h"
 #include "Firestore/core/src/local/leveldb_key.h"
 #include "Firestore/core/src/local/leveldb_persistence.h"
 #include "Firestore/core/src/local/reference_set.h"
@@ -42,7 +42,7 @@ namespace firestore {
 namespace local {
 namespace {
 
-using auth::User;
+using credentials::User;
 using leveldb::DB;
 using leveldb::Slice;
 using leveldb::Status;

@@ -35,9 +35,9 @@
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 
-#include "Firestore/core/src/auth/credentials_provider.h"
-#include "Firestore/core/src/auth/empty_credentials_provider.h"
-#include "Firestore/core/src/auth/user.h"
+#include "Firestore/core/src/credentials/credentials_provider.h"
+#include "Firestore/core/src/credentials/empty_credentials_provider.h"
+#include "Firestore/core/src/credentials/user.h"
 #include "Firestore/core/src/local/leveldb_opener.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/remote/firebase_metadata_provider_apple.h"
@@ -54,10 +54,10 @@
 
 namespace util = firebase::firestore::util;
 
-using firebase::firestore::auth::CredentialChangeListener;
-using firebase::firestore::auth::EmptyCredentialsProvider;
-using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::credentials::CredentialChangeListener;
+using firebase::firestore::credentials::EmptyCredentialsProvider;
+using firebase::firestore::credentials::User;
 using firebase::firestore::local::LevelDbOpener;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::remote::FirebaseMetadataProviderApple;
@@ -96,7 +96,7 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
 
   void ChangeUser(NSString *new_id) {
     if (listener_) {
-      listener_(firebase::firestore::auth::User::FromUid(new_id));
+      listener_(firebase::firestore::credentials::User::FromUid(new_id));
     }
   }
 

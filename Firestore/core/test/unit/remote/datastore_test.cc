@@ -51,8 +51,8 @@ namespace remote {
 
 namespace {
 
-using auth::CredentialsProvider;
 using core::DatabaseInfo;
+using credentials::CredentialsProvider;
 using model::DatabaseId;
 using model::Document;
 using nanopb::MakeArray;

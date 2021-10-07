@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_AUTH_TOKEN_H_
-#define FIRESTORE_CORE_SRC_AUTH_TOKEN_H_
+#ifndef FIRESTORE_CORE_SRC_CREDENTIALS_AUTH_TOKEN_H_
+#define FIRESTORE_CORE_SRC_CREDENTIALS_AUTH_TOKEN_H_
 
 #include <string>
 
-#include "Firestore/core/src/auth/user.h"
+#include "Firestore/core/src/credentials/user.h"
 
 namespace firebase {
 namespace firestore {
-namespace auth {
+namespace credentials {
 
 /**
  * The current User and the authentication token provided by the underlying
@@ -38,9 +38,9 @@ namespace auth {
  * mobile so there's no TokenType here.
  */
 // TODO(zxu123): Make this support token-type for desktop workflow.
-class Token {
+class AuthToken {
  public:
-  Token(std::string token, User user);
+  AuthToken(std::string token, User user);
 
   /** The actual raw token. */
   const std::string& token() const;
@@ -60,15 +60,15 @@ class Token {
    * nil/null in the iOS/TypeScript token implementation. We use a reference
    * instead of a pointer for Token instances in the C++ migration.
    */
-  static const Token& Unauthenticated();
+  static const AuthToken& Unauthenticated();
 
  private:
   const std::string token_;
   const User user_;
 };
 
-}  // namespace auth
+}  // namespace credentials
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_AUTH_TOKEN_H_
+#endif  // FIRESTORE_CORE_SRC_CREDENTIALS_AUTH_TOKEN_H_

@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/auth/user.h"
+#include "Firestore/core/src/credentials/user.h"
 
 #include "gtest/gtest.h"
 
 namespace firebase {
 namespace firestore {
-namespace auth {
+namespace credentials {
 
 TEST(User, Getter) {
   User anonymous;
@@ -54,6 +54,6 @@ TEST(User, Hash) {
   EXPECT_EQ(hash(User("abc")), hash(User("abc")));
 }
 
-}  // namespace auth
+}  // namespace credentials
 }  // namespace firestore
 }  // namespace firebase

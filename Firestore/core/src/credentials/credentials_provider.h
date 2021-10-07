@@ -14,31 +14,30 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_AUTH_CREDENTIALS_PROVIDER_H_
-#define FIRESTORE_CORE_SRC_AUTH_CREDENTIALS_PROVIDER_H_
+#ifndef FIRESTORE_CORE_SRC_CREDENTIALS_CREDENTIALS_PROVIDER_H_
+#define FIRESTORE_CORE_SRC_CREDENTIALS_CREDENTIALS_PROVIDER_H_
 
 #include <functional>
 #include <string>
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
-#include "Firestore/core/src/auth/token.h"
-#include "Firestore/core/src/auth/user.h"
+#include "Firestore/core/src/credentials/auth_token.h"
+#include "Firestore/core/src/credentials/user.h"
 #include "Firestore/core/src/util/statusor.h"
 #include "absl/strings/string_view.h"
 
 namespace firebase {
 namespace firestore {
-namespace auth {
+namespace credentials {
 
 // `TokenErrorListener` is a listener that gets a token or an error.
-using TokenListener = std::function<void(util::StatusOr<Token>)>;
+using TokenListener = std::function<void(util::StatusOr<AuthToken>)>;
 
 // Listener notified with a credential change.
 using CredentialChangeListener = std::function<void(User user)>;
 
 /**
- * Provides methods for getting the uid and token for the current user and
- * listen for changes.
+ * Provides methods for getting and listening to authentication credentials.
  */
 class CredentialsProvider {
  public:
@@ -46,7 +45,7 @@ class CredentialsProvider {
 
   virtual ~CredentialsProvider();
 
-  /** Requests token for the current user. */
+  /** Requests the current token. */
   virtual void GetToken(TokenListener completion) = 0;
 
   /**
@@ -58,7 +57,7 @@ class CredentialsProvider {
   /**
    * Sets the listener to be notified of credential changes (sign-in /
    * sign-out, token changes). It is immediately called once with the initial
-   * user.
+   * credential.
    *
    * Call with nullptr to remove previous listener.
    */
@@ -68,7 +67,7 @@ class CredentialsProvider {
  protected:
   /**
    * A listener to be notified of credential changes (sign-in / sign-out, token
-   * changes). It is immediately called once with the initial user.
+   * changes). It is immediately called once with the initial credential.
    *
    * Note that this block will be called back on an arbitrary thread that is not
    * the normal Firestore worker thread.
@@ -76,8 +75,8 @@ class CredentialsProvider {
   CredentialChangeListener change_listener_;
 };
 
-}  // namespace auth
+}  // namespace credentials
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_AUTH_CREDENTIALS_PROVIDER_H_
+#endif  // FIRESTORE_CORE_SRC_CREDENTIALS_CREDENTIALS_PROVIDER_H_
