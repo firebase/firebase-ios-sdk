@@ -1,3 +1,8 @@
+# v8.9.0
+  [added] Swift Property Wrapper TODO(#8755)
+  [changed] FirebaseFirestoreSwift now requires a minimum iOS version of 11 for
+  all distributions.
+
 # v7.7.0
 - [feature] Added support for specifying `ServerTimestampBehavior` when
   decoding a `DocumentSnapshot`.
