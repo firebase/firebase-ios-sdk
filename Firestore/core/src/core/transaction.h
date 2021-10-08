@@ -54,7 +54,7 @@ class Transaction {
       std::function<void(const util::StatusOr<std::vector<model::Document>>&)>;
 
   Transaction() = default;
-  explicit Transaction(remote::Datastore* datastore);
+  explicit Transaction(std::shared_ptr<remote::Datastore> datastore);
 
   /**
    * Takes a set of keys and asynchronously attempts to fetch all the documents
@@ -129,7 +129,7 @@ class Transaction {
   absl::optional<model::SnapshotVersion> GetVersion(
       const model::DocumentKey& key) const;
 
-  remote::Datastore* datastore_ = nullptr;
+  std::weak_ptr<remote::Datastore> datastore_;
 
   std::vector<model::Mutation> mutations_;
   bool committed_ = false;
