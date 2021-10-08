@@ -145,7 +145,7 @@ TEST(FirebaseAppCheckCredentialsProviderTest, InvalidateToken) {
         EXPECT_TRUE(result.ok());
         EXPECT_TRUE(app_check.forceRefreshTriggered);
         const std::string& token = result.ValueOrDie();
-        EXPECT_EQ("fake_valid_token", token);
+        EXPECT_EQ("fake token", token);
       });
 }
 
