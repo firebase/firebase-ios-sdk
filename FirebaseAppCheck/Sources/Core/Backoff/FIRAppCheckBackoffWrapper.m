@@ -34,7 +34,7 @@ static NSTimeInterval const k24Hours = 24 * 60 * 60;
 /// The operation finish date.
 @property(nonatomic, readonly) NSDate *finishDate;
 
-/// The operation error. If `nil` then the operation succeeded.
+/// The operation error.
 @property(nonatomic, readonly) NSError *error;
 
 /// A backoff type calculated based on the error.
@@ -122,8 +122,8 @@ static NSTimeInterval const k24Hours = 24 * 60 * 60;
   };
 }
 
-- (FBLPromise *)backoff:(FIRAppCheckBackoffOperationProvider)operationProvider
-           errorHandler:(FIRAppCheckBackoffErrorHandler)errorHandler {
+- (FBLPromise *)applyBackoffToOperation:(FIRAppCheckBackoffOperationProvider)operationProvider
+                           errorHandler:(FIRAppCheckBackoffErrorHandler)errorHandler {
   if (![self isNextOperationAllowed]) {
     // Backing off - skip the operation and return an error straight away.
     return [self promiseWithRetryDisallowedError:self.lastFailure.error];
@@ -131,7 +131,7 @@ static NSTimeInterval const k24Hours = 24 * 60 * 60;
 
   __auto_type operationPromise = operationProvider();
   return operationPromise
-      .thenOn(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0),
+      .thenOn([self queue],
               ^id(id result) {
                 @synchronized(self) {
                   // Reset failure on success.
@@ -141,7 +141,7 @@ static NSTimeInterval const k24Hours = 24 * 60 * 60;
                 // Return the result.
                 return result;
               })
-      .recoverOn(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0), ^NSError *(NSError *error) {
+      .recoverOn([self queue], ^NSError *(NSError *error) {
         @synchronized(self) {
           // Update the last failure to calculate the backoff.
           self.lastFailure =
@@ -168,7 +168,7 @@ static NSTimeInterval const k24Hours = 24 * 60 * 60;
   }
 }
 
-#pragma mark -
+#pragma mark - Private
 
 - (BOOL)isNextOperationAllowed {
   @synchronized(self) {
@@ -204,12 +204,16 @@ static NSTimeInterval const k24Hours = 24 * 60 * 60;
 
 - (FBLPromise *)promiseWithRetryDisallowedError:(NSError *)error {
   NSString *reason =
-      [NSString stringWithFormat:@"To many attempts. Underlying error: %@",
+      [NSString stringWithFormat:@"Too many attempts. Underlying error: %@",
                                  error.localizedDescription ?: error.localizedFailureReason];
   NSError *retryDisallowedError = [FIRAppCheckErrorUtil errorWithFailureReason:reason];
   FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
   [rejectedPromise reject:retryDisallowedError];
   return rejectedPromise;
+}
+
+- (dispatch_queue_t)queue {
+  return dispatch_get_global_queue(QOS_CLASS_UTILITY, 0);
 }
 
 @end

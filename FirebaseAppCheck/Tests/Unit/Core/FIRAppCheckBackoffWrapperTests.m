@@ -73,8 +73,9 @@
   self.errorHandlerExpectation.inverted = YES;
 
   // 3. Compose operation with backoff.
-  __auto_type operationWithBackoff = [self.backoffWrapper backoff:self.operationProvider
-                                                     errorHandler:self.errorHandler];
+  __auto_type operationWithBackoff =
+      [self.backoffWrapper applyBackoffToOperation:self.operationProvider
+                                      errorHandler:self.errorHandler];
 
   // 4. Wait for operation to complete and check.
   [self waitForExpectationsWithTimeout:0.5 handler:NULL];
@@ -93,8 +94,9 @@
   [self setUpErrorHandlerWithBackoffType:FIRAppCheckBackoffType1Day];
 
   // 1.3. Compose operation with backoff.
-  __auto_type operationWithBackoff = [self.backoffWrapper backoff:self.operationProvider
-                                                     errorHandler:self.errorHandler];
+  __auto_type operationWithBackoff =
+      [self.backoffWrapper applyBackoffToOperation:self.operationProvider
+                                      errorHandler:self.errorHandler];
 
   // 1.4. Wait for operation to complete.
   [self waitForExpectationsWithTimeout:0.5 handler:NULL];
@@ -117,8 +119,8 @@
   self.currentDate = [self.currentDate dateByAddingTimeInterval:12 * 60 * 60];
 
   // 2.3. Compose operation with backoff.
-  operationWithBackoff = [self.backoffWrapper backoff:self.operationProvider
-                                         errorHandler:self.errorHandler];
+  operationWithBackoff = [self.backoffWrapper applyBackoffToOperation:self.operationProvider
+                                                         errorHandler:self.errorHandler];
 
   // 2.4. Wait for operation to complete.
   [self waitForExpectationsWithTimeout:0.5 handler:NULL];
@@ -142,8 +144,8 @@
   self.currentDate = [self.currentDate dateByAddingTimeInterval:11 * 60 * 60 + 59 * 60];
 
   // 3.3. Compose operation with backoff.
-  operationWithBackoff = [self.backoffWrapper backoff:self.operationProvider
-                                         errorHandler:self.errorHandler];
+  operationWithBackoff = [self.backoffWrapper applyBackoffToOperation:self.operationProvider
+                                                         errorHandler:self.errorHandler];
 
   // 3.4. Wait for operation to complete.
   [self waitForExpectationsWithTimeout:0.5 handler:NULL];
@@ -162,8 +164,8 @@
   self.currentDate = [self.currentDate dateByAddingTimeInterval:12 * 60 * 60 + 1 * 60];
 
   // 4.3. Compose operation with backoff.
-  operationWithBackoff = [self.backoffWrapper backoff:self.operationProvider
-                                         errorHandler:self.errorHandler];
+  operationWithBackoff = [self.backoffWrapper applyBackoffToOperation:self.operationProvider
+                                                         errorHandler:self.errorHandler];
 
   // 4.4. Wait for operation to complete and check failure.
   [self waitForExpectationsWithTimeout:0.5 handler:NULL];
@@ -209,7 +211,7 @@
 }
 
 - (BOOL)isBackoffError:(NSError *)error {
-  return [error.localizedDescription containsString:@"To many attempts. Underlying error:"];
+  return [error.localizedDescription containsString:@"Too many attempts. Underlying error:"];
 }
 
 @end

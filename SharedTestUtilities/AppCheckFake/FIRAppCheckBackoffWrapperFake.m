@@ -26,8 +26,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRAppCheckBackoffWrapperFake
 
-- (FBLPromise *)backoff:(FIRAppCheckBackoffOperationProvider)operationProvider
-           errorHandler:(FIRAppCheckBackoffErrorHandler)errorHandler {
+- (FBLPromise *)applyBackoffToOperation:(FIRAppCheckBackoffOperationProvider)operationProvider
+                           errorHandler:(FIRAppCheckBackoffErrorHandler)errorHandler {
   [self.backoffExpectation fulfill];
 
   if (self.isNextOperationAllowed) {

@@ -33,18 +33,25 @@ typedef FBLPromise *_Nonnull (^FIRAppCheckBackoffOperationProvider)(void);
 /// Converts an error to a backoff type.
 typedef FIRAppCheckBackoffType (^FIRAppCheckBackoffErrorHandler)(NSError *error);
 
-/// A block returning a date. Is used  instead of `+[NSDate date]` for better testability of logic
+/// A block returning a date. Is used instead of `+[NSDate date]` for better testability of logic
 /// dependent on the current time.
 typedef NSDate *_Nonnull (^FIRAppCheckDateProvider)(void);
 
 @protocol FIRAppCheckBackoffWrapperProtocol <NSObject>
 
-///
+/// @param operationProvider A block that returns a new promise. The block will be called only when
+/// the operation is allowed.
+///        NOTE: We cannot accept just a promise because the operation will be started once the
+///        promise has been instantiated, so we need to have a way to instantiate the promise only
+///        when the operation is good to go. The provider block is the way we use.
+/// @param errorHandler A block that receives an operation error as an input and returns the
+/// appropriate backoff type. `defaultErrorHandler` provides a default implementation for Firebase
+/// services.
 /// @return A promise that is either:
-///   - is a promise returned by the promise provider if no backoff is required
-///   - is rejected if the backoff is needed
-- (FBLPromise *)backoff:(FIRAppCheckBackoffOperationProvider)operationProvider
-           errorHandler:(FIRAppCheckBackoffErrorHandler)errorHandler;
+///   - a promise returned by the promise provider if no backoff is required
+///   - rejected if the backoff is needed
+- (FBLPromise *)applyBackoffToOperation:(FIRAppCheckBackoffOperationProvider)operationProvider
+                           errorHandler:(FIRAppCheckBackoffErrorHandler)errorHandler;
 
 /// After calling this method the next call of `[backoff:errorHandler:]` method will always attempt
 /// an operation even if a backoff was needed.
