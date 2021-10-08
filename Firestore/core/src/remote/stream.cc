@@ -73,7 +73,7 @@ Stream::Stream(const std::shared_ptr<AsyncQueue>& worker_queue,
 
 bool Stream::IsOpen() const {
   EnsureOnQueue();
-  return state_ == State::Open;
+  return state_ == State::Open || state_ == State::Healthy;
 }
 
 bool Stream::IsStarted() const {
@@ -203,6 +203,7 @@ void Stream::OnStreamRead(const grpc::ByteBuffer& message) {
   EnsureOnQueue();
 
   HARD_ASSERT(IsStarted(), "OnStreamRead called for a stopped stream.");
+  state_ = State::Healthy;
 
   if (LogIsDebugEnabled()) {
     LOG_DEBUG("%s headers (allowlisted): %s", GetDebugDescription(),
@@ -288,9 +289,14 @@ void Stream::HandleErrorStatus(const Status& status) {
         "%s Using maximum backoff delay to prevent overloading the backend.",
         GetDebugDescription());
     backoff_.ResetToMax();
-  } else if (status.code() == Error::kErrorUnauthenticated) {
-    // "unauthenticated" error means the token was rejected. Try force
-    // refreshing it in case it just expired.
+  } else if (status.code() == Error::kErrorUnauthenticated &&
+             state_ != State::Healthy) {
+    // "unauthenticated" error means the token was rejected. This should rarely
+    // happen since both Auth and AppCheck ensure a sufficient TTL when we
+    // request a token. If a user manually resets their system clock this can
+    // fail, however. In this case, we should get a kErrorUnauthenticated error
+    // before we received the first message and we need to invalidate the token
+    // to ensure that we fetch a new token.
     credentials_provider_->InvalidateToken();
   }
 }

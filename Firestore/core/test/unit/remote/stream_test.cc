@@ -506,7 +506,7 @@ TEST_F(StreamTest, RefreshesTokenUponExpiration) {
   StartStream();
   ForceFinish({{Type::Read, CompletionResult::Error},
                {Type::Finish, grpc::Status{grpc::UNAUTHENTICATED, ""}}});
-  // Error "Unauthenticated" should invalidate the token.
+  // Error "Unauthenticated" with no prior messages should invalidate the token.
   EXPECT_EQ(credentials->observed_states(),
             States({"GetToken", "InvalidateToken"}));
 
@@ -517,6 +517,16 @@ TEST_F(StreamTest, RefreshesTokenUponExpiration) {
   // Simulate a different error -- token should not be invalidated this time.
   EXPECT_EQ(credentials->observed_states(),
             States({"GetToken", "InvalidateToken", "GetToken"}));
+}
+
+TEST_F(StreamTest, TokenIsNotInvalidatedOnceStreamIsHealthy) {
+  StartStream();
+  ForceFinish({{Type::Read, MakeByteBuffer("foo")},
+               {Type::Read, CompletionResult::Error},
+               {Type::Finish, grpc::Status{grpc::UNAUTHENTICATED, ""}}});
+  // Error "Unauthenticated" with prior messages should not invalidate the
+  // token.
+  EXPECT_EQ(credentials->observed_states(), States({"GetToken"}));
 }
 
 }  // namespace remote

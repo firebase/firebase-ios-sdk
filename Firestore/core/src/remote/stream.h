@@ -105,6 +105,12 @@ class Stream : public GrpcStreamObserver,
     Open,
 
     /**
+     * The stream is healthy and has received its first message. Both
+     * `IsStarted` and `IsOpen` will return true.
+     */
+    Healthy,
+
+    /**
      * The stream encountered an error. The next start attempt will back off.
      * While in this state, `IsStarted` will return false.
      */
