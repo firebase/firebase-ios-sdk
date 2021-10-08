@@ -16,24 +16,121 @@
 
 #include "Firestore/core/src/credentials/firebase_app_check_credentials_provider_apple.h"
 
+#import "FirebaseAppCheck/Sources/Interop/FIRAppCheckInterop.h"
+#import "FirebaseAppCheck/Sources/Interop/FIRAppCheckTokenResultInterop.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+
+#include "Firestore/core/src/util/error_apple.h"
+#include "Firestore/core/src/util/hard_assert.h"
+
 namespace firebase {
 namespace firestore {
 namespace credentials {
 
-FirebaseAppCheckCredentialsProvider::FirebaseAppCheckCredentialsProvider() {
+FirebaseAppCheckCredentialsProvider::FirebaseAppCheckCredentialsProvider(
+    FIRApp* app, id<FIRAppCheckInterop> app_check) {
+  contents_ = std::make_shared<Contents>(app, app_check);
+  std::weak_ptr<Contents> weak_contents = contents_;
+
+  app_check_listener_handle_ = [[NSNotificationCenter defaultCenter]
+      addObserverForName:[app_check tokenDidChangeNotificationName]
+                  object:nil
+                   queue:nil
+              usingBlock:^(NSNotification* notification) {
+                std::shared_ptr<Contents> contents = weak_contents.lock();
+                if (!contents) {
+                  return;
+                }
+
+                std::unique_lock<std::mutex> lock(contents->mutex);
+                NSDictionary<NSString*, id>* user_info = notification.userInfo;
+
+                // ensure we're only notifying for the current app.
+                FIRApp* notified_app =
+                    user_info[[app_check notificationAppNameKey]];
+                if (![contents->app isEqual:notified_app]) {
+                  return;
+                }
+
+                NSString* app_check_token =
+                    user_info[[app_check notificationTokenKey]];
+                contents_->current_token = util::MakeString(app_check_token);
+                CredentialChangeListener<std::string> listener =
+                    change_listener_;
+                if (change_listener_) {
+                  change_listener_(contents_->current_token);
+                }
+              }];
 }
 
 FirebaseAppCheckCredentialsProvider::~FirebaseAppCheckCredentialsProvider() {
+  if (app_check_listener_handle_) {
+    // Even though iOS 9 (and later) and macOS 10.11 (and later) keep a weak
+    // reference to the observer so we could avoid this removeObserver call, we
+    // still support iOS 8 which requires it.
+    [[NSNotificationCenter defaultCenter]
+        removeObserver:app_check_listener_handle_];
+  }
 }
 
-void FirebaseAppCheckCredentialsProvider::GetToken(TokenListener<std::string>) {
-}
+void FirebaseAppCheckCredentialsProvider::GetToken(
+    TokenListener<std::string> completion) {
+  HARD_ASSERT(app_check_listener_handle_,
+              "GetToken cannot be called after listener removed.");
 
-void FirebaseAppCheckCredentialsProvider::InvalidateToken() {
+  std::weak_ptr<Contents> weak_contents = contents_;
+  void (^get_token_callback)(id<FIRAppCheckTokenResultInterop>) =
+      ^(id<FIRAppCheckTokenResultInterop> result) {
+        std::shared_ptr<Contents> contents = weak_contents.lock();
+        if (!contents) {
+          return;
+        }
+
+        std::unique_lock<std::mutex> lock(contents->mutex);
+        if (result.error == nil) {
+          if (result.token != nil) {
+            completion(util::MakeString(result.token));
+          } else {
+            completion(std::string{""});
+          }
+        } else {
+          Error error_code = Error::kErrorUnknown;
+          if (result.error.domain == FIRFirestoreErrorDomain) {
+            error_code = static_cast<Error>(result.error.code);
+          }
+          completion(util::Status(
+              error_code, util::MakeString(result.error.localizedDescription)));
+        }
+      };
+
+  if (contents_->app_check) {
+    // Retrieve a cached or generate a new FAC Token. If forcingRefresh == YES
+    // always generates a new token and updates the cache.
+    [contents_->app_check getTokenForcingRefresh:force_refresh_
+                                      completion:get_token_callback];
+  } else {
+    // If there's no AppCheck provider, call back immediately with a nil token.
+    completion(std::string{""});
+  }
+  force_refresh_ = false;
 }
 
 void FirebaseAppCheckCredentialsProvider::SetCredentialChangeListener(
-    CredentialChangeListener<std::string>) {
+    CredentialChangeListener<std::string> change_listener) {
+  std::unique_lock<std::mutex> lock(contents_->mutex);
+  if (change_listener) {
+    HARD_ASSERT(!change_listener_, "set change_listener twice!");
+    // Fire initial event.
+    change_listener(contents_->current_token);
+  } else {
+    HARD_ASSERT(app_check_listener_handle_, "removed change_listener twice!");
+    HARD_ASSERT(change_listener_, "change_listener removed without being set!");
+    [[NSNotificationCenter defaultCenter]
+        removeObserver:app_check_listener_handle_];
+    app_check_listener_handle_ = nil;
+  }
+
+  change_listener_ = change_listener;
 }
 
 }  // namespace credentials

@@ -57,7 +57,9 @@ class CredentialsProvider {
    * Marks the last retrieved token as invalid, making the next `GetToken`
    * request force refresh the token.
    */
-  virtual void InvalidateToken() = 0;
+  virtual void InvalidateToken() {
+    force_refresh_ = true;
+  }
 
   /**
    * Sets the listener to be notified of credential changes (sign-in /
@@ -78,6 +80,8 @@ class CredentialsProvider {
    * the normal Firestore worker thread.
    */
   CredentialChangeListener<ValueType> change_listener_;
+
+  bool force_refresh_ = false;
 };
 
 }  // namespace credentials

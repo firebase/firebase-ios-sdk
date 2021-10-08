@@ -30,6 +30,9 @@
 
 #include "Firestore/core/src/credentials/credentials_provider.h"
 
+@class FIRApp;
+@protocol FIRAppCheckInterop;
+
 namespace firebase {
 namespace firestore {
 namespace credentials {
@@ -37,7 +40,8 @@ namespace credentials {
 class FirebaseAppCheckCredentialsProvider
     : public CredentialsProvider<std::string, std::string> {
  public:
-  FirebaseAppCheckCredentialsProvider();
+  FirebaseAppCheckCredentialsProvider(FIRApp* app,
+                                      id<FIRAppCheckInterop> app_check);
 
   ~FirebaseAppCheckCredentialsProvider() override;
 
@@ -46,7 +50,31 @@ class FirebaseAppCheckCredentialsProvider
   void SetCredentialChangeListener(
       CredentialChangeListener<std::string> change_listener) override;
 
-  void InvalidateToken() override;
+ private:
+  /**
+   * Most contents of the FirebaseAppCheckCredentialsProvider are kept in this
+   * Contents object and pointed to with a shared pointer. Callbacks
+   * registered with FirebaseAppCheck use weak pointers to the Contents to
+   * avoid races between notifications arriving and C++ object destruction.
+   */
+  struct Contents {
+    Contents(FIRApp* app, id<FIRAppCheckInterop> app_check)
+        : app(app), app_check(app_check) {
+    }
+
+    const FIRApp* app;
+    const id<FIRAppCheckInterop> app_check;
+    std::string current_token;
+    std::mutex mutex;
+  };
+
+  /**
+   * Handle used to stop receiving auth changes once CredentialChangeListener is
+   * removed.
+   */
+  id<NSObject> app_check_listener_handle_;
+
+  std::shared_ptr<Contents> contents_;
 };
 
 }  // namespace credentials
