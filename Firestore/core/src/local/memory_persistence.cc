@@ -16,7 +16,7 @@
 
 #include "Firestore/core/src/local/memory_persistence.h"
 
-#include "Firestore/core/src/auth/user.h"
+#include "Firestore/core/src/credentials/user.h"
 #include "Firestore/core/src/local/listen_sequence.h"
 #include "Firestore/core/src/local/lru_garbage_collector.h"
 #include "Firestore/core/src/local/memory_eager_reference_delegate.h"
@@ -34,7 +34,7 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
-using auth::User;
+using credentials::User;
 using model::ListenSequenceNumber;
 
 std::unique_ptr<MemoryPersistence>

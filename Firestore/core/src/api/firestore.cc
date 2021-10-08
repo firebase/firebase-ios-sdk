@@ -43,10 +43,10 @@ namespace firebase {
 namespace firestore {
 namespace api {
 
-using auth::CredentialsProvider;
 using core::AsyncEventListener;
 using core::DatabaseInfo;
 using core::FirestoreClient;
+using credentials::AuthCredentialsProvider;
 using local::LevelDbPersistence;
 using model::ResourcePath;
 using remote::FirebaseMetadataProvider;
@@ -59,7 +59,7 @@ using util::Status;
 Firestore::Firestore(
     model::DatabaseId database_id,
     std::string persistence_key,
-    std::shared_ptr<CredentialsProvider> credentials_provider,
+    std::shared_ptr<AuthCredentialsProvider> credentials_provider,
     std::shared_ptr<AsyncQueue> worker_queue,
     std::unique_ptr<FirebaseMetadataProvider> firebase_metadata_provider,
     void* extension)

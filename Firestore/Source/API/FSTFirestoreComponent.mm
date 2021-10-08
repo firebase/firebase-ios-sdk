@@ -26,8 +26,8 @@
 
 #include "Firestore/core/include/firebase/firestore/firestore_version.h"
 #include "Firestore/core/src/api/firestore.h"
-#include "Firestore/core/src/auth/credentials_provider.h"
-#include "Firestore/core/src/auth/firebase_credentials_provider_apple.h"
+#include "Firestore/core/src/credentials/credentials_provider.h"
+#include "Firestore/core/src/credentials/firebase_auth_credentials_provider_apple.h"
 #include "Firestore/core/src/remote/firebase_metadata_provider.h"
 #include "Firestore/core/src/remote/firebase_metadata_provider_apple.h"
 #include "Firestore/core/src/util/async_queue.h"
@@ -36,8 +36,8 @@
 #include "Firestore/core/src/util/hard_assert.h"
 #include "absl/memory/memory.h"
 
-using firebase::firestore::auth::CredentialsProvider;
-using firebase::firestore::auth::FirebaseCredentialsProvider;
+using firebase::firestore::credentials::CredentialsProvider;
+using firebase::firestore::credentials::FirebaseAuthCredentialsProvider;
 using firebase::firestore::remote::FirebaseMetadataProviderApple;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::Executor;
@@ -98,7 +98,7 @@ NS_ASSUME_NONNULL_BEGIN
       auto workerQueue = AsyncQueue::Create(std::move(executor));
 
       id<FIRAuthInterop> auth = FIR_COMPONENT(FIRAuthInterop, self.app.container);
-      auto credentialsProvider = std::make_shared<FirebaseCredentialsProvider>(self.app, auth);
+      auto credentialsProvider = std::make_shared<FirebaseAuthCredentialsProvider>(self.app, auth);
 
       auto firebaseMetadataProvider = absl::make_unique<FirebaseMetadataProviderApple>(self.app);
 

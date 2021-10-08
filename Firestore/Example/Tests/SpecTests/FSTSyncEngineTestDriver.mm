@@ -30,14 +30,14 @@
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/api/load_bundle_task.h"
-#include "Firestore/core/src/auth/empty_credentials_provider.h"
-#include "Firestore/core/src/auth/user.h"
 #include "Firestore/core/src/bundle/bundle_reader.h"
 #include "Firestore/core/src/core/database_info.h"
 #include "Firestore/core/src/core/event_manager.h"
 #include "Firestore/core/src/core/listen_options.h"
 #include "Firestore/core/src/core/query_listener.h"
 #include "Firestore/core/src/core/sync_engine.h"
+#include "Firestore/core/src/credentials/empty_credentials_provider.h"
+#include "Firestore/core/src/credentials/user.h"
 #include "Firestore/core/src/local/local_store.h"
 #include "Firestore/core/src/local/persistence.h"
 #include "Firestore/core/src/local/query_engine.h"
@@ -64,9 +64,6 @@ namespace testutil = firebase::firestore::testutil;
 
 using firebase::firestore::api::LoadBundleTask;
 using firebase::firestore::Error;
-using firebase::firestore::auth::EmptyCredentialsProvider;
-using firebase::firestore::auth::HashUser;
-using firebase::firestore::auth::User;
 using firebase::firestore::bundle::BundleReader;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::core::EventListener;
@@ -76,6 +73,9 @@ using firebase::firestore::core::Query;
 using firebase::firestore::core::QueryListener;
 using firebase::firestore::core::SyncEngine;
 using firebase::firestore::core::ViewSnapshot;
+using firebase::firestore::credentials::EmptyAuthCredentialsProvider;
+using firebase::firestore::credentials::HashUser;
+using firebase::firestore::credentials::User;
 using firebase::firestore::local::QueryEngine;
 using firebase::firestore::local::LocalStore;
 using firebase::firestore::local::Persistence;
@@ -232,7 +232,7 @@ NS_ASSUME_NONNULL_BEGIN
     _firebaseMetadataProvider = CreateFirebaseMetadataProviderNoOp();
 
     _datastore = std::make_shared<MockDatastore>(
-        _databaseInfo, _workerQueue, std::make_shared<EmptyCredentialsProvider>(),
+        _databaseInfo, _workerQueue, std::make_shared<EmptyAuthCredentialsProvider>(),
         _connectivityMonitor.get(), _firebaseMetadataProvider.get());
     _remoteStore = absl::make_unique<RemoteStore>(
         _localStore.get(), _datastore, _workerQueue, _connectivityMonitor.get(),

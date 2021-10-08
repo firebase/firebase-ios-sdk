@@ -20,8 +20,9 @@
 #include <memory>
 #include <string>
 
-#include "Firestore/core/src/auth/credentials_provider.h"
-#include "Firestore/core/src/auth/token.h"
+#include "Firestore/core/src/credentials/auth_token.h"
+#include "Firestore/core/src/credentials/credentials_fwd.h"
+#include "Firestore/core/src/credentials/credentials_provider.h"
 #include "Firestore/core/src/remote/exponential_backoff.h"
 #include "Firestore/core/src/remote/grpc_completion.h"
 #include "Firestore/core/src/remote/grpc_connection.h"
@@ -119,7 +120,8 @@ class Stream : public GrpcStreamObserver,
   };
 
   Stream(const std::shared_ptr<util::AsyncQueue>& worker_queue,
-         std::shared_ptr<auth::CredentialsProvider> credentials_provider,
+         std::shared_ptr<credentials::AuthCredentialsProvider>
+             credentials_provider,
          GrpcConnection* grpc_connection,
          util::TimerId backoff_timer_id,
          util::TimerId idle_timer_id);
@@ -203,7 +205,7 @@ class Stream : public GrpcStreamObserver,
   // The interface for the derived classes.
 
   virtual std::unique_ptr<GrpcStream> CreateGrpcStream(
-      GrpcConnection* grpc_connection, const auth::Token& token) = 0;
+      GrpcConnection* grpc_connection, const credentials::AuthToken& token) = 0;
   virtual void TearDown(GrpcStream* stream) = 0;
   virtual void NotifyStreamOpen() = 0;
   virtual util::Status NotifyStreamResponse(
@@ -217,7 +219,7 @@ class Stream : public GrpcStreamObserver,
 
   void RequestCredentials();
   void ResumeStartWithCredentials(
-      const util::StatusOr<auth::Token>& maybe_token);
+      const util::StatusOr<credentials::AuthToken>& maybe_token);
 
   void BackoffAndTryRestarting();
   void StopDueToIdleness();
@@ -226,7 +228,7 @@ class Stream : public GrpcStreamObserver,
 
   std::unique_ptr<GrpcStream> grpc_stream_;
 
-  std::shared_ptr<auth::CredentialsProvider> credentials_provider_;
+  std::shared_ptr<credentials::AuthCredentialsProvider> credentials_provider_;
   std::shared_ptr<util::AsyncQueue> worker_queue_;
   GrpcConnection* grpc_connection_ = nullptr;
 

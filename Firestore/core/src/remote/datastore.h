@@ -22,9 +22,9 @@
 #include <string>
 #include <vector>
 
-#include "Firestore/core/src/auth/credentials_provider.h"
-#include "Firestore/core/src/auth/token.h"
 #include "Firestore/core/src/core/core_fwd.h"
+#include "Firestore/core/src/credentials/auth_token.h"
+#include "Firestore/core/src/credentials/credentials_provider.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/remote/grpc_call.h"
 #include "Firestore/core/src/remote/grpc_connection.h"
@@ -73,7 +73,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
 
   Datastore(const core::DatabaseInfo& database_info,
             const std::shared_ptr<util::AsyncQueue>& worker_queue,
-            std::shared_ptr<auth::CredentialsProvider> credentials,
+            std::shared_ptr<credentials::AuthCredentialsProvider> credentials,
             ConnectivityMonitor* connectivity_monitor,
             FirebaseMetadataProvider* firebase_metadata_provider);
 
@@ -155,19 +155,20 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   void PollGrpcQueue();
 
   void CommitMutationsWithCredentials(
-      const auth::Token& token,
+      const credentials::AuthToken& token,
       const std::vector<model::Mutation>& mutations,
       CommitCallback&& callback);
 
   void LookupDocumentsWithCredentials(
-      const auth::Token& token,
+      const credentials::AuthToken& token,
       const std::vector<model::DocumentKey>& keys,
       LookupCallback&& callback);
   void OnLookupDocumentsResponse(
       const util::StatusOr<std::vector<grpc::ByteBuffer>>& result,
       const LookupCallback& callback);
 
-  using OnCredentials = std::function<void(const util::StatusOr<auth::Token>&)>;
+  using OnCredentials =
+      std::function<void(const util::StatusOr<credentials::AuthToken>&)>;
   void ResumeRpcWithCredentials(const OnCredentials& on_credentials);
 
   void HandleCallStatus(const util::Status& status);
@@ -179,7 +180,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   bool is_shut_down_ = false;
 
   std::shared_ptr<util::AsyncQueue> worker_queue_;
-  std::shared_ptr<auth::CredentialsProvider> credentials_;
+  std::shared_ptr<credentials::AuthCredentialsProvider> credentials_;
 
   // A separate executor dedicated to polling gRPC completion queue (which is
   // shared for all spawned gRPC streams and calls).

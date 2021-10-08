@@ -20,10 +20,10 @@
 #include <vector>
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
-#include "Firestore/core/src/auth/user.h"
 #include "Firestore/core/src/bundle/bundle_metadata.h"
 #include "Firestore/core/src/bundle/named_query.h"
 #include "Firestore/core/src/core/field_filter.h"
+#include "Firestore/core/src/credentials/user.h"
 #include "Firestore/core/src/local/local_view_changes.h"
 #include "Firestore/core/src/local/local_write_result.h"
 #include "Firestore/core/src/local/persistence.h"
@@ -48,9 +48,9 @@ namespace firestore {
 namespace local {
 namespace {
 
-using auth::User;
 using bundle::BundleMetadata;
 using bundle::NamedQuery;
+using credentials::User;
 using local::QueryResult;
 using model::Document;
 using model::DocumentKey;

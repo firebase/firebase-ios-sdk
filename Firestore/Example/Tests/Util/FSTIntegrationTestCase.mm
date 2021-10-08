@@ -35,9 +35,9 @@
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 
-#include "Firestore/core/src/auth/credentials_provider.h"
-#include "Firestore/core/src/auth/empty_credentials_provider.h"
-#include "Firestore/core/src/auth/user.h"
+#include "Firestore/core/src/credentials/credentials_provider.h"
+#include "Firestore/core/src/credentials/empty_credentials_provider.h"
+#include "Firestore/core/src/credentials/user.h"
 #include "Firestore/core/src/local/leveldb_opener.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/remote/firebase_metadata_provider_apple.h"
@@ -54,10 +54,11 @@
 
 namespace util = firebase::firestore::util;
 
-using firebase::firestore::auth::CredentialChangeListener;
-using firebase::firestore::auth::EmptyCredentialsProvider;
-using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::credentials::AuthToken;
+using firebase::firestore::credentials::CredentialChangeListener;
+using firebase::firestore::credentials::EmptyCredentialsProvider;
+using firebase::firestore::credentials::User;
 using firebase::firestore::local::LevelDbOpener;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::remote::FirebaseMetadataProviderApple;
@@ -85,9 +86,9 @@ static bool runningAgainstEmulator = false;
 
 // Behaves the same as `EmptyCredentialsProvider` except it can also trigger a user
 // change.
-class FakeCredentialsProvider : public EmptyCredentialsProvider {
+class FakeCredentialsProvider : public EmptyCredentialsProvider<AuthToken, User> {
  public:
-  void SetCredentialChangeListener(CredentialChangeListener changeListener) override {
+  void SetCredentialChangeListener(CredentialChangeListener<User> changeListener) override {
     if (changeListener) {
       listener_ = std::move(changeListener);
       listener_(User::Unauthenticated());
@@ -96,12 +97,12 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
 
   void ChangeUser(NSString *new_id) {
     if (listener_) {
-      listener_(firebase::firestore::auth::User::FromUid(new_id));
+      listener_(firebase::firestore::credentials::User::FromUid(new_id));
     }
   }
 
  private:
-  CredentialChangeListener listener_;
+  CredentialChangeListener<User> listener_;
 };
 
 @implementation FSTIntegrationTestCase {

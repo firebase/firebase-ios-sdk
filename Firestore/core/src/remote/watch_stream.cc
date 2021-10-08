@@ -30,8 +30,8 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-using auth::CredentialsProvider;
-using auth::Token;
+using credentials::AuthCredentialsProvider;
+using credentials::AuthToken;
 using local::TargetData;
 using model::TargetId;
 using remote::ByteBufferReader;
@@ -41,7 +41,7 @@ using util::TimerId;
 
 WatchStream::WatchStream(
     const std::shared_ptr<AsyncQueue>& async_queue,
-    std::shared_ptr<CredentialsProvider> credentials_provider,
+    std::shared_ptr<AuthCredentialsProvider> credentials_provider,
     Serializer serializer,
     GrpcConnection* grpc_connection,
     WatchStreamCallback* callback)
@@ -69,7 +69,7 @@ void WatchStream::UnwatchTargetId(TargetId target_id) {
 }
 
 std::unique_ptr<GrpcStream> WatchStream::CreateGrpcStream(
-    GrpcConnection* grpc_connection, const Token& token) {
+    GrpcConnection* grpc_connection, const AuthToken& token) {
   return grpc_connection->CreateStream("/google.firestore.v1.Firestore/Listen",
                                        token, this);
 }

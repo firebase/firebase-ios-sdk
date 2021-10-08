@@ -37,10 +37,10 @@
 #include "Firestore/core/src/api/document_reference.h"
 #include "Firestore/core/src/api/firestore.h"
 #include "Firestore/core/src/api/write_batch.h"
-#include "Firestore/core/src/auth/credentials_provider.h"
 #include "Firestore/core/src/core/database_info.h"
 #include "Firestore/core/src/core/event_listener.h"
 #include "Firestore/core/src/core/transaction.h"
+#include "Firestore/core/src/credentials/credentials_provider.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/remote/firebase_metadata_provider.h"
 #include "Firestore/core/src/util/async_queue.h"
@@ -61,8 +61,8 @@
 using firebase::firestore::api::DocumentReference;
 using firebase::firestore::api::Firestore;
 using firebase::firestore::api::ListenerRegistration;
-using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::core::EventListener;
+using firebase::firestore::credentials::AuthCredentialsProvider;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::remote::FirebaseMetadataProvider;
 using firebase::firestore::util::AsyncQueue;
@@ -142,7 +142,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithDatabaseID:(model::DatabaseId)databaseID
                     persistenceKey:(std::string)persistenceKey
-               credentialsProvider:(std::shared_ptr<CredentialsProvider>)credentialsProvider
+               credentialsProvider:(std::shared_ptr<AuthCredentialsProvider>)credentialsProvider
                        workerQueue:(std::shared_ptr<AsyncQueue>)workerQueue
           firebaseMetadataProvider:
               (std::unique_ptr<FirebaseMetadataProvider>)firebaseMetadataProvider

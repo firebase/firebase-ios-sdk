@@ -27,13 +27,13 @@
 #include "Firestore/core/src/api/query_core.h"
 #include "Firestore/core/src/api/query_snapshot.h"
 #include "Firestore/core/src/api/settings.h"
-#include "Firestore/core/src/auth/credentials_provider.h"
 #include "Firestore/core/src/bundle/bundle_reader.h"
 #include "Firestore/core/src/core/database_info.h"
 #include "Firestore/core/src/core/event_manager.h"
 #include "Firestore/core/src/core/query_listener.h"
 #include "Firestore/core/src/core/sync_engine.h"
 #include "Firestore/core/src/core/view.h"
+#include "Firestore/core/src/credentials/credentials_provider.h"
 #include "Firestore/core/src/local/leveldb_opener.h"
 #include "Firestore/core/src/local/leveldb_persistence.h"
 #include "Firestore/core/src/local/local_documents_view.h"
@@ -72,8 +72,8 @@ using api::QuerySnapshot;
 using api::QuerySnapshotListener;
 using api::Settings;
 using api::SnapshotMetadata;
-using auth::CredentialsProvider;
-using auth::User;
+using credentials::AuthCredentialsProvider;
+using credentials::User;
 using firestore::Error;
 using local::LevelDbOpener;
 using local::LocalStore;
@@ -106,7 +106,7 @@ static const size_t kMaxConcurrentLimboResolutions = 100;
 std::shared_ptr<FirestoreClient> FirestoreClient::Create(
     const DatabaseInfo& database_info,
     const api::Settings& settings,
-    std::shared_ptr<CredentialsProvider> credentials_provider,
+    std::shared_ptr<AuthCredentialsProvider> credentials_provider,
     std::shared_ptr<Executor> user_executor,
     std::shared_ptr<AsyncQueue> worker_queue,
     std::unique_ptr<FirebaseMetadataProvider> firebase_metadata_provider) {
@@ -152,7 +152,7 @@ std::shared_ptr<FirestoreClient> FirestoreClient::Create(
 
 FirestoreClient::FirestoreClient(
     const DatabaseInfo& database_info,
-    std::shared_ptr<CredentialsProvider> credentials_provider,
+    std::shared_ptr<AuthCredentialsProvider> credentials_provider,
     std::shared_ptr<Executor> user_executor,
     std::shared_ptr<AsyncQueue> worker_queue,
     std::unique_ptr<FirebaseMetadataProvider> firebase_metadata_provider)

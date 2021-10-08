@@ -20,7 +20,7 @@
 #include <string>
 
 #include "Firestore/core/src/api/firestore.h"
-#include "Firestore/core/src/auth/credentials_provider.h"
+#include "Firestore/core/src/credentials/credentials_provider.h"
 #include "Firestore/core/src/util/async_queue.h"
 
 @class FIRApp;
@@ -36,7 +36,7 @@ class FirebaseMetadataProvider;
 }  // namespace firebase
 
 namespace api = firebase::firestore::api;
-namespace auth = firebase::firestore::auth;
+namespace credentials = firebase::firestore::credentials;
 namespace model = firebase::firestore::model;
 namespace remote = firebase::firestore::remote;
 
@@ -58,7 +58,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (instancetype)initWithDatabaseID:(model::DatabaseId)databaseID
                     persistenceKey:(std::string)persistenceKey
-               credentialsProvider:(std::shared_ptr<auth::CredentialsProvider>)credentialsProvider
+               credentialsProvider:
+                   (std::shared_ptr<credentials::AuthCredentialsProvider>)credentialsProvider
                        workerQueue:
                            (std::shared_ptr<firebase::firestore::util::AsyncQueue>)workerQueue
           firebaseMetadataProvider:

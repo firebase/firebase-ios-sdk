@@ -36,7 +36,7 @@
 #include "Firestore/core/src/util/statusor.h"
 #include "Firestore/core/src/util/string_apple.h"
 #include "Firestore/core/test/unit/remote/create_noop_connectivity_monitor.h"
-#include "Firestore/core/test/unit/remote/fake_credentials_provider.h"
+#include "Firestore/core/test/unit/remote/fake_auth_credentials_provider.h"
 #include "Firestore/core/test/unit/remote/grpc_stream_tester.h"
 #include "Firestore/core/test/unit/testutil/async_testing.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
@@ -51,8 +51,8 @@ namespace remote {
 
 namespace {
 
-using auth::CredentialsProvider;
 using core::DatabaseInfo;
+using credentials::AuthCredentialsProvider;
 using model::DatabaseId;
 using model::Document;
 using nanopb::MakeArray;
@@ -106,7 +106,7 @@ class FakeDatastore : public Datastore {
 std::shared_ptr<FakeDatastore> CreateDatastore(
     const DatabaseInfo& database_info,
     const std::shared_ptr<AsyncQueue>& worker_queue,
-    std::shared_ptr<CredentialsProvider> credentials,
+    std::shared_ptr<AuthCredentialsProvider> credentials,
     ConnectivityMonitor* connectivity_monitor,
     FirebaseMetadataProvider* firebase_metadata_provider) {
   return std::make_shared<FakeDatastore>(database_info, worker_queue,
@@ -162,8 +162,8 @@ class DatastoreTest : public testing::Test {
 
   bool is_shut_down = false;
   DatabaseInfo database_info;
-  std::shared_ptr<FakeCredentialsProvider> credentials =
-      std::make_shared<FakeCredentialsProvider>();
+  std::shared_ptr<FakeAuthCredentialsProvider> credentials =
+      std::make_shared<FakeAuthCredentialsProvider>();
 
   std::shared_ptr<AsyncQueue> worker_queue;
   std::unique_ptr<ConnectivityMonitor> connectivity_monitor;

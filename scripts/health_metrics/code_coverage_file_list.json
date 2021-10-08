@@ -8,6 +8,13 @@
     ]
   },
   {
+    "sdk": "appcheck",
+    "filePatterns": [
+      "^FirebaseAppCheck.*",
+      "\\.github/workflows/app_check\\.yml"
+    ]
+  },
+  {
     "sdk": "auth",
     "filePatterns": [
       "^FirebaseAuth.*",
@@ -36,6 +43,7 @@
     "sdk": "firestore",
     "filePatterns": [
       "^Firestore/.*",
+      "FirebaseAppCheck/Sources/Interop/[^/]+\\.h",
       "Interop/Auth/Public/[^/]+\\.h",
       "FirebaseCore/Sources/Private",
       "FirebaseCore/Sources/Public",
