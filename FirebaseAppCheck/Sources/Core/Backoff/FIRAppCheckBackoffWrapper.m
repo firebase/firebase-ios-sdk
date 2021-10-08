@@ -23,6 +23,7 @@
 #endif
 
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
+#import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckHTTPError.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -162,12 +163,6 @@ static double const kMaxExponentialBackoffInterval = 4 * 60 * 60;  // 4 hours.
       });
 }
 
-- (FIRAppCheckBackoffErrorHandler)defaultErrorHandler {
-  return ^FIRAppCheckBackoffType(NSError *error) {
-    return FIRAppCheckBackoffTypeNone;
-  };
-}
-
 - (void)resetBackoff {
   @synchronized(self) {
     self.lastFailure = nil;
@@ -245,6 +240,31 @@ static double const kMaxExponentialBackoffInterval = 4 * 60 * 60;  // 4 hours.
 
   // Apply limit to the backoff interval.
   return MIN(backoffIntervalWithJitter, kMaxExponentialBackoffInterval);
+}
+
+#pragma mark - Error handling
+
+- (FIRAppCheckBackoffErrorHandler)defaultAppCheckProviderErrorHandler {
+  return ^FIRAppCheckBackoffType(NSError *error) {
+    FIRAppCheckHTTPError *HTTPError = [error isKindOfClass:[FIRAppCheckHTTPError class]] ? (FIRAppCheckHTTPError *)error : nil;
+    if (HTTPError == nil) {
+      // No backoff for attestation providers for non-backend errors.
+      return FIRAppCheckBackoffTypeNone;
+    }
+
+    NSInteger statusCode = HTTPError.HTTPResponse.statusCode;
+
+    if (statusCode < 400) {
+      // No backoff for codes before 400.
+      return FIRAppCheckBackoffTypeNone;
+    } else if (statusCode == 400) {
+      // Firebase project misconfiguration. It will unlikely be fixed soon and often requires another version of the app. Try again in 1 day.
+      return FIRAppCheckBackoffType1Day;
+    } else if (statusCode = 403) {
+      // 
+      return FIRAppCheckBackoffTypeExponential;
+    }
+  };
 }
 
 @end

@@ -52,7 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (FIRAppCheckBackoffErrorHandler)defaultErrorHandler {
+- (FIRAppCheckBackoffErrorHandler)defaultAppCheckProviderErrorHandler {
   if (_defaultErrorHandler) {
     return _defaultErrorHandler;
   }

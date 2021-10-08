@@ -60,7 +60,7 @@ typedef NSDate *_Nonnull (^FIRAppCheckDateProvider)(void);
 /// The default Firebase services error handler. It keeps track of network errors and
 /// `FIRAppCheckHTTPError.HTTPResponse.statusCode.statusCode` value to return the appropriate
 /// backoff type for the standard Firebase App Check backend response codes.
-- (FIRAppCheckBackoffErrorHandler)defaultErrorHandler;
+- (FIRAppCheckBackoffErrorHandler)defaultAppCheckProviderErrorHandler;
 
 @end
 
