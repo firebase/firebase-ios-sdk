@@ -232,8 +232,9 @@ static double const kMaxExponentialBackoffInterval = 4 * 60 * 60;  // 4 hours.
   // Base exponential backoff interval.
   NSTimeInterval baseBackoff = 2 ^ failure.retryCount;
 
-  // A random number from 0 to 1.
-  double randomNumber = (double)rand() / RAND_MAX;
+  // Get a random number from 0 to 1.
+  double maxRandom = 1000;
+  double randomNumber = (double)arc4random_uniform((int32_t)maxRandom) / maxRandom;
 
   // A number from 1 to 1 + kMaxJitterCoefficient, e.g. from 1 to 1.5. Indicates how much the
   // backoff can be extended.
