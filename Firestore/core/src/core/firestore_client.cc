@@ -146,7 +146,7 @@ std::shared_ptr<FirestoreClient> FirestoreClient::Create(
 
   shared_client->app_check_credentials_provider_->SetCredentialChangeListener(
       [](std::string) {
-        // Register an empty credentials change listener to active token
+        // Register an empty credentials change listener to activate token
         // refresh.
       });
   shared_client->auth_credentials_provider_->SetCredentialChangeListener(
