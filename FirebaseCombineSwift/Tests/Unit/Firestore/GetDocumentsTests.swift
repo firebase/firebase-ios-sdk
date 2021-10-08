@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import Foundation
-import FirebaseCombineSwift
+import FirebaseFirestoreCombineSwift
 import FirebaseFirestoreTestingSupport
 import Combine
 import XCTest

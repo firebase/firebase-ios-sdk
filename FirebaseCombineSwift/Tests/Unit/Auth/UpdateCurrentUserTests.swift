@@ -15,6 +15,7 @@
 import Foundation
 import Combine
 import XCTest
+import FirebaseCore
 import FirebaseAuth
 
 class UpdateCurrentUserTests: XCTestCase {

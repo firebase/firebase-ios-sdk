@@ -409,6 +409,17 @@ let package = Package(
       dependencies: ["FirebaseAuth"],
       path: "FirebaseCombineSwift/Sources/Auth"
     ),
+    .testTarget(
+      name: "CombineUnit",
+      dependencies: ["FirebaseAuthCombineSwift",
+                     "FirebaseFirestoreCombineSwift",
+                     "FirebaseFunctionsCombineSwift",
+                     "FirebaseStorageCombineSwift",
+                     "FirebaseAuthTestingSupport",
+                     "FirebaseFirestoreTestingSupport",
+                     "SharedTestUtilities"],
+      path: "FirebaseCombineSwift/Tests/Unit"
+    ),
     .target(
       name: "FirebaseFirestoreCombineSwift",
       dependencies: [
@@ -1087,6 +1098,24 @@ let package = Package(
     ),
 
     // MARK: Testing support
+
+      .target(
+        name: "FirebaseAuthTestingSupport",
+        dependencies: ["FirebaseAuth"],
+        path: "FirebaseTestingSupport/Auth/Sources",
+        publicHeadersPath: "./",
+        cSettings: [
+          .headerSearchPath("../../.."),
+        ]
+      ),
+      .testTarget(
+        name: "FirebaseAuthTestingSupportTests",
+        dependencies: ["FirebaseAuthTestingSupport"],
+        path: "FirebaseTestingSupport/Auth/Tests",
+        cSettings: [
+          .headerSearchPath("../../.."),
+        ]
+      ),
 
     .target(
       name: "FirebaseFirestoreTestingSupport",

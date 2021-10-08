@@ -15,7 +15,7 @@
 import Foundation
 import FirebaseCore
 import FirebaseAuth
-import FirebaseCombineSwift
+import FirebaseAuthCombineSwift
 import Combine
 import XCTest
 
