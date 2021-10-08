@@ -28,6 +28,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 static NSTimeInterval const k24Hours = 24 * 60 * 60;
 
+/// Jitter coefficient 0.5 means that the backoff interval can be up to 50% longer.
+static double const kMaxJitterCoefficient = 0.5;
+
+/// Maximum exponential backoff interval.
+static double const kMaxExponentialBackoffInterval = 4 * 60 * 60;  // 4 hours.
+
 /// A class representing an operation result with data required for the backoff calculation.
 @interface FIRAppCheckBackoffOperationFailure : NSObject
 
@@ -186,9 +192,10 @@ static NSTimeInterval const k24Hours = 24 * 60 * 60;
         return [self hasTimeIntervalPassedSinceLastFailure:k24Hours];
         break;
 
-        // TODO: Implement other cases.
-      default:
-        return YES;
+      case FIRAppCheckBackoffTypeExponential:
+        return [self hasTimeIntervalPassedSinceLastFailure:
+                         [self exponentialBackoffIntervalForFailure:self.lastFailure]];
+        break;
     }
   }
 }
@@ -214,6 +221,29 @@ static NSTimeInterval const k24Hours = 24 * 60 * 60;
 
 - (dispatch_queue_t)queue {
   return dispatch_get_global_queue(QOS_CLASS_UTILITY, 0);
+}
+
+#pragma mark - Exponential backoff
+
+/// @return Exponential backoff interval with jitter. Jitter is needed to avoid all clients to retry
+/// at the same time after e.g. a backend outage.
+- (NSTimeInterval)exponentialBackoffIntervalForFailure:
+    (FIRAppCheckBackoffOperationFailure *)failure {
+  // Base exponential backoff interval.
+  NSTimeInterval baseBackoff = 2 ^ failure.retryCount;
+
+  // A random number from 0 to 1.
+  double randomNumber = (double)rand() / RAND_MAX;
+
+  // A number from 1 to 1 + kMaxJitterCoefficient, e.g. from 1 to 1.5. Indicates how much the
+  // backoff can be extended.
+  double jitterCoefficient = 1 + randomNumber * kMaxJitterCoefficient;
+
+  // Exponential backoff interval with jitter.
+  NSTimeInterval backoffIntervalWithJitter = baseBackoff * jitterCoefficient;
+
+  // Apply limit to the backoff interval.
+  return MIN(backoffIntervalWithJitter, kMaxExponentialBackoffInterval);
 }
 
 @end
