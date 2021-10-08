@@ -1,5 +1,6 @@
 # v8.9.0
-- [added] Swift Property Wrapper TODO(#8755)
+- [added] Added `@FirestoreQuery` property wrapper for querying data from a
+  Firestore collection.
 - [changed] FirebaseFirestoreSwift now requires a minimum iOS version of 11 for
   all distributions.
 
