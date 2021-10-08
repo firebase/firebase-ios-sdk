@@ -27,6 +27,7 @@
 
 #include "gtest/gtest.h"
 
+// TODO(mrschmidt): Use SharedTestUtilities/AppCheckFake
 @interface FSTAppCheckTokenResultFake : NSObject <FIRAppCheckTokenResultInterop>
 @property(nonatomic, readonly) NSString* token;
 @property(nonatomic, readonly, nullable) NSError* error;
@@ -72,16 +73,16 @@
   completion([[FSTAppCheckTokenResultFake alloc] initWithToken:_token]);
 }
 
-- (NSString*)tokenDidChangeNotificationName {
-  return @"";
+- (nonnull NSString*)notificationAppNameKey {
+  return @"FakeAppCheckTokenDidChangeNotification";
 }
 
-- (NSString*)notificationTokenKey {
-  return @"";
+- (nonnull NSString*)notificationTokenKey {
+  return @"FakeTokenNotificationKey";
 }
 
-- (NSString*)notificationAppNameKey {
-  return @"";
+- (nonnull NSString*)tokenDidChangeNotificationName {
+  return @"FakeAppCheckTokenDidChangeNotification";
 }
 
 @end
@@ -108,17 +109,6 @@ TEST(FirebaseAppCheckCredentialsProviderTest, GetTokenNoProvider) {
   auto kTimeout = std::chrono::seconds(5);
   auto token_future = token_promise->get_future();
   ASSERT_EQ(std::future_status::ready, token_future.wait_for(kTimeout));
-}
-
-TEST(FirebaseAppCheckCredentialsProviderTest, GetTokenUnauthenticated) {
-  FIRApp* app = testutil::AppForUnitTesting();
-  FSTAppCheckFake* app_check = [[FSTAppCheckFake alloc] initWithToken:nil];
-  FirebaseAppCheckCredentialsProvider credentials_provider(app, app_check);
-  credentials_provider.GetToken([](util::StatusOr<std::string> result) {
-    EXPECT_TRUE(result.ok());
-    const std::string& token = result.ValueOrDie();
-    EXPECT_EQ("", token);
-  });
 }
 
 TEST(FirebaseAppCheckCredentialsProviderTest, GetToken) {
@@ -155,8 +145,37 @@ TEST(FirebaseAppCheckCredentialsProviderTest, InvalidateToken) {
         EXPECT_TRUE(result.ok());
         EXPECT_TRUE(app_check.forceRefreshTriggered);
         const std::string& token = result.ValueOrDie();
-        EXPECT_EQ("fake token", token);
+        EXPECT_EQ("fake_valid_token", token);
       });
+}
+
+TEST(FirebaseAppCheckCredentialsProviderTest, ListenForTokenChanges) {
+  auto token_promise = std::make_shared<std::promise<std::string>>();
+
+  FIRApp* app = testutil::AppForUnitTesting();
+  FSTAppCheckFake* app_check = [[FSTAppCheckFake alloc] initWithToken:@""];
+  FirebaseAppCheckCredentialsProvider credentials_provider(app, app_check);
+
+  credentials_provider.SetCredentialChangeListener(
+      [token_promise](const std::string& result) {
+        if (result != "") {
+          EXPECT_EQ("updated_app_check_token", result);
+          token_promise->set_value(result);
+        }
+      });
+
+  [[NSNotificationCenter defaultCenter]
+      postNotificationName:[app_check tokenDidChangeNotificationName]
+                    object:app_check
+                  userInfo:@{
+                    [app_check notificationTokenKey] :
+                        @"updated_app_check_token",
+                    [app_check notificationAppNameKey] : [app name],
+                  }];
+
+  auto kTimeout = std::chrono::seconds(5);
+  auto token_future = token_promise->get_future();
+  ASSERT_EQ(std::future_status::ready, token_future.wait_for(kTimeout));
 }
 
 }  // namespace credentials

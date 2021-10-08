@@ -67,9 +67,6 @@ FirebaseAuthCredentialsProvider::FirebaseAuthCredentialsProvider(
 
 FirebaseAuthCredentialsProvider::~FirebaseAuthCredentialsProvider() {
   if (auth_listener_handle_) {
-    // Even though iOS 9 (and later) and macOS 10.11 (and later) keep a weak
-    // reference to the observer so we could avoid this removeObserver call, we
-    // still support iOS 8 which requires it.
     [[NSNotificationCenter defaultCenter] removeObserver:auth_listener_handle_];
   }
 }

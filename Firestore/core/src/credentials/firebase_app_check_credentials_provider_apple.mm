@@ -46,9 +46,9 @@ FirebaseAppCheckCredentialsProvider::FirebaseAppCheckCredentialsProvider(
                 NSDictionary<NSString*, id>* user_info = notification.userInfo;
 
                 // ensure we're only notifying for the current app.
-                FIRApp* notified_app =
+                NSString* notified_app_name =
                     user_info[[app_check notificationAppNameKey]];
-                if (![contents->app isEqual:notified_app]) {
+                if (![[contents->app name] isEqual:notified_app_name]) {
                   return;
                 }
 
@@ -65,9 +65,6 @@ FirebaseAppCheckCredentialsProvider::FirebaseAppCheckCredentialsProvider(
 
 FirebaseAppCheckCredentialsProvider::~FirebaseAppCheckCredentialsProvider() {
   if (app_check_listener_handle_) {
-    // Even though iOS 9 (and later) and macOS 10.11 (and later) keep a weak
-    // reference to the observer so we could avoid this removeObserver call, we
-    // still support iOS 8 which requires it.
     [[NSNotificationCenter defaultCenter]
         removeObserver:app_check_listener_handle_];
   }
@@ -78,31 +75,18 @@ void FirebaseAppCheckCredentialsProvider::GetToken(
   HARD_ASSERT(app_check_listener_handle_,
               "GetToken cannot be called after listener removed.");
 
-  std::weak_ptr<Contents> weak_contents = contents_;
   void (^get_token_callback)(id<FIRAppCheckTokenResultInterop>) =
       ^(id<FIRAppCheckTokenResultInterop> result) {
-        std::shared_ptr<Contents> contents = weak_contents.lock();
-        if (!contents) {
-          return;
-        }
-
-        std::unique_lock<std::mutex> lock(contents->mutex);
         if (result.error == nil) {
-          if (result.token != nil) {
-            completion(util::MakeString(result.token));
-          } else {
-            completion(std::string{""});
-          }
+          completion(util::MakeString(result.token));
         } else {
-          Error error_code = Error::kErrorUnknown;
-          if (result.error.domain == FIRFirestoreErrorDomain) {
-            error_code = static_cast<Error>(result.error.code);
-          }
           completion(util::Status(
-              error_code, util::MakeString(result.error.localizedDescription)));
+              Error::kErrorUnknown,
+              util::MakeString(result.error.localizedDescription)));
         }
       };
 
+  std::weak_ptr<Contents> weak_contents = contents_;
   if (contents_->app_check) {
     // Retrieve a cached or generate a new FAC Token. If forcingRefresh == YES
     // always generates a new token and updates the cache.
