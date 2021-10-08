@@ -8,12 +8,6 @@ Firebase Testing Support is a collection of libraries that provide type definiti
 
 ### Add dependency to your test target
 
-#### Cocoapods
-
-```
-tests.dependency 'FirebaseFirestoreTestingSupport', '~> 1.0'
-```
-
 #### Swift Package Manager
 
 ```
@@ -32,13 +26,6 @@ See test for example, e.g. [QueryFakeTests.swift](../FirebaseTestingSupport/Fire
 
 ### Generate project
 
-#### Cocoapods
-
-E.g. for `FirebaseFirestoreTestingSupport` run the following command for the root repo directory:
-
-```
-pod gen --auto-open --local-sources=./ FirebaseFirestoreTestingSupport.podspec --platforms=ios
-```
 
 #### Swift Package Manager
 
