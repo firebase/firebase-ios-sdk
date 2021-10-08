@@ -482,7 +482,7 @@ case "$product-$platform-$method" in
 
     # Add GoogleService-Info.plist to generated Test Wrapper App.
     ruby ./scripts/update_xcode_target.rb gen/FirebaseRemoteConfig/Pods/Pods.xcodeproj \
-      AppHost-FirebaseStorage-Unit-Tests \
+      AppHost-FirebaseRemoteConfig-Unit-Tests \
       ../../../FirebaseRemoteConfig/Tests/FakeUtils/GoogleService-Info.plist
 
     RunXcodebuild \
@@ -498,7 +498,7 @@ case "$product-$platform-$method" in
 
     # Add GoogleService-Info.plist to generated Test Wrapper App.
     ruby ./scripts/update_xcode_target.rb gen/FirebaseRemoteConfig/Pods/Pods.xcodeproj \
-      AppHost-FirebaseStorage-Unit-Tests \
+      AppHost-FirebaseRemoteConfig-Unit-Tests \
       ../../../FirebaseRemoteConfig/Tests/SwiftAPI/GoogleService-Info.plist
 
     RunXcodebuild \
