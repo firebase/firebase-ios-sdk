@@ -46,8 +46,12 @@ WriteStream::WriteStream(
     Serializer serializer,
     GrpcConnection* grpc_connection,
     WriteStreamCallback* callback)
-    : Stream{async_queue, std::move(credentials_provider), grpc_connection,
-             TimerId::WriteStreamConnectionBackoff, TimerId::WriteStreamIdle},
+    : Stream{async_queue,
+             std::move(credentials_provider),
+             grpc_connection,
+             TimerId::WriteStreamConnectionBackoff,
+             TimerId::WriteStreamIdle,
+             TimerId::HealthCheckTimeout},
       write_serializer_{std::move(serializer)},
       callback_{NOT_NULL(callback)} {
 }

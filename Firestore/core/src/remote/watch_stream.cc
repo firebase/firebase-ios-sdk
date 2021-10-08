@@ -45,8 +45,12 @@ WatchStream::WatchStream(
     Serializer serializer,
     GrpcConnection* grpc_connection,
     WatchStreamCallback* callback)
-    : Stream{async_queue, std::move(credentials_provider), grpc_connection,
-             TimerId::ListenStreamConnectionBackoff, TimerId::ListenStreamIdle},
+    : Stream{async_queue,
+             std::move(credentials_provider),
+             grpc_connection,
+             TimerId::ListenStreamConnectionBackoff,
+             TimerId::ListenStreamIdle,
+             TimerId::HealthCheckTimeout},
       watch_serializer_{std::move(serializer)},
       callback_{NOT_NULL(callback)} {
 }
