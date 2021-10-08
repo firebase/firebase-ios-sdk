@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/credentials/firebase_credentials_provider_apple.h"
+#include "Firestore/core/src/credentials/firebase_auth_credentials_provider_apple.h"
 
 #include <chrono>  // NOLINT(build/c++11)
 #include <future>  // NOLINT(build/c++11)
@@ -76,7 +76,7 @@ TEST(FirebaseCredentialsProviderTest, GetTokenNoProvider) {
   auto token_promise = std::make_shared<std::promise<AuthToken>>();
 
   FIRApp* app = testutil::AppForUnitTesting();
-  FirebaseCredentialsProvider credentials_provider(app, nil);
+  FirebaseAuthCredentialsProvider credentials_provider(app, nil);
   credentials_provider.GetToken(
       [token_promise](util::StatusOr<AuthToken> result) {
         EXPECT_TRUE(result.ok());
@@ -100,7 +100,7 @@ TEST(FirebaseCredentialsProviderTest, GetTokenNoProvider) {
 TEST(FirebaseCredentialsProviderTest, GetTokenUnauthenticated) {
   FIRApp* app = testutil::AppForUnitTesting();
   FSTAuthFake* auth = [[FSTAuthFake alloc] initWithToken:nil uid:nil];
-  FirebaseCredentialsProvider credentials_provider(app, auth);
+  FirebaseAuthCredentialsProvider credentials_provider(app, auth);
   credentials_provider.GetToken([](util::StatusOr<AuthToken> result) {
     EXPECT_TRUE(result.ok());
     const AuthToken& token = result.ValueOrDie();
@@ -115,7 +115,7 @@ TEST(FirebaseCredentialsProviderTest, GetToken) {
   FIRApp* app = testutil::AppForUnitTesting();
   FSTAuthFake* auth = [[FSTAuthFake alloc] initWithToken:@"token for fake uid"
                                                      uid:@"fake uid"];
-  FirebaseCredentialsProvider credentials_provider(app, auth);
+  FirebaseAuthCredentialsProvider credentials_provider(app, auth);
   credentials_provider.GetToken([](util::StatusOr<AuthToken> result) {
     EXPECT_TRUE(result.ok());
     const AuthToken& token = result.ValueOrDie();
@@ -130,7 +130,7 @@ TEST(FirebaseCredentialsProviderTest, SetListener) {
   FIRApp* app = testutil::AppForUnitTesting();
   FSTAuthFake* auth = [[FSTAuthFake alloc] initWithToken:@"default token"
                                                      uid:@"fake uid"];
-  FirebaseCredentialsProvider credentials_provider(app, auth);
+  FirebaseAuthCredentialsProvider credentials_provider(app, auth);
   credentials_provider.SetCredentialChangeListener([](User user) {
     EXPECT_EQ("fake uid", user.uid());
     EXPECT_TRUE(user.is_authenticated());
@@ -143,7 +143,7 @@ TEST(FirebaseCredentialsProviderTest, InvalidateToken) {
   FIRApp* app = testutil::AppForUnitTesting();
   FSTAuthFake* auth = [[FSTAuthFake alloc] initWithToken:@"token for fake uid"
                                                      uid:@"fake uid"];
-  FirebaseCredentialsProvider credentials_provider(app, auth);
+  FirebaseAuthCredentialsProvider credentials_provider(app, auth);
   credentials_provider.InvalidateToken();
   credentials_provider.GetToken([&auth](util::StatusOr<AuthToken> result) {
     EXPECT_TRUE(result.ok());

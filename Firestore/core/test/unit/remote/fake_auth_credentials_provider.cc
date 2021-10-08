@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/test/unit/remote/fake_credentials_provider.h"
+#include "Firestore/core/test/unit/remote/fake_auth_credentials_provider.h"
 
 #include <utility>
 
@@ -26,10 +26,11 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-using credentials::EmptyCredentialsProvider;
+using credentials::EmptyAuthCredentialsProvider;
 using credentials::TokenListener;
 
-void FakeCredentialsProvider::GetToken(TokenListener completion) {
+void FakeAuthCredentialsProvider::GetToken(
+    TokenListener<credentials::AuthToken> completion) {
   observed_states_.push_back("GetToken");
 
   if (delay_get_token_) {
@@ -43,25 +44,25 @@ void FakeCredentialsProvider::GetToken(TokenListener completion) {
       completion(util::Status{Error::kErrorUnknown, ""});
     }
   } else {
-    EmptyCredentialsProvider::GetToken(std::move(completion));
+    EmptyAuthCredentialsProvider::GetToken(std::move(completion));
   }
 }
 
-void FakeCredentialsProvider::InvalidateToken() {
+void FakeAuthCredentialsProvider::InvalidateToken() {
   observed_states_.push_back("InvalidateToken");
-  EmptyCredentialsProvider::InvalidateToken();
+  EmptyAuthCredentialsProvider::InvalidateToken();
 }
 
-void FakeCredentialsProvider::DelayGetToken() {
+void FakeAuthCredentialsProvider::DelayGetToken() {
   delay_get_token_ = true;
 }
 
-void FakeCredentialsProvider::InvokeGetToken() {
+void FakeAuthCredentialsProvider::InvokeGetToken() {
   delay_get_token_ = false;
-  EmptyCredentialsProvider::GetToken(std::move(delayed_token_listener_));
+  EmptyAuthCredentialsProvider::GetToken(std::move(delayed_token_listener_));
 }
 
-void FakeCredentialsProvider::FailGetToken() {
+void FakeAuthCredentialsProvider::FailGetToken() {
   fail_get_token_ = true;
 }
 

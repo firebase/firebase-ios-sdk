@@ -14,21 +14,25 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_TEST_UNIT_REMOTE_FAKE_CREDENTIALS_PROVIDER_H_
-#define FIRESTORE_CORE_TEST_UNIT_REMOTE_FAKE_CREDENTIALS_PROVIDER_H_
+#ifndef FIRESTORE_CORE_TEST_UNIT_REMOTE_FAKE_AUTH_CREDENTIALS_PROVIDER_H_
+#define FIRESTORE_CORE_TEST_UNIT_REMOTE_FAKE_AUTH_CREDENTIALS_PROVIDER_H_
 
 #include <string>
 #include <vector>
 
+#include "Firestore/core/src/credentials/credentials_fwd.h"
 #include "Firestore/core/src/credentials/empty_credentials_provider.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
 
-class FakeCredentialsProvider : public credentials::EmptyCredentialsProvider {
+class FakeAuthCredentialsProvider
+    : public credentials::EmptyCredentialsProvider<credentials::AuthToken,
+                                                   credentials::User> {
  public:
-  void GetToken(credentials::TokenListener completion) override;
+  void GetToken(
+      credentials::TokenListener<credentials::AuthToken> completion) override;
   void InvalidateToken() override;
 
   // `GetToken` will not invoke the completion immediately -- invoke it manually
@@ -47,11 +51,11 @@ class FakeCredentialsProvider : public credentials::EmptyCredentialsProvider {
   std::vector<std::string> observed_states_;
   bool fail_get_token_ = false;
   bool delay_get_token_ = false;
-  credentials::TokenListener delayed_token_listener_;
+  credentials::TokenListener<credentials::AuthToken> delayed_token_listener_;
 };
 
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_TEST_UNIT_REMOTE_FAKE_CREDENTIALS_PROVIDER_H_
+#endif  // FIRESTORE_CORE_TEST_UNIT_REMOTE_FAKE_AUTH_CREDENTIALS_PROVIDER_H_

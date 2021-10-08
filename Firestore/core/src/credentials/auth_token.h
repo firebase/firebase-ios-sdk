@@ -40,6 +40,8 @@ namespace credentials {
 // TODO(zxu123): Make this support token-type for desktop workflow.
 class AuthToken {
  public:
+  AuthToken();
+
   AuthToken(std::string token, User user);
 
   /** The actual raw token. */

@@ -56,15 +56,16 @@ NS_ASSUME_NONNULL_BEGIN
  * Initializes a Firestore object with all the required parameters directly. This exists so that
  * tests can create FIRFirestore objects without needing FIRApp.
  */
-- (instancetype)
-          initWithDatabaseID:(model::DatabaseId)databaseID
-              persistenceKey:(std::string)persistenceKey
-         credentialsProvider:(std::shared_ptr<credentials::CredentialsProvider>)credentialsProvider
-                 workerQueue:(std::shared_ptr<firebase::firestore::util::AsyncQueue>)workerQueue
-    firebaseMetadataProvider:
-        (std::unique_ptr<remote::FirebaseMetadataProvider>)firebaseMetadataProvider
-                 firebaseApp:(FIRApp *)app
-            instanceRegistry:(nullable id<FSTFirestoreInstanceRegistry>)registry;
+- (instancetype)initWithDatabaseID:(model::DatabaseId)databaseID
+                    persistenceKey:(std::string)persistenceKey
+               credentialsProvider:
+                   (std::shared_ptr<credentials::AuthCredentialsProvider>)credentialsProvider
+                       workerQueue:
+                           (std::shared_ptr<firebase::firestore::util::AsyncQueue>)workerQueue
+          firebaseMetadataProvider:
+              (std::unique_ptr<remote::FirebaseMetadataProvider>)firebaseMetadataProvider
+                       firebaseApp:(FIRApp *)app
+                  instanceRegistry:(nullable id<FSTFirestoreInstanceRegistry>)registry;
 @end
 
 /** Internal FIRFirestore API we don't want exposed in our public header files. */

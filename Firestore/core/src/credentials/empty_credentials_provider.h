@@ -24,12 +24,27 @@ namespace firestore {
 namespace credentials {
 
 /** `EmptyCredentialsProvider` always yields an empty token. */
-class EmptyCredentialsProvider : public CredentialsProvider {
+template <class TokenType, class ValueType>
+class EmptyCredentialsProvider
+    : public CredentialsProvider<TokenType, ValueType> {
  public:
-  void GetToken(TokenListener completion) override;
-  void InvalidateToken() override;
+  void GetToken(TokenListener<TokenType> completion) override {
+    if (completion) {
+      // Unauthenticated token will force the GRPC fallback to use default
+      // settings.
+      completion(TokenType{});
+    }
+  }
+
+  void InvalidateToken() override {
+  }
+
   void SetCredentialChangeListener(
-      CredentialChangeListener change_listener) override;
+      CredentialChangeListener<ValueType> change_listener) override {
+    if (change_listener) {
+      change_listener(ValueType{});
+    }
+  }
 };
 
 }  // namespace credentials

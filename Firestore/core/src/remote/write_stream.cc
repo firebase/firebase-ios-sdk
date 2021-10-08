@@ -30,8 +30,8 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+using credentials::AuthCredentialsProvider;
 using credentials::AuthToken;
-using credentials::CredentialsProvider;
 using model::Mutation;
 using nanopb::ByteString;
 using nanopb::Message;
@@ -42,7 +42,7 @@ using util::TimerId;
 
 WriteStream::WriteStream(
     const std::shared_ptr<AsyncQueue>& async_queue,
-    std::shared_ptr<CredentialsProvider> credentials_provider,
+    std::shared_ptr<AuthCredentialsProvider> credentials_provider,
     Serializer serializer,
     GrpcConnection* grpc_connection,
     WriteStreamCallback* callback)

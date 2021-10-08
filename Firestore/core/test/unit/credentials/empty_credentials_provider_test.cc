@@ -15,6 +15,7 @@
  */
 
 #include "Firestore/core/src/credentials/empty_credentials_provider.h"
+#include "Firestore/core/src/credentials/credentials_fwd.h"
 
 #include "Firestore/core/src/util/statusor.h"
 #include "gtest/gtest.h"
@@ -23,8 +24,8 @@ namespace firebase {
 namespace firestore {
 namespace credentials {
 
-TEST(EmptyCredentialsProvider, GetToken) {
-  EmptyCredentialsProvider credentials_provider;
+TEST(EmptyAuthCredentialsProvider, GetToken) {
+  EmptyAuthCredentialsProvider credentials_provider;
   credentials_provider.GetToken([](util::StatusOr<AuthToken> result) {
     EXPECT_TRUE(result.ok());
     const AuthToken& token = result.ValueOrDie();
@@ -35,8 +36,8 @@ TEST(EmptyCredentialsProvider, GetToken) {
   });
 }
 
-TEST(EmptyCredentialsProvider, SetListener) {
-  EmptyCredentialsProvider credentials_provider;
+TEST(EmptyAuthCredentialsProvider, SetListener) {
+  EmptyAuthCredentialsProvider credentials_provider;
   credentials_provider.SetCredentialChangeListener([](User user) {
     EXPECT_EQ("", user.uid());
     EXPECT_FALSE(user.is_authenticated());
@@ -46,7 +47,7 @@ TEST(EmptyCredentialsProvider, SetListener) {
 }
 
 TEST(EmptyCredentialsProvider, InvalidateToken) {
-  EmptyCredentialsProvider credentials_provider;
+  EmptyAuthCredentialsProvider credentials_provider;
   credentials_provider.InvalidateToken();
   credentials_provider.GetToken(
       [](util::StatusOr<AuthToken> result) { EXPECT_TRUE(result.ok()); });

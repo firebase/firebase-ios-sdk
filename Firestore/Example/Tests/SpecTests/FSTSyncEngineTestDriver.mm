@@ -73,7 +73,7 @@ using firebase::firestore::core::Query;
 using firebase::firestore::core::QueryListener;
 using firebase::firestore::core::SyncEngine;
 using firebase::firestore::core::ViewSnapshot;
-using firebase::firestore::credentials::EmptyCredentialsProvider;
+using firebase::firestore::credentials::EmptyAuthCredentialsProvider;
 using firebase::firestore::credentials::HashUser;
 using firebase::firestore::credentials::User;
 using firebase::firestore::local::QueryEngine;
@@ -232,7 +232,7 @@ NS_ASSUME_NONNULL_BEGIN
     _firebaseMetadataProvider = CreateFirebaseMetadataProviderNoOp();
 
     _datastore = std::make_shared<MockDatastore>(
-        _databaseInfo, _workerQueue, std::make_shared<EmptyCredentialsProvider>(),
+        _databaseInfo, _workerQueue, std::make_shared<EmptyAuthCredentialsProvider>(),
         _connectivityMonitor.get(), _firebaseMetadataProvider.get());
     _remoteStore = absl::make_unique<RemoteStore>(
         _localStore.get(), _datastore, _workerQueue, _connectivityMonitor.get(),

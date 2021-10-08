@@ -73,7 +73,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
 
   Datastore(const core::DatabaseInfo& database_info,
             const std::shared_ptr<util::AsyncQueue>& worker_queue,
-            std::shared_ptr<credentials::CredentialsProvider> credentials,
+            std::shared_ptr<credentials::AuthCredentialsProvider> credentials,
             ConnectivityMonitor* connectivity_monitor,
             FirebaseMetadataProvider* firebase_metadata_provider);
 
@@ -180,7 +180,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   bool is_shut_down_ = false;
 
   std::shared_ptr<util::AsyncQueue> worker_queue_;
-  std::shared_ptr<credentials::CredentialsProvider> credentials_;
+  std::shared_ptr<credentials::AuthCredentialsProvider> credentials_;
 
   // A separate executor dedicated to polling gRPC completion queue (which is
   // shared for all spawned gRPC streams and calls).

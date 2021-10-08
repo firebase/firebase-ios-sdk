@@ -62,7 +62,7 @@ using firebase::firestore::api::DocumentReference;
 using firebase::firestore::api::Firestore;
 using firebase::firestore::api::ListenerRegistration;
 using firebase::firestore::core::EventListener;
-using firebase::firestore::credentials::CredentialsProvider;
+using firebase::firestore::credentials::AuthCredentialsProvider;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::remote::FirebaseMetadataProvider;
 using firebase::firestore::util::AsyncQueue;
@@ -142,7 +142,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithDatabaseID:(model::DatabaseId)databaseID
                     persistenceKey:(std::string)persistenceKey
-               credentialsProvider:(std::shared_ptr<CredentialsProvider>)credentialsProvider
+               credentialsProvider:(std::shared_ptr<AuthCredentialsProvider>)credentialsProvider
                        workerQueue:(std::shared_ptr<AsyncQueue>)workerQueue
           firebaseMetadataProvider:
               (std::unique_ptr<FirebaseMetadataProvider>)firebaseMetadataProvider

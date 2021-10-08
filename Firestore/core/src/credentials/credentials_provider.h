@@ -31,22 +31,27 @@ namespace firestore {
 namespace credentials {
 
 // `TokenErrorListener` is a listener that gets a token or an error.
-using TokenListener = std::function<void(util::StatusOr<AuthToken>)>;
+template <class TokenType>
+using TokenListener = std::function<void(util::StatusOr<TokenType>)>;
 
 // Listener notified with a credential change.
-using CredentialChangeListener = std::function<void(User user)>;
+template <class ValueType>
+using CredentialChangeListener = std::function<void(ValueType)>;
 
 /**
- * Provides methods for getting and listening to authentication credentials.
+ * Provides methods for getting the uid and token for the current user and
+ * listen for changes.
  */
+template <class TokenType, class ValueType>
 class CredentialsProvider {
  public:
-  CredentialsProvider();
+  CredentialsProvider() : change_listener_(nullptr) {
+  }
 
-  virtual ~CredentialsProvider();
+  virtual ~CredentialsProvider() = default;
 
-  /** Requests the current token. */
-  virtual void GetToken(TokenListener completion) = 0;
+  /** Requests token for the current user. */
+  virtual void GetToken(TokenListener<TokenType> completion) = 0;
 
   /**
    * Marks the last retrieved token as invalid, making the next `GetToken`
@@ -57,22 +62,22 @@ class CredentialsProvider {
   /**
    * Sets the listener to be notified of credential changes (sign-in /
    * sign-out, token changes). It is immediately called once with the initial
-   * credential.
+   * user.
    *
    * Call with nullptr to remove previous listener.
    */
   virtual void SetCredentialChangeListener(
-      CredentialChangeListener change_listener) = 0;
+      CredentialChangeListener<ValueType> change_listener) = 0;
 
  protected:
   /**
    * A listener to be notified of credential changes (sign-in / sign-out, token
-   * changes). It is immediately called once with the initial credential.
+   * changes). It is immediately called once with the initial user.
    *
    * Note that this block will be called back on an arbitrary thread that is not
    * the normal Firestore worker thread.
    */
-  CredentialChangeListener change_listener_;
+  CredentialChangeListener<ValueType> change_listener_;
 };
 
 }  // namespace credentials

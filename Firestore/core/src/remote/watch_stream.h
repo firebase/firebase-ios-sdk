@@ -83,12 +83,12 @@ class WatchStreamCallback {
  */
 class WatchStream : public Stream {
  public:
-  WatchStream(
-      const std::shared_ptr<util::AsyncQueue>& async_queue,
-      std::shared_ptr<credentials::CredentialsProvider> credentials_provider,
-      Serializer serializer,
-      GrpcConnection* grpc_connection,
-      WatchStreamCallback* callback);
+  WatchStream(const std::shared_ptr<util::AsyncQueue>& async_queue,
+              std::shared_ptr<credentials::AuthCredentialsProvider>
+                  credentials_provider,
+              Serializer serializer,
+              GrpcConnection* grpc_connection,
+              WatchStreamCallback* callback);
 
   /**
    * Registers interest in the results of the given query. If the query includes
