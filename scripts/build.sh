@@ -485,6 +485,12 @@ case "$product-$platform-$method" in
       AppHost-FirebaseRemoteConfig-Unit-Tests \
       ../../../FirebaseRemoteConfig/Tests/FakeUtils/GoogleService-Info.plist
 
+
+    # Add AccessToken to generated Test Wrapper App.
+    ruby ./scripts/update_xcode_target.rb gen/FirebaseRemoteConfig/Pods/Pods.xcodeproj \
+      AppHost-FirebaseRemoteConfig-Unit-Tests \
+      ../../../FirebaseRemoteConfig/Tests/SwiftAPI/AccessToken.json
+
     RunXcodebuild \
       -workspace 'gen/FirebaseRemoteConfig/FirebaseRemoteConfig.xcworkspace' \
       -scheme "FirebaseRemoteConfig-Unit-fake-console-tests" \
