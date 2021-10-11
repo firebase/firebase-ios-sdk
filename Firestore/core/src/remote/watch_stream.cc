@@ -41,12 +41,16 @@ using util::TimerId;
 
 WatchStream::WatchStream(
     const std::shared_ptr<AsyncQueue>& async_queue,
-    std::shared_ptr<AuthCredentialsProvider> credentials_provider,
+    std::shared_ptr<credentials::AuthCredentialsProvider>
+        auth_credentials_provider,
+    std::shared_ptr<credentials::AppCheckCredentialsProvider>
+        app_check_credentials_provider,
     Serializer serializer,
     GrpcConnection* grpc_connection,
     WatchStreamCallback* callback)
     : Stream{async_queue,
-             std::move(credentials_provider),
+             std::move(auth_credentials_provider),
+             std::move(app_check_credentials_provider),
              grpc_connection,
              TimerId::ListenStreamConnectionBackoff,
              TimerId::ListenStreamIdle,

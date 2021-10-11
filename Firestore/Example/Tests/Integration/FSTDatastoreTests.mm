@@ -59,6 +59,7 @@ namespace testutil = firebase::firestore::testutil;
 
 using firebase::Timestamp;
 using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::credentials::EmptyAppCheckCredentialsProvider;
 using firebase::firestore::credentials::EmptyAuthCredentialsProvider;
 using firebase::firestore::credentials::User;
 using firebase::firestore::google_firestore_v1_Value;
@@ -249,7 +250,8 @@ class RemoteStoreEventCapture : public RemoteStoreCallback {
   _firebaseMetadataProvider = CreateFirebaseMetadataProviderNoOp();
   _datastore = std::make_shared<Datastore>(
       _databaseInfo, _testWorkerQueue, std::make_shared<EmptyAuthCredentialsProvider>(),
-      _connectivityMonitor.get(), _firebaseMetadataProvider.get());
+      std::make_shared<EmptyAppCheckCredentialsProvider>(), _connectivityMonitor.get(),
+      _firebaseMetadataProvider.get());
 
   _persistence = MemoryPersistence::WithEagerGarbageCollector();
   _localStore =

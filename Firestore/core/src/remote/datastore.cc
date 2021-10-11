@@ -89,13 +89,17 @@ void LogGrpcCallFinished(absl::string_view rpc_name,
 
 }  // namespace
 
-Datastore::Datastore(const DatabaseInfo& database_info,
-                     const std::shared_ptr<AsyncQueue>& worker_queue,
-                     std::shared_ptr<AuthCredentialsProvider> credentials,
-                     ConnectivityMonitor* connectivity_monitor,
-                     FirebaseMetadataProvider* firebase_metadata_provider)
+Datastore::Datastore(
+    const DatabaseInfo& database_info,
+    const std::shared_ptr<AsyncQueue>& worker_queue,
+    std::shared_ptr<credentials::AuthCredentialsProvider> auth_credentials,
+    std::shared_ptr<credentials::AppCheckCredentialsProvider>
+        app_check_credentials,
+    ConnectivityMonitor* connectivity_monitor,
+    FirebaseMetadataProvider* firebase_metadata_provider)
     : worker_queue_{NOT_NULL(worker_queue)},
-      credentials_{std::move(credentials)},
+      app_check_credentials_{std::move(app_check_credentials)},
+      auth_credentials_{std::move(auth_credentials)},
       rpc_executor_{CreateExecutor()},
       connectivity_monitor_{connectivity_monitor},
       grpc_connection_{database_info, worker_queue, &grpc_queue_,
@@ -146,16 +150,16 @@ void Datastore::PollGrpcQueue() {
 
 std::shared_ptr<WatchStream> Datastore::CreateWatchStream(
     WatchStreamCallback* callback) {
-  return std::make_shared<WatchStream>(worker_queue_, credentials_,
-                                       datastore_serializer_.serializer(),
-                                       &grpc_connection_, callback);
+  return std::make_shared<WatchStream>(
+      worker_queue_, auth_credentials_, app_check_credentials_,
+      datastore_serializer_.serializer(), &grpc_connection_, callback);
 }
 
 std::shared_ptr<WriteStream> Datastore::CreateWriteStream(
     WriteStreamCallback* callback) {
-  return std::make_shared<WriteStream>(worker_queue_, credentials_,
-                                       datastore_serializer_.serializer(),
-                                       &grpc_connection_, callback);
+  return std::make_shared<WriteStream>(
+      worker_queue_, auth_credentials_, app_check_credentials_,
+      datastore_serializer_.serializer(), &grpc_connection_, callback);
 }
 
 void Datastore::CommitMutations(const std::vector<Mutation>& mutations,
@@ -254,7 +258,7 @@ void Datastore::ResumeRpcWithCredentials(const OnCredentials& on_credentials) {
   // Auth may outlive Firestore
   std::weak_ptr<Datastore> weak_this{shared_from_this()};
 
-  credentials_->GetToken(
+  auth_credentials_->GetToken(
       [weak_this, on_credentials](const StatusOr<AuthToken>& result) {
         auto strong_this = weak_this.lock();
         if (!strong_this) {
@@ -276,11 +280,13 @@ void Datastore::ResumeRpcWithCredentials(const OnCredentials& on_credentials) {
               on_credentials(result);
             });
       });
+  // TODO(appcheck): Fetch AppCheck token
 }
 
 void Datastore::HandleCallStatus(const Status& status) {
   if (status.code() == Error::kErrorUnauthenticated) {
-    credentials_->InvalidateToken();
+    auth_credentials_->InvalidateToken();
+    app_check_credentials_->InvalidateToken();
   }
 }
 

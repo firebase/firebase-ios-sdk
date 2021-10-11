@@ -59,14 +59,19 @@ const AsyncQueue::Milliseconds kHealthyTimeout{std::chrono::seconds(10)};
 }  // namespace
 
 Stream::Stream(const std::shared_ptr<AsyncQueue>& worker_queue,
-               std::shared_ptr<AuthCredentialsProvider> credentials_provider,
+               std::shared_ptr<credentials::AuthCredentialsProvider>
+                   auth_credentials_provider,
+               std::shared_ptr<credentials::AppCheckCredentialsProvider>
+                   app_check_credentials_provider,
                GrpcConnection* grpc_connection,
                TimerId backoff_timer_id,
                TimerId idle_timer_id,
                TimerId health_check_timer_id)
     : backoff_{worker_queue, backoff_timer_id, kBackoffFactor,
                kBackoffInitialDelay, kBackoffMaxDelay},
-      credentials_provider_{std::move(credentials_provider)},
+      app_check_credentials_provider_{
+          std::move(app_check_credentials_provider)},
+      auth_credentials_provider_{std::move(auth_credentials_provider)},
       worker_queue_{worker_queue},
       grpc_connection_{grpc_connection},
       idle_timer_id_{idle_timer_id},
@@ -110,24 +115,26 @@ void Stream::RequestCredentials() {
   // deleted object.
   std::weak_ptr<Stream> weak_this{shared_from_this()};
   int initial_close_count = close_count_;
-  credentials_provider_->GetToken([weak_this, initial_close_count](
-                                      const StatusOr<AuthToken>& maybe_token) {
-    auto strong_this = weak_this.lock();
-    if (!strong_this) {
-      return;
-    }
+  auth_credentials_provider_->GetToken(
+      [weak_this, initial_close_count](const StatusOr<AuthToken>& maybe_token) {
+        auto strong_this = weak_this.lock();
+        if (!strong_this) {
+          return;
+        }
 
-    strong_this->worker_queue_->EnqueueRelaxed([maybe_token, weak_this,
-                                                initial_close_count] {
-      auto strong_this = weak_this.lock();
-      // Streams can be stopped while waiting for authorization, so need
-      // to check the close count.
-      if (!strong_this || strong_this->close_count_ != initial_close_count) {
-        return;
-      }
-      strong_this->ResumeStartWithCredentials(maybe_token);
-    });
-  });
+        strong_this->worker_queue_->EnqueueRelaxed(
+            [maybe_token, weak_this, initial_close_count] {
+              auto strong_this = weak_this.lock();
+              // Streams can be stopped while waiting for authorization, so need
+              // to check the close count.
+              if (!strong_this ||
+                  strong_this->close_count_ != initial_close_count) {
+                return;
+              }
+              strong_this->ResumeStartWithCredentials(maybe_token);
+            });
+      });
+  // TODO(appcheck): Fetch AppCheck token
 }
 
 void Stream::ResumeStartWithCredentials(
@@ -310,7 +317,8 @@ void Stream::HandleErrorStatus(const Status& status) {
     // fail, however. In this case, we should get a kErrorUnauthenticated error
     // before we received the first message and we need to invalidate the token
     // to ensure that we fetch a new token.
-    credentials_provider_->InvalidateToken();
+    auth_credentials_provider_->InvalidateToken();
+    app_check_credentials_provider_->InvalidateToken();
   }
 }
 
