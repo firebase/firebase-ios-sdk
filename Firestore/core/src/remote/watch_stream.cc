@@ -54,6 +54,7 @@ WatchStream::WatchStream(
              grpc_connection,
              TimerId::ListenStreamConnectionBackoff,
              TimerId::ListenStreamIdle},
+             TimerId::HealthCheckTimeout},
       watch_serializer_{std::move(serializer)},
       callback_{NOT_NULL(callback)} {
 }
