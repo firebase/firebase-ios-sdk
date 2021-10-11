@@ -15,19 +15,16 @@
 import Foundation
 
 struct Heartbeat: Codable {
-
   private static let version: Int = 0
 
   let info: String?
   let date: Date
   let version: Int
 
-  init(
-    info: String? = nil,
-    date: Date = .init()
-  ) {
+  init(info: String? = nil,
+       date: Date = .init()) {
     self.info = info
     self.date = date
-    self.version = Self.version
+    version = Self.version
   }
 }

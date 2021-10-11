@@ -41,9 +41,9 @@ extension UserDefaultsStorage: PersistentStorageFactory {
 
 // MARK: - FileManager + Extension
 
-fileprivate extension FileManager {
+private extension FileManager {
   var applicationSupportDirectory: URL {
     // TODO: The below bang! should be safe but re-evaluate.
-    self.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+    urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
   }
 }

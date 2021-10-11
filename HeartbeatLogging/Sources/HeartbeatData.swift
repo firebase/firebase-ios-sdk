@@ -42,7 +42,6 @@ public protocol HTTPHeaderRepresentable {
 ///   - Note: This data structure is **not** thread-safe.
 ///
 public struct HeartbeatData: Codable {
-
   enum TimePeriod: Int, Codable, CaseIterable {
     case daily = 1
     case weekly = 7
@@ -90,13 +89,11 @@ public struct HeartbeatData: Codable {
     // --snip--
     nil
   }
-
 }
 
 // MARK: - HTTPHeaderRepresentable
 
 extension HeartbeatData: HTTPHeaderRepresentable {
-
   public func headerValue() -> String {
     // TODO: Implement
     // - Filter out expired.

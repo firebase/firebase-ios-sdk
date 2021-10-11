@@ -25,10 +25,8 @@ class FileStorage {
   private let url: URL
   private let fileManager: FileManager
 
-  init(
-    url: URL,
-    fileManager: FileManager = .default
-  ) {
+  init(url: URL,
+       fileManager: FileManager = .default) {
     self.url = url
     self.fileManager = fileManager
   }
@@ -51,10 +49,8 @@ class UserDefaultsStorage {
   private let defaults: UserDefaults
   private let key: String
 
-  init(
-    defaults: UserDefaults? = nil,
-    key: String
-  ) {
+  init(defaults: UserDefaults? = nil,
+       key: String) {
     self.defaults = defaults ?? .standard
     self.key = key
   }
@@ -70,4 +66,3 @@ extension UserDefaultsStorage: PersistentStorage {
     // --snip--
   }
 }
-

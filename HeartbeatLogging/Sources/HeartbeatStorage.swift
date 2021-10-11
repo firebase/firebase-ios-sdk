@@ -23,7 +23,7 @@ protocol PersistenceController {
 
 /// A type that provides a synchronizable, block-based API for reading and writing.
 protocol Synchronizable: PersistenceController {
-  typealias ReadWriteBlock = (inout Contents) -> ()
+  typealias ReadWriteBlock = (inout Contents) -> Void
   func readWriteSync(_ transform: ReadWriteBlock)
   func readWriteAsync(_ transform: @escaping ReadWriteBlock)
 }
@@ -41,26 +41,22 @@ final class HeartbeatStorage {
   private let decoder: JSONDecoder
   private let queue: DispatchQueue
 
-  init(
-    id: String, // TODO: - Sanitize!
-    storage: Storage,
-    encoder: JSONEncoder = .init(),
-    decoder: JSONDecoder = .init()
-  ) {
+  init(id: String, // TODO: - Sanitize!
+       storage: Storage,
+       encoder: JSONEncoder = .init(),
+       decoder: JSONDecoder = .init()) {
     self.storage = storage
     self.encoder = encoder
     self.decoder = decoder
 
     let label = "com.heartbeat.storage.\(id)"
-    self.queue = DispatchQueue(label: label)
+    queue = DispatchQueue(label: label)
   }
-
 }
 
 // MARK: - ThreadSafeStorage
 
 extension HeartbeatStorage: ThreadSafeStorage {
-
   func readWriteSync(_ transform: ReadWriteBlock) {
     queue.sync { execute(transform) }
   }
@@ -70,9 +66,9 @@ extension HeartbeatStorage: ThreadSafeStorage {
   }
 
   func execute(_ transform: ReadWriteBlock) {
-    var loggingData = load(from: storage)  // Load logging data into memory.
-    transform(&loggingData)                // Transform the logging data.
-    save(loggingData, to: storage)         // Save logging data to memory.
+    var loggingData = load(from: storage)
+    transform(&loggingData)
+    save(loggingData, to: storage)
   }
 
   func load(from storage: Storage) -> HeartbeatData {
@@ -83,5 +79,4 @@ extension HeartbeatStorage: ThreadSafeStorage {
   func save(_ value: HeartbeatData?, to storage: Storage) {
     // --snip--
   }
-
 }
