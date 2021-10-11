@@ -17,7 +17,7 @@
 #import "FirebaseDatabase/Tests/Unit/FSparseSnapshotTests.h"
 #import "FirebaseDatabase/Sources/Core/FSparseSnapshotTree.h"
 
-#import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
+
 
 @implementation FSparseSnapshotTests
 

@@ -25,7 +25,9 @@
 
 
 
-#import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
+
+
+@import FirebaseDatabaseSwiftCore;
 
 @interface FQueryParamsTest : XCTestCase
 

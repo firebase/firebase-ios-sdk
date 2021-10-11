@@ -20,7 +20,7 @@
 #import "FirebaseDatabase/Sources/Core/View/FCacheNode.h"
 #import "FirebaseDatabase/Sources/Persistence/FCachePolicy.h"
 #import "FirebaseDatabase/Sources/Persistence/FStorageEngine.h"
-#import "FirebaseDatabase/Sources/Snapshot/FCompoundWrite.h"
+
 
 @import FirebaseDatabaseSwiftCore;
 

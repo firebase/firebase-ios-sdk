@@ -16,11 +16,9 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseDatabase/Sources/Snapshot/FCompoundWrite.h"
 
 
-
-#import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
+@import FirebaseDatabaseSwiftCore;
 
 @interface FCompoundWriteTest : XCTestCase
 

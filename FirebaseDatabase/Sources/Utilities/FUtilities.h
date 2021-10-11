@@ -17,7 +17,7 @@
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import <Foundation/Foundation.h>
 
-#import "FirebaseDatabase/Sources/Utilities/FParsedUrl.h"
+@import FirebaseDatabaseSwiftCore;
 
 @interface FUtilities : NSObject
 

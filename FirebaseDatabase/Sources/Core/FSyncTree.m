@@ -42,10 +42,10 @@
 #import "FirebaseDatabase/Sources/FListenComplete.h"
 #import "FirebaseDatabase/Sources/Persistence/FPersistenceManager.h"
 
-#import "FirebaseDatabase/Sources/Snapshot/FCompoundWrite.h"
 
 
-#import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
+
+
 #import "FirebaseDatabase/Sources/Utilities/FAtomicNumber.h"
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 #import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleRemovedQueriesEvents.h"

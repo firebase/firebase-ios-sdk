@@ -17,7 +17,7 @@
 #import "FirebaseDatabase/Sources/Core/FCompoundHash.h"
 
 
-#import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
+
 #import "FirebaseDatabase/Sources/Utilities/FStringUtilities.h"
 
 @import FirebaseDatabaseSwiftCore;
@@ -91,8 +91,8 @@
 }
 
 - (void)appendKey:(NSString *)key toString:(NSMutableString *)string {
-    [FSnapshotUtilities appendHashV2RepresentationForString:key
-                                                   toString:string];
+    [FSnapshotUtilities appendHashV2RepresentationFor:key
+                                                   to:string];
 }
 
 - (void)ensureRange {
@@ -114,10 +114,7 @@
     [self ensureRange];
 
     self->lastLeafDepth = self->currentPathDepth;
-    [FSnapshotUtilities
-        appendHashRepresentationForLeafNode:leafNode
-                                   toString:self->optHashValueBuilder
-                                hashVersion:FDataHashVersionV2];
+    [FSnapshotUtilities appendHashRepresentationV2ForLeafNode:leafNode to:self->optHashValueBuilder];
     self->needsComma = YES;
     if (self.splitStrategy(self)) {
         [self endRange];

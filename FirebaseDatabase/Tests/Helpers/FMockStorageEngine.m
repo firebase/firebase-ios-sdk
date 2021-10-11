@@ -19,7 +19,7 @@
 #import "FirebaseDatabase/Sources/Core/FWriteRecord.h"
 
 #import "FirebaseDatabase/Sources/Persistence/FTrackedQuery.h"
-#import "FirebaseDatabase/Sources/Snapshot/FCompoundWrite.h"
+
 
 @import FirebaseDatabaseSwiftCore;
 

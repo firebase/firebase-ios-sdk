@@ -16,7 +16,7 @@
 
 #import "FirebaseDatabase/Sources/Core/FSparseSnapshotTree.h"
 #import "FirebaseDatabase/Sources/Core/FSyncTree.h"
-#import "FirebaseDatabase/Sources/Snapshot/FCompoundWrite.h"
+
 
 #import <Foundation/Foundation.h>
 

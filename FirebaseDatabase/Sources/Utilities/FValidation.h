@@ -16,9 +16,10 @@
 
 
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDataEventType.h"
-#import "FirebaseDatabase/Sources/Utilities/FParsedUrl.h"
 #import "FirebaseDatabase/Sources/Utilities/FTypedefs.h"
 #import <Foundation/Foundation.h>
+
+@import FirebaseDatabaseSwiftCore;
 
 @interface FValidation : NSObject
 
@@ -36,20 +37,5 @@
     withUserCallback:(fbt_void_nserror_id)userCallback;
 + (void)handleError:(NSError *)error
     withSuccessCallback:(fbt_void_nserror)userCallback;
-
-// Functions used for validating while creating snapshots in FSnapshotUtilities
-+ (BOOL)validateFrom:(NSString *)fn
-    isValidLeafValue:(id)value
-            withPath:(NSArray *)path;
-+ (void)validateFrom:(NSString *)fn
-    validDictionaryKey:(id)keyId
-              withPath:(NSArray *)path;
-+ (void)validateFrom:(NSString *)fn
-    validUpdateDictionaryKey:(id)keyId
-                   withValue:(id)value;
-+ (void)validateFrom:(NSString *)fn
-    isValidPriorityValue:(id)value
-                withPath:(NSArray *)path;
-+ (BOOL)validatePriorityValue:value;
 
 @end

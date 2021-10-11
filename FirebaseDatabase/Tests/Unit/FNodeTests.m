@@ -20,7 +20,9 @@
 
 
 
-#import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
+
+
+@import FirebaseDatabaseSwiftCore;
 
 @interface FNodeTests : XCTestCase
 

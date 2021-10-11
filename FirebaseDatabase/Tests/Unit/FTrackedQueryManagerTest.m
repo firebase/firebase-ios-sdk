@@ -22,7 +22,7 @@
 
 #import "FirebaseDatabase/Sources/Persistence/FTrackedQuery.h"
 #import "FirebaseDatabase/Sources/Persistence/FTrackedQueryManager.h"
-#import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
+
 #import "FirebaseDatabase/Tests/Helpers/FMockStorageEngine.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestCachePolicy.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestClock.h"

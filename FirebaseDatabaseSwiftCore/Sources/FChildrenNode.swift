@@ -214,7 +214,7 @@ private let kMaxName = "[MAX_NAME]"
 
         if !getPriority().isEmpty {
             toHash += "priority:"
-            FUtilitiesSwift
+            FSnapshotUtilitiesSwift
                 .appendHashRepresentation(for: self.getPriority(),
                                              to: &toHash,
                                              hashVersion: .v1)

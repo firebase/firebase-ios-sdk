@@ -7,8 +7,8 @@
 
 import Foundation
 
-private let kPayloadValue = ".value"
-private let kPayloadPriority = ".priority"
+let kPayloadValue = ".value"
+let kPayloadPriority = ".priority"
 
 @objc public class FLeafNode: NSObject, FNode {
     public func isLeafNode() -> Bool {
@@ -102,7 +102,7 @@ private let kPayloadPriority = ".priority"
             return lazyHash
         }
         var toHash = ""
-        FUtilitiesSwift.appendHashRepresentation(for: self, to: &toHash, hashVersion: .v1)
+        FSnapshotUtilitiesSwift.appendHashRepresentation(for: self, to: &toHash, hashVersion: .v1)
         let calculatedHash = FUtilitiesSwift.base64EncodedSha1(toHash)
         lazyHash = calculatedHash
         return calculatedHash;
@@ -121,9 +121,9 @@ private let kPayloadPriority = ".priority"
     }
 
     private func compareToLeafNode(_ other: FLeafNode) -> ComparisonResult {
-        let thisLeafType = getJavascriptType(value)
+        let thisLeafType = FUtilitiesSwift.getJavascriptType(value)
         let thisIndex = thisLeafType.order
-        let otherIndex = getJavascriptType(other.value).order
+        let otherIndex = FUtilitiesSwift.getJavascriptType(other.value).order
         if otherIndex == thisIndex {
             // Same type.  Compare values.
             switch thisLeafType {
@@ -173,7 +173,7 @@ private let kPayloadPriority = ".priority"
         if other === self {
             return true
         }
-        guard getJavascriptType(value) == getJavascriptType(other.value) else {
+        guard FUtilitiesSwift.getJavascriptType(value) == FUtilitiesSwift.getJavascriptType(other.value) else {
             return false
         }
 #warning("fishy")
@@ -195,8 +195,7 @@ private let kPayloadPriority = ".priority"
 
     @objc public init(value: Any, withPriority priority: FNode) {
         self.value = value
-        #warning("XXX TODO")
-//        [FSnapshotUtilities validatePriorityNode:aPriority];
+        FSnapshotUtilitiesSwift.validatePriorityNode(priority)
 
         self.priority = priority
     }
@@ -222,29 +221,6 @@ enum JavaScriptType: String {
     }
 }
 
-private let kJavaScriptObject = "object"
-private let kJavaScriptBoolean = "boolean"
-private let kJavaScriptNumber = "number"
-private let kJavaScriptString = "string"
-private let valueTypeOrder = [kJavaScriptObject, kJavaScriptBoolean, kJavaScriptNumber,
-kJavaScriptString]
-
-func getJavascriptType(_ obj: Any) -> JavaScriptType {
-    if obj is NSDictionary {
-        return .object
-    } else if obj is String {
-        return .string
-    } else if let number = obj as? NSNumber {
-        // We used to just compare to @encode(BOOL) as suggested at
-        // http://stackoverflow.com/questions/2518761/get-type-of-nsnumber, but
-        // on arm64, @encode(BOOL) returns "B" instead of "c" even though
-        // objCType still returns 'c' (signed char).  So check both.
-        #warning("I don't know if this is accurate")
-        return type(of: number) == type(of: NSNumber(booleanLiteral: true)) ? .boolean : .number
-    } else {
-        return .null
-    }
-}
 /*
 + (NSString *)getJavascriptType:(id)obj {
     if ([obj isKindOfClass:[NSDictionary class]]) {

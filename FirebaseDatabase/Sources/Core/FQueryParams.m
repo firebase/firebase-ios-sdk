@@ -20,7 +20,7 @@
 #import "FirebaseDatabase/Sources/Core/View/Filter/FLimitedFilter.h"
 #import "FirebaseDatabase/Sources/Core/View/Filter/FNodeFilter.h"
 #import "FirebaseDatabase/Sources/FRangedFilter.h"
-#import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
+
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 #import "FirebaseDatabase/Sources/Utilities/FValidation.h"
 

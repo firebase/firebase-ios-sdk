@@ -205,9 +205,7 @@ void firebaseJobsTroll(void) {
           url, [repoInfo description], [repoInfo connectionURL],
           repoInfo.namespace, [path description]);
 
-    FParsedUrl *parsedUrl = [[FParsedUrl alloc] init];
-    parsedUrl.repoInfo = repoInfo;
-    parsedUrl.path = path;
+    FParsedUrl *parsedUrl = [[FParsedUrl alloc] initWithRepoInfo:repoInfo path:path];
 
     return parsedUrl;
 }

@@ -27,7 +27,7 @@
 
 
 
-#import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
+
 #import "FirebaseDatabase/Sources/Utilities/FNextPushId.h"
 #import "FirebaseDatabase/Sources/Utilities/FValidation.h"
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
@@ -129,9 +129,9 @@
         }
     } else if ([params.index isEqual:[FPriorityIndex priorityIndex]]) {
         if (([params hasStart] &&
-             ![FValidation validatePriorityValue:params.indexStartValue.val]) ||
+             ![FValidationSwiftFoo validatePriorityValue:params.indexStartValue.val]) ||
             ([params hasEnd] &&
-             ![FValidation validatePriorityValue:params.indexEndValue.val])) {
+             ![FValidationSwiftFoo validatePriorityValue:params.indexEndValue.val])) {
             [NSException
                  raise:INVALID_QUERY_PARAM_ERROR
                 format:@"When using queryOrderedByPriority, values provided to "

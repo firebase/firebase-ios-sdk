@@ -21,7 +21,7 @@
 #import "FirebaseDatabase/Sources/FTransformedEnumerator.h"
 
 
-#import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
+
 
 @import FirebaseDatabaseSwiftCore;
 

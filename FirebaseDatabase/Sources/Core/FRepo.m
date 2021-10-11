@@ -44,7 +44,7 @@
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRMutableData.h"
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRTransactionResult.h"
 
-#import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
+
 #import "FirebaseDatabase/Sources/Utilities/FAtomicNumber.h"
 #import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleTransaction.h"
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"

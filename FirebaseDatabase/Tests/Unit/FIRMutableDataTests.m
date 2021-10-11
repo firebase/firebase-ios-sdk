@@ -16,7 +16,7 @@
 
 #import "FirebaseDatabase/Tests/Unit/FIRMutableDataTests.h"
 #import "FirebaseDatabase/Sources/Api/Private/FIRMutableData_Private.h"
-#import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
+
 
 @implementation FIRMutableDataTests
 

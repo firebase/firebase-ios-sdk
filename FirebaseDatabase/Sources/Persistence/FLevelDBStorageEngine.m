@@ -25,7 +25,7 @@
 
 #import "FirebaseDatabase/Sources/Persistence/FTrackedQuery.h"
 
-#import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
+
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 
 @import FirebaseDatabaseSwiftCore;

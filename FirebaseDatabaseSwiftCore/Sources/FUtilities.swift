@@ -53,10 +53,6 @@ func tryParseStringToInt(_ str: String, integer: inout Int) -> Bool {
 }
 
 enum FUtilitiesSwift {
-    enum FDataHashVersion {
-        case v1
-        case v2
-    }
     static let maxName = "[MAX_NAME]"
     static let minName = "[MIN_NAME]"
 
@@ -127,45 +123,21 @@ enum FUtilitiesSwift {
         return output
     }
 
-    static func appendHashRepresentation(for leafNode: FNode, to output: inout String, hashVersion: FDataHashVersion) {
-        if !leafNode.getPriority().isEmpty {
-            output += "priority:"
-            appendHashRepresentation(for: leafNode.getPriority(),
-                                        to: &output,
-                                        hashVersion: hashVersion)
-            output += ":"
+    static func getJavascriptType(_ obj: Any) -> JavaScriptType {
+        if obj is NSDictionary {
+            return .object
+        } else if obj is String {
+            return .string
+        } else if let number = obj as? NSNumber {
+            // We used to just compare to @encode(BOOL) as suggested at
+            // http://stackoverflow.com/questions/2518761/get-type-of-nsnumber, but
+            // on arm64, @encode(BOOL) returns "B" instead of "c" even though
+            // objCType still returns 'c' (signed char).  So check both.
+            #warning("I don't know if this is accurate")
+            return type(of: number) == type(of: NSNumber(booleanLiteral: true)) ? .boolean : .number
+        } else {
+            return .null
         }
-        let jsType = getJavascriptType(leafNode.val())
-        output += jsType.rawValue + ":"
-        switch jsType {
-        case .object:
-            fatalError("Unknown value for hashing: \(leafNode)")
-
-        case .boolean:
-            let numberVal = (leafNode.val() as? NSNumber) ?? NSNumber(booleanLiteral: false)
-            output += numberVal.boolValue ? "true" : "false"
-        case .number:
-            let numberVal = (leafNode.val() as? NSNumber) ?? NSNumber(integerLiteral: 0)
-
-            output += ieee754String(for: numberVal)
-        case .string:
-            let stringVal = (leafNode.val() as? String) ?? ""
-            switch hashVersion {
-            case .v1:
-                output += stringVal
-            case .v2:
-                appendHashV2Representation(for: stringVal, to: &output)
-            }
-        case .null:
-            ()
-        }
-    }
-    static func appendHashV2Representation(for string: String, to output: inout String) {
-        output += "\""
-        output += string
-            .replacingOccurrences(of: "\\", with: "\\\\")
-            .replacingOccurrences(of: "\"", with: "\\\"")
-        output += "\""
     }
 }
 

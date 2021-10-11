@@ -18,7 +18,7 @@
 #import <XCTest/XCTest.h>
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseReference_Private.h"
 #import "FirebaseDatabase/Sources/Core/FRepoManager.h"
-#import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
+
 #import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleFirebase.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestContants.h"
 
