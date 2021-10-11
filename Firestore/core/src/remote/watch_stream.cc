@@ -53,7 +53,7 @@ WatchStream::WatchStream(
              std::move(app_check_credentials_provider),
              grpc_connection,
              TimerId::ListenStreamConnectionBackoff,
-             TimerId::ListenStreamIdle},
+             TimerId::ListenStreamIdle,
              TimerId::HealthCheckTimeout},
       watch_serializer_{std::move(serializer)},
       callback_{NOT_NULL(callback)} {

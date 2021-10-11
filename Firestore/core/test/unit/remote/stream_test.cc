@@ -72,7 +72,7 @@ class TestStream : public Stream {
                /*GrpcConnection=*/nullptr,
                kBackoffTimerId,
                kIdleTimerId,
-              kHealthCheckTimerId},
+               kHealthCheckTimerId},
         tester_{tester} {
   }
 
