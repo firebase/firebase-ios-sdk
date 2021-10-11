@@ -17,7 +17,7 @@ import Foundation
 /// A type that provides a basic logger API.
 public protocol Logger {
   associatedtype Logs
-  func log(_ info: String?)
+  func log(_ info: String)
   func flush(limit: Int?) -> Logs
 }
 
@@ -61,7 +61,7 @@ extension HeartbeatLogger: Logger {
   /// - Note: This API is thread-safe.
   ///
   /// - Parameter info: A `String?` identifier to associate a new heartbeat with.
-  public func log(_ info: String? = nil) {
+  public func log(_ info: String) {
     let newHeartbeat = Heartbeat(info: info)
     storage.readWriteAsync { heartbeatData in
       for type in heartbeatData.types {
