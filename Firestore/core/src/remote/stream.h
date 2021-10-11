@@ -212,10 +212,18 @@ class Stream : public GrpcStreamObserver,
   ExponentialBackoff backoff_;
 
  private:
-  // The interface for the derived classes.
+  struct CallCredentials {
+    mutable std::mutex mutex;
+    util::StatusOr<std::string> app_check;
+    bool app_check_received = false;
+    util::StatusOr<credentials::AuthToken> auth;
+    bool auth_received = false;
+  };
 
   virtual std::unique_ptr<GrpcStream> CreateGrpcStream(
-      GrpcConnection* grpc_connection, const credentials::AuthToken& token) = 0;
+      GrpcConnection* grpc_connection,
+      const credentials::AuthToken& auth_token,
+      const std::string& app_check_token) = 0;
   virtual void TearDown(GrpcStream* stream) = 0;
   virtual void NotifyStreamOpen() = 0;
   virtual util::Status NotifyStreamResponse(
@@ -229,10 +237,9 @@ class Stream : public GrpcStreamObserver,
 
   void RequestCredentials();
   void ResumeStartWithCredentials(
-      const util::StatusOr<credentials::AuthToken>& maybe_token);
-
+      const util::StatusOr<credentials::AuthToken>& auth_token,
+      const util::StatusOr<std::string> app_check_token);
   void BackoffAndTryRestarting();
-  void StopDueToIdleness();
 
   State state_ = State::Initial;
 

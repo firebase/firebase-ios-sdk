@@ -77,9 +77,11 @@ void WatchStream::UnwatchTargetId(TargetId target_id) {
 }
 
 std::unique_ptr<GrpcStream> WatchStream::CreateGrpcStream(
-    GrpcConnection* grpc_connection, const AuthToken& token) {
+    GrpcConnection* grpc_connection,
+    const AuthToken& auth_token,
+    const std::string& app_check_token) {
   return grpc_connection->CreateStream("/google.firestore.v1.Firestore/Listen",
-                                       token, this);
+                                       auth_token, app_check_token, this);
 }
 
 void WatchStream::TearDown(GrpcStream* grpc_stream) {
