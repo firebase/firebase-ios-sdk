@@ -241,35 +241,38 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
 - (void)fetchAndActivateWithCompletionHandler:
     (FIRRemoteConfigFetchAndActivateCompletion)completionHandler {
   __weak FIRRemoteConfig *weakSelf = self;
-  FIRRemoteConfigFetchCompletion fetchCompletion =
-      ^(FIRRemoteConfigFetchStatus fetchStatus, NSError *fetchError) {
-        FIRRemoteConfig *strongSelf = weakSelf;
-        if (!strongSelf) {
-          return;
-        }
-        // Fetch completed. We are being called on the main queue.
-        // If fetch is successful, try to activate the fetched config
-        if (fetchStatus == FIRRemoteConfigFetchStatusSuccess && !fetchError) {
-          [strongSelf activateWithCompletion:^(BOOL changed, NSError *_Nullable activateError) {
-            if (completionHandler) {
-              FIRRemoteConfigFetchAndActivateStatus status =
-                  activateError ? FIRRemoteConfigFetchAndActivateStatusSuccessUsingPreFetchedData
-                                : FIRRemoteConfigFetchAndActivateStatusSuccessFetchedFromRemote;
-              dispatch_async(dispatch_get_main_queue(), ^{
-                completionHandler(status, nil);
-              });
-            }
-          }];
-        } else if (completionHandler) {
-          FIRRemoteConfigFetchAndActivateStatus status =
-              fetchStatus == FIRRemoteConfigFetchStatusSuccess
-                  ? FIRRemoteConfigFetchAndActivateStatusSuccessUsingPreFetchedData
-                  : FIRRemoteConfigFetchAndActivateStatusError;
-          dispatch_async(dispatch_get_main_queue(), ^{
-            completionHandler(status, fetchError);
-          });
-        }
-      };
+  FIRRemoteConfigFetchCompletion fetchCompletion = ^(FIRRemoteConfigFetchStatus fetchStatus,
+                                                     NSError *fetchError) {
+    FIRRemoteConfig *strongSelf = weakSelf;
+    if (!strongSelf) {
+      return;
+    }
+    // Fetch completed. We are being called on the main queue.
+    // If fetch is successful, try to activate the fetched config
+    if (fetchStatus == FIRRemoteConfigFetchStatusSuccess && !fetchError) {
+      [strongSelf
+          activateFromFetchAndActivate:true
+                        withCompletion:^(BOOL changed, NSError *_Nullable activateError) {
+                          if (completionHandler) {
+                            FIRRemoteConfigFetchAndActivateStatus status =
+                                activateError
+                                    ? FIRRemoteConfigFetchAndActivateStatusSuccessUsingPreFetchedData
+                                    : FIRRemoteConfigFetchAndActivateStatusSuccessFetchedFromRemote;
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                              completionHandler(status, nil);
+                            });
+                          }
+                        }];
+    } else if (completionHandler) {
+      FIRRemoteConfigFetchAndActivateStatus status =
+          fetchStatus == FIRRemoteConfigFetchStatusSuccess
+              ? FIRRemoteConfigFetchAndActivateStatusSuccessUsingPreFetchedData
+              : FIRRemoteConfigFetchAndActivateStatusError;
+      dispatch_async(dispatch_get_main_queue(), ^{
+        completionHandler(status, fetchError);
+      });
+    }
+  };
   [self fetchWithCompletionHandler:fetchCompletion];
 }
 
@@ -278,6 +281,11 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
 typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_Nullable error);
 
 - (void)activateWithCompletion:(FIRRemoteConfigActivateChangeCompletion)completion {
+  [self activateFromFetchAndActivate:false withCompletion:completion];
+}
+
+- (void)activateFromFetchAndActivate:(BOOL)isFetchAndActivate
+                      withCompletion:(FIRRemoteConfigActivateChangeCompletion)completion {
   __weak FIRRemoteConfig *weakSelf = self;
   void (^applyBlock)(void) = ^(void) {
     FIRRemoteConfig *strongSelf = weakSelf;
@@ -300,8 +308,17 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
       FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000069",
                   @"Most recently fetched config is already activated.");
       if (completion) {
+        NSError *error =
+            isFetchAndActivate
+                ? [NSError errorWithDomain:FIRRemoteConfigErrorDomain
+                                      code:FIRRemoteConfigErrorInternalError
+                                  userInfo:@{
+                                    @"ActivationFailureReason" :
+                                        @"Most recently fetched config already activated"
+                                  }]
+                : nil;
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-          completion(NO, nil);
+          completion(NO, error);
         });
       }
       return;
