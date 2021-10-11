@@ -105,6 +105,13 @@ class Stream : public GrpcStreamObserver,
     Open,
 
     /**
+     * The stream is healthy and has been connected for more than 10 seconds. We
+     * therefore assume that the credentials we passed were valid.
+     * Both `IsStarted` and `IsOpen` will return true.
+     */
+    Healthy,
+
+    /**
      * The stream encountered an error. The next start attempt will back off.
      * While in this state, `IsStarted` will return false.
      */
@@ -124,7 +131,8 @@ class Stream : public GrpcStreamObserver,
              credentials_provider,
          GrpcConnection* grpc_connection,
          util::TimerId backoff_timer_id,
-         util::TimerId idle_timer_id);
+         util::TimerId idle_timer_id,
+         util::TimerId health_check_timer_id);
 
   /**
    * Starts the stream. Only allowed if `IsStarted` returns false. The stream is
@@ -233,7 +241,9 @@ class Stream : public GrpcStreamObserver,
   GrpcConnection* grpc_connection_ = nullptr;
 
   util::TimerId idle_timer_id_{};
+  util::TimerId health_check_timer_id_{};
   util::DelayedOperation idleness_timer_;
+  util::DelayedOperation health_check_;
 
   // Used to prevent auth if the stream happens to be restarted before token is
   // received.

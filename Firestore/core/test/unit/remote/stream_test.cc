@@ -55,14 +55,19 @@ using Type = GrpcCompletion::Type;
 
 const auto kIdleTimerId = TimerId::ListenStreamIdle;
 const auto kBackoffTimerId = TimerId::ListenStreamConnectionBackoff;
+const auto kHealthCheckTimerId = TimerId::HealthCheckTimeout;
 
 class TestStream : public Stream {
  public:
   TestStream(const std::shared_ptr<AsyncQueue>& worker_queue,
              GrpcStreamTester* tester,
              std::shared_ptr<AuthCredentialsProvider> credentials_provider)
-      : Stream{worker_queue, credentials_provider,
-               /*GrpcConnection=*/nullptr, kBackoffTimerId, kIdleTimerId},
+      : Stream{worker_queue,
+               credentials_provider,
+               /*GrpcConnection=*/nullptr,
+               kBackoffTimerId,
+               kIdleTimerId,
+               kHealthCheckTimerId},
         tester_{tester} {
   }
 
@@ -517,6 +522,16 @@ TEST_F(StreamTest, RefreshesTokenUponExpiration) {
   // Simulate a different error -- token should not be invalidated this time.
   EXPECT_EQ(credentials->observed_states(),
             States({"GetToken", "InvalidateToken", "GetToken"}));
+}
+
+TEST_F(StreamTest, TokenIsNotInvalidatedOnceStreamIsHealthy) {
+  StartStream();
+  worker_queue->RunScheduledOperationsUntil(kHealthCheckTimerId);
+  ForceFinish({{Type::Read, CompletionResult::Error},
+               {Type::Finish, grpc::Status{grpc::UNAUTHENTICATED, ""}}});
+  // Error "Unauthenticated" on a healthy connection should not invalidate the
+  // token.
+  EXPECT_EQ(credentials->observed_states(), States({"GetToken"}));
 }
 
 }  // namespace remote
