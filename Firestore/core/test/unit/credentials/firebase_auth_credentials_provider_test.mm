@@ -72,7 +72,7 @@ namespace credentials {
 
 // Simulates the case where Firebase/Firestore is installed in the project but
 // Firebase/Auth is not available.
-TEST(FirebaseCredentialsProviderTest, GetTokenNoProvider) {
+TEST(FirebaseAuthCredentialsProviderTest, GetTokenNoProvider) {
   auto token_promise = std::make_shared<std::promise<AuthToken>>();
 
   FIRApp* app = testutil::AppForUnitTesting();
@@ -97,7 +97,7 @@ TEST(FirebaseCredentialsProviderTest, GetTokenNoProvider) {
   ASSERT_EQ(std::future_status::ready, token_future.wait_for(kTimeout));
 }
 
-TEST(FirebaseCredentialsProviderTest, GetTokenUnauthenticated) {
+TEST(FirebaseAuthCredentialsProviderTest, GetTokenUnauthenticated) {
   FIRApp* app = testutil::AppForUnitTesting();
   FSTAuthFake* auth = [[FSTAuthFake alloc] initWithToken:nil uid:nil];
   FirebaseAuthCredentialsProvider credentials_provider(app, auth);
@@ -111,7 +111,7 @@ TEST(FirebaseCredentialsProviderTest, GetTokenUnauthenticated) {
   });
 }
 
-TEST(FirebaseCredentialsProviderTest, GetToken) {
+TEST(FirebaseAuthCredentialsProviderTest, GetToken) {
   FIRApp* app = testutil::AppForUnitTesting();
   FSTAuthFake* auth = [[FSTAuthFake alloc] initWithToken:@"token for fake uid"
                                                      uid:@"fake uid"];
@@ -126,7 +126,7 @@ TEST(FirebaseCredentialsProviderTest, GetToken) {
   });
 }
 
-TEST(FirebaseCredentialsProviderTest, SetListener) {
+TEST(FirebaseAuthCredentialsProviderTest, SetListener) {
   FIRApp* app = testutil::AppForUnitTesting();
   FSTAuthFake* auth = [[FSTAuthFake alloc] initWithToken:@"default token"
                                                      uid:@"fake uid"];
@@ -139,7 +139,7 @@ TEST(FirebaseCredentialsProviderTest, SetListener) {
   credentials_provider.SetCredentialChangeListener(nullptr);
 }
 
-TEST(FirebaseCredentialsProviderTest, InvalidateToken) {
+TEST(FirebaseAuthCredentialsProviderTest, InvalidateToken) {
   FIRApp* app = testutil::AppForUnitTesting();
   FSTAuthFake* auth = [[FSTAuthFake alloc] initWithToken:@"token for fake uid"
                                                      uid:@"fake uid"];
