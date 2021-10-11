@@ -20,6 +20,7 @@
 #include <string>
 #include <utility>
 
+#import "FirebaseAppCheck/Sources/Interop/FIRAppCheckInterop.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Interop/Auth/Public/FIRAuthInterop.h"
@@ -100,9 +101,11 @@ NS_ASSUME_NONNULL_BEGIN
       auto workerQueue = AsyncQueue::Create(std::move(executor));
 
       id<FIRAuthInterop> auth = FIR_COMPONENT(FIRAuthInterop, self.app.container);
+      id<FIRAppCheckInterop> app_check = FIR_COMPONENT(FIRAppCheckInterop, self.app.container);
       auto authCredentialsProvider =
           std::make_shared<FirebaseAuthCredentialsProvider>(self.app, auth);
-      auto appCheckCredentialsProvider = std::make_shared<FirebaseAppCheckCredentialsProvider>();
+      auto appCheckCredentialsProvider =
+          std::make_shared<FirebaseAppCheckCredentialsProvider>(self.app, app_check);
 
       auto firebaseMetadataProvider = absl::make_unique<FirebaseMetadataProviderApple>(self.app);
 

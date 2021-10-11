@@ -28,6 +28,7 @@
 #include "Firestore/core/src/core/firestore_client.h"
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/core/transaction.h"
+#include "Firestore/core/src/credentials/empty_credentials_provider.h"
 #include "Firestore/core/src/local/leveldb_persistence.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/resource_path.h"
@@ -47,6 +48,7 @@ using core::AsyncEventListener;
 using core::DatabaseInfo;
 using core::FirestoreClient;
 using credentials::AuthCredentialsProvider;
+using credentials::EmptyAppCheckCredentialsProvider;
 using local::LevelDbPersistence;
 using model::ResourcePath;
 using remote::FirebaseMetadataProvider;
@@ -84,14 +86,13 @@ Firestore::Firestore(
     std::shared_ptr<AsyncQueue> worker_queue,
     std::unique_ptr<FirebaseMetadataProvider> firebase_metadata_provider,
     void* extension)
-    : Firestore(
-          std::move(database_id),
-          std::move(persistence_key),
-          std::move(auth_credentials_provider),
-          std::shared_ptr<credentials::AppCheckCredentialsProvider>{nullptr},
-          std::move(worker_queue),
-          std::move(firebase_metadata_provider),
-          extension) {
+    : Firestore(std::move(database_id),
+                std::move(persistence_key),
+                std::move(auth_credentials_provider),
+                std::make_shared<EmptyAppCheckCredentialsProvider>(),
+                std::move(worker_queue),
+                std::move(firebase_metadata_provider),
+                extension) {
 }
 
 Firestore::~Firestore() {

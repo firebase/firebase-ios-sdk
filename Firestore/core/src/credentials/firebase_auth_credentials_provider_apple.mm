@@ -67,9 +67,6 @@ FirebaseAuthCredentialsProvider::FirebaseAuthCredentialsProvider(
 
 FirebaseAuthCredentialsProvider::~FirebaseAuthCredentialsProvider() {
   if (auth_listener_handle_) {
-    // Even though iOS 9 (and later) and macOS 10.11 (and later) keep a weak
-    // reference to the observer so we could avoid this removeObserver call, we
-    // still support iOS 8 which requires it.
     [[NSNotificationCenter defaultCenter] removeObserver:auth_listener_handle_];
   }
 }
@@ -119,18 +116,14 @@ void FirebaseAuthCredentialsProvider::GetToken(
 
   // TODO(wilhuff): Need a better abstraction over a missing auth provider.
   if (contents_->auth) {
-    [contents_->auth getTokenForcingRefresh:contents_->force_refresh
+    [contents_->auth getTokenForcingRefresh:force_refresh_
                                withCallback:get_token_callback];
   } else {
     // If there's no Auth provider, call back immediately with a nil
     // (unauthenticated) token.
     get_token_callback(nil, nil);
   }
-  contents_->force_refresh = false;
-}
-
-void FirebaseAuthCredentialsProvider::InvalidateToken() {
-  contents_->force_refresh = true;
+  force_refresh_ = false;
 }
 
 void FirebaseAuthCredentialsProvider::SetCredentialChangeListener(

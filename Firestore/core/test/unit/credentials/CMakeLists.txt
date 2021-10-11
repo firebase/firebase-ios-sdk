@@ -27,7 +27,8 @@ target_link_libraries(
 if(APPLE)
   target_sources(
     firestore_credentials_test PRIVATE
-    firebase_credentials_provider_test.mm
+    firebase_app_check_credentials_provider_test.mm
+    firebase_auth_credentials_provider_test.mm
   )
 
   target_link_libraries(
