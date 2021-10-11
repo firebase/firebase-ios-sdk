@@ -23,6 +23,7 @@
 #import "FirebaseCore/Sources/Private/FIRComponentType.h"
 #import "FirebaseCore/Sources/Private/FIRDependency.h"
 #import "FirebaseCore/Sources/Private/FIRHeartbeatInfo.h"
+#import "FirebaseCore/Sources/Private/FIRHeartbeatLogger.h"
 #import "FirebaseCore/Sources/Private/FIRLibrary.h"
 #import "FirebaseCore/Sources/Private/FIRLogger.h"
 #import "FirebaseCore/Sources/Private/FIROptionsInternal.h"

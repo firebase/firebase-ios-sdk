@@ -205,6 +205,7 @@ let package = Package(
       dependencies: [
         "Firebase",
         "FirebaseCoreDiagnostics",
+        "HeartbeatLogging",
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "GULLogger", package: "GoogleUtilities"),
       ],
@@ -220,11 +221,18 @@ let package = Package(
         .linkedFramework("AppKit", .when(platforms: [.macOS])),
       ]
     ),
+    .target(
+      name: "HeartbeatLogging",
+      path: "HeartbeatLogging/Sources/"
+    ),
     .testTarget(
       name: "CoreUnit",
       dependencies: ["FirebaseCore", "SharedTestUtilities", "OCMock"],
       path: "FirebaseCore/Tests/Unit",
-      exclude: ["Resources/GoogleService-Info.plist"],
+      exclude: [
+        "Resources/GoogleService-Info.plist",
+        "Dummy.swift"
+      ],
       cSettings: [
         .headerSearchPath("../../.."),
       ]

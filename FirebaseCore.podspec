@@ -34,6 +34,7 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   s.source_files = [
     'FirebaseCore/Sources/**/*.[mh]',
     'Interop/CoreDiagnostics/Public/*.h',
+    'HeartbeatLogging/Sources/**/*.swift',
   ]
   s.public_header_files = [
     'FirebaseCore/Sources/Public/FirebaseCore/*.h',
@@ -65,7 +66,7 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
       :tvos => tvos_deployment_target
     }
     unit_tests.source_files = [
-      'FirebaseCore/Tests/Unit/**/*.[mh]',
+      'FirebaseCore/Tests/Unit/**/*.{m,h,swift}',
       'SharedTestUtilities/FIROptionsMock.[mh]',
     ]
     unit_tests.requires_app_host = true
