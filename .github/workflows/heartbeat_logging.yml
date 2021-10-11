@@ -5,11 +5,11 @@ on:
     paths:
     - 'HeartbeatLogging**'
     - '.github/workflows/heartbeat_logging.yml'
-  
+
   # TODO(nickcooke): Schedule cron job.
 
 jobs:
-  
+
   # TODO(nickcooke): Configure `CocoaPods` job(s).
 
   spm:

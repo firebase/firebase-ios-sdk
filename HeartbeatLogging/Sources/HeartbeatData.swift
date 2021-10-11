@@ -39,7 +39,7 @@ public protocol HTTPHeaderRepresentable {
 ///
 ///   ```
 ///
-///   - Note: This data structure is **not** thread-safe.
+/// - Note: This data structure is **not** thread-safe.
 ///
 public struct HeartbeatData: Codable {
   enum TimePeriod: Int, Codable, CaseIterable {
