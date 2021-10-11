@@ -511,7 +511,7 @@ TEST_F(StreamTest, RefreshesTokenUponExpiration) {
   StartStream();
   ForceFinish({{Type::Read, CompletionResult::Error},
                {Type::Finish, grpc::Status{grpc::UNAUTHENTICATED, ""}}});
-  // Error "Unauthenticated" with no prior messages should invalidate the token.
+  // Error "Unauthenticated" should invalidate the token.
   EXPECT_EQ(credentials->observed_states(),
             States({"GetToken", "InvalidateToken"}));
 
