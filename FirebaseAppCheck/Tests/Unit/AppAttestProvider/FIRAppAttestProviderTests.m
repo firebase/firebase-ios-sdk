@@ -82,7 +82,8 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
   self.provider = [[FIRAppAttestProvider alloc] initWithAppAttestService:self.mockAppAttestService
                                                               APIService:self.mockAPIService
                                                             keyIDStorage:self.mockStorage
-                                                         artifactStorage:self.mockArtifactStorage backoffWrapper:self.fakeBackoffWrapper];
+                                                         artifactStorage:self.mockArtifactStorage
+                                                          backoffWrapper:self.fakeBackoffWrapper];
 
   self.randomChallenge = [@"random challenge" dataUsingEncoding:NSUTF8StringEncoding];
   self.randomChallengeHash =
@@ -212,7 +213,9 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
         XCTAssertNil(error);
       }];
 
-  [self waitForExpectations:@[ self.fakeBackoffWrapper.backoffExpectation, completionExpectation ] timeout:0.5 enforceOrder:YES];
+  [self waitForExpectations:@[ self.fakeBackoffWrapper.backoffExpectation, completionExpectation ]
+                    timeout:0.5
+               enforceOrder:YES];
 
   // 10. Verify mocks.
   [self verifyAllMocks];
@@ -282,7 +285,9 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
         XCTAssertNil(error);
       }];
 
-  [self waitForExpectations:@[self.fakeBackoffWrapper.backoffExpectation, completionExpectation ] timeout:0.5 enforceOrder:YES];
+  [self waitForExpectations:@[ self.fakeBackoffWrapper.backoffExpectation, completionExpectation ]
+                    timeout:0.5
+               enforceOrder:YES];
 
   // 11. Verify mocks.
   [self verifyAllMocks];
@@ -331,7 +336,9 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
         XCTAssertEqualObjects(error, challengeError);
       }];
 
-  [self waitForExpectations:@[self.fakeBackoffWrapper.backoffExpectation, completionExpectation ] timeout:0.5 enforceOrder:YES];
+  [self waitForExpectations:@[ self.fakeBackoffWrapper.backoffExpectation, completionExpectation ]
+                    timeout:0.5
+               enforceOrder:YES];
 
   // 7. Verify mocks.
   [self verifyAllMocks];
@@ -386,7 +393,9 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
         XCTAssertEqualObjects(error, attestationError);
       }];
 
-  [self waitForExpectations:@[self.fakeBackoffWrapper.backoffExpectation, completionExpectation ] timeout:0.5 enforceOrder:YES];
+  [self waitForExpectations:@[ self.fakeBackoffWrapper.backoffExpectation, completionExpectation ]
+                    timeout:0.5
+               enforceOrder:YES];
 
   // 8. Verify mocks.
   [self verifyAllMocks];
@@ -443,7 +452,9 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
         XCTAssertEqualObjects(error, exchangeError);
       }];
 
-  [self waitForExpectations:@[ self.fakeBackoffWrapper.backoffExpectation, completionExpectation ] timeout:0.5 enforceOrder:YES];
+  [self waitForExpectations:@[ self.fakeBackoffWrapper.backoffExpectation, completionExpectation ]
+                    timeout:0.5
+               enforceOrder:YES];
 
   // 8. Verify mocks.
   [self verifyAllMocks];
@@ -505,7 +516,9 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
         XCTAssertNil(error);
       }];
 
-  [self waitForExpectations:@[self.fakeBackoffWrapper.backoffExpectation, completionExpectation ] timeout:0.5 enforceOrder:YES];
+  [self waitForExpectations:@[ self.fakeBackoffWrapper.backoffExpectation, completionExpectation ]
+                    timeout:0.5
+               enforceOrder:YES];
 
   // 8. Verify mocks.
   [self verifyAllMocks];
@@ -562,7 +575,9 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
         XCTAssertEqualObjects(error, expectedError);
       }];
 
-  [self waitForExpectations:@[self.fakeBackoffWrapper.backoffExpectation, completionExpectation ] timeout:0.5 enforceOrder:YES];
+  [self waitForExpectations:@[ self.fakeBackoffWrapper.backoffExpectation, completionExpectation ]
+                    timeout:0.5
+               enforceOrder:YES];
 
   // 9. Verify mocks.
   [self verifyAllMocks];
@@ -788,7 +803,8 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
   [challengeRequestPromise fulfill:self.randomChallenge];
 
   // 7.4. Wait for all completions to be called.
-  NSArray<XCTestExpectation *> *expectations = [completionExpectations arrayByAddingObject:self.fakeBackoffWrapper.backoffExpectation];
+  NSArray<XCTestExpectation *> *expectations =
+      [completionExpectations arrayByAddingObject:self.fakeBackoffWrapper.backoffExpectation];
   [self waitForExpectations:expectations timeout:1];
 
   // 8. Verify mocks.
@@ -862,7 +878,8 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
   [assertionRequestPromise reject:assertionRequestError];
 
   // 7.4. Wait for all completions to be called.
-  NSArray<XCTestExpectation *> *expectations = [completionExpectations arrayByAddingObject:self.fakeBackoffWrapper.backoffExpectation];
+  NSArray<XCTestExpectation *> *expectations =
+      [completionExpectations arrayByAddingObject:self.fakeBackoffWrapper.backoffExpectation];
   [self waitForExpectations:expectations timeout:1];
 
   // 8. Verify mocks.
@@ -876,6 +893,15 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
   NSMutableData *statement = [artifact mutableCopy];
   [statement appendData:self.randomChallenge];
   return [FIRAppCheckCryptoUtils sha256HashFromData:statement];
+}
+
+#pragma mark - Backoff tests
+
+// TODO: Implement.
+- (void)testGetTokenBackoff {
+  // 1. Configure backoff.
+  self.fakeBackoffWrapper.isNextOperationAllowed = NO;
+  //  self.fakeBackoffWrapper.
 }
 
 #pragma mark - Helpers
@@ -961,7 +987,8 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
         XCTAssertNil(error);
       }];
 
-  [self waitForExpectations:@[self.fakeBackoffWrapper.backoffExpectation, completionExpectation ] timeout:0.5];
+  [self waitForExpectations:@[ self.fakeBackoffWrapper.backoffExpectation, completionExpectation ]
+                    timeout:0.5];
 
   // 8. Verify mocks.
   [self verifyAllMocks];

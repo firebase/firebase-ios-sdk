@@ -139,6 +139,9 @@ API_UNAVAILABLE(watchos)
 }
 
 - (void)testGetTokenWhenDeviceTokenFails {
+  // 0. Expect backoff wrapper to be used.
+  self.fakeBackoffWrapper.backoffExpectation = [self expectationWithDescription:@"Backoff"];
+
   // 1. Expect device token to be generated.
   NSError *deviceTokenError = [NSError errorWithDomain:@"FIRDeviceCheckProviderTests"
                                                   code:-1
@@ -159,16 +162,19 @@ API_UNAVAILABLE(watchos)
         XCTAssertEqualObjects(error, deviceTokenError);
       }];
 
-  [self waitForExpectations:@[ completionExpectation ] timeout:0.5];
+  [self waitForExpectations:@[ self.fakeBackoffWrapper.backoffExpectation, completionExpectation ]
+                    timeout:0.5
+               enforceOrder:YES];
 
   // 4. Verify fakes.
   OCMVerifyAll(self.fakeAPIService);
   OCMVerifyAll(self.fakeTokenGenerator);
-
-  // TODO: Test backoff.
 }
 
 - (void)testGetTokenWhenAPIServiceFails {
+  // 0. Expect backoff wrapper to be used.
+  self.fakeBackoffWrapper.backoffExpectation = [self expectationWithDescription:@"Backoff"];
+
   // 1. Expect device token to be generated.
   NSData *deviceToken = [NSData data];
   id generateTokenArg = [OCMArg invokeBlockWithArgs:deviceToken, [NSNull null], nil];
@@ -193,13 +199,13 @@ API_UNAVAILABLE(watchos)
         XCTAssertEqualObjects(error, APIServiceError);
       }];
 
-  [self waitForExpectations:@[ completionExpectation ] timeout:0.5];
+  [self waitForExpectations:@[ self.fakeBackoffWrapper.backoffExpectation, completionExpectation ]
+                    timeout:0.5
+               enforceOrder:YES];
 
   // 4. Verify fakes.
   OCMVerifyAll(self.fakeAPIService);
   OCMVerifyAll(self.fakeTokenGenerator);
-
-  // TODO: Test backoff.
 }
 
 #pragma mark - Backoff tests

@@ -28,10 +28,10 @@
 #import "FirebaseAppCheck/Sources/AppAttestProvider/API/FIRAppAttestAttestationResponse.h"
 #import "FirebaseAppCheck/Sources/AppAttestProvider/FIRAppAttestProviderState.h"
 #import "FirebaseAppCheck/Sources/AppAttestProvider/FIRAppAttestService.h"
-#import "FirebaseAppCheck/Sources/Core/Backoff/FIRAppCheckBackoffWrapper.h"
 #import "FirebaseAppCheck/Sources/AppAttestProvider/Storage/FIRAppAttestArtifactStorage.h"
 #import "FirebaseAppCheck/Sources/AppAttestProvider/Storage/FIRAppAttestKeyIDStorage.h"
 #import "FirebaseAppCheck/Sources/Core/APIService/FIRAppCheckAPIService.h"
+#import "FirebaseAppCheck/Sources/Core/Backoff/FIRAppCheckBackoffWrapper.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckLogger.h"
 
 #import "FirebaseAppCheck/Sources/Core/Utils/FIRAppCheckCryptoUtils.h"
@@ -164,7 +164,8 @@ NS_ASSUME_NONNULL_BEGIN
   return [self initWithAppAttestService:DCAppAttestService.sharedService
                              APIService:appAttestAPIService
                            keyIDStorage:keyIDStorage
-                        artifactStorage:artifactStorage backoffWrapper:backoffWrapper];
+                        artifactStorage:artifactStorage
+                         backoffWrapper:backoffWrapper];
 #else   // FIR_APP_ATTEST_SUPPORTED_TARGETS
   return nil;
 #endif  // FIR_APP_ATTEST_SUPPORTED_TARGETS
@@ -208,9 +209,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FBLPromise<FIRAppCheckToken *> *)createGetTokenSequenceWithBackoffPromise {
-  return [self.backoffWrapper applyBackoffToOperation:^FBLPromise * _Nonnull{
-    return [self createGetTokenSequencePromise];
-  } errorHandler:[self.backoffWrapper defaultAppCheckProviderErrorHandler]];
+  return [self.backoffWrapper
+      applyBackoffToOperation:^FBLPromise *_Nonnull {
+        return [self createGetTokenSequencePromise];
+      }
+                 errorHandler:[self.backoffWrapper defaultAppCheckProviderErrorHandler]];
 }
 
 - (FBLPromise<FIRAppCheckToken *> *)createGetTokenSequencePromise {
