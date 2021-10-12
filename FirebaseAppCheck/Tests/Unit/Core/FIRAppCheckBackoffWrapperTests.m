@@ -202,13 +202,14 @@
 
   // 2. Check exponential backoff.
   NSUInteger numberOfAttempts = 20;
-  NSTimeInterval maximumBackoff = 4 * 60 * 60; // 4 hours.
+  NSTimeInterval maximumBackoff = 4 * 60 * 60;  // 4 hours.
   // The maximum of original backoff interval that can be added.
-  double maxJitterPortion = 0.5; // Backoff is up to 50% longer.
+  double maxJitterPortion = 0.5;  // Backoff is up to 50% longer.
 
-  for (NSUInteger attempt = 0; attempt < numberOfAttempts; attempt ++) {
+  for (NSUInteger attempt = 0; attempt < numberOfAttempts; attempt++) {
     NSTimeInterval expectedMinBackoff = MIN(pow(2, attempt), maximumBackoff);
-    NSTimeInterval expectedMaxBackoff = MIN(expectedMinBackoff * (1 + maxJitterPortion), maximumBackoff);
+    NSTimeInterval expectedMaxBackoff =
+        MIN(expectedMinBackoff * (1 + maxJitterPortion), maximumBackoff);
 
     [self assertBackoffIntervalIsAtLeast:expectedMinBackoff andAtMost:expectedMaxBackoff];
   }
@@ -223,9 +224,8 @@
   self.errorHandlerExpectation.inverted = YES;
 
   // 3.3. Compose operation with backoff.
-  operationWithBackoff =
-      [self.backoffWrapper applyBackoffToOperation:self.operationProvider
-                                      errorHandler:self.errorHandler];
+  operationWithBackoff = [self.backoffWrapper applyBackoffToOperation:self.operationProvider
+                                                         errorHandler:self.errorHandler];
 
   // 3.4. Wait for operation to complete.
   [self waitForExpectationsWithTimeout:0.5 handler:NULL];
@@ -240,9 +240,8 @@
   [self setUpErrorHandlerWithBackoffType:FIRAppCheckBackoffTypeExponential];
 
   // 3.7. Compose operation with backoff.
-  operationWithBackoff =
-      [self.backoffWrapper applyBackoffToOperation:self.operationProvider
-                                      errorHandler:self.errorHandler];
+  operationWithBackoff = [self.backoffWrapper applyBackoffToOperation:self.operationProvider
+                                                         errorHandler:self.errorHandler];
 
   // 3.8. Wait for operation to complete.
   [self waitForExpectationsWithTimeout:0.5 handler:NULL];
@@ -327,15 +326,21 @@
 }
 
 - (FIRAppCheckHTTPError *)httpErrorWithStatusCode:(NSInteger)statusCode {
-  NSHTTPURLResponse *httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@"https://localhost"] statusCode:statusCode HTTPVersion:nil headerFields:nil];
-  FIRAppCheckHTTPError *error = [[FIRAppCheckHTTPError alloc] initWithHTTPResponse:httpResponse data:nil];
+  NSHTTPURLResponse *httpResponse =
+      [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@"https://localhost"]
+                                  statusCode:statusCode
+                                 HTTPVersion:nil
+                                headerFields:nil];
+  FIRAppCheckHTTPError *error = [[FIRAppCheckHTTPError alloc] initWithHTTPResponse:httpResponse
+                                                                              data:nil];
   return error;
 }
 
 // Asserts that the backoff interval is within the provided range.
 // Assumes that `self.currentDate` contains the last failure date.
 // Sets `self.currentDate` to the date when the most recent retry happened.
-- (void)assertBackoffIntervalIsAtLeast:(NSTimeInterval)minBackoff andAtMost:(NSTimeInterval)maxBackoff {
+- (void)assertBackoffIntervalIsAtLeast:(NSTimeInterval)minBackoff
+                             andAtMost:(NSTimeInterval)maxBackoff {
   NSDate *lastFailureDate = self.currentDate;
 
   // 1. Test backoff before min interval.
@@ -351,8 +356,9 @@
   self.errorHandlerExpectation.inverted = YES;
 
   // 1.4 Compose operation with backoff.
-  __auto_type operationWithBackoff = [self.backoffWrapper applyBackoffToOperation:self.operationProvider
-                                                         errorHandler:self.errorHandler];
+  __auto_type operationWithBackoff =
+      [self.backoffWrapper applyBackoffToOperation:self.operationProvider
+                                      errorHandler:self.errorHandler];
 
   // 1.5 Wait for operation to complete.
   [self waitForExpectationsWithTimeout:0.5 handler:NULL];
