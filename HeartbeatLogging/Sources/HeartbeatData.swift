@@ -44,8 +44,9 @@ public protocol HTTPHeaderRepresentable {
 public struct HeartbeatData: Codable {
   enum TimePeriod: Int, Codable, CaseIterable {
     case daily = 1
-    case weekly = 7
-    case monthly = 28
+    // TODO: Ensure below cases are disabled for release.
+    // case weekly = 7
+    // case monthly = 28
 
     var days: Int { rawValue }
   }
