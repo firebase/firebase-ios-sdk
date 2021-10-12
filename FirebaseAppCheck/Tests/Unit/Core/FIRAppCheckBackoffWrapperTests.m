@@ -215,8 +215,41 @@
 
   // 3. Test recovery after success.
   // 3.1. Set time after max backoff.
-  
+  self.currentDate = [self.currentDate dateByAddingTimeInterval:maximumBackoff];
 
+  // 3.2. Set up operation success.
+  [self setUpOperationSuccess];
+  [self setUpErrorHandlerWithBackoffType:FIRAppCheckBackoffTypeNone];
+  self.errorHandlerExpectation.inverted = YES;
+
+  // 3.3. Compose operation with backoff.
+  operationWithBackoff =
+      [self.backoffWrapper applyBackoffToOperation:self.operationProvider
+                                      errorHandler:self.errorHandler];
+
+  // 3.4. Wait for operation to complete.
+  [self waitForExpectationsWithTimeout:0.5 handler:NULL];
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+
+  // 3.5. Expect the promise to be rejected with the operation error.
+  XCTAssertEqualObjects(operationWithBackoff.value, self.operationResult);
+
+  // 3.6. Set up operation failure.
+  // We expect an operation to be executed with no backoff after a success.
+  [self setUpOperationError];
+  [self setUpErrorHandlerWithBackoffType:FIRAppCheckBackoffTypeExponential];
+
+  // 3.7. Compose operation with backoff.
+  operationWithBackoff =
+      [self.backoffWrapper applyBackoffToOperation:self.operationProvider
+                                      errorHandler:self.errorHandler];
+
+  // 3.8. Wait for operation to complete.
+  [self waitForExpectationsWithTimeout:0.5 handler:NULL];
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+
+  // 3.9. Expect the promise to be rejected with the operation error.
+  XCTAssertEqualObjects(operationWithBackoff.error, self.operationResult);
 }
 
 #pragma mark - Error handling
