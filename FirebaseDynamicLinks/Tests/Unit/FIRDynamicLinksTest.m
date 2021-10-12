@@ -1401,7 +1401,7 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
       handleUniversalLink:url
                completion:^(FIRDynamicLink *_Nullable dynamicLink, NSError *_Nullable error) {
                  XCTAssertNotNil(dynamicLink, @"Non DDL returned FIRDynamicLink");
-                [expectation fulfill];
+                 [expectation fulfill];
                }];
 
   XCTAssertTrue(handled, @"Valid DDL Universal Link was not handled");
