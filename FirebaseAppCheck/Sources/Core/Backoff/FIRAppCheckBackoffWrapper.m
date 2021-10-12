@@ -246,9 +246,11 @@ static double const kMaxExponentialBackoffInterval = 4 * 60 * 60;  // 4 hours.
 
 - (FIRAppCheckBackoffErrorHandler)defaultAppCheckProviderErrorHandler {
   return ^FIRAppCheckBackoffType(NSError *error) {
-    FIRAppCheckHTTPError *HTTPError = [error isKindOfClass:[FIRAppCheckHTTPError class]] ? (FIRAppCheckHTTPError *)error : nil;
+    FIRAppCheckHTTPError *HTTPError =
+        [error isKindOfClass:[FIRAppCheckHTTPError class]] ? (FIRAppCheckHTTPError *)error : nil;
+
     if (HTTPError == nil) {
-      // No backoff for attestation providers for non-backend errors.
+      // No backoff for attestation providers for non-backend (e.g. network) errors.
       return FIRAppCheckBackoffTypeNone;
     }
 
@@ -257,13 +259,27 @@ static double const kMaxExponentialBackoffInterval = 4 * 60 * 60;  // 4 hours.
     if (statusCode < 400) {
       // No backoff for codes before 400.
       return FIRAppCheckBackoffTypeNone;
-    } else if (statusCode == 400) {
-      // Firebase project misconfiguration. It will unlikely be fixed soon and often requires another version of the app. Try again in 1 day.
+    }
+
+    if (statusCode == 400 || statusCode == 404) {
+      // Firebase project misconfiguration. It will unlikely be fixed soon and often requires
+      // another version of the app. Try again in 1 day.
       return FIRAppCheckBackoffType1Day;
-    } else if (statusCode = 403) {
-      // 
+    }
+
+    if (statusCode == 403) {
+      // Project may have been soft-deleted accidentally. There is a chance of timely recovery, so
+      // try again later.
       return FIRAppCheckBackoffTypeExponential;
     }
+
+    if (statusCode == 429) {
+      // Too many requests. Try again in a while.
+      return FIRAppCheckBackoffTypeExponential;
+    }
+
+    // For all other server error cases default to the exponential backoff.
+    return FIRAppCheckBackoffTypeExponential;
   };
 }
 
