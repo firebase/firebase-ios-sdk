@@ -114,7 +114,7 @@ void Stream::RequestCredentials() {
   // Auth/AppCheck may outlive the stream, so make sure it doesn't try to access
   // a deleted object.
   std::weak_ptr<Stream> weak_this{shared_from_this()};
-  std::shared_ptr<CallCredentials> credentials{new CallCredentials};
+  auto credentials = std::make_shared<CallCredentials>();
   int initial_close_count = close_count_;
 
   auto done = [weak_this, credentials, initial_close_count](

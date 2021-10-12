@@ -259,7 +259,7 @@ void Datastore::OnLookupDocumentsResponse(
 void Datastore::ResumeRpcWithCredentials(const OnCredentials& on_credentials) {
   // Auth/AppCheck may outlive Firestore
   std::weak_ptr<Datastore> weak_this{shared_from_this()};
-  std::shared_ptr<CallCredentials> credentials{new CallCredentials};
+  auto credentials = std::make_shared<CallCredentials>();
 
   auto done = [weak_this, credentials, on_credentials](
                   const absl::optional<StatusOr<AuthToken>>& auth,
