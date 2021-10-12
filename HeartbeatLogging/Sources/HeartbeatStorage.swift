@@ -16,19 +16,18 @@ import Foundation
 
 /// A type that acts as a controller for a `PersistentStorage` object(s).
 protocol PersistenceController {
-  associatedtype Contents: Codable
-  func load(from storage: PersistentStorage) -> Contents
-  func save(_ value: Contents?, to storage: PersistentStorage)
+  associatedtype Value: Codable
+  func load(from storage: PersistentStorage) -> Value
+  func save(_ value: Value?, to storage: PersistentStorage)
 }
 
-/// A type that provides a synchronizable, block-based API for reading and writing.
-protocol Synchronizable: PersistenceController {
+/// A type that provides block-based API for reading and writing.
+protocol Synchronizable {
+  associatedtype Contents
   typealias ReadWriteBlock = (inout Contents) -> Void
   func readWriteSync(_ transform: ReadWriteBlock)
   func readWriteAsync(_ transform: @escaping ReadWriteBlock)
 }
-
-typealias ThreadSafeStorage = Synchronizable & PersistenceController
 
 // MARK: - HeartbeatStorage
 
@@ -54,9 +53,11 @@ final class HeartbeatStorage {
   }
 }
 
-// MARK: - ThreadSafeStorage
+// MARK: - Synchronizable
 
-extension HeartbeatStorage: ThreadSafeStorage {
+extension HeartbeatStorage: Synchronizable {
+  typealias Contents = HeartbeatData
+
   func readWriteSync(_ transform: ReadWriteBlock) {
     queue.sync { execute(transform) }
   }
@@ -70,13 +71,19 @@ extension HeartbeatStorage: ThreadSafeStorage {
     transform(&loggingData)
     save(loggingData, to: storage)
   }
+}
 
-  func load(from storage: Storage) -> HeartbeatData {
+// MARK: - PersistenceController
+
+extension HeartbeatStorage: PersistenceController {
+  typealias Value = HeartbeatData
+
+  func load(from storage: Storage) -> Value {
     // --snip--
     HeartbeatData()
   }
 
-  func save(_ value: HeartbeatData?, to storage: Storage) {
+  func save(_ value: Value?, to storage: Storage) {
     // --snip--
   }
 }
