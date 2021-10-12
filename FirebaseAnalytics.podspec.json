@@ -30,7 +30,7 @@
         "ios": "9.0"
     },
     "source": {
-        "http": "https://dl.google.com/firebase/ios/analytics/1513af860ecf3170/FirebaseAnalytics-8.8.0.tar.gz"
+        "http": "https://dl.google.com/firebase/ios/analytics/36992468727a5f8a/FirebaseAnalytics-8.9.0.tar.gz"
     },
     "subspecs": [
         {
