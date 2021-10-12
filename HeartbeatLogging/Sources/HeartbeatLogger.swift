@@ -30,17 +30,9 @@ public final class HeartbeatLogger {
 
   /// Public initializer.
   ///
-  /// The logger's underlying storage container is platform dependent. For tvOS, user defaults
-  /// is used as the underlying storage container due to system storage limits. For all other platforms,
-  /// the file system is used as the underlying storage container.
-  ///
   /// - Parameter id: The `id` to associate this logger's internal storage with.
   public init(id: String) {
-    #if os(tvOS)
-      let storage = UserDefaultsStorage.makeStorage(id: id)
-    #else
-      let storage = FileStorage.makeStorage(id: id)
-    #endif // os(tvOS)
+    let storage = StorageFactory.makeStorage(id: id)
     self.storage = HeartbeatStorage(id: id, storage: storage)
   }
 
