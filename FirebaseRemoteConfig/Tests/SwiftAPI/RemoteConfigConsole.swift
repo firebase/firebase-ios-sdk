@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import FirebaseCore
+
 class RemoteConfigConsole {
   private let projectID: String
   private var latestConfig: [String: Any]!
@@ -25,10 +27,10 @@ class RemoteConfigConsole {
   }
 
   private lazy var accessToken: String = {
-    guard let fileURL = Bundle(for: type(of: self))
-      .url(forResource: "AccessToken", withExtension: "json") else {
+    guard let fileURL = Bundle.main.url(forResource: "AccessToken", withExtension: "json") else {
       fatalError("Could not find AccessToken.json in bundle.")
     }
+
     guard let data = try? Data(contentsOf: fileURL),
       let json = try? JSONSerialization.jsonObject(with: data, options: .allowFragments),
       let jsonDict = json as? [String: Any],
@@ -59,12 +61,8 @@ class RemoteConfigConsole {
 
   /// This initializer will attempt to read from a `GoogleService-Info.plist` to set `projectID`.
   convenience init() {
-    let currentBundle = Bundle(for: type(of: self))
-    let projectID = currentBundle.plistValue(
-      forKey: "PROJECT_ID",
-      fromPlist: "GoogleService-Info.plist"
-    )
-    self.init(projectID: projectID! as! String)
+    let projectID = FirebaseApp.app()?.options.projectID
+    self.init(projectID: projectID!)
   }
 
   // MARK: - Public API
