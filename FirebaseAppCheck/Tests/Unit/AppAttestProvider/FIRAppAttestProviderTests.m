@@ -97,6 +97,7 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
   self.mockStorage = nil;
   self.mockAPIService = nil;
   self.mockAppAttestService = nil;
+  self.fakeBackoffWrapper = nil;
 }
 
 #pragma mark - Init tests
@@ -889,12 +890,6 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
   [self assertGetToken_WhenKeyRegistered_Success];
 }
 
-- (NSData *)dataHashForAssertionWithArtifactData:(NSData *)artifact {
-  NSMutableData *statement = [artifact mutableCopy];
-  [statement appendData:self.randomChallenge];
-  return [FIRAppCheckCryptoUtils sha256HashFromData:statement];
-}
-
 #pragma mark - Backoff tests
 
 // TODO: Implement.
@@ -905,6 +900,12 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
 }
 
 #pragma mark - Helpers
+
+- (NSData *)dataHashForAssertionWithArtifactData:(NSData *)artifact {
+  NSMutableData *statement = [artifact mutableCopy];
+  [statement appendData:self.randomChallenge];
+  return [FIRAppCheckCryptoUtils sha256HashFromData:statement];
+}
 
 - (FBLPromise *)rejectedPromiseWithError:(NSError *)error {
   FBLPromise *rejectedPromise = [FBLPromise pendingPromise];

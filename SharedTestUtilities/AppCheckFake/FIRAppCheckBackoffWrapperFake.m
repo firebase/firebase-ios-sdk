@@ -40,6 +40,9 @@ NS_ASSUME_NONNULL_BEGIN
         .recover(^id(NSError *error) {
           self->_operationError = error;
           self->_operationResult = nil;
+
+          errorHandler(error);
+
           return error;
         });
   } else {
