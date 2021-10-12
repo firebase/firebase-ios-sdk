@@ -159,7 +159,7 @@ class APITests: APITestBase {
         // It's an open question which is correct, but it should only
         // be changed in a major release.
         // See https://github.com/firebase/firebase-ios-sdk/pull/8788
-        //XCTAssertEqual(status, .successUsingPreFetchedData)
+        // XCTAssertEqual(status, .successUsingPreFetchedData)
         XCTAssertEqual(status, .successFetchedFromRemote)
         // The `lastETagUpdateTime` should either be older or the same time as `lastFetchTime`.
         if let lastFetchTime = try? XCTUnwrap(self.config.lastFetchTime) {
