@@ -118,8 +118,8 @@ void Stream::RequestCredentials() {
   int initial_close_count = close_count_;
 
   auto done = [weak_this, credentials, initial_close_count](
-                  absl::optional<const StatusOr<AuthToken>> auth,
-                  absl::optional<const StatusOr<std::string>> app_check) {
+                  const absl::optional<StatusOr<AuthToken>>& auth,
+                  const absl::optional<std::string>& app_check) {
     auto strong_this = weak_this.lock();
     if (!strong_this) {
       return;
@@ -139,8 +139,8 @@ void Stream::RequestCredentials() {
       return;
     }
 
-    StatusOr<AuthToken> auth_token = credentials->auth;
-    StatusOr<std::string> app_check_token = credentials->app_check;
+    const StatusOr<AuthToken>& auth_token = credentials->auth;
+    const std::string& app_check_token = credentials->app_check;
 
     strong_this->worker_queue_->EnqueueRelaxed(
         [weak_this, auth_token, app_check_token, initial_close_count] {
@@ -160,13 +160,12 @@ void Stream::RequestCredentials() {
 
   app_check_credentials_provider_->GetToken(
       [done](const StatusOr<std::string>& app_check) {
-        done(absl::nullopt, app_check);
+        done(absl::nullopt, app_check.ValueOrDie());  // AppCheck never fails
       });
 }
 
-void Stream::ResumeStartWithCredentials(
-    const StatusOr<AuthToken>& auth_token,
-    const StatusOr<std::string> app_check_token) {
+void Stream::ResumeStartWithCredentials(const StatusOr<AuthToken>& auth_token,
+                                        const std::string& app_check_token) {
   EnsureOnQueue();
 
   HARD_ASSERT(state_ == State::Starting,
@@ -176,13 +175,9 @@ void Stream::ResumeStartWithCredentials(
     OnStreamFinish(auth_token.status());
     return;
   }
-  if (!app_check_token.ok()) {
-    OnStreamFinish(app_check_token.status());
-    return;
-  }
 
   grpc_stream_ = CreateGrpcStream(grpc_connection_, auth_token.ValueOrDie(),
-                                  app_check_token.ValueOrDie());
+                                  app_check_token);
   grpc_stream_->Start();
 }
 

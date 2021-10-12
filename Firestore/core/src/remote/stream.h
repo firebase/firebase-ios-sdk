@@ -214,7 +214,7 @@ class Stream : public GrpcStreamObserver,
  private:
   struct CallCredentials {
     mutable std::mutex mutex;
-    util::StatusOr<std::string> app_check;
+    std::string app_check;
     bool app_check_received = false;
     util::StatusOr<credentials::AuthToken> auth;
     bool auth_received = false;
@@ -238,7 +238,7 @@ class Stream : public GrpcStreamObserver,
   void RequestCredentials();
   void ResumeStartWithCredentials(
       const util::StatusOr<credentials::AuthToken>& auth_token,
-      const util::StatusOr<std::string> app_check_token);
+      const std::string& app_check_token);
   void BackoffAndTryRestarting();
 
   State state_ = State::Initial;

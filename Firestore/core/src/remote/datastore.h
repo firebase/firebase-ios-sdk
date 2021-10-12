@@ -158,7 +158,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
  private:
   struct CallCredentials {
     mutable std::mutex mutex;
-    util::StatusOr<std::string> app_check;
+    std::string app_check;
     bool app_check_received = false;
     util::StatusOr<credentials::AuthToken> auth;
     bool auth_received = false;
@@ -181,9 +181,8 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
       const util::StatusOr<std::vector<grpc::ByteBuffer>>& result,
       const LookupCallback& callback);
 
-  using OnCredentials =
-      std::function<void(const util::StatusOr<credentials::AuthToken>&,
-                         const util::StatusOr<std::string>&)>;
+  using OnCredentials = std::function<void(
+      const util::StatusOr<credentials::AuthToken>&, const std::string&)>;
   void ResumeRpcWithCredentials(const OnCredentials& on_credentials);
 
   void HandleCallStatus(const util::Status& status);

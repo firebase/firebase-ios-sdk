@@ -398,17 +398,6 @@ TEST_F(StreamTest, AuthOutlivesStream) {
 
 // AppCheck edge cases
 
-TEST_F(StreamTest, AppCheckFailureOnStart) {
-  app_check_credentials->FailGetToken();
-  worker_queue->EnqueueBlocking([&] { firestore_stream->Start(); });
-
-  worker_queue->EnqueueBlocking([&] {
-    EXPECT_FALSE(firestore_stream->IsStarted());
-    EXPECT_FALSE(firestore_stream->IsOpen());
-    EXPECT_EQ(observed_states(), States({"NotifyStreamClose(Unknown)"}));
-  });
-}
-
 TEST_F(StreamTest, AppCheckWhenStreamHasBeenStopped) {
   app_check_credentials->DelayGetToken();
 

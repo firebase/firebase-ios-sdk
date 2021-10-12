@@ -166,20 +166,14 @@ void Datastore::CommitMutations(const std::vector<Mutation>& mutations,
                                 CommitCallback&& callback) {
   ResumeRpcWithCredentials(
       // TODO(c++14): move into lambda.
-      [this, mutations, callback](
-          const StatusOr<AuthToken>& auth_token,
-          const StatusOr<std::string>& app_check_token) mutable {
+      [this, mutations, callback](const StatusOr<AuthToken>& auth_token,
+                                  const std::string& app_check_token) mutable {
         if (!auth_token.ok()) {
           callback(auth_token.status());
           return;
         }
-        if (!app_check_token.ok()) {
-          callback(app_check_token.status());
-          return;
-        }
-        CommitMutationsWithCredentials(auth_token.ValueOrDie(),
-                                       app_check_token.ValueOrDie(), mutations,
-                                       std::move(callback));
+        CommitMutationsWithCredentials(auth_token.ValueOrDie(), app_check_token,
+                                       mutations, std::move(callback));
       });
 }
 
@@ -213,20 +207,14 @@ void Datastore::LookupDocuments(const std::vector<DocumentKey>& keys,
                                 LookupCallback&& callback) {
   ResumeRpcWithCredentials(
       // TODO(c++14): move into lambda.
-      [this, keys, callback](
-          const StatusOr<AuthToken>& auth_token,
-          const StatusOr<std::string>& app_check_token) mutable {
+      [this, keys, callback](const StatusOr<AuthToken>& auth_token,
+                             const std::string& app_check_token) mutable {
         if (!auth_token.ok()) {
           callback(auth_token.status());
           return;
         }
-        if (!app_check_token.ok()) {
-          callback(app_check_token.status());
-          return;
-        }
-        LookupDocumentsWithCredentials(auth_token.ValueOrDie(),
-                                       app_check_token.ValueOrDie(), keys,
-                                       std::move(callback));
+        LookupDocumentsWithCredentials(auth_token.ValueOrDie(), app_check_token,
+                                       keys, std::move(callback));
       });
 }
 
@@ -274,8 +262,8 @@ void Datastore::ResumeRpcWithCredentials(const OnCredentials& on_credentials) {
   std::shared_ptr<CallCredentials> credentials{new CallCredentials};
 
   auto done = [weak_this, credentials, on_credentials](
-                  absl::optional<const StatusOr<AuthToken>> auth,
-                  absl::optional<const StatusOr<std::string>> app_check) {
+                  const absl::optional<StatusOr<AuthToken>>& auth,
+                  const absl::optional<std::string>& app_check) {
     auto strong_this = weak_this.lock();
     if (!strong_this) {
       return;
@@ -296,8 +284,8 @@ void Datastore::ResumeRpcWithCredentials(const OnCredentials& on_credentials) {
       return;
     }
 
-    StatusOr<AuthToken> auth_token = credentials->auth;
-    StatusOr<std::string> app_check_token = credentials->app_check;
+    const StatusOr<AuthToken>& auth_token = credentials->auth;
+    const std::string& app_check_token = credentials->app_check;
 
     strong_this->worker_queue_->EnqueueRelaxed(
         [weak_this, auth_token, app_check_token, on_credentials] {
@@ -319,7 +307,7 @@ void Datastore::ResumeRpcWithCredentials(const OnCredentials& on_credentials) {
 
   app_check_credentials_->GetToken(
       [done](const StatusOr<std::string>& app_check) {
-        done(absl::nullopt, app_check);
+        done(absl::nullopt, app_check.ValueOrDie());  // AppCheck never fails
       });
 }
 

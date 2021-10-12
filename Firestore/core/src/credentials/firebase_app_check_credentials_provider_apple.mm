@@ -22,6 +22,7 @@
 
 #include "Firestore/core/src/util/error_apple.h"
 #include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/log.h"
 
 namespace firebase {
 namespace firestore {
@@ -77,13 +78,11 @@ void FirebaseAppCheckCredentialsProvider::GetToken(
 
   void (^get_token_callback)(id<FIRAppCheckTokenResultInterop>) =
       ^(id<FIRAppCheckTokenResultInterop> result) {
-        if (result.error == nil) {
-          completion(util::MakeString(result.token));
-        } else {
-          completion(util::Status(
-              Error::kErrorUnknown,
-              util::MakeString(result.error.localizedDescription)));
+        if (result.error != nil) {
+          LOG_WARN("AppCheck failed: '%s'",
+                   util::MakeString(result.error.localizedDescription));
         }
+        completion(util::MakeString(result.token));  // Always return token
       };
 
   std::weak_ptr<Contents> weak_contents = contents_;
