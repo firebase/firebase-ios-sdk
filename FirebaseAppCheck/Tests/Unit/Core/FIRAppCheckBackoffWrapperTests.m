@@ -25,6 +25,8 @@
 
 #import "FirebaseAppCheck/Sources/Core/Backoff/FIRAppCheckBackoffWrapper.h"
 
+#import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckHTTPError.h"
+
 @interface FIRAppCheckBackoffWrapperTests : XCTestCase
 
 @property(nonatomic, nullable) FIRAppCheckBackoffWrapper *backoffWrapper;
@@ -175,6 +177,46 @@
   XCTAssertEqualObjects(operationWithBackoff.error, self.operationResult);
 }
 
+#pragma mark - Exponential backoff
+
+- (void)testExponentialBackoff {
+}
+
+#pragma mark - Error handling
+
+- (void)testDefaultAppCheckProviderErrorHandler {
+  __auto_type errorHandler = [self.backoffWrapper defaultAppCheckProviderErrorHandler];
+
+  NSError *nonHTTPError = [NSError errorWithDomain:self.name code:1 userInfo:nil];
+  XCTAssertEqual(errorHandler(nonHTTPError), FIRAppCheckBackoffTypeNone);
+
+  FIRAppCheckHTTPError *HTTP400Error = [self httpErrorWithStatusCode:400];
+  XCTAssertEqual(errorHandler(HTTP400Error), FIRAppCheckBackoffType1Day);
+
+  FIRAppCheckHTTPError *HTTP403Error = [self httpErrorWithStatusCode:403];
+  XCTAssertEqual(errorHandler(HTTP403Error), FIRAppCheckBackoffTypeExponential);
+
+  FIRAppCheckHTTPError *HTTP404Error = [self httpErrorWithStatusCode:404];
+  XCTAssertEqual(errorHandler(HTTP404Error), FIRAppCheckBackoffType1Day);
+
+  FIRAppCheckHTTPError *HTTP429Error = [self httpErrorWithStatusCode:429];
+  XCTAssertEqual(errorHandler(HTTP429Error), FIRAppCheckBackoffTypeExponential);
+
+  FIRAppCheckHTTPError *HTTP503Error = [self httpErrorWithStatusCode:503];
+  XCTAssertEqual(errorHandler(HTTP503Error), FIRAppCheckBackoffTypeExponential);
+
+  // Test all other codes from 400 to 599.
+  for (NSInteger statusCode = 400; statusCode < 600; statusCode++) {
+    if (statusCode == 400 || statusCode == 404) {
+      // Skip status codes with non-exponential backoff.
+      continue;
+    }
+
+    FIRAppCheckHTTPError *HTTPError = [self httpErrorWithStatusCode:statusCode];
+    XCTAssertEqual(errorHandler(HTTPError), FIRAppCheckBackoffTypeExponential);
+  }
+}
+
 #pragma mark - Helpers
 
 - (void)setUpErrorHandlerWithBackoffType:(FIRAppCheckBackoffType)backoffType {
@@ -212,6 +254,12 @@
 
 - (BOOL)isBackoffError:(NSError *)error {
   return [error.localizedDescription containsString:@"Too many attempts. Underlying error:"];
+}
+
+- (FIRAppCheckHTTPError *)httpErrorWithStatusCode:(NSInteger)statusCode {
+  NSHTTPURLResponse *httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@"https://localhost"] statusCode:statusCode HTTPVersion:nil headerFields:nil];
+  FIRAppCheckHTTPError *error = [[FIRAppCheckHTTPError alloc] initWithHTTPResponse:httpResponse data:nil];
+  return error;
 }
 
 @end
