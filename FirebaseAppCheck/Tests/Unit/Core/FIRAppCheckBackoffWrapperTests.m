@@ -180,6 +180,43 @@
 #pragma mark - Exponential backoff
 
 - (void)testExponentialBackoff {
+  // 0. Set current date.
+  self.currentDate = [NSDate date];
+
+  // 1. Check initial failure.
+  // 1.1. Set up operation failure.
+  [self setUpOperationError];
+  [self setUpErrorHandlerWithBackoffType:FIRAppCheckBackoffTypeExponential];
+
+  // 1.3. Compose operation with backoff.
+  __auto_type operationWithBackoff =
+      [self.backoffWrapper applyBackoffToOperation:self.operationProvider
+                                      errorHandler:self.errorHandler];
+
+  // 1.4. Wait for operation to complete.
+  [self waitForExpectationsWithTimeout:0.5 handler:NULL];
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+
+  // 1.5. Expect the promise to be rejected with the operation error.
+  XCTAssertEqualObjects(operationWithBackoff.error, self.operationResult);
+
+  // 2. Check exponential backoff.
+  NSUInteger numberOfAttempts = 20;
+  NSTimeInterval maximumBackoff = 4 * 60 * 60; // 4 hours.
+  // The maximum of original backoff interval that can be added.
+  double maxJitterPortion = 0.5; // Backoff is up to 50% longer.
+
+  for (NSUInteger attempt = 0; attempt < numberOfAttempts; attempt ++) {
+    NSTimeInterval expectedMinBackoff = MIN(pow(2, attempt), maximumBackoff);
+    NSTimeInterval expectedMaxBackoff = MIN(expectedMinBackoff * (1 + maxJitterPortion), maximumBackoff);
+
+    [self assertBackoffIntervalIsAtLeast:expectedMinBackoff andAtMost:expectedMaxBackoff];
+  }
+
+  // 3. Test recovery after success.
+  // 3.1. Set time after max backoff.
+  
+
 }
 
 #pragma mark - Error handling
@@ -260,6 +297,57 @@
   NSHTTPURLResponse *httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@"https://localhost"] statusCode:statusCode HTTPVersion:nil headerFields:nil];
   FIRAppCheckHTTPError *error = [[FIRAppCheckHTTPError alloc] initWithHTTPResponse:httpResponse data:nil];
   return error;
+}
+
+// Asserts that the backoff interval is within the provided range.
+// Assumes that `self.currentDate` contains the last failure date.
+// Sets `self.currentDate` to the date when the most recent retry happened.
+- (void)assertBackoffIntervalIsAtLeast:(NSTimeInterval)minBackoff andAtMost:(NSTimeInterval)maxBackoff {
+  NSDate *lastFailureDate = self.currentDate;
+
+  // 1. Test backoff before min interval.
+  // 1.1 Move the date 0.5 sec before the minimum backoff date.
+  self.currentDate = [lastFailureDate dateByAddingTimeInterval:minBackoff - 0.5];
+
+  // 1.2 Set up operation failure.
+  [self setUpOperationError];
+  [self setUpErrorHandlerWithBackoffType:FIRAppCheckBackoffTypeExponential];
+
+  // 1.3 Don't expect operation to be executed.
+  self.operationFinishExpectation.inverted = YES;
+  self.errorHandlerExpectation.inverted = YES;
+
+  // 1.4 Compose operation with backoff.
+  __auto_type operationWithBackoff = [self.backoffWrapper applyBackoffToOperation:self.operationProvider
+                                                         errorHandler:self.errorHandler];
+
+  // 1.5 Wait for operation to complete.
+  [self waitForExpectationsWithTimeout:0.5 handler:NULL];
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+
+  // 1.6 Expect the promise to be rejected with a backoff error.
+  XCTAssertTrue(operationWithBackoff.isRejected);
+  XCTAssertTrue([self isBackoffError:operationWithBackoff.error]);
+
+  // 2. Test backoff after max interval.
+  // 2.1 Move the date 0.5 sec before the minimum backoff date.
+  self.currentDate = [lastFailureDate dateByAddingTimeInterval:maxBackoff + 0.5];
+
+  // 2.2. Set up operation failure and expect it to be completed.
+  [self setUpOperationError];
+  [self setUpErrorHandlerWithBackoffType:FIRAppCheckBackoffTypeExponential];
+
+  // 2.3 Compose operation with backoff.
+  operationWithBackoff = [self.backoffWrapper applyBackoffToOperation:self.operationProvider
+                                                         errorHandler:self.errorHandler];
+
+  // 2.4 Wait for operation to complete.
+  [self waitForExpectationsWithTimeout:0.5 handler:NULL];
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+
+  // 2.5 Expect the promise to be rejected with a backoff error.
+  XCTAssertTrue(operationWithBackoff.isRejected);
+  XCTAssertFalse([self isBackoffError:operationWithBackoff.error]);
 }
 
 @end

@@ -225,7 +225,7 @@ static double const kMaxExponentialBackoffInterval = 4 * 60 * 60;  // 4 hours.
 - (NSTimeInterval)exponentialBackoffIntervalForFailure:
     (FIRAppCheckBackoffOperationFailure *)failure {
   // Base exponential backoff interval.
-  NSTimeInterval baseBackoff = 2 ^ failure.retryCount;
+  NSTimeInterval baseBackoff = pow(2, failure.retryCount);
 
   // Get a random number from 0 to 1.
   double maxRandom = 1000;
