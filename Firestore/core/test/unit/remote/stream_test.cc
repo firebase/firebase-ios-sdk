@@ -94,7 +94,8 @@ class TestStream : public Stream {
 
  private:
   std::unique_ptr<GrpcStream> CreateGrpcStream(GrpcConnection*,
-                                               const AuthToken&) override {
+                                               const AuthToken&,
+                                               const std::string&) override {
     auto result = tester_->CreateStream(this);
     context_ = result->context();
     return result;
@@ -395,6 +396,31 @@ TEST_F(StreamTest, AuthOutlivesStream) {
   EXPECT_NO_THROW(auth_credentials->InvokeGetToken());
 }
 
+// AppCheck edge cases
+
+TEST_F(StreamTest, AppCheckWhenStreamHasBeenStopped) {
+  app_check_credentials->DelayGetToken();
+
+  worker_queue->EnqueueBlocking([&] {
+    firestore_stream->Start();
+    firestore_stream->Stop();
+  });
+
+  EXPECT_NO_THROW(app_check_credentials->InvokeGetToken());
+}
+
+TEST_F(StreamTest, AppCheckOutlivesStream) {
+  app_check_credentials->DelayGetToken();
+
+  worker_queue->EnqueueBlocking([&] {
+    firestore_stream->Start();
+    firestore_stream->Stop();
+    firestore_stream.reset();
+  });
+
+  EXPECT_NO_THROW(app_check_credentials->InvokeGetToken());
+}
+
 // Idleness
 
 TEST_F(StreamTest, ClosesOnIdle) {
@@ -524,6 +550,8 @@ TEST_F(StreamTest, RefreshesTokenUponExpiration) {
   // Error "Unauthenticated" should invalidate the token.
   EXPECT_EQ(auth_credentials->observed_states(),
             States({"GetToken", "InvalidateToken"}));
+  EXPECT_EQ(app_check_credentials->observed_states(),
+            States({"GetToken", "InvalidateToken"}));
 
   worker_queue->EnqueueBlocking([&] { firestore_stream->InhibitBackoff(); });
   StartStream();
@@ -531,6 +559,8 @@ TEST_F(StreamTest, RefreshesTokenUponExpiration) {
                {Type::Finish, grpc::Status{grpc::UNAVAILABLE, ""}}});
   // Simulate a different error -- token should not be invalidated this time.
   EXPECT_EQ(auth_credentials->observed_states(),
+            States({"GetToken", "InvalidateToken", "GetToken"}));
+  EXPECT_EQ(app_check_credentials->observed_states(),
             States({"GetToken", "InvalidateToken", "GetToken"}));
 }
 
@@ -542,6 +572,7 @@ TEST_F(StreamTest, TokenIsNotInvalidatedOnceStreamIsHealthy) {
   // Error "Unauthenticated" on a healthy connection should not invalidate the
   // token.
   EXPECT_EQ(auth_credentials->observed_states(), States({"GetToken"}));
+  EXPECT_EQ(app_check_credentials->observed_states(), States({"GetToken"}));
 }
 
 }  // namespace remote

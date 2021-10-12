@@ -1,4 +1,5 @@
 # Unreleased
+- [added] Added support for Firebase AppCheck.
 - [fixed] Fix a crash if `[FIRTransaction getDocument]` was called after
   `[FIRFirestore terminateWithCompletion]` (#8760).
 

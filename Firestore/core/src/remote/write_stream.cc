@@ -95,9 +95,11 @@ void WriteStream::WriteMutations(const std::vector<Mutation>& mutations) {
 }
 
 std::unique_ptr<GrpcStream> WriteStream::CreateGrpcStream(
-    GrpcConnection* grpc_connection, const AuthToken& token) {
+    GrpcConnection* grpc_connection,
+    const AuthToken& auth_token,
+    const std::string& app_check_token) {
   return grpc_connection->CreateStream("/google.firestore.v1.Firestore/Write",
-                                       token, this);
+                                       auth_token, app_check_token, this);
 }
 
 void WriteStream::TearDown(GrpcStream* grpc_stream) {

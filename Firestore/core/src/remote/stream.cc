@@ -111,45 +111,73 @@ void Stream::Start() {
 void Stream::RequestCredentials() {
   EnsureOnQueue();
 
-  // Auth may outlive the stream, so make sure it doesn't try to access a
-  // deleted object.
+  // Auth/AppCheck may outlive the stream, so make sure it doesn't try to access
+  // a deleted object.
   std::weak_ptr<Stream> weak_this{shared_from_this()};
+  auto credentials = std::make_shared<CallCredentials>();
   int initial_close_count = close_count_;
-  auth_credentials_provider_->GetToken(
-      [weak_this, initial_close_count](const StatusOr<AuthToken>& maybe_token) {
-        auto strong_this = weak_this.lock();
-        if (!strong_this) {
-          return;
-        }
 
-        strong_this->worker_queue_->EnqueueRelaxed(
-            [maybe_token, weak_this, initial_close_count] {
-              auto strong_this = weak_this.lock();
-              // Streams can be stopped while waiting for authorization, so need
-              // to check the close count.
-              if (!strong_this ||
-                  strong_this->close_count_ != initial_close_count) {
-                return;
-              }
-              strong_this->ResumeStartWithCredentials(maybe_token);
-            });
+  auto done = [weak_this, credentials, initial_close_count](
+                  const absl::optional<StatusOr<AuthToken>>& auth,
+                  const absl::optional<std::string>& app_check) {
+    auto strong_this = weak_this.lock();
+    if (!strong_this) {
+      return;
+    }
+
+    std::lock_guard<std::mutex> lock(credentials->mutex);
+    if (auth) {
+      credentials->auth = *auth;
+      credentials->auth_received = true;
+    }
+    if (app_check) {
+      credentials->app_check = *app_check;
+      credentials->app_check_received = true;
+    }
+
+    if (!credentials->auth_received || !credentials->app_check_received) {
+      return;
+    }
+
+    const StatusOr<AuthToken>& auth_token = credentials->auth;
+    const std::string& app_check_token = credentials->app_check;
+
+    strong_this->worker_queue_->EnqueueRelaxed(
+        [weak_this, auth_token, app_check_token, initial_close_count] {
+          auto strong_this = weak_this.lock();
+          // Streams can be stopped while waiting for authorization, so need
+          // to check the close count.
+          if (!strong_this ||
+              strong_this->close_count_ != initial_close_count) {
+            return;
+          }
+          strong_this->ResumeStartWithCredentials(auth_token, app_check_token);
+        });
+  };
+
+  auth_credentials_provider_->GetToken(
+      [done](const StatusOr<AuthToken>& auth) { done(auth, absl::nullopt); });
+
+  app_check_credentials_provider_->GetToken(
+      [done](const StatusOr<std::string>& app_check) {
+        done(absl::nullopt, app_check.ValueOrDie());  // AppCheck never fails
       });
-  // TODO(appcheck): Fetch AppCheck token
 }
 
-void Stream::ResumeStartWithCredentials(
-    const StatusOr<AuthToken>& maybe_token) {
+void Stream::ResumeStartWithCredentials(const StatusOr<AuthToken>& auth_token,
+                                        const std::string& app_check_token) {
   EnsureOnQueue();
 
   HARD_ASSERT(state_ == State::Starting,
               "State should still be 'Starting' (was %s)", state_);
 
-  if (!maybe_token.ok()) {
-    OnStreamFinish(maybe_token.status());
+  if (!auth_token.ok()) {
+    OnStreamFinish(auth_token.status());
     return;
   }
 
-  grpc_stream_ = CreateGrpcStream(grpc_connection_, maybe_token.ValueOrDie());
+  grpc_stream_ = CreateGrpcStream(grpc_connection_, auth_token.ValueOrDie(),
+                                  app_check_token);
   grpc_stream_->Start();
 }
 
