@@ -808,13 +808,15 @@ struct ZipBuilder {
     }
     var frameworks: [URL] = []
 
+    // TODO: packageAllResources is disabled for binary frameworks since it's not needed for Firebase
+    // and it does not yet support xcframeworks.
     // Package all resources into the frameworks since that's how Carthage needs it packaged.
-    do {
-      // TODO: Figure out if we need to exclude bundles here or not.
-      try ResourcesManager.packageAllResources(containedIn: podInfo.installedLocation)
-    } catch {
-      fatalError("Tried to package resources for \(podName) but it failed: \(error)")
-    }
+//    do {
+//      // TODO: Figure out if we need to exclude bundles here or not.
+//      try ResourcesManager.packageAllResources(containedIn: podInfo.installedLocation)
+//    } catch {
+//      fatalError("Tried to package resources for \(podName) but it failed: \(error)")
+//    }
 
     // Copy each of the frameworks to a known temporary directory and store the location.
     for framework in podInfo.binaryFrameworks {
