@@ -20,10 +20,15 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/// Backoff type. Indicates
+/// Backoff type. Backoff interval calculation depends on the type.
 typedef NS_ENUM(NSUInteger, FIRAppCheckBackoffType) {
+  /// No backoff. Another retry is allowed straight away.
   FIRAppCheckBackoffTypeNone,
+
+  /// Next retry will be allowed in 1 day (24 hours) after the failure.
   FIRAppCheckBackoffType1Day,
+
+  /// A small backoff interval that exponentially increases after each consequent failure.
   FIRAppCheckBackoffTypeExponential
 };
 
@@ -39,6 +44,7 @@ typedef NSDate *_Nonnull (^FIRAppCheckDateProvider)(void);
 
 @protocol FIRAppCheckBackoffWrapperProtocol <NSObject>
 
+/// Conditionally applies backoff to the given operation.
 /// @param operationProvider A block that returns a new promise. The block will be called only when
 /// the operation is allowed.
 ///        NOTE: We cannot accept just a promise because the operation will be started once the
