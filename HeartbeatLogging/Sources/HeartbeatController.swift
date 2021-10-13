@@ -24,7 +24,7 @@ public protocol Logger {
 // MARK: - HeartbeatLogger
 
 /// A  logger object that provides API to log and flush heartbeats from a synchronized storage container.
-public final class HeartbeatLogger {
+public final class HeartbeatController {
   /// The thread-safe storage object to log and flush heartbeats from.
   private let storage: HeartbeatStorage
 
@@ -45,7 +45,7 @@ public final class HeartbeatLogger {
   }
 }
 
-extension HeartbeatLogger: Logger {
+extension HeartbeatController: Logger {
   /// Asynchronously attempts to log a new heartbeat.
   ///
   /// For each heartbeat type (i.e. daily, weekly, & monthly), a new heartbeat will be logged to a queue
