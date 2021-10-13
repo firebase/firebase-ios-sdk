@@ -1375,7 +1375,15 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
                              urlScheme:kURLScheme
                           userDefaults:self.userDefaults];
 
-  NSString *urlString = @"https://some.page.link/test";
+  NSArray<NSString *> *urlStrings = @[
+    @"https://some.page.link/test",
+    @"https://some.page.link/test-test",
+    @"https://some.page.link/test_test",
+    @"https://some.page.link/test_test-test",
+    @"https://some.app.goo.gl/test_test-test"
+  ];
+
+  for (NSString *urlString in urlStrings) {
   NSURL *url = [NSURL URLWithString:urlString];
 
   void (^executeRequestBlock)(id, NSDictionary *, NSString *, FIRNetworkRequestCompletionHandler) =
@@ -1407,6 +1415,7 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
   XCTAssertTrue(handled, @"Valid DDL Universal Link was not handled");
 
   [self waitForExpectationsWithTimeout:kAsyncTestTimout handler:nil];
+  }
 }
 
 - (void)test_ensureInternalMethodsNotRenamed {
