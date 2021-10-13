@@ -20,10 +20,15 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/// Backoff type. Indicates
+/// Backoff type. Backoff interval calculation depends on the type.
 typedef NS_ENUM(NSUInteger, FIRAppCheckBackoffType) {
+  /// No backoff. Another retry is allowed straight away.
   FIRAppCheckBackoffTypeNone,
+
+  /// Next retry will be allowed in 1 day (24 hours) after the failure.
   FIRAppCheckBackoffType1Day,
+
+  /// A small backoff interval that exponentially increases after each consequent failure.
   FIRAppCheckBackoffTypeExponential
 };
 
@@ -37,8 +42,11 @@ typedef FIRAppCheckBackoffType (^FIRAppCheckBackoffErrorHandler)(NSError *error)
 /// dependent on the current time.
 typedef NSDate *_Nonnull (^FIRAppCheckDateProvider)(void);
 
+/// Defines API for an object that conditionally applies backoff to a given operation based on the
+/// history of previous operation failures.
 @protocol FIRAppCheckBackoffWrapperProtocol <NSObject>
 
+/// Conditionally applies backoff to the given operation.
 /// @param operationProvider A block that returns a new promise. The block will be called only when
 /// the operation is allowed.
 ///        NOTE: We cannot accept just a promise because the operation will be started once the
@@ -53,14 +61,10 @@ typedef NSDate *_Nonnull (^FIRAppCheckDateProvider)(void);
 - (FBLPromise *)applyBackoffToOperation:(FIRAppCheckBackoffOperationProvider)operationProvider
                            errorHandler:(FIRAppCheckBackoffErrorHandler)errorHandler;
 
-/// After calling this method the next call of `[backoff:errorHandler:]` method will always attempt
-/// an operation even if a backoff was needed.
-- (void)resetBackoff;
-
 /// The default Firebase services error handler. It keeps track of network errors and
 /// `FIRAppCheckHTTPError.HTTPResponse.statusCode.statusCode` value to return the appropriate
 /// backoff type for the standard Firebase App Check backend response codes.
-- (FIRAppCheckBackoffErrorHandler)defaultErrorHandler;
+- (FIRAppCheckBackoffErrorHandler)defaultAppCheckProviderErrorHandler;
 
 @end
 

@@ -110,7 +110,7 @@ NS_ASSUME_NONNULL_BEGIN
       applyBackoffToOperation:^FBLPromise *_Nonnull {
         return [self getTokenPromise];
       }
-                 errorHandler:[self.backoffWrapper defaultErrorHandler]]
+                 errorHandler:[self.backoffWrapper defaultAppCheckProviderErrorHandler]]
       // Call the handler with either token or error.
       .then(^id(FIRAppCheckToken *appCheckToken) {
         handler(appCheckToken, nil);

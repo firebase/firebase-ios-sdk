@@ -40,19 +40,19 @@ NS_ASSUME_NONNULL_BEGIN
         .recover(^id(NSError *error) {
           self->_operationError = error;
           self->_operationResult = nil;
+
+          errorHandler(error);
+
           return error;
         });
   } else {
     FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
-    NSError *error = [NSError errorWithDomain:@"FIRAppCheckBackoffWrapperFake.backoff"
-                                         code:-1
-                                     userInfo:nil];
-    [rejectedPromise reject:error];
+    [rejectedPromise reject:self.backoffError];
     return rejectedPromise;
   }
 }
 
-- (FIRAppCheckBackoffErrorHandler)defaultErrorHandler {
+- (FIRAppCheckBackoffErrorHandler)defaultAppCheckProviderErrorHandler {
   if (_defaultErrorHandler) {
     return _defaultErrorHandler;
   }
@@ -62,8 +62,8 @@ NS_ASSUME_NONNULL_BEGIN
   };
 }
 
-- (void)resetBackoff {
-  [self.resetBackoffExpectation fulfill];
+- (NSError *)backoffError {
+  return [NSError errorWithDomain:@"FIRAppCheckBackoffWrapperFake.backoff" code:-1 userInfo:nil];
 }
 
 @end

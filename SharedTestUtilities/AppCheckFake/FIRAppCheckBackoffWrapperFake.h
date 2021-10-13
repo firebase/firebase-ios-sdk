@@ -40,8 +40,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// Assign expectation to fulfill on  `[backoff:errorHandler:]` method call to this property.
 @property(nonatomic, nullable) XCTestExpectation *backoffExpectation;
 
-/// Assign expectation to fulfill on  `[resetBackoff]` method call to this property.
-@property(nonatomic, nullable) XCTestExpectation *resetBackoffExpectation;
+/// Error returned when retry is not allowed.
+@property(nonatomic, readonly) NSError *backoffError;
 
 @end
 

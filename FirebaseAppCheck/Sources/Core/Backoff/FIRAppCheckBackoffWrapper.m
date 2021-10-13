@@ -23,10 +23,17 @@
 #endif
 
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
+#import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckHTTPError.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 static NSTimeInterval const k24Hours = 24 * 60 * 60;
+
+/// Jitter coefficient 0.5 means that the backoff interval can be up to 50% longer.
+static double const kMaxJitterCoefficient = 0.5;
+
+/// Maximum exponential backoff interval.
+static double const kMaxExponentialBackoffInterval = 4 * 60 * 60;  // 4 hours.
 
 /// A class representing an operation result with data required for the backoff calculation.
 @interface FIRAppCheckBackoffOperationFailure : NSObject
@@ -156,18 +163,6 @@ static NSTimeInterval const k24Hours = 24 * 60 * 60;
       });
 }
 
-- (FIRAppCheckBackoffErrorHandler)defaultErrorHandler {
-  return ^FIRAppCheckBackoffType(NSError *error) {
-    return FIRAppCheckBackoffTypeNone;
-  };
-}
-
-- (void)resetBackoff {
-  @synchronized(self) {
-    self.lastFailure = nil;
-  }
-}
-
 #pragma mark - Private
 
 - (BOOL)isNextOperationAllowed {
@@ -186,9 +181,10 @@ static NSTimeInterval const k24Hours = 24 * 60 * 60;
         return [self hasTimeIntervalPassedSinceLastFailure:k24Hours];
         break;
 
-        // TODO: Implement other cases.
-      default:
-        return YES;
+      case FIRAppCheckBackoffTypeExponential:
+        return [self hasTimeIntervalPassedSinceLastFailure:
+                         [self exponentialBackoffIntervalForFailure:self.lastFailure]];
+        break;
     }
   }
 }
@@ -214,6 +210,76 @@ static NSTimeInterval const k24Hours = 24 * 60 * 60;
 
 - (dispatch_queue_t)queue {
   return dispatch_get_global_queue(QOS_CLASS_UTILITY, 0);
+}
+
+#pragma mark - Exponential backoff
+
+/// @return Exponential backoff interval with jitter. Jitter is needed to avoid all clients to retry
+/// at the same time after e.g. a backend outage.
+- (NSTimeInterval)exponentialBackoffIntervalForFailure:
+    (FIRAppCheckBackoffOperationFailure *)failure {
+  // Base exponential backoff interval.
+  NSTimeInterval baseBackoff = pow(2, failure.retryCount);
+
+  // Get a random number from 0 to 1.
+  double maxRandom = 1000;
+  double randomNumber = (double)arc4random_uniform((int32_t)maxRandom) / maxRandom;
+
+  // A number from 1 to 1 + kMaxJitterCoefficient, e.g. from 1 to 1.5. Indicates how much the
+  // backoff can be extended.
+  double jitterCoefficient = 1 + randomNumber * kMaxJitterCoefficient;
+
+  // Exponential backoff interval with jitter.
+  NSTimeInterval backoffIntervalWithJitter = baseBackoff * jitterCoefficient;
+
+  // Apply limit to the backoff interval.
+  return MIN(backoffIntervalWithJitter, kMaxExponentialBackoffInterval);
+}
+
+#pragma mark - Error handling
+
+- (FIRAppCheckBackoffErrorHandler)defaultAppCheckProviderErrorHandler {
+  return ^FIRAppCheckBackoffType(NSError *error) {
+    FIRAppCheckHTTPError *HTTPError =
+        [error isKindOfClass:[FIRAppCheckHTTPError class]] ? (FIRAppCheckHTTPError *)error : nil;
+
+    if (HTTPError == nil) {
+      // No backoff for attestation providers for non-backend (e.g. network) errors.
+      return FIRAppCheckBackoffTypeNone;
+    }
+
+    NSInteger statusCode = HTTPError.HTTPResponse.statusCode;
+
+    if (statusCode < 400) {
+      // No backoff for codes before 400.
+      return FIRAppCheckBackoffTypeNone;
+    }
+
+    if (statusCode == 400 || statusCode == 404) {
+      // Firebase project misconfiguration. It will unlikely be fixed soon and often requires
+      // another version of the app. Try again in 1 day.
+      return FIRAppCheckBackoffType1Day;
+    }
+
+    if (statusCode == 403) {
+      // Project may have been soft-deleted accidentally. There is a chance of timely recovery, so
+      // try again later.
+      return FIRAppCheckBackoffTypeExponential;
+    }
+
+    if (statusCode == 429) {
+      // Too many requests. Try again in a while.
+      return FIRAppCheckBackoffTypeExponential;
+    }
+
+    if (statusCode == 503) {
+      // Server is overloaded. Try again in a while.
+      return FIRAppCheckBackoffTypeExponential;
+    }
+
+    // For all other server error cases default to the exponential backoff.
+    return FIRAppCheckBackoffTypeExponential;
+  };
 }
 
 @end
