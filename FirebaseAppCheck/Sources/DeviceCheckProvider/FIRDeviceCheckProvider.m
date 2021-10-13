@@ -29,6 +29,7 @@
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRDeviceCheckProvider.h"
 
 #import "FirebaseAppCheck/Sources/Core/APIService/FIRAppCheckAPIService.h"
+#import "FirebaseAppCheck/Sources/Core/Backoff/FIRAppCheckBackoffWrapper.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckLogger.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckValidator.h"
 #import "FirebaseAppCheck/Sources/DeviceCheckProvider/API/FIRDeviceCheckAPIService.h"
@@ -42,9 +43,11 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRDeviceCheckProvider ()
 @property(nonatomic, readonly) id<FIRDeviceCheckAPIServiceProtocol> APIService;
 @property(nonatomic, readonly) id<FIRDeviceCheckTokenGenerator> deviceTokenGenerator;
+@property(nonatomic, readonly) id<FIRAppCheckBackoffWrapperProtocol> backoffWrapper;
 
 - (instancetype)initWithAPIService:(id<FIRDeviceCheckAPIServiceProtocol>)APIService
               deviceTokenGenerator:(id<FIRDeviceCheckTokenGenerator>)deviceTokenGenerator
+                    backoffWrapper:(id<FIRAppCheckBackoffWrapperProtocol>)backoffWrapper
     NS_DESIGNATED_INITIALIZER;
 
 @end
@@ -52,17 +55,22 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRDeviceCheckProvider
 
 - (instancetype)initWithAPIService:(id<FIRDeviceCheckAPIServiceProtocol>)APIService
-              deviceTokenGenerator:(id<FIRDeviceCheckTokenGenerator>)deviceTokenGenerator {
+              deviceTokenGenerator:(id<FIRDeviceCheckTokenGenerator>)deviceTokenGenerator
+                    backoffWrapper:(id<FIRAppCheckBackoffWrapperProtocol>)backoffWrapper {
   self = [super init];
   if (self) {
     _APIService = APIService;
     _deviceTokenGenerator = deviceTokenGenerator;
+    _backoffWrapper = backoffWrapper;
   }
   return self;
 }
 
 - (instancetype)initWithAPIService:(id<FIRDeviceCheckAPIServiceProtocol>)APIService {
-  return [self initWithAPIService:APIService deviceTokenGenerator:[DCDevice currentDevice]];
+  FIRAppCheckBackoffWrapper *backoffWrapper = [[FIRAppCheckBackoffWrapper alloc] init];
+  return [self initWithAPIService:APIService
+             deviceTokenGenerator:[DCDevice currentDevice]
+                   backoffWrapper:backoffWrapper];
 }
 
 - (nullable instancetype)initWithApp:(FIRApp *)app {
@@ -98,16 +106,27 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)getTokenWithCompletion:(void (^)(FIRAppCheckToken *_Nullable token,
                                          NSError *_Nullable error))handler {
-  [self deviceToken]
-      .then(^FBLPromise<FIRAppCheckToken *> *(NSData *deviceToken) {
-        return [self.APIService appCheckTokenWithDeviceToken:deviceToken];
-      })
+  [self.backoffWrapper
+      applyBackoffToOperation:^FBLPromise *_Nonnull {
+        return [self getTokenPromise];
+      }
+                 errorHandler:[self.backoffWrapper defaultAppCheckProviderErrorHandler]]
+      // Call the handler with either token or error.
       .then(^id(FIRAppCheckToken *appCheckToken) {
         handler(appCheckToken, nil);
         return nil;
       })
       .catch(^void(NSError *error) {
         handler(nil, error);
+      });
+}
+
+- (FBLPromise<FIRAppCheckToken *> *)getTokenPromise {
+  // Get DeviceCheck token
+  return [self deviceToken]
+      // Exchange DeviceCheck token for FAC token.
+      .then(^FBLPromise<FIRAppCheckToken *> *(NSData *deviceToken) {
+        return [self.APIService appCheckTokenWithDeviceToken:deviceToken];
       });
 }
 
