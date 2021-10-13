@@ -19,6 +19,8 @@ protocol PersistentStorageFactory {
   static func makeStorage(id: String) -> PersistentStorage
 }
 
+// TODO: - Implement synchronization strategy for storage with same ID.
+
 /// A `PersistentStorage` factory.
 enum StorageFactory: PersistentStorageFactory {
   /// Makes a `PersistentStorage` instance using a given `String` identifier.
