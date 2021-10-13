@@ -179,7 +179,7 @@ let package = Package(
     .package(
       name: "OCMock",
       url: "https://github.com/erikdoe/ocmock.git",
-      .revision("21cce26d223d49a9ab5ae47f28864f422bfe3951")
+      .revision("c5eeaa6dde7c308a5ce48ae4d4530462dd3a1110")
     ),
     .package(
       name: "leveldb",
