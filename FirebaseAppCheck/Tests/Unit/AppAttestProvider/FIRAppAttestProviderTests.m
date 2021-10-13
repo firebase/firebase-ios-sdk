@@ -237,6 +237,10 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
 
   // 10. Verify mocks.
   [self verifyAllMocks];
+
+  // 11. Verify backoff result.
+  XCTAssertEqualObjects(((FIRAppCheckToken *)self.fakeBackoffWrapper.operationResult).token,
+                        FACToken.token);
 }
 
 - (void)testGetToken_WhenExistingUnregisteredKey_Success {
@@ -258,11 +262,9 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
   OCMReject([self.mockStorage setAppAttestKeyID:OCMOCK_ANY]);
 
   // 5. Expect a stored artifact to be requested.
-  __auto_type rejectedPromise =
-      [self rejectedPromiseWithError:
-                [NSError errorWithDomain:@"testGetToken_WhenExistingUnregisteredKey_Success"
-                                    code:NSNotFound
-                                userInfo:nil]];
+  __auto_type rejectedPromise = [self rejectedPromiseWithError:[NSError errorWithDomain:self.name
+                                                                                   code:NSNotFound
+                                                                               userInfo:nil]];
   OCMExpect([self.mockArtifactStorage getArtifactForKey:existingKeyID]).andReturn(rejectedPromise);
 
   // 6. Expect random challenge to be requested.
@@ -309,6 +311,10 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
 
   // 11. Verify mocks.
   [self verifyAllMocks];
+
+  // 12. Verify backoff result.
+  XCTAssertEqualObjects(((FIRAppCheckToken *)self.fakeBackoffWrapper.operationResult).token,
+                        FACToken.token);
 }
 
 - (void)testGetToken_WhenUnregisteredKeyAndRandomChallengeError {
@@ -324,11 +330,9 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
       .andReturn([FBLPromise resolvedWith:existingKeyID]);
 
   // 3. Expect a stored artifact to be requested.
-  __auto_type rejectedPromise =
-      [self rejectedPromiseWithError:
-                [NSError errorWithDomain:@"testGetToken_WhenExistingUnregisteredKey_Success"
-                                    code:NSNotFound
-                                userInfo:nil]];
+  __auto_type rejectedPromise = [self rejectedPromiseWithError:[NSError errorWithDomain:self.name
+                                                                                   code:NSNotFound
+                                                                               userInfo:nil]];
   OCMExpect([self.mockArtifactStorage getArtifactForKey:existingKeyID]).andReturn(rejectedPromise);
 
   // 4. Expect random challenge to be requested.
@@ -360,6 +364,9 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
 
   // 7. Verify mocks.
   [self verifyAllMocks];
+
+  // 8. Verify backoff error.
+  XCTAssertEqualObjects(self.fakeBackoffWrapper.operationError, challengeError);
 }
 
 - (void)testGetToken_WhenUnregisteredKeyAndKeyAttestationError {
@@ -375,11 +382,9 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
       .andReturn([FBLPromise resolvedWith:existingKeyID]);
 
   // 3. Expect a stored artifact to be requested.
-  __auto_type rejectedPromise =
-      [self rejectedPromiseWithError:
-                [NSError errorWithDomain:@"testGetToken_WhenExistingUnregisteredKey_Success"
-                                    code:NSNotFound
-                                userInfo:nil]];
+  __auto_type rejectedPromise = [self rejectedPromiseWithError:[NSError errorWithDomain:self.name
+                                                                                   code:NSNotFound
+                                                                               userInfo:nil]];
   OCMExpect([self.mockArtifactStorage getArtifactForKey:existingKeyID]).andReturn(rejectedPromise);
 
   // 4. Expect random challenge to be requested.
@@ -417,6 +422,9 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
 
   // 8. Verify mocks.
   [self verifyAllMocks];
+
+  // 9. Verify backoff error.
+  XCTAssertEqualObjects(self.fakeBackoffWrapper.operationError, attestationError);
 }
 
 - (void)testGetToken_WhenUnregisteredKeyAndKeyAttestationExchangeError {
@@ -432,11 +440,9 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
       .andReturn([FBLPromise resolvedWith:existingKeyID]);
 
   // 3. Expect a stored artifact to be requested.
-  __auto_type rejectedPromise =
-      [self rejectedPromiseWithError:
-                [NSError errorWithDomain:@"testGetToken_WhenExistingUnregisteredKey_Success"
-                                    code:NSNotFound
-                                userInfo:nil]];
+  __auto_type rejectedPromise = [self rejectedPromiseWithError:[NSError errorWithDomain:self.name
+                                                                                   code:NSNotFound
+                                                                               userInfo:nil]];
   OCMExpect([self.mockArtifactStorage getArtifactForKey:existingKeyID]).andReturn(rejectedPromise);
 
   // 4. Expect random challenge to be requested.
@@ -476,14 +482,14 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
 
   // 8. Verify mocks.
   [self verifyAllMocks];
+
+  // 9. Verify backoff error.
+  XCTAssertEqualObjects(self.fakeBackoffWrapper.operationError, exchangeError);
 }
 
 #pragma mark Rejected Attestation
 
 - (void)testGetToken_WhenAttestationIsRejected_ThenAttestationIsResetAndRetriedOnceSuccess {
-  // 0. Expect backoff wrapper to be used.
-  self.fakeBackoffWrapper.backoffExpectation = [self expectationWithDescription:@"Backoff"];
-
   // 1. Expect App Attest availability to be requested and stored key ID request to fail.
   [self expectAppAttestAvailabilityToBeCheckedAndNotExistingStoredKeyRequested];
 
@@ -534,18 +540,13 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
         XCTAssertNil(error);
       }];
 
-  [self waitForExpectations:@[ self.fakeBackoffWrapper.backoffExpectation, completionExpectation ]
-                    timeout:0.5
-               enforceOrder:YES];
+  [self waitForExpectations:@[ completionExpectation ] timeout:0.5 enforceOrder:YES];
 
   // 8. Verify mocks.
   [self verifyAllMocks];
 }
 
 - (void)testGetToken_WhenAttestationIsRejected_ThenAttestationIsResetAndRetriedOnceError {
-  // 0. Expect backoff wrapper to be used.
-  self.fakeBackoffWrapper.backoffExpectation = [self expectationWithDescription:@"Backoff"];
-
   // 1. Expect App Attest availability to be requested and stored key ID request to fail.
   [self expectAppAttestAvailabilityToBeCheckedAndNotExistingStoredKeyRequested];
 
@@ -593,9 +594,7 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
         XCTAssertEqualObjects(error, expectedError);
       }];
 
-  [self waitForExpectations:@[ self.fakeBackoffWrapper.backoffExpectation, completionExpectation ]
-                    timeout:0.5
-               enforceOrder:YES];
+  [self waitForExpectations:@[ completionExpectation ] timeout:0.5 enforceOrder:YES];
 
   // 9. Verify mocks.
   [self verifyAllMocks];
@@ -1041,6 +1040,10 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
 
   // 8. Verify mocks.
   [self verifyAllMocks];
+
+  // 9. Verify backoff result.
+  XCTAssertEqualObjects(((FIRAppCheckToken *)self.fakeBackoffWrapper.operationResult).token,
+                        FACToken.token);
 }
 
 - (void)expectAppAttestAvailabilityToBeCheckedAndNotExistingStoredKeyRequested {
