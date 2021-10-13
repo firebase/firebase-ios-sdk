@@ -46,6 +46,7 @@ public final class HeartbeatController {
 }
 
 extension HeartbeatController: Logger {
+  // TODO: - Re-evaluate below doc comment (move implementation explanation).
   /// Asynchronously attempts to log a new heartbeat.
   ///
   /// For each heartbeat type (i.e. daily, weekly, & monthly), a new heartbeat will be logged to a queue
@@ -62,6 +63,7 @@ extension HeartbeatController: Logger {
     }
   }
 
+  // TODO: - Re-evaluate below doc comment (move implementation explanation).
   /// Synchronously flushes heartbeats from storage.
   ///
   /// A round robin approach is used to fairly flush heartbeats of different types (daily, weekly, and monthly).
