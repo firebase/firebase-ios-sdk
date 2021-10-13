@@ -1050,7 +1050,7 @@ let package = Package(
             ],
             path: "FirebaseAppCheck/Sources",
             exclude: [
-              "Interop/CMakeLists.txt"
+              "Interop/CMakeLists.txt",
             ],
             publicHeadersPath: "Public",
             cSettings: [
