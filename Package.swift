@@ -234,6 +234,15 @@ let package = Package(
       ]
     ),
     .target(
+      name: "HeartbeatLogging",
+      path: "HeartbeatLogging/Sources/"
+    ),
+    .testTarget(
+      name: "HeartbeatLoggingTests",
+      dependencies: ["HeartbeatLogging"],
+      path: "HeartbeatLogging/Tests/"
+    ),
+    .target(
       name: "FirebaseCoreDiagnostics",
       dependencies: [
         .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
