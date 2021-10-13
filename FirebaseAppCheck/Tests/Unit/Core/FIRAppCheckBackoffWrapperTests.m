@@ -74,12 +74,12 @@
   [self setUpErrorHandlerWithBackoffType:FIRAppCheckBackoffTypeNone];
   self.errorHandlerExpectation.inverted = YES;
 
-  // 3. Compose operation with backoff.
+  // 2. Compose operation with backoff.
   __auto_type operationWithBackoff =
       [self.backoffWrapper applyBackoffToOperation:self.operationProvider
                                       errorHandler:self.errorHandler];
 
-  // 4. Wait for operation to complete and check.
+  // 3. Wait for operation to complete and check.
   [self waitForExpectationsWithTimeout:0.5 handler:NULL];
   XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
@@ -95,16 +95,16 @@
   [self setUpOperationError];
   [self setUpErrorHandlerWithBackoffType:FIRAppCheckBackoffType1Day];
 
-  // 1.3. Compose operation with backoff.
+  // 1.2. Compose operation with backoff.
   __auto_type operationWithBackoff =
       [self.backoffWrapper applyBackoffToOperation:self.operationProvider
                                       errorHandler:self.errorHandler];
 
-  // 1.4. Wait for operation to complete.
+  // 1.3. Wait for operation to complete.
   [self waitForExpectationsWithTimeout:0.5 handler:NULL];
   XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 
-  // 1.5. Expect the promise to be rejected with the operation error.
+  // 1.4. Expect the promise to be rejected with the operation error.
   XCTAssertEqualObjects(operationWithBackoff.error, self.operationResult);
 
   // 2. Check backoff in 12 hours.

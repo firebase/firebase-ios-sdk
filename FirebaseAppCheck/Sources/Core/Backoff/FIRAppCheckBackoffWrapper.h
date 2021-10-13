@@ -42,6 +42,8 @@ typedef FIRAppCheckBackoffType (^FIRAppCheckBackoffErrorHandler)(NSError *error)
 /// dependent on the current time.
 typedef NSDate *_Nonnull (^FIRAppCheckDateProvider)(void);
 
+/// Defines API for an object that conditionally applies backoff to a given operation based on the
+/// history of previous operation failures.
 @protocol FIRAppCheckBackoffWrapperProtocol <NSObject>
 
 /// Conditionally applies backoff to the given operation.
