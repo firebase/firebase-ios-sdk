@@ -272,6 +272,11 @@ static double const kMaxExponentialBackoffInterval = 4 * 60 * 60;  // 4 hours.
       return FIRAppCheckBackoffTypeExponential;
     }
 
+    if (statusCode == 503) {
+      // Server is overloaded. Try again in a while.
+      return FIRAppCheckBackoffTypeExponential;
+    }
+
     // For all other server error cases default to the exponential backoff.
     return FIRAppCheckBackoffTypeExponential;
   };
