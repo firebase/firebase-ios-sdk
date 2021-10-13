@@ -248,7 +248,7 @@ BOOL FIRDLIsAValidDLWithFDLDomain(NSURL *_Nullable URL) {
     // Matches the *.page.link and *.app.goo.gl domains.
     matchesRegularExpression =
         ([urlStr rangeOfString:@"^https?://[a-zA-Z0-9]+((\\.app\\.goo\\.gl)|(\\.page\\.link))((\\/"
-                               @"?\\?link=https?.*)|(\\/[a-zA-Z0-9]+)((\\/?\\?.*=.*)?$|$))"
+                               @"?\\?link=https?.*)|(\\/[a-zA-Z0-9-_]+)((\\/?\\?.*=.*)?$|$))"
                        options:NSRegularExpressionSearch]
              .location != NSNotFound);
 
