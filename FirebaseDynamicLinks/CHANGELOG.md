@@ -1,4 +1,4 @@
-# v8.8.1
+# v8.9.0
 - [fixed] [Dynamic links] Shortlink is not handled in 8.8.0. (#8786)
 
 # v8.8.0
