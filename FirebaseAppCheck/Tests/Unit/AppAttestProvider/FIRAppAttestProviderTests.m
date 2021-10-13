@@ -118,7 +118,8 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
 #pragma mark - Initial handshake (attestation)
 
 - (void)testGetTokenWhenAppAttestIsNotSupported {
-  NSError *expectedError = [FIRAppCheckErrorUtil unsupportedAttestationProvider:@"AppAttestProvider"];
+  NSError *expectedError =
+      [FIRAppCheckErrorUtil unsupportedAttestationProvider:@"AppAttestProvider"];
 
   // 0.1. Expect backoff wrapper to be used.
   self.fakeBackoffWrapper.backoffExpectation = [self expectationWithDescription:@"Backoff"];
@@ -158,7 +159,11 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
         XCTAssertEqualObjects(error, expectedError);
       }];
 
-  [self waitForExpectations:@[ self.fakeBackoffWrapper.backoffExpectation, errorHandlerExpectation, completionExpectation ] timeout:0.5 enforceOrder:YES];
+  [self waitForExpectations:@[
+    self.fakeBackoffWrapper.backoffExpectation, errorHandlerExpectation, completionExpectation
+  ]
+                    timeout:0.5
+               enforceOrder:YES];
 
   // 4. Verify mocks.
   [self verifyAllMocks];
@@ -904,11 +909,42 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
 
 #pragma mark - Backoff tests
 
-// TODO: Implement.
 - (void)testGetTokenBackoff {
   // 1. Configure backoff.
   self.fakeBackoffWrapper.isNextOperationAllowed = NO;
-  //  self.fakeBackoffWrapper.
+  self.fakeBackoffWrapper.backoffExpectation = [self expectationWithDescription:@"Backoff"];
+
+  // 2. Don't expect any operations.
+  OCMReject([self.mockAppAttestService isSupported]);
+  OCMReject([self.mockStorage getAppAttestKeyID]);
+  OCMReject([self.mockAppAttestService generateKeyWithCompletionHandler:OCMOCK_ANY]);
+  OCMReject([self.mockArtifactStorage getArtifactForKey:OCMOCK_ANY]);
+  OCMReject([self.mockAPIService getRandomChallenge]);
+  OCMReject([self.mockStorage setAppAttestKeyID:OCMOCK_ANY]);
+  OCMReject([self.mockAppAttestService attestKey:OCMOCK_ANY
+                                  clientDataHash:OCMOCK_ANY
+                               completionHandler:OCMOCK_ANY]);
+  OCMReject([self.mockAPIService attestKeyWithAttestation:OCMOCK_ANY
+                                                    keyID:OCMOCK_ANY
+                                                challenge:OCMOCK_ANY]);
+
+  // 3. Call get token.
+  XCTestExpectation *completionExpectation =
+      [self expectationWithDescription:@"completionExpectation"];
+  [self.provider
+      getTokenWithCompletion:^(FIRAppCheckToken *_Nullable token, NSError *_Nullable error) {
+        [completionExpectation fulfill];
+
+        XCTAssertNil(token);
+        XCTAssertEqualObjects(error, self.fakeBackoffWrapper.backoffError);
+      }];
+
+  [self waitForExpectations:@[ self.fakeBackoffWrapper.backoffExpectation, completionExpectation ]
+                    timeout:0.5
+               enforceOrder:YES];
+
+  // 4. Verify mocks.
+  [self verifyAllMocks];
 }
 
 #pragma mark - Helpers

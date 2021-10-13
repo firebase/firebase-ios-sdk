@@ -239,11 +239,32 @@ API_UNAVAILABLE(watchos)
 
 #pragma mark - Backoff tests
 
-// TODO: Implement.
 - (void)testGetTokenBackoff {
   // 1. Configure backoff.
   self.fakeBackoffWrapper.isNextOperationAllowed = NO;
-  //  self.fakeBackoffWrapper.
+  self.fakeBackoffWrapper.backoffExpectation = [self expectationWithDescription:@"Backoff"];
+
+  // 2. Don't expect any operations.
+  OCMReject([self.fakeAPIService appCheckTokenWithDeviceToken:[OCMArg any]]);
+  OCMReject([self.fakeTokenGenerator generateTokenWithCompletionHandler:OCMOCK_ANY]);
+
+  // 3. Call getToken and validate the result.
+  XCTestExpectation *completionExpectation =
+      [self expectationWithDescription:@"completionExpectation"];
+  [self.provider
+      getTokenWithCompletion:^(FIRAppCheckToken *_Nullable token, NSError *_Nullable error) {
+        [completionExpectation fulfill];
+        XCTAssertNil(token);
+        XCTAssertEqualObjects(error, self.fakeBackoffWrapper.backoffError);
+      }];
+
+  [self waitForExpectations:@[ self.fakeBackoffWrapper.backoffExpectation, completionExpectation ]
+                    timeout:0.5
+               enforceOrder:YES];
+
+  // 4. Verify.
+  OCMVerifyAll(self.fakeAPIService);
+  OCMVerifyAll(self.fakeTokenGenerator);
 }
 
 @end
