@@ -188,7 +188,7 @@
   [self setUpOperationError];
   [self setUpErrorHandlerWithBackoffType:FIRAppCheckBackoffTypeExponential];
 
-  // 1.3. Compose operation with backoff.
+  // 1.2. Compose operation with backoff.
   __auto_type operationWithBackoff =
       [self.backoffWrapper applyBackoffToOperation:self.operationProvider
                                       errorHandler:self.errorHandler];
