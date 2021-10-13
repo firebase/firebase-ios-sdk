@@ -57,7 +57,8 @@ namespace util = firebase::firestore::util;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::credentials::AuthToken;
 using firebase::firestore::credentials::CredentialChangeListener;
-using firebase::firestore::credentials::EmptyCredentialsProvider;
+using firebase::firestore::credentials::EmptyAuthCredentialsProvider;
+using firebase::firestore::credentials::EmptyAppCheckCredentialsProvider;
 using firebase::firestore::credentials::User;
 using firebase::firestore::local::LevelDbOpener;
 using firebase::firestore::model::DatabaseId;
@@ -86,7 +87,7 @@ static bool runningAgainstEmulator = false;
 
 // Behaves the same as `EmptyCredentialsProvider` except it can also trigger a user
 // change.
-class FakeCredentialsProvider : public EmptyCredentialsProvider<AuthToken, User> {
+class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
  public:
   void SetCredentialChangeListener(CredentialChangeListener<User> changeListener) override {
     if (changeListener) {
@@ -107,7 +108,8 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider<AuthToken, User>
 
 @implementation FSTIntegrationTestCase {
   NSMutableArray<FIRFirestore *> *_firestores;
-  std::shared_ptr<FakeCredentialsProvider> _fakeCredentialsProvider;
+  std::shared_ptr<EmptyAppCheckCredentialsProvider> _fakeAppCheckCredentialsProvider;
+  std::shared_ptr<FakeAuthCredentialsProvider> _fakeAuthCredentialsProvider;
 }
 
 - (void)setUp {
@@ -115,7 +117,8 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider<AuthToken, User>
 
   LoadXCTestCaseAwait();
 
-  _fakeCredentialsProvider = std::make_shared<FakeCredentialsProvider>();
+  _fakeAppCheckCredentialsProvider = std::make_shared<EmptyAppCheckCredentialsProvider>();
+  _fakeAuthCredentialsProvider = std::make_shared<FakeAuthCredentialsProvider>();
 
   [self clearPersistenceOnce];
   [self primeBackend];
@@ -253,7 +256,8 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider<AuthToken, User>
   FIRFirestore *firestore =
       [[FIRFirestore alloc] initWithDatabaseID:DatabaseId(projectID)
                                 persistenceKey:util::MakeString(persistenceKey)
-                           credentialsProvider:_fakeCredentialsProvider
+                       authCredentialsProvider:_fakeAuthCredentialsProvider
+                   appCheckCredentialsProvider:_fakeAppCheckCredentialsProvider
                                    workerQueue:AsyncQueueForTesting()
                       firebaseMetadataProvider:absl::make_unique<FirebaseMetadataProviderApple>(app)
                                    firebaseApp:app
@@ -265,7 +269,7 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider<AuthToken, User>
 }
 
 - (void)triggerUserChangeWithUid:(NSString *)uid {
-  _fakeCredentialsProvider->ChangeUser(uid);
+  _fakeAuthCredentialsProvider->ChangeUser(uid);
 }
 
 - (void)primeBackend {

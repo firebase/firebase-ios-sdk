@@ -25,7 +25,6 @@
 		02EB33CC2590E1484D462912 /* annotations.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 618BBE9520B89AAC00B5BCE7 /* annotations.pb.cc */; };
 		041CF73F67F6A22BF317625A /* FIRTimestampTest.m in Sources */ = {isa = PBXBuildFile; fileRef = B65D34A7203C99090076A5E1 /* FIRTimestampTest.m */; };
 		0455FC6E2A281BD755FD933A /* precondition_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 549CCA5520A36E1F00BCEB75 /* precondition_test.cc */; };
-		0466093697EBFF5F71E9342C /* firebase_credentials_provider_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 39A44C2A20D781322D286408 /* firebase_credentials_provider_test.mm */; };
 		047F5209AB055A884D795B8A /* field_filter_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = E8551D6C6FB0B1BACE9E5BAD /* field_filter_test.cc */; };
 		04887E378B39FB86A8A5B52B /* leveldb_local_store_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5FF903AEFA7A3284660FA4C5 /* leveldb_local_store_test.cc */; };
 		048A55EED3241ABC28752F86 /* memory_mutation_queue_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 74FBEFA4FE4B12C435011763 /* memory_mutation_queue_test.cc */; };
@@ -74,6 +73,7 @@
 		0DAA255C2FEB387895ADEE12 /* bits_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB380D01201BC69F00D97691 /* bits_test.cc */; };
 		0DBD29A16030CDCD55E38CAB /* mutation_queue_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 3068AA9DFBBA86C1FE2A946E /* mutation_queue_test.cc */; };
 		0DDEE9FE08845BB7CA4607DE /* grpc_connection_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6D9649021544D4F00EB9CFB /* grpc_connection_test.cc */; };
+		0E17927CE45F5E3FC6691E24 /* firebase_auth_credentials_provider_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = F869D85E900E5AF6CD02E2FC /* firebase_auth_credentials_provider_test.mm */; };
 		0E4C94369FFF7EC0C9229752 /* iterator_adaptors_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54A0353420A3D8CB003E0143 /* iterator_adaptors_test.cc */; };
 		0EA40EDACC28F445F9A3F32F /* pretty_printing_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB323F9553050F4F6490F9FF /* pretty_printing_test.cc */; };
 		0EDFC8A6593477E1D17CDD8F /* leveldb_bundle_cache_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8E9CD82E60893DDD7757B798 /* leveldb_bundle_cache_test.cc */; };
@@ -96,6 +96,7 @@
 		125B1048ECB755C2106802EB /* executor_std_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6FB4687208F9B9100554BA2 /* executor_std_test.cc */; };
 		1290FA77A922B76503AE407C /* lru_garbage_collector_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 277EAACC4DD7C21332E8496A /* lru_garbage_collector_test.cc */; };
 		1291D9F5300AFACD1FBD262D /* array_sorted_map_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54EB764C202277B30088B8F3 /* array_sorted_map_test.cc */; };
+		12A3FB93C06C8EEB3971289A /* firebase_app_check_credentials_provider_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = F119BDDF2F06B3C0883B8297 /* firebase_app_check_credentials_provider_test.mm */; };
 		12BB9ED1CA98AA52B92F497B /* log_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54C2294E1FECABAE007D065B /* log_test.cc */; };
 		12DB753599571E24DCED0C2C /* FIRValidationTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E06D202154D600B64F25 /* FIRValidationTests.mm */; };
 		12E04A12ABD5533B616D552A /* maybe_document.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 618BBE7E20B89AAC00B5BCE7 /* maybe_document.pb.cc */; };
@@ -167,7 +168,6 @@
 		227CFA0B2A01884C277E4F1D /* hashing_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54511E8D209805F8005BD28F /* hashing_test.cc */; };
 		229D1A9381F698D71F229471 /* string_win_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 79507DF8378D3C42F5B36268 /* string_win_test.cc */; };
 		22A00AC39CAB3426A943E037 /* query.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 544129D621C2DDC800EFB9CC /* query.pb.cc */; };
-		22C0AD64F510FE696633B53A /* fake_auth_credentials_provider.cc in Sources */ = {isa = PBXBuildFile; fileRef = 156FFE30DBD1152C5CECE166 /* fake_auth_credentials_provider.cc */; };
 		23C04A637090E438461E4E70 /* latlng.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 618BBE9220B89AAC00B5BCE7 /* latlng.pb.cc */; };
 		23EFC681986488B033C2B318 /* leveldb_opener_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 75860CD13AF47EB1EA39EC2F /* leveldb_opener_test.cc */; };
 		248DE4F56DD938F4DBCCF39B /* bundle_reader_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 6ECAF7DE28A19C69DF386D88 /* bundle_reader_test.cc */; };
@@ -180,6 +180,7 @@
 		2620644052E960310DADB298 /* FIRFieldValueTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E04A202154AA00B64F25 /* FIRFieldValueTests.mm */; };
 		2634E1C1971C05790B505824 /* resource_path_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B686F2B02024FFD70028D6BE /* resource_path_test.cc */; };
 		2639ABDA17EECEB7F62D1D83 /* pretty_printing_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB323F9553050F4F6490F9FF /* pretty_printing_test.cc */; };
+		263BD3B99AC4965540235BA4 /* firebase_app_check_credentials_provider_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = F119BDDF2F06B3C0883B8297 /* firebase_app_check_credentials_provider_test.mm */; };
 		264AAB492E24318C5EEB0649 /* memory_lru_garbage_collector_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9765D47FA12FA283F4EFAD02 /* memory_lru_garbage_collector_test.cc */; };
 		26777815544F549DD18D87AF /* message_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = CE37875365497FFA8687B745 /* message_test.cc */; };
 		268FC3360157A2DCAF89F92D /* snapshot_version_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = ABA495B9202B7E79008A7851 /* snapshot_version_test.cc */; };
@@ -234,7 +235,6 @@
 		31A396C81A107D1DEFDF4A34 /* serializer_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 61F72C5520BC48FD001A68CB /* serializer_test.cc */; };
 		31BDB4CB0E7458C650A77ED0 /* FIRFirestoreTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5467FAFF203E56F8009C9584 /* FIRFirestoreTests.mm */; };
 		31D8E3D925FA3F70AA20ACCE /* FSTMockDatastore.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E02D20213FFC00B64F25 /* FSTMockDatastore.mm */; };
-		31DD9D84A942297E5FDD9222 /* fake_auth_credentials_provider.cc in Sources */ = {isa = PBXBuildFile; fileRef = 156FFE30DBD1152C5CECE166 /* fake_auth_credentials_provider.cc */; };
 		32030FA5B4BE6ABDFF2F974E /* bundle_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 79EAA9F7B1B9592B5F053923 /* bundle_spec_test.json */; };
 		32A95242C56A1A230231DB6A /* testutil.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54A0352820A3B3BD003E0143 /* testutil.cc */; };
 		32B0739404FA588608E1F41A /* CodableTimestampTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B65C996438B84DBC7616640 /* CodableTimestampTests.swift */; };
@@ -508,10 +508,9 @@
 		55E84644D385A70E607A0F91 /* leveldb_local_store_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5FF903AEFA7A3284660FA4C5 /* leveldb_local_store_test.cc */; };
 		568EC1C0F68A7B95E57C8C6C /* leveldb_key_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54995F6E205B6E12004EFFA0 /* leveldb_key_test.cc */; };
 		56D85436D3C864B804851B15 /* string_format_apple_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9CFD366B783AE27B9E79EE7A /* string_format_apple_test.mm */; };
-		573EC25F9957A7C0F5416D06 /* firebase_credentials_provider_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 39A44C2A20D781322D286408 /* firebase_credentials_provider_test.mm */; };
-		5775357B8B13DC4D30D2F349 /* firebase_credentials_provider_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 39A44C2A20D781322D286408 /* firebase_credentials_provider_test.mm */; };
 		57BDB8DBEDEC4C61DB497CB4 /* append_only_list_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5477CDE922EE71C8000FCC1E /* append_only_list_test.cc */; };
 		583DF65751B7BBD0A222CAB4 /* byte_stream_cpp_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 01D10113ECC5B446DB35E96D /* byte_stream_cpp_test.cc */; };
+		58693C153EC597BC25EE9648 /* firebase_auth_credentials_provider_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = F869D85E900E5AF6CD02E2FC /* firebase_auth_credentials_provider_test.mm */; };
 		58E377DCCC64FE7D2C6B59A1 /* database_id_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB71064B201FA60300344F18 /* database_id_test.cc */; };
 		5958E3E3A0446A88B815CB70 /* grpc_connection_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6D9649021544D4F00EB9CFB /* grpc_connection_test.cc */; };
 		59880AE766F7FBFF0C41A94E /* remote_event_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 584AE2C37A55B408541A6FF3 /* remote_event_test.cc */; };
@@ -717,6 +716,7 @@
 		804B0C6CCE3933CF3948F249 /* grpc_streaming_reader_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6D964922154AB8F00EB9CFB /* grpc_streaming_reader_test.cc */; };
 		8077722A6BB175D3108CDC55 /* leveldb_remote_document_cache_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 0840319686A223CC4AD3FAB1 /* leveldb_remote_document_cache_test.cc */; };
 		80AB93C807F35539EEC510B2 /* leveldb_lru_garbage_collector_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B629525F7A1AAC1AB765C74F /* leveldb_lru_garbage_collector_test.cc */; };
+		80D7FEBB1056E489F24C6C8F /* firebase_app_check_credentials_provider_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = F119BDDF2F06B3C0883B8297 /* firebase_app_check_credentials_provider_test.mm */; };
 		814724DE70EFC3DDF439CD78 /* executor_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6FB4688208F9B9100554BA2 /* executor_test.cc */; };
 		816E8E62DC163649BA96951C /* EncodableFieldValueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1235769122B7E915007DDFA9 /* EncodableFieldValueTests.swift */; };
 		81A6B241E63540900F205817 /* view_snapshot_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = CC572A9168BBEF7B83E4BBC5 /* view_snapshot_test.cc */; };
@@ -795,7 +795,6 @@
 		93E5620E3884A431A14500B0 /* document_key_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6152AD5202A5385000E5744 /* document_key_test.cc */; };
 		94854FAEAEA75A1AC77A0515 /* memory_bundle_cache_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB4AB1388538CD3CB19EB028 /* memory_bundle_cache_test.cc */; };
 		94BBB23B93E449D03FA34F87 /* mutation_queue_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 3068AA9DFBBA86C1FE2A946E /* mutation_queue_test.cc */; };
-		959A4C4475CBC6E57833748D /* fake_auth_credentials_provider.cc in Sources */ = {isa = PBXBuildFile; fileRef = 156FFE30DBD1152C5CECE166 /* fake_auth_credentials_provider.cc */; };
 		95C0F55813DA51E6B8C439E1 /* status_apple_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5493A423225F9990006DE7BA /* status_apple_test.mm */; };
 		95CE3F5265B9BB7297EE5A6B /* lru_garbage_collector_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 277EAACC4DD7C21332E8496A /* lru_garbage_collector_test.cc */; };
 		95DCD082374F871A86EF905F /* to_string_apple_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = B68B1E002213A764008977EF /* to_string_apple_test.mm */; };
@@ -814,12 +813,14 @@
 		98708140787A9465D883EEC9 /* leveldb_mutation_queue_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5C7942B6244F4C416B11B86C /* leveldb_mutation_queue_test.cc */; };
 		98FE82875A899A40A98AAC22 /* leveldb_opener_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 75860CD13AF47EB1EA39EC2F /* leveldb_opener_test.cc */; };
 		990EC10E92DADB7D86A4BEE3 /* string_format_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54131E9620ADE678001DF3FF /* string_format_test.cc */; };
+		992DD6779C7A166D3A22E749 /* firebase_app_check_credentials_provider_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = F119BDDF2F06B3C0883B8297 /* firebase_app_check_credentials_provider_test.mm */; };
 		9A29D572C64CA1FA62F591D4 /* FIRQueryTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E069202154D500B64F25 /* FIRQueryTests.mm */; };
 		9A7CF567C6FF0623EB4CFF64 /* datastore_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 3167BD972EFF8EC636530E59 /* datastore_test.cc */; };
 		9A8B01AF6F19D248202FBC0A /* FIRQueryUnitTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = FF73B39D04D1760190E6B84A /* FIRQueryUnitTests.mm */; };
 		9AC28D928902C6767A11F5FC /* objc_type_traits_apple_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2A0CF41BA5AED6049B0BEB2C /* objc_type_traits_apple_test.mm */; };
 		9AC604BF7A76CABDF26F8C8E /* cc_compilation_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1B342370EAE3AA02393E33EB /* cc_compilation_test.cc */; };
 		9B2CD4CBB1DFE8BC3C81A335 /* async_queue_libdispatch_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = B6FB4680208EA0BE00554BA2 /* async_queue_libdispatch_test.mm */; };
+		9B9BFC16E26BDE4AE0CDFF4B /* firebase_auth_credentials_provider_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = F869D85E900E5AF6CD02E2FC /* firebase_auth_credentials_provider_test.mm */; };
 		9BEC62D59EB2C68342F493CD /* credentials_provider_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2F4FA4576525144C5069A7A5 /* credentials_provider_test.cc */; };
 		9C1F25177DC5753B075DCF65 /* existence_filter_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 54DA129D1F315EE100DD57A1 /* existence_filter_spec_test.json */; };
 		9C366448F9BA7A4AC0821AF7 /* bundle_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 79EAA9F7B1B9592B5F053923 /* bundle_spec_test.json */; };
@@ -842,7 +843,6 @@
 		A1F57CC739211F64F2E9232D /* hard_assert_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 444B7AB3F5A2929070CB1363 /* hard_assert_test.cc */; };
 		A215078DBFBB5A4F4DADE8A9 /* leveldb_index_manager_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 166CE73C03AB4366AAC5201C /* leveldb_index_manager_test.cc */; };
 		A21819C437C3C80450D7EEEE /* writer_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = BC3C788D290A935C353CEAA1 /* writer_test.cc */; };
-		A2424F8C6C20274298D5161D /* fake_auth_credentials_provider.cc in Sources */ = {isa = PBXBuildFile; fileRef = 156FFE30DBD1152C5CECE166 /* fake_auth_credentials_provider.cc */; };
 		A25FF76DEF542E01A2DF3B0E /* time_testing.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5497CB76229DECDE000FB92F /* time_testing.cc */; };
 		A27096F764227BC73526FED3 /* leveldb_remote_document_cache_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 0840319686A223CC4AD3FAB1 /* leveldb_remote_document_cache_test.cc */; };
 		A27908A198E1D2230C1801AC /* bundle_serializer_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B5C2A94EE24E60543F62CC35 /* bundle_serializer_test.cc */; };
@@ -866,6 +866,7 @@
 		A7309DAD4A3B5334536ECA46 /* remote_event_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 584AE2C37A55B408541A6FF3 /* remote_event_test.cc */; };
 		A7399FB3BEC50BBFF08EC9BA /* mutation_queue_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 3068AA9DFBBA86C1FE2A946E /* mutation_queue_test.cc */; };
 		A80D38096052F928B17E1504 /* user_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = CCC9BD953F121B9E29F9AA42 /* user_test.cc */; };
+		A873EE3C8A97C90BA978B68A /* firebase_app_check_credentials_provider_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = F119BDDF2F06B3C0883B8297 /* firebase_app_check_credentials_provider_test.mm */; };
 		A8AF92A35DFA30EEF9C27FB7 /* database_info_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB38D92E20235D22000A432D /* database_info_test.cc */; };
 		A8C9FF6D13E6C83D4AB54EA7 /* secure_random_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54740A531FC913E500713A1A /* secure_random_test.cc */; };
 		A907244EE37BC32C8D82948E /* FSTSpecTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E03020213FFC00B64F25 /* FSTSpecTests.mm */; };
@@ -901,7 +902,6 @@
 		AD74843082C6465A676F16A7 /* async_queue_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6FB467B208E9A8200554BA2 /* async_queue_test.cc */; };
 		AD89E95440264713557FB38E /* leveldb_migrations_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = EF83ACD5E1E9F25845A9ACED /* leveldb_migrations_test.cc */; };
 		AD8F0393B276B2934D251AAC /* view_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = C7429071B33BDF80A7FA2F8A /* view_test.cc */; };
-		ADF181E9FB1FC228D1255EE8 /* firebase_credentials_provider_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 39A44C2A20D781322D286408 /* firebase_credentials_provider_test.mm */; };
 		AE068EDBC74AF27679CCB6DA /* FIRBundlesTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 776530F066E788C355B78457 /* FIRBundlesTests.mm */; };
 		AE0CFFC34A423E1B80D07418 /* resource_path_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B686F2B02024FFD70028D6BE /* resource_path_test.cc */; };
 		AE5E5E4A7BF12C2337AFA13B /* bundle_cache_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = F7FC06E0A47D393DE1759AE1 /* bundle_cache_test.cc */; };
@@ -919,7 +919,6 @@
 		B0B779769926304268200015 /* query_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 731541602214AFFA0037F4DC /* query_spec_test.json */; };
 		B0D10C3451EDFB016A6EAF03 /* writer_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = BC3C788D290A935C353CEAA1 /* writer_test.cc */; };
 		B15D17049414E2F5AE72C9C6 /* memory_local_store_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = F6CA0C5638AB6627CB5B4CF4 /* memory_local_store_test.cc */; };
-		B18466F8D352BA4842317EF4 /* fake_auth_credentials_provider.cc in Sources */ = {isa = PBXBuildFile; fileRef = 156FFE30DBD1152C5CECE166 /* fake_auth_credentials_provider.cc */; };
 		B192F30DECA8C28007F9B1D0 /* array_sorted_map_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54EB764C202277B30088B8F3 /* array_sorted_map_test.cc */; };
 		B1A4D8A731EC0A0B16CC411A /* append_only_list_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5477CDE922EE71C8000FCC1E /* append_only_list_test.cc */; };
 		B220E091D8F4E6DE1EA44F57 /* executor_libdispatch_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = B6FB4689208F9B9100554BA2 /* executor_libdispatch_test.mm */; };
@@ -949,6 +948,7 @@
 		B696858E2214B53900271095 /* to_string_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B696858D2214B53900271095 /* to_string_test.cc */; };
 		B69CF3F12227386500B281C8 /* hashing_test_apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = B69CF3F02227386500B281C8 /* hashing_test_apple.mm */; };
 		B6BBE43121262CF400C6A53E /* grpc_stream_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6BBE42F21262CF400C6A53E /* grpc_stream_test.cc */; };
+		B6BEB7AF975FA31E169B7DD2 /* firebase_auth_credentials_provider_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = F869D85E900E5AF6CD02E2FC /* firebase_auth_credentials_provider_test.mm */; };
 		B6BF6EFEF887B072068BA658 /* executor_libdispatch_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = B6FB4689208F9B9100554BA2 /* executor_libdispatch_test.mm */; };
 		B6BF87E3C9A72DCB8C5DB754 /* credentials_provider_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2F4FA4576525144C5069A7A5 /* credentials_provider_test.cc */; };
 		B6D1B68520E2AB1B00B35856 /* exponential_backoff_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6D1B68420E2AB1A00B35856 /* exponential_backoff_test.cc */; };
@@ -1000,6 +1000,7 @@
 		BFEAC4151D3AA8CE1F92CC2D /* FSTSpecTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E03020213FFC00B64F25 /* FSTSpecTests.mm */; };
 		C02A969BF4BB63ABCB531B4B /* create_noop_connectivity_monitor.cc in Sources */ = {isa = PBXBuildFile; fileRef = CF39535F2C41AB0006FA6C0E /* create_noop_connectivity_monitor.cc */; };
 		C06E54352661FCFB91968640 /* mutation_queue_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 3068AA9DFBBA86C1FE2A946E /* mutation_queue_test.cc */; };
+		C09BDBA73261578F9DA74CEE /* firebase_auth_credentials_provider_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = F869D85E900E5AF6CD02E2FC /* firebase_auth_credentials_provider_test.mm */; };
 		C0AD8DB5A84CAAEE36230899 /* status_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54A0352C20A3B3D7003E0143 /* status_test.cc */; };
 		C0EFC5FB79517679C377C252 /* schedule_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9B0B005A79E765AF02793DCE /* schedule_test.cc */; };
 		C1237EE2A74F174A3DF5978B /* memory_target_cache_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2286F308EFB0534B1BDE05B9 /* memory_target_cache_test.cc */; };
@@ -1083,7 +1084,6 @@
 		D658E6DA5A218E08810E1688 /* byte_string_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5342CDDB137B4E93E2E85CCA /* byte_string_test.cc */; };
 		D6962E598CEDABA312D87760 /* bundle_reader_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 6ECAF7DE28A19C69DF386D88 /* bundle_reader_test.cc */; };
 		D69B97FF4C065EACEDD91886 /* FSTSyncEngineTestDriver.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E02E20213FFC00B64F25 /* FSTSyncEngineTestDriver.mm */; };
-		D6ABCD1DF44DE81659943CF7 /* fake_auth_credentials_provider.cc in Sources */ = {isa = PBXBuildFile; fileRef = 156FFE30DBD1152C5CECE166 /* fake_auth_credentials_provider.cc */; };
 		D6DE74259F5C0CCA010D6A0D /* grpc_stream_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6BBE42F21262CF400C6A53E /* grpc_stream_test.cc */; };
 		D6E0E54CD1640E726900828A /* document_key_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6152AD5202A5385000E5744 /* document_key_test.cc */; };
 		D711B3F495923680B6FC2FC6 /* object_value_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 214877F52A705012D6720CA0 /* object_value_test.cc */; };
@@ -1134,7 +1134,6 @@
 		DF7ABEB48A650117CBEBCD26 /* object_value_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 214877F52A705012D6720CA0 /* object_value_test.cc */; };
 		E08297B35E12106105F448EB /* ordered_code_benchmark.cc in Sources */ = {isa = PBXBuildFile; fileRef = 0473AFFF5567E667A125347B /* ordered_code_benchmark.cc */; };
 		E084921EFB7CF8CB1E950D6C /* iterator_adaptors_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54A0353420A3D8CB003E0143 /* iterator_adaptors_test.cc */; };
-		E0A7941C01EE98FAE40EE3AB /* firebase_credentials_provider_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 39A44C2A20D781322D286408 /* firebase_credentials_provider_test.mm */; };
 		E0E640226A1439C59BBBA9C1 /* hard_assert_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 444B7AB3F5A2929070CB1363 /* hard_assert_test.cc */; };
 		E1016ECF143B732E7821358E /* byte_stream_apple_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7628664347B9C96462D4BF17 /* byte_stream_apple_test.mm */; };
 		E11DDA3DD75705F26245E295 /* FIRCollectionReferenceTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E045202154AA00B64F25 /* FIRCollectionReferenceTests.mm */; };
@@ -1216,6 +1215,7 @@
 		F56E9334642C207D7D85D428 /* pretty_printing_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB323F9553050F4F6490F9FF /* pretty_printing_test.cc */; };
 		F58A23FEF328EB74F681FE83 /* index_manager_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AE4A9E38D65688EE000EE2A1 /* index_manager_test.cc */; };
 		F5A654E92FF6F3FF16B93E6B /* mutation_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = C8522DE226C467C54E6788D8 /* mutation_test.cc */; };
+		F5B1F219E912F645FB79D08E /* firebase_app_check_credentials_provider_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = F119BDDF2F06B3C0883B8297 /* firebase_app_check_credentials_provider_test.mm */; };
 		F5BDECEB3B43BD1591EEADBD /* FSTUserDataReaderTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8D9892F204959C50613F16C8 /* FSTUserDataReaderTests.mm */; };
 		F6079BFC9460B190DA85C2E6 /* pretty_printing_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB323F9553050F4F6490F9FF /* pretty_printing_test.cc */; };
 		F609600E9A88A4D44FD1FCEB /* FSTSpecTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E03020213FFC00B64F25 /* FSTSpecTests.mm */; };
@@ -1226,11 +1226,11 @@
 		F73471529D36DD48ABD8AAE8 /* async_testing.cc in Sources */ = {isa = PBXBuildFile; fileRef = 872C92ABD71B12784A1C5520 /* async_testing.cc */; };
 		F7718C43D3A8FCCDB4BB0071 /* geo_point_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB7BAB332012B519001E0872 /* geo_point_test.cc */; };
 		F7B1DF16A9DDFB664EA98EBB /* memory_remote_document_cache_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1CA9800A53669EFBFFB824E3 /* memory_remote_document_cache_test.cc */; };
+		F7EE3CCC821975B71E834453 /* firebase_auth_credentials_provider_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = F869D85E900E5AF6CD02E2FC /* firebase_auth_credentials_provider_test.mm */; };
 		F800F48743D3CB31BA1EBAE7 /* random_access_queue_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 014C60628830D95031574D15 /* random_access_queue_test.cc */; };
 		F8126CD7308A4B8AEC0F30A8 /* bundle.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = A366F6AE1A5A77548485C091 /* bundle.pb.cc */; };
 		F950A371FADCA2F0B73683E0 /* remote_document_cache_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7EB299CF85034F09CFD6F3FD /* remote_document_cache_test.cc */; };
 		F9705E595FC3818F13F6375A /* to_string_apple_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = B68B1E002213A764008977EF /* to_string_apple_test.mm */; };
-		F9C3FA6B239C5F843CCDE1EA /* firebase_credentials_provider_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 39A44C2A20D781322D286408 /* firebase_credentials_provider_test.mm */; };
 		F9DC01FCBE76CD4F0453A67C /* strerror_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 358C3B5FE573B1D60A4F7592 /* strerror_test.cc */; };
 		FA334ADC73CFDB703A7C17CD /* iterator_adaptors_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54A0353420A3D8CB003E0143 /* iterator_adaptors_test.cc */; };
 		FA43BA0195DA90CE29B29D36 /* memory_bundle_cache_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB4AB1388538CD3CB19EB028 /* memory_bundle_cache_test.cc */; };
@@ -1328,7 +1328,6 @@
 		1277F98C20D2DF0867496976 /* Pods-Firestore_IntegrationTests_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_IntegrationTests_iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_IntegrationTests_iOS/Pods-Firestore_IntegrationTests_iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		12F4357299652983A615F886 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		132E32997D781B896672D30A /* reference_set_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = reference_set_test.cc; sourceTree = "<group>"; };
-		156FFE30DBD1152C5CECE166 /* fake_auth_credentials_provider.cc */ = {isa = PBXFileReference; includeInIndex = 1; path = fake_auth_credentials_provider.cc; sourceTree = "<group>"; };
 		166CE73C03AB4366AAC5201C /* leveldb_index_manager_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = leveldb_index_manager_test.cc; sourceTree = "<group>"; };
 		1B342370EAE3AA02393E33EB /* cc_compilation_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = cc_compilation_test.cc; path = api/cc_compilation_test.cc; sourceTree = "<group>"; };
 		1CA9800A53669EFBFFB824E3 /* memory_remote_document_cache_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = memory_remote_document_cache_test.cc; sourceTree = "<group>"; };
@@ -1353,7 +1352,6 @@
 		358C3B5FE573B1D60A4F7592 /* strerror_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = strerror_test.cc; sourceTree = "<group>"; };
 		36D235D9F1240D5195CDB670 /* Pods-Firestore_IntegrationTests_tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_IntegrationTests_tvOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_IntegrationTests_tvOS/Pods-Firestore_IntegrationTests_tvOS.release.xcconfig"; sourceTree = "<group>"; };
 		397FB002E298B780F1E223E2 /* Pods-Firestore_Tests_macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Tests_macOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Tests_macOS/Pods-Firestore_Tests_macOS.release.xcconfig"; sourceTree = "<group>"; };
-		39A44C2A20D781322D286408 /* firebase_credentials_provider_test.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = firebase_credentials_provider_test.mm; path = credentials/firebase_credentials_provider_test.mm; sourceTree = "<group>"; };
 		39B832380209CC5BAF93BC52 /* Pods_Firestore_IntegrationTests_macOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_IntegrationTests_macOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B843E4A1F3930A400548890 /* remote_store_spec_test.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = remote_store_spec_test.json; sourceTree = "<group>"; };
 		3C81DE3772628FE297055662 /* Pods-Firestore_Example_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Example_iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Example_iOS/Pods-Firestore_Example_iOS.debug.xcconfig"; sourceTree = "<group>"; };
@@ -1362,6 +1360,7 @@
 		3FBAA6F05C0B46A522E3B5A7 /* bundle_cache_test.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = bundle_cache_test.h; sourceTree = "<group>"; };
 		403DBF6EFB541DFD01582AA3 /* path_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = path_test.cc; sourceTree = "<group>"; };
 		40F9D09063A07F710811A84F /* value_util_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; path = value_util_test.cc; sourceTree = "<group>"; };
+		4132F30044D5DF1FB15B2A9D /* fake_credentials_provider.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = fake_credentials_provider.h; sourceTree = "<group>"; };
 		432C71959255C5DBDF522F52 /* byte_stream_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; path = byte_stream_test.cc; sourceTree = "<group>"; };
 		4334F87873015E3763954578 /* status_testing.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = status_testing.h; sourceTree = "<group>"; };
 		444B7AB3F5A2929070CB1363 /* hard_assert_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = hard_assert_test.cc; sourceTree = "<group>"; };
@@ -1659,7 +1658,7 @@
 		E8551D6C6FB0B1BACE9E5BAD /* field_filter_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = field_filter_test.cc; sourceTree = "<group>"; };
 		ECEBABC7E7B693BE808A1052 /* Pods_Firestore_IntegrationTests_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_IntegrationTests_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF83ACD5E1E9F25845A9ACED /* leveldb_migrations_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = leveldb_migrations_test.cc; sourceTree = "<group>"; };
-		F11144CFB04250693F4D7B13 /* fake_auth_credentials_provider.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = fake_auth_credentials_provider.h; sourceTree = "<group>"; };
+		F119BDDF2F06B3C0883B8297 /* firebase_app_check_credentials_provider_test.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = firebase_app_check_credentials_provider_test.mm; path = credentials/firebase_app_check_credentials_provider_test.mm; sourceTree = "<group>"; };
 		F354C0FE92645B56A6C6FD44 /* Pods-Firestore_IntegrationTests_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_IntegrationTests_iOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_IntegrationTests_iOS/Pods-Firestore_IntegrationTests_iOS.release.xcconfig"; sourceTree = "<group>"; };
 		F51859B394D01C0C507282F1 /* filesystem_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = filesystem_test.cc; sourceTree = "<group>"; };
 		F694C3CE4B77B3C0FA4BBA53 /* Pods_Firestore_Benchmarks_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_Benchmarks_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1667,6 +1666,7 @@
 		F7FC06E0A47D393DE1759AE1 /* bundle_cache_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; path = bundle_cache_test.cc; sourceTree = "<group>"; };
 		F8043813A5D16963EC02B182 /* local_serializer_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = local_serializer_test.cc; sourceTree = "<group>"; };
 		F848C41C03A25C42AD5A4BC2 /* target_cache_test.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = target_cache_test.h; sourceTree = "<group>"; };
+		F869D85E900E5AF6CD02E2FC /* firebase_auth_credentials_provider_test.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = firebase_auth_credentials_provider_test.mm; path = credentials/firebase_auth_credentials_provider_test.mm; sourceTree = "<group>"; };
 		FA2E9952BA2B299C1156C43C /* Pods-Firestore_Benchmarks_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Benchmarks_iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Benchmarks_iOS/Pods-Firestore_Benchmarks_iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		FC738525340E594EBFAB121E /* Pods-Firestore_Example_tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Example_tvOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Example_tvOS/Pods-Firestore_Example_tvOS.release.xcconfig"; sourceTree = "<group>"; };
 		FF73B39D04D1760190E6B84A /* FIRQueryUnitTests.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = FIRQueryUnitTests.mm; sourceTree = "<group>"; };
@@ -1781,7 +1781,8 @@
 			children = (
 				2F4FA4576525144C5069A7A5 /* credentials_provider_test.cc */,
 				8FA60B08D59FEA0D6751E87F /* empty_credentials_provider_test.cc */,
-				39A44C2A20D781322D286408 /* firebase_credentials_provider_test.mm */,
+				F119BDDF2F06B3C0883B8297 /* firebase_app_check_credentials_provider_test.mm */,
+				F869D85E900E5AF6CD02E2FC /* firebase_auth_credentials_provider_test.mm */,
 				A082AFDD981B07B5AD78FDE8 /* token_test.cc */,
 				CCC9BD953F121B9E29F9AA42 /* user_test.cc */,
 			);
@@ -1863,8 +1864,7 @@
 				9098A0C535096F2EE9C35DE0 /* create_noop_connectivity_monitor.h */,
 				3167BD972EFF8EC636530E59 /* datastore_test.cc */,
 				B6D1B68420E2AB1A00B35856 /* exponential_backoff_test.cc */,
-				156FFE30DBD1152C5CECE166 /* fake_auth_credentials_provider.cc */,
-				F11144CFB04250693F4D7B13 /* fake_auth_credentials_provider.h */,
+				4132F30044D5DF1FB15B2A9D /* fake_credentials_provider.h */,
 				71140E5D09C6E76F7C71B2FC /* fake_target_metadata_provider.cc */,
 				52756B7624904C36FBB56000 /* fake_target_metadata_provider.h */,
 				B6D9649021544D4F00EB9CFB /* grpc_connection_test.cc */,
@@ -3485,7 +3485,6 @@
 				E7D415B8717701B952C344E5 /* executor_std_test.cc in Sources */,
 				470A37727BBF516B05ED276A /* executor_test.cc in Sources */,
 				2E0BBA7E627EB240BA11B0D0 /* exponential_backoff_test.cc in Sources */,
-				B18466F8D352BA4842317EF4 /* fake_auth_credentials_provider.cc in Sources */,
 				9009C285F418EA80C46CF06B /* fake_target_metadata_provider.cc in Sources */,
 				401BBE4D4572EEBAA80E0B89 /* field_filter_test.cc in Sources */,
 				07B1E8C62772758BC82FEBEE /* field_mask_test.cc in Sources */,
@@ -3493,7 +3492,8 @@
 				C961FA581F87000DF674BBC8 /* field_transform_test.cc in Sources */,
 				60C72F86D2231B1B6592A5E6 /* filesystem_test.cc in Sources */,
 				907DF0E63248DBF0912CC56D /* filesystem_testing.cc in Sources */,
-				ADF181E9FB1FC228D1255EE8 /* firebase_credentials_provider_test.mm in Sources */,
+				80D7FEBB1056E489F24C6C8F /* firebase_app_check_credentials_provider_test.mm in Sources */,
+				9B9BFC16E26BDE4AE0CDFF4B /* firebase_auth_credentials_provider_test.mm in Sources */,
 				C5655568EC2A9F6B5E6F9141 /* firestore.pb.cc in Sources */,
 				B8062EBDB8E5B680E46A6DD1 /* geo_point_test.cc in Sources */,
 				056542AD1D0F78E29E22EFA9 /* grpc_connection_test.cc in Sources */,
@@ -3675,7 +3675,6 @@
 				BAB43C839445782040657239 /* executor_std_test.cc in Sources */,
 				3A7CB01751697ED599F2D9A1 /* executor_test.cc in Sources */,
 				EF3518F84255BAF3EBD317F6 /* exponential_backoff_test.cc in Sources */,
-				31DD9D84A942297E5FDD9222 /* fake_auth_credentials_provider.cc in Sources */,
 				4DAFC3A3FD5E96910A517320 /* fake_target_metadata_provider.cc in Sources */,
 				6369DE4E258556FE3382DD78 /* field_filter_test.cc in Sources */,
 				ED4E2AC80CAF2A8FDDAC3DEE /* field_mask_test.cc in Sources */,
@@ -3683,7 +3682,8 @@
 				A192648233110B7B8BD65528 /* field_transform_test.cc in Sources */,
 				AAF2F02E77A80C9CDE2C0C7A /* filesystem_test.cc in Sources */,
 				C4C7A8D11DC394EF81B7B1FA /* filesystem_testing.cc in Sources */,
-				5775357B8B13DC4D30D2F349 /* firebase_credentials_provider_test.mm in Sources */,
+				12A3FB93C06C8EEB3971289A /* firebase_app_check_credentials_provider_test.mm in Sources */,
+				0E17927CE45F5E3FC6691E24 /* firebase_auth_credentials_provider_test.mm in Sources */,
 				8683BBC3AC7B01937606A83B /* firestore.pb.cc in Sources */,
 				F7718C43D3A8FCCDB4BB0071 /* geo_point_test.cc in Sources */,
 				BA9A65BD6D993B2801A3C768 /* grpc_connection_test.cc in Sources */,
@@ -3878,7 +3878,6 @@
 				AECCD9663BB3DC52199F954A /* executor_std_test.cc in Sources */,
 				18F644E6AA98E6D6F3F1F809 /* executor_test.cc in Sources */,
 				6938575C8B5E6FE0D562547A /* exponential_backoff_test.cc in Sources */,
-				D6ABCD1DF44DE81659943CF7 /* fake_auth_credentials_provider.cc in Sources */,
 				258B372CF33B7E7984BBA659 /* fake_target_metadata_provider.cc in Sources */,
 				DF27137C8EA7D095D68851B4 /* field_filter_test.cc in Sources */,
 				F272A8C41D2353700A11D1FB /* field_mask_test.cc in Sources */,
@@ -3886,7 +3885,8 @@
 				B667366CB06893DFF472902E /* field_transform_test.cc in Sources */,
 				D6486C7FFA8BE6F9C7D2F4C4 /* filesystem_test.cc in Sources */,
 				C3E4EE9615367213A71FEECF /* filesystem_testing.cc in Sources */,
-				E0A7941C01EE98FAE40EE3AB /* firebase_credentials_provider_test.mm in Sources */,
+				A873EE3C8A97C90BA978B68A /* firebase_app_check_credentials_provider_test.mm in Sources */,
+				F7EE3CCC821975B71E834453 /* firebase_auth_credentials_provider_test.mm in Sources */,
 				8C602DAD4E8296AB5EFB962A /* firestore.pb.cc in Sources */,
 				6ABB82D43C0728EB095947AF /* geo_point_test.cc in Sources */,
 				D9DA467E7903412DC6AECDE4 /* grpc_connection_test.cc in Sources */,
@@ -4081,7 +4081,6 @@
 				17DFF30CF61D87883986E8B6 /* executor_std_test.cc in Sources */,
 				814724DE70EFC3DDF439CD78 /* executor_test.cc in Sources */,
 				BD6CC8614970A3D7D2CF0D49 /* exponential_backoff_test.cc in Sources */,
-				A2424F8C6C20274298D5161D /* fake_auth_credentials_provider.cc in Sources */,
 				4D2655C5675D83205C3749DC /* fake_target_metadata_provider.cc in Sources */,
 				0B071E9044CEEF666D829354 /* field_filter_test.cc in Sources */,
 				A1563EFEB021936D3FFE07E3 /* field_mask_test.cc in Sources */,
@@ -4089,7 +4088,8 @@
 				1BF1F9A0CBB6B01654D3C2BE /* field_transform_test.cc in Sources */,
 				199B778D5820495797E0BE02 /* filesystem_test.cc in Sources */,
 				AD12205540893CEB48647937 /* filesystem_testing.cc in Sources */,
-				0466093697EBFF5F71E9342C /* firebase_credentials_provider_test.mm in Sources */,
+				992DD6779C7A166D3A22E749 /* firebase_app_check_credentials_provider_test.mm in Sources */,
+				B6BEB7AF975FA31E169B7DD2 /* firebase_auth_credentials_provider_test.mm in Sources */,
 				D756A1A63E626572EE8DF592 /* firestore.pb.cc in Sources */,
 				8B31F63673F3B5238DE95AFB /* geo_point_test.cc in Sources */,
 				5958E3E3A0446A88B815CB70 /* grpc_connection_test.cc in Sources */,
@@ -4281,7 +4281,6 @@
 				B6FB468F208F9BAE00554BA2 /* executor_std_test.cc in Sources */,
 				B6FB4690208F9BB300554BA2 /* executor_test.cc in Sources */,
 				B6D1B68520E2AB1B00B35856 /* exponential_backoff_test.cc in Sources */,
-				959A4C4475CBC6E57833748D /* fake_auth_credentials_provider.cc in Sources */,
 				FAE5DA6ED3E1842DC21453EE /* fake_target_metadata_provider.cc in Sources */,
 				047F5209AB055A884D795B8A /* field_filter_test.cc in Sources */,
 				549CCA5720A36E1F00BCEB75 /* field_mask_test.cc in Sources */,
@@ -4289,7 +4288,8 @@
 				2EC1C4D202A01A632339A161 /* field_transform_test.cc in Sources */,
 				D94A1862B8FB778225DB54A1 /* filesystem_test.cc in Sources */,
 				DD6C480629B3F87933FAF440 /* filesystem_testing.cc in Sources */,
-				F9C3FA6B239C5F843CCDE1EA /* firebase_credentials_provider_test.mm in Sources */,
+				263BD3B99AC4965540235BA4 /* firebase_app_check_credentials_provider_test.mm in Sources */,
+				C09BDBA73261578F9DA74CEE /* firebase_auth_credentials_provider_test.mm in Sources */,
 				544129DB21C2DDC800EFB9CC /* firestore.pb.cc in Sources */,
 				AB7BAB342012B519001E0872 /* geo_point_test.cc in Sources */,
 				B6D9649121544D4F00EB9CFB /* grpc_connection_test.cc in Sources */,
@@ -4503,7 +4503,6 @@
 				125B1048ECB755C2106802EB /* executor_std_test.cc in Sources */,
 				DABB9FB61B1733F985CBF713 /* executor_test.cc in Sources */,
 				7BCF050BA04537B0E7D44730 /* exponential_backoff_test.cc in Sources */,
-				22C0AD64F510FE696633B53A /* fake_auth_credentials_provider.cc in Sources */,
 				BA1C5EAE87393D8E60F5AE6D /* fake_target_metadata_provider.cc in Sources */,
 				97729B53698C0E52EB165003 /* field_filter_test.cc in Sources */,
 				6A40835DB2C02B9F07C02E88 /* field_mask_test.cc in Sources */,
@@ -4511,7 +4510,8 @@
 				9016EF298E41456060578C90 /* field_transform_test.cc in Sources */,
 				280A282BE9AF4DCF4E855EAB /* filesystem_test.cc in Sources */,
 				867B370BF2DF84B6AB94B874 /* filesystem_testing.cc in Sources */,
-				573EC25F9957A7C0F5416D06 /* firebase_credentials_provider_test.mm in Sources */,
+				F5B1F219E912F645FB79D08E /* firebase_app_check_credentials_provider_test.mm in Sources */,
+				58693C153EC597BC25EE9648 /* firebase_auth_credentials_provider_test.mm in Sources */,
 				920B6ABF76FDB3547F1CCD84 /* firestore.pb.cc in Sources */,
 				5FE84472E5369DA866193C45 /* geo_point_test.cc in Sources */,
 				0DDEE9FE08845BB7CA4607DE /* grpc_connection_test.cc in Sources */,

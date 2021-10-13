@@ -1,4 +1,4 @@
-name: health_metrics
+name: health-metrics-presubmit
 
 on:
   pull_request:

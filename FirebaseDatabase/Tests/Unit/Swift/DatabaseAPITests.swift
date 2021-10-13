@@ -14,7 +14,7 @@
 // limitations under the License.
 //
 
-// MARK: This file is used to evaluate the experience of using Firebase APIs in Swift.
+// MARK: This file is used to evaluate the experience of using the Firebase Database APIs in Swift.
 
 import Foundation
 

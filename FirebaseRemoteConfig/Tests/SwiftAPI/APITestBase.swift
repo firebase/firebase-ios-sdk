@@ -40,12 +40,12 @@ class APITestBase: XCTestCase {
     settings.minimumFetchInterval = 0
     config.configSettings = settings
     if APITests.useFakeConfig {
-      fakeConsole = FakeConsole()
-      config.configFetch.fetchSession = URLSessionMock(with: fakeConsole)
       if !APITests.mockedFetch {
         APITests.mockedFetch = true
         config.configFetch = FetchMocks.mockFetch(config.configFetch)
       }
+      fakeConsole = FakeConsole()
+      config.configFetch.fetchSession = URLSessionMock(with: fakeConsole)
     }
 
     // Uncomment for verbose debug logging.

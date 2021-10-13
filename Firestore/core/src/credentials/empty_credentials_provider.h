@@ -36,9 +36,6 @@ class EmptyCredentialsProvider
     }
   }
 
-  void InvalidateToken() override {
-  }
-
   void SetCredentialChangeListener(
       CredentialChangeListener<ValueType> change_listener) override {
     if (change_listener) {
