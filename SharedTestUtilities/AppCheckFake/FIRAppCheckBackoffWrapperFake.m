@@ -62,10 +62,6 @@ NS_ASSUME_NONNULL_BEGIN
   };
 }
 
-- (void)resetBackoff {
-  [self.resetBackoffExpectation fulfill];
-}
-
 - (NSError *)backoffError {
   return [NSError errorWithDomain:@"FIRAppCheckBackoffWrapperFake.backoff" code:-1 userInfo:nil];
 }

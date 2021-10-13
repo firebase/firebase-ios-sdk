@@ -59,10 +59,6 @@ typedef NSDate *_Nonnull (^FIRAppCheckDateProvider)(void);
 - (FBLPromise *)applyBackoffToOperation:(FIRAppCheckBackoffOperationProvider)operationProvider
                            errorHandler:(FIRAppCheckBackoffErrorHandler)errorHandler;
 
-/// After calling this method the next call of `[backoff:errorHandler:]` method will always attempt
-/// an operation even if a backoff was needed.
-- (void)resetBackoff;
-
 /// The default Firebase services error handler. It keeps track of network errors and
 /// `FIRAppCheckHTTPError.HTTPResponse.statusCode.statusCode` value to return the appropriate
 /// backoff type for the standard Firebase App Check backend response codes.

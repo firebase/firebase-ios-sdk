@@ -163,12 +163,6 @@ static double const kMaxExponentialBackoffInterval = 4 * 60 * 60;  // 4 hours.
       });
 }
 
-- (void)resetBackoff {
-  @synchronized(self) {
-    self.lastFailure = nil;
-  }
-}
-
 #pragma mark - Private
 
 - (BOOL)isNextOperationAllowed {
