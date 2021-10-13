@@ -118,6 +118,19 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
 #pragma mark - Initial handshake (attestation)
 
 - (void)testGetTokenWhenAppAttestIsNotSupported {
+  NSError *expectedError = [FIRAppCheckErrorUtil unsupportedAttestationProvider:@"AppAttestProvider"];
+
+  // 0.1. Expect backoff wrapper to be used.
+  self.fakeBackoffWrapper.backoffExpectation = [self expectationWithDescription:@"Backoff"];
+
+  // 0.2. Expect default error handler to be used.
+  XCTestExpectation *errorHandlerExpectation = [self expectationWithDescription:@"Error handler"];
+  self.fakeBackoffWrapper.defaultErrorHandler = ^FIRAppCheckBackoffType(NSError *_Nonnull error) {
+    XCTAssertEqualObjects(error, expectedError);
+    [errorHandlerExpectation fulfill];
+    return FIRAppCheckBackoffType1Day;
+  };
+
   // 1. Expect FIRAppAttestService.isSupported.
   [OCMExpect([self.mockAppAttestService isSupported]) andReturnValue:@(NO)];
 
@@ -142,11 +155,10 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
         [completionExpectation fulfill];
 
         XCTAssertNil(token);
-        XCTAssertEqualObjects(
-            error, [FIRAppCheckErrorUtil unsupportedAttestationProvider:@"AppAttestProvider"]);
+        XCTAssertEqualObjects(error, expectedError);
       }];
 
-  [self waitForExpectations:@[ completionExpectation ] timeout:0.5];
+  [self waitForExpectations:@[ self.fakeBackoffWrapper.backoffExpectation, errorHandlerExpectation, completionExpectation ] timeout:0.5 enforceOrder:YES];
 
   // 4. Verify mocks.
   [self verifyAllMocks];
