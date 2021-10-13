@@ -1376,45 +1376,44 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
                           userDefaults:self.userDefaults];
 
   NSArray<NSString *> *urlStrings = @[
-    @"https://some.page.link/test",
-    @"https://some.page.link/test-test",
-    @"https://some.page.link/test_test",
-    @"https://some.page.link/test_test-test",
+    @"https://some.page.link/test", @"https://some.page.link/test-test",
+    @"https://some.page.link/test_test", @"https://some.page.link/test_test-test",
     @"https://some.app.goo.gl/test_test-test"
   ];
 
   for (NSString *urlString in urlStrings) {
-  NSURL *url = [NSURL URLWithString:urlString];
+    NSURL *url = [NSURL URLWithString:urlString];
 
-  void (^executeRequestBlock)(id, NSDictionary *, NSString *, FIRNetworkRequestCompletionHandler) =
-      ^(id p1, NSDictionary *requestBody, NSString *requestURLString,
-        FIRNetworkRequestCompletionHandler handler) {
-        NSData *data = FIRDataWithDictionary(@{}, nil);
-        NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:url
-                                                                  statusCode:200
-                                                                 HTTPVersion:nil
-                                                                headerFields:nil];
-        handler(data, response, nil);
-      };
+    void (^executeRequestBlock)(id, NSDictionary *, NSString *,
+                                FIRNetworkRequestCompletionHandler) =
+        ^(id p1, NSDictionary *requestBody, NSString *requestURLString,
+          FIRNetworkRequestCompletionHandler handler) {
+          NSData *data = FIRDataWithDictionary(@{}, nil);
+          NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:url
+                                                                    statusCode:200
+                                                                   HTTPVersion:nil
+                                                                  headerFields:nil];
+          handler(data, response, nil);
+        };
 
-  SEL executeRequestSelector = @selector(executeOnePlatformRequest:forURL:completionHandler:);
-  [GULSwizzler swizzleClass:[FIRDynamicLinkNetworking class]
-                   selector:executeRequestSelector
-            isClassSelector:NO
-                  withBlock:executeRequestBlock];
+    SEL executeRequestSelector = @selector(executeOnePlatformRequest:forURL:completionHandler:);
+    [GULSwizzler swizzleClass:[FIRDynamicLinkNetworking class]
+                     selector:executeRequestSelector
+              isClassSelector:NO
+                    withBlock:executeRequestBlock];
 
-  XCTestExpectation *expectation = [self expectationWithDescription:@"handler called"];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"handler called"];
 
-  BOOL handled = [self.service
-      handleUniversalLink:url
-               completion:^(FIRDynamicLink *_Nullable dynamicLink, NSError *_Nullable error) {
-                 XCTAssertNotNil(dynamicLink, @"Non DDL returned FIRDynamicLink");
-                 [expectation fulfill];
-               }];
+    BOOL handled = [self.service
+        handleUniversalLink:url
+                 completion:^(FIRDynamicLink *_Nullable dynamicLink, NSError *_Nullable error) {
+                   XCTAssertNotNil(dynamicLink, @"Non DDL returned FIRDynamicLink");
+                   [expectation fulfill];
+                 }];
 
-  XCTAssertTrue(handled, @"Valid DDL Universal Link was not handled");
+    XCTAssertTrue(handled, @"Valid DDL Universal Link was not handled");
 
-  [self waitForExpectationsWithTimeout:kAsyncTestTimout handler:nil];
+    [self waitForExpectationsWithTimeout:kAsyncTestTimout handler:nil];
   }
 }
 
