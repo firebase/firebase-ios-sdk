@@ -1049,6 +1049,9 @@ let package = Package(
               .product(name: "GULEnvironment", package: "GoogleUtilities"),
             ],
             path: "FirebaseAppCheck/Sources",
+            exclude: [
+              "Interop/CMakeLists.txt"
+            ],
             publicHeadersPath: "Public",
             cSettings: [
               .headerSearchPath("../.."),
