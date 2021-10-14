@@ -1,5 +1,5 @@
 # v8.9.0
-- [fixed] [Dynamic links] Shortlink is not handled in 8.8.0. (#8786)
+- [fixed] Fixed Shortlink regression involving underscores and dashes introduced in 8.8.0. (#8786)
 
 # v8.8.0
 - [fixed] Firebase dynamic links with custom domain will only work if the custom domain has a trailing '/'. (#7087)
