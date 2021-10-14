@@ -44,7 +44,7 @@ Pod::Spec.new do |s|
 
   s.dependency 'FirebaseCore', '~> 8.0'
   s.dependency 'PromisesObjC', '>= 1.2', '< 3.0'
-  s.dependency 'GoogleUtilities/Environment', '~> 7.5'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.6'
 
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
