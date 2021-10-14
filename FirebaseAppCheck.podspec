@@ -61,6 +61,7 @@ Pod::Spec.new do |s|
       base_dir + 'Tests/Unit/**/*.[mh]',
       base_dir + 'Tests/Utils/**/*.[mh]',
       'SharedTestUtilities/AppCheckFake/*',
+      'SharedTestUtilities/AppCheckBackoffWrapperFake/*',
       'SharedTestUtilities/Date/*',
       'SharedTestUtilities/URLSession/*',
     ]

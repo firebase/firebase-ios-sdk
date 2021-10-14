@@ -35,7 +35,7 @@
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#import "SharedTestUtilities/AppCheckFake/FIRAppCheckBackoffWrapperFake.h"
+#import "SharedTestUtilities/AppCheckBackoffWrapperFake/FIRAppCheckBackoffWrapperFake.h"
 
 #if FIR_APP_ATTEST_SUPPORTED_TARGETS
 
