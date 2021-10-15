@@ -68,11 +68,7 @@ if check_secrets || [[ ${SAMPLE} == "installations" ]]; then
 
   bundle update --bundler
   bundle install
-  if [ -n "$RELEASE_TESTING" ]; then
-    bundle exec pod update --silent
-  else
-    bundle exec pod install
-  fi
+  pod update
 
   if [[ ! -z "${LEGACY:-}" ]]; then
     cd ..
