@@ -182,3 +182,15 @@ import Foundation
         }
     }
 }
+
+class ObjectEnumerator: NSEnumerator {
+    var iterator: IndexingIterator<(OrderedSet<FNamedNode>)>
+    init(iterator: IndexingIterator<(OrderedSet<FNamedNode>)>) {
+        self.iterator = iterator
+    }
+
+    override func nextObject() -> Any? {
+        iterator.next()
+    }
+
+}

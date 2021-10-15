@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-
-@interface FNextPushId : NSObject
-
-+ (NSString *)get:(NSTimeInterval)now;
-
-+ (NSString *)successor:(NSString *)key;
-
-+ (NSString *)predecessor:(NSString *)key;
-
-@end
+//#import <Foundation/Foundation.h>
+//
+//@interface FNextPushId : NSObject
+//
+//+ (NSString *)get:(NSTimeInterval)now;
+//
+//+ (NSString *)successor:(NSString *)key;
+//
+//+ (NSString *)predecessor:(NSString *)key;
+//
+//@end

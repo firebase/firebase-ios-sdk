@@ -32,7 +32,7 @@
 
 @interface FPruneForest (Test)
 
-- (FImmutableSortedDictionary *)pruneForest;
+//- (FImmutableSortedDictionary *)pruneForest;
 
 @end
 

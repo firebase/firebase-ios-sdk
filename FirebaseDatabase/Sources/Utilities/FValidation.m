@@ -135,45 +135,4 @@ NSString *const kInvalidKeyCharacters = @"[].#$/";
     NSString *pathString = [parsedUrl.path description];
     [self validateFrom:fn validRootPathString:pathString];
 }
-
-#pragma mark -
-#pragma mark Authentication validation
-
-+ (BOOL)stringNonempty:(NSString *)str {
-    return str != nil && ![str isKindOfClass:[NSNull class]] && str.length > 0;
-}
-
-+ (void)validateToken:(NSString *)token {
-    if (![FValidation stringNonempty:token]) {
-        [NSException raise:NSInvalidArgumentException
-                    format:@"Can't have empty string or nil for custom token"];
-    }
-}
-
-#pragma mark -
-#pragma mark Handling authentication errors
-
-/**
- * This function immediately calls the callback.
- * It assumes that it is not on FirebaseWorker thread.
- * It assumes it's on a user-controlled thread.
- */
-+ (void)handleError:(NSError *)error
-    withUserCallback:(fbt_void_nserror_id)userCallback {
-    if (userCallback) {
-        userCallback(error, nil);
-    }
-}
-
-/**
- * This function immediately calls the callback.
- * It assumes that it is not on FirebaseWorker thread.
- * It assumes it's on a user-controlled thread.
- */
-+ (void)handleError:(NSError *)error
-    withSuccessCallback:(fbt_void_nserror)userCallback {
-    if (userCallback) {
-        userCallback(error);
-    }
-}
 @end

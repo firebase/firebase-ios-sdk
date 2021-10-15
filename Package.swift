@@ -507,9 +507,6 @@ let package = Package(
         "FirebaseDatabaseSwiftCore"
       ],
       path: "FirebaseDatabase/Sources",
-      exclude: [
-        "third_party/FImmutableSortedDictionary/LICENSE",
-      ],
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),

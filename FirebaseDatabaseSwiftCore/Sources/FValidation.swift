@@ -139,6 +139,57 @@ public enum FValidationSwift {
         return pathKey
     }
 
+    static func validateFrom(_ fn: String, validKey key: String) {
+        guard isValidKey(key) else {
+            fatalError("(\(fn)) Must be a non-empty string and not contain '/' '.' '#' '$' '[' or ']'")
+        }
+    }
+
+    static var invalidPathCharacters: CharacterSet = CharacterSet(charactersIn: "[].#$")
+
+    static func isValidPathString(_ pathString: String) -> Bool {
+        !pathString.isEmpty && pathString.rangeOfCharacter(from: invalidPathCharacters) == nil
+    }
+
+    static func validateFrom(_ fn: String, validPathString pathString: String) {
+        guard isValidPathString(pathString) else {
+            fatalError("(\(fn)) Must be a non-empty string and not contain '.' '#' '$' '[' or ']'")
+        }
+    }
+
+//    static func validateFrom(_ fn: String, validRootPathString pathString: String) {
+//        var tempPath = pathString
+//        // HACK: Obj-C regex are kinda' slow.  Do a plain string search first before
+//        // bothering with the regex.
+//        if (pathString.range(of: ".info").location != NSNotFound) {
+//        }
+//    }
+    /*
+     + (void)validateFrom:(NSString *)fn validRootPathString:(NSString *)pathString {
+         static dispatch_once_t token;
+         static NSRegularExpression *dotInfoRegex = nil;
+         dispatch_once(&token, ^{
+           dotInfoRegex = [NSRegularExpression
+               regularExpressionWithPattern:@"^\\/*\\.info(\\/|$)"
+                                    options:0
+                                      error:nil];
+         });
+
+         NSString *tempPath = pathString;
+         // HACK: Obj-C regex are kinda' slow.  Do a plain string search first before
+         // bothering with the regex.
+         if ([pathString rangeOfString:@".info"].location != NSNotFound) {
+             tempPath = [dotInfoRegex
+                 stringByReplacingMatchesInString:pathString
+                                          options:0
+                                            range:NSMakeRange(0, pathString.length)
+                                     withTemplate:@"/"];
+         }
+         [self validateFrom:fn validPathString:tempPath];
+     }
+     */
+     */
+
     static var invalidKeyCharacters: CharacterSet = CharacterSet(charactersIn: "[].#$/")
     static func isValidKey(_ key: String) -> Bool {
         !key.isEmpty && key.rangeOfCharacter(from: invalidKeyCharacters) == nil

@@ -50,6 +50,10 @@ func tryParseStringToInt(_ str: String, integer: inout Int) -> Bool {
     @objc public static func base64EncodedSha1(_ input: String) -> String  {
         FUtilitiesSwift.base64EncodedSha1(input)
     }
+
+    @objc public static func getJavascriptType(_ obj: Any) -> String {
+        FUtilitiesSwift.getJavascriptType(obj).rawValue
+    }
 }
 
 enum FUtilitiesSwift {

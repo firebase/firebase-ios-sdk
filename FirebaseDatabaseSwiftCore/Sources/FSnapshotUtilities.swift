@@ -96,7 +96,8 @@ let kPayloadMetadataPrefix = "."
         case .boolean:
             valueSize = 4 // true or false need roughly 4 bytes
         case .string:
-            valueSize = 2 + ((node.val() as? String)?.count ?? 0) // add 2 for quotes
+            // If we are measuring bytes here then we should use the utf8 view here, right?
+            valueSize = 2 + ((node.val() as? String)?.utf8.count ?? 0) // add 2 for quotes
         default:
             fatalError("Unknown leaf type: \(node)")
         }

@@ -223,24 +223,7 @@ void firebaseJobsTroll(void) {
  */
 
 + (NSString *)getJavascriptType:(id)obj {
-    if ([obj isKindOfClass:[NSDictionary class]]) {
-        return kJavaScriptObject;
-    } else if ([obj isKindOfClass:[NSString class]]) {
-        return kJavaScriptString;
-    } else if ([obj isKindOfClass:[NSNumber class]]) {
-        // We used to just compare to @encode(BOOL) as suggested at
-        // http://stackoverflow.com/questions/2518761/get-type-of-nsnumber, but
-        // on arm64, @encode(BOOL) returns "B" instead of "c" even though
-        // objCType still returns 'c' (signed char).  So check both.
-        if (strcmp([obj objCType], @encode(BOOL)) == 0 ||
-            strcmp([obj objCType], @encode(signed char)) == 0) {
-            return kJavaScriptBoolean;
-        } else {
-            return kJavaScriptNumber;
-        }
-    } else {
-        return kJavaScriptNull;
-    }
+    return [Foo getJavascriptType:obj];
 }
 
 + (NSError *)errorForStatus:(NSString *)status andReason:(NSString *)reason {

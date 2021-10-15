@@ -192,7 +192,10 @@ public class FWebSocketConnection {
             let data = Data(combined.utf8)
             if let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
                 print("Websocket: Received \(json)")
-                self.delegate?.onMessage(self, withMessage: json)
+                #warning("TEMPORARY WORKAROUND FOR GETTING CALLBACK ON MAIN QUEUE")
+                DispatchQueue.main.async {
+                    self.delegate?.onMessage(self, withMessage: json)
+                }
             }
 
             frame = nil

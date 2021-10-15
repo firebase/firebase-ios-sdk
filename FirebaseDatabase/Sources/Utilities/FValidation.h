@@ -30,12 +30,12 @@
 + (void)validateFrom:(NSString *)fn validKey:(NSString *)key;
 + (void)validateFrom:(NSString *)fn validURL:(FParsedUrl *)parsedUrl;
 
-+ (void)validateToken:(NSString *)token;
+//+ (void)validateToken:(NSString *)token;
 
-// Functions for handling passing errors back
-+ (void)handleError:(NSError *)error
-    withUserCallback:(fbt_void_nserror_id)userCallback;
-+ (void)handleError:(NSError *)error
-    withSuccessCallback:(fbt_void_nserror)userCallback;
+//// Functions for handling passing errors back
+//+ (void)handleError:(NSError *)error
+//    withUserCallback:(fbt_void_nserror_id)userCallback;
+//+ (void)handleError:(NSError *)error
+//    withSuccessCallback:(fbt_void_nserror)userCallback;
 
 @end

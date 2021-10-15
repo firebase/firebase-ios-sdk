@@ -16,7 +16,6 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseDatabase/Sources/Utilities/FNextPushId.h"
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 
 @interface FNextPushIdTest : XCTestCase

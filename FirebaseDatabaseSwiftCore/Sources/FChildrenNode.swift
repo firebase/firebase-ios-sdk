@@ -356,14 +356,6 @@ private let kMaxName = "[MAX_NAME]"
         self.priorityNode = priority
     }
 
-    @objc public init(
-        priority: FNode,
-        children: FImmutableSortedDictionary
-    ) {
-        self.children = children.dict
-        self.priorityNode = priority
-    }
-
     @objc public override init() {
         self.children = [:]
         self.priorityNode = nil
