@@ -9,6 +9,7 @@ on:
     - 'FirebaseMessaging/Sources/Interop/*.h'
     - 'FirebaseTestingSupport/Functions/**'
     - 'FirebaseCombineSwift/Sources/Functions/**'
+    - 'scripts/setup_quickstart.sh'
     - 'Gemfile*'
 
   schedule:
