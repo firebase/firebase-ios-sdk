@@ -137,7 +137,7 @@ jobs:
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       FRAMEWORK_DIR: "Firebase-actions-dir"
       SDK:  "Authentication"
-    runs-on: macOS-10.15
+    runs-on: macos-11
     steps:
     - uses: actions/checkout@v2
     - name: Get framework dir
