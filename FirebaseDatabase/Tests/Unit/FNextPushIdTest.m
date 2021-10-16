@@ -25,9 +25,9 @@
 
 @implementation FNextPushIdTest
 
-static NSString *MIN_PUSH_CHAR = @"-";
+static NSString *MIN_PUSH_CHAR = @" ";
 
-static NSString *MAX_PUSH_CHAR = @"z";
+static NSString *MAX_PUSH_CHAR = @"\uFFFF";
 
 static NSInteger MAX_KEY_LEN = 786;
 
@@ -84,5 +84,78 @@ static NSInteger MAX_KEY_LEN = 786;
   expected = @"abc";
   XCTAssertEqualObjects(expected, actual, @"predecessor(abc + MIN_PUSH_CHAR) == abc");
 }
+
+- (void)testPredecessorWild {
+  NSString *actual = [FNextPushId predecessor:@"\uE000"];
+  NSString *expected = [@"\U0010FFFF" stringByPaddingToLength:MAX_KEY_LEN
+                                            withString:MAX_PUSH_CHAR
+                                       startingAtIndex:0];
+  
+  XCTAssertEqualObjects(
+      expected, actual,
+      @"predecessor(\uE000) = \U0010FFFF + { MAX_PUSH_CHAR repeated MAX_KEY_LEN - 2 times }");
+
+  actual = [FNextPushId predecessor: @"\U00010000"];
+  expected = [@"\uD7FF" stringByPaddingToLength:MAX_KEY_LEN
+                                     withString:MAX_PUSH_CHAR
+                                startingAtIndex:0];
+  XCTAssertEqualObjects(expected, actual, @"predecessor(U00010000) == \uD7FF + { MAX_PUSH_CHAR repeated MAX_KEY_LEN - 2 times }");
+
+    actual = [FNextPushId predecessor: [[NSString alloc] initWithFormat:@"%C", 0x80]];
+    expected = [[[NSString alloc] initWithFormat:@"%C", 0x7E] stringByPaddingToLength:MAX_KEY_LEN
+                                       withString:MAX_PUSH_CHAR
+                                  startingAtIndex:0];
+    XCTAssertEqualObjects(expected, actual, @"predecessor(u0080 + MIN_PUSH_CHAR) == abc");
+
+}
+
+- (void)testPredecessorOrdering {
+    // Start _after_ space because otherwise we have to consider integer interpretation.
+    for (unichar i = 0x21; i < 0xD800; i++) {
+        NSString *key = [[NSString alloc] initWithFormat:@"%C", i];
+        NSString *predecessor = [FNextPushId predecessor: key];
+        NSComparisonResult r = [FUtilities compareKey:key toKey:predecessor];
+        XCTAssertEqual(r, NSOrderedDescending);
+    }
+    for (NSInteger i = 0xE000; i <= 0xFFFF; i++) {
+        NSString *key = [[NSString alloc] initWithFormat:@"%C", (unichar)i];
+        NSString *predecessor = [FNextPushId predecessor: key];
+        NSComparisonResult r = [FUtilities compareKey:key toKey:predecessor];
+        XCTAssertEqual(r, NSOrderedDescending);
+    }
+    for (UTF32Char i = 0x10000; i <= 0x10FFFF; i++) {
+        UniChar c[2];
+        CFStringGetSurrogatePairForLongCharacter(i, c);
+        NSString *key = [[NSString alloc] initWithCharacters:c length:2];
+        NSString *predecessor = [FNextPushId predecessor: key];
+        NSComparisonResult r = [FUtilities compareKey:key toKey:predecessor];
+        XCTAssertEqual(r, NSOrderedDescending);
+    }
+}
+
+- (void)testSuccessorOrdering {
+    for (unichar i = 0x20; i < 0xD800; i++) {
+        NSString *key = [[NSString alloc] initWithFormat:@"%C", i];
+        NSString *successor = [FNextPushId successor: key];
+        NSComparisonResult r = [FUtilities compareKey:key toKey:successor];
+        XCTAssertEqual(r, NSOrderedAscending);
+    }
+    for (NSInteger i = 0xE000; i <= 0xFFFF; i++) {
+        NSString *key = [[NSString alloc] initWithFormat:@"%C", (unichar)i];
+        NSString *successor = [FNextPushId successor: key];
+        NSComparisonResult r = [FUtilities compareKey:key toKey:successor];
+        XCTAssertEqual(r, NSOrderedAscending);
+    }
+    // Stop before last, because otherwise we get to [LAST_KEY]
+    for (UTF32Char i = 0x10000; i < 0x10FFFF; i++) {
+        UniChar c[2];
+        CFStringGetSurrogatePairForLongCharacter(i, c);
+        NSString *key = [[NSString alloc] initWithCharacters:c length:2];
+        NSString *successor = [FNextPushId successor: key];
+        NSComparisonResult r = [FUtilities compareKey:key toKey:successor];
+        XCTAssertEqual(r, NSOrderedAscending);
+    }
+}
+
 
 @end
