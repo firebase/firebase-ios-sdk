@@ -15,11 +15,18 @@
 import Foundation
 
 struct Heartbeat: Codable {
+  enum Kind: Int, Codable, CaseIterable {
+    case daily = 1
+    var days: Int { rawValue }
+  }
+
   private static let version: Int = 0
 
   let info: String
   let date: Date
   let version: Int
+
+  var types: [Kind] = []
 
   init(info: String,
        date: Date = .init()) {
