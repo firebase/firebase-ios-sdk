@@ -19,6 +19,7 @@ protocol PersistentStorage {
   func write(_ value: Data?) throws
 }
 
+
 enum PersistentStorageError: Error {
   case readError
   case writeError
