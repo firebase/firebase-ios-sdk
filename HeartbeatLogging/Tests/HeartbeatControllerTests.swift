@@ -26,6 +26,7 @@ class HeartbeatControllerTests: XCTestCase {
     // invocation of each test method in the class.
   }
 
+  // TODO: Add ObjC interop in the future.
   func testExample() throws {
     let (appID, userAgent) = ("AppID-123456789", "user_agent")
     let logger = HeartbeatController(id: appID)

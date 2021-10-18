@@ -46,6 +46,7 @@ final class HeartbeatStorage {
     }
   }
 
+  // TODO: Review and decide if the below API should provide an `async` option.
   func flush() -> HeartbeatInfo? {
     queue.sync {
       let flushed = try? load(from: storage)
