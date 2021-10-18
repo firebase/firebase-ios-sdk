@@ -14,34 +14,17 @@
 
 import Foundation
 
-/// A type that acts as a controller for a `PersistentStorage` object(s).
-protocol PersistenceController {
-  associatedtype Value: Codable
-  func load(from storage: PersistentStorage) -> Value
-  func save(_ value: Value?, to storage: PersistentStorage)
-}
-
-/// A type that provides block-based API for reading and writing.
-protocol Synchronizable {
-  associatedtype Contents
-  typealias ReadWriteBlock = (inout Contents) -> Void
-  func readWriteSync(_ transform: ReadWriteBlock)
-  func readWriteAsync(_ transform: @escaping ReadWriteBlock)
-}
-
-// MARK: - HeartbeatStorage
-
 /// Thread-safe storage object designed for storing heartbeat data.
 final class HeartbeatStorage {
-  typealias Storage = PersistentStorage
-
-  private let storage: Storage
+  private let storage: PersistentStorage
   private let encoder: JSONEncoder
   private let decoder: JSONDecoder
   private let queue: DispatchQueue
 
+  private let limit: Int = 25 // TODO: Decide how this will be injected...
+
   init(id: String, // TODO: - Sanitize!
-       storage: Storage,
+       storage: PersistentStorage,
        encoder: JSONEncoder = .init(),
        decoder: JSONDecoder = .init()) {
     self.storage = storage
@@ -51,39 +34,37 @@ final class HeartbeatStorage {
     let label = "com.heartbeat.storage.\(id)"
     queue = DispatchQueue(label: label)
   }
-}
 
-// MARK: - Synchronizable
-
-extension HeartbeatStorage: Synchronizable {
-  typealias Contents = HeartbeatData
-
-  func readWriteSync(_ transform: ReadWriteBlock) {
-    queue.sync { execute(transform) }
+  func offer(_ heartbeat: Heartbeat) {
+    queue.async { [self] in
+      let loaded = try? load(from: storage)
+      var heartbeatInfo = loaded ?? HeartbeatInfo(capacity: limit)
+      heartbeatInfo.offer(heartbeat)
+      try? save(heartbeatInfo, to: storage)
+    }
   }
 
-  func readWriteAsync(_ transform: @escaping ReadWriteBlock) {
-    queue.async { self.execute(transform) }
+  // TODO: Review and decide if the below API should provide an `async` option.
+  func flush() -> HeartbeatInfo? {
+    queue.sync {
+      let flushed = try? load(from: storage)
+      try? save(nil, to: storage)
+      return flushed
+    }
   }
 
-  func execute(_ transform: ReadWriteBlock) {
-    var loggingData = load(from: storage)
-    transform(&loggingData)
-    save(loggingData, to: storage)
-  }
-}
-
-// MARK: - PersistenceController
-
-extension HeartbeatStorage: PersistenceController {
-  typealias Value = HeartbeatData
-
-  func load(from storage: Storage) -> Value {
-    // --snip--
-    HeartbeatData()
+  private func load(from storage: PersistentStorage) throws -> HeartbeatInfo {
+    let data = try self.storage.read()
+    let heartbeatData = try decoder.decode(HeartbeatInfo.self, from: data)
+    return heartbeatData
   }
 
-  func save(_ value: Value?, to storage: Storage) {
-    // --snip--
+  private func save(_ value: HeartbeatInfo?, to storage: PersistentStorage) throws {
+    if let value = value {
+      let data = try encoder.encode(value)
+      try storage.write(data)
+    } else {
+      try storage.write(nil)
+    }
   }
 }

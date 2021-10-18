@@ -19,6 +19,11 @@ protocol PersistentStorage {
   func write(_ value: Data?) throws
 }
 
+enum PersistentStorageError: Error {
+  case readError
+  case writeError
+}
+
 // MARK: - FileStorage
 
 class FileStorage {
@@ -30,16 +35,40 @@ class FileStorage {
     self.url = url
     self.fileManager = fileManager
   }
+
+  private func createDirectories(in url: URL) throws {
+    do {
+      try fileManager.createDirectory(
+        at: url,
+        withIntermediateDirectories: true,
+        attributes: nil
+      )
+    } catch CocoaError.fileWriteFileExists {
+      // Directory already exists.
+    } catch { throw error }
+  }
 }
 
 extension FileStorage: PersistentStorage {
   func read() throws -> Data {
-    // --snip--
-    Data()
+    do {
+      return try Data(contentsOf: url)
+    } catch {
+      throw PersistentStorageError.readError
+    }
   }
 
   func write(_ value: Data?) throws {
-    // --snip--
+    do {
+      if let value = value {
+        try createDirectories(in: url.deletingLastPathComponent())
+        try value.write(to: url, options: .atomic)
+      } else {
+        try fileManager.removeItem(at: url)
+      }
+    } catch {
+      throw PersistentStorageError.writeError
+    }
   }
 }
 
@@ -58,11 +87,18 @@ class UserDefaultsStorage {
 
 extension UserDefaultsStorage: PersistentStorage {
   func read() throws -> Data {
-    // --snip--
-    Data()
+    if let data = defaults.data(forKey: key) {
+      return data
+    } else {
+      throw PersistentStorageError.readError
+    }
   }
 
   func write(_ value: Data?) throws {
-    // --snip--
+    if let value = value {
+      defaults.set(value, forKey: key)
+    } else {
+      defaults.removeObject(forKey: key)
+    }
   }
 }
