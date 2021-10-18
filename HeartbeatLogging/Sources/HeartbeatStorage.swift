@@ -16,9 +16,7 @@ import Foundation
 
 /// Thread-safe storage object designed for storing heartbeat data.
 final class HeartbeatStorage {
-  typealias Storage = PersistentStorage
-
-  private let storage: Storage
+  private let storage: PersistentStorage
   private let encoder: JSONEncoder
   private let decoder: JSONDecoder
   private let queue: DispatchQueue
@@ -26,7 +24,7 @@ final class HeartbeatStorage {
   private let limit: Int = 25 // TODO: Decide how this will be injected...
 
   init(id: String, // TODO: - Sanitize!
-       storage: Storage,
+       storage: PersistentStorage,
        encoder: JSONEncoder = .init(),
        decoder: JSONDecoder = .init()) {
     self.storage = storage
@@ -55,13 +53,13 @@ final class HeartbeatStorage {
     }
   }
 
-  private func load(from storage: Storage) throws -> HeartbeatInfo {
+  private func load(from storage: PersistentStorage) throws -> HeartbeatInfo {
     let data = try self.storage.read()
     let heartbeatData = try decoder.decode(HeartbeatInfo.self, from: data)
     return heartbeatData
   }
 
-  private func save(_ value: HeartbeatInfo?, to storage: Storage) throws {
+  private func save(_ value: HeartbeatInfo?, to storage: PersistentStorage) throws {
     if let value = value {
       let data = try encoder.encode(value)
       try storage.write(data)
