@@ -14,15 +14,6 @@
 
 import Foundation
 
-/// A type that provides a basic logger API.
-public protocol Logger {
-  associatedtype Logs
-  func log(_ info: String)
-  func flush(limit: Int?) -> Logs
-}
-
-// MARK: - HeartbeatLogger
-
 /// A  logger object that provides API to log and flush heartbeats from a synchronized storage container.
 public final class HeartbeatController {
   /// The thread-safe storage object to log and flush heartbeats from.
@@ -43,59 +34,24 @@ public final class HeartbeatController {
   init(storage: HeartbeatStorage) {
     self.storage = storage
   }
-}
 
-extension HeartbeatController: Logger {
-  // TODO: - Re-evaluate below doc comment (move implementation explanation).
-  /// Asynchronously attempts to log a new heartbeat.
-  ///
-  /// For each heartbeat type (i.e. daily, weekly, & monthly), a new heartbeat will be logged to a queue
+  /// Asynchronously log a new heartbeat, if needed.
   ///
   /// - Note: This API is thread-safe.
   ///
-  /// - Parameter info: A `String?` identifier to associate a new heartbeat with.
+  /// - Parameter info: A `String` identifier to associate a new heartbeat with.
   public func log(_ info: String) {
     let newHeartbeat = Heartbeat(info: info)
-    storage.readWriteAsync { heartbeatData in
-      for type in heartbeatData.types {
-        heartbeatData.offer(newHeartbeat, type: type)
-      }
-    }
+    storage.offer(newHeartbeat)
   }
 
-  // TODO: - Re-evaluate below doc comment (move implementation explanation).
   /// Synchronously flushes heartbeats from storage.
-  ///
-  /// A round robin approach is used to fairly flush heartbeats of different types (daily, weekly, and monthly).
   ///
   /// - Note: This API is thread-safe.
   ///
-  /// - Parameter limit: The max number of heartbeats to flush if not `nil`; otherwise, all
-  /// heartbeats will be flushed from storage..
-  /// - Returns: The flushed heartbeats in the form of `HeartbeatData`.
+  /// - Returns: The flushed heartbeats in the form of `HeartbeatInfo`.
   @discardableResult
-  public func flush(limit: Int? = nil) -> HeartbeatData {
-    var flushed = HeartbeatData()
-    storage.readWriteSync { heartbeatData in
-      var (isFlushing, flushedCount) = (true, 0)
-      while isFlushing {
-        isFlushing = false
-        for type in heartbeatData.types {
-          if let limit = limit, flushedCount >= limit {
-            // The given `limit` has been reached, so flushing should stop.
-            break
-          }
-          // Flush a heartbeat from storage and save to `flushed`.
-          if let flushedHeartbeat = heartbeatData.request(type: type) {
-            if flushed.offer(flushedHeartbeat, type: type) {
-              // Increment and indicate the flush is still in progress.
-              flushedCount += 1
-              isFlushing = true
-            }
-          }
-        }
-      }
-    }
-    return flushed
+  public func flush() -> HeartbeatInfo? {
+    storage.flush()
   }
 }
