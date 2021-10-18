@@ -110,6 +110,10 @@ struct ZipBuilderTool: ParsableCommand {
   /// The minimum tvOS Version to build for.
   @Option(default: "10.0", help: ArgumentHelp("The minimum supported tvOS version."))
   var minimumTVOSVersion: String
+  
+  /// The minimum watchOS Version to build for.
+  @Option(default: "7.0", help: ArgumentHelp("The minimum supported watchOS version."))
+  var minimumWatchOSVersion: String
 
   /// The list of platforms to build for.
   @Option(parsing: .upToNextOption,
@@ -264,7 +268,8 @@ struct ZipBuilderTool: ParsableCommand {
       // Set the platform minimum versions.
       PlatformMinimum.initialize(ios: minimumIOSVersion,
                                  macos: minimumMacOSVersion,
-                                 tvos: minimumTVOSVersion)
+                                 tvos: minimumTVOSVersion,
+                                 watchos: minimumWatchOSVersion)
 
       let (installedPods, frameworks, _) =
         builder.buildAndAssembleZip(podsToInstall: podsToBuild,
