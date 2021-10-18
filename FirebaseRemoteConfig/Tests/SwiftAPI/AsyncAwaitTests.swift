@@ -28,7 +28,6 @@ private enum Constants {
   static let darthSidious = "Darth Sidious"
 }
 
-@available(iOS 15.0.0, *)
 class AsyncAwaitTests: APITestBase {
   var console: RemoteConfigConsole!
 

@@ -83,9 +83,10 @@ app update.
   s.test_spec 'swift-api-tests' do |swift_api|
     swift_api.scheme = { :code_coverage => true }
     swift_api.platforms = {
-      :ios => ios_deployment_target,
-      :osx => osx_deployment_target,
-      :tvos => tvos_deployment_target
+      // Use recent versions to enable async await testing
+      :ios => '15.0',
+      :osx => '12.0',
+      :tvos => '15.0'
     }
     swift_api.source_files = 'FirebaseRemoteConfig/Tests/SwiftAPI/*.swift',
                              'FirebaseRemoteConfig/Tests/FakeUtils/*.[hm]',
@@ -101,9 +102,9 @@ app update.
   s.test_spec 'fake-console-tests' do |fake_console|
     fake_console.scheme = { :code_coverage => true }
     fake_console.platforms = {
-      :ios => ios_deployment_target,
-      :osx => osx_deployment_target,
-      :tvos => tvos_deployment_target
+      :ios => '15.0',
+      :osx => '12.0',
+      :tvos => '15.0'
     }
     fake_console.source_files = 'FirebaseRemoteConfig/Tests/SwiftAPI/*.swift',
                                       'FirebaseRemoteConfig/Tests/FakeUtils/*.[hm]',
