@@ -14,8 +14,8 @@
 
 import Foundation
 
-struct Heartbeat: Codable {
-  enum Kind: Int, Codable, CaseIterable {
+struct Heartbeat: Codable, Equatable {
+  enum Kind: Int, CaseIterable, Codable {
     case daily = 1
     var days: Int { rawValue }
   }
@@ -33,5 +33,11 @@ struct Heartbeat: Codable {
     self.info = info
     self.date = date
     version = Self.version
+  }
+}
+
+extension Heartbeat {
+  func isNewerThan(_ other: Heartbeat, kind: Heartbeat.Kind) -> Bool {
+    return true
   }
 }
