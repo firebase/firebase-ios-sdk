@@ -73,7 +73,7 @@ enum TargetPlatform: CaseIterable {
     case .tvOSDevice: return "appletvos"
     case .tvOSSimulator: return "appletvsimulator"
     case .watchOSDevice: return "watchos"
-    case .watchOSSimulator: return "watchossimulator"
+    case .watchOSSimulator: return "watchsimulator"
     }
   }
 
