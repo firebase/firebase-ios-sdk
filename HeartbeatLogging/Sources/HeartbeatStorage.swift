@@ -23,7 +23,6 @@ final class HeartbeatStorage {
   private let decoder: JSONDecoder
   private let queue: DispatchQueue
 
-
   private let limit: Int = 25 // TODO: Decide how this will be injected...
 
   init(id: String, // TODO: - Sanitize!
@@ -68,4 +67,5 @@ final class HeartbeatStorage {
     } else {
       try storage.write(nil)
     }
+  }
 }
