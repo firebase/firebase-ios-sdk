@@ -283,8 +283,8 @@ class APITests: APITestBase {
   // MARK: - Private Helpers
 
   private func waitForExpectations() {
-    let kFIRStorageIntegrationTestTimeout = 10.0
-    waitForExpectations(timeout: kFIRStorageIntegrationTestTimeout,
+    let kTestTimeout = 10.0
+    waitForExpectations(timeout: kTestTimeout,
                         handler: { (error) -> Void in
                           if let error = error {
                             print(error)
