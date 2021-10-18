@@ -110,7 +110,7 @@ struct ZipBuilderTool: ParsableCommand {
   /// The minimum tvOS Version to build for.
   @Option(default: "10.0", help: ArgumentHelp("The minimum supported tvOS version."))
   var minimumTVOSVersion: String
-  
+
   /// The minimum watchOS Version to build for.
   @Option(default: "7.0", help: ArgumentHelp("The minimum supported watchOS version."))
   var minimumWatchOSVersion: String
