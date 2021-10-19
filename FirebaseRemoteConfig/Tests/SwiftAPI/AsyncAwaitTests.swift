@@ -114,23 +114,15 @@ class AsyncAwaitTests: APITestBase {
     guard APITests.useFakeConfig == false else { return }
 
     _ = try await config.fetchAndActivate()
-
-    if let configValue = config.configValue(forKey: Constants.jedi).stringValue {
-      XCTAssertEqual(configValue, Constants.obiwan)
-    } else {
-      XCTFail("Could not unwrap config value for key: \(Constants.jedi)")
-    }
+    let configValue = try? XCTUnwrap(config.configValue(forKey: Constants.jedi).stringValue)
+    XCTAssertEqual(configValue, Constants.obiwan)
 
     // Synchronously update the console.
     console.updateRemoteConfigValue(Constants.yoda, forKey: Constants.jedi)
 
     _ = try await config.fetchAndActivate()
-
-    if let configValue = config.configValue(forKey: Constants.jedi).stringValue {
-      XCTAssertEqual(configValue, Constants.yoda)
-    } else {
-      XCTFail("Could not unwrap config value for key: \(Constants.jedi)")
-    }
+    let configValue2 = try? XCTUnwrap(config.configValue(forKey: Constants.jedi).stringValue)
+    XCTAssertEqual(configValue2, Constants.yoda)
   }
 
   func testFetchConfigThenAddValueOnConsoleThenFetchAgain() async throws {
@@ -145,22 +137,16 @@ class AsyncAwaitTests: APITestBase {
 
     // Verify the Sith Lord can now be fetched from Remote Config
     _ = try await config.fetchAndActivate()
-    if let configValue = config.configValue(forKey: Constants.sith).stringValue {
-      XCTAssertEqual(configValue, Constants.darthSidious)
-    } else {
-      XCTFail("Could not unwrap config value for key: \(Constants.sith)")
-    }
+    let configValue = try? XCTUnwrap(config.configValue(forKey: Constants.sith).stringValue)
+    XCTAssertEqual(configValue, Constants.darthSidious)
   }
 
   func testFetchConfigThenDeleteValueOnConsoleThenFetchAgain() async throws {
     guard APITests.useFakeConfig == false else { return }
 
     _ = try await config.fetchAndActivate()
-    if let configValue = config.configValue(forKey: Constants.jedi).stringValue {
-      XCTAssertEqual(configValue, Constants.obiwan)
-    } else {
-      XCTFail("Could not unwrap config value for key: \(Constants.jedi)")
-    }
+    let configValue = try? XCTUnwrap(config.configValue(forKey: Constants.jedi).stringValue)
+    XCTAssertEqual(configValue, Constants.obiwan)
 
     // Synchronously delete value on the console.
     console.removeRemoteConfigValue(forKey: Constants.jedi)
