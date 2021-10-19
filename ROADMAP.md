@@ -19,11 +19,14 @@ Please upvote existing feature requests, add new feature requests, and send PRs.
 * [Example Feature Request](https://github.com/firebase/firebase-ios-sdk/issues/8827)
 * [Example Pull Request](https://github.com/firebase/firebase-ios-sdk/pull/6568)
 
+See [Contributing.md](Contributing.md) for full details about contributing
+code to the Firebase repo.
+
 Thanks in large part to community contributions, we already have several Swift
 improvements:
 * Analytics
   * Enabling [SwiftUI Screen tracking](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseAnalyticsSwift/CHANGELOG.md)
-   automated view logging for SwiftUI apps (which was broken)
+   automated view logging for SwiftUI apps
 * Firestore and RTDB
   * Codable Support ([Firestore](https://github.com/firebase/firebase-ios-sdk/pull/3198),
    [Database](https://github.com/firebase/firebase-ios-sdk/tree/master/FirebaseDatabaseSwift/Sources/Codable))
@@ -35,8 +38,7 @@ improvements:
    and [async/await](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseStorageSwift/CHANGELOG.md)
    additions
 * ML Model Downloader
-  * Full [SDK implementation in Swift](https://github.com/firebase/firebase-ios-sdk/tree/master/FirebaseMLModelDownloader/Sources),
-   reduced maintenance costs and made onboarding easier
+  * Full [SDK implementation in Swift](https://github.com/firebase/firebase-ios-sdk/tree/master/FirebaseMLModelDownloader/Sources)
 * In App Messaging
   * Vastly simplified usage from SwiftUI with
    [SwiftUI modifiers](https://github.com/firebase/firebase-ios-sdk/pull/7496) to show messages and
@@ -79,6 +81,11 @@ async/await API automatically generated and an explicit function may need to be
 added. See these
 [Firebase Storage examples](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseStorageSwift/Sources/AsyncAwait.swift).
 
+### Combine
+
+Firebase has community support for Combine (Thanks!). See
+[Combine Readme](FirebaseCombineSwift/README.md) for usage and project details.
+
 ## More complete Apple platform support
 
 Continue to expand the range and quality of Firebase support across
@@ -99,7 +106,7 @@ Modernize the [Swift Quickstarts](https://github.com/firebase/quickstart-ios).
 Continue the work done in 2020 and 2021 that used better Swift style, SwiftUI,
 Swift Package Manager, async/await APIs, and multi-platform support for
 [Analytics](https://github.com/firebase/quickstart-ios/tree/master/analytics),
-[ABTestting](https://github.com/firebase/quickstart-ios/tree/master/abtesting),
+[ABTesting](https://github.com/firebase/quickstart-ios/tree/master/abtesting),
 [Auth](https://github.com/firebase/quickstart-ios/tree/master/authentication),
 [Database](https://github.com/firebase/quickstart-ios/tree/master/database),
 [Functions](https://github.com/firebase/quickstart-ios/tree/master/functions),
