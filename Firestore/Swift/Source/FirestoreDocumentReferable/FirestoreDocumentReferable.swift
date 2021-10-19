@@ -17,16 +17,19 @@
 import FirebaseFirestore
 
 public protocol FirestoreDocumentReferable {
-    var documentID: String { get set }
+  var documentID: String { get set }
 }
 
 extension QueryDocumentSnapshot {
-    public func decode<T>(as type: T.Type, with serverTimestampBehavior: ServerTimestampBehavior = .none, decoder: Firestore.Decoder? = nil) throws -> T? where T: Decodable, T: FirestoreDocumentReferable {
-        if var result = try data(as: type, with: serverTimestampBehavior, decoder: decoder) {
-            result.documentID = documentID
-            return result
-        }
-        
-        return nil
+  public func decode<T>(as type: T.Type,
+                        with serverTimestampBehavior: ServerTimestampBehavior = .none,
+                        decoder: Firestore.Decoder? = nil) throws -> T? where T: Decodable,
+    T: FirestoreDocumentReferable {
+    if var result = try data(as: type, with: serverTimestampBehavior, decoder: decoder) {
+      result.documentID = documentID
+      return result
     }
+
+    return nil
+  }
 }
