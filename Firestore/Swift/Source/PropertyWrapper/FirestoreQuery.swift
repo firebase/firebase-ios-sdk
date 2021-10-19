@@ -21,11 +21,11 @@ import FirebaseFirestore
 /// to the target type of `FirestoreQuery`.
 ///
 public enum DecodingFailureStrategy {
-  /// Ignore any errors that occur when mapping Firestore documents.
-  case ignore
-
-  /// Raise an error when mapping a Firestore document fails.
-  case raise
+    /// Ignore any errors that occur when mapping Firestore documents.
+    case ignore
+    
+    /// Raise an error when mapping a Firestore document fails.
+    case raise
 }
 
 /// A property wrapper that listens to a Firestore collection.
@@ -114,78 +114,59 @@ public enum DecodingFailureStrategy {
 @available(iOS 14.0, macOS 11.0, macCatalyst 14.0, tvOS 14.0, watchOS 7.0, *)
 @propertyWrapper
 public struct FirestoreQuery<T>: DynamicProperty {
-  @StateObject private var firestoreQueryObservable: FirestoreQueryObservable<T>
-
-  /// The query's configurable properties.
-  public struct Configuration {
-    /// The query's collection path.
-    public var path: String
-
-    /// The query's predicates.
-    public var predicates: [QueryPredicate]
-
-    // The strategy to use in case there was a problem during the decoding phase.
-    public var decodingFailureStrategy: DecodingFailureStrategy = .raise
-
-    /// If any errors occurred, they will be exposed here as well.
-    public var error: Error?
-  }
-
-  /// The results of the query.
-  ///
-  /// This property returns an empty collection when there are no matching results.
-  public var wrappedValue: T {
-    firestoreQueryObservable.items
-  }
-
-  /// A binding to the request's mutable configuration properties
-  public var projectedValue: Configuration {
-    get {
-      firestoreQueryObservable.configuration
+    @StateObject private var firestoreQueryObservable: FirestoreQueryObservable<T>
+    
+    /// The query's configurable properties.
+    public struct Configuration {
+        /// The query's collection path.
+        public var path: String
+        
+        /// The query's predicates.
+        public var predicates: [QueryPredicate]
+        
+        /// The strategy to use in case there was a problem during the decoding phase.
+        public var decodingFailureStrategy: DecodingFailureStrategy = .raise
+        
+        /// If any errors occurred, they will be exposed here as well.
+        public var error: Error?
     }
-    nonmutating set {
-      firestoreQueryObservable.objectWillChange.send()
-      firestoreQueryObservable.configuration = newValue
+    
+    /// The results of the query.
+    ///
+    /// This property returns an empty collection when there are no matching results.
+    public var wrappedValue: T {
+        firestoreQueryObservable.result
     }
-  }
-
-  /// Creates an instance by defining a query based on the parameters.
-  /// - Parameters:
-  ///   - collectionPath: The path to the Firestore collection to query.
-  ///   - predicates: An optional array of `QueryPredicate`s that defines a
-  ///     filter for the fetched results.
-  ///   - decodingFailureStrategy: The strategy to use when there is a failure
-  ///     during the decoding phase. Defaults to `DecodingFailureStrategy.raise`.
-  public init<U: Decodable>(collectionPath: String, predicates: [QueryPredicate] = [],
-                            decodingFailureStrategy: DecodingFailureStrategy = .raise)
-    where T == [U] {
-    let configuration = Configuration(
-      path: collectionPath,
-      predicates: predicates,
-      decodingFailureStrategy: decodingFailureStrategy
-    )
-
-    _firestoreQueryObservable =
-      StateObject(wrappedValue: FirestoreQueryObservable<T>(configuration: configuration))
-  }
-
-  /// Creates an instance by defining a query based on the parameters.
-  /// - Parameters:
-  ///   - collectionPath: The path to the Firestore collection to query.
-  ///   - predicates: An optional array of `QueryPredicate`s that defines a
-  ///     filter for the fetched results.
-  ///   - decodingFailureStrategy: The strategy to use when there is a failure
-  ///     during the decoding phase. Defaults to `DecodingFailureStrategy.raise`.
-  public init<U: Decodable>(collectionPath: String, predicates: [QueryPredicate] = [],
-                            decodingFailureStrategy: DecodingFailureStrategy = .raise)
-    where T == Result<[U], Error> {
-    let configuration = Configuration(
-      path: collectionPath,
-      predicates: predicates,
-      decodingFailureStrategy: decodingFailureStrategy
-    )
-
-    _firestoreQueryObservable =
-      StateObject(wrappedValue: FirestoreQueryObservable<T>(configuration: configuration))
-  }
+    
+    /// A binding to the request's mutable configuration properties
+    public var projectedValue: Configuration {
+        get {
+            firestoreQueryObservable.configuration
+        }
+        nonmutating set {
+            firestoreQueryObservable.objectWillChange.send()
+            firestoreQueryObservable.configuration = newValue
+        }
+    }
+    
+    public init<U: FirestoreDocumentReferable & Codable>(collectionPath: String, predicates: [QueryPredicate] = [],
+                                                           decodingFailureStrategy: DecodingFailureStrategy = .raise)
+    where T == FirestoreQueryResult<U> {
+        let configuration = Configuration(
+            path: collectionPath,
+            predicates: predicates,
+            decodingFailureStrategy: decodingFailureStrategy
+        )
+        
+        _firestoreQueryObservable = StateObject(wrappedValue: FirestoreQueryObservable<T>(configuration: configuration))
+    }
+    
+    /// Creates an instance by defining a query based on the parameters.
+    /// - Parameters:
+    ///   - collectionPath: The path to the Firestore collection to query.
+    ///   - predicates: An optional array of `QueryPredicate`s that defines a
+    ///     filter for the fetched results.
+    ///   - decodingFailureStrategy: The strategy to use when there is a failure
+    ///     during the decoding phase. Defaults to `DecodingFailureStrategy.raise`.
+    
 }
