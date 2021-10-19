@@ -14,30 +14,34 @@
 
 import Foundation
 
-struct Heartbeat: Codable, Equatable {
-  enum Kind: Int, CaseIterable, Codable {
-    case daily = 1
-    var days: Int { rawValue }
-  }
+/// <#Description#>
+enum TimePeriod: TimeInterval, CaseIterable, Codable {
+  // TODO: Enable disabled types in future iterations.
+  case daily = 1 // , case weekly = 7, monthly = 28
 
+  /// <#Description#>
+  var timeInterval: RawValue { rawValue * 86400 /* seconds in a day */ }
+
+  /// <#Description#>
+  static var periods: AllCases { Self.allCases }
+}
+
+/// <#Description#>
+struct Heartbeat: Codable, Equatable {
   private static let version: Int = 0
 
   let info: String
   let date: Date
   let version: Int
 
-  var types: [Kind] = []
+  var timePeriods: [TimePeriod] = []
 
   init(info: String,
-       date: Date = .init()) {
+       date: Date = .init(),
+       version: Int = Self.version) {
     self.info = info
-    self.date = date
-    version = Self.version
-  }
-}
-
-extension Heartbeat {
-  func isNewerThan(_ other: Heartbeat, kind: Heartbeat.Kind) -> Bool {
-    return true
+    // A heartbeat's date is a caledar day standardized at the start of a day.
+    self.date = Calendar(identifier: .gregorian).startOfDay(for: date)
+    self.version = version
   }
 }

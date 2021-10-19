@@ -43,21 +43,24 @@ public struct HeartbeatInfo: Codable {
   /// - Parameter heartbeat: <#heartbeat description#>
   /// - Complexity: O(1)
   mutating func offer(_ heartbeat: Heartbeat) {
-    let newTypes = Heartbeat.Kind.allCases.filter { kind in
-      if let lastHeartbeat = buffer.value(kind) {
-        let userAgentHasChanged = lastHeartbeat.info == heartbeat.info
-        let isNewerHeartbeat = heartbeat.isNewerThan(lastHeartbeat, kind: kind)
-        return isNewerHeartbeat || userAgentHasChanged
+    // `timePeriods` represents the time periods that the given `heartbeat`
+    // should be tagged with. It is calculated by filtering for time periods
+    // that have either an expired heartbeat or no associated heartbeat.
+    let timePeriods = TimePeriod.periods.filter { timePeriod in
+      if let lastHeartbeat = buffer.latestHeartbeat(type: timePeriod) {
+        // Include `timePeriod` if the `lastHeartbeat` of this type is expired.
+        return heartbeat.date - lastHeartbeat.date > timePeriod.timeInterval
       } else {
-        // There was no heartbeat of this kind in the cache. This `heartbeat`
-        // should be marked as being this kind.
+        // No cached heartbeat for `timePeriod` so include for tagging.
         return true
       }
     }
 
-    if !newTypes.isEmpty {
+    if !timePeriods.isEmpty {
+      // If `timePeriods` is non-empty, the given `heartbeat` should be stored
+      // in the `buffer`. Update the `heartbeat` and append it to the buffer.
       var heartbeat = heartbeat
-      heartbeat.types = newTypes
+      heartbeat.timePeriods = timePeriods
       buffer.append(heartbeat)
     }
   }
@@ -66,50 +69,57 @@ public struct HeartbeatInfo: Codable {
 extension HeartbeatInfo {
   /// <#Description#>
   private struct RingBuffer: Codable {
-    private var buffer: [Heartbeat?]
-    private var index: Int
+    /// An array of heartbeats treated as a circular queue and intialized with a fixed capacity.
+    private var circularQueue: [Heartbeat?]
+    /// The current "tail" and insert point for the `circularQueue`.
+    private var tailIndex: Int
 
+    /// <#Description#>
     private var cache = Cache()
 
     init(capacity: Int) {
-      buffer = .init(repeating: nil, count: capacity)
-      index = 0
+      circularQueue = .init(repeating: nil, count: capacity)
+      tailIndex = 0
     }
 
     /// <#Description#>
     /// - Parameter value: <#value description#>
     mutating func append(_ value: Heartbeat) {
-      guard buffer.capacity > 0 else { return }
+      guard circularQueue.capacity > 0 else { return }
 
-      // 1. If a heartbeat in the `buffer` is about to be overwritten, remove
-      //    it from the buffer `cache`.
-      if let replacing = buffer[index] { cache.remove(replacing) }
+      // If a heartbeat in the `circularQueue` is about to be overwritten,
+      // remove it from the buffer `cache`.
+      if let replacing = circularQueue[tailIndex] { cache.remove(replacing) }
 
-      // 2. Write the value to the `buffer` at `index`.
-      buffer[index] = value
+      // Write the value to the `circularQueue` at `tailIndex`.
+      circularQueue[tailIndex] = value
 
-      // 3. Store the written `value` in the buffer `cache`.
+      // Store the written `value` in the buffer `cache`.
       cache.store(value)
 
-      // 4. Increment `index`, wrapping back around to the start accordingly.
-      index = (index + 1) % buffer.capacity
+      // Increment `tailIndex`, wrapping around to the start if needed.
+      tailIndex = (tailIndex + 1) % circularQueue.capacity
     }
 
-    func value(_ key: Heartbeat.Kind) -> Heartbeat? { cache[key] }
+    func latestHeartbeat(type: TimePeriod) -> Heartbeat? {
+      cache[type]
+    }
 
     /// <#Description#>
     private final class Cache: Codable {
-      private lazy var cache: [Heartbeat.Kind: Heartbeat] = [:]
+      private lazy var cache: [TimePeriod: Heartbeat] = [:]
 
       func remove(_ heartbeat: Heartbeat) {
         cache = cache.filter { $1 != heartbeat }
       }
 
       func store(_ heartbeat: Heartbeat) {
-        heartbeat.types.forEach { cache[$0] = heartbeat }
+        heartbeat.timePeriods.forEach { cache[$0] = heartbeat }
       }
 
-      subscript(key: Heartbeat.Kind) -> Heartbeat? { cache[key] }
+      subscript(key: TimePeriod) -> Heartbeat? {
+        cache[key]
+      }
     }
   }
 }
@@ -119,5 +129,11 @@ extension HeartbeatInfo {
 extension HeartbeatInfo: HTTPHeaderRepresentable {
   public func headerValue() -> String {
     ""
+  }
+}
+
+extension Date {
+  static func - (lhs: Self, rhs: Self) -> TimeInterval {
+    lhs.timeIntervalSinceReferenceDate - rhs.timeIntervalSinceReferenceDate
   }
 }
