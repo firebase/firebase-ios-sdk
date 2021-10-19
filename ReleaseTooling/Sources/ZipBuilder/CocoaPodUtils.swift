@@ -49,7 +49,7 @@ enum CocoaPodUtils {
 
     init(name: String,
          version: String?,
-         platforms: Set<String> = ["ios", "macos", "tvos", "watchos"]) {
+         platforms: Set<String> = ["ios", "macos", "tvos"]) {
       self.name = name
       self.version = version
       self.platforms = platforms
@@ -61,7 +61,7 @@ enum CocoaPodUtils {
       if let platforms = try container.decodeIfPresent(Set<String>.self, forKey: .platforms) {
         self.platforms = platforms
       } else {
-        platforms = ["ios", "macos", "tvos", "watchos"]
+        platforms = ["ios", "macos", "tvos"]
       }
       if let version = try container.decodeIfPresent(String.self, forKey: .version) {
         self.version = version

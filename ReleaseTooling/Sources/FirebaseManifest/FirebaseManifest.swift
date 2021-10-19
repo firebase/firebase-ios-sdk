@@ -23,8 +23,8 @@ import Foundation
 public let shared = Manifest(
   version: "8.9.0",
   pods: [
-    Pod("FirebaseCoreDiagnostics", zip: true),
-    Pod("FirebaseCore", zip: true),
+    Pod("FirebaseCoreDiagnostics", platforms: ["ios", "macos", "tvos", "watchos"], zip: true),
+    Pod("FirebaseCore", platforms: ["ios", "macos", "tvos", "watchos"], zip: true),
     Pod("FirebaseInstallations", zip: true),
     Pod("GoogleAppMeasurement", isClosedSource: true, platforms: ["ios"]),
     Pod("FirebaseAnalytics", isClosedSource: true, platforms: ["ios"], zip: true),
@@ -34,7 +34,7 @@ public let shared = Manifest(
     Pod("FirebaseRemoteConfig", zip: true),
     Pod("FirebaseAppDistribution", isBeta: true, platforms: ["ios"], zip: true),
     Pod("FirebaseAuth", zip: true),
-    Pod("FirebaseCrashlytics", zip: true),
+    Pod("FirebaseCrashlytics", platforms: ["ios", "macos", "tvos", "watchos"], zip: true),
     Pod("FirebaseDatabase", zip: true),
     Pod("FirebaseDatabaseSwift", isBeta: true),
     Pod("FirebaseDynamicLinks", platforms: ["ios"], zip: true),
@@ -48,7 +48,7 @@ public let shared = Manifest(
     Pod("FirebaseStorage", zip: true),
     Pod("FirebaseStorageSwift", isBeta: true),
     Pod("FirebaseMLModelDownloader", isBeta: true, zip: true),
-    Pod("Firebase", allowWarnings: true, zip: true),
+    Pod("Firebase", allowWarnings: true, platforms: ["ios", "macos", "tvos", "watchos"], zip: true),
   ]
 )
 
