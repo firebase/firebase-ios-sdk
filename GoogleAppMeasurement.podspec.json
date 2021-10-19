@@ -25,10 +25,12 @@
     },
     "name": "GoogleAppMeasurement",
     "platforms": {
-        "ios": "9.0"
+        "ios": "9.0",
+        "osx": "10.12",
+        "tvos": "12.0"
     },
     "source": {
-        "http": "https://dl.google.com/firebase/ios/analytics/86849febfdc4ff13/GoogleAppMeasurement-8.8.0.tar.gz"
+        "http": "https://dl.google.com/firebase/ios/analytics/a799244947fd06e8/GoogleAppMeasurement-8.9.0.tar.gz"
     },
     "subspecs": [
         {
