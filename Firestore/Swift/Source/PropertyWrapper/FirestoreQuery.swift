@@ -149,6 +149,33 @@ public struct FirestoreQuery<T>: DynamicProperty {
     }
   }
 
+  /// Creates an instance by defining a query based on the parameters.
+  /// - Parameters:
+  ///   - collectionPath: The path to the Firestore collection to query.
+  ///   - predicates: An optional array of `QueryPredicate`s that defines a
+  ///     filter for the fetched results.
+  ///   - decodingFailureStrategy: The strategy to use when there is a failure
+  ///     during the decoding phase. Defaults to `DecodingFailureStrategy.raise`.
+  public init<U: Decodable>(collectionPath: String, predicates: [QueryPredicate] = [],
+                            decodingFailureStrategy: DecodingFailureStrategy = .raise)
+    where T == [U] {
+    let configuration = Configuration(
+      path: collectionPath,
+      predicates: predicates,
+      decodingFailureStrategy: decodingFailureStrategy
+    )
+
+    _firestoreQueryObservable =
+      StateObject(wrappedValue: FirestoreQueryObservable<T>(configuration: configuration))
+  }
+
+  /// Creates an instance by defining a query based on the parameters.
+  /// - Parameters:
+  ///   - collectionPath: The path to the Firestore collection to query.
+  ///   - predicates: An optional array of `QueryPredicate`s that defines a
+  ///     filter for the fetched results.
+  ///   - decodingFailureStrategy: The strategy to use when there is a failure
+  ///     during the decoding phase. Defaults to `DecodingFailureStrategy.raise`.
   public init<U: FirestoreDocumentReferable & Codable>(collectionPath: String,
                                                        predicates: [QueryPredicate] = [],
                                                        decodingFailureStrategy: DecodingFailureStrategy =
@@ -171,4 +198,16 @@ public struct FirestoreQuery<T>: DynamicProperty {
   ///     filter for the fetched results.
   ///   - decodingFailureStrategy: The strategy to use when there is a failure
   ///     during the decoding phase. Defaults to `DecodingFailureStrategy.raise`.
+  public init<U: Decodable>(collectionPath: String, predicates: [QueryPredicate] = [],
+                            decodingFailureStrategy: DecodingFailureStrategy = .raise)
+    where T == Result<[U], Error> {
+    let configuration = Configuration(
+      path: collectionPath,
+      predicates: predicates,
+      decodingFailureStrategy: decodingFailureStrategy
+    )
+
+    _firestoreQueryObservable =
+      StateObject(wrappedValue: FirestoreQueryObservable<T>(configuration: configuration))
+  }
 }

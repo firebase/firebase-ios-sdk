@@ -16,13 +16,11 @@
 
 import FirebaseFirestore
 
-@available(iOS 14.0, macOS 11.0, macCatalyst 14.0, tvOS 14.0, watchOS 7.0, *)
 public class FirestoreQueryResult<T: FirestoreDocumentReferable>: Collection,
   RandomAccessCollection {
   public var items: [T] = []
 
-  #warning("not implemented yet...")
-  public var results: [Result<T, Error>] = []
+  public var results: Result<[T], Error> = .success([])
 
   public var error: Error?
 

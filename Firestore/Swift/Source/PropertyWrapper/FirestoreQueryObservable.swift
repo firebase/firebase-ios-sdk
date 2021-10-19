@@ -45,7 +45,9 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
     setupListener = createListener { [weak self] querySnapshot, error in
       if let error = error {
         self?.result.items = []
+
         self?.result.error = error
+        self?.result.results = .failure(error)
         self?.projectError(error)
         return
       } else {
@@ -55,6 +57,7 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
 
       guard let documents = querySnapshot?.documents else {
         self?.result.items = []
+        self?.result.results = .success([])
         return
       }
 
@@ -70,11 +73,13 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
         }
       }
 
-      if let _ = self?.result.error,
+      if let error = self?.result.error,
         self?.configuration.decodingFailureStrategy == .raise {
         self?.result.items = []
+        self?.result.results = .failure(error)
       } else {
         self?.result.items = decodedDocuments
+        self?.result.results = .success(decodedDocuments)
       }
 
       self?.result.delete = { [weak self] documentID in
