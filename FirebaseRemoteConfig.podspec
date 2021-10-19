@@ -82,12 +82,11 @@ app update.
   # Run Swift API tests on a real backend.
   s.test_spec 'swift-api-tests' do |swift_api|
     swift_api.scheme = { :code_coverage => true }
-    swift_api.platforms = {
-      // Use recent versions to enable async await testing
-      :ios => '15.0',
-      :osx => '12.0',
-      :tvos => '15.0'
-    }
+
+    # Use recent platform versions to enable async await testing
+    swift_api.ios.deployment_target = "15.0"
+    swift_api.osx.deployment_target = "12.0"
+    swift_api.tvos.deployment_target = "15.0"
     swift_api.source_files = 'FirebaseRemoteConfig/Tests/SwiftAPI/*.swift',
                              'FirebaseRemoteConfig/Tests/FakeUtils/*.[hm]',
                              'FirebaseRemoteConfig/Tests/FakeUtils/*.swift'
@@ -101,11 +100,11 @@ app update.
   # Run Swift API tests and tests requiring console changes on a Fake Console.
   s.test_spec 'fake-console-tests' do |fake_console|
     fake_console.scheme = { :code_coverage => true }
-    fake_console.platforms = {
-      :ios => '15.0',
-      :osx => '12.0',
-      :tvos => '15.0'
-    }
+
+    # Use recent platform versions to enable async await testing
+    fake_console.ios.deployment_target = "15.0"
+    fake_console.osx.deployment_target = "12.0"
+    fake_console.tvos.deployment_target = "15.0"
     fake_console.source_files = 'FirebaseRemoteConfig/Tests/SwiftAPI/*.swift',
                                       'FirebaseRemoteConfig/Tests/FakeUtils/*.[hm]',
                                       'FirebaseRemoteConfig/Tests/FakeUtils/*.swift',
