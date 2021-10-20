@@ -556,8 +556,8 @@ namespace testutil = firebase::firestore::testutil;
       [collection queryWhereFieldPath:[FIRFieldPath documentID] isEqualTo:@"foo/bar/baz"], reason);
 
   reason = @"Invalid query. When querying by document ID you must provide a valid string or "
-            "DocumentReference, but it was of type: __NSCFNumber";
-  FSTAssertThrows([collection queryWhereFieldPath:[FIRFieldPath documentID] isEqualTo:@1], reason);
+            "DocumentReference, but it was of type:";
+    FSTAssertExceptionPrefix([collection queryWhereFieldPath:[FIRFieldPath documentID] isEqualTo:@1], reason);
 
   reason = @"Invalid query. When querying a collection group by document ID, the value "
             "provided must result in a valid document path, but 'foo/bar/baz' is not because it "
@@ -586,9 +586,9 @@ namespace testutil = firebase::firestore::testutil;
                   reason);
 
   reason = @"Invalid query. When querying by document ID you must provide a valid string or "
-            "DocumentReference, but it was of type: __NSArrayI";
+            "DocumentReference, but it was of type:";
   NSArray *value = @[ @1, @2 ];
-  FSTAssertThrows([collection queryWhereFieldPath:[FIRFieldPath documentID] in:value], reason);
+    FSTAssertExceptionPrefix([collection queryWhereFieldPath:[FIRFieldPath documentID] in:value], reason);
 
   reason = @"Invalid query. When querying a collection group by document ID, the value "
             "provided must result in a valid document path, but 'foo' is not because it "
