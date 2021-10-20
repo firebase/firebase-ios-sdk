@@ -27,6 +27,8 @@ public protocol HTTPHeaderRepresentable {
 public struct HeartbeatInfo: Codable {
   private var buffer: HeartbeatRingBuffer
 
+  /// Intializes a `HeartbeatInfo` with a given `capacity`.
+  /// - Parameter capacity: An `Int` representing the capacity.
   internal init(capacity: Int) {
     buffer = HeartbeatRingBuffer(capacity: capacity)
   }
@@ -40,7 +42,7 @@ public struct HeartbeatInfo: Codable {
     // should be tagged with. It is calculated by filtering for time periods
     // that have either an expired heartbeat or no associated heartbeat.
     let timePeriods = TimePeriod.periods.filter { timePeriod in
-      if let lastHeartbeat = buffer.latestHeartbeat(type: timePeriod) {
+      if let lastHeartbeat = buffer.lastHeartbeat(ofType: timePeriod) {
         // Include `timePeriod` if the `lastHeartbeat` of this type is expired.
         return heartbeat.date - lastHeartbeat.date > timePeriod.timeInterval
       } else {
@@ -84,7 +86,7 @@ private struct HeartbeatRingBuffer: Codable {
   private let heartbeatsByTimePeriodCache: HeartbeatByTimePeriodCache
 
   /// Intializes a `RingBuffer` with a given `capacity`.
-  /// - Parameter capacity: An `Int` representing the capacity of the intialized `RingBuffer`.
+  /// - Parameter capacity: An `Int` representing the capacity.
   init(capacity: Int) {
     circularQueue = .init(repeating: nil, count: capacity)
     tailIndex = 0
@@ -113,7 +115,10 @@ private struct HeartbeatRingBuffer: Codable {
     tailIndex = (tailIndex + 1) % circularQueue.capacity
   }
 
-  func latestHeartbeat(type: TimePeriod) -> Heartbeat? {
+  /// <#Description#>
+  /// - Parameter type: <#type description#>
+  /// - Returns: <#description#>
+  func lastHeartbeat(ofType type: TimePeriod) -> Heartbeat? {
     heartbeatsByTimePeriodCache[type]
   }
 
@@ -149,6 +154,11 @@ private struct HeartbeatRingBuffer: Codable {
 }
 
 private extension Date {
+  /// <#Description#>
+  /// - Parameters:
+  ///   - lhs: <#lhs description#>
+  ///   - rhs: <#rhs description#>
+  /// - Returns: <#description#>
   static func - (lhs: Self, rhs: Self) -> TimeInterval {
     lhs.timeIntervalSinceReferenceDate - rhs.timeIntervalSinceReferenceDate
   }
