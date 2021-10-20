@@ -25,10 +25,7 @@ class importTest: XCTestCase {
                        parameters: [AnalyticsParameterShipping: 10.0])
   }
 
-  @available(iOS 13, *)
-  @available(tvOS, unavailable)
-  @available(macOS, unavailable)
-  @available(macCatalyst, unavailable)
+  @available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, *)
   @available(watchOS, unavailable)
   func testAnalyticsSwiftImported() {
     _ = Text("Hello, Analytics")
