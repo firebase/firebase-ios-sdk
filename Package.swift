@@ -149,12 +149,12 @@ let package = Package(
     .package(
       name: "GoogleDataTransport",
       url: "https://github.com/google/GoogleDataTransport.git",
-      "9.1.1" ..< "10.0.0"
+      "9.1.2" ..< "10.0.0"
     ),
     .package(
       name: "GoogleUtilities",
       url: "https://github.com/google/GoogleUtilities.git",
-      "7.5.2" ..< "8.0.0"
+      "7.6.0" ..< "8.0.0"
     ),
     .package(
       name: "GTMSessionFetcher",
