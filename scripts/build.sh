@@ -158,6 +158,7 @@ fi
 
 ios_device_flags=(
   -sdk 'iphoneos'
+  -destination 'generic/platform=iOS'
 )
 
 ipad_flags=(
