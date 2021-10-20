@@ -21,7 +21,7 @@ let firebaseVersion = "8.9.0"
 
 let package = Package(
   name: "Firebase",
-  platforms: [.iOS(.v11), .macOS(.v10_12), .tvOS(.v10), .watchOS(.v7)],
+  platforms: [.iOS(.v11), .macOS(.v10_12), .tvOS(.v12), .watchOS(.v7)],
   products: [
     .library(
       name: "FirebaseAnalytics",
@@ -275,10 +275,10 @@ let package = Package(
     .target(
       name: "FirebaseAnalyticsWrapper",
       dependencies: [
-        .target(name: "FirebaseAnalytics", condition: .when(platforms: [.iOS])),
+        .target(name: "FirebaseAnalytics", condition: .when(platforms: [.iOS, .macOS, .tvOS])),
         .product(name: "GoogleAppMeasurement",
                  package: "GoogleAppMeasurement",
-                 condition: .when(platforms: [.iOS])),
+                 condition: .when(platforms: [.iOS, .macOS, .tvOS])),
         "FirebaseCore",
         "FirebaseInstallations",
         .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
@@ -303,7 +303,7 @@ let package = Package(
     .target(
       name: "FirebaseAnalyticsSwiftTarget",
       dependencies: [.target(name: "FirebaseAnalyticsSwift",
-                             condition: .when(platforms: [.iOS]))],
+                             condition: .when(platforms: [.iOS, .macOS, .tvOS]))],
       path: "SwiftPM-PlatformExclude/FirebaseAnalyticsSwiftWrap"
     ),
     .target(
@@ -315,13 +315,13 @@ let package = Package(
     .target(
       name: "FirebaseAnalyticsWithoutAdIdSupportTarget",
       dependencies: [.target(name: "FirebaseAnalyticsWithoutAdIdSupportWrapper",
-                             condition: .when(platforms: [.iOS]))],
+                             condition: .when(platforms: [.iOS, .macOS, .tvOS]))],
       path: "SwiftPM-PlatformExclude/FirebaseAnalyticsWithoutAdIdSupportWrap"
     ),
     .target(
       name: "FirebaseAnalyticsWithoutAdIdSupportWrapper",
       dependencies: [
-        .target(name: "FirebaseAnalytics", condition: .when(platforms: [.iOS])),
+        .target(name: "FirebaseAnalytics", condition: .when(platforms: [.iOS, .macOS, .tvOS])),
         .product(name: "GoogleAppMeasurementWithoutAdIdSupport",
                  package: "GoogleAppMeasurement",
                  condition: .when(platforms: [.iOS])),

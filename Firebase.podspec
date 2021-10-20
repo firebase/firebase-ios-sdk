@@ -33,8 +33,10 @@ Simplify your app development, grow your user base, and monetize more effectivel
   s.subspec 'Core' do |ss|
     ss.ios.deployment_target = '9.0'
     ss.osx.deployment_target = '10.12'
-    ss.tvos.deployment_target = '10.0'
+    ss.tvos.deployment_target = '12.0'
     ss.ios.dependency 'FirebaseAnalytics', '~> 8.9.0'
+    ss.osx.dependency 'FirebaseAnalytics', '~> 8.9.0'
+    ss.tvos.dependency 'FirebaseAnalytics', '~> 8.9.0'
     ss.dependency 'Firebase/CoreOnly'
   end
 
@@ -59,16 +61,22 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'Analytics' do |ss|
     ss.ios.deployment_target = '9.0'
+    ss.osx.deployment_target = '10.12'
+    ss.tvos.deployment_target = '12.0'
     ss.dependency 'Firebase/Core'
   end
 
   s.subspec 'AnalyticsWithAdIdSupport' do |ss|
     ss.ios.deployment_target = '9.0'
+    ss.osx.deployment_target = '10.12'
+    ss.tvos.deployment_target = '12.0'
     ss.dependency 'Firebase/Core'
   end
 
   s.subspec 'AnalyticsWithoutAdIdSupport' do |ss|
     ss.ios.deployment_target = '9.0'
+    ss.osx.deployment_target = '10.12'
+    ss.tvos.deployment_target = '12.0'
     ss.ios.dependency 'FirebaseAnalytics/WithoutAdIdSupport', '~> 8.9.0'
     ss.dependency 'Firebase/CoreOnly'
   end
