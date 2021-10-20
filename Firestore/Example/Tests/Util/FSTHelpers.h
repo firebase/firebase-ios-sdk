@@ -68,7 +68,7 @@ inline NSString *FSTRemoveExceptionPrefix(NSString *exception) {
 }
 
 inline NSString *FSTTakeMessagePrefix(NSString *exception, NSInteger length) {
-    return [exception substringToIndex:length];
+  return [exception substringToIndex:length];
 }
 
 // Helper for validating API exceptions.
