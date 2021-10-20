@@ -40,7 +40,7 @@ struct Heartbeat: Codable, Equatable {
        date: Date = .init(),
        version: Int = Self.version) {
     self.info = info
-    // A heartbeat's date is a caledar day standardized at the start of a day.
+    // A heartbeat's date is a calendar day standardized at the start of day.
     self.date = Calendar(identifier: .gregorian).startOfDay(for: date)
     self.version = version
   }
