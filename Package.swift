@@ -144,7 +144,7 @@ let package = Package(
       url: "https://github.com/google/GoogleAppMeasurement.git",
       // Note that CI changes the version to the head of main for CI.
       // See scripts/setup_spm_tests.sh.
-      .exact("8.9.0")
+        .branch("main")
     ),
     .package(
       name: "GoogleDataTransport",
@@ -267,6 +267,13 @@ let package = Package(
 
     .target(
       name: "FirebaseAnalyticsTarget",
+      dependencies: [.target(name: "FirebaseAnalyticsWrapper",
+                             condition: .when(platforms: [.iOS]))],
+      path: "SwiftPM-PlatformExclude/FirebaseAnalyticsWrap"
+    ),
+
+    .target(
+      name: "FirebaseAnalyticsWrapper",
       dependencies: [
         .target(name: "FirebaseAnalytics", condition: .when(platforms: [.iOS, .macOS, .tvOS])),
         .product(name: "GoogleAppMeasurement",
@@ -301,7 +308,7 @@ let package = Package(
     ),
     .target(
       name: "FirebaseAnalyticsSwift",
-      dependencies: ["FirebaseAnalyticsTarget"],
+      dependencies: ["FirebaseAnalyticsWrapper"],
       path: "FirebaseAnalyticsSwift/Sources"
     ),
 
@@ -992,7 +999,7 @@ let package = Package(
       name: "analytics-import-test",
       dependencies: [
         "FirebaseAnalyticsSwiftTarget",
-        "FirebaseAnalyticsTarget",
+        "FirebaseAnalyticsWrapper",
         "Firebase",
       ],
       path: "SwiftPMTests/analytics-import-test"
