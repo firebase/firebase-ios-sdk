@@ -1,4 +1,9 @@
 # Firebase 8.9.0
+- [added] Firebase introduces beta support for tvOS, macOS, and Catalyst.
+  watchOS continues to be available with community support. Individual product
+  details at
+  https://firebase.google.com/docs/ios/learn-more#firebase_library_support_by_platform (#583)
+- [changed] The minimum support tvOS version is now 12.0.
 - [fixed] Force GoogleUtilities and GoogleDataTransport CocoaPods dependencies
   to be updated to latest minor versions. (#8733)
 
