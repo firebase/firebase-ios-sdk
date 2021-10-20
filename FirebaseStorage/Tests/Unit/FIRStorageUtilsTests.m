@@ -93,7 +93,8 @@
 - (void)testMultiItemDictToQueryString {
   NSDictionary *params = @{@"foo" : @"bar", @"baz" : @"qux"};
   NSString *queryString = [FIRStorageUtils queryStringForDictionary:params];
-  XCTAssertEqualObjects(queryString, @"foo=bar&baz=qux");
+  XCTAssertTrue([queryString isEqualToString:@"foo=bar&baz=qux"] ||
+                [queryString isEqualToString:@"baz=qux&foo=bar"]);
 }
 
 - (void)testDefaultRequestForFullPath {
