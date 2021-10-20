@@ -18,7 +18,7 @@ jobs:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
 
     runs-on: macos-11
-    
+
     strategy:
       matrix:
         target: [ios, tvos, macos]
