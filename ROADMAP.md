@@ -47,9 +47,9 @@ improvements:
 ### Phase 1 - Address Low Hanging Fruit for all Firebase Products
 * Swift API tests
 * async/await API evaluation, tests, and augmentation
-* Property Wrappers
 * Fix non-Swifty APIs
 * Fill API gaps
+* Property Wrappers (Not necessarily low hanging, but can be high value)
 * Identify larger projects for future phases
 
 ### APIs
