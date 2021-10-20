@@ -112,7 +112,7 @@ final class DatabaseAPITests {
       let /* dataSnapshot */ _: DataSnapshot = dataSnapshot
     }
 
-    #if swift(>=5.5)
+    #if compiler(>=5.5) && canImport(_Concurrency)
       if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         Task {
@@ -138,7 +138,7 @@ final class DatabaseAPITests {
       let /* optionalString */ _: String? = optionalString
     }
 
-    #if swift(>=5.5)
+    #if compiler(>=5.5) && canImport(_Concurrency)
       if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         Task {
@@ -210,7 +210,7 @@ final class DatabaseAPITests {
       let /* databaseReference */ _: DatabaseReference = databaseReference
     }
 
-    #if swift(>=5.5)
+    #if compiler(>=5.5) && canImport(_Concurrency)
       if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         Task {
@@ -232,7 +232,7 @@ final class DatabaseAPITests {
       let /* databaseReference */ _: DatabaseReference = databaseReference
     }
 
-    #if swift(>=5.5)
+    #if compiler(>=5.5) && canImport(_Concurrency)
       if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         Task {
@@ -256,7 +256,7 @@ final class DatabaseAPITests {
       let /* databaseReference */ _: DatabaseReference = databaseReference
     }
 
-    #if swift(>=5.5)
+    #if compiler(>=5.5) && canImport(_Concurrency)
       if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         Task {
@@ -278,7 +278,7 @@ final class DatabaseAPITests {
       let /* databaseReference */ _: DatabaseReference = databaseReference
     }
 
-    #if swift(>=5.5)
+    #if compiler(>=5.5) && canImport(_Concurrency)
       if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         Task {
@@ -301,7 +301,7 @@ final class DatabaseAPITests {
       let /* databaseReference */ _: DatabaseReference = databaseReference
     }
 
-    #if swift(>=5.5)
+    #if compiler(>=5.5) && canImport(_Concurrency)
       if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         Task {
@@ -357,7 +357,7 @@ final class DatabaseAPITests {
       let /* optionalString */ _: String? = optionalString
     }
 
-    #if swift(>=5.5)
+    #if compiler(>=5.5) && canImport(_Concurrency)
       if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         Task {
@@ -391,7 +391,7 @@ final class DatabaseAPITests {
       let /* dataSnapshot */ _: DataSnapshot = dataSnapshot
     }
 
-    #if swift(>=5.5)
+    #if compiler(>=5.5) && canImport(_Concurrency)
       if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         Task {
@@ -435,7 +435,7 @@ final class DatabaseAPITests {
       let /* databaseReference */ _: DatabaseReference = databaseReference
     }
 
-    #if swift(>=5.5)
+    #if compiler(>=5.5) && canImport(_Concurrency)
       if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         Task {
@@ -459,7 +459,7 @@ final class DatabaseAPITests {
         let /* databaseReference */ _: DatabaseReference = databaseReference
       }
 
-    #if swift(>=5.5)
+    #if compiler(>=5.5) && canImport(_Concurrency)
       if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         Task {
@@ -485,7 +485,7 @@ final class DatabaseAPITests {
       let /* databaseReference */ _: DatabaseReference = databaseReference
     }
 
-    #if swift(>=5.5)
+    #if compiler(>=5.5) && canImport(_Concurrency)
       if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         Task {
@@ -508,7 +508,7 @@ final class DatabaseAPITests {
       let /* databaseReference */ _: DatabaseReference = databaseReference
     }
 
-    #if swift(>=5.5)
+    #if compiler(>=5.5) && canImport(_Concurrency)
       if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         Task {
@@ -532,7 +532,7 @@ final class DatabaseAPITests {
       let /* databaseReference */ _: DatabaseReference = databaseReference
     }
 
-    #if swift(>=5.5)
+    #if compiler(>=5.5) && canImport(_Concurrency)
       if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         Task {
@@ -564,7 +564,7 @@ final class DatabaseAPITests {
       let /* optionalDataSnapshot */ _: DataSnapshot? = optionalDataSnapshot
     }
 
-    #if swift(>=5.5)
+    #if compiler(>=5.5) && canImport(_Concurrency)
       if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         Task {
