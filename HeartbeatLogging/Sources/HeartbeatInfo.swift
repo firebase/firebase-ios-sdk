@@ -42,9 +42,10 @@ public struct HeartbeatInfo: Codable {
     // should be tagged with. It is calculated by filtering for time periods
     // that have either an expired heartbeat or no associated heartbeat.
     let timePeriods = TimePeriod.periods.filter { timePeriod in
-      if let lastHeartbeat = buffer.lastHeartbeat(ofType: timePeriod) {
+      if let lastHeartbeat = buffer.lastHeartbeat(forTimePeriod: timePeriod) {
+        let (heartbeat, lastHeartbeat) = (heartbeat.date, lastHeartbeat.date)
         // Include `timePeriod` if the `lastHeartbeat` of this type is expired.
-        return heartbeat.date - lastHeartbeat.date > timePeriod.timeInterval
+        return heartbeat.timeIntervalSince(lastHeartbeat) > timePeriod.timeInterval
       } else {
         // No cached heartbeat for `timePeriod` so include for tagging.
         return true
@@ -83,14 +84,14 @@ private struct HeartbeatRingBuffer: Codable {
   private var tailIndex: Int
   /// A cache storing the last heartbeat appended to `circularQueue` for each `TimePeriod`.
   /// - Note: This property's type has reference semantics.
-  private let heartbeatsByTimePeriodCache: HeartbeatByTimePeriodCache
+  private let latestHeartbeatByTimePeriod: HeartbeatByTimePeriodCache
 
   /// Intializes a `RingBuffer` with a given `capacity`.
   /// - Parameter capacity: An `Int` representing the capacity.
   init(capacity: Int) {
     circularQueue = .init(repeating: nil, count: capacity)
     tailIndex = 0
-    heartbeatsByTimePeriodCache = .init()
+    latestHeartbeatByTimePeriod = .init()
   }
 
   /// Adds a heartbeat at the end of the buffer, overwriting an existing heartbeat if the capacity is reached.
@@ -102,24 +103,24 @@ private struct HeartbeatRingBuffer: Codable {
     if let replacing = circularQueue[tailIndex] {
       // If a heartbeat in the `circularQueue` is about to be overwritten,
       // remove it from the `heartbeatsByTimePeriodCache`.
-      heartbeatsByTimePeriodCache.remove(replacing)
+      latestHeartbeatByTimePeriod.remove(replacing)
     }
 
     // Write the `heartbeat` to the `circularQueue` at `tailIndex`.
     circularQueue[tailIndex] = heartbeat
 
     // Store the written `heartbeat` in the `heartbeatsByTimePeriodCache`.
-    heartbeatsByTimePeriodCache.store(heartbeat)
+    latestHeartbeatByTimePeriod.store(heartbeat)
 
     // Increment `tailIndex`, wrapping around to the start if needed.
     tailIndex = (tailIndex + 1) % circularQueue.capacity
   }
 
-  /// <#Description#>
-  /// - Parameter type: <#type description#>
-  /// - Returns: <#description#>
-  func lastHeartbeat(ofType type: TimePeriod) -> Heartbeat? {
-    heartbeatsByTimePeriodCache[type]
+  /// Returns the last heartbeat from a given time period.
+  /// - Parameter timePeriod: Time period where a heartbeat may occur.
+  /// - Returns: Optionally, the last  `Heartbeat` to occur in the given time period.
+  func lastHeartbeat(forTimePeriod timePeriod: TimePeriod) -> Heartbeat? {
+    latestHeartbeatByTimePeriod[timePeriod]
   }
 
   /// A cache mapping `TimePeriod` keys to `Heartbeat` values.
@@ -154,12 +155,8 @@ private struct HeartbeatRingBuffer: Codable {
 }
 
 private extension Date {
-  /// <#Description#>
-  /// - Parameters:
-  ///   - lhs: <#lhs description#>
-  ///   - rhs: <#rhs description#>
-  /// - Returns: <#description#>
-  static func - (lhs: Self, rhs: Self) -> TimeInterval {
-    lhs.timeIntervalSinceReferenceDate - rhs.timeIntervalSinceReferenceDate
+  /// Calculates the time interval since a given `date`.
+  func timeIntervalSince(_ date: Date) -> TimeInterval {
+    timeIntervalSinceReferenceDate - date.timeIntervalSinceReferenceDate
   }
 }

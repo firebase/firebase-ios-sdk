@@ -15,7 +15,7 @@
 import Foundation
 
 /// An enumeration of time periods.
-internal enum TimePeriod: Int, CaseIterable, Codable {
+enum TimePeriod: Int, CaseIterable, Codable {
   /// The raw value is the number of calendar days within each time period.
   // TODO: Enable disabled types in future iterations.
   case daily = 1 // , case weekly = 7, monthly = 28
@@ -28,7 +28,7 @@ internal enum TimePeriod: Int, CaseIterable, Codable {
 }
 
 /// A structure representing SDK usage.
-internal struct Heartbeat: Codable, Equatable {
+struct Heartbeat: Codable, Equatable {
   /// The version of the model. Used for decoding/encoding. Manually incremented when model changes.
   private static let version: Int = 0
 
