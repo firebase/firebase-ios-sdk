@@ -26,7 +26,7 @@ public let shared = Manifest(
     Pod("FirebaseCoreDiagnostics", zip: true),
     Pod("FirebaseCore", zip: true),
     Pod("FirebaseInstallations", zip: true),
-    Pod("GoogleAppMeasurement", isClosedSource: true, platforms: ["ios"]),
+    Pod("GoogleAppMeasurement", isClosedSource: true),
     Pod("FirebaseAnalytics", isClosedSource: true, zip: true),
     Pod("FirebaseAnalyticsSwift", isBeta: true),
     Pod("FirebaseABTesting", zip: true),
