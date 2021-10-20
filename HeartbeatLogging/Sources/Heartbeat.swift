@@ -14,26 +14,31 @@
 
 import Foundation
 
-/// <#Description#>
-enum TimePeriod: TimeInterval, CaseIterable, Codable {
+/// An enumeration of time periods.
+enum TimePeriod: Int, CaseIterable, Codable {
   // TODO: Enable disabled types in future iterations.
+  // The raw value is the number of calendar days within each time period.
   case daily = 1 // , case weekly = 7, monthly = 28
 
-  /// <#Description#>
-  var timeInterval: RawValue { rawValue * 86400 /* seconds in a day */ }
+  /// The number of seconds in a given time period.
+  var timeInterval: TimeInterval { Double(rawValue) * 86400 /* seconds in day */ }
 
-  /// <#Description#>
+  /// All enumerated time periods.
   static var periods: AllCases { Self.allCases }
 }
 
-/// <#Description#>
+/// A structure representing SDK usage.
 struct Heartbeat: Codable, Equatable {
   private static let version: Int = 0
 
+  /// <#Description#>
   let info: String
+  /// <#Description#>
   let date: Date
+  /// <#Description#>
   let version: Int
 
+  /// <#Description#>
   var timePeriods: [TimePeriod] = []
 
   init(info: String,
