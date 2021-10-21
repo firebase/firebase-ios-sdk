@@ -87,7 +87,7 @@ func CreateMetricsRequestData(of sdks: [String], type: String,
     // that `.stdout` will print out logs in the console while pipe can assign logs a
     // variable.
     Shell.run(
-      "cd cocoapods-size && python3 measure_cocoapod_size.py --cocoapods \(sdk) --cocoapods_source_config ../cocoapods_source_config.json --json \(Constants.cocoapodSizeReportFile)",
+      "cd cocoapods-size && python3 measure_cocoapod_size.py --cocoapods \(sdk) --spec_repos specsstaging master --cocoapods_source_config ../cocoapods_source_config.json --json \(Constants.cocoapodSizeReportFile)",
       stdout: .stdout
     )
     let SDKBinarySize = try JSONParser.readJSON(
