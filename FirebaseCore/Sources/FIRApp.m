@@ -135,12 +135,6 @@ static FIRApp *sDefaultApp;
                        kPlistURL];
   }
   [FIRApp configureWithOptions:options];
-#if TARGET_OS_OSX || TARGET_OS_TV
-  FIRLogNotice(kFIRLoggerCore, @"I-COR000028",
-               @"tvOS and macOS SDK support is not part of the official Firebase product. "
-               @"Instead they are community supported. Details at "
-               @"https://github.com/firebase/firebase-ios-sdk/blob/master/README.md.");
-#endif
 }
 
 + (void)configureWithOptions:(FIROptions *)options {
