@@ -243,13 +243,11 @@ physical device.
 
 ## Building with Firebase on Apple platforms
 
-At this time, not all of Firebase's products are available across all Apple platforms. However,
-Firebase is constantly evolving and community supported efforts have helped expand Firebase's support.
-
 Firebase 8.9.0 introduces official beta support for macOS, Catalyst, and tvOS. watchOS continues
-to be community supported.
+to be community supported. Thanks to community contributions for many of the multi-platform PRs.
 
-To keep up with the latest info regarding Firebase's support across Apple platforms, refer to
+At this time, most of Firebase's products are available across Apple platforms. There are still
+a few gaps, especially on watchOS. For details about the current support matrix, see
 [this chart](https://firebase.google.com/docs/ios/learn-more#firebase_library_support_by_platform)
 in Firebase's documentation.
 
