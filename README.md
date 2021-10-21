@@ -245,60 +245,45 @@ physical device.
 
 At this time, not all of Firebase's products are available across all Apple platforms. However,
 Firebase is constantly evolving and community supported efforts have helped expand Firebase's support.
+
+Firebase 8.9.0 introduces official beta support for macOS, Catalyst, and tvOS. watchOS continues
+to be community supported.
+
 To keep up with the latest info regarding Firebase's support across Apple platforms, refer to
 [this chart](https://firebase.google.com/docs/ios/learn-more#firebase_library_support_by_platform)
 in Firebase's documentation.
 
-### Community Supported Efforts
-
-We've seen an amazing amount of interest and contributions to improve the Firebase SDKs, and we are
-very grateful!  We'd like to empower as many developers as we can to be able to use Firebase and
-participate in the Firebase community.
-
-#### Combine
-Thanks to contributions from the community, _FirebaseCombineSwift_ contains support for Apple's Combine
-framework. This module is currently under development, and not yet supported for use in production
-environments. Fore more details, please refer to the [docs](FirebaseCombineSwift/README.md).
-
-#### tvOS, macOS, watchOS and Catalyst
+### watchOS
 Thanks to contributions from the community, many of Firebase SDKs now compile, run unit tests, and
-work on tvOS, macOS, watchOS and Catalyst.
+work on watchOS. See the [Independent Watch App Sample](Example/watchOSSample).
 
-For tvOS, see the [Sample](Example/tvOSSample).
-For watchOS, currently only Messaging, Storage and Crashlytics (and their dependencies) have limited
-support. See the [Independent Watch App Sample](Example/watchOSSample).
-
-Keep in mind that macOS, tvOS, watchOS and Catalyst are not officially supported by Firebase, and
-this repository is actively developed primarily for iOS. While we can catch basic unit test issues
-with GitHub Actions, there may be some changes where the SDK no longer works as expected on macOS,
-tvOS or watchOS. If you encounter this, please
+Keep in mind that watchOS is not officially supported by Firebase. While we can catch basic unit
+test issues with GitHub Actions, there may be some changes where the SDK no longer works as expected
+on watchOS. If you encounter this, please
 [file an issue](https://github.com/firebase/firebase-ios-sdk/issues).
 
 During app setup in the console, you may get to a step that mentions something like "Checking if the
-app has communicated with our servers". This relies on Analytics and will not work on
-macOS/tvOS/watchOS/Catalyst.
+app has communicated with our servers". This relies on Analytics and will not work on watchOS.
 **It's safe to ignore the message and continue**, the rest of the SDKs will work as expected.
-
-#### Additional MacOS and Catalyst Notes
-
-* FirebaseAuth and FirebaseMessaging require adding `Keychain Sharing Capability`
-to Build Settings.
-* For Catalyst, FirebaseFirestore requires signing the
-[gRPC Resource target](https://github.com/firebase/firebase-ios-sdk/issues/3500#issuecomment-518741681).
 
 #### Additional Crashlytics Notes
 * watchOS has limited support. Due to watchOS restrictions, mach exceptions and signal crashes are
 not recorded. (Crashes in SwiftUI are generated as mach exceptions, so will not be recorded)
 
+## Combine
+Thanks to contributions from the community, _FirebaseCombineSwift_ contains support for Apple's Combine
+framework. This module is currently under development, and not yet supported for use in production
+environments. Fore more details, please refer to the [docs](FirebaseCombineSwift/README.md).
+
 ## Roadmap
 
-See [Roadmap](ROADMAP.md) for more about the Firebase iOS SDK Open Source
+See [Roadmap](ROADMAP.md) for more about the Firebase Apple SDK Open Source
 plans and directions.
 
 ## Contributing
 
 See [Contributing](CONTRIBUTING.md) for more information on contributing to the Firebase
-iOS SDK.
+Apple SDK.
 
 ## License
 
