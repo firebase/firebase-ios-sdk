@@ -67,6 +67,10 @@ inline NSString *FSTRemoveExceptionPrefix(NSString *exception) {
   }
 }
 
+inline NSString *FSTTakeMessagePrefix(NSString *exception, NSInteger length) {
+  return [exception substringToIndex:length];
+}
+
 // Helper for validating API exceptions.
 #define FSTAssertThrows(expression, exceptionReason, ...)               \
   do {                                                                  \
@@ -79,6 +83,23 @@ inline NSString *FSTRemoveExceptionPrefix(NSString *exception) {
                             FSTRemoveExceptionPrefix(exceptionReason)); \
     }                                                                   \
     XCTAssertTrue(didThrow, ##__VA_ARGS__);                             \
+  } while (0)
+
+// Helper for validating API exceptions.
+#define FSTAssertExceptionPrefix(expression, prefix, ...)                   \
+  do {                                                                      \
+    BOOL didThrow = NO;                                                     \
+    @try {                                                                  \
+      (void)(expression);                                                   \
+    } @catch (NSException * exception) {                                    \
+      didThrow = YES;                                                       \
+      NSString *expectedMessage = FSTRemoveExceptionPrefix(prefix);         \
+      NSString *actualMessage = FSTRemoveExceptionPrefix(exception.reason); \
+      NSInteger length = expectedMessage.length;                            \
+      XCTAssertEqualObjects(FSTTakeMessagePrefix(actualMessage, length),    \
+                            FSTTakeMessagePrefix(expectedMessage, length)); \
+    }                                                                       \
+    XCTAssertTrue(didThrow, ##__VA_ARGS__);                                 \
   } while (0)
 
 /** Creates a new NSDate from components. Note that year, month, and day are all one-based. */
