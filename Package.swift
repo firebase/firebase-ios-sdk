@@ -202,6 +202,10 @@ let package = Package(
       .upToNextMajor(from: "1.0.0") // or `.upToNextMinor
     ),
     .package(
+        url: "https://github.com/apple/swift-crypto.git",
+        "1.0.0" ..< "3.0.0"
+    ),
+    .package(
       name: "GCDWebServer",
       url: "https://github.com/SlaunchaMan/GCDWebServer.git",
       .revision("935e2736044e71e5341663c3cc9a335ba6867a2b")
@@ -545,7 +549,8 @@ let package = Package(
       dependencies: [ "leveldb",
                       .product(name: "Collections", package: "swift-collections"),
                       .product(name: "NIOWebSocket", package: "swift-nio"),
-                      .product(name: "NIOSSL", package: "swift-nio-ssl")],
+                      .product(name: "NIOSSL", package: "swift-nio-ssl"),
+                      .product(name: "Crypto", package: "swift-crypto")],
       path: "FirebaseDatabaseSwiftCore/Sources",
       exclude: [
         "LevelDB/LICENSE",

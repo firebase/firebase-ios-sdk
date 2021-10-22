@@ -5,11 +5,9 @@
 //  Created by Morten Bek Ditlevsen on 14/09/2021.
 //
 
-import Foundation
-
 let kWireProtocolVersionParam = "v"
 let kWebsocketMaxFrameSize = 16384
-let kWebsocketKeepaliveInterval: TimeInterval = 45
+let kWebsocketKeepaliveInterval: Double /* aka TimeInterval defined in Foundation */ = 45
 let kWebsocketConnectTimeout: Double = 30
 
 let kFWPRequestType = "t"

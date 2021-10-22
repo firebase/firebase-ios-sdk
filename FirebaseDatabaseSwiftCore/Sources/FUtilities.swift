@@ -5,8 +5,30 @@
 //  Created by Morten Bek Ditlevsen on 14/09/2021.
 //
 
-#warning("TODO: Replace with swift-crypto for cross-platform support")
+// NOTE: If deployment target moved to iOS 13 or above, CommonCrypto could be skipped entirely
+#if canImport(CommonCrypto)
 import CommonCrypto
+
+extension Data {
+    func sha1() -> Data {
+        // Use CC_SHA1
+        var digest = [UInt8](repeating: 0, count:Int(CC_SHA1_DIGEST_LENGTH))
+        self.withUnsafeBytes {
+            _ = CC_SHA1($0.baseAddress, CC_LONG(self.count), &digest)
+        }
+        return Data(bytes: digest, count: Int(CC_SHA1_DIGEST_LENGTH))
+    }
+}
+#elseif os(Linux) || os(Windows) || os(Android) || os(FreeBSD)
+import Crypto
+extension Data {
+    func sha1() -> Data {
+        // Use Insecure.SHA1
+        return Data(Insecure.SHA1.hash(data: self))
+    }
+}
+#endif
+
 import Foundation
 
 func tryParseStringToInt(_ str: String, integer: inout Int) -> Bool {
@@ -62,12 +84,7 @@ enum FUtilitiesSwift {
 
     static func base64EncodedSha1(_ input: String) -> String  {
         let data = Data(input.utf8)
-        var digest = [UInt8](repeating: 0, count:Int(CC_SHA1_DIGEST_LENGTH))
-        data.withUnsafeBytes {
-            _ = CC_SHA1($0.baseAddress, CC_LONG(data.count), &digest)
-        }
-        let output = Data(bytes: digest, count: Int(CC_SHA1_DIGEST_LENGTH))
-        return output.base64EncodedString()
+        return data.sha1().base64EncodedString()
     }
 
     static func intForString(_ string: String) -> Int? {
@@ -106,7 +123,13 @@ enum FUtilitiesSwift {
                 // Perform literal character by character search to prevent a > b &&
                 // b > a issues. Note that calling -(NSString
                 // *)decomposedStringWithCanonicalMapping also works.
-                return a.compare(b, options: .literal)
+                if a.utf16.lexicographicallyPrecedes(b.utf16) {
+                    return .orderedAscending
+                } else if b.utf16.lexicographicallyPrecedes(a.utf16) {
+                    return .orderedDescending
+                } else {
+                    return .orderedSame
+                }
             }
         }
     }
