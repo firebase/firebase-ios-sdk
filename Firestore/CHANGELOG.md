@@ -2,6 +2,8 @@
 - [added] Added support for Firebase AppCheck.
 - [fixed] Fix a crash if `[FIRTransaction getDocument]` was called after
   `[FIRFirestore terminateWithCompletion]` (#8760).
+- [fixed] Fixed a performance issue due to repeated schema migrations
+  at app startup (#8791).
 
 # v8.6.0
 - [changed] Internal refactor to improve serialization performance.
