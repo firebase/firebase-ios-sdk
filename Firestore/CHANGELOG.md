@@ -1,5 +1,3 @@
-# Unreleased
-
 # v8.9.0
 - [added] Added support for Firebase AppCheck.
 - [fixed] Fix a crash if `[FIRTransaction getDocument]` was called after
