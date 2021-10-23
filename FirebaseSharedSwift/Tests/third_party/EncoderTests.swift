@@ -8,8 +8,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-import FirebaseDatabase
-import FirebaseDatabaseSwift
+import FirebaseSharedSwift
 import Swift
 import Foundation
 
@@ -17,7 +16,7 @@ import Foundation
 
 import XCTest
 
-class TestDatabaseEncoder: XCTestCase {
+class TestStructureEncoder: XCTestCase {
   // MARK: - Encoding Top-Level Empty Types
 
   func testEncodingTopLevelEmptyStruct() {
@@ -216,14 +215,14 @@ class TestDatabaseEncoder: XCTestCase {
     func localTestRoundTrip<T: Codable & Equatable>(of value: T) {
       var payload: Any! = nil
       do {
-        let encoder = Database.Encoder()
+        let encoder = StructureEncoder()
         payload = try encoder.encode(value)
       } catch {
         XCTFail("Failed to encode \(T.self): \(error)")
       }
 
       do {
-        let decoder = Database.Decoder()
+        let decoder = StructureDecoder()
         let decoded = try decoder.decode(T.self, from: payload!)
 
         /// `snprintf`'s `%g`, which `JSONSerialization` uses internally for double values, does not respect
@@ -475,12 +474,12 @@ class TestDatabaseEncoder: XCTestCase {
   }
 
   func testEncodingNonConformingFloatStrings() {
-    let encodingStrategy: Database.Encoder.NonConformingFloatEncodingStrategy = .convertToString(
+    let encodingStrategy: StructureEncoder.NonConformingFloatEncodingStrategy = .convertToString(
       positiveInfinity: "INF",
       negativeInfinity: "-INF",
       nan: "NaN"
     )
-    let decodingStrategy: Database.Decoder.NonConformingFloatDecodingStrategy = .convertFromString(
+    let decodingStrategy: StructureDecoder.NonConformingFloatDecodingStrategy = .convertFromString(
       positiveInfinity: "INF",
       negativeInfinity: "-INF",
       nan: "NaN"
@@ -582,7 +581,7 @@ class TestDatabaseEncoder: XCTestCase {
       let expected = ["\(test.1)": "test"]
       let encoded = EncodeMe(keyName: test.0)
 
-      let encoder = Database.Encoder()
+      let encoder = StructureEncoder()
       encoder.keyEncodingStrategy = .convertToSnakeCase
       let result = try! encoder.encode(encoded)
 
@@ -594,7 +593,7 @@ class TestDatabaseEncoder: XCTestCase {
     let expected = ["QQQhello": "test"]
     let encoded = EncodeMe(keyName: "hello")
 
-    let encoder = Database.Encoder()
+    let encoder = StructureEncoder()
     let customKeyConversion = { (_ path: [CodingKey]) -> CodingKey in
       let key = _TestKey(stringValue: "QQQ" + path.last!.stringValue)!
       return key
@@ -608,7 +607,7 @@ class TestDatabaseEncoder: XCTestCase {
   func testEncodingDictionaryStringKeyConversionUntouched() {
     let toEncode = ["leaveMeAlone": "test"]
 
-    let encoder = Database.Encoder()
+    let encoder = StructureEncoder()
     encoder.keyEncodingStrategy = .convertToSnakeCase
     let result = try! encoder.encode(toEncode)
 
@@ -626,7 +625,7 @@ class TestDatabaseEncoder: XCTestCase {
   func testEncodingDictionaryFailureKeyPath() {
     let toEncode: [String: EncodeFailure] = ["key": EncodeFailure(someValue: Double.nan)]
 
-    let encoder = Database.Encoder()
+    let encoder = StructureEncoder()
     encoder.keyEncodingStrategy = .convertToSnakeCase
     do {
       _ = try encoder.encode(toEncode)
@@ -643,7 +642,7 @@ class TestDatabaseEncoder: XCTestCase {
     let toEncode: [String: [String: EncodeFailureNested]] =
       ["key": ["sub_key": EncodeFailureNested(nestedValue: EncodeFailure(someValue: Double.nan))]]
 
-    let encoder = Database.Encoder()
+    let encoder = StructureEncoder()
     encoder.keyEncodingStrategy = .convertToSnakeCase
     do {
       _ = try encoder.encode(toEncode)
@@ -673,7 +672,7 @@ class TestDatabaseEncoder: XCTestCase {
     let encoded =
       EncodeNestedNested(outerValue: EncodeNested(nestedValue: EncodeMe(keyName: "helloWorld")))
 
-    let encoder = Database.Encoder()
+    let encoder = StructureEncoder()
     var callCount = 0
 
     let customKeyConversion = { (_ path: [CodingKey]) -> CodingKey in
@@ -758,7 +757,7 @@ class TestDatabaseEncoder: XCTestCase {
       // This structure contains the camel case key that the test object should decode with, then it uses the snake case key (test.0) as the actual key for the boolean value.
       let input = ["camelCaseKey": "\(test.1)", "\(test.0)": true] as [String: Any]
 
-      let decoder = Database.Decoder()
+      let decoder = StructureDecoder()
       decoder.keyDecodingStrategy = .convertFromSnakeCase
 
       let result = try! decoder.decode(DecodeMe.self, from: input)
@@ -771,7 +770,7 @@ class TestDatabaseEncoder: XCTestCase {
 
   func testDecodingKeyStrategyCustom() {
     let input = ["----hello": "test"]
-    let decoder = Database.Decoder()
+    let decoder = StructureDecoder()
     let customKeyConversion = { (_ path: [CodingKey]) -> CodingKey in
       // This converter removes the first 4 characters from the start of all string keys, if it has more than 4 characters
       let string = path.last!.stringValue
@@ -787,7 +786,7 @@ class TestDatabaseEncoder: XCTestCase {
 
   func testDecodingDictionaryStringKeyConversionUntouched() {
     let input = ["leave_me_alone": "test"]
-    let decoder = Database.Decoder()
+    let decoder = StructureDecoder()
     decoder.keyDecodingStrategy = .convertFromSnakeCase
     let result = try! decoder.decode([String: String].self, from: input)
 
@@ -796,7 +795,7 @@ class TestDatabaseEncoder: XCTestCase {
 
   func testDecodingDictionaryFailureKeyPath() {
     let input = ["leave_me_alone": "test"]
-    let decoder = Database.Decoder()
+    let decoder = StructureDecoder()
     decoder.keyDecodingStrategy = .convertFromSnakeCase
     do {
       _ = try decoder.decode([String: Int].self, from: input)
@@ -818,7 +817,7 @@ class TestDatabaseEncoder: XCTestCase {
 
   func testDecodingDictionaryFailureKeyPathNested() {
     let input = ["top_level": ["sub_level": ["nested_value": ["int_value": "not_an_int"]]]]
-    let decoder = Database.Decoder()
+    let decoder = StructureDecoder()
     decoder.keyDecodingStrategy = .convertFromSnakeCase
     do {
       _ = try decoder.decode([String: [String: DecodeFailureNested]].self, from: input)
@@ -840,7 +839,7 @@ class TestDatabaseEncoder: XCTestCase {
   func testEncodingKeyStrategySnakeGenerated() {
     // Test that this works with a struct that has automatically generated keys
     let input = ["this_is_camel_case": "test"]
-    let decoder = Database.Decoder()
+    let decoder = StructureDecoder()
     decoder.keyDecodingStrategy = .convertFromSnakeCase
     let result = try! decoder.decode(DecodeMe3.self, from: input)
 
@@ -849,7 +848,7 @@ class TestDatabaseEncoder: XCTestCase {
 
   func testDecodingKeyStrategyCamelGenerated() {
     let encoded = DecodeMe3(thisIsCamelCase: "test")
-    let encoder = Database.Encoder()
+    let encoder = StructureEncoder()
     encoder.keyEncodingStrategy = .convertToSnakeCase
     let result = try! encoder.encode(encoded)
     XCTAssertEqual(["this_is_camel_case": "test"], result as? [String: String])
@@ -868,7 +867,7 @@ class TestDatabaseEncoder: XCTestCase {
 
     // Decoding
     let input = ["foo_bar": "test", "this_is_camel_case_too": "test2"]
-    let decoder = Database.Decoder()
+    let decoder = StructureDecoder()
     decoder.keyDecodingStrategy = .convertFromSnakeCase
     let decodingResult = try! decoder.decode(DecodeMe4.self, from: input)
 
@@ -877,7 +876,7 @@ class TestDatabaseEncoder: XCTestCase {
 
     // Encoding
     let encoded = DecodeMe4(thisIsCamelCase: "test", thisIsCamelCaseToo: "test2")
-    let encoder = Database.Encoder()
+    let encoder = StructureEncoder()
     encoder.keyEncodingStrategy = .convertToSnakeCase
     let encodingResult = try! encoder.encode(encoded)
     XCTAssertEqual(
@@ -923,7 +922,7 @@ class TestDatabaseEncoder: XCTestCase {
     // Decoding
     // This input has a dictionary with two keys, but only one will end up in the container
     let input = ["unused key 1": "test1", "unused key 2": "test2"]
-    let decoder = Database.Decoder()
+    let decoder = StructureDecoder()
     decoder.keyDecodingStrategy = .custom(customKeyConversion)
 
     let decodingResult = try! decoder.decode(DecodeMe5.self, from: input)
@@ -932,7 +931,7 @@ class TestDatabaseEncoder: XCTestCase {
 
     // Encoding
     let encoded = DecodeMe5()
-    let encoder = Database.Encoder()
+    let encoder = StructureEncoder()
     encoder.keyEncodingStrategy = .custom(customKeyConversion)
     let decodingResult2 = try! encoder.encode(encoded)
 
@@ -943,7 +942,7 @@ class TestDatabaseEncoder: XCTestCase {
   // MARK: - Encoder Features
 
   func testNestedContainerCodingPaths() {
-    let encoder = Database.Encoder()
+    let encoder = StructureEncoder()
     do {
       _ = try encoder.encode(NestedContainersTestType())
     } catch let error as NSError {
@@ -952,7 +951,7 @@ class TestDatabaseEncoder: XCTestCase {
   }
 
   func testSuperEncoderCodingPaths() {
-    let encoder = Database.Encoder()
+    let encoder = StructureEncoder()
     do {
       _ = try encoder.encode(NestedContainersTestType(testSuperEncoder: true))
     } catch let error as NSError {
@@ -976,7 +975,7 @@ class TestDatabaseEncoder: XCTestCase {
   }
 
   func testInterceptURL() {
-    // Want to make sure Database.Encoder writes out single-value URLs, not the keyed encoding.
+    // Want to make sure StructureEncoder writes out single-value URLs, not the keyed encoding.
     let expected = "http://swift.org"
     let url = URL(string: "http://swift.org")!
     _testRoundTrip(of: url, expected: expected)
@@ -1015,13 +1014,13 @@ class TestDatabaseEncoder: XCTestCase {
   }
 
   func testDecodingConcreteTypeParameter() {
-    let encoder = Database.Encoder()
+    let encoder = StructureEncoder()
     guard let value = try? encoder.encode(Employee.testValue) else {
       XCTFail("Unable to encode Employee.")
       return
     }
 
-    let decoder = Database.Decoder()
+    let decoder = StructureDecoder()
     guard let decoded = try? decoder.decode(Employee.self as Person.Type, from: value) else {
       XCTFail("Failed to decode Employee as Person.")
       return
@@ -1062,7 +1061,7 @@ class TestDatabaseEncoder: XCTestCase {
     //
     // The issue at hand reproduces when you have a referencing encoder (superEncoder() creates one) that has a container on the stack (unkeyedContainer() adds one) that encodes a value going through box_() (Array does that) that encodes something which throws (Float.infinity does that).
     // When reproducing, this will cause a test failure via fatalError().
-    _ = try? Database.Encoder().encode(ReferencingEncoderWrapper([Float.infinity]))
+    _ = try? StructureEncoder().encode(ReferencingEncoderWrapper([Float.infinity]))
   }
 
   func testEncoderStateThrowOnEncodeCustomDate() {
@@ -1079,7 +1078,7 @@ class TestDatabaseEncoder: XCTestCase {
     }
 
     // The closure needs to push a container before throwing an error to trigger.
-    let encoder = Database.Encoder()
+    let encoder = StructureEncoder()
     encoder.dateEncodingStrategy = .custom { _, encoder in
       _ = encoder.unkeyedContainer()
       enum CustomError: Error { case foo }
@@ -1103,7 +1102,7 @@ class TestDatabaseEncoder: XCTestCase {
     }
 
     // The closure needs to push a container before throwing an error to trigger.
-    let encoder = Database.Encoder()
+    let encoder = StructureEncoder()
     encoder.dataEncodingStrategy = .custom { _, encoder in
       _ = encoder.unkeyedContainer()
       enum CustomError: Error { case foo }
@@ -1121,12 +1120,12 @@ class TestDatabaseEncoder: XCTestCase {
     // Once Array decoding begins, 1 is pushed onto the container stack ([[1,2,3], 1]), and 1 is attempted to be decoded as String. This throws a .typeMismatch, but the container is not popped off the stack.
     // When attempting to decode [Int], the container stack is still ([[1,2,3], 1]), and 1 fails to decode as [Int].
     let input = [1, 2, 3]
-    _ = try! Database.Decoder().decode(EitherDecodable<[String], [Int]>.self, from: input)
+    _ = try! StructureDecoder().decode(EitherDecodable<[String], [Int]>.self, from: input)
   }
 
   func testDecoderStateThrowOnDecodeCustomDate() {
     // This test is identical to testDecoderStateThrowOnDecode, except we're going to fail because our closure throws an error, not because we hit a type mismatch.
-    let decoder = Database.Decoder()
+    let decoder = StructureDecoder()
     decoder.dateDecodingStrategy = .custom { decoder in
       enum CustomError: Error { case foo }
       throw CustomError.foo
@@ -1138,7 +1137,7 @@ class TestDatabaseEncoder: XCTestCase {
 
   func testDecoderStateThrowOnDecodeCustomData() {
     // This test is identical to testDecoderStateThrowOnDecode, except we're going to fail because our closure throws an error, not because we hit a type mismatch.
-    let decoder = Database.Decoder()
+    let decoder = StructureDecoder()
     decoder.dataDecodingStrategy = .custom { decoder in
       enum CustomError: Error { case foo }
       throw CustomError.foo
@@ -1156,34 +1155,34 @@ class TestDatabaseEncoder: XCTestCase {
 
   private func _testEncodeFailure<T: Encodable>(of value: T) {
     do {
-      _ = try Database.Encoder().encode(value)
+      _ = try StructureEncoder().encode(value)
       XCTFail("Encode of top-level \(T.self) was expected to fail.")
     } catch {}
   }
 
   private func _testRoundTrip<T, U>(of value: T,
                                     expected: U,
-                                    dateEncodingStrategy: Database.Encoder
+                                    dateEncodingStrategy: StructureEncoder
                                       .DateEncodingStrategy = .deferredToDate,
-                                    dateDecodingStrategy: Database.Decoder
+                                    dateDecodingStrategy: StructureDecoder
                                       .DateDecodingStrategy = .deferredToDate,
-                                    dataEncodingStrategy: Database.Encoder
+                                    dataEncodingStrategy: StructureEncoder
                                       .DataEncodingStrategy = .base64,
-                                    dataDecodingStrategy: Database.Decoder
+                                    dataDecodingStrategy: StructureDecoder
                                       .DataDecodingStrategy = .base64,
-                                    keyEncodingStrategy: Database.Encoder
+                                    keyEncodingStrategy: StructureEncoder
                                       .KeyEncodingStrategy = .useDefaultKeys,
-                                    keyDecodingStrategy: Database.Decoder
+                                    keyDecodingStrategy: StructureDecoder
                                       .KeyDecodingStrategy = .useDefaultKeys,
-                                    nonConformingFloatEncodingStrategy: Database.Encoder
+                                    nonConformingFloatEncodingStrategy: StructureEncoder
                                       .NonConformingFloatEncodingStrategy = .throw,
-                                    nonConformingFloatDecodingStrategy: Database.Decoder
+                                    nonConformingFloatDecodingStrategy: StructureDecoder
                                       .NonConformingFloatDecodingStrategy = .throw)
     where T: Codable,
     T: Equatable, U: Equatable {
     var payload: Any! = nil
     do {
-      let encoder = Database.Encoder()
+      let encoder = StructureEncoder()
       encoder.dateEncodingStrategy = dateEncodingStrategy
       encoder.dataEncodingStrategy = dataEncodingStrategy
       encoder.nonConformingFloatEncodingStrategy = nonConformingFloatEncodingStrategy
@@ -1200,7 +1199,7 @@ class TestDatabaseEncoder: XCTestCase {
     )
 
     do {
-      let decoder = Database.Decoder()
+      let decoder = StructureDecoder()
       decoder.dateDecodingStrategy = dateDecodingStrategy
       decoder.dataDecodingStrategy = dataDecodingStrategy
       decoder.nonConformingFloatDecodingStrategy = nonConformingFloatDecodingStrategy
@@ -1213,26 +1212,26 @@ class TestDatabaseEncoder: XCTestCase {
   }
 
   private func _testRoundTrip<T>(of value: T,
-                                 dateEncodingStrategy: Database.Encoder
+                                 dateEncodingStrategy: StructureEncoder
                                    .DateEncodingStrategy = .deferredToDate,
-                                 dateDecodingStrategy: Database.Decoder
+                                 dateDecodingStrategy: StructureDecoder
                                    .DateDecodingStrategy = .deferredToDate,
-                                 dataEncodingStrategy: Database.Encoder
+                                 dataEncodingStrategy: StructureEncoder
                                    .DataEncodingStrategy = .base64,
-                                 dataDecodingStrategy: Database.Decoder
+                                 dataDecodingStrategy: StructureDecoder
                                    .DataDecodingStrategy = .base64,
-                                 keyEncodingStrategy: Database.Encoder
+                                 keyEncodingStrategy: StructureEncoder
                                    .KeyEncodingStrategy = .useDefaultKeys,
-                                 keyDecodingStrategy: Database.Decoder
+                                 keyDecodingStrategy: StructureDecoder
                                    .KeyDecodingStrategy = .useDefaultKeys,
-                                 nonConformingFloatEncodingStrategy: Database.Encoder
+                                 nonConformingFloatEncodingStrategy: StructureEncoder
                                    .NonConformingFloatEncodingStrategy = .throw,
-                                 nonConformingFloatDecodingStrategy: Database.Decoder
+                                 nonConformingFloatDecodingStrategy: StructureDecoder
                                    .NonConformingFloatDecodingStrategy = .throw) where T: Codable,
     T: Equatable {
     var payload: Any! = nil
     do {
-      let encoder = Database.Encoder()
+      let encoder = StructureEncoder()
       encoder.dateEncodingStrategy = dateEncodingStrategy
       encoder.dataEncodingStrategy = dataEncodingStrategy
       encoder.nonConformingFloatEncodingStrategy = nonConformingFloatEncodingStrategy
@@ -1243,7 +1242,7 @@ class TestDatabaseEncoder: XCTestCase {
     }
 
     do {
-      let decoder = Database.Decoder()
+      let decoder = StructureDecoder()
       decoder.dateDecodingStrategy = dateDecodingStrategy
       decoder.dataDecodingStrategy = dataDecodingStrategy
       decoder.nonConformingFloatDecodingStrategy = nonConformingFloatDecodingStrategy
@@ -1258,8 +1257,8 @@ class TestDatabaseEncoder: XCTestCase {
   private func _testRoundTripTypeCoercionFailure<T, U>(of value: T, as type: U.Type)
     where T: Codable, U: Codable {
     do {
-      let data = try Database.Encoder().encode(value)
-      _ = try Database.Decoder().decode(U.self, from: data)
+      let data = try StructureEncoder().encode(value)
+      _ = try StructureDecoder().decode(U.self, from: data)
       XCTFail("Coercion from \(T.self) to \(U.self) was expected to fail.")
     } catch {}
   }

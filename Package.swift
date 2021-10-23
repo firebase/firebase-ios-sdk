@@ -516,17 +516,26 @@ let package = Package(
     ),
     .target(
       name: "FirebaseDatabaseSwift",
-      dependencies: ["FirebaseDatabase"],
-      path: "FirebaseDatabaseSwift/Sources",
-      exclude: [
-        "third_party/RTDBEncoder/LICENSE",
-        "third_party/RTDBEncoder/METADATA",
-      ]
+      dependencies: ["FirebaseDatabase", "FirebaseSharedSwift"],
+      path: "FirebaseDatabaseSwift/Sources"
     ),
     .testTarget(
       name: "FirebaseDatabaseSwiftTests",
       dependencies: ["FirebaseDatabase", "FirebaseDatabaseSwift"],
       path: "FirebaseDatabaseSwift/Tests/"
+    ),
+    .target(
+      name: "FirebaseSharedSwift",
+      path: "FirebaseSharedSwift/Sources",
+      exclude: [
+        "third_party/StructureEncoder/LICENSE",
+        "third_party/StructureEncoder/METADATA",
+      ]
+    ),
+    .testTarget(
+      name: "FirebaseSharedSwiftTests",
+      dependencies: ["FirebaseSharedSwift"],
+      path: "FirebaseSharedSwift/Tests/"
     ),
     .target(
       name: "FirebaseDynamicLinksTarget",
