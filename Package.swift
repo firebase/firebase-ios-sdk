@@ -92,6 +92,10 @@ let package = Package(
       targets: ["FirebaseFunctionsTarget"]
     ),
     .library(
+      name: "FirebaseFunctionsSwift-Beta",
+      targets: ["FirebaseFunctionsSwift"]
+    ),
+    .library(
       name: "FirebaseInAppMessaging-Beta",
       targets: ["FirebaseInAppMessagingTarget"]
     ),
@@ -683,6 +687,14 @@ let package = Package(
       cSettings: [
         .headerSearchPath("../../"),
       ]
+    ),
+    .target(
+      name: "FirebaseFunctionsSwift",
+      dependencies: [
+        "FirebaseFunctions",
+        "FirebaseSharedSwift"
+      ],
+      path: "FirebaseFunctionsSwift/Sources"
     ),
     .target(
       name: "FirebaseFunctionsCombineSwift",
