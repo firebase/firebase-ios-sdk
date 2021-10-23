@@ -6,6 +6,7 @@
 //
 
 import FirebaseDatabase
+import FirebaseSharedSwift
 
 extension Database {
   public typealias Encoder = StructureEncoder
