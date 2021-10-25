@@ -61,13 +61,17 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macos-10.15
+    runs-on: macos-10.13
     steps:
     - uses: actions/checkout@v2
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh DynamicLinks
+    - name: select
+      run: xcode-select --print-path
+    - name: ls
+      run: ls /Applications/Xcode*
     - name: Xcode Setup
-      run: sudo xcode-select -s "/Applications/Xcode_10.3.0.app/Contents/Developer"
+      run: sudo xcode-select -s "/Applications/Xcode_8.0.0.app/Contents/Developer"
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-dynamiclinks.plist.gpg \
           quickstart-ios/dynamiclinks/GoogleService-Info.plist "$plist_secret"
