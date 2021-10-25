@@ -71,7 +71,7 @@ jobs:
     - name: ls
       run: ls /Applications/Xcode*
     - name: Xcode Setup
-      run: sudo xcode-select -s "/Applications/Xcode_9.4.1.app/Contents/Developer"
+      run: sudo xcode-select -s "/Applications/Xcode_10.3.0.app/Contents/Developer"
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-dynamiclinks.plist.gpg \
           quickstart-ios/dynamiclinks/GoogleService-Info.plist "$plist_secret"
