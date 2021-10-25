@@ -89,7 +89,7 @@ let package = Package(
     ),
     .library(
       name: "FirebaseFunctions",
-      targets: ["FirebaseFunctionsTarget"]
+      targets: ["FirebaseFunctions"]
     ),
     .library(
       name: "FirebaseInAppMessaging-Beta",
@@ -654,14 +654,7 @@ let package = Package(
       ]
     ),
 
-    // MARK: Firebase Functions
-
-    .target(
-      name: "FirebaseFunctionsTarget",
-      dependencies: [.target(name: "FirebaseFunctions",
-                             condition: .when(platforms: [.iOS, .tvOS, .macOS]))],
-      path: "SwiftPM-PlatformExclude/FirebaseFunctionsWrap"
-    ),
+    // MARK: - Firebase Functions
 
     .target(
       name: "FirebaseFunctions",
