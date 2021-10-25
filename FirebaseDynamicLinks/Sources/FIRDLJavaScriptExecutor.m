@@ -134,8 +134,8 @@ NSString *GINFingerprintJSMethodString(void) {
                        __typeof__(self) strongSelf = weakSelf;
                        if ([result isKindOfClass:[NSString class]]) {
                          NSString *version = [NSProcessInfo.processInfo operatingSystemVersionString];
-                         NSLog(@"OS version: %@", version);
-                         NSLog(@"Locale successfully fetched %@", result);
+                         printf("OS version: %s", [version UTF8String]);
+                         printf("Locale successfully fetched: %s", [result UTF8String]);
                          [strongSelf handleExecutionResult:result];
                        } else {
                          [strongSelf handleExecutionError:nil];
