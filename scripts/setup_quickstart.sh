@@ -48,6 +48,7 @@ if check_secrets || [[ ${SAMPLE} == "installations" ]]; then
   export FIREBASE_POD_REPO_FOR_DEV_POD=`pwd`
 
   git clone https://github.com/firebase/quickstart-ios.git
+  git checkout 518622e941cbfa407750b37c2b7cd2f8bfef0e50
   $scripts_dir/localize_podfile.swift "$WORKSPACE_DIR"/Podfile "$RELEASE_TESTING"
   if [ "$RELEASE_TESTING" == "nightly_release_testing" ]; then
     set +x
