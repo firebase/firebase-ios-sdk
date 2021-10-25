@@ -16,11 +16,9 @@
 
 import Foundation
 import FirebaseFirestore
+import FirebaseSharedSwift
 
-internal func isFirestorePassthroughType<T: Any>(_ value: T) -> Bool {
-  return
-    T.self == GeoPoint.self ||
-    T.self == Timestamp.self ||
-    T.self == FieldValue.self ||
-    T.self == DocumentReference.self
-}
+extension GeoPoint: StructureCodingPassthroughType {}
+extension Timestamp: StructureCodingPassthroughType {}
+extension FieldValue: StructureCodingPassthroughType {}
+extension DocumentReference: StructureCodingPassthroughType {}

@@ -14,6 +14,9 @@
 
 import Foundation
 
+public protocol StructureCodingPassthroughType: NSObject { }
+public protocol StructureCodingUncodedUnkeyed {}
+
 extension DecodingError {
   /// Returns a `.typeMismatch` error describing the expected type.
   ///
@@ -501,6 +504,7 @@ fileprivate struct _JSONKeyedEncodingContainer<K : CodingKey> : KeyedEncodingCon
   }
 
   public mutating func encode<T : Encodable>(_ value: T, forKey key: Key) throws {
+    if T.self is StructureCodingUncodedUnkeyed.Type { return }
     self.encoder.codingPath.append(key)
     defer { self.encoder.codingPath.removeLast() }
     self.container[_converted(key).stringValue] = try self.encoder.box(value)
@@ -928,6 +932,8 @@ extension __JSONEncoder {
       return (value as! NSDecimalNumber)
     } else if value is _JSONStringDictionaryEncodableMarker {
       return try self.box(value as! [String : Encodable])
+    } else if let passthrough = value as? StructureCodingPassthroughType {
+      return passthrough
     }
 
     // The value should request a container from the __JSONEncoder.
@@ -1601,6 +1607,11 @@ fileprivate struct _JSONKeyedDecodingContainer<K : CodingKey> : KeyedDecodingCon
   }
 
   public func decode<T : Decodable>(_ type: T.Type, forKey key: Key) throws -> T {
+    if T.self is StructureCodingUncodedUnkeyed.Type {
+      // Note: not pushing and popping key to codingPath since the key is
+      // not part of the decoded structure.
+      return try T.init(from: self.decoder)
+    }
     guard let entry = self.container[key.stringValue] else {
       throw DecodingError.keyNotFound(key, DecodingError.Context(codingPath: self.decoder.codingPath, debugDescription: "No value associated with key \(_errorDescription(of: key))."))
     }
@@ -2505,6 +2516,9 @@ extension __JSONDecoder {
     } else {
       self.storage.push(container: value)
       defer { self.storage.popContainer() }
+      if let passthrough = value as? StructureCodingPassthroughType, Swift.type(of: value) == type {
+        return passthrough
+      }
       return try type.init(from: self)
     }
   }

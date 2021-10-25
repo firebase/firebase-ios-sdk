@@ -34,7 +34,11 @@ extension WriteBatch {
                                     forDocument doc: DocumentReference,
                                     encoder: Firestore.Encoder = Firestore
                                       .Encoder()) throws -> WriteBatch {
-    setData(try encoder.encode(value), forDocument: doc)
+    let encoded = try encoder.encode(value)
+    guard let dictionaryValue = encoded as? [String: Any] else {
+      throw FirestoreEncodingError.topLevelTypesAreNotSupported
+    }
+    setData(dictionaryValue, forDocument: doc)
     return self
   }
 
@@ -58,7 +62,11 @@ extension WriteBatch {
                                     merge: Bool,
                                     encoder: Firestore.Encoder = Firestore
                                       .Encoder()) throws -> WriteBatch {
-    setData(try encoder.encode(value), forDocument: doc, merge: merge)
+    let encoded = try encoder.encode(value)
+    guard let dictionaryValue = encoded as? [String: Any] else {
+      throw FirestoreEncodingError.topLevelTypesAreNotSupported
+    }
+    setData(dictionaryValue, forDocument: doc, merge: merge)
     return self
   }
 
@@ -86,7 +94,11 @@ extension WriteBatch {
                                     mergeFields: [Any],
                                     encoder: Firestore.Encoder = Firestore
                                       .Encoder()) throws -> WriteBatch {
-    setData(try encoder.encode(value), forDocument: doc, mergeFields: mergeFields)
+    let encoded = try encoder.encode(value)
+    guard let dictionaryValue = encoded as? [String: Any] else {
+      throw FirestoreEncodingError.topLevelTypesAreNotSupported
+    }
+    setData(dictionaryValue, forDocument: doc, mergeFields: mergeFields)
     return self
   }
 }

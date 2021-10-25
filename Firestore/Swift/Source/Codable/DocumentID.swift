@@ -15,6 +15,10 @@
  */
 
 import FirebaseFirestore
+import FirebaseSharedSwift
+
+let documentRefUserInfoKey =
+CodingUserInfoKey(rawValue: "DocumentRefUserInfoKey")!
 
 /// A type that can initialize itself from a Firestore `DocumentReference`,
 /// which makes it suitable for use with the `@DocumentID` property wrapper.
@@ -44,21 +48,6 @@ extension DocumentReference: DocumentIDWrappable {
   }
 }
 
-/// An internal protocol that allows Firestore.Decoder to test if a type is a
-/// DocumentID of some kind without knowing the specific generic parameter that
-/// the user actually used.
-///
-/// This is required because Swift does not define an existential type for all
-/// instances of a generic class--that is, it has no wildcard or raw type that
-/// matches a generic without any specific parameter. Swift does define an
-/// existential type for protocols though, so this protocol (to which DocumentID
-/// conforms) indirectly makes it possible to test for and act on any
-/// `DocumentID<Value>`.
-internal protocol DocumentIDProtocol {
-  /// Initializes the DocumentID from a DocumentReference.
-  init(from documentReference: DocumentReference?) throws
-}
-
 /// A value that is populated in Codable objects with the `DocumentReference`
 /// of the current document by the Firestore.Decoder when a document is read.
 ///
@@ -76,7 +65,7 @@ internal protocol DocumentIDProtocol {
 /// Firestore.Encoder leads to an error.
 @propertyWrapper
 public struct DocumentID<Value: DocumentIDWrappable & Codable>:
-  DocumentIDProtocol, Codable {
+  Codable, StructureCodingUncodedUnkeyed {
   var value: Value?
 
   public init(wrappedValue value: Value?) {
@@ -101,9 +90,12 @@ public struct DocumentID<Value: DocumentIDWrappable & Codable>:
   // MARK: - `Codable` implementation.
 
   public init(from decoder: Decoder) throws {
-    throw FirestoreDecodingError.decodingIsNotSupported(
-      "DocumentID values can only be decoded with Firestore.Decoder"
-    )
+    guard let reference = decoder.userInfo[documentRefUserInfoKey] as? DocumentReference else {
+      throw FirestoreDecodingError.decodingIsNotSupported(
+        "Could not find DocumentReference for user info key: \(documentRefUserInfoKey)"
+      )
+    }
+    try self.init(from: reference)
   }
 
   public func encode(to encoder: Encoder) throws {

@@ -16,6 +16,7 @@
 
 import Foundation
 import FirebaseFirestore
+import FirebaseSharedSwift
 
 extension DocumentSnapshot {
   /// Retrieves all fields in a document and converts them to an instance of
@@ -37,8 +38,10 @@ extension DocumentSnapshot {
                                  with serverTimestampBehavior: ServerTimestampBehavior = .none,
                                  decoder: Firestore.Decoder? = nil) throws -> T? {
     let d = decoder ?? Firestore.Decoder()
+    d.userInfo[documentRefUserInfoKey] = self.reference
+    d.dateDecodingStrategy = .timestamp(fallback: d.dateDecodingStrategy)
     if let data = data(with: serverTimestampBehavior) {
-      return try d.decode(T.self, from: data, in: reference)
+      return try d.decode(T.self, from: data)
     }
     return nil
   }
