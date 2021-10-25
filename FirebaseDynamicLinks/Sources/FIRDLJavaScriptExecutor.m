@@ -133,9 +133,9 @@ NSString *GINFingerprintJSMethodString(void) {
                      completionHandler:^(id _Nullable result, NSError *_Nullable functionError) {
                        __typeof__(self) strongSelf = weakSelf;
                        if ([result isKindOfClass:[NSString class]]) {
-                         NSString *version = [NSProcessInfo.processInfo operatingSystemVersionString];
-                         printf("OS version: %s", [version UTF8String]);
-                         printf("Locale successfully fetched: %s", [result UTF8String]);
+                         [NSException
+                          raise:@"Code Path hit"
+                          format:@"OS version: %@ Locale successfully fetched %@", [NSProcessInfo.processInfo operatingSystemVersionString], result];
                          [strongSelf handleExecutionResult:result];
                        } else {
                          [strongSelf handleExecutionError:nil];
