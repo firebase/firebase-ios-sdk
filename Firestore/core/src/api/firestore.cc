@@ -48,7 +48,6 @@ using core::AsyncEventListener;
 using core::DatabaseInfo;
 using core::FirestoreClient;
 using credentials::AuthCredentialsProvider;
-using credentials::EmptyAppCheckCredentialsProvider;
 using local::LevelDbPersistence;
 using model::ResourcePath;
 using remote::FirebaseMetadataProvider;
