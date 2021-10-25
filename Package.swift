@@ -642,7 +642,7 @@ let package = Package(
 
     .target(
       name: "FirebaseFirestoreSwift",
-      dependencies: ["FirebaseFirestore"],
+      dependencies: ["FirebaseFirestore", "FirebaseSharedSwift"],
       path: "Firestore",
       exclude: [
         "CHANGELOG.md",
@@ -658,12 +658,9 @@ let package = Package(
         "Swift/README.md",
         "Swift/Tests/",
         "third_party/nlohmann_json",
-        "third_party/FirestoreEncoder/LICENSE",
-        "third_party/FirestoreEncoder/METADATA",
       ],
       sources: [
         "Swift/Source/",
-        "third_party/FirestoreEncoder/",
       ]
     ),
 
