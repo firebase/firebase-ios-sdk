@@ -1376,9 +1376,13 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
                           userDefaults:self.userDefaults];
 
   NSArray<NSString *> *urlStrings = @[
-    @"https://some.page.link/test", @"https://some.page.link/test-test",
-    @"https://some.page.link/test_test", @"https://some.page.link/test_test-test",
-    @"https://some.app.goo.gl/test_test-test"
+    @"https://some.page.link/test",
+    @"https://some.page.link/test-test",
+    @"https://some.page.link/test_test",
+    @"https://some.page.link/test_test-test",
+    @"https://some.app.goo.gl/test_test-test",
+    @"https://n8r9f.app.goo.gl/?ibi=com%2Egoogle%2EGCMTestApp%2Edev&amv=0&imv=1%2E0&link=https%3A%2F%2Fwww%2Egoogle%2Ecom",
+    @"https://n8r9f.app.goo.gl/?link=https%3A%2F%2Fwww%2Egoogle%2Ecom&ibi=com%2Egoogle%2EGCMTestApp%2Edev&amv=0&imv=1%2E0"
   ];
 
   for (NSString *urlString in urlStrings) {
