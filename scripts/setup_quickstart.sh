@@ -49,7 +49,7 @@ if check_secrets || [[ ${SAMPLE} == "installations" ]]; then
 
   git clone https://github.com/firebase/quickstart-ios.git
   cd quickstart-ios
-  git checkout 05311c63e6b75c17c351a963d81ea1e5eb6a5c1a
+  git checkout d8f7efbc83fb4aa12056ed5a1e13cdd3e15a25b9
   cd ../
   $scripts_dir/localize_podfile.swift "$WORKSPACE_DIR"/Podfile "$RELEASE_TESTING"
   if [ "$RELEASE_TESTING" == "nightly_release_testing" ]; then
