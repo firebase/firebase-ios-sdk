@@ -61,17 +61,6 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
                 firebase_metadata_provider,
             void* extension);
 
-  // TODO(appcheck): Remove this constructor once we changed the C++ SDK
-  // to call the new constructor.
-  Firestore(model::DatabaseId database_id,
-            std::string persistence_key,
-            std::shared_ptr<credentials::AuthCredentialsProvider>
-                auth_credentials_provider,
-            std::shared_ptr<util::AsyncQueue> worker_queue,
-            std::unique_ptr<remote::FirebaseMetadataProvider>
-                firebase_metadata_provider,
-            void* extension);
-
   ~Firestore();
 
   void Dispose();
