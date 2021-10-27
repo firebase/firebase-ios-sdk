@@ -23,6 +23,13 @@
     ]
   },
   {
+    "sdk": "crashlytics",
+    "filePatterns": [
+      "^Crashlytics.*",
+      "FirebaseCrashlytics.podspec"
+    ]
+  },
+  {
     "sdk": "database",
     "filePatterns": [
       "^FirebaseDatabase.*",
@@ -68,6 +75,12 @@
       "^FirebaseInAppMessaging.*",
       "Interop/Analytics/Public/[^/]+\\.h",
       "\\.github/workflows/inappmessaging\\.yml"
+    ]
+  },
+  {
+    "sdk": "installations",
+    "filePatterns": [
+      "^FirebaseInstallations.*"
     ]
   },
   {
