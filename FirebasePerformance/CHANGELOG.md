@@ -1,5 +1,5 @@
 # Pending
-* Fix heap-buffer overflow when encoding sessions.
+* Fix heap-buffer overflow when encoding sessions. (#8849)
 
 # Version 8.8.0
 * Create a random number of delay for remote config fetch during app starts.
