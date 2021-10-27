@@ -10,8 +10,7 @@
   {
     "sdk": "appcheck",
     "filePatterns": [
-      "^FirebaseAppCheck.*",
-      "\\.github/workflows/app_check\\.yml"
+      "^FirebaseAppCheck.*"
     ]
   },
   {
@@ -75,6 +74,12 @@
       "^FirebaseInAppMessaging.*",
       "Interop/Analytics/Public/[^/]+\\.h",
       "\\.github/workflows/inappmessaging\\.yml"
+    ]
+  },
+  {
+    "sdk": "installations",
+    "filePatterns": [
+      "^FirebaseInstallations.*"
     ]
   },
   {

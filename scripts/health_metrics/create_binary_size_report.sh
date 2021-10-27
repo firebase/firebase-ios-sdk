@@ -30,6 +30,9 @@ BINARY_SIZE_SDK=()
 if [[ "${POSTSUBMIT}" == true || "${FirebaseABTesting}" == 'true' ]]; then
   BINARY_SIZE_SDK+=('FirebaseABTesting')
 fi
+if [[ "${POSTSUBMIT}" == true || "${FirebaseAppCheck}" == 'true' ]]; then
+  BINARY_SIZE_SDK+=('FirebaseAppCheck')
+fi
 if [[ "${POSTSUBMIT}" == true || "${FirebaseAuth}" == 'true' ]]; then
   BINARY_SIZE_SDK+=('FirebaseAuth')
 fi
@@ -50,6 +53,9 @@ if [[ "${POSTSUBMIT}" == true || "${FirebaseFunctions}" == 'true' ]]; then
 fi
 if [[ "${POSTSUBMIT}" == true || "${FirebaseInAppMessaging}" == 'true' ]]; then
   BINARY_SIZE_SDK+=('FirebaseInAppMessaging')
+fi
+if [[ "${POSTSUBMIT}" == true || "${FirebaseInstallations}" == 'true' ]]; then
+  BINARY_SIZE_SDK+=('FirebaseInstallations')
 fi
 if [[ "${POSTSUBMIT}" == true || "${FirebaseMessaging}" == 'true' ]]; then
   BINARY_SIZE_SDK+=('FirebaseMessaging')
