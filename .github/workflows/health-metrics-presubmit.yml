@@ -19,6 +19,7 @@ jobs:
     outputs:
       abtesting_run_job: ${{ steps.check_files.outputs.abtesting_run_job }}
       auth_run_job: ${{ steps.check_files.outputs.auth_run_job }}
+      crashlytics_run_job: ${{ steps.check_files.outputs.crashlytics_run_job }}
       database_run_job: ${{ steps.check_files.outputs.database_run_job }}
       dynamiclinks_run_job: ${{ steps.check_files.outputs.dynamiclinks_run_job }}
       firestore_run_job: ${{ steps.check_files.outputs.firestore_run_job }}
@@ -71,6 +72,7 @@ jobs:
       run: |
         FirebaseABTesting=${{ needs.check.outputs.abtesting_run_job }} \
         FirebaseAuth=${{ needs.check.outputs.auth_run_job }} \
+        FirebaseCrashlytics=${{ needs.check.outputs.crashlytics_run_job }} \
         FirebaseDatabase=${{ needs.check.outputs.database_run_job }} \
         FirebaseDynamicLinks=${{ needs.check.outputs.dynamiclinks_run_job }} \
         FirebaseFirestore=${{ needs.check.outputs.firestore_run_job }} \

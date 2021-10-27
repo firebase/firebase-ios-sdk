@@ -23,6 +23,13 @@
     ]
   },
   {
+    "sdk": "crashlytics",
+    "filePatterns": [
+      "^Crashlytics.*",
+      "FirebaseCrashlytics.podspec"
+    ]
+  },
+  {
     "sdk": "database",
     "filePatterns": [
       "^FirebaseDatabase.*",

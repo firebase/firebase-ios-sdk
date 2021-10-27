@@ -33,6 +33,9 @@ fi
 if [[ "${POSTSUBMIT}" == true || "${FirebaseAuth}" == 'true' ]]; then
   BINARY_SIZE_SDK+=('FirebaseAuth')
 fi
+if [[ "${POSTSUBMIT}" == true || "${FirebaseCrashlytics}" == 'true' ]]; then
+  BINARY_SIZE_SDK+=('FirebaseCrashlytics')
+fi
 if [[ "${POSTSUBMIT}" == true || "${FirebaseDatabase}" == 'true' ]]; then
   BINARY_SIZE_SDK+=('FirebaseDatabase')
 fi
