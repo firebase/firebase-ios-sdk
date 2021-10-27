@@ -105,25 +105,25 @@ static unichar const HIGH_SURROGATE_PAIR_END = 0xDBFF;
     BOOL removePreviousCharacter = NO;
     BOOL replaceWithLowestSurrogatePair = NO;
     switch (plusOne) {
-    case 0x23:
-    case 0x24:
+    case 0x23: // '#'
+    case 0x24: // '$'
         plusOne = 0x25;
         break;
 
-    case 0x2E:
-    case 0x2F:
+    case 0x2E: // '.'
+    case 0x2F: // '/'
         plusOne = 0x30;
         break;
 
-    case 0x5B:
+    case 0x5B: // '['
         plusOne = 0x5C;
         break;
 
-    case 0x5D:
+    case 0x5D: // ']'
         plusOne = 0x5E;
         break;
 
-    case 0x7F:
+    case 0x7F: // control character: del
         plusOne = 0x80;
         break;
 
@@ -215,25 +215,25 @@ static unichar const HIGH_SURROGATE_PAIR_END = 0xDBFF;
     BOOL replaceWithHighestSurrogatePair = NO;
     switch (minusOne) {
     // NOTE: We already handled the case of min char (0x20)
-    case 0x23:
-    case 0x24:
+    case 0x23: // '#'
+    case 0x24: // '$'
         minusOne = 0x22;
         break;
 
-    case 0x2E:
-    case 0x2F:
+    case 0x2E: // '.'
+    case 0x2F: // '/'
         minusOne = 0x2D;
         break;
 
-    case 0x5B:
+    case 0x5B: // '['
         minusOne = 0x5A;
         break;
 
-    case 0x5D:
+    case 0x5B: // ']'
         minusOne = 0x5C;
         break;
 
-    case 0x7F:
+    case 0x7F: // control character: del
         minusOne = 0x7E;
         break;
 
