@@ -10,7 +10,8 @@
   {
     "sdk": "appcheck",
     "filePatterns": [
-      "^FirebaseAppCheck.*"
+      "^FirebaseAppCheck.*",
+      "\\.github/workflows/app_check\\.yml"
     ]
   },
   {

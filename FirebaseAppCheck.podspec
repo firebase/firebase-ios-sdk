@@ -1,6 +1,5 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAppCheck'
-
   s.version          = '8.9.0-beta'
   s.summary          = 'Firebase App Check SDK.'
 
