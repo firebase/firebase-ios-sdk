@@ -95,76 +95,79 @@ static NSInteger const MAX_KEY_LEN = 786;
         return [FUtilities maxName];
     }
 
-    unichar character = [next characterAtIndex: i];
+    unichar character = [next characterAtIndex:i];
     unichar plusOne = character + 1;
     BOOL removePreviousCharacter = NO;
     BOOL replaceWithLowestSurrogatePair = NO;
     switch (plusOne) {
-        case 0x23:
-        case 0x24:
-            plusOne = 0x25;
-            break;
+    case 0x23:
+    case 0x24:
+        plusOne = 0x25;
+        break;
 
-        case 0x2E:
-            plusOne = 0x2F;
-            break;
+    case 0x2E:
+        plusOne = 0x2F;
+        break;
 
-        case 0x5B:
-            plusOne = 0x5C;
-            break;
+    case 0x5B:
+        plusOne = 0x5C;
+        break;
 
-        case 0x5D:
-            plusOne = 0x5E;
-            break;
+    case 0x5D:
+        plusOne = 0x5E;
+        break;
 
-        case 0x2F:
-            plusOne = 0x30;
-            break;
+    case 0x2F:
+        plusOne = 0x30;
+        break;
 
-        case 0x7F:
-            plusOne = 0x80;
-            break;
+    case 0x7F:
+        plusOne = 0x80;
+        break;
 
-        case 0xD800:
-            // We added one to 0xD7FF and entered surrogate pair zone
-            // Add the lowest surrogate pair here
-            replaceWithLowestSurrogatePair = YES;
+    case 0xD800:
+        // We added one to 0xD7FF and entered surrogate pair zone
+        // Add the lowest surrogate pair here
+        replaceWithLowestSurrogatePair = YES;
 
-        case 0xE000:
-            // If the previous character is the highest high surrogate value
-            // then we increment to the value 0xE000 by replacing the surrogate
-            // pair by the single value 0xE000
-            // Otherwise we increment the high surrogate value and set the low
-            // surrogate value to the lowest.
-            if (i == 0) {
-                // Error, it appears that we encountered half a surrogate
-                // pair at index 0. Invalid input string...
+    case 0xE000:
+        // If the previous character is the highest high surrogate value
+        // then we increment to the value 0xE000 by replacing the surrogate
+        // pair by the single value 0xE000
+        // Otherwise we increment the high surrogate value and set the low
+        // surrogate value to the lowest.
+        if (i == 0) {
+            // Error, it appears that we encountered half a surrogate
+            // pair at index 0. Invalid input string...
+        } else {
+            unichar high = [next characterAtIndex:i - 1];
+            if (high ==
+                0xDBFF) { /* highest value for the high part of the pair */
+                // Replace pair with single 0xE000 value
+                removePreviousCharacter = YES;
             } else {
-                unichar high = [next characterAtIndex: i - 1];
-                if (high == 0xDBFF) { /* highest value for the high part of the pair */
-                    // Replace pair with single 0xE000 value
-                    removePreviousCharacter = YES;
-                } else {
-                    high += 1;
-                    NSString *highStr = [NSString stringWithFormat:@"%C", high];
+                high += 1;
+                NSString *highStr = [NSString stringWithFormat:@"%C", high];
 
-                    [next replaceCharactersInRange:NSMakeRange(i - 1, i)
-                                        withString:highStr];
-                    plusOne = 0xDC00; /* lowest value for the low part of the pair */
-                }
+                [next replaceCharactersInRange:NSMakeRange(i - 1, i)
+                                    withString:highStr];
+                plusOne =
+                    0xDC00; /* lowest value for the low part of the pair */
             }
-            break;
+        }
+        break;
     }
 
-    NSString *sourcePlusOne = replaceWithLowestSurrogatePair ?
-        [NSString stringWithFormat:@"%C%C", 0xD800, 0xDC00] :
-        [NSString stringWithFormat:@"%C", plusOne];
+    NSString *sourcePlusOne =
+        replaceWithLowestSurrogatePair
+            ? [NSString stringWithFormat:@"%C%C", 0xD800, 0xDC00]
+            : [NSString stringWithFormat:@"%C", plusOne];
 
     NSInteger replaceLocation = i;
     NSInteger replaceLength = 1;
     if (removePreviousCharacter) {
-        replaceLocation --;
-        replaceLength ++;
+        replaceLocation--;
+        replaceLength++;
     }
 
     [next replaceCharactersInRange:NSMakeRange(replaceLocation, replaceLength)
@@ -204,79 +207,82 @@ static NSInteger const MAX_KEY_LEN = 786;
     // suffix of the key with MAX_PUSH_CHAR. This is the lexicographically
     // largest possible key smaller than `key`.
     NSUInteger i = next.length - 1;
-    unichar character = [next characterAtIndex: i];
+    unichar character = [next characterAtIndex:i];
     unichar minusOne = character - 1;
     BOOL removePreviousCharacter = NO;
     BOOL replaceWithHighestSurrogatePair = NO;
     switch (minusOne) {
-        // NOTE: We already handled the case of min char (0x20)
-        case 0x23:
-        case 0x24:
-            minusOne = 0x22;
-            break;
+    // NOTE: We already handled the case of min char (0x20)
+    case 0x23:
+    case 0x24:
+        minusOne = 0x22;
+        break;
 
-        case 0x2E:
-            minusOne = 0x2D;
-            break;
+    case 0x2E:
+        minusOne = 0x2D;
+        break;
 
-        case 0x5B:
-            minusOne = 0x5A;
-            break;
+    case 0x5B:
+        minusOne = 0x5A;
+        break;
 
-        case 0x5D:
-            minusOne = 0x5C;
-            break;
+    case 0x5D:
+        minusOne = 0x5C;
+        break;
 
-        case 0x2F:
-            minusOne = 0x2E;
-            break;
+    case 0x2F:
+        minusOne = 0x2E;
+        break;
 
-        case 0x7F:
-            minusOne = 0x7E;
-            break;
+    case 0x7F:
+        minusOne = 0x7E;
+        break;
 
-        case 0xDFFF:
-            // Previously we had 0xE000 which is a single utf16 character,
-            // this needs to be replaced with the highest surrogate pair:
-            replaceWithHighestSurrogatePair = YES;
-            break;
+    case 0xDFFF:
+        // Previously we had 0xE000 which is a single utf16 character,
+        // this needs to be replaced with the highest surrogate pair:
+        replaceWithHighestSurrogatePair = YES;
+        break;
 
-        case 0xDBFF:
-            // If the previous character is the lowest high surrogate value
-            // then we decrement to the value 0xD7FF by replacing the surrogate
-            // pair by the single value 0xD7FF
-            // Otherwise we decrement the high surrogate value and set the low
-            // surrogate value to the highest.
-            if (i == 0) {
-                // Error, it appears that we encountered half a surrogate
-                // pair at index 0. Invalid input string...
+    case 0xDBFF:
+        // If the previous character is the lowest high surrogate value
+        // then we decrement to the value 0xD7FF by replacing the surrogate
+        // pair by the single value 0xD7FF
+        // Otherwise we decrement the high surrogate value and set the low
+        // surrogate value to the highest.
+        if (i == 0) {
+            // Error, it appears that we encountered half a surrogate
+            // pair at index 0. Invalid input string...
+        } else {
+            unichar high = [next characterAtIndex:i - 1];
+            if (high ==
+                0xD800) { /* lowest value for the high part of the pair */
+                // Replace pair with single 0xD7FF value
+                removePreviousCharacter = YES;
+                minusOne = 0xD7FF;
             } else {
-                unichar high = [next characterAtIndex: i - 1];
-                if (high == 0xD800) { /* lowest value for the high part of the pair */
-                    // Replace pair with single 0xD7FF value
-                    removePreviousCharacter = YES;
-                    minusOne = 0xD7FF;
-                } else {
-                    high -= 1;
-                    NSString *highStr = [NSString stringWithFormat:@"%C", high];
+                high -= 1;
+                NSString *highStr = [NSString stringWithFormat:@"%C", high];
 
-                    [next replaceCharactersInRange:NSMakeRange(i - 1, i)
-                                        withString:highStr];
-                    minusOne = 0xDFFF; /* highest value for the low part of the pair */
-                }
+                [next replaceCharactersInRange:NSMakeRange(i - 1, i)
+                                    withString:highStr];
+                minusOne =
+                    0xDFFF; /* highest value for the low part of the pair */
             }
-            break;
+        }
+        break;
     }
 
-    NSString *sourceMinusOne = replaceWithHighestSurrogatePair ?
-    [NSString stringWithFormat:@"%C%C", 0xDBFF, 0xDFFF] :
-    [NSString stringWithFormat:@"%C", minusOne];
+    NSString *sourceMinusOne =
+        replaceWithHighestSurrogatePair
+            ? [NSString stringWithFormat:@"%C%C", 0xDBFF, 0xDFFF]
+            : [NSString stringWithFormat:@"%C", minusOne];
 
     NSInteger replaceLocation = i;
     NSInteger replaceLength = 1;
     if (removePreviousCharacter) {
-        replaceLocation --;
-        replaceLength ++;
+        replaceLocation--;
+        replaceLength++;
     }
 
     [next replaceCharactersInRange:NSMakeRange(replaceLocation, replaceLength)
@@ -284,9 +290,9 @@ static NSInteger const MAX_KEY_LEN = 786;
 
     NSInteger length = i + 1;
     if (removePreviousCharacter) {
-        length --;
+        length--;
     } else if (replaceWithHighestSurrogatePair) {
-        length ++;
+        length++;
     }
     return [next stringByPaddingToLength:MAX_KEY_LEN
                               withString:MAX_PUSH_CHAR

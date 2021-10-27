@@ -219,7 +219,8 @@
                     userInfo:nil];
         }
         if ([startAfterValue isKindOfClass:[NSString class]]) {
-            startAfterValue = [FNextPushId from:methodName successor:startAfterValue];
+            startAfterValue = [FNextPushId from:methodName
+                                      successor:startAfterValue];
         }
     } else {
         if (childKey == nil) {
