@@ -16,6 +16,7 @@
 
 #import "FirebaseDatabase/Sources/Utilities/FNextPushId.h"
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
+#import "FirebaseDatabase/Sources/Utilities/FValidation.h"
 
 static NSString *const PUSH_CHARS =
     @"-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz";
@@ -65,8 +66,8 @@ static NSInteger const MAX_KEY_LEN = 786;
     return [NSString stringWithString:id];
 }
 
-+ (NSString *)successor:(NSString *_Nonnull)key {
-    // TODO: Wouldn't it be good to perform actual key validation on the input?
++ (NSString *)from:(NSString *)fn successor:(NSString *_Nonnull)key {
+    [FValidation validateFrom:fn validKey:key];
     NSInteger keyAsInt;
     if ([FUtilities tryParseString:key asInt:&keyAsInt]) {
         if (keyAsInt == [FUtilities int32max]) {
@@ -177,9 +178,8 @@ static NSInteger const MAX_KEY_LEN = 786;
     return [next substringWithRange:NSMakeRange(0, length)];
 }
 
-// `key` is assumed to be non-empty.
-+ (NSString *)predecessor:(NSString *_Nonnull)key {
-    // TODO: Wouldn't it be good to perform actual key validation on the input?
++ (NSString *)from:(NSString *)fn predecessor:(NSString *_Nonnull)key {
+    [FValidation validateFrom:fn validKey:key];
     NSInteger keyAsInt;
     if ([FUtilities tryParseString:key asInt:&keyAsInt]) {
         if (keyAsInt == [FUtilities int32min]) {
