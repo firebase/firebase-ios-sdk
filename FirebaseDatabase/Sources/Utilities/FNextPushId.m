@@ -142,8 +142,8 @@ static unichar const HIGH_SURROGATE_PAIR_END = 0xDBFF;
             // Error, encountered low surrogate without matching high surrogate
         } else {
             unichar high = [next characterAtIndex:i - 1];
-            if (high ==
-                HIGH_SURROGATE_PAIR_END) { /* highest value for the high part of the pair */
+            if (high == HIGH_SURROGATE_PAIR_END) { /* highest value for the high
+                                                      part of the pair */
                 // Replace pair with 0xE000 (the value of plusOne)
                 removePreviousCharacter = YES;
             } else {
@@ -152,8 +152,8 @@ static unichar const HIGH_SURROGATE_PAIR_END = 0xDBFF;
 
                 [next replaceCharactersInRange:NSMakeRange(i - 1, i)
                                     withString:highStr];
-                plusOne =
-                LOW_SURROGATE_PAIR_START; /* lowest value for the low part of the pair */
+                plusOne = LOW_SURROGATE_PAIR_START; /* lowest value for the low
+                                                       part of the pair */
             }
         }
         break;
@@ -161,7 +161,8 @@ static unichar const HIGH_SURROGATE_PAIR_END = 0xDBFF;
 
     NSString *sourcePlusOne =
         replaceWithLowestSurrogatePair
-            ? [NSString stringWithFormat:@"%C%C", HIGH_SURROGATE_PAIR_START, LOW_SURROGATE_PAIR_START]
+            ? [NSString stringWithFormat:@"%C%C", HIGH_SURROGATE_PAIR_START,
+                                         LOW_SURROGATE_PAIR_START]
             : [NSString stringWithFormat:@"%C", plusOne];
 
     NSInteger replaceLocation = i;
@@ -244,16 +245,16 @@ static unichar const HIGH_SURROGATE_PAIR_END = 0xDBFF;
 
     case HIGH_SURROGATE_PAIR_END: // 0xDBFF
         // If the previous character is the lowest high surrogate value
-        // then we decrement to the non-surrogate value 0xD7FF by replacing the surrogate
-        // pair by the single value 0xD7FF (HIGH_SURROGATE_PAIR_START - 1)
-        // Otherwise we decrement the high surrogate value and set the low
+        // then we decrement to the non-surrogate value 0xD7FF by replacing the
+        // surrogate pair by the single value 0xD7FF (HIGH_SURROGATE_PAIR_START
+        // - 1) Otherwise we decrement the high surrogate value and set the low
         // surrogate value to the highest.
         if (i == 0) {
             // Error, found low surrogate without matching high surrogate
         } else {
             unichar high = [next characterAtIndex:i - 1];
-            if (high ==
-                HIGH_SURROGATE_PAIR_START) { /* lowest value for the high part of the pair */
+            if (high == HIGH_SURROGATE_PAIR_START) { /* lowest value for the
+                                                        high part of the pair */
                 // Replace pair with single 0xD7FF value
                 removePreviousCharacter = YES;
                 minusOne = HIGH_SURROGATE_PAIR_START - 1;
@@ -263,8 +264,8 @@ static unichar const HIGH_SURROGATE_PAIR_END = 0xDBFF;
 
                 [next replaceCharactersInRange:NSMakeRange(i - 1, i)
                                     withString:highStr];
-                minusOne =
-                LOW_SURROGATE_PAIR_END; /* highest value for the low part of the pair */
+                minusOne = LOW_SURROGATE_PAIR_END; /* highest value for the low
+                                                      part of the pair */
             }
         }
         break;
@@ -272,7 +273,8 @@ static unichar const HIGH_SURROGATE_PAIR_END = 0xDBFF;
 
     NSString *sourceMinusOne =
         replaceWithHighestSurrogatePair
-            ? [NSString stringWithFormat:@"%C%C", HIGH_SURROGATE_PAIR_END, LOW_SURROGATE_PAIR_END]
+            ? [NSString stringWithFormat:@"%C%C", HIGH_SURROGATE_PAIR_END,
+                                         LOW_SURROGATE_PAIR_END]
             : [NSString stringWithFormat:@"%C", minusOne];
 
     NSInteger replaceLocation = i;

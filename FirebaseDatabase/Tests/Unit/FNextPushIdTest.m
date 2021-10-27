@@ -101,7 +101,7 @@ static NSInteger MAX_KEY_LEN = 786;
 
   XCTAssertEqualObjects(
       expected, actual,
-      @"predecessor(\uE000) = \U0010FFFF + { MAX_PUSH_CHAR repeated MAX_KEY_LEN - 2 times }");
+      @"predecessor(uE000) = U0010FFFF + { MAX_PUSH_CHAR repeated MAX_KEY_LEN - 2 times }");
 
   actual = [FNextPushId from:@"test" predecessor:@"\U00010000"];
   expected = [@"\uD7FF" stringByPaddingToLength:MAX_KEY_LEN
@@ -109,18 +109,18 @@ static NSInteger MAX_KEY_LEN = 786;
                                 startingAtIndex:0];
   XCTAssertEqualObjects(
       expected, actual,
-      @"predecessor(U00010000) == \uD7FF + { MAX_PUSH_CHAR repeated MAX_KEY_LEN - 2 times }");
+      @"predecessor(U00010000) == uD7FF + { MAX_PUSH_CHAR repeated MAX_KEY_LEN - 2 times }");
 
   actual = [FNextPushId from:@"test" predecessor:[[NSString alloc] initWithFormat:@"%C", 0x80]];
   expected = [[[NSString alloc] initWithFormat:@"%C", 0x7E] stringByPaddingToLength:MAX_KEY_LEN
                                                                          withString:MAX_PUSH_CHAR
                                                                     startingAtIndex:0];
-  XCTAssertEqualObjects(expected, actual, @"predecessor(u0080 + MIN_PUSH_CHAR) == abc");
+  XCTAssertEqualObjects(expected, actual, @"predecessor(u0080) == u007e");
 }
 
 - (void)testPredecessorOrdering {
   // Start _after_ space because otherwise we have to consider integer interpretation.
-  for (unichar i = 0x21; i < 0xD800; i++) {
+  for (unichar i = 0x20; i < 0xD800; i++) {
     NSString *key = [[NSString alloc] initWithFormat:@"%C", i];
     if (![FValidation isValidKey:key]) {
       continue;
@@ -135,6 +135,8 @@ static NSInteger MAX_KEY_LEN = 786;
     NSComparisonResult r = [FUtilities compareKey:key toKey:predecessor];
     XCTAssertEqual(r, NSOrderedDescending);
   }
+  // Unicode code points starting at 0x10000 are exactly the ones that encode
+  // as surrogate pairs in utf16
   for (UTF32Char i = 0x10000; i <= 0x10FFFF; i++) {
     UniChar c[2];
     CFStringGetSurrogatePairForLongCharacter(i, c);
@@ -161,8 +163,9 @@ static NSInteger MAX_KEY_LEN = 786;
     NSComparisonResult r = [FUtilities compareKey:key toKey:successor];
     XCTAssertEqual(r, NSOrderedAscending);
   }
-  // Stop before last, because otherwise we get to [LAST_KEY]
-  for (UTF32Char i = 0x10000; i < 0x10FFFF; i++) {
+  // Unicode code points starting at 0x10000 are exactly the ones that encode
+  // as surrogate pairs in utf16
+  for (UTF32Char i = 0x10000; i <= 0x10FFFF; i++) {
     UniChar c[2];
     CFStringGetSurrogatePairForLongCharacter(i, c);
     NSString *key = [[NSString alloc] initWithCharacters:c length:2];
