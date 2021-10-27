@@ -229,7 +229,7 @@ static unichar const HIGH_SURROGATE_PAIR_END = 0xDBFF;
         minusOne = 0x5A;
         break;
 
-    case 0x5B: // ']'
+    case 0x5D: // ']'
         minusOne = 0x5C;
         break;
 
