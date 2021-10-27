@@ -106,7 +106,8 @@ static NSInteger const MAX_KEY_LEN = 786;
         break;
 
     case 0x2E:
-        plusOne = 0x2F;
+    case 0x2F:
+        plusOne = 0x30;
         break;
 
     case 0x5B:
@@ -115,10 +116,6 @@ static NSInteger const MAX_KEY_LEN = 786;
 
     case 0x5D:
         plusOne = 0x5E;
-        break;
-
-    case 0x2F:
-        plusOne = 0x30;
         break;
 
     case 0x7F:
@@ -219,6 +216,7 @@ static NSInteger const MAX_KEY_LEN = 786;
         break;
 
     case 0x2E:
+    case 0x2F:
         minusOne = 0x2D;
         break;
 
@@ -228,10 +226,6 @@ static NSInteger const MAX_KEY_LEN = 786;
 
     case 0x5D:
         minusOne = 0x5C;
-        break;
-
-    case 0x2F:
-        minusOne = 0x2E;
         break;
 
     case 0x7F:
