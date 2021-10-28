@@ -1,6 +1,5 @@
 {
     "authors": "Google, Inc.",
-
     "cocoapods_version": ">= 1.10.0",
     "default_subspecs": "AdIdSupport",
     "dependencies": {
