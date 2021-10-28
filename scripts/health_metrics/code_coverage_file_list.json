@@ -82,6 +82,12 @@
     ]
   },
   {
+    "sdk": "googleappmeasurement",
+    "filePatterns": [
+      "^GoogleAppMeasurement.*"
+    ]
+  },
+  {
     "sdk": "inappmessaging",
     "filePatterns": [
       "^FirebaseInAppMessaging.*",

@@ -27,6 +27,7 @@ jobs:
       dynamiclinks_run_job: ${{ steps.check_files.outputs.dynamiclinks_run_job }}
       firestore_run_job: ${{ steps.check_files.outputs.firestore_run_job }}
       functions_run_job: ${{ steps.check_files.outputs.functions_run_job }}
+      googleappmeasurement_run_job: ${{ steps.check_files.outputs.googleappmeasurement_run_job }}
       inappmessaging_run_job: ${{ steps.check_files.outputs.inappmessaging_run_job }}
       installations_run_job: ${{ steps.check_files.outputs.installations_run_job }}
       messaging_run_job: ${{ steps.check_files.outputs.messaging_run_job }}
@@ -90,6 +91,7 @@ jobs:
         FirebasePerformance=${{ needs.check.outputs.performance_run_job }} \
         FirebaseRemoteConfig=${{ needs.check.outputs.remoteconfig_run_job }} \
         FirebaseStorage=${{ needs.check.outputs.storage_run_job }} \
+        GoogleAppMeasurement=${{ needs.check.outputs.googleappmeasurement_run_job }} \
         ./scripts/health_metrics/create_binary_size_report.sh
       env:
         PULL_REQUEST_NUM: ${{ github.event.pull_request.number }}
