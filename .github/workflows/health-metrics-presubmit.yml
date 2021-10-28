@@ -18,6 +18,7 @@ jobs:
     name: Check changed files
     outputs:
       abtesting_run_job: ${{ steps.check_files.outputs.abtesting_run_job }}
+      analytics_run_job: ${{ steps.check_files.outputs.analytics_run_job }}
       appcheck_run_job: ${{ steps.check_files.outputs.appcheck_run_job }}
       auth_run_job: ${{ steps.check_files.outputs.auth_run_job }}
       crashlytics_run_job: ${{ steps.check_files.outputs.crashlytics_run_job }}
@@ -73,7 +74,11 @@ jobs:
     - name: Build and test
       run: |
         FirebaseABTesting=${{ needs.check.outputs.abtesting_run_job }} \
+<<<<<<< HEAD
         FirebaseAppCheck=${{ needs.check.outputs.appcheck_run_job }} \
+=======
+        FirebaseAnalytics=${{ needs.check.outputs.analytics_run_job }} \
+>>>>>>> c5f25201d (Add binary size measurement.)
         FirebaseAuth=${{ needs.check.outputs.auth_run_job }} \
         FirebaseCrashlytics=${{ needs.check.outputs.crashlytics_run_job }} \
         FirebaseDatabase=${{ needs.check.outputs.database_run_job }} \

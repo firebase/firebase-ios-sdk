@@ -8,10 +8,22 @@
     ]
   },
   {
+    "sdk": "analytics",
+    "filePatterns": [
+      "^FirebaseAnalytics.*"
+    ]
+  },
+  {
     "sdk": "appcheck",
     "filePatterns": [
       "^FirebaseAppCheck.*",
       "\\.github/workflows/app_check\\.yml"
+    ]
+  },
+  {
+    "sdk": "appdistribution",
+    "filePatterns": [
+      "^FirebaseAppDistribution.*"
     ]
   },
   {
