@@ -20,6 +20,7 @@ jobs:
       abtesting_run_job: ${{ steps.check_files.outputs.abtesting_run_job }}
       analytics_run_job: ${{ steps.check_files.outputs.analytics_run_job }}
       appcheck_run_job: ${{ steps.check_files.outputs.appcheck_run_job }}
+      appdistribution_run_job: ${{ steps.check_files.outputs.appdistribution_run_job }}
       auth_run_job: ${{ steps.check_files.outputs.auth_run_job }}
       crashlytics_run_job: ${{ steps.check_files.outputs.crashlytics_run_job }}
       database_run_job: ${{ steps.check_files.outputs.database_run_job }}
@@ -76,6 +77,7 @@ jobs:
         FirebaseABTesting=${{ needs.check.outputs.abtesting_run_job }} \
         FirebaseAnalytics=${{ needs.check.outputs.analytics_run_job }} \
         FirebaseAppCheck=${{ needs.check.outputs.appcheck_run_job }} \
+        FirebaseAppDistribution=${{ needs.check.outputs.appdistribution_run_job }} \
         FirebaseAuth=${{ needs.check.outputs.auth_run_job }} \
         FirebaseCrashlytics=${{ needs.check.outputs.crashlytics_run_job }} \
         FirebaseDatabase=${{ needs.check.outputs.database_run_job }} \
