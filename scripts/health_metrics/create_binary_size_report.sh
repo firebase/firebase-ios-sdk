@@ -75,9 +75,6 @@ fi
 if [[ "${POSTSUBMIT}" == true || "${FirebaseStorage}" == 'true' ]]; then
   BINARY_SIZE_SDK+=('FirebaseStorage')
 fi
-if [[ "${POSTSUBMIT}" == true || "${GoogleAppMeasurement}" == 'true' ]]; then
-  BINARY_SIZE_SDK+=('GoogleAppMeasurement')
-fi
 if [ -n "$BINARY_SIZE_SDK" ]; then
   cd scripts/health_metrics/generate_code_coverage_report/
   git clone https://github.com/google/cocoapods-size
