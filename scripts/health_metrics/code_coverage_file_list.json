@@ -10,7 +10,7 @@
   {
     "sdk": "analytics",
     "filePatterns": [
-      "^FirebaseAnalytics.*".
+      "^FirebaseAnalytics.*",
       "^GoogleAppMeasurement.*"
     ]
   },
