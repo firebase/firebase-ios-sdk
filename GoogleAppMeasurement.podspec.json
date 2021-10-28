@@ -1,6 +1,7 @@
 {
     "authors": "Google, Inc.",
     "cocoapods_version": ">= 1.10.2",
+
     "default_subspecs": "AdIdSupport",
     "dependencies": {
         "GoogleUtilities/AppDelegateSwizzler": "~> 7.6",
