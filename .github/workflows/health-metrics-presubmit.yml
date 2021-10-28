@@ -74,11 +74,8 @@ jobs:
     - name: Build and test
       run: |
         FirebaseABTesting=${{ needs.check.outputs.abtesting_run_job }} \
-<<<<<<< HEAD
-        FirebaseAppCheck=${{ needs.check.outputs.appcheck_run_job }} \
-=======
         FirebaseAnalytics=${{ needs.check.outputs.analytics_run_job }} \
->>>>>>> c5f25201d (Add binary size measurement.)
+        FirebaseAppCheck=${{ needs.check.outputs.appcheck_run_job }} \
         FirebaseAuth=${{ needs.check.outputs.auth_run_job }} \
         FirebaseCrashlytics=${{ needs.check.outputs.crashlytics_run_job }} \
         FirebaseDatabase=${{ needs.check.outputs.database_run_job }} \
