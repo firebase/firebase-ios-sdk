@@ -10,7 +10,8 @@
   {
     "sdk": "analytics",
     "filePatterns": [
-      "^FirebaseAnalytics.*"
+      "^FirebaseAnalytics.*".
+      "^GoogleAppMeasurement.*"
     ]
   },
   {
@@ -79,12 +80,6 @@
       "\\.github/workflows/functions\\.yml",
       "Interop/Auth/Public/.*\\.h",
       "FirebaseMessaging/Sources/Interop/[^/]+\\.h"
-    ]
-  },
-  {
-    "sdk": "googleappmeasurement",
-    "filePatterns": [
-      "^GoogleAppMeasurement.*"
     ]
   },
   {
