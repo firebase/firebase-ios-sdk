@@ -144,20 +144,16 @@ jobs:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     runs-on: macos-11
-    needs: check
-
     strategy:
       matrix:
         target: [iOS, tvOS]
         test: [unit, proddev]
         sanitizer: [asan, tsan, ubsan]
-
     env:
       SANITIZERS: ${{ matrix.sanitizer }}
-
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
-    - name: BuildAndTest
+    - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
       run: scripts/third_party/travis/retry.sh scripts/build.sh Performance ${{ matrix.target }} ${{ matrix.test }}
