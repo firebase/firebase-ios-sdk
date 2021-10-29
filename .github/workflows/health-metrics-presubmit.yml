@@ -56,8 +56,6 @@ jobs:
         target: [iOS]
     steps:
     - uses: actions/checkout@v2
-      with:
-        ref: refs/tags/v8.9.0
     - name: Access to Metrics Service
       run: |
         # Install gcloud sdk
