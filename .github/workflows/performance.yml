@@ -134,9 +134,6 @@ jobs:
           '--skip-tests --use-static-frameworks',
           '--skip-tests --use-libraries'
         ]
-        sanitizer: [asan, tsan, ubsan]
-    env:
-      SANITIZERS: ${{ matrix.sanitizer }}
     needs: pod-lib-lint
     steps:
     - uses: actions/checkout@v2
