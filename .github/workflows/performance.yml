@@ -29,6 +29,9 @@ jobs:
       matrix:
         target: [iOS, tvOS]
         test: [unit, proddev]
+        sanitizer: [asan, tsan, ubsan]
+    env:
+      SANITIZERS: ${{ matrix.sanitizer }}
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -131,6 +134,9 @@ jobs:
           '--skip-tests --use-static-frameworks',
           '--skip-tests --use-libraries'
         ]
+        sanitizer: [asan, tsan, ubsan]
+    env:
+      SANITIZERS: ${{ matrix.sanitizer }}
     needs: pod-lib-lint
     steps:
     - uses: actions/checkout@v2
@@ -139,21 +145,3 @@ jobs:
     - name: PodLibLint Performance Cron
       run: |
         scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebasePerformance.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
-  
-  sanitizers:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-11
-    strategy:
-      matrix:
-        target: [iOS, tvOS]
-        test: [unit, proddev]
-        sanitizer: [asan, tsan, ubsan]
-    env:
-      SANITIZERS: ${{ matrix.sanitizer }}
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
-      run: scripts/third_party/travis/retry.sh scripts/build.sh Performance ${{ matrix.target }} ${{ matrix.test }}
