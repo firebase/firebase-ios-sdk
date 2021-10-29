@@ -72,7 +72,7 @@ jobs:
         gcloud auth activate-service-account --key-file metrics-access.json
     - name: Build and test
       run: |
-        echo "${GITHUB_SHA}"
+        ./scripts/health_metrics/create_binary_size_report.sh
       env:
         PULL_REQUEST_NUM: ${{ github.event.pull_request.number }}
         BASE_COMMIT: ${{ needs.check.outputs.target_branch_head }}
