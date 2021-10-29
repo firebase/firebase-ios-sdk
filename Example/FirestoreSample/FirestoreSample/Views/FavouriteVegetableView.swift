@@ -25,11 +25,11 @@ struct FavouriteVegetableView: View {
     @FirestoreQuery(
       collectionPath: "vegetables",
       predicates: [
-        .where("isFavourite", isEqualTo: true),
+        .where("isFavourite", isEqualTo: false),
       ]
     ) fileprivate var vegetableResults: FirestoreQueryResult<Vegetable>
     
-    @State var showOnlyFavourites = true
+    @State var showOnlyFavourites = false
     @State var newVegetableName = ""
     
     var body: some View {
