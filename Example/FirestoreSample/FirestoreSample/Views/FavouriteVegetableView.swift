@@ -53,6 +53,7 @@ struct FavouriteVegetableView: View {
                 }
             }
         }
+        .navigationTitle("My Vegetables")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button(action: toggleFilter) {
