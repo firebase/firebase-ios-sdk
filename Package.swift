@@ -17,7 +17,7 @@
 
 import PackageDescription
 
-let firebaseVersion = "8.9.0"
+let firebaseVersion = "8.9.1"
 
 let package = Package(
   name: "Firebase",
@@ -144,7 +144,7 @@ let package = Package(
       url: "https://github.com/google/GoogleAppMeasurement.git",
       // Note that CI changes the version to the head of main for CI.
       // See scripts/setup_spm_tests.sh.
-      .exact("8.9.0")
+      .exact("8.9.1")
     ),
     .package(
       name: "GoogleDataTransport",
