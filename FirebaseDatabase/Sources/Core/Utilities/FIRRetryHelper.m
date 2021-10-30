@@ -18,6 +18,8 @@
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 
+@import FirebaseDatabaseSwiftCore;
+
 @interface FIRRetryHelperTask : NSObject
 
 @property(nonatomic, strong) void (^block)(void);

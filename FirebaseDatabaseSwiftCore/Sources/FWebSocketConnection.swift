@@ -33,10 +33,6 @@ extension String {
     }
 }
 
-internal func FFLog(_ id: String, _ log: String) {
-    print(id, log)
-}
-
 public class FWebSocketConnection {
     var connectionId: NSNumber
     var totalFrames: Int

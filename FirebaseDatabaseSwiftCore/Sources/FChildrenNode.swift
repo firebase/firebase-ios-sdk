@@ -250,7 +250,7 @@ private let kMaxName = "[MAX_NAME]"
             }
         }
 
-        let calculatedHash = toHash.isEmpty ? "" : FUtilitiesSwift.base64EncodedSha1(toHash)
+        let calculatedHash = toHash.isEmpty ? "" : FStringUtilitiesSwift.base64EncodedSha1(toHash)
         lazyHash = calculatedHash
         return calculatedHash
     }

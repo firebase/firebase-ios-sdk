@@ -29,8 +29,6 @@
 
 #import "FirebaseDatabase/Sources/Login/FIRDatabaseConnectionContextProvider.h"
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseReference.h"
-
-#import "FirebaseDatabase/Sources/Utilities/FAtomicNumber.h"
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 #import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleCallbackStatus.h"
 #import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleOnDisconnect.h"

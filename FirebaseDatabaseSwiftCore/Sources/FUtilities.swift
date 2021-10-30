@@ -5,31 +5,26 @@
 //  Created by Morten Bek Ditlevsen on 14/09/2021.
 //
 
-// NOTE: If deployment target moved to iOS 13 or above, CommonCrypto could be skipped entirely
-#if canImport(CommonCrypto)
-import CommonCrypto
-
-extension Data {
-    func sha1() -> Data {
-        // Use CC_SHA1
-        var digest = [UInt8](repeating: 0, count:Int(CC_SHA1_DIGEST_LENGTH))
-        self.withUnsafeBytes {
-            _ = CC_SHA1($0.baseAddress, CC_LONG(self.count), &digest)
-        }
-        return Data(bytes: digest, count: Int(CC_SHA1_DIGEST_LENGTH))
-    }
-}
-#elseif os(Linux) || os(Windows) || os(Android) || os(FreeBSD)
-import Crypto
-extension Data {
-    func sha1() -> Data {
-        // Use Insecure.SHA1
-        return Data(Insecure.SHA1.hash(data: self))
-    }
-}
-#endif
-
 import Foundation
+
+var logLevel: FLogLevel = .info
+
+@objc public enum FLogLevel: Int {
+    @objc(FLogLevelDebug) case debug = 1
+    @objc(FLogLevelInfo) case info = 2
+    @objc(FLogLevelWarn) case warn = 3
+    @objc(FLogLevelError) case error = 4
+    @objc(FLogLevelNone) case none = 5
+}
+
+
+@_cdecl("FFIsLoggingEnabled")
+public func FFIsLoggingEnabled(_ level: Int) -> Bool { level >= logLevel.rawValue }
+
+#warning("TODO: Use actual logging. Perhaps through swift-log.")
+internal func FFLog(_ id: String, _ log: String) {
+    print(id, log)
+}
 
 func tryParseStringToInt(_ str: String, integer: inout Int) -> Bool {
     // First do some cheap checks (NOTE: The below checks are significantly
@@ -68,23 +63,178 @@ func tryParseStringToInt(_ str: String, integer: inout Int) -> Bool {
     }
 }
 
-@objc public class Foo: NSObject {
-    @objc public static func base64EncodedSha1(_ input: String) -> String  {
-        FUtilitiesSwift.base64EncodedSha1(input)
+// Temporary obj-c wrapper - remove after migration.
+@objc public class FUtilities: NSObject {
+    @objc public static func LUIDGenerator() -> NSNumber {
+        FUtilitiesSwift.LUIDGenerator()
     }
+    @objc public static func setLoggingEnabled(_ enabled: Bool) {
+        FUtilitiesSwift.setLoggingEnabled(enabled)
+    }
+    @objc public static var int32min: Int { Int(Int32.min) }
+    @objc public static var int32max: Int { Int(Int32.max) }
+
+    @objc public static var minName: String { FUtilitiesSwift.minName }
+    @objc public static var maxName: String { FUtilitiesSwift.maxName }
 
     @objc public static func getJavascriptType(_ obj: Any) -> String {
         FUtilitiesSwift.getJavascriptType(obj).rawValue
     }
+
+    // Only used for testing
+    @objc public static func keyComparator() -> Comparator {
+        { a, b in FUtilitiesSwift.compareKey(a as! String, b as! String) }
+    }
+    @objc public static func compareKey(_ a: String, toKey b: String) -> ComparisonResult {
+        FUtilitiesSwift.compareKey(a, b)
+    }
+    @objc public static func randomDouble() -> Double {
+        FUtilitiesSwift.randomDouble()
+    }
+    @objc public static func errorForStatus(_ status: String, andReason reason: String?) -> Error? {
+        FUtilitiesSwift.error(for: status, reason: reason)
+    }
+    @objc public static func parseUrl(_ input: String) -> FParsedUrl {
+        FUtilitiesSwift.parseUrl(input)
+    }
 }
 
+let kFErrorWriteCanceled = "write_canceled"
+let kFWPResponseForActionStatusOk = "ok"
+let kFErrorDomain = "com.firebase"
+
+func firebaseJobsTroll() {
+    FFLog("I-RDB095001", "password super secret; JFK conspiracy; Hello there! Having fun digging through Firebase? We're always hiring! jobs@firebase.com")
+}
+
+fileprivate let localUid = FAtomicNumber()
+
 enum FUtilitiesSwift {
+    static func LUIDGenerator() -> NSNumber {
+        localUid.getAndIncrement()
+    }
+
+    static func setLoggingEnabled(_ enabled: Bool) {
+        logLevel = enabled ? .debug : .info
+    }
+
+    static func decodePath(_ pathString: String) -> String {
+        let pieces = pathString.components(separatedBy: "/")
+        var decodedPieces: [String] = []
+        for piece in pieces where !piece.isEmpty {
+            decodedPieces.append(FStringUtilitiesSwift.urlDecoded(piece))
+        }
+        return "/" + decodedPieces.joined(separator: "/")
+    }
+
+    static func extractPathFromUrlString(_ url: String) -> String {
+        var path: Substring = url[...]
+        if let range = path.range(of: "//") {
+            path = path[range.upperBound...]
+        }
+        if let pathIndex = path.range(of: "/")?.lowerBound {
+            path = path[path.index(after: pathIndex)...]
+        } else {
+            path = ""
+        }
+        if let queryParamIndex = path.range(of: "?")?.lowerBound {
+            path = path[..<queryParamIndex]
+        }
+        return String(path)
+    }
+
+    static func parseUrl(_ input: String) -> FParsedUrl {
+        var url = input
+        // For backwards compatibility, support URLs without schemes on iOS.
+        if !url.contains("://") {
+            url = "http://" + url
+        }
+        let originalPathString = self.extractPathFromUrlString(url)
+        // Sanitize the database URL by removing the path component, which may
+        // contain invalid URL characters.
+        let sanitizedUrlWithoutPath = url.replacingOccurrences(of: originalPathString, with: "")
+        guard let urlComponents = URLComponents(string: sanitizedUrlWithoutPath) else {
+            fatalError("Failed to parse database URL: \(url)")
+        }
+        var host = (urlComponents.host ?? "").lowercased()
+        let namespace: String
+        let secure: Bool
+        if let port = urlComponents.port {
+            secure = urlComponents.scheme == "https" || urlComponents.scheme == "wss"
+            host += "\(port)"
+        } else {
+            secure = true
+        }
+        let parts = (urlComponents.host ?? "").components(separatedBy: ".")
+        if parts.count == 3 {
+            namespace = parts[0].lowercased()
+        } else {
+            // Attempt to extract namespace from "ns" query param.
+            let queryItems = urlComponents.queryItems ?? []
+            var ns: String?
+            for item in queryItems {
+                if item.name == "ns" {
+                    ns = item.value
+                    break
+                }
+            }
+            if let ns = ns {
+                namespace = ns
+            } else {
+                namespace = parts[0].lowercased()
+            }
+        }
+        let pathString = self.decodePath("/" + originalPathString)
+        let path = FPath(with: pathString)
+        let repoInfo = FRepoInfo(host: host, isSecure: secure, withNamespace: namespace)
+
+        FFLog("I-RDB095002", "---> Parsed (\(url)) to: (\(repoInfo.description),\(repoInfo.connectionURL); ns=(\(repoInfo.namespace)); path=(\(path.description))")
+        let parsedUrl = FParsedUrl(repoInfo: repoInfo, path: path)
+        return parsedUrl
+    }
+
+
     static let maxName = "[MAX_NAME]"
     static let minName = "[MIN_NAME]"
 
-    static func base64EncodedSha1(_ input: String) -> String  {
-        let data = Data(input.utf8)
-        return data.sha1().base64EncodedString()
+    static let errorMap: [String: String] = [
+        "permission_denied" : "Permission Denied",
+        "unavailable" : "Service is unavailable",
+        kFErrorWriteCanceled : "Write cancelled by user"
+    ]
+
+    static let errorCodes: [String: Int] = [
+        "permission_denied" : 1,
+        "unavailable" : 2,
+        kFErrorWriteCanceled : 3
+    ]
+
+    static func error(for status: String, reason: String?) -> Error? {
+        guard status != kFWPResponseForActionStatusOk else {
+            return nil
+        }
+        let code: Int
+        let desc: String
+        if let reason = reason {
+            desc = reason
+        } else if let reason = errorMap[status] {
+            desc = reason
+        } else {
+            desc = status
+        }
+        if let errorCode = errorCodes[status] {
+            code = errorCode
+        } else {
+            // XXX what to do here?
+            code = 9999
+        }
+        return NSError(domain: kFErrorDomain,
+                       code: code,
+                       userInfo: [NSLocalizedDescriptionKey: desc])
+    }
+
+    static func randomDouble() -> Double {
+        Double.random(in: 0..<1)
     }
 
     static func intForString(_ string: String) -> Int? {
@@ -160,7 +310,6 @@ enum FUtilitiesSwift {
             // http://stackoverflow.com/questions/2518761/get-type-of-nsnumber, but
             // on arm64, @encode(BOOL) returns "B" instead of "c" even though
             // objCType still returns 'c' (signed char).  So check both.
-            #warning("I don't know if this is accurate")
             return type(of: number) == type(of: NSNumber(booleanLiteral: true)) ? .boolean : .number
         } else {
             return .null

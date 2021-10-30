@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
+@import FirebaseDatabaseSwiftCore;
 #import <XCTest/XCTest.h>
-
-#import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 
 @interface FNextPushIdTest : XCTestCase
 
 @end
 
 @implementation FNextPushIdTest
+
+#define INTEGER_32_MIN (-2147483648)
+#define INTEGER_32_MAX 2147483647
 
 static NSString *MIN_PUSH_CHAR = @"-";
 

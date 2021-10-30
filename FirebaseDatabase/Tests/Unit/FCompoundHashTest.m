@@ -62,7 +62,7 @@ static FCompoundHashSplitStrategy NEVER_SPLIT_STRATEGY = ^BOOL(FCompoundHashBuil
   NSString *firstHash = [FStringUtilities
       base64EncodedSha1:
           @"(\"foo\":(\"!beforePriority\":(string:\"before\"),\".priority\":(string:\"prio\")))"];
-    NSString *comp = [Foo base64EncodedSha1:@"(\"foo\":(\"!beforePriority\":(string:\"before\"),\".priority\":(string:\"prio\")))"];
+    NSString *comp = [FStringUtilities base64EncodedSha1:@"(\"foo\":(\"!beforePriority\":(string:\"before\"),\".priority\":(string:\"prio\")))"];
     XCTAssertEqualObjects(firstHash, comp);
     NSString *secondHash = [FStringUtilities
                             base64EncodedSha1:

@@ -15,7 +15,6 @@
  */
 
 #import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleTransaction.h"
-#import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 
 @interface FTupleTransaction ()
 

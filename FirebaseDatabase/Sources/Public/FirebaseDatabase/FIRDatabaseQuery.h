@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-#import "FIRDataEventType.h"
 #import "FIRDataSnapshot.h"
 #import <Foundation/Foundation.h>
+
+@import FirebaseDatabaseSwiftCore;
 
 NS_ASSUME_NONNULL_BEGIN
 

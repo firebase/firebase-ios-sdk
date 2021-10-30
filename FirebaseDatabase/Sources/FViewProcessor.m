@@ -31,7 +31,6 @@
 #import "FirebaseDatabase/Sources/Core/View/Filter/FNodeFilter.h"
 
 #import "FirebaseDatabase/Sources/FViewProcessorResult.h"
-#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDataEventType.h"
 
 
 

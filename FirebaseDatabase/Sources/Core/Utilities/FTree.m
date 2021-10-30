@@ -17,7 +17,6 @@
 #import "FirebaseDatabase/Sources/Core/Utilities/FTree.h"
 
 #import "FirebaseDatabase/Sources/Core/Utilities/FTreeNode.h"
-#import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 
 @implementation FTree
 

@@ -21,9 +21,9 @@
 #import "FirebaseAppCheck/Sources/Interop/FIRAppCheckInterop.h"
 #import "FirebaseAppCheck/Sources/Interop/FIRAppCheckTokenResultInterop.h"
 #import "Interop/Auth/Public/FIRAuthInterop.h"
+#import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
-#import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

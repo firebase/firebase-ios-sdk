@@ -19,39 +19,6 @@
 
 @import FirebaseDatabaseSwiftCore;
 
-@interface FUtilities : NSObject
-
-+ (NSArray *)splitString:(NSString *)str intoMaxSize:(const unsigned int)size;
-+ (NSNumber *)LUIDGenerator;
-+ (FParsedUrl *)parseUrl:(NSString *)url;
-+ (NSString *)getJavascriptType:(id)obj;
-+ (NSError *)errorForStatus:(NSString *)status andReason:(NSString *)reason;
-+ (NSNumber *)intForString:(NSString *)string;
-+ (NSInteger)int32min;
-+ (NSInteger)int32max;
-+ (NSString *)ieee754StringForNumber:(NSNumber *)val;
-+ (BOOL)tryParseString:(NSString *)string asInt:(NSInteger *)integer;
-+ (void)setLoggingEnabled:(BOOL)enabled;
-+ (BOOL)getLoggingEnabled;
-
-+ (NSString *)minName;
-+ (NSString *)maxName;
-+ (NSComparisonResult)compareKey:(NSString *)a toKey:(NSString *)b;
-+ (NSComparator)stringComparator;
-+ (NSComparator)keyComparator;
-
-+ (double)randomDouble;
-
-@end
-
-typedef enum {
-    FLogLevelDebug = 1,
-    FLogLevelInfo = 2,
-    FLogLevelWarn = 3,
-    FLogLevelError = 4,
-    FLogLevelNone = 5
-} FLogLevel;
-
 // Log tags
 FOUNDATION_EXPORT NSString *const kFPersistenceLogTag;
 
@@ -83,6 +50,4 @@ FOUNDATION_EXPORT NSString *const kFPersistenceLogTag;
 #define INTEGER_32_MAX 2147483647
 
 extern FIRLoggerService kFIRLoggerDatabase;
-BOOL FFIsLoggingEnabled(FLogLevel logLevel);
 void firebaseUncaughtExceptionHandler(NSException *exception);
-void firebaseJobsTroll(void);

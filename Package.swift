@@ -550,7 +550,7 @@ let package = Package(
                       .product(name: "Collections", package: "swift-collections"),
                       .product(name: "NIOWebSocket", package: "swift-nio"),
                       .product(name: "NIOSSL", package: "swift-nio-ssl"),
-                      .product(name: "Crypto", package: "swift-crypto")],
+                      .product(name: "Crypto", package: "swift-crypto", condition: .when(platforms: [.linux, .windows, .android]))],
       path: "FirebaseDatabaseSwiftCore/Sources",
       exclude: [
         "LevelDB/LICENSE",

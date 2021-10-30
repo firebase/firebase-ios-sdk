@@ -103,7 +103,7 @@ let kPayloadPriority = ".priority"
         }
         var toHash = ""
         FSnapshotUtilitiesSwift.appendHashRepresentation(for: self, to: &toHash, hashVersion: .v1)
-        let calculatedHash = FUtilitiesSwift.base64EncodedSha1(toHash)
+        let calculatedHash = FStringUtilitiesSwift.base64EncodedSha1(toHash)
         lazyHash = calculatedHash
         return calculatedHash;
     }

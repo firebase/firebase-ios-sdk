@@ -15,7 +15,6 @@
  */
 
 #import "FirebaseDatabase/Sources/Core/FPersistentConnection.h"
-#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDataEventType.h"
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseQuery.h"
 #import <Foundation/Foundation.h>
 

@@ -299,7 +299,7 @@ static NSString *kFirebaseTestAltNamespace = @"https://foobar.firebaseio.com";
 
   [[ref child:@"foo"] observeEventType:FIRDataEventTypeValue
                              withBlock:^(FIRDataSnapshot *snapshot) {
-                               [fooValues addObject:snapshot.value];
+                               [FUtilitiesValues addObject:snapshot.value];
                              }];
   [[ref child:@"bar/quu"] observeEventType:FIRDataEventTypeValue
                                  withBlock:^(FIRDataSnapshot *snapshot) {

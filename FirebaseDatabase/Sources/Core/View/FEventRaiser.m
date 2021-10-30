@@ -19,7 +19,6 @@
 #import "FirebaseDatabase/Sources/Core/FRepoManager.h"
 #import "FirebaseDatabase/Sources/Core/View/FDataEvent.h"
 #import "FirebaseDatabase/Sources/Utilities/FTypedefs.h"
-#import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 
 @interface FEventRaiser ()
 

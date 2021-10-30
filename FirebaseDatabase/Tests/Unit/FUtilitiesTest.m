@@ -49,6 +49,14 @@
   XCTAssertEqualObjects(parsedUrl.path, [FPath empty]);
 }
 
+- (void)testUrlParsedWithPathPartOfHost {
+  FParsedUrl *parsedUrl = [FUtilities parseUrl:@"https://sample.firebaseio.com/a"];
+  XCTAssertEqualObjects(parsedUrl.repoInfo.host, @"sample.firebaseio.com");
+  XCTAssertEqualObjects(parsedUrl.repoInfo.namespace, @"sample");
+  XCTAssertTrue(parsedUrl.repoInfo.secure);
+  XCTAssertEqualObjects(parsedUrl.path, [FPath pathWithString:@"a"]);
+}
+
 - (void)testUrlParsedWithoutSchema {
   FParsedUrl *parsedUrl = [FUtilities parseUrl:@"repo.firebaseio.com"];
   XCTAssertEqualObjects(parsedUrl.repoInfo.host, @"repo.firebaseio.com");

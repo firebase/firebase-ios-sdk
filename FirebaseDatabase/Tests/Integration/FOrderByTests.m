@@ -263,10 +263,10 @@
   NSMutableArray *fooSnaps = [[NSMutableArray alloc] init];
   NSMutableArray *orderSnaps = [[NSMutableArray alloc] init];
 
-  [[[fooOrder queryStartingAtValue:nil] queryEndingAtValue:@1]
+  [[[FUtilitiesOrder queryStartingAtValue:nil] queryEndingAtValue:@1]
       observeEventType:FIRDataEventTypeValue
              withBlock:^(FIRDataSnapshot *snapshot) {
-               [fooSnaps addObject:snapshot.value];
+               [FUtilitiesSnaps addObject:snapshot.value];
              }];
 
   [[orderOrder queryLimitedToLast:2] observeEventType:FIRDataEventTypeValue

@@ -27,7 +27,6 @@
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabase_Private.h"
 #import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabase.h"
-#import "FirebaseDatabase/Sources/Utilities/FValidation.h"
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 
 @implementation FIRDatabase

@@ -10,13 +10,53 @@ import Foundation
 let kServerValueSubKey = ".sv"
 let kFirebaseMaxLeafSize = 1024 * 1024 * 10 // 10 MB
 
-@objc public class FValidationSwiftFoo: NSObject {
+@objc public class FValidation: NSObject {
     @objc public static func validatePriorityValue(_ value: Any) -> Bool {
         FValidationSwift.validatePriorityValue(value)
     }
+    @objc public static func validateFrom(_ fn: String, validRootPathString pathString: String) {
+        FValidationSwift.validateFrom(fn, validRootPathString: pathString)
+    }
+    @objc public static func validateFrom(_ fn: String, validURL parsedUrl: FParsedUrl) {
+        FValidationSwift.validateFrom(fn, validURL: parsedUrl)
+    }
+
+    @objc public static func validateFrom(_ fn: String, validKey key: String) {
+        FValidationSwift.validateFrom(fn, validKey: key)
+    }
+
+    @objc public static func validateFrom(_ fn: String, validPathString pathString: String) {
+        FValidationSwift.validateFrom(fn, validPathString: pathString)
+    }
+    @objc public static func validateFrom(_ fn: String, writablePath path: FPath) {
+        FValidationSwift.validateFrom(fn, writablePath: path)
+    }
+    @objc public static func validateFrom(_ fn: String, knownEventType event: DataEventType) {
+        FValidationSwift.validateFrom(fn, knownEventType: event)
+    }
 }
 
+let kDotInfoPrefix = ".info"
+
 public enum FValidationSwift {
+
+    // NOTE: This error can only happen when bridging from Objective-C.
+    // In Swift we can't construct the invalid case.
+    static func validateFrom(_ fn: String, knownEventType event: DataEventType) {
+        switch event {
+        case .value, .childAdded, .childChanged, .childMoved, .childRemoved:
+            ()
+        default:
+            fatalError("(\(fn)) Unknown event type: \(event.rawValue)")
+        }
+    }
+
+    static func validateFrom(_ fn: String, writablePath path: FPath) {
+        guard path.getFront() != kDotInfoPrefix else {
+            fatalError("(\(fn)) failed write to path \(path.description): Can't modify data under: \(kDotInfoPrefix).")
+        }
+    }
+
     // MARK: Snapshot validation
     public static func validateFrom(_ fn: String, isValidPriorityValue value: Any, withPath path: [String]) {
         _ = validateFrom(fn, isValidPriorityValue: value, withPath: path, throwError: true)
@@ -157,38 +197,21 @@ public enum FValidationSwift {
         }
     }
 
-//    static func validateFrom(_ fn: String, validRootPathString pathString: String) {
-//        var tempPath = pathString
-//        // HACK: Obj-C regex are kinda' slow.  Do a plain string search first before
-//        // bothering with the regex.
-//        if (pathString.range(of: ".info").location != NSNotFound) {
-//        }
-//    }
-    /*
-     + (void)validateFrom:(NSString *)fn validRootPathString:(NSString *)pathString {
-         static dispatch_once_t token;
-         static NSRegularExpression *dotInfoRegex = nil;
-         dispatch_once(&token, ^{
-           dotInfoRegex = [NSRegularExpression
-               regularExpressionWithPattern:@"^\\/*\\.info(\\/|$)"
-                                    options:0
-                                      error:nil];
-         });
+    static var dotInfoRegex: NSRegularExpression = try! NSRegularExpression(pattern: "^\\/*\\.info(\\/|$)", options: [])
+    static func validateFrom(_ fn: String, validRootPathString pathString: String) {
+        var tempPath = pathString
+        // HACK: Obj-C regex are kinda' slow.  Do a plain string search first before
+        // bothering with the regex.
+        if (tempPath.contains(kDotInfoPrefix)) {
+            tempPath = dotInfoRegex.stringByReplacingMatches(in: tempPath, options: [], range: NSRange(location: 0, length: tempPath.utf16.count), withTemplate: "/")
+        }
+        validateFrom(fn, validPathString: tempPath)
+    }
 
-         NSString *tempPath = pathString;
-         // HACK: Obj-C regex are kinda' slow.  Do a plain string search first before
-         // bothering with the regex.
-         if ([pathString rangeOfString:@".info"].location != NSNotFound) {
-             tempPath = [dotInfoRegex
-                 stringByReplacingMatchesInString:pathString
-                                          options:0
-                                            range:NSMakeRange(0, pathString.length)
-                                     withTemplate:@"/"];
-         }
-         [self validateFrom:fn validPathString:tempPath];
-     }
-     */
-     */
+    static func validateFrom(_ fn: String, validURL parsedUrl: FParsedUrl) {
+        let pathString = parsedUrl.path.description
+        self.validateFrom(fn, validRootPathString: pathString)
+    }
 
     static var invalidKeyCharacters: CharacterSet = CharacterSet(charactersIn: "[].#$/")
     static func isValidKey(_ key: String) -> Bool {
