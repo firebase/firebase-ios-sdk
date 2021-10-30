@@ -1,3 +1,6 @@
+# v8.9.0
+- [fixed] Add watchOS support for Swift Package Manager (#8864).
+
 # v8.7.0
 - [fixed] Add watchOS support (#8499).
 - [changed] Don't set the App Check header in the case of App Check error (#8558).

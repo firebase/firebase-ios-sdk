@@ -48,7 +48,6 @@ using core::AsyncEventListener;
 using core::DatabaseInfo;
 using core::FirestoreClient;
 using credentials::AuthCredentialsProvider;
-using credentials::EmptyAppCheckCredentialsProvider;
 using local::LevelDbPersistence;
 using model::ResourcePath;
 using remote::FirebaseMetadataProvider;
@@ -76,23 +75,6 @@ Firestore::Firestore(
       worker_queue_{std::move(worker_queue)},
       firebase_metadata_provider_{std::move(firebase_metadata_provider)},
       extension_{extension} {
-}
-
-Firestore::Firestore(
-    model::DatabaseId database_id,
-    std::string persistence_key,
-    std::shared_ptr<credentials::AuthCredentialsProvider>
-        auth_credentials_provider,
-    std::shared_ptr<AsyncQueue> worker_queue,
-    std::unique_ptr<FirebaseMetadataProvider> firebase_metadata_provider,
-    void* extension)
-    : Firestore(std::move(database_id),
-                std::move(persistence_key),
-                std::move(auth_credentials_provider),
-                std::make_shared<EmptyAppCheckCredentialsProvider>(),
-                std::move(worker_queue),
-                std::move(firebase_metadata_provider),
-                extension) {
 }
 
 Firestore::~Firestore() {
