@@ -685,7 +685,7 @@ let package = Package(
       name: "FirebaseFunctionsSwift",
       dependencies: [
         "FirebaseFunctions",
-        "FirebaseSharedSwift"
+        "FirebaseSharedSwift",
       ],
       path: "FirebaseFunctionsSwift/Sources"
     ),
