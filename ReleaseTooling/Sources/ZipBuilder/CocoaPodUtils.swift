@@ -490,7 +490,7 @@ enum CocoaPodUtils {
         // To support Firebase patch versions, the allow patch updates
         // for all pods except Firebase and FirebaseCore.
         var podfileVersion = podVersion
-        if pod.name != "Firebase", pod.name != "FirebaseCore" {
+        if pod.name.starts(with: "Firebase"), pod.name != "Firebase", pod.name != "FirebaseCore" {
           podfileVersion = podfileVersion.replacingOccurrences(
             of: firebaseVersion,
             with: minorVersion
