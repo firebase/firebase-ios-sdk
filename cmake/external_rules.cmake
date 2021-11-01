@@ -18,6 +18,15 @@ function(download_external_sources)
   set(DOWNLOAD_BENCHMARK ${FIREBASE_IOS_BUILD_BENCHMARKS})
   set(DOWNLOAD_GOOGLETEST ${FIREBASE_IOS_BUILD_TESTS})
 
+  # If a GITHUB_TOKEN is present, use it for all external project downloads.
+  # This will prevent GitHub runners from being throttled by GitHub.
+  if(DEFINED ENV{GITHUB_TOKEN})
+    set(EXTERNAL_PROJECT_HTTP_HEADER "Authorization: token $ENV{GITHUB_TOKEN}")
+    message("Adding GITHUB_TOKEN header to ExternalProject downloads.")
+  else()
+    set(EXTERNAL_PROJECT_HTTP_HEADER "")
+  endif()
+
   execute_process(
     COMMAND
       ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}"
@@ -26,6 +35,7 @@ function(download_external_sources)
       -DFUZZING=${FUZZING}
       -DDOWNLOAD_BENCHMARK=${DOWNLOAD_BENCHMARK}
       -DDOWNLOAD_GOOGLETEST=${DOWNLOAD_GOOGLETEST}
+      -DEXTERNAL_PROJECT_HTTP_HEADER=${EXTERNAL_PROJECT_HTTP_HEADER}
       ${PROJECT_SOURCE_DIR}/cmake/external
     WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/external
   )
