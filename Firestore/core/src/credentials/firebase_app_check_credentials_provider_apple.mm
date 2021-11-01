@@ -31,8 +31,12 @@ namespace credentials {
 FirebaseAppCheckCredentialsProvider::FirebaseAppCheckCredentialsProvider(
     FIRApp* app, id<FIRAppCheckInterop> app_check) {
   contents_ = std::make_shared<Contents>(app, app_check);
-  std::weak_ptr<Contents> weak_contents = contents_;
 
+  if (app_check == nil) {
+    return;
+  }
+
+  std::weak_ptr<Contents> weak_contents = contents_;
   app_check_listener_handle_ = [[NSNotificationCenter defaultCenter]
       addObserverForName:[app_check tokenDidChangeNotificationName]
                   object:nil
