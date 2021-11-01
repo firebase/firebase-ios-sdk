@@ -3,7 +3,7 @@
 #ifndef FIRESTORE_CORE_SRC_REMOTE_GRPC_ROOT_CERTIFICATES_GENERATED_H_
 #define FIRESTORE_CORE_SRC_REMOTE_GRPC_ROOT_CERTIFICATES_GENERATED_H_
 
-#include <stddef.h>
+#include <cstdlib>
 
 namespace firebase {
 namespace firestore {
