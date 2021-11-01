@@ -15,6 +15,8 @@
 import XCTest
 @testable import HeartbeatLogging
 
+// TODO: Add additional validation (#8896 comments).
+
 class HeartbeatControllerTests: XCTestCase {
   func testFlushWhenEmpty() throws {
     // Given
