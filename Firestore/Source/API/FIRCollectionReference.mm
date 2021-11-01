@@ -25,6 +25,7 @@
 
 #include "Firestore/core/src/api/collection_reference.h"
 #include "Firestore/core/src/api/document_reference.h"
+#include "Firestore/core/src/api/optional.h"
 #include "Firestore/core/src/core/user_data.h"
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/util/error_apple.h"
@@ -33,6 +34,7 @@
 
 using firebase::firestore::api::CollectionReference;
 using firebase::firestore::api::DocumentReference;
+using firebase::firestore::api::optional;
 using firebase::firestore::core::ParsedSetData;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::util::MakeCallback;
@@ -91,7 +93,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FIRDocumentReference *_Nullable)parent {
-  absl::optional<DocumentReference> parent = self.reference.parent();
+  optional<DocumentReference> parent = self.reference.parent();
   if (!parent) {
     return nil;
   }

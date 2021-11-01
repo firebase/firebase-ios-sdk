@@ -21,9 +21,9 @@
 #include <string>
 
 #include "Firestore/core/src/api/api_fwd.h"
+#include "Firestore/core/src/api/optional.h"
 #include "Firestore/core/src/api/query_core.h"
 #include "Firestore/core/src/core/core_fwd.h"
-#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
@@ -52,7 +52,7 @@ class CollectionReference : public Query {
    * For subcollections, `parent` returns the containing `DocumentReference`.
    * For root collections, nullopt is returned.
    */
-  absl::optional<DocumentReference> parent() const;
+  optional<DocumentReference> parent() const;
 
   /**
    * A string containing the slash-separated path to this `CollectionReference`

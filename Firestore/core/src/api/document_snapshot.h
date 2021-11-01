@@ -21,12 +21,12 @@
 #include <string>
 #include <utility>
 
+#include "Firestore/core/src/api/optional.h"
 #include "Firestore/core/src/api/snapshot_metadata.h"
 #include "Firestore/core/src/core/event_listener.h"
 #include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/model_fwd.h"
-#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
@@ -50,7 +50,7 @@ class DocumentSnapshot {
   size_t Hash() const;
 
   bool exists() const;
-  const absl::optional<model::Document>& internal_document() const;
+  const optional<model::Document>& internal_document() const;
   const std::string& document_id() const;
 
   const SnapshotMetadata& metadata() const {
@@ -59,7 +59,7 @@ class DocumentSnapshot {
 
   DocumentReference CreateReference() const;
 
-  absl::optional<google_firestore_v1_Value> GetValue(
+  optional<google_firestore_v1_Value> GetValue(
       const model::FieldPath& field_path) const;
 
   const std::shared_ptr<Firestore>& firestore() const {
@@ -76,13 +76,13 @@ class DocumentSnapshot {
 
   DocumentSnapshot(std::shared_ptr<Firestore> firestore,
                    model::DocumentKey document_key,
-                   absl::optional<model::Document> document,
+                   optional<model::Document> document,
                    SnapshotMetadata metadata);
 
  private:
   std::shared_ptr<Firestore> firestore_;
   model::DocumentKey internal_key_;
-  absl::optional<model::Document> internal_document_;
+  optional<model::Document> internal_document_;
   SnapshotMetadata metadata_;
 };
 
