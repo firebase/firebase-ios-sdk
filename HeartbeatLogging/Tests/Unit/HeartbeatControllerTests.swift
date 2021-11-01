@@ -40,7 +40,7 @@ class HeartbeatControllerTests: XCTestCase {
 // MARK: - Fakes
 
 private extension HeartbeatControllerTests {
-  class HeartbeatStorageFake: HeartbeatStoring {
+  class HeartbeatStorageFake: HeartbeatStorageProtocol {
     private var heartbeatInfo: HeartbeatInfo?
 
     func offer(_ heartbeat: Heartbeat) {

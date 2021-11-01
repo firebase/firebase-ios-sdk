@@ -15,13 +15,13 @@
 import Foundation
 
 /// A type that can store and remove hearbeats.
-protocol HeartbeatStoring {
+protocol HeartbeatStorageProtocol {
   func offer(_ heartbeat: Heartbeat)
   func flush() -> HeartbeatInfo?
 }
 
 /// Thread-safe storage object designed for storing heartbeat data.
-final class HeartbeatStorage: HeartbeatStoring {
+final class HeartbeatStorage: HeartbeatStorageProtocol {
   private let storage: PersistentStorage
   private let coder: Coder
   private let queue: DispatchQueue
@@ -48,11 +48,13 @@ final class HeartbeatStorage: HeartbeatStoring {
 
   // TODO: Review and decide if the below API should provide an `async` option.
   func flush() -> HeartbeatInfo? {
-    queue.sync {
-      let flushed = try? load(from: storage)
+    let flushed: HeartbeatInfo? = queue.sync {
+      let heartbeatInfo = try? load(from: storage)
       let saveResult = Result { try save(nil, to: storage) }
-      return try? saveResult.map { flushed }.get()
+      guard case .success = saveResult else { return nil }
+      return heartbeatInfo
     }
+    return flushed
   }
 
   private func load(from storage: PersistentStorage) throws -> HeartbeatInfo {

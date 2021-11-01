@@ -17,22 +17,21 @@ import Foundation
 /// A  logger object that provides API to log and flush heartbeats from a synchronized storage container.
 public final class HeartbeatController {
   /// The thread-safe storage object to log and flush heartbeats from.
-  private let storage: HeartbeatStoring
+  private let storage: HeartbeatStorageProtocol
 
   /// Public initializer.
   ///
   /// - Parameter id: The `id` to associate this logger's internal storage with.
-  public init(id: String) { // TODO: Pass `StorageFactory` as a block.
+  public convenience init(id: String) {
     let storage = StorageFactory.makeStorage(id: id)
-    self.storage = HeartbeatStorage(id: id, storage: storage)
-    // TODO: `self.storage = HeartbeatStorage(storage: storage)`
+    self.init(storage: HeartbeatStorage(id: id, storage: storage))
   }
 
-  /// This initializer has `internal`access control and is ideal for injecting a storage container for testing.
+  /// Designated initializer.
   ///
   /// - Parameters:
   ///   - storage: The logger's internal storage object.
-  init(storage: HeartbeatStoring) {
+  init(storage: HeartbeatStorageProtocol) {
     self.storage = storage
   }
 
