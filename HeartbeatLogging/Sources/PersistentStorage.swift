@@ -19,7 +19,7 @@ protocol PersistentStorage {
   func write(_ value: Data?) throws
 }
 
-enum PersistentStorageError: Error {
+enum StorageError: Error {
   case readError
   case writeError
 }
@@ -54,7 +54,7 @@ extension FileStorage: PersistentStorage {
     do {
       return try Data(contentsOf: url)
     } catch {
-      throw PersistentStorageError.readError
+      throw StorageError.readError
     }
   }
 
@@ -67,7 +67,7 @@ extension FileStorage: PersistentStorage {
         try fileManager.removeItem(at: url)
       }
     } catch {
-      throw PersistentStorageError.writeError
+      throw StorageError.writeError
     }
   }
 }
@@ -90,7 +90,7 @@ extension UserDefaultsStorage: PersistentStorage {
     if let data = defaults.data(forKey: key) {
       return data
     } else {
-      throw PersistentStorageError.readError
+      throw StorageError.readError
     }
   }
 
