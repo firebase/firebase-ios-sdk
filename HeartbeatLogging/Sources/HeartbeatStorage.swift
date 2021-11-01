@@ -49,13 +49,13 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
 
   // TODO: Review and decide if the below API should provide an `async` option.
   func flush() -> HeartbeatInfo? {
-    let flushed: HeartbeatInfo? = queue.sync {
+    let heartbeatInfo: HeartbeatInfo? = queue.sync {
       let heartbeatInfo = try? load(from: storage)
       let saveResult = Result { try save(nil, to: storage) }
       guard case .success = saveResult else { return nil }
       return heartbeatInfo
     }
-    return flushed
+    return heartbeatInfo
   }
 
   private func load(from storage: PersistentStorage) throws -> HeartbeatInfo {
