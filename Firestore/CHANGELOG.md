@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Fixed a bug in the AppCheck integration that caused the SDK to respond
+  to unrelated notifications (#8895).
+
 # v8.9.0
 - [added] Added support for Firebase AppCheck.
 - [fixed] Fix a crash if `[FIRTransaction getDocument]` was called after
