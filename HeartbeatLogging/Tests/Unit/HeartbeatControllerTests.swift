@@ -30,9 +30,10 @@ class HeartbeatControllerTests: XCTestCase {
     let controller = HeartbeatController(storage: HeartbeatStorageFake())
     XCTAssertNil(controller.flush())
     // When
-    controller.log("dummy_user_agent")
+    controller.log(#function)
     // Then
     XCTAssertNotNil(controller.flush())
+    XCTAssertNil(controller.flush())
   }
 }
 
@@ -48,7 +49,9 @@ private extension HeartbeatControllerTests {
     }
 
     func flush() -> HeartbeatInfo? {
-      heartbeatInfo
+      let flushed = heartbeatInfo
+      heartbeatInfo = nil
+      return flushed
     }
   }
 }
