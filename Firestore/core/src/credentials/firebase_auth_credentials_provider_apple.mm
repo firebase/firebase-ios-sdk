@@ -134,10 +134,11 @@ void FirebaseAuthCredentialsProvider::SetCredentialChangeListener(
     // Fire initial event.
     change_listener(contents_->current_user);
   } else {
-    HARD_ASSERT(auth_listener_handle_, "removed change_listener twice!");
     HARD_ASSERT(change_listener_, "change_listener removed without being set!");
+      if (auth_listener_handle_) {
     [[NSNotificationCenter defaultCenter] removeObserver:auth_listener_handle_];
     auth_listener_handle_ = nil;
+      }
   }
   change_listener_ = change_listener;
 }
