@@ -29,7 +29,7 @@ public struct HeartbeatInfo: Codable {
 
   /// Intializes a `HeartbeatInfo` with a given `capacity`.
   /// - Parameter capacity: An `Int` representing the capacity.
-  internal init(capacity: Int) {
+  init(capacity: Int) {
     buffer = HeartbeatRingBuffer(capacity: capacity)
   }
 
@@ -37,7 +37,8 @@ public struct HeartbeatInfo: Codable {
   /// - Parameter heartbeat: The heartbeat to offer for enqueueing.
   /// - Returns: `True` if the heartbeat was enqueued; otherwise, `false`.
   /// - Complexity: O(1)
-  internal mutating func offer(_ heartbeat: Heartbeat) -> Bool {
+  @discardableResult
+  mutating func offer(_ heartbeat: Heartbeat) -> Bool {
     // `timePeriods` represents the time periods that the given `heartbeat`
     // should be tagged with. It is calculated by filtering for time periods
     // that have either an expired heartbeat or no associated heartbeat.
@@ -70,6 +71,7 @@ public struct HeartbeatInfo: Codable {
 
 extension HeartbeatInfo: HTTPHeaderRepresentable {
   public func headerValue() -> String {
+    // TODO: Implement
     ""
   }
 }

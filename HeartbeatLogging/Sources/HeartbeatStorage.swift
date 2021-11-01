@@ -14,25 +14,28 @@
 
 import Foundation
 
+/// A type that can store and remove hearbeats.
+protocol HeartbeatStorageProtocol {
+  func offer(_ heartbeat: Heartbeat)
+  func flush() -> HeartbeatInfo?
+}
+
 /// Thread-safe storage object designed for storing heartbeat data.
-final class HeartbeatStorage {
+final class HeartbeatStorage: HeartbeatStorageProtocol {
   private let storage: PersistentStorage
-  private let encoder: JSONEncoder
-  private let decoder: JSONDecoder
+  // TODO: Add documentation.
+  private let coder: Coder
   private let queue: DispatchQueue
 
   private let limit: Int = 25 // TODO: Decide how this will be injected...
 
   init(id: String, // TODO: - Sanitize!
        storage: PersistentStorage,
-       encoder: JSONEncoder = .init(),
-       decoder: JSONDecoder = .init()) {
+       coder: Coder = JSONCoder(),
+       queue: DispatchQueue? = nil) {
     self.storage = storage
-    self.encoder = encoder
-    self.decoder = decoder
-
-    let label = "com.heartbeat.storage.\(id)"
-    queue = DispatchQueue(label: label)
+    self.coder = coder
+    self.queue = queue ?? DispatchQueue(label: "com.heartbeat.storage.\(id)")
   }
 
   func offer(_ heartbeat: Heartbeat) {
@@ -46,22 +49,24 @@ final class HeartbeatStorage {
 
   // TODO: Review and decide if the below API should provide an `async` option.
   func flush() -> HeartbeatInfo? {
-    queue.sync {
-      let flushed = try? load(from: storage)
-      try? save(nil, to: storage)
-      return flushed
+    let heartbeatInfo: HeartbeatInfo? = queue.sync {
+      let heartbeatInfo = try? load(from: storage)
+      let saveResult = Result { try save(nil, to: storage) }
+      guard case .success = saveResult else { return nil }
+      return heartbeatInfo
     }
+    return heartbeatInfo
   }
 
   private func load(from storage: PersistentStorage) throws -> HeartbeatInfo {
-    let data = try self.storage.read()
-    let heartbeatData = try decoder.decode(HeartbeatInfo.self, from: data)
+    let data = try storage.read()
+    let heartbeatData = try coder.decode(HeartbeatInfo.self, from: data)
     return heartbeatData
   }
 
   private func save(_ value: HeartbeatInfo?, to storage: PersistentStorage) throws {
     if let value = value {
-      let data = try encoder.encode(value)
+      let data = try coder.encode(value)
       try storage.write(data)
     } else {
       try storage.write(nil)
