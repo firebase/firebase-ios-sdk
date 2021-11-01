@@ -221,8 +221,8 @@ std::unique_ptr<ListenerRegistration> DocumentReference::AddSnapshotListener(
 
       DocumentSnapshot result{
           firestore_, key_,
-          document ? optional<Document>(document.value())
-                   : optional<Document>(),
+          document ? Optional<Document>(document.value())
+                   : Optional<Document>(),
           SnapshotMetadata{has_pending_writes, snapshot.from_cache()}};
       user_listener_->OnEvent(std::move(result));
     }

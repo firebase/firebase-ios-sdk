@@ -49,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** Internal FIRDocumentSnapshot API we don't want exposed in our public header files. */
 @interface FIRDocumentSnapshot (Internal)
 
-- (const api::optional<model::Document> &)internalDocument;
+- (const api::Optional<model::Document> &)internalDocument;
 
 @end
 

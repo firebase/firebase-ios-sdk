@@ -34,7 +34,7 @@
 
 using firebase::firestore::api::CollectionReference;
 using firebase::firestore::api::DocumentReference;
-using firebase::firestore::api::optional;
+using firebase::firestore::api::Optional;
 using firebase::firestore::core::ParsedSetData;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::util::MakeCallback;
@@ -93,7 +93,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FIRDocumentReference *_Nullable)parent {
-  optional<DocumentReference> parent = self.reference.parent();
+  Optional<DocumentReference> parent = self.reference.parent();
   if (!parent) {
     return nil;
   }

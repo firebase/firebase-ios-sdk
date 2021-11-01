@@ -36,7 +36,7 @@ DocumentSnapshot DocumentSnapshot::FromDocument(
     model::Document document,
     SnapshotMetadata metadata) {
   return DocumentSnapshot{std::move(firestore), document->key(),
-                          optional<model::Document>(document),
+                          Optional<model::Document>(document),
                           std::move(metadata)};
 }
 
@@ -45,12 +45,12 @@ DocumentSnapshot DocumentSnapshot::FromNoDocument(
     model::DocumentKey key,
     SnapshotMetadata metadata) {
   return DocumentSnapshot{std::move(firestore), std::move(key),
-                          optional<model::Document>(), std::move(metadata)};
+                          Optional<model::Document>(), std::move(metadata)};
 }
 
 DocumentSnapshot::DocumentSnapshot(std::shared_ptr<Firestore> firestore,
                                    model::DocumentKey document_key,
-                                   optional<Document> document,
+                                   Optional<Document> document,
                                    SnapshotMetadata metadata)
     : firestore_{std::move(firestore)},
       internal_key_{std::move(document_key)},
@@ -67,7 +67,7 @@ bool DocumentSnapshot::exists() const {
   return internal_document_.has_value();
 }
 
-const optional<Document>& DocumentSnapshot::internal_document() const {
+const Optional<Document>& DocumentSnapshot::internal_document() const {
   return internal_document_;
 }
 
@@ -79,15 +79,15 @@ const std::string& DocumentSnapshot::document_id() const {
   return internal_key_.path().last_segment();
 }
 
-optional<google_firestore_v1_Value> DocumentSnapshot::GetValue(
+Optional<google_firestore_v1_Value> DocumentSnapshot::GetValue(
     const FieldPath& field_path) const {
   if (internal_document_) {
     auto value = (*internal_document_)->field(field_path);
     if (value) {
-      return optional<google_firestore_v1_Value>(value.value());
+      return Optional<google_firestore_v1_Value>(value.value());
     }
   }
-  return optional<google_firestore_v1_Value>();
+  return {};
 }
 
 bool operator==(const DocumentSnapshot& lhs, const DocumentSnapshot& rhs) {

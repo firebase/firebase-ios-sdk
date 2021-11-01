@@ -67,12 +67,12 @@ const std::string& CollectionReference::collection_id() const {
   return query().path().last_segment();
 }
 
-optional<DocumentReference> CollectionReference::parent() const {
+Optional<DocumentReference> CollectionReference::parent() const {
   ResourcePath parent_path = query().path().PopLast();
   if (parent_path.empty()) {
-    return optional<DocumentReference>();
+    return {};
   } else {
-    return optional<DocumentReference>(
+    return Optional<DocumentReference>(
         DocumentReference(DocumentKey(std::move(parent_path)), firestore()));
   }
 }

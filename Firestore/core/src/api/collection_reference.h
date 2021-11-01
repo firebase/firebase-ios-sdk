@@ -52,7 +52,7 @@ class CollectionReference : public Query {
    * For subcollections, `parent` returns the containing `DocumentReference`.
    * For root collections, nullopt is returned.
    */
-  optional<DocumentReference> parent() const;
+  Optional<DocumentReference> parent() const;
 
   /**
    * A string containing the slash-separated path to this `CollectionReference`

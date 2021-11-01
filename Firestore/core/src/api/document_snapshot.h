@@ -50,7 +50,7 @@ class DocumentSnapshot {
   size_t Hash() const;
 
   bool exists() const;
-  const optional<model::Document>& internal_document() const;
+  const Optional<model::Document>& internal_document() const;
   const std::string& document_id() const;
 
   const SnapshotMetadata& metadata() const {
@@ -59,7 +59,7 @@ class DocumentSnapshot {
 
   DocumentReference CreateReference() const;
 
-  optional<google_firestore_v1_Value> GetValue(
+  Optional<google_firestore_v1_Value> GetValue(
       const model::FieldPath& field_path) const;
 
   const std::shared_ptr<Firestore>& firestore() const {
@@ -76,13 +76,13 @@ class DocumentSnapshot {
 
   DocumentSnapshot(std::shared_ptr<Firestore> firestore,
                    model::DocumentKey document_key,
-                   optional<model::Document> document,
+                   Optional<model::Document> document,
                    SnapshotMetadata metadata);
 
  private:
   std::shared_ptr<Firestore> firestore_;
   model::DocumentKey internal_key_;
-  optional<model::Document> internal_document_;
+  Optional<model::Document> internal_document_;
   SnapshotMetadata metadata_;
 };
 

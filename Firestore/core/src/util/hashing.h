@@ -199,7 +199,7 @@ auto RankedInvokeHash(const absl::optional<K>& option, HashChoice<4>)
  * value can itself be hashed.
  */
 template <typename K>
-auto RankedInvokeHash(const api::optional<K>& option, HashChoice<4>)
+auto RankedInvokeHash(const api::Optional<K>& option, HashChoice<4>)
     -> decltype(InvokeHash(*option)) {
   return option ? InvokeHash(*option) : -1171;
 }

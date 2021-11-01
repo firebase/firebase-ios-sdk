@@ -17,6 +17,10 @@
 #ifndef FIRESTORE_CORE_SRC_API_OPTIONAL_H_
 #define FIRESTORE_CORE_SRC_API_OPTIONAL_H_
 
+// This file is copied from
+// https://github.com/firebase/firebase-cpp-sdk/blob/58dbf86c8b767b90f8427275388f6309617650fa/app/src/optional.h
+// with local modifications
+
 #include <cassert>
 #include <cstdint>
 #include <new>
@@ -51,17 +55,17 @@ const nullopt_t nullopt((nullopt_t::init()));
 // having to default construct a value, or keep a null pointer to a value and
 // later initializing it.
 template <typename T>
-class optional {
+class Optional {
  public:
   typedef T value_type;
 
   // Initialize an empty optional.
-  optional() : has_value_(false) {
+  Optional() : has_value_(false) {
   }
 
   // Copy contructor. If the other optional has a value, it is copied into this
   // optional using its copy constructor.
-  optional(const optional& other) : has_value_(other.has_value()) {
+  Optional(const Optional& other) : has_value_(other.has_value()) {
     if (other.has_value()) {
       new (aligned_buffer()) value_type(other.value());
     }
@@ -69,7 +73,7 @@ class optional {
 
   // Copy assignment. If the other optional has a value, it is copy constructed
   // or copy assigned into this optional.
-  optional& operator=(const optional& other) {
+  Optional& operator=(const Optional& other) {
     if (other.has_value()) {
       *this = other.value();
     } else {
@@ -81,7 +85,7 @@ class optional {
 #if defined(FIREBASE_USE_MOVE_OPERATORS)
   // Move contructor. If the other optional has a value, it is moved into this
   // optional using its move constructor.
-  optional(optional&& other) noexcept : has_value_(other.has_value_) {
+  Optional(Optional&& other) noexcept : has_value_(other.has_value_) {
     if (has_value()) {
       new (aligned_buffer()) value_type(std::move(other.value()));
       other.reset();
@@ -90,7 +94,7 @@ class optional {
 
   // Move assignment. If the other optional has a value, it is move constructed
   // or move assigned into this optional.
-  optional& operator=(optional&& other) noexcept {
+  Optional& operator=(Optional&& other) noexcept {
     if (other.has_value()) {
       *this = std::move(other.value());
     } else {
@@ -102,12 +106,12 @@ class optional {
 #endif  // FIREBASE_USE_MOVE_OPERATORS
 
   // Initialize this optional with the given value.
-  explicit optional(const value_type& initial_value) : has_value_(true) {
+  explicit Optional(const value_type& initial_value) : has_value_(true) {
     new (aligned_buffer()) value_type(initial_value);
   }
 
   // Set value directly via copy constructor.
-  optional& operator=(const value_type& other) {
+  Optional& operator=(const value_type& other) {
     if (has_value()) {
       value() = other;
     } else {
@@ -119,12 +123,12 @@ class optional {
 
 #if defined(FIREBASE_USE_MOVE_OPERATORS)
   // Move construction with a given value.
-  explicit optional(value_type&& initial_value) : has_value_(true) {
+  explicit Optional(value_type&& initial_value) : has_value_(true) {
     new (aligned_buffer()) value_type(std::move(initial_value));
   }
 
   // Set value directly via move constructor.
-  optional& operator=(value_type&& other) {
+  Optional& operator=(value_type&& other) {
     if (has_value()) {
       value() = std::move(other);
     } else {
@@ -135,7 +139,7 @@ class optional {
   }
 #endif  // FIREBASE_USE_MOVE_OPERATORS
 
-  ~optional() {
+  ~Optional() {
     reset();
   }
 
@@ -221,18 +225,18 @@ class optional {
 };
 
 template <typename T>
-optional<T> optionalFromPointer(const T* pointer) {
-  return pointer ? optional<T>(*pointer) : optional<T>();
+Optional<T> optionalFromPointer(const T* pointer) {
+  return pointer ? Optional<T>(*pointer) : Optional<T>();
 }
 
 template <typename T>
-bool operator==(const optional<T>& lhs, const optional<T>& rhs) {
+bool operator==(const Optional<T>& lhs, const Optional<T>& rhs) {
   return lhs.has_value() == rhs.has_value() &&
          (!lhs.has_value() || (lhs.value() == rhs.value()));
 }
 
 template <typename T>
-bool operator!=(const optional<T>& lhs, const optional<T>& rhs) {
+bool operator!=(const Optional<T>& lhs, const Optional<T>& rhs) {
   return !(lhs == rhs);
 }
 

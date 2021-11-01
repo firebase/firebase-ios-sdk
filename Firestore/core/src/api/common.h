@@ -17,7 +17,9 @@
 #ifndef FIRESTORE_CORE_SRC_API_COMMON_H_
 #define FIRESTORE_CORE_SRC_API_COMMON_H_
 
-// This file contains definitions that configure the SDK.
+// This file is copied from
+// https://github.com/firebase/firebase-cpp-sdk/blob/58dbf86c8b767b90f8427275388f6309617650fa/app/src/include/firebase/internal/common.h
+// in order to support optional.h
 
 // Include a STL header file, othewise _STLPORT_VERSION won't be set.
 #include <utility>

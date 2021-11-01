@@ -52,7 +52,7 @@ google_protobuf_Timestamp GetLocalWriteTime(
  * Preserving the previous values allows the user to display the last resolved
  * value until the backend responds with the timestamp.
  */
-api::optional<google_firestore_v1_Value> GetPreviousValue(
+api::Optional<google_firestore_v1_Value> GetPreviousValue(
     const google_firestore_v1_Value& value);
 
 }  // namespace model
