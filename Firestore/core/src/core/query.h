@@ -158,12 +158,14 @@ class Query {
 
   int32_t limit() const;
 
-  const absl::optional<Bound>& start_at() const {
-    return start_at_;
+  const api::optional<Bound> start_at() const {
+    return start_at_ ? api::optional<Bound>(start_at_.value())
+                     : api::optional<Bound>();
   }
 
-  const absl::optional<Bound>& end_at() const {
-    return end_at_;
+  const api::optional<Bound> end_at() const {
+    return end_at_ ? api::optional<Bound>(end_at_.value())
+                   : api::optional<Bound>();
   }
 
   // MARK: - Builder methods

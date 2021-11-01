@@ -335,8 +335,13 @@ const Target& Query::ToTarget() const& {
                     limit_, new_start_at, new_end_at);
       memoized_target = std::make_shared<Target>(std::move(target));
     } else {
+      absl::optional<Bound> start =
+          start_at() ? absl::optional<Bound>(start_at().value())
+                     : absl::nullopt;
+      absl::optional<Bound> end =
+          end_at() ? absl::optional<Bound>(end_at().value()) : absl::nullopt;
       Target target(path(), collection_group(), filters(), order_bys(), limit_,
-                    start_at(), end_at());
+                    std::move(start), std::move(end));
       memoized_target = std::make_shared<Target>(std::move(target));
     }
   }
