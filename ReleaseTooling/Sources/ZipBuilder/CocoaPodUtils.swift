@@ -487,10 +487,14 @@ enum CocoaPodUtils {
         FileManager.default.fileExists(atPath: localURL.appendingPathComponent(podspec).path) {
         podfile += "  pod '\(pod.name)', :path => '\(localURL.path)'"
       } else if let podVersion = pod.version {
-        // To support Firebase patch versions, the allow patch updates
-        // for all pods except Firebase and FirebaseCore.
+        // To support Firebase patch versions in the Firebase zip distribution, allow patch updates
+        // for all pods except Firebase and FirebaseCore. The Firebase Swift pods are not yet in the
+        // zip distribution.
         var podfileVersion = podVersion
-        if pod.name.starts(with: "Firebase"), pod.name != "Firebase", pod.name != "FirebaseCore" {
+        if pod.name.starts(with: "Firebase"),
+          !pod.name.hasSuffix("Swift"),
+          pod.name != "Firebase",
+          pod.name != "FirebaseCore" {
           podfileVersion = podfileVersion.replacingOccurrences(
             of: firebaseVersion,
             with: minorVersion
