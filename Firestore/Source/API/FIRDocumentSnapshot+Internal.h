@@ -19,6 +19,7 @@
 #include <memory>
 
 #include "Firestore/core/src/api/api_fwd.h"
+#include "Firestore/core/src/api/optional.h"
 #include "Firestore/core/src/model/model_fwd.h"
 
 @class FIRFirestore;
@@ -48,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** Internal FIRDocumentSnapshot API we don't want exposed in our public header files. */
 @interface FIRDocumentSnapshot (Internal)
 
-- (const absl::optional<model::Document> &)internalDocument;
+- (const api::optional<model::Document> &)internalDocument;
 
 @end
 
