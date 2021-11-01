@@ -23,6 +23,7 @@ protocol HeartbeatStorageProtocol {
 /// Thread-safe storage object designed for storing heartbeat data.
 final class HeartbeatStorage: HeartbeatStorageProtocol {
   private let storage: PersistentStorage
+  // TODO: Add documentation.
   private let coder: Coder
   private let queue: DispatchQueue
 
