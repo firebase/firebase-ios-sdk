@@ -92,6 +92,22 @@
   XCTAssertEqualObjects(parsedUrl.path, [FPath pathWithString:@"a"]);
 }
 
+- (void)testUrlParsedWithPathPartOfHost2 {
+  FParsedUrl *parsedUrl = [FUtilities parseUrl:@"https://sample.firebaseio.com/"];
+  XCTAssertEqualObjects(parsedUrl.repoInfo.host, @"sample.firebaseio.com");
+  XCTAssertEqualObjects(parsedUrl.repoInfo.namespace, @"sample");
+  XCTAssertTrue(parsedUrl.repoInfo.secure);
+  XCTAssertEqualObjects(parsedUrl.path, [FPath pathWithString:@""]);
+}
+
+- (void)testUrlParsedWithPathPartOfHost3 {
+  FParsedUrl *parsedUrl = [FUtilities parseUrl:@"https://sample.firebaseio.com"];
+  XCTAssertEqualObjects(parsedUrl.repoInfo.host, @"sample.firebaseio.com");
+  XCTAssertEqualObjects(parsedUrl.repoInfo.namespace, @"sample");
+  XCTAssertTrue(parsedUrl.repoInfo.secure);
+  XCTAssertEqualObjects(parsedUrl.path, [FPath pathWithString:@""]);
+}
+
 - (void)testDefaultCacheSizeIs10MB {
   XCTAssertEqual([FTestHelpers defaultConfig].persistenceCacheSizeBytes,
                  (NSUInteger)10 * 1024 * 1024);

@@ -158,7 +158,7 @@ void firebaseJobsTroll(void) {
                                    options:NSBackwardsSearch];
     NSString *sanitizedUrlWithoutPath =
         (lastMatch.location != NSNotFound)
-            ? [url stringByReplacingCharactersInRange:lastMatch withString:@""]
+            ? [url substringToIndex:lastMatch.location]
             : url;
 
     NSURLComponents *urlComponents =
