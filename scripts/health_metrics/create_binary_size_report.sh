@@ -36,5 +36,5 @@ if [ -n "$BINARY_SIZE_SDK" ]; then
   cd scripts/health_metrics/generate_code_coverage_report/
   git clone https://github.com/google/cocoapods-size
   swift build
-    .build/debug/BinarySizeReportGenerator --binary-size-tool-dir cocoapods-size/  --sdk-repo-dir "${GITHUB_WORKSPACE}" --sdk ${BINARY_SIZE_SDK[@]} --merge "firebase/firebase-ios-sdk" --head-commit "2064534407804195d62f48531155ef41ddf1ce22" --token $(gcloud auth print-identity-token) --log-link "https://github.com/firebase/firebase-ios-sdk/actions/runs/${GITHUB_RUN_ID}" --source-branch release-8.9
+    .build/debug/BinarySizeReportGenerator --binary-size-tool-dir cocoapods-size/  --sdk-repo-dir "${GITHUB_WORKSPACE}" --sdk ${BINARY_SIZE_SDK[@]} --merge "firebase/firebase-ios-sdk" --head-commit "839cc6b0cd80b0b8bf81fe9bd82b743b25dc6446" --token $(gcloud auth print-identity-token) --log-link "https://github.com/firebase/firebase-ios-sdk/actions/runs/${GITHUB_RUN_ID}" --source-branch release-8.9
 fi
