@@ -159,7 +159,6 @@ TEST(FirebaseAppCheckCredentialsProviderTest, ListenForTokenChanges) {
   credentials_provider.SetCredentialChangeListener(
       [token_promise](const std::string& result) {
         if (result != "") {
-          EXPECT_EQ("updated_app_check_token", result);
           token_promise->set_value(result);
         }
       });
@@ -176,6 +175,8 @@ TEST(FirebaseAppCheckCredentialsProviderTest, ListenForTokenChanges) {
   auto kTimeout = std::chrono::seconds(5);
   auto token_future = token_promise->get_future();
   ASSERT_EQ(std::future_status::ready, token_future.wait_for(kTimeout));
+
+  EXPECT_EQ("updated_app_check_token", token_future.get());
 }
 
 // Regression test for https://github.com/firebase/firebase-ios-sdk/issues/8895
@@ -190,7 +191,6 @@ TEST(FirebaseAppCheckCredentialsProviderTest,
   credentials_provider.SetCredentialChangeListener(
       [token_promise](const std::string& result) {
         if (result != "") {
-          EXPECT_EQ("token2", result);
           token_promise->set_value(result);
         }
       });
@@ -214,6 +214,10 @@ TEST(FirebaseAppCheckCredentialsProviderTest,
   auto kTimeout = std::chrono::seconds(5);
   auto token_future = token_promise->get_future();
   ASSERT_EQ(std::future_status::ready, token_future.wait_for(kTimeout));
+
+  // Verify that we get 'token2`, which is the second notification but the
+  // only one that uses the AppCheck topic.
+  EXPECT_EQ("token2", token_future.get());
 }
 
 }  // namespace credentials
