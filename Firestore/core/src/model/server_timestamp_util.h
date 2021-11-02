@@ -19,6 +19,7 @@
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
+#include "Firestore/core/src/api/optional.h"
 #include "Firestore/core/src/nanopb/message.h"
 #include "absl/types/optional.h"
 
@@ -51,7 +52,7 @@ google_protobuf_Timestamp GetLocalWriteTime(
  * Preserving the previous values allows the user to display the last resolved
  * value until the backend responds with the timestamp.
  */
-absl::optional<google_firestore_v1_Value> GetPreviousValue(
+api::Optional<google_firestore_v1_Value> GetPreviousValue(
     const google_firestore_v1_Value& value);
 
 }  // namespace model

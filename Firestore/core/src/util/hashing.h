@@ -22,6 +22,7 @@
 #include <string>
 #include <type_traits>
 
+#include "Firestore/core/src/api/optional.h"
 #include "Firestore/core/src/objc/objc_type_traits.h"
 #include "Firestore/core/src/util/type_traits.h"
 #include "absl/meta/type_traits.h"
@@ -189,6 +190,16 @@ auto RankedInvokeHash(const Range& range, HashChoice<3>)
  */
 template <typename K>
 auto RankedInvokeHash(const absl::optional<K>& option, HashChoice<4>)
+    -> decltype(InvokeHash(*option)) {
+  return option ? InvokeHash(*option) : -1171;
+}
+
+/**
+ * Hashes the contents of the given optional value, only if the underlying
+ * value can itself be hashed.
+ */
+template <typename K>
+auto RankedInvokeHash(const api::Optional<K>& option, HashChoice<4>)
     -> decltype(InvokeHash(*option)) {
   return option ? InvokeHash(*option) : -1171;
 }

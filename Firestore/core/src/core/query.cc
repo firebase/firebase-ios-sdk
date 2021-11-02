@@ -204,12 +204,12 @@ Query Query::WithLimitToLast(int32_t limit) const {
 
 Query Query::StartingAt(Bound bound) const {
   return Query(path_, collection_group_, filters_, explicit_order_bys_, limit_,
-               limit_type_, std::move(bound), end_at_);
+               limit_type_, api::Optional<Bound>(std::move(bound)), end_at_);
 }
 
 Query Query::EndingAt(Bound bound) const {
   return Query(path_, collection_group_, filters_, explicit_order_bys_, limit_,
-               limit_type_, start_at_, std::move(bound));
+               limit_type_, start_at_, api::Optional<Bound>(std::move(bound)));
 }
 
 Query Query::AsCollectionQueryAtPath(ResourcePath path) const {
@@ -335,8 +335,13 @@ const Target& Query::ToTarget() const& {
                     limit_, new_start_at, new_end_at);
       memoized_target = std::make_shared<Target>(std::move(target));
     } else {
+      absl::optional<Bound> start =
+          start_at() ? absl::optional<Bound>(start_at().value())
+                     : absl::nullopt;
+      absl::optional<Bound> end =
+          end_at() ? absl::optional<Bound>(end_at().value()) : absl::nullopt;
       Target target(path(), collection_group(), filters(), order_bys(), limit_,
-                    start_at(), end_at());
+                    std::move(start), std::move(end));
       memoized_target = std::make_shared<Target>(std::move(target));
     }
   }
