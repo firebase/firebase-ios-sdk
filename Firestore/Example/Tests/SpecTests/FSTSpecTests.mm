@@ -120,7 +120,6 @@ using firebase::firestore::util::TimerId;
 using firebase::firestore::util::WrapCompare;
 using firebase::firestore::util::ToString;
 
-
 NS_ASSUME_NONNULL_BEGIN
 
 // Whether to run the benchmark spec tests.

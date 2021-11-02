@@ -59,7 +59,8 @@ StatusOr<Timestamp> TimestampInternal::FromUntrustedSecondsAndNanos(
 }
 
 size_t TimestampInternal::Hash(const Timestamp& timestamp) {
-  return firebase::firestore::util::Hash(timestamp.seconds(), timestamp.nanoseconds());
+  return firebase::firestore::util::Hash(timestamp.seconds(),
+                                         timestamp.nanoseconds());
 }
 
 Timestamp TimestampInternal::Truncate(const Timestamp& timestamp) {
