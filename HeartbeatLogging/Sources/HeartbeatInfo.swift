@@ -30,6 +30,7 @@ public struct HeartbeatInfo: Codable {
   /// Intializes a `HeartbeatInfo` with a given `capacity`.
   /// - Parameter capacity: An `Int` representing the capacity.
   init(capacity: Int) {
+    guard capacity > 0 else { fatalError("Capacity must be positive.") }
     buffer = HeartbeatRingBuffer(capacity: capacity)
   }
 
@@ -46,7 +47,7 @@ public struct HeartbeatInfo: Codable {
       if let lastHeartbeat = buffer.lastHeartbeat(forTimePeriod: timePeriod) {
         let (heartbeat, lastHeartbeat) = (heartbeat.date, lastHeartbeat.date)
         // Include `timePeriod` if the `lastHeartbeat` of this type is expired.
-        return heartbeat.timeIntervalSince(lastHeartbeat) > timePeriod.timeInterval
+        return heartbeat.timeIntervalSince(lastHeartbeat) >= timePeriod.timeInterval
       } else {
         // No cached heartbeat for `timePeriod` so include for tagging.
         return true
@@ -111,7 +112,7 @@ private struct HeartbeatRingBuffer: Codable {
     // Write the `heartbeat` to the `circularQueue` at `tailIndex`.
     circularQueue[tailIndex] = heartbeat
 
-    // Store the written `heartbeat` in the `heartbeatsByTimePeriodCache`.
+    // Store the written `heartbeat` in the `HeartbeatByTimePeriodCache`.
     latestHeartbeatByTimePeriod.store(heartbeat)
 
     // Increment `tailIndex`, wrapping around to the start if needed.
@@ -137,16 +138,12 @@ private struct HeartbeatRingBuffer: Codable {
     /// Removes a given heartbeat from the cache.
     /// - Parameter heartbeat: The heartbeat to remove.
     func remove(_ heartbeat: Heartbeat) {
-      // The below operation is considered constant time because the cache has
-      // a bounded number of keys (see the `TimePeriod` type).
       cache = cache.filter { $1 /* cachedHeartbeat */ != heartbeat }
     }
 
     /// Stores a given heartbeat to the cache.
     /// - Parameter heartbeat: The heartbeat to store.
     func store(_ heartbeat: Heartbeat) {
-      // The below operation is considered constant time because a heartbeat
-      // has a bound number of time periods (see the `TimePeriod` type).
       heartbeat.timePeriods.forEach { cache[$0] = heartbeat }
     }
 
@@ -159,6 +156,6 @@ private struct HeartbeatRingBuffer: Codable {
 private extension Date {
   /// Calculates the time interval since a given `date`.
   func timeIntervalSince(_ date: Date) -> TimeInterval {
-    timeIntervalSinceReferenceDate - date.timeIntervalSinceReferenceDate
+    timeIntervalSince1970 - date.timeIntervalSince1970
   }
 }
