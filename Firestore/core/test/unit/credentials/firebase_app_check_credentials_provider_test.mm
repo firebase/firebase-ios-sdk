@@ -220,6 +220,45 @@ TEST(FirebaseAppCheckCredentialsProviderTest,
   EXPECT_EQ("token2", token_future.get());
 }
 
+// Regression test for https://github.com/firebase/firebase-ios-sdk/issues/8895
+TEST(FirebaseAppCheckCredentialsProviderTest,
+     ListenDoesNotCrashIfUnrelatedNotificationsAreInvalid) {
+  auto token_promise = std::make_shared<std::promise<std::string>>();
+
+  FIRApp* app = testutil::AppForUnitTesting();
+  FSTAppCheckFake* app_check = [[FSTAppCheckFake alloc] initWithToken:@""];
+  FirebaseAppCheckCredentialsProvider credentials_provider(app, app_check);
+
+  credentials_provider.SetCredentialChangeListener(
+      [token_promise](const std::string& result) {
+        if (result != "") {
+          token_promise->set_value(result);
+        }
+      });
+
+  // Sending this notifcation would cause a crash if it was processed in the
+  // AppCheck notification handlder since AppCheck expects the userInfo object
+  // to an NSDictionary.
+  id userInfo = @"this_should_be_a_dictionary";
+  [[NSNotificationCenter defaultCenter] postNotificationName:@"unrelated"
+                                                      object:app_check
+                                                    userInfo:userInfo];
+
+  // Send another valid notification that we can block on.
+  userInfo = @{
+    [app_check notificationTokenKey] : @"token",
+    [app_check notificationAppNameKey] : [app name],
+  };
+  [[NSNotificationCenter defaultCenter]
+      postNotificationName:[app_check tokenDidChangeNotificationName]
+                    object:app_check
+                  userInfo:userInfo];
+
+  auto kTimeout = std::chrono::seconds(5);
+  auto token_future = token_promise->get_future();
+  ASSERT_EQ(std::future_status::ready, token_future.wait_for(kTimeout));
+}
+
 }  // namespace credentials
 }  // namespace firestore
 }  // namespace firebase
