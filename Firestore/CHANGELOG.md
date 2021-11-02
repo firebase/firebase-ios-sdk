@@ -1,4 +1,4 @@
-# Unreleased
+# v8.9.1
 - [fixed] Fixed a bug in the AppCheck integration that caused the SDK to respond
   to unrelated notifications (#8895).
 
