@@ -41,7 +41,7 @@ PRODUCTS = {
     'FirebaseMessaging/CHANGELOG.md': '{{messaging}}',
     'FirebaseStorage/CHANGELOG.md': '{{storage}}',
     'Firestore/CHANGELOG.md': '{{firestore}}',
-    'Functions/CHANGELOG.md': '{{cloud_functions}}',
+    'FirebaseFunctions/CHANGELOG.md': '{{cloud_functions}}',
     'FirebaseRemoteConfig/CHANGELOG.md': '{{remote_config}}',
     'FirebasePerformance/CHANGELOG.md': '{{perfmon}}',
 }
