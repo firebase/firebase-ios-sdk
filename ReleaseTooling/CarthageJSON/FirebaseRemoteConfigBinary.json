@@ -75,5 +75,6 @@
   "8.6.0": "https://dl.google.com/dl/firebase/ios/carthage/8.6.0/FirebaseRemoteConfig-ce6f7d70b5a1e0bb.zip",
   "8.7.0": "https://dl.google.com/dl/firebase/ios/carthage/8.7.0/FirebaseRemoteConfig-52368aa29c7d971a.zip",
   "8.8.0": "https://dl.google.com/dl/firebase/ios/carthage/8.8.0/FirebaseRemoteConfig-d74a35b92e211b59.zip",
-  "8.9.0": "https://dl.google.com/dl/firebase/ios/carthage/8.9.0/FirebaseRemoteConfig-8037c7da3a79999a.zip"
+  "8.9.0": "https://dl.google.com/dl/firebase/ios/carthage/8.9.0/FirebaseRemoteConfig-8037c7da3a79999a.zip",
+  "8.9.1": "https://dl.google.com/dl/firebase/ios/carthage/8.9.1/FirebaseRemoteConfig-84a4820400ef8536.zip"
 }
