@@ -14,11 +14,11 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FIRAuthInteropFake.h"
 #import "FirebaseFunctions/Sources/FUNContext.h"
 
 #import "SharedTestUtilities/AppCheckFake/FIRAppCheckFake.h"
 #import "SharedTestUtilities/AppCheckFake/FIRAppCheckTokenResultFake.h"
+#import "SharedTestUtilities/FIRAuthInteropFake.h"
 #import "SharedTestUtilities/FIRMessagingInteropFake.h"
 
 @interface FUNContextProviderTests : XCTestCase
