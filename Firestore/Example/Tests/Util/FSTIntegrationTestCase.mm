@@ -55,7 +55,6 @@
 namespace util = firebase::firestore::util;
 
 using firebase::firestore::core::DatabaseInfo;
-using firebase::firestore::credentials::AuthToken;
 using firebase::firestore::credentials::CredentialChangeListener;
 using firebase::firestore::credentials::EmptyAuthCredentialsProvider;
 using firebase::firestore::credentials::EmptyAppCheckCredentialsProvider;
