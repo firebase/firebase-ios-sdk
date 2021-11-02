@@ -662,7 +662,7 @@ let package = Package(
         "FirebaseCore",
         .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),
       ],
-      path: "Functions/FirebaseFunctions",
+      path: "FirebaseFunctions/Sources",
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
@@ -678,13 +678,13 @@ let package = Package(
       dependencies: ["FirebaseFunctionsCombineSwift",
                      "FirebaseFunctionsTestingSupport",
                      "SharedTestUtilities"],
-      path: "Functions/Tests/CombineUnit"
+      path: "FirebaseFunctions/Tests/CombineUnit"
     ),
     .testTarget(
       name: "FunctionsUnit",
       dependencies: ["FirebaseFunctions",
                      "SharedTestUtilities"],
-      path: "Functions/Example/Tests/",
+      path: "FirebaseFunctions/Tests/Unit",
       cSettings: [
         .headerSearchPath("../../../"),
       ]
@@ -692,7 +692,7 @@ let package = Package(
     .testTarget(
       name: "FunctionsUnitSwift",
       dependencies: ["FirebaseFunctions"],
-      path: "Functions/Tests/Unit/Swift"
+      path: "FirebaseFunctions/Tests/SwiftUnit"
     ),
     .target(
       name: "FirebaseFunctionsTestingSupport",

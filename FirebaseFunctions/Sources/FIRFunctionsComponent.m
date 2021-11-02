@@ -14,9 +14,9 @@
 
 #import <os/lock.h>
 
-#import "Functions/FirebaseFunctions/FIRFunctionsComponent.h"
+#import "FirebaseFunctions/Sources/FIRFunctionsComponent.h"
 
-#import "Functions/FirebaseFunctions/FIRFunctions_Private.h"
+#import "FirebaseFunctions/Sources/FIRFunctions_Private.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 

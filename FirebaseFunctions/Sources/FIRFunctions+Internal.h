@@ -14,7 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRFunctions.h"
+#import "FirebaseFunctions/Sources/Public/FirebaseFunctions/FIRFunctions.h"
 
 @protocol FIRAppCheckInterop;
 @protocol FIRAuthInterop;

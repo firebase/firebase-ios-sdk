@@ -14,21 +14,21 @@
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#import "Functions/FirebaseFunctions/FIRFunctions+Internal.h"
-#import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRFunctions.h"
+#import "FirebaseFunctions/Sources/FIRFunctions+Internal.h"
+#import "FirebaseFunctions/Sources/Public/FirebaseFunctions/FIRFunctions.h"
 
 #import "FirebaseAppCheck/Sources/Interop/FIRAppCheckInterop.h"
 #import "FirebaseMessaging/Sources/Interop/FIRMessagingInterop.h"
-#import "Functions/FirebaseFunctions/FIRFunctionsComponent.h"
+#import "FirebaseFunctions/Sources/FIRFunctionsComponent.h"
 #import "Interop/Auth/Public/FIRAuthInterop.h"
 
-#import "Functions/FirebaseFunctions/FIRHTTPSCallable+Internal.h"
-#import "Functions/FirebaseFunctions/FUNContext.h"
-#import "Functions/FirebaseFunctions/FUNError.h"
-#import "Functions/FirebaseFunctions/FUNSerializer.h"
-#import "Functions/FirebaseFunctions/FUNUsageValidation.h"
-#import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRError.h"
-#import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRHTTPSCallable.h"
+#import "FirebaseFunctions/Sources/FIRHTTPSCallable+Internal.h"
+#import "FirebaseFunctions/Sources/FUNContext.h"
+#import "FirebaseFunctions/Sources/FUNError.h"
+#import "FirebaseFunctions/Sources/FUNSerializer.h"
+#import "FirebaseFunctions/Sources/FUNUsageValidation.h"
+#import "FirebaseFunctions/Sources/Public/FirebaseFunctions/FIRError.h"
+#import "FirebaseFunctions/Sources/Public/FirebaseFunctions/FIRHTTPSCallable.h"
 
 #if SWIFT_PACKAGE
 @import GTMSessionFetcherCore;

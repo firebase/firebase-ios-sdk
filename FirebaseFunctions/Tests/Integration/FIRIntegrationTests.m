@@ -17,10 +17,10 @@
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "FIRAuthInteropFake.h"
-#import "Functions/FirebaseFunctions/FIRFunctions+Internal.h"
-#import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRError.h"
-#import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRFunctions.h"
-#import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRHTTPSCallable.h"
+#import "FirebaseFunctions/Sources/FIRFunctions+Internal.h"
+#import "FirebaseFunctions/Sources/Public/FirebaseFunctions/FIRError.h"
+#import "FirebaseFunctions/Sources/Public/FirebaseFunctions/FIRFunctions.h"
+#import "FirebaseFunctions/Sources/Public/FirebaseFunctions/FIRHTTPSCallable.h"
 #import "SharedTestUtilities/FIRMessagingInteropFake.h"
 
 // Project ID used by these tests.

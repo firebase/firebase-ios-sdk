@@ -3,7 +3,7 @@ name: functions
 on:
   pull_request:
     paths:
-    - 'Functions**'
+    - 'FirebaseFunctions/**'
     - '.github/workflows/functions.yml'
     - 'Interop/Auth/Public/*.h'
     - 'FirebaseMessaging/Sources/Interop/*.h'
@@ -31,7 +31,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Integration Test Server
-      run: Functions/Backend/start.sh synchronous
+      run: FirebaseFunctions/Backend/start.sh synchronous
     - name: Build and test
       run: |
         scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseFunctions.podspec \
@@ -119,7 +119,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Integration Test Server
-      run: Functions/Backend/start.sh synchronous
+      run: FirebaseFunctions/Backend/start.sh synchronous
     - name: PodLibLint Functions Cron
       run: |
         scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb \

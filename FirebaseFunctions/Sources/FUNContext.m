@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Functions/FirebaseFunctions/FUNContext.h"
+#import "FirebaseFunctions/Sources/FUNContext.h"
 
 #import "FirebaseAppCheck/Sources/Interop/FIRAppCheckInterop.h"
 #import "FirebaseAppCheck/Sources/Interop/FIRAppCheckTokenResultInterop.h"
