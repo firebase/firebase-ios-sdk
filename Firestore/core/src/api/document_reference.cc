@@ -22,7 +22,6 @@
 #include "Firestore/core/src/api/collection_reference.h"
 #include "Firestore/core/src/api/document_snapshot.h"
 #include "Firestore/core/src/api/firestore.h"
-#include "Firestore/core/src/api/optional.h"
 #include "Firestore/core/src/api/query_listener_registration.h"
 #include "Firestore/core/src/api/source.h"
 #include "Firestore/core/src/core/firestore_client.h"
@@ -220,9 +219,7 @@ std::unique_ptr<ListenerRegistration> DocumentReference::AddSnapshotListener(
                    : false;
 
       DocumentSnapshot result{
-          firestore_, key_,
-          document ? Optional<Document>(document.value())
-                   : Optional<Document>(),
+          firestore_, key_, document,
           SnapshotMetadata{has_pending_writes, snapshot.from_cache()}};
       user_listener_->OnEvent(std::move(result));
     }

@@ -101,7 +101,7 @@ google_protobuf_Timestamp GetLocalWriteTime(
   HARD_FAIL("LocalWriteTime not found");
 }
 
-api::Optional<google_firestore_v1_Value> GetPreviousValue(
+absl::optional<google_firestore_v1_Value> GetPreviousValue(
     const google_firestore_v1_Value& value) {
   for (size_t i = 0; i < value.map_value.fields_count; ++i) {
     const auto& field = value.map_value.fields[i];
@@ -110,12 +110,12 @@ api::Optional<google_firestore_v1_Value> GetPreviousValue(
       if (IsServerTimestamp(field.value)) {
         return GetPreviousValue(field.value);
       } else {
-        return api::Optional<google_firestore_v1_Value>(field.value);
+        return field.value;
       }
     }
   }
 
-  return {};
+  return absl::nullopt;
 }
 
 }  // namespace model
