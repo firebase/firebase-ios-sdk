@@ -236,14 +236,15 @@ TEST(FirebaseAppCheckCredentialsProviderTest,
         }
       });
 
-  id userInfo = @"this_should_be_a_dictionary";
   // Sending this notifcation would cause a crash if it was processed in the
   // AppCheck notification handlder since AppCheck expects the userInfo object
   // to an NSDictionary.
+  id userInfo = @"this_should_be_a_dictionary";
   [[NSNotificationCenter defaultCenter] postNotificationName:@"unrelated"
                                                       object:app_check
                                                     userInfo:userInfo];
 
+  // Send another valid notification that we can block on.
   userInfo = @{
     [app_check notificationTokenKey] : @"token",
     [app_check notificationAppNameKey] : [app name],
