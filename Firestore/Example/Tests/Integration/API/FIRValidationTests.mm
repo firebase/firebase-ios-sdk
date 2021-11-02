@@ -29,7 +29,8 @@
 
 #include "Firestore/core/test/unit/testutil/app_testing.h"
 
-namespace testutil = firebase::firestore::testutil;
+using firebase::firestore::testutil::AppForUnitTesting;
+using firebase::firestore::testutil::OptionsForUnitTesting;
 
 // We have tests for passing nil when nil is not supposed to be allowed. So suppress the warnings.
 #pragma clang diagnostic ignored "-Wnonnull"
@@ -76,9 +77,9 @@ namespace testutil = firebase::firestore::testutil;
 }
 
 - (void)testNilProjectIDFails {
-  FIROptions *options = testutil::OptionsForUnitTesting("ignored");
+  FIROptions *options = OptionsForUnitTesting("ignored");
   options.projectID = nil;
-  FIRApp *app = testutil::AppForUnitTesting(options);
+  FIRApp *app = AppForUnitTesting(options);
   FSTAssertThrows([FIRFirestore firestoreForApp:app],
                   @"FIROptions.projectID must be set to a valid project ID.");
 }

@@ -22,13 +22,11 @@
 
 #include "Firestore/core/src/util/async_queue.h"
 
-namespace util = firebase::firestore::util;
-
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRFirestore (Testing)
 
-- (const std::shared_ptr<util::AsyncQueue> &)workerQueue;
+- (const std::shared_ptr<firebase::firestore::util::AsyncQueue> &)workerQueue;
 
 @end
 
