@@ -34,7 +34,6 @@
 #include "Firestore/core/src/api/document_reference.h"
 #include "Firestore/core/src/api/document_snapshot.h"
 #include "Firestore/core/src/api/firestore.h"
-#include "Firestore/core/src/api/optional.h"
 #include "Firestore/core/src/api/settings.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/model/document_key.h"
@@ -51,7 +50,6 @@ using firebase::firestore::api::DocumentSnapshot;
 using firebase::firestore::api::Firestore;
 using firebase::firestore::api::MakeFIRGeoPoint;
 using firebase::firestore::api::MakeFIRTimestamp;
-using firebase::firestore::api::Optional;
 using firebase::firestore::api::SnapshotMetadata;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::Document;
@@ -128,7 +126,7 @@ NS_ASSUME_NONNULL_BEGIN
   return _snapshot.exists();
 }
 
-- (const Optional<Document> &)internalDocument {
+- (const absl::optional<Document> &)internalDocument {
   return _snapshot.internal_document();
 }
 
@@ -155,7 +153,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable NSDictionary<NSString *, id> *)dataWithServerTimestampBehavior:
     (FIRServerTimestampBehavior)serverTimestampBehavior {
-  Optional<google_firestore_v1_Value> data = _snapshot.GetValue(FieldPath::EmptyPath());
+  absl::optional<google_firestore_v1_Value> data = _snapshot.GetValue(FieldPath::EmptyPath());
   if (!data) return nil;
 
   FSTUserDataWriter *dataWriter =
@@ -178,7 +176,7 @@ NS_ASSUME_NONNULL_BEGIN
   } else {
     ThrowInvalidArgument("Subscript key must be an NSString or FIRFieldPath.");
   }
-  Optional<google_firestore_v1_Value> fieldValue = _snapshot.GetValue(fieldPath);
+  absl::optional<google_firestore_v1_Value> fieldValue = _snapshot.GetValue(fieldPath);
   if (!fieldValue) return nil;
   FSTUserDataWriter *dataWriter =
       [[FSTUserDataWriter alloc] initWithFirestore:_snapshot.firestore()

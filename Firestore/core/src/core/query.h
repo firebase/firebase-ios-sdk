@@ -74,26 +74,6 @@ class Query {
         explicit_order_bys_(std::move(explicit_order_bys)),
         limit_(limit),
         limit_type_(limit_type),
-        start_at_(start_at ? api::Optional<Bound>(start_at.value())
-                           : api::Optional<Bound>()),
-        end_at_(end_at ? api::Optional<Bound>(end_at.value())
-                       : api::Optional<Bound>()) {
-  }
-
-  Query(model::ResourcePath path,
-        CollectionGroupId collection_group,
-        FilterList filters,
-        OrderByList explicit_order_bys,
-        int32_t limit,
-        LimitType limit_type,
-        api::Optional<Bound> start_at,
-        api::Optional<Bound> end_at)
-      : path_(std::move(path)),
-        collection_group_(std::move(collection_group)),
-        filters_(std::move(filters)),
-        explicit_order_bys_(std::move(explicit_order_bys)),
-        limit_(limit),
-        limit_type_(limit_type),
         start_at_(std::move(start_at)),
         end_at_(std::move(end_at)) {
   }
@@ -178,11 +158,11 @@ class Query {
 
   int32_t limit() const;
 
-  const api::Optional<Bound>& start_at() const {
+  const absl::optional<Bound>& start_at() const {
     return start_at_;
   }
 
-  const api::Optional<Bound>& end_at() const {
+  const absl::optional<Bound>& end_at() const {
     return end_at_;
   }
 
@@ -290,8 +270,8 @@ class Query {
   int32_t limit_ = Target::kNoLimit;
   LimitType limit_type_ = LimitType::None;
 
-  api::Optional<Bound> start_at_;
-  api::Optional<Bound> end_at_;
+  absl::optional<Bound> start_at_;
+  absl::optional<Bound> end_at_;
 
   // The corresponding Target of this Query instance.
   mutable std::shared_ptr<const Target> memoized_target;
