@@ -43,7 +43,7 @@ Add the job name to the [`needs` of `create_report` job](https://github.com/fire
 
 This tool is to generate a report for SDK binary sizes.
 [create_binary_size_report.sh](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/health_metrics/create_binary_size_report.sh)
-will trigger [BinarySizeReportGenerator](https://github.com/firebase/firebase-ios-sdk/tree/77dae88bb9784fa3ba4be21fb88972ed2c1dd64f/scripts/health_metrics/generate_code_coverage_report/Sources/BinarySizeReportGenerator)
+will trigger [BinarySizeReportGenerator](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/health_metrics/generate_code_coverage_report/Sources/BinarySizeReportGenerator/BinarySizeReportGeneration.swift)
 which will run [cocoapods-size](https://github.com/google/cocoapods-size)
 to create a binary size report and either post it in PRs in presubmits or
 upload it to the Metrics Service.
