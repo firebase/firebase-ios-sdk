@@ -52,8 +52,6 @@
 #include "Firestore/core/test/unit/testutil/status_testing.h"
 #include "absl/memory/memory.h"
 
-namespace util = firebase::firestore::util;
-
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::credentials::CredentialChangeListener;
 using firebase::firestore::credentials::EmptyAuthCredentialsProvider;
@@ -67,6 +65,7 @@ using firebase::firestore::testutil::AsyncQueueForTesting;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::CreateAutoId;
 using firebase::firestore::util::Filesystem;
+using firebase::firestore::util::MakeString;
 using firebase::firestore::util::Path;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::StatusOr;
@@ -242,7 +241,7 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
 }
 
 - (FIRFirestore *)firestoreWithProjectID:(NSString *)projectID {
-  FIRApp *app = AppForUnitTesting(util::MakeString(projectID));
+  FIRApp *app = AppForUnitTesting(MakeString(projectID));
   return [self firestoreWithApp:app];
 }
 
@@ -251,10 +250,10 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
 
   FIRSetLoggerLevel(FIRLoggerLevelDebug);
 
-  std::string projectID = util::MakeString(app.options.projectID);
+  std::string projectID = MakeString(app.options.projectID);
   FIRFirestore *firestore =
       [[FIRFirestore alloc] initWithDatabaseID:DatabaseId(projectID)
-                                persistenceKey:util::MakeString(persistenceKey)
+                                persistenceKey:MakeString(persistenceKey)
                        authCredentialsProvider:_fakeAuthCredentialsProvider
                    appCheckCredentialsProvider:_fakeAppCheckCredentialsProvider
                                    workerQueue:AsyncQueueForTesting()
@@ -499,7 +498,7 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
   [self awaitExpectation:expectation];
 }
 
-- (const std::shared_ptr<util::AsyncQueue> &)queueForFirestore:(FIRFirestore *)firestore {
+- (const std::shared_ptr<AsyncQueue> &)queueForFirestore:(FIRFirestore *)firestore {
   return [firestore workerQueue];
 }
 

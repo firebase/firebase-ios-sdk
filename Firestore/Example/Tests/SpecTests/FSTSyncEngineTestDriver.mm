@@ -60,8 +60,6 @@
 #include "Firestore/core/test/unit/testutil/async_testing.h"
 #include "absl/memory/memory.h"
 
-namespace testutil = firebase::firestore::testutil;
-
 using firebase::firestore::api::LoadBundleTask;
 using firebase::firestore::Error;
 using firebase::firestore::bundle::BundleReader;
@@ -96,6 +94,7 @@ using firebase::firestore::remote::FirebaseMetadataProvider;
 using firebase::firestore::remote::MockDatastore;
 using firebase::firestore::remote::RemoteStore;
 using firebase::firestore::remote::WatchChange;
+using firebase::firestore::testutil::AsyncQueueForTesting;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::DelayedConstructor;
 using firebase::firestore::util::Empty;
@@ -226,7 +225,7 @@ NS_ASSUME_NONNULL_BEGIN
     _databaseInfo = {DatabaseId{"test-project", "(default)"}, "persistence", "host", false};
 
     // Set up the sync engine and various stores.
-    _workerQueue = testutil::AsyncQueueForTesting();
+    _workerQueue = AsyncQueueForTesting();
     _persistence = std::move(persistence);
     _localStore = absl::make_unique<LocalStore>(_persistence.get(), &_queryEngine, initialUser);
     _connectivityMonitor = CreateNoOpConnectivityMonitor();

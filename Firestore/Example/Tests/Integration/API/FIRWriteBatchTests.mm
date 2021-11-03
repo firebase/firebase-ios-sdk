@@ -28,8 +28,8 @@
 #include "Firestore/core/src/util/sanitizers.h"
 #include "Firestore/core/src/util/string_apple.h"
 
-namespace util = firebase::firestore::util;
 using firebase::firestore::util::CreateAutoId;
+using firebase::firestore::util::MakeNSString;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -334,7 +334,7 @@ NS_ASSUME_NONNULL_BEGIN
   NSString *kb = [@"" stringByPaddingToLength:1000 withString:@"a" startingAtIndex:0];
   NSMutableDictionary<NSString *, id> *values = [NSMutableDictionary dictionary];
   for (int i = 0; i < 1000; i++) {
-    values[util::MakeNSString(CreateAutoId())] = kb;
+    values[MakeNSString(CreateAutoId())] = kb;
   }
 
   FIRDocumentReference *doc = [self documentRef];

@@ -37,8 +37,6 @@
 #include "Firestore/core/src/util/string_apple.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 
-namespace testutil = firebase::firestore::testutil;
-
 using firebase::firestore::api::DocumentChange;
 using firebase::firestore::api::DocumentSnapshot;
 using firebase::firestore::api::Firestore;
@@ -49,11 +47,10 @@ using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentComparator;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentSet;
-
-using testutil::Doc;
-using testutil::DocSet;
-using testutil::Map;
-using testutil::Query;
+using firebase::firestore::testutil::Doc;
+using firebase::firestore::testutil::DocSet;
+using firebase::firestore::testutil::Map;
+using firebase::firestore::testutil::Query;
 
 NS_ASSUME_NONNULL_BEGIN
 
