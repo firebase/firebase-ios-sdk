@@ -48,7 +48,7 @@ which will run [cocoapods-size](https://github.com/google/cocoapods-size)
 to create a binary size report and either post it in PRs in presubmits or
 upload it to the Metrics Service.
 
-### Replicate a binary size report for a released SDK
+### Replicate a binary size measurement for a released SDK
 
 To replicate an SDK binary size measurement locally, we can run the following
 script to get the binary size of the latest released FirebaseABTesting SDK.
