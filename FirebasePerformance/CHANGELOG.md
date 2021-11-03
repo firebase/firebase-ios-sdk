@@ -1,7 +1,7 @@
 # Unreleased
 * Fix a crash related to FPRSessionDetails. (#8691)
 
-# Version 8.8.0 
+# Version 8.8.0
 * Create a random number of delay for remote config fetch during app starts.
 * Fix log spamming when Firebase Performance is disabled. (#8423, #8577)
 * Fix heap-heap-buffer overflow when decoding strings. (#8628)
