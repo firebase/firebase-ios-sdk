@@ -317,7 +317,7 @@
 - (void)recordValidImpression:(NSString *)messageID withMessageName:(NSString *)messageName {
   if (!self.impressionRecorded) {
     [self.displayBookKeeper recordNewImpressionForMessage:messageID
-                              withStartTimestampInSeconds:self.lastDisplayTime];
+                              withStartTimestampInSeconds:[self.timeFetcher currentTimestampInSeconds]];
     self.impressionRecorded = YES;
     [self.messageCache removeMessageWithId:messageID];
     // Log an impression analytics event as well.
