@@ -106,6 +106,8 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
       return nil;
     }
 
+    [self checkForFlutterDevelopmentPlatform];
+
     FIRCLSProfileMark mark = FIRCLSProfilingStart();
 
     NSLog(@"[Firebase/Crashlytics] Version %@", FIRCLSSDKVersion());
@@ -266,6 +268,23 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
   [self log:[[NSString alloc] initWithFormat:format arguments:args]];
 }
 
+- (void)checkForFlutterDevelopmentPlatform {
+  NSString *platformString = [FIRApp firebaseUserAgent];
+
+  if (platformString.length > 0) {
+    NSArray *platformArray = [platformString componentsSeparatedByString:@"/"];
+    for (NSString *platform in platformArray) {
+      if ([platform containsString:@"flutter-fire-core"]) {
+        NSArray *platformDetails = [platform componentsSeparatedByString:@" "];
+        if ([platformDetails count] == 2) {
+          [self setDevelopmentPlatformName:@"flutter"];
+          [self setDevelopmentPlatformVersion:platformDetails[0]];
+        }
+      }
+    }
+  }
+}
+
 #pragma mark - API: Accessors
 
 - (void)checkForUnsentReportsWithCompletion:(void (^)(BOOL))completion {
@@ -309,7 +328,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 }
 
 #pragma mark - API: Development Platform
-// These two methods are depercated by our own API, so
+// These two methods are deprecated by our own API, so
 // its ok to implement them
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-implementations"
