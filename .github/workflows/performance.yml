@@ -29,9 +29,6 @@ jobs:
       matrix:
         target: [iOS, tvOS]
         test: [unit, proddev]
-        sanitizer: [asan, tsan, ubsan]
-    env:
-      SANITIZERS: ${{ matrix.sanitizer }}
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
