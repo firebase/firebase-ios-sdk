@@ -553,6 +553,10 @@ void FIRCLSLogInternalWrite(FIRCLSFile *file, NSString *message, uint64_t time) 
   FIRCLSFileWriteSectionEnd(file);
 }
 
+void FIRCLSLogConsoleWrite(NSString *message) {
+    NSLog(@"%@", message);
+}
+
 void FIRCLSLogInternal(FIRCLSUserLoggingABStorage *storage,
                        const char **activePath,
                        NSString *message) {
@@ -588,5 +592,6 @@ void FIRCLSLogInternal(FIRCLSUserLoggingABStorage *storage,
 
   FIRCLSUserLoggingWriteAndCheckABFiles(storage, activePath, ^(FIRCLSFile *file) {
     FIRCLSLogInternalWrite(file, message, time);
+    FIRCLSLogConsoleWrite(message);
   });
 }
