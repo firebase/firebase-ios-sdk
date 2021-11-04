@@ -37,6 +37,7 @@ NSString *const FIRCLSDevelopmentPlatformVersionKey =
 NSString *const FIRCLSSynchronizedPathKey = @"";
 
 const uint32_t FIRCLSUserLoggingMaxKVEntries = 64;
+const NSNumber *FIRCLSIsDebugMode;
 
 #pragma mark - Prototypes
 static void FIRCLSUserLoggingWriteKeysAndValues(NSDictionary *keysAndValues,
@@ -553,7 +554,18 @@ void FIRCLSLogInternalWrite(FIRCLSFile *file, NSString *message, uint64_t time) 
   FIRCLSFileWriteSectionEnd(file);
 }
 
+BOOL FIRCLSIsInDebugMode(void) {
+    if (FIRCLSIsDebugMode == nil) {
+        NSArray *arguments = [NSProcessInfo processInfo].arguments;
+        FIRCLSIsDebugMode = @([arguments containsObject:@"-FIRDebugEnabled"]);
+    }
+    return [FIRCLSIsDebugMode boolValue];
+}
+
 void FIRCLSLogConsoleWrite(NSString *message) {
+    if (!FIRCLSIsInDebugMode()) {
+        return;
+    }
     NSLog(@"%@", message);
 }
 
