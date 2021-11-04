@@ -24,13 +24,13 @@ Cloud Functions for Firebase.
   s.prefix_header_file = false
 
   s.source_files = [
-    'Functions/FirebaseFunctions/**/*',
+    'FirebaseFunctions/Sources/**/*',
     'Interop/Auth/Public/*.h',
     'FirebaseAppCheck/Sources/Interop/*.h',
     'FirebaseCore/Sources/Private/*.h',
     'FirebaseMessaging/Sources/Interop/FIRMessagingInterop.h',
   ]
-  s.public_header_files = 'Functions/FirebaseFunctions/Public/FirebaseFunctions/*.h'
+  s.public_header_files = 'FirebaseFunctions/Sources/Public/FirebaseFunctions/*.h'
 
   s.dependency 'FirebaseCore', '~> 8.0'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.5'
@@ -43,8 +43,8 @@ Cloud Functions for Firebase.
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }
     unit_tests.source_files = [
-      'Functions/Example/Test*/*.[mh]',
-      'Functions/Tests/Unit/Swift/**/*',
+      'FirebaseFunctions/Tests/Unit/*.[mh]',
+      'FirebaseFunctions/Tests/SwiftUnit/**/*',
       'SharedTestUtilities/FIRAuthInteropFake*',
       'SharedTestUtilities/FIRMessagingInteropFake*',
       'SharedTestUtilities/AppCheckFake/*.[mh]',
@@ -53,10 +53,9 @@ Cloud Functions for Firebase.
 
   s.test_spec 'integration' do |int_tests|
     int_tests.scheme = { :code_coverage => true }
-    int_tests.source_files = 'Functions/Example/IntegrationTests/*.[mh]',
-                             'Functions/Example/TestUtils/*.[mh]',
+    int_tests.source_files = 'FirebaseFunctions/Tests/Integration/*.[mh]',
+                             'FirebaseFunctions/Tests/Integration/*.plist',
                              'SharedTestUtilities/FIRAuthInteropFake*',
-                             'SharedTestUtilities/FIRMessagingInteropFake*',
-                             'Functions/Example/GoogleService-Info.plist'
+                             'SharedTestUtilities/FIRMessagingInteropFake*'
   end
 end

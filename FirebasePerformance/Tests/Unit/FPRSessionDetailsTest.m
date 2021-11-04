@@ -29,6 +29,17 @@
   XCTAssertNotNil(details);
 }
 
+/** Validates object copy contains same details as the source. */
+- (void)testInstanceCopy {
+  FPRSessionDetails *details = [[FPRSessionDetails alloc] initWithSessionId:@"random"
+                                                                    options:FPRSessionOptionsNone];
+  FPRSessionDetails *detailsCopy = [details copy];
+  XCTAssertEqual(details.sessionId, detailsCopy.sessionId);
+  XCTAssertEqual(details.options, detailsCopy.options);
+  XCTAssertEqual(details.sessionLengthInMinutes, detailsCopy.sessionLengthInMinutes);
+  XCTAssertNotNil(details);
+}
+
 /** Validated that the details are valid. */
 - (void)testDetailsData {
   FPRSessionDetails *details = [[FPRSessionDetails alloc] initWithSessionId:@"random"

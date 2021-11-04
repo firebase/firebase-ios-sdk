@@ -1,4 +1,4 @@
-// Copyright 2017 Google
+// Copyright 2021 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,17 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Functions/FirebaseFunctions/FUNUsageValidation.h"
+#import "FirebaseFunctions/Sources/Public/FirebaseFunctions/FIRFunctions.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-NSException *FUNInvalidUsage(NSString *exceptionName, NSString *format, ...) {
-  va_list arg_list;
-  va_start(arg_list, format);
-  NSString *formattedString = [[NSString alloc] initWithFormat:format arguments:arg_list];
-  va_end(arg_list);
+@interface FIRFunctions (Private)
 
-  return [[NSException alloc] initWithName:exceptionName reason:formattedString userInfo:nil];
-}
+@property(nonatomic, readonly) NSString *region;
+@property(nonatomic, readonly, nullable) NSString *customDomain;
+
+- (instancetype)initWithApp:(FIRApp *)app
+                     region:(NSString *)region
+               customDomain:(nullable NSString *)customDomain;
+
+@end
 
 NS_ASSUME_NONNULL_END

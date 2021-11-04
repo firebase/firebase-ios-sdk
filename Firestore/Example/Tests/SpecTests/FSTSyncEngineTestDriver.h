@@ -54,7 +54,6 @@ namespace credentials = firebase::firestore::credentials;
 namespace local = firebase::firestore::local;
 namespace model = firebase::firestore::model;
 namespace remote = firebase::firestore::remote;
-namespace util = firebase::firestore::util;
 
 // A map holds expected information about currently active targets. The keys are
 // target ID, and the values are a vector of `TargetData`s mapped to the target.
@@ -265,7 +264,7 @@ typedef std::
 /**
  * Runs a pending timer callback on the worker queue.
  */
-- (void)runTimer:(util::TimerId)timerID;
+- (void)runTimer:(firebase::firestore::util::TimerId)timerID;
 
 /**
  * Switches the FSTSyncEngine to a new user. The test driver tracks the outstanding mutations for

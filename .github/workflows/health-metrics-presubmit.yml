@@ -18,12 +18,17 @@ jobs:
     name: Check changed files
     outputs:
       abtesting_run_job: ${{ steps.check_files.outputs.abtesting_run_job }}
+      analytics_run_job: ${{ steps.check_files.outputs.analytics_run_job }}
+      appcheck_run_job: ${{ steps.check_files.outputs.appcheck_run_job }}
+      appdistribution_run_job: ${{ steps.check_files.outputs.appdistribution_run_job }}
       auth_run_job: ${{ steps.check_files.outputs.auth_run_job }}
+      crashlytics_run_job: ${{ steps.check_files.outputs.crashlytics_run_job }}
       database_run_job: ${{ steps.check_files.outputs.database_run_job }}
       dynamiclinks_run_job: ${{ steps.check_files.outputs.dynamiclinks_run_job }}
       firestore_run_job: ${{ steps.check_files.outputs.firestore_run_job }}
       functions_run_job: ${{ steps.check_files.outputs.functions_run_job }}
       inappmessaging_run_job: ${{ steps.check_files.outputs.inappmessaging_run_job }}
+      installations_run_job: ${{ steps.check_files.outputs.installations_run_job }}
       messaging_run_job: ${{ steps.check_files.outputs.messaging_run_job }}
       performance_run_job: ${{ steps.check_files.outputs.performance_run_job }}
       remoteconfig_run_job: ${{ steps.check_files.outputs.remoteconfig_run_job }}
@@ -70,12 +75,17 @@ jobs:
     - name: Build and test
       run: |
         FirebaseABTesting=${{ needs.check.outputs.abtesting_run_job }} \
+        FirebaseAnalytics=${{ needs.check.outputs.analytics_run_job }} \
+        FirebaseAppCheck=${{ needs.check.outputs.appcheck_run_job }} \
+        FirebaseAppDistribution=${{ needs.check.outputs.appdistribution_run_job }} \
         FirebaseAuth=${{ needs.check.outputs.auth_run_job }} \
+        FirebaseCrashlytics=${{ needs.check.outputs.crashlytics_run_job }} \
         FirebaseDatabase=${{ needs.check.outputs.database_run_job }} \
         FirebaseDynamicLinks=${{ needs.check.outputs.dynamiclinks_run_job }} \
         FirebaseFirestore=${{ needs.check.outputs.firestore_run_job }} \
         FirebaseFunctions=${{ needs.check.outputs.functions_run_job}} \
         FirebaseInAppMessaging=${{ needs.check.outputs.inappmessaging_run_job }} \
+        FirebaseInstallations=${{ needs.check.outputs.installations_run_job }} \
         FirebaseMessaging=${{ needs.check.outputs.messaging_run_job}} \
         FirebasePerformance=${{ needs.check.outputs.performance_run_job }} \
         FirebaseRemoteConfig=${{ needs.check.outputs.remoteconfig_run_job }} \
