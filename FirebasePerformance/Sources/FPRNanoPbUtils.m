@@ -184,12 +184,12 @@ firebase_perf_v1_PerfSession *FPREncodePerfSessions(NSArray<FPRSessionDetails *>
     perfSessions[perfSessionIndex].session_verbosity_count = 0;
     if ((session.options & FPRSessionOptionsEvents) ||
         (session.options & FPRSessionOptionsGauges)) {
+      perfSessions[perfSessionIndex].session_verbosity_count = 1;
       perfSessions[perfSessionIndex].session_verbosity =
           calloc(perfSessions[perfSessionIndex].session_verbosity_count,
                  sizeof(firebase_perf_v1_SessionVerbosity));
       perfSessions[perfSessionIndex].session_verbosity[0] =
           firebase_perf_v1_SessionVerbosity_GAUGES_AND_SYSTEM_EVENTS;
-      perfSessions[perfSessionIndex].session_verbosity_count = 1;
     }
     perfSessionIndex++;
   }];
