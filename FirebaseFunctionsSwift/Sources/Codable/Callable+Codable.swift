@@ -22,13 +22,15 @@ extension HTTPSCallable {
   enum CallableError: Error {
     case internalError
   }
+
   public func call<T: Encodable, U: Decodable>(_ data: T,
                                                resultAs: U.Type,
                                                encoder: StructureEncoder = StructureEncoder(),
                                                decoder: StructureDecoder = StructureDecoder(),
-                                               completion: @escaping (Result<U, Error>) -> Void) throws {
+                                               completion: @escaping (Result<U, Error>)
+                                                 -> Void) throws {
     let encoded = try encoder.encode(data)
-    self.call(encoded) { result, error in
+    call(encoded) { result, error in
       do {
         if let result = result {
           let decoded = try decoder.decode(U.self, from: result.data)
@@ -44,15 +46,16 @@ extension HTTPSCallable {
     }
   }
 
-#if compiler(>=5.5) && canImport(_Concurrency)
-  @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
-  public func call<T: Encodable, U: Decodable>(_ data: T,
-                                               resultAs: U.Type,
-                                               encoder: StructureEncoder = StructureEncoder(),
-                                               decoder: StructureDecoder = StructureDecoder()) async throws -> U {
-    let encoded = try encoder.encode(data)
-    let result = try await self.call(encoded)
-    return try decoder.decode(U.self, from: result.data)
-  }
-#endif
+  #if compiler(>=5.5) && canImport(_Concurrency)
+    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+    public func call<T: Encodable, U: Decodable>(_ data: T,
+                                                 resultAs: U.Type,
+                                                 encoder: StructureEncoder = StructureEncoder(),
+                                                 decoder: StructureDecoder =
+                                                   StructureDecoder()) async throws -> U {
+      let encoded = try encoder.encode(data)
+      let result = try await call(encoded)
+      return try decoder.decode(U.self, from: result.data)
+    }
+  #endif
 }

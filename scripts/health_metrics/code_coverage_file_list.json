@@ -8,10 +8,23 @@
     ]
   },
   {
+    "sdk": "analytics",
+    "filePatterns": [
+      "^FirebaseAnalytics.*",
+      "^GoogleAppMeasurement.*"
+    ]
+  },
+  {
     "sdk": "appcheck",
     "filePatterns": [
       "^FirebaseAppCheck.*",
       "\\.github/workflows/app_check\\.yml"
+    ]
+  },
+  {
+    "sdk": "appdistribution",
+    "filePatterns": [
+      "^FirebaseAppDistribution.*"
     ]
   },
   {
@@ -20,6 +33,13 @@
       "^FirebaseAuth.*",
       "Interop/Auth/Public/[^/]+\\.h",
       "\\.github/workflows/auth\\.yml"
+    ]
+  },
+  {
+    "sdk": "crashlytics",
+    "filePatterns": [
+      "^Crashlytics.*",
+      "FirebaseCrashlytics.podspec"
     ]
   },
   {
@@ -68,6 +88,12 @@
       "^FirebaseInAppMessaging.*",
       "Interop/Analytics/Public/[^/]+\\.h",
       "\\.github/workflows/inappmessaging\\.yml"
+    ]
+  },
+  {
+    "sdk": "installations",
+    "filePatterns": [
+      "^FirebaseInstallations.*"
     ]
   },
   {
