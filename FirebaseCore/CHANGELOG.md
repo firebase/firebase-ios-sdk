@@ -1,3 +1,7 @@
+# Firebase 8.10.0
+- [added] Firebase now includes community supported Combine publishers. More details can be found
+  [here](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseCombineSwift/README.md). (#7295)
+
 # Firebase 8.9.0
 - [added] Firebase introduces beta support for tvOS, macOS, and Catalyst.
   watchOS continues to be available with community support. Individual product
