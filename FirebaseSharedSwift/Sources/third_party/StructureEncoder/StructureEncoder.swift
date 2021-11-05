@@ -236,6 +236,9 @@ public class StructureEncoder {
   /// The strategy to use for encoding keys. Defaults to `.useDefaultKeys`.
   open var keyEncodingStrategy: KeyEncodingStrategy = .useDefaultKeys
 
+  /// If `usePassthroughTypes` is set to `true`, then any value of a type conforming to StructureCodingPassthroughType will not be encoded, but left as is in the resulting structure
+  open var usePassthroughTypes: Bool = false
+
   /// Contextual user-provided information for use during encoding.
   open var userInfo: [CodingUserInfoKey : Any] = [:]
 
@@ -245,6 +248,7 @@ public class StructureEncoder {
     let dataEncodingStrategy: DataEncodingStrategy
     let nonConformingFloatEncodingStrategy: NonConformingFloatEncodingStrategy
     let keyEncodingStrategy: KeyEncodingStrategy
+    let usePassthroughTypes: Bool
     let userInfo: [CodingUserInfoKey : Any]
   }
 
@@ -254,6 +258,7 @@ public class StructureEncoder {
                     dataEncodingStrategy: dataEncodingStrategy,
                     nonConformingFloatEncodingStrategy: nonConformingFloatEncodingStrategy,
                     keyEncodingStrategy: keyEncodingStrategy,
+                    usePassthroughTypes: usePassthroughTypes,
                     userInfo: userInfo)
   }
 
@@ -932,7 +937,7 @@ extension __JSONEncoder {
       return (value as! NSDecimalNumber)
     } else if value is _JSONStringDictionaryEncodableMarker {
       return try self.box(value as! [String : Encodable])
-    } else if let passthrough = value as? StructureCodingPassthroughType {
+    } else if let passthrough = value as? StructureCodingPassthroughType, self.options.usePassthroughTypes {
       return passthrough
     }
 
