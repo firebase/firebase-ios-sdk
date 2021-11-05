@@ -18,7 +18,7 @@ import FirebaseFirestore
 import FirebaseSharedSwift
 
 let documentRefUserInfoKey =
-CodingUserInfoKey(rawValue: "DocumentRefUserInfoKey")!
+  CodingUserInfoKey(rawValue: "DocumentRefUserInfoKey")!
 
 /// A type that can initialize itself from a Firestore `DocumentReference`,
 /// which makes it suitable for use with the `@DocumentID` property wrapper.

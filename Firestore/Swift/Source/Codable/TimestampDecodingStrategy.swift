@@ -1,6 +1,6 @@
 //
 //  TimestampDecodingStrategy.swift
-//  
+//
 //
 //  Created by Morten Bek Ditlevsen on 25/10/2021.
 //
@@ -10,14 +10,15 @@ import FirebaseFirestore
 import FirebaseSharedSwift
 
 @available(macOS 10.12, iOS 10.0, watchOS 3.0, tvOS 10.0, *)
-fileprivate var _iso8601Formatter: ISO8601DateFormatter = {
+private var _iso8601Formatter: ISO8601DateFormatter = {
   let formatter = ISO8601DateFormatter()
   formatter.formatOptions = .withInternetDateTime
   return formatter
 }()
 
 extension StructureDecoder.DateDecodingStrategy {
-  public static func timestamp(fallback: StructureDecoder.DateDecodingStrategy = .deferredToDate) -> StructureDecoder.DateDecodingStrategy {
+  public static func timestamp(fallback: StructureDecoder
+    .DateDecodingStrategy = .deferredToDate) -> StructureDecoder.DateDecodingStrategy {
     return .custom { decoder in
       let container = try decoder.singleValueContainer()
       do {
@@ -40,7 +41,10 @@ extension StructureDecoder.DateDecodingStrategy {
           if #available(macOS 10.12, iOS 10.0, watchOS 3.0, tvOS 10.0, *) {
             let string = try container.decode(String.self)
             guard let date = _iso8601Formatter.date(from: string) else {
-              throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Expected date string to be ISO8601-formatted."))
+              throw DecodingError.dataCorrupted(DecodingError.Context(
+                codingPath: decoder.codingPath,
+                debugDescription: "Expected date string to be ISO8601-formatted."
+              ))
             }
 
             return date
@@ -48,15 +52,18 @@ extension StructureDecoder.DateDecodingStrategy {
             fatalError("ISO8601DateFormatter is unavailable on this platform.")
           }
 
-        case .formatted(let formatter):
+        case let .formatted(formatter):
           let string = try container.decode(String.self)
           guard let date = formatter.date(from: string) else {
-            throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Date string does not match format expected by formatter."))
+            throw DecodingError.dataCorrupted(DecodingError.Context(
+              codingPath: decoder.codingPath,
+              debugDescription: "Date string does not match format expected by formatter."
+            ))
           }
 
           return date
 
-        case .custom(let closure):
+        case let .custom(closure):
           return try closure(decoder)
         }
       }
