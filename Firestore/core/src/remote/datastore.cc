@@ -29,6 +29,7 @@
 #include "Firestore/core/src/model/mutation.h"
 #include "Firestore/core/src/remote/connectivity_monitor.h"
 #include "Firestore/core/src/remote/firebase_metadata_provider.h"
+#include "Firestore/core/src/remote/grpc_adapt//grpc_adaption.h"
 #include "Firestore/core/src/remote/grpc_completion.h"
 #include "Firestore/core/src/remote/grpc_connection.h"
 #include "Firestore/core/src/remote/grpc_nanopb.h"
@@ -67,11 +68,11 @@ std::unique_ptr<Executor> CreateExecutor() {
   return Executor::CreateSerial("com.google.firebase.firestore.rpc");
 }
 
-std::string MakeString(grpc::string_ref grpc_str) {
+std::string MakeString(grpc_adapt::string_ref grpc_str) {
   return {grpc_str.begin(), grpc_str.size()};
 }
 
-absl::string_view MakeStringView(grpc::string_ref grpc_str) {
+absl::string_view MakeStringView(grpc_adapt::string_ref grpc_str) {
   return {grpc_str.begin(), grpc_str.size()};
 }
 
@@ -122,9 +123,9 @@ void Datastore::Shutdown() {
   // queue.
   grpc_connection_.Shutdown();
 
-  // `grpc::CompletionQueue::Next` will only return `false` once `Shutdown` has
-  // been called and all submitted tags have been extracted. Without this call,
-  // `rpc_executor_` will never finish.
+  // `grpc_adapt::CompletionQueue::Next` will only return `false` once
+  // `Shutdown` has been called and all submitted tags have been extracted.
+  // Without this call, `rpc_executor_` will never finish.
   grpc_queue_.Shutdown();
   // Drain the executor to make sure it extracted all the operations from gRPC
   // completion queue.
@@ -182,7 +183,7 @@ void Datastore::CommitMutationsWithCredentials(
     const std::string& app_check_token,
     const std::vector<Mutation>& mutations,
     CommitCallback&& callback) {
-  grpc::ByteBuffer message =
+  grpc_adapt::ByteBuffer message =
       MakeByteBuffer(datastore_serializer_.EncodeCommitRequest(mutations));
 
   std::unique_ptr<GrpcUnaryCall> call_owning = grpc_connection_.CreateUnaryCall(
@@ -192,7 +193,7 @@ void Datastore::CommitMutationsWithCredentials(
 
   call->Start(
       // TODO(c++14): move into lambda.
-      [this, call, callback](const StatusOr<grpc::ByteBuffer>& result) {
+      [this, call, callback](const StatusOr<grpc_adapt::ByteBuffer>& result) {
         LogGrpcCallFinished("CommitRequest", call, result.status());
         HandleCallStatus(result.status());
 
@@ -223,7 +224,7 @@ void Datastore::LookupDocumentsWithCredentials(
     const std::string& app_check_token,
     const std::vector<DocumentKey>& keys,
     LookupCallback&& callback) {
-  grpc::ByteBuffer message =
+  grpc_adapt::ByteBuffer message =
       MakeByteBuffer(datastore_serializer_.EncodeLookupRequest(keys));
 
   std::unique_ptr<GrpcStreamingReader> call_owning =
@@ -234,7 +235,7 @@ void Datastore::LookupDocumentsWithCredentials(
 
   // TODO(c++14): move into lambda.
   call->Start([this, call, callback](
-                  const StatusOr<std::vector<grpc::ByteBuffer>>& result) {
+                  const StatusOr<std::vector<grpc_adapt::ByteBuffer>>& result) {
     LogGrpcCallFinished("BatchGetDocuments", call, result.status());
     HandleCallStatus(result.status());
 
@@ -245,14 +246,15 @@ void Datastore::LookupDocumentsWithCredentials(
 }
 
 void Datastore::OnLookupDocumentsResponse(
-    const StatusOr<std::vector<grpc::ByteBuffer>>& result,
+    const StatusOr<std::vector<grpc_adapt::ByteBuffer>>& result,
     const LookupCallback& callback) {
   if (!result.ok()) {
     callback(result.status());
     return;
   }
 
-  std::vector<grpc::ByteBuffer> responses = std::move(result).ValueOrDie();
+  std::vector<grpc_adapt::ByteBuffer> responses =
+      std::move(result).ValueOrDie();
   callback(datastore_serializer_.MergeLookupResponses(responses));
 }
 

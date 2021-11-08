@@ -45,13 +45,15 @@ class GrpcConnection;
  */
 class GrpcUnaryCall : public GrpcCall {
  public:
-  using Callback = std::function<void(const util::StatusOr<grpc::ByteBuffer>&)>;
+  using Callback =
+      std::function<void(const util::StatusOr<grpc_adapt::ByteBuffer>&)>;
 
-  GrpcUnaryCall(std::unique_ptr<grpc::ClientContext> context,
-                std::unique_ptr<grpc::GenericClientAsyncResponseReader> call,
-                const std::shared_ptr<util::AsyncQueue>& worker_queue,
-                GrpcConnection* grpc_connection,
-                const grpc::ByteBuffer& request);
+  GrpcUnaryCall(
+      std::unique_ptr<grpc_adapt::ClientContext> context,
+      std::unique_ptr<grpc_adapt::GenericClientAsyncResponseReader> call,
+      const std::shared_ptr<util::AsyncQueue>& worker_queue,
+      GrpcConnection* grpc_connection,
+      const grpc_adapt::ByteBuffer& request);
   ~GrpcUnaryCall();
 
   /**
@@ -85,7 +87,7 @@ class GrpcUnaryCall : public GrpcCall {
   Metadata GetResponseHeaders() const override;
 
   /** For tests only */
-  grpc::ClientContext* context() override {
+  grpc_adapt::ClientContext* context() override {
     return context_.get();
   }
 
@@ -94,10 +96,10 @@ class GrpcUnaryCall : public GrpcCall {
   void MaybeUnregister();
 
   // See comments in `GrpcStream` on lifetime issues for gRPC objects.
-  std::unique_ptr<grpc::ClientContext> context_;
-  std::unique_ptr<grpc::GenericClientAsyncResponseReader> call_;
+  std::unique_ptr<grpc_adapt::ClientContext> context_;
+  std::unique_ptr<grpc_adapt::GenericClientAsyncResponseReader> call_;
   // Stored to avoid lifetime issues with gRPC.
-  grpc::ByteBuffer request_;
+  grpc_adapt::ByteBuffer request_;
 
   std::shared_ptr<util::AsyncQueue> worker_queue_;
   GrpcConnection* grpc_connection_ = nullptr;

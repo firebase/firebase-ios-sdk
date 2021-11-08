@@ -200,13 +200,13 @@ class Stream : public GrpcStreamObserver,
 
   // `GrpcStreamObserver` interface -- do not use.
   void OnStreamStart() override;
-  void OnStreamRead(const grpc::ByteBuffer& message) override;
+  void OnStreamRead(const grpc_adapt::ByteBuffer& message) override;
   void OnStreamFinish(const util::Status& status) override;
 
  protected:
   // `Stream` expects all its methods to be called on the worker queue.
   void EnsureOnQueue() const;
-  void Write(grpc::ByteBuffer&& message);
+  void Write(grpc_adapt::ByteBuffer&& message);
   std::string GetDebugDescription() const;
 
   ExponentialBackoff backoff_;
@@ -227,7 +227,7 @@ class Stream : public GrpcStreamObserver,
   virtual void TearDown(GrpcStream* stream) = 0;
   virtual void NotifyStreamOpen() = 0;
   virtual util::Status NotifyStreamResponse(
-      const grpc::ByteBuffer& message) = 0;
+      const grpc_adapt::ByteBuffer& message) = 0;
   virtual void NotifyStreamClose(const util::Status& status) = 0;
   // PORTING NOTE: C++ cannot rely on RTTI, unlike other platforms.
   virtual std::string GetDebugName() const = 0;

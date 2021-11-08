@@ -236,7 +236,7 @@ DatastoreSerializer::EncodeLookupRequest(
 
 StatusOr<std::vector<model::Document>>
 DatastoreSerializer::MergeLookupResponses(
-    const std::vector<grpc::ByteBuffer>& responses) const {
+    const std::vector<grpc_adapt::ByteBuffer>& responses) const {
   // Sort by key.
   std::map<DocumentKey, Document> results;
 

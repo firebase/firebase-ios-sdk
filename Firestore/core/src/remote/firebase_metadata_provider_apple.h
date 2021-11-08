@@ -26,6 +26,7 @@
 #include <string>
 
 #include "Firestore/core/src/remote/firebase_metadata_provider.h"
+#include "Firestore/core/src/remote/grpc_adapt/grpc_adaption.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -39,7 +40,7 @@ class FirebaseMetadataProviderApple : public FirebaseMetadataProvider {
  public:
   explicit FirebaseMetadataProviderApple(FIRApp* app);
 
-  void UpdateMetadata(grpc::ClientContext& context) override;
+  void UpdateMetadata(grpc_adapt::ClientContext& context) override;
 
  private:
   FIRApp* app_;

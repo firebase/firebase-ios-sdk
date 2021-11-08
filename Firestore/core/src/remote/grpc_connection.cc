@@ -28,6 +28,7 @@
 #include "Firestore/core/src/credentials/auth_token.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/remote/firebase_metadata_provider.h"
+#include "Firestore/core/src/remote/grpc_adapt/grpc_adaption.h"
 #include "Firestore/core/src/remote/grpc_root_certificate_finder.h"
 #include "Firestore/core/src/util/filesystem.h"
 #include "Firestore/core/src/util/hard_assert.h"
@@ -37,11 +38,6 @@
 #include "Firestore/core/src/util/warnings.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/str_cat.h"
-
-SUPPRESS_DOCUMENTATION_WARNINGS_BEGIN()
-#include "grpcpp/create_channel.h"
-#include "grpcpp/grpcpp.h"
-SUPPRESS_END()
 
 namespace firebase {
 namespace firestore {
@@ -66,11 +62,11 @@ std::string MakeString(absl::string_view view) {
   return view.data() ? std::string{view.data(), view.size()} : std::string{};
 }
 
-std::shared_ptr<grpc::ChannelCredentials> CreateSslCredentials(
+std::shared_ptr<grpc_adapt::ChannelCredentials> CreateSslCredentials(
     const std::string& certificate) {
-  grpc::SslCredentialsOptions options;
+  grpc_adapt::SslCredentialsOptions options;
   options.pem_root_certs = certificate;
-  return grpc::SslCredentials(options);
+  return grpc_adapt::SslCredentials(options);
 }
 
 class HostConfig {
@@ -205,9 +201,10 @@ ClientLanguageToken& LanguageToken() {
   return *token;
 }
 
-void AddCloudApiHeader(grpc::ClientContext& context) {
-  auto api_tokens = StringFormat("%s fire/%s grpc/%s", LanguageToken().Get(),
-                                 kFirestoreVersionString, grpc::Version());
+void AddCloudApiHeader(grpc_adapt::ClientContext& context) {
+  auto api_tokens =
+      StringFormat("%s fire/%s grpc/%s", LanguageToken().Get(),
+                   kFirestoreVersionString, grpc_adapt::Version());
   context.AddMetadata(kXGoogApiClientHeader, api_tokens);
 }
 
@@ -232,7 +229,7 @@ class DisableGrpcCFStream {
 GrpcConnection::GrpcConnection(
     const DatabaseInfo& database_info,
     const std::shared_ptr<util::AsyncQueue>& worker_queue,
-    grpc::CompletionQueue* grpc_queue,
+    grpc_adapt::CompletionQueue* grpc_queue,
     ConnectivityMonitor* connectivity_monitor,
     FirebaseMetadataProvider* firebase_metadata_provider)
     : database_info_{&database_info},
@@ -252,9 +249,9 @@ void GrpcConnection::Shutdown() {
   }
 }
 
-std::unique_ptr<grpc::ClientContext> GrpcConnection::CreateContext(
+std::unique_ptr<grpc_adapt::ClientContext> GrpcConnection::CreateContext(
     const AuthToken& auth_token, const std::string& app_check_token) const {
-  auto context = absl::make_unique<grpc::ClientContext>();
+  auto context = absl::make_unique<grpc_adapt::ClientContext>();
 
   absl::string_view auth = auth_token.user().is_authenticated()
                                ? auth_token.token()
@@ -285,14 +282,14 @@ void GrpcConnection::EnsureActiveStub() {
                             GRPC_CHANNEL_SHUTDOWN) {
     LOG_DEBUG("Creating Firestore stub.");
     grpc_channel_ = CreateChannel();
-    grpc_stub_ = absl::make_unique<grpc::GenericStub>(grpc_channel_);
+    grpc_stub_ = absl::make_unique<grpc_adapt::GenericStub>(grpc_channel_);
   }
 }
 
-std::shared_ptr<grpc::Channel> GrpcConnection::CreateChannel() const {
+std::shared_ptr<grpc_adapt::Channel> GrpcConnection::CreateChannel() const {
   const std::string& host = database_info_->host();
 
-  grpc::ChannelArguments args;
+  grpc_adapt::ChannelArguments args;
   // Ensure gRPC recovers from a dead connection. (Not typically necessary, as
   // the OS will usually notify gRPC when a connection dies. But not always.
   // This acts as a failsafe.)
@@ -301,14 +298,14 @@ std::shared_ptr<grpc::Channel> GrpcConnection::CreateChannel() const {
   const HostConfig* host_config = Config().find(host);
   if (!host_config) {
     std::string root_certificate = LoadGrpcRootCertificate();
-    return grpc::CreateCustomChannel(
+    return grpc_adapt::CreateCustomChannel(
         host, CreateSslCredentials(root_certificate), args);
   }
 
   // For the case when `Settings.set_ssl_enabled(false)`.
   if (host_config->use_insecure_channel()) {
-    return grpc::CreateCustomChannel(host, grpc::InsecureChannelCredentials(),
-                                     args);
+    return grpc_adapt::CreateCustomChannel(
+        host, grpc_adapt::InsecureChannelCredentials(), args);
   }
 
   // For tests only
@@ -321,7 +318,7 @@ std::shared_ptr<grpc::Channel> GrpcConnection::CreateChannel() const {
                            path.ToUtf8String())
                   .c_str());
 
-  return grpc::CreateCustomChannel(
+  return grpc_adapt::CreateCustomChannel(
       host, CreateSslCredentials(test_certificate.ValueOrDie()), args);
 }
 
@@ -343,7 +340,7 @@ std::unique_ptr<GrpcUnaryCall> GrpcConnection::CreateUnaryCall(
     absl::string_view rpc_name,
     const AuthToken& auth_token,
     const std::string& app_check_token,
-    const grpc::ByteBuffer& message) {
+    const grpc_adapt::ByteBuffer& message) {
   EnsureActiveStub();
 
   auto context = CreateContext(auth_token, app_check_token);
@@ -357,7 +354,7 @@ std::unique_ptr<GrpcStreamingReader> GrpcConnection::CreateStreamingReader(
     absl::string_view rpc_name,
     const AuthToken& auth_token,
     const std::string& app_check_token,
-    const grpc::ByteBuffer& message) {
+    const grpc_adapt::ByteBuffer& message) {
   EnsureActiveStub();
 
   auto context = CreateContext(auth_token, app_check_token);

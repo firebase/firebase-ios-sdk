@@ -17,14 +17,14 @@
 #ifndef FIRESTORE_CORE_SRC_REMOTE_GRPC_UTIL_H_
 #define FIRESTORE_CORE_SRC_REMOTE_GRPC_UTIL_H_
 
+#include "Firestore/core/src/remote/grpc_adapt/grpc_adaption.h"
 #include "Firestore/core/src/util/status_fwd.h"
-#include "grpcpp/support/status.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
 
-util::Status ConvertStatus(const grpc::Status& from);
+util::Status ConvertStatus(const grpc_adapt::Status& from);
 
 }  // namespace remote
 }  // namespace firestore

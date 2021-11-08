@@ -25,6 +25,7 @@
 #include "Firestore/core/src/core/database_info.h"
 #include "Firestore/core/src/credentials/auth_token.h"
 #include "Firestore/core/src/remote/connectivity_monitor.h"
+#include "Firestore/core/src/remote/grpc_adapt/grpc_adaption.h"
 #include "Firestore/core/src/remote/grpc_call.h"
 #include "Firestore/core/src/remote/grpc_stream.h"
 #include "Firestore/core/src/remote/grpc_stream_observer.h"
@@ -59,7 +60,7 @@ class GrpcConnection {
  public:
   GrpcConnection(const core::DatabaseInfo& database_info,
                  const std::shared_ptr<util::AsyncQueue>& worker_queue,
-                 grpc::CompletionQueue* grpc_queue,
+                 grpc_adapt::CompletionQueue* grpc_queue,
                  ConnectivityMonitor* connectivity_monitor,
                  FirebaseMetadataProvider* firebase_metadata_provider);
 
@@ -81,13 +82,13 @@ class GrpcConnection {
       absl::string_view rpc_name,
       const credentials::AuthToken& auth_token,
       const std::string& app_check_token,
-      const grpc::ByteBuffer& message);
+      const grpc_adapt::ByteBuffer& message);
 
   std::unique_ptr<GrpcStreamingReader> CreateStreamingReader(
       absl::string_view rpc_name,
       const credentials::AuthToken& auth_token,
       const std::string& app_check_token,
-      const grpc::ByteBuffer& message);
+      const grpc_adapt::ByteBuffer& message);
 
   void Register(GrpcCall* call);
   void Unregister(GrpcCall* call);
@@ -109,20 +110,20 @@ class GrpcConnection {
                                  const std::string& target_name);
 
  private:
-  std::unique_ptr<grpc::ClientContext> CreateContext(
+  std::unique_ptr<grpc_adapt::ClientContext> CreateContext(
       const credentials::AuthToken& auth_token,
       const std::string& app_check_token) const;
-  std::shared_ptr<grpc::Channel> CreateChannel() const;
+  std::shared_ptr<grpc_adapt::Channel> CreateChannel() const;
   void EnsureActiveStub();
 
   void RegisterConnectivityMonitor();
 
   const core::DatabaseInfo* database_info_ = nullptr;
   std::shared_ptr<util::AsyncQueue> worker_queue_;
-  grpc::CompletionQueue* grpc_queue_ = nullptr;
+  grpc_adapt::CompletionQueue* grpc_queue_ = nullptr;
 
-  std::shared_ptr<grpc::Channel> grpc_channel_;
-  std::unique_ptr<grpc::GenericStub> grpc_stub_;
+  std::shared_ptr<grpc_adapt::Channel> grpc_channel_;
+  std::unique_ptr<grpc_adapt::GenericStub> grpc_stub_;
 
   ConnectivityMonitor* connectivity_monitor_ = nullptr;
   std::vector<GrpcCall*> active_calls_;

@@ -247,7 +247,7 @@ void Stream::CancelIdleCheck() {
 
 // Read/write
 
-void Stream::OnStreamRead(const grpc::ByteBuffer& message) {
+void Stream::OnStreamRead(const grpc_adapt::ByteBuffer& message) {
   EnsureOnQueue();
 
   HARD_ASSERT(IsStarted(), "OnStreamRead called for a stopped stream.");
@@ -369,7 +369,7 @@ void Stream::EnsureOnQueue() const {
   worker_queue_->VerifyIsCurrentQueue();
 }
 
-void Stream::Write(grpc::ByteBuffer&& message) {
+void Stream::Write(grpc_adapt::ByteBuffer&& message) {
   EnsureOnQueue();
 
   HARD_ASSERT(IsOpen(), "Cannot write when the stream is not open.");

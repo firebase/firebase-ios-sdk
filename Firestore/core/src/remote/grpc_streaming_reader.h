@@ -45,15 +45,15 @@ class GrpcConnection;
  */
 class GrpcStreamingReader : public GrpcCall, public GrpcStreamObserver {
  public:
-  using ResponsesT = std::vector<grpc::ByteBuffer>;
+  using ResponsesT = std::vector<grpc_adapt::ByteBuffer>;
   using Callback = std::function<void(const util::StatusOr<ResponsesT>&)>;
 
   GrpcStreamingReader(
-      std::unique_ptr<grpc::ClientContext> context,
-      std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
+      std::unique_ptr<grpc_adapt::ClientContext> context,
+      std::unique_ptr<grpc_adapt::GenericClientAsyncReaderWriter> call,
       const std::shared_ptr<util::AsyncQueue>& worker_queue,
       GrpcConnection* grpc_connection,
-      const grpc::ByteBuffer& request);
+      const grpc_adapt::ByteBuffer& request);
 
   /**
    * Starts the call; the given `callback` will be invoked with the accumulated
@@ -87,17 +87,17 @@ class GrpcStreamingReader : public GrpcCall, public GrpcStreamObserver {
   }
 
   void OnStreamStart() override;
-  void OnStreamRead(const grpc::ByteBuffer& message) override;
+  void OnStreamRead(const grpc_adapt::ByteBuffer& message) override;
   void OnStreamFinish(const util::Status& status) override;
 
   /** For tests only */
-  grpc::ClientContext* context() override {
+  grpc_adapt::ClientContext* context() override {
     return stream_->context();
   }
 
  private:
   std::unique_ptr<GrpcStream> stream_;
-  grpc::ByteBuffer request_;
+  grpc_adapt::ByteBuffer request_;
 
   Callback callback_;
   ResponsesT responses_;

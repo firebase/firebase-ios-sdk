@@ -28,9 +28,9 @@
 #include "Firestore/core/src/nanopb/byte_string.h"
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/nanopb/reader.h"
+#include "Firestore/core/src/remote/grpc_adapt/grpc_adaption.h"
 #include "Firestore/core/src/remote/serializer.h"
 #include "Firestore/core/src/util/status_fwd.h"
-#include "grpcpp/support/byte_buffer.h"
 
 namespace firebase {
 namespace firestore {
@@ -131,7 +131,7 @@ class DatastoreSerializer {
    * document key.
    */
   util::StatusOr<std::vector<model::Document>> MergeLookupResponses(
-      const std::vector<grpc::ByteBuffer>& responses) const;
+      const std::vector<grpc_adapt::ByteBuffer>& responses) const;
 
   const Serializer& serializer() const {
     return serializer_;

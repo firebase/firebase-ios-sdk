@@ -126,7 +126,8 @@ void WriteStream::NotifyStreamClose(const Status& status) {
   handshake_complete_ = false;
 }
 
-Status WriteStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
+Status WriteStream::NotifyStreamResponse(
+    const grpc_adapt::ByteBuffer& message) {
   ByteBufferReader reader{message};
   Message<google_firestore_v1_WriteResponse> response =
       write_serializer_.ParseResponse(&reader);

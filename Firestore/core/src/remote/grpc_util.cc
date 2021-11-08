@@ -25,19 +25,18 @@ namespace remote {
 
 using util::Status;
 
-Status ConvertStatus(const grpc::Status& from) {
+Status ConvertStatus(const grpc_adapt::Status& from) {
   if (from.ok()) {
     return Status::OK();
   }
 
-  grpc::StatusCode error_code = from.error_code();
-  // Both `grpc::Status` and Firestore's `util::Status` use canonical error
-  // codes for Google APIs. The canonical codes define integer values, so this
-  // conversion should be safe.
-  // See
+  grpc_adapt::StatusCode error_code = from.error_code();
+  // Both `grpc_adapt::Status` and Firestore's `util::Status` use canonical
+  // error codes for Google APIs. The canonical codes define integer values, so
+  // this conversion should be safe. See
   // https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
-  HARD_ASSERT(error_code >= grpc::StatusCode::CANCELLED &&
-                  error_code <= grpc::StatusCode::UNAUTHENTICATED,
+  HARD_ASSERT(error_code >= grpc_adapt::StatusCode::CANCELLED &&
+                  error_code <= grpc_adapt::StatusCode::UNAUTHENTICATED,
               "Unknown gRPC error code: %s", error_code);
 
   return {static_cast<Error>(error_code), from.error_message()};

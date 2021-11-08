@@ -32,11 +32,11 @@ using util::Status;
 using Type = GrpcCompletion::Type;
 
 GrpcUnaryCall::GrpcUnaryCall(
-    std::unique_ptr<grpc::ClientContext> context,
-    std::unique_ptr<grpc::GenericClientAsyncResponseReader> call,
+    std::unique_ptr<grpc_adapt::ClientContext> context,
+    std::unique_ptr<grpc_adapt::GenericClientAsyncResponseReader> call,
     const std::shared_ptr<util::AsyncQueue>& worker_queue,
     GrpcConnection* grpc_connection,
-    const grpc::ByteBuffer& request)
+    const grpc_adapt::ByteBuffer& request)
     : context_{std::move(context)},
       call_{std::move(call)},
       request_{request},

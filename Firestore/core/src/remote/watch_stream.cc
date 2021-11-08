@@ -92,7 +92,8 @@ void WatchStream::NotifyStreamOpen() {
   callback_->OnWatchStreamOpen();
 }
 
-Status WatchStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
+Status WatchStream::NotifyStreamResponse(
+    const grpc_adapt::ByteBuffer& message) {
   ByteBufferReader reader{message};
   auto response = watch_serializer_.ParseResponse(&reader);
   if (!reader.ok()) {

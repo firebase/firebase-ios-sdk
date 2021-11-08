@@ -23,9 +23,9 @@
 #include <memory>
 #include <utility>
 
+#include "Firestore/core/src/remote/grpc_adapt/grpc_adaption.h"
 #include "Firestore/core/src/util/async_queue.h"
 #include "Firestore/core/src/util/status_fwd.h"
-#include "grpcpp/support/byte_buffer.h"
 
 namespace firebase {
 namespace firestore {
@@ -101,16 +101,16 @@ class GrpcCompletion : public std::enable_shared_from_this<GrpcCompletion> {
   void WaitUntilOffQueue();
   std::future_status WaitUntilOffQueue(std::chrono::milliseconds timeout);
 
-  grpc::ByteBuffer* message() {
+  grpc_adapt::ByteBuffer* message() {
     return &message_;
   }
-  const grpc::ByteBuffer* message() const {
+  const grpc_adapt::ByteBuffer* message() const {
     return &message_;
   }
-  grpc::Status* status() {
+  grpc_adapt::Status* status() {
     return &status_;
   }
-  const grpc::Status* status() const {
+  const grpc_adapt::Status* status() const {
     return &status_;
   }
 
@@ -144,13 +144,13 @@ class GrpcCompletion : public std::enable_shared_from_this<GrpcCompletion> {
   // interest in the completion.
   std::shared_ptr<GrpcCompletion> grpc_ownership_;
 
-  // Note that even though `grpc::GenericClientAsyncReaderWriter::Write` takes
-  // the byte buffer by const reference, it expects the buffer's lifetime to
-  // extend beyond `Write` (the buffer must be valid until the completion queue
-  // returns the tag associated with the write, see
+  // Note that even though `grpc_adapt::GenericClientAsyncReaderWriter::Write`
+  // takes the byte buffer by const reference, it expects the buffer's lifetime
+  // to extend beyond `Write` (the buffer must be valid until the completion
+  // queue returns the tag associated with the write, see
   // https://github.com/grpc/grpc/issues/13019#issuecomment-336932929, #5).
-  grpc::ByteBuffer message_;
-  grpc::Status status_;
+  grpc_adapt::ByteBuffer message_;
+  grpc_adapt::Status status_;
 
   std::promise<void> off_queue_;
   std::future<void> off_queue_future_;

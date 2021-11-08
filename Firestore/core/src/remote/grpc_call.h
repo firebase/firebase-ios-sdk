@@ -19,9 +19,8 @@
 
 #include <map>
 
+#include "Firestore/core/src/remote/grpc_adapt/grpc_adaption.h"
 #include "Firestore/core/src/util/status_fwd.h"
-#include "grpcpp/client_context.h"
-#include "grpcpp/support/string_ref.h"
 
 namespace firebase {
 namespace firestore {
@@ -35,7 +34,8 @@ namespace remote {
  */
 class GrpcCall {
  public:
-  using Metadata = std::multimap<grpc::string_ref, grpc::string_ref>;
+  using Metadata =
+      std::multimap<grpc_adapt::string_ref, grpc_adapt::string_ref>;
 
   virtual ~GrpcCall() = default;
 
@@ -57,7 +57,7 @@ class GrpcCall {
   virtual void FinishAndNotify(const util::Status& status) = 0;
 
   /** For tests only */
-  virtual grpc::ClientContext* context() = 0;
+  virtual grpc_adapt::ClientContext* context() = 0;
 };
 
 }  // namespace remote

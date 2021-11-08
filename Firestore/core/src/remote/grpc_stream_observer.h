@@ -32,7 +32,7 @@ class GrpcStreamObserver {
   // Stream has been successfully established.
   virtual void OnStreamStart() = 0;
   // A message has been received from the server.
-  virtual void OnStreamRead(const grpc::ByteBuffer& message) = 0;
+  virtual void OnStreamRead(const grpc_adapt::ByteBuffer& message) = 0;
   // Connection has been broken, perhaps by the server.
   virtual void OnStreamFinish(const util::Status& status) = 0;
 };

@@ -32,14 +32,14 @@ using nanopb::ByteString;
 using nanopb::ByteStringWriter;
 using util::Status;
 
-ByteBufferReader::ByteBufferReader(const grpc::ByteBuffer& buffer) {
-  std::vector<grpc::Slice> slices;
-  grpc::Status status = buffer.Dump(&slices);
+ByteBufferReader::ByteBufferReader(const grpc_adapt::ByteBuffer& buffer) {
+  std::vector<grpc_adapt::Slice> slices;
+  grpc_adapt::Status status = buffer.Dump(&slices);
   // Conversion may fail if compression is used and gRPC tries to decompress an
   // ill-formed buffer.
   if (!status.ok()) {
     Status error{Error::kErrorInternal,
-                 "Trying to convert an invalid grpc::ByteBuffer"};
+                 "Trying to convert an invalid grpc_adapt::ByteBuffer"};
     error.CausedBy(ConvertStatus(status));
     set_status(error);
     return;
@@ -68,7 +68,7 @@ namespace {
 bool AppendToGrpcBuffer(pb_ostream_t* stream,
                         const pb_byte_t* buf,
                         size_t count) {
-  auto buffer = static_cast<std::vector<grpc::Slice>*>(stream->state);
+  auto buffer = static_cast<std::vector<grpc_adapt::Slice>*>(stream->state);
   buffer->emplace_back(buf, count);
   return true;
 }
@@ -81,8 +81,8 @@ ByteBufferWriter::ByteBufferWriter() {
   stream_.max_size = SIZE_MAX;
 }
 
-grpc::ByteBuffer ByteBufferWriter::Release() {
-  grpc::ByteBuffer result{buffer_.data(), buffer_.size()};
+grpc_adapt::ByteBuffer ByteBufferWriter::Release() {
+  grpc_adapt::ByteBuffer result{buffer_.data(), buffer_.size()};
   buffer_.clear();
   return result;
 }

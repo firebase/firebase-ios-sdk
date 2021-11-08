@@ -20,6 +20,7 @@
 #import "FirebaseCore/Sources/Private/FIRHeartbeatInfo.h"
 #import "FirebaseCore/Sources/Private/FIROptionsInternal.h"
 
+#include "Firestore/core/src/remote/grpc_adapt/grpc_adaption.h"
 #include "Firestore/core/src/util/string_apple.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -50,7 +51,7 @@ FirebaseMetadataProviderApple::FirebaseMetadataProviderApple(FIRApp* app)
 }
 
 void FirebaseMetadataProviderApple::UpdateMetadata(
-    grpc::ClientContext& context) {
+    grpc_adapt::ClientContext& context) {
   FIRHeartbeatInfoCode heartbeat = GetHeartbeat();
   // TODO(varconst): don't send any headers if the heartbeat is "none". This
   // should only be changed once it's possible to notify the heartbeat that the

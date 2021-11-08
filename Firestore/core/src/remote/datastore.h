@@ -27,6 +27,7 @@
 #include "Firestore/core/src/credentials/credentials_fwd.h"
 #include "Firestore/core/src/credentials/credentials_provider.h"
 #include "Firestore/core/src/model/document_key.h"
+#include "Firestore/core/src/remote/grpc_adapt/grpc_adaption.h"
 #include "Firestore/core/src/remote/grpc_call.h"
 #include "Firestore/core/src/remote/grpc_connection.h"
 #include "Firestore/core/src/remote/remote_objc_bridge.h"
@@ -36,8 +37,6 @@
 #include "Firestore/core/src/util/executor.h"
 #include "Firestore/core/src/util/status_fwd.h"
 #include "absl/strings/string_view.h"
-#include "grpcpp/completion_queue.h"
-#include "grpcpp/support/status.h"
 
 namespace firebase {
 namespace firestore {
@@ -142,7 +141,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
 
  protected:
   /** Test-only method */
-  grpc::CompletionQueue* grpc_queue() {
+  grpc_adapt::CompletionQueue* grpc_queue() {
     return &grpc_queue_;
   }
   /** Test-only method */
@@ -178,7 +177,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
       const std::vector<model::DocumentKey>& keys,
       LookupCallback&& callback);
   void OnLookupDocumentsResponse(
-      const util::StatusOr<std::vector<grpc::ByteBuffer>>& result,
+      const util::StatusOr<std::vector<grpc_adapt::ByteBuffer>>& result,
       const LookupCallback& callback);
 
   using OnCredentials = std::function<void(
@@ -201,7 +200,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   // A separate executor dedicated to polling gRPC completion queue (which is
   // shared for all spawned gRPC streams and calls).
   std::unique_ptr<util::Executor> rpc_executor_;
-  grpc::CompletionQueue grpc_queue_;
+  grpc_adapt::CompletionQueue grpc_queue_;
   ConnectivityMonitor* connectivity_monitor_ = nullptr;
   GrpcConnection grpc_connection_;
 

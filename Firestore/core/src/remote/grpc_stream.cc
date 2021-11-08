@@ -43,11 +43,11 @@ using Type = GrpcCompletion::Type;
 // `GrpcStream`. In turn, `GrpcStream` will decide whether to notify its
 // observer.
 //
-// `GrpcStream` owns the gRPC objects (such as `grpc::ClientContext`) that must
-// be valid until all `GrpcCompletion`s issued by this stream come back from the
-// gRPC completion queue. `GrpcCompletion`s contain an `std::promise` that is
-// fulfilled once the completion is taken off the gRPC completion queue, and
-// `GrpcCompletion::WaitUntilOffQueue` allows blocking on this. `GrpcStream`
+// `GrpcStream` owns the gRPC objects (such as `grpc_adapt::ClientContext`) that
+// must be valid until all `GrpcCompletion`s issued by this stream come back
+// from the gRPC completion queue. `GrpcCompletion`s contain an `std::promise`
+// that is fulfilled once the completion is taken off the gRPC completion queue,
+// and `GrpcCompletion::WaitUntilOffQueue` allows blocking on this. `GrpcStream`
 // holds non-owning pointers to all the completions that it issued (and removes
 // pointers to completions once they ran). `GrpcStream::Finish` and
 // `GrpcStream::WriteAndFinish` block on `GrpcCompletion::WaitUntilOffQueue` for
@@ -58,7 +58,7 @@ using Type = GrpcCompletion::Type;
 namespace internal {
 
 absl::optional<BufferedWrite> BufferedWriter::EnqueueWrite(
-    grpc::ByteBuffer&& message, const grpc::WriteOptions& options) {
+    grpc_adapt::ByteBuffer&& message, const grpc_adapt::WriteOptions& options) {
   queue_.push({std::move(message), options});
   return TryStartWrite();
 }
@@ -84,8 +84,8 @@ absl::optional<BufferedWrite> BufferedWriter::DequeueNextWrite() {
 using internal::BufferedWrite;
 
 GrpcStream::GrpcStream(
-    std::unique_ptr<grpc::ClientContext> context,
-    std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
+    std::unique_ptr<grpc_adapt::ClientContext> context,
+    std::unique_ptr<grpc_adapt::GenericClientAsyncReaderWriter> call,
     const std::shared_ptr<util::AsyncQueue>& worker_queue,
     GrpcConnection* grpc_connection,
     GrpcStreamObserver* observer)
@@ -135,12 +135,12 @@ void GrpcStream::Read() {
   call_->Read(completion->message(), completion.get());
 }
 
-void GrpcStream::Write(grpc::ByteBuffer&& message) {
+void GrpcStream::Write(grpc_adapt::ByteBuffer&& message) {
   MaybeWrite(buffered_writer_.EnqueueWrite(std::move(message)));
 }
 
-void GrpcStream::WriteLast(grpc::ByteBuffer&& message) {
-  grpc::WriteOptions options;
+void GrpcStream::WriteLast(grpc_adapt::ByteBuffer&& message) {
+  grpc_adapt::WriteOptions options;
   options.set_last_message();
   MaybeWrite(buffered_writer_.EnqueueWrite(std::move(message), options));
 }
@@ -251,7 +251,7 @@ void GrpcStream::FastFinishCompletionsBlocking() {
   completions_.clear();
 }
 
-bool GrpcStream::WriteAndFinish(grpc::ByteBuffer&& message) {
+bool GrpcStream::WriteAndFinish(grpc_adapt::ByteBuffer&& message) {
   bool did_last_write = false;
   if (!is_grpc_call_finished_) {
     did_last_write = TryLastWrite(std::move(message));
@@ -260,7 +260,7 @@ bool GrpcStream::WriteAndFinish(grpc::ByteBuffer&& message) {
   return did_last_write;
 }
 
-bool GrpcStream::TryLastWrite(grpc::ByteBuffer&& message) {
+bool GrpcStream::TryLastWrite(grpc_adapt::ByteBuffer&& message) {
   absl::optional<BufferedWrite> maybe_write =
       buffered_writer_.EnqueueWrite(std::move(message));
   // Only bother with the last write if there is no active write at the moment.
@@ -271,7 +271,7 @@ bool GrpcStream::TryLastWrite(grpc::ByteBuffer&& message) {
   BufferedWrite last_write = std::move(maybe_write).value();
   auto completion = NewCompletion(Type::Write, {});
   *completion->message() = last_write.message;
-  call_->WriteLast(*completion->message(), grpc::WriteOptions{},
+  call_->WriteLast(*completion->message(), grpc_adapt::WriteOptions{},
                    completion.get());
 
   // Empirically, the write normally takes less than a millisecond to finish
@@ -291,7 +291,7 @@ GrpcStream::Metadata GrpcStream::GetResponseHeaders() const {
 
 // Callbacks
 
-void GrpcStream::OnRead(const grpc::ByteBuffer& message) {
+void GrpcStream::OnRead(const grpc_adapt::ByteBuffer& message) {
   if (observer_) {
     // Continue waiting for new messages indefinitely as long as there is an
     // interested observer.

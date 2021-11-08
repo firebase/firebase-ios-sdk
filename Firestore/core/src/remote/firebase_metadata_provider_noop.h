@@ -21,6 +21,7 @@
 #include <string>
 
 #include "Firestore/core/src/remote/firebase_metadata_provider.h"
+#include "Firestore/core/src/remote/grpc_adapt/grpc_adaption.h"
 
 namespace firebase {
 namespace firestore {
@@ -28,7 +29,7 @@ namespace remote {
 
 class FirebaseMetadataProviderNoOp : public FirebaseMetadataProvider {
  public:
-  void UpdateMetadata(grpc::ClientContext&) override {
+  void UpdateMetadata(grpc_adapt::ClientContext&) override {
   }
 };
 

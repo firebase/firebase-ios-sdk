@@ -32,11 +32,11 @@ using util::AsyncQueue;
 using util::Status;
 
 GrpcStreamingReader::GrpcStreamingReader(
-    std::unique_ptr<grpc::ClientContext> context,
-    std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
+    std::unique_ptr<grpc_adapt::ClientContext> context,
+    std::unique_ptr<grpc_adapt::GenericClientAsyncReaderWriter> call,
     const std::shared_ptr<util::AsyncQueue>& worker_queue,
     GrpcConnection* grpc_connection,
-    const grpc::ByteBuffer& request)
+    const grpc_adapt::ByteBuffer& request)
     : stream_{absl::make_unique<GrpcStream>(std::move(context),
                                             std::move(call),
                                             worker_queue,
@@ -64,7 +64,7 @@ void GrpcStreamingReader::OnStreamStart() {
   stream_->WriteLast(std::move(request_));
 }
 
-void GrpcStreamingReader::OnStreamRead(const grpc::ByteBuffer& message) {
+void GrpcStreamingReader::OnStreamRead(const grpc_adapt::ByteBuffer& message) {
   // Accumulate responses
   responses_.push_back(message);
 }

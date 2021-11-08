@@ -25,6 +25,7 @@
 #include <utility>
 #include <vector>
 
+#include "Firestore/core/src/remote/grpc_adapt/grpc_adaption.h"
 #include "Firestore/core/src/remote/grpc_call.h"
 #include "Firestore/core/src/remote/grpc_completion.h"
 #include "Firestore/core/src/remote/grpc_stream_observer.h"
@@ -49,8 +50,8 @@ class GrpcStream;
 namespace internal {
 
 struct BufferedWrite {
-  grpc::ByteBuffer message;
-  grpc::WriteOptions options;
+  grpc_adapt::ByteBuffer message;
+  grpc_adapt::WriteOptions options;
 };
 
 /**
@@ -76,11 +77,12 @@ class BufferedWriter {
  public:
   // Returns the newly-created write operation if the given `write` became
   // active, null pointer otherwise.
-  absl::optional<BufferedWrite> EnqueueWrite(grpc::ByteBuffer&& message,
-                                             const grpc::WriteOptions& options);
+  absl::optional<BufferedWrite> EnqueueWrite(
+      grpc_adapt::ByteBuffer&& message,
+      const grpc_adapt::WriteOptions& options);
 
-  absl::optional<BufferedWrite> EnqueueWrite(grpc::ByteBuffer&& write) {
-    return EnqueueWrite(std::move(write), grpc::WriteOptions{});
+  absl::optional<BufferedWrite> EnqueueWrite(grpc_adapt::ByteBuffer&& write) {
+    return EnqueueWrite(std::move(write), grpc_adapt::WriteOptions{});
   }
 
   // Returns the newly-created write operation if there was a next write in the
@@ -117,13 +119,13 @@ class BufferedWriter {
  * The stream is disposable; once it finishes, it cannot be restarted.
  *
  * This class is essentially a wrapper over
- * `grpc::GenericClientAsyncReaderWriter`. See the source file for comments on
- * implementation details.
+ * `grpc_adapt::GenericClientAsyncReaderWriter`. See the source file for
+ * comments on implementation details.
  */
 class GrpcStream : public GrpcCall {
  public:
-  GrpcStream(std::unique_ptr<grpc::ClientContext> context,
-             std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
+  GrpcStream(std::unique_ptr<grpc_adapt::ClientContext> context,
+             std::unique_ptr<grpc_adapt::GenericClientAsyncReaderWriter> call,
              const std::shared_ptr<util::AsyncQueue>& worker_queue,
              GrpcConnection* grpc_connection,
              GrpcStreamObserver* observer);
@@ -132,14 +134,14 @@ class GrpcStream : public GrpcCall {
   void Start();
 
   // Can only be called once the stream has opened.
-  void Write(grpc::ByteBuffer&& message);
+  void Write(grpc_adapt::ByteBuffer&& message);
 
   /**
    * Writes the given message and indicates to the server that no more write
    * operations will be sent using this stream. It is invalid to call `Write` or
    * `WriteLast` after `WriteLast` was called.
    */
-  void WriteLast(grpc::ByteBuffer&& message);
+  void WriteLast(grpc_adapt::ByteBuffer&& message);
 
   // Does not produce a notification. Once this method is called, the stream can
   // no longer be used.
@@ -163,7 +165,7 @@ class GrpcStream : public GrpcCall {
    *
    * Can only be called once the stream has opened.
    */
-  bool WriteAndFinish(grpc::ByteBuffer&& message);
+  bool WriteAndFinish(grpc_adapt::ByteBuffer&& message);
 
   bool IsFinished() const {
     return observer_ == nullptr;
@@ -177,14 +179,14 @@ class GrpcStream : public GrpcCall {
   Metadata GetResponseHeaders() const override;
 
   /** For tests only */
-  grpc::ClientContext* context() override {
+  grpc_adapt::ClientContext* context() override {
     return context_.get();
   }
 
  private:
   void Read();
   void MaybeWrite(absl::optional<internal::BufferedWrite> maybe_write);
-  bool TryLastWrite(grpc::ByteBuffer&& message);
+  bool TryLastWrite(grpc_adapt::ByteBuffer&& message);
 
   void Shutdown();
   void UnsetObserver() {
@@ -193,7 +195,7 @@ class GrpcStream : public GrpcCall {
   void MaybeUnregister();
 
   void OnStart();
-  void OnRead(const grpc::ByteBuffer& message);
+  void OnRead(const grpc_adapt::ByteBuffer& message);
   void OnWrite();
   void OnOperationFailed();
   void RemoveCompletion(const std::shared_ptr<GrpcCompletion>& to_remove);
@@ -209,8 +211,8 @@ class GrpcStream : public GrpcCall {
 
   // Blocks until all the completions issued by this stream come out from the
   // gRPC completion queue. Once they do, it is safe to delete this `GrpcStream`
-  // (thus releasing `grpc::ClientContext`). This function should only be called
-  // during the stream finish.
+  // (thus releasing `grpc_adapt::ClientContext`). This function should only be
+  // called during the stream finish.
   //
   // Important: before calling this function, the caller must be sure that any
   // pending completions on the gRPC completion queue will come back quickly
@@ -220,14 +222,14 @@ class GrpcStream : public GrpcCall {
 
   // gRPC requires the `context_` and `call_` objects to be valid until the last
   // gRPC operation associated with this stream finishes. Note that
-  // `grpc::ClientContext` is _not_ reference-counted.
+  // `grpc_adapt::ClientContext` is _not_ reference-counted.
   //
   // Important: `call_` has to be destroyed before `context_`, so declaration
   // order matters here. Despite the unique pointer, `call_` is actually
   // a non-owning handle, and the memory it refers to (part of a gRPC memory
   // arena) will be released once `context_` (which is owning) is released.
-  std::unique_ptr<grpc::ClientContext> context_;
-  std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call_;
+  std::unique_ptr<grpc_adapt::ClientContext> context_;
+  std::unique_ptr<grpc_adapt::GenericClientAsyncReaderWriter> call_;
 
   std::shared_ptr<util::AsyncQueue> worker_queue_;
   GrpcConnection* grpc_connection_ = nullptr;

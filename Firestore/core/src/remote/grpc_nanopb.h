@@ -26,13 +26,13 @@
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/nanopb/reader.h"
 #include "Firestore/core/src/nanopb/writer.h"
-#include "grpcpp/support/byte_buffer.h"
+#include "Firestore/core/src/remote/grpc_adapt/grpc_adaption.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
 
-/** A `Reader` that reads from the given `grpc::ByteBuffer`. */
+/** A `Reader` that reads from the given `grpc_adapt::ByteBuffer`. */
 class ByteBufferReader : public nanopb::Reader {
  public:
   /**
@@ -40,7 +40,7 @@ class ByteBufferReader : public nanopb::Reader {
    * `ByteBufferReader`.
    */
   // TODO(varconst): avoid copying the buffer.
-  explicit ByteBufferReader(const grpc::ByteBuffer& buffer);
+  explicit ByteBufferReader(const grpc_adapt::ByteBuffer& buffer);
 
   void Read(const pb_field_t* fields, void* dest_struct) override;
 
@@ -49,24 +49,24 @@ class ByteBufferReader : public nanopb::Reader {
   pb_istream_t stream_{};
 };
 
-/** A `Writer` that writes into a `grpc::ByteBuffer`. */
+/** A `Writer` that writes into a `grpc_adapt::ByteBuffer`. */
 class ByteBufferWriter : public nanopb::Writer {
  public:
   ByteBufferWriter();
 
-  grpc::ByteBuffer Release();
+  grpc_adapt::ByteBuffer Release();
 
  private:
-  std::vector<grpc::Slice> buffer_;
+  std::vector<grpc_adapt::Slice> buffer_;
 };
 
 /**
- * Serializes the given `message` into a `grpc::ByteBuffer`.
+ * Serializes the given `message` into a `grpc_adapt::ByteBuffer`.
  *
  * The lifetime of the return value is entirely independent of the `message`.
  */
 template <typename T>
-grpc::ByteBuffer MakeByteBuffer(const nanopb::Message<T>& message) {
+grpc_adapt::ByteBuffer MakeByteBuffer(const nanopb::Message<T>& message) {
   ByteBufferWriter writer;
   writer.Write(message.fields(), message.get());
   return writer.Release();

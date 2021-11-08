@@ -19,7 +19,7 @@
 
 #include <string>
 
-#include "grpcpp/client_context.h"
+#include "Firestore/core/src/remote/grpc_adapt/grpc_adaption.h"
 
 namespace firebase {
 namespace firestore {
@@ -41,7 +41,7 @@ class FirebaseMetadataProvider {
    * Updates the given `context` with Firebase platform logging headers which
    * will be sent along with the default headers to the backend.
    */
-  virtual void UpdateMetadata(grpc::ClientContext& context) = 0;
+  virtual void UpdateMetadata(grpc_adapt::ClientContext& context) = 0;
 };
 
 }  // namespace remote
