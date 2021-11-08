@@ -60,11 +60,13 @@ python3 measure_cocoapod_size.py --cocoapods FirebaseABTesting
 
 More about CocoaPods Size measurement could be found [here](https://github.com/google/cocoapods-size#cocoapods-size-measurement)
 
-### CI Setup
+### Environment Setup
 
 The `binary_size_metrics` on GitHub Actions [workflow](https://github.com/firebase/firebase-ios-sdk/blob/master/.github/workflows/health-metrics-presubmit.yml)
-is running binnary size measurement presubmits and postsubmits. This job is running
-under the [environment](https://github.com/actions/virtual-environments#available-environments)
-of GitHub Actions.
-Each testapp is measured by the Xcode from the latest version on GitHub Actions
-Architect is set to `arm64` and the destination is `generic/platform=iOS Simulator`.
+is running binnary size measurement presubmits and postsubmits. The environment for this job 
+could be found in `runs-on`. More details about the envionment could be found [here](https://github.com/actions/virtual-environments#available-environments).
+
+Factors below might also affect the binary size:
+- Each testapp is measured by a default version Xcode from the GitHub Actions environment above .
+- Architect is set to `arm64` and the destination is `generic/platform=iOS Simulator`.
+- The source of dependencies for SDK are from the [SpecStaging repo](https://github.com/firebase/SpecsStaging), which is for prerelease, and [CocoaPods CDN](https://cdn.cocoapods.org).
