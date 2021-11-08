@@ -58,7 +58,7 @@ cd cocoapods-size
 python3 measure_cocoapod_size.py --cocoapods FirebaseABTesting
 ```
 
-More about Cocoapods Size measurement could be found [here](https://github.com/google/cocoapods-size#cocoapods-size-measurement)
+More about CocoaPods Size measurement could be found [here](https://github.com/google/cocoapods-size#cocoapods-size-measurement)
 
 ### CI Setup
 
