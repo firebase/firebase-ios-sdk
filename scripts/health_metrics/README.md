@@ -1,5 +1,5 @@
 # SDK Health Metrics Report Generation
-This directory includes code coverage report generation and binary size report generation. 
+This directory includes code coverage report generation and binary size report generation.
 
 ## Code Coverage Report Generation
 
@@ -66,3 +66,5 @@ The `binary_size_metrics` on GitHub Actions [workflow](https://github.com/fireba
 is running binnary size measurement presubmits and postsubmits. This job is running
 under the [environment](https://github.com/actions/virtual-environments#available-environments)
 of GitHub Actions.
+Each testapp is measured by the Xcode from the latest version on GitHub Actions
+Architect is set to `arm64` and the destination is `generic/platform=iOS Simulator`.
