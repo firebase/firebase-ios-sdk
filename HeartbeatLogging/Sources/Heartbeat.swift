@@ -18,7 +18,7 @@ import Foundation
 enum TimePeriod: Int, CaseIterable, Codable {
   /// The raw value is the number of calendar days within each time period.
   // TODO: Enable disabled types in future iterations.
-  case daily = 1 // , case weekly = 7, monthly = 28
+  case daily = 1 // , weekly = 7, monthly = 28
 
   /// The number of seconds in a given time period.
   var timeInterval: TimeInterval { Double(rawValue) * 86400 /* seconds in day */ }
@@ -33,9 +33,11 @@ struct Heartbeat: Codable, Equatable {
   private static let version: Int = 0
 
   /// An anonymous piece of information (i.e. user agent) to associate the heartbeat with.
-  let info: String
+  let agent: String
+
   /// The date when the heartbeat was recorded (standardized to be the start of a calendar day).
   let date: Date
+
   /// The heartbeat's model version.
   let version: Int
 
@@ -45,20 +47,20 @@ struct Heartbeat: Codable, Equatable {
   /// various time periods. Because a single heartbeat can help calculate moving averages for multiple
   /// time periods, this property serves to capture all the time periods that the heartbeat can represent in
   /// a moving average.
-  var timePeriods: [TimePeriod] = []
+  let timePeriods: [TimePeriod]
 
   /// Intializes a `Heartbeat` with given `info` and, optionally, a `date` and `version`.
   /// - Parameters:
-  ///   - info: An anonymous piece of information to associate the heartbeat with.
+  ///   - agent: An anonymous piece of information to associate the heartbeat with.
   ///   - date: The date when the heartbeat was recorded. Defaults to the current date.
   ///   - version: The heartbeat's model version. Defaults to the current model version.
-  init(info: String,
+  init(agent: String,
        date: Date = .init(),
-       version: Int = Self.version) {
-    self.info = info
-    // A heartbeat's date is a calendar day standardized at the start of day.
-    // TODO: Verify backend is using same calendar.
-    self.date = Calendar(identifier: .gregorian).startOfDay(for: date)
+       timePeriods: [TimePeriod],
+       version: Int = version) {
+    self.agent = agent
+    self.date = date
+    self.timePeriods = timePeriods
     self.version = version
   }
 }

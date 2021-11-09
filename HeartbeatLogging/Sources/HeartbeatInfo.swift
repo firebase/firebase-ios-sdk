@@ -14,151 +14,106 @@
 
 import Foundation
 
-/// A type that can be represented as an HTTP header.
-public protocol HTTPHeaderRepresentable {
-  func headerValue() -> String
-}
+// TODO: Document.
 
-// MARK: - HeartbeatInfo
+/// <#Description#>
+struct HeartbeatInfo: Codable {
+  /// The maximum number of heartbeats.
+  let capacity: Int
+  /// <#Description#>
+  private(set) var cache: [TimePeriod: Date]
+  /// <#Description#>
+  private(set) var buffer: RingBuffer<Heartbeat>
 
-/// A structure representing a collection of heartbeats.
-///
-/// - Note: This data structure is **not** thread-safe.
-public struct HeartbeatInfo: Codable {
-  private var buffer: HeartbeatRingBuffer
-
-  /// Intializes a `HeartbeatInfo` with a given `capacity`.
-  /// - Parameter capacity: An `Int` representing the capacity.
-  init(capacity: Int) {
-    buffer = HeartbeatRingBuffer(capacity: capacity)
+  static var cacheProvider: () -> [TimePeriod: Date] {
+    let timePeriodsAndDates = TimePeriod.periods.map { ($0, Date.distantPast) }
+    return { Dictionary(uniqueKeysWithValues: timePeriodsAndDates) }
   }
 
-  /// Enqueues a heartbeat if needed.
-  /// - Parameter heartbeat: The heartbeat to offer for enqueueing.
-  /// - Returns: `True` if the heartbeat was enqueued; otherwise, `false`.
-  /// - Complexity: O(1)
-  @discardableResult
-  mutating func offer(_ heartbeat: Heartbeat) -> Bool {
-    // `timePeriods` represents the time periods that the given `heartbeat`
-    // should be tagged with. It is calculated by filtering for time periods
-    // that have either an expired heartbeat or no associated heartbeat.
-    let timePeriods = TimePeriod.periods.filter { timePeriod in
-      if let lastHeartbeat = buffer.lastHeartbeat(forTimePeriod: timePeriod) {
-        let (heartbeat, lastHeartbeat) = (heartbeat.date, lastHeartbeat.date)
-        // Include `timePeriod` if the `lastHeartbeat` of this type is expired.
-        return heartbeat.timeIntervalSince(lastHeartbeat) > timePeriod.timeInterval
-      } else {
-        // No cached heartbeat for `timePeriod` so include for tagging.
-        return true
+  /// <#Description#>
+  /// - Parameter heartbeats: <#heartbeats description#>
+  init(heartbeats: [Heartbeat],
+       cache: [TimePeriod: Date] = cacheProvider()) {
+    buffer = .init(elements: heartbeats)
+    capacity = heartbeats.capacity
+    self.cache = cache
+  }
+
+  /// <#Description#>
+  /// - Parameters:
+  ///   - capacity: <#capacity description#>
+  ///   - cacheProvider: <#cacheProvider description#>
+  init(capacity: Int,
+       cache: [TimePeriod: Date] = cacheProvider()) {
+    buffer = .init(capacity: capacity)
+    self.capacity = capacity
+    self.cache = cache
+  }
+
+  /// <#Description#>
+  /// - Parameter heartbeat: <#heartbeat description#>
+  mutating func append(_ heartbeat: Heartbeat) {
+    // 1. Update buffer.
+    if let replaced = buffer.push(heartbeat) {
+      cache = cache.mapValues { date in
+        replaced.date == date ? .distantPast : date
       }
     }
 
-    guard !timePeriods.isEmpty else {
-      // Return `false` as `heartbeat` need not be saved for any `TimePeriod`.
-      return false
+    // 2. Update cache.
+    heartbeat.timePeriods.forEach {
+      cache[$0] = heartbeat.date
     }
-
-    // The given `heartbeat` should be stored in the `buffer`.
-    // Update the `heartbeat`'s `timePeriods` and append it to the buffer.
-    var heartbeat = heartbeat
-    heartbeat.timePeriods = timePeriods
-    buffer.append(heartbeat)
-    return true
   }
 }
 
-// MARK: - HeartbeatInfo + HTTPHeaderRepresentable
-
-extension HeartbeatInfo: HTTPHeaderRepresentable {
-  public func headerValue() -> String {
-    // TODO: Implement
-    ""
-  }
-}
-
-// MARK: - HeartbeatRingBuffer
-
-/// A fixed-capacity ring buffer of heartbeats that can track heartbeats from various time periods.
-private struct HeartbeatRingBuffer: Codable {
+/// <#Description#>
+struct RingBuffer<Element>: Sequence {
   /// An array of heartbeats treated as a circular queue and intialized with a fixed capacity.
-  private var circularQueue: [Heartbeat?]
+  private var circularQueue: [Element?]
   /// The current "tail" and insert point for the `circularQueue`.
-  private var tailIndex: Int
-  /// A cache storing the last heartbeat appended to `circularQueue` for each `TimePeriod`.
-  /// - Note: This property's type has reference semantics.
-  private let latestHeartbeatByTimePeriod: HeartbeatByTimePeriodCache
+  private var tailIndex: Int = 0
 
   /// Intializes a `RingBuffer` with a given `capacity`.
   /// - Parameter capacity: An `Int` representing the capacity.
   init(capacity: Int) {
     circularQueue = .init(repeating: nil, count: capacity)
-    tailIndex = 0
-    latestHeartbeatByTimePeriod = .init()
   }
 
-  /// Adds a heartbeat at the end of the buffer, overwriting an existing heartbeat if the capacity is reached.
-  /// - Parameter heartbeat: The heartbeat to append to the buffer.
+  /// <#Description#>
+  /// - Parameter elements: <#elements description#>
+  init(elements: [Element]) {
+    circularQueue = elements
+  }
+
+  /// Pushes an element to the back of the buffer, returning the element that was overriten if the capacity is reached.
+  /// - Parameter element: The element to push to the back of the buffer.
   /// - Complexity: O(1)
-  mutating func append(_ heartbeat: Heartbeat) {
-    guard circularQueue.capacity > 0 else { return }
-
-    if let replacing = circularQueue[tailIndex] {
-      // If a heartbeat in the `circularQueue` is about to be overwritten,
-      // remove it from the `heartbeatsByTimePeriodCache`.
-      latestHeartbeatByTimePeriod.remove(replacing)
+  @discardableResult
+  mutating func push(_ element: Element) -> Element? {
+    guard circularQueue.capacity > 0 else {
+      // Do not append if `capacity` is less than or equal 0.
+      return nil
     }
 
-    // Write the `heartbeat` to the `circularQueue` at `tailIndex`.
-    circularQueue[tailIndex] = heartbeat
+    defer {
+      // Increment index, wrapping around to the start if needed.
+      tailIndex += 1
+      tailIndex %= circularQueue.capacity
+    }
 
-    // Store the written `heartbeat` in the `heartbeatsByTimePeriodCache`.
-    latestHeartbeatByTimePeriod.store(heartbeat)
-
-    // Increment `tailIndex`, wrapping around to the start if needed.
-    tailIndex = (tailIndex + 1) % circularQueue.capacity
+    let replaced = circularQueue[tailIndex]
+    circularQueue[tailIndex] = element
+    return replaced
   }
 
-  /// Returns the last heartbeat from a given time period.
-  /// - Parameter timePeriod: Time period where a heartbeat may occur.
-  /// - Returns: Optionally, the last  `Heartbeat` to occur in the given time period.
-  func lastHeartbeat(forTimePeriod timePeriod: TimePeriod) -> Heartbeat? {
-    latestHeartbeatByTimePeriod[timePeriod]
-  }
-
-  /// A cache mapping `TimePeriod` keys to `Heartbeat` values.
-  ///
-  /// This type's API are considered to be constant time as they are bounded by the number of cases in
-  /// the `TimePeriod` enum.
-  ///
-  /// - Note: This type has reference semantics.
-  private final class HeartbeatByTimePeriodCache: Codable {
-    private lazy var cache: [TimePeriod: Heartbeat] = [:]
-
-    /// Removes a given heartbeat from the cache.
-    /// - Parameter heartbeat: The heartbeat to remove.
-    func remove(_ heartbeat: Heartbeat) {
-      // The below operation is considered constant time because the cache has
-      // a bounded number of keys (see the `TimePeriod` type).
-      cache = cache.filter { $1 /* cachedHeartbeat */ != heartbeat }
-    }
-
-    /// Stores a given heartbeat to the cache.
-    /// - Parameter heartbeat: The heartbeat to store.
-    func store(_ heartbeat: Heartbeat) {
-      // The below operation is considered constant time because a heartbeat
-      // has a bound number of time periods (see the `TimePeriod` type).
-      heartbeat.timePeriods.forEach { cache[$0] = heartbeat }
-    }
-
-    subscript(timePeriod: TimePeriod) -> Heartbeat? {
-      cache[timePeriod]
-    }
+  func makeIterator() -> IndexingIterator<[Element]> {
+    circularQueue
+      .compactMap { $0 } // Remove `nil` elements.
+      .makeIterator()
   }
 }
 
-private extension Date {
-  /// Calculates the time interval since a given `date`.
-  func timeIntervalSince(_ date: Date) -> TimeInterval {
-    timeIntervalSinceReferenceDate - date.timeIntervalSinceReferenceDate
-  }
-}
+// MARK: - Codable
+
+extension RingBuffer: Codable where Element: Codable {}

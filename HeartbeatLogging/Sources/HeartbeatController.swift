@@ -18,21 +18,31 @@ import Foundation
 public final class HeartbeatController {
   /// The thread-safe storage object to log and flush heartbeats from.
   private let storage: HeartbeatStorageProtocol
+  // TODO: Document.
+  private let limit: Int = 30 // TODO: Decide on default value.
+  // TODO: Document.
+  private let dateProvider: () -> Date
+  // TODO: Document.
+  static let dateStandardizer = Calendar(identifier: .gregorian).startOfDay(for:)
 
   /// Public initializer.
   ///
   /// - Parameter id: The `id` to associate this logger's internal storage with.
   public convenience init(id: String) {
-    let storage = StorageFactory.makeStorage(id: id)
-    self.init(storage: HeartbeatStorage(id: id, storage: storage))
+    // TODO: Sanitize id.
+    let storage = HeartbeatStorage.storage(with: id)
+    self.init(storage: storage)
   }
 
   /// Designated initializer.
   ///
   /// - Parameters:
   ///   - storage: The logger's internal storage object.
-  init(storage: HeartbeatStorageProtocol) {
+  ///   - dateProvider: TODO: Document.
+  init(storage: HeartbeatStorageProtocol,
+       dateProvider: @escaping () -> Date = Date.init) {
     self.storage = storage
+    self.dateProvider = { Self.dateStandardizer(dateProvider()) }
   }
 
   /// Asynchronously log a new heartbeat, if needed.
@@ -41,8 +51,23 @@ public final class HeartbeatController {
   ///
   /// - Parameter info: A `String` identifier to associate a new heartbeat with.
   public func log(_ info: String) {
-    let newHeartbeat = Heartbeat(info: info)
-    storage.offer(newHeartbeat)
+    let (agent, date, capacity) = (info, dateProvider(), limit)
+
+    storage.async { heartbeatInfo in
+      var heartbeatInfo = heartbeatInfo ?? HeartbeatInfo(capacity: capacity)
+
+      let timePeriods = heartbeatInfo.cache.filter { timePeriod, lastDate in
+        date.timeIntervalSince(lastDate) >= timePeriod.timeInterval
+      }
+      .map { timePeriod, _ in timePeriod }
+
+      if !timePeriods.isEmpty {
+        let heartbeat = Heartbeat(agent: agent, date: date, timePeriods: timePeriods)
+        heartbeatInfo.append(heartbeat)
+      }
+
+      return heartbeatInfo
+    }
   }
 
   /// Synchronously flushes heartbeats from storage.
@@ -51,7 +76,18 @@ public final class HeartbeatController {
   ///
   /// - Returns: The flushed heartbeats in the form of `HeartbeatInfo`.
   @discardableResult
-  public func flush() -> HeartbeatInfo? {
-    storage.flush()
+  public func flush() -> HeartbeatsPayload {
+    let capacity = limit
+
+    let heartbeatInfo = try? storage.getAndReset { heartbeatInfo in
+      if let heartbeatInfo = heartbeatInfo {
+        // The new value that's stored will use the old's cache.
+        return HeartbeatInfo(capacity: capacity, cache: heartbeatInfo.cache)
+      } else {
+        return nil // Storage was empty.
+      }
+    }
+
+    return HeartbeatsPayload.makePayload(heartbeatInfo: heartbeatInfo)
   }
 }

@@ -14,62 +14,110 @@
 
 import Foundation
 
-/// A type that can store and remove hearbeats.
 protocol HeartbeatStorageProtocol {
-  func offer(_ heartbeat: Heartbeat)
-  func flush() -> HeartbeatInfo?
+  typealias HeartbeatInfoTransform = (HeartbeatInfo?) -> HeartbeatInfo?
+
+  func async(_ transform: @escaping HeartbeatInfoTransform)
+  // TODO: Evaluate if async variant of below API is needed.
+  func getAndReset(using transform: HeartbeatInfoTransform?) throws -> HeartbeatInfo?
 }
 
 /// Thread-safe storage object designed for storing heartbeat data.
 final class HeartbeatStorage: HeartbeatStorageProtocol {
-  private let storage: PersistentStorage
+  // TODO: Document.
+  private let id: String
+  // TODO: Document.
+  private let storage: Storage
   // TODO: Add documentation.
   private let coder: Coder
+  // TODO: Document.
   private let queue: DispatchQueue
 
-  private let limit: Int = 25 // TODO: Decide how this will be injected...
-
-  init(id: String, // TODO: - Sanitize!
-       storage: PersistentStorage,
+  init(id: String,
+       storage: Storage,
        coder: Coder = JSONCoder(),
        queue: DispatchQueue? = nil) {
+    self.id = id
     self.storage = storage
     self.coder = coder
     self.queue = queue ?? DispatchQueue(label: "com.heartbeat.storage.\(id)")
   }
 
-  func offer(_ heartbeat: Heartbeat) {
-    queue.async { [self] in
-      let loaded = try? load(from: storage)
-      var heartbeatInfo = loaded ?? HeartbeatInfo(capacity: limit)
-      heartbeatInfo.offer(heartbeat)
-      try? save(heartbeatInfo, to: storage)
+  // TODO: Document.
+  static var cachedInstances: [String: Weak<HeartbeatStorage>] = [:]
+
+  // TODO: Add tests for insatnce management.
+
+  /// <#Description#>
+  /// - Parameter id: <#id description#>
+  /// - Returns: <#description#>
+  static func storage(with id: String) -> HeartbeatStorage {
+    if let cachedInstance = cachedInstances[id]?.object {
+      return cachedInstance
+    } else {
+      return HeartbeatStorage.makeStorage(id: id)
     }
   }
 
-  // TODO: Review and decide if the below API should provide an `async` option.
-  func flush() -> HeartbeatInfo? {
-    let heartbeatInfo: HeartbeatInfo? = queue.sync {
-      let heartbeatInfo = try? load(from: storage)
-      let saveResult = Result { try save(nil, to: storage) }
-      guard case .success = saveResult else { return nil }
-      return heartbeatInfo
+  deinit {
+    // Removes the instance if it was cached.
+    Self.cachedInstances.removeValue(forKey: id)
+  }
+
+  // MARK: - HeartbeatStorageProtocol
+
+  func async(_ transform: @escaping HeartbeatInfoTransform) {
+    queue.async { [self] in
+      let oldHeartbeatInfo = try? load(from: storage)
+      let newHeartbeatInfo = transform(oldHeartbeatInfo)
+      try? save(newHeartbeatInfo, to: storage)
+    }
+  }
+
+  @discardableResult
+  func getAndReset(using transform: HeartbeatInfoTransform? = nil) throws -> HeartbeatInfo? {
+    let heartbeatInfo: HeartbeatInfo? = try queue.sync {
+      let oldHeartbeatInfo = try? load(from: storage)
+      let newHeartbeatInfo = transform?(oldHeartbeatInfo)
+      try save(newHeartbeatInfo, to: storage)
+      return oldHeartbeatInfo
     }
     return heartbeatInfo
   }
 
-  private func load(from storage: PersistentStorage) throws -> HeartbeatInfo {
+  private func load(from storage: Storage) throws -> HeartbeatInfo {
     let data = try storage.read()
     let heartbeatData = try coder.decode(HeartbeatInfo.self, from: data)
     return heartbeatData
   }
 
-  private func save(_ value: HeartbeatInfo?, to storage: PersistentStorage) throws {
+  private func save(_ value: HeartbeatInfo?, to storage: Storage) throws {
     if let value = value {
       let data = try coder.encode(value)
       try storage.write(data)
     } else {
       try storage.write(nil)
     }
+  }
+}
+
+// MARK: - HeartbeatStorage + StorageFactory
+
+extension HeartbeatStorage: StorageFactory {
+  /// Makes a `Storage` instance using a given `String` identifier.
+  ///
+  /// The created persistent storage object is platform dependent. For tvOS, user defaults
+  /// is used as the underlying storage container due to system storage limits. For all other platforms,
+  /// the file system is used.
+  ///
+  /// - Parameter id: A `String` identifier used to create the `Storage`.
+  /// - Returns: A `Storage` instance.
+  static func makeStorage(id: String) -> Self {
+    #if os(tvOS)
+      let storage = UserDefaultsStorage.makeStorage(id: id)
+    #else
+      let storage = FileStorage.makeStorage(id: id)
+    #endif // os(tvOS)
+    return .init(id: id, storage: storage)
   }
 }
