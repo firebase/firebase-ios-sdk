@@ -63,10 +63,10 @@ More about CocoaPods Size measurement could be found [here](https://github.com/g
 ### Environment Setup
 
 The `binary_size_metrics` on GitHub Actions [workflow](https://github.com/firebase/firebase-ios-sdk/blob/master/.github/workflows/health-metrics-presubmit.yml)
-is running binnary size measurement presubmits and postsubmits. The environment for this job 
+is running binary size measurement presubmits and postsubmits. The environment for this job
 could be found in `runs-on`. More details about the envionment could be found [here](https://github.com/actions/virtual-environments#available-environments).
 
 Factors below might also affect the binary size:
-- Each testapp is measured by a default version Xcode from the GitHub Actions environment above .
-- Architect is set to `arm64` and the destination is `generic/platform=iOS Simulator` when a testapp is built.
+- Each testapp is measured by a default version Xcode from the GitHub Actions environment above.
+- Architecture is set to `arm64` and the destination is `generic/platform=iOS Simulator` when a testapp is built.
 - The source of dependencies is the [SpecStaging repo](https://github.com/firebase/SpecsStaging), which is for prerelease, and [CocoaPods CDN](https://cdn.cocoapods.org).
