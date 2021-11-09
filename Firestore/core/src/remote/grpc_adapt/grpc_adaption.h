@@ -22,15 +22,16 @@
 #include <string>
 
 #include "Firestore/core/src/util/status_fwd.h"
+#include "Firestore/core/src/util/warnings.h"
 #include "grpcpp/client_context.h"
 #include "grpcpp/completion_queue.h"
 #include "grpcpp/support/string_ref.h"
 
-// SUPPRESS_DOCUMENTATION_WARNINGS_BEGIN()
+SUPPRESS_DOCUMENTATION_WARNINGS_BEGIN()
 #include "grpcpp/create_channel.h"
 #include "grpcpp/generic/generic_stub.h"
 #include "grpcpp/grpcpp.h"
-// SUPPRESS_END()
+SUPPRESS_END()
 
 namespace firebase {
 namespace firestore {
