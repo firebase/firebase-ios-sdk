@@ -80,14 +80,16 @@ public final class HeartbeatController {
   public func flush() -> HeartbeatsPayload {
     let capacity = limit
 
-    let heartbeatInfo = try? storage.getAndReset { heartbeatInfo in
-      if let heartbeatInfo = heartbeatInfo {
-        // The new value that's stored will use the old's cache.
-        return HeartbeatInfo(capacity: capacity, cache: heartbeatInfo.cache)
-      } else {
+    let resetTransform: (HeartbeatInfo?) -> HeartbeatInfo? = { heartbeatInfo in
+      guard let oldHeartbeatInfo = heartbeatInfo else {
         return nil // Storage was empty.
       }
+
+      // The new value that's stored will use the old's cache.
+      return HeartbeatInfo(capacity: capacity, cache: oldHeartbeatInfo.cache)
     }
+
+    let heartbeatInfo = try? storage.getAndReset(using: resetTransform)
 
     return HeartbeatsPayload.makePayload(heartbeatInfo: heartbeatInfo)
   }
