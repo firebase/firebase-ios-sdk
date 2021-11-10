@@ -53,14 +53,16 @@ struct HeartbeatInfo: Codable {
   /// <#Description#>
   /// - Parameter heartbeat: <#heartbeat description#>
   mutating func append(_ heartbeat: Heartbeat) {
-    // 1. Update buffer.
-    if let replaced = buffer.push(heartbeat) {
+    // 1. Push the heartbeat to the back of the buffer.
+    if let overwrittenHeartbeat = buffer.push(heartbeat) {
+      // If a heartbeat was overwritten, update the cache to ensure it's date
+      // is removed (if it was stored).
       cache = cache.mapValues { date in
         replaced.date == date ? .distantPast : date
       }
     }
 
-    // 2. Update cache.
+    // 2. Update cache with the new heartbeat's date.
     heartbeat.timePeriods.forEach {
       cache[$0] = heartbeat.date
     }
