@@ -22,6 +22,7 @@ public final class HeartbeatController {
   private let limit: Int = 30 // TODO: Decide on default value.
   // TODO: Document.
   private let dateProvider: () -> Date
+  // TODO: Verify that this standardization aligns with backend.
   // TODO: Document.
   static let dateStandardizer = Calendar(identifier: .gregorian).startOfDay(for:)
 
@@ -30,7 +31,7 @@ public final class HeartbeatController {
   /// - Parameter id: The `id` to associate this logger's internal storage with.
   public convenience init(id: String) {
     // TODO: Sanitize id.
-    let storage = HeartbeatStorage.storage(with: id)
+    let storage = HeartbeatStorage.getInstance(id: id)
     self.init(storage: storage)
   }
 

@@ -24,13 +24,13 @@ protocol HeartbeatStorageProtocol {
 
 /// Thread-safe storage object designed for storing heartbeat data.
 final class HeartbeatStorage: HeartbeatStorageProtocol {
-  // TODO: Document.
+  // The identifier used to differentiate instances.
   private let id: String
-  // TODO: Document.
+  // The underlying storage container to read from and write to.
   private let storage: Storage
-  // TODO: Add documentation.
+  // An object used to encode and decode Codable heartbeat data.
   private let coder: Coder
-  // TODO: Document.
+  // The queue for synchronizing storage operations.
   private let queue: DispatchQueue
 
   init(id: String,
@@ -43,15 +43,17 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
     self.queue = queue ?? DispatchQueue(label: "com.heartbeat.storage.\(id)")
   }
 
-  // TODO: Document.
-  static var cachedInstances: [String: Weak<HeartbeatStorage>] = [:]
+  // MARK: - Instance Management
 
-  // TODO: Add tests for insatnce management.
+  // TODO: Add tests for instance management.
+
+  /// <#Description#>
+  static var cachedInstances: [String: Weak<HeartbeatStorage>] = [:]
 
   /// <#Description#>
   /// - Parameter id: <#id description#>
   /// - Returns: <#description#>
-  static func storage(with id: String) -> HeartbeatStorage {
+  static func getInstance(id: String) -> HeartbeatStorage {
     if let cachedInstance = cachedInstances[id]?.object {
       return cachedInstance
     } else {
