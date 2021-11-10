@@ -39,7 +39,8 @@ class HeartbeatStorageTests: XCTestCase {
     )
 
     addTeardownBlock {
-      // Ass
+      // Assert that deallocated `HeartbeatStorage` is removed
+      // from cached instances.
       XCTAssertEqual(HeartbeatStorage.cachedInstances, [:])
     }
   }
