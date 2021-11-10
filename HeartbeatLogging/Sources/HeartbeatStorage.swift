@@ -45,10 +45,8 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
 
   // MARK: - Instance Management
 
-  // TODO: Add tests for instance management.
-
   /// <#Description#>
-  static var cachedInstances: [String: Weak<HeartbeatStorage>] = [:]
+  private(set) static var cachedInstances: [String: Weak<HeartbeatStorage>] = [:]
 
   /// <#Description#>
   /// - Parameter id: <#id description#>
@@ -57,7 +55,9 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
     if let cachedInstance = cachedInstances[id]?.object {
       return cachedInstance
     } else {
-      return HeartbeatStorage.makeStorage(id: id)
+      let newInstance = HeartbeatStorage.makeStorage(id: id)
+      cachedInstances[id] = Weak(object: newInstance)
+      return newInstance
     }
   }
 

@@ -75,7 +75,7 @@ public final class HeartbeatController {
   ///
   /// - Note: This API is thread-safe.
   ///
-  /// - Returns: The flushed heartbeats in the form of `HeartbeatInfo`.
+  /// - Returns: The flushed heartbeats in the form of `HeartbeatsPayload`.
   @discardableResult
   public func flush() -> HeartbeatsPayload {
     let capacity = limit

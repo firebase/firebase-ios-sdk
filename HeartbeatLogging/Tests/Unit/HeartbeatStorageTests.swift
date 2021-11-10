@@ -23,8 +23,36 @@ extension Weak: Equatable {
   }
 }
 
-class HeartbeatStorageTests: XCTestCase {
+enum DummyError: Error {
+  case error
+}
 
+class StorageFake: Storage {
+  private var data: Data?
+
+  var failOnNextRead = false
+  var failOnNextWrite = false
+
+  func read() throws -> Data {
+    if failOnNextRead {
+      failOnNextRead.toggle()
+      throw DummyError.error
+    } else {
+      return try data ?? { throw DummyError.error }()
+    }
+  }
+
+  func write(_ value: Data?) throws {
+    if failOnNextWrite {
+      failOnNextWrite.toggle()
+      throw DummyError.error
+    } else {
+      data = value
+    }
+  }
+}
+
+class HeartbeatStorageTests: XCTestCase {
   // MARK: - Instance Management
 
   func testGettingInstance_WhenInstanceDoesNotExist_ReturnsNewInstance() {
@@ -46,29 +74,87 @@ class HeartbeatStorageTests: XCTestCase {
   }
 
   func testGettingInstance_WhenInstanceDoesExist_ReturnsExistingInstance() {
+    // Given
+    let cachedHeartbeatStorage = HeartbeatStorage.getInstance(id: "sparky")
+    XCTAssertEqual(
+      HeartbeatStorage.cachedInstances,
+      ["sparky": Weak(object: cachedHeartbeatStorage)]
+    )
+    // When
+    let heartbeatStorage = HeartbeatStorage.getInstance(id: "sparky")
+    // Then
+    XCTAssert(heartbeatStorage === cachedHeartbeatStorage)
+
+    addTeardownBlock {
+      // Assert that deallocated `HeartbeatStorage` is removed
+      // from cached instances.
+      XCTAssertEqual(HeartbeatStorage.cachedInstances, [:])
+    }
   }
 
   func testCachedInstancesAreRemovedUponDeinit() {
+    // Given
+    XCTAssertEqual(HeartbeatStorage.cachedInstances, [:])
+    var heartbeatStorage1: HeartbeatStorage? = .getInstance(id: "sparky")
+    var heartbeatStorage2: HeartbeatStorage? = .getInstance(id: "sparky")
+    XCTAssertNotNil(heartbeatStorage1)
+    XCTAssertNotNil(heartbeatStorage2)
+    XCTAssert(heartbeatStorage1 === heartbeatStorage2)
+    // When
+    heartbeatStorage1 = nil
+    // - Then
+    XCTAssertNil(heartbeatStorage1)
+    XCTAssertNotNil(heartbeatStorage2)
+    XCTAssertEqual(
+      HeartbeatStorage.cachedInstances,
+      ["sparky": Weak(object: heartbeatStorage2)]
+    )
+    // When
+    heartbeatStorage2 = nil
+    // - Then
+    XCTAssertNil(heartbeatStorage2)
+    XCTAssertEqual(HeartbeatStorage.cachedInstances, [:])
+
+    // Then
+    let heartbeatStorage = HeartbeatStorage.getInstance(id: "sparky")
+    XCTAssertEqual(
+      HeartbeatStorage.cachedInstances,
+      ["sparky": Weak(object: heartbeatStorage)]
+    )
   }
 
   func testDeinit_WhenCached_RemovesInstanceFromInstanceCache() {
+    // Given
+    var heartbeatStorage: HeartbeatStorage? = .getInstance(id: "sparky")
+    XCTAssertEqual(
+      HeartbeatStorage.cachedInstances,
+      ["sparky": Weak(object: heartbeatStorage)]
+    )
+    // When
+    heartbeatStorage = nil
+    // Then
+    XCTAssertNil(heartbeatStorage)
+    XCTAssertEqual(HeartbeatStorage.cachedInstances, [:])
   }
 
   func testDeinit_WhenNotCached_DoesNotAffectInstanceCache() {
+    // Given
+    var heartbeatStorage: HeartbeatStorage?
+    heartbeatStorage = HeartbeatStorage(id: "sparky", storage: StorageFake())
+    XCTAssertEqual(HeartbeatStorage.cachedInstances, [:])
+    // When
+    heartbeatStorage = nil
+    // Then
+    XCTAssertNil(heartbeatStorage)
+    XCTAssertEqual(HeartbeatStorage.cachedInstances, [:])
   }
-
 }
-
-
-
 
 // MARK: - HeartbeatStorageProtocol
 
-
 // MARK: - HeartbeatStorage + StorageFactory
 
-
-//extension HeartbeatStorageTests {
+// extension HeartbeatStorageTests {
 //  func testOfferHeartbeatThenFlush() throws {
 //    // Given
 //    let storage = HeartbeatStorage(id: #file, storage: StorageFake())
@@ -179,17 +265,17 @@ class HeartbeatStorageTests: XCTestCase {
 //    // Flushing storage returns flushed contents when flush was successful.
 //    XCTAssertNotNil(storage.flush())
 //  }
-//}
+// }
 //
 ///// Dispatches a block to a given queue and returns when the block has executed.
 ///// - Parameter queue: The queue to drain.
-//func drain(_ queue: DispatchQueue) {
+// func drain(_ queue: DispatchQueue) {
 //  queue.sync {}
-//}
+// }
 //
 //// MARK: - Fakes
 //
-//private extension HeartbeatStorageTests {
+// private extension HeartbeatStorageTests {
 //  enum DummyError: Error {
 //    case error
 //  }
@@ -242,4 +328,4 @@ class HeartbeatStorageTests: XCTestCase {
 //      }
 //    }
 //  }
-//}
+// }
