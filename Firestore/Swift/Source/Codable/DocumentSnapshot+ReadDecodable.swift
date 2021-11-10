@@ -38,6 +38,7 @@ extension DocumentSnapshot {
                                  with serverTimestampBehavior: ServerTimestampBehavior = .none,
                                  decoder: Firestore.Decoder? = nil) throws -> T? {
     let d = decoder ?? Firestore.Decoder()
+    d.passthroughTypeResolver = FirestorePassthroughTypes.self
     d.userInfo[documentRefUserInfoKey] = reference
     d.dateDecodingStrategy = .timestamp(fallback: d.dateDecodingStrategy)
     if let data = data(with: serverTimestampBehavior) {
