@@ -58,7 +58,7 @@ struct HeartbeatInfo: Codable {
       // If a heartbeat was overwritten, update the cache to ensure it's date
       // is removed (if it was stored).
       cache = cache.mapValues { date in
-        replaced.date == date ? .distantPast : date
+        overwrittenHeartbeat.date == date ? .distantPast : date
       }
     }
 
