@@ -14,9 +14,7 @@
 
 import Foundation
 
-// TODO: Document.
-
-/// <#Description#>
+/// Used to weakly box reference types.
 struct WeakContainer<Object: AnyObject> {
   weak var object: Object?
 }
