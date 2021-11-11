@@ -33,12 +33,6 @@
 #include "Firestore/core/src/util/status_fwd.h"
 #include "Firestore/core/src/util/warnings.h"
 #include "absl/types/optional.h"
-#include "grpcpp/client_context.h"
-#include "grpcpp/support/byte_buffer.h"
-
-SUPPRESS_DOCUMENTATION_WARNINGS_BEGIN()
-#include "grpcpp/generic/generic_stub.h"
-SUPPRESS_END()
 
 namespace firebase {
 namespace firestore {

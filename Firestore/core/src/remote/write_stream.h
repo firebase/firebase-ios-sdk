@@ -28,7 +28,6 @@
 #include "Firestore/core/src/util/async_queue.h"
 #include "Firestore/core/src/util/status_fwd.h"
 #include "absl/strings/string_view.h"
-#include "grpcpp/support/byte_buffer.h"
 
 namespace firebase {
 namespace firestore {

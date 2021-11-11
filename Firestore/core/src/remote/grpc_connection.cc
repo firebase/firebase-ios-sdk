@@ -278,8 +278,9 @@ std::unique_ptr<grpc_adapt::ClientContext> GrpcConnection::CreateContext(
 void GrpcConnection::EnsureActiveStub() {
   // TODO(varconst): find out in which cases a gRPC channel might shut down.
   // This might be overkill.
-  if (!grpc_channel_ || grpc_channel_->GetState(/*try_to_connect=*/false) ==
-                            GRPC_CHANNEL_SHUTDOWN) {
+  if (!grpc_channel_ ||
+      grpc_channel_->GetState(/*try_to_connect=*/false) ==
+          grpc_adapt::grpc_connectivity_state::GRPC_CHANNEL_SHUTDOWN) {
     LOG_DEBUG("Creating Firestore stub.");
     grpc_channel_ = CreateChannel();
     grpc_stub_ = absl::make_unique<grpc_adapt::GenericStub>(grpc_channel_);

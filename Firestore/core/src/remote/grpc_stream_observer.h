@@ -17,8 +17,8 @@
 #ifndef FIRESTORE_CORE_SRC_REMOTE_GRPC_STREAM_OBSERVER_H_
 #define FIRESTORE_CORE_SRC_REMOTE_GRPC_STREAM_OBSERVER_H_
 
+#include "Firestore/core/src/remote/grpc_adapt/grpc_adaption.h"
 #include "Firestore/core/src/util/status_fwd.h"
-#include "grpcpp/support/byte_buffer.h"
 
 namespace firebase {
 namespace firestore {

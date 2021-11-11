@@ -13,15 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#ifndef FIRESTORE_CORE_SRC_REMOTE_GRPC_ADAPT_GRPC_ADAPTION_H_
-#define FIRESTORE_CORE_SRC_REMOTE_GRPC_ADAPT_GRPC_ADAPTION_H_
-
-#ifdef GRPC_SWIFT
 #include "Firestore/core/src/remote/grpc_adapt/grpc_swift_status.h"
-#include "Firestore/core/src/remote/grpc_adapt/grpc_swift_misc.h"
-#else
-#include "Firestore/core/src/remote/grpc_adapt/grpc_cpp_adaption.h"
-#endif  // GRPC_SWIFT
 
-#endif  // FIRESTORE_CORE_SRC_REMOTE_GRPC_ADAPT_GRPC_ADAPTION_H_
+#import GRPCSwiftShim
+
+namespace firebase {
+namespace firestore {
+namespace remote {
+namespace grpc_adapt {
+
+struct StatusCode {};
+
+Status::Status() {
+  GRPCStatusShim* shim = GRPCStatusShim.init();
+}
+
+}  // namespace grpc_adapt
+}  // namespace remote
+}  // namespace firestore
+}  // namespace firebase

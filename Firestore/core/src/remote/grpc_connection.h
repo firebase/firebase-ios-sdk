@@ -34,13 +34,6 @@
 #include "Firestore/core/src/util/path.h"
 #include "Firestore/core/src/util/warnings.h"
 #include "absl/strings/string_view.h"
-#include "grpcpp/channel.h"
-#include "grpcpp/client_context.h"
-#include "grpcpp/completion_queue.h"
-
-SUPPRESS_DOCUMENTATION_WARNINGS_BEGIN()
-#include "grpcpp/generic/generic_stub.h"
-SUPPRESS_END()
 
 namespace firebase {
 namespace firestore {

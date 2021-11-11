@@ -4,9 +4,9 @@
 #
 
 Pod::Spec.new do |s|
-  s.name                    = 'FirebaseFirestoreSwift'
-  s.version                 = '8.9.0-beta'
-  s.summary                 = 'Swift Extensions for Google Cloud Firestore'
+  s.name                    = 'GRPCSwiftShim'
+  s.version                 = '0.0.1'
+  s.summary                 = 'GRPC Swift Shim for Google Cloud Firestore'
 
   s.description      = <<-DESC
 Google Cloud Firestore is a NoSQL document database built for automatic scaling, high performance, and ease of application development.
@@ -31,10 +31,8 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
 
   s.requires_arc            = true
   s.source_files = [
-    'Firestore/Swift/Source/Codable/**/*.swift',
-    'Firestore/Swift/Source/PropertyWrapper/**/*.swift',
-    'Firestore/third_party/FirestoreEncoder/*.swift',
+    'Firestore/Swift/Source/GRPCShim/*.swift',
   ]
 
-  s.dependency 'FirebaseFirestore', '~> 8.0'
+  s.dependency 'gRPC-Swift', '~> 1.5'
 end
