@@ -35,6 +35,8 @@ Pod::Spec.new do |s|
 
   s.source_files = [
     base_dir + 'Sources/**/*.{m,mm,h}',
+    'SharedTestUtilities/FIRAuthInteropFake*',
+    'SharedTestUtilities/FIRMessagingInteropFake*'
   ]
 
   s.public_header_files = base_dir + '**/*.h'

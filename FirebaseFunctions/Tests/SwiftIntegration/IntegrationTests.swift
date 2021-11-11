@@ -68,6 +68,32 @@ class IntegrationTests: XCTestCase {
     waitForExpectations(timeout: 1)
   }
 
+  #if compiler(>=5.5) && canImport(_Concurrency)
+    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+    func testDataAsync() async throws {
+      let input = [
+        "bool": true,
+        "int": 2 as Int32,
+        "long": 9_876_543_210,
+        "string": "four",
+        "array": [5 as Int32, 6 as Int32],
+        "null": nil,
+      ] as [String: Any?]
+
+      let function = functions.httpsCallable("dataTest")
+      XCTAssertNotNil(function)
+
+      let result = try await function.call(input)
+      let data = try XCTUnwrap(result.data as? [String: Any])
+      let message = try XCTUnwrap(data["message"] as? String)
+      let long = try XCTUnwrap(data["long"] as? Int64)
+      let code = try XCTUnwrap(data["code"] as? Int32)
+      XCTAssertEqual(message, "stub response")
+      XCTAssertEqual(long, 420)
+      XCTAssertEqual(code, 42)
+    }
+  #endif
+
   func testScalar() {
     let expectation = expectation(description: #function)
     let function = functions.httpsCallable("scalarTest")
@@ -85,8 +111,20 @@ class IntegrationTests: XCTestCase {
     waitForExpectations(timeout: 1)
   }
 
+  #if compiler(>=5.5) && canImport(_Concurrency)
+    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+    func testScalarAsync() async throws {
+      let function = functions.httpsCallable("scalarTest")
+      XCTAssertNotNil(function)
+
+      let result = try await function.call(17 as Int16)
+      let data = try XCTUnwrap(result.data as? Int)
+      XCTAssertEqual(data, 76)
+    }
+  #endif
+
   func testToken() {
-    // Recreate _functions with a token.
+    // Recreate functions with a token.
     let functions = FunctionsFake(
       projectID: "functions-integration-test",
       region: "us-central1",
@@ -111,6 +149,27 @@ class IntegrationTests: XCTestCase {
     waitForExpectations(timeout: 1)
   }
 
+  #if compiler(>=5.5) && canImport(_Concurrency)
+    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+    func testTokenAsync() async throws {
+      // Recreate functions with a token.
+      let functions = FunctionsFake(
+        projectID: "functions-integration-test",
+        region: "us-central1",
+        customDomain: nil,
+        withToken: "token"
+      )
+      functions.useLocalhost()
+
+      let function = functions.httpsCallable("FCMTokenTest")
+      XCTAssertNotNil(function)
+
+      let result = try await function.call([:])
+      let data = try XCTUnwrap(result.data) as? [String: Int]
+      XCTAssertEqual(data, [:])
+    }
+  #endif
+
   func testFCMToken() {
     let expectation = expectation(description: #function)
     let function = functions.httpsCallable("FCMTokenTest")
@@ -128,6 +187,18 @@ class IntegrationTests: XCTestCase {
     waitForExpectations(timeout: 1)
   }
 
+  #if compiler(>=5.5) && canImport(_Concurrency)
+    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+    func testFCMTokenAsync() async throws {
+      let function = functions.httpsCallable("FCMTokenTest")
+      XCTAssertNotNil(function)
+
+      let result = try await function.call([:])
+      let data = try XCTUnwrap(result.data) as? [String: Int]
+      XCTAssertEqual(data, [:])
+    }
+  #endif
+
   func testNull() {
     let expectation = expectation(description: #function)
     let function = functions.httpsCallable("nullTest")
@@ -144,6 +215,18 @@ class IntegrationTests: XCTestCase {
     }
     waitForExpectations(timeout: 1)
   }
+
+  #if compiler(>=5.5) && canImport(_Concurrency)
+    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+    func testNullAsync() async throws {
+      let function = functions.httpsCallable("nullTest")
+      XCTAssertNotNil(function)
+
+      let result = try await function.call(nil)
+      let data = try XCTUnwrap(result.data) as? NSNull
+      XCTAssertEqual(data, NSNull())
+    }
+  #endif
 
   func testMissingResult() {
     let expectation = expectation(description: #function)
@@ -164,6 +247,23 @@ class IntegrationTests: XCTestCase {
     waitForExpectations(timeout: 1)
   }
 
+  #if compiler(>=5.5) && canImport(_Concurrency)
+    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+    func testMissingResultAsync() async throws {
+      let function = functions.httpsCallable("missingResultTest")
+      XCTAssertNotNil(function)
+      do {
+        _ = try await function.call(nil)
+      } catch {
+        let error = try XCTUnwrap(error) as NSError
+        XCTAssertEqual(FunctionsErrorCode.internal.rawValue, error.code)
+        XCTAssertEqual("Response is missing data field.", error.localizedDescription)
+        return
+      }
+      XCTAssertFalse(true, "Failed to throw error for missing result")
+    }
+  #endif
+
   func testUnhandledError() {
     let expectation = expectation(description: #function)
     let function = functions.httpsCallable("unhandledErrorTest")
@@ -183,6 +283,23 @@ class IntegrationTests: XCTestCase {
     waitForExpectations(timeout: 1)
   }
 
+  #if compiler(>=5.5) && canImport(_Concurrency)
+    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+    func testUnhandledErrorAsync() async throws {
+      let function = functions.httpsCallable("unhandledErrorTest")
+      XCTAssertNotNil(function)
+      do {
+        _ = try await function.call([])
+      } catch {
+        let error = try XCTUnwrap(error) as NSError
+        XCTAssertEqual(FunctionsErrorCode.internal.rawValue, error.code)
+        XCTAssertEqual("INTERNAL", error.localizedDescription)
+        return
+      }
+      XCTAssertFalse(true, "Failed to throw error for missing result")
+    }
+  #endif
+
   func testUnknownError() {
     let expectation = expectation(description: #function)
     let function = functions.httpsCallable("unknownErrorTest")
@@ -201,6 +318,23 @@ class IntegrationTests: XCTestCase {
     XCTAssert(true)
     waitForExpectations(timeout: 1)
   }
+
+  #if compiler(>=5.5) && canImport(_Concurrency)
+    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+    func testUnknownErrorAsync() async throws {
+      let function = functions.httpsCallable("unknownErrorTest")
+      XCTAssertNotNil(function)
+      do {
+        _ = try await function.call([])
+      } catch {
+        let error = try XCTUnwrap(error) as NSError
+        XCTAssertEqual(FunctionsErrorCode.internal.rawValue, error.code)
+        XCTAssertEqual("INTERNAL", error.localizedDescription)
+        return
+      }
+      XCTAssertFalse(true, "Failed to throw error for missing result")
+    }
+  #endif
 
   func testExplicitError() {
     let expectation = expectation(description: #function)
@@ -223,6 +357,25 @@ class IntegrationTests: XCTestCase {
     waitForExpectations(timeout: 1)
   }
 
+  #if compiler(>=5.5) && canImport(_Concurrency)
+    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+    func testExplicitErrorAsync() async throws {
+      let function = functions.httpsCallable("explicitErrorTest")
+      XCTAssertNotNil(function)
+      do {
+        _ = try await function.call([])
+      } catch {
+        let error = try XCTUnwrap(error) as NSError
+        XCTAssertEqual(FunctionsErrorCode.outOfRange.rawValue, error.code)
+        XCTAssertEqual("explicit nope", error.localizedDescription)
+        XCTAssertEqual(["start": 10 as Int32, "end": 20 as Int32, "long": 30],
+                       error.userInfo[FunctionsErrorDetailsKey] as! [String: Int32])
+        return
+      }
+      XCTAssertFalse(true, "Failed to throw error for missing result")
+    }
+  #endif
+
   func testHttpError() {
     let expectation = expectation(description: #function)
     let function = functions.httpsCallable("httpErrorTest")
@@ -240,6 +393,22 @@ class IntegrationTests: XCTestCase {
     XCTAssert(true)
     waitForExpectations(timeout: 1)
   }
+
+  #if compiler(>=5.5) && canImport(_Concurrency)
+    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+    func testHttpErrorAsync() async throws {
+      let function = functions.httpsCallable("httpErrorTest")
+      XCTAssertNotNil(function)
+      do {
+        _ = try await function.call([])
+      } catch {
+        let error = try XCTUnwrap(error) as NSError
+        XCTAssertEqual(FunctionsErrorCode.invalidArgument.rawValue, error.code)
+        return
+      }
+      XCTAssertFalse(true, "Failed to throw error for missing result")
+    }
+  #endif
 
   func testTimeout() {
     let expectation = expectation(description: #function)
@@ -261,4 +430,23 @@ class IntegrationTests: XCTestCase {
     XCTAssert(true)
     waitForExpectations(timeout: 1)
   }
+
+  #if compiler(>=5.5) && canImport(_Concurrency)
+    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+    func testTimeoutAsync() async throws {
+      let function = functions.httpsCallable("timeoutTest")
+      XCTAssertNotNil(function)
+      function.timeoutInterval = 0.05
+      do {
+        _ = try await function.call([])
+      } catch {
+        let error = try XCTUnwrap(error) as NSError
+        XCTAssertEqual(FunctionsErrorCode.deadlineExceeded.rawValue, error.code)
+        XCTAssertEqual("DEADLINE EXCEEDED", error.localizedDescription)
+        XCTAssertNil(error.userInfo[FunctionsErrorDetailsKey])
+        return
+      }
+      XCTAssertFalse(true, "Failed to throw error for missing result")
+    }
+  #endif
 }
