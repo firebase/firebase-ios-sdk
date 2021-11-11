@@ -69,7 +69,7 @@ class IntegrationTests: XCTestCase {
   }
 
   #if compiler(>=5.5) && canImport(_Concurrency)
-    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+    @available(iOS 15, tvOS 15, macos 11, watchOS 8, *)
     func testDataAsync() async throws {
       let input = [
         "bool": true,
@@ -112,7 +112,7 @@ class IntegrationTests: XCTestCase {
   }
 
   #if compiler(>=5.5) && canImport(_Concurrency)
-    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+    @available(iOS 15, tvOS 15, macos 11, watchOS 8, *)
     func testScalarAsync() async throws {
       let function = functions.httpsCallable("scalarTest")
       XCTAssertNotNil(function)
@@ -150,7 +150,7 @@ class IntegrationTests: XCTestCase {
   }
 
   #if compiler(>=5.5) && canImport(_Concurrency)
-    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+    @available(iOS 15, tvOS 15, macos 11, watchOS 8, *)
     func testTokenAsync() async throws {
       // Recreate functions with a token.
       let functions = FunctionsFake(
@@ -188,7 +188,7 @@ class IntegrationTests: XCTestCase {
   }
 
   #if compiler(>=5.5) && canImport(_Concurrency)
-    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+    @available(iOS 15, tvOS 15, macos 11, watchOS 8, *)
     func testFCMTokenAsync() async throws {
       let function = functions.httpsCallable("FCMTokenTest")
       XCTAssertNotNil(function)
@@ -217,7 +217,7 @@ class IntegrationTests: XCTestCase {
   }
 
   #if compiler(>=5.5) && canImport(_Concurrency)
-    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+    @available(iOS 15, tvOS 15, macos 11, watchOS 8, *)
     func testNullAsync() async throws {
       let function = functions.httpsCallable("nullTest")
       XCTAssertNotNil(function)
@@ -248,7 +248,7 @@ class IntegrationTests: XCTestCase {
   }
 
   #if compiler(>=5.5) && canImport(_Concurrency)
-    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+    @available(iOS 15, tvOS 15, macos 11, watchOS 8, *)
     func testMissingResultAsync() async throws {
       let function = functions.httpsCallable("missingResultTest")
       XCTAssertNotNil(function)
@@ -284,7 +284,7 @@ class IntegrationTests: XCTestCase {
   }
 
   #if compiler(>=5.5) && canImport(_Concurrency)
-    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+    @available(iOS 15, tvOS 15, macos 11, watchOS 8, *)
     func testUnhandledErrorAsync() async throws {
       let function = functions.httpsCallable("unhandledErrorTest")
       XCTAssertNotNil(function)
@@ -320,7 +320,7 @@ class IntegrationTests: XCTestCase {
   }
 
   #if compiler(>=5.5) && canImport(_Concurrency)
-    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+    @available(iOS 15, tvOS 15, macos 11, watchOS 8, *)
     func testUnknownErrorAsync() async throws {
       let function = functions.httpsCallable("unknownErrorTest")
       XCTAssertNotNil(function)
@@ -358,7 +358,7 @@ class IntegrationTests: XCTestCase {
   }
 
   #if compiler(>=5.5) && canImport(_Concurrency)
-    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+    @available(iOS 15, tvOS 15, macos 11, watchOS 8, *)
     func testExplicitErrorAsync() async throws {
       let function = functions.httpsCallable("explicitErrorTest")
       XCTAssertNotNil(function)
@@ -395,7 +395,7 @@ class IntegrationTests: XCTestCase {
   }
 
   #if compiler(>=5.5) && canImport(_Concurrency)
-    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+    @available(iOS 15, tvOS 15, macos 11, watchOS 8, *)
     func testHttpErrorAsync() async throws {
       let function = functions.httpsCallable("httpErrorTest")
       XCTAssertNotNil(function)
@@ -432,7 +432,7 @@ class IntegrationTests: XCTestCase {
   }
 
   #if compiler(>=5.5) && canImport(_Concurrency)
-    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+    @available(iOS 15, tvOS 15, macos 11, watchOS 8, *)
     func testTimeoutAsync() async throws {
       let function = functions.httpsCallable("timeoutTest")
       XCTAssertNotNil(function)

@@ -53,7 +53,7 @@ final class CoreAPITests {
     }
 
     #if swift(>=5.5)
-      if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *) {
+      if #available(iOS 15.0, macos 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         async {
           do {

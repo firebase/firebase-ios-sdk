@@ -58,11 +58,15 @@ Cloud Functions for Firebase.
                              'SharedTestUtilities/FIRMessagingInteropFake*'
   end
 
-    s.test_spec 'swift-integration' do |swift_int|
-    swift_int.platforms = {:ios => '15.0', :osx => '12.0', :tvos => '15.0', :watchos => '8.0'}
-    swift_int.scheme = { :code_coverage => true }
-    swift_int.dependency 'FirebaseFunctionsTestingSupport'
-    swift_int.source_files = 'FirebaseFunctions/Tests/SwiftIntegration/*',
-                             'FirebaseTestingSupport/Functions/Sources/*'
-  end
+  #  Uncomment to use pod gen to run the Swift Integration tests. This can't be
+  #  committed because of the dependency on the unpublished FirebaseFunctionsTestingSupport.
+  #  Alternatively, use Swift Package Manager to run the swift integration tests locally.
+  #
+  #   s.test_spec 'swift-integration' do |swift_int|
+  #   swift_int.platforms = {:ios => '15.0', :osx => '12.0', :tvos => '15.0', :watchos => '8.0'}
+  #   swift_int.scheme = { :code_coverage => true }
+  #   swift_int.dependency 'FirebaseFunctionsTestingSupport'
+  #   swift_int.source_files = 'FirebaseFunctions/Tests/SwiftIntegration/*',
+  #                            'FirebaseTestingSupport/Functions/Sources/*'
+  # end
 end
