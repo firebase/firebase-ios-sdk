@@ -32,10 +32,10 @@ extension Firestore.Encoder {
 extension Firestore.Decoder {
   internal func configureForFirestore() {
     self.passthroughTypeResolver = FirestorePassthroughTypes.self
-    self.dateDecodingStrategy = .timestamp(fallback: d.dateDecodingStrategy)
+    self.dateDecodingStrategy = .timestamp(fallback: self.dateDecodingStrategy)
   }
 
-  public func decode<T: Decodable>(_ t: T.Type, from data: Any, in reference: DocumentReference) {
+  public func decode<T: Decodable>(_ t: T.Type, from data: Any, in reference: DocumentReference) throws -> T?  {
     self.userInfo[documentRefUserInfoKey] = reference
     self.configureForFirestore()
     return try self.decode(T.self, from: data)
