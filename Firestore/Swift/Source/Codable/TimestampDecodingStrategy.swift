@@ -16,7 +16,7 @@
 
 import Foundation
 import FirebaseFirestore
-import FirebaseSharedSwift
+import FirebaseEncoderSwift
 
 @available(macOS 10.12, iOS 10.0, watchOS 3.0, tvOS 10.0, *)
 private var _iso8601Formatter: ISO8601DateFormatter = {

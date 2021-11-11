@@ -1,15 +1,15 @@
 #
-# Be sure to run `pod lib lint FirebaseFirestoreSwift.podspec' to ensure this is a
+# Be sure to run `pod lib lint FirebaseEncoderSwift.podspec' to ensure this is a
 # valid spec before submitting.
 #
 
 Pod::Spec.new do |s|
-  s.name                    = 'FirebaseFirestoreSwift'
-  s.version                 = '8.9.0-beta'
-  s.summary                 = 'Swift Extensions for Google Cloud Firestore'
+  s.name                    = 'FirebaseEncoderSwift'
+  s.version                 = '0.0.1-beta'
+  s.summary                 = 'Swift Extensions that provides Codable support for the Firebase SDKs'
 
   s.description      = <<-DESC
-Google Cloud Firestore is a NoSQL document database built for automatic scaling, high performance, and ease of application development.
+FirebaseEncoderSwift is used to serialize custom objects in the Realtime Database, Cloud Firestore and Cloud Functions SDKs.
                        DESC
 
   s.homepage                = 'https://developers.google.com/'
@@ -31,9 +31,6 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
 
   s.requires_arc            = true
   s.source_files = [
-    'Firestore/Swift/Source/**/*.swift',
+    'FirebaseSharedSwift/Sources/third_party/StructureEncoder/*.swift',
   ]
-
-  s.dependency 'FirebaseFirestore', '~> 8.0'
-  s.dependency 'FirebaseEncoderSwift', '~> 0.0'
 end

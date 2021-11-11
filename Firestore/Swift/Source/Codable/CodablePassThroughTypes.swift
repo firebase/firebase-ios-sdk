@@ -16,7 +16,7 @@
 
 import Foundation
 import FirebaseFirestore
-import FirebaseSharedSwift
+import FirebaseEncoderSwift
 
 internal struct FirestorePassthroughTypes: StructureCodingPassthroughTypeResolver {
   static func isPassthroughType<T>(_ t: T) -> Bool {
