@@ -25,6 +25,8 @@ jobs:
     - uses: actions/checkout@v2
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
+    - name: Functions Integration Test Server
+      run: FirebaseFunctions/Backend/start.sh synchronous
     - name: iOS Unit Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh Firebase-Package iOS spm
 
