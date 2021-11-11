@@ -47,6 +47,12 @@ jobs:
       run: scripts/setup_spm_tests.sh
     - name: iOS Unit Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFunctions iOS spmbuildonly
+    - name: Integration Test Server
+      run: FirebaseFunctions/Backend/start.sh synchronous
+    - name: iOS Swift Integration Tests
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FunctionsSwiftIntegration iOS spm
+    - name: iOS Objective C Integration Tests
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FunctionsIntegration iOS spm
     - name: Combine Unit Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FunctionsCombineUnit iOS spm
 

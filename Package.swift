@@ -694,6 +694,22 @@ let package = Package(
       dependencies: ["FirebaseFunctions"],
       path: "FirebaseFunctions/Tests/SwiftUnit"
     ),
+    .testTarget(
+      name: "FunctionsIntegration",
+      dependencies: ["FirebaseFunctions",
+                     "SharedTestUtilities"],
+      path: "FirebaseFunctions/Tests/Integration",
+      cSettings: [
+        .headerSearchPath("../../../"),
+      ]
+    ),
+    .testTarget(
+      name: "FunctionsSwiftIntegration",
+      dependencies: ["FirebaseFunctions",
+                     "FirebaseFunctionsTestingSupport",
+                     "SharedTestUtilities"],
+      path: "FirebaseFunctions/Tests/SwiftIntegration"
+    ),
     .target(
       name: "FirebaseFunctionsTestingSupport",
       dependencies: ["FirebaseFunctions"],
@@ -703,6 +719,8 @@ let package = Package(
         .headerSearchPath("../../.."),
       ]
     ),
+
+    // MARK: - Firebase In App Messaging
 
     .target(
       name: "FirebaseInAppMessagingTarget",
