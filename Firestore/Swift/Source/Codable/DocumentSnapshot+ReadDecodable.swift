@@ -16,7 +16,7 @@
 
 import Foundation
 import FirebaseFirestore
-import FirebaseSharedSwift
+import FirebaseEncoderSwift
 
 extension DocumentSnapshot {
   /// Retrieves all fields in a document and converts them to an instance of

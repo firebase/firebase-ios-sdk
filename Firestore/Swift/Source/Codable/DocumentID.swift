@@ -15,7 +15,7 @@
  */
 
 import FirebaseFirestore
-import FirebaseSharedSwift
+import FirebaseEncoderSwift
 
 let documentRefUserInfoKey =
   CodingUserInfoKey(rawValue: "DocumentRefUserInfoKey")!

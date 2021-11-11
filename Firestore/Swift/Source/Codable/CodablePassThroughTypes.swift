@@ -16,7 +16,7 @@
 
 import Foundation
 import FirebaseFirestore
-import FirebaseSharedSwift
+import FirebaseEncoderSwift
 
 extension GeoPoint: StructureCodingPassthroughType {}
 extension Timestamp: StructureCodingPassthroughType {}
