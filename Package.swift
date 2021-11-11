@@ -520,7 +520,7 @@ let package = Package(
     ),
     .target(
       name: "FirebaseDatabaseSwift",
-      dependencies: ["FirebaseDatabase", "FirebaseSharedSwift"],
+      dependencies: ["FirebaseDatabase", "FirebaseEncoderSwift"],
       path: "FirebaseDatabaseSwift/Sources"
     ),
     .testTarget(
@@ -529,7 +529,7 @@ let package = Package(
       path: "FirebaseDatabaseSwift/Tests/"
     ),
     .target(
-      name: "FirebaseSharedSwift",
+      name: "FirebaseEncoderSwift",
       path: "FirebaseSharedSwift/Sources",
       exclude: [
         "third_party/StructureEncoder/LICENSE",
@@ -537,8 +537,8 @@ let package = Package(
       ]
     ),
     .testTarget(
-      name: "FirebaseSharedSwiftTests",
-      dependencies: ["FirebaseSharedSwift"],
+      name: "FirebaseEncoderSwiftTests",
+      dependencies: ["FirebaseEncoderSwift"],
       path: "FirebaseSharedSwift/Tests/"
     ),
     .target(
@@ -642,7 +642,7 @@ let package = Package(
 
     .target(
       name: "FirebaseFirestoreSwift",
-      dependencies: ["FirebaseFirestore", "FirebaseSharedSwift"],
+      dependencies: ["FirebaseFirestore", "FirebaseEncoderSwift"],
       path: "Firestore",
       exclude: [
         "CHANGELOG.md",
@@ -682,7 +682,7 @@ let package = Package(
       name: "FirebaseFunctionsSwift",
       dependencies: [
         "FirebaseFunctions",
-        "FirebaseSharedSwift",
+        "FirebaseEncoderSwift",
       ],
       path: "FirebaseFunctionsSwift/Sources"
     ),
