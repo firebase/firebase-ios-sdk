@@ -19,24 +19,29 @@ import FirebaseFunctionsTestingSupport
 import XCTest
 
 class IntegrationTests: XCTestCase {
-  let functions = FunctionsFake.init(projectID: "functions-integration-test", region: "us-central1", customDomain: nil, withToken: nil)
+  let functions = FunctionsFake(
+    projectID: "functions-integration-test",
+    region: "us-central1",
+    customDomain: nil,
+    withToken: nil
+  )
   let projectID = "functions-swift-integration-test"
-  
+
   override func setUp() {
     super.setUp()
     functions.useLocalhost()
   }
-  
+
   func testData() {
     let expectation = self.expectation(description: #function)
     let data = [
-      "bool" : true,
-      "int" : 2 as Int32,
-      "long" : 9876543210,
-      "string" : "four",
-      "array" : [5 as Int32, 6 as Int32],
-      "null" : nil
-    ] as [String : Any?]
+      "bool": true,
+      "int": 2 as Int32,
+      "long": 9_876_543_210,
+      "string": "four",
+      "array": [5 as Int32, 6 as Int32],
+      "null": nil,
+    ] as [String: Any?]
     let function = functions.httpsCallable("dataTest")
     XCTAssertNotNil(function)
     function.call(data) { result, error in
@@ -56,7 +61,7 @@ class IntegrationTests: XCTestCase {
     }
     waitForExpectations(timeout: 1)
   }
-  
+
   func testScalar() {
     let expectation = self.expectation(description: #function)
     let function = functions.httpsCallable("scalarTest")
@@ -73,12 +78,17 @@ class IntegrationTests: XCTestCase {
     }
     waitForExpectations(timeout: 1)
   }
-  
+
   func testToken() {
     // Recreate _functions with a token.
-    let functions = FunctionsFake.init(projectID: "functions-integration-test", region: "us-central1", customDomain: nil, withToken: "token")
+    let functions = FunctionsFake(
+      projectID: "functions-integration-test",
+      region: "us-central1",
+      customDomain: nil,
+      withToken: "token"
+    )
     functions.useLocalhost()
-    
+
     let expectation = self.expectation(description: #function)
     let function = functions.httpsCallable("FCMTokenTest")
     XCTAssertNotNil(function)
@@ -94,7 +104,7 @@ class IntegrationTests: XCTestCase {
     }
     waitForExpectations(timeout: 1)
   }
-  
+
   func testFCMToken() {
     let expectation = self.expectation(description: #function)
     let function = functions.httpsCallable("FCMTokenTest")
@@ -111,7 +121,7 @@ class IntegrationTests: XCTestCase {
     }
     waitForExpectations(timeout: 1)
   }
-  
+
   func testNull() {
     let expectation = self.expectation(description: #function)
     let function = functions.httpsCallable("nullTest")
@@ -120,7 +130,7 @@ class IntegrationTests: XCTestCase {
       do {
         XCTAssertNil(error)
         let data = try XCTUnwrap(result?.data) as? NSNull
-        XCTAssertEqual(data, NSNull.init())
+        XCTAssertEqual(data, NSNull())
         expectation.fulfill()
       } catch {
         XCTAssert(false, "Failed to unwrap the function result")
@@ -128,7 +138,7 @@ class IntegrationTests: XCTestCase {
     }
     waitForExpectations(timeout: 1)
   }
-  
+
   func testMissingResult() {
     let expectation = self.expectation(description: #function)
     let function = functions.httpsCallable("missingResultTest")
@@ -137,8 +147,8 @@ class IntegrationTests: XCTestCase {
       do {
         XCTAssertNotNil(error)
         let error = try XCTUnwrap(error! as NSError)
-        XCTAssertEqual(FunctionsErrorCode.internal.rawValue, error.code);
-        XCTAssertEqual("Response is missing data field.", error.localizedDescription);
+        XCTAssertEqual(FunctionsErrorCode.internal.rawValue, error.code)
+        XCTAssertEqual("Response is missing data field.", error.localizedDescription)
         expectation.fulfill()
       } catch {
         XCTAssert(false, "Failed to unwrap the function result")
@@ -156,8 +166,8 @@ class IntegrationTests: XCTestCase {
       do {
         XCTAssertNotNil(error)
         let error = try XCTUnwrap(error! as NSError)
-        XCTAssertEqual(FunctionsErrorCode.internal.rawValue, error.code);
-        XCTAssertEqual("INTERNAL", error.localizedDescription);
+        XCTAssertEqual(FunctionsErrorCode.internal.rawValue, error.code)
+        XCTAssertEqual("INTERNAL", error.localizedDescription)
         expectation.fulfill()
       } catch {
         XCTAssert(false, "Failed to unwrap the function result")
@@ -166,7 +176,7 @@ class IntegrationTests: XCTestCase {
     XCTAssert(true)
     waitForExpectations(timeout: 1)
   }
-  
+
   func testUnknownError() {
     let expectation = self.expectation(description: #function)
     let function = functions.httpsCallable("unknownErrorTest")
@@ -175,8 +185,8 @@ class IntegrationTests: XCTestCase {
       do {
         XCTAssertNotNil(error)
         let error = try XCTUnwrap(error! as NSError)
-        XCTAssertEqual(FunctionsErrorCode.internal.rawValue, error.code);
-        XCTAssertEqual("INTERNAL", error.localizedDescription);
+        XCTAssertEqual(FunctionsErrorCode.internal.rawValue, error.code)
+        XCTAssertEqual("INTERNAL", error.localizedDescription)
         expectation.fulfill()
       } catch {
         XCTAssert(false, "Failed to unwrap the function result")
@@ -185,7 +195,7 @@ class IntegrationTests: XCTestCase {
     XCTAssert(true)
     waitForExpectations(timeout: 1)
   }
-  
+
   func testExplicitError() {
     let expectation = self.expectation(description: #function)
     let function = functions.httpsCallable("explicitErrorTest")
@@ -194,10 +204,10 @@ class IntegrationTests: XCTestCase {
       do {
         XCTAssertNotNil(error)
         let error = try XCTUnwrap(error! as NSError)
-        XCTAssertEqual(FunctionsErrorCode.outOfRange.rawValue, error.code);
-        XCTAssertEqual("explicit nope", error.localizedDescription);
-        XCTAssertEqual(["start": 10 as Int32, "end":20 as Int32, "long": 30],
-                       error.userInfo[FunctionsErrorDetailsKey] as! [String : Int32])
+        XCTAssertEqual(FunctionsErrorCode.outOfRange.rawValue, error.code)
+        XCTAssertEqual("explicit nope", error.localizedDescription)
+        XCTAssertEqual(["start": 10 as Int32, "end": 20 as Int32, "long": 30],
+                       error.userInfo[FunctionsErrorDetailsKey] as! [String: Int32])
         expectation.fulfill()
       } catch {
         XCTAssert(false, "Failed to unwrap the function result")
@@ -206,7 +216,7 @@ class IntegrationTests: XCTestCase {
     XCTAssert(true)
     waitForExpectations(timeout: 1)
   }
-  
+
   func testHttpError() {
     let expectation = self.expectation(description: #function)
     let function = functions.httpsCallable("httpErrorTest")
@@ -215,7 +225,7 @@ class IntegrationTests: XCTestCase {
       do {
         XCTAssertNotNil(error)
         let error = try XCTUnwrap(error! as NSError)
-        XCTAssertEqual(FunctionsErrorCode.invalidArgument.rawValue, error.code);
+        XCTAssertEqual(FunctionsErrorCode.invalidArgument.rawValue, error.code)
         expectation.fulfill()
       } catch {
         XCTAssert(false, "Failed to unwrap the function result")
@@ -224,7 +234,7 @@ class IntegrationTests: XCTestCase {
     XCTAssert(true)
     waitForExpectations(timeout: 1)
   }
-  
+
   func testTimeout() {
     let expectation = self.expectation(description: #function)
     let function = functions.httpsCallable("timeoutTest")
@@ -234,8 +244,8 @@ class IntegrationTests: XCTestCase {
       do {
         XCTAssertNotNil(error)
         let error = try XCTUnwrap(error! as NSError)
-        XCTAssertEqual(FunctionsErrorCode.deadlineExceeded.rawValue, error.code);
-        XCTAssertEqual("DEADLINE EXCEEDED", error.localizedDescription);
+        XCTAssertEqual(FunctionsErrorCode.deadlineExceeded.rawValue, error.code)
+        XCTAssertEqual("DEADLINE EXCEEDED", error.localizedDescription)
         XCTAssertNil(error.userInfo[FunctionsErrorDetailsKey])
         expectation.fulfill()
       } catch {

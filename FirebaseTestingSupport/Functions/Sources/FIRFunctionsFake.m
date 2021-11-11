@@ -26,7 +26,9 @@
   return [super initWithProjectID:projectID
                            region:region
                      customDomain:customDomain
-                             auth:[[FIRAuthInteropFake alloc] initWithToken:token userID:nil error:nil]
+                             auth:[[FIRAuthInteropFake alloc] initWithToken:token
+                                                                     userID:nil
+                                                                      error:nil]
                         messaging:[[FIRMessagingInteropFake alloc] init]
                          appCheck:nil];
 }
