@@ -17,7 +17,7 @@ import Foundation
 protocol HeartbeatStorageProtocol {
   typealias HeartbeatInfoTransform = (HeartbeatInfo?) -> HeartbeatInfo?
 
-  func async(_ transform: @escaping HeartbeatInfoTransform)
+  func readAndWriteAsync(using transform: @escaping HeartbeatInfoTransform)
   // TODO: Evaluate if async variant of below API is needed.
   func getAndReset(using transform: HeartbeatInfoTransform?) throws -> HeartbeatInfo?
 }
@@ -46,7 +46,7 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
   // MARK: - Instance Management
 
   /// <#Description#>
-  private(set) static var cachedInstances: [String: Weak<HeartbeatStorage>] = [:]
+  private(set) static var cachedInstances: [String: WeakContainer<HeartbeatStorage>] = [:]
 
   /// <#Description#>
   /// - Parameter id: <#id description#>
@@ -56,7 +56,7 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
       return cachedInstance
     } else {
       let newInstance = HeartbeatStorage.makeStorage(id: id)
-      cachedInstances[id] = Weak(object: newInstance)
+      cachedInstances[id] = WeakContainer(object: newInstance)
       return newInstance
     }
   }
@@ -68,7 +68,7 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
 
   // MARK: - HeartbeatStorageProtocol
 
-  func async(_ transform: @escaping HeartbeatInfoTransform) {
+  func readAndWriteAsync(using transform: @escaping HeartbeatInfoTransform) {
     queue.async { [self] in
       let oldHeartbeatInfo = try? load(from: storage)
       let newHeartbeatInfo = transform(oldHeartbeatInfo)

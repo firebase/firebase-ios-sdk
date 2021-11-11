@@ -15,6 +15,8 @@
 import XCTest
 @testable import HeartbeatLogging
 
+// TODO: Unit test recording across time zones
+
 class HeartbeatControllerTests: XCTestCase {
   // 2021-11-01 @ 00:00:00 (EST)
   let date = Date(timeIntervalSince1970: 1_635_739_200)
@@ -28,11 +30,9 @@ class HeartbeatControllerTests: XCTestCase {
 
   func testLogAndFlush() throws {
     // Given
-    let clock = SystemClock(date: date)
-
     let controller = HeartbeatController(
       storage: HeartbeatStorageFake(),
-      dateProvider: { clock.date }
+      dateProvider: { self.date }
     )
 
     assertHeartbeatControllerFlushesEmptyPayload(controller)
@@ -62,11 +62,11 @@ class HeartbeatControllerTests: XCTestCase {
 
   func testLoggingDifferentAgentsInSameTimePeriodOnlyStoresTheFirst() throws {
     // Given
-    let clock = SystemClock(date: date)
+    let testDate = date
 
     let controller = HeartbeatController(
       storage: HeartbeatStorageFake(),
-      dateProvider: { clock.date }
+      dateProvider: { testDate }
     )
 
     assertHeartbeatControllerFlushesEmptyPayload(controller)
@@ -97,11 +97,11 @@ class HeartbeatControllerTests: XCTestCase {
 
   func testLogAtEndOfTimePeriodAndAcceptAtStartOfNextOne() throws {
     // Given
-    let clock = SystemClock(date: date)
+    var testDate = date
 
     let controller = HeartbeatController(
       storage: HeartbeatStorageFake(),
-      dateProvider: { clock.date }
+      dateProvider: { testDate }
     )
 
     assertHeartbeatControllerFlushesEmptyPayload(controller)
@@ -111,12 +111,12 @@ class HeartbeatControllerTests: XCTestCase {
     controller.log("dummy_agent")
 
     // - Advance to 2021-11-01 @ 23:59:59 (EST)
-    do { clock.advance(by: 60 * 60 * 24 - 1) }
+    testDate.addTimeInterval(60 * 60 * 24 - 1)
 
     controller.log("dummy_agent")
 
     // - Advance to 2021-11-02 @ 00:00:00 (EST)
-    do { clock.advance(by: 1) }
+    testDate.addTimeInterval(1)
 
     controller.log("dummy_agent")
 
@@ -143,11 +143,9 @@ class HeartbeatControllerTests: XCTestCase {
 
   func testDoNotLogDuplicate() throws {
     // Given
-    let clock = SystemClock(date: date)
-
     let controller = HeartbeatController(
       storage: HeartbeatStorageFake(),
-      dateProvider: { clock.date }
+      dateProvider: { self.date }
     )
 
     // When
@@ -175,11 +173,9 @@ class HeartbeatControllerTests: XCTestCase {
 
   func testDoNotLogDuplicateAfterFlushing() throws {
     // Given
-    let clock = SystemClock(date: date)
-
     let controller = HeartbeatController(
       storage: HeartbeatStorageFake(),
-      dateProvider: { clock.date }
+      dateProvider: { self.date }
     )
 
     // When
@@ -218,7 +214,7 @@ extension HeartbeatControllerTests {
   class HeartbeatStorageFake: HeartbeatStorageProtocol {
     private var heartbeatInfo: HeartbeatInfo?
 
-    func async(_ transform: @escaping HeartbeatInfoTransform) {
+    func readAndWriteAsync(using transform: @escaping HeartbeatInfoTransform) {
       heartbeatInfo = transform(heartbeatInfo)
     }
 
@@ -226,23 +222,6 @@ extension HeartbeatControllerTests {
       let oldHeartbeatInfo = heartbeatInfo
       heartbeatInfo = transform?(heartbeatInfo)
       return oldHeartbeatInfo
-    }
-  }
-
-  /// Simulates the device system time.
-  class SystemClock {
-    private(set) var date: Date
-
-    init(date: Date = .init()) {
-      self.date = date
-    }
-
-    func advance(by timeInterval: TimeInterval) {
-      date = date.advanced(by: timeInterval)
-    }
-
-    var formattedDate: String {
-      HeartbeatsPayload.dateFormatter.string(from: date)
     }
   }
 

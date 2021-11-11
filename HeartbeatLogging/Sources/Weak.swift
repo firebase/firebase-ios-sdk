@@ -17,6 +17,6 @@ import Foundation
 // TODO: Document.
 
 /// <#Description#>
-struct Weak<Object: AnyObject> {
+struct WeakContainer<Object: AnyObject> {
   weak var object: Object?
 }

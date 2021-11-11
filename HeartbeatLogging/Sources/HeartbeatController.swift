@@ -20,10 +20,10 @@ public final class HeartbeatController {
   private let storage: HeartbeatStorageProtocol
   // TODO: Document.
   private let limit: Int = 30 // TODO: Decide on default value.
-  // TODO: Document.
+  /// Current date provider. It is used instead of `Date.init` for testability.
   private let dateProvider: () -> Date
   // TODO: Verify that this standardization aligns with backend.
-  // TODO: Document.
+  /// Used for standardizing dates for calendar-day comparision.
   static let dateStandardizer = Calendar(identifier: .gregorian).startOfDay(for:)
 
   /// Public initializer.
@@ -50,11 +50,12 @@ public final class HeartbeatController {
   ///
   /// - Note: This API is thread-safe.
   ///
-  /// - Parameter info: A `String` identifier to associate a new heartbeat with.
-  public func log(_ info: String) {
-    let (agent, date, capacity) = (info, dateProvider(), limit)
+  /// - Parameter agent: A `String` identifier to associate a new heartbeat with.
+  public func log(_ agent: String) {
+    let date = dateProvider()
+    let capacity = limit
 
-    storage.async { heartbeatInfo in
+    storage.readAndWriteAsync { heartbeatInfo in
       var heartbeatInfo = heartbeatInfo ?? HeartbeatInfo(capacity: capacity)
 
       let timePeriods = heartbeatInfo.cache.filter { timePeriod, lastDate in
