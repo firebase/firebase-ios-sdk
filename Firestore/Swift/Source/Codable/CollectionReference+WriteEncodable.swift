@@ -35,7 +35,7 @@ extension CollectionReference {
                                         encoder: Firestore.Encoder = Firestore.Encoder(),
                                         completion: ((Error?) -> Void)? = nil) throws
     -> DocumentReference {
-    encoder.passthroughTypeResolver = FirestorePassthroughTypes.self
+    encoder.configureForFirestore()
     let encoded = try encoder.encode(value)
     guard let dictionaryValue = encoded as? [String: Any] else {
       throw FirestoreEncodingError.topLevelTypesAreNotSupported

@@ -22,3 +22,22 @@ extension Firestore {
   public typealias Encoder = StructureEncoder
   public typealias Decoder = StructureDecoder
 }
+
+extension Firestore.Encoder {
+  internal func configureForFirestore() {
+    self.passthroughTypeResolver = FirestorePassthroughTypes.self
+  }
+}
+
+extension Firestore.Decoder {
+  internal func configureForFirestore() {
+    self.passthroughTypeResolver = FirestorePassthroughTypes.self
+    self.dateDecodingStrategy = .timestamp(fallback: d.dateDecodingStrategy)
+  }
+
+  public func decode<T: Decodable>(_ t: T.Type, from data: Any, in reference: DocumentReference) {
+    self.userInfo[documentRefUserInfoKey] = reference
+    self.configureForFirestore()
+    return try self.decode(T.self, from: data)
+  }
+}
