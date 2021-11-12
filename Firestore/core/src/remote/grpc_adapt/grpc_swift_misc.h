@@ -187,16 +187,24 @@ struct SslCredentialsOptions {
 #define GRPC_ARG_KEEPALIVE_TIME_MS "grpc.keepalive_time_ms"
 
 static std::shared_ptr<ChannelCredentials> SslCredentials(
-    const SslCredentialsOptions& options);
+    const SslCredentialsOptions& options) {
+  return nullptr;
+}
 
-static std::string Version();
+static std::string Version() {
+  return "";
+}
 
 static std::shared_ptr<Channel> CreateCustomChannel(
     const std::string& target,
     const std::shared_ptr<ChannelCredentials>& creds,
-    const ChannelArguments& args);
+    const ChannelArguments& args) {
+  return nullptr;
+}
 
-static std::shared_ptr<ChannelCredentials> InsecureChannelCredentials();
+static std::shared_ptr<ChannelCredentials> InsecureChannelCredentials() {
+  return nullptr;
+}
 
 }  // namespace grpc_adapt
 }  // namespace remote

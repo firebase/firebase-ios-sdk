@@ -145,38 +145,13 @@ class Status {
   /// Construct an OK instance.
   Status();
 
-  /// Construct an instance with associated \a code and \a error_message.
-  /// It is an error to construct an OK status with non-empty \a error_message.
-  Status(StatusCode code, const std::string& error_message);
-
-  /// Construct an instance with \a code,  \a error_message and
-  /// \a error_details. It is an error to construct an OK status with non-empty
-  /// \a error_message and/or \a error_details.
-  Status(StatusCode code,
-         const std::string& error_message,
-         const std::string& error_details);
-
-  // Pre-defined special status objects.
-  /// An OK pre-defined instance.
-  static const Status& OK;
-  /// A CANCELLED pre-defined instance.
-  static const Status& CANCELLED;
-
   /// Return the instance's error code.
   StatusCode error_code() const;
   /// Return the instance's error message.
   std::string error_message() const;
-  /// Return the (binary) error details.
-  // Usually it contains a serialized google.rpc.Status proto.
-  std::string error_details() const;
 
   /// Is the status OK?
   bool ok() const;
-
-  // Ignores any errors. This method does nothing except potentially suppress
-  // complaints from any tools that are checking that errors are not dropped on
-  // the floor.
-  void IgnoreError();
 };
 
 }  // namespace grpc_adapt

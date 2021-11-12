@@ -15,17 +15,28 @@
  */
 #include "Firestore/core/src/remote/grpc_adapt/grpc_swift_status.h"
 
-#import GRPCSwiftShim
+#import "GRPCSwiftShim/GRPCSwiftShim-Swift.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
 namespace grpc_adapt {
 
-struct StatusCode {};
-
 Status::Status() {
-  GRPCStatusShim* shim = GRPCStatusShim.init();
+  // Shows we can access swift shim
+  GRPCStatusShim* shim;
+}
+
+StatusCode Status::error_code() const {
+  return StatusCode::OK;
+}
+
+std::string Status::error_message() const {
+  return "";
+}
+
+bool Status::ok() const {
+  return true;
 }
 
 }  // namespace grpc_adapt
