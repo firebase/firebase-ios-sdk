@@ -113,7 +113,7 @@ final class DatabaseAPITests {
     }
 
     #if compiler(>=5.5) && canImport(_Concurrency)
-      if #available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *) {
+      if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         Task {
           do {
@@ -139,7 +139,7 @@ final class DatabaseAPITests {
     }
 
     #if compiler(>=5.5) && canImport(_Concurrency)
-      if #available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *) {
+      if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         Task {
           // observeSingleEvent(of eventType:)
@@ -211,7 +211,7 @@ final class DatabaseAPITests {
     }
 
     #if compiler(>=5.5) && canImport(_Concurrency)
-      if #available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *) {
+      if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         Task {
           do {
@@ -233,7 +233,7 @@ final class DatabaseAPITests {
     }
 
     #if compiler(>=5.5) && canImport(_Concurrency)
-      if #available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *) {
+      if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         Task {
           do {
@@ -257,7 +257,7 @@ final class DatabaseAPITests {
     }
 
     #if compiler(>=5.5) && canImport(_Concurrency)
-      if #available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *) {
+      if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         Task {
           do {
@@ -279,7 +279,7 @@ final class DatabaseAPITests {
     }
 
     #if compiler(>=5.5) && canImport(_Concurrency)
-      if #available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *) {
+      if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         Task {
           do {
@@ -302,7 +302,7 @@ final class DatabaseAPITests {
     }
 
     #if compiler(>=5.5) && canImport(_Concurrency)
-      if #available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *) {
+      if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         Task {
           do {
@@ -358,7 +358,7 @@ final class DatabaseAPITests {
     }
 
     #if compiler(>=5.5) && canImport(_Concurrency)
-      if #available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *) {
+      if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         Task {
           // observeSingleEvent(of eventType:)
@@ -392,7 +392,7 @@ final class DatabaseAPITests {
     }
 
     #if compiler(>=5.5) && canImport(_Concurrency)
-      if #available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *) {
+      if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         Task {
           do {
@@ -436,7 +436,7 @@ final class DatabaseAPITests {
     }
 
     #if compiler(>=5.5) && canImport(_Concurrency)
-      if #available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *) {
+      if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         Task {
           do {
@@ -460,7 +460,7 @@ final class DatabaseAPITests {
       }
 
     #if compiler(>=5.5) && canImport(_Concurrency)
-      if #available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *) {
+      if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         Task {
           do {
@@ -486,7 +486,7 @@ final class DatabaseAPITests {
     }
 
     #if compiler(>=5.5) && canImport(_Concurrency)
-      if #available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *) {
+      if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         Task {
           do {
@@ -509,7 +509,7 @@ final class DatabaseAPITests {
     }
 
     #if compiler(>=5.5) && canImport(_Concurrency)
-      if #available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *) {
+      if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         Task {
           do {
@@ -533,7 +533,7 @@ final class DatabaseAPITests {
     }
 
     #if compiler(>=5.5) && canImport(_Concurrency)
-      if #available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *) {
+      if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         Task {
           do {
@@ -565,7 +565,7 @@ final class DatabaseAPITests {
     }
 
     #if compiler(>=5.5) && canImport(_Concurrency)
-      if #available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *) {
+      if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         Task {
           do {
