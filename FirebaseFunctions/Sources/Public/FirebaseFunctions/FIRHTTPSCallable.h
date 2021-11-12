@@ -81,13 +81,10 @@ NS_SWIFT_NAME(HTTPSCallable)
  * @param data Parameters to pass to the trigger.
  * @param completion The block to call when the HTTPS request has completed.
  */
-// clang-format off
-// because it incorrectly breaks this NS_SWIFT_NAME.
 - (void)callWithObject:(nullable id)data
             completion:(void (^)(FIRHTTPSCallableResult *_Nullable result,
                                  NSError *_Nullable error))completion
     NS_SWIFT_NAME(call(_:completion:));
-// clang-format on
 
 /**
  * The timeout to use when calling the function. Defaults to 60 seconds.
