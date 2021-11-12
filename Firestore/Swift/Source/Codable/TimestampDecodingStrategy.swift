@@ -16,7 +16,6 @@
 
 import Foundation
 import FirebaseFirestore
-import FirebaseEncoderSwift
 
 @available(macOS 10.12, iOS 10.0, watchOS 3.0, tvOS 10.0, *)
 private var _iso8601Formatter: ISO8601DateFormatter = {
@@ -25,9 +24,15 @@ private var _iso8601Formatter: ISO8601DateFormatter = {
   return formatter
 }()
 
-extension StructureDecoder.DateDecodingStrategy {
-  public static func timestamp(fallback: StructureDecoder
-    .DateDecodingStrategy = .deferredToDate) -> StructureDecoder.DateDecodingStrategy {
+extension Firestore.Decoder.DateDecodingStrategy {
+  /// Decode the `Date` from a Firestore `Timestamp`, with falback to a different date
+  /// decoding strategy. This means that _if_ the data being decoded _is_ a `Timestamp` then
+  /// decoding to a `Date` will succeed. If the data being decoded is not a `Timestamp` then
+  /// it will decode using the fallback strategy.
+  /// Note: It may be argued that this was better left as an explicit public strategy without fallback,
+  /// but this behavior is consistent with the previous implementation of Firestore.Decoder.
+  internal static func timestamp(fallback: Firestore.Decoder
+    .DateDecodingStrategy = .deferredToDate) -> Firestore.Decoder.DateDecodingStrategy {
     return .custom { decoder in
       let container = try decoder.singleValueContainer()
       do {

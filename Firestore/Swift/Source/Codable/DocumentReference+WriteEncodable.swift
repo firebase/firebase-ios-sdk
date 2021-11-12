@@ -92,7 +92,6 @@ extension DocumentReference {
                                     mergeFields: [Any],
                                     encoder: Firestore.Encoder = Firestore.Encoder(),
                                     completion: ((Error?) -> Void)? = nil) throws {
-    encoder.configureForFirestore()
     let encoded = try encoder.encode(value)
     guard let dictionary = encoded as? [String: Any] else {
       throw FirestoreEncodingError.topLevelTypesAreNotSupported

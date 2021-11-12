@@ -245,8 +245,8 @@ public class StructureEncoder {
   /// The strategy to use for encoding keys. Defaults to `.useDefaultKeys`.
   open var keyEncodingStrategy: KeyEncodingStrategy = .useDefaultKeys
 
-  /// If `usePassthroughTypes` is set to `true`, then any value of a type conforming to StructureCodingPassthroughType will not be encoded, but left as is in the resulting structure
-    open var passthroughTypeResolver: StructureCodingPassthroughTypeResolver.Type = NoPassthroughTypes.self
+  /// A type that can resolve which types to 'pass through' - or leave alone while encoding. Defaults to not passing any types through.
+  open var passthroughTypeResolver: StructureCodingPassthroughTypeResolver.Type = NoPassthroughTypes.self
 
   /// Contextual user-provided information for use during encoding.
   open var userInfo: [CodingUserInfoKey : Any] = [:]
@@ -257,7 +257,7 @@ public class StructureEncoder {
     let dataEncodingStrategy: DataEncodingStrategy
     let nonConformingFloatEncodingStrategy: NonConformingFloatEncodingStrategy
     let keyEncodingStrategy: KeyEncodingStrategy
-      let passthroughTypeResolver: StructureCodingPassthroughTypeResolver.Type
+    let passthroughTypeResolver: StructureCodingPassthroughTypeResolver.Type
     let userInfo: [CodingUserInfoKey : Any]
   }
 
@@ -1186,7 +1186,7 @@ public class StructureDecoder {
   /// The strategy to use for decoding keys. Defaults to `.useDefaultKeys`.
   open var keyDecodingStrategy: KeyDecodingStrategy = .useDefaultKeys
 
-    /// XXX TODO
+  /// A type that can resolve which types to 'pass through' - or leave alone while decoding. Defaults to not passing any types through.
   open var passthroughTypeResolver: StructureCodingPassthroughTypeResolver.Type = NoPassthroughTypes.self
 
   /// Contextual user-provided information for use during decoding.
