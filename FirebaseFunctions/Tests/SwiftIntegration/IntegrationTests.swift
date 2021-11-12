@@ -65,7 +65,7 @@ class IntegrationTests: XCTestCase {
         XCTAssert(false, "Failed to unwrap the function result: \(error)")
       }
     }
-    waitForExpectations(timeout: 1)
+    waitForExpectations(timeout: 5)
   }
 
   #if compiler(>=5.5) && canImport(_Concurrency)
@@ -108,7 +108,7 @@ class IntegrationTests: XCTestCase {
         XCTAssert(false, "Failed to unwrap the function result: \(error)")
       }
     }
-    waitForExpectations(timeout: 1)
+    waitForExpectations(timeout: 5)
   }
 
   #if compiler(>=5.5) && canImport(_Concurrency)
@@ -146,7 +146,7 @@ class IntegrationTests: XCTestCase {
         XCTAssert(false, "Failed to unwrap the function result: \(error)")
       }
     }
-    waitForExpectations(timeout: 1)
+    waitForExpectations(timeout: 5)
   }
 
   #if compiler(>=5.5) && canImport(_Concurrency)
@@ -184,7 +184,7 @@ class IntegrationTests: XCTestCase {
         XCTAssert(false, "Failed to unwrap the function result: \(error)")
       }
     }
-    waitForExpectations(timeout: 1)
+    waitForExpectations(timeout: 5)
   }
 
   #if compiler(>=5.5) && canImport(_Concurrency)
@@ -213,7 +213,7 @@ class IntegrationTests: XCTestCase {
         XCTAssert(false, "Failed to unwrap the function result: \(error)")
       }
     }
-    waitForExpectations(timeout: 1)
+    waitForExpectations(timeout: 5)
   }
 
   #if compiler(>=5.5) && canImport(_Concurrency)
@@ -243,7 +243,7 @@ class IntegrationTests: XCTestCase {
         XCTAssert(false, "Failed to unwrap the function result: \(error)")
       }
     }
-    waitForExpectations(timeout: 1)
+    waitForExpectations(timeout: 5)
   }
 
   #if compiler(>=5.5) && canImport(_Concurrency)
@@ -274,7 +274,7 @@ class IntegrationTests: XCTestCase {
       }
     }
     XCTAssert(true)
-    waitForExpectations(timeout: 1)
+    waitForExpectations(timeout: 5)
   }
 
   #if compiler(>=5.5) && canImport(_Concurrency)
@@ -310,7 +310,7 @@ class IntegrationTests: XCTestCase {
       }
     }
     XCTAssert(true)
-    waitForExpectations(timeout: 1)
+    waitForExpectations(timeout: 5)
   }
 
   #if compiler(>=5.5) && canImport(_Concurrency)
@@ -346,7 +346,7 @@ class IntegrationTests: XCTestCase {
       }
     }
     XCTAssert(true)
-    waitForExpectations(timeout: 1)
+    waitForExpectations(timeout: 5)
   }
 
   #if compiler(>=5.5) && canImport(_Concurrency)
@@ -384,7 +384,7 @@ class IntegrationTests: XCTestCase {
       }
     }
     XCTAssert(true)
-    waitForExpectations(timeout: 1)
+    waitForExpectations(timeout: 5)
   }
 
   #if compiler(>=5.5) && canImport(_Concurrency)
@@ -421,7 +421,7 @@ class IntegrationTests: XCTestCase {
       }
     }
     XCTAssert(true)
-    waitForExpectations(timeout: 1)
+    waitForExpectations(timeout: 5)
   }
 
   #if compiler(>=5.5) && canImport(_Concurrency)
@@ -458,7 +458,7 @@ class IntegrationTests: XCTestCase {
       }
     }
     XCTAssert(true)
-    waitForExpectations(timeout: 1)
+    waitForExpectations(timeout: 5)
   }
 
   #if compiler(>=5.5) && canImport(_Concurrency)
