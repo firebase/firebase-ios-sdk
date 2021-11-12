@@ -233,7 +233,7 @@ class IntegrationTests: XCTestCase {
     let expectation = expectation(description: #function)
     let function = functions.httpsCallable("nullTest")
     XCTAssertNotNil(function)
-    function.call() { result, error in
+    function.call { result, error in
       do {
         XCTAssertNil(error)
         let data = try XCTUnwrap(result?.data) as? NSNull
