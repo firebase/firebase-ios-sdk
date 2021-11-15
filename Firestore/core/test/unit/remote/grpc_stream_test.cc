@@ -24,6 +24,7 @@
 #include <vector>
 
 #include "Firestore/core/src/remote/connectivity_monitor.h"
+#include "Firestore/core/src/remote/grpc_adapt/grpc_adaption.h"
 #include "Firestore/core/src/remote/grpc_completion.h"
 #include "Firestore/core/src/util/async_queue.h"
 #include "Firestore/core/src/util/executor.h"
@@ -251,7 +252,8 @@ TEST_F(GrpcStreamTest, ObserverReceivesOnError) {
 
   ForceFinish(
       {{Type::Read, CompletionResult::Error},
-       {Type::Finish, grpc_adapt::Status{grpc_adapt::RESOURCE_EXHAUSTED, ""}}});
+       {Type::Finish,
+        grpc_adapt::Status{grpc_adapt::StatusCode::RESOURCE_EXHAUSTED, ""}}});
 
   EXPECT_EQ(observed_states(),
             States({"OnStreamStart", "OnStreamFinish(ResourceExhausted)"}));
@@ -313,7 +315,8 @@ TEST_F(GrpcStreamTest, ErrorOnWrite) {
 
       case Type::Finish:
         EXPECT_TRUE(failed_write);
-        *completion->status() = grpc_adapt::Status{grpc_adapt::ABORTED, ""};
+        *completion->status() =
+            grpc_adapt::Status{grpc_adapt::StatusCode::ABORTED, ""};
         completion->Complete(true);
         return true;
 
@@ -348,7 +351,8 @@ TEST_F(GrpcStreamTest, ErrorWithPendingWrites) {
         return false;
       case Type::Finish:
         EXPECT_TRUE(failed_write);
-        *completion->status() = grpc_adapt::Status{grpc_adapt::UNAVAILABLE, ""};
+        *completion->status() =
+            grpc_adapt::Status{grpc_adapt::StatusCode::UNAVAILABLE, ""};
         completion->Complete(true);
         return true;
       default:

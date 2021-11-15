@@ -41,6 +41,7 @@ namespace grpc_adapt {
 using grpc_connectivity_state = grpc_connectivity_state;
 using ByteBuffer = grpc::ByteBuffer;
 using Status = grpc::Status;
+using GrpcLibraryCodegen = grpc::GrpcLibraryCodegen;
 using StatusCode = grpc::StatusCode;
 using string_ref = grpc::string_ref;
 using CompletionQueue = grpc::CompletionQueue;
