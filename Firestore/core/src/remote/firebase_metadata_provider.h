@@ -19,7 +19,8 @@
 
 #include <string>
 
-#include "Firestore/core/src/remote/grpc_adapt/grpc_adaption.h"
+#include "Firestore/core/src/remote/grpc_adapt/grpc_swift_misc.h"
+#include "Firestore/core/src/remote/grpc_adapt/grpc_swift_status.h"
 
 namespace firebase {
 namespace firestore {

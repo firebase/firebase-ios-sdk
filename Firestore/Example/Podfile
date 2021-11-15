@@ -32,6 +32,16 @@ post_install do |installer|
   if !$?.success?
     raise "sync_project.rb failed with status #{$?.exitstatus}"
   end
+  installer.generated_projects.each do |project|
+    puts project
+    project.targets.each do |target|
+      puts target
+      target.build_configurations.each do |config|
+        puts config
+        config.build_settings['GRPC_SWIFT'] = 'YES'
+      end
+    end
+  end
 end
 
 # Returns true if the user has explicitly requested local sources or if this is
