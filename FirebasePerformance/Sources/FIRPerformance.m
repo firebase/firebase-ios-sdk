@@ -123,7 +123,7 @@ static NSString *const kFirebasePerfErrorDomain = @"com.firebase.perf";
     _customAttributesSerialQueue =
         dispatch_queue_create("com.google.perf.customAttributes", DISPATCH_QUEUE_SERIAL);
     _fprClient = [FPRClient sharedInstance];
-    self.crashlytics = crashlytics;
+    _crashlytics = crashlytics;
   }
   return self;
 }
