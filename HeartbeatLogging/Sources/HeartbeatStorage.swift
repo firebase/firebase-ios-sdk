@@ -28,17 +28,21 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
   private let id: String
   // The underlying storage container to read from and write to.
   private let storage: Storage
-  // An object used to encode and decode Codable heartbeat data.
-  private let coder: Coder
+  /// <#Description#>
+  private let encoder: AnyEncoder
+  /// <#Description#>
+  private let decoder: AnyDecoder
   // The queue for synchronizing storage operations.
   private let queue: DispatchQueue
 
   init(id: String,
        storage: Storage,
-       coder: Coder = JSONCoder()) {
+       encoder: AnyEncoder = JSONEncoder(),
+       decoder: AnyDecoder = JSONDecoder()) {
     self.id = id
     self.storage = storage
-    self.coder = coder
+    self.encoder = encoder
+    self.decoder = decoder
     queue = DispatchQueue(label: "com.heartbeat.storage.\(id)")
   }
 
@@ -88,13 +92,13 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
 
   private func load(from storage: Storage) throws -> HeartbeatInfo {
     let data = try storage.read()
-    let heartbeatData = try coder.decode(HeartbeatInfo.self, from: data)
+    let heartbeatData = try data.decoded(using: decoder) as HeartbeatInfo
     return heartbeatData
   }
 
   private func save(_ value: HeartbeatInfo?, to storage: Storage) throws {
     if let value = value {
-      let data = try coder.encode(value)
+      let data = try value.encoded(using: encoder)
       try storage.write(data)
     } else {
       try storage.write(nil)

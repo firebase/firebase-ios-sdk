@@ -17,35 +17,6 @@ import XCTest
 
 // TODO: Add additional validation (#8896 comments).
 
-enum DummyError: Error {
-  case error
-}
-
-class StorageFake: Storage {
-  private var data: Data?
-
-  var failOnNextRead = false
-  var failOnNextWrite = false
-
-  func read() throws -> Data {
-    if failOnNextRead {
-      failOnNextRead.toggle()
-      throw DummyError.error
-    } else {
-      return try data ?? { throw DummyError.error }()
-    }
-  }
-
-  func write(_ value: Data?) throws {
-    if failOnNextWrite {
-      failOnNextWrite.toggle()
-      throw DummyError.error
-    } else {
-      data = value
-    }
-  }
-}
-
 class HeartbeatStorageTests: XCTestCase {
   // MARK: - Instance Management
 
@@ -122,19 +93,109 @@ class HeartbeatStorageTests: XCTestCase {
 
 // MARK: - HeartbeatStorageProtocol
 
-// test behavior not methods
-// test<System Under Test>_<Condition Or State Change>_<Expected Result>()
+// TODO: Do these make sense?
+func savingToStorage_WhenWriteFails_ReturnsNil() {}
+func savingToStorage_WhenEncodingFails_ReturnsNil() {}
 
 extension HeartbeatStorageTests {
-//  func testGetAndResetThrowsIfSaveFails() {
-//    let heartbeatStorage = HeartbeatStorage(
-//  }
+  func testGetAndResetDefaultsToClearingStorage() throws {
+    // Given
+    let heartbeatStorage = HeartbeatStorage(id: #file, storage: StorageFake())
+    heartbeatStorage.readAndWriteAsync { _ in
+      HeartbeatInfo(capacity: 1)
+    }
+    // When
+    try heartbeatStorage.getAndReset()
+    // Then
+    try heartbeatStorage.getAndReset { heartbeatInfo in
+      XCTAssertNil(heartbeatInfo)
+      return heartbeatInfo
+    }
+  }
 
-  func testReadAndWrite_WhenLoadFails_GivesNilInfo() {}
+  func testGetAndResetThrowsIfSaveFails() {
+    // Given
+    let expectation = expectation(description: #function)
+    let storageFake = StorageFake()
+    let heartbeatStorage = HeartbeatStorage(id: #file, storage: storageFake)
 
-  func testGetAndReset_WhenLoadFails_GivesNilInfo() {}
+    // When
+    storageFake.onWrite = { _ in
+      expectation.fulfill()
+      throw DummyError.error
+    }
 
-  func testReadAndWriteAndThenGetAndSet() {
+    // Then
+    XCTAssertThrowsError(try heartbeatStorage.getAndReset())
+    wait(for: [expectation], timeout: 0.5)
+  }
+
+  func loadingFromStorage_WhenDecodingFails_ReturnsNil() throws {
+    // Given
+    let expectation = expectation(description: #function)
+    expectation.expectedFulfillmentCount = 4
+
+    let storageFake = StorageFake()
+    let decoderFake = DecoderFake()
+    let heartbeatStorage = HeartbeatStorage(
+      id: #file,
+      storage: storageFake,
+      decoder: decoderFake
+    )
+
+    // When
+    decoderFake.onDecode = {
+      expectation.fulfill() // Fulfilled 2 times.
+      throw DummyError.error
+    }
+
+    // Then
+    heartbeatStorage.readAndWriteAsync { heartbeatInfo in
+      expectation.fulfill() // Fulfilled 1 time.
+      XCTAssertNil(heartbeatInfo)
+      return nil
+    }
+
+    try heartbeatStorage.getAndReset { heartbeatInfo in
+      expectation.fulfill() // Fulfilled 1 time.
+      XCTAssertNil(heartbeatInfo)
+      return nil
+    }
+
+    wait(for: [expectation], timeout: 0.5)
+  }
+
+  func loadingFromStorage_WhenReadFails_ReturnsNil() throws {
+    // Given
+    let expectation = expectation(description: #function)
+    expectation.expectedFulfillmentCount = 4
+
+    let storageFake = StorageFake()
+    let heartbeatStorage = HeartbeatStorage(id: #file, storage: storageFake)
+
+    // When
+    storageFake.onRead = {
+      expectation.fulfill() // Fulfilled 2 times.
+      throw DummyError.error
+    }
+
+    // Then
+    heartbeatStorage.readAndWriteAsync { heartbeatInfo in
+      expectation.fulfill() // Fulfilled 1 time.
+      XCTAssertNil(heartbeatInfo)
+      return nil
+    }
+
+    try heartbeatStorage.getAndReset { heartbeatInfo in
+      expectation.fulfill() // Fulfilled 1 time.
+      XCTAssertNil(heartbeatInfo)
+      return nil
+    }
+
+    wait(for: [expectation], timeout: 0.5)
+  }
+
+  func testReadAndWriteThenGetAndSet() {
     let storage = HeartbeatStorage(id: #file, storage: StorageFake())
 
     let expectation = expectation(description: #function)
@@ -174,182 +235,55 @@ extension HeartbeatStorageTests {
     // Then
     wait(for: expectations, timeout: 1.0, enforceOrder: true)
   }
+
+  // MARK: - HeartbeatStorage + StorageFactory
+
+  // TODO: Implement factory tests.
+
+  // MARK: - Fakes
+
+  enum DummyError: Error {
+    case error
+  }
+
+  class EncoderFake: AnyEncoder {
+    var onEncode: (() throws -> Void)?
+
+    func encode<T>(_ value: T) throws -> Data where T: Encodable {
+      try onEncode?()
+      return try JSONEncoder().encode(value)
+    }
+  }
+
+  class DecoderFake: AnyDecoder {
+    var onDecode: (() throws -> Void)?
+
+    func decode<T>(_ type: T.Type, from data: Data) throws -> T where T: Decodable {
+      try onDecode?()
+      return try JSONDecoder().decode(type, from: data)
+    }
+  }
+
+  class StorageFake: Storage {
+    private var data: Data?
+
+    var onRead: (() throws -> Data)?
+    var onWrite: ((Data?) throws -> Void)?
+
+    func read() throws -> Data {
+      if let onRead = onRead {
+        return try onRead()
+      } else {
+        return try data ?? { throw DummyError.error }()
+      }
+    }
+
+    func write(_ value: Data?) throws {
+      if let onWrite = onWrite {
+        return try onWrite(value)
+      } else {
+        data = value
+      }
+    }
+  }
 }
-
-// MARK: - HeartbeatStorage + StorageFactory
-
-// extension HeartbeatStorageTests {
-//  func testOfferHeartbeatThenFlush() throws {
-//    // Given
-//    let storage = HeartbeatStorage(id: #file, storage: StorageFake())
-//    XCTAssertNil(storage.flush())
-//    // When
-//    storage.offer(Heartbeat(info: #function))
-//    // Then
-//    XCTAssertNotNil(storage.flush())
-//  }
-//
-//  func testOfferHeartbeatWithStorageReadError() throws {
-//    // Given
-//    let (storageFake, queue) = (StorageFake(), DispatchQueue(label: #function))
-//    let storage = HeartbeatStorage(id: #file, storage: storageFake, queue: queue)
-//    XCTAssertNil(storage.flush())
-//    storageFake.failOnNextRead = true
-//    // When
-//    storage.offer(Heartbeat(info: #function))
-//    // Then
-//    drain(queue)
-//    // Expect
-//    XCTAssertNotNil(storage.flush())
-//  }
-//
-//  func testOfferHeartbeatWithStorageWriteError() throws {
-//    // Given
-//    let (storageFake, queue) = (StorageFake(), DispatchQueue(label: #function))
-//    let storage = HeartbeatStorage(id: #file, storage: storageFake, queue: queue)
-//    XCTAssertNil(storage.flush())
-//    storage.offer(Heartbeat(info: #function))
-//    drain(queue)
-//    storageFake.failOnNextWrite = true
-//    // When
-//    storage.offer(Heartbeat(info: #function))
-//    // Then
-//    drain(queue)
-//    // Expect
-//    XCTAssertNotNil(storage.flush())
-//  }
-//
-//  func testOfferHeartbeatWithEncodingError() throws {
-//    // Given
-//    let coderFake = CoderFake()
-//    let storage = HeartbeatStorage(id: #file, storage: StorageFake(), coder: coderFake)
-//    XCTAssertNil(storage.flush())
-//    coderFake.failOnNextEncode = true
-//    // When
-//    storage.offer(Heartbeat(info: #function))
-//    // Then
-//    XCTAssertNil(storage.flush())
-//  }
-//
-//  func testOfferHeartbeatWithDecodingError() throws {
-//    // Given
-//    let coderFake = CoderFake()
-//    let storage = HeartbeatStorage(id: #file, storage: StorageFake(), coder: coderFake)
-//    coderFake.failOnNextDecode = true
-//    // When
-//    storage.offer(Heartbeat(info: #function))
-//    // Then
-//    XCTAssertNil(storage.flush())
-//  }
-//
-//  func testOfferHeartbeatWithErrorThenOffer() throws {
-//    // Given
-//    let (storageFake, queue) = (StorageFake(), DispatchQueue(label: #function))
-//    let storage = HeartbeatStorage(id: #file, storage: storageFake, queue: queue)
-//    storageFake.failOnNextWrite = true
-//    storage.offer(Heartbeat(info: #function))
-//    drain(queue)
-//    XCTAssertNil(storage.flush())
-//    // When
-//    storage.offer(Heartbeat(info: #function))
-//    // Then
-//    drain(queue)
-//    // Expect
-//    XCTAssertNotNil(storage.flush())
-//  }
-//
-//  func testFlushWithStorageReadError() throws {
-//    // Given
-//    let (storageFake, queue) = (StorageFake(), DispatchQueue(label: #function))
-//    let storage = HeartbeatStorage(id: #file, storage: storageFake, queue: queue)
-//    // Storage is non-empty.
-//    storage.offer(Heartbeat(info: #function))
-//    drain(queue)
-//    storageFake.failOnNextRead = true
-//    // When
-//    let flushed = storage.flush()
-//    // Then
-//    XCTAssertNil(flushed)
-//    // Storage should empty on successful flush to recover for future reads.
-//    XCTAssertNil(storage.flush())
-//  }
-//
-//  func testFlushWithStorageWriteError() throws {
-//    // Given
-//    let (storageFake, queue) = (StorageFake(), DispatchQueue(label: #function))
-//    let storage = HeartbeatStorage(id: #file, storage: storageFake, queue: queue)
-//    // Storage is non-empty.
-//    storage.offer(Heartbeat(info: #function))
-//    drain(queue)
-//    storageFake.failOnNextWrite = true
-//    // When
-//    let flushed = storage.flush()
-//    // Then
-//    XCTAssertNil(flushed)
-//    // Flushing storage returns flushed contents when flush was successful.
-//    XCTAssertNotNil(storage.flush())
-//  }
-// }
-//
-///// Dispatches a block to a given queue and returns when the block has executed.
-///// - Parameter queue: The queue to drain.
-// func drain(_ queue: DispatchQueue) {
-//  queue.sync {}
-// }
-//
-//// MARK: - Fakes
-//
-// private extension HeartbeatStorageTests {
-//  enum DummyError: Error {
-//    case error
-//  }
-//
-//  class StorageFake: PersistentStorage {
-//    private var data: Data?
-//
-//    var failOnNextRead = false
-//    var failOnNextWrite = false
-//
-//    func read() throws -> Data {
-//      if failOnNextRead {
-//        failOnNextRead.toggle()
-//        throw DummyError.error
-//      } else {
-//        return try data ?? { throw DummyError.error }()
-//      }
-//    }
-//
-//    func write(_ value: Data?) throws {
-//      if failOnNextWrite {
-//        failOnNextWrite.toggle()
-//        throw DummyError.error
-//      } else {
-//        data = value
-//      }
-//    }
-//  }
-//
-//  class CoderFake: Coder {
-//    var failOnNextDecode = false
-//    var failOnNextEncode = false
-//
-//    func decode<T>(_ type: T.Type,
-//                   from data: Data) throws -> T where T: Decodable {
-//      if failOnNextDecode {
-//        failOnNextDecode.toggle()
-//        throw DummyError.error
-//      } else {
-//        return try JSONDecoder().decode(type, from: data)
-//      }
-//    }
-//
-//    func encode<T>(_ value: T) throws -> Data where T: Encodable {
-//      if failOnNextEncode {
-//        failOnNextEncode.toggle()
-//        throw DummyError.error
-//      } else {
-//        return try JSONEncoder().encode(value)
-//      }
-//    }
-//  }
-// }

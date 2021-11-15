@@ -68,7 +68,7 @@ public struct HeartbeatsPayload: Codable, HTTPHeaderRepresentable {
       return "" // Return empty string if `payload` value is empty.
     }
 
-    let encodeResult = Result { try JSONCoder().encode(self) }
+    let encodeResult = Result { try self.encoded() }
 
     switch encodeResult {
     case let .success(data): return data.base64EncodedString()
