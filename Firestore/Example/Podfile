@@ -32,16 +32,6 @@ post_install do |installer|
   if !$?.success?
     raise "sync_project.rb failed with status #{$?.exitstatus}"
   end
-  installer.generated_projects.each do |project|
-    puts project
-    project.targets.each do |target|
-      puts target
-      target.build_configurations.each do |config|
-        puts config
-        config.build_settings['GRPC_SWIFT'] = 'YES'
-      end
-    end
-  end
 end
 
 # Returns true if the user has explicitly requested local sources or if this is
@@ -106,41 +96,40 @@ if is_platform(:ios)
     platform :ios, '11.0'
 
     configure_local_pods()
-
-    target 'Firestore_Tests_iOS' do
-      inherit! :search_paths
-
-      pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
-      pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
-      pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
-
-      pod 'leveldb-library'
-    end
-
-    target 'Firestore_Benchmarks_iOS' do
-      inherit! :search_paths
-
-      pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
-    end
-
-    target 'Firestore_IntegrationTests_iOS' do
-      inherit! :search_paths
-
-      pod 'FirebaseFirestoreSwift', :path => '../../'
-      pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
-      pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
-      pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
-
-      pod 'leveldb-library'
-    end
-
-    target 'Firestore_FuzzTests_iOS' do
-      inherit! :search_paths
-      platform :ios, '11.0'
-
-      pod 'LibFuzzer', :podspec => 'LibFuzzer.podspec', :inhibit_warnings => true
-    end
   end
+  target 'Firestore_Tests_iOS' do
+        inherit! :search_paths
+
+        pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
+        pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
+        pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
+
+        pod 'leveldb-library'
+      end
+
+      target 'Firestore_Benchmarks_iOS' do
+        inherit! :search_paths
+
+        pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
+      end
+
+      target 'Firestore_IntegrationTests_iOS' do
+        inherit! :search_paths
+
+        pod 'FirebaseFirestoreSwift', :path => '../../'
+        pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
+        pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
+        pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
+
+        pod 'leveldb-library'
+      end
+
+      target 'Firestore_FuzzTests_iOS' do
+        inherit! :search_paths
+        platform :ios, '11.0'
+
+        pod 'LibFuzzer', :podspec => 'LibFuzzer.podspec', :inhibit_warnings => true
+      end
 end
 
 if is_platform(:osx)
@@ -148,28 +137,27 @@ if is_platform(:osx)
     platform :osx, '10.12'
 
     configure_local_pods()
-
-    target 'Firestore_Tests_macOS' do
-      inherit! :search_paths
-
-      pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
-      pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
-      pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
-
-      pod 'leveldb-library'
-    end
-
-    target 'Firestore_IntegrationTests_macOS' do
-      inherit! :search_paths
-
-      pod 'FirebaseFirestoreSwift', :path => '../../'
-      pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
-      pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
-      pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
-
-      pod 'leveldb-library'
-    end
   end
+  target 'Firestore_Tests_macOS' do
+        inherit! :search_paths
+
+        pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
+        pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
+        pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
+
+        pod 'leveldb-library'
+      end
+
+      target 'Firestore_IntegrationTests_macOS' do
+        inherit! :search_paths
+
+        pod 'FirebaseFirestoreSwift', :path => '../../'
+        pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
+        pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
+        pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
+
+        pod 'leveldb-library'
+      end
 end
 
 if is_platform(:tvos)
@@ -177,26 +165,34 @@ if is_platform(:tvos)
     platform :tvos, '11.0'
 
     configure_local_pods()
+  end
+  target 'Firestore_Tests_tvOS' do
+        inherit! :search_paths
 
-    target 'Firestore_Tests_tvOS' do
-      inherit! :search_paths
+        pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
+        pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
+        pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
 
-      pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
-      pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
-      pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
+        pod 'leveldb-library'
+      end
 
-      pod 'leveldb-library'
-    end
+      target 'Firestore_IntegrationTests_tvOS' do
+        inherit! :search_paths
 
-    target 'Firestore_IntegrationTests_tvOS' do
-      inherit! :search_paths
+        pod 'FirebaseFirestoreSwift', :path => '../../'
+        pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
+        pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
+        pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
 
-      pod 'FirebaseFirestoreSwift', :path => '../../'
-      pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
-      pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
-      pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
+        pod 'leveldb-library'
+      end
+end
 
-      pod 'leveldb-library'
-    end
+if is_platform(:watchos)
+  target 'Firestore_Example_watchOS' do
+    platform :watchos, '6.0'
+
+    configure_local_pods()
+    pod 'FirebaseFirestoreSwift', :path => '../../'
   end
 end
