@@ -15,6 +15,10 @@
  */
 #include "Firestore/core/src/remote/grpc_adapt/grpc_swift_status.h"
 
+#include <Foundation/Foundation.h>
+
+#include "Firestore/core/src/util/string_apple.h"
+
 #import "GRPCSwiftShim/GRPCSwiftShim-Swift.h"
 
 namespace firebase {
@@ -22,26 +26,32 @@ namespace firestore {
 namespace remote {
 namespace grpc_adapt {
 
+using firebase::firestore::util::MakeNSString;
+using firebase::firestore::util::MakeString;
+
 Status::Status() {
-  // Shows we can access swift shim
-  GRPCStatusShim* shim;
+  GRPCStatusShim* shim = [[GRPCStatusShim alloc] init];
+  code_ = StatusCode([shim errorCode]);
+  msg_ = MakeString([shim errorMessage]);
 }
 
-Status::Status(StatusCode code, std::string msg) {
-  // Shows we can access swift shim
-  GRPCStatusShim* shim;
+Status::Status(StatusCode code, const std::string& msg) {
+  GRPCStatusShim* shim = [GRPCStatusShim alloc];
+  shim = [shim initWithStatus:code message:MakeNSString(msg)];
+  code_ = StatusCode([shim errorCode]);
+  msg_ = MakeString([shim errorMessage]);
 }
 
 StatusCode Status::error_code() const {
-  return StatusCode::OK;
+  return code_;
 }
 
 std::string Status::error_message() const {
-  return "";
+  return msg_;
 }
 
 bool Status::ok() const {
-  return true;
+  return code_ == StatusCode::OK;
 }
 
 }  // namespace grpc_adapt

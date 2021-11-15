@@ -15,10 +15,27 @@
  */
 
 import GRPC
+import Darwin
 
 @objc public class GRPCStatusShim: NSObject {
   private var status: GRPCStatus
   @objc override public init() {
     status = GRPCStatus.ok
+  }
+
+  @objc public init(status: UInt8, message: String) {
+    self.status = GRPCStatus(code: GRPCStatus.Code(rawValue: Int(status))!, message: message)
+  }
+
+  @objc public func errorCode() -> Int {
+    return status.code.rawValue
+  }
+
+  @objc public func errorMessage() -> String {
+    return status.message ?? ""
+  }
+
+  @objc public func ok() -> Bool {
+    return status.isOk
   }
 }

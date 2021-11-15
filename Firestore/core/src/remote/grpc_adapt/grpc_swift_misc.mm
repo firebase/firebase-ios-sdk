@@ -17,6 +17,8 @@
 
 #import "GRPCSwiftShim/GRPCSwiftShim-Swift.h"
 
+#include <Foundation/Foundation.h>
+
 #include "Firestore/core/src/remote/grpc_adapt/grpc_swift_status.h"
 
 namespace firebase {

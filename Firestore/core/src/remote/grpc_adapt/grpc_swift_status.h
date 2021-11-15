@@ -144,7 +144,7 @@ class Status {
  public:
   /// Construct an OK instance.
   Status();
-  Status(StatusCode code, std::string msg);
+  Status(StatusCode code, const std::string& msg);
 
   /// Return the instance's error code.
   StatusCode error_code() const;
@@ -153,6 +153,10 @@ class Status {
 
   /// Is the status OK?
   bool ok() const;
+
+ private:
+  StatusCode code_;
+  std::string msg_;
 };
 
 }  // namespace grpc_adapt
