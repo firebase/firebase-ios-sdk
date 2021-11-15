@@ -40,10 +40,10 @@ monetize your app. More information about Firebase can be found on the
 ## Installation
 
 See the subsections below for details about the different installation methods.
-1. [Standard pod install](README.md#standard-pod-install)
-1. [Swift Package Manager](SwiftPackageManager.md)
-1. [Installing from the GitHub repo](README.md#installing-from-github)
-1. [Experimental Carthage](README.md#carthage-ios-only)
+1. [Standard pod install](#standard-pod-install)
+1. [Swift Package Manager](#swift-package-manager)
+1. [Installing from the GitHub repo](#installing-from-github)
+1. [Experimental Carthage](#carthage-ios-only)
 
 ### Standard pod install
 
