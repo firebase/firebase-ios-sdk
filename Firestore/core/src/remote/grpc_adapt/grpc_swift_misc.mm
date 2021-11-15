@@ -26,18 +26,6 @@ namespace firestore {
 namespace remote {
 namespace grpc_adapt {
 
-string_ref::const_iterator string_ref::begin() const {
-  return nullptr;
-}
-
-size_t string_ref::size() const {
-  return 0;
-}
-
-int string_ref::compare(string_ref x) const {
-  return 0;
-}
-
 ClientContext::ClientContext() {
 }
 ClientContext::~ClientContext() {

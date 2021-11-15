@@ -22,41 +22,12 @@
 #include <vector>
 
 #include "Firestore/core/src/remote/grpc_adapt/grpc_swift_status.h"
+#include "Firestore/core/src/remote/grpc_adapt/grpc_swift_string_ref.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
 namespace grpc_adapt {
-
-class string_ref {
- public:
-  typedef const char* const_iterator;
-  /// iterator
-  const_iterator begin() const;
-
-  /// capacity
-  size_t size() const;
-  int compare(string_ref x) const;
-};
-/// Comparison operators
-inline bool operator==(string_ref x, string_ref y) {
-  return x.compare(y) == 0;
-}
-inline bool operator!=(string_ref x, string_ref y) {
-  return x.compare(y) != 0;
-}
-inline bool operator<(string_ref x, string_ref y) {
-  return x.compare(y) < 0;
-}
-inline bool operator<=(string_ref x, string_ref y) {
-  return x.compare(y) <= 0;
-}
-inline bool operator>(string_ref x, string_ref y) {
-  return x.compare(y) > 0;
-}
-inline bool operator>=(string_ref x, string_ref y) {
-  return x.compare(y) >= 0;
-}
 
 class ClientContext {
  public:
