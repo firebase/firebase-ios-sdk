@@ -37,7 +37,7 @@ static NSString *const kFirebasePerfErrorDomain = @"com.firebase.perf";
 
 @interface FIRPerformance () <FIRLibrary, FIRPerformanceInstanceProvider>
 
-@property(nonatomic, strong) id<FIRCrashlyticsInterop> crashlytics;
+@property(nonatomic, nullable, strong) id<FIRCrashlyticsInterop> crashlytics;
 
 @end
 
@@ -46,7 +46,7 @@ static NSString *const kFirebasePerfErrorDomain = @"com.firebase.perf";
 #pragma mark - Public methods
 
 + (void)load {
-  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self withName:@"firebase-crashlytics"];
+  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self withName:@"firebase-performance"];
 }
 
 + (NSArray<FIRComponent *> *)componentsToRegister {
@@ -71,12 +71,19 @@ static NSString *const kFirebasePerfErrorDomain = @"com.firebase.perf";
 }
 
 + (instancetype)sharedInstance {
-  static FIRPerformance *firebasePerformance = nil;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    firebasePerformance = [[FIRPerformance alloc] init];
-  });
-  return firebasePerformance;
+  // The container will return the same instance since isCacheable is set
+
+  FIRApp *defaultApp = [FIRApp defaultApp];  // Missing configure will be logged here.
+
+  // Get the instance from the `FIRApp`'s container. This will create a new instance the
+  // first time it is called, and since `isCacheable` is set in the component creation
+  // block, it will return the existing instance on subsequent calls.
+  id<FIRPerformanceInstanceProvider> instance =
+      FIR_COMPONENT(FIRPerformanceInstanceProvider, defaultApp.container);
+
+  // In the component creation block, we return an instance of `FIRCrashlytics`. Cast it and
+  // return it.
+  return (FIRPerformance *)instance;
 }
 
 + (FIRTrace *)startTraceWithName:(NSString *)name {
@@ -109,7 +116,7 @@ static NSString *const kFirebasePerfErrorDomain = @"com.firebase.perf";
 
 #pragma mark - Internal methods
 
-- (instancetype)initWithCrashlytics:(id<FIRAnalyticsInterop>)crashlytics {
+- (instancetype)initWithCrashlytics:(id<FIRCrashlyticsInterop>)crashlytics {
   self = [super init];
   if (self) {
     _customAttributes = [[NSMutableDictionary<NSString *, NSString *> alloc] init];

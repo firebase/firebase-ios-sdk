@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-@protocol FIRCrashlyticsInterop;
+@protocol FIRCrashlyticsInterop
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -58,5 +58,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)recordError:(NSError *)error NS_SWIFT_NAME(record(error:));
 
-NS_ASSUME_NONNULL_END
+@end
 
+NS_ASSUME_NONNULL_END
