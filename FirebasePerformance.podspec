@@ -32,6 +32,7 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
     'FirebaseCore/Sources/Private/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
     'FirebaseRemoteConfig/Sources/Private/*.h',
+    'Interop/Crashlytics/Public/*.h',
   ]
 
   s.requires_arc = [

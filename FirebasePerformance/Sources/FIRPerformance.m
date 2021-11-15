@@ -25,11 +25,50 @@
 #import "FirebasePerformance/Sources/Instrumentation/FPRInstrumentation.h"
 #import "FirebasePerformance/Sources/Timer/FIRTrace+Internal.h"
 
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+
+#import "Interop/Crashlytics/Public/FIRCrashlyticsInterop.h"
+
 static NSString *const kFirebasePerfErrorDomain = @"com.firebase.perf";
+
+/// Empty protocol to register with FirebaseCore's component system.
+@protocol FIRPerformanceInstanceProvider <NSObject>
+@end
+
+@interface FIRPerformance () <FIRLibrary, FIRPerformanceInstanceProvider>
+
+@property(nonatomic, strong) id<FIRCrashlyticsInterop> crashlytics;
+
+@end
 
 @implementation FIRPerformance
 
 #pragma mark - Public methods
+
++ (void)load {
+  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self withName:@"firebase-crashlytics"];
+}
+
++ (NSArray<FIRComponent *> *)componentsToRegister {
+  FIRDependency *crashlyticsDep =
+      [FIRDependency dependencyWithProtocol:@protocol(FIRCrashlyticsInterop)];
+
+  FIRComponentCreationBlock creationBlock =
+      ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
+    id<FIRCrashlyticsInterop> crashlytics = FIR_COMPONENT(FIRCrashlyticsInterop, container);
+
+    *isCacheable = YES;
+
+    return [[FIRPerformance alloc] initWithCrashlytics:crashlytics];
+  };
+
+  FIRComponent *component =
+      [FIRComponent componentWithProtocol:@protocol(FIRPerformanceInstanceProvider)
+                      instantiationTiming:FIRInstantiationTimingAlwaysEager
+                             dependencies:@[ crashlyticsDep ]
+                            creationBlock:creationBlock];
+  return @[ component ];
+}
 
 + (instancetype)sharedInstance {
   static FIRPerformance *firebasePerformance = nil;
@@ -70,13 +109,14 @@ static NSString *const kFirebasePerfErrorDomain = @"com.firebase.perf";
 
 #pragma mark - Internal methods
 
-- (instancetype)init {
+- (instancetype)initWithCrashlytics:(id<FIRAnalyticsInterop>)crashlytics {
   self = [super init];
   if (self) {
     _customAttributes = [[NSMutableDictionary<NSString *, NSString *> alloc] init];
     _customAttributesSerialQueue =
         dispatch_queue_create("com.google.perf.customAttributes", DISPATCH_QUEUE_SERIAL);
     _fprClient = [FPRClient sharedInstance];
+    self.crashlytics = crashlytics;
   }
   return self;
 }
