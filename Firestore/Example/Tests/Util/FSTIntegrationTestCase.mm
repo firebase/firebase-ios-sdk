@@ -35,7 +35,6 @@
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 
-#define GRPC_SWIFT 1
 #include "Firestore/core/src/credentials/credentials_provider.h"
 #include "Firestore/core/src/credentials/empty_credentials_provider.h"
 #include "Firestore/core/src/credentials/user.h"
@@ -52,7 +51,6 @@
 #include "Firestore/core/test/unit/testutil/async_testing.h"
 #include "Firestore/core/test/unit/testutil/status_testing.h"
 #include "absl/memory/memory.h"
-#undef GRPC_SWIFT
 
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::credentials::CredentialChangeListener;

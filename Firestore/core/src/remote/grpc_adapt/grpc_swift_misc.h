@@ -72,6 +72,7 @@ class ClientContext {
 class Slice {
  public:
   Slice(const void* buf, size_t len);
+  Slice(const std::string& s);
   /// Byte size.
   size_t size() const;
 
@@ -183,6 +184,8 @@ struct SslCredentialsOptions {
   /// chain.
   std::string pem_cert_chain;
 };
+
+class GrpcLibraryCodegen {};
 
 #define GRPC_ARG_KEEPALIVE_TIME_MS "grpc.keepalive_time_ms"
 

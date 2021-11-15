@@ -54,6 +54,8 @@ void ClientContext::set_initial_metadata_corked(bool) {
 
 Slice::Slice(const void* buf, size_t len) {
 }
+Slice::Slice(const std::string& s) {
+}
 size_t Slice::size() const {
   return 0;
 }

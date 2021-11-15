@@ -27,6 +27,11 @@ Status::Status() {
   GRPCStatusShim* shim;
 }
 
+Status::Status(StatusCode code, std::string msg) {
+  // Shows we can access swift shim
+  GRPCStatusShim* shim;
+}
+
 StatusCode Status::error_code() const {
   return StatusCode::OK;
 }

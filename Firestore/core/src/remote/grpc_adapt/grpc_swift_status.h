@@ -144,6 +144,7 @@ class Status {
  public:
   /// Construct an OK instance.
   Status();
+  Status(StatusCode code, std::string msg);
 
   /// Return the instance's error code.
   StatusCode error_code() const;
