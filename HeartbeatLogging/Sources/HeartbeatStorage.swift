@@ -14,9 +14,9 @@
 
 import Foundation
 
-protocol HeartbeatStorageProtocol {
-  typealias HeartbeatInfoTransform = (HeartbeatInfo?) -> HeartbeatInfo?
+typealias HeartbeatInfoTransform = (HeartbeatInfo?) -> HeartbeatInfo?
 
+protocol HeartbeatStorageProtocol {
   func readAndWriteAsync(using transform: @escaping HeartbeatInfoTransform)
   // TODO: Evaluate if async variant of below API is needed.
   func getAndReset(using transform: HeartbeatInfoTransform?) throws -> HeartbeatInfo?
@@ -35,18 +35,17 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
 
   init(id: String,
        storage: Storage,
-       coder: Coder = JSONCoder(),
-       queue: DispatchQueue? = nil) {
+       coder: Coder = JSONCoder()) {
     self.id = id
     self.storage = storage
     self.coder = coder
-    self.queue = queue ?? DispatchQueue(label: "com.heartbeat.storage.\(id)")
+    queue = DispatchQueue(label: "com.heartbeat.storage.\(id)")
   }
 
   // MARK: - Instance Management
 
   /// <#Description#>
-  private(set) static var cachedInstances: [String: WeakContainer<HeartbeatStorage>] = [:]
+  private static var cachedInstances: [String: WeakContainer<HeartbeatStorage>] = [:]
 
   /// <#Description#>
   /// - Parameter id: <#id description#>

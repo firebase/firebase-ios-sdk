@@ -42,7 +42,7 @@ class HeartbeatControllerTests: XCTestCase {
     let heartbeatPayload = controller.flush()
 
     // Then
-    assertEqualPayloadStrings(
+    try assertEqualPayloadStrings(
       heartbeatPayload.headerValue(),
       """
       {
@@ -77,7 +77,7 @@ class HeartbeatControllerTests: XCTestCase {
     let heartbeatPayload = controller.flush()
 
     // Then
-    assertEqualPayloadStrings(
+    try assertEqualPayloadStrings(
       heartbeatPayload.headerValue(),
       """
       {
@@ -123,7 +123,7 @@ class HeartbeatControllerTests: XCTestCase {
     // Then
     let heartbeatPayload = controller.flush()
 
-    assertEqualPayloadStrings(
+    try assertEqualPayloadStrings(
       heartbeatPayload.headerValue(),
       """
       {
@@ -155,7 +155,7 @@ class HeartbeatControllerTests: XCTestCase {
     // Then
     let heartbeatPayload = controller.flush()
 
-    assertEqualPayloadStrings(
+    try assertEqualPayloadStrings(
       heartbeatPayload.headerValue(),
       """
       {
@@ -184,7 +184,7 @@ class HeartbeatControllerTests: XCTestCase {
     controller.log("dummy_agent")
 
     // Then
-    assertEqualPayloadStrings(
+    try assertEqualPayloadStrings(
       heartbeatPayload.headerValue(),
       """
       {
@@ -227,22 +227,33 @@ extension HeartbeatControllerTests {
 
   // TODO: - Revisit below assertion implementation.
   // This can be simplified further by making HeartbeatsPayload conform to Equatable...
-  func assertEqualPayloadStrings(_ encoded: String, _ literal: String) {
-    let encodedData = Data(base64Encoded: encoded)!
-    let literalData = literal.data(using: .utf8)!
+  func assertEqualPayloadStrings(_ encoded: String, _ literal: String) throws {
+    let encodedData = try XCTUnwrap(Data(base64Encoded: encoded))
+    let literalData = try XCTUnwrap(literal.data(using: .utf8))
 
-    let payloadFromEncoded = try! JSONDecoder().decode(HeartbeatsPayload.self, from: encodedData)
-    let payloadFromLiteral = try! JSONDecoder().decode(HeartbeatsPayload.self, from: literalData)
+    let payloadFromEncoded = try XCTUnwrap(
+      try? JSONDecoder().decode(HeartbeatsPayload.self, from: encodedData),
+      "Could not convert encoded string's data to HeartbeatsPayload"
+    )
+
+    let payloadFromLiteral = try XCTUnwrap(
+      try? JSONDecoder().decode(HeartbeatsPayload.self, from: literalData),
+      """
+      Could not convert literal string's data to HeartbeatsPayload.
+      Ensure that literal string is valid JSON.
+      """
+    )
 
     let encoder = JSONEncoder()
     encoder.outputFormatting = [.sortedKeys, .prettyPrinted]
 
-    let payloadDataFromEncoded = try! encoder.encode(payloadFromEncoded)
-    let payloadDataFromLiteral = try! encoder.encode(payloadFromLiteral)
+    let payloadDataFromEncoded = try XCTUnwrap(encoder.encode(payloadFromEncoded))
+    let payloadDataFromLiteral = try XCTUnwrap(encoder.encode(payloadFromLiteral))
 
-    let jsonObjectFromEncoded = try! JSONSerialization
+    let jsonObjectFromEncoded = try JSONSerialization
       .jsonObject(with: payloadDataFromEncoded) as? [String: Any] ?? [:]
-    let jsonObjectFromLiteral = try! JSONSerialization
+
+    let jsonObjectFromLiteral = try JSONSerialization
       .jsonObject(with: payloadDataFromLiteral) as? [String: Any] ?? [:]
 
     XCTAssert(

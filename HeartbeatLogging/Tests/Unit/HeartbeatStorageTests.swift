@@ -17,12 +17,6 @@ import XCTest
 
 // TODO: Add additional validation (#8896 comments).
 
-extension Weak: Equatable {
-  public static func == (lhs: Weak<Object>, rhs: Weak<Object>) -> Bool {
-    lhs.object === rhs.object
-  }
-}
-
 enum DummyError: Error {
   case error
 }
@@ -55,102 +49,132 @@ class StorageFake: Storage {
 class HeartbeatStorageTests: XCTestCase {
   // MARK: - Instance Management
 
-  func testGettingInstance_WhenInstanceDoesNotExist_ReturnsNewInstance() {
+  func testGettingInstance_WithSameID_ReturnsSameInstance() {
     // Given
-    XCTAssertEqual(HeartbeatStorage.cachedInstances, [:])
+    let heartbeatStorage1 = HeartbeatStorage.getInstance(id: "sparky")
     // When
-    let heartbeatStorage = HeartbeatStorage.getInstance(id: "sparky")
+    let heartbeatStorage2 = HeartbeatStorage.getInstance(id: "sparky")
     // Then
-    XCTAssertEqual(
-      HeartbeatStorage.cachedInstances,
-      ["sparky": Weak(object: heartbeatStorage)]
+    XCTAssert(
+      heartbeatStorage1 === heartbeatStorage1,
+      "Instances should reference the same object."
     )
 
-    addTeardownBlock {
-      // Assert that deallocated `HeartbeatStorage` is removed
-      // from cached instances.
-      XCTAssertEqual(HeartbeatStorage.cachedInstances, [:])
+    addTeardownBlock { [weak heartbeatStorage1, weak heartbeatStorage2] in
+      XCTAssertNil(heartbeatStorage1)
+      XCTAssertNil(heartbeatStorage2)
     }
   }
 
-  func testGettingInstance_WhenInstanceDoesExist_ReturnsExistingInstance() {
+  func testGettingInstance_WithDifferentID_ReturnsDifferentInstances() {
     // Given
-    let cachedHeartbeatStorage = HeartbeatStorage.getInstance(id: "sparky")
-    XCTAssertEqual(
-      HeartbeatStorage.cachedInstances,
-      ["sparky": Weak(object: cachedHeartbeatStorage)]
-    )
+    let heartbeatStorage1 = HeartbeatStorage.getInstance(id: "sparky_jr")
     // When
-    let heartbeatStorage = HeartbeatStorage.getInstance(id: "sparky")
+    let heartbeatStorage2 = HeartbeatStorage.getInstance(id: "sparky_sr")
     // Then
-    XCTAssert(heartbeatStorage === cachedHeartbeatStorage)
+    XCTAssert(
+      heartbeatStorage1 !== heartbeatStorage2,
+      "Instances should NOT reference the same object."
+    )
 
-    addTeardownBlock {
-      // Assert that deallocated `HeartbeatStorage` is removed
-      // from cached instances.
-      XCTAssertEqual(HeartbeatStorage.cachedInstances, [:])
+    addTeardownBlock { [weak heartbeatStorage1, weak heartbeatStorage2] in
+      XCTAssertNil(heartbeatStorage1)
+      XCTAssertNil(heartbeatStorage2)
     }
   }
 
-  func testCachedInstancesAreRemovedUponDeinit() {
+  func testCachedInstancesCannotBeRetainedWeakly() {
     // Given
-    XCTAssertEqual(HeartbeatStorage.cachedInstances, [:])
+    var strongHeartbeatStorage: HeartbeatStorage? = .getInstance(id: "sparky")
+    weak var weakHeartbeatStorage: HeartbeatStorage? = .getInstance(id: "sparky")
+    XCTAssert(
+      strongHeartbeatStorage === weakHeartbeatStorage,
+      "Instances should reference the same object."
+    )
+
+    // When
+    strongHeartbeatStorage = nil
+
+    // Then
+    XCTAssertNil(strongHeartbeatStorage)
+    XCTAssertNil(weakHeartbeatStorage)
+  }
+
+  func testCachedInstancesAreRemovedUponDeinitAndCanBeRetainedStrongly() {
+    // Given
     var heartbeatStorage1: HeartbeatStorage? = .getInstance(id: "sparky")
     var heartbeatStorage2: HeartbeatStorage? = .getInstance(id: "sparky")
-    XCTAssertNotNil(heartbeatStorage1)
-    XCTAssertNotNil(heartbeatStorage2)
-    XCTAssert(heartbeatStorage1 === heartbeatStorage2)
+    XCTAssert(
+      heartbeatStorage1 === heartbeatStorage2,
+      "Instances should reference the same object."
+    )
+
     // When
     heartbeatStorage1 = nil
-    // - Then
     XCTAssertNil(heartbeatStorage1)
     XCTAssertNotNil(heartbeatStorage2)
-    XCTAssertEqual(
-      HeartbeatStorage.cachedInstances,
-      ["sparky": Weak(object: heartbeatStorage2)]
-    )
-    // When
+
+    // Then
     heartbeatStorage2 = nil
-    // - Then
     XCTAssertNil(heartbeatStorage2)
-    XCTAssertEqual(HeartbeatStorage.cachedInstances, [:])
-
-    // Then
-    let heartbeatStorage = HeartbeatStorage.getInstance(id: "sparky")
-    XCTAssertEqual(
-      HeartbeatStorage.cachedInstances,
-      ["sparky": Weak(object: heartbeatStorage)]
-    )
-  }
-
-  func testDeinit_WhenCached_RemovesInstanceFromInstanceCache() {
-    // Given
-    var heartbeatStorage: HeartbeatStorage? = .getInstance(id: "sparky")
-    XCTAssertEqual(
-      HeartbeatStorage.cachedInstances,
-      ["sparky": Weak(object: heartbeatStorage)]
-    )
-    // When
-    heartbeatStorage = nil
-    // Then
-    XCTAssertNil(heartbeatStorage)
-    XCTAssertEqual(HeartbeatStorage.cachedInstances, [:])
-  }
-
-  func testDeinit_WhenNotCached_DoesNotAffectInstanceCache() {
-    // Given
-    var heartbeatStorage: HeartbeatStorage?
-    heartbeatStorage = HeartbeatStorage(id: "sparky", storage: StorageFake())
-    XCTAssertEqual(HeartbeatStorage.cachedInstances, [:])
-    // When
-    heartbeatStorage = nil
-    // Then
-    XCTAssertNil(heartbeatStorage)
-    XCTAssertEqual(HeartbeatStorage.cachedInstances, [:])
   }
 }
 
 // MARK: - HeartbeatStorageProtocol
+
+// test behavior not methods
+// test<System Under Test>_<Condition Or State Change>_<Expected Result>()
+
+extension HeartbeatStorageTests {
+//  func testGetAndResetThrowsIfSaveFails() {
+//    let heartbeatStorage = HeartbeatStorage(
+//  }
+
+  func testReadAndWrite_WhenLoadFails_GivesNilInfo() {}
+
+  func testGetAndReset_WhenLoadFails_GivesNilInfo() {}
+
+  func testReadAndWriteAndThenGetAndSet() {
+    let storage = HeartbeatStorage(id: #file, storage: StorageFake())
+
+    let expectation = expectation(description: #function)
+
+    storage.readAndWriteAsync { heartbeatInfo in
+      XCTAssertNil(heartbeatInfo)
+      expectation.fulfill()
+      return heartbeatInfo
+    }
+
+    wait(for: [expectation], timeout: 0.5)
+  }
+
+  func testOperationsAreSynrononizedSerially() throws {
+    // Given
+    var expectations: [XCTestExpectation] = []
+    let heartbeatStorage = HeartbeatStorage(id: #file, storage: StorageFake())
+
+    // When
+    for i in 0 ... 1000 {
+      let expectation = expectation(description: "\(#function)_\(i)")
+
+      expectations.append(expectation)
+
+      let transform: HeartbeatInfoTransform = { heartbeatInfo in
+        expectation.fulfill()
+        return heartbeatInfo
+      }
+
+      if /* randomChoice */ .random() {
+        heartbeatStorage.readAndWriteAsync(using: transform)
+      } else {
+        try heartbeatStorage.getAndReset(using: transform)
+      }
+    }
+
+    // Then
+    wait(for: expectations, timeout: 1.0, enforceOrder: true)
+  }
+}
 
 // MARK: - HeartbeatStorage + StorageFactory
 
