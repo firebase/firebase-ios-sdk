@@ -555,18 +555,18 @@ void FIRCLSLogInternalWrite(FIRCLSFile *file, NSString *message, uint64_t time) 
 }
 
 BOOL FIRCLSIsInDebugMode(void) {
-    if (FIRCLSIsDebugMode == nil) {
-        NSArray *arguments = [NSProcessInfo processInfo].arguments;
-        FIRCLSIsDebugMode = @([arguments containsObject:@"-FIRDebugEnabled"]);
-    }
-    return [FIRCLSIsDebugMode boolValue];
+  if (FIRCLSIsDebugMode == nil) {
+    NSArray *arguments = [NSProcessInfo processInfo].arguments;
+    FIRCLSIsDebugMode = @([arguments containsObject:@"-FIRDebugEnabled"]);
+  }
+  return [FIRCLSIsDebugMode boolValue];
 }
 
 void FIRCLSLogConsoleWrite(NSString *message) {
-    if (!FIRCLSIsInDebugMode()) {
-        return;
-    }
-    NSLog(@"%@", message);
+  if (!FIRCLSIsInDebugMode()) {
+    return;
+  }
+  NSLog(@"%@", message);
 }
 
 void FIRCLSLogInternal(FIRCLSUserLoggingABStorage *storage,
