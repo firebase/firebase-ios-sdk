@@ -61,45 +61,14 @@ class ChannelArguments {
   void SetInt(const std::string& key, int value);
 };
 
-struct SslCredentialsOptions {
-  /// The buffer containing the PEM encoding of the server root certificates. If
-  /// this parameter is empty, the default roots will be used.  The default
-  /// roots can be overridden using the \a GRPC_DEFAULT_SSL_ROOTS_FILE_PATH
-  /// environment variable pointing to a file on the file system containing the
-  /// roots.
-  std::string pem_root_certs;
-
-  /// The buffer containing the PEM encoding of the client's private key. This
-  /// parameter can be empty if the client does not have a private key.
-  std::string pem_private_key;
-
-  /// The buffer containing the PEM encoding of the client's certificate chain.
-  /// This parameter can be empty if the client does not have a certificate
-  /// chain.
-  std::string pem_cert_chain;
-};
-
 #define GRPC_ARG_KEEPALIVE_TIME_MS "grpc.keepalive_time_ms"
 
-class ChannelCredentials {};
+std::shared_ptr<Channel> CreateCustomChannel(const std::string& target,
+                                             const std::string& certs,
+                                             const ChannelArguments& args);
 
-static std::shared_ptr<Channel> CreateCustomChannel(
-    const std::string& target,
-    const std::string& certs,
-    const ChannelArguments& args) {
-        (void) target;
-        (void) certs;
-        (void) args;
-  return nullptr;
-}
-
-static std::shared_ptr<Channel> CreateInsecureCustomChannel(
-    const std::string& target,
-    const ChannelArguments& args) {
-  (void) target;
-  (void) args;
-  return nullptr;
-}
+std::shared_ptr<Channel> CreateInsecureCustomChannel(
+    const std::string& target, const ChannelArguments& args);
 
 }  // namespace grpc_adapt
 }  // namespace remote
