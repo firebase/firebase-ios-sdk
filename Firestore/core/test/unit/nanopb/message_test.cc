@@ -23,6 +23,7 @@
 #include "Firestore/Protos/nanopb/google/firestore/v1/firestore.nanopb.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/nanopb/writer.h"
+#include "Firestore/core/src/remote/grpc_adapt/grpc_adaption.h"
 #include "Firestore/core/src/remote/grpc_nanopb.h"
 #include "Firestore/core/test/unit/testutil/status_testing.h"
 #include "gtest/gtest.h"

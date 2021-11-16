@@ -162,6 +162,7 @@ class GrpcLibraryCodegen {};
 
 static std::shared_ptr<ChannelCredentials> SslCredentials(
     const SslCredentialsOptions& options) {
+  (void)options;
   return nullptr;
 }
 
@@ -173,6 +174,9 @@ static std::shared_ptr<Channel> CreateCustomChannel(
     const std::string& target,
     const std::shared_ptr<ChannelCredentials>& creds,
     const ChannelArguments& args) {
+  (void)target;
+  (void)creds;
+  (void)args;
   return nullptr;
 }
 

@@ -28,6 +28,7 @@
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/remote/firebase_metadata_provider.h"
 #include "Firestore/core/src/remote/firebase_metadata_provider_noop.h"
+#include "Firestore/core/src/remote/grpc_adapt/grpc_adaption.h"
 #include "Firestore/core/src/remote/grpc_nanopb.h"
 #include "Firestore/core/src/remote/serializer.h"
 #include "Firestore/core/src/util/async_queue.h"
@@ -292,8 +293,8 @@ TEST_F(DatastoreTest, CommitMutationsError) {
   // Make sure Auth has a chance to run.
   worker_queue->EnqueueBlocking([] {});
 
-  ForceFinish(
-      {{Type::Finish, grpc_adapt::Status{grpc_adapt::UNAVAILABLE, ""}}});
+  ForceFinish({{Type::Finish,
+                grpc_adapt::Status{grpc_adapt::StatusCode::UNAVAILABLE, ""}}});
 
   EXPECT_TRUE(done);
   EXPECT_FALSE(resulting_status.ok());
@@ -313,8 +314,8 @@ TEST_F(DatastoreTest, LookupDocumentsErrorBeforeFirstRead) {
 
   ForceFinishAnyTypeOrder({{Type::Read, CompletionResult::Error},
                            {Type::Write, CompletionResult::Error}});
-  ForceFinish(
-      {{Type::Finish, grpc_adapt::Status{grpc_adapt::UNAVAILABLE, ""}}});
+  ForceFinish({{Type::Finish,
+                grpc_adapt::Status{grpc_adapt::StatusCode::UNAVAILABLE, ""}}});
 
   EXPECT_TRUE(done);
   EXPECT_FALSE(resulting_status.ok());
@@ -336,8 +337,8 @@ TEST_F(DatastoreTest, LookupDocumentsErrorAfterFirstRead) {
   ForceFinishAnyTypeOrder({{Type::Write, CompletionResult::Ok},
                            {Type::Read, MakeFakeDocument("foo/1")},
                            {Type::Read, CompletionResult::Error}});
-  ForceFinish(
-      {{Type::Finish, grpc_adapt::Status{grpc_adapt::UNAVAILABLE, ""}}});
+  ForceFinish({{Type::Finish,
+                grpc_adapt::Status{grpc_adapt::StatusCode::UNAVAILABLE, ""}}});
 
   EXPECT_TRUE(done);
   EXPECT_TRUE(resulting_docs.empty());

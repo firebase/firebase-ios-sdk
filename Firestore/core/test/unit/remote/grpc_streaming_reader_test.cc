@@ -211,7 +211,7 @@ TEST_F(GrpcStreamingReaderTest, ErrorOnWrite) {
       case Type::Finish:
         EXPECT_TRUE(failed_write);
         *completion->status() =
-            grpc_adapt::Status{grpc_adapt::RESOURCE_EXHAUSTED, ""};
+            grpc_adapt::Status{grpc_adapt::StatusCode::RESOURCE_EXHAUSTED, ""};
         completion->Complete(true);
         return true;
 
