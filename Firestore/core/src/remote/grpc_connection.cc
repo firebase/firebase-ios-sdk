@@ -62,13 +62,6 @@ std::string MakeString(absl::string_view view) {
   return view.data() ? std::string{view.data(), view.size()} : std::string{};
 }
 
-std::shared_ptr<grpc_adapt::ChannelCredentials> CreateSslCredentials(
-    const std::string& certificate) {
-  grpc_adapt::SslCredentialsOptions options;
-  options.pem_root_certs = certificate;
-  return grpc_adapt::SslCredentials(options);
-}
-
 class HostConfig {
   using Guard = std::lock_guard<std::mutex>;
 
@@ -300,13 +293,13 @@ std::shared_ptr<grpc_adapt::Channel> GrpcConnection::CreateChannel() const {
   if (!host_config) {
     std::string root_certificate = LoadGrpcRootCertificate();
     return grpc_adapt::CreateCustomChannel(
-        host, CreateSslCredentials(root_certificate), args);
+        host, root_certificate, args);
   }
 
   // For the case when `Settings.set_ssl_enabled(false)`.
   if (host_config->use_insecure_channel()) {
-    return grpc_adapt::CreateCustomChannel(
-        host, grpc_adapt::InsecureChannelCredentials(), args);
+    return grpc_adapt::CreateInsecureCustomChannel(
+        host, args);
   }
 
   // For tests only
@@ -320,7 +313,7 @@ std::shared_ptr<grpc_adapt::Channel> GrpcConnection::CreateChannel() const {
                   .c_str());
 
   return grpc_adapt::CreateCustomChannel(
-      host, CreateSslCredentials(test_certificate.ValueOrDie()), args);
+      host, test_certificate.ValueOrDie(), args);
 }
 
 std::unique_ptr<GrpcStream> GrpcConnection::CreateStream(

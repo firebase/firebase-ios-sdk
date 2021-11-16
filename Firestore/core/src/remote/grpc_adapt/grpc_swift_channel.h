@@ -83,19 +83,21 @@ struct SslCredentialsOptions {
 
 class ChannelCredentials {};
 
-static std::shared_ptr<ChannelCredentials> SslCredentials(
-    const SslCredentialsOptions& options) {
-  return nullptr;
-}
-
-static std::shared_ptr<ChannelCredentials> InsecureChannelCredentials() {
-  return nullptr;
-}
-
 static std::shared_ptr<Channel> CreateCustomChannel(
     const std::string& target,
-    const std::shared_ptr<ChannelCredentials>& creds,
+    const std::string& certs,
     const ChannelArguments& args) {
+        (void) target;
+        (void) certs;
+        (void) args;
+  return nullptr;
+}
+
+static std::shared_ptr<Channel> CreateInsecureCustomChannel(
+    const std::string& target,
+    const ChannelArguments& args) {
+  (void) target;
+  (void) args;
   return nullptr;
 }
 

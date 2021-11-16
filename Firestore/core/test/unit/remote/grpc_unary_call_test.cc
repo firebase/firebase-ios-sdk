@@ -20,6 +20,7 @@
 #include <memory>
 
 #include "Firestore/core/src/remote/connectivity_monitor.h"
+#include "Firestore/core/src/remote/grpc_adapt/grpc_adaption.h"
 #include "Firestore/core/src/util/async_queue.h"
 #include "Firestore/core/src/util/status.h"
 #include "Firestore/core/src/util/statusor.h"
@@ -135,7 +136,7 @@ TEST_F(GrpcUnaryCallTest, Error) {
   StartCall();
 
   ForceFinish({{Type::Finish, MakeByteBuffer("foo"),
-                grpc_adapt::Status{grpc_adapt::UNAVAILABLE, ""}}});
+                grpc_adapt::Status{grpc_adapt::StatusCode::UNAVAILABLE, ""}}});
 
   ASSERT_TRUE(status.has_value());
   EXPECT_EQ(status.value().code(), Error::kErrorUnavailable);

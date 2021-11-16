@@ -44,39 +44,39 @@ using util::StringFormat;
 
 std::string GetGrpcErrorCodeName(grpc_adapt::StatusCode error) {
   switch (error) {
-    case grpc_adapt::OK:
+    case grpc_adapt::StatusCode::OK:
       return "Ok";
-    case grpc_adapt::CANCELLED:
+    case grpc_adapt::StatusCode::CANCELLED:
       return "Cancelled";
-    case grpc_adapt::UNKNOWN:
+    case grpc_adapt::StatusCode::UNKNOWN:
       return "Unknown";
-    case grpc_adapt::INVALID_ARGUMENT:
+    case grpc_adapt::StatusCode::INVALID_ARGUMENT:
       return "InvalidArgument";
-    case grpc_adapt::DEADLINE_EXCEEDED:
+    case grpc_adapt::StatusCode::DEADLINE_EXCEEDED:
       return "DeadlineExceeded";
-    case grpc_adapt::NOT_FOUND:
+    case grpc_adapt::StatusCode::NOT_FOUND:
       return "NotFound";
-    case grpc_adapt::ALREADY_EXISTS:
+    case grpc_adapt::StatusCode::ALREADY_EXISTS:
       return "AlreadyExists";
-    case grpc_adapt::PERMISSION_DENIED:
+    case grpc_adapt::StatusCode::PERMISSION_DENIED:
       return "PermissionDenied";
-    case grpc_adapt::RESOURCE_EXHAUSTED:
+    case grpc_adapt::StatusCode::RESOURCE_EXHAUSTED:
       return "ResourceExhausted";
-    case grpc_adapt::FAILED_PRECONDITION:
+    case grpc_adapt::StatusCode::FAILED_PRECONDITION:
       return "FailedPrecondition";
-    case grpc_adapt::ABORTED:
+    case grpc_adapt::StatusCode::ABORTED:
       return "Aborted";
-    case grpc_adapt::OUT_OF_RANGE:
+    case grpc_adapt::StatusCode::OUT_OF_RANGE:
       return "OutOfRange";
-    case grpc_adapt::UNIMPLEMENTED:
+    case grpc_adapt::StatusCode::UNIMPLEMENTED:
       return "Unimplemented";
-    case grpc_adapt::INTERNAL:
+    case grpc_adapt::StatusCode::INTERNAL:
       return "Internal";
-    case grpc_adapt::UNAVAILABLE:
+    case grpc_adapt::StatusCode::UNAVAILABLE:
       return "Unavailable";
-    case grpc_adapt::DATA_LOSS:
+    case grpc_adapt::StatusCode::DATA_LOSS:
       return "DataLoss";
-    case grpc_adapt::UNAUTHENTICATED:
+    case grpc_adapt::StatusCode::UNAUTHENTICATED:
       return "Unauthenticated";
     default:
       HARD_FAIL(StringFormat("Unexpected error code: '%s'", error).c_str());

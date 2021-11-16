@@ -312,9 +312,9 @@ TEST_F(StreamTest, ObserverReceivesStreamClose) {
 TEST_F(StreamTest, ObserverReceivesStreamCloseOnError) {
   StartStream();
 
-  ForceFinish(
-      {{Type::Read, CompletionResult::Error},
-       {Type::Finish, grpc_adapt::Status{grpc_adapt::UNAVAILABLE, ""}}});
+  ForceFinish({{Type::Read, CompletionResult::Error},
+               {Type::Finish,
+                grpc_adapt::Status{grpc_adapt::StatusCode::UNAVAILABLE, ""}}});
 
   worker_queue->EnqueueBlocking([&] {
     EXPECT_FALSE(firestore_stream->IsStarted());
@@ -467,7 +467,8 @@ TEST_F(StreamTest, Backoff) {
   // backoff won't kick in in-between the checks.
   ForceFinish(
       {{Type::Read, CompletionResult::Error},
-       {Type::Finish, grpc_adapt::Status{grpc_adapt::RESOURCE_EXHAUSTED, ""}}});
+       {Type::Finish,
+        grpc_adapt::Status{grpc_adapt::StatusCode::RESOURCE_EXHAUSTED, ""}}});
   EXPECT_FALSE(worker_queue->IsScheduled(kBackoffTimerId));
 
   StartStream();
@@ -481,7 +482,8 @@ TEST_F(StreamTest, Backoff) {
 
   ForceFinish(
       {{Type::Read, CompletionResult::Error},
-       {Type::Finish, grpc_adapt::Status{grpc_adapt::RESOURCE_EXHAUSTED, ""}}});
+       {Type::Finish,
+        grpc_adapt::Status{grpc_adapt::StatusCode::RESOURCE_EXHAUSTED, ""}}});
   worker_queue->EnqueueBlocking([&] { firestore_stream->InhibitBackoff(); });
   StartStream();
   EXPECT_FALSE(worker_queue->IsScheduled(kBackoffTimerId));
@@ -511,7 +513,7 @@ TEST_F(StreamTest, ErrorOnWrite) {
       case Type::Finish:
         EXPECT_TRUE(failed_write);
         *completion->status() =
-            grpc_adapt::Status{grpc_adapt::UNAUTHENTICATED, ""};
+            grpc_adapt::Status{grpc_adapt::StatusCode::UNAUTHENTICATED, ""};
         completion->Complete(true);
         return true;
 
@@ -548,7 +550,8 @@ TEST_F(StreamTest, RefreshesTokenUponExpiration) {
   StartStream();
   ForceFinish(
       {{Type::Read, CompletionResult::Error},
-       {Type::Finish, grpc_adapt::Status{grpc_adapt::UNAUTHENTICATED, ""}}});
+       {Type::Finish,
+        grpc_adapt::Status{grpc_adapt::StatusCode::UNAUTHENTICATED, ""}}});
   // Error "Unauthenticated" should invalidate the token.
   EXPECT_EQ(auth_credentials->observed_states(),
             States({"GetToken", "InvalidateToken"}));
@@ -557,9 +560,9 @@ TEST_F(StreamTest, RefreshesTokenUponExpiration) {
 
   worker_queue->EnqueueBlocking([&] { firestore_stream->InhibitBackoff(); });
   StartStream();
-  ForceFinish(
-      {{Type::Read, CompletionResult::Error},
-       {Type::Finish, grpc_adapt::Status{grpc_adapt::UNAVAILABLE, ""}}});
+  ForceFinish({{Type::Read, CompletionResult::Error},
+               {Type::Finish,
+                grpc_adapt::Status{grpc_adapt::StatusCode::UNAVAILABLE, ""}}});
   // Simulate a different error -- token should not be invalidated this time.
   EXPECT_EQ(auth_credentials->observed_states(),
             States({"GetToken", "InvalidateToken", "GetToken"}));
@@ -572,7 +575,8 @@ TEST_F(StreamTest, TokenIsNotInvalidatedOnceStreamIsHealthy) {
   worker_queue->RunScheduledOperationsUntil(kHealthCheckTimerId);
   ForceFinish(
       {{Type::Read, CompletionResult::Error},
-       {Type::Finish, grpc_adapt::Status{grpc_adapt::UNAUTHENTICATED, ""}}});
+       {Type::Finish,
+        grpc_adapt::Status{grpc_adapt::StatusCode::UNAUTHENTICATED, ""}}});
   // Error "Unauthenticated" on a healthy connection should not invalidate the
   // token.
   EXPECT_EQ(auth_credentials->observed_states(), States({"GetToken"}));

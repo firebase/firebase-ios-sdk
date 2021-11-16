@@ -41,6 +41,7 @@ namespace grpc_adapt {
 using grpc_connectivity_state = grpc_connectivity_state;
 using ByteBuffer = grpc::ByteBuffer;
 using Status = grpc::Status;
+using GrpcLibraryCodegen = grpc::GrpcLibraryCodegen;
 using StatusCode = grpc::StatusCode;
 using string_ref = grpc::string_ref;
 using CompletionQueue = grpc::CompletionQueue;
@@ -62,18 +63,17 @@ static inline string Version() {
 
 static inline std::shared_ptr<Channel> CreateCustomChannel(
     const string& target,
-    const std::shared_ptr<ChannelCredentials>& creds,
+    const std::string& certs,
     const ChannelArguments& args) {
-  return ::grpc_impl::CreateCustomChannelImpl(target, creds, args);
+  grpc_adapt::SslCredentialsOptions options;
+  options.pem_root_certs = certs;
+  return ::grpc_impl::CreateCustomChannelImpl(target, grpc_impl::SslCredentials(options), args);
 }
 
-static inline std::shared_ptr<ChannelCredentials> InsecureChannelCredentials() {
-  return ::grpc_impl::InsecureChannelCredentials();
-}
-
-static inline std::shared_ptr<ChannelCredentials> SslCredentials(
-    const SslCredentialsOptions& options) {
-  return ::grpc_impl::SslCredentials(options);
+static inline std::shared_ptr<Channel> CreateInsecureCustomChannel(
+    const string& target,
+    const ChannelArguments& args) {
+  return ::grpc_impl::CreateCustomChannelImpl(target, grpc_impl::InsecureChannelCredentials(), args);
 }
 
 }  // namespace grpc_adapt

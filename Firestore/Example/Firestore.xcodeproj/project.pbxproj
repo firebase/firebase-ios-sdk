@@ -2117,7 +2117,6 @@
 			isa = PBXGroup;
 			children = (
 				8FC5BFAD63BAC5AADAC8A94A /* api */,
-				AB38D9312023962A000A432D /* auth */,
 				EFB35D1C9CA7316A7F220417 /* bundle */,
 				AB380CF7201937B800D97691 /* core */,
 				11BB7A1B7F6F482EFDBC5303 /* credentials */,
@@ -2575,13 +2574,6 @@
 				C7429071B33BDF80A7FA2F8A /* view_test.cc */,
 			);
 			path = core;
-			sourceTree = "<group>";
-		};
-		AB38D9312023962A000A432D /* auth */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = auth;
 			sourceTree = "<group>";
 		};
 		B69BD86A4BF47AEF339E4D9D /* SpecTests */ = {
