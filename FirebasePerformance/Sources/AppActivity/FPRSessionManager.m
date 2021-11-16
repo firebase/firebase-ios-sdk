@@ -15,9 +15,12 @@
 #import "FirebasePerformance/Sources/AppActivity/FPRSessionManager.h"
 #import "FirebasePerformance/Sources/AppActivity/FPRSessionManager+Private.h"
 
+#import "FirebasePerformance/Sources/FIRPerformance_Private.h"
+
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
 #import "FirebasePerformance/Sources/FPRConsoleLogger.h"
 #import "FirebasePerformance/Sources/Gauges/FPRGaugeManager.h"
+@import FirebaseCrashlytics;
 
 #import <UIKit/UIKit.h>
 
@@ -92,6 +95,10 @@ NSString *const kFPRSessionIdNotificationKey = @"kFPRSessionIdNotificationKey";
   sessionIdString = [sessionIdString stringByReplacingOccurrencesOfString:@"-" withString:@""];
   sessionIdString = [sessionIdString lowercaseString];
 
+  id<FIRCrashlyticsInterop> crashlytics = [FIRPerformance sharedInstance].crashlytics;
+  [[FIRCrashlytics crashlytics] logWithFormat:@"Fireperf session started %@",sessionIdString];
+  // Not working
+  [crashlytics logWithFormat:@"Fireperf session started %@", sessionIdString];
   FPRSessionOptions sessionOptions = FPRSessionOptionsNone;
   FPRGaugeManager *gaugeManager = [FPRGaugeManager sharedInstance];
   if ([self isGaugeCollectionEnabledForSessionId:sessionIdString]) {
