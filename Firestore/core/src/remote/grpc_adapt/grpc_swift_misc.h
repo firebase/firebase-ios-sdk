@@ -21,6 +21,7 @@
 #include <string>
 #include <vector>
 
+#include "Firestore/core/src/remote/grpc_adapt/grpc_swift_channel.h"
 #include "Firestore/core/src/remote/grpc_adapt/grpc_swift_status.h"
 #include "Firestore/core/src/remote/grpc_adapt/grpc_swift_string_ref.h"
 
@@ -28,17 +29,6 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 namespace grpc_adapt {
-
-class ClientContext {
- public:
-  ClientContext();
-  ~ClientContext();
-
-  void AddMetadata(const std::string& meta_key, const std::string& meta_value);
-  void TryCancel();
-  const std::multimap<string_ref, string_ref>& GetServerInitialMetadata() const;
-  void set_initial_metadata_corked(bool);
-};
 
 class Slice {
  public:
@@ -94,31 +84,6 @@ class CompletionQueue {
   void Shutdown();
 };
 
-/** Connectivity state of a channel. */
-typedef enum {
-  /** channel is idle */
-  GRPC_CHANNEL_IDLE,
-  /** channel is connecting */
-  GRPC_CHANNEL_CONNECTING,
-  /** channel is ready for work */
-  GRPC_CHANNEL_READY,
-  /** channel has seen a failure but expects to recover */
-  GRPC_CHANNEL_TRANSIENT_FAILURE,
-  /** channel has seen a failure that it cannot recover from */
-  GRPC_CHANNEL_SHUTDOWN
-} grpc_connectivity_state;
-
-class Channel {
- public:
-  grpc_connectivity_state GetState(bool try_to_connect);
-};
-
-class ChannelArguments {
- public:
-  void SetSslTargetNameOverride(const std::string& name);
-  void SetInt(const std::string& key, int value);
-};
-
 class GenericStub {
  public:
   explicit GenericStub(std::shared_ptr<Channel> channel);
@@ -136,48 +101,10 @@ class GenericStub {
       CompletionQueue* cq);
 };
 
-class ChannelCredentials {};
-
-struct SslCredentialsOptions {
-  /// The buffer containing the PEM encoding of the server root certificates. If
-  /// this parameter is empty, the default roots will be used.  The default
-  /// roots can be overridden using the \a GRPC_DEFAULT_SSL_ROOTS_FILE_PATH
-  /// environment variable pointing to a file on the file system containing the
-  /// roots.
-  std::string pem_root_certs;
-
-  /// The buffer containing the PEM encoding of the client's private key. This
-  /// parameter can be empty if the client does not have a private key.
-  std::string pem_private_key;
-
-  /// The buffer containing the PEM encoding of the client's certificate chain.
-  /// This parameter can be empty if the client does not have a certificate
-  /// chain.
-  std::string pem_cert_chain;
-};
-
 class GrpcLibraryCodegen {};
-
-#define GRPC_ARG_KEEPALIVE_TIME_MS "grpc.keepalive_time_ms"
-
-static std::shared_ptr<ChannelCredentials> SslCredentials(
-    const SslCredentialsOptions& options) {
-  return nullptr;
-}
 
 static std::string Version() {
   return "";
-}
-
-static std::shared_ptr<Channel> CreateCustomChannel(
-    const std::string& target,
-    const std::shared_ptr<ChannelCredentials>& creds,
-    const ChannelArguments& args) {
-  return nullptr;
-}
-
-static std::shared_ptr<ChannelCredentials> InsecureChannelCredentials() {
-  return nullptr;
 }
 
 }  // namespace grpc_adapt

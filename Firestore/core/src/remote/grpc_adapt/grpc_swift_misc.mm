@@ -26,22 +26,6 @@ namespace firestore {
 namespace remote {
 namespace grpc_adapt {
 
-ClientContext::ClientContext() {
-}
-ClientContext::~ClientContext() {
-}
-void ClientContext::AddMetadata(const std::string& meta_key,
-                                const std::string& meta_value) {
-}
-void ClientContext::TryCancel() {
-}
-const std::multimap<string_ref, string_ref>&
-ClientContext::GetServerInitialMetadata() const {
-  return {};
-}
-void ClientContext::set_initial_metadata_corked(bool) {
-}
-
 Slice::Slice(const void* buf, size_t len) {
 }
 Slice::Slice(const std::string& s) {

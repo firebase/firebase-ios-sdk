@@ -16,6 +16,13 @@
 #ifndef FIRESTORE_CORE_SRC_REMOTE_GRPC_ADAPT_GRPC_SWIFT_STRING_REF_H_
 #define FIRESTORE_CORE_SRC_REMOTE_GRPC_ADAPT_GRPC_SWIFT_STRING_REF_H_
 
+#include <string.h>
+
+#include <algorithm>
+#include <iosfwd>
+#include <iostream>
+#include <iterator>
+
 namespace firebase {
 namespace firestore {
 namespace remote {
