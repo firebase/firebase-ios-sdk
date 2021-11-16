@@ -47,24 +47,37 @@ class string_ref {
   const static size_t npos;
 
   /// construct/copy.
-  string_ref() : data_(nullptr), length_(0) {}
+  string_ref() : data_(nullptr), length_(0) {
+  }
   string_ref(const string_ref& other)
-      : data_(other.data_), length_(other.length_) {}
+      : data_(other.data_), length_(other.length_) {
+  }
   string_ref& operator=(const string_ref& rhs) {
     data_ = rhs.data_;
     length_ = rhs.length_;
     return *this;
   }
 
-  string_ref(const char* s) : data_(s), length_(strlen(s)) {}
-  string_ref(const char* s, size_t l) : data_(s), length_(l) {}
-  string_ref(const std::string& s) : data_(s.data()), length_(s.length()) {}
+  string_ref(const char* s) : data_(s), length_(strlen(s)) {
+  }
+  string_ref(const char* s, size_t l) : data_(s), length_(l) {
+  }
+  string_ref(const std::string& s) : data_(s.data()), length_(s.length()) {
+  }
 
   /// iterators
-  const_iterator begin() const { return data_; }
-  const_iterator end() const { return data_ + length_; }
-  const_iterator cbegin() const { return data_; }
-  const_iterator cend() const { return data_ + length_; }
+  const_iterator begin() const {
+    return data_;
+  }
+  const_iterator end() const {
+    return data_ + length_;
+  }
+  const_iterator cbegin() const {
+    return data_;
+  }
+  const_iterator cend() const {
+    return data_ + length_;
+  }
   const_reverse_iterator rbegin() const {
     return const_reverse_iterator(end());
   }
@@ -79,13 +92,23 @@ class string_ref {
   }
 
   /// capacity
-  size_t size() const { return length_; }
-  size_t length() const { return length_; }
-  size_t max_size() const { return length_; }
-  bool empty() const { return length_ == 0; }
+  size_t size() const {
+    return length_;
+  }
+  size_t length() const {
+    return length_;
+  }
+  size_t max_size() const {
+    return length_;
+  }
+  bool empty() const {
+    return length_ == 0;
+  }
 
   /// element access
-  const char* data() const { return data_; }
+  const char* data() const {
+    return data_;
+  }
 
   /// string operations
   int compare(string_ref x) const {

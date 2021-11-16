@@ -30,28 +30,7 @@ namespace firestore {
 namespace remote {
 namespace grpc_adapt {
 
-class Slice {
- public:
-  Slice(const void* buf, size_t len);
-  Slice(const std::string& s);
-  /// Byte size.
-  size_t size() const;
-
-  /// Raw pointer to the beginning (first element) of the slice.
-  const uint8_t* begin() const;
-};
-
-class ByteBuffer final {
- public:
-  /// Constuct an empty buffer.
-  ByteBuffer();
-  ByteBuffer(const Slice* slices, size_t nslices);
-
-  /// Buffer size in bytes.
-  size_t Length() const;
-  /// Dump (read) the buffer contents into \a slices.
-  Status Dump(std::vector<Slice>* slices) const;
-};
+class ByteBuffer;
 
 class WriteOptions {
  public:

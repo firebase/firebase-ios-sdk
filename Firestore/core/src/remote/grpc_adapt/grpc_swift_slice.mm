@@ -13,29 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "Firestore/core/src/remote/grpc_adapt/grpc_swift_channel.h"
+#include "Firestore/core/src/remote/grpc_adapt/grpc_swift_slice.h"
+
+#import "GRPCSwiftShim/GRPCSwiftShim-Swift.h"
+
+#include <Foundation/Foundation.h>
 
 namespace firebase {
 namespace firestore {
 namespace remote {
 namespace grpc_adapt {
 
-ClientContext::ClientContext() {
+Slice::Slice(const void* buf, size_t len) {
+  shim_ = [[GRPCSliceShim alloc] init:buf len:len];
 }
-ClientContext::~ClientContext() {
+Slice::Slice(const std::string& s) {
+  shim_ = [[GRPCSliceShim alloc] init:s];
 }
-void ClientContext::AddMetadata(const std::string& meta_key,
-                                const std::string& meta_value) {
-  (void)meta_key;
-  (void)meta_value;
+size_t Slice::size() const {
+  return shim_.size();
 }
-void ClientContext::TryCancel() {
-}
-const std::multimap<string_ref, string_ref>&
-ClientContext::GetServerInitialMetadata() const {
-  return metadata_;
-}
-void ClientContext::set_initial_metadata_corked(bool) {
+const uint8_t* Slice::begin() const {
+  return shim_.begin();
 }
 
 }  // namespace grpc_adapt

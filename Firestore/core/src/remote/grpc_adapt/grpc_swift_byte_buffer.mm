@@ -13,29 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "Firestore/core/src/remote/grpc_adapt/grpc_swift_channel.h"
+#include "Firestore/core/src/remote/grpc_adapt/grpc_swift_byte_buffer.h"
+
+#import "GRPCSwiftShim/GRPCSwiftShim-Swift.h"
+
+#include <Foundation/Foundation.h>
+#include "Firestore/core/src/remote/grpc_adapt/grpc_swift_slice.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
 namespace grpc_adapt {
 
-ClientContext::ClientContext() {
+ByteBuffer::ByteBuffer() {
+  shim_ = [ByteBufferShim new];
 }
-ClientContext::~ClientContext() {
+
+ByteBuffer::ByteBuffer(const Slice* slices, size_t nslices) {
+  shim_ = [ByteBufferShim new];
+  std::vector<Slice> slice_vector{slices, nslices};
+  Dump(*slice_vector);
 }
-void ClientContext::AddMetadata(const std::string& meta_key,
-                                const std::string& meta_value) {
-  (void)meta_key;
-  (void)meta_value;
+
+size_t ByteBuffer::Length() const {
+  return shim_.Length;
 }
-void ClientContext::TryCancel() {
-}
-const std::multimap<string_ref, string_ref>&
-ClientContext::GetServerInitialMetadata() const {
-  return metadata_;
-}
-void ClientContext::set_initial_metadata_corked(bool) {
+
+Status ByteBuffer::Dump(std::vector<Slice>* slices) const {
+  std::vector<Slice> unwrapped_slices;
+  for (Slice slice : *slices) {
+    unwrapped_slices.push_back(slice.shim);
+  }
+  return shim_.Dump(unwrapped_slices);
 }
 
 }  // namespace grpc_adapt

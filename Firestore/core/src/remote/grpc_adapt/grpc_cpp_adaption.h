@@ -67,13 +67,14 @@ static inline std::shared_ptr<Channel> CreateCustomChannel(
     const ChannelArguments& args) {
   grpc_adapt::SslCredentialsOptions options;
   options.pem_root_certs = certs;
-  return ::grpc_impl::CreateCustomChannelImpl(target, grpc_impl::SslCredentials(options), args);
+  return ::grpc_impl::CreateCustomChannelImpl(
+      target, grpc_impl::SslCredentials(options), args);
 }
 
 static inline std::shared_ptr<Channel> CreateInsecureCustomChannel(
-    const string& target,
-    const ChannelArguments& args) {
-  return ::grpc_impl::CreateCustomChannelImpl(target, grpc_impl::InsecureChannelCredentials(), args);
+    const string& target, const ChannelArguments& args) {
+  return ::grpc_impl::CreateCustomChannelImpl(
+      target, grpc_impl::InsecureChannelCredentials(), args);
 }
 
 }  // namespace grpc_adapt

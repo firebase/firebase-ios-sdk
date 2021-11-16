@@ -13,32 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef FIRESTORE_CORE_SRC_REMOTE_GRPC_ADAPT_SLICE_H_
+#define FIRESTORE_CORE_SRC_REMOTE_GRPC_ADAPT_SLICE_H_
+
+#include <map>
+#include <memory>
+#include <string>
+#include <vector>
+
 #include "Firestore/core/src/remote/grpc_adapt/grpc_swift_channel.h"
+#include "Firestore/core/src/remote/grpc_adapt/grpc_swift_status.h"
+#include "Firestore/core/src/remote/grpc_adapt/grpc_swift_string_ref.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
 namespace grpc_adapt {
 
-ClientContext::ClientContext() {
-}
-ClientContext::~ClientContext() {
-}
-void ClientContext::AddMetadata(const std::string& meta_key,
-                                const std::string& meta_value) {
-  (void)meta_key;
-  (void)meta_value;
-}
-void ClientContext::TryCancel() {
-}
-const std::multimap<string_ref, string_ref>&
-ClientContext::GetServerInitialMetadata() const {
-  return metadata_;
-}
-void ClientContext::set_initial_metadata_corked(bool) {
-}
+class ByteBufferShim;
+class Slice;
+
+class ByteBuffer final {
+ public:
+  /// Constuct an empty buffer.
+  ByteBuffer();
+  ByteBuffer(const Slice* slices, size_t nslices);
+
+  /// Buffer size in bytes.
+  size_t Length() const;
+  /// Dump (read) the buffer contents into \a slices.
+  Status Dump(std::vector<Slice>* slices) const;
+
+ private:
+  ByteBufferShim* shim_;
+};
 
 }  // namespace grpc_adapt
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
+
+#endif  // FIRESTORE_CORE_SRC_REMOTE_GRPC_ADAPT_SLICE_H_

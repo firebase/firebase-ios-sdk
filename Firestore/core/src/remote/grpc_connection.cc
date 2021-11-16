@@ -292,14 +292,12 @@ std::shared_ptr<grpc_adapt::Channel> GrpcConnection::CreateChannel() const {
   const HostConfig* host_config = Config().find(host);
   if (!host_config) {
     std::string root_certificate = LoadGrpcRootCertificate();
-    return grpc_adapt::CreateCustomChannel(
-        host, root_certificate, args);
+    return grpc_adapt::CreateCustomChannel(host, root_certificate, args);
   }
 
   // For the case when `Settings.set_ssl_enabled(false)`.
   if (host_config->use_insecure_channel()) {
-    return grpc_adapt::CreateInsecureCustomChannel(
-        host, args);
+    return grpc_adapt::CreateInsecureCustomChannel(host, args);
   }
 
   // For tests only
@@ -312,8 +310,8 @@ std::shared_ptr<grpc_adapt::Channel> GrpcConnection::CreateChannel() const {
                            path.ToUtf8String())
                   .c_str());
 
-  return grpc_adapt::CreateCustomChannel(
-      host, test_certificate.ValueOrDie(), args);
+  return grpc_adapt::CreateCustomChannel(host, test_certificate.ValueOrDie(),
+                                         args);
 }
 
 std::unique_ptr<GrpcStream> GrpcConnection::CreateStream(

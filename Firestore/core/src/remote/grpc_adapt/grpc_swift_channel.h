@@ -34,6 +34,9 @@ class ClientContext {
   void TryCancel();
   const std::multimap<string_ref, string_ref>& GetServerInitialMetadata() const;
   void set_initial_metadata_corked(bool);
+
+ private:
+  std::multimap<string_ref, string_ref> metadata_;
 };
 
 /** Connectivity state of a channel. */
@@ -83,23 +86,22 @@ struct SslCredentialsOptions {
 
 class ChannelCredentials {};
 
-static std::shared_ptr<Channel> CreateCustomChannel(
-    const std::string& target,
-    const std::string& certs,
-    const ChannelArguments& args) {
-        (void) target;
-        (void) certs;
-        (void) args;
-  return nullptr;
-}
-
-static std::shared_ptr<Channel> CreateInsecureCustomChannel(
-    const std::string& target,
-    const ChannelArguments& args) {
-  (void) target;
-  (void) args;
-  return nullptr;
-}
+// static std::shared_ptr<Channel> CreateCustomChannel(
+//     const std::string& target,
+//     const std::string& certs,
+//     const ChannelArguments& args) {
+//   (void)target;
+//   (void)certs;
+//   (void)args;
+//   return nullptr;
+// }
+//
+// static std::shared_ptr<Channel> CreateInsecureCustomChannel(
+//     const std::string& target, const ChannelArguments& args) {
+//   (void)target;
+//   (void)args;
+//   return nullptr;
+// }
 
 }  // namespace grpc_adapt
 }  // namespace remote
