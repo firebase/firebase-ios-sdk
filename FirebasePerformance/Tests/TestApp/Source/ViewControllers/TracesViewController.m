@@ -114,31 +114,30 @@ static const CGFloat kEdgeInsetsRight = 20.0f;
 
 - (UIButton *)addCrashButton {
   if (!_crashButton) {
-      _crashButton = [[UIButton alloc] init];
-      _crashButton.translatesAutoresizingMaskIntoConstraints = NO;
+    _crashButton = [[UIButton alloc] init];
+    _crashButton.translatesAutoresizingMaskIntoConstraints = NO;
 
     [_crashButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
     [_crashButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateDisabled];
-      _crashButton.titleLabel.font = [UIFont systemFontOfSize:12.0];
+    _crashButton.titleLabel.font = [UIFont systemFontOfSize:12.0];
 
-      _crashButton.contentEdgeInsets =
+    _crashButton.contentEdgeInsets =
         UIEdgeInsetsMake(kEdgeInsetsTop, kEdgeInsetsLeft, kEdgeInsetsBottom, kEdgeInsetsRight);
-      _crashButton.layer.cornerRadius = 3.0f;
-      _crashButton.layer.borderColor = [[UIColor blackColor] CGColor];
-      _crashButton.layer.borderWidth = 1.0f;
+    _crashButton.layer.cornerRadius = 3.0f;
+    _crashButton.layer.borderColor = [[UIColor blackColor] CGColor];
+    _crashButton.layer.borderWidth = 1.0f;
 
     [_crashButton setTitle:@"Crash - Perflytics!" forState:UIControlStateNormal];
 
-
     [_crashButton addTarget:self
-                        action:@selector(crashButtonTapped:)
-              forControlEvents:UIControlEventTouchUpInside];
+                     action:@selector(crashButtonTapped:)
+           forControlEvents:UIControlEventTouchUpInside];
   }
   return _crashButton;
 }
 
 - (IBAction)crashButtonTapped:(id)sender {
-    @[][1];
+  @[][1];
 }
 
 #pragma mark - Private Methods
@@ -149,12 +148,13 @@ static const CGFloat kEdgeInsetsRight = 20.0f;
   [self addConstraintsString:@"H:|-40-[_addTraceButton]-40-|"
              forViewsBinding:NSDictionaryOfVariableBindings(_addTraceButton)];
 
-    
-  [self addConstraintsString:@"V:|-60-[_addTraceButton(40)]-10-[_crashButton(40)]-10-[_contentView]-|"
-             forViewsBinding:NSDictionaryOfVariableBindings(_addTraceButton, _crashButton, _contentView)];
+  [self
+      addConstraintsString:@"V:|-60-[_addTraceButton(40)]-10-[_crashButton(40)]-10-[_contentView]-|"
+           forViewsBinding:NSDictionaryOfVariableBindings(_addTraceButton, _crashButton,
+                                                          _contentView)];
 
-    [self addConstraintsString:@"H:|-40-[_crashButton]-40-|"
-               forViewsBinding:NSDictionaryOfVariableBindings(_crashButton)];
+  [self addConstraintsString:@"H:|-40-[_crashButton]-40-|"
+             forViewsBinding:NSDictionaryOfVariableBindings(_crashButton)];
 
   [self addConstraintsString:@"H:|[_contentView]|"
              forViewsBinding:NSDictionaryOfVariableBindings(_contentView)];
@@ -172,7 +172,6 @@ static const CGFloat kEdgeInsetsRight = 20.0f;
   [self.view addSubview:self.contentView];
   [self.view addSubview:self.addTraceButton];
   [self.view addSubview:self.addCrashButton];
-
 }
 
 /**

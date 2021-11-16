@@ -96,7 +96,23 @@ NSString *const kFPRSessionIdNotificationKey = @"kFPRSessionIdNotificationKey";
   sessionIdString = [sessionIdString lowercaseString];
 
   id<FIRCrashlyticsInterop> crashlytics = [FIRPerformance sharedInstance].crashlytics;
-  [[FIRCrashlytics crashlytics] logWithFormat:@"Fireperf session started %@",sessionIdString];
+
+  NSDictionary *crashlyticsSessionBreadcrumb = @{
+    @"source" : @"FirebasePerformance",
+    @"name" : @"Fireperf session started",
+    @"sessionID" : sessionIdString
+  };
+  NSError *error;
+  NSData *crashlyticsSessionJsonBreadcrumb =
+      [NSJSONSerialization dataWithJSONObject:crashlyticsSessionBreadcrumb options:0 error:&error];
+  if (!crashlyticsSessionJsonBreadcrumb) {
+    NSLog(@"Got an error: %@", error);
+  } else {
+    NSString *jsonString = [[NSString alloc] initWithData:crashlyticsSessionJsonBreadcrumb
+                                                 encoding:NSUTF8StringEncoding];
+    [[FIRCrashlytics crashlytics] log:jsonString];
+  }
+
   // Not working
   [crashlytics logWithFormat:@"Fireperf session started %@", sessionIdString];
   FPRSessionOptions sessionOptions = FPRSessionOptionsNone;
