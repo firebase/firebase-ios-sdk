@@ -14,7 +14,6 @@
 
 #import "FirebasePerformance/Sources/FPRClient.h"
 #import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRPerformance.h"
-#import "Interop/Crashlytics/Public/FIRCrashlyticsInterop.h"
 
 /**
  * Extension that is added on top of the class FIRPerformances to make the private properties
@@ -30,8 +29,5 @@
 
 /** Client object used for checking the status of the performance SDK before generating events. */
 @property(nonatomic, readwrite) FPRClient *fprClient;
-
-// Crashlytics instance initiated by interop.
-@property(nonatomic, nullable, strong) id<FIRCrashlyticsInterop> crashlytics;
 
 @end

@@ -95,8 +95,7 @@ NSString *const kFPRSessionIdNotificationKey = @"kFPRSessionIdNotificationKey";
   sessionIdString = [sessionIdString stringByReplacingOccurrencesOfString:@"-" withString:@""];
   sessionIdString = [sessionIdString lowercaseString];
 
-  id<FIRCrashlyticsInterop> crashlytics = [FIRPerformance sharedInstance].crashlytics;
-
+  // Send session id to crashlytics
   NSDictionary *crashlyticsSessionBreadcrumb = @{
     @"source" : @"FirebasePerformance",
     @"name" : @"Fireperf session started",
@@ -112,9 +111,6 @@ NSString *const kFPRSessionIdNotificationKey = @"kFPRSessionIdNotificationKey";
                                                  encoding:NSUTF8StringEncoding];
     [[FIRCrashlytics crashlytics] log:jsonString];
   }
-
-  // Not working
-  [crashlytics logWithFormat:@"Fireperf session started %@", sessionIdString];
   FPRSessionOptions sessionOptions = FPRSessionOptionsNone;
   FPRGaugeManager *gaugeManager = [FPRGaugeManager sharedInstance];
   if ([self isGaugeCollectionEnabledForSessionId:sessionIdString]) {

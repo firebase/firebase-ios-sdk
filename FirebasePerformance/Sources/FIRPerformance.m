@@ -37,6 +37,8 @@ static NSString *const kFirebasePerfErrorDomain = @"com.firebase.perf";
 
 @interface FIRPerformance () <FIRLibrary, FIRPerformanceInstanceProvider>
 
+@property(nonatomic, nullable, strong) id<FIRCrashlyticsInterop> crashlytics;
+
 @end
 
 @implementation FIRPerformance
@@ -122,7 +124,6 @@ static NSString *const kFirebasePerfErrorDomain = @"com.firebase.perf";
         dispatch_queue_create("com.google.perf.customAttributes", DISPATCH_QUEUE_SERIAL);
     _fprClient = [FPRClient sharedInstance];
     _crashlytics = crashlytics;
-    [crashlytics log:@"HI"];
   }
   return self;
 }
