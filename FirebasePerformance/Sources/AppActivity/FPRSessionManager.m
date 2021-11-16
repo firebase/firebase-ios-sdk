@@ -15,9 +15,12 @@
 #import "FirebasePerformance/Sources/AppActivity/FPRSessionManager.h"
 #import "FirebasePerformance/Sources/AppActivity/FPRSessionManager+Private.h"
 
+#import "FirebasePerformance/Sources/FIRPerformance_Private.h"
+
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
 #import "FirebasePerformance/Sources/FPRConsoleLogger.h"
 #import "FirebasePerformance/Sources/Gauges/FPRGaugeManager.h"
+@import FirebaseCrashlytics;
 
 #import <UIKit/UIKit.h>
 
@@ -92,6 +95,22 @@ NSString *const kFPRSessionIdNotificationKey = @"kFPRSessionIdNotificationKey";
   sessionIdString = [sessionIdString stringByReplacingOccurrencesOfString:@"-" withString:@""];
   sessionIdString = [sessionIdString lowercaseString];
 
+  // Send session id to crashlytics
+  NSDictionary *crashlyticsSessionBreadcrumb = @{
+    @"source" : @"FirebasePerformance",
+    @"name" : @"Fireperf session started",
+    @"sessionID" : sessionIdString
+  };
+  NSError *error;
+  NSData *crashlyticsSessionJsonBreadcrumb =
+      [NSJSONSerialization dataWithJSONObject:crashlyticsSessionBreadcrumb options:0 error:&error];
+  if (!crashlyticsSessionJsonBreadcrumb) {
+    NSLog(@"Got an error: %@", error);
+  } else {
+    NSString *jsonString = [[NSString alloc] initWithData:crashlyticsSessionJsonBreadcrumb
+                                                 encoding:NSUTF8StringEncoding];
+    [[FIRCrashlytics crashlytics] log:jsonString];
+  }
   FPRSessionOptions sessionOptions = FPRSessionOptionsNone;
   FPRGaugeManager *gaugeManager = [FPRGaugeManager sharedInstance];
   if ([self isGaugeCollectionEnabledForSessionId:sessionIdString]) {
