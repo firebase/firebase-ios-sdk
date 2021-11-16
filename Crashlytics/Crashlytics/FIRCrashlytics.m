@@ -49,6 +49,7 @@
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
+#import "Interop/Crashlytics/Public/FIRCrashlyticsInterop.h"
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
 
@@ -69,7 +70,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 @protocol FIRCrashlyticsInstanceProvider <NSObject>
 @end
 
-@interface FIRCrashlytics () <FIRLibrary, FIRCrashlyticsInstanceProvider>
+@interface FIRCrashlytics () <FIRLibrary, FIRCrashlyticsInstanceProvider, FIRCrashlyticsInterop>
 
 @property(nonatomic) BOOL didPreviouslyCrash;
 @property(nonatomic, copy) NSString *googleAppID;
