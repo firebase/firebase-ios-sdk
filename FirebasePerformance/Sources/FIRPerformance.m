@@ -25,10 +25,6 @@
 #import "FirebasePerformance/Sources/Instrumentation/FPRInstrumentation.h"
 #import "FirebasePerformance/Sources/Timer/FIRTrace+Internal.h"
 
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
-
-#import "Interop/Crashlytics/Public/FIRCrashlyticsInterop.h"
-
 static NSString *const kFirebasePerfErrorDomain = @"com.firebase.perf";
 
 @implementation FIRPerformance
@@ -54,7 +50,7 @@ static NSString *const kFirebasePerfErrorDomain = @"com.firebase.perf";
 
   FIRComponent *component =
       [FIRComponent componentWithProtocol:@protocol(FIRPerformanceInstanceProvider)
-                      instantiationTiming:FIRInstantiationTimingAlwaysEager
+                      instantiationTiming:FIRInstantiationTimingLazy
                              dependencies:@[ crashlyticsDep ]
                             creationBlock:creationBlock];
   return @[ component ];
