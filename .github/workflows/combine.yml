@@ -20,8 +20,9 @@ on:
     # Combine sources
     - 'FirebaseCombineSwift/**'
 
-    # Podspec
+    # Podspecs
     - 'FirebaseCombineSwift.podspec'
+    - 'FirebaseFunctionsTestingSupport.podspec'
 
     # This workflow
     - '.github/workflows/combine.yml'

@@ -14,8 +14,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Functions/FirebaseFunctions/FIRFunctions+Internal.h"
-#import "Functions/FirebaseFunctions/Public/FirebaseFunctions/FIRFunctions.h"
+#import "FirebaseFunctions/Sources/FIRFunctions+Internal.h"
+#import "FirebaseFunctions/Sources/Public/FirebaseFunctions/FIRFunctions.h"
 
 #import "SharedTestUtilities/AppCheckFake/FIRAppCheckFake.h"
 #import "SharedTestUtilities/AppCheckFake/FIRAppCheckTokenResultFake.h"

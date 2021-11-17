@@ -74,5 +74,6 @@
   "8.6.0": "https://dl.google.com/dl/firebase/ios/carthage/8.6.0/FirebaseFunctions-7782a35e94f064f6.zip",
   "8.7.0": "https://dl.google.com/dl/firebase/ios/carthage/8.7.0/FirebaseFunctions-34dcb4d0b3dd350b.zip",
   "8.8.0": "https://dl.google.com/dl/firebase/ios/carthage/8.8.0/FirebaseFunctions-295fe20f1d28a9d1.zip",
-  "8.9.0": "https://dl.google.com/dl/firebase/ios/carthage/8.9.0/FirebaseFunctions-da7e4229995e5c74.zip"
+  "8.9.0": "https://dl.google.com/dl/firebase/ios/carthage/8.9.0/FirebaseFunctions-da7e4229995e5c74.zip",
+  "8.9.1": "https://dl.google.com/dl/firebase/ios/carthage/8.9.1/FirebaseFunctions-b480547d887bbc59.zip"
 }

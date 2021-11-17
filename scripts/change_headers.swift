@@ -26,7 +26,7 @@ let findHeaders = ["FirebaseMessaging"]
 let changeImports = ["GoogleUtilities", "FirebaseAuth", "FirebaseCore", "Firebase",
                      "FirebaseDatabase", "GoogleDataTransport",
                      "FirebaseDynamicLinks", "FirebaseInAppMessaging", "FirebaseMessaging",
-                     "FirebaseRemoteConfig", "FirebaseInstallations", "Functions",
+                     "FirebaseRemoteConfig", "FirebaseInstallations", "FirebaseFunctions",
                      "FirebaseABTesting",
                      "FirebaseAppDistribution", "Example", "Crashlytics", "FirebaseStorage"]
 
@@ -34,7 +34,7 @@ let changeImports = ["GoogleUtilities", "FirebaseAuth", "FirebaseCore", "Firebas
 // and unit tests.
 let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseStorage/Tests/Integration",
                        "FirebaseInAppMessaging/Tests/Integration/",
-                       ".build/", "Functions/Example/FirebaseFunctions"]
+                       ".build/"]
 
 // Get a Dictionary mapping a simple header name to a repo-relative path.
 

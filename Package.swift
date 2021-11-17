@@ -17,7 +17,7 @@
 
 import PackageDescription
 
-let firebaseVersion = "8.9.0"
+let firebaseVersion = "8.9.1"
 
 let package = Package(
   name: "Firebase",
@@ -148,7 +148,7 @@ let package = Package(
       url: "https://github.com/google/GoogleAppMeasurement.git",
       // Note that CI changes the version to the head of main for CI.
       // See scripts/setup_spm_tests.sh.
-      .exact("8.9.0")
+      .exact("8.9.1")
     ),
     .package(
       name: "GoogleDataTransport",
@@ -301,8 +301,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/8.9.0/FirebaseAnalytics.zip",
-      checksum: "0c1075259f9ee3e737a16c64fc9096d0d0bbbf4887cf95aefe99a6b690cd096e"
+      url: "https://dl.google.com/firebase/ios/swiftpm/8.9.1/FirebaseAnalytics.zip",
+      checksum: "397688619b1d2eb2731fd06d094b95498e753519b4c0c75a6f7071bcafd9d1f1"
     ),
     .target(
       name: "FirebaseAnalyticsSwiftTarget",
@@ -675,7 +675,7 @@ let package = Package(
         "FirebaseCore",
         .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),
       ],
-      path: "Functions/FirebaseFunctions",
+      path: "FirebaseFunctions/Sources",
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
@@ -699,13 +699,13 @@ let package = Package(
       dependencies: ["FirebaseFunctionsCombineSwift",
                      "FirebaseFunctionsTestingSupport",
                      "SharedTestUtilities"],
-      path: "Functions/Tests/CombineUnit"
+      path: "FirebaseFunctions/Tests/CombineUnit"
     ),
     .testTarget(
       name: "FunctionsUnit",
       dependencies: ["FirebaseFunctions",
                      "SharedTestUtilities"],
-      path: "Functions/Example/Tests/",
+      path: "FirebaseFunctions/Tests/Unit",
       cSettings: [
         .headerSearchPath("../../../"),
       ]
@@ -713,7 +713,23 @@ let package = Package(
     .testTarget(
       name: "FunctionsUnitSwift",
       dependencies: ["FirebaseFunctions"],
-      path: "Functions/Tests/Unit/Swift"
+      path: "FirebaseFunctions/Tests/SwiftUnit"
+    ),
+    .testTarget(
+      name: "FunctionsIntegration",
+      dependencies: ["FirebaseFunctions",
+                     "SharedTestUtilities"],
+      path: "FirebaseFunctions/Tests/Integration",
+      cSettings: [
+        .headerSearchPath("../../../"),
+      ]
+    ),
+    .testTarget(
+      name: "FunctionsSwiftIntegration",
+      dependencies: ["FirebaseFunctions",
+                     "FirebaseFunctionsTestingSupport",
+                     "SharedTestUtilities"],
+      path: "FirebaseFunctions/Tests/SwiftIntegration"
     ),
     .target(
       name: "FirebaseFunctionsTestingSupport",
@@ -724,6 +740,8 @@ let package = Package(
         .headerSearchPath("../../.."),
       ]
     ),
+
+    // MARK: - Firebase In App Messaging
 
     .target(
       name: "FirebaseInAppMessagingTarget",

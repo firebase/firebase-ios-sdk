@@ -32,13 +32,13 @@
         "tvos": "12.0"
     },
     "source": {
-        "http": "https://dl.google.com/firebase/ios/analytics/5c7aebede686658a/FirebaseAnalytics-8.9.0.tar.gz"
+        "http": "https://dl.google.com/firebase/ios/analytics/66ce3623aa8037ff/FirebaseAnalytics-8.9.1.tar.gz"
     },
     "subspecs": [
         {
             "name": "AdIdSupport",
             "dependencies": {
-                "GoogleAppMeasurement": "8.9.0"
+                "GoogleAppMeasurement": "8.9.1"
             },
             "vendored_frameworks": [
                 "Frameworks/FirebaseAnalytics.xcframework"
@@ -47,7 +47,7 @@
         {
             "name": "WithoutAdIdSupport",
             "dependencies": {
-                "GoogleAppMeasurement/WithoutAdIdSupport": "8.9.0"
+                "GoogleAppMeasurement/WithoutAdIdSupport": "8.9.1"
             },
             "vendored_frameworks": [
                 "Frameworks/FirebaseAnalytics.xcframework"
@@ -55,5 +55,5 @@
         }
     ],
     "summary": "Firebase Analytics for iOS",
-    "version": "8.9.0"
+    "version": "8.9.1"
 }

@@ -31,8 +31,12 @@ namespace credentials {
 FirebaseAppCheckCredentialsProvider::FirebaseAppCheckCredentialsProvider(
     FIRApp* app, id<FIRAppCheckInterop> app_check) {
   contents_ = std::make_shared<Contents>(app, app_check);
-  std::weak_ptr<Contents> weak_contents = contents_;
 
+  if (app_check == nil) {
+    return;
+  }
+
+  std::weak_ptr<Contents> weak_contents = contents_;
   app_check_listener_handle_ = [[NSNotificationCenter defaultCenter]
       addObserverForName:[app_check tokenDidChangeNotificationName]
                   object:nil
@@ -73,20 +77,17 @@ FirebaseAppCheckCredentialsProvider::~FirebaseAppCheckCredentialsProvider() {
 
 void FirebaseAppCheckCredentialsProvider::GetToken(
     TokenListener<std::string> completion) {
-  HARD_ASSERT(app_check_listener_handle_,
-              "GetToken cannot be called after listener removed.");
-
-  void (^get_token_callback)(id<FIRAppCheckTokenResultInterop>) =
-      ^(id<FIRAppCheckTokenResultInterop> result) {
-        if (result.error != nil) {
-          LOG_WARN("AppCheck failed: '%s'",
-                   util::MakeString(result.error.localizedDescription));
-        }
-        completion(util::MakeString(result.token));  // Always return token
-      };
-
   std::weak_ptr<Contents> weak_contents = contents_;
   if (contents_->app_check) {
+    void (^get_token_callback)(id<FIRAppCheckTokenResultInterop>) =
+        ^(id<FIRAppCheckTokenResultInterop> result) {
+          if (result.error != nil) {
+            LOG_WARN("AppCheck failed: '%s'",
+                     util::MakeString(result.error.localizedDescription));
+          }
+          completion(util::MakeString(result.token));  // Always return token
+        };
+
     // Retrieve a cached or generate a new FAC Token. If forcingRefresh == YES
     // always generates a new token and updates the cache.
     [contents_->app_check getTokenForcingRefresh:force_refresh_
@@ -106,11 +107,12 @@ void FirebaseAppCheckCredentialsProvider::SetCredentialChangeListener(
     // Fire initial event.
     change_listener(contents_->current_token);
   } else {
-    HARD_ASSERT(app_check_listener_handle_, "removed change_listener twice!");
     HARD_ASSERT(change_listener_, "change_listener removed without being set!");
-    [[NSNotificationCenter defaultCenter]
-        removeObserver:app_check_listener_handle_];
-    app_check_listener_handle_ = nil;
+    if (app_check_listener_handle_) {
+      [[NSNotificationCenter defaultCenter]
+          removeObserver:app_check_listener_handle_];
+      app_check_listener_handle_ = nil;
+    }
   }
 
   change_listener_ = change_listener;
