@@ -66,11 +66,7 @@ static atomic_bool _hasInitializedInstance;
 
 NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 
-/// Empty protocol to register with FirebaseCore's component system.
-@protocol FIRCrashlyticsInstanceProvider <NSObject>
-@end
-
-@interface FIRCrashlytics () <FIRLibrary, FIRCrashlyticsInstanceProvider, FIRCrashlyticsInterop>
+@interface FIRCrashlytics () <FIRLibrary, FIRCrashlyticsInterop>
 
 @property(nonatomic) BOOL didPreviouslyCrash;
 @property(nonatomic, copy) NSString *googleAppID;
@@ -200,7 +196,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
   };
 
   FIRComponent *component =
-      [FIRComponent componentWithProtocol:@protocol(FIRCrashlyticsInstanceProvider)
+      [FIRComponent componentWithProtocol:@protocol(FIRCrashlyticsInterop)
                       instantiationTiming:FIRInstantiationTimingEagerInDefaultApp
                              dependencies:@[ analyticsDep ]
                             creationBlock:creationBlock];
@@ -215,8 +211,8 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
   // Get the instance from the `FIRApp`'s container. This will create a new instance the
   // first time it is called, and since `isCacheable` is set in the component creation
   // block, it will return the existing instance on subsequent calls.
-  id<FIRCrashlyticsInstanceProvider> instance =
-      FIR_COMPONENT(FIRCrashlyticsInstanceProvider, defaultApp.container);
+  id<FIRCrashlyticsInterop> instance =
+      FIR_COMPONENT(FIRCrashlyticsInterop, defaultApp.container);
 
   // In the component creation block, we return an instance of `FIRCrashlytics`. Cast it and
   // return it.

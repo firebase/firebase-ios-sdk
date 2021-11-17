@@ -31,16 +31,6 @@
 
 static NSString *const kFirebasePerfErrorDomain = @"com.firebase.perf";
 
-/// Empty protocol to register with FirebaseCore's component system.
-@protocol FIRPerformanceInstanceProvider <NSObject>
-@end
-
-@interface FIRPerformance () <FIRLibrary, FIRPerformanceInstanceProvider>
-
-@property(nonatomic, nullable, strong) id<FIRCrashlyticsInterop> crashlytics;
-
-@end
-
 @implementation FIRPerformance
 
 #pragma mark - Public methods

@@ -20,7 +20,6 @@
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
 #import "FirebasePerformance/Sources/FPRConsoleLogger.h"
 #import "FirebasePerformance/Sources/Gauges/FPRGaugeManager.h"
-@import FirebaseCrashlytics;
 
 #import <UIKit/UIKit.h>
 
@@ -109,7 +108,8 @@ NSString *const kFPRSessionIdNotificationKey = @"kFPRSessionIdNotificationKey";
   } else {
     NSString *jsonString = [[NSString alloc] initWithData:crashlyticsSessionJsonBreadcrumb
                                                  encoding:NSUTF8StringEncoding];
-    [[FIRCrashlytics crashlytics] log:jsonString];
+    // Getting the FirePerf shared instance here. Is there a better way to do that internally?
+    [[FIRPerformance sharedInstance].crashlytics log:jsonString];
   }
   FPRSessionOptions sessionOptions = FPRSessionOptionsNone;
   FPRGaugeManager *gaugeManager = [FPRGaugeManager sharedInstance];

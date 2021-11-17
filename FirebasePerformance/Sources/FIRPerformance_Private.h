@@ -15,11 +15,19 @@
 #import "FirebasePerformance/Sources/FPRClient.h"
 #import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRPerformance.h"
 
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+
+#import "Interop/Crashlytics/Public/FIRCrashlyticsInterop.h"
+
+/// Empty protocol to register with FirebaseCore's component system.
+@protocol FIRPerformanceInstanceProvider <NSObject>
+@end
+
 /**
  * Extension that is added on top of the class FIRPerformances to make the private properties
  * visible between the implementation file and the unit tests.
  */
-@interface FIRPerformance ()
+@interface FIRPerformance () <FIRLibrary, FIRPerformanceInstanceProvider>
 
 /** Custom attribute managed internally. */
 @property(nonatomic) NSMutableDictionary<NSString *, NSString *> *customAttributes;
@@ -29,5 +37,7 @@
 
 /** Client object used for checking the status of the performance SDK before generating events. */
 @property(nonatomic, readwrite) FPRClient *fprClient;
+
+@property(nonatomic, nullable, strong) id<FIRCrashlyticsInterop> crashlytics;
 
 @end
