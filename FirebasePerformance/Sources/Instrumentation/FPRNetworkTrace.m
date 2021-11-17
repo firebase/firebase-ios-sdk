@@ -19,6 +19,7 @@
 #import "FirebasePerformance/Sources/Common/FPRConstants.h"
 #import "FirebasePerformance/Sources/Common/FPRDiagnostics.h"
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
+#import "FirebasePerformance/Sources/FIRPerformance_Private.h"
 #import "FirebasePerformance/Sources/FPRClient.h"
 #import "FirebasePerformance/Sources/FPRConsoleLogger.h"
 #import "FirebasePerformance/Sources/FPRDataUtils.h"
@@ -205,6 +206,24 @@ NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
                                                  selector:@selector(sessionChanged:)
                                                      name:kFPRSessionIdUpdatedNotification
                                                    object:sessionManager];
+    
+    // Send session id to crashlytics
+    NSDictionary *crashlyticsTraceBreadcrumb = @{
+      @"source" : @"FirebasePerformance",
+      @"name" : @"Network request started",
+      @"Request" : self.URLRequest.URL.host
+    };
+    NSError *error;
+    NSData *crashlyticsSessionJsonBreadcrumb =
+        [NSJSONSerialization dataWithJSONObject:crashlyticsTraceBreadcrumb options:0 error:&error];
+    if (!crashlyticsSessionJsonBreadcrumb) {
+      NSLog(@"Got an error: %@", error);
+    } else {
+      NSString *jsonString = [[NSString alloc] initWithData:crashlyticsSessionJsonBreadcrumb
+                                                   encoding:NSUTF8StringEncoding];
+      // Getting the FirePerf shared instance here. Is there a better way to do that internally?
+      [[FIRPerformance sharedInstance].crashlytics log:jsonString];
+    }
   }
 }
 
@@ -254,6 +273,24 @@ NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
     [[FPRClient sharedInstance] logNetworkTrace:self];
 
     self.traceCompleted = YES;
+    
+    // Send session id to crashlytics
+    NSDictionary *crashlyticsTraceBreadcrumb = @{
+      @"source" : @"FirebasePerformance",
+      @"name"   : @"Network request completed",
+      @"Request" : self.URLRequest.URL.host
+    };
+    NSError *error;
+    NSData *crashlyticsSessionJsonBreadcrumb =
+        [NSJSONSerialization dataWithJSONObject:crashlyticsTraceBreadcrumb options:0 error:&error];
+    if (!crashlyticsSessionJsonBreadcrumb) {
+      NSLog(@"Got an error: %@", error);
+    } else {
+      NSString *jsonString = [[NSString alloc] initWithData:crashlyticsSessionJsonBreadcrumb
+                                                   encoding:NSUTF8StringEncoding];
+      // Getting the FirePerf shared instance here. Is there a better way to do that internally?
+      [[FIRPerformance sharedInstance].crashlytics log:jsonString];
+    }
   }
 
   FPRSessionManager *sessionManager = [FPRSessionManager sharedInstance];
