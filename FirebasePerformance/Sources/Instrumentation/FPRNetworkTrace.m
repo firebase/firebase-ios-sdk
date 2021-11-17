@@ -208,7 +208,7 @@ NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
                                                    object:sessionManager];
     
     // Send session id to crashlytics
-    NSString *infoString = [NSString stringWithFormat:@"%@ request started",
+    NSString *infoString = [NSString stringWithFormat:@"Request started - %@",
                             self.URLRequest.URL.host];
     // Send session id to crashlytics
     NSDictionary *crashlyticsTraceBreadcrumb = @{
@@ -276,7 +276,7 @@ NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
 
     self.traceCompleted = YES;
     
-    NSString *infoString = [NSString stringWithFormat:@"%@ request complete, response code - %d",
+    NSString *infoString = [NSString stringWithFormat:@"Request complete - %@, response code - %d",
                             self.URLRequest.URL.host, self.responseCode];
     // Send session id to crashlytics
     NSDictionary *crashlyticsTraceBreadcrumb = @{

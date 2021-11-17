@@ -110,9 +110,9 @@ NSString *const kFPRSessionIdNotificationKey = @"kFPRSessionIdNotificationKey";
   }
   NSDictionary *crashlyticsSessionBreadcrumb = @{
     @"source" : @"FirebasePerformance",
-    @"name" : @"App forgrounded",
+    @"name" : @"App in foreground",
     @"sessionID" : sessionIdString,
-    @"Verbose" : isSessionVerbose,
+    @"verbose" : isSessionVerbose,
   };
   NSError *error;
   NSData *crashlyticsSessionJsonBreadcrumb =

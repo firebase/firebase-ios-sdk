@@ -151,7 +151,7 @@
     }
     
     if (!self.isStage) {
-      NSString *infoString = [NSString stringWithFormat:@"%@ trace started", self.name];
+      NSString *infoString = [NSString stringWithFormat:@"Trace started - %@", self.name];
       // Send session id to crashlytics
       NSDictionary *crashlyticsTraceBreadcrumb = @{
         @"source" : @"FirebasePerformance",
@@ -205,7 +205,7 @@
   
   if (!self.isStage) {
     
-    NSString *infoString = [NSString stringWithFormat:@"%@ trace stopped", self.name];
+    NSString *infoString = [NSString stringWithFormat:@"Trace complete - %@", self.name];
     // Send session id to crashlytics
     NSDictionary *crashlyticsTraceBreadcrumb = @{
       @"source" : @"FirebasePerformance",
