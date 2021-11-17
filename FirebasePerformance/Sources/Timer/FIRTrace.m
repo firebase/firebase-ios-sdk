@@ -19,6 +19,7 @@
 #import "FirebasePerformance/Sources/Common/FPRConstants.h"
 #import "FirebasePerformance/Sources/Common/FPRDiagnostics.h"
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
+#import "FirebasePerformance/Sources/FIRPerformance_Private.h"
 #import "FirebasePerformance/Sources/FPRClient.h"
 #import "FirebasePerformance/Sources/FPRConsoleLogger.h"
 #import "FirebasePerformance/Sources/FPRDataUtils.h"
@@ -148,6 +149,24 @@
                                                        name:kFPRSessionIdUpdatedNotification
                                                      object:sessionManager];
     }
+    // Send session id to crashlytics
+    NSDictionary *crashlyticsTraceBreadcrumb = @{
+      @"source" : @"FirebasePerformance",
+      @"name" : @"Fireperf trace started",
+      @"traceName" : self.name,
+    };
+    NSError *error;
+    NSData *crashlyticsSessionJsonBreadcrumb =
+        [NSJSONSerialization dataWithJSONObject:crashlyticsTraceBreadcrumb options:0 error:&error];
+    if (!crashlyticsSessionJsonBreadcrumb) {
+      NSLog(@"Got an error: %@", error);
+    } else {
+      NSString *jsonString = [[NSString alloc] initWithData:crashlyticsSessionJsonBreadcrumb
+                                                   encoding:NSUTF8StringEncoding];
+      // Getting the FirePerf shared instance here. Is there a better way to do that internally?
+      [[FIRPerformance sharedInstance].crashlytics log:jsonString];
+    }
+
   } else {
     FPRLogError(kFPRTraceAlreadyStopped,
                 @"Failed to start trace %@ because it has already been started and stopped.",
