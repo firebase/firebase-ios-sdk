@@ -40,6 +40,9 @@ static const CGFloat kEdgeInsetsRight = 20.0f;
 /** Button to add a new PerfTraceView. */
 @property(nonatomic) UIButton *crashButton;
 
+/** Button to add a new PerfTraceView. */
+@property(nonatomic) UIButton *nonFatalButton;
+
 /** A counter to maintain the number of traces created. Used for the unique names for traces. */
 @property(nonatomic, assign) NSInteger traceCounter;
 
@@ -66,7 +69,6 @@ static const CGFloat kEdgeInsetsRight = 20.0f;
 
   [self createViewTree];
   [self constrainViews];
-  [[FIRCrashlytics crashlytics] log:@"Does logging work?"];
 }
 
 #pragma mark - Properties
@@ -112,7 +114,7 @@ static const CGFloat kEdgeInsetsRight = 20.0f;
   return _addTraceButton;
 }
 
-- (UIButton *)addCrashButton {
+- (UIButton *)crashButton {
   if (!_crashButton) {
     _crashButton = [[UIButton alloc] init];
     _crashButton.translatesAutoresizingMaskIntoConstraints = NO;
@@ -136,8 +138,61 @@ static const CGFloat kEdgeInsetsRight = 20.0f;
   return _crashButton;
 }
 
+- (UIButton *)nonFatalButton {
+  if (!_nonFatalButton) {
+    _nonFatalButton = [[UIButton alloc] init];
+    _nonFatalButton.translatesAutoresizingMaskIntoConstraints = NO;
+
+    [_nonFatalButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    [_nonFatalButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateDisabled];
+    _nonFatalButton.titleLabel.font = [UIFont systemFontOfSize:12.0];
+
+    _nonFatalButton.contentEdgeInsets =
+        UIEdgeInsetsMake(kEdgeInsetsTop, kEdgeInsetsLeft, kEdgeInsetsBottom, kEdgeInsetsRight);
+    _nonFatalButton.layer.cornerRadius = 3.0f;
+    _nonFatalButton.layer.borderColor = [[UIColor blackColor] CGColor];
+    _nonFatalButton.layer.borderWidth = 1.0f;
+
+    [_nonFatalButton setTitle:@"Non-Fatal - Perflytics!" forState:UIControlStateNormal];
+
+    [_nonFatalButton addTarget:self
+                     action:@selector(nonFatalButtonTapped:)
+           forControlEvents:UIControlEventTouchUpInside];
+  }
+  return _nonFatalButton;
+}
+
 - (IBAction)crashButtonTapped:(id)sender {
-  @[][1];
+  NSObject *object = [[NSObject alloc] init];
+  [object performSelector:@selector(crashTheApp)];
+}
+
+- (IBAction)nonFatalButtonTapped:(id)sender {
+  NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+  NSURL *URL = [NSURL URLWithString:@"https://wifi.google.com"];
+  NSMutableURLRequest *urlRequest = [NSMutableURLRequest requestWithURL:URL];
+  urlRequest.timeoutInterval = 2.0;
+  NSURLSessionDataTask *dataTask =
+    [session dataTaskWithRequest:urlRequest completionHandler:^(NSData *data,
+                                                                NSURLResponse *response,
+                                                                NSError *error) {
+      NSLog(@"Network request complete.");
+      if (error) {
+        [[FIRCrashlytics crashlytics] recordError:error];
+      } else {
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+        if (httpResponse.statusCode != 200) {
+          NSDictionary *userInfo = @{@"Content-Type":httpResponse.MIMEType,
+                                     @"Referrer":[httpResponse valueForHTTPHeaderField:@"referrer-policy"]};
+          NSError *responseError = [NSError errorWithDomain:NSCocoaErrorDomain
+                                                       code:httpResponse.statusCode
+                                                   userInfo:userInfo];
+          [[FIRCrashlytics crashlytics] recordError:responseError];
+        }
+      }
+    }];
+  
+  [dataTask resume];
 }
 
 #pragma mark - Private Methods
@@ -149,12 +204,15 @@ static const CGFloat kEdgeInsetsRight = 20.0f;
              forViewsBinding:NSDictionaryOfVariableBindings(_addTraceButton)];
 
   [self
-      addConstraintsString:@"V:|-60-[_addTraceButton(40)]-10-[_crashButton(40)]-10-[_contentView]-|"
-           forViewsBinding:NSDictionaryOfVariableBindings(_addTraceButton, _crashButton,
+      addConstraintsString:@"V:|-60-[_addTraceButton(40)]-10-[_crashButton(40)]-10-[_nonFatalButton(40)]-10-[_contentView]-|"
+           forViewsBinding:NSDictionaryOfVariableBindings(_addTraceButton, _crashButton, _nonFatalButton,
                                                           _contentView)];
 
   [self addConstraintsString:@"H:|-40-[_crashButton]-40-|"
              forViewsBinding:NSDictionaryOfVariableBindings(_crashButton)];
+  
+  [self addConstraintsString:@"H:|-40-[_nonFatalButton]-40-|"
+             forViewsBinding:NSDictionaryOfVariableBindings(_nonFatalButton)];
 
   [self addConstraintsString:@"H:|[_contentView]|"
              forViewsBinding:NSDictionaryOfVariableBindings(_contentView)];
@@ -171,7 +229,8 @@ static const CGFloat kEdgeInsetsRight = 20.0f;
 - (void)createViewTree {
   [self.view addSubview:self.contentView];
   [self.view addSubview:self.addTraceButton];
-  [self.view addSubview:self.addCrashButton];
+  [self.view addSubview:self.crashButton];
+  [self.view addSubview:self.nonFatalButton];
 }
 
 /**
