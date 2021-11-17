@@ -211,8 +211,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
   // Get the instance from the `FIRApp`'s container. This will create a new instance the
   // first time it is called, and since `isCacheable` is set in the component creation
   // block, it will return the existing instance on subsequent calls.
-  id<FIRCrashlyticsInterop> instance =
-      FIR_COMPONENT(FIRCrashlyticsInterop, defaultApp.container);
+  id<FIRCrashlyticsInterop> instance = FIR_COMPONENT(FIRCrashlyticsInterop, defaultApp.container);
 
   // In the component creation block, we return an instance of `FIRCrashlytics`. Cast it and
   // return it.

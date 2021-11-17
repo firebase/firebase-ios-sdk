@@ -156,8 +156,8 @@ static const CGFloat kEdgeInsetsRight = 20.0f;
     [_nonFatalButton setTitle:@"Non-Fatal - Perflytics!" forState:UIControlStateNormal];
 
     [_nonFatalButton addTarget:self
-                     action:@selector(nonFatalButtonTapped:)
-           forControlEvents:UIControlEventTouchUpInside];
+                        action:@selector(nonFatalButtonTapped:)
+              forControlEvents:UIControlEventTouchUpInside];
   }
   return _nonFatalButton;
 }
@@ -168,30 +168,32 @@ static const CGFloat kEdgeInsetsRight = 20.0f;
 }
 
 - (IBAction)nonFatalButtonTapped:(id)sender {
-  NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+  NSURLSession *session = [NSURLSession
+      sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
   NSURL *URL = [NSURL URLWithString:@"https://wifi.google.com"];
   NSMutableURLRequest *urlRequest = [NSMutableURLRequest requestWithURL:URL];
   urlRequest.timeoutInterval = 2.0;
   NSURLSessionDataTask *dataTask =
-    [session dataTaskWithRequest:urlRequest completionHandler:^(NSData *data,
-                                                                NSURLResponse *response,
-                                                                NSError *error) {
-      NSLog(@"Network request complete.");
-      if (error) {
-        [[FIRCrashlytics crashlytics] recordError:error];
-      } else {
-        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
-        if (httpResponse.statusCode != 200) {
-          NSDictionary *userInfo = @{@"Content-Type":httpResponse.MIMEType,
-                                     @"Referrer":[httpResponse valueForHTTPHeaderField:@"referrer-policy"]};
-          NSError *responseError = [NSError errorWithDomain:NSCocoaErrorDomain
-                                                       code:httpResponse.statusCode
-                                                   userInfo:userInfo];
-          [[FIRCrashlytics crashlytics] recordError:responseError];
-        }
-      }
-    }];
-  
+      [session dataTaskWithRequest:urlRequest
+                 completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+                   NSLog(@"Network request complete.");
+                   if (error) {
+                     [[FIRCrashlytics crashlytics] recordError:error];
+                   } else {
+                     NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+                     if (httpResponse.statusCode != 200) {
+                       NSDictionary *userInfo = @{
+                         @"Content-Type" : httpResponse.MIMEType,
+                         @"Referrer" : [httpResponse valueForHTTPHeaderField:@"referrer-policy"]
+                       };
+                       NSError *responseError = [NSError errorWithDomain:NSCocoaErrorDomain
+                                                                    code:httpResponse.statusCode
+                                                                userInfo:userInfo];
+                       [[FIRCrashlytics crashlytics] recordError:responseError];
+                     }
+                   }
+                 }];
+
   [dataTask resume];
 }
 
@@ -203,14 +205,14 @@ static const CGFloat kEdgeInsetsRight = 20.0f;
   [self addConstraintsString:@"H:|-40-[_addTraceButton]-40-|"
              forViewsBinding:NSDictionaryOfVariableBindings(_addTraceButton)];
 
-  [self
-      addConstraintsString:@"V:|-60-[_addTraceButton(40)]-10-[_crashButton(40)]-10-[_nonFatalButton(40)]-10-[_contentView]-|"
-           forViewsBinding:NSDictionaryOfVariableBindings(_addTraceButton, _crashButton, _nonFatalButton,
-                                                          _contentView)];
+  [self addConstraintsString:@"V:|-60-[_addTraceButton(40)]-10-[_crashButton(40)]-10-[_"
+                             @"nonFatalButton(40)]-10-[_contentView]-|"
+             forViewsBinding:NSDictionaryOfVariableBindings(_addTraceButton, _crashButton,
+                                                            _nonFatalButton, _contentView)];
 
   [self addConstraintsString:@"H:|-40-[_crashButton]-40-|"
              forViewsBinding:NSDictionaryOfVariableBindings(_crashButton)];
-  
+
   [self addConstraintsString:@"H:|-40-[_nonFatalButton]-40-|"
              forViewsBinding:NSDictionaryOfVariableBindings(_nonFatalButton)];
 
