@@ -149,22 +149,25 @@
                                                        name:kFPRSessionIdUpdatedNotification
                                                      object:sessionManager];
     }
-    // Send session id to crashlytics
-    NSDictionary *crashlyticsTraceBreadcrumb = @{
-      @"source" : @"FirebasePerformance",
-      @"name" : @"Fireperf trace started",
-      @"traceName" : self.name,
-    };
-    NSError *error;
-    NSData *crashlyticsSessionJsonBreadcrumb =
-        [NSJSONSerialization dataWithJSONObject:crashlyticsTraceBreadcrumb options:0 error:&error];
-    if (!crashlyticsSessionJsonBreadcrumb) {
-      NSLog(@"Got an error: %@", error);
-    } else {
-      NSString *jsonString = [[NSString alloc] initWithData:crashlyticsSessionJsonBreadcrumb
-                                                   encoding:NSUTF8StringEncoding];
-      // Getting the FirePerf shared instance here. Is there a better way to do that internally?
-      [[FIRPerformance sharedInstance].crashlytics log:jsonString];
+    
+    if (!self.isStage) {
+      NSString *infoString = [NSString stringWithFormat:@"%@ trace started", self.name];
+      // Send session id to crashlytics
+      NSDictionary *crashlyticsTraceBreadcrumb = @{
+        @"source" : @"FirebasePerformance",
+        @"info" : infoString,
+      };
+      NSError *error;
+      NSData *crashlyticsSessionJsonBreadcrumb =
+          [NSJSONSerialization dataWithJSONObject:crashlyticsTraceBreadcrumb options:0 error:&error];
+      if (!crashlyticsSessionJsonBreadcrumb) {
+        NSLog(@"Got an error: %@", error);
+      } else {
+        NSString *jsonString = [[NSString alloc] initWithData:crashlyticsSessionJsonBreadcrumb
+                                                     encoding:NSUTF8StringEncoding];
+        // Getting the FirePerf shared instance here. Is there a better way to do that internally?
+        [[FIRPerformance sharedInstance].crashlytics log:jsonString];
+      }
     }
 
   } else {
@@ -199,22 +202,26 @@
   [sessionManager.sessionNotificationCenter removeObserver:self
                                                       name:kFPRSessionIdUpdatedNotification
                                                     object:sessionManager];
-  // Send session id to crashlytics
-  NSDictionary *crashlyticsTraceBreadcrumb = @{
-    @"source" : @"FirebasePerformance",
-    @"name" : @"Fireperf trace stopped",
-    @"traceName" : self.name,
-  };
-  NSError *error;
-  NSData *crashlyticsSessionJsonBreadcrumb =
-      [NSJSONSerialization dataWithJSONObject:crashlyticsTraceBreadcrumb options:0 error:&error];
-  if (!crashlyticsSessionJsonBreadcrumb) {
-    NSLog(@"Got an error: %@", error);
-  } else {
-    NSString *jsonString = [[NSString alloc] initWithData:crashlyticsSessionJsonBreadcrumb
-                                                 encoding:NSUTF8StringEncoding];
-    // Getting the FirePerf shared instance here. Is there a better way to do that internally?
-    [[FIRPerformance sharedInstance].crashlytics log:jsonString];
+  
+  if (!self.isStage) {
+    
+    NSString *infoString = [NSString stringWithFormat:@"%@ trace stopped", self.name];
+    // Send session id to crashlytics
+    NSDictionary *crashlyticsTraceBreadcrumb = @{
+      @"source" : @"FirebasePerformance",
+      @"info" : infoString,
+    };
+    NSError *error;
+    NSData *crashlyticsSessionJsonBreadcrumb =
+        [NSJSONSerialization dataWithJSONObject:crashlyticsTraceBreadcrumb options:0 error:&error];
+    if (!crashlyticsSessionJsonBreadcrumb) {
+      NSLog(@"Got an error: %@", error);
+    } else {
+      NSString *jsonString = [[NSString alloc] initWithData:crashlyticsSessionJsonBreadcrumb
+                                                   encoding:NSUTF8StringEncoding];
+      // Getting the FirePerf shared instance here. Is there a better way to do that internally?
+      [[FIRPerformance sharedInstance].crashlytics log:jsonString];
+    }
   }
 }
 

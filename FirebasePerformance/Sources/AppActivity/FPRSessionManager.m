@@ -94,11 +94,25 @@ NSString *const kFPRSessionIdNotificationKey = @"kFPRSessionIdNotificationKey";
   sessionIdString = [sessionIdString stringByReplacingOccurrencesOfString:@"-" withString:@""];
   sessionIdString = [sessionIdString lowercaseString];
 
+  FPRSessionOptions sessionOptions = FPRSessionOptionsNone;
+  FPRGaugeManager *gaugeManager = [FPRGaugeManager sharedInstance];
+  if ([self isGaugeCollectionEnabledForSessionId:sessionIdString]) {
+    [gaugeManager startCollectingGauges:FPRGaugeCPU | FPRGaugeMemory forSessionId:sessionIdString];
+    sessionOptions = FPRSessionOptionsGauges;
+  } else {
+    [gaugeManager stopCollectingGauges:FPRGaugeCPU | FPRGaugeMemory];
+  }
+
   // Send session id to crashlytics
+  NSString *isSessionVerbose = @"FALSE";
+  if (sessionOptions == FPRSessionOptionsGauges) {
+    isSessionVerbose = @"TRUE";
+  }
   NSDictionary *crashlyticsSessionBreadcrumb = @{
     @"source" : @"FirebasePerformance",
-    @"name" : @"Fireperf session started",
-    @"sessionID" : sessionIdString
+    @"name" : @"App forgrounded",
+    @"sessionID" : sessionIdString,
+    @"Verbose" : isSessionVerbose,
   };
   NSError *error;
   NSData *crashlyticsSessionJsonBreadcrumb =
@@ -111,15 +125,7 @@ NSString *const kFPRSessionIdNotificationKey = @"kFPRSessionIdNotificationKey";
     // Getting the FirePerf shared instance here. Is there a better way to do that internally?
     [[FIRPerformance sharedInstance].crashlytics log:jsonString];
   }
-  FPRSessionOptions sessionOptions = FPRSessionOptionsNone;
-  FPRGaugeManager *gaugeManager = [FPRGaugeManager sharedInstance];
-  if ([self isGaugeCollectionEnabledForSessionId:sessionIdString]) {
-    [gaugeManager startCollectingGauges:FPRGaugeCPU | FPRGaugeMemory forSessionId:sessionIdString];
-    sessionOptions = FPRSessionOptionsGauges;
-  } else {
-    [gaugeManager stopCollectingGauges:FPRGaugeCPU | FPRGaugeMemory];
-  }
-
+  
   FPRLogDebug(kFPRSessionId, @"Session Id generated - %@", sessionIdString);
   FPRSessionDetails *sessionInfo = [[FPRSessionDetails alloc] initWithSessionId:sessionIdString
                                                                         options:sessionOptions];
