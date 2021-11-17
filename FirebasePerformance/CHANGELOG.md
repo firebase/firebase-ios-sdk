@@ -1,4 +1,4 @@
-# Unreleased
+# Version 8.10.0
 * Fix a crash related to FPRSessionDetails. (#8691)
 * Fix heap-buffer overflow when encoding sessions. (#8849)
 
