@@ -95,7 +95,7 @@ extension Dictionary : _JSONStringDictionaryDecodableMarker where Key == String,
 // used in the new runtime. _TtC10Foundation13__JSONEncoder is the
 // mangled name for Foundation.__JSONEncoder.
 
-public class StructureEncoder {
+public class FirebaseDataEncoder {
   // MARK: Options
 
   /// The strategy to use for encoding `Date` values.
@@ -290,7 +290,7 @@ fileprivate class __JSONEncoder : Encoder {
   fileprivate var storage: _JSONEncodingStorage
 
   /// Options set on the top-level encoder.
-  fileprivate let options: StructureEncoder._Options
+  fileprivate let options: FirebaseDataEncoder._Options
 
   /// The path to the current point in encoding.
   public var codingPath: [CodingKey]
@@ -303,7 +303,7 @@ fileprivate class __JSONEncoder : Encoder {
   // MARK: - Initialization
 
   /// Initializes `self` with the given top-level encoder options.
-  fileprivate init(options: StructureEncoder._Options, codingPath: [CodingKey] = []) {
+  fileprivate init(options: FirebaseDataEncoder._Options, codingPath: [CodingKey] = []) {
     self.options = options
     self.storage = _JSONEncodingStorage()
     self.codingPath = codingPath
@@ -437,7 +437,7 @@ fileprivate struct _JSONKeyedEncodingContainer<K : CodingKey> : KeyedEncodingCon
     case .useDefaultKeys:
       return key
     case .convertToSnakeCase:
-      let newKeyString = StructureEncoder.KeyEncodingStrategy._convertToSnakeCase(key.stringValue)
+      let newKeyString = FirebaseDataEncoder.KeyEncodingStrategy._convertToSnakeCase(key.stringValue)
       return _JSONKey(stringValue: newKeyString, intValue: key.intValue)
     case .custom(let converter):
       return converter(codingPath + [key])
@@ -1039,7 +1039,7 @@ fileprivate class __JSONReferencingEncoder : __JSONEncoder {
 // The two must coexist, so it was renamed. The old name must not be
 // used in the new runtime. _TtC10Foundation13__JSONDecoder is the
 // mangled name for Foundation.__JSONDecoder.
-public class StructureDecoder {
+public class FirebaseDataDecoder {
   // MARK: Options
 
   /// The strategy to use for decoding `Date` values.
@@ -1223,7 +1223,7 @@ fileprivate class __JSONDecoder : Decoder {
   fileprivate var storage: _JSONDecodingStorage
 
   /// Options set on the top-level decoder.
-  fileprivate let options: StructureDecoder._Options
+  fileprivate let options: FirebaseDataDecoder._Options
 
   /// The path to the current point in encoding.
   fileprivate(set) public var codingPath: [CodingKey]
@@ -1236,7 +1236,7 @@ fileprivate class __JSONDecoder : Decoder {
   // MARK: - Initialization
 
   /// Initializes `self` with the given top-level container and options.
-  fileprivate init(referencing container: Any, at codingPath: [CodingKey] = [], options: StructureDecoder._Options) {
+  fileprivate init(referencing container: Any, at codingPath: [CodingKey] = [], options: FirebaseDataDecoder._Options) {
     self.storage = _JSONDecodingStorage()
     self.storage.push(container: container)
     self.codingPath = codingPath
@@ -1342,7 +1342,7 @@ fileprivate struct _JSONKeyedDecodingContainer<K : CodingKey> : KeyedDecodingCon
       // Convert the snake case keys in the container to camel case.
       // If we hit a duplicate key after conversion, then we'll use the first one we saw. Effectively an undefined behavior with JSON dictionaries.
       self.container = Dictionary(container.map {
-        key, value in (StructureDecoder.KeyDecodingStrategy._convertFromSnakeCase(key), value)
+        key, value in (FirebaseDataDecoder.KeyDecodingStrategy._convertFromSnakeCase(key), value)
       }, uniquingKeysWith: { (first, _) in first })
     case .custom(let converter):
       self.container = Dictionary(container.map {
@@ -1367,8 +1367,8 @@ fileprivate struct _JSONKeyedDecodingContainer<K : CodingKey> : KeyedDecodingCon
     case .convertFromSnakeCase:
       // In this case we can attempt to recover the original value by reversing the transform
       let original = key.stringValue
-      let converted = StructureEncoder.KeyEncodingStrategy._convertToSnakeCase(original)
-      let roundtrip = StructureDecoder.KeyDecodingStrategy._convertFromSnakeCase(converted)
+      let converted = FirebaseDataEncoder.KeyEncodingStrategy._convertToSnakeCase(original)
+      let roundtrip = FirebaseDataDecoder.KeyDecodingStrategy._convertFromSnakeCase(converted)
       if converted == original {
         return "\(key) (\"\(original)\")"
       } else if roundtrip == original {

@@ -86,9 +86,9 @@ class IntegrationTests: XCTestCase {
       null: nil
     )
     let function = functions.httpsCallable("dataTest",
-                                           requestType: DataTestRequest.self,
-                                           responseType: DataTestResponse.self)
-    try function.call(data) { result in
+                                           requestAs: DataTestRequest.self,
+                                           responseAs: DataTestResponse.self)
+    function.call(data) { result in
       do {
         let response = try result.get()
         let expected = DataTestResponse(
@@ -118,8 +118,8 @@ class IntegrationTests: XCTestCase {
       )
 
       let function = functions.httpsCallable("dataTest",
-                                             requestType: DataTestRequest.self,
-                                             responseType: DataTestResponse.self)
+                                             requestAs: DataTestRequest.self,
+                                             responseAs: DataTestResponse.self)
 
       let response = try await function.call(data)
       let expected = DataTestResponse(
@@ -135,10 +135,10 @@ class IntegrationTests: XCTestCase {
     let expectation = expectation(description: #function)
     let function = functions.httpsCallable(
       "scalarTest",
-      requestType: Int16.self,
-      responseType: Int.self
+      requestAs: Int16.self,
+      responseAs: Int.self
     )
-    try function.call(17) { result in
+    function.call(17) { result in
       do {
         let response = try result.get()
         XCTAssertEqual(response, 76)
@@ -155,13 +155,21 @@ class IntegrationTests: XCTestCase {
     func testScalarAsync() async throws {
       let function = functions.httpsCallable(
         "scalarTest",
-        requestType: Int16.self,
-        responseType: Int.self
+        requestAs: Int16.self,
+        responseAs: Int.self
       )
 
       let result = try await function.call(17)
       XCTAssertEqual(result, 76)
     }
+
+    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+    func testScalarAsyncAlternateSignature() async throws {
+      let function: Callable<Int16, Int> = functions.httpsCallable("scalarTest")
+      let result = try await function.call(17)
+      XCTAssertEqual(result, 76)
+    }
+
   #endif
 
   func testToken() throws {
@@ -177,11 +185,11 @@ class IntegrationTests: XCTestCase {
     let expectation = expectation(description: #function)
     let function = functions.httpsCallable(
       "FCMTokenTest",
-      requestType: [String: Int].self,
-      responseType: [String: Int].self
+      requestAs: [String: Int].self,
+      responseAs: [String: Int].self
     )
     XCTAssertNotNil(function)
-    try function.call([:]) { result in
+    function.call([:]) { result in
       do {
         let data = try result.get()
         XCTAssertEqual(data, [:])
@@ -207,8 +215,8 @@ class IntegrationTests: XCTestCase {
 
       let function = functions.httpsCallable(
         "FCMTokenTest",
-        requestType: [String: Int].self,
-        responseType: [String: Int].self
+        requestAs: [String: Int].self,
+        responseAs: [String: Int].self
       )
 
       let data = try await function.call([:])
@@ -220,10 +228,10 @@ class IntegrationTests: XCTestCase {
     let expectation = expectation(description: #function)
     let function = functions.httpsCallable(
       "FCMTokenTest",
-      requestType: [String: Int].self,
-      responseType: [String: Int].self
+      requestAs: [String: Int].self,
+      responseAs: [String: Int].self
     )
-    try function.call([:]) { result in
+    function.call([:]) { result in
       do {
         let data = try result.get()
         XCTAssertEqual(data, [:])
@@ -240,8 +248,8 @@ class IntegrationTests: XCTestCase {
     func testFCMTokenAsync() async throws {
       let function = functions.httpsCallable(
         "FCMTokenTest",
-        requestType: [String: Int].self,
-        responseType: [String: Int].self
+        requestAs: [String: Int].self,
+        responseAs: [String: Int].self
       )
 
       let data = try await function.call([:])
@@ -253,10 +261,10 @@ class IntegrationTests: XCTestCase {
     let expectation = expectation(description: #function)
     let function = functions.httpsCallable(
       "nullTest",
-      requestType: Int?.self,
-      responseType: Int?.self
+      requestAs: Int?.self,
+      responseAs: Int?.self
     )
-    try function.call(nil) { result in
+    function.call(nil) { result in
       do {
         let data = try result.get()
         XCTAssertEqual(data, nil)
@@ -273,8 +281,8 @@ class IntegrationTests: XCTestCase {
     func testNullAsync() async throws {
       let function = functions.httpsCallable(
         "nullTest",
-        requestType: Int?.self,
-        responseType: Int?.self
+        requestAs: Int?.self,
+        responseAs: Int?.self
       )
 
       let data = try await function.call(nil)
@@ -294,10 +302,10 @@ class IntegrationTests: XCTestCase {
     let expectation = expectation(description: #function)
     let function = functions.httpsCallable(
       "missingResultTest",
-      requestType: Int?.self,
-      responseType: Int?.self
+      requestAs: Int?.self,
+      responseAs: Int?.self
     )
-    try function.call(nil) { result in
+    function.call(nil) { result in
       do {
         _ = try result.get()
       } catch {
@@ -315,8 +323,8 @@ class IntegrationTests: XCTestCase {
     func testMissingResultAsync() async {
       let function = functions.httpsCallable(
         "missingResultTest",
-        requestType: Int?.self,
-        responseType: Int?.self
+        requestAs: Int?.self,
+        responseAs: Int?.self
       )
       do {
         _ = try await function.call(nil)
@@ -333,10 +341,10 @@ class IntegrationTests: XCTestCase {
     let expectation = expectation(description: #function)
     let function = functions.httpsCallable(
       "unhandledErrorTest",
-      requestType: [Int].self,
-      responseType: Int.self
+      requestAs: [Int].self,
+      responseAs: Int.self
     )
-    try function.call([]) { result in
+    function.call([]) { result in
       do {
         _ = try result.get()
       } catch {
@@ -355,8 +363,8 @@ class IntegrationTests: XCTestCase {
     func testUnhandledErrorAsync() async {
       let function = functions.httpsCallable(
         "unhandledErrorTest",
-        requestType: [Int].self,
-        responseType: Int.self
+        requestAs: [Int].self,
+        responseAs: Int.self
       )
       do {
         _ = try await function.call([])
@@ -373,10 +381,10 @@ class IntegrationTests: XCTestCase {
     let expectation = expectation(description: #function)
     let function = functions.httpsCallable(
       "unknownErrorTest",
-      requestType: [Int].self,
-      responseType: Int.self
+      requestAs: [Int].self,
+      responseAs: Int.self
     )
-    try function.call([]) { result in
+    function.call([]) { result in
       do {
         _ = try result.get()
       } catch {
@@ -394,8 +402,8 @@ class IntegrationTests: XCTestCase {
     func testUnknownErrorAsync() async {
       let function = functions.httpsCallable(
         "unknownErrorTest",
-        requestType: [Int].self,
-        responseType: Int.self
+        requestAs: [Int].self,
+        responseAs: Int.self
       )
       do {
         _ = try await function.call([])
@@ -412,10 +420,10 @@ class IntegrationTests: XCTestCase {
     let expectation = expectation(description: #function)
     let function = functions.httpsCallable(
       "explicitErrorTest",
-      requestType: [Int].self,
-      responseType: Int.self
+      requestAs: [Int].self,
+      responseAs: Int.self
     )
-    try function.call([]) { result in
+    function.call([]) { result in
       do {
         _ = try result.get()
       } catch {
@@ -435,8 +443,8 @@ class IntegrationTests: XCTestCase {
     func testExplicitErrorAsync() async {
       let function = functions.httpsCallable(
         "explicitErrorTest",
-        requestType: [Int].self,
-        responseType: Int.self
+        requestAs: [Int].self,
+        responseAs: Int.self
       )
       do {
         _ = try await function.call([])
@@ -455,11 +463,11 @@ class IntegrationTests: XCTestCase {
     let expectation = expectation(description: #function)
     let function = functions.httpsCallable(
       "httpErrorTest",
-      requestType: [Int].self,
-      responseType: Int.self
+      requestAs: [Int].self,
+      responseAs: Int.self
     )
     XCTAssertNotNil(function)
-    try function.call([]) { result in
+    function.call([]) { result in
       do {
         _ = try result.get()
       } catch {
@@ -476,8 +484,8 @@ class IntegrationTests: XCTestCase {
     func testHttpErrorAsync() async {
       let function = functions.httpsCallable(
         "httpErrorTest",
-        requestType: [Int].self,
-        responseType: Int.self
+        requestAs: [Int].self,
+        responseAs: Int.self
       )
       do {
         _ = try await function.call([])
@@ -493,11 +501,11 @@ class IntegrationTests: XCTestCase {
     let expectation = expectation(description: #function)
     var function = functions.httpsCallable(
       "timeoutTest",
-      requestType: [Int].self,
-      responseType: Int.self
+      requestAs: [Int].self,
+      responseAs: Int.self
     )
     function.timeoutInterval = 0.05
-    try function.call([]) { result in
+    function.call([]) { result in
       do {
         _ = try result.get()
       } catch {
@@ -516,8 +524,8 @@ class IntegrationTests: XCTestCase {
     func testTimeoutAsync() async {
       var function = functions.httpsCallable(
         "timeoutTest",
-        requestType: [Int].self,
-        responseType: Int.self
+        requestAs: [Int].self,
+        responseAs: Int.self
       )
       function.timeoutInterval = 0.05
       do {
@@ -543,9 +551,9 @@ class IntegrationTests: XCTestCase {
       null: nil
     )
     let function = functions.httpsCallable("dataTest",
-                                           requestType: DataTestRequest.self,
-                                           responseType: DataTestResponse.self)
-    try function(data) { result in
+                                           requestAs: DataTestRequest.self,
+                                           responseAs: DataTestResponse.self)
+    function(data) { result in
       do {
         let response = try result.get()
         let expected = DataTestResponse(
@@ -575,8 +583,8 @@ class IntegrationTests: XCTestCase {
       )
 
       let function = functions.httpsCallable("dataTest",
-                                             requestType: DataTestRequest.self,
-                                             responseType: DataTestResponse.self)
+                                             requestAs: DataTestRequest.self,
+                                             responseAs: DataTestResponse.self)
 
       let response = try await function(data)
       let expected = DataTestResponse(
@@ -600,7 +608,7 @@ class IntegrationTests: XCTestCase {
     )
     let function: Callable<DataTestRequest, DataTestResponse> = functions.httpsCallable("dataTest")
 
-    try function(data) { result in
+    function(data) { result in
       do {
         let response = try result.get()
         let expected = DataTestResponse(

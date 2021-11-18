@@ -16,7 +16,7 @@ import Foundation
 
 import XCTest
 
-class TestStructureEncoder: XCTestCase {
+class TestFirebaseDataEncoder: XCTestCase {
   // MARK: - Encoding Top-Level Empty Types
 
   func testEncodingTopLevelEmptyStruct() {
@@ -215,14 +215,14 @@ class TestStructureEncoder: XCTestCase {
     func localTestRoundTrip<T: Codable & Equatable>(of value: T) {
       var payload: Any! = nil
       do {
-        let encoder = StructureEncoder()
+        let encoder = FirebaseDataEncoder()
         payload = try encoder.encode(value)
       } catch {
         XCTFail("Failed to encode \(T.self): \(error)")
       }
 
       do {
-        let decoder = StructureDecoder()
+        let decoder = FirebaseDataDecoder()
         let decoded = try decoder.decode(T.self, from: payload!)
 
         /// `snprintf`'s `%g`, which `JSONSerialization` uses internally for double values, does not respect
@@ -474,12 +474,12 @@ class TestStructureEncoder: XCTestCase {
   }
 
   func testEncodingNonConformingFloatStrings() {
-    let encodingStrategy: StructureEncoder.NonConformingFloatEncodingStrategy = .convertToString(
+    let encodingStrategy: FirebaseDataEncoder.NonConformingFloatEncodingStrategy = .convertToString(
       positiveInfinity: "INF",
       negativeInfinity: "-INF",
       nan: "NaN"
     )
-    let decodingStrategy: StructureDecoder.NonConformingFloatDecodingStrategy = .convertFromString(
+    let decodingStrategy: FirebaseDataDecoder.NonConformingFloatDecodingStrategy = .convertFromString(
       positiveInfinity: "INF",
       negativeInfinity: "-INF",
       nan: "NaN"
@@ -581,7 +581,7 @@ class TestStructureEncoder: XCTestCase {
       let expected = ["\(test.1)": "test"]
       let encoded = EncodeMe(keyName: test.0)
 
-      let encoder = StructureEncoder()
+      let encoder = FirebaseDataEncoder()
       encoder.keyEncodingStrategy = .convertToSnakeCase
       let result = try! encoder.encode(encoded)
 
@@ -593,7 +593,7 @@ class TestStructureEncoder: XCTestCase {
     let expected = ["QQQhello": "test"]
     let encoded = EncodeMe(keyName: "hello")
 
-    let encoder = StructureEncoder()
+    let encoder = FirebaseDataEncoder()
     let customKeyConversion = { (_ path: [CodingKey]) -> CodingKey in
       let key = _TestKey(stringValue: "QQQ" + path.last!.stringValue)!
       return key
@@ -607,7 +607,7 @@ class TestStructureEncoder: XCTestCase {
   func testEncodingDictionaryStringKeyConversionUntouched() {
     let toEncode = ["leaveMeAlone": "test"]
 
-    let encoder = StructureEncoder()
+    let encoder = FirebaseDataEncoder()
     encoder.keyEncodingStrategy = .convertToSnakeCase
     let result = try! encoder.encode(toEncode)
 
@@ -625,7 +625,7 @@ class TestStructureEncoder: XCTestCase {
   func testEncodingDictionaryFailureKeyPath() {
     let toEncode: [String: EncodeFailure] = ["key": EncodeFailure(someValue: Double.nan)]
 
-    let encoder = StructureEncoder()
+    let encoder = FirebaseDataEncoder()
     encoder.keyEncodingStrategy = .convertToSnakeCase
     do {
       _ = try encoder.encode(toEncode)
@@ -642,7 +642,7 @@ class TestStructureEncoder: XCTestCase {
     let toEncode: [String: [String: EncodeFailureNested]] =
       ["key": ["sub_key": EncodeFailureNested(nestedValue: EncodeFailure(someValue: Double.nan))]]
 
-    let encoder = StructureEncoder()
+    let encoder = FirebaseDataEncoder()
     encoder.keyEncodingStrategy = .convertToSnakeCase
     do {
       _ = try encoder.encode(toEncode)
@@ -672,7 +672,7 @@ class TestStructureEncoder: XCTestCase {
     let encoded =
       EncodeNestedNested(outerValue: EncodeNested(nestedValue: EncodeMe(keyName: "helloWorld")))
 
-    let encoder = StructureEncoder()
+    let encoder = FirebaseDataEncoder()
     var callCount = 0
 
     let customKeyConversion = { (_ path: [CodingKey]) -> CodingKey in
@@ -757,7 +757,7 @@ class TestStructureEncoder: XCTestCase {
       // This structure contains the camel case key that the test object should decode with, then it uses the snake case key (test.0) as the actual key for the boolean value.
       let input = ["camelCaseKey": "\(test.1)", "\(test.0)": true] as [String: Any]
 
-      let decoder = StructureDecoder()
+      let decoder = FirebaseDataDecoder()
       decoder.keyDecodingStrategy = .convertFromSnakeCase
 
       let result = try! decoder.decode(DecodeMe.self, from: input)
@@ -770,7 +770,7 @@ class TestStructureEncoder: XCTestCase {
 
   func testDecodingKeyStrategyCustom() {
     let input = ["----hello": "test"]
-    let decoder = StructureDecoder()
+    let decoder = FirebaseDataDecoder()
     let customKeyConversion = { (_ path: [CodingKey]) -> CodingKey in
       // This converter removes the first 4 characters from the start of all string keys, if it has more than 4 characters
       let string = path.last!.stringValue
@@ -786,7 +786,7 @@ class TestStructureEncoder: XCTestCase {
 
   func testDecodingDictionaryStringKeyConversionUntouched() {
     let input = ["leave_me_alone": "test"]
-    let decoder = StructureDecoder()
+    let decoder = FirebaseDataDecoder()
     decoder.keyDecodingStrategy = .convertFromSnakeCase
     let result = try! decoder.decode([String: String].self, from: input)
 
@@ -795,7 +795,7 @@ class TestStructureEncoder: XCTestCase {
 
   func testDecodingDictionaryFailureKeyPath() {
     let input = ["leave_me_alone": "test"]
-    let decoder = StructureDecoder()
+    let decoder = FirebaseDataDecoder()
     decoder.keyDecodingStrategy = .convertFromSnakeCase
     do {
       _ = try decoder.decode([String: Int].self, from: input)
@@ -817,7 +817,7 @@ class TestStructureEncoder: XCTestCase {
 
   func testDecodingDictionaryFailureKeyPathNested() {
     let input = ["top_level": ["sub_level": ["nested_value": ["int_value": "not_an_int"]]]]
-    let decoder = StructureDecoder()
+    let decoder = FirebaseDataDecoder()
     decoder.keyDecodingStrategy = .convertFromSnakeCase
     do {
       _ = try decoder.decode([String: [String: DecodeFailureNested]].self, from: input)
@@ -839,7 +839,7 @@ class TestStructureEncoder: XCTestCase {
   func testEncodingKeyStrategySnakeGenerated() {
     // Test that this works with a struct that has automatically generated keys
     let input = ["this_is_camel_case": "test"]
-    let decoder = StructureDecoder()
+    let decoder = FirebaseDataDecoder()
     decoder.keyDecodingStrategy = .convertFromSnakeCase
     let result = try! decoder.decode(DecodeMe3.self, from: input)
 
@@ -848,7 +848,7 @@ class TestStructureEncoder: XCTestCase {
 
   func testDecodingKeyStrategyCamelGenerated() {
     let encoded = DecodeMe3(thisIsCamelCase: "test")
-    let encoder = StructureEncoder()
+    let encoder = FirebaseDataEncoder()
     encoder.keyEncodingStrategy = .convertToSnakeCase
     let result = try! encoder.encode(encoded)
     XCTAssertEqual(["this_is_camel_case": "test"], result as? [String: String])
@@ -867,7 +867,7 @@ class TestStructureEncoder: XCTestCase {
 
     // Decoding
     let input = ["foo_bar": "test", "this_is_camel_case_too": "test2"]
-    let decoder = StructureDecoder()
+    let decoder = FirebaseDataDecoder()
     decoder.keyDecodingStrategy = .convertFromSnakeCase
     let decodingResult = try! decoder.decode(DecodeMe4.self, from: input)
 
@@ -876,7 +876,7 @@ class TestStructureEncoder: XCTestCase {
 
     // Encoding
     let encoded = DecodeMe4(thisIsCamelCase: "test", thisIsCamelCaseToo: "test2")
-    let encoder = StructureEncoder()
+    let encoder = FirebaseDataEncoder()
     encoder.keyEncodingStrategy = .convertToSnakeCase
     let encodingResult = try! encoder.encode(encoded)
     XCTAssertEqual(
@@ -922,7 +922,7 @@ class TestStructureEncoder: XCTestCase {
     // Decoding
     // This input has a dictionary with two keys, but only one will end up in the container
     let input = ["unused key 1": "test1", "unused key 2": "test2"]
-    let decoder = StructureDecoder()
+    let decoder = FirebaseDataDecoder()
     decoder.keyDecodingStrategy = .custom(customKeyConversion)
 
     let decodingResult = try! decoder.decode(DecodeMe5.self, from: input)
@@ -931,7 +931,7 @@ class TestStructureEncoder: XCTestCase {
 
     // Encoding
     let encoded = DecodeMe5()
-    let encoder = StructureEncoder()
+    let encoder = FirebaseDataEncoder()
     encoder.keyEncodingStrategy = .custom(customKeyConversion)
     let decodingResult2 = try! encoder.encode(encoded)
 
@@ -942,7 +942,7 @@ class TestStructureEncoder: XCTestCase {
   // MARK: - Encoder Features
 
   func testNestedContainerCodingPaths() {
-    let encoder = StructureEncoder()
+    let encoder = FirebaseDataEncoder()
     do {
       _ = try encoder.encode(NestedContainersTestType())
     } catch let error as NSError {
@@ -951,7 +951,7 @@ class TestStructureEncoder: XCTestCase {
   }
 
   func testSuperEncoderCodingPaths() {
-    let encoder = StructureEncoder()
+    let encoder = FirebaseDataEncoder()
     do {
       _ = try encoder.encode(NestedContainersTestType(testSuperEncoder: true))
     } catch let error as NSError {
@@ -975,7 +975,7 @@ class TestStructureEncoder: XCTestCase {
   }
 
   func testInterceptURL() {
-    // Want to make sure StructureEncoder writes out single-value URLs, not the keyed encoding.
+    // Want to make sure FirebaseDataEncoder writes out single-value URLs, not the keyed encoding.
     let expected = "http://swift.org"
     let url = URL(string: "http://swift.org")!
     _testRoundTrip(of: url, expected: expected)
@@ -1014,13 +1014,13 @@ class TestStructureEncoder: XCTestCase {
   }
 
   func testDecodingConcreteTypeParameter() {
-    let encoder = StructureEncoder()
+    let encoder = FirebaseDataEncoder()
     guard let value = try? encoder.encode(Employee.testValue) else {
       XCTFail("Unable to encode Employee.")
       return
     }
 
-    let decoder = StructureDecoder()
+    let decoder = FirebaseDataDecoder()
     guard let decoded = try? decoder.decode(Employee.self as Person.Type, from: value) else {
       XCTFail("Failed to decode Employee as Person.")
       return
@@ -1061,7 +1061,7 @@ class TestStructureEncoder: XCTestCase {
     //
     // The issue at hand reproduces when you have a referencing encoder (superEncoder() creates one) that has a container on the stack (unkeyedContainer() adds one) that encodes a value going through box_() (Array does that) that encodes something which throws (Float.infinity does that).
     // When reproducing, this will cause a test failure via fatalError().
-    _ = try? StructureEncoder().encode(ReferencingEncoderWrapper([Float.infinity]))
+    _ = try? FirebaseDataEncoder().encode(ReferencingEncoderWrapper([Float.infinity]))
   }
 
   func testEncoderStateThrowOnEncodeCustomDate() {
@@ -1078,7 +1078,7 @@ class TestStructureEncoder: XCTestCase {
     }
 
     // The closure needs to push a container before throwing an error to trigger.
-    let encoder = StructureEncoder()
+    let encoder = FirebaseDataEncoder()
     encoder.dateEncodingStrategy = .custom { _, encoder in
       _ = encoder.unkeyedContainer()
       enum CustomError: Error { case foo }
@@ -1102,7 +1102,7 @@ class TestStructureEncoder: XCTestCase {
     }
 
     // The closure needs to push a container before throwing an error to trigger.
-    let encoder = StructureEncoder()
+    let encoder = FirebaseDataEncoder()
     encoder.dataEncodingStrategy = .custom { _, encoder in
       _ = encoder.unkeyedContainer()
       enum CustomError: Error { case foo }
@@ -1120,12 +1120,12 @@ class TestStructureEncoder: XCTestCase {
     // Once Array decoding begins, 1 is pushed onto the container stack ([[1,2,3], 1]), and 1 is attempted to be decoded as String. This throws a .typeMismatch, but the container is not popped off the stack.
     // When attempting to decode [Int], the container stack is still ([[1,2,3], 1]), and 1 fails to decode as [Int].
     let input = [1, 2, 3]
-    _ = try! StructureDecoder().decode(EitherDecodable<[String], [Int]>.self, from: input)
+    _ = try! FirebaseDataDecoder().decode(EitherDecodable<[String], [Int]>.self, from: input)
   }
 
   func testDecoderStateThrowOnDecodeCustomDate() {
     // This test is identical to testDecoderStateThrowOnDecode, except we're going to fail because our closure throws an error, not because we hit a type mismatch.
-    let decoder = StructureDecoder()
+    let decoder = FirebaseDataDecoder()
     decoder.dateDecodingStrategy = .custom { decoder in
       enum CustomError: Error { case foo }
       throw CustomError.foo
@@ -1137,7 +1137,7 @@ class TestStructureEncoder: XCTestCase {
 
   func testDecoderStateThrowOnDecodeCustomData() {
     // This test is identical to testDecoderStateThrowOnDecode, except we're going to fail because our closure throws an error, not because we hit a type mismatch.
-    let decoder = StructureDecoder()
+    let decoder = FirebaseDataDecoder()
     decoder.dataDecodingStrategy = .custom { decoder in
       enum CustomError: Error { case foo }
       throw CustomError.foo
@@ -1155,34 +1155,34 @@ class TestStructureEncoder: XCTestCase {
 
   private func _testEncodeFailure<T: Encodable>(of value: T) {
     do {
-      _ = try StructureEncoder().encode(value)
+      _ = try FirebaseDataEncoder().encode(value)
       XCTFail("Encode of top-level \(T.self) was expected to fail.")
     } catch {}
   }
 
   private func _testRoundTrip<T, U>(of value: T,
                                     expected: U,
-                                    dateEncodingStrategy: StructureEncoder
+                                    dateEncodingStrategy: FirebaseDataEncoder
                                       .DateEncodingStrategy = .deferredToDate,
-                                    dateDecodingStrategy: StructureDecoder
+                                    dateDecodingStrategy: FirebaseDataDecoder
                                       .DateDecodingStrategy = .deferredToDate,
-                                    dataEncodingStrategy: StructureEncoder
+                                    dataEncodingStrategy: FirebaseDataEncoder
                                       .DataEncodingStrategy = .base64,
-                                    dataDecodingStrategy: StructureDecoder
+                                    dataDecodingStrategy: FirebaseDataDecoder
                                       .DataDecodingStrategy = .base64,
-                                    keyEncodingStrategy: StructureEncoder
+                                    keyEncodingStrategy: FirebaseDataEncoder
                                       .KeyEncodingStrategy = .useDefaultKeys,
-                                    keyDecodingStrategy: StructureDecoder
+                                    keyDecodingStrategy: FirebaseDataDecoder
                                       .KeyDecodingStrategy = .useDefaultKeys,
-                                    nonConformingFloatEncodingStrategy: StructureEncoder
+                                    nonConformingFloatEncodingStrategy: FirebaseDataEncoder
                                       .NonConformingFloatEncodingStrategy = .throw,
-                                    nonConformingFloatDecodingStrategy: StructureDecoder
+                                    nonConformingFloatDecodingStrategy: FirebaseDataDecoder
                                       .NonConformingFloatDecodingStrategy = .throw)
     where T: Codable,
     T: Equatable, U: Equatable {
     var payload: Any! = nil
     do {
-      let encoder = StructureEncoder()
+      let encoder = FirebaseDataEncoder()
       encoder.dateEncodingStrategy = dateEncodingStrategy
       encoder.dataEncodingStrategy = dataEncodingStrategy
       encoder.nonConformingFloatEncodingStrategy = nonConformingFloatEncodingStrategy
@@ -1199,7 +1199,7 @@ class TestStructureEncoder: XCTestCase {
     )
 
     do {
-      let decoder = StructureDecoder()
+      let decoder = FirebaseDataDecoder()
       decoder.dateDecodingStrategy = dateDecodingStrategy
       decoder.dataDecodingStrategy = dataDecodingStrategy
       decoder.nonConformingFloatDecodingStrategy = nonConformingFloatDecodingStrategy
@@ -1212,26 +1212,26 @@ class TestStructureEncoder: XCTestCase {
   }
 
   private func _testRoundTrip<T>(of value: T,
-                                 dateEncodingStrategy: StructureEncoder
+                                 dateEncodingStrategy: FirebaseDataEncoder
                                    .DateEncodingStrategy = .deferredToDate,
-                                 dateDecodingStrategy: StructureDecoder
+                                 dateDecodingStrategy: FirebaseDataDecoder
                                    .DateDecodingStrategy = .deferredToDate,
-                                 dataEncodingStrategy: StructureEncoder
+                                 dataEncodingStrategy: FirebaseDataEncoder
                                    .DataEncodingStrategy = .base64,
-                                 dataDecodingStrategy: StructureDecoder
+                                 dataDecodingStrategy: FirebaseDataDecoder
                                    .DataDecodingStrategy = .base64,
-                                 keyEncodingStrategy: StructureEncoder
+                                 keyEncodingStrategy: FirebaseDataEncoder
                                    .KeyEncodingStrategy = .useDefaultKeys,
-                                 keyDecodingStrategy: StructureDecoder
+                                 keyDecodingStrategy: FirebaseDataDecoder
                                    .KeyDecodingStrategy = .useDefaultKeys,
-                                 nonConformingFloatEncodingStrategy: StructureEncoder
+                                 nonConformingFloatEncodingStrategy: FirebaseDataEncoder
                                    .NonConformingFloatEncodingStrategy = .throw,
-                                 nonConformingFloatDecodingStrategy: StructureDecoder
+                                 nonConformingFloatDecodingStrategy: FirebaseDataDecoder
                                    .NonConformingFloatDecodingStrategy = .throw) where T: Codable,
     T: Equatable {
     var payload: Any! = nil
     do {
-      let encoder = StructureEncoder()
+      let encoder = FirebaseDataEncoder()
       encoder.dateEncodingStrategy = dateEncodingStrategy
       encoder.dataEncodingStrategy = dataEncodingStrategy
       encoder.nonConformingFloatEncodingStrategy = nonConformingFloatEncodingStrategy
@@ -1242,7 +1242,7 @@ class TestStructureEncoder: XCTestCase {
     }
 
     do {
-      let decoder = StructureDecoder()
+      let decoder = FirebaseDataDecoder()
       decoder.dateDecodingStrategy = dateDecodingStrategy
       decoder.dataDecodingStrategy = dataDecodingStrategy
       decoder.nonConformingFloatDecodingStrategy = nonConformingFloatDecodingStrategy
@@ -1257,8 +1257,8 @@ class TestStructureEncoder: XCTestCase {
   private func _testRoundTripTypeCoercionFailure<T, U>(of value: T, as type: U.Type)
     where T: Codable, U: Codable {
     do {
-      let data = try StructureEncoder().encode(value)
-      _ = try StructureDecoder().decode(U.self, from: data)
+      let data = try FirebaseDataEncoder().encode(value)
+      _ = try FirebaseDataDecoder().decode(U.self, from: data)
       XCTFail("Coercion from \(T.self) to \(U.self) was expected to fail.")
     } catch {}
   }

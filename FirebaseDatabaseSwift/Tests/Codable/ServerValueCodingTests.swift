@@ -188,13 +188,4 @@ class DictionarySubject {
       XCTFail("Failed to decode \(X.self): \(error)", file: file, line: line)
     }
   }
-
-  func failsDecoding<X: Equatable & Codable>(to _: X.Type,
-                                             using decoder: Database.Decoder = .init()) -> Void {
-    XCTAssertThrowsError(
-      try decoder.decode(X.self, from: subject),
-      file: file,
-      line: line
-    )
-  }
 }
