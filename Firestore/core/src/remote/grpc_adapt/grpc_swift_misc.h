@@ -53,54 +53,6 @@ class ByteBuffer final {
   Status Dump(std::vector<Slice>* slices) const;
 };
 
-class WriteOptions {
- public:
-  WriteOptions();
-  WriteOptions(const WriteOptions& other);
-  WriteOptions& set_last_message();
-  /// Default assignment operator
-  WriteOptions& operator=(const WriteOptions& other) = default;
-};
-
-class GenericClientAsyncReaderWriter {
- public:
-  void StartCall(void* tag);
-  void Read(ByteBuffer* msg, void* tag);
-  void Write(const ByteBuffer& msg, void* tag);
-  void Write(const ByteBuffer& msg, WriteOptions options, void* tag);
-  void Finish(Status* status, void* tag);
-  void WriteLast(const ByteBuffer& msg, WriteOptions options, void* tag);
-};
-
-class GenericClientAsyncResponseReader {
- public:
-  void StartCall();
-  void Finish(ByteBuffer* msg, Status* status, void* tag);
-};
-
-class CompletionQueue {
- public:
-  bool Next(void** tag, bool* ok);
-  void Shutdown();
-};
-
-class GenericStub {
- public:
-  explicit GenericStub(std::shared_ptr<Channel> channel);
-  std::unique_ptr<GenericClientAsyncReaderWriter> PrepareCall(
-      ClientContext* context, const std::string& method, CompletionQueue* cq);
-
-  /// Setup a unary call to a named method \a method using \a context, and don't
-  /// start it. Let it be started explicitly with StartCall.
-  /// The return value only indicates whether or not registration of the call
-  /// succeeded (i.e. the call won't proceed if the return value is nullptr).
-  std::unique_ptr<GenericClientAsyncResponseReader> PrepareUnaryCall(
-      ClientContext* context,
-      const std::string& method,
-      const ByteBuffer& request,
-      CompletionQueue* cq);
-};
-
 class GrpcLibraryCodegen {};
 
 static std::string Version() {

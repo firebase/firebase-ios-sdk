@@ -52,6 +52,10 @@ void ClientContext::AddMetadata(const std::string& meta_key,
   impl_->AddMetadata(meta_key, meta_value);
 }
 
+grpc_connectivity_state Channel::GetState(bool try_to_connect) {
+  return GRPC_CHANNEL_SHUTDOWN;
+}
+
 class ChannelImpl : public Channel {
  public:
   explicit ChannelImpl(ClientConnectionShim* shim) : shim_(shim) {

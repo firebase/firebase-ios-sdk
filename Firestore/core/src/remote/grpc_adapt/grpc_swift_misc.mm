@@ -48,65 +48,9 @@ Status ByteBuffer::Dump(std::vector<Slice>* slices) const {
   return Status();
 }
 
-WriteOptions::WriteOptions() {
-}
-WriteOptions::WriteOptions(const WriteOptions& other) {
-}
-WriteOptions& WriteOptions::set_last_message() {
-  return *this;
-}
-
-void GenericClientAsyncReaderWriter::StartCall(void* tag) {
-}
-void GenericClientAsyncReaderWriter::Read(ByteBuffer* msg, void* tag) {
-}
-void GenericClientAsyncReaderWriter::Write(const ByteBuffer& msg, void* tag) {
-}
-void GenericClientAsyncReaderWriter::Write(const ByteBuffer& msg,
-                                           WriteOptions options,
-                                           void* tag) {
-}
-void GenericClientAsyncReaderWriter::Finish(Status* status, void* tag) {
-}
-void GenericClientAsyncReaderWriter::WriteLast(const ByteBuffer& msg,
-                                               WriteOptions options,
-                                               void* tag) {
-}
-
-void GenericClientAsyncResponseReader::StartCall() {
-}
-void GenericClientAsyncResponseReader::Finish(ByteBuffer* msg,
-                                              Status* status,
-                                              void* tag) {
-}
-
-bool CompletionQueue::Next(void** tag, bool* ok) {
-  return false;
-}
-void CompletionQueue::Shutdown() {
-}
-
-grpc_connectivity_state Channel::GetState(bool try_to_connect) {
-  return GRPC_CHANNEL_SHUTDOWN;
-}
-
 void ChannelArguments::SetSslTargetNameOverride(const std::string& name) {
 }
 void ChannelArguments::SetInt(const std::string& key, int value) {
-}
-
-GenericStub::GenericStub(std::shared_ptr<Channel> channel) {
-}
-std::unique_ptr<GenericClientAsyncReaderWriter> GenericStub::PrepareCall(
-    ClientContext* context, const std::string& method, CompletionQueue* cq) {
-  return nullptr;
-}
-std::unique_ptr<GenericClientAsyncResponseReader> GenericStub::PrepareUnaryCall(
-    ClientContext* context,
-    const std::string& method,
-    const ByteBuffer& request,
-    CompletionQueue* cq) {
-  return nullptr;
 }
 
 }  // namespace grpc_adapt
