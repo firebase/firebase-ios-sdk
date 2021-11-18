@@ -18,6 +18,6 @@ import FirebaseDatabase
 import FirebaseSharedSwift
 
 extension Database {
-  public typealias Encoder = StructureEncoder
-  public typealias Decoder = StructureDecoder
+  public typealias Encoder = FirebaseDataEncoder
+  public typealias Decoder = FirebaseDataDecoder
 }
