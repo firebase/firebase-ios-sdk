@@ -17,23 +17,35 @@
 #define FIRESTORE_CORE_SRC_REMOTE_GRPC_ADAPT_GRPC_SWIFT_CHANNEL_H_
 
 #include <map>
+#include <memory>
 
 #include "Firestore/core/src/remote/grpc_adapt/grpc_swift_string_ref.h"
+#include "absl/memory/memory.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
 namespace grpc_adapt {
 
+class ClientContextImpl;
+
 class ClientContext {
  public:
   ClientContext();
   ~ClientContext();
-
   void AddMetadata(const std::string& meta_key, const std::string& meta_value);
-  void TryCancel();
-  const std::multimap<string_ref, string_ref>& GetServerInitialMetadata() const;
-  void set_initial_metadata_corked(bool);
+  void TryCancel() {
+  }
+  const std::multimap<string_ref, string_ref>& GetServerInitialMetadata()
+      const {
+    return map_;
+  }
+  void set_initial_metadata_corked(bool) {
+  }
+
+ private:
+  ClientContextImpl* impl_ = nullptr;
+  std::multimap<string_ref, string_ref> map_;
 };
 
 /** Connectivity state of a channel. */

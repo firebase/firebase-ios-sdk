@@ -21,6 +21,7 @@
 
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/string_apple.h"
+#include "absl/memory/memory.h"
 
 namespace firebase {
 namespace firestore {
@@ -30,20 +31,25 @@ namespace grpc_adapt {
 using firebase::firestore::util::MakeNSString;
 using firebase::firestore::util::MakeString;
 
-ClientContext::ClientContext() {
+class ClientContextImpl {
+ public:
+  void AddMetadata(const std::string& meta_key, const std::string& meta_value) {
+    [shim_ addMetadataWithName:MakeNSString(meta_key)
+                         value:MakeNSString(meta_value)];
+  }
+
+ private:
+  CallOptionsShim* shim_;
+};
+
+ClientContext::ClientContext() : impl_(new ClientContextImpl()) {
 }
 ClientContext::~ClientContext() {
+  delete impl_;
 }
 void ClientContext::AddMetadata(const std::string& meta_key,
                                 const std::string& meta_value) {
-}
-void ClientContext::TryCancel() {
-}
-const std::multimap<string_ref, string_ref>&
-ClientContext::GetServerInitialMetadata() const {
-  return {};
-}
-void ClientContext::set_initial_metadata_corked(bool) {
+  impl_->AddMetadata(meta_key, meta_value);
 }
 
 class ChannelImpl : public Channel {

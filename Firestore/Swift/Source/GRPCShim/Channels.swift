@@ -72,4 +72,20 @@ import NIOSSL
     case .transientFailure: return ConnectivityStateShim.transientFailure
     }
   }
+
+  /*
+   @objc public func client() {
+       let client = Google_Firestore_V1_FirestoreClient.init(channel: self.connection)
+   }*/
+}
+
+@objc public class CallOptionsShim: NSObject {
+  private var options: CallOptions
+  private init(ops: CallOptions) {
+    options = ops
+  }
+
+  @objc public func addMetadata(name: String, value: String) {
+    options.customMetadata.add(name: name, value: name)
+  }
 }
