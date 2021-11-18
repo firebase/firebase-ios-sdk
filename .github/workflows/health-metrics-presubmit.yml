@@ -53,7 +53,7 @@ jobs:
     needs: check
     # Prevent the job from being triggered in fork.
     # always() will trigger this job when `needs` are skipped in a `merge` pull_request event.
-    if: always() && github.event.pull_request.head.repo.full_name == github.repository && (github.event.action != 'closed' || github.event.pull_request.merged)
+    if: always() && github.event.pull_request.head.repo.full_name == github.repository && ((github.event.action != 'closed' &&  github.event.pull_request.base.ref == 'master') || github.event.pull_request.merged)
     runs-on: macos-11
     strategy:
       matrix:
@@ -334,7 +334,7 @@ jobs:
         with:
           path: /Users/runner/test
       - name: Compare Diff and Post a Report
-        if: github.event.pull_request.merged != true && github.event.action != 'closed' && github.event.pull_request.head.repo.full_name == github.repository
+        if: github.event.pull_request.merged != true && github.event.action != 'closed' && github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.base.ref == 'master'
         env:
           base_commit: ${{ needs.check.outputs.target_branch_head }}
         run: |
