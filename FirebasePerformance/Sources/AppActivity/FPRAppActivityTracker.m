@@ -134,10 +134,10 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
   dispatch_once(&onceToken, ^{
     self.appStartTrace = [[FIRTrace alloc] initInternalTraceWithName:kFPRAppStartTraceName];
     [self.appStartTrace startWithStartTime:appStartTime];
-    [self.appStartTrace startStageNamed:kFPRAppStartStageNameTimeToUI startTime:appStartTime];
+//    [self.appStartTrace startStageNamed:kFPRAppStartStageNameTimeToUI startTime:appStartTime];
 
     // Start measuring time to first draw on the App start trace.
-    [self.appStartTrace startStageNamed:kFPRAppStartStageNameTimeToFirstDraw];
+//    [self.appStartTrace startStageNamed:kFPRAppStartStageNameTimeToFirstDraw];
   });
 
   // If ever the app start trace had it life in background stage, do not send the trace.
@@ -158,7 +158,7 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
   // Start measuring time to make the app interactive on the App start trace.
   static BOOL TTIStageStarted = NO;
   if (!TTIStageStarted) {
-    [self.appStartTrace startStageNamed:kFPRAppStartStageNameTimeToUserInteraction];
+//    [self.appStartTrace startStageNamed:kFPRAppStartStageNameTimeToUserInteraction];
     TTIStageStarted = YES;
 
     // Assumption here is that - the app becomes interactive in the next runloop cycle.
