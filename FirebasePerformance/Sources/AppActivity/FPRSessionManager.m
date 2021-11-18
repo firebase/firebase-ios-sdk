@@ -97,6 +97,7 @@ NSString *const kFPRSessionIdNotificationKey = @"kFPRSessionIdNotificationKey";
   FPRSessionOptions sessionOptions = FPRSessionOptionsNone;
   FPRGaugeManager *gaugeManager = [FPRGaugeManager sharedInstance];
   if ([self isGaugeCollectionEnabledForSessionId:sessionIdString]) {
+    [[FIRCrashlytics crashlytics] setCustomValue:@(YES) forKey:@"perf_verbosity_key"];
     [gaugeManager startCollectingGauges:FPRGaugeCPU | FPRGaugeMemory forSessionId:sessionIdString];
     sessionOptions = FPRSessionOptionsGauges;
   } else {
