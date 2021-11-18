@@ -532,8 +532,8 @@ let package = Package(
       name: "FirebaseSharedSwift",
       path: "FirebaseSharedSwift/Sources",
       exclude: [
-        "third_party/StructureEncoder/LICENSE",
-        "third_party/StructureEncoder/METADATA",
+        "third_party/FirebaseDataEncoder/LICENSE",
+        "third_party/FirebaseDataEncoder/METADATA",
       ]
     ),
     .testTarget(
