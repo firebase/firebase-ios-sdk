@@ -159,7 +159,7 @@
       };
       NSError *error;
       NSData *crashlyticsSessionJsonBreadcrumb =
-          [NSJSONSerialization dataWithJSONObject:crashlyticsTraceBreadcrumb options:0 error:&error];
+          [NSJSONSerialization dataWithJSONObject:crashlyticsTraceBreadcrumb options:NSJSONWritingPrettyPrinted error:&error];
       if (!crashlyticsSessionJsonBreadcrumb) {
         NSLog(@"Got an error: %@", error);
       } else {
@@ -213,7 +213,7 @@
     };
     NSError *error;
     NSData *crashlyticsSessionJsonBreadcrumb =
-        [NSJSONSerialization dataWithJSONObject:crashlyticsTraceBreadcrumb options:0 error:&error];
+        [NSJSONSerialization dataWithJSONObject:crashlyticsTraceBreadcrumb options:NSJSONWritingPrettyPrinted error:&error];
     if (!crashlyticsSessionJsonBreadcrumb) {
       NSLog(@"Got an error: %@", error);
     } else {

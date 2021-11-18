@@ -116,7 +116,7 @@ NSString *const kFPRSessionIdNotificationKey = @"kFPRSessionIdNotificationKey";
   };
   NSError *error;
   NSData *crashlyticsSessionJsonBreadcrumb =
-      [NSJSONSerialization dataWithJSONObject:crashlyticsSessionBreadcrumb options:0 error:&error];
+      [NSJSONSerialization dataWithJSONObject:crashlyticsSessionBreadcrumb options:NSJSONWritingPrettyPrinted error:&error];
   if (!crashlyticsSessionJsonBreadcrumb) {
     NSLog(@"Got an error: %@", error);
   } else {

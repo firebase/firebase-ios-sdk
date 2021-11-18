@@ -217,7 +217,7 @@ NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
     };
     NSError *error;
     NSData *crashlyticsSessionJsonBreadcrumb =
-        [NSJSONSerialization dataWithJSONObject:crashlyticsTraceBreadcrumb options:0 error:&error];
+        [NSJSONSerialization dataWithJSONObject:crashlyticsTraceBreadcrumb options:NSJSONWritingPrettyPrinted error:&error];
     if (!crashlyticsSessionJsonBreadcrumb) {
       NSLog(@"Got an error: %@", error);
     } else {
@@ -285,7 +285,7 @@ NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
     };
     NSError *error;
     NSData *crashlyticsSessionJsonBreadcrumb =
-        [NSJSONSerialization dataWithJSONObject:crashlyticsTraceBreadcrumb options:0 error:&error];
+        [NSJSONSerialization dataWithJSONObject:crashlyticsTraceBreadcrumb options:NSJSONWritingPrettyPrinted error:&error];
     if (!crashlyticsSessionJsonBreadcrumb) {
       NSLog(@"Got an error: %@", error);
     } else {
